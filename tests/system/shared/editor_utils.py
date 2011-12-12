@@ -9,6 +9,7 @@ def placeCursorToLine(editor,line,isRegex=False):
     cursor = editor.textCursor()
     oldPosition = 0
     cursor.setPosition(oldPosition)
+    editor.setTextCursor(cursor)
     found = False
     if isRegex:
         regex = re.compile(line)

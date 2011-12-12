@@ -17,7 +17,7 @@ def main():
     # wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     testRenameId()
-
+    testFindUsages()
     invokeMenuItem("File", "Exit")
 
 def prepareTemplate(sourceExample):
@@ -78,7 +78,58 @@ def testRenameId():
         test.compare(originalText,formerTxt, "Comparing %s" % file.replace("Core.","").replace("\\",""))
     invokeMenuItem("File","Save All")
 
+def __invokeFindUsage__(treeView, filename, line, typings, expectedCount):
+    doubleClickFile(treeView, filename)
+    editor = waitForObject("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' "
+                       "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
+    if not placeCursorToLine(editor, line, True):
+        test.fatal("File seems to have changed... Canceling current test")
+        return
+    for ty in typings:
+        type(editor, ty)
+    openContextMenuOnTextCursorPosition(editor)
+    ctxtMenu = waitForObject("{type='QMenu' visible='1' unnamed='1'}")
+    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), "Find Usages"))
+    validateSearchResult(expectedCount)
+
+def testFindUsages():
+    test.log("Testing find usage of an ID")
+    navTree = waitForObject("{type='Utils::NavigationTreeView' unnamed='1' visible='1' "
+                            "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
+    __invokeFindUsage__(navTree, "focus\\.qml", "FocusScope\s*\{", ["<Down>"], 6)
+    test.log("Testing find usage of a property")
+    clickButton(waitForObject("{type='QToolButton' text='Clear' unnamed='1' visible='1' "
+                              "window=':Qt Creator_Core::Internal::MainWindow'}"))
+    __invokeFindUsage__(navTree, "focus\\.qml", "id: window", ["<Down>", "<Down>", "<Home>"], 26)
+
+def validateSearchResult(expectedCount):
+    searchResult = waitForObject(":Qt Creator_SearchResult_Core::Internal::OutputPaneToggleButton")
+    ensureChecked(searchResult)
+    resultTreeView = waitForObject("{type='Find::Internal::SearchResultTreeView' unnamed='1' "
+                                   "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
+    counterLabel = waitForObject("{type='QLabel' unnamed='1' visible='1' text?='*matches found.' "
+                                 "window=':Qt Creator_Core::Internal::MainWindow'}")
+    matches = cast((str(counterLabel.text)).split(" ", 1)[0], "int")
+    test.verify(matches==expectedCount, "Verfified match count.")
+    model = resultTreeView.model()
+    for row in range(model.rowCount()):
+        index = model.index(row, 0)
+        itemText = str(model.data(index).toString())
+        doubleClickItem(resultTreeView, maskSpecialCharsForSearchResult(itemText), 5, 5, 0, Qt.LeftButton)
+        test.log("%d occurrences in %s" % (model.rowCount(index), itemText))
+        for chRow in range(model.rowCount(index)):
+            chIndex = model.index(chRow, 0, index)
+            resultTreeView.scrollTo(chIndex)
+            text = str(chIndex.data())
+            rect = resultTreeView.visualRect(chIndex)
+            doubleClick(resultTreeView, rect.x+5, rect.y+5, 0, Qt.LeftButton)
+            editor = waitForObject("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' "
+                       "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
+            line = lineUnderCursor(editor)
+            test.compare(line, text)
+
 def doubleClickFile(navTree, file):
+    global templateDir
     treeElement = ("untitled.QML.%s/qml.%s" %
                    (maskSpecialCharsForProjectTree(templateDir),file))
     waitForObjectItem(navTree, treeElement)
@@ -88,6 +139,10 @@ def maskSpecialCharsForProjectTree(filename):
     filename = filename.replace("\\", "/").replace("_", "\\_").replace(".","\\.")
     # undoing mask operations on chars masked by mistake
     filename = filename.replace("/?","\\?").replace("/*","\\*")
+    return filename
+
+def maskSpecialCharsForSearchResult(filename):
+    filename = filename.replace("_", "\\_").replace(".","\\.")
     return filename
 
 def cleanup():
