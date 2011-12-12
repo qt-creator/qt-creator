@@ -85,7 +85,6 @@ public:
 
 public slots:
     void finishSearch();
-    void clear();
 
 signals:
     void activated(const Find::SearchResultItem &item);

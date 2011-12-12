@@ -454,20 +454,6 @@ void SearchResultWidget::finishSearch()
     m_cancelButton->setVisible(false);
 }
 
-void SearchResultWidget::clear()
-{
-    m_replaceTextEdit->setEnabled(false);
-    m_replaceButton->setEnabled(false);
-    m_replaceTextEdit->clear();
-    m_searchResultTreeView->clear();
-    m_count = 0;
-    m_label->setVisible(false);
-    m_searchTerm->setVisible(false);
-    m_cancelButton->setVisible(false);
-    updateMatchesFoundLabel();
-    m_infoBar.clear();
-}
-
 void SearchResultWidget::hideNoUndoWarning()
 {
     setShowWarningMessage(false);
