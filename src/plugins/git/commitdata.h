@@ -72,13 +72,13 @@ public:
     enum FileState {
         UntrackedFile = 0,
 
-        StagedFile = 1,
-        ModifiedFile = 2,
-        AddedFile = 3,
-        DeletedFile = 4,
-        RenamedFile = 8,
-        CopiedFile = 16,
-        UpdatedFile = 32,
+        StagedFile   = 0x01,
+        ModifiedFile = 0x02,
+        AddedFile    = 0x04,
+        DeletedFile  = 0x08,
+        RenamedFile  = 0x10,
+        CopiedFile   = 0x20,
+        UpdatedFile  = 0x40,
 
         ModifiedStagedFile = StagedFile | ModifiedFile,
         AddedStagedFile = StagedFile | AddedFile,
