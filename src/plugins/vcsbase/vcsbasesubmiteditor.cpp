@@ -84,6 +84,7 @@
 #include <QtGui/QCompleter>
 #include <QtGui/QLineEdit>
 #include <QtGui/QTextEdit>
+#include <cstring>
 
 enum { debug = 0 };
 enum { wantToolBar = 0 };
@@ -91,7 +92,10 @@ enum { wantToolBar = 0 };
 // Return true if word is meaningful and can be added to a completion model
 static bool acceptsWordForCompletion(const char *word)
 {
-    return !(word == 0 || word[0] == 0 || word[1] == 0 || word[2] == 0);
+    if (word == 0)
+        return false;
+    static const std::size_t minWordLength = 7;
+    return std::strlen(word) >= minWordLength;
 }
 
 // Return the class name which function belongs to
@@ -106,37 +110,6 @@ static const char *belongingClassName(const CPlusPlus::Function *function)
         if (funcBaseName != 0 && funcBaseName->identifier() != 0)
             return funcBaseName->identifier()->chars();
     }
-
-    return 0;
-}
-
-// Recursively return the core element type
-static const CPlusPlus::Type *pointerAndReferenceSimplified(const CPlusPlus::Type *type)
-{
-    const CPlusPlus::PointerType *ptrType = type != 0 ? type->asPointerType() : 0;
-    if (ptrType != 0) {
-        return pointerAndReferenceSimplified(ptrType->elementType().type());
-    }
-    else {
-        const CPlusPlus::ReferenceType *refType = type != 0 ? type->asReferenceType() : 0;
-        if (refType != 0)
-            return pointerAndReferenceSimplified(refType->elementType().type());
-        else
-            return type;
-    }
-}
-
-// Return the core and non-primitive type name (not void, int, float, pointer, ...)
-static const char *nonPrimitiveTypeName(const CPlusPlus::Type *type)
-{
-    if (type == 0)
-        return 0;
-
-    const CPlusPlus::Type *coreType = pointerAndReferenceSimplified(type);
-    const CPlusPlus::Name *coreTypeName =
-            coreType != 0 && coreType->isNamedType() ? coreType->asNamedType()->name() : 0;
-    if (coreTypeName != 0 && coreTypeName->identifier() != 0)
-        return coreTypeName->identifier()->chars();
 
     return 0;
 }
@@ -211,9 +184,10 @@ VCSBaseSubmitEditorPrivate::VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditor
     m_nickNameDialog(0)
 {
     QCompleter *completer = new QCompleter(q);
-    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    completer->setCaseSensitivity(Qt::CaseSensitive);
     completer->setModelSorting(QCompleter::CaseSensitivelySortedModel);
     m_widget->descriptionEdit()->setCompleter(completer);
+    m_widget->descriptionEdit()->setCompletionLengthThreshold(4);
 }
 
 VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *parameters,
@@ -528,39 +502,22 @@ void VCSBaseSubmitEditor::setFileModel(QAbstractItemModel *m, const QString &rep
             while (symPtr != ctrl->lastSymbol()) {
                 const CPlusPlus::Symbol *sym = *symPtr;
 
-                // Regular identifiers
-                if (sym->identifier() != 0 && acceptsWordForCompletion(sym->identifier()->chars()))
-                    uniqueSymbols.insert(sym->identifier()->chars());
-
-                // Handle specific cases
-                if (sym->isFunction()) {
-                    const CPlusPlus::Function *symFunc = sym->asFunction();
-
-                    // Get "Foo" in "void Foo::function() {}"
-                    if (!symFunc->isDeclaration()) {
-                        const char *className = belongingClassName(symFunc);
-                        if (acceptsWordForCompletion(className))
-                            uniqueSymbols.insert(className);
-                    }
-
-                    // Insert symbol for the return type
-                    const char *retTypeName = nonPrimitiveTypeName(symFunc->returnType().type());
-                    if (acceptsWordForCompletion(retTypeName))
-                        uniqueSymbols.insert(retTypeName);
+                const CPlusPlus::Identifier *symId = sym->identifier();
+                // Add any class, function or namespace identifiers
+                if ((sym->isClass() || sym->isFunction() || sym->isNamespace())
+                        && (symId != 0 && acceptsWordForCompletion(symId->chars())))
+                {
+                    uniqueSymbols.insert(symId->chars());
                 }
-                else if (sym->isArgument()) {
-                    const char *typeName = nonPrimitiveTypeName(sym->asArgument()->type().type());
-                    if (acceptsWordForCompletion(typeName))
-                        uniqueSymbols.insert(typeName);
+
+                // Handle specific case : get "Foo" in "void Foo::function() {}"
+                if (sym->isFunction() && !sym->asFunction()->isDeclaration()) {
+                    const char *className = belongingClassName(sym->asFunction());
+                    if (acceptsWordForCompletion(className))
+                        uniqueSymbols.insert(className);
                 }
 
                 ++symPtr;
-            }
-
-            // Insert macros
-            foreach (const CPlusPlus::Macro &macro, doc->definedMacros()) {
-                if (acceptsWordForCompletion(macro.name().constData()))
-                    uniqueSymbols.insert(macro.name());
             }
         }
     }
