@@ -582,6 +582,11 @@ QString SearchResult::textToReplace() const
     return m_widget->textToReplace();
 }
 
+int SearchResult::count() const
+{
+    return m_widget->count();
+}
+
 /*!
     \fn void SearchResult::addResult(const QString &fileName, int lineNumber, const QString &rowText, int searchTermStart, int searchTermLength, const QVariant &userData)
     \brief Adds a single result line to the search results.
@@ -599,6 +604,7 @@ void SearchResult::addResult(const QString &fileName, int lineNumber, const QStr
 {
     m_widget->addResult(fileName, lineNumber, lineText,
                         searchTermStart, searchTermLength, userData);
+    emit countChanged(m_widget->count());
 }
 
 /*!
@@ -611,6 +617,7 @@ void SearchResult::addResult(const QString &fileName, int lineNumber, const QStr
 void SearchResult::addResults(const QList<SearchResultItem> &items, AddMode mode)
 {
     m_widget->addResults(items, mode);
+    emit countChanged(m_widget->count());
 }
 
 /*!

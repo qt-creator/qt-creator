@@ -224,7 +224,8 @@ HEADERS += texteditorplugin.h \
     typingsettings.h \
     icodestylepreferences.h \
     codestylepool.h \
-    codestyleeditor.h
+    codestyleeditor.h \
+    basefilefind_p.h
 
 FORMS += \
     displaysettingspage.ui \

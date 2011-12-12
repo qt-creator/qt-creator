@@ -98,6 +98,7 @@ public:
     void setUserData(const QVariant &data);
     QVariant userData() const;
     QString textToReplace() const;
+    int count() const;
 
 public slots:
     void addResult(const QString &fileName, int lineNumber, const QString &lineText,
@@ -111,6 +112,7 @@ signals:
     void replaceButtonClicked(const QString &replaceText, const QList<Find::SearchResultItem> &checkedItems);
     void cancelled();
     void visibilityChanged(bool visible);
+    void countChanged(int count);
 
 private:
     SearchResult(Internal::SearchResultWidget *widget);

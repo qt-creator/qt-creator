@@ -99,15 +99,11 @@ private slots:
     void hideHighlightAll(bool visible);
 
 private:
-    QWidget *createProgressWidget();
     void runNewSearch(const QString &txt, Find::FindFlags findFlags,
                       Find::SearchResultWindow::SearchMode searchMode);
+    QFutureWatcher<Utils::FileSearchResultList> *watcherForSearch(Find::SearchResult *search);
 
-    QPointer<Find::SearchResult> m_currentSearch;
-    int m_currentSearchCount;
-
-    QFutureWatcher<Utils::FileSearchResultList> *m_watcher;
-    bool m_isSearching;
+    QMap<QFutureWatcher<Utils::FileSearchResultList> *, QPointer<Find::SearchResult> > m_watchers;
     QPointer<Find::IFindSupport> m_currentFindSupport;
 
     QLabel *m_resultLabel;
