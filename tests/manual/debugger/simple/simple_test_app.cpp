@@ -194,7 +194,7 @@ void dummyStatement(...) {}
 #       define BREAK_HERE asm("int $3; mov %eax, %eax")
 #   endif
 #else
-#   define BREAK_HERE /**/
+#   define BREAK_HERE dummyStatement()
 #endif
 
 #if USE_UNINITIALIZED_AUTOBREAK
@@ -204,7 +204,7 @@ void dummyStatement(...) {}
 #       define BREAK_UNINITIALIZED_HERE asm("int $3; mov %eax, %eax")
 #   endif
 #else
-#   define BREAK_UNINITIALIZED_HERE /**/
+#   define BREAK_UNINITIALIZED_HERE dummyStatement()
 #endif
 
 
