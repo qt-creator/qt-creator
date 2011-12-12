@@ -33,6 +33,7 @@
 #include "linuxdeviceconfiguration.h"
 #include "portlist.h"
 
+#include <utils/ssh/sshconnectionmanager.h>
 #include <utils/ssh/sshremoteprocessrunner.h>
 
 #include <QtCore/QString>
@@ -45,70 +46,37 @@ namespace Internal {
 class RemoteLinuxUsedPortsGathererPrivate
 {
  public:
-    RemoteLinuxUsedPortsGathererPrivate() : running(false) {}
+    RemoteLinuxUsedPortsGathererPrivate()
+    { }
 
-    SshRemoteProcessRunner procRunner;
     PortList portsToCheck;
     QList<int> usedPorts;
-    QByteArray remoteStdout;
-    QByteArray remoteStderr;
-    bool running; // TODO: Redundant due to being in sync with procRunner?
+    QByteArray keepSake;
 };
 
 } // namespace Internal
 
 using namespace Internal;
 
-RemoteLinuxUsedPortsGatherer::RemoteLinuxUsedPortsGatherer(QObject *parent) :
-    QObject(parent), d(new RemoteLinuxUsedPortsGathererPrivate)
+RemoteLinuxUsedPortsGatherer::RemoteLinuxUsedPortsGatherer(
+        const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration) :
+    SimpleRunner(deviceConfiguration,
+                 // Match
+                 //  0: 0100007F:706E 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 8141 1 ce498900 300 0 0 2 -1
+                 // and report   ^^^^ this local port number
+                 QLatin1String("FILE=/proc/net/tcp ; "
+                               "echo \"$SSH_CONNECTION\" | grep : > /dev/null && FILE=/proc/net/tcp6 ; "
+                               "sed 's/^\\s\\+[0-9a-fA-F]\\+:\\s\\+[0-9a-fA-F]\\+:\\([0-9a-fA-F]\\+\\)\\s.*$/\\1/' $FILE")),
+    d(new RemoteLinuxUsedPortsGathererPrivate)
 {
+    d->portsToCheck = deviceConfiguration->freePorts();
+
+    connect(this, SIGNAL(aboutToStart()), this, SLOT(cleanup()));
 }
 
 RemoteLinuxUsedPortsGatherer::~RemoteLinuxUsedPortsGatherer()
 {
     delete d;
-}
-
-void RemoteLinuxUsedPortsGatherer::start(const Utils::SshConnection::Ptr &connection,
-    const LinuxDeviceConfiguration::ConstPtr &devConf)
-{
-    if (d->running)
-        qWarning("Unexpected call of %s in running state", Q_FUNC_INFO);
-    d->portsToCheck = devConf->freePorts();
-    d->usedPorts.clear();
-    d->remoteStdout.clear();
-    d->remoteStderr.clear();
-    connect(&d->procRunner, SIGNAL(connectionError()), SLOT(handleConnectionError()));
-    connect(&d->procRunner, SIGNAL(processClosed(int)), SLOT(handleProcessClosed(int)));
-    connect(&d->procRunner, SIGNAL(processOutputAvailable(QByteArray)),
-        SLOT(handleRemoteStdOut(QByteArray)));
-    connect(&d->procRunner, SIGNAL(processErrorOutputAvailable(QByteArray)),
-        SLOT(handleRemoteStdErr(QByteArray)));
-    QString procFilePath;
-    int addressLength;
-    if (connection->ipProtocolVersion() == QAbstractSocket::IPv4Protocol) {
-        procFilePath = QLatin1String("/proc/net/tcp");
-        addressLength = 8;
-    } else {
-        procFilePath = QLatin1String("/proc/net/tcp6");
-        addressLength = 32;
-    }
-    const QString command = QString::fromLocal8Bit("sed "
-        "'s/.*: [[:xdigit:]]\\{%1\\}:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' %2")
-        .arg(addressLength).arg(procFilePath);
-
-    // TODO: We should not use an SshRemoteProcessRunner here, because we have to check
-    // for the type of the connection before we can say what the exact command line is.
-    d->procRunner.run(command.toUtf8(), connection->connectionParameters());
-    d->running = true;
-}
-
-void RemoteLinuxUsedPortsGatherer::stop()
-{
-    if (!d->running)
-        return;
-    d->running = false;
-    disconnect(&d->procRunner, 0, this, 0);
 }
 
 int RemoteLinuxUsedPortsGatherer::getNextFreePort(PortList *freePorts) const
@@ -126,12 +94,20 @@ QList<int> RemoteLinuxUsedPortsGatherer::usedPorts() const
     return d->usedPorts;
 }
 
-void RemoteLinuxUsedPortsGatherer::setupUsedPorts()
+void RemoteLinuxUsedPortsGatherer::handleStdOutput(const QByteArray &output)
 {
-    QList<QByteArray> portStrings = d->remoteStdout.split('\n');
-    portStrings.removeFirst();
+    QByteArray data = d->keepSake + output;
+
+    // make sure we only process complete lines:
+    int lastEol = output.lastIndexOf('\n');
+    if (lastEol != output.count() - 1) {
+        d->keepSake = data.mid(lastEol + 1);
+        data = data.left(lastEol);
+    }
+
+    QList<QByteArray> portStrings = data.split('\n');
     foreach (const QByteArray &portString, portStrings) {
-        if (portString.isEmpty())
+        if (portString.isEmpty() || portString.contains("local_address"))
             continue;
         bool ok;
         const int port = portString.toInt(&ok, 16);
@@ -143,61 +119,32 @@ void RemoteLinuxUsedPortsGatherer::setupUsedPorts()
                 Q_FUNC_INFO, portString.data());
         }
     }
-    emit portListReady();
 }
 
-void RemoteLinuxUsedPortsGatherer::handleConnectionError()
+void RemoteLinuxUsedPortsGatherer::cleanup()
 {
-    if (!d->running)
-        return;
-    emit error(tr("Connection error: %1").arg(d->procRunner.lastConnectionErrorString()));
-    stop();
+    d->keepSake.clear();
+    d->usedPorts.clear();
 }
 
-void RemoteLinuxUsedPortsGatherer::handleProcessClosed(int exitStatus)
+int RemoteLinuxUsedPortsGatherer::processFinished(int exitStatus)
 {
-    if (!d->running)
-        return;
-    QString errMsg;
-    switch (exitStatus) {
-    case SshRemoteProcess::FailedToStart:
-        errMsg = tr("Could not start remote process: %1")
-            .arg(d->procRunner.processErrorString());
-        break;
-    case SshRemoteProcess::KilledBySignal:
-        errMsg = tr("Remote process crashed: %1")
-            .arg(d->procRunner.processErrorString());
-        break;
-    case SshRemoteProcess::ExitedNormally:
-        if (d->procRunner.processExitCode() == 0) {
-            setupUsedPorts();
-        } else {
-            errMsg = tr("Remote process failed; exit code was %1.")
-                .arg(d->procRunner.processExitCode());
-        }
-        break;
-    default:
-        Q_ASSERT_X(false, Q_FUNC_INFO, "Invalid exit status");
+    if (!d->keepSake.isEmpty()) {
+        d->keepSake.append('\n');
+        handleStdOutput(d->keepSake);
     }
 
-    if (!errMsg.isEmpty()) {
-        if (!d->remoteStderr.isEmpty()) {
-            errMsg += tr("\nRemote error output was: %1")
-                .arg(QString::fromUtf8(d->remoteStderr));
-        }
-        emit error(errMsg);
+    if (usedPorts().isEmpty()) {
+        emit progressMessage("All specified ports are available.\n");
+    } else {
+        QString portList;
+        foreach (const int port, usedPorts())
+            portList += QString::number(port) + QLatin1String(", ");
+        portList.remove(portList.count() - 2, 2);
+        emit errorMessage(tr("The following specified ports are currently in use: %1\n")
+                          .arg(portList));
     }
-    stop();
-}
-
-void RemoteLinuxUsedPortsGatherer::handleRemoteStdOut(const QByteArray &output)
-{
-    d->remoteStdout += output;
-}
-
-void RemoteLinuxUsedPortsGatherer::handleRemoteStdErr(const QByteArray &output)
-{
-    d->remoteStderr += output;
+    return SimpleRunner::processFinished(exitStatus);
 }
 
 } // namespace RemoteLinux

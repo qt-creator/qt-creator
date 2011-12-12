@@ -33,9 +33,9 @@
 
 #include "remotelinux_export.h"
 
+#include "simplerunner.h"
+
 #include <QtCore/QList>
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
 
 QT_FORWARD_DECLARE_CLASS(QString)
 
@@ -51,33 +51,28 @@ namespace Internal {
 class RemoteLinuxUsedPortsGathererPrivate;
 } // namespace Internal
 
-class REMOTELINUX_EXPORT RemoteLinuxUsedPortsGatherer : public QObject
+class REMOTELINUX_EXPORT RemoteLinuxUsedPortsGatherer : public SimpleRunner
 {
     Q_OBJECT
-    Q_DISABLE_COPY(RemoteLinuxUsedPortsGatherer)
+
 public:
-    explicit RemoteLinuxUsedPortsGatherer(QObject *parent = 0);
+    explicit RemoteLinuxUsedPortsGatherer(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration);
     ~RemoteLinuxUsedPortsGatherer();
-    void start(const QSharedPointer<Utils::SshConnection> &connection,
-        const QSharedPointer<const LinuxDeviceConfiguration> &devConf);
-    void stop();
+
     int getNextFreePort(PortList *freePorts) const; // returns -1 if no more are left
     QList<int> usedPorts() const;
 
-signals:
-    void error(const QString &errMsg);
-    void portListReady();
+protected slots:
+    void handleStdOutput(const QByteArray &output);
+
+protected:
+    int processFinished(int exitStatus);
 
 private slots:
-    void handleConnectionError();
-    void handleProcessClosed(int exitStatus);
-    void handleRemoteStdOut(const QByteArray &output);
-    void handleRemoteStdErr(const QByteArray &output);
+    void cleanup();
 
 private:
-    void setupUsedPorts();
-
-    Internal::RemoteLinuxUsedPortsGathererPrivate * const d;
+    Internal::RemoteLinuxUsedPortsGathererPrivate *const d;
 };
 
 } // namespace RemoteLinux

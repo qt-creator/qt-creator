@@ -103,14 +103,14 @@ public:
     QPushButton *closeButton;
     PathChooser *sysrootPathChooser;
 
-    RemoteLinuxUsedPortsGatherer gatherer;
+    RemoteLinuxUsedPortsGatherer *gatherer;
     SshRemoteProcessRunner runner;
     QSettings *settings;
     QString remoteCommandLine;
 };
 
 StartGdbServerDialogPrivate::StartGdbServerDialogPrivate(StartGdbServerDialog *q)
-    : q(q), processList(0)
+    : q(q), processList(0), gatherer(0), settings(0)
 {
     settings = ICore::instance()->settings();
 
@@ -179,8 +179,6 @@ StartGdbServerDialog::StartGdbServerDialog(QWidget *parent) :
 
     d->deviceComboBox->setModel(devices);
     d->deviceComboBox->setCurrentIndex(d->settings->value(LastDevice).toInt());
-    connect(&d->gatherer, SIGNAL(error(QString)), SLOT(portGathererError(QString)));
-    connect(&d->gatherer, SIGNAL(portListReady()), SLOT(portListReady()));
     if (devices->rowCount() == 0) {
         d->tableView->setEnabled(false);
     } else {
@@ -215,6 +213,15 @@ StartGdbServerDialog::~StartGdbServerDialog()
 void StartGdbServerDialog::attachToDevice(int index)
 {
     LinuxDeviceConfigurations *devices = LinuxDeviceConfigurations::instance();
+
+    if (d->gatherer)
+        delete d->gatherer;
+
+    d->gatherer = new RemoteLinuxUsedPortsGatherer(devices->deviceAt(index));
+    connect(d->gatherer, SIGNAL(finished(RemoteLinux::LinuxDeviceTester::TestResult)),
+            this, SLOT(portListReady(RemoteLinux::LinuxDeviceTester::TestResult)));
+    connect(d->gatherer, SIGNAL(errorMessage(QString)), SLOT(portGathererError(QString)));
+
     delete d->processList;
     d->processList = new GenericRemoteLinuxProcessList(devices->deviceAt(index));
     d->proxyModel.setSourceModel(d->processList);
@@ -250,6 +257,8 @@ void StartGdbServerDialog::updateProcessList()
 
 void StartGdbServerDialog::attachToProcess()
 {
+    QTC_ASSERT(d->gatherer, return);
+
     const QModelIndexList &indexes =
             d->tableView->selectionModel()->selectedIndexes();
     if (indexes.empty())
@@ -258,7 +267,7 @@ void StartGdbServerDialog::attachToProcess()
 
     LinuxDeviceConfiguration::ConstPtr device = d->currentDevice();
     PortList ports = device->freePorts();
-    const int port = d->gatherer.getNextFreePort(&ports);
+    const int port = d->gatherer->getNextFreePort(&ports);
     const int row = d->proxyModel.mapToSource(indexes.first()).row();
     QTC_ASSERT(row >= 0, return);
     const int pid = d->processList->pidAt(row);
@@ -312,7 +321,11 @@ void StartGdbServerDialog::portListReady()
 void StartGdbServerDialog::startGdbServer()
 {
     LinuxDeviceConfiguration::ConstPtr device = d->currentDevice();
-    d->gatherer.start(SshConnection::create(device->sshParameters()), device);
+    if (d->gatherer)
+        delete d->gatherer;
+    d->gatherer = new RemoteLinuxUsedPortsGatherer(device);
+
+    d->gatherer->run();
 }
 
 void StartGdbServerDialog::attachToRemoteProcess()

@@ -62,7 +62,8 @@ class AbstractRemoteLinuxApplicationRunnerPrivate
 {
 public:
     AbstractRemoteLinuxApplicationRunnerPrivate(const RemoteLinuxRunConfiguration *runConfig)
-        : devConfig(runConfig->deviceConfig()),
+        : portsGatherer(runConfig->deviceConfig()),
+          devConfig(runConfig->deviceConfig()),
           remoteExecutable(runConfig->remoteExecutableFilePath()),
           appArguments(runConfig->arguments()),
           commandPrefix(runConfig->commandPrefix()),
@@ -167,7 +168,7 @@ void AbstractRemoteLinuxApplicationRunner::stop()
         emit remoteProcessFinished(InvalidExitCode);
         break;
     case GatheringPorts:
-        d->portsGatherer.stop();
+        d->portsGatherer.cancel();
         setInactive();
         emit remoteProcessFinished(InvalidExitCode);
         break;
@@ -307,7 +308,7 @@ void AbstractRemoteLinuxApplicationRunner::handleRemoteProcessFinished(int exitS
 
 void AbstractRemoteLinuxApplicationRunner::setInactive()
 {
-    d->portsGatherer.stop();
+    d->portsGatherer.cancel();
     if (d->connection) {
         disconnect(d->connection.data(), 0, this, 0);
         SshConnectionManager::instance().releaseConnection(d->connection);
@@ -422,7 +423,7 @@ void AbstractRemoteLinuxApplicationRunner::handleInitialCleanupDone(bool success
     }
 
     d->state = GatheringPorts;
-    d->portsGatherer.start(d->connection, d->devConfig);
+    d->portsGatherer.run();
 }
 
 void AbstractRemoteLinuxApplicationRunner::handleInitializationsDone(bool success)

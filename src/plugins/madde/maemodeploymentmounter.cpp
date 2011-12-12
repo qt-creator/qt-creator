@@ -52,7 +52,7 @@ MaemoDeploymentMounter::MaemoDeploymentMounter(QObject *parent)
     : QObject(parent),
       m_state(Inactive),
       m_mounter(new MaemoRemoteMounter(this)),
-      m_portsGatherer(new RemoteLinuxUsedPortsGatherer(this))
+      m_portsGatherer(0)
 {
     connect(m_mounter, SIGNAL(error(QString)), SLOT(handleMountError(QString)));
     connect(m_mounter, SIGNAL(mounted()), SLOT(handleMounted()));
@@ -61,11 +61,6 @@ MaemoDeploymentMounter::MaemoDeploymentMounter(QObject *parent)
         SIGNAL(reportProgress(QString)));
     connect(m_mounter, SIGNAL(debugOutput(QString)),
         SIGNAL(debugOutput(QString)));
-
-    connect(m_portsGatherer, SIGNAL(error(QString)),
-        SLOT(handlePortsGathererError(QString)));
-    connect(m_portsGatherer, SIGNAL(portListReady()),
-        SLOT(handlePortListReady()));
 }
 
 MaemoDeploymentMounter::~MaemoDeploymentMounter() {}
@@ -142,7 +137,12 @@ void MaemoDeploymentMounter::handleUnmounted()
         break;
     case UnmountingCurrentDirs:
         setState(GatheringPorts);
-        m_portsGatherer->start(m_connection, m_devConf);
+        if (m_portsGatherer)
+            delete m_portsGatherer;
+        m_portsGatherer = new RemoteLinuxUsedPortsGatherer(m_devConf);
+        connect(m_portsGatherer, SIGNAL(finished(RemoteLinux::LinuxDeviceTester::TestResult)),
+                this, SLOT(handlePortListReady(RemoteLinux::LinuxDeviceTester::TestResult)));
+        m_portsGatherer->run();
         break;
     case UnmountingCurrentMounts:
         setState(Inactive);
@@ -166,16 +166,20 @@ void MaemoDeploymentMounter::handlePortsGathererError(const QString &errorMsg)
     emit error(errorMsg);
 }
 
-void MaemoDeploymentMounter::handlePortListReady()
+void MaemoDeploymentMounter::handlePortListReady(LinuxDeviceTester::TestResult result)
 {
     QTC_ASSERT(m_state == GatheringPorts || m_state == Inactive, return);
 
     if (m_state == Inactive)
         return;
 
-    setState(Mounting);
-    m_freePorts = MaemoGlobal::freePorts(m_devConf, m_buildConfig->qtVersion());
-    m_mounter->mount(&m_freePorts, m_portsGatherer);
+    if (result == LinuxDeviceTester::TestFailure) {
+        handlePortsGathererError(tr("Failed to gather port information."));
+    } else {
+        setState(Mounting);
+        m_freePorts = MaemoGlobal::freePorts(m_devConf, m_buildConfig->qtVersion());
+        m_mounter->mount(&m_freePorts, m_portsGatherer);
+    }
 }
 
 void MaemoDeploymentMounter::handleMountError(const QString &errorMsg)

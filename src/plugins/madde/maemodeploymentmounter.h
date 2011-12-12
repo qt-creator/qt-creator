@@ -35,6 +35,7 @@
 
 #include "maemomountspecification.h"
 
+#include <remotelinux/linuxdevicetester.h>
 #include <remotelinux/portlist.h>
 
 #include <QtCore/QList>
@@ -79,7 +80,7 @@ private slots:
     void handleUnmounted();
     void handleMountError(const QString &errorMsg);
     void handlePortsGathererError(const QString &errorMsg);
-    void handlePortListReady();
+    void handlePortListReady(RemoteLinux::LinuxDeviceTester::TestResult result);
     void handleConnectionError();
 
 private:
@@ -96,7 +97,7 @@ private:
     QSharedPointer<Utils::SshConnection> m_connection;
     QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> m_devConf;
     MaemoRemoteMounter * const m_mounter;
-    RemoteLinux::RemoteLinuxUsedPortsGatherer * const m_portsGatherer;
+    RemoteLinux::RemoteLinuxUsedPortsGatherer *m_portsGatherer;
     RemoteLinux::PortList m_freePorts;
     QList<MaemoMountSpecification> m_mountSpecs;
     const Qt4ProjectManager::Qt4BuildConfiguration *m_buildConfig;

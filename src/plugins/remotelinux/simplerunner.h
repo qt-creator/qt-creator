@@ -29,43 +29,70 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
-#ifndef DEFAULTDEVICETESTDIALOG_H
-#define DEFAULTDEVICETESTDIALOG_H
 
-#include "linuxdevicetester.h"
+#ifndef SIMPLERUNNER_H
+#define SIMPLERUNNER_H
+
 #include "remotelinux_export.h"
 
-#include <QtGui/QDialog>
+#include <utils/ssh/sshconnection.h>
+
+#include <QtCore/QObject>
+
+QT_FORWARD_DECLARE_CLASS(QString)
 
 namespace RemoteLinux {
+class LinuxDeviceConfiguration;
+
 namespace Internal {
-class LinuxDeviceTestDialogPrivate;
+class SimpleRunnerPrivate;
 } // namespace Internal
 
-class REMOTELINUX_EXPORT LinuxDeviceTestDialog : public QDialog
+// -----------------------------------------------------------------------
+// SimpleRunner:
+// -----------------------------------------------------------------------
+
+class REMOTELINUX_EXPORT SimpleRunner : public QObject
 {
     Q_OBJECT
+
 public:
+    SimpleRunner(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration,
+                 const QString &commandline);
+    ~SimpleRunner();
 
-    // Note: The dialog takes ownership of deviceTests
-    LinuxDeviceTestDialog(QList<LinuxDeviceTester *> tests, QWidget *parent = 0);
-    ~LinuxDeviceTestDialog();
+    virtual QString commandLine() const;
 
-    void reject();
+    virtual void run();
+    virtual void cancel();
 
-private slots:
-    void handleProgressMessage(const QString &message);
-    void handleErrorMessage(const QString &message);
-    void handleTestFinished(int result);
+signals:
+    void aboutToStart();
+    void started();
+    void progressMessage(const QString &message);
+    void errorMessage(const QString &message);
+    // 0 on success, other value on failure.
+    void finished(int result);
+
+protected slots:
+    void handleProcessFinished(int exitStatus);
+
+    virtual void handleConnectionFailure();
+    virtual void handleStdOutput(const QByteArray &data);
+    virtual void handleStdError(const QByteArray &data);
+
+    // 0 on success, any other value on failure.
+    virtual int processFinished(int exitStatus);
+
+protected:
+    void setCommandLine(const QString &cmd);
+
+    Utils::SshConnectionParameters sshParameters() const;
 
 private:
-    void addText(const QString &text, const QString &color, bool bold);
-
-    Internal::LinuxDeviceTestDialogPrivate *const d;
-
-    friend class Internal::LinuxDeviceTestDialogPrivate;
+    Internal::SimpleRunnerPrivate *const d;
 };
 
 } // namespace RemoteLinux
 
-#endif // DEFAULTDEVICETESTDIALOG_H
+#endif // SIMPLERUNNER_H

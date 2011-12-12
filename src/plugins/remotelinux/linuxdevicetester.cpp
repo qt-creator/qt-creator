@@ -35,164 +35,99 @@
 #include "remotelinuxusedportsgatherer.h"
 
 #include <utils/qtcassert.h>
-#include <utils/ssh/sshremoteprocess.h>
+#include <utils/ssh/sshremoteprocessrunner.h>
 #include <utils/ssh/sshconnection.h>
+#include <utils/ssh/sshconnectionmanager.h>
 
 using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
-namespace {
 
-enum State { Inactive, Connecting, RunningUname, TestingPorts };
-
-} // anonymous namespace
-
-class GenericLinuxDeviceTesterPrivate
+class LinuxDeviceTesterPrivate
 {
 public:
-    GenericLinuxDeviceTesterPrivate() : state(Inactive) {}
+    LinuxDeviceTesterPrivate()
+    { }
 
-    LinuxDeviceConfiguration::ConstPtr deviceConfiguration;
-    SshConnection::Ptr connection;
-    SshRemoteProcess::Ptr process;
-    RemoteLinuxUsedPortsGatherer portsGatherer;
-    State state;
+    QString headLine;
 };
 
 } // namespace Internal
 
 using namespace Internal;
 
-AbstractLinuxDeviceTester::AbstractLinuxDeviceTester(QObject *parent) : QObject(parent)
+LinuxDeviceTester::LinuxDeviceTester(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration,
+                                     const QString &headline, const QString &commandline) :
+    SimpleRunner(deviceConfiguration, commandline),
+    d(new LinuxDeviceTesterPrivate)
 {
+    d->headLine = headline;
 }
 
-
-GenericLinuxDeviceTester::GenericLinuxDeviceTester(QObject *parent)
-    : AbstractLinuxDeviceTester(parent), d(new GenericLinuxDeviceTesterPrivate)
-{
-}
-
-GenericLinuxDeviceTester::~GenericLinuxDeviceTester()
+LinuxDeviceTester::~LinuxDeviceTester()
 {
     delete d;
 }
 
-void GenericLinuxDeviceTester::testDevice(const LinuxDeviceConfiguration::ConstPtr &deviceConfiguration)
+QString LinuxDeviceTester::headLine() const
 {
-    QTC_ASSERT(d->state == Inactive, return);
-
-    d->deviceConfiguration = deviceConfiguration;
-    d->connection = SshConnection::create(deviceConfiguration->sshParameters());
-    connect(d->connection.data(), SIGNAL(connected()), SLOT(handleConnected()));
-    connect(d->connection.data(), SIGNAL(error(Utils::SshError)),
-        SLOT(handleConnectionFailure()));
-
-    emit progressMessage(tr("Connecting to host..."));
-    d->state = Connecting;
-    d->connection->connectToHost();
+    return d->headLine;
 }
 
-void GenericLinuxDeviceTester::stopTest()
+int LinuxDeviceTester::processFinished(int exitStatus)
 {
-    QTC_ASSERT(d->state != Inactive, return);
-
-    switch (d->state) {
-    case Connecting:
-        d->connection->disconnectFromHost();
-        break;
-    case TestingPorts:
-        d->portsGatherer.stop();
-        break;
-    case RunningUname:
-        d->process->close();
-        break;
-    case Inactive:
-        break;
-    }
-
-    setFinished(TestFailure);
+    return SimpleRunner::processFinished(exitStatus) == 0 ? TestSuccess : TestFailure;
 }
 
-SshConnection::Ptr GenericLinuxDeviceTester::connection() const
+AuthenticationTester::AuthenticationTester(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration) :
+    LinuxDeviceTester(deviceConfiguration, tr("Checking authentication data..."),
+                      QLatin1String("echo \"Success!\""))
 {
-    return d->connection;
+    SshConnectionManager::instance().forceNewConnection(sshParameters());
 }
 
-void GenericLinuxDeviceTester::handleConnected()
+void AuthenticationTester::handleStdOutput(const QByteArray &data)
 {
-    QTC_ASSERT(d->state == Connecting, return);
-
-    d->process = d->connection->createRemoteProcess("uname -rsm");
-    connect(d->process.data(), SIGNAL(closed(int)), SLOT(handleProcessFinished(int)));
-
-    emit progressMessage("Checking kernel version...");
-    d->state = RunningUname;
-    d->process->start();
+    m_authenticationSucceded = data.contains("Success!");
+    LinuxDeviceTester::handleStdOutput(data);
 }
 
-void GenericLinuxDeviceTester::handleConnectionFailure()
+int AuthenticationTester::processFinished(int exitStatus)
 {
-    QTC_ASSERT(d->state != Inactive, return);
-
-    emit errorMessage(tr("SSH connection failure: %1\n").arg(d->connection->errorString()));
-    setFinished(TestFailure);
+    return LinuxDeviceTester::processFinished(exitStatus) == TestSuccess
+            && m_authenticationSucceded ? TestSuccess : TestCriticalFailure;
 }
 
-void GenericLinuxDeviceTester::handleProcessFinished(int exitStatus)
+UsedPortsTester::UsedPortsTester(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration) :
+    LinuxDeviceTester(deviceConfiguration, tr("Checking for available ports..."), QString()),
+    gatherer(new RemoteLinuxUsedPortsGatherer(deviceConfiguration))
 {
-    QTC_ASSERT(d->state == RunningUname, return);
-
-    if (exitStatus != SshRemoteProcess::ExitedNormally || d->process->exitCode() != 0) {
-        const QByteArray stderrOutput = d->process->readAllStandardError();
-        if (!stderrOutput.isEmpty())
-            emit errorMessage(tr("uname failed: %1\n").arg(QString::fromUtf8(stderrOutput)));
-        else
-            emit errorMessage(tr("uname failed.\n"));
-    } else {
-        emit progressMessage(QString::fromUtf8(d->process->readAllStandardOutput()));
-    }
-
-    connect(&d->portsGatherer, SIGNAL(error(QString)), SLOT(handlePortsGatheringError(QString)));
-    connect(&d->portsGatherer, SIGNAL(portListReady()), SLOT(handlePortListReady()));
-
-    emit progressMessage(tr("Checking if specified ports are available..."));
-    d->state = TestingPorts;
-    d->portsGatherer.start(d->connection, d->deviceConfiguration);
+    connect(gatherer, SIGNAL(aboutToStart()), this, SIGNAL(aboutToStart()));
+    connect(gatherer, SIGNAL(errorMessage(QString)), this, SIGNAL(errorMessage(QString)));
+    connect(gatherer, SIGNAL(finished(int)), this, SIGNAL(finished(int)));
+    connect(gatherer, SIGNAL(progressMessage(QString)), this, SIGNAL(progressMessage(QString)));
+    connect(gatherer, SIGNAL(started()), this, SIGNAL(started()));
 }
 
-void GenericLinuxDeviceTester::handlePortsGatheringError(const QString &message)
+UsedPortsTester::~UsedPortsTester()
 {
-    QTC_ASSERT(d->state == TestingPorts, return);
-
-    emit errorMessage(tr("Error gathering ports: %1\n").arg(message));
-    setFinished(TestFailure);
+    delete gatherer;
 }
 
-void GenericLinuxDeviceTester::handlePortListReady()
+QString UsedPortsTester::commandLine() const
 {
-    QTC_ASSERT(d->state == TestingPorts, return);
-
-    if (d->portsGatherer.usedPorts().isEmpty()) {
-        emit progressMessage("All specified ports are available.\n");
-    } else {
-        QString portList;
-        foreach (const int port, d->portsGatherer.usedPorts())
-            portList += QString::number(port) + QLatin1String(", ");
-        portList.remove(portList.count() - 2, 2);
-        emit errorMessage(tr("The following specified ports are currently in use: %1\n")
-            .arg(portList));
-    }
-    setFinished(TestSuccess);
+    return gatherer->commandLine();
 }
 
-void GenericLinuxDeviceTester::setFinished(TestResult result)
+void UsedPortsTester::run()
 {
-    d->state = Inactive;
-    disconnect(d->connection.data(), 0, this, 0);
-    disconnect(&d->portsGatherer, 0, this, 0);
-    emit finished(result);
+    gatherer->run();
+}
+
+void UsedPortsTester::cancel()
+{
+    gatherer->cancel();
 }
 
 } // namespace RemoteLinux

@@ -9,6 +9,7 @@ HEADERS += \
     embeddedlinuxtargetfactory.h \
     embeddedlinuxqtversion.h \
     embeddedlinuxqtversionfactory.h \
+    simplerunner.h \
     remotelinuxplugin.h \
     remotelinux_export.h \
     linuxdeviceconfiguration.h \
@@ -68,6 +69,7 @@ SOURCES += \
     embeddedlinuxtargetfactory.cpp \
     embeddedlinuxqtversion.cpp \
     embeddedlinuxqtversionfactory.cpp \
+    simplerunner.cpp \
     remotelinuxplugin.cpp \
     linuxdeviceconfiguration.cpp \
     linuxdeviceconfigurations.cpp \

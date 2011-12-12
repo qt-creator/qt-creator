@@ -34,65 +34,79 @@
 
 #include "remotelinux_export.h"
 
+#include "simplerunner.h"
+
+#include <utils/ssh/sshconnection.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
 
 QT_FORWARD_DECLARE_CLASS(QString)
 
-namespace Utils {
-class SshConnection;
-}
-
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
+class RemoteLinuxUsedPortsGatherer;
 
 namespace Internal {
-class GenericLinuxDeviceTesterPrivate;
+class LinuxDeviceTesterPrivate;
 } // namespace Internal
 
-class REMOTELINUX_EXPORT AbstractLinuxDeviceTester : public QObject
+// -----------------------------------------------------------------------
+// LinuxDeviceTester:
+// -----------------------------------------------------------------------
+
+class REMOTELINUX_EXPORT LinuxDeviceTester : public SimpleRunner
 {
     Q_OBJECT
-    Q_DISABLE_COPY(AbstractLinuxDeviceTester)
+
 public:
-    enum TestResult { TestSuccess, TestFailure };
+    enum TestResult { TestSuccess = 0, TestFailure, TestCriticalFailure };
 
-    virtual void testDevice(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration) = 0;
-    virtual void stopTest() = 0;
+    LinuxDeviceTester(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration,
+                      const QString &headline, const QString &commandline);
+    ~LinuxDeviceTester();
 
-signals:
-    void progressMessage(const QString &message);
-    void errorMessage(const QString &message);
-    void finished(RemoteLinux::AbstractLinuxDeviceTester::TestResult result);
+    virtual QString headLine() const;
 
 protected:
-    explicit AbstractLinuxDeviceTester(QObject *parent = 0);
-};
-
-
-class REMOTELINUX_EXPORT GenericLinuxDeviceTester : public AbstractLinuxDeviceTester
-{
-    Q_OBJECT
-public:
-    explicit GenericLinuxDeviceTester(QObject *parent = 0);
-    ~GenericLinuxDeviceTester();
-
-    void testDevice(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration);
-    void stopTest();
-
-    QSharedPointer<Utils::SshConnection> connection() const;
-
-private slots:
-    void handleConnected();
-    void handleConnectionFailure();
-    void handleProcessFinished(int exitStatus);
-    void handlePortsGatheringError(const QString &message);
-    void handlePortListReady();
+    int processFinished(int exitStatus);
 
 private:
-    void setFinished(TestResult result);
+    Internal::LinuxDeviceTesterPrivate *const d;
+};
 
-    Internal::GenericLinuxDeviceTesterPrivate * const d;
+class REMOTELINUX_EXPORT AuthenticationTester : public LinuxDeviceTester
+{
+    Q_OBJECT
+
+public:
+    AuthenticationTester(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration);
+
+protected slots:
+    void handleStdOutput(const QByteArray &data);
+
+protected:
+    int processFinished(int exitStatus);
+
+private:
+    bool m_authenticationSucceded;
+};
+
+class REMOTELINUX_EXPORT UsedPortsTester : public LinuxDeviceTester
+{
+    Q_OBJECT
+
+public:
+    UsedPortsTester(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration);
+    ~UsedPortsTester();
+
+    QString commandLine() const;
+
+    void run();
+    void cancel();
+
+private:
+    RemoteLinuxUsedPortsGatherer *const gatherer;
 };
 
 } // namespace RemoteLinux

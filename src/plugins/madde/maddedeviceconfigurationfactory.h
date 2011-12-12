@@ -37,6 +37,8 @@
 namespace Madde {
 namespace Internal {
 
+const char MaddeDeviceTestActionId[] = "Madde.DeviceTestAction";
+
 class MaddeDeviceConfigurationFactory : public RemoteLinux::ILinuxDeviceConfigurationFactory
 {
     Q_OBJECT
