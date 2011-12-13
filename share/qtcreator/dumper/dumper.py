@@ -138,6 +138,29 @@ def lookupType(typestring):
     if not type is None:
         return type
 
+    if typestring == "void":
+        type = gdb.lookup_type(typestring)
+        typeCache[typestring] = type
+        return type
+
+    if typestring.find("(anon") != -1:
+        # gdb doesn't like
+        # '(anonymous namespace)::AddAnalysisMessageSuppressionComment'
+        typeCache[typestring] = None
+        return None
+
+    try:
+        type = gdb.parse_and_eval("{%s}&main" % typestring).type
+        typeCache[typestring] = type
+        return type
+    except:
+        pass
+
+    #warn(" RESULT '%s': %s" % (typestring, type))
+    typeCache[typestring] = type
+    return None
+
+
     ts = typestring
     while True:
         #WARN("ts: '%s'" % ts)
