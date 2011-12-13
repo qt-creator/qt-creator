@@ -202,6 +202,7 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters,
     m_hasInferiorThreadList = false;
     m_sourcesListUpdating = false;
     m_oldestAcceptableToken = -1;
+    m_nonDiscardableCount = 0;
     m_outputCodec = QTextCodec::codecForLocale();
     m_pendingWatchRequests = 0;
     m_pendingBreakpointRequests = 0;
@@ -808,6 +809,9 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
                       << "LEAVES PENDING BREAKPOINT AT" << m_pendingBreakpointRequests);
     }
 
+    if (!(cmd.flags & Discardable))
+        ++m_nonDiscardableCount;
+
     // FIXME: clean up logic below
     if (cmd.flags & Immediate) {
         // This should always be sent.
@@ -1077,6 +1081,9 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
             showMessage(_(rsp));
         }
     }
+
+    if (!(cmd.flags & Discardable))
+        --m_nonDiscardableCount;
 
     if (cmd.callback)
         (this->*cmd.callback)(*response);
@@ -2271,14 +2278,24 @@ void GdbEngine::handleExecuteReturn(const GdbResponse &response)
 
 void GdbEngine::setTokenBarrier()
 {
+    if (m_nonDiscardableCount > 0) {
+        showMessage(_("--- CANNOT SET TOKEN BARRIER: "), LogMiscInput);
+        foreach (const GdbCommand &cookie, m_cookieForToken)
+            showMessage(QString::fromLatin1("CMD: %1, FLAGS: %2")
+                .arg(_(cookie.command)).arg(cookie.flags), LogMiscInput);
+        QTC_ASSERT(false, return);
+        return;
+    }
+    bool good = true;
     foreach (const GdbCommand &cookie, m_cookieForToken) {
-        QTC_ASSERT(!cookie.callback || (cookie.flags & Discardable),
+        if (!(cookie.flags & Discardable)) {
             qDebug() << "CMD:" << cookie.command
                 << " FLAGS:" << cookie.flags
                 << " CALLBACK:" << cookie.callbackName;
-            return
-        );
+            good = false;
+        }
     }
+    QTC_ASSERT(good, return);
     PENDING_DEBUG("\n--- token barrier ---\n");
     showMessage(_("--- token barrier ---"), LogMiscInput);
     if (debuggerCore()->boolSetting(LogTimeStamps))

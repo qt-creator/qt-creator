@@ -407,6 +407,7 @@ private: ////////// Gdb Command Management //////////
     // of evaluation. Responses with older tokens are considers
     // out of date and discarded.
     int m_oldestAcceptableToken;
+    int m_nonDiscardableCount;
 
     int m_pendingWatchRequests; // Watch updating commands in flight
     int m_pendingBreakpointRequests; // Watch updating commands in flight
