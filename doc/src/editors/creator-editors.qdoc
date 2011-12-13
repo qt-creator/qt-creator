@@ -454,7 +454,7 @@
         \o == and != may perform type coercion, use === or !== to avoid
         \o The non-strict equality comparison is allowed to convert its
            arguments to a common type. That can lead to unexpected
-           results such as ' \t\r\n' == 0 being true. Prefer to use the
+           results such as \c {' \t\r\n' == 0} being true. Prefer to use the
            strict equality operators === and !== and be explicit about
            conversions you require.
     \row
