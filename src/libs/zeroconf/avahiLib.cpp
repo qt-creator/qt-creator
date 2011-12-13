@@ -129,7 +129,8 @@ public:
 #ifndef ZCONF_AVAHI_STATIC_LINKING
         // dynamic linking
         if (!nativeLib.load()) {
-            setError(true, tr("AvahiZConfLib could not load native library"));
+            setError(true,
+                     ZConfLib::tr("AvahiZConfLib could not load the native library '%1': %2").arg(libName, nativeLib.errorString()));
         }
         m_simplePollGet = reinterpret_cast<AvahiSimplePollGet>(nativeLib.resolve("avahi_simple_poll_get"));
         m_simplePollNew = reinterpret_cast<AvahiSimplePollNewPtr>(nativeLib.resolve("avahi_simple_poll_new"));
@@ -316,7 +317,7 @@ public:
             if (m_simplePollFree)
                 m_simplePollFree(connection->simple_poll);
             delete connection;
-            setError(true, tr("%1 could not create a client (probably the daemon is not running)"));
+            setError(true, ZConfLib::tr("%1 could not create a client (probably the daemon is not running)").arg(name()));
             return kDNSServiceErr_Unknown;
         }
         *sdRef = reinterpret_cast<ConnectionRef>(connection);
@@ -440,16 +441,16 @@ extern "C" void cAvahiClientReply (AvahiClient * /*s*/, AvahiClientState state, 
         break;
     case (AVAHI_CLIENT_S_COLLISION):
         /* Server state: COLLISION */
-        lib->setError(true, lib->tr("cAvahiClient, server collision"));
+        lib->setError(true, ZConfLib::tr("cAvahiClient, server collision"));
         break;
     case (AVAHI_CLIENT_FAILURE):
-        lib->setError(true, lib->tr("cAvahiClient, some kind of error happened on the client side"));
+        lib->setError(true, ZConfLib::tr("cAvahiClient, some kind of error happened on the client side"));
         break;
     case (AVAHI_CLIENT_CONNECTING):
-        lib->setError(false, lib->tr("cAvahiClient, still connecting, no server available"));
+        lib->setError(false, ZConfLib::tr("cAvahiClient, still connecting, no server available"));
         break;
     default:
-        lib->setError(true, lib->tr("Error: unexpected state %1 in cAvahiClientReply, ignoring it")
+        lib->setError(true, ZConfLib::tr("Error: unexpected state %1 in cAvahiClientReply, ignoring it")
                       .arg(state));
     }
 }
@@ -484,7 +485,7 @@ extern "C" void cAvahiBrowseReply(
             browser->updateFlowStatusForFlags(0);
             break;
         default:
-            browser->mainConnection->lib->setError(true, browser->mainConnection->lib->tr(
+            browser->mainConnection->lib->setError(true, ZConfLib::tr(
                                                        "Error: unexpected state %1 in cAvahiBrowseReply, ignoring it")
                                                    .arg(event));
     }

@@ -1008,7 +1008,7 @@ public:
         m_layout->addWidget(new QLabel(type), row, column++);
         for (int i = -1; i != typeFormats.size(); ++i) {
             QRadioButton *choice = new QRadioButton(this);
-            choice->setText(i == -1 ? tr("Reset") : typeFormats.at(i));
+            choice->setText(i == -1 ? TypeFormatsDialog::tr("Reset") : typeFormats.at(i));
             m_layout->addWidget(choice, row, column++);
             if (i == current)
                 choice->setChecked(true);

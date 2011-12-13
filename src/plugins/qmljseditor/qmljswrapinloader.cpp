@@ -43,6 +43,7 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QCoreApplication>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
@@ -79,6 +80,8 @@ protected:
 
 class Operation: public QmlJSQuickFixOperation
 {
+    Q_DECLARE_TR_FUNCTIONS(QmlJSEditor::Internal::Operation)
+
     UiObjectDefinition *m_objDef;
 
 public:
@@ -89,7 +92,7 @@ public:
     {
         Q_ASSERT(m_objDef != 0);
 
-        setDescription(WrapInLoader::tr("Wrap Component in Loader"));
+        setDescription(tr("Wrap Component in Loader"));
     }
 
     QString findFreeName(const QString &base)
@@ -129,12 +132,10 @@ public:
         FindIds::Result innerIds = FindIds()(m_objDef);
         innerIds.remove(id);
 
-        QString comment = WrapInLoader::tr(
-                    "// TODO: Move position bindings from the component to the Loader.\n"
-                    "//       Check all uses of 'parent' inside the root element of the component.\n");
+        QString comment = tr("// TODO: Move position bindings from the component to the Loader.\n"
+                             "//       Check all uses of 'parent' inside the root element of the component.\n");
         if (idBinding) {
-            comment += WrapInLoader::tr(
-                        "//       Rename all outer uses of the id '%1' to '%2.item'.\n").arg(
+            comment += tr("//       Rename all outer uses of the id '%1' to '%2.item'.\n").arg(
                         id, loaderId);
         }
 
@@ -144,8 +145,7 @@ public:
         while (it.hasNext()) {
             it.next();
             const QString innerId = it.key();
-            comment += WrapInLoader::tr(
-                        "//       Rename all outer uses of the id '%1' to '%2.item.%1'.\n").arg(
+            comment += tr("//       Rename all outer uses of the id '%1' to '%2.item.%1'.\n").arg(
                         innerId, loaderId);
             changes.replace(it.value().begin(), it.value().end(), QString("inner_%1").arg(innerId));
             innerIdForwarders += QString("\nproperty alias %1: inner_%1").arg(innerId);

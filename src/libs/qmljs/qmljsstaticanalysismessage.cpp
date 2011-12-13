@@ -70,6 +70,11 @@ public:
     QHash<Type, PrototypeMessageData> messages;
 };
 
+static inline QString msgInvalidConstructor(const char *what)
+{
+    return StaticAnalysisMessages::tr("do not use '%1' as a constructor").arg(QLatin1String(what));
+}
+
 StaticAnalysisMessages::StaticAnalysisMessages()
 {
     // When changing a message or severity, update the documentation, currently
@@ -133,15 +138,15 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(WarnFunctionUsedBeforeDeclaration, Warning,
            tr("function '%1' is used before its declaration"), 1);
     newMsg(WarnBooleanConstructor, Warning,
-           tr("do not use 'Boolean' as a constructor"));
+           msgInvalidConstructor("Boolean"));
     newMsg(WarnStringConstructor, Warning,
-           tr("do not use 'String' as a constructor"));
+           msgInvalidConstructor("String"));
     newMsg(WarnObjectConstructor, Warning,
-           tr("do not use 'Object' as a constructor"));
+           msgInvalidConstructor("Object"));
     newMsg(WarnArrayConstructor, Warning,
-           tr("do not use 'Array' as a constructor"));
+           msgInvalidConstructor("Array"));
     newMsg(WarnFunctionConstructor, Warning,
-           tr("do not use 'Function' as a constructor"));
+           msgInvalidConstructor("Function"));
     newMsg(HintAnonymousFunctionSpacing, Hint,
            tr("the 'function' keyword and the opening parenthesis should be separated by a single space"));
     newMsg(WarnBlock, Warning,
@@ -181,7 +186,7 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(WarnNewWithLowercaseFunction, Warning,
            tr("'new' should only be used with functions that start with an uppercase letter"));
     newMsg(WarnNumberConstructor, Warning,
-           tr("do not use 'Number' as a constructor"));
+           msgInvalidConstructor("Function"));
     newMsg(HintBinaryOperatorSpacing, Hint,
            tr("use spaces around binary operators"));
     newMsg(WarnUnintentinalEmptyBlock, Warning,

@@ -56,7 +56,7 @@ class ServiceBrowserPrivate;
 
 // represents a zero conf library exposing the dns-sd interface
 class ZConfLib {
-    Q_DECLARE_TR_FUNCTIONS(ZeroConf)
+    Q_DECLARE_TR_FUNCTIONS(ZeroConf::Internal::ZConfLib)
 public:
     typedef QSharedPointer<ZConfLib> Ptr;
     typedef void *ConnectionRef;

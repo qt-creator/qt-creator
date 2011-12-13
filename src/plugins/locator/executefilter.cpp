@@ -109,7 +109,7 @@ void ExecuteFilter::accept(FilterEntry selection) const
     if (m_process->state() != QProcess::NotRunning) {
         const QString info(tr("Previous command is still running ('%1').\nDo you want to kill it?")
                            .arg(p->headCommand()));
-        int r = QMessageBox::question(0, tr("Kill previous process?"), info,
+        int r = QMessageBox::question(0, tr("Kill Previous Process?"), info,
                                       QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
                                       QMessageBox::Yes);
         if (r == QMessageBox::Yes)

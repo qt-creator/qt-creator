@@ -85,7 +85,7 @@ public:
                     qDebug() << name() << " started " << daemonPath;
                 return true;
             } else {
-                this->setError(true, tr("%1 failed starting embedded daemon at %2")
+                this->setError(true, ZConfLib::tr("%1 failed starting embedded daemon at %2")
                                .arg(name()).arg(daemonPath));
             }
         }

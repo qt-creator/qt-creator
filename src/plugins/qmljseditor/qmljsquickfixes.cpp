@@ -138,6 +138,7 @@ private:
 */
 class AddAnalysisMessageSuppressionComment: public QmlJSQuickFixFactory
 {
+    Q_DECLARE_TR_FUNCTIONS(QmlJSEditor::AddAnalysisMessageSuppressionComment)
 public:
     virtual QList<QmlJSQuickFixOperation::Ptr> match(
         const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface)

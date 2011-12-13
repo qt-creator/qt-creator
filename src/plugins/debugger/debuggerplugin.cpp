@@ -1727,7 +1727,7 @@ void DebuggerPluginPrivate::gdbServerStarted(const QString &channel,
     QList<Abi> abis = Abi::abisOfBinary(localExecutable);
     if (abis.isEmpty()) {
         QMessageBox::warning(mainWindow(), tr("Warning"),
-            tr("Cannot find abi for remote process \"%1\".")
+            tr("Cannot find ABI for remote process \"%1\".")
                 .arg(remoteCommandLine));
         return;
     }
