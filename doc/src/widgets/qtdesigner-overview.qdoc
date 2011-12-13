@@ -29,16 +29,9 @@
     \contentspage index.html
     \previouspage creator-qml-modules-with-plugins.html
     \page creator-using-qt-designer.html
-    \nextpage creator-usability.html
+    \nextpage adding-plugins.html
 
     \title Developing Widget Based Applications
-
-    Widgets and forms created with \QD are integrated seamlessly with programmed
-    code by using the Qt signals and slots mechanism that allows you to easily
-    assign behavior to graphical elements. All properties set in \QD can be
-    changed dynamically within the code. Furthermore, features such as widget
-    promotion and custom plugins allow you to use your own widgets with \QD. For
-    more information, see \l{Adding Qt Designer Plugins}.
 
     \QC automatically opens all .ui files in the integrated \QD, in \gui Design
     mode.

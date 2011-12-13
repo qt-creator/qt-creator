@@ -1,0 +1,59 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-remote-compiler.html
+    \page creator-testing.html
+    \nextpage creator-debugging.html
+
+    \title Debugging and Analyzing
+
+    \image creator_testing.png
+
+    \list
+
+        \o  \l{Debugging}
+
+            If you install \QC as part of \QSDK, the GNU Symbolic Debugger
+            is installed automatically and you should be ready to start
+            debugging after you create a new project. However, you can
+            change the setup to use debugging tools for Windows, for
+            example. You can connect mobile devices to your development PC
+            and debug processes running on the devices.
+
+        \o  \l{Analyzing Code}
+
+            \QC integrates Valgrind code analysis tools for detecting memory
+            leaks and profiling function execution. You must download and
+            install them separately to use them from \QC. The QML Profiler is
+            installed as part of \QC. It enables you to profile your Qt Quick
+            applications.
+
+    \endlist
+
+*/

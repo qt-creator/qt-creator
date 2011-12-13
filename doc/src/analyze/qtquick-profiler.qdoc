@@ -29,7 +29,7 @@
     \contentspage index.html
     \previouspage creator-analyze-mode.html
     \page creator-qml-performance-monitor.html
-    \nextpage creator-analyzer.html
+    \nextpage creator-valgrind-overview.html
 
     \title Profiling QML Applications
 

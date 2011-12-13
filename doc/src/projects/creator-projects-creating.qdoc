@@ -33,7 +33,73 @@
 
     \title Creating Projects
 
-    \image qtcreator-new-project.png
+    Creating a project enables you to:
+
+    \list
+
+        \o  Group files together
+
+        \o  Add custom build steps
+
+        \o  Include forms and resource files
+
+        \o  Specify settings for running applications
+
+    \endlist
+
+    Setting up a new project in \QC is aided by a wizard that guides you
+    step-by-step through the project creation process. The wizards prompt you
+    to enter the settings needed for that particular type of project and create
+    the necessary files for you. You can add your own custom wizards to
+    standardize the way subprojects and classes are added to a project.
+
+    The wizards create projects that use the Qt build tool, qmake. It is a
+    cross-platform system for build automation that helps simplify the build
+    process for development projects across different platforms. qmake
+    automates the generation of build configurations so that only a few lines
+    of information are needed to create each configuration. For more
+    information about qmake, see the
+    \l{http://qt.nokia.com/doc/4.7/qmake-manual.html}{qmake Manual}.
+
+    You can modify the build and run settings for qmake projects in the
+    \gui Projects mode.
+
+    Alternatively, you can use the CMake build automation system and set up the
+    projects manually. In addition, you can import projects as
+    \e {generic projects} that do not use qmake or CMake. This enables you to
+    use \QC as a code editor and to fully control the steps and commands used to
+    build the project.
+
+    \if defined(qcmanual)
+    To develop applications for Symbian devices, you use qmake and the local
+    Symbian compiler (on Windows) or qmake and a compilation service at
+    Nokia Developer (on Linux and Mac OS) to build the applications for the
+    Symbian devices target. The interface to the compilation service,
+    Remote Compiler, is installed as a part of the \QSDK. For more information,
+    see \l{Building with Remote Compiler}.
+    \endif
+
+    You can install mobile device \l{glossary-development-target}{targets}
+    as part of the \QSDK. The build and  run settings for the
+    installed targets are set up automatically. However, you might need to
+    install and configure some additional software on the devices to be able to
+    connect to them from the development PC.
+
+    \section1 Using Project Wizards
+
+    In the first step, you
+    select the type of the project. Next, you select a location for the project
+    and specify settings for it.
+
+    \image qtcreator-new-qt-quick-project-wizard.png
+
+    When you have completed the steps, \QC automatically generates the project
+    with required headers, source files, user interface descriptions and project
+    files, as defined by the wizard.
+    For example, if you choose to create a Qt Quick application, \QC generates a
+    QML file that you can modify with the integrated \QMLD.
+
+    \section1 Selecting Project Type
 
     You can use wizards to create following types of projects:
 
@@ -95,7 +161,7 @@
     \gui {Target Setup} dialog. Follow the instructions of the wizard.
 
     For examples of creating different types of projects, see
-    \l{Getting Started}.
+    \l{Tutorials}.
 
     For more information about creating Qt Quick projects, see
     \l {Creating Qt Quick Projects}.
@@ -197,6 +263,14 @@
 
     \section1 Adding Subprojects to Projects
 
+    In addition to Qt libraries, you can link your application to other
+    libraries, such as system libraries or your own libraries. Further, your
+    own libraries might link to other libraries. To be able to compile your
+    project, you must add the libraries to your project. This also enables
+    code completion and syntax highlighting for the libraries.
+    The procedure of adding a library to a project depends on the build
+    system that you use.
+
     When you create a new project, you can add it to another project as a
     subproject in the \gui{Project Management} dialog. However, the root project
     must specify that qmake uses the \c subdirs template to build the project.
@@ -220,4 +294,15 @@
 
     To specify dependencies, use the \gui{Add Library} wizard. For more
     information, see \l{Adding Libraries to Projects}.
+
+    \section1 Related Topics
+
+    \list
+        \o \l{Opening Projects}
+        \o \l{Adding Libraries to Projects}
+        \o \l{Adding New Custom Wizards}
+        \o \l{Setting Up a CMake Project}
+        \o \l{Setting Up a Generic Project}
+    \endlist
+
 */

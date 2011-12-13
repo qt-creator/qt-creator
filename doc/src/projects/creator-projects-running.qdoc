@@ -29,9 +29,9 @@
     \contentspage index.html
     \previouspage creator-building-targets.html
     \page creator-running-targets.html
-    \nextpage creator-debugging.html
+    \nextpage creator-deployment.html
 
-    \title Running Applications on Multiple Targets
+    \title Running on Multiple Targets
 
     By default, running an application also builds it and deploys it to a
     location from where it can be run on the desktop, in Qt Simulator, or

@@ -27,14 +27,14 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-version-control.html
+    \previouspage creator-using-qt-designer.html
     \page adding-plugins.html
-    \nextpage creator-editor-external.html
+    \nextpage creator-usability.html
 
     \title Adding Qt Designer Plugins
 
     You can use Qt APIs to create plugins that extend Qt applications.
-    This allows you to add your own widgets to \QD.
+    This enables you to add your own widgets to \QD.
     The most flexible way to include a plugin with an application is to compile
     it into a dynamic library that is shipped separately, and detected and
     loaded at runtime.

@@ -1,0 +1,89 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-options.html
+    \page creator-editor-options-text.html
+    \nextpage creator-editor-fakevim.html
+
+    \title Specifying Text Editor Settings
+
+    Set the font preferences and apply color schemes for syntax highlighting in
+    \gui {Tools > Options > Text Editor > Font & Colors}.
+
+    \image qtcreator-font-colors.png "Text editor options"
+
+    \section2 Configuring Fonts
+
+    You can select the font family and size. You can specify a zoom setting in
+    percentage for viewing the text. You can also zoom in or out by pressing
+    \key {Ctrl++} or \key {Ctrl +-}, or by pressing \key Ctrl and rolling
+    the mouse button up or down. To disable the mouse wheel function, select
+    \gui {Tools > Options > Text Editor > Behavior} and deselect the
+    \gui {Enable scroll wheel zooming} check box.
+
+    Antialiasing is used by default to make text look smoother and more
+    readable on the screen. Deselect the \gui Antialias check box to
+    turn off antialiasing.
+
+    \section2 Defining Color Schemes
+
+    You can select one of the predefined color schemes for syntax highlighting
+    or create customized color schemes. The color schemes apply to highlighting
+    both C++ and QML files and generic files.
+
+    To create a color scheme:
+
+    \list 1
+
+        \o  Select \gui {Tools > Options > Text Editor > Fonts & Color > Copy}.
+
+        \o  Enter a name for the color scheme and click \gui OK.
+
+        \o  In the \gui Foreground field, specify the color of the selected
+            code element.
+
+        \o  In the \gui Background field, select the background
+            color for the code element.
+
+        The backgound of the \gui Text element determines the background of the
+        code editor.
+
+    \endlist
+
+    When you copy code from \QC, it is copied in both plain text and HTML
+    format. The latter makes sure that syntax highlighting is preserved when
+    pasting to a rich-text editor.
+
+    \section2 File Encoding
+
+    To define the default file encoding, select the desired encoding in
+    \gui {Default encoding}. By default, \QC uses the file encoding
+    used by your system.
+
+*/

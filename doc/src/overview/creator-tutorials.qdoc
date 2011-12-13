@@ -33,30 +33,25 @@
 
     \title Tutorials
 
+    \image creator-gs-04.png
+
     You can use \QC to create applications for several platforms by using
     several technologies. The tutorials in this manual explain how to create
     some basic applications.
 
-    \table
-        \row
-            \i
-            \i
-            \i
-        \row
-            \o  \l{Creating a Qt Quick Application}
+    \list
 
-                To learn about the basic Qt Quick concepts and QML elements, go
-                to \l{Creating a Qt Quick Application}.
-            \o  \l{Creating a Qt Quick Application Using Qt Quick Components}
+        \o  \l{Creating a Qt Quick Application}
 
-                To learn how to develop a Qt Quick application for mobile
-                devices, go to
-                \l{Creating a Qt Quick Application Using Qt Quick Components}.
+            Learn about the basic Qt Quick concepts and QML elements.
+        \o  \l{Creating a Qt Quick Application Using Qt Quick Components}
 
-            \o  \l{Creating a Qt Widget Based Application}
+            Learn how to develop a Qt Quick application for mobile devices.
 
-                To learn how to create a Qt widget based application for
-                the desktop, go to \l{Creating a Qt Widget Based Application}.
-    \endtable
+        \o  \l{Creating a Qt Widget Based Application}
+
+            Learn how to create a Qt widget based application for the desktop.
+
+    \endlist
 
 */

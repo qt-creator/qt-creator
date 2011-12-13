@@ -27,18 +27,12 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-editor-refactoring.html
+    \previouspage creator-indenting-code.html
     \page qt-quick-toolbars.html
-    \nextpage creator-editor-locator.html
+    \nextpage creator-editor-codepasting.html
 
     \title Using Qt Quick Toolbars
 
-    When you edit QML code in the code editor, you specify the properties
-    of QML components. For some properties, such as colors and font names,
-    this is not a trivial task. For example, few people can visualize the
-    color #18793f.
-
-    To easily edit these properties, you can use the Qt Quick Toolbars.
     When you select a component in the code and a toolbar is available,
      a light bulb icon appears:
     \inlineimage qml-toolbar-indicator.png

@@ -27,11 +27,11 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-remote-compiler.html
+    \previouspage creator-help-overview.html
     \page creator-help.html
-    \nextpage creator-advanced.html
+    \nextpage creator-faq.html
 
-    \title Getting Help
+    \title Using the Help Mode
 
     \QC comes fully integrated with Qt documentation and examples using the Qt
     Help plugin.

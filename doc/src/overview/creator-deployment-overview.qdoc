@@ -27,31 +27,43 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-running-valgrind-remotely.html
+    \previouspage creator-running-targets.html
     \page creator-deployment.html
     \nextpage creator-deployment-symbian.html
 
-    \title Deploying Applications to Mobile Devices
+    \title Deploying to Mobile Devices
 
     Deploy configurations in the \gui Project mode \gui {Run Settings} handle
     the packaging of the application as an executable and copying it to a
     location you want to run the executable at. The files can be copied to a
     location in the file system of the development PC or a mobile device.
 
-    When you are ready to publish the application on a publishing channel, you
-    must make sure that the installation file meets the requirements for
-    publishing and installing applications to the target devices. The following
-    sections describe the steps that you have to take to create installation
-    packages for publishing on different channels:
-
-    \if defined(qcmanual)
     \list
-        \o  \l{Deploying Applications to Symbian Devices}
-        \o  \l{Deploying Applications to Maemo or MeeGo Harmattan Devices}
-        \o  \l{Publishing Maemo Applications to Extras-devel}
-        \o  \l{Publishing Applications to Nokia Store}
-        \o  \l{Building with Remote Compiler}
 
+        \o  \l{Deploying Applications to Symbian Devices}
+
+            When you deploy the application for the \gui{Symbian Device} target,
+            \QC automatically generates a Symbian installation system (SIS) file
+            in the project folder and copies it to the connected device. You can
+            sign the SIS file and wrap it in a Nokia Smart Installer for Symbian
+            package. You can test and debug the application on the device.
+        \o  \l{Deploying Applications to Maemo or MeeGo Harmattan Devices}
+
+            When you deploy the application on the \gui{Maemo5} or
+            \gui Harmattan target, \QC generates a Debian installation package
+            in the build directory and copies it to the connected device. You
+            can test and debug the application on the device.
     \endlist
-    \endif
+
+    \section1 Related Topics
+
+    \list
+        \o  \l{Publishing}
+
+            When you are ready to publish the application on a publishing
+            channel, you must make sure that the installation file meets the
+            requirements for publishing and installing applications to the
+            target devices.
+    \endlist
+
 */

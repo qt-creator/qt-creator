@@ -1,0 +1,81 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-deployment-maemo.html
+    \page creator-connecting-mobile.html
+    \nextpage creator-developing-meego.html
+
+    \title Connecting Mobile Targets
+
+    You can connect mobile devices to the development PC to build, run, debug,
+    and analyze applications on them from \QC. When you install mobile targets
+    as part of the \QSDK, the build and run settings for the target devices are
+    set up automatically in \QC. Currently, the tool chain for building
+    applications for generic Linux devices is not included in \QSDK.
+
+    You can connect the device to the development PC using a USB connection.
+    Additionally, you can connect Linux-based devices by using a WLAN
+    connection.
+
+    \list
+
+        \o  \l{Connecting Generic Linux Devices}
+
+            If you have the tool chain for building applications for generic
+            Linux devices (with no MADDE support) installed on the development
+            PC, you can add it to \QC. Create device configurations and select
+            them in the \QC run settings.
+
+       \o  \l{Connecting MeeGo Harmattan Devices}
+
+            MeeGo Harmattan is a Linux-based software platform developed by
+            Nokia and preinstalled on Nokia N950 and Nokia N9. It enables
+            developers to create applications using the Qt framework.
+            Use the SDK Connectivity tool that is preinstalled on the device to
+            create the device-side end point for USB and WLAN connections.
+
+        \o  \l{Connecting Maemo Devices}
+
+            Maemo 5 (Fremantle) is a Linux-based software platform developed by
+            Nokia and delivered on the Nokia N900. Use a connectivity tool (Mad
+            Developer) to create the device-side end point for USB and WLAN
+            connections.
+
+        \o  \l{Connecting Symbian Devices}
+
+            You can run Qt applications on Symbian devices if the software
+            that Qt applications require (typically Qt, Qt Mobility, QtWebkit,
+            and Open C) is installed on the device. On Symbian Anna and later
+            devices, some version of Qt is pre-installed.
+            Install and launch the CODA on-device debugging agent on the
+            devices and connect the devices to the development PC.
+
+    \endlist
+
+*/

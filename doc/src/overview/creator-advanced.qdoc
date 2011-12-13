@@ -27,11 +27,13 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-help.html
+    \previouspage creator-publishing-to-maemo-extras.html
     \page creator-advanced.html
     \nextpage creator-os-supported-platforms.html
 
     \title Advanced Use
+
+    \image creator_advanceduse.png
 
     \QC attempts to meet your development needs, whether you are an
     experienced Qt developer or a newcomer to Qt. When you install \QC
@@ -39,33 +41,55 @@
     building, running and debugging applications with very little effort.
 
     However, you can easily change or extend the default configuration, by
-    choosing a different build system, adding project wizards, integrating
-    external tools, or editing the standard MIME types that \QC uses
-    to recognize your files.
+    choosing a different build system or integrating external tools.
 
-    You can start \QC and specify some options for running it from the
-    command line.
-
-    This following topics describe advanced use of \QC:
+    You can also use special options to start \QC from the command line and use
+    it mainly from the keyboard.
 
     \list
+
         \o  \l{Supported Platforms}
-        \o  \l{Adding New Custom Wizards}
-        \o  \l{Setting Up a CMake Project}
-        \o  \l{Setting Up a Generic Project}
-        \o  \l{Using Version Control Systems}
-        \if defined(qcmanual)
-        \o  \l{Adding Qt Designer Plugins}
-        \endif
-        \o  \l{Using External Tools}
-        \if defined(qcmanual)
-        \o  \l{Using Maemo or MeeGo Harmattan Emulator}
-        \endif
-        \o  \l{Editing MIME Types}
-        \o  \l{Showing Task List Files in Issues Pane}
+
+            You can install and run \QC on several operating systems to create
+            applications for multiple desktop and mobile device platforms.
+
+        \o  \l{Using Other Build Systems}
+
+            \QC is integrated with cross-platform systems for build automation:
+            qmake and CMake. In addition, you can import generic projects that
+            do not use qmake or CMake, and specify that \QC ignores your build
+            system.
+
         \o  \l{Using Command Line Options}
+
+            You can start \QC and specify some options for running it from the
+            command line.
+
         \o  \l{Keyboard Shortcuts}
-        \o  \l{Glossary}
+
+            \QC provides various keyboard shortcuts to speed up your development
+            process. You can change the keyboard shortcuts, as well as import
+            and export keyboard shortcut mapping schemes.
+
+        \o  \l{Using External Tools}
+
+            You can use external tools directly from \QC. Qt Linguist,
+            QML Viewer, the default text editor for your system, and the \c sort
+            tool are preconfigured for use. You can change their default
+            configurations and configure new tools.
+
+    \endlist
+
+    \section1 Related Topics
+
+    \list
+
+        \o  \l{Showing Task List Files in Issues Pane}
+
+            You can load report files created by code scanning and analysis
+            tools to the \gui Issues output pane. You can navigate to the
+            corresponding source code by clicking the error message.
+
     \endlist
 
 */

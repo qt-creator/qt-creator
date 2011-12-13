@@ -27,7 +27,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-running-targets.html
+    \previouspage creator-testing.html
     \page creator-debugging.html
     \nextpage creator-debugging-example.html
 
@@ -37,37 +37,62 @@
     core and external native debuggers such as the GNU Symbolic Debugger (GDB),
     the Microsoft Console Debugger (CDB), and a QML/JavaScript debugger.
 
-    The following sections describe debugging with \QC:
-
     \list
 
-        \if defined(qcmanual)
-        \o  \l{Debugging the Example Application} uses an example application
-            to illustrate how to debug Qt C++ applications in the \gui Debug
+        \o  \l{Debugging the Example Application}
+
+            Illustrates how to debug Qt C++ applications in the \gui Debug
             mode.
-        \endif
 
-        \o  \l{Launching the Debugger} describes the
-            operating modes in which the debugger plugin runs, depending on
-            where and how the process is started and run.
+        \o  \l{Launching the Debugger}
 
-        \o  \l{Interacting with the Debugger} describes the views and functions
-            available in the \gui Debug mode.
+            To start a program under the control of the debugger, press
+            \key{F5}. \QC checks whether the compiled program is up-to-date,
+            and rebuilds it if necessary. The debugger then takes over and
+            starts the program. The debugger is launched in the appropriate
+            operating mode (plain, terminal, or on-device), based on the
+            build and run settings for the active project. You can also launch
+            the debugger in other mode.
 
-        \o  \l{Setting Up Debugger} summarizes the support for debugging C++
-            code and requirements for installation. Typically, the interaction
-            between \QC and the native debugger is set up automatically
-            and you do not need to do anything.
+        \o  \l{Interacting with the Debugger}
 
-        \o  \l{Using Debugging Helpers} describes how to get more detailed data
-            on complex data.
+            You can use the \QC \gui Debug mode to inspect the state of your
+            application while debugging.
 
-        \o  \l{Debugging Qt Quick Projects} describes how to debug Qt Quick
-            projects.
+        \o  \l{Setting Up Debugger}
 
-        \o  \l{Troubleshooting Debugger} lists some typical problems that you
-            might encounter while debugging and solutions to them.
+            The debugger plugin tries to automatically pick up a suitable
+            native debugger. You only need to set it up if the automatic setup
+            fails, because the native debugger is missing (as is usually the
+            case for the CDB debugger on Windows, which you always must install
+            yourself) or because the installed version is not supported.
 
+        \o  \l{Using Debugging Helpers}
+
+            \QC is able to show complex data types in a customized,
+            user-extensible manner. For this purpose, it takes advantage of
+            two technologies, collectively referred to as \e {debugging
+            helpers}. Using the debugging helpers is not essential for
+            debugging with \QC, but they help you to quickly examine complex
+            data.
+
+        \o  \l{Debugging Qt Quick Projects}
+
+            In the \gui Debug mode, you can inspect the state of the
+            application while debugging JavaScript functions. You can set
+            breakpoints, view call stack trace, and examine locals and
+            expressions. When the application is interrupted by a breakpoint,
+            you can use the QML Script Console to execute JavaScript expressions
+            in the current context.
+
+            While the application is running, you can use the QML Inspector
+            view to explore the object structure, debug animations, and
+            inspect colors.
+
+        \o  \l{Troubleshooting Debugger}
+
+            If you encounter problems while debugging, check for possible
+            solutions to them.
     \endlist
 
 */
@@ -445,11 +470,6 @@
 
     \section1 Installing Native Debuggers
 
-    There are various reasons why the debugger plugin may fail to automatically
-    pick up a suitable native debugger. The native debugger might be missing
-    (which is usually the case for the CDB debugger on Windows which always
-    needs to be installed manually by the user) or the installed version is not
-    supported.
     Check the table below for the supported versions and other important
     information about installing native debuggers.
 
@@ -628,6 +648,48 @@
 
     \title Interacting with the Debugger
 
+    You can use the \QC \gui Debug mode to inspect the state of your application
+    while debugging. You can interact with the debugger in several ways,
+    including the following:
+
+    \list
+
+        \o  Go through a program line-by-line or instruction-by-instruction.
+
+        \o  Interrupt running programs.
+
+        \o  Set breakpoints.
+
+        \o  Examine the contents of the call stack.
+
+        \o  Examine and modify registers and memory contents of
+            the debugged program.
+
+        \o  Examine and modify registers and memory contents of
+            local and global variables.
+
+        \o  Examine the list of loaded shared libraries.
+
+        \o  Create snapshots of the current state of the debugged program
+            and re-examine them later.
+
+    \endlist
+
+    \QC displays the raw information provided by the native debuggers in a clear
+    and concise manner with the goal to simplify the debugging process as much
+    as possible without losing the power of the native debuggers.
+
+    In addition to the generic IDE functionality provided by stack view, views
+    for locals and expressions, registers, and so on, \QC includes features to
+    make debugging Qt-based applications easy. The debugger plugin understands
+    the internal layout of several Qt classes, for example, QString, the Qt
+    containers, and most importantly QObject (and classes derived from it), as
+    well as most containers of the C++ Standard Library and some GCC extensions.
+    This deeper understanding is used to present objects of such classes in a
+    useful way.
+
+    \section1 Using the Debugger
+
     In \gui Debug mode, you can use several views to interact with the
     program you are debugging. The availability of views depends on whether
     you are debugging C++ or QML. Frequently used views are shown by
@@ -642,8 +704,6 @@
     views. The size and position of views are saved for future sessions. Select
     \gui {Window > Views > Reset to Default Layout} to reset the views to
     their original sizes and positions.
-
-    \section1 Using the Debugger
 
     Once the program starts running under the control of the debugger, it
     behaves and performs as usual. You can interrupt a running C++ program by
@@ -986,22 +1046,14 @@
 
     \title Using Debugging Helpers
 
-    \QC is able to show complex data types in a customized,
-    user-extensible manner. For this purpose, it takes advantage of
-    two technologies, collectively referred to as \e{Debugging Helpers}.
-
-    Using the debugging helpers is not \e essential for debugging
-    with \QC, but they enhance the user's ability to quickly
-    examine complex data significantly.
+    There are two approaches to displaying complex data types. The first and
+    original one is to use debugging helpers based on C++. While it has been
+    superseded on most  platforms by the more robust and more flexible second
+    approch that uses Python scripting, it is the only feasible one on
+    Windows/MSVC, Mac OS, and old Linux distributions. Moreover, this approach
+    is automatically chosen as fallback if the Python based approach fails.
 
     \section1 Debugging Helpers Based on C++
-
-    This is the first and original approach to display complex data
-    types. While it has been superseded on most platforms by the more
-    robust and more flexible second approch using Python scripting,
-    it is the only feasible one on Windows/MSVC, Mac OS, and
-    old Linux distributions. Moreover, this approach will automatically
-    be chosen as fallback in case the Python based approach fails.
 
     During debugging with the C++ based debugging helpers,
     \QC dynamically loads a helper library in form of a DLL or a

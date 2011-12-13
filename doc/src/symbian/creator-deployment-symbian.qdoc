@@ -179,7 +179,7 @@
 
     \note If you use the Application Signing Services for Nokia Store, you can submit an unsigned
     wrapper package to Nokia Publish. For more information, see
-    \l{Publishing Applications to Nokia Store}.
+    \l{Publishing Qt Content for Symbian Devices}.
 
     You can either install the Nokia Smart Installer for Symbian as part of
     the \QSDK, or download and install it from the

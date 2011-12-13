@@ -31,7 +31,7 @@
     \page creator-building-targets.html
     \nextpage creator-running-targets.html
 
-    \title Building Applications for Multiple Targets
+    \title Building for Multiple Targets
 
     You can build applications for multiple \l{glossary-development-target}
     {targets}. By default, when you run the application on a target, you

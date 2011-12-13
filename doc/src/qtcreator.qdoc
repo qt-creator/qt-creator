@@ -29,156 +29,262 @@
 /*!
     \contentspage{index.html}{Qt Creator}
     \page index.html
-    \nextpage creator-getting-started.html
+    \nextpage creator-overview.html
 
     \title Qt Creator Manual
 
-    \section1 Version \qtcversion
+    \QC provides a cross-platform, complete integrated development environment
+    (IDE) for application developers to create applications for multiple desktop
+    and mobile device platforms. It is available for Linux, Mac OS X and Windows
+    operating systems. For more information, see \l{Supported Platforms}.
 
-    \QC provides a cross-platform, complete integrated development
-    environment (IDE) for application developers to create applications for
-    multiple desktop and mobile device platforms. It is available for Linux,
-    Mac OS X and Windows operating systems. For more information, see
-    \l{Supported Platforms}.
+    \table
+        \row
+            \o  \inlineimage creator_gettingstarted.png
+            \o  \inlineimage creator_managingprojects.png
+            \o  \inlineimage creator_designinguserinterface.png
+        \row
+            \o  \bold {\l{Getting Started}}
+                \list
+                    \o  \l{IDE Overview}
+                    \o  \l{User Interface}
+                    \o  \l{Building and Running an Example Application}
+                    \o  \l{Tutorials}
+                \endlist
+            \o  \bold {\l{Managing Projects}}
+                \list
+                    \o  \l{Creating Projects}
+                    \o  \l{Using Version Control Systems}
+                    \o  \l{Configuring Projects}
+                    \o  \l{Managing Sessions}
+                \endlist
+            \o  \bold {\l{Designing User Interfaces}}
+                \list
+                    \o  \l{Developing Qt Quick Applications}
+                    \o  \l{Developing Widget Based Applications}
+                    \o  \l{Optimizing Applications for Mobile Devices}
+                \endlist
+        \row
+            \o  \inlineimage creator_coding.png
+            \o  \inlineimage creator_buildingrunning.png
+            \o  \inlineimage creator_testing.png
+        \row
+            \o  \bold {\l{Coding}}
+                \list
+                    \o  \l{Writing Code}
+                    \o  \l{Finding}
+                    \o  \l{Refactoring}
+                    \o  \l{Configuring the Editor}
+                \endlist
+            \o  \bold {\l{Building and Running}}
+                \list
+                    \o  \l{Building for Multiple Targets}
+                    \o  \l{Running on Multiple Targets}
+                    \o  \l{Deploying to Mobile Devices}
+                    \o  \l{Connecting Mobile Targets}
+                \endlist
+            \o  \bold {\l{Debugging and Analyzing}}
+                \list
+                    \o  \l{Debugging}
+                    \o  \l{Analyzing Code}
+                \endlist
+        \row
+            \o  \inlineimage creator_publishing.png
+            \o  \inlineimage creator_advanceduse.png
+            \o  \inlineimage creator_gettinghelp.png
+        \row
+            \o  \bold {\l{Publishing}}
+                \list
+                    \o  \l{Publishing Qt Content for Symbian Devices}
+                    \o  \l{Publishing Qt Content for MeeGo Harmattan Devices}
+                    \o  \l{Publishing Qt Content for Maemo Devices}
+                    \o  \l{Publishing Maemo Applications to Extras-devel}
+                \endlist
+            \o  \bold {\l{Advanced Use}}
+                \list
+                    \o  \l{Supported Platforms}
+                    \o  \l{Using Other Build Systems}
+                    \o  \l{Using Command Line Options}
+                    \o  \l{Keyboard Shortcuts}
+                    \o  \l{Using External Tools}
+                \endlist
+            \o  \bold {\l{Getting Help}}
+                \list
+                    \o  \l{Using the Help Mode}
+                    \o  \l{FAQ}
+                    \o  \l{Tips and Tricks}
+                    \o  \l{Known Issues}
+                    \o  \l{Glossary}
+                \endlist
+        \row
+            \o  {3,1} \note To report bugs and suggestions to the Qt Bug
+                Tracker, select \gui {Help > Report Bug}.
 
-    \note To report bugs and suggestions to the Qt Bug Tracker, select
-    \gui {Help > Report Bug}.
-    You can also join the \QC mailing list at:
-    \l{http://lists.qt.nokia.com}{http://lists.qt.nokia.com}.
+                You can also join the \QC mailing list at:
+                \l{http://lists.qt.nokia.com}{http://lists.qt.nokia.com}.
+    \endtable
 
-    \raw HTML
-    <img border="0" style="float:right;" src="images/qtcreator-screenshots.png" />
-    \endraw
+    \section1 Table Of Contents
 
     \list
-       \o \l{Getting Started}
-           \list
-               \o \l{IDE Overview}
-               \o \l{User Interface}
-               \o \l{Building and Running an Example Application}
-               \o \l{Tutorials}
-               \list
-               \o \l{Creating a Qt Quick Application}
-               \o \l{Creating a Qt Quick Application Using Qt Quick Components}
-               \o \l{Creating a Qt Widget Based Application}
-               \endlist
-           \endlist
-       \o \l{Managing Projects}
+        \o  \l{Getting Started}
+        \list
+            \o  \l{IDE Overview}
+            \o  \l{User Interface}
+            \o  \l{Building and Running an Example Application}
+            \o  \l{Tutorials}
             \list
-                \o \l{Creating Projects}
-                \o \l{Opening Projects}
-                \o \l{Adding Libraries to Projects}
-                \o \l{Configuring Projects}
-                   \list
-                        \o \l{Specifying Build Settings}
-                           \list
-                               \o \l{Adding Qt Versions}
-                               \o \l{Adding Tool Chains}
-                           \endlist
-                        \o \l{Specifying Run Settings}
-                        \o \l{Specifying Editor Settings}
-                        \o \l{Specifying Code Style Settings}
-                        \o \l{Specifying Dependencies}
-                        \o \l{Sharing Project Settings}
-                        \endlist
-                \o \l{Connecting MeeGo Harmattan Devices}
-                \o \l{Connecting Generic Linux Devices}
-                \o \l{Connecting Maemo Devices}
-                \o \l{Connecting Symbian Devices}
-                \o \l{Managing Sessions}
+                \o  \l{Creating a Qt Quick Application}
+                \o  \l{Creating a Qt Quick Application Using Qt Quick Components}
+                \o  \l{Creating a Qt Widget Based Application}
             \endlist
-       \o \l{Coding}
+        \endlist
+        \o  \l{Managing Projects}
+        \list
+            \o  \l{Creating Projects}
             \list
-                \o \l{Using the Editor}
-                \o \l{Semantic Highlighting}
-                \o \l{Checking Code Syntax}
-                \o \l{Completing Code}
-                \o \l{Indenting Code}
-                \o \l{Finding and Replacing}
-                \o \l{Refactoring}
-                \o \l{Using Qt Quick Toolbars}
-                \o \l{Searching with the Locator}
-                \o \l{Pasting and Fetching Code Snippets}
-                \o \l{Using Text Editing Macros}
-                \o \l{Configuring the Editor}
-                \o \l{Using FakeVim Mode}
+                \o  \l{Opening Projects}
+                \o  \l{Adding Libraries to Projects}
+                \o  \l{Adding New Custom Wizards}
             \endlist
-       \o \l{Developing Application UI}
-       \list
-           \o \l{Developing Qt Quick Applications}
+            \o  \l{Using Version Control Systems}
+            \o  \l{Configuring Projects}
+            \list
+                \o  \l{Specifying Build Settings}
                 \list
-                    \o \l {Creating Qt Quick Projects}
-                    \o \l {Using Qt Quick Designer}
-                    \o \l {Creating Components}
-                    \o \l {Creating Buttons}
-                    \o \l {Creating Scalable Buttons and Borders}
-                    \o \l {Creating Screens}
-                    \o \l {Animating Screens}
-                    \o \l {Adding User Interaction Methods}
-                    \o \l {Exporting Designs from Graphics Software}
-                    \o \l {Implementing Application Logic}
-                    \o \l {Using QML Modules with Plugins}
+                    \o  \l{Adding Qt Versions}
+                    \o  \l{Adding Tool Chains}
                 \endlist
-           \o \l{Developing Widget Based Applications}
-           \o \l{Optimizing Applications for Mobile Devices}
-       \endlist
-       \o \l{Building and Running Applications}
-            \list
-                \o \l{Building Applications for Multiple Targets}
-                \o \l{Running Applications on Multiple Targets}
+                \o  \l{Specifying Run Settings}
+                \o  \l{Specifying Editor Settings}
+                \o  \l{Specifying Code Style Settings}
+                \o  \l{Specifying Dependencies}
+                \o  \l{Sharing Project Settings}
             \endlist
-       \o \l{Debugging}
+            \o  \l{Managing Sessions}
+        \endlist
+        \o  \l{Designing User Interfaces}
+        \list
+            \o  \l{Developing Qt Quick Applications}
             \list
-                \o \l{Debugging the Example Application}
-                \o \l{Launching the Debugger}
-                \o \l{Interacting with the Debugger}
-                \o \l{Setting Up Debugger}
-                \o \l{Using Debugging Helpers}
-                \o \l{Debugging Qt Quick Projects}
-                \o \l{Troubleshooting Debugger}
+                \o  \l {Creating Qt Quick Projects}
+                \o  \l {Using Qt Quick Designer}
+                \o  \l {Creating Components}
+                \o  \l {Creating Buttons}
+                \o  \l {Creating Scalable Buttons and Borders}
+                \o  \l {Creating Screens}
+                \o  \l {Animating Screens}
+                \o  \l {Adding User Interaction Methods}
+                \o  \l {Exporting Designs from Graphics Software}
+                \o  \l {Implementing Application Logic}
+                \o  \l {Using QML Modules with Plugins}
             \endlist
-       \o \l{Analyzing Code}
-           \list
-                \o \l{Profiling QML Applications}
-                \o \l{Detecting Memory Leaks}
-                \o \l{Profiling Function Execution}
-                \o \l{Running Valgrind Tools Remotely}
-           \endlist
-       \o \l{Deploying Applications to Mobile Devices}
+            \o  \l{Developing Widget Based Applications}
             \list
-                \o \l{Deploying Applications to Symbian Devices}
-                \o \l{Deploying Applications to Maemo or MeeGo Harmattan Devices}
-                \o \l{Publishing Maemo Applications to Extras-devel}
-                \o \l{Publishing Applications to Nokia Store}
+                \o \l{Adding Qt Designer Plugins}
+            \endlist
+            \o  \l{Optimizing Applications for Mobile Devices}
+        \endlist
+        \o  \l{Coding}
+        \list
+        \o  \l{Writing Code}
+            \list
+                \o  \l{Working in Edit Mode}
+                \o  \l{Semantic Highlighting}
+                \o  \l{Checking Code Syntax}
+                \o  \l{Completing Code}
+                \o  \l{Indenting Code}
+                \o  \l{Using Qt Quick Toolbars}
+                \o  \l{Pasting and Fetching Code Snippets}
+                \o  \l{Using Text Editing Macros}
+            \endlist
+            \o  \l{Finding}
+            \list
+                \o  \l{Finding and Replacing}
+                \o  \l{Searching with the Locator}
+            \endlist
+            \o  \l{Refactoring}
+            \o  \l{Configuring the Editor}
+            \list
+                \o  \l{Specifying Text Editor Settings}
+                \o  \l{Using FakeVim Mode}
+            \endlist
+            \o  \l{Editing MIME Types}
+        \endlist
+        \o  \l{Building and Running}
+        \list
+            \o  \l{Building for Multiple Targets}
+            \o  \l{Running on Multiple Targets}
+            \o  \l{Deploying to Mobile Devices}
+            \list
+                \o  \l{Deploying Applications to Symbian Devices}
+                \o  \l{Deploying Applications to Maemo or MeeGo Harmattan Devices}
+            \endlist
+            \o  \l{Connecting Mobile Targets}
+            \list
+                \o  \l{Connecting MeeGo Harmattan Devices}
+                \o  \l{Connecting Generic Linux Devices}
+                \o  \l{Connecting Maemo Devices}
+                \o  \l{Connecting Symbian Devices}
+            \endlist
+            \o  \l{Customizing the Build Process}
+            \o  \l{Using Maemo or MeeGo Harmattan Emulator}
+            \o  \l{Building with Remote Compiler}
+        \endlist
+        \o  \l{Debugging and Analyzing}
+        \list
+            \o  \l{Debugging}
+            \list
+                \o  \l{Debugging the Example Application}
+                \o  \l{Launching the Debugger}
+                \o  \l{Interacting with the Debugger}
+                \o  \l{Setting Up Debugger}
+                \o  \l{Using Debugging Helpers}
+                \o  \l{Debugging Qt Quick Projects}
+                \o  \l{Troubleshooting Debugger}
+            \endlist
+            \o  \l{Analyzing Code}
+            \list
+                \o  \l{Profiling QML Applications}
+                \o  \l{Using Valgrind Code Analysis Tools}
                 \list
-                    \o \l{Publishing Qt Content for Symbian Devices}
-                    \o \l{Publishing Qt Content for Maemo Devices}
-                    \o \l{Publishing Qt Content for MeeGo Harmattan Devices}
+                    \o  \l{Detecting Memory Leaks}
+                    \o  \l{Profiling Function Execution}
+                    \o  \l{Running Valgrind Tools Remotely}
                 \endlist
-                \o \l{Building with Remote Compiler}
             \endlist
-       \o \l{Getting Help}
-       \o \l{Advanced Use}
-           \list
-               \o \l{Supported Platforms}
-               \o \l{Adding New Custom Wizards}
-               \o \l{Setting Up a CMake Project}
-               \o \l{Setting Up an Autotools Project}
-               \o \l{Setting Up a Generic Project}
-               \o \l{Using Version Control Systems}
-               \o \l{Adding Qt Designer Plugins}
-               \o \l{Using External Tools}
-               \o \l{Using Maemo or MeeGo Harmattan Emulator}
-               \o \l{Editing MIME Types}
-               \o \l{Showing Task List Files in Issues Pane}
-               \o \l{Using Command Line Options}
-               \o \l{Keyboard Shortcuts}
-           \endlist
-       \o \l{FAQ}
-       \o \l{Tips and Tricks}
-       \o \l{Known Issues}
-       \o \l{Technical Support}
-       \o \l{Glossary}
-       \o \l{Acknowledgements}
+
+        \endlist
+        \o  \l{Publishing}
+        \list
+            \o  \l{Publishing Qt Content for Symbian Devices}
+            \o  \l{Publishing Qt Content for Maemo Devices}
+            \o  \l{Publishing Qt Content for MeeGo Harmattan Devices}
+            \o  \l{Publishing Maemo Applications to Extras-devel}
+        \endlist
+        \o  \l{Advanced Use}
+        \list
+            \o  \l{Supported Platforms}
+            \o  \l{Using Other Build Systems}
+            \list
+                \o  \l{Setting Up a CMake Project}
+                \o  \l{Setting Up an Autotools Project}
+                \o  \l{Setting Up a Generic Project}
+            \endlist
+            \o  \l{Using Command Line Options}
+            \o  \l{Keyboard Shortcuts}
+            \o  \l{Using External Tools}
+            \o  \l{Showing Task List Files in Issues Pane}
+        \endlist
+        \o \l{Getting Help}
+        \list
+            \o  \l{Using the Help Mode}
+            \o  \l{FAQ}
+            \o  \l{Tips and Tricks}
+            \o  \l{Known Issues}
+            \o  \l{Glossary}
+            \o  \l{Technical Support}
+            \o  \l{Acknowledgements}
+        \endlist
     \endlist
 */

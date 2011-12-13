@@ -27,42 +27,53 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-publishing-to-maemo-extras.html
+    \previouspage creator-running-valgrind-remotely.html
     \page creator-publish-ovi.html
     \nextpage creator-publish-ovi-symbian.html
 
-    \title Publishing Applications to Nokia Store
+    \title Publishing
 
-    Nokia Store is the global content market of Nokia, which reaches millions of
-    people worldwide. Consumers can access Nokia Store through either of these
-    platforms:
+    \image creator_publishing.png
 
-    \list
-
-        \o  Nokia Store applications on mobile devices
-
-        \o  Web browsers on desktop computers, laptops, netbooks, and tablets
-
-    \endlist
-
-    Consumers have access to a wide selection of content and can download
-    content in a few easy clicks.
+    You can publish applications to app stores, such as Nokia Store, and other
+    channels, such as Extras-devel for Maemo applications. Nokia Store is the
+    global content market of Nokia that consumers can access directly from Nokia
+    devices or through Web browsers.
 
     The process and requirements to publish Qt applications to Nokia Store are
     described in the
     \l {http://www.developer.nokia.com/Community/Wiki/Guide_to_Publishing_Qt_Applications_to_the_Ovi_Store}
     {Guide to Publishing Qt Applications to the Nokia Store} wiki.
 
-    This section describes how to generate installation packages that you can
-    publish to Nokia Store.
-
-    \if defined(qcmanual)
     \list
 
         \o  \l{Publishing Qt Content for Symbian Devices}
-        \o  \l{Publishing Qt Content for Maemo Devices}
+
+            The \gui {Publish Qt Symbian Applications to Nokia Store}
+            wizard ensures that your application can be published to Nokia
+            Store by verifying that the the application UID, vendor name,
+            and the capabilities used meet the Nokia Publish criteria.
+
         \o  \l{Publishing Qt Content for MeeGo Harmattan Devices}
 
+            \QC generates installation packages that you can publish to
+            Nokia Store. However, you must make sure that the packages meet
+            the requirements of the Nokia Store.
+
+        \o  \l{Publishing Qt Content for Maemo Devices}
+
+            \QC generates installation packages that you can publish to
+            Nokia Store. However, you must make sure that the packages meet
+            the requirements of the Nokia Store.
+
+        \o  \l{Publishing Maemo Applications to Extras-devel}
+
+            You can use the \gui {Publish for Fremantle Extras-devel Free
+            Repository} wizard to create a source archive and, optionally,
+            upload it to a build server for compiling and packaging. The
+            package is then moved to the Extras-devel repository that
+            contains free Maemo applications.
+
     \endlist
-    \endif
+
 */

@@ -27,7 +27,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-qmake-libraries.html
+    \previouspage creator-version-control.html
     \page creator-configuring-projects.html
     \nextpage creator-build-settings.html
 
@@ -56,7 +56,7 @@
 
     \list
 
-        \o  \l{Running Applications on Multiple Targets}{Targets}
+        \o  \l{Running on Multiple Targets}{Targets}
             (If you have installed the development environment for only one
             target, the \gui Targets tab is replaced by a \gui Build tab and a
             \gui Run tab.)

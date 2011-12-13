@@ -27,7 +27,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-qml-performance-monitor.html
+    \previouspage creator-valgrind-overview.html
     \page creator-analyzer.html
     \nextpage creator-cache-profiler.html
 
@@ -226,7 +226,7 @@
     \contentspage index.html
     \previouspage creator-cache-profiler.html
     \page creator-running-valgrind-remotely.html
-    \nextpage creator-deployment.html
+    \nextpage creator-publish-ovi.html
 
     \title Running Valgrind Tools Remotely
 

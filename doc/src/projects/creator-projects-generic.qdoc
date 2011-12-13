@@ -29,12 +29,9 @@
     \contentspage index.html
     \previouspage creator-projects-autotools.html
     \page creator-project-generic.html
-    \nextpage creator-version-control.html
+    \nextpage creator-cli.html
 
     \title Setting Up a Generic Project
-
-    \QC supports generic projects, so you can import existing projects
-    that do not use qmake or CMake and \QC ignores your build system.
 
     Generic project support allows you to use \QC as a code editor. You
     can change the way your project is built by modifying the \c make command

@@ -27,185 +27,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-managing-sessions.html
-    \page creator-coding.html
-    \nextpage creator-editor-using.html
-
-    \title Coding
-
-    Writing, editing, and navigating in source code are core tasks in
-    application development. Therefore, the code editor is one of the key
-    components of \QC. You can use the code editor in the \gui Edit
-    mode.
-
-    The following sections describe coding with \QC:
-
-    \list
-
-        \o  \l{Using the Editor} describes how to work in the code editor, use
-            the editor toolbar, split the view, add bookmarks, and move between
-            symbol definitions and declarations.
-
-        \o  \l{Semantic Highlighting} describes highlighting code elements and
-            blocks, as well as using syntax highlighting also for other types
-            of files than C++ or QML.
-
-        \o  \l{Checking Code Syntax} describes how errors are visualized
-            while you write code.
-
-        \o  \l{Completing Code} describes how code and code snippets are
-            completed for elements, properties, an IDs.
-
-        \o  \l{Indenting Code} describes how to specify indentation either
-            globally for all files or separately for: text, C++, or QML files.
-
-        \o  \l{Finding and Replacing} describes the incremental search that
-            highlights the matching strings in the window while typing and the
-            advanced search that allows you to search from currently open
-            projects or files on the file system. In addition, you can search
-            for symbols when you want to refactor code.
-
-        \o  \l{Refactoring} describes the features that help you improve the
-            internal quality or your application, its performance and
-            extendibility, and code readability and maintainability, as well as
-            to simplify code structure.
-
-        \o  \l{Using Qt Quick Toolbars} describes how to use the Qt Quick
-            Toolbars to edit the properties of QML elements in the code editor.
-
-        \o  \l{Searching with the Locator} describes how to browse through
-            projects, files, classes, methods, documentation and file systems.
-
-        \o  \l{Pasting and Fetching Code Snippets} describes how to cooperate
-            with other developers by pasting and fetching snippets of code from
-            a server.
-
-        \o  \l{Using Text Editing Macros} describes how to record and play
-            text editing macros.
-
-        \o  \l{Configuring the Editor} describes how to change the text editor
-            options to suit your specific needs.
-
-        \o  \l{Using FakeVim Mode} describes how to run the main editor in a
-            manner similar to the Vim editor.
-
-    \endlist
-
-*/
-
-
-/*!
-    \contentspage index.html
-    \previouspage creator-coding.html
-    \page creator-editor-using.html
-    \nextpage creator-highlighting.html
-
-    \title Using the Editor
-
-    \QC's code editor is designed to aid you in creating, editing and
-    navigating code.  \QC's code editor is fully equipped with syntax
-    checking, code completion, context sensitive help and in-line error
-    indicators while you are typing.
-
-    \image qtcreator-edit-mode.png "Edit mode"
-
-    \section1 Using the Editor Toolbar
-
-    The editor toolbar is located at the top of the editor view. The editor
-    toolbar is context sensitive and shows items relevant to the file currently
-    open in the editor.
-
-    \image qtcreator-editortoolbar-symbols.png
-
-    Use the toolbar to navigate between open files and symbols in use.
-    To browse forward or backward through your location history, click
-           \inlineimage qtcreator-back.png
-           and \inlineimage qtcreator-forward.png
-           .
-
-    To go to any open file, select it from the \gui{Open files} drop-down menu.
-    Right-click the menu title and select \gui {Copy Full Path to Clipboard} to
-    copy the path and name of the current file to the clipboard.
-
-    To jump to any symbol used in the current file, select it from the
-    \gui Symbols drop-down menu. By default, the symbols are displayed in the
-    order in which they appear in the file. Right-click the menu title and
-    select \gui {Sort Alphabetically} to arrange the symbols in alphabetic
-    order.
-
-    \section1 Splitting the Editor View
-
-    Split the editor view when you want to work on and view multiple files on
-    the same screen.
-
-    \image qtcreator-spliteditorview.png
-
-    You can split the editor view in the following ways:
-
-    \list
-
-        \o  To split the editor view into a top and bottom view, select
-            \gui Window > \gui Split or press \key{Ctrl+E, 2}.
-
-            Split command creates views below the currently active editor view.
-
-        \o  To split the editor view into adjacent views, select
-            \gui Window > \gui{Split Side by Side} or press \key{Ctrl+E, 3}.
-
-           Side by side split command creates views to the right of the
-           currently active editor view.
-
-    \endlist
-
-    To move between split views, select \gui Window > \gui{Go to Next Split} or
-    press \key{Ctrl+E, O}.
-
-    To remove a split view, place the cursor within the view you want to
-    remove and select \gui Window > \gui{Remove Current Split} or press
-    \key{Ctrl+E, 0}. To remove all but the currently selected split view,
-    select \gui Window > \gui{Remove All Splits} or press \key{Ctrl+E, 1}.
-
-    \section1 Using Bookmarks
-
-    To insert or delete a bookmark right-click the line number and select
-    \gui{Toggle Bookmark} or press \key{Ctrl+M}.
-
-    \image qtcreator-togglebookmark.png
-
-    To go to previous bookmark in the current session, press \key{Ctrl+,}.
-
-    To go to next bookmark in the current session, press \key{Ctrl+.}.
-
-    \section1 Moving to Symbol Definition or Declaration
-
-    You can move directly to the definition or the declaration of a symbol by
-    holding the \key Ctrl and clicking the symbol.
-
-    To enable this moving function, in \gui Tools > \gui{Options} >
-    \gui{Text Editor} > \gui Behavior, select \gui{Enable mouse navigation}.
-
-    You can also select the symbol and press \key F2, or right-click the symbol
-    and select \gui {Follow Symbol Under Cursor} to move to its definition or
-    declaration. This feature is supported for namespaces, classes, methods,
-    variables, include statements, and macros.
-
-    To switch between the definition and declaration of a symbol, press
-    \key {Shift+F2} or right-click the symbol and select \gui {Switch Between
-    Method Declaration/Definition}.
-
-    \section1 Using Update Code Model
-
-    To refresh the internal information in \QC pertaining to your code,
-    select \gui{Tools} > \gui{C++} > \gui{Update Code Model}.
-
-    \note In \QC indexing updates the code automatically. Use
-    \gui{Update Code Model} only as an emergency command.
-*/
-
-
-/*!
-    \contentspage index.html
-    \previouspage creator-editor-using.html
+    \previouspage creator-coding-navigating.html
     \page creator-highlighting.html
     \nextpage creator-checking-code-syntax.html
 
@@ -918,7 +740,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-editor-locator.html
+    \previouspage qt-quick-toolbars.html
     \page creator-editor-codepasting.html
     \nextpage creator-macros.html
 
@@ -967,14 +789,9 @@
     \contentspage index.html
     \previouspage creator-editor-codepasting.html
     \page creator-macros.html
-    \nextpage creator-editor-options.html
+    \nextpage creator-finding-overview.html
 
     \title Using Text Editing Macros
-
-    When you have a file open in the code editor, you can record a keyboard
-    sequence as a macro. You can then play the macro to repeat the sequence.
-    You can save the latest macro and assign a keyboard shortcut for running
-    it or run it from the locator.
 
     To record a text editing macro, select \gui {Tools > Macros > Record Macro}
     or press \key {Alt+(}. To stop recording, select \gui {Tools > Macros >
@@ -1000,9 +817,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-editor-options.html
+    \previouspage creator-editor-options-text.html
     \page creator-editor-fakevim.html
-    \nextpage creator-design-mode.html
+    \nextpage creator-mime-types.html
 
     \title Using FakeVim Mode
 
@@ -1036,116 +853,11 @@
 
     */
 
-
-/*!
-    \contentspage index.html
-    \previouspage creator-macros.html
-    \page creator-editor-options.html
-    \nextpage creator-editor-fakevim.html
-
-    \title Configuring the Editor
-
-    \QC allows you to configure the text editor to suit your specific
-    needs. To configure the editor, select  \gui Tools > \gui{Options} >
-    \gui{Text Editor}.
-
-    These settings apply to all projects. To specify editor behavior for an
-    open project, select \gui {Projects > Editor Settings}. For more
-    information, see \l{Specifying Editor Settings}.
-
-    You can also specify indentation settings separately for C++ and QML files
-    either globally or for the open project. For more information, see
-    \l{Indenting Code}.
-
-    \image qtcreator-font-colors.png "Text editor options"
-
-    You can perform the following configuration actions:
-
-    \list
-
-        \o  Set the font preferences and apply color schemes for syntax
-            highlighting in \gui{Font & Colors}.
-
-        \o  Specify \l{Generic Highlighting}
-            {definition files for syntax highlighting} for other types of files
-             than C++ or QML in \gui{Generic Highlighter}.
-
-        \o  Set tabs, indentation, the handling of whitespace, and mouse
-            operations in \gui Behavior. For more information, see
-            \l{Indenting Code}.
-
-        \o  Set various display properties, for example,
-            \l{Highlighting and folding blocks}
-            {highlighting and folding blocks}, text wrapping or
-            \l{Moving to symbol definition or declaration}
-            {moving to symbol definition or declaration} in \gui Display.
-
-        \o  Add, modify, and remove \l{Editing Code Snippets}{code snippets} in
-            \gui Snippets.
-
-        \o  View and remove \l{Using Text Editing Macros}{text editing macros}
-            in \gui Macros.
-
-        \o  Configure \l{Completing Code}{code completion} in \gui Completion.
-
-    \endlist
-
-    \section2 Configuring Fonts
-
-    You can select the font family and size. You can specify a zoom setting in
-    percentage for viewing the text. You can also zoom in or out by pressing
-    \key {Ctrl++} or \key {Ctrl +-}, or by pressing \key Ctrl and rolling
-    the mouse button up or down. To disable the mouse wheel function, select
-    \gui {Tools > Options > Text Editor > Behavior} and deselect the
-    \gui {Enable scroll wheel zooming} check box.
-
-    Antialiasing is used by default to make text look smoother and more
-    readable on the screen. Deselect the \gui Antialias check box to
-    turn off antialiasing.
-
-    \section2 Defining Color Schemes
-
-    You can select one of the predefined color schemes for syntax highlighting
-    or create customized color schemes. The color schemes apply to highlighting
-    both C++ and QML files and generic files.
-
-    To create a color scheme:
-
-    \list 1
-
-        \o  Select \gui {Tools > Options > Text Editor > Fonts & Color > Copy}.
-
-        \o  Enter a name for the color scheme and click \gui OK.
-
-        \o  In the \gui Foreground field, specify the color of the selected
-            code element.
-
-        \o  In the \gui Background field, select the background
-            color for the code element.
-
-        The backgound of the \gui Text element determines the background of the
-        code editor.
-
-    \endlist
-
-    When you copy code from \QC, it is copied in both plain text and HTML
-    format. The latter makes sure that syntax highlighting is preserved when
-    pasting to a rich-text editor.
-
-    \section2 File Encoding
-
-    To define the default file encoding, select the desired encoding in
-    \gui {Default encoding}. By default, \QC uses the file encoding
-    used by your system.
-
-*/
-
-
 /*!
     \contentspage index.html
     \previouspage creator-completing-code.html
     \page creator-indenting-code.html
-    \nextpage creator-editor-finding.html
+    \nextpage qt-quick-toolbars.html
 
     \title Indenting Code
 
@@ -1353,9 +1065,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-indenting-code.html
+    \previouspage creator-finding-overview.html
     \page creator-editor-finding.html
-    \nextpage creator-editor-refactoring.html
+    \nextpage creator-editor-locator.html
 
     \title Finding and Replacing
 
@@ -1479,15 +1191,13 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-editor-finding.html
+    \previouspage creator-editor-locator.html
     \page creator-editor-refactoring.html
-    \nextpage qt-quick-toolbars.html
+    \nextpage creator-editor-options.html
 
     \title Refactoring
 
-    Code refactoring is the process of changing the code without modifying the
-    existing functionality of your application. By refactoring your code you
-    can:
+    Refactor code to:
 
     \list
 
@@ -2013,16 +1723,13 @@
 
 /*!
     \contentspage index.html
-    \previouspage qt-quick-toolbars.html
+    \previouspage creator-editor-finding.html
     \page creator-editor-locator.html
-    \nextpage creator-editor-codepasting.html
+    \nextpage creator-editor-refactoring.html
 
     \title Searching with the Locator
 
-    The locator provides one of the easiest ways in \QC to browse through
-    projects, files, classes, methods, documentation and file systems. You can
-    find the locator in the bottom left of the \QC window.
-
+    You can find the locator in the bottom left of the \QC window.
     To activate the locator, press \key Ctrl+K (\key Cmd+K on Mac OS X) or
     select \gui Tools > \gui Locate.
 

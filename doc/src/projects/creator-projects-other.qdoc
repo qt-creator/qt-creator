@@ -1,0 +1,60 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-os-supported-platforms.html
+    \page creator-project-other.html
+    \nextpage creator-project-cmake.html
+
+    \title Using Other Build Systems
+
+    \QC project wizards create projects that are configured to use qmake. Most
+    of the instructions in this manual apply to using qmake.
+
+    \list
+
+        \o  \l{Setting Up a CMake Project}
+
+            CMake is an alternative to qmake for automating the generation of
+            build configurations.
+
+        \o  \l{Setting Up an Autotools Project}
+
+            \QC can open projects that use the Autotools build system. You can
+            build and run the projects directly from \QC.
+
+        \o  \l{Setting Up a Generic Project}
+
+            \QC supports generic projects, so you can import existing projects
+            that do not use qmake or CMake. This enables you to use \QC as a
+            code editor and to fully control the steps and commands used to
+            build the project.
+
+    \endlist
+
+*/

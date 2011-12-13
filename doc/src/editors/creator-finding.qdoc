@@ -1,0 +1,54 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-macros.html
+    \page creator-finding-overview.html
+    \nextpage creator-editor-finding.html
+
+    \title Finding
+
+    \list
+
+        \o  \l{Finding and Replacing}
+
+            The incremental search highlights the matching strings in the
+            window while typing and the advanced search enables you to
+            search from currently open projects or files on the file system.
+            In addition, you can search for symbols when you want to
+            refactor code. You can also search from the search results.
+
+        \o  \l{Searching with the Locator}
+
+            The locator provides one of the easiest ways in \QC to browse
+            through projects, files, classes, methods, documentation and
+            file systems.
+
+    \endlist
+
+*/

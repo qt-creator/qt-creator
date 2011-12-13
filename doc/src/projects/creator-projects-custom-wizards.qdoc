@@ -27,9 +27,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-os-supported-platforms.html
+    \previouspage creator-project-qmake-libraries.html
     \page creator-project-wizards.html
-    \nextpage creator-project-cmake.html
+    \nextpage creator-version-control.html
 
     \title Adding New Custom Wizards
 

@@ -27,48 +27,48 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-editor-fakevim.html
+    \previouspage creator-project-managing-sessions.html
     \page creator-design-mode.html
     \nextpage creator-visual-editor.html
 
-    \title Developing Application UI
+    \title Designing User Interfaces
 
-    Large high-resolution screens, touch input, and significant graphics power
-    are becoming common in portable consumer devices, such as mobile phones,
-    media players, set-top boxes, and netbooks. To fully benefit from these
-    features and to create intuitive, modern-looking, fluid user interfaces,
-    you can use \l {http://doc.qt.nokia.com/4.7/qtquick.html}{Qt Quick}.
+    \image creator_designinguserinterface.png
 
-    Qt Quick consists of a rich set of user interface elements, a declarative
-    language for describing user interfaces, and a language runtime. A
-    collection of C++ APIs is used to integrate these high level features with
-    classic Qt applications.
+    \QC provides two integrated visual editors, \QMLD and \QD. The integration
+    includes project management and code completion.
 
-    You can edit QML code in the code editor or in the integrated \QMLD.
+    \list
 
-    \image qtcreator-design-mode.png "Design mode"
+        \o  \l{Developing Qt Quick Applications}
 
-    The integration includes project management and code completion.
+            You can either create Qt Quick projects from scratch or import
+            existing projects to \QC. You can use the code editor (Edit mode)
+            or the visual editor (Design mode) to develop Qt Quick applications.
+        \o  \l{Developing Widget Based Applications}
 
-    \if defined(qcmanual)
-    If you need a traditional user interface that is clearly structured and
-    enforces a platform look and feel, you can use the integrated \QD. You can
-    compose and customize your widgets or dialogs and test them using different
-    styles and resolutions.
-    \endif
+            Widgets and forms created with \QD are integrated seamlessly with
+            programmed code by using the Qt signals and slots mechanism that
+            allows you to easily assign behavior to graphical elements. All
+            properties set in \QD can be changed dynamically within the code.
+            Furthermore, features such as widget promotion and custom
+            plugins allow you to use your own widgets with \QD.
+        \o  \l{Optimizing Applications for Mobile Devices}
 
-    The following sections describe how to develop application UI:
+            Mobile devices have been designed for use when mobile. Keep the
+            characteristics of mobile devices in mind when you create
+            applications for them.
 
-       \list
+    \endlist
 
-           \o \l{Developing Qt Quick Applications}
+    \section1 Related Topics
 
-           \if defined(qcmanual)
-           \o \l{Developing Widget Based Applications}
-           \endif
+    \list
 
-           \o \l{Optimizing Applications for Mobile Devices}
+        \o  \l{Adding Qt Designer Plugins}
 
-       \endlist
+            You can use Qt APIs to create plugins that extend Qt applications.
+            This enables you to add your own widgets to \QD.
 
+    \endlist
 */

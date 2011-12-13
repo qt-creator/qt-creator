@@ -1,0 +1,81 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-usability.html
+    \page creator-coding.html
+    \nextpage creator-editor-functions.html
+
+    \title Coding
+
+    \image creator_coding.png
+
+    \list
+
+        \o  \l{Writing Code}
+
+            Writing, editing, and navigating in source code are core tasks in
+            application development. Therefore, the code editor is one of the
+            key components of \QC. You can use the code editor in the \gui Edit
+            mode.
+
+        \o  \l{Finding}
+
+            Use the incremental and advanced search to search from currently
+            open projects or files on the file system or use the locator to
+            browse through projects, files, classes, methods, documentation and
+            file systems.
+
+        \o  \l{Refactoring}
+
+            Code refactoring is the process of improving and simplifying code
+            without modifying the existing functionality of an application. You
+            can easily find and rename symbols and apply predefined actions to
+            refactor code.
+
+        \o  \l{Configuring the Editor}
+
+            You can change the fonts, colors, highlighting, and indentation.
+            If you are used to the the Vim editor, you can even run the main
+            editor in a manner similar to it in the \gui{FakeVim} mode.
+
+    \endlist
+
+    \section1 Related Topics
+
+    \list
+
+        \o  \l{Editing MIME Types}
+
+            \QC uses the MIME type of a file to determine which mode and editor
+            to use for opening the file. If your files do not match the
+            predefined MIME types, you can edit the MIME types.
+
+    \endlist
+
+*/

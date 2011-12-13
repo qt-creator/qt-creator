@@ -27,18 +27,16 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-using-qt-designer.html
+    \previouspage adding-plugins.html
     \page creator-usability.html
-    \nextpage creator-building-running.html
+    \nextpage creator-coding.html
 
     \title Optimizing Applications for Mobile Devices
 
     Before starting application development, analyze and define the
     requirements, scope, and functionality of the application to ensure
     efficient functionality and a smooth user experience. Design the application
-    for a single purpose and analyze how it can best serve its users. Mobile
-    devices have been designed for use when mobile. Keep the characteristics
-    of mobile devices in mind when you create applications for them.
+    for a single purpose and analyze how it can best serve its users.
 
     The following guidelines help you design and develop usable applications for
     mobile devices with varying characteristics, such as screen size and support
