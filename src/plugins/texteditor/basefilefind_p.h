@@ -33,6 +33,9 @@
 #ifndef BASEFILEFIND_P_H
 #define BASEFILEFIND_P_H
 
+#include <find/ifindfilter.h>
+
+#include <QtCore/QVariant>
 #include <QtGui/QLabel>
 
 namespace TextEditor {
@@ -48,7 +51,18 @@ public slots:
     void updateCount(int count);
 };
 
+class FileFindParameters
+{
+public:
+    QString text;
+    Find::FindFlags flags;
+    QStringList nameFilters;
+    QVariant additionalParameters;
+};
+
 } // namespace Internal
 } // namespace TextEditor
+
+Q_DECLARE_METATYPE(TextEditor::Internal::FileFindParameters)
 
 #endif // BASEFILEFIND_P_H

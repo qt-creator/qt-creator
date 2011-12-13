@@ -61,8 +61,12 @@ public:
     void readSettings(QSettings *settings);
 
 protected:
-    virtual QList<Project *> projects() const;
-    Utils::FileIterator *files() const;
+    Utils::FileIterator *files(const QStringList &nameFilters,
+                               const QVariant &additionalParameters) const;
+    Utils::FileIterator *filesForProjects(const QStringList &nameFilters,
+                               const QList<Project *> &projects) const;
+
+    QVariant additionalParameters() const;
     QString label() const;
     QString toolTip() const;
 

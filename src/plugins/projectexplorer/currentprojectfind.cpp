@@ -34,7 +34,9 @@
 
 #include "projectexplorer.h"
 #include "project.h"
+#include "session.h"
 
+#include <coreplugin/ifile.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
@@ -70,14 +72,31 @@ bool CurrentProjectFind::isEnabled() const
     return m_plugin->currentProject() != 0 && BaseFileFind::isEnabled();
 }
 
-QList<Project *> CurrentProjectFind::projects() const
+QVariant CurrentProjectFind::additionalParameters() const
 {
-    return QList<Project *>() << m_plugin->currentProject();
+    if (m_plugin->currentProject() && m_plugin->currentProject()->file())
+        return qVariantFromValue(m_plugin->currentProject()->file()->fileName());
+    return QVariant();
+}
+
+Utils::FileIterator *CurrentProjectFind::files(const QStringList &nameFilters,
+                           const QVariant &additionalParameters) const
+{
+    QTC_ASSERT(m_plugin->session(), return new Utils::FileIterator());
+    QTC_ASSERT(additionalParameters.isValid(), return new Utils::FileIterator());
+    QList<Project *> allProjects = m_plugin->session()->projects();
+    QString projectFile = additionalParameters.toString();
+    foreach (Project *project, allProjects) {
+        if (project->file() && projectFile == project->file()->fileName())
+            return filesForProjects(nameFilters, QList<Project *>() << project);
+    }
+    return new Utils::FileIterator();
 }
 
 QString CurrentProjectFind::label() const
 {
-    return tr("Project '%1':").arg(projects().first()->displayName());
+    QTC_ASSERT(m_plugin->currentProject(), return QString());
+    return tr("Project '%1':").arg(m_plugin->currentProject()->displayName());
 }
 
 void CurrentProjectFind::writeSettings(QSettings *settings)

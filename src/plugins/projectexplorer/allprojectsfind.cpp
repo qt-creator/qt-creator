@@ -77,22 +77,24 @@ bool AllProjectsFind::isEnabled() const
             && m_plugin->session()->projects().count() > 0;
 }
 
-QList<Project *> AllProjectsFind::projects() const
+Utils::FileIterator *AllProjectsFind::files(const QStringList &nameFilters,
+                                            const QVariant &additionalParameters) const
 {
-    Q_ASSERT(m_plugin->session());
-    return m_plugin->session()->projects();
+    Q_UNUSED(additionalParameters)
+    QTC_ASSERT(m_plugin->session(), return new Utils::FileIterator());
+    return filesForProjects(nameFilters, m_plugin->session()->projects());
 }
 
-Utils::FileIterator *AllProjectsFind::files() const
+Utils::FileIterator *AllProjectsFind::filesForProjects(const QStringList &nameFilters,
+                                            const QList<Project *> &projects) const
 {
     QList<QRegExp> filterRegs;
-    QStringList nameFilters = fileNameFilters();
     foreach (const QString &filter, nameFilters) {
         filterRegs << QRegExp(filter, Qt::CaseInsensitive, QRegExp::Wildcard);
     }
     QMap<QString, QTextCodec *> openEditorEncodings = TextEditor::ITextEditor::openedTextEditorsEncodings();
     QMap<QString, QTextCodec *> encodings;
-    foreach (const Project *project, projects()) {
+    foreach (const Project *project, projects) {
         QStringList projectFiles = project->files(Project::AllFiles);
         QStringList filteredFiles;
         if (!filterRegs.isEmpty()) {
@@ -115,6 +117,11 @@ Utils::FileIterator *AllProjectsFind::files() const
         }
     }
     return new Utils::FileIterator(encodings.keys(), encodings.values());
+}
+
+QVariant AllProjectsFind::additionalParameters() const
+{
+    return QVariant();
 }
 
 QString AllProjectsFind::label() const

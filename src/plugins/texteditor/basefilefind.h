@@ -77,7 +77,9 @@ public:
                                   const QList<Find::SearchResultItem> &items);
 
 protected:
-    virtual Utils::FileIterator *files() const = 0;
+    virtual Utils::FileIterator *files(const QStringList &nameFilters,
+                                       const QVariant &additionalParameters) const = 0;
+    virtual QVariant additionalParameters() const = 0;
     virtual QString label() const = 0; // see Find::SearchResultWindow::startNewSearch
     virtual QString toolTip() const = 0; // see Find::SearchResultWindow::startNewSearch,
                                          // add %1 placeholder where the find flags should be put
@@ -97,10 +99,12 @@ private slots:
     void doReplace(const QString &txt,
                     const QList<Find::SearchResultItem> &items);
     void hideHighlightAll(bool visible);
+    void searchAgain();
 
 private:
     void runNewSearch(const QString &txt, Find::FindFlags findFlags,
                       Find::SearchResultWindow::SearchMode searchMode);
+    void runSearch(Find::SearchResult *search);
     QFutureWatcher<Utils::FileSearchResultList> *watcherForSearch(Find::SearchResult *search);
 
     QMap<QFutureWatcher<Utils::FileSearchResultList> *, QPointer<Find::SearchResult> > m_watchers;

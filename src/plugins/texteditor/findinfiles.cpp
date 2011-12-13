@@ -68,11 +68,17 @@ void FindInFiles::findAll(const QString &txt, Find::FindFlags findFlags)
     BaseFileFind::findAll(txt, findFlags);
 }
 
-Utils::FileIterator *FindInFiles::files() const
+Utils::FileIterator *FindInFiles::files(const QStringList &nameFilters,
+                                        const QVariant &additionalParameters) const
 {
-    return new Utils::SubDirFileIterator(QStringList() << QDir::fromNativeSeparators(m_directory->currentText()),
-                                         fileNameFilters(),
+    return new Utils::SubDirFileIterator(QStringList() << additionalParameters.toString(),
+                                         nameFilters,
                                          Core::EditorManager::instance()->defaultTextCodec());
+}
+
+QVariant FindInFiles::additionalParameters() const
+{
+    return qVariantFromValue(QDir::fromNativeSeparators(m_directory->currentText()));
 }
 
 QString FindInFiles::label() const

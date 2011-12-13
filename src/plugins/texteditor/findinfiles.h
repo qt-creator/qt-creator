@@ -62,7 +62,9 @@ public:
     void setDirectory(const QString &directory);
 
 protected:
-    Utils::FileIterator *files() const;
+    Utils::FileIterator *files(const QStringList &nameFilters,
+                               const QVariant &additionalParameters) const;
+    QVariant additionalParameters() const;
     QString label() const;
     QString toolTip() const;
 

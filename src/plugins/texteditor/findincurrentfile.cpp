@@ -66,15 +66,21 @@ QString FindInCurrentFile::displayName() const
     return tr("Current File");
 }
 
-Utils::FileIterator *FindInCurrentFile::files() const
+Utils::FileIterator *FindInCurrentFile::files(const QStringList &nameFilters,
+                                              const QVariant &additionalParameters) const
 {
-    Q_ASSERT(isEnabled());
-    QString fileName = m_currentFile->fileName();
+    Q_UNUSED(nameFilters)
+    QString fileName = additionalParameters.toString();
     QMap<QString, QTextCodec *> openEditorEncodings = ITextEditor::openedTextEditorsEncodings();
     QTextCodec *codec = openEditorEncodings.value(fileName);
     if (!codec)
         codec = Core::EditorManager::instance()->defaultTextCodec();
     return new Utils::FileIterator(QStringList() << fileName, QList<QTextCodec *>() << codec);
+}
+
+QVariant FindInCurrentFile::additionalParameters() const
+{
+    return qVariantFromValue(m_currentFile->fileName());
 }
 
 QString FindInCurrentFile::label() const

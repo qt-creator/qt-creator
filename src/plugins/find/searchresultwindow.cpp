@@ -549,6 +549,8 @@ SearchResult::SearchResult(SearchResultWidget *widget)
             this, SIGNAL(cancelled()));
     connect(widget, SIGNAL(visibilityChanged(bool)),
             this, SIGNAL(visibilityChanged(bool)));
+    connect(widget, SIGNAL(searchAgainRequested()),
+            this, SIGNAL(searchAgainRequested()));
 }
 
 /*!
@@ -585,6 +587,11 @@ QString SearchResult::textToReplace() const
 int SearchResult::count() const
 {
     return m_widget->count();
+}
+
+void SearchResult::setSearchAgainSupported(bool supported)
+{
+    m_widget->setSearchAgainSupported(supported);
 }
 
 /*!
@@ -638,6 +645,14 @@ void SearchResult::finishSearch()
 void SearchResult::setTextToReplace(const QString &textToReplace)
 {
     m_widget->setTextToReplace(textToReplace);
+}
+
+/*!
+ * \brief Removes all search results.
+ */
+void SearchResult::reset()
+{
+    m_widget->reset();
 }
 
 } // namespace Find
