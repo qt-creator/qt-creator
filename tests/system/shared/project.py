@@ -90,9 +90,21 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
     clickButton(waitForObject(":Next_QPushButton"))
     return str(projectName)
 
+def __selectQtVersionDesktop__(qtVersion, checks):
+    __chooseTargets__()
+    selectFromCombo(":scrollArea.Create Build Configurations:_QComboBox_2",
+                    "For One Qt Version One Debug And One Release")
+    ensureChecked(":scrollArea.Use Shadow Building_QCheckBox")
+    selectFromCombo(":scrollArea.Qt Version:_QComboBox", qtVersion)
+    if checks:
+        verifyChecked(":scrollArea.Qt 4 for Desktop - (Qt SDK) debug_QCheckBox")
+        verifyChecked(":scrollArea.Qt 4 for Desktop - (Qt SDK) release_QCheckBox")
+    clickButton(waitForObject(":Next_QPushButton"))
+
 def __createProjectHandleLastPage__(expectedFiles = None):
     if expectedFiles != None:
-        summary = str(waitForObject(":scrollArea.Files to be added").text)
+        summary = str(waitForObject("{name='filesLabel' text?='<qt>Files to be added in<pre>*</pre>'"
+                                    "type='QLabel' visible='1'}").text)
         lastIndex = 0
         for filename in expectedFiles:
             index = summary.find(filename)
@@ -101,19 +113,16 @@ def __createProjectHandleLastPage__(expectedFiles = None):
     selectFromCombo(":addToVersionControlComboBox_QComboBox", "<None>")
     clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}", 20000))
 
+def __verifyFileCreation__(path, expectedFiles):
+    for filename in expectedFiles:
+        if filename != path:
+            filename = os.path.join(path, filename)
+        test.verify(os.path.exists(filename), "Checking if '" + filename + "' was created")
+
 def createProject_Qt_GUI(path, projectName, qtVersion, checks):
     __createProjectSelectType__("Other Qt Project", "Qt Gui Application")
     __createProjectSetNameAndPath__(path, projectName, checks)
-    __chooseTargets__()
-    selectFromCombo(":scrollArea.Create Build Configurations:_QComboBox_2", "For One Qt Version One Debug And One Release")
-    selectFromCombo(":scrollArea.Qt Version:_QComboBox", qtVersion)
-    if checks:
-        if platform.system() in ('Windows', 'Microsoft'):
-            path = os.path.abspath(path)
-        verifyChecked(":scrollArea.Qt 4 for Desktop - (Qt SDK) debug_QCheckBox")
-        verifyChecked(":scrollArea.Qt 4 for Desktop - (Qt SDK) release_QCheckBox")
-    nextButton = waitForObject(":Next_QPushButton")
-    clickButton(nextButton)
+    __selectQtVersionDesktop__(qtVersion, checks)
 
     if checks:
         exp_filename = "mainwindow"
@@ -130,26 +139,36 @@ def createProject_Qt_GUI(path, projectName, qtVersion, checks):
         test.compare(findObject(":sourceFileLineEdit_Utils::FileNameValidatingLineEdit").text, cpp_file)
         test.compare(findObject(":formFileLineEdit_Utils::FileNameValidatingLineEdit").text, ui_file)
 
-    clickButton(nextButton)
+    clickButton(waitForObject(":Next_QPushButton"))
 
     expectedFiles = None
     if checks:
+        if platform.system() in ('Windows', 'Microsoft'):
+            path = os.path.abspath(path)
         path = os.path.join(path, projectName)
         expectedFiles = [path, cpp_file, h_file, ui_file, pro_file]
     __createProjectHandleLastPage__(expectedFiles)
 
+    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 20000)
+    __verifyFileCreation__(path, expectedFiles)
+
+def createProject_Qt_Console(path, projectName, qtVersion, checks):
+    __createProjectSelectType__("Other Qt Project", "Qt Console Application")
+    __createProjectSetNameAndPath__(path, projectName, checks)
+    __selectQtVersionDesktop__(qtVersion, checks)
+
+    expectedFiles = None
     if checks:
-        waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 20000)
+        if platform.system() in ('Windows', 'Microsoft'):
+            path = os.path.abspath(path)
+        path = os.path.join(path, projectName)
+        cpp_file = "main.cpp"
+        pro_file = projectName + ".pro"
+        expectedFiles = [path, cpp_file, pro_file]
+    __createProjectHandleLastPage__(expectedFiles)
 
-        cpp_path = os.path.join(path, cpp_file)
-        h_path = os.path.join(path, h_file)
-        ui_path = os.path.join(path, ui_file)
-        pro_path = os.path.join(path, pro_file)
-
-        test.verify(os.path.exists(cpp_path), "Checking if '" + cpp_path + "' was created")
-        test.verify(os.path.exists(h_path), "Checking if '" + h_path + "' was created")
-        test.verify(os.path.exists(ui_path), "Checking if '" + ui_path + "' was created")
-        test.verify(os.path.exists(pro_path), "Checking if '" + pro_path + "' was created")
+    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 10000)
+    __verifyFileCreation__(path, expectedFiles)
 
 def createNewQtQuickApplication(workingDir, projectName = None, templateFile = None, targets = QtQuickConstants.Targets.DESKTOP):
     __createProjectSelectType__("Qt Quick Project", "Qt Quick Application")

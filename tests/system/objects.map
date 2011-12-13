@@ -34,7 +34,7 @@
 :Qt Gui Application.Header file:_QLabel	{name='headerLabel' text='Header file:' type='QLabel' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
 :Qt Gui Application.Source file:_QLabel	{name='sourceLabel' text='Source file:' type='QLabel' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
 :Qt Gui Application.frame_QFrame	{name='frame' type='QFrame' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
-:Qt Gui Application.scrollArea_QScrollArea	{name='scrollArea' type='QScrollArea' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
+:Qt Gui Application.scrollArea_QScrollArea	{name='scrollArea' type='QScrollArea' visible='1'}
 :Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog	{type='Qt4ProjectManager::Internal::GuiAppWizardDialog' unnamed='1' visible='1' windowTitle='Qt Gui Application'}
 :QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector	{type='ProjectExplorer::Internal::MiniProjectTargetSelector'}
 :addToVersionControlComboBox_QComboBox	{name='addToVersionControlComboBox' type='QComboBox' visible='1'}
@@ -46,8 +46,6 @@
 :scrollArea.Create Build Configurations:_QComboBox_2	{container=':Qt Gui Application.scrollArea_QScrollArea' leftWidget=':scrollArea.Create Build Configurations:_QLabel_2' type='QComboBox' unnamed='1' visible='1'}
 :scrollArea.Create Build Configurations:_QLabel	{container=':Project Setup.scrollArea_QScrollArea' text='Create Build Configurations:' type='QLabel' unnamed='1' visible='1'}
 :scrollArea.Create Build Configurations:_QLabel_2	{container=':Qt Gui Application.scrollArea_QScrollArea' text='Create Build Configurations:' type='QLabel' unnamed='1' visible='1'}
-:scrollArea.Desktop_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' text='Desktop' type='QCheckBox' unnamed='1' visible='1'}
-:scrollArea.Files to be added	{container=':Qt Gui Application.scrollArea_QScrollArea' name='filesLabel' text?='<qt>Files to be added in<pre>*</pre>' type='QLabel' visible='1'}
 :scrollArea.Qt 4 for Desktop - (Qt SDK) debug_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' text?='*Qt 4.* for *(Qt SDK) debug' type='QCheckBox' unnamed='1' visible='1'}
 :scrollArea.Qt 4 for Desktop - (Qt SDK) release_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' text?='*Qt 4.* for *(Qt SDK) release' type='QCheckBox' unnamed='1' visible='1'}
 :scrollArea.Qt Version:_QComboBox	{aboveWidget=':scrollArea.Use Shadow Building_QCheckBox' container=':Qt Gui Application.scrollArea_QScrollArea' leftWidget=':scrollArea.Qt Version:_QLabel' type='QComboBox' unnamed='1' visible='1'}
