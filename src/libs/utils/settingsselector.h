@@ -82,7 +82,6 @@ private slots:
 
 private:
     QLabel *m_label;
-    QString m_kindOfDisplayName;
     QComboBox *m_configurationCombo;
     QPushButton *m_addButton;
     QPushButton *m_removeButton;

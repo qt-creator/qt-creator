@@ -143,13 +143,8 @@ void SettingsSelector::removeButtonClicked()
     int pos = currentIndex();
     if (pos < 0)
         return;
-    const QString title = m_kindOfDisplayName.isEmpty() ? tr("Remove") :
-                                                          tr("Remove %1").arg(m_kindOfDisplayName);
-    const QString message = m_kindOfDisplayName.isEmpty() ?
-                                tr("Do you really want to delete the configuration <b>%1</b>?")
-                                .arg(m_configurationCombo->currentText()) :
-                                tr("Do you really want to delete the %1 <b>%2</b>?")
-                                .arg(m_kindOfDisplayName)
+    const QString title = tr("Remove");
+    const QString message = tr("Do you really want to delete the configuration <b>%1</b>?")
                                 .arg(m_configurationCombo->currentText());
     QMessageBox msgBox(QMessageBox::Question, title, message, QMessageBox::Yes|QMessageBox::No, this);
     msgBox.setDefaultButton(QMessageBox::No);
@@ -172,11 +167,7 @@ void SettingsSelector::renameButtonClicked()
     QString baseName = model->data(idx, Qt::EditRole).toString();
 
     bool ok;
-    const QString &message = m_kindOfDisplayName.isEmpty() ?
-                                 tr("New name for configuration <b>%1</b>:")
-                                 .arg(baseName) :
-                                 tr("New name for %1: <b>%2</b>:")
-                                 .arg(m_kindOfDisplayName).arg(baseName);
+    const QString message = tr("New name for configuration <b>%1</b>:").arg(baseName);
 
     QString name = QInputDialog::getText(this, tr("Rename..."), message,
                                          QLineEdit::Normal, baseName, &ok);
