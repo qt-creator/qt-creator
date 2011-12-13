@@ -659,6 +659,11 @@ namespace qfileinfo {
         file.setObjectName("A QFile instance");
         QFileInfo fi("/tmp/tt");
         QString s = fi.absoluteFilePath();
+        BREAK_HERE;
+        // Check fi "/tmp/tt" QFileInfo.
+        // Check file "/tmp/t" QFile.
+        // Check s "/tmp/t" QString.
+        // Continue.
         dummyStatement(&file, &s);
     }
 

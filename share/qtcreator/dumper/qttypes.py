@@ -237,7 +237,7 @@ def qdump__QFile(d, value):
 
 def qdump__QFileInfo(d, value):
     try:
-        d.putStringValue(value["d_ptr"]["d"].dereference()["fileName"])
+        d.putStringValue(value["d_ptr"]["d"].dereference()["fileNames"][3])
     except:
         d.putPlainChildren(value)
         return
