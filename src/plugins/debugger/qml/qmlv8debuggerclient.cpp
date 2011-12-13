@@ -1119,8 +1119,10 @@ void QmlV8DebuggerClient::assignValueInDebugger(const QByteArray /*expr*/, const
 {
     StackHandler *stackHandler = d->engine->stackHandler();
     QString expression = QString(_("%1 = %2;")).arg(property).arg(value);
-    if (stackHandler->isContentsValid()) {
-        d->evaluate(expression/*, false, false, stackHandler->currentIndex()*/);
+    if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {
+        d->evaluate(expression, false, false, stackHandler->currentIndex());
+    } else {
+        d->engine->showMessage(QString(_("Cannot evaluate %1 in current stack frame")).arg(expression), ScriptConsoleOutput);
     }
 }
 
@@ -1132,12 +1134,12 @@ void QmlV8DebuggerClient::updateWatchData(const WatchData &/*data*/)
 void QmlV8DebuggerClient::executeDebuggerCommand(const QString &command)
 {
     StackHandler *stackHandler = d->engine->stackHandler();
-    if (stackHandler->isContentsValid()) {
-        d->evaluate(command/*, false, false, stackHandler->currentIndex()*/);
+    if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {
+        d->evaluate(command, false, false, stackHandler->currentIndex());
         d->evaluatingExpression.insert(d->sequence, command);
     } else {
         //Currently cannot evaluate if not in a javascript break
-        d->engine->showMessage(_("Request Was Unsuccessful"), ScriptConsoleOutput);
+        d->engine->showMessage(QString(_("Cannot evaluate %1 in current stack frame")).arg(command), ScriptConsoleOutput);
         //        d->evaluate(command);
     }
 }
@@ -1148,7 +1150,11 @@ void QmlV8DebuggerClient::synchronizeWatchers(const QStringList &watchers)
     foreach (const QString &exp, watchers) {
         if (!d->watchedExpressions.contains(exp)) {
             d->watchedExpressions << exp;
-            executeDebuggerCommand(exp);
+            StackHandler *stackHandler = d->engine->stackHandler();
+            if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {
+                d->evaluate(exp, false, false, stackHandler->currentIndex());
+                d->evaluatingExpression.insert(d->sequence, exp);
+            }
         }
     }
 }
