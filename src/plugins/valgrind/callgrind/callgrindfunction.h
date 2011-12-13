@@ -35,12 +35,6 @@
 
 #include <QtCore/QMetaType>
 
-QT_BEGIN_NAMESPACE
-class QString;
-template <typename T> class QVector;
-template <typename T> class QSet;
-QT_END_NAMESPACE
-
 namespace Valgrind {
 namespace Callgrind {
 
