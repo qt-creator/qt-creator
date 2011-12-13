@@ -501,7 +501,6 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
 {
     QList<ToolChain *> results;
 
-#ifdef Q_OS_WIN
     // 1) Installed SDKs preferred over standalone Visual studio
     const QSettings sdkRegistry("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Microsoft SDKs\\Windows",
                                 QSettings::NativeFormat);
@@ -602,7 +601,6 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
                                                  vcvarsIA64bat, QString(), true));
         }
     }
-#endif
     if (!results.isEmpty()) { // Detect debugger
         const QPair<QString, QString> cdbDebugger = MsvcToolChain::autoDetectCdbDebugger();
         foreach (ToolChain *tc, results)
