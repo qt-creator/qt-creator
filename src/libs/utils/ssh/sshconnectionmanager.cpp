@@ -40,27 +40,9 @@
 #include <QtCore/QMutexLocker>
 #include <QtCore/QObject>
 #include <QtCore/QThread>
-#include <QtCore/QTimer>
 
 namespace Utils {
 namespace Internal {
-
-struct ConnectionInfo
-{
-    typedef QSharedPointer<ConnectionInfo> Ptr;
-    static ConnectionInfo::Ptr create(const SshConnection::Ptr &conn)
-    {
-        return Ptr(new ConnectionInfo(conn));
-    }
-
-    SshConnection::Ptr connection;
-    int refCount;
-    bool isConnecting;
-
-private:
-    ConnectionInfo(const SshConnection::Ptr &conn)
-        : connection(conn), refCount(1), isConnecting(false) {}
-};
 
 class SshConnectionManagerPrivate : public QObject
 {
@@ -78,8 +60,6 @@ public:
     SshConnectionManagerPrivate()
     {
         moveToThread(QCoreApplication::instance()->thread());
-        connect(&m_cleanupTimer, SIGNAL(timeout()), SLOT(cleanup()));
-        m_cleanupTimer.start(5*60*1000);
     }
 
     QSharedPointer<SshConnection> acquireConnection(const SshConnectionParameters &sshParams)
@@ -188,11 +168,14 @@ private slots:
     {
         QMutexLocker locker(&m_listMutex);
 
-        SshConnection::Ptr connection(static_cast<SshConnection *>(sender()));
-        if (connection.isNull())
+        SshConnection *currentConnection = qobject_cast<SshConnection *>(sender());
+        if (!currentConnection)
             return;
 
-        m_unacquiredConnections.removeAll(connection);
+        for (int i = m_unacquiredConnections.count() - 1; i >= 0; --i) {
+            if (m_unacquiredConnections.at(i) == currentConnection)
+                m_unacquiredConnections.removeAt(i);
+        }
     }
 
 private:
@@ -202,9 +185,7 @@ private:
     QList<SshConnection::Ptr> m_unacquiredConnections;
     QList<SshConnection::Ptr> m_acquiredConnections;
     QList<SshConnection::Ptr> m_deprecatedConnections;
-
     QMutex m_listMutex;
-    QTimer m_cleanupTimer;
 };
 
 QMutex SshConnectionManagerPrivate::instanceMutex;
