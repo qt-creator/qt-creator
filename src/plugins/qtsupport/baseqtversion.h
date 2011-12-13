@@ -202,6 +202,7 @@ public:
 
     virtual bool hasGdbDebuggingHelper() const;
     virtual bool hasQmlDump() const;
+    virtual bool needsQmlDump() const;
     virtual bool hasQmlDebuggingLibrary() const;
     virtual bool needsQmlDebuggingLibrary() const;
     virtual bool hasQmlObserver() const;

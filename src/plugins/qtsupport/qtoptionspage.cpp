@@ -692,6 +692,7 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
 
         const bool hasGdbHelper = !version->gdbDebuggingHelperLibrary().isEmpty();
         const bool hasQmlDumper = version->hasQmlDump();
+        const bool needsQmlDumper = version->needsQmlDump();
         const bool hasQmlDebuggingLib = version->hasQmlDebuggingLibrary();
         const bool needsQmlDebuggingLib = version->needsQmlDebuggingLibrary();
         const bool hasQmlObserver = !version->qmlObserverTool().isEmpty();
@@ -760,7 +761,9 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
             }
             qmlDumpStatusTextFlags = Qt::TextSelectableByMouse;
         } else {
-            if (canBuildQmlDumper) {
+            if (!needsQmlDumper) {
+                qmlDumpStatusText = tr("<i>Not needed.</i>");
+            } else if (canBuildQmlDumper) {
                 qmlDumpStatusText = tr("<i>Not yet built.</i>");
             } else {
                 qmlDumpStatusText = tr("<i>Cannot be compiled.</i>");

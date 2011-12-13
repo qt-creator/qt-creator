@@ -875,6 +875,12 @@ bool BaseQtVersion::hasQmlDump() const
     return m_hasQmlDump;
 }
 
+bool BaseQtVersion::needsQmlDump() const
+{
+    updateVersionInfo();
+    return qtVersion() < QtVersionNumber(4, 8, 0);
+}
+
 bool BaseQtVersion::hasQmlDebuggingLibrary() const
 {
     updateVersionInfo();
