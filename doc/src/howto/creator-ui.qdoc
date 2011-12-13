@@ -278,7 +278,8 @@
         \o  \gui QML - Errors in QML syntax.
 
         \o  \gui {QML Analysis} - Results of the JavaScript
-            \l{Checking JavaScript Syntax}{code syntax and validation checks}
+            \l{Checking JavaScript and QML Syntax}
+            {code syntax and validation checks}
 
     \endlist
 
