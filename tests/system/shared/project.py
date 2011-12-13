@@ -134,13 +134,13 @@ def createProject_Qt_GUI(path, projectName, qtVersion, checks):
 
     expectedFiles = None
     if checks:
-        expectedFiles = [os.path.join(path, projectName), cpp_file, h_file, ui_file, pro_file]
+        path = os.path.join(path, projectName)
+        expectedFiles = [path, cpp_file, h_file, ui_file, pro_file]
     __createProjectHandleLastPage__(expectedFiles)
 
     if checks:
         waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 20000)
 
-        path = os.path.join(path, projectName)
         cpp_path = os.path.join(path, cpp_file)
         h_path = os.path.join(path, h_file)
         ui_path = os.path.join(path, ui_file)
