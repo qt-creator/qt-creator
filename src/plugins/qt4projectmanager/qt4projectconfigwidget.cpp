@@ -539,7 +539,7 @@ void Qt4ProjectConfigWidget::toolChainChanged()
     }
 }
 
-void Qt4ProjectConfigWidget::proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool success, bool parseInProgress)
+void Qt4ProjectConfigWidget::proFileUpdated(Qt4ProjectManager::Qt4ProFileNode * /*node*/, bool success, bool parseInProgress)
 {
     if (!success || parseInProgress)
         return;
