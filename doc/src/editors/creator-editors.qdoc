@@ -590,62 +590,62 @@
             \o Icon
             \o Description
         \row
-            \i  \inlineimage completion/class.png
-            \i  A class
+            \o  \inlineimage completion/class.png
+            \o  A class
         \row
-            \i  \inlineimage completion/enum.png
-            \i  An enum
+            \o  \inlineimage completion/enum.png
+            \o  An enum
         \row
-            \i  \inlineimage completion/enumerator.png
-            \i  An enumerator (value of an enum)
+            \o  \inlineimage completion/enumerator.png
+            \o  An enumerator (value of an enum)
         \row
-            \i  \inlineimage completion/func.png
-            \i  A function
+            \o  \inlineimage completion/func.png
+            \o  A function
         \row
-            \i  \inlineimage completion/func_priv.png
-            \i  A private function
+            \o  \inlineimage completion/func_priv.png
+            \o  A private function
         \row
-            \i  \inlineimage completion/func_prot.png
-            \i  A protected function
+            \o  \inlineimage completion/func_prot.png
+            \o  A protected function
         \row
-            \i  \inlineimage completion/var.png
-            \i  A variable
+            \o  \inlineimage completion/var.png
+            \o  A variable
         \row
-            \i  \inlineimage completion/var_priv.png
-            \i  A private variable
+            \o  \inlineimage completion/var_priv.png
+            \o  A private variable
         \row
-            \i  \inlineimage completion/var_prot.png
-            \i  A protected variable
+            \o  \inlineimage completion/var_prot.png
+            \o  A protected variable
         \row
-            \i  \inlineimage completion/signal.png
-            \i  A signal
+            \o  \inlineimage completion/signal.png
+            \o  A signal
         \row
-            \i  \inlineimage completion/slot.png
-            \i  A slot
+            \o  \inlineimage completion/slot.png
+            \o  A slot
         \row
-            \i  \inlineimage completion/slot_priv.png
-            \i  A private slot
+            \o  \inlineimage completion/slot_priv.png
+            \o  A private slot
         \row
-            \i  \inlineimage completion/slot_prot.png
-            \i  A protected slot
+            \o  \inlineimage completion/slot_prot.png
+            \o  A protected slot
         \row
-            \i  \inlineimage completion/keyword.png
-            \i  A C++ keyword
+            \o  \inlineimage completion/keyword.png
+            \o  A C++ keyword
         \row
-            \i  \inlineimage completion/snippet.png
-            \i  A C++ code snippet
+            \o  \inlineimage completion/snippet.png
+            \o  A C++ code snippet
         \row
-            \i  \inlineimage completion/element.png
-            \i  A QML element
+            \o  \inlineimage completion/element.png
+            \o  A QML element
         \row
-            \i  \inlineimage completion/qmlsnippet.png
-            \i  A QML code snippet
+            \o  \inlineimage completion/qmlsnippet.png
+            \o  A QML code snippet
         \row
-            \i  \inlineimage completion/macro.png
-            \i  A macro
+            \o  \inlineimage completion/macro.png
+            \o  A macro
         \row
-            \i  \inlineimage completion/namespace.png
-            \i  A namespace
+            \o  \inlineimage completion/namespace.png
+            \o  A namespace
     \endtable
 
     \section2 Completing Code Snippets
@@ -1356,12 +1356,12 @@
 
     \table
         \header
-            \i Refactoring Action
-            \i Description
-            \i Activation
+            \o Refactoring Action
+            \o Description
+            \o Activation
         \row
-            \i Add Curly Braces
-            \i Adds curly braces to an if statement that does not contain a
+            \o Add Curly Braces
+            \o Adds curly braces to an if statement that does not contain a
             compound statement. For example, rewrites
 
     \code
@@ -1376,10 +1376,10 @@
         b;
     }
     \endcode
-            \i if
+            \o if
         \row
-            \i Move Declaration out of Condition
-            \i Moves a declaration out of an if or while condition to simplify the
+            \o Move Declaration out of Condition
+            \o Moves a declaration out of an if or while condition to simplify the
             condition. For example, rewrites
 
     \code
@@ -1392,10 +1392,10 @@
     Type name = foo;
     if (name) {}
     \endcode
-            \i Name of the introduced variable
+            \o Name of the introduced variable
         \row
-            \i Rewrite Condition Using ||
-            \i Rewrites the expression according to De Morgan's laws. For example,
+            \o Rewrite Condition Using ||
+            \o Rewrites the expression according to De Morgan's laws. For example,
              rewrites:
     \code
     !a && !b
@@ -1406,10 +1406,10 @@
     \code
     !(a || b)
     \endcode
-            \i &&
+            \o &&
         \row
-            \i Rewrite Using \e operator
-            \i Rewrites an expression negating it and using the inverse operator. For
+            \o Rewrite Using \e operator
+            \o Rewrites an expression negating it and using the inverse operator. For
             example, rewrites:
 
             \list
@@ -1446,10 +1446,10 @@
 
     \endlist
 
-            \i <= < > >= == !=
+            \o <= < > >= == !=
         \row
-            \i Split Declaration
-            \i Splits a simple declaration into several declarations. For example,
+            \o Split Declaration
+            \o Splits a simple declaration into several declarations. For example,
             rewrites:
     \code
     int *a, b;
@@ -1461,10 +1461,10 @@
     int *a;
     int b;
     \endcode
-            \i Type name or variable name
+            \o Type name or variable name
         \row
-            \i Split if Statement
-            \i Splits an if statement into several statements. For example, rewrites:
+            \o Split if Statement
+            \o Splits an if statement into several statements. For example, rewrites:
     \code
     if (something && something_else) {
     }
@@ -1495,10 +1495,10 @@
         x;
     \endcode
 
-            \i && ||
+            \o && ||
         \row
-            \i Swap Operands
-            \i Rewrites an expression in the inverse order using the inverse operator.
+            \o Swap Operands
+            \o Rewrites an expression in the inverse order using the inverse operator.
             For example, rewrites:
     \code
     a op b
@@ -1508,22 +1508,22 @@
     \code
     b flipop a
     \endcode
-            \i <= < > >= == != && ||
+            \o <= < > >= == != && ||
         \row
-            \i Convert to Decimal
-            \i Converts an integer literal to decimal representation
-            \i Numeric literal
+            \o Convert to Decimal
+            \o Converts an integer literal to decimal representation
+            \o Numeric literal
         \row
-            \i Convert to Hexadecimal
-            \i Converts an integer literal to hexadecimal representation
-            \i Numeric literal
+            \o Convert to Hexadecimal
+            \o Converts an integer literal to hexadecimal representation
+            \o Numeric literal
         \row
-            \i Convert to Octal
-            \i Converts an integer literal to octal representation
-            \i Numeric literal
+            \o Convert to Octal
+            \o Converts an integer literal to octal representation
+            \o Numeric literal
         \row
-            \i Convert to Objective-C String Literal
-            \i Converts a string literal to an Objective-C string literal
+            \o Convert to Objective-C String Literal
+            \o Converts a string literal to an Objective-C string literal
             if the file type is Objective-C(++). For example, rewrites the following strings
 
     \code
@@ -1537,10 +1537,10 @@
     \code
     @"abcd"
     \endcode
-            \i String literal
+            \o String literal
         \row
-            \i Enclose in QLatin1Char()
-            \i Sets the encoding for a character to Latin-1, unless the character is
+            \o Enclose in QLatin1Char()
+            \o Sets the encoding for a character to Latin-1, unless the character is
             already enclosed in QLatin1Char, QT_TRANSLATE_NOOP, tr, trUtf8,
             QLatin1Literal, or QLatin1String. For example, rewrites
 
@@ -1553,10 +1553,10 @@
     \code
     QLatin1Char('a')
     \endcode
-            \i String literal
+            \o String literal
         \row
-            \i Enclose in QLatin1String()
-            \i Sets the encoding for a string to Latin-1, unless the string is
+            \o Enclose in QLatin1String()
+            \o Sets the encoding for a string to Latin-1, unless the string is
             already enclosed in QLatin1Char, QT_TRANSLATE_NOOP, tr, trUtf8,
             QLatin1Literal, or QLatin1String. For example, rewrites
     \code
@@ -1569,11 +1569,11 @@
     QLatin1String("abcd")
     \endcode
 
-            \i String literal
+            \o String literal
 
         \row
-            \i Mark as Translatable
-            \i Marks a string translatable. For example, rewrites \c "abcd" with
+            \o Mark as Translatable
+            \o Marks a string translatable. For example, rewrites \c "abcd" with
             one of the following options, depending on which of them is available:
 
     \code
@@ -1582,28 +1582,28 @@
     QT_TRANSLATE_NOOP("GLOBAL", "abcd")
     \endcode
 
-            \i String literal
+            \o String literal
 
         \row
-            \i #include Header File
-            \i Adds the matching #include statement for a forward-declared class or struct
-            \i Forward-declared class or struct
+            \o #include Header File
+            \o Adds the matching #include statement for a forward-declared class or struct
+            \o Forward-declared class or struct
         \row
-            \i Add Definition in 'filename'
-            \i Inserts a definition stub for a member function declaration in the
+            \o Add Definition in 'filename'
+            \o Inserts a definition stub for a member function declaration in the
             implementation file. The definition is placed after that of the
             preceding declaration. Qualified names are minimized when possible,
             instead of always being fully expanded.
 
-            \i Method name
+            \o Method name
         \row
-            \i Add 'Function' Declaration
-            \i Inserts the member function declaration that matches the member function
+            \o Add 'Function' Declaration
+            \o Inserts the member function declaration that matches the member function
             definition into the class declaration. The function can be public,
             protected, private, public slot, protected slot, or private slot.
-            \i Method name
+            \o Method name
         \row
-            \i Add Local Declaration
+            \o Add Local Declaration
             \i
             Adds the type of an assignee, if the type of the right-hand side of the assignment
             is known. For example, rewrites
@@ -1620,43 +1620,43 @@
 
     where Type is the return type of \c {foo()}
 
-            \i Assignee
+            \o Assignee
 
         \row
-            \i Convert to Camel Case
-            \i Converts a symbol name to camel case, where elements of the name are joined
+            \o Convert to Camel Case
+            \o Converts a symbol name to camel case, where elements of the name are joined
             without delimiter characters and the initial character of each element is
             capitalized. For example, rewrites \c an_example_symbol
             as \c anExampleSymbol and \c AN_EXAMPLE_SYMBOL as \c AnExampleSymbol
-            \i Identifier
+            \o Identifier
         \row
-            \i Complete Switch Statement
-            \i Adds all possible cases to a switch statement of the type \c enum
-            \i Switch
+            \o Complete Switch Statement
+            \o Adds all possible cases to a switch statement of the type \c enum
+            \o Switch
         \row
-            \i Generate Missing Q_PROPERTY Members
-            \i Adds missing members to a Q_PROPERTY:
+            \o Generate Missing Q_PROPERTY Members
+            \o Adds missing members to a Q_PROPERTY:
             \list
                 \o \c read method
                 \o \c write method, if there is a WRITE
                 \o \c {onChanged} signal, if there is a NOTIFY
                 \o data member with the name \c {m_<propertyName>}
             \endlist
-            \i Q_PROPERTY
+            \o Q_PROPERTY
         \row
-            \i  Apply Changes
-            \i  Keeps function declarations and definitions synchronized by
+            \o  Apply Changes
+            \o  Keeps function declarations and definitions synchronized by
                 checking for the matching declaration or definition when you
                 edit a function signature and by applying the changes to the
                 matching code.
-            \i  Function signature. When this action is available, a light bulb
+            \o  Function signature. When this action is available, a light bulb
                 icon appears:
                 \inlineimage qml-toolbar-indicator.png
         \row
-            \i  Add #include for undeclared identifier
-            \i  Adds an #include directive to the current file to make the
+            \o  Add #include for undeclared identifier
+            \o  Adds an #include directive to the current file to make the
                 declaration of a symbol available.
-            \i  Undeclared identifier
+            \o  Undeclared identifier
     \endtable
 
    \section2 Refactoring QML Code
@@ -1680,17 +1680,17 @@
 
     \table
         \header
-            \i Refactoring Action
-            \i Description
-            \i Activation
+            \o Refactoring Action
+            \o Description
+            \o Activation
 
         \row
-            \i Move Component into 'filename.qml'
-            \i Moves a QML element into a separate file
-            \i Element name
+            \o Move Component into 'filename.qml'
+            \o Moves a QML element into a separate file
+            \o Element name
         \row
-            \i Split Initializer
-            \i Reformats a one-line element into a multi-line element. For example,
+            \o Split Initializer
+            \o Reformats a one-line element into a multi-line element. For example,
             rewrites
     \code
     Item { x: 10; y: 20; width: 10 }
@@ -1705,17 +1705,17 @@
         width: 10
     }
     \endcode
-            \i Element property
+            \o Element property
         \row
-            \i Wrap in Loader
-            \i Wraps the element in a Component element and loads it dynamically in
+            \o Wrap in Loader
+            \o Wraps the element in a Component element and loads it dynamically in
                a Loader element. This is usually done to improve startup time.
-            \i Element name
+            \o Element name
         \row
-            \i Add a message suppression comment
-            \i Prepends the line with an annotation comment that stops the message
+            \o Add a message suppression comment
+            \o Prepends the line with an annotation comment that stops the message
                from being generated.
-            \i Error, warning or hint from static analysis
+            \o Error, warning or hint from static analysis
 
     \endtable
    */

@@ -35,10 +35,10 @@
 
     \table
         \row
-            \i  \inlineimage creator-gs-01.png
-            \i  \inlineimage creator-gs-02.png
-            \i  \inlineimage creator-gs-03.png
-            \i  \inlineimage creator-gs-04.png
+            \o  \inlineimage creator-gs-01.png
+            \o  \inlineimage creator-gs-02.png
+            \o  \inlineimage creator-gs-03.png
+            \o  \inlineimage creator-gs-04.png
         \row
             \o  \bold {\l{IDE Overview}}
 

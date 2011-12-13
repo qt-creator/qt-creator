@@ -221,23 +221,23 @@
 
     \table
         \row
-            \i  \image qmldesigner-boolean-true.png
-            \i  TRUE
-            \i  The element is visible by default. The visibility might be
+            \o  \image qmldesigner-boolean-true.png
+            \o  TRUE
+            \o  The element is visible by default. The visibility might be
                 overridden by the visibility set in the base state.
         \row
-            \i  \image qmldesigner-boolean-true-blue.png
-            \i  TRUE (highlighted)
-            \i  The element is explicitly set to visible.
+            \o  \image qmldesigner-boolean-true-blue.png
+            \o  TRUE (highlighted)
+            \o  The element is explicitly set to visible.
         \row
-            \i  \image qmldesigner-boolean-false.png
-            \i  FALSE
-            \i  The element is hidden by default. The visibility might be
+            \o  \image qmldesigner-boolean-false.png
+            \o  FALSE
+            \o  The element is hidden by default. The visibility might be
                 overridden by the visibility set in the base state.
         \row
-            \i  \image qmldesigner-boolean-false-blue.png
-            \i  FALSE (hightlighted)
-            \i  The item is explicitly set to hidden.
+            \o  \image qmldesigner-boolean-false-blue.png
+            \o  FALSE (hightlighted)
+            \o  The item is explicitly set to hidden.
     \endtable
 
     \section2 Setting Expressions

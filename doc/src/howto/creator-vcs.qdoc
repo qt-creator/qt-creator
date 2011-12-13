@@ -36,32 +36,32 @@
     Version control systems supported by \QC are:
     \table
         \header
-            \i Version Control System
-            \i Address
-            \i Notes
+            \o Version Control System
+            \o Address
+            \o Notes
         \row
-            \i  Bazaar
-            \i  \l{http://bazaar.canonical.com/}
-            \i  \QC 2.2 and later
+            \o  Bazaar
+            \o  \l{http://bazaar.canonical.com/}
+            \o  \QC 2.2 and later
         \row
-            \i  CVS
-            \i  \l{http://www.cvshome.org}
+            \o  CVS
+            \o  \l{http://www.cvshome.org}
             \i
         \row
-            \i  Git
-            \i  \l{http://git-scm.com/}
+            \o  Git
+            \o  \l{http://git-scm.com/}
             \i
         \row
-            \i  Mercurial
-            \i  \l{http://mercurial.selenic.com/}
-            \i  \QC 2.0 and later
+            \o  Mercurial
+            \o  \l{http://mercurial.selenic.com/}
+            \o  \QC 2.0 and later
         \row
-            \i  Perforce
-            \i  \l{http://www.perforce.com}
-            \i  Server version 2006.1 and later
+            \o  Perforce
+            \o  \l{http://www.perforce.com}
+            \o  Server version 2006.1 and later
         \row
-            \i  Subversion
-            \i  \l{http://subversion.apache.org/}
+            \o  Subversion
+            \o  \l{http://subversion.apache.org/}
             \i
     \endtable
 
@@ -294,11 +294,11 @@
             \o  Menu Item
             \o  Description
         \row
-            \i  \gui{Pull}
-            \i  Turn the branch into a mirror of another branch.
+            \o  \gui{Pull}
+            \o  Turn the branch into a mirror of another branch.
         \row
-            \i  \gui{Push}
-            \i  Update a mirror of the branch.
+            \o  \gui{Push}
+            \o  Update a mirror of the branch.
 
     \endtable
 
@@ -313,14 +313,14 @@
             \o  Menu Item
             \o  Description
         \row
-            \i  \gui{Edit}
-            \i  Open a file for editing.
+            \o  \gui{Edit}
+            \o  Open a file for editing.
         \row
-            \i  \gui{Push}
-            \i  Push changes to the remote repository.
+            \o  \gui{Push}
+            \o  Push changes to the remote repository.
         \row
-            \i  \gui{Unedit}
-            \i  Discard the changes that you made in a file.
+            \o  \gui{Unedit}
+            \o  Discard the changes that you made in a file.
 
     \endtable
 
@@ -336,47 +336,47 @@
             \o  Menu Item
             \o  Description
         \row
-            \i  \gui {Patch > Apply from Editor/Apply from File}
-            \i  Patches are rewriting instructions that can be applied to a set
+            \o  \gui {Patch > Apply from Editor/Apply from File}
+            \o  Patches are rewriting instructions that can be applied to a set
                 of files. You can either apply a patch file that is open in \QC
                 or select the patch file to apply from the file system.
         \row
-            \i  \gui{Pull}
-            \i  Pull changes from the remote repository. If there are locally
+            \o  \gui{Pull}
+            \o  Pull changes from the remote repository. If there are locally
                 modified files, you are prompted to stash those changes. Select
                 \gui{Tools > Options > Version Control > Git} and select the
                 \gui {Pull with rebase} check box to perform a rebase operation
                 while pulling.
 
         \row
-            \i  \gui{Clean/Clean Project}
-            \i  All files that are not under version control (with the exception
+            \o  \gui{Clean/Clean Project}
+            \o  All files that are not under version control (with the exception
                 of patches and project files) are displayed in the \gui {Clean
                 Repository} dialog. Select the files to delete and click
                 \gui Delete. This allows you to clean a build completely.
         \row
-            \i  \gui{Launch gitk}
-            \i  Start the commit viewer for Git, gitk.
+            \o  \gui{Launch gitk}
+            \o  Start the commit viewer for Git, gitk.
         \row
-            \i  \gui{Branches}
-            \i  Manage local and remote branches.
+            \o  \gui{Branches}
+            \o  Manage local and remote branches.
         \row
-            \i  \gui Remotes
-            \i  Manage remote repositories available in Git.
+            \o  \gui Remotes
+            \o  Manage remote repositories available in Git.
         \row
-            \i  \gui {Stage File for Commit}
-            \i  Mark new or modified files for committing to the repository.
+            \o  \gui {Stage File for Commit}
+            \o  Mark new or modified files for committing to the repository.
                 To undo this function, select \gui {Unstage File from Commit}.
         \row
-            \i  \gui{Show Commit}
-            \i  Select a commit to view. Enter the SHA of the commit
+            \o  \gui{Show Commit}
+            \o  Select a commit to view. Enter the SHA of the commit
                 in the \gui Change field.
         \row
-            \i  \gui Stash
-            \i  Store local changes temporarily.
+            \o  \gui Stash
+            \o  Store local changes temporarily.
         \row
-            \i  \gui{Amend Last Commit}
-            \i  Revert the last commit.
+            \o  \gui{Amend Last Commit}
+            \o  Revert the last commit.
 
     \endtable
 
@@ -395,24 +395,24 @@
             \o  Menu Item
             \o  Description
         \row
-            \i  \gui{Add}
-            \i  Create new tracking and non-tracking branches.
+            \o  \gui{Add}
+            \o  Create new tracking and non-tracking branches.
         \row
-            \i  \gui{Checkout}
-            \i  Check out the selected branch and make it current.
+            \o  \gui{Checkout}
+            \o  Check out the selected branch and make it current.
         \row
-            \i  \gui{Remove}
-            \i  Remove a local branch. You cannot delete remote branches.
+            \o  \gui{Remove}
+            \o  Remove a local branch. You cannot delete remote branches.
         \row
-            \i  \gui{Diff}
-            \i  Show the differences between the selected and the current
+            \o  \gui{Diff}
+            \o  Show the differences between the selected and the current
                 branch.
         \row
-            \i  \gui{Log}
-            \i  Show the changes in a branch.
+            \o  \gui{Log}
+            \o  Show the changes in a branch.
         \row
-            \i  \gui{Refresh}
-            \i  Refresh the list of branches.
+            \o  \gui{Refresh}
+            \o  Refresh the list of branches.
     \endtable
 
     \section3 Working with Remote Repositories
@@ -427,18 +427,18 @@
             \o  Menu Item
             \o  Description
         \row
-            \i  \gui{Add}
-            \i  Add a new remote repository.
+            \o  \gui{Add}
+            \o  Add a new remote repository.
         \row
-            \i  \gui{Fetch}
-            \i  Fetch all the branches and change information from a remote
+            \o  \gui{Fetch}
+            \o  Fetch all the branches and change information from a remote
                 repository.
         \row
-            \i  \gui{Remove}
-            \i  Remove a remote repository.
+            \o  \gui{Remove}
+            \o  Remove a remote repository.
         \row
-            \i  \gui{Refresh}
-            \i  Refresh the list of remote repositories.
+            \o  \gui{Refresh}
+            \o  Refresh the list of remote repositories.
     \endtable
 
 
@@ -456,24 +456,24 @@
             \o  Menu Item
             \o  Description
         \row
-            \i  \gui{Stashes}
-            \i  Display a dialog that shows all known stashes with options to
+            \o  \gui{Stashes}
+            \o  Display a dialog that shows all known stashes with options to
                 restore, display or delete them.
         \row
-            \i  \gui{Stash}
-            \i  Stash all local changes. The working copy is then reset to
+            \o  \gui{Stash}
+            \o  Stash all local changes. The working copy is then reset to
                 the state it had right after the last commit.
         \row
-            \i  \gui{Stash Snapshot}
-            \i  Save a snapshot of your current work under a name for later
+            \o  \gui{Stash Snapshot}
+            \o  Save a snapshot of your current work under a name for later
                 reference. The working copy is unchanged.
 
                 For example, if you want to try something and find out later
                 that it does not work, you can discard it and return to the
                 state of the snapshot.
         \row
-            \i  \gui{Stash Pop}
-            \i  Remove a single stashed state from the stash list and apply it
+            \o  \gui{Stash Pop}
+            \o  Remove a single stashed state from the stash list and apply it
                 on top of the current working tree state.
     \endtable
 
@@ -488,22 +488,22 @@
             \o  Menu Item
             \o  Description
         \row
-            \i  \gui{Import}
-            \i  Apply changes from a patch file.
+            \o  \gui{Import}
+            \o  Apply changes from a patch file.
         \row
-            \i  \gui{Incoming}
-            \i  Monitor the status of a remote repository by listing
+            \o  \gui{Incoming}
+            \o  Monitor the status of a remote repository by listing
                 the changes that will be pulled.
         \row
-            \i  \gui{Outgoing}
-            \i  Monitor the status of a remote repository by listing
+            \o  \gui{Outgoing}
+            \o  Monitor the status of a remote repository by listing
                 the changes that will be pushed.
         \row
-            \i  \gui{Pull}
-            \i  Pull changes from the remote repository.
+            \o  \gui{Pull}
+            \o  Pull changes from the remote repository.
         \row
-            \i  \gui{Push}
-            \i  Push changes to the remote repository.
+            \o  \gui{Push}
+            \o  Push changes to the remote repository.
      \endtable
 
     \section2 Using Additional Perforce Functions
@@ -532,17 +532,17 @@
             \o  Menu Item
             \o  Description
         \row
-            \i  \gui{Describe}
-            \i  View information about changelists and the files in them.
+            \o  \gui{Describe}
+            \o  View information about changelists and the files in them.
         \row
-            \i  \gui{Edit File}
-            \i  Open a file for editing.
+            \o  \gui{Edit File}
+            \o  Open a file for editing.
         \row
-            \i  \gui{Opened}
-            \i  List files that are open for editing.
+            \o  \gui{Opened}
+            \o  List files that are open for editing.
         \row
-            \i  \gui{Pending Changes}
-            \i  Group files for commit.
+            \o  \gui{Pending Changes}
+            \o  Group files for commit.
     \endtable
 
     \section2 Using Additional Subversion Functions
@@ -556,8 +556,8 @@
             \o  Menu Item
             \o  Description
         \row
-            \i  \gui{Describe}
-            \i  Display commit log messages for a revision.
+            \o  \gui{Describe}
+            \o  Display commit log messages for a revision.
     \endtable
 
 */
