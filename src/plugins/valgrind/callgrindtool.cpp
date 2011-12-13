@@ -156,7 +156,7 @@ public slots:
     void stackBrowserChanged();
 
     /// If \param busy is true, all widgets get a busy cursor when hovered
-    void setBusy(bool busy);
+    void setBusyCursor(bool busy);
 
     void dataFunctionSelected(const QModelIndex &index);
     void calleeFunctionSelected(const QModelIndex &index);
@@ -285,7 +285,7 @@ void CallgrindToolPrivate::doClear(bool clearParseData)
     m_proxyModel->setFilterFixedString(QString());
 }
 
-void CallgrindToolPrivate::setBusy(bool busy)
+void CallgrindToolPrivate::setBusyCursor(bool busy)
 {
     QCursor cursor(busy ? Qt::BusyCursor : Qt::ArrowCursor);
     m_flatView->setCursor(cursor);
@@ -468,7 +468,7 @@ void CallgrindToolPrivate::setParseData(ParseData *data)
     m_stackBrowser->clear();
 
     // unset busy state
-    setBusy(false);
+    //setBusy(false);
 }
 
 void CallgrindToolPrivate::updateEventCombo()
@@ -614,6 +614,7 @@ IAnalyzerEngine *CallgrindToolPrivate::createEngine(const AnalyzerStartParameter
 void CallgrindTool::startTool(StartMode mode)
 {
     ValgrindPlugin::startValgrindTool(this, mode);
+    d->setBusyCursor(true);
 }
 
 QWidget *CallgrindTool::createWidgets()
@@ -863,6 +864,8 @@ void CallgrindToolPrivate::engineFinished()
         showParserResults(data);
     else
         AnalyzerManager::showStatusMessage(tr("Profiling aborted."));
+
+    setBusyCursor(false);
 }
 
 void CallgrindToolPrivate::showParserResults(const ParseData *data)
@@ -944,7 +947,7 @@ void CallgrindToolPrivate::handleShowCostsOfFunction()
 
 void CallgrindToolPrivate::slotRequestDump()
 {
-    setBusy(true);
+    //setBusy(true);
     m_visualisation->setText(tr("Populating..."));
     dumpRequested();
 }

@@ -465,6 +465,7 @@ void MemcheckTool::startTool(StartMode mode)
 
 void MemcheckTool::engineStarting(const IAnalyzerEngine *engine)
 {
+    setBusyCursor(true);
     clearErrorView();
 
     QString dir;
@@ -548,6 +549,13 @@ void MemcheckTool::finished()
     m_goNext->setEnabled(n > 1);
     const QString msg = AnalyzerManager::msgToolFinished(displayName(), n);
     AnalyzerManager::showStatusMessage(msg);
+    setBusyCursor(false);
+}
+
+void MemcheckTool::setBusyCursor(bool busy)
+{
+    QCursor cursor(busy ? Qt::BusyCursor : Qt::ArrowCursor);
+    m_errorView->setCursor(cursor);
 }
 
 } // namespace Internal

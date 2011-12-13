@@ -113,6 +113,7 @@ private:
     ToolMode toolMode() const;
     void extensionsInitialized() {}
     QWidget *createWidgets();
+    void setBusyCursor(bool busy);
 
     Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
                                ProjectExplorer::RunConfiguration *runConfiguration = 0);

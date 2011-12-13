@@ -33,9 +33,9 @@
 #ifndef CALLGRINDCOSTVIEW_H
 #define CALLGRINDCOSTVIEW_H
 
-#include <QtGui/QTreeView>
-
 #include "callgrindcostdelegate.h"
+
+#include <QtGui/QTreeView>
 
 namespace Valgrind {
 namespace Internal {
@@ -46,13 +46,13 @@ class CostView : public QTreeView
 
 public:
     explicit CostView(QWidget *parent = 0);
-    virtual ~CostView();
+    ~CostView();
 
     /**
      * Overload automatically updates the cost delegate
      * and sets it for the cost columns of DataModel and CallModel.
      */
-    virtual void setModel(QAbstractItemModel *model);
+    void setModel(QAbstractItemModel *model);
 
     /**
      * How to format cost data columns in the view.
