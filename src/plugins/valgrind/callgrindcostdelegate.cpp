@@ -151,7 +151,9 @@ void CostDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     painter->drawRect(barRect);
 
     // Draw text.
-    const QString text = d->displayText(index, opt.locale);
+    QLocale loc = opt.locale;
+    loc.setNumberOptions(0);
+    const QString text = d->displayText(index, loc);
     const QBrush &textBrush = (option.state & QStyle::State_Selected ? opt.palette.highlightedText() : opt.palette.text());
     painter->setBrush(Qt::NoBrush);
     painter->setPen(textBrush.color());
