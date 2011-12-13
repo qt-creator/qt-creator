@@ -98,6 +98,7 @@ private slots:
     void copyAction();
     void cutAction();
     void pasteAction();
+    void circularPasteAction();
     void selectAllAction();
     void gotoAction();
     void printAction();
@@ -166,6 +167,7 @@ private:
     QAction *m_copyAction;
     QAction *m_cutAction;
     QAction *m_pasteAction;
+    QAction *m_circularPasteAction;
     QAction *m_selectAllAction;
     QAction *m_gotoAction;
     QAction *m_printAction;

@@ -54,6 +54,7 @@
 #include "convenience.h"
 #include "texteditorsettings.h"
 #include "texteditoroverlay.h"
+#include "circularclipboard.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -99,6 +100,7 @@
 #include <QtGui/QInputDialog>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
+#include <QtGui/QClipboard>
 
 //#define DO_FOO
 
@@ -200,6 +202,18 @@ static void convertToPlainText(QString &txt)
         }
     }
 }
+
+static bool isModifierKey(int key)
+{
+    return key == Qt::Key_Shift
+            || key == Qt::Key_Control
+            || key == Qt::Key_Alt
+            || key == Qt::Key_Meta;
+}
+
+static const char kTextBlockMimeType[] = "application/vnd.nokia.qtcreator.blocktext";
+static const char kVerticalTextBlockMimeType[] = "application/vnd.nokia.qtcreator.vblocktext";
+
 
 BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)
     : QPlainTextEdit(parent)
@@ -1524,6 +1538,11 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
     d->m_moveLineUndoHack = false;
     d->clearVisibleFoldedBlock();
 
+    if (d->m_isCirculatingClipboard
+            && !isModifierKey(e->key())) {
+        d->m_isCirculatingClipboard = false;
+    }
+
     if (e->key() == Qt::Key_Alt
             && d->m_behaviorSettings.m_keyboardTooltips) {
         d->m_maybeFakeTooltipEvent = true;
@@ -2461,6 +2480,7 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_requestMarkEnabled(true),
     m_lineSeparatorsAllowed(false),
     m_maybeFakeTooltipEvent(false),
+    m_isCirculatingClipboard(false),
     m_visibleWrapColumn(0),
     m_linkPressed(false),
     m_delayedUpdateTimer(0),
@@ -5742,6 +5762,22 @@ void BaseTextEditorWidget::cut()
     QPlainTextEdit::cut();
 }
 
+void BaseTextEditorWidget::copy()
+{
+    if (!textCursor().hasSelection())
+        return;
+
+    QPlainTextEdit::copy();
+
+    const QMimeData *mimeData = QApplication::clipboard()->mimeData();
+    if (mimeData) {
+        CircularClipboard *circularClipBoard = CircularClipboard::instance();
+        circularClipBoard->collect(duplicateMimeData(mimeData));
+        // We want the latest copied content to be the first one to appear on circular paste.
+        circularClipBoard->toLastCollect();
+    }
+}
+
 void BaseTextEditorWidget::paste()
 {
     if (d->m_inBlockSelectionMode) {
@@ -5750,12 +5786,36 @@ void BaseTextEditorWidget::paste()
     QPlainTextEdit::paste();
 }
 
+void BaseTextEditorWidget::circularPaste()
+{
+    const QMimeData *mimeData = CircularClipboard::instance()->next();
+    if (!mimeData)
+        return;
+
+    QTextCursor cursor = textCursor();
+    if (!d->m_isCirculatingClipboard) {
+        cursor.beginEditBlock();
+        d->m_isCirculatingClipboard = true;
+    } else {
+        cursor.joinPreviousEditBlock();
+    }
+    const int selectionStart = qMin(cursor.position(), cursor.anchor());
+    insertFromMimeData(mimeData);
+    cursor.setPosition(selectionStart, QTextCursor::KeepAnchor);
+    cursor.endEditBlock();
+
+    setTextCursor(flippedCursor(cursor));
+
+    // We want to latest pasted content to replace the system's current clipboard.
+    QPlainTextEdit::copy();
+}
+
 QMimeData *BaseTextEditorWidget::createMimeDataFromSelection() const
 {
     if (d->m_inBlockSelectionMode) {
         QMimeData *mimeData = new QMimeData;
         QString text = d->copyBlockSelection();
-        mimeData->setData(QLatin1String("application/vnd.nokia.qtcreator.vblocktext"), text.toUtf8());
+        mimeData->setData(QLatin1String(kVerticalTextBlockMimeType), text.toUtf8());
         mimeData->setText(text); // for exchangeability
         return mimeData;
     } else if (textCursor().hasSelection()) {
@@ -5829,7 +5889,7 @@ QMimeData *BaseTextEditorWidget::createMimeDataFromSelection() const
             cursor.setPosition(selstart.position());
             cursor.setPosition(selend.position(), QTextCursor::KeepAnchor);
             text = cursor.selectedText();
-            mimeData->setData(QLatin1String("application/vnd.nokia.qtcreator.blocktext"), text.toUtf8());
+            mimeData->setData(QLatin1String(kTextBlockMimeType), text.toUtf8());
         }
         return mimeData;
     }
@@ -5846,8 +5906,8 @@ void BaseTextEditorWidget::insertFromMimeData(const QMimeData *source)
     if (isReadOnly())
         return;
 
-    if (source->hasFormat(QLatin1String("application/vnd.nokia.qtcreator.vblocktext"))) {
-        QString text = QString::fromUtf8(source->data(QLatin1String("application/vnd.nokia.qtcreator.vblocktext")));
+    if (source->hasFormat(QLatin1String(kVerticalTextBlockMimeType))) {
+        QString text = QString::fromUtf8(source->data(QLatin1String(kVerticalTextBlockMimeType)));
         if (text.isEmpty())
             return;
 
@@ -5923,8 +5983,8 @@ void BaseTextEditorWidget::insertFromMimeData(const QMimeData *source)
     bool insertAtBeginningOfLine = ts.cursorIsAtBeginningOfLine(cursor);
 
     if (insertAtBeginningOfLine
-        && source->hasFormat(QLatin1String("application/vnd.nokia.qtcreator.blocktext"))) {
-        text = QString::fromUtf8(source->data(QLatin1String("application/vnd.nokia.qtcreator.blocktext")));
+        && source->hasFormat(QLatin1String(kTextBlockMimeType))) {
+        text = QString::fromUtf8(source->data(QLatin1String(kTextBlockMimeType)));
         if (text.isEmpty())
             return;
     }
@@ -5964,6 +6024,24 @@ void BaseTextEditorWidget::insertFromMimeData(const QMimeData *source)
     setTextCursor(cursor);
 }
 
+QMimeData *BaseTextEditorWidget::duplicateMimeData(const QMimeData *source) const
+{
+    Q_ASSERT(source);
+
+    QMimeData *mimeData = new QMimeData;
+    mimeData->setText(source->text());
+    mimeData->setHtml(source->html());
+    if (source->hasFormat(QLatin1String(kVerticalTextBlockMimeType))) {
+        mimeData->setData(QLatin1String(kVerticalTextBlockMimeType),
+                          source->data(QLatin1String(kVerticalTextBlockMimeType)));
+    } else if (source->hasFormat(QLatin1String(kTextBlockMimeType))) {
+        mimeData->setData(QLatin1String(kTextBlockMimeType),
+                          source->data(QLatin1String(kTextBlockMimeType)));
+    }
+
+    return mimeData;
+}
+
 void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
 {
     menu->addSeparator();
@@ -5976,6 +6054,9 @@ void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
     if (a && a->isEnabled())
         menu->addAction(a);
     a = am->command(Core::Constants::PASTE)->action();
+    if (a && a->isEnabled())
+        menu->addAction(a);
+    a = am->command(Constants::CIRCULAR_PASTE)->action();
     if (a && a->isEnabled())
         menu->addAction(a);
 }

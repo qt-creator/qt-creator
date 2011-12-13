@@ -246,6 +246,7 @@ public:
     uint autoParenthesisOverwriteBackup : 1;
     uint surroundWithEnabledOverwriteBackup : 1;
     uint m_maybeFakeTooltipEvent : 1;
+    uint m_isCirculatingClipboard: 1;
     int m_visibleWrapColumn;
 
     QTextCharFormat m_linkFormat;

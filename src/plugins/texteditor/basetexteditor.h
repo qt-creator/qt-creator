@@ -254,8 +254,11 @@ public:
 public slots:
     void setDisplayName(const QString &title);
 
+    virtual void copy();
     virtual void paste();
     virtual void cut();
+
+    void circularPaste();
 
     void zoomIn(int range = 1);
     void zoomOut(int range = 1);
@@ -334,10 +337,10 @@ protected:
 
     void showEvent(QShowEvent *);
 
-    // reimplemented to support block selection
     QMimeData *createMimeDataFromSelection() const;
     bool canInsertFromMimeData(const QMimeData *source) const;
     void insertFromMimeData(const QMimeData *source);
+    QMimeData *duplicateMimeData(const QMimeData *source) const;
 
     static QString msgTextTooLarge(quint64 size);
 

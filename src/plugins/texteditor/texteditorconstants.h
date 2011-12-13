@@ -101,6 +101,7 @@ const char INFO_SYNTAX_DEFINITION[] = "TextEditor.InfoSyntaxDefinition";
 const char TASK_DOWNLOAD_DEFINITIONS[] = "TextEditor.Task.Download";
 const char TASK_REGISTER_DEFINITIONS[] = "TextEditor.Task.Register";
 const char TASK_OPEN_FILE[]        = "TextEditor.Task.OpenFile";
+const char CIRCULAR_PASTE[]        = "TextEditor.CircularPaste";
 
 // Text color and style categories
 const char C_TEXT[]                = "Text";

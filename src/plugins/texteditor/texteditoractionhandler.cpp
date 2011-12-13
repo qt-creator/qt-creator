@@ -64,6 +64,7 @@ TextEditorActionHandler::TextEditorActionHandler(const char *context,
     m_copyAction(0),
     m_cutAction(0),
     m_pasteAction(0),
+    m_circularPasteAction(0),
     m_selectAllAction(0),
     m_gotoAction(0),
     m_printAction(0),
@@ -369,6 +370,13 @@ void TextEditorActionHandler::createActions()
     command->setDefaultKeySequence(QKeySequence(tr("Alt+U")));
     connect(m_lowerCaseSelectionAction, SIGNAL(triggered()), this, SLOT(lowercaseSelection()));
 
+    m_circularPasteAction = new QAction(tr("Paste From Circular Clipboard"), this);
+    m_modifyingActions << m_circularPasteAction;
+    command = am->registerAction(m_circularPasteAction, Constants::CIRCULAR_PASTE, m_contextId, true);
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+V")));
+    connect(m_circularPasteAction, SIGNAL(triggered()), this, SLOT(circularPasteAction()));
+    medit->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
+
     QAction *a = 0;
     a = new QAction(tr("Goto Line Start"), this);
     command = am->registerAction(a, Constants::GOTO_LINE_START, m_contextId, true);
@@ -568,6 +576,7 @@ FUNCTION2(redoAction, redo)
 FUNCTION2(copyAction, copy)
 FUNCTION2(cutAction, cut)
 FUNCTION2(pasteAction, paste)
+FUNCTION2(circularPasteAction, circularPaste)
 FUNCTION2(formatAction, format)
 FUNCTION2(rewrapParagraphAction, rewrapParagraph)
 FUNCTION2(selectAllAction, selectAll)
