@@ -54,7 +54,6 @@ QT_END_NAMESPACE
 
 namespace Core {
 class IEditor;
-class IMode;
 }
 
 namespace TextEditor {
@@ -65,6 +64,7 @@ namespace Debugger {
 class DebuggerEngine;
 
 namespace Internal {
+
 class DraggableLabel;
 class DebuggerToolTipEditor;
 
@@ -103,8 +103,9 @@ public:
     QString function() const { return m_context.function; }
     int position() const { return m_context.position; }
     // Check for a match at position.
+
     bool matches(const QString &fileName,
-                 const QString &engineType = QString(),
+                 const QString &engineType,
                  const QString &function= QString()) const;
 
     const DebuggerToolTipContext &context() const { return m_context; }
@@ -121,8 +122,6 @@ public:
 
     static DebuggerToolTipWidget *loadSessionData(QXmlStreamReader &r);
 
-    int debuggerModel() const { return m_debuggerModel; }
-    void setDebuggerModel(int m) { m_debuggerModel = m; }
     QString expression() const { return m_expression; }
     void setExpression(const QString &e) { m_expression = e; }
 
@@ -166,7 +165,6 @@ private:
     QAbstractItemModel *swapModel(QAbstractItemModel *newModel);
     static void restoreTreeModel(QXmlStreamReader &r, QStandardItemModel *m);
 
-    int m_debuggerModel;
     QString m_expression;
 
     DebuggerToolTipTreeView *m_treeView;
