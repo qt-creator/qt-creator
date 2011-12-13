@@ -244,6 +244,7 @@ public:
     }
 
 signals:
+    void executeLineRequested();
     void clearContentsRequested();
     void statusMessageRequested(const QString &, int);
     void commandSelected(int);
@@ -252,7 +253,7 @@ private:
     void keyPressEvent(QKeyEvent *ev)
     {
         if (ev->modifiers() == Qt::ControlModifier && ev->key() == Qt::Key_Return)
-            debuggerCore()->executeDebuggerCommand(textCursor().block().text());
+            emit executeLineRequested();
         else if (ev->modifiers() == Qt::ControlModifier && ev->key() == Qt::Key_R)
             emit clearContentsRequested();
         else
@@ -344,6 +345,8 @@ LogWindow::LogWindow(QWidget *parent)
     setWindowTitle(tr("Debugger Log"));
     setObjectName("Log");
 
+    m_ignoreNextInputEcho = false;
+
     QSplitter *m_splitter = new Core::MiniSplitter(Qt::Horizontal);
     m_splitter->setParent(this);
 
@@ -407,8 +410,16 @@ LogWindow::LogWindow(QWidget *parent)
         m_combinedText, SLOT(gotoResult(int)));
     connect(m_commandEdit, SIGNAL(returnPressed()),
         SLOT(sendCommand()));
+    connect(m_inputText, SIGNAL(executeLineRequested()),
+        SLOT(executeLine()));
 
     setMinimumHeight(60);
+}
+
+void LogWindow::executeLine()
+{
+    m_ignoreNextInputEcho = true;
+    debuggerCore()->executeDebuggerCommand(m_inputText->textCursor().block().text());
 }
 
 void LogWindow::sendCommand()
@@ -447,6 +458,14 @@ void LogWindow::showOutput(int channel, const QString &output)
 void LogWindow::showInput(int channel, const QString &input)
 {
     Q_UNUSED(channel)
+    if (m_ignoreNextInputEcho) {
+        m_ignoreNextInputEcho = false;
+        QTextCursor cursor = m_inputText->textCursor();
+        cursor.movePosition(QTextCursor::Down);
+        cursor.movePosition(QTextCursor::EndOfLine);
+        m_inputText->setTextCursor(cursor);
+        return;
+    }
     if (debuggerCore()->boolSetting(LogTimeStamps))
         m_inputText->appendPlainText(logTimeStamp());
     m_inputText->appendPlainText(input);

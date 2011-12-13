@@ -64,6 +64,7 @@ public:
 public slots:
     void clearContents();
     void sendCommand();
+    void executeLine();
     void showOutput(int channel, const QString &output);
     void showInput(int channel, const QString &input);
 
@@ -76,6 +77,7 @@ private:
     QPlainTextEdit *m_inputText;     // scriptable input alone
     QLineEdit *m_commandEdit;
     QLabel *m_commandLabel;
+    bool m_ignoreNextInputEcho;
 };
 
 
