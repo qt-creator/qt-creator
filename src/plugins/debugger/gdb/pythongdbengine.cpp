@@ -193,7 +193,6 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
         }
         if (!partial)
             emit stackFrameCompleted();
-        handleAutoTests();
     } else {
         showMessage(_("DUMPER FAILED: " + response.toString()));
     }

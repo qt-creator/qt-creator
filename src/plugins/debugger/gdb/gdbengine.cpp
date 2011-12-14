@@ -1636,7 +1636,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
             if (name == stopSignal(sp.toolChainAbi)) {
                 showMessage(_(name + " CONSIDERED HARMLESS. CONTINUING."));
             } else {
-                showMessage(_("HANDLING SIGNAL" + name));
+                showMessage(_("HANDLING SIGNAL " + name));
                 if (debuggerCore()->boolSetting(UseMessageBoxForSignals)
                         && !isStopperThread)
                     showStoppedBySignalMessageBox(_(meaning), _(name));
@@ -2278,20 +2278,16 @@ void GdbEngine::handleExecuteReturn(const GdbResponse &response)
 
 void GdbEngine::setTokenBarrier()
 {
-    if (m_nonDiscardableCount > 0) {
-        showMessage(_("--- CANNOT SET TOKEN BARRIER: "), LogMiscInput);
-        foreach (const GdbCommand &cookie, m_cookieForToken)
-            showMessage(QString::fromLatin1("CMD: %1, FLAGS: %2")
-                .arg(_(cookie.command)).arg(cookie.flags), LogMiscInput);
-        QTC_ASSERT(false, return);
-        return;
-    }
+    QTC_ASSERT(m_nonDiscardableCount > 0, /**/);
     bool good = true;
-    foreach (const GdbCommand &cookie, m_cookieForToken) {
-        if (!(cookie.flags & Discardable)) {
-            qDebug() << "CMD:" << cookie.command
-                << " FLAGS:" << cookie.flags
-                << " CALLBACK:" << cookie.callbackName;
+    QHashIterator<int, GdbCommand> it(m_cookieForToken);
+    while (it.hasNext()) {
+        it.next();
+        if (!(it.value().flags & Discardable)) {
+            qDebug() << "TOKEN: " << it.key()
+                << "CMD:" << it.value().command
+                << " FLAGS:" << it.value().flags
+                << " CALLBACK:" << it.value().callbackName;
             good = false;
         }
     }
@@ -3970,6 +3966,7 @@ void GdbEngine::rebuildWatchModel()
     showStatusMessage(tr("Finished retrieving data"), 400);
     watchHandler()->endCycle();
     showToolTip();
+    handleAutoTests();
 }
 
 static QByteArray arrayFillCommand(const char *array, const QByteArray &params)
