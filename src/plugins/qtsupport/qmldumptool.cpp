@@ -228,8 +228,9 @@ QString QmlDumpTool::toolForVersion(BaseQtVersion *version, bool debugDump)
 {
     if (version) {
         QString qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
+        QString qtInstallBins = version->versionInfo().value("QT_INSTALL_BINS");
         QString qtInstallHeaders = version->versionInfo().value("QT_INSTALL_HEADERS");
-        QString toolPath = toolByInstallData(qtInstallData, qtInstallHeaders, debugDump);
+        QString toolPath = toolForQtPaths(qtInstallData, qtInstallBins, qtInstallHeaders, debugDump);
         return toolPath;
     }
 
@@ -253,7 +254,9 @@ static QStringList sourceFileNames()
     return files;
 }
 
-QString QmlDumpTool::toolByInstallData(const QString &qtInstallData, const QString &qtInstallHeaders,
+QString QmlDumpTool::toolForQtPaths(const QString &qtInstallData,
+                                       const QString &qtInstallBins,
+                                       const QString &qtInstallHeaders,
                                        bool debugDump)
 {
     if (!Core::ICore::instance())
@@ -261,7 +264,7 @@ QString QmlDumpTool::toolByInstallData(const QString &qtInstallData, const QStri
 
     // check for prebuilt binary first
     QFileInfo fileInfo;
-    if (getHelperFileInfoFor(validPrebuiltFilenames(debugDump), qtInstallData + QLatin1String("/bin/"), &fileInfo))
+    if (getHelperFileInfoFor(validPrebuiltFilenames(debugDump), qtInstallBins + QLatin1Char('/'), &fileInfo))
         return fileInfo.absoluteFilePath();
 
     const QStringList directories = installDirectories(qtInstallData);

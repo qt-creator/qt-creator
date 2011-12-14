@@ -54,8 +54,10 @@ class QTSUPPORT_EXPORT QmlDumpTool : public Utils::BuildableHelperLibrary
 public:
     static bool canBuild(const BaseQtVersion *qtVersion, QString *reason = 0);
     static QString toolForVersion(BaseQtVersion *version, bool debugDump);
-    static QString toolByInstallData(const QString &qtInstallData, const QString &qtInstallHeaders,
-                                     bool debugDump);
+    static QString toolForQtPaths(const QString &qtInstallData,
+                                 const QString &qtInstallBins,
+                                 const QString &qtInstallHeaders,
+                                 bool debugDump);
     static QStringList locationsByInstallData(const QString &qtInstallData, bool debugDump);
 
     // Build the helpers and return the output log/errormessage.
