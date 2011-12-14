@@ -1,0 +1,136 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+
+    \contentspage index.html
+    \previouspage creator-using-qt-quick-designer.html
+    \page quick-components.html
+    \nextpage quick-buttons.html
+
+    \title Creating Components
+
+    A \l{glossary-component}{component} provides a way of defining a new type
+    that you can re-use in other QML files. A component is like a black box; it
+    interacts with the outside world through properties, signals, and slots, and
+    is generally defined in its own QML file. You can import components to
+    screens and applications.
+
+    You can use the following QML elements to create components:
+
+    \list
+
+        \o  \l{http://doc.qt.nokia.com/4.7/qml-borderimage.html}{Border Image}
+            uses an image as a border or background.
+
+        \o  \l{http://doc.qt.nokia.com/4.7/qml-image.html}{Image}
+            adds a bitmap to the scene. You can stretch and tile images.
+
+        \o  \l{http://doc.qt.nokia.com/4.7/qml-item.html}{Item}
+            is the most basic of all visual items in QML. Even though it has no
+            visual appearance, it defines all the properties that are common
+            across visual items, such as the x and y position, width and height,
+            anchoring, and key handling.
+
+        \o  \l{http://doc.qt.nokia.com/4.7/qml-rectangle.html}{Rectangle}
+            adds a rectangle that is painted with a solid fill color and an
+            optional border. You can also use the radius property to create
+            rounded rectangles.
+
+        \o  \l{http://doc.qt.nokia.com/4.7/qml-text.html}{Text}
+            adds formatted read-only text.
+
+        \o  \l{http://doc.qt.nokia.com/4.7/qml-textedit.html}{Text Edit}
+            adds a single line of editable formatted text that can be validated.
+
+        \o  \l{http://doc.qt.nokia.com/4.7/qml-textinput.html}{Text Input}
+            adds a single line of editable plain text that can be validated.
+
+        \o  \l{http://doc.qt.nokia.com/4.7-snapshot/qml-webview.html}{Web View}
+            adds web content to a canvas.
+
+    \endlist
+
+    QML elements allow you to write cross-platform applications with custom look
+    and feel. You can also use ready-made Qt Quick Components that enable you to
+    create applications with a native look and feel for a particular target
+    platform. You can install the components as part of \QSDK.
+
+    When you use the \QC project wizard to create Qt Quick applications, you
+    can select which component set to use in your application.
+
+    Even if you use the Qt Quick Components, you can still write cross-platform
+    applications, by using different sets of QML files for each platform.
+
+    You can dowload a set of commonly used UI-components for generic use in
+    Qt Quick projects from \l{https://projects.forum.nokia.com/QMLTemplates}
+    {QML Templates}. You can open and edit the templates in \QD.
+
+    \section1 Creating Components in Qt Quick Designer
+
+    \list 1
+
+        \o  Select \gui {File > New File or Project > Files and Classes > QML
+            > Choose} to create a new .qml file.
+
+            \note Components are listed in the \gui {QML Components} section of
+            the \gui Library pane only if the filename begins with a capital
+            letter.
+
+        \o  Click \gui Design to open the .qml file in \QMLD.
+
+        \o  Drag and drop an item from the \gui Library pane to the editor.
+
+        \o  Edit item properties in the \gui Properties pane.
+
+            The available properties depend on the item.
+
+    \endlist
+
+    \if defined(qcmanual)
+    The following sections contain examples of how to create some common
+    components:
+
+    \list
+
+        \o  \l{Creating Buttons}
+
+        \o  \l{Creating Scalable Buttons and Borders}
+
+    \endlist
+
+    \section1 Moving Within Components
+
+    Components can consist of several other components. To view the component
+    hierarchy as a bread crumb path when you edit a component on the canvas,
+    select \gui {Go into Component} or press \key F2. Click the component
+    names in the path to navigate to them. You can easily navigate back to the
+    top level when you are done editing the component.
+
+    \image qmldesigner-breadcrumbs.png "Go into Component command"
+    \endif
+*/

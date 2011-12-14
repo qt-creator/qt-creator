@@ -1,0 +1,207 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+
+    \contentspage index.html
+    \previouspage quick-user-interaction.html
+    \page quick-export-to-qml.html
+    \nextpage quick-application-logic.html
+
+    \title Exporting Designs from Graphics Software
+
+    You can export designs from graphics software, such as Adobe Photoshop and
+    GIMP, to QML files. Each scene is converted into a single QML file with an
+    Image or a Text element for each layer and saved on the development PC.
+    Top-level layer groups are converted into merged QML Image elements.
+
+    \note GIMP does not support grouping, and therefore, each layer is exported
+    as an item in GIMP.
+
+    You can open the QML file in \QC for editing. If you edit the file in Adobe
+    Photoshop and export it to the same directory again, any changes you made in
+    \QC are overwritten. However, you can re-export graphical assets without
+    recreating the QML code.
+
+    If you create vector graphics with other tools that have an Adobe Photoshop
+    export option, such as Adobe Illustrator, you can export them first to
+    Photoshop and then to QML.
+
+    \section1 Conversion Rules
+
+    The following rules apply to the conversions:
+
+    \list
+
+        \o  Layer names are used as element names. Spaces and hash marks (#) are
+            replaced with underscore characters to create valid ids for the
+            elements.
+
+        \o  Layer styles, such as drop shadows, are converted to images.
+
+        \o  Offset, size, ordering and opacity are preserved.
+
+        \o  Text layers are converted to Text elements, unless you specify that
+            they be converted to Image elements.
+
+        \o  Hidden layers can be exported, and their visibility is set to
+            hidden.
+
+        \o  PNG images are copied to the images subirectory.
+
+    \endlist
+
+    \section1 Preparing Files for Conversion
+
+    To create QML files that are easy to use, prepare the Adobe Photoshop or
+    GIMP designs for exporting, as follows:
+
+    \list
+
+        \o  To minimize the number of elements, minimize the number of layers or
+            use top-level layer groups, because each layer or layer group is
+            exported as a Text or Image element.
+
+        \o  To make sure that all related elements are exported to the same
+            element, use top-level layer groups.
+
+        \o  To determine that some layers are not exported, hide them, and
+            deselect the \gui {Export hidden} check box during exporting.
+
+        \o  To make it easier to find the layers and layer groups after
+            exporting them, use descriptive names for them.
+
+        \o  To make sure that image dimensions are preserved during export,
+            create at least one fully filled layer (which can be hidden), such
+            as a background layer. If the export script does not find a fully
+            filled layer, it resizes all images to the size of the canvas.
+
+        \o  To prevent errors during export, make sure that the layers are not
+            locked. Locked layers cannot be exported.
+
+        \o  To avoid unexpected results, do not use Blending Mode effects. They
+            are not exported.
+
+    \endlist
+
+    \section1 Exporting from Adobe Photoshop to QML
+
+    \image qml-export-photoshop.png
+
+    The script has been tested to work on Adobe Photoshop CS 4 and 5, but it
+    might also work on other versions.
+
+    \list 1
+
+        \o  Download the export script, \e{Export QML.jx}, from
+            \l{http://qt.gitorious.org/qt-labs/photoshop-qmlexporter/trees/master}
+            {Gitorious}.
+
+            \note Read the README.txt file in the repository for latest
+            information about the script.
+
+        \o  Double-click the export script to add the export command to the
+            \gui Scripts menu. You can also copy the script file to the Adobe
+            Photoshop scripts directory (typically, \c{\Presets\Scripts} in the
+            Photoshop installation directory).
+
+        \o  In Adobe Photoshop, choose \gui {File > Scripts > Export to QML} to
+            export the scene to a QML file.
+
+        \o  In the \gui {Export Document to QML} dialog, enter a name and
+            location for the QML file.
+
+        \o  Select the \gui {Rasterize text} check box to export text layers as
+            images, not as Text elements.
+
+        \o  Select the \gui {Group layers} check box to export each top-level
+            group as a merged QML Image element.
+
+        \o  Select the \gui {Export hidden} check box to export hidden layers
+            and to set their visibility property to hidden.
+
+        \o  Deselect the \gui {Export QML} check box if you have modified the
+            QML document in \QC, but still want to re-export graphical assets.
+
+        \o  Click \gui Export.
+
+    \endlist
+
+    The QML file is saved to the location that you specified. In \QC, choose
+    \gui {File > Open File or Project} to open the QML file.
+
+    \note Existing files are replaced without warning.
+
+    \section1 Exporting from GIMP to QML
+
+    \image qml-export-gimp.png
+
+    The script has been tested to work on GIMP 2. You can download GIMP 2 from
+    \l{http://www.gimp.org/downloads/}{GIMP Downloads}.
+
+    To use the export script on Microsoft Windows, you also need to install the
+    GIMP Python extension (Python, PyCairo, PyGobject, PyGTK). However, GIMP is
+    not officially supported on Windows, so we cannot guarantee that this will
+    work.
+
+    \list 1
+
+        \o  On Microsoft Windows, you must first add Python support to your GIMP
+            installation, as instructed in
+            \l {http://www.gimpusers.com/tutorials/install-python-for-gimp-2-6-windows}
+            {Tutorial: Installing Python for GIMP 2.6 (Windows)}.
+
+        \o  Download the export script, \e qmlexporter.py, from
+            \l{http://qt.gitorious.org/qt-labs/gimp-qmlexporter/trees/master}
+            {Gitorious}.
+
+            \note Read the INSTALL.txt in the repository for latest information
+            about the script.
+
+        \o  Copy the export script to the plug-ins directory in the GIMP
+            installation directory.
+
+        \o  Check the properties of the file to make sure that it is executable.
+
+            On Linux, run the following command: \c {chmod u+rx}
+
+        \o  Restart GIMP to have the export command added to the \gui File menu.
+
+        \o  Choose \gui {File > Export to QML} to export the design to a QML
+            file.
+
+        \o  In the \gui {Export Layers to a QML Document} dialog, enter a name
+            and location for the QML file, and click \gui Export.
+
+    \endlist
+
+    The QML file is saved to the location that you specified. In \QC, choose
+    \gui {File > Open File or Project} to open the QML file.
+
+    \note Existing files are replaced without warning.
+
+*/

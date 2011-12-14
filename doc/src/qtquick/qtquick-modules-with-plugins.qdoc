@@ -1,0 +1,92 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage quick-application-logic.html
+    \page creator-qml-modules-with-plugins.html
+    \nextpage creator-using-qt-designer.html
+
+    \title Using QML Modules with Plugins
+
+    QML modules may use plugins to expose components defined in C++ to QML
+    applications. \QC cannot load the plugins to determine the details of
+    the contained components, and therefore, the modules must provide extra type
+    information for code completion and the semantic checks to work correctly.
+
+    When you write a QML module or use QML from a C++ application you typically
+    register new types with
+    \l{http://doc.qt.nokia.com/4.8/qdeclarativeengine.html#qmlRegisterType}
+    {qmlRegisterType} or expose some class instances with
+    \l{http://doc.qt.nokia.com/4.8/qdeclarativecontext.html#setContextProperty}
+    {setContextProperty}. The \QC C++ code model now scans for these calls and
+    tells the QML code model about them. This means that properties are
+    displayed during code completion and the JavaScript code checker does not
+    complain about unknown types. However, this works only when the source code
+    is available, and therefore, you must explicitly generate type information
+    for QML modules with plugins before distributing them.
+
+    Ideally, QML modules have a \c{plugins.qmltypes} file in the same directory
+    as the \c qmldir file. The \c qmltypes file contains a description of the
+    components exported by the module's plugins and is loaded by \QC when the
+    module is imported.
+
+    For Qt 4.8 and later, one or more \c qmltypes files can be listed in the
+    \c qmldir file under the \c typeinfo header. These files will be read in
+    addition to \c{plugins.qmltypes}. For more information, see
+    \l{http://doc.qt.nokia.com/4.8/qdeclarativemodules.html#writing-a-qmldir-file}
+    {Writing a qmldir File}.
+
+    \section1 Generating qmltypes Files
+
+    You can create and edit \c qmltypes files manually, but you are recommended
+    to use the \c qmlplugindump tool shipped with Qt 4.8 and later to generate
+    them automatically. For earlier versions of Qt, you can compile a version
+    of the tool called \c qmldump from the sources in
+    \c{<QtCreator>/share/qtcreator/qml/qmldump} if the Qt version contains
+    private headers.
+
+    Once you have obtained qmlplugindump for the Qt version the QML module's
+    plugins were compiled with, run the following command to load My.Module
+    version 1.0 from \c{/import/path/my/module} including all its plugins and
+    output a description of the plugins' types to
+    \c{/import/path/my/module/plugins.qmltypes}:
+
+    \code
+    qmlplugindump My.Module 1.0 /import/path > /import/path/my/module/plugins.qmltypes
+    \endcode
+
+    You can safely ignore the debug output.
+
+    \section1 Dumping Plugins Automatically
+
+    If a module with plugins lacks the \c qmltypes file, \QC tries to generate
+    a temporary file itself by running the \c qmldump program in the background.
+    However, this automatic dumping is a fallback mechanism with many points of
+    failure and you cannot rely upon it.
+
+*/
