@@ -5796,6 +5796,50 @@ namespace gdb13393 {
 } // namespace gdb13393
 
 
+namespace gdb10586 {
+
+    // http://sourceware.org/bugzilla/show_bug.cgi?id=10586. fsf/MI errors out
+    // on -var-list-children on an anonymous union. mac/MI was fixed in 2006.
+    // The proposed fix has been reported to crash gdb steered from eclipse.
+    // http://sourceware.org/ml/gdb-patches/2011-12/msg00420.html
+    // Check we are not harmed by either version.
+    void testmi()
+    {
+        struct test {
+            struct { int a; float b; };
+            struct { int c; float d; };
+        } v = {{1, 2}, {3, 4}};
+        BREAK_HERE;
+        // Expand v.
+        // Check v gdb10586::test.
+        // Check a 1 int.
+        // Continue.
+        dummyStatement(&v);
+    }
+
+    void testeclipse()
+    {
+        struct { int x; struct { int a; }; struct { int b; }; } v = {1, {2}, {3}};
+        struct s { int x, y; } n = {10, 20};
+        BREAK_HERE;
+        // Expand v n.
+        // Check v {...}.
+        // Check n gdb10586.
+        // Check a 2.
+        // Check x 1.
+        // Continue.
+        dummyStatement(&v, &n);
+    }
+
+    void test10586()
+    {
+        testmi();
+        testeclipse();
+    }
+
+} // namespace gdb10586
+
+
 namespace valgrind {
 
     void testLeak()
@@ -5939,6 +5983,7 @@ int main(int argc, char *argv[])
     bug5799::test5799();
     bug6465::test6465();
     gdb13393::test13393();
+    gdb10586::test10586();
 
     final::testFinal(&app);
 
