@@ -24,3 +24,9 @@ maemo5 {
     INSTALLS += target
 }
 
+exists($$QMAKE_INCDIR_QT/QtCore/private/qobject_p.h):DEFINES += USE_PRIVATE
+exists(/usr/include/boost/optional.hpp): DEFINES += USE_BOOST
+exists(/usr/include/eigen2/Eigen/Core): DEFINES += USE_EIGEN
+
+# Use for semi-automated testing
+#DEFINES += USE_AUTORUN=1

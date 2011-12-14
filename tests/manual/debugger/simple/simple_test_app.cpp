@@ -36,45 +36,62 @@
 // The following defines can be used to steer the kind of tests that
 // can be done.
 
-// With USE_AUTOBREAK, the debugger will stop automatically on all
-// lines containing the BREAK_HERE macro. This should be enabled
-// during manual testing.
-// Default: 0
-#define USE_AUTOBREAK 0
-
 // With USE_AUTORUN, creator will automatically "execute" the commands
 // in a comment following a BREAK_HERE line.
 // The following commands are supported:
 //   // Check <name> <value> <type>
 //         - Checks whether the local variable is displayed with value and type.
-//   //// Continue
-//         - Continues execution
+//   // CheckType <name> <type>
+//         - Checks whether the local variable is displayed with type.
+//           The value is untested, so it can be used with pointers values etc.
+//           that would change between test runs
+//   // Continue
+//       - Continues execution
+// On the TODO list:
+//   // Expand <name1>[<name2> ...]
+//         - Expands local variables with given names.
+//           FIXME: Not implemented yet.
+
+
 // If the line after a BREAK_HERE line does not contain one of the
 // supported commands, the test stops.
 // Default: 0
+#ifndef USE_AUTORUN
 #define USE_AUTORUN 0
+#endif
 
-// With USE_UNINITIALIZE_AUTOBREAK, the debugger will stop automatically
+// With USE_AUTOBREAK, the debugger will stop automatically on all
+// lines containing the BREAK_HERE macro. This should be enabled
+// during manual testing.
+// Default: 0
+#ifndef USE_AUTOBREAK
+#define USE_AUTOBREAK 0
+#endif
+
+// With USE_UNINITIALIZED_AUTOBREAK, the debugger will stop automatically
 // on all lines containing the BREAK_UNINITIALIZED_HERE macro.
 // This should be enabled during manual testing.
 // Default: 0
+#ifndef USE_UNINITIALIZED_AUTOBREAK
 #define USE_UNINITIALIZED_AUTOBREAK 0
+#endif
 
-// With USE_PRIVATE tests that require private headers are enabled.
-// Default: 1
-#define USE_PRIVATE 1
-
-// With USE_BOOST tests of boost data dumpers are enabled. You need
-// some boost headers installed.
-// Default: 0
-#define USE_BOOST 0
-
-// With USE_EGIEN tests of data dumpers for the "Eigen" library are
-// enabled. You need some eigen headers installed.
-// Default: 0
-#define USE_EIGEN 0
 
 ////////////// No further global configuration below ////////////////
+
+// AUTORUN is only sensibly with AUTOBREAK and without UNINITIALIZED_AUTOBREAK
+#if USE_AUTORUN
+#if !(USE_AUTOBREAK)
+#undef USE_AUTOBREAK
+#define USE_AUTOBREAK 1
+#warning Switching on USE_AUTOBREAK
+#endif // !USE_AUTOBREAK
+#if USE_UNINITIALIZED_AUTOBREAK
+#undef USE_UNINITIALIZED_AUTOBREAK
+#define USE_UNINITIALIZED_AUTOBREAK 0
+#warning Switching off USE_AUTOBREAK
+#endif // USE_UNINITIALIZED_AUTOBREAK
+#endif
 
 #if QT_SCRIPT_LIB
 #define USE_SCRIPTLIB 1
@@ -5893,6 +5910,12 @@ namespace sanity {
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+
+    // Notify Creator about auto run intention.
+    if (USE_AUTORUN)
+        qWarning("Creator: Switch on magic autorun.");
+    else
+        qWarning("Creator: Switch off magic autorun.");
 
     // For a very quick check, step into this one.
     sanity::testSanity();
