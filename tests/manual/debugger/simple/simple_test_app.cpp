@@ -3431,7 +3431,7 @@ namespace formats {
         // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
         // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
 
-        const unsigned char uu[] = { 'a', uchar('ö'), 'a' };
+        const unsigned char uu[] = { 'a', 153 /* ö Latin1 */, 'a' };
         const unsigned char *u = uu;
         BREAK_HERE;
         // CheckType u unsigned char *.
