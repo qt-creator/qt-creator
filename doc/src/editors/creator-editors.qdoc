@@ -1766,9 +1766,9 @@
 
     \endlist
 
-    \section1 Using the Locator Filters
+    \section1 Using Locator Filters
 
-    The locator allows you to browse not only files, but any items defined by
+    The locator enables you to browse not only files, but any items defined by
     \bold{locator filters}. By default, the locator contains filters for:
 
     \list
@@ -1794,10 +1794,16 @@
         \o  Running text editing macros that you record and save. For more
             information, see \l{Using Text Editing Macros}
 
+        \o  Executing shell commands
+
+        \o  Executing version control system commands. For more information, see
+            \l{Using Version Control Systems}
+
     \endlist
 
     To use a specific locator filter, type the assigned prefix followed by
-    \key Space. The prefix is usually a single character.
+    \key Space. The prefix is usually a single character. Then type the search
+    string (typically, a filename or class name) or the command to execute.
 
     For example, to locate symbols matching QDataStream:
 
@@ -1827,8 +1833,62 @@
 
     \endlist
 
+    \section1 Configuring Locator Filters
 
-    \section2 Creating Locator Filters
+    If the default filters do not match your use case, you can check whether you
+    can change them. For all filters, you can change the filter prefix and
+    restrict the search to items that match the filter.
+
+    To configure a locator filter:
+
+    \list 1
+
+        \o  In the locator, click \inlineimage qtcreator-locator-magnify.png
+            and select \gui Configure to open the \gui Locator options.
+
+        \o  Select a filter, and then select \gui Edit.
+
+        \o  Specify the prefix string.
+
+        \o  To show only results matching this filter, select
+            \gui{Limit to prefix}.
+
+        \o  Specify other available options. For more information, see
+            \l{Adding Web Search Engines}.
+
+    \endlist
+
+    \section2 Adding Web Search Engines
+
+    You can use the \gui {Web Search (\c r)} locator filter to perform
+    web searches. URLs and search commands for Bing, Google, Yahoo! Search,
+    cplusplus.com, and Wikipedia are configured by default.
+
+    To find out the format of the search command to use for your favorite
+    web search engine, perform a search in your browser and copy the resulting
+    URL to the locator filter configuration. Replace the search term with the
+    variable \c {%1}.
+
+    To add URLs and search commands to the list:
+
+    \list 1
+
+        \o  Select \gui {Tools > Options > Environment > Locator >
+            Web Search (prefix: r) >
+            Edit}.
+
+        \o  Select \gui Add to add a new entry to the list.
+
+            \image qtcreator-add-online-doc.png "Filter Configuration dialog"
+
+        \o  Double-click the new entry to specify a URL and a search command.
+            For example, http://www.google.com/search?q=%1.
+
+        \o  Click \gui OK.
+
+    \endlist
+
+    \section1 Creating Locator Filters
 
     To quickly access files not directly mentioned in your project, you can
     create your own locator filters. That way you can locate files in a
@@ -1870,37 +1930,7 @@
 
     \endlist
 
-    \section2 Adding Web Search Engines
-
-    You can use the \gui {Web Search (\c r)} locator filter to perform
-    web searches. URLs and search commands for Bing, Google, Yahoo! Search,
-    cplusplus.com, and Wikipedia are configured by default.
-
-    To find out the format of the search command to use for your favorite
-    web search engine, perform a search in your browser and copy the resulting
-    URL to the locator filter configuration. Replace the search term with the
-    variable \c {%1}.
-
-    To add URLs and search commands to the list:
-
-    \list 1
-
-        \o  Select \gui {Tools > Options > Environment > Locator >
-            Web Search (prefix: r) >
-            Edit}.
-
-        \o  Select \gui Add to add a new entry to the list.
-
-            \image qtcreator-add-online-doc.png "Filter Configuration dialog"
-
-        \o  Double-click the new entry to specify a URL and a search command.
-            For example, http://www.google.com/search?q=%1.
-
-        \o  Click \gui OK.
-
-    \endlist
-
-    \section2 Configuring the Locator Cache
+    \section1 Configuring Locator Cache
 
     The locator searches the files matching your file pattern in the
     directories you have selected and caches that information. The cache for
