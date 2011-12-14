@@ -79,6 +79,7 @@ signals:
 
 public slots:
     void updateSelectedEvent(int eventId) const;
+    void selectBySourceLocation(const QString &filename, int line);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *ev);
@@ -149,6 +150,7 @@ public slots:
     void clear();
     void jumpToItem(const QModelIndex &index);
     void selectEvent(int eventId);
+    void selectEventByLocation(const QString &filename, int line);
     void buildModel();
 
 private:

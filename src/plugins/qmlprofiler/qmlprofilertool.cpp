@@ -388,6 +388,9 @@ QWidget *QmlProfilerTool::createWidgets()
     connect(d->m_v8profilerView, SIGNAL(gotoSourceLocation(QString,int)), this, SLOT(gotoSourceLocation(QString,int)));
     connect(d->m_v8profilerView, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
 
+    connect(d->m_v8profilerView, SIGNAL(gotoSourceLocation(QString,int)), d->m_eventsView, SLOT(selectBySourceLocation(QString,int)));
+    connect(d->m_eventsView, SIGNAL(gotoSourceLocation(QString,int)), d->m_v8profilerView, SLOT(selectBySourceLocation(QString,int)));
+
     QDockWidget *eventsDock = AnalyzerManager::createDockWidget
             (this, tr("Events"), d->m_eventsView, Qt::BottomDockWidgetArea);
     QDockWidget *timelineDock = AnalyzerManager::createDockWidget

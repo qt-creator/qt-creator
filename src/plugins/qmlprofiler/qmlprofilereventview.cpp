@@ -181,6 +181,11 @@ void QmlProfilerEventsWidget::updateSelectedEvent(int eventId) const
         m_eventTree->selectEvent(eventId);
 }
 
+void QmlProfilerEventsWidget::selectBySourceLocation(const QString &filename, int line)
+{
+    m_eventTree->selectEventByLocation(filename, line);
+}
+
 bool QmlProfilerEventsWidget::hasGlobalStats() const
 {
     return m_globalStatsEnabled;
@@ -582,6 +587,18 @@ void QmlProfilerEventsMainView::selectEvent(int eventId)
     for (int i=0; i<d->m_model->rowCount(); i++) {
         QStandardItem *infoItem = d->m_model->item(i, 0);
         if (infoItem->data(EventIdRole).toInt() == eventId) {
+            setCurrentIndex(d->m_model->indexFromItem(infoItem));
+            jumpToItem(currentIndex());
+            return;
+        }
+    }
+}
+
+void QmlProfilerEventsMainView::selectEventByLocation(const QString &filename, int line)
+{
+    for (int i=0; i<d->m_model->rowCount(); i++) {
+        QStandardItem *infoItem = d->m_model->item(i, 0);
+        if (currentIndex() != d->m_model->indexFromItem(infoItem) && infoItem->data(FilenameRole).toString() == filename && infoItem->data(LineRole).toInt() == line) {
             setCurrentIndex(d->m_model->indexFromItem(infoItem));
             jumpToItem(currentIndex());
             return;
