@@ -67,11 +67,12 @@
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QFileInfo>
 #include <QtGui/QApplication>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
-
 #include <cctype>
 
 using namespace CppEditor;
@@ -84,6 +85,11 @@ using namespace Utils;
 static inline bool isQtStringLiteral(const QByteArray &id)
 {
     return id == "QLatin1String" || id == "QLatin1Literal" || id == "QStringLiteral";
+}
+
+static inline bool isQtStringTranslation(const QByteArray &id)
+{
+    return id == "tr" || id == "trUtf8" || id == "translate" || id == "QT_TRANSLATE_NOOP";
 }
 
 namespace {
@@ -900,14 +906,17 @@ private:
 
 /*
   Replace
-    "abcd" -> QLatin1String("abcd")
-    @"abcd" -> QLatin1String("abcd")
-    'a' -> QLatin1Char('a')
+    "abcd"  -> QLatin1String("abcd")
+    @"abcd" -> QLatin1String("abcd") (Objective C)
+    'a'     -> QLatin1Char('a')
+    'a'     -> "a"
+    "a"     -> 'a' or QLatin1Char('a') (Single character string constants)
+    "\n"    -> '\n', QLatin1Char('\n')
   Except if they are already enclosed in
     QLatin1Char, QT_TRANSLATE_NOOP, tr,
     trUtf8, QLatin1Literal, QLatin1String
 
-    Activates on: the string literal
+    Activates on: the string or character literal
 */
 
 static inline QString msgQtStringLiteralDescription(const QString &replacement, int qtVersion)
@@ -916,117 +925,273 @@ static inline QString msgQtStringLiteralDescription(const QString &replacement, 
            .arg(replacement).arg(qtVersion);
 }
 
+static inline QString msgQtStringLiteralDescription(const QString &replacement)
+{
+    return QApplication::translate("CppTools::QuickFix", "Enclose in %1(...)").arg(replacement);
+}
+
 class WrapStringLiteral: public CppQuickFixFactory
 {
 public:
+    typedef const QSharedPointer<const CppQuickFixAssistInterface> AssistInterfacePtr;
+
+    enum ActionFlags
+    {
+        EncloseInQLatin1CharAction = 0x1, EncloseInQLatin1StringAction = 0x2, EncloseInQStringLiteralAction = 0x4,
+        EncloseActionMask = EncloseInQLatin1CharAction | EncloseInQLatin1StringAction | EncloseInQStringLiteralAction,
+        TranslateTrAction = 0x8, TranslateQCoreApplicationAction = 0x10, TranslateNoopAction = 0x20,
+        TranslationMask = TranslateTrAction | TranslateQCoreApplicationAction | TranslateNoopAction,
+        RemoveObjectiveCAction = 0x40,
+        ConvertEscapeSequencesToCharAction = 0x100, ConvertEscapeSequencesToStringAction = 0x200,
+        SingleQuoteAction = 0x400, DoubleQuoteAction = 0x800
+    };
+
     enum Type { TypeString, TypeObjCString, TypeChar, TypeNone };
 
-    virtual QList<CppQuickFixOperation::Ptr> match(const QSharedPointer<const CppQuickFixAssistInterface> &interface)
+    virtual QList<CppQuickFixOperation::Ptr> match(const AssistInterfacePtr &interface);
+    static QString replacement(unsigned actions);
+    static QByteArray stringToCharEscapeSequences(const QByteArray &content);
+    static QByteArray charToStringEscapeSequences(const QByteArray &content);
+
+    static ExpressionAST *analyze(const QList<AST *> &path, const CppRefactoringFilePtr &file,
+                                  Type *type,
+                                  QByteArray *enclosingFunction = 0,
+                                  CallAST **enclosingFunctionCall = 0);
+
+    // Operations performs the operations of type ActionFlags passed in as actions.
+    class Operation : public CppQuickFixOperation
     {
-        ExpressionAST *literal = 0;
-        Type type = TypeNone;
-        const QList<AST *> &path = interface->path();
-        CppRefactoringFilePtr file = interface->currentFile();
+    public:
+        Operation(const AssistInterfacePtr &interface, int priority,
+                  unsigned actions, const QString &description, ExpressionAST *literal,
+                  const QString &translationContext = QString());
 
-        if (path.isEmpty())
-            return noResult(); // nothing to do
+        virtual void performChanges(const CppRefactoringFilePtr &currentFile, const CppRefactoringChanges &);
+    private:
+        const unsigned m_actions;
+        ExpressionAST *m_literal;
+        const QString m_translationContext;
+    };
+};
 
-        literal = path.last()->asStringLiteral();
+/* Analze a string/character literal like "x", QLatin1String("x") and return the literal
+ * (StringLiteral or NumericLiteral for characters) and its type
+ * and the enclosing function (QLatin1String, tr...) */
 
-        if (! literal) {
-            literal = path.last()->asNumericLiteral();
-            if (!literal || !file->tokenAt(literal->asNumericLiteral()->literal_token).is(T_CHAR_LITERAL))
-                return noResult();
-            else
-                type = TypeChar;
-        } else {
-            type = TypeString;
+ExpressionAST *WrapStringLiteral::analyze(const QList<AST *> &path,
+                                          const CppRefactoringFilePtr &file,
+                                          Type *type,
+                                          QByteArray *enclosingFunction /* = 0 */,
+                                          CallAST **enclosingFunctionCall /* = 0 */)
+{
+    *type = TypeNone;
+    if (enclosingFunction)
+        enclosingFunction->clear();
+    if (enclosingFunctionCall)
+        *enclosingFunctionCall = 0;
+
+    if (path.isEmpty())
+        return 0;
+
+    ExpressionAST *literal = path.last()->asExpression();
+    if (literal) {
+        if (literal->asStringLiteral()) {
+            // Check for Objective C string (@"bla")
+            const QChar firstChar = file->charAt(file->startOf(literal));
+            *type = firstChar == QLatin1Char('@') ? TypeObjCString : TypeString;
+        } else if (NumericLiteralAST *numericLiteral = literal->asNumericLiteral()) {
+            // character ('c') constants are numeric.
+            if (file->tokenAt(numericLiteral->literal_token).is(T_CHAR_LITERAL))
+                *type = TypeChar;
         }
+    }
 
-        if (path.size() > 1) {
-            if (CallAST *call = path.at(path.size() - 2)->asCall()) {
-                if (call->base_expression) {
-                    if (IdExpressionAST *idExpr = call->base_expression->asIdExpression()) {
-                        if (SimpleNameAST *functionName = idExpr->name->asSimpleName()) {
-                            const QByteArray id(file->tokenAt(functionName->identifier_token).identifier->chars());
-
-                            if (id == "QT_TRANSLATE_NOOP" || id == "tr" || id == "trUtf8"
-                                    || (type == TypeString && isQtStringLiteral(id))
-                                    || (type == TypeChar && id == "QLatin1Char"))
-                                return noResult(); // skip it
-                        }
+    if (*type != TypeNone && enclosingFunction && path.size() > 1) {
+        if (CallAST *call = path.at(path.size() - 2)->asCall()) {
+            if (call->base_expression) {
+                if (IdExpressionAST *idExpr = call->base_expression->asIdExpression()) {
+                    if (SimpleNameAST *functionName = idExpr->name->asSimpleName()) {
+                        *enclosingFunction = file->tokenAt(functionName->identifier_token).identifier->chars();
+                        if (enclosingFunctionCall)
+                            *enclosingFunctionCall = call;
                     }
                 }
             }
         }
+    }
+    return literal;
+}
 
-        if (type == TypeString) {
-            if (file->charAt(file->startOf(literal)) == QLatin1Char('@'))
-                type = TypeObjCString;
+QList<CppQuickFixOperation::Ptr> WrapStringLiteral::match(const AssistInterfacePtr &interface)
+{
+    typedef CppQuickFixOperation::Ptr OperationPtr;
+
+    Type type = TypeNone;
+    QByteArray enclosingFunction;
+    const QList<AST *> &path = interface->path();
+    CppRefactoringFilePtr file = interface->currentFile();
+    ExpressionAST *literal = WrapStringLiteral::analyze(path, file, &type, &enclosingFunction);
+    if (!literal || type == TypeNone)
+        return noResult();
+    if ((type == TypeChar && enclosingFunction == "QLatin1Char")
+        || isQtStringLiteral(enclosingFunction)
+        || isQtStringTranslation(enclosingFunction))
+        return noResult();
+
+    QList<CppQuickFixOperation::Ptr> result;
+    const int priority = path.size() - 1; // very high priority
+    if (type == TypeChar) {
+        unsigned actions = EncloseInQLatin1CharAction;
+        QString description =
+            msgQtStringLiteralDescription(WrapStringLiteral::replacement(actions));
+        result << OperationPtr(new Operation(interface, priority, actions,
+                                             description, literal));
+        if (NumericLiteralAST *charLiteral = literal->asNumericLiteral()) {
+            const QByteArray contents(file->tokenAt(charLiteral->literal_token).identifier->chars());
+            if (!charToStringEscapeSequences(contents).isEmpty()) {
+                actions = DoubleQuoteAction | ConvertEscapeSequencesToStringAction;
+                description = QApplication::translate("CppTools::QuickFix",
+                              "Convert to String Literal");
+                result << OperationPtr(new Operation(interface, priority, actions,
+                                                     description, literal));
+            }
         }
-
-        QList<CppQuickFixOperation::Ptr> result;
-
-        const int priority = path.size() - 1; // very high priority
-        if (type == TypeChar) {
-            const QString replacement = QLatin1String("QLatin1Char");
-            const QString description =
-                QApplication::translate("CppTools::QuickFix", "Enclose in %1(...)")
-                           .arg(replacement);
-
-            result.push_back(CppQuickFixOperation::Ptr(new Operation(interface, priority, type,
-                                                       replacement, description, literal)));
-        } else {
-            QString replacement = QLatin1String("QLatin1String");
-            result.push_back(CppQuickFixOperation::Ptr(new Operation(interface, priority, type,
-                                                                     replacement, msgQtStringLiteralDescription(replacement, 4),
-                                                                     literal)));
-            replacement = QLatin1String("QStringLiteral");
-            result.push_back(CppQuickFixOperation::Ptr(new Operation(interface, priority, type,
-                                                                     replacement, msgQtStringLiteralDescription(replacement, 5),
-                                                                     literal)));
+    } else {
+        const unsigned objectiveCActions = type == TypeObjCString ?
+                                           unsigned(RemoveObjectiveCAction) : 0u;
+        unsigned actions = 0;
+        if (StringLiteralAST *stringLiteral = literal->asStringLiteral()) {
+            const QByteArray contents(file->tokenAt(stringLiteral->literal_token).identifier->chars());
+            if (!stringToCharEscapeSequences(contents).isEmpty()) {
+                actions = EncloseInQLatin1CharAction | SingleQuoteAction
+                          | ConvertEscapeSequencesToCharAction | objectiveCActions;
+                QString description = QApplication::translate("CppTools::QuickFix",
+                                      "Convert to Character Literal and Enclose in QLatin1Char(...)");
+                result << OperationPtr(new Operation(interface, priority,
+                                                     actions, description, literal));
+                actions &= ~EncloseInQLatin1CharAction;
+                description = QApplication::translate("CppTools::QuickFix",
+                              "Convert to Character Literal");
+                result << OperationPtr(new Operation(interface, priority,
+                                                     actions, description, literal));
+            }
         }
-        return result;
+        actions = EncloseInQLatin1StringAction | objectiveCActions;
+        result << OperationPtr(new Operation(interface, priority, actions,
+                                             msgQtStringLiteralDescription(WrapStringLiteral::replacement(actions), 4),
+                                             literal));
+        actions = EncloseInQStringLiteralAction | objectiveCActions;
+        result << OperationPtr(new Operation(interface, priority, actions,
+                                             msgQtStringLiteralDescription(WrapStringLiteral::replacement(actions), 5),
+                                             literal));
+    }
+    return result;
+}
+
+QString WrapStringLiteral::replacement(unsigned actions)
+{
+    if (actions & EncloseInQLatin1CharAction)
+        return QLatin1String("QLatin1Char");
+    if (actions & EncloseInQLatin1StringAction)
+        return QLatin1String("QLatin1String");
+    if (actions & EncloseInQStringLiteralAction)
+        return QLatin1String("QStringLiteral");
+    if (actions & TranslateTrAction)
+        return QLatin1String("tr");
+    if (actions & TranslateQCoreApplicationAction)
+        return QLatin1String("QCoreApplication::translate");
+    if (actions & TranslateNoopAction)
+        return QLatin1String("QT_TRANSLATE_NOOP");
+    return QString();
+}
+
+/* Convert single-character string literals into character literals with some
+ * special cases "a" --> 'a', "'" --> '\'', "\n" --> '\n', "\"" --> '"'. */
+QByteArray WrapStringLiteral::stringToCharEscapeSequences(const QByteArray &content)
+{
+    if (content.size() == 1)
+        return content.at(0) == '\'' ? QByteArray("\\'") : content;
+    if (content.size() == 2 && content.at(0) == '\\')
+        return content == "\\\"" ? QByteArray(1, '"') : content;
+    return QByteArray();
+}
+
+/* Convert character literal into a string literal with some special cases
+ * 'a' -> "a", '\n' -> "\n", '\'' --> "'", '"' --> "\"". */
+QByteArray WrapStringLiteral::charToStringEscapeSequences(const QByteArray &content)
+{
+    if (content.size() == 1)
+        return content.at(0) == '"' ? QByteArray("\\\"") : content;
+    if (content.size() == 2)
+        return content == "\\'" ? QByteArray("'") : content;
+    return QByteArray();
+}
+
+WrapStringLiteral::Operation::Operation(const AssistInterfacePtr &interface, int priority,
+                                        unsigned actions, const QString &description, ExpressionAST *literal,
+                                        const QString &translationContext)
+    : CppQuickFixOperation(interface, priority), m_actions(actions), m_literal(literal),
+      m_translationContext(translationContext)
+{
+    setDescription(description);
+}
+
+void WrapStringLiteral::Operation::performChanges(const CppRefactoringFilePtr &currentFile, const CppRefactoringChanges &)
+{
+    ChangeSet changes;
+
+    const int startPos = currentFile->startOf(m_literal);
+    const int endPos = currentFile->endOf(m_literal);
+
+    // kill leading '@'. No need to adapt endPos, that is done by ChangeSet
+    if (m_actions & RemoveObjectiveCAction)
+        changes.remove(startPos, startPos + 1);
+
+    // Fix quotes
+    if (m_actions & (SingleQuoteAction | DoubleQuoteAction)) {
+        const QString newQuote((m_actions & SingleQuoteAction) ? QLatin1Char('\'') : QLatin1Char('"'));
+        changes.replace(startPos, startPos + 1, newQuote);
+        changes.replace(endPos - 1, endPos, newQuote);
     }
 
-private:
-    class Operation: public CppQuickFixOperation
-    {
-    public:
-        Operation(const QSharedPointer<const CppQuickFixAssistInterface> &interface, int priority,
-                  Type type, const QString &replacement, const QString &description,
-                  ExpressionAST *literal)
-            : CppQuickFixOperation(interface, priority)
-            , type(type), replacement(replacement)
-            , literal(literal)
-        {
-            setDescription(description);
-       }
+    // Convert single character strings into character constants
+    if (m_actions & ConvertEscapeSequencesToCharAction) {
+        StringLiteralAST *stringLiteral = m_literal->asStringLiteral();
+        QTC_ASSERT(stringLiteral, return ;);
+        const QByteArray oldContents(currentFile->tokenAt(stringLiteral->literal_token).identifier->chars());
+        const QByteArray newContents = stringToCharEscapeSequences(oldContents);
+        QTC_ASSERT(!newContents.isEmpty(), return ;);
+        if (oldContents != newContents)
+            changes.replace(startPos + 1, endPos -1, QString::fromLatin1(newContents));
+    }
 
-        virtual void performChanges(const CppRefactoringFilePtr &currentFile, const CppRefactoringChanges &)
-        {
-            ChangeSet changes;
+    // Convert character constants into strings constants
+    if (m_actions & ConvertEscapeSequencesToStringAction) {
+        NumericLiteralAST *charLiteral = m_literal->asNumericLiteral(); // char 'c' constants are numerical.
+        QTC_ASSERT(charLiteral, return ;);
+        const QByteArray oldContents(currentFile->tokenAt(charLiteral->literal_token).identifier->chars());
+        const QByteArray newContents = charToStringEscapeSequences(oldContents);
+        QTC_ASSERT(!newContents.isEmpty(), return ;);
+        if (oldContents != newContents)
+            changes.replace(startPos + 1, endPos -1, QString::fromLatin1(newContents));
+    }
 
-            const int startPos = currentFile->startOf(literal);
-            const QString fullReplacement = replacement + QLatin1Char('(');
-            if (type == TypeObjCString)
-                changes.replace(startPos, startPos + 1, fullReplacement);
-            else
-                changes.insert(startPos, fullReplacement);
-
-            changes.insert(currentFile->endOf(literal), QLatin1String(")"));
-
-            currentFile->setChangeSet(changes);
-            currentFile->apply();
+    // Enclose in literal or translation function, macro.
+    if (m_actions & (EncloseActionMask | TranslationMask)) {
+        changes.insert(endPos, QString(QLatin1Char(')')));
+        QString leading = WrapStringLiteral::replacement(m_actions);
+        leading += QLatin1Char('(');
+        if (m_actions & (TranslateQCoreApplicationAction | TranslateNoopAction)) {
+            leading += QLatin1Char('"');
+            leading += m_translationContext;
+            leading += QLatin1String("\", ");
         }
+        changes.insert(startPos, leading);
+    }
 
-    private:
-        const Type type;
-        const QString replacement;
-        ExpressionAST *literal;
-    };
-
-};
+    currentFile->setChangeSet(changes);
+    currentFile->apply();
+}
 
 /*
   Replace
@@ -1042,45 +1207,26 @@ private:
 class TranslateStringLiteral: public CppQuickFixFactory
 {
 public:
-    enum TranslationOption { unknown, useTr, useQCoreApplicationTranslate, useMacro };
-
     virtual QList<CppQuickFixOperation::Ptr> match(const QSharedPointer<const CppQuickFixAssistInterface> &interface)
     {
-        const QList<AST *> &path = interface->path();
         // Initialize
-        ExpressionAST *literal = 0;
-        QString trContext;
-
-        if (path.isEmpty())
+        WrapStringLiteral::Type type = WrapStringLiteral::TypeNone;
+        QByteArray enclosingFunction;
+        const QList<AST *> &path = interface->path();
+        CppRefactoringFilePtr file = interface->currentFile();
+        ExpressionAST *literal = WrapStringLiteral::analyze(path, file, &type, &enclosingFunction);
+        if (!literal || type != WrapStringLiteral::TypeString
+           || isQtStringLiteral(enclosingFunction) || isQtStringTranslation(enclosingFunction))
             return noResult();
 
-        literal = path.last()->asStringLiteral();
-        if (!literal)
-            return noResult(); // No string, nothing to do
-
-        // Do we already have a translation markup?
-        if (path.size() >= 2) {
-            if (CallAST *call = path.at(path.size() - 2)->asCall()) {
-                if (call->base_expression) {
-                    if (IdExpressionAST *idExpr = call->base_expression->asIdExpression()) {
-                        if (SimpleNameAST *functionName = idExpr->name->asSimpleName()) {
-                            const QByteArray id(interface->currentFile()->tokenAt(functionName->identifier_token).identifier->chars());
-
-                            if (id == "tr" || id == "trUtf8"
-                                    || id == "translate"
-                                    || id == "QT_TRANSLATE_NOOP"
-                                    || isQtStringLiteral(id))
-                                return noResult(); // skip it
-                        }
-                    }
-                }
-            }
-        }
+        QString trContext;
 
         QSharedPointer<Control> control = interface->context().control();
         const Name *trName = control->identifier("tr");
 
         // Check whether we are in a method:
+        const QString description = QApplication::translate("CppTools::QuickFix", "Mark as Translatable");
+        QList<CppQuickFixOperation::Ptr> result;
         for (int i = path.size() - 1; i >= 0; --i)
         {
             if (FunctionDefinitionAST *definition = path.at(i)->asFunctionDefinition()) {
@@ -1092,7 +1238,9 @@ public:
                         Symbol *s = r.declaration();
                         if (s->type()->isFunctionType()) {
                             // no context required for tr
-                            return singleResult(new Operation(interface, path.size() - 1, literal, useTr, trContext));
+                            return singleResult(new WrapStringLiteral::Operation(interface, path.size() - 1,
+                                                                                 WrapStringLiteral::TranslateTrAction,
+                                                                                 description, literal));
                         }
                     }
                 }
@@ -1107,53 +1255,17 @@ public:
                 // ... or global if none available!
                 if (trContext.isEmpty())
                     trContext = QLatin1String("GLOBAL");
-                return singleResult(new Operation(interface, path.size() - 1, literal, useQCoreApplicationTranslate, trContext));
+                return singleResult(new WrapStringLiteral::Operation(interface, path.size() - 1,
+                                                                     WrapStringLiteral::TranslateQCoreApplicationAction,
+                                                                     description, literal, trContext));
             }
         }
 
         // We need to use Q_TRANSLATE_NOOP
-        return singleResult(new Operation(interface, path.size() - 1, literal, useMacro, QLatin1String("GLOBAL")));
+        return singleResult(new WrapStringLiteral::Operation(interface, path.size() - 1,
+                                                             WrapStringLiteral::TranslateNoopAction,
+                                                             description, literal, trContext));
     }
-
-private:
-    class Operation: public CppQuickFixOperation
-    {
-    public:
-        Operation(const QSharedPointer<const CppQuickFixAssistInterface> &interface, int priority, ExpressionAST *literal, TranslationOption option, const QString &context)
-            : CppQuickFixOperation(interface, priority)
-            , m_literal(literal)
-            , m_option(option)
-            , m_context(context)
-        {
-            setDescription(QApplication::translate("CppTools::QuickFix", "Mark as Translatable"));
-        }
-
-        virtual void performChanges(const CppRefactoringFilePtr &currentFile, const CppRefactoringChanges &)
-        {
-            ChangeSet changes;
-
-            const int startPos = currentFile->startOf(m_literal);
-            QString replacement(QLatin1String("tr("));
-            if (m_option == useQCoreApplicationTranslate) {
-                replacement = QLatin1String("QCoreApplication::translate(\"")
-                        + m_context + QLatin1String("\", ");
-            } else if (m_option == useMacro) {
-                replacement = QLatin1String("QT_TRANSLATE_NOOP(\"")
-                        + m_context + QLatin1String("\", ");
-            }
-
-            changes.insert(startPos, replacement);
-            changes.insert(currentFile->endOf(m_literal), QLatin1String(")"));
-
-            currentFile->setChangeSet(changes);
-            currentFile->apply();
-        }
-
-    private:
-        ExpressionAST *m_literal;
-        TranslationOption m_option;
-        QString m_context;
-    };
 };
 
 /**
@@ -1176,37 +1288,17 @@ public:
         if (interface->editor()->mimeType() != CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
             return noResult();
 
-        StringLiteralAST *stringLiteral = 0;
-        CallAST *qlatin1Call = 0;
+        WrapStringLiteral::Type type = WrapStringLiteral::TypeNone;
+        QByteArray enclosingFunction;
+        CallAST *qlatin1Call;
         const QList<AST *> &path = interface->path();
-
-        if (path.isEmpty())
-            return noResult(); // nothing to do
-
-        stringLiteral = path.last()->asStringLiteral();
-
-        if (! stringLiteral)
+        ExpressionAST *literal = WrapStringLiteral::analyze(path, file, &type, &enclosingFunction, &qlatin1Call);
+        if (!literal || type != WrapStringLiteral::TypeString)
             return noResult();
+        if (!isQtStringLiteral(enclosingFunction))
+            qlatin1Call = 0;
 
-        else if (file->charAt(file->startOf(stringLiteral)) == QLatin1Char('@'))
-            return noResult(); // it's already an objc string literal.
-
-        else if (path.size() > 1) {
-            if (CallAST *call = path.at(path.size() - 2)->asCall()) {
-                if (call->base_expression) {
-                    if (IdExpressionAST *idExpr = call->base_expression->asIdExpression()) {
-                        if (SimpleNameAST *functionName = idExpr->name->asSimpleName()) {
-                            const QByteArray id(interface->currentFile()->tokenAt(functionName->identifier_token).identifier->chars());
-
-                            if (isQtStringLiteral(id))
-                                qlatin1Call = call;
-                        }
-                    }
-                }
-            }
-        }
-
-        return singleResult(new Operation(interface, path.size() - 1, stringLiteral, qlatin1Call));
+        return singleResult(new Operation(interface, path.size() - 1, literal->asStringLiteral(), qlatin1Call));
     }
 
 private:
