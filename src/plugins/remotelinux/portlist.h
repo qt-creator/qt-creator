@@ -47,6 +47,7 @@ public:
     PortList();
     PortList(const PortList &other);
     PortList &operator=(const PortList &other);
+    ~PortList();
 
     void addPort(int port);
     void addRange(int startPort, int endPort);

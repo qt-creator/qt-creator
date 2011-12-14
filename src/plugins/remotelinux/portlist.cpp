@@ -143,6 +143,11 @@ PortList::PortList(const PortList &other) : d(new Internal::PortListPrivate(*oth
 {
 }
 
+PortList::~PortList()
+{
+    delete d;
+}
+
 PortList &PortList::operator=(const PortList &other)
 {
     *d = *other.d;
