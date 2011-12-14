@@ -105,7 +105,6 @@ private:
     void runNewSearch(const QString &txt, Find::FindFlags findFlags,
                       Find::SearchResultWindow::SearchMode searchMode);
     void runSearch(Find::SearchResult *search);
-    QFutureWatcher<Utils::FileSearchResultList> *watcherForSearch(Find::SearchResult *search);
 
     QMap<QFutureWatcher<Utils::FileSearchResultList> *, QPointer<Find::SearchResult> > m_watchers;
     QPointer<Find::IFindSupport> m_currentFindSupport;

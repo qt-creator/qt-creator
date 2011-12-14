@@ -86,7 +86,7 @@ void BaseFileFind::cancel()
 {
     SearchResult *search = qobject_cast<SearchResult *>(sender());
     QTC_ASSERT(search, return);
-    QFutureWatcher<FileSearchResultList> *watcher = watcherForSearch(search);
+    QFutureWatcher<FileSearchResultList> *watcher = m_watchers.key(search);
     QTC_ASSERT(watcher, return);
     watcher->cancel();
 }
@@ -162,19 +162,6 @@ void BaseFileFind::runSearch(Find::SearchResult *search)
                                                                         Constants::TASK_SEARCH);
     progress->setWidget(label);
     connect(progress, SIGNAL(clicked()), Find::SearchResultWindow::instance(), SLOT(popup()));
-}
-
-QFutureWatcher<FileSearchResultList> *BaseFileFind::watcherForSearch(SearchResult *search)
-{
-    if (!search)
-        return 0;
-    QMapIterator<QFutureWatcher<Utils::FileSearchResultList> *, QPointer<Find::SearchResult> > it(m_watchers);
-    while (it.hasNext()) {
-        it.next();
-        if (it.value() == search)
-            return it.key();
-    }
-    return 0;
 }
 
 void BaseFileFind::findAll(const QString &txt, Find::FindFlags findFlags)
