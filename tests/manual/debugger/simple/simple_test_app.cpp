@@ -3051,7 +3051,6 @@ namespace stdstream {
         ifstream is;
         BREAK_HERE;
         // CheckType is std::ifstream.
-        // Check ok false bool.
         // Continue.
         is.open("/etc/passwd");
         BREAK_HERE;
@@ -4088,10 +4087,6 @@ namespace basic {
 
     void testArray1()
     {
-        X x;
-        XX xx;
-        Foo *f = &xx;
-        Foo ff;
         double d[3][3];
         for (int i = 0; i != 3; ++i)
             for (int j = 0; j != 3; ++j)
@@ -4103,12 +4098,8 @@ namespace basic {
         // Check d.0.0 0 double.
         // Check d.0.2 2 double.
         // CheckType d.2 double [3].
-        // CheckType f XX.
-        // CheckType ff Foo.
-        // CheckType x X.
-        // CheckType xx XX.
         // Continue.
-        dummyStatement(&x, &f, &d, &ff);
+        dummyStatement(&d);
     }
 
     void testArray2()
