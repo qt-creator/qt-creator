@@ -50,16 +50,16 @@ class VCSBASE_EXPORT BaseVCSEditorFactory : public Core::IEditorFactory
     Q_OBJECT
 public:
     explicit BaseVCSEditorFactory(const VCSBaseEditorParameters *type);
-    virtual ~BaseVCSEditorFactory();
+    ~BaseVCSEditorFactory();
 
-    virtual QStringList mimeTypes() const;
+    QStringList mimeTypes() const;
     // IEditorFactory
 
-    virtual Core::Id id() const;
-    virtual QString displayName() const;
+    Core::Id id() const;
+    QString displayName() const;
 
-    virtual Core::IFile *open(const QString &fileName);
-    virtual Core::IEditor *createEditor(QWidget *parent);
+    Core::IFile *open(const QString &fileName);
+    Core::IEditor *createEditor(QWidget *parent);
 
 private:
     // Implement to create and initialize (call init()) a
@@ -80,8 +80,8 @@ public:
                               const char *describeSlot = 0);
 
 private:
-    virtual VCSBaseEditorWidget *createVCSBaseEditor(const VCSBaseEditorParameters *type,
-                                               QWidget *parent);
+    VCSBaseEditorWidget *createVCSBaseEditor(const VCSBaseEditorParameters *type,
+                                             QWidget *parent);
     QObject *m_describeReceiver;
     const char *m_describeSlot;
 };
