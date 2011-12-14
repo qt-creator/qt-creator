@@ -137,6 +137,7 @@ TraceWindow::TraceWindow(QWidget *parent)
     connect(this,SIGNAL(range(int,qint64,qint64,QStringList,QString,int)), m_eventList, SLOT(addRangedEvent(int,qint64,qint64,QStringList,QString,int)));
     connect(this, SIGNAL(traceFinished(qint64)), m_eventList, SLOT(setTraceEndTime(qint64)));
     connect(this, SIGNAL(traceStarted(qint64)), m_eventList, SLOT(setTraceStartTime(qint64)));
+    connect(this, SIGNAL(frameEvent(qint64,int,int)), m_eventList, SLOT(addFrameEvent(qint64,int,int)));
     connect(this,SIGNAL(viewUpdated()), m_eventList, SLOT(complete()));
     m_mainView->rootContext()->setContextProperty("qmlEventList", m_eventList);
     m_overview->rootContext()->setContextProperty("qmlEventList", m_eventList);
@@ -311,6 +312,7 @@ void TraceWindow::connectClientSignals()
                 this, SIGNAL(range(int,qint64,qint64,QStringList,QString,int)));
         connect(m_plugin.data(), SIGNAL(traceFinished(qint64)), this, SIGNAL(traceFinished(qint64)));
         connect(m_plugin.data(), SIGNAL(traceStarted(qint64)), this, SIGNAL(traceStarted(qint64)));
+        connect(m_plugin.data(), SIGNAL(frame(qint64,int,int)), this, SIGNAL(frameEvent(qint64,int,int)));
         connect(m_plugin.data(), SIGNAL(enabledChanged()), this, SLOT(updateProfilerState()));
         connect(m_plugin.data(), SIGNAL(enabledChanged()), m_plugin.data(), SLOT(sendRecordingStatus()));
     }

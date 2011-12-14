@@ -151,6 +151,12 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         if (event == EndTrace) {
             emit this->traceFinished(time);
             d->maximumTime = time;
+            d->maximumTime = qMax(time, d->maximumTime);
+        } else if (event == AnimationFrame) {
+            int frameRate, animationCount;
+            stream >> frameRate >> animationCount;
+            emit this->frame(time, frameRate, animationCount);
+            d->maximumTime = qMax(time, d->maximumTime);
         } else if (event == StartTrace) {
             emit this->traceStarted(time);
             d->maximumTime = time;

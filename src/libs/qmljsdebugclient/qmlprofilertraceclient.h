@@ -101,6 +101,7 @@ signals:
     void traceStarted( qint64 time );
     void range(int type, qint64 startTime, qint64 length,
                const QStringList &data, const QString &fileName, int line);
+    void frame(qint64 time, int frameRate, int animationCount);
 
     void recordingChanged(bool arg);
 

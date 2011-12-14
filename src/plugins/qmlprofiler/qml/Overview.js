@@ -73,9 +73,25 @@ function drawData(canvas, ctxt, region)
         xx = Math.round(xx);
         var ty = qmlEventList.getType(ii);
         if (xx + eventWidth > highest[ty]) {
-            var hue = ( qmlEventList.getEventId(ii) * 25 ) % 360;
-            ctxt.fillStyle = "hsl("+(hue/360.0+0.001)+",0.3,0.65)";
-            ctxt.fillRect(xx, bump + ty*blockHeight, eventWidth, blockHeight);
+            // special: animations
+            if (ty === 0 && qmlEventList.getAnimationCount(ii) >= 0) {
+                var vertScale = qmlEventList.getMaximumAnimationCount() - qmlEventList.getMinimumAnimationCount();
+                if (vertScale < 1)
+                    vertScale = 1;
+                var fraction = (qmlEventList.getAnimationCount(ii) - qmlEventList.getMinimumAnimationCount()) / vertScale;
+                var eventHeight = blockHeight * (fraction * 0.85 + 0.15);
+                var yy = bump + ty*blockHeight + blockHeight - eventHeight;
+
+                var fpsFraction = qmlEventList.getFramerate(ii) / 60.0;
+                if (fpsFraction > 1.0)
+                    fpsFraction = 1.0;
+                ctxt.fillStyle = "hsl("+(fpsFraction*0.27+0.028)+",0.3,0.65)";
+                ctxt.fillRect(xx, yy, eventWidth, eventHeight);
+            } else {
+                var hue = ( qmlEventList.getEventId(ii) * 25 ) % 360;
+                ctxt.fillStyle = "hsl("+(hue/360.0+0.001)+",0.3,0.65)";
+                ctxt.fillRect(xx, bump + ty*blockHeight, eventWidth, blockHeight);
+            }
             highest[ty] = xx+eventWidth;
         }
     }

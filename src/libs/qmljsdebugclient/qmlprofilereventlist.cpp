@@ -180,6 +180,9 @@ struct QmlEventStartTimeData {
     qint64 nestingDepth;
     QmlEventData *description;
 
+    // animation-related data
+    int frameRate;
+    int animationCount;
 };
 
 struct QmlEventTypeCount {
@@ -281,6 +284,10 @@ public:
     qint64 m_qmlMeasuredTime;
     qint64 m_v8MeasuredTime;
 
+    QmlEventStartTimeData *m_lastFrameEvent;
+    qint64 m_maximumAnimationCount;
+    qint64 m_minimumAnimationCount;
+
     // file to load
     QString m_filename;
 };
@@ -302,7 +309,9 @@ QmlProfilerEventList::QmlProfilerEventList(QObject *parent) :
     d->m_rootEventDesc = tr("Main Program");
     d->clearQmlRootEvent();
     d->clearV8RootEvent();
-
+    d->m_lastFrameEvent = 0;
+    d->m_maximumAnimationCount = 0;
+    d->m_minimumAnimationCount = 0;
 }
 
 QmlProfilerEventList::~QmlProfilerEventList()
@@ -334,6 +343,10 @@ void QmlProfilerEventList::clear()
     d->m_traceStartTime = -1;
     d->m_qmlMeasuredTime = 0;
     d->m_v8MeasuredTime = 0;
+
+    d->m_lastFrameEvent = 0;
+    d->m_maximumAnimationCount = 0;
+    d->m_minimumAnimationCount = 0;
 
     emit countChanged();
     emit dataClear();
@@ -423,6 +436,8 @@ void QmlProfilerEventList::addRangedEvent(int type, qint64 startTime, qint64 len
     startTimeData.length = length;
     startTimeData.description = newEvent;
     startTimeData.endTimeIndex = d->m_endTimeSortedList.count();
+    startTimeData.animationCount = -1;
+    startTimeData.frameRate = 1e9/length;
 
     d->m_endTimeSortedList << endTimeData;
     d->m_startTimeSortedList << startTimeData;
@@ -492,6 +507,58 @@ void QmlProfilerEventList::addV8Event(int depth, const QString &function, const 
             newChildSub->totalTime += totalTime;
         }
     }
+}
+
+void QmlProfilerEventList::addFrameEvent(qint64 time, int framerate, int animationcount)
+{
+    QString displayName, eventHashStr, details;
+
+    emit processingData();
+
+    details = tr("Animation Timer Update");
+    displayName = tr("<Animation Update>");
+    eventHashStr = displayName;
+
+    QmlEventData *newEvent;
+    if (d->m_eventDescriptions.contains(eventHashStr)) {
+        newEvent = d->m_eventDescriptions[eventHashStr];
+    } else {
+        newEvent = new QmlEventData;
+        newEvent->displayname = displayName;
+        newEvent->filename = QString();
+        newEvent->eventHashStr = eventHashStr;
+        newEvent->line = -1;
+        newEvent->eventType = QmlJsDebugClient::Painting;
+        newEvent->details = details;
+        d->m_eventDescriptions.insert(eventHashStr, newEvent);
+    }
+
+    qint64 length = 1e9/framerate;
+    // avoid overlap
+    if (d->m_lastFrameEvent && d->m_lastFrameEvent->startTime + d->m_lastFrameEvent->length >= time) {
+        d->m_lastFrameEvent->length = time - 1 - d->m_lastFrameEvent->startTime;
+        d->m_endTimeSortedList[d->m_lastFrameEvent->endTimeIndex].endTime = d->m_lastFrameEvent->startTime + d->m_lastFrameEvent->length;
+    }
+
+    QmlEventEndTimeData endTimeData;
+    endTimeData.endTime = time + length;
+    endTimeData.description = newEvent;
+    endTimeData.startTimeIndex = d->m_startTimeSortedList.count();
+
+    QmlEventStartTimeData startTimeData;
+    startTimeData.startTime = time;
+    startTimeData.length = length;
+    startTimeData.description = newEvent;
+    startTimeData.endTimeIndex = d->m_endTimeSortedList.count();
+    startTimeData.animationCount = animationcount;
+    startTimeData.frameRate = framerate;
+
+    d->m_endTimeSortedList << endTimeData;
+    d->m_startTimeSortedList << startTimeData;
+
+    d->m_lastFrameEvent = &d->m_startTimeSortedList.last();
+
+    emit countChanged();
 }
 
 void QmlProfilerEventList::QmlProfilerEventListPrivate::collectV8Statistics()
@@ -631,6 +698,11 @@ void QmlProfilerEventList::compileStatistics(qint64 startTime, qint64 endTime)
 
         if (d->m_startTimeSortedList[index].startTime > endTime ||
                 d->m_startTimeSortedList[index].startTime+d->m_startTimeSortedList[index].length < startTime) {
+            continue;
+        }
+
+        if (eventDescription->eventType == QmlJsDebugClient::Painting && d->m_startTimeSortedList[index].animationCount >=0) {
+            // skip animation events
             continue;
         }
 
@@ -831,6 +903,30 @@ void QmlProfilerEventList::sortEndTimes()
         d->m_startTimeSortedList[d->m_endTimeSortedList[i].startTimeIndex].endTimeIndex = i;
 }
 
+void QmlProfilerEventList::findAnimationLimits()
+{
+    d->m_maximumAnimationCount = 0;
+    d->m_minimumAnimationCount = 0;
+    d->m_lastFrameEvent = 0;
+
+    for (int i = 0; i < d->m_startTimeSortedList.count(); i++) {
+        if (d->m_startTimeSortedList[i].description->eventType == QmlJsDebugClient::Painting &&
+                d->m_startTimeSortedList[i].animationCount >= 0) {
+            int animationcount = d->m_startTimeSortedList[i].animationCount;
+            if (d->m_lastFrameEvent) {
+                if (animationcount > d->m_maximumAnimationCount)
+                    d->m_maximumAnimationCount = animationcount;
+                if (animationcount < d->m_minimumAnimationCount)
+                    d->m_minimumAnimationCount = animationcount;
+            } else {
+                d->m_maximumAnimationCount = animationcount;
+                d->m_minimumAnimationCount = animationcount;
+            }
+            d->m_lastFrameEvent = &d->m_startTimeSortedList[i];
+        }
+    }
+}
+
 void QmlProfilerEventList::computeNestingLevels()
 {
     // compute levels
@@ -903,10 +999,11 @@ void QmlProfilerEventList::postProcess()
     if (count() != 0) {
         sortStartTimes();
         sortEndTimes();
+        findAnimationLimits();
         computeLevels();
         linkEndsToStarts();
-        prepareForDisplay();
         compileStatistics(traceStartTime(), traceEndTime());
+        prepareForDisplay();
     }
     // data is ready even when there's no data
     emit dataReady();
@@ -1116,6 +1213,11 @@ bool QmlProfilerEventList::save(const QString &filename)
         stream.writeAttribute("startTime", QString::number(rangedEvent.startTime));
         stream.writeAttribute("duration", QString::number(rangedEvent.length));
         stream.writeAttribute("eventIndex", QString::number(d->m_eventDescriptions.keys().indexOf(rangedEvent.description->eventHashStr)));
+        if (rangedEvent.description->eventType == QmlJsDebugClient::Painting && rangedEvent.animationCount >= 0) {
+            // animation frame
+            stream.writeAttribute("framerate", QString::number(rangedEvent.frameRate));
+            stream.writeAttribute("animationcount", QString::number(rangedEvent.animationCount));
+        }
         stream.writeEndElement();
     }
     stream.writeEndElement(); // eventList
@@ -1254,6 +1356,10 @@ void QmlProfilerEventList::load()
                         rangedEvent.startTime = attributes.value("startTime").toString().toLongLong();
                     if (attributes.hasAttribute("duration"))
                         rangedEvent.length = attributes.value("duration").toString().toLongLong();
+                    if (attributes.hasAttribute("framerate"))
+                        rangedEvent.frameRate = attributes.value("framerate").toString().toInt();
+                    if (attributes.hasAttribute("animationcount"))
+                        rangedEvent.animationCount = attributes.value("animationcount").toString().toInt();
                     if (attributes.hasAttribute("eventIndex")) {
                         int ndx = attributes.value("eventIndex").toString().toInt();
                         if (!descriptionBuffer.value(ndx))
@@ -1513,11 +1619,37 @@ int QmlProfilerEventList::getLine(int index) const {
 }
 
 QString QmlProfilerEventList::getDetails(int index) const {
+    // special: animations
+    if (d->m_startTimeSortedList[index].description->eventType == QmlJsDebugClient::Painting &&
+            d->m_startTimeSortedList[index].animationCount >= 0)
+        return tr("%1 animations at %2 FPS").arg(
+                    QString::number(d->m_startTimeSortedList[index].animationCount),
+                    QString::number(d->m_startTimeSortedList[index].frameRate));
     return d->m_startTimeSortedList[index].description->details;
 }
 
 int QmlProfilerEventList::getEventId(int index) const {
     return d->m_startTimeSortedList[index].description->eventId;
+}
+
+int QmlProfilerEventList::getFramerate(int index) const
+{
+    return d->m_startTimeSortedList[index].frameRate;
+}
+
+int QmlProfilerEventList::getAnimationCount(int index) const
+{
+    return d->m_startTimeSortedList[index].animationCount;
+}
+
+int QmlProfilerEventList::getMaximumAnimationCount() const
+{
+    return d->m_maximumAnimationCount;
+}
+
+int QmlProfilerEventList::getMinimumAnimationCount() const
+{
+    return d->m_minimumAnimationCount;
 }
 
 int QmlProfilerEventList::uniqueEventsOfType(int type) const {

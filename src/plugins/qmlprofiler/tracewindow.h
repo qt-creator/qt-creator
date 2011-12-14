@@ -136,6 +136,7 @@ signals:
                int lineNumber, double totalTime, double selfTime);
     void traceFinished(qint64);
     void traceStarted(qint64);
+    void frameEvent(qint64, int, int);
 
     void internalClearDisplay();
     void jumpToPrev();

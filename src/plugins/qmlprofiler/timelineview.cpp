@@ -123,9 +123,10 @@ QColor TimelineView::colorForItem(int itemIndex)
 
 void TimelineView::drawItemsToPainter(QPainter *p, int fromIndex, int toIndex)
 {
-    int x,y,width,rowNumber, eventType;
+    int x, y, width, height, rowNumber, eventType;
     for (int i = fromIndex; i <= toIndex; i++) {
         x = (m_eventList->getStartTime(i) - m_startTime) * m_spacing;
+
         eventType = m_eventList->getType(i);
         if (m_rowsExpanded[eventType])
             y = m_rowStarts[eventType] + DefaultRowHeight*(m_eventList->eventPosInType(i) + 1);
@@ -141,8 +142,25 @@ void TimelineView::drawItemsToPainter(QPainter *p, int fromIndex, int toIndex)
             continue;
         m_rowLastX[rowNumber] = x+width;
 
-        p->setBrush(colorForItem(i));
-        p->drawRect(x,y,width,DefaultRowHeight);
+        // special: animations
+        if (eventType == 0 && m_eventList->getAnimationCount(i) >= 0) {
+            double scale = m_eventList->getMaximumAnimationCount() - m_eventList->getMinimumAnimationCount();
+            if (scale < 1)
+                scale = 1;
+            double fraction = (double)(m_eventList->getAnimationCount(i) - m_eventList->getMinimumAnimationCount()) / scale;
+            height = DefaultRowHeight * (fraction * 0.85 + 0.15);
+            y += DefaultRowHeight - height;
+
+            double fpsFraction = m_eventList->getFramerate(i) / 60.0;
+            if (fpsFraction > 1.0)
+                fpsFraction = 1.0;
+            p->setBrush(QColor::fromHsl((fpsFraction*96)+10, 76, 166));
+            p->drawRect(x, y, width, height);
+        } else {
+            // normal events
+            p->setBrush(colorForItem(i));
+            p->drawRect(x, y, width, DefaultRowHeight);
+        }
     }
 }
 

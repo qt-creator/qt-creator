@@ -141,6 +141,10 @@ public:
     Q_INVOKABLE int getLine(int index) const;
     Q_INVOKABLE QString getDetails(int index) const;
     Q_INVOKABLE int getEventId(int index) const;
+    Q_INVOKABLE int getFramerate(int index) const;
+    Q_INVOKABLE int getAnimationCount(int index) const;
+    Q_INVOKABLE int getMaximumAnimationCount() const;
+    Q_INVOKABLE int getMinimumAnimationCount() const;
 
     // per-type data
     Q_INVOKABLE int uniqueEventsOfType(int type) const;
@@ -172,6 +176,7 @@ public slots:
     void complete();
 
     void addV8Event(int depth,const QString &function,const QString &filename, int lineNumber, double totalTime, double selfTime);
+    void addFrameEvent(qint64 time, int framerate, int animationcount);
     bool save(const QString &filename);
     void load(const QString &filename);
     void setFilename(const QString &filename);
@@ -183,6 +188,7 @@ public slots:
 private:
     void postProcess();
     void sortEndTimes();
+    void findAnimationLimits();
     void sortStartTimes();
     void computeLevels();
     void computeNestingLevels();
