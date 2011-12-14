@@ -5366,27 +5366,19 @@ namespace bug4019 {
 } // namespave bug4019
 
 
-namespace bug4497 {
+namespace bug4997 {
 
-    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4497
+    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4997
 
-    void test4497()
+    void test4997()
     {
         using namespace std;
-        //cin.get(); // if commented out, the debugger doesn't stop at the breakpoint in the next line.
-        cout << "Hello, world!" << endl; BREAK_HERE;
-
-        int sum = 0;
-        for (int i = 1; i <= 10; i++)
-            sum += i;
-
-        cout << sum << endl;
-        cout << "Enter a number: ";
-        int n;
-        cin >> n;
-        cout << "You entered " << n << "!" << endl;
+        // cin.get(); // if commented out, the debugger doesn't stop at the breakpoint
+        // in the next line on Windows when "Run in Terminal" is used.^
+        dummyStatement();
     }
 }
+
 
 namespace bug4904 {
 
@@ -5977,7 +5969,7 @@ int main(int argc, char *argv[])
     bug842::test842();
     bug3611::test3611();
     bug4019::test4019();
-    //bug4497::test4497();
+    bug4997::test4997();
     bug5106::test5106();
     bug5184::test5184();
     bug5799::test5799();
