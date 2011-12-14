@@ -1827,64 +1827,6 @@
 
     \endlist
 
-    \section2 Using the Default Locator Filters
-
-    The following locator filters are available by default:
-
-    \table
-        \header
-            \o  Function
-            \o  Enter in locator
-            \o  Example
-        \row
-            \o  Go to a line in the current file.
-            \o  \tt{\bold{l \e{Line number}}}
-            \o  \image qtcreator-locator-line.png
-        \row
-            \o  Go to a symbol definition.
-            \o  \tt{\bold{: \e{Symbol name}}}
-            \o  \image qtcreator-locator-symbols.png
-        \row
-            \o  Go to a symbol definition in the current file.
-            \o  \tt{\bold{. \e{Symbol name}}}
-            \o  \image qtcreator-locator-method-list.png
-        \row
-            \o  Go to a help topic.
-            \o  \tt{\bold{? \e{Help topic}}}
-            \o  \image qtcreator-locator-help.png
-        \row
-            \o  Search for a term by using a web search engine.
-            \o  \tt{\bold{r \e{Search term}}}
-            \o  \image qtcreator-locator-web.png
-        \row
-            \o  Go to an open file.
-            \o  \tt{\bold{o \e{File name}}}
-            \o  \image qtcreator-locator-opendocs.png
-        \row
-            \o  Go to a file in the file system (browse the file system).
-            \o  \tt{\bold{f \e{File name}}}
-            \o  \image qtcreator-locator-filesystem.png
-        \row
-            \o  Go to a file in any project currently open.
-            \o  \tt{\bold{a \e{File name}}}
-            \o  \image qtcreator-locator-files.png
-        \row
-            \o  Go to a file in the current project.
-            \o  \tt{\bold{p \e{File name}}}
-            \o  \image qtcreator-locator-current-project.png
-        \row
-            \o  Go to a class definition.
-            \o  \tt{\bold{c \e{Class name}}}
-            \o  \image qtcreator-locator-classes.png
-        \row
-            \o  Go to a method definition.
-            \o  \tt{\bold{m \e{Method name}}}
-            \o  \image qtcreator-locator-methods.png
-        \row
-            \o  Execute a text editing macro.
-            \o  \tt{\bold{rm \e{Macro name}}}
-            \o  \image qtcreator-locator-macros.png
-    \endtable
 
     \section2 Creating Locator Filters
 
