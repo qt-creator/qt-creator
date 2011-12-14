@@ -28,7 +28,7 @@ def main():
     clickButton(fancyToolButton)
     listWidget = waitForObject("{occurrence='2' type='ProjectExplorer::Internal::GenericListWidget' unnamed='1' visible='0' "
                                "window=':QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector'}")
-    sendEvent("QMouseEvent", waitForObject(":QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector"), QEvent.MouseButtonPress, -5, 5, Qt.LeftButton, 0)
+    mouseClick(waitForObject(":QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector"), -5, 5, 0, Qt.LeftButton)
 
     prog = re.compile("(Desktop )?Qt.*Release")
     for row in range(listWidget.count):
@@ -40,8 +40,8 @@ def main():
             if listWidget.currentRow != row:
                 rect = listWidget.visualItemRect(currentItem)
                 mouseClick(listWidget, rect.x+5, rect.y+5, 0, Qt.LeftButton)
-            sendEvent("QMouseEvent", waitForObject(":QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector"), QEvent.MouseButtonPress, -45, 64, Qt.LeftButton, 0)
-            waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
+                waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
+            mouseClick(waitForObject(":QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector"), -45, 64, 0, Qt.LeftButton)
             buildConfig = buildConfigFromFancyToolButtton(fancyToolButton)
             if buildConfig != currentItem.text():
                 test.fatal("Build configuration %s is selected instead of %s" % (buildConfig, currentItem.text()))
