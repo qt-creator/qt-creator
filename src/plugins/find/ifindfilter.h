@@ -72,7 +72,7 @@ public:
     static QPixmap pixmapForFindFlags(FindFlags flags);
     static QString descriptionForFindFlags(FindFlags flags);
 signals:
-    void changed();
+    void enabledChanged(bool enabled);
 };
 
 } // namespace Find

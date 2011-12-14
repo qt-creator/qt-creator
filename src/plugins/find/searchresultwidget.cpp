@@ -474,6 +474,11 @@ void SearchResultWidget::setSearchAgainSupported(bool supported)
     m_searchAgainButton->setVisible(supported && !m_cancelButton->isVisible());
 }
 
+void SearchResultWidget::setSearchAgainEnabled(bool enabled)
+{
+    m_searchAgainButton->setEnabled(enabled);
+}
+
 void SearchResultWidget::finishSearch()
 {
     m_replaceTextEdit->setEnabled(m_count > 0);

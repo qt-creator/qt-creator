@@ -54,7 +54,7 @@ CurrentProjectFind::CurrentProjectFind(ProjectExplorerPlugin *plugin)
     m_plugin(plugin)
 {
     connect(m_plugin, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
-            this, SIGNAL(changed()));
+            this, SLOT(handleProjectChanged()));
 }
 
 QString CurrentProjectFind::id() const
@@ -97,6 +97,11 @@ QString CurrentProjectFind::label() const
 {
     QTC_ASSERT(m_plugin->currentProject(), return QString());
     return tr("Project '%1':").arg(m_plugin->currentProject()->displayName());
+}
+
+void CurrentProjectFind::handleProjectChanged()
+{
+    emit enabledChanged(isEnabled());
 }
 
 void CurrentProjectFind::writeSettings(QSettings *settings)

@@ -57,7 +57,7 @@ AllProjectsFind::AllProjectsFind(ProjectExplorerPlugin *plugin)
     : m_plugin(plugin),
       m_configWidget(0)
 {
-    connect(m_plugin, SIGNAL(fileListChanged()), this, SIGNAL(changed()));
+    connect(m_plugin, SIGNAL(fileListChanged()), this, SLOT(handleFileListChanged()));
 }
 
 QString AllProjectsFind::id() const
@@ -133,6 +133,11 @@ QString AllProjectsFind::toolTip() const
 {
     // %2 is filled by BaseFileFind::runNewSearch
     return tr("Filter: %1\n%2").arg(fileNameFilters().join(QLatin1String(",")));
+}
+
+void AllProjectsFind::handleFileListChanged()
+{
+    emit enabledChanged(isEnabled());
 }
 
 QWidget *AllProjectsFind::createConfigWidget()

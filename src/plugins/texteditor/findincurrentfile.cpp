@@ -104,13 +104,13 @@ void FindInCurrentFile::handleFileChange(Core::IEditor *editor)
     if (!editor) {
         if (m_currentFile) {
             m_currentFile = 0;
-            emit changed();
+            emit enabledChanged(isEnabled());
         }
     } else {
         Core::IFile *file = editor->file();
         if (file != m_currentFile) {
             m_currentFile = file;
-            emit changed();
+            emit enabledChanged(isEnabled());
         }
     }
 }

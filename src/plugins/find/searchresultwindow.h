@@ -108,6 +108,7 @@ public slots:
     void finishSearch();
     void setTextToReplace(const QString &textToReplace);
     void reset();
+    void setSearchAgainEnabled(bool enabled);
 
 signals:
     void activated(const Find::SearchResultItem &item);

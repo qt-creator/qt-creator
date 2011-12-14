@@ -86,6 +86,7 @@ public:
     void reset();
 
     void setSearchAgainSupported(bool supported);
+    void setSearchAgainEnabled(bool enabled);
 
 public slots:
     void finishSearch();

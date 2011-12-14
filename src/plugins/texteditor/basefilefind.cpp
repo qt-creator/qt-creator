@@ -131,6 +131,7 @@ void BaseFileFind::runNewSearch(const QString &txt, Find::FindFlags findFlags,
     connect(search, SIGNAL(visibilityChanged(bool)), this, SLOT(hideHighlightAll(bool)));
     connect(search, SIGNAL(cancelled()), this, SLOT(cancel()));
     connect(search, SIGNAL(searchAgainRequested()), this, SLOT(searchAgain()));
+    connect(this, SIGNAL(enabledChanged(bool)), search, SLOT(setSearchAgainEnabled(bool)));
     runSearch(search);
 }
 

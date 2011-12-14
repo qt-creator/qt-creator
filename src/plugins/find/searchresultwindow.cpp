@@ -655,6 +655,11 @@ void SearchResult::reset()
     m_widget->reset();
 }
 
+void SearchResult::setSearchAgainEnabled(bool enabled)
+{
+    m_widget->setSearchAgainEnabled(enabled);
+}
+
 } // namespace Find
 
 #include "searchresultwindow.moc"

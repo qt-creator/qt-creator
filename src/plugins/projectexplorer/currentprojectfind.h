@@ -67,6 +67,9 @@ protected:
     QVariant additionalParameters() const;
     QString label() const;
 
+private slots:
+    void handleProjectChanged();
+
 private:
     ProjectExplorerPlugin *m_plugin;
 };

@@ -249,7 +249,7 @@ void FindPlugin::setupFilterMenuItems()
         mfindadvanced->addAction(cmd);
         d->m_filterActions.insert(filter, action);
         connect(action, SIGNAL(triggered(bool)), this, SLOT(openFindFilter()));
-        connect(filter, SIGNAL(changed()), this, SLOT(filterChanged()));
+        connect(filter, SIGNAL(enabledChanged(bool)), this, SLOT(filterChanged()));
     }
     d->m_findDialog->setFindFilters(findInterfaces);
     d->m_openFindDialog->setEnabled(haveEnabledFilters);

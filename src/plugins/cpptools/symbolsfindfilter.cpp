@@ -242,7 +242,7 @@ void SymbolsFindFilter::onTaskStarted(const QString &type)
 {
     if (type == CppTools::Constants::TASK_INDEX) {
         m_enabled = false;
-        emit changed();
+        emit enabledChanged(m_enabled);
     }
 }
 
@@ -250,7 +250,7 @@ void SymbolsFindFilter::onAllTasksFinished(const QString &type)
 {
     if (type == CppTools::Constants::TASK_INDEX) {
         m_enabled = true;
-        emit changed();
+        emit enabledChanged(m_enabled);
     }
 }
 

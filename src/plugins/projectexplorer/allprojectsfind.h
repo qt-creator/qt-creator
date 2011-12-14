@@ -70,6 +70,8 @@ protected:
     QString label() const;
     QString toolTip() const;
 
+private slots:
+    void handleFileListChanged();
 
 private:
     ProjectExplorerPlugin *m_plugin;
