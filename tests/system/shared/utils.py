@@ -62,7 +62,7 @@ def selectFromCombo(objectSpec, itemName):
 def selectFromLocator(filter, itemName = None):
     if itemName == None:
         itemName = filter
-    itemName = itemName.replace(".", "\\.")
+    itemName = itemName.replace(".", "\\.").replace("_", "\\_")
     locator = waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000)
     mouseClick(locator, 5, 5, 0, Qt.LeftButton)
     replaceEditorContent(locator, filter)
