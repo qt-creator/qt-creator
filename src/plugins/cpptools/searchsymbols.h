@@ -184,6 +184,7 @@ private:
 } // namespace CppTools
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(CppTools::SearchSymbols::SymbolTypes)
+Q_DECLARE_METATYPE(CppTools::SearchSymbols::SymbolTypes)
 Q_DECLARE_METATYPE(CppTools::ModelItemInfo)
 
 #endif // SEARCHSYMBOLS_H

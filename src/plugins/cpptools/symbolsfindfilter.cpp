@@ -59,22 +59,24 @@ namespace {
     const char * const SETTINGS_SEARCHSCOPE = "SearchScope";
 
     void runSearch(QFutureInterface<Find::SearchResultItem> &future,
-              QString txt, Find::FindFlags findFlags, CPlusPlus::Snapshot snapshot,
-              SearchSymbols::SymbolTypes types, QSet<QString> fileNames)
+              SymbolsFindParameters parameters, CPlusPlus::Snapshot snapshot,
+              QSet<QString> fileNames)
     {
         future.setProgressRange(0, snapshot.size());
         future.setProgressValue(0);
         int progress = 0;
 
         SearchSymbols search;
-        search.setSymbolsToSearchFor(types);
+        search.setSymbolsToSearchFor(parameters.types);
         search.setSeparateScope(true);
         CPlusPlus::Snapshot::const_iterator it = snapshot.begin();
 
-        QString findString = (findFlags & Find::FindRegularExpression ? txt : QRegExp::escape(txt));
-        if (findFlags & Find::FindWholeWords)
+        QString findString = (parameters.flags & Find::FindRegularExpression
+                              ? parameters.text : QRegExp::escape(parameters.text));
+        if (parameters.flags & Find::FindWholeWords)
             findString = QString::fromLatin1("\\b%1\\b").arg(findString);
-        QRegExp matcher(findString, (findFlags & Find::FindCaseSensitively ? Qt::CaseSensitive : Qt::CaseInsensitive));
+        QRegExp matcher(findString, (parameters.flags & Find::FindCaseSensitively
+                                     ? Qt::CaseSensitive : Qt::CaseInsensitive));
         while (it != snapshot.end() && !future.isCanceled()) {
             if (fileNames.isEmpty() || fileNames.contains(it.value()->fileName())) {
                 QVector<Find::SearchResultItem> resultItems;
@@ -82,7 +84,8 @@ namespace {
                 foreach (const ModelItemInfo &info, modelInfos) {
                     int index = matcher.indexIn(info.symbolName);
                     if (index != -1) {
-                        QStringList path = info.fullyQualifiedName.mid(0, info.fullyQualifiedName.size() - 1);
+                        QStringList path = info.fullyQualifiedName.mid(0,
+                            info.fullyQualifiedName.size() - 1);
                         Find::SearchResultItem item;
                         item.path = path;
                         item.text = info.symbolName;
@@ -150,12 +153,28 @@ void SymbolsFindFilter::findAll(const QString &txt, Find::FindFlags findFlags)
 {
     Find::SearchResultWindow *window = Find::SearchResultWindow::instance();
     Find::SearchResult *search = window->startNewSearch(label(), toolTip(findFlags), txt);
-    connect(search, SIGNAL(activated(Find::SearchResultItem)), this, SLOT(openEditor(Find::SearchResultItem)));
+    search->setSearchAgainSupported(true);
+    connect(search, SIGNAL(activated(Find::SearchResultItem)),
+            this, SLOT(openEditor(Find::SearchResultItem)));
     connect(search, SIGNAL(cancelled()), this, SLOT(cancel()));
+    connect(search, SIGNAL(searchAgainRequested()), this, SLOT(searchAgain()));
+    connect(this, SIGNAL(enabledChanged(bool)), search, SLOT(setSearchAgainEnabled(bool)));
     window->popup(true);
 
+    SymbolsFindParameters parameters;
+    parameters.text = txt;
+    parameters.flags = findFlags;
+    parameters.types = m_symbolsToSearch;
+    parameters.scope = m_scope;
+    search->setUserData(qVariantFromValue(parameters));
+    startSearch(search);
+}
+
+void SymbolsFindFilter::startSearch(Find::SearchResult *search)
+{
+    SymbolsFindParameters parameters = search->userData().value<SymbolsFindParameters>();
     QSet<QString> projectFileNames;
-    if (m_scope == SymbolsFindFilter::SearchProjectsOnly) {
+    if (parameters.scope == SymbolsFindFilter::SearchProjectsOnly) {
         foreach (ProjectExplorer::Project *project,
                  ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projects()) {
             projectFileNames += project->files(ProjectExplorer::Project::AllFiles).toSet();
@@ -168,10 +187,9 @@ void SymbolsFindFilter::findAll(const QString &txt, Find::FindFlags findFlags)
             this, SLOT(finish()));
     connect(watcher, SIGNAL(resultsReadyAt(int,int)),
             this, SLOT(addResults(int, int)));
-    watcher->setFuture(QtConcurrent::run<Find::SearchResultItem, QString,
-        Find::FindFlags, CPlusPlus::Snapshot,
-        SearchSymbols::SymbolTypes, QSet<QString> >(runSearch, txt, findFlags, m_manager->snapshot(),
-                                    m_symbolsToSearch, projectFileNames));
+    watcher->setFuture(QtConcurrent::run<Find::SearchResultItem, SymbolsFindParameters,
+                       CPlusPlus::Snapshot, QSet<QString> >(runSearch, parameters,
+                                                    m_manager->snapshot(), projectFileNames));
     Core::ICore::instance()->progressManager()->addTask(watcher->future(),
                                                         tr("Searching"),
                                                         Find::Constants::TASK_SEARCH);
@@ -252,6 +270,14 @@ void SymbolsFindFilter::onAllTasksFinished(const QString &type)
         m_enabled = true;
         emit enabledChanged(m_enabled);
     }
+}
+
+void SymbolsFindFilter::searchAgain()
+{
+    Find::SearchResult *search = qobject_cast<Find::SearchResult *>(sender());
+    QTC_ASSERT(search, return);
+    search->reset();
+    startSearch(search);
 }
 
 QString SymbolsFindFilter::label() const
