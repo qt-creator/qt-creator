@@ -411,11 +411,12 @@ namespace peekandpoke {
         // Manual: entry "Display of Type QImage".
         pain.drawArc(70, 115, 60, 30, 200 * 16, 140 * 16);
         BREAK_HERE;
-
         // Continue.
+
         pain.setBrush(Qt::black);
         BREAK_HERE;
         // Continue.
+
         pain.drawEllipse(65, 70, 15, 15);
         BREAK_HERE;
         // Continue.
@@ -648,16 +649,15 @@ namespace qdatetime {
     {
         QDateTime date;
         BREAK_HERE;
-        // Expand time.
-        // CheckType time QTime.
-        // Check time.(ISO) "" QString.
-        // Check time.(Locale) "" QString.
-        // Check time.(SystemLocale) "" QString.
-        // Check time.toString "" QString.
-        // Check time.toUTC <not available> <unknown>.
+        // Expand date.
+        // CheckType date QTime.
+        // Check date.(ISO) "" QString.
+        // Check date.(Locale) "" QString.
+        // Check date.(SystemLocale) "" QString.
+        // Check date.toString "" QString.
+        // Check date.toUTC <not available> <unknown>.
         // Continue.
 
-        // Step, check display.
         date = QDateTime::currentDateTime();
         date = date.addSecs(5);
         date = date.addSecs(5);
@@ -685,7 +685,7 @@ namespace qfileinfo {
         BREAK_HERE;
         // Check fi "/tmp/tt" QFileInfo.
         // Check file "/tmp/t" QFile.
-        // Check s "/tmp/t" QString.
+        // Check s "/tmp/tt" QString.
         // Continue.
         dummyStatement(&file, &s);
     }
@@ -4374,7 +4374,7 @@ namespace basic {
         // Check hii <not accessible> QHash<int, int>.
         // Check hss <not accessible> QHash<QString, QString>.
         // Check li <not accessible> QList<int>.
-        // CheckType mii Foo.
+        // CheckType mii <not accessible> QMap<int, int>.
         // Check mss <not accessible> QMap<QString, QString>.
         // Check s <not accessible> QString.
         // Check si <not accessible> QStack<int>.
@@ -4389,9 +4389,9 @@ namespace basic {
         // Check vi <not accessible> QVector<int>.
         // Continue.
 
-        // Check the display: All values should be <uninitialized> or random data.
-        // Check that nothing bad happens if items with random data
-        // are expanded.
+        // Manual: Note: All values should be <uninitialized> or random data.
+        // Manual: Check that nothing bad happens if items with random data
+        // Manual: are expanded.
         QString s;
         QStringList sl;
         QMap<int, int> mii;
@@ -4882,7 +4882,6 @@ namespace qscript {
         QScriptValue s;
 
         BREAK_HERE;
-        // Check d (invalid) QScriptValue.
         // Check engine "" QScriptEngine.
         // Check s (invalid) QScriptValue.
         // Check x1 <not accessible> QString.
@@ -4905,6 +4904,7 @@ namespace qscript {
         QScriptValue d = s.data();
         BREAK_HERE;
         // Check s <not accessible> QScriptValue (JSCoreValue).
+        // Check d (invalid) QScriptValue.
         // Check v 43 QVariant (int).
         // Check x 507002817 int.
         // Check x1 "34" QString.
@@ -4925,10 +4925,12 @@ namespace boost {
     {
         boost::optional<int> i;
         BREAK_HERE;
-        // Step.
+        // Check i <uninitialized> boost::optional<int>.
+        // Continue.
         i = 1;
-        i = 3;
-        i = 4;
+        BREAK_HERE;
+        // Check i 1 boost::optional<int>.
+        // Continue.
         dummyStatement(&i);
     }
 
@@ -4936,9 +4938,13 @@ namespace boost {
     {
         boost::optional<QStringList> sl;
         BREAK_HERE;
-        // Step.
+        // Check sl <uninitialized> boost::optional<QStringList>.
+        // Continue.
         sl = (QStringList() << "xxx" << "yyy");
         sl.get().append("zzz");
+        BREAK_HERE;
+        // Check sl <3 items> boost::optional<QStringList>.
+        // Continue.
         dummyStatement(&sl);
     }
 
@@ -4949,6 +4955,11 @@ namespace boost {
         boost::shared_ptr<int> j = i;
         boost::shared_ptr<QStringList> sl(new QStringList(QStringList() << "HUH!"));
         BREAK_HERE;
+        // Check s  boost::shared_ptr<int>.
+        // Check i 43 boost::shared_ptr<int>.
+        // Check j 43 boost::shared_ptr<int>.
+        // Check sl <1 item> boost::shared_ptr<QStringList>.
+        // Continue.
         dummyStatement(&s, &j, &sl);
     }
 
@@ -4974,7 +4985,7 @@ namespace boost {
         // snap-to-end-of-month behavior kicks in:
         d += months(1);
         BREAK_HERE;
-        // Check d Tue Feb 28 2006 boost::gregorian::date6.
+        // Check d Tue Feb 28 2006 boost::gregorian::date.
         // Continue.
 
         // Also end of the month (expected in boost)
@@ -5170,7 +5181,8 @@ namespace eigen {
         }
 
         BREAK_HERE;
-        // check that Locals and Expresssions view looks sane
+
+        // Continue.
         dummyStatement(&colMajorMatrix, &rowMajorMatrix, &test,
                        &myMatrix, &myDynamicMatrix);
     #endif
@@ -5186,7 +5198,7 @@ namespace bug842 {
         qWarning("Test");
         BREAK_HERE;
         // Continue.
-        // Check that Application Output pane contains string "Test".
+        // Manual: Check that Application Output pane contains string "Test".
         dummyStatement();
     }
 
@@ -5656,7 +5668,7 @@ namespace gdb10586 {
         } v = {{1, 2}, {3, 4}};
         BREAK_HERE;
         // Expand v.
-        // Check v gdb10586::test.
+        // Check v  gdb10586::test.
         // Check a 1 int.
         // Continue.
         dummyStatement(&v);
@@ -5669,9 +5681,9 @@ namespace gdb10586 {
         BREAK_HERE;
         // Expand v n.
         // Check v {...}.
-        // Check n gdb10586.
-        // Check a 2.
-        // Check x 1.
+        // Check n gdb10586::s.
+        // Check v.a 2.
+        // Check s.x 1.
         // Continue.
         dummyStatement(&v, &n);
     }
