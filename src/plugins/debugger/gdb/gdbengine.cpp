@@ -2278,7 +2278,7 @@ void GdbEngine::handleExecuteReturn(const GdbResponse &response)
 
 void GdbEngine::setTokenBarrier()
 {
-    QTC_ASSERT(m_nonDiscardableCount > 0, /**/);
+    QTC_ASSERT(m_nonDiscardableCount == 0, /**/);
     bool good = true;
     QHashIterator<int, GdbCommand> it(m_cookieForToken);
     while (it.hasNext()) {
