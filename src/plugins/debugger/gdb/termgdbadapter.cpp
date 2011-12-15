@@ -162,9 +162,6 @@ void TermGdbAdapter::handleStubAttached(const GdbResponse &response)
         showMessage(_("INFERIOR ATTACHED"));
 #endif // Q_OS_WIN
         m_engine->handleInferiorPrepared();
-#ifdef Q_OS_LINUX
-        m_engine->postCommand("-stack-list-frames 0 0", CB(handleEntryPoint));
-#endif
         break;
     case GdbResultError:
         m_engine->notifyInferiorSetupFailed(QString::fromLocal8Bit(response.data.findChild("msg").data()));
@@ -181,17 +178,6 @@ void TermGdbAdapter::runEngine()
     m_engine->notifyEngineRunAndInferiorStopOk();
     m_engine->continueInferiorInternal();
 }
-
-#ifdef Q_OS_LINUX
-void TermGdbAdapter::handleEntryPoint(const GdbResponse &response)
-{
-    if (response.resultClass == GdbResultDone) {
-        GdbMi stack = response.data.findChild("stack");
-        if (stack.isValid() && stack.childCount() == 1)
-            m_engine->m_entryPoint = stack.childAt(0).findChild("addr").data();
-    }
-}
-#endif
 
 void TermGdbAdapter::interruptInferior()
 {

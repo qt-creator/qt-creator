@@ -68,9 +68,6 @@ private:
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
     void handleStubAttached(const GdbResponse &response);
-#ifdef Q_OS_LINUX
-    void handleEntryPoint(const GdbResponse &response);
-#endif
 
     Q_SLOT void handleInferiorSetupOk();
     Q_SLOT void stubExited();

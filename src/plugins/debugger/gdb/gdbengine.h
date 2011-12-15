@@ -484,8 +484,6 @@ private: ////////// Inferior Management //////////
     void maybeHandleInferiorPidChanged(const QString &pid);
     void handleInfoProc(const GdbResponse &response);
 
-    QByteArray m_entryPoint;
-
 private: ////////// View & Data Stuff //////////
 
     void selectThread(int index);

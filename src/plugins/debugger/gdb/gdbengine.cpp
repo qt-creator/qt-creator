@@ -1372,28 +1372,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         notifyInferiorStopOk();
     }
 
-    if (startParameters().toolChainAbi.os() == Abi::LinuxOS && !m_entryPoint.isEmpty()) {
-        // This is needed as long as we support stock gdb 6.8.
-        if (frame.findChild("addr").data() == m_entryPoint) {
-            // There are two expected reasons for getting here:
-            // 1) For some reason, attaching to a stopped process causes *two*
-            // SIGSTOPs
-            //    when trying to continue (kernel i386 2.6.24-23-ubuntu, gdb 6.8).
-            //    Interestingly enough, on MacOSX no signal is delivered at all.
-            // 2) The explicit tbreak at the entry point we set to query the PID.
-            //    Gdb <= 6.8 reports a frame but no reason, 6.8.50+ reports
-            //    everything.
-            // The case of the user really setting a breakpoint at _start is simply
-            // unsupported.
-            if (!inferiorPid()) // For programs without -pthread under gdb <= 6.8.
-                postCommand("info proc", CB(handleInfoProc));
-            continueInferiorInternal();
-            return;
-        }
-        // We are past the initial stop(s). No need to waste time on further checks.
-        m_entryPoint.clear();
-    }
-
     if (isQmlStepBreakpoint1(rid))
         return;
 
