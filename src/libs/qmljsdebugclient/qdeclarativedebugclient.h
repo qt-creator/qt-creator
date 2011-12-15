@@ -89,7 +89,7 @@ public:
     ~QDeclarativeDebugClient();
 
     QString name() const;
-
+    float serviceVersion() const;
     Status status() const;
 
     virtual void sendMessage(const QByteArray &);
