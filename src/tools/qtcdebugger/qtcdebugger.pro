@@ -5,3 +5,6 @@ TEMPLATE = app
 SOURCES += main.cpp
 
 DESTDIR=../../../bin
+
+target.path=/bin
+INSTALLS+=target

@@ -31,18 +31,19 @@ ENV_CPU=$$(CPU)
 ENV_LIBPATH=$$(LIBPATH)
 
 contains(ENV_CPU, ^AMD64$) {
-    DESTDIR=$$IDE_BASE_PATH/lib/$${BASENAME}64
+    DIRNAME=$${BASENAME}64
     CDB_PLATFORM=amd64
 } else:isEmpty(ENV_CPU):contains(ENV_LIBPATH, ^.*amd64.*$) {
-    DESTDIR=$$IDE_BASE_PATH/lib/$${BASENAME}64
+    DIRNAME=$${BASENAME}64
     CDB_PLATFORM=amd64
 } else {
-    DESTDIR=$$IDE_BASE_PATH/lib/$${BASENAME}32
+    DIRNAME=$${BASENAME}32
     CDB_PLATFORM=i386
 }
 
 LIBS+=-luser32
 
+DESTDIR=$$IDE_BASE_PATH/lib/$${DIRNAME}
 TARGET = $$BASENAME
 
 message("Compiling Qt Creator CDB extension $$TARGET $$DESTDIR for $$CDB_PLATFORM using $$CDB_PATH")
@@ -80,3 +81,7 @@ HEADERS += extensioncontext.h \
     containers.h \
     knowntype.h \
     symbolgroupnode.h
+
+target.path = /lib/$${DIRNAME}
+
+INSTALLS += target
