@@ -404,9 +404,9 @@ QString GccToolChain::mkspec() const
     if (abi.os() == Abi::MacOS) {
         QString v = version();
         // prefer versioned g++ on mac. This is required to enable building for older Mac OS versions
-        if (v.startsWith(QLatin1String("4.0")))
+        if (v.startsWith(QLatin1String("4.0")) && m_compilerPath.endsWith(QLatin1String("-4.0")))
             return QLatin1String("macx-g++40");
-        if (v.startsWith(QLatin1String("4.2")))
+        if (v.startsWith(QLatin1String("4.2")) && m_compilerPath.endsWith(QLatin1String("-4.2")))
             return QLatin1String("macx-g++42");
         return QLatin1String("macx-g++");
     }
