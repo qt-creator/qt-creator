@@ -63,7 +63,7 @@ else:
     cwd = os.getcwd()       # current dir is directory holding qtcreator.py
     cwd+="/../../settings/unix"
     defaultQtVersion = "Desktop Qt 4.7.4 for GCC (Qt SDK)"
-srcPath = sdkPath + "/src"
+srcPath = os.getenv("SYSTEST_SRCPATH", sdkPath + "/src")
 
 cwd = os.path.abspath(cwd)
 tmpSettingsDir = tempDir()
