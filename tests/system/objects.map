@@ -16,7 +16,7 @@
 :New_Core::Internal::NewDialog	{name='Core__Internal__NewDialog' type='Core::Internal::NewDialog' visible='1' windowTitle='New'}
 :Next_QPushButton	{text~='(Next.*|Continue)' type='QPushButton' visible='1'}
 :Options.qt_tabwidget_tabbar_QTabBar	{name='qt_tabwidget_tabbar' type='QTabBar' visible='1' window=':Options_Core::Internal::SettingsDialog'}
-:Options_Core::Internal::SettingsDialog	{type='Core::Internal::SettingsDialog' unnamed='1' visible='1' windowTitle~='(Options|Preference)'}
+:Options_Core::Internal::SettingsDialog	{type='Core::Internal::SettingsDialog' unnamed='1' visible='1' windowTitle~='(Options|Preferences)'}
 :Project Setup.scrollArea_QScrollArea	{name='scrollArea' type='QScrollArea' visible='1' window=':Project Setup_Qt4ProjectManager::Internal::ProjectLoadWizard'}
 :Project Setup_Qt4ProjectManager::Internal::ProjectLoadWizard	{type='Qt4ProjectManager::Internal::ProjectLoadWizard' unnamed='1' visible='1' windowTitle='Project Setup'}
 :Qt Creator.QtCreator.MenuBar_QMenuBar	{name='QtCreator.MenuBar' type='QMenuBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
