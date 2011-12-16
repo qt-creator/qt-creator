@@ -122,16 +122,34 @@ bool sortIndizesReverse(const QModelIndex &l, const QModelIndex &r)
     return l.row() > r.row();
 }
 
-SuppressionDialog::SuppressionDialog(MemcheckErrorView *view)
-  : QDialog(),
-    m_view(view),
-    m_ui(new Ui::SuppressionDialog),
+SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, const QList<Error> &errors)
+  : m_view(view),
     m_settings(view->settings()),
-    m_cleanupIfCanceled(false)
+    m_cleanupIfCanceled(false),
+    m_errors(errors),
+    m_fileChooser(new Utils::PathChooser(this)),
+    m_suppressionEdit(new QPlainTextEdit(this))
 {
-    m_ui->setupUi(this);
+    setWindowTitle(tr("Save Suppression"));
 
-    // NOTE: pathchooser requires existing files.
+    QLabel *fileLabel = new QLabel(tr("Suppression File:"), this);
+
+    QLabel *suppressionsLabel = new QLabel(tr("Suppression:"), this);
+    suppressionsLabel->setBuddy(m_suppressionEdit);
+
+    QFont font;
+    font.setFamily(QString::fromUtf8("Monospace"));
+    m_suppressionEdit->setFont(font);
+
+    m_buttonBox = new QDialogButtonBox(this);
+    m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Save);
+
+    QFormLayout *formLayout = new QFormLayout(this);
+    formLayout->addRow(fileLabel, m_fileChooser);
+    formLayout->addRow(suppressionsLabel);
+    formLayout->addRow(m_suppressionEdit);
+    formLayout->addRow(m_buttonBox);
+
     QFile defaultSuppFile(view->defaultSuppressionFile());
     if (!defaultSuppFile.exists()) {
         if (defaultSuppFile.open(QIODevice::WriteOnly)) {
@@ -140,60 +158,58 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view)
         }
     }
 
-    // NOTE: First set kind, then set path. Otherwise the file will be seen as "invalid".
-    m_ui->fileChooser->setExpectedKind(Utils::PathChooser::File);
-    m_ui->fileChooser->setPath(defaultSuppFile.fileName());
-    m_ui->fileChooser->setPromptDialogFilter(QLatin1String("*.supp"));
-    m_ui->fileChooser->setPromptDialogTitle(tr("Select Suppression File"));
-    connect(m_ui->fileChooser, SIGNAL(validChanged()),
-            SLOT(validate()));
-    connect(m_ui->suppressionEdit->document(), SIGNAL(contentsChanged()),
-            SLOT(validate()));
+    m_fileChooser->setExpectedKind(Utils::PathChooser::File);
+    m_fileChooser->setPath(defaultSuppFile.fileName());
+    m_fileChooser->setPromptDialogFilter(QLatin1String("*.supp"));
+    m_fileChooser->setPromptDialogTitle(tr("Select Suppression File"));
 
     QString suppressions;
-    QModelIndexList indices = m_view->selectionModel()->selectedRows();
-    if (indices.isEmpty() && m_view->selectionModel()->currentIndex().isValid()) {
-        // can happen when using arrow keys to navigate and shortcut to trigger suppression
-        indices.append(m_view->selectionModel()->currentIndex());
-    }
-    foreach (const QModelIndex &index, indices) {
-        Error error = m_view->model()->data(index, ErrorListModel::ErrorRole).value<Error>();
-        if (!error.suppression().isNull())
-            m_errors.append(error);
-    }
-
     foreach (const Error &error, m_errors)
         suppressions += suppressionText(error);
 
-    m_ui->suppressionEdit->setPlainText(suppressions);
+    m_suppressionEdit->setPlainText(suppressions);
 
-    setWindowTitle(tr("Save Suppression"));
+    connect(m_fileChooser, SIGNAL(validChanged()), SLOT(validate()));
+    connect(m_suppressionEdit->document(), SIGNAL(contentsChanged()), SLOT(validate()));
+    connect(m_buttonBox, SIGNAL(accepted()), SLOT(accept()));
+    connect(m_buttonBox, SIGNAL(rejected()), SLOT(reject()));
 }
 
-SuppressionDialog::~SuppressionDialog()
+void SuppressionDialog::maybeShow(MemcheckErrorView *view)
 {
-    delete m_ui;
-}
+    QModelIndexList indices = view->selectionModel()->selectedRows();
+    // Can happen when using arrow keys to navigate and shortcut to trigger suppression:
+    if (indices.isEmpty() && view->selectionModel()->currentIndex().isValid())
+        indices.append(view->selectionModel()->currentIndex());
 
-bool SuppressionDialog::shouldShow() const
-{
-    return !m_errors.isEmpty();
+    QList<XmlProtocol::Error> errors;
+    foreach (const QModelIndex &index, indices) {
+        Error error = view->model()->data(index, ErrorListModel::ErrorRole).value<Error>();
+        if (!error.suppression().isNull())
+            errors.append(error);
+    }
+
+    if (errors.isEmpty())
+        return;
+
+    SuppressionDialog dialog(view, errors);
+    dialog.exec();
 }
 
 void SuppressionDialog::accept()
 {
-    const QString path = m_ui->fileChooser->path();
+    const QString path = m_fileChooser->path();
     QTC_ASSERT(!path.isEmpty(), return);
-    QTC_ASSERT(!m_ui->suppressionEdit->toPlainText().trimmed().isEmpty(), return);
+    QTC_ASSERT(!m_suppressionEdit->toPlainText().trimmed().isEmpty(), return);
 
     Utils::FileSaver saver(path, QIODevice::Append);
     QTextStream stream(saver.file());
-    stream << m_ui->suppressionEdit->toPlainText();
+    stream << m_suppressionEdit->toPlainText();
     saver.setResult(&stream);
     if (!saver.finalize(this))
         return;
 
-    // add file to project (if there is a project that contains this file on the file system)
+    // Add file to project if there is a project containing this file on the file system.
     ProjectExplorer::SessionManager *session = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
     if (!session->projectForFile(path)) {
         foreach (ProjectExplorer::Project *p, session->projects()) {
@@ -208,30 +224,30 @@ void SuppressionDialog::accept()
 
     QModelIndexList indices = m_view->selectionModel()->selectedRows();
     qSort(indices.begin(), indices.end(), sortIndizesReverse);
+    QAbstractItemModel *model = m_view->model();
     foreach (const QModelIndex &index, indices) {
-        bool removed = m_view->model()->removeRow(index.row());
+        bool removed = model->removeRow(index.row());
         QTC_ASSERT(removed, qt_noop());
         Q_UNUSED(removed);
     }
 
-    // one suppression might hide multiple rows, care for that
-    for (int row = 0; row < m_view->model()->rowCount(); ++row ) {
-        const Error rowError = m_view->model()->data(
-            m_view->model()->index(row, 0), ErrorListModel::ErrorRole).value<Error>();
+    // One suppression might hide multiple rows, care for that.
+    for (int row = 0; row < model->rowCount(); ++row ) {
+        const Error rowError = model->data(
+            model->index(row, 0), ErrorListModel::ErrorRole).value<Error>();
 
         foreach (const Error &error, m_errors) {
             if (equalSuppression(rowError, error)) {
-                bool removed = m_view->model()->removeRow(row);
-                QTC_ASSERT(removed, qt_noop());
-                Q_UNUSED(removed);
-                // gets increased in the for loop again
+                bool removed = model->removeRow(row);
+                QTC_CHECK(removed);
+                // Gets incremented in the for loop again.
                 --row;
                 break;
             }
         }
     }
 
-    // select a new item
+    // Select a new item.
     m_view->setCurrentIndex(indices.first());
 
     QDialog::accept();
@@ -247,10 +263,10 @@ void SuppressionDialog::reject()
 
 void SuppressionDialog::validate()
 {
-    bool valid = m_ui->fileChooser->isValid()
-            && !m_ui->suppressionEdit->toPlainText().trimmed().isEmpty();
+    bool valid = m_fileChooser->isValid()
+            && !m_suppressionEdit->toPlainText().trimmed().isEmpty();
 
-    m_ui->buttonBox->button(QDialogButtonBox::Save)->setEnabled(valid);
+    m_buttonBox->button(QDialogButtonBox::Save)->setEnabled(valid);
 }
 
 } // namespace Internal

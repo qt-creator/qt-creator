@@ -37,18 +37,19 @@
 
 #include "xmlprotocol/error.h"
 
+#include <utils/pathchooser.h>
+
 #include <QtGui/QDialog>
 
-namespace Analyzer {
-class AnalyzerSettings;
-}
+QT_BEGIN_NAMESPACE
+class QPlainTextEdit;
+class QDialogButtonBox;
+QT_END_NAMESPACE
+
+namespace Analyzer { class AnalyzerSettings; }
 
 namespace Valgrind {
 namespace Internal {
-
-namespace Ui {
-class SuppressionDialog;
-}
 
 class MemcheckErrorView;
 
@@ -57,23 +58,25 @@ class SuppressionDialog : public QDialog
     Q_OBJECT
 
 public:
-    SuppressionDialog(MemcheckErrorView *view);
-    ~SuppressionDialog();
-
-    virtual void accept();
-    virtual void reject();
-
-    bool shouldShow() const;
+    SuppressionDialog(MemcheckErrorView *view,
+                      const QList<XmlProtocol::Error> &errors);
+    static void maybeShow(MemcheckErrorView *view);
 
 private slots:
     void validate();
 
 private:
+    void accept();
+    void reject();
+
     MemcheckErrorView *m_view;
-    Ui::SuppressionDialog *m_ui;
     Analyzer::AnalyzerSettings *m_settings;
     bool m_cleanupIfCanceled;
     QList<XmlProtocol::Error> m_errors;
+
+    Utils::PathChooser *m_fileChooser;
+    QPlainTextEdit *m_suppressionEdit;
+    QDialogButtonBox *m_buttonBox;
 };
 
 } // namespace Internal

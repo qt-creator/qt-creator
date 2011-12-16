@@ -37,9 +37,7 @@
 
 #include <QtGui/QListView>
 
-namespace Analyzer {
-class AnalyzerSettings;
-}
+namespace Analyzer { class AnalyzerSettings; }
 
 namespace Valgrind {
 namespace Internal {
@@ -52,8 +50,8 @@ public:
     MemcheckErrorView(QWidget *parent = 0);
     ~MemcheckErrorView();
 
-    // reimplemented to connect delegate to connection model after it has been set by
-    // superclass implementation
+    // Reimplemented to connect delegate to connection model after it has
+    // been set by superclass implementation.
     void setModel(QAbstractItemModel *model);
 
     void setDefaultSuppressionFile(const QString &suppFile);

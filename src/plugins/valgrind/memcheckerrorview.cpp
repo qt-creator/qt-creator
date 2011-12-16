@@ -526,14 +526,7 @@ void MemcheckErrorView::contextMenuEvent(QContextMenuEvent *e)
 
 void MemcheckErrorView::suppressError()
 {
-    SuppressionDialog *dialog = new SuppressionDialog(this);
-    if (dialog->shouldShow()) {
-        dialog->setModal(true);
-        dialog->show();
-        dialog->setAttribute(Qt::WA_DeleteOnClose, true);
-    } else {
-        delete dialog;
-    }
+    SuppressionDialog::maybeShow(this);
 }
 
 void MemcheckErrorView::goNext()

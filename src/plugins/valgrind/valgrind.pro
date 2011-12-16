@@ -55,6 +55,5 @@ SOURCES += \
     suppressiondialog.cpp
 
 FORMS += \
-    valgrindconfigwidget.ui \
-    suppressiondialog.ui
+    valgrindconfigwidget.ui
 
