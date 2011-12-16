@@ -1383,7 +1383,50 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                 const QString eventType(resp.value(_(EVENT)).toString());
 
                 if (eventType == _("break")) {
-                    if (d->engine->state() == InferiorRunOk) {
+                    const QVariantMap breakData = resp.value(_(BODY)).toMap();
+                    const QString invocationText = breakData.value(_("invocationText")).toString();
+                    const QString scriptUrl = breakData.value(_("script")).toMap().value(_("name")).toString();
+                    const QString sourceLineText = breakData.value("sourceLineText").toString();
+
+                    if (invocationText.startsWith(_("[anonymous]()"))
+                                                  && scriptUrl.endsWith(_(".qml"))
+                            && sourceLineText.trimmed().startsWith(QLatin1Char('('))) {
+                        // we hit most likely the anonymous wrapper function automatically generated for bindings
+                        // -> relocate the breakpoint to column: 1 and continue
+
+                        int newColumn = sourceLineText.indexOf(QLatin1Char('(')) + 1;
+
+                        QList<int> v8BreakpointIds;
+                        {
+                            const QVariantList v8BreakpointIdList = breakData.value(_("breakpoints")).toList();
+                            foreach (const QVariant &breakpointId, v8BreakpointIdList)
+                                v8BreakpointIds << breakpointId.toInt();
+                        }
+
+                        BreakHandler *handler = d->engine->breakHandler();
+
+                        foreach (int v8Id, v8BreakpointIds) {
+                            BreakpointModelId internalId;
+                            foreach (const BreakpointModelId &id, d->breakpoints.keys()) {
+                                if (d->breakpoints.value(id) == v8Id) {
+                                    internalId = id;
+                                    break;
+                                }
+                            }
+
+                            if (internalId.isValid()) {
+                                const BreakpointParameters &params = handler->breakpointData(internalId);
+
+                                d->clearBreakpoint(v8Id);
+                                const QString type = d->isOldService ? QString(_(SCRIPT)) :QString(_(SCRIPTREGEXP));
+                                d->setBreakpoint(type, QFileInfo(params.fileName).fileName(),
+                                                 params.lineNumber - 1, newColumn, params.enabled,
+                                                 QString(params.condition), params.ignoreCount);
+                                d->breakpointsSync.insert(d->sequence, internalId);
+                            }
+                        }
+                        d->continueDebugging(Continue);
+                    } else if (d->engine->state() == InferiorRunOk) {
                         d->engine->inferiorSpontaneousStop();
                         d->backtrace();
                     }
