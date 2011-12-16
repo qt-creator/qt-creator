@@ -512,10 +512,16 @@ void WatchWindow::collapseNode(const QModelIndex &idx)
 void WatchWindow::keyPressEvent(QKeyEvent *ev)
 {
     if (ev->key() == Qt::Key_Delete && m_type == WatchersType) {
-        QModelIndex idx = currentIndex();
-        QModelIndex idx1 = idx.sibling(idx.row(), 0);
-        QString exp = idx1.data(LocalsRawExpressionRole).toString();
-        removeWatchExpression(exp);
+        QModelIndexList indices = selectionModel()->selectedRows();
+        if (indices.isEmpty() && selectionModel()->currentIndex().isValid())
+            indices.append(selectionModel()->currentIndex());
+        QStringList exps;
+        foreach (const QModelIndex &idx, indices) {
+            QModelIndex idx1 = idx.sibling(idx.row(), 0);
+            exps.append(idx1.data(LocalsRawExpressionRole).toString());
+        }
+        foreach (const QString &exp, exps)
+            removeWatchExpression(exp);
     } else if (ev->key() == Qt::Key_Return
             && ev->modifiers() == Qt::ControlModifier
             && m_type == LocalsType) {
