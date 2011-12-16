@@ -33,7 +33,6 @@
 **************************************************************************/
 
 #include "suppressiondialog.h"
-#include "ui_suppressiondialog.h"
 
 #include "memcheckerrorview.h"
 #include "valgrindsettings.h"
@@ -53,7 +52,12 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QFile>
+
+#include <QtGui/QDialogButtonBox>
+#include <QtGui/QFormLayout>
 #include <QtGui/QPushButton>
+#include <QtGui/QLabel>
+#include <QtGui/QPlainTextEdit>
 
 using namespace Analyzer;
 using namespace Valgrind::XmlProtocol;
