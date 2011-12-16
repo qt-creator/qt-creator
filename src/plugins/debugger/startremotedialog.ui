@@ -16,6 +16,9 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QFormLayout" name="formLayout">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+     </property>
      <item row="0" column="0">
       <widget class="QLabel" name="debuggerLabel">
        <property name="text">
@@ -77,23 +80,6 @@
       </widget>
      </item>
      <item row="4" column="0">
-      <widget class="QLabel" name="gnuTargetLabel">
-       <property name="text">
-        <string>&amp;GNU target:</string>
-       </property>
-       <property name="buddy">
-        <cstring>gnuTargetComboBox</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QComboBox" name="gnuTargetComboBox">
-       <property name="editable">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
       <widget class="QLabel" name="sysrootLabel">
        <property name="text">
         <string>Sys&amp;root:</string>
@@ -103,10 +89,10 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
+     <item row="4" column="1">
       <widget class="Utils::PathChooser" name="sysrootPathChooser" native="true"/>
      </item>
-     <item row="6" column="0">
+     <item row="5" column="0">
       <widget class="QLabel" name="debuginfoLabel">
        <property name="text">
         <string>Location of debugging information:</string>
@@ -116,10 +102,10 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="5" column="1">
       <widget class="Utils::PathChooser" name="debuginfoPathChooser" native="true"/>
      </item>
-     <item row="7" column="0">
+     <item row="6" column="0">
       <widget class="QLabel" name="overrideStartScriptLabel">
        <property name="text">
         <string>Override host GDB s&amp;tart script:</string>
@@ -129,10 +115,10 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="1">
+     <item row="6" column="1">
       <widget class="Utils::PathChooser" name="overrideStartScriptPathChooser" native="true"/>
      </item>
-     <item row="8" column="0">
+     <item row="7" column="0">
       <widget class="QLabel" name="useServerStartScriptLabel">
        <property name="text">
         <string>&amp;Use server start script:</string>
@@ -142,10 +128,10 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="1">
+     <item row="7" column="1">
       <widget class="QCheckBox" name="useServerStartScriptCheckBox"/>
      </item>
-     <item row="9" column="0">
+     <item row="8" column="0">
       <widget class="QLabel" name="serverStartScriptLabel">
        <property name="text">
         <string>&amp;Server start script:</string>
@@ -155,7 +141,7 @@
        </property>
       </widget>
      </item>
-     <item row="9" column="1">
+     <item row="8" column="1">
       <widget class="Utils::PathChooser" name="serverStartScriptPathChooser" native="true"/>
      </item>
     </layout>

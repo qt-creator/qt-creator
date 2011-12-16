@@ -653,27 +653,6 @@ QString StartRemoteDialog::remoteArchitecture() const
     return m_ui->architectureComboBox->currentText();
 }
 
-QString StartRemoteDialog::gnuTarget() const
-{
-    return m_ui->gnuTargetComboBox->currentText();
-}
-
-void StartRemoteDialog::setGnuTargets(const QStringList &gnuTargets)
-{
-    m_ui->gnuTargetComboBox->clear();
-    if (!gnuTargets.isEmpty()) {
-        m_ui->gnuTargetComboBox->insertItems(0, gnuTargets);
-        m_ui->gnuTargetComboBox->setCurrentIndex(0);
-    }
-}
-
-void StartRemoteDialog::setGnuTarget(const QString &gnuTarget)
-{
-    const int index = m_ui->gnuTargetComboBox->findText(gnuTarget);
-    if (index != -1)
-        m_ui->gnuTargetComboBox->setCurrentIndex(index);
-}
-
 QString StartRemoteDialog::overrideStartScript() const
 {
     return m_ui->overrideStartScriptPathChooser->path();

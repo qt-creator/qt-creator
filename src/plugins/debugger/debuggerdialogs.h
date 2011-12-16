@@ -183,15 +183,12 @@ public:
     void setRemoteArchitecture(const QString &arch);
     void setRemoteArchitectures(const QStringList &arches);
 
-    QString gnuTarget() const;
-    void setGnuTarget(const QString &gnuTarget);
-    void setGnuTargets(const QStringList &gnuTargets);
-
     QString overrideStartScript() const;
     void setOverrideStartScript(const QString &scriptName);
 
     bool useServerStartScript() const;
     void setUseServerStartScript(bool on);
+
     QString serverStartScript() const;
     void setServerStartScript(const QString &scriptName);
 
