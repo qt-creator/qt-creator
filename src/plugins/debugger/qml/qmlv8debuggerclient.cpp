@@ -1306,10 +1306,9 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                 } else if (debugCommand == _(SOURCE)) {
                 } else if (debugCommand == _(SCRIPTS)) {
                 } else if (debugCommand == _(VERSION)) {
-                    d->engine->logMessage(QmlEngine::LogReceive,
-                                          QString(_("Using V8 Version: %1")).arg(
-                                              resp.value(_(BODY)).toMap().
-                                              value(_("V8Version")).toString()));
+                    d->logReceiveMessage(QString(_("Using V8 Version: %1")).arg(
+                                             resp.value(_(BODY)).toMap().
+                                             value(_("V8Version")).toString()));
 
                 } else if (debugCommand == _(V8FLAGS)) {
                 } else if (debugCommand == _(GARBAGECOLLECTOR)) {
@@ -1392,7 +1391,7 @@ void QmlV8DebuggerClient::updateStack(const QVariant &bodyVal, const QVariant &r
 
     int fromFrameIndex = body.value(_("fromFrame")).toInt();
 
-    QTC_ASSERT(0 == fromFrameIndex);
+    QTC_ASSERT(0 == fromFrameIndex, return);
 
     StackHandler *stackHandler = d->engine->stackHandler();
     StackFrames stackFrames;
