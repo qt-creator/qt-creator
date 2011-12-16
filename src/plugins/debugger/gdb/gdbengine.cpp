@@ -1679,7 +1679,14 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
         QString msg = QString::fromLocal8Bit(response.consoleStreamOutput);
         extractGdbVersion(msg,
               &m_gdbVersion, &m_gdbBuildVersion, &m_isMacGdb);
-        if (m_gdbVersion > 60500 && m_gdbVersion < 200000)
+
+        // On Mac, fsf gdb does not work sufficiently well,
+        // and on Linux and Windows we require at least 7.2.
+        // Older versions with python still work, but can
+        // be significantly slower.
+        bool isSupported = m_isMacGdb ? m_gdbVersion < 70000
+            : (m_gdbVersion > 70200 && m_gdbVersion < 200000);
+        if (isSupported)
             showMessage(_("SUPPORTED GDB VERSION ") + msg);
         else
             showMessage(_("UNSUPPORTED GDB VERSION ") + msg);
