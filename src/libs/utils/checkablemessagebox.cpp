@@ -31,10 +31,23 @@
 **************************************************************************/
 
 #include "checkablemessagebox.h"
-#include "ui_checkablemessagebox.h"
+
+#include <QtCore/QDebug>
+#include <QtCore/QVariant>
 
 #include <QtGui/QPushButton>
-#include <QtCore/QDebug>
+#include <QtGui/QAction>
+#include <QtGui/QApplication>
+#include <QtGui/QButtonGroup>
+#include <QtGui/QCheckBox>
+#include <QtGui/QDialog>
+#include <QtGui/QDialogButtonBox>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QHeaderView>
+#include <QtGui/QLabel>
+#include <QtGui/QSpacerItem>
+#include <QtGui/QVBoxLayout>
+
 
 /*!
     \class Utils::CheckableMessageBox
@@ -48,24 +61,78 @@
 
 namespace Utils {
 
-struct CheckableMessageBoxPrivate {
-    CheckableMessageBoxPrivate() : clickedButton(0) {}
+class CheckableMessageBoxPrivate
+{
+public:
+    CheckableMessageBoxPrivate(QDialog *q)
+        : clickedButton(0)
+    {
+        QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
 
-    Ui::CheckableMessageBox ui;
+        pixmapLabel = new QLabel(q);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(pixmapLabel->sizePolicy().hasHeightForWidth());
+        pixmapLabel->setSizePolicy(sizePolicy);
+        pixmapLabel->setVisible(false);
+
+        QSpacerItem *pixmapSpacer =
+            new QSpacerItem(0, 5, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+
+        messageLabel = new QLabel(q);
+        messageLabel->setMinimumSize(QSize(300, 0));
+        messageLabel->setWordWrap(true);
+        messageLabel->setOpenExternalLinks(true);
+        messageLabel->setTextInteractionFlags(Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse);
+
+        QSpacerItem *checkBoxRightSpacer =
+            new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        QSpacerItem *buttonSpacer =
+            new QSpacerItem(0, 1, QSizePolicy::Minimum, QSizePolicy::Minimum);
+
+        checkBox = new QCheckBox(q);
+        checkBox->setText(q->tr("Do not ask again"));
+
+        buttonBox = new QDialogButtonBox(q);
+        buttonBox->setOrientation(Qt::Horizontal);
+        buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
+        QVBoxLayout *verticalLayout = new QVBoxLayout();
+        verticalLayout->addWidget(pixmapLabel);
+        verticalLayout->addItem(pixmapSpacer);
+
+        QHBoxLayout *horizontalLayout_2 = new QHBoxLayout();
+        horizontalLayout_2->addLayout(verticalLayout);
+        horizontalLayout_2->addWidget(messageLabel);
+
+        QHBoxLayout *horizontalLayout = new QHBoxLayout();
+        horizontalLayout->addWidget(checkBox);
+        horizontalLayout->addItem(checkBoxRightSpacer);
+
+        QVBoxLayout *verticalLayout_2 = new QVBoxLayout(q);
+        verticalLayout_2->addLayout(horizontalLayout_2);
+        verticalLayout_2->addLayout(horizontalLayout);
+        verticalLayout_2->addItem(buttonSpacer);
+        verticalLayout_2->addWidget(buttonBox);
+    }
+
+    QLabel *pixmapLabel;
+    QLabel *messageLabel;
+    QCheckBox *checkBox;
+    QDialogButtonBox *buttonBox;
     QAbstractButton *clickedButton;
 };
 
 CheckableMessageBox::CheckableMessageBox(QWidget *parent) :
     QDialog(parent),
-    d(new CheckableMessageBoxPrivate)
+    d(new CheckableMessageBoxPrivate(this))
 {
     setModal(true);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    d->ui.setupUi(this);
-    d->ui.pixmapLabel->setVisible(false);
-    connect(d->ui.buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(d->ui.buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-    connect(d->ui.buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(slotClicked(QAbstractButton*)));
+    connect(d->buttonBox, SIGNAL(accepted()), SLOT(accept()));
+    connect(d->buttonBox, SIGNAL(rejected()), SLOT(reject()));
+    connect(d->buttonBox, SIGNAL(clicked(QAbstractButton*)),
+        SLOT(slotClicked(QAbstractButton*)));
 }
 
 CheckableMessageBox::~CheckableMessageBox()
@@ -86,108 +153,108 @@ QAbstractButton *CheckableMessageBox::clickedButton() const
 QDialogButtonBox::StandardButton CheckableMessageBox::clickedStandardButton() const
 {
     if (d->clickedButton)
-        return d->ui.buttonBox->standardButton(d->clickedButton);
+        return d->buttonBox->standardButton(d->clickedButton);
     return QDialogButtonBox::NoButton;
 }
 
 QString CheckableMessageBox::text() const
 {
-    return d->ui.messageLabel->text();
+    return d->messageLabel->text();
 }
 
 void CheckableMessageBox::setText(const QString &t)
 {
-    d->ui.messageLabel->setText(t);
+    d->messageLabel->setText(t);
 }
 
 QPixmap CheckableMessageBox::iconPixmap() const
 {
-    if (const QPixmap *p = d->ui.pixmapLabel->pixmap())
+    if (const QPixmap *p = d->pixmapLabel->pixmap())
         return QPixmap(*p);
     return QPixmap();
 }
 
 void CheckableMessageBox::setIconPixmap(const QPixmap &p)
 {
-    d->ui.pixmapLabel->setPixmap(p);
-    d->ui.pixmapLabel->setVisible(!p.isNull());
+    d->pixmapLabel->setPixmap(p);
+    d->pixmapLabel->setVisible(!p.isNull());
 }
 
 bool CheckableMessageBox::isChecked() const
 {
-    return d->ui.checkBox->isChecked();
+    return d->checkBox->isChecked();
 }
 
 void CheckableMessageBox::setChecked(bool s)
 {
-    d->ui.checkBox->setChecked(s);
+    d->checkBox->setChecked(s);
 }
 
 QString CheckableMessageBox::checkBoxText() const
 {
-    return d->ui.checkBox->text();
+    return d->checkBox->text();
 }
 
 void CheckableMessageBox::setCheckBoxText(const QString &t)
 {
-    d->ui.checkBox->setText(t);
+    d->checkBox->setText(t);
 }
 
 bool CheckableMessageBox::isCheckBoxVisible() const
 {
-    return d->ui.checkBox->isVisible();
+    return d->checkBox->isVisible();
 }
 
 void CheckableMessageBox::setCheckBoxVisible(bool v)
 {
-    d->ui.checkBox->setVisible(v);
+    d->checkBox->setVisible(v);
 }
 
 QDialogButtonBox::StandardButtons CheckableMessageBox::standardButtons() const
 {
-    return d->ui.buttonBox->standardButtons();
+    return d->buttonBox->standardButtons();
 }
 
 void CheckableMessageBox::setStandardButtons(QDialogButtonBox::StandardButtons s)
 {
-    d->ui.buttonBox->setStandardButtons(s);
+    d->buttonBox->setStandardButtons(s);
 }
 
 QPushButton *CheckableMessageBox::button(QDialogButtonBox::StandardButton b) const
 {
-    return d->ui.buttonBox->button(b);
+    return d->buttonBox->button(b);
 }
 
 QPushButton *CheckableMessageBox::addButton(const QString &text, QDialogButtonBox::ButtonRole role)
 {
-    return d->ui.buttonBox->addButton(text, role);
+    return d->buttonBox->addButton(text, role);
 }
 
 QDialogButtonBox::StandardButton CheckableMessageBox::defaultButton() const
 {
-    foreach (QAbstractButton *b, d->ui.buttonBox->buttons())
+    foreach (QAbstractButton *b, d->buttonBox->buttons())
         if (QPushButton *pb = qobject_cast<QPushButton *>(b))
             if (pb->isDefault())
-               return d->ui.buttonBox->standardButton(pb);
+               return d->buttonBox->standardButton(pb);
     return QDialogButtonBox::NoButton;
 }
 
 void CheckableMessageBox::setDefaultButton(QDialogButtonBox::StandardButton s)
 {
-    if (QPushButton *b = d->ui.buttonBox->button(s)) {
+    if (QPushButton *b = d->buttonBox->button(s)) {
         b->setDefault(true);
         b->setFocus();
     }
 }
 
 QDialogButtonBox::StandardButton
-        CheckableMessageBox::question(QWidget *parent,
-                                      const QString &title,
-                                      const QString &question,
-                                      const QString &checkBoxText,
-                                      bool *checkBoxSetting,
-                                      QDialogButtonBox::StandardButtons buttons,
-                                      QDialogButtonBox::StandardButton defaultButton)
+CheckableMessageBox::question(QWidget *parent,
+                              const QString &title,
+                              const QString &question,
+                              const QString &checkBoxText,
+                              bool *checkBoxSetting,
+                              QDialogButtonBox::StandardButtons buttons,
+                              QDialogButtonBox::StandardButton defaultButton)
 {
     CheckableMessageBox mb(parent);
     mb.setWindowTitle(title);

@@ -41,7 +41,7 @@
 
 namespace Utils {
 
-struct CheckableMessageBoxPrivate;
+class CheckableMessageBoxPrivate;
 
 class QTCREATOR_UTILS_EXPORT CheckableMessageBox : public QDialog
 {
@@ -52,6 +52,7 @@ class QTCREATOR_UTILS_EXPORT CheckableMessageBox : public QDialog
     Q_PROPERTY(QString checkBoxText READ checkBoxText WRITE setCheckBoxText)
     Q_PROPERTY(QDialogButtonBox::StandardButtons buttons READ standardButtons WRITE setStandardButtons)
     Q_PROPERTY(QDialogButtonBox::StandardButton defaultButton READ defaultButton WRITE setDefaultButton)
+
 public:
     explicit CheckableMessageBox(QWidget *parent);
     virtual ~CheckableMessageBox();
@@ -77,30 +78,30 @@ public:
     bool isCheckBoxVisible() const;
     void setCheckBoxVisible(bool);
 
-   QDialogButtonBox::StandardButtons standardButtons() const;
-   void setStandardButtons(QDialogButtonBox::StandardButtons s);
-   QPushButton *button(QDialogButtonBox::StandardButton b) const;
-   QPushButton *addButton(const QString &text, QDialogButtonBox::ButtonRole role);
+    QDialogButtonBox::StandardButtons standardButtons() const;
+    void setStandardButtons(QDialogButtonBox::StandardButtons s);
+    QPushButton *button(QDialogButtonBox::StandardButton b) const;
+    QPushButton *addButton(const QString &text, QDialogButtonBox::ButtonRole role);
 
-   QDialogButtonBox::StandardButton defaultButton() const;
-   void setDefaultButton(QDialogButtonBox::StandardButton s);
+    QDialogButtonBox::StandardButton defaultButton() const;
+    void setDefaultButton(QDialogButtonBox::StandardButton s);
 
-    // see static QMessageBox::standardPixmap()
+    // See static QMessageBox::standardPixmap()
     QPixmap iconPixmap() const;
     void setIconPixmap (const QPixmap &p);
 
-   // Query the result
-   QAbstractButton *clickedButton() const;
-   QDialogButtonBox::StandardButton clickedStandardButton() const;
+    // Query the result
+    QAbstractButton *clickedButton() const;
+    QDialogButtonBox::StandardButton clickedStandardButton() const;
 
-   // Conversion convenience
-   static QMessageBox::StandardButton dialogButtonBoxToMessageBoxButton(QDialogButtonBox::StandardButton);
+    // Conversion convenience
+    static QMessageBox::StandardButton dialogButtonBoxToMessageBoxButton(QDialogButtonBox::StandardButton);
 
 private slots:
-   void slotClicked(QAbstractButton *b);
+    void slotClicked(QAbstractButton *b);
 
 private:
-   CheckableMessageBoxPrivate *d;
+    CheckableMessageBoxPrivate *d;
 };
 
 } // namespace Utils

@@ -204,7 +204,6 @@ HEADERS += \
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
     $$PWD/newclasswidget.ui \
-    $$PWD/submiteditorwidget.ui \
-    $$PWD/checkablemessagebox.ui
+    $$PWD/submiteditorwidget.ui
 
 RESOURCES += $$PWD/utils.qrc
