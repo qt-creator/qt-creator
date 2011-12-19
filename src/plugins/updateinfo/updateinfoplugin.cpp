@@ -110,6 +110,7 @@ void UpdateInfoPlugin::startCheckTimer(uint milliseconds)
 void UpdateInfoPlugin::stopCurrentCheckTimer()
 {
     killTimer(d->currentTimerId);
+    d->currentTimerId = 0;
 }
 
 
