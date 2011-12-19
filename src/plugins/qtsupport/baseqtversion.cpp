@@ -751,14 +751,15 @@ void BaseQtVersion::updateVersionInfo() const
 
     if (m_versionInfo.contains("QT_INSTALL_DATA")) {
         QString qtInstallData = m_versionInfo.value("QT_INSTALL_DATA");
+        QString qtInstallBins = m_versionInfo.value("QT_INSTALL_BINS");
         QString qtHeaderData = m_versionInfo.value("QT_INSTALL_HEADERS");
         m_versionInfo.insert("QMAKE_MKSPECS", QDir::cleanPath(qtInstallData+"/mkspecs"));
 
         if (!qtInstallData.isEmpty()) {
             m_hasDebuggingHelper = !ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
             m_hasQmlDump
-                    = !QmlDumpTool::toolByInstallData(qtInstallData, qtHeaderData, false).isEmpty()
-                    || !QmlDumpTool::toolByInstallData(qtInstallData, qtHeaderData, true).isEmpty();
+                    = !QmlDumpTool::toolForQtPaths(qtInstallData, qtInstallBins, qtHeaderData, false).isEmpty()
+                    || !QmlDumpTool::toolForQtPaths(qtInstallData, qtInstallBins, qtHeaderData, true).isEmpty();
             m_hasQmlDebuggingLibrary
                     = !QmlDebuggingLibrary::libraryByInstallData(qtInstallData, false).isEmpty()
                 || !QmlDebuggingLibrary::libraryByInstallData(qtInstallData, true).isEmpty();
@@ -927,10 +928,11 @@ QString BaseQtVersion::gdbDebuggingHelperLibrary() const
 QString BaseQtVersion::qmlDumpTool(bool debugVersion) const
 {
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
+    QString qtInstallBins = versionInfo().value("QT_INSTALL_BINS");
     QString qtHeaderData = versionInfo().value("QT_INSTALL_HEADERS");
     if (qtInstallData.isEmpty())
         return QString();
-    return QmlDumpTool::toolByInstallData(qtInstallData, qtHeaderData, debugVersion);
+    return QmlDumpTool::toolForQtPaths(qtInstallData, qtInstallBins, qtHeaderData, debugVersion);
 }
 
 QString BaseQtVersion::qmlDebuggingHelperLibrary(bool debugVersion) const

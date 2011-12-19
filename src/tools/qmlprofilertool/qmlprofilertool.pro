@@ -23,5 +23,6 @@ HEADERS += \
     commandlistener.h \
     constants.h
 
-
+target.path=/bin
+INSTALLS+=target
 
