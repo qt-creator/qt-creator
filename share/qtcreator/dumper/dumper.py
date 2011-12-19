@@ -91,14 +91,18 @@ def hasInferiorThreadList():
 
 def dynamicTypeName(value):
     #vtbl = str(parseAndEvaluate("{int(*)(int)}%s" % long(value.address)))
-    vtbl = gdb.execute("info symbol {int*}%s" % long(value.address),
-        to_string = True)
-    pos1 = vtbl.find("vtable ")
-    if pos1 != -1:
-        pos1 += 11
-        pos2 = vtbl.find(" +", pos1)
-        if pos2 != -1:
-            return vtbl[pos1 : pos2]
+    try:
+        # Fails on 7.1 due to the missing to_string.
+        vtbl = gdb.execute("info symbol {int*}%s" % long(value.address),
+            to_string = True)
+        pos1 = vtbl.find("vtable ")
+        if pos1 != -1:
+            pos1 += 11
+            pos2 = vtbl.find(" +", pos1)
+            if pos2 != -1:
+                return vtbl[pos1 : pos2]
+    except:
+        pass
     return str(value.type)
 
 def upcast(value):
