@@ -476,24 +476,6 @@ QString BaseQtVersion::sourcePath() const
     return m_sourcePath;
 }
 
-// Return a list of GUI binary names
-// 'foo', 'foo.exe', 'Foo.app/Contents/MacOS/Foo'
-static inline QStringList possibleGuiBinaries(const QString &name)
-{
-#ifdef Q_OS_WIN
-    return QStringList(name + QLatin1String(".exe"));
-#elif defined(Q_OS_MAC) // 'Foo.app/Contents/MacOS/Foo'
-    QString upCaseName = name;
-    upCaseName[0] = upCaseName.at(0).toUpper();
-    QString macBinary = upCaseName;
-    macBinary += QLatin1String(".app/Contents/MacOS/");
-    macBinary += upCaseName;
-    return QStringList(macBinary);
-#else
-    return QStringList(name);
-#endif
-}
-
 QString BaseQtVersion::designerCommand() const
 {
     if (!isValid())
@@ -555,7 +537,13 @@ QString BaseQtVersion::findQtBinary(BINARIES binary) const
     switch (binary) {
     case QmlViewer: {
         if (qtVersion() < QtVersionNumber(5, 0, 0)) {
-            possibleCommands << possibleGuiBinaries(QLatin1String("qmlviewer"));
+#if defined(Q_OS_WIN)
+            possibleCommands << QLatin1String("qmlviewer.exe");
+#elif defined(Q_OS_MAC)
+            possibleCommands << QLatin1String("QMLViewer.app/Contents/MacOS/QMLViewer");
+#else
+            possibleCommands << QLatin1String("qmlviewer");
+#endif
         } else {
 #if defined(Q_OS_WIN)
             possibleCommands << QLatin1String("qmlscene.exe");
@@ -566,10 +554,22 @@ QString BaseQtVersion::findQtBinary(BINARIES binary) const
     }
         break;
     case Designer:
-        possibleCommands << possibleGuiBinaries(QLatin1String("designer"));
+#if defined(Q_OS_WIN)
+        possibleCommands << QLatin1String("designer.exe");
+#elif defined(Q_OS_MAC)
+        possibleCommands << QLatin1String("Designer.app/Contents/MacOS/Designer");
+#else
+        possibleCommands << QLatin1String("designer");
+#endif
         break;
     case Linguist:
-        possibleCommands << possibleGuiBinaries(QLatin1String("linguist"));
+#if defined(Q_OS_WIN)
+        possibleCommands << QLatin1String("linguist.exe");
+#elif defined(Q_OS_MAC)
+        possibleCommands << QLatin1String("Linguist.app/Contents/MacOS/Linguist");
+#else
+        possibleCommands << QLatin1String("linguist");
+#endif
         break;
     case Uic:
 #ifdef Q_OS_WIN
