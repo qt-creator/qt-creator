@@ -61,9 +61,7 @@ static const char *const MAEMO_QT_VERSION_KEY = "Qt4ProjectManager.Maemo.QtVersi
 MaemoToolChain::MaemoToolChain(bool autodetected) :
     ProjectExplorer::GccToolChain(QLatin1String(Constants::MAEMO_TOOLCHAIN_ID), autodetected),
     m_qtVersionId(-1)
-{
-    updateId();
-}
+{ }
 
 MaemoToolChain::MaemoToolChain(const MaemoToolChain &tc) :
     ProjectExplorer::GccToolChain(tc),
@@ -78,11 +76,6 @@ QString MaemoToolChain::typeName() const
     return MaemoToolChainFactory::tr("Maemo GCC");
 }
 
-ProjectExplorer::Abi MaemoToolChain::targetAbi() const
-{
-    return m_targetAbi;
-}
-
 Utils::FileName MaemoToolChain::mkspec() const
 {
     return Utils::FileName(); // always use default
@@ -90,7 +83,7 @@ Utils::FileName MaemoToolChain::mkspec() const
 
 bool MaemoToolChain::isValid() const
 {
-    return GccToolChain::isValid() && m_qtVersionId >= 0 && m_targetAbi.isValid();
+    return GccToolChain::isValid() && m_qtVersionId >= 0 && targetAbi().isValid();
 }
 
 bool MaemoToolChain::canClone() const
@@ -144,9 +137,9 @@ bool MaemoToolChain::fromMap(const QVariantMap &data)
 void MaemoToolChain::setQtVersionId(int id)
 {
     if (id < 0) {
-        m_targetAbi = ProjectExplorer::Abi();
+        setTargetAbi(ProjectExplorer::Abi());
         m_qtVersionId = -1;
-        updateId(); // Will trigger toolChainUpdated()!
+        toolChainUpdated();
         return;
     }
 
@@ -157,9 +150,10 @@ void MaemoToolChain::setQtVersionId(int id)
     Q_ASSERT(version->qtAbis().count() == 1);
 
     m_qtVersionId = id;
-    m_targetAbi = version->qtAbis().at(0);
+    setTargetAbi(version->qtAbis().at(0));
 
-    updateId(); // Will trigger toolChainUpdated()!
+    toolChainUpdated();
+
     setDisplayName(MaemoToolChainFactory::tr("Maemo GCC for %1").arg(version->displayName()));
 }
 
@@ -168,10 +162,11 @@ int MaemoToolChain::qtVersionId() const
     return m_qtVersionId;
 }
 
-void MaemoToolChain::updateId()
+QString MaemoToolChain::legacyId() const
 {
-    setId(QString::fromLatin1("%1:%2.%3").arg(Constants::MAEMO_TOOLCHAIN_ID)
-          .arg(m_qtVersionId).arg(debuggerCommand().toString()));
+    return QString::fromLatin1("%1:%2.%3").arg(Constants::MAEMO_TOOLCHAIN_ID)
+                                          .arg(m_qtVersionId)
+                                          .arg(debuggerCommand().toString());
 }
 
 // --------------------------------------------------------------------------
@@ -239,6 +234,21 @@ QList<ProjectExplorer::ToolChain *> MaemoToolChainFactory::autoDetect()
         versionList.append(v->uniqueId());
 
     return createToolChainList(versionList);
+}
+
+bool MaemoToolChainFactory::canRestore(const QVariantMap &data)
+{
+    return idFromMap(data).startsWith(QLatin1String(Constants::MAEMO_TOOLCHAIN_ID) + QLatin1Char(':'));
+}
+
+ProjectExplorer::ToolChain *MaemoToolChainFactory::restore(const QVariantMap &data)
+{
+    MaemoToolChain *tc = new MaemoToolChain(false);
+    if (tc->fromMap(data))
+        return tc;
+
+    delete tc;
+    return 0;
 }
 
 void MaemoToolChainFactory::handleQtVersionChanges(const QList<int> &changes)

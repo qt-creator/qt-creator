@@ -57,6 +57,8 @@ public:
                    const QString &libPath,
                    bool autodetect = false);
 
+    QString legacyId() const;
+
     static WinCEToolChain *readFromMap(const QVariantMap &data);
 
     QString typeName() const;
@@ -79,7 +81,6 @@ protected:
 
 private:
     WinCEToolChain();
-    void updateId();
 
     QString m_msvcVer;
     QString m_ceVer;

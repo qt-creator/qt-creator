@@ -147,6 +147,11 @@ ProjectExplorer::Abi WinscwToolChain::targetAbi() const
                                 ProjectExplorer::Abi::ElfFormat, 32);
 }
 
+QString WinscwToolChain::legacyId() const
+{
+    return QLatin1String(Constants::WINSCW_TOOLCHAIN_ID) + QLatin1Char(':')  + m_compilerPath;
+}
+
 bool WinscwToolChain::isValid() const
 {
     if (m_compilerPath.isEmpty())
@@ -286,17 +291,12 @@ void WinscwToolChain::setCompilerPath(const QString &path)
         return;
 
     m_compilerPath = path;
-    updateId(); // Will trigger topolChainUpdated()!
+    toolChainUpdated();
 }
 
 QString WinscwToolChain::compilerPath() const
 {
     return m_compilerPath;
-}
-
-void WinscwToolChain::updateId()
-{
-    setId(QLatin1String(Constants::WINSCW_TOOLCHAIN_ID) + QLatin1Char(':')  + m_compilerPath);
 }
 
 // --------------------------------------------------------------------------

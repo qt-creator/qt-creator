@@ -56,6 +56,7 @@ public:
 
     MsvcToolChain(const QString &name, const Abi &abi,
                   const QString &varsBat, const QString &varsBatArg, bool autodetect = false);
+    QString legacyId() const;
 
     static MsvcToolChain *readFromMap(const QVariantMap &data);
 
@@ -79,7 +80,6 @@ protected:
 
 private:
     MsvcToolChain();
-    void updateId();
 
     QString m_varsBatArg; // Argument
 };

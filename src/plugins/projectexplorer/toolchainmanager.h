@@ -90,7 +90,7 @@ private:
     // Make sure the this is only called after all
     // Tool chain Factories are registered!
     void restoreToolChains();
-    void restoreToolChains(const QString &fileName, bool autoDetected = false);
+    QList<ToolChain *> restoreToolChains(const QString &fileName);
 
     void notifyAboutUpdate(ProjectExplorer::ToolChain *);
 

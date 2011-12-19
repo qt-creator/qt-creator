@@ -84,6 +84,8 @@ public:
     QString typeName() const;
     ProjectExplorer::Abi targetAbi() const;
 
+    QString legacyId() const;
+
     bool isValid() const;
 
     QByteArray predefinedMacros() const;
@@ -115,7 +117,6 @@ public:
     bool fromMap(const QVariantMap &data);
 
 private:
-    void updateId();
     void setVersion(const RvctVersion &v) const;
 
     explicit RvctToolChain(bool autodetected = false);

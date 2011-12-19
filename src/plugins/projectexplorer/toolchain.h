@@ -72,6 +72,8 @@ public:
 
     bool isAutoDetected() const;
     QString id() const;
+    // No need to implement this for new tool chains:
+    virtual QString legacyId() const { return QString(); }
 
     virtual QString typeName() const = 0;
     virtual Abi targetAbi() const = 0;
@@ -104,8 +106,6 @@ public:
 protected:
     ToolChain(const QString &id, bool autoDetect);
     explicit ToolChain(const ToolChain &);
-
-    void setId(const QString &id);
 
     void toolChainUpdated();
 

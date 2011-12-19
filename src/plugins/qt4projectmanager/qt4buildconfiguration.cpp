@@ -133,7 +133,6 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
 
     m_shadowBuild = map.value(QLatin1String(USE_SHADOW_BUILD_KEY), true).toBool();
     m_qtVersionId = map.value(QLatin1String(QT_VERSION_ID_KEY)).toInt();
-    ProjectExplorer::ToolChain *tc = toolChain();
     m_qmakeBuildConfiguration = QtSupport::BaseQtVersion::QmakeBuildConfigs(map.value(QLatin1String(BUILD_CONFIGURATION_KEY)).toInt());
     m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY), defaultShadowBuildDirectory()).toString();
 
@@ -160,6 +159,7 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
 
     m_lastEmmitedBuildDirectory = buildDirectory();
 
+    ProjectExplorer::ToolChain *tc = toolChain();
     if (version && version->isValid()) {
         if (tc && !qt4Target()->possibleToolChains(this).contains(tc))
             setToolChain(0);
@@ -377,7 +377,7 @@ void Qt4BuildConfiguration::setQtVersion(QtSupport::BaseQtVersion *version)
 
 void Qt4BuildConfiguration::setToolChain(ProjectExplorer::ToolChain *tc)
 {
-    if (tc != 0 && !qt4Target()->possibleToolChains(this).contains(tc))
+    if (tc != 0 && m_qtVersionId > 0 && !qt4Target()->possibleToolChains(this).contains(tc))
         return;
 
     if (toolChain() == tc)

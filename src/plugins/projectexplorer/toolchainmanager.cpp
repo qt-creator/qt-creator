@@ -110,22 +110,61 @@ ToolChainManager::ToolChainManager(QObject *parent) :
 
 void ToolChainManager::restoreToolChains()
 {
-    // Restore SDK settings first
+    QList<ToolChain *> tcsToRegister;
+    QList<ToolChain *> tcsToCheck;
+
+    // read all tool chains from SDK
     QFileInfo systemSettingsFile(Core::ICore::settings(QSettings::SystemScope)->fileName());
-    restoreToolChains(systemSettingsFile.absolutePath() + QLatin1String(TOOLCHAIN_FILENAME), true);
+    QList<ToolChain *> readTcs =
+            restoreToolChains(systemSettingsFile.absolutePath() + QLatin1String(TOOLCHAIN_FILENAME));
+    // make sure we mark these as autodetected!
+    foreach (ToolChain *tc, readTcs)
+        tc->setAutoDetected(true);
+
+    tcsToRegister = readTcs; // SDK TCs are always considered to be up-to-date, so no need to
+                             // recheck them.
+
+    // read all tool chains from user file
+    readTcs = restoreToolChains(settingsFileName());
+
+    foreach (ToolChain *tc, readTcs) {
+        if (tc->isAutoDetected())
+            tcsToCheck.append(tc);
+        else
+            tcsToRegister.append(tc);
+    }
+    readTcs.clear();
 
     // Then auto detect
+    QList<ToolChain *> detectedTcs;
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     QList<ToolChainFactory *> factories = pm->getObjects<ToolChainFactory>();
-    // Autodetect tool chains:
-    foreach (ToolChainFactory *f, factories) {
-        QList<ToolChain *> tcs = f->autoDetect();
-        foreach (ToolChain *tc, tcs)
-            registerToolChain(tc);
+    foreach (ToolChainFactory *f, factories)
+        detectedTcs.append(f->autoDetect());
+
+    // Find/update autodetected tool chains:
+    ToolChain *toStore = 0;
+    foreach (ToolChain *currentDetected, detectedTcs) {
+        toStore = currentDetected;
+
+        // Check whether we had this TC stored and prefer the old one with the old id:
+        for (int i = 0; i < tcsToCheck.count(); ++i) {
+            if (*(tcsToCheck.at(i)) == *currentDetected) {
+                toStore = tcsToCheck.at(i);
+                tcsToCheck.removeAt(i);
+                delete currentDetected;
+                break;
+            }
+        }
+        registerToolChain(toStore);
     }
 
-    // Then restore user settings
-    restoreToolChains(settingsFileName(), false);
+    // Delete all loaded autodetected tool chains that were not rediscovered:
+    qDeleteAll(tcsToCheck);
+
+    // Store manual tool chains
+    foreach (ToolChain *tc, tcsToRegister)
+        registerToolChain(tc);
 }
 
 ToolChainManager::~ToolChainManager()
@@ -146,7 +185,7 @@ void ToolChainManager::saveToolChains()
 
     int count = 0;
     foreach (ToolChain *tc, d->m_toolChains) {
-        if (!tc->isAutoDetected() && tc->isValid()) {
+        if (tc->isValid()) {
             QVariantMap tmp = tc->toMap();
             if (tmp.isEmpty())
                 continue;
@@ -160,17 +199,19 @@ void ToolChainManager::saveToolChains()
     // Do not save default debuggers! Those are set by the SDK!
 }
 
-void ToolChainManager::restoreToolChains(const QString &fileName, bool autoDetected)
+QList<ToolChain *> ToolChainManager::restoreToolChains(const QString &fileName)
 {
+    QList<ToolChain *> result;
+
     PersistentSettingsReader reader;
     if (!reader.load(fileName))
-        return;
+        return result;
     QVariantMap data = reader.restoreValues();
 
     // Check version:
     int version = data.value(QLatin1String(TOOLCHAIN_FILE_VERSION_KEY), 0).toInt();
     if (version < 1)
-        return;
+        return result;
 
     // Read default debugger settings (if any)
     int count = data.value(QLatin1String(DEFAULT_DEBUGGER_COUNT_KEY)).toInt();
@@ -200,19 +241,18 @@ void ToolChainManager::restoreToolChains(const QString &fileName, bool autoDetec
         foreach (ToolChainFactory *f, factories) {
             if (f->canRestore(tcMap)) {
                 if (ToolChain *tc = f->restore(tcMap)) {
-                    tc->setAutoDetected(autoDetected);
-
-                    registerToolChain(tc);
+                    result.append(tc);
                     restored = true;
                     break;
                 }
             }
         }
         if (!restored)
-            qWarning("Warning: Unable to restore manual tool chain '%s' stored in %s.",
+            qWarning("Warning: Unable to restore tool chain '%s' stored in %s.",
                      qPrintable(ToolChainFactory::idFromMap(tcMap)),
                      qPrintable(QDir::toNativeSeparators(fileName)));
     }
+    return result;
 }
 
 QList<ToolChain *> ToolChainManager::toolChains() const
@@ -233,8 +273,11 @@ QList<ToolChain *> ToolChainManager::findToolChains(const Abi &abi) const
 
 ToolChain *ToolChainManager::findToolChain(const QString &id) const
 {
+    if (id.isEmpty())
+        return 0;
+
     foreach (ToolChain *tc, d->m_toolChains) {
-        if (tc->id() == id)
+        if (tc->id() == id || (!tc->legacyId().isEmpty() && tc->legacyId() == id))
             return tc;
     }
     return 0;

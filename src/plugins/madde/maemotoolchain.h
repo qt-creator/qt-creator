@@ -49,7 +49,6 @@ public:
     ~MaemoToolChain();
 
     QString typeName() const;
-    ProjectExplorer::Abi targetAbi() const;
     Utils::FileName mkspec() const;
 
     bool isValid() const;
@@ -67,15 +66,14 @@ public:
     void setQtVersionId(int);
     int qtVersionId() const;
 
-private:
-    void updateId();
+    QString legacyId() const;
 
+private:
     explicit MaemoToolChain(bool);
     MaemoToolChain(const MaemoToolChain &);
 
     int m_qtVersionId;
     mutable QString m_sysroot;
-    ProjectExplorer::Abi m_targetAbi;
 
     friend class MaemoToolChainFactory;
 };
@@ -111,6 +109,9 @@ public:
     QString id() const;
 
     QList<ProjectExplorer::ToolChain *> autoDetect();
+
+    bool canRestore(const QVariantMap &data);
+    ProjectExplorer::ToolChain *restore(const QVariantMap &data);
 
 private slots:
     void handleQtVersionChanges(const QList<int> &);

@@ -38,9 +38,11 @@
 #include <utils/environment.h>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QUuid>
 
 static const char ID_KEY[] = "ProjectExplorer.ToolChain.Id";
 static const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ToolChain.DisplayName";
+static const char AUTODETECT_KEY[] = "ProjectExplorer.ToolChain.Autodetect";
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -53,9 +55,22 @@ class ToolChainPrivate
 {
 public:
     ToolChainPrivate(const QString &id, bool autodetect) :
-        m_id(id),
         m_autodetect(autodetect)
-    { Q_ASSERT(!id.isEmpty()); }
+    {
+        m_id = createId(id);
+    }
+
+    static QString createId(const QString &id)
+    {
+        QString newId = id;
+
+        QUuid uuid(id.mid(id.indexOf(":") + 1));
+        if (uuid.isNull()) {
+            newId = id.left(id.indexOf(':'));
+            newId.append(QLatin1Char(':') + QUuid::createUuid().toString());
+        }
+        return newId;
+    }
 
     QString m_id;
     bool m_autodetect;
@@ -141,7 +156,11 @@ bool ToolChain::operator == (const ToolChain &tc) const
     if (this == &tc)
         return true;
 
-    return id() == tc.id();
+    const QString thisId = id().left(id().indexOf(QLatin1Char(':')));
+    const QString tcId = tc.id().left(tc.id().indexOf(QLatin1Char(':')));
+
+    // We ignore displayname
+    return thisId == tcId && isAutoDetected() == tc.isAutoDetected();
 }
 
 /*!
@@ -153,23 +172,11 @@ bool ToolChain::operator == (const ToolChain &tc) const
 QVariantMap ToolChain::toMap() const
 {
     QVariantMap result;
-    if (isAutoDetected())
-        return result;
-
     result.insert(QLatin1String(ID_KEY), id());
     result.insert(QLatin1String(DISPLAY_NAME_KEY), displayName());
+    result.insert(QLatin1String(AUTODETECT_KEY), isAutoDetected());
 
     return result;
-}
-
-void ToolChain::setId(const QString &id)
-{
-    Q_ASSERT(!id.isEmpty());
-    if (d->m_id == id)
-        return;
-
-    d->m_id = id;
-    toolChainUpdated();
 }
 
 void ToolChain::toolChainUpdated()
@@ -193,9 +200,10 @@ void ToolChain::setAutoDetected(bool autodetect)
 
 bool ToolChain::fromMap(const QVariantMap &data)
 {
-    Q_ASSERT(!isAutoDetected());
-    // do not read the id: That is already set anyway.
     d->m_displayName = data.value(QLatin1String(DISPLAY_NAME_KEY)).toString();
+    // make sure we have new style ids:
+    d->m_id = Internal::ToolChainPrivate::createId(data.value(QLatin1String(ID_KEY)).toString());
+    d->m_autodetect = data.value(QLatin1String(AUTODETECT_KEY), false).toBool();
 
     return true;
 }

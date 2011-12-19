@@ -54,6 +54,8 @@ class LinuxIccToolChainFactory;
 class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 {
 public:
+    QString legacyId() const;
+
     QString typeName() const;
     Abi targetAbi() const;
     QString version() const;
@@ -88,8 +90,6 @@ protected:
     GccToolChain(const GccToolChain &);
 
     QString defaultDisplayName() const;
-
-    void updateId();
 
     virtual QList<Abi> detectSupportedAbis() const;
     virtual QString detectVersion() const;

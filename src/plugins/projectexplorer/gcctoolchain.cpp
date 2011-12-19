@@ -308,13 +308,13 @@ QString GccToolChain::defaultDisplayName() const
                                                  ProjectExplorer::Abi::toString(m_targetAbi.wordWidth()));
 }
 
-void GccToolChain::updateId()
+QString GccToolChain::legacyId() const
 {
     QString i = id();
     i = i.left(i.indexOf(QLatin1Char(':')));
-    setId(QString::fromLatin1("%1:%2.%3.%4")
-          .arg(i).arg(m_compilerPath)
-          .arg(m_targetAbi.toString()).arg(m_debuggerCommand.toString()));
+    return QString::fromLatin1("%1:%2.%3.%4")
+               .arg(i).arg(m_compilerPath)
+               .arg(m_targetAbi.toString()).arg(m_debuggerCommand.toString());
 }
 
 QString GccToolChain::typeName() const
@@ -341,7 +341,6 @@ void GccToolChain::setTargetAbi(const Abi &abi)
 
     updateSupportedAbis();
     m_targetAbi = abi;
-    updateId();
     toolChainUpdated();
 }
 
@@ -389,7 +388,6 @@ void GccToolChain::setDebuggerCommand(const Utils::FileName &d)
     if (m_debuggerCommand == d)
         return;
     m_debuggerCommand = d;
-    updateId();
     toolChainUpdated();
 }
 
@@ -469,7 +467,7 @@ void GccToolChain::setCompilerPath(const QString &path)
         if (resetDisplayName)
             setDisplayName(defaultDisplayName());
     }
-    updateId(); // Will trigger toolChainUpdated()!
+    toolChainUpdated();
 }
 
 QString GccToolChain::compilerPath() const
@@ -511,7 +509,6 @@ bool GccToolChain::fromMap(const QVariantMap &data)
         m_supportedAbis.append(abi);
     }
     m_debuggerCommand = Utils::FileName::fromString(data.value(QLatin1String(debuggerCommandKeyC)).toString());
-    updateId();
     return true;
 }
 

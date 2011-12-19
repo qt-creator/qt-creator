@@ -132,7 +132,6 @@ void AbstractMsvcToolChain::setDebuggerCommand(const Utils::FileName &d)
     if (m_debuggerCommand == d)
         return;
     m_debuggerCommand = d;
-    updateId();
     toolChainUpdated();
 }
 

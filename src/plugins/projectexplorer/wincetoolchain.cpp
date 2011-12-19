@@ -261,7 +261,6 @@ WinCEToolChain::WinCEToolChain(const QString &name,
     Q_ASSERT(!m_includePath.isEmpty());
     Q_ASSERT(!m_libPath.isEmpty());
 
-    updateId();
     setDisplayName(name);
 }
 
@@ -279,7 +278,7 @@ WinCEToolChain *WinCEToolChain::readFromMap(const QVariantMap &data)
     return 0;
 }
 
-void WinCEToolChain::updateId()
+QString WinCEToolChain::legacyId() const
 {
     const QChar colon = QLatin1Char(':');
     QString id = QLatin1String(Constants::WINCE_TOOLCHAIN_ID);
@@ -293,7 +292,7 @@ void WinCEToolChain::updateId()
     id += m_libPath;
     id += colon;
     id += m_debuggerCommand.toString();
-    setId(id);
+    return id;
 }
 
 QString WinCEToolChain::typeName() const
@@ -355,7 +354,6 @@ bool WinCEToolChain::fromMap(const QVariantMap &data)
     m_debuggerCommand = Utils::FileName::fromString(data.value(QLatin1String(debuggerCommandKeyC)).toString());
     const QString abiString = data.value(QLatin1String(supportedAbiKeyC)).toString();
     m_abi = Abi(abiString);
-    updateId();
 
     return isValid();
 }

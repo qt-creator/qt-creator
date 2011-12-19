@@ -288,7 +288,6 @@ MsvcToolChain::MsvcToolChain(const QString &name, const Abi &abi,
 {
     Q_ASSERT(!name.isEmpty());
 
-    updateId();
     setDisplayName(name);
 }
 
@@ -306,7 +305,7 @@ MsvcToolChain *MsvcToolChain::readFromMap(const QVariantMap &data)
     return 0;
 }
 
-void MsvcToolChain::updateId()
+QString MsvcToolChain::legacyId() const
 {
     const QChar colon = QLatin1Char(':');
     QString id = QLatin1String(Constants::MSVC_TOOLCHAIN_ID);
@@ -316,7 +315,7 @@ void MsvcToolChain::updateId()
     id += m_varsBatArg;
     id += colon;
     id += m_debuggerCommand.toString();
-    setId(id);
+    return id;
 }
 
 QString MsvcToolChain::typeName() const
@@ -356,7 +355,6 @@ bool MsvcToolChain::fromMap(const QVariantMap &data)
     m_debuggerCommand = Utils::FileName::fromString(data.value(QLatin1String(debuggerCommandKeyC)).toString());
     const QString abiString = data.value(QLatin1String(supportedAbiKeyC)).toString();
     m_abi = Abi(abiString);
-    updateId();
 
     return !m_vcvarsBat.isEmpty() && m_abi.isValid();
 }

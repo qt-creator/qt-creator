@@ -54,6 +54,7 @@ public:
 
     QString typeName() const;
     ProjectExplorer::Abi targetAbi() const;
+    QString legacyId() const;
 
     bool isValid() const;
 
@@ -84,8 +85,6 @@ public:
     QString compilerPath() const;
 
 private:
-    void updateId();
-
     explicit WinscwToolChain(bool);
 
     QStringList m_systemIncludePathes;

@@ -68,7 +68,6 @@ public:
 protected:
     virtual Utils::Environment readEnvironmentSetting(Utils::Environment& env) const = 0;
     virtual QByteArray msvcPredefinedMacros(const Utils::Environment& env) const;
-    virtual void updateId() = 0;
 
     bool generateEnvironmentSettings(Utils::Environment &env,
                                      const QString& batchFile,
