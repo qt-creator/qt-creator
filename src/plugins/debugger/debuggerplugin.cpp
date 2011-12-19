@@ -3486,6 +3486,7 @@ void DebuggerPluginPrivate::showModuleSymbols(const QString &moduleName,
     const Symbols &symbols)
 {
     QTreeWidget *w = new QTreeWidget;
+    w->setUniformRowHeights(true);
     w->setColumnCount(5);
     w->setRootIsDecorated(false);
     w->setAlternatingRowColors(true);
