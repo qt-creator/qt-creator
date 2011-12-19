@@ -1653,6 +1653,7 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success, con
         if (success) {
             data.type = body.type;
             data.value = body.value.toString();
+            data.hasChildren = body.properties.toList().count();
         } else {
             //Do not set type since it is unknown
             data.setError(body.value.toString());
@@ -1735,7 +1736,6 @@ QVariant QmlV8DebuggerClient::valueFromRef(int handle, const QVariant &refsVal)
 
 void QmlV8DebuggerClient::expandLocalsAndWatchers(const QVariant &bodyVal, const QVariant &refsVal)
 {
-    //FIX THIS
     //    { "seq"         : <number>,
     //      "type"        : "response",
     //      "request_seq" : <number>,
@@ -1778,10 +1778,7 @@ void QmlV8DebuggerClient::expandLocalsAndWatchers(const QVariant &bodyVal, const
                     data.exp = data.name.toLatin1();
                 }
 
-                if (prepend.startsWith("local."))
-                    data.iname = prepend + '.' + data.name.toLatin1();
-                if (prepend.startsWith("watch."))
-                    data.iname = prepend;
+                data.iname = prepend + '.' + data.name.toLatin1();
                 propertyData = valueFromRef(propertyData.value(_(REF)).toInt(),
                                             refsVal).toMap();
                 data.id = propertyData.value(_(HANDLE)).toInt();
