@@ -73,6 +73,20 @@ QStandardItem *itemForClass(const CppClass &cppClass)
     return item;
 }
 
+bool compareCppClassNames(const CppClass &c1, const CppClass &c2)
+{
+    const QString key1 = c1.name() + QLatin1String("::") + c1.qualifiedName();
+    const QString key2 = c2.name() + QLatin1String("::") + c2.qualifiedName();
+    return key1 < key2;
+}
+
+QList<CppClass> sortClasses(const QList<CppClass> &cppClasses)
+{
+    QList<CppClass> sorted = cppClasses;
+    qSort(sorted.begin(), sorted.end(), compareCppClassNames);
+    return sorted;
+}
+
 } // Anonymous
 
 // CppTypeHierarchyWidget
@@ -160,7 +174,7 @@ void CppTypeHierarchyWidget::perform()
 void CppTypeHierarchyWidget::buildBaseHierarchy(QVector<CppClass> *s)
 {
     const CppClass &current = s->back();
-    const QList<CppClass> &bases = current.bases();
+    const QList<CppClass> &bases = sortClasses(current.bases());
     if (!bases.isEmpty()) {
         foreach (const CppClass &base, bases) {
             s->push_back(base);
@@ -181,7 +195,7 @@ void CppTypeHierarchyWidget::buildDerivedHierarchy(const CppClass &cppClass, QSt
 {
     QStandardItem *item = itemForClass(cppClass);
     parent->appendRow(item);
-    foreach (const CppClass &derived, cppClass.derived())
+    foreach (const CppClass &derived, sortClasses(cppClass.derived()))
         buildDerivedHierarchy(derived, item);
     m_treeView->expand(m_model->indexFromItem(parent));
 }
