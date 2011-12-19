@@ -9,6 +9,8 @@ def main():
     if not neededFilePresent(sourceExample):
         return
     startApplication("qtcreator" + SettingsPath)
+    # add docs to have the correct tool tips
+    addHelpDocumentationFromSDK()
     # using a temporary directory won't mess up an eventually exisiting
     workingDir = tempDir()
     prepareTemplate(sourceExample)
@@ -18,6 +20,7 @@ def main():
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     testRenameId()
     testFindUsages()
+    testHovering()
     invokeMenuItem("File", "Exit")
 
 def prepareTemplate(sourceExample):
@@ -78,14 +81,14 @@ def testRenameId():
         test.compare(originalText,formerTxt, "Comparing %s" % file.replace("Core.","").replace("\\",""))
     invokeMenuItem("File","Save All")
 
-def __invokeFindUsage__(treeView, filename, line, typings, expectedCount):
+def __invokeFindUsage__(treeView, filename, line, additionalKeyPresses, expectedCount):
     doubleClickFile(treeView, filename)
     editor = waitForObject("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' "
                        "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
     if not placeCursorToLine(editor, line, True):
         test.fatal("File seems to have changed... Canceling current test")
         return
-    for ty in typings:
+    for ty in additionalKeyPresses:
         type(editor, ty)
     openContextMenuOnTextCursorPosition(editor)
     ctxtMenu = waitForObject("{type='QMenu' visible='1' unnamed='1'}")
@@ -127,6 +130,68 @@ def validateSearchResult(expectedCount):
                        "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
             line = lineUnderCursor(editor)
             test.compare(line, text)
+
+def testHovering():
+    navTree = waitForObject("{type='Utils::NavigationTreeView' unnamed='1' visible='1' "
+                            "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
+    test.log("Testing hovering elements")
+    doubleClickFile(navTree, "focus\\.qml")
+    editor = waitForObject("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' "
+                       "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
+    lines=["FocusScope\s*\{", "Rectangle\s*\{"]
+    if platform.system() == "Darwin":
+        home = "<Ctrl+Left>"
+    else:
+        home = "<Home>"
+    additionalKeyPresses = [home, "<Right>"]
+    expectedTypes = ["TextTip", "TextTip"]
+    expectedValues = [
+                      {'text':'<table><tr><td valign=middle>FocusScope\n<p>The FocusScope object explicitly '
+                       'creates a focus scope.</p></td><td>&nbsp;&nbsp;<img src=":/cppeditor/images/f1.png"></td></tr></table>'},
+                      {'text':'<table><tr><td valign=middle>Rectangle\n<p>The Rectangle item provides a filled rectangle with an '
+                       'optional border.</p></td><td>&nbsp;&nbsp;<img src=":/cppeditor/images/f1.png"></td></tr></table>'}
+                      ]
+    alternativeValues = [{"text":"FocusScope"}, {"text":"Rectangle"}]
+    verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues, alternativeValues)
+    test.log("Testing hovering properties")
+    doubleClickFile(navTree, "focus\\.qml")
+    editor = waitForObject("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' "
+                       "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
+    lines = ['focus:\s*true', 'color:\s*"black"', 'states:\s*State\s*\{', 'transitions:\s*Transition\s*\{']
+    additionalKeyPresses = [home, "<Right>"]
+    expectedTypes = ["TextTip", "TextTip", "TextTip", "TextTip"]
+    expectedValues = [
+                      {'text':'<table><tr><td valign=middle>boolean<p>This property indicates whether the item has focus '
+                       'within the enclosing focus scope. If true, this item will gain active focus when the enclosing '
+                       'focus scope gains active focus. In the following example, <tt>input</tt> will be given active focus '
+                       'when <tt>scope</tt> gains active focus.</p></td><td>&nbsp;&nbsp;<img src=":/cppeditor/images/f1.png"'
+                       '></td></tr></table>'},
+                      {'text':'<table><tr><td valign=middle>string<p>This property holds the color used to fill the rectangle.'
+                       '</p></td><td>&nbsp;&nbsp;<img src=":/cppeditor/images/f1.png"></td></tr></table>'},
+                      {'text':'<table><tr><td valign=middle>State<p>This property holds a list of states defined by the item.'
+                       '</p></td><td>&nbsp;&nbsp;<img src=":/cppeditor/images/f1.png"></td></tr></table>'},
+                      {'text':'<table><tr><td valign=middle>Transition<p>This property holds a list of transitions defined by '
+                       'the item.</p></td><td>&nbsp;&nbsp;<img src=":/cppeditor/images/f1.png"></td></tr></table>'}
+                      ]
+    alternativeValues = [{"text":"boolean"}, {"text":"string"}, {"text":"State"}, {"text":"Transition"}]
+    verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues, alternativeValues)
+    test.log("Testing hovering expressions")
+    doubleClickFile(navTree, "focus\\.qml")
+    editor = waitForObject("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' "
+                       "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
+    lines=['color:\s*"black"', 'color:\s*"#3E606F"']
+    expectedValues = ["black", "#3E606F"]
+    expectedTypes = ["ColorTip", "ColorTip"]
+    additionalKeyPresses = ["<Left>"]
+    verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues)
+    doubleClickFile(navTree, "Core.ListMenu\\.qml")
+    editor = waitForObject("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' "
+                       "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
+    lines=['Rectangle\s*\{.*color:\s*"#D1DBBD"', 'NumberAnimation\s*\{\s*.*Easing.OutQuint\s*\}']
+    additionalKeyPresses = ["<Left>", "<Left>", "<Left>", "<Left>"]
+    expectedTypes = ["ColorTip", "TextTip"]
+    expectedValues = ["#D1DBBD", {"text":"number"}]
+    verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues)
 
 def doubleClickFile(navTree, file):
     global templateDir

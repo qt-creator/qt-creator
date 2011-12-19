@@ -183,3 +183,34 @@ def getOutputFromCmdline(cmdline):
     result = versCall.communicate()[0]
     versCall.stdout.close()
     return result
+
+# add qt.qch from SDK path
+def addHelpDocumentationFromSDK():
+    global sdkPath
+    doc = "%s/Documentation/qt.qch" % sdkPath
+    invokeMenuItem("Tools", "Options...")
+    waitForObjectItem(":Options_QListView", "Help")
+    clickItem(":Options_QListView", "Help", 14, 15, 0, Qt.LeftButton)
+    waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' text='Documentation'}")
+    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Documentation")
+    # get rid of all docs already registered
+    listWidget = waitForObject("{type='QListWidget' name='docsListWidget' visible='1'}")
+    for i in range(listWidget.count):
+        rect = listWidget.visualItemRect(listWidget.item(0))
+        mouseClick(listWidget, rect.x+5, rect.y+5, 0, Qt.LeftButton)
+        mouseClick(waitForObject("{type='QPushButton' name='removeButton' visible='1'}"), 5, 5, 0, Qt.LeftButton)
+    clickButton(waitForObject("{type='QPushButton' name='addButton' visible='1' text='Add...'}"))
+    if platform.system() == "Darwin":
+        snooze(1)
+        nativeType("<Command+Shift+g>")
+        snooze(1)
+        nativeType(doc)
+        snooze(1)
+        nativeType("<Return>")
+        snooze(2)
+        nativeType("<Return>")
+    else:
+        pathLine = waitForObject("{name='fileNameEdit' type='QLineEdit' visible='1'}")
+        replaceEditorContent(pathLine, os.path.abspath(doc))
+        type(pathLine, "<Return>")
+    clickButton(waitForObject(":Options.OK_QPushButton"))
