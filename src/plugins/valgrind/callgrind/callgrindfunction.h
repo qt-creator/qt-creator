@@ -34,6 +34,7 @@
 #define LIBVALGRIND_CALLGRIND_FUNCTION_H
 
 #include <QtCore/QMetaType>
+#include <QtCore/QVector>
 
 namespace Valgrind {
 namespace Callgrind {
