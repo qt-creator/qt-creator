@@ -213,9 +213,7 @@ win32 {
     LIBS += -lole32
 }
 else:macx {
-    OBJECTIVE_SOURCES += progressmanager/progressmanager_mac.mm \
-                         fullscreen.mm
-
+    OBJECTIVE_SOURCES += progressmanager/progressmanager_mac.mm
     LIBS += -framework AppKit
 }
 else:unix {
