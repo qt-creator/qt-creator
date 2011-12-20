@@ -200,7 +200,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
         return true;
 
     const QString oldName = data(this->index(index.row(), 0, QModelIndex())).toString();
-    const QString oldValue = data(this->index(index.row(), 1, QModelIndex())).toString();
+    const QString oldValue = data(this->index(index.row(), 1, QModelIndex()), Qt::EditRole).toString();
     int changesPos = d->findInChanges(oldName);
 
     if (index.column() == 0) {
