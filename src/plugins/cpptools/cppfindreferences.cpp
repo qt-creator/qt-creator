@@ -95,18 +95,26 @@ class ProcessFile: public std::unary_function<QString, QList<Usage> >
     const Snapshot snapshot;
     Document::Ptr symbolDocument;
     Symbol *symbol;
+    QFutureInterface<Usage> *future;
 
 public:
     ProcessFile(const CppModelManagerInterface::WorkingCopy &workingCopy,
                 const Snapshot snapshot,
                 Document::Ptr symbolDocument,
-                Symbol *symbol)
-        : workingCopy(workingCopy), snapshot(snapshot), symbolDocument(symbolDocument), symbol(symbol)
+                Symbol *symbol,
+                QFutureInterface<Usage> *future)
+        : workingCopy(workingCopy),
+          snapshot(snapshot),
+          symbolDocument(symbolDocument),
+          symbol(symbol),
+          future(future)
     { }
 
     QList<Usage> operator()(const QString &fileName)
     {
         QList<Usage> usages;
+        if (future->isCanceled())
+            return usages;
         const Identifier *symbolId = symbol->identifier();
 
         if (Document::Ptr previousDoc = snapshot.document(fileName)) {
@@ -214,9 +222,13 @@ static void find_helper(QFutureInterface<Usage> &future,
 
     future.setProgressRange(0, files.size());
 
-    ProcessFile process(workingCopy, snapshot, context.thisDocument(), symbol);
+    ProcessFile process(workingCopy, snapshot, context.thisDocument(), symbol, &future);
     UpdateUI reduce(&future);
+    // This thread waits for blockingMappedReduced to finish, so reduce the pool's used thread count
+    // so the blockingMappedReduced can use one more thread, and increase it again afterwards.
+    QThreadPool::globalInstance()->releaseThread();
     QtConcurrent::blockingMappedReduced<QList<Usage> > (files, process, reduce);
+    QThreadPool::globalInstance()->reserveThread();
     future.setProgressValue(files.size());
 }
 
@@ -342,17 +354,21 @@ class FindMacroUsesInFile: public std::unary_function<QString, QList<Usage> >
     const CppModelManagerInterface::WorkingCopy workingCopy;
     const Snapshot snapshot;
     const Macro &macro;
+    QFutureInterface<Usage> *future;
 
 public:
     FindMacroUsesInFile(const CppModelManagerInterface::WorkingCopy &workingCopy,
                         const Snapshot snapshot,
-                        const Macro &macro)
-        : workingCopy(workingCopy), snapshot(snapshot), macro(macro)
+                        const Macro &macro,
+                        QFutureInterface<Usage> *future)
+        : workingCopy(workingCopy), snapshot(snapshot), macro(macro), future(future)
     { }
 
     QList<Usage> operator()(const QString &fileName)
     {
         QList<Usage> usages;
+        if (future->isCanceled())
+            return usages;
 
         const Document::Ptr &doc = snapshot.document(fileName);
         QByteArray source;
@@ -421,10 +437,13 @@ static void findMacroUses_helper(QFutureInterface<Usage> &future,
 
     future.setProgressRange(0, files.size());
 
-    FindMacroUsesInFile process(workingCopy, snapshot, macro);
+    FindMacroUsesInFile process(workingCopy, snapshot, macro, &future);
     UpdateUI reduce(&future);
+    // This thread waits for blockingMappedReduced to finish, so reduce the pool's used thread count
+    // so the blockingMappedReduced can use one more thread, and increase it again afterwards.
+    QThreadPool::globalInstance()->releaseThread();
     QtConcurrent::blockingMappedReduced<QList<Usage> > (files, process, reduce);
-
+    QThreadPool::globalInstance()->reserveThread();
     future.setProgressValue(files.size());
 }
 
