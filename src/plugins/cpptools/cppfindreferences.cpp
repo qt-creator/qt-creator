@@ -511,9 +511,9 @@ void CppFindReferences::setDependencyTable(const CPlusPlus::DependencyTable &new
 void CppFindReferences::createWatcher(const QFuture<Usage> &future, Find::SearchResult *search)
 {
     QFutureWatcher<Usage> *watcher = new QFutureWatcher<Usage>();
-    watcher->setFuture(future);
     watcher->setPendingResultsLimit(1);
     connect(watcher, SIGNAL(resultsReadyAt(int,int)), this, SLOT(displayResults(int,int)));
     connect(watcher, SIGNAL(finished()), this, SLOT(searchFinished()));
     m_watchers.insert(watcher, search);
+    watcher->setFuture(future);
 }
