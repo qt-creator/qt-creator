@@ -652,8 +652,7 @@ const QtInfo &QtInfo::get(const SymbolGroupValueContext &ctx)
     rc.qObjectPrivateType = rc.prependQtCoreModule("QObjectPrivate");
     rc.qWindowPrivateType = rc.prependQtGuiModule("QWindowPrivate");
     rc.qWidgetPrivateType =
-        rc.prependQtModule("QWidgetPrivate",
-                           rc.version >= 5 &&  qt5WidgetSplit ? Widgets : Gui);
+        rc.prependQtModule("QWidgetPrivate", rc.version >= 5 ? Widgets : Gui);
     if (SymbolGroupValue::verbose)
         DebugPrint() << rc;
     return rc;

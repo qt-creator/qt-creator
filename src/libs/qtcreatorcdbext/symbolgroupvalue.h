@@ -171,8 +171,6 @@ std::ostream &operator<<(std::ostream &, const SymbolGroupValue &v);
 
 struct QtInfo
 {
-    enum { qt5WidgetSplit = 0 };
-
     enum Module
     {
         Core, Gui, Widgets, Network, Script

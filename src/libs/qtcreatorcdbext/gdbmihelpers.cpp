@@ -636,8 +636,7 @@ std::string widgetAt(const SymbolGroupValueContext &ctx, int x, int y, std::stri
     const QtInfo &qtInfo = QtInfo::get(ctx);
     const std::string func =
         qtInfo.prependQtModule("QApplication::widgetAt",
-                               qtInfo.version >= 5 && QtInfo::qt5WidgetSplit ?
-                               QtInfo::Widgets : QtInfo::Gui);
+                               qtInfo.version >= 5 ? QtInfo::Widgets : QtInfo::Gui);
     const SymbolList symbols = SymbolGroupValue::resolveSymbol(func.c_str(), ctx, errorMessage);
     if (symbols.empty())
         return std::string(); // Not a gui application, likely
