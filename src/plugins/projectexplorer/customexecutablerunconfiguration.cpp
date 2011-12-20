@@ -128,9 +128,12 @@ QString CustomExecutableRunConfiguration::executable() const
 
     if (exec.isEmpty() || !QFileInfo(exec).exists()) {
         // Oh the executable doesn't exists, ask the user.
-        QWidget *confWidget = const_cast<CustomExecutableRunConfiguration *>(this)->createConfigurationWidget();
+        CustomExecutableRunConfiguration *that = const_cast<CustomExecutableRunConfiguration *>(this);
+        QWidget *confWidget = that->createConfigurationWidget();
         confWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
         QDialog dialog(Core::ICore::instance()->mainWindow());
+        dialog.setWindowTitle(displayName());
+        dialog.setWindowFlags(dialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
         dialog.setLayout(new QVBoxLayout());
         QLabel *label = new QLabel(tr("Could not find the executable, please specify one."));
         label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
@@ -146,14 +149,18 @@ QString CustomExecutableRunConfiguration::executable() const
         QString oldWorkingDirectory = m_workingDirectory;
         QString oldCmdArguments = m_cmdArguments;
 
-        if (dialog.exec()) {
+        if (dialog.exec() == QDialog::Accepted) {
             return executable();
         } else {
-            CustomExecutableRunConfiguration *that = const_cast<CustomExecutableRunConfiguration *>(this);
-            that->m_executable = oldExecutable;
-            that->m_workingDirectory = oldWorkingDirectory;
-            that->m_cmdArguments = oldCmdArguments;
-            emit that->changed();
+            // Restore values changed by the configuration widget.
+            if (that->m_executable != oldExecutable
+                || that->m_workingDirectory != oldWorkingDirectory
+                || that->m_cmdArguments != oldCmdArguments) {
+                that->m_executable = oldExecutable;
+                that->m_workingDirectory = oldWorkingDirectory;
+                that->m_cmdArguments = oldCmdArguments;
+                emit that->changed();
+            }
             return QString();
         }
     }

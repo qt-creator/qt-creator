@@ -717,7 +717,6 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
             qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
     QTC_ASSERT(rc, return sp);
 
-    sp.startMode = StartInternal;
     sp.environment = rc->environment();
     sp.workingDirectory = rc->workingDirectory();
 
@@ -727,6 +726,9 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
 #endif
 
     sp.executable = rc->executable();
+    if (sp.executable.isEmpty())
+        return sp;
+    sp.startMode = StartInternal;
     sp.processArgs = rc->commandLineArguments();
     sp.toolChainAbi = rc->abi();
     if (!sp.toolChainAbi.isValid()) {
@@ -784,6 +786,8 @@ RunControl *DebuggerRunControlFactory::create
 {
     QTC_ASSERT(mode == Constants::DEBUGMODE || mode == Constants::DEBUGMODE2, return 0);
     DebuggerStartParameters sp = localStartParameters(runConfiguration);
+    if (sp.startMode == NoStartMode)
+        return 0;
     if (mode == Constants::DEBUGMODE2)
         sp.breakOnMain = true;
     return create(sp, runConfiguration);

@@ -67,7 +67,11 @@ QString LocalApplicationRunControlFactory::displayName() const
 RunControl *LocalApplicationRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
-    return new LocalApplicationRunControl(qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration), mode);
+    LocalApplicationRunConfiguration *localRunConfiguration = qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
+    // Force the dialog about executables at this point and fail if there is none
+    if (localRunConfiguration->executable().isEmpty())
+        return 0;
+    return new LocalApplicationRunControl(localRunConfiguration, mode);
 }
 
 RunConfigWidget *LocalApplicationRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
