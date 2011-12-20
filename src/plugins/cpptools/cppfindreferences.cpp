@@ -122,14 +122,13 @@ public:
             if (! control->findIdentifier(symbolId->chars(), symbolId->size()))
                 return usages; // skip this document, it's not using symbolId.
         }
-
         Document::Ptr doc;
         QByteArray source;
         const QString unpreprocessedSource = getSource(fileName, workingCopy);
 
-        if (symbolDocument && fileName == symbolDocument->fileName())
+        if (symbolDocument && fileName == symbolDocument->fileName()) {
             doc = symbolDocument;
-        else {
+        } else {
             source = snapshot.preprocessedCode(unpreprocessedSource, fileName);
             doc = snapshot.documentFromSource(source, fileName);
             doc->tokenize();
@@ -232,14 +231,34 @@ static void find_helper(QFutureInterface<Usage> &future,
     future.setProgressValue(files.size());
 }
 
-void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context)
+void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
+                                   const CPlusPlus::LookupContext &context)
+{
+    findUsages(symbol, context, QString(), false);
+}
+
+void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
+                                   const CPlusPlus::LookupContext &context,
+                                   const QString &replacement,
+                                   bool replace)
 {
     Overview overview;
     Find::SearchResult *search = Find::SearchResultWindow::instance()->startNewSearch(tr("C++ Usages:"),
                                                 QString(),
                                                 overview(context.fullyQualifiedName(symbol)),
-                                                Find::SearchResultWindow::SearchOnly);
-    findAll_helper(search, symbol, context);
+                                                replace ? Find::SearchResultWindow::SearchAndReplace
+                                                        : Find::SearchResultWindow::SearchOnly,
+                                                QLatin1String("CppEditor"));
+    search->setTextToReplace(replacement);
+    connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
+            SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
+    search->setSearchAgainSupported(true);
+    connect(search, SIGNAL(searchAgainRequested()), this, SLOT(searchAgain()));
+    CppFindReferencesParameters parameters;
+    parameters.context = context;
+    parameters.symbol = symbol;
+    search->setUserData(qVariantFromValue(parameters));
+    findAll_helper(search);
 }
 
 void CppFindReferences::renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
@@ -248,26 +267,14 @@ void CppFindReferences::renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus:
     if (const Identifier *id = symbol->identifier()) {
         const QString textToReplace = replacement.isEmpty()
                 ? QString::fromUtf8(id->chars(), id->size()) : replacement;
-
-        Overview overview;
-        Find::SearchResult *search = Find::SearchResultWindow::instance()->startNewSearch(
-                    tr("C++ Usages:"),
-                    QString(),
-                    overview(context.fullyQualifiedName(symbol)),
-                    Find::SearchResultWindow::SearchAndReplace, QLatin1String("CppEditor"));
-        search->setTextToReplace(textToReplace);
-
-        connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
-                SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
-
-        findAll_helper(search, symbol, context);
+        findUsages(symbol, context, textToReplace, true);
     }
 }
 
-void CppFindReferences::findAll_helper(Find::SearchResult *search,
-                                       Symbol *symbol, const LookupContext &context)
+void CppFindReferences::findAll_helper(Find::SearchResult *search)
 {
-    if (! (symbol && symbol->identifier())) {
+    CppFindReferencesParameters parameters = search->userData().value<CppFindReferencesParameters>();
+    if (!(parameters.symbol && parameters.symbol->identifier())) {
         search->finishSearch();
         return;
     }
@@ -278,7 +285,8 @@ void CppFindReferences::findAll_helper(Find::SearchResult *search,
     Find::SearchResultWindow::instance()->popup(true);
     const CppModelManagerInterface::WorkingCopy workingCopy = _modelManager->workingCopy();
     QFuture<Usage> result;
-    result = QtConcurrent::run(&find_helper, workingCopy, context, this, symbol);
+    result = QtConcurrent::run(&find_helper, workingCopy,
+                               parameters.context, this, parameters.symbol);
     createWatcher(result, search);
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
@@ -296,6 +304,174 @@ void CppFindReferences::onReplaceButtonClicked(const QString &text,
         _modelManager->updateSourceFiles(fileNames);
         Find::SearchResultWindow::instance()->hide();
     }
+}
+
+void CppFindReferences::searchAgain()
+{
+    Find::SearchResult *search = qobject_cast<Find::SearchResult *>(sender());
+    CppFindReferencesParameters parameters = search->userData().value<CppFindReferencesParameters>();
+    Snapshot snapshot = CppModelManagerInterface::instance()->snapshot();
+    search->reset();
+    if (!findSymbol(&parameters, snapshot)) {
+        search->finishSearch();
+        return;
+    }
+    search->setUserData(qVariantFromValue(parameters));
+    findAll_helper(search);
+}
+
+static QByteArray typeId(Symbol *symbol)
+{
+    if (symbol->asEnum()) {
+        return QByteArray("e");
+    } else if (symbol->asFunction()) {
+        return QByteArray("f");
+    } else if (symbol->asNamespace()) {
+        return QByteArray("n");
+    } else if (symbol->asTemplate()) {
+        return QByteArray("t");
+    } else if (symbol->asNamespaceAlias()) {
+        return QByteArray("na");
+    } else if (symbol->asClass()) {
+        return QByteArray("c");
+    } else if (symbol->asBlock()) {
+        return QByteArray("b");
+    } else if (symbol->asUsingNamespaceDirective()) {
+        return QByteArray("u");
+    } else if (symbol->asUsingDeclaration()) {
+        return QByteArray("ud");
+    } else if (symbol->asDeclaration()) {
+        QByteArray temp("d,");
+        Overview pretty;
+        temp.append(pretty.prettyType(symbol->type()).toLatin1());
+        return temp;
+    } else if (symbol->asArgument()) {
+        return QByteArray("a");
+    } else if (symbol->asTypenameArgument()) {
+        return QByteArray("ta");
+    } else if (symbol->asBaseClass()) {
+        return QByteArray("bc");
+    } else if (symbol->asForwardClassDeclaration()) {
+        return QByteArray("fcd");
+    } else if (symbol->asQtPropertyDeclaration()) {
+        return QByteArray("qpd");
+    } else if (symbol->asQtEnum()) {
+        return QByteArray("qe");
+    } else if (symbol->asObjCBaseClass()) {
+        return QByteArray("ocbc");
+    } else if (symbol->asObjCBaseProtocol()) {
+        return QByteArray("ocbp");
+    } else if (symbol->asObjCClass()) {
+        return QByteArray("occ");
+    } else if (symbol->asObjCForwardClassDeclaration()) {
+        return QByteArray("ocfd");
+    } else if (symbol->asObjCProtocol()) {
+        return QByteArray("ocp");
+    } else if (symbol->asObjCForwardProtocolDeclaration()) {
+        return QByteArray("ocfpd");
+    } else if (symbol->asObjCMethod()) {
+        return QByteArray("ocm");
+    } else if (symbol->asObjCPropertyDeclaration()) {
+        return QByteArray("ocpd");
+    }
+    return QByteArray("unknown");
+}
+
+static QByteArray idForSymbol(Symbol *symbol)
+{
+    QByteArray uid(typeId(symbol));
+    if (const Identifier *id = symbol->identifier()) {
+        uid.append("|");
+        uid.append(QByteArray(id->chars(), id->size()));
+    } else if (Scope *scope = symbol->enclosingScope()) {
+        // add the index of this symbol within its enclosing scope
+        // (counting symbols without identifier of the same type)
+        int count = 0;
+        Scope::iterator it = scope->firstMember();
+        while (it != scope->lastMember() && *it != symbol) {
+            Symbol *val = *it;
+            ++it;
+            if (val->identifier() || typeId(val) != uid)
+                continue;
+            ++count;
+        }
+        uid.append(QString::number(count).toLocal8Bit());
+    }
+    return uid;
+}
+
+namespace {
+class SymbolFinder : public SymbolVisitor
+{
+public:
+    SymbolFinder(const QStringList &uid) : m_uid(uid), m_index(0), m_result(0) { }
+    Symbol *result() const { return m_result; }
+
+    bool preVisit(Symbol *symbol)
+    {
+        if (m_result)
+            return false;
+        int index = m_index;
+        if (symbol->asScope())
+            ++m_index;
+        if (index >= m_uid.size())
+            return false;
+        if (idForSymbol(symbol) != m_uid.at(index))
+            return false;
+        if (index == m_uid.size() - 1) {
+            // symbol found
+            m_result = symbol;
+            return false;
+        }
+        return true;
+    }
+
+    void postVisit(Symbol *symbol)
+    {
+        if (symbol->asScope())
+            --m_index;
+    }
+
+private:
+    QStringList m_uid;
+    int m_index;
+    Symbol *m_result;
+};
+}
+
+bool CppFindReferences::findSymbol(CppFindReferencesParameters *parameters,
+                                      const Snapshot &snapshot)
+{
+    QString symbolFile = QLatin1String(parameters->symbol->fileName());
+    if (!snapshot.contains(symbolFile)) {
+        return false;
+    }
+
+    Document::Ptr newSymbolDocument = snapshot.document(symbolFile);
+    // document is not parsed and has no bindings yet, do it
+    QString source = getSource(newSymbolDocument->fileName(), _modelManager->workingCopy());
+    const QByteArray &preprocessedCode =
+            snapshot.preprocessedCode(source, newSymbolDocument->fileName());
+    Document::Ptr doc =
+            snapshot.documentFromSource(preprocessedCode, newSymbolDocument->fileName());
+    doc->check();
+
+    // construct id of old symbol
+    QStringList uid;
+    Symbol *current = parameters->symbol;
+    do {
+        uid.prepend(idForSymbol(current));
+        current = current->enclosingScope();
+    } while (current);
+    // find matching symbol in new document and return the new parameters
+    SymbolFinder finder(uid);
+    finder.accept(doc->globalNamespace());
+    if (finder.result()) {
+        parameters->symbol = finder.result();
+        parameters->context = LookupContext(doc, snapshot);
+        return true;
+    }
+    return false;
 }
 
 void CppFindReferences::displayResults(int first, int last)

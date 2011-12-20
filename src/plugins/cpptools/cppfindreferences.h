@@ -58,6 +58,13 @@ class CppModelManagerInterface;
 namespace CppTools {
 namespace Internal {
 
+class CppFindReferencesParameters
+{
+public:
+    CPlusPlus::LookupContext context;
+    CPlusPlus::Symbol *symbol;
+};
+
 class CppFindReferences: public QObject
 {
     Q_OBJECT
@@ -83,13 +90,17 @@ private Q_SLOTS:
     void cancel();
     void openEditor(const Find::SearchResultItem &item);
     void onReplaceButtonClicked(const QString &text, const QList<Find::SearchResultItem> &items);
+    void searchAgain();
 
 private:
-    void findAll_helper(Find::SearchResult *search,
-                        CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
+    void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
+                    const QString &replacement, bool replace);
+    void findAll_helper(Find::SearchResult *search);
     CPlusPlus::DependencyTable dependencyTable() const;
     void setDependencyTable(const CPlusPlus::DependencyTable &newTable);
     void createWatcher(const QFuture<CPlusPlus::Usage> &future, Find::SearchResult *search);
+    bool findSymbol(CppFindReferencesParameters *parameters,
+                    const CPlusPlus::Snapshot &snapshot);
 
 private:
     QPointer<CPlusPlus::CppModelManagerInterface> _modelManager;
@@ -101,5 +112,7 @@ private:
 
 } // namespace Internal
 } // namespace CppTools
+
+Q_DECLARE_METATYPE(CppTools::Internal::CppFindReferencesParameters)
 
 #endif // CPPFINDREFERENCES_H
