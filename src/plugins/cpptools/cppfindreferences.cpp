@@ -39,6 +39,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/filesearch.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -163,9 +164,6 @@ CppFindReferences::CppFindReferences(CppModelManagerInterface *modelManager)
     : QObject(modelManager),
       _modelManager(modelManager)
 {
-    m_watcher.setPendingResultsLimit(1);
-    connect(&m_watcher, SIGNAL(resultsReadyAt(int,int)), this, SLOT(displayResults(int,int)));
-    connect(&m_watcher, SIGNAL(finished()), this, SLOT(searchFinished()));
 }
 
 CppFindReferences::~CppFindReferences()
@@ -218,23 +216,18 @@ static void find_helper(QFutureInterface<Usage> &future,
 
     ProcessFile process(workingCopy, snapshot, context.thisDocument(), symbol);
     UpdateUI reduce(&future);
-
     QtConcurrent::blockingMappedReduced<QList<Usage> > (files, process, reduce);
-
     future.setProgressValue(files.size());
 }
 
 void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context)
 {
     Overview overview;
-    m_currentSearch = Find::SearchResultWindow::instance()->startNewSearch(tr("C++ Usages:"),
+    Find::SearchResult *search = Find::SearchResultWindow::instance()->startNewSearch(tr("C++ Usages:"),
                                                 QString(),
                                                 overview(context.fullyQualifiedName(symbol)),
                                                 Find::SearchResultWindow::SearchOnly);
-    connect(m_currentSearch, SIGNAL(activated(Find::SearchResultItem)),
-            this, SLOT(openEditor(Find::SearchResultItem)));
-
-    findAll_helper(symbol, context);
+    findAll_helper(search, symbol, context);
 }
 
 void CppFindReferences::renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
@@ -245,39 +238,38 @@ void CppFindReferences::renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus:
                 ? QString::fromUtf8(id->chars(), id->size()) : replacement;
 
         Overview overview;
-        m_currentSearch = Find::SearchResultWindow::instance()->startNewSearch(
+        Find::SearchResult *search = Find::SearchResultWindow::instance()->startNewSearch(
                     tr("C++ Usages:"),
                     QString(),
                     overview(context.fullyQualifiedName(symbol)),
                     Find::SearchResultWindow::SearchAndReplace, QLatin1String("CppEditor"));
-        m_currentSearch->setTextToReplace(textToReplace);
+        search->setTextToReplace(textToReplace);
 
-        connect(m_currentSearch, SIGNAL(activated(Find::SearchResultItem)),
-                this, SLOT(openEditor(Find::SearchResultItem)));
-
-        connect(m_currentSearch, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
+        connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
                 SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
 
-        findAll_helper(symbol, context);
+        findAll_helper(search, symbol, context);
     }
 }
 
-void CppFindReferences::findAll_helper(Symbol *symbol, const LookupContext &context)
+void CppFindReferences::findAll_helper(Find::SearchResult *search,
+                                       Symbol *symbol, const LookupContext &context)
 {
-    if (! (symbol && symbol->identifier()))
+    if (! (symbol && symbol->identifier())) {
+        search->finishSearch();
         return;
+    }
+    connect(search, SIGNAL(cancelled()), this, SLOT(cancel()));
+    connect(search, SIGNAL(activated(Find::SearchResultItem)),
+            this, SLOT(openEditor(Find::SearchResultItem)));
 
     Find::SearchResultWindow::instance()->popup(true);
-
     const CppModelManagerInterface::WorkingCopy workingCopy = _modelManager->workingCopy();
+    QFuture<Usage> result;
+    result = QtConcurrent::run(&find_helper, workingCopy, context, this, symbol);
+    createWatcher(result, search);
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
-
-    QFuture<Usage> result;
-
-    result = QtConcurrent::run(&find_helper, workingCopy, context, this, symbol);
-    m_watcher.setFuture(result);
-    connect(m_currentSearch, SIGNAL(cancelled()), this, SLOT(cancel()));
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching"),
                                                               CppTools::Constants::TASK_SEARCH);
 
@@ -296,31 +288,39 @@ void CppFindReferences::onReplaceButtonClicked(const QString &text,
 
 void CppFindReferences::displayResults(int first, int last)
 {
-    if (!m_currentSearch) {
-        m_watcher.cancel();
+    QFutureWatcher<Usage> *watcher = static_cast<QFutureWatcher<Usage> *>(sender());
+    Find::SearchResult *search = m_watchers.value(watcher);
+    if (!search) {
+        // search was deleted while it was running
+        watcher->cancel();
         return;
     }
     for (int index = first; index != last; ++index) {
-        Usage result = m_watcher.future().resultAt(index);
-        m_currentSearch->addResult(result.path,
-                                 result.line,
-                                 result.lineText,
-                                 result.col,
-                                 result.len);
+        Usage result = watcher->future().resultAt(index);
+        search->addResult(result.path,
+                          result.line,
+                          result.lineText,
+                          result.col,
+                          result.len);
     }
 }
 
 void CppFindReferences::searchFinished()
 {
-    if (m_currentSearch)
-        m_currentSearch->finishSearch();
-    m_currentSearch = 0;
-    emit changed();
+    QFutureWatcher<Usage> *watcher = static_cast<QFutureWatcher<Usage> *>(sender());
+    Find::SearchResult *search = m_watchers.value(watcher);
+    if (search)
+        search->finishSearch();
+    m_watchers.remove(watcher);
 }
 
 void CppFindReferences::cancel()
 {
-    m_watcher.cancel();
+    Find::SearchResult *search = qobject_cast<Find::SearchResult *>(sender());
+    QTC_ASSERT(search, return);
+    QFutureWatcher<Usage> *watcher = m_watchers.key(search);
+    QTC_ASSERT(watcher, return);
+    watcher->cancel();
 }
 
 void CppFindReferences::openEditor(const Find::SearchResultItem &item)
@@ -430,7 +430,7 @@ static void findMacroUses_helper(QFutureInterface<Usage> &future,
 
 void CppFindReferences::findMacroUses(const Macro &macro)
 {
-    m_currentSearch = Find::SearchResultWindow::instance()->startNewSearch(
+    Find::SearchResult *search = Find::SearchResultWindow::instance()->startNewSearch(
                 tr("C++ Macro Usages:"),
                 QString(),
                 macro.name(),
@@ -438,8 +438,9 @@ void CppFindReferences::findMacroUses(const Macro &macro)
 
     Find::SearchResultWindow::instance()->popup(true);
 
-    connect(m_currentSearch, SIGNAL(activated(Find::SearchResultItem)),
+    connect(search, SIGNAL(activated(Find::SearchResultItem)),
             this, SLOT(openEditor(Find::SearchResultItem)));
+    connect(search, SIGNAL(cancelled()), this, SLOT(cancel()));
 
     const Snapshot snapshot = _modelManager->snapshot();
     const CppModelManagerInterface::WorkingCopy workingCopy = _modelManager->workingCopy();
@@ -448,14 +449,13 @@ void CppFindReferences::findMacroUses(const Macro &macro)
     {
         // ### FIXME: Encoding?
         const QByteArray &source = getSource(macro.fileName(), workingCopy).toLatin1();
-        m_currentSearch->addResult(macro.fileName(), macro.line(),
-                                 source.mid(macro.offset(), macro.length()), 0, macro.length());
+        search->addResult(macro.fileName(), macro.line(),
+                          source.mid(macro.offset(), macro.length()), 0, macro.length());
     }
 
     QFuture<Usage> result;
     result = QtConcurrent::run(&findMacroUses_helper, workingCopy, snapshot, this, macro);
-    m_watcher.setFuture(result);
-    connect(m_currentSearch, SIGNAL(cancelled()), this, SLOT(cancel()));
+    createWatcher(result, search);
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching"),
@@ -487,4 +487,14 @@ void CppFindReferences::setDependencyTable(const CPlusPlus::DependencyTable &new
     QMutexLocker locker(&m_depsLock);
     Q_UNUSED(locker);
     m_deps = newTable;
+}
+
+void CppFindReferences::createWatcher(const QFuture<Usage> &future, Find::SearchResult *search)
+{
+    QFutureWatcher<Usage> *watcher = new QFutureWatcher<Usage>();
+    watcher->setFuture(future);
+    watcher->setPendingResultsLimit(1);
+    connect(watcher, SIGNAL(resultsReadyAt(int,int)), this, SLOT(displayResults(int,int)));
+    connect(watcher, SIGNAL(finished()), this, SLOT(searchFinished()));
+    m_watchers.insert(watcher, search);
 }

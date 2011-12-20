@@ -68,9 +68,6 @@ public:
 
     QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context) const;
 
-Q_SIGNALS:
-    void changed();
-
 public:
     void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
     void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
@@ -88,14 +85,15 @@ private Q_SLOTS:
     void onReplaceButtonClicked(const QString &text, const QList<Find::SearchResultItem> &items);
 
 private:
-    void findAll_helper(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
+    void findAll_helper(Find::SearchResult *search,
+                        CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
     CPlusPlus::DependencyTable dependencyTable() const;
     void setDependencyTable(const CPlusPlus::DependencyTable &newTable);
+    void createWatcher(const QFuture<CPlusPlus::Usage> &future, Find::SearchResult *search);
 
 private:
     QPointer<CPlusPlus::CppModelManagerInterface> _modelManager;
-    QPointer<Find::SearchResult> m_currentSearch;
-    QFutureWatcher<CPlusPlus::Usage> m_watcher;
+    QMap<QFutureWatcher<CPlusPlus::Usage> *, QPointer<Find::SearchResult> > m_watchers;
 
     mutable QMutex m_depsLock;
     CPlusPlus::DependencyTable m_deps;
