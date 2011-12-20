@@ -701,8 +701,8 @@ void QmlProfilerEventList::compileStatistics(qint64 startTime, qint64 endTime)
             continue;
         }
 
-        if (eventDescription->eventType == QmlJsDebugClient::Painting && d->m_startTimeSortedList[index].animationCount >=0) {
-            // skip animation events
+        if (eventDescription->eventType == QmlJsDebugClient::Painting) {
+            // skip animation/paint events
             continue;
         }
 
