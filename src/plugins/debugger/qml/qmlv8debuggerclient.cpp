@@ -1284,7 +1284,7 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                     //                  "type"              : "response",
                     //                  "request_seq" : <number>,
                     //                  "command"     : "setexceptionbreak",
-                    //                  “body”        : { "type"    : <string: "all" or "uncaught" corresponding to the request.>,
+                    //                  "body"        : { "type"    : <string: "all" or "uncaught" corresponding to the request.>,
                     //                                    "enabled" : <bool: true if the break type is currently enabled as a result of the request>
                     //                                  }
                     //                  "running"     : true
