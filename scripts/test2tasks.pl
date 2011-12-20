@@ -36,6 +36,8 @@ find({ wanted => \& handleFile}, '.');
 #     from the above lines as task entry.
 
 my $lastLine = '';
+my ($failCount, $fatalCount) = (0, 0);
+
 while (my $line = <STDIN> ) {
     chomp($line);
     # --- Continuation line?
@@ -59,6 +61,14 @@ while (my $line = <STDIN> ) {
         }
         my $type = index($lastLine, 'FAIL') == 0 ? 'err' : 'unknown';
         print $fullFileName, "\t", $line, "\t", $type, "\t", $lastLine,"\n";
+        $failCount++;
+    } else {
+        if (index($line, 'QFATAL') == 0 || index($line, 'Received a fatal error.') >= 0) {
+            print STDERR $line,"\n";
+            $fatalCount++;
+        }
     }
     $lastLine = $line;
 }
+
+print STDERR 'Done, FAIL: ',$failCount, ', FATAL: ',$fatalCount, "\n";
