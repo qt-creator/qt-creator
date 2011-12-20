@@ -97,6 +97,7 @@ public slots:
     void clear();
     void onStateChanged(QmlJsDebugClient::QDeclarativeDebugQuery::State);
     void onSelectionChanged();
+    void insertDebugOutput(QtMsgType type, const QString &debugMsg);
 
 protected:
     void keyPressEvent(QKeyEvent *e);

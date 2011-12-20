@@ -42,6 +42,7 @@
 namespace QmlJsDebugClient {
 class QDeclarativeEngineDebug;
 class QDeclarativeDebugConnection;
+class QDebugMessageClient;
 }
 
 namespace Debugger {
@@ -77,6 +78,8 @@ public:
     QmlJsDebugClient::QDeclarativeEngineDebug *engineDebugClient() const;
     void setEngineDebugClient(QmlJsDebugClient::QDeclarativeEngineDebug *client);
 
+    QDebugMessageClient *messageClient() const;
+
     int currentSelectedDebugId() const;
     QString currentSelectedDisplayName() const;
     void setCurrentSelectedDebugInfo(int debugId, const QString &displayName = QString());
@@ -96,6 +99,7 @@ signals:
 private slots:
     void connectionErrorOccurred(QAbstractSocket::SocketError socketError);
     void clientStatusChanged(QDeclarativeDebugClient::Status status);
+    void debugClientStatusChanged(QDeclarativeDebugClient::Status status);
     void connectionStateChanged();
     void checkConnectionState();
 
