@@ -102,5 +102,21 @@ bool isOwnershipRAIIType(CPlusPlus::Symbol *symbol, const LookupContext &context
     return false;
 }
 
+bool isValidIdentifier(const QString &s)
+{
+    const int length = s.length();
+    for (int i = 0; i < length; ++i) {
+        const QChar &c = s.at(i);
+        if (i == 0) {
+            if (!c.isLetter() && c != QLatin1Char('_'))
+                return false;
+        } else {
+            if (!c.isLetterOrNumber() && c != QLatin1Char('_'))
+                return false;
+        }
+    }
+    return true;
+}
+
 
 } // CppTools

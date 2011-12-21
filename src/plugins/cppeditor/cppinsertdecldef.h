@@ -35,12 +35,6 @@
 
 #include "cppquickfix.h"
 
-#include <CPlusPlusForwardDeclarations.h>
-
-namespace CPlusPlus {
-class ClassOrNamespace;
-} // namespace CPlusPlus
-
 namespace CppEditor {
 namespace Internal {
 
@@ -49,11 +43,6 @@ class DeclFromDef: public CppQuickFixFactory
 public:
     virtual QList<CppQuickFixOperation::Ptr>
         match(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface);
-
-protected:
-    static QString generateDeclaration(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface,
-                                       CPlusPlus::Function *method,
-                                       CPlusPlus::ClassOrNamespace *targetBinding);
 };
 
 class DefFromDecl: public CppQuickFixFactory
@@ -62,6 +51,13 @@ public:
     virtual QList<CppQuickFixOperation::Ptr>
         match(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface);
 };
+
+class ExtractFunction : public CppQuickFixFactory
+{
+    virtual QList<CppQuickFixOperation::Ptr>
+        match(const QSharedPointer<const CppQuickFixAssistInterface> &interface);
+};
+
 
 } // namespace Internal
 } // namespace CppEditor

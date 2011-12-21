@@ -1948,6 +1948,7 @@ private:
     };
 };
 
+
 } // end of anonymous namespace
 
 void registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
@@ -1973,4 +1974,5 @@ void registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
     plugIn->addAutoReleasedObject(new DefFromDecl);
     plugIn->addAutoReleasedObject(new ApplyDeclDefLinkChanges);
     plugIn->addAutoReleasedObject(new IncludeAdder);
+    plugIn->addAutoReleasedObject(new ExtractFunction);
 }

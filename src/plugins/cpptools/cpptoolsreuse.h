@@ -49,6 +49,8 @@ void CPPTOOLS_EXPORT moveCursorToEndOfIdentifier(QTextCursor *tc);
 bool CPPTOOLS_EXPORT isOwnershipRAIIType(CPlusPlus::Symbol *symbol,
                                          const CPlusPlus::LookupContext &context);
 
+bool CPPTOOLS_EXPORT isValidIdentifier(const QString &s);
+
 } // CppTools
 
 #endif // CPPTOOLSREUSE_H
