@@ -404,11 +404,11 @@ Utils::FileName GccToolChain::mkspec() const
     if (abi.os() == Abi::MacOS) {
         QString v = version();
         // prefer versioned g++ on mac. This is required to enable building for older Mac OS versions
-        if (v.startsWith(QLatin1String("4.0")))
-            return Utils::FileName::fromString("macx-g++40");
-        if (v.startsWith(QLatin1String("4.2")))
-            return Utils::FileName::fromString("macx-g++42");
-        return Utils::FileName::fromString("macx-g++");
+        if (v.startsWith(QLatin1String("4.0")) && m_compilerPath.endsWith(QLatin1String("-4.0")))
+            return Utils::FileName::fromString(QLatin1String("macx-g++40"));
+        if (v.startsWith(QLatin1String("4.2")) && m_compilerPath.endsWith(QLatin1String("-4.2")))
+            return Utils::FileName::fromString(QLatin1String("macx-g++42"));
+        return Utils::FileName::fromString(QLatin1String("macx-g++"));
     }
 
     QList<Abi> gccAbiList = Abi::abisOfBinary(m_compilerPath);
