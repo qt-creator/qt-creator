@@ -348,23 +348,27 @@ void QmlEngine::gotoLocation(const Location &location)
     // TODO: QUrl::isLocalFile() once we depend on Qt 4.8
     if (QUrl(fileName).scheme().compare(QLatin1String("file"), Qt::CaseInsensitive) == 0) {
         // internal file from source files -> show generated .js
-        QString fileName = location.fileName();
         QTC_ASSERT(d->m_sourceDocuments.contains(fileName), return);
         const QString jsSource = d->m_sourceDocuments.value(fileName)->toPlainText();
 
         Core::IEditor *editor = 0;
 
         Core::EditorManager *editorManager = Core::EditorManager::instance();
-        QList<Core::IEditor *> editors = editorManager->editorsForFileName(location.fileName());
-        if (editors.isEmpty()) {
-            QString titlePattern = tr("JS Source for %1").arg(fileName);
+        QString titlePattern = tr("JS Source for %1").arg(fileName);
+        //Check if there are open editors with the same title
+        QList<Core::IEditor *> editors = editorManager->openedEditors();
+        foreach (Core::IEditor *ed, editors) {
+            if (ed->displayName() == titlePattern) {
+                editor = ed;
+                break;
+            }
+        }
+        if (!editor) {
             editor = editorManager->openEditorWithContents(QmlJSEditor::Constants::C_QMLJSEDITOR_ID,
                                                            &titlePattern);
             if (editor) {
                 editor->setProperty(Constants::OPENED_BY_DEBUGGER, true);
             }
-        } else {
-            editor = editors.back();
         }
 
         TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
