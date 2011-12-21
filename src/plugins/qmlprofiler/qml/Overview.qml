@@ -87,10 +87,10 @@ Canvas2D {
 
     // ***** slots
     onDrawRegion: {
-        if (dataAvailable)
+        Plotter.qmlEventList = qmlEventList;
+        if (dataAvailable) {
             Plotter.plot(canvas, ctxt, region);
-        else {
-            Plotter.qmlEventList = qmlEventList;
+        } else {
             Plotter.drawGraph(canvas, ctxt, region)    //just draw the background
         }
     }
