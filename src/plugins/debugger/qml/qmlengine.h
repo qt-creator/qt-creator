@@ -39,7 +39,9 @@
 
 #include <QtNetwork/QAbstractSocket>
 
+QT_BEGIN_NAMESPACE
 class QTextDocument;
+QT_END_NAMESPACE
 
 namespace Core {
 class IEditor;
