@@ -39,6 +39,12 @@
 
 #include <QtNetwork/QAbstractSocket>
 
+class QTextDocument;
+
+namespace Core {
+class IEditor;
+}
+
 namespace Debugger {
 
 class QmlAdapter;
@@ -166,6 +172,8 @@ private:
     QString mangleFilenamePaths(const QString &filename,
         const QString &oldBasePath, const QString &newBasePath) const;
     QString qmlImportPath() const;
+
+    void updateEditor(Core::IEditor *editor, const QTextDocument *document);
 
 private:
     friend class QmlCppEngine;

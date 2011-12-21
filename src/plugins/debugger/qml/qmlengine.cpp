@@ -349,8 +349,6 @@ void QmlEngine::gotoLocation(const Location &location)
     if (QUrl(fileName).scheme().compare(QLatin1String("file"), Qt::CaseInsensitive) == 0) {
         // internal file from source files -> show generated .js
         QTC_ASSERT(d->m_sourceDocuments.contains(fileName), return);
-        const QString jsSource = d->m_sourceDocuments.value(fileName)->toPlainText();
-
         Core::IEditor *editor = 0;
 
         Core::EditorManager *editorManager = Core::EditorManager::instance();
@@ -369,19 +367,11 @@ void QmlEngine::gotoLocation(const Location &location)
             if (editor) {
                 editor->setProperty(Constants::OPENED_BY_DEBUGGER, true);
             }
+
+            updateEditor(editor, d->m_sourceDocuments.value(fileName));
         }
-
-        TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
-        if (!textEditor)
-            return;
-
-        QPlainTextEdit *plainTextEdit =
-                qobject_cast<QPlainTextEdit *>(editor->widget());
-        if (!plainTextEdit)
-            return;
-        plainTextEdit->setPlainText(jsSource);
-        plainTextEdit->setReadOnly(true);
         editorManager->activateEditor(editor);
+
     } else {
         DebuggerEngine::gotoLocation(location);
     }
@@ -865,6 +855,8 @@ void QmlEngine::setSourceFiles(const QStringList &fileNames)
     }
 
     sourceFilesHandler()->setSourceFiles(files);
+    //update open editors
+
 }
 
 void QmlEngine::updateScriptSource(const QString &fileName, int lineOffset, int columnOffset,
@@ -908,6 +900,31 @@ void QmlEngine::updateScriptSource(const QString &fileName, int lineOffset, int 
         if (!cursor.movePosition(QTextCursor::NextBlock))
             cursor.insertBlock();
     }
+
+    //update open editors
+    QString titlePattern = tr("JS Source for %1").arg(fileName);
+    //Check if there are open editors with the same title
+    QList<Core::IEditor *> editors = Core::EditorManager::instance()->openedEditors();
+    foreach (Core::IEditor *editor, editors) {
+        if (editor->displayName() == titlePattern) {
+            updateEditor(editor, document);
+            break;
+        }
+    }
+}
+
+void QmlEngine::updateEditor(Core::IEditor *editor, const QTextDocument *document)
+{
+    TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
+    if (!textEditor)
+        return;
+
+    QPlainTextEdit *plainTextEdit =
+            qobject_cast<QPlainTextEdit *>(editor->widget());
+    if (!plainTextEdit)
+        return;
+    plainTextEdit->setPlainText(document->toPlainText());
+    plainTextEdit->setReadOnly(true);
 }
 
 QmlAdapter *QmlEngine::adapter() const
