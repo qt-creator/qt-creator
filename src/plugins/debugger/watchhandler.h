@@ -216,7 +216,7 @@ private:
     bool m_inChange;
 
     // QWidgets and QProcesses taking care of special displays.
-    typedef QMap<QString, QPointer<QObject> > EditHandlers;
+    typedef QMap<QByteArray, QPointer<QObject> > EditHandlers;
     EditHandlers m_editHandlers;
 
     static QHash<QByteArray, int> m_watcherNames;

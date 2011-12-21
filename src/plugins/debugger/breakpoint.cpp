@@ -79,9 +79,9 @@ QByteArray BreakpointModelId::toByteArray() const
 QString BreakpointModelId::toString() const
 {
     if (!isValid())
-        return "<invalid bkpt>";
+        return QLatin1String("<invalid bkpt>");
     if (isMinor())
-        return QString("%1.%2").arg(m_majorPart).arg(m_minorPart);
+        return QString::fromLatin1("%1.%2").arg(m_majorPart).arg(m_minorPart);
     return QString::number(m_majorPart);
 }
 
@@ -148,9 +148,9 @@ QByteArray BreakpointResponseId::toByteArray() const
 QString BreakpointResponseId::toString() const
 {
     if (!isValid())
-        return "<invalid bkpt>";
+        return QLatin1String("<invalid bkpt>");
     if (isMinor())
-        return QString("%1.%2").arg(m_majorPart).arg(m_minorPart);
+        return QString::fromLatin1("%1.%2").arg(m_majorPart).arg(m_minorPart);
     return QString::number(m_majorPart);
 }
 

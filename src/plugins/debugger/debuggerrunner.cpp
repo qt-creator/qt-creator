@@ -185,7 +185,7 @@ DebuggerRunControlPrivate::DebuggerRunControlPrivate(DebuggerRunControl *parent,
 DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
                                        const DebuggerStartParameters &sp,
                                        const QPair<DebuggerEngineType, DebuggerEngineType> &masterSlaveEngineTypes)
-    : RunControl(runConfiguration, Constants::DEBUGMODE),
+    : RunControl(runConfiguration, QLatin1String(Constants::DEBUGMODE)),
       d(new DebuggerRunControlPrivate(this, runConfiguration))
 {
     connect(this, SIGNAL(finished()), SLOT(handleFinished()));
@@ -229,7 +229,7 @@ QString DebuggerRunControl::displayName() const
 
 QIcon DebuggerRunControl::icon() const
 {
-    return QIcon(ProjectExplorer::Constants::ICON_DEBUG_SMALL);
+    return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_DEBUG_SMALL));
 }
 
 void DebuggerRunControl::setCustomEnvironment(Utils::Environment env)
@@ -551,7 +551,7 @@ static inline bool canUseEngine(DebuggerEngineType et,
     // Enabled?
     if ((et & cmdLineEnabledEngines) == 0) {
         result->errorDetails.push_back(DebuggerPlugin::tr("The debugger engine '%1' is disabled.").
-                                       arg(engineTypeName(et)));
+                                       arg(QLatin1String(engineTypeName(et))));
         return false;
     }
     // Configured.
@@ -636,7 +636,7 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
         const QString msg = DebuggerPlugin::tr(
             "The preferred debugger engine for debugging binaries of type '%1' is not available.\n"
             "The debugger engine '%2' will be used as a fallback.\nDetails: %3").
-                arg(sp.toolChainAbi.toString(), engineTypeName(usableType),
+                arg(sp.toolChainAbi.toString(), QLatin1String(engineTypeName(usableType)),
                     result.errorDetails.join(QString(QLatin1Char('\n'))));
         debuggerCore()->showMessage(msg, LogWarning);
         showMessageBox(QMessageBox::Warning, DebuggerPlugin::tr("Warning"), msg);
@@ -669,8 +669,8 @@ DebuggerRunControlFactory::DebuggerRunControlFactory(QObject *parent,
 
 bool DebuggerRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
 {
-//    return mode == ProjectExplorer::Constants::DEBUGMODE;
-    return (mode == Constants::DEBUGMODE || mode == Constants::DEBUGMODE2)
+    return (mode == QLatin1String(Constants::DEBUGMODE)
+            || mode == QLatin1String(Constants::DEBUGMODE2))
             && qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
 }
 
@@ -768,8 +768,8 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
             sp.environment.set(optimizerKey, _("1"));
         }
 
-        Utils::QtcProcess::addArg(&sp.processArgs, QString("-qmljsdebugger=port:%1,block").arg(
-                                      sp.qmlServerPort));
+        Utils::QtcProcess::addArg(&sp.processArgs,
+                                  QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(sp.qmlServerPort));
     }
 
     // FIXME: If it's not yet build this will be empty and not filled
@@ -784,11 +784,12 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
 RunControl *DebuggerRunControlFactory::create
     (RunConfiguration *runConfiguration, const QString &mode)
 {
-    QTC_ASSERT(mode == Constants::DEBUGMODE || mode == Constants::DEBUGMODE2, return 0);
+    QTC_ASSERT(mode == QLatin1String(Constants::DEBUGMODE)
+               || mode == QLatin1String(Constants::DEBUGMODE2), return 0);
     DebuggerStartParameters sp = localStartParameters(runConfiguration);
     if (sp.startMode == NoStartMode)
         return 0;
-    if (mode == Constants::DEBUGMODE2)
+    if (mode == QLatin1String(Constants::DEBUGMODE2))
         sp.breakOnMain = true;
     return create(sp, runConfiguration);
 }

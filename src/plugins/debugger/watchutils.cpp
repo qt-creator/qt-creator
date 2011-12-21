@@ -510,10 +510,10 @@ QString quoteUnprintableLatin1(const QByteArray &ba)
     for (int i = 0, n = ba.size(); i != n; ++i) {
         const unsigned char c = ba.at(i);
         if (isprint(c)) {
-            res += c;
+            res += QLatin1Char(c);
         } else {
             qsnprintf(buf, sizeof(buf) - 1, "\\%x", int(c));
-            res += buf;
+            res += QLatin1String(buf);
         }
     }
     return res;
@@ -669,7 +669,7 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
 
     const QPlainTextEdit *plaintext = qobject_cast<QPlainTextEdit*>(editor->widget());
     if (!plaintext)
-        return QByteArray();
+        return QString();
 
     QString expr = plaintext->textCursor().selectedText();
     CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
@@ -698,7 +698,7 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
                 *function = AbstractEditorSupport::functionAt(modelManager,
                     file->fileName(), *line, *column);
 
-    return expr.toUtf8();
+    return expr;
 }
 
 QString cppFunctionAt(const QString &fileName, int line)

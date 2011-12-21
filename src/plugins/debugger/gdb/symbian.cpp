@@ -87,7 +87,7 @@ void MemoryRange::operator-=(const MemoryRange &other)
 
 QDebug operator<<(QDebug d, const MemoryRange &range)
 {
-    return d << QString("[%1,%2] (size %3) ")
+    return d << QString::fromLatin1("[%1,%2] (size %3) ")
         .arg(range.from, 0, 16).arg(range.to, 0, 16).arg(range.size());
 }
 

@@ -33,6 +33,8 @@
 #ifndef DEBUGGER_LOGWINDOW_H
 #define DEBUGGER_LOGWINDOW_H
 
+#include "debuggerconstants.h"
+
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -60,6 +62,9 @@ public:
     static QString logTimeStamp();
 
     static bool writeLogContents(const QPlainTextEdit *editor, QWidget *parent = 0);
+
+    static QChar charForChannel(int channel);
+    static LogChannel channelForChar(QChar c);
 
 public slots:
     void clearContents();

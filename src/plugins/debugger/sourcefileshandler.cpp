@@ -61,8 +61,8 @@ QVariant SourceFilesHandler::headerData(int section,
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         static QString headers[] = {
-            tr("Internal name") + "        ",
-            tr("Full name") + "        ",
+            tr("Internal name") + QLatin1String("        "),
+            tr("Full name") + QLatin1String("        "),
         };
         return headers[section];
     }

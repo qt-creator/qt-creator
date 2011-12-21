@@ -159,7 +159,7 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
         case ThreadData::NameColumn:
             return thread.name;
         case ThreadData::ComboNameColumn:
-            return QString("#%1 %2").arg(thread.id).arg(thread.name);
+            return QString::fromLatin1("#%1 %2").arg(thread.id).arg(thread.name);
         }
     case Qt::ToolTipRole:
         return threadToolTip(thread);
@@ -265,7 +265,7 @@ void ThreadsHandler::updateThreadBox()
 {
     QStringList list;
     foreach (const ThreadData &thread, m_threads)
-        list.append(QString("#%1 %2").arg(thread.id).arg(thread.name));
+        list.append(QString::fromLatin1("#%1 %2").arg(thread.id).arg(thread.name));
     debuggerCore()->setThreads(list, m_currentIndex);
 }
 

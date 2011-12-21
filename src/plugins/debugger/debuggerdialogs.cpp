@@ -1063,7 +1063,7 @@ void TypeFormatsDialog::addTypeFormats(const QString &type0,
     const QStringList &typeFormats, int current)
 {
     QString type = type0;
-    type.replace("__", "::");
+    type.replace(QLatin1String("__"), QLatin1String("::"));
     int pos = 2;
     if (type.startsWith(QLatin1Char('Q')))
         pos = 0;

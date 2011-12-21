@@ -506,8 +506,8 @@ public:
         setDisplayName(DebuggerPlugin::tr("Debug"));
         setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Debug.png")));
         setPriority(85);
-        setId(MODE_DEBUG);
-        setType(CC::MODE_EDIT_TYPE);
+        setId(QLatin1String(MODE_DEBUG));
+        setType(QLatin1String(CC::MODE_EDIT_TYPE));
     }
 
     ~DebugMode()
@@ -697,7 +697,7 @@ public slots:
 
     void synchronizeBreakpoints()
     {
-        showMessage("ATTEMPT SYNC", LogDebug);
+        showMessage(QLatin1String("ATTEMPT SYNC"), LogDebug);
         for (int i = 0, n = m_snapshotHandler->size(); i != n; ++i) {
             if (DebuggerEngine *engine = m_snapshotHandler->at(i))
                 engine->attemptBreakpointSynchronization();
@@ -899,7 +899,7 @@ public slots:
         if (functionName.isEmpty()) {
             const QTextBlock block = cursor.block();
             const QString line = block.text();
-            foreach (const QString &str, line.trimmed().split('(')) {
+            foreach (const QString &str, line.trimmed().split(QLatin1Char('('))) {
                 QString a;
                 for (int i = str.size(); --i >= 0; ) {
                     if (!str.at(i).isLetterOrNumber())
@@ -1127,7 +1127,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
     m_dummyEngine(0),
     m_globalDebuggerOptions(new GlobalDebuggerOptions)
 {
-    setObjectName("DebuggerCore");
+    setObjectName(QLatin1String("DebuggerCore"));
     qRegisterMetaType<WatchData>("WatchData");
     qRegisterMetaType<ContextData>("ContextData");
     qRegisterMetaType<DebuggerStartParameters>("DebuggerStartParameters");
@@ -1228,15 +1228,16 @@ void DebuggerPluginPrivate::maybeEnrichParameters(DebuggerStartParameters *sp)
         showMessage(QString::fromLatin1("USING QTC_DEBUGGER_SYSROOT %1")
             .arg(sp->sysroot), LogWarning);
     }
-    if (sp->debugInfoLocation.isEmpty())
-        sp->debugInfoLocation = sp->sysroot + "/usr/lib/debug";
+    if (sp->debugInfoLocation.isEmpty()) {
+        sp->debugInfoLocation = sp->sysroot + QLatin1String("/usr/lib/debug");
+    }
     if (sp->debugSourceLocation.isEmpty()) {
-        QString base = sp->sysroot + "/usr/src/debug/";
-        sp->debugSourceLocation.append(base + "qt5base/src/corelib");
-        sp->debugSourceLocation.append(base + "qt5base/src/gui");
-        sp->debugSourceLocation.append(base + "qt5base/src/network");
-        sp->debugSourceLocation.append(base + "qt5base/src/v8");
-        sp->debugSourceLocation.append(base + "qt5declarative/src/declarative/qml");
+        QString base = sp->sysroot + QLatin1String("/usr/src/debug/");
+        sp->debugSourceLocation.append(base + QLatin1String("qt5base/src/corelib"));
+        sp->debugSourceLocation.append(base + QLatin1String("qt5base/src/gui"));
+        sp->debugSourceLocation.append(base + QLatin1String("qt5base/src/network"));
+        sp->debugSourceLocation.append(base + QLatin1String("qt5base/src/v8"));
+        sp->debugSourceLocation.append(base + QLatin1String("qt5declarative/src/declarative/qml"));
     }
 }
 
@@ -1256,7 +1257,8 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         }
         DebuggerStartParameters sp;
         qulonglong pid = it->toULongLong();
-        QString remoteChannel = it->contains('@') ? it->section('@', 0, 0) : *it;
+        QString remoteChannel = it->contains(QLatin1Char('@')) ?
+                                it->section(QLatin1Char('@'), 0, 0) : *it;
         uint port = 0;
         int pos = remoteChannel.indexOf(QLatin1Char(':'));
         if (pos != -1)
@@ -1270,14 +1272,14 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         } else if (port) {
             sp.startMode = AttachToRemoteServer;
             sp.remoteChannel = remoteChannel;
-            sp.executable = it->section('@', 1, 1);
+            sp.executable = it->section(QLatin1Char('@'), 1, 1);
             if (sp.remoteChannel.isEmpty()) {
                 *errorMessage = DebuggerPlugin::tr("The parameter '%1' of option "
                     "'%2' does not match the pattern <server:port>@<executable>@<architecture>.")
                         .arg(*it, option);
                 return false;
             }
-            sp.remoteArchitecture = it->section('@', 2, 2);
+            sp.remoteArchitecture = it->section(QLatin1Char('@'), 2, 2);
             sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
             sp.startMessage = tr("Attaching to remote server %1.")
                 .arg(sp.remoteChannel);
@@ -1317,8 +1319,8 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         }
         DebuggerStartParameters sp;
         sp.startMode = AttachCrashedExternal;
-        sp.crashParameter = it->section(':', 0, 0);
-        sp.attachPID = it->section(':', 1, 1).toULongLong();
+        sp.crashParameter = it->section(QLatin1Char(':'), 0, 0);
+        sp.attachPID = it->section(QLatin1Char(':'), 1, 1).toULongLong();
         sp.displayName = tr("Crashed process %1").arg(sp.attachPID);
         sp.startMessage = tr("Attaching to crashed process %1").arg(sp.attachPID);
         sp.toolChainAbi = Abi::hostAbi();
@@ -1432,21 +1434,21 @@ void DebuggerPluginPrivate::debugProject()
 {
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     if (Project *pro = pe->startupProject())
-        pe->runProject(pro, Constants::DEBUGMODE);
+        pe->runProject(pro, QLatin1String(Constants::DEBUGMODE));
 }
 
 void DebuggerPluginPrivate::debugProjectWithoutDeploy()
 {
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     if (Project *pro = pe->startupProject())
-        pe->runProject(pro, Constants::DEBUGMODE, true);
+        pe->runProject(pro, QLatin1String(Constants::DEBUGMODE), true);
 }
 
 void DebuggerPluginPrivate::debugProjectBreakMain()
 {
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     if (Project *pro = pe->startupProject())
-        pe->runProject(pro, Constants::DEBUGMODE2);
+        pe->runProject(pro, QLatin1String(Constants::DEBUGMODE2));
 }
 
 void DebuggerPluginPrivate::startExternalApplication()
@@ -1568,9 +1570,9 @@ void DebuggerPluginPrivate::attachToRemoteServer(const QString &spec)
 {
     // spec is: server:port@executable@architecture
     DebuggerStartParameters sp;
-    sp.remoteChannel = spec.section('@', 0, 0);
-    sp.executable = spec.section('@', 1, 1);
-    sp.remoteArchitecture = spec.section('@', 2, 2);
+    sp.remoteChannel = spec.section(QLatin1Char('@'), 0, 0);
+    sp.executable = spec.section(QLatin1Char('@'), 1, 1);
+    sp.remoteArchitecture = spec.section(QLatin1Char('@'), 2, 2);
     sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
     sp.startMode = AttachToRemoteServer;
     sp.toolChainAbi = anyAbiOfBinary(sp.executable);
@@ -1869,7 +1871,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
     if (editor->property("DisassemblerView").toBool()) {
         args.fileName = editor->file()->fileName();
         QString line = editor->contents()
-            .section('\n', lineNumber - 1, lineNumber - 1);
+            .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
         BreakpointResponse needle;
         needle.type = BreakpointByAddress;
         needle.address = DisassemblerLine::addressFromDisassemblyLine(line);
@@ -1966,7 +1968,7 @@ void DebuggerPluginPrivate::toggleBreakpoint()
     const int lineNumber = textEditor->currentLine();
     if (textEditor->property("DisassemblerView").toBool()) {
         QString line = textEditor->contents()
-            .section('\n', lineNumber - 1, lineNumber - 1);
+            .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
         quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
         toggleBreakpointByAddress(address);
     } else if (lineNumber >= 0) {
@@ -2021,7 +2023,7 @@ void DebuggerPluginPrivate::requestMark(ITextEditor *editor,
 
     if (editor->property("DisassemblerView").toBool()) {
         QString line = editor->contents()
-            .section('\n', lineNumber - 1, lineNumber - 1);
+            .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
         quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
         toggleBreakpointByAddress(address);
     } else if (editor->file()) {
@@ -2051,7 +2053,7 @@ void DebuggerPluginPrivate::displayDebugger(DebuggerEngine *engine, bool updateE
 void DebuggerPluginPrivate::startDebugger(RunControl *rc)
 {
     QTC_ASSERT(rc, return);
-    ProjectExplorerPlugin::instance()->startRunControl(rc, Constants::DEBUGMODE);
+    ProjectExplorerPlugin::instance()->startRunControl(rc, QLatin1String(Constants::DEBUGMODE));
 }
 
 
@@ -2421,7 +2423,7 @@ void DebuggerPluginPrivate::onModeChanged(IMode *mode)
 
     m_mainWindow->onModeChanged(mode);
 
-    if (mode->id() != Constants::MODE_DEBUG) {
+    if (mode->id() != QLatin1String(Constants::MODE_DEBUG)) {
         m_toolTipManager->leavingDebugMode();
         return;
     }
@@ -2466,7 +2468,7 @@ void DebuggerPluginPrivate::dumpLog()
 void DebuggerPluginPrivate::activatePreviousMode()
 {
     ModeManager *modeManager = ModeManager::instance();
-    if (modeManager->currentMode() == modeManager->mode(MODE_DEBUG)
+    if (modeManager->currentMode() == modeManager->mode(QLatin1String(MODE_DEBUG))
             && !m_previousMode.isEmpty()) {
         modeManager->activateMode(m_previousMode);
         m_previousMode.clear();
@@ -2711,7 +2713,7 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
     if (!sp.gnuTarget.isEmpty())
         str << "Gnu target: " << sp.gnuTarget << '\n';
     str << "Sysroot: " << sp.sysroot << '\n';
-    str << "Debug Source Location: " << sp.debugSourceLocation.join(":") << '\n';
+    str << "Debug Source Location: " << sp.debugSourceLocation.join(QLatin1String(":")) << '\n';
     str << "Symbol file: " << sp.symbolFileName << '\n';
     if (sp.useServerStartScript)
         str << "Using server start script: " << sp.serverStartScript;
@@ -2871,23 +2873,23 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     m_breakHandler = new BreakHandler;
     m_breakWindow = new BreakWindow;
-    m_breakWindow->setObjectName(DOCKWIDGET_BREAK);
+    m_breakWindow->setObjectName(QLatin1String(DOCKWIDGET_BREAK));
     m_breakWindow->setModel(m_breakHandler->model());
 
     //m_consoleWindow = new ConsoleWindow;
     //m_consoleWindow->setObjectName(QLatin1String("CppDebugConsole"));
     m_modulesWindow = new ModulesWindow;
-    m_modulesWindow->setObjectName(DOCKWIDGET_MODULES);
+    m_modulesWindow->setObjectName(QLatin1String(DOCKWIDGET_MODULES));
     m_logWindow = new LogWindow;
-    m_logWindow->setObjectName(DOCKWIDGET_OUTPUT);
+    m_logWindow->setObjectName(QLatin1String(DOCKWIDGET_OUTPUT));
     m_registerWindow = new RegisterWindow;
-    m_registerWindow->setObjectName(DOCKWIDGET_REGISTER);
+    m_registerWindow->setObjectName(QLatin1String(DOCKWIDGET_REGISTER));
     m_stackWindow = new StackWindow;
-    m_stackWindow->setObjectName(DOCKWIDGET_STACK);
+    m_stackWindow->setObjectName(QLatin1String(DOCKWIDGET_STACK));
     m_sourceFilesWindow = new SourceFilesWindow;
-    m_sourceFilesWindow->setObjectName(DOCKWIDGET_SOURCE_FILES);
+    m_sourceFilesWindow->setObjectName(QLatin1String(DOCKWIDGET_SOURCE_FILES));
     m_threadsWindow = new ThreadsWindow;
-    m_threadsWindow->setObjectName(DOCKWIDGET_THREADS);
+    m_threadsWindow->setObjectName(QLatin1String(DOCKWIDGET_THREADS));
     m_returnWindow = new WatchWindow(WatchWindow::ReturnType);
     m_returnWindow->setObjectName(QLatin1String("CppDebugReturn"));
     m_localsWindow = new WatchWindow(WatchWindow::LocalsType);
@@ -2896,14 +2898,14 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_watchersWindow->setObjectName(QLatin1String("CppDebugWatchers"));
     m_scriptConsoleWindow = new QmlJSScriptConsoleWidget;
     m_scriptConsoleWindow->setWindowTitle(tr("QML Script Console"));
-    m_scriptConsoleWindow->setObjectName(DOCKWIDGET_QML_SCRIPTCONSOLE);
+    m_scriptConsoleWindow->setObjectName(QLatin1String(DOCKWIDGET_QML_SCRIPTCONSOLE));
     connect(m_scriptConsoleWindow, SIGNAL(evaluateExpression(QString)),
         SLOT(evaluateExpression(QString)));
 
     // Snapshot
     m_snapshotHandler = new SnapshotHandler;
     m_snapshotWindow = new SnapshotWindow(m_snapshotHandler);
-    m_snapshotWindow->setObjectName(DOCKWIDGET_SNAPSHOTS);
+    m_snapshotWindow->setObjectName(QLatin1String(DOCKWIDGET_SNAPSHOTS));
     m_snapshotWindow->setModel(m_snapshotHandler->model());
 
     // Watchers
@@ -3018,7 +3020,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_mainWindow->createDockWidget(QmlLanguage, m_scriptConsoleWindow);
 
     QSplitter *localsAndWatchers = new MiniSplitter(Qt::Vertical);
-    localsAndWatchers->setObjectName(DOCKWIDGET_WATCHERS);
+    localsAndWatchers->setObjectName(QLatin1String(DOCKWIDGET_WATCHERS));
     localsAndWatchers->setWindowTitle(m_localsWindow->windowTitle());
     localsAndWatchers->addWidget(m_localsWindow);
     localsAndWatchers->addWidget(m_returnWindow);
@@ -3045,8 +3047,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     // The main "Start Debugging" action.
     act = m_startAction = new QAction(this);
-    QIcon debuggerIcon(":/projectexplorer/images/debugger_start_small.png");
-    debuggerIcon.addFile(":/projectexplorer/images/debugger_start.png");
+    QIcon debuggerIcon(QLatin1String(":/projectexplorer/images/debugger_start_small.png"));
+    debuggerIcon.addFile(QLatin1String(":/projectexplorer/images/debugger_start.png"));
     act->setIcon(debuggerIcon);
     act->setText(tr("Start Debugging"));
     connect(act, SIGNAL(triggered()), this, SLOT(debugProject()));
@@ -3116,7 +3118,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_startAction, Constants::DEBUG, globalcontext);
     cmd->setDefaultText(tr("Start Debugging"));
-    cmd->setDefaultKeySequence(QKeySequence(Constants::DEBUG_KEY));
+    cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::DEBUG_KEY)));
     cmd->setAttribute(Command::CA_UpdateText);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
@@ -3206,7 +3208,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_continueAction,
         Constants::CONTINUE, globalcontext);
-    cmd->setDefaultKeySequence(QKeySequence(Constants::DEBUG_KEY));
+    cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::DEBUG_KEY)));
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_exitAction,
@@ -3221,11 +3223,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_hiddenStopAction,
         Constants::HIDDEN_STOP, globalcontext);
-    cmd->setDefaultKeySequence(QKeySequence(Constants::STOP_KEY));
+    cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::STOP_KEY)));
 
     cmd = am->registerAction(m_abortAction,
         Constants::ABORT, globalcontext);
-    //cmd->setDefaultKeySequence(QKeySequence(Constants::RESET_KEY));
+    //cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::RESET_KEY)));
     cmd->setDefaultText(tr("Reset Debugger"));
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
@@ -3236,34 +3238,34 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_nextAction,
         Constants::NEXT, globalcontext);
-    cmd->setDefaultKeySequence(QKeySequence(Constants::NEXT_KEY));
+    cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::NEXT_KEY)));
     cmd->setAttribute(Command::CA_Hide);
     cmd->setAttribute(Command::CA_UpdateText);
     debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_stepAction,
         Constants::STEP, globalcontext);
-    cmd->setDefaultKeySequence(QKeySequence(Constants::STEP_KEY));
+    cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::STEP_KEY)));
     cmd->setAttribute(Command::CA_Hide);
     cmd->setAttribute(Command::CA_UpdateText);
     debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_stepOutAction,
         Constants::STEPOUT, cppDebuggercontext);
-    cmd->setDefaultKeySequence(QKeySequence(Constants::STEPOUT_KEY));
+    cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::STEPOUT_KEY)));
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_runToLineAction,
         "Debugger.RunToLine", cppDebuggercontext);
-    cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_LINE_KEY));
+    cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::RUN_TO_LINE_KEY)));
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_runToSelectedFunctionAction,
         "Debugger.RunToSelectedFunction", cppDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(
-        Constants::RUN_TO_SELECTED_FUNCTION_KEY));
+        QLatin1String(Constants::RUN_TO_SELECTED_FUNCTION_KEY)));
     cmd->setAttribute(Command::CA_Hide);
     // Don't add to menu by default as keeping its enabled state
     // and text up-to-date is a lot of hassle.
@@ -3281,7 +3283,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_reverseDirectionAction,
         Constants::REVERSE, cppDebuggercontext);
-    cmd->setDefaultKeySequence(QKeySequence(Constants::REVERSE_KEY));
+    cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::REVERSE_KEY)));
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
 
@@ -3292,7 +3294,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     //cmd = am->registerAction(m_snapshotAction,
     //    "Debugger.Snapshot", cppDebuggercontext);
-    //cmd->setDefaultKeySequence(QKeySequence(Constants::SNAPSHOT_KEY));
+    //cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::SNAPSHOT_KEY)));
     //cmd->setAttribute(Command::CA_Hide);
     //debugMenu->addAction(cmd);
 
@@ -3308,7 +3310,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_breakAction,
         "Debugger.ToggleBreak", globalcontext);
-    cmd->setDefaultKeySequence(QKeySequence(Constants::TOGGLE_BREAK_KEY));
+    cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::TOGGLE_BREAK_KEY)));
     debugMenu->addAction(cmd);
     connect(m_breakAction, SIGNAL(triggered()),
         SLOT(toggleBreakpoint()));
@@ -3491,7 +3493,7 @@ void DebuggerPluginPrivate::showModuleSymbols(const QString &moduleName,
     w->setRootIsDecorated(false);
     w->setAlternatingRowColors(true);
     w->setSortingEnabled(true);
-    w->setObjectName("Symbols." + moduleName);
+    w->setObjectName(QLatin1String("Symbols.") + moduleName);
     QStringList header;
     header.append(tr("Symbol"));
     header.append(tr("Address"));

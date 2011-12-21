@@ -169,7 +169,7 @@ public:
     static QString msgDumperOutdated(double requiredVersion, double currentVersion);
 
 private:
-    typedef QMap<QString, Type> NameTypeMap;
+    typedef QMap<QByteArray, Type> NameTypeMap;
     typedef QMap<QByteArray, int> SizeCache;
 
     // Look up a simple (namespace) type

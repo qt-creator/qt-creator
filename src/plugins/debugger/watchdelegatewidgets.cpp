@@ -116,7 +116,7 @@ QValidator::State IntegerValidator::validateEntry(const QString &s, int base, bo
         return QValidator::Intermediate;
     int pos = 0;
     // Skip sign.
-    if (signedV && s.at(pos) == '-') {
+    if (signedV && s.at(pos) == QLatin1Char('-')) {
         pos++;
         if (pos == size)
             return QValidator::Intermediate;

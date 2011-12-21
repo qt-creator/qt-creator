@@ -90,7 +90,7 @@ public:
 
 SourceAgentPrivate::SourceAgentPrivate()
   : editor(0)
-  , producer("remote")
+  , producer(QLatin1String("remote"))
 {
     locationMark = new TextEditor::ITextMark;
     locationMark->setIcon(debuggerCore()->locationMarkIcon());

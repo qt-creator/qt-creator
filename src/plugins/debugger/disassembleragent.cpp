@@ -306,7 +306,7 @@ void DisassemblerAgent::setContentsToEditor(const DisassemblerLines &contents)
 
     EditorManager *editorManager = EditorManager::instance();
     if (!d->editor) {
-        QString titlePattern = "Disassembler";
+        QString titlePattern = QLatin1String("Disassembler");
         d->editor = qobject_cast<ITextEditor *>(
             editorManager->openEditorWithContents(
                 Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,

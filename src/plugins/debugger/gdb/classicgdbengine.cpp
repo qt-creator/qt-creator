@@ -54,6 +54,7 @@
 #include <dlfcn.h>
 #endif
 
+#include <cctype>
 
 #define PRECONDITION QTC_CHECK(!hasPython())
 
@@ -144,11 +145,11 @@ QString DumperHelper::toString(bool debug) const
         return rc;
     }
     const QString nameSpace = m_qtNamespace.isEmpty()
-        ? QCoreApplication::translate("QtDumperHelper", "<none>") : m_qtNamespace;
+        ? QCoreApplication::translate("QtDumperHelper", "<none>") : QLatin1String(m_qtNamespace);
     return QCoreApplication::translate("QtDumperHelper",
        "%n known types, Qt version: %1, Qt namespace: %2 Dumper version: %3",
        0, QCoreApplication::CodecForTr,
-       m_nameTypeMap.size()).arg(qtVersionString(), nameSpace).arg(m_dumperVersion);
+       m_nameTypeMap.size()).arg(QLatin1String(qtVersionString()), nameSpace).arg(m_dumperVersion);
 }
 
 DumperHelper::Type DumperHelper::simpleType(const QByteArray &simpleType) const
@@ -475,13 +476,13 @@ DumperHelper::SpecialSizeType DumperHelper::specialSizeType(const QByteArray &ty
     return SpecialSizeCount;
 }
 
-static inline bool isInteger(const QString &n)
+static inline bool isInteger(const QByteArray &n)
 {
     const int size = n.size();
     if (!size)
         return false;
     for (int i = 0; i < size; i++)
-        if (!n.at(i).isDigit())
+        if (!std::isdigit(n.at(i)))
             return false;
     return true;
 }
@@ -506,12 +507,12 @@ void DumperHelper::evaluationParameters(const WatchData &data,
     for (int i = 0; i != inners.size(); ++i)
         inners[i] = inners[i].simplified();
 
-    QString outertype = td.isTemplate ? td.tmplate : data.type;
+    QByteArray outertype = td.isTemplate ? td.tmplate : data.type;
     // adjust the data extract
     if (outertype == m_qtNamespace + "QWidget")
         outertype = m_qtNamespace + "QObject";
 
-    QString inner = td.inner;
+    QByteArray inner = td.inner;
     const QByteArray zero = "0";
 
     extraArgs.clear();
@@ -644,13 +645,13 @@ void DumperHelper::evaluationParameters(const WatchData &data,
     }
 
     inBuffer->clear();
-    inBuffer->append(outertype.toUtf8());
+    inBuffer->append(outertype);
     inBuffer->append('\0');
     inBuffer->append(data.iname);
     inBuffer->append('\0');
     inBuffer->append(data.exp);
     inBuffer->append('\0');
-    inBuffer->append(inner.toUtf8());
+    inBuffer->append(inner);
     inBuffer->append('\0');
     inBuffer->append(data.iname);
     inBuffer->append('\0');
@@ -860,8 +861,8 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
             // Try automatic dereferentiation
             data.exp = "(*(" + data.exp + "))";
             data.type = data.type + '.'; // FIXME: fragile HACK to avoid recursion
-            if (data.value.startsWith("0x"))
-                data.value = "@" + data.value;
+            if (data.value.startsWith(QLatin1String("0x")))
+                data.value.insert(0, QLatin1Char('@'));
             insertData(data);
         } else {
             data.setChildrenUnneeded();
@@ -1201,7 +1202,7 @@ void GdbEngine::handleStackListArgumentsClassic(const GdbResponse &response)
     } else {
         // Seems to occur on "RedHat 4 based Linux" gdb 7.0.1:
         // ^error,msg="Cannot access memory at address 0x0"
-        showMessage(_("UNEXPECTED RESPONSE: ") + response.toString());
+        showMessage(_("UNEXPECTED RESPONSE: ") + QLatin1String(response.toString()));
     }
 }
 
@@ -1239,7 +1240,7 @@ void GdbEngine::handleStackListLocalsClassic(const GdbResponse &response)
     if (!m_resultVarName.isEmpty()) {
         WatchData rd;
         rd.iname = "return.0";
-        rd.name = "return";
+        rd.name = QLatin1String("return");
         rd.exp = m_resultVarName;
         list.append(rd);
     }
@@ -1310,10 +1311,10 @@ void GdbEngine::handleDebuggingHelperVersionCheckClassic(const GdbResponse &resp
     if (response.resultClass == GdbResultDone) {
         QString value = _(response.data.findChild("value").data());
         QString debuggeeQtVersion = value.section(QLatin1Char('"'), 1, 1);
-        QString dumperQtVersion = m_dumperHelper.qtVersionString();
+        QString dumperQtVersion = QLatin1String(m_dumperHelper.qtVersionString());
         if (debuggeeQtVersion.isEmpty()) {
             showMessage(_("DUMPER VERSION CHECK SKIPPED, NO qVersion() OUTPUT IN")
-                + response.toString());
+                        + QLatin1String(response.toString()));
         } else if (dumperQtVersion.isEmpty()) {
             showMessage(_("DUMPER VERSION CHECK SKIPPED, NO VERSION STRING"));
         } else if (dumperQtVersion != debuggeeQtVersion) {
@@ -1328,7 +1329,7 @@ void GdbEngine::handleDebuggingHelperVersionCheckClassic(const GdbResponse &resp
                          + dumperQtVersion);
         }
     } else {
-        showMessage("DUMPER VERSION CHECK NOT COMPLETED");
+        showMessage(QLatin1String("DUMPER VERSION CHECK NOT COMPLETED"));
     }
 }
 
@@ -1354,7 +1355,7 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
         //iname += '.' + exp;
         postCommand(cmd, WatchUpdate,
             CB(handleVarListChildrenClassic), QVariant::fromValue(data));
-    } else if (!startsWithDigit(exp)
+    } else if (!startsWithDigit(QLatin1String(exp))
             && item.findChild("numchild").data() == "0") {
         // Happens for structs without data, e.g. interfaces.
         WatchData data;
@@ -1393,7 +1394,7 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
             data.setChildrenUnneeded();
 
         data.name = _(exp);
-        if (data.type == data.name) {
+        if (data.name == QLatin1String(data.type)) {
             if (isPointerType(parent.type)) {
                 data.exp = "*(" + parent.exp + ')';
                 data.name = _("*") + parent.name;

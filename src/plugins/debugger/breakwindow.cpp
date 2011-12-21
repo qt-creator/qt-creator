@@ -276,7 +276,7 @@ void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) 
     if (partsMask & AddressPart)
         data->address = m_ui.lineEditAddress->text().toULongLong(0, 0);
     if (partsMask & ExpressionPart)
-        data->expression = m_ui.lineEditExpression->text().toUtf8();
+        data->expression = m_ui.lineEditExpression->text();
 
     if (partsMask & ConditionPart)
         data->condition = m_ui.lineEditCondition->text().toUtf8();

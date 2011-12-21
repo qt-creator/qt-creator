@@ -383,7 +383,7 @@ QString Register::displayValue(int base, int strlen) const
         return QString::fromAscii("%1").arg(editV.toULongLong(), strlen, base);
     const QString stringValue = editV.toString();
     if (stringValue.size() < strlen)
-        return QString(strlen - stringValue.size(), QLatin1Char(' ')) + value;
+        return QString(strlen - stringValue.size(), QLatin1Char(' ')) + QLatin1String(value);
     return stringValue;
 }
 
@@ -413,13 +413,13 @@ QVariant RegisterHandler::data(const QModelIndex &index, int role) const
             switch (index.column()) {
             case 0: {
                 switch (bitWidth) {
-                    case 8:  return "[Bytes]";
-                    case 16: return "[Words]";
-                    case 32: return "[DWords]";
-                    case 64: return "[QWords]";
-                    case 128: return "[TWords]";
-                    case -32: return "[Single]";
-                    case -64: return "[Double]";
+                    case 8:  return QLatin1String("[Bytes]");
+                    case 16: return QLatin1String("[Words]");
+                    case 32: return QLatin1String("[DWords]");
+                    case 64: return QLatin1String("[QWords]");
+                    case 128: return QLatin1String("[TWords]");
+                    case -32: return QLatin1String("[Single]");
+                    case -64: return QLatin1String("[Double]");
                     return QVariant(bitWidth);
                 }
             }
@@ -438,7 +438,7 @@ QVariant RegisterHandler::data(const QModelIndex &index, int role) const
             switch (index.column()) {
             case 0: {
                 const QString padding = QLatin1String("  ");
-                return QVariant(padding + reg.name + padding);
+                return QVariant(padding + QLatin1String(reg.name) + padding);
                 //return QVariant(reg.name);
             }
             case 1: // Display: Pad value for alignment
@@ -475,7 +475,7 @@ Qt::ItemFlags RegisterHandler::flags(const QModelIndex &idx) const
     const Qt::ItemFlags notEditable = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
     // Can edit registers if they are hex numbers and not arrays.
     if (idx.column() == 1
-            && IntegerWatchLineEdit::isUnsignedHexNumber(m_registers.at(idx.row()).value))
+            && IntegerWatchLineEdit::isUnsignedHexNumber(QLatin1String(m_registers.at(idx.row()).value)))
         return notEditable | Qt::ItemIsEditable;
     return notEditable;
 }

@@ -189,9 +189,9 @@ void StackWindow::copyContentsToClipboard()
         for (int j = 0; j != m; ++j) {
             QModelIndex index = model()->index(i, j);
             str += model()->data(index).toString();
-            str += '\t';
+            str += QLatin1Char('\t');
         }
-        str += '\n';
+        str += QLatin1Char('\n');
     }
     QClipboard *clipboard = QApplication::clipboard();
 #    ifdef Q_WS_X11

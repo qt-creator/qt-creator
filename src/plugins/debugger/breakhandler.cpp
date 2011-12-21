@@ -337,7 +337,7 @@ void BreakHandler::saveBreakpoints()
             map.insert(_("message"), data.message);
         list.append(map);
     }
-    debuggerCore()->setSessionValue("Breakpoints", list);
+    debuggerCore()->setSessionValue(QLatin1String("Breakpoints"), list);
     //qDebug() << "SAVED BREAKPOINTS" << this << list.size();
 }
 
@@ -345,7 +345,7 @@ void BreakHandler::loadBreakpoints()
 {
     QTC_ASSERT(debuggerCore(), return);
     //qDebug() << "LOADING BREAKPOINTS...";
-    QVariant value = debuggerCore()->sessionValue("Breakpoints");
+    QVariant value = debuggerCore()->sessionValue(QLatin1String("Breakpoints"));
     QList<QVariant> list = value.toList();
     //clear();
     foreach (const QVariant &var, list) {

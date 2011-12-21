@@ -56,12 +56,12 @@ QVariant ModulesModel::headerData(int section,
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         static QString headers[] = {
-            tr("Module name") + "        ",
-            tr("Module path") + "        ",
-            tr("Symbols read") + "        ",
-            tr("Symbols type") + "        ",
-            tr("Start address") + "        ",
-            tr("End address") + "        "
+            tr("Module name") + QLatin1String("        "),
+            tr("Module path") + QLatin1String("        "),
+            tr("Symbols read") + QLatin1String("        "),
+            tr("Symbols type") + QLatin1String("        "),
+            tr("Start address") + QLatin1String("        "),
+            tr("End address") + QLatin1String("        ")
         };
         return headers[section];
     }

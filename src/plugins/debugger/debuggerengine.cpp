@@ -612,7 +612,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
 // Called from RunControl.
 void DebuggerEngine::handleStartFailed()
 {
-    showMessage("HANDLE RUNCONTROL START FAILED");
+    showMessage(QLatin1String("HANDLE RUNCONTROL START FAILED"));
     d->m_runControl = 0;
     d->m_progress.setProgressValue(900);
     d->m_progress.reportCanceled();
@@ -622,7 +622,7 @@ void DebuggerEngine::handleStartFailed()
 // Called from RunControl.
 void DebuggerEngine::handleFinished()
 {
-    showMessage("HANDLE RUNCONTROL FINISHED");
+    showMessage(QLatin1String("HANDLE RUNCONTROL FINISHED"));
     d->m_runControl = 0;
     d->m_progress.setProgressValue(1000);
     d->m_progress.reportFinished();
@@ -1094,20 +1094,30 @@ void DebuggerEngine::slaveEngineStateChanged(DebuggerEngine *slaveEngine,
     Q_UNUSED(state);
 }
 
+static inline QString msgStateChanged(DebuggerState oldState, DebuggerState newState,
+                                      bool forced, bool master)
+{
+    QString result;
+    QTextStream str(&result);
+    str << "State changed";
+    if (forced)
+        str << " BY FORCE";
+    str << " from " << DebuggerEngine::stateName(oldState) << '(' << oldState
+        << ") to " << DebuggerEngine::stateName(newState) << '(' << newState << ')';
+    if (master)
+        str << " [master]";
+    return result;
+}
+
 void DebuggerEngine::setState(DebuggerState state, bool forced)
 {
-    if (isStateDebugging()) {
-        qDebug() << "STATUS CHANGE: " << this
-            << " FROM " << stateName(d->m_state) << " TO " << stateName(state)
-            << isMasterEngine();
-    }
+    const QString msg = msgStateChanged(d->m_state, state, forced, isMasterEngine());
+    if (isStateDebugging())
+        qDebug("%s", qPrintable(msg));
 
     DebuggerState oldState = d->m_state;
     d->m_state = state;
 
-    QString msg = _("State changed%5 from %1(%2) to %3(%4).")
-     .arg(stateName(oldState)).arg(oldState).arg(stateName(state)).arg(state)
-     .arg(forced ? " BY FORCE" : "");
     if (!forced && !isAllowedTransition(oldState, state))
         qDebug() << "*** UNEXPECTED STATE TRANSITION: " << this << msg;
 
@@ -1727,7 +1737,7 @@ void DebuggerEnginePrivate::handleAutoTestLine(int line)
         QString name = s.section(QLatin1Char(' '), 1, 1);
         if (name.isEmpty()) {
             reportTestError(_("'Check'  needs arguments."), line);
-        } else if (name.contains(QChar('.'))) {
+        } else if (name.contains(QLatin1Char('.'))) {
             m_engine->showMessage(_("variable %1 found in line %2 contains '.', but 'Expand' is not implemented yet.").arg(name).arg(line));
         } else {
             QByteArray iname = "local." + name.toLatin1();
@@ -1751,7 +1761,7 @@ void DebuggerEnginePrivate::handleAutoTestLine(int line)
         QString name = s.section(QLatin1Char(' '), 1, 1);
         if (name.isEmpty()) {
             reportTestError(_("'CheckType'  needs arguments."), line);
-        } else if (name.contains(QChar('.'))) {
+        } else if (name.contains(QLatin1Char('.'))) {
             m_engine->showMessage(_("variable %1 found in line %2 contains '.', but 'Expand' is not implemented yet.").arg(name).arg(line));
         } else {
             QByteArray iname = "local." + name.toLatin1();

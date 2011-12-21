@@ -106,13 +106,15 @@ bool OutputCollector::listen()
         if (!::mkfifo(codedServerPath.constData(), 0600))
             break;
         if (errno != EEXIST) {
-            m_errorString = tr("Cannot create FiFo %1: %2").arg(m_serverPath, strerror(errno));
+            m_errorString = tr("Cannot create FiFo %1: %2").
+                            arg(m_serverPath, QString::fromLocal8Bit(strerror(errno)));
             m_serverPath.clear();
             return false;
         }
     }
     if ((m_serverFd = ::open(codedServerPath.constData(), O_RDONLY|O_NONBLOCK)) < 0) {
-        m_errorString = tr("Cannot open FiFo %1: %2").arg(m_serverPath, strerror(errno));
+        m_errorString = tr("Cannot open FiFo %1: %2").
+                        arg(m_serverPath, QString::fromLocal8Bit(strerror(errno)));
         m_serverPath.clear();
         return false;
     }

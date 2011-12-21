@@ -179,7 +179,7 @@ void WatchData::setError(const QString &msg)
 void WatchData::setValue(const QString &value0)
 {
     value = value0;
-    if (value == "{...}") {
+    if (value == QLatin1String("{...}")) {
         value.clear();
         hasChildren = true; // at least one...
     }
@@ -191,26 +191,26 @@ void WatchData::setValue(const QString &value0)
     }
 
     // avoid duplicated information
-    if (value.startsWith(QLatin1Char('(')) && value.contains(") 0x"))
-        value = value.mid(value.lastIndexOf(") 0x") + 2);
+    if (value.startsWith(QLatin1Char('(')) && value.contains(QLatin1String(") 0x")))
+        value.remove(0, value.lastIndexOf(QLatin1String(") 0x")) + 2);
 
     // doubles are sometimes displayed as "@0x6141378: 1.2".
     // I don't want that.
-    if (/*isIntOrFloatType(type) && */ value.startsWith("@0x")
-         && value.contains(':')) {
-        value = value.mid(value.indexOf(':') + 2);
+    if (/*isIntOrFloatType(type) && */ value.startsWith(QLatin1String("@0x"))
+         && value.contains(QLatin1Char(':'))) {
+        value.remove(0, value.indexOf(QLatin1Char(':')) + 2);
         setHasChildren(false);
     }
 
     // "numchild" is sometimes lying
     //MODEL_DEBUG("\n\n\nPOINTER: " << type << value);
     if (isPointerType(type))
-        setHasChildren(value != "0x0" && value != "<null>"
+        setHasChildren(value != QLatin1String("0x0") && value != QLatin1String("<null>")
             && !isCharPointerType(type));
 
     // pointer type information is available in the 'type'
     // column. No need to duplicate it here.
-    if (value.startsWith(QLatin1Char('(') + type + ") 0x"))
+    if (value.startsWith(QLatin1Char('(') + QLatin1String(type) + QLatin1String(") 0x")))
         value = value.section(QLatin1Char(' '), -1, -1);
 
     setValueUnneeded();
@@ -303,7 +303,7 @@ QString WatchData::toString() const
     if (!iname.isEmpty())
         str << "iname=\"" << iname << doubleQuoteComma;
     str << "sortId=\"" << sortId << doubleQuoteComma;
-    if (!name.isEmpty() && name != iname)
+    if (!name.isEmpty() && name != QLatin1String(iname))
         str << "name=\"" << name << doubleQuoteComma;
     if (error)
         str << "error,";
@@ -369,8 +369,8 @@ QString WatchData::toToolTip() const
     QTextStream str(&res);
     str << "<html><body><table>";
     formatToolTipRow(str, tr("Name"), name);
-    formatToolTipRow(str, tr("Expression"), exp);
-    formatToolTipRow(str, tr("Internal Type"), type);
+    formatToolTipRow(str, tr("Expression"), QLatin1String(exp));
+    formatToolTipRow(str, tr("Internal Type"), QLatin1String(type));
     formatToolTipRow(str, tr("Displayed Type"), displayedType);
     QString val = value;
     if (value.size() > 1000) {
@@ -385,7 +385,7 @@ QString WatchData::toToolTip() const
                          QString::fromAscii(hexReferencingAddress()));
     if (size)
         formatToolTipRow(str, tr("Size"), QString::number(size));
-    formatToolTipRow(str, tr("Internal ID"), iname);
+    formatToolTipRow(str, tr("Internal ID"), QLatin1String(iname));
     formatToolTipRow(str, tr("Generation"),
         QString::number(generation));
     str << "</table></body></html>";

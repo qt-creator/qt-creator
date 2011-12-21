@@ -113,8 +113,8 @@ public:
         QTC_ASSERT(lineEdit, return);
         const int base = currentHandler()->numberBase();
         QString value = lineEdit->text();
-        if (base == 16 && !value.startsWith("0x"))
-            value = "0x" + value;
+        if (base == 16 && !value.startsWith(QLatin1String("0x")))
+            value.insert(0, QLatin1String("0x"));
         currentEngine()->setRegisterValue(index.row(), value);
     }
 

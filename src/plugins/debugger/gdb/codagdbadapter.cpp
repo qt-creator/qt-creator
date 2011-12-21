@@ -167,7 +167,7 @@ CodaGdbAdapter::~CodaGdbAdapter()
         SymbianUtils::SymbianDeviceManager::instance()->releaseCodaDevice(m_codaDevice);
 
     cleanup();
-    logMessage("Shutting down.\n");
+    logMessage(QLatin1String("Shutting down.\n"));
 }
 
 void CodaGdbAdapter::setVerbose(const QVariant &value)
@@ -375,7 +375,7 @@ void CodaGdbAdapter::codaEvent(const CodaEvent &e)
     }
         break;
     case CodaEvent::LoggingWriteEvent: // TODO: Not tested yet.
-        showMessage(e.toString() + '\n', AppOutput);
+        showMessage(e.toString() + QLatin1Char('\n'), AppOutput);
         break;
     default:
         break;
@@ -416,7 +416,7 @@ void CodaGdbAdapter::logMessage(const QString &msg, int channel)
 //
 void CodaGdbAdapter::handleGdbConnection()
 {
-    logMessage("HANDLING GDB CONNECTION");
+    logMessage(QLatin1String("HANDLING GDB CONNECTION"));
     QTC_CHECK(m_gdbConnection == 0);
     m_gdbConnection = m_gdbServer->nextPendingConnection();
     QTC_ASSERT(m_gdbConnection, return);
@@ -437,9 +437,10 @@ void CodaGdbAdapter::readGdbServerCommand()
     QByteArray packet = m_gdbConnection->readAll();
     m_gdbReadBuffer.append(packet);
 
-    logMessage("gdb: -> " + currentTime() + ' ' + QString::fromAscii(packet));
+    logMessage(QLatin1String("gdb: -> ") + currentTime()
+               + QLatin1Char(' ') + QString::fromAscii(packet));
     if (packet != m_gdbReadBuffer)
-        logMessage(_("buffer: ") + m_gdbReadBuffer);
+        logMessage(_("buffer: ") + QString::fromAscii(m_gdbReadBuffer));
 
     QByteArray &ba = m_gdbReadBuffer;
     while (ba.size()) {
@@ -452,27 +453,27 @@ void CodaGdbAdapter::readGdbServerCommand()
         }
 
         if (code == '-') {
-            logMessage("NAK: Retransmission requested", LogError);
+            logMessage(QLatin1String("NAK: Retransmission requested"), LogError);
             // This seems too harsh.
             //emit adapterCrashed("Communication problem encountered.");
             continue;
         }
 
         if (code == char(0x03)) {
-            logMessage("INTERRUPT RECEIVED");
+            logMessage(QLatin1String("INTERRUPT RECEIVED"));
             interruptInferior();
             continue;
         }
 
         if (code != '$') {
-            logMessage("Broken package (2) " + quoteUnprintableLatin1(ba)
-                + Coda::hexNumber(code), LogError);
+            logMessage(QLatin1String("Broken package (2) ") + quoteUnprintableLatin1(ba)
+                + QLatin1String(Coda::hexNumber(code)), LogError);
             continue;
         }
 
         int pos = ba.indexOf('#');
         if (pos == -1) {
-            logMessage("Invalid checksum format in "
+            logMessage(QLatin1String("Invalid checksum format in ")
                 + quoteUnprintableLatin1(ba), LogError);
             continue;
         }
@@ -480,7 +481,7 @@ void CodaGdbAdapter::readGdbServerCommand()
         bool ok = false;
         uint checkSum = ba.mid(pos + 1, 2).toUInt(&ok, 16);
         if (!ok) {
-            logMessage("Invalid checksum format 2 in "
+            logMessage(QLatin1String("Invalid checksum format 2 in ")
                 + quoteUnprintableLatin1(ba), LogError);
             return;
         }
@@ -491,8 +492,8 @@ void CodaGdbAdapter::readGdbServerCommand()
             sum += ba.at(i);
 
         if (sum != checkSum) {
-            logMessage(QString("ERROR: Packet checksum wrong: %1 %2 in "
-                + quoteUnprintableLatin1(ba)).arg(checkSum).arg(sum), LogError);
+            logMessage(QString::fromLatin1("ERROR: Packet checksum wrong: %1 %2 in %3").
+                       arg(checkSum).arg(sum).arg(quoteUnprintableLatin1(ba)), LogError);
         }
 
         QByteArray cmd = ba.left(pos);
@@ -527,7 +528,7 @@ void CodaGdbAdapter::sendGdbServerAck()
 {
     if (!m_gdbAckMode)
         return;
-    logMessage("gdb: <- +");
+    logMessage(QLatin1String("gdb: <- +"));
     sendGdbServerPacket(QByteArray(1, '+'), false);
 }
 
@@ -548,7 +549,9 @@ void CodaGdbAdapter::sendGdbServerMessage(const QByteArray &msg, const QByteArra
     packet.append('#');
     packet.append(checkSum);
     int pad = qMax(0, 24 - packet.size());
-    logMessage("gdb: <- " + currentTime() + ' ' + packet + QByteArray(pad, ' ') + logNote);
+    logMessage(QLatin1String("gdb: <- ") + currentTime() + QLatin1Char(' ')
+               + QString::fromAscii(packet) + QString(pad, QLatin1Char(' '))
+               + QLatin1String(logNote));
     sendGdbServerPacket(packet, true);
 }
 
@@ -869,7 +872,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
 
     else if (cmd == "QStartNoAckMode") {
         //$qSupported#37
-        logMessage("Handling 'QStartNoAckMode'");
+        logMessage(QLatin1String("Handling 'QStartNoAckMode'"));
         sendGdbServerAck();
         sendGdbServerMessage("OK", "ack no-ack mode");
         m_gdbAckMode = false;
@@ -932,7 +935,8 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
                 CodaCallback(this, &CodaGdbAdapter::handleAndReportSetBreakpoint),
                 bp);
         } else {
-            logMessage(_("MISPARSED BREAKPOINT '") + cmd + "'')" , LogError);
+            logMessage(_("MISPARSED BREAKPOINT '") + QLatin1String(cmd)
+                       + QLatin1String("'')") , LogError);
         }
     }
 
@@ -1059,7 +1063,7 @@ void CodaGdbAdapter::startAdapter()
             const QString reason = m_codaDevice.isNull() ?
                         tr("Could not obtain device.") :
                         m_codaDevice->device()->errorString();
-            const QString msg = QString("Could not open serial device '%1': %2")
+            const QString msg = QString::fromLatin1("Could not open serial device '%1': %2")
                                 .arg(parameters.remoteChannel, reason);
             logMessage(msg, LogError);
             m_engine->handleAdapterStartFailed(msg, QString());
@@ -1091,14 +1095,14 @@ void CodaGdbAdapter::startAdapter()
 
     const QPair<QString, unsigned short> address = splitIpAddressSpec(m_gdbServerName);
     if (!m_gdbServer->listen(QHostAddress(address.first), address.second)) {
-        QString msg = QString("Unable to start the gdb server at %1: %2.")
+        QString msg = QString::fromLatin1("Unable to start the gdb server at %1: %2.")
             .arg(m_gdbServerName).arg(m_gdbServer->errorString());
         logMessage(msg, LogError);
         m_engine->handleAdapterStartFailed(msg, QString());
         return;
     }
 
-    logMessage(QString("Gdb server running on %1.\nLittle endian assumed.")
+    logMessage(QString::fromLatin1("Gdb server running on %1.\nLittle endian assumed.")
         .arg(m_gdbServerName));
 
     connect(m_gdbServer, SIGNAL(newConnection()),
@@ -1246,7 +1250,7 @@ void CodaGdbAdapter::shutdownAdapter()
     } else {
         // Something is wrong, gdb crashed. Kill debuggee (see handleDeleteProcess2)
         if (m_codaDevice && m_codaDevice->device()->isOpen()) {
-            logMessage("Emergency shutdown of CODA", LogError);
+            logMessage(QLatin1String("Emergency shutdown of CODA"), LogError);
             sendRunControlTerminateCommand();
         }
     }
@@ -1300,8 +1304,9 @@ void CodaGdbAdapter::handleRegisterChildren(const CodaCommandResult &result)
     QTC_ASSERT(m_codaDevice, return);
     const QByteArray contextId = result.cookie.toByteArray();
     if (!result) {
-        logMessage("Error retrieving register children of " + contextId
-            + ": " + result.errorString(), LogError);
+        logMessage(QLatin1String("Error retrieving register children of ")
+                   + result.cookie.toString() + QLatin1String(": ")
+                   + result.errorString(), LogError);
         return;
     }
     // Parse out registers.
@@ -1346,7 +1351,7 @@ void CodaGdbAdapter::handleReadRegisters(const CodaCommandResult &result)
 {
     // Check for errors.
     if (!result) {
-        logMessage("ERROR: " + result.errorString(), LogError);
+        logMessage(QLatin1String("ERROR: ") + result.errorString(), LogError);
         return;
     }
     if (result.values.isEmpty() || result.values.front().type() != Json::JsonValue::String) {
@@ -1435,9 +1440,10 @@ void CodaGdbAdapter::handleAndReportSetBreakpoint(const CodaCommandResult &resul
 
 void CodaGdbAdapter::handleClearBreakpoint(const CodaCommandResult &result)
 {
-    logMessage("CLEAR BREAKPOINT ");
+    logMessage(QLatin1String("CLEAR BREAKPOINT "));
     if (!result)
-        logMessage("Error clearing breakpoint: " + result.errorString(), LogError);
+        logMessage(QLatin1String("Error clearing breakpoint: ") +
+                   result.errorString(), LogError);
     sendGdbServerMessage("OK");
 }
 
@@ -1551,7 +1557,7 @@ void CodaGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
         }
         // Happens when chunks are not combined
         QTC_CHECK(false);
-        showMessage("CHUNKS NOT COMBINED");
+        showMessage(QLatin1String("CHUNKS NOT COMBINED"));
 #        ifdef MEMORY_DEBUG
         qDebug() << "CHUNKS NOT COMBINED";
         it = m_snapshot.memory.begin();
@@ -1639,8 +1645,8 @@ void CodaGdbAdapter::sendStepRange()
 void CodaGdbAdapter::handleStep(const CodaCommandResult &result)
 {
     if (!result) { // Try fallback with Continue.
-        logMessage(_("Error while stepping: %1 (fallback to 'continue')").
-            arg(result.errorString()), LogWarning);
+        logMessage(QString::fromLatin1("Error while stepping: %1 (fallback to 'continue')").
+                   arg(result.errorString()), LogWarning);
         sendContinue();
         // Doing nothing as below does not work as gdb seems to insist on
         // making some progress through a 'step'.
@@ -1650,7 +1656,7 @@ void CodaGdbAdapter::handleStep(const CodaCommandResult &result)
         return;
     }
     // The gdb server response is triggered later by the Stop Reply packet.
-    logMessage("STEP FINISHED " + currentTime());
+    logMessage(QLatin1String("STEP FINISHED ") + currentTime());
 }
 
 } // namespace Internal

@@ -62,7 +62,7 @@ void DisassemblerLine::fromString(const QString &unparsed)
     if (addr.size() >= 9 && addr.at(8) == QLatin1Char('`'))
         addr.remove(8, 1);
 
-    if (addr.endsWith(':')) // clang
+    if (addr.endsWith(QLatin1Char(':'))) // clang
         addr.chop(1);
     if (addr.startsWith(QLatin1String("0x")))
         addr.remove(0, 2);
@@ -151,28 +151,28 @@ void DisassemblerLines::appendUnparsed(const QString &unparsed)
     QString line = unparsed.trimmed();
     if (line.isEmpty())
         return;
-    if (line.startsWith("Current language:"))
+    if (line.startsWith(QLatin1String("Current language:")))
         return;
-    if (line.startsWith("Dump of assembler")) {
+    if (line.startsWith(QLatin1String("Dump of assembler"))) {
         m_lastFunction.clear();
         return;
     }
-    if (line.startsWith("The current source"))
+    if (line.startsWith(QLatin1String("The current source")))
         return;
-    if (line.startsWith("End of assembler")) {
+    if (line.startsWith(QLatin1String("End of assembler"))) {
         m_lastFunction.clear();
         return;
     }
-    if (line.startsWith("=> "))
+    if (line.startsWith(QLatin1String("=> ")))
         line = line.mid(3);
-    if (line.startsWith("0x")) {
+    if (line.startsWith(QLatin1String("0x"))) {
         // Address line.
-        int pos1 = line.indexOf('<') + 1;
-        int posc = line.indexOf(':');
+        int pos1 = line.indexOf(QLatin1Char('<')) + 1;
+        int posc = line.indexOf(QLatin1Char(':'));
         DisassemblerLine dl;
-        if (pos1 && line.indexOf("<UNDEFINED> instruction:") == -1) {
-            int pos2 = line.indexOf('+', pos1);
-            int pos3 = line.indexOf('>', pos1);
+        if (pos1 && line.indexOf(QLatin1String("<UNDEFINED> instruction:")) == -1) {
+            int pos2 = line.indexOf(QLatin1Char('+'), pos1);
+            int pos3 = line.indexOf(QLatin1Char('>'), pos1);
             if (pos1 < pos2 && pos2 < pos3) {
                 QString function = line.mid(pos1, pos2 - pos1);
                 if (function != m_lastFunction) {

@@ -54,36 +54,6 @@
 namespace Debugger {
 namespace Internal {
 
-static QChar charForChannel(int channel)
-{
-    switch (channel) {
-        case LogDebug: return 'd';
-        case LogWarning: return 'w';
-        case LogError: return 'e';
-        case LogInput: return '<';
-        case LogOutput: return '>';
-        case LogStatus: return 's';
-        case LogTime: return 't';
-        case LogMisc:
-        default: return ' ';
-    }
-}
-
-static int channelForChar(QChar c)
-{
-    switch (c.unicode()) {
-        case 'd': return LogDebug;
-        case 'w': return LogWarning;
-        case 'e': return LogError;
-        case '<': return LogInput;
-        case '>': return LogOutput;
-        case 's': return LogStatus;
-        case 't': return LogTime;
-        default: return LogMisc;
-    }
-}
-
-
 /////////////////////////////////////////////////////////////////////
 //
 // ConsoleHighlighter
@@ -101,7 +71,7 @@ private:
     void highlightBlock(const QString &text)
     {
         QTextCharFormat format;
-        switch (channelForChar(text.isEmpty() ? QChar() : text.at(0))) {
+        switch (LogWindow::channelForChar(text.isEmpty() ? QChar() : text.at(0))) {
             case LogInput:
                 format.setForeground(Qt::blue);
                 setFormat(1, text.size(), format);
@@ -235,7 +205,7 @@ public:
         int n = 0;
 
         // cut time string
-        if (line.size() > 18 && line.at(0) == '[')
+        if (line.size() > 18 && line.at(0) == QLatin1Char('['))
             line = line.mid(18);
         //qDebug() << line;
 
@@ -273,7 +243,7 @@ ConsoleWindow::ConsoleWindow(QWidget *parent)
   : QWidget(parent)
 {
     setWindowTitle(tr("Console"));
-    setObjectName("Console");
+    setObjectName(QLatin1String("Console"));
 
     m_console = new Console(this);
     m_console->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -302,14 +272,14 @@ void ConsoleWindow::showOutput(int channel, const QString &output)
     //cursor.movePosition(QTextCursor::End);
     //bool atEnd = oldCursor.position() == cursor.position();
 
-    foreach (QString line, output.split('\n')) {
+    foreach (QString line, output.split(QLatin1Char('\n'))) {
         // FIXME: QTextEdit asserts on really long lines...
         const int n = 30000;
         if (line.size() > n) {
             line.truncate(n);
             line += QLatin1String(" [...] <cut off>");
         }
-        m_console->appendPlainText(charForChannel(channel) + line + '\n');
+        m_console->appendPlainText(LogWindow::charForChannel(channel) + line + QLatin1Char('\n'));
     }
     QTextCursor cursor = m_console->textCursor();
     cursor.movePosition(QTextCursor::End);
