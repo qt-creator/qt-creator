@@ -32,9 +32,6 @@
 #include "linuxdevicetestdialog.h"
 #include "ui_linuxdevicetestdialog.h"
 
-#include <utils/qtcassert.h>
-#include <utils/ssh/sshconnectionmanager.h>
-
 #include <QtGui/QBrush>
 #include <QtGui/QColor>
 #include <QtGui/QFont>
@@ -43,77 +40,34 @@
 
 namespace RemoteLinux {
 namespace Internal {
-
-class LinuxDeviceTestDialogPrivate
-{
+class LinuxDeviceTestDialogPrivate {
 public:
-    LinuxDeviceTestDialogPrivate(LinuxDeviceTestDialog *qptr, QList<LinuxDeviceTester *> &tester)
-        : deviceTests(tester), lastTest(0), currentTestPosition(-1), failCount(0), q(qptr)
-    { }
-
-    ~LinuxDeviceTestDialogPrivate()
+    LinuxDeviceTestDialogPrivate(AbstractLinuxDeviceTester *tester)
+        : deviceTester(tester), finished(false)
     {
-        qDeleteAll(deviceTests);
-    }
-
-    LinuxDeviceTester *currentTest()
-    {
-        return deviceTests.at(currentTestPosition);
-    }
-
-    void runTest()
-    {
-        if (lastTest)
-            QObject::disconnect(lastTest, 0, q, 0);
-
-        LinuxDeviceTester *curTest = currentTest();
-
-        QObject::connect(curTest, SIGNAL(progressMessage(QString)),
-                         q, SLOT(handleProgressMessage(QString)));
-        QObject::connect(curTest, SIGNAL(errorMessage(QString)),
-                         q, SLOT(handleErrorMessage(QString)));
-        QObject::connect(curTest, SIGNAL(finished(int)),
-                         q, SLOT(handleTestFinished(int)));
-
-        lastTest = curTest;
-
-        q->addText(curTest->headLine(), QLatin1String("black"), true);
-        q->addText(curTest->commandLine(), QLatin1String("darkGray"), false);
-        curTest->run();
-    }
-
-    bool runNextTest()
-    {
-        ++currentTestPosition;
-        if (currentTestPosition < deviceTests.count()) {
-            runTest();
-        } else {
-            currentTestPosition = -1;
-            lastTest = 0;
-        }
-
-        return currentTestPosition != -1;
     }
 
     Ui::LinuxDeviceTestDialog ui;
-    QList<LinuxDeviceTester *> deviceTests;
-    LinuxDeviceTester *lastTest;
-    int currentTestPosition;
-    int failCount;
-    LinuxDeviceTestDialog *const q;
+    AbstractLinuxDeviceTester * const deviceTester;
+    bool finished;
 };
 
 } // namespace Internal
 
-LinuxDeviceTestDialog::LinuxDeviceTestDialog(QList<LinuxDeviceTester *> tests, QWidget *parent) :
-    QDialog(parent),
-    d(new Internal::LinuxDeviceTestDialogPrivate(this, tests))
-{
-    QTC_ASSERT(!tests.isEmpty(), return);
+using namespace Internal;
 
+LinuxDeviceTestDialog::LinuxDeviceTestDialog(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration,
+        AbstractLinuxDeviceTester *deviceTester, QWidget *parent)
+    : QDialog(parent), d(new LinuxDeviceTestDialogPrivate(deviceTester))
+{
     d->ui.setupUi(this);
 
-    d->runNextTest();
+    d->deviceTester->setParent(this);
+    connect(d->deviceTester, SIGNAL(progressMessage(QString)), SLOT(handleProgressMessage(QString)));
+    connect(d->deviceTester, SIGNAL(errorMessage(QString)), SLOT(handleErrorMessage(QString)));
+    connect(d->deviceTester, SIGNAL(finished(RemoteLinux::AbstractLinuxDeviceTester::TestResult)),
+        SLOT(handleTestFinished(RemoteLinux::AbstractLinuxDeviceTester::TestResult)));
+    d->deviceTester->testDevice(deviceConfiguration);
 }
 
 LinuxDeviceTestDialog::~LinuxDeviceTestDialog()
@@ -123,22 +77,14 @@ LinuxDeviceTestDialog::~LinuxDeviceTestDialog()
 
 void LinuxDeviceTestDialog::reject()
 {
-    if (d->currentTestPosition >= 0) {
-        d->deviceTests.at(d->currentTestPosition)->cancel();
-        disconnect(d->deviceTests.at(d->currentTestPosition), 0, this, 0);
-    }
-
+    if (!d->finished)
+        d->deviceTester->stopTest();
     QDialog::reject();
 }
 
 void LinuxDeviceTestDialog::handleProgressMessage(const QString &message)
 {
-    QString tmp = QLatin1String("    ") + message;
-    if (tmp.endsWith('\n'))
-        tmp = tmp.left(tmp.count() - 1);
-    tmp.replace(QLatin1Char('\n'), QLatin1String("\n    "));
-
-    addText(tmp, QLatin1String("black"), false);
+    addText(message, QLatin1String("black"), false);
 }
 
 void LinuxDeviceTestDialog::handleErrorMessage(const QString &message)
@@ -146,33 +92,15 @@ void LinuxDeviceTestDialog::handleErrorMessage(const QString &message)
     addText(message, QLatin1String("red"), false);
 }
 
-void LinuxDeviceTestDialog::handleTestFinished(int result)
+void LinuxDeviceTestDialog::handleTestFinished(AbstractLinuxDeviceTester::TestResult result)
 {
-    bool abortRun = false;
-    if (result == LinuxDeviceTester::TestSuccess) {
-        addText(tr("Ok.\n"), QLatin1String("black"), true);
-    } else if (result == LinuxDeviceTester::TestCriticalFailure) {
-        addText(tr("Critical device test failure, aborting.\n"), QLatin1String("red"), true);
-        ++d->failCount;
-        abortRun = true;
-    } else {
-        addText(tr("Device test failed.\n"), QLatin1String("red"), true);
-        ++d->failCount;
-    }
+    d->finished = true;
+    d->ui.buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Close"));
 
-    if (abortRun || !d->runNextTest()) {
-        if (d->failCount == 0 && !abortRun) {
-            addText(tr("All device tests finished successfully.\n"), QLatin1String("blue"), true);
-        } else {
-            if (!abortRun) {
-                //: %1: number of failed tests, %2 total tests
-                addText(tr("%1 device tests of %2 failed.\n").arg(d->failCount).arg(d->deviceTests.count()),
-                        QLatin1String("red"), true);
-            }
-        }
-
-        d->ui.buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Close"));
-    }
+    if (result == AbstractLinuxDeviceTester::TestSuccess)
+        addText(tr("Device test finished successfully."), QLatin1String("blue"), true);
+    else
+        addText(tr("Device test failed."), QLatin1String("red"), true);
 }
 
 void LinuxDeviceTestDialog::addText(const QString &text, const QString &color, bool bold)

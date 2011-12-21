@@ -50,6 +50,7 @@ HEADERS += \
     maemorunconfiguration.h \
     maddeuploadandinstallpackagesteps.h \
     maemodeploybymountsteps.h \
+    maddedevicetester.h \
     maddedeviceconfigurationfactory.h \
 
 SOURCES += \
@@ -95,6 +96,7 @@ SOURCES += \
     maddedeviceconfigurationfactory.cpp \
     maddeuploadandinstallpackagesteps.cpp \
     maemodeploybymountsteps.cpp \
+    maddedevicetester.cpp \
     maemorunconfiguration.cpp
 
 FORMS += \

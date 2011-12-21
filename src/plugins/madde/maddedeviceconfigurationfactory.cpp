@@ -31,9 +31,9 @@
 **************************************************************************/
 #include "maddedeviceconfigurationfactory.h"
 
+#include "maddedevicetester.h"
 #include "maemoconstants.h"
 #include "maemodeviceconfigwizard.h"
-#include "maemoglobal.h"
 
 #include <remotelinux/linuxdevicetestdialog.h>
 #include <remotelinux/publickeydeploymentdialog.h>
@@ -46,8 +46,10 @@ using namespace RemoteLinux;
 
 namespace Madde {
 namespace Internal {
-
+namespace {
+const char MaddeDeviceTestActionId[] = "Madde.DeviceTestAction";
 const char MaddeRemoteProcessesActionId[] = "Madde.RemoteProcessesAction";
+} // anonymous namespace
 
 MaddeDeviceConfigurationFactory::MaddeDeviceConfigurationFactory(QObject *parent)
     : ILinuxDeviceConfigurationFactory(parent)
@@ -105,27 +107,8 @@ QDialog *MaddeDeviceConfigurationFactory::createDeviceAction(const QString &acti
 {
     Q_ASSERT(supportedDeviceActionIds().contains(actionId));
 
-    if (actionId == QLatin1String(MaddeDeviceTestActionId)) {
-        QList<LinuxDeviceTester *>  tests;
-        tests.append(new AuthenticationTester(deviceConfig));
-        tests.append(new LinuxDeviceTester(deviceConfig,
-                                           tr("Checking kernel version..."),
-                                           QLatin1String("uname -rsm")));
-        QString infoCmd = QLatin1String("dpkg-query -W -f "
-                                        "'${Package} ${Version} ${Status}\\n' 'libqt*' | "
-                                        "grep ' installed$' | cut -d' ' -f-2");
-        if (deviceConfig->osType() == MeeGoOsType)
-            infoCmd = QLatin1String("rpm -qa 'libqt*' --queryformat '%{NAME} %{VERSION}\\n'");
-        tests.append(new LinuxDeviceTester(deviceConfig, tr("Checking for Qt libraries..."), infoCmd));
-        tests.append(new LinuxDeviceTester(deviceConfig,
-                                           tr("Checking for connectivity support..."),
-                                           QLatin1String("test -x ") + MaemoGlobal::devrootshPath()));
-        tests.append(new LinuxDeviceTester(deviceConfig,
-                                           tr("Checking for QML tooling support..."),
-                                           QLatin1String("test -d /usr/lib/qt4/plugins/qmltooling")));
-        tests.append(new UsedPortsTester(deviceConfig));
-        return new LinuxDeviceTestDialog(tests, parent);
-    }
+    if (actionId == QLatin1String(MaddeDeviceTestActionId))
+        return new LinuxDeviceTestDialog(deviceConfig, new MaddeDeviceTester, parent);
     if (actionId == QLatin1String(MaddeRemoteProcessesActionId))
         return new RemoteLinuxProcessesDialog(new GenericRemoteLinuxProcessList(deviceConfig), parent);
     if (actionId == QLatin1String(Constants::GenericDeployKeyToDeviceActionId))

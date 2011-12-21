@@ -47,8 +47,9 @@ class REMOTELINUX_EXPORT LinuxDeviceTestDialog : public QDialog
     Q_OBJECT
 public:
 
-    // Note: The dialog takes ownership of deviceTests
-    LinuxDeviceTestDialog(QList<LinuxDeviceTester *> tests, QWidget *parent = 0);
+    // Note: The dialog takes ownership of deviceTester
+    explicit LinuxDeviceTestDialog(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration,
+        AbstractLinuxDeviceTester * deviceTester, QWidget *parent = 0);
     ~LinuxDeviceTestDialog();
 
     void reject();
@@ -56,14 +57,12 @@ public:
 private slots:
     void handleProgressMessage(const QString &message);
     void handleErrorMessage(const QString &message);
-    void handleTestFinished(int result);
+    void handleTestFinished(RemoteLinux::AbstractLinuxDeviceTester::TestResult result);
 
 private:
     void addText(const QString &text, const QString &color, bool bold);
 
-    Internal::LinuxDeviceTestDialogPrivate *const d;
-
-    friend class Internal::LinuxDeviceTestDialogPrivate;
+    Internal::LinuxDeviceTestDialogPrivate * const d;
 };
 
 } // namespace RemoteLinux

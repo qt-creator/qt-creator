@@ -30,23 +30,21 @@
 **************************************************************************/
 
 #include "maemodeviceconfigwizard.h"
-#include "maddedeviceconfigurationfactory.h"
 #include "ui_maemodeviceconfigwizardkeycreationpage.h"
 #include "ui_maemodeviceconfigwizardkeydeploymentpage.h"
 #include "ui_maemodeviceconfigwizardpreviouskeysetupcheckpage.h"
 #include "ui_maemodeviceconfigwizardreusekeyscheckpage.h"
 #include "ui_maemodeviceconfigwizardstartpage.h"
 
+#include "maddedevicetester.h"
 #include "maemoconstants.h"
 #include "maemoglobal.h"
 
-#include <extensionsystem/pluginmanager.h>
 #include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
 #include <remotelinux/linuxdevicetestdialog.h>
 #include <remotelinux/remotelinuxutils.h>
 #include <remotelinux/sshkeydeployer.h>
 #include <utils/fileutils.h>
-#include <utils/qtcassert.h>
 #include <utils/ssh/sshkeygenerator.h>
 
 #include <QtCore/QDir>
@@ -584,13 +582,8 @@ LinuxDeviceConfiguration::Ptr MaemoDeviceConfigWizard::deviceConfiguration()
         d->wizardData.osType, d->wizardData.deviceType, PortList::fromString(freePortsSpec),
         sshParams);
     if (doTest) {
-        MaddeDeviceConfigurationFactory *factory
-                = ExtensionSystem::PluginManager::instance()->getObject<MaddeDeviceConfigurationFactory>();
-        QTC_ASSERT(factory, return LinuxDeviceConfiguration::Ptr(0));
-        QDialog *dlg = factory->createDeviceAction(QLatin1String(MaddeDeviceTestActionId), devConf, 0);
-        QTC_ASSERT(dlg, return LinuxDeviceConfiguration::Ptr(0));
-        dlg->exec();
-        delete dlg;
+        LinuxDeviceTestDialog dlg(devConf, new MaddeDeviceTester(this), this);
+        dlg.exec();
     }
     return devConf;
 }

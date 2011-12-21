@@ -30,16 +30,11 @@
 **************************************************************************/
 #include "genericlinuxdeviceconfigurationwizard.h"
 
-#include "genericlinuxdeviceconfigurationfactory.h"
 #include "genericlinuxdeviceconfigurationwizardpages.h"
 #include "linuxdevicetestdialog.h"
 #include "linuxdevicetester.h"
 #include "portlist.h"
 #include "remotelinux_constants.h"
-
-#include <extensionsystem/pluginmanager.h>
-
-#include <utils/qtcassert.h>
 
 using namespace Utils;
 
@@ -92,16 +87,8 @@ LinuxDeviceConfiguration::Ptr GenericLinuxDeviceConfigurationWizard::deviceConfi
     LinuxDeviceConfiguration::Ptr devConf = LinuxDeviceConfiguration::create(d->setupPage.configurationName(),
         QLatin1String(Constants::GenericLinuxOsType), LinuxDeviceConfiguration::Hardware,
         PortList::fromString(QLatin1String("10000-10100")), sshParams);
-
-    GenericLinuxDeviceConfigurationFactory *factory =
-            ExtensionSystem::PluginManager::instance()->getObject<GenericLinuxDeviceConfigurationFactory>();
-    QTC_ASSERT(factory, return LinuxDeviceConfiguration::Ptr(0));
-
-    QDialog *dlg = factory->createDeviceAction(QLatin1String(Constants::GenericTestDeviceActionId), devConf, 0);
-    QTC_ASSERT(dlg, return LinuxDeviceConfiguration::Ptr(0));
-    dlg->exec();
-    delete dlg;
-
+    LinuxDeviceTestDialog dlg(devConf, new GenericLinuxDeviceTester(this), this);
+    dlg.exec();
     return devConf;
 }
 

@@ -93,15 +93,8 @@ QDialog *GenericLinuxDeviceConfigurationFactory::createDeviceAction(const QStrin
 {
     Q_ASSERT(supportedDeviceActionIds().contains(actionId));
 
-    if (actionId == QLatin1String(Constants::GenericTestDeviceActionId)) {
-        QList<LinuxDeviceTester *>  tests;
-        tests.append(new AuthenticationTester(deviceConfig));
-        tests.append(new LinuxDeviceTester(deviceConfig,
-                                           tr("Checking kernel version..."),
-                                           QLatin1String("uname -rsm")));
-        tests.append(new UsedPortsTester(deviceConfig));
-        return new LinuxDeviceTestDialog(tests, parent);
-    }
+    if (actionId == QLatin1String(Constants::GenericTestDeviceActionId))
+        return new LinuxDeviceTestDialog(deviceConfig, new GenericLinuxDeviceTester, parent);
     if (actionId == QLatin1String(Constants::GenericRemoteProcessesActionId)) {
         return new RemoteLinuxProcessesDialog(new GenericRemoteLinuxProcessList(deviceConfig),
             parent);

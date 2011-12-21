@@ -29,31 +29,57 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
-#ifndef MADDEDEVICECONFIGURATIONFACTORY_H
-#define MADDEDEVICECONFIGURATIONFACTORY_H
+#ifndef MADDEDEVICETESTER_H
+#define MADDEDEVICETESTER_H
 
-#include <remotelinux/linuxdeviceconfiguration.h>
+#include <remotelinux/linuxdevicetester.h>
+
+#include <QtCore/QByteArray>
+
+namespace Utils {
+class SshRemoteProcessRunner;
+}
 
 namespace Madde {
 namespace Internal {
 
-class MaddeDeviceConfigurationFactory : public RemoteLinux::ILinuxDeviceConfigurationFactory
+class MaddeDeviceTester : public RemoteLinux::AbstractLinuxDeviceTester
 {
     Q_OBJECT
 public:
-    MaddeDeviceConfigurationFactory(QObject *parent = 0);
+    explicit MaddeDeviceTester(QObject *parent = 0);
+    ~MaddeDeviceTester();
 
-    QString displayName() const;
-    RemoteLinux::ILinuxDeviceConfigurationWizard *createWizard(QWidget *parent) const;
-    bool supportsOsType(const QString &osType) const;
-    QString displayNameForOsType(const QString &osType) const;
-    QStringList supportedDeviceActionIds() const;
-    QString displayNameForActionId(const QString &actionId) const;
-    QDialog *createDeviceAction(const QString &actionId,
-        const RemoteLinux::LinuxDeviceConfiguration::ConstPtr &deviceConfig, QWidget *parent) const;
+    void testDevice(const QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> &deviceConfiguration);
+    void stopTest();
+
+private slots:
+    void handleGenericTestFinished(RemoteLinux::AbstractLinuxDeviceTester::TestResult result);
+    void handleConnectionError();
+    void handleStdout(const QByteArray &data);
+    void handleStderr(const QByteArray &data);
+    void handleProcessFinished(int exitStatus);
+
+private:
+    enum State { Inactive, GenericTest, QtTest, MadDeveloperTest, QmlToolingTest };
+
+    void handleQtTestFinished(int exitStatus);
+    void handleMadDeveloperTestFinished(int exitStatus);
+    void handleQmlToolingTestFinished(int exitStatus);
+
+    QString processedQtLibsList();
+    void setFinished();
+
+    RemoteLinux::GenericLinuxDeviceTester * const m_genericTester;
+    State m_state;
+    TestResult m_result;
+    Utils::SshRemoteProcessRunner *m_processRunner;
+    QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> m_deviceConfiguration;
+    QByteArray m_stdout;
+    QByteArray m_stderr;
 };
 
 } // namespace Internal
 } // namespace Madde
 
-#endif // MADDEDEVICECONFIGURATIONFACTORY_H
+#endif // MADDEDEVICETESTER_H

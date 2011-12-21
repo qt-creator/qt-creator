@@ -29,7 +29,6 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
-
 #ifndef GENERICLINUXDEVICECONFIGURATIONFACTORY_H
 #define GENERICLINUXDEVICECONFIGURATIONFACTORY_H
 
