@@ -1545,7 +1545,6 @@ void CdbEngine::selectThread(int index)
     if (index < 0 || index == threadsHandler()->currentThread())
         return;
 
-    resetLocation();
     const int newThreadId = threadsHandler()->threads().at(index).id;
     threadsHandler()->setCurrentThread(index);
 
