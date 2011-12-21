@@ -332,7 +332,7 @@ void QmlAdapter::logServiceStatusChange(const QString &service,
 void QmlAdapter::logServiceActivity(const QString &service, const QString &logMessage)
 {
     if (!d->m_engine.isNull())
-        d->m_engine.data()->showMessage(QString("%1 %2").arg(service, logMessage), LogDebug);
+        d->m_engine.data()->showMessage(service + QLatin1Char(' ') + logMessage, LogDebug);
 }
 
 } // namespace Debugger

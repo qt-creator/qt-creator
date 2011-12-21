@@ -271,7 +271,7 @@ void QmlEngine::retryMessageBoxFinished(int result)
     }
     case QMessageBox::Help: {
         Core::HelpManager *helpManager = Core::HelpManager::instance();
-        helpManager->handleHelpRequest("qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html");
+        helpManager->handleHelpRequest(QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html"));
         // fall through
     }
     default:
@@ -830,17 +830,13 @@ void QmlEngine::executeDebuggerCommand(const QString& command)
 
 QString QmlEngine::qmlImportPath() const
 {
-    return startParameters().environment.value("QML_IMPORT_PATH");
+    return startParameters().environment.value(QLatin1String("QML_IMPORT_PATH"));
 }
 
 void QmlEngine::logMessage(const QString &service, LogDirection direction, const QString &message)
 {
     QString msg = service;
-    if (direction == LogSend) {
-        msg += ": sending ";
-    } else {
-        msg += ": receiving ";
-    }
+    msg += direction == LogSend ? QLatin1String(": sending ") : QLatin1String(": receiving ");
     msg += message;
     showMessage(msg, LogDebug);
 }
