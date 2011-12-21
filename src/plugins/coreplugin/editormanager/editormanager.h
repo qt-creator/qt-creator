@@ -218,7 +218,7 @@ private slots:
     void vcsOpenCurrentEditor();
     void updateWindowTitle();
     void handleEditorStateChange();
-    void updateVariable(const QString &variable);
+    void updateVariable(const QByteArray &variable);
     void autoSave();
 
     void closeEditorFromContextMenu();

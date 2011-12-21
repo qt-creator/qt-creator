@@ -109,7 +109,7 @@ private slots:
     void editorAboutToClose(Core::IEditor *editor);
     void uiEditorContentsChanged();
     void editorChanged(Core::IEditor*);
-    void updateVariable(const QString &variable);
+    void updateVariable(const QByteArray &variable);
 
 private:
     QList<Qt4Project *> m_projects;

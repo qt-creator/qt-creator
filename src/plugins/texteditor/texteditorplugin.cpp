@@ -185,20 +185,20 @@ void TextEditorPlugin::extensionsInitialized()
     addAutoReleasedObject(new FindInCurrentFile);
 
     Core::VariableManager *vm = Core::VariableManager::instance();
-    vm->registerVariable(QLatin1String(kCurrentDocumentSelection),
+    vm->registerVariable(kCurrentDocumentSelection,
         tr("Selected text within the current document."));
-    vm->registerVariable(QLatin1String(kCurrentDocumentRow),
+    vm->registerVariable(kCurrentDocumentRow,
         tr("Line number of the text cursor position in current document (starts with 1)."));
-    vm->registerVariable(QLatin1String(kCurrentDocumentColumn),
+    vm->registerVariable(kCurrentDocumentColumn,
         tr("Column number of the text cursor position in current document (starts with 0)."));
-    vm->registerVariable(QLatin1String(kCurrentDocumentRowCount),
+    vm->registerVariable(kCurrentDocumentRowCount,
         tr("Number of lines visible in current document."));
-    vm->registerVariable(QLatin1String(kCurrentDocumentColumnCount),
+    vm->registerVariable(kCurrentDocumentColumnCount,
         tr("Number of columns visible in current document."));
-    vm->registerVariable(QLatin1String(kCurrentDocumentFontSize),
+    vm->registerVariable(kCurrentDocumentFontSize,
         tr("Current document's font size in points."));
-    connect(vm, SIGNAL(variableUpdateRequested(QString)),
-            this, SLOT(updateVariable(QString)));
+    connect(vm, SIGNAL(variableUpdateRequested(QByteArray)),
+            this, SLOT(updateVariable(QByteArray)));
     connect(Core::ExternalToolManager::instance(), SIGNAL(replaceSelectionRequested(QString)),
             this, SLOT(updateCurrentSelection(QString)));
 }
@@ -232,32 +232,32 @@ void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
                                                       settings.fontSize() * settings.fontZoom() / 100));
 }
 
-void TextEditorPlugin::updateVariable(const QString &variable)
+void TextEditorPlugin::updateVariable(const QByteArray &variable)
 {
-    static QSet<QString> variables = QSet<QString>()
-            << QString::fromLatin1(kCurrentDocumentSelection)
-            << QString::fromLatin1(kCurrentDocumentRow)
-            << QString::fromLatin1(kCurrentDocumentColumn)
-            << QString::fromLatin1(kCurrentDocumentRowCount)
-            << QString::fromLatin1(kCurrentDocumentColumnCount)
-            << QString::fromLatin1(kCurrentDocumentFontSize);
+    static QSet<QByteArray> variables = QSet<QByteArray>()
+            << kCurrentDocumentSelection
+            << kCurrentDocumentRow
+            << kCurrentDocumentColumn
+            << kCurrentDocumentRowCount
+            << kCurrentDocumentColumnCount
+            << kCurrentDocumentFontSize;
     if (variables.contains(variable)) {
         QString value;
         Core::IEditor *iface = Core::EditorManager::instance()->currentEditor();
         ITextEditor *editor = qobject_cast<ITextEditor *>(iface);
         if (editor) {
-            if (variable == QLatin1String(kCurrentDocumentSelection)) {
+            if (variable == kCurrentDocumentSelection) {
                 value = editor->selectedText();
                 value.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
-            } else if (variable == QLatin1String(kCurrentDocumentRow)) {
+            } else if (variable == kCurrentDocumentRow) {
                 value = QString::number(editor->currentLine());
-            } else if (variable == QLatin1String(kCurrentDocumentColumn)) {
+            } else if (variable == kCurrentDocumentColumn) {
                 value = QString::number(editor->currentColumn());
-            } else if (variable == QLatin1String(kCurrentDocumentRowCount)) {
+            } else if (variable == kCurrentDocumentRowCount) {
                 value = QString::number(editor->rowCount());
-            } else if (variable == QLatin1String(kCurrentDocumentColumnCount)) {
+            } else if (variable == kCurrentDocumentColumnCount) {
                 value = QString::number(editor->columnCount());
-            } else if (variable == QLatin1String(kCurrentDocumentFontSize)) {
+            } else if (variable == kCurrentDocumentFontSize) {
                 value = QString::number(editor->widget()->font().pointSize());
             }
         }

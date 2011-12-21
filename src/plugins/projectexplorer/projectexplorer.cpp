@@ -1005,12 +1005,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     updateWelcomePage();
 
     Core::VariableManager *vm = Core::VariableManager::instance();
-    vm->registerVariable(QLatin1String(kCurrentProjectFilePath),
+    vm->registerVariable(kCurrentProjectFilePath,
         tr("Full path of the current project's main file, including file name."));
-    vm->registerVariable(QLatin1String(kCurrentProjectPath),
+    vm->registerVariable(kCurrentProjectPath,
         tr("Full path of the current project's main file, excluding file name."));
-    connect(vm, SIGNAL(variableUpdateRequested(QString)),
-            this, SLOT(updateVariable(QString)));
+    connect(vm, SIGNAL(variableUpdateRequested(QByteArray)),
+            this, SLOT(updateVariable(QByteArray)));
 
     return true;
 }
@@ -1129,16 +1129,16 @@ void ProjectExplorerPlugin::loadCustomWizards()
     }
 }
 
-void ProjectExplorerPlugin::updateVariable(const QString &variable)
+void ProjectExplorerPlugin::updateVariable(const QByteArray &variable)
 {
-    if (variable == QLatin1String(kCurrentProjectFilePath)) {
+    if (variable == kCurrentProjectFilePath) {
         if (currentProject() && currentProject()->file()) {
             Core::VariableManager::instance()->insert(variable,
                                                       currentProject()->file()->fileName());
         } else {
             Core::VariableManager::instance()->remove(variable);
         }
-    } else if (variable == QLatin1String(kCurrentProjectPath)) {
+    } else if (variable == kCurrentProjectPath) {
         if (currentProject() && currentProject()->file()) {
             Core::VariableManager::instance()->insert(variable,
                                                       QFileInfo(currentProject()->file()->fileName()).path());

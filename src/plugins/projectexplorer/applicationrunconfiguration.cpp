@@ -61,7 +61,7 @@ class VarManMacroExpander : public Utils::AbstractQtcMacroExpander {
 public:
     virtual bool resolveMacro(const QString &name, QString *ret)
     {
-        *ret = Core::VariableManager::instance()->value(name);
+        *ret = Core::VariableManager::instance()->value(name.toUtf8());
         return !ret->isEmpty();
     }
 };

@@ -74,7 +74,7 @@ bool BuildConfigMacroExpander::resolveMacro(const QString &name, QString *ret)
         *ret = QDir::toNativeSeparators(m_bc->buildDirectory());
         return true;
     }
-    *ret = Core::VariableManager::instance()->value(name);
+    *ret = Core::VariableManager::instance()->value(name.toUtf8());
     return !ret->isEmpty();
 }
 } // namespace Internal

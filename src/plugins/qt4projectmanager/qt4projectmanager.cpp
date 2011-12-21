@@ -137,10 +137,10 @@ void Qt4Manager::init()
             this, SLOT(editorChanged(Core::IEditor*)));
 
     Core::VariableManager *vm = Core::VariableManager::instance();
-    vm->registerVariable(QLatin1String(kInstallBins),
+    vm->registerVariable(kInstallBins,
         tr("Full path to the bin/ install directory of the current project's Qt version."));
-    connect(vm, SIGNAL(variableUpdateRequested(QString)),
-            this, SLOT(updateVariable(QString)));
+    connect(vm, SIGNAL(variableUpdateRequested(QByteArray)),
+            this, SLOT(updateVariable(QByteArray)));
 }
 
 void Qt4Manager::editorChanged(Core::IEditor *editor)
@@ -182,19 +182,19 @@ void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
     }
 }
 
-void Qt4Manager::updateVariable(const QString &variable)
+void Qt4Manager::updateVariable(const QByteArray &variable)
 {
-    if (variable == QLatin1String(kInstallBins)) {
+    if (variable == kInstallBins) {
         Qt4Project *qt4pro = qobject_cast<Qt4Project *>(projectExplorer()->currentProject());
         if (!qt4pro) {
-            Core::VariableManager::instance()->remove(QLatin1String(kInstallBins));
+            Core::VariableManager::instance()->remove(kInstallBins);
             return;
         }
         QString value;
         QtSupport::BaseQtVersion *qtv = qt4pro->activeTarget()->activeQt4BuildConfiguration()->qtVersion();
         if (qtv)
             value = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
-        Core::VariableManager::instance()->insert(QLatin1String(kInstallBins), value);
+        Core::VariableManager::instance()->insert(kInstallBins, value);
     }
 }
 

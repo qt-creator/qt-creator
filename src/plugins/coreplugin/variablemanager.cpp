@@ -51,7 +51,7 @@ public:
     virtual bool resolveMacro(const QString &name, QString *ret)
     {
         bool found;
-        *ret = Core::VariableManager::instance()->value(name, &found);
+        *ret = Core::VariableManager::instance()->value(name.toUtf8(), &found);
         return found;
     }
 };
@@ -59,10 +59,20 @@ public:
 class VariableManagerPrivate
 {
 public:
-    QHash<QString, QString> m_map;
+    QHash<QByteArray, QString> m_map;
     VMMapExpander m_macroExpander;
-    QMap<QString, QString> m_descriptions;
+    QMap<QByteArray, QString> m_descriptions;
 };
+
+/*!
+    \class Core::VariableManager
+    \brief The VaraiableManager class holds a generic map from variable names
+    to string values.
+
+    The names of the variables are stored as QByteArray. They are typically
+    7-bit-clean. In cases where this is not possible, Latin-1 encoding is
+    assumed.
+*/
 
 static VariableManager *variableManagerInstance = 0;
 
@@ -77,17 +87,17 @@ VariableManager::~VariableManager()
     delete d;
 }
 
-void VariableManager::insert(const QString &variable, const QString &value)
+void VariableManager::insert(const QByteArray &variable, const QString &value)
 {
     d->m_map.insert(variable, value);
 }
 
-bool VariableManager::remove(const QString &variable)
+bool VariableManager::remove(const QByteArray &variable)
 {
     return d->m_map.remove(variable) > 0;
 }
 
-QString VariableManager::value(const QString &variable, bool *found)
+QString VariableManager::value(const QByteArray &variable, bool *found)
 {
     emit variableUpdateRequested(variable);
     if (found) {
@@ -96,7 +106,7 @@ QString VariableManager::value(const QString &variable, bool *found)
     return d->m_map.value(variable);
 }
 
-QString VariableManager::value(const QString &variable, const QString &defaultValue)
+QString VariableManager::value(const QByteArray &variable, const QString &defaultValue)
 {
     emit variableUpdateRequested(variable);
     return d->m_map.value(variable, defaultValue);
@@ -112,17 +122,17 @@ VariableManager *VariableManager::instance()
     return variableManagerInstance;
 }
 
-void VariableManager::registerVariable(const QString &variable, const QString &description)
+void VariableManager::registerVariable(const QByteArray &variable, const QString &description)
 {
     d->m_descriptions.insert(variable, description);
 }
 
-QList<QString> VariableManager::variables() const
+QList<QByteArray> VariableManager::variables() const
 {
     return d->m_descriptions.keys();
 }
 
-QString VariableManager::variableDescription(const QString &variable) const
+QString VariableManager::variableDescription(const QByteArray &variable) const
 {
     return d->m_descriptions.value(variable);
 }

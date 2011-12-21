@@ -56,19 +56,19 @@ public:
 
     static VariableManager *instance();
 
-    void insert(const QString &variable, const QString &value);
-    bool remove(const QString &variable);
-    QString value(const QString &variable, bool *found = 0);
-    QString value(const QString &variable, const QString &defaultValue);
+    void insert(const QByteArray &variable, const QString &value);
+    bool remove(const QByteArray &variable);
+    QString value(const QByteArray &variable, bool *found = 0);
+    QString value(const QByteArray &variable, const QString &defaultValue);
     Utils::AbstractMacroExpander *macroExpander();
 
-    void registerVariable(const QString &variable,
+    void registerVariable(const QByteArray &variable,
                           const QString &description);
-    QList<QString> variables() const;
-    QString variableDescription(const QString &variable) const;
+    QList<QByteArray> variables() const;
+    QString variableDescription(const QByteArray &variable) const;
 
 signals:
-    void variableUpdateRequested(const QString &variable);
+    void variableUpdateRequested(const QByteArray &variable);
 
 private:
     VariableManagerPrivate *d;

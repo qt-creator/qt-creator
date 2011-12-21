@@ -509,16 +509,16 @@ void EditorManager::init()
     pluginManager()->addObject(d->m_openEditorsFactory);
 
     VariableManager *vm = VariableManager::instance();
-    vm->registerVariable(QLatin1String(kCurrentDocumentFilePath),
+    vm->registerVariable(kCurrentDocumentFilePath,
         tr("Full path of the current document including file name."));
-    vm->registerVariable(QLatin1String(kCurrentDocumentPath),
+    vm->registerVariable(kCurrentDocumentPath,
         tr("Full path of the current document excluding file name."));
-    vm->registerVariable(QLatin1String(kCurrentDocumentXPos),
+    vm->registerVariable(kCurrentDocumentXPos,
         tr("X-coordinate of the current editor's upper left corner, relative to screen."));
-    vm->registerVariable(QLatin1String(kCurrentDocumentYPos),
+    vm->registerVariable(kCurrentDocumentYPos,
         tr("Y-coordinate of the current editor's upper left corner, relative to screen."));
-    connect(vm, SIGNAL(variableUpdateRequested(QString)),
-            this, SLOT(updateVariable(QString)));
+    connect(vm, SIGNAL(variableUpdateRequested(QByteArray)),
+            this, SLOT(updateVariable(QByteArray)));
 }
 
 void EditorManager::updateAutoSave()
@@ -2211,29 +2211,28 @@ QString EditorManager::windowTitleAddition() const
     return d->m_titleAddition;
 }
 
-void EditorManager::updateVariable(const QString &variable)
+void EditorManager::updateVariable(const QByteArray &variable)
 {
-    if (variable == QLatin1String(kCurrentDocumentFilePath)
-            || variable == QLatin1String(kCurrentDocumentPath)) {
+    if (variable == kCurrentDocumentFilePath || variable == kCurrentDocumentPath) {
         QString value;
         IEditor *curEditor = currentEditor();
         if (curEditor) {
             QString fileName = curEditor->file()->fileName();
             if (!fileName.isEmpty()) {
-                if (variable == QLatin1String(kCurrentDocumentFilePath))
+                if (variable == kCurrentDocumentFilePath)
                     value = QFileInfo(fileName).filePath();
-                else if (variable == QLatin1String(kCurrentDocumentPath))
+                else if (variable == kCurrentDocumentPath)
                     value = QFileInfo(fileName).path();
             }
         }
         VariableManager::instance()->insert(variable, value);
-    } else if (variable == QLatin1String(kCurrentDocumentXPos)) {
+    } else if (variable == kCurrentDocumentXPos) {
         QString value;
         IEditor *curEditor = currentEditor();
         if (curEditor)
             value = QString::number(curEditor->widget()->mapToGlobal(QPoint(0,0)).x());
         VariableManager::instance()->insert(variable, value);
-    } else if (variable == QLatin1String(kCurrentDocumentYPos)) {
+    } else if (variable == kCurrentDocumentYPos) {
         QString value;
         IEditor *curEditor = currentEditor();
         if (curEditor)
