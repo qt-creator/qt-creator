@@ -44,21 +44,21 @@
 #include "tabpositionindicator.h"
 #include "vcsmanager.h"
 
-#include <coreplugin/editortoolbar.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/iexternaleditor.h>
+#include <coreplugin/editortoolbar.h>
+#include <coreplugin/fileutils.h>
 #include <coreplugin/icorelistener.h>
-#include <coreplugin/infobar.h>
+#include <coreplugin/id.h>
 #include <coreplugin/imode.h>
+#include <coreplugin/infobar.h>
+#include <coreplugin/modemanager.h>
 #include <coreplugin/settingsdatabase.h>
 #include <coreplugin/variablemanager.h>
-#include <coreplugin/id.h>
-#include <coreplugin/fileutils.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -1529,8 +1529,7 @@ void EditorManager::autoSave()
                               errors.join(QLatin1String("\n")));
 }
 
-MakeWritableResult
-EditorManager::makeFileWritable(IFile *file)
+MakeWritableResult EditorManager::makeFileWritable(IFile *file)
 {
     if (!file)
         return Failed;
@@ -1597,9 +1596,9 @@ bool EditorManager::saveFileAs(IFile *fileParam)
     // a good way out either (also the undo stack would be lost). Perhaps the best is to
     // re-think part of the editors design.
 
-    if (success) {
+    if (success)
         addFileToRecentFiles(file);
-    }
+
     updateActions();
     return success;
 }
@@ -2124,12 +2123,14 @@ Core::IEditor *EditorManager::duplicateEditor(Core::IEditor *editor)
 void EditorManager::split(Qt::Orientation orientation)
 {
     SplitterOrView *view = d->m_currentView;
+
     if (!view)
-            view = d->m_currentEditor ? d->m_splitter->findView(d->m_currentEditor)
+        view = d->m_currentEditor ? d->m_splitter->findView(d->m_currentEditor)
                        : d->m_splitter->findFirstView();
-    if (view && !view->splitter()) {
+
+    if (view && !view->splitter())
         view->split(orientation);
-    }
+
     updateActions();
 }
 
@@ -2195,7 +2196,7 @@ void EditorManager::gotoOtherSplit()
 
 qint64 EditorManager::maxTextFileSize()
 {
-    return (qint64(3) << 24);
+    return qint64(3) << 24;
 }
 
 void EditorManager::setWindowTitleAddition(const QString &addition)
@@ -2228,16 +2229,14 @@ void EditorManager::updateVariable(const QString &variable)
     } else if (variable == QLatin1String(kCurrentDocumentXPos)) {
         QString value;
         IEditor *curEditor = currentEditor();
-        if (curEditor) {
+        if (curEditor)
             value = QString::number(curEditor->widget()->mapToGlobal(QPoint(0,0)).x());
-        }
         VariableManager::instance()->insert(variable, value);
     } else if (variable == QLatin1String(kCurrentDocumentYPos)) {
         QString value;
         IEditor *curEditor = currentEditor();
-        if (curEditor) {
+        if (curEditor)
             value = QString::number(curEditor->widget()->mapToGlobal(QPoint(0,0)).y());
-        }
         VariableManager::instance()->insert(variable, value);
     }
 }
