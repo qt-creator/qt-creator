@@ -218,9 +218,9 @@ void ModeManager::objectAdded(QObject *obj)
         bool currentlyHasDefaultSequence = (currentCmd->keySequence()
                                             == currentCmd->defaultKeySequence());
 #ifdef Q_WS_MAC
-        currentCmd->setDefaultKeySequence(QKeySequence(QString("Meta+%1").arg(i+1)));
+        currentCmd->setDefaultKeySequence(QKeySequence(QString::fromLatin1("Meta+%1").arg(i+1)));
 #else
-        currentCmd->setDefaultKeySequence(QKeySequence(QString("Ctrl+%1").arg(i+1)));
+        currentCmd->setDefaultKeySequence(QKeySequence(QString::fromLatin1("Ctrl+%1").arg(i+1)));
 #endif
         if (currentlyHasDefaultSequence)
             currentCmd->setKeySequence(currentCmd->defaultKeySequence());

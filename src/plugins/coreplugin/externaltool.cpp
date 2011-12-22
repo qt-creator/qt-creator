@@ -823,9 +823,10 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<Internal:
     }
     qDeleteAll(m_tools);
     QMapIterator<QString, QAction *> remainingActions(m_actions);
+    const QString externalToolsPrefix = QLatin1String("Tools.External.");
     while (remainingActions.hasNext()) {
         remainingActions.next();
-        am->unregisterAction(remainingActions.value(), Id("Tools.External." + remainingActions.key()));
+        am->unregisterAction(remainingActions.value(), Id(externalToolsPrefix + remainingActions.key()));
         delete remainingActions.value();
     }
     m_actions.clear();
@@ -847,7 +848,7 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<Internal:
             if (m_containers.contains(containerName)) {
                 container = m_containers.take(containerName); // remove to avoid deletion below
             } else {
-                container = am->createMenu(Id("Tools.External.Category." + containerName));
+                container = am->createMenu(Id(QLatin1String("Tools.External.Category.") + containerName));
             }
             newContainers.insert(containerName, container);
             mexternaltools->addMenu(container, Constants::G_DEFAULT_ONE);
@@ -860,13 +861,13 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<Internal:
             Command *command = 0;
             if (m_actions.contains(toolId)) {
                 action = m_actions.value(toolId);
-                command = am->command(Id("Tools.External." + toolId));
+                command = am->command(Id(externalToolsPrefix + toolId));
             } else {
                 action = new QAction(tool->displayName(), this);
                 action->setData(toolId);
                 m_actions.insert(toolId, action);
                 connect(action, SIGNAL(triggered()), this, SLOT(menuActivated()));
-                command = am->registerAction(action, Id("Tools.External." + toolId), Context(Constants::C_GLOBAL));
+                command = am->registerAction(action, Id(externalToolsPrefix + toolId), Context(Constants::C_GLOBAL));
                 command->setAttribute(Command::CA_UpdateText);
             }
             action->setText(tool->displayName());

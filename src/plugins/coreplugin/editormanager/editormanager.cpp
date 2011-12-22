@@ -1270,10 +1270,10 @@ int extractLineNumber(QString *fileName)
     }
     if (i == -1)
         return -1;
-    if (fileName->at(i) == ':' || fileName->at(i) == '+') {
-        int result = fileName->mid(i+1).toInt();
-        if (result) {
-            *fileName = fileName->left(i);
+    const QChar c = fileName->at(i);
+    if (c == QLatin1Char(':') || c == QLatin1Char('+')) {
+        if (const int result = fileName->mid(i + 1).toInt()) {
+            fileName->truncate(i);
             return result;
         }
     }
@@ -1386,7 +1386,7 @@ void EditorManager::switchToPreferedMode()
         preferedMode = d->m_currentEditor->preferredModeType();
 
     if (preferedMode.isEmpty())
-        preferedMode = Constants::MODE_EDIT_TYPE;
+        preferedMode = QLatin1String(Constants::MODE_EDIT_TYPE);
 
     ModeManager::instance()->activateModeType(preferedMode);
 }
@@ -1672,14 +1672,15 @@ void EditorManager::vcsOpenCurrentEditor()
 void EditorManager::updateWindowTitle()
 {
     QString windowTitle = tr("Qt Creator");
+    const QString dashSep = QLatin1String(" - ");
     if (!d->m_titleAddition.isEmpty()) {
-        windowTitle.prepend(d->m_titleAddition + " - ");
+        windowTitle.prepend(d->m_titleAddition + dashSep);
     }
     IEditor *curEditor = currentEditor();
     if (curEditor) {
         QString editorName = curEditor->displayName();
         if (!editorName.isEmpty())
-            windowTitle.prepend(editorName + " - ");
+            windowTitle.prepend(editorName + dashSep);
         QString filePath = QFileInfo(curEditor->file()->fileName()).absoluteFilePath();
         if (!filePath.isEmpty())
             d->m_core->mainWindow()->setWindowFilePath(filePath);
@@ -1771,7 +1772,7 @@ void EditorManager::updateActions()
 
     QString quotedName;
     if (!fName.isEmpty())
-        quotedName = '"' + fName + '"';
+        quotedName = QLatin1Char('"') + fName + QLatin1Char('"');
 
     d->m_saveAsAction->setText(tr("Save %1 &As...").arg(quotedName));
     d->m_saveAction->setText(tr("&Save %1").arg(quotedName));

@@ -130,8 +130,8 @@ DesignMode::DesignMode()
     setDisplayName(tr("Design"));
     setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Design.png")));
     setPriority(Constants::P_MODE_DESIGN);
-    setId(Constants::MODE_DESIGN);
-    setType(Constants::MODE_DESIGN_TYPE);
+    setId(QLatin1String(Constants::MODE_DESIGN));
+    setType(QLatin1String(Constants::MODE_DESIGN_TYPE));
 
     ExtensionSystem::PluginManager::instance()->addObject(d->m_coreListener);
 
@@ -237,7 +237,7 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
     if (!mimeEditorAvailable) {
         setActiveContext(Context());
         if (ModeManager::instance()->currentMode() == this)
-            ModeManager::instance()->activateMode(Core::Constants::MODE_EDIT);
+            ModeManager::instance()->activateMode(QLatin1String(Core::Constants::MODE_EDIT));
         setEnabled(false);
         d->m_currentEditor = QWeakPointer<Core::IEditor>();
         emit actionsUpdated(d->m_currentEditor.data());

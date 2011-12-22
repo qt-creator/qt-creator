@@ -114,8 +114,8 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_lastIndex(-1),
     m_outputWidgetPane(new QStackedWidget),
     m_opToolBarWidgets(new QStackedWidget),
-    m_minimizeIcon(":/core/images/arrowdown.png"),
-    m_maximizeIcon(":/core/images/arrowup.png"),
+    m_minimizeIcon(QLatin1String(":/core/images/arrowdown.png")),
+    m_maximizeIcon(QLatin1String(":/core/images/arrowup.png")),
     m_maximised(false)
 {
     setWindowTitle(tr("Output"));
@@ -212,20 +212,20 @@ void OutputPaneManager::init()
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     cmd = am->registerAction(m_prevAction, "Coreplugin.OutputPane.previtem", globalcontext);
-    cmd->setDefaultKeySequence(QKeySequence("Shift+F6"));
+    cmd->setDefaultKeySequence(QKeySequence(tr("Shift+F6")));
     m_prevToolButton->setDefaultAction(cmd->action());
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     cmd = am->registerAction(m_nextAction, "Coreplugin.OutputPane.nextitem", globalcontext);
     m_nextToolButton->setDefaultAction(cmd->action());
-    cmd->setDefaultKeySequence(QKeySequence("F6"));
+    cmd->setDefaultKeySequence(QKeySequence(tr("F6")));
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     cmd = am->registerAction(m_minMaxAction, "Coreplugin.OutputPane.minmax", globalcontext);
 #ifdef Q_WS_MAC
-    cmd->setDefaultKeySequence(QKeySequence("Ctrl+9"));
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+9")));
 #else
-    cmd->setDefaultKeySequence(QKeySequence("Alt+9"));
+    cmd->setDefaultKeySequence(QKeySequence(tr("Alt+9")));
 #endif
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setAttribute(Command::CA_UpdateIcon);
@@ -270,7 +270,7 @@ void OutputPaneManager::init()
 
         m_opToolBarWidgets->addWidget(toolButtonsContainer);
 
-        QString actionId = QString("QtCreator.Pane.%1").arg(outPane->displayName().simplified());
+        QString actionId = QLatin1String("QtCreator.Pane.") + outPane->displayName().simplified();
         actionId.remove(QLatin1Char(' '));
         QAction *action = new QAction(outPane->displayName(), this);
 
@@ -450,7 +450,7 @@ void OutputPaneManager::showPage(int idx, bool focus)
         if (!OutputPanePlaceHolder::getCurrent()) {
             // In this mode we don't have a placeholder
             // switch to the output mode and switch the page
-            ModeManager::instance()->activateMode(Constants::MODE_EDIT);
+            ModeManager::instance()->activateMode(QLatin1String(Constants::MODE_EDIT));
         }
         if (OutputPanePlaceHolder::getCurrent()) {
             // make the page visible
@@ -534,7 +534,7 @@ OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text,
     QFont fnt = QApplication::font();
     setFont(fnt);
     setStyleSheet(
-            "QToolButton { border-image: url(:/core/images/panel_button.png) 2 2 2 19;"
+            QLatin1String("QToolButton { border-image: url(:/core/images/panel_button.png) 2 2 2 19;"
                          " border-width: 2px 2px 2px 19px; padding-left: -17; padding-right: 4 } "
             "QToolButton:checked { border-image: url(:/core/images/panel_button_checked.png) 2 2 2 19 } "
             "QToolButton::menu-indicator { width:0; height:0 }"
@@ -543,7 +543,7 @@ OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text,
             "QToolButton:pressed:hover { border-image: url(:/core/images/panel_button_pressed.png) 2 2 2 19 } "
             "QToolButton:hover { border-image: url(:/core/images/panel_button_hover.png) 2 2 2 19 } "
 #endif
-            );
+            ));
     if (m_action)
         connect(m_action, SIGNAL(changed()), this, SLOT(updateToolTip()));
 }

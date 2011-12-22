@@ -216,7 +216,7 @@ void FutureProgress::cancel()
 
 void FutureProgress::updateToolTip(const QString &text)
 {
-    setToolTip("<b>" + title() + "</b><br>" + text);
+    setToolTip(QLatin1String("<b>") + title() + QLatin1String("</b><br>") + text);
 }
 
 void FutureProgress::setStarted()

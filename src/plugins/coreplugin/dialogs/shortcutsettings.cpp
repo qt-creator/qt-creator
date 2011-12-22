@@ -219,7 +219,7 @@ void ShortcutSettings::removeTargetIdentifier()
 void ShortcutSettings::importAction()
 {
     QString fileName = QFileDialog::getOpenFileName(0, tr("Import Keyboard Mapping Scheme"),
-        ICore::instance()->resourcePath() + "/schemes/",
+        ICore::instance()->resourcePath() + QLatin1String("/schemes/"),
         tr("Keyboard Mapping Scheme (*.kms)"));
     if (!fileName.isEmpty()) {
 
@@ -268,7 +268,7 @@ void ShortcutSettings::exportAction()
 {
     QString fileName = FileManager::instance()->getSaveFileNameWithExtension(
         tr("Export Keyboard Mapping Scheme"),
-        ICore::instance()->resourcePath() + "/schemes/",
+        ICore::instance()->resourcePath() + QLatin1String("/schemes/"),
         tr("Keyboard Mapping Scheme (*.kms)"));
     if (!fileName.isEmpty()) {
         CommandsFile cf(fileName);
@@ -325,7 +325,7 @@ void ShortcutSettings::initialize()
 
         if (c->action()) {
             QString text = c->hasAttribute(Command::CA_UpdateText) && !c->defaultText().isNull() ? c->defaultText() : c->action()->text();
-            text.remove(QRegExp("&(?!&)"));
+            text.remove(QRegExp(QLatin1String("&(?!&)")));
             s->m_key = c->action()->shortcut();
             item->setText(1, text);
         } else {

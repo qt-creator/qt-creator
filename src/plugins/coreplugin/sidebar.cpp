@@ -154,8 +154,10 @@ void SideBar::setCloseWhenEmpty(bool value)
 
 void SideBar::makeItemAvailable(SideBarItem *item)
 {
-    QMap<QString, QWeakPointer<SideBarItem> >::const_iterator it = d->m_itemMap.constBegin();
-    while (it != d->m_itemMap.constEnd()) {
+    typedef QMap<QString, QWeakPointer<SideBarItem> >::const_iterator Iterator;
+
+    const Iterator cend = d->m_itemMap.constEnd();
+    for (Iterator it = d->m_itemMap.constBegin(); it != cend ; ++it) {
         if (it.value().data() == item) {
             d->m_availableItemIds.append(it.key());
             d->m_availableItemTitles.append(it.value().data()->title());
@@ -165,7 +167,6 @@ void SideBar::makeItemAvailable(SideBarItem *item)
             //updateWidgets();
             break;
         }
-        ++it;
     }
 }
 
@@ -270,10 +271,10 @@ void SideBar::saveSettings(QSettings *settings, const QString &name)
         views.append(iter.key());
     }
 
-    settings->setValue(prefix + "Views", views);
-    settings->setValue(prefix + "Visible", true);
-    settings->setValue(prefix + "VerticalPosition", saveState());
-    settings->setValue(prefix + "Width", width());
+    settings->setValue(prefix + QLatin1String("Views"), views);
+    settings->setValue(prefix + QLatin1String("Visible"), true);
+    settings->setValue(prefix + QLatin1String("VerticalPosition"), saveState());
+    settings->setValue(prefix + QLatin1String("Width"), width());
 }
 
 void SideBar::closeAllWidgets()
@@ -288,8 +289,9 @@ void SideBar::readSettings(QSettings *settings, const QString &name)
 
     closeAllWidgets();
 
-    if (settings->contains(prefix + "Views")) {
-        QStringList views = settings->value(prefix + "Views").toStringList();
+    const QString viewsKey = prefix + QLatin1String("Views");
+    if (settings->contains(viewsKey)) {
+        QStringList views = settings->value(viewsKey).toStringList();
         if (views.count()) {
             foreach (const QString &id, views)
                 insertSideBarWidget(d->m_widgets.count(), id);
@@ -302,29 +304,33 @@ void SideBar::readSettings(QSettings *settings, const QString &name)
             insertSideBarWidget(d->m_widgets.count(), id);
     }
 
-    if (settings->contains(prefix + "Visible"))
-        setVisible(settings->value(prefix + "Visible").toBool());
+    const QString visibleKey = prefix + QLatin1String("Visible");
+    if (settings->contains(visibleKey))
+        setVisible(settings->value(visibleKey).toBool());
 
-    if (settings->contains(prefix + "VerticalPosition"))
-        restoreState(settings->value(prefix + "VerticalPosition").toByteArray());
+    const QString positionKey = prefix + QLatin1String("VerticalPosition");
+    if (settings->contains(positionKey))
+        restoreState(settings->value(positionKey).toByteArray());
 
-    if (settings->contains(prefix + "Width")) {
+    const QString widthKey = prefix + QLatin1String("Width");
+    if (settings->contains(widthKey)) {
         QSize s = size();
-        s.setWidth(settings->value(prefix + "Width").toInt());
+        s.setWidth(settings->value(widthKey).toInt());
         resize(s);
     }
 }
 
 void SideBar::activateItem(SideBarItem *item)
 {
-    QMap<QString, QWeakPointer<SideBarItem> >::const_iterator it = d->m_itemMap.constBegin();
+    typedef QMap<QString, QWeakPointer<SideBarItem> >::const_iterator Iterator;
+
     QString id;
-    while (it != d->m_itemMap.constEnd()) {
+    const Iterator cend = d->m_itemMap.constEnd();
+    for (Iterator it = d->m_itemMap.constBegin(); it != cend ; ++it) {
         if (it.value().data() == item) {
             id = it.key();
             break;
         }
-        ++it;
     }
 
     if (id.isEmpty())

@@ -339,12 +339,14 @@ QModelIndex ExternalToolModel::addTool(const QModelIndex &atIndex)
     tool->setDisplayCategory(category);
     tool->setDisplayName(tr("New Tool"));
     tool->setDescription(tr("This tool prints a line of useful text"));
+    //: Sample external tool text
+    const QString text = tr("Useful text");
 #ifdef Q_OS_WIN
-    tool->setExecutables(QStringList() << "cmd");
-    tool->setArguments(tr("/c echo Useful text"));
+    tool->setExecutables(QStringList(QLatin1String("cmd")));
+    tool->setArguments(QLatin1String("/c echo ") + text);
 #else
-    tool->setExecutables(QStringList() << "echo");
-    tool->setArguments(tr("Useful text"));
+    tool->setExecutables(QStringList(QLatin1String("echo")));
+    tool->setArguments(text);
 #endif
 
     int pos;
@@ -463,8 +465,8 @@ void ExternalToolConfig::setTools(const QMap<QString, QList<ExternalTool *> > &t
             itemCopy.append(new ExternalTool(tool));
         toolsCopy.insert(it.key(), itemCopy);
     }
-    if (!toolsCopy.contains(QString("")))
-        toolsCopy.insert(QString(""), QList<ExternalTool *>());
+    if (!toolsCopy.contains(QString()))
+        toolsCopy.insert(QString(), QList<ExternalTool *>());
     m_model->setTools(toolsCopy);
     ui->toolTree->expandAll();
 }

@@ -87,7 +87,7 @@ QString Id::toString() const
 
 Context::Context(const char *id, int offset)
 {
-    d.append(Id(QString(id) + QString::number(offset)).uniqueIdentifier());
+    d.append(Id(QLatin1String(id) + QString::number(offset)).uniqueIdentifier());
 }
 
 void Context::add(const char *id)

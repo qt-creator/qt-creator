@@ -151,7 +151,7 @@ void CommandMappings::finish()
 void CommandMappings::commandChanged(QTreeWidgetItem *current)
 {
     if (!current || !current->data(0, Qt::UserRole).isValid()) {
-        m_page->targetEdit->setText("");
+        m_page->targetEdit->setText(QString());
         m_page->targetEditGroup->setEnabled(false);
         return;
     }

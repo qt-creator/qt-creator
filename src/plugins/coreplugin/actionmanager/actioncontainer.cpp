@@ -405,7 +405,11 @@ bool MenuActionContainer::updateInternal()
             if (ActionContainerPrivate *container = qobject_cast<ActionContainerPrivate*>(item)) {
                 actions.removeAll(container->menu()->menuAction());
                 if (container == this) {
-                    qWarning() << Q_FUNC_INFO << "container" << (this->menu() ? this->menu()->title() : "") <<  "contains itself as subcontainer";
+                    QByteArray warning = Q_FUNC_INFO + QByteArray(" container '");
+                    if (this->menu())
+                        warning += this->menu()->title().toLocal8Bit();
+                    warning += "' contains itself as subcontainer";
+                    qWarning("%s", warning.constData());
                     continue;
                 }
                 if (container->updateInternal()) {

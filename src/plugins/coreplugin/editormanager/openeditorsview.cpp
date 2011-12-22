@@ -100,7 +100,7 @@ OpenEditorsWidget::OpenEditorsWidget()
 {
     m_ui.setupUi(this);
     setWindowTitle(tr("Open Documents"));
-    setWindowIcon(QIcon(Constants::ICON_DIR));
+    setWindowIcon(QIcon(QLatin1String(Constants::ICON_DIR)));
     setFocusProxy(m_ui.editorList);
     m_ui.editorList->viewport()->setAttribute(Qt::WA_Hover);
     m_ui.editorList->setItemDelegate((m_delegate = new OpenEditorsDelegate(this)));

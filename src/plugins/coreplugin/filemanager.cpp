@@ -682,11 +682,11 @@ QString FileManager::getSaveFileName(const QString &title, const QString &pathIn
             if (selectedFilter && *selectedFilter != QCoreApplication::translate(
                     "Core", Constants::ALL_FILES_FILTER)) {
                 // Mime database creates filter strings like this: Anything here (*.foo *.bar)
-                QRegExp regExp(".*\\s+\\((.*)\\)$");
+                QRegExp regExp(QLatin1String(".*\\s+\\((.*)\\)$"));
                 const int index = regExp.lastIndexIn(*selectedFilter);
                 bool suffixOk = false;
                 if (index != -1) {
-                    const QStringList &suffixes = regExp.cap(1).remove('*').split(' ');
+                    const QStringList &suffixes = regExp.cap(1).remove(QLatin1Char('*')).split(QLatin1Char(' '));
                     foreach (const QString &suffix, suffixes)
                         if (fileName.endsWith(suffix)) {
                             suffixOk = true;

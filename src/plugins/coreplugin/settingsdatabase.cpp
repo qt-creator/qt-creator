@@ -112,7 +112,7 @@ SettingsDatabase::SettingsDatabase(const QString &path,
     fileName += application;
     fileName += QLatin1String(".db");
 
-    d->m_db = QSqlDatabase::addDatabase("QSQLITE", QLatin1String("settings"));
+    d->m_db = QSqlDatabase::addDatabase(QLatin1String("QSQLITE"), QLatin1String("settings"));
     d->m_db.setDatabaseName(fileName);
     if (!d->m_db.open()) {
         qWarning().nospace() << "Warning: Failed to open settings database at " << fileName << " ("

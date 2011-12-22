@@ -311,7 +311,7 @@ ActionContainer *ActionManagerPrivate::createMenu(const Id &id)
         return it.value();
 
     QMenu *m = new QMenu(m_mainWnd);
-    m->setObjectName(id.name());
+    m->setObjectName(QLatin1String(id.name()));
 
     MenuActionContainer *mc = new MenuActionContainer(id);
     mc->setMenu(m);

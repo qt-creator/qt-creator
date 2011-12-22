@@ -173,20 +173,20 @@ void RightPaneWidget::resizeEvent(QResizeEvent *re)
 
 void RightPaneWidget::saveSettings(QSettings *settings)
 {
-    settings->setValue("RightPane/Visible", isShown());
-    settings->setValue("RightPane/Width", m_width);
+    settings->setValue(QLatin1String("RightPane/Visible"), isShown());
+    settings->setValue(QLatin1String("RightPane/Width"), m_width);
 }
 
 void RightPaneWidget::readSettings(QSettings *settings)
 {
-    if (settings->contains("RightPane/Visible")) {
-        setShown(settings->value("RightPane/Visible").toBool());
+    if (settings->contains(QLatin1String("RightPane/Visible"))) {
+        setShown(settings->value(QLatin1String("RightPane/Visible")).toBool());
     } else {
         setShown(false); //TODO set to false
     }
 
-    if (settings->contains("RightPane/Width")) {
-        m_width = settings->value("RightPane/Width").toInt();
+    if (settings->contains(QLatin1String("RightPane/Width"))) {
+        m_width = settings->value(QLatin1String("RightPane/Width")).toInt();
         if (!m_width)
             m_width = 500;
     } else {

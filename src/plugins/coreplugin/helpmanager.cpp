@@ -447,7 +447,7 @@ QStringList HelpManagerPrivate::documentationFromInstaller()
             documentationFiles << pathInfo.absoluteFilePath();
         } else if (pathInfo.isDir()) {
             QDir dir(path);
-            foreach (const QFileInfo &fileInfo, dir.entryInfoList(QStringList() << "*.qch",
+            foreach (const QFileInfo &fileInfo, dir.entryInfoList(QStringList(QLatin1String("*.qch")),
                                                               QDir::Files | QDir::Readable)) {
                 documentationFiles << fileInfo.absoluteFilePath();
             }

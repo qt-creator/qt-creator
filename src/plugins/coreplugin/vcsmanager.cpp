@@ -56,8 +56,6 @@ static inline VersionControlList allVersionControls()
     return ExtensionSystem::PluginManager::instance()->getObjects<IVersionControl>();
 }
 
-static const QChar SLASH('/');
-
 // ---- VCSManagerPrivate:
 // Maintains a cache of top-level directory->version control.
 
@@ -100,10 +98,10 @@ public:
     VcsInfo *findUpInCache(const QString &directory)
     {
         VcsInfo *result = 0;
-
+        const QChar slash = QLatin1Char('/');
         // Split the path, trying to find the matching repository. We start from the reverse
         // in order to detected nested repositories correctly (say, a git checkout under SVN).
-        for (int pos = directory.size() - 1; pos >= 0; pos = directory.lastIndexOf(SLASH, pos) - 1) {
+        for (int pos = directory.size() - 1; pos >= 0; pos = directory.lastIndexOf(slash, pos) - 1) {
             const QString directoryPart = directory.left(pos);
             result = findInCache(directoryPart);
             if (result != 0)
@@ -147,10 +145,15 @@ public:
             m_vcsInfoList.append(newInfo);
 
         QString tmpDir = dir;
+        const QChar slash = QLatin1Char('/');
         while (tmpDir.count() >= topLevel.count() && tmpDir.count() > 0) {
             m_cachedMatches.insert(tmpDir, newInfo);
-            int slashPos = tmpDir.lastIndexOf(SLASH);
-            tmpDir = slashPos >= 0 ? tmpDir.left(tmpDir.lastIndexOf(SLASH)) : QString();
+            const int slashPos = tmpDir.lastIndexOf(slash);
+            if (slashPos >= 0) {
+                tmpDir.truncate(slashPos);
+            } else {
+                tmpDir.clear();
+            }
         }
     }
 
@@ -202,6 +205,8 @@ void VcsManager::resetVersionControlForDirectory(const QString &inputDirectory)
 IVersionControl* VcsManager::findVersionControlForDirectory(const QString &inputDirectory,
                                                             QString *topLevelDirectory)
 {
+    typedef QPair<QString, IVersionControl *> StringVersionControlPair;
+    typedef QList<StringVersionControlPair> StringVersionControlPairs;
     if (inputDirectory.isEmpty())
         return 0;
 
@@ -217,12 +222,12 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
 
     // Nothing: ask the IVersionControls directly.
     const VersionControlList versionControls = allVersionControls();
-    QList<QPair<QString, IVersionControl *> > allThatCanManage;
+    StringVersionControlPairs allThatCanManage;
 
     foreach (IVersionControl * versionControl, versionControls) {
         QString topLevel;
         if (versionControl->managesDirectory(directory, &topLevel))
-            allThatCanManage.push_back(qMakePair(topLevel, versionControl));
+            allThatCanManage.push_back(StringVersionControlPair(topLevel, versionControl));
     }
 
     // To properly find a nested repository (say, git checkout inside SVN),
@@ -240,11 +245,14 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
 
     // Register Vcs(s) with the cache
     QString tmpDir = directory;
-    for (QList<QPair<QString, IVersionControl *> >::const_iterator i = allThatCanManage.constBegin();
-         i != allThatCanManage.constEnd(); ++i) {
+    const QChar slash = QLatin1Char('/');
+    const StringVersionControlPairs::const_iterator cend = allThatCanManage.constEnd();
+    for (StringVersionControlPairs::const_iterator i = allThatCanManage.constBegin(); i != cend; ++i) {
         d->cache(i->second, i->first, tmpDir);
         tmpDir = i->first;
-        tmpDir = tmpDir.left(tmpDir.lastIndexOf(SLASH));
+        const int slashPos = tmpDir.lastIndexOf(slash);
+        if (slashPos >= 0)
+            tmpDir.truncate(slashPos);
     }
 
     // return result

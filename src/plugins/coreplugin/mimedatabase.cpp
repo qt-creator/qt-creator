@@ -293,7 +293,7 @@ QPair<int, int> MagicRule::fromOffset(const QString &offset)
     \sa Core::Internal::BaseMimeTypeParser, Core::Internal::MimeTypeParser
  */
 
-const QString MagicStringRule::kMatchType("string");
+const QString MagicStringRule::kMatchType(QLatin1String("string"));
 
 MagicStringRule::MagicStringRule(const QString &s, int startPos, int endPos) :
     MagicRule(startPos, endPos), m_pattern(s.toUtf8())
@@ -311,7 +311,7 @@ QString MagicStringRule::matchType() const
 
 QString MagicStringRule::matchValue() const
 {
-    return m_pattern;
+    return QLatin1String(m_pattern);
 }
 
 bool MagicStringRule::matches(const QByteArray &data) const
@@ -1664,20 +1664,26 @@ QList<MimeType> MimeDatabasePrivate::readUserModifiedMimeTypes()
         QHash<int, MagicRuleList> rules;
         QXmlStreamReader reader(&file);
         QXmlStreamAttributes atts;
+        const QString mimeTypeAttribute = QLatin1String(mimeTypeAttributeC);
+        const QString patternAttribute = QLatin1String(patternAttributeC);
+        const QString matchValueAttribute = QLatin1String(matchValueAttributeC);
+        const QString matchTypeAttribute = QLatin1String(matchTypeAttributeC);
+        const QString matchOffsetAttribute = QLatin1String(matchOffsetAttributeC);
+        const QString priorityAttribute = QLatin1String(priorityAttributeC);
         while (!reader.atEnd()) {
             switch (reader.readNext()) {
             case QXmlStreamReader::StartElement:
                 atts = reader.attributes();
                 if (reader.name() == mimeTypeTagC) {
-                    mimeType.setType(atts.value(mimeTypeAttributeC).toString());
-                    const QString &patterns = atts.value(patternAttributeC).toString();
+                    mimeType.setType(atts.value(mimeTypeAttribute).toString());
+                    const QString &patterns = atts.value(patternAttribute).toString();
                     mimeType.setGlobPatterns(toGlobPatterns(patterns.split(kSemiColon)));
                 } else if (reader.name() == matchTagC) {
-                    const QString &value = atts.value(matchValueAttributeC).toString();
-                    const QString &type = atts.value(matchTypeAttributeC).toString();
-                    const QString &offset = atts.value(matchOffsetAttributeC).toString();
+                    const QString &value = atts.value(matchValueAttribute).toString();
+                    const QString &type = atts.value(matchTypeAttribute).toString();
+                    const QString &offset = atts.value(matchOffsetAttribute).toString();
                     QPair<int, int> range = MagicRule::fromOffset(offset);
-                    const int priority = atts.value(priorityAttributeC).toString().toInt();
+                    const int priority = atts.value(priorityAttribute).toString().toInt();
 
                     MagicRule *magicRule;
                     if (type == MagicStringRule::kMatchType)
@@ -1729,10 +1735,19 @@ void MimeDatabasePrivate::writeUserModifiedMimeTypes(const QList<MimeType> &mime
             writer.setAutoFormatting(true);
             writer.writeStartDocument();
             writer.writeStartElement(QLatin1String(mimeInfoTagC));
+            const QString mimeTypeTag = QLatin1String(mimeTypeTagC);
+            const QString matchTag = QLatin1String(matchTagC);
+            const QString mimeTypeAttribute = QLatin1String(mimeTypeAttributeC);
+            const QString patternAttribute = QLatin1String(patternAttributeC);
+            const QString matchValueAttribute = QLatin1String(matchValueAttributeC);
+            const QString matchTypeAttribute = QLatin1String(matchTypeAttributeC);
+            const QString matchOffsetAttribute = QLatin1String(matchOffsetAttributeC);
+            const QString priorityAttribute = QLatin1String(priorityAttributeC);
+
             foreach (const MimeType &mimeType, allModifiedMimeTypes) {
-                writer.writeStartElement(mimeTypeTagC);
-                writer.writeAttribute(mimeTypeAttributeC, mimeType.type());
-                writer.writeAttribute(patternAttributeC,
+                writer.writeStartElement(mimeTypeTag);
+                writer.writeAttribute(mimeTypeAttribute, mimeType.type());
+                writer.writeAttribute(patternAttribute,
                                       fromGlobPatterns(mimeType.globPatterns()).join(kSemiColon));
                 const QList<QSharedPointer<IMagicMatcher> > &matchers = mimeType.magicMatchers();
                 foreach (const QSharedPointer<IMagicMatcher> &matcher, matchers) {
@@ -1741,13 +1756,13 @@ void MimeDatabasePrivate::writeUserModifiedMimeTypes(const QList<MimeType> &mime
                         dynamic_cast<MagicRuleMatcher *>(matcher.data())) {
                         const MagicRuleMatcher::MagicRuleList &rules = ruleMatcher->magicRules();
                         foreach (const MagicRuleMatcher::MagicRuleSharedPointer &rule, rules) {
-                            writer.writeStartElement(matchTagC);
-                            writer.writeAttribute(matchValueAttributeC, rule->matchValue());
-                            writer.writeAttribute(matchTypeAttributeC, rule->matchType());
-                            writer.writeAttribute(matchOffsetAttributeC,
+                            writer.writeStartElement(matchTag);
+                            writer.writeAttribute(matchValueAttribute, rule->matchValue());
+                            writer.writeAttribute(matchTypeAttribute, rule->matchType());
+                            writer.writeAttribute(matchOffsetAttribute,
                                                   MagicRule::toOffset(
                                                       qMakePair(rule->startPos(), rule->endPos())));
-                            writer.writeAttribute(priorityAttributeC,
+                            writer.writeAttribute(priorityAttribute,
                                                   QString::number(ruleMatcher->priority()));
                             writer.writeEndElement();
                         }

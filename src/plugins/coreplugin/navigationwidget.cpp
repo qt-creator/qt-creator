@@ -200,7 +200,7 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> fact
         d->m_shortcutMap.insert(shortcut, id);
 
         Command *cmd = am->registerShortcut(shortcut,
-            Id(QLatin1String("QtCreator.Sidebar.") + id.name()), navicontext);
+            Id(QLatin1String("QtCreator.Sidebar.") + QLatin1String(id.name())), navicontext);
         cmd->setDefaultKeySequence(factory->activationSequence());
         d->m_commandMap.insert(id, cmd);
 
@@ -331,7 +331,7 @@ void NavigationWidget::restoreSettings(QSettings *settings)
 
     int version = settings->value(QLatin1String("Navigation/Version"), 1).toInt();
     QStringList viewIds = settings->value(QLatin1String("Navigation/Views"),
-                                          QStringList("Projects")).toStringList();
+                                          QStringList(QLatin1String("Projects"))).toStringList();
 
     bool restoreSplitterState = true;
     if (version == 1) {
