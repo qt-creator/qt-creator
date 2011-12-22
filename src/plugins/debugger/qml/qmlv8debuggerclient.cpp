@@ -138,6 +138,7 @@ public:
     QmlEngine *engine;
     QHash<BreakpointModelId, int> breakpoints;
     QHash<int, BreakpointModelId> breakpointsSync;
+    QList<int> breakpointsTemp;
 
     QScriptValue parser;
     QScriptValue stringifier;
@@ -1019,6 +1020,19 @@ void QmlV8DebuggerClient::executeStepI()
     d->continueDebugging(In);
 }
 
+void QmlV8DebuggerClient::executeRunToLine(const ContextData &data)
+{
+    if (d->isOldService) {
+        d->setBreakpoint(QString(_(SCRIPT)), QFileInfo(data.fileName).fileName(),
+                         data.lineNumber - 1);
+    } else {
+        d->setBreakpoint(QString(_(SCRIPTREGEXP)), QFileInfo(data.fileName).fileName(),
+                         data.lineNumber - 1);
+    }
+    clearExceptionSelection();
+    d->continueDebugging(Continue);
+}
+
 void QmlV8DebuggerClient::continueInferior()
 {
     clearExceptionSelection();
@@ -1282,11 +1296,16 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                     const QVariantMap breakpointData = resp.value(_(BODY)).toMap();
                     int index = breakpointData.value(_("breakpoint")).toInt();
 
-                    BreakpointModelId id = d->breakpointsSync.take(seq);
-                    d->breakpoints.insert(id, index);
+                    if (d->breakpointsSync.contains(seq)) {
+                        BreakpointModelId id = d->breakpointsSync.take(seq);
+                        d->breakpoints.insert(id, index);
 
-                    if (d->engine->breakHandler()->state(id) != BreakpointInserted)
-                        d->engine->breakHandler()->notifyBreakpointInsertOk(id);
+                        if (d->engine->breakHandler()->state(id) != BreakpointInserted)
+                            d->engine->breakHandler()->notifyBreakpointInsertOk(id);
+
+                    } else {
+                        d->breakpointsTemp.append(index);
+                    }
 
 
                 } else if (debugCommand == _(CHANGEBREAKPOINT)) {
@@ -1447,6 +1466,10 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                         }
 
                         if (d->engine->state() == InferiorRunOk) {
+                            foreach (const QVariant &breakpointId, v8BreakpointIds) {
+                                if (d->breakpointsTemp.contains(breakpointId.toInt()))
+                                    d->clearBreakpoint(breakpointId.toInt());
+                            }
                             d->engine->inferiorSpontaneousStop();
                             d->backtrace();
                         } else if (d->engine->state() == InferiorStopOk) {

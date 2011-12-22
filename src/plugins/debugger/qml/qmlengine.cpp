@@ -530,8 +530,13 @@ void QmlEngine::executeNextI()
 
 void QmlEngine::executeRunToLine(const ContextData &data)
 {
-    Q_UNUSED(data)
-    SDEBUG("FIXME:  QmlEngine::executeRunToLine()");
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    showStatusMessage(tr("Run to line  %1 (%2) requested...").arg(data.lineNumber).arg(data.fileName), 5000);
+    resetLocation();
+    if (d->m_adapter.activeDebuggerClient())
+        d->m_adapter.activeDebuggerClient()->executeRunToLine(data);
+    notifyInferiorRunRequested();
+    notifyInferiorRunOk();
 }
 
 void QmlEngine::executeRunToFunction(const QString &functionName)
@@ -777,7 +782,9 @@ void QmlEngine::synchronizeWatchers()
 
 unsigned QmlEngine::debuggerCapabilities() const
 {
-    return AddWatcherCapability|AddWatcherWhileRunningCapability;
+    return AddWatcherCapability
+            | AddWatcherWhileRunningCapability
+            | RunToLineCapability;
     /*ReverseSteppingCapability | SnapshotCapability
         | AutoDerefPointersCapability | DisassemblerCapability
         | RegisterCapability | ShowMemoryCapability

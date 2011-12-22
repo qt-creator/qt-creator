@@ -183,6 +183,17 @@ void QScriptDebuggerClient::executeStepI()
     sendMessage(reply);
 }
 
+void QScriptDebuggerClient::executeRunToLine(const ContextData &data)
+{
+    JSAgentBreakpointData bp;
+    bp.fileUrl = QUrl::fromLocalFile(data.fileName).toString().toUtf8();
+    bp.lineNumber = data.lineNumber;
+    bp.functionName = "TEMPORARY";
+    d->breakpoints.insert(bp);
+    synchronizeBreakpoints();
+    continueInferior();
+}
+
 void QScriptDebuggerClient::continueInferior()
 {
     QByteArray reply;
@@ -398,6 +409,7 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
 
         if (ideStackFrames.size() && ideStackFrames.back().function == QLatin1String("<global>"))
             ideStackFrames.takeLast();
+
         d->engine->stackHandler()->setFrames(ideStackFrames);
 
         d->engine->watchHandler()->beginCycle();
@@ -475,6 +487,18 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
                     br.lineNumber = line;
                     br.functionName = function;
                     handler->setResponse(id, br);
+                }
+            }
+
+            QList<JSAgentBreakpointData> breakpoints(d->breakpoints.toList());
+            foreach (const JSAgentBreakpointData &data, breakpoints) {
+                if (data.fileUrl == QUrl::fromLocalFile(file).toString().toUtf8() &&
+                        data.lineNumber == line &&
+                        data.functionName == "TEMPORARY") {
+                    breakpoints.removeOne(data);
+                    d->breakpoints = JSAgentBreakpoints::fromList(breakpoints);
+                    synchronizeBreakpoints();
+                    break;
                 }
             }
 

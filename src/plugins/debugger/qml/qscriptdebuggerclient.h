@@ -59,6 +59,8 @@ public:
     void executeNext();
     void executeStepI();
 
+    void executeRunToLine(const ContextData &data);
+
     void continueInferior();
     void interruptInferior();
 
