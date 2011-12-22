@@ -120,6 +120,7 @@ public:
                     file = fi.absoluteFilePath();
                 }
             }
+            description = unescape(description);
 
             hub->addTask(ProjectExplorer::Task(type, description, file, line, QLatin1String(Constants::TASKLISTTASK_ID)));
         }
@@ -133,11 +134,7 @@ public:
         if (line.startsWith(QChar('#')))
             return result;
 
-        result = line.split(QChar('\t'));
-        for (int i = 0; i < result.count(); ++i)
-            result[i] = unescape(result.at(i));
-
-        return result;
+        return line.split(QChar('\t'));
     }
 
     QString unescape(const QString &input) const
