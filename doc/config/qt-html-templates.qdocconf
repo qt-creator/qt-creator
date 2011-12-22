@@ -53,4 +53,13 @@ qhp.QtCreator.extraFiles = index.html \
                            images/horBar.png \
                            images/sprites-combined.png \
                            images/qtcreator-screenshots.png \
+                           images/bgrContent.png \
+                           images/blu_dot.png \
+                           images/btn_next.png \
+                           images/btn_prev.png \
+                           images/ico_note.png \
+                           images/ico_note_attention.png \
+                           images/ico_out.png \
+                           images/home.png \
+                           images/arrow.png \
                            style/offline.css

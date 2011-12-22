@@ -19,7 +19,16 @@ extraimages.HTML        = qt-logo.png \
                           bullet_up.png \
                           horBar.png \
                           sprites-combined.png \
-                          qtcreator-screenshots.png
+                          qtcreator-screenshots.png \
+                          bgrContent.png \
+                          blu_dot.png \
+                          btn_next.png \
+                          btn_prev.png \
+                          ico_note.png \
+                          ico_note_attention.png \
+                          ico_out.png \
+                          arrow.png \
+                          home.png
 
 # Include the style sheets and scripts used.
 
