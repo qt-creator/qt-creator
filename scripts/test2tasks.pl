@@ -6,7 +6,15 @@ test2tasks.pl - Convert QTest logs into Qt Creator task files.
 
 =head1 SYNOPSIS
 
-    test2tasks.pl < logfile > taskfile
+    test2tasks.pl [OPTIONS] < logfile > taskfile
+
+Options:
+
+    -a              Use absolute file paths
+
+    -r <some_path>  Prefix all file names by <some_path> (Used for
+                    creating a summarized log of a submodule repository)
+
 
 The script needs to be run in the working directory from which the test log was
 obtained as it attempts to perform a mapping from the source file base names of
@@ -17,17 +25,40 @@ the test log to relative path names by searching the files.
 use strict;
 
 use File::Find;
+use Getopt::Long;
+use File::Spec;
+use Cwd;
+
+my $optAbsolute = 0;
+my $optRelativeTo;
 
 # -- Build a hash from source file base name to relative paths.
 
 my %fileHash;
+my $workingDirectory = getcwd();
 
 sub handleFile
 {
     my $file = $_;
     return unless index($file, '.cpp') != -1 && -f $file;
 #   './file' -> 'file'
-    $fileHash{$file} = substr($File::Find::name, 0, 1) eq '.' ? substr($File::Find::name, 2) : $File::Find::name;
+    my $name = substr($File::Find::name, 0, 1) eq '.' ?
+               substr($File::Find::name, 2) : $File::Find::name;
+     my $fullName = $name;
+    if (defined $optRelativeTo) {
+    $fullName = File::Spec->catfile($optRelativeTo, $File::Find::name);
+    } else {
+    $fullName = File::Spec->catfile($workingDirectory, $File::Find::name) if ($optAbsolute);
+    }
+    $fullName =~ s|\\|/|g; # The task pane wants forward slashes on Windows, also.
+    $fileHash{$file} = $fullName;
+}
+
+#   Main
+if (!GetOptions("absolute" => \$optAbsolute,
+                "relative=s" => \$optRelativeTo)) {
+    print "Invalid option\n";
+    exit (0);
 }
 
 find({ wanted => \& handleFile}, '.');
@@ -71,4 +102,4 @@ while (my $line = <STDIN> ) {
     $lastLine = $line;
 }
 
-print STDERR 'Done, FAIL: ',$failCount, ', FATAL: ',$fatalCount, "\n";
+print STDERR 'Done, ISSUES: ',$failCount, ', FATAL: ',$fatalCount, "\n";
