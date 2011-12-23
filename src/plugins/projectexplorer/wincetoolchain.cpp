@@ -211,7 +211,8 @@ static bool parseSDK(QXmlStreamReader& theReader,
                 // invalid
                 ceVer = theReader.readElementText();
                 if (ceVer.toInt() < 5) {
-                    qDebug() << "Ignoring SDK as Qt only support CE 5 and higher.";
+                    if (debug)
+                        qDebug("Ignoring SDK '%s'. Windows CE version %d is unsupported.", qPrintable(sdkName), ceVer.toInt());
                     return false;
                 }
             } else if (elemName == "Macro") {
