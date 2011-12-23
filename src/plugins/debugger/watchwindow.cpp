@@ -743,7 +743,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
            "to stop when the data at the address is modified."));
 
     QAction *actSetWatchpointAtExpression = 0;
-    if (name.isEmpty()) {
+    const bool canSetWatchpointAtExpression = engineCapabilities & WatchpointByExpressionCapability;
+    if (name.isEmpty() || !canSetWatchpointAtExpression) {
         actSetWatchpointAtExpression =
             new QAction(tr("Add Data Breakpoint at Expression"),
                 &breakpointMenu);
