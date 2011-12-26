@@ -904,6 +904,7 @@ public:
     FakeVimHandler *q;
     Mode m_mode;
     bool m_passing; // let the core see the next event
+    bool m_firstKeyPending;
     SubMode m_submode;
     SubSubMode m_subsubmode;
     Input m_subsubdata;
@@ -1114,6 +1115,7 @@ void FakeVimHandler::Private::init()
     m_submode = NoSubMode;
     m_subsubmode = NoSubSubMode;
     m_passing = false;
+    m_firstKeyPending = false;
     m_findPending = false;
     m_findStartPosition = -1;
     m_fakeEnd = false;
@@ -1245,6 +1247,11 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     tc.setVisualNavigation(true);
     setCursor(tc);
 
+    if (m_firstKeyPending) {
+        m_firstKeyPending = false;
+        recordJump();
+    }
+
     if (m_fakeEnd)
         moveRight();
 
@@ -1299,6 +1306,7 @@ void FakeVimHandler::Private::setupWidget()
         m_plaintextedit->setLineWrapMode(QPlainTextEdit::NoWrap);
     }
     m_wasReadOnly = EDITOR(isReadOnly());
+    m_firstKeyPending = true;
 
     updateEditor();
     importSelection();
