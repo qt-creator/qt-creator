@@ -1485,7 +1485,6 @@ void FakeVimHandler::Private::stopIncrementalFind()
 
 void FakeVimHandler::Private::setUndoPosition(int pos)
 {
-    //qDebug() << " CURSOR POS: " << m_undoCursorPosition;
     m_undoCursorPosition[document()->availableUndoSteps()] = pos;
 }
 
@@ -2893,6 +2892,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
             moveLeft(qMin(1, leftDist()));
             setTargetColumn();
             leaveVisualMode();
+            breakEditBlock();
         }
         g.dotCommand += m_lastInsertion;
         g.dotCommand += QChar(27);
@@ -2955,11 +2955,13 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         setTargetColumn();
         m_lastInsertion.clear();
     } else if (input.isReturn()) {
+        joinPreviousEditBlock();
         m_submode = NoSubMode;
         insertText(QString("\n"));
         m_lastInsertion += '\n';
         insertAutomaticIndentation(true);
         setTargetColumn();
+        endEditBlock();
     } else if (input.isBackspace()) {
         joinPreviousEditBlock();
         m_justAutoIndented = 0;
@@ -4835,7 +4837,6 @@ QWidget *FakeVimHandler::Private::editor() const
 
 void FakeVimHandler::Private::undo()
 {
-    //qDebug() << " CURSOR POS: " << m_undoCursorPosition;
     // FIXME: That's only an approximaxtion. The real solution might
     // be to store marks and old userData with QTextBlock setUserData
     // and retrieve them afterward.
