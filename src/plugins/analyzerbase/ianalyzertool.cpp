@@ -53,11 +53,11 @@ Core::Id IAnalyzerTool::defaultActionId(const IAnalyzerTool *tool, StartMode mod
     Core::Id id = tool->id();
     switch (mode) {
     case Analyzer::StartLocal:
-        return Core::Id(("Analyzer." + id.name() + ".Local").data());
+        return Core::Id(QLatin1String("Analyzer.") + id.name() + QLatin1String(".Local"));
     case Analyzer::StartRemote:
-        return Core::Id(("Analyzer." + id.name() + ".Remote").data());
+        return Core::Id(QLatin1String("Analyzer.") + id.name() + QLatin1String(".Remote"));
     case Analyzer::StartQml:
-        return Core::Id(("Analyzer." + id.name() + ".Qml").data());
+        return Core::Id(QLatin1String("Analyzer.") + id.name() + QLatin1String(".Qml"));
     }
     return Core::Id();
 }
