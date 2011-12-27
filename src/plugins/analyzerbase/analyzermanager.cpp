@@ -183,7 +183,7 @@ public:
     QAction *actionFromToolAndMode(IAnalyzerTool *tool, StartMode mode);
 
     // Convenience.
-    void startLocalTool(IAnalyzerTool *tool, StartMode mode);
+    void startLocalTool(IAnalyzerTool *tool);
     bool isActionRunnable(QAction *action) const;
 
 public slots:
@@ -490,7 +490,7 @@ bool AnalyzerManagerPrivate::showPromptDialog(const QString &title, const QStrin
     return messageBox.clickedStandardButton() == QDialogButtonBox::Yes;
 }
 
-void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool, StartMode)
+void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool)
 {
     int index = m_tools.indexOf(tool);
     QTC_ASSERT(index >= 0, return);
@@ -883,9 +883,9 @@ void AnalyzerManager::stopTool()
     stopAction()->trigger();
 }
 
-void AnalyzerManager::startLocalTool(IAnalyzerTool *tool, StartMode mode)
+void AnalyzerManager::startLocalTool(IAnalyzerTool *tool)
 {
-    m_instance->d->startLocalTool(tool, mode);
+    m_instance->d->startLocalTool(tool);
 }
 
 QAction *AnalyzerManager::stopAction()

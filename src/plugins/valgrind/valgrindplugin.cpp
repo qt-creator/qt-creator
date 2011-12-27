@@ -165,7 +165,7 @@ RunConfigWidget *ValgrindRunControlFactory::createConfigurationWidget(RunConfigu
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
+static void startRemoteTool(IAnalyzerTool *tool)
 {
     Q_UNUSED(tool);
     StartRemoteDialog dlg;
@@ -174,7 +174,7 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
 
     AnalyzerStartParameters sp;
     sp.toolId = tool->id();
-    sp.startMode = mode;
+    sp.startMode = StartRemote;
     sp.connParams = dlg.sshParams();
     sp.debuggee = dlg.executable();
     sp.debuggeeArgs = dlg.arguments();
@@ -191,9 +191,9 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
 void ValgrindPlugin::startValgrindTool(IAnalyzerTool *tool, StartMode mode)
 {
     if (mode == StartLocal)
-        AnalyzerManager::startLocalTool(tool, mode);
+        AnalyzerManager::startLocalTool(tool);
     if (mode == StartRemote)
-        startRemoteTool(tool, mode);
+        startRemoteTool(tool);
 }
 
 static AbstractAnalyzerSubConfig *globalValgrindFactory()
