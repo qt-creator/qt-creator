@@ -175,7 +175,7 @@ enum SubMode
     CapitalZSubMode,     // Used for Z
     ReplaceSubMode,      // Used for r
     OpenSquareSubMode,   // Used for [
-    CloseSquareSubMode  // Used for ]
+    CloseSquareSubMode   // Used for ]
 };
 
 /*! A \e SubSubMode is used for things that require one more data item
@@ -890,6 +890,7 @@ public:
     void selectSentenceTextObject(bool inner);
     void selectParagraphTextObject(bool inner);
     void selectBlockTextObject(bool inner, char left, char right);
+    void changeNumberTextObject(bool doIncrement);
     void selectQuotedStringTextObject(bool inner, int type);
 
     Q_SLOT void importSelection();
@@ -2236,7 +2237,7 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
         m_lastInsertion.clear();
         updateMiniBuffer();
     } else if (input.isControl('a')) {
-        // FIXME: eat it to prevent the global "select all" shortcut to trigger
+        changeNumberTextObject(true);
     } else if (input.is('b') || input.isShift(Key_Left)) {
         m_movetype = MoveExclusive;
         moveToWordBoundary(false, false);
@@ -2675,6 +2676,8 @@ EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
         setAnchorAndPosition(position(), position() + n);
         setDotCommand("%1x", count());
         finishMovement();
+    } else if (input.isControl('x')) {
+        changeNumberTextObject(false);
     } else if (input.is('X')) {
         if (leftDist() > 0) {
             setAnchor();
@@ -5046,7 +5049,8 @@ void FakeVimHandler::Private::selectParagraphTextObject(bool inner)
     Q_UNUSED(inner);
 }
 
-void FakeVimHandler::Private::selectBlockTextObject(bool inner, char left, char right)
+void FakeVimHandler::Private::selectBlockTextObject(bool inner,
+    char left, char right)
 {
     QString sleft = QString(QLatin1Char(left));
     QString sright = QString(QLatin1Char(right));
@@ -5060,10 +5064,47 @@ void FakeVimHandler::Private::selectBlockTextObject(bool inner, char left, char 
     if (inner && document()->characterAt(p1) == ParagraphSeparator)
         ++p1;
     const int p2 = tc2.position() - inner - sright.size();
-    //setMark('>', p1);
-    //setMark('<', p2);
     setAnchorAndPosition(p2, p1);
     m_movetype = MoveInclusive;
+}
+
+static bool isSign(const QChar c)
+{
+    return c.unicode() == '-' || c.unicode() == '+';
+}
+
+void FakeVimHandler::Private::changeNumberTextObject(bool doIncrement)
+{
+    QTextCursor tc = cursor();
+    int pos = tc.position();
+    const int n = lastPositionInDocument();
+    QTextDocument *doc = document();
+    QChar c = doc->characterAt(pos);
+    if (!c.isNumber()) {
+        if (pos == n || !isSign(c))
+            return;
+        ++pos;
+        c = doc->characterAt(pos);
+        if (!c.isNumber())
+            return;
+    }
+    int p1 = pos;
+    while (p1 >= 1 && doc->characterAt(p1 - 1).isNumber())
+        --p1;
+    if (p1 >= 1 && isSign(doc->characterAt(p1 - 1)))
+        --p1;
+    int p2 = pos;
+    while (p2 <= n - 1 && doc->characterAt(p2 + 1).isNumber())
+        ++p2;
+    ++p2;
+    setAnchorAndPosition(p2, p1);
+
+    QString orig = selectText(currentRange());
+    int value = orig.toInt();
+    value = doIncrement ? value + 1 : value - 1;
+    QString repl = QString::fromLatin1("%1").arg(value, orig.size(), 10, QLatin1Char('0'));
+    replaceText(currentRange(), repl);
+    moveLeft();
 }
 
 void FakeVimHandler::Private::selectQuotedStringTextObject(bool inner, int type)
