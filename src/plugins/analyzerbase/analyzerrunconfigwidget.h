@@ -35,10 +35,11 @@
 #ifndef ANALYZER_INTERNAL_ANALYZERRUNCONFIGWIDGET_H
 #define ANALYZER_INTERNAL_ANALYZERRUNCONFIGWIDGET_H
 
-#include "analyzerbase_global.h"
 #include "analyzersettings.h"
 
 #include <projectexplorer/runconfiguration.h>
+
+#include <utils/detailswidget.h>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -52,8 +53,19 @@ class DetailsWidget;
 namespace Analyzer {
 
 class AnalyzerSettings;
+class AbstractAnalyzerSubConfig;
 
-class ANALYZER_EXPORT AnalyzerRunConfigWidget : public ProjectExplorer::RunConfigWidget
+namespace Internal {
+
+class AnalyzerToolDetailWidget : public Utils::DetailsWidget
+{
+    Q_OBJECT
+
+public:
+    explicit AnalyzerToolDetailWidget(AbstractAnalyzerSubConfig *config, QWidget *parent=0);
+};
+
+class AnalyzerRunConfigWidget : public ProjectExplorer::RunConfigWidget
 {
     Q_OBJECT
 
@@ -64,18 +76,21 @@ public:
 
     void setRunConfiguration(ProjectExplorer::RunConfiguration *rc);
 
+private:
+    void setDetailEnabled(bool value);
+
 private slots:
     void chooseSettings(int setting);
     void restoreGlobal();
 
 private:
-    Utils::DetailsWidget *m_detailsWidget;
     QWidget *m_subConfigWidget;
     AnalyzerProjectSettings *m_settings;
     QComboBox *m_settingsCombo;
     QPushButton *m_restoreButton;
 };
 
+} // namespace Internal
 } // namespace Analyzer
 
 #endif // ANALYZER_INTERNAL_ANALYZERRUNCONFIGWIDGET_H

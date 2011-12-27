@@ -2,9 +2,9 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2011 Kläralvdalens Datakonsult AB, a KDAB Group company.
 **
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Contact: Kläralvdalens Datakonsult AB (info@kdab.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,46 +26,33 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at qt-info@nokia.com.
+** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
 
-#ifndef CALLGRINDTOOL_H
-#define CALLGRINDTOOL_H
+#ifndef VALGRINDTOOL_H
+#define VALGRINDTOOL_H
 
-#include "valgrindtool.h"
+#include <analyzerbase/ianalyzertool.h>
 
 namespace Valgrind {
 namespace Internal {
 
-class CallgrindToolPrivate;
-
-class CallgrindTool : public ValgrindTool
+class ValgrindTool : public Analyzer::IAnalyzerTool
 {
     Q_OBJECT
-
 public:
-    CallgrindTool(QObject *parent);
-    ~CallgrindTool();
+    explicit ValgrindTool(QObject *parent);
 
-    Core::Id id() const;
-    QString displayName() const;
-    QString description() const;
-    ToolMode toolMode() const;
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
+                const QString &mode) const;
 
-    void extensionsInitialized();
-
-    Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration = 0);
-    QWidget *createWidgets();
-
-    void startTool(Analyzer::StartMode mode);
-
-private:
-    CallgrindToolPrivate *d;
+    Analyzer::AnalyzerStartParameters createStartParameters(
+            ProjectExplorer::RunConfiguration *runConfiguration,
+            const QString &mode) const;
 };
 
 } // namespace Internal
 } // namespace Valgrind
 
-#endif // CALLGRINDTOOL_H
+#endif // VALGRINDTOOL_H

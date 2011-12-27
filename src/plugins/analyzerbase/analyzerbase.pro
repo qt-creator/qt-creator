@@ -20,7 +20,8 @@ SOURCES += \
     analyzeroptionspage.cpp \
     analyzerrunconfigwidget.cpp \
     analyzerutils.cpp \
-    startremotedialog.cpp
+    startremotedialog.cpp \
+    analyzerruncontrolfactory.cpp
 
 HEADERS += \
     ianalyzerengine.h \
@@ -35,7 +36,8 @@ HEADERS += \
     analyzeroptionspage.h \
     analyzerrunconfigwidget.h \
     analyzerutils.h \
-    startremotedialog.h
+    startremotedialog.h \
+    analyzerruncontrolfactory.h
 
 FORMS += \
     startremotedialog.ui

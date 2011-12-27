@@ -34,7 +34,6 @@
 
 #include "analyzerrunconfigwidget.h"
 
-#include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
@@ -45,18 +44,31 @@
 #include <QtGui/QPushButton>
 
 namespace Analyzer {
+namespace Internal {
+
+AnalyzerToolDetailWidget::AnalyzerToolDetailWidget(AbstractAnalyzerSubConfig *config, QWidget *parent)
+    : Utils::DetailsWidget(parent)
+{
+    QTC_ASSERT(config!=0, return);
+
+    // update summary text
+    setSummaryText(tr("<strong>%1</strong> settings").arg(config->displayName()));
+
+    // create config widget
+    QWidget *configWidget = config->createConfigWidget(this);
+    setWidget(configWidget);
+}
 
 AnalyzerRunConfigWidget::AnalyzerRunConfigWidget()
-    : m_detailsWidget(new Utils::DetailsWidget(this))
 {
-    QWidget *mainWidget = new QWidget(this);
-    new QVBoxLayout(mainWidget);
-    m_detailsWidget->setWidget(mainWidget);
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
 
-    QWidget *globalSetting = new QWidget(mainWidget);
+    QWidget *globalSetting = new QWidget(this);
     QHBoxLayout *globalSettingLayout = new QHBoxLayout(globalSetting);
-    mainWidget->layout()->addWidget(globalSetting);
-    QLabel *label = new QLabel(displayName(), globalSetting);
+    globalSettingLayout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(globalSetting);
+    QLabel *label = new QLabel(tr("Analyzer Settings:"), globalSetting);
     globalSettingLayout->addWidget(label);
     m_settingsCombo = new QComboBox(globalSetting);
     m_settingsCombo->addItems(QStringList()
@@ -72,13 +84,9 @@ AnalyzerRunConfigWidget::AnalyzerRunConfigWidget()
     connect(m_restoreButton, SIGNAL(clicked()), this, SLOT(restoreGlobal()));
     globalSettingLayout->addStretch(2);
 
-    m_subConfigWidget = new QWidget(mainWidget);
-    mainWidget->layout()->addWidget(m_subConfigWidget);
+    m_subConfigWidget = new QWidget(this);
     new QVBoxLayout(m_subConfigWidget);
-
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(m_detailsWidget);
+    layout->addWidget(m_subConfigWidget);
 }
 
 QString AnalyzerRunConfigWidget::displayName() const
@@ -93,29 +101,28 @@ void AnalyzerRunConfigWidget::setRunConfiguration(ProjectExplorer::RunConfigurat
     m_settings = rc->extraAspect<AnalyzerProjectSettings>();
     QTC_ASSERT(m_settings, return);
 
-    // update summary text
-    QStringList tools;
-    foreach (AbstractAnalyzerSubConfig *config, m_settings->subConfigs()) {
-        tools << QString("<strong>%1</strong>").arg(config->displayName());
-    }
-    m_detailsWidget->setSummaryText(tr("Available settings: %1").arg(tools.join(", ")));
-
-    // add group boxes for each sub config
-    QLayout *layout = m_subConfigWidget->layout();
+    // add config widget for each sub config
     foreach (AbstractAnalyzerSubConfig *config, m_settings->customSubConfigs()) {
-        QWidget *widget = config->createConfigWidget(this);
-        layout->addWidget(widget);
+        QWidget *widget = new AnalyzerToolDetailWidget(config);
+        m_subConfigWidget->layout()->addWidget(widget);
     }
-    m_subConfigWidget->setEnabled(!m_settings->isUsingGlobalSettings());
+    setDetailEnabled(!m_settings->isUsingGlobalSettings());
     m_settingsCombo->setCurrentIndex(m_settings->isUsingGlobalSettings() ? 0 : 1);
     m_restoreButton->setEnabled(!m_settings->isUsingGlobalSettings());
+}
+
+void AnalyzerRunConfigWidget::setDetailEnabled(bool value)
+{
+    QList<AnalyzerToolDetailWidget*> details = findChildren<AnalyzerToolDetailWidget*>();
+    foreach (AnalyzerToolDetailWidget *detail, details)
+        detail->widget()->setEnabled(value);
 }
 
 void AnalyzerRunConfigWidget::chooseSettings(int setting)
 {
     QTC_ASSERT(m_settings, return);
+    setDetailEnabled(setting != 0);
     m_settings->setUsingGlobalSettings(setting == 0);
-    m_subConfigWidget->setEnabled(!m_settings->isUsingGlobalSettings());
     m_restoreButton->setEnabled(!m_settings->isUsingGlobalSettings());
 }
 
@@ -125,4 +132,5 @@ void AnalyzerRunConfigWidget::restoreGlobal()
     m_settings->resetCustomToGlobalSettings();
 }
 
+} // namespace Internal
 } // namespace Analyzer

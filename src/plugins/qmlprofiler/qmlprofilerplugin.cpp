@@ -33,7 +33,6 @@
 #include "qmlprofilerplugin.h"
 
 #include "qmlprofilertool.h"
-#include "qmlprofilerruncontrolfactory.h"
 
 #include <analyzerbase/analyzermanager.h>
 
@@ -48,11 +47,12 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
-    addAutoReleasedObject(new QmlProfilerRunControlFactory());
+
     StartModes modes;
     modes.append(StartMode(StartLocal));
     modes.append(StartMode(StartRemote));
     AnalyzerManager::addTool(new QmlProfilerTool(this), modes);
+
     return true;
 }
 

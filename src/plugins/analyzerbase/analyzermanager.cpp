@@ -908,7 +908,6 @@ IAnalyzerTool *AnalyzerManager::toolFromId(const Core::Id &id)
     foreach (IAnalyzerTool *tool, m_instance->d->m_tools)
         if (id.name().startsWith(tool->id().name()))
             return tool;
-    QTC_ASSERT(false, qDebug() << "NO ANAYLYZER TOOL FOUND FOR ID" << id.name());
     return 0;
 }
 

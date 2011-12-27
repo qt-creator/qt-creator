@@ -37,6 +37,7 @@
 
 #include "analyzerbase_global.h"
 #include "analyzerconstants.h"
+#include "analyzerstartparameters.h"
 
 #include <coreplugin/id.h>
 
@@ -48,7 +49,6 @@ class RunConfiguration;
 
 namespace Analyzer {
 
-class AnalyzerStartParameters;
 class IAnalyzerOutputPaneAdapter;
 class IAnalyzerEngine;
 
@@ -120,6 +120,15 @@ public:
     /// Called each time the tool is launched.
     virtual IAnalyzerEngine *createEngine(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0) = 0;
+
+    /// Returns true if the tool can be run
+    virtual bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
+                        const QString &mode) const = 0;
+
+    /// Create the start parameters for the run control factory
+    virtual AnalyzerStartParameters createStartParameters(
+            ProjectExplorer::RunConfiguration *runConfiguration,
+            const QString &mode) const = 0;
 
     virtual void startTool(StartMode mode) = 0;
 

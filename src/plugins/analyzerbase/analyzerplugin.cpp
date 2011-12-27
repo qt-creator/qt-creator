@@ -36,6 +36,7 @@
 #include "analyzerconstants.h"
 #include "analyzermanager.h"
 #include "ianalyzertool.h"
+#include "analyzerruncontrolfactory.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
@@ -78,6 +79,8 @@ bool AnalyzerPlugin::initialize(const QStringList &arguments, QString *errorStri
     Q_UNUSED(errorString)
 
     (void) new AnalyzerManager(this);
+
+    addAutoReleasedObject(new AnalyzerRunControlFactory());
 
     // Task integration.
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();

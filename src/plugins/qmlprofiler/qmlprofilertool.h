@@ -61,6 +61,13 @@ public:
     Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
+                const QString &mode) const;
+
+    Analyzer::AnalyzerStartParameters createStartParameters(
+            ProjectExplorer::RunConfiguration *runConfiguration,
+            const QString &mode) const;
+
     QWidget *createWidgets();
     void startTool(Analyzer::StartMode mode);
 

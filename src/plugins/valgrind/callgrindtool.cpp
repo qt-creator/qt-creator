@@ -497,7 +497,7 @@ static QToolButton *createToolButton(QAction *action)
 }
 
 CallgrindTool::CallgrindTool(QObject *parent)
-    : Analyzer::IAnalyzerTool(parent)
+    : ValgrindTool(parent)
 {
     d = new CallgrindToolPrivate(this);
     setObjectName(QLatin1String("CallgrindTool"));

@@ -2,9 +2,9 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2011 Kläralvdalens Datakonsult AB, a KDAB Group company.
 **
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Contact: Kläralvdalens Datakonsult AB (info@kdab.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,27 +26,26 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at qt-info@nokia.com.
+** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
 
-#ifndef QMLPROFILERRUNCONTROLFACTORY_H
-#define QMLPROFILERRUNCONTROLFACTORY_H
+#ifndef ANALYZERRUNCONTROLFACTORY_H
+#define ANALYZERRUNCONTROLFACTORY_H
 
 #include <analyzerbase/analyzerruncontrol.h>
 #include <projectexplorer/runconfiguration.h>
 
-namespace QmlProfiler {
+namespace Analyzer {
 namespace Internal {
 
-class QmlProfilerRunControlFactory : public ProjectExplorer::IRunControlFactory
+class AnalyzerRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
-
 public:
     typedef ProjectExplorer::RunConfiguration RunConfiguration;
 
-    QmlProfilerRunControlFactory(QObject *parent = 0);
+    explicit AnalyzerRunControlFactory(QObject *parent = 0);
 
     // IRunControlFactory implementation
     QString displayName() const;
@@ -55,11 +54,9 @@ public:
     ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect();
     ProjectExplorer::RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
 
-signals:
-    void runControlCreated(Analyzer::AnalyzerRunControl *);
 };
 
 } // namespace Internal
-} // namespace QmlProfiler
+} // namespace Analyzer
 
-#endif // QMLPROFILERRUNCONTROLFACTORY_H
+#endif // ANALYZERRUNCONTROLFACTORY_H
