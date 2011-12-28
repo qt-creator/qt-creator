@@ -567,6 +567,8 @@ void DebuggerEngine::resetLocation()
 
 void DebuggerEngine::gotoLocation(const Location &loc)
 {
+     d->resetLocation();
+
     if (debuggerCore()->boolSetting(OperateByInstruction) || !loc.hasDebugInfo()) {
         d->m_disassemblerAgent.setLocation(loc);
         return;
@@ -575,7 +577,6 @@ void DebuggerEngine::gotoLocation(const Location &loc)
     //if (m_shuttingDown)
     //    return;
 
-    d->resetLocation();
 
     const QString file = loc.fileName();
     const int line = loc.lineNumber();
