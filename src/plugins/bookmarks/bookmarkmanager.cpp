@@ -45,6 +45,7 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
 #include <QtGui/QAction>
@@ -381,7 +382,7 @@ QVariant BookmarkManager::data(const QModelIndex &index, int role) const
     else if (role == BookmarkManager::LineText)
         return m_bookmarksList.at(index.row())->lineText();
     else if (role == Qt::ToolTipRole)
-        return m_bookmarksList.at(index.row())->filePath();
+        return QDir::toNativeSeparators(m_bookmarksList.at(index.row())->filePath());
 
     return QVariant();
 }
