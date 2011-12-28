@@ -298,7 +298,17 @@ QString MemcheckTool::displayName() const
 QString MemcheckTool::description() const
 {
     return tr("Valgrind Analyze Memory uses the \"memcheck\" tool to find "
-        "memory leaks");
+              "memory leaks");
+}
+
+AbstractAnalyzerSubConfig *MemcheckTool::createGlobalSettings()
+{
+    return new ValgrindGlobalSettings();
+}
+
+AbstractAnalyzerSubConfig *MemcheckTool::createProjectSettings()
+{
+    return new ValgrindProjectSettings();
 }
 
 IAnalyzerTool::ToolMode MemcheckTool::toolMode() const

@@ -95,6 +95,7 @@ QVariantMap AnalyzerSettings::toMap(const QList<AbstractAnalyzerSubConfig *> &su
     return map;
 }
 
+
 AnalyzerGlobalSettings::AnalyzerGlobalSettings(QObject *parent)
 : AnalyzerSettings(parent)
 {
@@ -143,30 +144,26 @@ void AnalyzerGlobalSettings::writeSettings() const
     settings->endGroup();
 }
 
-void AnalyzerGlobalSettings::registerSubConfigs
-    (AnalyzerSubConfigFactory globalCreator, AnalyzerSubConfigFactory projectCreator)
+void AnalyzerGlobalSettings::registerTool(IAnalyzerTool *tool)
 {
-    m_projectSubConfigFactories.append(projectCreator);
-
-    AbstractAnalyzerSubConfig *config = globalCreator();
-    m_subConfigs.append(config);
-    AnalyzerPlugin::instance()->addAutoReleasedObject(new AnalyzerOptionsPage(config));
-
-    readSettings();
+    AbstractAnalyzerSubConfig *config = tool->createGlobalSettings();
+    if (config) {
+        m_subConfigs.append(config);
+        AnalyzerPlugin::instance()->addAutoReleasedObject(new AnalyzerOptionsPage(config));
+        readSettings();
+    }
 }
 
-QList<AnalyzerSubConfigFactory> AnalyzerGlobalSettings::projectSubConfigFactories() const
-{
-    return m_projectSubConfigFactories;
-}
 
 AnalyzerProjectSettings::AnalyzerProjectSettings(QObject *parent)
     : AnalyzerSettings(parent), m_useGlobalSettings(true)
 {
+    QList<IAnalyzerTool*> tools = AnalyzerManager::tools();
     // add sub configs
-    foreach (AnalyzerSubConfigFactory factory, AnalyzerGlobalSettings::instance()->projectSubConfigFactories()) {
-        AbstractAnalyzerSubConfig *config = factory();
-        m_customConfigurations.append(config);
+    foreach (IAnalyzerTool *tool, tools) {
+        AbstractAnalyzerSubConfig *config = tool->createProjectSettings();
+        if (config)
+            m_customConfigurations.append(config);
     }
 
     m_subConfigs = AnalyzerGlobalSettings::instance()->subConfigs();

@@ -44,6 +44,8 @@
 
 namespace Analyzer {
 
+class IAnalyzerTool;
+
 /**
  * Utility function to set @p val if @p key is present in @p map.
  */
@@ -121,8 +123,6 @@ protected:
 };
 
 
-typedef AbstractAnalyzerSubConfig *(*AnalyzerSubConfigFactory)();
-
 // global and local settings are loaded and saved differently, and they also handle suppressions
 // differently.
 /**
@@ -144,13 +144,11 @@ public:
     void writeSettings() const;
     void readSettings();
 
-    void registerSubConfigs(AnalyzerSubConfigFactory globalFactory, AnalyzerSubConfigFactory projectFactory);
-    QList<AnalyzerSubConfigFactory> projectSubConfigFactories() const;
+    void registerTool(IAnalyzerTool *tool);
 
 private:
     AnalyzerGlobalSettings(QObject *parent);
     static AnalyzerGlobalSettings *m_instance;
-    QList<AnalyzerSubConfigFactory> m_projectSubConfigFactories;
 };
 
 /**

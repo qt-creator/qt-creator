@@ -82,6 +82,7 @@ public:
 
     static void showMode();
     static IAnalyzerTool *currentSelectedTool();
+    static QList<IAnalyzerTool *> tools();
     static void selectTool(IAnalyzerTool *tool, StartMode mode);
     static void startTool(IAnalyzerTool *tool, StartMode mode);
     static void stopTool();

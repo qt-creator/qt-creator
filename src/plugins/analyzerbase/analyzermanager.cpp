@@ -41,6 +41,7 @@
 #include "analyzerstartparameters.h"
 #include "analyzerutils.h"
 #include "ianalyzertool.h"
+#include "analyzersettings.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/findplaceholder.h>
@@ -809,6 +810,7 @@ void AnalyzerManager::shutdown()
 void AnalyzerManager::addTool(IAnalyzerTool *tool, const StartModes &modes)
 {
     m_instance->d->addTool(tool, modes);
+    AnalyzerGlobalSettings::instance()->registerTool(tool);
 }
 
 QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QString &title,
@@ -827,6 +829,11 @@ QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QStrin
 IAnalyzerTool *AnalyzerManager::currentSelectedTool()
 {
     return m_instance->d->m_currentTool;
+}
+
+QList<IAnalyzerTool *> AnalyzerManager::tools()
+{
+    return m_instance->d->m_tools;
 }
 
 void AnalyzerManager::selectTool(IAnalyzerTool *tool, StartMode mode)

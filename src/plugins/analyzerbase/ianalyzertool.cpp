@@ -70,4 +70,14 @@ QString IAnalyzerTool::defaultActionName(const IAnalyzerTool *tool, StartMode mo
     return base;
 }
 
+AbstractAnalyzerSubConfig *IAnalyzerTool::createGlobalSettings()
+{
+    return 0;
+}
+
+AbstractAnalyzerSubConfig *IAnalyzerTool::createProjectSettings()
+{
+    return 0;
+}
+
 } // namespace Analyzer

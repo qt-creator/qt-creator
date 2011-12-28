@@ -36,7 +36,6 @@
 
 #include "callgrindtool.h"
 #include "memchecktool.h"
-#include "valgrindsettings.h"
 
 #include <analyzerbase/analyzerconstants.h>
 #include <analyzerbase/analyzermanager.h>
@@ -96,20 +95,8 @@ void ValgrindPlugin::startValgrindTool(IAnalyzerTool *tool, StartMode mode)
         startRemoteTool(tool);
 }
 
-static AbstractAnalyzerSubConfig *globalValgrindFactory()
-{
-    return new ValgrindGlobalSettings();
-}
-
-static AbstractAnalyzerSubConfig *projectValgrindFactory()
-{
-    return new ValgrindProjectSettings();
-}
-
 bool ValgrindPlugin::initialize(const QStringList &, QString *)
 {
-    AnalyzerGlobalSettings::instance()->registerSubConfigs(&globalValgrindFactory, &projectValgrindFactory);
-
     StartModes modes;
 #ifndef Q_OS_WIN
     modes.append(StartMode(StartLocal));
