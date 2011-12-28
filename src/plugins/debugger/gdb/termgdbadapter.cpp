@@ -61,8 +61,15 @@ namespace Internal {
 TermGdbAdapter::TermGdbAdapter(GdbEngine *engine)
     : AbstractGdbAdapter(engine)
 {
+#ifdef Q_OS_WIN
+    // Windows up to xp needs a workaround for attaching to freshly started processes. see proc_stub_win
+    if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA) {
+        m_stubProc.setMode(Utils::ConsoleProcess::Suspend);
+    } else {
+        m_stubProc.setMode(Utils::ConsoleProcess::Debug);
+    }
+#else
     m_stubProc.setMode(Utils::ConsoleProcess::Debug);
-#ifdef Q_OS_UNIX
     m_stubProc.setSettings(Core::ICore::instance()->settings());
 #endif
 
