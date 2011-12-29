@@ -1054,7 +1054,6 @@ bool QmlV8DebuggerClient::acceptsBreakpoint(const BreakpointModelId &id)
 {
     BreakpointType type = d->engine->breakHandler()->breakpointData(id).type;
     return (type == BreakpointOnQmlSignalHandler
-            || type == BreakpointByFunction
             || type == BreakpointByFileAndLine
             || type == BreakpointAtJavaScriptThrow);
 }
@@ -1078,11 +1077,6 @@ void QmlV8DebuggerClient::insertBreakpoint(const BreakpointModelId &id)
                              params.lineNumber - 1, -1, params.enabled,
                              QLatin1String(params.condition), params.ignoreCount);
         }
-
-    } else if (params.type == BreakpointByFunction) {
-        d->setBreakpoint(QString(_(FUNCTION)), params.functionName,
-                         -1, -1, params.enabled, QLatin1String(params.condition),
-                         params.ignoreCount);
 
     } else if (params.type == BreakpointOnQmlSignalHandler) {
         d->setBreakpoint(QString(_(EVENT)), params.functionName,
