@@ -1388,14 +1388,11 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                     const QString scriptUrl = breakData.value(_("script")).toMap().value(_("name")).toString();
                     const QString sourceLineText = breakData.value("sourceLineText").toString();
 
+                    bool inferiorStop = true;
+
                     if (invocationText.startsWith(_("[anonymous]()"))
                                                   && scriptUrl.endsWith(_(".qml"))
                             && sourceLineText.trimmed().startsWith(QLatin1Char('('))) {
-                        // we hit most likely the anonymous wrapper function automatically generated for bindings
-                        // -> relocate the breakpoint to column: 1 and continue
-
-                        int newColumn = sourceLineText.indexOf(QLatin1Char('(')) + 1;
-
                         QList<int> v8BreakpointIds;
                         {
                             const QVariantList v8BreakpointIdList = breakData.value(_("breakpoints")).toList();
@@ -1403,31 +1400,44 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                                 v8BreakpointIds << breakpointId.toInt();
                         }
 
-                        BreakHandler *handler = d->engine->breakHandler();
+                        if (!v8BreakpointIds.isEmpty()) {
+                            // we hit most likely the anonymous wrapper function automatically generated for bindings
+                            // -> relocate the breakpoint to column: 1 and continue
 
-                        foreach (int v8Id, v8BreakpointIds) {
-                            BreakpointModelId internalId;
-                            foreach (const BreakpointModelId &id, d->breakpoints.keys()) {
-                                if (d->breakpoints.value(id) == v8Id) {
-                                    internalId = id;
-                                    break;
+                            int newColumn = sourceLineText.indexOf(QLatin1Char('(')) + 1;
+                            BreakHandler *handler = d->engine->breakHandler();
+
+                            foreach (int v8Id, v8BreakpointIds) {
+                                BreakpointModelId internalId;
+                                foreach (const BreakpointModelId &id, d->breakpoints.keys()) {
+                                    if (d->breakpoints.value(id) == v8Id) {
+                                        internalId = id;
+                                        break;
+                                    }
+                                }
+
+                                if (internalId.isValid()) {
+                                    const BreakpointParameters &params = handler->breakpointData(internalId);
+
+                                    d->clearBreakpoint(v8Id);
+                                    const QString type = d->isOldService ? QString(_(SCRIPT)) :QString(_(SCRIPTREGEXP));
+                                    d->setBreakpoint(type, QFileInfo(params.fileName).fileName(),
+                                                     params.lineNumber - 1, newColumn, params.enabled,
+                                                     QString(params.condition), params.ignoreCount);
+                                    d->breakpointsSync.insert(d->sequence, internalId);
                                 }
                             }
-
-                            if (internalId.isValid()) {
-                                const BreakpointParameters &params = handler->breakpointData(internalId);
-
-                                d->clearBreakpoint(v8Id);
-                                const QString type = d->isOldService ? QString(_(SCRIPT)) :QString(_(SCRIPTREGEXP));
-                                d->setBreakpoint(type, QFileInfo(params.fileName).fileName(),
-                                                 params.lineNumber - 1, newColumn, params.enabled,
-                                                 QString(params.condition), params.ignoreCount);
-                                d->breakpointsSync.insert(d->sequence, internalId);
-                            }
+                            d->continueDebugging(Continue);
+                            inferiorStop = false;
                         }
-                        d->continueDebugging(Continue);
-                    } else if (d->engine->state() == InferiorRunOk) {
+                    }
+
+                    if (inferiorStop && d->engine->state() == InferiorRunOk) {
                         d->engine->inferiorSpontaneousStop();
+                        d->backtrace();
+                    }
+
+                    if (inferiorStop && d->engine->state() == InferiorStopOk) {
                         d->backtrace();
                     }
 
@@ -1446,6 +1456,10 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
 
                     if (d->engine->state() == InferiorRunOk) {
                         d->engine->inferiorSpontaneousStop();
+                        d->backtrace();
+                    }
+
+                    if (d->engine->state() == InferiorStopOk) {
                         d->backtrace();
                     }
 
