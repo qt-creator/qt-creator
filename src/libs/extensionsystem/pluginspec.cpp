@@ -520,7 +520,7 @@ bool PluginSpecPrivate::read(const QString &fileName)
     }
     if (reader.hasError())
         return reportError(tr("Error parsing file %1: %2, at line %3, column %4")
-                .arg(file.fileName())
+                .arg(QDir::toNativeSeparators(file.fileName()))
                 .arg(reader.errorString())
                 .arg(reader.lineNumber())
                 .arg(reader.columnNumber()));
