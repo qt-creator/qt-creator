@@ -230,7 +230,7 @@ bool GitVersionControl::vcsRemoveSnapshot(const QString &topLevel, const QString
 
 bool GitVersionControl::managesDirectory(const QString &directory, QString *topLevel) const
 {
-    const QString topLevelFound = GitClient::findRepositoryForDirectory(directory);
+    const QString topLevelFound = m_client->findRepositoryForDirectory(directory);
     if (topLevel)
         *topLevel = topLevelFound;
     return !topLevelFound.isEmpty();

@@ -87,7 +87,7 @@ public:
     unsigned gitVersion(bool silent, QString *errorMessage = 0) const;
     QString gitVersionString(bool silent, QString *errorMessage = 0) const;
 
-    static QString findRepositoryForDirectory(const QString &dir);
+    QString findRepositoryForDirectory(const QString &dir);
 
     void diff(const QString &workingDirectory, const QStringList &diffArgs, const QString &fileName);
     void diff(const QString &workingDirectory, const QStringList &diffArgs,

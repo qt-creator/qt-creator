@@ -361,9 +361,17 @@ const char *GitClient::decorateOption = "--decorate";
 
 QString GitClient::findRepositoryForDirectory(const QString &dir)
 {
-    // Check for ".git/config"
-    const QString checkFile = QLatin1String(GIT_DIRECTORY) + QLatin1String("/config");
-    return VcsBase::VcsBasePlugin::findRepositoryForDirectory(dir, checkFile);
+    if (synchronousGitVersion(true) >= 0x010700) {
+        QByteArray outputText;
+        QStringList arguments;
+        arguments << QLatin1String("rev-parse") << QLatin1String("--show-toplevel");
+        fullySynchronousGit(dir, arguments, &outputText, 0, false);
+        return outputText.trimmed();
+    } else {
+        // Check for ".git/config"
+        const QString checkFile = QLatin1String(GIT_DIRECTORY) + QLatin1String("/config");
+        return VcsBase::VcsBasePlugin::findRepositoryForDirectory(dir, checkFile);
+    }
 }
 
 VcsBase::VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *registerDynamicProperty,
