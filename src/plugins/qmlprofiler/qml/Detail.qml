@@ -54,13 +54,6 @@ Item {
         font.bold: true
     }
     Text {
-        text:":"
-        font.pixelSize: 12
-        font.bold: true
-        anchors.right: baseline.left
-        anchors.baseline: lbl.baseline
-    }
-    Text {
         text: content
         font.pixelSize: 12
         anchors.baseline: lbl.baseline
