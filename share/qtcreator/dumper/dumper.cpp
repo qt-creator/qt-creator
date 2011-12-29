@@ -373,8 +373,8 @@ static bool isSimpleType(const char *type)
 
 static bool isStringType(const char *type)
 {
-    return isEqual(type, NS"QString")
-        || isEqual(type, NS"QByteArray")
+    return isEqual(type, NS "QString")
+        || isEqual(type, NS "QByteArray")
         || isEqual(type, "std::string")
         || isEqual(type, "std::wstring")
         || isEqual(type, "wstring");
@@ -489,7 +489,7 @@ struct QDumper
     //   beginHash();
     //      putItem("name", name);
     //      putItem("value", value);
-    //      putItem("type", NS"QString");
+    //      putItem("type", NS "QString");
     //      putItem("numchild", "0");
     //      putItem("valueencoded", "2");
     //   endHash();
@@ -829,7 +829,7 @@ void QDumper::putHash(const char *name, const QString &value)
     beginHash();
     putItem("name", name);
     putStringValue(value);
-    putItem("type", NS"QString");
+    putItem("type", NS "QString");
     putItem("numchild", "0");
     endHash();
 }
@@ -839,7 +839,7 @@ void QDumper::putHash(const char *name, const QByteArray &value)
     beginHash();
     putItem("name", name);
     putItem("value", value);
-    putItem("type", NS"QByteArray");
+    putItem("type", NS "QByteArray");
     putItem("numchild", "0");
     putItem("valueencoded", "1");
     endHash();
@@ -904,7 +904,7 @@ void QDumper::putHash(const char *name, QChar value)
     putItem("name", name);
     putStringValue(QString(QLatin1String("'%1' (%2, 0x%3)"))
         .arg(value).arg(value.unicode()).arg(value.unicode(), 0, 16));
-    putItem("type", NS"QChar");
+    putItem("type", NS "QChar");
     putItem("numchild", "0");
     endHash();
 }
@@ -1030,12 +1030,12 @@ void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr,
                     d.putItem("addr", ob);
                     d.putItem("value", ob->objectName());
                     d.putItem("valueencoded", "2");
-                    d.putItem("type", NS"QObject");
+                    d.putItem("type", NS "QObject");
                     d.putItem("displayedtype", ob->metaObject()->className());
                     d.putItem("numchild", 1);
                 } else {
                     d.putItem("value", "0x0");
-                    d.putItem("type", NS"QObject *");
+                    d.putItem("type", NS "QObject *");
                     d.putItem("numchild", 0);
                 }
             }
@@ -1121,7 +1121,7 @@ static void qDumpQAbstractItem(QDumper &d)
     const int columnCount = m->columnCount(mi);
     if (columnCount < 0)
         return;
-    d.putItem("type", NS"QAbstractItem");
+    d.putItem("type", NS "QAbstractItem");
     d.beginItem("addr");
         d.put('$').put(mi.row()).put(',').put(mi.column()).put(',')
             .put(mi.internalPointer()).put(',').put(mi.model());
@@ -1145,7 +1145,7 @@ static void qDumpQAbstractItem(QDumper &d)
                     d.put("$").put(child.row()).put(",").put(child.column()).put(",")
                         .put(child.internalPointer()).put(",").put(child.model());
                 d.endItem();
-                d.putItem("type", NS"QAbstractItem");
+                d.putItem("type", NS "QAbstractItem");
                 d.putItem("value", m->data(child, Qt::DisplayRole).toString());
                 d.putItem("valueencoded", "2");
                 d.endHash();
@@ -1157,7 +1157,7 @@ static void qDumpQAbstractItem(QDumper &d)
         d.putItem("numchild", 0);
         d.putItem("value", m->data(mi, Qt::DisplayRole).toString());
         d.putItem("valueencoded", 2);
-        d.putItem("type", NS"QString");
+        d.putItem("type", NS "QString");
         d.endHash();
 */
         d.endChildren();
@@ -1176,7 +1176,7 @@ static void qDumpQAbstractItemModel(QDumper &d)
     if (columnCount < 0)
         return;
 
-    d.putItem("type", NS"QAbstractItemModel");
+    d.putItem("type", NS "QAbstractItemModel");
     d.beginItem("value");
         d.put("(").put(rowCount).put(",").put(columnCount).put(")");
     d.endItem();
@@ -1185,11 +1185,11 @@ static void qDumpQAbstractItemModel(QDumper &d)
         d.beginChildren();
         d.beginHash();
             d.putItem("numchild", "1");
-            d.putItem("name", NS"QObject");
+            d.putItem("name", NS "QObject");
             d.putItem("addr", d.data);
             d.putItem("value", m.objectName());
             d.putItem("valueencoded", "2");
-            d.putItem("type", NS"QObject");
+            d.putItem("type", NS "QObject");
             d.putItem("displayedtype", m.metaObject()->className());
         d.endHash();
         for (int row = 0; row < rowCount; ++row) {
@@ -1207,7 +1207,7 @@ static void qDumpQAbstractItemModel(QDumper &d)
                     d.put("$").put(mi.row()).put(",").put(mi.column()).put(",");
                     d.put(mi.internalPointer()).put(",").put(mi.model());
                 d.endItem();
-                d.putItem("type", NS"QAbstractItem");
+                d.putItem("type", NS "QAbstractItem");
                 d.endHash();
             }
         }
@@ -1238,7 +1238,7 @@ static void qDumpQByteArray(QDumper &d)
         d.put(ba.left(100)).put(" <size: ").put(size).put(", cut...>");
     d.endItem();
     d.putItem("valueencoded", "1");
-    d.putItem("type", NS"QByteArray");
+    d.putItem("type", NS "QByteArray");
     d.putItem("numchild", size);
     if (d.dumpChildren) {
         d.putItem("childtype", "char");
@@ -1272,13 +1272,13 @@ static void qDumpQDate(QDumper &d)
     const QDate &date = *reinterpret_cast<const QDate *>(d.data);
     if (date.isNull()) {
         d.putItem("value", "(null)");
-        d.putItem("type", NS"QDate");
+        d.putItem("type", NS "QDate");
         d.putItem("numchild", "0");
         return;
     }
     d.putItem("value", date.toString());
     d.putItem("valueencoded", "2");
-    d.putItem("type", NS"QDate");
+    d.putItem("type", NS "QDate");
     d.putItem("numchild", "1");
     if (d.dumpChildren) {
         d.beginChildren();
@@ -1303,13 +1303,13 @@ static void qDumpQTime(QDumper &d)
     const QTime &date = *reinterpret_cast<const QTime *>(d.data);
     if (date.isNull()) {
         d.putItem("value", "(null)");
-        d.putItem("type", NS"QTime");
+        d.putItem("type", NS "QTime");
         d.putItem("numchild", "0");
         return;
     }
     d.putItem("value", date.toString());
     d.putItem("valueencoded", "2");
-    d.putItem("type", NS"QTime");
+    d.putItem("type", NS "QTime");
     d.putItem("numchild", "1");
     if (d.dumpChildren) {
         d.beginChildren();
@@ -1334,14 +1334,14 @@ static void qDumpQDateTime(QDumper &d)
     const QDateTime &date = *reinterpret_cast<const QDateTime *>(d.data);
     if (date.isNull()) {
         d.putItem("value", "(null)");
-        d.putItem("type", NS"QDateTime");
+        d.putItem("type", NS "QDateTime");
         d.putItem("numchild", "0");
         d.disarm();
         return;
     }
     d.putItem("value", date.toString());
     d.putItem("valueencoded", "2");
-    d.putItem("type", NS"QDateTime");
+    d.putItem("type", NS "QDateTime");
     d.putItem("numchild", "1");
     if (d.dumpChildren) {
         d.beginChildren();
@@ -1358,7 +1358,7 @@ static void qDumpQDateTime(QDumper &d)
         d.putItem("name", "toUTC");
         d.putItem("exp", "((" NSX "QDateTime" NSY "*)").put(d.data).put(")"
                     "->toTimeSpec('" NS "Qt::UTC')");
-        d.putItem("type", NS"QDateTime");
+        d.putItem("type", NS "QDateTime");
         d.putItem("numchild", "1");
         d.endHash();
 #        endif
@@ -1368,7 +1368,7 @@ static void qDumpQDateTime(QDumper &d)
         d.putItem("name", "toLocalTime");
         d.putItem("exp", "((" NSX "QDateTime" NSY "*)").put(d.data).put(")"
                     "->toTimeSpec('" NS "Qt::LocalTime')");
-        d.putItem("type", NS"QDateTime");
+        d.putItem("type", NS "QDateTime");
         d.putItem("numchild", "1");
         d.endHash();
 #        endif
@@ -1384,7 +1384,7 @@ static void qDumpQDir(QDumper &d)
     const QDir &dir = *reinterpret_cast<const QDir *>(d.data);
     d.putItem("value", dir.path());
     d.putItem("valueencoded", "2");
-    d.putItem("type", NS"QDir");
+    d.putItem("type", NS "QDir");
     d.putItem("numchild", "3");
     if (d.dumpChildren) {
         d.beginChildren();
@@ -1400,7 +1400,7 @@ static void qDumpQFile(QDumper &d)
     const QFile &file = *reinterpret_cast<const QFile *>(d.data);
     d.putItem("value", file.fileName());
     d.putItem("valueencoded", "2");
-    d.putItem("type", NS"QFile");
+    d.putItem("type", NS "QFile");
     d.putItem("numchild", "2");
     if (d.dumpChildren) {
         d.beginChildren();
@@ -1416,7 +1416,7 @@ static void qDumpQFileInfo(QDumper &d)
     const QFileInfo &info = *reinterpret_cast<const QFileInfo *>(d.data);
     d.putItem("value", info.filePath());
     d.putItem("valueencoded", "2");
-    d.putItem("type", NS"QFileInfo");
+    d.putItem("type", NS "QFileInfo");
     d.putItem("numchild", "3");
     if (d.dumpChildren) {
         d.beginChildren();
@@ -1444,7 +1444,7 @@ static void qDumpQFileInfo(QDumper &d)
         d.beginHash();
             d.putItem("name", "permissions");
             d.putItem("value", " ");
-            d.putItem("type", NS"QFile::Permissions");
+            d.putItem("type", NS "QFile::Permissions");
             d.putItem("numchild", 10);
             d.beginChildren();
                 d.putHash("ReadOwner",  bool(perms & QFile::ReadOwner));
@@ -1483,7 +1483,7 @@ static void qDumpQFileInfo(QDumper &d)
         d.beginItem("exp");
             d.put("((" NSX "QFileInfo" NSY "*)").put(d.data).put(")->created()");
         d.endItem();
-        d.putItem("type", NS"QDateTime");
+        d.putItem("type", NS "QDateTime");
         d.putItem("numchild", "1");
         d.endHash();
 
@@ -1494,7 +1494,7 @@ static void qDumpQFileInfo(QDumper &d)
         d.beginItem("exp");
             d.put("((" NSX "QFileInfo" NSY "*)").put(d.data).put(")->lastModified()");
         d.endItem();
-        d.putItem("type", NS"QDateTime");
+        d.putItem("type", NS "QDateTime");
         d.putItem("numchild", "1");
         d.endHash();
 
@@ -1505,7 +1505,7 @@ static void qDumpQFileInfo(QDumper &d)
         d.beginItem("exp");
             d.put("((" NSX "QFileInfo" NSY "*)").put(d.data).put(")->lastRead()");
         d.endItem();
-        d.putItem("type", NS"QDateTime");
+        d.putItem("type", NS "QDateTime");
         d.putItem("numchild", "1");
         d.endHash();
 
@@ -1620,7 +1620,7 @@ static void qDumpQHash(QDumper &d)
                 } else {
                     d.putItem("addr", node);
                     d.beginItem("type");
-                        d.put(NS"QHashNode<").put(keyType).put(",")
+                        d.put(NS "QHashNode<").put(keyType).put(",")
                             .put(valueType).put(" >");
                     d.endItem();
                 }
@@ -1676,7 +1676,7 @@ static void qDumpQImage(QDumper &d)
     d.beginItem("value");
         d.put("(").put(im.width()).put("x").put(im.height()).put(")");
     d.endItem();
-    d.putItem("type", NS"QImage");
+    d.putItem("type", NS "QImage");
     d.putItem("numchild", "0");
 #if 0
     if (d.dumpChildren) {
@@ -1698,7 +1698,7 @@ static void qDumpQImageData(QDumper &d)
 {
     const QImage &im = *reinterpret_cast<const QImage *>(d.data);
     const QByteArray ba(QByteArray::fromRawData((const char*)im.bits(), im.numBytes()));
-    d.putItem("type", NS"QImageData");
+    d.putItem("type", NS "QImageData");
     d.putItem("numchild", "0");
 #if 1
     d.putItem("value", "<hover here>");
@@ -1838,7 +1838,7 @@ static void qDumpQLocale(QDumper &d)
     const QLocale &locale = *reinterpret_cast<const QLocale *>(d.data);
     d.putItem("value", locale.name());
     d.putItem("valueencoded", "2");
-    d.putItem("type", NS"QLocale");
+    d.putItem("type", NS "QLocale");
     d.putItem("numchild", "8");
     if (d.dumpChildren) {
         d.beginChildren();
@@ -1975,12 +1975,12 @@ static void qDumpQMap(QDumper &d)
                     d.putItem("addr", node);
                     // actually, any type (even 'char') will do...
                     d.beginItem("type");
-                        d.put(NS"QMapNode<").put(keyType).put(",");
+                        d.put(NS "QMapNode<").put(keyType).put(",");
                         d.put(valueType).put(" >");
                     d.endItem();
 #else
                     d.beginItem("type");
-                        d.put(NS"QMapData::Node<").put(keyType).put(",");
+                        d.put(NS "QMapData::Node<").put(keyType).put(",");
                         d.put(valueType).put(" >");
                     d.endItem();
                     d.beginItem("exp");
@@ -2011,7 +2011,7 @@ static void qDumpQModelIndex(QDumper &d)
 {
     const QModelIndex *mi = reinterpret_cast<const QModelIndex *>(d.data);
 
-    d.putItem("type", NS"QModelIndex");
+    d.putItem("type", NS "QModelIndex");
     if (mi->isValid()) {
         d.beginItem("value");
             d.put("(").put(mi->row()).put(", ").put(mi->column()).put(")");
@@ -2034,7 +2034,7 @@ static void qDumpQModelIndex(QDumper &d)
             d.beginItem("exp");
                 d.put("((" NSX "QModelIndex" NSY "*)").put(d.data).put(")->parent()");
             d.endItem();
-            d.putItem("type", NS"QModelIndex");
+            d.putItem("type", NS "QModelIndex");
             d.putItem("numchild", "1");
             d.endHash();
 
@@ -2043,7 +2043,7 @@ static void qDumpQModelIndex(QDumper &d)
             d.beginHash();
             d.putItem("name", "model");
             d.putItem("value", static_cast<const void *>(mi->model()));
-            d.putItem("type", NS"QAbstractItemModel*");
+            d.putItem("type", NS "QAbstractItemModel*");
             d.putItem("numchild", "1");
             d.endHash();
 
@@ -2064,7 +2064,7 @@ static void qDumpQObject(QDumper &d)
     const QMetaObject *mo = ob->metaObject();
     d.putItem("value", ob->objectName());
     d.putItem("valueencoded", "2");
-    d.putItem("type", NS"QObject");
+    d.putItem("type", NS "QObject");
     d.putItem("displayedtype", mo->className());
     d.putItem("numchild", 4);
     if (d.dumpChildren) {
@@ -2082,21 +2082,21 @@ static void qDumpQObject(QDumper &d)
             // (type *)addr, and here we have different 'types':
             // QObject vs QObjectPropertyList!
             d.putItem("addr", d.data);
-            d.putItem("type", NS"QObjectPropertyList");
+            d.putItem("type", NS "QObjectPropertyList");
             d.putItemCount("value", mo->propertyCount());
             d.putItem("numchild", mo->propertyCount());
         d.endHash();
         d.beginHash();
             d.putItem("name", "signals");
             d.putItem("addr", d.data);
-            d.putItem("type", NS"QObjectSignalList");
+            d.putItem("type", NS "QObjectSignalList");
             d.putItemCount("value", signalCount);
             d.putItem("numchild", signalCount);
         d.endHash();
         d.beginHash();
             d.putItem("name", "slots");
             d.putItem("addr", d.data);
-            d.putItem("type", NS"QObjectSlotList");
+            d.putItem("type", NS "QObjectSlotList");
             d.putItemCount("value", slotCount);
             d.putItem("numchild", slotCount);
         d.endHash();
@@ -2105,14 +2105,14 @@ static void qDumpQObject(QDumper &d)
             d.beginHash();
             d.putItem("name", "children");
             d.putItem("addr", d.data);
-            d.putItem("type", NS"QObjectChildList");
+            d.putItem("type", NS "QObjectChildList");
             d.putItemCount("value", objectChildren.size());
             d.putItem("numchild", objectChildren.size());
             d.endHash();
         }
         d.beginHash();
             d.putItem("name", "parent");
-            qDumpInnerValueHelper(d, NS"QObject *", ob->parent());
+            qDumpInnerValueHelper(d, NS "QObject *", ob->parent());
         d.endHash();
 #if 1
         d.beginHash();
@@ -2291,7 +2291,7 @@ static void qDumpQVariant(QDumper &d, const QVariant *v)
         d.putItem("value", ba);
         d.putItem("valueencoded", "5");
     }
-    d.putItem("type", NS"QVariant");
+    d.putItem("type", NS "QVariant");
     if (isInvalid || !numchild) {
         d.putItem("numchild", "0");
     } else {
@@ -2392,7 +2392,7 @@ static void qDumpQObjectPropertyList(QDumper &d)
     const QMetaObject *mo = ob->metaObject();
     const int propertyCount = mo->propertyCount();
     d.putItem("addr", "<synthetic>");
-    d.putItem("type", NS"QObjectPropertyList");
+    d.putItem("type", NS "QObjectPropertyList");
     d.putItem("numchild", propertyCount);
     d.putItemCount("value", propertyCount);
     if (d.dumpChildren) {
@@ -2425,7 +2425,7 @@ static void qDumpQObjectPropertyList(QDumper &d)
                 break;
             default:
                 d.putItem("addr", d.data);
-                d.putItem("type", NS"QObjectProperty");
+                d.putItem("type", NS "QObjectProperty");
                 d.putItem("numchild", "1");
                 break;
             }
@@ -2450,10 +2450,10 @@ static void qDumpQObjectMethodList(QDumper &d)
     const QObject *ob = (const QObject *)d.data;
     const QMetaObject *mo = ob->metaObject();
     d.putItem("addr", "<synthetic>");
-    d.putItem("type", NS"QObjectMethodList");
+    d.putItem("type", NS "QObjectMethodList");
     d.putItem("numchild", mo->methodCount());
     if (d.dumpChildren) {
-        d.putItem("childtype", NS"QMetaMethod::Method");
+        d.putItem("childtype", NS "QMetaMethod::Method");
         d.putItem("childnumchild", "0");
         d.beginChildren();
         for (int i = 0; i != mo->methodCount(); ++i) {
@@ -2531,7 +2531,7 @@ static inline void qDumpQObjectConnectionPart(QDumper &d,
         d.putItem("numchild", 0);
         d.putItem("addr", owner);
     } else {
-        qDumpInnerValueHelper(d, NS"QObject *", partner);
+        qDumpInnerValueHelper(d, NS "QObject *", partner);
     }
     d.endHash();
 }
@@ -2542,7 +2542,7 @@ static void qDumpQObjectSignal(QDumper &d)
 
     d.putItem("addr", "<synthetic>");
     d.putItem("numchild", "1");
-    d.putItem("type", NS"QObjectSignal");
+    d.putItem("type", NS "QObjectSignal");
 
 #if QT_VERSION >= 0x040400
     if (d.dumpChildren) {
@@ -2590,7 +2590,7 @@ static void qDumpQObjectSignalList(QDumper &d)
     const int methodCount = mo->methodCount();
     for (int i = methodCount; --i >= 0; )
         count += (mo->method(i).methodType() == QMetaMethod::Signal);
-    d.putItem("type", NS"QObjectSignalList");
+    d.putItem("type", NS "QObjectSignalList");
     d.putItemCount("value", count);
     d.putItem("addr", d.data);
     d.putItem("numchild", count);
@@ -2607,7 +2607,7 @@ static void qDumpQObjectSignalList(QDumper &d)
                 d.putItem("value", methodSignature(method));
                 d.putItem("numchild", connList.size());
                 d.putItem("addr", d.data);
-                d.putItem("type", NS"QObjectSignal");
+                d.putItem("type", NS "QObjectSignal");
                 d.endHash();
             }
         }
@@ -2623,7 +2623,7 @@ static void qDumpQObjectSlot(QDumper &d)
 
     d.putItem("addr", d.data);
     d.putItem("numchild", "1");
-    d.putItem("type", NS"QObjectSlot");
+    d.putItem("type", NS "QObjectSlot");
 
 #if QT_VERSION >= 0x040400
     if (d.dumpChildren) {
@@ -2693,7 +2693,7 @@ static void qDumpQObjectSlotList(QDumper &d)
 
     d.putItem("numchild", count);
     d.putItemCount("value", count);
-    d.putItem("type", NS"QObjectSlotList");
+    d.putItem("type", NS "QObjectSlotList");
     if (d.dumpChildren) {
         d.beginChildren();
 #if QT_VERSION >= 0x040400
@@ -2728,7 +2728,7 @@ static void qDumpQObjectSlotList(QDumper &d)
                 }
                 d.putItem("numchild", numchild);
                 d.putItem("addr", d.data);
-                d.putItem("type", NS"QObjectSlot");
+                d.putItem("type", NS "QObjectSlot");
                 d.endHash();
             }
         }
@@ -2746,12 +2746,12 @@ static void qDumpQObjectChildList(QDumper &d)
 
     d.putItem("numchild", size);
     d.putItemCount("value", size);
-    d.putItem("type", NS"QObjectChildList");
+    d.putItem("type", NS "QObjectChildList");
     if (d.dumpChildren) {
         d.beginChildren();
         for (int i = 0; i != size; ++i) {
             d.beginHash();
-            qDumpInnerValueHelper(d, NS"QObject *", children.at(i));
+            qDumpInnerValueHelper(d, NS "QObject *", children.at(i));
             d.endHash();
         }
         d.endChildren();
@@ -2767,7 +2767,7 @@ static void qDumpQPixmap(QDumper &d)
     d.beginItem("value");
         d.put("(").put(im.width()).put("x").put(im.height()).put(")");
     d.endItem();
-    d.putItem("type", NS"QPixmap");
+    d.putItem("type", NS "QPixmap");
     d.putItem("numchild", "0");
     d.disarm();
 }
@@ -2780,7 +2780,7 @@ static void qDumpQPoint(QDumper &d)
     d.beginItem("value");
         d.put("(").put(pnt.x()).put(", ").put(pnt.y()).put(")");
     d.endItem();
-    d.putItem("type", NS"QPoint");
+    d.putItem("type", NS "QPoint");
     d.putItem("numchild", "2");
     if (d.dumpChildren) {
         d.beginChildren();
@@ -2797,7 +2797,7 @@ static void qDumpQPointF(QDumper &d)
     d.beginItem("value");
         d.put("(").put(pnt.x()).put(", ").put(pnt.y()).put(")");
     d.endItem();
-    d.putItem("type", NS"QPointF");
+    d.putItem("type", NS "QPointF");
     d.putItem("numchild", "2");
     if (d.dumpChildren) {
         d.beginChildren();
@@ -2821,7 +2821,7 @@ static void qDumpQRect(QDumper &d)
         d.put(rc.y());
         d.put(")");
     d.endItem();
-    d.putItem("type", NS"QRect");
+    d.putItem("type", NS "QRect");
     d.putItem("numchild", "4");
     if (d.dumpChildren) {
         d.beginChildren();
@@ -2847,7 +2847,7 @@ static void qDumpQRectF(QDumper &d)
         d.put(rc.y());
         d.put(")");
     d.endItem();
-    d.putItem("type", NS"QRectF");
+    d.putItem("type", NS "QRectF");
     d.putItem("numchild", "4");
     if (d.dumpChildren) {
         d.beginChildren();
@@ -2961,7 +2961,7 @@ static void qDumpQSize(QDumper &d)
     d.beginItem("value");
         d.put("(").put(s.width()).put("x").put(s.height()).put(")");
     d.endItem();
-    d.putItem("type", NS"QSize");
+    d.putItem("type", NS "QSize");
     d.putItem("numchild", "2");
     if (d.dumpChildren) {
         d.beginChildren();
@@ -2978,7 +2978,7 @@ static void qDumpQSizeF(QDumper &d)
     d.beginItem("value");
         d.put("(").put(s.width()).put("x").put(s.height()).put(")");
     d.endItem();
-    d.putItem("type", NS"QSizeF");
+    d.putItem("type", NS "QSizeF");
     d.putItem("numchild", "2");
     if (d.dumpChildren) {
         d.beginChildren();
@@ -3006,7 +3006,7 @@ static void qDumpQString(QDumper &d)
     }
 
     d.putStringValue(str);
-    d.putItem("type", NS"QString");
+    d.putItem("type", NS "QString");
     //d.putItem("editvalue", str);  // handled generically below
     d.putItem("numchild", "0");
 
@@ -3031,7 +3031,7 @@ static void qDumpQStringList(QDumper &d)
     if (d.dumpChildren) {
         if (n > 1000)
             n = 1000;
-        d.beginChildren(n ? NS"QString" : 0);
+        d.beginChildren(n ? NS "QString" : 0);
         for (int i = 0; i != n; ++i) {
             d.beginHash();
             d.putStringValue(list.at(i));
@@ -3050,7 +3050,7 @@ static void qDumpQTextCodec(QDumper &d)
     const QTextCodec &codec = *reinterpret_cast<const QTextCodec *>(d.data);
     d.putItem("value", codec.name());
     d.putItem("valueencoded", "1");
-    d.putItem("type", NS"QTextCodec");
+    d.putItem("type", NS "QTextCodec");
     d.putItem("numchild", "2");
     if (d.dumpChildren) {
         d.beginChildren();
