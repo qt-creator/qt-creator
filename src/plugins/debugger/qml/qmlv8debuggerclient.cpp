@@ -1390,55 +1390,68 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
 
                     bool inferiorStop = true;
 
-                    if (invocationText.startsWith(_("[anonymous]()"))
-                                                  && scriptUrl.endsWith(_(".qml"))
+                    QList<int> v8BreakpointIds;
+                    {
+                        const QVariantList v8BreakpointIdList = breakData.value(_("breakpoints")).toList();
+                        foreach (const QVariant &breakpointId, v8BreakpointIdList)
+                            v8BreakpointIds << breakpointId.toInt();
+                    }
+
+                    if (!v8BreakpointIds.isEmpty() && invocationText.startsWith(_("[anonymous]()"))
+                            && scriptUrl.endsWith(_(".qml"))
                             && sourceLineText.trimmed().startsWith(QLatin1Char('('))) {
-                        QList<int> v8BreakpointIds;
-                        {
-                            const QVariantList v8BreakpointIdList = breakData.value(_("breakpoints")).toList();
-                            foreach (const QVariant &breakpointId, v8BreakpointIdList)
-                                v8BreakpointIds << breakpointId.toInt();
-                        }
 
-                        if (!v8BreakpointIds.isEmpty()) {
-                            // we hit most likely the anonymous wrapper function automatically generated for bindings
-                            // -> relocate the breakpoint to column: 1 and continue
+                        // we hit most likely the anonymous wrapper function automatically generated for bindings
+                        // -> relocate the breakpoint to column: 1 and continue
 
-                            int newColumn = sourceLineText.indexOf(QLatin1Char('(')) + 1;
-                            BreakHandler *handler = d->engine->breakHandler();
+                        int newColumn = sourceLineText.indexOf(QLatin1Char('(')) + 1;
+                        BreakHandler *handler = d->engine->breakHandler();
 
-                            foreach (int v8Id, v8BreakpointIds) {
-                                BreakpointModelId internalId;
-                                foreach (const BreakpointModelId &id, d->breakpoints.keys()) {
-                                    if (d->breakpoints.value(id) == v8Id) {
-                                        internalId = id;
-                                        break;
-                                    }
-                                }
-
-                                if (internalId.isValid()) {
-                                    const BreakpointParameters &params = handler->breakpointData(internalId);
-
-                                    d->clearBreakpoint(v8Id);
-                                    const QString type = d->isOldService ? QString(_(SCRIPT)) :QString(_(SCRIPTREGEXP));
-                                    d->setBreakpoint(type, QFileInfo(params.fileName).fileName(),
-                                                     params.lineNumber - 1, newColumn, params.enabled,
-                                                     QString(params.condition), params.ignoreCount);
-                                    d->breakpointsSync.insert(d->sequence, internalId);
+                        foreach (int v8Id, v8BreakpointIds) {
+                            BreakpointModelId internalId;
+                            foreach (const BreakpointModelId &id, d->breakpoints.keys()) {
+                                if (d->breakpoints.value(id) == v8Id) {
+                                    internalId = id;
+                                    break;
                                 }
                             }
-                            d->continueDebugging(Continue);
-                            inferiorStop = false;
+
+                            if (internalId.isValid()) {
+                                const BreakpointParameters &params = handler->breakpointData(internalId);
+
+                                d->clearBreakpoint(v8Id);
+                                const QString type = d->isOldService ? QString(_(SCRIPT)) :QString(_(SCRIPTREGEXP));
+                                d->setBreakpoint(type, QFileInfo(params.fileName).fileName(),
+                                                 params.lineNumber - 1, newColumn, params.enabled,
+                                                 QString(params.condition), params.ignoreCount);
+                                d->breakpointsSync.insert(d->sequence, internalId);
+                            }
                         }
+                        d->continueDebugging(Continue);
+                        inferiorStop = false;
                     }
 
-                    if (inferiorStop && d->engine->state() == InferiorRunOk) {
-                        d->engine->inferiorSpontaneousStop();
-                        d->backtrace();
-                    }
+                    if (inferiorStop) {
+                        //Update breakpoint data
+                        BreakHandler *handler = d->engine->breakHandler();
+                        foreach (int v8Id, v8BreakpointIds) {
+                            foreach (const BreakpointModelId &id, d->breakpoints.keys()) {
+                                if (d->breakpoints.value(id) == v8Id) {
+                                    BreakpointResponse br = handler->response(id);
+                                    if (br.functionName.isEmpty()) {
+                                        br.functionName = invocationText;
+                                        handler->setResponse(id, br);
+                                    }
+                                }
+                            }
+                        }
 
-                    if (inferiorStop && d->engine->state() == InferiorStopOk) {
-                        d->backtrace();
+                        if (d->engine->state() == InferiorRunOk) {
+                            d->engine->inferiorSpontaneousStop();
+                            d->backtrace();
+                        } else if (d->engine->state() == InferiorStopOk) {
+                            d->backtrace();
+                        }
                     }
 
                 } else if (eventType == _("exception")) {
