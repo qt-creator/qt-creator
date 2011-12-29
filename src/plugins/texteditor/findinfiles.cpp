@@ -146,7 +146,7 @@ void FindInFiles::openFileBrowser()
     QString dir = QFileDialog::getExistingDirectory(m_configWidget,
         tr("Directory to search"), oldDir);
     if (!dir.isEmpty())
-        m_directory->setEditText(dir);
+        m_directory->setEditText(QDir::toNativeSeparators(dir));
 }
 
 void FindInFiles::writeSettings(QSettings *settings)
