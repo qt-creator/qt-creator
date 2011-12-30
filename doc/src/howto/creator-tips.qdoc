@@ -240,4 +240,9 @@
 
     \endlist
 
+    \section1 Pasting from Clipboard History
+
+    \QC stores copied text in clipboard history. To retrieve clips from the
+    history, press \key {Ctrl+Shift+V} until the clip appears.
+
 */
