@@ -158,9 +158,15 @@
     a list of all projects open in the current session. The files for each
     project are grouped according to their file type.
 
+
     You can use the project tree in the following ways:
 
     \list
+
+        \o  To open files that belong to a project, double-click them in the
+            project tree. Files open in the appropriate editor, according to the
+            file type. For example, code source files open in the code editor
+            and image files in the \l{Viewing Images}{image viewer}.
 
         \o  To bring up a context menu containing the actions most commonly
             needed right-click an item in the project tree. For example, through
@@ -324,6 +330,26 @@
     displayed in the \gui{Issues} pane.
 
     \image qtcreator-compile-pane.png
+
+    \section1 Viewing Images
+
+    \QC opens image files in the image viewer.
+
+    \image qtcreator-image-viewer.png "Image viewer"
+
+    Use the toolbar buttons or \l{Keyboard Shortcuts}{keyboard shortcuts} to:
+
+    \list
+
+        \o  Switch between background and outline modes
+
+        \o  Zoom in and out
+
+        \o  Fit images to screen
+
+        \o  Return to original size
+
+    \endlist
 
     \section1 Navigating with Keyboard
 
