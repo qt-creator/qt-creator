@@ -36,6 +36,13 @@
     \QC provides various keyboard shortcuts to speed up your development
     process.
 
+    To view all keyboard shortcuts defined in \QC, and to change them, select
+    \gui {Tools > Options > Environment > Keyboard}. To find a keyboard
+    shortcut in the list, enter a function name or shortcut in the \gui Filter
+    field.
+
+    \image qtcreator-keyboard-shortcuts.png
+
     \section1 Configuring Keyboard Shortcuts
 
     To customize a keyboard shortcut:
@@ -44,10 +51,12 @@
 
         \o  Select \gui Tools > \gui Options > \gui Environment > \gui Keyboard.
 
-        \o  Select an action from the list.
+        \o  Select a command from the list.
 
         \o  In \gui{Key Sequence} enter the shortcut key you want to associate
-            with the selected action.
+            with the selected command.
+
+        \o  To revert to the default shortcut, select \gui Reset.
 
     \endlist
 
@@ -86,6 +95,12 @@
             \o Open in external editor
             \o Alt+V, Alt+I
         \row
+            \o Select all
+            \o Ctrl+A
+        \row
+            \o Delete
+            \o Del
+        \row
             \o Cut
             \o Ctrl+X
         \row
@@ -98,17 +113,23 @@
             \o Redo
             \o Ctrl+Y
         \row
+            \o Print
+            \o Ctrl+P
+        \row
             \o Save
             \o Ctrl+S
         \row
             \o Save all
-            \o Ctrl+A
+            \o Ctrl+Shift+S
         \row
             \o Close window
             \o Ctrl+W
         \row
             \o Close all
             \o Ctrl+Shift+W
+        \row
+            \o Close current file
+            \o Ctrl+F4
         \row
             \o Go back
             \o Alt+Left
@@ -122,7 +143,7 @@
             \o Next open document in history
             \o Ctrl+Shift+Tab
         \row
-            \o Goto other split
+            \o Go to other split
             \o Ctrl+E, O
         \row
             \o Previous open document in history
@@ -157,6 +178,8 @@
         \row
             \o Toggle \gui{Search Results} pane
             \o Alt+2 (Cmd+2 on Mac OS X)
+
+            Ctrl+Shift+F
         \row
             \o Toggle \gui{Application Output} pane
             \o Alt+3 (Cmd+3 on Mac OS X)
@@ -172,6 +195,15 @@
         \row
             \o Activate \gui{Open Documents} pane
             \o Alt+O
+        \row
+            \o Maximize output panes
+            \o Alt+9
+        \row
+            \o Move to next item in output panes
+            \o F6
+        \row
+            \o Move to previous item in output panes
+            \o Shift+F6
         \row
             \o Activate \gui Projects pane
             \o Alt+X
@@ -193,6 +225,9 @@
                 \o The second press closes secondary windows
                \endlist
             \o Esc
+        \row
+            \o Exit \QC
+            \o Ctrl+Q
     \endtable
 
     \section2 Editing Keyboard Shortcuts
@@ -214,11 +249,19 @@
             \o Trigger a completion in this scope
             \o Ctrl+Space
         \row
+            \o Copy line
+            \o Ctrl+Ins
+        \row
             \o Copy line down
             \o Ctrl+Alt+Down
         \row
             \o Copy line up
             \o Ctrl+Alt+Up
+        \row
+            \o Paste from the clipboard history
+            \o Ctrl+Shift+V
+
+               Subsequent presses move you back in the history
         \row
             \o Cut line
             \o Shift+Del
@@ -226,11 +269,20 @@
             \o Join lines
             \o Ctrl+J
         \row
+            \o Insert line above current line
+            \o Ctrl+Shift+Return
+        \row
+            \o Insert line below current line
+            \o Ctrl+Return
+        \row
             \o Decrease font size
             \o Ctrl+- (Ctrl+Roll mouse wheel down)
         \row
             \o Increase font size
             \o Ctrl++ (Ctrl+Roll mouse wheel up)
+        \row
+            \o Reset font size
+            \o Ctrl+0
         \row
             \o Toggle Vim-style editing
             \o Alt+V, Alt+V
@@ -268,7 +320,7 @@
             \o Move current line up
             \o Ctrl+Shift+Up
         \row
-            \o Trigger a quick fix in this scope
+            \o Trigger a refactoring action in this scope
             \o Alt+Return
         \row
             \o Rewrap paragraph
@@ -288,9 +340,6 @@
             \o Visualize whitespace
             \o Ctrl+E, Ctrl+V
         \row
-            \o Delete
-            \o Del
-        \row
             \o Adjust size
             \o Ctrl+J
         \row
@@ -308,9 +357,6 @@
         \row
             \o Edit signals and slots
             \o F4
-        \row
-            \o Edit widgets
-            \o F3
         \row
             \o Toggle bookmark
             \o Ctrl+M
@@ -356,6 +402,73 @@
         \row
             \o Run static checks on JavaScript code to find common problems
             \o Ctrl+Shift+C
+        \row
+            \o Find and replace
+            \o Ctrl+F
+        \row
+            \o Find next
+            \o F3
+        \row
+            \o Find previous
+            \o Shift+F3
+        \row
+            \o Replace next
+            \o Ctrl+=
+        \row
+            \o Record a text-editing macro
+            \o Alt+(
+        \row
+            \o Stop recording a macro
+            \o Alt+)
+        \row
+            \o Play last macro
+            \o Alt+R
+        \row
+            \o Show Qt Quick toolbars
+            \o Ctrl+Alt+Space
+        \row
+            \o Execute user actions in FakeVim mode
+            \o Alt+V, n, where n is the number of the user action, from 1 to 9
+    \endtable
+
+    \section2 Image Viewer Shortcuts
+
+    \table
+        \header
+            \o Action
+            \o Keyboard shortcut
+        \row
+            \o Switch to background
+            \o Ctrl+[
+        \row
+            \o Switch to outline
+            \o Ctrl+]
+        \row
+            \o Zoom in
+            \o Ctrl++
+        \row
+            \o Zoom out
+            \o Ctrl+-
+        \row
+            \o Fit to screen
+            \o Ctrl+=
+        \row
+            \o Original size
+            \o Ctrl+0
+    \endtable
+
+    \section2 Qt Quick Designer Keyboard Shortcuts
+
+    \table
+        \header
+            \o Action
+            \o Keyboard shortcut
+        \row
+            \o Toggle left sidebar
+            \o Ctrl+Alt+0
+        \row
+            \o Toggle right sidebar
+            \o Ctrl+Alt+Shift+0
     \endtable
 
     \section2 Debugging Keyboard Shortcuts
@@ -365,14 +478,11 @@
             \o Action
             \o Keyboard shortcut
         \row
-            \o Start debugging
+            \o Start or continue debugging
             \o F5
         \row
-            \o Stop or interrupt debugger
+            \o Exit debugger
             \o Shift+F5
-        \row
-            \o Reset debugger
-            \o Ctrl+Shift+F5
         \row
             \o Step over
             \o F10
@@ -391,6 +501,9 @@
         \row
             \o Run to line
             \o Ctrl+F10
+        \row
+            \o Reverse direction
+            \o F12
     \endtable
 
     \section2 Project Keyboard Shortcuts
@@ -408,6 +521,12 @@
         \row
             \o New project
             \o Ctrl+Shift+N
+        \row
+            \o Open project
+            \o Ctrl+Shift+O
+        \row
+            \o Select build and run target
+            \o Ctrl+T
         \row
             \o Run
             \o Ctrl+R
@@ -432,7 +551,7 @@
             \o Activate index in \gui Help mode
             \o Ctrl+I
         \row
-            \o Reset font size in \gui Help mode
+            \o Reset font size
             \o Ctrl+0
         \row
             \o Activate search in \gui Help mode
@@ -444,57 +563,65 @@
     \table
         \header
             \o {1,2} Action
-            \o {5,1} Version control system
+            \o {6,1} Version control system
         \header
+            \o Bazaar
             \o CVS
             \o Git
+            \o Mercurial
             \o Perforce
             \o Subversion
-            \o Mercurial
         \row
             \o Add
+            \o
             \o Alt+C, Alt+A
             \o Alt+G, Alt+A
             \o
+            \o Alt+P, Alt+A
             \o Alt+S, Alt+A
-            \o
         \row
-            \o Commit
+            \o Commit/Submit
+            \o Alt+Z, Alt+C
             \o Alt+C, Alt+C
             \o Alt+G, Alt+C
-            \o
-            \o
             \o Alt+H, Alt+C
+            \o Alt+P, Alt+S
+            \o Alt+S, Alt+C
         \row
             \o Diff
+            \o Alt+Z, Alt+D
             \o Alt+C, Alt+D
             \o Alt+G, Alt+D
+            \o Alt+H, Alt+D
             \o
             \o Alt+S, Alt+D
-            \o Alt+H, Alt+D
         \row
             \o Diff project
             \o
+            \o
             \o Alt+G, Alt+Shift+D
+            \o
             \o Alt+P, Alt+D
             \o
-            \o
         \row
-            \o Blame
+            \o Blame/Annotate
+            \o
             \o
             \o Alt+G, Alt+B
             \o
             \o
             \o
         \row
-            \o Log
+            \o Log/Filelog
+            \o Alt+Z, Alt+L
             \o
             \o Alt+G, Alt+L
+            \o Alt+H, Alt+L
             \o Alt+P, Alt+F
             \o
-            \o Alt+H, Alt+L
         \row
             \o Log project
+            \o
             \o
             \o Alt+G, Alt+K
             \o
@@ -502,52 +629,35 @@
             \o
         \row
             \o Status
-            \o
-            \o Alt+G, Alt+S
+            \o Alt+Z, Alt+S
             \o
             \o
             \o Alt+H, Alt+S
+            \o
+            \o
         \row
-            \o Undo changes
+            \o Undo changes/Revert
+            \o
             \o
             \o Alt+G, Alt+U
             \o
-            \o
-            \o
-        \row
-            \o Diff project
-            \o
-            \o Alt+G, Alt+Shift+D
-            \o Alt+P, Alt+D
-            \o
+            \o Alt+P, Alt+R
             \o
         \row
             \o Edit
             \o
             \o
-            \o Alt+P, Alt+E
             \o
+            \o
+            \o Alt+P, Alt+E
             \o
         \row
             \o Opened
             \o
             \o
+            \o
+            \o
             \o Alt+P, Alt+O
-            \o
-            \o
-        \row
-            \o Revert
-            \o
-            \o
-            \o Alt+P, Alt+R
-            \o
-            \o
-        \row
-            \o Submit
-            \o
-            \o
-            \o Alt+P, Alt+S
-            \o
             \o
     \endtable
 */
