@@ -20,7 +20,7 @@ isEmpty(USE_USER_DESTDIR) {
     } else:unix {
         DESTDIRAPPNAME = "qtcreator"
         DESTDIRBASE = "$$(XDG_DATA_HOME)"
-        isEmpty(DESTDIRBASE):DESTDIRBASE = "$$(HOME)/.local/share"
+        isEmpty(DESTDIRBASE):DESTDIRBASE = "$$(HOME)/.local/share/data"
     }
     DESTDIR = "$$DESTDIRBASE/Nokia/$$DESTDIRAPPNAME/plugins/$$QTCREATOR_VERSION/$$PROVIDER"
 }
