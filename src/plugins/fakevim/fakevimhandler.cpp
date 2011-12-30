@@ -2872,6 +2872,7 @@ EventResult FakeVimHandler::Private::handleReplaceMode(const Input &input)
         setAnchor();
         insertText(text);
         endEditBlock();
+        setTargetColumn();
     }
     return EventHandled;
 }
