@@ -1750,7 +1750,7 @@ void EditorManager::updateActions()
                 } else {
                     InfoBarEntry info(QLatin1String("Core.EditorManager.MakeWritable"),
                                       tr("<b>Warning:</b> You are changing a read-only file."));
-                    info.setCustomButtonInfo(tr("Make writable"), this, SLOT(makeCurrentEditorWritable()));
+                    info.setCustomButtonInfo(tr("Make Writable"), this, SLOT(makeCurrentEditorWritable()));
                     curEditor->file()->infoBar()->addInfo(info);
                 }
             } else {
