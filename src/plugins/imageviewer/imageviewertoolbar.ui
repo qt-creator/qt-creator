@@ -20,7 +20,7 @@
    <item>
     <widget class="QToolButton" name="toolButtonBackground">
      <property name="toolTip">
-      <string>Show background</string>
+      <string>Show Background</string>
      </property>
      <property name="icon">
       <iconset resource="imageviewer.qrc">
@@ -37,7 +37,7 @@
    <item>
     <widget class="QToolButton" name="toolButtonOutline">
      <property name="toolTip">
-      <string>Show outline</string>
+      <string>Show Outline</string>
      </property>
      <property name="icon">
       <iconset resource="imageviewer.qrc">
@@ -54,7 +54,7 @@
    <item>
     <widget class="QToolButton" name="toolButtonFitToScreen">
      <property name="toolTip">
-      <string>Fit image in the screen</string>
+      <string>Fit to Screen</string>
      </property>
      <property name="icon">
       <iconset resource="imageviewer.qrc">
@@ -68,7 +68,7 @@
    <item>
     <widget class="QToolButton" name="toolButtonOriginalSize">
      <property name="toolTip">
-      <string>Original size</string>
+      <string>Original Size</string>
      </property>
      <property name="icon">
       <iconset resource="imageviewer.qrc">
