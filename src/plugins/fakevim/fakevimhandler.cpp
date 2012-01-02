@@ -510,7 +510,7 @@ void Inputs::parseFrom(const QString &str)
 {
     const int n = str.size();
     for (int i = 0; i < n; ++i) {
-        uint c0 = str.at(i).unicode(), c1 = 0, c2 = 0, c3 = 0, c4 = 0, c5 = 0;
+        uint c0 = str.at(i).unicode(), c1 = 0, c2 = 0, c3 = 0, c4 = 0;
         if (i + 1 < n)
             c1 = str.at(i + 1).unicode();
         if (i + 2 < n)
@@ -519,8 +519,6 @@ void Inputs::parseFrom(const QString &str)
             c3 = str.at(i + 3).unicode();
         if (i + 4 < n)
             c4 = str.at(i + 4).unicode();
-        if (i + 5 < n)
-            c5 = str.at(i + 5).unicode();
         if (c0 == '<') {
             if (iss(c1, 'C') && c2 == '-' && c4 == '>') {
                 uint c = (c3 < 90 ? c3 : c3 - 32);
