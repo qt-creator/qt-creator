@@ -92,12 +92,20 @@ void AttachGdbAdapter::runEngine()
 void AttachGdbAdapter::handleAttach(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    if (response.resultClass == GdbResultDone || response.resultClass == GdbResultRunning) {
+    switch (response.resultClass) {
+    case GdbResultDone:
+    case GdbResultRunning:
         showMessage(_("INFERIOR ATTACHED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
         m_engine->handleInferiorPrepared();
-        //m_engine->updateAll();
-    } else {
+        break;
+    case GdbResultError:
+        if (response.data.findChild("msg").data() == "ptrace: Operation not permitted.") {
+            m_engine->notifyInferiorSetupFailed(DumperHelper::msgPtraceErr(startParameters().startMode));
+            break;
+        }
+        // if msg != "ptrace: ..." fall through
+    default:
         QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
         m_engine->notifyInferiorSetupFailed(msg);
     }
