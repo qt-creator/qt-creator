@@ -179,16 +179,21 @@ void QmlProjectRunConfigurationWidget::updateFileComboBox()
     QmlProject *project = m_runConfiguration->qmlTarget()->qmlProject();
     QDir projectDir = project->projectDir();
 
+    if (m_runConfiguration->mainScriptSource() == QmlProjectRunConfiguration::FileInProjectFile) {
+        const QString mainScriptInFilePath
+                = projectDir.relativeFilePath(m_runConfiguration->mainScript());
+        m_fileListModel->clear();
+        m_fileListModel->appendRow(new QStandardItem(mainScriptInFilePath));
+        m_fileListCombo->setEnabled(false);
+        return;
+    }
+
+    m_fileListCombo->setEnabled(true);
     m_fileListModel->clear();
     m_fileListModel->appendRow(new QStandardItem(CURRENT_FILE));
     QModelIndex currentIndex;
-    QModelIndex fileInQmlProjectIndex;
-
-    const QString mainScriptInFilePath = projectDir.absoluteFilePath(project->mainFile());
 
     QStringList sortedFiles = project->files();
-    if (!sortedFiles.contains(mainScriptInFilePath))
-        sortedFiles += mainScriptInFilePath;
 
     // make paths relative to project directory
     QStringList relativeFiles;
@@ -213,9 +218,6 @@ void QmlProjectRunConfigurationWidget::updateFileComboBox()
 
         if (mainScriptPath == fn)
             currentIndex = item->index();
-
-        if (mainScriptInFilePath == fn)
-            fileInQmlProjectIndex = item->index();
     }
 
     if (currentIndex.isValid()) {
@@ -223,27 +225,15 @@ void QmlProjectRunConfigurationWidget::updateFileComboBox()
     } else {
         m_fileListCombo->setCurrentIndex(0);
     }
-
-    if (fileInQmlProjectIndex.isValid()) {
-        QFont font;
-        font.setBold(true);
-        m_fileListModel->setData(fileInQmlProjectIndex, font, Qt::FontRole);
-    }
 }
 
 void QmlProjectRunConfigurationWidget::setMainScript(int index)
 {
-    QmlProject *project = m_runConfiguration->qmlTarget()->qmlProject();
-    QDir projectDir = project->projectDir();
     if (index == 0) {
         m_runConfiguration->setScriptSource(QmlProjectRunConfiguration::FileInEditor);
     } else {
         const QString path = m_fileListModel->data(m_fileListModel->index(index, 0)).toString();
-        if (projectDir.relativeFilePath(project->mainFile()) == path) {
-            m_runConfiguration->setScriptSource(QmlProjectRunConfiguration::FileInProjectFile);
-        } else {
-            m_runConfiguration->setScriptSource(QmlProjectRunConfiguration::FileInSettings, path);
-        }
+        m_runConfiguration->setScriptSource(QmlProjectRunConfiguration::FileInSettings, path);
     }
 }
 

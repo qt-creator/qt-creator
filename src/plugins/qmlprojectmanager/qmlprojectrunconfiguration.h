@@ -141,7 +141,6 @@ private:
     Internal::QmlProjectTarget *m_projectTarget;
     QWeakPointer<Internal::QmlProjectRunConfigurationWidget> m_configurationWidget;
 
-    bool m_usingCurrentFile;
     bool m_isEnabled;
 
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;

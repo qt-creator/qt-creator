@@ -65,7 +65,6 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(QmlProjectTarget *parent)
     m_qtVersionId(-1),
     m_scriptFile(M_CURRENT_FILE),
     m_projectTarget(parent),
-    m_usingCurrentFile(true),
     m_isEnabled(false)
 {
     ctor();
@@ -79,7 +78,6 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(QmlProjectTarget *parent,
     m_scriptFile(source->m_scriptFile),
     m_qmlViewerArgs(source->m_qmlViewerArgs),
     m_projectTarget(parent),
-    m_usingCurrentFile(source->m_usingCurrentFile),
     m_isEnabled(source->m_isEnabled),
     m_userEnvironmentChanges(source->m_userEnvironmentChanges)
 {
@@ -227,13 +225,12 @@ Utils::OutputFormatter *QmlProjectRunConfiguration::createOutputFormatter() cons
 
 QmlProjectRunConfiguration::MainScriptSource QmlProjectRunConfiguration::mainScriptSource() const
 {
-    if (m_usingCurrentFile) {
-        return FileInEditor;
-    }
+    if (!qmlTarget()->qmlProject()->mainFile().isEmpty())
+        return FileInProjectFile;
     if (!m_mainScriptFilename.isEmpty()) {
         return FileInSettings;
     }
-    return FileInProjectFile;
+    return FileInEditor;
 }
 
 /**
@@ -241,23 +238,18 @@ QmlProjectRunConfiguration::MainScriptSource QmlProjectRunConfiguration::mainScr
   */
 QString QmlProjectRunConfiguration::mainScript() const
 {
-    if (m_usingCurrentFile) {
-        return m_currentFileFilename;
+    if (!qmlTarget()->qmlProject()->mainFile().isEmpty()) {
+        const QString pathInProject = qmlTarget()->qmlProject()->mainFile();
+        if (QFileInfo(pathInProject).isAbsolute())
+            return pathInProject;
+        else
+            return qmlTarget()->qmlProject()->projectDir().absoluteFilePath(pathInProject);
     }
 
-    if (!m_mainScriptFilename.isEmpty()) {
+    if (!m_mainScriptFilename.isEmpty())
         return m_mainScriptFilename;
-    }
 
-    const QString path = qmlTarget()->qmlProject()->mainFile();
-    if (path.isEmpty()) {
-        return m_currentFileFilename;
-    }
-    if (QFileInfo(path).isAbsolute()) {
-        return path;
-    } else {
-        return qmlTarget()->qmlProject()->projectDir().absoluteFilePath(path);
-    }
+    return m_currentFileFilename;
 }
 
 void QmlProjectRunConfiguration::setScriptSource(MainScriptSource source,
@@ -266,16 +258,13 @@ void QmlProjectRunConfiguration::setScriptSource(MainScriptSource source,
     if (source == FileInEditor) {
         m_scriptFile = M_CURRENT_FILE;
         m_mainScriptFilename.clear();
-        m_usingCurrentFile = true;
     } else if (source == FileInProjectFile) {
         m_scriptFile.clear();
         m_mainScriptFilename.clear();
-        m_usingCurrentFile = false;
     } else { // FileInSettings
         m_scriptFile = settingsPath;
         m_mainScriptFilename
                 = qmlTarget()->qmlProject()->projectDir().absoluteFilePath(m_scriptFile);
-        m_usingCurrentFile = false;
     }
     updateEnabled();
     if (m_configurationWidget)
@@ -340,7 +329,7 @@ void QmlProjectRunConfiguration::changeCurrentFile(Core::IEditor *editor)
 void QmlProjectRunConfiguration::updateEnabled()
 {
     bool qmlFileFound = false;
-    if (m_usingCurrentFile) {
+    if (mainScriptSource() == FileInEditor) {
         Core::IEditor *editor = Core::EditorManager::instance()->currentEditor();
         Core::MimeDatabase *db = ICore::instance()->mimeDatabase();
         if (editor) {
