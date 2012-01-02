@@ -505,11 +505,9 @@ void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool)
 
     // ### not sure if we're supposed to check if the RunConFiguration isEnabled
     Project *pro = pe->startupProject();
-    const RunConfiguration *runConfig = 0;
     BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
     if (pro) {
         if (const Target *target = pro->activeTarget()) {
-            runConfig = target->activeRunConfiguration();
             // Build configuration is 0 for QML projects.
             if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
                 buildType = buildConfig->buildType();
