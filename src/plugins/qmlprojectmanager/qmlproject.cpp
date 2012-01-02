@@ -122,6 +122,17 @@ void QmlProject::parseProject(RefreshOptions options)
         if (m_projectItem) {
             m_projectItem.data()->setSourceDirectory(projectDir().path());
             m_modelManager->updateSourceFiles(m_projectItem.data()->files(), true);
+
+            QString mainFilePath = m_projectItem.data()->mainFile();
+            if (!mainFilePath.isEmpty()) {
+                mainFilePath = projectDir().absoluteFilePath(mainFilePath);
+                if (!QFileInfo(mainFilePath).isReadable()) {
+                    messageManager->printToOutputPane(
+                                tr("Warning while loading project file %1.").arg(m_fileName));
+                    messageManager->printToOutputPane(
+                                tr("File '%' does not exist or is not readable.").arg(mainFilePath), true);
+                }
+            }
         }
         m_rootNode->refresh();
     }
