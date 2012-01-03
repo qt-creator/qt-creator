@@ -70,6 +70,17 @@ Text {
         anchors.fill: parent
     }
 
+    Rectangle {
+        color: "#909090"
+        opacity: root.active
+        z: -1
+        anchors.rightMargin: -6
+        anchors.leftMargin: -6
+        anchors.bottomMargin: -4
+        anchors.topMargin: 10
+        anchors.fill: parent
+    }
+
     MouseArea {
         id: mouseArea
         anchors.fill: parent

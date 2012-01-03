@@ -79,11 +79,22 @@ Rectangle {
             model: sessionList
         }
 
+        Rectangle {
+            width: 1
+            height: line.height
+            color: "#c4c4c4"
+            anchors.left: recentSessions.right
+            anchors.leftMargin: -1
+            anchors.top: recentSessions.top
+
+        }
+
         RecentProjects {
             x: 406
             y: 144
             width: 481
             height: 416
+            id: recentProjects
 
             anchors.top: recentlyUsedProjects.bottom
             anchors.topMargin: 20
@@ -93,6 +104,16 @@ Rectangle {
             anchors.rightMargin: 137
 
             model: projectList
+        }
+
+        Rectangle {
+            id: line
+            width: 1
+            height: Math.min(recentProjects.contentHeight + 120, recentProjects.height)
+            color: "#c4c4c4"
+            anchors.left: recentProjects.right
+            anchors.leftMargin: -1
+            anchors.top: recentProjects.top
         }
 
         Text {
