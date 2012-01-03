@@ -173,7 +173,7 @@ Rectangle {
     }
 
     Text {
-        id: text3
+        id: tags
         x: 16
         y: 198
         text: qsTr("Tags:")
@@ -334,10 +334,11 @@ Rectangle {
         }
     ]
     Flow {
-        x: 47
         y: 198
         width: 159
         height: 32
+        anchors.left: tags.right
+        anchors.leftMargin: 6
         clip: true
 
         spacing: 4
