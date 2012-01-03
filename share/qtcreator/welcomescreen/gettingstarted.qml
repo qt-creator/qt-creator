@@ -32,7 +32,6 @@
 
 import QtQuick 1.1
 import "widgets"
-import QtQuick 1.0
 
 Rectangle {
     id: gettingStartedRoot
@@ -192,19 +191,19 @@ Rectangle {
 
         Image {
             x: 231
-            y: 155
+            y: 172
             source: "widgets/images/arrowBig.png"
         }
 
         Image {
             x: 451
-            y: 155
+            y: 172
             source: "widgets/images/arrowBig.png"
         }
 
         Image {
             x: 669
-            y: 155
+            y: 172
             source: "widgets/images/arrowBig.png"
         }
 

@@ -136,7 +136,7 @@ Rectangle {
             LinkedText {
                 id: openProject
                 x: 51
-                y: 49
+                y: 45
                 text: qsTr("Open Project")
                 onClicked: welcomeMode.openProject();
             }
@@ -144,7 +144,7 @@ Rectangle {
             LinkedText {
                 id: createProject
                 x: 51
-                y: 18
+                y: 13
                 text: qsTr("Create Project")
                 onClicked: welcomeMode.newProject();
             }

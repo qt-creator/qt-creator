@@ -89,6 +89,7 @@ Item {
             id: image
             x: 0
             y: 0
+            anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
         }
     }
@@ -99,6 +100,7 @@ Item {
         visible: false
         anchors.fill: parent
         border.color: "#dddcdc"
+        anchors.margins: 4
     }
 
     MouseArea {
