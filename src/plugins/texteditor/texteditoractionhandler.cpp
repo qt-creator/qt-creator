@@ -226,22 +226,22 @@ void TextEditorActionHandler::createActions()
     command = am->registerAction(m_deleteLineAction, Constants::DELETE_LINE, m_contextId, true);
     connect(m_deleteLineAction, SIGNAL(triggered()), this, SLOT(deleteLine()));
 
-    m_deleteEndOfWordAction = new QAction(tr("Delete Word From The Cursor On"), this);
+    m_deleteEndOfWordAction = new QAction(tr("Delete Word from Cursor On"), this);
     m_modifyingActions << m_deleteEndOfWordAction;
     am->registerAction(m_deleteEndOfWordAction, Constants::DELETE_END_OF_WORD, m_contextId, true);
     connect(m_deleteEndOfWordAction, SIGNAL(triggered()), this, SLOT(deleteEndOfWord()));
 
-    m_deleteEndOfWordCamelCaseAction = new QAction(tr("Delete Word Camel Case From The Cursor On"), this);
+    m_deleteEndOfWordCamelCaseAction = new QAction(tr("Delete Word Camel Case from Cursor On"), this);
     m_modifyingActions << m_deleteEndOfWordCamelCaseAction;
     am->registerAction(m_deleteEndOfWordCamelCaseAction, Constants::DELETE_END_OF_WORD_CAMEL_CASE, m_contextId, true);
     connect(m_deleteEndOfWordCamelCaseAction, SIGNAL(triggered()), this, SLOT(deleteEndOfWordCamelCase()));
 
-    m_deleteStartOfWordAction = new QAction(tr("Delete Word Up To The Cursor"), this);
+    m_deleteStartOfWordAction = new QAction(tr("Delete Word up to Cursor"), this);
     m_modifyingActions << m_deleteStartOfWordAction;
     am->registerAction(m_deleteStartOfWordAction, Constants::DELETE_START_OF_WORD, m_contextId, true);
     connect(m_deleteStartOfWordAction, SIGNAL(triggered()), this, SLOT(deleteStartOfWord()));
 
-    m_deleteStartOfWordCamelCaseAction = new QAction(tr("Delete Word Camel Case Up To The Cursor"), this);
+    m_deleteStartOfWordCamelCaseAction = new QAction(tr("Delete Word Camel Case up to Cursor"), this);
     m_modifyingActions << m_deleteStartOfWordCamelCaseAction;
     am->registerAction(m_deleteStartOfWordCamelCaseAction, Constants::DELETE_START_OF_WORD_CAMEL_CASE, m_contextId, true);
     connect(m_deleteStartOfWordCamelCaseAction, SIGNAL(triggered()), this, SLOT(deleteStartOfWordCamelCase()));
@@ -295,12 +295,12 @@ void TextEditorActionHandler::createActions()
     connect(m_gotoBlockEndAction, SIGNAL(triggered()), this, SLOT(gotoBlockEnd()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_BLOCKS);
 
-    m_gotoBlockStartWithSelectionAction = new QAction(tr("Go to Block Start With Selection"), this);
+    m_gotoBlockStartWithSelectionAction = new QAction(tr("Go to Block Start with Selection"), this);
     command = am->registerAction(m_gotoBlockStartWithSelectionAction, Constants::GOTO_BLOCK_START_WITH_SELECTION, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+{")));
     connect(m_gotoBlockStartWithSelectionAction, SIGNAL(triggered()), this, SLOT(gotoBlockStartWithSelection()));
 
-    m_gotoBlockEndWithSelectionAction = new QAction(tr("Go to Block End With Selection"), this);
+    m_gotoBlockEndWithSelectionAction = new QAction(tr("Go to Block End with Selection"), this);
     command = am->registerAction(m_gotoBlockEndWithSelectionAction, Constants::GOTO_BLOCK_END_WITH_SELECTION, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+}")));
     connect(m_gotoBlockEndWithSelectionAction, SIGNAL(triggered()), this, SLOT(gotoBlockEndWithSelection()));
@@ -370,7 +370,7 @@ void TextEditorActionHandler::createActions()
     command->setDefaultKeySequence(QKeySequence(tr("Alt+U")));
     connect(m_lowerCaseSelectionAction, SIGNAL(triggered()), this, SLOT(lowercaseSelection()));
 
-    m_circularPasteAction = new QAction(tr("Paste From Circular Clipboard"), this);
+    m_circularPasteAction = new QAction(tr("Paste from Clipboard History"), this);
     m_modifyingActions << m_circularPasteAction;
     command = am->registerAction(m_circularPasteAction, Constants::CIRCULAR_PASTE, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+V")));
@@ -378,65 +378,65 @@ void TextEditorActionHandler::createActions()
     medit->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
     QAction *a = 0;
-    a = new QAction(tr("Goto Line Start"), this);
+    a = new QAction(tr("Go to Line Start"), this);
     command = am->registerAction(a, Constants::GOTO_LINE_START, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoLineStart()));
-    a = new QAction(tr("Goto Line End"), this);
+    a = new QAction(tr("Go to Line End"), this);
     command = am->registerAction(a, Constants::GOTO_LINE_END, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoLineEnd()));
-    a = new QAction(tr("Goto Next Line"), this);
+    a = new QAction(tr("Go to Next Line"), this);
     command = am->registerAction(a, Constants::GOTO_NEXT_LINE, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoNextLine()));
-    a = new QAction(tr("Goto Previous Line"), this);
+    a = new QAction(tr("Go to Previous Line"), this);
     command = am->registerAction(a, Constants::GOTO_PREVIOUS_LINE, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousLine()));
-    a = new QAction(tr("Goto Previous Character"), this);
+    a = new QAction(tr("Go to Previous Character"), this);
     command = am->registerAction(a, Constants::GOTO_PREVIOUS_CHARACTER, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousCharacter()));
-    a = new QAction(tr("Goto Next Character"), this);
+    a = new QAction(tr("Go to Next Character"), this);
     command = am->registerAction(a, Constants::GOTO_NEXT_CHARACTER, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoNextCharacter()));
-    a = new QAction(tr("Goto Previous Word"), this);
+    a = new QAction(tr("Go to Previous Word"), this);
     command = am->registerAction(a, Constants::GOTO_PREVIOUS_WORD, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousWord()));
-    a = new QAction(tr("Goto Next Word"), this);
+    a = new QAction(tr("Go to Next Word"), this);
     command = am->registerAction(a, Constants::GOTO_NEXT_WORD, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoNextWord()));
-    a = new QAction(tr("Goto Previous Word Camel Case"), this);
+    a = new QAction(tr("Go to Previous Word Camel Case"), this);
     command = am->registerAction(a, Constants::GOTO_PREVIOUS_WORD_CAMEL_CASE, m_contextId);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousWordCamelCase()));
-    a = new QAction(tr("Goto Next Word Camel Case"), this);
+    a = new QAction(tr("Go to Next Word Camel Case"), this);
     command = am->registerAction(a, Constants::GOTO_NEXT_WORD_CAMEL_CASE, m_contextId);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoNextWordCamelCase()));
 
-    a = new QAction(tr("Goto Line Start With Selection"), this);
+    a = new QAction(tr("Go to Line Start with Selection"), this);
     command = am->registerAction(a, Constants::GOTO_LINE_START_WITH_SELECTION, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoLineStartWithSelection()));
-    a = new QAction(tr("Goto Line End With Selection"), this);
+    a = new QAction(tr("Go to Line End with Selection"), this);
     command = am->registerAction(a, Constants::GOTO_LINE_END_WITH_SELECTION, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoLineEndWithSelection()));
-    a = new QAction(tr("Goto Next Line With Selection"), this);
+    a = new QAction(tr("Go to Next Line with Selection"), this);
     command = am->registerAction(a, Constants::GOTO_NEXT_LINE_WITH_SELECTION, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoNextLineWithSelection()));
-    a = new QAction(tr("Goto Previous Line With Selection"), this);
+    a = new QAction(tr("Go to Previous Line with Selection"), this);
     command = am->registerAction(a, Constants::GOTO_PREVIOUS_LINE_WITH_SELECTION, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousLineWithSelection()));
-    a = new QAction(tr("Goto Previous Character With Selection"), this);
+    a = new QAction(tr("Go to Previous Character with Selection"), this);
     command = am->registerAction(a, Constants::GOTO_PREVIOUS_CHARACTER_WITH_SELECTION, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousCharacterWithSelection()));
-    a = new QAction(tr("Goto Next Character With Selection"), this);
+    a = new QAction(tr("Go to Next Character with Selection"), this);
     command = am->registerAction(a, Constants::GOTO_NEXT_CHARACTER_WITH_SELECTION, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoNextCharacterWithSelection()));
-    a = new QAction(tr("Goto Previous Word With Selection"), this);
+    a = new QAction(tr("Go to Previous Word with Selection"), this);
     command = am->registerAction(a, Constants::GOTO_PREVIOUS_WORD_WITH_SELECTION, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousWordWithSelection()));
-    a = new QAction(tr("Goto Next Word With Selection"), this);
+    a = new QAction(tr("Go to Next Word with Selection"), this);
     command = am->registerAction(a, Constants::GOTO_NEXT_WORD_WITH_SELECTION, m_contextId, true);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoNextWordWithSelection()));
-    a = new QAction(tr("Goto Previous Word Camel Case With Selection"), this);
+    a = new QAction(tr("Go to Previous Word Camel Case with Selection"), this);
     command = am->registerAction(a, Constants::GOTO_PREVIOUS_WORD_CAMEL_CASE_WITH_SELECTION, m_contextId);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousWordCamelCaseWithSelection()));
-    a = new QAction(tr("Goto Next Word Camel Case With Selection"), this);
+    a = new QAction(tr("Go to Next Word Camel Case with Selection"), this);
     command = am->registerAction(a, Constants::GOTO_NEXT_WORD_CAMEL_CASE_WITH_SELECTION, m_contextId);
     connect(a, SIGNAL(triggered()), this, SLOT(gotoNextWordCamelCaseWithSelection()));
 
