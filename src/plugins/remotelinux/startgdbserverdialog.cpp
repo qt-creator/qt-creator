@@ -194,6 +194,8 @@ StartGdbServerDialog::StartGdbServerDialog(QWidget *parent) :
         connect(d->tableView->selectionModel(),
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             SLOT(updateButtons()));
+        connect(d->sysrootPathChooser, SIGNAL(changed(QString)),
+                SLOT(updateButtons()));
         //connect(d->updateListButton, SIGNAL(clicked()),
         //    SLOT(updateProcessList()));
         connect(d->attachProcessButton, SIGNAL(clicked()), SLOT(attachToProcess()));
