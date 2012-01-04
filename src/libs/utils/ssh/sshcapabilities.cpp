@@ -98,8 +98,8 @@ QByteArray SshCapabilities::findBestMatch(const QList<QByteArray> &myCapabilitie
         QCoreApplication::translate("SshConnection",
             "Server and client capabilities don't match. "
             "Client list was: %1.\nServer list was %2.")
-            .arg(listAsByteArray(myCapabilities).data())
-            .arg(listAsByteArray(serverCapabilities).data()));
+            .arg(QString::fromLocal8Bit(listAsByteArray(myCapabilities).data()))
+            .arg(QString::fromLocal8Bit(listAsByteArray(serverCapabilities).data())));
 }
 
 } // namespace Internal

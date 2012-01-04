@@ -222,7 +222,7 @@ void PathListEditor::setPathList(const QString &pathString)
 
 void PathListEditor::setPathListFromEnvVariable(const QString &var)
 {
-    setPathList(qgetenv(var.toLocal8Bit()));
+    setPathList(QString::fromLocal8Bit(qgetenv(var.toLocal8Bit())));
 }
 
 QString PathListEditor::fileDialogTitle() const

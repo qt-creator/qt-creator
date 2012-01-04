@@ -134,8 +134,9 @@ void NetworkAccessManager::getUrl(const QUrl &url)
 QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
 {
     QString agentStr = QString::fromLatin1("Qt-Creator/%1 (QNetworkAccessManager %2; %3; %4; %5 bit)")
-                    .arg(Core::Constants::IDE_VERSION_LONG).arg(qVersion())
-                    .arg(getOsString()).arg(QLocale::system().name())
+                    .arg(QLatin1String(Core::Constants::IDE_VERSION_LONG),
+                         QLatin1String(qVersion()),
+                         getOsString(), QLocale::system().name())
                     .arg(QSysInfo::WordSize);
     QNetworkRequest req(request);
     req.setRawHeader("User-Agent", agentStr.toLatin1());

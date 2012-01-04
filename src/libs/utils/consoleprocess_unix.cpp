@@ -190,7 +190,7 @@ QString ConsoleProcess::stubServerListen()
             QTemporaryFile tf;
             if (!tf.open())
                 return msgCannotCreateTempFile(tf.errorString());
-            stubFifoDir = QFile::encodeName(tf.fileName());
+            stubFifoDir = tf.fileName();
         }
         // By now the temp file was deleted again
         d->m_stubServerDir = QFile::encodeName(stubFifoDir);
@@ -199,7 +199,7 @@ QString ConsoleProcess::stubServerListen()
         if (errno != EEXIST)
             return msgCannotCreateTempDir(stubFifoDir, QString::fromLocal8Bit(strerror(errno)));
     }
-    const QString stubServer  = stubFifoDir + "/stub-socket";
+    const QString stubServer  = stubFifoDir + QLatin1String("/stub-socket");
     if (!d->m_stubServer.listen(stubServer)) {
         ::rmdir(d->m_stubServerDir.constData());
         return tr("Cannot create socket '%1': %2").arg(stubServer, d->m_stubServer.errorString());

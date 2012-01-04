@@ -268,7 +268,7 @@ HistoryCompleterPrivate::HistoryCompleterPrivate(HistoryCompleter *parent)
 
 HistoryLineDelegate::HistoryLineDelegate()
 {
-     pixmap = QPixmap(":/core/images/editclear.png");
+     pixmap = QPixmap(QLatin1String(":/core/images/editclear.png"));
 }
 
 void HistoryLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const

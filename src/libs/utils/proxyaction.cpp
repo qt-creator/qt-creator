@@ -174,6 +174,6 @@ void ProxyAction::updateToolTipWithKeySequence()
 
 QString ProxyAction::stringWithAppendedShortcut(const QString &str, const QKeySequence &shortcut)
 {
-    return QString("%1 <span style=\"color: gray; font-size: small\">%2</span>").arg(str).arg(
-            shortcut.toString(QKeySequence::NativeText));
+    return QString::fromLatin1("%1 <span style=\"color: gray; font-size: small\">%2</span>").
+            arg(str, shortcut.toString(QKeySequence::NativeText));
 }

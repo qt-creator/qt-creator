@@ -109,10 +109,11 @@ bool FileNameValidatingLineEdit::validateFileName(const QString &name,
     for (const char *c = notAllowedChars; *c; c++)
         if (name.contains(QLatin1Char(*c))) {
             if (errorMessage) {
-                if (QChar(*c).isSpace()) {
+                const QChar qc = QLatin1Char(*c);
+                if (qc.isSpace()) {
                     *errorMessage = tr("Name contains white space.");
                 } else {
-                    *errorMessage = tr("Invalid character '%1'.").arg(*c);
+                    *errorMessage = tr("Invalid character '%1'.").arg(qc);
                 }
             }
             return false;
@@ -164,7 +165,7 @@ bool FileNameValidatingLineEdit::validateFileNameExtension(const QString &fileNa
             if (requiredExtensions.count() == 1) {
                 *errorMessage = tr("File extension %1 is required:").arg(requiredExtensions.first());
             } else {
-                *errorMessage = tr("File extensions %1 are required:").arg(requiredExtensions.join(", "));
+                *errorMessage = tr("File extensions %1 are required:").arg(requiredExtensions.join(QLatin1String(", ")));
             }
         }
 

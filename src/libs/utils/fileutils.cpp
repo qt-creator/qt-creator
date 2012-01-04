@@ -510,7 +510,7 @@ bool FileName::isChildOf(const FileName &s) const
         return false;
     if (size() <= s.size())
         return false;
-    return at(s.size()) == '/';
+    return at(s.size()) == QLatin1Char('/');
 }
 
 /// \returns whether FileName endsWith \a s

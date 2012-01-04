@@ -663,12 +663,13 @@ void QtcProcess::start()
         // That's brain dead, and we work around it
 #if defined(Q_OS_UNIX)
 #  if defined(Q_OS_MAC)
-        static const char libraryPath[] = "DYLD_LIBRARY_PATH";
+        static const char libraryPathC[] = "DYLD_LIBRARY_PATH";
 #  else
-        static const char libraryPath[] = "LD_LIBRARY_PATH";
+        static const char libraryPathC[] = "LD_LIBRARY_PATH";
 #  endif
+        const QString libraryPath = QLatin1String(libraryPathC);
         if (env.constFind(libraryPath) == env.constEnd())
-            env.set(libraryPath, QLatin1String(""));
+            env.set(libraryPath, QString());
 #endif
         QProcess::setEnvironment(env.toStringList());
     } else {

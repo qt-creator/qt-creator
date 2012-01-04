@@ -193,7 +193,7 @@ QString SavedAction::toString() const
     return QLatin1String("value: ") + m_value.toString()
         + QLatin1String("  defaultvalue: ") + m_defaultValue.toString()
         + QLatin1String("  settingskey: ") + m_settingsGroup
-        + '/' + m_settingsKey;
+        + QLatin1Char('/') + m_settingsKey;
 }
 
 /*!
@@ -219,8 +219,8 @@ QAction *SavedAction::updatedAction(const QString &text0)
     if (!m_textPattern.isEmpty()) {
         if (text.isEmpty()) {
             text = m_textPattern;
-            text.remove("\"%1\"");
-            text.remove("%1");
+            text.remove(QLatin1String("\"%1\""));
+            text.remove(QLatin1String("%1"));
             enabled = false;
         } else {
             text = m_textPattern.arg(text0);

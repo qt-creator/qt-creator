@@ -286,7 +286,7 @@ SshChannelOpenFailure SshIncomingPacket::extractChannelOpenFailure() const
         quint32 offset = TypeOffset + 1;
         openFailure.localChannel = SshPacketParser::asUint32(m_data, &offset);
         openFailure.reasonCode = SshPacketParser::asUint32(m_data, &offset);
-        openFailure.reasonString = SshPacketParser::asString(m_data, &offset);
+        openFailure.reasonString = QString::fromLocal8Bit(SshPacketParser::asString(m_data, &offset));
         openFailure.language = SshPacketParser::asString(m_data, &offset);
     } catch (SshPacketParseException &) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,

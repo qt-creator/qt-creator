@@ -106,13 +106,13 @@ CrumblePathButton::CrumblePathButton(const QString &title, QWidget *parent)
     m_textPos.setY(height());
     m_baseColor = StyleHelper::baseColor();
 
-    m_segment = QImage(":/utils/images/crumblepath-segment.png");
-    m_segmentSelected = QImage(":/utils/images/crumblepath-segment-selected.png");
-    m_segmentHover = QImage(":/utils/images/crumblepath-segment-hover.png");
-    m_segmentEnd = QImage(":/utils/images/crumblepath-segment-end.png");
-    m_segmentSelectedEnd = QImage(":/utils/images/crumblepath-segment-selected-end.png");
-    m_segmentHoverEnd = QImage(":/utils/images/crumblepath-segment-hover-end.png");
-    m_triangleIcon = QImage(":/utils/images/triangle_vert.png");
+    m_segment = QImage(QLatin1String(":/utils/images/crumblepath-segment.png"));
+    m_segmentSelected = QImage(QLatin1String(":/utils/images/crumblepath-segment-selected.png"));
+    m_segmentHover = QImage(QLatin1String(":/utils/images/crumblepath-segment-hover.png"));
+    m_segmentEnd = QImage(QLatin1String(":/utils/images/crumblepath-segment-end.png"));
+    m_segmentSelectedEnd = QImage(QLatin1String(":/utils/images/crumblepath-segment-selected-end.png"));
+    m_segmentHoverEnd = QImage(QLatin1String(":/utils/images/crumblepath-segment-hover-end.png"));
+    m_triangleIcon = QImage(QLatin1String(":/utils/images/triangle_vert.png"));
 
     tintImages();
 }

@@ -508,7 +508,7 @@ void SftpChannelPrivate::handleMkdirStatus(const JobMap::Iterator &it,
     const QFileInfoList &dirInfos
         = localDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
     foreach (const QFileInfo &dirInfo, dirInfos) {
-        const QString remoteSubDir = remoteDir + '/' + dirInfo.fileName();
+        const QString remoteSubDir = remoteDir + QLatin1Char('/') + dirInfo.fileName();
         const SftpMakeDir::Ptr mkdirOp(
             new SftpMakeDir(++m_nextJobId, remoteSubDir, op->parentJob));
         op->parentJob->mkdirsInProgress.insert(mkdirOp,
@@ -528,7 +528,7 @@ void SftpChannelPrivate::handleMkdirStatus(const JobMap::Iterator &it,
             return;
         }
 
-        const QString remoteFilePath = remoteDir + '/' + fileInfo.fileName();
+        const QString remoteFilePath = remoteDir + QLatin1Char('/') + fileInfo.fileName();
         SftpUploadFile::Ptr uploadFileOp(new SftpUploadFile(++m_nextJobId,
             remoteFilePath, localFile, SftpOverwriteExisting, op->parentJob));
         createJob(uploadFileOp);

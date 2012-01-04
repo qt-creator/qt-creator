@@ -63,13 +63,13 @@ IpAddressLineEdit::IpAddressLineEdit(QWidget* parent) :
     BaseValidatingLineEdit(parent),
     d(new IpAddressLineEditPrivate())
 {
-    const char * ipAddressRegExpPattern = "^\\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\."
+    const char ipAddressRegExpPatternC[] = "^\\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\."
             "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\."
             "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\."
             "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b"
             "((:)(6553[0-5]|655[0-2]\\d|65[0-4]\\d\\d|6[0-4]\\d{3}|[1-5]\\d{4}|[1-9]\\d{0,3}|0))?$";
 
-    QRegExp ipAddressRegExp(ipAddressRegExpPattern);
+    QRegExp ipAddressRegExp = QRegExp(QLatin1String(ipAddressRegExpPatternC));
     d->m_ipAddressValidator = new QRegExpValidator(ipAddressRegExp, this);
 }
 

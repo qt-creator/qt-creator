@@ -344,7 +344,7 @@ static void writeVariantValue(QXmlStreamWriter &w, const Context &ctx,
     case QVariant::StringList:
     case QVariant::List:
         w.writeStartElement(ctx.valueListElement);
-        w.writeAttribute(ctx.typeAttribute, QVariant::typeToName(QVariant::List));
+        w.writeAttribute(ctx.typeAttribute, QLatin1String(QVariant::typeToName(QVariant::List)));
         if (!key.isEmpty())
             w.writeAttribute(ctx.keyAttribute, key);
         foreach (const QVariant &var, variant.toList())
@@ -353,7 +353,7 @@ static void writeVariantValue(QXmlStreamWriter &w, const Context &ctx,
         break;
     case QVariant::Map: {
         w.writeStartElement(ctx.valueMapElement);
-        w.writeAttribute(ctx.typeAttribute, QVariant::typeToName(QVariant::Map));
+        w.writeAttribute(ctx.typeAttribute, QLatin1String(QVariant::typeToName(QVariant::Map)));
         if (!key.isEmpty())
             w.writeAttribute(ctx.keyAttribute, key);
         const QVariantMap varMap = variant.toMap();

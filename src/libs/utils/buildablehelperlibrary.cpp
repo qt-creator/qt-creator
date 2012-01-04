@@ -72,7 +72,7 @@ QString BuildableHelperLibrary::qtInstallDataDir(const Utils::FileName &qmakePat
     QProcess proc;
     proc.start(qmakePath.toString(), QStringList() << QLatin1String("-query") << QLatin1String("QT_INSTALL_DATA"));
     if (proc.waitForFinished())
-        return QString(proc.readAll().trimmed());
+        return QString::fromLocal8Bit(proc.readAll()).trimmed();
     return QString();
 }
 
@@ -276,7 +276,7 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
     log->append(newline);
     log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
                                             "Running %1 %2 ...\n").arg(arguments.qmakeCommand.toUserOutput(),
-                                                                       qmakeArgs.join(" ")));
+                                                                       qmakeArgs.join(QLatin1String(" "))));
 
     if (!runBuildProcess(proc, arguments.qmakeCommand.toString(), qmakeArgs, 30000, false, log, errorMessage))
         return false;
@@ -287,7 +287,7 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
         return false;
     }
     log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                            "Running %1 %2 ...\n").arg(makeFullPath, arguments.makeArguments.join(" ")));
+                                            "Running %1 %2 ...\n").arg(makeFullPath, arguments.makeArguments.join(QLatin1String(" "))));
     if (!runBuildProcess(proc, makeFullPath, arguments.makeArguments, 120000, false, log, errorMessage))
         return false;
     return true;
