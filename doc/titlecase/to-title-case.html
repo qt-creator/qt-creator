@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Qt Title Case</title>
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="to-title-case.js"></script>
+  <link rel="stylesheet" type="text/css" href="../classic.css" />
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+    $('#tester').submit(function(){
+    $('#titled').val($('#untitled').attr('value').toTitleCase());
+    return false;
+    });
+    });
+    </script>
+</head>
+<body><div id="container">
+<h1>Qt to Title Case</h1>
+<p>Converts the entered phrase to the title case format used by Qt: prepositions of less than 5 letters are lowercase unless at the end of a sentence.</p>
+<p>This script does not perform grammatical analysis, and therefore it might be wrong at times... Use your judgement, and if possible fix the script.</p>
+<form id="tester" action="">
+  <p>
+    <input id="untitled" type="text" value="Turn me into a title" />
+    <input type="submit" value="Convert &rarr;" />
+    <input id="titled" type="text">
+  </p>
+</form>
+<hr/>
+<p>Derived from <a href="http://individed.com/code/to-title-case/">http://individed.com/code/to-title-case/</a> written by David Gouch after John Gruber's <a href="http://daringfireball.net/2008/08/title_case_update">post</a></p>
+</div></body>
+</html>
