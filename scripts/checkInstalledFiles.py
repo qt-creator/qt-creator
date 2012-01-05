@@ -17,7 +17,7 @@ def referenceFile():
         print "Unsupported platform: ", sys.platform
         sys.exit(-1)
     scriptDir = os.path.dirname(inspect.getfile(inspect.currentframe()))
-    return  scriptDir+'/../tests/reference/'+filename
+    return  os.path.join(scriptDir,'..','tests', 'reference', filename)
 
 def readReferenceFile():
     # read file with old diff
@@ -76,7 +76,7 @@ def main():
         print "Do not forget to commit", referenceFile()
     else:
         hasDiff = False
-        for line in difflib.context_diff(readReferenceFile(), generateReference(rootdir), fromfile=referenceFile(), tofile="generated"):
+        for line in difflib.unified_diff(readReferenceFile(), generateReference(rootdir), fromfile=referenceFile(), tofile="generated"):
             sys.stdout.write(line)
             hasDiff = True
         if hasDiff:
