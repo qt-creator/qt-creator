@@ -1005,7 +1005,7 @@ void BaseTextEditorWidget::joinLines()
         QString cutLine = cursor.selectedText();
 
         // Collapse leading whitespaces to one or insert whitespace
-        cutLine.replace(QRegExp("^\\s*"), " ");
+        cutLine.replace(QRegExp(QLatin1String("^\\s*")), QLatin1String(" "));
         cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
         cursor.removeSelectedText();
 
@@ -5396,7 +5396,7 @@ void BaseTextEditorWidget::format()
 void BaseTextEditorWidget::rewrapParagraph()
 {
     const int paragraphWidth = displaySettings().m_wrapColumn;
-    const QRegExp anyLettersOrNumbers = QRegExp("\\w");
+    const QRegExp anyLettersOrNumbers = QRegExp(QLatin1String("\\w"));
     const int tabSize = tabSettings().m_tabSize;
 
     QTextCursor cursor = textCursor();
@@ -5604,7 +5604,7 @@ void BaseTextEditorWidget::setTabSettings(const TabSettings &ts)
 
     // Although the tab stop is stored as qreal the API from QPlainTextEdit only allows it
     // to be set as an int. A work around is to access directly the QTextOption.
-    qreal charWidth = QFontMetricsF(font()).width(QChar(' '));
+    qreal charWidth = QFontMetricsF(font()).width(QLatin1Char(' '));
     QTextOption option = document()->defaultTextOption();
     option.setTabStop(charWidth * ts.m_tabSize);
     document()->setDefaultTextOption(option);

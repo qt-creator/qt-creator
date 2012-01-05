@@ -99,7 +99,7 @@ QString HelpItem::extractContent(bool extended) const
             helpLinks.insert(m_helpId, m_helpId);
     }
     foreach (const QUrl &url, helpLinks) {
-        const QByteArray &html = Core::HelpManager::instance()->fileData(url);
+        const QString html = QString::fromUtf8(Core::HelpManager::instance()->fileData(url));
         switch (m_category) {
         case Brief:
             contents = htmlExtractor.getClassOrNamespaceBrief(html, m_docMark);

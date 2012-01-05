@@ -70,7 +70,7 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
         std::rotate(mibs.begin(), firstNonNegative, mibs.end());
     foreach (int mib, mibs) {
         QTextCodec *codec = QTextCodec::codecForMib(mib);
-        QString compoundName = codec->name();
+        QString compoundName = QLatin1String(codec->name());
         foreach (const QByteArray &alias, codec->aliases()) {
             compoundName += QLatin1String(" / ");
             compoundName += QString::fromLatin1(alias);

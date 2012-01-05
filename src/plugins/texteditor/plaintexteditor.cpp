@@ -231,8 +231,8 @@ QString PlainTextEditorWidget::findDefinitionId(const Core::MimeType &mimeType,
 
 void PlainTextEditorWidget::acceptMissingSyntaxDefinitionInfo()
 {
-    Core::ICore::instance()->showOptionsDialog(Constants::TEXT_EDITOR_SETTINGS_CATEGORY,
-                                               Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS);
+    Core::ICore::instance()->showOptionsDialog(QLatin1String(Constants::TEXT_EDITOR_SETTINGS_CATEGORY),
+                                               QLatin1String(Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS));
 }
 
 void PlainTextEditorWidget::ignoreMissingSyntaxDefinitionInfo()

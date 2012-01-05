@@ -53,7 +53,7 @@ public:
     explicit LineNumberFilter(QObject *parent = 0);
 
     QString displayName() const { return tr("Line in Current Document"); }
-    QString id() const { return "Line in current document"; }
+    QString id() const { return QLatin1String("Line in current document"); }
     Locator::ILocatorFilter::Priority priority() const { return Locator::ILocatorFilter::High; }
     QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
     void accept(Locator::FilterEntry selection) const;

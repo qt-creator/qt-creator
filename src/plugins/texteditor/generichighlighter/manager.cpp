@@ -321,7 +321,7 @@ void Manager::registerMimeTypes()
 
         Core::ICore::instance()->progressManager()->addTask(future,
                                                             tr("Registering definitions"),
-                                                            Constants::TASK_REGISTER_DEFINITIONS);
+                                                            QLatin1String(Constants::TASK_REGISTER_DEFINITIONS));
     } else {
         m_hasQueuedRegistration = true;
         m_registeringWatcher.cancel();
@@ -457,7 +457,7 @@ void Manager::downloadDefinitions(const QList<QUrl> &urls, const QString &savePa
     m_downloadWatcher.setFuture(future);
     Core::ICore::instance()->progressManager()->addTask(future,
                                                         tr("Downloading definitions"),
-                                                        Constants::TASK_DOWNLOAD_DEFINITIONS);
+                                                        QLatin1String(Constants::TASK_DOWNLOAD_DEFINITIONS));
 }
 
 void Manager::downloadDefinitionsFinished()

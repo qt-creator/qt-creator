@@ -99,12 +99,13 @@ void PlainTextEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
         if (!file)
             return;
         PlainTextEditorWidget *textEditor = static_cast<PlainTextEditorWidget *>(editorEditable->editorWidget());
+        const QString infoSyntaxDefinition = QLatin1String(Constants::INFO_SYNTAX_DEFINITION);
         if (textEditor->isMissingSyntaxDefinition() &&
             !textEditor->ignoreMissingSyntaxDefinition() &&
             TextEditorSettings::instance()->highlighterSettings().alertWhenNoDefinition()) {
             if (file->hasHighlightWarning())
                 return;
-            Core::InfoBarEntry info(Constants::INFO_SYNTAX_DEFINITION,
+            Core::InfoBarEntry info(infoSyntaxDefinition,
                                     tr("A highlight definition was not found for this file. "
                                        "Would you like to try to find one?"));
             info.setCustomButtonInfo(tr("Show highlighter options..."),
@@ -116,7 +117,7 @@ void PlainTextEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
         }
         if (!file->hasHighlightWarning())
             return;
-        file->infoBar()->removeInfo(Constants::INFO_SYNTAX_DEFINITION);
+        file->infoBar()->removeInfo(infoSyntaxDefinition);
         file->setHighlightWarning(false);
     }
 }

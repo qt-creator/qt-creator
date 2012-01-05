@@ -95,13 +95,17 @@ QToolButton *OutlineWidgetStack::filterButton()
     return m_filterButton;
 }
 
+static inline QString outLineKey(int position)
+{
+    return QLatin1String("Outline.") + QString::number(position) + QLatin1String(".SyncWithEditor");
+}
+
 void OutlineWidgetStack::restoreSettings(int position)
 {
     m_position = position; // save it so that we can save/restore in updateCurrentEditor
 
     QSettings *settings = Core::ICore::instance()->settings();
-    const bool toggleSync = settings->value("Outline."+ QString::number(position) + ".SyncWithEditor",
-                                            true).toBool();
+    const bool toggleSync = settings->value(outLineKey(position), true).toBool();
     toggleSyncButton()->setChecked(toggleSync);
 
     if (IOutlineWidget *outlineWidget = qobject_cast<IOutlineWidget*>(currentWidget())) {
@@ -114,8 +118,7 @@ void OutlineWidgetStack::saveSettings(int position)
     Q_ASSERT(position == m_position);
 
     QSettings *settings = Core::ICore::instance()->settings();
-    settings->setValue("Outline."+QString::number(position)+".SyncWithEditor",
-                       toggleSyncButton()->isEnabled());
+    settings->setValue(outLineKey(position), toggleSyncButton()->isEnabled());
 
     if (IOutlineWidget *outlineWidget = qobject_cast<IOutlineWidget*>(currentWidget())) {
         outlineWidget->saveSettings(position);

@@ -160,7 +160,7 @@ void BaseFileFind::runSearch(Find::SearchResult *search)
     Core::FutureProgress *progress =
         Core::ICore::instance()->progressManager()->addTask(watcher->future(),
                                                                         tr("Search"),
-                                                                        Constants::TASK_SEARCH);
+                                                                        QLatin1String(Constants::TASK_SEARCH));
     progress->setWidget(label);
     connect(progress, SIGNAL(clicked()), Find::SearchResultWindow::instance(), SLOT(popup()));
 }
@@ -240,15 +240,15 @@ QWidget *BaseFileFind::createPatternWidget()
 
 void BaseFileFind::writeCommonSettings(QSettings *settings)
 {
-    settings->setValue("filters", m_filterStrings.stringList());
+    settings->setValue(QLatin1String("filters"), m_filterStrings.stringList());
     if (m_filterCombo)
-        settings->setValue("currentFilter", m_filterCombo->currentText());
+        settings->setValue(QLatin1String("currentFilter"), m_filterCombo->currentText());
 }
 
 void BaseFileFind::readCommonSettings(QSettings *settings, const QString &defaultFilter)
 {
-    QStringList filters = settings->value("filters").toStringList();
-    m_filterSetting = settings->value("currentFilter").toString();
+    QStringList filters = settings->value(QLatin1String("filters")).toStringList();
+    m_filterSetting = settings->value(QLatin1String("currentFilter")).toString();
     if (filters.isEmpty())
         filters << defaultFilter;
     if (m_filterSetting.isEmpty())

@@ -69,7 +69,7 @@ void LineNumberFilter::accept(FilterEntry selection) const
         editorManager->addCurrentPositionToNavigationHistory();
         editor->gotoLine(selection.internalData.toInt());
         editor->widget()->setFocus();
-        Core::ModeManager::instance()->activateModeType(Core::Constants::MODE_EDIT_TYPE);
+        Core::ModeManager::instance()->activateModeType(QLatin1String(Core::Constants::MODE_EDIT_TYPE));
     }
 }
 

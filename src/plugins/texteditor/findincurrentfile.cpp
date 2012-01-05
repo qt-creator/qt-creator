@@ -58,7 +58,7 @@ FindInCurrentFile::FindInCurrentFile()
 
 QString FindInCurrentFile::id() const
 {
-    return "Current File";
+    return QLatin1String("Current File");
 }
 
 QString FindInCurrentFile::displayName() const
@@ -134,14 +134,14 @@ QWidget *FindInCurrentFile::createConfigWidget()
 
 void FindInCurrentFile::writeSettings(QSettings *settings)
 {
-    settings->beginGroup("FindInCurrentFile");
+    settings->beginGroup(QLatin1String("FindInCurrentFile"));
     writeCommonSettings(settings);
     settings->endGroup();
 }
 
 void FindInCurrentFile::readSettings(QSettings *settings)
 {
-    settings->beginGroup("FindInCurrentFile");
-    readCommonSettings(settings, "*.cpp,*.h");
+    settings->beginGroup(QLatin1String("FindInCurrentFile"));
+    readCommonSettings(settings, QLatin1String("*.cpp,*.h"));
     settings->endGroup();
 }

@@ -140,9 +140,11 @@ public:
         if (str.isEmpty())
             return str;
         int first = 0, last = str.size()-1;
-        while (first < str.size() && (str.at(first) == '*' || str.at(first) == '?'))
+        const QChar asterisk = QLatin1Char('*');
+        const QChar question = QLatin1Char('?');
+        while (first < str.size() && (str.at(first) == asterisk || str.at(first) == question))
             ++first;
-        while (last >= 0 && (str.at(last) == '*' || str.at(last) == '?'))
+        while (last >= 0 && (str.at(last) == asterisk || str.at(last) == question))
             --last;
         if (first > last)
             return QString();

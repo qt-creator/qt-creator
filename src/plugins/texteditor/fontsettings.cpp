@@ -339,7 +339,7 @@ QString FontSettings::defaultFixedFontFamily()
 {
     static QString rc;
     if (rc.isEmpty()) {
-        QFont f(DEFAULT_FONT_FAMILY);
+        QFont f = QFont(QLatin1String(DEFAULT_FONT_FAMILY));
         f.setStyleHint(QFont::TypeWriter);
         rc = f.family();
     }

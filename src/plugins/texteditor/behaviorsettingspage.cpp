@@ -96,7 +96,7 @@ BehaviorSettingsPage::BehaviorSettingsPage(const BehaviorSettingsPageParameters 
     // global tab preferences for all other languages
     d->m_codeStyle = new SimpleCodeStylePreferences(this);
     d->m_codeStyle->setDisplayName(tr("Global", "Settings"));
-    d->m_codeStyle->setId(Constants::GLOBAL_SETTINGS_ID);
+    d->m_codeStyle->setId(QLatin1String(Constants::GLOBAL_SETTINGS_ID));
 
     // default pool for all other languages
     d->m_defaultCodeStylePool = new CodeStylePool(0, this); // Any language

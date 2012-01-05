@@ -190,10 +190,10 @@ TextBlockUserData::MatchType TextBlockUserData::checkClosedParenthesis(QTextCurs
             cursor->clearSelection();
             cursor->setPosition(openParenParag.position() + openParen.pos, QTextCursor::KeepAnchor);
 
-            if ((c == '}' && openParen.chr != '{')    ||
-                 (c == ')' && openParen.chr != '(')   ||
-                 (c == ']' && openParen.chr != '[')   ||
-                 (c == '-' && openParen.chr != '+'))
+            if ((c == QLatin1Char('}') && openParen.chr != QLatin1Char('{'))    ||
+                 (c == QLatin1Char(')') && openParen.chr != QLatin1Char('('))   ||
+                 (c == QLatin1Char(']') && openParen.chr != QLatin1Char('['))   ||
+                 (c == QLatin1Char('-') && openParen.chr != QLatin1Char('+')))
                 return Mismatch;
 
             return Match;

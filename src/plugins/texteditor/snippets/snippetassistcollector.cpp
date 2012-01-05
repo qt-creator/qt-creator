@@ -76,6 +76,6 @@ QList<BasicProposalItem *> SnippetAssistCollector::collect() const
 {
     QList<BasicProposalItem *> snippets;
     appendSnippets(&snippets, m_groupId, m_icon, m_order);
-    appendSnippets(&snippets, Constants::TEXT_SNIPPET_GROUP_ID, m_icon, m_order);
+    appendSnippets(&snippets, QLatin1String(Constants::TEXT_SNIPPET_GROUP_ID), m_icon, m_order);
     return snippets;
 }
