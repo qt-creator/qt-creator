@@ -102,7 +102,7 @@
     visible.
 
     For an icon, you can use the command name as a tool tip. In that
-    case, use book style capitalization and do not add a comma after the tool
+    case, use book style capitalization and do not add a period after the tool
     tip.
 
     \image qtcreator-tooltip.png "Tooltip"
@@ -164,10 +164,13 @@
 
     \endlist
 
+    \section2 Using Book Style Capitalization
+
     When using book style capitalization, capitalize all words, except
     prepositions that are shorter than five letters (for example, 'with' but
     'Without'), conjunctions (for example, and, or, but), and articles (a, an,
     the).
+    However, always capitalize the first and last word.
 
     Use book style capitalization for:
 
@@ -182,6 +185,33 @@
             and so on)
 
     \endlist
+
+    \section3 Checking Book Style Capitalization
+
+    You can use the to-title-case.js script in the \c{\doc\titlecase}
+    folder to check book style capitalization of UI text or headings in
+    documentation:
+
+    \list 1
+
+        \o  Open to-title-case.html in a browser.
+
+        \o  Enter the UI text in the field.
+
+        \o  Click \gui Convert.
+
+    \endlist
+
+    The UI text with suggested book style capitalization is displayed in the
+    field to the right.
+
+    \note The script is based on word lists; it does not perform grammatical
+    analysis. Therefore, it might get the capitalization wrong if you use a rare
+    meaning of a word. For example, should you mean feathers and not direction
+    when you write \e down. However, you should be able to trust it in most
+    cases in the context of writing UI text and technical documentation.
+
+    \section2 Using Sentence Style Capitalization
 
     When using sentence style capitalization, capitalize only the first letter,
     except proper names.
