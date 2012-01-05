@@ -89,6 +89,7 @@ private:
     QString m_qtInstallData;
     QString m_target;
     QString m_qmakeCommand;
+    QStringList m_qmakeArguments;
     QString m_makeCommand;
     QStringList m_makeArguments;
     QString m_mkspec;

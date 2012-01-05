@@ -107,6 +107,16 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
                         << QLatin1String("-k");
     }
     m_qmakeCommand = version->qmakeCommand();
+    m_qmakeArguments = QStringList() << QLatin1String("-nocache");
+    if (toolChain->targetAbi().os() == ProjectExplorer::Abi::MacOS
+            && toolChain->targetAbi().architecture() == ProjectExplorer::Abi::X86Architecture) {
+        // explicitly set 32 or 64 bit in case Qt is compiled with both
+        if (toolChain->targetAbi().wordWidth() == 32)
+            m_qmakeArguments << QLatin1String("CONFIG+=x86");
+        else if (toolChain->targetAbi().wordWidth() == 64) {
+            m_qmakeArguments << QLatin1String("CONFIG+=x86_64");
+        }
+    }
     m_makeCommand = toolChain->makeCommand();
     m_mkspec = version->mkspec();
 
@@ -177,7 +187,7 @@ bool DebuggingHelperBuildTask::buildDebuggingHelper(QFutureInterface<void> &futu
     arguments.makeCommand = m_makeCommand;
     arguments.makeArguments = m_makeArguments;
     arguments.qmakeCommand = m_qmakeCommand;
-    arguments.qmakeArguments = QStringList() << QLatin1String("-nocache");
+    arguments.qmakeArguments = m_qmakeArguments;
     arguments.targetMode = m_target;
     arguments.mkspec = m_mkspec;
     arguments.environment = m_environment;
