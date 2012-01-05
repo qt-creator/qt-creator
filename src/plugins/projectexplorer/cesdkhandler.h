@@ -38,9 +38,6 @@
 #include <QtCore/QStringList>
 #include <QtCore/QDir>
 
-#define VCINSTALL_MACRO "$(VCInstallDir)"
-#define VSINSTALL_MACRO "$(VSInstallDir)"
-
 namespace Utils {
 class Environment;
 }
@@ -51,15 +48,15 @@ class PROJECTEXPLORER_EXPORT CeSdkInfo
 {
 public:
     CeSdkInfo();
-    inline QString                  name();
-    inline QString                  binPath();
-    inline QString                  includePath();
-    inline QString                  libPath();
+    inline QString                  name() const;
+    inline QString                  binPath() const;
+    inline QString                  includePath() const;
+    inline QString                  libPath() const;
     void                            addToEnvironment(Utils::Environment &env);
-    inline bool                     isValid();
-    inline int                      majorVersion();
-    inline int                      minorVersion();
-    inline bool                     isSupported();
+    inline bool                     isValid() const;
+    inline int                      majorVersion() const;
+    inline int                      minorVersion() const;
+    inline bool                     isSupported() const;
 private:
     friend class                    CeSdkHandler;
     QString                         m_name;
@@ -70,14 +67,14 @@ private:
     int                             m_minor;
 };
 
-inline QString CeSdkInfo::name() { return m_name; }
-inline QString CeSdkInfo::binPath() { return m_bin; }
-inline QString CeSdkInfo::includePath() { return m_include; }
-inline QString CeSdkInfo::libPath() { return m_lib; }
-inline bool CeSdkInfo::isValid() { return !m_name.isEmpty() && !m_bin.isEmpty() && !m_include.isEmpty() && !m_lib.isEmpty(); }
-inline int CeSdkInfo::majorVersion() { return m_major; }
-inline int CeSdkInfo::minorVersion() { return m_minor; }
-inline bool CeSdkInfo::isSupported() { return m_major >= 5; }
+inline QString CeSdkInfo::name() const { return m_name; }
+inline QString CeSdkInfo::binPath() const { return m_bin; }
+inline QString CeSdkInfo::includePath() const { return m_include; }
+inline QString CeSdkInfo::libPath() const { return m_lib; }
+inline bool CeSdkInfo::isValid() const { return !m_name.isEmpty() && !m_bin.isEmpty() && !m_include.isEmpty() && !m_lib.isEmpty(); }
+inline int CeSdkInfo::majorVersion() const { return m_major; }
+inline int CeSdkInfo::minorVersion() const { return m_minor; }
+inline bool CeSdkInfo::isSupported() const { return m_major >= 5; }
 
 class PROJECTEXPLORER_EXPORT CeSdkHandler
 {
@@ -85,7 +82,7 @@ public:
                                     CeSdkHandler();
     bool                            parse(const QString &path);
     inline QList<CeSdkInfo>         listAll() const;
-    CeSdkInfo                       find(const QString &name);
+    CeSdkInfo                       find(const QString &name) const;
     static QString                  platformName(const QString &qtpath);
 private:
     inline QString                  fixPaths(QString path) const;
@@ -101,7 +98,13 @@ inline QList<CeSdkInfo> CeSdkHandler::listAll() const
 
 inline QString CeSdkHandler::fixPaths(QString path) const
 {
-    return QDir::toNativeSeparators(QDir::cleanPath(path.replace(VCINSTALL_MACRO, VCInstallDir).replace(VSINSTALL_MACRO, VSInstallDir).replace(QLatin1String(";$(PATH)"), QLatin1String(""))));
+    const char vcInstallMacro[] = "$(VCInstallDir)";
+    const char vsInstallMacro[] = "$(VSInstallDir)";
+
+    path.replace(QLatin1String(vcInstallMacro), VCInstallDir);
+    path.replace(QLatin1String(vsInstallMacro), VSInstallDir);
+    path.remove(QLatin1String(";$(PATH)"));
+    return QDir::toNativeSeparators(path);
 }
 
 } // namespace Qt4ProjectManager

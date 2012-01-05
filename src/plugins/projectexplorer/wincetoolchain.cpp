@@ -108,8 +108,8 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
             //  1) Having \\ in a path is valid (it is on WinXP)
             //  2) We're only replacing in paths. This will cause problems if there's
             //     a replace of a string
-            if (!replacement.endsWith('\\'))
-                replacement += '\\';
+            if (!replacement.endsWith(QLatin1Char('\\')))
+                replacement += QLatin1Char('\\');
 
             in.replace(pos, nextPos + 1 - pos, replacement);
             pos += replacement.size();
@@ -137,11 +137,11 @@ Utils::Environment WinCEToolChain::readEnvironmentSetting(Utils::Environment &en
     for (envPairIter = envPairs.begin(); envPairIter!=envPairs.end(); ++envPairIter) {
         // Replace the env values with those from the WinCE SDK
         QString varValue = envPairIter.value();
-        if ("PATH" == envPairIter.key())
-            varValue = m_binPath + ";" + varValue;
-        else if ("INCLUDE" == envPairIter.key())
+        if (envPairIter.key() == QLatin1String("PATH"))
+            varValue = m_binPath + QLatin1Char(';') + varValue;
+        else if (envPairIter.key() == QLatin1String("INCLUDE"))
             varValue = m_includePath;
-        else if ("LIB" == envPairIter.key())
+        else if (envPairIter.key() == QLatin1String("LIB"))
             varValue = m_libPath;
 
         if (!varValue.isEmpty())
@@ -184,7 +184,7 @@ static bool parseSDK(QXmlStreamReader& theReader,
                      QString& libPath)
 {
     sdkArch = Abi::UnknownArchitecture;
-    sdkName = "";
+    sdkName.clear();
 
     // Loop through until either the end of the file or until is gets to the next
     // end element.
@@ -197,16 +197,16 @@ static bool parseSDK(QXmlStreamReader& theReader,
                 return (sdkArch!=Abi::UnknownArchitecture && !sdkName.isEmpty());
         } else if (theReader.isStartElement()) {
             const QStringRef elemName = theReader.name();
-            if (elemName == "PlatformName") {
+            if (elemName == QLatin1String("PlatformName")) {
                 sdkName = theReader.readElementText();
-            } else if (elemName == "Directories") {
+            } else if (elemName == QLatin1String("Directories")) {
                 // Populate the paths from this element. Note: we remove the
                 // $(PATH) from the binPath as this will be pre-pended in code
-                binPath = theReader.attributes().value("Path").toString();
-                binPath.remove("$(PATH)");
-                includePath = theReader.attributes().value("Include").toString();
-                libPath = theReader.attributes().value("Library").toString();
-            } else if (elemName == "OSMajorVersion") {
+                binPath = theReader.attributes().value(QLatin1String("Path")).toString();
+                binPath.remove(QLatin1String("$(PATH)"));
+                includePath = theReader.attributes().value(QLatin1String("Include")).toString();
+                libPath = theReader.attributes().value(QLatin1String("Library")).toString();
+            } else if (elemName == QLatin1String("OSMajorVersion")) {
                 // Qt only supports CE5 and higher so drop out here if this version is
                 // invalid
                 ceVer = theReader.readElementText();
@@ -215,16 +215,16 @@ static bool parseSDK(QXmlStreamReader& theReader,
                         qDebug("Ignoring SDK '%s'. Windows CE version %d is unsupported.", qPrintable(sdkName), ceVer.toInt());
                     return false;
                 }
-            } else if (elemName == "Macro") {
+            } else if (elemName == QLatin1String("Macro")) {
                 // Pull out the architecture from the macro values.
-                if (theReader.attributes().value("Name") == "ARCHFAM") {
-                    const QStringRef archFam = theReader.attributes().value("Value");
+                if (theReader.attributes().value(QLatin1String("Name")) == QLatin1String("ARCHFAM")) {
+                    const QStringRef archFam = theReader.attributes().value(QLatin1String("Value"));
 
-                    if (archFam == "ARM")
+                    if (archFam == QLatin1String("ARM"))
                         sdkArch = Abi::ArmArchitecture;
-                    else if (archFam == "x86")
+                    else if (archFam == QLatin1String("x86"))
                         sdkArch = Abi::X86Architecture;
-                    else if (archFam == "MIPS")
+                    else if (archFam == QLatin1String("MIPS"))
                         sdkArch = Abi::MipsArchitecture;
                 }
             }
@@ -303,7 +303,7 @@ QString WinCEToolChain::typeName() const
 
 Utils::FileName WinCEToolChain::mkspec() const
 {
-    const QChar specSeperator('-');
+    const QChar specSeperator(QLatin1Char('-'));
 
     QString specString = QLatin1String("wince");
 
@@ -411,7 +411,7 @@ QList<ToolChain *> WinCEToolChainFactory::autoDetect()
 
         // Check existence of various install scripts
         const QString vcvars32bat = path + QLatin1String("bin/vcvars32.bat");
-        QFile cePlatforms(path + "vcpackages/WCE.VCPlatform.config");
+        QFile cePlatforms(path + QLatin1String("vcpackages/WCE.VCPlatform.config"));
 
         if (cePlatforms.exists()) {
             const QString msvcVer = findMsvcVer(version);
@@ -422,7 +422,7 @@ QList<ToolChain *> WinCEToolChainFactory::autoDetect()
             while (!platformReader.atEnd()) {
                 platformReader.readNext();
                 if (platformReader.isStartElement()) {
-                    if (platformReader.name() == "Platform") {
+                    if (platformReader.name() == QLatin1String("Platform")) {
                         Abi::Architecture theArch;
                         QString thePlat;
                         QString binPath;

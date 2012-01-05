@@ -49,9 +49,9 @@ CeSdkInfo::CeSdkInfo()
 
 void CeSdkInfo::addToEnvironment(Environment &env)
 {
-    qDebug() << "adding " << name() << "to Environment";
-    env.set("INCLUDE", m_include);
-    env.set("LIB", m_lib);
+    // qDebug() << "adding " << name() << "to Environment";
+    env.set(QLatin1String("INCLUDE"), m_include);
+    env.set(QLatin1String("LIB"), m_lib);
     env.prependOrSetPath(m_bin);
 }
 
@@ -68,15 +68,12 @@ bool CeSdkHandler::parse(const QString &vsdir)
     VCInstallDir = vsdir;
 
     QDir vStudioDir(VCInstallDir);
-    if (!vStudioDir.cd("vcpackages"))
+    if (!vStudioDir.cd(QLatin1String("vcpackages")))
         return false;
 
     QFile configFile(vStudioDir.absoluteFilePath(QLatin1String("WCE.VCPlatform.config")));
-    qDebug()<<"##";
     if (!configFile.exists() || !configFile.open(QIODevice::ReadOnly))
         return false;
-
-    qDebug()<<"parsing";
 
     QString currentElement;
     CeSdkInfo currentItem;
@@ -113,11 +110,12 @@ bool CeSdkHandler::parse(const QString &vsdir)
     return m_list.size() > 0 ? true : false;
 }
 
-CeSdkInfo CeSdkHandler::find(const QString &name)
+CeSdkInfo CeSdkHandler::find(const QString &name) const
 {
-    qDebug() << "looking for platform " << name;
-    for (QList<CeSdkInfo>::iterator it = m_list.begin(); it != m_list.end(); ++it) {
-        qDebug() << "...." << it->name();
+    typedef QList<CeSdkInfo>::const_iterator Iterator;
+
+    const Iterator cend = m_list.constEnd();
+    for (Iterator it = m_list.constBegin(); it != cend; ++it) {
         if (it->name() == name)
             return *it;
     }
