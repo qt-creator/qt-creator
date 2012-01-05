@@ -32,6 +32,16 @@ use Cwd;
 my $optAbsolute = 0;
 my $optRelativeTo;
 
+# --------------- Detect OS
+
+my ($OS_LINUX, $OS_WINDOWS, $OS_MAC)  = (0, 1, 2);
+my $os = $OS_LINUX;
+if (index($^O, 'MSWin') >= 0) {
+    $os = $OS_WINDOWS;
+} elsif (index($^O, 'darwin') >= 0) {
+   $os = $OS_MAC;
+}
+
 # -- Build a hash from source file base name to relative paths.
 
 my %fileHash;
@@ -40,7 +50,8 @@ my $workingDirectory = getcwd();
 sub handleFile
 {
     my $file = $_;
-    return unless index($file, '.cpp') != -1 && -f $file;
+    return unless -f $file;
+    return unless index($file, '.cpp') != -1 || index($file, '.h') != -1 || index($file, '.qml');
 #   './file' -> 'file'
     my $name = substr($File::Find::name, 0, 1) eq '.' ?
                substr($File::Find::name, 2) : $File::Find::name;
@@ -69,6 +80,13 @@ find({ wanted => \& handleFile}, '.');
 my $lastLine = '';
 my ($failCount, $fatalCount) = (0, 0);
 
+sub isAbsolute
+{
+    my ($f) = @_;
+    return $f =~ /^[a-zA-Z]:/ ? 1 : 0 if $os eq $OS_WINDOWS;
+    return index($f, '/') == 0 ? 1 : 0;
+}
+
 while (my $line = <STDIN> ) {
     chomp($line);
     # --- Continuation line?
@@ -83,10 +101,12 @@ while (my $line = <STDIN> ) {
         || $line =~ /^\s*Loc:\s*\[([^(]+)\((\d+)\).*$/) {
         my $fullFileName = $1;
         my $line = $2;
-        if (index($fullFileName, '/') != 0) { # Unix has absolute file names, Windows may not
+        #  -- Fix '/C:/bla' which is sometimes reported for QML errors.
+        $fullFileName = substr($fullFileName, 1) if ($os eq $OS_WINDOWS && $fullFileName =~ /^\/[a-zA-Z]:\//);
+        if (!isAbsolute($fullFileName)) { # Unix has absolute file names, Windows may not
             my $slashPos = rindex($fullFileName, '/');
             $slashPos = rindex($fullFileName, "\\") if $slashPos < 0;
-            my $fileName = $slashPos > 0 ? substr($1, $slashPos + 1) : $fullFileName;
+            my $fileName = $slashPos > 0 ? substr($fullFileName, $slashPos + 1) : $fullFileName;
             $fullFileName = $fileHash{$fileName};
             $fullFileName = $fileName unless defined $fullFileName;
         }
