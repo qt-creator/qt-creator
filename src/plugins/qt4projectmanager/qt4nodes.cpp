@@ -521,7 +521,7 @@ static QSet<Utils::FileName> recursiveEnumerate(const QString &folder)
         dir.setFilter(dir.filter() | QDir::NoDotAndDotDot);
 
         foreach (const QFileInfo &file, dir.entryInfoList()) {
-            if (file.isDir())
+            if (file.isDir() && !file.isSymLink())
                 result += recursiveEnumerate(file.absoluteFilePath());
             else
                 result += Utils::FileName(file);
