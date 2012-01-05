@@ -235,7 +235,8 @@
         \list
             \o  \l{Debugging}
             \list
-                \o  \l{Debugging the Example Application}
+                \o  \l{Debugging a C++ Example Application}
+                \o  \l{Debugging a Qt Quick Example Application}
                 \o  \l{Launching the Debugger}
                 \o  \l{Interacting with the Debugger}
                 \o  \l{Setting Up Debugger}

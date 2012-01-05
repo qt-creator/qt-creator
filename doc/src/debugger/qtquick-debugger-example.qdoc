@@ -1,0 +1,128 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-debugging-example.html
+    \page creator-qml-debugging-example.html
+    \nextpage creator-debugger-operating-modes.html
+
+    \title Debugging a Qt Quick Example Application
+
+    This section uses the
+    \l{http://doc.qt.nokia.com/4.7/demos-declarative-samegame.html}{Same Game}
+    demo application to illustrate how to debug Qt Quick applications in the
+    \gui Debug mode.
+
+    For more information about all the options you have, see
+    \l{Debugging Qt Quick Projects}.
+
+    The Same Game demo shows how to write a game in QML, using JavaScript for
+    all the game logic. Open the demo project in \QC to debug it:
+
+    \list 1
+
+        \o  To look at the code that starts a new game, place a breakpoint in
+            samegame.qml by clicking between the line number and the window
+            border on the line where where the \c startNewGame() function is
+            called.
+
+            \image qtquick-example-setting-breakpoint1.png
+
+            The red circle indicates that a breakpoint is now set on that line
+            number.
+
+        \o  Select \gui {Debug > Start Debugging > Start Debugging} or press
+            \key{F5}.
+
+        \o  Once the Same Game application starts, click the \gui {New Game}
+            button to start a new game.
+
+        \o  When the debugger hits the breakpoint, it interrupts the
+            application. \QC displays the nested function calls leading to the
+            current position as a call stack trace. To view the stack, select
+            the \gui Stack tab.
+
+            \image qtquick-example-setting-breakpoint2.png
+
+        \o  Click the
+            \inlineimage qml-inspector-step-into.png
+            (\gui {Step Into}) button on the toolbar or press \key F11 to step
+            into the code in the stack. The samegame.js file opens in the code
+            editor at the function that starts a new game.
+
+            \image qtquick-example-stack.png
+
+        \o  Examine the local variables in the \gui {Locals and Expressions}
+            view. Step through the code to see how the information changes in
+            the view.
+
+        \o  Add a breakpoint at the end of the \c {startNewGame()} function, and
+            click \inlineimage qtcreator-debugging-continue.png
+            (\gui Continue) to hit the breakpoint.
+
+            \image qtquick-example-setting-breakpoint3.png
+
+        \o  To execute JavaScript commands in the current context, select the
+            \gui {QML Script Console} tab.
+
+        \o  To change the score to 1000, enter \c{gameCanvas.score = 1000}
+            in the console.
+
+            \image qtquick-example-script-console.png
+
+        \o  To remove a breakpoint, right-click it and select
+            \gui {Delete Breakpoint}.
+
+        \o  Select the \gui {QML Inspector} tab to explore the object structure
+            at runtime:
+
+            \image qtquick-example-qml-inspector.png
+
+        \o  Click
+            \inlineimage qml-inspector-app-on-top.png
+            (\gui {Show Application on Top}) to keep the application visible
+            while you interact with the debugger.
+
+        \o  Click
+            \inlineimage qml-inspector-select-button.png
+            (\gui Select) to activate selection mode and then click the
+            \gui {New Game} button to move into the \gui newGameButton component
+            in the \gui {QML Script Console} and the code editor.
+
+            \image qtquick-example-property-values.png
+
+        \o  In the \gui {QML Inspector} view, double-click the value of the
+            \c text property to change it temporarily from \gui {Quit} to
+            \gui {End Game}.
+
+            When you select an element, the cursor moves to it in the code
+            editor, where you can change the value permanently.
+
+    \endlist
+
+*/

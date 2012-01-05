@@ -29,9 +29,9 @@
     \contentspage index.html
     \previouspage creator-debugging.html
     \page creator-debugging-example.html
-    \nextpage creator-debugger-operating-modes.html
+    \nextpage creator-qml-debugging-example.html
 
-    \title Debugging the Example Application
+    \title Debugging a C++ Example Application
 
     This section uses the \l{Creating a Qt Widget Based Application}{TextFinder}
     example to illustrate how to debug Qt C++ applications in the \gui Debug

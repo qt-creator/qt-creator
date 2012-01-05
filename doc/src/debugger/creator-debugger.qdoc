@@ -39,9 +39,14 @@
 
     \list
 
-        \o  \l{Debugging the Example Application}
+        \o  \l{Debugging a C++ Example Application}
 
             Illustrates how to debug Qt C++ applications in the \gui Debug
+            mode.
+
+        \o  \l{Debugging a Qt Quick Example Application}
+
+            Illustrates how to debug Qt Quick applications in the \gui Debug
             mode.
 
         \o  \l{Launching the Debugger}
@@ -100,7 +105,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-debugging-example.html
+    \previouspage creator-qml-debugging-example.html
     \page creator-debugger-operating-modes.html
     \nextpage creator-debug-mode.html
 
