@@ -74,6 +74,14 @@
 
     \endlist
 
+    \note Window managers use some keyboard shortcuts for their own purposes.
+    If such shortcuts happen to be the same as the \QC default shortcuts, the
+    \QC shortcuts are not delivered to applications. Typically, you can
+    configure the shortcuts in the window manager, but if that is not allowed,
+    you can change the \QC shortcuts. For example, Unity on Ubuntu 11.10 uses
+    \key F10 in its window manager, and therefore the default \QC keyboard
+    shortcut \key F10 (Step Over) does not work on that system.
+
     \section1 Default Keyboard Shortcuts
 
     The following tables list the default keyboard shortcuts. They are
