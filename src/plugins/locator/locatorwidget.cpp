@@ -68,6 +68,7 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QScrollBar>
 #include <QtGui/QTreeView>
+#include <QtGui/QToolTip>
 
 Q_DECLARE_METATYPE(Locator::ILocatorFilter*)
 Q_DECLARE_METATYPE(Locator::FilterEntry)
@@ -172,12 +173,17 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
     if (!index.isValid() || index.row() >= mEntries.size())
         return QVariant();
 
-    if (role == Qt::DisplayRole  || role == Qt::ToolTipRole) {
+    if (role == Qt::DisplayRole) {
         if (index.column() == 0) {
             return mEntries.at(index.row()).displayName;
         } else if (index.column() == 1) {
             return mEntries.at(index.row()).extraInfo;
         }
+    } else if (role == Qt::ToolTipRole) {
+        if (mEntries.at(index.row()).extraInfo.isEmpty())
+            return QVariant(mEntries.at(index.row()).displayName);
+        else
+            return QVariant(mEntries.at(index.row()).displayName + "\n\n" + mEntries.at(index.row()).extraInfo);
     } else if (role == Qt::DecorationRole && index.column() == 0) {
         FilterEntry &entry = mEntries[index.row()];
         if (entry.resolveFileIcon && entry.displayIcon.isNull()) {
@@ -395,33 +401,7 @@ void LocatorWidget::updateFilterList()
 
 bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
 {
-    if (obj == m_fileLineEdit && event->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        switch (keyEvent->key()) {
-        case Qt::Key_Up:
-        case Qt::Key_Down:
-        case Qt::Key_PageUp:
-        case Qt::Key_PageDown:
-            showCompletionList();
-            QApplication::sendEvent(m_completionList, event);
-            return true;
-        case Qt::Key_Enter:
-        case Qt::Key_Return:
-            scheduleAcceptCurrentEntry();
-            return true;
-        case Qt::Key_Escape:
-            m_completionList->hide();
-            return true;
-        case Qt::Key_Tab:
-            m_completionList->next();
-            return true;
-        case Qt::Key_Backtab:
-            m_completionList->previous();
-            return true;
-        default:
-            break;
-        }
-    } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusOut) {
+    if (obj == m_fileLineEdit && event->type() == QEvent::FocusOut) {
 #if defined(Q_OS_WIN)
         QFocusEvent *fev = static_cast<QFocusEvent*>(event);
         if (fev->reason() != Qt::ActiveWindowFocusReason ||
@@ -432,13 +412,82 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
         showPopupNow();
     } else if (obj == this && event->type() == QEvent::ShortcutOverride) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
-        if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
-            event->accept();
-            QTimer::singleShot(0, Core::ModeManager::instance(), SLOT(setFocusToCurrentMode()));
-            return true;
+        switch (ke->key()) {
+        case Qt::Key_Escape:
+            if (!ke->modifiers()) {
+                event->accept();
+                QTimer::singleShot(0, Core::ModeManager::instance(), SLOT(setFocusToCurrentMode()));
+                return true;
+            }
+        case Qt::Key_Alt:
+            if (ke->modifiers() == Qt::AltModifier) {
+                event->accept();
+                return true;
+            }
+            break;
+        default:
+            break;
         }
     }
     return QWidget::eventFilter(obj, event);
+}
+
+void LocatorWidget::keyPressEvent(QKeyEvent *keyEvent)
+{
+    if (QToolTip::isVisible())
+        QToolTip::hideText();
+    if (m_possibleToolTipRequest)
+        m_possibleToolTipRequest = false;
+
+    switch (keyEvent->key()) {
+    case Qt::Key_Up:
+    case Qt::Key_Down:
+    case Qt::Key_PageUp:
+    case Qt::Key_PageDown:
+        showCompletionList();
+        QApplication::sendEvent(m_completionList, keyEvent);
+        return;
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
+        scheduleAcceptCurrentEntry();
+        return;
+    case Qt::Key_Escape:
+        m_completionList->hide();
+        return;
+    case Qt::Key_Tab:
+        m_completionList->next();
+        return;
+    case Qt::Key_Backtab:
+        m_completionList->previous();
+        return;
+    case Qt::Key_Alt:
+        if (keyEvent->modifiers() == Qt::AltModifier) {
+            m_possibleToolTipRequest = true;
+            return;
+        }
+        break;
+    default:
+        break;
+    }
+    QWidget::keyPressEvent(keyEvent);
+}
+
+void LocatorWidget::keyReleaseEvent(QKeyEvent *keyEvent)
+{
+    if (m_possibleToolTipRequest) {
+        m_possibleToolTipRequest = false;
+        if (m_completionList->isVisible()
+                && (keyEvent->key() == Qt::Key_Alt)
+                && (keyEvent->modifiers() == Qt::NoModifier)) {
+            const QModelIndex index = m_completionList->currentIndex();
+            if (index.isValid()) {
+                QToolTip::showText(m_completionList->pos() + m_completionList->visualRect(index).topRight(),
+                                   m_locatorModel->data(index, Qt::ToolTipRole).toString());
+                return;
+            }
+        }
+    }
+    QWidget::keyReleaseEvent(keyEvent);
 }
 
 void LocatorWidget::showCompletionList()

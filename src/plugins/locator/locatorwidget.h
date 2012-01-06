@@ -80,6 +80,8 @@ private slots:
 
 private:
     bool eventFilter(QObject *obj, QEvent *event);
+    void keyPressEvent(QKeyEvent *keyEvent);
+    void keyReleaseEvent(QKeyEvent *keyEvent);
 
     void showEvent(QShowEvent *e);
 
@@ -100,6 +102,7 @@ private:
     QMap<QString, QAction *> m_filterActionMap;
     bool m_updateRequested;
     bool m_acceptRequested;
+    bool m_possibleToolTipRequest;
 };
 
 } // namespace Internal
