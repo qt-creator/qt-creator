@@ -1391,16 +1391,6 @@ class Dumper:
         type = value.type.unqualified()
         typeName = str(type)
 
-        try:
-            if value.is_optimized_out:
-                self.putValue("<optimized out>")
-                self.putType(typeName)
-                self.putNumChild(0)
-                return
-        except:
-            pass
-
-
         # FIXME: Gui shows references stripped?
         #warn(" ")
         #warn("REAL INAME: %s " % self.currentIName)
@@ -1409,44 +1399,65 @@ class Dumper:
         #warn("REAL VALUE: %s " % value)
 
         if type.code == ReferenceCode:
-            #try:
-                # This throws "RuntimeError: Attempt to dereference a
+            try:
+                # FIXME: This throws "RuntimeError: Attempt to dereference a
                 # generic pointer." with MinGW's gcc 4.5 when it "identifies"
-                # a "QWidget &" as "void &".
-                self.putItem(value.cast(type.target()))
+                # a "QWidget &" as "void &" and with optimized out code.
+                self.putItem(value.cast(type.target().unqualified()))
                 return
-            #except RuntimeError:
-            #    pass
+            except RuntimeError:
+                self.putValue("<optimized out reference>")
+                self.putType(typeName)
+                self.putNumChild(0)
+                return
 
         if type.code == IntCode or type.code == CharCode:
             self.putAddress(value.address)
             self.putType(typeName)
-            self.putValue(int(value))
+            if value.is_optimized_out:
+                self.putValue("<optimized out>")
+            else:
+                self.putValue(int(value))
             self.putNumChild(0)
             return
 
         if type.code == FloatCode or type.code == BoolCode:
             self.putAddress(value.address)
             self.putType(typeName)
-            self.putValue(value)
+            if value.is_optimized_out:
+                self.putValue("<optimized out>")
+            else:
+                self.putValue(value)
             self.putNumChild(0)
             return
 
         if type.code == EnumCode:
+            self.putAddress(value.address)
             self.putType(typeName)
-            self.putValue("%s (%d)" % (value, value))
+            if value.is_optimized_out:
+                self.putValue("<optimized out>")
+            else:
+                self.putValue("%s (%d)" % (value, value))
             self.putNumChild(0)
             return
 
         if type.code == TypedefCode:
-            type = type.strip_typedefs()
+            type = stripTypedefs(type)
             # The cast can destroy the address?
             self.putAddress(value.address)
             # Workaround for http://sourceware.org/bugzilla/show_bug.cgi?id=13380
             if type.code == ArrayCode:
                 value = parseAndEvaluate("{%s}%s" % (type, value.address))
             else:
-                value = value.cast(type.strip_typedefs())
+                try:
+                    value = value.cast(type)
+                    self.putItem(value)
+                except:
+                    self.putValue("<optimized out typedef>")
+                    self.putType(typeName)
+                    self.putNumChild(0)
+                    return
+
             self.putItem(value)
             self.putBetterType(typeName)
             return
@@ -1484,8 +1495,16 @@ class Dumper:
         if type.code == PointerCode:
             #warn("POINTER: %s" % value)
 
-            if not isAccessible(value):
-                self.currentValue = None
+            # This could still be stored in a register and
+            # potentially dereferencable.
+            if value.is_optimized_out:
+                self.putValue("<optimized out>")
+
+            try:
+                value.dereference()
+            except:
+                self.putValue("<optimized out>")
+                self.putType(typeName)
                 self.putNumChild(0)
                 return
 
@@ -1625,7 +1644,8 @@ class Dumper:
 
 
         if self.useDynamicType:
-            dtypeName = dynamicTypeName(value)
+            dtypeName = dynamicTypeName(value.cast(type))
+            #dtypeName = str(lookupType(dtypeName)) # Strip const etc. FIXME
         else:
             dtypeName = typeName
 

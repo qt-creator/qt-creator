@@ -119,7 +119,6 @@ try:
 
                     # "NotImplementedError: Symbol type not yet supported in
                     # Python scripts."
-                    #warn("SYMBOL %s: " % symbol.value)
                     #warn("SYMBOL %s  (%s): " % (symbol, name))
                     if name in shadowed:
                         level = shadowed[name]
@@ -133,19 +132,41 @@ try:
                     item.iname = "local." + name1
                     item.name = name1
                     try:
-                        item.value = frame.read_var(name, block)  # this is a gdb value
-                    except:
-                        try:
-                            item.value = frame.read_var(name)  # this is a gdb value
-                        except:
-                            # RuntimeError: happens for
-                            #     void foo() { std::string s; std::wstring w; }
-                            # ValueError: happens for (as of 2010/11/4)
-                            #     a local struct as found e.g. in
-                            #     gcc sources in gcc.c, int execute()
+                        item.value = frame.read_var(name, block)
+                        #warn("READ 1: %s" % item.value)
+                        if not item.value.is_optimized_out:
+                            #warn("ITEM 1: %s" % item.value)
+                            items.append(item)
                             continue
-                    #warn("ITEM %s: " % item.value)
-                    items.append(item)
+                    except:
+                        pass
+
+                    try:
+                        item.value = frame.read_var(name)
+                        #warn("READ 2: %s" % item.value)
+                        if not item.value.is_optimized_out:
+                            #warn("ITEM 2: %s" % item.value)
+                            items.append(item)
+                            continue
+                    except:
+                        # RuntimeError: happens for
+                        #     void foo() { std::string s; std::wstring w; }
+                        # ValueError: happens for (as of 2010/11/4)
+                        #     a local struct as found e.g. in
+                        #     gcc sources in gcc.c, int execute()
+                        pass
+
+                    try:
+                        #warn("READ 3: %s %s" % (name, item.value))
+                        item.value = gdb.parse_and_eval(name)
+                        #warn("ITEM 3: %s" % item.value)
+                        items.append(item)
+                    except:
+                        # Can happen in inlined code (see last line of
+                        # RowPainter::paintChars(): "RuntimeError:
+                        # No symbol \"__val\" in current context.\n"
+                        pass
+
                 # The outermost block in a function has the function member
                 # FIXME: check whether this is guaranteed.
                 if not block.function is None:
