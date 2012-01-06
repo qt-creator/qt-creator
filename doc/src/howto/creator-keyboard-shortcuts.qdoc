@@ -186,8 +186,6 @@
         \row
             \o Toggle \gui{Search Results} pane
             \o Alt+2 (Cmd+2 on Mac OS X)
-
-            Ctrl+Shift+F
         \row
             \o Toggle \gui{Application Output} pane
             \o Alt+3 (Cmd+3 on Mac OS X)
@@ -423,6 +421,9 @@
             \o Replace next
             \o Ctrl+=
         \row
+            \o Open advanced find
+            \o Ctrl+Shift+F
+        \row
             \o Record a text-editing macro
             \o Alt+(
         \row
@@ -471,6 +472,12 @@
         \header
             \o Action
             \o Keyboard shortcut
+        \row
+            \o Open the QML file that defines the selected component
+            \o F2
+        \row
+            \o Move between code editor and visual editor
+            \o F4
         \row
             \o Toggle left sidebar
             \o Ctrl+Alt+0
