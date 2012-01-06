@@ -247,6 +247,7 @@
                     {Highlight Definition Files}
                 \o  \l{Qt Creator Variables}
                 \o  \l{User Interface Text Guidelines}
+                \o  \l{Writing Documentation}
                 \o  \l{Qt Creator Coding Rules}
                 \o  \l{Qt Creator API Reference}
         \endlist

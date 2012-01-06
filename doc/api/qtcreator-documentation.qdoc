@@ -1,0 +1,260 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+****************************************************************************/
+
+/*!
+    \contentspage{index.html}{Qt Creator}
+    \previouspage external-tool-spec.html
+    \page qtcreator-documentation.html
+    \nextpage coding-style.html
+
+    \title Writing Documentation
+
+    When you add plugins or contribute new features to \QC, you probably want
+    other people to know about them and to be able to use them. Therefore,
+    you should also contribute documentation for them. Follow the guidelines in
+    this section to make sure that your documentation fits in well with the rest
+    of the \QC documentation.
+
+    When you contribute a plugin, you should write documentation both for the
+    developers who use \QC and for the ones who develop it.
+
+    Write the following user documentation for addition to the \QC Manual:
+
+    \list
+
+        \o  Overview topic, which describes the purpose of your plugin from the
+            viewpoint of \QC users
+
+        \o  Procedure topics, which describe how to use your plugin as part of
+            \QC
+
+        \o  Reference topics, which contain information that developers
+            occasionally need to look up (optional)
+
+    \endlist
+
+    Write the following developer documentation for addition to the Extending
+    \QC Manual:
+
+    \list
+
+        \o  Overview topic, which describes the architecture and use cases for
+            your plugin from the viewpoint of \QC developers
+
+        \o  API documentation, which is generated from code comments
+
+    \endlist
+
+    \section1 Configuring the Documentation Project
+
+    \QC documentation is written by using QDoc. For more information about using
+    QDoc, see \l{http://doc.qt.nokia.com/qdoc/}{QDoc Reference Documentation}.
+
+    QDoc finds the new topics automatically, when you place them as .qdoc files
+    in the correct folder. However, to make the topics accessible to readers,
+    you must also add them to the table of contents and fix the next page and
+    previous page links to them from other topics.
+
+    \section2 Creating Folders and Files
+
+    These instructions apply only to the \QC Manual. Add API documentation
+    directly to the code source files. However, you can write an API overview
+    also as a separate .qdoc file.
+
+    Create a subfolder for your documentation in the \QC project folder in the
+    \c {doc\src} folder. Create a separate file for each topic.
+
+    The easiest way is probably to copy an existing file, save it as a new file,
+    and modify it. This way, you already have samples of the necessary bits
+    and pieces in place, such as topic start and end commands, copyright
+    statement, links to next and previous topics, and topic title.
+
+    \section2 Integrating Topics to Documentation
+
+    You must integrate your new topics to the \QC Manual and Extending
+    \QC Manual by adding links to them to the table of contents and to other
+    relevant topics.
+
+    To link to the topic, you can use the topic title. For example:
+
+    \code
+
+    \l{Integrating Topics to Documentation}
+
+    \endcode
+
+    This does not work if topic titles are not unique. Also, if you change the
+    title, the link breaks. You can avoid this risk by adding the \c {\target}
+    command to your topic and then linking to the target.
+
+    \section2 Updating Next and Previous Links
+
+    When you add new topics to a document, you must also change the navigation
+    links of the topics around them. This is very error prone when done
+    manually, and therefore we have a script called \c fixnavi.pl for it. For
+    the script to work, you must add the \c {\nextpage} and \c {\previouspage}
+    commands to the topic, with dummy values (for example,
+    \c {\nextpage=anything.html}).
+
+    \note The script creates the links according to the TOC on the front page.
+    If your topics are not listed in the TOC, the script removes the
+    \c {\nextpage} and \c {\previouspage} commands from them.
+
+    To run the script, you must have Perl installed. If you build Qt yourself,
+    you should already have it. Otherwise, download and install
+    \l{http://www.perl.org/}{Perl}.
+
+    To run the script, enter the following command in the doc folder:
+
+    \list
+
+        \o  nmake fixnavi (on Windows)
+
+        \o  make fixnavi (on Linux)
+
+    \endlist
+
+    \section1 Writing Text
+
+    Follow the guidelines for
+    \l{http://developer.qt.nokia.com/wiki/Writing_Qt_Documentation}
+    {writing Qt documentation}.
+
+    The documentation must be grammatically correct English and use the standard
+    form of written language. Do not use dialect or slang words. Use idiomatic
+    language, that is, expressions that are characteristic for English.
+    If possible, ask a native English speaker for a review.
+
+    \section2 Capitalizing Headings
+
+    Use the book title capitalization style for all titles and section headings
+    (\c {\title}, \c {\section1}, \c {\section2}, and so on). For more
+    information, see \l{Using Book Style Capitalization}.
+
+    \section1 Using Images
+
+    You can illustrate your documentation by using screen shots, diagrams, and
+    other images.
+
+    Save images in the PNG format in the \QC project folder in the
+    \c {doc\images} folder. Binary images can easily add megabytes to the Git
+    history. To keep the history as small as possible, the Git post-commit hooks
+    remind you to try to keep image size below 50 kilobytes. To achieve this
+    goal, crop images so that only relevant information is visible in them.
+    Before committing images, optimize them by using the Radical Image
+    Optimization Tool (RIOT).
+
+    Use the \c {\image} and \c {\inlineimage} QDoc commands to refer to images
+    from the text. You do not need to add paths to image names. For example:
+
+    \code
+
+    \image riot.png
+
+    \endcode
+
+    \section2 Optimizing Images
+
+    Download and install \l{http://luci.criosweb.ro/riot/}{RIOT}.
+
+    \image riot.png
+
+    Open your images in RIOT and use the following settings for them:
+
+    \list
+
+        \o  Color reduction: Optimal 296 colors palette
+
+        \o  Reduce colors to: 256
+
+        \o  Best compression (slow)
+
+        \o  Color quantization algorithm: NeuQuant neural-net (slow)
+
+        \o  External optimizers: OptiPNG o3
+
+    \endlist
+
+    Compare the initial and optimized images to check that image quality is
+    preserved. You can also see the sizes of the initial and optimized image.
+
+    \section1 Building Documentation
+
+    You use QDoc to build the documentation. Build the documentation from time
+    to time, to check its structure and the validity of the QDoc commands.
+    The error messages that QDoc issues are generally very useful for
+    troubleshooting.
+
+    The content and formatting of documentation are separated in QDoc.
+    Separate style sheets are used to generate help files for \QC and online
+    documentation for the Web.
+
+    The documentation configuration, style sheets, and build process have
+    changed over time, so they differ between Qt and \QC versions. To use the
+    online style, use QDoc from Qt 4.7.4 to build the docs. To use the \QC help
+    style, use QDoc from Qt 4.8, or later.
+
+    To build documentation for the sources from the qtcreator master branch, use
+    build scripts defined in the doc.pri file. To build all \QC docs in the
+    help format and to create help files (.qch), enter the following build
+    commands from the project folder:
+
+    \list
+
+        \o  nmake docs (on Windows)
+        \o  make docs (on Linux)
+
+    \endlist
+
+    The following options generate HTML that uses the help style, and therefore
+    require QDoc from Qt 4.8 or later:
+
+    \list
+
+        \o  html_docs - build \QC Manual in help format, but do not generate a
+            help file
+
+        \o  dev_html_docs - build Extending \QC Manual in help format, but do
+            not generate a help file
+
+        \o  qch_docs - build \QC Manual in help format and generate a help file
+            (.qch)
+
+        \o  dev_qch_docs - build Extending \QC Manual in help format and
+            generate a help file (.qch)
+
+    \endlist
+
+    The following options generate HTML that uses the online style (they do not
+    generate a help file), and therefore require QDoc from Qt 4.7.4:
+
+    \list
+
+        \o  docs_online - build \QC Manual and Extending \QC Manual in online
+            format
+
+        \o  html_docs_online - build \QC Manual in online format
+
+        \o  dev_html_docs_online - build Extending \QC Manual in online format
+
+    \endlist
+
+*/
