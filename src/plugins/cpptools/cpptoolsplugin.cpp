@@ -169,24 +169,25 @@ void CppToolsPlugin::switchHeaderSource()
         editorManager->openEditor(otherFile);
 }
 
-static QFileInfo findFileInProject(const QString &name,
+static QStringList findFilesInProject(const QString &name,
                                    const ProjectExplorer::Project *project)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << name << project;
 
     if (!project)
-        return QFileInfo();
+        return QStringList();
 
     QString pattern = QString(1, QLatin1Char('/'));
     pattern += name;
     const QStringList projectFiles = project->files(ProjectExplorer::Project::AllFiles);
     const QStringList::const_iterator pcend = projectFiles.constEnd();
+    QStringList candidateList;
     for (QStringList::const_iterator it = projectFiles.constBegin(); it != pcend; ++it) {
         if (it->endsWith(pattern))
-            return QFileInfo(*it);
+            candidateList.append(*it);
     }
-    return QFileInfo();
+    return candidateList;
 }
 
 // Figure out file type
@@ -249,6 +250,15 @@ static QStringList baseNameWithAllSuffixes(const QString &baseName, const QStrin
     return result;
 }
 
+static int commonStringLength(const QString &s1, const QString &s2)
+{
+    int length = qMin(s1.length(), s2.length());
+    for (int i = 0; i < length; ++i)
+        if (s1[i] != s2[i])
+            return i;
+    return length;
+}
+
 QString CppToolsPlugin::correspondingHeaderOrSourceI(const QString &fileName) const
 {
     const Core::ICore *core = Core::ICore::instance();
@@ -286,18 +296,31 @@ QString CppToolsPlugin::correspondingHeaderOrSourceI(const QString &fileName) co
     const QDir absoluteDir = fi.absoluteDir();
 
     // Try to find a file in the same directory first
-    foreach (const QString &fileName, candidateFileNames) {
-        const QFileInfo candidateFi(absoluteDir, fileName);
+    foreach (const QString &candidateFileName, candidateFileNames) {
+        const QFileInfo candidateFi(absoluteDir, candidateFileName);
         if (candidateFi.isFile())
             return candidateFi.absoluteFilePath();
     }
 
     // Find files in the project
     if (project) {
-        foreach (const QString &fileName, candidateFileNames) {
-            const QFileInfo candidateFi = findFileInProject(fileName, project);
-            if (candidateFi.isFile())
-                return candidateFi.absoluteFilePath();
+        QString bestFileName;
+        int compareValue = 0;
+        foreach (const QString &candidateFileName, candidateFileNames) {
+            const QStringList projectFiles = findFilesInProject(candidateFileName, project);
+            // Find the file having the most common path with fileName
+            foreach (const QString projectFile, projectFiles) {
+                int value = commonStringLength(fileName, projectFile);
+                if (value > compareValue) {
+                    compareValue = value;
+                    bestFileName = projectFile;
+                }
+            }
+        }
+        if (!bestFileName.isEmpty()) {
+            const QFileInfo candidateFi(bestFileName);
+            Q_ASSERT(candidateFi.isFile());
+            return candidateFi.absoluteFilePath();
         }
     }
 
