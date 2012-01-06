@@ -101,7 +101,7 @@ void AttachGdbAdapter::handleAttach(const GdbResponse &response)
         break;
     case GdbResultError:
         if (response.data.findChild("msg").data() == "ptrace: Operation not permitted.") {
-            m_engine->notifyInferiorSetupFailed(DumperHelper::msgPtraceErr(startParameters().startMode));
+            m_engine->notifyInferiorSetupFailed(DumperHelper::msgPtraceError(startParameters().startMode));
             break;
         }
         // if msg != "ptrace: ..." fall through

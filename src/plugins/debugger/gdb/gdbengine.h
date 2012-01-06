@@ -167,7 +167,7 @@ public:
     QString toString(bool debug = false) const;
 
     static QString msgDumperOutdated(double requiredVersion, double currentVersion);
-    static QString msgPtraceErr(DebuggerStartMode sm);
+    static QString msgPtraceError(DebuggerStartMode sm);
 
 private:
     typedef QMap<QByteArray, Type> NameTypeMap;

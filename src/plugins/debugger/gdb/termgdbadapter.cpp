@@ -165,7 +165,7 @@ void TermGdbAdapter::handleStubAttached(const GdbResponse &response)
         break;
     case GdbResultError:
         if (response.data.findChild("msg").data() == "ptrace: Operation not permitted.") {
-            m_engine->notifyInferiorSetupFailed(DumperHelper::msgPtraceErr(startParameters().startMode));
+            m_engine->notifyInferiorSetupFailed(DumperHelper::msgPtraceError(startParameters().startMode));
             break;
         }
         m_engine->notifyInferiorSetupFailed(QString::fromLocal8Bit(response.data.findChild("msg").data()));
