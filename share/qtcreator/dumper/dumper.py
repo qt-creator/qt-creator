@@ -160,14 +160,16 @@ def lookupType(typestring):
     except:
         pass
 
-    #warn(" RESULT '%s': %s" % (typestring, type))
-    typeCache[typestring] = type
-    return None
+    #warn(" RESULT FOR 7.2: '%s': %s" % (typestring, type))
+    #typeCache[typestring] = type
+    #return None
 
+    # This part should only trigger for
+    # gdb 7.1 for types with namespace separators.
 
     ts = typestring
     while True:
-        #WARN("ts: '%s'" % ts)
+        #warn("TS: '%s'" % ts)
         if ts.startswith("class "):
             ts = ts[6:]
         elif ts.startswith("struct "):
@@ -883,6 +885,8 @@ def stripForFormat(typeName):
     return stripped
 
 def bbsetup(args):
+    typeInfoCache = {}
+    typeCache = {}
     module = sys.modules[__name__]
     for key, value in module.__dict__.items():
         if key.startswith("qdump__"):
