@@ -46,11 +46,15 @@ my %title2page = ();
 my $doctitle = "";
 my %prev_skips = ();
 my %next_skips = ();
-my %define_skips = ();
-my %polarity_skips = ();
+my %prev_define_skips = ();
+my %next_define_skips = ();
+my %prev_polarity_skips = ();
+my %next_polarity_skips = ();
 for my $file (@files) {
     my ($curpage, $inhdr, $intoc, $inif) = ("", 0, 0, 0);
-    my ($define_skip, $polarity_skip, $skipping, $prev_skip, $next_skip) = ("", 0, 0, "", "");
+    my ($define_skip, $polarity_skip, $skipping) = ("", 0, 0);
+    my ($prev_define_skip, $prev_polarity_skip, $prev_skip,
+        $next_define_skip, $next_polarity_skip, $next_skip) = ("", 0, "", "", 0, "");
     open FILE, $file or die "File $file cannot be opened.\n";
     while (<FILE>) {
         if (/^\h*\\if\h+defined\h*\(\h*(\H+)\h*\)/) {
@@ -68,6 +72,7 @@ for my $file (@files) {
             die "Unmatched \\endif in $file:$.\n" if (!$inif);
             $inif = 0;
             $skipping = 0;
+            $define_skip = "";
         } elsif (keys(%title2page) == 1 && /^\h*\\list/) {
             $intoc++;
         } elsif ($intoc) {
@@ -77,22 +82,27 @@ for my $file (@files) {
                 push @toc, $1;
             }
         } elsif ($inhdr) {
-            if ($skipping && /^\h*\\previouspage\h+(\H+)/) {
-                $prev_skip = $1;
-            } elsif ($skipping && /^\h*\\nextpage\h+(\H+)/) {
-                $next_skip = $1;
+            if (/^\h*\\previouspage\h+(\H+)/) {
+                $prev_skip = $1 if ($skipping);
+                ($prev_define_skip, $prev_polarity_skip) = ($define_skip, $polarity_skip);
+            } elsif (/^\h*\\nextpage\h+(\H+)/) {
+                $next_skip = $1 if ($skipping);
+                ($next_define_skip, $next_polarity_skip) = ($define_skip, $polarity_skip);
             } elsif (/^\h*\\page\h+(\H+)/) {
                 $curpage = $1;
             } elsif (/^\h*\\title\h+(.+)$/) {
                 if ($curpage eq "") {
                     die "Title '$1' appears in no \\page.\n";
                 }
-                if (length($define_skip)) {
-                     $define_skips{$1} = $define_skip;
-                     $polarity_skips{$1} = $polarity_skip;
-                     $prev_skips{$1} = $prev_skip;
-                     $next_skips{$1} = $next_skip;
-                     $define_skip = $prev_skip = $next_skip = "";
+                if (length($prev_define_skip)) {
+                    ($prev_define_skips{$1}, $prev_polarity_skips{$1}, $prev_skips{$1}) =
+                            ($prev_define_skip, $prev_polarity_skip, $prev_skip);
+                    $prev_define_skip = $prev_skip = "";
+                }
+                if (length($next_define_skip)) {
+                    ($next_define_skips{$1}, $next_polarity_skips{$1}, $next_skips{$1}) =
+                            ($next_define_skip, $next_polarity_skip, $next_skip);
+                    $next_define_skip = $next_skip = "";
                 }
                 $title2page{$1} = $curpage;
                 $doctitle = $1 if (!$doctitle);
@@ -130,32 +140,32 @@ for my $file (@files) {
             }
         } else {
             if (/^\h*\\title\h+(.+)$/) {
-                if (defined($define_skips{$1})) {
-                    print OUT "    \\if defined(".$define_skips{$1}.")\n";
-                    if ($polarity_skips{$1}) {
+                if (defined($prev_define_skips{$1})) {
+                    print OUT "    \\if defined(".$prev_define_skips{$1}.")\n";
+                    if ($prev_polarity_skips{$1}) {
                         print OUT "    \\previouspage ".$prev_skips{$1} if ($prev_skips{$1});
                         print OUT "    \\else\n";
                     }
                 }
                 print OUT "    \\previouspage ".$prev{$1} if ($prev{$1});
-                if (defined($define_skips{$1})) {
-                    if (!$polarity_skips{$1}) {
+                if (defined($prev_define_skips{$1})) {
+                    if (!$prev_polarity_skips{$1}) {
                         print OUT "    \\else\n";
                         print OUT "    \\previouspage ".$prev_skips{$1} if ($prev_skips{$1});
                     }
                     print OUT "    \\endif\n";
                 }
                 print OUT "    \\page ".$title2page{$1};
-                if (defined($define_skips{$1})) {
-                    print OUT "    \\if defined(".$define_skips{$1}.")\n";
-                    if ($polarity_skips{$1}) {
+                if (defined($next_define_skips{$1})) {
+                    print OUT "    \\if defined(".$next_define_skips{$1}.")\n";
+                    if ($next_polarity_skips{$1}) {
                         print OUT "    \\nextpage ".$next_skips{$1} if ($next_skips{$1});
                         print OUT "    \\else\n";
                     }
                 }
                 print OUT "    \\nextpage ".$next{$1} if ($next{$1});
-                if (defined($define_skips{$1})) {
-                    if (!$polarity_skips{$1}) {
+                if (defined($next_define_skips{$1})) {
+                    if (!$next_polarity_skips{$1}) {
                         print OUT "    \\else\n";
                         print OUT "    \\nextpage ".$next_skips{$1} if ($next_skips{$1});
                     }
