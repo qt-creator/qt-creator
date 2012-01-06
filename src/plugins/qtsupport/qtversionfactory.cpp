@@ -63,7 +63,7 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromLegacySettings(const Utils::
     if (!v)
         return 0;
     v->setId(id);
-    v->setDisplayName(s->value("Name").toString());
+    v->setDisplayName(s->value(QLatin1String("Name")).toString());
     v->restoreLegacySettings(s);
     return v;
 }
@@ -82,7 +82,7 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileN
     ProFileCacheManager::instance()->incRefCount();
     ProFileParser parser(ProFileCacheManager::instance()->cache(), &msgHandler);
     ProFileEvaluator evaluator(&option, &parser, &msgHandler);
-    if (ProFile *pro = parser.parsedProFile(mkspec.toString() + "/qmake.conf")) {
+    if (ProFile *pro = parser.parsedProFile(mkspec.toString() + QLatin1String("/qmake.conf"))) {
         evaluator.setCumulative(false);
         evaluator.accept(pro, ProFileEvaluator::LoadProOnly);
         pro->deref();

@@ -62,7 +62,7 @@ void QtParser::stdError(const QString &line)
                   m_mocRegExp.cap(5).trimmed(),
                   m_mocRegExp.cap(1) /* filename */,
                   lineno,
-                  ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
+                  QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE));
         if (m_mocRegExp.cap(4) == QLatin1String("Warning"))
             task.type = Task::Warning;
         emit addTask(task);
@@ -126,7 +126,7 @@ void QtSupportPlugin::testQtOutputParser_data()
             << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
                                                        QLatin1String("No relevant classes found. No output generated."),
                                                        QLatin1String("..\\untitled\\errorfile.h"), 0,
-                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
+                                                       QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
     QTest::newRow("moc warning 2")
             << QString::fromLatin1("c:\\code\\test.h(96): Warning: Property declaration ) has no READ accessor function. The property will be invalid.")
@@ -135,7 +135,7 @@ void QtSupportPlugin::testQtOutputParser_data()
             << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
                                                        QLatin1String("Property declaration ) has no READ accessor function. The property will be invalid."),
                                                        QLatin1String("c:\\code\\test.h"), 96,
-                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
+                                                       QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
 }
 

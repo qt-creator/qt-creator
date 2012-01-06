@@ -127,8 +127,8 @@ QStringList QmlDebuggingLibrary::recursiveFileList(const QDir &dir, const QStrin
     QStringList files;
 
     QString _prefix = prefix;
-    if (!_prefix.isEmpty() && !_prefix.endsWith('/')) {
-        _prefix = _prefix + '/';
+    if (!_prefix.isEmpty() && !_prefix.endsWith(QLatin1Char('/'))) {
+        _prefix = _prefix + QLatin1Char('/');
     }
     foreach (const QString &fileName, dir.entryList(QDir::Files)) {
         files << _prefix + fileName;

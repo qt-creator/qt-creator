@@ -91,6 +91,7 @@ QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader* reader, co
 {
     QList<ExampleItem> examples;
     ExampleItem item;
+    const QChar slash = QLatin1Char('/');
     while (!reader->atEnd()) {
         switch (reader->readNext()) {
         case QXmlStreamReader::StartElement:
@@ -101,18 +102,18 @@ QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader* reader, co
                 item.name = attributes.value(QLatin1String("name")).toString();
                 item.projectPath = attributes.value(QLatin1String("projectPath")).toString();
                 item.hasSourceCode = !item.projectPath.isEmpty();
-                item.projectPath.prepend('/');
+                item.projectPath.prepend(slash);
                 item.projectPath.prepend(projectsOffset);
                 item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
                 item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
             } else if (reader->name() == QLatin1String("fileToOpen")) {
-                item.filesToOpen.append(projectsOffset + '/' + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                item.filesToOpen.append(projectsOffset + slash + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("description")) {
                 item.description =  fixStringForTags(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("dependency")) {
-                item.dependencies.append(projectsOffset + '/' + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                item.dependencies.append(projectsOffset + slash + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("tags")) {
-                item.tags = reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement).split(",");
+                item.tags = reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement).split(QLatin1Char(','));
                 m_tags.append(item.tags);
             }
             break;
@@ -133,6 +134,7 @@ QList<ExampleItem> ExamplesListModel::parseDemos(QXmlStreamReader* reader, const
 {
     QList<ExampleItem> demos;
     ExampleItem item;
+    const QChar slash = QLatin1Char('/');
     while (!reader->atEnd()) {
         switch (reader->readNext()) {
         case QXmlStreamReader::StartElement:
@@ -143,18 +145,18 @@ QList<ExampleItem> ExamplesListModel::parseDemos(QXmlStreamReader* reader, const
                 item.name = attributes.value(QLatin1String("name")).toString();
                 item.projectPath = attributes.value(QLatin1String("projectPath")).toString();
                 item.hasSourceCode = !item.projectPath.isEmpty();
-                item.projectPath.prepend('/');
+                item.projectPath.prepend(slash);
                 item.projectPath.prepend(projectsOffset);
                 item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
                 item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
             } else if (reader->name() == QLatin1String("fileToOpen")) {
-                item.filesToOpen.append(projectsOffset + '/' + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                item.filesToOpen.append(projectsOffset + slash + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("description")) {
                 item.description =  fixStringForTags(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("dependency")) {
-                item.dependencies.append(projectsOffset + '/' + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                item.dependencies.append(projectsOffset + slash + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("tags")) {
-                item.tags = reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement).split(",");
+                item.tags = reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement).split(QLatin1Char(','));
             }
             break;
         case QXmlStreamReader::EndElement:
@@ -174,6 +176,7 @@ QList<ExampleItem> ExamplesListModel::parseTutorials(QXmlStreamReader* reader, c
 {
     QList<ExampleItem> tutorials;
     ExampleItem item;
+    const QChar slash = QLatin1Char('/');
     while (!reader->atEnd()) {
         switch (reader->readNext()) {
         case QXmlStreamReader::StartElement:
@@ -184,7 +187,7 @@ QList<ExampleItem> ExamplesListModel::parseTutorials(QXmlStreamReader* reader, c
                 item.name = attributes.value(QLatin1String("name")).toString();
                 item.projectPath = attributes.value(QLatin1String("projectPath")).toString();
                 item.hasSourceCode = !item.projectPath.isEmpty();
-                item.projectPath.prepend('/');
+                item.projectPath.prepend(slash);
                 item.projectPath.prepend(projectsOffset);
                 if (attributes.hasAttribute(QLatin1String("imageUrl")))
                     item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
@@ -197,13 +200,13 @@ QList<ExampleItem> ExamplesListModel::parseTutorials(QXmlStreamReader* reader, c
                 if (attributes.hasAttribute(QLatin1String("videoLength")))
                     item.videoLength = attributes.value(QLatin1String("videoLength")).toString();
             } else if (reader->name() == QLatin1String("fileToOpen")) {
-                item.filesToOpen.append(projectsOffset + '/' + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                item.filesToOpen.append(projectsOffset + slash + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("description")) {
                 item.description =  fixStringForTags(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("dependency")) {
-                item.dependencies.append(projectsOffset + '/' + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                item.dependencies.append(projectsOffset + slash + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("tags")) {
-                item.tags = reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement).split(",");
+                item.tags = reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement).split(QLatin1Char(','));
             }
             break;
         case QXmlStreamReader::EndElement:
@@ -278,10 +281,10 @@ QStringList ExamplesListModel::exampleSources() const
 
     // Read keys from SDK installer
     QSettings *settings = Core::ICore::instance()->settings(QSettings::SystemScope);
-    int size = settings->beginReadArray("ExampleManifests");
+    int size = settings->beginReadArray(QLatin1String("ExampleManifests"));
     for (int i = 0; i < size; ++i) {
         settings->setArrayIndex(i);
-        sources.append(settings->value("Location").toString());
+        sources.append(settings->value(QLatin1String("Location")).toString());
     }
     settings->endArray();
 
@@ -361,7 +364,7 @@ QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
     switch (role)
     {
     case Qt::DisplayRole: // for search only
-        return QString(item.name + ' ' + item.tags.join(" "));
+        return QString(item.name + QLatin1Char(' ') + item.tags.join(QLatin1String(" ")));
     case Name:
         return item.name;
     case ProjectPath:
@@ -506,7 +509,7 @@ struct SearchStringLexer {
     SearchStringLexer(const QString &code)
         : code(code)
         , codePtr(code.unicode())
-        , yychar(' ') { }
+        , yychar(QLatin1Char(' ')) { }
 
     int operator()() { return yylex(); }
 
@@ -532,12 +535,12 @@ struct SearchStringLexer {
                 if (yychar == quote) {
                     yyinp();
                     break;
-                } if (yychar == '\\') {
+                } if (yychar == QLatin1Char('\\')) {
                     yyinp();
                     switch (yychar.unicode()) {
-                    case '"': yytext += '"'; yyinp(); break;
-                    case '\'': yytext += '\''; yyinp(); break;
-                    case '\\': yytext += '\\'; yyinp(); break;
+                    case '"': yytext += QLatin1Char('"'); yyinp(); break;
+                    case '\'': yytext += QLatin1Char('\''); yyinp(); break;
+                    case '\\': yytext += QLatin1Char('\\'); yyinp(); break;
                     }
                 } else {
                     yytext += yychar;
@@ -548,14 +551,14 @@ struct SearchStringLexer {
         }
 
         default:
-            if (ch.isLetterOrNumber() || ch == '_') {
+            if (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
                 yytext.clear();
                 yytext += ch;
-                while (yychar.isLetterOrNumber() || yychar == '_') {
+                while (yychar.isLetterOrNumber() || yychar == QLatin1Char('_')) {
                     yytext += yychar;
                     yyinp();
                 }
-                if (yychar == ':' && yytext == QLatin1String("tag")) {
+                if (yychar == QLatin1Char(':') && yytext == QLatin1String("tag")) {
                     yyinp();
                     return TAG;
                 }

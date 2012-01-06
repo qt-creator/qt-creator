@@ -196,10 +196,10 @@ static bool hasPrivateHeaders(const QString &qtInstallHeaders) {
 
 bool QmlDumpTool::canBuild(const BaseQtVersion *qtVersion, QString *reason)
 {
-    const QString installHeaders = qtVersion->versionInfo().value("QT_INSTALL_HEADERS");
+    const QString installHeaders = qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_HEADERS"));
 
-    if (qtVersion->type() != Constants::DESKTOPQT
-            && qtVersion->type() != Constants::SIMULATORQT) {
+    if (qtVersion->type() != QLatin1String(Constants::DESKTOPQT)
+            && qtVersion->type() != QLatin1String(Constants::SIMULATORQT)) {
         if (reason)
             *reason = QCoreApplication::translate("Qt4ProjectManager::QmlDumpTool", "Only available for Qt for Desktop and Qt for Qt Simulator.");
         return false;
@@ -227,11 +227,10 @@ bool QmlDumpTool::canBuild(const BaseQtVersion *qtVersion, QString *reason)
 QString QmlDumpTool::toolForVersion(BaseQtVersion *version, bool debugDump)
 {
     if (version) {
-        QString qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
-        QString qtInstallBins = version->versionInfo().value("QT_INSTALL_BINS");
-        QString qtInstallHeaders = version->versionInfo().value("QT_INSTALL_HEADERS");
-        QString toolPath = toolForQtPaths(qtInstallData, qtInstallBins, qtInstallHeaders, debugDump);
-        return toolPath;
+        const QString qtInstallData = version->versionInfo().value(QLatin1String("QT_INSTALL_DATA"));
+        const QString qtInstallBins = version->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
+        const QString qtInstallHeaders = version->versionInfo().value(QLatin1String("QT_INSTALL_HEADERS"));
+        return toolForQtPaths(qtInstallData, qtInstallBins, qtInstallHeaders, debugDump);
     }
 
     return QString();

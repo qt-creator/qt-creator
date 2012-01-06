@@ -96,7 +96,7 @@ QString QtOptionsPage::displayCategory() const
 
 QIcon QtOptionsPage::categoryIcon() const
 {
-    return QIcon(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON);
+    return QIcon(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *QtOptionsPage::createPage(QWidget *parent)
@@ -132,8 +132,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *>
     , m_ui(new Internal::Ui::QtVersionManager())
     , m_versionUi(new Internal::Ui::QtVersionInfo())
     , m_debuggingHelperUi(new Internal::Ui::DebuggingHelper())
-    , m_invalidVersionIcon(":/projectexplorer/images/compile_error.png")
-    , m_warningVersionIcon(":/projectexplorer/images/compile_warning.png")
+    , m_invalidVersionIcon(QLatin1String(":/projectexplorer/images/compile_error.png"))
+    , m_warningVersionIcon(QLatin1String(":/projectexplorer/images/compile_warning.png"))
     , m_configurationWidget(0)
 {
     // Initialize m_versions
@@ -425,7 +425,7 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
         QString warning = version->warningReason();
         if (!warning.isEmpty()) {
             if (!info.message.isEmpty())
-                info.message.append('\n');
+                info.message.append(QLatin1Char('\n'));
             info.message += warning;
             info.icon = m_warningVersionIcon;
         }
@@ -578,7 +578,7 @@ QtOptionsPageWidget::~QtOptionsPageWidget()
 
 static QString filterForQmakeFileDialog()
 {
-    QString filter("qmake (");
+    QString filter = QLatin1String("qmake (");
     foreach (const QString &s, Utils::BuildableHelperLibrary::possibleQMakeCommands()) {
 #ifdef Q_WS_MAC
         // work around QTBUG-7739 that prohibits filters that don't start with *
@@ -713,14 +713,15 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
 
         // get names of tools from labels
         QStringList helperNames;
+        const QChar colon = QLatin1Char(':');
         if (hasGdbHelper)
-            helperNames << m_debuggingHelperUi->gdbHelperLabel->text().remove(':');
+            helperNames << m_debuggingHelperUi->gdbHelperLabel->text().remove(colon);
         if (hasQmlDumper)
-            helperNames << m_debuggingHelperUi->qmlDumpLabel->text().remove(':');
+            helperNames << m_debuggingHelperUi->qmlDumpLabel->text().remove(colon);
         if (hasQmlDebuggingLib)
-            helperNames << m_debuggingHelperUi->qmlDebuggingLibLabel->text().remove(':');
+            helperNames << m_debuggingHelperUi->qmlDebuggingLibLabel->text().remove(colon);
         if (hasQmlObserver)
-            helperNames << m_debuggingHelperUi->qmlObserverLabel->text().remove(':');
+            helperNames << m_debuggingHelperUi->qmlObserverLabel->text().remove(colon);
 
         QString status;
         if (helperNames.isEmpty()) {
@@ -995,7 +996,7 @@ void QtOptionsPageWidget::fixQtVersionName(int index)
         if (i != index) {
             if (m_versions.at(i)->displayName() == m_versions.at(index)->displayName()) {
                 // Same name, find new name
-                QRegExp regexp("^(.*)\\((\\d)\\)$");
+                QRegExp regexp(QLatin1String("^(.*)\\((\\d)\\)$"));
                 if (regexp.exactMatch(name)) {
                     // Already in Name (#) format
                     name = regexp.cap(1);

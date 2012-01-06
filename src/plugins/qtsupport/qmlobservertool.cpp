@@ -56,8 +56,8 @@ static inline QStringList validBinaryFilenames()
 
 bool QmlObserverTool::canBuild(const BaseQtVersion *qtVersion, QString *reason)
 {
-    if (qtVersion->type() != Constants::DESKTOPQT
-            && qtVersion->type() != Constants::SIMULATORQT) {
+    if (qtVersion->type() != QLatin1String(Constants::DESKTOPQT)
+            && qtVersion->type() != QLatin1String(Constants::SIMULATORQT)) {
         if (reason)
             *reason = QCoreApplication::translate("Qt4ProjectManager::QmlObserverTool", "Only available for Qt for Desktop or Qt for Qt Simulator.");
         return false;
@@ -144,8 +144,8 @@ QStringList QmlObserverTool::recursiveFileList(const QDir &dir, const QString &p
     QStringList files;
 
     QString _prefix = prefix;
-    if (!_prefix.isEmpty() && !_prefix.endsWith('/')) {
-        _prefix = _prefix + '/';
+    if (!_prefix.isEmpty() && !_prefix.endsWith(QLatin1Char('/'))) {
+        _prefix.append(QLatin1Char('/'));
     }
     foreach (const QString &fileName, dir.entryList(QDir::Files)) {
         files << _prefix + fileName;

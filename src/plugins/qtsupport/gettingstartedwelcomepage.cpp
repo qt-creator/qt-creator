@@ -352,11 +352,11 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
             return QString();
         } else {
             QString error;
-            QString targetDir = destBaseDir + '/' + exampleDirName;
+            QString targetDir = destBaseDir + QLatin1Char('/') + exampleDirName;
             if (Utils::FileUtils::copyRecursively(projectDir, targetDir, &error)) {
                 // set vars to new location
-                QStringList::Iterator it;
-                for (it = filesToOpen.begin(); it != filesToOpen.end(); ++it)
+                const QStringList::Iterator end = filesToOpen.end();
+                for (QStringList::Iterator it = filesToOpen.begin(); it != end; ++it)
                     it->replace(projectDir, targetDir);
 
                 foreach (const QString &dependency, dependencies) {
@@ -368,7 +368,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
                 }
 
 
-                return targetDir+ '/' + proFileInfo.fileName();
+                return targetDir + QLatin1Char('/') + proFileInfo.fileName();
             } else {
                 QMessageBox::warning(Core::ICore::instance()->mainWindow(), tr("Cannot Copy Project"), error);
             }
