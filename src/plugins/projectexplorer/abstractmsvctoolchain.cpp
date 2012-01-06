@@ -36,6 +36,7 @@
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorersettings.h>
+#include <projectexplorer/gcctoolchain.h>
 
 
 #include <utils/fileutils.h>
@@ -121,15 +122,7 @@ void AbstractMsvcToolChain::addToEnvironment(Utils::Environment &env) const
 QString AbstractMsvcToolChain::makeCommand() const
 {
     if (ProjectExplorerPlugin::instance()->projectExplorerSettings().useJom) {
-        // We want jom! Try to find it.
-        const QString jom = QLatin1String("jom.exe");
-        const QFileInfo installedJom = QFileInfo(QCoreApplication::applicationDirPath()
-                                                 + QLatin1Char('/') + jom);
-        if (installedJom.isFile() && installedJom.isExecutable()) {
-            return installedJom.absoluteFilePath();
-        } else {
-            return jom;
-        }
+        return MingwToolChain::findInstalledJom();
     }
     return QLatin1String("nmake.exe");
 }

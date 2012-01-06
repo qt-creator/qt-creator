@@ -874,6 +874,23 @@ QString MingwToolChain::makeCommand() const
     return QLatin1String("mingw32-make.exe");
 }
 
+QString MingwToolChain::findInstalledJom()
+{
+    if (Abi::hostAbi().os() != Abi::WindowsOS) {
+        qWarning() << "Jom can only be used on Windows";
+        return QString();
+    }
+
+    // We want jom! Try to find it.
+    const QString jom = QLatin1String("jom.exe");
+    const QFileInfo installedJom = QFileInfo(QCoreApplication::applicationDirPath()
+                                             + QLatin1Char('/') + jom);
+    if (installedJom.isFile() && installedJom.isExecutable())
+        return installedJom.absoluteFilePath();
+    else
+        return jom;
+}
+
 ToolChain *MingwToolChain::clone() const
 {
     return new MingwToolChain(*this);

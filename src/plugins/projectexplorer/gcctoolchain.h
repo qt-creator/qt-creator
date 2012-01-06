@@ -145,6 +145,7 @@ public:
     QString typeName() const;
     Utils::FileName mkspec() const;
     QString makeCommand() const;
+    static QString findInstalledJom();
 
     ToolChain *clone() const;
 
