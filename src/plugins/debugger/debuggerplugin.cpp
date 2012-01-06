@@ -3112,7 +3112,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     ActionContainer *mstart = am->actionContainer(PE::M_DEBUG_STARTDEBUGGING);
 
     cmd = am->registerAction(m_startAction, Constants::DEBUG, globalcontext);
-    cmd->setDefaultText(tr("Start Debugging"));
+    cmd->setDescription(tr("Start Debugging"));
     cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::DEBUG_KEY)));
     cmd->setAttribute(Command::CA_UpdateText);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
@@ -3165,12 +3165,12 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_startRemoteServerAction,
          "Debugger.StartRemoteServer", globalcontext);
-    cmd->setDefaultText(tr("Start Gdbserver"));
+    cmd->setDescription(tr("Start Gdbserver"));
     mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
 
     cmd = am->registerAction(m_attachToRemoteProcessAction,
          "Debugger.AttachToRemoteProcess", globalcontext);
-    cmd->setDefaultText(tr("Attach to Remote Process"));
+    cmd->setDescription(tr("Attach to Remote Process"));
     mstart->addAction(cmd, Debugger::Constants::G_AUTOMATIC_REMOTE);
 
 #ifdef WITH_LLDB
@@ -3205,7 +3205,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_interruptAction,
         Constants::INTERRUPT, globalcontext);
-    cmd->setDefaultText(tr("Interrupt Debugger"));
+    cmd->setDescription(tr("Interrupt Debugger"));
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_continueAction,
@@ -3215,7 +3215,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_exitAction,
         Constants::STOP, globalcontext);
-    cmd->setDefaultText(tr("Stop Debugger"));
+    cmd->setDescription(tr("Stop Debugger"));
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
     m_hiddenStopAction = new Utils::ProxyAction(this);
@@ -3230,7 +3230,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd = am->registerAction(m_abortAction,
         Constants::ABORT, globalcontext);
     //cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::RESET_KEY)));
-    cmd->setDefaultText(tr("Reset Debugger"));
+    cmd->setDescription(tr("Reset Debugger"));
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
     sep = new QAction(this);

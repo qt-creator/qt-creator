@@ -61,8 +61,8 @@ public:
 
     void setKeySequence(const QKeySequence &key);
 
-    void setDefaultText(const QString &text);
-    QString defaultText() const;
+    void setDescription(const QString &text);
+    QString description() const;
 
     Id id() const;
 
@@ -97,9 +97,6 @@ public:
     void setKeySequence(const QKeySequence &key);
     QKeySequence keySequence() const;
 
-    virtual void setDefaultText(const QString &key);
-    virtual QString defaultText() const;
-
     void setShortcut(QShortcut *shortcut);
     QShortcut *shortcut() const;
 
@@ -115,7 +112,6 @@ public:
 
 private:
     QShortcut *m_shortcut;
-    QString m_defaultText;
     bool m_scriptable;
 };
 

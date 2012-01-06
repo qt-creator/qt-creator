@@ -64,8 +64,12 @@ public:
     virtual void setDefaultKeySequence(const QKeySequence &key) = 0;
     virtual QKeySequence defaultKeySequence() const = 0;
     virtual QKeySequence keySequence() const = 0;
-    virtual void setDefaultText(const QString &text) = 0;
-    virtual QString defaultText() const = 0;
+    // explicitly set the description (used e.g. in shortcut settings)
+    // default is to use the action text for actions, or the whatsThis for shortcuts,
+    // or, as a last fall back if these are empty, the command ID string
+    // override the default e.g. if the text is context dependent and contains file names etc
+    virtual void setDescription(const QString &text) = 0;
+    virtual QString description() const = 0;
 
     virtual Id id() const = 0;
 

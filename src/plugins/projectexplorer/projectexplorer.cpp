@@ -640,7 +640,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                                                       Utils::ParameterAction::EnabledWithParameter, this);
     cmd = am->registerAction(d->m_unloadAction, Constants::UNLOAD, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
-    cmd->setDefaultText(d->m_unloadAction->text());
+    cmd->setDescription(d->m_unloadAction->text());
     mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
 
     // unload session action
@@ -686,7 +686,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_buildAction->setIcon(buildIcon);
     cmd = am->registerAction(d->m_buildAction, Constants::BUILD, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
-    cmd->setDefaultText(d->m_buildAction->text());
+    cmd->setDescription(d->m_buildAction->text());
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+B")));
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
 
@@ -698,7 +698,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                                                        Utils::ParameterAction::AlwaysEnabled, this);
     cmd = am->registerAction(d->m_rebuildAction, Constants::REBUILD, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
-    cmd->setDefaultText(d->m_rebuildAction->text());
+    cmd->setDescription(d->m_rebuildAction->text());
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
 
     // deploy action
@@ -706,7 +706,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                                                      Utils::ParameterAction::AlwaysEnabled, this);
     cmd = am->registerAction(d->m_deployAction, Constants::DEPLOY, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
-    cmd->setDefaultText(d->m_deployAction->text());
+    cmd->setDescription(d->m_deployAction->text());
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
 
     // Publish action
@@ -714,7 +714,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                                                     Utils::ParameterAction::AlwaysEnabled, this);
     cmd = am->registerAction(d->m_publishAction, Constants::PUBLISH, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
-    cmd->setDefaultText(d->m_publishAction->text());
+    cmd->setDescription(d->m_publishAction->text());
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
 
     // clean action
@@ -722,7 +722,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                                                      Utils::ParameterAction::AlwaysEnabled, this);
     cmd = am->registerAction(d->m_cleanAction, Constants::CLEAN, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
-    cmd->setDefaultText(d->m_cleanAction->text());
+    cmd->setDescription(d->m_cleanAction->text());
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
 
     // build action (context menu)
@@ -730,7 +730,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                                                              Utils::ParameterAction::AlwaysEnabled, this);
     cmd = am->registerAction(d->m_buildActionContextMenu, Constants::BUILDCM, projecTreeContext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
-    cmd->setDefaultText(d->m_buildActionContextMenu->text());
+    cmd->setDescription(d->m_buildActionContextMenu->text());
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_BUILD);
 
     // rebuild action (context menu)
@@ -738,7 +738,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                                                                Utils::ParameterAction::AlwaysEnabled, this);
     cmd = am->registerAction(d->m_rebuildActionContextMenu, Constants::REBUILDCM, projecTreeContext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
-    cmd->setDefaultText(d->m_rebuildActionContextMenu->text());
+    cmd->setDescription(d->m_rebuildActionContextMenu->text());
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_BUILD);
 
     // deploy action (context menu)
@@ -746,7 +746,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                                                               Utils::ParameterAction::AlwaysEnabled, this);
     cmd = am->registerAction(d->m_deployActionContextMenu, Constants::DEPLOYCM, projecTreeContext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
-    cmd->setDefaultText(d->m_deployActionContextMenu->text());
+    cmd->setDescription(d->m_deployActionContextMenu->text());
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_BUILD);
 
     // clean action (context menu)
@@ -754,7 +754,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                                                              Utils::ParameterAction::AlwaysEnabled, this);
     cmd = am->registerAction(d->m_cleanActionContextMenu, Constants::CLEANCM, projecTreeContext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
-    cmd->setDefaultText(d->m_cleanActionContextMenu->text());
+    cmd->setDescription(d->m_cleanActionContextMenu->text());
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_BUILD);
 
     // build without dependencies action

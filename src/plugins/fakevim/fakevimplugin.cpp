@@ -408,16 +408,7 @@ void FakeVimExCommandsPage::initialize()
         sections[section]->addChild(item);
 
         item->setText(0, subId);
-
-        if (c->action()) {
-            QString text = c->hasAttribute(Command::CA_UpdateText)
-                    && !c->defaultText().isNull()
-                ? c->defaultText() : c->action()->text();
-            text.remove(QRegExp("&(?!&)"));
-            item->setText(1, text);
-        } else {
-            item->setText(1, c->shortcut()->whatsThis());
-        }
+        item->setText(1, c->description());
 
         QString regex;
         if (exCommandMap().contains(name))

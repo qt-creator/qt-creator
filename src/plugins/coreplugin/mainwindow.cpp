@@ -624,7 +624,7 @@ void MainWindow::registerDefaultActions()
     cmd = am->registerAction(tmpaction, Constants::SAVE, globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Save);
     cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDefaultText(tr("&Save"));
+    cmd->setDescription(tr("Save"));
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
 
     // Save As Action
@@ -636,7 +636,7 @@ void MainWindow::registerDefaultActions()
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+S")));
 #endif
     cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDefaultText(tr("Save &As..."));
+    cmd->setDescription(tr("Save As..."));
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
 
     // SaveAll Action
@@ -670,7 +670,7 @@ void MainWindow::registerDefaultActions()
     cmd = am->registerAction(tmpaction, Constants::UNDO, globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Undo);
     cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDefaultText(tr("&Undo"));
+    cmd->setDescription(tr("Undo"));
     medit->addAction(cmd, Constants::G_EDIT_UNDOREDO);
     tmpaction->setEnabled(false);
 
@@ -680,7 +680,7 @@ void MainWindow::registerDefaultActions()
     cmd = am->registerAction(tmpaction, Constants::REDO, globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Redo);
     cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDefaultText(tr("&Redo"));
+    cmd->setDescription(tr("Redo"));
     medit->addAction(cmd, Constants::G_EDIT_UNDOREDO);
     tmpaction->setEnabled(false);
 

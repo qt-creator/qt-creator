@@ -322,17 +322,7 @@ void ShortcutSettings::initialize()
         sections[section]->addChild(item);
 
         item->setText(0, subId);
-
-        if (c->action()) {
-            QString text = c->hasAttribute(Command::CA_UpdateText) && !c->defaultText().isNull() ? c->defaultText() : c->action()->text();
-            text.remove(QRegExp(QLatin1String("&(?!&)")));
-            s->m_key = c->action()->shortcut();
-            item->setText(1, text);
-        } else {
-            s->m_key = c->shortcut()->key();
-            item->setText(1, c->shortcut()->whatsThis());
-        }
-
+        item->setText(1, c->description());
         item->setText(2, s->m_key);
         if (s->m_cmd->defaultKeySequence() != s->m_key)
             setModified(item, true);
