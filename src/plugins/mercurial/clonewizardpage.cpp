@@ -45,13 +45,13 @@ CloneWizardPage::CloneWizardPage(QWidget *parent)
 
 QString CloneWizardPage::directoryFromRepository(const QString &repository) const
 {
-    //mercurial repositories are generally of the form protocol://repositoryUrl/repository/
-    //we are just looking for repository.
+    // Mercurial repositories are generally of the form protocol://repositoryUrl/repository/
+    // We are just looking for repository.
     const QChar slash = QLatin1Char('/');
     QString repo = repository.trimmed();
     if (repo.endsWith(slash))
         repo.truncate(repo.size() - 1);
 
-    //Take the basename or the repository url
+    // Take the basename or the repository url.
     return repo.mid(repo.lastIndexOf(slash) + 1);
 }

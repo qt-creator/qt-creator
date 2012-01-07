@@ -33,21 +33,19 @@
 #ifndef SRCDESTDIALOG_H
 #define SRCDESTDIALOG_H
 
-#include <QtGui/QDialog>
 #include <utils/pathchooser.h>
+#include <QtGui/QDialog>
 
 namespace Mercurial {
 namespace Internal {
 
-namespace Ui {
-class SrcDestDialog;
-}
+namespace Ui { class SrcDestDialog; }
 
 class SrcDestDialog : public QDialog
 {
     Q_OBJECT
-public:
 
+public:
     SrcDestDialog(QWidget *parent = 0);
     ~SrcDestDialog();
     void setPathChooserKind(Utils::PathChooser::Kind kind);
@@ -62,4 +60,5 @@ private:
 
 } // namespace Internal
 } // namespace Mercurial
+
 #endif // SRCDESTDIALOG_H

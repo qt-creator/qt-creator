@@ -41,12 +41,13 @@
 #include <vcsbase/vcsconfigurationpage.h>
 
 using namespace Mercurial::Internal;
+using namespace VcsBase;
 
 CloneWizard::CloneWizard(QObject *parent)
-        :   VcsBase::BaseCheckoutWizard(parent),
-        m_icon(QIcon(QLatin1String(":/mercurial/images/hg.png")))
+    : BaseCheckoutWizard(parent),
+    m_icon(QIcon(QLatin1String(":/mercurial/images/hg.png")))
 {
-    setId(QLatin1String(VcsBase::Constants::VCS_ID_MERCURIAL));
+    setId(QLatin1String(Constants::VCS_ID_MERCURIAL));
 }
 
 QIcon CloneWizard::icon() const
@@ -64,25 +65,25 @@ QString CloneWizard::displayName() const
     return tr("Mercurial Clone");
 }
 
-QList<QWizardPage*> CloneWizard::createParameterPages(const QString &path)
+QList<QWizardPage *> CloneWizard::createParameterPages(const QString &path)
 {
-    QList<QWizardPage*> wizardPageList;
+    QList<QWizardPage *> wizardPageList;
     const Core::IVersionControl *vc = MercurialPlugin::instance()->versionControl();
     if (!vc->isConfigured())
-        wizardPageList.append(new VcsBase::VcsConfigurationPage(vc));
+        wizardPageList.append(new VcsConfigurationPage(vc));
     CloneWizardPage *page = new CloneWizardPage;
     page->setPath(path);
     wizardPageList.append(page);
     return wizardPageList;
 }
 
-QSharedPointer<VcsBase::AbstractCheckoutJob> CloneWizard::createJob(const QList<QWizardPage *> &parameterPages,
-                                                                    QString *checkoutPath)
+QSharedPointer<AbstractCheckoutJob> CloneWizard::createJob(const QList<QWizardPage *> &parameterPages,
+                                                           QString *checkoutPath)
 {
     const CloneWizardPage *page = qobject_cast<const CloneWizardPage *>(parameterPages.front());
 
     if (!page)
-        return QSharedPointer<VcsBase::AbstractCheckoutJob>();
+        return QSharedPointer<AbstractCheckoutJob>();
 
     const MercurialSettings &settings = MercurialPlugin::instance()->settings();
 
@@ -92,7 +93,7 @@ QSharedPointer<VcsBase::AbstractCheckoutJob> CloneWizard::createJob(const QList<
     QStringList args;
     args << QLatin1String("clone") << page->repository() << directory;
     *checkoutPath = path + QLatin1Char('/') + directory;
-    VcsBase::ProcessCheckoutJob *job = new VcsBase::ProcessCheckoutJob;
+    ProcessCheckoutJob *job = new ProcessCheckoutJob;
     job->addStep(settings.stringValue(MercurialSettings::binaryPathKey), args, path);
-    return QSharedPointer<VcsBase::AbstractCheckoutJob>(job);
+    return QSharedPointer<AbstractCheckoutJob>(job);
 }

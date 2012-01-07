@@ -58,10 +58,9 @@ QString SrcDestDialog::getRepositoryString() const
 {
     if (m_ui->defaultButton->isChecked())
         return QString();
-    else if (m_ui->localButton->isChecked())
+    if (m_ui->localButton->isChecked())
         return m_ui->localPathChooser->path();
-    else
-        return m_ui->urlLineEdit->text();
+    return m_ui->urlLineEdit->text();
 }
 
 void SrcDestDialog::changeEvent(QEvent *e)

@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef CONSTANTS_H
-#define CONSTANTS_H
+#ifndef MERCURIAL_CONSTANTS_H
+#define MERCURIAL_CONSTANTS_H
 
 namespace Mercurial {
 namespace Constants {
@@ -40,14 +40,14 @@ enum { debug = 0 };
 const char MECURIALREPO[] = ".hg";
 const char MERCURIALDEFAULT[] = "hg";
 
-//changeset identifiers
+// Changeset identifiers
 const char CHANGESETID12[] = " ([a-f0-9]{12,12}) "; //match 12 hex chars and capture
 const char CHANGESETID40[] = " ([a-f0-9]{40,40}) ";
 const char CHANGEIDEXACT12[] = "[a-f0-9]{12,12}"; //match 12 hex chars a
 const char CHANGEIDEXACT40[] = "[a-f0-9]{40,40}";
 const char DIFFIDENTIFIER[] = "^[-+]{3,3} [ab]{1,1}.*"; // match e.g. +++ b/filename
 
-//BaseEditorParameters
+// Base editor parameters
 const char COMMANDLOG_ID[] = "Mercurial Command Log Editor";
 const char COMMANDLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Mercurial Command Log Editor");
 const char COMMANDLOG[] = "Mercurial Command Log Editor";
@@ -72,13 +72,12 @@ const char DIFFLOG[] = "Mercurial Diff Editor";
 const char DIFFAPP[] = "text/x-patch";
 const char DIFFEXT[] = "diff";
 
-//SubmitEditorParameters
+// Submit editor parameters
 const char COMMIT_ID[] = "Mercurial Commit Log Editor";
 const char COMMIT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Mercurial Commit Log Editor");
 const char COMMITMIMETYPE[] = "application/vnd.nokia.text.scs_mercurial_commitlog";
 
-//menu items
-//File menu actions
+// File menu actions
 const char ADD[] = "Mercurial.AddSingleFile";
 const char DELETE[] = "Mercurial.DeleteSingleFile";
 const char ANNOTATE[] = "Mercurial.Annotate";
@@ -87,13 +86,13 @@ const char LOG[] = "Mercurial.LogSingleFile";
 const char REVERT[] = "Mercurial.RevertSingleFile";
 const char STATUS[] = "Mercurial.Status";
 
-//directory menu Actions
+// Directory menu actions
 const char DIFFMULTI[] = "Mercurial.Action.DiffMulti";
 const char REVERTMULTI[] = "Mercurial.Action.RevertMulti";
 const char STATUSMULTI[] = "Mercurial.Action.StatusMulti";
 const char LOGMULTI[] = "Mercurial.Action.Logmulti";
 
-//repository menu actions
+// Repository menu actions
 const char PULL[] = "Mercurial.Action.Pull";
 const char PUSH[] = "Mercurial.Action.Push";
 const char UPDATE[] = "Mercurial.Action.Update";
@@ -103,10 +102,10 @@ const char OUTGOING[] = "Mercurial.Action.Outgoing";
 const char COMMIT[] = "Mercurial.Action.Commit";
 const char CREATE_REPOSITORY[] = "Mercurial.Action.CreateRepository";
 
-//submit editor actions
+// Submit editor actions
 const char DIFFEDITOR[] = "Mercurial.Action.Editor.Diff";
 
 } // namespace Constants
 } // namespace mercurial
 
-#endif // CONSTANTS_H
+#endif // MERCURIAL_CONSTANTS_H

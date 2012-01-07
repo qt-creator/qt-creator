@@ -36,13 +36,13 @@
 #include <vcsbase/submitfilemodel.h>
 
 #include <QtCore/QDebug>
-
 #include <QtCore/QDir> //TODO REMOVE WHEN BASE FILE CHANGES ARE PULLED
 
 using namespace Mercurial::Internal;
+using namespace VcsBase;
 
-CommitEditor::CommitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent)
-        : VcsBase::VcsBaseSubmitEditor(parameters, new MercurialCommitWidget(parent)),
+CommitEditor::CommitEditor(const VcsBaseSubmitEditorParameters *parameters, QWidget *parent)
+        : VcsBaseSubmitEditor(parameters, new MercurialCommitWidget(parent)),
         fileModel(0)
 {
     setDisplayName(tr("Commit Editor"));
@@ -55,7 +55,7 @@ MercurialCommitWidget *CommitEditor::commitWidget()
 
 void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &branch,
                              const QString &userName, const QString &email,
-                             const QList<VcsBase::VcsBaseClient::StatusItem> &repoStatus)
+                             const QList<VcsBaseClient::StatusItem> &repoStatus)
 {
     MercurialCommitWidget *mercurialWidget = commitWidget();
     if (!mercurialWidget)
@@ -63,23 +63,23 @@ void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &bra
 
     mercurialWidget->setFields(repositoryRoot.absoluteFilePath(), branch, userName, email);
 
-    fileModel = new VcsBase::SubmitFileModel(this);
+    fileModel = new SubmitFileModel(this);
 
     //TODO Messy tidy this up
     QStringList shouldTrack;
 
-    foreach (const VcsBase::VcsBaseClient::StatusItem &item, repoStatus) {
+    foreach (const VcsBaseClient::StatusItem &item, repoStatus) {
         if (item.flags == QLatin1String("Untracked"))
             shouldTrack.append(item.file);
         else
             fileModel->addFile(item.file, item.flags, false);
     }
 
-    VcsBase::VcsBaseSubmitEditor::filterUntrackedFilesOfProject(repositoryRoot.absoluteFilePath(),
+    VcsBaseSubmitEditor::filterUntrackedFilesOfProject(repositoryRoot.absoluteFilePath(),
                                                                 &shouldTrack);
 
     foreach (const QString &track, shouldTrack) {
-        foreach (const VcsBase::VcsBaseClient::StatusItem &item, repoStatus) {
+        foreach (const VcsBaseClient::StatusItem &item, repoStatus) {
             if (item.file == track)
                 fileModel->addFile(item.file, item.flags, false);
         }

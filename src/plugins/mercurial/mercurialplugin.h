@@ -39,36 +39,22 @@
 #include <vcsbase/vcsbaseplugin.h>
 #include <coreplugin/icontext.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QHash>
-#include <QtCore/qglobal.h>
-
 QT_BEGIN_NAMESPACE
 class QAction;
 class QTemporaryFile;
 QT_END_NAMESPACE
 
 namespace Core {
-class ActionManager;
 class ActionContainer;
+class ActionManager;
 class ICore;
 class Id;
-class IVersionControl;
-class IEditorFactory;
 class IEditor;
 } // namespace Core
 
-namespace Utils {
-class ParameterAction;
-} //namespace Utils
-
-namespace VcsBase {
-class VcsBaseSubmitEditor;
-}
-
-namespace Locator {
-    class CommandLocator;
-}
+namespace Utils { class ParameterAction; }
+namespace VcsBase { class VcsBaseSubmitEditor; }
+namespace Locator { class CommandLocator; }
 
 namespace Mercurial {
 namespace Internal {
@@ -95,7 +81,7 @@ public:
     void setSettings(const MercurialSettings &settings);
 
 private slots:
-    // File menu action Slots
+    // File menu action slots
     void addCurrentFile();
     void annotateCurrentFile();
     void diffCurrentFile();
@@ -103,13 +89,13 @@ private slots:
     void revertCurrentFile();
     void statusCurrentFile();
 
-    //Directory menu Action slots
+    // Directory menu action slots
     void diffRepository();
     void logRepository();
     void revertMulti();
     void statusMulti();
 
-    //repository menu action slots
+    // Repository menu action slots
     void pull();
     void push();
     void update();
@@ -140,7 +126,6 @@ protected:
     virtual bool submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor);
 
 private:
-    //methods
     void createMenu();
     void createSubmitEditorActions();
     void createSeparator(const Core::Context &context, const Core::Id &id);
@@ -151,7 +136,7 @@ private:
     void createLessUsedActions(const Core::Context &context);
     void deleteCommitLog();
 
-    //Variables
+    // Variables
     static MercurialPlugin *m_instance;
     MercurialSettings mercurialSettings;
     OptionsPage *optionsPage;
@@ -165,7 +150,7 @@ private:
     QList<QAction *> m_repositoryActionList;
     QTemporaryFile *changeLog;
 
-    //Menu Items (file actions)
+    // Menu items (file actions)
     Utils::ParameterAction *m_addAction;
     Utils::ParameterAction *m_deleteAction;
     Utils::ParameterAction *annotateFile;
@@ -176,7 +161,7 @@ private:
     Utils::ParameterAction *statusFile;
 
     QAction *m_createRepositoryAction;
-    //submit editor actions
+    // Submit editor actions
     QAction *editorCommit;
     QAction *editorDiff;
     QAction *editorUndo;
@@ -186,7 +171,7 @@ private:
     QString m_submitRepository;
 };
 
-} //namespace Internal
-} //namespace Mercurial
+} // namespace Internal
+} // namespace Mercurial
 
 #endif // MERCURIALPLUGIN_H

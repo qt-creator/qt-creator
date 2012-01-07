@@ -30,13 +30,12 @@
 **
 **************************************************************************/
 
-#ifndef REVERTDIALOG_H
-#define REVERTDIALOG_H
+#ifndef MERCURIAL_REVERTDIALOG_H
+#define MERCURIAL_REVERTDIALOG_H
 
 #include "ui_revertdialog.h"
 
 #include <QtGui/QDialog>
-
 
 namespace Mercurial {
 namespace Internal {
@@ -44,6 +43,7 @@ namespace Internal {
 class RevertDialog : public QDialog
 {
     Q_OBJECT
+
 public:
     RevertDialog(QWidget *parent = 0);
     ~RevertDialog();
@@ -59,4 +59,5 @@ private:
 
 } // namespace Internal
 } // namespace Mercurial
-#endif // REVERTDIALOG_H
+
+#endif // MERCURIAL_REVERTDIALOG_H

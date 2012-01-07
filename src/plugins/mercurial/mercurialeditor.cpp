@@ -133,4 +133,3 @@ QStringList MercurialEditor::annotationPreviousVersions(const QString &revision)
         return QStringList();
     return descriptions;
 }
-

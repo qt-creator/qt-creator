@@ -63,4 +63,5 @@ private:
 
 } // namespace Internal
 } // namespace Mercurial
+
 #endif // MERCURIALEDITOR_H

@@ -72,7 +72,7 @@ private:
     const QChar m_hashChar;
 };
 
-MercurialSubmitHighlighter::MercurialSubmitHighlighter(QTextEdit * parent) :
+MercurialSubmitHighlighter::MercurialSubmitHighlighter(QTextEdit *parent) :
         QSyntaxHighlighter(parent),
         m_commentFormat(commentFormat()),
         m_keywordPattern(QLatin1String("^\\w+:")),

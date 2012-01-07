@@ -38,16 +38,17 @@
 namespace Mercurial {
 namespace Internal {
 
-    const QLatin1String MercurialSettings::diffIgnoreWhiteSpaceKey("diffIgnoreWhiteSpace");
-    const QLatin1String MercurialSettings::diffIgnoreBlankLinesKey("diffIgnoreBlankLines");
+const QLatin1String MercurialSettings::diffIgnoreWhiteSpaceKey("diffIgnoreWhiteSpace");
+const QLatin1String MercurialSettings::diffIgnoreBlankLinesKey("diffIgnoreBlankLines");
 
-    MercurialSettings::MercurialSettings()
-    {
-        setSettingsGroup(QLatin1String("Mercurial"));
-        // Override default binary path
-        declareKey(binaryPathKey, QLatin1String(Constants::MERCURIALDEFAULT));
-        declareKey(diffIgnoreWhiteSpaceKey, false);
-        declareKey(diffIgnoreBlankLinesKey, false);
-    }
+MercurialSettings::MercurialSettings()
+{
+    setSettingsGroup(QLatin1String("Mercurial"));
+    // Override default binary path
+    declareKey(binaryPathKey, QLatin1String(Constants::MERCURIALDEFAULT));
+    declareKey(diffIgnoreWhiteSpaceKey, false);
+    declareKey(diffIgnoreBlankLinesKey, false);
+}
+
 } // namespace Internal
 } // namespace Mercurial
