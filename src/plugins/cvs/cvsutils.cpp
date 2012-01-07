@@ -36,24 +36,24 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QStringList>
 
-namespace CVS {
+namespace Cvs {
 namespace Internal {
 
-CVS_Revision::CVS_Revision(const QString &rev) :
+CvsRevision::CvsRevision(const QString &rev) :
     revision(rev)
 {
 }
 
-CVS_LogEntry::CVS_LogEntry(const QString &f) :
+CvsLogEntry::CvsLogEntry(const QString &f) :
     file(f)
 {
 }
 
-QDebug operator<<(QDebug d, const CVS_LogEntry &e)
+QDebug operator<<(QDebug d, const CvsLogEntry &e)
 {
     QDebug nospace = d.nospace();
     nospace << "File: " << e.file << e.revisions.size() << '\n';
-    foreach(const CVS_Revision &r, e.revisions)
+    foreach(const CvsRevision &r, e.revisions)
         nospace << "  " << r.revision << ' ' << r.date << ' ' << r.commitId << '\n';
     return d;
 }
@@ -74,13 +74,13 @@ revision 1.1
 =============================================================================
 \endcode */
 
-QList<CVS_LogEntry> parseLogEntries(const QString &o,
-                                    const QString &directory,
-                                    const QString filterCommitId)
+QList<CvsLogEntry> parseLogEntries(const QString &o,
+                                   const QString &directory,
+                                   const QString filterCommitId)
 {
     enum ParseState { FileState, RevisionState, StatusLineState };
 
-    QList<CVS_LogEntry> rc;
+    QList<CvsLogEntry> rc;
     const QStringList lines = o.split(QString(QLatin1Char('\n')), QString::SkipEmptyParts);
     ParseState state = FileState;
 
@@ -104,13 +104,13 @@ QList<CVS_LogEntry> parseLogEntries(const QString &o,
                 if (!file.isEmpty())
                     file += slash;
                 file += line.mid(workingFilePrefix.size()).trimmed();
-                rc.push_back(CVS_LogEntry(file));
+                rc.push_back(CvsLogEntry(file));
                 state = RevisionState;
             }
             break;
         case RevisionState:
             if (revisionPattern.exactMatch(line)) {
-                rc.back().revisions.push_back(CVS_Revision(revisionPattern.cap(1)));
+                rc.back().revisions.push_back(CvsRevision(revisionPattern.cap(1)));
                 state = StatusLineState;
             } else {
                 if (line == fileSeparator)
@@ -132,7 +132,7 @@ QList<CVS_LogEntry> parseLogEntries(const QString &o,
     }
     // Purge out files with no matching commits
     if (!filterCommitId.isEmpty()) {
-        for (QList<CVS_LogEntry>::iterator it = rc.begin(); it != rc.end(); ) {
+        for (QList<CvsLogEntry>::iterator it = rc.begin(); it != rc.end(); ) {
             if (it->revisions.empty()) {
                 it = rc.erase(it);
             } else {
@@ -176,16 +176,16 @@ QString fixDiffOutput(QString d)
 // stdout/stderr need to be merged to catch directories.
 
 // Parse out status keywords, return state enum or -1
-inline int stateFromKeyword(const QString &s)
+static int stateFromKeyword(const QString &s)
 {
     if (s == QLatin1String("Up-to-date"))
         return -1;
     if (s == QLatin1String("Locally Modified"))
-        return CVSSubmitEditor::LocallyModified;
+        return CvsSubmitEditor::LocallyModified;
     if (s == QLatin1String("Locally Added"))
-        return CVSSubmitEditor::LocallyAdded;
+        return CvsSubmitEditor::LocallyAdded;
     if (s == QLatin1String("Locally Removed"))
-        return CVSSubmitEditor::LocallyRemoved;
+        return CvsSubmitEditor::LocallyRemoved;
     return -1;
 }
 
@@ -216,9 +216,9 @@ StateList parseStatusOutput(const QString &directory, const QString &output)
                 continue;
             // Concatenate file name, Correct "no file <foo>"
             QString fileName = l.mid(fileKeyword.size(), statusPos - fileKeyword.size()).trimmed();
-            if (state == CVSSubmitEditor::LocallyRemoved && fileName.startsWith(noFileKeyword))
+            if (state == CvsSubmitEditor::LocallyRemoved && fileName.startsWith(noFileKeyword))
                 fileName.remove(0, noFileKeyword.size());
-            changeSet.push_back(CVSSubmitEditor::StateFilePair(static_cast<CVSSubmitEditor::State>(state), path + fileName));
+            changeSet.push_back(CvsSubmitEditor::StateFilePair(static_cast<CvsSubmitEditor::State>(state), path + fileName));
             continue;
         }
         // Examining a new subdirectory
@@ -254,4 +254,4 @@ bool isFirstRevision(const QString &r)
 }
 
 } // namespace Internal
-} // namespace CVS
+} // namespace Cvs

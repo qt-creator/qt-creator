@@ -13794,7 +13794,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVS::Internal::SettingsPage</name>
+    <name>Cvs::Internal::SettingsPage</name>
     <message>
         <location filename="../../../src/plugins/cvs/settingspage.ui"/>
         <source>Prompt to submit</source>
@@ -14934,7 +14934,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CheckoutWizard</name>
+    <name>Cvs::Internal::CheckoutWizard</name>
     <message>
         <location filename="../../../src/plugins/cvs/checkoutwizard.cpp" line="+54"/>
         <source>Checks out a project from a CVS repository.</source>
@@ -14947,7 +14947,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CheckoutWizardPage</name>
+    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <location filename="../../../src/plugins/cvs/checkoutwizardpage.cpp" line="+38"/>
         <source>Specify repository and path.</source>
@@ -14960,7 +14960,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVSPlugin</name>
+    <name>CvsPlugin</name>
     <message>
         <location filename="../../../src/plugins/cvs/cvsplugin.cpp" line="+78"/>
         <source>Cannot find repository for &apos;%1&apos;</source>
@@ -14968,7 +14968,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSPlugin</name>
+    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <location line="+5"/>
         <source>Parsing of the log output failed</source>
@@ -15208,7 +15208,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSSubmitEditor</name>
+    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <location filename="../../../src/plugins/cvs/cvssubmiteditor.cpp" line="+41"/>
         <source>Added</source>
@@ -15231,7 +15231,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVS::Internal::SettingsPageWidget</name>
+    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <location filename="../../../src/plugins/cvs/settingspage.cpp" line="-34"/>
         <source>CVS Command</source>

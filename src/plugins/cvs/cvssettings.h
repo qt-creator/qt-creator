@@ -39,23 +39,23 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
-namespace CVS {
+namespace Cvs {
 namespace Internal {
 
-struct CVSSettings
+struct CvsSettings
 {
-    CVSSettings();
+    CvsSettings();
 
     void fromSettings(QSettings *);
     void toSettings(QSettings *) const;
 
-    inline int timeOutMS() const     { return timeOutS * 1000;  }
-    inline int longTimeOutMS() const { return timeOutS * 10000; }
+    int timeOutMS() const { return timeOutS * 1000;  }
+    int longTimeOutMS() const { return timeOutS * 10000; }
 
     // Add common options to the command line
     QStringList addOptions(const QStringList &args) const;
 
-    bool equals(const CVSSettings &s) const;
+    bool equals(const CvsSettings &s) const;
 
     QString cvsCommand;
     QString cvsRoot;
@@ -65,12 +65,12 @@ struct CVSSettings
     bool describeByCommitId;
 };
 
-inline bool operator==(const CVSSettings &p1, const CVSSettings &p2)
+inline bool operator==(const CvsSettings &p1, const CvsSettings &p2)
     { return p1.equals(p2); }
-inline bool operator!=(const CVSSettings &p1, const CVSSettings &p2)
+inline bool operator!=(const CvsSettings &p1, const CvsSettings &p2)
     { return !p1.equals(p2); }
 
 } // namespace Internal
-} // namespace CVS
+} // namespace Cvs
 
 #endif // CVSSETTINGS_H

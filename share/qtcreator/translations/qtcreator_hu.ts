@@ -646,7 +646,7 @@
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSPlugin</name>
+    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation>A log kimenet elemzése nem sikerült</translation>
@@ -839,7 +839,7 @@
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSSubmitEditor</name>
+    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Hozzáadva</translation>
@@ -858,7 +858,7 @@
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CheckoutWizard</name>
+    <name>Cvs::Internal::CheckoutWizard</name>
     <message>
         <source>Checks out a project from a CVS repository.</source>
         <translation>Egy projekt megnézése egy CVS tárolóból.</translation>
@@ -869,7 +869,7 @@
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CheckoutWizardPage</name>
+    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <source>Specify repository and path.</source>
         <translation>Határozza meg a tárolót és az útvonalat.</translation>
@@ -880,7 +880,7 @@
     </message>
 </context>
 <context>
-    <name>CVS::Internal::SettingsPage</name>
+    <name>Cvs::Internal::SettingsPage</name>
     <message>
         <source>Prompt to submit</source>
         <translation>Feltöltési prompt</translation>
@@ -911,14 +911,14 @@
     </message>
 </context>
 <context>
-    <name>CVS::Internal::SettingsPageWidget</name>
+    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>CVS parancs</translation>
     </message>
 </context>
 <context>
-    <name>CVSPlugin</name>
+    <name>CvsPlugin</name>
     <message>
         <source>Cannot find repository for &apos;%1&apos;</source>
         <translation>&apos;%1&apos; tárolóra nem található</translation>

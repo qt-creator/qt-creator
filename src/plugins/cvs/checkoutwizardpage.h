@@ -35,15 +35,18 @@
 
 #include <vcsbase/basecheckoutwizardpage.h>
 
-namespace CVS {
+namespace Cvs {
 namespace Internal {
 
-class CheckoutWizardPage : public VcsBase::BaseCheckoutWizardPage {
+class CheckoutWizardPage : public VcsBase::BaseCheckoutWizardPage
+{
     Q_OBJECT
+
 public:
     CheckoutWizardPage(QWidget *parent = 0);
 };
 
 } // namespace Internal
-} // namespace CVS
+} // namespace Cvs
+
 #endif // CHECKOUTWIZARDPAGE_H

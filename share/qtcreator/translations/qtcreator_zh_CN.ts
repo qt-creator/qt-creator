@@ -17165,7 +17165,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVS::Internal::SettingsPage</name>
+    <name>Cvs::Internal::SettingsPage</name>
     <message>
         <source>CVS Command:</source>
         <translation type="obsolete">CVS 命令:</translation>
@@ -18580,7 +18580,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CheckoutWizard</name>
+    <name>Cvs::Internal::CheckoutWizard</name>
     <message>
         <source>Checks out a project from a CVS repository.</source>
         <translation type="obsolete">从CVS仓库中检出项目。</translation>
@@ -18595,7 +18595,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CheckoutWizardPage</name>
+    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -18610,14 +18610,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVSPlugin</name>
+    <name>CvsPlugin</name>
     <message>
         <source>Cannot find repository for &apos;%1&apos;</source>
         <translation type="obsolete">无法为&apos;%1&apos;找到仓库</translation>
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSPlugin</name>
+    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation>解析日志输出失败</translation>
@@ -18928,7 +18928,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSSubmitEditor</name>
+    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>已添加</translation>
@@ -18943,7 +18943,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVS::Internal::SettingsPageWidget</name>
+    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>CVS 命令</translation>
@@ -23494,7 +23494,7 @@ Previous decimal signed value (big endian): %4</source>
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSEditor</name>
+    <name>Cvs::Internal::CvsEditor</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>注释版本 &quot;%1&quot;</translation>
@@ -40575,7 +40575,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CvsDiffParameterWidget</name>
+    <name>Cvs::Internal::CvsDiffParameterWidget</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>

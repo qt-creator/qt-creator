@@ -45,10 +45,10 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
-namespace CVS {
+namespace Cvs {
 namespace Internal {
 
-struct CVSSettings;
+struct CvsSettings;
 
 class SettingsPageWidget : public QWidget
 {
@@ -57,8 +57,8 @@ class SettingsPageWidget : public QWidget
 public:
     explicit SettingsPageWidget(QWidget *parent = 0);
 
-    CVSSettings settings() const;
-    void setSettings(const CVSSettings &);
+    CvsSettings settings() const;
+    void setSettings(const CvsSettings &);
 
     QString searchKeywords() const;
 
@@ -72,22 +72,22 @@ class SettingsPage : public VcsBase::VcsBaseOptionsPage
     Q_OBJECT
 
 public:
-    SettingsPage();
+    SettingsPage() {}
 
     QString id() const;
     QString displayName() const;
 
     QWidget *createPage(QWidget *parent);
     void apply();
-    void finish() { }
-    virtual bool matches(const QString &) const;
+    void finish() {}
+    bool matches(const QString &) const;
 
 private:
     QString m_searchKeywords;
-    SettingsPageWidget* m_widget;
+    SettingsPageWidget *m_widget;
 };
 
-} // namespace CVS
+} // namespace Cvs
 } // namespace Internal
 
 #endif // SETTINGSPAGE_H

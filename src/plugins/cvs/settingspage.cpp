@@ -43,7 +43,7 @@
 #include <QtCore/QTextStream>
 #include <QtGui/QFileDialog>
 
-using namespace CVS::Internal;
+using namespace Cvs::Internal;
 using namespace Utils;
 
 SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
@@ -54,9 +54,9 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     m_ui.commandPathChooser->setPromptDialogTitle(tr("CVS Command"));
 }
 
-CVSSettings SettingsPageWidget::settings() const
+CvsSettings SettingsPageWidget::settings() const
 {
-    CVSSettings rc;
+    CvsSettings rc;
     rc.cvsCommand = m_ui.commandPathChooser->path();
     rc.cvsRoot = m_ui.rootLineEdit->text();
     rc.cvsDiffOptions = m_ui.diffOptionsLineEdit->text();
@@ -66,7 +66,7 @@ CVSSettings SettingsPageWidget::settings() const
     return rc;
 }
 
-void SettingsPageWidget::setSettings(const CVSSettings &s)
+void SettingsPageWidget::setSettings(const CvsSettings &s)
 {
     m_ui.commandPathChooser->setPath(s.cvsCommand);
     m_ui.rootLineEdit->setText(s.cvsRoot);
@@ -94,10 +94,6 @@ QString SettingsPageWidget::searchKeywords() const
     return rc;
 }
 
-SettingsPage::SettingsPage()
-{
-}
-
 QString SettingsPage::id() const
 {
     return QLatin1String(VcsBase::Constants::VCS_ID_CVS);
@@ -111,7 +107,7 @@ QString SettingsPage::displayName() const
 QWidget *SettingsPage::createPage(QWidget *parent)
 {
     m_widget = new SettingsPageWidget(parent);
-    m_widget->setSettings(CVSPlugin::instance()->settings());
+    m_widget->setSettings(CvsPlugin::instance()->settings());
     if (m_searchKeywords.isEmpty())
         m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
@@ -119,7 +115,7 @@ QWidget *SettingsPage::createPage(QWidget *parent)
 
 void SettingsPage::apply()
 {
-    CVSPlugin::instance()->setSettings(m_widget->settings());
+    CvsPlugin::instance()->setSettings(m_widget->settings());
 }
 
 bool SettingsPage::matches(const QString &s) const

@@ -45,32 +45,25 @@ class QTextCodec;
 QT_END_NAMESPACE
 
 namespace Core {
-    class IEditorFactory;
-    class IVersionControl;
+class IEditorFactory;
+class IVersionControl;
 }
 
-namespace Utils {
-    class ParameterAction;
-}
+namespace Utils { class ParameterAction; }
+namespace VcsBase { class VcsBaseSubmitEditor; }
+namespace Locator { class CommandLocator; }
 
-namespace VcsBase {
-    class VcsBaseSubmitEditor;
-}
-
-namespace Locator {
-    class CommandLocator;
-}
-
-namespace CVS {
+namespace Cvs {
 namespace Internal {
-struct CvsDiffParameters;
-class CVSSubmitEditor;
-class CVSControl;
 
-struct CVSResponse
+struct CvsDiffParameters;
+class CvsSubmitEditor;
+class CvsControl;
+
+struct CvsResponse
 {
     enum Result { Ok, NonNullExitCode, OtherError };
-    CVSResponse() : result(Ok) {}
+    CvsResponse() : result(Ok) {}
 
     Result result;
     QString stdOut;
@@ -78,22 +71,22 @@ struct CVSResponse
     QString message;
 };
 
-class CVSPlugin : public VcsBase::VcsBasePlugin
+class CvsPlugin : public VcsBase::VcsBasePlugin
 {
     Q_OBJECT
 
 public:
-    CVSPlugin();
-    ~CVSPlugin();
+    CvsPlugin();
+    ~CvsPlugin();
 
     virtual bool initialize(const QStringList &arguments, QString *errorMessage);
 
     void cvsDiff(const QString &workingDir, const QStringList &files);
 
-    CVSSubmitEditor *openCVSSubmitEditor(const QString &fileName);
+    CvsSubmitEditor *openCVSSubmitEditor(const QString &fileName);
 
-    CVSSettings settings() const;
-    void setSettings(const CVSSettings &s);
+    CvsSettings settings() const;
+    void setSettings(const CvsSettings &s);
 
     // IVersionControl
     bool vcsAdd(const QString &workingDir, const QString &fileName);
@@ -102,7 +95,7 @@ public:
     // cvs 'edit' is used to implement 'open' (cvsnt).
     bool edit(const QString &topLevel, const QStringList &files);
 
-    static CVSPlugin *instance();
+    static CvsPlugin *instance();
 
 public slots:
     void vcsAnnotate(const QString &file, const QString &revision /* = QString() */, int lineNumber);
@@ -131,7 +124,7 @@ private slots:
     void editCurrentFile();
     void uneditCurrentFile();
     void uneditCurrentRepository();
-    void cvsDiff(const CVS::Internal::CvsDiffParameters &p);
+    void cvsDiff(const Cvs::Internal::CvsDiffParameters &p);
 
 protected:
     virtual void updateActions(VcsBase::VcsBasePlugin::ActionState);
@@ -139,11 +132,11 @@ protected:
 
 private:
     bool isCommitEditorOpen() const;
-    Core::IEditor * showOutputInEditor(const QString& title, const QString &output,
-                                       int editorType, const QString &source,
-                                       QTextCodec *codec);
+    Core::IEditor *showOutputInEditor(const QString& title, const QString &output,
+                                      int editorType, const QString &source,
+                                      QTextCodec *codec);
 
-    CVSResponse runCVS(const QString &workingDirectory,
+    CvsResponse runCvs(const QString &workingDirectory,
                        const QStringList &arguments,
                        int timeOut,
                        unsigned flags, QTextCodec *outputCodec = 0);
@@ -152,7 +145,7 @@ private:
                   const QString &revision = QString(), int lineNumber= -1);
     bool describe(const QString &source, const QString &changeNr, QString *errorMessage);
     bool describe(const QString &toplevel, const QString &source, const QString &changeNr, QString *errorMessage);
-    bool describe(const QString &repository, QList<CVS_LogEntry> entries, QString *errorMessage);
+    bool describe(const QString &repository, QList<CvsLogEntry> entries, QString *errorMessage);
     void filelog(const QString &workingDir,
                  const QStringList &files = QStringList(),
                  bool enableAnnotationContextMenu = false);
@@ -166,9 +159,9 @@ private:
     void startCommit(const QString &workingDir, const QStringList &files = QStringList());
     bool commit(const QString &messageFile, const QStringList &subVersionFileList);
     void cleanCommitMessageFile();
-    inline CVSControl *cvsVersionControl() const;
+    inline CvsControl *cvsVersionControl() const;
 
-    CVSSettings m_settings;
+    CvsSettings m_settings;
     QString m_commitMessageFileName;
     QString m_commitRepository;
 
@@ -202,10 +195,10 @@ private:
     QAction *m_menuAction;
     bool    m_submitActionTriggered;
 
-    static CVSPlugin *m_cvsPluginInstance;
+    static CvsPlugin *m_cvsPluginInstance;
 };
 
-} // namespace CVS
+} // namespace Cvs
 } // namespace Internal
 
 #endif // CVSPLUGIN_H

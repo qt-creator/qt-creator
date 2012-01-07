@@ -1731,14 +1731,14 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSEditor</name>
+    <name>Cvs::Internal::CvsEditor</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSPlugin</name>
+    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Cannot find repository for &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
@@ -1989,7 +1989,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSSubmitEditor</name>
+    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation type="unfinished"></translation>
@@ -2004,7 +2004,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CheckoutWizard</name>
+    <name>Cvs::Internal::CheckoutWizard</name>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
         <translation type="unfinished"></translation>
@@ -2015,7 +2015,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CheckoutWizardPage</name>
+    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <source>Location</source>
         <translation type="unfinished">Розташування</translation>
@@ -2030,7 +2030,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CvsDiffParameterWidget</name>
+    <name>Cvs::Internal::CvsDiffParameterWidget</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Ігнорувати пропуски</translation>
@@ -2041,7 +2041,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>CVS::Internal::SettingsPage</name>
+    <name>Cvs::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation type="unfinished"></translation>
@@ -2088,7 +2088,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>CVS::Internal::SettingsPageWidget</name>
+    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>Команда CVS</translation>

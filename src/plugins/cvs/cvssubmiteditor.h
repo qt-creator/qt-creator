@@ -38,30 +38,33 @@
 
 #include <vcsbase/vcsbasesubmiteditor.h>
 
-namespace CVS {
+namespace Cvs {
 namespace Internal {
 
-class CVSSubmitEditor : public VcsBase::VcsBaseSubmitEditor
+class CvsSubmitEditor : public VcsBase::VcsBaseSubmitEditor
 {
     Q_OBJECT
+
 public:
     enum State { LocallyAdded, LocallyModified, LocallyRemoved };
     // A list of state indicators and file names.
     typedef QPair<State, QString> StateFilePair;
+    typedef QList<StateFilePair> StateFilePairs;
 
-    explicit CVSSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters,
+    explicit CvsSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters,
                              QWidget *parentWidget = 0);
 
-    void setStateList(const QList<StateFilePair> &statusOutput);
+    void setStateList(const StateFilePairs &statusOutput);
 
 private:
-    inline QString stateName(State st) const;
+    QString stateName(State st) const;
+
     const QString m_msgAdded;
     const QString m_msgRemoved;
     const QString m_msgModified;
 };
 
 } // namespace Internal
-} // namespace CVS
+} // namespace Cvs
 
 #endif // CVSSUBMITEDITOR_H

@@ -35,24 +35,25 @@
 
 #include <vcsbase/baseannotationhighlighter.h>
 
-namespace CVS {
+namespace Cvs {
 namespace Internal {
 
 // Annotation highlighter for cvs triggering on 'changenumber '
-class CVSAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
+class CvsAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
     Q_OBJECT
+
 public:
-    explicit CVSAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                             QTextDocument *document = 0);
+    explicit CvsAnnotationHighlighter(const ChangeNumbers &changeNumbers,
+                                      QTextDocument *document = 0);
 
 private:
-    virtual QString changeNumber(const QString &block) const;
+    QString changeNumber(const QString &block) const;
 
     const QChar m_blank;
 };
 
 } // namespace Internal
-} // namespace CVS
+} // namespace Cvs
 
 #endif // ANNOTATIONHIGHLIGHTER_H

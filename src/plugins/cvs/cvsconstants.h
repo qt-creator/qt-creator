@@ -33,7 +33,7 @@
 #ifndef CVS_CONSTANTS_H
 #define CVS_CONSTANTS_H
 
-namespace CVS {
+namespace Cvs {
 namespace Constants {
 
 const char CVS_SUBMIT_MIMETYPE[] = "application/vnd.nokia.text.cvs.submit";
@@ -45,6 +45,6 @@ const char DIFF_SELECTED[] = "CVS.DiffSelectedFilesInLog";
 enum { debug = 0 };
 
 } // namespace Constants
-} // namespace CVS
+} // namespace Cvs
 
 #endif // CVS_CONSTANTS_H

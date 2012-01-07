@@ -32,17 +32,17 @@
 
 #include "annotationhighlighter.h"
 
-using namespace CVS;
-using namespace CVS::Internal;
+using namespace Cvs;
+using namespace Cvs::Internal;
 
-CVSAnnotationHighlighter::CVSAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                                             QTextDocument *document) :
+CvsAnnotationHighlighter::CvsAnnotationHighlighter(const ChangeNumbers &changeNumbers,
+                                                   QTextDocument *document) :
     VcsBase::BaseAnnotationHighlighter(changeNumbers, document),
     m_blank(QLatin1Char(' '))
 {
 }
 
-QString CVSAnnotationHighlighter::changeNumber(const QString &block) const
+QString CvsAnnotationHighlighter::changeNumber(const QString &block) const
 {
     const int pos = block.indexOf(m_blank);
     return pos > 1 ? block.left(pos) : QString();

@@ -13618,7 +13618,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVS::Internal::SettingsPage</name>
+    <name>Cvs::Internal::SettingsPage</name>
     <message>
         <location filename="../../../src/plugins/cvs/settingspage.cpp" line="+108"/>
         <source>CVS</source>
@@ -15133,7 +15133,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CheckoutWizard</name>
+    <name>Cvs::Internal::CheckoutWizard</name>
     <message>
         <location filename="../../../src/plugins/cvs/checkoutwizard.cpp" line="+61"/>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
@@ -15146,7 +15146,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CheckoutWizardPage</name>
+    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <location filename="../../../src/plugins/cvs/checkoutwizardpage.cpp" line="+41"/>
         <source>Location</source>
@@ -15164,7 +15164,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSPlugin</name>
+    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <location filename="../../../src/plugins/cvs/cvsplugin.cpp" line="+88"/>
         <source>Parsing of the log output failed</source>
@@ -15518,7 +15518,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSSubmitEditor</name>
+    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <location filename="../../../src/plugins/cvs/cvssubmiteditor.cpp" line="+44"/>
         <source>Added</source>
@@ -15536,7 +15536,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>CVS::Internal::SettingsPageWidget</name>
+    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <location filename="../../../src/plugins/cvs/settingspage.cpp" line="-54"/>
         <source>CVS Command</source>
@@ -19428,7 +19428,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSEditor</name>
+    <name>Cvs::Internal::CvsEditor</name>
     <message>
         <location filename="../../../src/plugins/cvs/cvseditor.cpp" line="+61"/>
         <source>Annotate revision &quot;%1&quot;</source>
@@ -27974,7 +27974,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CvsDiffParameterWidget</name>
+    <name>Cvs::Internal::CvsDiffParameterWidget</name>
     <message>
         <location filename="../../../src/plugins/cvs/cvsplugin.cpp" line="+415"/>
         <source>Ignore whitespace</source>

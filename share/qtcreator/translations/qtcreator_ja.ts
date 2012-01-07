@@ -1715,14 +1715,14 @@ Backspace が押された時のインデントの動作を指定します。
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSEditor</name>
+    <name>Cvs::Internal::CvsEditor</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>リビジョン &quot;%1&quot; のアノテーション</translation>
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSPlugin</name>
+    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation>ログ出力のパースに失敗しました</translation>
@@ -1973,7 +1973,7 @@ Backspace が押された時のインデントの動作を指定します。
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSSubmitEditor</name>
+    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>追加</translation>
@@ -1988,7 +1988,7 @@ Backspace が押された時のインデントの動作を指定します。
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CheckoutWizard</name>
+    <name>Cvs::Internal::CheckoutWizard</name>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
         <translation>CVS リポジトリをチェックアウトし、プロジェクトに読み込みます。</translation>
@@ -1999,7 +1999,7 @@ Backspace が押された時のインデントの動作を指定します。
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CheckoutWizardPage</name>
+    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <source>Location</source>
         <translation>パス</translation>
@@ -2014,7 +2014,7 @@ Backspace が押された時のインデントの動作を指定します。
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CvsDiffParameterWidget</name>
+    <name>Cvs::Internal::CvsDiffParameterWidget</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>空白を無視</translation>
@@ -2025,7 +2025,7 @@ Backspace が押された時のインデントの動作を指定します。
     </message>
 </context>
 <context>
-    <name>CVS::Internal::SettingsPage</name>
+    <name>Cvs::Internal::SettingsPage</name>
     <message>
         <source>CVS</source>
         <translation>CVS</translation>
@@ -2072,7 +2072,7 @@ Backspace が押された時のインデントの動作を指定します。
     </message>
 </context>
 <context>
-    <name>CVS::Internal::SettingsPageWidget</name>
+    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>CVS コマンド</translation>

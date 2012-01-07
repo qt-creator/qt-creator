@@ -32,7 +32,7 @@
 
 #include "checkoutwizardpage.h"
 
-namespace CVS {
+namespace Cvs {
 namespace Internal {
 
 CheckoutWizardPage::CheckoutWizardPage(QWidget *parent) :
@@ -46,4 +46,4 @@ CheckoutWizardPage::CheckoutWizardPage(QWidget *parent) :
 }
 
 } // namespace Internal
-} // namespace CVS
+} // namespace Cvs

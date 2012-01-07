@@ -598,7 +598,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVS::Internal::SettingsPage</name>
+    <name>Cvs::Internal::SettingsPage</name>
     <message>
         <source>CVS</source>
         <translation>CVS</translation>
@@ -4438,7 +4438,7 @@ Przyczyna: %3</translation>
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CheckoutWizard</name>
+    <name>Cvs::Internal::CheckoutWizard</name>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
         <translation>Wyciąga repozytorium CVS i próbuje załadować zawarty projekt.</translation>
@@ -4449,7 +4449,7 @@ Przyczyna: %3</translation>
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CheckoutWizardPage</name>
+    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Położenie</translation>
@@ -4464,7 +4464,7 @@ Przyczyna: %3</translation>
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSPlugin</name>
+    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation>Nie można przetworzyć komunikatów loga</translation>
@@ -4715,7 +4715,7 @@ Przyczyna: %3</translation>
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSSubmitEditor</name>
+    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Dodano</translation>
@@ -4730,7 +4730,7 @@ Przyczyna: %3</translation>
     </message>
 </context>
 <context>
-    <name>CVS::Internal::SettingsPageWidget</name>
+    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>Komenda CVS</translation>
@@ -13227,7 +13227,7 @@ Użyj właściwości importPaths dla projektów qmlproject aby dodać scieżki i
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSEditor</name>
+    <name>Cvs::Internal::CvsEditor</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Dołącz adnotację do poprawki &quot;%1&quot;</translation>
@@ -24232,7 +24232,7 @@ Czy chcesz je nadpisać?</translation>
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CvsDiffParameterWidget</name>
+    <name>Cvs::Internal::CvsDiffParameterWidget</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Ignoruj białe znaki</translation>

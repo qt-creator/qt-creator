@@ -426,7 +426,7 @@
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSPlugin</name>
+    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation>Die Log-Ausgabe konnte nicht ausgewertet werden</translation>
@@ -678,7 +678,7 @@
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSSubmitEditor</name>
+    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Hinzugefügt</translation>
@@ -693,7 +693,7 @@
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CheckoutWizard</name>
+    <name>Cvs::Internal::CheckoutWizard</name>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
         <translation>Erstellt einen Checkout eines CVS-Repositories und versucht, das darin enthaltene Projekt zu laden.</translation>
@@ -704,7 +704,7 @@
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CheckoutWizardPage</name>
+    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Pfad</translation>
@@ -719,7 +719,7 @@
     </message>
 </context>
 <context>
-    <name>CVS::Internal::SettingsPage</name>
+    <name>Cvs::Internal::SettingsPage</name>
     <message>
         <source>CVS</source>
         <translation>CVS</translation>
@@ -766,7 +766,7 @@
     </message>
 </context>
 <context>
-    <name>CVS::Internal::SettingsPageWidget</name>
+    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>CVS-Kommando</translation>
@@ -12006,7 +12006,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSEditor</name>
+    <name>Cvs::Internal::CvsEditor</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Annotation für Revision &quot;%1&quot;</translation>
@@ -22407,7 +22407,7 @@ Sollen sie überschrieben werden?</translation>
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CvsDiffParameterWidget</name>
+    <name>Cvs::Internal::CvsDiffParameterWidget</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Leerzeichen nicht berücksichtigen</translation>

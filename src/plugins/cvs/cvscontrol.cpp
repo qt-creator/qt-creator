@@ -38,25 +38,25 @@
 
 #include <QtCore/QFileInfo>
 
-using namespace CVS;
-using namespace CVS::Internal;
+using namespace Cvs;
+using namespace Cvs::Internal;
 
-CVSControl::CVSControl(CVSPlugin *plugin) :
+CvsControl::CvsControl(CvsPlugin *plugin) :
     m_plugin(plugin)
 {
 }
 
-QString CVSControl::displayName() const
+QString CvsControl::displayName() const
 {
     return QLatin1String("cvs");
 }
 
-Core::Id CVSControl::id() const
+Core::Id CvsControl::id() const
 {
     return VcsBase::Constants::VCS_ID_CVS;
 }
 
-bool CVSControl::isConfigured() const
+bool CvsControl::isConfigured() const
 {
     const QString binary = m_plugin->settings().cvsCommand;
     if (binary.isEmpty())
@@ -65,7 +65,7 @@ bool CVSControl::isConfigured() const
     return fi.exists() && fi.isFile() && fi.isExecutable();
 }
 
-bool CVSControl::supportsOperation(Operation operation) const
+bool CvsControl::supportsOperation(Operation operation) const
 {
     bool rc = isConfigured();
     switch (operation) {
@@ -85,88 +85,88 @@ bool CVSControl::supportsOperation(Operation operation) const
     return rc;
 }
 
-bool CVSControl::vcsOpen(const QString &fileName)
+bool CvsControl::vcsOpen(const QString &fileName)
 {
     const QFileInfo fi(fileName);
     return m_plugin->edit(fi.absolutePath(), QStringList(fi.fileName()));
 }
 
-bool CVSControl::vcsAdd(const QString &fileName)
+bool CvsControl::vcsAdd(const QString &fileName)
 {
     const QFileInfo fi(fileName);
     return m_plugin->vcsAdd(fi.absolutePath(), fi.fileName());
 }
 
-bool CVSControl::vcsDelete(const QString &fileName)
+bool CvsControl::vcsDelete(const QString &fileName)
 {
     const QFileInfo fi(fileName);
     return m_plugin->vcsDelete(fi.absolutePath(), fi.fileName());
 }
 
-bool CVSControl::vcsMove(const QString &from, const QString &to)
+bool CvsControl::vcsMove(const QString &from, const QString &to)
 {
     Q_UNUSED(from);
     Q_UNUSED(to);
     return false;
 }
 
-bool CVSControl::vcsCreateRepository(const QString &)
+bool CvsControl::vcsCreateRepository(const QString &)
 {
     return false;
 }
 
-QString CVSControl::vcsGetRepositoryURL(const QString &)
+QString CvsControl::vcsGetRepositoryURL(const QString &)
 {
     return QString();
 }
 
-bool CVSControl::vcsCheckout(const QString &, const QByteArray &)
+bool CvsControl::vcsCheckout(const QString &, const QByteArray &)
 {
     return false;
 }
 
-QString CVSControl::vcsCreateSnapshot(const QString &)
+QString CvsControl::vcsCreateSnapshot(const QString &)
 {
     return QString();
 }
 
-QStringList CVSControl::vcsSnapshots(const QString &)
+QStringList CvsControl::vcsSnapshots(const QString &)
 {
     return QStringList();
 }
 
-bool CVSControl::vcsRestoreSnapshot(const QString &, const QString &)
+bool CvsControl::vcsRestoreSnapshot(const QString &, const QString &)
 {
     return false;
 }
 
-bool CVSControl::vcsRemoveSnapshot(const QString &, const QString &)
+bool CvsControl::vcsRemoveSnapshot(const QString &, const QString &)
 {
     return false;
 }
 
-bool CVSControl::vcsAnnotate(const QString &file, int line)
+bool CvsControl::vcsAnnotate(const QString &file, int line)
 {
     m_plugin->vcsAnnotate(file, QString(), line);
     return true;
 }
 
-bool CVSControl::managesDirectory(const QString &directory, QString *topLevel) const
+bool CvsControl::managesDirectory(const QString &directory, QString *topLevel) const
 {
     return m_plugin->managesDirectory(directory, topLevel);
 }
 
-void CVSControl::emitRepositoryChanged(const QString &s)
+void CvsControl::emitRepositoryChanged(const QString &s)
 {
     emit repositoryChanged(s);
 }
 
-void CVSControl::emitFilesChanged(const QStringList &l)
+void CvsControl::emitFilesChanged(const QStringList &l)
 {
     emit filesChanged(l);
 }
 
-void CVSControl::emitConfigurationChanged()
+void CvsControl::emitConfigurationChanged()
 {
     emit configurationChanged();
 }

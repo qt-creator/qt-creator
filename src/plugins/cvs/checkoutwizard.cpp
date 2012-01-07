@@ -42,7 +42,7 @@
 
 #include <QtGui/QIcon>
 
-namespace CVS {
+namespace Cvs {
 namespace Internal {
 
 CheckoutWizard::CheckoutWizard(QObject *parent) :
@@ -69,7 +69,7 @@ QString CheckoutWizard::displayName() const
 QList<QWizardPage*> CheckoutWizard::createParameterPages(const QString &path)
 {
     QList<QWizardPage*> rc;
-    const Core::IVersionControl *vc = CVSPlugin::instance()->versionControl();
+    const Core::IVersionControl *vc = CvsPlugin::instance()->versionControl();
     if (!vc->isConfigured())
         rc.append(new VcsBase::VcsConfigurationPage(vc));
     CheckoutWizardPage *cwp = new CheckoutWizardPage;
@@ -85,7 +85,7 @@ QSharedPointer<VcsBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QLi
     // CVS does not allow for checking out into a different directory.
     const CheckoutWizardPage *cwp = qobject_cast<const CheckoutWizardPage *>(parameterPages.front());
     QTC_ASSERT(cwp, return QSharedPointer<VcsBase::AbstractCheckoutJob>())
-    const CVSSettings settings = CVSPlugin::instance()->settings();
+    const CvsSettings settings = CvsPlugin::instance()->settings();
     const QString binary = settings.cvsCommand;
     QStringList args;
     const QString repository = cwp->repository();
@@ -99,4 +99,4 @@ QSharedPointer<VcsBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QLi
 }
 
 } // namespace Internal
-} // namespace CVS
+} // namespace Cvs

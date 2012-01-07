@@ -43,14 +43,14 @@
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextBlock>
 
-namespace CVS {
+namespace Cvs {
 namespace Internal {
 
 // Match a CVS revision ("1.1.1.1")
 #define CVS_REVISION_PATTERN "[\\d\\.]+"
 #define CVS_REVISION_AT_START_PATTERN "^(" CVS_REVISION_PATTERN ") "
 
-CVSEditor::CVSEditor(const VcsBase::VcsBaseEditorParameters *type,
+CvsEditor::CvsEditor(const VcsBase::VcsBaseEditorParameters *type,
                                    QWidget *parent) :
     VcsBase::VcsBaseEditorWidget(type, parent),
     m_revisionAnnotationPattern(QLatin1String(CVS_REVISION_AT_START_PATTERN".*$")),
@@ -61,7 +61,7 @@ CVSEditor::CVSEditor(const VcsBase::VcsBaseEditorParameters *type,
     setAnnotateRevisionTextFormat(tr("Annotate revision \"%1\""));
 }
 
-QSet<QString> CVSEditor::annotationChanges() const
+QSet<QString> CvsEditor::annotationChanges() const
 {
     QSet<QString> changes;
     const QString txt = toPlainText();
@@ -80,12 +80,12 @@ QSet<QString> CVSEditor::annotationChanges() const
             changes.insert(r.cap(1));
         }
     }
-    if (CVS::Constants::debug)
+    if (Cvs::Constants::debug)
         qDebug() << "CVSEditor::annotationChanges() returns #" << changes.size();
     return changes;
 }
 
-QString CVSEditor::changeUnderCursor(const QTextCursor &c) const
+QString CvsEditor::changeUnderCursor(const QTextCursor &c) const
 {
     // Try to match "1.1" strictly:
     // 1) Annotation: Check for a revision number at the beginning of the line.
@@ -124,19 +124,19 @@ cvs diff -d -u -r1.1 -r1.2:
 \endcode
 */
 
-VcsBase::DiffHighlighter *CVSEditor::createDiffHighlighter() const
+VcsBase::DiffHighlighter *CvsEditor::createDiffHighlighter() const
 {
     const QRegExp filePattern(QLatin1String("^[-+][-+][-+] .*1\\.[\\d\\.]+$"));
     QTC_CHECK(filePattern.isValid());
     return new VcsBase::DiffHighlighter(filePattern);
 }
 
-VcsBase::BaseAnnotationHighlighter *CVSEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighter *CvsEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
 {
-    return new CVSAnnotationHighlighter(changes);
+    return new CvsAnnotationHighlighter(changes);
 }
 
-QString CVSEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) const
+QString CvsEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) const
 {
     // "+++ mainwindow.cpp<\t>13 Jul 2009 13:50:15 -0000      1.1"
     // Go back chunks
@@ -154,7 +154,7 @@ QString CVSEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) cons
     return QString();
 }
 
-QStringList CVSEditor::annotationPreviousVersions(const QString &revision) const
+QStringList CvsEditor::annotationPreviousVersions(const QString &revision) const
 {
     if (isFirstRevision(revision))
         return QStringList();

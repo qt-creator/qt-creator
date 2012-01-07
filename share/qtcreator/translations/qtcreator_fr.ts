@@ -17824,7 +17824,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVS::Internal::SettingsPage</name>
+    <name>Cvs::Internal::SettingsPage</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="obsolete">Invite lors du submit</translation>
@@ -19262,7 +19262,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CheckoutWizard</name>
+    <name>Cvs::Internal::CheckoutWizard</name>
     <message>
         <source>Checks out a project from a CVS repository.</source>
         <translation type="obsolete">Obtient un projet à partir d&apos;un dépôt CVS.</translation>
@@ -19277,7 +19277,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CheckoutWizardPage</name>
+    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Emplacement</translation>
@@ -19292,14 +19292,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVSPlugin</name>
+    <name>CvsPlugin</name>
     <message>
         <source>Cannot find repository for &apos;%1&apos;</source>
         <translation type="obsolete">Impossible de trouver le dépot de &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSPlugin</name>
+    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation>Échec de l&apos;analyse de la sortie </translation>
@@ -19615,7 +19615,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSSubmitEditor</name>
+    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Ajouté</translation>
@@ -19634,7 +19634,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CVS::Internal::SettingsPageWidget</name>
+    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>CVS Command</translation>
@@ -24973,7 +24973,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CVSEditor</name>
+    <name>Cvs::Internal::CvsEditor</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Révision annotée &quot;%1&quot;</translation>
@@ -41694,7 +41694,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>CVS::Internal::CvsDiffParameterWidget</name>
+    <name>Cvs::Internal::CvsDiffParameterWidget</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Ignorer les espaces</translation>

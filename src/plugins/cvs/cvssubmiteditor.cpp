@@ -36,18 +36,19 @@
 #include <utils/submiteditorwidget.h>
 #include <vcsbase/submitfilemodel.h>
 
-using namespace CVS::Internal;
+using namespace Cvs::Internal;
+using namespace VcsBase;
 
-CVSSubmitEditor::CVSSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters,
-                                               QWidget *parentWidget) :
-    VcsBase::VcsBaseSubmitEditor(parameters, new Utils::SubmitEditorWidget(parentWidget)),
+CvsSubmitEditor::CvsSubmitEditor(const VcsBaseSubmitEditorParameters *parameters,
+                                 QWidget *parentWidget) :
+    VcsBaseSubmitEditor(parameters, new Utils::SubmitEditorWidget(parentWidget)),
     m_msgAdded(tr("Added")),
     m_msgRemoved(tr("Removed")),
     m_msgModified(tr("Modified"))
 {
 }
 
-QString CVSSubmitEditor::stateName(State st) const
+QString CvsSubmitEditor::stateName(State st) const
 {
     switch (st) {
     case LocallyAdded:
@@ -60,10 +61,10 @@ QString CVSSubmitEditor::stateName(State st) const
     return QString();
 }
 
-void CVSSubmitEditor::setStateList(const QList<StateFilePair> &statusOutput)
+void CvsSubmitEditor::setStateList(const StateFilePairs &statusOutput)
 {
-    typedef QList<StateFilePair>::const_iterator ConstIterator;
-    VcsBase::SubmitFileModel *model = new VcsBase::SubmitFileModel(this);
+    typedef StateFilePairs::const_iterator ConstIterator;
+    SubmitFileModel *model = new SubmitFileModel(this);
 
     const ConstIterator cend = statusOutput.constEnd();
     for (ConstIterator it = statusOutput.constBegin(); it != cend; ++it)

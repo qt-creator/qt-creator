@@ -42,15 +42,15 @@ QT_BEGIN_NAMESPACE
 class QDebug;
 QT_END_NAMESPACE
 
-namespace CVS {
+namespace Cvs {
 namespace Internal {
 
 // Utilities to parse output of a CVS log.
 
 // A revision of a file.
-struct CVS_Revision
+struct CvsRevision
 {
-    CVS_Revision(const QString &rev);
+    CvsRevision(const QString &rev);
 
     QString revision;
     QString date; // ISO-Format (YYYY-MM-DD)
@@ -58,21 +58,21 @@ struct CVS_Revision
 };
 
 // A log entry consisting of the file and its revisions.
-struct CVS_LogEntry
+struct CvsLogEntry
 {
-    CVS_LogEntry(const QString &file);
+    CvsLogEntry(const QString &file);
 
     QString file;
-    QList<CVS_Revision> revisions;
+    QList<CvsRevision> revisions;
 };
 
-QDebug operator<<(QDebug d, const CVS_LogEntry &);
+QDebug operator<<(QDebug d, const CvsLogEntry &);
 
 // Parse. Pass on a directory to obtain full paths when
 // running from the repository directory.
-QList<CVS_LogEntry> parseLogEntries(const QString &output,
-                                    const QString &directory = QString(),
-                                    const QString filterCommitId = QString());
+QList<CvsLogEntry> parseLogEntries(const QString &output,
+                                   const QString &directory = QString(),
+                                   const QString filterCommitId = QString());
 
 // Tortoise CVS outputs unknown files with question marks in
 // the diff output on stdout ('? foo'); remove
@@ -80,7 +80,7 @@ QString fixDiffOutput(QString d);
 
 // Parse the status output of CVS (stdout/stderr merged
 // to catch directories).
-typedef QList<CVSSubmitEditor::StateFilePair> StateList;
+typedef CvsSubmitEditor::StateFilePairs StateList;
 StateList parseStatusOutput(const QString &directory, const QString &output);
 
 // Revision number utilities: Decrement version number "1.2" -> "1.1"
@@ -89,6 +89,6 @@ QString previousRevision(const QString &rev);
 bool isFirstRevision(const QString &r);
 
 } // namespace Internal
-} // namespace CVS
+} // namespace Cvs
 
 #endif // CVSUTILS_H

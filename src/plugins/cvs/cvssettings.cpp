@@ -56,10 +56,10 @@ static QString defaultCommand()
     return rc;
 }
 
-namespace CVS {
+namespace Cvs {
 namespace Internal {
 
-CVSSettings::CVSSettings() :
+CvsSettings::CvsSettings() :
     cvsCommand(defaultCommand()),
     cvsDiffOptions(QLatin1String(defaultDiffOptions)),
     timeOutS(defaultTimeOutS),
@@ -68,7 +68,7 @@ CVSSettings::CVSSettings() :
 {
 }
 
-void CVSSettings::fromSettings(QSettings *settings)
+void CvsSettings::fromSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String(groupC));
     cvsCommand = settings->value(QLatin1String(commandKeyC), defaultCommand()).toString();
@@ -80,7 +80,7 @@ void CVSSettings::fromSettings(QSettings *settings)
     settings->endGroup();
 }
 
-void CVSSettings::toSettings(QSettings *settings) const
+void CvsSettings::toSettings(QSettings *settings) const
 {
     settings->beginGroup(QLatin1String(groupC));
     settings->setValue(QLatin1String(commandKeyC), cvsCommand);
@@ -92,7 +92,7 @@ void CVSSettings::toSettings(QSettings *settings) const
     settings->endGroup();
 }
 
-bool CVSSettings::equals(const CVSSettings &s) const
+bool CvsSettings::equals(const CvsSettings &s) const
 {
     return promptToSubmit     == s.promptToSubmit
         && describeByCommitId == s.describeByCommitId
@@ -102,7 +102,7 @@ bool CVSSettings::equals(const CVSSettings &s) const
         && cvsDiffOptions     == s.cvsDiffOptions;
 }
 
-QStringList CVSSettings::addOptions(const QStringList &args) const
+QStringList CvsSettings::addOptions(const QStringList &args) const
 {
     if (cvsRoot.isEmpty())
         return args;
@@ -115,4 +115,4 @@ QStringList CVSSettings::addOptions(const QStringList &args) const
 }
 
 } // namespace Internal
-} // namespace CVS
+} // namespace Cvs
