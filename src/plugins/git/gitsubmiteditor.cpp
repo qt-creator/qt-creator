@@ -49,8 +49,8 @@ namespace Internal {
  * option for staged files. So, we sort apart the diff file lists
  * according to a type flag we add to the model. */
 
-GitSubmitEditor::GitSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters, QWidget *parent) :
-    VCSBaseSubmitEditor(parameters, new GitSubmitEditorWidget(parent)),
+GitSubmitEditor::GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent) :
+    VcsBaseSubmitEditor(parameters, new GitSubmitEditorWidget(parent)),
     m_model(0)
 {
     connect(this, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(slotDiffSelected(QStringList)));
@@ -68,7 +68,7 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
 
     m_commitEncoding = d.commitEncoding;
 
-    m_model = new VCSBase::SubmitFileModel(this);
+    m_model = new VcsBase::SubmitFileModel(this);
     if (!d.files.isEmpty()) {
         for (QList<CommitData::StateFilePair>::const_iterator it = d.files.constBegin();
              it != d.files.constEnd(); ++it) {

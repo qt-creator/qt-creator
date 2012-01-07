@@ -32,33 +32,33 @@
 
 #include "vcsbasetextdocument.h"
 
-using namespace VCSBase::Internal;
+using namespace VcsBase::Internal;
 
-VCSBaseTextDocument::VCSBaseTextDocument() :
+VcsBaseTextDocument::VcsBaseTextDocument() :
     m_forceReadOnly(false)
 {
 }
 
-bool VCSBaseTextDocument::isReadOnly() const
+bool VcsBaseTextDocument::isReadOnly() const
 {
     return m_forceReadOnly ?
             true :
             TextEditor::BaseTextDocument::isReadOnly();
 }
 
-bool VCSBaseTextDocument::isModified() const
+bool VcsBaseTextDocument::isModified() const
 {
     return m_forceReadOnly ?
             false :
             TextEditor::BaseTextDocument::isModified();
 }
 
-void VCSBaseTextDocument::setForceReadOnly(bool b)
+void VcsBaseTextDocument::setForceReadOnly(bool b)
 {
     m_forceReadOnly = b;
 }
 
-bool VCSBaseTextDocument::isForceReadOnly() const
+bool VcsBaseTextDocument::isForceReadOnly() const
 {
     return m_forceReadOnly;
 }

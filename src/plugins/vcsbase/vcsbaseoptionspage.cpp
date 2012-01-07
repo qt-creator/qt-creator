@@ -38,31 +38,31 @@
 #include <QtGui/QIcon>
 
 /*!
-    \class VCSBase::VCSBaseOptionsPage
+    \class VcsBase::VcsBaseOptionsPage
 
     \brief Base class for VCS options pages providing common category/icon.
  */
 
-namespace VCSBase {
+namespace VcsBase {
 
-VCSBaseOptionsPage::VCSBaseOptionsPage(QObject *parent) :
+VcsBaseOptionsPage::VcsBaseOptionsPage(QObject *parent) :
     Core::IOptionsPage(parent)
 {
 }
 
-QString VCSBaseOptionsPage::category() const
+QString VcsBaseOptionsPage::category() const
 {
     return QLatin1String(Constants::VCS_SETTINGS_CATEGORY);
 }
 
-QString VCSBaseOptionsPage::displayCategory() const
+QString VcsBaseOptionsPage::displayCategory() const
 {
-    return QCoreApplication::translate("VCSBase", Constants::VCS_SETTINGS_TR_CATEGORY);
+    return QCoreApplication::translate("VcsBase", Constants::VCS_SETTINGS_TR_CATEGORY);
 }
 
-QIcon VCSBaseOptionsPage::categoryIcon() const
+QIcon VcsBaseOptionsPage::categoryIcon() const
 {
     return QIcon(QLatin1String(Constants::SETTINGS_CATEGORY_VCS_ICON));
 }
 
-} // namespace VCSBase
+} // namespace VcsBase

@@ -36,7 +36,7 @@ namespace CVS {
 namespace Internal {
 
 CheckoutWizardPage::CheckoutWizardPage(QWidget *parent) :
-    VCSBase::BaseCheckoutWizardPage(parent)
+    VcsBase::BaseCheckoutWizardPage(parent)
 {
     setTitle(tr("Location"));
     setSubTitle(tr("Specify repository and path."));

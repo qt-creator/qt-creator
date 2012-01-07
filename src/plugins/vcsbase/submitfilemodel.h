@@ -37,7 +37,7 @@
 
 #include <QtGui/QStandardItemModel>
 
-namespace VCSBase {
+namespace VcsBase {
 
 class VCSBASE_EXPORT SubmitFileModel : public QStandardItemModel
 {
@@ -67,6 +67,6 @@ public:
     unsigned filter(const QStringList &filter, int column);
 };
 
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // SUBMITMODEL_H

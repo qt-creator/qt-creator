@@ -69,25 +69,25 @@ using namespace Utils;
 enum { debug = 0, debugRepositorySearch = 0, debugExecution = 0 };
 
 /*!
-    \namespace VCSBase
-    \brief VCSBase plugin namespace
+    \namespace VcsBase
+    \brief VcsBase plugin namespace
 */
 
 /*!
-    \namespace VCSBase::Internal
-    \brief Internal namespace of the VCSBase plugin
+    \namespace VcsBase::Internal
+    \brief Internal namespace of the VcsBase plugin
     \internal
 */
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Internal {
 
 /*!
-    \struct VCSBase::Internal::State
+    \struct VcsBase::Internal::State
 
-    \brief Internal state created by the state listener and VCSBasePluginState.
+    \brief Internal state created by the state listener and VcsBasePluginState.
 
-    Aggregated in the QSharedData of VCSBase::VCSBasePluginState.
+    Aggregated in the QSharedData of VcsBase::VcsBasePluginState.
 */
 
 struct State
@@ -184,7 +184,7 @@ QDebug operator<<(QDebug in, const State &state)
 }
 
 /*!
-    \class VCSBase::Internal::StateListener
+    \class VcsBase::Internal::StateListener
 
     \brief Connects to the relevant signals of Qt Creator, tries to find version
     controls and emits signals to the plugin instances.
@@ -200,7 +200,7 @@ public:
     explicit StateListener(QObject *parent);
 
 signals:
-    void stateChanged(const VCSBase::Internal::State &s, Core::IVersionControl *vc);
+    void stateChanged(const VcsBase::Internal::State &s, Core::IVersionControl *vc);
 
 public slots:
     void slotStateChanged();
@@ -307,14 +307,14 @@ void StateListener::slotStateChanged()
 
 } // namespace Internal
 
-class VCSBasePluginStateData : public QSharedData
+class VcsBasePluginStateData : public QSharedData
 {
 public:
     Internal::State m_state;
 };
 
 /*!
-    \class  VCSBase::VCSBasePluginState
+    \class  VcsBase::VcsBasePluginState
 
     \brief Relevant state information of the VCS plugins
 
@@ -325,80 +325,80 @@ public:
     \o Current project and it's version system control/top level
     \endlist
 
-    \sa VCSBase::VCSBasePlugin
+    \sa VcsBase::VcsBasePlugin
 */
 
-VCSBasePluginState::VCSBasePluginState() : data(new VCSBasePluginStateData)
+VcsBasePluginState::VcsBasePluginState() : data(new VcsBasePluginStateData)
 {
 }
 
-VCSBasePluginState::VCSBasePluginState(const VCSBasePluginState &rhs) : data(rhs.data)
+VcsBasePluginState::VcsBasePluginState(const VcsBasePluginState &rhs) : data(rhs.data)
 {
 }
 
-VCSBasePluginState &VCSBasePluginState::operator=(const VCSBasePluginState &rhs)
+VcsBasePluginState &VcsBasePluginState::operator=(const VcsBasePluginState &rhs)
 {
     if (this != &rhs)
         data.operator=(rhs.data);
     return *this;
 }
 
-VCSBasePluginState::~VCSBasePluginState()
+VcsBasePluginState::~VcsBasePluginState()
 {
 }
 
-QString VCSBasePluginState::currentFile() const
+QString VcsBasePluginState::currentFile() const
 {
     return data->m_state.currentFile;
 }
 
-QString VCSBasePluginState::currentFileName() const
+QString VcsBasePluginState::currentFileName() const
 {
     return data->m_state.currentFileName;
 }
 
-QString VCSBasePluginState::currentFileTopLevel() const
+QString VcsBasePluginState::currentFileTopLevel() const
 {
     return data->m_state.currentFileTopLevel;
 }
 
-QString VCSBasePluginState::currentFileDirectory() const
+QString VcsBasePluginState::currentFileDirectory() const
 {
     return data->m_state.currentFileDirectory;
 }
 
-QString VCSBasePluginState::relativeCurrentFile() const
+QString VcsBasePluginState::relativeCurrentFile() const
 {
     QTC_ASSERT(hasFile(), return QString())
     return QDir(data->m_state.currentFileTopLevel).relativeFilePath(data->m_state.currentFile);
 }
 
-QString VCSBasePluginState::currentPatchFile() const
+QString VcsBasePluginState::currentPatchFile() const
 {
     return data->m_state.currentPatchFile;
 }
 
-QString VCSBasePluginState::currentPatchFileDisplayName() const
+QString VcsBasePluginState::currentPatchFileDisplayName() const
 {
     return data->m_state.currentPatchFileDisplayName;
 }
 
-QString VCSBasePluginState::currentProjectPath() const
+QString VcsBasePluginState::currentProjectPath() const
 {
     return data->m_state.currentProjectPath;
 }
 
-QString VCSBasePluginState::currentProjectName() const
+QString VcsBasePluginState::currentProjectName() const
 {
     return data->m_state.currentProjectName;
 }
 
-QString VCSBasePluginState::currentProjectTopLevel() const
+QString VcsBasePluginState::currentProjectTopLevel() const
 {
     return data->m_state.currentProjectTopLevel;
 }
 
-QStringList VCSBasePluginState::relativeCurrentProject() const
+QStringList VcsBasePluginState::relativeCurrentProject() const
 {
     QStringList rc;
     QTC_ASSERT(hasProject(), return rc)
@@ -407,64 +407,64 @@ QStringList VCSBasePluginState::relativeCurrentProject() const
     return rc;
 }
 
-bool VCSBasePluginState::hasTopLevel() const
+bool VcsBasePluginState::hasTopLevel() const
 {
     return data->m_state.hasFile() || data->m_state.hasProject();
 }
 
-QString VCSBasePluginState::topLevel() const
+QString VcsBasePluginState::topLevel() const
 {
     return hasFile() ? data->m_state.currentFileTopLevel : data->m_state.currentProjectTopLevel;
 }
 
-bool VCSBasePluginState::equals(const Internal::State &rhs) const
+bool VcsBasePluginState::equals(const Internal::State &rhs) const
 {
     return data->m_state.equals(rhs);
 }
 
-bool VCSBasePluginState::equals(const VCSBasePluginState &rhs) const
+bool VcsBasePluginState::equals(const VcsBasePluginState &rhs) const
 {
     return equals(rhs.data->m_state);
 }
 
-void VCSBasePluginState::clear()
+void VcsBasePluginState::clear()
 {
     data->m_state.clear();
 }
 
-void VCSBasePluginState::setState(const Internal::State &s)
+void VcsBasePluginState::setState(const Internal::State &s)
 {
     data->m_state = s;
 }
 
-bool VCSBasePluginState::isEmpty() const
+bool VcsBasePluginState::isEmpty() const
 {
     return data->m_state.isEmpty();
 }
 
-bool VCSBasePluginState::hasFile() const
+bool VcsBasePluginState::hasFile() const
 {
     return data->m_state.hasFile();
 }
 
-bool VCSBasePluginState::hasPatchFile() const
+bool VcsBasePluginState::hasPatchFile() const
 {
     return !data->m_state.currentPatchFile.isEmpty();
 }
 
-bool VCSBasePluginState::hasProject() const
+bool VcsBasePluginState::hasProject() const
 {
     return data->m_state.hasProject();
 }
 
-VCSBASE_EXPORT QDebug operator<<(QDebug in, const VCSBasePluginState &state)
+VCSBASE_EXPORT QDebug operator<<(QDebug in, const VcsBasePluginState &state)
 {
     in << state.data->m_state;
     return in;
 }
 
 /*!
-    \class VCSBase::VCSBasePlugin
+    \class VcsBase::VcsBasePlugin
 
     \brief Base class for all version control plugins.
 
@@ -491,15 +491,15 @@ VCSBASE_EXPORT QDebug operator<<(QDebug in, const VCSBasePluginState &state)
     the virtual submitEditorAboutToClose() to trigger the submit process.
 */
 
-struct VCSBasePluginPrivate
+struct VcsBasePluginPrivate
 {
-    explicit VCSBasePluginPrivate(const QString &submitEditorId);
+    explicit VcsBasePluginPrivate(const QString &submitEditorId);
 
     inline bool supportsRepositoryCreation() const;
 
     const Core::Id m_submitEditorId;
     Core::IVersionControl *m_versionControl;
-    VCSBasePluginState m_state;
+    VcsBasePluginState m_state;
     int m_actionState;
     QAction *m_testSnapshotAction;
     QAction *m_testListSnapshotsAction;
@@ -510,7 +510,7 @@ struct VCSBasePluginPrivate
     static Internal::StateListener *m_listener;
 };
 
-VCSBasePluginPrivate::VCSBasePluginPrivate(const QString &submitEditorId) :
+VcsBasePluginPrivate::VcsBasePluginPrivate(const QString &submitEditorId) :
     m_submitEditorId(submitEditorId),
     m_versionControl(0),
     m_actionState(-1),
@@ -521,47 +521,47 @@ VCSBasePluginPrivate::VCSBasePluginPrivate(const QString &submitEditorId) :
 {
 }
 
-bool VCSBasePluginPrivate::supportsRepositoryCreation() const
+bool VcsBasePluginPrivate::supportsRepositoryCreation() const
 {
     return m_versionControl && m_versionControl->supportsOperation(Core::IVersionControl::CreateRepositoryOperation);
 }
 
-Internal::StateListener *VCSBasePluginPrivate::m_listener = 0;
+Internal::StateListener *VcsBasePluginPrivate::m_listener = 0;
 
-VCSBasePlugin::VCSBasePlugin(const QString &submitEditorId) :
-    d(new VCSBasePluginPrivate(submitEditorId))
+VcsBasePlugin::VcsBasePlugin(const QString &submitEditorId) :
+    d(new VcsBasePluginPrivate(submitEditorId))
 {
 }
 
-VCSBasePlugin::~VCSBasePlugin()
+VcsBasePlugin::~VcsBasePlugin()
 {
     delete d;
 }
 
-void VCSBasePlugin::initializeVcs(Core::IVersionControl *vc)
+void VcsBasePlugin::initializeVcs(Core::IVersionControl *vc)
 {
     d->m_versionControl = vc;
     addAutoReleasedObject(vc);
 
-    Internal::VCSPlugin *plugin = Internal::VCSPlugin::instance();
-    connect(plugin->coreListener(), SIGNAL(submitEditorAboutToClose(VCSBaseSubmitEditor*,bool*)),
-            this, SLOT(slotSubmitEditorAboutToClose(VCSBaseSubmitEditor*,bool*)));
+    Internal::VcsPlugin *plugin = Internal::VcsPlugin::instance();
+    connect(plugin->coreListener(), SIGNAL(submitEditorAboutToClose(VcsBaseSubmitEditor*,bool*)),
+            this, SLOT(slotSubmitEditorAboutToClose(VcsBaseSubmitEditor*,bool*)));
     // First time: create new listener
-    if (!VCSBasePluginPrivate::m_listener)
-        VCSBasePluginPrivate::m_listener = new Internal::StateListener(plugin);
-    connect(VCSBasePluginPrivate::m_listener,
-            SIGNAL(stateChanged(VCSBase::Internal::State, Core::IVersionControl*)),
+    if (!VcsBasePluginPrivate::m_listener)
+        VcsBasePluginPrivate::m_listener = new Internal::StateListener(plugin);
+    connect(VcsBasePluginPrivate::m_listener,
+            SIGNAL(stateChanged(VcsBase::Internal::State, Core::IVersionControl*)),
             this,
-            SLOT(slotStateChanged(VCSBase::Internal::State,Core::IVersionControl*)));
+            SLOT(slotStateChanged(VcsBase::Internal::State,Core::IVersionControl*)));
 }
 
-void VCSBasePlugin::extensionsInitialized()
+void VcsBasePlugin::extensionsInitialized()
 {
     // Initialize enable menus.
-    VCSBasePluginPrivate::m_listener->slotStateChanged();
+    VcsBasePluginPrivate::m_listener->slotStateChanged();
 }
 
-void VCSBasePlugin::slotSubmitEditorAboutToClose(VCSBaseSubmitEditor *submitEditor, bool *result)
+void VcsBasePlugin::slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor, bool *result)
 {
     if (debug)
         qDebug() << this << d->m_submitEditorId.name() << "Closing submit editor" << submitEditor << submitEditor->id().name();
@@ -569,51 +569,51 @@ void VCSBasePlugin::slotSubmitEditorAboutToClose(VCSBaseSubmitEditor *submitEdit
         *result = submitEditorAboutToClose(submitEditor);
 }
 
-Core::IVersionControl *VCSBasePlugin::versionControl() const
+Core::IVersionControl *VcsBasePlugin::versionControl() const
 {
     return d->m_versionControl;
 }
 
-void VCSBasePlugin::slotStateChanged(const VCSBase::Internal::State &newInternalState, Core::IVersionControl *vc)
+void VcsBasePlugin::slotStateChanged(const VcsBase::Internal::State &newInternalState, Core::IVersionControl *vc)
 {
     if (vc == d->m_versionControl) {
         // We are directly affected: Change state
         if (!d->m_state.equals(newInternalState)) {
             d->m_state.setState(newInternalState);
-            updateActions(VCSEnabled);
+            updateActions(VcsEnabled);
         }
     } else {
         // Some other VCS plugin or state changed: Reset us to empty state.
-        const ActionState newActionState = vc ? OtherVCSEnabled : NoVCSEnabled;
+        const ActionState newActionState = vc ? OtherVcsEnabled : NoVcsEnabled;
         if (d->m_actionState != newActionState || !d->m_state.isEmpty()) {
             d->m_actionState = newActionState;
-            const VCSBasePluginState emptyState;
+            const VcsBasePluginState emptyState;
             d->m_state = emptyState;
             updateActions(newActionState);
         }
     }
 }
 
-const VCSBasePluginState &VCSBasePlugin::currentState() const
+const VcsBasePluginState &VcsBasePlugin::currentState() const
 {
     return d->m_state;
 }
 
-bool VCSBasePlugin::enableMenuAction(ActionState as, QAction *menuAction) const
+bool VcsBasePlugin::enableMenuAction(ActionState as, QAction *menuAction) const
 {
     if (debug)
         qDebug() << "enableMenuAction" << menuAction->text() << as;
     switch (as) {
-    case VCSBase::VCSBasePlugin::NoVCSEnabled: {
+    case VcsBase::VcsBasePlugin::NoVcsEnabled: {
         const bool supportsCreation = d->supportsRepositoryCreation();
         menuAction->setVisible(supportsCreation);
         menuAction->setEnabled(supportsCreation);
         return supportsCreation;
     }
-    case VCSBase::VCSBasePlugin::OtherVCSEnabled:
+    case VcsBase::VcsBasePlugin::OtherVcsEnabled:
         menuAction->setVisible(false);
         return false;
-    case VCSBase::VCSBasePlugin::VCSEnabled:
+    case VcsBase::VcsBasePlugin::VcsEnabled:
         menuAction->setVisible(true);
         menuAction->setEnabled(true);
         break;
@@ -621,9 +621,9 @@ bool VCSBasePlugin::enableMenuAction(ActionState as, QAction *menuAction) const
     return true;
 }
 
-void VCSBasePlugin::promptToDeleteCurrentFile()
+void VcsBasePlugin::promptToDeleteCurrentFile()
 {
-    const VCSBasePluginState state = currentState();
+    const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     const bool rc = Core::ICore::instance()->vcsManager()->promptToDelete(versionControl(), state.currentFile());
     if (!rc)
@@ -640,7 +640,7 @@ static inline bool ask(QWidget *parent, const QString &title, const QString &que
     return QMessageBox::question(parent, title, question, QMessageBox::Yes|QMessageBox::No, defaultButton) == QMessageBox::Yes;
 }
 
-void VCSBasePlugin::createRepository()
+void VcsBasePlugin::createRepository()
 {
     QTC_ASSERT(d->m_versionControl->supportsOperation(Core::IVersionControl::CreateRepositoryOperation), return);
     // Find current starting directory
@@ -677,7 +677,7 @@ void VCSBasePlugin::createRepository()
 }
 
 // For internal tests: Create actions driving IVersionControl's snapshot interface.
-QList<QAction*> VCSBasePlugin::createSnapShotTestActions()
+QList<QAction*> VcsBasePlugin::createSnapShotTestActions()
 {
     if (!d->m_testSnapshotAction) {
         d->m_testSnapshotAction = new QAction(QLatin1String("Take snapshot"), this);
@@ -695,40 +695,40 @@ QList<QAction*> VCSBasePlugin::createSnapShotTestActions()
     return rc;
 }
 
-void VCSBasePlugin::slotTestSnapshot()
+void VcsBasePlugin::slotTestSnapshot()
 {
     QTC_ASSERT(currentState().hasTopLevel(), return)
     d->m_testLastSnapshot = versionControl()->vcsCreateSnapshot(currentState().topLevel());
     qDebug() << "Snapshot " << d->m_testLastSnapshot;
-    VCSBaseOutputWindow::instance()->append(QLatin1String("Snapshot: ") + d->m_testLastSnapshot);
+    VcsBaseOutputWindow::instance()->append(QLatin1String("Snapshot: ") + d->m_testLastSnapshot);
     if (!d->m_testLastSnapshot.isEmpty())
         d->m_testRestoreSnapshotAction->setText(QLatin1String("Restore snapshot ") + d->m_testLastSnapshot);
 }
 
-void VCSBasePlugin::slotTestListSnapshots()
+void VcsBasePlugin::slotTestListSnapshots()
 {
     QTC_ASSERT(currentState().hasTopLevel(), return)
     const QStringList snapshots = versionControl()->vcsSnapshots(currentState().topLevel());
     qDebug() << "Snapshots " << snapshots;
-    VCSBaseOutputWindow::instance()->append(QLatin1String("Snapshots: ") + snapshots.join(QLatin1String(", ")));
+    VcsBaseOutputWindow::instance()->append(QLatin1String("Snapshots: ") + snapshots.join(QLatin1String(", ")));
 }
 
-void VCSBasePlugin::slotTestRestoreSnapshot()
+void VcsBasePlugin::slotTestRestoreSnapshot()
 {
     QTC_ASSERT(currentState().hasTopLevel() && !d->m_testLastSnapshot.isEmpty(), return)
     const bool ok = versionControl()->vcsRestoreSnapshot(currentState().topLevel(), d->m_testLastSnapshot);
     const QString msg = d->m_testLastSnapshot+ (ok ? QLatin1String(" restored") : QLatin1String(" failed"));
     qDebug() << msg;
-    VCSBaseOutputWindow::instance()->append(msg);
+    VcsBaseOutputWindow::instance()->append(msg);
 }
 
-void VCSBasePlugin::slotTestRemoveSnapshot()
+void VcsBasePlugin::slotTestRemoveSnapshot()
 {
     QTC_ASSERT(currentState().hasTopLevel() && !d->m_testLastSnapshot.isEmpty(), return)
     const bool ok = versionControl()->vcsRemoveSnapshot(currentState().topLevel(), d->m_testLastSnapshot);
     const QString msg = d->m_testLastSnapshot+ (ok ? QLatin1String(" removed") : QLatin1String(" failed"));
     qDebug() << msg;
-    VCSBaseOutputWindow::instance()->append(msg);
+    VcsBaseOutputWindow::instance()->append(msg);
     d->m_testLastSnapshot.clear();
 }
 
@@ -739,11 +739,11 @@ void VCSBasePlugin::slotTestRemoveSnapshot()
 // AutoFS is used (due its automatically creating mountpoints when querying
 // a directory). In addition, bail out when reaching the home directory
 // of the user or root (generally avoid '/', where mountpoints are created).
-QString VCSBasePlugin::findRepositoryForDirectory(const QString &dirS,
+QString VcsBasePlugin::findRepositoryForDirectory(const QString &dirS,
                                                   const QString &checkFile)
 {
     if (debugRepositorySearch)
-        qDebug() << ">VCSBasePlugin::findRepositoryForDirectory" << dirS << checkFile;
+        qDebug() << ">VcsBasePlugin::findRepositoryForDirectory" << dirS << checkFile;
     QTC_ASSERT(!dirS.isEmpty() && !checkFile.isEmpty(), return QString());
 
     const QString root = QDir::rootPath();
@@ -757,27 +757,27 @@ QString VCSBasePlugin::findRepositoryForDirectory(const QString &dirS,
 
         if (QFileInfo(directory, checkFile).isFile()) {
             if (debugRepositorySearch)
-                qDebug() << "<VCSBasePlugin::findRepositoryForDirectory> " << absDirPath;
+                qDebug() << "<VcsBasePlugin::findRepositoryForDirectory> " << absDirPath;
             return absDirPath;
         }
     } while (directory.cdUp());
     if (debugRepositorySearch)
-        qDebug() << "<VCSBasePlugin::findRepositoryForDirectory bailing out at " << directory.absolutePath();
+        qDebug() << "<VcsBasePlugin::findRepositoryForDirectory bailing out at " << directory.absolutePath();
     return QString();
 }
 
 // Is SSH prompt configured?
 static inline QString sshPrompt()
 {
-    return VCSBase::Internal::VCSPlugin::instance()->settings().sshPasswordPrompt;
+    return VcsBase::Internal::VcsPlugin::instance()->settings().sshPasswordPrompt;
 }
 
-bool VCSBasePlugin::isSshPromptConfigured()
+bool VcsBasePlugin::isSshPromptConfigured()
 {
     return !sshPrompt().isEmpty();
 }
 
-void VCSBasePlugin::setProcessEnvironment(QProcessEnvironment *e, bool forceCLocale)
+void VcsBasePlugin::setProcessEnvironment(QProcessEnvironment *e, bool forceCLocale)
 {
     if (forceCLocale)
         e->insert(QLatin1String("LANG"), QString(QLatin1Char('C')));
@@ -787,7 +787,7 @@ void VCSBasePlugin::setProcessEnvironment(QProcessEnvironment *e, bool forceCLoc
 }
 
 // Run a process fully synchronously, returning Utils::SynchronousProcessResponse
-// response struct and using the VCSBasePlugin flags as applicable
+// response struct and using the VcsBasePlugin flags as applicable
 static SynchronousProcessResponse runVcsFullySynchronously(const QString &workingDir,
                               const QString &binary,
                               const QStringList &arguments,
@@ -796,17 +796,17 @@ static SynchronousProcessResponse runVcsFullySynchronously(const QString &workin
                               unsigned flags,
                               QTextCodec *outputCodec = 0)
 {
-    VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
+    VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
 
     // Set up process
     unsigned processFlags = 0;
-    if (VCSBasePlugin::isSshPromptConfigured() && (flags & VCSBasePlugin::SshPasswordPrompt))
+    if (VcsBasePlugin::isSshPromptConfigured() && (flags & VcsBasePlugin::SshPasswordPrompt))
         processFlags |= SynchronousProcess::UnixTerminalDisabled;
     QSharedPointer<QProcess> process = SynchronousProcess::createProcess(processFlags);
     if (!workingDir.isEmpty())
         process->setWorkingDirectory(workingDir);
     process->setProcessEnvironment(env);
-    if (flags & VCSBasePlugin::MergeOutputChannels)
+    if (flags & VcsBasePlugin::MergeOutputChannels)
         process->setProcessChannelMode(QProcess::MergedChannels);
 
     // Start
@@ -827,14 +827,14 @@ static SynchronousProcessResponse runVcsFullySynchronously(const QString &workin
 
     if (!stdErr.isEmpty()) {
         response.stdErr = QString::fromLocal8Bit(stdErr).remove('\r');
-        if (!(flags & VCSBasePlugin::SuppressStdErrInLogWindow))
+        if (!(flags & VcsBasePlugin::SuppressStdErrInLogWindow))
             outputWindow->append(response.stdErr);
     }
 
     if (!stdOut.isEmpty()) {
         response.stdOut = (outputCodec ? outputCodec->toUnicode(stdOut) : QString::fromLocal8Bit(stdOut))
                           .remove('\r');
-        if (flags & VCSBasePlugin::ShowStdOutInLogWindow)
+        if (flags & VcsBasePlugin::ShowStdOutInLogWindow)
             outputWindow->append(response.stdOut);
     }
 
@@ -852,7 +852,7 @@ static SynchronousProcessResponse runVcsFullySynchronously(const QString &workin
 }
 
 
-SynchronousProcessResponse VCSBasePlugin::runVCS(const QString &workingDir,
+SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
                       const QString &binary,
                       const QStringList &arguments,
                       int timeOutMS,
@@ -860,11 +860,11 @@ SynchronousProcessResponse VCSBasePlugin::runVCS(const QString &workingDir,
                       QTextCodec *outputCodec)
 {
     const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    return runVCS(workingDir, binary, arguments, timeOutMS, env,
+    return runVcs(workingDir, binary, arguments, timeOutMS, env,
                   flags, outputCodec);
 }
 
-SynchronousProcessResponse VCSBasePlugin::runVCS(const QString &workingDir,
+SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
                                                  const QString &binary,
                                                  const QStringList &arguments,
                                                  int timeOutMS,
@@ -872,15 +872,15 @@ SynchronousProcessResponse VCSBasePlugin::runVCS(const QString &workingDir,
                                                  unsigned flags,
                                                  QTextCodec *outputCodec)
 {
-    VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
+    VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
 
     if (!(flags & SuppressCommandLogging))
         outputWindow->appendCommand(workingDir, binary, arguments);
 
-    const bool sshPromptConfigured = VCSBasePlugin::isSshPromptConfigured();
+    const bool sshPromptConfigured = VcsBasePlugin::isSshPromptConfigured();
     if (debugExecution) {
         QDebug nsp = qDebug().nospace();
-        nsp << "VCSBasePlugin::runVCS" << workingDir << binary << arguments
+        nsp << "VcsBasePlugin::runVcs" << workingDir << binary << arguments
                 << timeOutMS;
         if (flags & ShowStdOutInLogWindow)
             nsp << "stdout";
@@ -902,7 +902,7 @@ SynchronousProcessResponse VCSBasePlugin::runVCS(const QString &workingDir,
             nsp << " Codec: " << outputCodec->name();
     }
 
-    VCSBase::VCSBasePlugin::setProcessEnvironment(&env, (flags & ForceCLocale));
+    VcsBase::VcsBasePlugin::setProcessEnvironment(&env, (flags & ForceCLocale));
 
     SynchronousProcessResponse response;
 
@@ -958,7 +958,7 @@ SynchronousProcessResponse VCSBasePlugin::runVCS(const QString &workingDir,
     return response;
 }
 
-bool VCSBasePlugin::runFullySynchronous(const QString &workingDirectory,
+bool VcsBasePlugin::runFullySynchronous(const QString &workingDirectory,
                                         const QString &binary,
                                         const QStringList &arguments,
                                         const QProcessEnvironment &env,
@@ -967,7 +967,7 @@ bool VCSBasePlugin::runFullySynchronous(const QString &workingDirectory,
                                         int timeoutMS,
                                         bool logCommandToWindow)
 {
-    VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
+    VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
 
     if (logCommandToWindow)
         outputWindow->appendCommand(workingDirectory, binary, arguments);
@@ -997,11 +997,11 @@ bool VCSBasePlugin::runFullySynchronous(const QString &workingDirectory,
     return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
 }
 
-bool VCSBasePlugin::runPatch(const QByteArray &input, const QString &workingDirectory,
+bool VcsBasePlugin::runPatch(const QByteArray &input, const QString &workingDirectory,
                              int strip, bool reverse)
 {
-    VCSBaseOutputWindow *ow = VCSBaseOutputWindow::instance();
-    const QString patch = Internal::VCSPlugin::instance()->settings().patchCommand;
+    VcsBaseOutputWindow *ow = VcsBaseOutputWindow::instance();
+    const QString patch = Internal::VcsPlugin::instance()->settings().patchCommand;
     if (patch.isEmpty()) {
         ow->appendError(tr("There is no patch-command configured in the common 'Version Control' settings."));
         return false;
@@ -1045,6 +1045,6 @@ bool VCSBasePlugin::runPatch(const QByteArray &input, const QString &workingDire
     return true;
 }
 
-} // namespace VCSBase
+} // namespace VcsBase
 
 #include "vcsbaseplugin.moc"

@@ -109,7 +109,7 @@ SettingsPage::SettingsPage() :
 
 QString SettingsPage::id() const
 {
-    return QLatin1String(VCSBase::Constants::VCS_ID_SUBVERSION);
+    return QLatin1String(VcsBase::Constants::VCS_ID_SUBVERSION);
 }
 
 QString SettingsPage::displayName() const

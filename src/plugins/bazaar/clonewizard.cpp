@@ -47,10 +47,10 @@
 using namespace Bazaar::Internal;
 
 CloneWizard::CloneWizard(QObject *parent)
-    : VCSBase::BaseCheckoutWizard(parent),
+    : VcsBase::BaseCheckoutWizard(parent),
       m_icon(QIcon(QLatin1String(":/bazaar/images/bazaar.png")))
 {
-    setId(QLatin1String(VCSBase::Constants::VCS_ID_BAZAAR));
+    setId(QLatin1String(VcsBase::Constants::VCS_ID_BAZAAR));
 }
 
 QIcon CloneWizard::icon() const
@@ -73,20 +73,20 @@ QList<QWizardPage *> CloneWizard::createParameterPages(const QString &path)
     QList<QWizardPage *> wizardPageList;
     const Core::IVersionControl *vc = BazaarPlugin::instance()->versionControl();
     if (!vc->isConfigured())
-        wizardPageList.append(new VCSBase::VcsConfigurationPage(vc));
+        wizardPageList.append(new VcsBase::VcsConfigurationPage(vc));
     CloneWizardPage *page = new CloneWizardPage;
     page->setPath(path);
     wizardPageList.append(page);
     return wizardPageList;
 }
 
-QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizard::createJob(const QList<QWizardPage *> &parameterPages,
+QSharedPointer<VcsBase::AbstractCheckoutJob> CloneWizard::createJob(const QList<QWizardPage *> &parameterPages,
                                                                     QString *checkoutPath)
 {
     const CloneWizardPage *page = qobject_cast<const CloneWizardPage *>(parameterPages.front());
 
     if (!page)
-        return QSharedPointer<VCSBase::AbstractCheckoutJob>();
+        return QSharedPointer<VcsBase::AbstractCheckoutJob>();
 
     const BazaarSettings &settings = BazaarPlugin::instance()->settings();
     *checkoutPath = page->path() + QLatin1Char('/') + page->directory();
@@ -114,7 +114,7 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizard::createJob(const QList<
     args << client->vcsCommandString(BazaarClient::CloneCommand)
          << extraOptions << page->repository() << page->directory();
 
-    VCSBase::ProcessCheckoutJob *job = new VCSBase::ProcessCheckoutJob;
+    VcsBase::ProcessCheckoutJob *job = new VcsBase::ProcessCheckoutJob;
     job->addStep(settings.stringValue(BazaarSettings::binaryPathKey), args, page->path());
-    return QSharedPointer<VCSBase::AbstractCheckoutJob>(job);
+    return QSharedPointer<VcsBase::AbstractCheckoutJob>(job);
 }

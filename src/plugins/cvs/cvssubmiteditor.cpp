@@ -38,9 +38,9 @@
 
 using namespace CVS::Internal;
 
-CVSSubmitEditor::CVSSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters,
+CVSSubmitEditor::CVSSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters,
                                                QWidget *parentWidget) :
-    VCSBase::VCSBaseSubmitEditor(parameters, new Utils::SubmitEditorWidget(parentWidget)),
+    VcsBase::VcsBaseSubmitEditor(parameters, new Utils::SubmitEditorWidget(parentWidget)),
     m_msgAdded(tr("Added")),
     m_msgRemoved(tr("Removed")),
     m_msgModified(tr("Modified"))
@@ -63,7 +63,7 @@ QString CVSSubmitEditor::stateName(State st) const
 void CVSSubmitEditor::setStateList(const QList<StateFilePair> &statusOutput)
 {
     typedef QList<StateFilePair>::const_iterator ConstIterator;
-    VCSBase::SubmitFileModel *model = new VCSBase::SubmitFileModel(this);
+    VcsBase::SubmitFileModel *model = new VcsBase::SubmitFileModel(this);
 
     const ConstIterator cend = statusOutput.constEnd();
     for (ConstIterator it = statusOutput.constBegin(); it != cend; ++it)

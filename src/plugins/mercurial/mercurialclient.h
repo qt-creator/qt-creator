@@ -40,7 +40,7 @@ namespace Mercurial {
 namespace Internal {
 struct MercurialDiffParameters;
 
-class MercurialClient : public VCSBase::VCSBaseClient
+class MercurialClient : public VcsBase::VcsBaseClient
 {
     Q_OBJECT
 public:
@@ -87,9 +87,9 @@ public:
     QString findTopLevelForFile(const QFileInfo &file) const;
 
 protected:
-    QString vcsEditorKind(VCSCommand cmd) const;
+    QString vcsEditorKind(VcsCommand cmd) const;
     QStringList revisionSpec(const QString &revision) const;
-    VCSBase::VCSBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
+    VcsBase::VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
                                                             const QStringList &files,
                                                             const QStringList &extraOptions);
     StatusItem parseStatusLine(const QString &line) const;

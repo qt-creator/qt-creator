@@ -40,7 +40,7 @@
 namespace Bazaar {
 namespace Internal {
 
-class CloneWizard : public VCSBase::BaseCheckoutWizard
+class CloneWizard : public VcsBase::BaseCheckoutWizard
 {
     Q_OBJECT
 
@@ -53,7 +53,7 @@ public:
 
 protected:
     QList<QWizardPage *> createParameterPages(const QString &path);
-    QSharedPointer<VCSBase::AbstractCheckoutJob> createJob(const QList<QWizardPage *> &parameterPages,
+    QSharedPointer<VcsBase::AbstractCheckoutJob> createJob(const QList<QWizardPage *> &parameterPages,
                                                            QString *checkoutPath);
 
 private:

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>VCSBase::Internal::CommonSettingsPage</class>
- <widget class="QWidget" name="VCSBase::Internal::CommonSettingsPage">
+ <class>VcsBase::Internal::CommonSettingsPage</class>
+ <widget class="QWidget" name="VcsBase::Internal::CommonSettingsPage">
   <property name="geometry">
    <rect>
     <x>0</x>

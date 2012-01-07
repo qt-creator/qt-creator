@@ -38,7 +38,7 @@
 namespace Subversion {
 namespace Internal {
 
-class CheckoutWizard : public VCSBase::BaseCheckoutWizard
+class CheckoutWizard : public VcsBase::BaseCheckoutWizard
 {
     Q_OBJECT
 public:
@@ -52,7 +52,7 @@ public:
 protected:
     // BaseCheckoutWizard
     virtual QList<QWizardPage*> createParameterPages(const QString &path);
-    virtual QSharedPointer<VCSBase::AbstractCheckoutJob> createJob(const QList<QWizardPage*> &parameterPage,
+    virtual QSharedPointer<VcsBase::AbstractCheckoutJob> createJob(const QList<QWizardPage*> &parameterPage,
                                                                    QString *checkoutPath);
 };
 

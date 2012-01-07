@@ -115,27 +115,27 @@ static const char CMD_ID_REPOSITORYSTATUS[]   = "CVS.RepositoryStatus";
 static const char CMD_ID_REPOSITORYUPDATE[]   = "CVS.RepositoryUpdate";
 static const char CMD_ID_SEPARATOR3[]         = "CVS.Separator3";
 
-static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
+static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
 {
-    VCSBase::RegularCommandOutput,
+    VcsBase::RegularCommandOutput,
     "CVS Command Log Editor", // id
     QT_TRANSLATE_NOOP("VCS", "CVS Command Log Editor"), // display name
     "CVS Command Log Editor", // context
     "application/vnd.nokia.text.scs_cvs_commandlog",
     "scslog"},
-{   VCSBase::LogOutput,
+{   VcsBase::LogOutput,
     "CVS File Log Editor",   // id
     QT_TRANSLATE_NOOP("VCS", "CVS File Log Editor"),   // display name
     "CVS File Log Editor",   // context
     "application/vnd.nokia.text.scs_cvs_filelog",
     "scsfilelog"},
-{    VCSBase::AnnotateOutput,
+{    VcsBase::AnnotateOutput,
     "CVS Annotation Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "CVS Annotation Editor"),  // display name
     "CVS Annotation Editor",  // context
     "application/vnd.nokia.text.scs_cvs_annotation",
     "scsannotate"},
-{   VCSBase::DiffOutput,
+{   VcsBase::DiffOutput,
     "CVS Diff Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "CVS Diff Editor"),  // display name
     "CVS Diff Editor",  // context
@@ -143,10 +143,10 @@ static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 };
 
 // Utility to find a parameter set by type
-static inline const VCSBase::VCSBaseEditorParameters *findType(int ie)
+static inline const VcsBase::VcsBaseEditorParameters *findType(int ie)
 {
-    const VCSBase::EditorContentType et = static_cast<VCSBase::EditorContentType>(ie);
-    return  VCSBase::VCSBaseEditorWidget::findType(editorParameters, sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters), et);
+    const VcsBase::EditorContentType et = static_cast<VcsBase::EditorContentType>(ie);
+    return  VcsBase::VcsBaseEditorWidget::findType(editorParameters, sizeof(editorParameters)/sizeof(VcsBase::VcsBaseEditorParameters), et);
 }
 
 static inline QString debugCodec(const QTextCodec *c)
@@ -163,7 +163,7 @@ static inline bool messageBoxQuestion(const QString &title, const QString &quest
 CVSPlugin *CVSPlugin::m_cvsPluginInstance = 0;
 
 CVSPlugin::CVSPlugin() :
-    VCSBase::VCSBasePlugin(QLatin1String(CVS::Constants::CVSCOMMITEDITOR_ID)),
+    VcsBase::VcsBasePlugin(QLatin1String(CVS::Constants::CVSCOMMITEDITOR_ID)),
     m_commandLocator(0),
     m_addAction(0),
     m_deleteAction(0),
@@ -213,7 +213,7 @@ bool CVSPlugin::isCommitEditorOpen() const
     return !m_commitMessageFileName.isEmpty();
 }
 
-static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
+static const VcsBase::VcsBaseSubmitEditorParameters submitParameters = {
     CVS::Constants::CVS_SUBMIT_MIMETYPE,
     CVS::Constants::CVSCOMMITEDITOR_ID,
     CVS::Constants::CVSCOMMITEDITOR_DISPLAY_NAME,
@@ -232,8 +232,8 @@ static inline Core::Command *createSeparator(QObject *parent,
 
 bool CVSPlugin::initialize(const QStringList & /*arguments */, QString *errorMessage)
 {
-    typedef VCSBase::VCSSubmitEditorFactory<CVSSubmitEditor> CVSSubmitEditorFactory;
-    typedef VCSBase::VCSEditorFactory<CVSEditor> CVSEditorFactory;
+    typedef VcsBase::VcsSubmitEditorFactory<CVSSubmitEditor> CVSSubmitEditorFactory;
+    typedef VcsBase::VcsEditorFactory<CVSEditor> CVSEditorFactory;
     using namespace Constants;
 
     using namespace Core::Constants;
@@ -255,7 +255,7 @@ bool CVSPlugin::initialize(const QStringList & /*arguments */, QString *errorMes
     addAutoReleasedObject(new CVSSubmitEditorFactory(&submitParameters));
 
     static const char *describeSlotC = SLOT(slotDescribe(QString,QString));
-    const int editorCount = sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters);
+    const int editorCount = sizeof(editorParameters)/sizeof(VcsBase::VcsBaseEditorParameters);
     for (int i = 0; i < editorCount; i++)
         addAutoReleasedObject(new CVSEditorFactory(editorParameters + i, this, describeSlotC));
 
@@ -445,12 +445,12 @@ bool CVSPlugin::initialize(const QStringList & /*arguments */, QString *errorMes
     // Actions of the submit editor
     Core::Context cvscommitcontext(Constants::CVSCOMMITEDITOR);
 
-    m_submitCurrentLogAction = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);
+    m_submitCurrentLogAction = new QAction(VcsBase::VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     command = ami->registerAction(m_submitCurrentLogAction, Constants::SUBMIT_CURRENT, cvscommitcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_submitCurrentLogAction, SIGNAL(triggered()), this, SLOT(submitCurrentLog()));
 
-    m_submitDiffAction = new QAction(VCSBase::VCSBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
+    m_submitDiffAction = new QAction(VcsBase::VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
     command = ami->registerAction(m_submitDiffAction , Constants::DIFF_SELECTED, cvscommitcontext);
 
     m_submitUndoAction = new QAction(tr("&Undo"), this);
@@ -461,7 +461,7 @@ bool CVSPlugin::initialize(const QStringList & /*arguments */, QString *errorMes
     return true;
 }
 
-bool CVSPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor)
+bool CVSPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor)
 {
     if (!isCommitEditorOpen())
         return true;
@@ -481,16 +481,16 @@ bool CVSPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEdi
     // Prompt user. Force a prompt unless submit was actually invoked (that
     // is, the editor was closed or shutdown).
     CVSSettings newSettings = m_settings;
-    const VCSBase::VCSBaseSubmitEditor::PromptSubmitResult answer =
+    const VcsBase::VcsBaseSubmitEditor::PromptSubmitResult answer =
             editor->promptSubmit(tr("Closing CVS Editor"),
                                  tr("Do you want to commit the change?"),
                                  tr("The commit message check failed. Do you want to commit the change?"),
                                  &newSettings.promptToSubmit, !m_submitActionTriggered);
     m_submitActionTriggered = false;
     switch (answer) {
-    case VCSBase::VCSBaseSubmitEditor::SubmitCanceled:
+    case VcsBase::VcsBaseSubmitEditor::SubmitCanceled:
         return false; // Keep editing and change file
-    case VCSBase::VCSBaseSubmitEditor::SubmitDiscarded:
+    case VcsBase::VcsBaseSubmitEditor::SubmitDiscarded:
         cleanCommitMessageFile();
         return true; // Cancel all
     default:
@@ -517,7 +517,7 @@ void CVSPlugin::diffCommitFiles(const QStringList &files)
 
 static inline void setDiffBaseDirectory(Core::IEditor *editor, const QString &db)
 {
-    if (VCSBase::VCSBaseEditorWidget *ve = qobject_cast<VCSBase::VCSBaseEditorWidget*>(editor->widget()))
+    if (VcsBase::VcsBaseEditorWidget *ve = qobject_cast<VcsBase::VcsBaseEditorWidget*>(editor->widget()))
         ve->setDiffBaseDirectory(db);
 }
 
@@ -532,7 +532,7 @@ struct CvsDiffParameters
 
 // Parameter widget controlling whitespace diff mode, associated with a parameter
 // struct.
-class CvsDiffParameterWidget : public VCSBase::VCSBaseEditorParameterWidget
+class CvsDiffParameterWidget : public VcsBase::VcsBaseEditorParameterWidget
 {
     Q_OBJECT
 public:
@@ -549,7 +549,7 @@ private:
 };
 
 CvsDiffParameterWidget::CvsDiffParameterWidget(const CvsDiffParameters &p, QWidget *parent) :
-    VCSBase::VCSBaseEditorParameterWidget(parent), m_parameters(p)
+    VcsBase::VcsBaseEditorParameterWidget(parent), m_parameters(p)
 {
     setBaseArguments(p.arguments);
     addToggleButton(QLatin1String("-w"), tr("Ignore whitespace"));
@@ -578,9 +578,9 @@ void CVSPlugin::cvsDiff(const CvsDiffParameters &p)
 {
     if (CVS::Constants::debug)
         qDebug() << Q_FUNC_INFO << p.files;
-    const QString source = VCSBase::VCSBaseEditorWidget::getSource(p.workingDir, p.files);
-    QTextCodec *codec = VCSBase::VCSBaseEditorWidget::getCodec(p.workingDir, p.files);
-    const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(p.workingDir, p.files);
+    const QString source = VcsBase::VcsBaseEditorWidget::getSource(p.workingDir, p.files);
+    QTextCodec *codec = VcsBase::VcsBaseEditorWidget::getCodec(p.workingDir, p.files);
+    const QString id = VcsBase::VcsBaseEditorWidget::getTitleId(p.workingDir, p.files);
 
     QStringList args(QLatin1String("diff"));
     args.append(p.arguments);
@@ -604,16 +604,16 @@ void CVSPlugin::cvsDiff(const CvsDiffParameters &p)
     // diff of a single file? re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
     // Show in the same editor if diff has been executed before
-    const QString tag = VCSBase::VCSBaseEditorWidget::editorTag(VCSBase::DiffOutput, p.workingDir, p.files);
-    if (Core::IEditor *existingEditor = VCSBase::VCSBaseEditorWidget::locateEditorByTag(tag)) {
+    const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::DiffOutput, p.workingDir, p.files);
+    if (Core::IEditor *existingEditor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         existingEditor->createNew(output);
         Core::EditorManager::instance()->activateEditor(existingEditor, Core::EditorManager::ModeSwitch);
         setDiffBaseDirectory(existingEditor, p.workingDir);
         return;
     }
     const QString title = QString::fromLatin1("cvs diff %1").arg(id);
-    Core::IEditor *editor = showOutputInEditor(title, output, VCSBase::DiffOutput, source, codec);
-    VCSBase::VCSBaseEditorWidget::tagEditor(editor, tag);
+    Core::IEditor *editor = showOutputInEditor(title, output, VcsBase::DiffOutput, source, codec);
+    VcsBase::VcsBaseEditorWidget::tagEditor(editor, tag);
     setDiffBaseDirectory(editor, p.workingDir);
     CVSEditor *diffEditorWidget = qobject_cast<CVSEditor*>(editor->widget());
     QTC_ASSERT(diffEditorWidget, return ; )
@@ -624,7 +624,7 @@ void CVSPlugin::cvsDiff(const CvsDiffParameters &p)
     CvsDiffParameterWidget *pw = new CvsDiffParameterWidget(p);
     connect(pw, SIGNAL(reRunDiff(CVS::Internal::CvsDiffParameters)),
             this, SLOT(cvsDiff(CVS::Internal::CvsDiffParameters)));
-    connect(diffEditorWidget, SIGNAL(diffChunkReverted(VCSBase::DiffChunk)),
+    connect(diffEditorWidget, SIGNAL(diffChunkReverted(VcsBase::DiffChunk)),
             pw, SLOT(triggerReRun()));
     diffEditorWidget->setConfigurationWidget(pw);
 }
@@ -641,7 +641,7 @@ CVSSubmitEditor *CVSPlugin::openCVSSubmitEditor(const QString &fileName)
     return submitEditor;
 }
 
-void CVSPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
+void CVSPlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)
 {
     if (!enableMenuAction(as, m_menuAction)) {
         m_commandLocator->setEnabled(false);
@@ -679,14 +679,14 @@ void CVSPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
 
 void CVSPlugin::addCurrentFile()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     vcsAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void CVSPlugin::revertAll()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
     const QString title = tr("Revert repository");
     if (!messageBoxQuestion(title, tr("Revert all pending changes to the repository?")))
@@ -705,7 +705,7 @@ void CVSPlugin::revertAll()
 
 void CVSPlugin::revertCurrentFile()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     QStringList args;
     args << QLatin1String("diff") << state.relativeCurrentFile();
@@ -741,28 +741,28 @@ void CVSPlugin::revertCurrentFile()
 
 void CVSPlugin::diffProject()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return)
     cvsDiff(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
 void CVSPlugin::diffCurrentFile()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     cvsDiff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void CVSPlugin::startCommitCurrentFile()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     startCommit(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void CVSPlugin::startCommitAll()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
     startCommit(state.topLevel());
 }
@@ -772,10 +772,10 @@ void CVSPlugin::startCommitAll()
  * commit will start. */
 void CVSPlugin::startCommit(const QString &workingDir, const QStringList &files)
 {
-    if (VCSBase::VCSBaseSubmitEditor::raiseSubmitEditor())
+    if (VcsBase::VcsBaseSubmitEditor::raiseSubmitEditor())
         return;
     if (isCommitEditorOpen()) {
-        VCSBase::VCSBaseOutputWindow::instance()->appendWarning(tr("Another commit is currently being executed."));
+        VcsBase::VcsBaseOutputWindow::instance()->appendWarning(tr("Another commit is currently being executed."));
         return;
     }
 
@@ -799,7 +799,7 @@ void CVSPlugin::startCommit(const QString &workingDir, const QStringList &files)
         }
     }
     if (statusOutput.empty()) {
-        VCSBase::VCSBaseOutputWindow::instance()->append(tr("There are no modified files."));
+        VcsBase::VcsBaseOutputWindow::instance()->append(tr("There are no modified files."));
         return;
     }
     m_commitRepository = workingDir;
@@ -812,7 +812,7 @@ void CVSPlugin::startCommit(const QString &workingDir, const QStringList &files)
     // Create a submit
     saver.write(submitTemplate.toUtf8());
     if (!saver.finalize()) {
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(saver.errorString());
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(saver.errorString());
         return;
     }
     m_commitMessageFileName = saver.fileName();
@@ -838,21 +838,21 @@ bool CVSPlugin::commit(const QString &messageFile,
 
 void CVSPlugin::filelogCurrentFile()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     filelog(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), true);
 }
 
 void CVSPlugin::logProject()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return)
     filelog(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
 void CVSPlugin::logRepository()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
     filelog(state.topLevel());
 }
@@ -861,10 +861,10 @@ void CVSPlugin::filelog(const QString &workingDir,
                         const QStringList &files,
                         bool enableAnnotationContextMenu)
 {
-    QTextCodec *codec = VCSBase::VCSBaseEditorWidget::getCodec(workingDir, files);
+    QTextCodec *codec = VcsBase::VcsBaseEditorWidget::getCodec(workingDir, files);
     // no need for temp file
-    const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(workingDir, files);
-    const QString source = VCSBase::VCSBaseEditorWidget::getSource(workingDir, files);
+    const QString id = VcsBase::VcsBaseEditorWidget::getTitleId(workingDir, files);
+    const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, files);
     QStringList args;
     args << QLatin1String("log");
     args.append(files);
@@ -876,22 +876,22 @@ void CVSPlugin::filelog(const QString &workingDir,
 
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
-    const QString tag = VCSBase::VCSBaseEditorWidget::editorTag(VCSBase::LogOutput, workingDir, files);
-    if (Core::IEditor *editor = VCSBase::VCSBaseEditorWidget::locateEditorByTag(tag)) {
+    const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::LogOutput, workingDir, files);
+    if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         editor->createNew(response.stdOut);
         Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
     } else {
         const QString title = QString::fromLatin1("cvs log %1").arg(id);
-        Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::LogOutput, source, codec);
-        VCSBase::VCSBaseEditorWidget::tagEditor(newEditor, tag);
+        Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VcsBase::LogOutput, source, codec);
+        VcsBase::VcsBaseEditorWidget::tagEditor(newEditor, tag);
         if (enableAnnotationContextMenu)
-            VCSBase::VCSBaseEditorWidget::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
+            VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
     }
 }
 
 void CVSPlugin::updateProject()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return)
     update(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
@@ -912,28 +912,28 @@ bool CVSPlugin::update(const QString &topLevel, const QStringList &files)
 
 void CVSPlugin::editCurrentFile()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     edit(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void CVSPlugin::uneditCurrentFile()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     unedit(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void CVSPlugin::uneditCurrentRepository()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
     unedit(state.topLevel(), QStringList());
 }
 
 void CVSPlugin::annotateCurrentFile()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
@@ -999,9 +999,9 @@ void CVSPlugin::annotate(const QString &workingDir, const QString &file,
                          int lineNumber /* = -1 */)
 {
     const QStringList files(file);
-    QTextCodec *codec = VCSBase::VCSBaseEditorWidget::getCodec(workingDir, files);
-    const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(workingDir, files, revision);
-    const QString source = VCSBase::VCSBaseEditorWidget::getSource(workingDir, file);
+    QTextCodec *codec = VcsBase::VcsBaseEditorWidget::getCodec(workingDir, files);
+    const QString id = VcsBase::VcsBaseEditorWidget::getTitleId(workingDir, files, revision);
+    const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, file);
     QStringList args;
     args << QLatin1String("annotate");
     if (!revision.isEmpty())
@@ -1016,18 +1016,18 @@ void CVSPlugin::annotate(const QString &workingDir, const QString &file,
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
     if (lineNumber < 1)
-        lineNumber = VCSBase::VCSBaseEditorWidget::lineNumberOfCurrentEditor(file);
+        lineNumber = VcsBase::VcsBaseEditorWidget::lineNumberOfCurrentEditor(file);
 
-    const QString tag = VCSBase::VCSBaseEditorWidget::editorTag(VCSBase::AnnotateOutput, workingDir, QStringList(file), revision);
-    if (Core::IEditor *editor = VCSBase::VCSBaseEditorWidget::locateEditorByTag(tag)) {
+    const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::AnnotateOutput, workingDir, QStringList(file), revision);
+    if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         editor->createNew(response.stdOut);
-        VCSBase::VCSBaseEditorWidget::gotoLineOfEditor(editor, lineNumber);
+        VcsBase::VcsBaseEditorWidget::gotoLineOfEditor(editor, lineNumber);
         Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
     } else {
         const QString title = QString::fromLatin1("cvs annotate %1").arg(id);
-        Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::AnnotateOutput, source, codec);
-        VCSBase::VCSBaseEditorWidget::tagEditor(newEditor, tag);
-        VCSBase::VCSBaseEditorWidget::gotoLineOfEditor(newEditor, lineNumber);
+        Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VcsBase::AnnotateOutput, source, codec);
+        VcsBase::VcsBaseEditorWidget::tagEditor(newEditor, tag);
+        VcsBase::VcsBaseEditorWidget::gotoLineOfEditor(newEditor, lineNumber);
     }
 }
 
@@ -1039,41 +1039,41 @@ bool CVSPlugin::status(const QString &topLevel, const QStringList &files, const 
             runCVS(topLevel, args, m_settings.timeOutMS(), 0);
     const bool ok = response.result == CVSResponse::Ok;
     if (ok)
-        showOutputInEditor(title, response.stdOut, VCSBase::RegularCommandOutput, topLevel, 0);
+        showOutputInEditor(title, response.stdOut, VcsBase::RegularCommandOutput, topLevel, 0);
     return ok;
 }
 
 void CVSPlugin::projectStatus()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return)
     status(state.currentProjectTopLevel(), state.relativeCurrentProject(), tr("Project status"));
 }
 
 void CVSPlugin::commitProject()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return)
     startCommit(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
 void CVSPlugin::diffRepository()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
     cvsDiff(state.topLevel(), QStringList());
 }
 
 void CVSPlugin::statusRepository()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
     status(state.topLevel(), QStringList(), tr("Repository status"));
 }
 
 void CVSPlugin::updateRepository()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
     update(state.topLevel(), QStringList());
 
@@ -1083,7 +1083,7 @@ void CVSPlugin::slotDescribe(const QString &source, const QString &changeNr)
 {
     QString errorMessage;
     if (!describe(source, changeNr, &errorMessage))
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
 }
 
 bool CVSPlugin::describe(const QString &file, const QString &changeNr, QString *errorMessage)
@@ -1173,7 +1173,7 @@ bool CVSPlugin::describe(const QString &repositoryPath,
     for (QList<CVS_LogEntry>::iterator it = entries.begin(); it != lend; ++it) {
         // Before fiddling file names, try to find codec
         if (!codec)
-            codec = VCSBase::VCSBaseEditorWidget::getCodec(repositoryPath, QStringList(it->file));
+            codec = VcsBase::VcsBaseEditorWidget::getCodec(repositoryPath, QStringList(it->file));
         // Run log
         QStringList args(QLatin1String("log"));
         args << (QLatin1String("-r") + it->revisions.front().revision) << it->file;
@@ -1215,14 +1215,14 @@ bool CVSPlugin::describe(const QString &repositoryPath,
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
     const QString commitId = entries.front().revisions.front().commitId;
-    if (Core::IEditor *editor = VCSBase::VCSBaseEditorWidget::locateEditorByTag(commitId)) {
+    if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(commitId)) {
         editor->createNew(output);
         Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
         setDiffBaseDirectory(editor, repositoryPath);
     } else {
         const QString title = QString::fromLatin1("cvs describe %1").arg(commitId);
-        Core::IEditor *newEditor = showOutputInEditor(title, output, VCSBase::DiffOutput, entries.front().file, codec);
-        VCSBase::VCSBaseEditorWidget::tagEditor(newEditor, commitId);
+        Core::IEditor *newEditor = showOutputInEditor(title, output, VcsBase::DiffOutput, entries.front().file, codec);
+        VcsBase::VcsBaseEditorWidget::tagEditor(newEditor, commitId);
         setDiffBaseDirectory(newEditor, repositoryPath);
     }
     return true;
@@ -1252,7 +1252,7 @@ CVSResponse CVSPlugin::runCVS(const QString &workingDirectory,
     }
     // Run, connect stderr to the output window
     const Utils::SynchronousProcessResponse sp_resp =
-            runVCS(workingDirectory, executable,
+            runVcs(workingDirectory, executable,
                    m_settings.addOptions(arguments),
                    timeOut, flags, outputCodec);
 
@@ -1282,7 +1282,7 @@ Core::IEditor * CVSPlugin::showOutputInEditor(const QString& title, const QStrin
                                                      int editorType, const QString &source,
                                                      QTextCodec *codec)
 {
-    const VCSBase::VCSBaseEditorParameters *params = findType(editorType);
+    const VcsBase::VcsBaseEditorParameters *params = findType(editorType);
     QTC_ASSERT(params, return 0);
     const Core::Id id = params->id;
     if (CVS::Constants::debug)

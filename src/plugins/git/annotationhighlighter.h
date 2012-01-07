@@ -39,7 +39,7 @@ namespace Git {
 namespace Internal {
 
 // Annotation highlighter for p4 triggering on 'changenumber:'
-class GitAnnotationHighlighter : public VCSBase::BaseAnnotationHighlighter
+class GitAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
     Q_OBJECT
 public:

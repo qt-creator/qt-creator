@@ -37,7 +37,7 @@
 #include <QtCore/QList>
 #include <utils/wizard.h>
 
-namespace VCSBase {
+namespace VcsBase {
 class AbstractCheckoutJob;
 
 namespace Internal {
@@ -67,6 +67,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // CHECKOUTWIZARDDIALOG_H

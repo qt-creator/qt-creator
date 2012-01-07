@@ -37,7 +37,7 @@
 
 #include <texteditor/syntaxhighlighter.h>
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Internal {
 class BaseAnnotationHighlighterPrivate;
 } // namespace Internal
@@ -63,6 +63,6 @@ private:
     Internal::BaseAnnotationHighlighterPrivate *const d;
 };
 
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // BASEANNOTATIONHIGHLIGHTER_H

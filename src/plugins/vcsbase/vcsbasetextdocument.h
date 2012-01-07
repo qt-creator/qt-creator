@@ -35,16 +35,16 @@
 
 #include <texteditor/basetextdocument.h>
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Internal {
 
 // A read-only text document.
-class VCSBaseTextDocument : public TextEditor::BaseTextDocument
+class VcsBaseTextDocument : public TextEditor::BaseTextDocument
 {
     Q_OBJECT
 
 public:
-    VCSBaseTextDocument();
+    VcsBaseTextDocument();
 
     bool isReadOnly() const;
     bool isModified() const;
@@ -57,6 +57,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // VCSBASETEXTDOCUMENT_H

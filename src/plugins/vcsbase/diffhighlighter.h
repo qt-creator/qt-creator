@@ -45,7 +45,7 @@ QT_END_NAMESPACE
 namespace Core { class ICore; }
 namespace TextEditor { class FontSettingsPage; }
 
-namespace VCSBase {
+namespace VcsBase {
 
 namespace Internal { class DiffHighlighterPrivate; }
 
@@ -69,6 +69,6 @@ private:
     Internal::DiffHighlighterPrivate *const d;
 };
 
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // DIFFHIGHLIGHTER_H

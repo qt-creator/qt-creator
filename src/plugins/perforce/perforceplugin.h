@@ -77,7 +77,7 @@ struct PerforceResponse
     QString message;
 };
 
-class PerforcePlugin : public VCSBase::VCSBasePlugin
+class PerforcePlugin : public VcsBase::VcsBasePlugin
 {
     Q_OBJECT
 
@@ -141,8 +141,8 @@ private slots:
     void slotTopLevelFailed(const QString &);
 
 protected:
-    virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);
-    virtual bool submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor);
+    virtual void updateActions(VcsBase::VcsBasePlugin::ActionState);
+    virtual bool submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor);
 
 
 private:

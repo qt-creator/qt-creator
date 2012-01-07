@@ -84,7 +84,7 @@ typedef void (GitClient::*GitClientMemberFunc)(const QString &);
 typedef QPair<QAction *, Core::Command* > ActionCommandPair;
 typedef QPair<Utils::ParameterAction *, Core::Command* > ParameterActionCommandPair;
 
-class GitPlugin : public VCSBase::VCSBasePlugin
+class GitPlugin : public VcsBase::VcsBasePlugin
 {
     Q_OBJECT
 
@@ -136,8 +136,8 @@ private slots:
     void push();
 
 protected:
-    virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);
-    virtual bool submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor);
+    virtual void updateActions(VcsBase::VcsBasePlugin::ActionState);
+    virtual bool submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor);
 
 private:
     inline ParameterActionCommandPair

@@ -71,7 +71,7 @@ private:
     QPointer<PerforceChecker> m_checker;
 };
 
-class SettingsPage : public VCSBase::VCSBaseOptionsPage
+class SettingsPage : public VcsBase::VcsBaseOptionsPage
 {
     Q_OBJECT
 

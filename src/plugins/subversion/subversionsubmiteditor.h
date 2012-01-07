@@ -41,11 +41,11 @@
 namespace Subversion {
 namespace Internal {
 
-class SubversionSubmitEditor : public VCSBase::VCSBaseSubmitEditor
+class SubversionSubmitEditor : public VcsBase::VcsBaseSubmitEditor
 {
     Q_OBJECT
 public:
-    explicit SubversionSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters,
+    explicit SubversionSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters,
                                     QWidget *parentWidget = 0);
 
     static QString fileFromStatusLine(const QString &statusLine);

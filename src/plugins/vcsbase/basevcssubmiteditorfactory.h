@@ -37,26 +37,26 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-namespace VCSBase {
+namespace VcsBase {
 
-class VCSBaseSubmitEditor;
-class VCSBaseSubmitEditorParameters;
+class VcsBaseSubmitEditor;
+class VcsBaseSubmitEditorParameters;
 
 namespace Internal {
-class BaseVCSSubmitEditorFactoryPrivate;
+class BaseVcsSubmitEditorFactoryPrivate;
 } // namespace Internal
 
 // Parametrizable base class for editor factories creating instances of
-// VCSBaseSubmitEditor subclasses.
-class VCSBASE_EXPORT BaseVCSSubmitEditorFactory : public Core::IEditorFactory
+// VcsBaseSubmitEditor subclasses.
+class VCSBASE_EXPORT BaseVcsSubmitEditorFactory : public Core::IEditorFactory
 {
     Q_OBJECT
 
 protected:
-    explicit BaseVCSSubmitEditorFactory(const VCSBaseSubmitEditorParameters *parameters);
+    explicit BaseVcsSubmitEditorFactory(const VcsBaseSubmitEditorParameters *parameters);
 
 public:
-    ~BaseVCSSubmitEditorFactory();
+    ~BaseVcsSubmitEditorFactory();
 
     Core::IEditor *createEditor(QWidget *parent);
     Core::Id id() const;
@@ -65,33 +65,33 @@ public:
     Core::IFile *open(const QString &fileName);
 
 private:
-    virtual VCSBaseSubmitEditor
-        *createBaseSubmitEditor(const VCSBaseSubmitEditorParameters *parameters,
+    virtual VcsBaseSubmitEditor
+        *createBaseSubmitEditor(const VcsBaseSubmitEditorParameters *parameters,
                                 QWidget *parent) = 0;
 
-    Internal::BaseVCSSubmitEditorFactoryPrivate *const d;
+    Internal::BaseVcsSubmitEditorFactoryPrivate *const d;
 };
 
 // Utility template to create an editor that has a constructor taking the
 // parameter struct and a parent widget.
 
 template <class Editor>
-class VCSSubmitEditorFactory : public BaseVCSSubmitEditorFactory
+class VcsSubmitEditorFactory : public BaseVcsSubmitEditorFactory
 {
 public:
-    explicit VCSSubmitEditorFactory(const VCSBaseSubmitEditorParameters *parameters)
-        : BaseVCSSubmitEditorFactory(parameters)
+    explicit VcsSubmitEditorFactory(const VcsBaseSubmitEditorParameters *parameters)
+        : BaseVcsSubmitEditorFactory(parameters)
     {
     }
 
 private:
-    VCSBaseSubmitEditor *createBaseSubmitEditor
-        (const VCSBaseSubmitEditorParameters *parameters, QWidget *parent)
+    VcsBaseSubmitEditor *createBaseSubmitEditor
+        (const VcsBaseSubmitEditorParameters *parameters, QWidget *parent)
     {
         return new Editor(parameters, parent);
     }
 };
 
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // VCSBASE_BASEEDITOR_H

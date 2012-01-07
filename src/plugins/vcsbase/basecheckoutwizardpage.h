@@ -37,7 +37,7 @@
 
 #include <QtGui/QWizardPage>
 
-namespace VCSBase {
+namespace VcsBase {
 
 namespace Internal {
 class BaseCheckoutWizardPagePrivate;
@@ -111,6 +111,6 @@ private:
     Internal::BaseCheckoutWizardPagePrivate *const d;
 };
 
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // VCSBASE_CHECKOUTWIZARDPAGE_H

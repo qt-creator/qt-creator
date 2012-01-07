@@ -41,7 +41,7 @@ QT_BEGIN_NAMESPACE
 class QModelIndex;
 QT_END_NAMESPACE
 
-namespace VCSBase {
+namespace VcsBase {
 
 namespace Internal { class CleanDialogPrivate; }
 
@@ -71,6 +71,6 @@ private:
     Internal::CleanDialogPrivate *const d;
 };
 
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // CLEANDIALOG_H

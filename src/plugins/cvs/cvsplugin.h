@@ -53,8 +53,8 @@ namespace Utils {
     class ParameterAction;
 }
 
-namespace VCSBase {
-    class VCSBaseSubmitEditor;
+namespace VcsBase {
+    class VcsBaseSubmitEditor;
 }
 
 namespace Locator {
@@ -78,7 +78,7 @@ struct CVSResponse
     QString message;
 };
 
-class CVSPlugin : public VCSBase::VCSBasePlugin
+class CVSPlugin : public VcsBase::VcsBasePlugin
 {
     Q_OBJECT
 
@@ -134,8 +134,8 @@ private slots:
     void cvsDiff(const CVS::Internal::CvsDiffParameters &p);
 
 protected:
-    virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);
-    virtual bool submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor);
+    virtual void updateActions(VcsBase::VcsBasePlugin::ActionState);
+    virtual bool submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor);
 
 private:
     bool isCommitEditorOpen() const;

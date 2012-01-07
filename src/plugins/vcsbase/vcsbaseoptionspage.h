@@ -37,20 +37,20 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace VCSBase {
+namespace VcsBase {
 
-class VCSBASE_EXPORT VCSBaseOptionsPage : public Core::IOptionsPage
+class VCSBASE_EXPORT VcsBaseOptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    explicit VCSBaseOptionsPage(QObject *parent = 0);
+    explicit VcsBaseOptionsPage(QObject *parent = 0);
 
     QString category() const;
     QString displayCategory() const;
     QIcon categoryIcon() const;
 };
 
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // VCSBASEOPTIONSPAGE_H

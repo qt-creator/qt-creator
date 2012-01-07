@@ -40,7 +40,7 @@
 #include <QtCore/QVariant>
 #include <QtCore/QProcessEnvironment>
 
-namespace VCSBase {
+namespace VcsBase {
 
 namespace Internal { class CommandPrivate; }
 
@@ -105,6 +105,6 @@ private:
     class Internal::CommandPrivate *const d;
 };
 
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // VCSBASE_COMMAND_H

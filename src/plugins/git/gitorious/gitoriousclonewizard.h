@@ -40,7 +40,7 @@ namespace Internal {
 
 // GitoriousCloneWizard: A wizard allowing for browsing
 // Gitorious-hosted projects.
-class GitoriousCloneWizard : public VCSBase::BaseCheckoutWizard
+class GitoriousCloneWizard : public VcsBase::BaseCheckoutWizard
 {
     Q_OBJECT
 public:
@@ -54,7 +54,7 @@ public:
 protected:
     // BaseCheckoutWizard
     virtual QList<QWizardPage*> createParameterPages(const QString &path);
-    virtual QSharedPointer<VCSBase::AbstractCheckoutJob> createJob(const QList<QWizardPage*> &parameterPages,
+    virtual QSharedPointer<VcsBase::AbstractCheckoutJob> createJob(const QList<QWizardPage*> &parameterPages,
                                                                    QString *checkoutPath);
 };
 

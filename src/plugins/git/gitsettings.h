@@ -41,7 +41,7 @@ namespace Git {
 namespace Internal {
 
 // Todo: Add user name and password?
-class GitSettings : public VCSBase::VCSBaseClientSettings
+class GitSettings : public VcsBase::VcsBaseClientSettings
 {
 public:
     GitSettings();

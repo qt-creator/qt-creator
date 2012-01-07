@@ -45,12 +45,12 @@
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Internal {
 
-VCSPlugin *VCSPlugin::m_instance = 0;
+VcsPlugin *VcsPlugin::m_instance = 0;
 
-VCSPlugin::VCSPlugin() :
+VcsPlugin::VcsPlugin() :
     m_settingsPage(0),
     m_nickNameModel(0),
     m_coreListener(0)
@@ -58,12 +58,12 @@ VCSPlugin::VCSPlugin() :
     m_instance = this;
 }
 
-VCSPlugin::~VCSPlugin()
+VcsPlugin::~VcsPlugin()
 {
     m_instance = 0;
 }
 
-bool VCSPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
 
@@ -76,36 +76,36 @@ bool VCSPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_settingsPage = new CommonOptionsPage;
     addAutoReleasedObject(m_settingsPage);
-    addAutoReleasedObject(VCSBaseOutputWindow::instance());
-    connect(m_settingsPage, SIGNAL(settingsChanged(VCSBase::Internal::CommonVcsSettings)),
-            this, SIGNAL(settingsChanged(VCSBase::Internal::CommonVcsSettings)));
-    connect(m_settingsPage, SIGNAL(settingsChanged(VCSBase::Internal::CommonVcsSettings)),
+    addAutoReleasedObject(VcsBaseOutputWindow::instance());
+    connect(m_settingsPage, SIGNAL(settingsChanged(VcsBase::Internal::CommonVcsSettings)),
+            this, SIGNAL(settingsChanged(VcsBase::Internal::CommonVcsSettings)));
+    connect(m_settingsPage, SIGNAL(settingsChanged(VcsBase::Internal::CommonVcsSettings)),
             this, SLOT(slotSettingsChanged()));
     slotSettingsChanged();
     return true;
 }
 
-void VCSPlugin::extensionsInitialized()
+void VcsPlugin::extensionsInitialized()
 {
 }
 
-VCSPlugin *VCSPlugin::instance()
+VcsPlugin *VcsPlugin::instance()
 {
     return m_instance;
 }
 
-CoreListener *VCSPlugin::coreListener() const
+CoreListener *VcsPlugin::coreListener() const
 {
     return m_coreListener;
 }
 
-CommonVcsSettings VCSPlugin::settings() const
+CommonVcsSettings VcsPlugin::settings() const
 {
     return m_settingsPage->settings();
 }
 
 /* Delayed creation/update of the nick name model. */
-QStandardItemModel *VCSPlugin::nickNameModel()
+QStandardItemModel *VcsPlugin::nickNameModel()
 {
     if (!m_nickNameModel) {
         m_nickNameModel = NickNameDialog::createModel(this);
@@ -114,7 +114,7 @@ QStandardItemModel *VCSPlugin::nickNameModel()
     return m_nickNameModel;
 }
 
-void VCSPlugin::populateNickNameModel()
+void VcsPlugin::populateNickNameModel()
 {
     QString errorMessage;
     if (!NickNameDialog::populateModelFromMailCapFile(settings().nickNameMailMap,
@@ -124,13 +124,13 @@ void VCSPlugin::populateNickNameModel()
     }
 }
 
-void VCSPlugin::slotSettingsChanged()
+void VcsPlugin::slotSettingsChanged()
 {
     if (m_nickNameModel)
         populateNickNameModel();
 }
 
 } // namespace Internal
-} // namespace VCSBase
+} // namespace VcsBase
 
-Q_EXPORT_PLUGIN(VCSBase::Internal::VCSPlugin)
+Q_EXPORT_PLUGIN(VcsBase::Internal::VcsPlugin)

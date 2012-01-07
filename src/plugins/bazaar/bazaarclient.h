@@ -42,7 +42,7 @@ namespace Internal {
 
 class BazaarSettings;
 
-class BazaarClient : public VCSBase::VCSBaseClient
+class BazaarClient : public VcsBase::VcsBaseClient
 {
     Q_OBJECT
 
@@ -63,12 +63,12 @@ public:
     QString findTopLevelForFile(const QFileInfo &file) const;
 
 protected:
-    QString vcsEditorKind(VCSCommand cmd) const;
+    QString vcsEditorKind(VcsCommand cmd) const;
     QStringList revisionSpec(const QString &revision) const;
-    VCSBase::VCSBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
+    VcsBase::VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
                                                             const QStringList &files,
                                                             const QStringList &extraOptions);
-    VCSBase::VCSBaseEditorParameterWidget *createLogEditor(const QString &workingDir,
+    VcsBase::VcsBaseEditorParameterWidget *createLogEditor(const QString &workingDir,
                                                            const QStringList &files,
                                                            const QStringList &extraOptions);
     StatusItem parseStatusLine(const QString &line) const;

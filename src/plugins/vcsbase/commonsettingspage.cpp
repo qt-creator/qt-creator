@@ -43,10 +43,10 @@
 #include <QtCore/QCoreApplication>
 #include <QtGui/QMessageBox>
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Internal {
 
-// ------------------ VCSBaseSettingsWidget
+// ------------------ VcsBaseSettingsWidget
 
 CommonSettingsWidget::CommonSettingsWidget(QWidget *parent) :
     QWidget(parent),
@@ -105,9 +105,9 @@ QString CommonSettingsWidget::searchKeyWordMatchString() const
     return rc;
 }
 
-// --------------- VCSBaseSettingsPage
+// --------------- VcsBaseSettingsPage
 CommonOptionsPage::CommonOptionsPage(QObject *parent) :
-    VCSBaseOptionsPage(parent)
+    VcsBaseOptionsPage(parent)
 {
     m_settings.fromSettings(Core::ICore::instance()->settings());
 }
@@ -123,7 +123,7 @@ QString CommonOptionsPage::id() const
 
 QString CommonOptionsPage::displayName() const
 {
-    return QCoreApplication::translate("VCSBase", Constants::VCS_COMMON_SETTINGS_NAME);
+    return QCoreApplication::translate("VcsBase", Constants::VCS_COMMON_SETTINGS_NAME);
 }
 
 QWidget *CommonOptionsPage::createPage(QWidget *parent)
@@ -153,4 +153,4 @@ bool CommonOptionsPage::matches(const QString &key) const
 }
 
 } // namespace Internal
-} // namespace VCSBase
+} // namespace VcsBase

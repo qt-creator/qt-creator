@@ -44,18 +44,18 @@ class QComboBox;
 class QToolButton;
 QT_END_NAMESPACE
 
-namespace VCSBase {
+namespace VcsBase {
 
-namespace Internal { class VCSBaseEditorParameterWidgetPrivate; }
+namespace Internal { class VcsBaseEditorParameterWidgetPrivate; }
 
 // Documentation->inside.
-class VCSBASE_EXPORT VCSBaseEditorParameterWidget : public QWidget
+class VCSBASE_EXPORT VcsBaseEditorParameterWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit VCSBaseEditorParameterWidget(QWidget *parent = 0);
-    ~VCSBaseEditorParameterWidget();
+    explicit VcsBaseEditorParameterWidget(QWidget *parent = 0);
+    ~VcsBaseEditorParameterWidget();
 
     struct VCSBASE_EXPORT ComboBoxItem
     {
@@ -104,10 +104,10 @@ protected:
     void updateMappedSettings();
 
 private:
-    friend class Internal::VCSBaseEditorParameterWidgetPrivate;
-    Internal::VCSBaseEditorParameterWidgetPrivate *const d;
+    friend class Internal::VcsBaseEditorParameterWidgetPrivate;
+    Internal::VcsBaseEditorParameterWidgetPrivate *const d;
 };
 
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // VCSBASE_VCSBASEEDITORPARAMETERWIDGET_H

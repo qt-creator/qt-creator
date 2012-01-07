@@ -112,7 +112,7 @@
     \o Debugging functionality.
 
     \row
-    \o \l{VCSBase}
+    \o \l{VcsBase}
     \o Base classes for version control support.
 
     \row

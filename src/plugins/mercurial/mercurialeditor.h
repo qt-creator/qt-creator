@@ -40,17 +40,17 @@
 namespace Mercurial {
 namespace Internal {
 
-class MercurialEditor : public VCSBase::VCSBaseEditorWidget
+class MercurialEditor : public VcsBase::VcsBaseEditorWidget
 {
     Q_OBJECT
 public:
-    explicit MercurialEditor(const VCSBase::VCSBaseEditorParameters *type, QWidget *parent);
+    explicit MercurialEditor(const VcsBase::VcsBaseEditorParameters *type, QWidget *parent);
 
 private:
     virtual QSet<QString> annotationChanges() const;
     virtual QString changeUnderCursor(const QTextCursor &cursor) const;
-    virtual VCSBase::DiffHighlighter *createDiffHighlighter() const;
-    virtual VCSBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const;
+    virtual VcsBase::DiffHighlighter *createDiffHighlighter() const;
+    virtual VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const;
     virtual QString fileNameFromDiffSpecification(const QTextBlock &diffFileSpec) const;
     virtual QStringList annotationPreviousVersions(const QString &revision) const;
 

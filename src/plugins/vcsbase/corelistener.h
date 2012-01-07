@@ -35,9 +35,9 @@
 
 #include <coreplugin/icorelistener.h>
 
-namespace VCSBase {
+namespace VcsBase {
 
-class VCSBaseSubmitEditor;
+class VcsBaseSubmitEditor;
 
 namespace Internal {
 
@@ -50,10 +50,10 @@ public:
     bool editorAboutToClose(Core::IEditor *editor);
 
 signals:
-    void submitEditorAboutToClose(VCSBaseSubmitEditor *e, bool *result);
+    void submitEditorAboutToClose(VcsBaseSubmitEditor *e, bool *result);
 };
 
-} // Internal
-} // VCSBase
+} // namespace Internal
+} // namespace VcsBase
 
 #endif // CORELISTENER_H

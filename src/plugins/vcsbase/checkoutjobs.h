@@ -40,7 +40,7 @@
 #include <QtCore/QProcess>
 #include <QtCore/QProcessEnvironment>
 
-namespace VCSBase {
+namespace VcsBase {
 
 namespace Internal { class ProcessCheckoutJobPrivate; }
 
@@ -91,6 +91,6 @@ private:
     Internal::ProcessCheckoutJobPrivate *const d;
 };
 
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // CHECKOUTJOB_H

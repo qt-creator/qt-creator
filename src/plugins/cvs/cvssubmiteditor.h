@@ -41,7 +41,7 @@
 namespace CVS {
 namespace Internal {
 
-class CVSSubmitEditor : public VCSBase::VCSBaseSubmitEditor
+class CVSSubmitEditor : public VcsBase::VcsBaseSubmitEditor
 {
     Q_OBJECT
 public:
@@ -49,7 +49,7 @@ public:
     // A list of state indicators and file names.
     typedef QPair<State, QString> StateFilePair;
 
-    explicit CVSSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters,
+    explicit CVSSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters,
                              QWidget *parentWidget = 0);
 
     void setStateList(const QList<StateFilePair> &statusOutput);

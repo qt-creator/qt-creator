@@ -36,7 +36,7 @@
 #include <QtCore/QSharedPointer>
 #include <QtGui/QWizardPage>
 
-namespace VCSBase {
+namespace VcsBase {
 class AbstractCheckoutJob;
 
 namespace Internal {
@@ -78,6 +78,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // CHECKOUTPROGRESSWIZARDPAGE_H

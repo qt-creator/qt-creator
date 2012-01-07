@@ -61,7 +61,7 @@ static inline QString sshPasswordPromptDefault()
 #endif
 }
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Internal {
 
 CommonVcsSettings::CommonVcsSettings() :
@@ -128,4 +128,4 @@ QDebug operator<<(QDebug d,const CommonVcsSettings& s)
 }
 
 } // namespace Internal
-} // namespace VCSBase
+} // namespace VcsBase

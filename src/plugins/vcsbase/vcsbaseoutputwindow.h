@@ -37,17 +37,17 @@
 
 #include  <coreplugin/ioutputpane.h>
 
-namespace VCSBase {
+namespace VcsBase {
 
-struct VCSBaseOutputWindowPrivate;
+struct VcsBaseOutputWindowPrivate;
 
-class VCSBASE_EXPORT VCSBaseOutputWindow : public Core::IOutputPane
+class VCSBASE_EXPORT VcsBaseOutputWindow : public Core::IOutputPane
 {
     Q_OBJECT
     Q_PROPERTY(QString repository READ repository WRITE setRepository)
 
 public:
-    ~VCSBaseOutputWindow();
+    ~VcsBaseOutputWindow();
 
     QWidget *outputWidget(QWidget *parent);
     QList<QWidget *> toolBarWidgets() const;
@@ -68,7 +68,7 @@ public:
     void goToNext();
     void goToPrev();
 
-    static VCSBaseOutputWindow *instance();
+    static VcsBaseOutputWindow *instance();
 
     QString repository() const;
 
@@ -114,11 +114,11 @@ public slots:
                        const QStringList &args);
 
 private:
-    VCSBaseOutputWindow();
+    VcsBaseOutputWindow();
 
-    VCSBaseOutputWindowPrivate *d;
+    VcsBaseOutputWindowPrivate *d;
 };
 
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // VCSBASEOUTPUTWINDOW_H

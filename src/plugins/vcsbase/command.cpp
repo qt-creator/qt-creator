@@ -59,7 +59,7 @@ static QString msgTermination(int exitCode, const QString &binaryPath, const QSt
                 QCoreApplication::translate("VcsCommand", "\n'%1' completed (exit code %2).\n").arg(cmd).arg(exitCode);
 }
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Internal {
 
 class CommandPrivate
@@ -330,4 +330,4 @@ void Command::setCookie(const QVariant &cookie)
     d->m_cookie = cookie;
 }
 
-} // namespace VCSBase
+} // namespace VcsBase

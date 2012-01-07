@@ -63,8 +63,8 @@ namespace Utils {
 class ParameterAction;
 } //namespace Utils
 
-namespace VCSBase {
-class VCSBaseSubmitEditor;
+namespace VcsBase {
+class VcsBaseSubmitEditor;
 }
 
 namespace Locator {
@@ -79,7 +79,7 @@ class BazaarClient;
 class BazaarControl;
 class BazaarEditor;
 
-class BazaarPlugin : public VCSBase::VCSBasePlugin
+class BazaarPlugin : public VcsBase::VcsBasePlugin
 {
     Q_OBJECT
 
@@ -114,13 +114,13 @@ private slots:
     void push();
     void update();
     void commit();
-    void showCommitWidget(const QList<VCSBase::VCSBaseClient::StatusItem> &status);
+    void showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusItem> &status);
     void commitFromEditor();
     void diffFromEditorSelected(const QStringList &files);
 
 protected:
-    void updateActions(VCSBase::VCSBasePlugin::ActionState);
-    bool submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor);
+    void updateActions(VcsBase::VcsBasePlugin::ActionState);
+    bool submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor);
 
 private:
     // Methods

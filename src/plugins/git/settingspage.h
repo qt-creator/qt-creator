@@ -66,7 +66,7 @@ private:
     Ui::SettingsPage m_ui;
 };
 
-class SettingsPage : public VCSBase::VCSBaseOptionsPage
+class SettingsPage : public VcsBase::VcsBaseOptionsPage
 {
     Q_OBJECT
 

@@ -38,7 +38,7 @@
 namespace Bazaar {
 namespace Internal {
 
-class BazaarSettings : public VCSBase::VCSBaseClientSettings
+class BazaarSettings : public VcsBase::VcsBaseClientSettings
 {
 public:
     static const QLatin1String diffIgnoreWhiteSpaceKey;

@@ -38,7 +38,7 @@
 namespace Mercurial {
 namespace Internal {
 
-class MercurialSettings : public VCSBase::VCSBaseClientSettings
+class MercurialSettings : public VcsBase::VcsBaseClientSettings
 {
 public:
     static const QLatin1String diffIgnoreWhiteSpaceKey;

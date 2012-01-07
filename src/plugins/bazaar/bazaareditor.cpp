@@ -53,8 +53,8 @@
 using namespace Bazaar::Internal;
 using namespace Bazaar;
 
-BazaarEditor::BazaarEditor(const VCSBase::VCSBaseEditorParameters *type, QWidget *parent)
-    : VCSBase::VCSBaseEditorWidget(type, parent),
+BazaarEditor::BazaarEditor(const VcsBase::VcsBaseEditorParameters *type, QWidget *parent)
+    : VcsBase::VcsBaseEditorWidget(type, parent),
       m_exactChangesetId(QLatin1String(Constants::CHANGESET_ID_EXACT)),
       m_diffFileId(QLatin1String("^=== [a-z]+ [a-z]+ '(.*)'\\s*"))
 {
@@ -96,12 +96,12 @@ QString BazaarEditor::changeUnderCursor(const QTextCursor &cursorIn) const
     return QString();
 }
 
-VCSBase::DiffHighlighter *BazaarEditor::createDiffHighlighter() const
+VcsBase::DiffHighlighter *BazaarEditor::createDiffHighlighter() const
 {
-    return new VCSBase::DiffHighlighter(m_diffFileId);
+    return new VcsBase::DiffHighlighter(m_diffFileId);
 }
 
-VCSBase::BaseAnnotationHighlighter *BazaarEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighter *BazaarEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
 {
     return new BazaarAnnotationHighlighter(changes);
 }

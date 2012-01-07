@@ -98,7 +98,7 @@ OptionsPage::OptionsPage()
 
 QString OptionsPage::id() const
 {
-    return QLatin1String(VCSBase::Constants::VCS_ID_MERCURIAL);
+    return QLatin1String(VcsBase::Constants::VCS_ID_MERCURIAL);
 }
 
 QString OptionsPage::displayName() const

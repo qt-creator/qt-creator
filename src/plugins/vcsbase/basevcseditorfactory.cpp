@@ -41,29 +41,29 @@
 #include <QtCore/QCoreApplication>
 
 /*!
-    \class VCSBase::BaseVCSEditorFactory
+    \class VcsBase::BaseVCSEditorFactory
 
-    \brief Base class for editor factories creating instances of VCSBaseEditor subclasses.
+    \brief Base class for editor factories creating instances of VcsBaseEditor subclasses.
 
-    \sa VCSBase::VCSBaseEditorWidget
+    \sa VcsBase::VcsBaseEditorWidget
 */
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Internal {
 
-class BaseVCSEditorFactoryPrivate
+class BaseVcsEditorFactoryPrivate
 {
 public:
-    BaseVCSEditorFactoryPrivate(const VCSBaseEditorParameters *t);
+    BaseVcsEditorFactoryPrivate(const VcsBaseEditorParameters *t);
 
-    const VCSBaseEditorParameters *m_type;
+    const VcsBaseEditorParameters *m_type;
     const Core::Id m_id;
     QString m_displayName;
     const QStringList m_mimeTypes;
     TextEditor::TextEditorActionHandler *m_editorHandler;
 };
 
-BaseVCSEditorFactoryPrivate::BaseVCSEditorFactoryPrivate(const VCSBaseEditorParameters *t) :
+BaseVcsEditorFactoryPrivate::BaseVcsEditorFactoryPrivate(const VcsBaseEditorParameters *t) :
     m_type(t),
     m_id(t->id),
     m_mimeTypes(QStringList(QLatin1String(t->mimeType))),
@@ -73,41 +73,41 @@ BaseVCSEditorFactoryPrivate::BaseVCSEditorFactoryPrivate(const VCSBaseEditorPara
 
 } // namespace Internal
 
-BaseVCSEditorFactory::BaseVCSEditorFactory(const VCSBaseEditorParameters *t)
-  : d(new Internal::BaseVCSEditorFactoryPrivate(t))
+BaseVcsEditorFactory::BaseVcsEditorFactory(const VcsBaseEditorParameters *t)
+  : d(new Internal::BaseVcsEditorFactoryPrivate(t))
 {
     d->m_displayName = QCoreApplication::translate("VCS", t->displayName);
 }
 
-BaseVCSEditorFactory::~BaseVCSEditorFactory()
+BaseVcsEditorFactory::~BaseVcsEditorFactory()
 {
     delete d;
 }
 
-QStringList BaseVCSEditorFactory::mimeTypes() const
+QStringList BaseVcsEditorFactory::mimeTypes() const
 {
     return d->m_mimeTypes;
 }
 
-Core::Id BaseVCSEditorFactory::id() const
+Core::Id BaseVcsEditorFactory::id() const
 {
     return d->m_id;
 }
 
-QString BaseVCSEditorFactory::displayName() const
+QString BaseVcsEditorFactory::displayName() const
 {
     return d->m_displayName;
 }
 
-Core::IFile *BaseVCSEditorFactory::open(const QString &fileName)
+Core::IFile *BaseVcsEditorFactory::open(const QString &fileName)
 {
     Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
     return iface ? iface->file() : 0;
 }
 
-Core::IEditor *BaseVCSEditorFactory::createEditor(QWidget *parent)
+Core::IEditor *BaseVcsEditorFactory::createEditor(QWidget *parent)
 {
-    VCSBaseEditorWidget *vcsEditor = createVCSBaseEditor(d->m_type, parent);
+    VcsBaseEditorWidget *vcsEditor = createVcsBaseEditor(d->m_type, parent);
 
     vcsEditor ->setMimeType(d->m_mimeTypes.front());
     d->m_editorHandler->setupActions(vcsEditor);
@@ -120,4 +120,4 @@ Core::IEditor *BaseVCSEditorFactory::createEditor(QWidget *parent)
     return vcsEditor->editor();
 }
 
-} // namespace VCSBase
+} // namespace VcsBase

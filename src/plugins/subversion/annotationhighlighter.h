@@ -39,7 +39,7 @@ namespace Subversion {
 namespace Internal {
 
 // Annotation highlighter for subversion triggering on 'changenumber '
-class SubversionAnnotationHighlighter : public VCSBase::BaseAnnotationHighlighter
+class SubversionAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
     Q_OBJECT
 public:

@@ -45,9 +45,9 @@ namespace Internal {
 
 enum { FileSpecRole = Qt::UserRole + 1 };
 
-PerforceSubmitEditor::PerforceSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters, QWidget *parent) :
-    VCSBaseSubmitEditor(parameters, new PerforceSubmitEditorWidget(parent)),
-    m_fileModel(new VCSBase::SubmitFileModel(this))
+PerforceSubmitEditor::PerforceSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent) :
+    VcsBaseSubmitEditor(parameters, new PerforceSubmitEditorWidget(parent)),
+    m_fileModel(new VcsBase::SubmitFileModel(this))
 {
     setDisplayName(tr("Perforce Submit"));
     setFileModel(m_fileModel);

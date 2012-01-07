@@ -40,7 +40,7 @@
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Internal {
 
 namespace Ui { class CommonSettingsPage; }
@@ -62,7 +62,7 @@ private:
     Ui::CommonSettingsPage *m_ui;
 };
 
-class CommonOptionsPage : public VCSBaseOptionsPage
+class CommonOptionsPage : public VcsBaseOptionsPage
 {
     Q_OBJECT
 
@@ -80,7 +80,7 @@ public:
     CommonVcsSettings settings() const { return m_settings; }
 
 signals:
-    void settingsChanged(const VCSBase::Internal::CommonVcsSettings &s);
+    void settingsChanged(const VcsBase::Internal::CommonVcsSettings &s);
 
 private:
     void updateNickNames();
@@ -91,6 +91,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // COMMONOPTIONSPAGE_H

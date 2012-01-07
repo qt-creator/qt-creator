@@ -38,7 +38,7 @@
 
 #include <QtCore/QDebug>
 
-namespace VCSBase {
+namespace VcsBase {
 
 namespace Internal {
 
@@ -80,16 +80,16 @@ private:
     Type m_type;
 };
 
-class VCSBaseEditorParameterWidgetPrivate
+class VcsBaseEditorParameterWidgetPrivate
 {
 public:
-    VCSBaseEditorParameterWidgetPrivate() :
+    VcsBaseEditorParameterWidgetPrivate() :
         m_layout(0), m_comboBoxOptionTemplate(QLatin1String("%{option}=%{value}"))
     { }
 
     QStringList m_baseArguments;
     QHBoxLayout *m_layout;
-    QList<VCSBaseEditorParameterWidget::OptionMapping> m_optionMappings;
+    QList<VcsBaseEditorParameterWidget::OptionMapping> m_optionMappings;
     QHash<QWidget*, SettingMappingData> m_settingMapping;
     QStringList m_comboBoxOptionTemplate;
 };
@@ -97,9 +97,9 @@ public:
 } // namespace Internal
 
 /*!
-    \class VCSBase::VCSBaseEditorParameterWidget
+    \class VcsBase::VcsBaseEditorParameterWidget
 
-    \brief A toolbar-like widget for use with VCSBase::VCSBaseEditor::setConfigurationWidget()
+    \brief A toolbar-like widget for use with VcsBase::VcsBaseEditor::setConfigurationWidget()
     influencing for example the generation of VCS diff output.
 
     The widget maintains a list of command line arguments (starting from baseArguments())
@@ -107,15 +107,15 @@ public:
     that should trigger the rerun of the VCS operation.
 */
 
-VCSBaseEditorParameterWidget::ComboBoxItem::ComboBoxItem(const QString &text,
+VcsBaseEditorParameterWidget::ComboBoxItem::ComboBoxItem(const QString &text,
                                                          const QVariant &val) :
     displayText(text),
     value(val)
 {
 }
 
-VCSBaseEditorParameterWidget::VCSBaseEditorParameterWidget(QWidget *parent) :
-    QWidget(parent), d(new Internal::VCSBaseEditorParameterWidgetPrivate)
+VcsBaseEditorParameterWidget::VcsBaseEditorParameterWidget(QWidget *parent) :
+    QWidget(parent), d(new Internal::VcsBaseEditorParameterWidgetPrivate)
 {
     d->m_layout = new QHBoxLayout(this);
     d->m_layout->setContentsMargins(3, 0, 3, 0);
@@ -123,22 +123,22 @@ VCSBaseEditorParameterWidget::VCSBaseEditorParameterWidget(QWidget *parent) :
     connect(this, SIGNAL(argumentsChanged()), this, SLOT(handleArgumentsChanged()));
 }
 
-VCSBaseEditorParameterWidget::~VCSBaseEditorParameterWidget()
+VcsBaseEditorParameterWidget::~VcsBaseEditorParameterWidget()
 {
     delete d;
 }
 
-QStringList VCSBaseEditorParameterWidget::baseArguments() const
+QStringList VcsBaseEditorParameterWidget::baseArguments() const
 {
     return d->m_baseArguments;
 }
 
-void VCSBaseEditorParameterWidget::setBaseArguments(const QStringList &b)
+void VcsBaseEditorParameterWidget::setBaseArguments(const QStringList &b)
 {
     d->m_baseArguments = b;
 }
 
-QStringList VCSBaseEditorParameterWidget::arguments() const
+QStringList VcsBaseEditorParameterWidget::arguments() const
 {
     // Compile effective arguments
     QStringList args = baseArguments();
@@ -147,7 +147,7 @@ QStringList VCSBaseEditorParameterWidget::arguments() const
     return args;
 }
 
-QToolButton *VCSBaseEditorParameterWidget::addToggleButton(const QString &option,
+QToolButton *VcsBaseEditorParameterWidget::addToggleButton(const QString &option,
                                                            const QString &label,
                                                            const QString &toolTip)
 {
@@ -161,7 +161,7 @@ QToolButton *VCSBaseEditorParameterWidget::addToggleButton(const QString &option
     return tb;
 }
 
-QComboBox *VCSBaseEditorParameterWidget::addComboBox(const QString &option,
+QComboBox *VcsBaseEditorParameterWidget::addComboBox(const QString &option,
                                                      const QList<ComboBoxItem> &items)
 {
     QComboBox *cb = new QComboBox;
@@ -173,7 +173,7 @@ QComboBox *VCSBaseEditorParameterWidget::addComboBox(const QString &option,
     return cb;
 }
 
-void VCSBaseEditorParameterWidget::mapSetting(QToolButton *button, bool *setting)
+void VcsBaseEditorParameterWidget::mapSetting(QToolButton *button, bool *setting)
 {
     if (!d->m_settingMapping.contains(button) && button) {
         d->m_settingMapping.insert(button, Internal::SettingMappingData(setting));
@@ -185,7 +185,7 @@ void VCSBaseEditorParameterWidget::mapSetting(QToolButton *button, bool *setting
     }
 }
 
-void VCSBaseEditorParameterWidget::mapSetting(QComboBox *comboBox, QString *setting)
+void VcsBaseEditorParameterWidget::mapSetting(QComboBox *comboBox, QString *setting)
 {
     if (!d->m_settingMapping.contains(comboBox) && comboBox) {
         d->m_settingMapping.insert(comboBox, Internal::SettingMappingData(setting));
@@ -199,7 +199,7 @@ void VCSBaseEditorParameterWidget::mapSetting(QComboBox *comboBox, QString *sett
     }
 }
 
-void VCSBaseEditorParameterWidget::mapSetting(QComboBox *comboBox, int *setting)
+void VcsBaseEditorParameterWidget::mapSetting(QComboBox *comboBox, int *setting)
 {
     if (d->m_settingMapping.contains(comboBox) || !comboBox)
         return;
@@ -228,42 +228,42 @@ void VCSBaseEditorParameterWidget::mapSetting(QComboBox *comboBox, int *setting)
     QStringList() << "%{option}" << "%{value}"; // eg --file a.out (two distinct arguments)
     \endcode
 */
-QStringList VCSBaseEditorParameterWidget::comboBoxOptionTemplate() const
+QStringList VcsBaseEditorParameterWidget::comboBoxOptionTemplate() const
 {
     return d->m_comboBoxOptionTemplate;
 }
 
-void VCSBaseEditorParameterWidget::setComboBoxOptionTemplate(const QStringList &optTemplate) const
+void VcsBaseEditorParameterWidget::setComboBoxOptionTemplate(const QStringList &optTemplate) const
 {
     d->m_comboBoxOptionTemplate = optTemplate;
 }
 
-void VCSBaseEditorParameterWidget::executeCommand()
+void VcsBaseEditorParameterWidget::executeCommand()
 {
 }
 
-void VCSBaseEditorParameterWidget::handleArgumentsChanged()
+void VcsBaseEditorParameterWidget::handleArgumentsChanged()
 {
     updateMappedSettings();
     executeCommand();
 }
 
-VCSBaseEditorParameterWidget::OptionMapping::OptionMapping() :
+VcsBaseEditorParameterWidget::OptionMapping::OptionMapping() :
     widget(0)
 {
 }
 
-VCSBaseEditorParameterWidget::OptionMapping::OptionMapping(const QString &optName, QWidget *w) :
+VcsBaseEditorParameterWidget::OptionMapping::OptionMapping(const QString &optName, QWidget *w) :
     optionName(optName), widget(w)
 {
 }
 
-const QList<VCSBaseEditorParameterWidget::OptionMapping> &VCSBaseEditorParameterWidget::optionMappings() const
+const QList<VcsBaseEditorParameterWidget::OptionMapping> &VcsBaseEditorParameterWidget::optionMappings() const
 {
     return d->m_optionMappings;
 }
 
-QStringList VCSBaseEditorParameterWidget::argumentsForOption(const OptionMapping &mapping) const
+QStringList VcsBaseEditorParameterWidget::argumentsForOption(const OptionMapping &mapping) const
 {
     const QToolButton *tb = qobject_cast<const QToolButton *>(mapping.widget);
     if (tb && tb->isChecked()) {
@@ -289,7 +289,7 @@ QStringList VCSBaseEditorParameterWidget::argumentsForOption(const OptionMapping
     return QStringList();
 }
 
-void VCSBaseEditorParameterWidget::updateMappedSettings()
+void VcsBaseEditorParameterWidget::updateMappedSettings()
 {
     foreach (const OptionMapping &optMapping, d->m_optionMappings) {
         if (d->m_settingMapping.contains(optMapping.widget)) {
@@ -322,4 +322,4 @@ void VCSBaseEditorParameterWidget::updateMappedSettings()
     }
 }
 
-} // namespace VCSBase
+} // namespace VcsBase

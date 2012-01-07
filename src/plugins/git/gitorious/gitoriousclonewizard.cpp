@@ -75,9 +75,9 @@ void GitoriousCloneWizardPage::initializePage()
 
 // -------- GitoriousCloneWizard
 GitoriousCloneWizard::GitoriousCloneWizard(QObject *parent) :
-        VCSBase::BaseCheckoutWizard(parent)
+        VcsBase::BaseCheckoutWizard(parent)
 {
-    setId(QLatin1String(VCSBase::Constants::VCS_ID_GIT));
+    setId(QLatin1String(VcsBase::Constants::VCS_ID_GIT));
 }
 
 QIcon GitoriousCloneWizard::icon() const
@@ -100,7 +100,7 @@ QList<QWizardPage*> GitoriousCloneWizard::createParameterPages(const QString &pa
     QList<QWizardPage*> rc;
     const Core::IVersionControl *vc = Git::Internal::GitPlugin::instance()->versionControl();
     if (!vc->isConfigured())
-        rc.append(new VCSBase::VcsConfigurationPage(vc));
+        rc.append(new VcsBase::VcsConfigurationPage(vc));
 
     GitoriousHostWizardPage *hostPage = new GitoriousHostWizardPage;
     GitoriousProjectWizardPage *projectPage = new GitoriousProjectWizardPage(hostPage);
@@ -112,11 +112,11 @@ QList<QWizardPage*> GitoriousCloneWizard::createParameterPages(const QString &pa
     return rc;
 }
 
-QSharedPointer<VCSBase::AbstractCheckoutJob> GitoriousCloneWizard::createJob(const QList<QWizardPage*> &parameterPages,
+QSharedPointer<VcsBase::AbstractCheckoutJob> GitoriousCloneWizard::createJob(const QList<QWizardPage*> &parameterPages,
                                                                     QString *checkoutPath)
 {
     const Git::CloneWizardPage *cwp = qobject_cast<const Git::CloneWizardPage *>(parameterPages.back());
-    QTC_ASSERT(cwp, return QSharedPointer<VCSBase::AbstractCheckoutJob>())
+    QTC_ASSERT(cwp, return QSharedPointer<VcsBase::AbstractCheckoutJob>())
     return cwp->createCheckoutJob(checkoutPath);
 }
 

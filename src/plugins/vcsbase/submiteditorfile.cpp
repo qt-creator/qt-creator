@@ -32,11 +32,11 @@
 
 #include "submiteditorfile.h"
 
-using namespace VCSBase;
-using namespace VCSBase::Internal;
+using namespace VcsBase;
+using namespace VcsBase::Internal;
 
 /*!
-    \class VCSBase::Internal::SubmitEditorFile
+    \class VcsBase::Internal::SubmitEditorFile
 
     \brief A non-saveable IFile for submit editor files.
 */

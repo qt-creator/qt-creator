@@ -38,7 +38,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
 
-namespace VCSBase {
+namespace VcsBase {
     class SubmitFileModel;
 }
 
@@ -55,12 +55,12 @@ class PerforcePlugin;
  * As a p4 submit starts with all opened files, there is API to restrict
  * the file list to current project files in question
  * (restrictToProjectFiles()). */
-class PerforceSubmitEditor : public VCSBase::VCSBaseSubmitEditor
+class PerforceSubmitEditor : public VcsBase::VcsBaseSubmitEditor
 {
     Q_OBJECT
 
 public:
-    explicit PerforceSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters, QWidget *parent);
+    explicit PerforceSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent);
 
     /* The p4 submit starts with all opened files. Restrict
      * it to the current project files in question. */
@@ -79,7 +79,7 @@ private:
     void updateEntries();
 
     QMap<QString, QString> m_entries;
-    VCSBase::SubmitFileModel *m_fileModel;
+    VcsBase::SubmitFileModel *m_fileModel;
 };
 
 } // namespace Internal

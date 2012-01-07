@@ -41,8 +41,8 @@
 
 using namespace Mercurial::Internal;
 
-CommitEditor::CommitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters, QWidget *parent)
-        : VCSBase::VCSBaseSubmitEditor(parameters, new MercurialCommitWidget(parent)),
+CommitEditor::CommitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent)
+        : VcsBase::VcsBaseSubmitEditor(parameters, new MercurialCommitWidget(parent)),
         fileModel(0)
 {
     setDisplayName(tr("Commit Editor"));
@@ -55,7 +55,7 @@ MercurialCommitWidget *CommitEditor::commitWidget()
 
 void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &branch,
                              const QString &userName, const QString &email,
-                             const QList<VCSBase::VCSBaseClient::StatusItem> &repoStatus)
+                             const QList<VcsBase::VcsBaseClient::StatusItem> &repoStatus)
 {
     MercurialCommitWidget *mercurialWidget = commitWidget();
     if (!mercurialWidget)
@@ -63,23 +63,23 @@ void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &bra
 
     mercurialWidget->setFields(repositoryRoot.absoluteFilePath(), branch, userName, email);
 
-    fileModel = new VCSBase::SubmitFileModel(this);
+    fileModel = new VcsBase::SubmitFileModel(this);
 
     //TODO Messy tidy this up
     QStringList shouldTrack;
 
-    foreach (const VCSBase::VCSBaseClient::StatusItem &item, repoStatus) {
+    foreach (const VcsBase::VcsBaseClient::StatusItem &item, repoStatus) {
         if (item.flags == QLatin1String("Untracked"))
             shouldTrack.append(item.file);
         else
             fileModel->addFile(item.file, item.flags, false);
     }
 
-    VCSBase::VCSBaseSubmitEditor::filterUntrackedFilesOfProject(repositoryRoot.absoluteFilePath(),
+    VcsBase::VcsBaseSubmitEditor::filterUntrackedFilesOfProject(repositoryRoot.absoluteFilePath(),
                                                                 &shouldTrack);
 
     foreach (const QString &track, shouldTrack) {
-        foreach (const VCSBase::VCSBaseClient::StatusItem &item, repoStatus) {
+        foreach (const VcsBase::VcsBaseClient::StatusItem &item, repoStatus) {
             if (item.file == track)
                 fileModel->addFile(item.file, item.flags, false);
         }

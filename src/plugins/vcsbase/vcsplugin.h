@@ -41,26 +41,26 @@ QT_BEGIN_NAMESPACE
 class QStandardItemModel;
 QT_END_NAMESPACE
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Internal {
 
 class CommonVcsSettings;
 class CommonOptionsPage;
 class CoreListener;
 
-class VCSPlugin : public ExtensionSystem::IPlugin
+class VcsPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
 
 public:
-    VCSPlugin();
-    ~VCSPlugin();
+    VcsPlugin();
+    ~VcsPlugin();
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
 
     void extensionsInitialized();
 
-    static VCSPlugin *instance();
+    static VcsPlugin *instance();
 
     CoreListener *coreListener() const;
 
@@ -72,7 +72,7 @@ public:
     QStandardItemModel *nickNameModel();
 
 signals:
-    void settingsChanged(const VCSBase::Internal::CommonVcsSettings &s);
+    void settingsChanged(const VcsBase::Internal::CommonVcsSettings &s);
 
 private slots:
     void slotSettingsChanged();
@@ -80,13 +80,13 @@ private slots:
 private:
     void populateNickNameModel();
 
-    static VCSPlugin *m_instance;
+    static VcsPlugin *m_instance;
     CommonOptionsPage *m_settingsPage;
     QStandardItemModel *m_nickNameModel;
     CoreListener *m_coreListener;
 };
 
 } // namespace Internal
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // VCSPLUGIN_H

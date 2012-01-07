@@ -71,7 +71,7 @@ bool CloneWizardPagePrivate::urlIsLocal(const QString &url)
 }
 
 CloneWizardPage::CloneWizardPage(QWidget *parent) :
-    VCSBase::BaseCheckoutWizardPage(parent),
+    VcsBase::BaseCheckoutWizardPage(parent),
     d(new CloneWizardPagePrivate)
 {
     setTitle(tr("Location"));
@@ -137,7 +137,7 @@ QString CloneWizardPage::directoryFromRepository(const QString &urlIn) const
     return url;
 }
 
-QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizardPage::createCheckoutJob(QString *checkoutPath) const
+QSharedPointer<VcsBase::AbstractCheckoutJob> CloneWizardPage::createCheckoutJob(QString *checkoutPath) const
 {
      const Internal::GitClient *client = Internal::GitPlugin::instance()->gitClient();
      const QString workingDirectory = path();
@@ -146,7 +146,7 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizardPage::createCheckoutJob(
 
      const QString binary = client->gitBinaryPath();
 
-     VCSBase::ProcessCheckoutJob *job = new VCSBase::ProcessCheckoutJob;
+     VcsBase::ProcessCheckoutJob *job = new VcsBase::ProcessCheckoutJob;
      const QProcessEnvironment env = client->processEnvironment();
 
      // 1) Basic checkout step
@@ -176,7 +176,7 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizardPage::createCheckoutJob(
          job->addStep(binary, args, *checkoutPath, env);
      }
 
-     return QSharedPointer<VCSBase::AbstractCheckoutJob>(job);
+     return QSharedPointer<VcsBase::AbstractCheckoutJob>(job);
 }
 
 QStringList CloneWizardPage::branches(const QString &repository, int *current)

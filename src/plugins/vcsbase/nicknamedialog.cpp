@@ -45,7 +45,7 @@
 enum { NickNameRole = Qt::UserRole + 1 };
 
 /*!
-    \class VCSBase::Internal::NickNameDialog
+    \class VcsBase::Internal::NickNameDialog
 
     \brief Show users from mail cap file.
 
@@ -56,7 +56,7 @@ enum { NickNameRole = Qt::UserRole + 1 };
     be preferred.
 */
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Internal {
 
 // For code clarity, a struct representing the entries of a mail map file
@@ -278,4 +278,4 @@ QStringList NickNameDialog::nickNameList(const QStandardItemModel *model)
 }
 
 } // namespace Internal
-} // namespace VCSBase
+} // namespace VcsBase

@@ -37,7 +37,7 @@
 
 #include <QtCore/QSharedPointer>
 
-namespace VCSBase {
+namespace VcsBase {
     class AbstractCheckoutJob;
 }
 
@@ -46,7 +46,7 @@ namespace Git {
 struct CloneWizardPagePrivate;
 
 // Used by gitorious as well.
-class CloneWizardPage : public VCSBase::BaseCheckoutWizardPage
+class CloneWizardPage : public VcsBase::BaseCheckoutWizardPage
 {
     Q_OBJECT
     Q_PROPERTY(bool deleteMasterBranch READ deleteMasterBranch WRITE setDeleteMasterBranch)
@@ -54,7 +54,7 @@ public:
     explicit CloneWizardPage(QWidget *parent = 0);
     virtual ~CloneWizardPage();
 
-    QSharedPointer<VCSBase::AbstractCheckoutJob> createCheckoutJob(QString *checkoutPath) const;
+    QSharedPointer<VcsBase::AbstractCheckoutJob> createCheckoutJob(QString *checkoutPath) const;
 
 protected:
     virtual QString directoryFromRepository(const QString &r) const;

@@ -49,8 +49,8 @@
 using namespace Mercurial::Internal;
 using namespace Mercurial;
 
-MercurialEditor::MercurialEditor(const VCSBase::VCSBaseEditorParameters *type, QWidget *parent)
-        : VCSBase::VCSBaseEditorWidget(type, parent),
+MercurialEditor::MercurialEditor(const VcsBase::VcsBaseEditorParameters *type, QWidget *parent)
+        : VcsBase::VcsBaseEditorWidget(type, parent),
         exactIdentifier12(QLatin1String(Constants::CHANGEIDEXACT12)),
         exactIdentifier40(QLatin1String(Constants::CHANGEIDEXACT40)),
         changesetIdentifier12(QLatin1String(Constants::CHANGESETID12)),
@@ -91,12 +91,12 @@ QString MercurialEditor::changeUnderCursor(const QTextCursor &cursorIn) const
     return QString();
 }
 
-VCSBase::DiffHighlighter *MercurialEditor::createDiffHighlighter() const
+VcsBase::DiffHighlighter *MercurialEditor::createDiffHighlighter() const
 {
-    return new VCSBase::DiffHighlighter(diffIdentifier);
+    return new VcsBase::DiffHighlighter(diffIdentifier);
 }
 
-VCSBase::BaseAnnotationHighlighter *MercurialEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighter *MercurialEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
 {
     return new MercurialAnnotationHighlighter(changes);
 }

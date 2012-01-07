@@ -82,27 +82,27 @@
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 
-static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
+static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
 {
-    VCSBase::RegularCommandOutput,
+    VcsBase::RegularCommandOutput,
     Git::Constants::GIT_COMMAND_LOG_EDITOR_ID,
     Git::Constants::GIT_COMMAND_LOG_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_COMMAND_LOG_EDITOR,
     "application/vnd.nokia.text.scs_git_commandlog",
     "gitlog"},
-{   VCSBase::LogOutput,
+{   VcsBase::LogOutput,
     Git::Constants::GIT_LOG_EDITOR_ID,
     Git::Constants::GIT_LOG_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_LOG_EDITOR,
     "application/vnd.nokia.text.scs_git_filelog",
     "gitfilelog"},
-{   VCSBase::AnnotateOutput,
+{   VcsBase::AnnotateOutput,
     Git::Constants::GIT_BLAME_EDITOR_ID,
     Git::Constants::GIT_BLAME_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_BLAME_EDITOR,
     "application/vnd.nokia.text.scs_git_annotation",
     "gitsannotate"},
-{   VCSBase::DiffOutput,
+{   VcsBase::DiffOutput,
     Git::Constants::GIT_DIFF_EDITOR_ID,
     Git::Constants::GIT_DIFF_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_DIFF_EDITOR,
@@ -110,10 +110,10 @@ static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 };
 
 // Utility to find a parameter set by type
-static inline const VCSBase::VCSBaseEditorParameters *findType(int ie)
+static inline const VcsBase::VcsBaseEditorParameters *findType(int ie)
 {
-    const VCSBase::EditorContentType et = static_cast<VCSBase::EditorContentType>(ie);
-    return  VCSBase::VCSBaseEditorWidget::findType(editorParameters, sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters), et);
+    const VcsBase::EditorContentType et = static_cast<VcsBase::EditorContentType>(ie);
+    return  VcsBase::VcsBaseEditorWidget::findType(editorParameters, sizeof(editorParameters)/sizeof(VcsBase::VcsBaseEditorParameters), et);
 }
 
 Q_DECLARE_METATYPE(Git::Internal::GitClientMemberFunc)
@@ -126,7 +126,7 @@ using namespace Git::Internal;
 GitPlugin *GitPlugin::m_instance = 0;
 
 GitPlugin::GitPlugin() :
-    VCSBase::VCSBasePlugin(QLatin1String(Git::Constants::GITSUBMITEDITOR_ID)),
+    VcsBase::VcsBasePlugin(QLatin1String(Git::Constants::GITSUBMITEDITOR_ID)),
     m_core(0),
     m_commandLocator(0),
     m_showAction(0),
@@ -173,7 +173,7 @@ GitPlugin *GitPlugin::instance()
     return m_instance;
 }
 
-static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
+static const VcsBase::VcsBaseSubmitEditorParameters submitParameters = {
     Git::Constants::SUBMIT_MIMETYPE,
     Git::Constants::GITSUBMITEDITOR_ID,
     Git::Constants::GITSUBMITEDITOR_DISPLAY_NAME,
@@ -286,8 +286,8 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_gitClient = new GitClient(&m_settings);
 
-    typedef VCSBase::VCSEditorFactory<GitEditor> GitEditorFactory;
-    typedef VCSBase::VCSSubmitEditorFactory<GitSubmitEditor> GitSubmitEditorFactory;
+    typedef VcsBase::VcsEditorFactory<GitEditor> GitEditorFactory;
+    typedef VcsBase::VcsSubmitEditorFactory<GitSubmitEditor> GitSubmitEditorFactory;
 
     initializeVcs(new GitVersionControl(m_gitClient));
 
@@ -298,7 +298,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     addAutoReleasedObject(new SettingsPage());
 
     static const char *describeSlot = SLOT(show(QString,QString));
-    const int editorCount = sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters);
+    const int editorCount = sizeof(editorParameters)/sizeof(VcsBase::VcsBaseEditorParameters);
     for (int i = 0; i < editorCount; i++)
         addAutoReleasedObject(new GitEditorFactory(editorParameters + i, m_gitClient, describeSlot));
 
@@ -549,12 +549,12 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     // Submit editor
     Core::Context submitContext(Constants::C_GITSUBMITEDITOR);
-    m_submitCurrentAction = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);
+    m_submitCurrentAction = new QAction(VcsBase::VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     Core::Command *command = actionManager->registerAction(m_submitCurrentAction, Constants::SUBMIT_CURRENT, submitContext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_submitCurrentAction, SIGNAL(triggered()), this, SLOT(submitCurrentLog()));
 
-    m_diffSelectedFilesAction = new QAction(VCSBase::VCSBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
+    m_diffSelectedFilesAction = new QAction(VcsBase::VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
     command = actionManager->registerAction(m_diffSelectedFilesAction, Constants::DIFF_SELECTED, submitContext);
 
     m_undoAction = new QAction(tr("&Undo"), this);
@@ -578,50 +578,50 @@ void GitPlugin::submitEditorDiff(const QStringList &unstaged, const QStringList 
 
 void GitPlugin::diffCurrentFile()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     m_gitClient->diff(state.currentFileTopLevel(), QStringList(), state.relativeCurrentFile());
 }
 
 void GitPlugin::diffCurrentProject()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return)
     m_gitClient->diff(state.currentProjectTopLevel(), QStringList(), state.relativeCurrentProject());
 }
 
 void GitPlugin::diffRepository()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
     m_gitClient->diff(state.topLevel(), QStringList(), QStringList());
 }
 
 void GitPlugin::logFile()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     m_gitClient->log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), true);
 }
 
 void GitPlugin::blameFile()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
-    const int lineNumber = VCSBase::VCSBaseEditorWidget::lineNumberOfCurrentEditor(state.currentFile());
+    const int lineNumber = VcsBase::VcsBaseEditorWidget::lineNumberOfCurrentEditor(state.currentFile());
     m_gitClient->blame(state.currentFileTopLevel(), QStringList(), state.relativeCurrentFile(), QString(), lineNumber);
 }
 
 void GitPlugin::logProject()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return)
     m_gitClient->log(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
 void GitPlugin::undoFileChanges(bool revertStaging)
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     Core::FileChangeBlocker fcb(state.currentFile());
     m_gitClient->revert(QStringList(state.currentFile()), revertStaging);
@@ -634,7 +634,7 @@ void GitPlugin::undoUnstagedFileChanges()
 
 void GitPlugin::undoRepositoryChanges()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
     const QString msg = tr("Undo all pending changes to the repository\n%1?").arg(QDir::toNativeSeparators(state.topLevel()));
     const QMessageBox::StandardButton answer
@@ -649,14 +649,14 @@ void GitPlugin::undoRepositoryChanges()
 
 void GitPlugin::stageFile()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     m_gitClient->addFile(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void GitPlugin::unstageFile()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     m_gitClient->synchronousReset(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
@@ -673,20 +673,20 @@ void GitPlugin::startCommit()
 
 void GitPlugin::startCommit(bool amend)
 {
-    if (VCSBase::VCSBaseSubmitEditor::raiseSubmitEditor())
+    if (VcsBase::VcsBaseSubmitEditor::raiseSubmitEditor())
         return;
     if (isCommitEditorOpen()) {
-        VCSBase::VCSBaseOutputWindow::instance()->appendWarning(tr("Another submit is currently being executed."));
+        VcsBase::VcsBaseOutputWindow::instance()->appendWarning(tr("Another submit is currently being executed."));
         return;
     }
 
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
 
     QString errorMessage, commitTemplate;
     CommitData data;
     if (!m_gitClient->getCommitData(state.topLevel(), amend, &commitTemplate, &data, &errorMessage)) {
-        VCSBase::VCSBaseOutputWindow::instance()->append(errorMessage);
+        VcsBase::VcsBaseOutputWindow::instance()->append(errorMessage);
         return;
     }
 
@@ -701,7 +701,7 @@ void GitPlugin::startCommit(bool amend)
     saver.setAutoRemove(false);
     saver.write(commitTemplate.toLocal8Bit());
     if (!saver.finalize()) {
-        VCSBase::VCSBaseOutputWindow::instance()->append(saver.errorString());
+        VcsBase::VcsBaseOutputWindow::instance()->append(saver.errorString());
         return;
     }
     m_commitMessageFileName = saver.fileName();
@@ -736,7 +736,7 @@ void GitPlugin::submitCurrentLog()
     m_core->editorManager()->closeEditors(editors);
 }
 
-bool GitPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor)
+bool GitPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor)
 {
     if (!isCommitEditorOpen())
         return false;
@@ -754,16 +754,16 @@ bool GitPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEdi
     // Prompt user. Force a prompt unless submit was actually invoked (that
     // is, the editor was closed or shutdown).
     bool *promptData = m_settings.boolPointer(GitSettings::promptOnSubmitKey);
-    const VCSBase::VCSBaseSubmitEditor::PromptSubmitResult answer =
+    const VcsBase::VcsBaseSubmitEditor::PromptSubmitResult answer =
             editor->promptSubmit(tr("Closing Git Editor"),
                                  tr("Do you want to commit the change?"),
                                  tr("Git will not accept this commit. Do you want to continue to edit it?"),
                                  promptData, !m_submitActionTriggered, false);
     m_submitActionTriggered = false;
     switch (answer) {
-    case VCSBase::VCSBaseSubmitEditor::SubmitCanceled:
+    case VcsBase::VcsBaseSubmitEditor::SubmitCanceled:
         return false; // Keep editing and change file
-    case VCSBase::VCSBaseSubmitEditor::SubmitDiscarded:
+    case VcsBase::VcsBaseSubmitEditor::SubmitDiscarded:
         cleanCommitMessageFile();
         return true; // Cancel all
     default:
@@ -772,7 +772,7 @@ bool GitPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEdi
 
 
     // Go ahead!
-    VCSBase::SubmitFileModel *model = qobject_cast<VCSBase::SubmitFileModel *>(editor->fileModel());
+    VcsBase::SubmitFileModel *model = qobject_cast<VcsBase::SubmitFileModel *>(editor->fileModel());
     bool closeEditor = true;
     if (model->hasCheckedFiles() || !m_commitAmendSHA1.isEmpty()) {
         // get message & commit
@@ -794,7 +794,7 @@ void GitPlugin::fetch()
 
 void GitPlugin::pull()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
 
     switch (m_gitClient->ensureStash(state.topLevel())) {
@@ -809,7 +809,7 @@ void GitPlugin::pull()
 
 void GitPlugin::push()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
     m_gitClient->synchronousPush(state.topLevel());
 }
@@ -829,7 +829,7 @@ static inline GitClientMemberFunc memberFunctionFromAction(const QObject *o)
 
 void GitPlugin::gitClientMemberFuncRepositoryAction()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
     // Retrieve member function and invoke on repository
     GitClientMemberFunc func = memberFunctionFromAction(sender());
@@ -839,14 +839,14 @@ void GitPlugin::gitClientMemberFuncRepositoryAction()
 
 void GitPlugin::cleanProject()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return)
     cleanRepository(state.currentProjectPath());
 }
 
 void GitPlugin::cleanRepository()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     cleanRepository(state.topLevel());
 }
@@ -879,7 +879,7 @@ void GitPlugin::cleanRepository(const QString &directory)
             it->truncate(it->size() - 1);
 
     // Show in dialog
-    VCSBase::CleanDialog dialog(parent);
+    VcsBase::CleanDialog dialog(parent);
     dialog.setFileList(directory, files);
     dialog.exec();
 }
@@ -903,7 +903,7 @@ static bool ensureFileSaved(const QString &fileName)
 
 void GitPlugin::applyCurrentFilePatch()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasPatchFile() && state.hasTopLevel(), return);
     const QString patchFile = state.currentPatchFile();
     if (!ensureFileSaved(patchFile))
@@ -913,7 +913,7 @@ void GitPlugin::applyCurrentFilePatch()
 
 void GitPlugin::promptApplyPatch()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     applyPatch(state.topLevel(), QString());
 }
@@ -939,7 +939,7 @@ void GitPlugin::applyPatch(const QString &workingDirectory, QString file)
             return;
     }
     // Run!
-    VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
+    VcsBase::VcsBaseOutputWindow *outwin = VcsBase::VcsBaseOutputWindow::instance();
     QString errorMessage;
     if (m_gitClient->synchronousApplyPatch(workingDirectory, file, &errorMessage)) {
         if (errorMessage.isEmpty()) {
@@ -955,7 +955,7 @@ void GitPlugin::applyPatch(const QString &workingDirectory, QString file)
 void GitPlugin::stash()
 {
     // Simple stash without prompt, reset repo.
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
     const QString id = m_gitClient->synchronousStash(state.topLevel(), QString(), 0);
     if (!id.isEmpty() && m_stashDialog)
@@ -965,7 +965,7 @@ void GitPlugin::stash()
 void GitPlugin::stashSnapshot()
 {
     // Prompt for description, restore immediately and keep on working.
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
     const QString id = m_gitClient->synchronousStash(state.topLevel(), QString(), GitClient::StashImmediateRestore|GitClient::StashPromptDescription);
     if (!id.isEmpty() && m_stashDialog)
@@ -1002,7 +1002,7 @@ void GitPlugin::stashList()
     showNonModalDialog(currentState().topLevel(), m_stashDialog);
 }
 
-void GitPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
+void GitPlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)
 {
     const bool repositoryEnabled = currentState().hasTopLevel();
     if (m_stashDialog)
@@ -1036,7 +1036,7 @@ void GitPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
 
 void GitPlugin::showCommit()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
 
     if (!m_changeSelectionDialog)
         m_changeSelectionDialog = new ChangeSelectionDialog();

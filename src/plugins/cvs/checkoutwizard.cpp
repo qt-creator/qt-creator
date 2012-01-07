@@ -46,9 +46,9 @@ namespace CVS {
 namespace Internal {
 
 CheckoutWizard::CheckoutWizard(QObject *parent) :
-        VCSBase::BaseCheckoutWizard(parent)
+        VcsBase::BaseCheckoutWizard(parent)
 {
-    setId(QLatin1String(VCSBase::Constants::VCS_ID_CVS));
+    setId(QLatin1String(VcsBase::Constants::VCS_ID_CVS));
 }
 
 QIcon CheckoutWizard::icon() const
@@ -71,20 +71,20 @@ QList<QWizardPage*> CheckoutWizard::createParameterPages(const QString &path)
     QList<QWizardPage*> rc;
     const Core::IVersionControl *vc = CVSPlugin::instance()->versionControl();
     if (!vc->isConfigured())
-        rc.append(new VCSBase::VcsConfigurationPage(vc));
+        rc.append(new VcsBase::VcsConfigurationPage(vc));
     CheckoutWizardPage *cwp = new CheckoutWizardPage;
     cwp->setPath(path);
     rc.push_back(cwp);
     return rc;
 }
 
-QSharedPointer<VCSBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QList<QWizardPage*> &parameterPages,
+QSharedPointer<VcsBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QList<QWizardPage*> &parameterPages,
                                                                     QString *checkoutPath)
 {
     // Collect parameters for the checkout command.
     // CVS does not allow for checking out into a different directory.
     const CheckoutWizardPage *cwp = qobject_cast<const CheckoutWizardPage *>(parameterPages.front());
-    QTC_ASSERT(cwp, return QSharedPointer<VCSBase::AbstractCheckoutJob>())
+    QTC_ASSERT(cwp, return QSharedPointer<VcsBase::AbstractCheckoutJob>())
     const CVSSettings settings = CVSPlugin::instance()->settings();
     const QString binary = settings.cvsCommand;
     QStringList args;
@@ -93,9 +93,9 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QLi
     const QString workingDirectory = cwp->path();
     *checkoutPath = workingDirectory + QLatin1Char('/') + repository;
 
-    VCSBase::ProcessCheckoutJob *job = new VCSBase::ProcessCheckoutJob;
+    VcsBase::ProcessCheckoutJob *job = new VcsBase::ProcessCheckoutJob;
     job->addStep(binary, settings.addOptions(args), workingDirectory);
-    return QSharedPointer<VCSBase::AbstractCheckoutJob>(job);
+    return QSharedPointer<VcsBase::AbstractCheckoutJob>(job);
 }
 
 } // namespace Internal

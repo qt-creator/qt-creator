@@ -37,7 +37,7 @@
 
 #include <QtCore/QStringList>
 
-namespace VCSBase {
+namespace VcsBase {
     class SubmitFileModel;
 }
 
@@ -48,11 +48,11 @@ class GitSubmitEditorWidget;
 class CommitData;
 struct GitSubmitEditorPanelData;
 
-class GitSubmitEditor : public VCSBase::VCSBaseSubmitEditor
+class GitSubmitEditor : public VcsBase::VcsBaseSubmitEditor
 {
     Q_OBJECT
 public:
-    explicit GitSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters, QWidget *parent);
+    explicit GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent);
 
     void setCommitData(const CommitData &);
     GitSubmitEditorPanelData panelData() const;
@@ -69,7 +69,7 @@ private slots:
 private:
     inline GitSubmitEditorWidget *submitEditorWidget();
 
-    VCSBase::SubmitFileModel *m_model;
+    VcsBase::SubmitFileModel *m_model;
     QString m_commitEncoding;
 };
 

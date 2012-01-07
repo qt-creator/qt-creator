@@ -52,8 +52,8 @@ namespace Utils {
     class ParameterAction;
 }
 
-namespace VCSBase {
-    class VCSBaseSubmitEditor;
+namespace VcsBase {
+    class VcsBaseSubmitEditor;
 }
 
 namespace Locator {
@@ -76,7 +76,7 @@ struct SubversionResponse
     QString message;
 };
 
-class SubversionPlugin : public VCSBase::VCSBasePlugin
+class SubversionPlugin : public VcsBase::VcsBasePlugin
 {
     Q_OBJECT
 
@@ -140,8 +140,8 @@ private slots:
     void updateRepository();
 
 protected:
-    virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);
-    virtual bool submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor);
+    virtual void updateActions(VcsBase::VcsBasePlugin::ActionState);
+    virtual bool submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor);
 
 private:
     inline bool isCommitEditorOpen() const;

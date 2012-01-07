@@ -38,9 +38,9 @@
 
 using namespace Subversion::Internal;
 
-SubversionSubmitEditor::SubversionSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters,
+SubversionSubmitEditor::SubversionSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters,
                                                QWidget *parentWidget) :
-    VCSBase::VCSBaseSubmitEditor(parameters, new Utils::SubmitEditorWidget(parentWidget))
+    VcsBase::VcsBaseSubmitEditor(parameters, new Utils::SubmitEditorWidget(parentWidget))
 {
     setDisplayName(tr("Subversion Submit"));
 }
@@ -48,7 +48,7 @@ SubversionSubmitEditor::SubversionSubmitEditor(const VCSBase::VCSBaseSubmitEdito
 void SubversionSubmitEditor::setStatusList(const QList<StatusFilePair> &statusOutput)
 {
     typedef QList<StatusFilePair>::const_iterator ConstIterator;
-    VCSBase::SubmitFileModel *model = new VCSBase::SubmitFileModel(this);
+    VcsBase::SubmitFileModel *model = new VcsBase::SubmitFileModel(this);
 
     const ConstIterator cend = statusOutput.constEnd();
     for (ConstIterator it = statusOutput.constBegin(); it != cend; ++it)

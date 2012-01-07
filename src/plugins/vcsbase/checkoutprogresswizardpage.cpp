@@ -40,15 +40,15 @@
 #include <QtGui/QCursor>
 
 /*!
-    \class VCSBase::CheckoutProgressWizardPage
+    \class VcsBase::CheckoutProgressWizardPage
 
     \brief Page showing the progress of an initial project checkout. Turns complete when the job
            succeeds.
 
-    \sa VCSBase::BaseCheckoutWizard
+    \sa VcsBase::BaseCheckoutWizard
 */
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Internal {
 
 CheckoutProgressWizardPage::CheckoutProgressWizardPage(QWidget *parent) :
@@ -136,4 +136,4 @@ void CheckoutProgressWizardPage::changeEvent(QEvent *e)
 }
 
 } // namespace Internal
-} // namespace VCSBase
+} // namespace VcsBase

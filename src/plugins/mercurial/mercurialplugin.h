@@ -62,8 +62,8 @@ namespace Utils {
 class ParameterAction;
 } //namespace Utils
 
-namespace VCSBase {
-class VCSBaseSubmitEditor;
+namespace VcsBase {
+class VcsBaseSubmitEditor;
 }
 
 namespace Locator {
@@ -79,7 +79,7 @@ class MercurialControl;
 class MercurialEditor;
 class MercurialSettings;
 
-class MercurialPlugin : public VCSBase::VCSBasePlugin
+class MercurialPlugin : public VcsBase::VcsBasePlugin
 {
     Q_OBJECT
 
@@ -117,7 +117,7 @@ private slots:
     void incoming();
     void outgoing();
     void commit();
-    void showCommitWidget(const QList<VCSBase::VCSBaseClient::StatusItem> &status);
+    void showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusItem> &status);
     void commitFromEditor();
     void diffFromEditorSelected(const QStringList &files);
 
@@ -136,8 +136,8 @@ private slots:
     void serve();*/
 
 protected:
-    virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);
-    virtual bool submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor);
+    virtual void updateActions(VcsBase::VcsBasePlugin::ActionState);
+    virtual bool submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor);
 
 private:
     //methods

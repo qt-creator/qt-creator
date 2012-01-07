@@ -105,7 +105,7 @@ QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const
 
 GitSettings &GitSettings::operator = (const GitSettings &s)
 {
-    VCSBaseClientSettings::operator =(s);
+    VcsBaseClientSettings::operator =(s);
     m_binaryPath.clear();
     return *this;
 }

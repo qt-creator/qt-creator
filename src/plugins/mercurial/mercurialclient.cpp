@@ -52,13 +52,13 @@ namespace Mercurial {
 namespace Internal  {
 
 MercurialClient::MercurialClient(MercurialSettings *settings) :
-    VCSBase::VCSBaseClient(settings)
+    VcsBase::VcsBaseClient(settings)
 {
 }
 
 MercurialSettings *MercurialClient::settings() const
 {
-    return dynamic_cast<MercurialSettings *>(VCSBase::VCSBaseClient::settings());
+    return dynamic_cast<MercurialSettings *>(VcsBase::VcsBaseClient::settings());
 }
 
 bool MercurialClient::manifestSync(const QString &repository, const QString &relativeFilename)
@@ -90,9 +90,9 @@ bool MercurialClient::synchronousClone(const QString &workingDir,
     Q_UNUSED(extraOptions);
     QDir workingDirectory(srcLocation);
     QByteArray output;
-    const unsigned flags = VCSBase::VCSBasePlugin::SshPasswordPrompt |
-            VCSBase::VCSBasePlugin::ShowStdOutInLogWindow |
-            VCSBase::VCSBasePlugin::ShowSuccessMessage;
+    const unsigned flags = VcsBase::VcsBasePlugin::SshPasswordPrompt |
+            VcsBase::VcsBasePlugin::ShowStdOutInLogWindow |
+            VcsBase::VcsBasePlugin::ShowSuccessMessage;
 
     if (workingDirectory.exists()) {
         // Let's make first init
@@ -114,7 +114,7 @@ bool MercurialClient::synchronousClone(const QString &workingDir,
         Utils::FileSaver saver(workingDirectory.path()+"/.hg/hgrc");
         saver.write(QString("[paths]\ndefault = %1\n").arg(dstLocation).toUtf8());
         if (!saver.finalize()) {
-            VCSBase::VCSBaseOutputWindow::instance()->appendError(saver.errorString());
+            VcsBase::VcsBaseOutputWindow::instance()->appendError(saver.errorString());
             return false;
         }
 
@@ -176,7 +176,7 @@ changeset:   0:031a48610fba
 user: ...
 \endcode   */
     // Obtain first line and split by blank-delimited tokens
-    VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
+    VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
     const QStringList lines = output.split(QLatin1Char('\n'));
     if (lines.size() < 1) {
         outputWindow->appendSilently(msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(output)));
@@ -275,10 +275,10 @@ void MercurialClient::incoming(const QString &repositoryRoot, const QString &rep
     const QString kind = QLatin1String(Constants::DIFFLOG);
     const QString title = tr("Hg incoming %1").arg(id);
 
-    VCSBase::VCSBaseEditorWidget *editor = createVCSEditor(kind, title, repositoryRoot,
+    VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(kind, title, repositoryRoot,
                                                      true, "incoming", id);
-    VCSBase::Command *cmd = createCommand(repository, editor);
-    if (!repository.isEmpty() && VCSBase::VCSBasePlugin::isSshPromptConfigured())
+    VcsBase::Command *cmd = createCommand(repository, editor);
+    if (!repository.isEmpty() && VcsBase::VcsBasePlugin::isSshPromptConfigured())
         cmd->setUnixTerminalDisabled(true);
     enqueueJob(cmd, args);
 }
@@ -292,11 +292,11 @@ void MercurialClient::outgoing(const QString &repositoryRoot)
     const QString title = tr("Hg outgoing %1").
             arg(QDir::toNativeSeparators(repositoryRoot));
 
-    VCSBase::VCSBaseEditorWidget *editor = createVCSEditor(kind, title, repositoryRoot, true,
+    VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(kind, title, repositoryRoot, true,
                                                      "outgoing", repositoryRoot);
 
-    VCSBase::Command *cmd = createCommand(repositoryRoot, editor);
-    cmd->setUnixTerminalDisabled(VCSBase::VCSBasePlugin::isSshPromptConfigured());
+    VcsBase::Command *cmd = createCommand(repositoryRoot, editor);
+    cmd->setUnixTerminalDisabled(VcsBase::VcsBasePlugin::isSshPromptConfigured());
     enqueueJob(cmd, args);
 }
 
@@ -306,7 +306,7 @@ void MercurialClient::annotate(const QString &workingDir, const QString &file,
 {
     QStringList args(extraOptions);
     args << QLatin1String("-u") << QLatin1String("-c") << QLatin1String("-d");
-    VCSBaseClient::annotate(workingDir, file, revision, lineNumber, args);
+    VcsBaseClient::annotate(workingDir, file, revision, lineNumber, args);
 }
 
 void MercurialClient::commit(const QString &repositoryRoot, const QStringList &files,
@@ -315,7 +315,7 @@ void MercurialClient::commit(const QString &repositoryRoot, const QStringList &f
 {
     QStringList args(extraOptions);
     args << QLatin1String("--noninteractive") << QLatin1String("-l") << commitMessageFile << QLatin1String("-A");
-    VCSBaseClient::commit(repositoryRoot, files, commitMessageFile, args);
+    VcsBaseClient::commit(repositoryRoot, files, commitMessageFile, args);
 }
 
 void MercurialClient::diff(const QString &workingDir, const QStringList &files,
@@ -323,20 +323,20 @@ void MercurialClient::diff(const QString &workingDir, const QStringList &files,
 {
     QStringList args(extraOptions);
     args << QLatin1String("-g") << QLatin1String("-p") << QLatin1String("-U 8");
-    VCSBaseClient::diff(workingDir, files, args);
+    VcsBaseClient::diff(workingDir, files, args);
 }
 
 void MercurialClient::import(const QString &repositoryRoot, const QStringList &files,
                              const QStringList &extraOptions)
 {
-    VCSBaseClient::import(repositoryRoot, files,
+    VcsBaseClient::import(repositoryRoot, files,
                           QStringList(extraOptions) << QLatin1String("--no-commit"));
 }
 
 void MercurialClient::revertAll(const QString &workingDir, const QString &revision,
                                 const QStringList &extraOptions)
 {
-    VCSBaseClient::revertAll(workingDir, revision,
+    VcsBaseClient::revertAll(workingDir, revision,
                              QStringList(extraOptions) << QLatin1String("--all"));
 }
 
@@ -345,18 +345,18 @@ void MercurialClient::view(const QString &source, const QString &id,
 {
     QStringList args;
     args << QLatin1String("log") << QLatin1String("-p") << QLatin1String("-g");
-    VCSBaseClient::view(source, id, args << extraOptions);
+    VcsBaseClient::view(source, id, args << extraOptions);
 }
 
 QString MercurialClient::findTopLevelForFile(const QFileInfo &file) const
 {
     const QString repositoryCheckFile = QLatin1String(Constants::MECURIALREPO) + QLatin1String("/requires");
     return file.isDir() ?
-                VCSBase::VCSBasePlugin::findRepositoryForDirectory(file.absoluteFilePath(), repositoryCheckFile) :
-                VCSBase::VCSBasePlugin::findRepositoryForDirectory(file.absolutePath(), repositoryCheckFile);
+                VcsBase::VcsBasePlugin::findRepositoryForDirectory(file.absoluteFilePath(), repositoryCheckFile) :
+                VcsBase::VcsBasePlugin::findRepositoryForDirectory(file.absolutePath(), repositoryCheckFile);
 }
 
-QString MercurialClient::vcsEditorKind(VCSCommand cmd) const
+QString MercurialClient::vcsEditorKind(VcsCommand cmd) const
 {
     switch (cmd)
     {
@@ -411,13 +411,13 @@ struct MercurialDiffParameters
 };
 
 // Parameter widget controlling whitespace diff mode, associated with a parameter
-class MercurialDiffParameterWidget : public VCSBase::VCSBaseEditorParameterWidget
+class MercurialDiffParameterWidget : public VcsBase::VcsBaseEditorParameterWidget
 {
     Q_OBJECT
 public:
     MercurialDiffParameterWidget(MercurialClient *client,
                                  const MercurialDiffParameters &p, QWidget *parent = 0) :
-        VCSBase::VCSBaseEditorParameterWidget(parent), m_client(client), m_params(p)
+        VcsBase::VcsBaseEditorParameterWidget(parent), m_client(client), m_params(p)
     {
         mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore whitespace")),
                    client->settings()->boolPointer(MercurialSettings::diffIgnoreWhiteSpaceKey));
@@ -435,7 +435,7 @@ private:
     const MercurialDiffParameters m_params;
 };
 
-VCSBase::VCSBaseEditorParameterWidget *MercurialClient::createDiffEditor(
+VcsBase::VcsBaseEditorParameterWidget *MercurialClient::createDiffEditor(
     const QString &workingDir, const QStringList &files, const QStringList &extraOptions)
 {
     MercurialDiffParameters parameters;

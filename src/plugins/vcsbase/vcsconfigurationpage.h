@@ -39,7 +39,7 @@
 
 namespace Core { class IVersionControl; }
 
-namespace VCSBase {
+namespace VcsBase {
 
 namespace Internal { class VcsConfigurationPagePrivate; }
 
@@ -60,6 +60,6 @@ private:
     Internal::VcsConfigurationPagePrivate *const d;
 };
 
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // VCSCONFIGURATIONPAGE_H

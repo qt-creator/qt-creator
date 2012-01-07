@@ -35,7 +35,7 @@
 
 #include <coreplugin/ifile.h>
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Internal {
 
 class SubmitEditorFile : public Core::IFile
@@ -72,6 +72,6 @@ private:
 
 
 } // namespace Internal
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // SUBMITEDITORFILE_H

@@ -55,7 +55,7 @@ QString MercurialControl::displayName() const
 
 QString MercurialControl::id() const
 {
-    return QLatin1String(VCSBase::Constants::VCS_ID_MERCURIAL);
+    return QLatin1String(VcsBase::Constants::VCS_ID_MERCURIAL);
 }
 
 bool MercurialControl::managesDirectory(const QString &directory, QString *topLevel) const

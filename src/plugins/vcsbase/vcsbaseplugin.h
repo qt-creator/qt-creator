@@ -50,23 +50,23 @@ namespace Utils { struct SynchronousProcessResponse; }
 
 namespace Core { class IVersionControl; }
 
-namespace VCSBase {
+namespace VcsBase {
 
 namespace Internal { struct State; }
 
-class VCSBaseSubmitEditor;
-struct VCSBasePluginPrivate;
-class VCSBasePluginStateData;
-class VCSBasePlugin;
+class VcsBaseSubmitEditor;
+struct VcsBasePluginPrivate;
+class VcsBasePluginStateData;
+class VcsBasePlugin;
 
 // Documentation inside.
-class VCSBASE_EXPORT VCSBasePluginState
+class VCSBASE_EXPORT VcsBasePluginState
 {
 public:
-    VCSBasePluginState();
-    VCSBasePluginState(const VCSBasePluginState &);
-    VCSBasePluginState &operator=(const VCSBasePluginState &);
-    ~VCSBasePluginState();
+    VcsBasePluginState();
+    VcsBasePluginState(const VcsBasePluginState &);
+    VcsBasePluginState &operator=(const VcsBasePluginState &);
+    ~VcsBasePluginState();
 
     void clear();
 
@@ -102,39 +102,39 @@ public:
     // the file one.
     QString topLevel() const;
 
-    bool equals(const VCSBasePluginState &rhs) const;
+    bool equals(const VcsBasePluginState &rhs) const;
 
-    friend VCSBASE_EXPORT QDebug operator<<(QDebug in, const VCSBasePluginState &state);
+    friend VCSBASE_EXPORT QDebug operator<<(QDebug in, const VcsBasePluginState &state);
 
 private:
-    friend class VCSBasePlugin;
+    friend class VcsBasePlugin;
     bool equals(const Internal::State &s) const;
     void setState(const Internal::State &s);
 
-    QSharedDataPointer<VCSBasePluginStateData> data;
+    QSharedDataPointer<VcsBasePluginStateData> data;
 };
 
-VCSBASE_EXPORT QDebug operator<<(QDebug in, const VCSBasePluginState &state);
+VCSBASE_EXPORT QDebug operator<<(QDebug in, const VcsBasePluginState &state);
 
-inline bool operator==(const VCSBasePluginState &s1, const VCSBasePluginState &s2)
+inline bool operator==(const VcsBasePluginState &s1, const VcsBasePluginState &s2)
 { return s1.equals(s2); }
-inline bool operator!=(const VCSBasePluginState &s1, const VCSBasePluginState &s2)
+inline bool operator!=(const VcsBasePluginState &s1, const VcsBasePluginState &s2)
 { return !s1.equals(s2); }
 
-class VCSBASE_EXPORT VCSBasePlugin : public ExtensionSystem::IPlugin
+class VCSBASE_EXPORT VcsBasePlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
 
 protected:
-    explicit VCSBasePlugin(const QString &submitEditorId);
+    explicit VcsBasePlugin(const QString &submitEditorId);
 
     void initializeVcs(Core::IVersionControl *vc);
     virtual void extensionsInitialized();
 
 public:
-    virtual ~VCSBasePlugin();
+    virtual ~VcsBasePlugin();
 
-    const VCSBasePluginState &currentState() const;
+    const VcsBasePluginState &currentState() const;
     Core::IVersionControl *versionControl() const;
 
     // For internal tests: Create actions driving IVersionControl's snapshot interface.
@@ -155,7 +155,7 @@ public:
     static bool isSshPromptConfigured();
 
     // Convenience to synchronously run VCS commands
-    enum RunVCSFlags {
+    enum RunVcsFlags {
         ShowStdOutInLogWindow = 0x1, // Append standard output to VCS output window.
         MergeOutputChannels = 0x2,   // see QProcess: Merge stderr/stdout.
         SshPasswordPrompt = 0x4,    // Disable terminal on UNIX to force graphical prompt.
@@ -168,7 +168,7 @@ public:
                                         // triggered by file watchers).
     };
 
-    static Utils::SynchronousProcessResponse runVCS(const QString &workingDir,
+    static Utils::SynchronousProcessResponse runVcs(const QString &workingDir,
                                                     const QString &binary,
                                                     const QStringList &arguments,
                                                     int timeOutMS,
@@ -176,7 +176,7 @@ public:
                                                     unsigned flags = 0,
                                                     QTextCodec *outputCodec = 0);
 
-    static Utils::SynchronousProcessResponse runVCS(const QString &workingDir,
+    static Utils::SynchronousProcessResponse runVcs(const QString &workingDir,
                                                     const QString &binary,
                                                     const QStringList &arguments,
                                                     int timeOutMS,
@@ -197,39 +197,39 @@ public:
 
 public slots:
     // Convenience slot for "Delete current file" action. Prompts to
-    // delete the file via VCSManager.
+    // delete the file via VcsManager.
     void promptToDeleteCurrentFile();
     // Prompt to initialize version control in a directory, initially
     // pointing to the current project.
     void createRepository();
 
 protected:
-    enum ActionState { NoVCSEnabled, OtherVCSEnabled, VCSEnabled };
+    enum ActionState { NoVcsEnabled, OtherVcsEnabled, VcsEnabled };
 
     // Implement to enable the plugin menu actions according to state.
     virtual void updateActions(ActionState as) = 0;
     // Implement to start the submit process.
-    virtual bool submitEditorAboutToClose(VCSBaseSubmitEditor *submitEditor) = 0;
+    virtual bool submitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor) = 0;
 
     // A helper to enable the VCS menu action according to state:
-    // NoVCSEnabled    -> visible, enabled if repository creation is supported
-    // OtherVCSEnabled -> invisible
+    // NoVcsEnabled    -> visible, enabled if repository creation is supported
+    // OtherVcsEnabled -> invisible
     // Else:           -> fully enabled.
     // Returns whether actions should be set up further.
     bool enableMenuAction(ActionState as, QAction *in) const;
 
 private slots:
-    void slotSubmitEditorAboutToClose(VCSBaseSubmitEditor *submitEditor, bool *result);
-    void slotStateChanged(const VCSBase::Internal::State &s, Core::IVersionControl *vc);
+    void slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor, bool *result);
+    void slotStateChanged(const VcsBase::Internal::State &s, Core::IVersionControl *vc);
     void slotTestSnapshot();
     void slotTestListSnapshots();
     void slotTestRestoreSnapshot();
     void slotTestRemoveSnapshot();
 
 private:
-    VCSBasePluginPrivate *d;
+    VcsBasePluginPrivate *d;
 };
 
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // VCSBASEPLUGIN_H

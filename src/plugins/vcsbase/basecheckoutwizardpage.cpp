@@ -36,7 +36,7 @@
 #include <QtGui/QIcon>
 
 /*!
-    \class VCSBase::BaseCheckoutWizardPage
+    \class VcsBase::BaseCheckoutWizardPage
 
     \brief Base class for a parameter page of a checkout wizard.
 
@@ -44,10 +44,10 @@
     the path. Contains a virtual to derive the checkout directory
     from the repository as it is entered.
 
-    \sa VCSBase::BaseCheckoutWizard
+    \sa VcsBase::BaseCheckoutWizard
 */
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Internal {
 
 class BaseCheckoutWizardPagePrivate
@@ -260,4 +260,4 @@ void BaseCheckoutWizardPage::slotChanged()
     }
 }
 
-} // namespace VCSBase
+} // namespace VcsBase

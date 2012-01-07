@@ -47,9 +47,9 @@ namespace Git {
 namespace Internal {
 
 CloneWizard::CloneWizard(QObject *parent) :
-        VCSBase::BaseCheckoutWizard(parent)
+        VcsBase::BaseCheckoutWizard(parent)
 {
-    setId(QLatin1String(VCSBase::Constants::VCS_ID_GIT));
+    setId(QLatin1String(VcsBase::Constants::VCS_ID_GIT));
 }
 
 QIcon CloneWizard::icon() const
@@ -72,19 +72,19 @@ QList<QWizardPage*> CloneWizard::createParameterPages(const QString &path)
     QList<QWizardPage*> rc;
     const Internal::GitVersionControl *vc = Internal::GitPlugin::instance()->gitVersionControl();
     if (!vc->isConfigured())
-        rc.append(new VCSBase::VcsConfigurationPage(vc));
+        rc.append(new VcsBase::VcsConfigurationPage(vc));
     CloneWizardPage *cwp = new CloneWizardPage;
     cwp->setPath(path);
     rc.push_back(cwp);
     return rc;
 }
 
-QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizard::createJob(const QList<QWizardPage*> &parameterPages,
+QSharedPointer<VcsBase::AbstractCheckoutJob> CloneWizard::createJob(const QList<QWizardPage*> &parameterPages,
                                                                     QString *checkoutPath)
 {
     // Collect parameters for the clone command.
     const CloneWizardPage *cwp = qobject_cast<const CloneWizardPage *>(parameterPages.front());
-    QTC_ASSERT(cwp, return QSharedPointer<VCSBase::AbstractCheckoutJob>())
+    QTC_ASSERT(cwp, return QSharedPointer<VcsBase::AbstractCheckoutJob>())
     return cwp->createCheckoutJob(checkoutPath);
 }
 

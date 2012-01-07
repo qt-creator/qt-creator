@@ -43,7 +43,7 @@ QT_BEGIN_NAMESPACE
 class QWizardPage;
 QT_END_NAMESPACE
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Internal {
 class BaseCheckoutWizardPrivate;
 }
@@ -83,6 +83,6 @@ private:
     Internal::BaseCheckoutWizardPrivate *const d;
 };
 
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // BASECHECKOUTWIZARD_H

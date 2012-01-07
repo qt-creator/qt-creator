@@ -38,7 +38,7 @@
 namespace Subversion {
 namespace Internal {
 
-class CheckoutWizardPage : public VCSBase::BaseCheckoutWizardPage {
+class CheckoutWizardPage : public VcsBase::BaseCheckoutWizardPage {
     Q_OBJECT
 public:
     CheckoutWizardPage(QWidget *parent = 0);

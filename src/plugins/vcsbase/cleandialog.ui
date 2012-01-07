@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>VCSBase::Internal::CleanDialog</class>
- <widget class="QDialog" name="VCSBase::Internal::CleanDialog">
+ <class>VcsBase::Internal::CleanDialog</class>
+ <widget class="QDialog" name="VcsBase::Internal::CleanDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -40,7 +40,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>VCSBase::Internal::CleanDialog</receiver>
+   <receiver>VcsBase::Internal::CleanDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -56,7 +56,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>VCSBase::Internal::CleanDialog</receiver>
+   <receiver>VcsBase::Internal::CleanDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

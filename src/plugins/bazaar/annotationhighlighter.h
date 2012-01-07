@@ -39,7 +39,7 @@
 namespace Bazaar {
 namespace Internal {
 
-class BazaarAnnotationHighlighter : public VCSBase::BaseAnnotationHighlighter
+class BazaarAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
 public:
     explicit BazaarAnnotationHighlighter(const ChangeNumbers &changeNumbers,

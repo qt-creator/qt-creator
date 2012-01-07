@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>VCSBase::Internal::CheckoutProgressWizardPage</class>
- <widget class="QWizardPage" name="VCSBase::Internal::CheckoutProgressWizardPage">
+ <class>VcsBase::Internal::CheckoutProgressWizardPage</class>
+ <widget class="QWizardPage" name="VcsBase::Internal::CheckoutProgressWizardPage">
   <property name="geometry">
    <rect>
     <x>0</x>

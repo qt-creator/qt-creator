@@ -92,7 +92,7 @@ void BranchDialog::refresh(const QString &repository, bool force)
     m_ui->repositoryLabel->setText(StashDialog::msgRepositoryLabel(m_repository));
     QString errorMessage;
     if (!m_model->refresh(m_repository, &errorMessage))
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
 
     m_ui->branchView->expandAll();
 }

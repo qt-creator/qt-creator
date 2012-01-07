@@ -44,12 +44,12 @@ QT_END_NAMESPACE
 namespace Git {
 namespace Internal {
 
-class GitEditor : public VCSBase::VCSBaseEditorWidget
+class GitEditor : public VcsBase::VcsBaseEditorWidget
 {
     Q_OBJECT
 
 public:
-    explicit GitEditor(const VCSBase::VCSBaseEditorParameters *type,
+    explicit GitEditor(const VcsBase::VcsBaseEditorParameters *type,
                        QWidget *parent);
 
 public slots:
@@ -60,8 +60,8 @@ public slots:
 private:
     virtual QSet<QString> annotationChanges() const;
     virtual QString changeUnderCursor(const QTextCursor &) const;
-    virtual VCSBase::DiffHighlighter *createDiffHighlighter() const;
-    virtual VCSBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const;
+    virtual VcsBase::DiffHighlighter *createDiffHighlighter() const;
+    virtual VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const;
     virtual QString fileNameFromDiffSpecification(const QTextBlock &diffFileName) const;
     virtual QStringList annotationPreviousVersions(const QString &revision) const;
 

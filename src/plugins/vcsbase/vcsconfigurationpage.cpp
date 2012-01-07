@@ -40,7 +40,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Internal {
 
 class VcsConfigurationPagePrivate
@@ -93,7 +93,7 @@ bool VcsConfigurationPage::isComplete() const
 void VcsConfigurationPage::openConfiguration()
 {
     Core::ICore *core = Core::ICore::instance();
-    core->showOptionsDialog(VCSBase::Constants::VCS_SETTINGS_CATEGORY, d->m_versionControl->id());
+    core->showOptionsDialog(VcsBase::Constants::VCS_SETTINGS_CATEGORY, d->m_versionControl->id());
 }
 
-} // namespace VCSBase
+} // namespace VcsBase

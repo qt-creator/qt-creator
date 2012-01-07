@@ -35,7 +35,7 @@
 using namespace Mercurial::Internal;
 
 CloneWizardPage::CloneWizardPage(QWidget *parent)
-        : VCSBase::BaseCheckoutWizardPage(parent)
+        : VcsBase::BaseCheckoutWizardPage(parent)
 {
     setTitle(tr("Location"));
     setSubTitle(tr("Specify repository URL, checkout directory and path."));

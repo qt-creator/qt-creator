@@ -44,15 +44,15 @@
 enum { debug = 0 };
 
 /*!
-    \class  VCSBase::AbstractCheckoutJob
+    \class  VcsBase::AbstractCheckoutJob
 
     \brief Abstract base class for a job creating an initial project checkout.
            It should be something that runs in the background producing log messages.
 
-    \sa VCSBase::BaseCheckoutWizard
+    \sa VcsBase::BaseCheckoutWizard
 */
 
-namespace VCSBase {
+namespace VcsBase {
 
 namespace Internal {
 
@@ -60,7 +60,7 @@ namespace Internal {
 static inline QSharedPointer<QProcess> createProcess()
 {
     unsigned flags = 0;
-    if (VCSBasePlugin::isSshPromptConfigured())
+    if (VcsBasePlugin::isSshPromptConfigured())
         flags = Utils::SynchronousProcess::UnixTerminalDisabled;
     return Utils::SynchronousProcess::createProcess(flags);
 }
@@ -104,9 +104,9 @@ AbstractCheckoutJob::AbstractCheckoutJob(QObject *parent) :
 }
 
 /*!
-    \class VCSBase::ProcessCheckoutJob
+    \class VcsBase::ProcessCheckoutJob
 
-    \brief Convenience implementation of a VCSBase::AbstractCheckoutJob using a QProcess.
+    \brief Convenience implementation of a VcsBase::AbstractCheckoutJob using a QProcess.
 */
 
 ProcessCheckoutJob::ProcessCheckoutJob(QObject *parent) :
@@ -195,11 +195,11 @@ void ProcessCheckoutJob::slotNext()
 
     // Set up SSH correctly.
     QProcessEnvironment processEnv = step.environment;
-    VCSBasePlugin::setProcessEnvironment(&processEnv, false);
+    VcsBasePlugin::setProcessEnvironment(&processEnv, false);
     d->process->setProcessEnvironment(processEnv);
 
     d->binary = step.binary;
-    emit output(VCSBaseOutputWindow::msgExecutionLogEntry(step.workingDirectory, d->binary, step.arguments));
+    emit output(VcsBaseOutputWindow::msgExecutionLogEntry(step.workingDirectory, d->binary, step.arguments));
     d->process->start(d->binary, step.arguments);
 }
 
@@ -212,4 +212,4 @@ void ProcessCheckoutJob::cancel()
     Utils::SynchronousProcess::stopProcess(*d->process);
 }
 
-} // namespace VCSBase
+} // namespace VcsBase

@@ -59,9 +59,9 @@ namespace Perforce {
 namespace Internal {
 
 // ------------ PerforceEditor
-PerforceEditor::PerforceEditor(const VCSBase::VCSBaseEditorParameters *type,
+PerforceEditor::PerforceEditor(const VcsBase::VcsBaseEditorParameters *type,
                                QWidget *parent)  :
-    VCSBase::VCSBaseEditorWidget(type, parent),
+    VcsBase::VcsBaseEditorWidget(type, parent),
     m_changeNumberPattern(QLatin1String("^\\d+$")),
     m_plugin(PerforcePlugin::perforcePluginInstance())
 {
@@ -106,13 +106,13 @@ QString PerforceEditor::changeUnderCursor(const QTextCursor &c) const
     return m_changeNumberPattern.exactMatch(change) ? change : QString();
 }
 
-VCSBase::DiffHighlighter *PerforceEditor::createDiffHighlighter() const
+VcsBase::DiffHighlighter *PerforceEditor::createDiffHighlighter() const
 {
     const QRegExp filePattern(QLatin1String("^====.*"));
-    return new VCSBase::DiffHighlighter(filePattern);
+    return new VcsBase::DiffHighlighter(filePattern);
 }
 
-VCSBase::BaseAnnotationHighlighter *PerforceEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighter *PerforceEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
 {
     return new PerforceAnnotationHighlighter(changes);
 }

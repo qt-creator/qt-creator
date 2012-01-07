@@ -39,7 +39,7 @@ namespace CVS {
 namespace Internal {
 
 // Annotation highlighter for cvs triggering on 'changenumber '
-class CVSAnnotationHighlighter : public VCSBase::BaseAnnotationHighlighter
+class CVSAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
     Q_OBJECT
 public:

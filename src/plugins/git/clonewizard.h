@@ -38,7 +38,7 @@
 namespace Git {
 namespace Internal {
 
-class CloneWizard : public VCSBase::BaseCheckoutWizard
+class CloneWizard : public VcsBase::BaseCheckoutWizard
 {
     Q_OBJECT
 public:
@@ -52,7 +52,7 @@ public:
 protected:
     // BaseCheckoutWizard
     virtual QList<QWizardPage*> createParameterPages(const QString &path);
-    virtual QSharedPointer<VCSBase::AbstractCheckoutJob> createJob(const QList<QWizardPage*> &parameterPages,
+    virtual QSharedPointer<VcsBase::AbstractCheckoutJob> createJob(const QList<QWizardPage*> &parameterPages,
                                                                    QString *checkoutPath);
 };
 

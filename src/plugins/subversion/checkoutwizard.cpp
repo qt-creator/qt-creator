@@ -46,9 +46,9 @@ namespace Subversion {
 namespace Internal {
 
 CheckoutWizard::CheckoutWizard(QObject *parent) :
-        VCSBase::BaseCheckoutWizard(parent)
+        VcsBase::BaseCheckoutWizard(parent)
 {
-    setId(QLatin1String(VCSBase::Constants::VCS_ID_SUBVERSION));
+    setId(QLatin1String(VcsBase::Constants::VCS_ID_SUBVERSION));
 }
 
 QIcon CheckoutWizard::icon() const
@@ -71,19 +71,19 @@ QList<QWizardPage*> CheckoutWizard::createParameterPages(const QString &path)
     QList<QWizardPage*> rc;
     const Core::IVersionControl *vc = SubversionPlugin::instance()->versionControl();
     if (!vc->isConfigured())
-        rc.append(new VCSBase::VcsConfigurationPage(vc));
+        rc.append(new VcsBase::VcsConfigurationPage(vc));
     CheckoutWizardPage *cwp = new CheckoutWizardPage;
     cwp->setPath(path);
     rc.append(cwp);
     return rc;
 }
 
-QSharedPointer<VCSBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QList<QWizardPage*> &parameterPages,
+QSharedPointer<VcsBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QList<QWizardPage*> &parameterPages,
                                                                     QString *checkoutPath)
 {
     // Collect parameters for the checkout command.
     const CheckoutWizardPage *cwp = qobject_cast<const CheckoutWizardPage *>(parameterPages.front());
-    QTC_ASSERT(cwp, return QSharedPointer<VCSBase::AbstractCheckoutJob>())
+    QTC_ASSERT(cwp, return QSharedPointer<VcsBase::AbstractCheckoutJob>())
     const SubversionSettings settings = SubversionPlugin::instance()->settings();
     const QString binary = settings.svnCommand;
     const QString directory = cwp->directory();
@@ -94,9 +94,9 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QLi
     const QStringList completeArgs = settings.hasAuthentication() ?
                                      SubversionPlugin::addAuthenticationOptions(args, settings.user, settings.password) :
                                      args;
-    VCSBase::ProcessCheckoutJob *job = new VCSBase::ProcessCheckoutJob;
+    VcsBase::ProcessCheckoutJob *job = new VcsBase::ProcessCheckoutJob;
     job->addStep(binary, completeArgs, workingDirectory);
-    return QSharedPointer<VCSBase::AbstractCheckoutJob>(job);
+    return QSharedPointer<VcsBase::AbstractCheckoutJob>(job);
 }
 
 } // namespace Internal

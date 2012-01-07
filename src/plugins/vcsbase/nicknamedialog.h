@@ -42,7 +42,7 @@ class QModelIndex;
 class QPushButton;
 QT_END_NAMESPACE
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Internal {
 
 namespace Ui { class NickNameDialog; }
@@ -79,6 +79,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // NICKNAMEDIALOG_H

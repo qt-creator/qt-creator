@@ -154,16 +154,16 @@ bool operator==(const SettingValue &lhs, const SettingValue &rhs)
 
 } // Anonymous namespace
 
-namespace VCSBase {
+namespace VcsBase {
 
 namespace Internal {
 
-class VCSBaseClientSettingsPrivate : public QSharedData
+class VcsBaseClientSettingsPrivate : public QSharedData
 {
 public:
-    VCSBaseClientSettingsPrivate() {}
+    VcsBaseClientSettingsPrivate() {}
 
-    VCSBaseClientSettingsPrivate(const VCSBaseClientSettingsPrivate &other) :
+    VcsBaseClientSettingsPrivate(const VcsBaseClientSettingsPrivate &other) :
         QSharedData(other),
         m_valueHash(other.m_valueHash),
         m_defaultValueHash(other.m_defaultValueHash),
@@ -179,22 +179,22 @@ public:
 } // namespace Internal
 
 /*!
-    \class VCSBase::VCSBaseClientSettings
+    \class VcsBase::VcsBaseClientSettings
 
-    \brief Settings used in VCSBaseClient.
+    \brief Settings used in VcsBaseClient.
 
-    \sa VCSBase::VCSBaseClient
+    \sa VcsBase::VcsBaseClient
 */
 
-const QLatin1String VCSBaseClientSettings::binaryPathKey("BinaryPath");
-const QLatin1String VCSBaseClientSettings::userNameKey("Username");
-const QLatin1String VCSBaseClientSettings::userEmailKey("UserEmail");
-const QLatin1String VCSBaseClientSettings::logCountKey("LogCount");
-const QLatin1String VCSBaseClientSettings::promptOnSubmitKey("PromptOnSubmit");
-const QLatin1String VCSBaseClientSettings::timeoutKey("Timeout");
+const QLatin1String VcsBaseClientSettings::binaryPathKey("BinaryPath");
+const QLatin1String VcsBaseClientSettings::userNameKey("Username");
+const QLatin1String VcsBaseClientSettings::userEmailKey("UserEmail");
+const QLatin1String VcsBaseClientSettings::logCountKey("LogCount");
+const QLatin1String VcsBaseClientSettings::promptOnSubmitKey("PromptOnSubmit");
+const QLatin1String VcsBaseClientSettings::timeoutKey("Timeout");
 
-VCSBaseClientSettings::VCSBaseClientSettings() :
-    d(new Internal::VCSBaseClientSettingsPrivate)
+VcsBaseClientSettings::VcsBaseClientSettings() :
+    d(new Internal::VcsBaseClientSettingsPrivate)
 {
     declareKey(binaryPathKey, QLatin1String(""));
     declareKey(userNameKey, QLatin1String(""));
@@ -204,23 +204,23 @@ VCSBaseClientSettings::VCSBaseClientSettings() :
     declareKey(timeoutKey, 30);
 }
 
-VCSBaseClientSettings::VCSBaseClientSettings(const VCSBaseClientSettings &other) :
+VcsBaseClientSettings::VcsBaseClientSettings(const VcsBaseClientSettings &other) :
     d(other.d)
 {
 }
 
-VCSBaseClientSettings &VCSBaseClientSettings::operator=(const VCSBaseClientSettings &other)
+VcsBaseClientSettings &VcsBaseClientSettings::operator=(const VcsBaseClientSettings &other)
 {
     if (this != &other)
         d = other.d;
     return *this;
 }
 
-VCSBaseClientSettings::~VCSBaseClientSettings()
+VcsBaseClientSettings::~VcsBaseClientSettings()
 {
 }
 
-void VCSBaseClientSettings::writeSettings(QSettings *settings) const
+void VcsBaseClientSettings::writeSettings(QSettings *settings) const
 {
     settings->beginGroup(settingsGroup());
     foreach (const QString &key, keys())
@@ -228,7 +228,7 @@ void VCSBaseClientSettings::writeSettings(QSettings *settings) const
     settings->endGroup();
 }
 
-void VCSBaseClientSettings::readSettings(const QSettings *settings)
+void VcsBaseClientSettings::readSettings(const QSettings *settings)
 {
     const QString keyRoot = settingsGroup() + QLatin1Char('/');
     foreach (const QString &key, keys()) {
@@ -251,66 +251,66 @@ void VCSBaseClientSettings::readSettings(const QSettings *settings)
     }
 }
 
-bool VCSBaseClientSettings::equals(const VCSBaseClientSettings &rhs) const
+bool VcsBaseClientSettings::equals(const VcsBaseClientSettings &rhs) const
 {
     if (this == &rhs)
         return true;
     return d->m_valueHash == rhs.d->m_valueHash;
 }
 
-QStringList VCSBaseClientSettings::keys() const
+QStringList VcsBaseClientSettings::keys() const
 {
     return d->m_valueHash.keys();
 }
 
-bool VCSBaseClientSettings::hasKey(const QString &key) const
+bool VcsBaseClientSettings::hasKey(const QString &key) const
 {
     return d->m_valueHash.contains(key);
 }
 
-int *VCSBaseClientSettings::intPointer(const QString &key)
+int *VcsBaseClientSettings::intPointer(const QString &key)
 {
     if (hasKey(key))
         return &(d->m_valueHash[key].m_comp.intValue);
     return 0;
 }
 
-bool *VCSBaseClientSettings::boolPointer(const QString &key)
+bool *VcsBaseClientSettings::boolPointer(const QString &key)
 {
     if (hasKey(key))
         return &(d->m_valueHash[key].m_comp.boolValue);
     return 0;
 }
 
-QString *VCSBaseClientSettings::stringPointer(const QString &key)
+QString *VcsBaseClientSettings::stringPointer(const QString &key)
 {
     if (hasKey(key) && valueType(key) == QVariant::String)
         return d->m_valueHash[key].m_comp.strPtr;
     return 0;
 }
 
-int VCSBaseClientSettings::intValue(const QString &key, int defaultValue) const
+int VcsBaseClientSettings::intValue(const QString &key, int defaultValue) const
 {
     if (hasKey(key) && valueType(key) == QVariant::Int)
         return d->m_valueHash[key].m_comp.intValue;
     return defaultValue;
 }
 
-bool VCSBaseClientSettings::boolValue(const QString &key, bool defaultValue) const
+bool VcsBaseClientSettings::boolValue(const QString &key, bool defaultValue) const
 {
     if (hasKey(key) && valueType(key) == QVariant::Bool)
         return d->m_valueHash[key].m_comp.boolValue;
     return defaultValue;
 }
 
-QString VCSBaseClientSettings::stringValue(const QString &key, const QString &defaultValue) const
+QString VcsBaseClientSettings::stringValue(const QString &key, const QString &defaultValue) const
 {
     if (hasKey(key))
         return d->m_valueHash[key].stringValue(defaultValue);
     return defaultValue;
 }
 
-QVariant VCSBaseClientSettings::value(const QString &key) const
+QVariant VcsBaseClientSettings::value(const QString &key) const
 {
     switch (valueType(key)) {
     case QVariant::Int:
@@ -326,30 +326,30 @@ QVariant VCSBaseClientSettings::value(const QString &key) const
     }
 }
 
-void VCSBaseClientSettings::setValue(const QString &key, const QVariant &v)
+void VcsBaseClientSettings::setValue(const QString &key, const QVariant &v)
 {
     if (SettingValue::isUsableVariantType(valueType(key)))
         d->m_valueHash.insert(key, SettingValue(v));
 }
 
-QVariant::Type VCSBaseClientSettings::valueType(const QString &key) const
+QVariant::Type VcsBaseClientSettings::valueType(const QString &key) const
 {
     if (hasKey(key))
         return d->m_valueHash[key].type();
     return QVariant::Invalid;
 }
 
-QString VCSBaseClientSettings::settingsGroup() const
+QString VcsBaseClientSettings::settingsGroup() const
 {
     return d->m_settingsGroup;
 }
 
-void VCSBaseClientSettings::setSettingsGroup(const QString &group)
+void VcsBaseClientSettings::setSettingsGroup(const QString &group)
 {
     d->m_settingsGroup = group;
 }
 
-void VCSBaseClientSettings::declareKey(const QString &key, const QVariant &defaultValue)
+void VcsBaseClientSettings::declareKey(const QString &key, const QVariant &defaultValue)
 {
     if (SettingValue::isUsableVariantType(defaultValue.type())) {
         d->m_valueHash.insert(key, SettingValue(defaultValue));
@@ -357,11 +357,11 @@ void VCSBaseClientSettings::declareKey(const QString &key, const QVariant &defau
     }
 }
 
-QVariant VCSBaseClientSettings::keyDefaultValue(const QString &key) const
+QVariant VcsBaseClientSettings::keyDefaultValue(const QString &key) const
 {
     if (d->m_defaultValueHash.contains(key))
         return d->m_defaultValueHash.value(key);
     return QVariant(valueType(key));
 }
 
-} // namespace VCSBase
+} // namespace VcsBase

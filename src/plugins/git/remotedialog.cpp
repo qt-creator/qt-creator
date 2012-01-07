@@ -133,7 +133,7 @@ void RemoteDialog::refresh(const QString &repository, bool force)
     } else {
         QString errorMessage;
         if (!m_remoteModel->refresh(m_repository, &errorMessage))
-            VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
+            VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
     }
 }
 

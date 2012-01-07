@@ -78,7 +78,7 @@ namespace CodePaster {
           post() functionality.
 
    \sa ExtensionSystem::PluginManager::getObjectByClassName, ExtensionSystem::invoke
-   \sa VCSBase::VCSBaseEditorWidget
+   \sa VcsBase::VcsBaseEditorWidget
 */
 
 CodePasterService::CodePasterService(QObject *parent) :

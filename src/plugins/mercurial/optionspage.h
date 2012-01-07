@@ -61,7 +61,7 @@ private:
 };
 
 
-class OptionsPage : public VCSBase::VCSBaseOptionsPage
+class OptionsPage : public VcsBase::VcsBaseOptionsPage
 {
     Q_OBJECT
 

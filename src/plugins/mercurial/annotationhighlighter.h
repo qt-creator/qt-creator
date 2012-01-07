@@ -39,7 +39,7 @@
 namespace Mercurial {
 namespace Internal {
 
-class MercurialAnnotationHighlighter : public VCSBase::BaseAnnotationHighlighter
+class MercurialAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
 public:
     explicit MercurialAnnotationHighlighter(const ChangeNumbers &changeNumbers,

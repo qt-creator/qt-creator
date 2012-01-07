@@ -270,7 +270,7 @@ bool BranchModel::setData(const QModelIndex &index, const QVariant &value, int r
                                                       << newFullName.last(),
                                         &output, &errorMessage)) {
         node->name = oldFullName.last();
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
         return false;
     }
 
@@ -310,7 +310,7 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
                << QLatin1String("-v") << QLatin1String("-a");
     QString output;
     if (!m_client->synchronousBranchCmd(workingDirectory, branchArgs, &output, errorMessage)) {
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(*errorMessage);
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(*errorMessage);
         return false;
     }
 
@@ -334,7 +334,7 @@ void BranchModel::renameBranch(const QString &oldName, const QString &newName)
     if (!m_client->synchronousBranchCmd(m_workingDirectory,
                                         QStringList() << QLatin1String("-m") << oldName << newName,
                                         &output, &errorMessage))
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
     else
         refresh(m_workingDirectory, &errorMessage);
 }
@@ -417,7 +417,7 @@ void BranchModel::removeBranch(const QModelIndex &idx)
 
     args << QLatin1String("-D") << branch;
     if (!m_client->synchronousBranchCmd(m_workingDirectory, args, &output, &errorMessage)) {
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
         return;
     }
 
@@ -443,7 +443,7 @@ void BranchModel::checkoutBranch(const QModelIndex &idx)
     case GitClient::StashCanceled:
         return;
     case GitClient::StashFailed:
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
         return;
     }
     if (m_client->synchronousCheckoutBranch(m_workingDirectory, branch, &errorMessage)) {
@@ -460,7 +460,7 @@ void BranchModel::checkoutBranch(const QModelIndex &idx)
         }
     }
     if (!errorMessage.isEmpty())
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
 }
 
 bool BranchModel::branchIsMerged(const QModelIndex &idx)
@@ -475,7 +475,7 @@ bool BranchModel::branchIsMerged(const QModelIndex &idx)
 
     args << QLatin1String("-a") << QLatin1String("--contains") << sha(idx);
     if (!m_client->synchronousBranchCmd(m_workingDirectory, args, &output, &errorMessage)) {
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
         return false;
     }
 
@@ -503,7 +503,7 @@ QModelIndex BranchModel::addBranch(const QString &branchName, bool track, const 
     args << branchName << startPoint;
 
     if (!m_client->synchronousBranchCmd(m_workingDirectory, args, &output, &errorMessage)) {
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
         return QModelIndex();
     }
 

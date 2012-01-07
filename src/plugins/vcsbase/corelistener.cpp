@@ -34,17 +34,17 @@
 #include "vcsbasesubmiteditor.h"
 
 /*!
-    \class VCSBase::Internal::CoreListener
+    \class VcsBase::Internal::CoreListener
 
     \brief CoreListener catching closing of a submit editor.
 
     Catch the closing of a submit editor to trigger the submit.
     One instance of this class exists, connected to the instances
-    of VCSBasePlugin, which dispatch if the editor kind matches theirs
+    of VcsBasePlugin, which dispatch if the editor kind matches theirs
     (which is why the approach of passing the bool result was chosen).
 */
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Internal {
 
 CoreListener::CoreListener(QObject *parent) :
@@ -56,10 +56,10 @@ bool CoreListener::editorAboutToClose(Core::IEditor *editor)
 {
     bool result = true;
     if (editor)
-        if (VCSBase::VCSBaseSubmitEditor *se = qobject_cast<VCSBase::VCSBaseSubmitEditor *>(editor))
+        if (VcsBase::VcsBaseSubmitEditor *se = qobject_cast<VcsBase::VcsBaseSubmitEditor *>(editor))
             emit submitEditorAboutToClose(se, &result);
     return result;
 }
 
 } // namespace Internal
-} // namespace VCSBase
+} // namespace VcsBase

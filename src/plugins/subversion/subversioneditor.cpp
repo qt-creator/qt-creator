@@ -47,9 +47,9 @@
 using namespace Subversion;
 using namespace Subversion::Internal;
 
-SubversionEditor::SubversionEditor(const VCSBase::VCSBaseEditorParameters *type,
+SubversionEditor::SubversionEditor(const VcsBase::VcsBaseEditorParameters *type,
                                    QWidget *parent) :
-    VCSBase::VCSBaseEditorWidget(type, parent),
+    VcsBase::VcsBaseEditorWidget(type, parent),
     m_changeNumberPattern(QLatin1String("^\\d+$")),
     m_revisionNumberPattern(QLatin1String("^r\\d+$"))
 {
@@ -110,14 +110,14 @@ QString SubversionEditor::changeUnderCursor(const QTextCursor &c) const
 \endcode
 */
 
-VCSBase::DiffHighlighter *SubversionEditor::createDiffHighlighter() const
+VcsBase::DiffHighlighter *SubversionEditor::createDiffHighlighter() const
 {
     const QRegExp filePattern(QLatin1String("^[-+][-+][-+] .*|^Index: .*|^==*$"));
     QTC_CHECK(filePattern.isValid());
-    return new VCSBase::DiffHighlighter(filePattern);
+    return new VcsBase::DiffHighlighter(filePattern);
 }
 
-VCSBase::BaseAnnotationHighlighter *SubversionEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighter *SubversionEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
 {
     return new SubversionAnnotationHighlighter(changes);
 }

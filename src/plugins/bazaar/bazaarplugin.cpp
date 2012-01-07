@@ -79,30 +79,30 @@
 using namespace Bazaar::Internal;
 using namespace Bazaar;
 
-static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
+static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
     {
-        VCSBase::RegularCommandOutput, //type
+        VcsBase::RegularCommandOutput, //type
         Constants::COMMANDLOG_ID, // id
         Constants::COMMANDLOG_DISPLAY_NAME, // display name
         Constants::COMMANDLOG, // context
         Constants::COMMANDAPP, // mime type
         Constants::COMMANDEXT}, //extension
 
-    {   VCSBase::LogOutput,
+    {   VcsBase::LogOutput,
         Constants::FILELOG_ID,
         Constants::FILELOG_DISPLAY_NAME,
         Constants::FILELOG,
         Constants::LOGAPP,
         Constants::LOGEXT},
 
-    {    VCSBase::AnnotateOutput,
+    {    VcsBase::AnnotateOutput,
          Constants::ANNOTATELOG_ID,
          Constants::ANNOTATELOG_DISPLAY_NAME,
          Constants::ANNOTATELOG,
          Constants::ANNOTATEAPP,
          Constants::ANNOTATEEXT},
 
-    {   VCSBase::DiffOutput,
+    {   VcsBase::DiffOutput,
         Constants::DIFFLOG_ID,
         Constants::DIFFLOG_DISPLAY_NAME,
         Constants::DIFFLOG,
@@ -110,7 +110,7 @@ static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
         Constants::DIFFEXT}
 };
 
-static const VCSBase::VCSBaseSubmitEditorParameters submitEditorParameters = {
+static const VcsBase::VcsBaseSubmitEditorParameters submitEditorParameters = {
     Constants::COMMITMIMETYPE,
     Constants::COMMIT_ID,
     Constants::COMMIT_DISPLAY_NAME,
@@ -121,7 +121,7 @@ static const VCSBase::VCSBaseSubmitEditorParameters submitEditorParameters = {
 BazaarPlugin *BazaarPlugin::m_instance = 0;
 
 BazaarPlugin::BazaarPlugin()
-    : VCSBase::VCSBasePlugin(QLatin1String(Constants::COMMIT_ID)),
+    : VcsBase::VcsBasePlugin(QLatin1String(Constants::COMMIT_ID)),
       m_optionsPage(0),
       m_client(0),
       m_core(0),
@@ -151,7 +151,7 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
     Q_UNUSED(arguments);
     Q_UNUSED(errorMessage);
 
-    typedef VCSBase::VCSEditorFactory<BazaarEditor> BazaarEditorFactory;
+    typedef VcsBase::VcsEditorFactory<BazaarEditor> BazaarEditorFactory;
 
     m_client = new BazaarClient(&m_bazaarSettings);
     initializeVcs(new BazaarControl(m_client));
@@ -166,11 +166,11 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
     connect(m_client, SIGNAL(changed(QVariant)), versionControl(), SLOT(changed(QVariant)));
 
     static const char *describeSlot = SLOT(view(QString,QString));
-    const int editorCount = sizeof(editorParameters) / sizeof(VCSBase::VCSBaseEditorParameters);
+    const int editorCount = sizeof(editorParameters) / sizeof(VcsBase::VcsBaseEditorParameters);
     for (int i = 0; i < editorCount; i++)
         addAutoReleasedObject(new BazaarEditorFactory(editorParameters + i, m_client, describeSlot));
 
-    addAutoReleasedObject(new VCSBase::VCSSubmitEditorFactory<CommitEditor>(&submitEditorParameters));
+    addAutoReleasedObject(new VcsBase::VcsSubmitEditorFactory<CommitEditor>(&submitEditorParameters));
 
     addAutoReleasedObject(new CloneWizard);
 
@@ -294,28 +294,28 @@ void BazaarPlugin::createFileActions(const Core::Context &context)
 
 void BazaarPlugin::addCurrentFile()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     m_client->synchronousAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void BazaarPlugin::annotateCurrentFile()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     m_client->annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void BazaarPlugin::diffCurrentFile()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     m_client->diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void BazaarPlugin::logCurrentFile()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     m_client->log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()),
                   QStringList(), true);
@@ -323,7 +323,7 @@ void BazaarPlugin::logCurrentFile()
 
 void BazaarPlugin::revertCurrentFile()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
 
     QDialog dialog;
@@ -338,7 +338,7 @@ void BazaarPlugin::revertCurrentFile()
 
 void BazaarPlugin::statusCurrentFile()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     m_client->status(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
@@ -380,14 +380,14 @@ void BazaarPlugin::createDirectoryActions(const Core::Context &context)
 
 void BazaarPlugin::diffRepository()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     m_client->diff(state.topLevel());
 }
 
 void BazaarPlugin::logRepository()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     QStringList extraOptions;
     extraOptions += QString("--limit=%1").arg(settings().intValue(BazaarSettings::logCountKey));
@@ -396,7 +396,7 @@ void BazaarPlugin::logRepository()
 
 void BazaarPlugin::revertAll()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
     QDialog dialog;
@@ -409,7 +409,7 @@ void BazaarPlugin::revertAll()
 
 void BazaarPlugin::statusMulti()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     m_client->status(state.topLevel());
 }
@@ -456,7 +456,7 @@ void BazaarPlugin::createRepositoryActions(const Core::Context &context)
 
 void BazaarPlugin::pull()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
     PullOrPushDialog dialog(PullOrPushDialog::PullMode);
@@ -476,7 +476,7 @@ void BazaarPlugin::pull()
 
 void BazaarPlugin::push()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
     PullOrPushDialog dialog(PullOrPushDialog::PushMode);
@@ -498,7 +498,7 @@ void BazaarPlugin::push()
 
 void BazaarPlugin::update()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
     QDialog dialog;
@@ -515,12 +515,12 @@ void BazaarPlugin::createSubmitEditorActions()
     Core::Context context(Constants::COMMIT_ID);
     Core::Command *command;
 
-    m_editorCommit = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);
+    m_editorCommit = new QAction(VcsBase::VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     command = m_actionManager->registerAction(m_editorCommit, Core::Id(Constants::COMMIT), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_editorCommit, SIGNAL(triggered()), this, SLOT(commitFromEditor()));
 
-    m_editorDiff = new QAction(VCSBase::VCSBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
+    m_editorDiff = new QAction(VcsBase::VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
     command = m_actionManager->registerAction(m_editorDiff, Core::Id(Constants::DIFFEDITOR), context);
 
     m_editorUndo = new QAction(tr("&Undo"), this);
@@ -532,26 +532,26 @@ void BazaarPlugin::createSubmitEditorActions()
 
 void BazaarPlugin::commit()
 {
-    if (VCSBase::VCSBaseSubmitEditor::raiseSubmitEditor())
+    if (VcsBase::VcsBaseSubmitEditor::raiseSubmitEditor())
         return;
 
-    const VCSBase::VCSBasePluginState state = currentState();
+    const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
     m_submitRepository = state.topLevel();
 
-    connect(m_client, SIGNAL(parsedStatus(QList<VCSBase::VCSBaseClient::StatusItem>)),
-            this, SLOT(showCommitWidget(QList<VCSBase::VCSBaseClient::StatusItem>)));
+    connect(m_client, SIGNAL(parsedStatus(QList<VcsBase::VcsBaseClient::StatusItem>)),
+            this, SLOT(showCommitWidget(QList<VcsBase::VcsBaseClient::StatusItem>)));
     // The "--short" option allows to easily parse status output
     m_client->emitParsedStatus(m_submitRepository, QStringList(QLatin1String("--short")));
 }
 
-void BazaarPlugin::showCommitWidget(const QList<VCSBase::VCSBaseClient::StatusItem> &status)
+void BazaarPlugin::showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusItem> &status)
 {
-    VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
+    VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
     //Once we receive our data release the connection so it can be reused elsewhere
-    disconnect(m_client, SIGNAL(parsedStatus(QList<VCSBase::VCSBaseClient::StatusItem>)),
-               this, SLOT(showCommitWidget(QList<VCSBase::VCSBaseClient::StatusItem>)));
+    disconnect(m_client, SIGNAL(parsedStatus(QList<VcsBase::VcsBaseClient::StatusItem>)),
+               this, SLOT(showCommitWidget(QList<VcsBase::VcsBaseClient::StatusItem>)));
 
     if (status.isEmpty()) {
         outputWindow->appendError(tr("There are no changes to commit."));
@@ -615,7 +615,7 @@ void BazaarPlugin::commitFromEditor()
     m_core->editorManager()->closeEditors(m_core->editorManager()->editorsForFileName(m_changeLog->fileName()));
 }
 
-bool BazaarPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor)
+bool BazaarPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor)
 {
     if (!m_changeLog)
         return true;
@@ -625,15 +625,15 @@ bool BazaarPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submit
         return true;
 
     bool dummyPrompt = m_bazaarSettings.boolValue(BazaarSettings::promptOnSubmitKey);
-    const VCSBase::VCSBaseSubmitEditor::PromptSubmitResult response =
+    const VcsBase::VcsBaseSubmitEditor::PromptSubmitResult response =
             commitEditor->promptSubmit(tr("Close Commit Editor"), tr("Do you want to commit the changes?"),
                                        tr("Message check failed. Do you want to proceed?"),
                                        &dummyPrompt, dummyPrompt);
 
     switch (response) {
-    case VCSBase::VCSBaseSubmitEditor::SubmitCanceled:
+    case VcsBase::VcsBaseSubmitEditor::SubmitCanceled:
         return false;
-    case VCSBase::VCSBaseSubmitEditor::SubmitDiscarded:
+    case VcsBase::VcsBaseSubmitEditor::SubmitDiscarded:
         deleteCommitLog();
         return true;
     default:
@@ -687,7 +687,7 @@ void BazaarPlugin::createSeparator(const Core::Context &context, const Core::Id 
     m_bazaarContainer->addAction(m_actionManager->registerAction(action, id, context));
 }
 
-void BazaarPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
+void BazaarPlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)
 {
     if (!enableMenuAction(as, m_menuAction)) {
         m_commandLocator->setEnabled(false);

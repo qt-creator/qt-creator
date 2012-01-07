@@ -35,14 +35,14 @@
 
 #include <QtCore/QtGlobal>
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Constants {
 
 const char VCS_SETTINGS_CATEGORY[] = "V.Version Control";
-const char VCS_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
+const char VCS_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("VcsBase", "Version Control");
 const char SETTINGS_CATEGORY_VCS_ICON[] = ":/core/images/category_vcs.png";
 const char VCS_COMMON_SETTINGS_ID[] = "A.Common";
-const char VCS_COMMON_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("VCSBase", "Common");
+const char VCS_COMMON_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("VcsBase", "Common");
 
 // Ids for sort order (wizards and preferences)
 const char VCS_ID_BAZAAR[] = "B.Bazaar";
@@ -53,6 +53,6 @@ const char VCS_ID_PERFORCE[] = "P.Perforce";
 const char VCS_ID_CVS[] = "Z.CVS";
 
 } // namespace Constants
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // VCSBASE_CONSTANTS_H

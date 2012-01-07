@@ -49,16 +49,16 @@ namespace Utils {
 struct SynchronousProcessResponse;
 }
 
-namespace VCSBase {
+namespace VcsBase {
 
 class Command;
-class VCSBaseEditorWidget;
-class VCSBaseClientSettings;
-class VCSJob;
-class VCSBaseClientPrivate;
-class VCSBaseEditorParameterWidget;
+class VcsBaseEditorWidget;
+class VcsBaseClientSettings;
+class VcsJob;
+class VcsBaseClientPrivate;
+class VcsBaseEditorParameterWidget;
 
-class VCSBASE_EXPORT VCSBaseClient : public QObject
+class VCSBASE_EXPORT VcsBaseClient : public QObject
 {
     Q_OBJECT
 
@@ -72,8 +72,8 @@ public:
         QString file;
     };
 
-    explicit VCSBaseClient(VCSBaseClientSettings *settings);
-    ~VCSBaseClient();
+    explicit VcsBaseClient(VcsBaseClientSettings *settings);
+    ~VcsBaseClient();
     virtual bool synchronousCreateRepository(const QString &workingDir,
                                              const QStringList &extraOptions = QStringList());
     virtual bool synchronousClone(const QString &workingDir,
@@ -120,11 +120,11 @@ public:
 
     virtual QString findTopLevelForFile(const QFileInfo &file) const = 0;
 
-    virtual VCSBaseClientSettings *settings() const;
+    virtual VcsBaseClientSettings *settings() const;
 
 signals:
-    void parsedStatus(const QList<VCSBase::VCSBaseClient::StatusItem> &statusList);
-    // Passes on changed signals from VCSJob to Control
+    void parsedStatus(const QList<VcsBase::VcsBaseClient::StatusItem> &statusList);
+    // Passes on changed signals from VcsJob to Control
     void changed(const QVariant &v);
 
 public slots:
@@ -132,7 +132,7 @@ public slots:
                       const QStringList &extraOptions = QStringList());
 
 protected:
-    enum VCSCommand
+    enum VcsCommand
     {
         CreateRepositoryCommand,
         CloneCommand,
@@ -150,14 +150,14 @@ protected:
         LogCommand,
         StatusCommand
     };
-    virtual QString vcsCommandString(VCSCommand cmd) const;
-    virtual QString vcsEditorKind(VCSCommand cmd) const = 0;
+    virtual QString vcsCommandString(VcsCommand cmd) const;
+    virtual QString vcsEditorKind(VcsCommand cmd) const = 0;
 
     virtual QStringList revisionSpec(const QString &revision) const = 0;
-    virtual VCSBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
+    virtual VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
                                                            const QStringList &files,
                                                            const QStringList &extraOptions);
-    virtual VCSBaseEditorParameterWidget *createLogEditor(const QString &workingDir,
+    virtual VcsBaseEditorParameterWidget *createLogEditor(const QString &workingDir,
                                                           const QStringList &files,
                                                           const QStringList &extraOptions);
     virtual StatusItem parseStatusLine(const QString &line) const = 0;
@@ -168,12 +168,12 @@ protected:
                                  const QStringList &args,
                                  QByteArray *output);
     // Synchronous VCS execution using Utils::SynchronousProcess, with
-    // log windows updating (using VCSBasePlugin::runVCS with flags)
+    // log windows updating (using VcsBasePlugin::runVcs with flags)
     Utils::SynchronousProcessResponse vcsSynchronousExec(const QString &workingDir,
                                                          const QStringList &args,
                                                          unsigned flags = 0,
                                                          QTextCodec *outputCodec = 0);
-    VCSBase::VCSBaseEditorWidget *createVCSEditor(const QString &kind, QString title,
+    VcsBase::VcsBaseEditorWidget *createVcsEditor(const QString &kind, QString title,
                                                   const QString &source, bool setSourceCodec,
                                                   const char *registerDynamicProperty,
                                                   const QString &dynamicPropertyValue) const;
@@ -185,15 +185,15 @@ protected:
         VcsWindowOutputBind
     };
     Command *createCommand(const QString &workingDirectory,
-                           VCSBase::VCSBaseEditorWidget *editor = 0,
+                           VcsBase::VcsBaseEditorWidget *editor = 0,
                            JobOutputBindMode mode = NoOutputBind);
     void enqueueJob(Command *cmd, const QStringList &args);
 
     void resetCachedVcsInfo(const QString &workingDir);
 
 private:
-    friend class VCSBaseClientPrivate;
-    VCSBaseClientPrivate *d;
+    friend class VcsBaseClientPrivate;
+    VcsBaseClientPrivate *d;
 
     Q_PRIVATE_SLOT(d, void statusParser(QByteArray))
     Q_PRIVATE_SLOT(d, void annotateRevision(QString, QString, int))
@@ -201,6 +201,6 @@ private:
     Q_PRIVATE_SLOT(d, void commandFinishedGotoLine(QObject *))
 };
 
-} //namespace VCSBase
+} //namespace VcsBase
 
 #endif // VCSBASECLIENT_H

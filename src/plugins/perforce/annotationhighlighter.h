@@ -39,7 +39,7 @@ namespace Perforce {
 namespace Internal {
 
 // Annotation highlighter for p4 triggering on 'changenumber:'
-class PerforceAnnotationHighlighter : public VCSBase::BaseAnnotationHighlighter
+class PerforceAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
     Q_OBJECT
 public:

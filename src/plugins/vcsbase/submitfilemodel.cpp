@@ -39,7 +39,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
-namespace VCSBase {
+namespace VcsBase {
 
 // --------------------------------------------------------------------------
 // Helpers:
@@ -66,7 +66,7 @@ static QList<QStandardItem *> createFileRow(const QString &fileName, const QStri
 // --------------------------------------------------------------------------
 
 /*!
-    \class VCSBase::SubmitFileModel
+    \class VcsBase::SubmitFileModel
 
     \brief A 2-column (checkable, state, file name) model to be used to list the files
     in the submit editor. Provides header items and a convience to add files.
@@ -157,4 +157,4 @@ unsigned SubmitFileModel::filter(const QStringList &filter, int column)
     return rc;
 }
 
-} // namespace VCSBase
+} // namespace VcsBase

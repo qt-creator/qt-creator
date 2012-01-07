@@ -40,18 +40,18 @@
 namespace Bazaar {
 namespace Internal {
 
-class BazaarEditor : public VCSBase::VCSBaseEditorWidget
+class BazaarEditor : public VcsBase::VcsBaseEditorWidget
 {
     Q_OBJECT
 
 public:
-    explicit BazaarEditor(const VCSBase::VCSBaseEditorParameters *type, QWidget *parent);
+    explicit BazaarEditor(const VcsBase::VcsBaseEditorParameters *type, QWidget *parent);
 
 private:
     virtual QSet<QString> annotationChanges() const;
     virtual QString changeUnderCursor(const QTextCursor &cursor) const;
-    virtual VCSBase::DiffHighlighter *createDiffHighlighter() const;
-    virtual VCSBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const;
+    virtual VcsBase::DiffHighlighter *createDiffHighlighter() const;
+    virtual VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const;
     virtual QString fileNameFromDiffSpecification(const QTextBlock &diffFileSpec) const;
 
     const QRegExp m_exactChangesetId;

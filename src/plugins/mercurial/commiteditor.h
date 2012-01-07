@@ -38,7 +38,7 @@
 
 #include <QtCore/QFileInfo>
 
-namespace VCSBase {
+namespace VcsBase {
 class SubmitFileModel;
 }
 
@@ -47,16 +47,16 @@ namespace Internal {
 
 class MercurialCommitWidget;
 
-class CommitEditor : public VCSBase::VCSBaseSubmitEditor
+class CommitEditor : public VcsBase::VcsBaseSubmitEditor
 {
     Q_OBJECT
 public:
-    explicit CommitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters,
+    explicit CommitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters,
                           QWidget *parent);
 
     void setFields(const QFileInfo &repositoryRoot, const QString &branch,
                    const QString &userName, const QString &email,
-                   const QList<VCSBase::VCSBaseClient::StatusItem> &repoStatus);
+                   const QList<VcsBase::VcsBaseClient::StatusItem> &repoStatus);
 
     QString committerInfo();
     QString repoRoot();
@@ -64,7 +64,7 @@ public:
 
 private:
     inline MercurialCommitWidget *commitWidget();
-    VCSBase::SubmitFileModel *fileModel;
+    VcsBase::SubmitFileModel *fileModel;
 
 };
 

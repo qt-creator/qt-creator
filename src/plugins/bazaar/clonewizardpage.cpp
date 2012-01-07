@@ -36,7 +36,7 @@
 using namespace Bazaar::Internal;
 
 CloneWizardPage::CloneWizardPage(QWidget *parent)
-    : VCSBase::BaseCheckoutWizardPage(parent),
+    : VcsBase::BaseCheckoutWizardPage(parent),
       m_optionsPanel(new CloneOptionsPanel)
 {
     setTitle(tr("Location"));

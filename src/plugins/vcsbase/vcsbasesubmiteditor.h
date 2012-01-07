@@ -47,13 +47,13 @@ QT_END_NAMESPACE
 
 namespace Utils { class SubmitEditorWidget; }
 
-namespace VCSBase {
+namespace VcsBase {
 namespace Internal {
     class CommonVcsSettings;
 }
-struct VCSBaseSubmitEditorPrivate;
+struct VcsBaseSubmitEditorPrivate;
 
-class VCSBASE_EXPORT VCSBaseSubmitEditorParameters
+class VCSBASE_EXPORT VcsBaseSubmitEditorParameters
 {
 public:
     const char *mimeType;
@@ -62,7 +62,7 @@ public:
     const char *context;
 };
 
-class VCSBASE_EXPORT VCSBaseSubmitEditor : public Core::IEditor
+class VCSBASE_EXPORT VcsBaseSubmitEditor : public Core::IEditor
 {
     Q_OBJECT
     Q_PROPERTY(int fileNameColumn READ fileNameColumn WRITE setFileNameColumn DESIGNABLE false)
@@ -73,7 +73,7 @@ class VCSBASE_EXPORT VCSBaseSubmitEditor : public Core::IEditor
     Q_PROPERTY(bool emptyFileListEnabled READ isEmptyFileListEnabled WRITE setEmptyFileListEnabled DESIGNABLE true)
 
 protected:
-    explicit VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *parameters,
+    explicit VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *parameters,
                                  Utils::SubmitEditorWidget *editorWidget);
 
 public:
@@ -83,7 +83,7 @@ public:
     void unregisterActions(QAction *editorUndoAction,  QAction *editorRedoAction,
                            QAction *submitAction = 0, QAction *diffAction = 0);
 
-    ~VCSBaseSubmitEditor();
+    ~VcsBaseSubmitEditor();
 
     // A utility routine to be called when closing a submit editor.
     // Runs checks on the message and prompts according to configuration.
@@ -157,13 +157,13 @@ signals:
     void diffSelectedFiles(const QStringList &files);
 
 private slots:
-    void slotDiffSelectedVCSFiles(const QStringList &rawList);
+    void slotDiffSelectedVcsFiles(const QStringList &rawList);
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     void slotDescriptionChanged();
     void slotCheckSubmitMessage();
     void slotInsertNickName();
     void slotSetFieldNickName(int);
-    void slotUpdateEditorSettings(const VCSBase::Internal::CommonVcsSettings &);
+    void slotUpdateEditorSettings(const VcsBase::Internal::CommonVcsSettings &);
 
 protected:
     /* These hooks allow for modifying the contents that goes to
@@ -178,9 +178,9 @@ private:
     bool runSubmitMessageCheckScript(const QString &script, QString *errorMessage) const;
     QString promptForNickName();
 
-    VCSBaseSubmitEditorPrivate *d;
+    VcsBaseSubmitEditorPrivate *d;
 };
 
-} // namespace VCSBase
+} // namespace VcsBase
 
 #endif // VCSBASE_SUBMITEDITOR_H
