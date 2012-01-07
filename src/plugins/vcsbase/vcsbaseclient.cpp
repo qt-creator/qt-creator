@@ -167,10 +167,6 @@ void VCSBaseClientPrivate::commandFinishedGotoLine(QObject *editorObject)
     }
 }
 
-VCSBaseClient::StatusItem::StatusItem()
-{
-}
-
 VCSBaseClient::StatusItem::StatusItem(const QString &s, const QString &f) :
     flags(s), file(f)
 {

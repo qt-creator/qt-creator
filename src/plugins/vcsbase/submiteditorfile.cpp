@@ -55,7 +55,7 @@ void SubmitEditorFile::rename(const QString &newName)
     return;
 }
 
-void SubmitEditorFile::setFileName(const QString name)
+void SubmitEditorFile::setFileName(const QString &name)
 {
      m_fileName = name;
      emit changed();

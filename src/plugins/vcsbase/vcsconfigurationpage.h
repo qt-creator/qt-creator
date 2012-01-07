@@ -37,17 +37,14 @@
 
 #include <QtGui/QWizardPage>
 
-namespace Core {
-class IVersionControl;
-} // namespace Core
+namespace Core { class IVersionControl; }
 
 namespace VCSBase {
 
-namespace Internal {
-class VcsConfigurationPagePrivate;
-} // namespace Internal
+namespace Internal { class VcsConfigurationPagePrivate; }
 
-class VCSBASE_EXPORT VcsConfigurationPage : public QWizardPage {
+class VCSBASE_EXPORT VcsConfigurationPage : public QWizardPage
+{
     Q_OBJECT
 
 public:
@@ -58,6 +55,7 @@ public:
 
 private slots:
     void openConfiguration();
+
 private:
     Internal::VcsConfigurationPagePrivate *const d;
 };

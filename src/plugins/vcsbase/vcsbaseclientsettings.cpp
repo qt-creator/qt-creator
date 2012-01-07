@@ -157,12 +157,11 @@ bool operator==(const SettingValue &lhs, const SettingValue &rhs)
 namespace VCSBase {
 
 namespace Internal {
+
 class VCSBaseClientSettingsPrivate : public QSharedData
 {
 public:
-    VCSBaseClientSettingsPrivate()
-    {
-    }
+    VCSBaseClientSettingsPrivate() {}
 
     VCSBaseClientSettingsPrivate(const VCSBaseClientSettingsPrivate &other) :
         QSharedData(other),
@@ -213,7 +212,7 @@ VCSBaseClientSettings::VCSBaseClientSettings(const VCSBaseClientSettings &other)
 VCSBaseClientSettings &VCSBaseClientSettings::operator=(const VCSBaseClientSettings &other)
 {
     if (this != &other)
-      d = other.d;
+        d = other.d;
     return *this;
 }
 

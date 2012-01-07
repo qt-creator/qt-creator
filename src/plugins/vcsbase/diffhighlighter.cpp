@@ -88,10 +88,12 @@ enum FoldingState {
 };
 
 // --- DiffHighlighterPrivate
-class DiffHighlighterPrivate {
+class DiffHighlighterPrivate
+{
 public:
     DiffHighlighterPrivate(const QRegExp &filePattern);
-    inline DiffFormats analyzeLine(const QString &block) const;
+
+    DiffFormats analyzeLine(const QString &block) const;
 
     const QRegExp m_filePattern;
     const QString m_locationIndicator;

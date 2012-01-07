@@ -58,7 +58,8 @@ typedef QMap<QString, QTextCharFormat> ChangeNumberFormatMap;
 namespace VCSBase {
 namespace Internal {
 
-class BaseAnnotationHighlighterPrivate {
+class BaseAnnotationHighlighterPrivate
+{
 public:
     ChangeNumberFormatMap m_changeNumberMap;
 };

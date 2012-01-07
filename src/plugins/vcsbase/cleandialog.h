@@ -43,20 +43,20 @@ QT_END_NAMESPACE
 
 namespace VCSBase {
 
-namespace Internal {
-class CleanDialogPrivate;
-} // namespace Internal
+namespace Internal { class CleanDialogPrivate; }
 
-class VCSBASE_EXPORT CleanDialog : public QDialog {
+class VCSBASE_EXPORT CleanDialog : public QDialog
+{
     Q_OBJECT
+
 public:
     explicit CleanDialog(QWidget *parent = 0);
-    virtual ~CleanDialog();
+    ~CleanDialog();
 
     void setFileList(const QString &workingDirectory, const QStringList &);
 
 public slots:
-    virtual void accept();
+    void accept();
 
 protected:
     void changeEvent(QEvent *e);
@@ -72,4 +72,5 @@ private:
 };
 
 } // namespace VCSBase
+
 #endif // CLEANDIALOG_H

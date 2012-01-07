@@ -41,9 +41,7 @@ class AbstractCheckoutJob;
 
 namespace Internal {
 
-namespace Ui {
-    class CheckoutProgressWizardPage;
-}
+namespace Ui { class CheckoutProgressWizardPage; }
 
 class CheckoutProgressWizardPage : public QWizardPage
 {
@@ -81,4 +79,5 @@ private:
 
 } // namespace Internal
 } // namespace VCSBase
+
 #endif // CHECKOUTPROGRESSWIZARDPAGE_H

@@ -157,4 +157,4 @@ unsigned SubmitFileModel::filter(const QStringList &filter, int column)
     return rc;
 }
 
-}
+} // namespace VCSBase

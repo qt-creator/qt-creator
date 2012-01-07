@@ -42,28 +42,23 @@ class QRegExp;
 class QTextCharFormat;
 QT_END_NAMESPACE
 
-namespace Core {
-    class ICore;
-}
-namespace TextEditor {
-    class FontSettingsPage;
-}
+namespace Core { class ICore; }
+namespace TextEditor { class FontSettingsPage; }
 
 namespace VCSBase {
 
-namespace Internal {
-class DiffHighlighterPrivate;
-} // namespace Internal
+namespace Internal { class DiffHighlighterPrivate; }
 
 class VCSBASE_EXPORT DiffHighlighter : public TextEditor::SyntaxHighlighter
 {
     Q_OBJECT
+
 public:
     explicit DiffHighlighter(const QRegExp &filePattern,
                              QTextDocument *document = 0);
-    virtual ~DiffHighlighter();
+    ~DiffHighlighter();
 
-    virtual void highlightBlock(const QString &text);
+    void highlightBlock(const QString &text);
 
     // Set formats from a sequence of type QTextCharFormat
     void setFormats(const QVector<QTextCharFormat> &s);

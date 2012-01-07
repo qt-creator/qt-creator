@@ -45,21 +45,18 @@ class QTextCodec;
 class QTextCursor;
 QT_END_NAMESPACE
 
-namespace Core {
-    class IVersionControl;
-}
+namespace Core { class IVersionControl; }
 
 namespace VCSBase {
 
-namespace Internal {
-class VCSBaseEditorWidgetPrivate;
-} // namespace Internal
+namespace Internal { class VCSBaseEditorWidgetPrivate; }
 
 class DiffHighlighter;
 class BaseAnnotationHighlighter;
 
 // Documentation inside
-enum EditorContentType {
+enum EditorContentType
+{
     RegularCommandOutput,
     LogOutput,
     AnnotateOutput,
@@ -106,7 +103,7 @@ protected:
 public:
     void init();
 
-    virtual ~VCSBaseEditorWidget();
+    ~VCSBaseEditorWidget();
 
     /* Force read-only: Make it a read-only, temporary file.
      * Should be set to true by version control views. It is not on

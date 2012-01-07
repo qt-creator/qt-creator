@@ -40,16 +40,9 @@
 #include <QtCore/QProcess>
 #include <QtCore/QProcessEnvironment>
 
-QT_BEGIN_NAMESPACE
-class QStringList;
-class QByteArray;
-QT_END_NAMESPACE
-
 namespace VCSBase {
 
-namespace Internal {
-class ProcessCheckoutJobPrivate;
-} // namespace Internal
+namespace Internal { class ProcessCheckoutJobPrivate; }
 
 /* Abstract base class for a job creating an initial project checkout.
  * It should be something that runs in the background producing log
@@ -58,6 +51,7 @@ class ProcessCheckoutJobPrivate;
 class VCSBASE_EXPORT AbstractCheckoutJob : public QObject
 {
     Q_OBJECT
+
 public:
     virtual void start() = 0;
     virtual void cancel() = 0;
@@ -74,17 +68,18 @@ signals:
 class VCSBASE_EXPORT ProcessCheckoutJob : public AbstractCheckoutJob
 {
     Q_OBJECT
+
 public:
     explicit ProcessCheckoutJob(QObject *parent = 0);
-    virtual ~ProcessCheckoutJob();
+    ~ProcessCheckoutJob();
 
     void addStep(const QString &binary,
                  const QStringList &args,
                  const QString &workingDirectory = QString(),
                  const QProcessEnvironment &env = QProcessEnvironment::systemEnvironment());
 
-    virtual void start();
-    virtual void cancel();
+    void start();
+    void cancel();
 
 private slots:
     void slotError(QProcess::ProcessError error);

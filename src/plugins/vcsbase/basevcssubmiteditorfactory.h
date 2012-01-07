@@ -56,12 +56,12 @@ protected:
     explicit BaseVCSSubmitEditorFactory(const VCSBaseSubmitEditorParameters *parameters);
 
 public:
-    virtual ~BaseVCSSubmitEditorFactory();
+    ~BaseVCSSubmitEditorFactory();
 
-    virtual Core::IEditor *createEditor(QWidget *parent);
-    virtual Core::Id id() const;
-    virtual QString displayName() const;
-    virtual QStringList mimeTypes() const;
+    Core::IEditor *createEditor(QWidget *parent);
+    Core::Id id() const;
+    QString displayName() const;
+    QStringList mimeTypes() const;
     Core::IFile *open(const QString &fileName);
 
 private:
@@ -79,26 +79,18 @@ template <class Editor>
 class VCSSubmitEditorFactory : public BaseVCSSubmitEditorFactory
 {
 public:
-    explicit VCSSubmitEditorFactory(const VCSBaseSubmitEditorParameters *parameters);
+    explicit VCSSubmitEditorFactory(const VCSBaseSubmitEditorParameters *parameters)
+        : BaseVCSSubmitEditorFactory(parameters)
+    {
+    }
 
 private:
-    virtual VCSBaseSubmitEditor
-        *createBaseSubmitEditor(const VCSBaseSubmitEditorParameters *parameters,
-                                QWidget *parent);
+    VCSBaseSubmitEditor *createBaseSubmitEditor
+        (const VCSBaseSubmitEditorParameters *parameters, QWidget *parent)
+    {
+        return new Editor(parameters, parent);
+    }
 };
-
-template <class Editor>
-VCSSubmitEditorFactory<Editor>::VCSSubmitEditorFactory(const VCSBaseSubmitEditorParameters *parameters) :
-    BaseVCSSubmitEditorFactory(parameters)
-{
-}
-
-template <class Editor>
-VCSBaseSubmitEditor *VCSSubmitEditorFactory<Editor>::createBaseSubmitEditor(const VCSBaseSubmitEditorParameters *parameters,
-                                                                            QWidget *parent)
-{
-    return new Editor(parameters, parent);
-}
 
 } // namespace VCSBase
 

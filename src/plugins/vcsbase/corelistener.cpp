@@ -61,5 +61,5 @@ bool CoreListener::editorAboutToClose(Core::IEditor *editor)
     return result;
 }
 
-}
-}
+} // namespace Internal
+} // namespace VCSBase

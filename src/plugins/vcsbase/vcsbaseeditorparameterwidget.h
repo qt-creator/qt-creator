@@ -35,9 +35,9 @@
 
 #include "vcsbase_global.h"
 
-#include <QtGui/QWidget>
 #include <QtCore/QStringList>
 #include <QtCore/QVariant>
+#include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -46,9 +46,7 @@ QT_END_NAMESPACE
 
 namespace VCSBase {
 
-namespace Internal {
-class VCSBaseEditorParameterWidgetPrivate;
-} // namespace
+namespace Internal { class VCSBaseEditorParameterWidgetPrivate; }
 
 // Documentation->inside.
 class VCSBASE_EXPORT VCSBaseEditorParameterWidget : public QWidget
@@ -61,7 +59,7 @@ public:
 
     struct VCSBASE_EXPORT ComboBoxItem
     {
-        ComboBoxItem();
+        ComboBoxItem() {}
         ComboBoxItem(const QString &text, const QVariant &val);
         QString displayText;
         QVariant value;

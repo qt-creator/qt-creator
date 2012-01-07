@@ -46,18 +46,13 @@ class QProcessEnvironment;
 class QTextCodec;
 QT_END_NAMESPACE
 
-namespace Utils {
-    struct SynchronousProcessResponse;
-}
+namespace Utils { struct SynchronousProcessResponse; }
 
-namespace Core {
-    class IVersionControl;
-}
+namespace Core { class IVersionControl; }
 
 namespace VCSBase {
-namespace Internal {
-    struct State;
-}
+
+namespace Internal { struct State; }
 
 class VCSBaseSubmitEditor;
 struct VCSBasePluginPrivate;

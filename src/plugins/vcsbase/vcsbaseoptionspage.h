@@ -33,9 +33,9 @@
 #ifndef VCSBASEOPTIONSPAGE_H
 #define VCSBASEOPTIONSPAGE_H
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 #include "vcsbase_global.h"
+
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace VCSBase {
 

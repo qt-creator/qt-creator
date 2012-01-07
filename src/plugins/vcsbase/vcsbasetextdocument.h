@@ -42,6 +42,7 @@ namespace Internal {
 class VCSBaseTextDocument : public TextEditor::BaseTextDocument
 {
     Q_OBJECT
+
 public:
     VCSBaseTextDocument();
 

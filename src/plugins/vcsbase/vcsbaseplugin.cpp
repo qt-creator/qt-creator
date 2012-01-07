@@ -64,6 +64,8 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMainWindow>
 
+using namespace Utils;
+
 enum { debug = 0, debugRepositorySearch = 0, debugExecution = 0 };
 
 /*!
@@ -88,7 +90,8 @@ namespace Internal {
     Aggregated in the QSharedData of VCSBase::VCSBasePluginState.
 */
 
-struct State {
+struct State
+{
     void clearFile();
     void clearPatchFile();
     void clearProject();
@@ -189,8 +192,10 @@ QDebug operator<<(QDebug in, const State &state)
     Singleton (as not to do checks multiple times).
 */
 
-class StateListener : public QObject {
+class StateListener : public QObject
+{
     Q_OBJECT
+
 public:
     explicit StateListener(QObject *parent);
 
@@ -302,7 +307,8 @@ void StateListener::slotStateChanged()
 
 } // namespace Internal
 
-class VCSBasePluginStateData : public QSharedData {
+class VCSBasePluginStateData : public QSharedData
+{
 public:
     Internal::State m_state;
 };
@@ -782,8 +788,7 @@ void VCSBasePlugin::setProcessEnvironment(QProcessEnvironment *e, bool forceCLoc
 
 // Run a process fully synchronously, returning Utils::SynchronousProcessResponse
 // response struct and using the VCSBasePlugin flags as applicable
-static Utils::SynchronousProcessResponse
-    runVCS_FullySynchronously(const QString &workingDir,
+static SynchronousProcessResponse runVcsFullySynchronously(const QString &workingDir,
                               const QString &binary,
                               const QStringList &arguments,
                               int timeOutMS,
@@ -796,8 +801,8 @@ static Utils::SynchronousProcessResponse
     // Set up process
     unsigned processFlags = 0;
     if (VCSBasePlugin::isSshPromptConfigured() && (flags & VCSBasePlugin::SshPasswordPrompt))
-        processFlags |= Utils::SynchronousProcess::UnixTerminalDisabled;
-    QSharedPointer<QProcess> process = Utils::SynchronousProcess::createProcess(processFlags);
+        processFlags |= SynchronousProcess::UnixTerminalDisabled;
+    QSharedPointer<QProcess> process = SynchronousProcess::createProcess(processFlags);
     if (!workingDir.isEmpty())
         process->setWorkingDirectory(workingDir);
     process->setProcessEnvironment(env);
@@ -807,9 +812,9 @@ static Utils::SynchronousProcessResponse
     // Start
     process->start(binary, arguments, QIODevice::ReadOnly);
     process->closeWriteChannel();
-    Utils::SynchronousProcessResponse response;
+    SynchronousProcessResponse response;
     if (!process->waitForStarted()) {
-        response.result = Utils::SynchronousProcessResponse::StartFailed;
+        response.result = SynchronousProcessResponse::StartFailed;
         return response;
     }
 
@@ -817,7 +822,7 @@ static Utils::SynchronousProcessResponse
     QByteArray stdOut;
     QByteArray stdErr;
     const bool timedOut =
-            !Utils::SynchronousProcess::readDataFromProcess(*process.data(), timeOutMS,
+            !SynchronousProcess::readDataFromProcess(*process.data(), timeOutMS,
                                                             &stdOut, &stdErr, true);
 
     if (!stdErr.isEmpty()) {
@@ -835,20 +840,19 @@ static Utils::SynchronousProcessResponse
 
     // Result
     if (timedOut) {
-        response.result = Utils::SynchronousProcessResponse::Hang;
+        response.result = SynchronousProcessResponse::Hang;
     } else if (process->exitStatus() != QProcess::NormalExit) {
-        response.result = Utils::SynchronousProcessResponse::TerminatedAbnormally;
+        response.result = SynchronousProcessResponse::TerminatedAbnormally;
     } else {
         response.result = process->exitCode() == 0 ?
-                          Utils::SynchronousProcessResponse::Finished :
-                          Utils::SynchronousProcessResponse::FinishedError;
+                          SynchronousProcessResponse::Finished :
+                          SynchronousProcessResponse::FinishedError;
     }
     return response;
 }
 
 
-Utils::SynchronousProcessResponse
-VCSBasePlugin::runVCS(const QString &workingDir,
+SynchronousProcessResponse VCSBasePlugin::runVCS(const QString &workingDir,
                       const QString &binary,
                       const QStringList &arguments,
                       int timeOutMS,
@@ -860,13 +864,13 @@ VCSBasePlugin::runVCS(const QString &workingDir,
                   flags, outputCodec);
 }
 
-Utils::SynchronousProcessResponse VCSBasePlugin::runVCS(const QString &workingDir,
-                                                        const QString &binary,
-                                                        const QStringList &arguments,
-                                                        int timeOutMS,
-                                                        QProcessEnvironment env,
-                                                        unsigned flags,
-                                                        QTextCodec *outputCodec)
+SynchronousProcessResponse VCSBasePlugin::runVCS(const QString &workingDir,
+                                                 const QString &binary,
+                                                 const QStringList &arguments,
+                                                 int timeOutMS,
+                                                 QProcessEnvironment env,
+                                                 unsigned flags,
+                                                 QTextCodec *outputCodec)
 {
     VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
 
@@ -900,14 +904,14 @@ Utils::SynchronousProcessResponse VCSBasePlugin::runVCS(const QString &workingDi
 
     VCSBase::VCSBasePlugin::setProcessEnvironment(&env, (flags & ForceCLocale));
 
-    Utils::SynchronousProcessResponse response;
+    SynchronousProcessResponse response;
 
     if (flags & FullySynchronously) {
-        response = runVCS_FullySynchronously(workingDir, binary, arguments, timeOutMS,
+        response = runVcsFullySynchronously(workingDir, binary, arguments, timeOutMS,
                                              env, flags, outputCodec);
     } else {
         // Run, connect stderr to the output window
-        Utils::SynchronousProcess process;
+        SynchronousProcess process;
         if (!workingDir.isEmpty())
             process.setWorkingDirectory(workingDir);
 
@@ -918,7 +922,7 @@ Utils::SynchronousProcessResponse VCSBasePlugin::runVCS(const QString &workingDi
 
         // Suppress terminal on UNIX for ssh prompts if it is configured.
         if (sshPromptConfigured && (flags & SshPasswordPrompt))
-            process.setFlags(Utils::SynchronousProcess::UnixTerminalDisabled);
+            process.setFlags(SynchronousProcess::UnixTerminalDisabled);
 
         // connect stderr to the output window if desired
         if (flags & MergeOutputChannels) {
@@ -943,7 +947,7 @@ Utils::SynchronousProcessResponse VCSBasePlugin::runVCS(const QString &workingDi
     }
 
     // Success/Fail message in appropriate window?
-    if (response.result == Utils::SynchronousProcessResponse::Finished) {
+    if (response.result == SynchronousProcessResponse::Finished) {
         if (flags & ShowSuccessMessage)
             outputWindow->append(response.exitMessage(binary, timeOutMS));
     } else {
@@ -983,10 +987,10 @@ bool VCSBasePlugin::runFullySynchronous(const QString &workingDirectory,
         return false;
     }
 
-    if (!Utils::SynchronousProcess::readDataFromProcess(process, timeoutMS,
+    if (!SynchronousProcess::readDataFromProcess(process, timeoutMS,
                                                         outputText, errorText, true)) {
         errorText->append(tr("Error: Executable timed out after %1s.").arg(timeoutMS / 1000).toLocal8Bit());
-        Utils::SynchronousProcess::stopProcess(process);
+        SynchronousProcess::stopProcess(process);
         return false;
     }
 
@@ -1019,8 +1023,8 @@ bool VCSBasePlugin::runPatch(const QByteArray &input, const QString &workingDire
     patchProcess.closeWriteChannel();
     QByteArray stdOut;
     QByteArray stdErr;
-    if (!Utils::SynchronousProcess::readDataFromProcess(patchProcess, 30000, &stdOut, &stdErr, true)) {
-        Utils::SynchronousProcess::stopProcess(patchProcess);
+    if (!SynchronousProcess::readDataFromProcess(patchProcess, 30000, &stdOut, &stdErr, true)) {
+        SynchronousProcess::stopProcess(patchProcess);
         ow->appendError(tr("A timeout occurred running '%1'").arg(patch));
         return false;
 
@@ -1040,6 +1044,7 @@ bool VCSBasePlugin::runPatch(const QByteArray &input, const QString &workingDire
     }
     return true;
 }
+
 } // namespace VCSBase
 
 #include "vcsbaseplugin.moc"

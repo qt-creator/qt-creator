@@ -61,7 +61,8 @@ namespace Internal {
 
 // For code clarity, a struct representing the entries of a mail map file
 // with parse and model functions.
-class NickNameEntry {
+class NickNameEntry
+{
 public:
     void clear();
     bool parse(const QString &);
@@ -276,5 +277,5 @@ QStringList NickNameDialog::nickNameList(const QStandardItemModel *model)
     return rc;
 }
 
-}
-}
+} // namespace Internal
+} // namespace VCSBase

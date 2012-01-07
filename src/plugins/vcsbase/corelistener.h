@@ -44,9 +44,10 @@ namespace Internal {
 class CoreListener : public Core::ICoreListener
 {
     Q_OBJECT
+
 public:
     explicit CoreListener(QObject *parent = 0);
-    virtual bool editorAboutToClose(Core::IEditor *editor);
+    bool editorAboutToClose(Core::IEditor *editor);
 
 signals:
     void submitEditorAboutToClose(VCSBaseSubmitEditor *e, bool *result);
@@ -54,4 +55,5 @@ signals:
 
 } // Internal
 } // VCSBase
+
 #endif // CORELISTENER_H

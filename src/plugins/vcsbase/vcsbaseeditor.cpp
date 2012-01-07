@@ -136,7 +136,7 @@ public:
 };
 
 } // namespace Internal
-} // VCSBase
+} // namespace VCSBase
 
 Q_DECLARE_METATYPE(VCSBase::Internal::DiffChunkAction)
 

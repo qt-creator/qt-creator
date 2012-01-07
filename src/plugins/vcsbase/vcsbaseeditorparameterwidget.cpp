@@ -107,10 +107,6 @@ public:
     that should trigger the rerun of the VCS operation.
 */
 
-VCSBaseEditorParameterWidget::ComboBoxItem::ComboBoxItem()
-{
-}
-
 VCSBaseEditorParameterWidget::ComboBoxItem::ComboBoxItem(const QString &text,
                                                          const QVariant &val) :
     displayText(text),

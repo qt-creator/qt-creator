@@ -34,7 +34,7 @@
 #define VCSBASECLIENTSETTINGS_H
 
 #include "vcsbase_global.h"
-#include <QtCore/QString>
+
 #include <QtCore/QStringList>
 #include <QtCore/QVariant>
 #include <QtCore/QSharedDataPointer>
@@ -45,9 +45,7 @@ QT_END_NAMESPACE
 
 namespace VCSBase {
 
-namespace Internal {
-class VCSBaseClientSettingsPrivate;
-} // namespace Internal
+namespace Internal { class VCSBaseClientSettingsPrivate; }
 
 class VCSBASE_EXPORT VCSBaseClientSettings
 {

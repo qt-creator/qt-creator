@@ -66,7 +66,7 @@ public:
     class VCSBASE_EXPORT StatusItem
     {
     public:
-        StatusItem();
+        StatusItem() {}
         StatusItem(const QString &s, const QString &f);
         QString flags;
         QString file;

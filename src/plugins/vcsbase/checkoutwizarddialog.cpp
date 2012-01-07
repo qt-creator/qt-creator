@@ -88,11 +88,10 @@ void CheckoutWizardDialog::start(const QSharedPointer<AbstractCheckoutJob> &job)
 void CheckoutWizardDialog::reject()
 {
     // First click kills, 2nd closes
-    if (currentId() == m_progressPageId && m_progressPage->isRunning()) {
+    if (currentId() == m_progressPageId && m_progressPage->isRunning())
         m_progressPage->terminate();
-    } else {
+    else
         QWizard::reject();
-    }
 }
 
 } // namespace Internal

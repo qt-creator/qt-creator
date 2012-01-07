@@ -116,10 +116,6 @@ void CommonOptionsPage::updateNickNames()
 {
 }
 
-CommonOptionsPage::~CommonOptionsPage()
-{
-}
-
 QString CommonOptionsPage::id() const
 {
     return QLatin1String(Constants::VCS_COMMON_SETTINGS_ID);

@@ -85,7 +85,8 @@ static void removeFileRecursion(const QFileInfo &f, QString *errorMessage)
 
 // A QFuture task for cleaning files in the background.
 // Emits error signal if not all files can be deleted.
-class CleanFilesTask : public QObject {
+class CleanFilesTask : public QObject
+{
     Q_OBJECT
 
 public:
@@ -136,7 +137,8 @@ public:
     QString m_workingDirectory;
 };
 
-CleanDialogPrivate::CleanDialogPrivate() : m_filesModel(new QStandardItemModel(0, columnCount))
+CleanDialogPrivate::CleanDialogPrivate() :
+    m_filesModel(new QStandardItemModel(0, columnCount))
 {
 }
 
@@ -195,7 +197,7 @@ void CleanDialog::setFileList(const QString &workingDirectory, const QStringList
     const QString qmlProUserSuffix = QLatin1String(".qmlproject.user");
     const QChar slash = QLatin1Char('/');
     // Do not initially check patches or 'pro.user' files for deletion.
-    foreach(const QString &fileName, l) {
+    foreach (const QString &fileName, l) {
         const QFileInfo fi(workingDirectory + slash + fileName);
         const bool isDir = fi.isDir();
         QStandardItem *nameItem = new QStandardItem(QDir::toNativeSeparators(fileName));

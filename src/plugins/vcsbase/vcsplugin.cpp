@@ -66,7 +66,6 @@ VCSPlugin::~VCSPlugin()
 bool VCSPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
 
     Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/vcsbase/VCSBase.mimetypes.xml"), errorMessage))

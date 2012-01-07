@@ -150,37 +150,40 @@ static const char *belongingClassName(const CPlusPlus::Function *function)
 
 namespace VCSBase {
 
+using namespace Internal;
+using namespace Utils;
+
 static inline QString submitMessageCheckScript()
 {
-    return Internal::VCSPlugin::instance()->settings().submitMessageCheckScript;
+    return VCSPlugin::instance()->settings().submitMessageCheckScript;
 }
 
 struct VCSBaseSubmitEditorPrivate
 {
     VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditorParameters *parameters,
-                               Utils::SubmitEditorWidget *editorWidget,
+                               SubmitEditorWidget *editorWidget,
                                QObject *q);
 
-    Utils::SubmitEditorWidget *m_widget;
+    SubmitEditorWidget *m_widget;
     QToolBar *m_toolWidget;
     const VCSBaseSubmitEditorParameters *m_parameters;
     QString m_displayName;
     QString m_checkScriptWorkingDirectory;
-    VCSBase::Internal::SubmitEditorFile *m_file;
+    SubmitEditorFile *m_file;
 
     QPointer<QAction> m_diffAction;
     QPointer<QAction> m_submitAction;
 
-    Internal::NickNameDialog *m_nickNameDialog;
+    NickNameDialog *m_nickNameDialog;
 };
 
 VCSBaseSubmitEditorPrivate::VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditorParameters *parameters,
-                                                       Utils::SubmitEditorWidget *editorWidget,
+                                                       SubmitEditorWidget *editorWidget,
                                                        QObject *q) :
     m_widget(editorWidget),
     m_toolWidget(0),
     m_parameters(parameters),
-    m_file(new VCSBase::Internal::SubmitEditorFile(QLatin1String(parameters->mimeType), q)),
+    m_file(new SubmitEditorFile(QLatin1String(parameters->mimeType), q)),
     m_nickNameDialog(0)
 {
     QCompleter *completer = new QCompleter(q);
@@ -191,7 +194,7 @@ VCSBaseSubmitEditorPrivate::VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditor
 }
 
 VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *parameters,
-                                         Utils::SubmitEditorWidget *editorWidget) :
+                                         SubmitEditorWidget *editorWidget) :
     d(new VCSBaseSubmitEditorPrivate(parameters, editorWidget, this))
 {
     setContext(Core::Context(parameters->context));
@@ -206,13 +209,13 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
 
     d->m_file->setModified(false);
     // We are always clean to prevent the editor manager from asking to save.
-    connect(d->m_file, SIGNAL(saveMe(QString*, QString, bool)),
-            this, SLOT(save(QString*, QString, bool)));
+    connect(d->m_file, SIGNAL(saveMe(QString*,QString,bool)),
+            this, SLOT(save(QString*,QString,bool)));
 
     connect(d->m_widget, SIGNAL(diffSelected(QStringList)), this, SLOT(slotDiffSelectedVCSFiles(QStringList)));
     connect(d->m_widget->descriptionEdit(), SIGNAL(textChanged()), this, SLOT(slotDescriptionChanged()));
 
-    const Internal::CommonVcsSettings settings = Internal::VCSPlugin::instance()->settings();
+    const CommonVcsSettings settings = VCSPlugin::instance()->settings();
     // Add additional context menu settings
     if (!settings.submitMessageCheckScript.isEmpty() || !settings.nickNameMailMap.isEmpty()) {
         QAction *sep = new QAction(this);
@@ -237,7 +240,7 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
 
     // wrapping. etc
     slotUpdateEditorSettings(settings);
-    connect(Internal::VCSPlugin::instance(),
+    connect(VCSPlugin::instance(),
             SIGNAL(settingsChanged(VCSBase::Internal::CommonVcsSettings)),
             this, SLOT(slotUpdateEditorSettings(VCSBase::Internal::CommonVcsSettings)));
 
@@ -253,7 +256,7 @@ VCSBaseSubmitEditor::~VCSBaseSubmitEditor()
     delete d;
 }
 
-void VCSBaseSubmitEditor::slotUpdateEditorSettings(const Internal::CommonVcsSettings &s)
+void VCSBaseSubmitEditor::slotUpdateEditorSettings(const CommonVcsSettings &s)
 {
     setLineWrapWidth(s.lineWrapWidth);
     setLineWrap(s.lineWrap);
@@ -264,7 +267,7 @@ static inline QStringList fieldTexts(const QString &fileContents)
 {
     QStringList rc;
     const QStringList rawFields = fileContents.trimmed().split(QLatin1Char('\n'));
-    foreach(const QString &field, rawFields) {
+    foreach (const QString &field, rawFields) {
         const QString trimmedField = field.trimmed();
         if (!trimmedField.isEmpty())
             rc.push_back(trimmedField);
@@ -282,10 +285,10 @@ void VCSBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
     if (fields.empty())
         return;
     // Create a completer on user names
-    const QStandardItemModel *nickNameModel = Internal::VCSPlugin::instance()->nickNameModel();
-    QCompleter *completer = new QCompleter(Internal::NickNameDialog::nickNameList(nickNameModel), this);
+    const QStandardItemModel *nickNameModel = VCSPlugin::instance()->nickNameModel();
+    QCompleter *completer = new QCompleter(NickNameDialog::nickNameList(nickNameModel), this);
 
-    Utils::SubmitFieldWidget *fieldWidget = new Utils::SubmitFieldWidget;
+    SubmitFieldWidget *fieldWidget = new SubmitFieldWidget;
     connect(fieldWidget, SIGNAL(browseButtonClicked(int,QString)),
             this, SLOT(slotSetFieldNickName(int)));
     fieldWidget->setCompleter(completer);
@@ -295,8 +298,8 @@ void VCSBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
     d->m_widget->addSubmitFieldWidget(fieldWidget);
 }
 
-void VCSBaseSubmitEditor::registerActions(QAction *editorUndoAction,  QAction *editorRedoAction,
-                                          QAction *submitAction, QAction *diffAction)\
+void VCSBaseSubmitEditor::registerActions(QAction *editorUndoAction, QAction *editorRedoAction,
+                                          QAction *submitAction, QAction *diffAction)
 {
     d->m_widget->registerActions(editorUndoAction, editorRedoAction, submitAction, diffAction);
     d->m_diffAction = diffAction;
@@ -577,8 +580,8 @@ VCSBaseSubmitEditor::PromptSubmitResult
                                           bool forcePrompt,
                                           bool canCommitOnFailure) const
 {
-    Utils::SubmitEditorWidget *submitWidget =
-            static_cast<Utils::SubmitEditorWidget *>(const_cast<VCSBaseSubmitEditor *>(this)->widget());
+    SubmitEditorWidget *submitWidget =
+            static_cast<SubmitEditorWidget *>(const_cast<VCSBaseSubmitEditor *>(this)->widget());
 
     raiseSubmitEditor();
 
@@ -621,9 +624,9 @@ VCSBaseSubmitEditor::PromptSubmitResult
     if (!canCommit && !canCommitOnFailure) {
         switch (answer) {
         case QMessageBox::No:
-                return SubmitDiscarded;
+            return SubmitDiscarded;
         case QMessageBox::Yes:
-                return SubmitCanceled;
+            return SubmitCanceled;
         default:
             break;
         }
@@ -644,7 +647,7 @@ VCSBaseSubmitEditor::PromptSubmitResult
 QString VCSBaseSubmitEditor::promptForNickName()
 {
     if (!d->m_nickNameDialog)
-        d->m_nickNameDialog = new Internal::NickNameDialog(Internal::VCSPlugin::instance()->nickNameModel(), d->m_widget);
+        d->m_nickNameDialog = new NickNameDialog(VCSPlugin::instance()->nickNameModel(), d->m_widget);
     if (d->m_nickNameDialog->exec() == QDialog::Accepted)
        return d->m_nickNameDialog->nickName();
     return QString();
@@ -659,7 +662,7 @@ void VCSBaseSubmitEditor::slotInsertNickName()
 
 void VCSBaseSubmitEditor::slotSetFieldNickName(int i)
 {
-    if (Utils::SubmitFieldWidget *sfw  =d->m_widget->submitFieldWidgets().front()) {
+    if (SubmitFieldWidget *sfw = d->m_widget->submitFieldWidgets().front()) {
         const QString nick = promptForNickName();
         if (!nick.isEmpty())
             sfw->setFieldValue(i, nick);
@@ -704,7 +707,7 @@ bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
     if (!tempFilePattern.endsWith(QDir::separator()))
         tempFilePattern += QDir::separator();
     tempFilePattern += QLatin1String("msgXXXXXX.txt");
-    Utils::TempFileSaver saver(tempFilePattern);
+    TempFileSaver saver(tempFilePattern);
     saver.write(fileContents());
     if (!saver.finalize(errorMessage))
         return false;
@@ -722,8 +725,8 @@ bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
     }
     QByteArray stdOutData;
     QByteArray stdErrData;
-    if (!Utils::SynchronousProcess::readDataFromProcess(checkProcess, 30000, &stdOutData, &stdErrData, false)) {
-        Utils::SynchronousProcess::stopProcess(checkProcess);
+    if (!SynchronousProcess::readDataFromProcess(checkProcess, 30000, &stdOutData, &stdErrData, false)) {
+        SynchronousProcess::stopProcess(checkProcess);
         *errorMessage = tr("The check script '%1' timed out.").
                         arg(QDir::toNativeSeparators(checkScript));
         return false;
@@ -789,7 +792,7 @@ void VCSBaseSubmitEditor::filterUntrackedFilesOfProject(const QString &repositor
 {
     if (untrackedFiles->empty())
         return;
-    const QStringList nativeProjectFiles = VCSBase::VCSBaseSubmitEditor::currentProjectFiles(true);
+    const QStringList nativeProjectFiles = VCSBaseSubmitEditor::currentProjectFiles(true);
     if (nativeProjectFiles.empty())
         return;
     const QDir repoDir(repositoryDirectory);

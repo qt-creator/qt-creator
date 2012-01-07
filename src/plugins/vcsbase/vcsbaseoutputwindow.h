@@ -45,27 +45,28 @@ class VCSBASE_EXPORT VCSBaseOutputWindow : public Core::IOutputPane
 {
     Q_OBJECT
     Q_PROPERTY(QString repository READ repository WRITE setRepository)
+
 public:
-    virtual ~VCSBaseOutputWindow();
+    ~VCSBaseOutputWindow();
 
-    virtual QWidget *outputWidget(QWidget *parent);
-    virtual QList<QWidget *> toolBarWidgets() const;
-    virtual QString displayName() const;
+    QWidget *outputWidget(QWidget *parent);
+    QList<QWidget *> toolBarWidgets() const;
+    QString displayName() const;
 
-    virtual int priorityInStatusBar() const;
+    int priorityInStatusBar() const;
 
-    virtual void clearContents();
-    virtual void visibilityChanged(bool visible);
+    void clearContents();
+    void visibilityChanged(bool visible);
 
-    virtual void setFocus();
-    virtual bool hasFocus() const;
-    virtual bool canFocus() const;
+    void setFocus();
+    bool hasFocus() const;
+    bool canFocus() const;
 
-    virtual bool canNavigate() const;
-    virtual bool canNext() const;
-    virtual bool canPrevious() const;
-    virtual void goToNext();
-    virtual void goToPrev();
+    bool canNavigate() const;
+    bool canNext() const;
+    bool canPrevious() const;
+    void goToNext();
+    void goToPrev();
 
     static VCSBaseOutputWindow *instance();
 

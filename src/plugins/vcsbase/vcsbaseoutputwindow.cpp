@@ -72,7 +72,8 @@ namespace VCSBase {
 namespace Internal {
 
 // Store repository along with text blocks
-class RepositoryUserData : public QTextBlockUserData    {
+class RepositoryUserData : public QTextBlockUserData
+{
 public:
     explicit RepositoryUserData(const QString &repo) : m_repository(repo) {}
     const QString &repository() const { return m_repository; }
@@ -83,7 +84,8 @@ private:
 
 // A plain text edit with a special context menu containing "Clear" and
 // and functions to append specially formatted entries.
-class OutputWindowPlainTextEdit : public QPlainTextEdit {
+class OutputWindowPlainTextEdit : public QPlainTextEdit
+{
 public:
     explicit OutputWindowPlainTextEdit(QWidget *parent = 0);
 
@@ -244,7 +246,8 @@ void OutputWindowPlainTextEdit::appendCommand(const QString &text)
 } // namespace Internal
 
 // ------------------- VCSBaseOutputWindowPrivate
-struct VCSBaseOutputWindowPrivate {
+struct VCSBaseOutputWindowPrivate
+{
     static VCSBaseOutputWindow *instance;
     Internal::OutputWindowPlainTextEdit *plainTextEdit();
 

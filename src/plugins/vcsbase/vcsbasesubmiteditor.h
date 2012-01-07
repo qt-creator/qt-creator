@@ -45,9 +45,7 @@ class QAbstractItemModel;
 class QAction;
 QT_END_NAMESPACE
 
-namespace Utils {
-    class SubmitEditorWidget;
-}
+namespace Utils { class SubmitEditorWidget; }
 
 namespace VCSBase {
 namespace Internal {
@@ -55,7 +53,8 @@ namespace Internal {
 }
 struct VCSBaseSubmitEditorPrivate;
 
-class VCSBASE_EXPORT VCSBaseSubmitEditorParameters {
+class VCSBASE_EXPORT VCSBaseSubmitEditorParameters
+{
 public:
     const char *mimeType;
     const char *id;
@@ -84,7 +83,7 @@ public:
     void unregisterActions(QAction *editorUndoAction,  QAction *editorRedoAction,
                            QAction *submitAction = 0, QAction *diffAction = 0);
 
-    virtual ~VCSBaseSubmitEditor();
+    ~VCSBaseSubmitEditor();
 
     // A utility routine to be called when closing a submit editor.
     // Runs checks on the message and prompts according to configuration.
@@ -119,19 +118,20 @@ public:
     void setCheckScriptWorkingDirectory(const QString &);
 
     // Core::IEditor
-    virtual bool createNew(const QString &contents);
-    virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    virtual Core::IFile *file();
-    virtual QString displayName() const;
-    virtual void setDisplayName(const QString &title);
-    virtual bool duplicateSupported() const;
-    virtual Core::IEditor *duplicate(QWidget * parent);
-    virtual Core::Id id() const;
+    bool createNew(const QString &contents);
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    Core::IFile *file();
+    QString displayName() const;
+    void setDisplayName(const QString &title);
+    bool duplicateSupported() const;
+    Core::IEditor *duplicate(QWidget *parent);
+    Core::Id id() const;
+    bool isTemporary() const { return true; }
 
-    virtual QWidget *toolBar();
+    QWidget *toolBar();
 
-    virtual QByteArray saveState() const;
-    virtual bool restoreState(const QByteArray &state);
+    QByteArray saveState() const;
+    bool restoreState(const QByteArray &state);
 
     QStringList checkedFiles() const;
 
@@ -149,8 +149,6 @@ public:
     // Reduce a list of untracked files reported by a VCS down to the files
     // that are actually part of the current project(s).
     static void filterUntrackedFilesOfProject(const QString &repositoryDirectory, QStringList *untrackedFiles);
-
-    virtual bool isTemporary() const { return true; }
 
     // Helper to raise an already open submit editor to prevent opening twice.
     static bool raiseSubmitEditor();

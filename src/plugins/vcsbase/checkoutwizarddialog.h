@@ -43,8 +43,10 @@ class AbstractCheckoutJob;
 namespace Internal {
 class CheckoutProgressWizardPage;
 
-class CheckoutWizardDialog : public Utils::Wizard {
+class CheckoutWizardDialog : public Utils::Wizard
+{
     Q_OBJECT
+
 public:
     explicit CheckoutWizardDialog(const QList<QWizardPage *> &parameterPages,
                                   QWidget *parent = 0);
@@ -66,4 +68,5 @@ private:
 
 } // namespace Internal
 } // namespace VCSBase
+
 #endif // CHECKOUTWIZARDDIALOG_H
