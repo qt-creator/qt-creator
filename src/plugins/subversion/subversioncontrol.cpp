@@ -51,9 +51,9 @@ QString SubversionControl::displayName() const
     return QLatin1String("subversion");
 }
 
-QString SubversionControl::id() const
+Core::Id SubversionControl::id() const
 {
-    return QLatin1String(VcsBase::Constants::VCS_ID_SUBVERSION);
+    return VcsBase::Constants::VCS_ID_SUBVERSION;
 }
 
 bool SubversionControl::isConfigured() const

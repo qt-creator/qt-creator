@@ -51,9 +51,9 @@ QString CVSControl::displayName() const
     return QLatin1String("cvs");
 }
 
-QString CVSControl::id() const
+Core::Id CVSControl::id() const
 {
-    return QLatin1String(VcsBase::Constants::VCS_ID_CVS);
+    return VcsBase::Constants::VCS_ID_CVS;
 }
 
 bool CVSControl::isConfigured() const

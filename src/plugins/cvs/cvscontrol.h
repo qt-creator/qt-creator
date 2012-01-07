@@ -44,10 +44,11 @@ class CVSPlugin;
 class CVSControl : public Core::IVersionControl
 {
     Q_OBJECT
+
 public:
     explicit CVSControl(CVSPlugin *plugin);
     QString displayName() const;
-    QString id() const;
+    Core::Id id() const;
 
     bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
 

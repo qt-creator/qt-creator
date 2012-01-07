@@ -47,7 +47,7 @@ class SubversionControl : public Core::IVersionControl
 public:
     explicit SubversionControl(SubversionPlugin *plugin);
     QString displayName() const;
-    QString id() const;
+    Core::Id id() const;
 
     bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
 

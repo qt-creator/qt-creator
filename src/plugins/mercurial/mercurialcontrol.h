@@ -54,7 +54,7 @@ public:
     explicit MercurialControl(MercurialClient *mercurialClient);
 
     QString displayName() const;
-    QString id() const;
+    Core::Id id() const;
     bool managesDirectory(const QString &filename, QString *topLevel = 0) const;
     bool isConfigured() const;
     bool supportsOperation(Operation operation) const;

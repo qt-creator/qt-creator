@@ -53,9 +53,9 @@ QString PerforceVersionControl::displayName() const
     return QLatin1String("perforce");
 }
 
-QString PerforceVersionControl::id() const
+Core::Id PerforceVersionControl::id() const
 {
-    return QLatin1String(VcsBase::Constants::VCS_ID_PERFORCE);
+    return VcsBase::Constants::VCS_ID_PERFORCE;
 }
 
 bool PerforceVersionControl::isConfigured() const

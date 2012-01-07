@@ -48,7 +48,7 @@ public:
     explicit GitVersionControl(GitClient *plugin);
 
     QString displayName() const;
-    QString id() const;
+    Core::Id id() const;
 
     bool managesDirectory(const QString &directory, QString *topLevel) const;
 
