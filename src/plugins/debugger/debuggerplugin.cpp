@@ -669,13 +669,6 @@ public slots:
         m_returnWindow->header()->resizeSection(section, newSize);
     }
 
-    void setExpertMode(bool on)
-    {
-        m_startLocalProcessAction->setVisible(on);
-        m_attachToRemoteServerAction->setVisible(on);
-        m_startRemoteProcessAction->setVisible(on);
-        m_startRemoteServerAction->setVisible(on);
-    }
 
     void sourceFilesDockToggled(bool on)
     {
@@ -3146,6 +3139,13 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, Debugger::Constants::G_START_LOCAL);
 
+    // FIXME: The following actions should some be less
+    // visible in the start menu, but still be "there".
+    // m_startLocalProcessAction->setVisible(on);
+    // m_attachToRemoteServerAction->setVisible(on);
+    // m_startRemoteProcessAction->setVisible(on);
+    // m_startRemoteServerAction->setVisible(on);
+
     cmd = am->registerAction(m_attachToCoreAction,
         "Debugger.AttachCore", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
@@ -3459,10 +3459,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_globalDebuggerOptions->fromSettings(m_coreSettings);
     m_watchersWindow->setVisible(false);
     m_returnWindow->setVisible(false);
-
-    connect(action(ProvideMoreStartModes), SIGNAL(toggled(bool)),
-        SLOT(setExpertMode(bool)));
-    setExpertMode(boolSetting(ProvideMoreStartModes));
 
     // time gdb -i mi -ex 'b debuggerplugin.cpp:800' -ex r -ex q bin/qtcreator.bin
     if (!m_scheduledStarts.isEmpty())
