@@ -40,7 +40,11 @@
 
 #include "json.h"
 
+#ifdef USE_PRIVATE
 #include <QtCore/private/qobject_p.h>
+#else
+#warning "No private headers for this Qt version available"
+#endif
 
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QStringListModel>
@@ -207,6 +211,7 @@ private slots:
     void dumpQLocale();
     void dumpQMap();
     void dumpQMapNode();
+#ifdef USE_PRIVATE
     void dumpQObject();
     void dumpQObjectChildList();
     void dumpQObjectMethodList();
@@ -215,6 +220,7 @@ private slots:
     void dumpQObjectSignalList();
     void dumpQObjectSlot();
     void dumpQObjectSlotList();
+#endif
     void dumpQPixmap();
     void dumpQSharedPointer();
     void dumpQString();
@@ -1726,6 +1732,7 @@ void tst_Dumpers::dumpQMapNode()
     dumpQMapNodeHelper(map4);
 }
 
+#ifdef USE_PRIVATE
 void tst_Dumpers::dumpQObject()
 {
     QObject parent;
@@ -2190,6 +2197,7 @@ void tst_Dumpers::dumpQObjectSlotList()
             "addr='$A',type='" NS "QObjectSlot'}]",
         &m, NS"QObjectSlotList", true);
 }
+#endif
 
 void tst_Dumpers::dumpQPixmap()
 {
@@ -2468,6 +2476,7 @@ void tst_Dumpers::initTestCase()
     QVERIFY(sizeof(int) == sizeof(d.weakref));
     QVERIFY(sizeof(int) == sizeof(d.strongref));
 #endif
+#ifdef USE_PRIVATE
     const size_t qObjectPrivateSize = sizeof(QObjectPrivate);
     const size_t objectPrivateSize = sizeof(ObjectPrivate);
     QVERIFY2(qObjectPrivateSize == objectPrivateSize, QString::fromLatin1("QObjectPrivate=%1 ObjectPrivate=%2").arg(qObjectPrivateSize).arg(objectPrivateSize).toLatin1().constData());
@@ -2488,6 +2497,7 @@ void tst_Dumpers::initTestCase()
 #endif
 #if QT_VERSION >= 0x040600
     VERIFY_OFFSETOF(sharedRefcount);
+#endif
 #endif
 }
 

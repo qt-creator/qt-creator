@@ -11,7 +11,9 @@ MACROSDIR   = $$IDE_SOURCE_TREE/share/qtcreator/dumper
 SOURCES += \
     $$DEBUGGERDIR/gdb/gdbmi.cpp \
     $$MACROSDIR/dumper.cpp \
-    tst_dumpers.cpp \
+    tst_dumpers.cpp
+
+exists($$QMAKE_INCDIR_QT/QtCore/private/qobject_p.h):DEFINES += USE_PRIVATE
 
 DEFINES += MACROSDEBUG
 
