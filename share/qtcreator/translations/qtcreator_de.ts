@@ -11184,7 +11184,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase</name>
+    <name>VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>Versionskontrolle</translation>
@@ -11195,7 +11195,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::BaseCheckoutWizard</name>
+    <name>VcsBase::BaseCheckoutWizard</name>
     <message>
         <source>Cannot Open Project</source>
         <translation>Fehler beim Öffnen des Projekts</translation>
@@ -11218,7 +11218,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::CheckoutProgressWizardPage</name>
+    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Checkout</source>
         <translation>Auschecken</translation>
@@ -11237,7 +11237,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::NickNameDialog</name>
+    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Name</source>
         <translation>Name</translation>
@@ -11260,7 +11260,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::ProcessCheckoutJob</name>
+    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <source>Unable to start %1: %2</source>
         <translation>%1 kann nicht gestartet werden: %2</translation>
@@ -11283,7 +11283,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::SubmitFileModel</name>
+    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>Status</translation>
@@ -11294,7 +11294,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseOutputWindow</name>
+    <name>VcsBase::VcsBaseOutputWindow</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>&quot;%1&quot; öffnen</translation>
@@ -11321,7 +11321,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseSubmitEditor</name>
+    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Prompt to submit</source>
         <translation>Abgabe bestätigen</translation>
@@ -13103,7 +13103,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBasePlugin</name>
+    <name>VcsBase::VcsBasePlugin</name>
     <message>
         <source>Version Control</source>
         <translation>Versionskontrolle</translation>
@@ -13487,7 +13487,7 @@ Qt Quick-UI-Projekte benötigen keine Erstellung und können direkt im QML-Betra
     </message>
 </context>
 <context>
-    <name>VCSBase::CleanDialog</name>
+    <name>VcsBase::CleanDialog</name>
     <message>
         <source>The directory %1 could not be deleted.</source>
         <translation>Das Verzeichnis %1 konnte nicht gelöscht werden.</translation>
@@ -20447,7 +20447,7 @@ Fehler: %2</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseClient</name>
+    <name>VcsBase::VcsBaseClient</name>
     <message>
         <source>Unable to start process &apos;%1&apos;: %2</source>
         <translation>Der Prozess &apos;%1&apos; kann nicht gestartet werden: %2</translation>
@@ -20462,7 +20462,7 @@ Fehler: %2</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseEditorWidget</name>
+    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
         <translation>Annotation für &quot;%1&quot;</translation>
@@ -21754,7 +21754,7 @@ Bei vollständiger Cache-Simulation werden weitere Ereigniszähler aktiviert:
     </message>
 </context>
 <context>
-    <name>VCSBase::VcsConfigurationPage</name>
+    <name>VcsBase::VcsConfigurationPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -23585,7 +23585,7 @@ Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translatio
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::CommonSettingsWidget</name>
+    <name>VcsBase::Internal::CommonSettingsWidget</name>
     <message>
         <source>Command used for reverting diff chunks</source>
         <translation>Kommando zum Rücksetzen von einzelnen Änderungen in Diff-Anzeige</translation>
@@ -27329,7 +27329,7 @@ Wenn Sie abbrechen, wird Qt Creator die Datei nicht laden.
     </message>
 </context>
 <context>
-    <name>VCSBase::Command</name>
+    <name>VcsBase::Command</name>
     <message>
         <source>Error: VCS timed out after %1s.</source>
         <translation>Fehler: Zeitüberschreitung der Versionskontrolle nach %1s.</translation>
@@ -28666,7 +28666,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::BaseCheckoutWizardPage</name>
+    <name>VcsBase::Internal::BaseCheckoutWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -28717,14 +28717,14 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::CleanDialog</name>
+    <name>VcsBase::Internal::CleanDialog</name>
     <message>
         <source>Clean Repository</source>
         <translation>Repository bereinigen</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::CommonSettingsPage</name>
+    <name>VcsBase::Internal::CommonSettingsPage</name>
     <message>
         <source>Wrap submit message at:</source>
         <translation>Beschreibung umbrechen bei:</translation>
@@ -28775,7 +28775,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::VcsConfigurationPage</name>
+    <name>VcsBase::Internal::VcsConfigurationPage</name>
     <message>
         <source>Configure...</source>
         <translation>Einstellungen...</translation>

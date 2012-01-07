@@ -13175,7 +13175,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase</name>
+    <name>VcsBase</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbaseconstants.h" line="+42"/>
         <source>Version Control</source>
@@ -13193,7 +13193,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::NickNameDialog</name>
+    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/nicknamedialog.cpp" line="+235"/>
         <source>Name</source>
@@ -13220,7 +13220,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::SubmitFileModel</name>
+    <name>VcsBase::SubmitFileModel</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/submitfilemodel.cpp" line="+53"/>
         <source>State</source>
@@ -13233,7 +13233,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseSubmitEditor</name>
+    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbasesubmiteditor.cpp" line="+512"/>
         <source>Prompt to submit</source>
@@ -14459,7 +14459,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>VCSBase::BaseCheckoutWizardPage</name>
+    <name>VcsBase::BaseCheckoutWizardPage</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/basecheckoutwizardpage.ui"/>
         <source>WizardPage</source>
@@ -16512,7 +16512,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name
     </message>
 </context>
 <context>
-    <name>VCSBase::BaseCheckoutWizard</name>
+    <name>VcsBase::BaseCheckoutWizard</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/basecheckoutwizard.cpp" line="+137"/>
         <source>Cannot Open Project</source>
@@ -16545,7 +16545,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name
     </message>
 </context>
 <context>
-    <name>VCSBase::ProcessCheckoutJob</name>
+    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/checkoutjobs.cpp" line="+144"/>
         <source>Unable to start %1: %2</source>
@@ -16573,7 +16573,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::CheckoutProgressWizardPage</name>
+    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/checkoutprogresswizardpage.cpp" line="+60"/>
         <source>Checkout</source>
@@ -16596,7 +16596,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseOutputWindow</name>
+    <name>VcsBase::VcsBaseOutputWindow</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbaseoutputwindow.cpp" line="+177"/>
         <source>Open &quot;%1&quot;</source>
@@ -17636,7 +17636,7 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::CleanDialog</name>
+    <name>VcsBase::CleanDialog</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/cleandialog.ui"/>
         <source>Clean Repository</source>
@@ -21962,7 +21962,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBasePlugin</name>
+    <name>VcsBase::VcsBasePlugin</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbaseplugin.cpp" line="+617"/>
         <source>Version Control</source>
@@ -25726,7 +25726,7 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>VCSBase::VcsConfigurationPage</name>
+    <name>VcsBase::VcsConfigurationPage</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsconfigurationpage.ui"/>
         <source>Configure</source>
@@ -36799,7 +36799,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::CommonSettingsWidget</name>
+    <name>VcsBase::Internal::CommonSettingsWidget</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/commonsettingspage.cpp" line="+60"/>
         <source>Command used for reverting diff chunks</source>
@@ -36807,7 +36807,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseClient</name>
+    <name>VcsBase::VcsBaseClient</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbaseclient.cpp" line="+499"/>
         <source>Working...</source>
@@ -36815,7 +36815,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseEditorWidget</name>
+    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbaseeditor.cpp" line="+219"/>
         <source>Annotate &quot;%1&quot;</source>
@@ -36863,7 +36863,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSJobRunner</name>
+    <name>VcsBase::VcsJobRunner</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsjobrunner.cpp" line="+236"/>
         <source>Unable to start process &apos;%1&apos;: %2</source>
@@ -38232,7 +38232,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseEditor</name>
+    <name>VcsBase::VcsBaseEditor</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
         <translation type="obsolete">Dodaj opombo za »%1«</translation>
@@ -38247,7 +38247,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>VCSManager</name>
+    <name>VcsManager</name>
     <message>
         <source>Version Control</source>
         <translation type="obsolete">Nadzor različic</translation>

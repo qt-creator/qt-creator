@@ -13465,7 +13465,7 @@ Queste codifiche dovrebbero andare bene:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase</name>
+    <name>VcsBase</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbaseconstants.h" line="+38"/>
         <location line="+3"/>
@@ -13479,7 +13479,7 @@ Queste codifiche dovrebbero andare bene:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::NickNameDialog</name>
+    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/nicknamedialog.cpp" line="+217"/>
         <source>Name</source>
@@ -13507,7 +13507,7 @@ Queste codifiche dovrebbero andare bene:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::SubmitFileModel</name>
+    <name>VcsBase::SubmitFileModel</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/submitfilemodel.cpp" line="+43"/>
         <source>State</source>
@@ -13520,7 +13520,7 @@ Queste codifiche dovrebbero andare bene:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseEditor</name>
+    <name>VcsBase::VcsBaseEditor</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbaseeditor.cpp" line="+327"/>
         <source>Describe change %1</source>
@@ -13528,7 +13528,7 @@ Queste codifiche dovrebbero andare bene:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseSubmitEditor</name>
+    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbasesubmiteditor.cpp" line="+138"/>
         <source>Check message</source>
@@ -13571,7 +13571,7 @@ Queste codifiche dovrebbero andare bene:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBaseSettingsPage</name>
+    <name>VcsBaseSettingsPage</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="obsolete">Prompt del submit</translation>
@@ -13620,7 +13620,7 @@ nome &lt;email&gt; alias &lt;email&gt;</translation>
     </message>
 </context>
 <context>
-    <name>VCSManager</name>
+    <name>VcsManager</name>
     <message>
         <location filename="../../../src/plugins/coreplugin/vcsmanager.cpp" line="+132"/>
         <source>Version Control</source>
@@ -14668,7 +14668,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>VCSBase::BaseCheckoutWizardPage</name>
+    <name>VcsBase::BaseCheckoutWizardPage</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/basecheckoutwizardpage.ui"/>
         <source>WizardPage</source>
@@ -16465,7 +16465,7 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>VCSBase::BaseCheckoutWizard</name>
+    <name>VcsBase::BaseCheckoutWizard</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/basecheckoutwizard.cpp" line="+103"/>
         <source>Cannot Open Project</source>
@@ -16498,7 +16498,7 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>VCSBase::ProcessCheckoutJob</name>
+    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/checkoutjobs.cpp" line="+109"/>
         <source>The process terminated with exit code %1.</source>
@@ -16521,7 +16521,7 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::CheckoutProgressWizardPage</name>
+    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/checkoutprogresswizardpage.cpp" line="+66"/>
         <source>Checkout started...</source>
@@ -16539,7 +16539,7 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseOutputWindow</name>
+    <name>VcsBase::VcsBaseOutputWindow</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbaseoutputwindow.cpp" line="+90"/>
         <source>Clear</source>

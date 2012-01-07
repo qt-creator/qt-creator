@@ -27542,7 +27542,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>VCSBase</name>
+    <name>VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>Контроль версій</translation>
@@ -27557,7 +27557,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>VCSBase::BaseCheckoutWizard</name>
+    <name>VcsBase::BaseCheckoutWizard</name>
     <message>
         <source>Cannot Open Project</source>
         <translation>Неможливо відкрити проект</translation>
@@ -27580,7 +27580,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>VCSBase::BaseCheckoutWizardPage</name>
+    <name>VcsBase::BaseCheckoutWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>Сторінка майстра</translation>
@@ -27631,7 +27631,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>VCSBase::CleanDialog</name>
+    <name>VcsBase::CleanDialog</name>
     <message>
         <source>Clean Repository</source>
         <translation>Очистити сховище</translation>
@@ -27682,7 +27682,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>VCSBase::Command</name>
+    <name>VcsBase::Command</name>
     <message>
         <source>Error: VCS timed out after %1s.</source>
         <translation>Помилка: Час очікування VCS вичерпано після %1 с.</translation>
@@ -27693,7 +27693,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::CheckoutProgressWizardPage</name>
+    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Checkout</source>
         <translation type="unfinished"></translation>
@@ -27712,14 +27712,14 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::CommonSettingsWidget</name>
+    <name>VcsBase::Internal::CommonSettingsWidget</name>
     <message>
         <source>Command used for reverting diff chunks</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::NickNameDialog</name>
+    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Name</source>
         <translation>Ім&apos;я</translation>
@@ -27738,7 +27738,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>VCSBase::ProcessCheckoutJob</name>
+    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <source>Unable to start %1: %2</source>
         <translation>Неможливо запустити %1: %2</translation>
@@ -27761,7 +27761,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>VCSBase::SubmitFileModel</name>
+    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>Стан</translation>
@@ -27772,7 +27772,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseClient</name>
+    <name>VcsBase::VcsBaseClient</name>
     <message>
         <source>Unable to start process &apos;%1&apos;: %2</source>
         <translation>Неможливо запустити процес &apos;%1&apos;: %2</translation>
@@ -27787,7 +27787,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseEditorWidget</name>
+    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
@@ -27838,7 +27838,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseOutputWindow</name>
+    <name>VcsBase::VcsBaseOutputWindow</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>Відкрити &quot;%1&quot;</translation>
@@ -27863,7 +27863,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBasePlugin</name>
+    <name>VcsBase::VcsBasePlugin</name>
     <message>
         <source>Version Control</source>
         <translation>Контроль версій</translation>
@@ -27926,7 +27926,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseSubmitEditor</name>
+    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="unfinished"></translation>
@@ -27969,7 +27969,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>VCSBase::VcsConfigurationPage</name>
+    <name>VcsBase::VcsConfigurationPage</name>
     <message>
         <source>Configuration</source>
         <translation type="unfinished"></translation>

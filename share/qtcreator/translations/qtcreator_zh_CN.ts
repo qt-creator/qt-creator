@@ -16885,7 +16885,7 @@ The following encodings are likely to fit:</source>
     </message>
 </context>
 <context>
-    <name>VCSBase</name>
+    <name>VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>版本控制</translation>
@@ -16900,7 +16900,7 @@ The following encodings are likely to fit:</source>
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::NickNameDialog</name>
+    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Name</source>
         <translation>名称</translation>
@@ -16923,7 +16923,7 @@ The following encodings are likely to fit:</source>
     </message>
 </context>
 <context>
-    <name>VCSBase::SubmitFileModel</name>
+    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>状态</translation>
@@ -16934,7 +16934,7 @@ The following encodings are likely to fit:</source>
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseEditor</name>
+    <name>VcsBase::VcsBaseEditor</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
         <translation type="obsolete">Annotate &quot;%1&quot;</translation>
@@ -16949,7 +16949,7 @@ The following encodings are likely to fit:</source>
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseSubmitEditor</name>
+    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Check message</source>
         <translation type="obsolete">检查消息</translation>
@@ -17017,14 +17017,14 @@ The following encodings are likely to fit:</source>
     </message>
 </context>
 <context>
-    <name>VCSBaseSettingsPage</name>
+    <name>VcsBaseSettingsPage</name>
     <message>
         <source>Common</source>
         <translation type="obsolete">共同</translation>
     </message>
 </context>
 <context>
-    <name>VCSManager</name>
+    <name>VcsManager</name>
     <message>
         <source>Version Control</source>
         <translation type="obsolete">版本控制</translation>
@@ -18204,7 +18204,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>VCSBase::BaseCheckoutWizardPage</name>
+    <name>VcsBase::BaseCheckoutWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>向导页面</translation>
@@ -20229,7 +20229,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>VCSBase::BaseCheckoutWizard</name>
+    <name>VcsBase::BaseCheckoutWizard</name>
     <message>
         <source>Cannot Open Project</source>
         <translation>无法打开项目</translation>
@@ -20256,7 +20256,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>VCSBase::ProcessCheckoutJob</name>
+    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <source>Unable to start %1: %2</source>
         <translation>无法启动%1 : %2</translation>
@@ -20279,7 +20279,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::CheckoutProgressWizardPage</name>
+    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Checkout</source>
         <translation>检出代码</translation>
@@ -20298,7 +20298,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseOutputWindow</name>
+    <name>VcsBase::VcsBaseOutputWindow</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>打开 &quot;%1&quot;</translation>
@@ -22686,7 +22686,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>VCSBase::CleanDialog</name>
+    <name>VcsBase::CleanDialog</name>
     <message>
         <source>Clean repository</source>
         <translation type="obsolete">清空库</translation>
@@ -26775,7 +26775,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBasePlugin</name>
+    <name>VcsBase::VcsBasePlugin</name>
     <message>
         <source>Version Control</source>
         <translation>版本控制</translation>
@@ -39117,7 +39117,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseClient</name>
+    <name>VcsBase::VcsBaseClient</name>
     <message>
         <source>Unable to start process &apos;%1&apos;: %2</source>
         <translation>无法启动进程&apos;%1&apos;: %2</translation>
@@ -39132,7 +39132,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseEditorWidget</name>
+    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
         <translation>Annotate &quot;%1&quot;</translation>
@@ -39183,7 +39183,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSJobRunner</name>
+    <name>VcsBase::VcsJobRunner</name>
     <message>
         <source>Unable to start process &apos;%1&apos;: %2</source>
         <translation type="obsolete">无法启动进程&apos;%1&apos;: %2</translation>
@@ -40317,7 +40317,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>VCSBase::VcsConfigurationPage</name>
+    <name>VcsBase::VcsConfigurationPage</name>
     <message>
         <source>Configure</source>
         <translation type="obsolete">配置</translation>
@@ -44060,7 +44060,7 @@ Do you want to add them to the project?</source>
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::CommonSettingsWidget</name>
+    <name>VcsBase::Internal::CommonSettingsWidget</name>
     <message>
         <source>Command used for reverting diff chunks</source>
         <translation>还原差异部分的命令</translation>
@@ -47665,7 +47665,7 @@ Filter: %2
     </message>
 </context>
 <context>
-    <name>VCSBase::Command</name>
+    <name>VcsBase::Command</name>
     <message>
         <source>Error: VCS timed out after %1s.</source>
         <translation>错误: VCS 在 %1秒后超时.</translation>

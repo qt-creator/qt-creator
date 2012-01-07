@@ -2456,7 +2456,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     </message>
 </context>
 <context>
-    <name>VCSBase::BaseCheckoutWizardPage</name>
+    <name>VcsBase::BaseCheckoutWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>StronaKreatora</translation>
@@ -11187,7 +11187,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::BaseCheckoutWizard</name>
+    <name>VcsBase::BaseCheckoutWizard</name>
     <message>
         <source>Cannot Open Project</source>
         <translation>Nie można otworzyć projektu</translation>
@@ -11210,7 +11210,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::ProcessCheckoutJob</name>
+    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <source>Unable to start %1: %2</source>
         <translation>Nie można uruchomić %1: %2</translation>
@@ -11233,7 +11233,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::CheckoutProgressWizardPage</name>
+    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Checkout</source>
         <translation>Kopia robocza</translation>
@@ -11252,7 +11252,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::NickNameDialog</name>
+    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Name</source>
         <translation>Imię</translation>
@@ -11271,7 +11271,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::SubmitFileModel</name>
+    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>Stan</translation>
@@ -11282,7 +11282,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase</name>
+    <name>VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>System kontroli wersji</translation>
@@ -11297,7 +11297,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseOutputWindow</name>
+    <name>VcsBase::VcsBaseOutputWindow</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>Otwórz &quot;%1&quot;</translation>
@@ -11324,7 +11324,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseSubmitEditor</name>
+    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Prompt to submit</source>
         <translation>Pytaj przed wrzucaniem zmian</translation>
@@ -12532,7 +12532,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::CleanDialog</name>
+    <name>VcsBase::CleanDialog</name>
     <message>
         <source>The directory %1 could not be deleted.</source>
         <translation>Nie można usunąć katalogu &quot;%1&quot;.</translation>
@@ -14808,7 +14808,7 @@ Możesz przeglądać projekty przy pomocy QML Viewera bez ich uprzedniego budowa
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBasePlugin</name>
+    <name>VcsBase::VcsBasePlugin</name>
     <message>
         <source>Version Control</source>
         <translation>System kontroli wersji</translation>
@@ -22644,7 +22644,7 @@ Można zbudować aplikację i zainstalować ją na platformie mobilnej albo na d
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseClient</name>
+    <name>VcsBase::VcsBaseClient</name>
     <message>
         <source>Unable to start process &apos;%1&apos;: %2</source>
         <translation>Nie można rozpocząć procesu &quot;%1&quot;: %2</translation>
@@ -22659,7 +22659,7 @@ Można zbudować aplikację i zainstalować ją na platformie mobilnej albo na d
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseEditorWidget</name>
+    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
         <translation>Dołącz adnotację do &quot;%1&quot;</translation>
@@ -23452,7 +23452,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>VCSBase::VcsConfigurationPage</name>
+    <name>VcsBase::VcsConfigurationPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracja</translation>
@@ -25379,7 +25379,7 @@ Spróbować ponownie?</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::CommonSettingsWidget</name>
+    <name>VcsBase::Internal::CommonSettingsWidget</name>
     <message>
         <source>Command used for reverting diff chunks</source>
         <translation>Komenda użyta do odwracania fragmentów w różnicach</translation>
@@ -29052,7 +29052,7 @@ Filtr: %2
     </message>
 </context>
 <context>
-    <name>VCSBase::Command</name>
+    <name>VcsBase::Command</name>
     <message>
         <source>Error: VCS timed out after %1s.</source>
         <translation>Błąd: brak odpowiedzi od VCS przez %1s.</translation>

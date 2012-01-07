@@ -17474,7 +17474,7 @@ Les encodages suivants pourraient convenir :</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase</name>
+    <name>VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>Gestion de versions</translation>
@@ -17489,7 +17489,7 @@ Les encodages suivants pourraient convenir :</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::NickNameDialog</name>
+    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Name</source>
         <translation>Nom</translation>
@@ -17513,7 +17513,7 @@ Les encodages suivants pourraient convenir :</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::SubmitFileModel</name>
+    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>État</translation>
@@ -17524,7 +17524,7 @@ Les encodages suivants pourraient convenir :</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseEditor</name>
+    <name>VcsBase::VcsBaseEditor</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
         <translation type="obsolete">Annoter &quot;%1&quot;</translation>
@@ -17539,7 +17539,7 @@ Les encodages suivants pourraient convenir :</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseSubmitEditor</name>
+    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Check message</source>
         <translation type="obsolete">Contrôle du message</translation>
@@ -17606,7 +17606,7 @@ Les encodages suivants pourraient convenir :</translation>
     </message>
 </context>
 <context>
-    <name>VCSBaseSettingsPage</name>
+    <name>VcsBaseSettingsPage</name>
     <message>
         <source>Common</source>
         <translation type="obsolete">Commun</translation>
@@ -17643,7 +17643,7 @@ nom &lt;email&gt; alias &lt;email&gt;</translation>
     </message>
 </context>
 <context>
-    <name>VCSManager</name>
+    <name>VcsManager</name>
     <message>
         <source>Version Control</source>
         <translation type="obsolete">Gestion de versions</translation>
@@ -18896,7 +18896,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>VCSBase::BaseCheckoutWizardPage</name>
+    <name>VcsBase::BaseCheckoutWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -20941,7 +20941,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>VCSBase::BaseCheckoutWizard</name>
+    <name>VcsBase::BaseCheckoutWizard</name>
     <message>
         <source>Cannot Open Project</source>
         <translation>Impossible d&apos;ouvrir le projet</translation>
@@ -20968,7 +20968,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>VCSBase::ProcessCheckoutJob</name>
+    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <source>Unable to start %1: %2</source>
         <translation>Impossible de démarrer &quot;%1&quot; : %2</translation>
@@ -20991,7 +20991,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::CheckoutProgressWizardPage</name>
+    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Checkout</source>
         <translation>Import</translation>
@@ -21010,7 +21010,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseOutputWindow</name>
+    <name>VcsBase::VcsBaseOutputWindow</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>Ouvrir &quot;%1&quot;</translation>
@@ -23243,7 +23243,7 @@ Vous pouvez choisir entre mettre les changements dans le stash ou de les abandon
     </message>
 </context>
 <context>
-    <name>VCSBase::CleanDialog</name>
+    <name>VcsBase::CleanDialog</name>
     <message>
         <source>Clean Repository</source>
         <translation>Nettoyer le dépôt</translation>
@@ -28981,7 +28981,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBasePlugin</name>
+    <name>VcsBase::VcsBasePlugin</name>
     <message>
         <source>Version Control</source>
         <translation>Gestion de versions</translation>
@@ -39692,7 +39692,7 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseClient</name>
+    <name>VcsBase::VcsBaseClient</name>
     <message>
         <source>Unable to start process &apos;%1&apos;: %2</source>
         <translation>Impossible de démarrer le processus &quot;%1&quot; : %2</translation>
@@ -39707,7 +39707,7 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSBaseEditorWidget</name>
+    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
         <translation>Annoter &quot;%1&quot;</translation>
@@ -39758,7 +39758,7 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSJobRunner</name>
+    <name>VcsBase::VcsJobRunner</name>
     <message>
         <source>Unable to start process &apos;%1&apos;: %2</source>
         <translation type="obsolete">Impossible de démarrer le processus &quot;%1&quot; : %2</translation>
@@ -40914,7 +40914,7 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
     </message>
 </context>
 <context>
-    <name>VCSBase::VcsConfigurationPage</name>
+    <name>VcsBase::VcsConfigurationPage</name>
     <message>
         <source>Configure</source>
         <translation type="obsolete">Configurer</translation>
@@ -45185,7 +45185,7 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>VCSBase::Internal::CommonSettingsWidget</name>
+    <name>VcsBase::Internal::CommonSettingsWidget</name>
     <message>
         <source>Command used for reverting diff chunks</source>
         <translatorcomment>??</translatorcomment>
@@ -48082,7 +48082,7 @@ Filtre : %2
     </message>
 </context>
 <context>
-    <name>VCSBase::Command</name>
+    <name>VcsBase::Command</name>
     <message>
         <source>Error: VCS timed out after %1s.</source>
         <translation>Erreur : le délai d&apos;attente du serveur de contrôle de donnée a expiré après %1s.</translation>
