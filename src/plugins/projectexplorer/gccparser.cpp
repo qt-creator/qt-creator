@@ -682,6 +682,28 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                         QLatin1String("cns5k_ins_parser_tests.cpp"), -1,
                         categoryCompile))
             << QString();
+
+    QTest::newRow("uic warning")
+            << QString::fromLatin1("mainwindow.ui: Warning: The name 'pushButton' (QPushButton) is already in use, defaulting to 'pushButton1'.")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                 << Task(Task::Warning,
+                         QLatin1String("The name 'pushButton' (QPushButton) is already in use, defaulting to 'pushButton1'."),
+                         QLatin1String("mainwindow.ui"), -1,
+                         Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+
+    QTest::newRow("libimf warning")
+            << QString::fromLatin1("libimf.so: warning: warning: feupdateenv is not implemented and will always fail")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                 << Task(Task::Warning,
+                         QLatin1String("warning: feupdateenv is not implemented and will always fail"),
+                         QLatin1String("libimf.so"), -1,
+                         Constants::TASK_CATEGORY_COMPILE))
+            << QString();
 }
 
 void ProjectExplorerPlugin::testGccOutputParsers()

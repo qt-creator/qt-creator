@@ -106,6 +106,10 @@ void LdParser::stdError(const QString &line)
             description.startsWith(QLatin1String("instantiated from ")) ||
             description.startsWith(QLatin1String("In ")))
             task.type = Task::Unknown;
+        if (description.startsWith(QLatin1String("warning: "), Qt::CaseInsensitive)) {
+            task.type = Task::Warning;
+            task.description = description.mid(9);
+        }
 
         emit addTask(task);
         return;
