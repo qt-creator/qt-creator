@@ -1613,7 +1613,7 @@ class Dumper:
                     self.putItem(value.dereference())
                     self.currentChildType = savedCurrentChildType
                     self.putPointerValue(value.address)
-                    self.put('origaddr="%s",' % value)
+                    self.put('origaddr="%s",' % cleanAddress(value.address))
                     return
 
             # Fall back to plain pointer printing.
