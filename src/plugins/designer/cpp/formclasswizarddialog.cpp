@@ -56,8 +56,6 @@ FormClassWizardDialog::FormClassWizardDialog(const WizardPageList &extensionPage
 
     setPage(FormPageId, m_formPage);
     wizardProgress()->item(FormPageId)->setTitle(tr("Form Template"));
-    connect(m_formPage, SIGNAL(templateActivated()),
-            button(QWizard::NextButton), SLOT(animateClick()));
 
     setPage(ClassPageId, m_classPage);
     wizardProgress()->item(ClassPageId)->setTitle(tr("Class Details"));
