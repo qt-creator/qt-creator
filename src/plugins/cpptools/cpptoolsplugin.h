@@ -44,6 +44,7 @@
 #include <QtCore/QFutureInterface>
 #include <QtCore/QPointer>
 #include <QtCore/QFutureWatcher>
+#include <QtCore/QHash>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
@@ -97,6 +98,7 @@ private:
     CppModelManager *m_modelManager;
     QSharedPointer<CppFileSettings> m_fileSettings;
     CppToolsSettings *m_settings;
+    mutable QHash<QString, QString> m_headerSourceMapping;
 };
 
 } // namespace Internal

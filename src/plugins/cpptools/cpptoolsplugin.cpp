@@ -261,13 +261,16 @@ static int commonStringLength(const QString &s1, const QString &s2)
 
 QString CppToolsPlugin::correspondingHeaderOrSourceI(const QString &fileName) const
 {
+    const QFileInfo fi(fileName);
+    if (m_headerSourceMapping.contains(fi.absoluteFilePath()))
+        return m_headerSourceMapping.value(fi.absoluteFilePath());
+
     const Core::ICore *core = Core::ICore::instance();
     const Core::MimeDatabase *mimeDatase = core->mimeDatabase();
     ProjectExplorer::ProjectExplorerPlugin *explorer =
        ProjectExplorer::ProjectExplorerPlugin::instance();
     ProjectExplorer::Project *project = (explorer ? explorer->currentProject() : 0);
 
-    const QFileInfo fi(fileName);
     const FileType type = fileType(mimeDatase, fi);
 
     if (debug)
@@ -298,8 +301,11 @@ QString CppToolsPlugin::correspondingHeaderOrSourceI(const QString &fileName) co
     // Try to find a file in the same directory first
     foreach (const QString &candidateFileName, candidateFileNames) {
         const QFileInfo candidateFi(absoluteDir, candidateFileName);
-        if (candidateFi.isFile())
+        if (candidateFi.isFile()) {
+            m_headerSourceMapping[fi.absoluteFilePath()] = candidateFi.absoluteFilePath();
+            m_headerSourceMapping[candidateFi.absoluteFilePath()] = fi.absoluteFilePath();
             return candidateFi.absoluteFilePath();
+        }
     }
 
     // Find files in the project
@@ -320,6 +326,8 @@ QString CppToolsPlugin::correspondingHeaderOrSourceI(const QString &fileName) co
         if (!bestFileName.isEmpty()) {
             const QFileInfo candidateFi(bestFileName);
             Q_ASSERT(candidateFi.isFile());
+            m_headerSourceMapping[fi.absoluteFilePath()] = candidateFi.absoluteFilePath();
+            m_headerSourceMapping[candidateFi.absoluteFilePath()] = fi.absoluteFilePath();
             return candidateFi.absoluteFilePath();
         }
     }
