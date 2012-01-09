@@ -35,7 +35,7 @@
 #ifndef VALGRIND_RUNNER_H
 #define VALGRIND_RUNNER_H
 
-#include "analyzerconstants.h"
+#include <analyzerbase/analyzerconstants.h>
 
 #include <utils/outputformat.h>
 #include <utils/ssh/sshconnection.h>
