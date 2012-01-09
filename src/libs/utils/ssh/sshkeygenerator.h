@@ -51,9 +51,11 @@ class QTCREATOR_UTILS_EXPORT SshKeyGenerator
 public:
     enum KeyType { Rsa, Dsa };
     enum PrivateKeyFormat { Pkcs8, OpenSsl, Mixed };
+    enum EncryptionMode { DoOfferEncryption, DoNotOfferEncryption }; // Only relevant for Pkcs8 format.
 
     SshKeyGenerator();
-    bool generateKeys(KeyType type, PrivateKeyFormat format, int keySize);
+    bool generateKeys(KeyType type, PrivateKeyFormat format, int keySize,
+        EncryptionMode encryptionMode = DoOfferEncryption);
 
     QString error() const { return m_error; }
     QByteArray privateKey() const { return m_privateKey; }
@@ -69,11 +71,13 @@ private:
     void generateOpenSslKeyStrings(const KeyPtr &key);
     void generateOpenSslPrivateKeyString(const KeyPtr &key);
     void generateOpenSslPublicKeyString(const KeyPtr &key);
+    QString getPassword() const;
 
     QString m_error;
     QByteArray m_publicKey;
     QByteArray m_privateKey;
     KeyType m_type;
+    EncryptionMode m_encryptionMode;
 };
 
 } // namespace Utils

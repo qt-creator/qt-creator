@@ -59,9 +59,11 @@ SshKeyGenerator::SshKeyGenerator() : m_type(Rsa)
 {
 }
 
-bool SshKeyGenerator::generateKeys(KeyType type, PrivateKeyFormat format, int keySize)
+bool SshKeyGenerator::generateKeys(KeyType type, PrivateKeyFormat format, int keySize,
+    EncryptionMode encryptionMode)
 {
     m_type = type;
+    m_encryptionMode = encryptionMode;
 
     try {
         AutoSeeded_RNG rng;
@@ -102,21 +104,10 @@ void SshKeyGenerator::generatePkcs8KeyString(const KeyPtr &key, bool privateKey,
     pipe.start_msg();
     QByteArray *keyData;
     if (privateKey) {
-        QInputDialog d;
-        d.setInputMode(QInputDialog::TextInput);
-        d.setTextEchoMode(QLineEdit::Password);
-        d.setWindowTitle(tr("Password for Private Key"));
-        d.setLabelText(tr("It is recommended that you secure your private key\n"
-            "with a password, which you can enter below."));
-        d.setOkButtonText(tr("Encrypt key file"));
-        d.setCancelButtonText(tr("Do not encrypt key file"));
-        int result = QDialog::Accepted;
         QString password;
-        while (result == QDialog::Accepted && password.isEmpty()) {
-            result = d.exec();
-            password = d.textValue();
-        }
-        if (result == QDialog::Accepted)
+        if (m_encryptionMode == DoOfferEncryption)
+            password = getPassword();
+        if (!password.isEmpty())
             PKCS8::encrypt_key(*key, pipe, rng, password.toLocal8Bit().data());
         else
             PKCS8::encode(*key, pipe);
@@ -186,6 +177,25 @@ void SshKeyGenerator::generateOpenSslPrivateKeyString(const KeyPtr &key)
         encoder.encode(b);
     encoder.end_cons();
     m_privateKey = QByteArray(PEM_Code::encode (encoder.get_contents(), label).c_str());
+}
+
+QString SshKeyGenerator::getPassword() const
+{
+    QInputDialog d;
+    d.setInputMode(QInputDialog::TextInput);
+    d.setTextEchoMode(QLineEdit::Password);
+    d.setWindowTitle(tr("Password for Private Key"));
+    d.setLabelText(tr("It is recommended that you secure your private key\n"
+        "with a password, which you can enter below."));
+    d.setOkButtonText(tr("Encrypt key file"));
+    d.setCancelButtonText(tr("Do not encrypt key file"));
+    int result = QDialog::Accepted;
+    QString password;
+    while (result == QDialog::Accepted && password.isEmpty()) {
+        result = d.exec();
+        password = d.textValue();
+    }
+    return result == QDialog::Accepted ? password : QString();
 }
 
 } // namespace Utils
