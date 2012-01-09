@@ -492,7 +492,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     Core::ActionContainer *runMenu = Core::ICore::instance()->actionManager()->createMenu(Constants::RUNMENUCONTEXTMENU);
     runMenu->setOnAllDisabledBehavior(Core::ActionContainer::Hide);
-    QIcon runIcon(QLatin1String(Constants::ICON_RUN));
+    QIcon runIcon = QIcon(QLatin1String(Constants::ICON_RUN));
     runIcon.addFile(QLatin1String(Constants::ICON_RUN_SMALL));
     runMenu->menu()->setIcon(runIcon);
     runMenu->menu()->setTitle(tr("Run"));
@@ -649,7 +649,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
 
     // build session action
-    QIcon buildIcon(QLatin1String(Constants::ICON_BUILD));
+    QIcon buildIcon = QIcon(QLatin1String(Constants::ICON_BUILD));
     buildIcon.addFile(QLatin1String(Constants::ICON_BUILD_SMALL));
     d->m_buildSessionAction = new QAction(buildIcon, tr("Build All"), this);
     cmd = am->registerAction(d->m_buildSessionAction, Constants::BUILDSESSION, globalcontext);
@@ -658,7 +658,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
 
     // rebuild session action
-    QIcon rebuildIcon(QLatin1String(Constants::ICON_REBUILD));
+    QIcon rebuildIcon = QIcon(QLatin1String(Constants::ICON_REBUILD));
     rebuildIcon.addFile(QLatin1String(Constants::ICON_REBUILD_SMALL));
     d->m_rebuildSessionAction = new QAction(rebuildIcon, tr("Rebuild All"), this);
     cmd = am->registerAction(d->m_rebuildSessionAction, Constants::REBUILDSESSION, globalcontext);
@@ -672,7 +672,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
 
     // clean session
-    QIcon cleanIcon(QLatin1String(Constants::ICON_CLEAN));
+    QIcon cleanIcon = QIcon(QLatin1String(Constants::ICON_CLEAN));
     cleanIcon.addFile(QLatin1String(Constants::ICON_CLEAN_SMALL));
     d->m_cleanSessionAction = new QAction(cleanIcon, tr("Clean All"), this);
     cmd = am->registerAction(d->m_cleanSessionAction, Constants::CLEANSESSION, globalcontext);
