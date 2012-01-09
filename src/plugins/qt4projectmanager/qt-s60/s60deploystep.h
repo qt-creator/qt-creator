@@ -207,17 +207,6 @@ private:
     int m_copyProgress;
 };
 
-class S60DeployStepWidget : public ProjectExplorer::BuildStepConfigWidget
-{
-    Q_OBJECT
-public:
-    S60DeployStepWidget();
-
-    QString summaryText() const;
-    QString displayName() const;
-    bool showWidget() const;
-};
-
 } // Internal
 } // Qt4ProjectManager
 

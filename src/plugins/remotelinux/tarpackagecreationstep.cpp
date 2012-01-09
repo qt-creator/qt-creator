@@ -47,32 +47,25 @@ using namespace ProjectExplorer;
 namespace RemoteLinux {
 namespace {
 
-class CreateTarStepWidget : public BuildStepConfigWidget
+class CreateTarStepWidget : public SimpleBuildStepConfigWidget
 {
     Q_OBJECT
 public:
-    CreateTarStepWidget(TarPackageCreationStep *step) : m_step(step)
+    CreateTarStepWidget(TarPackageCreationStep *step) : SimpleBuildStepConfigWidget(step)
     {
-        connect(m_step, SIGNAL(packageFilePathChanged()), SIGNAL(updateSummary()));
+        connect(step, SIGNAL(packageFilePathChanged()), SIGNAL(updateSummary()));
     }
 
     QString summaryText() const
     {
-        if (m_step->packageFilePath().isEmpty()) {
+        TarPackageCreationStep * const step = qobject_cast<TarPackageCreationStep *>(this->step());
+        if (step->packageFilePath().isEmpty()) {
             return QLatin1String("<font color=\"red\">")
                 + tr("Tarball creation not possible.") + QLatin1String("</font>");
         }
-
         return QLatin1String("<b>") + tr("Create tarball:") + QLatin1String("</b> ")
-            + m_step->packageFilePath();
+            + step->packageFilePath();
     }
-
-    QString displayName() const { return QString(); }
-
-    bool showWidget() const { return false; }
-
-private:
-    const TarPackageCreationStep * const m_step;
 };
 
 

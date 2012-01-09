@@ -31,8 +31,6 @@
 **************************************************************************/
 #include "remotelinuxcustomcommanddeploymentstep.h"
 
-#include "remotelinuxdeploystepwidget.h"
-
 #include <QtCore/QString>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QLabel>
@@ -80,7 +78,7 @@ private:
 
     AbstractRemoteLinuxCustomCommandDeploymentStep * const m_step;
     QLineEdit m_commandLineEdit;
-    RemoteLinuxDeployStepWidget m_widget;
+    SimpleBuildStepConfigWidget m_widget;
 };
 
 } // anonymous namespace

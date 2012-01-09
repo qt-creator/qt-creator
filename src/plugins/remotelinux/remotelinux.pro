@@ -47,7 +47,6 @@ HEADERS += \
     linuxdevicetestdialog.h \
     remotelinuxprocesslist.h \
     remotelinuxprocessesdialog.h \
-    remotelinuxdeploystepwidget.h \
     linuxdeviceconfigurationssettingswidget.h \
     remotelinuxenvironmentreader.h \
     sshkeydeployer.h \
@@ -103,7 +102,6 @@ SOURCES += \
     linuxdevicetestdialog.cpp \
     remotelinuxprocesslist.cpp \
     remotelinuxprocessesdialog.cpp \
-    remotelinuxdeploystepwidget.cpp \
     linuxdeviceconfigurationssettingswidget.cpp \
     remotelinuxenvironmentreader.cpp \
     sshkeydeployer.cpp \

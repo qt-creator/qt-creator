@@ -147,6 +147,28 @@ signals:
     void updateAdditionalSummary();
 };
 
+class PROJECTEXPLORER_EXPORT SimpleBuildStepConfigWidget
+    : public BuildStepConfigWidget
+{
+    Q_OBJECT
+public:
+    SimpleBuildStepConfigWidget(BuildStep *step)
+        : m_step(step)
+    {
+        connect(m_step, SIGNAL(displayNameChanged()), SIGNAL(updateSummary()));
+    }
+
+    ~SimpleBuildStepConfigWidget() {}
+
+    QString summaryText() const { return QString("<b>%1</b>").arg(displayName()); }
+    QString displayName() const { return m_step->displayName(); }
+    bool showWidget() const { return false; }
+    BuildStep *step() const { return m_step; }
+
+private:
+    BuildStep *m_step;
+};
+
 } // namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::BuildStep::OutputFormat)

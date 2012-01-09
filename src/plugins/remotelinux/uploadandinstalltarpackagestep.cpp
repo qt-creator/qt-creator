@@ -32,7 +32,6 @@
 #include "uploadandinstalltarpackagestep.h"
 
 #include "remotelinuxdeployconfiguration.h"
-#include "remotelinuxdeploystepwidget.h"
 #include "remotelinuxpackageinstaller.h"
 #include "tarpackagecreationstep.h"
 
@@ -42,26 +41,6 @@ using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 namespace Internal {
-namespace {
-
-class ConfigWidget : public BuildStepConfigWidget
-{
-    Q_OBJECT
-public:
-    ConfigWidget(UploadAndInstallTarPackageStep *step) : m_widget(step)
-    {
-        connect(&m_widget, SIGNAL(updateSummary()), SIGNAL(updateSummary()));
-    }
-    ~ConfigWidget() {}
-
-private:
-    QString summaryText() const { return m_widget.summaryText(); }
-    QString displayName() const { return m_widget.displayName(); }
-    bool showWidget() const { return false; }
-
-    RemoteLinuxDeployStepWidget m_widget;
-};
-} // anonymous namespace
 
 class UploadAndInstallTarPackageServicePrivate
 {
@@ -124,7 +103,7 @@ bool UploadAndInstallTarPackageStep::initInternal(QString *error)
 
 BuildStepConfigWidget *UploadAndInstallTarPackageStep::createConfigWidget()
 {
-    return new ConfigWidget(this);
+    return new SimpleBuildStepConfigWidget(this);
 }
 
 QString UploadAndInstallTarPackageStep::stepId()
@@ -138,5 +117,3 @@ QString UploadAndInstallTarPackageStep::displayName()
 }
 
 } //namespace RemoteLinux
-
-#include "uploadandinstalltarpackagestep.moc"

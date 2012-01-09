@@ -33,7 +33,6 @@
 
 #include "abstractremotelinuxdeployservice.h"
 #include "remotelinuxdeployconfiguration.h"
-#include "remotelinuxdeploystepwidget.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -115,7 +114,7 @@ void AbstractRemoteLinuxDeployStep::cancel()
 
 BuildStepConfigWidget *AbstractRemoteLinuxDeployStep::createConfigWidget()
 {
-    return new RemoteLinuxDeployStepWidget(this);
+    return new SimpleBuildStepConfigWidget(this);
 }
 
 RemoteLinuxDeployConfiguration *AbstractRemoteLinuxDeployStep::deployConfiguration() const

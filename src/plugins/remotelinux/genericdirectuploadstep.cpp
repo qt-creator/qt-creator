@@ -35,7 +35,6 @@
 #include "deploymentinfo.h"
 #include "genericdirectuploadservice.h"
 #include "remotelinuxdeployconfiguration.h"
-#include "remotelinuxdeploystepwidget.h"
 
 #include <QtGui/QCheckBox>
 #include <QtGui/QVBoxLayout>
@@ -78,7 +77,7 @@ private:
         myStep()->setIncrementalDeployment(incremental);
     }
 
-    RemoteLinuxDeployStepWidget m_widget;
+    SimpleBuildStepConfigWidget m_widget;
     QCheckBox m_incrementalCheckBox;
 };
 
