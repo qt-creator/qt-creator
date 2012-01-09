@@ -41,10 +41,14 @@
     Qt 4.7.4, or later, libraries on devices. To debug applications on Symbian
     devices, you must install also QML Viewer on them.
 
+    For an example of how to debug Qt Quick Projects, see
+    \l{Debugging a Qt Quick Example Application}.
+
     \section1 Setting Up QML Debugging
 
     The process of setting up debugging for Qt Quick projects depends on the
-    type of the project: Qt Quick UI or Qt Quick Application, and the Qt version used.
+    \l{Creating Qt Quick Projects}{type of the project}: Qt Quick UI or Qt Quick
+    Application, and the Qt version used.
 
     To debug Qt Quick UI projects:
 
@@ -62,7 +66,8 @@
 
         \list 1
 
-        \o  Select \gui Projects, and then select the
+        \o  Debugging is enabled by default for Qt 4.8, or later. For Qt 4.7,
+            select \gui Projects, and then select the
             \gui {Enable QML debugging} check box in the \gui qmake section
             in \gui {Build Steps}.
 
@@ -83,16 +88,19 @@
         \o  Select \gui {Build > Rebuild Project} to clean and rebuild the
             project.
 
-    \endlist
+        \o  To debug applications on devices, check that Qt 4.7.4, or later,
+            libraries are installed on the device and
+            \l{Running on Multiple Targets}{select the device as the target}
+            before you start debugging.
 
-    To debug Qt Quick Applications on devices, install Qt 4.7.4, or later,
-    libraries on devices. Then select the device as the target before you
-    start debugging.
+    \endlist
 
     \section1 Mixed C++/QML Debugging
 
     To debug both the C++ and QML parts of your application at the same time,
     select the checkboxes for both languages in the \gui{Run Settings}.
+
+    \image qtquick-debugging-settings.png
 
     \section1 Starting QML Debugging
 
@@ -104,25 +112,43 @@
 
         \o  Debug JavaScript functions
 
-        \o  Preview QML changes at runtime
+        \o  Execute JavaScript expressions to get information about the state of
+            the application
 
-        \o  Inspect QML at runtime
+        \o  Change QML code and immediately see the changes at runtime
+
+        \o  Inspect QML code and change it at runtime without changing the code
+
+        \o  Debug animations
+
+    \endlist
+
+    To debug already running applications:
+
+    \list 1
+
+        \o  Start the application.
+
+        \o  Select \gui {Debug > Start Debugging > Attach to QML Port}.
+
+            When debugging on the desktop, you can use the default values for
+            the connection. When debugging on devices, enter the device IP
+            address in the \gui Host field.
 
     \endlist
 
     \section1 Debugging JavaScript Functions
 
     You can use the \QC \gui Debug mode to inspect the state of your
-    application while debugging. You can interact with the debugger in several
-    ways, as described in the following sections:
+    application while debugging. You can interact with the debugger by:
 
     \list
 
-        \o  \l{Setting Breakpoints}
+        \o  \l{Setting Breakpoints}{Setting breakpoints}
 
-        \o  \l{Viewing Call Stack Trace}
+        \o  \l{Viewing Call Stack Trace}{Viewing call stack trace}
 
-        \o  \l{Locals and Expressions}
+        \o  \l{Locals and Expressions}{Viewing locals and expressions}
 
     \endlist
 
@@ -135,10 +161,10 @@
     \image qml-script-console.png "QML Script Console view"
 
     You can type JavaScript expressions and use them to get information about
-    the state or your application. For example, property values.
+    the state or your application. You can change property values temporarily,
+    without editing the source, and view the results in the running application.
 
-    You can see the current value of a property by hovering over it in the code
-    editor.
+    You can change the property values permanently in the code editor.
 
     \section1 Applying QML Changes at Runtime
 
@@ -147,6 +173,10 @@
     the file. This is enabled by default. To disable it, click
     \inlineimage qml-observer-bar-reload.png "Apply Changes on Save button"
     on the toolbar.
+
+    When you change property values in the \gui {QML Script Console} or
+    \gui {QML Inspector}, they are immediately updated in the running
+    application, but not in the source code.
 
     \section1 Inspecting QML at Runtime
 
@@ -157,6 +187,40 @@
     element.
 
     \image qml-observer-view.png "QML Inspector view"
+
+    To keep the application visible while you interact with the inspector, click
+    \inlineimage qml-inspector-app-on-top.png
+    (\gui {Show Application on Top}).
+
+    To display a QML element in the \gui {QML Inspector} view:
+
+    \list
+
+        \o  Select the element in the code editor.
+
+        \o  Click
+            \inlineimage qml-inspector-select-button.png
+            (\gui Select) to activate selection mode and then click an element
+            in the running application.
+
+        \o  Select a child element of an element in the menu in the
+            \gui {QML Inspector} view:
+
+            \image qtquick-example-children.png
+
+        \o  Select an element in the element path in the \gui {QML Inspector}
+            view.
+
+    \endlist
+
+    To change property values temporarily, without editing the source,
+    double-click them and enter the new values. You can view the results in the
+    running application.
+
+    When you select an element, the cursor moves to it in the code editor, where
+    you can change the value permanently.
+
+    \section1 Debugging Animations
 
     When you debug complex applications, you can use the inspection
     mode to jump to the position in code where an element is defined. You are
@@ -189,8 +253,6 @@
 
     To move the application running in \QQV to the front, select the
     \gui {Show Application on Top} button.
-
-    \section1 Debugging Animations
 
     To play and pause animations in the running application, select
     \inlineimage qml-inspector-play.png
