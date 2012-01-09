@@ -155,7 +155,7 @@ void ToolChainManager::saveToolChains()
         }
     }
     writer.saveValue(QLatin1String(TOOLCHAIN_COUNT_KEY), count);
-    writer.save(settingsFileName(), "QtCreatorToolChains", Core::ICore::instance()->mainWindow());
+    writer.save(settingsFileName(), QLatin1String("QtCreatorToolChains"), Core::ICore::instance()->mainWindow());
 
     // Do not save default debuggers! Those are set by the SDK!
 }

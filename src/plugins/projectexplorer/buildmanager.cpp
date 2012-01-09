@@ -160,9 +160,9 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
 
 void BuildManager::extensionsInitialized()
 {
-    d->m_taskHub->addCategory(Constants::TASK_CATEGORY_COMPILE,
+    d->m_taskHub->addCategory(QLatin1String(Constants::TASK_CATEGORY_COMPILE),
         tr("Compile", "Category for compiler issues listed under 'Issues'"));
-    d->m_taskHub->addCategory(Constants::TASK_CATEGORY_BUILDSYSTEM,
+    d->m_taskHub->addCategory(QLatin1String(Constants::TASK_CATEGORY_BUILDSYSTEM),
         tr("Build System", "Category for build system issues listed under 'Issues'"));
 }
 
@@ -201,8 +201,8 @@ bool BuildManager::isBuilding() const
 int BuildManager::getErrorTaskCount() const
 {
     const int errors =
-            d->m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_BUILDSYSTEM)
-            + d->m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_COMPILE);
+            d->m_taskWindow->errorTaskCount(QLatin1String(Constants::TASK_CATEGORY_BUILDSYSTEM))
+            + d->m_taskWindow->errorTaskCount(QLatin1String(Constants::TASK_CATEGORY_COMPILE));
     return errors;
 }
 
@@ -306,8 +306,8 @@ void BuildManager::toggleTaskWindow()
 bool BuildManager::tasksAvailable() const
 {
     const int count =
-            d->m_taskWindow->taskCount(Constants::TASK_CATEGORY_BUILDSYSTEM)
-            + d->m_taskWindow->taskCount(Constants::TASK_CATEGORY_COMPILE);
+            d->m_taskWindow->taskCount(QLatin1String(Constants::TASK_CATEGORY_BUILDSYSTEM))
+            + d->m_taskWindow->taskCount(QLatin1String(Constants::TASK_CATEGORY_COMPILE));
     return count > 0;
 }
 
@@ -323,12 +323,12 @@ void BuildManager::startBuildQueue()
         d->m_progressFutureInterface = new QFutureInterface<void>;
         d->m_progressWatcher.setFuture(d->m_progressFutureInterface->future());
         d->m_outputWindow->clearContents();
-        d->m_taskHub->clearTasks(Constants::TASK_CATEGORY_COMPILE);
-        d->m_taskHub->clearTasks(Constants::TASK_CATEGORY_BUILDSYSTEM);
+        d->m_taskHub->clearTasks(QLatin1String(Constants::TASK_CATEGORY_COMPILE));
+        d->m_taskHub->clearTasks(QLatin1String(Constants::TASK_CATEGORY_BUILDSYSTEM));
         progressManager->setApplicationLabel(QString());
         d->m_futureProgress = QWeakPointer<Core::FutureProgress>(progressManager->addTask(d->m_progressFutureInterface->future(),
-              "",
-              Constants::TASK_BUILD,
+              QString(),
+              QLatin1String(Constants::TASK_BUILD),
               Core::ProgressManager::KeepOnFinish | Core::ProgressManager::ShowInApplicationIcon));
         connect(d->m_futureProgress.data(), SIGNAL(clicked()), this, SLOT(showBuildResults()));
         d->m_futureProgress.data()->setWidget(new Internal::BuildProgress(d->m_taskWindow));

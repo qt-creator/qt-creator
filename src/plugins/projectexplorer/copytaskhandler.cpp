@@ -63,8 +63,8 @@ void CopyTaskHandler::handle(const ProjectExplorer::Task &task)
         break;
     }
 
-    QApplication::clipboard()->setText(QDir::toNativeSeparators(task.file) + ':' +
-                                       QString::number(task.line) + ": "
+    QApplication::clipboard()->setText(QDir::toNativeSeparators(task.file) + QLatin1Char(':') +
+                                       QString::number(task.line) + QLatin1String(": ")
                                        + type + task.description);
 }
 

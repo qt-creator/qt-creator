@@ -478,7 +478,7 @@ void mergeSharedSettings(QVariantMap *userMap, const QVariantMap &sharedMap)
         return;
 
     QSet<QString> stickyKeys;
-    const QVariant &stickyList = userMap->take(USER_STICKY_KEYS_KEY).toList();
+    const QVariant stickyList = userMap->take(QLatin1String(USER_STICKY_KEYS_KEY)).toList();
     if (stickyList.isValid()) {
         if (stickyList.type() != QVariant::List) {
             // File is messed up... The user probably changed something.
@@ -518,7 +518,7 @@ void trackUserStickySettings(QVariantMap *userMap, const QVariantMap &sharedMap)
     TrackUserStickySetting op;
     synchronizeSettings(userMap, sharedMap, &op);
 
-    userMap->insert(USER_STICKY_KEYS_KEY, QVariant(op.m_userSticky.toList()));
+    userMap->insert(QLatin1String(USER_STICKY_KEYS_KEY), QVariant(op.m_userSticky.toList()));
 }
 
 } // Anonymous
@@ -577,7 +577,7 @@ QVariantMap SettingsAccessor::restoreSettings(Project *project) const
         // Do we need to generate a backup?
         if (settings.m_version < m_lastVersion + 1 && !settings.m_usingBackup) {
             const QString &backupFileName = settings.m_fileName
-                    + '.'
+                    + QLatin1Char('.')
                     + m_handlers.value(settings.m_version)->displayUserFileVersion();
             QFile::remove(backupFileName);  // Remove because copy doesn't overwrite
             QFile::copy(settings.m_fileName, backupFileName);
@@ -748,7 +748,7 @@ void SettingsAccessor::FileAccessor::assignSuffix(const QString &defaultSuffix,
 {
     if (!environmentSuffix.isEmpty()) {
         m_suffix = environmentSuffix;
-        m_suffix.replace(QRegExp("[^a-zA-Z0-9_.-]"), QChar('_')); // replace fishy characters:
+        m_suffix.replace(QRegExp(QLatin1String("[^a-zA-Z0-9_.-]")), QString(QLatin1Char('_'))); // replace fishy characters:
         m_suffix.prepend(QLatin1Char('.'));
     } else {
         m_suffix = defaultSuffix;
@@ -874,7 +874,7 @@ bool SettingsAccessor::FileAccessor::writeFile(const Project *project,
 
     const QString &fileName = project->property(m_id).toString();
     return writer.save(fileName.isEmpty() ? assembleFileName(project) : fileName,
-                       "QtCreatorProject",
+                       QLatin1String("QtCreatorProject"),
                        Core::ICore::instance()->mainWindow());
 }
 
@@ -1275,7 +1275,7 @@ QVariantMap Version0Handler::update(Project *project, const QVariantMap &map)
     active = map.value(QLatin1String("activeRunConfiguration")).toString();
     count = 0;
     forever {
-        QString prefix(QLatin1String("RunConfiguration") + QString::number(count) + '-');
+        QString prefix(QLatin1String("RunConfiguration") + QString::number(count) + QLatin1Char('-'));
         QVariantMap rcMap;
         for (QVariantMap::const_iterator i = map.constBegin(); i != map.constEnd(); ++i) {
             if (!i.key().startsWith(prefix))
@@ -1303,7 +1303,7 @@ QVariantMap Version0Handler::update(Project *project, const QVariantMap &map)
                       editorSettingsMap);
     }
 
-    QVariant toolchain(map.value("toolChain"));
+    QVariant toolchain(map.value(QLatin1String("toolChain")));
     if (toolchain.isValid()) {
         bool ok;
         int type(toolchain.toInt(&ok));

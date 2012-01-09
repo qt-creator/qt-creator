@@ -154,7 +154,7 @@ bool SessionFile::load(const QString &fileName)
 
     const QStringList &keys = reader.restoreValue(QLatin1String("valueKeys")).toStringList();
     foreach (const QString &key, keys) {
-        QVariant value = reader.restoreValue("value-" + key);
+        QVariant value = reader.restoreValue(QLatin1String("value-") + key);
         m_values.insert(key, value);
     }
 
@@ -276,14 +276,14 @@ bool SessionFile::save()
     end = m_values.constEnd();
     QStringList keys;
     for (it = m_values.constBegin(); it != end; ++it) {
-        writer.saveValue("value-" + it.key(), it.value());
+        writer.saveValue(QLatin1String("value-") + it.key(), it.value());
         keys << it.key();
     }
 
-    writer.saveValue("valueKeys", keys);
+    writer.saveValue(QLatin1String("valueKeys"), keys);
 
 
-    if (writer.save(m_fileName, "QtCreatorSession", Core::ICore::instance()->mainWindow()))
+    if (writer.save(m_fileName, QLatin1String("QtCreatorSession"), Core::ICore::instance()->mainWindow()))
         return true;
 
     return false;
@@ -472,7 +472,7 @@ void SessionManager::removeDependency(Project *project, Project *depProject)
 void SessionManager::setStartupProject(Project *startupProject)
 {
     if (debug)
-        qDebug() << Q_FUNC_INFO << (startupProject ? startupProject->displayName() : "0");
+        qDebug() << Q_FUNC_INFO << (startupProject ? startupProject->displayName() : QLatin1String("0"));
 
     if (startupProject) {
         Q_ASSERT(m_file->m_projects.contains(startupProject));
@@ -561,7 +561,7 @@ bool SessionManager::createImpl(const QString &fileName)
         setStartupProject(0);
 
         if (!isDefaultVirgin()) {
-            ModeManager::instance()->activateMode(Core::Constants::MODE_EDIT);
+            ModeManager::instance()->activateMode(QLatin1String(Core::Constants::MODE_EDIT));
             ModeManager::instance()->setFocusToCurrentMode();
         }
 
@@ -635,7 +635,7 @@ bool SessionManager::loadImpl(const QString &fileName)
         // restore the active mode
         QString modeIdentifier = value(QLatin1String("ActiveMode")).toString();
         if (modeIdentifier.isEmpty())
-            modeIdentifier = Core::Constants::MODE_EDIT;
+            modeIdentifier = QLatin1String(Core::Constants::MODE_EDIT);
 
         ModeManager::instance()->activateMode(modeIdentifier);
         ModeManager::instance()->setFocusToCurrentMode();
@@ -860,7 +860,7 @@ void SessionManager::updateWindowTitle()
         if (Project *currentProject = ProjectExplorerPlugin::instance()->currentProject())
             m_core->editorManager()->setWindowTitleAddition(currentProject->displayName());
         else
-            m_core->editorManager()->setWindowTitleAddition("");
+            m_core->editorManager()->setWindowTitleAddition(QString());
     } else {
         QString sessionName = m_sessionName;
         if (sessionName.isEmpty())
@@ -969,23 +969,23 @@ QStringList SessionManager::sessions() const
         QDir sessionDir(Core::ICore::instance()->userResourcePath());
         QList<QFileInfo> sessionFiles = sessionDir.entryInfoList(QStringList() << QLatin1String("*.qws"), QDir::NoFilter, QDir::Time);
         Q_FOREACH(const QFileInfo& fileInfo, sessionFiles) {
-            if (fileInfo.completeBaseName() != "default")
+            if (fileInfo.completeBaseName() != QLatin1String("default"))
                 m_sessions << fileInfo.completeBaseName();
         }
-        m_sessions.prepend("default");
+        m_sessions.prepend(QLatin1String("default"));
     }
     return m_sessions;
 }
 
 QString SessionManager::sessionNameToFileName(const QString &session) const
 {
-    return m_core->userResourcePath() + '/' + session + ".qws";
+    return m_core->userResourcePath() + QLatin1Char('/') + session + QLatin1String(".qws");
 }
 
 QString SessionManager::sessionNameFromFileName(const QString &fileName) const
 {
-    const int slash = fileName.lastIndexOf('/');
-    Q_ASSERT(slash != -1 && fileName.endsWith(".qws"));
+    const int slash = fileName.lastIndexOf(QLatin1Char('/'));
+    Q_ASSERT(slash != -1 && fileName.endsWith(QLatin1String(".qws")));
     return fileName.mid(slash + 1, fileName.length() - slash - 5); // Exclude .qws
 }
 
@@ -995,7 +995,7 @@ QString SessionManager::sessionNameFromFileName(const QString &fileName) const
 
 void SessionManager::createAndLoadNewDefaultSession()
 {
-    createImpl(sessionNameToFileName("default"));
+    createImpl(sessionNameToFileName(QLatin1String("default")));
 }
 
 /*!
@@ -1076,7 +1076,7 @@ bool SessionManager::loadSession(const QString &session)
 QString SessionManager::lastSession() const
 {
     QSettings *settings = m_core->settings();
-    QString fileName = settings->value("ProjectExplorer/StartupSession").toString();
+    QString fileName = settings->value(QLatin1String("ProjectExplorer/StartupSession")).toString();
     return QFileInfo(fileName).completeBaseName();
 }
 

@@ -61,11 +61,11 @@ QValidator::State SessionValidator::validate(QString &input, int &pos) const
 {
     Q_UNUSED(pos)
 
-    if (input.contains('/')
-            || input.contains(':')
-            || input.contains('\\')
-            || input.contains('?')
-            || input.contains('*'))
+    if (input.contains(QLatin1Char('/'))
+            || input.contains(QLatin1Char(':'))
+            || input.contains(QLatin1Char('\\'))
+            || input.contains(QLatin1Char('?'))
+            || input.contains(QLatin1Char('*')))
         return QValidator::Invalid;
 
     if (m_sessions.contains(input))
@@ -79,7 +79,7 @@ void SessionValidator::fixup(QString &input) const
     int i = 2;
     QString copy;
     do {
-        copy = input + QString(" (%1)").arg(i);
+        copy = input + QLatin1String(" (") + QString::number(i) + QLatin1Char(')');
         ++i;
     } while (m_sessions.contains(copy));
     input = copy;

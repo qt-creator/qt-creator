@@ -88,7 +88,7 @@ PropertiesPanel *BuildSettingsPanelFactory::createPanel(Target *target)
     l->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
     l->setContentsMargins(QMargins());
     panel->setWidget(w);
-    panel->setIcon(QIcon(":/projectexplorer/images/BuildSettings.png"));
+    panel->setIcon(QIcon(QLatin1String(":/projectexplorer/images/BuildSettings.png")));
     panel->setDisplayName(QCoreApplication::translate("BuildSettingsPanel", "Build Settings"));
     return panel;
 }

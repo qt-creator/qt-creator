@@ -100,7 +100,7 @@ QList<HeaderPath> AbstractMsvcToolChain::systemHeaderPaths() const
     if (m_headerPaths.isEmpty()) {
         Utils::Environment env(m_lastEnvironment);
         addToEnvironment(env);
-        foreach (const QString &path, env.value("INCLUDE").split(QLatin1Char(';')))
+        foreach (const QString &path, env.value(QLatin1String("INCLUDE")).split(QLatin1Char(';')))
             m_headerPaths.append(HeaderPath(path, HeaderPath::GlobalHeaderPath));
     }
     return m_headerPaths;
@@ -178,7 +178,7 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
     // Note, can't just use a QTemporaryFile all the way through as it remains open
     // internally so it can't be streamed to later.
     QString tempOutFile;
-    QTemporaryFile* pVarsTempFile = new QTemporaryFile(QDir::tempPath() + "/XXXXXX.txt");
+    QTemporaryFile* pVarsTempFile = new QTemporaryFile(QDir::tempPath() + QLatin1String("/XXXXXX.txt"));
     pVarsTempFile->setAutoRemove(false);
     pVarsTempFile->open();
     pVarsTempFile->close();
@@ -186,7 +186,7 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
     delete pVarsTempFile;
 
     // Create a batch file to create and save the env settings
-    Utils::TempFileSaver saver(QDir::tempPath() + "/XXXXXX.bat");
+    Utils::TempFileSaver saver(QDir::tempPath() + QLatin1String("/XXXXXX.bat"));
 
     QByteArray call = "call ";
     call += Utils::QtcProcess::quoteArg(batchFile).toLocal8Bit() + "\r\n";

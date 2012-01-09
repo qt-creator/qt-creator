@@ -532,7 +532,7 @@ bool DoubleTabWidget::event(QEvent *event)
         if (hit.first == HITTAB && m_tabs.at(m_currentTabIndices.at(hit.second)).nameIsUnique)
             QToolTip::showText(helpevent->globalPos(), m_tabs.at(m_currentTabIndices.at(hit.second)).fullName, this);
         else
-            QToolTip::showText(helpevent->globalPos(), "", this);
+            QToolTip::showText(helpevent->globalPos(), QString(), this);
     }
     return QWidget::event(event);
 }

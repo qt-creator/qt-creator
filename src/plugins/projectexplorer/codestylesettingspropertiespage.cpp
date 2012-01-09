@@ -63,7 +63,7 @@ PropertiesPanel *CodeStyleSettingsPanelFactory::createPanel(Project *project)
 {
     PropertiesPanel *panel = new PropertiesPanel;
     panel->setWidget(new CodeStyleSettingsWidget(project));
-    panel->setIcon(QIcon(":/projectexplorer/images/CodeStyleSettings.png"));
+    panel->setIcon(QIcon(QLatin1String(":/projectexplorer/images/CodeStyleSettings.png")));
     panel->setDisplayName(QCoreApplication::translate("CodeStyleSettingsPanel", "Code Style Settings"));
     return panel;
 }

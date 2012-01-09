@@ -252,7 +252,7 @@ static inline bool assignLanguageElementText(QXmlStreamReader &reader,
                                              const QString &desiredLanguage,
                                              QString *target)
 {
-    const QStringRef elementLanguage = reader.attributes().value(langAttributeC);
+    const QStringRef elementLanguage = reader.attributes().value(QLatin1String(langAttributeC));
     if (elementLanguage.isEmpty()) {
         // Try to find a translation for our built-in Wizards
         *target = QCoreApplication::translate("ProjectExplorer::CustomWizard", reader.readElementText().toLatin1().constData());
@@ -275,7 +275,7 @@ static inline bool assignLanguageElementText(QXmlStreamReader &reader,
                                              Core::BaseFileWizardParameters *bp,
                                              void (Core::BaseFileWizardParameters::*setter)(const QString &))
 {
-    const QStringRef elementLanguage = reader.attributes().value(langAttributeC);
+    const QStringRef elementLanguage = reader.attributes().value(QLatin1String(langAttributeC));
     if (elementLanguage.isEmpty()) {
         // Try to find a translation for our built-in Wizards
         const QString translated = QCoreApplication::translate("ProjectExplorer::CustomWizard", reader.readElementText().toLatin1().constData());

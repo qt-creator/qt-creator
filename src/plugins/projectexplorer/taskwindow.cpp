@@ -635,7 +635,7 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
         // Layout the description
         int leading = fontLeading;
         int height = 0;
-        description.replace('\n', QChar::LineSeparator);
+        description.replace(QLatin1Char('\n'), QChar::LineSeparator);
         QTextLayout tl(description);
         tl.beginLayout();
         while (true) {
@@ -717,7 +717,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     // Paint TextArea:
     if (!selected) {
         // in small mode we lay out differently
-        QString bottom = index.data(TaskModel::Description).toString().split('\n').first();
+        QString bottom = index.data(TaskModel::Description).toString().split(QLatin1Char('\n')).first();
         painter->setClipRect(positions.textArea());
         painter->drawText(positions.textAreaLeft(), positions.top() + fm.ascent(), bottom);
         if (fm.width(bottom) > positions.textAreaWidth()) {
@@ -734,7 +734,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
         // Layout the description
         int leading = fm.leading();
         int height = 0;
-        description.replace('\n', QChar::LineSeparator);
+        description.replace(QLatin1Char('\n'), QChar::LineSeparator);
         QTextLayout tl(description);
         tl.setAdditionalFormats(index.data(TaskModel::Task_t).value<ProjectExplorer::Task>().formats);
         tl.beginLayout();

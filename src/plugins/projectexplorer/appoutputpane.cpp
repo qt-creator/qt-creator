@@ -68,7 +68,7 @@ using namespace ProjectExplorer::Internal;
 
 static QObject *debuggerCore()
 {
-    return ExtensionSystem::PluginManager::instance()->getObjectByName("DebuggerCore");
+    return ExtensionSystem::PluginManager::instance()->getObjectByName(QLatin1String("DebuggerCore"));
 }
 
 static QString msgAttachDebuggerTooltip(const QString &handleDescription = QString())
@@ -125,7 +125,7 @@ AppOutputPane::AppOutputPane() :
     m_attachButton(new QToolButton)
 {
     // Rerun
-    m_reRunButton->setIcon(QIcon(ProjectExplorer::Constants::ICON_RUN_SMALL));
+    m_reRunButton->setIcon(QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL)));
     m_reRunButton->setToolTip(tr("Re-run this run-configuration"));
     m_reRunButton->setAutoRaise(true);
     m_reRunButton->setEnabled(false);
@@ -153,7 +153,7 @@ AppOutputPane::AppOutputPane() :
     // Attach
     m_attachButton->setToolTip(msgAttachDebuggerTooltip());
     m_attachButton->setEnabled(false);
-    m_attachButton->setIcon(QIcon(ProjectExplorer::Constants::ICON_DEBUG_SMALL));
+    m_attachButton->setIcon(QIcon(QLatin1String(ProjectExplorer::Constants::ICON_DEBUG_SMALL)));
     m_attachButton->setAutoRaise(true);
 
     connect(m_attachButton, SIGNAL(clicked()),

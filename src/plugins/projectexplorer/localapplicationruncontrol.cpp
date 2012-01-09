@@ -55,7 +55,7 @@ LocalApplicationRunControlFactory::~LocalApplicationRunControlFactory()
 
 bool LocalApplicationRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const
 {
-    return (mode == ProjectExplorer::Constants::RUNMODE)
+    return (mode == QLatin1String(ProjectExplorer::Constants::RUNMODE))
             && (qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration) != 0);
 }
 
@@ -135,7 +135,7 @@ bool LocalApplicationRunControl::isRunning() const
 
 QIcon LocalApplicationRunControl::icon() const
 {
-    return QIcon(ProjectExplorer::Constants::ICON_RUN_SMALL);
+    return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 }
 
 void LocalApplicationRunControl::slotAppendMessage(const QString &err,

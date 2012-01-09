@@ -170,7 +170,7 @@ QByteArray MsvcToolChain::msvcPredefinedMacros(const Utils::Environment &env) co
 {
     QByteArray predefinedMacros = AbstractMsvcToolChain::msvcPredefinedMacros(env);
 
-    Utils::TempFileSaver saver(QDir::tempPath()+"/envtestXXXXXX.cpp");
+    Utils::TempFileSaver saver(QDir::tempPath() + QLatin1String("/envtestXXXXXX.cpp"));
     saver.write(msvcCompilationFile());
     if (!saver.finalize()) {
         qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
@@ -502,7 +502,7 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
     QList<ToolChain *> results;
 
     // 1) Installed SDKs preferred over standalone Visual studio
-    const QSettings sdkRegistry("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Microsoft SDKs\\Windows",
+    const QSettings sdkRegistry(QLatin1String("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Microsoft SDKs\\Windows"),
                                 QSettings::NativeFormat);
     const QString defaultSdkPath = sdkRegistry.value(QLatin1String("CurrentInstallFolder")).toString();
     if (!defaultSdkPath.isEmpty()) {

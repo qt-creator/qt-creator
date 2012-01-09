@@ -483,7 +483,7 @@ QList<CustomWizard*> CustomWizard::createWizards()
         } else {
             if (CustomWizardPrivate::verbose)
                 if (CustomWizardPrivate::verbose)
-                    verboseLog += QString::fromLatin1("CustomWizard: '%1' not found\n").arg(qPrintable(configFile));
+                    verboseLog += QString::fromLatin1("CustomWizard: '%1' not found\n").arg(configFile);
         }
     }
     if (CustomWizardPrivate::verbose) { // Print to output pane for Windows.
@@ -605,7 +605,7 @@ void CustomProjectWizard::projectParametersChanged(const QString &project, const
     // Make '%ProjectName%' available in base replacements.
     context()->baseReplacements.insert(QLatin1String("ProjectName"), project);
 
-    emit projectLocationChanged(path + QChar('/') + project);
+    emit projectLocationChanged(path + QLatin1Char('/') + project);
 }
 
 } // namespace ProjectExplorer

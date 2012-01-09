@@ -60,7 +60,7 @@ PropertiesPanel *EditorSettingsPanelFactory::createPanel(Project *project)
     PropertiesPanel *panel = new PropertiesPanel;
     panel->setDisplayName(QCoreApplication::translate("EditorSettingsPanel", "Editor Settings"));
     panel->setWidget(new EditorSettingsWidget(project)),
-    panel->setIcon(QIcon(":/projectexplorer/images/EditorSettings.png"));
+    panel->setIcon(QIcon(QLatin1String(":/projectexplorer/images/EditorSettings.png")));
     return panel;
 }
 

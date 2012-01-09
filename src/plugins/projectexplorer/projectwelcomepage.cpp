@@ -141,9 +141,9 @@ void ProjectWelcomePage::facilitateQml(QDeclarativeEngine *engine)
     m_projectModel = new ProjectModel(pePlugin, this);
 
     QDeclarativeContext *ctx = engine->rootContext();
-    ctx->setContextProperty("sessionList", m_sessionModel);
-    ctx->setContextProperty("projectList", m_projectModel);
-    ctx->setContextProperty("projectWelcomePage", this);
+    ctx->setContextProperty(QLatin1String("sessionList"), m_sessionModel);
+    ctx->setContextProperty(QLatin1String("projectList"), m_projectModel);
+    ctx->setContextProperty(QLatin1String("projectWelcomePage"), this);
 }
 
 void ProjectWelcomePage::reloadWelcomeScreenData()

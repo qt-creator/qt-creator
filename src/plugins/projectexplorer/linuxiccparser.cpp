@@ -43,20 +43,20 @@ LinuxIccParser::LinuxIccParser()
     setObjectName(QLatin1String("LinuxIccParser"));
     // main.cpp(53): error #308: function \"AClass::privatefunc\" (declared at line 4 of \"main.h\") is inaccessible
 
-    m_firstLine.setPattern("^([^\\(\\)]+)"           // filename (cap 1)
-                           "\\((\\d+)\\):"           // line number including : (cap 2)
-                           " ((error|warning)( #\\d+)?: )?"   // optional type (cap 4) and optional error number // TODO really optional ?
-                           "(.*)$");                 // description (cap 6)
+    m_firstLine.setPattern(QLatin1String("^([^\\(\\)]+)"    // filename (cap 1)
+                           "\\((\\d+)\\):"                  // line number including : (cap 2)
+                           " ((error|warning)( #\\d+)?: )?" // optional type (cap 4) and optional error number // TODO really optional ?
+                           "(.*)$"));                       // description (cap 6)
     //m_firstLine.setMinimal(true);
 
                                             // Note pattern also matches caret lines
-    m_continuationLines.setPattern("^\\s+"  // At least one whitespace
-                                   "(.*)$");// description
+    m_continuationLines.setPattern(QLatin1String("^\\s+"  // At least one whitespace
+                                                 "(.*)$"));// description
     m_continuationLines.setMinimal(true);
 
-    m_caretLine.setPattern("^\\s*"          // Whitespaces
-                           "\\^"            // a caret
-                           "\\s*$");        // and again whitespaces
+    m_caretLine.setPattern(QLatin1String("^\\s*"          // Whitespaces
+                                         "\\^"            // a caret
+                                         "\\s*$"));       // and again whitespaces
     m_caretLine.setMinimal(true);
 
     appendOutputParser(new LdParser);
@@ -86,13 +86,13 @@ void LinuxIccParser::stdError(const QString &line)
     } else if (!m_expectFirstLine && m_caretLine.indexIn(line) != -1) {
         // Format the last line as code
         QTextLayout::FormatRange fr;
-        fr.start = m_temporary.description.lastIndexOf('\n') + 1;
+        fr.start = m_temporary.description.lastIndexOf(QLatin1Char('\n')) + 1;
         fr.length = m_temporary.description.length() - fr.start;
         fr.format.setFontItalic(true);
         m_temporary.formats.append(fr);
 
         QTextLayout::FormatRange fr2;
-        fr2.start = fr.start + line.indexOf('^') - m_indent;
+        fr2.start = fr.start + line.indexOf(QLatin1Char('^')) - m_indent;
         fr2.length = 1;
         fr2.format.setFontWeight(QFont::Bold);
         m_temporary.formats.append(fr2);
@@ -101,7 +101,7 @@ void LinuxIccParser::stdError(const QString &line)
         emit addTask(m_temporary);
         m_temporary = Task();
     } else if (!m_expectFirstLine && m_continuationLines.indexIn(line) != -1) {
-        m_temporary.description.append("\n");
+        m_temporary.description.append(QLatin1Char('\n'));
         m_indent = 0;
         while (m_indent < line.length() && line.at(m_indent).isSpace())
             m_indent++;
@@ -126,6 +126,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
     QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
     QTest::addColumn<QString>("outputLines");
 
+    const QString categoryCompile = QLatin1String(Constants::TASK_CATEGORY_COMPILE);
 
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
@@ -149,7 +150,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
                 << Task(Task::Error,
                         QLatin1String("identifier \"f\" is undefined\nf(0);"),
                         QLatin1String("main.cpp"), 13,
-                        Constants::TASK_CATEGORY_COMPILE))
+                        categoryCompile))
             << QString();
 
     QTest::newRow("private function")
@@ -163,7 +164,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
                 << Task(Task::Error,
                         QLatin1String("function \"AClass::privatefunc\" (declared at line 4 of \"main.h\") is inaccessible\nb.privatefunc();"),
                         QLatin1String("main.cpp"), 53,
-                        Constants::TASK_CATEGORY_COMPILE))
+                        categoryCompile))
             << QString();
 
     QTest::newRow("simple warning")
@@ -177,7 +178,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
                 << Task(Task::Warning,
                         QLatin1String("use of \"=\" where \"==\" may have been intended\nwhile (a = true)"),
                         QLatin1String("main.cpp"), 41,
-                        Constants::TASK_CATEGORY_COMPILE))
+                        categoryCompile))
             << QString();
 }
 

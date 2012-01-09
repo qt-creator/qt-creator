@@ -61,7 +61,7 @@ void OutputParserTester::testParsing(const QString &lines,
     reset();
     Q_ASSERT(childParser());
 
-    QStringList inputLines = lines.split(QChar('\n'));
+    QStringList inputLines = lines.split(QLatin1Char('\n'));
     foreach (const QString &input, inputLines) {
         if (inputChannel == STDOUT)
             childParser()->stdOutput(input + QLatin1Char('\n'));
@@ -158,7 +158,7 @@ void OutputParserTester::outputAdded(const QString &line, ProjectExplorer::Build
 {
     Q_UNUSED(format);
     if (!m_receivedOutput.isEmpty())
-        m_receivedOutput.append(QChar('\n'));
+        m_receivedOutput.append(QLatin1Char('\n'));
     m_receivedOutput.append(line);
 }
 

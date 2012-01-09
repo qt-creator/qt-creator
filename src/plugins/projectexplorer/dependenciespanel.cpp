@@ -285,7 +285,7 @@ PropertiesPanel *DependenciesPanelFactory::createPanel(Project *project)
 {
     PropertiesPanel *panel = new PropertiesPanel;
     panel->setWidget(new DependenciesWidget(m_session, project));
-    panel->setIcon(QIcon(":/projectexplorer/images/ProjectDependencies.png"));
+    panel->setIcon(QIcon(QLatin1String(":/projectexplorer/images/ProjectDependencies.png")));
     panel->setDisplayName(QCoreApplication::translate("DependenciesPanel", "Dependencies"));
     return panel;
 }

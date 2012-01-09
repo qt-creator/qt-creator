@@ -134,7 +134,7 @@ void TargetSelectorDelegate::paint(QPainter *painter,
     if (elidedText != text)
         const_cast<QAbstractItemModel *>(index.model())->setData(index, text, Qt::ToolTipRole);
     else
-        const_cast<QAbstractItemModel *>(index.model())->setData(index, "", Qt::ToolTipRole);
+        const_cast<QAbstractItemModel *>(index.model())->setData(index, QString(), Qt::ToolTipRole);
     painter->drawText(option.rect.left() + 6, option.rect.top() + (option.rect.height() - fm.height()) / 2 + fm.ascent(), elidedText);
 
     painter->restore();
@@ -165,7 +165,7 @@ QSize ListWidget::sizeHint() const
     // We try to keep the height of the popup equal to the actionbar
     QSize size(width, height);
     static QStatusBar *statusBar = Core::ICore::instance()->statusBar();
-    static QWidget *actionBar = Core::ICore::instance()->mainWindow()->findChild<QWidget*>("actionbar");
+    static QWidget *actionBar = Core::ICore::instance()->mainWindow()->findChild<QWidget*>(QLatin1String("actionbar"));
     Q_ASSERT(actionBar);
 
     QMargins popupMargins = window()->contentsMargins();
@@ -991,7 +991,7 @@ void MiniProjectTargetSelector::keyReleaseEvent(QKeyEvent *ke)
 QSize MiniProjectTargetSelector::sizeHint() const
 {
     static QStatusBar *statusBar = Core::ICore::instance()->statusBar();
-    static QWidget *actionBar = Core::ICore::instance()->mainWindow()->findChild<QWidget*>("actionbar");
+    static QWidget *actionBar = Core::ICore::instance()->mainWindow()->findChild<QWidget*>(QLatin1String("actionbar"));
     Q_ASSERT(actionBar);
 
     int alignedWithActionHeight

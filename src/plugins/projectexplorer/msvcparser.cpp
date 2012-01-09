@@ -84,7 +84,7 @@ void MsvcParser::stdOutput(const QString &line)
         if (m_lastTask.isNull())
             return;
 
-        m_lastTask.description.append(QChar('\n'));
+        m_lastTask.description.append(QLatin1Char('\n'));
         m_lastTask.description.append(line.mid(8));
         // trim trailing spaces:
         int i = 0;
@@ -96,7 +96,7 @@ void MsvcParser::stdOutput(const QString &line)
 
         if (m_lastTask.formats.isEmpty()) {
             QTextLayout::FormatRange fr;
-            fr.start = m_lastTask.description.indexOf('\n') + 1;
+            fr.start = m_lastTask.description.indexOf(QLatin1Char('\n')) + 1;
             fr.length = m_lastTask.description.length() - fr.start;
             fr.format.setFontItalic(true);
             m_lastTask.formats.append(fr);
@@ -113,7 +113,7 @@ void MsvcParser::stdOutput(const QString &line)
                           m_additionalInfoRegExp.cap(3).trimmed(), /* description */
                           m_additionalInfoRegExp.cap(1), /* fileName */
                           m_additionalInfoRegExp.cap(2).toInt(), /* linenumber */
-                          Constants::TASK_CATEGORY_COMPILE);
+                          QLatin1String(Constants::TASK_CATEGORY_COMPILE));
         return;
     }
     IOutputParser::stdOutput(line);
@@ -135,7 +135,7 @@ bool MsvcParser::processCompileLine(const QString &line)
         m_lastTask = Task(Task::Unknown,
                           m_compileRegExp.cap(4).trimmed() /* description */,
                           position.first, position.second,
-                          Constants::TASK_CATEGORY_COMPILE);
+                          QLatin1String(Constants::TASK_CATEGORY_COMPILE));
         if (m_compileRegExp.cap(3) == QLatin1String("warning"))
             m_lastTask.type = Task::Warning;
         else if (m_compileRegExp.cap(3) == QLatin1String("error"))

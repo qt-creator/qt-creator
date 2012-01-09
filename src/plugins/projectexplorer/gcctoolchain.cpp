@@ -145,7 +145,7 @@ static QList<HeaderPath> gccHeaderPathes(const QString &gcc, const QStringList &
             line = cpp.readLine();
             if (line.startsWith("#include")) {
                 kind = HeaderPath::GlobalHeaderPath;
-            } else if (! line.isEmpty() && QChar(line.at(0)).isSpace()) {
+            } else if (! line.isEmpty() && QChar(QLatin1Char(line.at(0))).isSpace()) {
                 HeaderPath::Kind thisHeaderKind = kind;
 
                 line = line.trimmed();
@@ -160,7 +160,7 @@ static QList<HeaderPath> gccHeaderPathes(const QString &gcc, const QStringList &
             } else if (line.startsWith("End of search list.")) {
                 break;
             } else {
-                qWarning() << "ignore line:" << line;
+                qWarning("%s: Ignoring line: %s", __FUNCTION__, line.constData());
             }
         }
     }
@@ -175,7 +175,7 @@ static QList<ProjectExplorer::Abi> guessGccAbi(const QString &m)
     if (machine.isEmpty())
         return abiList;
 
-    QStringList parts = machine.split(QRegExp("[ /-]"));
+    QStringList parts = machine.split(QRegExp(QLatin1String("[ /-]")));
 
     ProjectExplorer::Abi::Architecture arch = ProjectExplorer::Abi::UnknownArchitecture;
     ProjectExplorer::Abi::OS os = ProjectExplorer::Abi::UnknownOS;
@@ -211,7 +211,7 @@ static QList<ProjectExplorer::Abi> guessGccAbi(const QString &m)
             if (flavor == Abi::UnknownFlavor)
                 flavor = ProjectExplorer::Abi::GenericLinuxFlavor;
             format = ProjectExplorer::Abi::ElfFormat;
-        } else if (p.startsWith("freebsd")) {
+        } else if (p.startsWith(QLatin1String("freebsd"))) {
             os = ProjectExplorer::Abi::BsdOS;
             if (flavor == Abi::UnknownFlavor)
                 flavor = ProjectExplorer::Abi::FreeBsdFlavor;
@@ -426,11 +426,11 @@ Utils::FileName GccToolChain::mkspec() const
         if (abi.osFlavor() != Abi::GenericLinuxFlavor)
             return Utils::FileName(); // most likely not a desktop, so leave the mkspec alone.
         if (abi.wordWidth() == gccAbi.wordWidth())
-            return Utils::FileName::fromString("linux-g++"); // no need to explicitly set the word width
-        return Utils::FileName::fromString("linux-g++-" + QString::number(m_targetAbi.wordWidth()));
+            return Utils::FileName::fromString(QLatin1String("linux-g++")); // no need to explicitly set the word width
+        return Utils::FileName::fromString(QLatin1String("linux-g++-") + QString::number(m_targetAbi.wordWidth()));
     }
     if (abi.os() == Abi::BsdOS && abi.osFlavor() == Abi::FreeBsdFlavor)
-        return Utils::FileName::fromString("freebsd-g++");
+        return Utils::FileName::fromString(QLatin1String("freebsd-g++"));
     return Utils::FileName();
 }
 
@@ -785,9 +785,9 @@ Utils::FileName ClangToolChain::mkspec() const
 {
     Abi abi = targetAbi();
     if (abi.os() == Abi::MacOS)
-        return Utils::FileName::fromString("unsupported/macx-clang");
+        return Utils::FileName::fromString(QLatin1String("unsupported/macx-clang"));
     else if (abi.os() == Abi::LinuxOS)
-        return Utils::FileName::fromString("unsupported/linux-clang");
+        return Utils::FileName::fromString(QLatin1String("unsupported/linux-clang"));
     return Utils::FileName(); // Note: Not supported by Qt yet, so default to the mkspec the Qt was build with
 }
 
@@ -866,7 +866,7 @@ QString MingwToolChain::typeName() const
 
 Utils::FileName MingwToolChain::mkspec() const
 {
-    return Utils::FileName::fromString("win32-g++");
+    return Utils::FileName::fromString(QLatin1String("win32-g++"));
 }
 
 QString MingwToolChain::makeCommand() const
@@ -977,7 +977,7 @@ IOutputParser *LinuxIccToolChain::outputParser() const
 
 Utils::FileName LinuxIccToolChain::mkspec() const
 {
-    return Utils::FileName::fromString("linux-icc-" + QString::number(targetAbi().wordWidth()));
+    return Utils::FileName::fromString(QLatin1String("linux-icc-") + QString::number(targetAbi().wordWidth()));
 }
 
 ToolChain *LinuxIccToolChain::clone() const

@@ -174,7 +174,7 @@ void ProjectTreeWidget::disableAutoExpand()
 void ProjectTreeWidget::loadExpandData()
 {
     m_autoExpand = true;
-    QStringList data = m_explorer->session()->value("ProjectTree.ExpandData").toStringList();
+    QStringList data = m_explorer->session()->value(QLatin1String("ProjectTree.ExpandData")).toStringList();
     recursiveLoadExpandData(m_view->rootIndex(), data.toSet());
 }
 
@@ -193,7 +193,7 @@ void ProjectTreeWidget::saveExpandData()
     QStringList data;
     recursiveSaveExpandData(m_view->rootIndex(), &data);
     // TODO if there are multiple ProjectTreeWidgets, the last one saves the data
-    m_explorer->session()->setValue("ProjectTree.ExpandData", data);
+    m_explorer->session()->setValue(QLatin1String("ProjectTree.ExpandData"), data);
 }
 
 void ProjectTreeWidget::recursiveSaveExpandData(const QModelIndex &index, QStringList *data)
@@ -284,8 +284,8 @@ void ProjectTreeWidget::editCurrentItem()
 void ProjectTreeWidget::setCurrentItem(Node *node, Project *project)
 {
     if (debug)
-        qDebug() << "ProjectTreeWidget::setCurrentItem(" << (project ? project->displayName() : "0")
-                 << ", " <<  (node ? node->path() : "0") << ")";
+        qDebug() << "ProjectTreeWidget::setCurrentItem(" << (project ? project->displayName() : QLatin1String("0"))
+                 << ", " <<  (node ? node->path() : QLatin1String("0")) << ")";
 
     if (!project) {
         return;
@@ -441,9 +441,10 @@ void ProjectTreeWidgetFactory::saveSettings(int position, QWidget *widget)
     ProjectTreeWidget *ptw = qobject_cast<ProjectTreeWidget *>(widget);
     Q_ASSERT(ptw);
     QSettings *settings = Core::ICore::instance()->settings();
-    settings->setValue("ProjectTreeWidget."+QString::number(position)+".ProjectFilter", ptw->projectFilter());
-    settings->setValue("ProjectTreeWidget."+QString::number(position)+".GeneratedFilter", ptw->generatedFilesFilter());
-    settings->setValue("ProjectTreeWidget."+QString::number(position)+".SyncWithEditor", ptw->autoSynchronization());
+    const QString baseKey = QLatin1String("ProjectTreeWidget.") + QString::number(position);
+    settings->setValue(baseKey + QLatin1String(".ProjectFilter"), ptw->projectFilter());
+    settings->setValue(baseKey + QLatin1String(".GeneratedFilter"), ptw->generatedFilesFilter());
+    settings->setValue(baseKey + QLatin1String(".SyncWithEditor"), ptw->autoSynchronization());
 }
 
 void ProjectTreeWidgetFactory::restoreSettings(int position, QWidget *widget)
@@ -451,7 +452,8 @@ void ProjectTreeWidgetFactory::restoreSettings(int position, QWidget *widget)
     ProjectTreeWidget *ptw = qobject_cast<ProjectTreeWidget *>(widget);
     Q_ASSERT(ptw);
     QSettings *settings = Core::ICore::instance()->settings();
-    ptw->setProjectFilter(settings->value("ProjectTreeWidget."+QString::number(position)+".ProjectFilter", false).toBool());
-    ptw->setGeneratedFilesFilter(settings->value("ProjectTreeWidget."+QString::number(position)+".GeneratedFilter", true).toBool());
-    ptw->setAutoSynchronization(settings->value("ProjectTreeWidget."+QString::number(position)+".SyncWithEditor", true).toBool());
+    const QString baseKey = QLatin1String("ProjectTreeWidget.") + QString::number(position);
+    ptw->setProjectFilter(settings->value(baseKey + QLatin1String(".ProjectFilter"), false).toBool());
+    ptw->setGeneratedFilesFilter(settings->value(baseKey + QLatin1String(".GeneratedFilter"), true).toBool());
+    ptw->setAutoSynchronization(settings->value(baseKey +  QLatin1String(".SyncWithEditor"), true).toBool());
 }

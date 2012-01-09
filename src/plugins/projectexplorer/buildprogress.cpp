@@ -77,8 +77,8 @@ BuildProgress::BuildProgress(TaskWindow *taskWindow)
 
     m_errorIcon->setAlignment(Qt::AlignRight);
     m_warningIcon->setAlignment(Qt::AlignRight);
-    m_errorIcon->setPixmap(QPixmap(":/projectexplorer/images/compile_error.png"));
-    m_warningIcon->setPixmap(QPixmap(":/projectexplorer/images/compile_warning.png"));
+    m_errorIcon->setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/compile_error.png")));
+    m_warningIcon->setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/compile_warning.png")));
 
     hide();
 
@@ -89,17 +89,17 @@ void BuildProgress::updateState()
 {
     if (!m_taskWindow)
         return;
-    int errors = m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_BUILDSYSTEM)
-            + m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_COMPILE);
+    int errors = m_taskWindow->errorTaskCount(QLatin1String(Constants::TASK_CATEGORY_BUILDSYSTEM))
+            + m_taskWindow->errorTaskCount(QLatin1String(Constants::TASK_CATEGORY_COMPILE));
     bool haveErrors = (errors > 0);
     m_errorIcon->setEnabled(haveErrors);
     m_errorLabel->setEnabled(haveErrors);
-    m_errorLabel->setText(QString("%1").arg(errors));
+    m_errorLabel->setText(QString::number(errors));
     int warnings = m_taskWindow->warningTaskCount();
     bool haveWarnings = (warnings > 0);
     m_warningIcon->setEnabled(haveWarnings);
     m_warningLabel->setEnabled(haveWarnings);
-    m_warningLabel->setText(QString("%1").arg(warnings));
+    m_warningLabel->setText(QString::number(warnings));
 
     // Hide warnings and errors unless you need them
     m_warningIcon->setVisible(haveWarnings);

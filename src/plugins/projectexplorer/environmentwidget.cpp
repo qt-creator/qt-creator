@@ -204,7 +204,7 @@ void EnvironmentWidget::updateSummaryText()
     QString text;
     foreach (const Utils::EnvironmentItem &item, list) {
         if (item.name != Utils::EnvironmentModel::tr("<VARIABLE>")) {
-            text.append("<br>");
+            text.append(QLatin1String("<br>"));
             if (item.unset)
                 text.append(tr("Unset <a href=\"%1\"><b>%1</b></a>").arg(Qt::escape(item.name)));
             else

@@ -754,10 +754,10 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
             << (QStringList());
 
     // Set up prefix for test data now that we can be sure to have some tests to run:
-    QString prefix = qgetenv("QTC_TEST_EXTRADATALOCATION");
+    QString prefix = QString::fromLocal8Bit(qgetenv("QTC_TEST_EXTRADATALOCATION"));
     if (prefix.isEmpty())
         return;
-    prefix += "/projectexplorer/abi";
+    prefix += QLatin1String("/projectexplorer/abi");
 
     QFileInfo fi(prefix);
     if (!fi.exists() || !fi.isDir())

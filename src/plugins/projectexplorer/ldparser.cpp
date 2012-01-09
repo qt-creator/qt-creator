@@ -48,13 +48,13 @@ namespace {
 LdParser::LdParser()
 {
     setObjectName(QLatin1String("LdParser"));
-    m_regExpLinker.setPattern(QString('^') +
-                              QString::fromLatin1(FILE_PATTERN) + '(' +
-                              QString::fromLatin1(FILE_PATTERN) + ")?(" +
-                              QLatin1String(POSITION_PATTERN) + ")?\\s(.+)$");
+    m_regExpLinker.setPattern(QLatin1Char('^') +
+                              QString::fromLatin1(FILE_PATTERN) + QLatin1Char('(') +
+                              QString::fromLatin1(FILE_PATTERN) + QLatin1String(")?(") +
+                              QLatin1String(POSITION_PATTERN) + QLatin1String(")?\\s(.+)$"));
     m_regExpLinker.setMinimal(true);
 
-    m_regExpGccNames.setPattern(COMMAND_PATTERN);
+    m_regExpGccNames.setPattern(QLatin1String(COMMAND_PATTERN));
     m_regExpGccNames.setMinimal(true);
 }
 
@@ -72,7 +72,7 @@ void LdParser::stdError(const QString &line)
                           lne /* description */,
                           QString() /* filename */,
                           -1 /* linenumber */,
-                          Constants::TASK_CATEGORY_COMPILE));
+                          QLatin1String(Constants::TASK_CATEGORY_COMPILE)));
         return;
     } else if (m_regExpGccNames.indexIn(lne) > -1) {
         QString description = lne.mid(m_regExpGccNames.matchedLength());
@@ -80,7 +80,7 @@ void LdParser::stdError(const QString &line)
                   description,
                   QString(), /* filename */
                   -1, /* line */
-                  Constants::TASK_CATEGORY_COMPILE);
+                  QLatin1String(Constants::TASK_CATEGORY_COMPILE));
         if (description.startsWith(QLatin1String("warning: "))) {
             task.type = Task::Warning;
             task.description = description.mid(9);
@@ -100,7 +100,7 @@ void LdParser::stdError(const QString &line)
             filename = m_regExpLinker.cap(4);
         QString description = m_regExpLinker.cap(8).trimmed();
         Task task(Task::Error, description, filename, lineno,
-                  Constants::TASK_CATEGORY_COMPILE);
+                  QLatin1String(Constants::TASK_CATEGORY_COMPILE));
         if (description.startsWith(QLatin1String("At global scope")) ||
             description.startsWith(QLatin1String("At top level")) ||
             description.startsWith(QLatin1String("instantiated from ")) ||

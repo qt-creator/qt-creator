@@ -74,7 +74,7 @@ void ClangParser::stdError(const QString &line)
                 m_commandRegExp.cap(4),
                 QString(), /* filename */
                 -1, /* line */
-                Constants::TASK_CATEGORY_COMPILE);
+                QLatin1String(Constants::TASK_CATEGORY_COMPILE));
         if (m_commandRegExp.cap(3) == QLatin1String("warning"))
             m_currentTask.type = Task::Warning;
         else if (m_commandRegExp.cap(3) == QLatin1String("note"))
@@ -88,7 +88,7 @@ void ClangParser::stdError(const QString &line)
                 lne.trimmed(),
                 m_inLineRegExp.cap(2), /* filename */
                 m_inLineRegExp.cap(3).toInt(), /* line */
-                Constants::TASK_CATEGORY_COMPILE);
+                QLatin1String(Constants::TASK_CATEGORY_COMPILE));
         return;
     }
 
@@ -102,10 +102,10 @@ void ClangParser::stdError(const QString &line)
                 m_messageRegExp.cap(8),
                 m_messageRegExp.cap(1), /* filename */
                 lineNo,
-                Constants::TASK_CATEGORY_COMPILE);
-        if (m_messageRegExp.cap(7) == "warning")
+                QLatin1String(Constants::TASK_CATEGORY_COMPILE));
+        if (m_messageRegExp.cap(7) == QLatin1String("warning"))
             m_currentTask.type = Task::Warning;
-        else if (m_messageRegExp.cap(7) == "note")
+        else if (m_messageRegExp.cap(7) == QLatin1String("note"))
             m_currentTask.type = Task::Unknown;
         return;
     }
@@ -114,7 +114,7 @@ void ClangParser::stdError(const QString &line)
         QTextLayout::FormatRange fr;
         fr.start = m_currentTask.description.count() + 1;
         fr.length = lne.count() + 1;
-        fr.format.setFontFamily("Monospaced");
+        fr.format.setFontFamily(QLatin1String("Monospaced"));
         fr.format.setFontStyleHint(QFont::TypeWriter);
         m_currentTask.description.append(QLatin1Char('\n'));
         m_currentTask.description.append(lne);
@@ -157,6 +157,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
     QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
     QTest::addColumn<QString>("outputLines");
 
+    const QString categoryCompile = QLatin1String(Constants::TASK_CATEGORY_COMPILE);
 
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
@@ -177,7 +178,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                 << Task(Task::Warning,
                         QLatin1String("argument unused during compilation: '-mthreads'"),
                         QString(), -1,
-                        Constants::TASK_CATEGORY_COMPILE))
+                        categoryCompile))
             << QString();
     QTest::newRow("clang++ error")
             << QString::fromLatin1("clang++: error: no input files [err_drv_no_input_files]")
@@ -187,7 +188,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                 << Task(Task::Error,
                         QLatin1String("no input files [err_drv_no_input_files]"),
                         QString(), -1,
-                        Constants::TASK_CATEGORY_COMPILE))
+                        categoryCompile))
             << QString();
     QTest::newRow("complex warning")
             << QString::fromLatin1("In file included from ..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qnamespace.h:45:\n"
@@ -200,13 +201,13 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                 << Task(Task::Unknown,
                         QLatin1String("In file included from ..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qnamespace.h:45:"),
                         QLatin1String("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qnamespace.h"), 45,
-                        Constants::TASK_CATEGORY_COMPILE)
+                        categoryCompile)
                 << Task(Task::Warning,
                         QLatin1String("unknown attribute 'dllimport' ignored [-Wunknown-attributes]\n"
                                       "class Q_CORE_EXPORT QSysInfo {\n"
                                       "      ^"),
                         QLatin1String("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h"), 1425,
-                        Constants::TASK_CATEGORY_COMPILE))
+                        categoryCompile))
             << QString();
         QTest::newRow("note")
                 << QString::fromLatin1("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h:1289:27: note: instantiated from:\n"
@@ -220,7 +221,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                           "#    define Q_CORE_EXPORT Q_DECL_IMPORT\n"
                                           "                          ^"),
                             QLatin1String("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h"), 1289,
-                            Constants::TASK_CATEGORY_COMPILE))
+                            categoryCompile))
                 << QString();
         QTest::newRow("fatal error")
                 << QString::fromLatin1("/usr/include/c++/4.6/utility:68:10: fatal error: 'bits/c++config.h' file not found\n"
@@ -234,7 +235,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                           "#include <bits/c++config.h>\n"
                                           "         ^"),
                             QLatin1String("/usr/include/c++/4.6/utility"), 68,
-                            Constants::TASK_CATEGORY_COMPILE))
+                            categoryCompile))
                 << QString();
 
         QTest::newRow("line confusion")
@@ -249,7 +250,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                           "            int x = option->rect.x() + horizontal ? 2 : 6;\n"
                                           "                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^"),
                             QLatin1String("/home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp"), 567,
-                            Constants::TASK_CATEGORY_COMPILE))
+                            categoryCompile))
                 << QString();
 }
 

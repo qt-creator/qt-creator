@@ -176,7 +176,7 @@ QString ProjectExplorerSettingsPage::displayCategory() const
 
 QIcon ProjectExplorerSettingsPage::categoryIcon() const
 {
-    return QIcon(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON);
+    return QIcon(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *ProjectExplorerSettingsPage::createPage(QWidget *parent)
