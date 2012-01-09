@@ -118,7 +118,6 @@ BuildStepListWidget::BuildStepListWidget(QWidget *parent) :
     m_buildStepList(0),
     m_addButton(0)
 {
-    setStyleSheet("background: red");
 }
 
 BuildStepListWidget::~BuildStepListWidget()
