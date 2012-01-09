@@ -65,11 +65,11 @@ else:
     defaultQtVersion = "Desktop Qt 4.7.4 for GCC (Qt SDK)"
 srcPath = os.getenv("SYSTEST_SRCPATH", sdkPath + "/src")
 
-cwd = os.path.abspath(cwd)
-tmpSettingsDir = tempDir()
-tmpSettingsDir = os.path.abspath(tmpSettingsDir+"/settings")
-shutil.copytree(cwd, tmpSettingsDir)
 # the following only doesn't work if the test ends in an exception
-atexit.register(__removeTmpSettingsDir__)
-SettingsPath = ' -settingspath "%s"' % tmpSettingsDir
-
+if os.getenv("SYSTEST_NOSETTINGSPATH") != "1":
+    cwd = os.path.abspath(cwd)
+    tmpSettingsDir = tempDir()
+    tmpSettingsDir = os.path.abspath(tmpSettingsDir+"/settings")
+    shutil.copytree(cwd, tmpSettingsDir)
+    atexit.register(__removeTmpSettingsDir__)
+    SettingsPath = ' -settingspath "%s"' % tmpSettingsDir
