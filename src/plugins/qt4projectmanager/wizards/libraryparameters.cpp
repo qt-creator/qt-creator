@@ -110,7 +110,7 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
     headerStr << unqualifiedClassName;
     if (!baseClassName.isEmpty())
         headerStr << " : public " << baseClassName;
-    headerStr << " {\n";
+    headerStr << "\n{\n";
 
     // Is this a QObject (plugin)
     const bool inheritsQObject = t == QtProjectParameters::Qt4Plugin;
