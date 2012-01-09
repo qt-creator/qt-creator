@@ -408,7 +408,7 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(const Core::Id &id,
     QTC_ASSERT(rc, return 0);
     rc->setSource(source);
     if (codecType == CodecSource) {
-        rc->setCodec(VcsBase::VcsBaseEditorWidget::getCodec(source));
+        rc->setCodec(getSourceCodec(source));
     } else if (codecType == CodecLogOutput) {
         QString encodingName = readConfigValue(source, QLatin1String("i18n.logOutputEncoding"));
         if (encodingName.isEmpty())
@@ -673,6 +673,16 @@ void GitClient::slotBlameRevisionRequested(const QString &source, QString change
         change.truncate(blankPos);
     const QFileInfo fi(source);
     blame(fi.absolutePath(), QStringList(), fi.fileName(), change, lineNumber);
+}
+
+QTextCodec *GitClient::getSourceCodec(const QString &file) const
+{
+    if (QFileInfo(file).isFile())
+        return VcsBase::VcsBaseEditorWidget::getCodec(file);
+    QString encodingName = readConfigValue(file, QLatin1String("gui.encoding"));
+    if (encodingName.isEmpty())
+        encodingName = QLatin1String("utf-8");
+    return QTextCodec::codecForName(encodingName.toLocal8Bit());
 }
 
 void GitClient::blame(const QString &workingDirectory,

@@ -233,6 +233,7 @@ private slots:
     void slotBlameRevisionRequested(const QString &source, QString change, int lineNumber);
 
 private:
+    QTextCodec *getSourceCodec(const QString &file) const;
     VcsBase::VcsBaseEditorWidget *findExistingVCSEditor(const char *registerDynamicProperty,
                                                   const QString &dynamicPropertyValue) const;
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };
