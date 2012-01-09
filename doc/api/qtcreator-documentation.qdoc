@@ -181,7 +181,7 @@
 
     \list
 
-        \o  Color reduction: Optimal 296 colors palette
+        \o  Color reduction: Optimal 256 colors palette
 
         \o  Reduce colors to: 256
 
@@ -194,7 +194,10 @@
     \endlist
 
     Compare the initial and optimized images to check that image quality is
-    preserved. You can also see the sizes of the initial and optimized image.
+    preserved. If the image quality deteriorates, do not use color reduction
+    (select the \gui {True Color} option, instead).
+
+    You can also see the sizes of the initial and optimized image.
 
     \section1 Building Documentation
 
