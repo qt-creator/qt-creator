@@ -46,6 +46,10 @@ HEADERS += \
     DebugServices.h \
     dns_sd.h
 
+*-g++ {
+    QMAKE_CFLAGS += -Wno-unused-but-set-variable
+    QMAKE_CXXFLAGS += -Wno-unused-but-set-variable
+}
 linux-* {
 DEFINES += NOT_HAVE_SA_LEN USES_NETLINK HAVE_LINUX TARGET_OS_LINUX
 }
