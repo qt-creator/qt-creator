@@ -145,9 +145,11 @@ void TimelineView::drawItemsToPainter(QPainter *p, int fromIndex, int toIndex)
         // special: animations
         if (eventType == 0 && m_eventList->getAnimationCount(i) >= 0) {
             double scale = m_eventList->getMaximumAnimationCount() - m_eventList->getMinimumAnimationCount();
-            if (scale < 1)
-                scale = 1;
-            double fraction = (double)(m_eventList->getAnimationCount(i) - m_eventList->getMinimumAnimationCount()) / scale;
+            double fraction;
+            if (scale > 1)
+                fraction = (double)(m_eventList->getAnimationCount(i) - m_eventList->getMinimumAnimationCount()) / scale;
+            else
+                fraction = 1.0;
             height = DefaultRowHeight * (fraction * 0.85 + 0.15);
             y += DefaultRowHeight - height;
 

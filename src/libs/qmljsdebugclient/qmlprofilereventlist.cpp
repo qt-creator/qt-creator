@@ -1360,6 +1360,8 @@ void QmlProfilerEventList::load()
                         rangedEvent.frameRate = attributes.value("framerate").toString().toInt();
                     if (attributes.hasAttribute("animationcount"))
                         rangedEvent.animationCount = attributes.value("animationcount").toString().toInt();
+                    else
+                        rangedEvent.animationCount = -1;
                     if (attributes.hasAttribute("eventIndex")) {
                         int ndx = attributes.value("eventIndex").toString().toInt();
                         if (!descriptionBuffer.value(ndx))
