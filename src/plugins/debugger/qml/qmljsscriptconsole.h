@@ -36,6 +36,8 @@
 #include <qmljsdebugclient/qdeclarativeenginedebug.h>
 #include <QtGui/QPlainTextEdit>
 
+class QCheckBox;
+
 namespace Utils {
 class StatusLabel;
 }
@@ -54,12 +56,14 @@ class QmlJSScriptConsoleWidget : public QWidget
     Q_OBJECT
 public:
     QmlJSScriptConsoleWidget(QWidget *parent = 0);
+    ~QmlJSScriptConsoleWidget();
 
     void setQmlAdapter(QmlAdapter *adapter);
     void setInferiorStopped(bool inferiorStopped);
 
 public slots:
     void appendResult(const QString &result);
+    void setDebugLevel();
 
 signals:
     void evaluateExpression(const QString &expr);
@@ -67,6 +71,9 @@ signals:
 private:
     QmlJSScriptConsole *m_console;
     Utils::StatusLabel *m_statusLabel;
+    QCheckBox *m_showLog;
+    QCheckBox *m_showWarning;
+    QCheckBox *m_showError;
 
 };
 
@@ -75,6 +82,13 @@ class QmlJSScriptConsole : public QPlainTextEdit
     Q_OBJECT
 
 public:
+    enum DebugLevelFlag {
+        None = 0,
+        Log = 1,
+        Warning = 2,
+        Error = 4
+    };
+
     explicit QmlJSScriptConsole(QWidget *parent = 0);
     ~QmlJSScriptConsole();
 
@@ -92,6 +106,8 @@ public:
     void setQmlAdapter(QmlAdapter *adapter);
 
     void appendResult(const QString &result);
+
+    void setDebugLevel(QFlags<DebugLevelFlag> level);
 
 public slots:
     void clear();

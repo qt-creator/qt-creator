@@ -41,6 +41,10 @@
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <utils/statuslabel.h>
+#include <utils/styledbar.h>
+
+#include <coreplugin/icore.h>
+#include <utils/qtcassert.h>
 
 #include <qmljsdebugclient/qdebugmessageclient.h>
 
@@ -49,6 +53,12 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolButton>
+#include <QtGui/QCheckBox>
+
+static const char SCRIPT_CONSOLE[] = "ScriptConsole";
+static const char SHOW_LOG[] = "showLog";
+static const char SHOW_WARNING[] = "showWarning";
+static const char SHOW_ERROR[] = "showError";
 
 namespace Debugger {
 namespace Internal {
@@ -82,6 +92,8 @@ public:
 
     bool inferiorStopped;
     QList<QTextEdit::ExtraSelection> selections;
+
+    QFlags<QmlJSScriptConsole::DebugLevelFlag> debugLevel;
 };
 
 void QmlJSScriptConsolePrivate::resetCache()
@@ -138,9 +150,20 @@ QmlJSScriptConsoleWidget::QmlJSScriptConsoleWidget(QWidget *parent)
     m_statusLabel = new Utils::StatusLabel;
 
     hbox->addWidget(m_statusLabel, 20, Qt::AlignLeft);
+    hbox->addWidget(new Utils::StyledSeparator);
+    m_showLog = new QCheckBox(tr("Log"), this);
+    m_showWarning = new QCheckBox(tr("Warning"), this);
+    m_showError = new QCheckBox(tr("Error"), this);
+    connect(m_showLog, SIGNAL(stateChanged(int)), this, SLOT(setDebugLevel()));
+    connect(m_showWarning, SIGNAL(stateChanged(int)), this, SLOT(setDebugLevel()));
+    connect(m_showError, SIGNAL(stateChanged(int)), this, SLOT(setDebugLevel()));
+    hbox->addWidget(m_showLog);
+    hbox->addWidget(m_showWarning);
+    hbox->addWidget(m_showError);
+    hbox->addWidget(new Utils::StyledSeparator);
     hbox->addWidget(clearButton, 0, Qt::AlignRight);
 
-    m_console = new QmlJSScriptConsole;
+    m_console = new QmlJSScriptConsole(this);
     connect(m_console, SIGNAL(evaluateExpression(QString)), this,
             SIGNAL(evaluateExpression(QString)));
     connect(m_console, SIGNAL(updateStatusMessage(const QString &, int)), m_statusLabel,
@@ -149,8 +172,27 @@ QmlJSScriptConsoleWidget::QmlJSScriptConsoleWidget(QWidget *parent)
     vbox->addWidget(statusbarContainer);
     vbox->addWidget(m_console);
 
+    Core::ICore *core = Core::ICore::instance();
+    QTC_ASSERT(core, return);
+    QSettings *settings = core->settings();
+    settings->beginGroup(_(SCRIPT_CONSOLE));
+    m_showLog->setChecked(settings->value(_(SHOW_LOG), true).toBool());
+    m_showWarning->setChecked(settings->value(_(SHOW_WARNING), true).toBool());
+    m_showError->setChecked(settings->value(_(SHOW_ERROR), true).toBool());
+    settings->endGroup();
 }
 
+QmlJSScriptConsoleWidget::~QmlJSScriptConsoleWidget()
+{
+    Core::ICore *core = Core::ICore::instance();
+    QTC_ASSERT(core, return);
+    QSettings *settings = core->settings();
+    settings->beginGroup(_(SCRIPT_CONSOLE));
+    settings->setValue(_(SHOW_LOG), QVariant(m_showLog->isChecked()));
+    settings->setValue(_(SHOW_WARNING), QVariant(m_showWarning->isChecked()));
+    settings->setValue(_(SHOW_ERROR), QVariant(m_showError->isChecked()));
+    settings->endGroup();
+}
 void QmlJSScriptConsoleWidget::setQmlAdapter(QmlAdapter *adapter)
 {
     m_console->setQmlAdapter(adapter);
@@ -164,6 +206,22 @@ void QmlJSScriptConsoleWidget::setInferiorStopped(bool inferiorStopped)
 void QmlJSScriptConsoleWidget::appendResult(const QString &result)
 {
     m_console->appendResult(result);
+}
+
+void QmlJSScriptConsoleWidget::setDebugLevel()
+{
+    QFlags<QmlJSScriptConsole::DebugLevelFlag> level;
+
+    if (m_showLog->isChecked())
+        level |= QmlJSScriptConsole::Log;
+
+    if (m_showWarning->isChecked())
+        level |= QmlJSScriptConsole::Warning;
+
+    if (m_showError->isChecked())
+        level |= QmlJSScriptConsole::Error;
+
+    m_console->setDebugLevel(level);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -244,6 +302,11 @@ void QmlJSScriptConsole::appendResult(const QString &result)
     displayPrompt();
 }
 
+void QmlJSScriptConsole::setDebugLevel(QFlags<DebugLevelFlag> level)
+{
+    d->debugLevel = level;
+}
+
 void QmlJSScriptConsole::clear()
 {
     d->resetCache();
@@ -285,42 +348,43 @@ void QmlJSScriptConsole::onSelectionChanged()
 
 void QmlJSScriptConsole::insertDebugOutput(QtMsgType type, const QString &debugMsg)
 {
-    QString msg(debugMsg);
-    msg.append(_("\n"));
-
-    QTextCursor cursor = textCursor();
-
-    cursor.setPosition(d->startOfEditableArea - d->prompt.length());
-    cursor.insertText(msg);
-
-    QTextEdit::ExtraSelection sel;
-
     QTextCharFormat resultFormat;
     switch (type) {
     case QtDebugMsg:
+        if (!(d->debugLevel & Log))
+            return;
         resultFormat.setForeground(QColor(Qt::darkBlue));
         break;
     case QtWarningMsg:
+        if (!(d->debugLevel & Warning))
+            return;
         resultFormat.setForeground(QColor(Qt::darkYellow));
         break;
     case QtCriticalMsg:
+        if (!(d->debugLevel & Error))
+            return;
         resultFormat.setForeground(QColor(Qt::darkRed));
         break;
     default:
         resultFormat.setForeground(QColor(Qt::black));
     }
 
+    QTextCursor cursor = textCursor();
+
+    cursor.setPosition(d->startOfEditableArea - d->prompt.length());
+    cursor.insertText(debugMsg);
+    cursor.insertText(_("\n"));
+
+    QTextEdit::ExtraSelection sel;
     cursor.movePosition(QTextCursor::PreviousBlock);
     cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-
     sel.format = resultFormat;
     sel.cursor = cursor;
 
     d->selections.append(sel);
 
     setExtraSelections(d->selections);
-
-    d->startOfEditableArea += msg.length();
+    d->startOfEditableArea += debugMsg.length() + 1; //1 for new line character
 }
 
 void QmlJSScriptConsole::keyPressEvent(QKeyEvent *e)
