@@ -10708,8 +10708,7 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
     </message>
     <message>
         <source>Ctrl+Shift+O</source>
-        <translation>
-Ctrl+Shift+O</translation>
+        <translation>Ctrl+Shift+O</translation>
     </message>
     <message>
         <source>Open File</source>
