@@ -184,9 +184,12 @@ bool SessionFile::load(const QString &fileName)
     QMap<QString, QVariant>::const_iterator i = depMap.constBegin();
     while (i != depMap.constEnd()) {
         const QString &key = i.key();
+        if (m_failedProjects.contains(key))
+            continue;
         QStringList values;
         foreach (const QString &value, i.value().toStringList()) {
-            values << value;
+            if (!m_failedProjects.contains(value))
+                values << value;
         }
         m_depMap.insert(key, values);
         ++i;
