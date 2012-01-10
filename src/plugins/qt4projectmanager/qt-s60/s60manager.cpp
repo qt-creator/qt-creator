@@ -74,17 +74,17 @@ template <class RunControl, class RunConfiguration>
         class RunControlFactory : public ProjectExplorer::IRunControlFactory
 {
 public:
-    explicit RunControlFactory(const QString &mode,
-                               const QString &name,
-                               QObject *parent = 0) :
+    RunControlFactory(ProjectExplorer::RunMode mode, const QString &name, QObject *parent = 0) :
     IRunControlFactory(parent), m_mode(mode), m_name(name) {}
 
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const {
-        return (mode == m_mode)
-                && (qobject_cast<RunConfiguration *>(runConfiguration) != 0);
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const
+    {
+        return mode == m_mode && qobject_cast<RunConfiguration *>(runConfiguration);
     }
 
-    ProjectExplorer::RunControl* create(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) {
+    ProjectExplorer::RunControl* create(ProjectExplorer::RunConfiguration *runConfiguration,
+                                        ProjectExplorer::RunMode mode)
+    {
         RunConfiguration *rc = qobject_cast<RunConfiguration *>(runConfiguration);
         QTC_ASSERT(rc && mode == m_mode, return 0);
         return new RunControl(rc, mode);
@@ -99,7 +99,7 @@ public:
     }
 
 private:
-    const QString m_mode;
+    const ProjectExplorer::RunMode m_mode;
     const QString m_name;
 };
 
@@ -117,10 +117,9 @@ S60Manager::S60Manager(QObject *parent) : QObject(parent)
 
     addAutoReleasedObject(new S60EmulatorRunConfigurationFactory);
     addAutoReleasedObject(new RunControlFactory<S60EmulatorRunControl, S60EmulatorRunConfiguration>
-                          (QLatin1String(ProjectExplorer::Constants::RUNMODE),
-                           tr("Run in Emulator"), parent));
+                          (ProjectExplorer::NormalRunMode, tr("Run in Emulator"), parent));
     addAutoReleasedObject(new S60DeviceRunConfigurationFactory);
-    addAutoReleasedObject(new S60RunControlFactory(QLatin1String(ProjectExplorer::Constants::RUNMODE),
+    addAutoReleasedObject(new S60RunControlFactory(ProjectExplorer::NormalRunMode,
                                                  tr("Run on Device"), parent));
     addAutoReleasedObject(new S60CreatePackageStepFactory);
     addAutoReleasedObject(new S60DeployStepFactory);

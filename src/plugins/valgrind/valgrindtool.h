@@ -45,11 +45,11 @@ public:
     explicit ValgrindTool(QObject *parent);
 
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-                const QString &mode) const;
+                ProjectExplorer::RunMode mode) const;
 
     Analyzer::AnalyzerStartParameters createStartParameters(
             ProjectExplorer::RunConfiguration *runConfiguration,
-            const QString &mode) const;
+            ProjectExplorer::RunMode mode) const;
 };
 
 } // namespace Internal

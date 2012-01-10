@@ -40,6 +40,7 @@
 #include "analyzerstartparameters.h"
 
 #include <coreplugin/id.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtCore/QObject>
 
@@ -76,6 +77,8 @@ public:
 
     /// Returns a unique ID for this tool.
     virtual Core::Id id() const = 0;
+    /// Returns the run mode for this tool.
+    virtual ProjectExplorer::RunMode runMode() const = 0;
     /// Returns a short user readable display name for this tool.
     virtual QString displayName() const = 0;
     /// Returns a user readable description name for this tool.
@@ -124,12 +127,12 @@ public:
 
     /// Returns true if the tool can be run
     virtual bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-                        const QString &mode) const = 0;
+                        ProjectExplorer::RunMode mode) const = 0;
 
     /// Create the start parameters for the run control factory
     virtual AnalyzerStartParameters createStartParameters(
             ProjectExplorer::RunConfiguration *runConfiguration,
-            const QString &mode) const = 0;
+            ProjectExplorer::RunMode mode) const = 0;
 
     virtual void startTool(StartMode mode) = 0;
 

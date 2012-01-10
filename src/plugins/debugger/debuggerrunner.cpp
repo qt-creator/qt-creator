@@ -185,7 +185,7 @@ DebuggerRunControlPrivate::DebuggerRunControlPrivate(DebuggerRunControl *parent,
 DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
                                        const DebuggerStartParameters &sp,
                                        const QPair<DebuggerEngineType, DebuggerEngineType> &masterSlaveEngineTypes)
-    : RunControl(runConfiguration, QLatin1String(Constants::DEBUGMODE)),
+    : RunControl(runConfiguration, ProjectExplorer::DebugRunMode),
       d(new DebuggerRunControlPrivate(this, runConfiguration))
 {
     connect(this, SIGNAL(finished()), SLOT(handleFinished()));
@@ -667,10 +667,9 @@ DebuggerRunControlFactory::DebuggerRunControlFactory(QObject *parent,
     : IRunControlFactory(parent), m_enabledEngines(enabledEngines)
 {}
 
-bool DebuggerRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
+bool DebuggerRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
-    return (mode == QLatin1String(Constants::DEBUGMODE)
-            || mode == QLatin1String(Constants::DEBUGMODE2))
+    return (mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain)
             && qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
 }
 
@@ -782,14 +781,13 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
 }
 
 RunControl *DebuggerRunControlFactory::create
-    (RunConfiguration *runConfiguration, const QString &mode)
+    (RunConfiguration *runConfiguration, RunMode mode)
 {
-    QTC_ASSERT(mode == QLatin1String(Constants::DEBUGMODE)
-               || mode == QLatin1String(Constants::DEBUGMODE2), return 0);
+    QTC_ASSERT(mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain, return 0);
     DebuggerStartParameters sp = localStartParameters(runConfiguration);
     if (sp.startMode == NoStartMode)
         return 0;
-    if (mode == QLatin1String(Constants::DEBUGMODE2))
+    if (mode == DebugRunModeWithBreakOnMain)
         sp.breakOnMain = true;
     return create(sp, runConfiguration);
 }

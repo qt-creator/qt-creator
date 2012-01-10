@@ -153,8 +153,7 @@ MaemoRunControlFactory::~MaemoRunControlFactory()
 {
 }
 
-bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
-    const QString &mode) const
+bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
     const MaemoRunConfiguration * const maemoRunConfig
         = qobject_cast<MaemoRunConfiguration *>(runConfiguration);
@@ -163,16 +162,15 @@ bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
     return maemoRunConfig->hasEnoughFreePorts(mode);
 }
 
-RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig,
-    const QString &mode)
+RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig, RunMode mode)
 {
-    Q_ASSERT(mode == ProjectExplorer::Constants::RUNMODE || mode == Debugger::Constants::DEBUGMODE);
+    Q_ASSERT(mode == NormalRunMode || mode == DebugRunMode);
     Q_ASSERT(canRun(runConfig, mode));
 
     MaemoRunConfiguration *rc = qobject_cast<MaemoRunConfiguration *>(runConfig);
     Q_ASSERT(rc);
 
-    if (mode == ProjectExplorer::Constants::RUNMODE)
+    if (mode == NormalRunMode)
         return new MaemoRunControl(rc);
 
     const DebuggerStartParameters params

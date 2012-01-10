@@ -52,10 +52,6 @@ const char G_MANUAL_REMOTE[]        = "Debugger.Group.Manual.Remote";
 const char G_AUTOMATIC_REMOTE[]     = "Debugger.Group.Automatic.Remote";
 const char G_START_QML[]            = "Debugger.Group.Start.Qml";
 
-// Project Explorer run mode (RUN/DEBUG)
-const char DEBUGMODE[]              = "Debugger.DebugMode";
-const char DEBUGMODE2[]             = "Debugger.DebugMode2"; // Breaks on main.
-
 // Common actions (accessed by QML inspector)
 const char INTERRUPT[]              = "Debugger.Interrupt";
 const char CONTINUE[]               = "Debugger.Continue";

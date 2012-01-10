@@ -290,6 +290,11 @@ Core::Id MemcheckTool::id() const
     return "Memcheck";
 }
 
+ProjectExplorer::RunMode MemcheckTool::runMode() const
+{
+    return ProjectExplorer::MemcheckRunMode;
+}
+
 QString MemcheckTool::displayName() const
 {
     return tr("Valgrind Memory Analyzer");

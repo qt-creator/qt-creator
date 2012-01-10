@@ -160,7 +160,7 @@ void S60DeviceDebugRunControl::remoteSetupRequested()
 {
     // This is called from Engine->setupInferior(), ie InferiorSetupRequested state
     QTC_ASSERT(runConfiguration()->useQmlDebugger() && !runConfiguration()->useCppDebugger(), return);
-    m_codaRunControl = new CodaRunControl(runConfiguration(), Debugger::Constants::DEBUGMODE);
+    m_codaRunControl = new CodaRunControl(runConfiguration(), DebugRunMode);
     connect(m_codaRunControl, SIGNAL(connected()), this, SLOT(codaConnected()));
     connect(m_codaRunControl, SIGNAL(finished()), this, SLOT(codaFinished()));
     connect(m_codaRunControl, SIGNAL(appendMessage(ProjectExplorer::RunControl*,QString,Utils::OutputFormat)), this, SLOT(handleMessageFromCoda(ProjectExplorer::RunControl*,QString,Utils::OutputFormat)));
@@ -218,16 +218,15 @@ S60DeviceDebugRunControlFactory::S60DeviceDebugRunControlFactory(QObject *parent
 {
 }
 
-bool S60DeviceDebugRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const
+bool S60DeviceDebugRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
-    return mode == QLatin1String(Debugger::Constants::DEBUGMODE)
-            && qobject_cast<S60DeviceRunConfiguration *>(runConfiguration) != 0;
+    return mode == DebugRunMode && qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
 }
 
-ProjectExplorer::RunControl* S60DeviceDebugRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode)
+ProjectExplorer::RunControl* S60DeviceDebugRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode)
 {
     S60DeviceRunConfiguration *rc = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
-    QTC_ASSERT(rc && mode == QLatin1String(Debugger::Constants::DEBUGMODE), return 0);
+    QTC_ASSERT(rc && mode == DebugRunMode, return 0);
     const Debugger::DebuggerStartParameters startParameters = s60DebuggerStartParams(rc);
     const Debugger::ConfigurationCheck check = Debugger::checkDebugConfiguration(startParameters);
     if (!check) {

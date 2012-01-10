@@ -53,10 +53,9 @@ LocalApplicationRunControlFactory::~LocalApplicationRunControlFactory()
 {
 }
 
-bool LocalApplicationRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const
+bool LocalApplicationRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
-    return (mode == QLatin1String(ProjectExplorer::Constants::RUNMODE))
-            && (qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration) != 0);
+    return mode == NormalRunMode && qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
 }
 
 QString LocalApplicationRunControlFactory::displayName() const
@@ -64,7 +63,7 @@ QString LocalApplicationRunControlFactory::displayName() const
     return tr("Run");
 }
 
-RunControl *LocalApplicationRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode)
+RunControl *LocalApplicationRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
     LocalApplicationRunConfiguration *localRunConfiguration = qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
@@ -82,7 +81,7 @@ RunConfigWidget *LocalApplicationRunControlFactory::createConfigurationWidget(Ru
 
 // ApplicationRunControl
 
-LocalApplicationRunControl::LocalApplicationRunControl(LocalApplicationRunConfiguration *rc, QString mode)
+LocalApplicationRunControl::LocalApplicationRunControl(LocalApplicationRunConfiguration *rc, RunMode mode)
     : RunControl(rc, mode)
 {
     Utils::Environment env = rc->environment();

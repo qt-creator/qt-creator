@@ -35,6 +35,7 @@
 
 #include "projectconfiguration.h"
 #include "projectexplorer_export.h"
+#include "projectexplorerconstants.h"
 
 #include <utils/outputformat.h>
 
@@ -190,8 +191,8 @@ public:
     explicit IRunControlFactory(QObject *parent = 0);
     virtual ~IRunControlFactory();
 
-    virtual bool canRun(RunConfiguration *runConfiguration, const QString &mode) const = 0;
-    virtual RunControl* create(RunConfiguration *runConfiguration, const QString &mode) = 0;
+    virtual bool canRun(RunConfiguration *runConfiguration, RunMode mode) const = 0;
+    virtual RunControl *create(RunConfiguration *runConfiguration, RunMode mode) = 0;
 
     virtual QString displayName() const = 0;
 
@@ -223,7 +224,7 @@ public:
         AsynchronousStop     // Stop sequence has been started
     };
 
-    explicit RunControl(RunConfiguration *runConfiguration, QString mode);
+    RunControl(RunConfiguration *runConfiguration, RunMode mode);
     virtual ~RunControl();
     virtual void start() = 0;
 
@@ -240,7 +241,7 @@ public:
     bool sameRunConfiguration(const RunControl *other) const;
 
     Utils::OutputFormatter *outputFormatter();
-    QString runMode() const;
+    RunMode runMode() const;
 
 public slots:
     void bringApplicationToForeground(qint64 pid);
@@ -264,7 +265,7 @@ protected:
 
 private:
     QString m_displayName;
-    QString m_runMode;
+    RunMode m_runMode;
     const QWeakPointer<RunConfiguration> m_runConfiguration;
     Utils::OutputFormatter *m_outputFormatter;
 

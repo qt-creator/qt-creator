@@ -74,9 +74,9 @@ class S60DeviceDebugRunControlFactory : public ProjectExplorer::IRunControlFacto
 {
 public:
     explicit S60DeviceDebugRunControlFactory(QObject *parent = 0);
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const;
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
 
-    ProjectExplorer::RunControl* create(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
+    ProjectExplorer::RunControl* create(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode);
     QString displayName() const;
     ProjectExplorer::RunConfigWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration * /*runConfiguration */);
 };

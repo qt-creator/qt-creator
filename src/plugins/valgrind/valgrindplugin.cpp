@@ -84,7 +84,7 @@ static void startRemoteTool(IAnalyzerTool *tool)
     //m_currentRunControl = rc;
     QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));
 
-    ProjectExplorerPlugin::instance()->startRunControl(rc, tool->id().toString());
+    ProjectExplorerPlugin::instance()->startRunControl(rc, tool->runMode());
 }
 
 void ValgrindPlugin::startValgrindTool(IAnalyzerTool *tool, StartMode mode)

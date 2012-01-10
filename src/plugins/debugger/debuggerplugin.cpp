@@ -1427,21 +1427,21 @@ void DebuggerPluginPrivate::debugProject()
 {
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     if (Project *pro = pe->startupProject())
-        pe->runProject(pro, QLatin1String(Constants::DEBUGMODE));
+        pe->runProject(pro, DebugRunMode);
 }
 
 void DebuggerPluginPrivate::debugProjectWithoutDeploy()
 {
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     if (Project *pro = pe->startupProject())
-        pe->runProject(pro, QLatin1String(Constants::DEBUGMODE), true);
+        pe->runProject(pro, DebugRunMode, true);
 }
 
 void DebuggerPluginPrivate::debugProjectBreakMain()
 {
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     if (Project *pro = pe->startupProject())
-        pe->runProject(pro, QLatin1String(Constants::DEBUGMODE2));
+        pe->runProject(pro, DebugRunModeWithBreakOnMain);
 }
 
 void DebuggerPluginPrivate::startExternalApplication()
@@ -2048,7 +2048,7 @@ void DebuggerPluginPrivate::displayDebugger(DebuggerEngine *engine, bool updateE
 void DebuggerPluginPrivate::startDebugger(RunControl *rc)
 {
     QTC_ASSERT(rc, return);
-    ProjectExplorerPlugin::instance()->startRunControl(rc, QLatin1String(Constants::DEBUGMODE));
+    ProjectExplorerPlugin::instance()->startRunControl(rc, DebugRunMode);
 }
 
 
@@ -2377,16 +2377,14 @@ void DebuggerPluginPrivate::updateDebugActions()
 
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     Project *project = pe->startupProject();
-    const QString debugMode = _(Constants::DEBUGMODE);
-    const bool canRun = pe->canRun(project, debugMode);
+    const bool canRun = pe->canRun(project, DebugRunMode);
     m_startAction->setEnabled(canRun);
-    m_startAction->setToolTip(canRun ? QString() : pe->cannotRunReason(project, debugMode));
+    m_startAction->setToolTip(canRun ? QString() : pe->cannotRunReason(project, DebugRunMode));
     m_debugWithoutDeployAction->setEnabled(canRun);
 
     // Step into/next: Start and break at 'main' unless a debugger is running.
     if (m_snapshotHandler->currentIndex() < 0) {
-        const QString debugMode2 = _(Constants::DEBUGMODE2);
-        const bool canRunAndBreakMain = pe->canRun(project, debugMode2);
+        const bool canRunAndBreakMain = pe->canRun(project, DebugRunModeWithBreakOnMain);
         m_stepAction->setEnabled(canRunAndBreakMain);
         m_nextAction->setEnabled(canRunAndBreakMain);
         QString toolTip;
@@ -2395,10 +2393,10 @@ void DebuggerPluginPrivate::updateDebugActions()
             toolTip = tr("Start '%1' and break at function 'main()'")
                       .arg(project->displayName());
         } else {
-            // Do not display long tooltip saying 'debugMode2 is not supported
-            // for project' for projects to which 'break at main' is not applicable.
+            // Do not display long tooltip saying run mode is not supported
+            // for project for projects to which 'break at main' is not applicable.
             if (!canRun)
-                toolTip = pe->cannotRunReason(project, debugMode2);
+                toolTip = pe->cannotRunReason(project, DebugRunModeWithBreakOnMain);
         }
         m_stepAction->setToolTip(toolTip);
         m_nextAction->setToolTip(toolTip);

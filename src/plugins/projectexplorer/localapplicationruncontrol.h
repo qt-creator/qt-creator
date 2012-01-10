@@ -35,6 +35,7 @@
 
 #include "runconfiguration.h"
 #include "applicationlauncher.h"
+#include "projectexplorerconstants.h"
 
 namespace ProjectExplorer {
 
@@ -47,9 +48,9 @@ class LocalApplicationRunControlFactory : public IRunControlFactory
 public:
     LocalApplicationRunControlFactory ();
     virtual ~LocalApplicationRunControlFactory();
-    virtual bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
+    virtual bool canRun(RunConfiguration *runConfiguration, RunMode mode) const;
     virtual QString displayName() const;
-    virtual RunControl* create(RunConfiguration *runConfiguration, const QString &mode);
+    virtual RunControl* create(RunConfiguration *runConfiguration, RunMode mode);
     virtual RunConfigWidget *createConfigurationWidget(RunConfiguration  *runConfiguration);
 };
 
@@ -57,7 +58,7 @@ class LocalApplicationRunControl : public RunControl
 {
     Q_OBJECT
 public:
-    LocalApplicationRunControl(LocalApplicationRunConfiguration *runConfiguration, QString mode);
+    LocalApplicationRunControl(LocalApplicationRunConfiguration *runConfiguration, RunMode mode);
     virtual ~LocalApplicationRunControl();
     virtual void start();
     virtual StopResult stop();

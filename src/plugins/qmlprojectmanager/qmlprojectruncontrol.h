@@ -46,7 +46,8 @@ class QmlProjectRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 public:
-    explicit QmlProjectRunControl(QmlProjectRunConfiguration *runConfiguration, QString mode);
+    QmlProjectRunControl(QmlProjectRunConfiguration *runConfiguration,
+                         ProjectExplorer::RunMode mode);
     virtual ~QmlProjectRunControl ();
 
     // RunControl
@@ -77,8 +78,8 @@ public:
     virtual ~QmlProjectRunControlFactory();
 
     // IRunControlFactory
-    virtual bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const;
-    virtual ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
+    virtual bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
+    virtual ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode);
     virtual QString displayName() const;
     virtual ProjectExplorer::RunConfigWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration
                                                                         *runConfiguration);

@@ -230,7 +230,7 @@ struct ProjectExplorerPluginPrivate {
 
     QString m_lastOpenDirectory;
     RunConfiguration *m_delayedRunConfiguration; // TODO this is not right
-    QString m_runMode;
+    RunMode m_runMode;
     QString m_projectFilterString;
     Internal::MiniProjectTargetSelector * m_targetSelector;
     Internal::ProjectExplorerSettings m_projectExplorerSettings;
@@ -245,6 +245,7 @@ ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
     m_currentProject(0),
     m_currentNode(0),
     m_delayedRunConfiguration(0),
+    m_runMode(NoRunMode),
     m_projectsMode(0),
     m_toolChainManager(0)
 {
@@ -1548,7 +1549,7 @@ void ProjectExplorerPlugin::buildStateChanged(Project * pro)
     updateActions();
 }
 
-void ProjectExplorerPlugin::executeRunConfiguration(RunConfiguration *runConfiguration, const QString &runMode)
+void ProjectExplorerPlugin::executeRunConfiguration(RunConfiguration *runConfiguration, RunMode runMode)
 {
     if (IRunControlFactory *runControlFactory = findRunControlFactory(runConfiguration, runMode)) {
         emit aboutToExecuteProject(runConfiguration->target()->project(), runMode);
@@ -1560,10 +1561,10 @@ void ProjectExplorerPlugin::executeRunConfiguration(RunConfiguration *runConfigu
     }
 }
 
-void ProjectExplorerPlugin::startRunControl(RunControl *runControl, const QString &runMode)
+void ProjectExplorerPlugin::startRunControl(RunControl *runControl, RunMode runMode)
 {
     d->m_outputPane->createNewOutputWindow(runControl);
-    if (runMode == QLatin1String(ProjectExplorer::Constants::RUNMODE) && d->m_projectExplorerSettings.showRunOutput)
+    if (runMode == NormalRunMode && d->m_projectExplorerSettings.showRunOutput)
         d->m_outputPane->popup(false);
     d->m_outputPane->showTabFor(runControl);
     connect(runControl, SIGNAL(finished()), this, SLOT(runControlFinished()));
@@ -1600,7 +1601,7 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
             d->m_buildManager->showTaskWindow();
     }
     d->m_delayedRunConfiguration = 0;
-    d->m_runMode.clear();
+    d->m_runMode = NoRunMode;
 }
 
 void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node *node)
@@ -1935,19 +1936,19 @@ void ProjectExplorerPlugin::cleanSession()
 
 void ProjectExplorerPlugin::runProject()
 {
-    runProject(startupProject(), QLatin1String(ProjectExplorer::Constants::RUNMODE));
+    runProject(startupProject(), NormalRunMode);
 }
 
 void ProjectExplorerPlugin::runProjectWithoutDeploy()
 {
-    runProject(startupProject(), QLatin1String(ProjectExplorer::Constants::RUNMODE), true);
+    runProject(startupProject(), NormalRunMode, true);
 }
 
 void ProjectExplorerPlugin::runProjectContextMenu()
 {
     ProjectNode *projectNode = qobject_cast<ProjectNode*>(d->m_currentNode);
     if (projectNode == d->m_currentProject->rootProjectNode() || !projectNode) {
-        runProject(d->m_currentProject, QLatin1String(ProjectExplorer::Constants::RUNMODE));
+        runProject(d->m_currentProject, NormalRunMode);
     } else {
         QAction *act = qobject_cast<QAction *>(sender());
         if (!act)
@@ -1955,7 +1956,7 @@ void ProjectExplorerPlugin::runProjectContextMenu()
         RunConfiguration *rc = act->data().value<RunConfiguration *>();
         if (!rc)
             return;
-        runRunConfiguration(rc, QLatin1String(ProjectExplorer::Constants::RUNMODE));
+        runRunConfiguration(rc, NormalRunMode);
     }
 }
 
@@ -2059,7 +2060,7 @@ bool ProjectExplorerPlugin::hasDeploySettings(Project *pro)
     return false;
 }
 
-void ProjectExplorerPlugin::runProject(Project *pro, const QString &mode, const bool forceSkipDeploy)
+void ProjectExplorerPlugin::runProject(Project *pro, RunMode mode, const bool forceSkipDeploy)
 {
     if (!pro)
         return;
@@ -2068,7 +2069,7 @@ void ProjectExplorerPlugin::runProject(Project *pro, const QString &mode, const 
 }
 
 void ProjectExplorerPlugin::runRunConfiguration(ProjectExplorer::RunConfiguration *rc,
-                                                const QString &mode,
+                                                RunMode runMode,
                                                 const bool forceSkipDeploy)
 {
     if (!rc->isEnabled())
@@ -2090,10 +2091,10 @@ void ProjectExplorerPlugin::runRunConfiguration(ProjectExplorer::RunConfiguratio
 
     if (queueCount > 0) {
         // delay running till after our queued steps were processed
-        d->m_runMode = mode;
+        d->m_runMode = runMode;
         d->m_delayedRunConfiguration = rc;
     } else {
-        executeRunConfiguration(rc, mode);
+        executeRunConfiguration(rc, runMode);
     }
     emit updateRunActions();
 }
@@ -2190,7 +2191,7 @@ void ProjectExplorerPlugin::activeRunConfigurationChanged()
 }
 
 // NBS TODO implement more than one runner
-IRunControlFactory *ProjectExplorerPlugin::findRunControlFactory(RunConfiguration *config, const QString &mode)
+IRunControlFactory *ProjectExplorerPlugin::findRunControlFactory(RunConfiguration *config, RunMode mode)
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     const QList<IRunControlFactory *> factories = pm->getObjects<IRunControlFactory>();
@@ -2254,7 +2255,7 @@ void ProjectExplorerPlugin::updateDeployActions()
     emit updateRunActions();
 }
 
-bool ProjectExplorerPlugin::canRun(Project *project, const QString &runMode)
+bool ProjectExplorerPlugin::canRun(Project *project, RunMode runMode)
 {
     if (!project ||
         !project->activeTarget() ||
@@ -2277,7 +2278,7 @@ bool ProjectExplorerPlugin::canRun(Project *project, const QString &runMode)
     return (canRun && !building);
 }
 
-QString ProjectExplorerPlugin::cannotRunReason(Project *project, const QString &runMode)
+QString ProjectExplorerPlugin::cannotRunReason(Project *project, RunMode runMode)
 {
     if (!project)
         return tr("No active project");
@@ -2317,10 +2318,9 @@ QString ProjectExplorerPlugin::cannotRunReason(Project *project, const QString &
 void ProjectExplorerPlugin::slotUpdateRunActions()
 {
     Project *project = startupProject();
-    const QString runMode = QLatin1String(ProjectExplorer::Constants::RUNMODE);
-    const bool state = canRun(project, runMode);
+    const bool state = canRun(project, NormalRunMode);
     d->m_runAction->setEnabled(state);
-    d->m_runAction->setToolTip(cannotRunReason(project, runMode));
+    d->m_runAction->setToolTip(cannotRunReason(project, NormalRunMode));
     d->m_runWithoutDeployAction->setEnabled(state);
 }
 

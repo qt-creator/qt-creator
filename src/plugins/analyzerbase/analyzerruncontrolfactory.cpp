@@ -60,17 +60,17 @@ QString AnalyzerRunControlFactory::displayName() const
     return tr("Analyzer");
 }
 
-bool AnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
+bool AnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
-    IAnalyzerTool *tool = AnalyzerManager::toolFromId(Core::Id(mode));
+    IAnalyzerTool *tool = AnalyzerManager::toolFromRunMode(mode);
     if (tool)
         return tool->canRun(runConfiguration, mode);
     return false;
 }
 
-RunControl *AnalyzerRunControlFactory::create(RunConfiguration *runConfiguration, const QString &mode)
+RunControl *AnalyzerRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode)
 {
-    IAnalyzerTool *tool = AnalyzerManager::toolFromId(Core::Id(mode));
+    IAnalyzerTool *tool = AnalyzerManager::toolFromRunMode(mode);
     if (!tool)
         return 0;
 

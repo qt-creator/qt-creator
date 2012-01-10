@@ -199,6 +199,11 @@ Core::Id QmlProfilerTool::id() const
     return "QmlProfiler";
 }
 
+RunMode QmlProfilerTool::runMode() const
+{
+    return QmlProfilerRunMode;
+}
+
 QString QmlProfilerTool::displayName() const
 {
     return tr("QML Profiler");
@@ -365,19 +370,17 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     return engine;
 }
 
-bool QmlProfilerTool::canRun(RunConfiguration *runConfiguration, const QString &mode) const
+bool QmlProfilerTool::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
-    Q_UNUSED(mode);
-
     if (qobject_cast<QmlProjectRunConfiguration *>(runConfiguration)
             || qobject_cast<RemoteLinuxRunConfiguration *>(runConfiguration)
             || qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)
             || qobject_cast<Qt4ProjectManager::S60DeviceRunConfiguration *>(runConfiguration))
-        return true;
+        return mode == runMode();
     return false;
 }
 
-AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration *runConfiguration, const QString &mode) const
+AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration *runConfiguration, RunMode mode) const
 {
     Q_UNUSED(mode);
 
@@ -693,7 +696,7 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
     AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, 0);
     QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));
 
-    ProjectExplorerPlugin::instance()->startRunControl(rc, tool->id().toString());
+    ProjectExplorerPlugin::instance()->startRunControl(rc, tool->runMode());
 }
 
 void QmlProfilerTool::tryToConnect()
@@ -786,7 +789,7 @@ void QmlProfilerTool::startTool(StartMode mode)
         ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
         // ### not sure if we're supposed to check if the RunConFiguration isEnabled
         Project *pro = pe->startupProject();
-        pe->runProject(pro, id().toString());
+        pe->runProject(pro, runMode());
     } else if (mode == StartRemote) {
         startRemoteTool(this, mode);
     }

@@ -41,20 +41,22 @@ namespace Internal {
 class S60RunControlFactory : public ProjectExplorer::IRunControlFactory
 {
 public:
-    explicit S60RunControlFactory(const QString &mode,
+    explicit S60RunControlFactory(ProjectExplorer::RunMode mode,
                                   const QString &name,
                                   QObject *parent = 0);
 
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const;
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
+                ProjectExplorer::RunMode mode) const;
 
-    ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
+    ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
+                                        ProjectExplorer::RunMode mode);
 
     QString displayName() const;
 
     ProjectExplorer::RunConfigWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
 
 private:
-    const QString m_mode;
+    const ProjectExplorer::RunMode m_mode;
     const QString m_name;
 };
 

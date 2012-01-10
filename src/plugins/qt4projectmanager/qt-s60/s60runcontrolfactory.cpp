@@ -43,14 +43,12 @@ using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
-S60RunControlFactory::S60RunControlFactory(const QString &mode,
-                                           const QString &name,
-                                           QObject *parent) :
+S60RunControlFactory::S60RunControlFactory(RunMode mode, const QString &name, QObject *parent) :
     IRunControlFactory(parent), m_mode(mode), m_name(name)
 {
 }
 
-bool S60RunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
+bool S60RunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
     if (mode != m_mode)
         return false;
@@ -61,7 +59,7 @@ bool S60RunControlFactory::canRun(RunConfiguration *runConfiguration, const QStr
     return activeDeployConf != 0;
 }
 
-RunControl* S60RunControlFactory::create(RunConfiguration *runConfiguration, const QString &mode)
+RunControl* S60RunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode)
 {
     S60DeviceRunConfiguration *rc = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
 

@@ -46,9 +46,10 @@ public:
     QString displayName() const;
     ProjectExplorer::RunConfigWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
 
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const;
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
+                ProjectExplorer::RunMode mode) const;
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-        const QString &mode);
+                                        ProjectExplorer::RunMode mode);
 };
 
 } // namespace Internal

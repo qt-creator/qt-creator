@@ -49,8 +49,9 @@ public:
 
     // IRunControlFactory implementation
     QString displayName() const;
-    bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
-    ProjectExplorer::RunControl *create(RunConfiguration *runConfiguration, const QString &mode);
+    bool canRun(RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
+    ProjectExplorer::RunControl *create(RunConfiguration *runConfiguration,
+                                        ProjectExplorer::RunMode mode);
     ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect();
     ProjectExplorer::RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
 

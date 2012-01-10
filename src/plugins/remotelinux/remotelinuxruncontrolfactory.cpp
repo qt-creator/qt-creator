@@ -57,11 +57,9 @@ RemoteLinuxRunControlFactory::~RemoteLinuxRunControlFactory()
 {
 }
 
-bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration,
-    const QString &mode) const
+bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
-    if (mode != QLatin1String(ProjectExplorer::Constants::RUNMODE)
-        && mode != QLatin1String(Debugger::Constants::DEBUGMODE))
+    if (mode != NormalRunMode && mode != DebugRunMode)
         return false;
 
     if (!runConfiguration->isEnabled()
@@ -71,19 +69,18 @@ bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration,
 
     const RemoteLinuxRunConfiguration * const remoteRunConfig
         = qobject_cast<RemoteLinuxRunConfiguration *>(runConfiguration);
-    if (mode == QLatin1String(Debugger::Constants::DEBUGMODE))
+    if (mode == DebugRunMode)
         return remoteRunConfig->portsUsedByDebuggers() <= remoteRunConfig->freePorts().count();
     return true;
 }
 
-RunControl* RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig,
-    const QString &mode)
+RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, RunMode mode)
 {
     Q_ASSERT(canRun(runConfig, mode));
 
     RemoteLinuxRunConfiguration *rc = qobject_cast<RemoteLinuxRunConfiguration *>(runConfig);
     Q_ASSERT(rc);
-    if (mode == ProjectExplorer::Constants::RUNMODE)
+    if (mode == ProjectExplorer::NormalRunMode)
         return new RemoteLinuxRunControl(rc);
 
     const DebuggerStartParameters params

@@ -45,7 +45,8 @@ class QT4PROJECTMANAGER_EXPORT S60RunControlBase : public ProjectExplorer::RunCo
 {
     Q_OBJECT
 public:
-    explicit S60RunControlBase(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
+    S60RunControlBase(ProjectExplorer::RunConfiguration *runConfiguration,
+                      ProjectExplorer::RunMode mode);
     ~S60RunControlBase();
 
     virtual void start();

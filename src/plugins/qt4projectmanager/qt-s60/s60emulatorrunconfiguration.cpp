@@ -345,7 +345,7 @@ QString S60EmulatorRunConfigurationFactory::displayNameForId(const QString &id) 
 
 // ======== S60EmulatorRunControl
 
-S60EmulatorRunControl::S60EmulatorRunControl(S60EmulatorRunConfiguration *runConfiguration, QString mode)
+S60EmulatorRunControl::S60EmulatorRunControl(S60EmulatorRunConfiguration *runConfiguration, RunMode mode)
     : RunControl(runConfiguration, mode)
 {
     // FIXME: This should be configurable!

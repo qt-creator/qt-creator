@@ -80,8 +80,8 @@ public:
     QString displayName() const;
     RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
 
-    bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
-    RunControl *create(RunConfiguration *runConfiguration, const QString &mode);
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
+    RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode);
 };
 
     } // namespace Internal

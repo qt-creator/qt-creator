@@ -54,7 +54,7 @@ RemoteLinuxQmlProfilerRunner::RemoteLinuxQmlProfilerRunner(
             = PluginManager::instance()->getObjects<IRunControlFactory>();
 
     foreach (IRunControlFactory *factory, runControlFactories) {
-        if (factory->canRun(runConfiguration, ProjectExplorer::Constants::RUNMODE)) {
+        if (factory->canRun(runConfiguration, NormalRunMode)) {
             runControlFactory = factory;
             break;
         }
@@ -63,8 +63,7 @@ RemoteLinuxQmlProfilerRunner::RemoteLinuxQmlProfilerRunner(
     QTC_ASSERT(runControlFactory, return);
 
     // create run control
-    RunControl *runControl = runControlFactory->create(runConfiguration,
-                                                       ProjectExplorer::Constants::RUNMODE);
+    RunControl *runControl = runControlFactory->create(runConfiguration, NormalRunMode);
 
     m_runControl = qobject_cast<AbstractRemoteLinuxRunControl*>(runControl);
     QTC_ASSERT(m_runControl, return);

@@ -560,7 +560,7 @@ void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool)
             return;
     }
 
-    pe->runProject(pro, tool->id().toString());
+    pe->runProject(pro, tool->runMode());
 }
 
 bool AnalyzerManagerPrivate::isActionRunnable(QAction *action) const
@@ -572,7 +572,7 @@ bool AnalyzerManagerPrivate::isActionRunnable(QAction *action) const
 
     IAnalyzerTool *tool = m_toolFromAction.value(action);
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    return pe->canRun(pe->startupProject(), tool->id().toString());
+    return pe->canRun(pe->startupProject(), tool->runMode());
 }
 
 void AnalyzerManagerPrivate::startTool()
@@ -761,7 +761,7 @@ void AnalyzerManagerPrivate::updateRunActions()
     else if (!m_currentTool)
         disabledReason = tr("No analyzer tool selected.");
     else
-        disabledReason = pe->cannotRunReason(project, m_currentTool->id().toString());
+        disabledReason = pe->cannotRunReason(project, m_currentTool->runMode());
 
     m_startAction->setEnabled(startEnabled);
     m_startAction->setToolTip(disabledReason);
@@ -908,10 +908,10 @@ void AnalyzerManager::handleToolFinished()
     m_instance->d->handleToolFinished();
 }
 
-IAnalyzerTool *AnalyzerManager::toolFromId(const Core::Id &id)
+IAnalyzerTool *AnalyzerManager::toolFromRunMode(RunMode runMode)
 {
     foreach (IAnalyzerTool *tool, m_instance->d->m_tools)
-        if (id.name().startsWith(tool->id().name()))
+        if (tool->runMode() == runMode)
             return tool;
     return 0;
 }

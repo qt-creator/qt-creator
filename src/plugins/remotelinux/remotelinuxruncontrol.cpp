@@ -47,7 +47,7 @@ namespace RemoteLinux {
 using ProjectExplorer::RunConfiguration;
 
 AbstractRemoteLinuxRunControl::AbstractRemoteLinuxRunControl(RunConfiguration *rc)
-    : RunControl(rc, ProjectExplorer::Constants::RUNMODE)
+    : RunControl(rc, ProjectExplorer::NormalRunMode)
     , m_running(false)
 {
 }

@@ -49,14 +49,13 @@ ValgrindTool::ValgrindTool(QObject *parent) :
 {
 }
 
-bool ValgrindTool::canRun(ProjectExplorer::RunConfiguration *, const QString &) const
+bool ValgrindTool::canRun(RunConfiguration *, RunMode mode) const
 {
-    return true;
+    return mode == runMode();
 }
 
 Analyzer::AnalyzerStartParameters ValgrindTool::createStartParameters(
-        ProjectExplorer::RunConfiguration *runConfiguration,
-        const QString &mode) const
+    RunConfiguration *runConfiguration, RunMode mode) const
 {
     Q_UNUSED(mode);
 

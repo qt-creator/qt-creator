@@ -34,6 +34,7 @@
 #define PROJECTEXPLORER_H
 
 #include "projectexplorer_export.h"
+#include "projectexplorerconstants.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -105,7 +106,7 @@ public:
     void setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes);
     Internal::ProjectExplorerSettings projectExplorerSettings() const;
 
-    void startRunControl(RunControl *runControl, const QString &mode);
+    void startRunControl(RunControl *runControl, RunMode runMode);
 
     // internal public for FlatModel
     void renameFile(Node *node, const QString &to);
@@ -113,10 +114,10 @@ public:
     bool coreAboutToClose();
     QList<QPair<QString, QString> > recentProjects();
 
-    bool canRun(Project *pro, const QString &runMode);
-    QString cannotRunReason(Project *project, const QString &runMode);
-    void runProject(Project *pro, const QString &mode, const bool forceSkipDeploy = false);
-    void runRunConfiguration(ProjectExplorer::RunConfiguration *rc, const QString &mode,
+    bool canRun(Project *pro, RunMode runMode);
+    QString cannotRunReason(Project *project, RunMode runMode);
+    void runProject(Project *pro, RunMode, const bool forceSkipDeploy = false);
+    void runRunConfiguration(ProjectExplorer::RunConfiguration *rc, RunMode runMode,
                              const bool forceSkipDeploy = false);
 
     void addExistingFiles(ProjectExplorer::ProjectNode *projectNode, const QStringList &filePaths);
@@ -140,7 +141,7 @@ signals:
 
     void currentProjectChanged(ProjectExplorer::Project *project);
     void currentNodeChanged(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
-    void aboutToExecuteProject(ProjectExplorer::Project *project, const QString &runMode);
+    void aboutToExecuteProject(ProjectExplorer::Project *project, RunMode runMode);
     void recentProjectsChanged();
 
     void settingsChanged();
@@ -262,7 +263,7 @@ private:
     int queue(QList<Project *>, QStringList stepIds);
     void updateContextMenuActions();
     bool parseArguments(const QStringList &arguments, QString *error);
-    void executeRunConfiguration(RunConfiguration *, const QString &mode);
+    void executeRunConfiguration(RunConfiguration *, RunMode mode);
     bool hasBuildSettings(Project *pro);
     QPair<bool, QString> buildSettingsEnabledForSession();
     QPair<bool, QString> buildSettingsEnabled(Project *pro);
@@ -271,7 +272,7 @@ private:
     void setCurrent(Project *project, QString filePath, Node *node);
 
     QStringList allFilesWithDependencies(Project *pro);
-    IRunControlFactory *findRunControlFactory(RunConfiguration *config, const QString &mode);
+    IRunControlFactory *findRunControlFactory(RunConfiguration *config, RunMode mode);
 
     void addToRecentProjects(const QString &fileName, const QString &displayName);
 

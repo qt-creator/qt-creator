@@ -88,8 +88,6 @@ const char SHOW_TASK_IN_EDITOR[]  = "ProjectExplorer.ShowTaskInEditor";
 const char VCS_ANNOTATE_TASK[]    = "ProjectExplorer.VcsAnnotateTask";
 const char SHOW_TASK_OUTPUT[]     = "ProjectExplorer.ShowTaskOutput";
 
-// Run modes
-const char RUNMODE[]              = "ProjectExplorer.RunMode";
 const char SELECTTARGET[]         = "ProjectExplorer.SelectTarget";
 const char SELECTTARGETQUICK[]    = "ProjectExplorer.SelectTargetQuick";
 
@@ -224,6 +222,18 @@ const int QML_DEFAULT_DEBUG_SERVER_PORT = 3768;
 const char DEFAULT_WORKING_DIR[] = "%{buildDir}";
 
 } // namespace Constants
+
+// Run modes
+enum RunMode {
+    NoRunMode,
+    NormalRunMode,
+    DebugRunMode,
+    DebugRunModeWithBreakOnMain,
+    QmlProfilerRunMode,
+    CallgrindRunMode,
+    MemcheckRunMode
+};
+
 } // namespace ProjectExplorer
 
 #endif // PROJECTEXPLORERCONSTANTS_H

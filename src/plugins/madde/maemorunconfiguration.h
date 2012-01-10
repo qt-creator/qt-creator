@@ -55,7 +55,7 @@ public:
     RemoteLinux::PortList freePorts() const;
 
     Internal::MaemoRemoteMountsModel *remoteMounts() const { return m_remoteMounts; }
-    bool hasEnoughFreePorts(const QString &mode) const;
+    bool hasEnoughFreePorts(ProjectExplorer::RunMode mode) const;
     QString localDirToMountForRemoteGdb() const;
     QString remoteProjectSourcesMountPoint() const;
 

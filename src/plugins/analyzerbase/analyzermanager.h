@@ -38,6 +38,7 @@
 #include "analyzerbase_global.h"
 #include "analyzerconstants.h"
 #include <coreplugin/id.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtCore/QObject>
 
@@ -72,7 +73,7 @@ public:
 
     // Register a tool and initialize it.
     static void addTool(IAnalyzerTool *tool, const StartModes &mode);
-    static IAnalyzerTool *toolFromId(const Core::Id &id);
+    static IAnalyzerTool *toolFromRunMode(ProjectExplorer::RunMode runMode);
 
     // Dockwidgets are registered to the main window.
     static QDockWidget *createDockWidget(IAnalyzerTool *tool, const QString &title,

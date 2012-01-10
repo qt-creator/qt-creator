@@ -518,6 +518,11 @@ Core::Id CallgrindTool::id() const
     return "Callgrind";
 }
 
+ProjectExplorer::RunMode CallgrindTool::runMode() const
+{
+    return ProjectExplorer::CallgrindRunMode;
+}
+
 QString CallgrindTool::displayName() const
 {
     return tr("Valgrind Function Profiler");

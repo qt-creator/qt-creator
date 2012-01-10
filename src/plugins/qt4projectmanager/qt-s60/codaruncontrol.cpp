@@ -65,7 +65,7 @@ using namespace Coda;
 
 enum { debug = 0 };
 
-CodaRunControl::CodaRunControl(RunConfiguration *runConfiguration, const QString &mode) :
+CodaRunControl::CodaRunControl(RunConfiguration *runConfiguration, RunMode mode) :
     S60RunControlBase(runConfiguration, mode),
     m_port(0),
     m_state(StateUninit),

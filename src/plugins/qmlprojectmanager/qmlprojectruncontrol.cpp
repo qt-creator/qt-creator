@@ -54,13 +54,13 @@ namespace QmlProjectManager {
 
 namespace Internal {
 
-QmlProjectRunControl::QmlProjectRunControl(QmlProjectRunConfiguration *runConfiguration, QString mode)
+QmlProjectRunControl::QmlProjectRunControl(QmlProjectRunConfiguration *runConfiguration, RunMode mode)
     : RunControl(runConfiguration, mode)
 {
     m_applicationLauncher.setEnvironment(runConfiguration->environment());
     m_applicationLauncher.setWorkingDirectory(runConfiguration->workingDirectory());
 
-    if (mode == ProjectExplorer::Constants::RUNMODE) {
+    if (mode == NormalRunMode) {
         m_executable = runConfiguration->viewerPath();
     } else {
         m_executable = runConfiguration->observerPath();
@@ -141,15 +141,15 @@ QmlProjectRunControlFactory::~QmlProjectRunControlFactory()
 }
 
 bool QmlProjectRunControlFactory::canRun(RunConfiguration *runConfiguration,
-                                  const QString &mode) const
+                                         RunMode mode) const
 {
     QmlProjectRunConfiguration *config =
         qobject_cast<QmlProjectRunConfiguration*>(runConfiguration);
     if (!config)
         return false;
-    if (mode == ProjectExplorer::Constants::RUNMODE)
+    if (mode == NormalRunMode)
         return !config->viewerPath().isEmpty();
-    if (mode != Debugger::Constants::DEBUGMODE)
+    if (mode != DebugRunMode)
         return false;
 
     if (!Debugger::DebuggerPlugin::isActiveDebugLanguage(Debugger::QmlLanguage))
@@ -167,7 +167,7 @@ bool QmlProjectRunControlFactory::canRun(RunConfiguration *runConfiguration,
 }
 
 RunControl *QmlProjectRunControlFactory::create(RunConfiguration *runConfiguration,
-                                         const QString &mode)
+                                                RunMode mode)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
     QmlProjectRunConfiguration *config = qobject_cast<QmlProjectRunConfiguration *>(runConfiguration);
@@ -184,9 +184,9 @@ RunControl *QmlProjectRunControlFactory::create(RunConfiguration *runConfigurati
     }
 
     RunControl *runControl = 0;
-    if (mode == ProjectExplorer::Constants::RUNMODE)
+    if (mode == NormalRunMode)
         runControl = new QmlProjectRunControl(config, mode);
-    else if (mode == Debugger::Constants::DEBUGMODE)
+    else if (mode == DebugRunMode)
         runControl = createDebugRunControl(config);
     return runControl;
 }

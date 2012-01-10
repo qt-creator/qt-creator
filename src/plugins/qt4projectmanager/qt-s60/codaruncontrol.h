@@ -57,7 +57,8 @@ class QT4PROJECTMANAGER_EXPORT CodaRunControl : public S60RunControlBase
 {
     Q_OBJECT
 public:
-    explicit CodaRunControl(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
+    CodaRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
+                   ProjectExplorer::RunMode mode);
     virtual ~CodaRunControl();
 
     virtual bool isRunning() const;

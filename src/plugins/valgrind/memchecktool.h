@@ -94,6 +94,7 @@ public:
     MemcheckTool(QObject *parent);
 
     Core::Id id() const;
+    ProjectExplorer::RunMode runMode() const;
     QString displayName() const;
     QString description() const;
 

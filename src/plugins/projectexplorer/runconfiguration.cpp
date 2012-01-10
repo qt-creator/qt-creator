@@ -504,7 +504,7 @@ IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect()
     TODO the icon differs currently only per "mode", so this is more flexible then it needs to be.
 */
 
-RunControl::RunControl(RunConfiguration *runConfiguration, QString mode)
+RunControl::RunControl(RunConfiguration *runConfiguration, RunMode mode)
     : m_runMode(mode), m_runConfiguration(runConfiguration), m_outputFormatter(0)
 {
     if (runConfiguration) {
@@ -526,7 +526,7 @@ Utils::OutputFormatter *RunControl::outputFormatter()
     return m_outputFormatter;
 }
 
-QString RunControl::runMode() const
+RunMode RunControl::runMode() const
 {
     return m_runMode;
 }

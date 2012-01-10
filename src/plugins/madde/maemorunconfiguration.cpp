@@ -87,7 +87,7 @@ bool MaemoRunConfiguration::isEnabled() const
 {
     if (!RemoteLinuxRunConfiguration::isEnabled())
         return false;
-    if (!hasEnoughFreePorts(ProjectExplorer::Constants::RUNMODE)) {
+    if (!hasEnoughFreePorts(NormalRunMode)) {
         setDisabledReason(tr("Not enough free ports on the device."));
         return false;
     }
@@ -165,15 +165,15 @@ QString MaemoRunConfiguration::remoteProjectSourcesMountPoint() const
         + QFileInfo(localExecutableFilePath()).fileName();
 }
 
-bool MaemoRunConfiguration::hasEnoughFreePorts(const QString &mode) const
+bool MaemoRunConfiguration::hasEnoughFreePorts(RunMode mode) const
 {
     const int freePortCount = freePorts().count();
     const bool remoteMountsAllowed = maemoTarget()->allowsRemoteMounts();
     const int mountDirCount = remoteMountsAllowed
         ? remoteMounts()->validMountSpecificationCount() : 0;
-    if (mode == Debugger::Constants::DEBUGMODE)
+    if (mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain)
         return freePortCount >= mountDirCount + portsUsedByDebuggers();
-    if (mode == ProjectExplorer::Constants::RUNMODE)
+    if (mode == NormalRunMode)
         return freePortCount >= mountDirCount;
     return false;
 }

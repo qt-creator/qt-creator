@@ -49,13 +49,14 @@ public:
     // FIXME: What to do in case of a 0 runConfiguration?
     typedef ProjectExplorer::RunConfiguration RunConfiguration;
     typedef ProjectExplorer::RunControl RunControl;
+    typedef ProjectExplorer::RunMode RunMode;
     DebuggerRunControl *create(const DebuggerStartParameters &sp,
         RunConfiguration *runConfiguration = 0);
 
     // ProjectExplorer::IRunControlFactory
     // FIXME: Used by qmljsinspector.cpp:469
-    RunControl *create(RunConfiguration *runConfiguration, const QString &mode);
-    bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
+    RunControl *create(RunConfiguration *runConfiguration, RunMode mode);
+    bool canRun(RunConfiguration *runConfiguration, RunMode mode) const;
 
     static DebuggerEngine *createEngine(DebuggerEngineType et,
                                         const DebuggerStartParameters &sp,
