@@ -12,6 +12,7 @@ srcPath = ''
 SettingsPath = ''
 tmpSettingsDir = ''
 testSettings.logScreenshotOnFail = True
+testSettings.logScreenshotOnError = True
 
 source("../../shared/classes.py")
 source("../../shared/utils.py")
