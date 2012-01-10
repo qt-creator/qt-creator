@@ -222,27 +222,21 @@ void QmlJSScriptConsole::appendResult(const QString &result)
     QTextCursor cur = textCursor();
     cur.movePosition(QTextCursor::End);
     cur.insertText(_("\n"));
+
     cur.insertText(result);
-    cur.movePosition(QTextCursor::EndOfLine);
     cur.insertText(_("\n"));
-    setTextCursor(cur);
-    displayPrompt();
 
     QTextEdit::ExtraSelection sel;
-
     QTextCharFormat resultFormat;
     resultFormat.setForeground(QBrush(QColor(Qt::darkGray)));
-
-    QTextCursor c(document()->findBlockByNumber(cur.blockNumber()-1));
-    c.movePosition(QTextCursor::StartOfBlock);
-    c.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
-
+    cur.movePosition(QTextCursor::PreviousBlock);
+    cur.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
     sel.format = resultFormat;
-    sel.cursor = c;
-
+    sel.cursor = cur;
     d->selections.append(sel);
 
     setExtraSelections(d->selections);
+    displayPrompt();
 }
 
 void QmlJSScriptConsole::clear()
