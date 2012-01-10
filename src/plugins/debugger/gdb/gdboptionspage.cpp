@@ -176,7 +176,7 @@ public:
         groupBoxStartupCommands->setTitle(GdbOptionsPage::tr("Additional Startup Commands"));
 
         textEditStartupCommands = new QTextEdit(groupBoxStartupCommands);
-
+        textEditStartupCommands->setAcceptRichText(false);
 
         /*
         groupBoxPluginDebugging = new QGroupBox(q);
