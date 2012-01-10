@@ -1876,6 +1876,8 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
         args.fileName = editor->file()->fileName();
         id = breakHandler()
             ->findBreakpointByFileAndLine(args.fileName, lineNumber);
+        if (!id)
+            id = breakHandler()->findBreakpointByFileAndLine(args.fileName, lineNumber, false);
     }
 
     if (id) {
