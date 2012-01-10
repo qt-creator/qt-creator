@@ -130,8 +130,18 @@ bool MakeStep::fromMap(const QVariantMap &map)
 bool MakeStep::init()
 {
     Qt4BuildConfiguration *bc = qt4BuildConfiguration();
+    if (!bc)
+        bc = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
 
     m_tasks.clear();
+    if (!bc) {
+        m_tasks.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
+                                             tr("Qt Creator needs a buildconfiguration set up to build. Configure a tool chain in Project mode."),
+                                             QString(), -1,
+                                             QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+        return false;
+    }
+
     if (!bc->toolChain()) {
         m_tasks.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
                                              tr("Qt Creator needs a tool chain set up to build. Configure a tool chain in Project mode."),
