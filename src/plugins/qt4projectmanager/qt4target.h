@@ -39,6 +39,8 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/task.h>
 
+#include <QtGui/QSpacerItem>
+
 namespace Utils {
 class DetailsWidget;
 class PathChooser;
@@ -177,6 +179,7 @@ private:
     QLabel *m_importLineLabel;
     Utils::PathChooser *m_importLinePath;
     QPushButton *m_importLineButton;
+    QSpacerItem *m_importLineStretch;
 
     void setupWidgets();
     void clearWidgets();
