@@ -73,6 +73,8 @@ Rectangle {
     property variant selectionRangeStart: selectionRange.startTime
     property variant selectionRangeEnd: selectionRange.startTime + selectionRange.duration
 
+    signal changeToolTip(string text)
+
     // ***** connections with external objects
     Connections {
         target: zoomControl

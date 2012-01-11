@@ -1672,6 +1672,12 @@ QString QmlProfilerEventList::eventTextForType(int type, int index) const {
     return d->m_eventDescriptions.values().at(d->m_typeCounts[type]->eventIds[index])->details;
 }
 
+QString QmlProfilerEventList::eventDisplayNameForType(int type, int index) const {
+    if (!d->m_typeCounts.contains(type))
+        return QString();
+    return d->m_eventDescriptions.values().at(d->m_typeCounts[type]->eventIds[index])->displayname;
+}
+
 int QmlProfilerEventList::eventIdForType(int type, int index) const {
     if (!d->m_typeCounts.contains(type))
         return -1;
