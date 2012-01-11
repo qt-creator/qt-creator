@@ -185,6 +185,7 @@ void CppOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
 
         // line has to be 1 based, column 0 based!
         m_editor->gotoLine(symbol->line(), symbol->column() - 1);
+        m_editor->setFocus();
         m_blockCursorSync = false;
     }
 }
