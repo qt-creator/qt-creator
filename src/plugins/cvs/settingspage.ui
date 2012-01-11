@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CVS::Internal::SettingsPage</class>
- <widget class="QWidget" name="CVS::Internal::SettingsPage">
+ <class>Cvs::Internal::SettingsPage</class>
+ <widget class="QWidget" name="Cvs::Internal::SettingsPage">
   <property name="geometry">
    <rect>
     <x>0</x>
