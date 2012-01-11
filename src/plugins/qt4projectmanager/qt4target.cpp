@@ -777,6 +777,7 @@ void Qt4DefaultTargetSetupWidget::addImportClicked()
         m_importLineLayout->invalidate();
         return;
     }
+
     QList<BuildConfigurationInfo> infos = BuildConfigurationInfo::checkForBuild(m_importLinePath->path(), m_proFilePath);
     if (infos.isEmpty()) {
         QMessageBox::critical(this,
@@ -802,6 +803,28 @@ void Qt4DefaultTargetSetupWidget::addImportClicked()
             return;
         }
         // show something if we found incompatible builds?
+    }
+
+    // Filter out already imported builds
+    infos = filterdInfos;
+    filterdInfos.clear();
+    foreach (const BuildConfigurationInfo &info, infos) {
+        bool alreadyImported = false;
+        foreach (const BuildConfigurationInfo &existingImport, m_importInfos) {
+            if (info == existingImport) {
+                alreadyImported = true;
+                break;
+            }
+        }
+        if (!alreadyImported)
+            filterdInfos << info;
+    }
+
+    if (filterdInfos.isEmpty() && !infos.isEmpty()) {
+        QMessageBox::critical(this,
+                              tr("Already imported build"),
+                              tr("The build found in %1 is already imported").arg(m_importLinePath->path()));
+        return;
     }
 
     // We switch from to "NONE" on importing if the user has not changed it

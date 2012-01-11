@@ -52,6 +52,16 @@ struct QT4PROJECTMANAGER_EXPORT BuildConfigurationInfo {
         return version != 0;
     }
 
+    bool operator ==(const BuildConfigurationInfo &other) const
+    {
+        return version == other.version
+                && buildConfig == other.buildConfig
+                && additionalArguments == other.additionalArguments
+                && directory == other.directory
+                && importing == other.importing
+                && temporaryQtVersion == other.temporaryQtVersion;
+    }
+
     QtSupport::BaseQtVersion *version;
     QtSupport::BaseQtVersion::QmakeBuildConfigs buildConfig;
     QString additionalArguments;
