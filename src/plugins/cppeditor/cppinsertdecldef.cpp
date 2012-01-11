@@ -186,7 +186,7 @@ QList<CppQuickFixOperation::Ptr> DeclFromDef::match(
     Function *fun = funDef->symbol;
     if (Class *matchingClass = isMemberFunction(interface->context(), fun)) {
         const QualifiedNameId *qName = fun->name()->asQualifiedNameId();
-        for (Symbol *s = matchingClass->find(qName->base()->identifier()); s; s = s->next()) {
+        for (Symbol *s = matchingClass->find(qName->identifier()); s; s = s->next()) {
             if (!s->name()
                     || !qName->identifier()->isEqualTo(s->identifier())
                     || !s->type()->isFunctionType())
