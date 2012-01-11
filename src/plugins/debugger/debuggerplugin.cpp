@@ -2284,8 +2284,8 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_exitAction->setEnabled(true);
         m_startAction->setEnabled(false);
         m_debugWithoutDeployAction->setEnabled(false);
-        m_visibleStartAction->setAction(m_startAction);
-        m_hiddenStopAction->setAction(m_undisturbableAction);
+        m_visibleStartAction->setAction(m_undisturbableAction);
+        m_hiddenStopAction->setAction(m_exitAction);
     } else {
         // Everything else is "undisturbable".
         m_interruptAction->setEnabled(false);
