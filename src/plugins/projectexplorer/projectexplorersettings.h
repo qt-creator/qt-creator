@@ -43,7 +43,8 @@ struct ProjectExplorerSettings
     ProjectExplorerSettings() :
         buildBeforeDeploy(true), deployBeforeRun(true),
         saveBeforeBuild(false), showCompilerOutput(false),
-        showRunOutput(true), cleanOldAppOutput(false), mergeStdErrAndStdOut(false),
+        showRunOutput(true), showDebugOutput(false),
+        cleanOldAppOutput(false), mergeStdErrAndStdOut(false),
         wrapAppOutput(true), useJom(true),
         autorestoreLastSession(false), prompToStopRunControl(false),
         maxAppOutputLines(100000)
@@ -54,6 +55,7 @@ struct ProjectExplorerSettings
     bool saveBeforeBuild;
     bool showCompilerOutput;
     bool showRunOutput;
+    bool showDebugOutput;
     bool cleanOldAppOutput;
     bool mergeStdErrAndStdOut;
     bool wrapAppOutput;
@@ -75,6 +77,7 @@ inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerS
             && p1.saveBeforeBuild == p2.saveBeforeBuild
             && p1.showCompilerOutput == p2.showCompilerOutput
             && p1.showRunOutput == p2.showRunOutput
+            && p1.showDebugOutput == p2.showDebugOutput
             && p1.cleanOldAppOutput == p2.cleanOldAppOutput
             && p1.mergeStdErrAndStdOut == p2.mergeStdErrAndStdOut
             && p1.wrapAppOutput == p2.wrapAppOutput

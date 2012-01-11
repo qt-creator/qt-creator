@@ -935,6 +935,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                 s->value(QLatin1String("ProjectExplorer/Settings/ShowCompilerOutput"), false).toBool();
         d->m_projectExplorerSettings.showRunOutput =
                 s->value(QLatin1String("ProjectExplorer/Settings/ShowRunOutput"), true).toBool();
+        d->m_projectExplorerSettings.showDebugOutput =
+                s->value(QLatin1String("ProjectExplorer/Settings/ShowDebugOutput"), false).toBool();
         d->m_projectExplorerSettings.cleanOldAppOutput =
                 s->value(QLatin1String("ProjectExplorer/Settings/CleanOldAppOutput"), false).toBool();
         d->m_projectExplorerSettings.mergeStdErrAndStdOut =
@@ -1262,6 +1264,7 @@ void ProjectExplorerPlugin::savePersistentSettings()
         s->setValue(QLatin1String("ProjectExplorer/Settings/SaveBeforeBuild"), d->m_projectExplorerSettings.saveBeforeBuild);
         s->setValue(QLatin1String("ProjectExplorer/Settings/ShowCompilerOutput"), d->m_projectExplorerSettings.showCompilerOutput);
         s->setValue(QLatin1String("ProjectExplorer/Settings/ShowRunOutput"), d->m_projectExplorerSettings.showRunOutput);
+        s->setValue(QLatin1String("ProjectExplorer/Settings/ShowDebugOutput"), d->m_projectExplorerSettings.showDebugOutput);
         s->setValue(QLatin1String("ProjectExplorer/Settings/CleanOldAppOutput"), d->m_projectExplorerSettings.cleanOldAppOutput);
         s->setValue(QLatin1String("ProjectExplorer/Settings/MergeStdErrAndStdOut"), d->m_projectExplorerSettings.mergeStdErrAndStdOut);
         s->setValue(QLatin1String("ProjectExplorer/Settings/WrapAppOutput"), d->m_projectExplorerSettings.wrapAppOutput);
@@ -1565,6 +1568,9 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl, RunMode runM
 {
     d->m_outputPane->createNewOutputWindow(runControl);
     if (runMode == NormalRunMode && d->m_projectExplorerSettings.showRunOutput)
+        d->m_outputPane->popup(false);
+    if ((runMode == DebugRunMode || runMode == DebugRunModeWithBreakOnMain)
+            && d->m_projectExplorerSettings.showDebugOutput)
         d->m_outputPane->popup(false);
     d->m_outputPane->showTabFor(runControl);
     connect(runControl, SIGNAL(finished()), this, SLOT(runControlFinished()));

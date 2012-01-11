@@ -73,6 +73,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     pes.saveBeforeBuild = m_ui.saveAllFilesCheckBox->isChecked();
     pes.showCompilerOutput = m_ui.showCompileOutputCheckBox->isChecked();
     pes.showRunOutput = m_ui.showRunOutputCheckBox->isChecked();
+    pes.showDebugOutput = m_ui.showDebugOutputCheckBox->isChecked();
     pes.cleanOldAppOutput = m_ui.cleanOldAppOutputCheckBox->isChecked();
     pes.mergeStdErrAndStdOut = m_ui.mergeStdErrAndStdOutCheckBox->isChecked();
     pes.wrapAppOutput = m_ui.wrapAppOutputCheckBox->isChecked();
@@ -89,6 +90,7 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
     m_ui.saveAllFilesCheckBox->setChecked(pes.saveBeforeBuild);
     m_ui.showCompileOutputCheckBox->setChecked(pes.showCompilerOutput);
     m_ui.showRunOutputCheckBox->setChecked(pes.showRunOutput);
+    m_ui.showDebugOutputCheckBox->setChecked(pes.showDebugOutput);
     m_ui.cleanOldAppOutputCheckBox->setChecked(pes.cleanOldAppOutput);
     m_ui.mergeStdErrAndStdOutCheckBox->setChecked(pes.mergeStdErrAndStdOut);
     m_ui.wrapAppOutputCheckBox->setChecked(pes.wrapAppOutput);

@@ -44,7 +44,7 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="Utils::PathChooser" name="projectsDirectoryPathChooser"/>
+       <widget class="Utils::PathChooser" name="projectsDirectoryPathChooser" native="true"/>
       </item>
      </layout>
     </widget>
@@ -146,14 +146,7 @@
         </layout>
        </widget>
       </item>
-      <item row="4" column="0">
-       <widget class="QCheckBox" name="showRunOutputCheckBox">
-        <property name="text">
-         <string>Open application output pane when running</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
+      <item row="7" column="0">
        <widget class="QCheckBox" name="promptToStopRunControlCheckBox">
         <property name="toolTip">
          <string>Ask before terminating the running application in response to clicking the stop button in Application Output.</string>
@@ -163,7 +156,7 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="0" colspan="2">
+      <item row="8" column="0" colspan="2">
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="spacing">
          <number>0</number>
@@ -196,21 +189,32 @@
         </item>
        </layout>
       </item>
+      <item row="5" column="0">
+       <widget class="QCheckBox" name="showRunOutputCheckBox">
+        <property name="text">
+         <string>Open application output pane when running</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QCheckBox" name="showDebugOutputCheckBox">
+        <property name="text">
+         <string>Open application output pane when debugging</string>
+        </property>
+       </widget>
+      </item>
      </layout>
      <zorder>saveAllFilesCheckBox</zorder>
      <zorder>buildProjectBeforeDeployCheckBox</zorder>
      <zorder>deployProjectBeforeRunCheckBox</zorder>
      <zorder>showCompileOutputCheckBox</zorder>
-     <zorder>showRunOutputCheckBox</zorder>
      <zorder>cleanOldAppOutputCheckBox</zorder>
      <zorder>mergeStdErrAndStdOutCheckBox</zorder>
      <zorder>wrapAppOutputCheckBox</zorder>
      <zorder>widget</zorder>
      <zorder>promptToStopRunControlCheckBox</zorder>
-     <zorder>label</zorder>
-     <zorder>maxAppOutputBox</zorder>
-     <zorder>label_2</zorder>
-     <zorder>jomCheckbox</zorder>
+     <zorder>showRunOutputCheckBox</zorder>
+     <zorder>showDebugOutputCheckBox</zorder>
     </widget>
    </item>
    <item>
