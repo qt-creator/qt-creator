@@ -189,10 +189,10 @@ private:
                 // can't remove parentheses since that might break precedence
                 changes.remove(currentFile->range(negation->unary_op_token));
             } else if (nested) {
-                changes.insert(currentFile->startOf(nested), "!");
+                changes.insert(currentFile->startOf(nested), QLatin1String("!"));
             } else {
-                changes.insert(currentFile->startOf(binary), "!(");
-                changes.insert(currentFile->endOf(binary), ")");
+                changes.insert(currentFile->startOf(binary), QLatin1String("!("));
+                changes.insert(currentFile->endOf(binary), QLatin1String(")"));
             }
             changes.replace(currentFile->range(binary->binary_op_token), replacement);
             currentFile->setChangeSet(changes);
@@ -578,7 +578,7 @@ private:
             changes.insert(start, QLatin1String(" {"));
 
             const int end = currentFile->endOf(_statement->lastToken() - 1);
-            changes.insert(end, "\n}");
+            changes.insert(end, QLatin1String("\n}"));
 
             currentFile->setChangeSet(changes);
             currentFile->appendIndentRange(Utils::ChangeSet::Range(start, end));
@@ -1285,7 +1285,7 @@ public:
     {
         CppRefactoringFilePtr file = interface->currentFile();
 
-        if (interface->editor()->mimeType() != CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
+        if (interface->editor()->mimeType() != QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE))
             return noResult();
 
         WrapStringLiteral::Type type = WrapStringLiteral::TypeNone;
@@ -1322,7 +1322,7 @@ private:
                 changes.replace(currentFile->startOf(qlatin1Call), currentFile->startOf(stringLiteral), QLatin1String("@"));
                 changes.remove(currentFile->endOf(stringLiteral), currentFile->endOf(qlatin1Call));
             } else {
-                changes.insert(currentFile->startOf(stringLiteral), "@");
+                changes.insert(currentFile->startOf(stringLiteral), QLatin1String("@"));
             }
 
             currentFile->setChangeSet(changes);
@@ -1604,7 +1604,8 @@ private:
                     pos = currentFile->document()->findBlockByNumber(bestLine).position();
 
                 Utils::ChangeSet changes;
-                changes.insert(pos, QString("#include <%1>\n").arg(QFileInfo(best).fileName()));
+                changes.insert(pos, QLatin1String("#include <")
+                               + QFileInfo(best).fileName() + QLatin1String(">\n"));
                 currentFile->setChangeSet(changes);
                 currentFile->apply();
             }
@@ -1884,7 +1885,7 @@ public:
             QString shortestInclude;
 
             if (fileInfo.path() == QFileInfo(doc->fileName()).path()) {
-                shortestInclude = QString("\"%1\"").arg(fileInfo.fileName());
+                shortestInclude = QLatin1Char('"') + fileInfo.fileName() + QLatin1Char('"');
             } else {
                 foreach (const QString &includePath, includePaths) {
                     if (!fileName.startsWith(includePath))
@@ -1893,7 +1894,7 @@ public:
                     if (!relativePath.isEmpty() && relativePath.at(0) == QLatin1Char('/'))
                         relativePath = relativePath.mid(1);
                     if (shortestInclude.isEmpty() || relativePath.size() + 2 < shortestInclude.size())
-                        shortestInclude = QString("<%1>").arg(relativePath);
+                        shortestInclude = QLatin1Char('<') + relativePath + QLatin1Char('>');
                 }
             }
 
@@ -1906,7 +1907,8 @@ public:
                 && className.size() > 2
                 && className.at(0) == QLatin1Char('Q')
                 && className.at(1).isUpper()) {
-            results += CppQuickFixOperation::Ptr(new Operation(interface, 1, QString("<%1>").arg(className)));
+            const QString include = QLatin1Char('<') + className + QLatin1Char('>');
+            results += CppQuickFixOperation::Ptr(new Operation(interface, 1, include));
         }
 
         return results;
@@ -1938,7 +1940,7 @@ private:
             // add include
             const int insertPos = file->position(lastIncludeLine + 1, 1) - 1;
             ChangeSet changes;
-            changes.insert(insertPos, QString("\n#include %1").arg(m_include));
+            changes.insert(insertPos, QLatin1String("\n#include ") + m_include);
             file->setChangeSet(changes);
             file->apply();
         }

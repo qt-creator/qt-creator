@@ -42,6 +42,8 @@
 #include <cppeditor/cppquickfix.h>
 #include <coreplugin/ifile.h>
 
+#include <QtCore/QTextStream>
+
 using namespace CPlusPlus;
 using namespace CppTools;
 using namespace TextEditor;
@@ -79,19 +81,19 @@ QList<CppQuickFixOperation::Ptr> InsertQtPropertyMembers::match(
     int generateFlags = 0;
     for (QtPropertyDeclarationItemListAST *it = qtPropertyDeclaration->property_declaration_item_list;
          it; it = it->next) {
-        const QString tokenString = file->tokenAt(it->value->item_name_token).spell();
-        if (tokenString == QLatin1String("READ")) {
+        const char *tokenString = file->tokenAt(it->value->item_name_token).spell();
+        if (!qstrcmp(tokenString, "READ")) {
             getterName = file->textOf(it->value->expression);
             generateFlags |= GenerateGetter;
-        } else if (tokenString == QLatin1String("WRITE")) {
+        } else if (!qstrcmp(tokenString, "WRITE")) {
             setterName = file->textOf(it->value->expression);
             generateFlags |= GenerateSetter;
-        } else if (tokenString == QLatin1String("NOTIFY")) {
+        } else if (!qstrcmp(tokenString, "NOTIFY")) {
             signalName = file->textOf(it->value->expression);
             generateFlags |= GenerateSignal;
         }
     }
-    QString storageName = QString("m_%1").arg(propertyName);
+    const QString storageName = QLatin1String("m_") +  propertyName;
     generateFlags |= GenerateStorage;
 
     Class *c = klass->symbol;
@@ -154,7 +156,8 @@ void InsertQtPropertyMembers::Operation::performChanges(const CppRefactoringFile
     // getter declaration
     if (m_generateFlags & GenerateGetter) {
         //                const QString getterDeclaration = QString("%1 %2() const;").arg(typeName, getterName);
-        const QString getterDeclaration = QString("%1 %2() const\n{\nreturn %3;\n}\n").arg(typeName, m_getterName, m_storageName);
+        const QString getterDeclaration = typeName + QLatin1Char(' ') + m_getterName +
+                QLatin1String("() const\n{\nreturn ") + m_storageName + QLatin1String(";\n}\n");
         InsertionLocation getterLoc = locator.methodDeclarationInClass(file->fileName(), m_class, InsertionPointLocator::Public);
         Q_ASSERT(getterLoc.isValid());
         insertAndIndent(file, &declarations, getterLoc, getterDeclaration);
@@ -163,11 +166,14 @@ void InsertQtPropertyMembers::Operation::performChanges(const CppRefactoringFile
     // setter declaration
     if (m_generateFlags & GenerateSetter) {
         //                const QString setterDeclaration = QString("void %1(%2 arg);").arg(setterName, typeName);
-        QString setterDeclaration = QString("void %1(%2 arg)\n{\n").arg(m_setterName, typeName);
-        if (!m_signalName.isEmpty()) {
-            setterDeclaration += QString("if (%1 != arg) {\n%1 = arg;\nemit %2(arg);\n}\n}\n").arg(m_storageName, m_signalName);
+        QString setterDeclaration;
+        QTextStream setter(&setterDeclaration);
+        setter << "void " << m_setterName << '(' << typeName << " arg)\n{\n";
+        if (m_signalName.isEmpty()) {
+            setter << m_storageName <<  " = arg;\n}\n";
         } else {
-            setterDeclaration += QString("%1 = arg;\n}\n").arg(m_storageName);
+            setter << "if (" << m_storageName << " != arg) {\n" << m_storageName
+                   << " = arg;\nemit " << m_signalName << "(arg);\n}\n}\n";
         }
         InsertionLocation setterLoc = locator.methodDeclarationInClass(file->fileName(), m_class, InsertionPointLocator::PublicSlot);
         Q_ASSERT(setterLoc.isValid());
@@ -176,7 +182,8 @@ void InsertQtPropertyMembers::Operation::performChanges(const CppRefactoringFile
 
     // signal declaration
     if (m_generateFlags & GenerateSignal) {
-        const QString declaration = QString("void %1(%2 arg);\n").arg(m_signalName, typeName);
+        const QString declaration = QLatin1String("void ") + m_signalName + QLatin1Char('(')
+                                    + typeName + QLatin1String(" arg);\n");
         InsertionLocation loc = locator.methodDeclarationInClass(file->fileName(), m_class, InsertionPointLocator::Signals);
         Q_ASSERT(loc.isValid());
         insertAndIndent(file, &declarations, loc, declaration);
@@ -184,7 +191,8 @@ void InsertQtPropertyMembers::Operation::performChanges(const CppRefactoringFile
 
     // storage
     if (m_generateFlags & GenerateStorage) {
-        const QString storageDeclaration = QString("%1 m_%2;\n").arg(typeName, propertyName);
+        const QString storageDeclaration = typeName  + QLatin1String(" m_")
+                                           + propertyName + QLatin1String(";\n");
         InsertionLocation storageLoc = locator.methodDeclarationInClass(file->fileName(), m_class, InsertionPointLocator::Private);
         Q_ASSERT(storageLoc.isValid());
         insertAndIndent(file, &declarations, storageLoc, storageDeclaration);

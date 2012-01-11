@@ -263,48 +263,65 @@ bool CppHighlighter::isPPKeyword(const QStringRef &text) const
     switch (text.length())
     {
     case 2:
-        if (text.at(0) == 'i' && text.at(1) == 'f')
+        if (text.at(0) == QLatin1Char('i') && text.at(1) == QLatin1Char('f'))
             return true;
         break;
 
     case 4:
-        if (text.at(0) == 'e' && text == QLatin1String("elif"))
-            return true;
-        else if (text.at(0) == 'e' && text == QLatin1String("else"))
+        if (text.at(0) == QLatin1Char('e')
+            && (text == QLatin1String("elif") || text == QLatin1String("else")))
             return true;
         break;
 
     case 5:
-        if (text.at(0) == 'i' && text == QLatin1String("ifdef"))
-            return true;
-        else if (text.at(0) == 'u' && text == QLatin1String("undef"))
-            return true;
-        else if (text.at(0) == 'e' && text == QLatin1String("endif"))
-            return true;
-        else if (text.at(0) == 'e' && text == QLatin1String("error"))
-            return true;
+        switch (text.at(0).toLatin1()) {
+        case 'i':
+            if (text == QLatin1String("ifdef"))
+                return true;
+            break;
+          case 'u':
+            if (text == QLatin1String("undef"))
+                return true;
+            break;
+        case 'e':
+            if (text == QLatin1String("endif") || text == QLatin1String("error"))
+                return true;
+            break;
+        }
         break;
 
     case 6:
-        if (text.at(0) == 'i' && text == QLatin1String("ifndef"))
-            return true;
-        if (text.at(0) == 'i' && text == QLatin1String("import"))
-            return true;
-        else if (text.at(0) == 'd' && text == QLatin1String("define"))
-            return true;
-        else if (text.at(0) == 'p' && text == QLatin1String("pragma"))
-            return true;
+        switch (text.at(0).toLatin1()) {
+        case 'i':
+            if (text == QLatin1String("ifndef") || text == QLatin1String("import"))
+                return true;
+            break;
+        case 'd':
+            if (text == QLatin1String("define"))
+                return true;
+            break;
+        case 'p':
+            if (text == QLatin1String("pragma"))
+                return true;
+            break;
+        }
         break;
 
     case 7:
-        if (text.at(0) == 'i' && text == QLatin1String("include"))
-            return true;
-        else if (text.at(0) == 'w' && text == QLatin1String("warning"))
-            return true;
+        switch (text.at(0).toLatin1()) {
+        case 'i':
+            if (text == QLatin1String("include"))
+                return true;
+            break;
+        case 'w':
+            if (text == QLatin1String("warning"))
+                return true;
+            break;
+        }
         break;
 
     case 12:
-        if (text.at(0) == 'i' && text == QLatin1String("include_next"))
+        if (text.at(0) == QLatin1Char('i') && text == QLatin1String("include_next"))
             return true;
         break;
 
@@ -319,29 +336,39 @@ bool CppHighlighter::isQtKeyword(const QStringRef &text) const
 {
     switch (text.length()) {
     case 4:
-        if (text.at(0) == 'e' && text == QLatin1String("emit"))
-            return true;
-        else if (text.at(0) == 'S' && text == QLatin1String("SLOT"))
-            return true;
+        switch (text.at(0).toLatin1()) {
+        case 'e':
+            if (text == QLatin1String("emit"))
+                return true;
+            break;
+        case 'S':
+            if (text == QLatin1String("SLOT"))
+                return true;
+            break;
+        }
         break;
 
     case 5:
-        if (text.at(0) == 's' && text == QLatin1String("slots"))
+        if (text.at(0) == QLatin1Char('s') && text == QLatin1String("slots"))
             return true;
         break;
 
     case 6:
-        if (text.at(0) == 'S' && text == QLatin1String("SIGNAL"))
+        if (text.at(0) == QLatin1Char('S') && text == QLatin1String("SIGNAL"))
             return true;
         break;
 
     case 7:
-        if (text.at(0) == 's' && text == QLatin1String("signals"))
-            return true;
-        else if (text.at(0) == 'f' && text == QLatin1String("foreach"))
-            return true;
-        else if (text.at(0) == 'f' && text == QLatin1String("forever"))
-            return true;
+        switch (text.at(0).toLatin1()) {
+        case 's':
+            if (text == QLatin1String("signals"))
+                return true;
+            break;
+        case 'f':
+            if (text == QLatin1String("foreach") || text ==  QLatin1String("forever"))
+                return true;
+            break;
+        }
         break;
 
     default:

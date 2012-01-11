@@ -169,7 +169,7 @@ void CppPlugin::initializeEditor(CPPEditorWidget *editor)
 {
     m_actionHandler->setupActions(editor);
 
-    editor->setLanguageSettingsId(CppTools::Constants::CPP_SETTINGS_ID);
+    editor->setLanguageSettingsId(QLatin1String(CppTools::Constants::CPP_SETTINGS_ID));
     TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
 
     // method combo box sorting
@@ -255,7 +255,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     QAction *switchDeclarationDefinition = new QAction(tr("Switch Between Method Declaration/Definition"), this);
     cmd = am->registerAction(switchDeclarationDefinition,
         Constants::SWITCH_DECLARATION_DEFINITION, context, true);
-    cmd->setDefaultKeySequence(QKeySequence("Shift+F2"));
+    cmd->setDefaultKeySequence(QKeySequence(tr("Shift+F2")));
     connect(switchDeclarationDefinition, SIGNAL(triggered()),
             this, SLOT(switchDeclarationDefinition()));
     contextMenu->addAction(cmd);
@@ -279,7 +279,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     Core::Context globalContext(Core::Constants::C_GLOBAL);
     Core::Command *sep = createSeparator(am, this, globalContext,
                                          Constants::SEPARATOR2);
-    sep->action()->setObjectName(Constants::M_REFACTORING_MENU_INSERTION_POINT);
+    sep->action()->setObjectName(QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT));
     contextMenu->addAction(sep);
     contextMenu->addAction(createSeparator(am, this, globalContext,
                                            Constants::SEPARATOR3));
@@ -289,7 +289,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     cmd = am->registerAction(m_renameSymbolUnderCursorAction,
                              Constants::RENAME_SYMBOL_UNDER_CURSOR,
                              context);
-    cmd->setDefaultKeySequence(QKeySequence("CTRL+SHIFT+R"));
+    cmd->setDefaultKeySequence(QKeySequence(tr("CTRL+SHIFT+R")));
     connect(m_renameSymbolUnderCursorAction, SIGNAL(triggered()),
             this, SLOT(renameSymbolUnderCursor()));
     cppToolsMenu->addAction(cmd);
@@ -330,12 +330,12 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
 void CppPlugin::readSettings()
 {
-    m_sortedOutline = Core::ICore::instance()->settings()->value("CppTools/SortedMethodOverview", false).toBool();
+    m_sortedOutline = Core::ICore::instance()->settings()->value(QLatin1String("CppTools/SortedMethodOverview"), false).toBool();
 }
 
 void CppPlugin::writeSettings()
 {
-    Core::ICore::instance()->settings()->setValue("CppTools/SortedMethodOverview", m_sortedOutline);
+    Core::ICore::instance()->settings()->setValue(QLatin1String("CppTools/SortedMethodOverview"), m_sortedOutline);
 }
 
 void CppPlugin::extensionsInitialized()
@@ -382,7 +382,7 @@ void CppPlugin::findUsages()
 
 void CppPlugin::onTaskStarted(const QString &type)
 {
-    if (type == CppTools::Constants::TASK_INDEX) {
+    if (type == QLatin1String(CppTools::Constants::TASK_INDEX)) {
         m_renameSymbolUnderCursorAction->setEnabled(false);
         m_findUsagesAction->setEnabled(false);
         m_updateCodeModelAction->setEnabled(false);
@@ -392,7 +392,7 @@ void CppPlugin::onTaskStarted(const QString &type)
 
 void CppPlugin::onAllTasksFinished(const QString &type)
 {
-    if (type == CppTools::Constants::TASK_INDEX) {
+    if (type == QLatin1String(CppTools::Constants::TASK_INDEX)) {
         m_renameSymbolUnderCursorAction->setEnabled(true);
         m_findUsagesAction->setEnabled(true);
         m_updateCodeModelAction->setEnabled(true);

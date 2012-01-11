@@ -276,7 +276,7 @@ public:
         // rewrite the function name
         QString name = oo(LookupContext::minimalName(m_decl, targetCoN, control));
 
-        QString defText = oo.prettyType(tn, name) + "\n{\n}";
+        QString defText = oo.prettyType(tn, name) + QLatin1String("\n{\n}");
 
         int targetPos = targetFile->position(m_loc.line(), m_loc.column());
         int targetPos2 = qMax(0, targetFile->position(m_loc.line(), 1) - 1);
@@ -459,11 +459,11 @@ public:
         // Write declaration, if necessary.
         if (matchingClass) {
             InsertionPointLocator locator(refactoring);
+            const QString fileName = QLatin1String(matchingClass->fileName());
             const InsertionLocation &location =
-                    locator.methodDeclarationInClass(matchingClass->fileName(),
-                                                     matchingClass,
+                    locator.methodDeclarationInClass(fileName, matchingClass,
                                                      InsertionPointLocator::Public);
-            CppTools::CppRefactoringFilePtr declFile = refactoring.file(matchingClass->fileName());
+            CppTools::CppRefactoringFilePtr declFile = refactoring.file(fileName);
             change.clear();
             position = declFile->position(location.line(), location.column());
             change.insert(position, funcDecl);

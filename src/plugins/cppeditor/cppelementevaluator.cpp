@@ -157,8 +157,7 @@ bool CppElementEvaluator::matchMacroInUse(const CPlusPlus::Document::Ptr &docume
     foreach (const Document::MacroUse &use, document->macroUses()) {
         if (use.contains(pos)) {
             const unsigned begin = use.begin();
-            const QString &name = use.macro().name();
-            if (pos < begin + name.length()) {
+            if (pos < begin + use.macro().name().length()) {
                 m_element = QSharedPointer<CppElement>(new CppMacro(use.macro()));
                 return true;
             }
@@ -317,8 +316,9 @@ const QString &CppInclude::fileName() const
 CppMacro::CppMacro(const Macro &macro) : CppElement()
 {
     setHelpCategory(TextEditor::HelpItem::Macro);
-    setHelpIdCandidates(QStringList(macro.name()));
-    setHelpMark(macro.name());
+    const QString macroName = QLatin1String(macro.name());
+    setHelpIdCandidates(QStringList(macroName));
+    setHelpMark(macroName);
     setLink(CPPEditorWidget::Link(macro.fileName(), macro.line()));
     setTooltip(macro.toStringWithLineBreaks());
 }
