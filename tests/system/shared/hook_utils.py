@@ -298,6 +298,10 @@ def getSquishPath(mkspec, qmakev):
             if testData.field(record, "qtversion") == qmakev and testData.field(record, "mkspec") == mkspec:
                 path = os.path.expanduser(testData.field(record, "path"))
                 break
+        if not os.path.exists(path):
+            test.warning("Path '%s' from fallback test data file does not exist!" % path,
+                         "See the README file how to set up your environment.")
+            return None
     return path
 
 # function to add a program to allow communication through the win firewall
