@@ -4850,8 +4850,9 @@ void BaseTextEditorWidget::markBlocksAsChanged(QList<int> blockNumbers)
 void BaseTextEditorWidget::highlightSearchResults(const QString &txt, Find::FindFlags findFlags)
 {
     QString pattern = txt;
-    if (pattern.size() < 2)
-        pattern.clear(); // highlighting single characters is a bit pointless
+    // highlighting single characters only if you're searching for whole words
+    if (pattern.size() < 2 && !(findFlags & Find::FindWholeWords))
+        pattern.clear();
 
     if (d->m_searchExpr.pattern() == pattern)
         return;
