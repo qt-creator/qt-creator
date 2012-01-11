@@ -184,10 +184,25 @@ def getOutputFromCmdline(cmdline):
     versCall.stdout.close()
     return result
 
+def selectFromFileDialog(fileName):
+    if platform.system() == "Darwin":
+        snooze(1)
+        nativeType("<Command+Shift+g>")
+        snooze(1)
+        nativeType(fileName)
+        snooze(1)
+        nativeType("<Return>")
+        snooze(2)
+        nativeType("<Return>")
+    else:
+        waitForObject("{name='QFileDialog' type='QFileDialog' visible='1'}")
+        pathLine = waitForObject("{name='fileNameEdit' type='QLineEdit' visible='1'}")
+        replaceEditorContent(pathLine, os.path.abspath(fileName))
+        clickButton(findObject("{text='Open' type='QPushButton'}"))
+
 # add qt.qch from SDK path
 def addHelpDocumentationFromSDK():
     global sdkPath
-    doc = "%s/Documentation/qt.qch" % sdkPath
     invokeMenuItem("Tools", "Options...")
     waitForObjectItem(":Options_QListView", "Help")
     clickItem(":Options_QListView", "Help", 14, 15, 0, Qt.LeftButton)
@@ -200,17 +215,5 @@ def addHelpDocumentationFromSDK():
         mouseClick(listWidget, rect.x+5, rect.y+5, 0, Qt.LeftButton)
         mouseClick(waitForObject("{type='QPushButton' name='removeButton' visible='1'}"), 5, 5, 0, Qt.LeftButton)
     clickButton(waitForObject("{type='QPushButton' name='addButton' visible='1' text='Add...'}"))
-    if platform.system() == "Darwin":
-        snooze(1)
-        nativeType("<Command+Shift+g>")
-        snooze(1)
-        nativeType(doc)
-        snooze(1)
-        nativeType("<Return>")
-        snooze(2)
-        nativeType("<Return>")
-    else:
-        pathLine = waitForObject("{name='fileNameEdit' type='QLineEdit' visible='1'}")
-        replaceEditorContent(pathLine, os.path.abspath(doc))
-        type(pathLine, "<Return>")
+    selectFromFileDialog("%s/Documentation/qt.qch" % sdkPath)
     clickButton(waitForObject(":Options.OK_QPushButton"))
