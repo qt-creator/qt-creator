@@ -431,6 +431,36 @@ static QString quoteUnprintable(const QString &str)
     return encoded;
 }
 
+static QString translate(const QString &str)
+{
+    if (str.startsWith(QLatin1Char('<'))) {
+        if (str == QLatin1String("<Edit>"))
+            return WatchHandler::tr("<Edit>");
+        if (str == QLatin1String("<empty>"))
+            return WatchHandler::tr("<empty>");
+        if (str == QLatin1String("<uninitialized>"))
+            return WatchHandler::tr("<uninitialized>");
+        if (str == QLatin1String("<invalid>"))
+            return WatchHandler::tr("<invalid>");
+        if (str == QLatin1String("<not accessible>"))
+            return WatchHandler::tr("<not accessible>");
+        if (str.endsWith(QLatin1String(" items>"))) {
+            // '<10 items>' or '<>10 items>' (more than)
+            bool ok;
+            const bool moreThan = str.at(1) == QLatin1Char('>');
+            const int numberPos = moreThan ? 2 : 1;
+            const int len = str.indexOf(QLatin1Char(' ')) - numberPos;
+            const int size = str.mid(numberPos, len).toInt(&ok);
+            QTC_ASSERT(ok, qWarning("WatchHandler: Invalid item count '%s'",
+                qPrintable(str)))
+            return moreThan ?
+                     WatchHandler::tr("<more than %n items>", 0, size) :
+                     WatchHandler::tr("<%n items>", 0, size);
+        }
+    }
+    return quoteUnprintable(str);
+}
+
 QString WatchModel::formattedValue(const WatchData &data) const
 {
     const QByteArray qtNamespace = engine()->qtNamespace();
@@ -469,34 +499,7 @@ QString WatchModel::formattedValue(const WatchData &data) const
            return reformatInteger(integer, format);
     }
 
-    QString result = value;
-    if (result.startsWith(QLatin1Char('<'))) {
-        if (result == QLatin1String("<Edit>"))
-            return WatchHandler::tr("<Edit>");
-        if (result == QLatin1String("<empty>"))
-            return WatchHandler::tr("<empty>");
-        if (result == QLatin1String("<uninitialized>"))
-            return WatchHandler::tr("<uninitialized>");
-        if (result == QLatin1String("<invalid>"))
-            return WatchHandler::tr("<invalid>");
-        if (result == QLatin1String("<not accessible>"))
-            return WatchHandler::tr("<not accessible>");
-        if (result.endsWith(QLatin1String(" items>"))) {
-            // '<10 items>' or '<>10 items>' (more than)
-            bool ok;
-            const bool moreThan = result.at(1) == QLatin1Char('>');
-            const int numberPos = moreThan ? 2 : 1;
-            const int len = result.indexOf(QLatin1Char(' ')) - numberPos;
-            const int size = result.mid(numberPos, len).toInt(&ok);
-            QTC_ASSERT(ok, qWarning("WatchHandler: Invalid item count '%s'",
-                qPrintable(result)))
-            return moreThan ?
-                     WatchHandler::tr("<more than %n items>", 0, size) :
-                     WatchHandler::tr("<%n items>", 0, size);
-        }
-    }
-
-    return quoteUnprintable(result);
+    return translate(value);
 }
 
 // Get a pointer address from pointer values reported by the debugger.
@@ -554,7 +557,7 @@ static inline QVariant editValue(const WatchData &d)
             stringValue.replace(QLatin1String("\n"), QLatin1String("\\n"));
         }
     }
-    return QVariant(stringValue);
+    return QVariant(translate(stringValue));
 }
 
 bool WatchModel::canFetchMore(const QModelIndex &index) const
