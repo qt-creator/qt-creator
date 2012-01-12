@@ -78,14 +78,7 @@ def testReIndent():
                   % (originalText, textAfterReIndent))
 
 def shrinkText(txt, lines=10):
-    count = 0
-    index = -1
-    while count<lines:
-        index=originalText.find("\n", index+1)
-        if index==-1:
-            break
-        count += 1
-    return originalText[0:index]
+    return "".join(txt.splitlines(True)[0:lines])
 
 def cleanup():
     global workingDir
