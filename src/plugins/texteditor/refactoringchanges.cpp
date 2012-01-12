@@ -79,6 +79,15 @@ QList<QTextCursor> RefactoringChanges::rangesToSelections(QTextDocument *documen
 
     foreach (const Range &range, ranges) {
         QTextCursor selection(document);
+        // FIXME: The subtraction below for the start range might create a selection on a different
+        // block, which could cause unexpected effects on indentation for example when the range is
+        // precisely calculate. Since this cursor moves when content is inserted, it might not be
+        // possible to compensate for such a difference in advance because the value could be
+        // negative (which would eventually be right after content is inserted) and then taken as 0.
+        // A proper way for allowing fine granularly specified ranges would be to have two cursors
+        // and the first one with *keepPositionOnInsert*, for example, like it's done for the text
+        // editor overlay.
+
         // ### workaround for moving the textcursor when inserting text at the beginning of the range.
         selection.setPosition(qMax(0, range.start - 1));
         selection.setPosition(qMin(range.end, document->characterCount() - 1), QTextCursor::KeepAnchor);
@@ -175,6 +184,7 @@ RefactoringFile::RefactoringFile(QTextDocument *document, const QString &fileNam
     , m_openEditor(false)
     , m_activateEditor(false)
     , m_editorCursorPosition(-1)
+    , m_appliedOnce(false)
 { }
 
 RefactoringFile::RefactoringFile(BaseTextEditorWidget *editor)
@@ -184,6 +194,7 @@ RefactoringFile::RefactoringFile(BaseTextEditorWidget *editor)
     , m_openEditor(false)
     , m_activateEditor(false)
     , m_editorCursorPosition(-1)
+    , m_appliedOnce(false)
 { }
 
 RefactoringFile::RefactoringFile(const QString &fileName, const QSharedPointer<RefactoringChangesData> &data)
@@ -194,6 +205,7 @@ RefactoringFile::RefactoringFile(const QString &fileName, const QSharedPointer<R
     , m_openEditor(false)
     , m_activateEditor(false)
     , m_editorCursorPosition(-1)
+    , m_appliedOnce(false)
 {
     m_editor = RefactoringChanges::editorForFile(fileName);
 }
@@ -312,6 +324,14 @@ void RefactoringFile::appendIndentRange(const Range &range)
     m_indentRanges.append(range);
 }
 
+void RefactoringFile::appendReindentRange(const Range &range)
+{
+    if (m_fileName.isEmpty())
+        return;
+
+    m_reindentRanges.append(range);
+}
+
 void RefactoringFile::setOpenEditor(bool activate, int pos)
 {
     m_openEditor = true;
@@ -335,39 +355,45 @@ void RefactoringFile::apply()
     // apply changes, if any
     if (m_data && !(m_indentRanges.isEmpty() && m_changes.isEmpty())) {
         QTextDocument *doc = mutableDocument();
-        if (!doc)
-            return;
-
-        {
+        if (doc) {
             QTextCursor c = cursor();
-            c.beginEditBlock();
+            if (m_appliedOnce)
+                c.joinPreviousEditBlock();
+            else
+                c.beginEditBlock();
 
             // build indent selections now, applying the changeset will change locations
             const QList<QTextCursor> &indentSelections =
-                    RefactoringChanges::rangesToSelections(
-                            doc, m_indentRanges);
+                    RefactoringChanges::rangesToSelections(doc, m_indentRanges);
             m_indentRanges.clear();
+            const QList<QTextCursor> &reindentSelections =
+                    RefactoringChanges::rangesToSelections(doc, m_reindentRanges);
+            m_reindentRanges.clear();
 
             // apply changes and reindent
             m_changes.apply(&c);
             m_changes.clear();
-            foreach (const QTextCursor &selection, indentSelections) {
+
+            foreach (const QTextCursor &selection, indentSelections)
                 m_data->indentSelection(selection, m_fileName, m_editor);
-            }
+            foreach (const QTextCursor &selection, reindentSelections)
+                m_data->reindentSelection(selection, m_fileName, m_editor);
 
             c.endEditBlock();
-        }
 
-        // if this document doesn't have an editor, write the result to a file
-        if (!m_editor && m_textFileFormat.codec) {
-            QTC_ASSERT(!m_fileName.isEmpty(), return);
-            QString error;
-            if (!m_textFileFormat.writeFile(m_fileName, doc->toPlainText(), &error))
-                qWarning() << "Could not apply changes to" << m_fileName << ". Error: " << error;
-        }
+            // if this document doesn't have an editor, write the result to a file
+            if (!m_editor && m_textFileFormat.codec) {
+                QTC_ASSERT(!m_fileName.isEmpty(), return);
+                QString error;
+                if (!m_textFileFormat.writeFile(m_fileName, doc->toPlainText(), &error))
+                    qWarning() << "Could not apply changes to" << m_fileName << ". Error: " << error;
+            }
 
-        fileChanged();
+            fileChanged();
+        }
     }
+
+    m_appliedOnce = true;
 }
 
 void RefactoringFile::fileChanged()
@@ -380,6 +406,11 @@ RefactoringChangesData::~RefactoringChangesData()
 {}
 
 void RefactoringChangesData::indentSelection(const QTextCursor &, const QString &, const BaseTextEditorWidget *) const
+{
+    qWarning() << Q_FUNC_INFO << "not implemented";
+}
+
+void RefactoringChangesData::reindentSelection(const QTextCursor &, const QString &, const BaseTextEditorWidget *) const
 {
     qWarning() << Q_FUNC_INFO << "not implemented";
 }

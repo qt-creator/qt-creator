@@ -32,6 +32,7 @@
 
 #include "cpprefactoringchanges.h"
 #include "cppcodestylepreferences.h"
+#include "cppqtstyleindenter.h"
 
 #include <TranslationUnit.h>
 #include <AST.h>
@@ -62,28 +63,22 @@ public:
                                  const QString &fileName,
                                  const TextEditor::BaseTextEditorWidget *textEditor) const
     {
-        // ### shares code with CPPEditor::indent()
-        QTextDocument *doc = selection.document();
-
-        QTextBlock block = doc->findBlock(selection.selectionStart());
-        const QTextBlock end = doc->findBlock(selection.selectionEnd()).next();
-
         const TextEditor::TabSettings &tabSettings =
             ProjectExplorer::actualTabSettings(fileName, textEditor);
-        // TODO: add similar method like above one
-        CppTools::QtStyleCodeFormatter codeFormatter(tabSettings,
-            CppToolsSettings::instance()->cppCodeStyle()->codeStyleSettings());
-        codeFormatter.updateStateUntil(block);
 
-        do {
-            int indent;
-            int padding;
-            codeFormatter.indentFor(block, &indent, &padding);
-            tabSettings.indentLine(block, indent + padding, padding);
-            codeFormatter.updateLineStateChange(block);
-            block = block.next();
-        } while (block.isValid() && block != end);
+        CppQtStyleIndenter indenter;
+        indenter.indent(selection.document(), selection, QChar::Null, tabSettings);
+    }
 
+    virtual void reindentSelection(const QTextCursor &selection,
+                                   const QString &fileName,
+                                   const TextEditor::BaseTextEditorWidget *textEditor) const
+    {
+        const TextEditor::TabSettings &tabSettings =
+            ProjectExplorer::actualTabSettings(fileName, textEditor);
+
+        CppQtStyleIndenter indenter;
+        indenter.reindent(selection.document(), selection, tabSettings);
     }
 
     virtual void fileChanged(const QString &fileName)

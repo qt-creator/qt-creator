@@ -80,6 +80,7 @@ public:
 
     void setChangeSet(const Utils::ChangeSet &changeSet);
     void appendIndentRange(const Range &range);
+    void appendReindentRange(const Range &range);
     void setOpenEditor(bool activate = false, int pos = -1);
     void apply();
 
@@ -103,9 +104,11 @@ protected:
     BaseTextEditorWidget *m_editor;
     Utils::ChangeSet m_changes;
     QList<Range> m_indentRanges;
+    QList<Range> m_reindentRanges;
     bool m_openEditor;
     bool m_activateEditor;
     int m_editorCursorPosition;
+    bool m_appliedOnce;
 
     friend class RefactoringChanges; // access to constructor
 };
@@ -154,6 +157,9 @@ public:
     virtual void indentSelection(const QTextCursor &selection,
                                  const QString &fileName,
                                  const BaseTextEditorWidget *textEditor) const;
+    virtual void reindentSelection(const QTextCursor &selection,
+                                   const QString &fileName,
+                                   const BaseTextEditorWidget *textEditor) const;
     virtual void fileChanged(const QString &fileName);
 };
 

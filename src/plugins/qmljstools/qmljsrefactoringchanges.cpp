@@ -34,6 +34,7 @@
 #include "qmljsqtstylecodeformatter.h"
 #include "qmljstoolsconstants.h"
 #include "qmljsmodelmanager.h"
+#include "qmljsindenter.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -75,6 +76,17 @@ public:
             codeFormatter.updateLineStateChange(block);
             block = block.next();
         } while (block.isValid() && block != end);
+    }
+
+    virtual void reindentSelection(const QTextCursor &selection,
+                                   const QString &fileName,
+                                   const TextEditor::BaseTextEditorWidget *textEditor) const
+    {
+        const TextEditor::TabSettings &tabSettings =
+            ProjectExplorer::actualTabSettings(fileName, textEditor);
+
+        QmlJSEditor::Internal::Indenter indenter;
+        indenter.reindent(selection.document(), selection, tabSettings);
     }
 
     virtual void fileChanged(const QString &fileName)

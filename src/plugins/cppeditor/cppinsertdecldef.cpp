@@ -433,27 +433,51 @@ public:
             funcDef.append(QLatin1String(" const"));
             funcDecl.append(QLatin1String(" const"));
         }
-        funcDef.append(QLatin1String("\n{\n")
-                       % currentFile->textOf(m_extractionStart, m_extractionEnd)
-                       % QLatin1Char('\n'));
+        funcDef.append(QLatin1String("\n{\n"));
         if (matchingClass)
             funcDecl.append(QLatin1String(";\n"));
         if (m_funcReturn) {
-            funcDef.append(QLatin1String("return ")
+            funcDef.append(QLatin1String("\nreturn ")
                         % m_relevantDecls.at(0).first
-                        % QLatin1String(";\n"));
+                        % QLatin1String(";"));
             funcCall.prepend(m_relevantDecls.at(0).second % QLatin1String(" = "));
         }
-        funcDef.append(QLatin1String("}\n\n"));
+        funcDef.append(QLatin1String("\n}\n\n"));
         funcDef.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
         funcCall.append(QLatin1Char(';'));
 
+        // Get starting indentation from original code.
+        int indentedExtractionStart = m_extractionStart;
+        QChar current = currentFile->document()->characterAt(indentedExtractionStart - 1);
+        while (current == QLatin1Char(' ') || current == QLatin1Char('\t')) {
+            --indentedExtractionStart;
+            current = currentFile->document()->characterAt(indentedExtractionStart - 1);
+        }
+        QString extract = currentFile->textOf(indentedExtractionStart, m_extractionEnd);
+        extract.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
+        if (!extract.endsWith(QLatin1Char('\n')) && m_funcReturn)
+            extract.append(QLatin1Char('\n'));
+
+        // FIXME: There are a couple related issues on the refactoring interface. You cannot
+        // simply have distinct indentation ranges within a chunk of content to be added, regardless
+        // of whether this is done through more than on change. That's why we actually apply twice,
+        // initially indenting the definition stub and the reindenting the original extraction.
+        // More details on the refactorings impl. where ranges are transformed into cursors.
         Utils::ChangeSet change;
         int position = currentFile->startOf(m_refFuncDef);
         change.insert(position, funcDef);
         change.replace(m_extractionStart, m_extractionEnd, funcCall);
         currentFile->setChangeSet(change);
-        currentFile->appendIndentRange(Utils::ChangeSet::Range(position, position + funcDef.length()));
+        currentFile->appendIndentRange(Utils::ChangeSet::Range(position, position + 1));
+        currentFile->apply();
+
+        QTextCursor tc = currentFile->document()->find(QLatin1String("{"), position);
+        QTC_ASSERT(!tc.isNull(), return);
+        position = tc.position() + 2;
+        change.clear();
+        change.insert(position, extract);
+        currentFile->setChangeSet(change);
+        currentFile->appendReindentRange(Utils::ChangeSet::Range(position, position + 1));
         currentFile->apply();
 
         // Write declaration, if necessary.
@@ -468,8 +492,7 @@ public:
             position = declFile->position(location.line(), location.column());
             change.insert(position, funcDecl);
             declFile->setChangeSet(change);
-            declFile->appendIndentRange(Utils::ChangeSet::Range(position,
-                                                                position + funcDecl.length()));
+            declFile->appendIndentRange(Utils::ChangeSet::Range(position, position + 1));
             declFile->apply();
         }
     }
