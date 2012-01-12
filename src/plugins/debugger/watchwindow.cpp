@@ -711,6 +711,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     const bool canHandleWatches = engineCapabilities & AddWatcherCapability;
     const DebuggerState state = engine->state();
     const bool canInsertWatches = state == InferiorStopOk
+        || state == DebuggerNotReady
         || state == InferiorUnrunnable
         || (state == InferiorRunOk && (engineCapabilities & AddWatcherWhileRunningCapability));
 

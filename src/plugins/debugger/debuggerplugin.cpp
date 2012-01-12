@@ -485,10 +485,32 @@ public:
     void runEngine() {}
     void shutdownEngine() {}
     void shutdownInferior() {}
-    unsigned debuggerCapabilities() const { return AddWatcherCapability; }
+    unsigned debuggerCapabilities() const;
     bool acceptsBreakpoint(BreakpointModelId) const { return false; }
     bool acceptsDebuggerCommands() const { return false; }
 };
+
+unsigned DummyEngine::debuggerCapabilities() const
+{
+    // This can only be a first approximation of what to expect when running.
+    Project *project = ProjectExplorerPlugin::instance()->currentProject();
+    if (!project)
+        return 0;
+    Target *target = project->activeTarget();
+    QTC_ASSERT(target, return 0);
+    RunConfiguration *activeRc = target->activeRunConfiguration();
+    QTC_ASSERT(activeRc, return 0);
+
+    // This is a non-started Cdb or Gdb engine:
+    if (activeRc->useCppDebugger())
+        return WatchpointByAddressCapability
+               | BreakConditionCapability
+               | TracePointCapability
+               | OperateByInstructionCapability;
+
+    // This is a Qml or unknown engine.
+    return AddWatcherCapability;
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
