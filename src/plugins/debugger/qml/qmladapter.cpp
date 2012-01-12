@@ -164,8 +164,10 @@ void QmlAdapter::clientStatusChanged(QDeclarativeDebugClient::Status status)
     logServiceStatusChange(serviceName, status);
 }
 
-void QmlAdapter::debugClientStatusChanged(QDeclarativeDebugClient::Status /*status*/)
+void QmlAdapter::debugClientStatusChanged(QDeclarativeDebugClient::Status status)
 {
+    if (status != QDeclarativeDebugClient::Enabled)
+        return;
     QDeclarativeDebugClient *client = qobject_cast<QDeclarativeDebugClient*>(sender());
     QTC_ASSERT(client, return);
 
