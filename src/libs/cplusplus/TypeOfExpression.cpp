@@ -71,32 +71,31 @@ void TypeOfExpression::init(Document::Ptr thisDocument, const Snapshot &snapshot
     m_environment.clear();
 }
 
-QList<LookupItem> TypeOfExpression::operator()(const QString &expression,
+QList<LookupItem> TypeOfExpression::operator()(const QByteArray &utf8code,
                                                Scope *scope,
                                                PreprocessMode mode)
 {
-    QString code = expression;
-
+    Document::Ptr expressionDoc;
     if (mode == Preprocess)
-        code = preprocessedExpression(expression);
-
-    Document::Ptr expressionDoc = documentForExpression(code);
+        expressionDoc = documentForExpression(preprocessedExpression(utf8code));
+    else
+        expressionDoc = documentForExpression(utf8code);
     expressionDoc->check();
     return this->operator ()(extractExpressionAST(expressionDoc),
                              expressionDoc,
                              scope);
 }
 
-QList<LookupItem> TypeOfExpression::reference(const QString &expression,
+
+QList<LookupItem> TypeOfExpression::reference(const QByteArray &utf8code,
                                               Scope *scope,
                                               PreprocessMode mode)
 {
-    QString code = expression;
-
+    Document::Ptr expressionDoc;
     if (mode == Preprocess)
-        code = preprocessedExpression(expression);
-
-    Document::Ptr expressionDoc = documentForExpression(code);
+        expressionDoc = documentForExpression(preprocessedExpression(utf8code));
+    else
+        expressionDoc = documentForExpression(utf8code);
     expressionDoc->check();
     return reference(extractExpressionAST(expressionDoc), expressionDoc, scope);
 }
@@ -141,9 +140,9 @@ QList<LookupItem> TypeOfExpression::reference(ExpressionAST *expression,
     return items;
 }
 
-QString TypeOfExpression::preprocess(const QString &expression) const
+QByteArray TypeOfExpression::preprocess(const QByteArray &utf8code) const
 {
-    return preprocessedExpression(expression);
+    return preprocessedExpression(utf8code);
 }
 
 ExpressionAST *TypeOfExpression::ast() const
@@ -174,12 +173,11 @@ ExpressionAST *TypeOfExpression::extractExpressionAST(Document::Ptr doc) const
     return doc->translationUnit()->ast()->asExpression();
 }
 
-Document::Ptr TypeOfExpression::documentForExpression(const QString &expression) const
+Document::Ptr TypeOfExpression::documentForExpression(const QByteArray &utf8code) const
 {
     // create the expression's AST.
     Document::Ptr doc = Document::create(QLatin1String("<completion>"));
-    const QByteArray bytes = expression.toUtf8();
-    doc->setSource(bytes);
+    doc->setSource(utf8code);
     doc->parse(Document::ParseExpression);
     return doc;
 }
@@ -198,10 +196,10 @@ void TypeOfExpression::processEnvironment(Document::Ptr doc, Environment *env,
     }
 }
 
-QString TypeOfExpression::preprocessedExpression(const QString &expression) const
+QByteArray TypeOfExpression::preprocessedExpression(const QByteArray &utf8code) const
 {
-    if (expression.trimmed().isEmpty())
-        return expression;
+    if (utf8code.trimmed().isEmpty())
+        return utf8code;
 
     if (! m_environment) {
         Environment *env = new Environment(); // ### cache the environment.
@@ -211,9 +209,6 @@ QString TypeOfExpression::preprocessedExpression(const QString &expression) cons
         m_environment = QSharedPointer<Environment>(env);
     }
 
-    const QByteArray code = expression.toUtf8();
     Preprocessor preproc(0, m_environment.data());
-    const QByteArray preprocessedCode = preproc("<expression>", code);
-    return QString::fromUtf8(preprocessedCode.constData(), preprocessedCode.size());
+    return preproc("<expression>", utf8code);
 }
-

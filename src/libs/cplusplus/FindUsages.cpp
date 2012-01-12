@@ -282,7 +282,7 @@ void FindUsages::checkExpression(unsigned startToken, unsigned endToken, Scope *
     const unsigned begin = tokenAt(startToken).begin();
     const unsigned end = tokenAt(endToken).end();
 
-    const QString expression = _source.mid(begin, end - begin);
+    const QByteArray expression = _source.mid(begin, end - begin);
     // qDebug() << "*** check expression:" << expression;
 
     if (! scope)

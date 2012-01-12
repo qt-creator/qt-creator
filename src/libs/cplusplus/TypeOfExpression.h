@@ -40,6 +40,7 @@
 #include <QtCore/QMap>
 #include <QtCore/QObject>
 #include <QtCore/QString>
+#include <QtCore/QByteArray>
 
 namespace CPlusPlus {
 
@@ -81,7 +82,7 @@ public:
      * @param expression        The expression to evaluate.
      * @param scope             The scope enclosing the expression.
      */
-    QList<LookupItem> operator()(const QString &expression,
+    QList<LookupItem> operator()(const QByteArray &utf8code,
                                  Scope *scope,
                                  PreprocessMode mode = NoPreprocess);
 
@@ -101,7 +102,7 @@ public:
                                  Document::Ptr document,
                                  Scope *scope);
 
-    QList<LookupItem> reference(const QString &expression,
+    QList<LookupItem> reference(const QByteArray &utf8code,
                                 Scope *scope,
                                 PreprocessMode mode = NoPreprocess);
 
@@ -109,7 +110,7 @@ public:
                                 Document::Ptr document,
                                 Scope *scope);
 
-    QString preprocess(const QString &expression) const;
+    QByteArray preprocess(const QByteArray &utf8code) const;
 
     /**
      * Returns the AST of the last evaluated expression.
@@ -126,12 +127,12 @@ public:
 
 private:
     ExpressionAST *extractExpressionAST(Document::Ptr doc) const;
-    Document::Ptr documentForExpression(const QString &expression) const;
+    Document::Ptr documentForExpression(const QByteArray &utf8code) const;
 
     void processEnvironment(Document::Ptr doc, Environment *env,
                             QSet<QString> *processed) const;
 
-    QString preprocessedExpression(const QString &expression) const;
+    QByteArray preprocessedExpression(const QByteArray &utf8code) const;
 
 private:
     Document::Ptr m_thisDocument;

@@ -362,7 +362,8 @@ struct CanonicalSymbol
 
     static Symbol *canonicalSymbol(Scope *scope, const QString &code, TypeOfExpression &typeOfExpression)
     {
-        const QList<LookupItem> results = typeOfExpression(code, scope, TypeOfExpression::Preprocess);
+        const QList<LookupItem> results =
+                typeOfExpression(code.toUtf8(), scope, TypeOfExpression::Preprocess);
 
         for (int i = results.size() - 1; i != -1; --i) {
             const LookupItem &r = results.at(i);
@@ -1374,7 +1375,8 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     TypeOfExpression typeOfExpression;
     typeOfExpression.init(doc, snapshot);
-    const QList<LookupItem> resolvedSymbols = typeOfExpression.reference(expression, scope, TypeOfExpression::Preprocess);
+    const QList<LookupItem> resolvedSymbols =
+            typeOfExpression.reference(expression.toUtf8(), scope, TypeOfExpression::Preprocess);
 
     if (!resolvedSymbols.isEmpty()) {
         LookupItem result = skipForwardDeclarations(resolvedSymbols);

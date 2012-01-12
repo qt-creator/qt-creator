@@ -121,7 +121,7 @@ void CppElementEvaluator::execute()
 
         TypeOfExpression typeOfExpression;
         typeOfExpression.init(doc, snapshot);
-        const QList<LookupItem> &lookupItems = typeOfExpression(expression, scope);
+        const QList<LookupItem> &lookupItems = typeOfExpression(expression.toUtf8(), scope);
         if (lookupItems.isEmpty())
             return;
 

@@ -1681,9 +1681,10 @@ private:
             typeOfExpression.init(assistInterface()->semanticInfo().doc,
                                   assistInterface()->snapshot(), assistInterface()->context().bindings());
             Scope *scope = currentFile->scopeAt(binaryAST->firstToken());
-            const QList<LookupItem> result = typeOfExpression(currentFile->textOf(binaryAST->right_expression),
-                                                              scope,
-                                                              TypeOfExpression::Preprocess);
+            const QList<LookupItem> result =
+                    typeOfExpression(currentFile->textOf(binaryAST->right_expression).toUtf8(),
+                                     scope,
+                                     TypeOfExpression::Preprocess);
 
             if (! result.isEmpty()) {
 

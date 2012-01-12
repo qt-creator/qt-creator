@@ -109,7 +109,7 @@ CPlusPlus::Symbol *AnalyzerUtils::findSymbolUnderCursor()
 
     CPlusPlus::TypeOfExpression typeOfExpression;
     typeOfExpression.init(doc, snapshot);
-    const QList<CPlusPlus::LookupItem> &lookupItems = typeOfExpression(expression, scope);
+    const QList<CPlusPlus::LookupItem> &lookupItems = typeOfExpression(expression.toUtf8(), scope);
     if (lookupItems.isEmpty())
         return 0;
 

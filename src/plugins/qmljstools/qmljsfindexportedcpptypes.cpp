@@ -506,7 +506,7 @@ static QString toQmlType(const FullySpecifiedType &type)
 
 static Class *lookupClass(const QString &expression, Scope *scope, TypeOfExpression &typeOf)
 {
-    QList<LookupItem> results = typeOf(expression, scope);
+    QList<LookupItem> results = typeOf(expression.toUtf8(), scope);
     Class *klass = 0;
     foreach (const LookupItem &item, results) {
         if (item.declaration()) {
@@ -576,7 +576,7 @@ static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
         if (QtEnum *qtEnum = member->asQtEnum()) {
             // find the matching enum
             Enum *e = 0;
-            QList<LookupItem> result = typeOf(namePrinter(qtEnum->name()), klass);
+            QList<LookupItem> result = typeOf(namePrinter(qtEnum->name()).toUtf8(), klass);
             foreach (const LookupItem &item, result) {
                 if (item.declaration()) {
                     e = item.declaration()->asEnum();
@@ -648,7 +648,7 @@ static void buildContextProperties(
 
     foreach (const ContextProperty &property, contextPropertyDescriptions) {
         Scope *scope = doc->scopeAt(property.line, property.column);
-        QList<LookupItem> results = typeOf(property.expression, scope);
+        QList<LookupItem> results = typeOf(property.expression.toUtf8(), scope);
         QString typeName;
         if (!results.isEmpty()) {
             LookupItem result = results.first();
