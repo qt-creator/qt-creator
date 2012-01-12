@@ -828,9 +828,9 @@ void PdbEngine::handleListLocals(const PdbResponse &response)
     handler->insertBulkData(list);
 }
 
-unsigned PdbEngine::debuggerCapabilities() const
+bool PdbEngine::hasCapability(unsigned cap) const
 {
-    return ReloadModuleCapability|BreakConditionCapability;
+    return cap & (ReloadModuleCapability|BreakConditionCapability);
 }
 
 DebuggerEngine *createPdbEngine(const DebuggerStartParameters &startParameters)

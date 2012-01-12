@@ -162,7 +162,7 @@ QVariant SnapshotHandler::data(const QModelIndex &index, int role) const
     const DebuggerEngine *engine = at(index.row());
 
     if (role == SnapshotCapabilityRole)
-        return engine && (engine->debuggerCapabilities() & SnapshotCapability);
+        return engine && engine->hasCapability(SnapshotCapability);
 
     if (!engine)
         return QLatin1String("<finished>");

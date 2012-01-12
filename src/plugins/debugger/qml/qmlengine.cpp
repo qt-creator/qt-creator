@@ -780,11 +780,11 @@ void QmlEngine::synchronizeWatchers()
     }
 }
 
-unsigned QmlEngine::debuggerCapabilities() const
+bool QmlEngine::hasCapability(unsigned cap) const
 {
-    return AddWatcherCapability
+    return cap & (AddWatcherCapability
             | AddWatcherWhileRunningCapability
-            | RunToLineCapability;
+            | RunToLineCapability);
     /*ReverseSteppingCapability | SnapshotCapability
         | AutoDerefPointersCapability | DisassemblerCapability
         | RegisterCapability | ShowMemoryCapability

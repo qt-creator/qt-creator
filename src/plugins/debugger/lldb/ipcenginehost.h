@@ -116,6 +116,7 @@ public:
     void updateWatchData(const WatchData &data,
             const WatchUpdateFlags &flags = WatchUpdateFlags());
     void fetchFrameSource(qint64 id);
+    bool hasCapability(unsigned) const { return false; }
 
     void rpcCall(Function f, QByteArray payload = QByteArray());
 protected:

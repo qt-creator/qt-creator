@@ -250,18 +250,18 @@ void QmlCppEngine::setRegisterValue(int regnr, const QString &value)
     d->m_cppEngine->setRegisterValue(regnr, value);
 }
 
-unsigned QmlCppEngine::debuggerCapabilities() const
+
+bool QmlCppEngine::hasCapability(unsigned cap) const
 {
     // ### this could also be an OR of both engines' capabilities
-    unsigned result = d->m_cppEngine->debuggerCapabilities();
+    bool hasCap = d->m_cppEngine->hasCapability(cap);
     if (d->m_activeEngine != d->m_cppEngine) {
-        const unsigned qmlCapabilities = d->m_qmlEngine->debuggerCapabilities();
-        if (qmlCapabilities & AddWatcherWhileRunningCapability)
-            result |= AddWatcherWhileRunningCapability;
-        if (!(qmlCapabilities & WatchWidgetsCapability))
-            result &= ~WatchWidgetsCapability;
+        if (cap == AddWatcherWhileRunningCapability)
+            hasCap = hasCap || d->m_qmlEngine->hasCapability(cap);
+        if (cap == WatchWidgetsCapability)
+            hasCap = hasCap && d->m_qmlEngine->hasCapability(cap);
     }
-    return result;
+    return hasCap;
 }
 
 bool QmlCppEngine::isSynchronous() const

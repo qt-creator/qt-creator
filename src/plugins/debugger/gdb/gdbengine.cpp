@@ -1969,9 +1969,9 @@ void GdbEngine::setupEngine()
     m_gdbAdapter->startAdapter();
 }
 
-unsigned GdbEngine::debuggerCapabilities() const
+bool GdbEngine::hasCapability(unsigned cap) const
 {
-    unsigned caps = ReverseSteppingCapability
+    if (cap & (ReverseSteppingCapability
         | AutoDerefPointersCapability
         | DisassemblerCapability
         | RegisterCapability
@@ -1992,16 +1992,17 @@ unsigned GdbEngine::debuggerCapabilities() const
         | CatchCapability
         | OperateByInstructionCapability
         | RunToLineCapability
-        | MemoryAddressCapability;
+        | MemoryAddressCapability))
+        return true;
 
     if (startParameters().startMode == AttachCore)
-        return caps;
+        return false;
 
     // FIXME: Remove in case we have gdb 7.x on Mac.
     if (startParameters().toolChainAbi.os() == Abi::MacOS)
-        return caps;
+        return false;
 
-    return caps | SnapshotCapability;
+    return cap == SnapshotCapability;
 }
 
 

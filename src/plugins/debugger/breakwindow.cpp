@@ -70,7 +70,7 @@ class BreakpointDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit BreakpointDialog(unsigned engineCapabilities, QWidget *parent = 0);
+    explicit BreakpointDialog(BreakpointModelId id, QWidget *parent = 0);
     bool showDialog(BreakpointParameters *data, BreakpointParts *parts);
 
     void setParameters(const BreakpointParameters &data);
@@ -95,18 +95,20 @@ private:
     bool m_firstTypeChange;
 };
 
-BreakpointDialog::BreakpointDialog(unsigned engineCapabilities, QWidget *parent)
+BreakpointDialog::BreakpointDialog(BreakpointModelId id, QWidget *parent)
     : QDialog(parent), m_enabledParts(-1), m_previousType(UnknownType),
       m_firstTypeChange(true)
 {
     m_ui.setupUi(this);
     m_ui.comboBoxType->setMaxVisibleItems(20);
-    if (!(engineCapabilities & BreakConditionCapability))
-        m_enabledParts &= ~ConditionPart;
-    if (!(engineCapabilities & BreakModuleCapability))
-        m_enabledParts &= ~ModulePart;
-    if (!(engineCapabilities & TracePointCapability))
-        m_enabledParts &= ~TracePointPart;
+    if (DebuggerEngine *engine = breakHandler()->engine(id)) {
+        if (!engine->hasCapability(BreakConditionCapability))
+            m_enabledParts &= ~ConditionPart;
+        if (!engine->hasCapability(BreakModuleCapability))
+            m_enabledParts &= ~ModulePart;
+        if (!engine->hasCapability(TracePointCapability))
+            m_enabledParts &= ~TracePointPart;
+    }
     // Match BreakpointType (omitting unknown type).
     QStringList types;
     types << tr("File name and line number")
@@ -123,7 +125,7 @@ BreakpointDialog::BreakpointDialog(unsigned engineCapabilities, QWidget *parent)
           << tr("Break on QML signal handler")
           << tr("Break when JavaScript exception is thrown");
 
-    QTC_ASSERT(types.size() == BreakpointAtJavaScriptThrow, return; )
+    QTC_ASSERT(types.size() == BreakpointAtJavaScriptThrow, return);
     m_ui.comboBoxType->addItems(types);
     m_ui.pathChooserFileName->setExpectedKind(Utils::PathChooser::File);
     connect(m_ui.comboBoxType, SIGNAL(activated(int)), SLOT(typeChanged(int)));
@@ -448,7 +450,7 @@ class MultiBreakPointsDialog : public QDialog
 {
     Q_OBJECT
 public:
-    MultiBreakPointsDialog(unsigned engineCapabilities, QWidget *parent = 0);
+    MultiBreakPointsDialog(QWidget *parent = 0);
 
     QString condition() const { return m_ui.lineEditCondition->text(); }
     int ignoreCount() const { return m_ui.spinBoxIgnoreCount->value(); }
@@ -464,7 +466,7 @@ private:
     Ui::BreakCondition m_ui;
 };
 
-MultiBreakPointsDialog::MultiBreakPointsDialog(unsigned engineCapabilities, QWidget *parent) :
+MultiBreakPointsDialog::MultiBreakPointsDialog(QWidget *parent) :
     QDialog(parent)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -472,7 +474,7 @@ MultiBreakPointsDialog::MultiBreakPointsDialog(unsigned engineCapabilities, QWid
     setWindowTitle(tr("Edit Breakpoint Properties"));
     m_ui.spinBoxIgnoreCount->setMinimum(0);
     m_ui.spinBoxIgnoreCount->setMaximum(2147483647);
-    if (!(engineCapabilities & BreakConditionCapability)) {
+    if (!debuggerCore()->currentEngine()->hasCapability(BreakConditionCapability)) {
         m_ui.labelCondition->setEnabled(false);
         m_ui.lineEditCondition->setEnabled(false);
     }
@@ -624,7 +626,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(synchronizeAction);
     menu.addSeparator();
     menu.addAction(debuggerCore()->action(UseToolTipsInBreakpointsView));
-    if (debuggerCore()->currentEngine()->debuggerCapabilities() & MemoryAddressCapability)
+    if (debuggerCore()->currentEngine()->hasCapability(MemoryAddressCapability))
         menu.addAction(debuggerCore()->action(UseAddressInBreakpointsView));
     addBaseContextActions(&menu);
 
@@ -669,11 +671,8 @@ void BreakWindow::deleteBreakpoints(const BreakpointModelIds &ids)
 void BreakWindow::editBreakpoint(BreakpointModelId id, QWidget *parent)
 {
     BreakpointParameters data = breakHandler()->breakpointData(id);
-    unsigned engineCapabilities = AllDebuggerCapabilities;
-    if (const DebuggerEngine *engine = breakHandler()->engine(id))
-        engineCapabilities = engine->debuggerCapabilities();
     BreakpointParts parts = NoParts;
-    BreakpointDialog dialog(engineCapabilities, parent);
+    BreakpointDialog dialog(id, parent);
     if (dialog.showDialog(&data, &parts))
         breakHandler()->changeBreakpointData(id, data, parts);
 }
@@ -682,7 +681,7 @@ void BreakWindow::addBreakpoint()
 {
     BreakpointParameters data(BreakpointByFileAndLine);
     BreakpointParts parts = NoParts;
-    BreakpointDialog dialog(AllDebuggerCapabilities, this);
+    BreakpointDialog dialog(BreakpointModelId(), this);
     dialog.setWindowTitle(tr("Add Breakpoint"));
     if (dialog.showDialog(&data, &parts))
         breakHandler()->appendBreakpoint(data);
@@ -701,10 +700,7 @@ void BreakWindow::editBreakpoints(const BreakpointModelIds &ids)
 
     // This allows to change properties of multiple breakpoints at a time.
     BreakHandler *handler = breakHandler();
-    unsigned engineCapabilities = AllDebuggerCapabilities;
-    if (const DebuggerEngine *engine = breakHandler()->engine(id))
-        engineCapabilities = engine->debuggerCapabilities();
-    MultiBreakPointsDialog dialog(engineCapabilities);
+    MultiBreakPointsDialog dialog;
     const QString oldCondition = QString::fromLatin1(handler->condition(id));
     dialog.setCondition(oldCondition);
     const int oldIgnoreCount = handler->ignoreCount(id);

@@ -90,29 +90,26 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     DebuggerEngine *engine = debuggerCore()->currentEngine();
     QTC_ASSERT(engine, return);
     const bool enabled = engine->debuggerActionsEnabled();
-    const unsigned capabilities = engine->debuggerCapabilities();
+    const bool canReload = engine->hasCapability(ReloadModuleCapability);
+    const bool canLoadSymbols = engine->hasCapability(ReloadModuleSymbolsCapability);
 
     QMenu menu;
 
     QAction *actUpdateModuleList
         = new QAction(tr("Update Module List"), &menu);
-    actUpdateModuleList
-        ->setEnabled(enabled && (capabilities & ReloadModuleCapability));
+    actUpdateModuleList->setEnabled(enabled && canReload);
 
     QAction *actShowModuleSources
         = new QAction(tr("Show Source Files for Module \"%1\"").arg(name), &menu);
-    actShowModuleSources
-        ->setEnabled(enabled && (capabilities & ReloadModuleCapability));
+    actShowModuleSources->setEnabled(enabled && canReload);
 
     QAction *actLoadSymbolsForAllModules
         = new QAction(tr("Load Symbols for All Modules"), &menu);
-    actLoadSymbolsForAllModules
-        -> setEnabled(enabled && (capabilities & ReloadModuleSymbolsCapability));
+    actLoadSymbolsForAllModules->setEnabled(enabled && canLoadSymbols);
 
     QAction *actExamineAllModules
         = new QAction(tr("Examine All Modules"), &menu);
-    actExamineAllModules
-        -> setEnabled(enabled && (capabilities & ReloadModuleSymbolsCapability));
+    actExamineAllModules->setEnabled(enabled && canLoadSymbols);
 
     QAction *actLoadSymbolsForModule = 0;
     QAction *actEditFile = 0;
@@ -130,14 +127,12 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else {
         actLoadSymbolsForModule
             = new QAction(tr("Load Symbols for Module \"%1\"").arg(name), &menu);
-        actLoadSymbolsForModule
-            ->setEnabled(capabilities & ReloadModuleSymbolsCapability);
+        actLoadSymbolsForModule->setEnabled(canLoadSymbols);
         actEditFile
             = new QAction(tr("Edit File \"%1\"").arg(name), &menu);
         actShowModuleSymbols
             = new QAction(tr("Show Symbols in File \"%1\"").arg(name), &menu);
-        actShowModuleSymbols
-            ->setEnabled(capabilities & ShowModuleSymbolsCapability);
+        actShowModuleSymbols->setEnabled(engine->hasCapability(ShowModuleSymbolsCapability));
         actShowDependencies = new QAction(tr("Show Dependencies of \"%1\"").arg(name), &menu);
         actShowDependencies->setEnabled(!fileName.isEmpty());
 #ifndef Q_OS_WIN

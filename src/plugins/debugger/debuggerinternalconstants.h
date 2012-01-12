@@ -67,7 +67,6 @@ enum ModelRoles
     DisplaySourceRole = 32,  // Qt::UserRole
 
     EngineStateRole,
-    EngineCapabilitiesRole,
     EngineActionsEnabledRole,
     RequestActivationRole,
     RequestContextMenuRole,

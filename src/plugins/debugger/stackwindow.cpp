@@ -97,7 +97,6 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
     StackHandler *handler = engine->stackHandler();
     const QModelIndex index = indexAt(ev->pos());
     const int row = index.row();
-    const unsigned engineCapabilities = engine->debuggerCapabilities();
     StackFrame frame;
     if (row >= 0 && row < handler->stackSize())
         frame = handler->frameAt(row);
@@ -109,25 +108,25 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actCopyContents = menu.addAction(tr("Copy Contents to Clipboard"));
     actCopyContents->setEnabled(model() != 0);
 
-    if (engineCapabilities & CreateFullBacktraceCapability)
+    if (engine->hasCapability(CreateFullBacktraceCapability))
         menu.addAction(debuggerCore()->action(CreateFullBacktrace));
 
     QAction *actShowMemory = 0;
-    if (engineCapabilities & ShowMemoryCapability) {
+    if (engine->hasCapability(ShowMemoryCapability)) {
         actShowMemory = menu.addAction(QString());
         if (address == 0) {
             actShowMemory->setText(tr("Open Memory Editor"));
             actShowMemory->setEnabled(false);
         } else {
             actShowMemory->setText(tr("Open Memory Editor at 0x%1").arg(address, 0, 16));
-            actShowMemory->setEnabled(engineCapabilities & ShowMemoryCapability);
+            actShowMemory->setEnabled(engine->hasCapability(ShowMemoryCapability));
         }
     }
 
     QAction *actShowDisassemblerAt = 0;
     QAction *actShowDisassembler = 0;
 
-    if (engineCapabilities & DisassemblerCapability) {
+    if (engine->hasCapability(DisassemblerCapability)) {
         actShowDisassemblerAt = menu.addAction(QString());
         actShowDisassembler = menu.addAction(tr("Open Disassembler..."));
         if (address == 0) {
@@ -140,13 +139,13 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
 
 
     QAction *actLoadSymbols = 0;
-    if (engineCapabilities & ShowModuleSymbolsCapability)
+    if (engine->hasCapability(ShowModuleSymbolsCapability))
         actLoadSymbols = menu.addAction(tr("Try to Load Unknown Symbols"));
 
 #if 0 // @TODO: not implemented
     menu.addAction(debuggerCore()->action(UseToolTipsInStackView));
 #endif
-    if (engineCapabilities & MemoryAddressCapability)
+    if (engine->hasCapability(MemoryAddressCapability))
         menu.addAction(debuggerCore()->action(UseAddressInStackView));
 
     menu.addSeparator();

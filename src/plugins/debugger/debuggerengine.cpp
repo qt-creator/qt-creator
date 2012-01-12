@@ -547,9 +547,8 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     if (!d->m_startParameters.environment.size())
         d->m_startParameters.environment = Utils::Environment();
 
-    const unsigned engineCapabilities = debuggerCapabilities();
     debuggerCore()->action(OperateByInstruction)
-        ->setEnabled(engineCapabilities & DisassemblerCapability);
+        ->setEnabled(hasCapability(DisassemblerCapability));
 
     QTC_ASSERT(state() == DebuggerNotReady || state() == DebuggerFinished,
          qDebug() << state());
@@ -1344,11 +1343,6 @@ void DebuggerEngine::reloadFullStack()
 
 void DebuggerEngine::addOptionPages(QList<Core::IOptionsPage*> *) const
 {
-}
-
-unsigned DebuggerEngine::debuggerCapabilities() const
-{
-    return 0;
 }
 
 bool DebuggerEngine::isSynchronous() const

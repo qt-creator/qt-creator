@@ -105,11 +105,11 @@ private:
     void reloadSourceFiles() {}
     void reloadFullStack() {}
 
-    bool supportsThreads() const { return true; }
     bool checkForBreakCondition(bool byFunction);
     void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
     void updateLocals();
     void updateSubItem(const WatchData &data);
+    bool hasCapability(unsigned) const { return false; }
 
 private:
     friend class ScriptAgent;

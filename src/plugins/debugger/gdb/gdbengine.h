@@ -238,7 +238,7 @@ private: ////////// General Interface //////////
     virtual void setupInferior();
     virtual void runEngine();
 
-    virtual unsigned debuggerCapabilities() const;
+    virtual bool hasCapability(unsigned) const;
     virtual void detachDebugger();
     virtual void shutdownEngine();
     virtual void shutdownInferior();

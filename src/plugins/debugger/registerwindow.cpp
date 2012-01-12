@@ -179,12 +179,11 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     DebuggerEngine *engine = currentEngine();
     QTC_ASSERT(engine, return);
     RegisterHandler *handler = currentHandler();
-    const unsigned engineCapabilities = engine->debuggerCapabilities();
     const bool actionsEnabled = engine->debuggerActionsEnabled();
     const int state = engine->state();
 
     QAction *actReload = menu.addAction(tr("Reload Register Listing"));
-    actReload->setEnabled((engineCapabilities & RegisterCapability)
+    actReload->setEnabled(engine->hasCapability(RegisterCapability)
         && (state == InferiorStopOk || state == InferiorUnrunnable));
 
     menu.addSeparator();
@@ -201,17 +200,17 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *actShowDisassemblerAt = menu.addAction(QString());
     QAction *actShowDisassembler = menu.addAction(tr("Open Disassembler..."));
-    actShowDisassembler->setEnabled(engineCapabilities & DisassemblerCapability);
+    actShowDisassembler->setEnabled(engine->hasCapability(DisassemblerCapability));
 
     if (address) {
-        const bool canShow = actionsEnabled && (engineCapabilities & ShowMemoryCapability);
+        const bool canShow = actionsEnabled && engine->hasCapability(ShowMemoryCapability);
         actEditMemory->setText(tr("Open Memory Editor at 0x%1").arg(address, 0, 16));
         actEditMemory->setEnabled(canShow);
         actViewMemory->setText(tr("Open Memory View at Value of Register %1 0x%2")
             .arg(QString::fromAscii(aRegister.name)).arg(address, 0, 16));
         actShowDisassemblerAt->setText(tr("Open Disassembler at 0x%1")
             .arg(address, 0, 16));
-        actShowDisassemblerAt->setEnabled(engineCapabilities & DisassemblerCapability);
+        actShowDisassemblerAt->setEnabled(engine->hasCapability(DisassemblerCapability));
     } else {
         actEditMemory->setText(tr("Open Memory Editor"));
         actViewMemory->setText(tr("Open Memory View at Value of Register"));

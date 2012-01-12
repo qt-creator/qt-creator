@@ -148,7 +148,7 @@ private:
         const WatchUpdateFlags &flags);
     void executeDebuggerCommand(const QString &command);
 
-    unsigned int debuggerCapabilities() const;
+    bool hasCapability(unsigned) const;
 
 signals:
     void tooltipRequested(const QPoint &mousePos,

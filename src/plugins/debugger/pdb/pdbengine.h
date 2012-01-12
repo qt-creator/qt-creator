@@ -116,7 +116,7 @@ signals:
 
 private:
     QString errorMessage(QProcess::ProcessError error) const;
-    unsigned debuggerCapabilities() const;
+    bool hasCapability(unsigned cap) const;
 
     Q_SLOT void handlePdbFinished(int, QProcess::ExitStatus status);
     Q_SLOT void handlePdbError(QProcess::ProcessError error);

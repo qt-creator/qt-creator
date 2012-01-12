@@ -193,7 +193,7 @@ public:
 
     virtual void setRegisterValue(int regnr, const QString &value);
     virtual void addOptionPages(QList<Core::IOptionsPage*> *) const;
-    virtual unsigned debuggerCapabilities() const;
+    virtual bool hasCapability(unsigned cap) const = 0;
 
     virtual bool isSynchronous() const;
     virtual QByteArray qtNamespace() const;

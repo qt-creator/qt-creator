@@ -707,19 +707,18 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     }
 
     const bool actionsEnabled = engine->debuggerActionsEnabled();
-    const unsigned engineCapabilities = engine->debuggerCapabilities();
-    const bool canHandleWatches = engineCapabilities & AddWatcherCapability;
+    const bool canHandleWatches = engine->hasCapability(AddWatcherCapability);
     const DebuggerState state = engine->state();
     const bool canInsertWatches = state == InferiorStopOk
         || state == DebuggerNotReady
         || state == InferiorUnrunnable
-        || (state == InferiorRunOk && (engineCapabilities & AddWatcherWhileRunningCapability));
+        || (state == InferiorRunOk && engine->hasCapability(AddWatcherWhileRunningCapability));
 
     QMenu breakpointMenu;
     breakpointMenu.setTitle(tr("Add Data Breakpoint..."));
     QAction *actSetWatchpointAtVariableAddress = 0;
     QAction *actSetWatchpointAtPointerValue = 0;
-    const bool canSetWatchpoint = engineCapabilities & WatchpointByAddressCapability;
+    const bool canSetWatchpoint = engine->hasCapability(WatchpointByAddressCapability);
     if (canSetWatchpoint && address) {
         actSetWatchpointAtVariableAddress =
             new QAction(tr("Add Data Breakpoint at Object's Address (0x%1)")
@@ -744,7 +743,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
            "to stop when the data at the address is modified."));
 
     QAction *actSetWatchpointAtExpression = 0;
-    const bool canSetWatchpointAtExpression = engineCapabilities & WatchpointByExpressionCapability;
+    const bool canSetWatchpointAtExpression = engine->hasCapability(WatchpointByExpressionCapability);
     if (name.isEmpty() || !canSetWatchpointAtExpression) {
         actSetWatchpointAtExpression =
             new QAction(tr("Add Data Breakpoint at Expression"),
@@ -771,7 +770,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     actInsertNewWatchItem->setEnabled(canHandleWatches && canInsertWatches);
     QAction *actSelectWidgetToWatch = menu.addAction(tr("Select Widget to Watch"));
     actSelectWidgetToWatch->setEnabled(canHandleWatches
-           && (engine->debuggerCapabilities() & WatchWidgetsCapability));
+           && engine->hasCapability(WatchWidgetsCapability));
     QAction *actEditTypeFormats = menu.addAction(tr("Change Global Display Formats..."));
     actEditTypeFormats->setEnabled(true);
     menu.addSeparator();
@@ -806,7 +805,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actOpenMemoryEditorStackLayout = new QAction(&memoryMenu);
     QAction *actOpenMemoryViewAtVariableAddress = new QAction(&memoryMenu);
     QAction *actOpenMemoryViewAtPointerValue = new QAction(&memoryMenu);
-    if (engineCapabilities & ShowMemoryCapability) {
+    if (engine->hasCapability(ShowMemoryCapability)) {
         actOpenMemoryEditor->setText(tr("Open Memory Editor..."));
         if (address) {
             actOpenMemoryEditAtVariableAddress->setText(

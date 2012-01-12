@@ -483,12 +483,12 @@ public:
     void runEngine() {}
     void shutdownEngine() {}
     void shutdownInferior() {}
-    unsigned debuggerCapabilities() const;
+    bool hasCapability(unsigned cap) const;
     bool acceptsBreakpoint(BreakpointModelId) const { return false; }
     bool acceptsDebuggerCommands() const { return false; }
 };
 
-unsigned DummyEngine::debuggerCapabilities() const
+bool DummyEngine::hasCapability(unsigned cap) const
 {
     // This can only be a first approximation of what to expect when running.
     Project *project = ProjectExplorerPlugin::instance()->currentProject();
@@ -501,13 +501,13 @@ unsigned DummyEngine::debuggerCapabilities() const
 
     // This is a non-started Cdb or Gdb engine:
     if (activeRc->useCppDebugger())
-        return WatchpointByAddressCapability
+        return cap & (WatchpointByAddressCapability
                | BreakConditionCapability
                | TracePointCapability
-               | OperateByInstructionCapability;
+               | OperateByInstructionCapability);
 
     // This is a Qml or unknown engine.
-    return AddWatcherCapability;
+    return cap & AddWatcherCapability;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1955,7 +1955,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
     // Run to, jump to line below in stopped state.
     if (currentEngine()->state() == InferiorStopOk && contextUsable) {
         menu->addSeparator();
-        if (currentEngine()->debuggerCapabilities() & RunToLineCapability) {
+        if (currentEngine()->hasCapability(RunToLineCapability)) {
             const QString runText = args.address
                 ? DebuggerEngine::tr("Run to Address 0x%1").arg(args.address, 0, 16)
                 : DebuggerEngine::tr("Run to Line %1").arg(args.lineNumber);
@@ -1964,7 +1964,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
             connect(runToLineAction, SIGNAL(triggered()), SLOT(slotRunToLine()));
             menu->addAction(runToLineAction);
         }
-        if (currentEngine()->debuggerCapabilities() & JumpToLineCapability) {
+        if (currentEngine()->hasCapability(JumpToLineCapability)) {
             const QString jumpText = args.address
                 ? DebuggerEngine::tr("Jump to Address 0x%1").arg(args.address, 0, 16)
                 : DebuggerEngine::tr("Jump to Line %1").arg(args.lineNumber);
@@ -2326,8 +2326,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     if (stopped)
         QApplication::alert(mainWindow(), 3000);
 
-    const uint caps = engine->debuggerCapabilities();
-    const bool canReverse = (caps & ReverseSteppingCapability)
+    const bool canReverse = engine->hasCapability(ReverseSteppingCapability)
                 && boolSetting(EnableReverseDebugging);
     m_reverseDirectionAction->setEnabled(canReverse);
 
@@ -2335,7 +2334,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_watchAction2->setEnabled(true);
     m_breakAction->setEnabled(true);
 
-    const bool canOperateByInstruction = (caps & OperateByInstructionCapability)
+    const bool canOperateByInstruction = engine->hasCapability(OperateByInstructionCapability)
             && (stopped || isCore);
     action(OperateByInstruction)->setEnabled(canOperateByInstruction);
 
@@ -2348,15 +2347,15 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_nextAction->setToolTip(QString());
 
     m_stepOutAction->setEnabled(stopped);
-    m_runToLineAction->setEnabled(stopped && (caps & RunToLineCapability));
+    m_runToLineAction->setEnabled(stopped && engine->hasCapability(RunToLineCapability));
     m_runToSelectedFunctionAction->setEnabled(stopped);
     m_returnFromFunctionAction->
-        setEnabled(stopped && (caps & ReturnFromFunctionCapability));
+        setEnabled(stopped && engine->hasCapability(ReturnFromFunctionCapability));
 
-    const bool canJump = stopped && (caps & JumpToLineCapability);
+    const bool canJump = stopped && engine->hasCapability(JumpToLineCapability);
     m_jumpToLineAction->setEnabled(canJump);
 
-    const bool canDeref = actionsEnabled && (caps & AutoDerefPointersCapability);
+    const bool canDeref = actionsEnabled && engine->hasCapability(AutoDerefPointersCapability);
     action(AutoDerefPointers)->setEnabled(canDeref);
     action(AutoDerefPointers)->setEnabled(true);
     action(ExpandStack)->setEnabled(actionsEnabled);
