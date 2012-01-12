@@ -87,17 +87,15 @@ void RemoteGdbServerAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
-    if (!startParameters().useServerStartScript) {
-        handleSetupDone();
-        return;
+    if (startParameters().useServerStartScript) {
+        if (startParameters().serverStartScript.isEmpty()) {
+            showMessage(_("No server start script given. "), StatusBar);
+        } else {
+            m_uploadProc.start(_("/bin/sh ") + startParameters().serverStartScript);
+            m_uploadProc.waitForStarted();
+        }
     }
-    if (startParameters().serverStartScript.isEmpty()) {
-        showMessage(_("No server start script given. "), StatusBar);
-        m_engine->requestRemoteSetup();
-    } else {
-        m_uploadProc.start(_("/bin/sh ") + startParameters().serverStartScript);
-        m_uploadProc.waitForStarted();
-    }
+    m_engine->requestRemoteSetup();
 }
 
 void RemoteGdbServerAdapter::uploadProcError(QProcess::ProcessError error)
