@@ -203,11 +203,23 @@ def __configureCustomExecutable__(projectName, port, mkspec, qmakeVersion):
         test.warning("Configured Squish directory seems to be missing - using fallback without hooking into subprocess.",
                      "Failed to find '%s'" % startAUT)
         return False
-    clickButton("{container=':Qt Creator.scrollArea_QScrollArea' occurrence='2' text='Add' type='QPushButton' unnamed='1' visible='1'}")
-    activateItem(waitForObject("{type='QMenu' visible='1' unnamed='1'}"), "Custom Executable")
-    exePathChooser = waitForObject("{buddy={container=':Qt Creator.scrollArea_QScrollArea' text='Executable:' type='QLabel'} "
-                                   "type='Utils::PathChooser' unnamed='1' visible='1'}")
-    exeLineEd = getChildByClass(exePathChooser, "Utils::BaseValidatingLineEdit")
+    for tries in range(3):
+        clickButton("{container=':Qt Creator.scrollArea_QScrollArea' occurrence='2' text='Add' type='QPushButton' unnamed='1' visible='1'}")
+        addMenu = waitForObject("{type='QMenu' visible='1' unnamed='1' }")
+        activateItem(addMenu, "Custom Executable")
+        try:
+            exePathChooser = waitForObject("{buddy={container=':Qt Creator.scrollArea_QScrollArea' text='Executable:' type='QLabel'} "
+                                           "type='Utils::PathChooser' unnamed='1' visible='1'}", 2)
+            exeLineEd = getChildByClass(exePathChooser, "Utils::BaseValidatingLineEdit")
+        except:
+            exeLineEd = None
+
+        if exeLineEd and exeLineEd.enabled:
+            break
+    if not exeLineEd or not exeLineEd.enabled:
+        test.warning("Could not add a custom executable (Timing issue) - using fallback without hooking into subprocess.")
+        return False
+
     argLineEd = waitForObject("{buddy={container={type='QScrollArea' name='scrollArea'} "
                               "type='QLabel' text='Arguments:' visible='1'} type='QLineEdit' "
                               "unnamed='1' visible='1'}")
