@@ -110,12 +110,13 @@ public:
         return result;
     }
 
-    void resetCache(const QString &dir)
+    void resetCache(const QString &dirIn)
     {
-        Q_ASSERT(QDir(dir).isAbsolute());
-        Q_ASSERT(!dir.endsWith(QLatin1Char('/')));
-        Q_ASSERT(QDir::fromNativeSeparators(dir) == dir);
-
+        const QDir qDir = QDir(dirIn);
+        QTC_ASSERT(qDir.exists(), qWarning("%s: '%s' does not exist.",
+                                           Q_FUNC_INFO, qPrintable(dirIn));
+                                  return; )
+        const QString dir = qDir.absolutePath();
         const QString dirSlash = dir + QLatin1Char('/');
         foreach (const QString &key, m_cachedMatches.keys()) {
             if (key == dir || key.startsWith(dirSlash))
@@ -123,13 +124,16 @@ public:
         }
     }
 
-    void cache(IVersionControl *vc, const QString topLevel, const QString dir)
+    void cache(IVersionControl *vc, const QString &topLevel, const QString &dirIn)
     {
-        Q_ASSERT(QDir(dir).isAbsolute());
-        Q_ASSERT(!dir.endsWith(QLatin1Char('/')));
-        Q_ASSERT(QDir::fromNativeSeparators(dir) == dir);
-        Q_ASSERT(dir.startsWith(topLevel));
-
+        const QDir qDir(dirIn);
+        QTC_ASSERT(qDir.exists(), qWarning("%s: '%s' does not exist.",
+                                           Q_FUNC_INFO, qPrintable(dirIn));
+                                  return; )
+        const QString dir = qDir.absolutePath();
+        QTC_ASSERT(dir.startsWith(topLevel), qWarning("%s: '%s' does not start with '%s'.",
+                                                      Q_FUNC_INFO, qPrintable(dir), qPrintable(topLevel));
+                                             return; )
         VcsInfo *newInfo = new VcsInfo(vc, topLevel);
         bool createdNewInfo(true);
         // Do we have a matching VcsInfo already?
