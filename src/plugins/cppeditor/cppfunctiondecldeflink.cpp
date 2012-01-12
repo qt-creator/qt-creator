@@ -579,7 +579,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
             QString::fromUtf8(typeOfExpression.preprocess(newDeclText.toUtf8()));
 
     Document::Ptr newDeclDoc = Document::create(QLatin1String("<decl>"));
-    newDeclDoc->setSource(newDeclTextPreprocessed.toUtf8());
+    newDeclDoc->setUtf8Source(newDeclTextPreprocessed.toUtf8());
     newDeclDoc->parse(Document::ParseDeclaration);
     newDeclDoc->check();
 
@@ -810,7 +810,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
 
                 // don't change the name if it's in a comment
                 if (hasCommentedName(targetFile->cppDocument()->translationUnit(),
-                                     QLatin1String(targetFile->cppDocument()->source()),
+                                     QLatin1String(targetFile->cppDocument()->utf8Source()),
                                      targetFunctionDeclarator, existingParamIndex))
                     replacementName = 0;
 

@@ -1069,7 +1069,7 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
 
     Document::Ptr AST_cpp_document = Document::create(fileName);
     const QByteArray preprocessedCode = snapshot.preprocessedCode(source, fileName);
-    AST_cpp_document->setSource(preprocessedCode);
+    AST_cpp_document->setUtf8Source(preprocessedCode);
     AST_cpp_document->check();
 
     Overview oo;
@@ -1373,7 +1373,7 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, co
 
     AST_h_document = Document::create(fileName);
     const QByteArray preprocessedCode = snapshot.preprocessedCode(source, fileName);
-    AST_h_document->setSource(preprocessedCode);
+    AST_h_document->setUtf8Source(preprocessedCode);
     AST_h_document->check();
 
     FindASTNodes process(AST_h_document, &document);
@@ -1520,7 +1520,7 @@ void generateASTFwd_h(const Snapshot &snapshot, const QDir &cplusplusDir, const 
 
     Document::Ptr doc = Document::create(fileName);
     const QByteArray preprocessedCode = snapshot.preprocessedCode(source, fileName);
-    doc->setSource(preprocessedCode);
+    doc->setUtf8Source(preprocessedCode);
     doc->check();
 
     FindASTForwards process(doc, &document);

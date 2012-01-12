@@ -82,7 +82,7 @@ QString DoxygenGenerator::generate(QTextCursor cursor)
         declCandidate.append(QLatin1Char('}'));
 
     Document::Ptr doc = Document::create(QLatin1String("<doxygen>"));
-    doc->setSource(declCandidate.toUtf8());
+    doc->setUtf8Source(declCandidate.toUtf8());
     doc->parse(Document::ParseDeclaration);
     doc->check(Document::FastCheck);
 

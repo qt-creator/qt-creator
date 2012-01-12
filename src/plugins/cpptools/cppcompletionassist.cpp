@@ -1844,7 +1844,7 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
             QString possibleDecl = bs.mid(lineStartToken).trimmed().append("();");
 
             Document::Ptr doc = Document::create(QLatin1String("<completion>"));
-            doc->setSource(possibleDecl.toLatin1());
+            doc->setUtf8Source(possibleDecl.toLatin1());
             if (doc->parse(Document::ParseDeclaration)) {
                 doc->check();
                 if (SimpleDeclarationAST *sd = doc->translationUnit()->ast()->asSimpleDeclaration()) {

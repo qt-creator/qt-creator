@@ -100,7 +100,7 @@ void tst_FindUsages::inlineMethod()
                            "  }\n"
                            "};\n";
     Document::Ptr doc = Document::create("inlineMethod");
-    doc->setSource(src);
+    doc->setUtf8Source(src);
     doc->parse();
     doc->check();
 
@@ -143,7 +143,7 @@ const QByteArray objcSource = "\n"
 void tst_FindUsages::objc_args()
 {
     Document::Ptr doc = Document::create("objc_args");
-    doc->setSource(objcSource);
+    doc->setUtf8Source(objcSource);
     doc->parse();
     doc->check();
 
@@ -199,7 +199,7 @@ void tst_FindUsages::qproperty_1()
                            "  int _x;\n"
                            "};\n";
     Document::Ptr doc = Document::create("qproperty_1");
-    doc->setSource(src);
+    doc->setUtf8Source(src);
     doc->parse();
     doc->check();
 

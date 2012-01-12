@@ -59,7 +59,7 @@ void tst_Misc::diagnosticClient_error()
                          );
     Document::Ptr doc = Document::create("diagnosticClient_error");
     QVERIFY(!doc.isNull());
-    doc->setSource(src);
+    doc->setUtf8Source(src);
     bool success = doc->parse(Document::ParseTranlationUnit);
     QVERIFY(success);
 
@@ -79,7 +79,7 @@ void tst_Misc::diagnosticClient_warning()
                          );
     Document::Ptr doc = Document::create("diagnosticClient_warning");
     QVERIFY(!doc.isNull());
-    doc->setSource(src);
+    doc->setUtf8Source(src);
     bool success = doc->parse(Document::ParseTranlationUnit);
     QVERIFY(success);
 
@@ -132,7 +132,7 @@ void tst_Misc::findBreakpoints()
                          );
     Document::Ptr doc = Document::create("findContstructorBreakpoint");
     QVERIFY(!doc.isNull());
-    doc->setSource(src);
+    doc->setUtf8Source(src);
     bool success = doc->parse();
     QVERIFY(success);
     QCOMPARE(doc->diagnosticMessages().size(), 0);
@@ -161,7 +161,7 @@ void tst_Misc::findBreakpoints2()
                          );
     Document::Ptr doc = Document::create("findContstructorBreakpoint");
     QVERIFY(!doc.isNull());
-    doc->setSource(src);
+    doc->setUtf8Source(src);
     bool success = doc->parse();
     QVERIFY(success);
     QCOMPARE(doc->diagnosticMessages().size(), 0);

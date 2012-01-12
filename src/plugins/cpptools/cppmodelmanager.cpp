@@ -589,7 +589,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type, unsigned
 
     const QByteArray preprocessedCode = preprocess(fileName, contents);
 
-    doc->setSource(preprocessedCode);
+    doc->setUtf8Source(preprocessedCode);
     doc->keepSourceAndAST();
     doc->tokenize();
 

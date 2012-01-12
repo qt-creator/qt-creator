@@ -264,7 +264,7 @@ protected:
         // and the expression
         const Token begin = translationUnit()->tokenAt(typeId->firstToken());
         const Token last = translationUnit()->tokenAt(typeId->lastToken() - 1);
-        exportedType.typeExpression = _doc->source().mid(begin.begin(), last.end() - begin.begin());
+        exportedType.typeExpression = _doc->utf8Source().mid(begin.begin(), last.end() - begin.begin());
 
         _exportedTypes += exportedType;
 
@@ -392,12 +392,12 @@ private:
     {
         const Token firstToken = translationUnit()->tokenAt(first);
         const Token lastToken = translationUnit()->tokenAt(last);
-        return _doc->source().mid(firstToken.begin(), lastToken.end() - firstToken.begin());
+        return _doc->utf8Source().mid(firstToken.begin(), lastToken.end() - firstToken.begin());
     }
 
     QString stringOf(const Token &token)
     {
-        return _doc->source().mid(token.begin(), token.length());
+        return _doc->utf8Source().mid(token.begin(), token.length());
     }
 
     ExpressionAST *skipStringCall(ExpressionAST *exp)
@@ -689,7 +689,7 @@ void FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &document)
 
     // this check only guards against some input errors, if document's source and AST has not
     // been guarded properly the source and AST may still become empty/null while this function is running
-    if (document->source().isEmpty()
+    if (document->utf8Source().isEmpty()
             || !document->translationUnit()->ast())
         return;
 
@@ -710,7 +710,7 @@ void FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &document)
     // context properties need lookup inside function scope, and thus require a full check
     Document::Ptr localDoc = document;
     if (document->checkMode() != Document::FullCheck && !contextPropertyDescriptions.isEmpty()) {
-        localDoc = m_snapshot.documentFromSource(document->source(), document->fileName());
+        localDoc = m_snapshot.documentFromSource(document->utf8Source(), document->fileName());
         localDoc->check();
     }
 

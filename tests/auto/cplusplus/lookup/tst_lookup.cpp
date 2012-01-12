@@ -114,7 +114,7 @@ void tst_Lookup::base_class_defined_1()
         "class derived: public base {};\n";
 
     Document::Ptr doc = Document::create("base_class_defined_1");
-    doc->setSource(source);
+    doc->setUtf8Source(source);
     doc->parse();
     doc->check();
 
@@ -163,7 +163,7 @@ void tst_Lookup::simple_class_1()
         "@implementation Zoo +(id)alloc{} -(id)init{} -(void)dealloc{} @end\n";
 
     Document::Ptr doc = Document::create("simple_class_1");
-    doc->setSource(source);
+    doc->setUtf8Source(source);
     doc->parse();
     doc->check();
 
@@ -226,7 +226,7 @@ void tst_Lookup::class_with_baseclass()
                               "@implementation Zoo +(id)alloc{} -(id)init{} -(void)dealloc{} @end\n";
 
     Document::Ptr doc = Document::create("class_with_baseclass");
-    doc->setSource(source);
+    doc->setUtf8Source(source);
     doc->parse();
     doc->check();
 
@@ -287,7 +287,7 @@ void tst_Lookup::class_with_protocol_with_protocol()
                               "@implementation Zoo +(id)alloc{} -(id)init{} -(void)dealloc{} @end\n";
 
     Document::Ptr doc = Document::create("class_with_protocol_with_protocol");
-    doc->setSource(source);
+    doc->setUtf8Source(source);
     doc->parse();
     doc->check();
 
@@ -341,7 +341,7 @@ void tst_Lookup::iface_impl_scoping()
                               "@implementation Scooping-(int)method1:(int)arg{return arg;}@end\n";
 
     Document::Ptr doc = Document::create("class_with_protocol_with_protocol");
-    doc->setSource(source);
+    doc->setUtf8Source(source);
     doc->parse();
     doc->check();
 
@@ -431,7 +431,7 @@ void tst_Lookup::templates_1()
             "    l.end(); // std::_List_iterator<Point>\n"
             "}\n";
     Document::Ptr doc = Document::create("templates_1");
-    doc->setSource(source);
+    doc->setUtf8Source(source);
     doc->parse();
     doc->check();
 
@@ -462,7 +462,7 @@ void tst_Lookup::templates_2()
             "}\n"
 ;
     Document::Ptr doc = Document::create("templates_2");
-    doc->setSource(source);
+    doc->setUtf8Source(source);
     doc->parse();
     doc->check();
 
@@ -487,7 +487,7 @@ void tst_Lookup::templates_3()
             "    l.at(0); // const Point &\n"
             "}\n";
     Document::Ptr doc = Document::create("templates_3");
-    doc->setSource(source);
+    doc->setUtf8Source(source);
     doc->parse();
     doc->check();
 
@@ -528,7 +528,7 @@ void tst_Lookup::templates_4()
             "    (*l); // Point &\n"
             "}\n";
     Document::Ptr doc = Document::create("templates_4");
-    doc->setSource(source);
+    doc->setUtf8Source(source);
     doc->parse();
     doc->check();
 
@@ -558,7 +558,7 @@ void tst_Lookup::templates_5()
             "    a.get(); // const Point &\n"
             "}\n";
     Document::Ptr doc = Document::create("templates_5");
-    doc->setSource(source);
+    doc->setUtf8Source(source);
     doc->parse();
     doc->check();
 

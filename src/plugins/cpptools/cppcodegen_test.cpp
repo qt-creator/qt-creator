@@ -72,7 +72,7 @@ void CppToolsPlugin::test_codegen_public_in_empty_class()
             "\n";
 
     Document::Ptr doc = Document::create("public_in_empty_class");
-    doc->setSource(src);
+    doc->setUtf8Source(src);
     doc->parse();
     doc->check();
 
@@ -112,7 +112,7 @@ void CppToolsPlugin::test_codegen_public_in_nonempty_class()
             "\n";
 
     Document::Ptr doc = Document::create("public_in_nonempty_class");
-    doc->setSource(src);
+    doc->setUtf8Source(src);
     doc->parse();
     doc->check();
 
@@ -152,7 +152,7 @@ void CppToolsPlugin::test_codegen_public_before_protected()
             "\n";
 
     Document::Ptr doc = Document::create("public_before_protected");
-    doc->setSource(src);
+    doc->setUtf8Source(src);
     doc->parse();
     doc->check();
 
@@ -193,7 +193,7 @@ void CppToolsPlugin::test_codegen_private_after_protected()
             "\n";
 
     Document::Ptr doc = Document::create("private_after_protected");
-    doc->setSource(src);
+    doc->setUtf8Source(src);
     doc->parse();
     doc->check();
 
@@ -234,7 +234,7 @@ void CppToolsPlugin::test_codegen_protected_in_nonempty_class()
             "\n";
 
     Document::Ptr doc = Document::create("protected_in_nonempty_class");
-    doc->setSource(src);
+    doc->setUtf8Source(src);
     doc->parse();
     doc->check();
 
@@ -275,7 +275,7 @@ void CppToolsPlugin::test_codegen_protected_between_public_and_private()
             "\n";
 
     Document::Ptr doc = Document::create("protected_betwee_public_and_private");
-    doc->setSource(src);
+    doc->setUtf8Source(src);
     doc->parse();
     doc->check();
 
@@ -336,7 +336,7 @@ void CppToolsPlugin::test_codegen_qtdesigner_integration()
             "#endif // MAINWINDOW_H\n";
 
     Document::Ptr doc = Document::create("qtdesigner_integration");
-    doc->setSource(src);
+    doc->setUtf8Source(src);
     doc->parse();
     doc->check();
 
@@ -380,7 +380,7 @@ void CppToolsPlugin::test_codegen_definition_empty_class()
     Utils::FileSaver srcSaver(src->fileName());
     srcSaver.write(srcText);
     srcSaver.finalize();
-    src->setSource(srcText);
+    src->setUtf8Source(srcText);
     src->parse();
     src->check();
     QCOMPARE(src->diagnosticMessages().size(), 0);
@@ -390,7 +390,7 @@ void CppToolsPlugin::test_codegen_definition_empty_class()
     Utils::FileSaver dstSaver(dst->fileName());
     dstSaver.write(dstText);
     dstSaver.finalize();
-    dst->setSource(dstText);
+    dst->setUtf8Source(dstText);
     dst->parse();
     dst->check();
     QCOMPARE(dst->diagnosticMessages().size(), 0);
@@ -448,7 +448,7 @@ void CppToolsPlugin::test_codegen_definition_first_member()
     Utils::FileSaver srcSaver(src->fileName());
     srcSaver.write(srcText);
     srcSaver.finalize();
-    src->setSource(srcText);
+    src->setUtf8Source(srcText);
     src->parse();
     src->check();
     QCOMPARE(src->diagnosticMessages().size(), 0);
@@ -459,7 +459,7 @@ void CppToolsPlugin::test_codegen_definition_first_member()
     Utils::FileSaver dstSaver(dst->fileName());
     dstSaver.write(dstText);
     dstSaver.finalize();
-    dst->setSource(dstText);
+    dst->setUtf8Source(dstText);
     dst->parse();
     dst->check();
     QCOMPARE(dst->diagnosticMessages().size(), 0);
@@ -517,7 +517,7 @@ void CppToolsPlugin::test_codegen_definition_last_member()
     Utils::FileSaver srcSaver(src->fileName());
     srcSaver.write(srcText);
     srcSaver.finalize();
-    src->setSource(srcText);
+    src->setUtf8Source(srcText);
     src->parse();
     src->check();
     QCOMPARE(src->diagnosticMessages().size(), 0);
@@ -528,7 +528,7 @@ void CppToolsPlugin::test_codegen_definition_last_member()
     Utils::FileSaver dstSaver(dst->fileName());
     dstSaver.write(dstText);
     dstSaver.finalize();
-    dst->setSource(dstText);
+    dst->setUtf8Source(dstText);
     dst->parse();
     dst->check();
     QCOMPARE(dst->diagnosticMessages().size(), 0);
@@ -592,7 +592,7 @@ void CppToolsPlugin::test_codegen_definition_middle_member()
     Utils::FileSaver srcSaver(src->fileName());
     srcSaver.write(srcText);
     srcSaver.finalize();
-    src->setSource(srcText);
+    src->setUtf8Source(srcText);
     src->parse();
     src->check();
     QCOMPARE(src->diagnosticMessages().size(), 0);
@@ -603,7 +603,7 @@ void CppToolsPlugin::test_codegen_definition_middle_member()
     Utils::FileSaver dstSaver(dst->fileName());
     dstSaver.write(dstText);
     dstSaver.finalize();
-    dst->setSource(dstText);
+    dst->setUtf8Source(dstText);
     dst->parse();
     dst->check();
     QCOMPARE(dst->diagnosticMessages().size(), 0);

@@ -79,7 +79,7 @@ FindUsages::FindUsages(const QByteArray &originalSource, Document::Ptr doc, cons
       _snapshot(snapshot),
       _context(doc, snapshot),
       _originalSource(originalSource),
-      _source(_doc->source()),
+      _source(_doc->utf8Source()),
       _currentScope(0)
 {
     _snapshot.insert(_doc);
@@ -93,8 +93,8 @@ FindUsages::FindUsages(const LookupContext &context)
       _doc(context.thisDocument()),
       _snapshot(context.snapshot()),
       _context(context),
-      _originalSource(_doc->source()),
-      _source(_doc->source()),
+      _originalSource(_doc->utf8Source()),
+      _source(_doc->utf8Source()),
       _currentScope(0)
 {
     typeofExpression.init(_doc, _snapshot, _context.bindings());

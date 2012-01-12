@@ -710,7 +710,7 @@ void ModelManager::maybeQueueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &do
 {
     // avoid scanning documents without source code available
     doc->keepSourceAndAST();
-    if (doc->source().isEmpty()) {
+    if (doc->utf8Source().isEmpty()) {
         doc->releaseSourceAndAST();
         return;
     }

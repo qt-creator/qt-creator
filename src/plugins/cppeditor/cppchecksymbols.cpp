@@ -505,7 +505,7 @@ bool CheckSymbols::visit(MemberAccessAST *ast)
             if (_potentialMembers.contains(id)) {
                 const Token start = tokenAt(ast->firstToken());
                 const Token end = tokenAt(ast->lastToken() - 1);
-                const QByteArray expression = _doc->source().mid(start.begin(), end.end() - start.begin());
+                const QByteArray expression = _doc->utf8Source().mid(start.begin(), end.end() - start.begin());
 
                 const QList<LookupItem> candidates =
                     typeOfExpression(expression, enclosingScope(), TypeOfExpression::Preprocess);
@@ -568,7 +568,7 @@ QByteArray CheckSymbols::textOf(AST *ast) const
 {
     const Token start = tokenAt(ast->firstToken());
     const Token end = tokenAt(ast->lastToken() - 1);
-    const QByteArray text = _doc->source().mid(start.begin(), end.end() - start.begin());
+    const QByteArray text = _doc->utf8Source().mid(start.begin(), end.end() - start.begin());
     return text;
 }
 

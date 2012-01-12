@@ -494,10 +494,10 @@ Document::Ptr Document::create(const QString &fileName)
     return doc;
 }
 
-QByteArray Document::source() const
+QByteArray Document::utf8Source() const
 { return _source; }
 
-void Document::setSource(const QByteArray &source)
+void Document::setUtf8Source(const QByteArray &source)
 {
     _source = source;
     _translationUnit->setSource(_source.constBegin(), _source.size());
@@ -686,7 +686,7 @@ Document::Ptr Snapshot::documentFromSource(const QByteArray &preprocessedCode,
         newDoc->_macroUses = thisDocument->_macroUses;
     }
 
-    newDoc->setSource(preprocessedCode);
+    newDoc->setUtf8Source(preprocessedCode);
     return newDoc;
 }
 

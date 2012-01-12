@@ -99,8 +99,8 @@ public:
     Symbol *lastVisibleSymbolAt(unsigned line, unsigned column = 0) const;
     Scope *scopeAt(unsigned line, unsigned column = 0);
 
-    QByteArray source() const;
-    void setSource(const QByteArray &source);
+    QByteArray utf8Source() const;
+    void setUtf8Source(const QByteArray &utf8Source);
 
     void startSkippingBlocks(unsigned offset);
     void stopSkippingBlocks(unsigned offset);
