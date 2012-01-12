@@ -186,6 +186,7 @@ void CppTypeHierarchyWidget::buildBaseHierarchy(QVector<CppClass> *s)
         for (int i = s->size() - 1; i >= 0; --i) {
             QStandardItem *item = itemForClass(s->at(i));
             parent->appendRow(item);
+            m_treeView->expand(m_model->indexFromItem(parent));
             parent = item;
         }
     }
