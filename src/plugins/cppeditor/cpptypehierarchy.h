@@ -43,6 +43,7 @@ QT_BEGIN_NAMESPACE
 class QStandardItemModel;
 class QStandardItem;
 class QModelIndex;
+class QLabel;
 template <class> class QVector;
 QT_END_NAMESPACE
 
@@ -60,6 +61,7 @@ namespace Internal {
 
 class CPPEditorWidget;
 class CppClass;
+class CppClassLabel;
 
 class CppTypeHierarchyWidget : public QWidget
 {
@@ -84,6 +86,7 @@ private:
     Utils::NavigationTreeView *m_treeView;
     QStandardItemModel *m_model;
     Utils::AnnotatedItemDelegate *m_delegate;
+    CppClassLabel *m_inspectedClass;
 };
 
 // @todo: Pretty much the same design as the OutlineWidgetStack. Maybe we can generalize the

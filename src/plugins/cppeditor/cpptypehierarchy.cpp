@@ -89,6 +89,35 @@ QList<CppClass> sortClasses(const QList<CppClass> &cppClasses)
 
 } // Anonymous
 
+namespace CppEditor {
+namespace Internal {
+
+class CppClassLabel : public QLabel
+{
+public:
+    CppClassLabel(CPPEditorWidget *editor, QWidget *parent)
+        : QLabel(parent), m_editor(editor)
+    {}
+
+    void setup(CppClass *cppClass)
+    {
+        setText(cppClass->name());
+        m_link = cppClass->link();
+    }
+
+private:
+    void mousePressEvent(QMouseEvent *)
+    {
+        m_editor->openLink(m_link);
+    }
+
+    CPPEditorWidget *m_editor;
+    CPPEditorWidget::Link m_link;
+};
+
+} // namespace Internal
+} // namespace CppEditor
+
 // CppTypeHierarchyWidget
 CppTypeHierarchyWidget::CppTypeHierarchyWidget(Core::IEditor *editor) :
     QWidget(0),
@@ -104,6 +133,9 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget(Core::IEditor *editor) :
     if (CPPEditor *cppEditor = qobject_cast<CPPEditor *>(editor)) {
         m_cppEditor = static_cast<CPPEditorWidget *>(cppEditor->widget());
 
+        m_inspectedClass = new CppClassLabel(m_cppEditor, this);
+        m_inspectedClass->setMargin(5);
+        layout->addWidget(m_inspectedClass);
         m_model = new QStandardItemModel(this);
         m_treeView = new NavigationTreeView(this);
         m_delegate = new AnnotatedItemDelegate(this);
@@ -158,6 +190,7 @@ void CppTypeHierarchyWidget::perform()
         const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
         CppElement *element = cppElement.data();
         if (CppClass *cppClass = dynamic_cast<CppClass *>(element)) {
+            m_inspectedClass->setup(cppClass);
             QStandardItem *bases = new QStandardItem(tr("Bases"));
             m_model->invisibleRootItem()->appendRow(bases);
             QVector<CppClass> v;
@@ -166,7 +199,8 @@ void CppTypeHierarchyWidget::perform()
             m_treeView->expand(m_model->indexFromItem(bases));
             QStandardItem *derived = new QStandardItem(tr("Derived"));
             m_model->invisibleRootItem()->appendRow(derived);
-            buildDerivedHierarchy(*cppClass, derived);
+            foreach (const CppClass &derivedClass, sortClasses(cppClass->derived()))
+                buildDerivedHierarchy(derivedClass, derived);
         }
     }
 }
@@ -183,7 +217,7 @@ void CppTypeHierarchyWidget::buildBaseHierarchy(QVector<CppClass> *s)
         }
     } else {
         QStandardItem *parent = m_model->item(0, 0);
-        for (int i = s->size() - 1; i >= 0; --i) {
+        for (int i = s->size() - 1; i > 0; --i) {
             QStandardItem *item = itemForClass(s->at(i));
             parent->appendRow(item);
             m_treeView->expand(m_model->indexFromItem(parent));
