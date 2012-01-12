@@ -238,12 +238,14 @@ bool MakeStep::init()
 
     setOutputParser(parser);
 
+    m_scriptTarget = (bc->qt4Target()->qt4Project()->rootQt4ProjectNode()->projectType() == ScriptTemplate);
+
     return AbstractProcessStep::init();
 }
 
 void MakeStep::run(QFutureInterface<bool> & fi)
 {
-    if (qt4BuildConfiguration()->qt4Target()->qt4Project()->rootQt4ProjectNode()->projectType() == ScriptTemplate) {
+    if (m_scriptTarget) {
         fi.reportResult(true);
         return;
     }
@@ -351,13 +353,22 @@ void MakeStepConfigWidget::qtVersionChanged()
 
 void MakeStepConfigWidget::updateMakeOverrideLabel()
 {
-    Qt4BuildConfiguration *qt4bc = m_makeStep->qt4BuildConfiguration();
-    m_ui->makeLabel->setText(tr("Override %1:").arg(qt4bc->makeCommand()));
+    Qt4BuildConfiguration *bc = m_makeStep->qt4BuildConfiguration();
+    if (!bc)
+        bc = qobject_cast<Qt4BuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
+    if (bc)
+        m_ui->makeLabel->setText(tr("Override %1:").arg(bc->makeCommand()));
+    else
+        m_ui->makeLabel->setText(tr("Make:"));
 }
 
 void MakeStepConfigWidget::updateDetails()
 {
     Qt4BuildConfiguration *bc = m_makeStep->qt4BuildConfiguration();
+    if (!bc)
+        bc = qobject_cast<Qt4BuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
+    if (!bc)
+        m_summaryText = tr("No qt4 buildconfiguration."); // Can't happen
 
     ProjectExplorer::ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());

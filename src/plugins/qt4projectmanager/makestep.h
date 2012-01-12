@@ -113,6 +113,7 @@ protected:
 private:
     void ctor();
     bool m_clean;
+    bool m_scriptTarget;
     QString m_makeFileToCheck;
     QString m_userArgs;
     QString m_makeCmd;
