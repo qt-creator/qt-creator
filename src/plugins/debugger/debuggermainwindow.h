@@ -73,6 +73,7 @@ public:
 
     // Dockwidgets are registered to the main window.
     QDockWidget *createDockWidget(const DebuggerLanguage &language, QWidget *widget);
+    void addStagedMenuEntries();
 
     QWidget *createContents(Core::IMode *mode);
     QMenu *createPopupMenu();

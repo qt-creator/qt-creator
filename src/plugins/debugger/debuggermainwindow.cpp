@@ -136,6 +136,7 @@ public:
     DebuggerLanguages m_engineDebugLanguages;
 
     ActionContainer *m_viewsMenu;
+    QList<Command *> m_menuCommandsToAdd;
 
     Project *m_previousProject;
     Target *m_previousTarget;
@@ -321,7 +322,8 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
         Core::Id("Debugger.Views.OpenMemoryEditor"),
         debugcontext);
     cmd->setAttribute(Command::CA_Hide);
-    m_viewsMenu->addAction(cmd);
+    m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
+
     cmd = am->registerAction(q->menuSeparator1(),
         Core::Id("Debugger.Views.Separator1"), debugcontext);
     cmd->setAttribute(Command::CA_Hide);
@@ -429,7 +431,7 @@ QDockWidget *DebuggerMainWindow::createDockWidget(const DebuggerLanguage &langua
     Command *cmd = am->registerAction(toggleViewAction,
              Core::Id(QLatin1String("Debugger.") + widget->objectName()), globalContext);
     cmd->setAttribute(Command::CA_Hide);
-    d->m_viewsMenu->addAction(cmd);
+    d->m_menuCommandsToAdd.append(cmd);
 
     dockWidget->installEventFilter(&d->m_resizeEventFilter);
 
@@ -441,6 +443,19 @@ QDockWidget *DebuggerMainWindow::createDockWidget(const DebuggerLanguage &langua
         d, SLOT(updateDockWidgetSettings()));
 
     return dockWidget;
+}
+
+static bool sortCommands(Command *cmd1, Command *cmd2)
+{
+    return cmd1->action()->text() < cmd2->action()->text();
+}
+
+void DebuggerMainWindow::addStagedMenuEntries()
+{
+    qSort(d->m_menuCommandsToAdd.begin(), d->m_menuCommandsToAdd.end(), &sortCommands);
+    foreach (Command *cmd, d->m_menuCommandsToAdd)
+        d->m_viewsMenu->addAction(cmd);
+    d->m_menuCommandsToAdd.clear();
 }
 
 QWidget *DebuggerMainWindow::createContents(IMode *mode)

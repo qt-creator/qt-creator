@@ -3025,6 +3025,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
     dock = m_mainWindow->createDockWidget(CppLanguage, localsAndWatchers);
     dock->setProperty(DOCKWIDGET_DEFAULT_AREA, Qt::RightDockWidgetArea);
 
+    m_mainWindow->addStagedMenuEntries();
+
     // Do not fail to load the whole plugin if something goes wrong here.
     QString errorMessage;
     if (!parseArguments(m_arguments, &m_cmdLineEnabledEngines, &errorMessage)) {
