@@ -62,6 +62,7 @@ Rectangle {
     signal updateCursorPosition
     property string fileName: ""
     property int lineNumber: -1
+    property int columnNumber: 0
 
     property real elapsedTime
     signal updateTimer
@@ -131,9 +132,10 @@ Rectangle {
     }
 
     // ***** functions
-    function gotoSourceLocation(file,line) {
+    function gotoSourceLocation(file,line,column) {
         root.fileName = file;
         root.lineNumber = line;
+        root.columnNumber = column;
         root.updateCursorPosition();
     }
 
@@ -265,6 +267,7 @@ Rectangle {
         rangeDetails.type = "";
         rangeDetails.file = "";
         rangeDetails.line = -1;
+        rangeDetails.column = 0;
     }
 
     function selectNextWithId( eventId )
@@ -418,6 +421,7 @@ Rectangle {
                     rangeDetails.label = qmlEventList.getDetails(selectedItem);
                     rangeDetails.file = qmlEventList.getFilename(selectedItem);
                     rangeDetails.line = qmlEventList.getLine(selectedItem);
+                    rangeDetails.column = qmlEventList.getColumn(selectedItem);
                     rangeDetails.type = root.names[qmlEventList.getType(selectedItem)];
 
                     rangeDetails.visible = true;
@@ -441,7 +445,7 @@ Rectangle {
 
             onItemPressed: {
                 if (pressedItem !== -1) {
-                    root.gotoSourceLocation(qmlEventList.getFilename(pressedItem), qmlEventList.getLine(pressedItem));
+                    root.gotoSourceLocation(qmlEventList.getFilename(pressedItem), qmlEventList.getLine(pressedItem), qmlEventList.getColumn(pressedItem));
                 }
             }
 

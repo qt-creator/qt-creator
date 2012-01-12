@@ -443,7 +443,7 @@ QWidget *QmlProfilerTool::createWidgets()
     d->m_traceWindow = new TraceWindow(mw);
     d->m_traceWindow->reset(d->m_client);
 
-    connect(d->m_traceWindow, SIGNAL(gotoSourceLocation(QString,int)),this, SLOT(gotoSourceLocation(QString,int)));
+    connect(d->m_traceWindow, SIGNAL(gotoSourceLocation(QString,int,int)),this, SLOT(gotoSourceLocation(QString,int,int)));
     connect(d->m_traceWindow, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(d->m_traceWindow->getEventList(), SIGNAL(error(QString)), this, SLOT(showErrorDialog(QString)));
     connect(d->m_traceWindow->getEventList(), SIGNAL(dataReady()), this, SLOT(showSaveOption()));
@@ -451,18 +451,18 @@ QWidget *QmlProfilerTool::createWidgets()
     connect(d->m_traceWindow, SIGNAL(profilerStateChanged(bool,bool)), this, SLOT(profilerStateChanged(bool,bool)));
 
     d->m_eventsView = new QmlProfilerEventsWidget(d->m_traceWindow->getEventList(), mw);
-    connect(d->m_eventsView, SIGNAL(gotoSourceLocation(QString,int)), this, SLOT(gotoSourceLocation(QString,int)));
+    connect(d->m_eventsView, SIGNAL(gotoSourceLocation(QString,int,int)), this, SLOT(gotoSourceLocation(QString,int,int)));
     connect(d->m_eventsView, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(d->m_eventsView, SIGNAL(showEventInTimeline(int)), d->m_traceWindow, SLOT(selectNextEvent(int)));
     connect(d->m_traceWindow, SIGNAL(selectedEventIdChanged(int)), d->m_eventsView, SLOT(updateSelectedEvent(int)));
 
     d->m_v8profilerView = new QmlProfilerEventsWidget(d->m_traceWindow->getEventList(), mw);
     d->m_v8profilerView->switchToV8View();
-    connect(d->m_v8profilerView, SIGNAL(gotoSourceLocation(QString,int)), this, SLOT(gotoSourceLocation(QString,int)));
+    connect(d->m_v8profilerView, SIGNAL(gotoSourceLocation(QString,int,int)), this, SLOT(gotoSourceLocation(QString,int,int)));
     connect(d->m_v8profilerView, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
 
-    connect(d->m_v8profilerView, SIGNAL(gotoSourceLocation(QString,int)), d->m_eventsView, SLOT(selectBySourceLocation(QString,int)));
-    connect(d->m_eventsView, SIGNAL(gotoSourceLocation(QString,int)), d->m_v8profilerView, SLOT(selectBySourceLocation(QString,int)));
+    connect(d->m_v8profilerView, SIGNAL(gotoSourceLocation(QString,int,int)), d->m_eventsView, SLOT(selectBySourceLocation(QString,int,int)));
+    connect(d->m_eventsView, SIGNAL(gotoSourceLocation(QString,int,int)), d->m_v8profilerView, SLOT(selectBySourceLocation(QString,int,int)));
 
     QDockWidget *eventsDock = AnalyzerManager::createDockWidget
             (this, tr("Events"), d->m_eventsView, Qt::BottomDockWidgetArea);
@@ -602,7 +602,7 @@ void QmlProfilerTool::setAppIsStopped()
     updateTimers();
 }
 
-void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber)
+void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber)
 {
     if (lineNumber < 0 || fileUrl.isEmpty())
         return;
@@ -619,7 +619,7 @@ void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber)
 
     if (textEditor) {
         editorManager->addCurrentPositionToNavigationHistory();
-        textEditor->gotoLine(lineNumber);
+        textEditor->gotoLine(lineNumber, columnNumber);
         textEditor->widget()->setFocus();
     }
 }

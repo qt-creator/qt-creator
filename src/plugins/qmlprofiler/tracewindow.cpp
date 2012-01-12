@@ -134,7 +134,7 @@ TraceWindow::TraceWindow(QWidget *parent)
     setLayout(groupLayout);
 
     m_eventList = new QmlProfilerEventList(this);
-    connect(this,SIGNAL(range(int,qint64,qint64,QStringList,QString,int)), m_eventList, SLOT(addRangedEvent(int,qint64,qint64,QStringList,QString,int)));
+    connect(this,SIGNAL(range(int,qint64,qint64,QStringList,QmlJsDebugClient::QmlEventLocation)), m_eventList, SLOT(addRangedEvent(int,qint64,qint64,QStringList,QmlJsDebugClient::QmlEventLocation)));
     connect(this, SIGNAL(traceFinished(qint64)), m_eventList, SLOT(setTraceEndTime(qint64)));
     connect(this, SIGNAL(traceStarted(qint64)), m_eventList, SLOT(setTraceStartTime(qint64)));
     connect(this, SIGNAL(frameEvent(qint64,int,int)), m_eventList, SLOT(addFrameEvent(qint64,int,int)));
@@ -309,8 +309,8 @@ void TraceWindow::connectClientSignals()
 {
     if (m_plugin) {
         connect(m_plugin.data(), SIGNAL(complete()), this, SLOT(qmlComplete()));
-        connect(m_plugin.data(), SIGNAL(range(int,qint64,qint64,QStringList,QString,int)),
-                this, SIGNAL(range(int,qint64,qint64,QStringList,QString,int)));
+        connect(m_plugin.data(), SIGNAL(range(int,qint64,qint64,QStringList,QmlJsDebugClient::QmlEventLocation)),
+                this, SIGNAL(range(int,qint64,qint64,QStringList,QmlJsDebugClient::QmlEventLocation)));
         connect(m_plugin.data(), SIGNAL(traceFinished(qint64)), this, SIGNAL(traceFinished(qint64)));
         connect(m_plugin.data(), SIGNAL(traceStarted(qint64)), this, SIGNAL(traceStarted(qint64)));
         connect(m_plugin.data(), SIGNAL(frame(qint64,int,int)), this, SIGNAL(frameEvent(qint64,int,int)));
@@ -329,8 +329,8 @@ void TraceWindow::disconnectClientSignals()
 {
     if (m_plugin) {
         disconnect(m_plugin.data(), SIGNAL(complete()), this, SLOT(qmlComplete()));
-        disconnect(m_plugin.data(), SIGNAL(range(int,qint64,qint64,QStringList,QString,int)),
-                this, SIGNAL(range(int,qint64,qint64,QStringList,QString,int)));
+        disconnect(m_plugin.data(), SIGNAL(range(int,qint64,qint64,QStringList,QmlJsDebugClient::QmlEventLocation)),
+                this, SIGNAL(range(int,qint64,qint64,QStringList,QmlJsDebugClient::QmlEventLocation)));
         disconnect(m_plugin.data(), SIGNAL(traceFinished(qint64)), this, SIGNAL(traceFinished(qint64)));
         disconnect(m_plugin.data(), SIGNAL(traceStarted(qint64)), this, SIGNAL(traceStarted(qint64)));
         disconnect(m_plugin.data(), SIGNAL(enabledChanged()), this, SLOT(updateProfilerState()));
@@ -362,7 +362,8 @@ void TraceWindow::contextMenuEvent(QContextMenuEvent *ev)
 void TraceWindow::updateCursorPosition()
 {
     emit gotoSourceLocation(m_mainView->rootObject()->property("fileName").toString(),
-                            m_mainView->rootObject()->property("lineNumber").toInt());
+                            m_mainView->rootObject()->property("lineNumber").toInt(),
+                            m_mainView->rootObject()->property("columnNumber").toInt());
 }
 
 void TraceWindow::updateTimer()

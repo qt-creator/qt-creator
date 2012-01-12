@@ -83,7 +83,7 @@ public slots:
     void setAppIsRunning();
     void setAppIsStopped();
 
-    void gotoSourceLocation(const QString &fileUrl, int lineNumber);
+    void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber);
     void updateTimers();
     void profilerStateChanged(bool qmlActive, bool v8active);
 

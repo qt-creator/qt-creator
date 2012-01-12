@@ -51,7 +51,7 @@ public:
     qint64 inProgressRanges;
     QStack<qint64> rangeStartTimes[MaximumQmlEventType];
     QStack<QStringList> rangeDatas[MaximumQmlEventType];
-    QStack<Location> rangeLocations[MaximumQmlEventType];
+    QStack<QmlEventLocation> rangeLocations[MaximumQmlEventType];
     int rangeCount[MaximumQmlEventType];
     qint64 maximumTime;
     bool recording;
@@ -191,10 +191,14 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         } else if (messageType == RangeLocation) {
             QString fileName;
             int line;
+            int column = -1;
             stream >> fileName >> line;
 
+            if (!stream.atEnd())
+                stream >> column;
+
             if (d->rangeCount[range] > 0) {
-                d->rangeLocations[range].push(Location(fileName, line));
+                d->rangeLocations[range].push(QmlEventLocation(fileName, line, column));
             }
         } else {
             if (d->rangeCount[range] > 0) {
@@ -204,10 +208,10 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
 
                 d->maximumTime = qMax(time, d->maximumTime);
                 QStringList data = d->rangeDatas[range].count() ? d->rangeDatas[range].pop() : QStringList();
-                Location location = d->rangeLocations[range].count() ? d->rangeLocations[range].pop() : Location();
+                QmlEventLocation location = d->rangeLocations[range].count() ? d->rangeLocations[range].pop() : QmlEventLocation();
 
                 qint64 startTime = d->rangeStartTimes[range].pop();
-                emit this->range((QmlEventType)range, startTime, time - startTime, data, location.fileName, location.line);
+                emit this->range((QmlEventType)range, startTime, time - startTime, data, location);
                 if (d->rangeCount[range] == 0) {
                     int count = d->rangeDatas[range].count() +
                                 d->rangeStartTimes[range].count() +

@@ -35,20 +35,13 @@
 
 #include "qdeclarativedebugclient.h"
 #include "qmlprofilereventtypes.h"
+#include "qmlprofilereventlocation.h"
 #include "qmljsdebugclient_global.h"
 
 #include <QtCore/QStack>
 #include <QtCore/QStringList>
 
 namespace QmlJsDebugClient {
-
-struct QMLJSDEBUGCLIENT_EXPORT Location
-{
-    Location() : line(-1) {}
-    Location(const QString &file, int lineNumber) : fileName(file), line(lineNumber) {}
-    QString fileName;
-    int line;
-};
 
 class QMLJSDEBUGCLIENT_EXPORT QmlProfilerTraceClient : public QmlJsDebugClient::QDeclarativeDebugClient
 {
@@ -100,7 +93,7 @@ signals:
     void traceFinished( qint64 time );
     void traceStarted( qint64 time );
     void range(int type, qint64 startTime, qint64 length,
-               const QStringList &data, const QString &fileName, int line);
+               const QStringList &data, const QmlJsDebugClient::QmlEventLocation &location);
     void frame(qint64 time, int frameRate, int animationCount);
 
     void recordingChanged(bool arg);

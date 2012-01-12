@@ -96,7 +96,7 @@ QmlProfilerApplication::QmlProfilerApplication(int &argc, char **argv) :
 
     connect(&m_qmlProfilerClient, SIGNAL(enabled()), this, SLOT(traceClientEnabled()));
     connect(&m_qmlProfilerClient, SIGNAL(recordingChanged(bool)), this, SLOT(recordingChanged()));
-    connect(&m_qmlProfilerClient, SIGNAL(range(int,qint64,qint64,QStringList,QString,int)), &m_eventList, SLOT(addRangedEvent(int,qint64,qint64,QStringList,QString,int)));
+    connect(&m_qmlProfilerClient, SIGNAL(range(int,qint64,qint64,QStringList,QString,int,int)), &m_eventList, SLOT(addRangedEvent(int,qint64,qint64,QStringList,QString,int,int)));
     connect(&m_qmlProfilerClient, SIGNAL(complete()), this, SLOT(qmlComplete()));
 
     connect(&m_v8profilerClient, SIGNAL(enabled()), this, SLOT(profilerClientEnabled()));

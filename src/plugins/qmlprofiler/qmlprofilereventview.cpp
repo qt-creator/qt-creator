@@ -86,7 +86,7 @@ QmlProfilerEventsWidget::QmlProfilerEventsWidget(QmlJsDebugClient::QmlProfilerEv
 
     m_eventTree = new QmlProfilerEventsMainView(model, this);
     m_eventTree->setViewType(QmlProfilerEventsMainView::EventsView);
-    connect(m_eventTree, SIGNAL(gotoSourceLocation(QString,int)), this, SIGNAL(gotoSourceLocation(QString,int)));
+    connect(m_eventTree, SIGNAL(gotoSourceLocation(QString,int,int)), this, SIGNAL(gotoSourceLocation(QString,int,int)));
     connect(m_eventTree, SIGNAL(showEventInTimeline(int)), this, SIGNAL(showEventInTimeline(int)));
 
     m_eventChildren = new QmlProfilerEventsParentsAndChildrenView(model, QmlProfilerEventsParentsAndChildrenView::ChildrenView, this);
@@ -181,8 +181,12 @@ void QmlProfilerEventsWidget::updateSelectedEvent(int eventId) const
         m_eventTree->selectEvent(eventId);
 }
 
-void QmlProfilerEventsWidget::selectBySourceLocation(const QString &filename, int line)
+void QmlProfilerEventsWidget::selectBySourceLocation(const QString &filename, int line, int column)
 {
+    // This slot is used to connect the javascript pane with the qml events pane
+    // Our javascript trace data does not store column information
+    // thus we ignore it here
+    Q_UNUSED(column);
     m_eventTree->selectEventByLocation(filename, line);
 }
 
@@ -453,8 +457,9 @@ void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildModelFrom
 
             // metadata
             newRow.at(0)->setData(QVariant(binding->eventHashStr),EventHashStrRole);
-            newRow.at(0)->setData(QVariant(binding->filename),FilenameRole);
-            newRow.at(0)->setData(QVariant(binding->line),LineRole);
+            newRow.at(0)->setData(QVariant(binding->location.filename),FilenameRole);
+            newRow.at(0)->setData(QVariant(binding->location.line),LineRole);
+            newRow.at(0)->setData(QVariant(binding->location.column),ColumnRole);
             newRow.at(0)->setData(QVariant(binding->eventId),EventIdRole);
 
             // append
@@ -507,6 +512,7 @@ void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildV8ModelFr
             newRow.at(0)->setData(QString("%1:%2").arg(v8event->filename, QString::number(v8event->line)), EventHashStrRole);
             newRow.at(0)->setData(QVariant(v8event->filename), FilenameRole);
             newRow.at(0)->setData(QVariant(v8event->line), LineRole);
+            newRow.at(0)->setData(QVariant(0),ColumnRole); // v8 events have no column info
             newRow.at(0)->setData(QVariant(v8event->eventId), EventIdRole);
 
             // append
@@ -569,9 +575,10 @@ void QmlProfilerEventsMainView::jumpToItem(const QModelIndex &index)
 
     // show in editor
     int line = infoItem->data(LineRole).toInt();
+    int column = infoItem->data(ColumnRole).toInt();
     QString fileName = infoItem->data(FilenameRole).toString();
     if (line!=-1 && !fileName.isEmpty())
-        emit gotoSourceLocation(fileName, line);
+        emit gotoSourceLocation(fileName, line, column);
 
     // show in callers/callees subwindow
     emit eventSelected(infoItem->data(EventIdRole).toInt());

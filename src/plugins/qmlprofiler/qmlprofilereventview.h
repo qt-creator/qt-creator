@@ -51,7 +51,8 @@ enum ItemRole {
     EventHashStrRole = Qt::UserRole+1,
     FilenameRole = Qt::UserRole+2,
     LineRole = Qt::UserRole+3,
-    EventIdRole = Qt::UserRole+4
+    ColumnRole = Qt::UserRole+4,
+    EventIdRole = Qt::UserRole+5
 };
 
 class QmlProfilerEventsWidget : public QWidget
@@ -73,13 +74,13 @@ public:
     bool hasGlobalStats() const;
 
 signals:
-    void gotoSourceLocation(const QString &fileName, int lineNumber);
+    void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
     void contextMenuRequested(const QPoint &position);
     void showEventInTimeline(int eventId);
 
 public slots:
     void updateSelectedEvent(int eventId) const;
-    void selectBySourceLocation(const QString &filename, int line);
+    void selectBySourceLocation(const QString &filename, int line, int column);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *ev);
@@ -142,7 +143,7 @@ public:
     int selectedEventId() const;
 
 signals:
-    void gotoSourceLocation(const QString &fileName, int lineNumber);
+    void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
     void eventSelected(int eventId);
     void showEventInTimeline(int eventId);
 

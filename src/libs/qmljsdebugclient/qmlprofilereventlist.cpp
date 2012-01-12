@@ -61,7 +61,6 @@ const char *const PROFILER_FILE_VERSION = "1.01";
 
 QmlEventData::QmlEventData()
 {
-    line = -1;
     eventType = MaximumQmlEventType;
     eventId = -1;
     duration = 0;
@@ -87,10 +86,9 @@ QmlEventData &QmlEventData::operator=(const QmlEventData &ref)
         return *this;
 
     displayname = ref.displayname;
-    filename = ref.filename;
+    location = ref.location;
     eventHashStr = ref.eventHashStr;
     details = ref.details;
-    line = ref.line;
     eventType = ref.eventType;
     duration = ref.duration;
     calls = ref.calls;
@@ -381,7 +379,7 @@ const QV8EventDescriptions& QmlProfilerEventList::getV8Events() const
 }
 
 void QmlProfilerEventList::addRangedEvent(int type, qint64 startTime, qint64 length,
-                                          const QStringList &data, const QString &fileName, int line)
+                                          const QStringList &data, const QmlJsDebugClient::QmlEventLocation &location)
 {
     const QChar colon = QLatin1Char(':');
     QString displayName, eventHashStr, details;
@@ -403,13 +401,13 @@ void QmlProfilerEventList::addRangedEvent(int type, qint64 startTime, qint64 len
     }
 
     // generate hash
-    if (fileName.isEmpty()) {
+    if (location.filename.isEmpty()) {
         displayName = tr("<bytecode>");
         eventHashStr = QString("--:%1:%2").arg(QString::number(type), details);
     } else {
-        const QString filePath = QUrl(fileName).path();
-        displayName = filePath.mid(filePath.lastIndexOf(QChar('/')) + 1) + colon + QString::number(line);
-        eventHashStr = QString("%1:%2:%3:%4").arg(fileName, QString::number(line), QString::number(type), details);
+        const QString filePath = QUrl(location.filename).path();
+        displayName = filePath.mid(filePath.lastIndexOf(QChar('/')) + 1) + colon + QString::number(location.line);
+        eventHashStr = QString("%1:%2:%3:%4").arg(location.filename, QString::number(location.line), QString::number(location.column), QString::number(type));
     }
 
     QmlEventData *newEvent;
@@ -418,9 +416,8 @@ void QmlProfilerEventList::addRangedEvent(int type, qint64 startTime, qint64 len
     } else {
         newEvent = new QmlEventData;
         newEvent->displayname = displayName;
-        newEvent->filename = fileName;
+        newEvent->location = location;
         newEvent->eventHashStr = eventHashStr;
-        newEvent->line = line;
         newEvent->eventType = (QmlJsDebugClient::QmlEventType)type;
         newEvent->details = details;
         d->m_eventDescriptions.insert(eventHashStr, newEvent);
@@ -525,9 +522,7 @@ void QmlProfilerEventList::addFrameEvent(qint64 time, int framerate, int animati
     } else {
         newEvent = new QmlEventData;
         newEvent->displayname = displayName;
-        newEvent->filename = QString();
         newEvent->eventHashStr = eventHashStr;
-        newEvent->line = -1;
         newEvent->eventType = QmlJsDebugClient::Painting;
         newEvent->details = details;
         d->m_eventDescriptions.insert(eventHashStr, newEvent);
@@ -630,10 +625,9 @@ void QmlProfilerEventList::complete()
 void QmlProfilerEventList::QmlProfilerEventListPrivate::clearQmlRootEvent()
 {
     m_qmlRootEvent.displayname = m_rootEventName;
-    m_qmlRootEvent.filename = QString();
+    m_qmlRootEvent.location = QmlEventLocation();
     m_qmlRootEvent.eventHashStr = m_rootEventName;
     m_qmlRootEvent.details = m_rootEventDesc;
-    m_qmlRootEvent.line = 01;
     m_qmlRootEvent.eventType = QmlJsDebugClient::Binding;
     m_qmlRootEvent.duration = 0;
     m_qmlRootEvent.calls = 0;
@@ -1198,9 +1192,10 @@ bool QmlProfilerEventList::save(const QString &filename)
         stream.writeAttribute("index", QString::number(d->m_eventDescriptions.keys().indexOf(eventData->eventHashStr)));
         stream.writeTextElement("displayname", eventData->displayname);
         stream.writeTextElement("type", qmlEventType(eventData->eventType));
-        if (!eventData->filename.isEmpty()) {
-            stream.writeTextElement("filename", eventData->filename);
-            stream.writeTextElement("line", QString::number(eventData->line));
+        if (!eventData->location.filename.isEmpty()) {
+            stream.writeTextElement("filename", eventData->location.filename);
+            stream.writeTextElement("line", QString::number(eventData->location.line));
+            stream.writeTextElement("column", QString::number(eventData->location.column));
         }
         stream.writeTextElement("details", eventData->details);
         stream.writeEndElement();
@@ -1415,12 +1410,15 @@ void QmlProfilerEventList::load()
                     break;
                 }
                 if (elementName == "filename") {
-                    currentEvent->filename = readData;
+                    currentEvent->location.filename = readData;
                     break;
                 }
                 if (elementName == "line") {
-                    currentEvent->line = readData.toInt();
+                    currentEvent->location.line = readData.toInt();
                     break;
+                }
+                if (elementName == "column") {
+                    currentEvent->location.column = readData.toInt();
                 }
                 if (elementName == "details") {
                     currentEvent->details = readData;
@@ -1620,12 +1618,17 @@ int QmlProfilerEventList::getNestingDepth(int index) const
 
 QString QmlProfilerEventList::getFilename(int index) const
 {
-    return d->m_startTimeSortedList[index].description->filename;
+    return d->m_startTimeSortedList[index].description->location.filename;
 }
 
 int QmlProfilerEventList::getLine(int index) const
 {
-    return d->m_startTimeSortedList[index].description->line;
+    return d->m_startTimeSortedList[index].description->location.line;
+}
+
+int QmlProfilerEventList::getColumn(int index) const
+{
+    return d->m_startTimeSortedList[index].description->location.column;
 }
 
 QString QmlProfilerEventList::getDetails(int index) const

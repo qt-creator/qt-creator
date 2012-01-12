@@ -34,6 +34,7 @@
 #define QMLPROFILEREVENTLIST_H
 
 #include "qmlprofilereventtypes.h"
+#include "qmlprofilereventlocation.h"
 #include "qmljsdebugclient_global.h"
 
 #include <QtCore/QHash>
@@ -50,10 +51,9 @@ struct QMLJSDEBUGCLIENT_EXPORT QmlEventData
     ~QmlEventData();
 
     QString displayname;
-    QString filename;
     QString eventHashStr;
     QString details;
-    int line;
+    QmlEventLocation location;
     QmlJsDebugClient::QmlEventType eventType;
     QHash <QString, QmlEventSub *> parentHash;
     QHash <QString, QmlEventSub *> childrenHash;
@@ -139,6 +139,7 @@ public:
     Q_INVOKABLE int getNestingDepth(int index) const;
     Q_INVOKABLE QString getFilename(int index) const;
     Q_INVOKABLE int getLine(int index) const;
+    Q_INVOKABLE int getColumn(int index) const;
     Q_INVOKABLE QString getDetails(int index) const;
     Q_INVOKABLE int getEventId(int index) const;
     Q_INVOKABLE int getFramerate(int index) const;
@@ -173,7 +174,7 @@ signals:
 public slots:
     void clear();
     void addRangedEvent(int type, qint64 startTime, qint64 length,
-                        const QStringList &data, const QString &fileName, int line);
+                        const QStringList &data, const QmlJsDebugClient::QmlEventLocation &location);
     void complete();
 
     void addV8Event(int depth,const QString &function,const QString &filename, int lineNumber, double totalTime, double selfTime);
