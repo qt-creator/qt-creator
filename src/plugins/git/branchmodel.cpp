@@ -33,6 +33,7 @@
 #include "branchmodel.h"
 #include "gitclient.h"
 
+#include <utils/qtcassert.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 
 #include <QtGui/QFont>
@@ -103,7 +104,7 @@ public:
 
     QStringList fullName() const
     {
-        Q_ASSERT(isLeaf());
+        QTC_ASSERT(isLeaf(), return QStringList());
 
         QStringList fn;
         QList<const BranchNode *> nodes;
@@ -172,7 +173,7 @@ BranchModel::BranchModel(GitClient *client, QObject *parent) :
     m_client(client),
     m_rootNode(new BranchNode)
 {
-    Q_ASSERT(m_client);
+    QTC_CHECK(m_client);
     m_rootNode->append(new BranchNode(tr("Local Branches")));
 }
 

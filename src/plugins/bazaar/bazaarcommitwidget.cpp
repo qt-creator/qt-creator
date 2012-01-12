@@ -36,6 +36,7 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
+#include <utils/qtcassert.h>
 
 #include <QtGui/QSyntaxHighlighter>
 #include <QtGui/QTextEdit>
@@ -79,7 +80,7 @@ BazaarSubmitHighlighter::BazaarSubmitHighlighter(QTextEdit * parent) :
     m_keywordPattern(QLatin1String("^\\w+:")),
     m_hashChar(QLatin1Char('#'))
 {
-    Q_ASSERT(m_keywordPattern.isValid());
+    QTC_CHECK(m_keywordPattern.isValid());
 }
 
 void BazaarSubmitHighlighter::highlightBlock(const QString &text)

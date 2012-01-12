@@ -113,8 +113,8 @@ static CommitData::FileState stateFor(const QChar &c)
 
 static bool checkLine(const QString &stateInfo, const QString &file, QList<CommitData::StateFilePair> *files)
 {
-    Q_ASSERT(stateInfo.count() == 2);
-    Q_ASSERT(files);
+    QTC_ASSERT(stateInfo.count() == 2, return false);
+    QTC_ASSERT(files, return false);
 
     if (stateInfo == "??") {
         files->append(qMakePair(CommitData::UntrackedFile, file));

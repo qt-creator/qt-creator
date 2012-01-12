@@ -36,6 +36,7 @@
 #include "tasklistplugin.h"
 
 #include <projectexplorer/task.h>
+#include <utils/qtcassert.h>
 
 #include <QtGui/QAction>
 #include <QtCore/QCoreApplication>
@@ -61,7 +62,7 @@ bool StopMonitoringHandler::canHandle(const ProjectExplorer::Task &task)
 
 void StopMonitoringHandler::handle(const ProjectExplorer::Task &task)
 {
-    Q_ASSERT(canHandle(task));
+    QTC_ASSERT(canHandle(task), return);
     Q_UNUSED(task);
     TaskList::TaskListPlugin::instance()->stopMonitoring();
 }

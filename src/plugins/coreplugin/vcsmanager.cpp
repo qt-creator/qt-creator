@@ -85,9 +85,9 @@ public:
 
     VcsInfo *findInCache(const QString &dir)
     {
-        Q_ASSERT(QDir(dir).isAbsolute());
-        Q_ASSERT(!dir.endsWith(QLatin1Char('/')));
-        Q_ASSERT(QDir::fromNativeSeparators(dir) == dir);
+        QTC_ASSERT(QDir(dir).isAbsolute(), return 0);
+        QTC_ASSERT(!dir.endsWith(QLatin1Char('/')), return 0);
+        QTC_ASSERT(QDir::fromNativeSeparators(dir) == dir, return 0);
 
         const QMap<QString, VcsInfo *>::const_iterator it = m_cachedMatches.constFind(dir);
         if (it != m_cachedMatches.constEnd())

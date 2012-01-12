@@ -36,6 +36,7 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
+#include <utils/qtcassert.h>
 
 #include <QtGui/QLineEdit>
 #include <QtGui/QRegExpValidator>
@@ -78,7 +79,7 @@ GitSubmitHighlighter::GitSubmitHighlighter(QTextEdit * parent) :
     m_keywordPattern(QLatin1String("^\\w+:")),
     m_hashChar(QLatin1Char('#'))
 {
-    Q_ASSERT(m_keywordPattern.isValid());
+    QTC_CHECK(m_keywordPattern.isValid());
 }
 
 void GitSubmitHighlighter::highlightBlock(const QString &text)

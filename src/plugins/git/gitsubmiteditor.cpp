@@ -35,6 +35,7 @@
 #include "gitconstants.h"
 #include "commitdata.h"
 
+#include <utils/qtcassert.h>
 #include <vcsbase/submitfilemodel.h>
 
 #include <QtCore/QDebug>

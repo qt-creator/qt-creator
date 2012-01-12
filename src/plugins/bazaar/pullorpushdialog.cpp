@@ -33,6 +33,7 @@
 #include "pullorpushdialog.h"
 #include "ui_pullorpushdialog.h"
 
+#include <utils/qtcassert.h>
 
 using namespace Bazaar::Internal;
 
@@ -87,19 +88,19 @@ QString PullOrPushDialog::revision() const
 
 bool PullOrPushDialog::isLocalOptionEnabled() const
 {
-    Q_ASSERT(m_mode == PullMode);
+    QTC_ASSERT(m_mode == PullMode, return false);
     return m_ui->localCheckBox->isChecked();
 }
 
 bool PullOrPushDialog::isUseExistingDirectoryOptionEnabled() const
 {
-    Q_ASSERT(m_mode == PushMode);
+    QTC_ASSERT(m_mode == PushMode, return false);
     return m_ui->useExistingDirCheckBox->isChecked();
 }
 
 bool PullOrPushDialog::isCreatePrefixOptionEnabled() const
 {
-    Q_ASSERT(m_mode == PushMode);
+    QTC_ASSERT(m_mode == PushMode, return false);
     return m_ui->createPrefixCheckBox->isChecked();
 }
 

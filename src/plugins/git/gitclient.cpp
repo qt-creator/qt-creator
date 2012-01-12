@@ -238,7 +238,7 @@ public:
 
     void setEditor(VcsBase::VcsBaseEditorWidget *editor)
     {
-        Q_ASSERT(editor);
+        QTC_ASSERT(editor, return);
         m_editor = editor;
     }
 
@@ -354,7 +354,7 @@ GitClient::GitClient(GitSettings *settings) :
     m_repositoryChangedSignalMapper(0),
     m_settings(settings)
 {
-    Q_ASSERT(settings);
+    QTC_CHECK(settings);
     connect(m_core, SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
 }
 
@@ -411,7 +411,7 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(const Core::Id &id,
                                                          QWidget *configWidget) const
 {
     VcsBase::VcsBaseEditorWidget *rc = 0;
-    Q_ASSERT(!findExistingVCSEditor(registerDynamicProperty, dynamicPropertyValue));
+    QTC_CHECK(!findExistingVCSEditor(registerDynamicProperty, dynamicPropertyValue));
 
     // Create new, set wait message, set up with source and codec
     Core::IEditor *outputEditor = m_core->editorManager()->openEditorWithContents(id, &title, m_msgWait);
@@ -1553,7 +1553,7 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
         // split "82bfad2f51d34e98b18982211c82220b8db049b<tab>refs/heads/master"
         foreach(const QString &line, resp.stdOut.split(QLatin1Char('\n'))) {
             if (line.endsWith("\tHEAD")) {
-                Q_ASSERT(headSha.isNull());
+                QTC_CHECK(headSha.isNull());
                 headSha = line.left(line.indexOf(QChar('\t')));
                 continue;
             }

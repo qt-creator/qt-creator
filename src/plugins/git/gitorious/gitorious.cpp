@@ -39,6 +39,7 @@
 
 #include <QtNetwork/QNetworkReply>
 
+#include <utils/qtcassert.h>
 #include <utils/networkaccessmanager.h>
 
 enum { debug = 0 };
@@ -347,7 +348,7 @@ GitoriousRepository GitoriousProjectReader::readRepository(QXmlStreamReader &rea
 
 void GitoriousProjectReader::readUnknownElement(QXmlStreamReader &reader)
 {
-    Q_ASSERT(reader.isStartElement());
+    QTC_ASSERT(reader.isStartElement(), return);
 
     while (!reader.atEnd()) {
         reader.readNext();
@@ -446,7 +447,7 @@ void Gitorious::listCategoriesReply(int index, QByteArray dataB)
         const QString data = QString::fromUtf8(dataB);
         // Cut out the contents of the anchors
         QRegExp pattern = QRegExp(QLatin1String("<a href=[^>]+>([^<]+)</a>"));
-        Q_ASSERT(pattern.isValid());
+        QTC_CHECK(pattern.isValid());
         GitoriousHost::CategoryList &categories = m_hosts[index].categories;
         for (int pos = pattern.indexIn(data) ; pos != -1; ) {
             const QString cat = pattern.cap(1);

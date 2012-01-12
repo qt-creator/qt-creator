@@ -39,6 +39,7 @@
 #include "stashdialog.h" // Label helpers
 
 #include <utils/checkablemessagebox.h>
+#include <utils/qtcassert.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 
 #include <QtGui/QItemSelectionModel>
@@ -151,7 +152,7 @@ void BranchDialog::add()
 void BranchDialog::checkout()
 {
     QModelIndex idx = selectedIndex();
-    Q_ASSERT(m_model->isLocal(idx));
+    QTC_CHECK(m_model->isLocal(idx));
 
     m_model->checkoutBranch(idx);
     enableButtons();
@@ -161,7 +162,7 @@ void BranchDialog::checkout()
 void BranchDialog::remove()
 {
     QModelIndex selected = selectedIndex();
-    Q_ASSERT(selected != m_model->currentBranch()); // otherwise the button would not be enabled!
+    QTC_CHECK(selected != m_model->currentBranch()); // otherwise the button would not be enabled!
 
     QString branchName = m_model->branchName(selected);
     if (branchName.isEmpty())

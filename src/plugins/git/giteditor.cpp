@@ -171,17 +171,17 @@ static QByteArray removeAnnotationDate(const QByteArray &b)
         return QByteArray(b);
 
     // Copy over the parts that have not changed into a new byte array
-    Q_ASSERT(b.size() >= parenPos);
     QByteArray result;
+    QTC_ASSERT(b.size() >= parenPos, return result);
     int prevPos = 0;
     int pos = b.indexOf('\n', 0) + 1;
     forever {
-        Q_ASSERT(prevPos < pos);
+        QTC_CHECK(prevPos < pos);
         int afterParen = prevPos + parenPos;
         result.append(b.constData() + prevPos, datePos);
         result.append(b.constData() + afterParen, pos - afterParen);
         prevPos = pos;
-        Q_ASSERT(prevPos != 0);
+        QTC_CHECK(prevPos != 0);
         if (pos == b.size())
             break;
 
