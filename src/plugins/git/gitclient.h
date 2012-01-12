@@ -231,6 +231,8 @@ public slots:
 
 private slots:
     void slotBlameRevisionRequested(const QString &source, QString change, int lineNumber);
+    void appendOutputData(const QByteArray &data) const;
+    void appendOutputDataSilently(const QByteArray &data) const;
 
 private:
     QTextCodec *getSourceCodec(const QString &file) const;

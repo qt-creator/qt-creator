@@ -51,6 +51,7 @@
 #include <coreplugin/id.h>
 #include <coreplugin/filemanager.h>
 #include <coreplugin/iversioncontrol.h>
+#include <coreplugin/variablemanager.h>
 
 #include <texteditor/itexteditor.h>
 #include <utils/qtcassert.h>
@@ -335,6 +336,11 @@ static inline QString msgRepositoryNotFound(const QString &dir)
 static inline QString msgParseFilesFailed()
 {
     return  GitClient::tr("Cannot parse the file output.");
+}
+
+static inline QString currentDocumentPath()
+{
+    return Core::VariableManager::instance()->value("CurrentDocument:Path");
 }
 
 // ---------------- GitClient
@@ -681,6 +687,18 @@ void GitClient::slotBlameRevisionRequested(const QString &source, QString change
         change.truncate(blankPos);
     const QFileInfo fi(source);
     blame(fi.absolutePath(), QStringList(), fi.fileName(), change, lineNumber);
+}
+
+void GitClient::appendOutputData(const QByteArray &data) const
+{
+    const QTextCodec *codec = getSourceCodec(currentDocumentPath());
+    outputWindow()->appendData(codec->toUnicode(data).toLocal8Bit());
+}
+
+void GitClient::appendOutputDataSilently(const QByteArray &data) const
+{
+    const QTextCodec *codec = getSourceCodec(currentDocumentPath());
+    outputWindow()->appendDataSilently(codec->toUnicode(data).toLocal8Bit());
 }
 
 QTextCodec *GitClient::getSourceCodec(const QString &file) const
@@ -1343,9 +1361,9 @@ VcsBase::Command *GitClient::createCommand(const QString &workingDirectory,
         connect(command, SIGNAL(finished(bool,int,QVariant)), editor, SLOT(commandFinishedGotoLine(bool,int,QVariant)));
     if (useOutputToWindow) {
         if (editor) // assume that the commands output is the important thing
-            connect(command, SIGNAL(outputData(QByteArray)), outputWindow(), SLOT(appendDataSilently(QByteArray)));
+            connect(command, SIGNAL(outputData(QByteArray)), this, SLOT(appendOutputDataSilently(QByteArray)));
         else
-            connect(command, SIGNAL(outputData(QByteArray)), outputWindow(), SLOT(appendData(QByteArray)));
+            connect(command, SIGNAL(outputData(QByteArray)), this, SLOT(appendOutputData(QByteArray)));
     } else {
         if (editor)
             connect(command, SIGNAL(outputData(QByteArray)), editor, SLOT(setPlainTextDataFiltered(QByteArray)));
