@@ -602,7 +602,7 @@ public:
         const int stmtEnd = m_file->endOf(stmt);
 
         if (stmtStart >= m_selEnd
-                || m_extractionStart && stmtEnd > m_selEnd) {
+                || (m_extractionStart && stmtEnd > m_selEnd)) {
             m_done = true;
             return;
         }
@@ -822,8 +822,8 @@ QList<CppQuickFixOperation::Ptr> ExtractFunction::match(
 
         const QString &name = printer.prettyName(it.key()->name());
 
-        if (usedBeforeExtraction && usedInsideExtraction
-                || usedInsideExtraction && refFuncParams.contains(name)) {
+        if ((usedBeforeExtraction && usedInsideExtraction)
+                || (usedInsideExtraction && refFuncParams.contains(name))) {
             QTC_ASSERT(analyser.m_knownDecls.contains(name), return noResult());
             relevantDecls.append(qMakePair(name, analyser.m_knownDecls.value(name)));
         }
