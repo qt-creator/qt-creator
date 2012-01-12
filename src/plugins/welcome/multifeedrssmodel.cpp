@@ -51,12 +51,24 @@ QString shortenHtml(QString html)
 {
     html.replace(QLatin1String("<a"), QLatin1String("<i"));
     html.replace(QLatin1String("</a"), QLatin1String("</i"));
-    uint firstParaEndXhtml = (uint) html.indexOf(QLatin1String("</p>"));
-    uint firstParaEndHtml = (uint) html.indexOf(QLatin1String("<p>"), html.indexOf(QLatin1String("<p>"))+1);
-    uint firstParaEndBr = (uint) html.indexOf(QLatin1String("<br"));
-    uint firstParaEnd = qMin(firstParaEndXhtml, firstParaEndHtml);
-    firstParaEnd = qMin(firstParaEnd, firstParaEndBr);
-    return html.left(firstParaEnd);
+
+    int firstParaEnd = html.indexOf(QLatin1String("</p>")); // XHTML
+    if (firstParaEnd < 0) {
+        const QString paraStart = QLatin1String("<p>");
+        firstParaEnd = html.indexOf(paraStart);
+        if (firstParaEnd > 0)
+            firstParaEnd = html.indexOf(paraStart, firstParaEnd + paraStart.size());
+    }
+    const int firstParaEndBr = html.indexOf(QLatin1String("<br"));
+
+    int truncationPos = html.size();
+    if (firstParaEnd > 0 && firstParaEnd < truncationPos)
+        truncationPos = firstParaEnd;
+    if (firstParaEndBr > 0 && firstParaEndBr < truncationPos)
+        truncationPos = firstParaEndBr;
+    if (truncationPos < html.size())
+        html.truncate(truncationPos);
+    return html;
 }
 
 class RssReader {
@@ -76,8 +88,10 @@ public:
                 else if (streamReader.name() == QLatin1String("pubDate")) {
                     QString dateStr = streamReader.readElementText();
                     // fixme: honor time zone!
-                    dateStr = dateStr.left(dateStr.indexOf('+')-1);
-                    item.pubDate = QDateTime::fromString(dateStr, "ddd, dd MMM yyyy HH:mm:ss");
+                    const int plusPos = dateStr.indexOf(QLatin1Char('+'));
+                    if (plusPos > 0)
+                        dateStr.truncate(plusPos - 1);
+                    item.pubDate = QDateTime::fromString(dateStr, QLatin1String("ddd, dd MMM yyyy HH:mm:ss"));
                 }
                 else if (streamReader.name() == QLatin1String("description"))
                     item.description = shortenHtml(streamReader.readElementText());

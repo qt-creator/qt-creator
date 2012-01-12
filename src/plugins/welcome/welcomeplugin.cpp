@@ -190,16 +190,16 @@ bool sortFunction(Utils::IWelcomePage * a, Utils::IWelcomePage *b)
 
 void WelcomeMode::facilitateQml(QDeclarativeEngine *engine)
 {
-    static const char feedGroupName[] = "Feeds";
+    const QString feedGroupName = QLatin1String("Feeds");
 
     MultiFeedRssModel *rssModel = new MultiFeedRssModel(this);
     QSettings *settings = Core::ICore::instance()->settings();
     if (settings->childGroups().contains(feedGroupName)) {
         int size = settings->beginReadArray(feedGroupName);
-        for (int i = 0; i < size; ++i)
-        {
+        const QString url = QLatin1String("url");
+        for (int i = 0; i < size; ++i) {
             settings->setArrayIndex(i);
-            rssModel->addFeed(settings->value("url").toString());
+            rssModel->addFeed(settings->value(url).toString());
         }
         settings->endArray();
     } else {
@@ -207,7 +207,7 @@ void WelcomeMode::facilitateQml(QDeclarativeEngine *engine)
         rssModel->addFeed(QLatin1String("http://feeds.feedburner.com/TheQtBlog?format=xml"));
     }
 
-    engine->rootContext()->setContextProperty("aggregatedFeedsModel", rssModel);
+    engine->rootContext()->setContextProperty(QLatin1String("aggregatedFeedsModel"), rssModel);
 }
 
 void WelcomeMode::initPlugins()
@@ -216,7 +216,7 @@ void WelcomeMode::initPlugins()
     setActivePlugin(settings->value(QLatin1String(currentPageSettingsKeyC)).toInt());
 
     QDeclarativeContext *ctx = m_welcomePage->rootContext();
-    ctx->setContextProperty("welcomeMode", this);
+    ctx->setContextProperty(QLatin1String("welcomeMode"), this);
 
     QList<Utils::IWelcomePage*> plugins = PluginManager::instance()->getObjects<Utils::IWelcomePage>();
     qSort(plugins.begin(), plugins.end(), &sortFunction);
@@ -238,11 +238,11 @@ void WelcomeMode::initPlugins()
         m_pluginList.append(plugin);
     }
 
-    ctx->setContextProperty("pagesModel", QVariant::fromValue(m_pluginList));
+    ctx->setContextProperty(QLatin1String("pagesModel"), QVariant::fromValue(m_pluginList));
 
     // finally, load the root page
     m_welcomePage->setSource(
-            QUrl::fromLocalFile(Core::ICore::instance()->resourcePath() + "/welcomescreen/welcomescreen.qml"));
+            QUrl::fromLocalFile(Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/welcomescreen.qml")));
 }
 
 QString WelcomeMode::platform() const
@@ -273,7 +273,7 @@ void WelcomeMode::welcomePluginAdded(QObject *obj)
         m_pluginList.insert(insertPos, plugin);
         // update model through reset
         QDeclarativeContext *ctx = m_welcomePage->rootContext();
-        ctx->setContextProperty("pagesModel", QVariant::fromValue(m_pluginList));
+        ctx->setContextProperty(QLatin1String("pagesModel"), QVariant::fromValue(m_pluginList));
     }
 }
 
