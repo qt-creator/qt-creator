@@ -62,29 +62,29 @@ public:
         qDeleteAll(children);
     }
 
-    BranchNode *rootNode()
+    BranchNode *rootNode() const
     {
-        return parent ? parent->rootNode() : this;
+        return parent ? parent->rootNode() : const_cast<BranchNode *>(this);
     }
 
-    int count()
+    int count() const
     {
         return children.count();
     }
 
-    bool isLeaf()
+    bool isLeaf() const
     {
         return children.isEmpty();
     }
 
-    bool childOf(BranchNode *node)
+    bool childOf(BranchNode *node) const
     {
         if (this == node)
             return true;
         return parent ? parent->childOf(node) : false;
     }
 
-    bool isLocal()
+    bool isLocal() const
     {
         BranchNode *rn = rootNode();
         if (rn->isLeaf())
@@ -92,7 +92,7 @@ public:
         return childOf(rn->children.at(0));
     }
 
-    BranchNode *childOfName(const QString &name)
+    BranchNode *childOfName(const QString &name) const
     {
         for (int i = 0; i < children.count(); ++i) {
             if (children.at(i)->name == name)
@@ -101,13 +101,13 @@ public:
         return 0;
     }
 
-    QStringList fullName()
+    QStringList fullName() const
     {
         Q_ASSERT(isLeaf());
 
         QStringList fn;
-        QList<BranchNode *> nodes;
-        BranchNode *current = this;
+        QList<const BranchNode *> nodes;
+        const BranchNode *current = this;
         while (current->parent) {
             nodes.prepend(current);
             current = current->parent;
@@ -116,7 +116,7 @@ public:
         if (current->children.at(0) == nodes.at(0))
             nodes.removeFirst(); // remove local branch designation
 
-        foreach (BranchNode *n, nodes)
+        foreach (const BranchNode *n, nodes)
             fn.append(n->name);
 
         return fn;
@@ -142,7 +142,7 @@ public:
         return n;
     }
 
-    QStringList childrenNames()
+    QStringList childrenNames() const
     {
         if (children.count() > 0) {
             QStringList names;
