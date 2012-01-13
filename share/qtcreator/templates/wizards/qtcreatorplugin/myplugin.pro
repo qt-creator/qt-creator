@@ -25,7 +25,7 @@ isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=%QtCreatorBuild%
 ## <localappdata>/plugins/<ideversion>
 ##    where <localappdata> is e.g.
 ##    "%LOCALAPPDATA%\Nokia\qtcreator" on Windows Vista and later
-##    "$XDG_DATA_HOME/Nokia/qtcreator" or "~/.local/share/Nokia/qtcreator" on Linux
+##    "$XDG_DATA_HOME/Nokia/qtcreator" or "~/.local/share/data/Nokia/qtcreator" on Linux
 ##    "~/Library/Application Support/Nokia/Qt Creator" on Mac
 %DestDir%USE_USER_DESTDIR = yes
 

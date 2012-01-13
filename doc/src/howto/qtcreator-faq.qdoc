@@ -37,7 +37,7 @@
 
     \bold {How do I reset all \QC settings?}
 
-    \QC creates the following files and a directories:
+    \QC creates the following files and directories:
 
     \list
 
@@ -51,16 +51,29 @@
 
         \o  qtcreator
 
+        \o  qtc-debugging-helper
+
+        \o  qtc-qmldbg
+
+        \o  qtc-qmldump
+
+        \o  qtc-qmlobserver
+
     \endlist
 
-    The location depends on the platform. On Linux, Unix, and Mac OS, the files
-    are located in \c{~/.config/Nokia}.
+    The location depends on the platform. On Linux and other Unix platforms, the files
+    are located in \c {~/.config/Nokia} and \c {~/.local/share/data/Nokia/qtcreator}.
+
+    On Mac OS, the files are located in \c {~/.config/Nokia} and
+    \c {~/Library/Application Support/Nokia/Qt Creator}.
 
     On Windows XP, the files are located in
-    \c{<drive>:\Documents and Settings\<username>\Application Data\Nokia}, and
-    on Windows Vista and Windows 7 in
-    \c {<drive>:\Users\<username>\AppData\Roaming\Nokia}.
-    For all versions, try the path \c{APPDATA\Nokia}.
+    \c {<drive>:\Documents and Settings\<username>\Application Data\Nokia} and
+    \c {<drive>:\Documents and Settings\<username>\Local Settings\Application Data\Nokia}.
+
+    On Windows Vista and Windows 7, the files are located in
+    \c {<drive>:\Users\<username>\AppData\Roaming\Nokia} and
+    \c {<drive>:\Users\<username>\AppData\Local\Nokia}.
 
     \bold {\QC comes with MinGW, should I use this version with Qt?}
 

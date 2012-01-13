@@ -178,7 +178,7 @@ static inline QStringList getPluginPaths()
     // 3) <localappdata>/plugins/<ideversion>
     //    where <localappdata> is e.g.
     //    <drive>:\Users\<username>\AppData\Local\Nokia\qtcreator on Windows Vista and later
-    //    $XDG_DATA_HOME or ~/.local/share/Nokia/qtcreator on Linux
+    //    $XDG_DATA_HOME or ~/.local/share/data/Nokia/qtcreator on Linux
     //    ~/Library/Application Support/Nokia/Qt Creator on Mac
     pluginPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
     pluginPath += QLatin1Char('/')
