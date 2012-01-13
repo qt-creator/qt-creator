@@ -138,8 +138,7 @@ void SelectableFilesModel::buildTree(const QString &baseDir, Tree *tree, QFuture
 {
     const QFileInfoList fileInfoList = QDir(baseDir).entryInfoList(QDir::Files |
                                                                    QDir::Dirs |
-                                                                   QDir::NoDotAndDotDot |
-                                                                   QDir::NoSymLinks);
+                                                                   QDir::NoDotAndDotDot);
     bool allChecked = true;
     bool allUnchecked = true;
     foreach (const QFileInfo &fileInfo, fileInfoList) {
@@ -150,6 +149,8 @@ void SelectableFilesModel::buildTree(const QString &baseDir, Tree *tree, QFuture
         }
         ++m_futureCount;
         if (fileInfo.isDir()) {
+            if (fileInfo.isSymLink())
+                continue;
             Tree *t = new Tree;
             t->parent = tree;
             t->name = fileInfo.fileName();
