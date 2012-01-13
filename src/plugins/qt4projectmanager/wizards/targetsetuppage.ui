@@ -17,7 +17,10 @@
    <item>
     <widget class="QLabel" name="noValidQtVersionsLabel">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;b&gt;No valid Qt versions found.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Please add a Qt version in &lt;i&gt;Tools/Options&lt;/i&gt; or via the maintenance tool of the SDK.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;No valid Qt versions found.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Please add a Qt version in &lt;span style=&quot; font-style:italic;&quot;&gt;Tools &amp;gt; Options &amp;gt; Build &amp;amp; Run&lt;/span&gt; (&lt;span style=&quot; font-style:italic;&quot;&gt;Qt Creator &amp;gt; Preferences &amp;gt; Build &amp;amp; Run &lt;/span&gt;on Mac OS) or via the maintenance tool of the SDK.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
