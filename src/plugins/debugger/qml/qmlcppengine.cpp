@@ -92,6 +92,7 @@ private:
     QmlEngine *m_qmlEngine;
     DebuggerEngine *m_cppEngine;
     DebuggerEngine *m_activeEngine;
+    QList<DebuggerEngine*> m_enginesAwaitingRemoteSetup;
     int m_stackBoundary;
 };
 
@@ -154,8 +155,9 @@ QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp,
     connect(d->m_qmlEngine->stackHandler(), SIGNAL(stackChanged()),
             d, SLOT(qmlStackChanged()), Qt::QueuedConnection);
     connect(d->m_cppEngine, SIGNAL(stackFrameCompleted()), this, SIGNAL(stackFrameCompleted()));
-    connect(d->m_cppEngine, SIGNAL(requestRemoteSetup()), this, SIGNAL(requestRemoteSetup()));
     connect(d->m_qmlEngine, SIGNAL(stackFrameCompleted()), this, SIGNAL(stackFrameCompleted()));
+    connect(d->m_cppEngine, SIGNAL(requestRemoteSetup()), this, SLOT(slaveEngineRequestedRemoteSetup()));
+    connect(d->m_qmlEngine, SIGNAL(requestRemoteSetup()), this, SLOT(slaveEngineRequestedRemoteSetup()));
 }
 
 QmlCppEngine::~QmlCppEngine()
@@ -462,6 +464,19 @@ void QmlCppEngine::notifyInferiorShutdownOk()
     DebuggerEngine::notifyInferiorShutdownOk();
 }
 
+void QmlCppEngine::slaveEngineRequestedRemoteSetup()
+{
+    DebuggerEngine *slaveEngine = qobject_cast<DebuggerEngine*>(sender());
+    QTC_ASSERT(slaveEngine, return);
+
+    bool emitRequest = d->m_enginesAwaitingRemoteSetup.isEmpty();
+    d->m_enginesAwaitingRemoteSetup << slaveEngine;
+
+    if (emitRequest) {
+        emit requestRemoteSetup();
+    }
+}
+
 void QmlCppEngine::setupInferior()
 {
     EDEBUG("\nMASTER SETUP INFERIOR");
@@ -659,15 +674,17 @@ void QmlCppEngine::slaveEngineStateChanged
 void QmlCppEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
 {
     EDEBUG("MASTER REMOTE SETUP DONE");
-    d->m_qmlEngine->startParameters().qmlServerPort = qmlPort;
-    d->m_cppEngine->handleRemoteSetupDone(gdbServerPort, qmlPort);
+    foreach (DebuggerEngine *slaveEngine, d->m_enginesAwaitingRemoteSetup)
+        slaveEngine->handleRemoteSetupDone(gdbServerPort, qmlPort);
+    d->m_enginesAwaitingRemoteSetup.clear();
 }
 
 void QmlCppEngine::handleRemoteSetupFailed(const QString &message)
 {
     EDEBUG("MASTER REMOTE SETUP FAILED");
-    d->m_qmlEngine->handleRemoteSetupFailed(message);
-    d->m_cppEngine->handleRemoteSetupFailed(message);
+    foreach (DebuggerEngine *slaveEngine, d->m_enginesAwaitingRemoteSetup)
+        slaveEngine->handleRemoteSetupFailed(message);
+    d->m_enginesAwaitingRemoteSetup.clear();
 }
 
 void QmlCppEngine::showMessage(const QString &msg, int channel, int timeout) const
