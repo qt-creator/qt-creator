@@ -346,7 +346,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     QShortcut *sc = new QShortcut(parent);
     cmd = am->registerShortcut(sc, Constants::CLOSE_ALTERNATIVE, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+F4")));
-    cmd->setDefaultText(EditorManager::tr("Close"));
+    cmd->setDescription(EditorManager::tr("Close"));
     connect(sc, SIGNAL(activated()), this, SLOT(closeEditor()));
 #endif
 

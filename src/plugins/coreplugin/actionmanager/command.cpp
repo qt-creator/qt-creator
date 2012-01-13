@@ -118,7 +118,7 @@
 */
 
 /*!
-    \fn void Command::setDefaultText(const QString &text)
+    \fn void Command::setDescription(const QString &text)
     Set the \a text that is used to represent the Command in the
     keyboard shortcut settings dialog. If you don't set this,
     the current text from the user visible action is taken (which
@@ -126,9 +126,9 @@
 */
 
 /*!
-    \fn QString Command::defaultText() const
+    \fn QString Command::description() const
     Returns the text that is used to present this Command to the user.
-    \sa setDefaultText()
+    \sa setDescription()
 */
 
 /*!
