@@ -291,7 +291,7 @@ signals:
     /*
      * For "external" clients of a debugger run control that needs to do
      * further setup before the debugger is started (e.g. Maemo).
-     * Afterwards, handleSetupDone() or handleSetupFailed() must be called
+     * Afterwards, handleRemoteSetupDone() or handleRemoteSetupFailed() must be called
      * to continue or abort debugging, respectively.
      * This signal is only emitted if the start parameters indicate that
      * a server start script should be used, but none is given.
