@@ -2312,8 +2312,7 @@ QString ProjectExplorerPlugin::cannotRunReason(Project *project, RunMode runMode
 
     // shouldn't actually be shown to the user...
     if (!findRunControlFactory(activeRC, runMode))
-        return tr("Cannot run '%1' in mode '%2'.")
-                .arg(activeRC->displayName(), runMode);
+        return tr("Cannot run '%1'.").arg(activeRC->displayName());
 
 
     if (d->m_buildManager->isBuilding())
