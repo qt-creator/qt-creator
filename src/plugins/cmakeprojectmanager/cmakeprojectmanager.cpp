@@ -380,6 +380,7 @@ QWidget *CMakeSettingsPage::createPage(QWidget *parent)
 {
     QWidget *outerWidget = new QWidget(parent);
     QFormLayout *formLayout = new QFormLayout(outerWidget);
+    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     m_pathchooser = new Utils::PathChooser;
     m_pathchooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     formLayout->addRow(tr("Executable:"), m_pathchooser);
