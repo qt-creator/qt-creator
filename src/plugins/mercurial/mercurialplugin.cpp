@@ -117,14 +117,6 @@ static const VcsBaseSubmitEditorParameters submitEditorParameters = {
     Constants::COMMIT_ID
 };
 
-// Utility to find a parameter set by type
-static const VcsBaseEditorParameters *findType(int ie)
-{
-    const EditorContentType et = static_cast<EditorContentType>(ie);
-    return VcsBaseEditorWidget::findType(editorParameters,
-                                             sizeof(editorParameters)/sizeof(editorParameters[0]), et);
-}
-
 MercurialPlugin *MercurialPlugin::m_instance = 0;
 
 MercurialPlugin::MercurialPlugin() :
