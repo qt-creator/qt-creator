@@ -51,7 +51,9 @@
 
 using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
+using namespace AutotoolsProjectManager::Constants;
 using namespace ProjectExplorer;
+using namespace ProjectExplorer::Constants;
 
 const char MAKE_STEP_ID[] = "AutotoolsProjectManager.MakeStep";
 const char CLEAN_KEY[]  = "AutotoolsProjectManager.MakeStep.Clean";
@@ -62,13 +64,13 @@ const char MAKE_STEP_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.MakeS
 // MakeStepFactory class
 //////////////////////////
 MakeStepFactory::MakeStepFactory(QObject *parent) :
-    ProjectExplorer::IBuildStepFactory(parent)
+    IBuildStepFactory(parent)
 {
 }
 
 QStringList MakeStepFactory::availableCreationIds(BuildStepList *parent) const
 {
-    if (parent->target()->project()->id() == QLatin1String(Constants::AUTOTOOLS_PROJECT_ID))
+    if (parent->target()->project()->id() == QLatin1String(AUTOTOOLS_PROJECT_ID))
         return QStringList() << QLatin1String(MAKE_STEP_ID);
     return QStringList();
 }
@@ -82,10 +84,10 @@ QString MakeStepFactory::displayNameForId(const QString &id) const
 
 bool MakeStepFactory::canCreate(BuildStepList *parent, const QString &id) const
 {
-    if (parent->target()->project()->id() != QLatin1String(Constants::AUTOTOOLS_PROJECT_ID))
+    if (parent->target()->project()->id() != QLatin1String(AUTOTOOLS_PROJECT_ID))
         return false;
 
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
+    if (parent->id() != BUILDSTEPS_BUILD)
         return false;
 
     return QLatin1String(MAKE_STEP_ID) == id;
@@ -110,9 +112,9 @@ BuildStep *MakeStepFactory::clone(BuildStepList *parent, BuildStep *source)
     return new MakeStep(parent, static_cast<MakeStep *>(source));
 }
 
-bool MakeStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
+bool MakeStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
 {
-    QString id(ProjectExplorer::idFromMap(map));
+    QString id = idFromMap(map);
     return canCreate(parent, id);
 }
 
@@ -130,21 +132,21 @@ BuildStep *MakeStepFactory::restore(BuildStepList *parent, const QVariantMap &ma
 /////////////////////
 // MakeStep class
 /////////////////////
-MakeStep::MakeStep(ProjectExplorer::BuildStepList* bsl) :
+MakeStep::MakeStep(BuildStepList* bsl) :
     AbstractProcessStep(bsl, QLatin1String(MAKE_STEP_ID)),
     m_clean(false)
 {
     ctor();
 }
 
-MakeStep::MakeStep(ProjectExplorer::BuildStepList *bsl, const QString &id) :
+MakeStep::MakeStep(BuildStepList *bsl, const QString &id) :
     AbstractProcessStep(bsl, id),
     m_clean(false)
 {
     ctor();
 }
 
-MakeStep::MakeStep(ProjectExplorer::BuildStepList *bsl, MakeStep *bs) :
+MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) :
     AbstractProcessStep(bsl, bs),
     m_buildTargets(bs->m_buildTargets),
     m_additionalArguments(bs->additionalArguments()),
@@ -185,7 +187,7 @@ bool MakeStep::init()
     pp->setCommand(bc->toolChain()->makeCommand());
     pp->setArguments(arguments);
 
-    setOutputParser(new ProjectExplorer::GnuMakeParser());
+    setOutputParser(new GnuMakeParser());
     if (bc->autotoolsTarget()->autotoolsProject()->toolChain())
         appendOutputParser(bc->autotoolsTarget()->autotoolsProject()->toolChain()->outputParser());
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
@@ -198,7 +200,7 @@ void MakeStep::run(QFutureInterface<bool> &interface)
     AbstractProcessStep::run(interface);
 }
 
-ProjectExplorer::BuildStepConfigWidget *MakeStep::createConfigWidget()
+BuildStepConfigWidget *MakeStep::createConfigWidget()
 {
     return new MakeStepConfigWidget(this);
 }
@@ -291,7 +293,7 @@ QString MakeStepConfigWidget::summaryText() const
 void MakeStepConfigWidget::updateDetails()
 {
     AutotoolsBuildConfiguration *bc = m_makeStep->autotoolsBuildConfiguration();
-    ProjectExplorer::ToolChain *tc = bc->toolChain();
+    ToolChain *tc = bc->toolChain();
 
     if (tc) {
         QString arguments = Utils::QtcProcess::joinArgs(m_makeStep->m_buildTargets);

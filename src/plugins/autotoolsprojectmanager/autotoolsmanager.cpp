@@ -43,10 +43,12 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
+using namespace ProjectExplorer;
+
 namespace AutotoolsProjectManager {
 namespace Internal {
 
-ProjectExplorer::Project *AutotoolsManager::openProject(const QString &fileName, QString *errorString)
+Project *AutotoolsManager::openProject(const QString &fileName, QString *errorString)
 {
     QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
 
@@ -58,8 +60,8 @@ ProjectExplorer::Project *AutotoolsManager::openProject(const QString &fileName,
     }
 
     // Check whether the project is already open or not.
-    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
-    foreach (ProjectExplorer::Project *pi, projectExplorer->session()->projects()) {
+    ProjectExplorerPlugin *projectExplorer = ProjectExplorerPlugin::instance();
+    foreach (Project *pi, projectExplorer->session()->projects()) {
         if (canonicalFilePath == pi->file()->fileName()) {
             *errorString = tr("Failed opening project '%1': Project already open")
                              .arg(QDir::toNativeSeparators(canonicalFilePath));

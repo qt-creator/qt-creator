@@ -60,7 +60,7 @@ const char AUTORECONF_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.Auto
 // AutoreconfStepFactory class
 ////////////////////////////////
 AutoreconfStepFactory::AutoreconfStepFactory(QObject *parent) :
-    ProjectExplorer::IBuildStepFactory(parent)
+    IBuildStepFactory(parent)
 {
 }
 
@@ -108,9 +108,9 @@ BuildStep *AutoreconfStepFactory::clone(BuildStepList *parent, BuildStep *source
     return new AutoreconfStep(parent, static_cast<AutoreconfStep *>(source));
 }
 
-bool AutoreconfStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
+bool AutoreconfStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
 {
-    QString id(ProjectExplorer::idFromMap(map));
+    QString id = idFromMap(map);
     return canCreate(parent, id);
 }
 
@@ -128,20 +128,20 @@ BuildStep *AutoreconfStepFactory::restore(BuildStepList *parent, const QVariantM
 /////////////////////////
 // AutoreconfStep class
 /////////////////////////
-AutoreconfStep::AutoreconfStep(ProjectExplorer::BuildStepList *bsl) :
+AutoreconfStep::AutoreconfStep(BuildStepList *bsl) :
     AbstractProcessStep(bsl, QLatin1String(AUTORECONF_STEP_ID)),
     m_runAutoreconf(false)
 {
     ctor();
 }
 
-AutoreconfStep::AutoreconfStep(ProjectExplorer::BuildStepList *bsl, const QString &id) :
+AutoreconfStep::AutoreconfStep(BuildStepList *bsl, const QString &id) :
     AbstractProcessStep(bsl, id)
 {
     ctor();
 }
 
-AutoreconfStep::AutoreconfStep(ProjectExplorer::BuildStepList *bsl, AutoreconfStep *bs) :
+AutoreconfStep::AutoreconfStep(BuildStepList *bsl, AutoreconfStep *bs) :
     AbstractProcessStep(bsl, bs),
     m_additionalArguments(bs->additionalArguments())
 {
@@ -194,7 +194,7 @@ void AutoreconfStep::run(QFutureInterface<bool> &interface)
     AbstractProcessStep::run(interface);
 }
 
-ProjectExplorer::BuildStepConfigWidget* AutoreconfStep::createConfigWidget()
+BuildStepConfigWidget *AutoreconfStep::createConfigWidget()
 {
     return new AutoreconfStepConfigWidget(this);
 }

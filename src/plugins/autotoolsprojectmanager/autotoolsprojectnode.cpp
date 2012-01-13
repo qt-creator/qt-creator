@@ -37,9 +37,10 @@
 
 using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
+using namespace ProjectExplorer;
 
 AutotoolsProjectNode::AutotoolsProjectNode(AutotoolsProject *project, Core::IFile *projectFile) :
-    ProjectExplorer::ProjectNode(projectFile->fileName()),
+    ProjectNode(projectFile->fileName()),
     m_project(project),
     m_projectFile(projectFile)
 {
@@ -50,10 +51,10 @@ bool AutotoolsProjectNode::hasBuildTargets() const
     return true;
 }
 
-QList<ProjectExplorer::ProjectNode::ProjectAction> AutotoolsProjectNode::supportedActions(Node *node) const
+QList<ProjectNode::ProjectAction> AutotoolsProjectNode::supportedActions(Node *node) const
 {
     Q_UNUSED(node);
-    return QList<ProjectExplorer::ProjectNode::ProjectAction>();
+    return QList<ProjectNode::ProjectAction>();
 }
 
 bool AutotoolsProjectNode::canAddSubProject(const QString &proFilePath) const
@@ -74,7 +75,7 @@ bool AutotoolsProjectNode::removeSubProjects(const QStringList &proFilePaths)
     return false;
 }
 
-bool AutotoolsProjectNode::addFiles(const ProjectExplorer::FileType fileType,
+bool AutotoolsProjectNode::addFiles(const FileType fileType,
                                     const QStringList &filePaths,
                                     QStringList *notAdded)
 {
@@ -84,7 +85,7 @@ bool AutotoolsProjectNode::addFiles(const ProjectExplorer::FileType fileType,
     return false;
 }
 
-bool AutotoolsProjectNode::removeFiles(const ProjectExplorer::FileType fileType,
+bool AutotoolsProjectNode::removeFiles(const FileType fileType,
                                        const QStringList &filePaths,
                                        QStringList *notRemoved)
 {
@@ -94,7 +95,7 @@ bool AutotoolsProjectNode::removeFiles(const ProjectExplorer::FileType fileType,
     return false;
 }
 
-bool AutotoolsProjectNode::deleteFiles(const ProjectExplorer::FileType fileType,
+bool AutotoolsProjectNode::deleteFiles(const FileType fileType,
                                        const QStringList &filePaths)
 {
     Q_UNUSED(fileType);
@@ -102,7 +103,7 @@ bool AutotoolsProjectNode::deleteFiles(const ProjectExplorer::FileType fileType,
     return false;
 }
 
-bool AutotoolsProjectNode::renameFile(const ProjectExplorer::FileType fileType,
+bool AutotoolsProjectNode::renameFile(const FileType fileType,
                                       const QString &filePath,
                                       const QString &newFilePath)
 {
@@ -112,8 +113,8 @@ bool AutotoolsProjectNode::renameFile(const ProjectExplorer::FileType fileType,
     return false;
 }
 
-QList<ProjectExplorer::RunConfiguration *> AutotoolsProjectNode::runConfigurationsFor(Node *node)
+QList<RunConfiguration *> AutotoolsProjectNode::runConfigurationsFor(Node *node)
 {
     Q_UNUSED(node);
-    return QList<ProjectExplorer::RunConfiguration *>();
+    return QList<RunConfiguration *>();
 }

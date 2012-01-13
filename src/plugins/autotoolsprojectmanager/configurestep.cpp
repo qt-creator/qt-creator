@@ -61,7 +61,7 @@ const char CONFIGURE_STEP_ID[] = "AutotoolsProjectManager.ConfigureStep";
 // ConfigureStepFactory Class
 ////////////////////////////////
 ConfigureStepFactory::ConfigureStepFactory(QObject *parent) :
-    ProjectExplorer::IBuildStepFactory(parent)
+    IBuildStepFactory(parent)
 {
 }
 
@@ -109,9 +109,9 @@ BuildStep *ConfigureStepFactory::clone(BuildStepList *parent, BuildStep *source)
     return new ConfigureStep(parent, static_cast<ConfigureStep *>(source));
 }
 
-bool ConfigureStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
+bool ConfigureStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
 {
-    QString id(ProjectExplorer::idFromMap(map));
+    QString id(idFromMap(map));
     return canCreate(parent, id);
 }
 
@@ -129,20 +129,20 @@ BuildStep *ConfigureStepFactory::restore(BuildStepList *parent, const QVariantMa
 ////////////////////////
 // ConfigureStep class
 ////////////////////////
-ConfigureStep::ConfigureStep(ProjectExplorer::BuildStepList* bsl) :
+ConfigureStep::ConfigureStep(BuildStepList* bsl) :
     AbstractProcessStep(bsl, QLatin1String(CONFIGURE_STEP_ID)),
     m_runConfigure(false)
 {
     ctor();
 }
 
-ConfigureStep::ConfigureStep(ProjectExplorer::BuildStepList *bsl, const QString &id) :
+ConfigureStep::ConfigureStep(BuildStepList *bsl, const QString &id) :
     AbstractProcessStep(bsl, id)
 {
     ctor();
 }
 
-ConfigureStep::ConfigureStep(ProjectExplorer::BuildStepList *bsl, ConfigureStep *bs) :
+ConfigureStep::ConfigureStep(BuildStepList *bsl, ConfigureStep *bs) :
     AbstractProcessStep(bsl, bs),
     m_additionalArguments(bs->additionalArguments())
 {
@@ -198,7 +198,7 @@ void ConfigureStep::run(QFutureInterface<bool>& interface)
     AbstractProcessStep::run(interface);
 }
 
-ProjectExplorer::BuildStepConfigWidget* ConfigureStep::createConfigWidget()
+BuildStepConfigWidget *ConfigureStep::createConfigWidget()
 {
     return new ConfigureStepConfigWidget(this);
 }

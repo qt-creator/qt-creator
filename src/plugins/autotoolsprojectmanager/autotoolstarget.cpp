@@ -52,10 +52,11 @@
 
 using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
+using namespace ProjectExplorer;
 
 static QString displayNameForId(const QString &id)
 {
-    if (id == QLatin1String(Constants::DEFAULT_AUTOTOOLS_TARGET_ID))
+    if (id == QLatin1String(AutotoolsProjectManager::Constants::DEFAULT_AUTOTOOLS_TARGET_ID))
         return QApplication::translate("AutotoolsProjectManager::Internal::AutotoolsTarget",
                               "Desktop", "Autotools Default target display name");
     return QString();
@@ -66,14 +67,14 @@ static QString displayNameForId(const QString &id)
 //////////////////////////
 
 AutotoolsTarget::AutotoolsTarget(AutotoolsProject *parent) :
-    ProjectExplorer::Target(parent, QLatin1String(Constants::DEFAULT_AUTOTOOLS_TARGET_ID)),
+    Target(parent, QLatin1String(Constants::DEFAULT_AUTOTOOLS_TARGET_ID)),
     m_buildConfigurationFactory(new AutotoolsBuildConfigurationFactory(this))
 {
     setDefaultDisplayName(displayNameForId(id()));
     setIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
 }
 
-ProjectExplorer::BuildConfigWidget *AutotoolsTarget::createConfigWidget()
+BuildConfigWidget *AutotoolsTarget::createConfigWidget()
 {
     return new AutotoolsBuildSettingsWidget(this);
 }
@@ -117,7 +118,7 @@ bool AutotoolsTargetFactory::supportsTargetId(const QString &id) const
     return id == QLatin1String(Constants::DEFAULT_AUTOTOOLS_TARGET_ID);
 }
 
-QStringList AutotoolsTargetFactory::supportedTargetIds(ProjectExplorer::Project *parent) const
+QStringList AutotoolsTargetFactory::supportedTargetIds(Project *parent) const
 {
     if (!qobject_cast<AutotoolsProject *>(parent))
         return QStringList();
@@ -129,14 +130,14 @@ QString AutotoolsTargetFactory::displayNameForId(const QString &id) const
     return ::displayNameForId(id);
 }
 
-bool AutotoolsTargetFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
+bool AutotoolsTargetFactory::canCreate(Project *parent, const QString &id) const
 {
     if (!qobject_cast<AutotoolsProject *>(parent))
         return false;
     return id == QLatin1String(Constants::DEFAULT_AUTOTOOLS_TARGET_ID);
 }
 
-AutotoolsTarget *AutotoolsTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
+AutotoolsTarget *AutotoolsTargetFactory::create(Project *parent, const QString &id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -153,17 +154,17 @@ AutotoolsTarget *AutotoolsTargetFactory::create(ProjectExplorer::Project *parent
     t->addDeployConfiguration(t->createDeployConfiguration(ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
     // User needs to choose where the executable file is.
     // TODO: Parse the file in *Anjuta style* to be able to add custom RunConfigurations.
-    t->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(t));
+    t->addRunConfiguration(new CustomExecutableRunConfiguration(t));
 
     return t;
 }
 
-bool AutotoolsTargetFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
+bool AutotoolsTargetFactory::canRestore(Project *parent, const QVariantMap &map) const
 {
-    return canCreate(parent, ProjectExplorer::idFromMap(map));
+    return canCreate(parent, idFromMap(map));
 }
 
-AutotoolsTarget *AutotoolsTargetFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
+AutotoolsTarget *AutotoolsTargetFactory::restore(Project *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;

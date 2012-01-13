@@ -50,13 +50,16 @@
 #include <QtGui/QInputDialog>
 
 using namespace AutotoolsProjectManager;
+using namespace AutotoolsProjectManager::Constants;
 using namespace Internal;
+using namespace ProjectExplorer;
+using namespace ProjectExplorer::Constants;
 
 //////////////////////////////////////
 // AutotoolsBuildConfiguration class
 //////////////////////////////////////
 AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(AutotoolsTarget *parent)
-    : BuildConfiguration(parent, QLatin1String(Constants::AUTOTOOLS_BC_ID))
+    : BuildConfiguration(parent, QLatin1String(AUTOTOOLS_BC_ID))
 {
     m_buildDirectory = autotoolsTarget()->defaultBuildDirectory();
 }
@@ -75,8 +78,8 @@ AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(AutotoolsTarget *parent
 
 QVariantMap AutotoolsBuildConfiguration::toMap() const
 {
-    QVariantMap map = ProjectExplorer::BuildConfiguration::toMap();
-    map.insert(QLatin1String(Constants::BUILD_DIRECTORY_KEY), m_buildDirectory);
+    QVariantMap map = BuildConfiguration::toMap();
+    map.insert(QLatin1String(BUILD_DIRECTORY_KEY), m_buildDirectory);
     return map;
 }
 
@@ -85,7 +88,7 @@ bool AutotoolsBuildConfiguration::fromMap(const QVariantMap &map)
     if (!BuildConfiguration::fromMap(map))
         return false;
 
-    m_buildDirectory = map.value(QLatin1String(Constants::BUILD_DIRECTORY_KEY), autotoolsTarget()->defaultBuildDirectory()).toString();
+    m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY), autotoolsTarget()->defaultBuildDirectory()).toString();
     return true;
 }
 
@@ -107,9 +110,9 @@ AutotoolsTarget *AutotoolsBuildConfiguration::autotoolsTarget() const
     return static_cast<AutotoolsTarget *>(target());
 }
 
-ProjectExplorer::IOutputParser *AutotoolsBuildConfiguration::createOutputParser() const
+IOutputParser *AutotoolsBuildConfiguration::createOutputParser() const
 {
-    ProjectExplorer::ToolChain *tc = autotoolsTarget()->autotoolsProject()->toolChain();
+    ToolChain *tc = autotoolsTarget()->autotoolsProject()->toolChain();
     if (tc)
         return tc->outputParser();
     return 0;
@@ -119,34 +122,34 @@ ProjectExplorer::IOutputParser *AutotoolsBuildConfiguration::createOutputParser(
 // AutotoolsBuildConfiguration class
 //////////////////////////////////////
 AutotoolsBuildConfigurationFactory::AutotoolsBuildConfigurationFactory(QObject *parent) :
-    ProjectExplorer::IBuildConfigurationFactory(parent)
+    IBuildConfigurationFactory(parent)
 {
 }
 
-QStringList AutotoolsBuildConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
+QStringList AutotoolsBuildConfigurationFactory::availableCreationIds(Target *parent) const
 {
     if (!qobject_cast<AutotoolsTarget *>(parent))
         return QStringList();
-    return QStringList() << QLatin1String(Constants::AUTOTOOLS_BC_ID);
+    return QStringList() << QLatin1String(AUTOTOOLS_BC_ID);
 }
 
 QString AutotoolsBuildConfigurationFactory::displayNameForId(const QString &id) const
 {
-    if (id == QLatin1String(Constants::AUTOTOOLS_BC_ID))
+    if (id == QLatin1String(AUTOTOOLS_BC_ID))
         return tr("Build");
     return QString();
 }
 
-bool AutotoolsBuildConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const QString &id) const
+bool AutotoolsBuildConfigurationFactory::canCreate(Target *parent, const QString &id) const
 {
     if (!qobject_cast<AutotoolsTarget *>(parent))
         return false;
-    if (id == QLatin1String(Constants::AUTOTOOLS_BC_ID))
+    if (id == QLatin1String(AUTOTOOLS_BC_ID))
         return true;
     return false;
 }
 
-AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::create(ProjectExplorer::Target *parent, const QString &id)
+AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::create(Target *parent, const QString &id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -167,10 +170,10 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::create(ProjectE
     bc->setDisplayName(buildConfigurationName);
 
     t->addBuildConfiguration(bc);
-    t->addDeployConfiguration(t->createDeployConfiguration(ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
+    t->addDeployConfiguration(t->createDeployConfiguration(DEFAULT_DEPLOYCONFIGURATION_ID));
     // User needs to choose where the executable file is.
     // TODO: Parse the file in *Anjuta style* to be able to add custom RunConfigurations.
-    t->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(t));
+    t->addRunConfiguration(new CustomExecutableRunConfiguration(t));
 
     return bc;
 }
@@ -178,7 +181,7 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::create(ProjectE
 AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::createDefaultConfiguration(AutotoolsTarget *target) const
 {
     AutotoolsBuildConfiguration *bc = new AutotoolsBuildConfiguration(target);
-    ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    BuildStepList *buildSteps = bc->stepList(BUILDSTEPS_BUILD);
 
     // ### Build Steps Build ###
     // autogen.sh or autoreconf
@@ -202,7 +205,7 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::createDefaultCo
     makeStep->setBuildTarget(QLatin1String("all"),  /*on =*/ true);
 
     // ### Build Steps Clean ###
-    ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+    BuildStepList *cleanSteps = bc->stepList(BUILDSTEPS_CLEAN);
     MakeStep *cleanMakeStep = new MakeStep(cleanSteps);
     cleanMakeStep->setAdditionalArguments(QLatin1String("clean"));
     cleanMakeStep->setClean(true);
@@ -211,12 +214,12 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::createDefaultCo
     return bc;
 }
 
-bool AutotoolsBuildConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const
+bool AutotoolsBuildConfigurationFactory::canClone(Target *parent, BuildConfiguration *source) const
 {
     return canCreate(parent, source->id());
 }
 
-AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source)
+AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::clone(Target *parent, BuildConfiguration *source)
 {
     if (!canClone(parent, source))
         return 0;
@@ -226,13 +229,13 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::clone(ProjectEx
     return new AutotoolsBuildConfiguration(target, origin);
 }
 
-bool AutotoolsBuildConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const
+bool AutotoolsBuildConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
-    QString id(ProjectExplorer::idFromMap(map));
+    QString id = idFromMap(map);
     return canCreate(parent, id);
 }
 
-AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
+AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
@@ -244,7 +247,7 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::restore(Project
     return 0;
 }
 
-ProjectExplorer::BuildConfiguration::BuildType AutotoolsBuildConfiguration::buildType() const
+BuildConfiguration::BuildType AutotoolsBuildConfiguration::buildType() const
 {
     // TODO: Should I return something different from Unknown?
     return Unknown;
