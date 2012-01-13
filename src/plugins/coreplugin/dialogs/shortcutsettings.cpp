@@ -321,6 +321,7 @@ void ShortcutSettings::initialize()
         }
         sections[section]->addChild(item);
 
+        s->m_key = c->keySequence();
         item->setText(0, subId);
         item->setText(1, c->description());
         item->setText(2, s->m_key);
