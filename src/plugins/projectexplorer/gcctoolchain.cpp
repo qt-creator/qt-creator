@@ -314,7 +314,7 @@ void GccToolChain::updateId()
     i = i.left(i.indexOf(QLatin1Char(':')));
     setId(QString::fromLatin1("%1:%2.%3.%4")
           .arg(i).arg(m_compilerPath)
-          .arg(m_targetAbi.toString()).arg(m_debuggerCommand));
+          .arg(m_targetAbi.toString()).arg(m_debuggerCommand.toString()));
 }
 
 QString GccToolChain::typeName() const
@@ -384,7 +384,7 @@ void GccToolChain::addToEnvironment(Utils::Environment &env) const
         env.prependOrSetPath(QFileInfo(m_compilerPath).absolutePath());
 }
 
-void GccToolChain::setDebuggerCommand(const QString &d)
+void GccToolChain::setDebuggerCommand(const Utils::FileName &d)
 {
     if (m_debuggerCommand == d)
         return;
@@ -393,7 +393,7 @@ void GccToolChain::setDebuggerCommand(const QString &d)
     toolChainUpdated();
 }
 
-QString GccToolChain::debuggerCommand() const
+Utils::FileName GccToolChain::debuggerCommand() const
 {
     return m_debuggerCommand;
 }
@@ -491,7 +491,7 @@ QVariantMap GccToolChain::toMap() const
     foreach (const ProjectExplorer::Abi &a, m_supportedAbis)
         abiList.append(a.toString());
     data.insert(QLatin1String(supportedAbisKeyC), abiList);
-    data.insert(QLatin1String(debuggerCommandKeyC), m_debuggerCommand);
+    data.insert(QLatin1String(debuggerCommandKeyC), m_debuggerCommand.toString());
     return data;
 }
 
@@ -510,7 +510,7 @@ bool GccToolChain::fromMap(const QVariantMap &data)
             continue;
         m_supportedAbis.append(abi);
     }
-    m_debuggerCommand = data.value(QLatin1String(debuggerCommandKeyC)).toString();
+    m_debuggerCommand = Utils::FileName::fromString(data.value(QLatin1String(debuggerCommandKeyC)).toString());
     updateId();
     return true;
 }
@@ -630,10 +630,10 @@ QList<ToolChain *> Internal::GccToolChainFactory::autoDetectToolchains(const QSt
             return result;
     }
 
-    QString debuggerPath = ToolChainManager::instance()->defaultDebugger(requiredAbi).toString(); // Find the first debugger
+    Utils::FileName debuggerPath = ToolChainManager::instance()->defaultDebugger(requiredAbi);
     if (debuggerPath.isEmpty()) {
         foreach (const QString &debugger, debuggers) {
-            debuggerPath = systemEnvironment.searchInPath(debugger);
+            debuggerPath = Utils::FileName::fromString(systemEnvironment.searchInPath(debugger));
             if (!debuggerPath.isEmpty())
                 break;
         }
@@ -700,7 +700,7 @@ void Internal::GccToolChainConfigWidget::apply()
     tc->setTargetAbi(m_abiWidget->currentAbi());
     tc->setDisplayName(displayName); // reset display name
     tc->setDebuggerCommand(debuggerCommand());
-    m_autoDebuggerCommand = QLatin1String("<manually set>");
+    m_autoDebuggerCommand = Utils::FileName::fromString(QLatin1String("<manually set>"));
 }
 
 void Internal::GccToolChainConfigWidget::setFromToolchain()
@@ -753,7 +753,7 @@ void Internal::GccToolChainConfigWidget::handleAbiChange()
 {
     if (m_autoDebuggerCommand == debuggerCommand()) {
         ProjectExplorer::Abi abi = m_abiWidget->currentAbi();
-        m_autoDebuggerCommand = ToolChainManager::instance()->defaultDebugger(abi).toString();
+        m_autoDebuggerCommand = ToolChainManager::instance()->defaultDebugger(abi);
         setDebuggerCommand(m_autoDebuggerCommand);
     }
     emit dirty(toolChain());
@@ -902,7 +902,7 @@ QList<ToolChain *> Internal::MingwToolChainFactory::autoDetect()
     foreach (ToolChain *tc, ToolChainManager::instance()->toolChains()) {
         if (tc->debuggerCommand().isEmpty() && tc->id().startsWith(QLatin1String(Constants::MINGW_TOOLCHAIN_ID)))
             static_cast<MingwToolChain *>(tc)
-                ->setDebuggerCommand(ToolChainManager::instance()->defaultDebugger(tc->targetAbi()).toString());
+                ->setDebuggerCommand(ToolChainManager::instance()->defaultDebugger(tc->targetAbi()));
     }
 
     Abi ha = Abi::hostAbi();

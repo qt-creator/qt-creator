@@ -35,6 +35,8 @@
 
 #include "projectexplorer_export.h"
 
+#include <utils/fileutils.h>
+
 #include <QtGui/QWidget>
 
 QT_FORWARD_DECLARE_CLASS(QFormLayout)
@@ -86,8 +88,8 @@ protected:
     void addErrorLabel(QFormLayout *lt);
     void addErrorLabel(QGridLayout *lt, int row = 0, int column = 0, int colSpan = 1);
 
-    QString debuggerCommand() const;
-    void setDebuggerCommand(const QString &debugger);
+    Utils::FileName debuggerCommand() const;
+    void setDebuggerCommand(const Utils::FileName &debugger);
 
 private:
     void ensureDebuggerPathChooser(const QStringList &versionArguments);

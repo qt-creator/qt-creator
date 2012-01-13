@@ -102,8 +102,8 @@ public:
     void setCompilerPath(const QString &path);
     QString compilerPath() const;
 
-    void setDebuggerCommand(const QString &d);
-    virtual QString debuggerCommand() const;
+    void setDebuggerCommand(const Utils::FileName &d);
+    virtual Utils::FileName debuggerCommand() const;
 
     void setArmVersion(ArmVersion);
     ArmVersion armVersion() const;
@@ -128,7 +128,7 @@ private:
     QList<Utils::EnvironmentItem> m_environmentChanges;
     ArmVersion m_armVersion;
     mutable RvctVersion m_version;
-    QString m_debuggerCommand;
+    Utils::FileName m_debuggerCommand;
 
     friend class RvctToolChainFactory;
 };

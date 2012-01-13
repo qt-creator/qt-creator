@@ -750,7 +750,7 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
             if (const ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration()) {
                 sp.projectBuildDirectory = buildConfig->buildDirectory();
                 if (const ProjectExplorer::ToolChain *tc = buildConfig->toolChain())
-                    sp.debuggerCommand = tc->debuggerCommand();
+                    sp.debuggerCommand = tc->debuggerCommand().toString();
             }
             sp.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
         }

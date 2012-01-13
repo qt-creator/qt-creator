@@ -127,7 +127,7 @@ QString AbstractMsvcToolChain::makeCommand() const
     return QLatin1String("nmake.exe");
 }
 
-void AbstractMsvcToolChain::setDebuggerCommand(const QString &d)
+void AbstractMsvcToolChain::setDebuggerCommand(const Utils::FileName &d)
 {
     if (m_debuggerCommand == d)
         return;
@@ -136,7 +136,7 @@ void AbstractMsvcToolChain::setDebuggerCommand(const QString &d)
     toolChainUpdated();
 }
 
-QString AbstractMsvcToolChain::debuggerCommand() const
+Utils::FileName AbstractMsvcToolChain::debuggerCommand() const
 {
     return m_debuggerCommand;
 }

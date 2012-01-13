@@ -292,7 +292,7 @@ QString RvctToolChain::compilerPath() const
     return m_compilerPath;
 }
 
-void RvctToolChain::setDebuggerCommand(const QString &d)
+void RvctToolChain::setDebuggerCommand(const Utils::FileName &d)
 {
     if (m_debuggerCommand == d)
         return;
@@ -300,7 +300,7 @@ void RvctToolChain::setDebuggerCommand(const QString &d)
     toolChainUpdated();
 }
 
-QString RvctToolChain::debuggerCommand() const
+Utils::FileName RvctToolChain::debuggerCommand() const
 {
     return m_debuggerCommand;
 }
@@ -346,7 +346,7 @@ QVariantMap RvctToolChain::toMap() const
         tmp.insert(i.name, i.value);
     result.insert(QLatin1String(rvctEnvironmentKeyC), tmp);
     result.insert(QLatin1String(rvctArmVersionKeyC), static_cast<int>(m_armVersion));
-    result.insert(QLatin1String(debuggerCommandKeyC), m_debuggerCommand);
+    result.insert(QLatin1String(debuggerCommandKeyC), m_debuggerCommand.toString());
     return result;
 }
 
@@ -361,7 +361,7 @@ bool RvctToolChain::fromMap(const QVariantMap &data)
     for (QVariantMap::const_iterator i = tmp.constBegin(); i != tmp.constEnd(); ++i)
         m_environmentChanges.append(Utils::EnvironmentItem(i.key(), i.value().toString()));
     m_armVersion = static_cast<ArmVersion>(data.value(QLatin1String(rvctArmVersionKeyC), 0).toInt());
-    m_debuggerCommand = data.value(QLatin1String(debuggerCommandKeyC)).toString();
+    m_debuggerCommand = Utils::FileName::fromString(data.value(QLatin1String(debuggerCommandKeyC)).toString());
     return isValid();
 }
 
@@ -369,7 +369,7 @@ void RvctToolChain::updateId()
 {
     const QChar dot = QLatin1Char('.');
     setId(QLatin1String(Constants::RVCT_TOOLCHAIN_ID) + QLatin1Char(':')
-          + m_compilerPath + dot + toString(m_armVersion) + dot + m_debuggerCommand);
+          + m_compilerPath + dot + toString(m_armVersion) + dot + m_debuggerCommand.toString());
 }
 
 QString RvctToolChain::varName(const QString &postFix) const
@@ -555,7 +555,7 @@ QList<ProjectExplorer::ToolChain *> RvctToolChainFactory::autoDetect()
         tc->setDisplayName(name.arg(armVersionString(tc->armVersion()))
                            .arg(v.majorVersion).arg(v.minorVersion).arg(v.build));
         tc->setVersion(v);
-        tc->setDebuggerCommand(ProjectExplorer::ToolChainManager::instance()->defaultDebugger(tc->targetAbi()).toString());
+        tc->setDebuggerCommand(ProjectExplorer::ToolChainManager::instance()->defaultDebugger(tc->targetAbi()));
         result.append(tc);
     }
 

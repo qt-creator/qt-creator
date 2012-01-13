@@ -87,7 +87,7 @@ public:
 
     virtual Utils::FileName mkspec() const = 0;
 
-    virtual QString debuggerCommand() const = 0;
+    virtual Utils::FileName debuggerCommand() const = 0;
     virtual QString defaultMakeTarget() const;
     virtual IOutputParser *outputParser() const = 0;
 

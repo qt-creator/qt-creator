@@ -171,7 +171,7 @@ int MaemoToolChain::qtVersionId() const
 void MaemoToolChain::updateId()
 {
     setId(QString::fromLatin1("%1:%2.%3").arg(Constants::MAEMO_TOOLCHAIN_ID)
-          .arg(m_qtVersionId).arg(debuggerCommand()));
+          .arg(m_qtVersionId).arg(debuggerCommand().toString()));
 }
 
 // --------------------------------------------------------------------------
@@ -191,7 +191,7 @@ MaemoToolChainConfigWidget::MaemoToolChainConfigWidget(MaemoToolChain *tc) :
                       "<tr><td>Debugger:</td/><td>%3</td></tr></body></html>")
                    .arg(QDir::toNativeSeparators(MaemoGlobal::maddeRoot(v->qmakeCommand().toString())),
                         QDir::toNativeSeparators(MaemoGlobal::targetRoot(v->qmakeCommand().toString())),
-                        QDir::toNativeSeparators(tc->debuggerCommand())));
+                        tc->debuggerCommand().toUserOutput()));
     layout->addWidget(label);
 }
 
@@ -284,9 +284,9 @@ QList<ProjectExplorer::ToolChain *> MaemoToolChainFactory::createToolChainList(c
             target = "Meego";
         mTc->setDisplayName(tr("%1 GCC (%2)").arg(target).arg(MaemoGlobal::maddeRoot(mqv->qmakeCommand().toString())));
         mTc->setCompilerPath(MaemoGlobal::targetRoot(mqv->qmakeCommand().toString()) + QLatin1String("/bin/gcc"));
-        mTc->setDebuggerCommand(ProjectExplorer::ToolChainManager::instance()->defaultDebugger(mqv->qtAbis().at(0)).toString());
+        mTc->setDebuggerCommand(ProjectExplorer::ToolChainManager::instance()->defaultDebugger(mqv->qtAbis().at(0)));
         if (mTc->debuggerCommand().isEmpty())
-            mTc->setDebuggerCommand(MaemoGlobal::targetRoot(mqv->qmakeCommand().toString()) + QLatin1String("/bin/gdb"));
+            mTc->setDebuggerCommand(Utils::FileName::fromString(MaemoGlobal::targetRoot(mqv->qmakeCommand().toString()) + QLatin1String("/bin/gdb")));
         result.append(mTc);
     }
     return result;

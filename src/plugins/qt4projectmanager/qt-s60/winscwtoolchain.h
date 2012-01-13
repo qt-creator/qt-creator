@@ -62,7 +62,7 @@ public:
     void addToEnvironment(Utils::Environment &env) const;
     Utils::FileName mkspec() const;
     QString makeCommand() const;
-    virtual QString debuggerCommand() const;
+    Utils::FileName debuggerCommand() const;
     QString defaultMakeTarget() const;
     ProjectExplorer::IOutputParser *outputParser() const;
 

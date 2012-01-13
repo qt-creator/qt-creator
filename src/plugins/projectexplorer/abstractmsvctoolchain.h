@@ -56,9 +56,9 @@ public:
 
     void addToEnvironment(Utils::Environment &env) const;
     QString makeCommand() const;
-    void setDebuggerCommand(const QString &d);
+    void setDebuggerCommand(const Utils::FileName &d);
 
-    QString debuggerCommand() const;
+    Utils::FileName debuggerCommand() const;
     IOutputParser *outputParser() const;
 
     bool canClone() const;
@@ -75,7 +75,7 @@ protected:
                                      const QString& batchArgs,
                                      QMap<QString, QString>& envPairs) const;
 
-    QString m_debuggerCommand;
+    Utils::FileName m_debuggerCommand;
     mutable QByteArray m_predefinedMacros;
     mutable Utils::Environment m_lastEnvironment;   // Last checked 'incoming' environment.
     mutable Utils::Environment m_resultEnvironment; // Resulting environment for VC

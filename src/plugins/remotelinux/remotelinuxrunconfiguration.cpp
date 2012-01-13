@@ -259,7 +259,7 @@ LinuxDeviceConfiguration::ConstPtr RemoteLinuxRunConfiguration::deviceConfig() c
 
 QString RemoteLinuxRunConfiguration::gdbCmd() const
 {
-    return QDir::toNativeSeparators(activeBuildConfiguration()->toolChain()->debuggerCommand());
+    return activeBuildConfiguration()->toolChain()->debuggerCommand().toUserOutput();
 }
 
 RemoteLinuxDeployConfiguration *RemoteLinuxRunConfiguration::deployConfig() const

@@ -67,8 +67,8 @@ public:
     void addToEnvironment(Utils::Environment &env) const;
     Utils::FileName mkspec() const;
     QString makeCommand() const;
-    void setDebuggerCommand(const QString &);
-    QString debuggerCommand() const;
+    void setDebuggerCommand(const Utils::FileName &);
+    Utils::FileName debuggerCommand() const;
     IOutputParser *outputParser() const;
 
     QVariantMap toMap() const;
@@ -102,7 +102,7 @@ private:
     void updateSupportedAbis() const;
 
     QString m_compilerPath;
-    QString m_debuggerCommand;
+    Utils::FileName m_debuggerCommand;
 
     Abi m_targetAbi;
     mutable QList<Abi> m_supportedAbis;

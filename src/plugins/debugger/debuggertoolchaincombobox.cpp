@@ -61,7 +61,7 @@ void DebuggerToolChainComboBox::init(bool hostAbiOnly)
     foreach (const ProjectExplorer::ToolChain *tc, ProjectExplorer::ToolChainManager::instance()->toolChains()) {
         const ProjectExplorer::Abi abi = tc->targetAbi();
         if (!hostAbiOnly || hostAbi.os() == abi.os()) { // Offer MSVC and Mingw, etc.
-            const QString debuggerCommand = tc->debuggerCommand();
+            const QString debuggerCommand = tc->debuggerCommand().toString();
             if (!debuggerCommand.isEmpty()) {
                 const AbiDebuggerCommandPair data(abi, debuggerCommand);
                 const QString completeBase = QFileInfo(debuggerCommand).completeBaseName();

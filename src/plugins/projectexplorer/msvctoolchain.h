@@ -71,7 +71,7 @@ public:
 
     QString varsBatArg() const { return m_varsBatArg; }
 
-    static QPair<QString, QString> autoDetectCdbDebugger();
+    static QPair<Utils::FileName, Utils::FileName> autoDetectCdbDebugger();
 
 protected:
     Utils::Environment readEnvironmentSetting(Utils::Environment& env) const;

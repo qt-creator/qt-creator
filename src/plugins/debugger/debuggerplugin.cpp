@@ -2804,7 +2804,7 @@ QString DebuggerPluginPrivate::debuggerForAbi(const Abi &abi, DebuggerEngineType
             ToolChainManager::instance()->findToolChains(searchAbi);
         // Find manually configured ones first
         for (int i = toolchains.size() - 1; i >= 0; i--) {
-            const QString debugger = toolchains.at(i)->debuggerCommand();
+            const QString debugger = toolchains.at(i)->debuggerCommand().toString();
             if (debug)
                 qDebug() << i << toolchains.at(i)->displayName() << debugger;
             if (!debugger.isEmpty())

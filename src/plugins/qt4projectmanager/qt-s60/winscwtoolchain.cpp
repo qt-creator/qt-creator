@@ -196,9 +196,9 @@ QString WinscwToolChain::makeCommand() const
 #endif
 }
 
-QString WinscwToolChain::debuggerCommand() const
+Utils::FileName WinscwToolChain::debuggerCommand() const
 {
-    return QString();
+    return Utils::FileName();
 }
 
 QString WinscwToolChain::defaultMakeTarget() const
