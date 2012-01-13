@@ -151,48 +151,6 @@ QWizard *GenericProjectWizard::createWizardDialog(QWidget *parent,
     return wizard;
 }
 
-void GenericProjectWizard::getFileList(const QDir &dir, const QString &projectRoot,
-                                       const QStringList &suffixes,
-                                       QStringList *files, QStringList *paths) const
-{
-    const QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files |
-                                                         QDir::Dirs |
-                                                         QDir::NoDotAndDotDot |
-                                                         QDir::NoSymLinks);
-
-    foreach (const QFileInfo &fileInfo, fileInfoList) {
-        QString filePath = fileInfo.absoluteFilePath();
-        filePath = filePath.mid(projectRoot.length() + 1);
-
-        if (fileInfo.isDir() && isValidDir(fileInfo)) {
-            getFileList(QDir(fileInfo.absoluteFilePath()), projectRoot,
-                        suffixes, files, paths);
-
-            if (! paths->contains(filePath))
-                paths->append(filePath);
-        }
-
-        else if (suffixes.contains(fileInfo.suffix()))
-            files->append(filePath);
-    }
-}
-
-bool GenericProjectWizard::isValidDir(const QFileInfo &fileInfo) const
-{
-    const QString fileName = fileInfo.fileName();
-    const QString suffix = fileInfo.suffix();
-
-    if (fileName.startsWith(QLatin1Char('.')))
-        return false;
-
-    else if (fileName == QLatin1String("CVS"))
-        return false;
-
-    // ### user include/exclude
-
-    return true;
-}
-
 Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
                                                          QString *errorMessage) const
 {

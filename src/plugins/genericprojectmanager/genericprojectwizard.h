@@ -90,13 +90,6 @@ protected:
                                                QString *errorMessage) const;
 
     virtual bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
-
-    bool isValidDir(const QFileInfo &fileInfo) const;
-
-    void getFileList(const QDir &dir, const QString &projectRoot,
-                     const QStringList &suffixes,
-                     QStringList *files,
-                     QStringList *paths) const;
 };
 
 } // namespace Internal
