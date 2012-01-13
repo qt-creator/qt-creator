@@ -35,6 +35,8 @@
 
 #include "utils_global.h"
 
+#include "fileutils.h"
+
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -53,6 +55,7 @@ class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
     Q_OBJECT
     Q_ENUMS(Kind)
     Q_PROPERTY(QString path READ path WRITE setPath DESIGNABLE true)
+    Q_PROPERTY(Utils::FileName fileName READ fileName WRITE setFileName DESIGNABLE true)
     Q_PROPERTY(QString promptDialogTitle READ promptDialogTitle WRITE setPromptDialogTitle DESIGNABLE true)
     Q_PROPERTY(Kind expectedKind READ expectedKind WRITE setExpectedKind DESIGNABLE true)
     Q_PROPERTY(QString baseDirectory READ baseDirectory WRITE setBaseDirectory DESIGNABLE true)
@@ -91,6 +94,7 @@ public:
 
     QString path() const;
     QString rawPath() const; // The raw unexpanded input.
+    Utils::FileName fileName() const;
 
     QString baseDirectory() const;
     void setBaseDirectory(const QString &directory);
@@ -139,6 +143,7 @@ signals:
 
 public slots:
     void setPath(const QString &);
+    void setFileName(const Utils::FileName &);
 
 private slots:
     void slotBrowse();

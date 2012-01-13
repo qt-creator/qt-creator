@@ -309,9 +309,19 @@ QString PathChooser::rawPath() const
     return QDir::fromNativeSeparators(d->m_lineEdit->text());
 }
 
+FileName PathChooser::fileName() const
+{
+    return Utils::FileName::fromString(path());
+}
+
 void PathChooser::setPath(const QString &path)
 {
     d->m_lineEdit->setText(QDir::toNativeSeparators(path));
+}
+
+void PathChooser::setFileName(const Utils::FileName &fn)
+{
+    d->m_lineEdit->setText(fn.toUserOutput());
 }
 
 bool PathChooser::isReadOnly() const
