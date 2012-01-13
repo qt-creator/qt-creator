@@ -518,7 +518,7 @@ void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildV8ModelFr
 QString QmlProfilerEventsMainView::displayTime(double time)
 {
     if (time < 1e6)
-        return QString::number(time/1e3,'f',3) + trUtf8(" \u03BCs");
+        return QString::number(time/1e3,'f',3) + trUtf8(" \xc2\xb5s");
     if (time < 1e9)
         return QString::number(time/1e6,'f',3) + tr(" ms");
 
