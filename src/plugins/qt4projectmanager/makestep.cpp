@@ -305,7 +305,7 @@ void MakeStep::setUserArguments(const QString &arguments)
 }
 
 MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
-    : BuildStepConfigWidget(), m_ui(new Internal::Ui::MakeStep), m_makeStep(makeStep), m_ignoreChange(false)
+    : BuildStepConfigWidget(), m_ui(new Internal::Ui::MakeStep), m_makeStep(makeStep), m_bc(0), m_ignoreChange(false)
 {
     m_ui->setupUi(this);
 
@@ -327,18 +327,58 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     connect(makeStep, SIGNAL(userArgumentsChanged()),
             this, SLOT(userArgumentsChanged()));
-    connect(makeStep->buildConfiguration(), SIGNAL(buildDirectoryChanged()),
-            this, SLOT(updateDetails()));
-    connect(makeStep->buildConfiguration(), SIGNAL(toolChainChanged()),
-            this, SLOT(updateDetails()));
 
-    connect(makeStep->qt4BuildConfiguration(), SIGNAL(qtVersionChanged()),
-            this, SLOT(qtVersionChanged()));
+    ProjectExplorer::BuildConfiguration *bc = makeStep->buildConfiguration();
+    if (!bc) {
+        // That means the step is in the deploylist, so we listen to the active build config
+        // changed signal and update various things in return
+        bc = makeStep->target()->activeBuildConfiguration();
+        m_bc = bc;
+        connect (makeStep->target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+                 this, SLOT(activeBuildConfigurationChanged()));
+    }
+
+    if (bc) {
+        connect(bc, SIGNAL(buildDirectoryChanged()),
+                this, SLOT(updateDetails()));
+        connect(bc, SIGNAL(toolChainChanged()),
+                this, SLOT(updateDetails()));
+
+        connect(bc, SIGNAL(qtVersionChanged()),
+                this, SLOT(qtVersionChanged()));
+    }
 
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateMakeOverrideLabel()));
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateDetails()));
+}
+
+void MakeStepConfigWidget::activeBuildConfigurationChanged()
+{
+    if (m_bc) {
+        disconnect(m_bc, SIGNAL(buildDirectoryChanged()),
+                this, SLOT(updateDetails()));
+        disconnect(m_bc, SIGNAL(toolChainChanged()),
+                this, SLOT(updateDetails()));
+
+        disconnect(m_bc, SIGNAL(qtVersionChanged()),
+                this, SLOT(qtVersionChanged()));
+    }
+
+    m_bc = m_makeStep->target()->activeBuildConfiguration();
+    updateMakeOverrideLabel();
+    updateDetails();
+
+    if (m_bc) {
+        connect(m_bc, SIGNAL(buildDirectoryChanged()),
+                this, SLOT(updateDetails()));
+        connect(m_bc, SIGNAL(toolChainChanged()),
+                this, SLOT(updateDetails()));
+
+        connect(m_bc, SIGNAL(qtVersionChanged()),
+                this, SLOT(qtVersionChanged()));
+    }
 }
 
 MakeStepConfigWidget::~MakeStepConfigWidget()

@@ -138,10 +138,12 @@ private slots:
     void updateDetails();
     void userArgumentsChanged();
     void qtVersionChanged();
+    void activeBuildConfigurationChanged();
 private:
     Internal::Ui::MakeStep *m_ui;
     MakeStep *m_makeStep;
     QString m_summaryText;
+    ProjectExplorer::BuildConfiguration *m_bc;
     bool m_ignoreChange;
 };
 
