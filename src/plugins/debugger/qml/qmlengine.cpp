@@ -197,19 +197,7 @@ void QmlEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
-    if (startParameters().startMode == AttachToRemoteServer) {
-        emit requestRemoteSetup();
-        if (startParameters().qmlServerPort != quint16(-1))
-            notifyInferiorSetupOk();
-    } if (startParameters().startMode == AttachToQmlPort) {
-            notifyInferiorSetupOk();
-
-    } else {
-        d->m_applicationLauncher.setEnvironment(startParameters().environment);
-        d->m_applicationLauncher.setWorkingDirectory(startParameters().workingDirectory);
-
-        notifyInferiorSetupOk();
-    }
+    notifyInferiorSetupOk();
 }
 
 void QmlEngine::appendMessage(const QString &msg, Utils::OutputFormat /* format */)
@@ -422,14 +410,15 @@ void QmlEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
     Q_UNUSED(gdbServerPort);
     if (qmlPort != -1)
         startParameters().qmlServerPort = qmlPort;
-    notifyInferiorSetupOk();
+    notifyEngineSetupOk();
 }
 
 void QmlEngine::handleRemoteSetupFailed(const QString &message)
 {
-    QMessageBox::critical(0,tr("Failed to start application"),
-        tr("Application startup failed: %1").arg(message));
-    notifyInferiorSetupFailed();
+    if (isMasterEngine())
+        QMessageBox::critical(0,tr("Failed to start application"),
+            tr("Application startup failed: %1").arg(message));
+    notifyEngineSetupFailed();
 }
 
 void QmlEngine::shutdownInferior()
@@ -461,11 +450,21 @@ void QmlEngine::shutdownEngine()
 
 void QmlEngine::setupEngine()
 {
-    connect(&d->m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
-            runControl(), SLOT(bringApplicationToForeground(qint64)),
-            Qt::UniqueConnection);
+    if (startParameters().startMode == AttachToQmlPort
+             || startParameters().startMode == AttachToRemoteServer) {
+        // we need to get the port first
+        emit requestRemoteSetup();
+    } else {
+        d->m_applicationLauncher.setEnvironment(startParameters().environment);
+        d->m_applicationLauncher.setWorkingDirectory(startParameters().workingDirectory);
 
-    notifyEngineSetupOk();
+        // We can't do this in the constructore because runControl() isn't yet defined
+        connect(&d->m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
+                runControl(), SLOT(bringApplicationToForeground(qint64)),
+                Qt::UniqueConnection);
+
+        notifyEngineSetupOk();
+    }
 }
 
 void QmlEngine::continueInferior()
