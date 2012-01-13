@@ -43,11 +43,11 @@ WinscwParser::WinscwParser()
 {
     setObjectName(QLatin1String("WinscwParser"));
     // linker problems:
-    m_linkerProblem.setPattern("^(\\S*)\\(\\S+\\):\\s(.+)$");
+    m_linkerProblem.setPattern(QLatin1String("^(\\S*)\\(\\S+\\):\\s(.+)$"));
     m_linkerProblem.setMinimal(true);
 
     // WINSCW issue:
-    m_compilerProblem.setPattern("^([^\\(\\)]+[^\\d]):(\\d+):\\s(.+)$");
+    m_compilerProblem.setPattern(QLatin1String("^([^\\(\\)]+[^\\d]):(\\d+):\\s(.+)$"));
     m_compilerProblem.setMinimal(true);
 }
 
@@ -60,7 +60,7 @@ void WinscwParser::stdOutput(const QString &line)
                   m_compilerProblem.cap(3) /* description */,
                   m_compilerProblem.cap(1) /* filename */,
                   m_compilerProblem.cap(2).toInt() /* linenumber */,
-                  TASK_CATEGORY_COMPILE);
+                  QLatin1String(TASK_CATEGORY_COMPILE));
         if (task.description.startsWith(QLatin1String("warning: "))) {
             task.type = Task::Warning;
             task.description = task.description.mid(9);
@@ -80,7 +80,7 @@ void WinscwParser::stdError(const QString &line)
                           m_linkerProblem.cap(2) /* description */,
                           m_linkerProblem.cap(1) /* filename */,
                           -1 /* linenumber */,
-                          TASK_CATEGORY_COMPILE));
+                          QLatin1String(TASK_CATEGORY_COMPILE)));
         return;
     }
     IOutputParser::stdError(line);

@@ -73,9 +73,9 @@ QStringList Qt4DesktopTargetFactory::supportedTargetIds(ProjectExplorer::Project
 {
     if (parent && !qobject_cast<Qt4Project *>(parent))
         return QStringList();
-    if (!QtSupport::QtVersionManager::instance()->supportsTargetId(Constants::DESKTOP_TARGET_ID))
-        return QStringList();
-    return QStringList() << QLatin1String(Constants::DESKTOP_TARGET_ID);
+    const QString desktopId = QLatin1String(Constants::DESKTOP_TARGET_ID);
+    return QtSupport::QtVersionManager::instance()->supportsTargetId(desktopId) ?
+           QStringList(desktopId) : QStringList();
 }
 
 QString Qt4DesktopTargetFactory::displayNameForId(const QString &id) const
@@ -164,11 +164,11 @@ ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Projec
 QSet<QString> Qt4DesktopTargetFactory::targetFeatures(const QString & /*id*/) const
 {
     QSet<QString> features;
-    features << Constants::DESKTOP_TARGETFEATURE_ID;
-    features << Constants::SHADOWBUILD_TARGETFEATURE_ID;
+    features << QLatin1String(Constants::DESKTOP_TARGETFEATURE_ID)
+             << QLatin1String(Constants::SHADOWBUILD_TARGETFEATURE_ID)
     // how to check check whether they component set is really installed?
-    features << Constants::QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID;
-    features << Constants::QTQUICKCOMPONENTS_MEEGO_TARGETFEATURE_ID;
+             << QLatin1String(Constants::QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID)
+             << QLatin1String(Constants::QTQUICKCOMPONENTS_MEEGO_TARGETFEATURE_ID);
     return features;
 }
 
@@ -185,7 +185,7 @@ ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Projec
                                     info.version, info.buildConfig,
                                     info.additionalArguments, info.directory, info.importing);
 
-    t->addDeployConfiguration(t->createDeployConfiguration(ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
+    t->addDeployConfiguration(t->createDeployConfiguration(QLatin1String(ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID)));
 
     t->createApplicationProFiles();
 

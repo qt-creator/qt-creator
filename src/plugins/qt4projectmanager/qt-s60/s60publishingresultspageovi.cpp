@@ -105,9 +105,9 @@ void S60PublishingResultsPageOvi::scrollToBottom()
 void S60PublishingResultsPageOvi::openFileLocation()
 {
 #ifdef Q_OS_WIN
-    QProcess::startDetached("explorer /select,"+ m_publisher->createdSisFilePath());
+    QProcess::startDetached(QLatin1String("explorer /select,")+ m_publisher->createdSisFilePath());
 #else
-    QDesktopServices::openUrl(QUrl("file:///" + m_publisher->createdSisFileContainingFolder()));
+    QDesktopServices::openUrl(QUrl(QLatin1String("file:///") + m_publisher->createdSisFileContainingFolder()));
 #endif
 }
 

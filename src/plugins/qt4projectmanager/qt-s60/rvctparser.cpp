@@ -43,15 +43,15 @@ RvctParser::RvctParser() :
 {
     setObjectName(QLatin1String("RvctParser"));
     // Start of a error or warning:
-    m_warningOrError.setPattern("^\"([^\\(\\)]+[^\\d])\", line (\\d+):(\\s(Warning|Error):)\\s+([^\\s].*)$");
+    m_warningOrError.setPattern(QLatin1String("^\"([^\\(\\)]+[^\\d])\", line (\\d+):(\\s(Warning|Error):)\\s+([^\\s].*)$"));
     m_warningOrError.setMinimal(true);
 
     // Last message for any file with warnings/errors.
-    m_wrapUpTask.setPattern("^([^\\(\\)]+[^\\d]):\\s(\\d+) warnings?,\\s(\\d+) errors?$");
+    m_wrapUpTask.setPattern(QLatin1String("^([^\\(\\)]+[^\\d]):\\s(\\d+) warnings?,\\s(\\d+) errors?$"));
     m_wrapUpTask.setMinimal(true);
 
     // linker problems:
-    m_genericProblem.setPattern("^(Error|Warning): (.*)$");
+    m_genericProblem.setPattern(QLatin1String("^(Error|Warning): (.*)$"));
     m_genericProblem.setMinimal(true);
 }
 
@@ -70,10 +70,10 @@ void RvctParser::stdError(const QString &line)
                           m_genericProblem.cap(2) /* description */,
                           QString(),
                           -1 /* linenumber */,
-                          TASK_CATEGORY_COMPILE);
-        if (m_warningOrError.cap(4) == "Warning")
+                          QLatin1String(TASK_CATEGORY_COMPILE));
+        if (m_warningOrError.cap(4) == QLatin1String("Warning"))
             m_task->type = Task::Warning;
-        else if (m_warningOrError.cap(4) == "Error")
+        else if (m_warningOrError.cap(4) == QLatin1String("Error"))
             m_task->type = Task::Error;
 
         return;
@@ -85,10 +85,10 @@ void RvctParser::stdError(const QString &line)
                          m_warningOrError.cap(5) /* description */,
                          m_warningOrError.cap(1) /* file */,
                          m_warningOrError.cap(2).toInt() /* line */,
-                         TASK_CATEGORY_COMPILE);
-       if (m_warningOrError.cap(4) == "Warning")
+                         QLatin1String(TASK_CATEGORY_COMPILE));
+       if (m_warningOrError.cap(4) == QLatin1String("Warning"))
            m_task->type = Task::Warning;
-       else if (m_warningOrError.cap(4) == "Error")
+       else if (m_warningOrError.cap(4) == QLatin1String("Error"))
            m_task->type = Task::Error;
        return;
    }
@@ -101,7 +101,7 @@ void RvctParser::stdError(const QString &line)
        QString description = line;
        if (description.startsWith(QLatin1String("  ")))
            description = description.mid(2);
-       if (description.endsWith('\n'))
+       if (description.endsWith(QLatin1Char('\n')))
            description.chop(1);
        if (m_task->formats.isEmpty()) {
            QTextLayout::FormatRange fr;
@@ -152,7 +152,7 @@ void Qt4ProjectManagerPlugin::testRvctOutputParser_data()
     QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
     QTest::addColumn<QString>("outputLines");
 
-
+    const QString categoryCompile = QLatin1String(Constants::TASK_CATEGORY_COMPILE);
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
             << QString::fromLatin1("Sometext\n") << QString()
@@ -176,7 +176,7 @@ void Qt4ProjectManagerPlugin::testRvctOutputParser_data()
                                       "  : public _Integer_limits<char, CHAR_MIN, CHAR_MAX, -1, true>\n"
                                       "                                 ^"),
                         QLatin1String("../../../../s60-sdk/epoc32/include/stdapis/stlport/stl/_limits.h"), 256,
-                        Constants::TASK_CATEGORY_COMPILE)
+                        categoryCompile)
                 )
             << QString();
     QTest::newRow("Rvct error")
@@ -191,7 +191,7 @@ void Qt4ProjectManagerPlugin::testRvctOutputParser_data()
                                       "    delete ui;e\n"
                                       "              ^"),
                         QLatin1String("mainwindow.cpp"), 22,
-                        Constants::TASK_CATEGORY_COMPILE)
+                        categoryCompile)
                 )
             << QString();
     QTest::newRow("Rvct linking error")
@@ -202,7 +202,7 @@ void Qt4ProjectManagerPlugin::testRvctOutputParser_data()
                 << Task(Task::Error,
                         QLatin1String("L6218E: Undefined symbol MainWindow::sth() (referred from mainwindow.o)"),
                         QString(), -1,
-                        Constants::TASK_CATEGORY_COMPILE)
+                        categoryCompile)
                 )
             << QString();
     QTest::newRow("Rvct license error")
@@ -233,7 +233,7 @@ void Qt4ProjectManagerPlugin::testRvctOutputParser_data()
                                       "For further information, refer to the FLEXnet Licensing End User Guide,\n"
                                       "available at \"www.macrovision.com\"."),
                         QString(), -1,
-                        Constants::TASK_CATEGORY_COMPILE)
+                        categoryCompile)
                 )
             << QString();
 }

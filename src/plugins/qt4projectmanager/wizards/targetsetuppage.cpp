@@ -161,7 +161,7 @@ void TargetSetupPage::setupWidgets()
         }
     }
     if (!atLeastOneTargetSelected) {
-        Qt4TargetSetupWidget *widget = m_widgets.value(Constants::DESKTOP_TARGET_ID);
+        Qt4TargetSetupWidget *widget = m_widgets.value(QLatin1String(Constants::DESKTOP_TARGET_ID));
         if (widget)
             widget->setTargetSelected(true);
     }
@@ -246,8 +246,9 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
 
     // Create a desktop target if nothing else was set up:
     if (project->targets().isEmpty()) {
-        if (Qt4BaseTargetFactory *tf = Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(Constants::DESKTOP_TARGET_ID))
-            if (ProjectExplorer::Target *target = tf->create(project, Constants::DESKTOP_TARGET_ID))
+        const QString desktopTargetId = QLatin1String(Constants::DESKTOP_TARGET_ID);
+        if (Qt4BaseTargetFactory *tf = Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(desktopTargetId))
+            if (ProjectExplorer::Target *target = tf->create(project, desktopTargetId))
                 project->addTarget(target);
     }
 
@@ -258,9 +259,9 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
     ProjectExplorer::Target *activeTarget = 0;
     QList<ProjectExplorer::Target *> targets = project->targets();
     foreach (ProjectExplorer::Target *t, targets) {
-        if (t->id() == Constants::QT_SIMULATOR_TARGET_ID)
+        if (t->id() == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
             activeTarget = t;
-        else if (!activeTarget && t->id() == Constants::DESKTOP_TARGET_ID)
+        else if (!activeTarget && t->id() == QLatin1String(Constants::DESKTOP_TARGET_ID))
             activeTarget = t;
     }
     if (!activeTarget && !targets.isEmpty())

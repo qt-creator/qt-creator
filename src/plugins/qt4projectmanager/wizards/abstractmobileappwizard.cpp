@@ -66,7 +66,7 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent,
     , m_harmattanItem(0)
 {
     m_targetsPage = new TargetSetupPage;
-    m_targetsPage->setPreferredFeatures(QSet<QString>() << Constants::MOBILE_TARGETFEATURE_ID);
+    m_targetsPage->setPreferredFeatures(QSet<QString>() << QLatin1String(Constants::MOBILE_TARGETFEATURE_ID));
     m_targetsPage->setMinimumQtVersion(minimumQtVersionNumber);
     m_targetsPage->setMaximumQtVersion(maximumQtVersionNumber);
     resize(900, 450);

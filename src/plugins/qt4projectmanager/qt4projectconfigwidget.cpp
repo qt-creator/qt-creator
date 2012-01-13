@@ -180,14 +180,15 @@ void Qt4ProjectConfigWidget::updateShadowBuildUi()
 void Qt4ProjectConfigWidget::manageQtVersions()
 {
     Core::ICore *core = Core::ICore::instance();
-    core->showOptionsDialog(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY, QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
+    core->showOptionsDialog(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
+                            QLatin1String(QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID));
 }
 
 void Qt4ProjectConfigWidget::manageToolChains()
 {
     Core::ICore *core = Core::ICore::instance();
-    core->showOptionsDialog(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
-                            ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_PAGE_ID);
+    core->showOptionsDialog(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
+                            QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_PAGE_ID));
 }
 
 QString Qt4ProjectConfigWidget::displayName() const
@@ -353,7 +354,7 @@ void Qt4ProjectConfigWidget::updateImportLabel()
     if (m_buildConfiguration->qmakeStep() && m_buildConfiguration->makeStep()) {
         QString makefile = m_buildConfiguration->buildDirectory();
         if (m_buildConfiguration->makefile().isEmpty())
-            makefile.append("/Makefile");
+            makefile.append(QLatin1String("/Makefile"));
         else
             makefile.append(m_buildConfiguration->makefile());
 
@@ -416,7 +417,7 @@ void Qt4ProjectConfigWidget::updateImportLabel()
         m_ui->problemLabel->setVisible(true);
         m_ui->warningLabel->setVisible(true);
         m_ui->importLabel->setVisible(visible);
-        QString text = "<nobr>";
+        QString text = QLatin1String("<nobr>");
         foreach (const ProjectExplorer::Task &task, issues) {
             QString type;
             switch (task.type) {

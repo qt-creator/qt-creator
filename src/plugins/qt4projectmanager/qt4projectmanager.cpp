@@ -400,20 +400,21 @@ void Qt4Manager::handleSubDirContexMenu(Qt4Manager::Action action)
             bc->setSubNodeBuild(profile);
 
     if (projectExplorer()->saveModifiedFiles()) {
+        const QString buildStep = QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+        const QString cleanStep = QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
         if (action == BUILD) {
-            QString name = ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-            projectExplorer()->buildManager()->buildList(bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD), name);
+            const QString name = ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(buildStep);
+            projectExplorer()->buildManager()->buildList(bc->stepList(buildStep), name);
         } else if (action == CLEAN) {
-            QString name = ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-            projectExplorer()->buildManager()->buildList(bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN), name);
+            const QString name = ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(cleanStep);
+            projectExplorer()->buildManager()->buildList(bc->stepList(cleanStep), name);
         } else if (action == REBUILD) {
             QStringList names;
-            names << ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
-                  << ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+            names << ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(cleanStep)
+                  << ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(buildStep);
 
             QList<ProjectExplorer::BuildStepList *> stepLists;
-            stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-            stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+            stepLists << bc->stepList(cleanStep) << bc->stepList(buildStep);
             projectExplorer()->buildManager()->buildLists(stepLists, names);
         }
     }

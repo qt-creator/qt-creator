@@ -75,7 +75,7 @@ QString generateCapabilitySet(uint capabilities)
     QString capabilitySet;
     for(int i = 0; i < capabilityCount; ++i)
         if (capabilities&symbianCapability[i].value)
-            capabilitySet += QLatin1String(symbianCapability[i].name) + ' ';
+            capabilitySet += QLatin1String(symbianCapability[i].name) + QLatin1Char(' ');
     return capabilitySet;
 }
 
@@ -98,10 +98,10 @@ void MobileLibraryParameters::writeSymbianProFile(QTextStream &str) const
         str << "\n"
                "symbian {\n"
                "    MMP_RULES += EXPORTUNFROZEN\n"
-               "    TARGET.UID3 = " + symbianUid + "\n"
-               "    TARGET.CAPABILITY = " + generateCapabilitySet(symbianCapabilities).toAscii() + "\n"
+               "    TARGET.UID3 = " << symbianUid << "\n"
+               "    TARGET.CAPABILITY = " << generateCapabilitySet(symbianCapabilities) << "\n"
                "    TARGET.EPOCALLOWDLLDATA = 1\n"
-               "    addFiles.sources = " + fileName + ".dll\n"
+               "    addFiles.sources = " << fileName << ".dll\n"
                "    addFiles.path = !:/sys/bin\n"
                "    DEPLOYMENT += addFiles\n"
                "}\n";
@@ -111,11 +111,11 @@ void MobileLibraryParameters::writeSymbianProFile(QTextStream &str) const
                "# Load predefined include paths (e.g. QT_PLUGINS_BASE_DIR) to be used in the pro-files\n"
                "    load(data_caging_paths)\n"
                "    MMP_RULES += EXPORTUNFROZEN\n"
-               "    TARGET.UID3 = " + symbianUid + "\n"
-               "    TARGET.CAPABILITY = " + generateCapabilitySet(symbianCapabilities).toAscii() + "\n"
+               "    TARGET.UID3 = " << symbianUid << "\n"
+               "    TARGET.CAPABILITY = " << generateCapabilitySet(symbianCapabilities) << "\n"
                "    TARGET.EPOCALLOWDLLDATA = 1\n"
-               "    pluginDeploy.sources = " + fileName + ".dll\n"
-               "    pluginDeploy.path = $$QT_PLUGINS_BASE_DIR/" + QDir::fromNativeSeparators(qtPluginDirectory) + "\n"
+               "    pluginDeploy.sources = " << fileName << ".dll\n"
+               "    pluginDeploy.path = $$QT_PLUGINS_BASE_DIR/" << QDir::fromNativeSeparators(qtPluginDirectory) << "\n"
                "    DEPLOYMENT += pluginDeploy\n"
                "}\n";
     }

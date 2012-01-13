@@ -134,7 +134,7 @@ bool SymbianQtVersion::toolChainAvailable(const QString &id) const
         QList<ProjectExplorer::ToolChain *> tcList =
                 ProjectExplorer::ToolChainManager::instance()->toolChains();
         foreach (ProjectExplorer::ToolChain *tc, tcList) {
-            if (!tc->id().startsWith(Qt4ProjectManager::Constants::WINSCW_TOOLCHAIN_ID))
+            if (!tc->id().startsWith(QLatin1String(Qt4ProjectManager::Constants::WINSCW_TOOLCHAIN_ID)))
                 return true;
         }
         return false;
@@ -144,7 +144,7 @@ bool SymbianQtVersion::toolChainAvailable(const QString &id) const
 
 void SymbianQtVersion::restoreLegacySettings(QSettings *s)
 {
-    setSystemRoot(QDir::fromNativeSeparators(s->value("S60SDKDirectory").toString()));
+    setSystemRoot(QDir::fromNativeSeparators(s->value(QLatin1String("S60SDKDirectory")).toString()));
     setSbsV2Directory(QDir::fromNativeSeparators(s->value(QLatin1String("SBSv2Directory")).toString()));
 }
 
@@ -305,12 +305,13 @@ QString SymbianQtVersion::sbsV2Directory() const
 void SymbianQtVersion::setSbsV2Directory(const QString &directory)
 {
     QDir dir(directory);
-    if (dir.exists(QLatin1String("sbs"))) {
+    const QString sbs = QLatin1String("sbs");
+    if (dir.exists(sbs)) {
         m_sbsV2Directory = dir.absolutePath();
         return;
     }
-    dir.cd("bin");
-    if (dir.exists(QLatin1String("sbs"))) {
+    dir.cd(QLatin1String("bin"));
+    if (dir.exists(sbs)) {
         m_sbsV2Directory = dir.absolutePath();
         return;
     }
@@ -325,7 +326,7 @@ bool SymbianQtVersion::isBuildWithSymbianSbsV2() const
 
 void SymbianQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
 {
-    QString makefileGenerator = evaluator->value("MAKEFILE_GENERATOR");
+    QString makefileGenerator = evaluator->value(QLatin1String("MAKEFILE_GENERATOR"));
     m_isBuildUsingSbsV2 = (makefileGenerator == QLatin1String("SYMBIAN_SBSV2"));
     BaseQtVersion::parseMkSpec(evaluator);
 }
@@ -343,7 +344,7 @@ QList<ProjectExplorer::Task> SymbianQtVersion::reportIssuesImpl(const QString &p
         results.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
                                              QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
                                                                          "The Symbian SDK and the project sources must reside on the same drive."),
-                                             QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+                                             QString(), -1, QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
     }
     return results;
 }

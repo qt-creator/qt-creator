@@ -81,27 +81,26 @@ static const quint32 QMLVIEWER_UID = 0x20021317;
 
 QString formatDriveText(const S60DeployConfiguration::DeviceDrive &drive)
 {
-    char driveLetter = QChar::toUpper(static_cast<ushort>(drive.first));
+    const QChar driveLetter = QChar(QLatin1Char(drive.first)).toUpper();
     if (drive.second <= 0)
-        return QString("%1:").arg(driveLetter);
+        return driveLetter + QLatin1Char(':');
     if (drive.second >= 1024)
-        return QString("%1:%2 MB").arg(driveLetter).arg(drive.second);
-    return QString("%1:%2 kB").arg(driveLetter).arg(drive.second);
+        return QString::fromLatin1("%1:%2 MB").arg(driveLetter).arg(drive.second);
+    return QString::fromLatin1("%1:%2 kB").arg(driveLetter).arg(drive.second);
 }
 
 void startTable(QString &text)
 {
     const char startTableC[] = "<html></head><body><table>";
-    if (text.contains(startTableC))
-        return;
-    text.append(startTableC);
+    if (!text.contains(QLatin1String(startTableC)))
+        text.append(QLatin1String(startTableC));
 }
 
 void finishTable(QString &text)
 {
-    const char stopTableC[] = "</table></body></html>";
-    text.replace(stopTableC, QLatin1String(""));
-    text.append(stopTableC);
+    const QString stopTable = QLatin1String("</table></body></html>");
+    text.remove(stopTable);
+    text.append(stopTable);
 }
 
 void addToTable(QTextStream &stream, const QString &key, const QString &value)
@@ -250,9 +249,8 @@ QWidget *S60DeployConfigurationWidget::createCommunicationChannel()
     m_ipAddress->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
 
     if( !m_deployConfiguration->deviceAddress().isEmpty())
-        m_ipAddress->setText(QString("%1:%2")
-                             .arg(m_deployConfiguration->deviceAddress())
-                             .arg(m_deployConfiguration->devicePort()));
+        m_ipAddress->setText(m_deployConfiguration->deviceAddress() + QLatin1Char(':')
+                             + m_deployConfiguration->devicePort());
 
     QHBoxLayout *wlanChannelLayout = new QHBoxLayout();
     wlanChannelLayout->addWidget(new QLabel(tr("Address:")));
@@ -277,7 +275,8 @@ void S60DeployConfigurationWidget::updateInstallationDrives()
     char currentDrive = QChar::toUpper(static_cast<ushort>(m_deployConfiguration->installationDrive()));
     if (availableDrives.isEmpty()) {
         for (int i = STARTING_DRIVE_LETTER; i <= LAST_DRIVE_LETTER; ++i) {
-            m_installationDriveCombo->addItem(QString("%1:").arg(static_cast<char>(i)), QChar(i));
+            const QChar qc = QLatin1Char(static_cast<char>(i));
+            m_installationDriveCombo->addItem(qc + QLatin1Char(':'), QVariant(qc));
         }
         index = currentDrive - STARTING_DRIVE_LETTER;
     } else {
@@ -285,7 +284,7 @@ void S60DeployConfigurationWidget::updateInstallationDrives()
             const S60DeployConfiguration::DeviceDrive& drive(availableDrives.at(i));
             char driveLetter = QChar::toUpper(static_cast<ushort>(drive.first));
             m_installationDriveCombo->addItem(formatDriveText(drive),
-                                              QChar(driveLetter));
+                                              QVariant(QChar(QLatin1Char(driveLetter))));
             if (currentDrive == driveLetter)
                 index = i;
         }
@@ -507,61 +506,61 @@ void S60DeployConfigurationWidget::getQtVersionCommandResult(const Coda::CodaCom
     } else {
         if (result.values.count()) {
             QHash<QString, QVariant> obj = result.values[0].toVariant().toHash();
-            QString ver = obj.value("qVersion").toString();
+            QString ver = obj.value(QLatin1String("qVersion")).toString();
 
             startTable(m_deviceInfo);
             QTextStream str(&m_deviceInfo);
             addToTable(str, tr("Qt version:"), ver);
             QString systemVersion;
 
-            int symVer = obj.value("symbianVersion").toInt();
+            const int symVer = obj.value(QLatin1String("symbianVersion")).toInt();
             // Ugh why won't QSysInfo define these on non-symbian builds...
             switch (symVer) {
             case 10:
-                systemVersion.append("Symbian OS v9.2");
+                systemVersion.append(QLatin1String("Symbian OS v9.2"));
                 break;
             case 20:
-                systemVersion.append("Symbian OS v9.3");
+                systemVersion.append(QLatin1String("Symbian OS v9.3"));
                 break;
             case 30:
-                systemVersion.append("Symbian OS v9.4 / Symbian^1");
+                systemVersion.append(QLatin1String("Symbian OS v9.4 / Symbian^1"));
                 break;
             case 40:
-                systemVersion.append("Symbian^2");
+                systemVersion.append(QLatin1String("Symbian^2"));
                 break;
             case 50:
-                systemVersion.append("Symbian^3");
+                systemVersion.append(QLatin1String("Symbian^3"));
                 break;
             case 60:
-                systemVersion.append("Symbian^4");
+                systemVersion.append(QLatin1String("Symbian^4"));
                 break;
             case 70:
-                systemVersion.append("Symbian^3"); // TODO: might change
+                systemVersion.append(QLatin1String("Symbian^3")); // TODO: might change
                 break;
             default:
                 systemVersion.append(tr("Unrecognised Symbian version 0x%1").arg(symVer, 0, 16));
                 break;
             }
-            systemVersion.append(", ");
-            int s60Ver = obj.value("s60Version").toInt();
+            systemVersion.append(QLatin1String(", "));
+            int s60Ver = obj.value(QLatin1String("s60Version")).toInt();
             switch (s60Ver) {
             case 10:
-                systemVersion.append("S60 3rd Edition Feature Pack 1");
+                systemVersion.append(QLatin1String("S60 3rd Edition Feature Pack 1"));
                 break;
             case 20:
-                systemVersion.append("S60 3rd Edition Feature Pack 2");
+                systemVersion.append(QLatin1String("S60 3rd Edition Feature Pack 2"));
                 break;
             case 30:
-                systemVersion.append("S60 5th Edition");
+                systemVersion.append(QLatin1String("S60 5th Edition"));
                 break;
             case 40:
-                systemVersion.append("S60 5th Edition Feature Pack 1");
+                systemVersion.append(QLatin1String("S60 5th Edition Feature Pack 1"));
                 break;
             case 50:
-                systemVersion.append("S60 5th Edition Feature Pack 2");
+                systemVersion.append(QLatin1String("S60 5th Edition Feature Pack 2"));
                 break;
             case 70:
-                systemVersion.append("S60 5th Edition Feature Pack 3"); // TODO: might change
+                systemVersion.append(QLatin1String("S60 5th Edition Feature Pack 3")); // TODO: might change
                 break;
             default:
                 systemVersion.append(tr("Unrecognised S60 version 0x%1").arg(symVer, 0, 16));
@@ -584,11 +583,11 @@ void S60DeployConfigurationWidget::getRomInfoResult(const Coda::CodaCommandResul
         QTextStream str(&m_deviceInfo);
 
         QVariantHash obj = result.values[0].toVariant().toHash();
-        QString romVersion = obj.value("romVersion", tr("unknown")).toString();
-        romVersion.replace('\n', " "); // The ROM string is split across multiple lines, for some reason.
+        QString romVersion = obj.value(QLatin1String("romVersion"), tr("unknown")).toString();
+        romVersion.replace(QLatin1Char('\n'), QLatin1Char(' ')); // The ROM string is split across multiple lines, for some reason.
         addToTable(str, tr("ROM version:"), romVersion);
 
-        QString pr = obj.value("prInfo").toString();
+        QString pr = obj.value(QLatin1String("prInfo")).toString();
         if (pr.length())
             addToTable(str, tr("Release:"), pr);
         finishTable(m_deviceInfo);
@@ -611,16 +610,19 @@ void S60DeployConfigurationWidget::getInstalledPackagesResult(const Coda::CodaCo
         QTextStream str(&m_deviceInfo);
 
         QVariantList resultsList = result.values[0].toVariant().toList();
+        const QString uidKey = QLatin1String("uid");
+        const QString errorKey = QLatin1String("error");
+        const QString versionKey = QLatin1String("version");
         foreach (const QVariant& var, resultsList) {
             QVariantHash obj = var.toHash();
             bool ok = false;
-            uint uid = obj.value("uid").toString().toUInt(&ok, 16);
+            uint uid = obj.value(uidKey).toString().toUInt(&ok, 16);
             if (ok) {
-                bool error = !obj.value("error").isNull();
+                const bool error = !obj.value(errorKey).isNull();
                 QString versionString;
                 if (!error) {
-                    QVariantList version = obj.value("version").toList();
-                    versionString = QString("%1.%2.%3").arg(version[0].toInt())
+                    QVariantList version = obj.value(versionKey).toList();
+                    versionString = QString::fromLatin1("%1.%2.%3").arg(version[0].toInt())
                             .arg(version[1].toInt())
                             .arg(version[2].toInt());
                 }
@@ -670,17 +672,20 @@ void S60DeployConfigurationWidget::getHalResult(const Coda::CodaCommandResult &r
         QVariantList resultsList = result.values[0].toVariant().toList();
         int x = 0;
         int y = 0;
+        const QString nameKey = QLatin1String("name");
+        const QString valueKey = QLatin1String("value");
         foreach (const QVariant& var, resultsList) {
             QVariantHash obj = var.toHash();
-            if (obj.value("name").toString() == "EDisplayXPixels")
-                x = obj.value("value").toInt();
-            else if (obj.value("name").toString() == "EDisplayYPixels")
-                y = obj.value("value").toInt();
+            const QString name = obj.value(nameKey).toString();
+            if (name == QLatin1String("EDisplayXPixels"))
+                x = obj.value(valueKey).toInt();
+            else if (name == QLatin1String("EDisplayYPixels"))
+                y = obj.value(valueKey).toInt();
         }
         if (x && y) {
             startTable(m_deviceInfo);
             QTextStream str(&m_deviceInfo);
-            addToTable(str, tr("Screen size:"), QString("%1x%2").arg(x).arg(y));
+            addToTable(str, tr("Screen size:"), QString::number(x) + QLatin1Char('x') + QString::number(y));
             finishTable(m_deviceInfo);
         }
     }
@@ -692,7 +697,7 @@ void S60DeployConfigurationWidget::getHalResult(const Coda::CodaCommandResult &r
 void S60DeployConfigurationWidget::codaIncreaseProgress()
 {
     m_codaTimeout->start();
-    setDeviceInfoLabel(m_deviceInfoLabel->text() + '.');
+    setDeviceInfoLabel(m_deviceInfoLabel->text() + QLatin1Char('.'));
 }
 
 void S60DeployConfigurationWidget::collectingInfoFinished()

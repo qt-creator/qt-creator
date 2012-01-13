@@ -67,7 +67,7 @@ DesktopQtVersion *DesktopQtVersion::clone() const
 
 QString DesktopQtVersion::type() const
 {
-    return QtSupport::Constants::DESKTOPQT;
+    return QLatin1String(QtSupport::Constants::DESKTOPQT);
 }
 
 QString DesktopQtVersion::warningReason() const

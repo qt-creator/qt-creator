@@ -49,9 +49,9 @@ WinCeQtVersion::WinCeQtVersion(const Utils::FileName &path, const QString &archT
   : QtSupport::BaseQtVersion(path, isAutodetected, autodetectionSource),
     m_archType(ProjectExplorer::Abi::ArmArchitecture)
 {
-    if (0 == archType.compare("x86", Qt::CaseInsensitive))
+    if (0 == archType.compare(QLatin1String("x86"), Qt::CaseInsensitive))
         m_archType = ProjectExplorer::Abi::X86Architecture;
-    else if (0 == archType.compare("mipsii", Qt::CaseInsensitive))
+    else if (0 == archType.compare(QLatin1String("mipsii"), Qt::CaseInsensitive))
         m_archType = ProjectExplorer::Abi::MipsArchitecture;
 }
 
@@ -66,7 +66,7 @@ WinCeQtVersion *WinCeQtVersion::clone() const
 
 QString WinCeQtVersion::type() const
 {
-    return QtSupport::Constants::WINCEQT;
+    return QLatin1String(QtSupport::Constants::WINCEQT);
 }
 
 QList<ProjectExplorer::Abi> WinCeQtVersion::detectQtAbis() const
@@ -104,12 +104,12 @@ void WinCeQtVersion::fromMap(const QVariantMap &map)
     // named <Description>-<Architecture>-<Compiler> with no other '-' characters.
     m_archType = ProjectExplorer::Abi::ArmArchitecture;
 
-    const QStringList splitSpec = mkspec().toString().split("-");
+    const QStringList splitSpec = mkspec().toString().split(QLatin1Char('-'));
     if (splitSpec.length() == 3) {
         const QString archString = splitSpec.value(1);
-        if (archString.contains("x86", Qt::CaseInsensitive))
+        if (archString.contains(QLatin1String("x86"), Qt::CaseInsensitive))
             m_archType = ProjectExplorer::Abi::X86Architecture;
-        else if (archString.contains("mips", Qt::CaseInsensitive))
+        else if (archString.contains(QLatin1String("mips"), Qt::CaseInsensitive))
             m_archType = ProjectExplorer::Abi::MipsArchitecture;
     }
 }

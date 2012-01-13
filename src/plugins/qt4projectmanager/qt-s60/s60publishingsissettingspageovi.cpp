@@ -176,7 +176,7 @@ void S60PublishingSisSettingsPageOvi::globalVendorNameChanged()
 
 void S60PublishingSisSettingsPageOvi::localisedVendorNamesChanged()
 {
-    QStringList localisedVendorNames = ui->localisedVendorNamesLineEdit->text().split(',');
+    QStringList localisedVendorNames = ui->localisedVendorNamesLineEdit->text().split(QLatin1Char(','));
 
     bool settingState = true;
     QStringList wrongVendorNames;
@@ -188,9 +188,10 @@ void S60PublishingSisSettingsPageOvi::localisedVendorNamesChanged()
         }
     }
 
-    QString pluralOrSingular = tr("%1 is a default vendor name used for testing and development.").arg(wrongVendorNames.join(", "));
+    const QString wrongVendorNamesString = wrongVendorNames.join(QLatin1String(", "));
+    QString pluralOrSingular = tr("%1 is a default vendor name used for testing and development.").arg(wrongVendorNamesString);
     if (wrongVendorNames.count() > 1)
-        pluralOrSingular = tr("%1 are default vendor names used for testing and development.").arg(wrongVendorNames.join(", "));
+        pluralOrSingular = tr("%1 are default vendor names used for testing and development.").arg(wrongVendorNamesString);
 
     reflectSettingState(settingState,
                         ui->localisedVendorNamesOkLabel,
@@ -242,13 +243,13 @@ void S60PublishingSisSettingsPageOvi::uid3Changed()
 
     if (m_publisher->isUID3Valid(ui->uid3LineEdit->text())) {
         ui->uid3WarningLabel->show();
-        ui->uid3WarningReasonLabel->setText("If this UID is from symbiansigned.com, It will be "
+        ui->uid3WarningReasonLabel->setText(tr("If this UID is from symbiansigned.com, It will be "
                                             "rejected by Application Signing Services for Nokia Store.<br>"
                                             "If you want to continue with a symbiansigned.com UID, "
                                             "sign your application on symbiansigned.com and upload "
                                             "the signed application to Nokia Publish.<br>"
                                             "It is, however, recommended that you obtain a UID from "
-                                            "<a href=\"http://info.publish.ovi.com/\">publish.ovi.com</a>");
+                                            "<a href=\"http://info.publish.ovi.com/\">publish.ovi.com</a>"));
         ui->uid3WarningReasonLabel->show();
     } else {
         ui->uid3WarningLabel->hide();
@@ -260,7 +261,7 @@ void S60PublishingSisSettingsPageOvi::uid3Changed()
 
 void S60PublishingSisSettingsPageOvi::capabilitiesChanged()
 {
-    QStringList capabilities = ui->capabilitiesDisplayLabel->text().split(',');
+    QStringList capabilities = ui->capabilitiesDisplayLabel->text().split(QLatin1Char(','));
     QString errorMessage;
 
     //Check for certified Signed capabilities
@@ -275,7 +276,7 @@ void S60PublishingSisSettingsPageOvi::capabilitiesChanged()
     if (!capabilitesNeedingCertifiedSigned.isEmpty())
         errorMessage.append(tr("%1 need(s) to be certified signed. "
                                "Please go to <a href=\"symbiansigned.com\">symbiansigned.com</a> for guidance.")
-                            .arg(capabilitesNeedingCertifiedSigned.join(", ")));
+                            .arg(capabilitesNeedingCertifiedSigned.join(QLatin1String(", "))));
 
     //Check for capabilities needing manufacturer approval
     QStringList capabilitiesNeedingManufacturerApproved;
@@ -286,7 +287,8 @@ void S60PublishingSisSettingsPageOvi::capabilitiesChanged()
     }
 
     if (!capabilitiesNeedingManufacturerApproved.isEmpty()) {
-        errorMessage.append(tr("<br>%1 need(s) manufacturer approval.<br>").arg(capabilitiesNeedingManufacturerApproved.join(", ")));
+        errorMessage.append(tr("<br>%1 need(s) manufacturer approval.<br>")
+                            .arg(capabilitiesNeedingManufacturerApproved.join(QLatin1String(", "))));
     }
 
     errorMessage.prepend(tr("Some capabilities might require a special kind of signing or approval from the manufacturer.<br>"));

@@ -187,10 +187,10 @@ QString S60EmulatorRunConfiguration::executable() const
     if (!qtVersion) 
         return QString();
     QString baseDir = qtVersion->systemRoot();
-    QString qmakeBuildConfig = "urel";
+    QString qmakeBuildConfig = QLatin1String("urel");
     if (qt4bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild)
-        qmakeBuildConfig = "udeb";
-    baseDir += "/epoc32/release/winscw/" + qmakeBuildConfig;
+        qmakeBuildConfig = QLatin1String("udeb");
+    baseDir += QLatin1String("/epoc32/release/winscw/") + qmakeBuildConfig;
 
     TargetInformation ti = qt4Target()->qt4Project()->rootQt4ProjectNode()->targetInformation(m_proFilePath);
     if (!ti.valid)
@@ -386,7 +386,7 @@ bool S60EmulatorRunControl::isRunning() const
 
 QIcon S60EmulatorRunControl::icon() const
 {
-    return QIcon(ProjectExplorer::Constants::ICON_RUN_SMALL);
+    return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 }
 
 void S60EmulatorRunControl::slotError(const QString & err)

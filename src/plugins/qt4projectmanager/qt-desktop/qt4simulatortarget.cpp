@@ -53,7 +53,7 @@ Qt4SimulatorTarget::Qt4SimulatorTarget(Qt4Project *parent, const QString &id) :
     m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this))
 {
     setDisplayName(defaultDisplayName());
-    setIcon(QIcon(":/projectexplorer/images/SymbianEmulator.png"));
+    setIcon(QIcon(QLatin1String(":/projectexplorer/images/SymbianEmulator.png")));
 }
 
 Qt4SimulatorTarget::~Qt4SimulatorTarget()

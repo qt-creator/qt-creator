@@ -73,9 +73,9 @@ QStringList Qt4SimulatorTargetFactory::supportedTargetIds(ProjectExplorer::Proje
 {
     if (parent && !qobject_cast<Qt4Project *>(parent))
         return QStringList();
-    if (!QtSupport::QtVersionManager::instance()->supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID))
-        return QStringList();
-    return QStringList() << QLatin1String(Constants::QT_SIMULATOR_TARGET_ID);
+    const QString simulatorId = QLatin1String(Constants::QT_SIMULATOR_TARGET_ID);
+    return QtSupport::QtVersionManager::instance()->supportsTargetId(simulatorId) ?
+           QStringList(simulatorId) : QStringList();
 }
 
 QString Qt4SimulatorTargetFactory::displayNameForId(const QString &id) const
@@ -88,7 +88,7 @@ QString Qt4SimulatorTargetFactory::displayNameForId(const QString &id) const
 QIcon Qt4SimulatorTargetFactory::iconForId(const QString &id) const
 {
     if (id == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
-        return QIcon(":/projectexplorer/images/SymbianEmulator.png");
+        return QIcon(QLatin1String(":/projectexplorer/images/SymbianEmulator.png"));
     return QIcon();
 }
 
@@ -128,11 +128,11 @@ QSet<QString> Qt4SimulatorTargetFactory::targetFeatures(const QString & /*id*/) 
 {
     QSet<QString> features;
 
-    features << Constants::MOBILE_TARGETFEATURE_ID;
-    features << Constants::SHADOWBUILD_TARGETFEATURE_ID;
+    features << QLatin1String(Constants::MOBILE_TARGETFEATURE_ID)
+             << QLatin1String(Constants::SHADOWBUILD_TARGETFEATURE_ID)
     // how to check check whether the component set is really installed?
-    features << Constants::QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID;
-    features << Constants::QTQUICKCOMPONENTS_MEEGO_TARGETFEATURE_ID;
+             << QLatin1String(Constants::QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID)
+             << QLatin1String(Constants::QTQUICKCOMPONENTS_MEEGO_TARGETFEATURE_ID);
     return features;
 }
 
@@ -166,7 +166,7 @@ ProjectExplorer::Target *Qt4SimulatorTargetFactory::create(ProjectExplorer::Proj
         t->addQt4BuildConfiguration(msgBuildConfigurationName(info), QString(), info.version, info.buildConfig,
                                     info.additionalArguments, info.directory, info.importing);
 
-    t->addDeployConfiguration(t->createDeployConfiguration(ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
+    t->addDeployConfiguration(t->createDeployConfiguration(QLatin1String(ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID)));
 
     t->createApplicationProFiles();
 

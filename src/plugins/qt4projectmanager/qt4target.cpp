@@ -99,7 +99,7 @@ Qt4TargetSetupWidget *Qt4BaseTargetFactory::createTargetSetupWidget(const QStrin
     if (infos.isEmpty())
         return 0;
     const bool supportsShadowBuilds
-            = targetFeatures(id).contains(Constants::SHADOWBUILD_TARGETFEATURE_ID);
+            = targetFeatures(id).contains(QLatin1String(Constants::SHADOWBUILD_TARGETFEATURE_ID));
     Qt4DefaultTargetSetupWidget *widget
             = new Qt4DefaultTargetSetupWidget(this, id, proFilePath, infos, minimumQtVersion, maximumQtVersion,
                                               importEnabled && supportsShadowBuilds, importInfos,
@@ -146,15 +146,16 @@ QString sanitize(const QString &input)
 {
     QString result;
     result.reserve(input.size());
-    foreach (const QChar &c, input) {
+    foreach (const QChar &qc, input) {
+        const char c = qc.toLatin1();
         if ((c >= 'a' && c <='z')
                 || (c >= 'A' && c <= 'Z')
                 || (c >= '0' && c <= '9')
                 || c == '-'
                 || c == '_')
-            result.append(c);
+            result.append(qc);
         else
-            result.append('_');
+            result.append(QLatin1Char('_'));
     }
     return result;
 }
@@ -356,8 +357,10 @@ Qt4BuildConfiguration *Qt4BaseTarget::addQt4BuildConfiguration(QString defaultDi
     bc->setDefaultDisplayName(defaultDisplayName);
     bc->setDisplayName(displayName);
 
-    ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+    ProjectExplorer::BuildStepList *buildSteps =
+        bc->stepList(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
+    ProjectExplorer::BuildStepList *cleanSteps =
+        bc->stepList(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
     Q_ASSERT(buildSteps);
     Q_ASSERT(cleanSteps);
 
@@ -369,7 +372,7 @@ Qt4BuildConfiguration *Qt4BaseTarget::addQt4BuildConfiguration(QString defaultDi
 
     MakeStep* cleanStep = new MakeStep(cleanSteps);
     cleanStep->setClean(true);
-    cleanStep->setUserArguments("clean");
+    cleanStep->setUserArguments(QLatin1String("clean"));
     cleanSteps->insertStep(0, cleanStep);
 
     bool enableQmlDebugger
@@ -381,7 +384,7 @@ Qt4BuildConfiguration *Qt4BaseTarget::addQt4BuildConfiguration(QString defaultDi
 
     // set some options for qmake and make
     if (qmakeBuildConfiguration & QtSupport::BaseQtVersion::BuildAll) // debug_and_release => explicit targets
-        makeStep->setUserArguments(debug ? "debug" : "release");
+        makeStep->setUserArguments(debug ? QLatin1String("debug") : QLatin1String("release"));
 
     bc->setQMakeBuildConfiguration(qmakeBuildConfiguration);
 
@@ -447,7 +450,7 @@ QString issuesListToString(const QList<ProjectExplorer::Task> &issues)
             severity = QCoreApplication::translate("Qt4DefaultTargetSetupWidget", "<b>Warning:</b> ", "Severity is Task::Warning");
         lines.append(severity + t.description);
     }
-    return lines.join("<br>");
+    return lines.join(QLatin1String("<br>"));
 }
 
 Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *factory,
@@ -541,7 +544,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     m_buildConfigurationComboBox->addItem(tr("None"), NONE);
 
     if (m_importInfos.isEmpty())
-        m_buildConfigurationComboBox->setCurrentIndex(s->value("Qt4ProjectManager.TargetSetupPage.BuildTemplate", 0).toInt());
+        m_buildConfigurationComboBox->setCurrentIndex(s->value(QLatin1String("Qt4ProjectManager.TargetSetupPage.BuildTemplate"), 0).toInt());
     else
         m_buildConfigurationComboBox->setCurrentIndex(3); // NONE
 
@@ -596,7 +599,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
         m_shadowBuildEnabled->setChecked(true);
         m_directoriesEnabled = true;
     } else {
-        m_directoriesEnabled = s->value("Qt4ProjectManager.TargetSetupPage.ShadowBuilding", true).toBool();
+        m_directoriesEnabled = s->value(QLatin1String("Qt4ProjectManager.TargetSetupPage.ShadowBuilding"), true).toBool();
         m_shadowBuildEnabled->setChecked(m_directoriesEnabled);
     }
 
@@ -606,7 +609,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
 
     setBuildConfigurationInfos(infos);
 
-    int qtVersionId = s->value("Qt4ProjectManager.TargetSetupPage.QtVersionId", -1).toInt();
+    int qtVersionId = s->value(QLatin1String("Qt4ProjectManager.TargetSetupPage.QtVersionId"), -1).toInt();
     int index = m_versionComboBox->findData(qtVersionId);
     if (index != -1)
         m_versionComboBox->setCurrentIndex(index);
@@ -682,7 +685,7 @@ QString Qt4DefaultTargetSetupWidget::displayNameFrom(const BuildConfigurationInf
             //: release build
             buildType = tr("release");
     }
-    return info.version->displayName() + ' ' + buildType;
+    return info.version->displayName() + QLatin1Char(' ') + buildType;
 }
 
 void Qt4DefaultTargetSetupWidget::setProFilePath(const QString &proFilePath)
@@ -724,18 +727,18 @@ void Qt4DefaultTargetSetupWidget::storeSettings() const
     }
 
     QSettings *s = Core::ICore::instance()->settings();
-    s->setValue("Qt4ProjectManager.TargetSetupPage.ShadowBuilding", m_shadowBuildEnabled->isChecked());
+    s->setValue(QLatin1String("Qt4ProjectManager.TargetSetupPage.ShadowBuilding"), m_shadowBuildEnabled->isChecked());
     int id = -1;
     int ci = m_versionComboBox->currentIndex();
     if (ci != -1)
         id = m_versionComboBox->itemData(ci).toInt();
-    s->setValue("Qt4ProjectManager.TargetSetupPage.QtVersionId", id);
+    s->setValue(QLatin1String("Qt4ProjectManager.TargetSetupPage.QtVersionId"), id);
 
     // if we are importing we don't save the template setting
     // essentially we assume that the settings apply for the new project case
     // and for the importing case "None" is likely the most sensible
     if (!importing)
-        s->setValue("Qt4ProjectManager.TargetSetupPage.BuildTemplate", m_buildConfigurationComboBox->currentIndex());
+        s->setValue(QLatin1String("Qt4ProjectManager.TargetSetupPage.BuildTemplate"), m_buildConfigurationComboBox->currentIndex());
 }
 
 QList<BuildConfigurationInfo> Qt4DefaultTargetSetupWidget::buildConfigurationInfos() const
@@ -1192,7 +1195,7 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::importBuildConfigurations(
             ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
     foreach (Qt4BaseTargetFactory *factory, factories) {
         foreach (const QString &id, factory->supportedTargetIds(0)) {
-            QString expectedBuildprefix = factory->shadowBuildDirectory(proFilePath, id, "");
+            QString expectedBuildprefix = factory->shadowBuildDirectory(proFilePath, id, QString());
             QString baseDir = QFileInfo(expectedBuildprefix).absolutePath();
             foreach (const QString &dir, QDir(baseDir).entryList()) {
                 if (dir.startsWith(expectedBuildprefix)) {
@@ -1208,10 +1211,10 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::importBuildConfigurations(
 
 QList<BuildConfigurationInfo> BuildConfigurationInfo::checkForBuild(const QString &directory, const QString &proFilePath)
 {
-    QStringList makefiles = QDir(directory).entryList(QStringList() << "Makefile*");
+    QStringList makefiles = QDir(directory).entryList(QStringList(QLatin1String("Makefile*")));
     QList<BuildConfigurationInfo> infos;
     foreach (const QString &file, makefiles) {
-        QString makefile = directory + '/' + file;
+        QString makefile = directory + QLatin1Char('/') + file;
         Utils::FileName qmakeBinary = QtSupport::QtVersionManager::findQMakeBinaryFromMakefile(makefile);
         if (qmakeBinary.isEmpty())
             continue;
@@ -1236,10 +1239,11 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::checkForBuild(const QStrin
 
         QString specArgument;
         // Compare mkspecs and add to additional arguments
-        if (parsedSpec.isEmpty() || parsedSpec == versionSpec || parsedSpec == Utils::FileName::fromString("default")) {
+        if (parsedSpec.isEmpty() || parsedSpec == versionSpec
+            || parsedSpec == Utils::FileName::fromString(QLatin1String("default"))) {
             // using the default spec, don't modify additional arguments
         } else {
-            specArgument = "-spec " + Utils::QtcProcess::quoteArg(parsedSpec.toUserOutput());
+            specArgument = QLatin1String("-spec ") + Utils::QtcProcess::quoteArg(parsedSpec.toUserOutput());
         }
         Utils::QtcProcess::addArgs(&specArgument, additionalArguments);
 

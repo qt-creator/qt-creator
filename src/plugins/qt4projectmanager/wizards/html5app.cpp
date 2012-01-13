@@ -197,7 +197,7 @@ QByteArray Html5App::appViewerCppFileCode(QString *errorMessage) const
         if (!touchNavigavigationFile.open(QIODevice::ReadOnly)) {
             if (errorMessage)
                 *errorMessage = QCoreApplication::translate("Qt4ProjectManager::AbstractMobileApp",
-                    "Could not open template file '%1'.").arg(touchNavigavigationFiles[i]);
+                    "Could not open template file '%1'.").arg(QLatin1String(touchNavigavigationFiles[i]));
             return QByteArray();
         }
         QTextStream touchNavigavigationFileIn(&touchNavigavigationFile);

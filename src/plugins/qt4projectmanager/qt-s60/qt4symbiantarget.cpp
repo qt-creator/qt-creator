@@ -84,9 +84,9 @@ QString Qt4SymbianTarget::defaultDisplayName(const QString &id)
 QIcon Qt4SymbianTarget::iconForId(const QString &id)
 {
     if (id == QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
-        return QIcon(":/projectexplorer/images/SymbianEmulator.png");
+        return QIcon(QLatin1String(":/projectexplorer/images/SymbianEmulator.png"));
     if (id == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
-        return QIcon(":/projectexplorer/images/SymbianDevice.png");
+        return QIcon(QLatin1String(":/projectexplorer/images/SymbianDevice.png"));
     return QIcon();
 }
 
@@ -107,7 +107,7 @@ QList<ProjectExplorer::ToolChain *> Qt4SymbianTarget::possibleToolChains(Project
         }
     } else if (id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID)) {
         foreach (ProjectExplorer::ToolChain *tc, candidates) {
-            if (!tc->id().startsWith(Qt4ProjectManager::Constants::WINSCW_TOOLCHAIN_ID))
+            if (!tc->id().startsWith(QLatin1String(Qt4ProjectManager::Constants::WINSCW_TOOLCHAIN_ID)))
                 tmp.append(tc);
         }
     }

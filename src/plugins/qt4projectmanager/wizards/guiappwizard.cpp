@@ -141,7 +141,7 @@ static inline bool generateFormClass(const GuiAppParameters &params,
     QString headerContents;
     QString sourceContents;
     // Invoke code generation service of Qt Designer plugin.
-    if (QObject *codeGenerator = ExtensionSystem::PluginManager::instance()->getObjectByClassName("Designer::QtDesignerFormClassCodeGenerator")) {
+    if (QObject *codeGenerator = ExtensionSystem::PluginManager::instance()->getObjectByClassName(QLatin1String("Designer::QtDesignerFormClassCodeGenerator"))) {
         const QVariant code =  ExtensionSystem::invoke<QVariant>(codeGenerator, "generateFormClassCode", fp);
         if (code.type() == QVariant::List) {
             const QVariantList vl = code.toList();
@@ -278,7 +278,7 @@ bool GuiAppWizard::parametrizeTemplate(const QString &templatePath, const QStrin
 
     QString preDef = params.headerFileName.toUpper();
     preDef.replace(dot, QLatin1Char('_'));
-    contents.replace("%PRE_DEF%", preDef.toUtf8());
+    contents.replace(QLatin1String("%PRE_DEF%"), preDef);
 
     const QString uiFileName = params.formFileName;
     QString uiHdr = QLatin1String("ui_");

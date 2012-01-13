@@ -349,7 +349,7 @@ QList<AbstractGeneratedFileInfo> AbstractMobileApp::fileUpdates(const QString &m
         QFile readFile(newFile.fileInfo.absoluteFilePath());
         if (!readFile.open(QIODevice::ReadOnly))
            continue;
-        const QString firstLine = readFile.readLine();
+        const QString firstLine = QString::fromUtf8(readFile.readLine());
         const QStringList elements = firstLine.split(QLatin1Char(' '));
         if (elements.count() != 5 || elements.at(1) != FileChecksum
                 || elements.at(3) != FileStubVersion)

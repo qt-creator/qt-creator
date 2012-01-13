@@ -78,7 +78,7 @@ QtSupport::BaseQtVersion *SimulatorQtVersionFactory::create(const Utils::FileNam
     QFileInfo fi = qmakePath.toFileInfo();
     if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
         return 0;
-    QStringList configValues = evaluator->values("CONFIG");
+    QStringList configValues = evaluator->values(QLatin1String("CONFIG"));
     if (!configValues.contains(QLatin1String("simulator")))
         return 0;
 

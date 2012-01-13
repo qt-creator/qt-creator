@@ -99,7 +99,7 @@ QHash<int, QStringList> createCapabilityMap(uint capabilities)
         if (capabilities&capability[i].value) {
             for (int j = 0; j < capabilitySetCount; ++j)
                 if (capability[i].value&capabilitySet[j].value) {
-                    capabilityMap[capabilitySet[j].value] << capability[i].name;
+                    capabilityMap[capabilitySet[j].value] << QLatin1String(capability[i].name);
                     break;
                 }
         }
@@ -136,7 +136,7 @@ QStringList createHtmlCapabilityList(uint capabilities)
             if (i.key() == capabilitySet[j].value) {
                 foreach (const QString &capability, i.value()) {
                     result << QString::fromAscii("<font color=\"%1\">%2</font>")
-                              .arg(capabilitySet[j].color).arg(capability);
+                              .arg(QLatin1String(capabilitySet[j].color)).arg(capability);
                 }
                 break;
             }
@@ -248,14 +248,14 @@ QString S60CertificateInfo::toHtml(bool keepShort)
     str << "</tr>";
 
     QString issuer;
-    QStringList issuerOrganizationList(m_certificate->issuerInfo("X520.Organization"));
+    QStringList issuerOrganizationList(m_certificate->issuerInfo(QLatin1String("X520.Organization")));
     if (!issuerOrganizationList.isEmpty())
-        issuer = issuerOrganizationList.join(QString(" "));
+        issuer = issuerOrganizationList.join(QLatin1String(" "));
 
     QString subject;
-    QStringList subjectOrganizationList(m_certificate->subjectInfo("X520.Organization"));
+    QStringList subjectOrganizationList(m_certificate->subjectInfo(QLatin1String("X520.Organization")));
     if (!subjectOrganizationList.isEmpty())
-        subject = subjectOrganizationList.join(QString(" "));
+        subject = subjectOrganizationList.join(QLatin1String(" "));
 
     QDateTime startDate(m_certificate->startTime().toLocalTime());
     QDateTime endDate(m_certificate->endTime().toLocalTime());
@@ -276,18 +276,18 @@ QString S60CertificateInfo::toHtml(bool keepShort)
         else
             capabilities = createHtmlCapabilityList(capabilitiesSupported());
         str << "<tr><td><b>" << tr("Capabilities: ")
-            << "</b></td><td><i>" << capabilities.join(" ") << "</i></td></tr>";
+            << "</b></td><td><i>" << capabilities.join(QLatin1String(" ")) << "</i></td></tr>";
     }
 
     const QStringList &imeiList(devicesSupported());
     if (!imeiList.isEmpty()) {
         QString imeiListString;
-        QString space(" ");
+        const QString space(QLatin1Char(' '));
         int MAX_DISPLAYED_IMEI_COUNT = 30;
         if (imeiList.count() > MAX_DISPLAYED_IMEI_COUNT && keepShort) {//1000 items would be too much :)
             for (int i = 0; i < MAX_DISPLAYED_IMEI_COUNT; ++i)
                 imeiListString += imeiList.at(i) + space;
-            imeiListString.replace(imeiListString.length()-1, 1, QString("..."));
+            imeiListString.replace(imeiListString.length()-1, 1, QLatin1String("..."));
         } else
             imeiListString = imeiList.join(space);
         str << "<tr><td><b>" << tr("Supporting %n device(s): ", "", imeiList.count())

@@ -79,7 +79,7 @@ static QString winscwRoot(const QString &path)
     dir.cdUp();
     dir.cdUp();
     dir.cdUp();
-    dir.cd("Symbian_Support");
+    dir.cd(QLatin1String("Symbian_Support"));
     return dir.absolutePath();
 }
 
@@ -90,8 +90,7 @@ static QString toNativePath(const QStringList &list)
 
 static QStringList fromNativePath(const QString &list)
 {
-    QString tmp = QDir::fromNativeSeparators(list);
-    return tmp.split(';');
+    return QDir::fromNativeSeparators(list).split(QLatin1Char(';'));
 }
 
 static QStringList detectIncludesFor(const QString path)
@@ -297,7 +296,7 @@ QString WinscwToolChain::compilerPath() const
 
 void WinscwToolChain::updateId()
 {
-    setId(QString::fromLatin1("%1:%2").arg(Constants::WINSCW_TOOLCHAIN_ID).arg(m_compilerPath));
+    setId(QLatin1String(Constants::WINSCW_TOOLCHAIN_ID) + QLatin1Char(':')  + m_compilerPath);
 }
 
 // --------------------------------------------------------------------------

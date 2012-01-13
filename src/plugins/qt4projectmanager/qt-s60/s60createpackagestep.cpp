@@ -282,7 +282,7 @@ void S60CreatePackageStep::handleWarnAboutPatching()
 
 void S60CreatePackageStep::savePassphraseForKey(const QString &keyId, const QString &passphrase)
 {
-    m_passphrases->beginGroup("keys");
+    m_passphrases->beginGroup(QLatin1String("keys"));
     if (passphrase.isEmpty())
         m_passphrases->remove(keyId);
     else
@@ -294,7 +294,7 @@ QString S60CreatePackageStep::loadPassphraseForKey(const QString &keyId)
 {
     if (keyId.isEmpty())
         return QString();
-    m_passphrases->beginGroup("keys");
+    m_passphrases->beginGroup(QLatin1String("keys"));
     QString passphrase = elucidatePassphrase(m_passphrases->value(keyId, QByteArray()).toByteArray(), keyId);
     m_passphrases->endGroup();
     return passphrase;
@@ -445,7 +445,7 @@ bool S60CreatePackageStep::createOnePackage()
     }
     emit addOutput(tr("Starting: \"%1\" %2 in %3\n")
                    .arg(QDir::toNativeSeparators(m_makeCmd),
-                        m_args.join(" "),
+                        m_args.join(QLatin1String(" ")),
                         workingDirectory),
                    BuildStep::MessageOutput);
     return true;
@@ -491,7 +491,7 @@ bool S60CreatePackageStep::validateCustomSigningResources(const QStringList &cap
             QString message = tr("The package created will not install on a "
                                  "device as some of the defined capabilities "
                                  "are not supported by the certificate: %1")
-                    .arg(unsupportedCaps.join(" "));
+                    .arg(unsupportedCaps.join(QLatin1String(" ")));
             reportPackageStepIssue(message, true);
             return false;
         }
@@ -511,7 +511,7 @@ void S60CreatePackageStep::reportPackageStepIssue(const QString &message, bool i
                                            ProjectExplorer::Task::Warning,
                                        message,
                                        QString(), -1,
-                                       ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+                                       QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
 }
 
 void S60CreatePackageStep::packageWarningDialogDone()
@@ -637,8 +637,8 @@ QString S60CreatePackageStep::generateKeyId(const QString &keyPath) const
     }
 
     //key file is quite small in size
-    return QCryptographicHash::hash(reader.data(),
-                                    QCryptographicHash::Md5).toHex();
+    return QLatin1String(QCryptographicHash::hash(reader.data(),
+                                                  QCryptographicHash::Md5).toHex());
 }
 
 bool S60CreatePackageStep::immutable() const
@@ -717,7 +717,7 @@ void S60CreatePackageStep::setCreatesSmartInstaller(bool value)
 
 void S60CreatePackageStep::resetPassphrases()
 {
-    m_passphrases->beginGroup("keys");
+    m_passphrases->beginGroup(QLatin1String("keys"));
     QStringList keys = m_passphrases->allKeys();
     foreach (const QString &key, keys) {
         m_passphrases->setValue(key, QString());

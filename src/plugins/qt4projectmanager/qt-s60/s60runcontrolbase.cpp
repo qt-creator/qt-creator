@@ -93,11 +93,11 @@ S60RunControlBase::S60RunControlBase(RunConfiguration *runConfiguration,
     m_commandLineArguments = s60runConfig->commandLineArguments();
     QString qmlArgs = s60runConfig->qmlCommandLineArguments();
     if ((mode == DebugRunMode || mode == QmlProfilerRunMode) && !qmlArgs.isEmpty()) {
-        m_commandLineArguments.prepend(' ');
+        m_commandLineArguments.prepend(QLatin1Char(' '));
         m_commandLineArguments.prepend(qmlArgs);
     }
     if (const QtSupport::BaseQtVersion *qtv = activeBuildConf->qtVersion()) {
-        m_qtDir = qtv->versionInfo().value("QT_INSTALL_DATA");
+        m_qtDir = qtv->versionInfo().value(QLatin1String("QT_INSTALL_DATA"));
         m_qtBinPath = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
     }
     m_installationDrive = activeDeployConf->installationDrive();

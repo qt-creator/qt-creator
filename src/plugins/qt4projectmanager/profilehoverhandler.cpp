@@ -125,7 +125,7 @@ void ProFileHoverHandler::identifyQMakeKeyword(const QString &text, int pos)
                 if (i >= pos)
                     break; // we are after the tooltip pos
             }
-            if (c == '#')
+            if (c == QLatin1Char('#'))
                 break; // comment start
         }
     }
@@ -164,7 +164,7 @@ void ProFileHoverHandler::identifyDocFragment(ProFileHoverHandler::ManualKind ma
         // Document fragment of qmake function is retrieved from docs.
         // E.g. in case of the keyword "find" the document fragment
         // parsed from docs is "find-variablename-substr".
-        m_docFragment = htmlExtractor.getQMakeFunctionId(html, m_docFragment);
+        m_docFragment = htmlExtractor.getQMakeFunctionId(QString::fromUtf8(html), m_docFragment);
     }
 }
 

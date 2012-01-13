@@ -79,7 +79,7 @@ QtSupport::BaseQtVersion *SymbianQtVersionFactory::create(const Utils::FileName 
     if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
         return 0;
 
-    QString makefileGenerator = evaluator->value("MAKEFILE_GENERATOR");
+    QString makefileGenerator = evaluator->value(QLatin1String("MAKEFILE_GENERATOR"));
     if (makefileGenerator == QLatin1String("SYMBIAN_ABLD") ||
             makefileGenerator == QLatin1String("SYMBIAN_SBSV2") ||
             makefileGenerator == QLatin1String("SYMBIAN_UNIX")) {

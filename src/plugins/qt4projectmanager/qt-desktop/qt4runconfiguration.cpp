@@ -247,7 +247,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_useTerminalCheck = new QCheckBox(tr("Run in terminal"), this);
     m_useTerminalCheck->setChecked(m_qt4RunConfiguration->runMode() == ProjectExplorer::LocalApplicationRunConfiguration::Console);
     toplayout->addRow(QString(), m_useTerminalCheck);
-    m_useTerminalCheck->setVisible(qt4RunConfiguration->target()->id() != Constants::QT_SIMULATOR_TARGET_ID);
+    m_useTerminalCheck->setVisible(qt4RunConfiguration->target()->id() != QLatin1String(Constants::QT_SIMULATOR_TARGET_ID));
 
     QLabel *debuggerLabel = new QLabel(tr("Debugger:"), this);
     debuggerLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
@@ -420,7 +420,7 @@ void Qt4RunConfigurationWidget::workingDirectoryReseted()
 {
     // This emits a signal connected to workingDirectoryChanged()
     // that sets the m_workingDirectoryEdit
-    m_qt4RunConfiguration->setBaseWorkingDirectory("");
+    m_qt4RunConfiguration->setBaseWorkingDirectory(QString());
 }
 
 void Qt4RunConfigurationWidget::argumentsEdited(const QString &args)
@@ -609,7 +609,7 @@ Utils::Environment Qt4RunConfiguration::baseEnvironment() const
         env = target()->activeBuildConfiguration()->environment();
     }
     if (m_isUsingDyldImageSuffix) {
-        env.set("DYLD_IMAGE_SUFFIX", "_debug");
+        env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
     }
 
     // The user could be linking to a library found via a -L/some/dir switch
@@ -800,7 +800,7 @@ QStringList Qt4RunConfigurationFactory::availableCreationIds(ProjectExplorer::Ta
     Qt4BaseTarget *t = qobject_cast<Qt4BaseTarget *>(parent);
     if (!t)
         return QStringList();
-    if (t->id() != Constants::DESKTOP_TARGET_ID
+    if (t->id() != QLatin1String(Constants::DESKTOP_TARGET_ID)
         && t->id() != QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
         return QStringList();
     return t->qt4Project()->applicationProFilePathes(QLatin1String(QT4_RC_PREFIX));

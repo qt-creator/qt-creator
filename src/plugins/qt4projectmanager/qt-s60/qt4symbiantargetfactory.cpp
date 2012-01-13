@@ -81,10 +81,12 @@ QStringList Qt4SymbianTargetFactory::supportedTargetIds(ProjectExplorer::Project
 
     QStringList ids;
     // The QtVersionManager will just check whether theres
-    if (QtSupport::QtVersionManager::instance()->supportsTargetId(Constants::S60_DEVICE_TARGET_ID))
-        ids << QLatin1String(Constants::S60_DEVICE_TARGET_ID);
-    if (QtSupport::QtVersionManager::instance()->supportsTargetId(Constants::S60_EMULATOR_TARGET_ID))
-        ids << QLatin1String(Constants::S60_EMULATOR_TARGET_ID);
+    const QString deviceId = QLatin1String(Constants::S60_DEVICE_TARGET_ID);
+    if (QtSupport::QtVersionManager::instance()->supportsTargetId(deviceId))
+        ids << deviceId;
+    const QString emulatorId = QLatin1String(Constants::S60_EMULATOR_TARGET_ID);
+    if (QtSupport::QtVersionManager::instance()->supportsTargetId(emulatorId))
+        ids << emulatorId;
 
     return ids;
 }
@@ -97,9 +99,9 @@ QString Qt4SymbianTargetFactory::displayNameForId(const QString &id) const
 QIcon Qt4SymbianTargetFactory::iconForId(const QString &id) const
 {
     if (id == QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
-        return QIcon(":/projectexplorer/images/SymbianEmulator.png");
+        return QIcon(QLatin1String(":/projectexplorer/images/SymbianEmulator.png"));
     if (id == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
-        return QIcon(":/projectexplorer/images/SymbianDevice.png");
+        return QIcon(QLatin1String(":/projectexplorer/images/SymbianDevice.png"));
     return QIcon();
 }
 
@@ -143,23 +145,23 @@ QList<ProjectExplorer::Task> Qt4SymbianTargetFactory::reportIssues(const QString
     const QString projectName = proFile.mid(proFile.lastIndexOf(QLatin1Char('/')) + 1);
     QString projectPath = proFile.left(proFile.lastIndexOf(QLatin1Char('/')));
 #if defined (Q_OS_WIN)
-    if (projectPath.at(1) == QChar(':') && projectPath.at(0).toUpper() >= QChar('A') && projectPath.at(0).toUpper() <= QChar('Z'))
-        projectPath = projectPath.mid(2);
+    if (projectPath.at(1) == QLatin1Char(':') && projectPath.at(0).toUpper() >= QLatin1Char('A') && projectPath.at(0).toUpper() <= QLatin1Char('Z'))
+        projectPath.remove(0, 2);
 #endif
     if (projectPath.contains(QLatin1Char(' '))) {
         results.append(Task(Task::Warning,
                             QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
                                                         "The Symbian tool chain does not handle spaces "
                                                         "in the project path '%1'.").arg(projectPath),
-                            QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+                            QString(), -1, QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
     }
-    if (projectName.contains(QRegExp("[^a-zA-Z0-9.-]"))) {
+    if (projectName.contains(QRegExp(QLatin1String("[^a-zA-Z0-9.-]")))) {
         results.append(Task(Task::Warning,
                             QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
                                                         "The Symbian tool chain does not handle special "
                                                         "characters in the project name '%1' well.")
                             .arg(projectName),
-                            QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+                            QString(), -1, QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
     }
     return results;
 }
@@ -170,7 +172,7 @@ QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurati
 {
     QList<BuildConfigurationInfo> infos
             = Qt4BaseTargetFactory::availableBuildConfigurations(id, proFilePath, minimumQtVersion, maximumQtVersion);
-    if (id != Constants::S60_EMULATOR_TARGET_ID)
+    if (id != QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
         return infos;
     // For emulator filter out all non debug builds
     QList<BuildConfigurationInfo> tmp;
@@ -188,9 +190,9 @@ bool Qt4SymbianTargetFactory::selectByDefault(const QString &id) const
 QSet<QString> Qt4SymbianTargetFactory::targetFeatures(const QString & /*id*/) const
 {
     QSet<QString> features;
-    features << Constants::MOBILE_TARGETFEATURE_ID;
+    features << QLatin1String(Constants::MOBILE_TARGETFEATURE_ID)
     // ideally we should check whether they're really installed
-    features << Constants::QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID;
+             << QLatin1String(Constants::QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID);
     return features;
 }
 
@@ -207,7 +209,7 @@ ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Projec
     QtSupport::BaseQtVersion::QmakeBuildConfigs config = qtVersion->defaultBuildConfig();
 
     QList<BuildConfigurationInfo> infos;
-    if (id != Constants::S60_EMULATOR_TARGET_ID) {
+    if (id != QLatin1String(Constants::S60_EMULATOR_TARGET_ID)) {
         infos.append(BuildConfigurationInfo(qtVersion, config, QString(), QString()));
         infos.append(BuildConfigurationInfo(qtVersion, config ^ QtSupport::BaseQtVersion::DebugBuild, QString(), QString()));
     } else {

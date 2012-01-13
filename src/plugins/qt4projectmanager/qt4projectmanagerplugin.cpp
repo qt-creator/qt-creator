@@ -192,24 +192,24 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_runQMakeActionContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(runQMakeContextMenu()));
 
-    QIcon buildIcon(ProjectExplorer::Constants::ICON_BUILD);
-    buildIcon.addFile(ProjectExplorer::Constants::ICON_BUILD_SMALL);
+    QIcon buildIcon = QIcon(QLatin1String(ProjectExplorer::Constants::ICON_BUILD));
+    buildIcon.addFile(QLatin1String(ProjectExplorer::Constants::ICON_BUILD_SMALL));
     m_buildSubProjectContextMenu = new QAction(buildIcon, tr("Build"), this);
     command = am->registerAction(m_buildSubProjectContextMenu, Constants::BUILDSUBDIR, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_buildSubProjectContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(buildSubDirContextMenu()));
 
-    QIcon rebuildIcon(ProjectExplorer::Constants::ICON_REBUILD);
-    rebuildIcon.addFile(ProjectExplorer::Constants::ICON_REBUILD_SMALL);
+    QIcon rebuildIcon = QIcon(QLatin1String(ProjectExplorer::Constants::ICON_REBUILD));
+    rebuildIcon.addFile(QLatin1String(ProjectExplorer::Constants::ICON_REBUILD_SMALL));
     m_rebuildSubProjectContextMenu = new QAction(rebuildIcon, tr("Rebuild"), this);
     command = am->registerAction(m_rebuildSubProjectContextMenu, Constants::REBUILDSUBDIR, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_rebuildSubProjectContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(rebuildSubDirContextMenu()));
 
-    QIcon cleanIcon(ProjectExplorer::Constants::ICON_CLEAN);
-    cleanIcon.addFile(ProjectExplorer::Constants::ICON_CLEAN_SMALL);
+    QIcon cleanIcon = QIcon(QLatin1String(ProjectExplorer::Constants::ICON_CLEAN));
+    cleanIcon.addFile(QLatin1String(ProjectExplorer::Constants::ICON_CLEAN_SMALL));
     m_cleanSubProjectContextMenu = new QAction(cleanIcon, tr("Clean"), this);
     command = am->registerAction(m_cleanSubProjectContextMenu, Constants::CLEANSUBDIR, projectContext);
     command->setAttribute(Core::Command::CA_Hide);

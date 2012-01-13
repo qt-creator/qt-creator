@@ -100,7 +100,7 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
     if (rc->useQmlDebugger()) {
         QString qmlArgs = rc->qmlCommandLineArguments();
         if (sp.processArgs.length())
-            sp.processArgs.prepend(" ");
+            sp.processArgs.prepend(QLatin1Char(' '));
         sp.processArgs.prepend(qmlArgs);
     }
 

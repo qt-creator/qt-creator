@@ -135,7 +135,7 @@ QString QMakeStep::allArguments(bool shorted)
     else
         arguments << QDir::toNativeSeparators(project()->file()->fileName());
 
-    arguments << "-r";
+    arguments << QLatin1String("-r");
     bool userProvidedMkspec = false;
     for (Utils::QtcProcess::ConstArgIterator ait(m_userArgs); ait.next(); ) {
         if (ait.value() == QLatin1String("-spec")) {
@@ -147,7 +147,7 @@ QString QMakeStep::allArguments(bool shorted)
     }
     Utils::FileName specArg = mkspec();
     if (!userProvidedMkspec && !specArg.isEmpty())
-        arguments << "-spec" << specArg.toUserOutput();
+        arguments << QLatin1String("-spec") << specArg.toUserOutput();
 
     // Find out what flags we pass on to qmake
     arguments << bc->configCommandLineArguments();
@@ -243,13 +243,13 @@ bool QMakeStep::init()
         if (!qt4bc->subNodeBuild()->makefile().isEmpty()) {
             makefile.append(qt4bc->subNodeBuild()->makefile());
         } else {
-            makefile.append("/Makefile");
+            makefile.append(QLatin1String("/Makefile"));
         }
     } else if (!qt4bc->makefile().isEmpty()) {
-        makefile.append("/");
+        makefile.append(QLatin1Char('/'));
         makefile.append(qt4bc->makefile());
     } else {
-        makefile.append("/Makefile");
+        makefile.append(QLatin1String("/Makefile"));
     }
 
     // Check whether we need to run qmake
@@ -723,11 +723,12 @@ void QMakeStepConfigWidget::recompileMessageBoxFinished(int button)
             return;
 
         QList<ProjectExplorer::BuildStepList *> stepLists;
-        stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-        stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+        const QString clean = QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+        const QString build = QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+        stepLists << bc->stepList(clean) << bc->stepList(build);
         ProjectExplorer::BuildManager *bm = ProjectExplorerPlugin::instance()->buildManager();
-        bm->buildLists(stepLists, QStringList() << ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
-                       << ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
+        bm->buildLists(stepLists, QStringList() << ProjectExplorerPlugin::displayNameForStepId(clean)
+                       << ProjectExplorerPlugin::displayNameForStepId(build));
     }
 }
 

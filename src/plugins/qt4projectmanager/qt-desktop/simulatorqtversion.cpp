@@ -67,7 +67,7 @@ SimulatorQtVersion *SimulatorQtVersion::clone() const
 
 QString SimulatorQtVersion::type() const
 {
-    return QtSupport::Constants::SIMULATORQT;
+    return QLatin1String(QtSupport::Constants::SIMULATORQT);
 }
 
 QString SimulatorQtVersion::warningReason() const

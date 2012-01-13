@@ -149,7 +149,7 @@ QStringList QtModulesInfo::modules()
 
 static inline const item *itemForModule(const QString &module)
 {
-    return staticItemHash()->value(module.toLatin1().data());
+    return staticItemHash()->value(module);
 }
 
 QString QtModulesInfo::moduleName(const QString &module)

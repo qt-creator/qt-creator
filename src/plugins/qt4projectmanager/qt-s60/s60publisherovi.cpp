@@ -61,21 +61,21 @@ S60PublisherOvi::S60PublisherOvi(QObject *parent) :
     m_finishedAndSuccessful(false)
 {
     // build m_rejectedVendorNames
-    m_rejectedVendorNames.append(Constants::REJECTED_VENDOR_NAMES_NOKIA);
-    m_rejectedVendorNames.append(Constants::REJECTED_VENDOR_NAMES_VENDOR);
-    m_rejectedVendorNames.append(Constants::REJECTED_VENDOR_NAMES_VENDOR_EN);
-    m_rejectedVendorNames.append(Constants::REJECTED_VENDOR_NAMES_EMPTY);
+    m_rejectedVendorNames.append(QLatin1String(Constants::REJECTED_VENDOR_NAMES_NOKIA));
+    m_rejectedVendorNames.append(QLatin1String(Constants::REJECTED_VENDOR_NAMES_VENDOR));
+    m_rejectedVendorNames.append(QLatin1String(Constants::REJECTED_VENDOR_NAMES_VENDOR_EN));
+    m_rejectedVendorNames.append(QLatin1String(Constants::REJECTED_VENDOR_NAMES_EMPTY));
 
     // build m_capabilitiesForCertifiedSigned
-    m_capabilitiesForCertifiedSigned.append(Constants::CERTIFIED_SIGNED_CAPABILITY_COMM_DD);
-    m_capabilitiesForCertifiedSigned.append(Constants::CERTIFIED_SIGNED_CAPABILITY_DISK_ADMIN);
-    m_capabilitiesForCertifiedSigned.append(Constants::CERTIFIED_SIGNED_CAPABILITY_MULTIMEDIA_DD);
-    m_capabilitiesForCertifiedSigned.append(Constants::CERTIFIED_SIGNED_CAPABILITY_NETWORK_CONTROL);
+    m_capabilitiesForCertifiedSigned.append(QLatin1String(Constants::CERTIFIED_SIGNED_CAPABILITY_COMM_DD));
+    m_capabilitiesForCertifiedSigned.append(QLatin1String(Constants::CERTIFIED_SIGNED_CAPABILITY_DISK_ADMIN));
+    m_capabilitiesForCertifiedSigned.append(QLatin1String(Constants::CERTIFIED_SIGNED_CAPABILITY_MULTIMEDIA_DD));
+    m_capabilitiesForCertifiedSigned.append(QLatin1String(Constants::CERTIFIED_SIGNED_CAPABILITY_NETWORK_CONTROL));
 
     // build m_capabilitesForManufacturerApproved
-    m_capabilitesForManufacturerApproved.append(Constants::MANUFACTURER_APPROVED_CAPABILITY_ALL_FILES);
-    m_capabilitesForManufacturerApproved.append(Constants::MANUFACTURER_APPROVED_CAPABILITY_DRM);
-    m_capabilitesForManufacturerApproved.append(Constants::MANUFACTURER_APPROVED_CAPABILITY_TCB);
+    m_capabilitesForManufacturerApproved.append(QLatin1String(Constants::MANUFACTURER_APPROVED_CAPABILITY_ALL_FILES));
+    m_capabilitesForManufacturerApproved.append(QLatin1String(Constants::MANUFACTURER_APPROVED_CAPABILITY_DRM));
+    m_capabilitesForManufacturerApproved.append(QLatin1String(Constants::MANUFACTURER_APPROVED_CAPABILITY_TCB));
 
     // set up colours for progress reports
     m_errorColor = Qt::red;
@@ -107,12 +107,12 @@ void S60PublisherOvi::setVendorName(const QString &vendorName)
 
 void S60PublisherOvi::setLocalVendorNames(const QString &localVendorNames)
 {
-    QStringList vendorNames = localVendorNames.split(',');
+    QStringList vendorNames = localVendorNames.split(QLatin1Char(','));
     QStringList resultingList;
     foreach (QString vendorName, vendorNames) {
-        resultingList.append("\\\"" +vendorName.trimmed()+"\\\"");
+        resultingList.append(QLatin1String("\\\"") + vendorName.trimmed() + QLatin1String("\\\""));
     }
-    m_localVendorNames = resultingList.join(", ");
+    m_localVendorNames = resultingList.join(QLatin1String(", "));
 }
 
 void S60PublisherOvi::setAppUid(const QString &appuid)
@@ -156,35 +156,36 @@ void S60PublisherOvi::completeCreation()
     const ProjectExplorer::ProcessParameters * const qmakepp = qmakeStep->processParameters();
 
     m_publishSteps.clear();
+    const QChar space = QLatin1Char(' ');
     m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
-                                                    makepp->effectiveCommand() + ' ' + QLatin1String("clean -w"),
+                                                    makepp->effectiveCommand() + QLatin1String(" clean -w"),
                                                     tr("Clean"),
                                                     false));
 
     m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
-                                                    qmakepp->effectiveCommand() + ' ' + qmakepp->arguments(),
+                                                    qmakepp->effectiveCommand() + space + qmakepp->arguments(),
                                                     tr("qmake")));
 
     m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
-                                                    makepp->effectiveCommand() + ' ' + makepp->arguments(),
+                                                    makepp->effectiveCommand() + space + makepp->arguments(),
                                                     tr("Build")));
     if (isDynamicLibrary(*m_qt4project)) {
         const QString freezeArg = QLatin1String("freeze-") + makepp->arguments();
         m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
-                                                        makepp->effectiveCommand() + ' ' + freezeArg,
+                                                        makepp->effectiveCommand() + space + freezeArg,
                                                         tr("Freeze")));
 
         m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
-                                                        makepp->effectiveCommand() + ' ' + QLatin1String("clean -w"),
+                                                        makepp->effectiveCommand() + QLatin1String(" clean -w"),
                                                         tr("Secondary clean"),
                                                         false));
 
         m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
-                                                        qmakepp->effectiveCommand() + ' ' + qmakepp->arguments(),
+                                                        qmakepp->effectiveCommand() + space + qmakepp->arguments(),
                                                         tr("Secondary qmake")));
 
         m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
-                                                        makepp->effectiveCommand() + ' ' + makepp->arguments(),
+                                                        makepp->effectiveCommand() + space + makepp->arguments(),
                                                         tr("Secondary build")));
     }
 
@@ -192,7 +193,7 @@ void S60PublisherOvi::completeCreation()
     if (m_qt4bc->qtVersion()->qtVersion() == QtSupport::QtVersionNumber(4,6,3) )
         signArg = QLatin1String("installer_sis");
     m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
-                                                    makepp->effectiveCommand() + ' ' + signArg,
+                                                    makepp->effectiveCommand() + space + signArg,
                                                     tr("Making SIS file")));
 
     // set up access to vendor names
@@ -248,8 +249,8 @@ QString S60PublisherOvi::globalVendorName() const
     QStringList vendorinfos = m_reader->values(m_vendorInfoVariable);
 
     foreach (QString vendorinfo, vendorinfos) {
-        if (vendorinfo.startsWith(':')) {
-            return vendorinfo.remove(':').remove('"').trimmed();
+        if (vendorinfo.startsWith(QLatin1Char(':'))) {
+            return vendorinfo.remove(QLatin1Char(':')).remove(QLatin1Char('"')).trimmed();
         }
     }
     return QString();
@@ -262,12 +263,12 @@ QString S60PublisherOvi::localisedVendorNames() const
 
     QStringList localisedVendorNames;
     foreach (QString vendorinfo, vendorinfos) {
-        if (vendorinfo.startsWith('%')) {
-            localisedVendorNames = vendorinfo.remove(QLatin1String("%{")).remove('}').split(',');
+        if (vendorinfo.startsWith(QLatin1Char('%'))) {
+            localisedVendorNames = vendorinfo.remove(QLatin1String("%{")).remove(QLatin1Char('}')).split(QLatin1Char(','));
             foreach (QString localisedVendorName, localisedVendorNames) {
                 if (!result.isEmpty())
                     result.append(QLatin1String(", "));
-                result.append(localisedVendorName.remove("\"").trimmed());
+                result.append(localisedVendorName.remove(QLatin1Char('"')).trimmed());
             }
             return result;
         }
@@ -278,7 +279,7 @@ QString S60PublisherOvi::localisedVendorNames() const
 bool S60PublisherOvi::isVendorNameValid(const QString &vendorName) const
 {
     // vendorName cannot containg "Nokia"
-    if (vendorName.trimmed().contains(Constants::REJECTED_VENDOR_NAMES_NOKIA, Qt::CaseInsensitive))
+    if (vendorName.trimmed().contains(QLatin1String(Constants::REJECTED_VENDOR_NAMES_NOKIA), Qt::CaseInsensitive))
         return false;
 
     // vendorName cannot be any of the rejected vendor names
@@ -325,7 +326,7 @@ bool S60PublisherOvi::isKnownSymbianSignedUID3(const QString &uid3) const
 
 QString S60PublisherOvi::capabilities() const
 {
-    return m_reader->values(QLatin1String("TARGET.CAPABILITY")).join(", ");
+    return m_reader->values(QLatin1String("TARGET.CAPABILITY")).join(QLatin1String(", "));
 }
 
 bool S60PublisherOvi::isCapabilityOneOf(const QString &capability, CapabilityLevel level) const
@@ -394,7 +395,7 @@ bool S60PublisherOvi::runStep()
     QTC_ASSERT(m_publishSteps.count(), return false);
 
     S60PublishStep *step = m_publishSteps.at(0);
-    emit progressReport(step->displayDescription() + '\n', m_commandColor);
+    emit progressReport(step->displayDescription() + QLatin1Char('\n'), m_commandColor);
     connect(step, SIGNAL(finished(bool)), this, SLOT(publishStepFinished(bool)));
     connect(step, SIGNAL(output(QString,bool)), this, SLOT(printMessage(QString,bool)));
     step->start();
@@ -410,7 +411,7 @@ bool S60PublisherOvi::nextStep()
 
 void S60PublisherOvi::printMessage(QString message, bool error)
 {
-    emit progressReport(message + '\n', error ? m_errorColor : m_okColor);
+    emit progressReport(message + QLatin1Char('\n'), error ? m_errorColor : m_okColor);
 }
 
 void S60PublisherOvi::publishStepFinished(bool success)
@@ -453,7 +454,7 @@ QString S60PublisherOvi::createdSisFileContainingFolder()
     if (m_qt4bc->qtVersion()->qtVersion() == QtSupport::QtVersionNumber(4,6,3) )
         fileNamePostFix = QLatin1String("_installer.sis");
 
-    QString resultFile = m_qt4bc->buildDirectory() + '/' + m_qt4project->displayName() + fileNamePostFix;
+    QString resultFile = m_qt4bc->buildDirectory() + QLatin1Char('/') + m_qt4project->displayName() + fileNamePostFix;
     QFileInfo fi(resultFile);
 
     return fi.exists() ? QDir::toNativeSeparators(m_qt4bc->buildDirectory()) : QString();
@@ -465,10 +466,10 @@ QString S60PublisherOvi::createdSisFilePath()
     if (m_qt4bc->qtVersion()->qtVersion() == QtSupport::QtVersionNumber(4,6,3) )
         fileNamePostFix = QLatin1String("_installer.sis");
 
-    QString resultFile = m_qt4bc->buildDirectory() + '/' + m_qt4project->displayName() + fileNamePostFix;
+    const QString resultFile = m_qt4bc->buildDirectory() + QLatin1Char('/')
+                               + m_qt4project->displayName() + fileNamePostFix;
     QFileInfo fi(resultFile);
-
-    return fi.exists() ? QDir::toNativeSeparators(m_qt4bc->buildDirectory()+ '/' + m_qt4project->displayName() + fileNamePostFix) : QString();
+    return fi.exists() ? QDir::toNativeSeparators(resultFile) : QString();
 }
 
 bool S60PublisherOvi::hasSucceeded()
@@ -522,11 +523,11 @@ void S60CommandPublishStep::processFinished(int exitCode)
 {
     QByteArray outputText = m_proc->readAllStandardOutput();
     if (!outputText.isEmpty())
-        emit output(outputText, false);
+        emit output(QString::fromLocal8Bit(outputText), false);
 
     outputText = m_proc->readAllStandardError();
     if (!outputText.isEmpty())
-        emit output(outputText, true);
+        emit output(QString::fromLocal8Bit(outputText), true);
 
     setSucceeded(exitCode == QProcess::NormalExit);
     emit finished(succeeded());

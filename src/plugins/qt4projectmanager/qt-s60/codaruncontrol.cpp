@@ -111,7 +111,7 @@ bool CodaRunControl::isRunning() const
 
 QIcon CodaRunControl::icon() const
 {
-    return QIcon(ProjectExplorer::Constants::ICON_DEBUG_SMALL);
+    return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_DEBUG_SMALL));
 }
 
 bool CodaRunControl::setupLauncher()
@@ -346,7 +346,7 @@ void CodaRunControl::handleFindProcesses(const CodaCommandResult &result)
         m_codaDevice->sendProcessStartCommand(CodaCallback(this, &CodaRunControl::handleCreateProcess),
                                               executableName(),
                                               executableUid(),
-                                              commandLineArguments().split(' '),
+                                              commandLineArguments().split(QLatin1Char(' ')),
                                               QString(),
                                               true);
         appendMessage(tr("Launching: %1\n").arg(executableName()), Utils::NormalMessageFormat);
@@ -362,7 +362,7 @@ void CodaRunControl::handleCreateProcess(const CodaCommandResult &result)
             Json::JsonValue id = result.values.at(0).findChild("ID");
             if (id.isValid()) {
                 m_state = StateProcessRunning;
-                m_runningProcessId = id.data();
+                m_runningProcessId = QLatin1String(id.data());
                 processCreated = true;
             }
         }

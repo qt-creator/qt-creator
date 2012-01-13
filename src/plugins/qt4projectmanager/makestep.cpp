@@ -180,7 +180,7 @@ bool MakeStep::init()
             Utils::QtcProcess::addArg(&args, makefile);
             m_makeFileToCheck = QDir(workingDirectory).filePath(makefile);
         } else {
-            m_makeFileToCheck = QDir(workingDirectory).filePath("Makefile");
+            m_makeFileToCheck = QDir(workingDirectory).filePath(QLatin1String("Makefile"));
         }
     } else {
         if (!bc->makefile().isEmpty()) {
@@ -188,7 +188,7 @@ bool MakeStep::init()
             Utils::QtcProcess::addArg(&args, bc->makefile());
             m_makeFileToCheck = QDir(workingDirectory).filePath(bc->makefile());
         } else {
-            m_makeFileToCheck = QDir(workingDirectory).filePath("Makefile");
+            m_makeFileToCheck = QDir(workingDirectory).filePath(QLatin1String("Makefile"));
         }
     }
 
@@ -215,7 +215,8 @@ bool MakeStep::init()
             Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
         if (toolChain->targetAbi().os() == ProjectExplorer::Abi::WindowsOS
                 && toolChain->targetAbi().osFlavor() != ProjectExplorer::Abi::WindowsMSysFlavor) {
-            env.set("MAKEFLAGS", env.value("MAKEFLAGS").prepend("L"));
+            const QString makeFlags = QLatin1String("MAKEFLAGS");
+            env.set(makeFlags, QLatin1Char('L') + env.value(makeFlags));
         }
     }
 
@@ -400,7 +401,8 @@ void MakeStepConfigWidget::updateDetails()
             Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
         if (toolChain->targetAbi().os() == ProjectExplorer::Abi::WindowsOS
                 && toolChain->targetAbi().osFlavor() != ProjectExplorer::Abi::WindowsMSysFlavor) {
-            env.set("MAKEFLAGS", env.value("MAKEFLAGS").prepend("L"));
+            const QString makeFlags = QLatin1String("MAKEFLAGS");
+            env.set(makeFlags, QLatin1Char('L') + env.value(makeFlags));
         }
     }
     param.setArguments(args);
@@ -469,9 +471,9 @@ ProjectExplorer::BuildStep *MakeStepFactory::create(ProjectExplorer::BuildStepLi
     if (!canCreate(parent, id))
         return 0;
     MakeStep *step = new MakeStep(parent);
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
+    if (parent->id() == QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)) {
         step->setClean(true);
-        step->setUserArguments("clean");
+        step->setUserArguments(QLatin1String("clean"));
     }
     return step;
 }

@@ -61,18 +61,18 @@ void ProFileHighlighter::highlightBlock(const QString &text)
         if (inCommentMode) {
             setFormat(i, 1, m_formats[ProfileCommentFormat]);
         } else {
-            if (c.isLetter() || c == '_' || c == '.' || c.isDigit()) {
+            if (c.isLetter() || c == QLatin1Char('_') || c == QLatin1Char('.') || c.isDigit()) {
                 buf += c;
                 setFormat(i - buf.length()+1, buf.length(), emptyFormat);
                 if (!buf.isEmpty() && ProFileKeywords::isFunction(buf))
                     setFormat(i - buf.length()+1, buf.length(), m_formats[ProfileFunctionFormat]);
                 else if (!buf.isEmpty() && ProFileKeywords::isVariable(buf))
                     setFormat(i - buf.length()+1, buf.length(), m_formats[ProfileVariableFormat]);
-            } else if (c == '(') {
+            } else if (c == QLatin1Char('(')) {
                 if (!buf.isEmpty() && ProFileKeywords::isFunction(buf))
                     setFormat(i - buf.length(), buf.length(), m_formats[ProfileFunctionFormat]);
                 buf.clear();
-            } else if (c == '#') {
+            } else if (c == QLatin1Char('#')) {
                 inCommentMode = true;
                 setFormat(i, 1, m_formats[ProfileCommentFormat]);
                 buf.clear();

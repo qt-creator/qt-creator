@@ -56,7 +56,7 @@ void QMakeParser::stdError(const QString &line)
                           description,
                           QString() /* filename */,
                           -1 /* linenumber */,
-                          ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+                          QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         return;
     }
     if (lne.startsWith(QLatin1String("Project WARNING:"))) {
@@ -65,23 +65,23 @@ void QMakeParser::stdError(const QString &line)
                           description,
                           QString() /* filename */,
                           -1 /* linenumber */,
-                          ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+                          QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         return;
     }
     if (m_error.indexIn(lne) > -1) {
         QString fileName = m_error.cap(1);
         Task::TaskType type = Task::Error;
-        if (fileName.startsWith("WARNING: ")) {
+        if (fileName.startsWith(QLatin1String("WARNING: "))) {
             type = Task::Warning;
             fileName = fileName.mid(9);
-        } else if (fileName.startsWith("ERROR: ")) {
+        } else if (fileName.startsWith(QLatin1String("ERROR: "))) {
             fileName = fileName.mid(7);
         }
         emit addTask(Task(type,
                           m_error.cap(3) /* description */,
                           fileName,
                           m_error.cap(2).toInt() /* line */,
-                          ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+                          QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         return;
     }
     IOutputParser::stdError(line);
@@ -102,6 +102,7 @@ using namespace ProjectExplorer;
 
 void Qt4ProjectManagerPlugin::testQmakeOutputParsers_data()
 {
+    const QString categoryBuildSystem = QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
     QTest::addColumn<QString>("childStdOutLines");
@@ -129,7 +130,7 @@ void Qt4ProjectManagerPlugin::testQmakeOutputParsers_data()
                 << Task(Task::Error,
                         QLatin1String("undefined file"),
                         QString(), -1,
-                        ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM))
+                        categoryBuildSystem))
             << QString();
 
     QTest::newRow("qMake Parse Error")
@@ -141,7 +142,7 @@ void Qt4ProjectManagerPlugin::testQmakeOutputParsers_data()
                         QLatin1String("Parse Error ('sth odd')"),
                         QLatin1String("e:\\project.pro"),
                         14,
-                        ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM))
+                        categoryBuildSystem))
             << QString();
 
     QTest::newRow("qMake warning")
@@ -152,7 +153,7 @@ void Qt4ProjectManagerPlugin::testQmakeOutputParsers_data()
                 << Task(Task::Warning,
                         QLatin1String("bearer module might require ReadUserData capability"),
                         QString(), -1,
-                        ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM))
+                        categoryBuildSystem))
             << QString();
 
     QTest::newRow("qMake warning with location")
@@ -163,7 +164,7 @@ void Qt4ProjectManagerPlugin::testQmakeOutputParsers_data()
                 << Task(Task::Warning,
                         QLatin1String("Unescaped backslashes are deprecated."),
                         QLatin1String("e:\\NokiaQtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl"), 1,
-                        ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM))
+                        categoryBuildSystem))
             << QString();
 }
 

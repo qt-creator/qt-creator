@@ -42,21 +42,21 @@ S60CreatePackageParser::S60CreatePackageParser(const QString &packageName) :
     m_needPassphrase(false)
 {
     setObjectName(QLatin1String("S60CreatePackageParser"));
-    m_signSis.setPattern("^(\\s*|\\(\\d+\\)\\s*:\\s*)(error\\s?:\\s?)+(.+)$");
+    m_signSis.setPattern(QLatin1String("^(\\s*|\\(\\d+\\)\\s*:\\s*)(error\\s?:\\s?)+(.+)$"));
     m_signSis.setMinimal(true);
     m_signSis.setCaseSensitivity(Qt::CaseInsensitive);
 }
 
 bool S60CreatePackageParser::parseLine(const QString &line)
 {
-    if (line.startsWith("Patching: ")) {
+    if (line.startsWith(QLatin1String("Patching: "))) {
         m_patchingLines.append(line.mid(10).trimmed());
         return true;
     }
     if (!m_patchingLines.isEmpty()) {
         emit packageWasPatched(m_packageName, m_patchingLines);
 
-        QString lines = m_patchingLines.join("\n");
+        QString lines = m_patchingLines.join(QLatin1String("\n"));
         m_patchingLines.clear();
         //: %1 package name, %2 will be replaced by a list of patching lines.
         QString message = tr("The binary package '%1' was patched to be installable after being self-signed.\n%2\n"
@@ -64,7 +64,7 @@ bool S60CreatePackageParser::parseLine(const QString &line)
                              "this patching from happening.").
                 arg(m_packageName, lines);
         ProjectExplorer::Task task(ProjectExplorer::Task::Warning, message, QString(), -1,
-                                   ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+                                   QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
 
         QTextLayout::FormatRange fr;
         fr.start = message.indexOf(lines);
@@ -87,10 +87,10 @@ bool S60CreatePackageParser::parseLine(const QString &line)
                                                   "as the Smart Installer's base file is missing. "
                                                   "Please ensure that it is located in the SDK."),
                                                QString(), -1,
-                                               ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+                                               QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         else
             emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error, errorMessage, QString(), -1,
-                                               ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+                                               QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         return true;
     }
     return false;

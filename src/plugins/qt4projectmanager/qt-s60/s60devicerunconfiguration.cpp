@@ -231,7 +231,7 @@ static inline QString localExecutableFromVersion(const SymbianQtVersion *qtv,
     QString localExecutable;
     QString platform = S60Manager::platform(tc);
     if (qtv->isBuildWithSymbianSbsV2() && platform == QLatin1String("gcce"))
-        platform = "armv5";
+        platform = QLatin1String("armv5");
     QTextStream(&localExecutable) << qtv->systemRoot() << "/epoc32/release/"
             << platform << '/' << symbianTarget << '/' << targetName << ".exe";
     return localExecutable;
@@ -292,9 +292,9 @@ QString S60DeviceRunConfiguration::qmlCommandLineArguments() const
         QTC_ASSERT(activeDeployConf, return args);
 
         if (activeDeployConf->communicationChannel() == S60DeployConfiguration::CommunicationCodaTcpConnection)
-            args = QString("-qmljsdebugger=port:%1,block").arg(qmlDebugServerPort());
+            args = QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(qmlDebugServerPort());
         else
-            args = QString("-qmljsdebugger=ost");
+            args = QLatin1String("-qmljsdebugger=ost");
     }
     return args;
 }

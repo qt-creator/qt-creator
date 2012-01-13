@@ -160,7 +160,7 @@ public:
 
     ~SimpleBuildStepConfigWidget() {}
 
-    QString summaryText() const { return QString("<b>%1</b>").arg(displayName()); }
+    QString summaryText() const { return QLatin1String("<b>") + displayName() + QLatin1String("</b>"); }
     QString displayName() const { return m_step->displayName(); }
     bool showWidget() const { return false; }
     BuildStep *step() const { return m_step; }

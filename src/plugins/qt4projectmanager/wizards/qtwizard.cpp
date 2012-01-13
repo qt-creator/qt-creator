@@ -242,9 +242,9 @@ int BaseQt4ProjectWizardDialog::addTargetSetupPage(QSet<QString> targets, bool m
     resize(900, 450);
 
     if (mobile) {
-        m_targetSetupPage->setPreferredFeatures(QSet<QString>() << Constants::MOBILE_TARGETFEATURE_ID);
+        m_targetSetupPage->setPreferredFeatures(QSet<QString>() << QLatin1String(Constants::MOBILE_TARGETFEATURE_ID));
     } else {
-        m_targetSetupPage->setPreferredFeatures(QSet<QString>() << Constants::DESKTOP_TARGETFEATURE_ID);
+        m_targetSetupPage->setPreferredFeatures(QSet<QString>() << QLatin1String(Constants::DESKTOP_TARGETFEATURE_ID));
     }
 
     if (id >= 0)
@@ -316,7 +316,9 @@ bool BaseQt4ProjectWizardDialog::isTargetSelected(const QString &targetid) const
 
 void BaseQt4ProjectWizardDialog::generateProfileName(const QString &name, const QString &path)
 {
-    const QString proFile = QDir::cleanPath(path + QChar('/') + name + QChar('/') + name + QLatin1String(".pro"));
+    const QString proFile =
+        QDir::cleanPath(path + QLatin1Char('/') + name + QLatin1Char('/')
+                        + name + QLatin1String(".pro"));
     m_targetSetupPage->setProFilePath(proFile);
 }
 

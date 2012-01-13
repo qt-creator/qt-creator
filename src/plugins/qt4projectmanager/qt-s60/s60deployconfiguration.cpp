@@ -304,7 +304,7 @@ QVariantMap S60DeployConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::DeployConfiguration::toMap());
     map.insert(QLatin1String(SERIAL_PORT_NAME_KEY), m_serialPortName);
-    map.insert(QLatin1String(INSTALLATION_DRIVE_LETTER_KEY), QChar(m_installationDrive));
+    map.insert(QLatin1String(INSTALLATION_DRIVE_LETTER_KEY), QChar(QLatin1Char(m_installationDrive)));
     map.insert(QLatin1String(SILENT_INSTALL_KEY), QVariant(m_silentInstall));
     map.insert(QLatin1String(DEVICE_ADDRESS_KEY), QVariant(m_deviceAddress));
     map.insert(QLatin1String(DEVICE_PORT_KEY), m_devicePort);
@@ -329,7 +329,7 @@ bool S60DeployConfiguration::fromMap(const QVariantMap &map)
     if (!DeployConfiguration::fromMap(map))
         return false;
     m_serialPortName = map.value(QLatin1String(SERIAL_PORT_NAME_KEY)).toString().trimmed();
-    m_installationDrive = map.value(QLatin1String(INSTALLATION_DRIVE_LETTER_KEY), QChar('C'))
+    m_installationDrive = map.value(QLatin1String(INSTALLATION_DRIVE_LETTER_KEY), QChar(QLatin1Char('C')))
                           .toChar().toAscii();
     m_silentInstall = map.value(QLatin1String(SILENT_INSTALL_KEY), QVariant(true)).toBool();
     m_deviceAddress = map.value(QLatin1String(DEVICE_ADDRESS_KEY)).toString();

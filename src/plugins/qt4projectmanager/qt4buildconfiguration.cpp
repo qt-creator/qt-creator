@@ -315,7 +315,7 @@ void Qt4BuildConfiguration::setShadowBuildAndDirectory(bool shadowBuild, const Q
 QString Qt4BuildConfiguration::makeCommand() const
 {
     ToolChain *tc = toolChain();
-    return tc ? tc->makeCommand() : "make";
+    return tc ? tc->makeCommand() : QLatin1String("make");
 }
 
 static inline QString symbianMakeTarget(QtSupport::BaseQtVersion::QmakeBuildConfigs buildConfig,
@@ -330,7 +330,7 @@ static inline QString symbianMakeTarget(QtSupport::BaseQtVersion::QmakeBuildConf
 QString Qt4BuildConfiguration::defaultMakeTarget() const
 {
     ToolChain *tc = toolChain();
-    if (!tc || target()->id() != Constants::S60_DEVICE_TARGET_ID)
+    if (!tc || target()->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return QString();
     const QtSupport::BaseQtVersion::QmakeBuildConfigs buildConfig = qmakeBuildConfiguration();
 
@@ -432,21 +432,21 @@ QStringList Qt4BuildConfiguration::configCommandLineArguments() const
     QtSupport::BaseQtVersion::QmakeBuildConfigs defaultBuildConfiguration =  qtVersion() ? qtVersion()->defaultBuildConfig() : (QtSupport::BaseQtVersion::DebugBuild | QtSupport::BaseQtVersion::BuildAll);
     QtSupport::BaseQtVersion::QmakeBuildConfigs userBuildConfiguration = m_qmakeBuildConfiguration;
     if ((defaultBuildConfiguration & QtSupport::BaseQtVersion::BuildAll) && !(userBuildConfiguration & QtSupport::BaseQtVersion::BuildAll))
-        result << "CONFIG-=debug_and_release";
+        result << QLatin1String("CONFIG-=debug_and_release");
 
     if (!(defaultBuildConfiguration & QtSupport::BaseQtVersion::BuildAll) && (userBuildConfiguration & QtSupport::BaseQtVersion::BuildAll))
-        result << "CONFIG+=debug_and_release";
+        result << QLatin1String("CONFIG+=debug_and_release");
     if ((defaultBuildConfiguration & QtSupport::BaseQtVersion::DebugBuild) && !(userBuildConfiguration & QtSupport::BaseQtVersion::DebugBuild))
-        result << "CONFIG+=release";
+        result << QLatin1String("CONFIG+=release");
     if (!(defaultBuildConfiguration & QtSupport::BaseQtVersion::DebugBuild) && (userBuildConfiguration & QtSupport::BaseQtVersion::DebugBuild))
-        result << "CONFIG+=debug";
+        result << QLatin1String("CONFIG+=debug");
     return result;
 }
 
 QMakeStep *Qt4BuildConfiguration::qmakeStep() const
 {
     QMakeStep *qs = 0;
-    BuildStepList *bsl = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    BuildStepList *bsl = stepList(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
     Q_ASSERT(bsl);
     for (int i = 0; i < bsl->count(); ++i)
         if ((qs = qobject_cast<QMakeStep *>(bsl->at(i))) != 0)
@@ -457,7 +457,7 @@ QMakeStep *Qt4BuildConfiguration::qmakeStep() const
 MakeStep *Qt4BuildConfiguration::makeStep() const
 {
     MakeStep *ms = 0;
-    BuildStepList *bsl = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    BuildStepList *bsl = stepList(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
     Q_ASSERT(bsl);
     for (int i = 0; i < bsl->count(); ++i)
         if ((ms = qobject_cast<MakeStep *>(bsl->at(i))) != 0)
@@ -552,7 +552,7 @@ bool Qt4BuildConfiguration::removeQMLInspectorFromArguments(QString *args)
     for (Utils::QtcProcess::ArgIterator ait(args); ait.next(); ) {
         const QString arg = ait.value();
         if (arg.contains(QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH))
-                || arg.contains(Constants::QMAKEVAR_DECLARATIVE_DEBUG)) {
+                || arg.contains(QLatin1String(Constants::QMAKEVAR_DECLARATIVE_DEBUG))) {
             ait.deleteArg();
             removedArgument = true;
         }
@@ -596,9 +596,10 @@ Utils::FileName Qt4BuildConfiguration::extractSpecFromArguments(QString *args,
     if (parsedSpec.isEmpty())
         return Utils::FileName();
 
-    Utils::FileName baseMkspecDir = Utils::FileName::fromUserInput(version->versionInfo().value("QMAKE_MKSPECS"));
+    Utils::FileName baseMkspecDir = Utils::FileName::fromUserInput(version->versionInfo().value(QLatin1String("QMAKE_MKSPECS")));
     if (baseMkspecDir.isEmpty())
-        baseMkspecDir = Utils::FileName::fromUserInput(version->versionInfo().value("QT_INSTALL_DATA") + "/mkspecs");
+        baseMkspecDir = Utils::FileName::fromUserInput(version->versionInfo().value(QLatin1String("QT_INSTALL_DATA"))
+                                                       + QLatin1String("/mkspecs"));
 
     // if the path is relative it can be
     // relative to the working directory (as found in the Makefiles)
@@ -622,7 +623,8 @@ Utils::FileName Qt4BuildConfiguration::extractSpecFromArguments(QString *args,
     if (parsedSpec.isChildOf(baseMkspecDir)) {
         parsedSpec = parsedSpec.relativeChildPath(baseMkspecDir);
     } else {
-        Utils::FileName sourceMkSpecPath = Utils::FileName::fromString(version->sourcePath().toString() + "/mkspecs");
+        Utils::FileName sourceMkSpecPath = Utils::FileName::fromString(version->sourcePath().toString()
+                                                                       + QLatin1String("/mkspecs"));
         if (parsedSpec.isChildOf(sourceMkSpecPath)) {
             parsedSpec = parsedSpec.relativeChildPath(sourceMkSpecPath);
         }
@@ -759,7 +761,7 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target
                                         (version->defaultBuildConfig() | QtSupport::BaseQtVersion::DebugBuild),
                                         QString(), QString(), false);
 
-    if (qt4Target->id() != Constants::S60_EMULATOR_TARGET_ID) {
+    if (qt4Target->id() != QLatin1String(Constants::S60_EMULATOR_TARGET_ID)) {
         //: Release build configuration. We recommend not translating it.
         QString defaultReleaseName = tr("%1 Release").arg(version->displayName());
         QString customReleaseName;
@@ -825,7 +827,7 @@ void Qt4BuildConfiguration::importFromBuildDirectory()
     if (!directory.isEmpty()) {
         QString mkfile = directory;
         if (makefile().isEmpty())
-            mkfile.append("/Makefile");
+            mkfile.append(QLatin1String("/Makefile"));
         else
             mkfile.append(makefile());
 

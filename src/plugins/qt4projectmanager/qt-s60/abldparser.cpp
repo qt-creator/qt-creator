@@ -45,7 +45,7 @@ AbldParser::AbldParser() :
     m_waitingForStdOutContinuation(false)
 {
     setObjectName(QLatin1String("AbldParser"));
-    m_perlIssue.setPattern("^(WARNING|ERROR):\\s([^\\(\\)]+[^\\d])\\((\\d+)\\) : (.+)$");
+    m_perlIssue.setPattern(QLatin1String("^(WARNING|ERROR):\\s([^\\(\\)]+[^\\d])\\((\\d+)\\) : (.+)$"));
     m_perlIssue.setMinimal(true);
 }
 
@@ -60,7 +60,7 @@ void AbldParser::stdOutput(const QString &line)
                           lne /* description */,
                           QString() /* filename */,
                           -1 /* linenumber */,
-                          TASK_CATEGORY_BUILDSYSTEM));
+                          QLatin1String(TASK_CATEGORY_BUILDSYSTEM)));
         return;
     }
     if (lne.startsWith(QLatin1String("FATAL ERROR:")) ||
@@ -69,7 +69,7 @@ void AbldParser::stdOutput(const QString &line)
                           lne /* description */,
                           QString() /* filename */,
                           -1 /* linenumber */,
-                          TASK_CATEGORY_BUILDSYSTEM));
+                          QLatin1String(TASK_CATEGORY_BUILDSYSTEM)));
         m_waitingForStdOutContinuation = false;
         return;
     }
@@ -82,7 +82,7 @@ void AbldParser::stdOutput(const QString &line)
         Task task(Task::Unknown,
                   m_perlIssue.cap(4) /* description */,
                   m_currentFile, m_currentLine,
-                  TASK_CATEGORY_BUILDSYSTEM);
+                  QLatin1String(TASK_CATEGORY_BUILDSYSTEM));
 
         if (m_perlIssue.cap(1) == QLatin1String("WARNING"))
             task.type = Task::Warning;
@@ -97,7 +97,7 @@ void AbldParser::stdOutput(const QString &line)
         m_waitingForStdOutContinuation = false;
         emit addTask(Task(Task::Error,
                           line, QString(), -1,
-                          TASK_CATEGORY_BUILDSYSTEM));
+                          QLatin1String(TASK_CATEGORY_BUILDSYSTEM)));
         return;
     }
 
@@ -110,7 +110,7 @@ void AbldParser::stdOutput(const QString &line)
         emit addTask(Task(Task::Unknown,
                           lne /* description */,
                           m_currentFile, m_currentLine,
-                          TASK_CATEGORY_BUILDSYSTEM));
+                          QLatin1String(TASK_CATEGORY_BUILDSYSTEM)));
         m_waitingForStdOutContinuation = true;
         return;
     }
@@ -131,7 +131,7 @@ void AbldParser::stdError(const QString &line)
                           lne /* description */,
                           QString() /* filename */,
                           -1 /* linenumber */,
-                          TASK_CATEGORY_BUILDSYSTEM));
+                          QLatin1String(TASK_CATEGORY_BUILDSYSTEM)));
         return;
     }
 
@@ -140,7 +140,7 @@ void AbldParser::stdError(const QString &line)
                           lne /* description */,
                           QString() /* filename */,
                           -1 /* linenumber */,
-                          TASK_CATEGORY_BUILDSYSTEM));
+                          QLatin1String(TASK_CATEGORY_BUILDSYSTEM)));
         m_waitingForStdErrContinuation = false;
         return;
     }
@@ -159,7 +159,7 @@ void AbldParser::stdError(const QString &line)
         emit addTask(Task(Task::Warning, description,
                           m_currentFile,
                           -1 /* linenumber */,
-                          TASK_CATEGORY_BUILDSYSTEM));
+                          QLatin1String(TASK_CATEGORY_BUILDSYSTEM)));
         m_waitingForStdErrContinuation = true;
         return;
     }
@@ -168,7 +168,7 @@ void AbldParser::stdError(const QString &line)
         emit addTask(Task(Task::Error, description,
                           m_currentFile,
                           -1 /* linenumber */,
-                          TASK_CATEGORY_BUILDSYSTEM));
+                          QLatin1String(TASK_CATEGORY_BUILDSYSTEM)));
         m_waitingForStdErrContinuation = true;
         return;
     }
@@ -178,7 +178,7 @@ void AbldParser::stdError(const QString &line)
                           lne /* description */,
                           m_currentFile,
                           -1 /* linenumber */,
-                          TASK_CATEGORY_BUILDSYSTEM));
+                          QLatin1String(TASK_CATEGORY_BUILDSYSTEM)));
         m_waitingForStdErrContinuation = true;
         return;
     }

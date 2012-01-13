@@ -73,7 +73,7 @@ static QString gcceVersion(const QString &command)
     }
 
     QString version = QString::fromLocal8Bit(gxx.readLine().trimmed());
-    if (version.contains(QRegExp("^\\d+\\.\\d+\\.\\d+.*$")))
+    if (version.contains(QRegExp(QLatin1String("^\\d+\\.\\d+\\.\\d+.*$"))))
         return version;
 
     return QString();
