@@ -3202,8 +3202,8 @@ static void qDumpStdMapHelper(QDumper &d)
     const int nn = map.size();
     if (nn < 0)
         return;
-    Q_TYPENAME DummyType::const_iterator it = map.begin();
-    const Q_TYPENAME DummyType::const_iterator cend = map.end();
+    typename DummyType::const_iterator it = map.begin();
+    const typename DummyType::const_iterator cend = map.end();
     for (int i = 0; i < nn && i < 10 && it != cend; ++i, ++it)
         qCheckAccess(it.operator->());
 
@@ -3280,8 +3280,8 @@ static void qDumpStdSetHelper(QDumper &d)
     const int nn = set.size();
     if (nn < 0)
         return;
-    Q_TYPENAME DummyType::const_iterator it = set.begin();
-    const Q_TYPENAME DummyType::const_iterator cend = set.end();
+    typename DummyType::const_iterator it = set.begin();
+    const typename DummyType::const_iterator cend = set.end();
     for (int i = 0; i < nn && i < 10 && it != cend; ++i, ++it)
         qCheckAccess(it.operator->());
 
