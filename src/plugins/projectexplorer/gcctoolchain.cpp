@@ -630,7 +630,7 @@ QList<ToolChain *> Internal::GccToolChainFactory::autoDetectToolchains(const QSt
             return result;
     }
 
-    QString debuggerPath = ToolChainManager::instance()->defaultDebugger(requiredAbi); // Find the first debugger
+    QString debuggerPath = ToolChainManager::instance()->defaultDebugger(requiredAbi).toString(); // Find the first debugger
     if (debuggerPath.isEmpty()) {
         foreach (const QString &debugger, debuggers) {
             debuggerPath = systemEnvironment.searchInPath(debugger);
@@ -753,7 +753,7 @@ void Internal::GccToolChainConfigWidget::handleAbiChange()
 {
     if (m_autoDebuggerCommand == debuggerCommand()) {
         ProjectExplorer::Abi abi = m_abiWidget->currentAbi();
-        m_autoDebuggerCommand = ToolChainManager::instance()->defaultDebugger(abi);
+        m_autoDebuggerCommand = ToolChainManager::instance()->defaultDebugger(abi).toString();
         setDebuggerCommand(m_autoDebuggerCommand);
     }
     emit dirty(toolChain());
@@ -919,7 +919,7 @@ QList<ToolChain *> Internal::MingwToolChainFactory::autoDetect()
     foreach (ToolChain *tc, ToolChainManager::instance()->toolChains()) {
         if (tc->debuggerCommand().isEmpty() && tc->id().startsWith(QLatin1String(Constants::MINGW_TOOLCHAIN_ID)))
             static_cast<MingwToolChain *>(tc)
-                ->setDebuggerCommand(ToolChainManager::instance()->defaultDebugger(tc->targetAbi()));
+                ->setDebuggerCommand(ToolChainManager::instance()->defaultDebugger(tc->targetAbi()).toString());
     }
 
     Abi ha = Abi::hostAbi();

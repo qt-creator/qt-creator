@@ -554,7 +554,7 @@ QList<ProjectExplorer::ToolChain *> RvctToolChainFactory::autoDetect()
         tc->setDisplayName(name.arg(armVersionString(tc->armVersion()))
                            .arg(v.majorVersion).arg(v.minorVersion).arg(v.build));
         tc->setVersion(v);
-        tc->setDebuggerCommand(ProjectExplorer::ToolChainManager::instance()->defaultDebugger(tc->targetAbi()));
+        tc->setDebuggerCommand(ProjectExplorer::ToolChainManager::instance()->defaultDebugger(tc->targetAbi()).toString());
         result.append(tc);
     }
 

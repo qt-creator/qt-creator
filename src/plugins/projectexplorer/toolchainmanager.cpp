@@ -77,7 +77,7 @@ class ToolChainManagerPrivate
 {
 public:
     QList<ToolChain *> m_toolChains;
-    QMap<QString, QString> m_abiToDebugger;
+    QMap<QString, Utils::FileName> m_abiToDebugger;
 };
 
 } // namespace Internal
@@ -181,7 +181,8 @@ void ToolChainManager::restoreToolChains(const QString &fileName, bool autoDetec
         const QString pathKey = QString::fromLatin1(DEFAULT_DEBUGGER_PATH_KEY) + QString::number(i);
         if (!data.contains(pathKey))
             continue;
-        d->m_abiToDebugger.insert(data.value(abiKey).toString(), data.value(pathKey).toString());
+        d->m_abiToDebugger.insert(data.value(abiKey).toString(),
+                                  Utils::FileName::fromString(data.value(pathKey).toString()));
     }
 
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
@@ -239,7 +240,7 @@ ToolChain *ToolChainManager::findToolChain(const QString &id) const
     return 0;
 }
 
-QString ToolChainManager::defaultDebugger(const Abi &abi) const
+Utils::FileName ToolChainManager::defaultDebugger(const Abi &abi) const
 {
     return d->m_abiToDebugger.value(abi.toString());
 }
