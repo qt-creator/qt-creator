@@ -36,7 +36,9 @@
 #include <qmljsdebugclient/qdeclarativeenginedebug.h>
 #include <QtGui/QPlainTextEdit>
 
+QT_BEGIN_NAMESPACE
 class QCheckBox;
+QT_END_NAMESPACE
 
 namespace Utils {
 class StatusLabel;
