@@ -126,7 +126,7 @@ public slots:
     void v8Complete();
     void selectNextEvent(int eventId);
     void updateProfilerState();
-    void updateToolTip(QString text);
+    void updateToolTip(const QString &text);
 
 signals:
     void viewUpdated();

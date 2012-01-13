@@ -564,7 +564,7 @@ void TraceWindow::updateProfilerState()
     emit profilerStateChanged(qmlActive, v8Active);
 }
 
-void TraceWindow::updateToolTip(QString text)
+void TraceWindow::updateToolTip(const QString &text)
 {
     setToolTip(text);
 }
