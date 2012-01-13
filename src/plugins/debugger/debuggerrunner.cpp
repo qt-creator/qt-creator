@@ -731,7 +731,7 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     sp.processArgs = rc->commandLineArguments();
     sp.toolChainAbi = rc->abi();
     if (!sp.toolChainAbi.isValid()) {
-        QList<Abi> abis = Abi::abisOfBinary(sp.executable);
+        QList<Abi> abis = Abi::abisOfBinary(Utils::FileName::fromString(sp.executable));
         if (!abis.isEmpty())
             sp.toolChainAbi = abis.at(0);
     }

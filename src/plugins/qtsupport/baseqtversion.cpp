@@ -1179,7 +1179,7 @@ Utils::FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QStrin
     return mkspecFullPath;
 }
 
-QString BaseQtVersion::qtCorePath(const QHash<QString,QString> &versionInfo, const QString &versionString)
+Utils::FileName BaseQtVersion::qtCorePath(const QHash<QString,QString> &versionInfo, const QString &versionString)
 {
     QStringList dirs;
     dirs << versionInfo.value(QLatin1String("QT_INSTALL_LIBS"))
@@ -1197,8 +1197,9 @@ QString BaseQtVersion::qtCorePath(const QHash<QString,QString> &versionInfo, con
                     && file.startsWith(QLatin1String("QtCore"))
                     && file.endsWith(QLatin1String(".framework"))) {
                 // handle Framework
-                const QString libName = file.left(file.lastIndexOf(QLatin1Char('.')));
-                return info.absoluteFilePath() + QLatin1Char('/') + libName;
+                Utils::FileName lib(info);
+                lib.appendPath(file.left(file.lastIndexOf(QLatin1Char('.'))));
+                return lib;
             }
             if (info.isReadable()) {
                 if (file.startsWith(QLatin1String("libQtCore"))
@@ -1209,18 +1210,18 @@ QString BaseQtVersion::qtCorePath(const QHash<QString,QString> &versionInfo, con
                     else if (file.endsWith(QLatin1String(".dll"))
                              || file.endsWith(QString::fromLatin1(".so.") + versionString)
                              || file.endsWith(QLatin1Char('.') + versionString + QLatin1String(".dylib")))
-                        return info.absoluteFilePath();
+                        return Utils::FileName(info);
                 }
             }
         }
     }
     // Return path to first static library found:
     if (!staticLibs.isEmpty())
-        return staticLibs.at(0).absoluteFilePath();
-    return QString();
+        return Utils::FileName(staticLibs.at(0));
+    return Utils::FileName();
 }
 
-QList<ProjectExplorer::Abi> BaseQtVersion::qtAbisFromLibrary(const QString &coreLibrary)
+QList<ProjectExplorer::Abi> BaseQtVersion::qtAbisFromLibrary(const Utils::FileName &coreLibrary)
 {
     return ProjectExplorer::Abi::abisOfBinary(coreLibrary);
 }

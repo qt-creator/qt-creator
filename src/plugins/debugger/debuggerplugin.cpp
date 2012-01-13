@@ -458,7 +458,7 @@ static QToolButton *toolButton(QAction *action)
 
 static Abi anyAbiOfBinary(const QString &fileName)
 {
-    QList<Abi> abis = Abi::abisOfBinary(fileName);
+    QList<Abi> abis = Abi::abisOfBinary(Utils::FileName::fromString(fileName));
     if (abis.isEmpty())
         return Abi();
     return abis.at(0);
@@ -1726,7 +1726,7 @@ void DebuggerPluginPrivate::gdbServerStarted(const QString &channel,
         return;
     }
 
-    QList<Abi> abis = Abi::abisOfBinary(localExecutable);
+    QList<Abi> abis = Abi::abisOfBinary(Utils::FileName::fromString(localExecutable));
     if (abis.isEmpty()) {
         QMessageBox::warning(mainWindow(), tr("Warning"),
             tr("Cannot find ABI for remote process \"%1\".")

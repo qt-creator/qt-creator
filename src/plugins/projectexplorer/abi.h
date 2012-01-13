@@ -35,6 +35,8 @@
 
 #include "projectexplorer_export.h"
 
+#include <utils/fileutils.h>
+
 #include <QtCore/QList>
 
 namespace ProjectExplorer {
@@ -140,7 +142,7 @@ public:
     static QList<OSFlavor> flavorsForOs(const OS &o);
 
     static Abi hostAbi();
-    static QList<Abi> abisOfBinary(const QString &path);
+    static QList<Abi> abisOfBinary(const Utils::FileName &path);
 
 private:
     Architecture m_architecture;

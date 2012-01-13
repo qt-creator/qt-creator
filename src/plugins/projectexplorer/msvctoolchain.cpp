@@ -633,7 +633,7 @@ QPair<QString, QString> MsvcToolChain::autoDetectCdbDebugger()
     }
 
     foreach (const QString &cdb, cdbs) {
-        QList<ProjectExplorer::Abi> abis = ProjectExplorer::Abi::abisOfBinary(cdb);
+        QList<ProjectExplorer::Abi> abis = ProjectExplorer::Abi::abisOfBinary(Utils::FileName::fromString(cdb));
         if (abis.isEmpty())
             continue;
         if (abis.first().wordWidth() == 32)

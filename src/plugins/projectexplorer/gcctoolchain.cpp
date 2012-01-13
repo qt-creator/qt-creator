@@ -411,7 +411,7 @@ Utils::FileName GccToolChain::mkspec() const
         return Utils::FileName::fromString(QLatin1String("macx-g++"));
     }
 
-    QList<Abi> gccAbiList = Abi::abisOfBinary(m_compilerPath);
+    QList<Abi> gccAbiList = Abi::abisOfBinary(Utils::FileName::fromString(m_compilerPath));
     Abi gccAbi;
     if (!gccAbiList.isEmpty())
         gccAbi  = gccAbiList.first();
