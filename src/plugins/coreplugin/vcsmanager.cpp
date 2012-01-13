@@ -128,7 +128,9 @@ public:
         QTC_ASSERT(QDir(dir).isAbsolute(), return);
         QTC_ASSERT(!dir.endsWith(QLatin1Char('/')), return);
         QTC_ASSERT(QDir::fromNativeSeparators(dir) == dir, return);
-        QTC_ASSERT(dir.startsWith(topLevel + QLatin1Char('/')) || topLevel == dir, return);
+        QTC_ASSERT(dir.startsWith(topLevel + QLatin1Char('/'))
+                   || topLevel == dir || topLevel.isEmpty(), return);
+        QTC_ASSERT((topLevel.isEmpty() && !vc) || (!topLevel.isEmpty() && vc), return);
 
         VcsInfo *newInfo = new VcsInfo(vc, topLevel);
         bool createdNewInfo(true);
