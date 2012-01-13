@@ -34,6 +34,7 @@
 #define QMLJSSCRIPTCONSOLE_H
 
 #include <qmljsdebugclient/qdeclarativeenginedebug.h>
+#include <debugger/debuggerconstants.h>
 #include <QtGui/QPlainTextEdit>
 
 QT_BEGIN_NAMESPACE
@@ -46,12 +47,13 @@ class StatusLabel;
 
 namespace Debugger {
 
-class QmlAdapter;
+class DebuggerEngine;
 
 namespace Internal {
 
 class QmlJSScriptConsolePrivate;
 class QmlJSScriptConsole;
+class QmlEngine;
 
 class QmlJSScriptConsoleWidget : public QWidget
 {
@@ -60,15 +62,17 @@ public:
     QmlJSScriptConsoleWidget(QWidget *parent = 0);
     ~QmlJSScriptConsoleWidget();
 
-    void setQmlAdapter(QmlAdapter *adapter);
-    void setInferiorStopped(bool inferiorStopped);
+    void setEngine(DebuggerEngine *engine);
 
 public slots:
     void appendResult(const QString &result);
-    void setDebugLevel();
 
 signals:
     void evaluateExpression(const QString &expr);
+
+private slots:
+    void setDebugLevel();
+    void engineStateChanged(Debugger::DebuggerState state);
 
 private:
     QmlJSScriptConsole *m_console;
@@ -105,7 +109,8 @@ public:
 
     void setInferiorStopped(bool inferiorStopped);
 
-    void setQmlAdapter(QmlAdapter *adapter);
+    void setEngine(QmlEngine *engine);
+    DebuggerEngine *engine();
 
     void appendResult(const QString &result);
 
@@ -114,7 +119,6 @@ public:
 public slots:
     void clear();
     void onStateChanged(QmlJsDebugClient::QDeclarativeDebugQuery::State);
-    void onSelectionChanged();
     void insertDebugOutput(QtMsgType type, const QString &debugMsg);
 
 protected:
@@ -127,6 +131,7 @@ signals:
     void updateStatusMessage(const QString &message, int timeoutMS);
 
 private slots:
+    void onSelectionChanged();
     void onCursorPositionChanged();
 
 private:
@@ -141,6 +146,7 @@ private:
 
 private:
     QmlJSScriptConsolePrivate *d;
+    friend class QmlJSScriptConsolePrivate;
 };
 
 } //Internal

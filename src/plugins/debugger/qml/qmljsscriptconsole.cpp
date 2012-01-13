@@ -47,6 +47,8 @@
 #include <utils/qtcassert.h>
 
 #include <qmljsdebugclient/qdebugmessageclient.h>
+#include <debugger/qml/qmlcppengine.h>
+#include <debugger/qml/qmlengine.h>
 
 #include <QtGui/QMenu>
 #include <QtGui/QTextBlock>
@@ -67,7 +69,8 @@ class QmlJSScriptConsolePrivate
 {
 public:
     QmlJSScriptConsolePrivate()
-        : prompt(_("> ")),
+        : adapter(0),
+          prompt(_("> ")),
           startOfEditableArea(-1),
           lastKnownPosition(0),
           inferiorStopped(false)
@@ -79,7 +82,7 @@ public:
     void appendToHistory(const QString &script);
     bool canEvaluateScript(const QString &script);
 
-    QWeakPointer<QmlAdapter> adapter;
+    QmlAdapter *adapter;
 
     QString prompt;
     int startOfEditableArea;
@@ -193,14 +196,27 @@ QmlJSScriptConsoleWidget::~QmlJSScriptConsoleWidget()
     settings->setValue(_(SHOW_ERROR), QVariant(m_showError->isChecked()));
     settings->endGroup();
 }
-void QmlJSScriptConsoleWidget::setQmlAdapter(QmlAdapter *adapter)
-{
-    m_console->setQmlAdapter(adapter);
-}
 
-void QmlJSScriptConsoleWidget::setInferiorStopped(bool inferiorStopped)
+void QmlJSScriptConsoleWidget::setEngine(DebuggerEngine *engine)
 {
-    m_console->setInferiorStopped(inferiorStopped);
+    if (m_console->engine())
+        disconnect(m_console->engine(), SIGNAL(stateChanged(Debugger::DebuggerState)),
+                   this, SLOT(engineStateChanged(Debugger::DebuggerState)));
+
+    QmlEngine *qmlEngine = qobject_cast<QmlEngine *>(engine);
+    QmlCppEngine *qmlCppEngine = qobject_cast<QmlCppEngine *>(engine);
+    if (qmlCppEngine)
+        qmlEngine = qobject_cast<QmlEngine *>(qmlCppEngine->qmlEngine());
+
+    //Supports only QML Engine
+    if (qmlEngine) {
+        connect(qmlEngine, SIGNAL(stateChanged(Debugger::DebuggerState)),
+                this, SLOT(engineStateChanged(Debugger::DebuggerState)));
+
+        engineStateChanged(qmlEngine->state());
+    }
+
+    m_console->setEngine(qmlEngine);
 }
 
 void QmlJSScriptConsoleWidget::appendResult(const QString &result)
@@ -222,6 +238,16 @@ void QmlJSScriptConsoleWidget::setDebugLevel()
         level |= QmlJSScriptConsole::Error;
 
     m_console->setDebugLevel(level);
+}
+
+void QmlJSScriptConsoleWidget::engineStateChanged(Debugger::DebuggerState state)
+{
+    if (state == InferiorRunOk || state == InferiorStopOk) {
+        setEnabled(true);
+        m_console->setInferiorStopped(state == InferiorStopOk);
+    } else {
+        setEnabled(false);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -266,15 +292,31 @@ void QmlJSScriptConsole::setInferiorStopped(bool inferiorStopped)
     onSelectionChanged();
 }
 
-void QmlJSScriptConsole::setQmlAdapter(QmlAdapter *adapter)
+void QmlJSScriptConsole::setEngine(QmlEngine *engine)
 {
-    d->adapter = adapter;
-    if (adapter) {
-        connect(adapter, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
-        connect(adapter->messageClient(), SIGNAL(message(QtMsgType,QString)),
+    if (d->adapter) {
+        disconnect(d->adapter, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
+        disconnect(d->adapter->messageClient(), SIGNAL(message(QtMsgType,QString)),
+                this, SLOT(insertDebugOutput(QtMsgType,QString)));
+        d->adapter = 0;
+    }
+
+    if (engine) {
+        d->adapter = engine->adapter();
+        connect(d->adapter, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
+        connect(d->adapter->messageClient(), SIGNAL(message(QtMsgType,QString)),
                 this, SLOT(insertDebugOutput(QtMsgType,QString)));
     }
+
     clear();
+}
+
+DebuggerEngine * QmlJSScriptConsole::engine()
+{
+    if (d->adapter) {
+        return d->adapter->debuggerEngine();
+    }
+    return 0;
 }
 
 void QmlJSScriptConsole::appendResult(const QString &result)
@@ -336,11 +378,11 @@ void QmlJSScriptConsole::onStateChanged(QmlJsDebugClient::QDeclarativeDebugQuery
 
 void QmlJSScriptConsole::onSelectionChanged()
 {
-    if (!d->adapter.isNull()) {
+    if (d->adapter) {
         QString status;
         if (!d->inferiorStopped) {
             status.append(tr("Current Selected Object: "));
-            status.append(d->adapter.data()->currentSelectedDisplayName());
+            status.append(d->adapter->currentSelectedDisplayName());
         }
         emit updateStatusMessage(status, 0);
     }
@@ -571,9 +613,9 @@ void QmlJSScriptConsole::handleReturnKey()
             //Select the engine for evaluation based on
             //inferior state
             if (!d->inferiorStopped) {
-                if (!d->adapter.isNull()) {
-                    QDeclarativeEngineDebug *engineDebug = d->adapter.data()->engineDebugClient();
-                    int id = d->adapter.data()->currentSelectedDebugId();
+                if (d->adapter) {
+                    QDeclarativeEngineDebug *engineDebug = d->adapter->engineDebugClient();
+                    int id = d->adapter->currentSelectedDebugId();
                     if (engineDebug && id != -1) {
                         QDeclarativeDebugExpressionQuery *query =
                                 engineDebug->queryExpressionResult(id, currentScript, this);

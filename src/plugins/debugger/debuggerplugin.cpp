@@ -62,8 +62,6 @@
 #include "watchwindow.h"
 #include "watchutils.h"
 #include "debuggertooltipmanager.h"
-#include "qml/qmlengine.h"
-#include "qml/qmlcppengine.h"
 
 #include "snapshothandler.h"
 #include "threadshandler.h"
@@ -2097,14 +2095,7 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
     //m_threadBox->setModelColumn(ThreadData::ComboNameColumn);
     m_watchersWindow->setModel(engine->watchersModel());
 
-    //Initialize QmlJSConsole
-    QmlEngine *qmlEngine = qobject_cast<QmlEngine *>(engine);
-    QmlCppEngine *qmlCppEngine = qobject_cast<QmlCppEngine *>(engine);
-    if (qmlCppEngine)
-        qmlEngine = qobject_cast<QmlEngine *>(qmlCppEngine->qmlEngine());
-    if (qmlEngine) {
-        m_scriptConsoleWindow->setQmlAdapter(qmlEngine->adapter());
-    }
+    m_scriptConsoleWindow->setEngine(engine);
 
     engine->watchHandler()->rebuildModel();
 
@@ -2375,19 +2366,6 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         || state == DebuggerFinished
         || state == InferiorUnrunnable;
     setBusyCursor(!notbusy);
-
-    //Console should be enabled only for QML
-    QmlEngine *qmlEngine = qobject_cast<QmlEngine *>(engine);
-    QmlCppEngine *qmlCppEngine = qobject_cast<QmlCppEngine *>(engine);
-    if (qmlCppEngine)
-        qmlEngine = qobject_cast<QmlEngine *>(qmlCppEngine->qmlEngine());
-
-    if (qmlEngine && (state == InferiorRunOk || state == InferiorStopOk)) {
-        m_scriptConsoleWindow->setEnabled(true);
-        m_scriptConsoleWindow->setInferiorStopped(state == InferiorStopOk);
-    } else {
-        m_scriptConsoleWindow->setEnabled(false);
-    }
 
 }
 
