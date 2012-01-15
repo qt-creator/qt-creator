@@ -71,6 +71,7 @@ public:
     QCheckBox *checkBoxAutoEnrichParameters;
     QCheckBox *checkBoxBreakOnWarning;
     QCheckBox *checkBoxBreakOnFatal;
+    QCheckBox *checkBoxBreakOnAbort;
     QCheckBox *checkBoxEnableReverseDebugging;
 
     QGroupBox *groupBoxStartupCommands;
@@ -164,6 +165,9 @@ public:
         checkBoxBreakOnFatal = new QCheckBox(groupBoxGeneral);
         checkBoxBreakOnFatal->setText(GdbOptionsPage::tr("Stop when a qFatal is issued"));
 
+        checkBoxBreakOnAbort = new QCheckBox(groupBoxGeneral);
+        checkBoxBreakOnAbort->setText(GdbOptionsPage::tr("Stop when abort is called"));
+
         checkBoxEnableReverseDebugging = new QCheckBox(groupBoxGeneral);
         checkBoxEnableReverseDebugging->setText(GdbOptionsPage::tr("Enable reverse debugging"));
         checkBoxEnableReverseDebugging->setToolTip(GdbOptionsPage::tr(
@@ -217,6 +221,7 @@ public:
         formLayout->addRow(checkBoxAutoEnrichParameters);
         formLayout->addRow(checkBoxBreakOnWarning);
         formLayout->addRow(checkBoxBreakOnFatal);
+        formLayout->addRow(checkBoxBreakOnAbort);
         formLayout->addRow(checkBoxEnableReverseDebugging);
 
         QGridLayout *startLayout = new QGridLayout(groupBoxStartupCommands);
@@ -293,6 +298,8 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
         m_ui->checkBoxBreakOnWarning);
     m_group.insert(debuggerCore()->action(BreakOnFatal),
         m_ui->checkBoxBreakOnFatal);
+    m_group.insert(debuggerCore()->action(BreakOnAbort),
+        m_ui->checkBoxBreakOnAbort);
     m_group.insert(debuggerCore()->action(GdbWatchdogTimeout),
         m_ui->spinBoxGdbWatchdogTimeout);
 
