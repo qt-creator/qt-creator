@@ -5478,6 +5478,20 @@ namespace bug5799 {
 } // namespace bug5799
 
 
+namespace bug6813 {
+
+    // https://bugreports.qt.nokia.com/browse/QTCREATORBUG-6813
+    void test6813()
+    {
+      int foo = 0;
+      int *bar = &foo;
+      //std::cout << "&foo: " << &foo << "; bar: " << bar << "; &bar: " << &bar;
+      dummyStatement(&foo, &bar);
+    }
+
+} // namespace bug6813
+
+
 namespace qc41700 {
 
     // http://www.qtcentre.org/threads/41700-How-to-watch-STL-containers-iterators-during-debugging
@@ -5844,6 +5858,7 @@ int main(int argc, char *argv[])
     bug5106::test5106();
     bug5184::test5184();
     bug5799::test5799();
+    bug6813::test6813();
     bug6465::test6465();
     gdb13393::test13393();
     gdb10586::test10586();

@@ -726,7 +726,7 @@ QString WatchModel::display(const WatchItem *item, int col) const
                 truncateValue(formattedValue(*item)));
             if (item->referencingAddress) {
                 result += QLatin1String(" @");
-                result += QString::fromLatin1(item->hexAddress());
+                result += QString::fromLatin1(item->hexReferencingAddress());
             }
             break;
         case 2:
