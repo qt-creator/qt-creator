@@ -55,14 +55,21 @@ void QDebugMessageClient::messageReceived(const QByteArray &data)
     ds >> command;
 
     if (command == "MESSAGE") {
-        QByteArray messagePacket;
-        ds >> messagePacket;
+        if (serviceVersion() == 1.0) {
+            QByteArray messagePacket;
+            ds >> messagePacket;
 
-        QByteArray debugMessage;
-        int type;
-        QDataStream ms(messagePacket);
-        ms >> type >> debugMessage;
-        emit message(QtMsgType(type), QString::fromUtf8(debugMessage.data()));
+            QByteArray debugMessage;
+            int type;
+            QDataStream ms(messagePacket);
+            ms >> type >> debugMessage;
+            emit message(QtMsgType(type), QString::fromUtf8(debugMessage.data()));
+        } else {
+            int type;
+            QByteArray debugMessage;
+            ds >> type >> debugMessage;
+            emit message(QtMsgType(type), QString::fromUtf8(debugMessage));
+        }
     }
 }
 
