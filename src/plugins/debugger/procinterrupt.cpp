@@ -33,6 +33,7 @@
 #include "procinterrupt.h"
 
 #include <QtCore/QProcess> // makes kill visible on Windows.
+#include <QtCore/QFile>
 
 using namespace Debugger::Internal;
 
@@ -40,7 +41,26 @@ using namespace Debugger::Internal;
 
 #define _WIN32_WINNT 0x0501 /* WinXP, needed for DebugBreakProcess() */
 
+#include <utils/winutils.h>
 #include <windows.h>
+
+static BOOL isWow64Process(HANDLE hproc)
+{
+    BOOL ret = false;
+    typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+    LPFN_ISWOW64PROCESS fnIsWow64Process = NULL;
+    HMODULE hModule = GetModuleHandle(L"kernel32.dll");
+    if (hModule == NULL)
+        return false;
+
+    fnIsWow64Process = reinterpret_cast<LPFN_ISWOW64PROCESS>(GetProcAddress(hModule, "IsWow64Process"));
+    if (fnIsWow64Process == NULL)
+        return false;
+
+    if (!fnIsWow64Process(hproc, &ret))
+        return false;
+    return ret;
+}
 
 bool Debugger::Internal::interruptProcess(int pID)
 {
@@ -51,10 +71,18 @@ bool Debugger::Internal::interruptProcess(int pID)
     if (hproc == NULL)
         return false;
 
-    bool ok = DebugBreakProcess(hproc) != 0;
+    BOOL proc64bit = false;
+
+    if (Utils::winIs64BitSystem())
+        proc64bit = !isWow64Process(hproc);
+
+    bool ok = false;
+    if (proc64bit)
+        ok = !QProcess::execute(QCoreApplication::applicationDirPath() + QString::fromLatin1("/win64interrupt.exe %1").arg(pID));
+    else
+        ok = !DebugBreakProcess(hproc);
 
     CloseHandle(hproc);
-
     return ok;
 }
 

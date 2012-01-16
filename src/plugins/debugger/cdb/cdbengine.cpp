@@ -1182,7 +1182,7 @@ void CdbEngine::doInterruptInferior(SpecialStopMode sm)
     m_specialStopMode = sm;
     QString errorMessage;
     showMessage(QString::fromLatin1("Interrupting process %1...").arg(inferiorPid()), LogMisc);
-    if (!winDebugBreakProcess(inferiorPid(), &errorMessage)) {
+    if (!winDebugBreakProcess(inferiorPid(), &errorMessage, Utils::winIs64BitBinary(cdbBinary(startParameters())))) {
         m_specialStopMode = oldSpecialMode;
         showMessage(QString::fromLatin1("Cannot interrupt process %1: %2").arg(inferiorPid()).arg(errorMessage), LogError);
     }

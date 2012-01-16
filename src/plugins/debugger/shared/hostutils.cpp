@@ -146,7 +146,7 @@ bool winResumeThread(unsigned long dwThreadId, QString *errorMessage)
 }
 
 // Open the process and break into it
-bool winDebugBreakProcess(unsigned long  pid, QString *errorMessage)
+bool winDebugBreakProcess(unsigned long  pid, QString *errorMessage, bool isCdb64bit)
 {
     bool ok = false;
     HANDLE inferior = NULL;
@@ -160,7 +160,21 @@ bool winDebugBreakProcess(unsigned long  pid, QString *errorMessage)
                     arg(pid).arg(Utils::winErrorMessage(GetLastError()));
             break;
         }
-        if (!DebugBreakProcess(inferior)) {
+
+        if (isCdb64bit) {
+            switch (QProcess::execute(QCoreApplication::applicationDirPath() + QString::fromLatin1("/win64interrupt.exe %1").arg(pid))) {
+            case -2:
+                *errorMessage = QString::fromLatin1("Cannot start win64interrupt.exe. Check src/tools/win64interrupt/win64interrupt.c for more information.");
+                break;
+            case 0:
+                ok = true;
+                break;
+            default:
+                *errorMessage = QString::fromLatin1("win64interrupt.exe could not break the process with the pid %1.").arg(pid);
+                break;
+            }
+            break;
+        } else if (!DebugBreakProcess(inferior)) {
             *errorMessage = QString::fromLatin1("DebugBreakProcess failed: %1").arg(Utils::winErrorMessage(GetLastError()));
             break;
         }
