@@ -87,6 +87,7 @@ public:
 
 signals:
     void stackChanged();
+    void currentIndexChanged();
 
 private:
     // QAbstractTableModel

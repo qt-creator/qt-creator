@@ -49,6 +49,8 @@
 #include <qmljsdebugclient/qdebugmessageclient.h>
 #include <debugger/qml/qmlcppengine.h>
 #include <debugger/qml/qmlengine.h>
+#include <debugger/stackhandler.h>
+#include <debugger/stackframe.h>
 
 #include <QtGui/QMenu>
 #include <QtGui/QTextBlock>
@@ -289,17 +291,19 @@ void QmlJSScriptConsole::setInferiorStopped(bool inferiorStopped)
     onSelectionChanged();
 }
 
-void QmlJSScriptConsole::setEngine(QmlEngine *engine)
+void QmlJSScriptConsole::setEngine(QmlEngine *eng)
 {
     if (d->adapter) {
+        disconnect(engine()->stackHandler(), SIGNAL(currentIndexChanged()), this, SLOT(onSelectionChanged()));
         disconnect(d->adapter, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
         disconnect(d->adapter->messageClient(), SIGNAL(message(QtMsgType,QString)),
                 this, SLOT(insertDebugOutput(QtMsgType,QString)));
         d->adapter = 0;
     }
 
-    if (engine) {
-        d->adapter = engine->adapter();
+    if (eng) {
+        d->adapter = eng->adapter();
+        connect(eng->stackHandler(), SIGNAL(currentIndexChanged()), this, SLOT(onSelectionChanged()));
         connect(d->adapter, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
         connect(d->adapter->messageClient(), SIGNAL(message(QtMsgType,QString)),
                 this, SLOT(insertDebugOutput(QtMsgType,QString)));
@@ -308,7 +312,7 @@ void QmlJSScriptConsole::setEngine(QmlEngine *engine)
     clear();
 }
 
-DebuggerEngine * QmlJSScriptConsole::engine()
+DebuggerEngine *QmlJSScriptConsole::engine()
 {
     if (d->adapter) {
         return d->adapter->debuggerEngine();
@@ -372,10 +376,11 @@ void QmlJSScriptConsole::onStateChanged(QmlJsDebugClient::QDeclarativeDebugQuery
 void QmlJSScriptConsole::onSelectionChanged()
 {
     if (d->adapter) {
-        QString status;
+        QString status(tr("Context: "));
         if (!d->inferiorStopped) {
-            status.append(tr("Current Selected Object: "));
             status.append(d->adapter->currentSelectedDisplayName());
+        } else {
+            status.append(engine()->stackHandler()->currentFrame().function);
         }
         emit updateStatusMessage(status, 0);
     }
