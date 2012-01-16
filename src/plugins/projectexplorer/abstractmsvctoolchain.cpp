@@ -258,6 +258,23 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
     return true;
 }
 
+QString AbstractMsvcToolChain::findInstalledJom()
+{
+    if (Abi::hostAbi().os() != Abi::WindowsOS) {
+        qWarning() << "Jom can only be used on Windows";
+        return QString();
+    }
+
+    // We want jom! Try to find it.
+    const QString jom = QLatin1String("jom.exe");
+    const QFileInfo installedJom = QFileInfo(QCoreApplication::applicationDirPath()
+                                             + QLatin1Char('/') + jom);
+    if (installedJom.isFile() && installedJom.isExecutable())
+        return installedJom.absoluteFilePath();
+    else
+        return jom;
+}
+
 } // namespace Internal
 } // namespace ProjectExplorer
 
