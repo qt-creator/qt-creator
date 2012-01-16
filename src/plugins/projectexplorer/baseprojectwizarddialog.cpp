@@ -151,7 +151,8 @@ QString BaseProjectWizardDialog::uniqueProjectName(const QString &path)
 {
     const QDir pathDir(path);
     //: File path suggestion for a new project. If you choose
-    //: to translate it, make sure it is a valid path name without blanks.
+    //: to translate it, make sure it is a valid path name without blanks
+    //: and using only ascii chars.
     const QString prefix = tr("untitled");
     for (unsigned i = 0; ; ++i) {
         QString name = prefix;
