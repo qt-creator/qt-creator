@@ -94,7 +94,6 @@ public:
     InteractiveInterpreter interpreter;
 
     bool inferiorStopped;
-    QList<QTextEdit::ExtraSelection> selections;
 
     QFlags<QmlJSScriptConsole::DebugLevelFlag> debugLevel;
 };
@@ -104,8 +103,6 @@ void QmlJSScriptConsolePrivate::resetCache()
     scriptHistory.clear();
     scriptHistory.append(QString());
     scriptHistoryIndex = scriptHistory.count();
-
-    selections.clear();
 }
 
 void QmlJSScriptConsolePrivate::appendToHistory(const QString &script)
@@ -319,29 +316,25 @@ DebuggerEngine * QmlJSScriptConsole::engine()
     return 0;
 }
 
-void QmlJSScriptConsole::appendResult(const QString &result)
+void QmlJSScriptConsole::appendResult(const QString &message, const QColor &color)
 {
-    QString currentScript = getCurrentScript();
-    d->appendToHistory(currentScript);
-
-    QTextCursor cur = textCursor();
-    cur.movePosition(QTextCursor::End);
-    cur.insertText(_("\n"));
-
-    cur.insertText(result);
-    cur.insertText(_("\n"));
-
-    QTextEdit::ExtraSelection sel;
     QTextCharFormat resultFormat;
-    resultFormat.setForeground(QBrush(QColor(Qt::darkGray)));
-    cur.movePosition(QTextCursor::PreviousBlock);
-    cur.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    resultFormat.setForeground(color);
+    QTextCursor cur = textCursor();
+
+    cur.setPosition(d->startOfEditableArea - d->prompt.length());
+    cur.insertText(message, resultFormat);
+    cur.insertText(_("\n"));
+
+    QList<QTextEdit::ExtraSelection> selections = extraSelections();
+    QTextEdit::ExtraSelection sel;
     sel.format = resultFormat;
     sel.cursor = cur;
-    d->selections.append(sel);
+    selections.append(sel);
 
-    setExtraSelections(d->selections);
-    displayPrompt();
+    setExtraSelections(selections);
+
+    d->startOfEditableArea += message.length() + 1; //1 for new line character
 }
 
 void QmlJSScriptConsole::setDebugLevel(QFlags<DebugLevelFlag> level)
@@ -390,43 +383,27 @@ void QmlJSScriptConsole::onSelectionChanged()
 
 void QmlJSScriptConsole::insertDebugOutput(QtMsgType type, const QString &debugMsg)
 {
-    QTextCharFormat resultFormat;
+    QColor color;
     switch (type) {
     case QtDebugMsg:
         if (!(d->debugLevel & Log))
             return;
-        resultFormat.setForeground(QColor(Qt::darkBlue));
+        color = QColor(Qt::darkBlue);
         break;
     case QtWarningMsg:
         if (!(d->debugLevel & Warning))
             return;
-        resultFormat.setForeground(QColor(Qt::darkYellow));
+        color = QColor(Qt::darkYellow);
         break;
     case QtCriticalMsg:
         if (!(d->debugLevel & Error))
             return;
-        resultFormat.setForeground(QColor(Qt::darkRed));
+        color = QColor(Qt::darkRed);
         break;
     default:
-        resultFormat.setForeground(QColor(Qt::black));
+        color = QColor(Qt::black);
     }
-
-    QTextCursor cursor = textCursor();
-
-    cursor.setPosition(d->startOfEditableArea - d->prompt.length());
-    cursor.insertText(debugMsg);
-    cursor.insertText(_("\n"));
-
-    QTextEdit::ExtraSelection sel;
-    cursor.movePosition(QTextCursor::PreviousBlock);
-    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-    sel.format = resultFormat;
-    sel.cursor = cursor;
-
-    d->selections.append(sel);
-
-    setExtraSelections(d->selections);
-    d->startOfEditableArea += debugMsg.length() + 1; //1 for new line character
+    appendResult(debugMsg, color);
 }
 
 void QmlJSScriptConsole::keyPressEvent(QKeyEvent *e)
@@ -542,6 +519,7 @@ void QmlJSScriptConsole::contextMenuEvent(QContextMenuEvent *event)
         a->setEnabled(cursor.hasSelection());
     }
 
+
     a = menu->addAction(tr("Copy"), this, SLOT(copy()));
     a->setEnabled(cursor.hasSelection());
 
@@ -558,6 +536,7 @@ void QmlJSScriptConsole::contextMenuEvent(QContextMenuEvent *event)
     menu->addAction(tr("Clear"), this, SLOT(clear()));
 
     menu->exec(event->globalPos());
+
 
     delete menu;
 }
@@ -598,11 +577,6 @@ void QmlJSScriptConsole::handleReturnKey()
 
     //Check if string is only white spaces
     if (currentScript.trimmed().isEmpty()) {
-        QTextCursor cur = textCursor();
-        cur.movePosition(QTextCursor::EndOfLine);
-        cur.insertText(_("\n"));
-        setTextCursor(cur);
-        displayPrompt();
         scriptEvaluated = true;
     }
 
@@ -613,6 +587,7 @@ void QmlJSScriptConsole::handleReturnKey()
             //Select the engine for evaluation based on
             //inferior state
             if (!d->inferiorStopped) {
+
                 if (d->adapter) {
                     QDeclarativeEngineDebug *engineDebug = d->adapter->engineDebugClient();
                     int id = d->adapter->currentSelectedDebugId();
@@ -630,11 +605,22 @@ void QmlJSScriptConsole::handleReturnKey()
                 emit evaluateExpression(currentScript);
                 scriptEvaluated = true;
             }
+
+            if (scriptEvaluated) {
+                d->appendToHistory(currentScript);
+            }
         }
     }
+
     if (!scriptEvaluated) {
         QPlainTextEdit::appendPlainText(QString());
         moveCursor(QTextCursor::EndOfLine);
+    } else {
+        QTextCursor cur = textCursor();
+        cur.movePosition(QTextCursor::End);
+        cur.insertText(_("\n"));
+        setTextCursor(cur);
+        displayPrompt();
     }
 
 }

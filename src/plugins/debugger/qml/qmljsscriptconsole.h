@@ -112,7 +112,7 @@ public:
     void setEngine(QmlEngine *engine);
     DebuggerEngine *engine();
 
-    void appendResult(const QString &result);
+    void appendResult(const QString &message, const QColor &color = QColor(Qt::darkGray));
 
     void setDebugLevel(QFlags<DebugLevelFlag> level);
 
