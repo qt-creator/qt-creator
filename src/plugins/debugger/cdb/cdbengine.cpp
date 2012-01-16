@@ -1087,9 +1087,10 @@ void CdbEngine::updateLocalVariable(const QByteArray &iname)
     postExtensionCommand(isWatch ? "watches" : "locals", localsArguments, 0, &CdbEngine::handleLocals);
 }
 
-unsigned CdbEngine::debuggerCapabilities() const
+bool CdbEngine::hasCapability(unsigned cap) const
 {
-    return DisassemblerCapability | RegisterCapability | ShowMemoryCapability
+    return cap & (DisassemblerCapability | RegisterCapability
+           | ShowMemoryCapability
            |WatchpointByAddressCapability|JumpToLineCapability|AddWatcherCapability|WatchWidgetsCapability
            |ReloadModuleCapability
            |BreakOnThrowAndCatchCapability // Sort-of: Can break on throw().
@@ -1097,7 +1098,7 @@ unsigned CdbEngine::debuggerCapabilities() const
            |BreakModuleCapability
            |OperateByInstructionCapability
            |RunToLineCapability
-           |MemoryAddressCapability;
+           |MemoryAddressCapability);
 }
 
 void CdbEngine::executeStep()

@@ -98,7 +98,7 @@ public:
     virtual void detachDebugger();
     virtual void updateWatchData(const WatchData &data,
                                  const WatchUpdateFlags & flags = WatchUpdateFlags());
-    virtual unsigned debuggerCapabilities() const;
+    virtual bool hasCapability(unsigned cap) const;
     virtual void watchPoint(const QPoint &);
     virtual void setRegisterValue(int regnr, const QString &value);
 
