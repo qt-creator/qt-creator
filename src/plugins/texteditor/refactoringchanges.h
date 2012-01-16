@@ -40,6 +40,7 @@
 #include <QtCore/QList>
 #include <QtCore/QString>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QPair>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;
@@ -96,6 +97,11 @@ protected:
     // derived classes may want to clear language specific extra data
     virtual void fileChanged();
 
+    void indentOrReindent(void (RefactoringChangesData::*mf)(const QTextCursor &,
+                                                             const QString &,
+                                                             const BaseTextEditorWidget *) const,
+                          const QList<QPair<QTextCursor, QTextCursor> > &ranges);
+
 protected:
     QString m_fileName;
     QSharedPointer<RefactoringChangesData> m_data;
@@ -138,7 +144,8 @@ protected:
 
     static BaseTextEditorWidget *openEditor(const QString &fileName, bool activate, int line, int column);
 
-    static QList<QTextCursor> rangesToSelections(QTextDocument *document, const QList<Range> &ranges);
+    static QList<QPair<QTextCursor, QTextCursor> > rangesToSelections(QTextDocument *document,
+                                                                      const QList<Range> &ranges);
 
 protected:
     QSharedPointer<RefactoringChangesData> m_data;

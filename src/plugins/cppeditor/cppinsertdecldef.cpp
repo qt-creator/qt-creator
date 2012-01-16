@@ -458,11 +458,8 @@ public:
         if (!extract.endsWith(QLatin1Char('\n')) && m_funcReturn)
             extract.append(QLatin1Char('\n'));
 
-        // FIXME: There are a couple related issues on the refactoring interface. You cannot
-        // simply have distinct indentation ranges within a chunk of content to be added, regardless
-        // of whether this is done through more than on change. That's why we actually apply twice,
-        // initially indenting the definition stub and the reindenting the original extraction.
-        // More details on the refactorings impl. where ranges are transformed into cursors.
+        // Since we need an indent range and a nested reindent range (based on the original
+        // formatting) it's simpler to have two different change sets.
         Utils::ChangeSet change;
         int position = currentFile->startOf(m_refFuncDef);
         change.insert(position, funcDef);
@@ -472,8 +469,8 @@ public:
         currentFile->apply();
 
         QTextCursor tc = currentFile->document()->find(QLatin1String("{"), position);
-        QTC_ASSERT(!tc.isNull(), return);
-        position = tc.position() + 2;
+        QTC_ASSERT(tc.hasSelection(), return);
+        position = tc.selectionEnd() + 1;
         change.clear();
         change.insert(position, extract);
         currentFile->setChangeSet(change);

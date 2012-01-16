@@ -73,26 +73,19 @@ BaseTextEditorWidget *RefactoringChanges::editorForFile(const QString &fileName)
     return 0;
 }
 
-QList<QTextCursor> RefactoringChanges::rangesToSelections(QTextDocument *document, const QList<Range> &ranges)
+QList<QPair<QTextCursor, QTextCursor > > RefactoringChanges::rangesToSelections(QTextDocument *document,
+                                                                                const QList<Range> &ranges)
 {
-    QList<QTextCursor> selections;
+    QList<QPair<QTextCursor, QTextCursor> > selections;
 
     foreach (const Range &range, ranges) {
-        QTextCursor selection(document);
-        // FIXME: The subtraction below for the start range might create a selection on a different
-        // block, which could cause unexpected effects on indentation for example when the range is
-        // precisely calculate. Since this cursor moves when content is inserted, it might not be
-        // possible to compensate for such a difference in advance because the value could be
-        // negative (which would eventually be right after content is inserted) and then taken as 0.
-        // A proper way for allowing fine granularly specified ranges would be to have two cursors
-        // and the first one with *keepPositionOnInsert*, for example, like it's done for the text
-        // editor overlay.
+        QTextCursor start(document);
+        start.setPosition(range.start);
+        start.setKeepPositionOnInsert(true);
+        QTextCursor end(document);
+        end.setPosition(qMin(range.end, document->characterCount() - 1));
 
-        // ### workaround for moving the textcursor when inserting text at the beginning of the range.
-        selection.setPosition(qMax(0, range.start - 1));
-        selection.setPosition(qMin(range.end, document->characterCount() - 1), QTextCursor::KeepAnchor);
-
-        selections.append(selection);
+        selections.append(qMakePair(start, end));
     }
 
     return selections;
@@ -363,10 +356,10 @@ void RefactoringFile::apply()
                 c.beginEditBlock();
 
             // build indent selections now, applying the changeset will change locations
-            const QList<QTextCursor> &indentSelections =
+            const QList<QPair<QTextCursor, QTextCursor> > &indentSelections =
                     RefactoringChanges::rangesToSelections(doc, m_indentRanges);
             m_indentRanges.clear();
-            const QList<QTextCursor> &reindentSelections =
+            const QList<QPair<QTextCursor, QTextCursor> > &reindentSelections =
                     RefactoringChanges::rangesToSelections(doc, m_reindentRanges);
             m_reindentRanges.clear();
 
@@ -374,10 +367,8 @@ void RefactoringFile::apply()
             m_changes.apply(&c);
             m_changes.clear();
 
-            foreach (const QTextCursor &selection, indentSelections)
-                m_data->indentSelection(selection, m_fileName, m_editor);
-            foreach (const QTextCursor &selection, reindentSelections)
-                m_data->reindentSelection(selection, m_fileName, m_editor);
+            indentOrReindent(&RefactoringChangesData::indentSelection, indentSelections);
+            indentOrReindent(&RefactoringChangesData::reindentSelection, reindentSelections);
 
             c.endEditBlock();
 
@@ -394,6 +385,20 @@ void RefactoringFile::apply()
     }
 
     m_appliedOnce = true;
+}
+
+void RefactoringFile::indentOrReindent(void (RefactoringChangesData::*mf)(const QTextCursor &,
+                                                                          const QString &,
+                                                                          const BaseTextEditorWidget *) const,
+                                       const QList<QPair<QTextCursor, QTextCursor> > &ranges)
+{
+    QPair<QTextCursor, QTextCursor> p;
+    foreach (p, ranges) {
+        QTextCursor selection(p.first.document());
+        selection.setPosition(p.first.position());
+        selection.setPosition(p.second.position(), QTextCursor::KeepAnchor);
+        ((*m_data).*(mf))(selection, m_fileName, m_editor);
+    }
 }
 
 void RefactoringFile::fileChanged()
