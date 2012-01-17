@@ -743,7 +743,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
     // go back
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(QIcon(QLatin1String(":core/images/prev.png")));
+    action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_PREV)));
     action->setToolTip(tr("Go back one step in history. This will select the previously selected item."));
     connect(action, SIGNAL(triggered(bool)), m_stackBrowser, SLOT(goBack()));
     layout->addWidget(createToolButton(action));
@@ -752,7 +752,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
     // go forward
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(QIcon(QLatin1String(":core/images/next.png")));
+    action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_NEXT)));
     action->setToolTip(tr("Go forward one step in history."));
     connect(action, SIGNAL(triggered(bool)), m_stackBrowser, SLOT(goNext()));
     layout->addWidget(createToolButton(action));
