@@ -352,7 +352,7 @@ void Qt4Manager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *no
 
     if (!qt4pro->activeTarget() ||
         !qt4pro->activeTarget()->activeBuildConfiguration())
-    return;
+        return;
 
     Qt4BuildConfiguration *bc = qt4pro->activeTarget()->activeQt4BuildConfiguration();
     QMakeStep *qs = bc->qmakeStep();
