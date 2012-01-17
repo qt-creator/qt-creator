@@ -59,6 +59,7 @@ Help
 Platform Specific
 
 Mac
+   * Pass architecture and bit width from the tool chain build setting to Qmake (QTCREATORBUG-6088)
 
 Linux (GNOME and KDE)
 

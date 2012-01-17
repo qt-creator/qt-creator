@@ -166,18 +166,36 @@ QString QMakeStep::allArguments(bool shorted)
 ///
 /// moreArguments,
 /// -unix for Maemo
-/// -after OBJECTS_DIR, MOC_DIR, UI_DIR, RCC_DIR
 /// QMAKE_VAR_QMLJSDEBUGGER_PATH
 QStringList QMakeStep::moreArguments()
 {
     Qt4BuildConfiguration *bc = qt4BuildConfiguration();
     QStringList arguments;
-#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     ProjectExplorer::ToolChain *tc = bc->toolChain();
-    if (tc && (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::HarmattanLinuxFlavor
-               || tc->targetAbi().osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor))
+    ProjectExplorer::Abi targetAbi;
+    if (tc)
+        targetAbi = tc->targetAbi();
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
+    if ((targetAbi.osFlavor() == ProjectExplorer::Abi::HarmattanLinuxFlavor
+               || targetAbi.osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor))
         arguments << QLatin1String("-unix");
 #endif
+
+    // explicitly add architecture to CONFIG
+    if ((targetAbi.os() == ProjectExplorer::Abi::MacOS)
+            && (targetAbi.binaryFormat() == ProjectExplorer::Abi::MachOFormat)) {
+        if (targetAbi.architecture() == ProjectExplorer::Abi::X86Architecture) {
+            if (targetAbi.wordWidth() == 32)
+                arguments << QLatin1String("CONFIG+=x86");
+            else if (targetAbi.wordWidth() == 64)
+                arguments << QLatin1String("CONFIG+=x86_64");
+        } else if (targetAbi.architecture() == ProjectExplorer::Abi::PowerPCArchitecture) {
+            if (targetAbi.wordWidth() == 32)
+                arguments << QLatin1String("CONFIG+=ppc");
+            else if (targetAbi.wordWidth() == 64)
+                arguments << QLatin1String("CONFIG+=ppc64");
+        }
+    }
 
     if (linkQmlDebuggingLibrary() && bc->qtVersion()) {
         if (!bc->qtVersion()->needsQmlDebuggingLibrary()) {
@@ -201,6 +219,7 @@ QStringList QMakeStep::moreArguments()
     return arguments;
 }
 
+/// -after OBJECTS_DIR, MOC_DIR, UI_DIR, RCC_DIR
 QStringList QMakeStep::moreArgumentsAfter()
 {
     Qt4BuildConfiguration *bc = qt4BuildConfiguration();
