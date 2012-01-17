@@ -43,6 +43,7 @@
 #include <QtCore/QXmlStreamWriter>
 
 #include <QtCore/QTimer>
+#include <utils/qtcassert.h>
 
 #include <QDebug>
 
@@ -996,6 +997,7 @@ void QmlProfilerEventList::postProcess()
         findAnimationLimits();
         computeLevels();
         linkEndsToStarts();
+        reloadDetails();
         compileStatistics(traceStartTime(), traceEndTime());
         prepareForDisplay();
     }
@@ -1013,6 +1015,39 @@ void QmlProfilerEventList::computeLevels()
 {
     computeNestingLevels();
     computeNestingDepth();
+}
+
+void QmlProfilerEventList::reloadDetails()
+{
+    // request binding/signal details from the AST
+    foreach (QmlEventData *event, d->m_eventDescriptions.values()) {
+        if (event->eventType != Binding && event->eventType != HandlingSignal)
+            continue;
+
+        // This skips anonymous bindings in Qt4.8 (we don't have valid location data for them)
+        if (event->location.filename.isEmpty())
+            continue;
+
+        // Skip non-anonymous bindings from Qt4.8 (we already have correct details for them)
+        if (event->location.column == -1)
+            continue;
+
+        emit requestDetailsForLocation(event->eventType, event->location);
+    }
+    emit reloadDocumentsForDetails();
+}
+
+void QmlProfilerEventList::rewriteDetailsString(int eventType, const QmlJsDebugClient::QmlEventLocation &location, const QString &newString)
+{
+    QString eventHashStr = QString("%1:%2:%3:%4").arg(location.filename, QString::number(location.line), QString::number(location.column), QString::number(eventType));
+    QTC_ASSERT(d->m_eventDescriptions.contains(eventHashStr), return);
+    d->m_eventDescriptions.value(eventHashStr)->details = newString;
+    emit detailsChanged(d->m_eventDescriptions.value(eventHashStr)->eventId, newString);
+}
+
+void QmlProfilerEventList::finishedRewritingDetails()
+{
+    emit reloadDetailLabels();
 }
 
 // get list of events between A and B:

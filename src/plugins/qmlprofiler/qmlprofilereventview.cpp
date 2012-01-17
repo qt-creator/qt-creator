@@ -216,6 +216,7 @@ public:
     QStandardItemModel *m_model;
     QList<bool> m_fieldShown;
     int m_firstNumericColumn;
+    int m_detailsColumn;
 };
 
 
@@ -239,6 +240,7 @@ QmlProfilerEventsMainView::QmlProfilerEventsMainView(QmlProfilerEventList *model
     setEventStatisticsModel(model);
 
     d->m_firstNumericColumn = 0;
+    d->m_detailsColumn = 0;
 
     // default view
     setViewType(EventsView);
@@ -252,11 +254,15 @@ QmlProfilerEventsMainView::~QmlProfilerEventsMainView()
 
 void QmlProfilerEventsMainView::setEventStatisticsModel( QmlProfilerEventList *model )
 {
-    if (d->m_eventStatistics)
+    if (d->m_eventStatistics) {
         disconnect(d->m_eventStatistics,SIGNAL(dataReady()),this,SLOT(buildModel()));
+        disconnect(d->m_eventStatistics,SIGNAL(detailsChanged(int,QString)),this,SLOT(changeDetailsForEvent(int,QString)));
+    }
     d->m_eventStatistics = model;
-    if (model)
+    if (model) {
         connect(d->m_eventStatistics,SIGNAL(dataReady()),this,SLOT(buildModel()));
+        connect(d->m_eventStatistics,SIGNAL(detailsChanged(int,QString)),this,SLOT(changeDetailsForEvent(int,QString)));
+    }
 }
 
 void QmlProfilerEventsMainView::setFieldViewable(Fields field, bool show)
@@ -344,8 +350,10 @@ void QmlProfilerEventsMainView::setHeaderLabels()
         d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Longest Time")));
     if (d->m_fieldShown[MinTime])
         d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Shortest Time")));
-    if (d->m_fieldShown[Details])
+    if (d->m_fieldShown[Details]) {
+        d->m_detailsColumn = fieldIndex;
         d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Details")));
+    }
 }
 
 void QmlProfilerEventsMainView::clear()
@@ -620,6 +628,22 @@ QModelIndex QmlProfilerEventsMainView::selectedItem() const
         return QModelIndex();
     else
         return sel.first();
+}
+
+void QmlProfilerEventsMainView::changeDetailsForEvent(int eventId, const QString &newString)
+{
+    // available only for QML
+    if (d->m_viewType != EventsView)
+        return;
+
+    for (int i=0; i<d->m_model->rowCount(); i++) {
+        QStandardItem *infoItem = d->m_model->item(i, 0);
+        if (infoItem->data(EventIdRole).toInt() == eventId) {
+            d->m_model->item(i,d->m_detailsColumn)->setData(QVariant(newString),Qt::DisplayRole);
+            d->m_model->item(i,d->m_detailsColumn)->setData(QVariant(newString));
+            return;
+        }
+    }
 }
 
 QString QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::textForItem(QStandardItem *item, bool recursive = true) const

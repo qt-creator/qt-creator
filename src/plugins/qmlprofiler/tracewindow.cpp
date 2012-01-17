@@ -142,6 +142,12 @@ TraceWindow::TraceWindow(QWidget *parent)
     m_mainView->rootContext()->setContextProperty("qmlEventList", m_eventList);
     m_overview->rootContext()->setContextProperty("qmlEventList", m_eventList);
 
+    m_rewriter = new QmlProfilerDetailsRewriter(this);
+    connect(m_eventList, SIGNAL(requestDetailsForLocation(int,QmlJsDebugClient::QmlEventLocation)), m_rewriter, SLOT(requestDetailsForLocation(int,QmlJsDebugClient::QmlEventLocation)));
+    connect(m_rewriter, SIGNAL(rewriteDetailsString(int,QmlJsDebugClient::QmlEventLocation,QString)), m_eventList, SLOT(rewriteDetailsString(int,QmlJsDebugClient::QmlEventLocation,QString)));
+    connect(m_rewriter, SIGNAL(eventDetailsChanged()), m_eventList, SLOT(finishedRewritingDetails()));
+    connect(m_eventList, SIGNAL(reloadDocumentsForDetails()), m_rewriter, SLOT(reloadDocuments()));
+
     connect(this, SIGNAL(v8range(int,QString,QString,int,double,double)), m_eventList, SLOT(addV8Event(int,QString,QString,int,double,double)));
 
     // Minimum height: 5 rows of 20 pixels + scrollbar of 50 pixels + 20 pixels margin

@@ -35,7 +35,7 @@
 
 #include <qmljsdebugclient/qmlprofilertraceclient.h>
 #include <qmljsdebugclient/qmlprofilereventlist.h>
-
+#include "qmlprofilerdetailsrewriter.h"
 #include <qmljsdebugclient/qv8profilerclient.h>
 
 #include <QtCore/QPointer>
@@ -173,6 +173,7 @@ private:
     QDeclarativeView *m_timebar;
     QDeclarativeView *m_overview;
     QmlJsDebugClient::QmlProfilerEventList *m_eventList;
+    QmlProfilerDetailsRewriter *m_rewriter;
     bool m_qmlDataReady;
     bool m_v8DataReady;
     double m_profiledTime;

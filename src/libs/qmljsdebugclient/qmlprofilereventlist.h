@@ -171,6 +171,11 @@ signals:
     void processingData();
     void postProcessing();
 
+    void requestDetailsForLocation(int eventType, const QmlJsDebugClient::QmlEventLocation &location);
+    void detailsChanged(int eventId, const QString &newString);
+    void reloadDetailLabels();
+    void reloadDocumentsForDetails();
+
 public slots:
     void clear();
     void addRangedEvent(int type, qint64 startTime, qint64 length,
@@ -187,6 +192,9 @@ public slots:
     void setTraceEndTime( qint64 time );
     void setTraceStartTime( qint64 time );
 
+    void rewriteDetailsString(int eventType, const QmlJsDebugClient::QmlEventLocation &location, const QString &newString);
+    void finishedRewritingDetails();
+
 private:
     void postProcess();
     void sortEndTimes();
@@ -197,6 +205,7 @@ private:
     void computeNestingDepth();
     void prepareForDisplay();
     void linkEndsToStarts();
+    void reloadDetails();
 
 private:
     class QmlProfilerEventListPrivate;

@@ -13,7 +13,6 @@ include(../../plugins/qt4projectmanager/qt4projectmanager.pri)
 include(../../plugins/remotelinux/remotelinux.pri)
 include(../../libs/qmljsdebugclient/qmljsdebugclient.pri)
 include(../../libs/extensionsystem/extensionsystem.pri)
-
 include(canvas/canvas.pri)
 
 SOURCES += \
@@ -26,7 +25,8 @@ SOURCES += \
     localqmlprofilerrunner.cpp \
     codaqmlprofilerrunner.cpp \
     remotelinuxqmlprofilerrunner.cpp \
-    qmlprofilereventview.cpp
+    qmlprofilereventview.cpp \
+    qmlprofilerdetailsrewriter.cpp
 
 HEADERS += \
     qmlprofilerconstants.h \
@@ -41,7 +41,8 @@ HEADERS += \
     localqmlprofilerrunner.h \
     codaqmlprofilerrunner.h \
     remotelinuxqmlprofilerrunner.h \
-    qmlprofilereventview.h
+    qmlprofilereventview.h \
+    qmlprofilerdetailsrewriter.h
 
 RESOURCES += \
     qml/qmlprofiler.qrc

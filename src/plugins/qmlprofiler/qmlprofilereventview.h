@@ -153,6 +153,7 @@ public slots:
     void selectEvent(int eventId);
     void selectEventByLocation(const QString &filename, int line);
     void buildModel();
+    void changeDetailsForEvent(int eventId, const QString &newString);
 
 private:
     void setHeaderLabels();
