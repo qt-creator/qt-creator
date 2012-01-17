@@ -564,7 +564,7 @@ bool WatchModel::canFetchMore(const QModelIndex &index) const
 {
     WatchItem *item = watchItem(index);
     QTC_ASSERT(item, return false);
-    return index.isValid() && !m_fetchTriggered.contains(item->iname);
+    return index.isValid() && m_handler->m_contentsValid && !m_fetchTriggered.contains(item->iname);
 }
 
 void WatchModel::fetchMore(const QModelIndex &index)
