@@ -162,10 +162,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new ProFileCompletionAssistProvider);
     addAutoReleasedObject(new ProFileHoverHandler(this));
 
-    // TODO reenable
-    //m_embeddedPropertiesPage = new EmbeddedPropertiesPage;
-    //addObject(m_embeddedPropertiesPage);
-
     //menus
     Core::ActionContainer *mbuild =
             am->actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
