@@ -790,7 +790,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             static const QVariant red(QColor(200, 0, 0));
             static const QVariant gray(QColor(140, 140, 140));
             switch (idx.column()) {
-                case 1: return !data.valueEnabled ? gray
+                case 1: return (!data.valueEnabled || !m_handler->m_contentsValid) ? gray
                             : data.changed ? red : QVariant();
             }
             break;
@@ -907,6 +907,9 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
 
 Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
 {
+    if (!m_handler->m_contentsValid)
+        return Qt::ItemFlags();
+
     if (!idx.isValid())
         return Qt::ItemFlags();
 
@@ -1253,6 +1256,9 @@ WatchHandler::WatchHandler(DebuggerEngine *engine)
     m_watchers = new WatchModel(this, WatchersWatch);
     m_tooltips = new WatchModel(this, TooltipsWatch);
 
+    m_contentsValid = false;
+    m_resetLocationScheduled = false;
+
     connect(debuggerCore()->action(SortStructMembers), SIGNAL(valueChanged(QVariant)),
            SLOT(reinsertAllData()));
     connect(debuggerCore()->action(ShowStdNamespace), SIGNAL(valueChanged(QVariant)),
@@ -1275,6 +1281,10 @@ void WatchHandler::endCycle()
     m_locals->endCycle();
     m_watchers->endCycle();
     m_tooltips->endCycle();
+
+    m_contentsValid = true;
+    m_resetLocationScheduled = false;
+
     updateWatchersWindow();
 }
 
@@ -1856,6 +1866,23 @@ void WatchHandler::editTypeFormats(bool includeLocals, const QByteArray &iname)
     }
     if (dlg.exec())
         setTypeFormats(dlg.typeFormats());
+}
+
+void WatchHandler::scheduleResetLocation()
+{
+    m_contentsValid = false;
+    m_resetLocationScheduled = true;
+}
+
+void WatchHandler::resetLocation()
+{
+    if (m_resetLocationScheduled) {
+        m_resetLocationScheduled = false;
+        m_return->reset();
+        m_locals->reset();
+        m_watchers->reset();
+        m_tooltips->reset();
+    }
 }
 
 } // namespace Internal

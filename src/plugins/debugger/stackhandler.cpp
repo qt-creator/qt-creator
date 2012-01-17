@@ -155,7 +155,7 @@ Qt::ItemFlags StackHandler::flags(const QModelIndex &index) const
     const bool isValid = frame.isUsable()
         || debuggerCore()->boolSetting(OperateByInstruction);
     return isValid && m_contentsValid
-        ? QAbstractTableModel::flags(index) : Qt::ItemFlags(0);
+        ? QAbstractTableModel::flags(index) : Qt::ItemFlags();
 }
 
 StackFrame StackHandler::currentFrame() const

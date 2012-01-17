@@ -239,6 +239,7 @@ public slots:
     void scheduleResetLocation()
     {
         m_stackHandler.scheduleResetLocation();
+        m_watchHandler.scheduleResetLocation();
         m_threadsHandler.scheduleResetLocation();
         m_disassemblerAgent.scheduleResetLocation();
         m_locationTimer.setSingleShot(true);
@@ -250,6 +251,7 @@ public slots:
         m_locationTimer.stop();
         m_locationMark.reset();
         m_stackHandler.resetLocation();
+        m_watchHandler.resetLocation();
         m_threadsHandler.resetLocation();
         m_disassemblerAgent.resetLocation();
     }

@@ -202,6 +202,9 @@ public:
     QString editorContents();
     void editTypeFormats(bool includeLocals, const QByteArray &iname);
 
+    void scheduleResetLocation();
+    void resetLocation();
+
 private:
     friend class WatchModel;
 
@@ -234,6 +237,9 @@ private:
     DebuggerEngine *m_engine;
 
     int m_watcherCounter;
+
+    bool m_contentsValid;
+    bool m_resetLocationScheduled;
 };
 
 } // namespace Internal
