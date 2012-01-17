@@ -2147,6 +2147,7 @@ void ProjectExplorerPlugin::startupProjectChanged()
     }
 
     activeTargetChanged();
+    updateActions();
 }
 
 void ProjectExplorerPlugin::activeTargetChanged()
@@ -2168,8 +2169,8 @@ void ProjectExplorerPlugin::activeTargetChanged()
                 this, SLOT(activeRunConfigurationChanged()));
     }
 
-    updateDeployActions();
     activeRunConfigurationChanged();
+    updateDeployActions();
 }
 
 void ProjectExplorerPlugin::activeRunConfigurationChanged()
