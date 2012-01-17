@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "mDNSUNP.h"
 
 #include <errno.h>
@@ -81,7 +82,7 @@ void plen_to_mask(int plen, char *addr) {
 /* Gets IPv6 interface information from the /proc filesystem in linux*/
 struct ifi_info *get_ifi_info_linuxv6(int family, int doaliases)
 	{
-	struct ifi_info *ifi, *ifihead, **ifipnext;
+		struct ifi_info *ifi, *ifihead, **ifipnext, *ifipold, **ifiptr;
 	FILE *fp;
 	char addr[8][5];
 	int flags, myflags, index, plen, scope;
@@ -91,6 +92,8 @@ struct ifi_info *get_ifi_info_linuxv6(int family, int doaliases)
 	struct sockaddr_in6 *sin6;
 	struct in6_addr *addrptr;
 	int err;
+	int sockfd = -1;
+	struct ifreq ifr;
 
 	res0=NULL;
 	ifihead = NULL;
@@ -98,6 +101,10 @@ struct ifi_info *get_ifi_info_linuxv6(int family, int doaliases)
 	lastname[0] = 0;
 
 	if ((fp = fopen(PROC_IFINET6_PATH, "r")) != NULL) {
+		sockfd = socket(AF_INET6, SOCK_DGRAM, 0);
+		if (sockfd < 0) {
+			goto gotError;
+		}
 		while (fscanf(fp,
 					  "%4s%4s%4s%4s%4s%4s%4s%4s %02x %02x %02x %02x %8s\n",
 					  addr[0],addr[1],addr[2],addr[3],
@@ -114,8 +121,10 @@ struct ifi_info *get_ifi_info_linuxv6(int family, int doaliases)
 			ifi = (struct ifi_info*)calloc(1, sizeof(struct ifi_info));
 			if (ifi == NULL) {
 				goto gotError;
-				}
-
+			}
+			
+			ifipold   = *ifipnext;       /* need this later */
+			ifiptr    = ifipnext;
 			*ifipnext = ifi;            /* prev points to this new one */
 			ifipnext = &ifi->ifi_next;  /* pointer to next one goes here */
 
@@ -160,9 +169,25 @@ struct ifi_info *get_ifi_info_linuxv6(int family, int doaliases)
 			/* Add interface index */
 			ifi->ifi_index = index;
 
-			/* If interface is in /proc then it is up*/
-			ifi->ifi_flags = IFF_UP;
-
+			/* Add interface flags*/
+			memcpy(ifr.ifr_name, ifname, IFNAMSIZ);
+			if (ioctl(sockfd, SIOCGIFFLAGS, &ifr) < 0) {
+				if (errno == EADDRNOTAVAIL) {
+					/* 
+					 * If the main interface is configured with no IP address but 
+					 * an alias interface exists with an IP address, you get 
+					 * EADDRNOTAVAIL for the main interface 
+					 */
+					free(ifi->ifi_addr);
+					free(ifi);
+					ifipnext  = ifiptr; 
+					*ifipnext = ifipold;
+					continue;
+				} else {
+					goto gotError;
+				}
+			}
+			ifi->ifi_flags = ifr.ifr_flags;
 			freeaddrinfo(res0);
 			res0=NULL;
 			}
@@ -179,6 +204,9 @@ struct ifi_info *get_ifi_info_linuxv6(int family, int doaliases)
 		res0=NULL;
 		}
 	done:
+	if (sockfd != -1) {
+		assert(close(sockfd) == 0);
+	}
 	return(ifihead);    /* pointer to first structure in linked list */
 	}
 #endif // defined(AF_INET6) && HAVE_IPV6 && HAVE_LINUX
@@ -186,7 +214,7 @@ struct ifi_info *get_ifi_info_linuxv6(int family, int doaliases)
 struct ifi_info *get_ifi_info(int family, int doaliases)
 {
     int                 junk;
-    struct ifi_info     *ifi, *ifihead, **ifipnext;
+    struct ifi_info     *ifi, *ifihead, **ifipnext, *ifipold, **ifiptr;
     int                 sockfd, sockf6, len, lastlen, flags, myflags;
 #ifdef NOT_HAVE_IF_NAMETOINDEX
     int                 index = 200;
@@ -278,9 +306,11 @@ struct ifi_info *get_ifi_info(int family, int doaliases)
         if (ifi == NULL) {
             goto gotError;
         }
-        *ifipnext = ifi;            /* prev points to this new one */
-        ifipnext = &ifi->ifi_next;  /* pointer to next one goes here */
-
+		ifipold   = *ifipnext;       /* need this later */
+		ifiptr    = ifipnext;
+		*ifipnext = ifi;             /* prev points to this new one */
+		ifipnext  = &ifi->ifi_next;  /* pointer to next one goes here */
+		
         ifi->ifi_flags = flags;     /* IFF_xxx values */
         ifi->ifi_myflags = myflags; /* IFI_xxx values */
 #ifndef NOT_HAVE_IF_NAMETOINDEX
@@ -309,7 +339,23 @@ struct ifi_info *get_ifi_info(int family, int doaliases)
                 memcpy(ifi->ifi_addr, sinptr, sizeof(struct sockaddr_in));
 
 #ifdef  SIOCGIFNETMASK
-				if (ioctl(sockfd, SIOCGIFNETMASK, &ifrcopy) < 0) goto gotError;
+				if (ioctl(sockfd, SIOCGIFNETMASK, &ifrcopy) < 0) {
+					if (errno == EADDRNOTAVAIL) {
+						/* 
+						 * If the main interface is configured with no IP address but 
+						 * an alias interface exists with an IP address, you get 
+						 * EADDRNOTAVAIL for the main interface 
+						 */
+						free(ifi->ifi_addr);
+						free(ifi);
+						ifipnext  = ifiptr; 
+						*ifipnext = ifipold;
+						continue;
+					} else {
+						goto gotError;
+					}				
+				}
+
 				ifi->ifi_netmask = (struct sockaddr*)calloc(1, sizeof(struct sockaddr_in));
 				if (ifi->ifi_netmask == NULL) goto gotError;
 				sinptr = (struct sockaddr_in *) &ifrcopy.ifr_addr;
@@ -384,7 +430,22 @@ struct ifi_info *get_ifi_info(int family, int doaliases)
 				memset(&ifr6, 0, sizeof(ifr6));
 				memcpy(&ifr6.ifr_name,           &ifr->ifr_name, sizeof(ifr6.ifr_name          ));
 				memcpy(&ifr6.ifr_ifru.ifru_addr, &ifr->ifr_addr, sizeof(ifr6.ifr_ifru.ifru_addr));
-				if (ioctl(sockf6, SIOCGIFNETMASK_IN6, &ifr6) < 0) goto gotError;
+				if (ioctl(sockf6, SIOCGIFNETMASK_IN6, &ifr6) < 0) {
+					if (errno == EADDRNOTAVAIL) {
+						/* 
+						 * If the main interface is configured with no IP address but 
+						 * an alias interface exists with an IP address, you get 
+						 * EADDRNOTAVAIL for the main interface 
+						 */
+						free(ifi->ifi_addr);
+						free(ifi);
+						ifipnext  = ifiptr; 
+						*ifipnext = ifipold;
+						continue;
+					} else {
+						goto gotError;
+					}				
+				}
 				ifi->ifi_netmask = (struct sockaddr*)calloc(1, sizeof(struct sockaddr_in6));
 				if (ifi->ifi_netmask == NULL) goto gotError;
 				sinptr6 = (struct sockaddr_in6 *) &ifr6.ifr_ifru.ifru_addr;
@@ -575,9 +636,9 @@ struct in_pktinfo
         }
 #endif
 
-#if defined(IPV6_PKTINFO) && HAVE_IPV6
-        if (cmptr->cmsg_level == IPPROTO_IPV6 && 
-            cmptr->cmsg_type == IPV6_PKTINFO) {
+#if defined(IPV6_PKTINFO) && HAVE_IPV6 
+		if (cmptr->cmsg_level == IPPROTO_IPV6 && 
+            cmptr->cmsg_type  == IPV6_2292_PKTINFO) {
             struct sockaddr_in6 *sin6 = (struct sockaddr_in6*)&pktp->ipi_addr;
 			struct in6_pktinfo *ip6_info = (struct in6_pktinfo*)CMSG_DATA(cmptr);
 			
@@ -596,7 +657,7 @@ struct in_pktinfo
 
 #if defined(IPV6_HOPLIMIT) && HAVE_IPV6
         if (cmptr->cmsg_level == IPPROTO_IPV6 && 
-            cmptr->cmsg_type == IPV6_HOPLIMIT) {
+            cmptr->cmsg_type == IPV6_2292_HOPLIMIT) {
 			*ttl = *(int*)CMSG_DATA(cmptr);
             continue;
         }

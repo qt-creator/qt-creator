@@ -1369,12 +1369,20 @@ mDNSexport mDNSBool AnyTypeRecordAnswersQuestion(const ResourceRecord *const rr,
 	return(rr->namehash == q->qnamehash && SameDomainName(rr->name, &q->qname));
 	}
 
-// This is called only when the caller knows that it is a Unicast Resource Record and it is a Unicast Question
-// and hence we don't need InterfaceID checks like above. Though this may not be a big optimization, the main
-// reason we need this is that we can't compare DNSServers between the question and the resource record because
-// the resource record may not be completely initialized e.g., mDNSCoreReceiveResponse
-mDNSexport mDNSBool UnicastResourceRecordAnswersQuestion(const ResourceRecord *const rr, const DNSQuestion *const q)
+// This is called with both unicast resource record and multicast resource record. The question that
+// received the unicast response could be the regular unicast response from a DNS server or a response
+// to a mDNS QU query. The main reason we need this function is that we can't compare DNSServers between the
+// question and the resource record because the resource record is not completely initialized in
+// mDNSCoreReceiveResponse when this function is called.
+mDNSexport mDNSBool ResourceRecordAnswersUnicastResponse(const ResourceRecord *const rr, const DNSQuestion *const q)
 	{
+	// For resource records created using multicast, the InterfaceIDs have to match
+	if (rr->InterfaceID &&
+		q->InterfaceID && rr->InterfaceID != q->InterfaceID) return(mDNSfalse);
+
+	// If ResourceRecord received via multicast, but question was unicast, then shouldn't use record to answer this question.
+	if (rr->InterfaceID && !mDNSOpaque16IsZero(q->TargetQID)) return(mDNSfalse);
+
 	// RR type CNAME matches any query type. QTYPE ANY matches any RR type. QCLASS ANY matches any RR class.
 	if (!RRTypeAnswersQuestionType(rr,q->qtype)) return(mDNSfalse);
 

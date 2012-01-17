@@ -349,7 +349,7 @@ mDNSexport mDNSBool mDNS_AddressIsLocalSubnet(mDNS *const m, const mDNSInterface
 
 	if (addr->type == mDNSAddrType_IPv6)
 		{
-		if (mDNSv6AddressIsLinkLocal(&addr->ip.v4)) return(mDNStrue);
+		if (mDNSv6AddressIsLinkLocal(&addr->ip.v6)) return(mDNStrue);
 		for (intf = m->HostInterfaces; intf; intf = intf->next)
 			if (intf->ip.type == addr->type && intf->InterfaceID == InterfaceID && intf->McastTxRx)
 				if ((((intf->ip.ip.v6.l[0] ^ addr->ip.v6.l[0]) & intf->mask.ip.v6.l[0]) == 0) &&
@@ -1730,7 +1730,7 @@ mDNSlocal void SendDelayedUnicastResponse(mDNS *const m, const mDNSAddr *const d
 			}
 
 		if (m->omsg.h.numAnswers)
-			mDNSSendDNSMessage(m, &m->omsg, responseptr, mDNSInterface_Any, mDNSNULL, dest, MulticastDNSPort, mDNSNULL, mDNSNULL);
+			mDNSSendDNSMessage(m, &m->omsg, responseptr, InterfaceID, mDNSNULL, dest, MulticastDNSPort, mDNSNULL, mDNSNULL);
 		}
 	}
 
@@ -3285,6 +3285,22 @@ mDNSlocal void SendWakeup(mDNS *const m, mDNSInterfaceID InterfaceID, mDNSEthAdd
 #pragma mark - RR List Management & Task Management
 #endif
 
+// Whenever a question is answered, reset its state so that we don't query
+// the network repeatedly. This happens first time when we answer the question and
+// and later when we refresh the cache.
+mDNSlocal void ResetQuestionState(mDNS *const m, DNSQuestion *q)
+	{
+	q->LastQTime		= m->timenow;
+	q->LastQTxTime	  = m->timenow;
+	q->RecentAnswerPkts = 0;
+	q->ThisQInterval	= MaxQuestionInterval;
+	q->RequestUnicast   = mDNSfalse;
+	// Reset unansweredQueries so that we don't penalize this server later when we
+	// start sending queries when the cache expires.
+	q->unansweredQueries = 0;
+	debugf("ResetQuestionState: Set MaxQuestionInterval for %##s (%s)", q->qname.c, DNSTypeName(q->qtype));
+	}
+
 // Note: AnswerCurrentQuestionWithResourceRecord can call a user callback, which may change the record list and/or question list.
 // Any code walking either list must use the m->CurrentQuestion (and possibly m->CurrentRecord) mechanism to protect against this.
 // In fact, to enforce this, the routine will *only* answer the question currently pointed to by m->CurrentQuestion,
@@ -3343,12 +3359,7 @@ mDNSexport void AnswerCurrentQuestionWithResourceRecord(mDNS *const m, CacheReco
 		(AddRecord == QC_add && (q->ExpectUnique || (rr->resrec.RecordType & kDNSRecordTypePacketUniqueMask))))
 		if (ActiveQuestion(q) && (mDNSOpaque16IsZero(q->TargetQID) || !q->LongLived))
 			{
-			q->LastQTime        = m->timenow;
-			q->LastQTxTime      = m->timenow;
-			q->RecentAnswerPkts = 0;
-			q->ThisQInterval    = MaxQuestionInterval;
-			q->RequestUnicast   = mDNSfalse;
-			debugf("AnswerCurrentQuestionWithResourceRecord: Set MaxQuestionInterval for %##s (%s)", q->qname.c, DNSTypeName(q->qtype));
+			ResetQuestionState(m, q);
 			}
 
 	if (rr->DelayDelivery) return;		// We'll come back later when CacheRecordDeferredAdd() calls us
@@ -6278,6 +6289,8 @@ mDNSlocal DNSQuestion *ExpectingUnicastResponseForQuestion(const mDNS *const m, 
 	return(mDNSNULL);
 	}
 
+// This function is called when we receive a unicast response. This could be the case of a unicast response from the
+// DNS server or a response to the QU query. Hence, the cache record's InterfaceId can be both NULL or non-NULL (QU case)
 mDNSlocal DNSQuestion *ExpectingUnicastResponseForRecord(mDNS *const m,
 	const mDNSAddr *const srcaddr, const mDNSBool SrcLocal, const mDNSIPPort port, const mDNSOpaque16 id, const CacheRecord *const rr, mDNSBool tcp)
 	{
@@ -6285,12 +6298,9 @@ mDNSlocal DNSQuestion *ExpectingUnicastResponseForRecord(mDNS *const m,
 	(void)id;
 	(void)srcaddr;
 
-	// Unicast records have zero as InterfaceID
-	if (rr->resrec.InterfaceID) return mDNSNULL;
-
 	for (q = m->Questions; q; q=q->next)
 		{
-		if (!q->DuplicateOf && UnicastResourceRecordAnswersQuestion(&rr->resrec, q))
+		if (!q->DuplicateOf && ResourceRecordAnswersUnicastResponse(&rr->resrec, q))
 			{
 			if (!mDNSOpaque16IsZero(q->TargetQID))
 				{
@@ -6867,12 +6877,7 @@ mDNSlocal void mDNSCoreReceiveResponse(mDNS *const m,
 								if (!q->DuplicateOf && !q->LongLived &&
 									ActiveQuestion(q) && ResourceRecordAnswersQuestion(&rr->resrec, q))
 									{
-									q->LastQTime        = m->timenow;
-									q->LastQTxTime      = m->timenow;
-									q->RecentAnswerPkts = 0;
-									q->ThisQInterval    = MaxQuestionInterval;
-									q->RequestUnicast   = mDNSfalse;
-									q->unansweredQueries = 0;
+									ResetQuestionState(m, q);
 									debugf("mDNSCoreReceiveResponse: Set MaxQuestionInterval for %p %##s (%s)", q, q->qname.c, DNSTypeName(q->qtype));
 									break;		// Why break here? Aren't there other questions we might want to look at?-- SC July 2010
 									}
@@ -7146,8 +7151,14 @@ exit:
 					// If we already had a negative cache entry just update it, else make one or more new negative cache entries
 					if (neg)
 						{
-						debugf("Renewing negative TTL from %d to %d %s", neg->resrec.rroriginalttl, negttl, CRDisplayString(m, neg));
+						debugf("mDNSCoreReceiveResponse: Renewing negative TTL from %d to %d %s", neg->resrec.rroriginalttl, negttl, CRDisplayString(m, neg));
 						RefreshCacheRecord(m, neg, negttl);
+						// When we created the cache for the first time and answered the question, the question's
+						// interval was set to MaxQuestionInterval. If the cache is about to expire and we are resending
+						// the queries, the interval should still be at MaxQuestionInterval. If the query is being
+						// restarted (setting it to InitialQuestionInterval) for other reasons e.g., wakeup,
+						// we should reset its question interval here to MaxQuestionInterval.
+						ResetQuestionState(m, qptr);
 						}
 					else while (1)
 						{
@@ -7817,6 +7828,55 @@ mDNSlocal mDNSu32 GetTimeoutForMcastQuestion(mDNS *m, DNSQuestion *question)
 	return ( curmatch ? curmatch->timeout : DEFAULT_MCAST_TIMEOUT);
 	}
 
+// Returns true if it is a Domain Enumeration Query
+mDNSexport mDNSBool DomainEnumQuery(const domainname *qname)
+	{
+	const mDNSu8 *mDNS_DEQLabels[] = { (const mDNSu8 *)"\001b", (const mDNSu8 *)"\002db", (const mDNSu8 *)"\002lb",
+		(const mDNSu8 *)"\001r", (const mDNSu8 *)"\002dr", (const mDNSu8 *)mDNSNULL, };
+	const domainname *d = qname;
+	const mDNSu8 *label;
+	int i = 0;
+
+	// We need at least 3 labels (DEQ prefix) + one more label to make a meaningful DE query
+	if (CountLabels(qname) < 4) { debugf("DomainEnumQuery: question %##s, not enough labels", qname->c); return mDNSfalse; }
+
+	label = (const mDNSu8 *)d;
+	while (mDNS_DEQLabels[i] != (const mDNSu8 *)mDNSNULL)
+		{
+		if (SameDomainLabel(mDNS_DEQLabels[i], label)) {debugf("DomainEnumQuery: DEQ %##s, label1 match", qname->c); break;}
+		i++;
+		}
+	if (mDNS_DEQLabels[i] == (const mDNSu8 *)mDNSNULL)
+		{
+		debugf("DomainEnumQuery: Not a DEQ %##s, label1 mismatch", qname->c);
+		return mDNSfalse;
+		}
+	debugf("DomainEnumQuery: DEQ %##s, label1 match", qname->c);
+
+	// CountLabels already verified the number of labels
+	d = (const domainname *)(d->c + 1 + d->c[0]);	// Second Label
+	label = (const mDNSu8 *)d;
+	if (!SameDomainLabel(label, (const mDNSu8 *)"\007_dns-sd"))
+		{
+		debugf("DomainEnumQuery: Not a DEQ %##s, label2 mismatch", qname->c);
+		return(mDNSfalse);
+		}
+	debugf("DomainEnumQuery: DEQ %##s, label2 match", qname->c);
+
+	d = (const domainname *)(d->c + 1 + d->c[0]); 	// Third Label
+	label = (const mDNSu8 *)d;
+	if (!SameDomainLabel(label, (const mDNSu8 *)"\004_udp"))
+		{
+		debugf("DomainEnumQuery: Not a DEQ %##s, label3 mismatch", qname->c);
+		return(mDNSfalse);
+		}
+	debugf("DomainEnumQuery: DEQ %##s, label3 match", qname->c);
+
+	debugf("DomainEnumQuery: Question %##s is a Domain Enumeration query", qname->c);
+
+	return mDNStrue;
+	}
+
 // Sets all the Valid DNS servers for a question
 mDNSexport mDNSu32 SetValidDNSServers(mDNS *m, DNSQuestion *question)
 	{
@@ -7826,8 +7886,10 @@ mDNSexport mDNSu32 SetValidDNSServers(mDNS *m, DNSQuestion *question)
 	int bettermatch, currcount;
 	int index = 0;
 	mDNSu32 timeout = 0;
+	mDNSBool DEQuery;
 
 	question->validDNSServers = zeroOpaque64;
+	DEQuery = DomainEnumQuery(&question->qname);
 	for (curr = m->DNSServers; curr; curr = curr->next)
 		{
 		debugf("SetValidDNSServers: Parsing DNS server Address %#a (Domain %##s), Scope: %d", &curr->addr, curr->domain.c, curr->scoped);
@@ -7847,7 +7909,9 @@ mDNSexport mDNSu32 SetValidDNSServers(mDNS *m, DNSQuestion *question)
 			{ debugf("SetValidDNSServers: Scoped DNS server %#a (Domain %##s) with Interface Any", &curr->addr, curr->domain.c); continue; }
 
 		currcount = CountLabels(&curr->domain);
-		if ((!curr->scoped && (!question->InterfaceID || (question->InterfaceID == mDNSInterface_Unicast))) || (curr->interface == question->InterfaceID))
+		if ((!DEQuery || !curr->cellIntf) &&
+			((!curr->scoped && (!question->InterfaceID || (question->InterfaceID == mDNSInterface_Unicast))) ||
+			(curr->interface == question->InterfaceID)))
 			{
 			bettermatch = BetterMatchForName(&question->qname, namecount, &curr->domain, currcount, bestmatchlen);
 
@@ -7864,6 +7928,7 @@ mDNSexport mDNSu32 SetValidDNSServers(mDNS *m, DNSQuestion *question)
 					" Timeout %d, interface %p", question->qname.c, &curr->addr, curr->domain.c, curr->scoped, index, curr->timeout,
 					curr->interface);
 				timeout += curr->timeout;
+				if (DEQuery) debugf("DomainEnumQuery: Question %##s, DNSServer %#a, cell %d", question->qname.c, &curr->addr, curr->cellIntf);
 				bit_set_opaque64(question->validDNSServers, index);
 				}
 			}

@@ -35,6 +35,10 @@
 #define MAX_UCAST_UNANSWERED_QUERIES 2                       // the number of unanswered queries from any one uDNS server before trying another server
 #define DNSSERVER_PENALTY_TIME (60 * mDNSPlatformOneSecond) // number of seconds for which new questions don't pick this server
 
+// On some interfaces, we want to delay the first retransmission to a minimum of 2 seconds
+// rather than the default (1 second).
+#define MIN_UCAST_RETRANS_TIMEOUT (2 * mDNSPlatformOneSecond)
+
 #define DEFAULT_UPDATE_LEASE 7200
 
 #define QuestionIntervalStep 3

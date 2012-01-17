@@ -164,7 +164,7 @@ extern mDNSBool SameRDataBody(const ResourceRecord *const r1, const RDataBody *c
 extern mDNSBool SameNameRecordAnswersQuestion(const ResourceRecord *const rr, const DNSQuestion *const q);
 extern mDNSBool ResourceRecordAnswersQuestion(const ResourceRecord *const rr, const DNSQuestion *const q);
 extern mDNSBool AnyTypeRecordAnswersQuestion (const ResourceRecord *const rr, const DNSQuestion *const q);
-extern mDNSBool UnicastResourceRecordAnswersQuestion(const ResourceRecord *const rr, const DNSQuestion *const q);
+extern mDNSBool ResourceRecordAnswersUnicastResponse(const ResourceRecord *const rr, const DNSQuestion *const q);
 extern mDNSBool LocalOnlyRecordAnswersQuestion(AuthRecord *const rr, const DNSQuestion *const q);
 extern mDNSu16 GetRDLength(const ResourceRecord *const rr, mDNSBool estimate);
 extern mDNSBool ValidateRData(const mDNSu16 rrtype, const mDNSu16 rdlength, const RData *const rd);

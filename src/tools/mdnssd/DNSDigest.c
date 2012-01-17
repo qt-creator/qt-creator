@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 4 -*-
  *
- * Copyright (c) 2002-2003 Apple Computer, Inc. All rights reserved.
+ * Copyright (c) 2002-2011 Apple Computer, Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -571,9 +571,16 @@ void md5_block_data_order (MD5_CTX *c, const void *p,int num);
 #endif
 #endif
 
+// None of the invocations of the following macros actually use the result,
+// so cast them to void to avoid any compiler warnings/errors about not using
+// the result (e.g. when using clang).
+// If the resultant values need to be used at some point, these must be changed.
+#define HOST_c2l(c,l) ((void)_HOST_c2l(c,l))
+#define HOST_l2c(l,c) ((void)_HOST_l2c(l,c))
+
 #if defined(DATA_ORDER_IS_BIG_ENDIAN)
 
-#define HOST_c2l(c,l)	(l =(((unsigned long)(*((c)++)))<<24),		\
+#define _HOST_c2l(c,l)	(l =(((unsigned long)(*((c)++)))<<24),		\
 			 l|=(((unsigned long)(*((c)++)))<<16),		\
 			 l|=(((unsigned long)(*((c)++)))<< 8),		\
 			 l|=(((unsigned long)(*((c)++)))    ),		\
@@ -601,7 +608,7 @@ void md5_block_data_order (MD5_CTX *c, const void *p,int num);
 			case 2: l|=((unsigned long)(*(--(c))))<<16;	\
 			case 1: l|=((unsigned long)(*(--(c))))<<24;	\
 				} }
-#define HOST_l2c(l,c)	(*((c)++)=(unsigned char)(((l)>>24)&0xff),	\
+#define _HOST_l2c(l,c)	(*((c)++)=(unsigned char)(((l)>>24)&0xff),	\
 			 *((c)++)=(unsigned char)(((l)>>16)&0xff),	\
 			 *((c)++)=(unsigned char)(((l)>> 8)&0xff),	\
 			 *((c)++)=(unsigned char)(((l)    )&0xff),	\
@@ -609,7 +616,7 @@ void md5_block_data_order (MD5_CTX *c, const void *p,int num);
 
 #elif defined(DATA_ORDER_IS_LITTLE_ENDIAN)
 
-#define HOST_c2l(c,l)	(l =(((unsigned long)(*((c)++)))    ),		\
+#define _HOST_c2l(c,l)	(l =(((unsigned long)(*((c)++)))    ),		\
 			 l|=(((unsigned long)(*((c)++)))<< 8),		\
 			 l|=(((unsigned long)(*((c)++)))<<16),		\
 			 l|=(((unsigned long)(*((c)++)))<<24),		\
@@ -637,7 +644,7 @@ void md5_block_data_order (MD5_CTX *c, const void *p,int num);
 			case 2: l|=((unsigned long)(*(--(c))))<< 8;	\
 			case 1: l|=((unsigned long)(*(--(c))));		\
 				} }
-#define HOST_l2c(l,c)	(*((c)++)=(unsigned char)(((l)    )&0xff),	\
+#define _HOST_l2c(l,c)	(*((c)++)=(unsigned char)(((l)    )&0xff),	\
 			 *((c)++)=(unsigned char)(((l)>> 8)&0xff),	\
 			 *((c)++)=(unsigned char)(((l)>>16)&0xff),	\
 			 *((c)++)=(unsigned char)(((l)>>24)&0xff),	\

@@ -1075,6 +1075,7 @@ typedef struct DNSServer
 	mDNSBool		scoped;		// interface should be matched against question only
 								// if scoped is set
 	mDNSu32			timeout;	// timeout value for questions
+	mDNSBool        cellIntf;   // Resolver from Cellular Interface ?
 	} DNSServer;
 
 typedef struct							// Size is 36 bytes when compiling for 32-bit; 48 when compiling for 64-bit
@@ -2468,7 +2469,7 @@ extern void RecreateNATMappings(mDNS *const m);
 extern void mDNS_AddDynDNSHostName(mDNS *m, const domainname *fqdn, mDNSRecordCallback *StatusCallback, const void *StatusContext);
 extern void mDNS_RemoveDynDNSHostName(mDNS *m, const domainname *fqdn);
 extern void mDNS_SetPrimaryInterfaceInfo(mDNS *m, const mDNSAddr *v4addr,  const mDNSAddr *v6addr, const mDNSAddr *router);
-extern DNSServer *mDNS_AddDNSServer(mDNS *const m, const domainname *d, const mDNSInterfaceID interface, const mDNSAddr *addr, const mDNSIPPort port, mDNSBool scoped, mDNSu32 timeout);
+extern DNSServer *mDNS_AddDNSServer(mDNS *const m, const domainname *d, const mDNSInterfaceID interface, const mDNSAddr *addr, const mDNSIPPort port, mDNSBool scoped, mDNSu32 timeout, mDNSBool cellIntf);
 extern void PenalizeDNSServer(mDNS *const m, DNSQuestion *q);
 extern void mDNS_AddSearchDomain(const domainname *const domain, mDNSInterfaceID InterfaceID);
 
@@ -2653,8 +2654,8 @@ extern mDNSBool   mDNSPlatformValidRecordForInterface(AuthRecord *rr, const Netw
 extern void     LNT_SendDiscoveryMsg(mDNS *m);
 extern void     LNT_ConfigureRouterInfo(mDNS *m, const mDNSInterfaceID InterfaceID, const mDNSu8 *const data, const mDNSu16 len);
 extern mStatus  LNT_GetExternalAddress(mDNS *m);
-extern mStatus  LNT_MapPort(mDNS *m, NATTraversalInfo *n);
-extern mStatus  LNT_UnmapPort(mDNS *m, NATTraversalInfo *n);
+extern mStatus  LNT_MapPort(mDNS *m, NATTraversalInfo *const n);
+extern mStatus  LNT_UnmapPort(mDNS *m, NATTraversalInfo *const n);
 extern void     LNT_ClearState(mDNS *const m);
 #endif // _LEGACY_NAT_TRAVERSAL_
 
@@ -2729,6 +2730,7 @@ extern void DNSServerChangeForQuestion(mDNS *const m, DNSQuestion *q, DNSServer 
 extern void ActivateUnicastRegistration(mDNS *const m, AuthRecord *const rr);
 extern void CheckSuppressUnusableQuestions(mDNS *const m);
 extern void RetrySearchDomainQuestions(mDNS *const m);
+extern mDNSBool DomainEnumQuery(const domainname *qname);
 
 // Used only in logging to restrict the number of /etc/hosts entries printed
 extern void FreeEtcHosts(mDNS *const m, AuthRecord *const rr, mStatus result);
@@ -2943,7 +2945,7 @@ struct CompileTimeAssertionChecks_mDNS
 	char sizecheck_ZoneData            [(sizeof(ZoneData)             <=  1624) ? 1 : -1];
 	char sizecheck_NATTraversalInfo    [(sizeof(NATTraversalInfo)     <=   192) ? 1 : -1];
 	char sizecheck_HostnameInfo        [(sizeof(HostnameInfo)         <=  3050) ? 1 : -1];
-	char sizecheck_DNSServer           [(sizeof(DNSServer)            <=   320) ? 1 : -1];
+	char sizecheck_DNSServer           [(sizeof(DNSServer)            <=   328) ? 1 : -1];
 	char sizecheck_NetworkInterfaceInfo[(sizeof(NetworkInterfaceInfo) <=  6850) ? 1 : -1];
 	char sizecheck_ServiceRecordSet    [(sizeof(ServiceRecordSet)     <=  5500) ? 1 : -1];
 	char sizecheck_DomainAuthInfo      [(sizeof(DomainAuthInfo)       <=  7808) ? 1 : -1];

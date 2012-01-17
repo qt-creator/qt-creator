@@ -27,6 +27,7 @@
  * understand why variable y is not of type "char*" just proves the point that poor code
  * layout leads people to unfortunate misunderstandings about how the C language really works.)
  */
+
 #include "mDNSEmbeddedAPI.h"           // Defines the interface provided to the client layer above
 #include "DNSCommon.h"
 #include "mDNSPosix.h"				 // Defines the specific types needed to run mDNS on this platform
@@ -158,8 +159,12 @@ mDNSexport mStatus mDNSPlatformSendUDP(const mDNS *const m, const void *const ms
 	assert(msg != NULL);
 	assert(end != NULL);
 	assert((((char *) end) - ((char *) msg)) > 0);
-	assert(dstPort.NotAnInteger != 0);
 
+	if (dstPort.NotAnInteger == 0) 
+		{
+		LogMsg("mDNSPlatformSendUDP: Invalid argument -dstPort is set to 0");
+		return PosixErrorToStatus(EINVAL);
+		}
 	if (dst->type == mDNSAddrType_IPv4)
 		{
 		struct sockaddr_in *sin = (struct sockaddr_in*)&to;
@@ -501,7 +506,7 @@ mDNSexport int ParseDNSServers(mDNS *m, const char *filePath)
 			mDNSAddr DNSAddr;
 			DNSAddr.type = mDNSAddrType_IPv4;
 			DNSAddr.ip.v4.NotAnInteger = ina.s_addr;
-			mDNS_AddDNSServer(m, NULL, mDNSInterface_Any, &DNSAddr, UnicastDNSPort, mDNSfalse, 0);
+			mDNS_AddDNSServer(m, NULL, mDNSInterface_Any, &DNSAddr, UnicastDNSPort, mDNSfalse, 0, mDNSfalse);
 			numOfServers++;
 			}
 		}  
@@ -710,16 +715,10 @@ mDNSlocal int SetupSocket(struct sockaddr *intfAddr, mDNSIPPort port, int interf
 		{
 		struct ipv6_mreq imr6;
 		struct sockaddr_in6 bindAddr6;
-	#if defined(IPV6_RECVPKTINFO)
-		if (err == 0)
-		    {
-		    err = setsockopt(*sktPtr, IPPROTO_IPV6, IPV6_RECVPKTINFO, &kOn, sizeof(kOn));
-		    if (err < 0) { err = errno; perror("setsockopt - IPV6_RECVPKTINFO"); }
-		    }
-	#elif defined(IPV6_PKTINFO)
+#if defined(IPV6_PKTINFO)
 		if (err == 0)
 			{
-				err = setsockopt(*sktPtr, IPPROTO_IPV6, IPV6_PKTINFO, &kOn, sizeof(kOn));
+				err = setsockopt(*sktPtr, IPPROTO_IPV6, IPV6_2292_PKTINFO, &kOn, sizeof(kOn));
 				if (err < 0) { err = errno; perror("setsockopt - IPV6_PKTINFO"); }
 			}
 	#else
@@ -728,7 +727,7 @@ mDNSlocal int SetupSocket(struct sockaddr *intfAddr, mDNSIPPort port, int interf
 	#if defined(IPV6_HOPLIMIT)
 		if (err == 0)
 			{
-				err = setsockopt(*sktPtr, IPPROTO_IPV6, IPV6_HOPLIMIT, &kOn, sizeof(kOn));
+				err = setsockopt(*sktPtr, IPPROTO_IPV6, IPV6_2292_HOPLIMIT, &kOn, sizeof(kOn));
 				if (err < 0) { err = errno; perror("setsockopt - IPV6_HOPLIMIT"); }
 			}
 	#endif
@@ -846,6 +845,7 @@ mDNSlocal int SetupOneInterface(mDNS *const m, struct sockaddr *intfAddr, struct
 		// Set up the fields required by the mDNS core.
 		SockAddrTomDNSAddr(intfAddr, &intf->coreIntf.ip, NULL);
 		SockAddrTomDNSAddr(intfMask, &intf->coreIntf.mask, NULL);
+
 		//LogMsg("SetupOneInterface: %#a %#a",  &intf->coreIntf.ip,  &intf->coreIntf.mask);
 		strncpy(intf->coreIntf.ifname, intfName, sizeof(intf->coreIntf.ifname));
 		intf->coreIntf.ifname[sizeof(intf->coreIntf.ifname)-1] = 0;

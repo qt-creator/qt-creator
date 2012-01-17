@@ -101,7 +101,7 @@ mDNSlocal void SetRecordRetry(mDNS *const m, AuthRecord *rr, mDNSu32 random)
 #pragma mark - Name Server List Management
 #endif
 
-mDNSexport DNSServer *mDNS_AddDNSServer(mDNS *const m, const domainname *d, const mDNSInterfaceID interface, const mDNSAddr *addr, const mDNSIPPort port, mDNSBool scoped, mDNSu32 timeout)
+mDNSexport DNSServer *mDNS_AddDNSServer(mDNS *const m, const domainname *d, const mDNSInterfaceID interface, const mDNSAddr *addr, const mDNSIPPort port, mDNSBool scoped, mDNSu32 timeout, mDNSBool cellIntf)
 	{
 	DNSServer **p = &m->DNSServers;
 	DNSServer *tmp = mDNSNULL;
@@ -150,6 +150,7 @@ mDNSexport DNSServer *mDNS_AddDNSServer(mDNS *const m, const domainname *d, cons
 			(*p)->teststate = /* DNSServer_Untested */ DNSServer_Passed;
 			(*p)->lasttest  = m->timenow - INIT_UCAST_POLL_INTERVAL;
 			(*p)->timeout   = timeout;
+			(*p)->cellIntf  = cellIntf;
 			AssignDomainName(&(*p)->domain, d);
 			(*p)->next = mDNSNULL;
 			}
@@ -4108,56 +4109,6 @@ mDNSexport mStatus uDNS_UpdateRecord(mDNS *m, AuthRecord *rr)
 #pragma mark - Periodic Execution Routines
 #endif
 
-mDNSlocal const mDNSu8 *mDNS_WABLabels[] =
-	{
-	(const mDNSu8 *)"\001b",
-	(const mDNSu8 *)"\002db",
-	(const mDNSu8 *)"\002lb",
-	(const mDNSu8 *)"\001r",
-	(const mDNSu8 *)"\002dr",
-	(const mDNSu8 *)mDNSNULL,
-	};
-
-// Returns true if it is a WAB question
-mDNSlocal mDNSBool WABQuestion(const domainname *qname)
-	{
- 	const mDNSu8 *sd = (const mDNSu8 *)"\007_dns-sd";
-	const mDNSu8 *prot = (const mDNSu8 *)"\004_udp";
-	const domainname *d = qname;
-	const mDNSu8 *label;
-	int i = 0;
-
-	// We need at least 3 labels (WAB prefix) + one more label to make
-	// a meaningful WAB query
-	if (CountLabels(qname) < 4) { debugf("WABQuestion: question %##s, not enough labels", qname->c); return mDNSfalse; }
-
-	label = (const mDNSu8 *)d;
-	while (mDNS_WABLabels[i] != (const mDNSu8 *)mDNSNULL)
-		{
-		if (SameDomainLabel(mDNS_WABLabels[i], label)) {debugf("WABquestion: WAB question %##s, label1 match", qname->c); break;}
-		i++;
-		}
-	if (mDNS_WABLabels[i] == (const mDNSu8 *)mDNSNULL)
-		{
-		debugf("WABquestion: Not a WAB question %##s, label1 mismatch", qname->c);
-		return mDNSfalse;
-		}
-	// CountLabels already verified the number of labels 
-	d = (const domainname *)(d->c + 1 + d->c[0]);	// Second Label
-	label = (const mDNSu8 *)d;
-	if (!SameDomainLabel(label, sd)){ debugf("WABquestion: Not a WAB question %##s, label2 mismatch", qname->c);return(mDNSfalse); }
-	debugf("WABquestion: WAB question %##s, label2 match", qname->c);
-
-	d = (const domainname *)(d->c + 1 + d->c[0]); 	// Third Label
-	label = (const mDNSu8 *)d;
-	if (!SameDomainLabel(label, prot)){ debugf("WABquestion: Not a WAB question %##s, label3 mismatch", qname->c);return(mDNSfalse); }
-	debugf("WABquestion: WAB question %##s, label3 match", qname->c);
-
-	LogInfo("WABquestion: Question %##s is a WAB question", qname->c);
-
-	return mDNStrue;
-	}
-
 // The question to be checked is not passed in as an explicit parameter;
 // instead it is implicit that the question to be checked is m->CurrentQuestion.
 mDNSexport void uDNS_CheckCurrentQuestion(mDNS *const m)
@@ -4285,7 +4236,14 @@ mDNSexport void uDNS_CheckCurrentQuestion(mDNS *const m)
 						q->ThisQInterval = LLQ_POLL_INTERVAL;
 					LogInfo("uDNS_CheckCurrentQuestion: private non polling question for %##s (%s) will be retried in %d ms", q->qname.c, DNSTypeName(q->qtype), q->ThisQInterval);
 					}
-				debugf("Increased ThisQInterval to %d for %##s (%s)", q->ThisQInterval, q->qname.c, DNSTypeName(q->qtype));
+				if (q->qDNSServer->cellIntf)
+					{
+					// We don't want to retransmit too soon. Schedule our first retransmisson at
+					// MIN_UCAST_RETRANS_TIMEOUT seconds.
+					if (q->ThisQInterval < MIN_UCAST_RETRANS_TIMEOUT)
+						q->ThisQInterval = MIN_UCAST_RETRANS_TIMEOUT;
+					}
+				debugf("uDNS_CheckCurrentQuestion: Increased ThisQInterval to %d for %##s (%s), cell %d", q->ThisQInterval, q->qname.c, DNSTypeName(q->qtype), q->qDNSServer->cellIntf);
 				}
 			q->LastQTime = m->timenow;
 			SetNextQueryTime(m, q);
@@ -4351,7 +4309,7 @@ mDNSexport void uDNS_CheckCurrentQuestion(mDNS *const m)
 			// For some of the WAB queries that we generate form within the mDNSResponder, most of the home routers
 			// don't understand and return ServFail/NXDomain. In those cases, we don't want to try too often. We try
 			// every fifteen minutes in that case
-			MakeNegativeCacheRecord(m, &m->rec.r, &q->qname, q->qnamehash, q->qtype, q->qclass, (WABQuestion(&q->qname) ? 60 * 15 : 60), mDNSInterface_Any, q->qDNSServer);
+			MakeNegativeCacheRecord(m, &m->rec.r, &q->qname, q->qnamehash, q->qtype, q->qclass, (DomainEnumQuery(&q->qname) ? 60 * 15 : 60), mDNSInterface_Any, q->qDNSServer);
 			q->unansweredQueries = 0;
 			// We're already using the m->CurrentQuestion pointer, so CacheRecordAdd can't use it to walk the question list.
 			// To solve this problem we set rr->DelayDelivery to a nonzero value (which happens to be 'now') so that we
