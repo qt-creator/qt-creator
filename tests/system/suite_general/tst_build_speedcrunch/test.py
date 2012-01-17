@@ -2,7 +2,7 @@ source("../../shared/qtcreator.py")
 
 SpeedCrunchPath = ""
 
-def buildConfigFromFancyToolButtton(fancyToolButton):
+def buildConfigFromFancyToolButton(fancyToolButton):
     beginOfBuildConfig = "<b>Build:</b> "
     endOfBuildConfig = "<br/><b>Deploy:</b>"
     toolTipText = str(fancyToolButton.toolTip)
@@ -27,7 +27,7 @@ def main():
 
     for config in iterateBuildConfigs(1, 0, "(Desktop )?Qt.*Release"):
         selectBuildConfig(1, 0, config)
-        buildConfig = buildConfigFromFancyToolButtton(fancyToolButton)
+        buildConfig = buildConfigFromFancyToolButton(fancyToolButton)
         if buildConfig != config:
             test.fatal("Build configuration %s is selected instead of %s" % (buildConfig, config))
             continue
