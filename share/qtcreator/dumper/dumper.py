@@ -1503,7 +1503,9 @@ class Dumper:
             try:
                 value.dereference()
             except:
-                self.putValue("<optimized out>")
+                # Failure to dereference a pointer should at least
+                # show the value of a pointer.
+                self.putValue(cleanAddress(value))
                 self.putType(typeName)
                 self.putNumChild(0)
                 return
