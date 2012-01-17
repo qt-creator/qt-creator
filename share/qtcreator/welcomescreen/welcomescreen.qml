@@ -54,7 +54,8 @@ Rectangle {
         }
 
         width: Math.min(1024, parent.width)
-        anchors.topMargin: 0
+        //this is a workaround for QTCREATORBUG-6803
+        anchors.topMargin: (root.height > 700) ? 0 : 0
 
         anchors.top: parent.top
         anchors.bottom: parent.bottom
