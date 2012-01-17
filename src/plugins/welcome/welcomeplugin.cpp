@@ -31,7 +31,6 @@
 **************************************************************************/
 
 #include "welcomeplugin.h"
-#include "multifeedrssmodel.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -188,26 +187,8 @@ bool sortFunction(Utils::IWelcomePage * a, Utils::IWelcomePage *b)
     return a->priority() < b->priority();
 }
 
-void WelcomeMode::facilitateQml(QDeclarativeEngine *engine)
+void WelcomeMode::facilitateQml(QDeclarativeEngine * /*engine*/)
 {
-    const QString feedGroupName = QLatin1String("Feeds");
-
-    MultiFeedRssModel *rssModel = new MultiFeedRssModel(this);
-    QSettings *settings = Core::ICore::instance()->settings();
-    if (settings->childGroups().contains(feedGroupName)) {
-        int size = settings->beginReadArray(feedGroupName);
-        const QString url = QLatin1String("url");
-        for (int i = 0; i < size; ++i) {
-            settings->setArrayIndex(i);
-            rssModel->addFeed(settings->value(url).toString());
-        }
-        settings->endArray();
-    } else {
-        rssModel->addFeed(QLatin1String("http://labs.trolltech.com/blogs/feed"));
-        rssModel->addFeed(QLatin1String("http://feeds.feedburner.com/TheQtBlog?format=xml"));
-    }
-
-    engine->rootContext()->setContextProperty(QLatin1String("aggregatedFeedsModel"), rssModel);
 }
 
 void WelcomeMode::initPlugins()

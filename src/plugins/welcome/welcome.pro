@@ -6,11 +6,9 @@ include(../../qtcreatorplugin.pri)
 include(welcome_dependencies.pri)
 
 HEADERS += welcomeplugin.h \
-    welcome_global.h \
-    multifeedrssmodel.h
+    welcome_global.h
 
-SOURCES += welcomeplugin.cpp \
-    multifeedrssmodel.cpp
+SOURCES += welcomeplugin.cpp
 
 DEFINES += WELCOME_LIBRARY
 
