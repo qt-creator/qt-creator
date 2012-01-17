@@ -554,14 +554,21 @@ static TextEditor::ITextEditor *currentTextEditor()
 
 static bool currentTextEditorPosition(ContextData *data)
 {
-    if (TextEditor::ITextEditor *textEditor = currentTextEditor()) {
-        if (const Core::IFile *file = textEditor->file()) {
-            data->fileName = file->fileName();
-            data->lineNumber = textEditor->currentLine();
-            return true;
-        }
+    TextEditor::ITextEditor *textEditor = currentTextEditor();
+    if (!textEditor)
+        return false;
+    const Core::IFile *file = textEditor->file();
+    QTC_ASSERT(file, return false);
+    data->fileName = file->fileName();
+    if (textEditor->property("DisassemblerView").toBool()) {
+        int lineNumber = textEditor->currentLine();
+        QString line = textEditor->contents()
+            .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
+        data->address = DisassemblerLine::addressFromDisassemblyLine(line);
+    } else {
+        data->lineNumber = textEditor->currentLine();
     }
-    return false;
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////
