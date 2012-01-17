@@ -122,7 +122,7 @@ void AbstractMsvcToolChain::addToEnvironment(Utils::Environment &env) const
 QString AbstractMsvcToolChain::makeCommand() const
 {
     if (ProjectExplorerPlugin::instance()->projectExplorerSettings().useJom) {
-        return MingwToolChain::findInstalledJom();
+        return findInstalledJom();
     }
     return QLatin1String("nmake.exe");
 }
