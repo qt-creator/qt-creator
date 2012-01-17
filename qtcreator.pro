@@ -25,6 +25,8 @@ macx {
         -executable="$${APPBUNDLE}/Contents/MacOS/qmlprofiler"
     deployqt.depends = default
     bindist.commands = 7z a -mx9 $$OUT_PWD/qtcreator$(INSTALL_POSTFIX).7z "$$OUT_PWD/bin/Qt Creator.app/"
+    dmg.commands = $$PWD/scripts/makedmg.sh $$OUT_PWD/bin qt-creator$(INSTALL_POSTFIX).dmg
+    QMAKE_EXTRA_TARGETS += dmg
 } else {
     deployqt.commands = $$PWD/scripts/deployqt.py -i $(INSTALL_ROOT)
     win32:deployqt.commands ~= s,/,\\\\,g
