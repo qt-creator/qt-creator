@@ -1,5 +1,4 @@
 source("../../shared/qtcreator.py")
-import re;
 
 SpeedCrunchPath = ""
 
@@ -25,33 +24,20 @@ def main():
         test.compare(waitForObject(node).text, value)
 
     fancyToolButton = waitForObject(":*Qt Creator_Core::Internal::FancyToolButton")
-    clickButton(fancyToolButton)
-    listWidget = waitForObject("{occurrence='2' type='ProjectExplorer::Internal::GenericListWidget' unnamed='1' visible='0' "
-                               "window=':QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector'}")
-    mouseClick(waitForObject(":QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector"), -5, 5, 0, Qt.LeftButton)
 
-    prog = re.compile("(Desktop )?Qt.*Release")
-    for row in range(listWidget.count):
-        currentItem = listWidget.item(row)
-        if prog.match(str(currentItem.text())):
-            clickButton(fancyToolButton)
-            itemText = currentItem.text()
-            test.log("Testing build configuration: "+str(itemText))
-            if listWidget.currentRow != row:
-                rect = listWidget.visualItemRect(currentItem)
-                mouseClick(listWidget, rect.x+5, rect.y+5, 0, Qt.LeftButton)
-                waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
-            mouseClick(waitForObject(":QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector"), -45, 64, 0, Qt.LeftButton)
-            buildConfig = buildConfigFromFancyToolButtton(fancyToolButton)
-            if buildConfig != currentItem.text():
-                test.fatal("Build configuration %s is selected instead of %s" % (buildConfig, currentItem.text()))
-                continue
-            invokeMenuItem("Build", "Run qmake")
-            waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
-            invokeMenuItem("Build", "Rebuild All")
-            waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
-            checkCompile()
-            checkLastBuild()
+    for config in iterateBuildConfigs(1, 0, "(Desktop )?Qt.*Release"):
+        selectBuildConfig(1, 0, config)
+        buildConfig = buildConfigFromFancyToolButtton(fancyToolButton)
+        if buildConfig != config:
+            test.fatal("Build configuration %s is selected instead of %s" % (buildConfig, config))
+            continue
+        test.log("Testing build configuration: " + config)
+        invokeMenuItem("Build", "Run qmake")
+        waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
+        invokeMenuItem("Build", "Rebuild All")
+        waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
+        checkCompile()
+        checkLastBuild()
 
     # Add a new run configuration
 

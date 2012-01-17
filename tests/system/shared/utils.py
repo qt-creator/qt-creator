@@ -52,12 +52,16 @@ def verifyEnabled(objectSpec, expectedState = True):
 # param objectSpec  specifies the combo box. It can either be a string determining an object
 #                   or the object itself. If it is an object, it must exist already.
 # param itemName is the item to be selected in the combo box
+# returns True if selection was changed or False if the wanted value was already selected
 def selectFromCombo(objectSpec, itemName):
     object = verifyEnabled(objectSpec)
-    if itemName != str(object.currentText):
+    if itemName == str(object.currentText):
+        return False
+    else:
         mouseClick(object, 5, 5, 0, Qt.LeftButton)
         mouseClick(waitForObjectItem(object, itemName.replace(".", "\\.")), 5, 5, 0, Qt.LeftButton)
         waitFor("str(object.currentText)==itemName", 5000)
+        return True
 
 def selectFromLocator(filter, itemName = None):
     if itemName == None:

@@ -1,3 +1,5 @@
+import re;
+
 # dictionary to hold a list of all installed handler functions for all object-signalSignature pairs
 installedSignalHandlers = {}
 # flag to indicate whether overrideInstallLazySignalHandler() has been called already
@@ -134,3 +136,31 @@ def createTasksFile(list):
     file.close()
     test.log("Written tasks file %s" % outfile)
 
+# returns a list of the build configurations for a target
+# param targetCount specifies the number of targets currently defined (must be correct!)
+# param currentTarget specifies the target for which to switch into the specified settings (zero based index)
+# param filter is a regular expression to filter the configuration by their name
+def iterateBuildConfigs(targetCount, currentTarget, filter = ""):
+    switchViewTo(ViewConstants.PROJECTS)
+    switchToBuildOrRunSettingsFor(targetCount, currentTarget, ProjectSettings.BUILD)
+    configs = []
+    model = waitForObject(":scrollArea.Edit build configuration:_QComboBox", 20000).model()
+    prog = re.compile(filter)
+    for row in range(model.rowCount()):
+        configName = str(model.index(row, 0).data())
+        if prog.match(configName):
+            configs += [configName]
+    switchViewTo(ViewConstants.EDIT)
+    return configs
+
+# selects a build configuration for building the current project
+# param targetCount specifies the number of targets currently defined (must be correct!)
+# param currentTarget specifies the target for which to switch into the specified settings (zero based index)
+# param configName is the name of the configuration that should be selected
+def selectBuildConfig(targetCount, currentTarget, configName):
+    switchViewTo(ViewConstants.PROJECTS)
+    switchToBuildOrRunSettingsFor(targetCount, currentTarget, ProjectSettings.BUILD)
+    if selectFromCombo(":scrollArea.Edit build configuration:_QComboBox", configName):
+        waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}",
+                      "sourceFilesRefreshed(QStringList)")
+    switchViewTo(ViewConstants.EDIT)
