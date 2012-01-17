@@ -49,7 +49,10 @@ namespace Core { class IVersionControl; }
 
 namespace VcsBase {
 
-namespace Internal { class VcsBaseEditorWidgetPrivate; }
+namespace Internal {
+class ChangeTextCursorHandler;
+class VcsBaseEditorWidgetPrivate;
+}
 
 class DiffHighlighter;
 class BaseAnnotationHighlighter;
@@ -221,13 +224,11 @@ public slots:
     void setFontSettings(const TextEditor::FontSettings &);
 
 private slots:
-    void describe();
     void slotActivateAnnotation();
     void slotPopulateDiffBrowser();
     void slotDiffBrowse(int);
     void slotDiffCursorPositionChanged();
     void slotAnnotateRevision();
-    void slotCopyRevision();
     void slotApplyDiffChunk();
     void slotPaste();
 
@@ -260,10 +261,8 @@ private:
     DiffChunk diffChunk(QTextCursor cursor) const;
 
     void jumpToChangeFromDiff(QTextCursor cursor);
-    QAction *createDescribeAction(const QString &change);
-    QAction *createAnnotateAction(const QString &change, bool previous = false);
-    QAction *createCopyRevisionAction(const QString &change);
 
+    friend class Internal::ChangeTextCursorHandler;
     Internal::VcsBaseEditorWidgetPrivate *const d;
 };
 

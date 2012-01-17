@@ -64,7 +64,9 @@
 #include <QtCore/QSet>
 #include <QtCore/QTextCodec>
 #include <QtCore/QTextStream>
+#include <QtCore/QUrl>
 #include <QtGui/QTextBlock>
+#include <QtGui/QDesktopServices>
 #include <QtGui/QAction>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QLayout>
@@ -212,14 +214,380 @@ VcsBaseDiffEditor::VcsBaseDiffEditor(VcsBaseEditorWidget *w, const VcsBaseEditor
 
 namespace Internal {
 
+/*! \class AbstractTextCursorHandler
+ *  \brief Provides an interface to handle the contents under a text cursor inside an editor
+ */
+class AbstractTextCursorHandler : public QObject
+{
+public:
+    AbstractTextCursorHandler(VcsBaseEditorWidget *editorWidget = 0);
+
+    /*! \brief Try to find some matching contents under \p cursor
+     *
+     *  It's the first function to be called because it changes the internal state of the handler.
+     *  Other functions (highlightCurrentContents(), handleCurrentContents(), ...) use the result
+     *  of the matching
+     *
+     *  \return true If contents could be found
+     */
+    virtual bool findContentsUnderCursor(const QTextCursor &cursor);
+
+    //! Highlight (eg underline) the contents matched with findContentsUnderCursor()
+    virtual void highlightCurrentContents() = 0;
+
+    //! React to user-interaction with the contents matched with findContentsUnderCursor()
+    virtual void handleCurrentContents() = 0;
+
+    //! Contents matched with the last call to findContentsUnderCursor()
+    virtual QString currentContents() const = 0;
+
+    /*! \brief Fill \p menu with contextual actions applying to the contents matched
+     *         with findContentsUnderCursor()
+     */
+    virtual void fillContextMenu(QMenu *menu, EditorContentType type) const = 0;
+
+    //! Editor passed on construction of this handler
+    VcsBaseEditorWidget *editorWidget() const;
+
+    //! Text cursor used to match contents with findContentsUnderCursor()
+    QTextCursor currentCursor() const;
+
+private:
+    VcsBaseEditorWidget *m_editorWidget;
+    QTextCursor m_currentCursor;
+};
+
+AbstractTextCursorHandler::AbstractTextCursorHandler(VcsBaseEditorWidget *editorWidget)
+    : QObject(editorWidget),
+      m_editorWidget(editorWidget)
+{
+}
+
+bool AbstractTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
+{
+    m_currentCursor = cursor;
+    return false;
+}
+
+VcsBaseEditorWidget *AbstractTextCursorHandler::editorWidget() const
+{
+    return m_editorWidget;
+}
+
+QTextCursor AbstractTextCursorHandler::currentCursor() const
+{
+    return m_currentCursor;
+}
+
+/*! \class ChangeTextCursorHandler
+ *  \brief Provides a handler for VCS change identifiers
+ */
+class ChangeTextCursorHandler : public AbstractTextCursorHandler
+{
+    Q_OBJECT
+
+public:
+    ChangeTextCursorHandler(VcsBaseEditorWidget *editorWidget = 0);
+
+    bool findContentsUnderCursor(const QTextCursor &cursor);
+    void highlightCurrentContents();
+    void handleCurrentContents();
+    QString currentContents() const;
+    void fillContextMenu(QMenu *menu, EditorContentType type) const;
+
+private slots:
+    void slotDescribe();
+    void slotCopyRevision();
+
+private:
+    QAction *createDescribeAction(const QString &change) const;
+    QAction *createAnnotateAction(const QString &change, bool previous) const;
+    QAction *createCopyRevisionAction(const QString &change) const;
+
+    QString m_currentChange;
+};
+
+ChangeTextCursorHandler::ChangeTextCursorHandler(VcsBaseEditorWidget *editorWidget)
+    : AbstractTextCursorHandler(editorWidget)
+{
+}
+
+bool ChangeTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
+{
+    AbstractTextCursorHandler::findContentsUnderCursor(cursor);
+    m_currentChange = editorWidget()->changeUnderCursor(cursor);
+    return !m_currentChange.isEmpty();
+}
+
+void ChangeTextCursorHandler::highlightCurrentContents()
+{
+    QTextEdit::ExtraSelection sel;
+    sel.cursor = currentCursor();
+    sel.cursor.select(QTextCursor::WordUnderCursor);
+    sel.format.setFontUnderline(true);
+    sel.format.setProperty(QTextFormat::UserProperty, m_currentChange);
+    editorWidget()->setExtraSelections(VcsBaseEditorWidget::OtherSelection,
+                                       QList<QTextEdit::ExtraSelection>() << sel);
+}
+
+void ChangeTextCursorHandler::handleCurrentContents()
+{
+    slotDescribe();
+}
+
+void ChangeTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType type) const
+{
+    switch (type) {
+    case LogOutput: { // Describe current / Annotate file of current
+        menu->addSeparator();
+        menu->addAction(createCopyRevisionAction(m_currentChange));
+        menu->addAction(createDescribeAction(m_currentChange));
+        if (editorWidget()->isFileLogAnnotateEnabled())
+            menu->addAction(createAnnotateAction(m_currentChange, false));
+        break;
+    }
+    case AnnotateOutput: { // Describe current / annotate previous
+        menu->addSeparator();
+        menu->addAction(createCopyRevisionAction(m_currentChange));
+        menu->addAction(createDescribeAction(m_currentChange));
+        const QStringList previousVersions = editorWidget()->annotationPreviousVersions(m_currentChange);
+        if (!previousVersions.isEmpty()) {
+            menu->addSeparator();
+            foreach (const QString &pv, previousVersions)
+                menu->addAction(createAnnotateAction(pv, true));
+        }
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+QString ChangeTextCursorHandler::currentContents() const
+{
+    return m_currentChange;
+}
+
+void ChangeTextCursorHandler::slotDescribe()
+{
+    emit editorWidget()->describeRequested(editorWidget()->source(), m_currentChange);
+}
+
+void ChangeTextCursorHandler::slotCopyRevision()
+{
+    QApplication::clipboard()->setText(m_currentChange);
+}
+
+QAction *ChangeTextCursorHandler::createDescribeAction(const QString &change) const
+{
+    QAction *a = new QAction(VcsBaseEditorWidget::tr("Describe change %1").arg(change), 0);
+    connect(a, SIGNAL(triggered()), this, SLOT(slotDescribe()));
+    return a;
+}
+
+QAction *ChangeTextCursorHandler::createAnnotateAction(const QString &change, bool previous) const
+{
+    // Use 'previous' format if desired and available, else default to standard.
+    const QString &format =
+            previous && !editorWidget()->annotatePreviousRevisionTextFormat().isEmpty() ?
+                editorWidget()->annotatePreviousRevisionTextFormat() :
+                editorWidget()->annotateRevisionTextFormat();
+    QAction *a = new QAction(format.arg(change), 0);
+    a->setData(change);
+    connect(a, SIGNAL(triggered()), editorWidget(), SLOT(slotAnnotateRevision()));
+    return a;
+}
+
+QAction *ChangeTextCursorHandler::createCopyRevisionAction(const QString &change) const
+{
+    QAction *a = new QAction(editorWidget()->copyRevisionTextFormat().arg(change), 0);
+    a->setData(change);
+    connect(a, SIGNAL(triggered()), this, SLOT(slotCopyRevision()));
+    return a;
+}
+
+/*! \class UrlTextCursorHandler
+ *  \brief Provides a handler for URL like http://www.nokia.com
+ *
+ *  The URL pattern can be redefined in sub-classes with setUrlPattern(), by default the pattern
+ *  works for hyper-text URL
+ */
+class UrlTextCursorHandler : public AbstractTextCursorHandler
+{
+    Q_OBJECT
+
+public:
+    UrlTextCursorHandler(VcsBaseEditorWidget *editorWidget = 0);
+
+    bool findContentsUnderCursor(const QTextCursor &cursor);
+    void highlightCurrentContents();
+    void handleCurrentContents();
+    void fillContextMenu(QMenu *menu, EditorContentType type) const;
+    QString currentContents() const;
+
+protected slots:
+    virtual void slotCopyUrl();
+    virtual void slotOpenUrl();
+
+protected:
+    void setUrlPattern(const QString &pattern);
+    QAction *createOpenUrlAction(const QString &text) const;
+    QAction *createCopyUrlAction(const QString &text) const;
+
+private:
+    class UrlData
+    {
+    public:
+        int startColumn;
+        QString url;
+    };
+
+    UrlData m_urlData;
+    QString m_urlPattern;
+};
+
+UrlTextCursorHandler::UrlTextCursorHandler(VcsBaseEditorWidget *editorWidget)
+    : AbstractTextCursorHandler(editorWidget)
+{
+    setUrlPattern(QLatin1String("https?\\://[^\\s]+"));
+}
+
+bool UrlTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
+{
+    AbstractTextCursorHandler::findContentsUnderCursor(cursor);
+
+    m_urlData.url.clear();
+    m_urlData.startColumn = -1;
+
+    QTextCursor cursorForUrl = cursor;
+    cursorForUrl.select(QTextCursor::LineUnderCursor);
+    if (cursorForUrl.hasSelection()) {
+        const QString line = cursorForUrl.selectedText();
+        const int cursorCol = cursor.columnNumber();
+        const QRegExp urlRx(m_urlPattern);
+        int urlMatchIndex = -1;
+        do {
+            urlMatchIndex = urlRx.indexIn(line, urlMatchIndex + 1);
+            if (urlMatchIndex != -1) {
+                const QString url = urlRx.cap(0);
+                if (urlMatchIndex <= cursorCol && cursorCol <= urlMatchIndex + url.length()) {
+                    m_urlData.startColumn = urlMatchIndex;
+                    m_urlData.url = url;
+                }
+            }
+        } while (urlMatchIndex != -1 && m_urlData.startColumn == -1);
+    }
+
+    return m_urlData.startColumn != -1;
+}
+
+void UrlTextCursorHandler::highlightCurrentContents()
+{
+    QTextEdit::ExtraSelection sel;
+    sel.cursor = currentCursor();
+    sel.cursor.setPosition(currentCursor().position()
+                           - (currentCursor().columnNumber() - m_urlData.startColumn));
+    sel.cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, m_urlData.url.length());
+    sel.format.setFontUnderline(true);
+    sel.format.setForeground(Qt::blue);
+    sel.format.setUnderlineColor(Qt::blue);
+    sel.format.setProperty(QTextFormat::UserProperty, m_urlData.url);
+    editorWidget()->setExtraSelections(VcsBaseEditorWidget::OtherSelection,
+                                       QList<QTextEdit::ExtraSelection>() << sel);
+}
+
+void UrlTextCursorHandler::handleCurrentContents()
+{
+    slotOpenUrl();
+}
+
+void UrlTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType type) const
+{
+    Q_UNUSED(type);
+    menu->addSeparator();
+    menu->addAction(createOpenUrlAction(tr("Open URL in browser ...")));
+    menu->addAction(createCopyUrlAction(tr("Copy URL location")));
+}
+
+QString UrlTextCursorHandler::currentContents() const
+{
+    return  m_urlData.url;
+}
+
+void UrlTextCursorHandler::setUrlPattern(const QString &pattern)
+{
+    m_urlPattern = pattern;
+}
+
+void UrlTextCursorHandler::slotCopyUrl()
+{
+    QApplication::clipboard()->setText(m_urlData.url);
+}
+
+void UrlTextCursorHandler::slotOpenUrl()
+{
+    QDesktopServices::openUrl(QUrl(m_urlData.url));
+}
+
+QAction *UrlTextCursorHandler::createOpenUrlAction(const QString &text) const
+{
+    QAction *a = new QAction(text, 0);
+    a->setData(m_urlData.url);
+    connect(a, SIGNAL(triggered()), this, SLOT(slotOpenUrl()));
+    return a;
+}
+
+QAction *UrlTextCursorHandler::createCopyUrlAction(const QString &text) const
+{
+    QAction *a = new QAction(text, 0);
+    a->setData(m_urlData.url);
+    connect(a, SIGNAL(triggered()), this, SLOT(slotCopyUrl()));
+    return a;
+}
+
+/*! \class EmailTextCursorHandler
+ *  \brief Provides a handler for email addresses
+ */
+class EmailTextCursorHandler : public UrlTextCursorHandler
+{
+    Q_OBJECT
+
+public:
+    EmailTextCursorHandler(VcsBaseEditorWidget *editorWidget = 0);
+    void fillContextMenu(QMenu *menu, EditorContentType type) const;
+
+protected slots:
+    void slotOpenUrl();
+};
+
+EmailTextCursorHandler::EmailTextCursorHandler(VcsBaseEditorWidget *editorWidget)
+    : UrlTextCursorHandler(editorWidget)
+{
+    setUrlPattern(QLatin1String("[a-zA-Z0-9_\\.]+@[a-zA-Z0-9_\\.]+"));
+}
+
+void EmailTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType type) const
+{
+    Q_UNUSED(type);
+    menu->addSeparator();
+    menu->addAction(createOpenUrlAction(tr("Send email to ...")));
+    menu->addAction(createCopyUrlAction(tr("Copy email address")));
+}
+
+void EmailTextCursorHandler::slotOpenUrl()
+{
+    QDesktopServices::openUrl(QUrl(QLatin1String("mailto:") + currentContents()));
+}
+
 class VcsBaseEditorWidgetPrivate
 {
 public:
-    VcsBaseEditorWidgetPrivate(const VcsBaseEditorParameters *type);
+    VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget* editorWidget, const VcsBaseEditorParameters *type);
+
+    AbstractTextCursorHandler *findTextCursorHandler(const QTextCursor &cursor);
 
     const VcsBaseEditorParameters *m_parameters;
 
-    QString m_currentChange;
     QString m_source;
     QString m_diffBaseDirectory;
 
@@ -234,9 +602,11 @@ public:
     QWidget *m_configurationWidget;
     bool m_revertChunkEnabled;
     bool m_mouseDragging;
+    QList<AbstractTextCursorHandler *> m_textCursorHandlers;
 };
 
-VcsBaseEditorWidgetPrivate::VcsBaseEditorWidgetPrivate(const VcsBaseEditorParameters *type)  :
+VcsBaseEditorWidgetPrivate::VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget *editorWidget,
+                                                       const VcsBaseEditorParameters *type)  :
     m_parameters(type),
     m_cursorLine(-1),
     m_annotateRevisionTextFormat(VcsBaseEditorWidget::tr("Annotate \"%1\"")),
@@ -247,6 +617,18 @@ VcsBaseEditorWidgetPrivate::VcsBaseEditorWidgetPrivate(const VcsBaseEditorParame
     m_revertChunkEnabled(false),
     m_mouseDragging(false)
 {
+    m_textCursorHandlers.append(new ChangeTextCursorHandler(editorWidget));
+    m_textCursorHandlers.append(new UrlTextCursorHandler(editorWidget));
+    m_textCursorHandlers.append(new EmailTextCursorHandler(editorWidget));
+}
+
+AbstractTextCursorHandler *VcsBaseEditorWidgetPrivate::findTextCursorHandler(const QTextCursor &cursor)
+{
+    foreach (AbstractTextCursorHandler *handler, m_textCursorHandlers) {
+        if (handler->findContentsUnderCursor(cursor))
+            return handler;
+    }
+    return 0;
 }
 
 } // namespace Internal
@@ -276,7 +658,7 @@ VcsBaseEditorWidgetPrivate::VcsBaseEditorWidgetPrivate(const VcsBaseEditorParame
 
 VcsBaseEditorWidget::VcsBaseEditorWidget(const VcsBaseEditorParameters *type, QWidget *parent)
   : BaseTextEditorWidget(parent),
-    d(new Internal::VcsBaseEditorWidgetPrivate(type))
+    d(new Internal::VcsBaseEditorWidgetPrivate(this, type))
 {
     viewport()->setMouseTracking(true);
     setBaseTextDocument(new Internal::VcsBaseTextDocument);
@@ -511,66 +893,19 @@ void VcsBaseEditorWidget::slotDiffCursorPositionChanged()
     }
 }
 
-QAction *VcsBaseEditorWidget::createDescribeAction(const QString &change)
-{
-    QAction *a = new QAction(tr("Describe change %1").arg(change), 0);
-    connect(a, SIGNAL(triggered()), this, SLOT(describe()));
-    return a;
-}
-
-QAction *VcsBaseEditorWidget::createAnnotateAction(const QString &change, bool previous)
-{
-    // Use 'previous' format if desired and available, else default to standard.
-    const QString &format =  previous && !d->m_annotatePreviousRevisionTextFormat.isEmpty() ?
-                d->m_annotatePreviousRevisionTextFormat : d->m_annotateRevisionTextFormat;
-    QAction *a = new QAction(format.arg(change), 0);
-    a->setData(change);
-    connect(a, SIGNAL(triggered()), this, SLOT(slotAnnotateRevision()));
-    return a;
-}
-
-QAction *VcsBaseEditorWidget::createCopyRevisionAction(const QString &change)
-{
-    QAction *a = new QAction(d->m_copyRevisionTextFormat.arg(change), 0);
-    a->setData(change);
-    connect(a, SIGNAL(triggered()), this, SLOT(slotCopyRevision()));
-    return a;
-}
-
 void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu *menu = createStandardContextMenu();
     // 'click on change-interaction'
     switch (d->m_parameters->type) {
     case LogOutput:
-    case AnnotateOutput:
-        d->m_currentChange = changeUnderCursor(cursorForPosition(e->pos()));
-        if (!d->m_currentChange.isEmpty()) {
-            switch (d->m_parameters->type) {
-            case LogOutput: // Describe current / Annotate file of current
-                menu->addSeparator();
-                menu->addAction(createCopyRevisionAction(d->m_currentChange));
-                menu->addAction(createDescribeAction(d->m_currentChange));
-                if (d->m_fileLogAnnotateEnabled)
-                    menu->addAction(createAnnotateAction(d->m_currentChange, false));
-                break;
-            case AnnotateOutput: { // Describe current / annotate previous
-                    menu->addSeparator();
-                    menu->addAction(createCopyRevisionAction(d->m_currentChange));
-                    menu->addAction(createDescribeAction(d->m_currentChange));
-                    const QStringList previousVersions = annotationPreviousVersions(d->m_currentChange);
-                    if (!previousVersions.isEmpty()) {
-                        menu->addSeparator();
-                        foreach(const QString &pv, previousVersions)
-                            menu->addAction(createAnnotateAction(pv, true));
-                    } // has previous versions
-                }
-                break;
-            default:
-                break;
-            }         // switch type
-        }             // has current change
+    case AnnotateOutput: {
+        const QTextCursor cursor = cursorForPosition(e->pos());
+        Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor);
+        if (handler != 0)
+            handler->fillContextMenu(menu, d->m_parameters->type);
         break;
+    }
     case DiffOutput: {
         menu->addSeparator();
         connect(menu->addAction(tr("Send to CodePaster...")), SIGNAL(triggered()),
@@ -615,15 +950,10 @@ void VcsBaseEditorWidget::mouseMoveEvent(QMouseEvent *e)
 
     if (d->m_parameters->type == LogOutput || d->m_parameters->type == AnnotateOutput) {
         // Link emulation behaviour for 'click on change-interaction'
-        QTextCursor cursor = cursorForPosition(e->pos());
-        QString change = changeUnderCursor(cursor);
-        if (!change.isEmpty()) {
-            QTextEdit::ExtraSelection sel;
-            sel.cursor = cursor;
-            sel.cursor.select(QTextCursor::WordUnderCursor);
-            sel.format.setFontUnderline(true);
-            sel.format.setProperty(QTextFormat::UserProperty, change);
-            setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>() << sel);
+        const QTextCursor cursor = cursorForPosition(e->pos());
+        Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor);
+        if (handler != 0) {
+            handler->highlightCurrentContents();
             overrideCursor = true;
             cursorShape = Qt::PointingHandCursor;
         }
@@ -644,10 +974,10 @@ void VcsBaseEditorWidget::mouseReleaseEvent(QMouseEvent *e)
     d->m_mouseDragging = false;
     if (!wasDragging && (d->m_parameters->type == LogOutput || d->m_parameters->type == AnnotateOutput)) {
         if (e->button() == Qt::LeftButton &&!(e->modifiers() & Qt::ShiftModifier)) {
-            QTextCursor cursor = cursorForPosition(e->pos());
-            d->m_currentChange = changeUnderCursor(cursor);
-            if (!d->m_currentChange.isEmpty()) {
-                describe();
+            const QTextCursor cursor = cursorForPosition(e->pos());
+            Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor);
+            if (handler != 0) {
+                handler->handleCurrentContents();
                 e->accept();
                 return;
             }
@@ -676,12 +1006,6 @@ void VcsBaseEditorWidget::keyPressEvent(QKeyEvent *e)
         return;
     }
     BaseTextEditorWidget::keyPressEvent(e);
-}
-
-void VcsBaseEditorWidget::describe()
-{
-    if (!d->m_currentChange.isEmpty())
-        emit describeRequested(d->m_source, d->m_currentChange);
 }
 
 void VcsBaseEditorWidget::slotActivateAnnotation()
@@ -1061,11 +1385,6 @@ void VcsBaseEditorWidget::slotAnnotateRevision()
     if (const QAction *a = qobject_cast<const QAction *>(sender()))
         emit annotateRevisionRequested(source(), a->data().toString(),
                                        editor()->currentLine());
-}
-
-void VcsBaseEditorWidget::slotCopyRevision()
-{
-    QApplication::clipboard()->setText(d->m_currentChange);
 }
 
 QStringList VcsBaseEditorWidget::annotationPreviousVersions(const QString &) const
