@@ -368,10 +368,24 @@ const char *GitClient::decorateOption = "--decorate";
 QString GitClient::findRepositoryForDirectory(const QString &dir)
 {
     if (synchronousGitVersion(true) >= 0x010700) {
+        // Find a directory to run git in:
+        const QString root = QDir::rootPath();
+        const QString home = QDir::homePath();
+
+        QDir directory(dir);
+        do {
+            const QString absDirPath = directory.absolutePath();
+            if (absDirPath == root || absDirPath == home)
+                break;
+
+            if (directory.exists())
+                break;
+        } while (directory.cdUp());
+
         QByteArray outputText;
         QStringList arguments;
         arguments << QLatin1String("rev-parse") << QLatin1String("--show-toplevel");
-        fullySynchronousGit(dir, arguments, &outputText, 0, false);
+        fullySynchronousGit(directory.absolutePath(), arguments, &outputText, 0, false);
         return outputText.trimmed();
     } else {
         // Check for ".git/config"
