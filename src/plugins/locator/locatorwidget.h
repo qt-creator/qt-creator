@@ -80,8 +80,6 @@ private slots:
 
 private:
     bool eventFilter(QObject *obj, QEvent *event);
-    void keyPressEvent(QKeyEvent *keyEvent);
-    void keyReleaseEvent(QKeyEvent *keyEvent);
 
     void showEvent(QShowEvent *e);
 
