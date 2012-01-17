@@ -26,13 +26,18 @@ macx {
     QMAKE_EXTRA_TARGETS += dmg
 } else {
     deployqt.commands = $$PWD/scripts/deployqt.py -i $(INSTALL_ROOT)
-    win32:deployqt.commands ~= s,/,\\\\,g
     deployqt.depends = install
-    bindist.commands = $$PWD/scripts/bindistHelper.py $(INSTALL_ROOT) $${PLATFORM}$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX)
-    win32:PLATFORM="windows"
+    bindist.commands = $$PWD/scripts/bindist_helper.py $(INSTALL_ROOT) $${PLATFORM}$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX)
+    win32 {
+        bindist.commands ~= s,/,\\\\,g
+        deployqt.commands ~= s,/,\\\\,g
+        deployartifacts.depends = install
+        PLATFORM="windows"
+        deployartifacts.commands = git clone "git://gitorious.org/qt-creator/binary-artifacts.git"&& xcopy /s /q /y /i "binary-artifacts\\win32" $(INSTALL_ROOT)&& rmdir /s binary-artifacts
+        QMAKE_EXTRA_TARGETS += deployartifacts
+    }
     else:linux-*:PLATFORM="linux-$${QT_ARCH}"
     else:PLATFORM="unknown"
-    win32:bindist.commands ~= s,/,\\\\,g
 }
 bindist.depends = deployqt
 QMAKE_EXTRA_TARGETS += deployqt bindist
