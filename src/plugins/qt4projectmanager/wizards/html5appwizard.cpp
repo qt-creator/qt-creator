@@ -39,6 +39,7 @@
 #include "qt4projectmanagerconstants.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <qtsupport/qtsupportconstants.h>
 #include <limits>
 
 #include <QtCore/QCoreApplication>
@@ -91,6 +92,11 @@ Html5AppWizard::~Html5AppWizard()
 {
     delete d->app;
     delete d;
+}
+
+Core::FeatureSet Html5AppWizard::requiredFeatures() const
+{
+    return Core::Feature(QtSupport::Constants::FEATURE_GENERIC_CPP_ENTRY_POINT);
 }
 
 Core::BaseFileWizardParameters Html5AppWizard::parameters()

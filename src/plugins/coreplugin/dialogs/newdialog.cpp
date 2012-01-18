@@ -37,7 +37,7 @@
 #include <utils/stylehelper.h>
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/dialogs/iwizard.h>
+#include <coreplugin/featureprovider.h>
 
 #include <QtGui/QAbstractProxyModel>
 #include <QtGui/QItemSelectionModel>
@@ -249,19 +249,21 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
             cit = categories.insert(categoryName, categoryItem);
         }
         // add item
-        QStandardItem *wizardItem = new QStandardItem(wizard->displayName());
-        QIcon wizardIcon;
+        if (wizard->isAvailable()) {
+            QStandardItem *wizardItem = new QStandardItem(wizard->displayName());
+            QIcon wizardIcon;
 
-        // spacing hack. Add proper icons instead
-        if (wizard->icon().isNull()) {
-            wizardIcon = m_dummyIcon;
-        } else {
-            wizardIcon = wizard->icon();
+            // spacing hack. Add proper icons instead
+            if (wizard->icon().isNull()) {
+                wizardIcon = m_dummyIcon;
+            } else {
+                wizardIcon = wizard->icon();
+            }
+            wizardItem->setIcon(wizardIcon);
+            wizardItem->setData(QVariant::fromValue(wizard), Qt::UserRole);
+            wizardItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
+            cit.value()->appendRow(wizardItem);
         }
-        wizardItem->setIcon(wizardIcon);
-        wizardItem->setData(QVariant::fromValue(wizard), Qt::UserRole);
-        wizardItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
-        cit.value()->appendRow(wizardItem);
     }
 
 

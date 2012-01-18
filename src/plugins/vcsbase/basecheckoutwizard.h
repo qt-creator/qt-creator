@@ -66,6 +66,8 @@ public:
 
     virtual void runWizard(const QString &path, QWidget *parent);
 
+    virtual Core::FeatureSet requiredFeatures() const;
+
     static QString openProject(const QString &path, QString *errorMessage);
 
 protected:

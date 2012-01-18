@@ -93,5 +93,10 @@ bool SubdirsProjectWizard::postGenerateFiles(const QWizard *w, const Core::Gener
     return true;
 }
 
+Core::FeatureSet SubdirsProjectWizard::requiredFeatures() const
+{
+    return Core::FeatureSet();
+}
+
 } // namespace Internal
 } // namespace Qt4ProjectManager

@@ -52,6 +52,11 @@ EmptyProjectWizard::EmptyProjectWizard()
 {
 }
 
+Core::FeatureSet EmptyProjectWizard::requiredFeatures() const
+{
+    return Core::FeatureSet();
+}
+
 QWizard *EmptyProjectWizard::createWizardDialog(QWidget *parent,
                                               const QString &defaultPath,
                                               const WizardPageList &extensionPages) const

@@ -155,6 +155,11 @@ CppClassWizard::CppClassWizard(const Core::BaseFileWizardParameters &parameters,
 {
 }
 
+Core::FeatureSet CppClassWizard::requiredFeatures() const
+{
+    return Core::FeatureSet();
+}
+
 QString CppClassWizard::sourceSuffix() const
 {
     return preferredSuffix(QLatin1String(Constants::CPP_SOURCE_MIMETYPE));

@@ -45,6 +45,7 @@ class MobileAppWizard : public AbstractMobileAppWizard
 public:
     MobileAppWizard();
     virtual ~MobileAppWizard();
+    virtual Core::FeatureSet requiredFeatures() const;
 
 protected:
     QString fileToOpenPostGeneration() const;

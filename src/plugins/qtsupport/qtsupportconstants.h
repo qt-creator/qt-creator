@@ -47,6 +47,17 @@ const char DESKTOPQT[]   = "Qt4ProjectManager.QtVersion.Desktop";
 const char SIMULATORQT[] = "Qt4ProjectManager.QtVersion.Simulator";
 const char WINCEQT[]     = "Qt4ProjectManager.QtVersion.WinCE";
 
+//Qt Features
+const char FEATURE_QT[] = "QtSupport.Wizards.FeatureQt";
+const char FEATURE_QWIDGETS[] = "QtSupport.Wizards.FeatureQWidgets";
+const char FEATURE_QT_QUICK[] = "QtSupport.Wizards.FeatureQtQuick";
+const char FEATURE_QT_WEBKIT[] = "QtSupport.Wizards.FeatureQtWebkit";
+const char FEATURE_QT_CONSOLE[] = "QtSupport.Wizards.FeatureQtConsole";
+const char FEATURE_GENERIC_CPP_ENTRY_POINT[] ="QtSupport.Wizards.FeatureGenericCppEntryPoint";
+const char FEATURE_QTQUICK_COMPONENTS_SYMBIAN[] = "QtSupport.Wizards.FeatureQtQuickComponentsSymbian";
+const char FEATURE_QTQUICK_COMPONENTS_MEEGO[] = "QtSupport.Wizards.FeatureQtQuickComponentsMeego";
+
+
 // QML wizard categories
 // both the qt4projectmanager and the qmlprojectmanager do have qt quick wizards
 // so we define the category here

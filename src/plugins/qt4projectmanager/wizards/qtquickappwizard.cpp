@@ -39,6 +39,7 @@
 #include "qt4projectmanagerconstants.h"
 
 #include <qtsupport/qtsupportconstants.h>
+#include <coreplugin/dialogs/iwizard.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtGui/QIcon>
@@ -87,19 +88,12 @@ bool QtQuickAppWizardDialog::validateCurrentPage()
         setIgnoreGenericOptionsPage(false);
         if (m_componentOptionsPage->componentSet() == QtQuickApp::Symbian11Components) {
             setIgnoreGenericOptionsPage(true);
-            targetsPage()->setMinimumQtVersion(QtSupport::QtVersionNumber(4, 7, 4));
-            QSet<QString> requiredFeatures;
-            requiredFeatures << QLatin1String(Constants::QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID);
-            targetsPage()->setRequiredFeatures(requiredFeatures);
+            targetsPage()->setRequiredQtFeatures(Core::FeatureSet(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_MEEGO));
         } else if (m_componentOptionsPage->componentSet() == QtQuickApp::Meego10Components) {
-            targetsPage()->setMinimumQtVersion(QtSupport::QtVersionNumber(4, 7, 4));
-            QSet<QString> requiredFeatures;
-            requiredFeatures << QLatin1String(Constants::QTQUICKCOMPONENTS_MEEGO_TARGETFEATURE_ID);
-            targetsPage()->setRequiredFeatures(requiredFeatures);
+            targetsPage()->setRequiredQtFeatures(Core::FeatureSet(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_MEEGO));
         } else {
             targetsPage()->setMinimumQtVersion(QtSupport::QtVersionNumber(4, 7, 0));
-            QSet<QString> requiredFeatures;
-            targetsPage()->setRequiredFeatures(requiredFeatures);
+            targetsPage()->setRequiredQtFeatures(Core::FeatureSet());
         }
     }
     return AbstractMobileAppWizardDialog::validateCurrentPage();
@@ -124,6 +118,13 @@ QtQuickAppWizard::~QtQuickAppWizard()
 {
     delete d->app;
     delete d;
+}
+
+Core::FeatureSet QtQuickAppWizard::requiredFeatures() const
+{
+    return Core::Feature(QtSupport::Constants::FEATURE_GENERIC_CPP_ENTRY_POINT) |
+            Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK);
+
 }
 
 Core::BaseFileWizardParameters QtQuickAppWizard::parameters()

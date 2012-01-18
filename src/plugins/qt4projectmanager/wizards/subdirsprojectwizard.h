@@ -53,6 +53,7 @@ protected:
     virtual Core::GeneratedFiles generateFiles(const QWizard *w,
                                                QString *errorMessage) const;
     virtual bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage);
+    virtual Core::FeatureSet requiredFeatures() const;
 };
 
 } // namespace Internal

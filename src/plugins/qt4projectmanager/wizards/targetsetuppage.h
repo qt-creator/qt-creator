@@ -36,6 +36,7 @@
 #include "../qt4target.h"
 #include "../qt4projectmanager_global.h"
 #include <qtsupport/qtversionmanager.h>
+#include <coreplugin/featureprovider.h>
 
 #include <QtCore/QString>
 #include <QtGui/QWizard>
@@ -77,7 +78,10 @@ public:
     void setPreferredFeatures(const QSet<QString> &featureIds);
     /// Sets the features a target must support
     /// call this before \sa initializePage()
-    void setRequiredFeatures(const QSet<QString> &featureIds);
+    void setRequiredTargetFeatures(const QSet<QString> &featureIds);
+    /// Sets the features a qt version must support
+    /// call this before \sa initializePage()
+    void setRequiredQtFeatures(const Core::FeatureSet &features);
     /// Sets the minimum qt version
     /// calls this before \sa initializePage()
     void setMinimumQtVersion(const QtSupport::QtVersionNumber &number);
@@ -102,7 +106,8 @@ private:
     void deleteWidgets();
 
     QSet<QString> m_preferredFeatures;
-    QSet<QString> m_requiredFeatures;
+    QSet<QString> m_requiredTargetFeatures;
+    Core::FeatureSet m_requiredQtFeatures;
     bool m_importSearch;
     QtSupport::QtVersionNumber m_minimumQtVersionNumber;
     QtSupport::QtVersionNumber m_maximumQtVersionNumber;

@@ -147,6 +147,11 @@ void BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent)
     }
 }
 
+Core::FeatureSet BaseCheckoutWizard::requiredFeatures() const
+{
+    return Core::FeatureSet();
+}
+
 static inline QString msgNoProjectFiles(const QDir &dir, const QStringList &patterns)
 {
     return BaseCheckoutWizard::tr("Could not find any project files matching (%1) in the directory '%2'.").arg(patterns.join(QLatin1String(", ")), QDir::toNativeSeparators(dir.absolutePath()));

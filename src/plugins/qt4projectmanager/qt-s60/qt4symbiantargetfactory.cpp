@@ -190,9 +190,8 @@ bool Qt4SymbianTargetFactory::selectByDefault(const QString &id) const
 QSet<QString> Qt4SymbianTargetFactory::targetFeatures(const QString & /*id*/) const
 {
     QSet<QString> features;
-    features << QLatin1String(Constants::MOBILE_TARGETFEATURE_ID)
-    // ideally we should check whether they're really installed
-             << QLatin1String(Constants::QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID);
+    features << QLatin1String(Constants::MOBILE_TARGETFEATURE_ID);
+
     return features;
 }
 

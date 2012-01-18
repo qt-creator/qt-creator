@@ -45,6 +45,7 @@ class QtQuickAppWizard : public AbstractMobileAppWizard
 public:
     QtQuickAppWizard();
     virtual ~QtQuickAppWizard();
+    virtual Core::FeatureSet requiredFeatures() const;
 
 protected:
     QString fileToOpenPostGeneration() const;

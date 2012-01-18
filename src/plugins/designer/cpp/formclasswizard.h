@@ -55,6 +55,8 @@ public:
     QString sourceSuffix() const;
     QString formSuffix() const;
 
+    virtual Core::FeatureSet requiredFeatures() const;
+
 protected:
     virtual QWizard *createWizardDialog(QWidget *parent,
                                         const QString &defaultPath,

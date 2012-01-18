@@ -55,6 +55,8 @@ public:
     explicit GLSLFileWizard(const BaseFileWizardParameters &parameters,
                             ShaderType shaderType, QObject *parent = 0);
 
+    virtual Core::FeatureSet requiredFeatures() const;
+
 protected:
     QString fileContents(const QString &baseName, ShaderType shaderType) const;
 

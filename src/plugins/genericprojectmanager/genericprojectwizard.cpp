@@ -116,6 +116,11 @@ GenericProjectWizard::GenericProjectWizard()
 GenericProjectWizard::~GenericProjectWizard()
 { }
 
+Core::FeatureSet GenericProjectWizard::requiredFeatures() const
+{
+    return Core::FeatureSet();
+}
+
 Core::BaseFileWizardParameters GenericProjectWizard::parameters()
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);

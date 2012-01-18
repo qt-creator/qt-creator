@@ -83,6 +83,8 @@ public:
 
     QtSupport::QtConfigWidget *createConfigurationWidget() const;
 
+    Core::FeatureSet availableFeatures() const;
+
 protected:
     QList<ProjectExplorer::Task> reportIssuesImpl(const QString &proFile, const QString &buildDir);
     void parseMkSpec(ProFileEvaluator *) const;

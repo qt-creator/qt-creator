@@ -91,6 +91,9 @@ public:
     QString displayCategory() const;
     void setDisplayCategory(const QString &trCategory);
 
+    Core::FeatureSet requiredFeatures() const;
+    void setRequiredFeatures(Core::FeatureSet features);
+
 private:
     QSharedDataPointer<BaseFileWizardParameterData> m_d;
 };
@@ -115,6 +118,7 @@ public:
     virtual QString displayCategory() const;
 
     virtual void runWizard(const QString &path, QWidget *parent);
+    virtual Core::FeatureSet requiredFeatures() const;
 
     static QString buildFileName(const QString &path, const QString &baseName, const QString &extension);
     static void setupWizard(QWizard *);
@@ -124,6 +128,8 @@ protected:
     typedef QList<QWizardPage *> WizardPageList;
 
     explicit BaseFileWizard(const BaseFileWizardParameters &parameters, QObject *parent = 0);
+
+    BaseFileWizardParameters baseFileWizardParameters() const;
 
     virtual QWizard *createWizardDialog(QWidget *parent,
                                         const QString &defaultPath,

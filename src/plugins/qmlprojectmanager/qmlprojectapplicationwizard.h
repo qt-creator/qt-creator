@@ -53,6 +53,7 @@ class QmlProjectApplicationWizard : public Core::BaseFileWizard
 public:
     QmlProjectApplicationWizard();
     virtual ~QmlProjectApplicationWizard();
+    virtual Core::FeatureSet requiredFeatures() const;
 
     static Core::BaseFileWizardParameters parameters();
 

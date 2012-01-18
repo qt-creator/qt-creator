@@ -47,6 +47,8 @@ public:
     explicit JsFileWizard(const BaseFileWizardParameters &parameters,
                           QObject *parent = 0);
 
+    virtual Core::FeatureSet requiredFeatures() const;
+
 protected:
     QString fileContents(const QString &baseName, bool statelessLibrary) const;
 

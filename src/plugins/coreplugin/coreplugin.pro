@@ -95,7 +95,8 @@ SOURCES += mainwindow.cpp \
     mimetypesettings.cpp \
     dialogs/promptoverwritedialog.cpp \
     fileutils.cpp \
-    textfile.cpp
+    textfile.cpp \
+    featureprovider.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -192,7 +193,8 @@ HEADERS += mainwindow.h \
     fileutils.h \
     externaltoolmanager.h \
     textfile.h \
-    generatedfile.h
+    generatedfile.h \
+    featureprovider.h
 
 FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \

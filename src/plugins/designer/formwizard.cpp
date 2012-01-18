@@ -34,6 +34,7 @@
 #include "formwizarddialog.h"
 #include "formwindoweditor.h"
 #include "designerconstants.h"
+#include <qtsupport/qtsupportconstants.h>
 
 #include <QtCore/QDebug>
 
@@ -43,6 +44,11 @@ using namespace Designer::Internal;
 FormWizard::FormWizard(const BaseFileWizardParameters &parameters, QObject *parent)
   : Core::BaseFileWizard(parameters, parent)
 {
+}
+
+Core::FeatureSet FormWizard::requiredFeatures() const
+{
+    return Core::Feature(QtSupport::Constants::FEATURE_QWIDGETS);
 }
 
 QWizard *FormWizard::createWizardDialog(QWidget *parent,

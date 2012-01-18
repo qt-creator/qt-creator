@@ -86,6 +86,7 @@ public:
     QString id;
     QString category;
     QString displayCategory;
+    Core::FeatureSet requiredFeatures;
 };
 
 BaseFileWizardParameterData::BaseFileWizardParameterData(IWizard::WizardKind k) :
@@ -145,7 +146,8 @@ CORE_EXPORT QDebug operator<<(QDebug d, const BaseFileWizardParameters &p)
                 << " Category: " << p.category()
                 << " DisplayName: " << p.displayName()
                 << " Description: " << p.description()
-                << " DisplayCategory: " << p.displayCategory();
+                << " DisplayCategory: " << p.displayCategory()
+                << " Required Features: " << p.requiredFeatures().toStringList();
     return d;
 }
 
@@ -212,6 +214,17 @@ void BaseFileWizardParameters::setCategory(const QString &v)
 QString BaseFileWizardParameters::displayCategory() const
 {
     return m_d->displayCategory;
+}
+
+Core::FeatureSet BaseFileWizardParameters::requiredFeatures() const
+{
+    return m_d->requiredFeatures;
+}
+
+void BaseFileWizardParameters::setRequiredFeatures(Core::FeatureSet features)
+{
+
+    m_d->requiredFeatures = features;
 }
 
 void BaseFileWizardParameters::setDisplayCategory(const QString &v)
@@ -347,6 +360,11 @@ BaseFileWizard::BaseFileWizard(const BaseFileWizardParameters &parameters,
     IWizard(parent),
     d(new BaseFileWizardPrivate(parameters))
 {
+}
+
+BaseFileWizardParameters BaseFileWizard::baseFileWizardParameters() const
+{
+    return d->m_parameters;
 }
 
 BaseFileWizard::~BaseFileWizard()
@@ -495,6 +513,12 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent)
     // Post generation handler
     if (!postGenerateFiles(wizard.data(), files, &errorMessage))
         QMessageBox::critical(0, tr("File Generation Failure"), errorMessage);
+}
+
+
+Core::FeatureSet BaseFileWizard::requiredFeatures() const
+{
+    return d->m_parameters.requiredFeatures();
 }
 
 /*!

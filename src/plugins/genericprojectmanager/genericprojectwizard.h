@@ -78,6 +78,7 @@ class GenericProjectWizard : public Core::BaseFileWizard
 public:
     GenericProjectWizard();
     virtual ~GenericProjectWizard();
+    virtual Core::FeatureSet requiredFeatures() const;
 
     static Core::BaseFileWizardParameters parameters();
 

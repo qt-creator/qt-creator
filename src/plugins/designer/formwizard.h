@@ -47,6 +47,8 @@ public:
 
     FormWizard(const BaseFileWizardParameters &parameters, QObject *parent);
 
+    virtual Core::FeatureSet requiredFeatures() const;
+
 protected:
     virtual QWizard *createWizardDialog(QWidget *parent,
                                         const QString &defaultPath,

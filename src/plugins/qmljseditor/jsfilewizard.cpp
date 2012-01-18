@@ -98,6 +98,11 @@ JsFileWizard::JsFileWizard(const BaseFileWizardParameters &parameters,
 {
 }
 
+Core::FeatureSet JsFileWizard::requiredFeatures() const
+{
+    return Core::FeatureSet();
+}
+
 Core::GeneratedFiles JsFileWizard::generateFiles(const QWizard *w,
                                                  QString * /*errorMessage*/) const
 {

@@ -129,10 +129,8 @@ QSet<QString> Qt4SimulatorTargetFactory::targetFeatures(const QString & /*id*/) 
     QSet<QString> features;
 
     features << QLatin1String(Constants::MOBILE_TARGETFEATURE_ID)
-             << QLatin1String(Constants::SHADOWBUILD_TARGETFEATURE_ID)
-    // how to check check whether the component set is really installed?
-             << QLatin1String(Constants::QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID)
-             << QLatin1String(Constants::QTQUICKCOMPONENTS_MEEGO_TARGETFEATURE_ID);
+             << QLatin1String(Constants::SHADOWBUILD_TARGETFEATURE_ID);
+
     return features;
 }
 

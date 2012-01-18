@@ -44,6 +44,7 @@ class CustomWidgetWizard : public QtWizard
 
 public:
     CustomWidgetWizard();
+    virtual Core::FeatureSet requiredFeatures() const;
 
 protected:
     virtual QWizard *createWizardDialog(QWidget *parent,

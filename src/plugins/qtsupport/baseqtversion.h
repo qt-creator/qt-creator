@@ -40,6 +40,7 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/task.h>
+#include <coreplugin/featureprovider.h>
 
 #include <QtCore/QVariantMap>
 #include <QtGui/QWidget>
@@ -213,6 +214,8 @@ public:
     static QString defaultDisplayName(const QString &versionString,
                                       const Utils::FileName &qmakePath,
                                       bool fromPath = false);
+
+    virtual Core::FeatureSet availableFeatures() const;
 
 protected:
     BaseQtVersion();

@@ -40,6 +40,7 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/invoker.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include <utils/fileutils.h>
 
@@ -93,6 +94,11 @@ GuiAppWizard::GuiAppWizard()
                QIcon(QLatin1String(":/wizards/images/gui.png"))),
       m_createMobileProject(false)
 {
+}
+
+Core::FeatureSet GuiAppWizard::requiredFeatures() const
+{
+    return Core::Feature(QtSupport::Constants::FEATURE_QWIDGETS);
 }
 
 GuiAppWizard::GuiAppWizard(const QString &id,

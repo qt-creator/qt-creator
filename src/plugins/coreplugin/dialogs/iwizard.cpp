@@ -35,6 +35,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <QtCore/QStringList>
+
 /*!
     \class Core::IWizard
     \mainclass
@@ -178,3 +180,14 @@ QList<IWizard*> IWizard::wizardsOfKind(WizardKind kind)
     return findWizards(WizardKindPredicate(kind));
 }
 
+bool IWizard::isAvailable() const
+{
+    FeatureSet availableFeatures;
+
+    const QList<Core::IFeatureProvider*> featureManagers = ExtensionSystem::PluginManager::instance()->getObjects<Core::IFeatureProvider>();
+
+    foreach (const Core::IFeatureProvider *featureManager, featureManagers)
+        availableFeatures |= featureManager->availableFeatures();
+
+    return availableFeatures.contains(requiredFeatures());
+}

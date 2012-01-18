@@ -85,11 +85,6 @@ const char QT_SIMULATOR_TARGET_ID[] = "Qt4ProjectManager.Target.QtSimulatorTarge
 const char MOBILE_TARGETFEATURE_ID[] = "Qt4ProjectManager.TargetFeature.Mobile";
 const char DESKTOP_TARGETFEATURE_ID[] = "Qt4ProjectManager.TargetFeature.Desktop";
 const char SHADOWBUILD_TARGETFEATURE_ID[] = "Qt4ProjectManager.TargetFeature.ShadowBuild";
-const char QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID[]
-                               = "Qt4ProjectManager.TargetFeature.QtQuickComponentsSymbian";
-const char QTQUICKCOMPONENTS_MEEGO_TARGETFEATURE_ID[]
-                               = "Qt4ProjectManager.TargetFeature.QtQuickComponentsMeego";
-
 
 // Tool chains:
 const char GCCE_TOOLCHAIN_ID[] = "Qt4ProjectManager.ToolChain.GCCE";

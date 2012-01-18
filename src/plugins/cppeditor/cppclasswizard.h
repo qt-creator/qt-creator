@@ -102,6 +102,8 @@ public:
     explicit CppClassWizard(const Core::BaseFileWizardParameters &parameters,
                             QObject *parent = 0);
 
+    virtual Core::FeatureSet requiredFeatures() const;
+
 protected:
     virtual QWizard *createWizardDialog(QWidget *parent,
                                         const QString &defaultPath,

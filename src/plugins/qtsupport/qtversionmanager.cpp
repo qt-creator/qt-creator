@@ -34,6 +34,8 @@
 
 #include "qtversionfactory.h"
 
+#include "qtsupportconstants.h"
+
 #include <projectexplorer/debugginghelper.h>
 // only for legay restore
 #include <projectexplorer/projectexplorerconstants.h>
@@ -600,6 +602,18 @@ QString QtVersionManager::popPendingGcceUpdate()
     return m_pendingGcceUpdates.takeFirst();
 }
 
+Core::FeatureSet QtVersionManager::availableFeatures() const
+{
+    Core::FeatureSet features;
+    foreach (BaseQtVersion *const qtVersion, validVersions()) {
+        if (qtVersion->isValid())
+            features |= qtVersion->availableFeatures();
+    }
+    if (validVersions().empty())
+        features |= Constants::FEATURE_GENERIC_CPP_ENTRY_POINT;
+    return features;
+}
+
 BaseQtVersion *QtVersionManager::version(int id) const
 {
     QMap<int, BaseQtVersion *>::const_iterator it = m_versions.find(id);
@@ -918,4 +932,9 @@ BaseQtVersion::QmakeBuildConfigs QtVersionManager::qmakeBuildConfigFromCmdArgs(Q
         }
     }
     return result;
+}
+
+Core::FeatureSet QtFeatureProvider::availableFeatures() const
+{
+     return QtVersionManager::instance()->availableFeatures();
 }

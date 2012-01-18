@@ -37,6 +37,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <cpptools/abstracteditorsupport.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include <QtGui/QIcon>
 #include <QtCore/QFileInfo>
@@ -105,6 +106,11 @@ Core::GeneratedFiles
     }
     profile.setContents(contents);
     return Core::GeneratedFiles() <<  source << profile;
+}
+
+Core::FeatureSet ConsoleAppWizard::requiredFeatures() const
+{
+    return Core::Feature(QtSupport::Constants::FEATURE_GENERIC_CPP_ENTRY_POINT);
 }
 
 } // namespace Internal

@@ -1176,6 +1176,15 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::filterBuildConfigurationIn
     return result;
 }
 
+QList<BuildConfigurationInfo> BuildConfigurationInfo::filterBuildConfigurationInfos(const QList<BuildConfigurationInfo> &infos, Core::FeatureSet features)
+{
+    QList<BuildConfigurationInfo> result;
+    foreach (const BuildConfigurationInfo &info, infos)
+        if (info.version->availableFeatures().contains(features))
+            result.append(info);
+    return result;
+}
+
 QList<BuildConfigurationInfo> BuildConfigurationInfo::importBuildConfigurations(const QString &proFilePath)
 {
     QList<BuildConfigurationInfo> result;

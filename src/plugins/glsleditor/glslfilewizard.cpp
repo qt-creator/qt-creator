@@ -63,6 +63,11 @@ GLSLFileWizard::GLSLFileWizard(const BaseFileWizardParameters &parameters,
 {
 }
 
+Core::FeatureSet GLSLFileWizard::requiredFeatures() const
+{
+    return Core::FeatureSet();
+}
+
 Core::GeneratedFiles GLSLFileWizard::generateFiles(const QWizard *w,
                                                  QString * /*errorMessage*/) const
 {

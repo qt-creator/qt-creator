@@ -46,6 +46,7 @@ class GuiAppWizard : public QtWizard
 
 public:
     GuiAppWizard();
+    virtual Core::FeatureSet requiredFeatures() const;
 
 protected:
     GuiAppWizard(const QString &id,

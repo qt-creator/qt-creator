@@ -252,6 +252,10 @@ Core::GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString 
     return generateWizardFiles(errorMessage);
 }
 
+Core::FeatureSet CustomWizard::requiredFeatures() const
+{
+    return baseFileWizardParameters().requiredFeatures();
+}
 
 bool CustomWizard::writeFiles(const Core::GeneratedFiles &files, QString *errorMessage)
 {

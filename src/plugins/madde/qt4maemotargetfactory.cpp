@@ -165,8 +165,6 @@ QSet<QString> Qt4MaemoTargetFactory::targetFeatures(const QString & /*id*/) cons
 #ifndef Q_OS_WIN
     features << Qt4ProjectManager::Constants::SHADOWBUILD_TARGETFEATURE_ID;
 #endif
-    // how to check check whether the component set is really installed?
-    features << Qt4ProjectManager::Constants::QTQUICKCOMPONENTS_MEEGO_TARGETFEATURE_ID;
     return features;
 }
 

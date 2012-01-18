@@ -57,6 +57,10 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 
     QtVersionManager *mgr = new QtVersionManager;
     addAutoReleasedObject(mgr);
+
+    QtFeatureProvider *featureMgr = new QtFeatureProvider;
+    addAutoReleasedObject(featureMgr);
+
     addAutoReleasedObject(new QtOptionsPage);
 
     ExamplesWelcomePage *welcomePage;

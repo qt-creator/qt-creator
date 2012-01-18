@@ -35,6 +35,7 @@
 
 #include <cpptools/abstracteditorsupport.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include <utils/qtcassert.h>
 
@@ -184,6 +185,12 @@ Core::GeneratedFiles TestWizard::generateFiles(const QWizard *w, QString *errorM
     profile.setContents(contents);
 
     return Core::GeneratedFiles() <<  source << profile;
+}
+
+Core::FeatureSet TestWizard::requiredFeatures() const
+{
+    return Core::Feature(QtSupport::Constants::FEATURE_GENERIC_CPP_ENTRY_POINT) |
+            Core::Feature(QtSupport::Constants::FEATURE_QT);
 }
 
 } // namespace Internal

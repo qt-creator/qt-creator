@@ -44,6 +44,7 @@ class TestWizard : public QtWizard
 
 public:
     TestWizard();
+    virtual Core::FeatureSet requiredFeatures() const;
 
 protected:
     virtual QWizard *createWizardDialog(QWidget *parent,

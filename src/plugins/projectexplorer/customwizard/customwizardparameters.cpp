@@ -67,6 +67,7 @@ static const char firstPageAttributeC[] = "firstpage";
 static const char langAttributeC[] = "xml:lang";
 static const char categoryAttributeC[] = "category";
 static const char displayCategoryElementC[] = "displaycategory";
+static const char featuresRequiredC[] = "featuresRequired";
 static const char fieldPageTitleElementC[] = "fieldpagetitle";
 static const char fieldsElementC[] = "fields";
 static const char fieldElementC[] = "field";
@@ -486,6 +487,19 @@ static inline Core::IWizard::WizardKind kindAttribute(const QXmlStreamReader &r)
     return Core::IWizard::ProjectWizard;
 }
 
+static inline Core::FeatureSet requiredFeatures(const QXmlStreamReader &reader)
+{
+    Core::FeatureSet r;
+    QString value = reader.attributes().value(QLatin1String(featuresRequiredC)).toString();
+    QStringList stringList = value.split(QLatin1Char(','), QString::SkipEmptyParts);
+    Core::FeatureSet features;
+    foreach (const QString &string, stringList) {
+        Core::Feature feature(string);
+        features |= feature;
+    }
+    return features;
+}
+
 static inline QString msgError(const QXmlStreamReader &reader,
                                const QString &fileName,
                                const QString &what)
@@ -591,6 +605,7 @@ CustomWizardParameters::ParseResult
                     bp->setId(attributeValue(reader, idAttributeC));
                     bp->setCategory(attributeValue(reader, categoryAttributeC));
                     bp->setKind(kindAttribute(reader));
+                    bp->setRequiredFeatures(requiredFeatures(reader));
                     klass = attributeValue(reader, klassAttributeC);
                     firstPageId = integerAttributeValue(reader, firstPageAttributeC, -1);
                     break;

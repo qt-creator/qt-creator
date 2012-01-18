@@ -44,6 +44,7 @@ class EmptyProjectWizard : public QtWizard
 
 public:
     EmptyProjectWizard();
+    virtual Core::FeatureSet requiredFeatures() const;
 
 protected:
     virtual QWizard *createWizardDialog(QWidget *parent,

@@ -111,6 +111,9 @@ public:
     // Compatibility with pre-2.2:
     QString popPendingMwcUpdate();
     QString popPendingGcceUpdate();
+
+    Core::FeatureSet availableFeatures() const;
+
 signals:
     // content of BaseQtVersion objects with qmake path might have changed
     void dumpUpdatedFor(const Utils::FileName &qmakeCommand);
@@ -158,6 +161,19 @@ private:
     QStringList m_pendingMwcUpdates;
     QStringList m_pendingGcceUpdates;
 };
+
+namespace Internal {
+
+class QTSUPPORT_EXPORT QtFeatureProvider : public Core::IFeatureProvider
+{
+    Q_OBJECT
+
+public:
+    QtFeatureProvider() {}
+    virtual Core::FeatureSet availableFeatures() const;
+};
+
+}
 
 } // namespace Qt4ProjectManager
 

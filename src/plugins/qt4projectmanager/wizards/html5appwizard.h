@@ -45,6 +45,7 @@ class Html5AppWizard : public AbstractMobileAppWizard
 public:
     Html5AppWizard();
     virtual ~Html5AppWizard();
+    virtual Core::FeatureSet requiredFeatures() const;
 
 protected:
     QString fileToOpenPostGeneration() const;

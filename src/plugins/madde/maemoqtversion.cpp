@@ -176,6 +176,15 @@ QString MaemoQtVersion::osType() const
     return m_osType;
 }
 
+Core::FeatureSet MaemoQtVersion::availableFeatures() const
+{
+    Core::FeatureSet features = QtSupport::BaseQtVersion::availableFeatures();
+    if (qtVersion() >= QtSupport::QtVersionNumber(4, 7, 4)) //no reliable test for components, yet.
+        features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_MEEGO);
+    return features;
+}
+
+
 void MaemoQtVersion::addToEnvironment(Utils::Environment &env) const
 {
     const QString maddeRoot = MaemoGlobal::maddeRoot(qmakeCommand().toString());

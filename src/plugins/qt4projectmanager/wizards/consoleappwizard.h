@@ -54,6 +54,8 @@ protected:
 
     virtual Core::GeneratedFiles generateFiles(const QWizard *w,
                                                QString *errorMessage) const;
+
+    virtual Core::FeatureSet requiredFeatures() const;
 };
 
 } // namespace Internal

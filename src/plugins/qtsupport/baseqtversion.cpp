@@ -44,6 +44,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include <utils/persistentsettings.h>
 #include <utils/environment.h>
@@ -250,6 +251,20 @@ QString BaseQtVersion::defaultDisplayName(const QString &versionString, const Ut
     return fromPath ?
         QCoreApplication::translate("QtVersion", "Qt %1 in PATH (%2)").arg(versionString, location) :
         QCoreApplication::translate("QtVersion", "Qt %1 (%2)").arg(versionString, location);
+}
+
+Core::FeatureSet BaseQtVersion::availableFeatures() const
+{
+    Core::FeatureSet features = Core::FeatureSet(QtSupport::Constants::FEATURE_GENERIC_CPP_ENTRY_POINT) |
+            Core::FeatureSet(QtSupport::Constants::FEATURE_QWIDGETS)
+            | Core::FeatureSet(QtSupport::Constants::FEATURE_QT)
+            | Core::FeatureSet(QtSupport::Constants::FEATURE_QT_WEBKIT)
+            | Core::FeatureSet(QtSupport::Constants::FEATURE_QT_CONSOLE);
+
+     if (qtVersion() >= QtSupport::QtVersionNumber(4, 7, 0))
+         features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QT_QUICK);
+
+     return features;
 }
 
 void BaseQtVersion::setId(int id)

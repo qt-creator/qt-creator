@@ -34,6 +34,8 @@
 #define IWIZARD_H
 
 #include <coreplugin/core_global.h>
+#include <coreplugin/featureprovider.h>
+
 #include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
@@ -66,7 +68,11 @@ public:
     virtual QString category() const = 0;
     virtual QString displayCategory() const = 0;
 
+    virtual FeatureSet requiredFeatures() const = 0;
+
     virtual void runWizard(const QString &path, QWidget *parent) = 0;
+
+    bool isAvailable() const;
 
     // Utility to find all registered wizards
     static QList<IWizard*> allWizards();

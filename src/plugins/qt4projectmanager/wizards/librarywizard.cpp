@@ -143,5 +143,10 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
     return rc;
 }
 
+Core::FeatureSet LibraryWizard::requiredFeatures() const
+{
+    return Core::FeatureSet();
+}
+
 } // namespace Internal
 } // namespace Qt4ProjectManager
