@@ -63,60 +63,63 @@ class SettingsDatabase;
 class VariableManager;
 class VcsManager;
 
+namespace Internal { class MainWindow; }
+
 class CORE_EXPORT ICore : public QObject
 {
     Q_OBJECT
 
-public:
-    ICore() {}
-    virtual ~ICore() {}
+    friend class Internal::MainWindow;
+    explicit ICore(Internal::MainWindow *mw);
+    ~ICore();
 
+public:
     static ICore *instance();
 
-    virtual void showNewItemDialog(const QString &title,
-                                   const QList<IWizard *> &wizards,
-                                   const QString &defaultLocation = QString()) = 0;
+    static void showNewItemDialog(const QString &title,
+                                  const QList<IWizard *> &wizards,
+                                  const QString &defaultLocation = QString());
 
-    virtual bool showOptionsDialog(const QString &group = QString(),
-                                   const QString &page = QString(),
-                                   QWidget *parent = 0) = 0;
+    static bool showOptionsDialog(const QString &group = QString(),
+                                  const QString &page = QString(),
+                                  QWidget *parent = 0);
 
-    virtual bool showWarningWithOptions(const QString &title, const QString &text,
+    static bool showWarningWithOptions(const QString &title, const QString &text,
                                        const QString &details = QString(),
                                        const QString &settingsCategory = QString(),
                                        const QString &settingsId = QString(),
-                                       QWidget *parent = 0) = 0;
+                                       QWidget *parent = 0);
 
-    virtual ActionManager *actionManager() const = 0;
-    virtual FileManager *fileManager() const = 0;
-    virtual MessageManager *messageManager() const = 0;
-    virtual EditorManager *editorManager() const = 0;
-    virtual ProgressManager *progressManager() const = 0;
-    virtual ScriptManager *scriptManager() const = 0;
-    virtual VariableManager *variableManager() const = 0;
-    virtual VcsManager *vcsManager() const = 0;
-    virtual ModeManager *modeManager() const = 0;
-    virtual MimeDatabase *mimeDatabase() const = 0;
-    virtual HelpManager *helpManager() const = 0;
+    static ActionManager *actionManager();
+    static FileManager *fileManager();
+    static MessageManager *messageManager();
+    static EditorManager *editorManager();
+    static ProgressManager *progressManager();
+    static ScriptManager *scriptManager();
+    static VariableManager *variableManager();
+    static VcsManager *vcsManager();
+    static ModeManager *modeManager();
+    static MimeDatabase *mimeDatabase();
+    static HelpManager *helpManager();
 
-    virtual QSettings *settings(QSettings::Scope scope = QSettings::UserScope) const = 0;
-    virtual SettingsDatabase *settingsDatabase() const = 0;
-    virtual QPrinter *printer() const = 0;
-    virtual QString userInterfaceLanguage() const = 0;
+    static QSettings *settings(QSettings::Scope scope = QSettings::UserScope);
+    static SettingsDatabase *settingsDatabase();
+    static QPrinter *printer();
+    static QString userInterfaceLanguage();
 
-    virtual QString resourcePath() const = 0;
-    virtual QString userResourcePath() const = 0;
+    static QString resourcePath();
+    static QString userResourcePath();
 
-    virtual QMainWindow *mainWindow() const = 0;
-    virtual QStatusBar *statusBar() const = 0;
+    static QMainWindow *mainWindow();
+    static QStatusBar *statusBar();
 
-    virtual IContext *currentContextObject() const = 0;
+    static IContext *currentContextObject();
     // Adds and removes additional active contexts, these contexts are appended
     // to the currently active contexts.
-    virtual void updateAdditionalContexts(const Context &remove, const Context &add) = 0;
-    virtual bool hasContext(int context) const = 0;
-    virtual void addContextObject(IContext *context) = 0;
-    virtual void removeContextObject(IContext *context) = 0;
+    static void updateAdditionalContexts(const Context &remove, const Context &add);
+    static bool hasContext(int context);
+    static void addContextObject(IContext *context);
+    static void removeContextObject(IContext *context);
 
     enum OpenFilesFlags {
         None = 0,
@@ -125,7 +128,9 @@ public:
          /// Stop loading once the first file fails to load
         StopOnLoadFail = 4
     };
-    virtual void openFiles(const QStringList &fileNames, OpenFilesFlags flags = None) = 0;
+    static void openFiles(const QStringList &fileNames, OpenFilesFlags flags = None);
+
+    static void emitNewItemsDialogRequested();
 
 signals:
     void coreAboutToOpen();

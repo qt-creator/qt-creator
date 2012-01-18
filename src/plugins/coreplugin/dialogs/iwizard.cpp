@@ -31,7 +31,7 @@
 **************************************************************************/
 
 #include "iwizard.h"
-#include "coreimpl.h"
+#include "icore.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -145,8 +145,7 @@ template <class Predicate>
     QList<IWizard*> findWizards(Predicate predicate)
 {
     // Hack: Trigger delayed creation of wizards
-    if (Core::Internal::CoreImpl *ci = qobject_cast<Core::Internal::CoreImpl*>(ICore::instance()))
-        ci->emitNewItemsDialogRequested();
+    ICore::emitNewItemsDialogRequested();
     // Filter all wizards
     const QList<IWizard*> allWizards = IWizard::allWizards();
     QList<IWizard*> rc;
@@ -160,8 +159,7 @@ template <class Predicate>
 QList<IWizard*> IWizard::allWizards()
 {
     // Hack: Trigger delayed creation of wizards
-    if (Core::Internal::CoreImpl *ci = qobject_cast<Core::Internal::CoreImpl*>(ICore::instance()))
-        ci->emitNewItemsDialogRequested();
+    ICore::emitNewItemsDialogRequested();
     return ExtensionSystem::PluginManager::instance()->getObjects<IWizard>();
 }
 

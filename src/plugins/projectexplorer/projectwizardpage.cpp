@@ -33,7 +33,7 @@
 #include "projectwizardpage.h"
 #include "ui_projectwizardpage.h"
 
-#include <coreplugin/coreimpl.h>
+#include <coreplugin/icore.h>
 #include <vcsbase/vcsbaseconstants.h>
 
 #include <QtCore/QDir>

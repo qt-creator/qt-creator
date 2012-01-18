@@ -34,7 +34,7 @@
 #include "actioncontainer.h"
 #include "command.h"
 #include "actionmanager_p.h"
-#include "coreimpl.h"
+#include "icore.h"
 #include "coreconstants.h"
 #include "editormanager.h"
 #include "externaltool.h"
@@ -127,7 +127,7 @@ enum { debugMainWindow = 0 };
 
 MainWindow::MainWindow() :
     EventFilteringMainWindow(),
-    m_coreImpl(new CoreImpl(this)),
+    m_coreImpl(new ICore(this)),
     m_additionalContexts(Constants::C_GLOBAL),
     m_settings(ExtensionSystem::PluginManager::instance()->settings()),
     m_globalSettings(ExtensionSystem::PluginManager::instance()->globalSettings()),

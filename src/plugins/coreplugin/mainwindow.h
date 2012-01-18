@@ -70,7 +70,6 @@ class VcsManager;
 namespace Internal {
 
 class ActionManagerPrivate;
-class CoreImpl;
 class FancyTabWidget;
 class GeneralSettings;
 class ProgressManagerPrivate;
@@ -180,7 +179,7 @@ private:
     void readSettings();
     void writeSettings();
 
-    CoreImpl *m_coreImpl;
+    ICore *m_coreImpl;
     Context m_additionalContexts;
     QSettings *m_settings;
     QSettings *m_globalSettings;

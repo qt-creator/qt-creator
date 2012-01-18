@@ -343,3 +343,213 @@
     \brief Sent just after a new \a context became the current context
     (meaning that its widget got focus), or if the additional context ids changed.
 */
+
+#include "icore.h"
+#include "mainwindow.h"
+
+#include <QtCore/QDir>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QDebug>
+
+#include <QtGui/QStatusBar>
+
+namespace Core {
+
+// The Core Singleton
+static ICore *m_instance = 0;
+
+namespace Internal {
+static MainWindow *m_mainwindow;
+} // namespace Internal
+
+using namespace Core::Internal;
+
+
+ICore *ICore::instance()
+{
+    return m_instance;
+}
+
+ICore::ICore(MainWindow *mainwindow)
+{
+    m_instance = this;
+    m_mainwindow = mainwindow;
+}
+
+ICore::~ICore()
+{
+    m_instance = 0;
+}
+
+void ICore::showNewItemDialog(const QString &title,
+                              const QList<IWizard *> &wizards,
+                              const QString &defaultLocation)
+{
+    m_mainwindow->showNewItemDialog(title, wizards, defaultLocation);
+}
+
+bool ICore::showOptionsDialog(const QString &group, const QString &page, QWidget *parent)
+{
+    return m_mainwindow->showOptionsDialog(group, page, parent);
+}
+
+bool ICore::showWarningWithOptions(const QString &title, const QString &text,
+                                   const QString &details,
+                                   const QString &settingsCategory,
+                                   const QString &settingsId,
+                                   QWidget *parent)
+{
+    return m_mainwindow->showWarningWithOptions(title, text,
+                                                details, settingsCategory,
+                                                settingsId, parent);
+}
+
+ActionManager *ICore::actionManager()
+{
+    return m_mainwindow->actionManager();
+}
+
+FileManager *ICore::fileManager()
+{
+    return m_mainwindow->fileManager();
+}
+
+MessageManager *ICore::messageManager()
+{
+    return m_mainwindow->messageManager();
+}
+
+EditorManager *ICore::editorManager()
+{
+    return m_mainwindow->editorManager();
+}
+
+ProgressManager *ICore::progressManager()
+{
+    return m_mainwindow->progressManager();
+}
+
+ScriptManager *ICore::scriptManager()
+{
+    return m_mainwindow->scriptManager();
+}
+
+VariableManager *ICore::variableManager()
+{
+    return m_mainwindow->variableManager();
+}
+
+VcsManager *ICore::vcsManager()
+{
+    return m_mainwindow->vcsManager();
+}
+
+ModeManager *ICore::modeManager()
+{
+    return m_mainwindow->modeManager();
+}
+
+MimeDatabase *ICore::mimeDatabase()
+{
+    return m_mainwindow->mimeDatabase();
+}
+
+HelpManager *ICore::helpManager()
+{
+    return m_mainwindow->helpManager();
+}
+
+QSettings *ICore::settings(QSettings::Scope scope)
+{
+    return m_mainwindow->settings(scope);
+}
+
+SettingsDatabase *ICore::settingsDatabase()
+{
+    return m_mainwindow->settingsDatabase();
+}
+
+QPrinter *ICore::printer()
+{
+    return m_mainwindow->printer();
+}
+
+QString ICore::userInterfaceLanguage()
+{
+    return qApp->property("qtc_locale").toString();
+}
+
+#ifdef Q_OS_MAC
+#  define SHARE_PATH "/../Resources"
+#else
+#  define SHARE_PATH "/../share/qtcreator"
+#endif
+
+QString ICore::resourcePath()
+{
+    return QDir::cleanPath(QCoreApplication::applicationDirPath() + QLatin1String(SHARE_PATH));
+}
+
+QString ICore::userResourcePath()
+{
+    // Create qtcreator dir if it doesn't yet exist
+    const QString configDir = QFileInfo(settings(QSettings::UserScope)->fileName()).path();
+    const QString urp = configDir + QLatin1String("/qtcreator");
+
+    QFileInfo fi(urp + QLatin1Char('/'));
+    if (!fi.exists()) {
+        QDir dir;
+        if (!dir.mkpath(urp))
+            qWarning() << "could not create" << urp;
+    }
+
+    return urp;
+}
+
+IContext *ICore::currentContextObject()
+{
+    return m_mainwindow->currentContextObject();
+}
+
+
+QMainWindow *ICore::mainWindow()
+{
+    return m_mainwindow;
+}
+
+QStatusBar *ICore::statusBar()
+{
+    return m_mainwindow->statusBar();
+}
+
+void ICore::updateAdditionalContexts(const Context &remove, const Context &add)
+{
+    m_mainwindow->updateAdditionalContexts(remove, add);
+}
+
+bool ICore::hasContext(int context)
+{
+    return m_mainwindow->hasContext(context);
+}
+
+void ICore::addContextObject(IContext *context)
+{
+    m_mainwindow->addContextObject(context);
+}
+
+void ICore::removeContextObject(IContext *context)
+{
+    m_mainwindow->removeContextObject(context);
+}
+
+void ICore::openFiles(const QStringList &arguments, ICore::OpenFilesFlags flags)
+{
+    m_mainwindow->openFiles(arguments, flags);
+}
+
+void ICore::emitNewItemsDialogRequested()
+{
+    emit m_instance->newItemsDialogRequested();
+}
+
+} // namespace Core
