@@ -62,6 +62,8 @@
     provided by the
     \l{http://kate-editor.org/2005/03/24/writing-a-syntax-highlighting-file/}
     {Kate Editor}. You can download highlight definition files for use with \QC.
+    For more information about the definition files, see
+    \l{http://kde-files.org/index.php?xcontentmode=680}{KDE-Files.org}.
 
     If you have a Unix installation that comes with the Kate Editor, you might
     already have the definition files installed. Typically, the files are
