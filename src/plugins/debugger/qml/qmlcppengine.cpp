@@ -505,6 +505,13 @@ void QmlCppEngine::shutdownEngine()
     d->m_cppEngine->shutdownSlaveEngine();
 }
 
+void QmlCppEngine::abortDebugger()
+{
+    EDEBUG("\nMASTER ABORT DEBUGGER");
+    d->m_qmlEngine->abortDebugger();
+    d->m_cppEngine->abortDebugger();
+}
+
 void QmlCppEngine::setState(DebuggerState newState, bool forced)
 {
     EDEBUG("SET MASTER STATE: " << newState);
