@@ -229,6 +229,7 @@ void QmlJSOutlineWidget::updateTextCursor(const QModelIndex &index)
     textCursor.setPosition(location.offset);
     m_editor->setTextCursor(textCursor);
     m_editor->centerCursor();
+    m_editor->setFocus();
     m_blockCursorSync = false;
 }
 
