@@ -45,14 +45,21 @@ ContextPaneTextWidget::ContextPaneTextWidget(QWidget *parent) :
     m_fontSizeTimer(-1)
 {
     ui->setupUi(this);
-    ui->boldButton->setIcon(QIcon(QLatin1String(":/qmldesigner/images/bold-h-icon.png")));
-    ui->italicButton->setIcon(QIcon(QLatin1String(":/qmldesigner/images/italic-h-icon.png")));
-    ui->underlineButton->setIcon(QIcon(QLatin1String(":/qmldesigner/images/underline-h-icon.png")));
-    ui->strikeoutButton->setIcon(QIcon(QLatin1String(":/qmldesigner/images/strikeout-h-icon.png")));
+    ui->boldButton->setIcon(QIcon::fromTheme(QLatin1String("format-text-bold"),
+            QIcon(QLatin1String(":/qmldesigner/images/bold-h-icon.png"))));
+    ui->italicButton->setIcon(QIcon::fromTheme(QLatin1String("format-text-italic"),
+            QIcon(QLatin1String(":/qmldesigner/images/italic-h-icon.png"))));
+    ui->underlineButton->setIcon(QIcon::fromTheme(QLatin1String("format-text-underline"),
+            QIcon(QLatin1String(":/qmldesigner/images/underline-h-icon.png"))));
+    ui->strikeoutButton->setIcon(QIcon::fromTheme(QLatin1String("format-text-strikethrough"),
+            QIcon(QLatin1String(":/qmldesigner/images/strikeout-h-icon.png"))));
 
-    ui->leftAlignmentButton->setIcon(QIcon(QLatin1String(":/qmldesigner/images/alignmentleft-h-icon.png")));
-    ui->centerHAlignmentButton->setIcon(QIcon(QLatin1String(":/qmldesigner/images/alignmentcenterh-h-icon.png")));
-    ui->rightAlignmentButton->setIcon(QIcon(QLatin1String(":/qmldesigner/images/alignmentright-h-icon.png")));
+    ui->leftAlignmentButton->setIcon(QIcon::fromTheme(QLatin1String("format-justify-left"),
+            QIcon(QLatin1String(":/qmldesigner/images/alignmentleft-h-icon.png"))));
+    ui->centerHAlignmentButton->setIcon(QIcon::fromTheme(QLatin1String("format-justify-center"),
+            QIcon(QLatin1String(":/qmldesigner/images/alignmentcenterh-h-icon.png"))));
+    ui->rightAlignmentButton->setIcon(QIcon::fromTheme(QLatin1String("format-justify-right"),
+            QIcon(QLatin1String(":/qmldesigner/images/alignmentright-h-icon.png"))));
 
     ui->centerVAlignmentButton->setIcon(QIcon(QLatin1String(":/qmldesigner/images/alignmentmiddle-h-icon.png")));
 
