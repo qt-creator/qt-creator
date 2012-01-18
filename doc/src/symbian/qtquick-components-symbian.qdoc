@@ -61,7 +61,7 @@
         \o  In the \gui {Application Type} dialog, select \gui {Qt Quick
             Components for Symbian}, and then click \gui{Next}.
 
-        \o  Select \gui {Symbian Device} and \gui {Qt Simulator} targets, and
+        \o  Select \gui {Symbian Device} and \gui {\QS} targets, and
             then click \gui{Next}.
 
             \note Targets are listed if you installed the appropriate
@@ -160,7 +160,7 @@
                     horizontally to the text field.
 
                 \o  To check that the application can be built and run, select
-                    \gui {Qt Simulator} as the target and click the
+                    \gui {\QS} as the target and click the
                     \inlineimage qtcreator-run.png
                     button.
 
@@ -200,12 +200,12 @@
 
     \section1 Compiling and Running Your Program
 
-    Now that you have all the necessary code, select \gui {Qt Simulator}
+    Now that you have all the necessary code, select \gui {\QS}
     as the target and click the
     \inlineimage qtcreator-run.png
-    button to build your program and run it in the Qt Simulator.
+    button to build your program and run it in \QS.
 
-    In Qt Simulator, run the runOutOfBattery.qs example script to see the value
+    In \QS, run the runOutOfBattery.qs example script to see the value
     change in the Battery Status application. Select \gui {Scripting > examples
     > runOutOfBattery.qs > Run Selected Script}.
 

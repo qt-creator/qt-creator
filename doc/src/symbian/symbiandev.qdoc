@@ -307,6 +307,6 @@
     {Symbian C++ SDKs}. You can use them also for Qt application development.
     For example, these SDKs provide Symbian device emulators that are built
     mostly from the software that the actual devices are running. Therefore,
-    they provide much closer emulation of the device than Qt Simulator.
+    they provide much closer emulation of the device than \QS.
 
 */

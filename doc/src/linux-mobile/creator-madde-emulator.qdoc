@@ -47,12 +47,12 @@
     controls, such as the power button, and to the touch screen.
 
     To test the application UI, user interaction with the application, and
-    functionality that uses the mobility APIs, use the Qt Simulator,
+    functionality that uses the mobility APIs, use \QS,
     instead. For more information, see the
-    \l{http://doc.qt.nokia.com/qtsimulator/index.html}{Qt Simulator Manual}.
+    \l{http://doc.qt.nokia.com/qtsimulator/index.html}{\QS Manual}.
 
-    The difference between Qt Simulator and the emulators is that when you
-    compile your application binary for Qt Simulator, it is compiled against a
+    The difference between \QS and the emulators is that when you
+    compile your application binary for \QS, it is compiled against a
     host library. The binary run on the emulator is compiled for the actual
     device, using the Maemo 5 or Harmattan tool chain.
 

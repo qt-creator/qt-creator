@@ -3,7 +3,7 @@
     \list 1
 
         \o  Build and run the application for \l{Running on Qt Simulator}
-            {Qt Simulator}.
+            {\QS}.
 
         \o  Build and run the application for a device:
 

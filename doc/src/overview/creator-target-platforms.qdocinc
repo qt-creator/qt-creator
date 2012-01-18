@@ -6,7 +6,7 @@
 
         \o  Desktop
 
-        \o  Qt Simulator
+        \o  \QS
 
         \o  Maemo 5
 
@@ -27,7 +27,7 @@
             \o  {6,1} Platform
         \header
             \o  Desktop
-            \o  Qt Simulator
+            \o  \QS
             \o  Maemo 5
             \o  MeeGo Harmattan
             \o  Generic Remote Linux

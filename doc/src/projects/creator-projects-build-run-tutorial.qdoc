@@ -45,7 +45,7 @@
             \image qtcreator-gs-build-example-open.png "Selecting an example"
 
         \o  Select \l{glossary-development-target}{targets} for the project.
-            Select at least Qt Simulator
+            Select at least \QS
             and one of the mobile targets, Symbian Device, Maemo 5, or
             MeeGo Harmattan, depending on the device you develop for.
 
@@ -60,21 +60,21 @@
             instructions, select \gui {Previous Page} on the toolbar or
             press \key {Alt+Left}.
 
-        \o  To test the application in Qt Simulator, click the \gui {Target
-            Selector} and select \gui {Qt Simulator}.
+        \o  To test the application in \QS, click the \gui {Target
+            Selector} and select \gui {\QS}.
 
             \image {qtcreator-gs-build-example-select-qs.png} "Selecting Qt Simulator as target"
 
         \o  Click
             \inlineimage{qtcreator-run.png}
-            to build the application and run it in Qt Simulator.
+            to build the application and run it in \QS.
 
         \o  To see the compilation progress, press \key{Alt+4} to open the
             \gui {Compile Output} pane.
 
             The \gui Build progress bar on the toolbar turns green when the
             project is successfully built. The application opens in
-            Qt Simulator.
+            \QS.
 
             \image {qt-simulator.png} "Qt Simulator"
 
