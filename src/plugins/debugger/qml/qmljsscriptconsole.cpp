@@ -77,10 +77,10 @@ public:
           lastKnownPosition(0),
           inferiorStopped(false)
     {
-        resetCache();
+        scriptHistory.append(QString());
+        scriptHistoryIndex = scriptHistory.count();
     }
 
-    void resetCache();
     void appendToHistory(const QString &script);
     bool canEvaluateScript(const QString &script);
 
@@ -99,13 +99,6 @@ public:
 
     QFlags<QmlJSScriptConsole::DebugLevelFlag> debugLevel;
 };
-
-void QmlJSScriptConsolePrivate::resetCache()
-{
-    scriptHistory.clear();
-    scriptHistory.append(QString());
-    scriptHistoryIndex = scriptHistory.count();
-}
 
 void QmlJSScriptConsolePrivate::appendToHistory(const QString &script)
 {
@@ -348,8 +341,6 @@ void QmlJSScriptConsole::setDebugLevel(QFlags<DebugLevelFlag> level)
 
 void QmlJSScriptConsole::clear()
 {
-    d->resetCache();
-
     QPlainTextEdit::clear();
     displayPrompt();
 }
