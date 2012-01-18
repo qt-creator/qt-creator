@@ -71,8 +71,9 @@ Rectangle {
             y: 144
             width: 274
 
-            anchors.right: recentlyUsedSessions.right
-            anchors.rightMargin: -89
+            anchors.left: recentlyUsedSessions.left
+            anchors.right: recentlyUsedProjects.left
+            anchors.rightMargin: 40
             anchors.top: recentlyUsedSessions.bottom
             anchors.topMargin: 20
 
@@ -96,12 +97,14 @@ Rectangle {
             height: 416
             id: recentProjects
 
+            anchors.left: recentlyUsedProjects.left
+
             anchors.top: recentlyUsedProjects.bottom
             anchors.topMargin: 20
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 40
             anchors.right: parent.right
-            anchors.rightMargin: 137
+            anchors.rightMargin: 80
 
             model: projectList
         }
@@ -137,7 +140,7 @@ Rectangle {
             color: "#535353"
             text: qsTr("Recently used Projects")
             anchors.left: recentlyUsedSessions.right
-            anchors.leftMargin: 134
+            anchors.leftMargin: 160
             font.bold: true
             font.family: "Helvetica"
             font.pixelSize: 16
@@ -145,9 +148,9 @@ Rectangle {
 
         Item {
             id: actions
+            x: pageCaption.x + pageCaption.textOffset
 
-            x: 90
-            y: 296
+            y: 295
             width: 140
             height: 70
 
@@ -172,15 +175,12 @@ Rectangle {
 
             Image {
                 id: icon02
-                x: 2
                 y: 32
                 source: "widgets/images/icons/openIcon.png"
             }
 
             Image {
                 id: icon01
-                x: 0
-                y: 0
                 source: "widgets/images/icons/createIcon.png"
             }
         }
