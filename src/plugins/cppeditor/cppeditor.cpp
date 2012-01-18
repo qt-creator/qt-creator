@@ -579,6 +579,27 @@ void CPPEditorWidget::cut()
     finishRename();
 }
 
+void CPPEditorWidget::selectAll()
+{
+    // if we are currently renaming a symbol
+    // and the cursor is over that symbol, select just that symbol
+    if (m_currentRenameSelection != NoCurrentRenameSelection) {
+        QTextCursor cursor = textCursor();
+        int selectionBegin = m_currentRenameSelectionBegin.position();
+        int selectionEnd = m_currentRenameSelectionEnd.position();
+
+        if (cursor.position() >= selectionBegin
+                && cursor.position() <= selectionEnd) {
+            cursor.setPosition(selectionBegin);
+            cursor.setPosition(selectionEnd, QTextCursor::KeepAnchor);
+            setTextCursor(cursor);
+            return;
+        }
+    }
+
+    BaseTextEditorWidget::selectAll();
+}
+
 CppModelManagerInterface *CPPEditorWidget::modelManager() const
 {
     return m_modelManager;

@@ -179,6 +179,7 @@ public:
 
     virtual void paste(); // reimplemented from BaseTextEditorWidget
     virtual void cut(); // reimplemented from BaseTextEditorWidget
+    virtual void selectAll(); // reimplemented from BaseTextEditorWidget
 
     CPlusPlus::CppModelManagerInterface *modelManager() const;
 

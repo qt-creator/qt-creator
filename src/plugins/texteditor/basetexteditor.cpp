@@ -5763,6 +5763,12 @@ void BaseTextEditorWidget::cut()
     QPlainTextEdit::cut();
 }
 
+void BaseTextEditorWidget::selectAll()
+{
+    d->clearBlockSelection();
+    QPlainTextEdit::selectAll();
+}
+
 void BaseTextEditorWidget::copy()
 {
     if (!textCursor().hasSelection())

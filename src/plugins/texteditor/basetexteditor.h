@@ -257,6 +257,7 @@ public slots:
     virtual void copy();
     virtual void paste();
     virtual void cut();
+    virtual void selectAll();
 
     void circularPaste();
 
