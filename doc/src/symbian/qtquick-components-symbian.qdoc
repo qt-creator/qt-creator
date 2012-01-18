@@ -37,7 +37,7 @@
     for Symbian and the Symbian Anna target as part of the \QSDK. In addition,
     you must install the Qt Quick Components on the test device.
 
-    This tutorial describes how to use Qt Creator to create a small Qt
+    This tutorial describes how to use \QC to create a small Qt
     application, Battery Status, that uses the System Information
     Mobility API to fetch battery information from the device.
 
@@ -71,7 +71,7 @@
         \o  Select \gui Next in the following dialogs to use the default
             settings.
 
-            \note Qt Creator contains a default program icon and generates an
+            \note \QC contains a default program icon and generates an
             \l{Application UID}, for testing the application on a device. You
             only need to change the icon and UID if you deliver the application
             for public use.
@@ -81,7 +81,7 @@
 
     \endlist
 
-    Qt Creator generates the necessary files that contain boiler plate code. The
+    \QC generates the necessary files that contain boiler plate code. The
     wizard creates an application that uses
     \l{http://doc.qt.nokia.com/qt-components-symbian/qt-components-pages-and-navigation-overview.html}
     {page-based application navigation}.

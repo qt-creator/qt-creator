@@ -80,7 +80,7 @@
                 \endraw
                 \target glossary-development-target
             \o  Target means the software platform for which you develop an
-                application. Qt Creator groups platform specific settings (such
+                application. \QC groups platform specific settings (such
                 as build configurations, compatible tool chains, and supported
                 Qt versions) as targets to make cross-platform development
                 easier.
