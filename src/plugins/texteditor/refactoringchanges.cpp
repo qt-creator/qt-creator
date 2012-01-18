@@ -96,42 +96,32 @@ bool RefactoringChanges::createFile(const QString &fileName, const QString &cont
     if (QFile::exists(fileName))
         return false;
 
-    BaseTextEditorWidget *editor = editorForFile(fileName);
-    if (!editor && openEditor) {
-        editor = this->openEditor(fileName, false, -1, -1);
+    // Create a text document for the new file:
+    QTextDocument *document = new QTextDocument;
+    QTextCursor cursor(document);
+    cursor.beginEditBlock();
+    cursor.insertText(contents);
+
+    // Reindent the contents:
+    if (reindent) {
+        cursor.select(QTextCursor::Document);
+        m_data->indentSelection(cursor, fileName, 0);
     }
+    cursor.endEditBlock();
 
-    QTextDocument *document;
-    if (editor)
-        document = editor->document();
-    else
-        document = new QTextDocument;
-
-    {
-        QTextCursor cursor(document);
-        cursor.beginEditBlock();
-
-        cursor.insertText(contents);
-
-        if (reindent) {
-            cursor.select(QTextCursor::Document);
-            m_data->indentSelection(cursor, fileName, editor);
-        }
-
-        cursor.endEditBlock();
-    }
-
-    if (!editor) {
-        Utils::TextFileFormat format;
-        format.codec = Core::EditorManager::instance()->defaultTextCodec();
-        QString error;
-        bool saveOk = format.writeFile(fileName, document->toPlainText(), &error);
-        delete document;
-        if (!saveOk)
-            return false;
-    }
+    // Write the file to disk:
+    Utils::TextFileFormat format;
+    format.codec = Core::EditorManager::instance()->defaultTextCodec();
+    QString error;
+    bool saveOk = format.writeFile(fileName, document->toPlainText(), &error);
+    delete document;
+    if (!saveOk)
+        return false;
 
     m_data->fileChanged(fileName);
+
+    if (openEditor)
+        this->openEditor(fileName, /*bool activate =*/ false, -1, -1);
 
     return true;
 }
@@ -157,7 +147,11 @@ BaseTextEditorWidget *RefactoringChanges::openEditor(const QString &fileName, bo
     }
     Core::IEditor *editor = BaseTextEditorWidget::openEditorAt(
                 fileName, line, column, Core::Id(), flags);
-    return qobject_cast<BaseTextEditorWidget *>(editor->widget());
+
+    if (editor)
+        return qobject_cast<BaseTextEditorWidget *>(editor->widget());
+    else
+        return 0;
 }
 
 RefactoringFilePtr RefactoringChanges::file(BaseTextEditorWidget *editor)
