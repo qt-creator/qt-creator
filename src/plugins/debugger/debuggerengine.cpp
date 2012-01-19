@@ -1258,6 +1258,8 @@ void DebuggerEngine::quitDebugger()
     case EngineRunRequested:
         notifyEngineRunFailed();
         break;
+    case EngineShutdownRequested:
+        break;
     case EngineRunFailed:
     case DebuggerFinished:
         break;
