@@ -1247,6 +1247,9 @@ void DebuggerEngine::quitDebugger()
     case InferiorRunOk:
         d->doInterruptInferior();
         break;
+    case EngineSetupRequested:
+        notifyEngineSetupFailed();
+        break;
     case EngineRunRequested:
         notifyEngineRunFailed();
         break;
