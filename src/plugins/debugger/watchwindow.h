@@ -62,7 +62,6 @@ private:
     Q_SLOT void resetHelper();
     Q_SLOT void expandNode(const QModelIndex &idx);
     Q_SLOT void collapseNode(const QModelIndex &idx);
-    Q_SLOT void setUpdatesEnabled(bool enable);
 
     void setModel(QAbstractItemModel *model);
     void keyPressEvent(QKeyEvent *ev);

@@ -122,9 +122,6 @@ private:
     void dumpHelper(WatchItem *item);
     void emitAllChanged();
 
-signals:
-    void enableUpdates(bool);
-
 private:
     QString displayType(const WatchData &typeIn) const;
     QString formattedValue(const WatchData &data) const;

@@ -207,14 +207,14 @@ void WatchModel::beginCycle(bool fullCycle)
     if (fullCycle)
         m_generationCounter++;
 
-    emit enableUpdates(false);
+    //emit enableUpdates(false);
 }
 
 void WatchModel::endCycle()
 {
     removeOutdated();
     m_fetchTriggered.clear();
-    emit enableUpdates(true);
+    //emit enableUpdates(true);
 }
 
 DebuggerEngine *WatchModel::engine() const
