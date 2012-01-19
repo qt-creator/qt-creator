@@ -281,9 +281,9 @@ void QmlProfilerApplication::connected()
     print(QString(QLatin1String("Connected to host:port %1:%2. Wait for profile data or type a command (type 'help'' to show list of commands).")).arg(m_hostName).arg((m_port)));
     QString recordingStatus(QLatin1String("Recording Status: %1"));
     if (!m_qmlProfilerClient.isRecording() && !m_v8profilerClient.isRecording())
-        recordingStatus.arg(QLatin1String("Off"));
+        recordingStatus = recordingStatus.arg(QLatin1String("Off"));
     else
-        recordingStatus.arg(QLatin1String("On"));
+        recordingStatus = recordingStatus.arg(QLatin1String("On"));
     print(recordingStatus);
 }
 
