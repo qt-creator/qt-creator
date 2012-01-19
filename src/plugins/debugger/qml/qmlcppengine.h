@@ -118,6 +118,7 @@ protected:
     void runEngine();
     void shutdownInferior();
     void shutdownEngine();
+    void quitDebugger();
     void abortDebugger();
 
     void notifyInferiorRunOk();

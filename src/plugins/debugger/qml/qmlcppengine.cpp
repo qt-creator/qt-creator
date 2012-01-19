@@ -505,9 +505,22 @@ void QmlCppEngine::shutdownEngine()
     d->m_cppEngine->shutdownSlaveEngine();
 }
 
+void QmlCppEngine::quitDebugger()
+{
+    // we might get called multiple times
+    if (targetState() == DebuggerFinished)
+        return;
+
+    EDEBUG("\nMASTER QUIT DEBUGGER");
+    setTargetState(DebuggerFinished);
+    d->m_qmlEngine->quitDebugger();
+    d->m_cppEngine->quitDebugger();
+}
+
 void QmlCppEngine::abortDebugger()
 {
     EDEBUG("\nMASTER ABORT DEBUGGER");
+    setTargetState(DebuggerFinished);
     d->m_qmlEngine->abortDebugger();
     d->m_cppEngine->abortDebugger();
 }
@@ -531,79 +544,135 @@ void QmlCppEngine::slaveEngineStateChanged
         EDEBUG("  OTHER ENGINE: " << otherEngine << otherEngine->state());
         EDEBUG("  COMBINED ENGINE: " << this << state() << isDying());
     }
-    // Idea is to follow the state of the cpp engine,
-    // except where we are stepping in QML
+
+    // Idea is to follow the state of the cpp engine, except where we are stepping in QML.
+    // That is, when the QmlEngine moves between InferiorStopOk, and InferiorRunOk, InferiorStopOk ...
+    //
+    // Accordingly, the 'active engine' is the cpp engine until the qml engine enters the
+    // InferiorStopOk state. The cpp engine becomes the active one again as soon as it itself enters
+    // the InferiorStopOk state.
 
     if (slaveEngine == d->m_cppEngine) {
         switch (newState) {
-        case DebuggerNotReady:
+        case DebuggerNotReady: {
             // Can this ever happen?
             break;
-        case EngineSetupRequested:
-            QTC_CHECK(state() == EngineSetupRequested);
+        }
+        case EngineSetupRequested: {
+            // set by queueSetupEngine()
+            QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
             break;
-
-        case EngineSetupFailed:
+        }
+        case EngineSetupFailed: {
             qmlEngine()->quitDebugger();
             notifyEngineSetupFailed();
             break;
-
-        case EngineSetupOk:
+        }
+        case EngineSetupOk: {
             notifyEngineSetupOk();
             break;
-
-        case InferiorSetupRequested:
+        }
+        case InferiorSetupRequested: {
+            // set by queueSetupInferior()
+            QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
             break;
-
-        case InferiorSetupFailed:
+        }
+        case InferiorSetupFailed: {
             qmlEngine()->quitDebugger();
             notifyInferiorSetupFailed();
             break;
-
-        case InferiorSetupOk:
+        }
+        case InferiorSetupOk: {
             notifyInferiorSetupOk();
             break;
-
-        case EngineRunRequested:
+        }
+        case EngineRunRequested: {
+            // set by queueRunEngine()
             break;
-
-        case EngineRunFailed:
+        }
+        case EngineRunFailed: {
             qmlEngine()->quitDebugger();
             notifyEngineRunFailed();
             break;
-
-        case InferiorUnrunnable:
+        }
+        case InferiorUnrunnable: {
+            qmlEngine()->quitDebugger();
             notifyInferiorUnrunnable();
             break;
-
-        case InferiorRunRequested:
+        }
+        case InferiorRunRequested: {
+            // might be set already by notifyInferiorRunRequested()
+            QTC_ASSERT(state() == InferiorRunRequested
+                       || state() == InferiorStopOk, qDebug() << state());
+            if (state() != InferiorRunRequested)
+                notifyInferiorRunRequested();
             break;
-
-        case InferiorRunOk:
+        }
+        case InferiorRunOk: {
+            QTC_ASSERT(state() == EngineRunRequested
+                       || state() == InferiorRunRequested, qDebug() << state());
             if (state() == EngineRunRequested)
                 notifyEngineRunAndInferiorRunOk();
             else if (state() == InferiorRunRequested)
                 notifyInferiorRunOk();
             break;
-
-        case InferiorRunFailed:
+        }
+        case InferiorRunFailed: {
             qmlEngine()->quitDebugger();
             notifyInferiorRunFailed();
             break;
+        }
+        case InferiorStopRequested: {
+            if (d->m_activeEngine == cppEngine()) {
+                // might be set by doInterruptInferior()
+                QTC_ASSERT(state() == InferiorStopRequested
+                           || state() == InferiorRunOk, qDebug() << state());
+                if (state() == InferiorRunOk)
+                    setState(InferiorStopRequested);
+                break;
+            } else {
+                // we're debugging qml, but got an abort ...
+                QTC_ASSERT(state() == InferiorRunOk
+                          || state() == InferiorStopOk
+                           || state() == InferiorRunRequested, qDebug() << state());
 
-        case InferiorStopRequested:
-            break;
+                if (state() == InferiorRunOk) {
+                    setState(InferiorStopRequested);
+                } else if (state() == InferiorStopOk) {
+                    notifyInferiorRunRequested();
+                    notifyInferiorRunOk();
+                    setState(InferiorStopRequested);
+                } else if (state() == InferiorRunRequested) {
+                    notifyInferiorRunOk();
+                    setState(InferiorStopRequested);
+                }
+            }
 
-        case InferiorStopOk:
+        }
+        case InferiorStopOk: {
             if (isDying()) {
                 EDEBUG("... CPP ENGINE STOPPED DURING SHUTDOWN ");
+                QTC_ASSERT(state() == InferiorStopRequested
+                           || state() == InferiorRunOk
+                           || state() == InferiorStopOk, qDebug() << state());
+
+                // Just to make sure, we're shutting down anyway ...
+                d->m_activeEngine = cppEngine();
+
                 if (state() == InferiorStopRequested)
-                    notifyInferiorStopOk();
+                    setState(InferiorStopOk);
+                // otherwise we're probably inside notifyInferiorStopOk already
             } else {
                 if (d->m_activeEngine != cppEngine()) {
                     showStatusMessage(tr("C++ debugger activated"));
                     d->m_activeEngine = cppEngine();
                 }
+
+                QTC_ASSERT(state() == InferiorStopRequested
+                           || state() == InferiorRunRequested
+                           || state() == EngineRunRequested
+                           || state() == InferiorRunOk
+                           || state() == InferiorStopOk, qDebug() << state());
                 switch (state()) {
                 case InferiorStopRequested:
                     EDEBUG("... CPP ENGINE STOPPED EXPECTEDLY");
@@ -613,67 +682,106 @@ void QmlCppEngine::slaveEngineStateChanged
                     EDEBUG("... CPP ENGINE STOPPED ON STARTUP");
                     notifyEngineRunAndInferiorStopOk();
                     break;
-                default:
-                    QTC_CHECK(state() == InferiorRunOk);
+                case InferiorRunOk:
                     EDEBUG("... CPP ENGINE STOPPED SPONTANEOUSLY");
                     notifyInferiorSpontaneousStop();
+                    break;
+                case InferiorRunRequested:
+                    // can happen if qml engine was active
+                    notifyInferiorRunFailed();
+                default:
                     break;
                 }
             }
             break;
-
-        case InferiorStopFailed:
+        }
+        case InferiorStopFailed: {
+            QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
             notifyInferiorStopFailed();
             break;
-
-        case InferiorExitOk:
+        }
+        case InferiorExitOk: {
+            // State can be reached by different states ...
             qmlEngine()->quitDebugger();
             notifyInferiorExited();
             break;
-
-        case InferiorShutdownRequested:
+        }
+        case InferiorShutdownRequested: {
+            // might be set by queueShutdownInferior() already
+            QTC_ASSERT(state() == InferiorShutdownRequested
+                       || state() == InferiorStopOk, qDebug() << state());
+            if (state() == InferiorStopOk)
+                setState(InferiorShutdownRequested);
             break;
-
-        case InferiorShutdownFailed:
+        }
+        case InferiorShutdownFailed: {
+            QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
             notifyInferiorShutdownFailed();
             break;
-
-        case InferiorShutdownOk:
+        }
+        case InferiorShutdownOk: {
+            QTC_ASSERT(state() == InferiorShutdownRequested
+                       || state() == EngineRunFailed
+                       || state() == InferiorSetupFailed, qDebug() << state());
             if (state() == InferiorShutdownRequested)
                 notifyInferiorShutdownOk();
             break;
-
-        case EngineShutdownRequested:
+        }
+        case EngineShutdownRequested: {
+            // set by queueShutdownEngine()
+            QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
             break;
-
-        case EngineShutdownFailed:
+        }
+        case EngineShutdownFailed: {
+            QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
             qmlEngine()->quitDebugger();
             notifyEngineShutdownFailed();
             break;
-
+        }
         case EngineShutdownOk: {
+            QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
             qmlEngine()->quitDebugger();
             notifyEngineShutdownOk();
             break;
         }
-
-        case DebuggerFinished:
+        case DebuggerFinished: {
+            // set by queueFinishDebugger()
+            QTC_ASSERT(state() == DebuggerFinished, qDebug() << state());
             break;
+        }
         }
     } else {
         // QML engine state change
         if (newState == InferiorStopOk) {
-            if (d->m_activeEngine != qmlEngine()) {
-                showStatusMessage(tr("QML debugger activated"));
-                d->m_activeEngine = qmlEngine();
+            if (isDying()) {
+                EDEBUG("... QML ENGINE STOPPED DURING SHUTDOWN ");
+
+                // Just to make sure, we're shutting down anyway ...
+                d->m_activeEngine = cppEngine();
+
+                if (state() == InferiorStopRequested)
+                    notifyInferiorStopOk();
+                // otherwise we're probably inside notifyInferiorStopOk already
+            } else {
+                if (d->m_activeEngine != qmlEngine()) {
+                    showStatusMessage(tr("QML debugger activated"));
+                    d->m_activeEngine = qmlEngine();
+                }
+
+                QTC_ASSERT(state() == InferiorRunOk
+                           || state() == InferiorStopRequested, qDebug() << state());
+
+                if (state() == InferiorRunOk)
+                    notifyInferiorSpontaneousStop();
+                else
+                    notifyInferiorStopOk();
             }
-            if (state() == InferiorRunOk)
-                notifyInferiorSpontaneousStop();
-            else
-                notifyInferiorStopOk();
+
         } else if (newState == InferiorRunOk) {
-            if (d->m_activeEngine == qmlEngine())
+            if (d->m_activeEngine == qmlEngine()) {
+                QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
                 notifyInferiorRunOk();
+            }
         }
     }
 }

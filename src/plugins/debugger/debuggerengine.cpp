@@ -376,6 +376,11 @@ void DebuggerEngine::frameDown()
     activateFrame(qMax(currentIndex - 1, 0));
 }
 
+void DebuggerEngine::setTargetState(DebuggerState state)
+{
+    d->m_targetState = state;
+}
+
 ModulesHandler *DebuggerEngine::modulesHandler() const
 {
     return d->m_masterEngine

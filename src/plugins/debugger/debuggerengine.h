@@ -361,6 +361,8 @@ protected:
     virtual void frameUp();
     virtual void frameDown();
 
+    void setTargetState(DebuggerState state);
+
     DebuggerRunControl *runControl() const;
 
     static QString msgWatchpointByAddressTriggered(BreakpointModelId id,
