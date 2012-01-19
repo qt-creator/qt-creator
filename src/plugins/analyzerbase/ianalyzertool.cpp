@@ -35,31 +35,33 @@
 #include "ianalyzertool.h"
 #include "analyzermanager.h"
 
+using namespace Core;
+
 namespace Analyzer {
 
 IAnalyzerTool::IAnalyzerTool(QObject *parent)
     : QObject(parent)
 {}
 
-Core::Id IAnalyzerTool::defaultMenuGroup(StartMode mode)
+Id IAnalyzerTool::defaultMenuGroup(StartMode mode)
 {
     if (mode == StartRemote)
-        return Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS;
-    return Analyzer::Constants::G_ANALYZER_TOOLS;
+        return Constants::G_ANALYZER_REMOTE_TOOLS;
+    return Constants::G_ANALYZER_TOOLS;
 }
 
-Core::Id IAnalyzerTool::defaultActionId(const IAnalyzerTool *tool, StartMode mode)
+Id IAnalyzerTool::defaultActionId(const IAnalyzerTool *tool, StartMode mode)
 {
-    Core::Id id = tool->id();
+    Id id = tool->id();
     switch (mode) {
-    case Analyzer::StartLocal:
-        return Core::Id(QLatin1String("Analyzer.") + id.name() + QLatin1String(".Local"));
-    case Analyzer::StartRemote:
-        return Core::Id(QLatin1String("Analyzer.") + id.name() + QLatin1String(".Remote"));
-    case Analyzer::StartQml:
-        return Core::Id(QLatin1String("Analyzer.") + id.name() + QLatin1String(".Qml"));
+    case StartLocal:
+        return Id(QLatin1String("Analyzer.") + id.name() + QLatin1String(".Local"));
+    case StartRemote:
+        return Id(QLatin1String("Analyzer.") + id.name() + QLatin1String(".Remote"));
+    case StartQml:
+        return Id(QLatin1String("Analyzer.") + id.name() + QLatin1String(".Qml"));
     }
-    return Core::Id();
+    return Id();
 }
 
 QString IAnalyzerTool::defaultActionName(const IAnalyzerTool *tool, StartMode mode)

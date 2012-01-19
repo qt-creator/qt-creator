@@ -96,7 +96,9 @@
 #include <QtGui/QPushButton>
 
 using namespace Core;
+using namespace Core::Constants;
 using namespace Analyzer::Internal;
+using namespace Analyzer::Constants;
 using namespace ProjectExplorer;
 
 namespace Analyzer {
@@ -111,33 +113,28 @@ const char INITIAL_DOCK_AREA[] = "initial_dock_area";
 //
 ////////////////////////////////////////////////////////////////////
 
-class AnalyzerMode : public Core::IMode
+class AnalyzerMode : public IMode
 {
     Q_OBJECT
 
 public:
     AnalyzerMode(QObject *parent = 0)
-        : Core::IMode(parent)
+        : IMode(parent)
     {
-        setContext(Core::Context(
-            Core::Constants::C_EDITORMANAGER,
-            Constants::C_ANALYZEMODE,
-            Core::Constants::C_NAVIGATION_PANE));
+        setContext(Context(C_EDITORMANAGER, C_ANALYZEMODE, C_NAVIGATION_PANE));
         setDisplayName(tr("Analyze"));
         setIcon(QIcon(":/images/analyzer_mode.png"));
-        setPriority(Constants::P_MODE_ANALYZE);
-        setId(QLatin1String(Constants::MODE_ANALYZE));
-        setType(Core::Constants::MODE_EDIT_TYPE);
+        setPriority(P_MODE_ANALYZE);
+        setId(QLatin1String(MODE_ANALYZE));
+        setType(MODE_EDIT_TYPE);
     }
 
     ~AnalyzerMode()
     {
         // Make sure the editor manager does not get deleted.
-        if (m_widget) {
-            delete m_widget;
-            m_widget = 0;
-        }
-        Core::EditorManager::instance()->setParent(0);
+        delete m_widget;
+        m_widget = 0;
+        EditorManager::instance()->setParent(0);
     }
 };
 
@@ -160,7 +157,7 @@ public:
     ~AnalyzerManagerPrivate();
 
     /**
-     * After calling this, a proper instance of Core::IMode is initialized
+     * After calling this, a proper instance of IMode is initialized
      * It is delayed since an analyzer mode makes no sense without analyzer tools
      *
      * \note Call this before adding a tool to the manager
@@ -191,7 +188,7 @@ public slots:
     void startTool();
     void selectToolboxAction(int);
     void selectMenuAction();
-    void modeChanged(Core::IMode *mode);
+    void modeChanged(IMode *mode);
     void resetLayout();
     void updateRunActions();
 
@@ -243,8 +240,8 @@ AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
 
     setupActions();
 
-    connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
-            this, SLOT(modeChanged(Core::IMode*)));
+    connect(ModeManager::instance(), SIGNAL(currentModeChanged(IMode*)),
+            this, SLOT(modeChanged(IMode*)));
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     connect(pe, SIGNAL(updateRunActions()), SLOT(updateRunActions()));
 }
@@ -261,54 +258,52 @@ AnalyzerManagerPrivate::~AnalyzerManagerPrivate()
 
 void AnalyzerManagerPrivate::setupActions()
 {
-    Core::ActionManager *am = Core::ICore::actionManager();
-    const Core::Context globalcontext(Core::Constants::C_GLOBAL);
-    Core::Command *command = 0;
+    ActionManager *am = ICore::actionManager();
+    const Context globalcontext(C_GLOBAL);
+    Command *command = 0;
 
     // Menus
-    m_menu = am->createMenu(Constants::M_DEBUG_ANALYZER);
+    m_menu = am->createMenu(M_DEBUG_ANALYZER);
     m_menu->menu()->setTitle(tr("&Analyze"));
     m_menu->menu()->setEnabled(true);
 
-    m_menu->appendGroup(Constants::G_ANALYZER_CONTROL);
-    m_menu->appendGroup(Constants::G_ANALYZER_TOOLS);
-    m_menu->appendGroup(Constants::G_ANALYZER_REMOTE_TOOLS);
-    m_menu->appendGroup(Constants::G_ANALYZER_OPTIONS);
+    m_menu->appendGroup(G_ANALYZER_CONTROL);
+    m_menu->appendGroup(G_ANALYZER_TOOLS);
+    m_menu->appendGroup(G_ANALYZER_REMOTE_TOOLS);
+    m_menu->appendGroup(G_ANALYZER_OPTIONS);
 
-    Core::ActionContainer *menubar =
-        am->actionContainer(Core::Constants::MENU_BAR);
-    Core::ActionContainer *mtools =
-        am->actionContainer(Core::Constants::M_TOOLS);
+    ActionContainer *menubar = am->actionContainer(MENU_BAR);
+    ActionContainer *mtools = am->actionContainer(M_TOOLS);
     menubar->addMenu(mtools, m_menu);
 
     m_startAction = new QAction(tr("Start"), m_menu);
-    m_startAction->setIcon(QIcon(Constants::ANALYZER_CONTROL_START_ICON));
+    m_startAction->setIcon(QIcon(ANALYZER_CONTROL_START_ICON));
     command = am->registerAction(m_startAction, "Analyzer.Start", globalcontext);
     connect(m_startAction, SIGNAL(triggered()), this, SLOT(startTool()));
 
     m_stopAction = new QAction(tr("Stop"), m_menu);
     m_stopAction->setEnabled(false);
-    m_stopAction->setIcon(QIcon(Constants::ANALYZER_CONTROL_STOP_ICON));
+    m_stopAction->setIcon(QIcon(ANALYZER_CONTROL_STOP_ICON));
     command = am->registerAction(m_stopAction, "Analyzer.Stop", globalcontext);
-    m_menu->addAction(command, Constants::G_ANALYZER_CONTROL);
+    m_menu->addAction(command, G_ANALYZER_CONTROL);
 
     QAction *separatorAction1 = new QAction(m_menu);
     separatorAction1->setSeparator(true);
     command = am->registerAction(separatorAction1,
         "Menu.Action.Analyzer.Tools.Separator1", globalcontext);
-    m_menu->addAction(command, Constants::G_ANALYZER_TOOLS);
+    m_menu->addAction(command, G_ANALYZER_TOOLS);
 
     QAction *separatorAction2 = new QAction(m_menu);
     separatorAction2->setSeparator(true);
     command = am->registerAction(separatorAction2,
         "Menu.Action.Analyzer.Tools.Separator2", globalcontext);
-    m_menu->addAction(command, Constants::G_ANALYZER_REMOTE_TOOLS);
+    m_menu->addAction(command, G_ANALYZER_REMOTE_TOOLS);
 
     QAction *separatorAction3 = new QAction(m_menu);
     separatorAction3->setSeparator(true);
     command = am->registerAction(separatorAction3,
         "Menu.Action.Analyzer.Tools.Separator3", globalcontext);
-    m_menu->addAction(command, Constants::G_ANALYZER_OPTIONS);
+    m_menu->addAction(command, G_ANALYZER_OPTIONS);
 }
 
 void AnalyzerManagerPrivate::delayedInit()
@@ -338,26 +333,25 @@ void AnalyzerManagerPrivate::delayedInit()
     AnalyzerPlugin::instance()->addAutoReleasedObject(m_mode);
 
     // Populate Windows->Views menu with standard actions.
-    Core::Context analyzerContext(Constants::C_ANALYZEMODE);
+    Context analyzerContext(C_ANALYZEMODE);
     ActionManager *am = ICore::actionManager();
-    ActionContainer *viewsMenu =
-        am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
+    ActionContainer *viewsMenu = am->actionContainer(Id(M_WINDOW_VIEWS));
     Command *cmd = am->registerAction(m_mainWindow->menuSeparator1(),
-        Core::Id("Analyzer.Views.Separator1"), analyzerContext);
+        Id("Analyzer.Views.Separator1"), analyzerContext);
     cmd->setAttribute(Command::CA_Hide);
-    viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
+    viewsMenu->addAction(cmd, G_DEFAULT_THREE);
     cmd = am->registerAction(m_mainWindow->toggleLockedAction(),
-        Core::Id("Analyzer.Views.ToggleLocked"), analyzerContext);
+        Id("Analyzer.Views.ToggleLocked"), analyzerContext);
     cmd->setAttribute(Command::CA_Hide);
-    viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
+    viewsMenu->addAction(cmd, G_DEFAULT_THREE);
     cmd = am->registerAction(m_mainWindow->menuSeparator2(),
-        Core::Id("Analyzer.Views.Separator2"), analyzerContext);
+        Id("Analyzer.Views.Separator2"), analyzerContext);
     cmd->setAttribute(Command::CA_Hide);
-    viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
+    viewsMenu->addAction(cmd, G_DEFAULT_THREE);
     cmd = am->registerAction(m_mainWindow->resetLayoutAction(),
-        Core::Id("Analyzer.Views.ResetSimple"), analyzerContext);
+        Id("Analyzer.Views.ResetSimple"), analyzerContext);
     cmd->setAttribute(Command::CA_Hide);
-    viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
+    viewsMenu->addAction(cmd, G_DEFAULT_THREE);
 }
 
 static QToolButton *toolButton(QAction *action)
@@ -432,17 +426,16 @@ void AnalyzerManagerPrivate::activateDock(Qt::DockWidgetArea area, QDockWidget *
     dockWidget->setParent(m_mainWindow);
     m_mainWindow->addDockWidget(area, dockWidget);
 
-    Context globalContext(Core::Constants::C_GLOBAL);
+    Context globalContext(C_GLOBAL);
 
     ActionManager *am = ICore::actionManager();
     QAction *toggleViewAction = dockWidget->toggleViewAction();
     toggleViewAction->setText(dockWidget->windowTitle());
     Command *cmd = am->registerAction(toggleViewAction,
-        Core::Id("Analyzer." + dockWidget->objectName()), globalContext);
+        Id("Analyzer." + dockWidget->objectName()), globalContext);
     cmd->setAttribute(Command::CA_Hide);
 
-    ActionContainer *viewsMenu =
-        am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
+    ActionContainer *viewsMenu = am->actionContainer(Id(M_WINDOW_VIEWS));
     viewsMenu->addAction(cmd);
 }
 
@@ -450,7 +443,7 @@ void AnalyzerManagerPrivate::deactivateDock(QDockWidget *dockWidget)
 {
     ActionManager *am = ICore::actionManager();
     QAction *toggleViewAction = dockWidget->toggleViewAction();
-    am->unregisterAction(toggleViewAction, Core::Id("Analyzer." + dockWidget->objectName()));
+    am->unregisterAction(toggleViewAction, Id("Analyzer." + dockWidget->objectName()));
     m_mainWindow->removeDockWidget(dockWidget);
     dockWidget->hide();
     // Prevent saveState storing the data of the wrong children.
@@ -476,7 +469,7 @@ bool buildTypeAccepted(IAnalyzerTool::ToolMode toolMode,
 bool AnalyzerManagerPrivate::showPromptDialog(const QString &title, const QString &text,
     const QString &stopButtonText, const QString &cancelButtonText) const
 {
-    Utils::CheckableMessageBox messageBox(Core::ICore::mainWindow());
+    Utils::CheckableMessageBox messageBox(ICore::mainWindow());
     messageBox.setWindowTitle(title);
     messageBox.setText(text);
     messageBox.setStandardButtons(QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
@@ -522,7 +515,7 @@ void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool)
         const QString currentMode =
             buildType == BuildConfiguration::Debug ? tr("Debug") : tr("Release");
 
-        QSettings *settings = Core::ICore::settings();
+        QSettings *settings = ICore::settings();
         const QString configKey = QLatin1String("Analyzer.AnalyzeCorrectMode");
         int ret;
         if (settings->contains(configKey)) {
@@ -546,7 +539,7 @@ void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool)
             const QString checkBoxText = tr("&Do not ask again");
             bool checkBoxSetting = false;
             const QDialogButtonBox::StandardButton button =
-                Utils::CheckableMessageBox::question(Core::ICore::mainWindow(),
+                Utils::CheckableMessageBox::question(ICore::mainWindow(),
                     title, message, checkBoxText,
                     &checkBoxSetting, QDialogButtonBox::Yes|QDialogButtonBox::Cancel,
                     QDialogButtonBox::Cancel);
@@ -604,8 +597,8 @@ QAction *AnalyzerManagerPrivate::actionFromToolAndMode(IAnalyzerTool *tool, Star
 
 void AnalyzerManagerPrivate::selectSavedTool()
 {
-    const QSettings *settings = Core::ICore::settings();
-    const Core::Id lastActiveAction(settings->value(QLatin1String(LAST_ACTIVE_TOOL)).toString());
+    const QSettings *settings = ICore::settings();
+    const Id lastActiveAction(settings->value(QLatin1String(LAST_ACTIVE_TOOL)).toString());
     foreach (QAction *action, m_actions) {
         IAnalyzerTool *tool = m_toolFromAction.value(action);
         StartMode mode = m_modeFromAction.value(action);
@@ -687,14 +680,13 @@ void AnalyzerManagerPrivate::addTool(IAnalyzerTool *tool, const StartModes &mode
     delayedInit(); // Make sure that there is a valid IMode instance.
 
     const bool blocked = m_toolBox->blockSignals(true); // Do not make current.
-    ActionManager *am = Core::ICore::actionManager();
+    ActionManager *am = ICore::actionManager();
     foreach (StartMode mode, modes) {
         QString actionName = tool->actionName(mode);
         Id menuGroup = tool->menuGroup(mode);
         Id actionId = tool->actionId(mode);
         QAction *action = new QAction(actionName, 0);
-        Core::Command *command = am->registerAction(action, actionId,
-            Core::Context(Core::Constants::C_GLOBAL));
+        Command *command = am->registerAction(action, actionId, Context(C_GLOBAL));
         m_menu->addAction(command, menuGroup);
         command->action()->setData(int(StartLocal));
         // Assuming this happens before project loading.
@@ -724,7 +716,7 @@ void AnalyzerManagerPrivate::handleToolFinished()
 void AnalyzerManagerPrivate::loadToolSettings(IAnalyzerTool *tool)
 {
     QTC_ASSERT(m_mainWindow, return);
-    QSettings *settings = Core::ICore::settings();
+    QSettings *settings = ICore::settings();
     settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + tool->id().toString());
     if (settings->value("ToolSettingsSaved", false).toBool())
         m_mainWindow->restoreSettings(settings);
@@ -739,7 +731,7 @@ void AnalyzerManagerPrivate::saveToolSettings(IAnalyzerTool *tool, StartMode mod
         return; // no active tool, do nothing
     QTC_ASSERT(m_mainWindow, return);
 
-    QSettings *settings = Core::ICore::settings();
+    QSettings *settings = ICore::settings();
     settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + tool->id().toString());
     m_mainWindow->saveSettings(settings);
     settings->setValue("ToolSettingsSaved", true);
