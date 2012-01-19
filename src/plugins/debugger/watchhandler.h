@@ -90,6 +90,8 @@ private:
     bool canFetchMore(const QModelIndex &parent) const;
     void fetchMore(const QModelIndex &parent);
 
+    void invalidateAll(const QModelIndex &parentIndex = QModelIndex());
+
     friend class WatchHandler;
 
     WatchItem *watchItem(const QModelIndex &) const;

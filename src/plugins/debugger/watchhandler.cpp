@@ -673,6 +673,14 @@ void WatchModel::emitDataChanged(int column, const QModelIndex &parentIndex)
         emitDataChanged(column, index(i, 0, parentIndex));
 }
 
+void WatchModel::invalidateAll(const QModelIndex &parentIndex)
+{
+    QModelIndex idx1 = index(0, 0, parentIndex);
+    QModelIndex idx2 = index(rowCount(parentIndex) - 1, columnCount(parentIndex) - 1, parentIndex);
+    if (idx1.isValid() && idx2.isValid())
+        emit dataChanged(idx1, idx2);
+}
+
 // Truncate value for item view, maintaining quotes.
 static QString truncateValue(QString v)
 {
@@ -1878,10 +1886,10 @@ void WatchHandler::resetLocation()
 {
     if (m_resetLocationScheduled) {
         m_resetLocationScheduled = false;
-        m_return->reset();
-        m_locals->reset();
-        m_watchers->reset();
-        m_tooltips->reset();
+        m_return->invalidateAll();
+        m_locals->invalidateAll();
+        m_watchers->invalidateAll();
+        m_tooltips->invalidateAll();
     }
 }
 
