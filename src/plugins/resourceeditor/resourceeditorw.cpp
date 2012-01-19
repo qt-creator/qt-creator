@@ -92,7 +92,7 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
     // (That is because this editor instance is deleted in executeOpenWithMenuAction
     // in that case.)
     connect(m_openWithMenu, SIGNAL(triggered(QAction*)),
-            Core::FileManager::instance(), SLOT(executeOpenWithMenuAction(QAction*)),
+            Core::FileManager::instance(), SLOT(slotExecuteOpenWithMenuAction(QAction*)),
             Qt::QueuedConnection);
 
     connect(m_resourceEditor, SIGNAL(dirtyChanged(bool)), this, SLOT(dirtyChanged(bool)));

@@ -72,7 +72,7 @@ QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
     m_file = new Internal::QmlProjectFile(this, fileName);
     m_rootNode = new Internal::QmlProjectNode(this, m_file);
 
-    Core::FileManager::instance()->addFile(m_file, true);
+    Core::FileManager::addFile(m_file, true);
 
     m_manager->registerProject(this);
 }
@@ -81,7 +81,7 @@ QmlProject::~QmlProject()
 {
     m_manager->unregisterProject(this);
 
-    Core::FileManager::instance()->removeFile(m_file);
+    Core::FileManager::removeFile(m_file);
 
     delete m_projectItem.data();
     delete m_rootNode;

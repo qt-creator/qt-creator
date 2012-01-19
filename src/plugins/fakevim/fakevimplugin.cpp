@@ -1497,7 +1497,7 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
         const QString fileName = handler->currentFileName();
         if (editor && editor->file()->fileName() == fileName) {
             // Handle that as a special case for nicer interaction with core
-            ICore::fileManager()->saveFile(editor->file());
+            FileManager::saveFile(editor->file());
             // Check result by reading back.
             QFile file3(fileName);
             file3.open(QIODevice::ReadOnly);
@@ -1512,9 +1512,8 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
         }
     } else if (cmd.matches("wa", "wall")) {
         // :w[all]
-        FileManager *fm = ICore::fileManager();
-        QList<IFile *> toSave = fm->modifiedFiles();
-        QList<IFile *> failed = fm->saveModifiedFilesSilently(toSave);
+        QList<IFile *> toSave = FileManager::modifiedFiles();
+        QList<IFile *> failed = FileManager::saveModifiedFilesSilently(toSave);
         if (failed.isEmpty())
             handler->showBlackMessage(tr("Saving succeeded"));
         else

@@ -718,7 +718,7 @@ void AbstractDebBasedQt4MaemoTarget::handleTargetAddedSpecial()
     connect(m_controlFile, SIGNAL(modified()), SIGNAL(controlChanged()));
     m_changeLogFile = new WatchableFile(changeLogFilePath(), this);
     connect(m_changeLogFile, SIGNAL(modified()), SIGNAL(changeLogChanged()));
-    Core::FileManager::instance()->addFiles(QList<Core::IFile *>()
+    Core::FileManager::addFiles(QList<Core::IFile *>()
         << m_controlFile << m_changeLogFile);
     connect(m_filesWatcher, SIGNAL(directoryChanged(QString)), this,
         SLOT(handleDebianDirContentsChanged()));
@@ -1067,7 +1067,7 @@ void AbstractRpmBasedQt4MaemoTarget::handleTargetAddedSpecial()
 {
     m_specFile = new WatchableFile(specFilePath(), this);
     connect(m_specFile, SIGNAL(modified()), SIGNAL(specFileChanged()));
-    Core::FileManager::instance()->addFile(m_specFile);
+    Core::FileManager::addFile(m_specFile);
     emit specFileChanged();
 }
 

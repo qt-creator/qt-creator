@@ -180,7 +180,7 @@ void BaseFileFind::doReplace(const QString &text,
 {
     QStringList files = replaceAll(text, items);
     if (!files.isEmpty()) {
-        Core::ICore::fileManager()->notifyFilesChangedInternally(files);
+        Core::FileManager::notifyFilesChangedInternally(files);
         Find::SearchResultWindow::instance()->hide();
     }
 }

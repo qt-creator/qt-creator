@@ -110,10 +110,9 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     // Objects
     m_modelManager = new CppModelManager(this);
     Core::VcsManager *vcsManager = Core::ICore::vcsManager();
-    Core::FileManager *fileManager = Core::ICore::fileManager();
     connect(vcsManager, SIGNAL(repositoryChanged(QString)),
             m_modelManager, SLOT(updateModifiedSourceFiles()));
-    connect(fileManager, SIGNAL(filesChangedInternally(QStringList)),
+    connect(Core::FileManager::instance(), SIGNAL(filesChangedInternally(QStringList)),
             m_modelManager, SLOT(updateSourceFiles(QStringList)));
     addAutoReleasedObject(m_modelManager);
 

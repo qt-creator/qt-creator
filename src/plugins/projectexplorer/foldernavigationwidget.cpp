@@ -187,13 +187,12 @@ void FolderNavigationWidget::setAutoSynchronization(bool sync)
 
     m_autoSync = sync;
 
-    Core::FileManager *fileManager = Core::ICore::fileManager();
     if (m_autoSync) {
-        connect(fileManager, SIGNAL(currentFileChanged(QString)),
+        connect(Core::FileManager::instance(), SIGNAL(currentFileChanged(QString)),
                 this, SLOT(setCurrentFile(QString)));
-        setCurrentFile(fileManager->currentFile());
+        setCurrentFile(Core::FileManager::currentFile());
     } else {
-        disconnect(fileManager, SIGNAL(currentFileChanged(QString)),
+        disconnect(Core::FileManager::instance(), SIGNAL(currentFileChanged(QString)),
                 this, SLOT(setCurrentFile(QString)));
     }
 }
@@ -361,7 +360,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
             findOnFileSystem(info.absolutePath());
         return;
     }
-    Core::FileManager::instance()->executeOpenWithMenuAction(action);
+    Core::FileManager::executeOpenWithMenuAction(action);
 }
 
 QString FolderNavigationWidget::msgFindOnFileSystem()

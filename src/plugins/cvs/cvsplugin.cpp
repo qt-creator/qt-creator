@@ -504,7 +504,7 @@ bool CvsPlugin::submitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor)
     bool closeEditor = true;
     if (!fileList.empty()) {
         // get message & commit
-        closeEditor = ICore::fileManager()->saveFile(fileIFace);
+        closeEditor = FileManager::saveFile(fileIFace);
         if (closeEditor)
             closeEditor = commit(m_commitMessageFileName, fileList);
     }

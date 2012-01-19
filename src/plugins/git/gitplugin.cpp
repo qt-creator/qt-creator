@@ -774,7 +774,7 @@ bool GitPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEdi
     bool closeEditor = true;
     if (model->hasCheckedFiles() || !m_commitAmendSHA1.isEmpty()) {
         // get message & commit
-        if (!Core::ICore::fileManager()->saveFile(fileIFace))
+        if (!Core::FileManager::saveFile(fileIFace))
             return false;
 
         closeEditor = m_gitClient->addAndCommit(m_submitRepository, editor->panelData(),
@@ -891,11 +891,10 @@ static bool ensureFileSaved(const QString &fileName)
     Core::IFile *file = editors.front()->file();
     if (!file || !file->isModified())
         return true;
-    Core::FileManager *fm = Core::ICore::fileManager();
     bool canceled;
     QList<Core::IFile *> files;
     files << file;
-    fm->saveModifiedFiles(files, &canceled);
+    Core::FileManager::saveModifiedFiles(files, &canceled);
     return !canceled;
 }
 

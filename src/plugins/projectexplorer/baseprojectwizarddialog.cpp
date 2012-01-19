@@ -129,9 +129,8 @@ void BaseProjectWizardDialog::slotAccepted()
 {
     if (d->introPage->useAsDefaultPath()) {
         // Store the path as default path for new projects if desired.
-        Core::FileManager *fm = Core::ICore::fileManager();
-        fm->setProjectsDirectory(path());
-        fm->setUseProjectsDirectory(true);
+        Core::FileManager::setProjectsDirectory(path());
+        Core::FileManager::setUseProjectsDirectory(true);
     }
 }
 

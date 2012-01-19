@@ -48,14 +48,9 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class ICore;
 class IContext;
 class IFile;
 class IVersionControl;
-
-namespace Internal {
-struct FileManagerPrivate;
-}
 
 class CORE_EXPORT FileManager : public QObject
 {
@@ -74,44 +69,44 @@ public:
     static FileManager *instance();
 
     // file pool to monitor
-    void addFiles(const QList<IFile *> &files, bool addWatcher = true);
-    void addFile(IFile *file, bool addWatcher = true);
-    bool removeFile(IFile *file);
-    QList<IFile *> modifiedFiles() const;
+    static void addFiles(const QList<IFile *> &files, bool addWatcher = true);
+    static void addFile(IFile *file, bool addWatcher = true);
+    static bool removeFile(IFile *file);
+    static QList<IFile *> modifiedFiles();
 
-    void renamedFile(const QString &from, const QString &to);
+    static void renamedFile(const QString &from, const QString &to);
 
-    void expectFileChange(const QString &fileName);
-    void unexpectFileChange(const QString &fileName);
+    static void expectFileChange(const QString &fileName);
+    static void unexpectFileChange(const QString &fileName);
 
     // recent files
-    void addToRecentFiles(const QString &fileName, const Id &editorId = Id());
+    static void addToRecentFiles(const QString &fileName, const Id &editorId = Id());
     Q_SLOT void clearRecentFiles();
-    QList<RecentFile> recentFiles() const;
+    static QList<RecentFile> recentFiles();
 
-    void saveSettings();
+    static void saveSettings();
 
     // current file
-    void setCurrentFile(const QString &filePath);
-    QString currentFile() const;
+    static void setCurrentFile(const QString &filePath);
+    static QString currentFile();
 
     // helper methods
     static QString fixFileName(const QString &fileName, FixMode fixmode);
 
-    bool saveFile(IFile *file, const QString &fileName = QString(), bool *isReadOnly = 0);
+    static bool saveFile(IFile *file, const QString &fileName = QString(), bool *isReadOnly = 0);
 
-    QStringList getOpenFileNames(const QString &filters,
+    static QStringList getOpenFileNames(const QString &filters,
                                  const QString path = QString(),
                                  QString *selectedFilter = 0);
-    QString getSaveFileName(const QString &title, const QString &pathIn,
+    static QString getSaveFileName(const QString &title, const QString &pathIn,
                             const QString &filter = QString(), QString *selectedFilter = 0);
-    QString getSaveFileNameWithExtension(const QString &title, const QString &pathIn,
+    static QString getSaveFileNameWithExtension(const QString &title, const QString &pathIn,
                                          const QString &filter);
-    QString getSaveAsFileName(IFile *file, const QString &filter = QString(),
+    static QString getSaveAsFileName(IFile *file, const QString &filter = QString(),
                               QString *selectedFilter = 0);
 
-    QList<IFile *> saveModifiedFilesSilently(const QList<IFile *> &files, bool *cancelled = 0);
-    QList<IFile *> saveModifiedFiles(const QList<IFile *> &files,
+    static QList<IFile *> saveModifiedFilesSilently(const QList<IFile *> &files, bool *cancelled = 0);
+    static QList<IFile *> saveModifiedFiles(const QList<IFile *> &files,
                                      bool *cancelled = 0,
                                      const QString &message = QString(),
                                      const QString &alwaysSaveMessage = QString(),
@@ -126,25 +121,27 @@ public:
                                              QWidget *parent,
                                              bool displaySaveAsButton = false);
 
-    QString fileDialogLastVisitedDirectory() const;
-    void setFileDialogLastVisitedDirectory(const QString &);
+    static QString fileDialogLastVisitedDirectory();
+    static void setFileDialogLastVisitedDirectory(const QString &);
 
-    QString fileDialogInitialDirectory() const;
+    static QString fileDialogInitialDirectory();
 
-    bool useProjectsDirectory() const;
-    void setUseProjectsDirectory(bool);
+    static bool useProjectsDirectory();
+    static void setUseProjectsDirectory(bool);
 
-    QString projectsDirectory() const;
-    void setProjectsDirectory(const QString &);
+    static QString projectsDirectory();
+    static void setProjectsDirectory(const QString &);
 
     static void populateOpenWithMenu(QMenu *menu, const QString &fileName);
 
-public slots:
     /* Used to notify e.g. the code model to update the given files. Does *not*
        lead to any editors to reload or any other editor manager actions. */
-    void notifyFilesChangedInternally(const QStringList &files);
+    static void notifyFilesChangedInternally(const QStringList &files);
 
-    void executeOpenWithMenuAction(QAction *action);
+    static void executeOpenWithMenuAction(QAction *action);
+
+public slots:
+    void slotExecuteOpenWithMenuAction(QAction *action);
 
 signals:
     void currentFileChanged(const QString &filePath);
@@ -159,23 +156,6 @@ private slots:
     void changedFile(const QString &file);
     void mainWindowActivated();
     void syncWithEditor(Core::IContext *context);
-
-private:
-    void readSettings();
-    void dump();
-    void addFileInfo(IFile *file);
-    void addFileInfo(const QString &fileName, IFile *file, bool isLink);
-    void removeFileInfo(IFile *file);
-
-    void updateExpectedState(const QString &fileName);
-
-    QList<IFile *> saveModifiedFiles(const QList<IFile *> &files,
-                               bool *cancelled, bool silently,
-                               const QString &message,
-                               const QString &alwaysSaveMessage = QString(),
-                               bool *alwaysSave = 0);
-
-    Internal::FileManagerPrivate *d;
 };
 
 /*! The FileChangeBlocker blocks all change notifications to all IFile * that

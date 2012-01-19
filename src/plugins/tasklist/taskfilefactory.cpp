@@ -92,7 +92,7 @@ Core::IFile *TaskFileFactory::open(ProjectExplorer::Project *context, const QStr
     m_openFiles.append(file);
 
     // Register with filemanager:
-    Core::ICore::fileManager()->addFile(file);
+    Core::FileManager::addFile(file);
 
     return file;
 }

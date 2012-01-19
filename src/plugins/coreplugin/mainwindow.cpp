@@ -138,7 +138,6 @@ MainWindow::MainWindow() :
     m_actionManager(new ActionManagerPrivate(this)),
     m_editorManager(0),
     m_externalToolManager(0),
-    m_fileManager(new FileManager(this)),
     m_progressManager(new ProgressManagerPrivate()),
     m_scriptManager(new ScriptManagerPrivate(this)),
     m_variableManager(new VariableManager),
@@ -171,6 +170,7 @@ MainWindow::MainWindow() :
 #endif
     m_toggleSideBarButton(new QToolButton)
 {
+    (void) new FileManager(this);
     OutputPaneManager::create();
 
     setWindowTitle(tr("Qt Creator"));
@@ -376,7 +376,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
     // Save opened files
     bool cancelled;
-    QList<IFile*> notSaved = fileManager()->saveModifiedFiles(fileManager()->modifiedFiles(), &cancelled);
+    QList<IFile*> notSaved = FileManager::saveModifiedFiles(FileManager::modifiedFiles(), &cancelled);
     if (cancelled || !notSaved.isEmpty()) {
         event->ignore();
         return;
@@ -962,18 +962,17 @@ void MainWindow::showNewItemDialog(const QString &title,
 
     QString path = defaultLocation;
     if (path.isEmpty()) {
-        const FileManager *fm = m_coreImpl->fileManager();
         switch (wizard->kind()) {
         case IWizard::ProjectWizard:
             // Project wizards: Check for projects directory or
             // use last visited directory of file dialog. Never start
             // at current.
-            path = fm->useProjectsDirectory() ?
-                       fm->projectsDirectory() :
-                       fm->fileDialogLastVisitedDirectory();
+            path = FileManager::useProjectsDirectory() ?
+                       FileManager::projectsDirectory() :
+                       FileManager::fileDialogLastVisitedDirectory();
             break;
         default:
-            path = fm->fileDialogInitialDirectory();
+            path = FileManager::fileDialogInitialDirectory();
             break;
         }
     }
@@ -993,7 +992,7 @@ bool MainWindow::showOptionsDialog(const QString &category,
 
 void MainWindow::saveAll()
 {
-    m_fileManager->saveModifiedFilesSilently(m_fileManager->modifiedFiles());
+    FileManager::saveModifiedFilesSilently(FileManager::modifiedFiles());
     emit m_coreImpl->saveSettingsRequested();
 }
 
@@ -1030,7 +1029,7 @@ ActionManager *MainWindow::actionManager() const
 
 FileManager *MainWindow::fileManager() const
 {
-    return m_fileManager;
+    return FileManager::instance();
 }
 
 MessageManager *MainWindow::messageManager() const
@@ -1236,7 +1235,7 @@ void MainWindow::writeSettings()
 
     m_settings->endGroup();
 
-    m_fileManager->saveSettings();
+    FileManager::saveSettings();
     m_actionManager->saveSettings(m_settings);
     m_editorManager->saveSettings();
     m_navigationWidget->saveSettings(m_settings);
@@ -1296,7 +1295,7 @@ void MainWindow::aboutToShowRecentFiles()
     aci->menu()->clear();
 
     bool hasRecentFiles = false;
-    foreach (const FileManager::RecentFile &file, m_fileManager->recentFiles()) {
+    foreach (const FileManager::RecentFile &file, FileManager::recentFiles()) {
         hasRecentFiles = true;
         QAction *action = aci->menu()->addAction(
                     QDir::toNativeSeparators(Utils::withTildeHomePath(file.first)));
@@ -1310,7 +1309,7 @@ void MainWindow::aboutToShowRecentFiles()
         aci->menu()->addSeparator();
         QAction *action = aci->menu()->addAction(QCoreApplication::translate(
                                                      "Core", Core::Constants::TR_CLEAR_MENU));
-        connect(action, SIGNAL(triggered()), m_fileManager, SLOT(clearRecentFiles()));
+        connect(action, SIGNAL(triggered()), FileManager::instance(), SLOT(clearRecentFiles()));
     }
 }
 

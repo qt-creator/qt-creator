@@ -335,7 +335,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_welcomePage, SIGNAL(manageSessions()), this, SLOT(showSessionManager()));
     addObject(d->m_welcomePage);
 
-    connect(Core::ICore::fileManager(), SIGNAL(currentFileChanged(QString)),
+    connect(Core::FileManager::instance(), SIGNAL(currentFileChanged(QString)),
             this, SLOT(setCurrentFile(QString)));
 
     d->m_session = new SessionManager(this);
@@ -515,7 +515,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_openWithMenu->setTitle(tr("Open With"));
 
     connect(d->m_openWithMenu, SIGNAL(triggered(QAction *)),
-            Core::FileManager::instance(), SLOT(executeOpenWithMenuAction(QAction*)));
+            Core::FileManager::instance(), SLOT(slotExecuteOpenWithMenuAction(QAction*)));
 
     //
     // Separators
@@ -1084,9 +1084,9 @@ void ProjectExplorerPlugin::unloadProject()
 
     bool success = false;
     if (readonlycount > 0)
-        success = Core::ICore::fileManager()->saveModifiedFiles(filesToSave).isEmpty();
+        success = Core::FileManager::saveModifiedFiles(filesToSave).isEmpty();
     else
-        success = Core::ICore::fileManager()->saveModifiedFilesSilently(filesToSave).isEmpty();
+        success = Core::FileManager::saveModifiedFilesSilently(filesToSave).isEmpty();
 
     if (!success)
         return;
@@ -1656,7 +1656,7 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
         updateActions();
     }
 
-    Core::ICore::fileManager()->setCurrentFile(filePath);
+    Core::FileManager::setCurrentFile(filePath);
 }
 
 void ProjectExplorerPlugin::updateActions()
@@ -1754,19 +1754,17 @@ bool ProjectExplorerPlugin::saveModifiedFiles()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::saveModifiedFiles";
 
-    QList<Core::IFile *> filesToSave = Core::ICore::fileManager()->modifiedFiles();
+    QList<Core::IFile *> filesToSave = Core::FileManager::modifiedFiles();
     if (!filesToSave.isEmpty()) {
         if (d->m_projectExplorerSettings.saveBeforeBuild) {
             bool cancelled = false;
-            Core::ICore::fileManager()->saveModifiedFilesSilently(filesToSave, &cancelled);
+            Core::FileManager::saveModifiedFilesSilently(filesToSave, &cancelled);
             if (cancelled)
                 return false;
         } else {
             bool cancelled = false;
             bool alwaysSave = false;
-
-            Core::FileManager *fm = Core::ICore::fileManager();
-            fm->saveModifiedFiles(filesToSave, &cancelled, QString(),
+            Core::FileManager::saveModifiedFiles(filesToSave, &cancelled, QString(),
                                   tr("Always save files before build"), &alwaysSave);
 
             if (cancelled)
@@ -2727,7 +2725,7 @@ void ProjectExplorerPlugin::deleteFile()
 
     projectNode->deleteFiles(fileNode->fileType(), QStringList(filePath));
 
-    Core::ICore::fileManager()->expectFileChange(filePath);
+    Core::FileManager::expectFileChange(filePath);
     if (Core::IVersionControl *vc =
             Core::ICore::vcsManager()->findVersionControlForDirectory(QFileInfo(filePath).absolutePath())) {
         vc->vcsDelete(filePath);
@@ -2738,7 +2736,7 @@ void ProjectExplorerPlugin::deleteFile()
             QMessageBox::warning(Core::ICore::mainWindow(), tr("Deleting File Failed"),
                                  tr("Could not delete file %1.").arg(filePath));
     }
-    Core::ICore::fileManager()->unexpectFileChange(filePath);
+    Core::FileManager::unexpectFileChange(filePath);
 }
 
 void ProjectExplorerPlugin::renameFile()
@@ -2783,7 +2781,7 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
     }
     if (result) {
         // yeah we moved, tell the filemanager about it
-        Core::ICore::fileManager()->renamedFile(orgFilePath, newFilePath);
+        Core::FileManager::renamedFile(orgFilePath, newFilePath);
         // Tell the project plugin about it
         ProjectNode *projectNode = fileNode->projectNode();
         projectNode->renameFile(fileNode->fileType(), orgFilePath, newFilePath);
@@ -2850,9 +2848,8 @@ QStringList ProjectExplorerPlugin::projectFilePatterns()
 
 void ProjectExplorerPlugin::openOpenProjectDialog()
 {
-    Core::FileManager *fileMananger = Core::ICore::fileManager();
-    const QString path = fileMananger->useProjectsDirectory() ? fileMananger->projectsDirectory() : QString();
-    const QStringList files = fileMananger->getOpenFileNames(d->m_projectFilterString, path);
+    const QString path = Core::FileManager::useProjectsDirectory() ? Core::FileManager::projectsDirectory() : QString();
+    const QStringList files = Core::FileManager::getOpenFileNames(d->m_projectFilterString, path);
     if (!files.isEmpty())
         Core::ICore::openFiles(files, Core::ICore::SwitchMode);
 }

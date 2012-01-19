@@ -179,10 +179,9 @@ VcsManager::~VcsManager()
 void VcsManager::extensionsInitialized()
 {
     // Change signal connections
-    FileManager *fileManager = ICore::fileManager();
     foreach (IVersionControl *versionControl, allVersionControls()) {
         connect(versionControl, SIGNAL(filesChanged(QStringList)),
-                fileManager, SIGNAL(filesChangedInternally(QStringList)));
+                FileManager::instance(), SIGNAL(filesChangedInternally(QStringList)));
         connect(versionControl, SIGNAL(repositoryChanged(QString)),
                 this, SIGNAL(repositoryChanged(QString)));
     }

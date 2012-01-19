@@ -603,12 +603,12 @@ void ExternalToolRunner::run()
         if (IEditor *editor = EditorManager::instance()->currentEditor()) {
             m_expectedFileName = editor->file()->fileName();
             bool cancelled = false;
-            FileManager::instance()->saveModifiedFiles(QList<IFile *>() << editor->file(), &cancelled);
+            FileManager::saveModifiedFiles(QList<IFile *>() << editor->file(), &cancelled);
             if (cancelled) {
                 deleteLater();
                 return;
             }
-            FileManager::instance()->expectFileChange(m_expectedFileName);
+            FileManager::expectFileChange(m_expectedFileName);
         }
     }
     m_process = new Utils::QtcProcess(this);
@@ -641,7 +641,7 @@ void ExternalToolRunner::finished(int exitCode, QProcess::ExitStatus status)
             emit ExternalToolManager::instance()->replaceSelectionRequested(m_processOutput);
         }
         if (m_tool->modifiesCurrentDocument()) {
-            FileManager::instance()->unexpectFileChange(m_expectedFileName);
+            FileManager::unexpectFileChange(m_expectedFileName);
         }
     }
     ICore::messageManager()->printToOutputPane(
@@ -651,9 +651,8 @@ void ExternalToolRunner::finished(int exitCode, QProcess::ExitStatus status)
 
 void ExternalToolRunner::error(QProcess::ProcessError error)
 {
-    if (m_tool->modifiesCurrentDocument()) {
-        FileManager::instance()->unexpectFileChange(m_expectedFileName);
-    }
+    if (m_tool->modifiesCurrentDocument())
+        FileManager::unexpectFileChange(m_expectedFileName);
     // TODO inform about errors
     Q_UNUSED(error);
     deleteLater();

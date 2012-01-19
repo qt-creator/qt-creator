@@ -255,7 +255,7 @@ Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNo
 {
     Q_ASSERT(project);
     m_qt4PriFile = new Qt4PriFile(this);
-    Core::ICore::fileManager()->addFile(m_qt4PriFile);
+    Core::FileManager::addFile(m_qt4PriFile);
 
     setDisplayName(QFileInfo(filePath).completeBaseName());
 
@@ -1039,7 +1039,7 @@ bool Qt4PriFileNode::saveModifiedEditors()
 
     if (!modifiedFileHandles.isEmpty()) {
         bool cancelled;
-        Core::ICore::fileManager()->saveModifiedFiles(modifiedFileHandles, &cancelled,
+        Core::FileManager::saveModifiedFiles(modifiedFileHandles, &cancelled,
                                          tr("There are unsaved changes for project file %1.").arg(m_projectFilePath));
         if (cancelled)
             return false;
@@ -1146,9 +1146,9 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     }
 
     // save file
-    Core::ICore::fileManager()->expectFileChange(m_projectFilePath);
+    Core::FileManager::expectFileChange(m_projectFilePath);
     save(lines);
-    Core::ICore::fileManager()->unexpectFileChange(m_projectFilePath);
+    Core::FileManager::unexpectFileChange(m_projectFilePath);
 
     // This is a hack.
     // We are saving twice in a very short timeframe, once the editor and once the ProFile.

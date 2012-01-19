@@ -266,7 +266,7 @@ void ShortcutSettings::defaultAction()
 
 void ShortcutSettings::exportAction()
 {
-    QString fileName = FileManager::instance()->getSaveFileNameWithExtension(
+    QString fileName = FileManager::getSaveFileNameWithExtension(
         tr("Export Keyboard Mapping Scheme"),
         ICore::resourcePath() + QLatin1String("/schemes/"),
         tr("Keyboard Mapping Scheme (*.kms)"));

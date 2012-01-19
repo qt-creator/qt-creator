@@ -651,7 +651,7 @@ bool MercurialPlugin::submitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor
     const QStringList files = commitEditor->checkedFiles();
     if (!files.empty()) {
         //save the commit message
-        if (!core->fileManager()->saveFile(editorFile))
+        if (!Core::FileManager::saveFile(editorFile))
             return false;
 
         QStringList extraOptions;

@@ -91,11 +91,10 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
     m_includesIFile = new GenericProjectFile(this, m_includesFileName, GenericProject::Configuration);
     m_configIFile   = new GenericProjectFile(this, m_configFileName, GenericProject::Configuration);
 
-    Core::FileManager *fm = Core::FileManager::instance();
-    fm->addFile(m_creatorIFile);
-    fm->addFile(m_filesIFile);
-    fm->addFile(m_includesIFile);
-    fm->addFile(m_configIFile);
+    Core::FileManager::addFile(m_creatorIFile);
+    Core::FileManager::addFile(m_filesIFile);
+    Core::FileManager::addFile(m_includesIFile);
+    Core::FileManager::addFile(m_configIFile);
 
     m_rootNode = new GenericProjectNode(this, m_creatorIFile);
 

@@ -1371,7 +1371,7 @@ bool PerforcePlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *subm
         m_settings.setPromptToSubmit(wantsPrompt);
         m_settings.toSettings(Core::ICore::settings());
     }
-    if (!Core::ICore::fileManager()->saveFile(fileIFace))
+    if (!Core::FileManager::saveFile(fileIFace))
         return false;
     if (answer == VcsBase::VcsBaseSubmitEditor::SubmitDiscarded) {
         cleanCommitMessageFile();

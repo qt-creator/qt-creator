@@ -536,7 +536,7 @@ void EditorManager::removeEditor(IEditor *editor)
     bool isDuplicate = d->m_editorModel->isDuplicate(editor);
     d->m_editorModel->removeEditor(editor);
     if (!isDuplicate)
-        FileManager::instance()->removeFile(editor->file());
+        FileManager::removeFile(editor->file());
     ICore::removeContextObject(editor);
 }
 
@@ -870,8 +870,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
     //ask whether to save modified files
     if (askAboutModifiedEditors) {
         bool cancelled = false;
-        QList<IFile*> list = ICore::fileManager()->
-            saveModifiedFiles(filesForEditors(acceptedEditors), &cancelled);
+        QList<IFile*> list = FileManager::saveModifiedFiles(filesForEditors(acceptedEditors), &cancelled);
         if (cancelled)
             return false;
         if (!list.isEmpty()) {
@@ -1206,10 +1205,9 @@ void EditorManager::addEditor(IEditor *editor, bool isDuplicate)
     if (!isDuplicate) {
         const bool isTemporary = editor->isTemporary();
         const bool addWatcher = !isTemporary;
-        ICore::fileManager()->addFile(editor->file(), addWatcher);
+        FileManager::addFile(editor->file(), addWatcher);
         if (!isTemporary)
-            ICore::fileManager()->addToRecentFiles(editor->file()->fileName(),
-                                                         editor->id());
+            FileManager::addToRecentFiles(editor->file()->fileName(), editor->id());
     }
     emit editorOpened(editor);
 }
@@ -1367,8 +1365,7 @@ QStringList EditorManager::getOpenFileNames() const
 {
     QString selectedFilter;
     const QString &fileFilters = ICore::mimeDatabase()->allFiltersString(&selectedFilter);
-    return ICore::fileManager()->getOpenFileNames(fileFilters,
-                                                              QString(), &selectedFilter);
+    return FileManager::getOpenFileNames(fileFilters, QString(), &selectedFilter);
 }
 
 
@@ -1485,7 +1482,7 @@ bool EditorManager::saveFile(IFile *fileParam)
     bool isReadOnly;
 
     // try saving, no matter what isReadOnly tells us
-    success = ICore::fileManager()->saveFile(file, QString(), &isReadOnly);
+    success = FileManager::saveFile(file, QString(), &isReadOnly);
 
     if (!success && isReadOnly) {
         MakeWritableResult answer =
@@ -1497,7 +1494,7 @@ bool EditorManager::saveFile(IFile *fileParam)
 
         file->checkPermissions();
 
-        success = ICore::fileManager()->saveFile(file);
+        success = FileManager::saveFile(file);
     }
 
     if (success) {
@@ -1571,7 +1568,7 @@ bool EditorManager::saveFileAs(IFile *fileParam)
     QString selectedFilter =
         ICore::mimeDatabase()->findByFile(QFileInfo(file->fileName())).filterString();
     const QString &absoluteFilePath =
-        ICore::fileManager()->getSaveAsFileName(file, filter, &selectedFilter);
+        FileManager::getSaveAsFileName(file, filter, &selectedFilter);
 
     if (absoluteFilePath.isEmpty())
         return false;
@@ -1584,7 +1581,7 @@ bool EditorManager::saveFileAs(IFile *fileParam)
         }
     }
 
-    const bool success = ICore::fileManager()->saveFile(file, absoluteFilePath);
+    const bool success = FileManager::saveFile(file, absoluteFilePath);
     file->checkPermissions();
 
     // @todo: There is an issue to be treated here. The new file might be of a different mime
@@ -1614,7 +1611,7 @@ void EditorManager::addFileToRecentFiles(IFile *file)
         }
     }
     if (!isTemporary)
-        ICore::fileManager()->addToRecentFiles(file->fileName(), editorId);
+        FileManager::addToRecentFiles(file->fileName(), editorId);
 }
 
 void EditorManager::gotoNextDocHistory()

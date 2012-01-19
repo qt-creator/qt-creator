@@ -641,7 +641,7 @@ bool BazaarPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submit
     QStringList files = commitEditor->checkedFiles();
     if (!files.empty()) {
         //save the commit message
-        if (!Core::ICore::fileManager()->saveFile(editorFile))
+        if (!Core::FileManager::saveFile(editorFile))
             return false;
 
         //rewrite entries of the form 'file => newfile' to 'newfile' because

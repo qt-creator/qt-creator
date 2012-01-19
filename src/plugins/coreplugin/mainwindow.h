@@ -188,7 +188,6 @@ private:
     ActionManagerPrivate *m_actionManager;
     EditorManager *m_editorManager;
     ExternalToolManager *m_externalToolManager;
-    FileManager *m_fileManager;
     MessageManager *m_messageManager;
     ProgressManagerPrivate *m_progressManager;
     ScriptManager *m_scriptManager;

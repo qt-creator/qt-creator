@@ -94,7 +94,7 @@ public:
                                        QWidget *parent = 0);
 
     static ActionManager *actionManager();
-    static FileManager *fileManager();
+    static QT_DEPRECATED FileManager *fileManager(); // Use FileManager::... directly.
     static MessageManager *messageManager();
     static EditorManager *editorManager();
     static ProgressManager *progressManager();
