@@ -92,7 +92,7 @@ void GitSubmitEditor::slotDiffSelected(const QStringList &files)
     for (int r = 0; r < rowCount; r++) {
         const QString fileName = m_model->item(r, fileColumn)->text();
         if (files.contains(fileName)) {
-            const CommitData::FileState state = static_cast<CommitData::FileState>(m_model->data(r).toInt());
+            const CommitData::FileState state = static_cast<CommitData::FileState>(m_model->extraData(r).toInt());
             if (state & CommitData::StagedFile)
                 stagedFiles.push_back(fileName);
             else if (state != CommitData::UntrackedFile)

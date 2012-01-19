@@ -58,7 +58,7 @@ public:
     QString state(int row) const;
     QString file(int row) const;
     bool checked(int row) const;
-    QVariant data(int row) const;
+    QVariant extraData(int row) const;
 
     bool hasCheckedFiles() const;
 

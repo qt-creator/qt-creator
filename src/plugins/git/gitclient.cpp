@@ -1798,7 +1798,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
     int commitCount = 0;
 
     for (int i = 0; i < model->rowCount(); ++i) {
-        const CommitData::FileState state = static_cast<CommitData::FileState>(model->data(i).toInt());
+        const CommitData::FileState state = static_cast<CommitData::FileState>(model->extraData(i).toInt());
         QString file = model->file(i);
         const bool checked = model->checked(i);
 
