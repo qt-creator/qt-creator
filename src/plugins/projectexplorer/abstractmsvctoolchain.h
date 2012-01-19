@@ -41,7 +41,7 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-class AbstractMsvcToolChain : public ToolChain
+class PROJECTEXPLORER_EXPORT AbstractMsvcToolChain : public ToolChain
 {
 public:
     AbstractMsvcToolChain(const QString &id, bool autodetect, const Abi &abi, const QString& vcvarsBat);
