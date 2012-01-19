@@ -152,6 +152,8 @@ public:
     QString toString() const;
     QString toUserOutput() const;
 
+    FileName parentDir() const;
+
     bool operator==(const FileName &other) const;
     bool operator!=(const FileName &other) const;
     bool operator<(const FileName &other) const;

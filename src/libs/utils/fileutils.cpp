@@ -452,6 +452,28 @@ QString FileName::toUserOutput() const
     return QDir::toNativeSeparators(toString());
 }
 
+/// Find the parent directory of a given directory.
+
+/// Returns an empty FileName if the current dirctory is already
+/// a root level directory.
+
+/// \returns \a FileName with the last segment removed.
+FileName FileName::parentDir() const
+{
+    const QString basePath = toString();
+    if (basePath.isEmpty())
+        return FileName();
+
+    const QDir base(basePath);
+    if (base.isRoot())
+        return FileName();
+
+    const QString path = basePath + QLatin1String("/..");
+    const QString parent = QDir::cleanPath(path);
+
+    return FileName::fromString(parent);
+}
+
 /// Constructs a FileName from \a fileName
 /// \a fileName is not checked for validity.
 FileName FileName::fromString(const QString &filename)

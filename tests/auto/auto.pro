@@ -13,6 +13,7 @@ SUBDIRS += \
     profilewriter \
     ioutils \
     qtcprocess \
+    utils \
     utils_stringutils \
     filesearch
 
