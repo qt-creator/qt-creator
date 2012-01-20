@@ -3183,7 +3183,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd = am->registerAction(m_startRemoteLldbAction,
         "Debugger.RemoteLldb", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_START_REMOTE);
+    mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
 #endif
 
     if (m_startRemoteCdbAction) {

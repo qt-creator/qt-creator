@@ -32,6 +32,7 @@
 
 #include "lldboptionspage.h"
 #include "debuggerconstants.h"
+#include "debuggerinternalconstants.h"
 
 #include <coreplugin/icore.h>
 
