@@ -2057,6 +2057,17 @@ def qdump__boost__gregorian__date(d, value):
     d.putNumChild(0)
 
 
+def qdump__boost__posix_time__ptime(d, item):
+    ms = long(item["time_"]["time_count_"]["value_"]) / 1000
+    d.putValue("%s/%s" % divmod(ms, 86400000), JulianDateAndMillisecondsSinceMidnight)
+    d.putNumChild(0)
+
+
+def qdump__boost__posix_time__time_duration(d, item):
+    d.putValue(long(item["ticks_"]["value_"]) / 1000, MillisecondsSinceMidnight)
+    d.putNumChild(0)
+
+
 #######################################################################
 #
 # Symbian

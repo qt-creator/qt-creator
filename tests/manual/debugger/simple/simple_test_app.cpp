@@ -178,7 +178,9 @@ void dummyStatement(...) {}
 #if USE_BOOST
 #include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/date_time.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #endif
 
 #if USE_EIGEN
@@ -5003,11 +5005,52 @@ namespace boost {
         dummyStatement(&d);
     }
 
+    void testBoostPosixTimeTimeDuration()
+    {
+        using namespace boost;
+        using namespace posix_time;
+        time_duration d1(1, 0, 0);
+        BREAK_HERE;
+        // Check p1 01:00:00  boost::posix_time::time_duration.
+        // Continue.
+        time_duration d2(0, 1, 0);
+        BREAK_HERE;
+        // Check d1 00:00:01  boost::posix_time::time_duration.
+        // Continue.
+        time_duration d3(0, 0, 1);
+        BREAK_HERE;
+        // Check d1 00:00:01  boost::posix_time::time_duration.
+        // Continue.
+        dummyStatement(&d1, &d2, &d3);
+    }
+
+    void testBoostPosixTimePtime()
+    {
+        using namespace boost;
+        using namespace gregorian;
+        using namespace posix_time;
+        ptime p1(date(2002, 1, 10), time_duration(1, 0, 0));
+        BREAK_HERE;
+        // Check p1 Thu Jan 10 01:00:00 2002  boost::posix_time::ptime.
+        // Continue.
+        ptime p2(date(2002, 1, 10), time_duration(0, 0, 0));
+        BREAK_HERE;
+        // Check p1 Thu Jan 10 00:00:00 2002  boost::posix_time::ptime.
+        // Continue.
+        ptime p3(date(1970, 1, 1), time_duration(0, 0, 0));
+        BREAK_HERE;
+        // Check p1 Thu Jan 1 00:00:00 1970  boost::posix_time::ptime.
+        // Continue.
+        dummyStatement(&p1, &p2, &p3);
+    }
+
     void testBoost()
     {
         testBoostOptional1();
         testBoostOptional2();
         testBoostSharedPtr();
+        testBoostPosixTimeTimeDuration();
+        testBoostPosixTimePtime();
         testBoostGregorianDate();
     }
 
