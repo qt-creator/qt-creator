@@ -77,7 +77,7 @@ Core::IFile *FormEditorFactory::open(const QString &fileName)
     if (!iface)
         return 0;
     if (qobject_cast<FormWindowEditor *>(iface)) {
-        Core::InfoBarEntry info(Constants::INFO_READ_ONLY,
+        Core::InfoBarEntry info(QLatin1String(Constants::INFO_READ_ONLY),
                                 tr("This file can only be edited in <b>Design</b> mode."));
         info.setCustomButtonInfo(tr("Switch mode"), this, SLOT(designerModeClicked()));
         iface->file()->infoBar()->addInfo(info);

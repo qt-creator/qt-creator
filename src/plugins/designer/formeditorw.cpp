@@ -103,7 +103,7 @@
 #include <QtCore/QPluginLoader>
 #include <QtCore/QTime>
 
-static const char settingsGroup[] = "Designer";
+static const char settingsGroupC[] = "Designer";
 
 #ifdef Q_OS_MAC
     enum { osMac = 1 };
@@ -216,7 +216,7 @@ FormEditorW::~FormEditorW()
         m_core->removeContextObject(m_context);
     if (m_initStage == FullyInitialized) {
         if (QSettings *s = m_core->settings()) {
-            m_core->settings()->beginGroup(settingsGroup);
+            m_core->settings()->beginGroup(QLatin1String(settingsGroupC));
             m_editorWidget->saveSettings(s);
             s->endGroup();
         }
@@ -332,7 +332,7 @@ void FormEditorW::fullInit()
     // Nest toolbar and editor widget
     m_editorWidget = new EditorWidget(this);
     QSettings *settings = m_core->settings();
-    settings->beginGroup(settingsGroup);
+    settings->beginGroup(QLatin1String(settingsGroupC));
     m_editorWidget->restoreSettings(settings);
     settings->endGroup();
 
@@ -674,7 +674,7 @@ void FormEditorW::setPreviewMenuEnabled(bool e)
 
 void FormEditorW::saveSettings(QSettings *s)
 {
-    s->beginGroup(settingsGroup);
+    s->beginGroup(QLatin1String(settingsGroupC));
     m_editorWidget->saveSettings(s);
     s->endGroup();
 }
