@@ -320,7 +320,8 @@ void Parser::addSymbol(const ParserTreeItem::Ptr &item, const CPlusPlus::Symbol 
         itemAdd = ParserTreeItem::Ptr(new ParserTreeItem());
 
     // locations are 1-based in Symbol, start with 0 for the editor
-    SymbolLocation location(symbol->fileName(), symbol->line(), symbol->column() - 1);
+    SymbolLocation location(QString::fromUtf8(symbol->fileName() , symbol->fileNameLength()),
+                            symbol->line(), symbol->column() - 1);
     itemAdd->addSymbolLocation(location);
 
     // prevent showing a content of the functions

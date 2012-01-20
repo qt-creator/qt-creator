@@ -251,7 +251,7 @@ void Manager::onProjectListChanged()
 
 void Manager::onTaskStarted(const QString &type)
 {
-    if (type != CppTools::Constants::TASK_INDEX)
+    if (type != QLatin1String(CppTools::Constants::TASK_INDEX))
         return;
 
     // disable tree updates to speed up
@@ -260,7 +260,7 @@ void Manager::onTaskStarted(const QString &type)
 
 void Manager::onAllTasksFinished(const QString &type)
 {
-    if (type != CppTools::Constants::TASK_INDEX)
+    if (type != QLatin1String(CppTools::Constants::TASK_INDEX))
         return;
 
     // parsing is finished, enable tree updates

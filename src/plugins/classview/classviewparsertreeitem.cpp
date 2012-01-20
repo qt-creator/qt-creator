@@ -364,7 +364,7 @@ void ParserTreeItem::debugDump(int ident) const
             d->symbolInformations.constEnd();
     while(curHash != endHash) {
         const SymbolInformation &inf = curHash.key();
-        qDebug() << QString(2*ident, QChar(' ')) << inf.iconType() << inf.name() << inf.type()
+        qDebug() << QString(2*ident, QLatin1Char(' ')) << inf.iconType() << inf.name() << inf.type()
                 << curHash.value().isNull();
         if (!curHash.value().isNull())
             curHash.value()->debugDump(ident + 1);
