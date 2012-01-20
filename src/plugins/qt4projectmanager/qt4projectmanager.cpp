@@ -138,7 +138,7 @@ void Qt4Manager::init()
 
     Core::VariableManager *vm = Core::VariableManager::instance();
     vm->registerVariable(kInstallBins,
-        tr("Full path to the bin/ install directory of the current project's Qt version."));
+        tr("Full path to the bin directory of the current project's Qt version."));
     connect(vm, SIGNAL(variableUpdateRequested(QByteArray)),
             this, SLOT(updateVariable(QByteArray)));
 }

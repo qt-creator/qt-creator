@@ -1983,13 +1983,13 @@ QPair<bool, QString> ProjectExplorerPlugin::buildSettingsEnabled(Project *pro)
     result.first = true;
     if (!pro) {
         result.first = false;
-        result.second = tr("No project loaded");
+        result.second = tr("No project loaded.");
     } else if (d->m_buildManager->isBuilding(pro)) {
         result.first = false;
-        result.second = tr("Currently building the active project");
+        result.second = tr("Currently building the active project.");
     } else if (!hasBuildSettings(pro)) {
         result.first = false;
-        result.second = tr("Project has no build settings");
+        result.second = tr("Project has no build settings.");
     } else {
         const QList<Project *> & projects = d->m_session->projectOrder(pro);
         foreach(Project *project, projects) {
@@ -2288,13 +2288,13 @@ bool ProjectExplorerPlugin::canRun(Project *project, RunMode runMode)
 QString ProjectExplorerPlugin::cannotRunReason(Project *project, RunMode runMode)
 {
     if (!project)
-        return tr("No active project");
+        return tr("No active project.");
 
     if (!project->activeTarget())
-        return tr("The project '%1' has no active target").arg(project->displayName());
+        return tr("The project '%1' has no active target.").arg(project->displayName());
 
     if (!project->activeTarget()->activeRunConfiguration())
-        return tr("The target '%1' for project '%2' has no active run configuration")
+        return tr("The target '%1' for the project '%2' has no active run configuration.")
                 .arg(project->activeTarget()->displayName(), project->displayName());
 
 

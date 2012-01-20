@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Setup targets for your project</string>
+   <string>Set up Targets for Your Project</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -73,8 +73,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>533</width>
-        <height>352</height>
+        <width>541</width>
+        <height>358</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2"/>
