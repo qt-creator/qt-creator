@@ -59,10 +59,10 @@ public:
 
     bool isProcessRunning() const;
     void writeDataToProcess(const QByteArray &data);
-    void sendSignalToProcess(const QByteArray &signal); // No effect with OpenSSH server.
+    void sendSignalToProcess(SshRemoteProcess::Signal signal); // No effect with OpenSSH server.
     void cancel(); // Does not stop remote process, just frees SSH-related process resources.
     SshRemoteProcess::ExitStatus processExitStatus() const;
-    QByteArray processExitSignal() const;
+    SshRemoteProcess::Signal processExitSignal() const;
     int processExitCode() const;
     QString processErrorString() const;
 

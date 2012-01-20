@@ -43,6 +43,7 @@
 #include <QtCore/QTimer>
 
 #include <cstring>
+#include <cstdlib>
 
 /*!
     \class Utils::SshRemoteProcess
@@ -59,19 +60,18 @@
 
 namespace Utils {
 
-const QByteArray SshRemoteProcess::AbrtSignal("ABRT");
-const QByteArray SshRemoteProcess::AlrmSignal("ALRM");
-const QByteArray SshRemoteProcess::FpeSignal("FPE");
-const QByteArray SshRemoteProcess::HupSignal("HUP");
-const QByteArray SshRemoteProcess::IllSignal("ILL");
-const QByteArray SshRemoteProcess::IntSignal("INT");
-const QByteArray SshRemoteProcess::KillSignal("KILL");
-const QByteArray SshRemoteProcess::PipeSignal("PIPE");
-const QByteArray SshRemoteProcess::QuitSignal("QUIT");
-const QByteArray SshRemoteProcess::SegvSignal("SEGV");
-const QByteArray SshRemoteProcess::TermSignal("TERM");
-const QByteArray SshRemoteProcess::Usr1Signal("USR1");
-const QByteArray SshRemoteProcess::Usr2Signal("USR2");
+const struct {
+    SshRemoteProcess::Signal signalEnum;
+    const char * const signalString;
+} signalMap[] = {
+    { SshRemoteProcess::AbrtSignal, "ABRT" }, { SshRemoteProcess::AlrmSignal, "ALRM" },
+    { SshRemoteProcess::FpeSignal, "FPE" }, { SshRemoteProcess::HupSignal, "HUP" },
+    { SshRemoteProcess::IllSignal, "ILL" }, { SshRemoteProcess::IntSignal, "INT" },
+    { SshRemoteProcess::KillSignal, "KILL" }, { SshRemoteProcess::PipeSignal, "PIPE" },
+    { SshRemoteProcess::QuitSignal, "QUIT" }, { SshRemoteProcess::SegvSignal, "SEGV" },
+    { SshRemoteProcess::TermSignal, "TERM" }, { SshRemoteProcess::Usr1Signal, "USR1" },
+    { SshRemoteProcess::Usr2Signal, "USR2" }
+};
 
 SshRemoteProcess::SshRemoteProcess(const QByteArray &command, quint32 channelId,
     Internal::SshSendFacility &sendFacility)
@@ -197,12 +197,18 @@ void SshRemoteProcess::start()
     }
 }
 
-void SshRemoteProcess::sendSignal(const QByteArray &signal)
+void SshRemoteProcess::sendSignal(Signal signal)
 {
     try {
-        if (isRunning())
-            d->m_sendFacility.sendChannelSignalPacket(d->remoteChannel(),
-                signal);
+        if (isRunning()) {
+            const char *signalString = 0;
+            for (size_t i = 0; i < sizeof signalMap/sizeof *signalMap && !signalString; ++i) {
+                if (signalMap[i].signalEnum == signal)
+                    signalString = signalMap[i].signalString;
+            }
+            QTC_ASSERT(signalString, return);
+            d->m_sendFacility.sendChannelSignalPacket(d->remoteChannel(), signalString);
+        }
     }  catch (Botan::Exception &e) {
         setErrorString(QString::fromAscii(e.what()));
         d->closeChannel();
@@ -215,7 +221,11 @@ bool SshRemoteProcess::isRunning() const
 }
 
 int SshRemoteProcess::exitCode() const { return d->m_exitCode; }
-QByteArray SshRemoteProcess::exitSignal() const { return d->m_signal; }
+
+SshRemoteProcess::Signal SshRemoteProcess::exitSignal() const
+{
+    return static_cast<SshRemoteProcess::Signal>(d->m_signal);
+}
 
 namespace Internal {
 
@@ -246,6 +256,7 @@ void SshRemoteProcessPrivate::init()
     m_wasRunning = false;
     m_exitCode = 0;
     m_readChannel = QProcess::StandardOutput;
+    m_signal = SshRemoteProcess::NoSignal;
 }
 
 void SshRemoteProcessPrivate::setProcState(ProcessState newState)
@@ -270,7 +281,7 @@ QByteArray &SshRemoteProcessPrivate::data()
 void SshRemoteProcessPrivate::closeHook()
 {
     if (m_wasRunning) {
-        if (!m_signal.isEmpty())
+        if (m_signal != SshRemoteProcess::NoSignal)
             emit closed(SshRemoteProcess::KilledBySignal);
         else
             emit closed(SshRemoteProcess::ExitedNormally);
@@ -357,9 +368,18 @@ void SshRemoteProcessPrivate::handleExitSignal(const SshChannelExitSignal &signa
 #ifdef CREATOR_SSH_DEBUG
     qDebug("Exit due to signal %s", signal.signal.data());
 #endif
-    m_signal = signal.signal;
-    m_procState = Exited;
-    m_proc->setErrorString(tr("Process killed by signal"));
+
+    for (size_t i = 0; i < sizeof signalMap/sizeof *signalMap; ++i) {
+        if (signalMap[i].signalString == signal.signal) {
+            m_signal = signalMap[i].signalEnum;
+            m_procState = Exited;
+            m_proc->setErrorString(tr("Process killed by signal"));
+            return;
+        }
+    }
+
+    throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR, "Invalid signal",
+        tr("Server sent invalid signal '%1'").arg(QString::fromUtf8(signal.signal)));
 }
 
 } // namespace Internal

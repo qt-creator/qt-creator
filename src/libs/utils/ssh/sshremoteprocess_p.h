@@ -91,7 +91,7 @@ private:
 
     ProcessState m_procState;
     bool m_wasRunning;
-    QByteArray m_signal;
+    int m_signal;
     int m_exitCode;
 
     const QByteArray m_command;

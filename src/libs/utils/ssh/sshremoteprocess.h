@@ -61,20 +61,10 @@ class QTCREATOR_UTILS_EXPORT SshRemoteProcess : public QIODevice
 public:
     typedef QSharedPointer<SshRemoteProcess> Ptr;
     enum ExitStatus { FailedToStart, KilledBySignal, ExitedNormally };
-
-    static const QByteArray AbrtSignal;
-    static const QByteArray AlrmSignal;
-    static const QByteArray FpeSignal;
-    static const QByteArray HupSignal;
-    static const QByteArray IllSignal;
-    static const QByteArray IntSignal;
-    static const QByteArray KillSignal;
-    static const QByteArray PipeSignal;
-    static const QByteArray QuitSignal;
-    static const QByteArray SegvSignal;
-    static const QByteArray TermSignal;
-    static const QByteArray Usr1Signal;
-    static const QByteArray Usr2Signal;
+    enum Signal {
+        AbrtSignal, AlrmSignal, FpeSignal, HupSignal, IllSignal, IntSignal, KillSignal, PipeSignal,
+        QuitSignal, SegvSignal, TermSignal, Usr1Signal, Usr2Signal, NoSignal
+    };
 
     ~SshRemoteProcess();
 
@@ -99,13 +89,13 @@ public:
 
     bool isRunning() const;
     int exitCode() const;
-    QByteArray exitSignal() const;
+    Signal exitSignal() const;
 
     QByteArray readAllStandardOutput();
     QByteArray readAllStandardError();
 
     // Note: This is ignored by the OpenSSH server.
-    void sendSignal(const QByteArray &signal);
+    void sendSignal(Signal signal);
     void kill() { sendSignal(KillSignal); }
 
 signals:
