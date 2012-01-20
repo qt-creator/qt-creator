@@ -125,7 +125,7 @@ void ExecuteFilter::accept(FilterEntry selection) const
 
 void ExecuteFilter::finished(int exitCode, QProcess::ExitStatus status)
 {
-    QString log = QString("'%1' ").arg(headCommand());
+    QString log = QLatin1Char('\'') + headCommand() + QLatin1String("' ");
     if (status == QProcess::NormalExit && exitCode == 0)
         ICore::instance()->messageManager()->printToOutputPane(log + tr("finished"), true);
     else
@@ -138,14 +138,14 @@ void ExecuteFilter::finished(int exitCode, QProcess::ExitStatus status)
 
 void ExecuteFilter::readStandardOutput()
 {
-    QByteArray data = m_process->readAllStandardOutput();
-    ICore::instance()->messageManager()->printToOutputPane(data, true);
+    const QByteArray data = m_process->readAllStandardOutput();
+    ICore::instance()->messageManager()->printToOutputPane(QString::fromLocal8Bit(data), true);
 }
 
 void ExecuteFilter::readStandardError()
 {
-    QByteArray data = m_process->readAllStandardError();
-    ICore::instance()->messageManager()->printToOutputPane(data, true);
+    const QByteArray data = m_process->readAllStandardError();
+    ICore::instance()->messageManager()->printToOutputPane(QString::fromLocal8Bit(data), true);
 }
 
 void ExecuteFilter::runHeadCommand()

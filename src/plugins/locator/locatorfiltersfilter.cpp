@@ -45,7 +45,7 @@ LocatorFiltersFilter::LocatorFiltersFilter(LocatorPlugin *plugin,
                                                LocatorWidget *locatorWidget):
     m_plugin(plugin),
     m_locatorWidget(locatorWidget),
-    m_icon(QIcon(Core::Constants::ICON_NEXT))
+    m_icon(QIcon(QLatin1String(Core::Constants::ICON_NEXT)))
 {
     setIncludedByDefault(true);
     setHidden(true);

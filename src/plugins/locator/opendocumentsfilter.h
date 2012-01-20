@@ -56,7 +56,7 @@ class OpenDocumentsFilter : public Locator::ILocatorFilter
 public:
     explicit OpenDocumentsFilter(Core::EditorManager *editorManager);
     QString displayName() const { return tr("Open Documents"); }
-    QString id() const { return "Open documents"; }
+    QString id() const { return QLatin1String("Open documents"); }
     Locator::ILocatorFilter::Priority priority() const { return Locator::ILocatorFilter::Medium; }
     QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
     void accept(Locator::FilterEntry selection) const;

@@ -103,8 +103,8 @@ private:
 template <typename S>
 void LocatorPlugin::loadSettingsHelper(S *settings)
 {
-    settings->beginGroup("QuickOpen");
-    m_refreshTimer.setInterval(settings->value("RefreshInterval", 60).toInt() * 60000);
+    settings->beginGroup(QLatin1String("QuickOpen"));
+    m_refreshTimer.setInterval(settings->value(QLatin1String("RefreshInterval"), 60).toInt() * 60000);
 
     foreach (ILocatorFilter *filter, m_filters) {
         if (settings->contains(filter->id())) {
@@ -113,7 +113,7 @@ void LocatorPlugin::loadSettingsHelper(S *settings)
                 filter->restoreState(state);
         }
     }
-    settings->beginGroup("CustomFilters");
+    settings->beginGroup(QLatin1String("CustomFilters"));
     QList<ILocatorFilter *> customFilters;
     const QStringList keys = settings->childKeys();
     foreach (const QString &key, keys) {

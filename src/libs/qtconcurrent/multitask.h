@@ -163,8 +163,10 @@ private:
     {
         QString text;
         foreach (QFutureWatcher<R> *watcher, watchers) {
-            if (!watcher->progressText().isEmpty())
-                text += watcher->progressText() + "\n";
+            if (!watcher->progressText().isEmpty()) {
+                text += watcher->progressText();
+                text += QLatin1Char('\n');
+            }
         }
         text = text.trimmed();
         futureInterface.setProgressValueAndText(futureInterface.progressValue(), text);

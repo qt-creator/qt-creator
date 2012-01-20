@@ -183,7 +183,8 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
         if (mEntries.at(index.row()).extraInfo.isEmpty())
             return QVariant(mEntries.at(index.row()).displayName);
         else
-            return QVariant(mEntries.at(index.row()).displayName + "\n\n" + mEntries.at(index.row()).extraInfo);
+            return QVariant(mEntries.at(index.row()).displayName
+                            + QLatin1String("\n\n") + mEntries.at(index.row()).extraInfo);
     } else if (role == Qt::DecorationRole && index.column() == 0) {
         FilterEntry &entry = mEntries[index.row()];
         if (entry.resolveFileIcon && entry.displayIcon.isNull()) {
@@ -313,7 +314,7 @@ LocatorWidget::LocatorWidget(LocatorPlugin *qop) :
     layout->addWidget(m_fileLineEdit);
 
     setWindowIcon(QIcon(QLatin1String(":/locator/images/locator.png")));
-    QPixmap image(Core::Constants::ICON_MAGNIFIER);
+    const QPixmap image = QPixmap(QLatin1String(Core::Constants::ICON_MAGNIFIER));
     m_fileLineEdit->setButtonPixmap(Utils::FancyLineEdit::Left, image);
     m_fileLineEdit->setButtonToolTip(Utils::FancyLineEdit::Left, tr("Options"));
     m_fileLineEdit->setFocusPolicy(Qt::ClickFocus);
@@ -660,6 +661,6 @@ void LocatorWidget::showEvent(QShowEvent *event)
 
 void LocatorWidget::showConfigureDialog()
 {
-    Core::ICore::instance()->showOptionsDialog(Core::Constants::SETTINGS_CATEGORY_CORE,
-          Constants::FILTER_OPTIONS_PAGE);
+    Core::ICore::instance()->showOptionsDialog(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE),
+          QLatin1String(Constants::FILTER_OPTIONS_PAGE));
 }
