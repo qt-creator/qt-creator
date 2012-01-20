@@ -34,6 +34,7 @@
 
 #include <coreplugin/ifile.h>
 #include <cpptools/cpptoolsreuse.h>
+#include <cpptools/symbolfinder.h>
 
 #include <FullySpecifiedType.h>
 #include <Literals.h>
@@ -184,8 +185,11 @@ void CppElementEvaluator::handleLookupItemMatch(const Snapshot &snapshot,
                        && (declaration->asTemplate()->declaration()->isClass()
                            || declaration->asTemplate()->declaration()->isForwardClassDeclaration()))) {
             if (declaration->isForwardClassDeclaration())
-                if (Symbol *classDeclaration = snapshot.findMatchingClassDeclaration(declaration))
+                if (Symbol *classDeclaration =
+                        m_editor->symbolFinder()->findMatchingClassDeclaration(
+                            declaration, snapshot)) {
                     declaration = classDeclaration;
+                }
             CppClass *cppClass = new CppClass(declaration);
             if (m_lookupBaseClasses)
                 cppClass->lookupBases(declaration, context);

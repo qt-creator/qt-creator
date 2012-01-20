@@ -42,6 +42,7 @@
 #include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/insertionpointlocator.h>
+#include <cpptools/symbolfinder.h>
 #include <cplusplus/ModelManagerInterface.h>
 #include <cplusplus/Symbols.h>
 #include <cplusplus/Overview.h>
@@ -273,8 +274,9 @@ static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
 {
     if (CppModelManagerInterface *cppModelManager = CppModelManagerInterface::instance()) {
         const Snapshot snapshot = cppModelManager->snapshot();
-
-        if (Symbol *def = snapshot.findMatchingDefinition(functionDeclaration)) {
+        CppTools::SymbolFinder symbolFinder(functionDeclaration->fileName(),
+                                            functionDeclaration->fileNameLength());
+        if (Symbol *def = symbolFinder.findMatchingDefinition(functionDeclaration, snapshot)) {
             if (line)
                 *line = def->line();
 

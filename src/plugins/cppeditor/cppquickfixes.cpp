@@ -64,6 +64,7 @@
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cppclassesfilter.h>
 #include <cpptools/searchsymbols.h>
+#include <cpptools/symbolfinder.h>
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
@@ -1552,7 +1553,10 @@ private:
         {
             Q_ASSERT(fwdClass != 0);
 
-            if (Class *k = assistInterface()->snapshot().findMatchingClassDeclaration(fwdClass)) {
+            CppTools::SymbolFinder symbolFinder(fwdClass->fileName(), fwdClass->fileNameLength());
+            if (Class *k =
+                    symbolFinder.findMatchingClassDeclaration(fwdClass,
+                                                              assistInterface()->snapshot())) {
                 const QString headerFile = QString::fromUtf8(k->fileName(), k->fileNameLength());
 
                 // collect the fwd headers

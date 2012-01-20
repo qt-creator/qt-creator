@@ -33,6 +33,7 @@
 #include "cpptoolsplugin.h"
 #include "cpprefactoringchanges.h"
 #include "insertionpointlocator.h"
+#include "symbolfinder.h"
 
 #include <AST.h>
 #include <ASTVisitor.h>
@@ -516,7 +517,10 @@ static InsertionLocation nextToSurroundingDefinitions(Declaration *declaration, 
     }
 
     // find the declaration's definition
-    Symbol *definition = changes.snapshot().findMatchingDefinition(surroundingFunctionDecl);
+    CppTools::SymbolFinder symbolFinder(surroundingFunctionDecl->fileName(),
+                                        surroundingFunctionDecl->fileNameLength());
+    Symbol *definition = symbolFinder.findMatchingDefinition(surroundingFunctionDecl,
+                                                             changes.snapshot());
     if (!definition)
         return noResult;
 
@@ -555,7 +559,10 @@ QList<InsertionLocation> InsertionPointLocator::methodDefinition(
     if (!declaration)
         return result;
 
-    if (Symbol *s = m_refactoringChanges.snapshot().findMatchingDefinition(declaration, true)) {
+    CppTools::SymbolFinder symbolFinder(declaration->fileName(), declaration->fileNameLength());
+    if (Symbol *s = symbolFinder.findMatchingDefinition(declaration,
+                                                        m_refactoringChanges.snapshot(),
+                                                        true)) {
         if (Function *f = s->asFunction()) {
             if (f->isConst() == declaration->type().isConst()
                     && f->isVolatile() == declaration->type().isVolatile())

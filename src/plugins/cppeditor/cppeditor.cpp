@@ -71,6 +71,7 @@
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/doxygengenerator.h>
 #include <cpptools/cpptoolssettings.h>
+#include <cpptools/symbolfinder.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -419,6 +420,7 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
     , m_firstRenameChange(false)
     , m_objcEnabled(false)
     , m_commentsSettings(CppTools::CppToolsSettings::instance()->commentsSettings())
+    , m_symbolFinder(new CppTools::SymbolFinder(QString()))
 {
     m_initialized = false;
     qRegisterMetaType<CppEditor::Internal::SemanticInfo>("CppEditor::Internal::SemanticInfo");
@@ -862,7 +864,9 @@ void CPPEditorWidget::onContentsChanged(int position, int charsRemoved, int char
 }
 
 void CPPEditorWidget::updateFileName()
-{ }
+{
+    m_symbolFinder.reset(new CppTools::SymbolFinder(file()->fileName()));
+}
 
 void CPPEditorWidget::jumpToOutlineElement(int)
 {
@@ -1076,7 +1080,7 @@ void CPPEditorWidget::switchDeclarationDefinition()
                 openCppEditorAt(linkToSymbol(best.first()));
 
         } else if (lastVisibleSymbol && lastVisibleSymbol->isDeclaration() && lastVisibleSymbol->type()->isFunctionType()) {
-            if (Symbol *def = snapshot.findMatchingDefinition(lastVisibleSymbol))
+            if (Symbol *def = m_symbolFinder->findMatchingDefinition(lastVisibleSymbol, snapshot))
                 openCppEditorAt(linkToSymbol(def));
         }
     }
@@ -1171,12 +1175,13 @@ CPPEditorWidget::Link CPPEditorWidget::attemptFuncDeclDef(const QTextCursor &cur
 
     Symbol *target = 0;
     if (FunctionDefinitionAST *funDef = declParent->asFunctionDefinition()) {
-        QList<Declaration *> candidates = findMatchingDeclaration(LookupContext(doc, snapshot),
-                                                                  funDef->symbol);
+        QList<Declaration *> candidates =
+                m_symbolFinder->findMatchingDeclaration(LookupContext(doc, snapshot),
+                                                        funDef->symbol);
         if (!candidates.isEmpty()) // TODO: improve disambiguation
             target = candidates.first();
     } else if (declParent->asSimpleDeclaration()) {
-        target = snapshot.findMatchingDefinition(funcDecl->symbol);
+        target = m_symbolFinder->findMatchingDefinition(funcDecl->symbol, snapshot);
     }
 
     if (target) {
@@ -1426,9 +1431,8 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
                 if (def == lastVisibleSymbol)
                     def = 0; // jump to declaration then.
 
-                if (symbol->isForwardClassDeclaration()) {
-                    def = snapshot.findMatchingClassDeclaration(symbol);
-                }
+                if (symbol->isForwardClassDeclaration())
+                    def = m_symbolFinder->findMatchingClassDeclaration(symbol, snapshot);
             }
 
             link = linkToSymbol(def ? def : symbol);
@@ -1464,7 +1468,7 @@ Symbol *CPPEditorWidget::findDefinition(Symbol *symbol, const Snapshot &snapshot
     else if (! symbol->type()->isFunctionType())
         return 0; // not a function declaration
 
-    return snapshot.findMatchingDefinition(symbol);
+    return m_symbolFinder->findMatchingDefinition(symbol, snapshot);
 }
 
 unsigned CPPEditorWidget::editorRevision() const
@@ -2252,6 +2256,11 @@ void CPPEditorWidget::applyDeclDefLinkChanges(bool jumpToMatch)
     m_declDefLink->apply(this, jumpToMatch);
     abortDeclDefLink();
     updateFunctionDeclDefLink();
+}
+
+CppTools::SymbolFinder *CPPEditorWidget::symbolFinder() const
+{
+    return m_symbolFinder.data();
 }
 
 void CPPEditorWidget::abortDeclDefLink()

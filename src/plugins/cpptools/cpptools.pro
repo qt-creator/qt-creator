@@ -37,7 +37,8 @@ HEADERS += completionsettingspage.h \
     cppcodestylepreferences.h \
     cpptoolsreuse.h \
     doxygengenerator.h \
-    commentssettings.h
+    commentssettings.h \
+    symbolfinder.h
 
 SOURCES += completionsettingspage.cpp \
     cppclassesfilter.cpp \
@@ -66,7 +67,8 @@ SOURCES += completionsettingspage.cpp \
     cppcodestylepreferences.cpp \
     cpptoolsreuse.cpp \
     doxygengenerator.cpp \
-    commentssettings.cpp
+    commentssettings.cpp \
+    symbolfinder.cpp
 
 FORMS += completionsettingspage.ui \
     cppfilesettingspage.ui \

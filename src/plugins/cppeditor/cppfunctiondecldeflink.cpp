@@ -45,6 +45,7 @@
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
 #include <cpptools/cpprefactoringchanges.h>
+#include <cpptools/symbolfinder.h>
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/tooltip/tooltip.h>
 #include <texteditor/tooltip/tipcontents.h>
@@ -165,13 +166,16 @@ static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<Functio
     Symbol *target = 0;
     if (FunctionDefinitionAST *funcDef = link->sourceDeclaration->asFunctionDefinition()) {
         QList<Declaration *> nameMatch, argumentCountMatch, typeMatch;
-        findMatchingDeclaration(LookupContext(link->sourceDocument, snapshot),
-                                funcDef->symbol,
-                                &typeMatch, &argumentCountMatch, &nameMatch);
+        CppTools::SymbolFinder finder(funcDef->symbol->fileName(), funcDef->symbol->fileNameLength());
+        finder.findMatchingDeclaration(LookupContext(link->sourceDocument, snapshot),
+                                       funcDef->symbol,
+                                       &typeMatch, &argumentCountMatch, &nameMatch);
         if (!typeMatch.isEmpty())
             target = typeMatch.first();
     } else if (link->sourceDeclaration->asSimpleDeclaration()) {
-        target = snapshot.findMatchingDefinition(link->sourceFunctionDeclarator->symbol, true);
+        CppTools::SymbolFinder finder(link->sourceFunctionDeclarator->symbol->fileName(),
+                                      link->sourceFunctionDeclarator->symbol->fileNameLength());
+        target = finder.findMatchingDefinition(link->sourceFunctionDeclarator->symbol, snapshot, true);
     }
     if (!target) {
         return noResult;
