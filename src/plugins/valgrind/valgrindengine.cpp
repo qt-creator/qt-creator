@@ -117,8 +117,10 @@ bool ValgrindEngine::start()
     connect(runner(), SIGNAL(finished()),
             SLOT(runnerFinished()));
 
-    runner()->start();
-
+    if (!runner()->start()) {
+        m_progress->cancel();
+        return false;
+    }
     return true;
 }
 

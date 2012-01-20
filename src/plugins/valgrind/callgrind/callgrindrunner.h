@@ -55,7 +55,7 @@ public:
     CallgrindController *controller() const;
 
     bool isPaused() const;
-    void start();
+    bool start();
 
 signals:
     void statusMessage(const QString &message);

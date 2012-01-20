@@ -54,7 +54,7 @@ public:
     ~MemcheckRunner();
 
     void setParser(XmlProtocol::ThreadedParser *parser);
-    void start();
+    bool start();
 
 signals:
     void logMessageReceived(const QByteArray &);

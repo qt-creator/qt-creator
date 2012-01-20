@@ -124,7 +124,6 @@ void AnalyzerRunControl::start()
         d->m_isRunning = true;
         emit started();
     }
-
 }
 
 RunControl::StopResult AnalyzerRunControl::stop()

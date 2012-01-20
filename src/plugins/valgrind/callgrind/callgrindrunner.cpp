@@ -70,10 +70,11 @@ CallgrindController *CallgrindRunner::controller() const
     return m_controller;
 }
 
-void CallgrindRunner::start()
+bool CallgrindRunner::start()
 {
     ValgrindRunner::start();
     m_controller->setValgrindProcess(valgrindProcess());
+    return true;
 }
 
 void CallgrindRunner::processFinished(int ret, QProcess::ExitStatus status)

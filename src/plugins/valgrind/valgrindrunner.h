@@ -83,7 +83,7 @@ public:
 
     QString errorString() const;
 
-    virtual void start();
+    virtual bool start();
     virtual void stop();
 
     ValgrindProcess *valgrindProcess() const;

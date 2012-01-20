@@ -219,12 +219,13 @@ void ValgrindRunner::waitForFinished() const
     loop.exec();
 }
 
-void ValgrindRunner::start()
+bool ValgrindRunner::start()
 {
     if (d->startMode == Analyzer::StartLocal)
         d->run(new LocalValgrindProcess(this));
     else if (d->startMode == Analyzer::StartRemote)
         d->run(new RemoteValgrindProcess(d->connParams, this));
+    return true;
 }
 
 void ValgrindRunner::processError(QProcess::ProcessError e)
