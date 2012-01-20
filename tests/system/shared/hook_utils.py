@@ -105,6 +105,8 @@ def modifyRunSettingsForHookIntoQtQuickUI(projectName, port):
             for varName in ("PATH", "SQUISH_LIBQTDIR"):
                 __addVariableToRunEnvironment__(varName, qtLibPath, row)
                 row = row + 1
+            if not platform.system() in ('Microsoft', 'Windows', 'Darwin'):
+                __addVariableToRunEnvironment__("LD_LIBRARY_PATH", qtLibPath, 0)
             if platform.system() == "Darwin":
                 __addVariableToRunEnvironment__("DYLD_FRAMEWORK_PATH", qtLibPath, 0)
             if not platform.system() in ('Microsoft', 'Windows'):
