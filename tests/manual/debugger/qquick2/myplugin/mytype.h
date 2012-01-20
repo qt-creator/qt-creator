@@ -1,0 +1,35 @@
+#ifndef MYTYPE_H
+#define MYTYPE_H
+
+#include <QtCore/QObject>
+#include <QtCore/QString>
+
+class QTimer;
+
+class MyType : public QObject
+{
+    Q_OBJECT
+
+    Q_PROPERTY(QString timeText READ timeText WRITE setTimeText NOTIFY timeChanged)
+
+public:
+    MyType(QObject *parent = 0);
+
+    QString timeText() const;
+    void setTimeText(const QString &text);
+
+signals:
+    void timeChanged(const QString &newText);
+
+private slots:
+    void updateTimerText();
+
+private:
+    QString m_timeText;
+    QTimer *m_timer;
+
+    Q_DISABLE_COPY(MyType)
+};
+
+#endif // MYTYPE_H
+

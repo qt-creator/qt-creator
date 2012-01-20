@@ -1,0 +1,37 @@
+#include <QtCore/QTimer>
+#include <QtCore/QTime>
+#include <QtDeclarative/qdeclarative.h>
+
+#include "mytype.h"
+
+MyType::MyType(QObject *parent)
+    : QObject(parent)
+{
+    updateTimerText();
+    m_timer = new QTimer(this);
+    m_timer->setInterval(1000);
+    connect(m_timer, SIGNAL(timeout()), SLOT(updateTimerText()));
+    m_timer->start();
+}
+
+QString MyType::timeText() const
+{
+    // bp here should be hit on every second
+    return m_timeText;
+}
+
+void MyType::setTimeText(const QString &text)
+{
+    if (m_timeText != text) {
+        m_timeText = text;
+        emit timeChanged(m_timeText);
+    }
+}
+
+void MyType::updateTimerText()
+{
+    const QTime t = QTime::currentTime();
+    setTimeText(t.toString(QLatin1String("HH:mm:ss")));
+}
+
+QML_DECLARE_TYPE(MyType)
