@@ -208,7 +208,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     qmlToolsMenu->addAction(cmd);
 
     m_reformatFileAction = new QAction(tr("Reformat File"), this);
-    cmd = am->registerAction(m_reformatFileAction, Core::Id(Constants::REFORMAT_FILE), globalContext);
+    cmd = am->registerAction(m_reformatFileAction, Core::Id(Constants::REFORMAT_FILE), context);
     connect(m_reformatFileAction, SIGNAL(triggered()), this, SLOT(reformatFile()));
     qmlToolsMenu->addAction(cmd);
 
