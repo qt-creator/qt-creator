@@ -330,7 +330,7 @@ void SearchResultWidget::addResults(const QList<SearchResultItem> &items, Search
     m_searchResultTreeView->addResults(items, mode);
     if (firstItems) {
         if (showWarningMessage()) {
-            Core::InfoBarEntry info("warninglabel", tr("This change cannot be undone."));
+            Core::InfoBarEntry info(QLatin1String("warninglabel"), tr("This change cannot be undone."));
             info.setCustomButtonInfo(tr("Do not warn again"), this, SLOT(hideNoUndoWarning()));
             m_infoBar.addInfo(info);
         }

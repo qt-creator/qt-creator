@@ -185,7 +185,9 @@ void FindPlugin::openFindDialog(IFindFilter *filter)
 {
     if (d->m_currentDocumentFind->candidateIsEnabled())
         d->m_currentDocumentFind->acceptCandidate();
-    QString currentFindString = (d->m_currentDocumentFind->isEnabled() ? d->m_currentDocumentFind->currentFindString() : "");
+    const QString currentFindString =
+        d->m_currentDocumentFind->isEnabled() ?
+        d->m_currentDocumentFind->currentFindString() : QString();
     if (!currentFindString.isEmpty())
         d->m_findDialog->setFindText(currentFindString);
     d->m_findDialog->setCurrentFilter(filter);
@@ -301,13 +303,13 @@ bool FindPlugin::hasFindFlag(Find::FindFlag flag)
 void FindPlugin::writeSettings()
 {
     QSettings *settings = Core::ICore::instance()->settings();
-    settings->beginGroup("Find");
-    settings->setValue("Backward", hasFindFlag(Find::FindBackward));
-    settings->setValue("CaseSensitively", hasFindFlag(Find::FindCaseSensitively));
-    settings->setValue("WholeWords", hasFindFlag(Find::FindWholeWords));
-    settings->setValue("RegularExpression", hasFindFlag(Find::FindRegularExpression));
-    settings->setValue("FindStrings", d->m_findCompletions);
-    settings->setValue("ReplaceStrings", d->m_replaceCompletions);
+    settings->beginGroup(QLatin1String("Find"));
+    settings->setValue(QLatin1String("Backward"), hasFindFlag(Find::FindBackward));
+    settings->setValue(QLatin1String("CaseSensitively"), hasFindFlag(Find::FindCaseSensitively));
+    settings->setValue(QLatin1String("WholeWords"), hasFindFlag(Find::FindWholeWords));
+    settings->setValue(QLatin1String("RegularExpression"), hasFindFlag(Find::FindRegularExpression));
+    settings->setValue(QLatin1String("FindStrings"), d->m_findCompletions);
+    settings->setValue(QLatin1String("ReplaceStrings"), d->m_replaceCompletions);
     settings->endGroup();
     d->m_findToolBar->writeSettings();
     d->m_findDialog->writeSettings();
@@ -316,15 +318,15 @@ void FindPlugin::writeSettings()
 void FindPlugin::readSettings()
 {
     QSettings *settings = Core::ICore::instance()->settings();
-    settings->beginGroup("Find");
+    settings->beginGroup(QLatin1String("Find"));
     bool block = blockSignals(true);
-    setBackward(settings->value("Backward", false).toBool());
-    setCaseSensitive(settings->value("CaseSensitively", false).toBool());
-    setWholeWord(settings->value("WholeWords", false).toBool());
-    setRegularExpression(settings->value("RegularExpression", false).toBool());
+    setBackward(settings->value(QLatin1String("Backward"), false).toBool());
+    setCaseSensitive(settings->value(QLatin1String("CaseSensitively"), false).toBool());
+    setWholeWord(settings->value(QLatin1String("WholeWords"), false).toBool());
+    setRegularExpression(settings->value(QLatin1String("RegularExpression"), false).toBool());
     blockSignals(block);
-    d->m_findCompletions = settings->value("FindStrings").toStringList();
-    d->m_replaceCompletions = settings->value("ReplaceStrings").toStringList();
+    d->m_findCompletions = settings->value(QLatin1String("FindStrings")).toStringList();
+    d->m_replaceCompletions = settings->value(QLatin1String("ReplaceStrings")).toStringList();
     d->m_findCompletionModel->setStringList(d->m_findCompletions);
     d->m_replaceCompletionModel->setStringList(d->m_replaceCompletions);
     settings->endGroup();
