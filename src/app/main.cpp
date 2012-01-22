@@ -70,8 +70,13 @@ static const char fixedOptionsC[] =
 "Options:\n"
 "    -help                         Display this help\n"
 "    -version                      Display program version\n"
-"    -client                       Attempt to connect to already running instance\n"
-"    -settingspath <path>          Override the default path where user settings are stored\n";
+"    -client                       Attempt to connect to already running first instance\n"
+"    -settingspath <path>          Override the default path where user settings are stored\n"
+#if !defined(Q_OS_WIN)
+"    -pid <pid>                    Attempt to connect to instance given by pid\n";
+#else
+;
+#endif
 
 static const char HELP_OPTION1[] = "-h";
 static const char HELP_OPTION2[] = "-help";
@@ -80,6 +85,9 @@ static const char HELP_OPTION4[] = "--help";
 static const char VERSION_OPTION[] = "-version";
 static const char CLIENT_OPTION[] = "-client";
 static const char SETTINGS_OPTION[] = "-settingspath";
+#if !defined(Q_OS_WIN)
+static const char PID_OPTION[] = "-pid";
+#endif
 
 typedef QList<ExtensionSystem::PluginSpec *> PluginSpecSet;
 
@@ -310,6 +318,9 @@ int main(int argc, char **argv)
         appOptions.insert(QLatin1String(HELP_OPTION4), false);
         appOptions.insert(QLatin1String(VERSION_OPTION), false);
         appOptions.insert(QLatin1String(CLIENT_OPTION), false);
+#if !defined(Q_OS_WIN)
+        appOptions.insert(QLatin1String(PID_OPTION), true);
+#endif
         QString errorMessage;
         if (!pluginManager.parseOptions(arguments, appOptions, &foundAppOptions, &errorMessage)) {
             displayError(errorMessage);
@@ -348,19 +359,29 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    const bool isFirstInstance = !app.isRunning();
-    if (!isFirstInstance && foundAppOptions.contains(QLatin1String(CLIENT_OPTION))) {
-        if (app.sendMessage(pluginManager.serializedArguments()))
+    qint64 pid = -1;
+#if !defined(Q_OS_WIN)
+    if (foundAppOptions.contains(QLatin1String(PID_OPTION))) {
+        QString pidString = foundAppOptions.value(QLatin1String(PID_OPTION));
+        bool pidOk;
+        qint64 tmpPid = pidString.toInt(&pidOk);
+        if (pidOk)
+            pid = tmpPid;
+    }
+#endif
+
+    if (app.isRunning() && (pid != -1 || foundAppOptions.contains(QLatin1String(CLIENT_OPTION)))) {
+        if (app.sendMessage(pluginManager.serializedArguments(), 5000 /*timeout*/, pid))
             return 0;
 
         // Message could not be send, maybe it was in the process of quitting
-        if (app.isRunning()) {
+        if (app.isRunning(pid)) {
             // Nah app is still running, ask the user
             int button = askMsgSendFailed();
             while(button == QMessageBox::Retry) {
-                if (app.sendMessage(pluginManager.serializedArguments()))
+                if (app.sendMessage(pluginManager.serializedArguments(), 5000 /*timeout*/, pid))
                     return 0;
-                if (!app.isRunning()) // App quit while we were trying so start a new creator
+                if (!app.isRunning(pid)) // App quit while we were trying so start a new creator
                     button = QMessageBox::Yes;
                 else
                     button = askMsgSendFailed();
@@ -380,13 +401,10 @@ int main(int argc, char **argv)
         errorOverview.exec();
     }
 
-    if (isFirstInstance) {
-        // Set up lock and remote arguments for the first instance only.
-        // Silently fallback to unconnected instances for any subsequent instances.
-        app.initialize();
-        QObject::connect(&app, SIGNAL(messageReceived(QString)),
-                         &pluginManager, SLOT(remoteArguments(QString)));
-    }
+    // Set up lock and remote arguments.
+    app.initialize();
+    QObject::connect(&app, SIGNAL(messageReceived(QString)),
+                     &pluginManager, SLOT(remoteArguments(QString)));
 
     QObject::connect(&app, SIGNAL(fileOpenRequest(QString)), coreplugin->plugin(),
                      SLOT(fileOpenRequest(QString)));

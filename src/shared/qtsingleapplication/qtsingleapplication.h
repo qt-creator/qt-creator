@@ -49,22 +49,23 @@ public:
     QtSingleApplication(Display *dpy, int &argc, char **argv, Qt::HANDLE visual = 0, Qt::HANDLE cmap = 0);
 #endif
 
-    bool isRunning();
+    bool isRunning(qint64 pid = -1);
+
     QString id() const;
 
     void setActivationWindow(QWidget* aw, bool activateOnMessage = true);
     QWidget* activationWindow() const;
     bool event(QEvent *event);
 
+    QString applicationId() const;
 
 public Q_SLOTS:
-    bool sendMessage(const QString &message, int timeout = 5000);
+    bool sendMessage(const QString &message, int timeout = 5000, qint64 pid = -1);
     void activateWindow();
 
 //Obsolete methods:
 public:
-    void initialize(bool = true)
-        { isRunning(); }
+    void initialize(bool = true);
 
 #if defined(Q_WS_X11)
     QtSingleApplication(Display* dpy, const QString &id, int argc, char **argv, Qt::HANDLE visual = 0, Qt::HANDLE colormap = 0);
@@ -77,8 +78,10 @@ Q_SIGNALS:
 
 private:
     void sysInit(const QString &appId = QString());
-    QtLocalPeer *peer;
+    QtLocalPeer *firstPeer;
+    QtLocalPeer *pidPeer;
     QWidget *actWin;
+    QString appId;
 };
 
 } // namespace SharedTools

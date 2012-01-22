@@ -41,8 +41,10 @@ namespace SharedTools {
 void QtSingleApplication::sysInit(const QString &appId)
 {
     actWin = 0;
-    peer = new QtLocalPeer(this, appId);
-    connect(peer, SIGNAL(messageReceived(const QString&)), SIGNAL(messageReceived(const QString&)));
+    firstPeer = new QtLocalPeer(this, appId);
+    connect(firstPeer, SIGNAL(messageReceived(const QString&)), SIGNAL(messageReceived(const QString&)));
+    pidPeer = new QtLocalPeer(this, appId + QLatin1Char('-') + QString::number(::getpid(), 10));
+    connect(pidPeer, SIGNAL(messageReceived(const QString&)), SIGNAL(messageReceived(const QString&)));
 }
 
 
@@ -56,6 +58,7 @@ QtSingleApplication::QtSingleApplication(int &argc, char **argv, bool GUIenabled
 QtSingleApplication::QtSingleApplication(const QString &appId, int &argc, char **argv)
     : QApplication(argc, argv)
 {
+    this->appId = appId;
     sysInit(appId);
 }
 
@@ -84,6 +87,7 @@ QtSingleApplication::QtSingleApplication(Display* dpy, const QString &appId,
     int argc, char **argv, Qt::HANDLE visual, Qt::HANDLE colormap)
     : QApplication(dpy, argc, argv, visual, colormap)
 {
+    this->appId = appId;
     sysInit(appId);
 }
 #endif
@@ -98,30 +102,50 @@ bool QtSingleApplication::event(QEvent *event)
     return QApplication::event(event);
 }
 
-bool QtSingleApplication::isRunning()
+bool QtSingleApplication::isRunning(qint64 pid)
 {
-    return peer->isClient();
+    if (pid == -1)
+        return firstPeer->isClient();
+
+    QtLocalPeer peer(this, appId + QLatin1Char('-') + QString::number(pid, 10));
+    return peer.isClient();
 }
 
-bool QtSingleApplication::sendMessage(const QString &message, int timeout)
+void QtSingleApplication::initialize(bool)
 {
-    return peer->sendMessage(message, timeout);
+    firstPeer->isClient();
+    pidPeer->isClient();
 }
 
+bool QtSingleApplication::sendMessage(const QString &message, int timeout, qint64 pid)
+{
+    if (pid == -1)
+        return firstPeer->sendMessage(message, timeout);
+
+    QtLocalPeer peer(this, appId + QLatin1Char('-') + QString::number(pid, 10));
+    return peer.sendMessage(message, timeout);
+}
 
 QString QtSingleApplication::id() const
 {
-    return peer->applicationId();
+    return firstPeer->applicationId();
 }
 
+QString QtSingleApplication::applicationId() const
+{
+    return appId;
+}
 
 void QtSingleApplication::setActivationWindow(QWidget *aw, bool activateOnMessage)
 {
     actWin = aw;
-    if (activateOnMessage)
-        connect(peer, SIGNAL(messageReceived(QString)), this, SLOT(activateWindow()));
-    else
-        disconnect(peer, SIGNAL(messageReceived(QString)), this, SLOT(activateWindow()));
+    if (activateOnMessage) {
+        connect(firstPeer, SIGNAL(messageReceived(QString)), this, SLOT(activateWindow()));
+        connect(pidPeer, SIGNAL(messageReceived(QString)), this, SLOT(activateWindow()));
+    } else {
+        disconnect(firstPeer, SIGNAL(messageReceived(QString)), this, SLOT(activateWindow()));
+        disconnect(pidPeer, SIGNAL(messageReceived(QString)), this, SLOT(activateWindow()));
+    }
 }
 
 
