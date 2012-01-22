@@ -322,6 +322,9 @@ public slots:
 
     void cleanWhitespace();
 
+    void indent();
+    void unindent();
+
 signals:
     void changed();
 

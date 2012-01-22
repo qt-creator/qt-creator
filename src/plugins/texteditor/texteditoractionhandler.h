@@ -138,6 +138,8 @@ private slots:
     void uppercaseSelection();
     void lowercaseSelection();
     void updateCurrentEditor(Core::IEditor *editor);
+    void indent();
+    void unindent();
 
     void gotoLineStart();
     void gotoLineStartWithSelection();
@@ -206,6 +208,8 @@ private:
     QAction *m_insertLineBelowAction;
     QAction *m_upperCaseSelectionAction;
     QAction *m_lowerCaseSelectionAction;
+    QAction *m_indentAction;
+    QAction *m_unindentAction;
     QList<QAction *> m_modifyingActions;
 
     uint m_optionalActions;

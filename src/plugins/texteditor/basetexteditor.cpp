@@ -1063,6 +1063,16 @@ void BaseTextEditorWidget::lowercaseSelection()
     transformSelection(&QString::toLower);
 }
 
+void BaseTextEditorWidget::indent()
+{
+    indentOrUnindent(true);
+}
+
+void BaseTextEditorWidget::unindent()
+{
+    indentOrUnindent(false);
+}
+
 void BaseTextEditorWidget::moveLineUpDown(bool up)
 {
     QTextCursor cursor = textCursor();

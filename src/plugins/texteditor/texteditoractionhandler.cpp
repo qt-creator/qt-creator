@@ -102,6 +102,8 @@ TextEditorActionHandler::TextEditorActionHandler(const char *context,
     m_insertLineBelowAction(0),
     m_upperCaseSelectionAction(0),
     m_lowerCaseSelectionAction(0),
+    m_indentAction(0),
+    m_unindentAction(0),
     m_optionalActions(optionalActions),
     m_currentEditor(0),
     m_contextId(context),
@@ -377,6 +379,16 @@ void TextEditorActionHandler::createActions()
     connect(m_circularPasteAction, SIGNAL(triggered()), this, SLOT(circularPasteAction()));
     medit->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
+    m_indentAction = new QAction(tr("Indent"), this);
+    m_modifyingActions << m_indentAction;
+    command = am->registerAction(m_indentAction, Constants::INDENT, m_contextId, true);
+    connect(m_indentAction, SIGNAL(triggered()), this, SLOT(indent()));
+
+    m_unindentAction = new QAction(tr("Unindent"), this);
+    m_modifyingActions << m_unindentAction;
+    command = am->registerAction(m_unindentAction, Constants::UNINDENT, m_contextId, true);
+    connect(m_unindentAction, SIGNAL(triggered()), this, SLOT(unindent()));
+
     QAction *a = 0;
     a = new QAction(tr("Go to Line Start"), this);
     command = am->registerAction(a, Constants::GOTO_LINE_START, m_contextId, true);
@@ -611,6 +623,8 @@ FUNCTION(uppercaseSelection)
 FUNCTION(lowercaseSelection)
 FUNCTION(insertLineAbove)
 FUNCTION(insertLineBelow)
+FUNCTION(indent)
+FUNCTION(unindent)
 
 FUNCTION(gotoLineStart)
 FUNCTION(gotoLineStartWithSelection)
