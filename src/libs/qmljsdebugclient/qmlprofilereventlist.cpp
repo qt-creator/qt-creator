@@ -942,6 +942,14 @@ void QmlProfilerEventList::computeNestingLevels()
         qint64 st = d->m_startTimeSortedList[i].startTime;
         int type = d->m_startTimeSortedList[i].description->eventType;
 
+        if (type == QmlJsDebugClient::Painting) {
+            // animation/paint events have level 1 by definition,
+            // but are not considered parents of other events for statistical purposes
+            d->m_startTimeSortedList[i].level = MIN_LEVEL;
+            d->m_startTimeSortedList[i].nestingLevel = MIN_LEVEL;
+            continue;
+        }
+
         // general level
         if (endtimesPerLevel[level] > st) {
             level++;
