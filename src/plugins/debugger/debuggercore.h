@@ -66,6 +66,13 @@ class Symbol;
 class DebuggerToolTipManager;
 class GlobalDebuggerOptions;
 
+enum TestCases
+{
+    // Gdb
+    TestNoBoundsOfCurrentFunction = 1,
+    TestPythonDumpers
+};
+
 class DebuggerCore : public QObject
 {
     Q_OBJECT

@@ -74,6 +74,11 @@ private:
     void remoteCommand(const QStringList &options, const QStringList &arguments);
     ShutdownFlag aboutToShutdown();
     void extensionsInitialized();
+
+#ifdef WITH_TESTS
+private slots:
+    void testPythonDumpers();
+#endif
 };
 
 } // namespace Debugger

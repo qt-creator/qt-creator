@@ -2114,7 +2114,7 @@ void GdbEngine::executeNext()
     if (isReverseDebugging()) {
         postCommand("reverse-next", RunRequest, CB(handleExecuteNext));
     } else {
-        scheduleTestResponse(GdbTestNoBoundsOfCurrentFunction,
+        scheduleTestResponse(TestNoBoundsOfCurrentFunction,
             "@TOKEN@^error,msg=\"Warning:\\nCannot insert breakpoint -39.\\n"
             " Error accessing memory address 0x11673fc: Input/output error.\\n\"");
         postCommand("-exec-next", RunRequest, CB(handleExecuteNext));

@@ -89,6 +89,8 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/abi.h>
+#include <projectexplorer/applicationrunconfiguration.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorersettings.h>
@@ -126,6 +128,12 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QInputDialog>
+
+#ifdef WITH_TESTS
+#include <QtTest/QTest>
+#include <QtTest/QSignalSpy>
+#include <QtTest/QTestEventLoop>
+#endif
 
 #include <climits>
 
@@ -823,6 +831,14 @@ public slots:
     void executeDebuggerCommand(const QString &command);
     void evaluateExpression(const QString &expression);
     void coreShutdown();
+
+#ifdef WITH_TESTS
+public slots:
+    void testStuff(int testCase);
+    void testProjectLoaded(ProjectExplorer::Project *project);
+    void testRunControlFinished();
+#endif
+
 
 public slots:
     void updateDebugActions();
@@ -3631,6 +3647,106 @@ QAction *DebuggerPlugin::visibleDebugAction()
 {
     return theDebuggerCore->m_visibleStartAction;
 }
+
+
+#ifdef WITH_TESTS
+
+static bool g_success;
+
+class TestCase
+{
+public:
+    TestCases id;
+    DebuggerEngineType suitableEngine;
+    bool needsProject;
+};
+
+static TestCase theTests[] =
+{
+    { TestNoBoundsOfCurrentFunction, GdbEngineType, true },
+    { TestPythonDumpers, GdbEngineType, true },
+};
+
+void DebuggerPluginPrivate::testStuff(int testCase)
+{
+    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
+    connect(pe, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
+            this, SLOT(testProjectLoaded(ProjectExplorer::Project*)));
+
+    QString proFile = ICore::instance()->resourcePath() + "/../../tests/manual/debugger/simple/simple.pro";
+    QString error;
+    if (!pe->openProject(proFile,&error)) {
+        qWarning("Cannot open %s: %s", qPrintable(proFile), qPrintable(error));
+        QVERIFY(false);
+        return;
+    }
+
+    g_success == false;
+    QTestEventLoop::instance().enterLoop(20);
+
+    //QCOMPARE(spy.count(), 1); // make sure the signal was emitted exactly one time
+    //QList<QVariant> arguments = spy.takeFirst(); // take the first signal
+
+    //QVERIFY(arguments.at(0).toBool() == true); // verify the first argument
+    QVERIFY(g_success);
+}
+
+void DebuggerPluginPrivate::testProjectLoaded(Project *project)
+{
+    if (!project) {
+        qWarning("Changed to null project.");
+        return;
+    }
+    QString fileName = project->file()->fileName();
+    QVERIFY(!fileName.isEmpty());
+    qWarning("Project %s loaded", qPrintable(fileName));
+
+    Target *target = project->activeTarget();
+    QVERIFY(target);
+    qWarning("Target %s selected", qPrintable(target->displayName()));
+
+    BuildConfiguration *bc = target->activeBuildConfiguration();
+    QVERIFY(bc);
+
+    RunConfiguration *rc = target->activeRunConfiguration();
+    QVERIFY(rc);
+
+    LocalApplicationRunConfiguration *lrc =
+            qobject_cast<LocalApplicationRunConfiguration *>(rc);
+    QVERIFY(lrc);
+
+    ToolChain *tc = bc->toolChain();
+    QVERIFY(tc);
+
+    DebuggerStartParameters sp;
+    sp.toolChainAbi = tc->targetAbi();
+    sp.executable = lrc->executable();
+
+    RunControl *rctl = createDebugger(sp);
+    QVERIFY(rctl);
+
+    connect(rctl, SIGNAL(finished()), this, SLOT(testRunControlFinished()));
+    ProjectExplorerPlugin::instance()->startRunControl(rctl, DebugRunMode);
+}
+
+void DebuggerPluginPrivate::testRunControlFinished()
+{
+    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
+    qWarning("Run control finished.");
+    g_success = true;
+
+    disconnect(pe, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
+            this, SLOT(testProjectLoaded(ProjectExplorer::Project*)));
+    QTestEventLoop::instance().exitLoop();
+}
+
+void DebuggerPlugin::testPythonDumpers()
+{
+    //theDebuggerCore->testStuff(TestDumpers);
+    theDebuggerCore->testStuff(TestPythonDumpers);
+}
+
+#endif
 
 } // namespace Debugger
 

@@ -78,12 +78,6 @@ enum DebuggingHelperState
     DebuggingHelperUnavailable
 };
 
-
-enum GdbTestCase
-{
-    GdbTestNoBoundsOfCurrentFunction = 1
-};
-
 class UpdateParameters
 {
 public:
