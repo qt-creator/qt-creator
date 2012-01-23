@@ -10,6 +10,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QQueue>
 #include <QtCore/QMultiMap>
+#include <QtCore/QSet>
 
 namespace CppTools {
 
