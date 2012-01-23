@@ -6454,6 +6454,7 @@ void BaseTextEditorWidget::invokeAssist(AssistKind kind, IAssistProvider *provid
 {
     if (overwriteMode())
         return;
+    ensureCursorVisible();
     d->m_codeAssistant->invoke(kind, provider);
 }
 
