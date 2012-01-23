@@ -34,6 +34,7 @@
 
 #include "findinfiles.h"
 #include "findincurrentfile.h"
+#include "findinopenfiles.h"
 #include "fontsettings.h"
 #include "linenumberfilter.h"
 #include "texteditorconstants.h"
@@ -183,6 +184,7 @@ void TextEditorPlugin::extensionsInitialized()
 
     addAutoReleasedObject(new FindInFiles);
     addAutoReleasedObject(new FindInCurrentFile);
+    addAutoReleasedObject(new FindInOpenFiles);
 
     Core::VariableManager *vm = Core::VariableManager::instance();
     vm->registerVariable(kCurrentDocumentSelection,

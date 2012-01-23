@@ -31,6 +31,7 @@ SOURCES += texteditorplugin.cpp \
     texteditorsettings.cpp \
     codecselector.cpp \
     findincurrentfile.cpp \
+    findinopenfiles.cpp \
     colorscheme.cpp \
     colorschemeedit.cpp \
     itexteditor.cpp \
@@ -139,6 +140,7 @@ HEADERS += texteditorplugin.h \
     texteditorsettings.h \
     codecselector.h \
     findincurrentfile.h \
+    findinopenfiles.h \
     colorscheme.h \
     colorschemeedit.h \
     texteditoroverlay.h \
