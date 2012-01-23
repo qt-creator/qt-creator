@@ -456,6 +456,7 @@ void OutputPaneManager::showPage(int idx, bool focus)
             // make the page visible
             OutputPanePlaceHolder::getCurrent()->setVisible(true);
             ensurePageVisible(idx);
+            m_pageMap.value(idx)->visibilityChanged(true);
             if (focus && out->canFocus())
                 out->setFocus();
         }
