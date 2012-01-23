@@ -105,6 +105,7 @@ BuildStepsWidgetData::BuildStepsWidgetData(BuildStep *s) :
     detailsWidget->setContentsMargins(0, 0, 0, 1);
 
     detailsWidget->setSummaryText(widget->summaryText());
+    detailsWidget->setAdditionalSummaryText(widget->additionalSummaryText());
 }
 
 BuildStepsWidgetData::~BuildStepsWidgetData()
