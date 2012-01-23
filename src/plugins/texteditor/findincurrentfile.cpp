@@ -36,20 +36,14 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtCore/QtDebug>
 #include <QtCore/QSettings>
-#include <QtCore/QDirIterator>
-#include <QtGui/QPushButton>
-#include <QtGui/QFileDialog>
-#include <QtGui/QVBoxLayout>
 
 using namespace Find;
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
 FindInCurrentFile::FindInCurrentFile()
-  : m_configWidget(0),
-    m_currentFile(0)
+  : m_currentFile(0)
 {
     connect(Core::ICore::instance()->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(handleFileChange(Core::IEditor*)));
@@ -116,22 +110,6 @@ void FindInCurrentFile::handleFileChange(Core::IEditor *editor)
 }
 
 
-QWidget *FindInCurrentFile::createConfigWidget()
-{
-    if (!m_configWidget) {
-        m_configWidget = new QWidget;
-        QGridLayout * const gridLayout = new QGridLayout(m_configWidget);
-        gridLayout->setMargin(0);
-        m_configWidget->setLayout(gridLayout);
-        // just for the layout HACK
-        QLabel * const filePatternLabel = new QLabel;
-        filePatternLabel->setMinimumWidth(80);
-        filePatternLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-        gridLayout->addWidget(filePatternLabel, 0, 0);
-    }
-    return m_configWidget;
-}
-
 void FindInCurrentFile::writeSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String("FindInCurrentFile"));
@@ -142,6 +120,6 @@ void FindInCurrentFile::writeSettings(QSettings *settings)
 void FindInCurrentFile::readSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String("FindInCurrentFile"));
-    readCommonSettings(settings, QLatin1String("*.cpp,*.h"));
+    readCommonSettings(settings, QLatin1String("*"));
     settings->endGroup();
 }

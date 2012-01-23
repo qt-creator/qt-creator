@@ -37,13 +37,8 @@
 
 #include <coreplugin/ifile.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <find/ifindfilter.h>
 
 #include <QtCore/QPointer>
-#include <QtGui/QLabel>
-#include <QtGui/QComboBox>
-#include <QtGui/QStringListModel>
-
 
 namespace TextEditor {
 namespace Internal {
@@ -58,7 +53,6 @@ public:
     QString id() const;
     QString displayName() const;
     bool isEnabled() const;
-    QWidget *createConfigWidget();
     void writeSettings(QSettings *settings);
     void readSettings(QSettings *settings);
 
@@ -73,7 +67,6 @@ private slots:
     void handleFileChange(Core::IEditor *editor);
 
 private:
-    QPointer<QWidget> m_configWidget;
     QPointer<Core::IFile> m_currentFile;
 };
 
