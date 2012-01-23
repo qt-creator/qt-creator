@@ -46,8 +46,7 @@ class QTCREATOR_UTILS_EXPORT FadingPanel : public QWidget
 {
 public:
     FadingPanel(QWidget *parent = 0);
-    void setOpacity(qreal value);
-    void fadeTo(float value);
+    void fadeTo(qreal value);
 protected:
     QGraphicsOpacityEffect *m_opacityEffect;
 };
@@ -55,14 +54,11 @@ protected:
 class QTCREATOR_UTILS_EXPORT DetailsButton : public QAbstractButton
 {
     Q_OBJECT
-    Q_PROPERTY(float fader READ fader WRITE setFader)
 
 public:
     DetailsButton(QWidget *parent = 0);
 
     QSize sizeHint() const;
-    float fader() { return m_fader; }
-    void setFader(float value) { m_fader = value; update(); }
 
 protected:
     void paintEvent(QPaintEvent *e);
