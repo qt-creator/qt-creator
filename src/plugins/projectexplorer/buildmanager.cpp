@@ -81,7 +81,6 @@ struct BuildManagerPrivate {
 
     QList<BuildStep *> m_buildQueue;
     QStringList m_stepNames;
-    QStringList m_configurations; // the corresponding configuration to the m_buildQueue
     ProjectExplorerPlugin *m_projectExplorerPlugin;
     bool m_running;
     QFutureWatcher<bool> m_watcher;
