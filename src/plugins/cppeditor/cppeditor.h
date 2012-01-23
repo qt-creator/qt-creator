@@ -50,7 +50,6 @@
 #include <QtCore/QFutureWatcher>
 #include <QtCore/QModelIndex>
 #include <QtCore/QVector>
-#include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -202,7 +201,7 @@ public:
     QSharedPointer<FunctionDeclDefLink> declDefLink() const;
     void applyDeclDefLinkChanges(bool jumpToMatch);
 
-    CppTools::SymbolFinder *symbolFinder() const;
+    QSharedPointer<CppTools::SymbolFinder> symbolFinder() const;
 
 Q_SIGNALS:
     void outlineModelIndexChanged(const QModelIndex &index);
@@ -337,7 +336,7 @@ private:
     QSharedPointer<FunctionDeclDefLink> m_declDefLink;
 
     CppTools::CommentsSettings m_commentsSettings;
-    QScopedPointer<CppTools::SymbolFinder> m_symbolFinder;
+    QSharedPointer<CppTools::SymbolFinder> m_symbolFinder;
 };
 
 

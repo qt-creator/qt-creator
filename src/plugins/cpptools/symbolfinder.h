@@ -8,7 +8,6 @@
 
 #include <QtCore/QHash>
 #include <QtCore/QStringList>
-#include <QtCore/QQueue>
 #include <QtCore/QMultiMap>
 #include <QtCore/QSet>
 
@@ -17,8 +16,7 @@ namespace CppTools {
 class CPPTOOLS_EXPORT SymbolFinder
 {
 public:
-    SymbolFinder(const QString &referenceFileName);
-    SymbolFinder(const char *referenceFileName, unsigned referenceFileLength);
+    SymbolFinder();
 
     CPlusPlus::Symbol *findMatchingDefinition(CPlusPlus::Symbol *symbol,
                                               const CPlusPlus::Snapshot &snapshot,
@@ -37,17 +35,20 @@ public:
                                                             CPlusPlus::Function *functionType);
 
 private:
-    QStringList fileIterationOrder(const CPlusPlus::Snapshot &snapshot);
+    QStringList fileIterationOrder(const QString &referenceFile,
+                                   const CPlusPlus::Snapshot &snapshot);
 
-    void checkCacheConsistency(const CPlusPlus::Snapshot &snapshot);
-    void clear(const QString &comparingFile);
-    void insert(const QString &comparingFile);
+    void checkCacheConsistency(const QString &referenceFile, const CPlusPlus::Snapshot &snapshot);
+    void clearCache(const QString &referenceFile, const QString &comparingFile);
+    void insertCache(const QString &referenceFile, const QString &comparingFile);
+
+    void trackCacheUse(const QString &referenceFile);
 
     static int computeKey(const QString &referenceFile, const QString &comparingFile);
 
-    QMultiMap<int, QString> m_filePriorityCache;
-    QSet<QString> m_fileMetaCache;
-    QString m_referenceFile;
+    QHash<QString, QMultiMap<int, QString> > m_filePriorityCache;
+    QHash<QString, QSet<QString> > m_fileMetaCache;
+    QStringList m_recent;
 };
 
 } // namespace CppTools

@@ -274,8 +274,7 @@ static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
 {
     if (CppModelManagerInterface *cppModelManager = CppModelManagerInterface::instance()) {
         const Snapshot snapshot = cppModelManager->snapshot();
-        CppTools::SymbolFinder symbolFinder(functionDeclaration->fileName(),
-                                            functionDeclaration->fileNameLength());
+        CppTools::SymbolFinder symbolFinder;
         if (Symbol *def = symbolFinder.findMatchingDefinition(functionDeclaration, snapshot)) {
             if (line)
                 *line = def->line();

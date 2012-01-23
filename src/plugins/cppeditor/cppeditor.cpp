@@ -420,7 +420,7 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
     , m_firstRenameChange(false)
     , m_objcEnabled(false)
     , m_commentsSettings(CppTools::CppToolsSettings::instance()->commentsSettings())
-    , m_symbolFinder(new CppTools::SymbolFinder(QString()))
+    , m_symbolFinder(new CppTools::SymbolFinder)
 {
     m_initialized = false;
     qRegisterMetaType<CppEditor::Internal::SemanticInfo>("CppEditor::Internal::SemanticInfo");
@@ -864,9 +864,7 @@ void CPPEditorWidget::onContentsChanged(int position, int charsRemoved, int char
 }
 
 void CPPEditorWidget::updateFileName()
-{
-    m_symbolFinder.reset(new CppTools::SymbolFinder(file()->fileName()));
-}
+{}
 
 void CPPEditorWidget::jumpToOutlineElement(int)
 {
@@ -2258,9 +2256,9 @@ void CPPEditorWidget::applyDeclDefLinkChanges(bool jumpToMatch)
     updateFunctionDeclDefLink();
 }
 
-CppTools::SymbolFinder *CPPEditorWidget::symbolFinder() const
+QSharedPointer<CppTools::SymbolFinder> CPPEditorWidget::symbolFinder() const
 {
-    return m_symbolFinder.data();
+    return m_symbolFinder;
 }
 
 void CPPEditorWidget::abortDeclDefLink()

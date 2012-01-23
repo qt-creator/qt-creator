@@ -1553,7 +1553,7 @@ private:
         {
             Q_ASSERT(fwdClass != 0);
 
-            CppTools::SymbolFinder symbolFinder(fwdClass->fileName(), fwdClass->fileNameLength());
+            CppTools::SymbolFinder symbolFinder;
             if (Class *k =
                     symbolFinder.findMatchingClassDeclaration(fwdClass,
                                                               assistInterface()->snapshot())) {

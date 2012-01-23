@@ -164,17 +164,15 @@ static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<Functio
 
     // find the matching decl/def symbol
     Symbol *target = 0;
+    CppTools::SymbolFinder finder;
     if (FunctionDefinitionAST *funcDef = link->sourceDeclaration->asFunctionDefinition()) {
         QList<Declaration *> nameMatch, argumentCountMatch, typeMatch;
-        CppTools::SymbolFinder finder(funcDef->symbol->fileName(), funcDef->symbol->fileNameLength());
         finder.findMatchingDeclaration(LookupContext(link->sourceDocument, snapshot),
                                        funcDef->symbol,
                                        &typeMatch, &argumentCountMatch, &nameMatch);
         if (!typeMatch.isEmpty())
             target = typeMatch.first();
     } else if (link->sourceDeclaration->asSimpleDeclaration()) {
-        CppTools::SymbolFinder finder(link->sourceFunctionDeclarator->symbol->fileName(),
-                                      link->sourceFunctionDeclarator->symbol->fileNameLength());
         target = finder.findMatchingDefinition(link->sourceFunctionDeclarator->symbol, snapshot, true);
     }
     if (!target) {

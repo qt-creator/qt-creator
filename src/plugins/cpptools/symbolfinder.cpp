@@ -63,13 +63,9 @@ public:
 
 } // end of anonymous namespace
 
+static const int kMaxSize = 2;
 
-SymbolFinder::SymbolFinder(const QString &referenceFileName)
-    : m_referenceFile(referenceFileName)
-{}
-
-SymbolFinder::SymbolFinder(const char *referenceFileName, unsigned referenceFileLength)
-    : m_referenceFile(QString::fromUtf8(referenceFileName, referenceFileLength))
+SymbolFinder::SymbolFinder()
 {}
 
 // strict means the returned symbol has to match exactly,
@@ -82,7 +78,6 @@ Symbol *SymbolFinder::findMatchingDefinition(Symbol *declaration,
         return 0;
 
     QString declFile = QString::fromUtf8(declaration->fileName(), declaration->fileNameLength());
-    Q_ASSERT(declFile == m_referenceFile);
 
     Document::Ptr thisDocument = snapshot.document(declFile);
     if (! thisDocument) {
@@ -97,10 +92,10 @@ Symbol *SymbolFinder::findMatchingDefinition(Symbol *declaration,
         return 0;
     }
 
-    foreach (const QString &fileName, fileIterationOrder(snapshot)) {
+    foreach (const QString &fileName, fileIterationOrder(declFile, snapshot)) {
         Document::Ptr doc = snapshot.document(fileName);
         if (!doc) {
-            clear(fileName);
+            clearCache(declFile, fileName);
             continue;
         }
 
@@ -187,12 +182,11 @@ Class *SymbolFinder::findMatchingClassDeclaration(Symbol *declaration, const Sna
         return 0;
 
     QString declFile = QString::fromUtf8(declaration->fileName(), declaration->fileNameLength());
-    Q_ASSERT(declFile == m_referenceFile);
 
-    foreach (const QString &file, fileIterationOrder(snapshot)) {
+    foreach (const QString &file, fileIterationOrder(declFile, snapshot)) {
         Document::Ptr doc = snapshot.document(file);
         if (!doc) {
-            clear(file);
+            clearCache(declFile, file);
             continue;
         }
 
@@ -289,41 +283,63 @@ QList<Declaration *> SymbolFinder::findMatchingDeclaration(const LookupContext &
     return result;
 }
 
-#include <QtCore/QThread>
-QStringList SymbolFinder::fileIterationOrder(const Snapshot &snapshot)
+QStringList SymbolFinder::fileIterationOrder(const QString &referenceFile, const Snapshot &snapshot)
 {
-    if (m_filePriorityCache.isEmpty()) {
-        foreach (const Document::Ptr &doc, snapshot)
-            insert(doc->fileName());
+    if (m_filePriorityCache.contains(referenceFile)) {
+        checkCacheConsistency(referenceFile, snapshot);
     } else {
-        checkCacheConsistency(snapshot);
+        foreach (Document::Ptr doc, snapshot)
+            insertCache(referenceFile, doc->fileName());
     }
 
-    return m_filePriorityCache.values();
+    trackCacheUse(referenceFile);
+
+    return m_filePriorityCache.value(referenceFile).values();
 }
 
-void SymbolFinder::checkCacheConsistency(const Snapshot &snapshot)
+void SymbolFinder::checkCacheConsistency(const QString &referenceFile, const Snapshot &snapshot)
 {
     // We only check for "new" files, which which are in the snapshot but not in the cache.
     // The counterpart validation for "old" files is done when one tries to access the
     // corresponding document and notices it's now null.
+    const QSet<QString> &meta = m_fileMetaCache.value(referenceFile);
     foreach (const Document::Ptr &doc, snapshot) {
-        if (!m_fileMetaCache.contains(doc->fileName()))
-            insert(doc->fileName());
+        if (!meta.contains(doc->fileName()))
+            insertCache(referenceFile, doc->fileName());
     }
 }
 
-void SymbolFinder::clear(const QString &comparingFile)
+void SymbolFinder::clearCache(const QString &referenceFile, const QString &comparingFile)
 {
-    m_filePriorityCache.remove(computeKey(m_referenceFile, comparingFile), comparingFile);
-    m_fileMetaCache.remove(comparingFile);
+    m_filePriorityCache[referenceFile].remove(computeKey(referenceFile, comparingFile),
+                                              comparingFile);
+    m_fileMetaCache[referenceFile].remove(comparingFile);
 }
 
-void SymbolFinder::insert(const QString &comparingFile)
+void SymbolFinder::insertCache(const QString &referenceFile, const QString &comparingFile)
 {
     // We want an ordering such that the documents with the most common path appear first.
-    m_filePriorityCache.insert(computeKey(m_referenceFile, comparingFile), comparingFile);
-    m_fileMetaCache.insert(comparingFile);
+    m_filePriorityCache[referenceFile].insert(computeKey(referenceFile, comparingFile),
+                                              comparingFile);
+    m_fileMetaCache[referenceFile].insert(comparingFile);
+}
+
+void SymbolFinder::trackCacheUse(const QString &referenceFile)
+{
+    if (!m_recent.isEmpty()) {
+        if (m_recent.last() == referenceFile)
+            return;
+        m_recent.removeOne(referenceFile);
+    }
+
+    m_recent.append(referenceFile);
+
+    // We don't want this to grow too much.
+    if (m_recent.size() > kMaxSize) {
+        const QString &oldest = m_recent.front();
+        m_filePriorityCache.remove(oldest);
+        m_fileMetaCache.remove(oldest);
+    }
 }
 
 int SymbolFinder::computeKey(const QString &referenceFile, const QString &comparingFile)

@@ -517,8 +517,7 @@ static InsertionLocation nextToSurroundingDefinitions(Declaration *declaration, 
     }
 
     // find the declaration's definition
-    CppTools::SymbolFinder symbolFinder(surroundingFunctionDecl->fileName(),
-                                        surroundingFunctionDecl->fileNameLength());
+    CppTools::SymbolFinder symbolFinder;
     Symbol *definition = symbolFinder.findMatchingDefinition(surroundingFunctionDecl,
                                                              changes.snapshot());
     if (!definition)
@@ -559,7 +558,7 @@ QList<InsertionLocation> InsertionPointLocator::methodDefinition(
     if (!declaration)
         return result;
 
-    CppTools::SymbolFinder symbolFinder(declaration->fileName(), declaration->fileNameLength());
+    CppTools::SymbolFinder symbolFinder;
     if (Symbol *s = symbolFinder.findMatchingDefinition(declaration,
                                                         m_refactoringChanges.snapshot(),
                                                         true)) {
