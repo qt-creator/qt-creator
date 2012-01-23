@@ -284,7 +284,6 @@ bool QMakeStep::init()
         m_needToRunQMake = true;
     m_forced = false;
 
-    setEnabled(m_needToRunQMake);
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(qt4bc->macroExpander());
     pp->setWorkingDirectory(workingDirectory);

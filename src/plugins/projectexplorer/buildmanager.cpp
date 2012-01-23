@@ -80,6 +80,7 @@ struct BuildManagerPrivate {
     Internal::TaskWindow *m_taskWindow;
 
     QList<BuildStep *> m_buildQueue;
+    QList<bool> m_enabledState;
     QStringList m_stepNames;
     ProjectExplorerPlugin *m_projectExplorerPlugin;
     bool m_running;
@@ -93,6 +94,7 @@ struct BuildManagerPrivate {
     QHash<ProjectConfiguration *, int> m_activeBuildStepsPerProjectConfiguration;
     Project *m_previousBuildStepProject;
     // is set to true while canceling, so that nextBuildStep knows that the BuildStep finished because of canceling
+    bool m_skipDisabled;
     bool m_canceling;
     bool m_doNotEnterEventLoop;
     QEventLoop *m_eventLoop;
@@ -108,6 +110,7 @@ struct BuildManagerPrivate {
 BuildManagerPrivate::BuildManagerPrivate() :
     m_running(false)
   , m_previousBuildStepProject(0)
+  , m_skipDisabled(false)
   , m_canceling(false)
   , m_doNotEnterEventLoop(false)
   , m_eventLoop(0)
@@ -271,6 +274,7 @@ void BuildManager::clearBuildQueue()
 
     d->m_stepNames.clear();
     d->m_buildQueue.clear();
+    d->m_enabledState.clear();
     d->m_running = false;
     d->m_previousBuildStepProject = 0;
     d->m_currentBuildStep = 0;
@@ -400,7 +404,7 @@ void BuildManager::nextBuildQueue()
     d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, msgProgress(d->m_progress, d->m_maxProgress));
     decrementActiveBuildSteps(d->m_currentBuildStep);
 
-    bool result = d->m_watcher.result();
+    bool result = d->m_skipDisabled || d->m_watcher.result();
     if (!result) {
         // Build Failure
         const QString projectName = d->m_currentBuildStep->project()->displayName();
@@ -445,6 +449,7 @@ void BuildManager::nextStep()
         d->m_currentBuildStep = d->m_buildQueue.front();
         d->m_buildQueue.pop_front();
         QString name = d->m_stepNames.takeFirst();
+        d->m_skipDisabled = !d->m_enabledState.takeFirst();
         if (d->m_futureProgress)
             d->m_futureProgress.data()->setTitle(name);
 
@@ -454,6 +459,14 @@ void BuildManager::nextStep()
                               .arg(projectName), BuildStep::MessageOutput);
             d->m_previousBuildStepProject = d->m_currentBuildStep->project();
         }
+
+        if (d->m_skipDisabled) {
+            addToOutputWindow(tr("Skipping disabled step %1.")
+                              .arg(d->m_currentBuildStep->displayName()), BuildStep::MessageOutput);
+            nextBuildQueue();
+            return;
+        }
+
         if (d->m_currentBuildStep->runInGuiThread()) {
             connect (d->m_currentBuildStep, SIGNAL(finished()),
                      this, SLOT(buildStepFinishedAsync()));
@@ -475,7 +488,7 @@ void BuildManager::nextStep()
     }
 }
 
-bool BuildManager::buildQueueAppend(QList<BuildStep *> steps, const QStringList &names)
+bool BuildManager::buildQueueAppend(QList<BuildStep *> steps, QStringList names)
 {
     int count = steps.size();
     bool init = true;
@@ -486,9 +499,11 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps, const QStringList 
                 this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
         connect(bs, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat, ProjectExplorer::BuildStep::OutputNewlineSetting)),
                 this, SLOT(addToOutputWindow(QString, ProjectExplorer::BuildStep::OutputFormat, ProjectExplorer::BuildStep::OutputNewlineSetting)));
-        init = bs->init();
-        if (!init)
-            break;
+        if (bs->enabled()) {
+            init = bs->init();
+            if (!init)
+                break;
+        }
     }
     if (!init) {
         BuildStep *bs = steps.at(i);
@@ -511,6 +526,7 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps, const QStringList 
         ++d->m_maxProgress;
         d->m_buildQueue.append(steps.at(i));
         d->m_stepNames.append(names.at(i));
+        d->m_enabledState.append(steps.at(i)->enabled());
         incrementActiveBuildSteps(steps.at(i));
     }
     return true;

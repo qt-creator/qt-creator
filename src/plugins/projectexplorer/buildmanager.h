@@ -106,7 +106,7 @@ private:
     void startBuildQueue();
     void nextStep();
     void clearBuildQueue();
-    bool buildQueueAppend(QList<BuildStep *> steps, const QStringList &names);
+    bool buildQueueAppend(QList<BuildStep *> steps, QStringList names);
     void incrementActiveBuildSteps(BuildStep *bs);
     void decrementActiveBuildSteps(BuildStep *bs);
     void disconnectOutput(BuildStep *bs);

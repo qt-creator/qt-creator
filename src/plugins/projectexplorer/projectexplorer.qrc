@@ -40,5 +40,6 @@
         <file>images/targetremovebutton_disabled.png</file>
         <file>images/window.png</file>
         <file>images/stop_small.png</file>
+        <file>images/disabledbuildstep.png</file>
     </qresource>
 </RCC>

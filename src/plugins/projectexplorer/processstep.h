@@ -77,12 +77,10 @@ public:
 
     QString command() const;
     QString arguments() const;
-    bool enabled() const;
     QString workingDirectory() const;
 
     void setCommand(const QString &command);
     void setArguments(const QString &arguments);
-    void setEnabled(bool enabled);
     void setWorkingDirectory(const QString &workingDirectory);
 
     QVariantMap toMap() const;
@@ -99,7 +97,6 @@ private:
     QString m_command;
     QString m_arguments;
     QString m_workingDirectory;
-    bool m_enabled;
 };
 
 class ProcessStepConfigWidget : public BuildStepConfigWidget
@@ -113,7 +110,6 @@ private slots:
     void commandLineEditTextEdited();
     void workingDirectoryLineEditTextEdited();
     void commandArgumentsLineEditTextEdited();
-    void enabledCheckBoxClicked(bool);
 private:
     void updateDetails();
     ProcessStep *m_step;

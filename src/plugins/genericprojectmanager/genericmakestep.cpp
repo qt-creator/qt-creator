@@ -111,7 +111,6 @@ bool GenericMakeStep::init()
 {
     GenericBuildConfiguration *bc = genericBuildConfiguration();
 
-    setEnabled(true);
     ProjectExplorer::ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
     pp->setWorkingDirectory(bc->buildDirectory());

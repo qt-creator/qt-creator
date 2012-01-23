@@ -323,6 +323,22 @@ public:
     QVariantMap update(Project *project, const QVariantMap &map);
 };
 
+// Version 10 introduces disabling buildsteps, and handles upgrading custom process steps
+class Version10Handler : public UserFileVersionHandler
+{
+public:
+    int userFileVersion() const
+    {
+        return 10;
+    }
+
+    QString displayUserFileVersion() const
+    {
+        return QLatin1String("2.5pre1");
+    }
+
+    QVariantMap update(Project *project, const QVariantMap &map);
+};
 
 } // namespace
 
@@ -411,6 +427,7 @@ SettingsAccessor::SettingsAccessor() :
     addVersionHandler(new Version7Handler);
     addVersionHandler(new Version8Handler);
     addVersionHandler(new Version9Handler);
+    addVersionHandler(new Version10Handler);
 }
 
 SettingsAccessor::~SettingsAccessor()
@@ -2249,4 +2266,13 @@ QVariantMap Version9Handler::update(Project *project, const QVariantMap &map)
         result.insert(globalKey, newTargetMap);
     }
     return result;
+}
+
+QVariantMap Version10Handler::update(Project *project, const QVariantMap &map)
+{
+    Q_UNUSED(project);
+    QList<Change> changes;
+    changes.append(qMakePair(QLatin1String("ProjectExplorer.ProcessStep.Enabled"),
+                             QLatin1String("ProjectExplorer.BuildStep.Enabled")));
+    return renameKeys(changes, QVariantMap(map));
 }

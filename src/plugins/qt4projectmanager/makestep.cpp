@@ -221,8 +221,6 @@ bool MakeStep::init()
     }
 
     pp->setEnvironment(env);
-
-    setEnabled(true);
     pp->setArguments(args);
 
     ProjectExplorer::IOutputParser *parser = 0;

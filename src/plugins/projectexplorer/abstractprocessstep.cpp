@@ -92,15 +92,15 @@ using namespace ProjectExplorer;
 
 AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, const QString &id) :
     BuildStep(bsl, id), m_timer(0), m_futureInterface(0),
-    m_enabled(true), m_ignoreReturnValue(false),
-    m_process(0), m_eventLoop(0), m_outputParserChain(0)
+    m_ignoreReturnValue(false), m_process(0),
+    m_eventLoop(0), m_outputParserChain(0)
 {
 }
 
 AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl,
                                          AbstractProcessStep *bs) :
     BuildStep(bsl, bs), m_timer(0), m_futureInterface(0),
-    m_enabled(bs->m_enabled), m_ignoreReturnValue(bs->m_ignoreReturnValue),
+    m_ignoreReturnValue(bs->m_ignoreReturnValue),
     m_process(0), m_eventLoop(0), m_outputParserChain(0)
 {
 }
@@ -186,10 +186,6 @@ bool AbstractProcessStep::init()
 void AbstractProcessStep::run(QFutureInterface<bool> &fi)
 {
     m_futureInterface = &fi;
-    if (!m_enabled) {
-        fi.reportResult(true);
-        return;
-    }
     QDir wd(m_param.effectiveWorkingDirectory());
     if (!wd.exists())
         wd.mkpath(wd.absolutePath());

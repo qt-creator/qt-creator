@@ -196,7 +196,7 @@ void DetailsWidgetPrivate::changeHoverState(bool hovered)
     if (!m_toolWidget)
         return;
 #ifdef Q_OS_MAC
-    m_toolWidget->setVisible(hovered);
+    m_toolWidget->setOpacity(hovered ? 1.0 : 0);
 #else
     m_toolWidget->fadeTo(hovered ? 1.0 : 0);
 #endif

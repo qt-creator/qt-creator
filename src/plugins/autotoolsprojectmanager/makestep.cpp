@@ -177,7 +177,6 @@ bool MakeStep::init()
     QString arguments = Utils::QtcProcess::joinArgs(m_buildTargets);
     Utils::QtcProcess::addArgs(&arguments, additionalArguments());
 
-    setEnabled(true);
     setIgnoreReturnValue(m_clean);
 
     ProcessParameters *pp = processParameters();

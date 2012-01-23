@@ -122,22 +122,37 @@
     \brief This signal needs to be emitted if the BuildStep runs in the gui thread.
 */
 
+static const char buildStepEnabledKey[] = "ProjectExplorer.BuildStep.Enabled";
+
 using namespace ProjectExplorer;
 
 BuildStep::BuildStep(BuildStepList *bsl, const QString &id) :
-    ProjectConfiguration(bsl, id)
+    ProjectConfiguration(bsl, id), m_enabled(true)
 {
     Q_ASSERT(bsl);
 }
 
 BuildStep::BuildStep(BuildStepList *bsl, BuildStep *bs) :
-    ProjectConfiguration(bsl, bs)
+    ProjectConfiguration(bsl, bs), m_enabled(bs->m_enabled)
 {
     Q_ASSERT(bsl);
 }
 
 BuildStep::~BuildStep()
 {
+}
+
+bool BuildStep::fromMap(const QVariantMap &map)
+{
+    m_enabled = map.value(QLatin1String(buildStepEnabledKey), true).toBool();
+    return ProjectConfiguration::fromMap(map);
+}
+
+QVariantMap BuildStep::toMap() const
+{
+    QVariantMap map = ProjectConfiguration::toMap();
+    map.insert(QLatin1String(buildStepEnabledKey), m_enabled);
+    return map;
 }
 
 BuildConfiguration *BuildStep::buildConfiguration() const
@@ -178,6 +193,19 @@ bool BuildStep::runInGuiThread() const
 void BuildStep::cancel()
 {
     // Do nothing
+}
+
+void BuildStep::setEnabled(bool b)
+{
+    if (m_enabled == b)
+        return;
+    m_enabled = b;
+    emit enabledChanged();
+}
+
+bool BuildStep::enabled() const
+{
+    return m_enabled;
 }
 
 IBuildStepFactory::IBuildStepFactory(QObject *parent) :

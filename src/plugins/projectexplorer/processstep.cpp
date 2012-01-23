@@ -52,7 +52,6 @@ const char PROCESS_STEP_ID[] = "ProjectExplorer.ProcessStep";
 const char PROCESS_COMMAND_KEY[] = "ProjectExplorer.ProcessStep.Command";
 const char PROCESS_WORKINGDIRECTORY_KEY[] = "ProjectExplorer.ProcessStep.WorkingDirectory";
 const char PROCESS_ARGUMENTS_KEY[] = "ProjectExplorer.ProcessStep.Arguments";
-const char PROCESS_ENABLED_KEY[] = "ProjectExplorer.ProcessStep.Enabled";
 }
 
 ProcessStep::ProcessStep(BuildStepList *bsl) :
@@ -71,8 +70,7 @@ ProcessStep::ProcessStep(BuildStepList *bsl, ProcessStep *bs) :
     AbstractProcessStep(bsl, bs),
     m_command(bs->m_command),
     m_arguments(bs->m_arguments),
-    m_workingDirectory(bs->m_workingDirectory),
-    m_enabled(bs->m_enabled)
+    m_workingDirectory(bs->m_workingDirectory)
 {
     ctor();
 }
@@ -100,7 +98,6 @@ bool ProcessStep::init()
     pp->setWorkingDirectory(workingDirectory());
     pp->setCommand(m_command);
     pp->setArguments(m_arguments);
-    AbstractProcessStep::setEnabled(m_enabled);
     setOutputParser(bc->createOutputParser());
     return AbstractProcessStep::init();
 }
@@ -130,11 +127,6 @@ QString ProcessStep::arguments() const
     return m_arguments;
 }
 
-bool ProcessStep::enabled() const
-{
-    return m_enabled;
-}
-
 QString ProcessStep::workingDirectory() const
 {
     return m_workingDirectory;
@@ -148,11 +140,6 @@ void ProcessStep::setCommand(const QString &command)
 void ProcessStep::setArguments(const QString &arguments)
 {
     m_arguments = arguments;
-}
-
-void ProcessStep::setEnabled(bool enabled)
-{
-    m_enabled = enabled;
 }
 
 void ProcessStep::setWorkingDirectory(const QString &workingDirectory)
@@ -169,8 +156,6 @@ QVariantMap ProcessStep::toMap() const
     map.insert(QLatin1String(PROCESS_COMMAND_KEY), command());
     map.insert(QLatin1String(PROCESS_ARGUMENTS_KEY), arguments());
     map.insert(QLatin1String(PROCESS_WORKINGDIRECTORY_KEY), workingDirectory());
-    map.insert(QLatin1String(PROCESS_ENABLED_KEY), enabled());
-
     return map;
 }
 
@@ -179,7 +164,6 @@ bool ProcessStep::fromMap(const QVariantMap &map)
     setCommand(map.value(QLatin1String(PROCESS_COMMAND_KEY)).toString());
     setArguments(map.value(QLatin1String(PROCESS_ARGUMENTS_KEY)).toString());
     setWorkingDirectory(map.value(QLatin1String(PROCESS_WORKINGDIRECTORY_KEY)).toString());
-    setEnabled(map.value(QLatin1String(PROCESS_ENABLED_KEY), false).toBool());
     return AbstractProcessStep::fromMap(map);
 }
 
@@ -271,7 +255,6 @@ ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step)
     m_ui.workingDirectory->setPath(m_step->workingDirectory());
 
     m_ui.commandArgumentsLineEdit->setText(m_step->arguments());
-    m_ui.enabledCheckBox->setChecked(m_step->enabled());
 
     updateDetails();
 
@@ -282,8 +265,6 @@ ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step)
 
     connect(m_ui.commandArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
             this, SLOT(commandArgumentsLineEditTextEdited()));
-    connect(m_ui.enabledCheckBox, SIGNAL(clicked(bool)),
-            this, SLOT(enabledCheckBoxClicked(bool)));
 }
 
 void ProcessStepConfigWidget::updateDetails()
@@ -302,10 +283,6 @@ void ProcessStepConfigWidget::updateDetails()
     param.setCommand(m_step->command());
     param.setArguments(m_step->arguments());
     m_summaryText = param.summary(displayName);
-    if (!m_step->enabled()) {
-        //: %1 is the custom process step summary
-        m_summaryText = tr("%1 (disabled)").arg(m_summaryText);
-    }
     emit updateSummary();
 }
 
@@ -333,11 +310,5 @@ void ProcessStepConfigWidget::workingDirectoryLineEditTextEdited()
 void ProcessStepConfigWidget::commandArgumentsLineEditTextEdited()
 {
     m_step->setArguments(m_ui.commandArgumentsLineEdit->text());
-    updateDetails();
-}
-
-void ProcessStepConfigWidget::enabledCheckBoxClicked(bool)
-{
-    m_step->setEnabled(m_ui.enabledCheckBox->isChecked());
     updateDetails();
 }

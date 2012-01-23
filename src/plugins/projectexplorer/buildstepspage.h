@@ -36,6 +36,7 @@
 #include "buildstep.h"
 #include "deployconfiguration.h"
 #include "namedwidget.h"
+#include <utils/detailsbutton.h>
 
 QT_BEGIN_NAMESPACE
 class QPushButton;
@@ -43,6 +44,7 @@ class QToolButton;
 class QLabel;
 class QVBoxLayout;
 class QSignalMapper;
+class QGraphicsOpacityEffect;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -55,6 +57,50 @@ class Target;
 class BuildConfiguration;
 
 namespace Internal {
+class FadingWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    FadingWidget(QWidget *parent = 0);
+    void fadeTo(qreal value);
+    qreal opacity();
+    void setOpacity(qreal value);
+protected:
+    QGraphicsOpacityEffect *m_opacityEffect;
+};
+
+class ToolWidget : public Utils::FadingPanel
+{
+    Q_OBJECT
+public:
+    ToolWidget(QWidget *parent = 0);
+
+    void fadeTo(qreal value);
+    void setOpacity(qreal value);
+
+    void setBuildStepEnabled(bool b);
+    void setUpEnabled(bool b);
+    void setDownEnabled(bool b);
+    void setRemoveEnabled(bool b);
+    void setUpVisible(bool b);
+    void setDownVisible(bool b);
+signals:
+    void disabledClicked();
+    void upClicked();
+    void downClicked();
+    void removeClicked();
+
+private:
+    QToolButton *m_disableButton;
+    QToolButton *m_upButton;
+    QToolButton *m_downButton;
+    QToolButton *m_removeButton;
+
+    bool m_buildStepEnabled;
+    FadingWidget *m_firstWidget;
+    FadingWidget *m_secondWidget;
+    qreal m_targetOpacity;
+};
 
 class BuildStepsWidgetData
 {
@@ -65,9 +111,7 @@ public:
     BuildStep *step;
     BuildStepConfigWidget *widget;
     Utils::DetailsWidget *detailsWidget;
-    QToolButton *upButton;
-    QToolButton *downButton;
-    QToolButton *removeButton;
+    ToolWidget *toolWidget;
 };
 
 class BuildStepListWidget : public NamedWidget
@@ -86,11 +130,13 @@ private slots:
     void addBuildStep(int pos);
     void updateSummary();
     void updateAdditionalSummary();
+    void updateEnabledState();
     void triggerStepMoveUp(int pos);
     void stepMoved(int from, int to);
     void triggerStepMoveDown(int pos);
     void triggerRemoveBuildStep(int pos);
     void removeBuildStep(int pos);
+    void triggerDisable(int pos);
 
 private:
     void setupUi();
@@ -107,6 +153,7 @@ private:
     QLabel *m_noStepsLabel;
     QPushButton *m_addButton;
 
+    QSignalMapper *m_disableMapper;
     QSignalMapper *m_upMapper;
     QSignalMapper *m_downMapper;
     QSignalMapper *m_removeMapper;

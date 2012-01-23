@@ -34,41 +34,12 @@
 
 #include <utils/stylehelper.h>
 
+#include <QtCore/QPropertyAnimation>
 #include <QtGui/QPaintEvent>
 #include <QtGui/QPainter>
 #include <QtGui/QStyleOption>
-#include <QtGui/QGraphicsOpacityEffect>
-#include <QtCore/QPropertyAnimation>
 
 using namespace Utils;
-
-FadingPanel::FadingPanel(QWidget *parent) :
-    QWidget(parent),
-    m_opacityEffect(new QGraphicsOpacityEffect)
-{
-    m_opacityEffect->setOpacity(0);
-    setGraphicsEffect(m_opacityEffect);
-
-    // Workaround for issue with QGraphicsEffect. GraphicsEffect
-    // currently clears with Window color. Remove if flickering
-    // no longer occurs on fade-in
-    QPalette pal;
-    pal.setBrush(QPalette::All, QPalette::Window, Qt::transparent);
-    setPalette(pal);
-}
-
-void FadingPanel::setOpacity(qreal value)
-{
-    m_opacityEffect->setOpacity(value);
-}
-
-void FadingPanel::fadeTo(qreal value)
-{
-    QPropertyAnimation *animation = new QPropertyAnimation(m_opacityEffect, "opacity");
-    animation->setDuration(200);
-    animation->setEndValue(value);
-    animation->start(QAbstractAnimation::DeleteWhenStopped);
-}
 
 DetailsButton::DetailsButton(QWidget *parent) : QAbstractButton(parent), m_fader(0)
 {

@@ -163,8 +163,6 @@ bool ConfigureStep::init()
 {
     AutotoolsBuildConfiguration *bc = autotoolsBuildConfiguration();
 
-    setEnabled(true);
-
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());

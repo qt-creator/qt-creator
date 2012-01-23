@@ -41,15 +41,14 @@
 QT_FORWARD_DECLARE_CLASS(QGraphicsOpacityEffect)
 
 namespace Utils {
-
 class QTCREATOR_UTILS_EXPORT FadingPanel : public QWidget
 {
 public:
-    FadingPanel(QWidget *parent = 0);
-    void setOpacity(qreal value);
-    void fadeTo(qreal value);
-protected:
-    QGraphicsOpacityEffect *m_opacityEffect;
+    FadingPanel(QWidget *parent = 0)
+        : QWidget(parent)
+    {}
+    virtual void fadeTo(qreal value) = 0;
+    virtual void setOpacity(qreal value) = 0;
 };
 
 class QTCREATOR_UTILS_EXPORT DetailsButton : public QAbstractButton
