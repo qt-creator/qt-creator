@@ -1519,8 +1519,8 @@ bool BaseTextEditorWidget::cursorMoveKeyEvent(QKeyEvent *e)
         camelCaseRight(cursor, mode);
     } else if (camelCaseNavigationEnabled() && op == QTextCursor::WordLeft) {
         camelCaseLeft(cursor, mode);
-    } else {
-        cursor.movePosition(op, mode);
+    } else if (!cursor.movePosition(op, mode) && mode == QTextCursor::MoveAnchor) {
+        cursor.clearSelection();
     }
     cursor.setVisualNavigation(visualNavigation);
 
