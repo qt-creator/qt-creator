@@ -69,6 +69,7 @@ public:
         qmlServerPort(ProjectExplorer::Constants::QML_DEFAULT_DEBUG_SERVER_PORT),
         useServerStartScript(false),
         connParams(Utils::SshConnectionParameters::NoProxy),
+        requestRemoteSetup(false),
         startMode(NoStartMode),
         executableUid(0),
         communicationChannel(CommunicationChannelTcpIp),
@@ -115,6 +116,7 @@ public:
     QString remoteMountPoint;
     QString localMountDir;
     Utils::SshConnectionParameters connParams;
+    bool requestRemoteSetup;
 
     QString debuggerCommand;
     ProjectExplorer::Abi toolChainAbi;

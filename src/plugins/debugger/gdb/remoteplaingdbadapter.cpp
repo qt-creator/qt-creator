@@ -54,7 +54,16 @@ void RemotePlainGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(QLatin1String("TRYING TO START ADAPTER"));
-    m_engine->requestRemoteSetup();
+
+    if (!startParameters().workingDirectory.isEmpty())
+        m_gdbProc.setWorkingDirectory(startParameters().workingDirectory);
+    if (startParameters().environment.size())
+        m_gdbProc.setEnvironment(startParameters().environment.toStringList());
+
+    if (startParameters().requestRemoteSetup)
+        m_engine->requestRemoteSetup();
+    else
+        handleRemoteSetupDone(startParameters().connParams.port, startParameters().qmlServerPort);
 }
 
 void RemotePlainGdbAdapter::setupInferior()
@@ -106,10 +115,6 @@ void RemotePlainGdbAdapter::handleRemoteSetupDone(int gdbServerPort, int qmlPort
 
     if (qmlPort != -1)
         startParameters().qmlServerPort = qmlPort;
-    if (!startParameters().workingDirectory.isEmpty())
-        m_gdbProc.setWorkingDirectory(startParameters().workingDirectory);
-    if (startParameters().environment.size())
-        m_gdbProc.setEnvironment(startParameters().environment.toStringList());
     m_gdbProc.realStart(m_engine->startParameters().debuggerCommand,
         QStringList() << QLatin1String("-i") << QLatin1String("mi"),
         m_engine->startParameters().executable);

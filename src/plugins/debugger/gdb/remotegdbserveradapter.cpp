@@ -95,7 +95,10 @@ void RemoteGdbServerAdapter::startAdapter()
             m_uploadProc.waitForStarted();
         }
     }
-    m_engine->requestRemoteSetup();
+    if (startParameters().requestRemoteSetup)
+        m_engine->requestRemoteSetup();
+    else
+        handleSetupDone();
 }
 
 void RemoteGdbServerAdapter::uploadProcError(QProcess::ProcessError error)

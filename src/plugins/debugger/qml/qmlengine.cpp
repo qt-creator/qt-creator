@@ -450,8 +450,7 @@ void QmlEngine::shutdownEngine()
 
 void QmlEngine::setupEngine()
 {
-    if (startParameters().startMode == AttachToQmlPort
-             || startParameters().startMode == AttachToRemoteServer) {
+    if (startParameters().requestRemoteSetup) {
         // we need to get the port first
         emit requestRemoteSetup();
     } else {
