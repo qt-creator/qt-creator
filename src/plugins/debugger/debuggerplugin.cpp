@@ -1749,8 +1749,6 @@ void DebuggerPluginPrivate::gdbServerStarted(const QString &channel,
     sp.sysroot = sysroot;
     sp.executable = localExecutable;
     sp.startMode = AttachToRemoteServer;
-    sp.useServerStartScript = false;
-    sp.serverStartScript.clear();
     sp.overrideStartScript.clear();
     sp.useServerStartScript = false;
     sp.serverStartScript.clear();
