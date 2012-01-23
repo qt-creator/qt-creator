@@ -2332,32 +2332,43 @@ bool CPPEditorWidget::handleDocumentationComment(QKeyEvent *e)
         if (!m_commentsSettings.m_leadingAsterisks)
             return false;
 
-        const QString &text = cursor.block().text();
-        const int length = text.length();
+        // We continue the comment if the cursor is after a comment's line asterisk and if
+        // there's no asterisk immediately after the cursor (that would already be considered
+        // a leading asterisk).
         int offset = 0;
-        for (; offset < length; ++offset) {
-            const QChar &current = text.at(offset);
-            if (!current.isSpace())
+        const int blockPos = cursor.positionInBlock();
+        const QString &text = cursor.block().text();
+        for (; offset < blockPos; ++offset) {
+            if (!text.at(offset).isSpace())
                 break;
         }
-        if (offset < length
+
+        if (offset < blockPos
                 && (text.at(offset) == QLatin1Char('*')
-                    || (offset < length - 1
+                    || (offset < blockPos - 1
                         && text.at(offset) == QLatin1Char('/')
                         && text.at(offset + 1) == QLatin1Char('*')))) {
-            QString newLine(QLatin1Char('\n'));
-            newLine.append(QString(offset, QLatin1Char(' ')));
-            if (text.at(offset) == QLatin1Char('/')) {
-                newLine.append(QLatin1String(" *"));
-            } else {
-                int start = offset;
-                while (offset < length && text.at(offset) == QLatin1Char('*'))
-                    ++offset;
-                newLine.append(QString(offset - start, QLatin1Char('*')));
+            int followinPos = blockPos;
+            for (; followinPos < text.length(); ++followinPos) {
+                if (!text.at(followinPos).isSpace())
+                    break;
             }
-            cursor.insertText(newLine);
-            e->accept();
-            return true;
+            if (followinPos == text.length()
+                    || text.at(followinPos) != QLatin1Char('*')) {
+                QString newLine(QLatin1Char('\n'));
+                newLine.append(QString(offset, QLatin1Char(' ')));
+                if (text.at(offset) == QLatin1Char('/')) {
+                    newLine.append(QLatin1String(" *"));
+                } else {
+                    int start = offset;
+                    while (offset < blockPos && text.at(offset) == QLatin1Char('*'))
+                        ++offset;
+                    newLine.append(QString(offset - start, QLatin1Char('*')));
+                }
+                cursor.insertText(newLine);
+                e->accept();
+                return true;
+            }
         }
     }
 
