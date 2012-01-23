@@ -264,6 +264,8 @@ def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None
         test.fatal("Couldn't start application - leaving test")
         invokeMenuItem("File", "Exit")
         return False
+    if os.getenv("SYSTEST_QMLVIEWER_NO_HOOK_INTO", "0") == "1":
+        withHookInto = False
     if withHookInto and not validType(sType, userDefinedType):
         if function != None:
             test.warning("You did not provide a valid value for the SubprocessType value - sType, but you have "
