@@ -63,7 +63,7 @@ public:
 
 } // end of anonymous namespace
 
-static const int kMaxSize = 2;
+static const int kMaxSize = 10;
 
 SymbolFinder::SymbolFinder()
 {}
@@ -292,9 +292,11 @@ QStringList SymbolFinder::fileIterationOrder(const QString &referenceFile, const
             insertCache(referenceFile, doc->fileName());
     }
 
+    QStringList files = m_filePriorityCache.value(referenceFile).values();
+
     trackCacheUse(referenceFile);
 
-    return m_filePriorityCache.value(referenceFile).values();
+    return files;
 }
 
 void SymbolFinder::checkCacheConsistency(const QString &referenceFile, const Snapshot &snapshot)
@@ -336,7 +338,7 @@ void SymbolFinder::trackCacheUse(const QString &referenceFile)
 
     // We don't want this to grow too much.
     if (m_recent.size() > kMaxSize) {
-        const QString &oldest = m_recent.front();
+        const QString &oldest = m_recent.takeFirst();
         m_filePriorityCache.remove(oldest);
         m_fileMetaCache.remove(oldest);
     }
