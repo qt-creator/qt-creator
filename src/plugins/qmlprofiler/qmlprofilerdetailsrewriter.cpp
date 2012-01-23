@@ -174,9 +174,10 @@ void QmlProfilerDetailsRewriter::documentReady(QmlJS::Document::Ptr doc)
     if (!d->m_pendingDocs.contains(doc->fileName()))
         return;
 
-    // if the file could not be opened this slot is still triggered but source() will be an empty string
-    if (!doc->source().isEmpty()) {
-        QTextStream st(&doc->source(), QIODevice::ReadOnly);
+    // if the file could not be opened this slot is still triggered but source will be an empty string
+    QString source = doc->source();
+    if (!source.isEmpty()) {
+        QTextStream st(&source, QIODevice::ReadOnly);
 
         for (int i = d->m_pendingEvents.count()-1; i>=0; i--) {
             PendingEvent ev = d->m_pendingEvents[i];
