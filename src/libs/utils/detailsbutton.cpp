@@ -57,6 +57,11 @@ FadingPanel::FadingPanel(QWidget *parent) :
     setPalette(pal);
 }
 
+void FadingPanel::setOpacity(qreal value)
+{
+    m_opacityEffect->setOpacity(value);
+}
+
 void FadingPanel::fadeTo(qreal value)
 {
     QPropertyAnimation *animation = new QPropertyAnimation(m_opacityEffect, "opacity");

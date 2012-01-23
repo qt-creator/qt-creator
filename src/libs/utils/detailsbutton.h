@@ -46,6 +46,7 @@ class QTCREATOR_UTILS_EXPORT FadingPanel : public QWidget
 {
 public:
     FadingPanel(QWidget *parent = 0);
+    void setOpacity(qreal value);
     void fadeTo(qreal value);
 protected:
     QGraphicsOpacityEffect *m_opacityEffect;
