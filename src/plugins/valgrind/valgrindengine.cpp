@@ -136,6 +136,8 @@ QString ValgrindEngine::executable() const
 void ValgrindEngine::handleProgressCanceled()
 {
     AnalyzerManager::stopTool();
+    m_progress->reportCanceled();
+    m_progress->reportFinished();
 }
 
 void ValgrindEngine::handleProgressFinished()
