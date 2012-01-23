@@ -217,6 +217,7 @@ public:
     QList<bool> m_fieldShown;
     int m_firstNumericColumn;
     int m_detailsColumn;
+    bool m_preventSelectBounce;
 };
 
 
@@ -241,6 +242,7 @@ QmlProfilerEventsMainView::QmlProfilerEventsMainView(QmlProfilerEventList *model
 
     d->m_firstNumericColumn = 0;
     d->m_detailsColumn = 0;
+    d->m_preventSelectBounce = false;
 
     // default view
     setViewType(EventsView);
@@ -574,6 +576,10 @@ int QmlProfilerEventsMainView::selectedEventId() const
 
 void QmlProfilerEventsMainView::jumpToItem(const QModelIndex &index)
 {
+    if (d->m_preventSelectBounce)
+        return;
+
+    d->m_preventSelectBounce = true;
     QStandardItem *clickedItem = d->m_model->itemFromIndex(index);
     QStandardItem *infoItem;
     if (clickedItem->parent())
@@ -595,6 +601,8 @@ void QmlProfilerEventsMainView::jumpToItem(const QModelIndex &index)
     if (d->m_viewType == EventsView) {
         emit showEventInTimeline(infoItem->data(EventIdRole).toInt());
     }
+
+    d->m_preventSelectBounce = false;
 }
 
 void QmlProfilerEventsMainView::selectEvent(int eventId)
@@ -611,6 +619,9 @@ void QmlProfilerEventsMainView::selectEvent(int eventId)
 
 void QmlProfilerEventsMainView::selectEventByLocation(const QString &filename, int line)
 {
+    if (d->m_preventSelectBounce)
+        return;
+
     for (int i=0; i<d->m_model->rowCount(); i++) {
         QStandardItem *infoItem = d->m_model->item(i, 0);
         if (currentIndex() != d->m_model->indexFromItem(infoItem) && infoItem->data(FilenameRole).toString() == filename && infoItem->data(LineRole).toInt() == line) {
