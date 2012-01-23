@@ -13,6 +13,8 @@
 
 #include <QtCore/QDebug>
 
+#include <utils/qtcassert.h>
+
 #include <algorithm>
 #include <utility>
 
@@ -218,7 +220,7 @@ void SymbolFinder::findMatchingDeclaration(const LookupContext &context,
     Scope *enclosingScope = functionType->enclosingScope();
     while (! (enclosingScope->isNamespace() || enclosingScope->isClass()))
         enclosingScope = enclosingScope->enclosingScope();
-    Q_ASSERT(enclosingScope != 0);
+    QTC_ASSERT(enclosingScope != 0, return);
 
     const Name *functionName = functionType->name();
     if (! functionName)

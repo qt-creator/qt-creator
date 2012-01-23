@@ -69,6 +69,7 @@
 #include <texteditor/snippets/snippet.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QLatin1String>
 #include <QtGui/QTextCursor>
@@ -1250,7 +1251,7 @@ int CppCompletionAssistProcessor::startCompletionInternal(const QString fileName
     m_model->m_typeOfExpression->init(thisDocument, m_interface->snapshot());
 
     Scope *scope = thisDocument->scopeAt(line, column);
-    Q_ASSERT(scope != 0);
+    QTC_ASSERT(scope != 0, return -1);
 
     if (expression.isEmpty()) {
         if (m_model->m_completionOperator == T_EOF_SYMBOL || m_model->m_completionOperator == T_COLON_COLON) {

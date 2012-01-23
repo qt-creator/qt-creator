@@ -44,6 +44,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 
+#include <utils/qtcassert.h>
+
 using namespace CPlusPlus;
 using namespace CppTools;
 
@@ -173,7 +175,7 @@ protected:
                           bool &needsPrefix,
                           bool &needsSuffix)
     {
-        Q_ASSERT(!ranges.isEmpty());
+        QTC_ASSERT(!ranges.isEmpty(), return);
         const int lastIndex = ranges.size() - 1;
 
         // try an exact match, and ignore the first (default) access spec:
@@ -349,7 +351,7 @@ public:
 
     const Value &get() const
     {
-        Q_ASSERT(_set);
+        QTC_ASSERT(_set, return Value());
         return _value;
     }
 };

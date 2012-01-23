@@ -66,6 +66,7 @@
 #include <find/ifindfilter.h>
 #include <find/searchresultwindow.h>
 #include <utils/filesearch.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QFileInfo>
@@ -325,7 +326,7 @@ QString CppToolsPlugin::correspondingHeaderOrSourceI(const QString &fileName) co
         }
         if (!bestFileName.isEmpty()) {
             const QFileInfo candidateFi(bestFileName);
-            Q_ASSERT(candidateFi.isFile());
+            QTC_ASSERT(candidateFi.isFile(), return QString());
             m_headerSourceMapping[fi.absoluteFilePath()] = candidateFi.absoluteFilePath();
             m_headerSourceMapping[candidateFi.absoluteFilePath()] = fi.absoluteFilePath();
             return candidateFi.absoluteFilePath();

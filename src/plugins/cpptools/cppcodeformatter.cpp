@@ -37,6 +37,7 @@
 
 #include <texteditor/basetextdocumentlayout.h>
 #include <texteditor/tabsettings.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QMetaEnum>
@@ -319,14 +320,14 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         case else_clause:
             // ### shouldn't happen
             dump();
-            Q_ASSERT(false);
+            QTC_CHECK(false);
             leave(true);
             break;
 
         case do_statement:
             // ### shouldn't happen
             dump();
-            Q_ASSERT(false);
+            QTC_CHECK(false);
             leave(true);
             break;
 
@@ -649,7 +650,7 @@ void CodeFormatter::enter(int newState)
 
 void CodeFormatter::leave(bool statementDone)
 {
-    Q_ASSERT(m_currentState.size() > 1);
+    QTC_ASSERT(m_currentState.size() > 1, return);
     if (m_currentState.top().type == topmost_intro)
         return;
 
@@ -688,7 +689,7 @@ void CodeFormatter::leave(bool statementDone)
 void CodeFormatter::correctIndentation(const QTextBlock &block)
 {
     const int lexerState = tokenizeBlock(block);
-    Q_ASSERT(m_currentState.size() >= 1);
+    QTC_ASSERT(m_currentState.size() >= 1, return);
 
     adjustIndent(m_tokens, lexerState, &m_indentDepth, &m_paddingDepth);
 }
@@ -979,7 +980,7 @@ int CodeFormatter::tokenizeBlock(const QTextBlock &block, bool *endedJoined)
     int startState = loadLexerState(block.previous());
     if (block.blockNumber() == 0)
         startState = 0;
-    Q_ASSERT(startState != -1);
+    QTC_ASSERT(startState != -1, return 0);
 
     SimpleLexer tokenize;
     tokenize.setQtMocRunEnabled(true);

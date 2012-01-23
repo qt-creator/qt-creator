@@ -10,6 +10,8 @@
 #include <cplusplus/Scope.h>
 #include <cplusplus/LookupContext.h>
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QStringBuilder>
 #include <QtGui/QTextDocument>
 #include <QDebug>
@@ -220,7 +222,7 @@ QString DoxygenGenerator::commandSpelling(Command command)
     if (command == ReturnCommand)
         return QLatin1String("return ");
 
-    Q_ASSERT(command == BriefCommand);
+    QTC_ASSERT(command == BriefCommand, return QString());
     return QLatin1String("brief ");
 }
 

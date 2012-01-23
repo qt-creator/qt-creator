@@ -43,6 +43,8 @@
 #include <AST.h>
 #include <SymbolVisitor.h>
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QThreadPool>
 #include <QtCore/QDebug>
@@ -284,7 +286,7 @@ protected:
 
 CheckSymbols::Future CheckSymbols::go(Document::Ptr doc, const LookupContext &context)
 {
-    Q_ASSERT(doc);
+    QTC_ASSERT(doc, return Future());
 
     return (new CheckSymbols(doc, context))->start();
 }

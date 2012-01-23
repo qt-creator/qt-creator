@@ -196,7 +196,7 @@ static void find_helper(QFutureInterface<Usage> &future,
                         Symbol *symbol)
 {
     const Identifier *symbolId = symbol->identifier();
-    Q_ASSERT(symbolId != 0);
+    QTC_ASSERT(symbolId != 0, return);
 
     const Snapshot snapshot = context.snapshot();
 

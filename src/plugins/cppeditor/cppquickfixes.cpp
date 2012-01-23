@@ -1551,7 +1551,7 @@ private:
         virtual void performChanges(const CppRefactoringFilePtr &currentFile,
                                     const CppRefactoringChanges &)
         {
-            Q_ASSERT(fwdClass != 0);
+            QTC_ASSERT(fwdClass != 0, return);
 
             CppTools::SymbolFinder symbolFinder;
             if (Class *k =
