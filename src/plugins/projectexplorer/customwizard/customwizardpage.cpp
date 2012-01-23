@@ -356,23 +356,48 @@ void CustomWizardFieldPage::initializePage()
 {
     QWizardPage::initializePage();
     clearError();
-    // Note that the field mechanism will always restore the value
-    // set on it when entering the page, so, there is no point in
-    // trying to preserve user modifications of the text.
     foreach(const LineEditData &led, m_lineEdits) {
-        if (!led.defaultText.isEmpty()) {
+        if (!led.userChange.isNull()) {
+            led.lineEdit->setText(led.userChange);
+        } else if (!led.defaultText.isEmpty()) {
             QString defaultText = led.defaultText;
             CustomWizardContext::replaceFields(m_context->baseReplacements, &defaultText);
             led.lineEdit->setText(defaultText);
         }
     }
     foreach(const TextEditData &ted, m_textEdits) {
-        if (!ted.defaultText.isEmpty()) {
+        if (!ted.userChange.isNull()) {
+            ted.textEdit->setText(ted.userChange);
+        } else if (!ted.defaultText.isEmpty()) {
             QString defaultText = ted.defaultText;
             CustomWizardContext::replaceFields(m_context->baseReplacements, &defaultText);
             ted.textEdit->setText(defaultText);
         }
     }
+}
+
+void CustomWizardFieldPage::cleanupPage()
+{
+    for (int i = 0; i < m_lineEdits.count(); ++i) {
+        LineEditData &led = m_lineEdits[i];
+        QString defaultText = led.defaultText;
+        CustomWizardContext::replaceFields(m_context->baseReplacements, &defaultText);
+        if (led.lineEdit->text() != defaultText)
+            led.userChange = led.lineEdit->text();
+        else
+            led.userChange.clear();
+
+    }
+    for (int i= 0; i < m_textEdits.count(); ++i) {
+        TextEditData &ted = m_textEdits[i];
+        QString defaultText = ted.defaultText;
+        CustomWizardContext::replaceFields(m_context->baseReplacements, &defaultText);
+        if (ted.textEdit->toHtml() != ted.defaultText && ted.textEdit->toPlainText() != ted.defaultText)
+            ted.userChange = ted.textEdit->toHtml();
+        else
+            ted.userChange.clear();
+    }
+    QWizardPage::cleanupPage();
 }
 
 bool CustomWizardFieldPage::validatePage()
