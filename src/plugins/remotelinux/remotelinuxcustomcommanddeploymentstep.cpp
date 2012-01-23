@@ -45,40 +45,35 @@ namespace {
 
 const char CommandLineKey[] = "RemoteLinuxCustomCommandDeploymentStep.CommandLine";
 
-class ConfigWidget : public BuildStepConfigWidget
+class ConfigWidget : public SimpleBuildStepConfigWidget
 {
     Q_OBJECT
 public:
     ConfigWidget(AbstractRemoteLinuxCustomCommandDeploymentStep *step)
-        : m_step(step), m_widget(step)
+        : SimpleBuildStepConfigWidget(step)
     {
         QVBoxLayout * const mainLayout = new QVBoxLayout(this);
         mainLayout->setMargin(0);
-        mainLayout->addWidget(&m_widget);
         QHBoxLayout * const commandLineLayout = new QHBoxLayout;
         mainLayout->addLayout(commandLineLayout);
         QLabel * const commandLineLabel = new QLabel(tr("Command line:"));
         commandLineLayout->addWidget(commandLineLabel);
-        m_commandLineEdit.setText(m_step->commandLine());
+        m_commandLineEdit.setText(step->commandLine());
         commandLineLayout->addWidget(&m_commandLineEdit);
 
-        connect(&m_widget, SIGNAL(updateSummary()), SIGNAL(updateSummary()));
-        connect(&m_widget, SIGNAL(updateAdditionalSummary()), SIGNAL(updateAdditionalSummary()));
         connect(&m_commandLineEdit, SIGNAL(textEdited(QString)), SLOT(handleCommandLineEdited()));
     }
 
-private:
-    QString summaryText() const { return m_widget.summaryText(); }
-    QString additionalSummaryText() const { return m_widget.additionalSummaryText(); }
-    QString displayName() const { return m_widget.displayName(); }
+    bool showWidget() const { return true; }
 
+private:
     Q_SLOT void handleCommandLineEdited() {
-        m_step->setCommandLine(m_commandLineEdit.text().trimmed());
+        AbstractRemoteLinuxCustomCommandDeploymentStep *step =
+            qobject_cast<AbstractRemoteLinuxCustomCommandDeploymentStep *>(this->step());
+        step->setCommandLine(m_commandLineEdit.text().trimmed());
     }
 
-    AbstractRemoteLinuxCustomCommandDeploymentStep * const m_step;
     QLineEdit m_commandLineEdit;
-    SimpleBuildStepConfigWidget m_widget;
 };
 
 } // anonymous namespace

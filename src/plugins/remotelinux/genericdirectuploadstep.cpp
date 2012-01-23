@@ -48,36 +48,29 @@ namespace Internal {
 namespace {
 const char IncrementalKey[] = "RemoteLinux.GenericDirectUploadStep.Incremental";
 
-class ConfigWidget : public BuildStepConfigWidget
+class ConfigWidget : public SimpleBuildStepConfigWidget
 {
     Q_OBJECT
 public:
-    ConfigWidget(GenericDirectUploadStep *step) : m_widget(step)
+    ConfigWidget(GenericDirectUploadStep *step) : SimpleBuildStepConfigWidget(step)
     {
         m_incrementalCheckBox.setText(tr("Incremental deployment"));
         QVBoxLayout *mainLayout = new QVBoxLayout(this);
         mainLayout->setMargin(0);
-        mainLayout->addWidget(&m_widget);
         mainLayout->addWidget(&m_incrementalCheckBox);
         m_incrementalCheckBox.setChecked(step->incrementalDeployment());
-        connect(&m_widget, SIGNAL(updateSummary()), SIGNAL(updateSummary()));
         connect(&m_incrementalCheckBox, SIGNAL(toggled(bool)),
             SLOT(handleIncrementalChanged(bool)));
     }
 
+    bool showWidget() const { return true; }
+
 private:
-    QString summaryText() const { return m_widget.summaryText(); }
-    QString displayName() const { return m_widget.displayName(); }
-
-    GenericDirectUploadStep *myStep() const {
-        return qobject_cast<GenericDirectUploadStep *>(m_widget.step());
-    }
-
     Q_SLOT void handleIncrementalChanged(bool incremental) {
-        myStep()->setIncrementalDeployment(incremental);
+        GenericDirectUploadStep *step = qobject_cast<GenericDirectUploadStep *>(this->step());
+        step->setIncrementalDeployment(incremental);
     }
 
-    SimpleBuildStepConfigWidget m_widget;
     QCheckBox m_incrementalCheckBox;
 };
 
