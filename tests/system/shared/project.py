@@ -314,7 +314,7 @@ def __closeSubprocessByHookingInto__(executable, port, function, sType, userDefT
     try:
         attachToApplication(executable)
     except:
-        test.fatal("Could not attach to '%s' - using fallback of pushing STOP inside Creator." % executable)
+        test.warning("Could not attach to '%s' - using fallback of pushing STOP inside Creator." % executable)
         resetApplicationContextToCreator()
         __closeSubprocessByPushingStop__(sType)
         return False
