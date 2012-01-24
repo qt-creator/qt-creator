@@ -280,13 +280,19 @@ JSDebuggerAgent::JSDebuggerAgent(QScriptEngine *engine)
     : QDeclarativeDebugService("JSDebugger")
     , QScriptEngineAgent(engine)
     , d(new JSDebuggerAgentPrivate(this))
-{}
+{
+    if (status() == Enabled)
+        engine->setAgent(this);
+}
 
 JSDebuggerAgent::JSDebuggerAgent(QDeclarativeEngine *engine)
     : QDeclarativeDebugService("JSDebugger")
     , QScriptEngineAgent(QDeclarativeDebugHelper::getScriptEngine(engine))
     , d(new JSDebuggerAgentPrivate(this))
-{}
+{
+    if (status() == Enabled)
+        QDeclarativeDebugHelper::getScriptEngine(engine)->setAgent(this);
+}
 
 /*!
   Destroys this QScriptDebuggerAgent.
