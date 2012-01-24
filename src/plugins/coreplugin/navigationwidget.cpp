@@ -187,8 +187,7 @@ NavigationWidget *NavigationWidget::instance()
 
 void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> factories)
 {
-    ICore *core = ICore::instance();
-    ActionManager *am = core->actionManager();
+    ActionManager *am = ICore::actionManager();
     Context navicontext(Core::Constants::C_NAVIGATION_PANE);
 
     foreach (INavigationWidgetFactory *factory, factories) {

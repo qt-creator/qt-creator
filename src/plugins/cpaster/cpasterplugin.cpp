@@ -129,7 +129,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
     Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
     // Create the settings Page
-    m_settings->fromSettings(Core::ICore::instance()->settings());
+    m_settings->fromSettings(Core::ICore::settings());
     SettingsPage *settingsPage = new SettingsPage(m_settings);
     addAutoReleasedObject(settingsPage);
 
@@ -153,7 +153,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
     }
 
     //register actions
-    Core::ActionManager *actionManager = ICore::instance()->actionManager();
+    Core::ActionManager *actionManager = ICore::actionManager();
 
     Core::ActionContainer *toolsContainer =
         actionManager->actionContainer(Core::Constants::M_TOOLS);
@@ -264,13 +264,13 @@ void CodepasterPlugin::post(QString data, const QString &mimeType)
     if (dialogResult == QDialog::Accepted
         && m_settings->protocol != view.protocol()) {
         m_settings->protocol = view.protocol();
-        m_settings->toSettings(Core::ICore::instance()->settings());
+        m_settings->toSettings(Core::ICore::settings());
     }
 }
 
 void CodepasterPlugin::fetch()
 {
-    PasteSelectDialog dialog(m_protocols, ICore::instance()->mainWindow());
+    PasteSelectDialog dialog(m_protocols, ICore::mainWindow());
     dialog.setProtocol(m_settings->protocol);
 
     if (dialog.exec() != QDialog::Accepted)
@@ -278,7 +278,7 @@ void CodepasterPlugin::fetch()
     // Save new protocol in case user changed it.
     if (m_settings->protocol != dialog.protocol()) {
         m_settings->protocol = dialog.protocol();
-        m_settings->toSettings(Core::ICore::instance()->settings());
+        m_settings->toSettings(Core::ICore::settings());
     }
 
     const QString pasteID = dialog.pasteId();
@@ -293,8 +293,7 @@ void CodepasterPlugin::finishPost(const QString &link)
 {
     if (m_settings->copyToClipboard)
         QApplication::clipboard()->setText(link);
-    ICore::instance()->messageManager()->printToOutputPane(link,
-                                                           m_settings->displayOutput);
+    ICore::messageManager()->printToOutputPane(link, m_settings->displayOutput);
 }
 
 // Extract the characters that can be used for a file name from a title
@@ -334,7 +333,7 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
                                    const QString &content,
                                    bool error)
 {
-    Core::MessageManager *messageManager = ICore::instance()->messageManager();
+    Core::MessageManager *messageManager = ICore::messageManager();
     // Failure?
     if (error) {
         messageManager->printToOutputPane(content, true);
@@ -351,7 +350,7 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     // Default to "txt".
     QByteArray byteContent = content.toUtf8();
     QString suffix;
-    if (const Core::MimeType mimeType = Core::ICore::instance()->mimeDatabase()->findByData(byteContent))
+    if (const Core::MimeType mimeType = Core::ICore::mimeDatabase()->findByData(byteContent))
         suffix = mimeType.preferredSuffix();
     if (suffix.isEmpty())
          suffix = QLatin1String("txt");

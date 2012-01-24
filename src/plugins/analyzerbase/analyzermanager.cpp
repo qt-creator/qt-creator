@@ -261,8 +261,7 @@ AnalyzerManagerPrivate::~AnalyzerManagerPrivate()
 
 void AnalyzerManagerPrivate::setupActions()
 {
-    Core::ICore *core = Core::ICore::instance();
-    Core::ActionManager *am = core->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     const Core::Context globalcontext(Core::Constants::C_GLOBAL);
     Core::Command *command = 0;
 
@@ -340,7 +339,7 @@ void AnalyzerManagerPrivate::delayedInit()
 
     // Populate Windows->Views menu with standard actions.
     Core::Context analyzerContext(Constants::C_ANALYZEMODE);
-    ActionManager *am = ICore::instance()->actionManager();
+    ActionManager *am = ICore::actionManager();
     ActionContainer *viewsMenu =
         am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
     Command *cmd = am->registerAction(m_mainWindow->menuSeparator1(),
@@ -435,7 +434,7 @@ void AnalyzerManagerPrivate::activateDock(Qt::DockWidgetArea area, QDockWidget *
 
     Context globalContext(Core::Constants::C_GLOBAL);
 
-    ActionManager *am = ICore::instance()->actionManager();
+    ActionManager *am = ICore::actionManager();
     QAction *toggleViewAction = dockWidget->toggleViewAction();
     toggleViewAction->setText(dockWidget->windowTitle());
     Command *cmd = am->registerAction(toggleViewAction,
@@ -449,7 +448,7 @@ void AnalyzerManagerPrivate::activateDock(Qt::DockWidgetArea area, QDockWidget *
 
 void AnalyzerManagerPrivate::deactivateDock(QDockWidget *dockWidget)
 {
-    ActionManager *am = ICore::instance()->actionManager();
+    ActionManager *am = ICore::actionManager();
     QAction *toggleViewAction = dockWidget->toggleViewAction();
     am->unregisterAction(toggleViewAction, Core::Id("Analyzer." + dockWidget->objectName()));
     m_mainWindow->removeDockWidget(dockWidget);
@@ -477,7 +476,7 @@ bool buildTypeAccepted(IAnalyzerTool::ToolMode toolMode,
 bool AnalyzerManagerPrivate::showPromptDialog(const QString &title, const QString &text,
     const QString &stopButtonText, const QString &cancelButtonText) const
 {
-    Utils::CheckableMessageBox messageBox(Core::ICore::instance()->mainWindow());
+    Utils::CheckableMessageBox messageBox(Core::ICore::mainWindow());
     messageBox.setWindowTitle(title);
     messageBox.setText(text);
     messageBox.setStandardButtons(QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
@@ -523,7 +522,7 @@ void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool)
         const QString currentMode =
             buildType == BuildConfiguration::Debug ? tr("Debug") : tr("Release");
 
-        QSettings *settings = Core::ICore::instance()->settings();
+        QSettings *settings = Core::ICore::settings();
         const QString configKey = QLatin1String("Analyzer.AnalyzeCorrectMode");
         int ret;
         if (settings->contains(configKey)) {
@@ -547,7 +546,7 @@ void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool)
             const QString checkBoxText = tr("&Do not ask again");
             bool checkBoxSetting = false;
             const QDialogButtonBox::StandardButton button =
-                Utils::CheckableMessageBox::question(Core::ICore::instance()->mainWindow(),
+                Utils::CheckableMessageBox::question(Core::ICore::mainWindow(),
                     title, message, checkBoxText,
                     &checkBoxSetting, QDialogButtonBox::Yes|QDialogButtonBox::Cancel,
                     QDialogButtonBox::Cancel);
@@ -605,7 +604,7 @@ QAction *AnalyzerManagerPrivate::actionFromToolAndMode(IAnalyzerTool *tool, Star
 
 void AnalyzerManagerPrivate::selectSavedTool()
 {
-    const QSettings *settings = Core::ICore::instance()->settings();
+    const QSettings *settings = Core::ICore::settings();
     const Core::Id lastActiveAction(settings->value(QLatin1String(LAST_ACTIVE_TOOL)).toString());
     foreach (QAction *action, m_actions) {
         IAnalyzerTool *tool = m_toolFromAction.value(action);
@@ -688,7 +687,7 @@ void AnalyzerManagerPrivate::addTool(IAnalyzerTool *tool, const StartModes &mode
     delayedInit(); // Make sure that there is a valid IMode instance.
 
     const bool blocked = m_toolBox->blockSignals(true); // Do not make current.
-    ActionManager *am = Core::ICore::instance()->actionManager();
+    ActionManager *am = Core::ICore::actionManager();
     foreach (StartMode mode, modes) {
         QString actionName = tool->actionName(mode);
         Id menuGroup = tool->menuGroup(mode);
@@ -725,7 +724,7 @@ void AnalyzerManagerPrivate::handleToolFinished()
 void AnalyzerManagerPrivate::loadToolSettings(IAnalyzerTool *tool)
 {
     QTC_ASSERT(m_mainWindow, return);
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + tool->id().toString());
     if (settings->value("ToolSettingsSaved", false).toBool())
         m_mainWindow->restoreSettings(settings);
@@ -740,7 +739,7 @@ void AnalyzerManagerPrivate::saveToolSettings(IAnalyzerTool *tool, StartMode mod
         return; // no active tool, do nothing
     QTC_ASSERT(m_mainWindow, return);
 
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + tool->id().toString());
     m_mainWindow->saveSettings(settings);
     settings->setValue("ToolSettingsSaved", true);

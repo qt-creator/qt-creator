@@ -194,7 +194,7 @@ static inline int paneShortCut(int number)
 
 void OutputPaneManager::init()
 {
-    ActionManager *am = Core::ICore::instance()->actionManager();
+    ActionManager *am = Core::ICore::actionManager();
     ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
     const Context globalcontext(Core::Constants::C_GLOBAL);
 

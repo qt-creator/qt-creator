@@ -147,7 +147,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
 
     // register actions
     Core::Context globalcontext(Core::Constants::C_GLOBAL);
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     Core::ActionContainer *mfind = am->actionContainer(Constants::M_FIND);
     Core::Command *cmd;
 
@@ -650,7 +650,7 @@ bool FindToolBar::focusNextPrevChild(bool next)
 
 void FindToolBar::writeSettings()
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("Find"));
     settings->beginGroup(QLatin1String("FindToolBar"));
     settings->setValue(QLatin1String("Backward"), QVariant((m_findFlags & Find::FindBackward) != 0));
@@ -663,7 +663,7 @@ void FindToolBar::writeSettings()
 
 void FindToolBar::readSettings()
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("Find"));
     settings->beginGroup(QLatin1String("FindToolBar"));
     Find::FindFlags flags;

@@ -234,8 +234,7 @@ void QmlEngine::connectionStartupFailed()
         }
     }
 
-    Core::ICore * const core = Core::ICore::instance();
-    QMessageBox *infoBox = new QMessageBox(core->mainWindow());
+    QMessageBox *infoBox = new QMessageBox(Core::ICore::mainWindow());
     infoBox->setIcon(QMessageBox::Critical);
     infoBox->setWindowTitle(tr("Qt Creator"));
     infoBox->setText(tr("Could not connect to the in-process QML debugger.\n"
@@ -278,8 +277,7 @@ void QmlEngine::wrongSetupMessageBox(const QString &errorMessage)
     d->m_noDebugOutputTimer.stop();
     notifyEngineRunFailed();
 
-    Core::ICore * const core = Core::ICore::instance();
-    QMessageBox *infoBox = new QMessageBox(core->mainWindow());
+    QMessageBox *infoBox = new QMessageBox(Core::ICore::mainWindow());
     infoBox->setIcon(QMessageBox::Critical);
     infoBox->setWindowTitle(tr("Qt Creator"));
     //: %1 is detailed error message

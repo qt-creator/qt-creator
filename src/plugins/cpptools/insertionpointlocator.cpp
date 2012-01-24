@@ -311,7 +311,7 @@ InsertionLocation InsertionPointLocator::methodDeclarationInClass(
 
 static bool isSourceFile(const QString &fileName)
 {
-    const Core::MimeDatabase *mimeDb = Core::ICore::instance()->mimeDatabase();
+    const Core::MimeDatabase *mimeDb = Core::ICore::mimeDatabase();
     Core::MimeType cSourceTy = mimeDb->findByType(QLatin1String("text/x-csrc"));
     Core::MimeType cppSourceTy = mimeDb->findByType(QLatin1String("text/x-c++src"));
     Core::MimeType mSourceTy = mimeDb->findByType(QLatin1String("text/x-objcsrc"));

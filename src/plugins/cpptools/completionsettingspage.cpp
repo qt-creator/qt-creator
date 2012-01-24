@@ -49,7 +49,7 @@ CompletionSettingsPage::CompletionSettingsPage(QObject *parent)
     : TextEditor::TextEditorOptionsPage(parent)
     , m_page(0)
 {
-    if (QSettings *s = Core::ICore::instance()->settings())
+    if (QSettings *s = Core::ICore::settings())
         m_commentsSettings.fromSettings(QLatin1String(CPPTOOLS_SETTINGSGROUP), s);
 }
 
@@ -151,7 +151,7 @@ void CompletionSettingsPage::apply()
     m_commentsSettings.m_enableDoxygen = m_page->enableDoxygenCheckBox->isChecked();
     m_commentsSettings.m_generateBrief = m_page->generateBriefCheckBox->isChecked();
     m_commentsSettings.m_leadingAsterisks = m_page->leadingAsterisksCheckBox->isChecked();
-    if (QSettings *s = Core::ICore::instance()->settings())
+    if (QSettings *s = Core::ICore::settings())
         m_commentsSettings.toSettings(QLatin1String(CPPTOOLS_SETTINGSGROUP), s);
 
     emit commentsSettingsChanged(m_commentsSettings);

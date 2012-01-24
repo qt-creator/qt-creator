@@ -85,7 +85,7 @@ Core::IFile *TaskFileFactory::open(ProjectExplorer::Project *context, const QStr
 
     QString errorString;
     if (!file->open(&errorString, fileName)) {
-        QMessageBox::critical(Core::ICore::instance()->mainWindow(), tr("File Error"), errorString);
+        QMessageBox::critical(Core::ICore::mainWindow(), tr("File Error"), errorString);
         delete file;
         return 0;
     }
@@ -93,7 +93,7 @@ Core::IFile *TaskFileFactory::open(ProjectExplorer::Project *context, const QStr
     m_openFiles.append(file);
 
     // Register with filemanager:
-    Core::ICore::instance()->fileManager()->addFile(file);
+    Core::ICore::fileManager()->addFile(file);
 
     return file;
 }

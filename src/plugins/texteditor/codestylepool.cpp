@@ -93,7 +93,7 @@ QString CodeStylePoolPrivate::generateUniqueId(const QString &id) const
 
 static QString customCodeStylesPath()
 {
-    QString path = Core::ICore::instance()->userResourcePath();
+    QString path = Core::ICore::userResourcePath();
     path.append(QLatin1String("/codestyles/"));
     return path;
 }

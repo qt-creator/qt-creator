@@ -219,7 +219,7 @@ QWidget *QmlJSCodeStyleSettingsPage::createPage(QWidget *parent)
 void QmlJSCodeStyleSettingsPage::apply()
 {
     if (m_widget) {
-        QSettings *s = Core::ICore::instance()->settings();
+        QSettings *s = Core::ICore::settings();
 
         TextEditor::SimpleCodeStylePreferences *originalTabPreferences = QmlJSToolsSettings::instance()->qmlJSCodeStyle();
         if (originalTabPreferences->tabSettings() != m_pageTabPreferences->tabSettings()) {

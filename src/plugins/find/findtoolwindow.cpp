@@ -236,9 +236,9 @@ void FindToolWindow::replace()
 
 void FindToolWindow::writeSettings()
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("Find"));
-    settings->setValue(QLatin1String("CurrentFilter"), m_currentFilter ? m_currentFilter->id() : QString());
+    settings->setValue(QLatin1String("CurrentFilter"), m_currentFilter ?  m_currentFilter->id() : QString());
     foreach (IFindFilter *filter, m_filters)
         filter->writeSettings(settings);
     settings->endGroup();
@@ -246,7 +246,7 @@ void FindToolWindow::writeSettings()
 
 void FindToolWindow::readSettings()
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("Find"));
     const QString currentFilter = settings->value(QLatin1String("CurrentFilter")).toString();
     for (int i = 0; i < m_filters.size(); ++i) {

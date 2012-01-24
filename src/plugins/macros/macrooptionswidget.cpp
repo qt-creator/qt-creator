@@ -102,8 +102,7 @@ void MacroOptionsWidget::initialize()
 void MacroOptionsWidget::createTable()
 {
     QDir dir(MacroManager::instance()->macrosDirectory());
-    Core::ICore *core = Core::ICore::instance();
-    Core::ActionManager *am = core->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
 
     QMapIterator<QString, Macro *> it(MacroManager::instance()->macros());
     while (it.hasNext()) {

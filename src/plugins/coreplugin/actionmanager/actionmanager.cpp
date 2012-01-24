@@ -64,7 +64,7 @@ namespace {
     You get the only implementation of this class from the core interface
     ICore::actionManager() method, e.g.
     \code
-        Core::ICore::instance()->actionManager()
+        Core::ICore::actionManager()
     \endcode
 
     The main reasons for the need of this class is to provide a central place where the user
@@ -99,7 +99,7 @@ namespace {
     To register a globally active action "My Action"
     put the following in your plugin's IPlugin::initialize method:
     \code
-        Core::ActionManager *am = Core::ICore::instance()->actionManager();
+        Core::ActionManager *am = Core::ICore::actionManager();
         QAction *myAction = new QAction(tr("My Action"), this);
         Core::Command *cmd = am->registerAction(myAction,
                                                  "myplugin.myaction",
@@ -505,7 +505,7 @@ static const char sequenceKey[] = "Keysequence";
 
 void ActionManagerPrivate::initialize()
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     const int shortcuts = settings->beginReadArray(QLatin1String(settingsGroup));
     for (int i = 0; i < shortcuts; ++i) {
         settings->setArrayIndex(i);

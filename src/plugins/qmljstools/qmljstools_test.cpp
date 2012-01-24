@@ -58,7 +58,7 @@ void QmlJSTools::Internal::QmlJSToolsPlugin::test_basic()
 {
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
 
-    const QString welcomescreenRootPath = Core::ICore::instance()->resourcePath() + "/welcomescreen/welcomescreen.qml";
+    const QString welcomescreenRootPath = Core::ICore::resourcePath() + "/welcomescreen/welcomescreen.qml";
     modelManager->updateSourceFiles(QStringList(welcomescreenRootPath), false);
     modelManager->joinAllThreads();
 

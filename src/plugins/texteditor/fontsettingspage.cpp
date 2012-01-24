@@ -147,7 +147,7 @@ using namespace TextEditor::Internal;
 
 static QString customStylesPath()
 {
-    QString path = Core::ICore::instance()->userResourcePath();
+    QString path = Core::ICore::userResourcePath();
     path.append(QLatin1String("/styles/"));
     return path;
 }
@@ -189,7 +189,7 @@ FontSettingsPagePrivate::FontSettingsPagePrivate(const TextEditor::FormatDescrip
     m_refreshingSchemeList(false)
 {
     bool settingsFound = false;
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     if (settings)
         settingsFound = m_value.fromSettings(m_settingsGroup, m_descriptions, settings);
 
@@ -493,7 +493,7 @@ void FontSettingsPage::copyColorScheme(const QString &name)
 
         ColorScheme scheme = d_ptr->m_value.colorScheme();
         scheme.setDisplayName(name);
-        if (scheme.save(fileName, Core::ICore::instance()->mainWindow()))
+        if (scheme.save(fileName, Core::ICore::mainWindow()))
             d_ptr->m_value.setColorSchemeFileName(fileName);
 
         refreshColorSchemeList();
@@ -560,7 +560,7 @@ void FontSettingsPage::maybeSaveColorScheme()
 
     if (messageBox->exec() == QMessageBox::Save) {
         const ColorScheme &scheme = d_ptr->m_ui->schemeEdit->colorScheme();
-        scheme.save(d_ptr->m_value.colorSchemeFileName(), Core::ICore::instance()->mainWindow());
+        scheme.save(d_ptr->m_value.colorSchemeFileName(), Core::ICore::mainWindow());
     }
 }
 
@@ -568,7 +568,7 @@ void FontSettingsPage::refreshColorSchemeList()
 {
     QList<ColorSchemeEntry> colorSchemes;
 
-    QString resourcePath = Core::ICore::instance()->resourcePath();
+    QString resourcePath = Core::ICore::resourcePath();
     QDir styleDir(resourcePath + QLatin1String("/styles"));
     styleDir.setNameFilters(QStringList() << QLatin1String("*.xml"));
     styleDir.setFilter(QDir::Files);
@@ -619,7 +619,7 @@ void FontSettingsPage::apply()
         // Update the scheme and save it under the name it already has
         d_ptr->m_value.setColorScheme(d_ptr->m_ui->schemeEdit->colorScheme());
         const ColorScheme &scheme = d_ptr->m_value.colorScheme();
-        scheme.save(d_ptr->m_value.colorSchemeFileName(), Core::ICore::instance()->mainWindow());
+        scheme.save(d_ptr->m_value.colorSchemeFileName(), Core::ICore::mainWindow());
     }
 
     int index = d_ptr->m_ui->schemeComboBox->currentIndex();
@@ -636,7 +636,7 @@ void FontSettingsPage::saveSettings()
 {
     if (d_ptr->m_value != d_ptr->m_lastValue) {
         d_ptr->m_lastValue = d_ptr->m_value;
-        if (QSettings *settings = Core::ICore::instance()->settings())
+        if (QSettings *settings = Core::ICore::settings())
             d_ptr->m_value.toSettings(d_ptr->m_settingsGroup, settings);
 
         QTimer::singleShot(0, this, SLOT(delayedChange()));

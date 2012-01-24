@@ -52,7 +52,6 @@ QT_END_NAMESPACE
 namespace Core {
 class ActionManager;
 class ActionContainer;
-class ICore;
 class Id;
 class IVersionControl;
 class IEditorFactory;
@@ -138,7 +137,6 @@ private:
     OptionsPage *m_optionsPage;
     BazaarClient *m_client;
 
-    Core::ICore *m_core;
     Locator::CommandLocator *m_commandLocator;
     Core::ActionManager *m_actionManager;
     Core::ActionContainer *m_bazaarContainer;

@@ -256,7 +256,7 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
     d->m_taskWindowContext = new Internal::TaskWindowContext(d->m_listview);
     d->m_taskHub = taskhub;
 
-    Core::ICore::instance()->addContextObject(d->m_taskWindowContext);
+    Core::ICore::addContextObject(d->m_taskWindowContext);
 
     connect(d->m_listview->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             tld, SLOT(currentChanged(QModelIndex,QModelIndex)));
@@ -305,7 +305,7 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
 
 TaskWindow::~TaskWindow()
 {
-    Core::ICore::instance()->removeContextObject(d->m_taskWindowContext);
+    Core::ICore::removeContextObject(d->m_taskWindowContext);
     cleanContextMenu();
     delete d->m_filterWarningsButton;
     delete d->m_listview;

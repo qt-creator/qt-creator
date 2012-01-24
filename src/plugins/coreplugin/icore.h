@@ -74,6 +74,9 @@ class CORE_EXPORT ICore : public QObject
     ~ICore();
 
 public:
+    // This should only be used to acccess the signals, so it could
+    // theoretically return an QObject *. For source compatibility
+    // it returns a ICore.
     static ICore *instance();
 
     static void showNewItemDialog(const QString &title,

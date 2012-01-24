@@ -229,7 +229,7 @@ CdbOptionsPage::CdbOptionsPage() :
         m_options(new CdbOptions)
 {
     CdbOptionsPage::m_instance = this;
-    m_options->fromSettings(Core::ICore::instance()->settings());
+    m_options->fromSettings(Core::ICore::settings());
 }
 
 CdbOptionsPage::~CdbOptionsPage()
@@ -278,7 +278,7 @@ void CdbOptionsPage::apply()
     const CdbOptions newOptions = m_widget->options();
     if (*m_options != newOptions) {
         *m_options = newOptions;
-        m_options->toSettings(Core::ICore::instance()->settings());
+        m_options->toSettings(Core::ICore::settings());
     }
 }
 

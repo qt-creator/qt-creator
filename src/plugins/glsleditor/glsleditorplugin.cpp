@@ -107,8 +107,7 @@ Core::Command *createSeparator(Core::ActionManager *am,
 
 bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
-    Core::ICore *core = Core::ICore::instance();
-    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/glsleditor/GLSLEditor.mimetypes.xml"), errorMessage))
+    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/glsleditor/GLSLEditor.mimetypes.xml"), errorMessage))
         return false;
 
     parseGlslFile(QLatin1String("glsl_120.frag"), &m_glsl_120_frag);
@@ -137,7 +136,7 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
                                                               | TextEditor::TextEditorActionHandler::UnCollapseAll);
     m_actionHandler->initializeActions();
 
-    Core::ActionManager *am =  core->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     Core::ActionContainer *contextMenu = am->createMenu(GLSLEditor::Constants::M_CONTEXT);
     Core::ActionContainer *glslToolsMenu = am->createMenu(Core::Id(Constants::M_TOOLS_GLSL));
     glslToolsMenu->setOnAllDisabledBehavior(Core::ActionContainer::Hide);
@@ -163,7 +162,7 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     errorMessage->clear();
 
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-    Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();
+    Core::MimeDatabase *mimeDatabase = Core::ICore::mimeDatabase();
     iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/glsleditor/images/glslfile.png")),
                                                  mimeDatabase->findByType(QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE)));
     iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/glsleditor/images/glslfile.png")),
@@ -175,6 +174,7 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/glsleditor/images/glslfile.png")),
                                                  mimeDatabase->findByType(QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG_ES)));
 
+    QObject *core = Core::ICore::instance();
     Core::BaseFileWizardParameters fragWizardParameters(Core::IWizard::FileWizard);
     fragWizardParameters.setCategory(QLatin1String(Constants::WIZARD_CATEGORY_GLSL));
     fragWizardParameters.setDisplayCategory(QCoreApplication::translate("GLSLEditor", Constants::WIZARD_TR_CATEGORY_GLSL));
@@ -253,7 +253,7 @@ Core::Command *GLSLEditorPlugin::addToolAction(QAction *a, Core::ActionManager *
 
 QByteArray GLSLEditorPlugin::glslFile(const QString &fileName)
 {
-    QString path = Core::ICore::instance()->resourcePath();
+    QString path = Core::ICore::resourcePath();
     path += QLatin1String("/glsl/");
     path += fileName;
     QFile file(path);

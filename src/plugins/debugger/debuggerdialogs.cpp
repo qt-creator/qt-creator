@@ -444,7 +444,7 @@ void AttachExternalDialog::accept()
 StartExternalDialog::StartExternalDialog(QWidget *parent)
   : QDialog(parent), m_ui(new Ui::StartExternalDialog)
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
     m_ui->toolChainComboBox->init(true);
@@ -916,7 +916,7 @@ StartRemoteEngineDialog::StartRemoteEngineDialog(QWidget *parent) :
     QDialog(parent) ,
     m_ui(new Ui::StartRemoteEngineDialog)
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
     m_ui->host->setCompleter(new HistoryCompleter(settings, m_ui->host));

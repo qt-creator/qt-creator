@@ -88,7 +88,7 @@ CppEditorFactory::CppEditorFactory(CppPlugin *owner) :
 
 #if !defined(Q_WS_MAC) && !defined(Q_WS_WIN)
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-    Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();
+    Core::MimeDatabase *mimeDatabase = Core::ICore::mimeDatabase();
     iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/cppeditor/images/qt_cpp.png")),
                                                  mimeDatabase->findByType(QLatin1String(CppEditor::Constants::CPP_SOURCE_MIMETYPE)));
     iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/cppeditor/images/qt_c.png")),
@@ -195,9 +195,7 @@ CppQuickFixAssistProvider *CppPlugin::quickFixProvider() const
 
 bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
-    Core::ICore *core = Core::ICore::instance();
-
-    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/cppeditor/CppEditor.mimetypes.xml"), errorMessage))
+    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/cppeditor/CppEditor.mimetypes.xml"), errorMessage))
         return false;
 
     addAutoReleasedObject(new CppEditorFactory(this));
@@ -210,6 +208,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     addAutoReleasedObject(m_quickFixProvider);
     registerQuickFixes(this);
 
+    QObject *core = Core::ICore::instance();
     CppFileWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
 
     wizardParameters.setCategory(QLatin1String(Constants::WIZARD_CATEGORY));
@@ -234,7 +233,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     Core::Context context(CppEditor::Constants::C_CPPEDITOR);
 
-    Core::ActionManager *am = core->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     Core::ActionContainer *contextMenu= am->createMenu(CppEditor::Constants::M_CONTEXT);
 
     Core::Command *cmd;
@@ -317,12 +316,12 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
-    connect(core->progressManager(), SIGNAL(taskStarted(QString)),
+    connect(Core::ICore::progressManager(), SIGNAL(taskStarted(QString)),
             this, SLOT(onTaskStarted(QString)));
-    connect(core->progressManager(), SIGNAL(allTasksFinished(QString)),
+    connect(Core::ICore::progressManager(), SIGNAL(allTasksFinished(QString)),
             this, SLOT(onAllTasksFinished(QString)));
 
-    connect(core->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(currentEditorChanged(Core::IEditor*)));
+    connect(Core::ICore::editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(currentEditorChanged(Core::IEditor*)));
 
     readSettings();
     return true;
@@ -330,12 +329,12 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
 void CppPlugin::readSettings()
 {
-    m_sortedOutline = Core::ICore::instance()->settings()->value(QLatin1String("CppTools/SortedMethodOverview"), false).toBool();
+    m_sortedOutline = Core::ICore::settings()->value(QLatin1String("CppTools/SortedMethodOverview"), false).toBool();
 }
 
 void CppPlugin::writeSettings()
 {
-    Core::ICore::instance()->settings()->setValue(QLatin1String("CppTools/SortedMethodOverview"), m_sortedOutline);
+    Core::ICore::settings()->setValue(QLatin1String("CppTools/SortedMethodOverview"), m_sortedOutline);
 }
 
 void CppPlugin::extensionsInitialized()

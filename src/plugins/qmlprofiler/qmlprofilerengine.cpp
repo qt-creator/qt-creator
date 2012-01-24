@@ -280,8 +280,7 @@ void QmlProfilerEngine::logApplicationMessage(const QString &msg, Utils::OutputF
 
 void QmlProfilerEngine::wrongSetupMessageBox(const QString &errorMessage)
 {
-    Core::ICore * const core = Core::ICore::instance();
-    QMessageBox *infoBox = new QMessageBox(core->mainWindow());
+    QMessageBox *infoBox = new QMessageBox(Core::ICore::mainWindow());
     infoBox->setIcon(QMessageBox::Critical);
     infoBox->setWindowTitle(tr("Qt Creator"));
     //: %1 is detailed error message
@@ -313,8 +312,7 @@ void QmlProfilerEngine::wrongSetupMessageBoxFinished(int button)
 
 void QmlProfilerEngine::showNonmodalWarning(const QString &warningMsg)
 {
-    Core::ICore * const core = Core::ICore::instance();
-    QMessageBox *noExecWarning = new QMessageBox(core->mainWindow());
+    QMessageBox *noExecWarning = new QMessageBox(Core::ICore::mainWindow());
     noExecWarning->setIcon(QMessageBox::Warning);
     noExecWarning->setWindowTitle(tr("QML Profiler"));
     noExecWarning->setText(warningMsg);

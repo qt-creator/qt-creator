@@ -74,8 +74,7 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
 {
     using namespace Core;
 
-    ICore *core = ICore::instance();
-    Core::MimeDatabase *mimeDB = core->mimeDatabase();
+    Core::MimeDatabase *mimeDB = ICore::mimeDatabase();
 
     const QLatin1String mimetypesXml(":genericproject/GenericProject.mimetypes.xml");
 
@@ -96,7 +95,7 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
     addAutoReleasedObject(new GenericTargetFactory);
 
     const Core::Context projectContext(Constants::PROJECTCONTEXT);
-    Core::ActionManager *am = core->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     Core::ActionContainer *mproject =
             am->actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
     m_editFilesAction = new QAction(tr("Edit Files..."), this);
@@ -124,9 +123,9 @@ void GenericProjectPlugin::editFiles()
 {
     GenericProject *genericProject = static_cast<GenericProject *>(m_contextMenuProject);
 
-    Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();
+    Core::MimeDatabase *mimeDatabase = Core::ICore::mimeDatabase();
     SelectableFilesDialog sfd(QFileInfo(genericProject->file()->fileName()).path(), genericProject->files(),
-                              mimeDatabase->suffixes().toSet(), Core::ICore::instance()->mainWindow());
+                              mimeDatabase->suffixes().toSet(), Core::ICore::mainWindow());
     if (sfd.exec() == QDialog::Accepted) {
         genericProject->setFiles(sfd.selectedFiles());
     }

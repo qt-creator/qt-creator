@@ -124,7 +124,6 @@ BazaarPlugin::BazaarPlugin()
     : VcsBase::VcsBasePlugin(QLatin1String(Constants::COMMIT_ID)),
       m_optionsPage(0),
       m_client(0),
-      m_core(0),
       m_commandLocator(0),
       m_changeLog(0),
       m_addAction(0),
@@ -156,12 +155,11 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
     m_client = new BazaarClient(&m_bazaarSettings);
     initializeVcs(new BazaarControl(m_client));
 
-    m_core = Core::ICore::instance();
-    m_actionManager = m_core->actionManager();
+    m_actionManager = Core::ICore::actionManager();
 
     m_optionsPage = new OptionsPage();
     addAutoReleasedObject(m_optionsPage);
-    m_bazaarSettings.readSettings(m_core->settings());
+    m_bazaarSettings.readSettings(Core::ICore::settings());
 
     connect(m_client, SIGNAL(changed(QVariant)), versionControl(), SLOT(changed(QVariant)));
 
@@ -571,7 +569,7 @@ void BazaarPlugin::showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusIt
         return;
     }
 
-    Core::IEditor *editor = m_core->editorManager()->openEditor(m_changeLog->fileName(),
+    Core::IEditor *editor = Core::ICore::editorManager()->openEditor(m_changeLog->fileName(),
                                                                 Constants::COMMIT_ID,
                                                                 Core::EditorManager::ModeSwitch);
     if (!editor) {
@@ -612,7 +610,7 @@ void BazaarPlugin::commitFromEditor()
         return;
 
     //use the same functionality than if the user closes the file without completing the commit
-    m_core->editorManager()->closeEditors(m_core->editorManager()->editorsForFileName(m_changeLog->fileName()));
+    Core::ICore::editorManager()->closeEditors(Core::ICore::editorManager()->editorsForFileName(m_changeLog->fileName()));
 }
 
 bool BazaarPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor)
@@ -643,7 +641,7 @@ bool BazaarPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submit
     QStringList files = commitEditor->checkedFiles();
     if (!files.empty()) {
         //save the commit message
-        if (!m_core->fileManager()->saveFile(editorFile))
+        if (!Core::ICore::fileManager()->saveFile(editorFile))
             return false;
 
         //rewrite entries of the form 'file => newfile' to 'newfile' because

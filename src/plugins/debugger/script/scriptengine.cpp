@@ -245,7 +245,7 @@ void ScriptEngine::setupEngine()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("STARTING SCRIPT DEBUGGER"), LogMisc);
     if (m_scriptEngine.isNull())
-        m_scriptEngine = Core::ICore::instance()->scriptManager()->scriptEngine();
+        m_scriptEngine = Core::ICore::scriptManager()->scriptEngine();
     QTC_CHECK(!m_scriptAgent);
     m_scriptAgent.reset(new ScriptAgent(this, m_scriptEngine.data()));
     m_scriptEngine->setAgent(m_scriptAgent.data());

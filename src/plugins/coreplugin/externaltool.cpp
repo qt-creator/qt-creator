@@ -620,7 +620,7 @@ void ExternalToolRunner::run()
     if (!m_resolvedWorkingDirectory.isEmpty())
         m_process->setWorkingDirectory(m_resolvedWorkingDirectory);
     m_process->setCommand(m_resolvedExecutable, m_resolvedArguments);
-    ICore::instance()->messageManager()->printToOutputPane(
+    ICore::messageManager()->printToOutputPane(
                 tr("Starting external tool '%1' %2").arg(m_resolvedExecutable, m_resolvedArguments), false);
     m_process->start();
 }
@@ -644,7 +644,7 @@ void ExternalToolRunner::finished(int exitCode, QProcess::ExitStatus status)
             FileManager::instance()->unexpectFileChange(m_expectedFileName);
         }
     }
-    ICore::instance()->messageManager()->printToOutputPane(
+    ICore::messageManager()->printToOutputPane(
                 tr("'%1' finished").arg(m_resolvedExecutable), false);
     deleteLater();
 }
@@ -666,7 +666,7 @@ void ExternalToolRunner::readStandardOutput()
     QByteArray data = m_process->readAllStandardOutput();
     QString output = m_outputCodec->toUnicode(data.constData(), data.length(), &m_outputCodecState);
     if (m_tool->outputHandling() == ExternalTool::ShowInPane) {
-        ICore::instance()->messageManager()->printToOutputPane(output, true);
+        ICore::messageManager()->printToOutputPane(output, true);
     } else if (m_tool->outputHandling() == ExternalTool::ReplaceSelection) {
         m_processOutput.append(output);
     }
@@ -679,7 +679,7 @@ void ExternalToolRunner::readStandardError()
     QByteArray data = m_process->readAllStandardError();
     QString output = m_outputCodec->toUnicode(data.constData(), data.length(), &m_errorCodecState);
     if (m_tool->errorHandling() == ExternalTool::ShowInPane) {
-        ICore::instance()->messageManager()->printToOutputPane(output, true);
+        ICore::messageManager()->printToOutputPane(output, true);
     } else if (m_tool->errorHandling() == ExternalTool::ReplaceSelection) {
         m_processOutput.append(output);
     }
@@ -689,8 +689,8 @@ void ExternalToolRunner::readStandardError()
 
 ExternalToolManager *ExternalToolManager::m_instance = 0;
 
-ExternalToolManager::ExternalToolManager(Core::ICore *core)
-    : QObject(core), m_core(core)
+ExternalToolManager::ExternalToolManager()
+    : QObject(ICore::instance())
 {
     m_instance = this;
     initialize();
@@ -711,7 +711,7 @@ void ExternalToolManager::initialize()
     connect(m_configureAction, SIGNAL(triggered()), this, SLOT(openPreferences()));
 
     // add the external tools menu
-    ActionManager *am = m_core->actionManager();
+    ActionManager *am = ICore::actionManager();
     ActionContainer *mexternaltools = am->createMenu(Id(Constants::M_TOOLS_EXTERNAL));
     mexternaltools->menu()->setTitle(tr("&External"));
     ActionContainer *mtools = am->actionContainer(Constants::M_TOOLS);
@@ -719,10 +719,10 @@ void ExternalToolManager::initialize()
 
     QMap<QString, QMultiMap<int, ExternalTool*> > categoryPriorityMap;
     QMap<QString, ExternalTool *> tools;
-    parseDirectory(m_core->userResourcePath() + QLatin1String("/externaltools"),
+    parseDirectory(ICore::userResourcePath() + QLatin1String("/externaltools"),
                    &categoryPriorityMap,
                    &tools);
-    parseDirectory(m_core->resourcePath() + QLatin1String("/externaltools"),
+    parseDirectory(ICore::resourcePath() + QLatin1String("/externaltools"),
                    &categoryPriorityMap,
                    &tools,
                    true);
@@ -750,7 +750,7 @@ void ExternalToolManager::parseDirectory(const QString &directory,
     foreach (const QFileInfo &info, dir.entryInfoList()) {
         const QString &fileName = info.absoluteFilePath();
         QString error;
-        ExternalTool *tool = ExternalTool::createFromFile(fileName, &error, m_core->userInterfaceLanguage());
+        ExternalTool *tool = ExternalTool::createFromFile(fileName, &error, ICore::userInterfaceLanguage());
         if (!tool) {
             qWarning() << tr("Error while parsing external tool %1: %2").arg(fileName, error);
             continue;
@@ -783,7 +783,7 @@ void ExternalToolManager::menuActivated()
     QTC_ASSERT(tool, return);
     ExternalToolRunner *runner = new ExternalToolRunner(tool);
     if (runner->hasError()) {
-        ICore::instance()->messageManager()->printToOutputPane(runner->errorString(), true);
+        ICore::messageManager()->printToOutputPane(runner->errorString(), true);
     }
 }
 
@@ -800,7 +800,7 @@ QMap<QString, ExternalTool *> ExternalToolManager::toolsById() const
 void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<Internal::ExternalTool *> > &tools)
 {
     // clear menu
-    ActionManager *am = m_core->actionManager();
+    ActionManager *am = ICore::actionManager();
     ActionContainer *mexternaltools = am->actionContainer(Id(Constants::M_TOOLS_EXTERNAL));
     mexternaltools->clear();
 
@@ -890,7 +890,7 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<Internal:
 void ExternalToolManager::readSettings(const QMap<QString, ExternalTool *> &tools,
                                        QMap<QString, QList<ExternalTool *> > *categoryMap)
 {
-    QSettings *settings = m_core->settings();
+    QSettings *settings = ICore::settings();
     settings->beginGroup(QLatin1String("ExternalTools"));
 
     if (categoryMap) {
@@ -923,7 +923,7 @@ void ExternalToolManager::readSettings(const QMap<QString, ExternalTool *> &tool
 
 void ExternalToolManager::writeSettings()
 {
-    QSettings *settings = m_core->settings();
+    QSettings *settings = ICore::settings();
     settings->beginGroup(QLatin1String("ExternalTools"));
     settings->remove(QLatin1String(""));
 
@@ -950,6 +950,6 @@ void ExternalToolManager::writeSettings()
 
 void ExternalToolManager::openPreferences()
 {
-    ICore::instance()->showOptionsDialog(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE),
+    ICore::showOptionsDialog(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE),
                                          QLatin1String(Core::Constants::SETTINGS_ID_TOOLS));
 }

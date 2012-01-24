@@ -97,7 +97,7 @@ QString QmlProject::filesFileName() const
 
 void QmlProject::parseProject(RefreshOptions options)
 {
-    Core::MessageManager *messageManager = Core::ICore::instance()->messageManager();
+    Core::MessageManager *messageManager = Core::ICore::messageManager();
     if (options & Files) {
         if (options & ProjectFile)
             delete m_projectItem.data();

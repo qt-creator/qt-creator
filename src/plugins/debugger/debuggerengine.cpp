@@ -538,7 +538,7 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     QTC_ASSERT(!d->m_runControl, notifyEngineSetupFailed(); return);
 
     d->m_progress.setProgressRange(0, 1000);
-    Core::FutureProgress *fp = Core::ICore::instance()->progressManager()
+    Core::FutureProgress *fp = Core::ICore::progressManager()
         ->addTask(d->m_progress.future(),
         tr("Launching"), _("Debugger.Launcher"));
     fp->setKeepOnFinish(Core::FutureProgress::HideOnFinish);

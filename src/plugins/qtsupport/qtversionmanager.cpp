@@ -359,7 +359,7 @@ void QtVersionManager::saveQtVersions()
 
     }
     writer.saveValue(QLatin1String(QTVERSION_COUNT_KEY), count);
-    writer.save(settingsFileName(), QLatin1String("QtCreatorQtVersions"), Core::ICore::instance()->mainWindow());
+    writer.save(settingsFileName(), QLatin1String("QtCreatorQtVersions"), Core::ICore::mainWindow());
 }
 
 void QtVersionManager::findSystemQt()
@@ -375,7 +375,7 @@ void QtVersionManager::findSystemQt()
 
 bool QtVersionManager::legacyRestore()
 {
-    QSettings *s = Core::ICore::instance()->settings();
+    QSettings *s = Core::ICore::settings();
     const QString qtVersionSection = QLatin1String(QtVersionsSectionName);
     if (!s->contains(qtVersionSection + QLatin1String("/size")))
         return false;
@@ -526,7 +526,7 @@ void QtVersionManager::updateSettings()
     }
 
     // in SDKs, we want to prefer the Qt version shipping with the SDK
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     Utils::FileName preferred = Utils::FileName::fromUserInput(settings->value(QLatin1String("PreferredQMakePath")).toString());
     if (!preferred.isEmpty()) {
 #ifdef Q_OS_WIN

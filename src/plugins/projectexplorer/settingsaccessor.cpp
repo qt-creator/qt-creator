@@ -536,7 +536,7 @@ QVariantMap SettingsAccessor::restoreSettings(Project *project) const
     if (settings.isValid()) {
         if (settings.m_version > SettingsAccessor::instance()->m_lastVersion + 1) {
             QMessageBox::information(
-                Core::ICore::instance()->mainWindow(),
+                Core::ICore::mainWindow(),
                 QApplication::translate("ProjectExplorer::SettingsAccessor",
                                         "Using Old Project Settings File"),
                 QApplication::translate("ProjectExplorer::SettingsAccessor",
@@ -567,7 +567,7 @@ QVariantMap SettingsAccessor::restoreSettings(Project *project) const
                                         "environment. \n\n"
                                         "Do you still want to load the settings file?"),
                 QMessageBox::Yes | QMessageBox::No,
-                Core::ICore::instance()->mainWindow());
+                Core::ICore::mainWindow());
             msgBox.setDefaultButton(QMessageBox::No);
             msgBox.setEscapeButton(QMessageBox::No);
             if (msgBox.exec() == QMessageBox::No)
@@ -613,7 +613,7 @@ QVariantMap SettingsAccessor::restoreSettings(Project *project) const
                                                     "If you choose not to continue Qt Creator will "
                                                     "not try to load the .shared file."),
                             QMessageBox::Yes | QMessageBox::No,
-                            Core::ICore::instance()->mainWindow());
+                            Core::ICore::mainWindow());
                 msgBox.setDefaultButton(QMessageBox::No);
                 msgBox.setEscapeButton(QMessageBox::No);
                 if (msgBox.exec() == QMessageBox::No)
@@ -875,7 +875,7 @@ bool SettingsAccessor::FileAccessor::writeFile(const Project *project,
     const QString &fileName = project->property(m_id).toString();
     return writer.save(fileName.isEmpty() ? assembleFileName(project) : fileName,
                        QLatin1String("QtCreatorProject"),
-                       Core::ICore::instance()->mainWindow());
+                       Core::ICore::mainWindow());
 }
 
 // -------------------------------------------------------------------------

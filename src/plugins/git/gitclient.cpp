@@ -295,9 +295,9 @@ private:
     QStringList m_fileNames;
 };
 
-inline Core::IEditor* locateEditor(const Core::ICore *core, const char *property, const QString &entry)
+Core::IEditor *locateEditor(const char *property, const QString &entry)
 {
-    foreach (Core::IEditor *ed, core->editorManager()->openedEditors())
+    foreach (Core::IEditor *ed, Core::ICore::editorManager()->openedEditors())
         if (ed->file()->property(property).toString() == entry)
             return ed;
     return 0;
@@ -350,12 +350,11 @@ const char *GitClient::stashNamePrefix = "stash@{";
 GitClient::GitClient(GitSettings *settings) :
     m_cachedGitVersion(0),
     m_msgWait(tr("Waiting for data...")),
-    m_core(Core::ICore::instance()),
     m_repositoryChangedSignalMapper(0),
     m_settings(settings)
 {
     QTC_CHECK(settings);
-    connect(m_core, SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
+    connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
 }
 
 GitClient::~GitClient()
@@ -398,7 +397,7 @@ VcsBase::VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *regis
                                                                const QString &dynamicPropertyValue) const
 {
     VcsBase::VcsBaseEditorWidget *rc = 0;
-    Core::IEditor *outputEditor = locateEditor(m_core, registerDynamicProperty, dynamicPropertyValue);
+    Core::IEditor *outputEditor = locateEditor(registerDynamicProperty, dynamicPropertyValue);
     if (!outputEditor)
         return 0;
 
@@ -428,7 +427,7 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(const Core::Id &id,
     QTC_CHECK(!findExistingVCSEditor(registerDynamicProperty, dynamicPropertyValue));
 
     // Create new, set wait message, set up with source and codec
-    Core::IEditor *outputEditor = m_core->editorManager()->openEditorWithContents(id, &title, m_msgWait);
+    Core::IEditor *outputEditor = Core::ICore::editorManager()->openEditorWithContents(id, &title, m_msgWait);
     outputEditor->file()->setProperty(registerDynamicProperty, dynamicPropertyValue);
     rc = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
     connect(rc, SIGNAL(annotateRevisionRequested(QString,QString,int)),
@@ -445,7 +444,7 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(const Core::Id &id,
     }
 
     rc->setForceReadOnly(true);
-    m_core->editorManager()->activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
+    Core::ICore::editorManager()->activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
 
     if (configWidget)
         rc->setConfigurationWidget(configWidget);
@@ -689,7 +688,7 @@ void GitClient::show(const QString &source, const QString &id, const QStringList
 
 void GitClient::saveSettings()
 {
-    settings()->writeSettings(m_core->settings());
+    settings()->writeSettings(Core::ICore::settings());
 }
 
 void GitClient::slotBlameRevisionRequested(const QString &source, QString change, int lineNumber)
@@ -932,8 +931,7 @@ bool GitClient::synchronousInit(const QString &workingDirectory)
         outputWindow()->appendError(commandOutputFromLocal8Bit(errorText));
     else {
         // TODO: Turn this into a VcsBaseClient and use resetCachedVcsInfo(...)
-        Core::VcsManager *vcsManager = m_core->vcsManager();
-        vcsManager->resetVersionControlForDirectory(workingDirectory);
+        Core::ICore::vcsManager()->resetVersionControlForDirectory(workingDirectory);
     }
     return rc;
 }
@@ -1190,7 +1188,7 @@ QString GitClient::synchronousStash(const QString &workingDirectory, const QStri
             message = creatorStashMessage(messageKeyword);
             do {
                 if ((flags & StashPromptDescription)) {
-                    if (!inputText(Core::ICore::instance()->mainWindow(),
+                    if (!inputText(Core::ICore::mainWindow(),
                                    tr("Stash Description"), tr("Description:"), &message))
                         break;
                 }
@@ -1481,7 +1479,7 @@ GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory, Q
         return StashFailed;
     }
 
-    const int answer = askWithDetailedText(m_core->mainWindow(), tr("Changes"),
+    const int answer = askWithDetailedText(Core::ICore::mainWindow(), tr("Changes"),
                              tr("Would you like to stash your changes?"),
                              statusOutput, QMessageBox::Yes, QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
     switch (answer) {
@@ -1941,7 +1939,7 @@ GitClient::RevertResult GitClient::revertI(QStringList files,
 
     // Ask to revert (to do: Handle lists with a selection dialog)
     const QMessageBox::StandardButton answer
-        = QMessageBox::question(m_core->mainWindow(),
+        = QMessageBox::question(Core::ICore::mainWindow(),
                                 tr("Revert"),
                                 tr("The file has been changed. Do you want to revert it?"),
                                 QMessageBox::Yes|QMessageBox::No,
@@ -2263,8 +2261,7 @@ bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
         const Utils::SynchronousProcessResponse resp =
                 synchronousGit(workingDirectory.path(), arguments, flags);
         // TODO: Turn this into a VcsBaseClient and use resetCachedVcsInfo(...)
-        Core::VcsManager *vcsManager = m_core->vcsManager();
-        vcsManager->resetVersionControlForDirectory(workingDirectory.absolutePath());
+        Core::ICore::vcsManager()->resetVersionControlForDirectory(workingDirectory.absolutePath());
         return (resp.result == Utils::SynchronousProcessResponse::Finished);
     }
 }

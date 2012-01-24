@@ -46,7 +46,6 @@ class QTimer;
 QT_END_NAMESPACE
 
 namespace Core {
-class ICore;
 class IMode;
 class IEditor;
 class IFile;
@@ -163,8 +162,6 @@ private:
     QStringList dependenciesOrder() const;
 
     void updateName(const QString &session);
-
-    Core::ICore *m_core;
 
     Internal::SessionFile *m_file;
     Internal::SessionNodeImpl *m_sessionNode;

@@ -64,8 +64,7 @@ ActionMacroHandler::ActionMacroHandler():
     connect(m_mapper, SIGNAL(mapped(const QString &)),
             this, SLOT(addActionEvent(const QString &)));
 
-    const Core::ICore *core = Core::ICore::instance();
-    const Core::ActionManager *am = core->actionManager();
+    const Core::ActionManager *am = Core::ICore::actionManager();
     connect(am, SIGNAL(commandAdded(QString)),
             this, SLOT(addCommand(QString)));
 
@@ -86,8 +85,7 @@ bool ActionMacroHandler::canExecuteEvent(const MacroEvent &macroEvent)
 
 bool ActionMacroHandler::executeEvent(const MacroEvent &macroEvent)
 {
-    const Core::ICore *core = Core::ICore::instance();
-    const Core::ActionManager *am = core->actionManager();
+    const Core::ActionManager *am = Core::ICore::actionManager();
 
     QAction *action = am->command(Core::Id(macroEvent.value(ACTIONNAME).toString()))->action();
     if (!action)
@@ -102,8 +100,7 @@ void ActionMacroHandler::addActionEvent(const QString &id)
     if (!isRecording())
         return;
 
-    const Core::ICore *core = Core::ICore::instance();
-    const Core::ActionManager *am = core->actionManager();
+    const Core::ActionManager *am = Core::ICore::actionManager();
     const Core::Command *cmd = am->command(Core::Id(id));
     if (cmd->isScriptable(cmd->context())) {
         MacroEvent e;
@@ -117,8 +114,7 @@ void ActionMacroHandler::registerCommand(const QString &id)
 {
     if (!m_commandIds.contains(id)) {
         m_commandIds.insert(id);
-        const Core::ICore *core = Core::ICore::instance();
-        const Core::ActionManager *am = core->actionManager();
+        const Core::ActionManager *am = Core::ICore::actionManager();
         QAction* action = am->command(Core::Id(id))->action();
         if (action) {
             connect(action, SIGNAL(triggered()), m_mapper, SLOT(map()));
@@ -135,8 +131,7 @@ void ActionMacroHandler::registerCommand(const QString &id)
 
 void ActionMacroHandler::addCommand(const QString &id)
 {
-    const Core::ICore *core = Core::ICore::instance();
-    const Core::ActionManager *am = core->actionManager();
+    const Core::ActionManager *am = Core::ICore::actionManager();
     if (am->command(Core::Id(id))->isScriptable())
         registerCommand(id);
 }

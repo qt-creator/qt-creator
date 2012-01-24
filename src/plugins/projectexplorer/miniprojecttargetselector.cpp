@@ -164,8 +164,8 @@ QSize ListWidget::sizeHint() const
 
     // We try to keep the height of the popup equal to the actionbar
     QSize size(width, height);
-    static QStatusBar *statusBar = Core::ICore::instance()->statusBar();
-    static QWidget *actionBar = Core::ICore::instance()->mainWindow()->findChild<QWidget*>(QLatin1String("actionbar"));
+    static QStatusBar *statusBar = Core::ICore::statusBar();
+    static QWidget *actionBar = Core::ICore::mainWindow()->findChild<QWidget*>(QLatin1String("actionbar"));
     Q_ASSERT(actionBar);
 
     QMargins popupMargins = window()->contentsMargins();
@@ -933,7 +933,7 @@ void MiniProjectTargetSelector::updateSeparatorVisible()
 void MiniProjectTargetSelector::setVisible(bool visible)
 {
     if (visible) {
-        QStatusBar *statusBar = Core::ICore::instance()->statusBar();
+        QStatusBar *statusBar = Core::ICore::statusBar();
         QPoint moveTo = statusBar->mapToGlobal(QPoint(0,0));
         moveTo -= QPoint(0, sizeHint().height());
         move(moveTo);
@@ -990,8 +990,8 @@ void MiniProjectTargetSelector::keyReleaseEvent(QKeyEvent *ke)
 
 QSize MiniProjectTargetSelector::sizeHint() const
 {
-    static QStatusBar *statusBar = Core::ICore::instance()->statusBar();
-    static QWidget *actionBar = Core::ICore::instance()->mainWindow()->findChild<QWidget*>(QLatin1String("actionbar"));
+    static QStatusBar *statusBar = Core::ICore::statusBar();
+    static QWidget *actionBar = Core::ICore::mainWindow()->findChild<QWidget*>(QLatin1String("actionbar"));
     Q_ASSERT(actionBar);
 
     int alignedWithActionHeight

@@ -238,7 +238,7 @@ QString QmlDumpTool::toolForVersion(BaseQtVersion *version, bool debugDump)
 
 static QString sourcePath()
 {
-    return Core::ICore::instance()->resourcePath() + QLatin1String("/qml/qmldump/");
+    return Core::ICore::resourcePath() + QLatin1String("/qml/qmldump/");
 }
 
 static QStringList sourceFileNames()
@@ -335,7 +335,7 @@ void QmlDumpTool::pathAndEnvironment(ProjectExplorer::Project *project, BaseQtVe
             buildTask->updateProjectWhenDone(project, preferDebug);
             QFuture<void> task = QtConcurrent::run(&QmlDumpBuildTask::run, buildTask);
             const QString taskName = QmlDumpBuildTask::tr("Building helper");
-            Core::ICore::instance()->progressManager()->addTask(task, taskName,
+            Core::ICore::progressManager()->addTask(task, taskName,
                                                                 QLatin1String("Qt4ProjectManager::BuildHelpers"));
         }
         return;

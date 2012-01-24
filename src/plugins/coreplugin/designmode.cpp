@@ -260,10 +260,10 @@ void DesignMode::updateContext(Core::IMode *newMode, Core::IMode *oldMode)
 {
     if (newMode == this) {
         // Apply active context
-        Core::ICore::instance()->updateAdditionalContexts(Context(), d->m_activeContext);
+        Core::ICore::updateAdditionalContexts(Context(), d->m_activeContext);
     } else if (oldMode == this) {
         // Remove active context
-        Core::ICore::instance()->updateAdditionalContexts(d->m_activeContext, Context());
+        Core::ICore::updateAdditionalContexts(d->m_activeContext, Context());
     }
 }
 
@@ -273,7 +273,7 @@ void DesignMode::setActiveContext(const Context &context)
         return;
 
     if (ModeManager::instance()->currentMode() == this)
-        Core::ICore::instance()->updateAdditionalContexts(d->m_activeContext, context);
+        Core::ICore::updateAdditionalContexts(d->m_activeContext, context);
 
     d->m_activeContext = context;
 }

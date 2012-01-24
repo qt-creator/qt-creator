@@ -13,7 +13,7 @@ namespace Internal {
 
 #ifdef QT_CREATOR
 Q_GLOBAL_STATIC_WITH_INITIALIZER(AreasOfInterest, areasOfInterest, {
-    *x = ScreenshotCropper::loadAreasOfInterest(Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/images_areaofinterest.xml"));
+    *x = ScreenshotCropper::loadAreasOfInterest(Core::ICore::resourcePath() + QLatin1String("/welcomescreen/images_areaofinterest.xml"));
 })
 #else
 Q_GLOBAL_STATIC(AreasOfInterest, areasOfInterest)

@@ -52,7 +52,7 @@ static GitoriousHostWidget *createHostWidget()
     // First time? Populate gitorious from settings.
     // If there is still no host, add "gitorious.org"
     Gitorious &gitorious = Gitorious::instance();
-    const QSettings *settings = Core::ICore::instance()->settings();
+    const QSettings *settings = Core::ICore::settings();
     const QString group = QLatin1String(settingsGroupC);
     if (!gitorious.hostCount()) {
         gitorious.restoreSettings(group, settings);
@@ -83,7 +83,7 @@ GitoriousHostWizardPage::GitoriousHostWizardPage(QWidget *parent) :
 GitoriousHostWizardPage::~GitoriousHostWizardPage()
 {
     // Write out settings + selected row.
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     if (m_widget->isHostListDirty())
         Gitorious::instance().saveSettings(QLatin1String(settingsGroupC), settings);
     if (m_widget->isValid())

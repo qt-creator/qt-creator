@@ -2449,7 +2449,7 @@ void DebuggerPluginPrivate::onModeChanged(IMode *mode)
 
 void DebuggerPluginPrivate::showSettingsDialog()
 {
-    ICore::instance()->showOptionsDialog(
+    ICore::showOptionsDialog(
         _(DEBUGGER_SETTINGS_CATEGORY),
         _(DEBUGGER_COMMON_SETTINGS_ID));
 }
@@ -2655,7 +2655,7 @@ void DebuggerPluginPrivate::showQtDumperLibraryWarning(const QString &details)
         dialog.setDetailedText(details);
     dialog.exec();
     if (dialog.clickedButton() == qtPref) {
-        ICore::instance()->showOptionsDialog(
+        ICore::showOptionsDialog(
             _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
             _(QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID));
     } else if (dialog.clickedButton() == helperOff) {
@@ -2852,16 +2852,14 @@ QMessageBox *showMessageBox(int icon, const QString &title,
 
 void DebuggerPluginPrivate::extensionsInitialized()
 {
-    ICore *core = ICore::instance();
-    QTC_ASSERT(core, return);
-    m_coreSettings = core->settings();
+    m_coreSettings = ICore::settings();
 
     m_debuggerSettings = new DebuggerSettings(m_coreSettings);
     m_debuggerSettings->readSettings();
 
-    connect(core, SIGNAL(coreAboutToClose()), this, SLOT(coreShutdown()));
+    connect(ICore::instance(), SIGNAL(coreAboutToClose()), this, SLOT(coreShutdown()));
 
-    ActionManager *am = core->actionManager();
+    ActionManager *am = ICore::actionManager();
     QTC_ASSERT(am, return);
 
     m_plugin->addObject(this);
@@ -3404,7 +3402,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     //
 
     // Core
-    connect(core, SIGNAL(saveSettingsRequested()), SLOT(writeSettings()));
+    connect(ICore::instance(), SIGNAL(saveSettingsRequested()), SLOT(writeSettings()));
 
     // TextEditor
     connect(TextEditorSettings::instance(),
@@ -3422,7 +3420,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
         SLOT(updateDebugActions()));
 
     // EditorManager
-    QObject *editorManager = core->editorManager();
+    QObject *editorManager = ICore::editorManager();
     connect(editorManager, SIGNAL(editorOpened(Core::IEditor*)),
         SLOT(editorOpened(Core::IEditor*)));
     connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
@@ -3572,13 +3570,10 @@ DebuggerPlugin::~DebuggerPlugin()
 
 bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    ICore *core = ICore::instance();
-    QTC_ASSERT(core, return false);
-
     // Menu groups
     const Context globalcontext(CC::C_GLOBAL);
 
-    ActionManager *am = core->actionManager();
+    ActionManager *am = ICore::actionManager();
     ActionContainer *mstart = am->actionContainer(PE::M_DEBUG_STARTDEBUGGING);
 
     mstart->appendGroup(Constants::G_START_LOCAL);

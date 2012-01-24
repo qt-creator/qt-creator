@@ -237,12 +237,11 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     initializeVcs(new PerforceVersionControl(this));
 
-    Core::ICore *core = Core::ICore::instance();
-    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/trolltech.perforce/Perforce.mimetypes.xml"), errorMessage))
+    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/trolltech.perforce/Perforce.mimetypes.xml"), errorMessage))
         return false;
     m_perforcePluginInstance = this;
 
-    if (QSettings *settings = core->settings())
+    if (QSettings *settings = Core::ICore::settings())
         m_settings.fromSettings(settings);
 
     addAutoReleasedObject(new SettingsPage);
@@ -260,7 +259,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     addAutoReleasedObject(m_commandLocator);
 
     //register actions
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
 
     Core::ActionContainer *mtools =
         am->actionContainer(Core::Constants::M_TOOLS);
@@ -693,7 +692,7 @@ Core::IEditor *PerforcePlugin::openPerforceSubmitEditor(const QString &fileName,
 void PerforcePlugin::printPendingChanges()
 {
     qApp->setOverrideCursor(Qt::WaitCursor);
-    PendingChangesDialog dia(pendingChangesData(), Core::ICore::instance()->mainWindow());
+    PendingChangesDialog dia(pendingChangesData(), Core::ICore::mainWindow());
     qApp->restoreOverrideCursor();
     if (dia.exec() == QDialog::Accepted) {
         const int i = dia.changeNumber();
@@ -1370,9 +1369,9 @@ bool PerforcePlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *subm
     // Set without triggering the checking mechanism
     if (wantsPrompt != m_settings.promptToSubmit()) {
         m_settings.setPromptToSubmit(wantsPrompt);
-        m_settings.toSettings(Core::ICore::instance()->settings());
+        m_settings.toSettings(Core::ICore::settings());
     }
-    if (!Core::ICore::instance()->fileManager()->saveFile(fileIFace))
+    if (!Core::ICore::fileManager()->saveFile(fileIFace))
         return false;
     if (answer == VcsBase::VcsBaseSubmitEditor::SubmitDiscarded) {
         cleanCommitMessageFile();
@@ -1458,7 +1457,7 @@ void PerforcePlugin::setSettings(const Settings &newSettings)
     if (newSettings != m_settings.settings()) {
         m_settings.setSettings(newSettings);
         m_managedDirectoryCache.clear();
-        m_settings.toSettings(Core::ICore::instance()->settings());
+        m_settings.toSettings(Core::ICore::settings());
         getTopLevel();
         perforceVersionControl()->emitConfigurationChanged();
     }

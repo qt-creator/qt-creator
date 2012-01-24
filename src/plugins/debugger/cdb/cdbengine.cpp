@@ -682,7 +682,7 @@ void CdbEngine::setupEngine()
     // Nag to add symbol server
     if (CdbSymbolPathListEditor::promptToAddSymbolServer(CdbOptions::settingsGroup(),
                                                          &(m_options->symbolPaths)))
-        m_options->toSettings(Core::ICore::instance()->settings());
+        m_options->toSettings(Core::ICore::settings());
 
     init();
     if (!m_logTime.elapsed())

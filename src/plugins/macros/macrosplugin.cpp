@@ -72,8 +72,7 @@ bool MacrosPlugin::initialize(const QStringList &arguments, QString *errorMessag
     addAutoReleasedObject(new MacroOptionsPage);
     addAutoReleasedObject(new MacroLocatorFilter);
 
-    Core::ICore *core = Core::ICore::instance();
-    Core::ActionManager *am = core->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
 
     Core::Context globalcontext(Core::Constants::C_GLOBAL);
     Core::Context textContext(TextEditor::Constants::C_TEXTEDITOR);

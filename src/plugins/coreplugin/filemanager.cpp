@@ -210,10 +210,9 @@ FileManager::FileManager(QMainWindow *mw)
   : QObject(mw),
     d(new Internal::FileManagerPrivate(this, mw))
 {
-    Core::ICore *core = Core::ICore::instance();
     connect(d->m_mainWindow, SIGNAL(windowActivated()),
         this, SLOT(mainWindowActivated()));
-    connect(core, SIGNAL(contextChanged(Core::IContext*,Core::Context)),
+    connect(ICore::instance(), SIGNAL(contextChanged(Core::IContext*,Core::Context)),
         this, SLOT(syncWithEditor(Core::IContext*)));
 
     readSettings();
@@ -740,7 +739,7 @@ QString FileManager::getSaveAsFileName(IFile *file, const QString &filter, QStri
 
     QString filterString;
     if (filter.isEmpty()) {
-        if (const MimeType &mt = Core::ICore::instance()->mimeDatabase()->findByFile(fi))
+        if (const MimeType &mt = Core::ICore::mimeDatabase()->findByFile(fi))
             filterString = mt.filterString();
         selectedFilter = &filterString;
     } else {
@@ -1126,7 +1125,7 @@ void FileManager::saveSettings()
         recentEditorIds.append(file.second.toString());
     }
 
-    QSettings *s = Core::ICore::instance()->settings();
+    QSettings *s = Core::ICore::settings();
     s->beginGroup(QLatin1String(settingsGroupC));
     s->setValue(QLatin1String(filesKeyC), recentFiles);
     s->setValue(QLatin1String(editorsKeyC), recentEditorIds);
@@ -1139,7 +1138,7 @@ void FileManager::saveSettings()
 
 void FileManager::readSettings()
 {
-    QSettings *s = Core::ICore::instance()->settings();
+    QSettings *s = Core::ICore::settings();
     d->m_recentFiles.clear();
     s->beginGroup(QLatin1String(settingsGroupC));
     QStringList recentFiles = s->value(QLatin1String(filesKeyC)).toStringList();
@@ -1302,10 +1301,9 @@ void FileManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
 
     bool anyMatches = false;
 
-    ICore *core = ICore::instance();
-    if (const MimeType mt = core->mimeDatabase()->findByFile(QFileInfo(fileName))) {
-        const EditorFactoryList factories = core->editorManager()->editorFactories(mt, false);
-        const ExternalEditorList externalEditors = core->editorManager()->externalEditors(mt, false);
+    if (const MimeType mt = ICore::mimeDatabase()->findByFile(QFileInfo(fileName))) {
+        const EditorFactoryList factories = ICore::editorManager()->editorFactories(mt, false);
+        const ExternalEditorList externalEditors = ICore::editorManager()->externalEditors(mt, false);
         anyMatches = !factories.empty() || !externalEditors.empty();
         if (anyMatches) {
             // Add all suitable editors
@@ -1361,13 +1359,13 @@ void FileManager::executeOpenWithMenuAction(QAction *action)
 FileChangeBlocker::FileChangeBlocker(const QString &fileName)
     : m_fileName(fileName)
 {
-    Core::FileManager *fm = Core::ICore::instance()->fileManager();
+    Core::FileManager *fm = Core::ICore::fileManager();
     fm->expectFileChange(fileName);
 }
 
 FileChangeBlocker::~FileChangeBlocker()
 {
-    Core::FileManager *fm = Core::ICore::instance()->fileManager();
+    Core::FileManager *fm = Core::ICore::fileManager();
     fm->unexpectFileChange(m_fileName);
 }
 

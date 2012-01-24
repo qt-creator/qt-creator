@@ -524,7 +524,7 @@ bool SearchResultWidget::showWarningMessage() const
     if (m_dontAskAgainGroup.isEmpty())
         return false;
     // read settings
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup(m_dontAskAgainGroup);
     settings->beginGroup(QLatin1String("Rename"));
     const bool showWarningMessage = settings->value(QLatin1String("ShowWarningMessage"), true).toBool();
@@ -536,7 +536,7 @@ bool SearchResultWidget::showWarningMessage() const
 void SearchResultWidget::setShowWarningMessage(bool showWarningMessage)
 {
     // write to settings
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup(m_dontAskAgainGroup);
     settings->beginGroup(QLatin1String("Rename"));
     settings->setValue(QLatin1String("ShowWarningMessage"), showWarningMessage);

@@ -114,7 +114,7 @@ void S60RunControlBase::start()
     QTC_ASSERT(!m_launchProgress, return);
 
     m_launchProgress = new QFutureInterface<void>;
-    Core::ICore::instance()->progressManager()->addTask(m_launchProgress->future(),
+    Core::ICore::progressManager()->addTask(m_launchProgress->future(),
                                                         tr("Launching"),
                                                         QLatin1String("Symbian.Launch"));
     m_launchProgress->setProgressRange(PROGRESS_MIN, PROGRESS_MAX);

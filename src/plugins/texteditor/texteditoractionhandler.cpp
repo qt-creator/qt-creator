@@ -107,7 +107,7 @@ TextEditorActionHandler::TextEditorActionHandler(const char *context,
     m_contextId(context),
     m_initialized(false)
 {
-    connect(Core::ICore::instance()->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+    connect(Core::ICore::editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
         this, SLOT(updateCurrentEditor(Core::IEditor*)));
 }
 
@@ -147,7 +147,7 @@ void TextEditorActionHandler::createActions()
     m_gotoAction      = registerNewAction(Core::Constants::GOTO,      this, SLOT(gotoAction()));
     m_printAction     = registerNewAction(Core::Constants::PRINT,     this, SLOT(printAction()));
 
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
 
     Core::ActionContainer *medit = am->actionContainer(Core::Constants::M_EDIT);
     Core::ActionContainer *advancedMenu = am->actionContainer(Core::Constants::M_EDIT_ADVANCED);
@@ -453,7 +453,7 @@ QAction *TextEditorActionHandler::registerNewAction(const Core::Id &id, bool scr
         return 0;
 
     QAction *result = new QAction(title, this);
-    Core::ICore::instance()->actionManager()->registerAction(result, id, m_contextId, scriptable);
+    Core::ICore::actionManager()->registerAction(result, id, m_contextId, scriptable);
     return result;
 }
 
@@ -538,7 +538,7 @@ void TextEditorActionHandler::gotoAction()
 void TextEditorActionHandler::printAction()
 {
     if (m_currentEditor)
-        m_currentEditor->print(Core::ICore::instance()->printer());
+        m_currentEditor->print(Core::ICore::printer());
 }
 
 void TextEditorActionHandler::setVisualizeWhitespace(bool checked)

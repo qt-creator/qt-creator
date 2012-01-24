@@ -215,7 +215,7 @@ BookmarkView::BookmarkView(QWidget *parent)  :
     connect(this, SIGNAL(clicked(const QModelIndex &)),
             this, SLOT(gotoBookmark(const QModelIndex &)));
 
-    ICore::instance()->addContextObject(m_bookmarkContext);
+    ICore::addContextObject(m_bookmarkContext);
 
     setItemDelegate(new BookmarkDelegate(this));
     setFrameStyle(QFrame::NoFrame);
@@ -225,7 +225,7 @@ BookmarkView::BookmarkView(QWidget *parent)  :
 
 BookmarkView::~BookmarkView()
 {
-    ICore::instance()->removeContextObject(m_bookmarkContext);
+    ICore::removeContextObject(m_bookmarkContext);
 }
 
 void BookmarkView::contextMenuEvent(QContextMenuEvent *event)

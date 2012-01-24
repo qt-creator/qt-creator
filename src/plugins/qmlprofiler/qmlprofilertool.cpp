@@ -168,7 +168,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
 
     Command *command = 0;
     const Context globalContext(C_GLOBAL);
-    ActionManager *am = ICore::instance()->actionManager();
+    ActionManager *am = ICore::actionManager();
 
     ActionContainer *menu = am->actionContainer(M_DEBUG_ANALYZER);
     ActionContainer *options = am->createMenu(M_DEBUG_ANALYZER_QML_OPTIONS);
@@ -662,7 +662,7 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
     QString sysroot;
 
     {
-        QSettings *settings = ICore::instance()->settings();
+        QSettings *settings = ICore::settings();
 
         host = settings->value(QLatin1String("AnalyzerQmlAttachDialog/host"), QLatin1String("localhost")).toString();
         port = settings->value(QLatin1String("AnalyzerQmlAttachDialog/port"), 3768).toInt();
@@ -710,8 +710,7 @@ void QmlProfilerTool::tryToConnect()
         d->m_connectionTimer.stop();
         d->m_connectionAttempts = 0;
 
-        ICore * const core = ICore::instance();
-        QMessageBox *infoBox = new QMessageBox(core->mainWindow());
+        QMessageBox *infoBox = new QMessageBox(Core::ICore::mainWindow());
         infoBox->setIcon(QMessageBox::Critical);
         infoBox->setWindowTitle(tr("Qt Creator"));
         infoBox->setText(tr("Could not connect to the in-process QML profiler.\n"
@@ -815,8 +814,7 @@ void QmlProfilerTool::showSaveOption()
 
 void QmlProfilerTool::showSaveDialog()
 {
-    ICore *core = ICore::instance();
-    QString filename = QFileDialog::getSaveFileName(core->mainWindow(), tr("Save QML Trace"), QString(), tr("QML traces (*%1)").arg(TraceFileExtension));
+    QString filename = QFileDialog::getSaveFileName(Core::ICore::mainWindow(), tr("Save QML Trace"), QString(), tr("QML traces (*%1)").arg(TraceFileExtension));
     if (!filename.isEmpty()) {
         if (!filename.endsWith(QLatin1String(TraceFileExtension)))
             filename += QLatin1String(TraceFileExtension);
@@ -832,8 +830,7 @@ void QmlProfilerTool::showLoadDialog()
     if (AnalyzerManager::currentSelectedTool() != this)
         AnalyzerManager::selectTool(this, StartRemote);
 
-    ICore *core = ICore::instance();
-    QString filename = QFileDialog::getOpenFileName(core->mainWindow(), tr("Load QML Trace"), QString(), tr("QML traces (*%1)").arg(TraceFileExtension));
+    QString filename = QFileDialog::getOpenFileName(Core::ICore::mainWindow(), tr("Load QML Trace"), QString(), tr("QML traces (*%1)").arg(TraceFileExtension));
 
     if (!filename.isEmpty()) {
         // delayed load (prevent graphical artifacts due to long load time)
@@ -844,8 +841,7 @@ void QmlProfilerTool::showLoadDialog()
 
 void QmlProfilerTool::showErrorDialog(const QString &error)
 {
-    ICore *core = ICore::instance();
-    QMessageBox *errorDialog = new QMessageBox(core->mainWindow());
+    QMessageBox *errorDialog = new QMessageBox(Core::ICore::mainWindow());
     errorDialog->setIcon(QMessageBox::Warning);
     errorDialog->setWindowTitle(tr("QML Profiler"));
     errorDialog->setText(error);

@@ -112,7 +112,7 @@ public:
 StartGdbServerDialogPrivate::StartGdbServerDialogPrivate(StartGdbServerDialog *q)
     : q(q), processList(0)
 {
-    settings = ICore::instance()->settings();
+    settings = ICore::settings();
 
     deviceComboBox = new QComboBox(q);
 

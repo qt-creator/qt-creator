@@ -177,7 +177,7 @@ bool WelcomeMode::eventFilter(QObject *, QEvent *e)
 
 WelcomeMode::~WelcomeMode()
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->setValue(QLatin1String(currentPageSettingsKeyC), activePlugin());
     delete m_modeWidget;
 }
@@ -193,7 +193,7 @@ void WelcomeMode::facilitateQml(QDeclarativeEngine * /*engine*/)
 
 void WelcomeMode::initPlugins()
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     setActivePlugin(settings->value(QLatin1String(currentPageSettingsKeyC)).toInt());
 
     // TODO: re-enable reading from Settings when possible. See QTCREATORBUG-6803
@@ -227,7 +227,7 @@ void WelcomeMode::initPlugins()
 
     // finally, load the root page
     m_welcomePage->setSource(
-            QUrl::fromLocalFile(Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/welcomescreen.qml")));
+            QUrl::fromLocalFile(Core::ICore::resourcePath() + QLatin1String("/welcomescreen/welcomescreen.qml")));
 }
 
 QString WelcomeMode::platform() const
@@ -270,7 +270,7 @@ void WelcomeMode::sendFeedback()
 
 void WelcomeMode::newProject()
 {
-    Core::ICore::instance()->showNewItemDialog(tr("New Project"),
+    Core::ICore::showNewItemDialog(tr("New Project"),
                                                Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard));
 }
 
@@ -286,8 +286,8 @@ void WelcomeMode::modeChanged(Core::IMode *mode)
 // Eike doesn't like this, but I do...
 
 //    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
-//    Core::ModeManager *modeManager = Core::ICore::instance()->modeManager();
-//    Core::EditorManager *editorManager = Core::ICore::instance()->editorManager();
+//    Core::ModeManager *modeManager = Core::ICore::modeManager();
+//    Core::EditorManager *editorManager = Core::ICore::editorManager();
 //    if (mode->id() == id() && (!projectExplorer->currentProject() && editorManager->openedEditors().isEmpty()))
 //        modeManager->setModeBarHidden(true);
 //    else

@@ -83,7 +83,7 @@ bool ValgrindEngine::start()
 {
     emit starting(this);
 
-    Core::FutureProgress *fp = Core::ICore::instance()->progressManager()->addTask(m_progress->future(),
+    Core::FutureProgress *fp = Core::ICore::progressManager()->addTask(m_progress->future(),
                                                         progressTitle(), "valgrind");
     fp->setKeepOnFinish(Core::FutureProgress::HideOnFinish);
     m_progress->setProgressRange(0, progressMaximum);
@@ -144,7 +144,7 @@ void ValgrindEngine::handleProgressCanceled()
 
 void ValgrindEngine::handleProgressFinished()
 {
-    QApplication::alert(Core::ICore::instance()->mainWindow(), 3000);
+    QApplication::alert(Core::ICore::mainWindow(), 3000);
 }
 
 void ValgrindEngine::runnerFinished()

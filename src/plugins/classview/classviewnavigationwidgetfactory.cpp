@@ -111,7 +111,7 @@ void NavigationWidgetFactory::saveSettings(int position, QWidget *widget)
     NavigationWidget *pw = qobject_cast<NavigationWidget *>(widget);
     QTC_ASSERT(pw, return);
 
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     QTC_ASSERT(settings, return);
 
     // .beginGroup is not used - to prevent simultaneous access
@@ -126,7 +126,7 @@ void NavigationWidgetFactory::restoreSettings(int position, QWidget *widget)
     NavigationWidget *pw = qobject_cast<NavigationWidget *>(widget);
     QTC_ASSERT(pw, return);
 
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     QTC_ASSERT(settings, return);
 
     // .beginGroup is not used - to prevent simultaneous access

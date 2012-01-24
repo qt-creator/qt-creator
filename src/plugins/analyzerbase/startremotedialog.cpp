@@ -49,7 +49,7 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
 
     m_ui->keyFile->setExpectedKind(Utils::PathChooser::File);
 
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup("AnalyzerStartRemoteDialog");
     m_ui->host->setText(settings->value("host").toString());
     m_ui->port->setValue(settings->value("port", 22).toInt());
@@ -91,7 +91,7 @@ StartRemoteDialog::~StartRemoteDialog()
 
 void StartRemoteDialog::accept()
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup("AnalyzerStartRemoteDialog");
     settings->setValue("host", m_ui->host->text());
     settings->setValue("port", m_ui->port->value());

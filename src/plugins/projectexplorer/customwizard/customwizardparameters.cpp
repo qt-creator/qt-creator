@@ -540,7 +540,7 @@ static inline QString attributeValue(const QXmlStreamReader &r, const char *name
 // Return locale language attribute "de_UTF8" -> "de", empty string for "C"
 static inline QString languageSetting()
 {
-    QString name = Core::ICore::instance()->userInterfaceLanguage();
+    QString name = Core::ICore::userInterfaceLanguage();
     const int underScorePos = name.indexOf(QLatin1Char('_'));
     if (underScorePos != -1)
         name.truncate(underScorePos);
@@ -985,7 +985,7 @@ void CustomWizardContext::reset()
 {
     // Basic replacement fields: Suffixes.
     baseReplacements.clear();
-    const Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();
+    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
     baseReplacements.insert(QLatin1String("CppSourceSuffix"),
                             mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)));
     baseReplacements.insert(QLatin1String("CppHeaderSuffix"),

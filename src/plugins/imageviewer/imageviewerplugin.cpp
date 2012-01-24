@@ -67,8 +67,7 @@ bool ImageViewerPlugin::initialize(const QStringList &arguments, QString *errorM
 {
     Q_UNUSED(arguments)
 
-    Core::ICore *core = Core::ICore::instance();
-    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/imageviewer/ImageViewer.mimetypes.xml"), errorMessage))
+    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/imageviewer/ImageViewer.mimetypes.xml"), errorMessage))
         return false;
 
     d->factory = new ImageViewerFactory(this);

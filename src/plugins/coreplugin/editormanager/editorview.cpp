@@ -139,7 +139,7 @@ EditorView::~EditorView()
 
 void EditorView::closeView()
 {
-    EditorManager *em = ICore::instance()->editorManager();
+    EditorManager *em = ICore::editorManager();
     IEditor *editor = currentEditor();
     if (editor)
        em->closeEditor(editor);
@@ -406,7 +406,7 @@ void EditorView::updateCurrentPositionInNavigationHistory()
 
 void EditorView::goBackInNavigationHistory()
 {
-    EditorManager *em = ICore::instance()->editorManager();
+    EditorManager *em = ICore::editorManager();
     updateCurrentPositionInNavigationHistory();
     while (m_currentNavigationHistoryPosition > 0) {
         --m_currentNavigationHistoryPosition;
@@ -431,7 +431,7 @@ void EditorView::goBackInNavigationHistory()
 
 void EditorView::goForwardInNavigationHistory()
 {
-    EditorManager *em = ICore::instance()->editorManager();
+    EditorManager *em = ICore::editorManager();
     updateCurrentPositionInNavigationHistory();
     if (m_currentNavigationHistoryPosition >= m_navigationHistory.size()-1)
         return;
@@ -490,12 +490,12 @@ void SplitterOrView::mousePressEvent(QMouseEvent *e)
     if (e->button() != Qt::LeftButton)
         return;
     setFocus(Qt::MouseFocusReason);
-    ICore::instance()->editorManager()->setCurrentView(this);
+    ICore::editorManager()->setCurrentView(this);
 }
 
 void SplitterOrView::paintEvent(QPaintEvent *)
 {
-    if (ICore::instance()->editorManager()->currentSplitterOrView() != this)
+    if (ICore::editorManager()->currentSplitterOrView() != this)
         return;
 
     if (!m_view || hasEditors())
@@ -657,7 +657,7 @@ void SplitterOrView::split(Qt::Orientation orientation)
     m_splitter = new MiniSplitter(this);
     m_splitter->setOrientation(orientation);
     m_layout->addWidget(m_splitter);
-    EditorManager *em = ICore::instance()->editorManager();
+    EditorManager *em = ICore::editorManager();
     Core::IEditor *e = m_view->currentEditor();
 
     SplitterOrView *view = 0;
@@ -710,7 +710,7 @@ void SplitterOrView::unsplitAll()
 void SplitterOrView::unsplitAll_helper()
 {
     if (!m_isRoot && m_view)
-        ICore::instance()->editorManager()->emptyView(m_view);
+        ICore::editorManager()->emptyView(m_view);
     if (m_splitter) {
         for (int i = 0; i < m_splitter->count(); ++i) {
             if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i))) {
@@ -726,7 +726,7 @@ void SplitterOrView::unsplit()
         return;
 
     Q_ASSERT(m_splitter->count() == 1);
-    EditorManager *em = ICore::instance()->editorManager();
+    EditorManager *em = ICore::editorManager();
     SplitterOrView *childSplitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(0));
     QSplitter *oldSplitter = m_splitter;
     m_splitter = 0;
@@ -771,7 +771,7 @@ QByteArray SplitterOrView::saveState() const
                 << static_cast<SplitterOrView*>(m_splitter->widget(1))->saveState();
     } else {
         IEditor* e = editor();
-        EditorManager *em = ICore::instance()->editorManager();
+        EditorManager *em = ICore::editorManager();
 
         // don't save state of temporary or ad-hoc editors
         if (e && (e->isTemporary() || e->file()->fileName().isEmpty())) {
@@ -812,7 +812,7 @@ void SplitterOrView::restoreState(const QByteArray &state)
         static_cast<SplitterOrView*>(m_splitter->widget(0))->restoreState(first);
         static_cast<SplitterOrView*>(m_splitter->widget(1))->restoreState(second);
     } else if (mode == "editor" || mode == "currenteditor") {
-        EditorManager *em = ICore::instance()->editorManager();
+        EditorManager *em = ICore::editorManager();
         QString fileName;
         QString id;
         QByteArray editorState;

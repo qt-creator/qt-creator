@@ -237,7 +237,7 @@ void ExamplesListModel::readNewsItems(const QString &examplesPath, const QString
         QString offsetPath = fi.path();
         QDir examplesDir(offsetPath);
         QDir demosDir(offsetPath);
-        if (offsetPath.startsWith(Core::ICore::instance()->resourcePath())) {
+        if (offsetPath.startsWith(Core::ICore::resourcePath())) {
             // Try to get dir from first Qt Version, based on the Qt source directory
             // at first, since examplesPath / demosPath points at the build directory
             examplesDir = sourcePath + QLatin1String("/examples");
@@ -280,7 +280,7 @@ QStringList ExamplesListModel::exampleSources() const
     const QStringList pattern(QLatin1String("*.xml"));
 
     // Read keys from SDK installer
-    QSettings *settings = Core::ICore::instance()->settings(QSettings::SystemScope);
+    QSettings *settings = Core::ICore::settings(QSettings::SystemScope);
     int size = settings->beginReadArray(QLatin1String("ExampleManifests"));
     for (int i = 0; i < size; ++i) {
         settings->setArrayIndex(i);
@@ -313,7 +313,7 @@ QStringList ExamplesListModel::exampleSources() const
         }
     }
 
-    QString resourceDir = Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/");
+    QString resourceDir = Core::ICore::resourcePath() + QLatin1String("/welcomescreen/");
 
     // Try Creator-provided XML file only
     if (sources.isEmpty() && anyQtVersionHasExamplesFolder) {

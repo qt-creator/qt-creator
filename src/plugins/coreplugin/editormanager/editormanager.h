@@ -49,7 +49,6 @@ QT_END_NAMESPACE
 namespace Core {
 
 class IContext;
-class ICore;
 class IEditor;
 class IEditorFactory;
 class IExternalEditor;
@@ -103,7 +102,7 @@ public:
     typedef QList<IEditorFactory *> EditorFactoryList;
     typedef QList<IExternalEditor *> ExternalEditorList;
 
-    explicit EditorManager(ICore *core, QWidget *parent);
+    explicit EditorManager(QWidget *parent);
     virtual ~EditorManager();
     void init();
     static EditorManager *instance();

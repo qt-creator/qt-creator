@@ -124,7 +124,6 @@ static QToolButton *toolButton(QAction *action)
 
 HelpPlugin::HelpPlugin()
     : m_mode(0),
-    m_core(0),
     m_centralWidget(0),
     m_rightPaneSideBarWidget(0),
     m_helpViewerForSideBar(0),
@@ -151,15 +150,14 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(error)
-    m_core = Core::ICore::instance();
     Core::Context globalcontext(Core::Constants::C_GLOBAL);
     Core::Context modecontext(Constants::C_MODE_HELP);
 
-    const QString &locale = m_core->userInterfaceLanguage();
+    const QString &locale = Core::ICore::userInterfaceLanguage();
     if (!locale.isEmpty()) {
         QTranslator *qtr = new QTranslator(this);
         QTranslator *qhelptr = new QTranslator(this);
-        const QString &creatorTrPath = Core::ICore::instance()->resourcePath()
+        const QString &creatorTrPath = Core::ICore::resourcePath()
             + QLatin1String("/translations");
         const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
         const QString &trFile = QLatin1String("assistant_") + locale;
@@ -202,7 +200,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     // Add Home, Previous and Next actions (used in the toolbar)
     QAction *action = new QAction(QIcon(QLatin1String(IMAGEPATH "home.png")),
         tr("Home"), this);
-    Core::ActionManager *am = m_core->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     am->registerAction(action, "Help.Home", globalcontext);
     connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(home()));
 
@@ -410,7 +408,7 @@ void HelpPlugin::extensionsInitialized()
 ExtensionSystem::IPlugin::ShutdownFlag HelpPlugin::aboutToShutdown()
 {
     if (m_sideBar)
-        m_sideBar->saveSettings(m_core->settings(), QLatin1String("HelpSideBar"));
+        m_sideBar->saveSettings(Core::ICore::settings(), QLatin1String("HelpSideBar"));
     delete m_externalWindow;
 
     return SynchronousShutdown;
@@ -419,7 +417,7 @@ ExtensionSystem::IPlugin::ShutdownFlag HelpPlugin::aboutToShutdown()
 void HelpPlugin::setupUi()
 {
     // side bar widgets and shortcuts
-    Core::ActionManager *am = m_core->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     Core::Context modecontext(Constants::C_MODE_HELP);
 
     IndexWindow *indexWindow = new IndexWindow();
@@ -506,7 +504,7 @@ void HelpPlugin::setupUi()
     m_splitter->insertWidget(0, m_sideBar);
     m_splitter->setStretchFactor(0, 0);
     m_splitter->setStretchFactor(1, 1);
-    m_sideBar->readSettings(m_core->settings(), QLatin1String("HelpSideBar"));
+    m_sideBar->readSettings(Core::ICore::settings(), QLatin1String("HelpSideBar"));
     m_splitter->setSizes(QList<int>() << m_sideBar->size().width() << 300);
 }
 
@@ -598,10 +596,10 @@ void HelpPlugin::createRightPaneContextViewer()
     Core::IContext *icontext = new Core::IContext(this);
     icontext->setContext(context);
     icontext->setWidget(m_helpViewerForSideBar);
-    m_core->addContextObject(icontext);
+    Core::ICore::addContextObject(icontext);
 
     QAction *copy = new QAction(this);
-    Core::Command *cmd = m_core->actionManager()->registerAction(copy,
+    Core::Command *cmd = Core::ICore::actionManager()->registerAction(copy,
         Core::Constants::COPY, context);
     copy->setText(cmd->action()->text());
     copy->setIcon(cmd->action()->icon());
@@ -617,7 +615,7 @@ void HelpPlugin::createRightPaneContextViewer()
     connect(m_helpViewerForSideBar, SIGNAL(backwardAvailable(bool)), back,
         SLOT(setEnabled(bool)));
 
-    Core::ActionManager *am = m_core->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     if (Core::ActionContainer *advancedMenu = am->actionContainer(Core::Constants::M_EDIT_ADVANCED)) {
         // reuse TextEditor constants to avoid a second pair of menu actions
         QAction *action = new QAction(tr("Increase Font Size"), this);
@@ -700,7 +698,7 @@ void HelpPlugin::showExternalWindow()
     connectExternalHelpWindow();
     m_externalWindow->activateWindow();
     if (firstTime)
-        Core::ICore::instance()->mainWindow()->activateWindow();
+        Core::ICore::mainWindow()->activateWindow();
 }
 
 void HelpPlugin::modeChanged(Core::IMode *mode, Core::IMode *old)
@@ -880,7 +878,7 @@ void HelpPlugin::activateContext()
 
     // Find out what to show
     QMap<QString, QUrl> links;
-    if (IContext *context = m_core->currentContextObject()) {
+    if (IContext *context = Core::ICore::currentContextObject()) {
         m_idFromContext = context->contextHelpId();
         links = Core::HelpManager::instance()->linksForIdentifier(m_idFromContext);
         if (links.isEmpty()) {
@@ -1044,7 +1042,7 @@ Utils::StyledBar *HelpPlugin::createIconToolBar(bool external)
             tr("Add Bookmark"), toolBar);
         connect(bookmark, SIGNAL(triggered()), this, SLOT(addBookmark()));
     } else {
-        Core::ActionManager *am = m_core->actionManager();
+        Core::ActionManager *am = Core::ICore::actionManager();
         home = am->command(Core::Id("Help.Home"))->action();
         back = am->command(Core::Id("Help.Previous"))->action();
         next = am->command(Core::Id("Help.Next"))->action();
@@ -1243,7 +1241,7 @@ void HelpPlugin::doSetupIfNeeded()
 
 int HelpPlugin::contextHelpOption() const
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     const QString key = Help::Constants::ID_MODE_HELP + QLatin1String("/ContextHelpOption");
     if (settings->contains(key))
         return settings->value(key, Help::Constants::SideBySideIfPossible).toInt();

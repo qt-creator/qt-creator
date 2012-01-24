@@ -58,7 +58,6 @@
 #endif
 
 namespace Core {
-class ICore;
 class IEditor;
 }
 
@@ -105,8 +104,6 @@ public:
     virtual void GC();
 
     QFuture<void> refreshSourceFiles(const QStringList &sourceFiles);
-
-    inline Core::ICore *core() const { return m_core; }
 
     virtual bool isCppEditor(Core::IEditor *editor) const;
 
@@ -197,7 +194,6 @@ private:
                       QStringList files);
 
 private:
-    Core::ICore *m_core;
     CPlusPlus::Snapshot m_snapshot;
 
     // cache

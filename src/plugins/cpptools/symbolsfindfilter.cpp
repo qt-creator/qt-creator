@@ -114,9 +114,9 @@ SymbolsFindFilter::SymbolsFindFilter(CppModelManager *manager)
       m_scope(SearchProjectsOnly)
 {
     // for disabling while parser is running
-    connect(Core::ICore::instance()->progressManager(), SIGNAL(taskStarted(QString)),
+    connect(Core::ICore::progressManager(), SIGNAL(taskStarted(QString)),
             this, SLOT(onTaskStarted(QString)));
-    connect(Core::ICore::instance()->progressManager(), SIGNAL(allTasksFinished(QString)),
+    connect(Core::ICore::progressManager(), SIGNAL(allTasksFinished(QString)),
             this, SLOT(onAllTasksFinished(QString)));
 }
 
@@ -190,7 +190,7 @@ void SymbolsFindFilter::startSearch(Find::SearchResult *search)
     watcher->setFuture(QtConcurrent::run<Find::SearchResultItem, SymbolsFindParameters,
                        CPlusPlus::Snapshot, QSet<QString> >(runSearch, parameters,
                                                     m_manager->snapshot(), projectFileNames));
-    Core::ICore::instance()->progressManager()->addTask(watcher->future(),
+    Core::ICore::progressManager()->addTask(watcher->future(),
                                                         tr("Searching"),
                                                         Find::Constants::TASK_SEARCH);
 }

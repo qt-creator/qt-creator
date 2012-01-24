@@ -43,8 +43,8 @@ using namespace Designer::Internal;
 
 static inline QSettings *coreSettings()
 {
-    if (const Core::ICore *core = Core::ICore::instance())
-        return core->settings();
+    if (Core::ICore::instance())
+        return Core::ICore::settings();
     return 0;
 }
 

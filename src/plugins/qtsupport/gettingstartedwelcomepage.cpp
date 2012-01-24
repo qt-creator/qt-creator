@@ -202,7 +202,7 @@ GettingStartedWelcomePage::GettingStartedWelcomePage() : m_engine(0)
 
 QUrl GettingStartedWelcomePage::pageLocation() const
 {
-    return QUrl::fromLocalFile(Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/gettingstarted.qml"));
+    return QUrl::fromLocalFile(Core::ICore::resourcePath() + QLatin1String("/welcomescreen/gettingstarted.qml"));
 }
 
 QString GettingStartedWelcomePage::title() const
@@ -257,9 +257,9 @@ QString ExamplesWelcomePage::title() const
 QUrl ExamplesWelcomePage::pageLocation() const
 {
     if (m_showExamples)
-        return QUrl::fromLocalFile(Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/examples.qml"));
+        return QUrl::fromLocalFile(Core::ICore::resourcePath() + QLatin1String("/welcomescreen/examples.qml"));
     else
-        return QUrl::fromLocalFile(Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/tutorials.qml"));
+        return QUrl::fromLocalFile(Core::ICore::resourcePath() + QLatin1String("/welcomescreen/tutorials.qml"));
 }
 
 void ExamplesWelcomePage::facilitateQml(QDeclarativeEngine *engine)
@@ -286,12 +286,12 @@ void ExamplesWelcomePage::facilitateQml(QDeclarativeEngine *engine)
 
 void ExamplesWelcomePage::openSplitHelp(const QUrl &help)
 {
-    Core::ICore::instance()->helpManager()->handleHelpRequest(help.toString()+QLatin1String("?view=split"));
+    Core::ICore::helpManager()->handleHelpRequest(help.toString()+QLatin1String("?view=split"));
 }
 
 void ExamplesWelcomePage::openHelp(const QUrl &help)
 {
-    Core::ICore::instance()->helpManager()->handleHelpRequest(help.toString());
+    Core::ICore::helpManager()->handleHelpRequest(help.toString());
 }
 
 void ExamplesWelcomePage::openUrl(const QUrl &url)
@@ -307,7 +307,7 @@ QStringList ExamplesWelcomePage::tagList() const
 QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileInfo, QStringList &filesToOpen, const QStringList& dependencies)
 {
     const QString projectDir = proFileInfo.canonicalPath();
-    QDialog d(Core::ICore::instance()->mainWindow());
+    QDialog d(Core::ICore::mainWindow());
     QGridLayout *lay = new QGridLayout(&d);
     QLabel *descrLbl = new QLabel;
     d.setWindowTitle(tr("Copy Project to writable Location?"));
@@ -325,7 +325,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
     Utils::PathChooser *chooser = new Utils::PathChooser;
     txt->setBuddy(chooser);
     chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     chooser->setPath(settings->value(
                          QString::fromLatin1(C_FALLBACK_ROOT), QDir::homePath()).toString());
     lay->addWidget(txt, 1, 0);
@@ -345,7 +345,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
         QDir toDirWithExamplesDir(destBaseDir);
         if (toDirWithExamplesDir.cd(exampleDirName)) {
             toDirWithExamplesDir.cdUp(); // step out, just to not be in the way
-            QMessageBox::warning(Core::ICore::instance()->mainWindow(), tr("Cannot Use Location"),
+            QMessageBox::warning(Core::ICore::mainWindow(), tr("Cannot Use Location"),
                                  tr("The specified location already exists. "
                                     "Please specify a valid location."),
                                  QMessageBox::Ok, QMessageBox::NoButton);
@@ -362,7 +362,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
                 foreach (const QString &dependency, dependencies) {
                     QString dirName = QDir(dependency).dirName();
                     if (!Utils::FileUtils::copyRecursively(dependency, targetDir + QDir::separator()+ dirName, &error)) {
-                        QMessageBox::warning(Core::ICore::instance()->mainWindow(), tr("Cannot Copy Project"), error);
+                        QMessageBox::warning(Core::ICore::mainWindow(), tr("Cannot Copy Project"), error);
                         // do not fail, just warn;
                     }
                 }
@@ -370,7 +370,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
 
                 return targetDir + QLatin1Char('/') + proFileInfo.fileName();
             } else {
-                QMessageBox::warning(Core::ICore::instance()->mainWindow(), tr("Cannot Copy Project"), error);
+                QMessageBox::warning(Core::ICore::mainWindow(), tr("Cannot Copy Project"), error);
             }
 
         }
@@ -395,11 +395,11 @@ void ExamplesWelcomePage::openProject(const QString &projectFile, const QStringL
     // don't try to load help and files if loading the help request is being cancelled
     QString errorMessage;
     if (!proFile.isEmpty() && ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFile, &errorMessage)) {
-        Core::ICore::instance()->openFiles(filesToOpen);
-        Core::ICore::instance()->helpManager()->handleHelpRequest(help.toString()+QLatin1String("?view=split"));
+        Core::ICore::openFiles(filesToOpen);
+        Core::ICore::helpManager()->handleHelpRequest(help.toString()+QLatin1String("?view=split"));
     }
     if (!errorMessage.isEmpty())
-        QMessageBox::critical(Core::ICore::instance()->mainWindow(), tr("Failed to open project"), errorMessage);
+        QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to open project"), errorMessage);
 }
 
 void ExamplesWelcomePage::updateTagsModel()

@@ -105,7 +105,7 @@ void GeneralSettings::fillLanguageBox() const
         m_page->languageBox->setCurrentIndex(m_page->languageBox->count() - 1);
 
     const QString creatorTrPath =
-            Core::ICore::instance()->resourcePath() + QLatin1String("/translations");
+            Core::ICore::resourcePath() + QLatin1String("/translations");
     const QStringList languageFiles = QDir(creatorTrPath).entryList(QStringList(QLatin1String("qtcreator*.qm")));
 
     Q_FOREACH(const QString &languageFile, languageFiles)
@@ -128,7 +128,7 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     m_widget = new QWidget(parent);
     m_page->setupUi(m_widget);
 
-    QSettings* settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     Q_UNUSED(settings) // Windows
 
     fillLanguageBox();
@@ -197,10 +197,10 @@ void GeneralSettings::apply()
     StyleHelper::setBaseColor(m_page->colorButton->color());
     EditorManager::instance()->setReloadSetting(IFile::ReloadSetting(m_page->reloadBehavior->currentIndex()));
 #ifdef Q_OS_UNIX
-    ConsoleProcess::setTerminalEmulator(Core::ICore::instance()->settings(),
+    ConsoleProcess::setTerminalEmulator(Core::ICore::settings(),
                                         m_page->terminalEdit->text());
 #ifndef Q_OS_MAC
-    Utils::UnixUtils::setFileBrowser(Core::ICore::instance()->settings(), m_page->externalFileBrowserEdit->text());
+    Utils::UnixUtils::setFileBrowser(Core::ICore::settings(), m_page->externalFileBrowserEdit->text());
 #endif
 #endif
     EditorManager::instance()->setAutoSaveEnabled(m_page->autoSaveCheckBox->isChecked());
@@ -272,16 +272,16 @@ void GeneralSettings::resetLanguage()
 
 QString GeneralSettings::language() const
 {
-    QSettings* settings = Core::ICore::instance()->settings();
+    QSettings* settings = Core::ICore::settings();
     return settings->value(QLatin1String("General/OverrideLanguage")).toString();
 }
 
 void GeneralSettings::setLanguage(const QString &locale)
 {
-    QSettings* settings = Core::ICore::instance()->settings();
+    QSettings* settings = Core::ICore::settings();
     if (settings->value(QLatin1String("General/OverrideLanguage")).toString() != locale)
     {
-        QMessageBox::information(Core::ICore::instance()->mainWindow(), tr("Restart required"),
+        QMessageBox::information(Core::ICore::mainWindow(), tr("Restart required"),
                                  tr("The language change will take effect after a restart of Qt Creator."));
     }
     if (locale.isEmpty())

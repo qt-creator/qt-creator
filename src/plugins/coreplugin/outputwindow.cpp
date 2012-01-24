@@ -63,12 +63,10 @@ OutputWindow::OutputWindow(Core::Context context, QWidget *parent)
     setFrameShape(QFrame::NoFrame);
     setMouseTracking(true);
 
-    Core::ICore *core = Core::ICore::instance();
-
     m_outputWindowContext = new Core::IContext;
     m_outputWindowContext->setContext(context);
     m_outputWindowContext->setWidget(this);
-    core->addContextObject(m_outputWindowContext);
+    ICore::addContextObject(m_outputWindowContext);
 
     QAction *undoAction = new QAction(this);
     QAction *redoAction = new QAction(this);
@@ -77,7 +75,7 @@ OutputWindow::OutputWindow(Core::Context context, QWidget *parent)
     QAction *pasteAction = new QAction(this);
     QAction *selectAllAction = new QAction(this);
 
-    Core::ActionManager *am = core->actionManager();
+    Core::ActionManager *am = ICore::actionManager();
     am->registerAction(undoAction, Core::Constants::UNDO, context);
     am->registerAction(redoAction, Core::Constants::REDO, context);
     am->registerAction(cutAction, Core::Constants::CUT, context);
@@ -105,7 +103,7 @@ OutputWindow::OutputWindow(Core::Context context, QWidget *parent)
 
 OutputWindow::~OutputWindow()
 {
-    Core::ICore::instance()->removeContextObject(m_outputWindowContext);
+    Core::ICore::removeContextObject(m_outputWindowContext);
     delete m_outputWindowContext;
 }
 

@@ -55,7 +55,6 @@ QT_END_NAMESPACE
 
 namespace Core {
 class IEditorFactory;
-class ICore;
 class Command;
 class Context;
 class ActionManager;
@@ -183,7 +182,6 @@ private:
     void startCommit(bool amend);
 
     static GitPlugin *m_instance;
-    Core::ICore *m_core;
     Locator::CommandLocator *m_commandLocator;
     QAction *m_createRepositoryAction;
 

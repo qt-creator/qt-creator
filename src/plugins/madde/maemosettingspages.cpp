@@ -93,7 +93,7 @@ public:
 private:
     Q_SLOT void showSettingsPage()
     {
-        Core::ICore::instance()->showOptionsDialog(MaemoQemuSettingsPage::pageCategory(),
+        Core::ICore::showOptionsDialog(MaemoQemuSettingsPage::pageCategory(),
             MaemoQemuSettingsPage::pageId());
         accept();
     }
@@ -158,7 +158,7 @@ void MaemoQemuSettingsPage::finish()
 
 void MaemoQemuSettingsPage::showQemuCrashDialog()
 {
-    MaemoQemuCrashDialog dlg(Core::ICore::instance()->mainWindow());
+    MaemoQemuCrashDialog dlg(Core::ICore::mainWindow());
     dlg.exec();
 }
 

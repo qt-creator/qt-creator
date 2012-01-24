@@ -163,9 +163,8 @@ void MacroManager::MacroManagerPrivate::addMacro(Macro *macro)
 {
     // Add sortcut
     Core::Context context(TextEditor::Constants::C_TEXTEDITOR);
-    Core::ICore *core = Core::ICore::instance();
-    Core::ActionManager *am = core->actionManager();
-    QShortcut *shortcut = new QShortcut(core->mainWindow());
+    Core::ActionManager *am = Core::ICore::actionManager();
+    QShortcut *shortcut = new QShortcut(Core::ICore::mainWindow());
     shortcut->setWhatsThis(macro->description());
     const Core::Id macroId(QLatin1String(Constants::PREFIX_MACRO) + macro->displayName());
     am->registerShortcut(shortcut, macroId, context);
@@ -181,8 +180,7 @@ void MacroManager::MacroManagerPrivate::removeMacro(const QString &name)
     if (!macros.contains(name))
         return;
     // Remove shortcut
-    Core::ICore *core = Core::ICore::instance();
-    Core::ActionManager *am = core->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     am->unregisterShortcut(Core::Id(Constants::PREFIX_MACRO+name));
 
     // Remove macro from the map
@@ -195,11 +193,10 @@ void MacroManager::MacroManagerPrivate::changeMacroDescription(Macro *macro, con
     if (!macro->load())
         return;
     macro->setDescription(description);
-    macro->save(macro->fileName(), Core::ICore::instance()->mainWindow());
+    macro->save(macro->fileName(), Core::ICore::mainWindow());
 
     // Change shortcut what's this
-    Core::ICore *core = Core::ICore::instance();
-    Core::ActionManager *am = core->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
 
     Core::Command *command = am->command(Core::Id(Constants::PREFIX_MACRO+macro->displayName()));
     if (command && command->shortcut())
@@ -222,7 +219,7 @@ bool MacroManager::MacroManagerPrivate::executeMacro(Macro *macro)
     }
 
     if (error) {
-        QMessageBox::warning(Core::ICore::instance()->mainWindow(),
+        QMessageBox::warning(Core::ICore::mainWindow(),
                              tr("Playing Macro"),
                              tr("An error occurred while replaying the macro, execution stopped."));
     }
@@ -238,7 +235,7 @@ bool MacroManager::MacroManagerPrivate::executeMacro(Macro *macro)
 
 void MacroManager::MacroManagerPrivate::showSaveDialog()
 {
-    QMainWindow *mainWindow = Core::ICore::instance()->mainWindow();
+    QMainWindow *mainWindow = Core::ICore::mainWindow();
     SaveDialog dialog(mainWindow);
     if (dialog.exec()) {
         if (dialog.name().isEmpty())
@@ -288,7 +285,7 @@ void MacroManager::startMacro()
         delete d->currentMacro;
     d->currentMacro = new Macro;
 
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     am->command(Constants::START_MACRO)->action()->setEnabled(false);
     am->command(Constants::END_MACRO)->action()->setEnabled(true);
     am->command(Constants::EXECUTE_LAST_MACRO)->action()->setEnabled(false);
@@ -310,7 +307,7 @@ void MacroManager::endMacro()
 {
     Core::EditorManager::instance()->hideEditorStatusBar(QLatin1String(Constants::M_STATUS_BUFFER));
 
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     am->command(Constants::START_MACRO)->action()->setEnabled(true);
     am->command(Constants::END_MACRO)->action()->setEnabled(false);
     am->command(Constants::EXECUTE_LAST_MACRO)->action()->setEnabled(true);
@@ -327,7 +324,7 @@ void MacroManager::executeLastMacro()
         return;
 
     // make sure the macro doesn't accidentally invoke a macro action
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     am->command(Constants::START_MACRO)->action()->setEnabled(false);
     am->command(Constants::END_MACRO)->action()->setEnabled(false);
     am->command(Constants::EXECUTE_LAST_MACRO)->action()->setEnabled(false);
@@ -356,7 +353,7 @@ bool MacroManager::executeMacro(const QString &name)
         delete d->currentMacro;
     d->currentMacro = macro;
 
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     am->command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(true);
 
     return true;
@@ -407,7 +404,7 @@ void Macros::MacroManager::saveLastMacro()
 QString Macros::MacroManager::macrosDirectory() const
 {
     const QString &path =
-        Core::ICore::instance()->userResourcePath() + QLatin1String("/macros");
+        Core::ICore::userResourcePath() + QLatin1String("/macros");
     if (QFile::exists(path) || QDir().mkpath(path))
         return path;
     return QString();

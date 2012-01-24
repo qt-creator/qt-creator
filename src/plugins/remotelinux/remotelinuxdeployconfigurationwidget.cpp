@@ -194,7 +194,7 @@ void RemoteLinuxDeployConfigurationWidget::handleDeviceConfigurationListChanged(
 
 void RemoteLinuxDeployConfigurationWidget::showDeviceConfigurations()
 {
-    Core::ICore::instance()->showOptionsDialog(LinuxDeviceConfigurationsSettingsPage::pageCategory(),
+    Core::ICore::showOptionsDialog(LinuxDeviceConfigurationsSettingsPage::pageCategory(),
                                                LinuxDeviceConfigurationsSettingsPage::pageId());
 }
 

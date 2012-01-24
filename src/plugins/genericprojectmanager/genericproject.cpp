@@ -161,7 +161,7 @@ bool GenericProject::saveRawFileList(const QStringList &rawFileList)
             stream << filePath << QLatin1Char('\n');
         saver.setResult(&stream);
     }
-    if (!saver.finalize(Core::ICore::instance()->mainWindow()))
+    if (!saver.finalize(Core::ICore::mainWindow()))
         return false;
     refresh(GenericProject::Files);
     return true;

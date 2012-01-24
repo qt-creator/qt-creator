@@ -187,7 +187,7 @@ void FolderNavigationWidget::setAutoSynchronization(bool sync)
 
     m_autoSync = sync;
 
-    Core::FileManager *fileManager = Core::ICore::instance()->fileManager();
+    Core::FileManager *fileManager = Core::ICore::fileManager();
     if (m_autoSync) {
         connect(fileManager, SIGNAL(currentFileChanged(QString)),
                 this, SLOT(setCurrentFile(QString)));

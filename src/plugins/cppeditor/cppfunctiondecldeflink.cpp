@@ -368,7 +368,7 @@ void FunctionDeclDefLink::showMarker(CPPEditorWidget *editor)
     else
         message = tr("Apply changes to declaration");
 
-    Core::ActionManager *actionManager = Core::ICore::instance()->actionManager();
+    Core::ActionManager *actionManager = Core::ICore::actionManager();
     Core::Command *quickfixCommand = actionManager->command(TextEditor::Constants::QUICKFIX_THIS);
     if (quickfixCommand)
         message = Utils::ProxyAction::stringWithAppendedShortcut(message, quickfixCommand->keySequence());

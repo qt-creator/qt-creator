@@ -171,8 +171,7 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     const QString configFileName = QFileInfo(dir, projectName + QLatin1String(".config")).absoluteFilePath();
     const QStringList paths = wizard->selectedPaths();
 
-    Core::ICore *core = Core::ICore::instance();
-    Core::MimeDatabase *mimeDatabase = core->mimeDatabase();
+    Core::MimeDatabase *mimeDatabase = Core::ICore::mimeDatabase();
 
     Core::MimeType headerTy = mimeDatabase->findByType(QLatin1String("text/x-chdr"));
 

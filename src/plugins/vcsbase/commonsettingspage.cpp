@@ -109,7 +109,7 @@ QString CommonSettingsWidget::searchKeyWordMatchString() const
 CommonOptionsPage::CommonOptionsPage(QObject *parent) :
     VcsBaseOptionsPage(parent)
 {
-    m_settings.fromSettings(Core::ICore::instance()->settings());
+    m_settings.fromSettings(Core::ICore::settings());
 }
 
 void CommonOptionsPage::updateNickNames()
@@ -141,7 +141,7 @@ void CommonOptionsPage::apply()
         const CommonVcsSettings newSettings = m_widget->settings();
         if (newSettings != m_settings) {
             m_settings = newSettings;
-            m_settings.toSettings(Core::ICore::instance()->settings());
+            m_settings.toSettings(Core::ICore::settings());
             emit settingsChanged(m_settings);
         }
     }

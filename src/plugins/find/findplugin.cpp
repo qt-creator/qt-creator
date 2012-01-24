@@ -196,7 +196,7 @@ void FindPlugin::openFindDialog(IFindFilter *filter)
 
 void FindPlugin::setupMenu()
 {
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     Core::ActionContainer *medit = am->actionContainer(Core::Constants::M_EDIT);
     Core::ActionContainer *mfind = am->createMenu(Constants::M_FIND);
     medit->addMenu(mfind, Core::Constants::G_EDIT_FIND);
@@ -230,7 +230,7 @@ void FindPlugin::setupMenu()
 
 void FindPlugin::setupFilterMenuItems()
 {
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     QList<IFindFilter*> findInterfaces =
         ExtensionSystem::PluginManager::instance()->getObjects<IFindFilter>();
     Core::Command *cmd;
@@ -302,7 +302,7 @@ bool FindPlugin::hasFindFlag(Find::FindFlag flag)
 
 void FindPlugin::writeSettings()
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("Find"));
     settings->setValue(QLatin1String("Backward"), hasFindFlag(Find::FindBackward));
     settings->setValue(QLatin1String("CaseSensitively"), hasFindFlag(Find::FindCaseSensitively));
@@ -317,7 +317,7 @@ void FindPlugin::writeSettings()
 
 void FindPlugin::readSettings()
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("Find"));
     bool block = blockSignals(true);
     setBackward(settings->value(QLatin1String("Backward"), false).toBool());

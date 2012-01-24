@@ -243,7 +243,7 @@ SearchResultWindow::SearchResultWindow(QWidget *newSearchPanel)
     d->m_expandCollapseAction = new QAction(tr("Expand All"), this);
     d->m_expandCollapseAction->setCheckable(true);
     d->m_expandCollapseAction->setIcon(QIcon(QLatin1String(":/find/images/expand.png")));
-    Core::Command *cmd = Core::ICore::instance()->actionManager()->registerAction(
+    Core::Command *cmd = Core::ICore::actionManager()->registerAction(
             d->m_expandCollapseAction, "Find.ExpandAll",
             Core::Context(Core::Constants::C_GLOBAL));
     cmd->setAttribute(Core::Command::CA_UpdateText);
@@ -452,7 +452,7 @@ void SearchResultWindow::handleExpandCollapseToolButton(bool checked)
 */
 void SearchResultWindow::readSettings()
 {
-    QSettings *s = Core::ICore::instance()->settings();
+    QSettings *s = Core::ICore::settings();
     if (s) {
         s->beginGroup(QLatin1String(SETTINGSKEYSECTIONNAME));
         d->m_expandCollapseAction->setChecked(s->value(QLatin1String(SETTINGSKEYEXPANDRESULTS), d->m_initiallyExpand).toBool());
@@ -466,7 +466,7 @@ void SearchResultWindow::readSettings()
 */
 void SearchResultWindow::writeSettings()
 {
-    QSettings *s = Core::ICore::instance()->settings();
+    QSettings *s = Core::ICore::settings();
     if (s) {
         s->beginGroup(QLatin1String(SETTINGSKEYSECTIONNAME));
         s->setValue(QLatin1String(SETTINGSKEYEXPANDRESULTS), d->m_expandCollapseAction->isChecked());

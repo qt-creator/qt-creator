@@ -72,7 +72,7 @@ void LldbOptionsPageWidget::load()
 // ---------- LldbOptionsPage
 LldbOptionsPage::LldbOptionsPage()
 {
-//    m_options->fromSettings(Core::ICore::instance()->settings());
+//    m_options->fromSettings(Core::ICore::settings());
 }
 
 LldbOptionsPage::~LldbOptionsPage()
@@ -106,7 +106,7 @@ QIcon LldbOptionsPage::categoryIcon() const
 
 QWidget *LldbOptionsPage::createPage(QWidget *parent)
 {
-    m_widget = new LldbOptionsPageWidget(parent, Core::ICore::instance()->settings());
+    m_widget = new LldbOptionsPageWidget(parent, Core::ICore::settings());
     return m_widget;
 }
 

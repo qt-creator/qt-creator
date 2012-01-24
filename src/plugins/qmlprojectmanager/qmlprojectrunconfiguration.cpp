@@ -331,7 +331,7 @@ void QmlProjectRunConfiguration::updateEnabled()
     bool qmlFileFound = false;
     if (mainScriptSource() == FileInEditor) {
         Core::IEditor *editor = Core::EditorManager::instance()->currentEditor();
-        Core::MimeDatabase *db = ICore::instance()->mimeDatabase();
+        Core::MimeDatabase *db = ICore::mimeDatabase();
         if (editor) {
             m_currentFileFilename = editor->file()->fileName();
             if (db->findByFile(mainScript()).type() == QLatin1String("application/x-qml"))

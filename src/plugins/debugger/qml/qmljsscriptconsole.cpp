@@ -167,9 +167,7 @@ QmlJSScriptConsoleWidget::QmlJSScriptConsoleWidget(QWidget *parent)
     vbox->addWidget(statusbarContainer);
     vbox->addWidget(m_console);
 
-    Core::ICore *core = Core::ICore::instance();
-    QTC_ASSERT(core, return);
-    QSettings *settings = core->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup(_(SCRIPT_CONSOLE));
     m_showLog->setChecked(settings->value(_(SHOW_LOG), true).toBool());
     m_showWarning->setChecked(settings->value(_(SHOW_WARNING), true).toBool());
@@ -179,9 +177,7 @@ QmlJSScriptConsoleWidget::QmlJSScriptConsoleWidget(QWidget *parent)
 
 QmlJSScriptConsoleWidget::~QmlJSScriptConsoleWidget()
 {
-    Core::ICore *core = Core::ICore::instance();
-    QTC_ASSERT(core, return);
-    QSettings *settings = core->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup(_(SCRIPT_CONSOLE));
     settings->setValue(_(SHOW_LOG), QVariant(m_showLog->isChecked()));
     settings->setValue(_(SHOW_WARNING), QVariant(m_showWarning->isChecked()));

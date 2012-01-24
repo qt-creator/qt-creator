@@ -284,7 +284,7 @@ void AbstractQt4MaemoTarget::handleTargetAdded(ProjectExplorer::Target *target)
         if (!files.isEmpty()) {
             const QString list = QLatin1String("<ul><li>") + files.join(QLatin1String("</li><li>"))
                 + QLatin1String("</li></ul>");
-            QMessageBox::StandardButton button = QMessageBox::question(Core::ICore::instance()->mainWindow(),
+            QMessageBox::StandardButton button = QMessageBox::question(Core::ICore::mainWindow(),
                 tr("Add Packaging Files to Project"),
                 tr("<html>Qt Creator has set up the following files to enable "
                    "packaging:\n   %1\nDo you want to add them to the project?</html>")
@@ -306,8 +306,7 @@ void AbstractQt4MaemoTarget::handleTargetToBeRemoved(ProjectExplorer::Target *ta
     if (!targetCanBeRemoved())
         return;
 
-    Core::ICore * const core = Core::ICore::instance();
-    const int answer = QMessageBox::warning(core->mainWindow(),
+    const int answer = QMessageBox::warning(Core::ICore::mainWindow(),
         tr("Qt Creator"), tr("Do you want to remove the packaging file(s) "
            "associated with the target '%1'?").arg(displayName()),
         QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
@@ -317,7 +316,7 @@ void AbstractQt4MaemoTarget::handleTargetToBeRemoved(ProjectExplorer::Target *ta
     if (!pkgFilePaths.isEmpty()) {
         project()->rootProjectNode()->removeFiles(ProjectExplorer::UnknownFileType,
             pkgFilePaths);
-        Core::IVersionControl * const vcs = core->vcsManager()
+        Core::IVersionControl * const vcs = Core::ICore::vcsManager()
             ->findVersionControlForDirectory(QFileInfo(pkgFilePaths.first()).dir().path());
         if (vcs && vcs->supportsOperation(Core::IVersionControl::DeleteOperation)) {
             foreach (const QString &filePath, pkgFilePaths)
@@ -1187,7 +1186,7 @@ void Qt4HarmattanTarget::handleTargetAddedSpecial()
         return;
 
     Utils::FileReader reader;
-    if (!reader.fetch(Core::ICore::instance()->resourcePath()
+    if (!reader.fetch(Core::ICore::resourcePath()
             + QLatin1String("/templates/shared/") + aegisManifestFileName())) {
         qDebug("Reading manifest template failed.");
         return;

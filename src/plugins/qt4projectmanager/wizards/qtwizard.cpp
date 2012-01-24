@@ -133,7 +133,7 @@ bool QtWizard::qt4ProjectPostGenerateFiles(const QWizard *w,
 
 QString QtWizard::templateDir()
 {
-    QString rc = Core::ICore::instance()->resourcePath();
+    QString rc = Core::ICore::resourcePath();
     rc += QLatin1String("/templates/qt4project");
     return rc;
 }
@@ -144,7 +144,7 @@ bool QtWizard::lowerCaseFiles()
     lowerCaseSettingsKey += QLatin1Char('/');
     lowerCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
     const bool lowerCaseDefault = CppTools::Constants::lowerCaseFilesDefault;
-    return Core::ICore::instance()->settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
+    return Core::ICore::settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
 }
 
 bool QtWizard::showModulesPageForApplications()

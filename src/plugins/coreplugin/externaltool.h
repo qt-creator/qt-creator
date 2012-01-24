@@ -44,7 +44,6 @@ namespace Utils {
 class QtcProcess;
 }
 namespace Core {
-class ActionContainer;
 namespace Internal {
 
 class ExternalTool : public QObject

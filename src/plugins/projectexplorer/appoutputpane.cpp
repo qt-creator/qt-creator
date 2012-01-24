@@ -133,7 +133,7 @@ AppOutputPane::AppOutputPane() :
             this, SLOT(reRunRunControl()));
 
     // Stop
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
     QIcon stopIcon = QIcon(QLatin1String(Constants::ICON_STOP));

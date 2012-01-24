@@ -92,7 +92,7 @@ QString findFallbackDefinitionsLocation()
     }
 #endif
 
-    dir.setPath(Core::ICore::instance()->resourcePath() + QLatin1String("/generic-highlighter"));
+    dir.setPath(Core::ICore::resourcePath() + QLatin1String("/generic-highlighter"));
     if (dir.exists() && !dir.entryInfoList().isEmpty())
         return dir.path();
 
@@ -192,7 +192,7 @@ void HighlighterSettings::assignDefaultIgnoredPatterns()
 void HighlighterSettings::assignDefaultDefinitionsPath()
 {
     const QString &path =
-        Core::ICore::instance()->userResourcePath() + QLatin1String("/generic-highlighter");
+        Core::ICore::userResourcePath() + QLatin1String("/generic-highlighter");
     if (QFile::exists(path) || QDir().mkpath(path))
         m_definitionFilesPath = path;
 }

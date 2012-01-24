@@ -270,12 +270,11 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     initializeVcs(new SubversionControl(this));
 
     m_subversionPluginInstance = this;
-    Core::ICore *core = Core::ICore::instance();
 
-    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/trolltech.subversion/Subversion.mimetypes.xml"), errorMessage))
+    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/trolltech.subversion/Subversion.mimetypes.xml"), errorMessage))
         return false;
 
-    if (QSettings *settings = core->settings())
+    if (QSettings *settings = Core::ICore::settings())
         m_settings.fromSettings(settings);
 
     addAutoReleasedObject(new SettingsPage);
@@ -295,7 +294,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     addAutoReleasedObject(m_commandLocator);
 
     //register actions
-    Core::ActionManager *ami = core->actionManager();
+    Core::ActionManager *ami = Core::ICore::actionManager();
     Core::ActionContainer *toolsContainer = ami->actionContainer(M_TOOLS);
 
     Core::ActionContainer *subversionMenu =
@@ -513,7 +512,7 @@ bool SubversionPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *su
     bool closeEditor = true;
     if (!fileList.empty()) {
         // get message & commit
-        closeEditor = Core::ICore::instance()->fileManager()->saveFile(fileIFace);
+        closeEditor = Core::ICore::fileManager()->saveFile(fileIFace);
         if (closeEditor)
             closeEditor = commit(m_commitMessageFileName, fileList);
     }
@@ -1080,7 +1079,7 @@ void SubversionPlugin::slotDescribe()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    QInputDialog inputDialog(Core::ICore::instance()->mainWindow());
+    QInputDialog inputDialog(Core::ICore::mainWindow());
     inputDialog.setWindowFlags(inputDialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
     inputDialog.setInputMode(QInputDialog::IntInput);
     inputDialog.setIntRange(2, INT_MAX);
@@ -1200,7 +1199,7 @@ void SubversionPlugin::setSettings(const SubversionSettings &s)
 {
     if (s != m_settings) {
         m_settings = s;
-        if (QSettings *settings = Core::ICore::instance()->settings())
+        if (QSettings *settings = Core::ICore::settings())
             m_settings.toSettings(settings);
         subVersionControl()->emitConfigurationChanged();
     }

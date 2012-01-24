@@ -114,7 +114,7 @@
 extern "C" void handleSigInt(int sig)
 {
     Q_UNUSED(sig)
-    Core::ICore::instance()->exit();
+    Core::ICore::exit();
     qDebug() << "SIGINT caught. Shutting down.";
 }
 #endif
@@ -210,9 +210,9 @@ MainWindow::MainWindow() :
     m_modeManager->addWidget(m_progressManager->progressView());
     m_statusBarManager = new StatusBarManager(this);
     m_messageManager = new MessageManager;
-    m_editorManager = new EditorManager(m_coreImpl, this);
+    m_editorManager = new EditorManager(this);
     m_editorManager->hide();
-    m_externalToolManager = new ExternalToolManager(m_coreImpl);
+    m_externalToolManager = new ExternalToolManager();
     setCentralWidget(m_modeStack);
 
     connect(QApplication::instance(), SIGNAL(focusChanged(QWidget*,QWidget*)),

@@ -840,7 +840,7 @@ void Qt4Project::asyncUpdate()
     Q_ASSERT(!m_asyncUpdateFutureInterface);
     m_asyncUpdateFutureInterface = new QFutureInterface<void>();
 
-    Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
+    Core::ProgressManager *progressManager = Core::ICore::progressManager();
 
     m_asyncUpdateFutureInterface->setProgressRange(0, 0);
     progressManager->addTask(m_asyncUpdateFutureInterface->future(), tr("Evaluating"),
@@ -943,7 +943,7 @@ QList<ProjectExplorer::Project*> Qt4Project::dependsOn()
 
 void Qt4Project::proFileParseError(const QString &errorMessage)
 {
-    Core::ICore::instance()->messageManager()->printToOutputPanePopup(errorMessage);
+    Core::ICore::messageManager()->printToOutputPanePopup(errorMessage);
 }
 
 QtSupport::ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc)

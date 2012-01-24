@@ -403,7 +403,7 @@ void CodaRunControl::checkForTimeout()
     if (m_state != StateConnecting)
         return;
 
-    QMessageBox *mb = createCodaWaitingMessageBox(Core::ICore::instance()->mainWindow());
+    QMessageBox *mb = createCodaWaitingMessageBox(Core::ICore::mainWindow());
     connect(this, SIGNAL(finished()), mb, SLOT(close()));
     connect(mb, SIGNAL(finished(int)), this, SLOT(cancelConnection()));
     mb->open();

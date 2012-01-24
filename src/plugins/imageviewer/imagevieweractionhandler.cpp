@@ -109,7 +109,7 @@ void ImageViewerActionHandler::registerNewAction(int actionId, const Core::Id &i
     const QString &title, const QKeySequence &key)
 {
     Core::Context context(Constants::IMAGEVIEWER_ID);
-    Core::ActionManager *actionManager = Core::ICore::instance()->actionManager();
+    Core::ActionManager *actionManager = Core::ICore::actionManager();
     QAction *action = new QAction(title, this);
     Core::Command *command = actionManager->registerAction(action, id, context);
     if (command)

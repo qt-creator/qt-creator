@@ -125,7 +125,7 @@ bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *
     d->checkUpdateInfoWatcher = new QFutureWatcher<QDomDocument>(this);
     connect(d->checkUpdateInfoWatcher, SIGNAL(finished()), this, SLOT(reactOnUpdaterOutput()));
 
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     d->updaterProgram = settings->value(QLatin1String("Updater/Application")).toString();
     d->updaterCheckOnlyArgument = settings->value(QLatin1String("Updater/CheckOnlyArgument")).toString();
     d->updaterRunUiArgument = settings->value(QLatin1String("Updater/RunUiArgument")).toString();
@@ -142,9 +142,7 @@ bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *
         return false;
     }
 
-    Core::ICore* const core = Core::ICore::instance();
-    Core::ActionManager* const actionManager = core->actionManager();
-    Core::ActionContainer* const helpActionContainer = actionManager->actionContainer(Core::Constants::M_HELP);
+    Core::ActionContainer* const helpActionContainer = Core::ICore::actionManager()->actionContainer(Core::Constants::M_HELP);
     helpActionContainer->menu()->addAction(tr("Start Updater"), this, SLOT(startUpdaterUiApplication()));
 
     //wait some time before we want to have the first check
@@ -189,7 +187,7 @@ void UpdateInfoPlugin::reactOnUpdaterOutput()
         startCheckTimer(60 * OneMinute);
     } else {
         //added the current almost finished task to the progressmanager
-        d->updateInfoProgress = Core::ICore::instance()->progressManager()->addTask(
+        d->updateInfoProgress = Core::ICore::progressManager()->addTask(
                 d->lastCheckUpdateInfoTask, tr("Update"), QLatin1String("Update.GetInfo"), Core::ProgressManager::KeepOnFinish);
 
         d->updateInfoProgress->setKeepOnFinish(Core::FutureProgress::KeepOnFinish);

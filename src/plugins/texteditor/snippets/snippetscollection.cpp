@@ -109,10 +109,10 @@ SnippetsCollection *SnippetsCollection::instance()
 
 // SnippetsCollection
 SnippetsCollection::SnippetsCollection() :
-    m_userSnippetsPath(Core::ICore::instance()->userResourcePath() + QLatin1String("/snippets/")),
+    m_userSnippetsPath(Core::ICore::userResourcePath() + QLatin1String("/snippets/")),
     m_userSnippetsFile(QLatin1String("snippets.xml"))
 {
-    QDir dir(Core::ICore::instance()->resourcePath() + QLatin1String("/snippets/"));
+    QDir dir(Core::ICore::resourcePath() + QLatin1String("/snippets/"));
     dir.setNameFilters(QStringList(QLatin1String("*.xml")));
     foreach (const QFileInfo &fi, dir.entryInfoList())
         m_builtInSnippetsFiles.append(fi.absoluteFilePath());

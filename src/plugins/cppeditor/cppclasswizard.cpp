@@ -91,23 +91,22 @@ ClassNamePage::ClassNamePage(QWidget *parent) :
 }
 
 // Retrieve settings of CppTools plugin.
-static inline bool lowerCaseFiles(const Core::ICore *core)
+static bool lowerCaseFiles()
 {
     QString lowerCaseSettingsKey = QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP);
     lowerCaseSettingsKey += QLatin1Char('/');
     lowerCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
     const bool lowerCaseDefault = CppTools::Constants::lowerCaseFilesDefault;
-    return core->settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
+    return Core::ICore::settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
 }
 
 // Set up new class widget from settings
 void ClassNamePage::initParameters()
 {
-    Core::ICore *core = Core::ICore::instance();
-    const Core::MimeDatabase *mdb = core->mimeDatabase();
+    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
     m_newClassWidget->setHeaderExtension(mdb->preferredSuffixByType(QLatin1String(Constants::CPP_HEADER_MIMETYPE)));
     m_newClassWidget->setSourceExtension(mdb->preferredSuffixByType(QLatin1String(Constants::CPP_SOURCE_MIMETYPE)));
-    m_newClassWidget->setLowerCaseFiles(lowerCaseFiles(core));
+    m_newClassWidget->setLowerCaseFiles(lowerCaseFiles());
 }
 
 void ClassNamePage::slotValidChanged()

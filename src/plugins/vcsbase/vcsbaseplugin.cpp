@@ -209,12 +209,11 @@ public slots:
 StateListener::StateListener(QObject *parent) :
         QObject(parent)
 {
-    Core::ICore *core = Core::ICore::instance();
-    connect(core->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+    connect(Core::ICore::editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(slotStateChanged()));
-    connect(core->editorManager(), SIGNAL(currentEditorStateChanged(Core::IEditor*)),
+    connect(Core::ICore::editorManager(), SIGNAL(currentEditorStateChanged(Core::IEditor*)),
             this, SLOT(slotStateChanged()));
-    connect(core->vcsManager(), SIGNAL(repositoryChanged(QString)),
+    connect(Core::ICore::vcsManager(), SIGNAL(repositoryChanged(QString)),
             this, SLOT(slotStateChanged()));
 
     if (ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance())
@@ -233,14 +232,13 @@ static inline QString displayNameOfEditor(const QString &fileName)
 void StateListener::slotStateChanged()
 {
     const ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
-    const Core::ICore *core = Core::ICore::instance();
-    Core::VcsManager *vcsManager = core->vcsManager();
+    Core::VcsManager *vcsManager = Core::ICore::vcsManager();
 
     // Get the current file. Are we on a temporary submit editor indicated by
     // temporary path prefix or does the file contains a hash, indicating a project
     // folder?
     State state;
-    Core::EditorManager *em = core->editorManager();
+    Core::EditorManager *em = Core::ICore::editorManager();
     if (!em || !em->currentEditor() || !em->currentEditor()->file())
         state.currentFile.clear();
     else
@@ -625,7 +623,7 @@ void VcsBasePlugin::promptToDeleteCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
-    const bool rc = Core::ICore::instance()->vcsManager()->promptToDelete(versionControl(), state.currentFile());
+    const bool rc = Core::ICore::vcsManager()->promptToDelete(versionControl(), state.currentFile());
     if (!rc)
         QMessageBox::warning(0, tr("Version Control"),
                              tr("The file '%1' could not be deleted.").
@@ -648,12 +646,12 @@ void VcsBasePlugin::createRepository()
     if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject())
         directory = QFileInfo(currentProject->file()->fileName()).absolutePath();
     // Prompt for a directory that is not under version control yet
-    QMainWindow *mw = Core::ICore::instance()->mainWindow();
+    QMainWindow *mw = Core::ICore::mainWindow();
     do {
         directory = QFileDialog::getExistingDirectory(mw, tr("Choose Repository Directory"), directory);
         if (directory.isEmpty())
             return;
-        const Core::IVersionControl *managingControl = Core::ICore::instance()->vcsManager()->findVersionControlForDirectory(directory);
+        const Core::IVersionControl *managingControl = Core::ICore::vcsManager()->findVersionControlForDirectory(directory);
         if (managingControl == 0)
             break;
         const QString question = tr("The directory '%1' is already managed by a version control system (%2)."

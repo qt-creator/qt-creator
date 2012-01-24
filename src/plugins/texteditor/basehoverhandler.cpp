@@ -51,7 +51,7 @@ using namespace Core;
 BaseHoverHandler::BaseHoverHandler(QObject *parent) : QObject(parent), m_diagnosticTooltip(false)
 {
     // Listen for editor opened events in order to connect to tooltip/helpid requests
-    connect(ICore::instance()->editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
+    connect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
             this, SLOT(editorOpened(Core::IEditor *)));
 }
 

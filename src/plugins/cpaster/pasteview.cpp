@@ -137,7 +137,7 @@ int PasteView::showDialog()
     m_ui.uiDescription->selectAll();
 
     // (Re)store dialog size
-    const QSettings *settings = Core::ICore::instance()->settings();
+    const QSettings *settings = Core::ICore::settings();
     const QString rootKey = QLatin1String(groupC) + QLatin1Char('/');
     const int h = settings->value(rootKey + QLatin1String(heightKeyC), height()).toInt();
     const int defaultWidth = m_ui.uiPatchView->columnIndicator() + 50;
@@ -198,7 +198,7 @@ void PasteView::accept()
     const Protocol::ContentType ct = Protocol::contentType(m_mimeType);
     protocol->paste(data, ct, user(), comment(), description());
     // Store settings and close
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String(groupC));
     settings->setValue(QLatin1String(heightKeyC), height());
     settings->setValue(QLatin1String(widthKeyC), width());

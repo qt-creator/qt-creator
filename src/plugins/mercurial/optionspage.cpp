@@ -125,7 +125,7 @@ void OptionsPage::apply()
     if (newSettings != plugin->settings()) {
         //assume success and emit signal that settings are changed;
         plugin->setSettings(newSettings);
-        newSettings.writeSettings(Core::ICore::instance()->settings());
+        newSettings.writeSettings(Core::ICore::settings());
         emit settingsChanged();
     }
 }

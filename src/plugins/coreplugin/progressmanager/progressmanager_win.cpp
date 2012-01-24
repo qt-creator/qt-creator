@@ -117,7 +117,7 @@ void Core::Internal::ProgressManagerPrivate::setApplicationLabel(const QString &
     if (!pITask)
         return;
 
-    const HWND winId = hwndOfWidget(Core::ICore::instance()->mainWindow());
+    const HWND winId = hwndOfWidget(Core::ICore::mainWindow());
     if (text.isEmpty()) {
         pITask->SetOverlayIcon(winId, NULL, NULL);
     } else {
@@ -145,7 +145,7 @@ void Core::Internal::ProgressManagerPrivate::setApplicationProgressRange(int min
 void Core::Internal::ProgressManagerPrivate::setApplicationProgressValue(int value)
 {
     if (pITask) {
-        const HWND winId = hwndOfWidget(Core::ICore::instance()->mainWindow());
+        const HWND winId = hwndOfWidget(Core::ICore::mainWindow());
         pITask->SetProgressValue(winId, value, total);
     }
 }
@@ -155,7 +155,7 @@ void Core::Internal::ProgressManagerPrivate::setApplicationProgressVisible(bool 
     if (!pITask)
         return;
 
-    const HWND winId = hwndOfWidget(Core::ICore::instance()->mainWindow());
+    const HWND winId = hwndOfWidget(Core::ICore::mainWindow());
     if (visible)
         pITask->SetProgressState(winId, TBPF_NORMAL);
     else

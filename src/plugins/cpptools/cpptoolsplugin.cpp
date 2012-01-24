@@ -103,15 +103,14 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     Q_UNUSED(arguments)
     Q_UNUSED(error)
 
-    Core::ICore *core = Core::ICore::instance();
-    Core::ActionManager *am = core->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
 
     m_settings = new CppToolsSettings(this); // force registration of cpp tools settings
 
     // Objects
     m_modelManager = new CppModelManager(this);
-    Core::VcsManager *vcsManager = core->vcsManager();
-    Core::FileManager *fileManager = core->fileManager();
+    Core::VcsManager *vcsManager = Core::ICore::vcsManager();
+    Core::FileManager *fileManager = Core::ICore::fileManager();
     connect(vcsManager, SIGNAL(repositoryChanged(QString)),
             m_modelManager, SLOT(updateModifiedSourceFiles()));
     connect(fileManager, SIGNAL(filesChangedInternally(QStringList)),
@@ -122,7 +121,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(new CppLocatorFilter(m_modelManager));
     addAutoReleasedObject(new CppClassesFilter(m_modelManager));
     addAutoReleasedObject(new CppFunctionsFilter(m_modelManager));
-    addAutoReleasedObject(new CppCurrentDocumentFilter(m_modelManager, core->editorManager()));
+    addAutoReleasedObject(new CppCurrentDocumentFilter(m_modelManager, Core::ICore::editorManager()));
     addAutoReleasedObject(new CppFileSettingsPage(m_fileSettings));
     addAutoReleasedObject(new SymbolsFindFilter(m_modelManager));
     addAutoReleasedObject(new CppCodeStyleSettingsPage);
@@ -151,7 +150,7 @@ void CppToolsPlugin::extensionsInitialized()
 {
     // The Cpp editor plugin, which is loaded later on, registers the Cpp mime types,
     // so, apply settings here
-    m_fileSettings->fromSettings(Core::ICore::instance()->settings());
+    m_fileSettings->fromSettings(Core::ICore::settings());
     if (!m_fileSettings->applySuffixesToMimeDB())
         qWarning("Unable to apply cpp suffixes to mime database (cpp mime types not found).\n");
 }
@@ -266,8 +265,7 @@ QString CppToolsPlugin::correspondingHeaderOrSourceI(const QString &fileName) co
     if (m_headerSourceMapping.contains(fi.absoluteFilePath()))
         return m_headerSourceMapping.value(fi.absoluteFilePath());
 
-    const Core::ICore *core = Core::ICore::instance();
-    const Core::MimeDatabase *mimeDatase = core->mimeDatabase();
+    const Core::MimeDatabase *mimeDatase = Core::ICore::mimeDatabase();
     ProjectExplorer::ProjectExplorerPlugin *explorer =
        ProjectExplorer::ProjectExplorerPlugin::instance();
     ProjectExplorer::Project *project = (explorer ? explorer->currentProject() : 0);

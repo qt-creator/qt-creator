@@ -337,7 +337,7 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
 
 void GdbOptionsPage::apply()
 {
-    m_group.apply(Core::ICore::instance()->settings());
+    m_group.apply(Core::ICore::settings());
 }
 
 void GdbOptionsPage::finish()

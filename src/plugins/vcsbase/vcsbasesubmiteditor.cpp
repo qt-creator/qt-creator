@@ -278,7 +278,7 @@ static inline QStringList fieldTexts(const QString &fileContents)
 void VcsBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
 {
     Utils::FileReader reader;
-    if (!reader.fetch(fieldConfigFile, QIODevice::Text, Core::ICore::instance()->mainWindow()))
+    if (!reader.fetch(fieldConfigFile, QIODevice::Text, Core::ICore::mainWindow()))
         return;
     // Parse into fields
     const QStringList fields = fieldTexts(QString::fromUtf8(reader.data()));
@@ -590,7 +590,7 @@ VcsBaseSubmitEditor::PromptSubmitResult
 
     const bool prompt = forcePrompt || *promptSetting;
 
-    QWidget *parent = Core::ICore::instance()->mainWindow();
+    QWidget *parent = Core::ICore::mainWindow();
     // Pop up a message depending on whether the check succeeded and the
     // user wants to be prompted
     bool canCommit = checkSubmitMessage(&errorMessage) && submitWidget->canSubmit();

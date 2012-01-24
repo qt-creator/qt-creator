@@ -219,7 +219,7 @@ void ShortcutSettings::removeTargetIdentifier()
 void ShortcutSettings::importAction()
 {
     QString fileName = QFileDialog::getOpenFileName(0, tr("Import Keyboard Mapping Scheme"),
-        ICore::instance()->resourcePath() + QLatin1String("/schemes/"),
+        ICore::resourcePath() + QLatin1String("/schemes/"),
         tr("Keyboard Mapping Scheme (*.kms)"));
     if (!fileName.isEmpty()) {
 
@@ -268,7 +268,7 @@ void ShortcutSettings::exportAction()
 {
     QString fileName = FileManager::instance()->getSaveFileNameWithExtension(
         tr("Export Keyboard Mapping Scheme"),
-        ICore::instance()->resourcePath() + QLatin1String("/schemes/"),
+        ICore::resourcePath() + QLatin1String("/schemes/"),
         tr("Keyboard Mapping Scheme (*.kms)"));
     if (!fileName.isEmpty()) {
         CommandsFile cf(fileName);

@@ -201,7 +201,7 @@ void GeneralSettingsPage::apply()
         m_contextOption = helpOption;
         manager->setCustomValue(QLatin1String("ContextHelpOption"), helpOption);
 
-        QSettings *settings = Core::ICore::instance()->settings();
+        QSettings *settings = Core::ICore::settings();
         settings->beginGroup(Help::Constants::ID_MODE_HELP);
         settings->setValue(QLatin1String("ContextHelpOption"), helpOption);
         settings->endGroup();

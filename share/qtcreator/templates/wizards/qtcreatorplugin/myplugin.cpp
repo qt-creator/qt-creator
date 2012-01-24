@@ -39,7 +39,7 @@ bool %PluginName%Plugin::initialize(const QStringList &arguments, QString *error
 
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
 
     QAction *action = new QAction(tr("%PluginName% action"), this);
     Core::Command *cmd = am->registerAction(action, Constants::ACTION_ID,
@@ -72,7 +72,7 @@ ExtensionSystem::IPlugin::ShutdownFlag %PluginName%Plugin::aboutToShutdown()
 
 void %PluginName%Plugin::triggerAction()
 {
-    QMessageBox::information(Core::ICore::instance()->mainWindow(),
+    QMessageBox::information(Core::ICore::mainWindow(),
                              tr("Action triggered"),
                              tr("This is an action from %PluginName%."));
 }

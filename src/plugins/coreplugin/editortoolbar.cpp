@@ -203,7 +203,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
             this, SIGNAL(closeSplitClicked()), Qt::QueuedConnection);
 
 
-    ActionManager *am = ICore::instance()->actionManager();
+    ActionManager *am = ICore::actionManager();
     connect(am->command(Constants::CLOSE), SIGNAL(keySequenceChanged()),
             this, SLOT(updateActionShortcuts()));
     connect(am->command(Constants::GO_BACK), SIGNAL(keySequenceChanged()),
@@ -246,7 +246,7 @@ void EditorToolBar::closeEditor()
         return;
 
     if (d->m_isStandalone) {
-        EditorManager *em = ICore::instance()->editorManager();
+        EditorManager *em = ICore::editorManager();
         if (IEditor *editor = currentEditor()) {
             em->closeEditor(editor);
         }
@@ -321,7 +321,7 @@ void EditorToolBar::updateEditorListSelection(IEditor *newSelection)
 
 void EditorToolBar::changeActiveEditor(int row)
 {
-    EditorManager *em = ICore::instance()->editorManager();
+    EditorManager *em = ICore::editorManager();
     QAbstractItemModel *model = d->m_editorList->model();
     em->activateEditorForIndex(model->index(row, 0), EditorManager::ModeSwitch);
 }
@@ -347,7 +347,7 @@ void EditorToolBar::listContextMenu(QPoint pos)
 void EditorToolBar::makeEditorWritable()
 {
     if (currentEditor())
-        ICore::instance()->editorManager()->makeFileWritable(currentEditor()->file());
+        ICore::editorManager()->makeFileWritable(currentEditor()->file());
 }
 
 void EditorToolBar::setCanGoBack(bool canGoBack)
@@ -362,7 +362,7 @@ void EditorToolBar::setCanGoForward(bool canGoForward)
 
 void EditorToolBar::updateActionShortcuts()
 {
-    ActionManager *am = ICore::instance()->actionManager();
+    ActionManager *am = ICore::actionManager();
     d->m_closeEditorButton->setToolTip(am->command(Constants::CLOSE)->stringWithAppendedShortcut(EditorManager::tr("Close")));
     d->m_goBackAction->setToolTip(am->command(Constants::GO_BACK)->action()->toolTip());
     d->m_goForwardAction->setToolTip(am->command(Constants::GO_FORWARD)->action()->toolTip());
@@ -370,7 +370,7 @@ void EditorToolBar::updateActionShortcuts()
 
 IEditor *EditorToolBar::currentEditor() const
 {
-    return ICore::instance()->editorManager()->currentEditor();
+    return ICore::editorManager()->currentEditor();
 }
 
 void EditorToolBar::checkEditorStatus()

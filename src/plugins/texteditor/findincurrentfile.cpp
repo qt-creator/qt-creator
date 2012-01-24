@@ -45,9 +45,9 @@ using namespace TextEditor::Internal;
 FindInCurrentFile::FindInCurrentFile()
   : m_currentFile(0)
 {
-    connect(Core::ICore::instance()->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+    connect(Core::ICore::editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(handleFileChange(Core::IEditor*)));
-    handleFileChange(Core::ICore::instance()->editorManager()->currentEditor());
+    handleFileChange(Core::ICore::editorManager()->currentEditor());
 }
 
 QString FindInCurrentFile::id() const

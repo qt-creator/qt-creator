@@ -180,7 +180,7 @@ void CommonOptionsPage::apply()
 {
     QTC_ASSERT(!m_widget.isNull() && !m_group.isNull(), return; )
 
-    QSettings *settings = ICore::instance()->settings();
+    QSettings *settings = ICore::settings();
     m_group->apply(settings);
 
     const GlobalDebuggerOptions newGlobalOptions = m_widget->globalOptions();
@@ -245,7 +245,7 @@ QIcon DebuggingHelperOptionPage::categoryIcon() const
 
 void DebuggingHelperOptionPage::apply()
 {
-    m_group.apply(ICore::instance()->settings());
+    m_group.apply(ICore::settings());
 }
 
 void DebuggingHelperOptionPage::finish()

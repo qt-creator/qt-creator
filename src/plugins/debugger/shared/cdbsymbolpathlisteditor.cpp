@@ -177,9 +177,8 @@ bool CdbSymbolPathListEditor::promptToAddSymbolServer(const QString &settingsGro
             || CdbSymbolPathListEditor::indexOfSymbolServerPath(*symbolPaths) != -1)
         return false;
     // Prompt to use Symbol server unless the user checked "No nagging".
-    Core::ICore *core = Core::ICore::instance();
     const QString nagSymbolServerKey = settingsGroup + QLatin1String("/NoPromptSymbolServer");
-    bool noFurtherNagging = core->settings()->value(nagSymbolServerKey, false).toBool();
+    bool noFurtherNagging = Core::ICore::settings()->value(nagSymbolServerKey, false).toBool();
     if (noFurtherNagging)
         return false;
 
@@ -192,13 +191,13 @@ bool CdbSymbolPathListEditor::promptToAddSymbolServer(const QString &settingsGro
                            "<p>Would you like to set it up?</p></br>"
                            "</body></html>").arg(symServUrl);
     const QDialogButtonBox::StandardButton answer =
-            Utils::CheckableMessageBox::question(core->mainWindow(), tr("Symbol Server"), msg,
+            Utils::CheckableMessageBox::question(Core::ICore::mainWindow(), tr("Symbol Server"), msg,
                                                  tr("Do not ask again"), &noFurtherNagging);
-    core->settings()->setValue(nagSymbolServerKey, noFurtherNagging);
+    Core::ICore::settings()->setValue(nagSymbolServerKey, noFurtherNagging);
     if (answer == QDialogButtonBox::No)
         return false;
     // Prompt for path and add it. Synchronize QSetting and debugger.
-    const QString cacheDir = CdbSymbolPathListEditor::promptCacheDirectory(core->mainWindow());
+    const QString cacheDir = CdbSymbolPathListEditor::promptCacheDirectory(Core::ICore::mainWindow());
     if (cacheDir.isEmpty())
         return false;
 

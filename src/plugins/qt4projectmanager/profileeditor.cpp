@@ -200,7 +200,7 @@ void ProFileEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu *menu = new QMenu();
 
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     Core::ActionContainer *mcontext = am->actionContainer(Qt4ProjectManager::Constants::M_CONTEXT);
     QMenu *contextMenu = mcontext->menu();
 

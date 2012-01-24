@@ -316,7 +316,7 @@ bool FontSettings::loadColorScheme(const QString &fileName,
 
 bool FontSettings::saveColorScheme(const QString &fileName)
 {
-    const bool saved = m_scheme.save(fileName, Core::ICore::instance()->mainWindow());
+    const bool saved = m_scheme.save(fileName, Core::ICore::mainWindow());
     if (saved)
         m_schemeFileName = fileName;
     return saved;
@@ -357,7 +357,7 @@ int FontSettings::defaultFontSize()
  */
 QString FontSettings::defaultSchemeFileName(const QString &fileName)
 {
-    QString defaultScheme = Core::ICore::instance()->resourcePath();
+    QString defaultScheme = Core::ICore::resourcePath();
     defaultScheme += QLatin1String("/styles/");
 
     if (!fileName.isEmpty() && QFile::exists(defaultScheme + fileName))

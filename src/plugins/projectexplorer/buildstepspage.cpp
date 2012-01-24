@@ -297,7 +297,7 @@ void BuildStepListWidget::triggerStepMoveDown(int pos)
 void BuildStepListWidget::triggerRemoveBuildStep(int pos)
 {
     if (!m_buildStepList->removeStep(pos)) {
-        QMessageBox::warning(Core::ICore::instance()->mainWindow(),
+        QMessageBox::warning(Core::ICore::mainWindow(),
                              tr("Removing Step failed"),
                              tr("Cannot remove build step while building"),
                              QMessageBox::Ok, QMessageBox::Ok);

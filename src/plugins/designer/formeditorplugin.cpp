@@ -83,8 +83,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
     Q_UNUSED(arguments)
     Q_UNUSED(error)
 
-    Core::ICore *core = Core::ICore::instance();
-    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/formeditor/Designer.mimetypes.xml"), error))
+    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/formeditor/Designer.mimetypes.xml"), error))
         return false;
 
     initializeTemplates();
@@ -93,11 +92,11 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(new SettingsPageProvider);
     addAutoReleasedObject(new QtDesignerFormClassCodeGenerator);
     // Ensure that loading designer translations is done before FormEditorW is instantiated
-    const QString locale = Core::ICore::instance()->userInterfaceLanguage();
+    const QString locale = Core::ICore::userInterfaceLanguage();
     if (!locale.isEmpty()) {
         QTranslator *qtr = new QTranslator(this);
         const QString &creatorTrPath =
-                Core::ICore::instance()->resourcePath() + QLatin1String("/translations");
+                Core::ICore::resourcePath() + QLatin1String("/translations");
         const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
         const QString &trFile = QLatin1String("designer_") + locale;
         if (qtr->load(trFile, qtTrPath) || qtr->load(trFile, creatorTrPath))

@@ -52,7 +52,7 @@ QuickToolBarSettings::QuickToolBarSettings()
 void QuickToolBarSettings::set()
 {
     if (get() != *this) {
-        if (QSettings *settings = Core::ICore::instance()->settings())
+        if (QSettings *settings = Core::ICore::settings())
             toSettings(settings);
     }
 }
@@ -118,9 +118,8 @@ QString QuickToolBarSettingsPageWidget::searchKeywords() const
 
 QuickToolBarSettings QuickToolBarSettings::get()
 {
-    Core::ICore *core = Core::ICore::instance();
     QuickToolBarSettings settings;
-    settings.fromSettings(core->settings());
+    settings.fromSettings(Core::ICore::settings());
     return settings;
 }
 

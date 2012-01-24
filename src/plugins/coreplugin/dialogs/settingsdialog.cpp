@@ -332,7 +332,7 @@ void SettingsDialog::showPage(const QString &categoryId, const QString &pageId)
     QString initialCategory = categoryId;
     QString initialPage = pageId;
     if (initialCategory.isEmpty() && initialPage.isEmpty()) {
-        QSettings *settings = ICore::instance()->settings();
+        QSettings *settings = ICore::settings();
         initialCategory = settings->value(QLatin1String(categoryKeyC), QVariant(QString())).toString();
         initialPage = settings->value(QLatin1String(pageKeyC), QVariant(QString())).toString();
     }
@@ -540,7 +540,7 @@ void SettingsDialog::apply()
 
 void SettingsDialog::done(int val)
 {
-    QSettings *settings = ICore::instance()->settings();
+    QSettings *settings = ICore::settings();
     settings->setValue(QLatin1String(categoryKeyC), m_currentCategory);
     settings->setValue(QLatin1String(pageKeyC), m_currentPage);
 

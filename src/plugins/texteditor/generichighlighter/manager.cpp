@@ -186,14 +186,14 @@ public:
 const int ManagerProcessor::kMaxProgress = 200;
 
 ManagerProcessor::ManagerProcessor()
-    : m_knownSuffixes(QSet<QString>::fromList(Core::ICore::instance()->mimeDatabase()->suffixes()))
+    : m_knownSuffixes(QSet<QString>::fromList(Core::ICore::mimeDatabase()->suffixes()))
 {
     const HighlighterSettings &settings = TextEditorSettings::instance()->highlighterSettings();
     m_definitionsPaths.append(settings.definitionFilesPath());
     if (settings.useFallbackLocation())
         m_definitionsPaths.append(settings.fallbackDefinitionFilesPath());
 
-    Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();
+    Core::MimeDatabase *mimeDatabase = Core::ICore::mimeDatabase();
     foreach (const Core::MimeType &userMimeType, mimeDatabase->readUserModifiedMimeTypes())
         m_userModified.insert(userMimeType.type(), userMimeType);
     foreach (const Core::MimeType &mimeType, mimeDatabase->mimeTypes())
@@ -319,7 +319,7 @@ void Manager::registerMimeTypes()
         connect(&m_registeringWatcher, SIGNAL(finished()), processor, SLOT(deleteLater()));
         m_registeringWatcher.setFuture(future);
 
-        Core::ICore::instance()->progressManager()->addTask(future,
+        Core::ICore::progressManager()->addTask(future,
                                                             tr("Registering definitions"),
                                                             QLatin1String(Constants::TASK_REGISTER_DEFINITIONS));
     } else {
@@ -340,7 +340,7 @@ void Manager::registerMimeTypesFinished()
         PlainTextEditorFactory *factory = TextEditorPlugin::instance()->editorFactory();
         const QSet<QString> &inFactory = factory->mimeTypes().toSet();
         foreach (const Core::MimeType &mimeType, result.second) {
-            Core::ICore::instance()->mimeDatabase()->addMimeType(mimeType);
+            Core::ICore::mimeDatabase()->addMimeType(mimeType);
             if (!inFactory.contains(mimeType.type()))
                 factory->addMimeType(mimeType.type());
         }
@@ -455,7 +455,7 @@ void Manager::downloadDefinitions(const QList<QUrl> &urls, const QString &savePa
     m_isDownloadingDefinitionsSpec = true;
     QFuture<void> future = QtConcurrent::map(m_downloaders, DownloaderStarter());
     m_downloadWatcher.setFuture(future);
-    Core::ICore::instance()->progressManager()->addTask(future,
+    Core::ICore::progressManager()->addTask(future,
                                                         tr("Downloading definitions"),
                                                         QLatin1String(Constants::TASK_DOWNLOAD_DEFINITIONS));
 }

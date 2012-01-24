@@ -339,7 +339,7 @@ void ProjectFileWizardExtension::initializeVersionControlChoices()
 
     QStringList versionControlChoices = QStringList(tr("<None>"));
     if (!m_context->commonDirectory.isEmpty()) {
-        Core::IVersionControl *managingControl = Core::ICore::instance()->vcsManager()->findVersionControlForDirectory(m_context->commonDirectory);
+        Core::IVersionControl *managingControl = Core::ICore::vcsManager()->findVersionControlForDirectory(m_context->commonDirectory);
         if (managingControl) {
             // Under VCS
             if (managingControl->supportsOperation(Core::IVersionControl::AddOperation)) {
@@ -454,7 +454,7 @@ bool ProjectFileWizardExtension::processProject(
     } else {
         // Split into lists by file type and bulk-add them.
         TypeFileMap typeFileMap;
-        const Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();
+        const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
         foreach (const Core::GeneratedFile &generatedFile, files) {
             const QString path = generatedFile.path();
             typeFileMap.insert(typeForFileName(mdb, path), path);
@@ -515,7 +515,7 @@ void ProjectFileWizardExtension::applyCodeStyle(Core::GeneratedFile *file) const
     if (file->isBinary() || file->contents().isEmpty())
         return; // nothing to do
 
-    const Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();
+    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
     Core::MimeType mt = mdb->findByFile(QFileInfo(file->path()));
     const QString languageId = TextEditor::TextEditorSettings::instance()->languageId(mt.type());
 

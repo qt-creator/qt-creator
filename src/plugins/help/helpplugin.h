@@ -44,7 +44,6 @@ QT_FORWARD_DECLARE_CLASS(QToolButton)
 QT_FORWARD_DECLARE_CLASS(QUrl)
 
 namespace Core {
-class ICore;
 class IMode;
 class MiniSplitter;
 class SideBar;
@@ -140,7 +139,6 @@ private:
 
 private:
     HelpMode *m_mode;
-    Core::ICore *m_core;
     CentralWidget *m_centralWidget;
     QWidget *m_rightPaneSideBarWidget;
     HelpViewer *m_helpViewerForSideBar;

@@ -305,8 +305,7 @@ void DebuggerMainWindow::onModeChanged(IMode *mode)
 
 void DebuggerMainWindowPrivate::createViewsMenuItems()
 {
-    ICore *core = ICore::instance();
-    ActionManager *am = core->actionManager();
+    ActionManager *am = ICore::actionManager();
     Context debugcontext(Constants::C_DEBUGMODE);
     m_viewsMenu = am->actionContainer(Id(Core::Constants::M_WINDOW_VIEWS));
     QTC_ASSERT(m_viewsMenu, return)
@@ -352,7 +351,6 @@ void DebuggerMainWindowPrivate::addLanguage(DebuggerLanguage languageId,
 
 void DebuggerMainWindowPrivate::activateQmlCppLayout()
 {
-    ICore *core = ICore::instance();
     Context qmlCppContext = m_contextsForLanguage.value(QmlLanguage);
     qmlCppContext.add(m_contextsForLanguage.value(CppLanguage));
     if (m_toolBars.value(QmlLanguage))
@@ -360,37 +358,36 @@ void DebuggerMainWindowPrivate::activateQmlCppLayout()
 
     if (m_previousDebugLanguages & QmlLanguage) {
         m_dockWidgetActiveStateQmlCpp = q->saveSettings();
-        core->updateAdditionalContexts(qmlCppContext, Context());
+        ICore::updateAdditionalContexts(qmlCppContext, Context());
     } else if (m_previousDebugLanguages & CppLanguage) {
         m_dockWidgetActiveStateCpp = q->saveSettings();
-        core->updateAdditionalContexts(m_contextsForLanguage.value(CppLanguage),
+        ICore::updateAdditionalContexts(m_contextsForLanguage.value(CppLanguage),
             Context());
     }
 
     q->restoreSettings(m_dockWidgetActiveStateQmlCpp);
-    core->updateAdditionalContexts(Context(), qmlCppContext);
+    ICore::updateAdditionalContexts(Context(), qmlCppContext);
 }
 
 void DebuggerMainWindowPrivate::activateCppLayout()
 {
-    ICore *core = ICore::instance();
     Context qmlCppContext = m_contextsForLanguage.value(QmlLanguage);
     qmlCppContext.add(m_contextsForLanguage.value(CppLanguage));
     m_toolBarStack->setCurrentWidget(m_toolBars.value(CppLanguage));
 
     if (m_previousDebugLanguages & QmlLanguage) {
         m_dockWidgetActiveStateQmlCpp = q->saveSettings();
-        core->updateAdditionalContexts(qmlCppContext, Context());
+        ICore::updateAdditionalContexts(qmlCppContext, Context());
     } else if (m_previousDebugLanguages & CppLanguage) {
         m_dockWidgetActiveStateCpp = q->saveSettings();
-        core->updateAdditionalContexts(m_contextsForLanguage.value(CppLanguage),
+        ICore::updateAdditionalContexts(m_contextsForLanguage.value(CppLanguage),
             Context());
     }
 
     q->restoreSettings(m_dockWidgetActiveStateCpp);
 
     const Context &cppContext = m_contextsForLanguage.value(CppLanguage);
-    core->updateAdditionalContexts(Context(), cppContext);
+    ICore::updateAdditionalContexts(Context(), cppContext);
 }
 
 void DebuggerMainWindow::setToolBar(DebuggerLanguage language, QWidget *widget)
@@ -426,7 +423,7 @@ QDockWidget *DebuggerMainWindow::createDockWidget(const DebuggerLanguage &langua
 
     Context globalContext(Core::Constants::C_GLOBAL);
 
-    ActionManager *am = ICore::instance()->actionManager();
+    ActionManager *am = ICore::actionManager();
     QAction *toggleViewAction = dockWidget->toggleViewAction();
     Command *cmd = am->registerAction(toggleViewAction,
              Core::Id(QLatin1String("Debugger.") + widget->objectName()), globalContext);
@@ -460,8 +457,7 @@ void DebuggerMainWindow::addStagedMenuEntries()
 
 QWidget *DebuggerMainWindow::createContents(IMode *mode)
 {
-    ICore *core = ICore::instance();
-    ActionManager *am = core->actionManager();
+    ActionManager *am = ICore::actionManager();
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     connect(pe->session(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
         d, SLOT(updateUiForProject(ProjectExplorer::Project*)));
@@ -543,9 +539,7 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
 
 void DebuggerMainWindow::writeSettings() const
 {
-    ICore *core = ICore::instance();
-    QTC_ASSERT(core, return);
-    QSettings *settings = core->settings();
+    QSettings *settings = ICore::settings();
     QTC_ASSERT(settings, return);
 
     settings->beginGroup(QLatin1String("DebugMode.CppMode"));
@@ -567,9 +561,7 @@ void DebuggerMainWindow::writeSettings() const
 
 void DebuggerMainWindow::readSettings()
 {
-    ICore *core = ICore::instance();
-    QTC_ASSERT(core, return);
-    QSettings *settings = core->settings();
+    QSettings *settings = ICore::settings();
     QTC_ASSERT(settings, return);
 
     d->m_dockWidgetActiveStateCpp.clear();

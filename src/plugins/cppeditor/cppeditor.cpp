@@ -149,7 +149,7 @@ public:
 
     void adjustWidth()
     {
-        const int w = Core::ICore::instance()->mainWindow()->geometry().width();
+        const int w = Core::ICore::mainWindow()->geometry().width();
         setMaximumWidth(w);
         setMinimumWidth(qMin(qMax(sizeHintForColumn(0), minimumSizeHint().width()), w));
     }
@@ -1536,7 +1536,7 @@ void CPPEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
     QMenu *menu = new QMenu;
 
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     Core::ActionContainer *mcontext = am->actionContainer(Constants::M_CONTEXT);
     QMenu *contextMenu = mcontext->menu();
 
@@ -1684,7 +1684,7 @@ Core::Id CPPEditor::id() const
 bool CPPEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     bool b = TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
-    editorWidget()->setMimeType(Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(fileName)).type());
+    editorWidget()->setMimeType(Core::ICore::mimeDatabase()->findByFile(QFileInfo(fileName)).type());
     return b;
 }
 

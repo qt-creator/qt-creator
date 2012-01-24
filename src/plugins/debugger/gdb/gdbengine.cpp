@@ -4701,7 +4701,7 @@ void GdbEngine::loadInitScript()
 void GdbEngine::loadPythonDumpers()
 {
     const QByteArray dumperSourcePath =
-        Core::ICore::instance()->resourcePath().toLocal8Bit() + "/dumper/";
+        Core::ICore::resourcePath().toLocal8Bit() + "/dumper/";
 
     postCommand("python execfile('" + dumperSourcePath + "bridge.py')",
         ConsoleCommand|NonCriticalResponse);
@@ -4791,9 +4791,9 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg,
     if (!msg.isEmpty()) {
         const QString title = tr("Adapter start failed");
         if (settingsIdHint.isEmpty()) {
-            Core::ICore::instance()->showWarningWithOptions(title, msg);
+            Core::ICore::showWarningWithOptions(title, msg);
         } else {
-            Core::ICore::instance()->showWarningWithOptions(title, msg, QString(),
+            Core::ICore::showWarningWithOptions(title, msg, QString(),
                 _(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY), settingsIdHint);
         }
     }

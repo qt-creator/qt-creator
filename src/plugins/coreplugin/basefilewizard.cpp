@@ -737,7 +737,7 @@ QString BaseFileWizard::buildFileName(const QString &path,
 
 QString BaseFileWizard::preferredSuffix(const QString &mimeType)
 {
-    const QString rc = Core::ICore::instance()->mimeDatabase()->preferredSuffixByType(mimeType);
+    const QString rc = Core::ICore::mimeDatabase()->preferredSuffixByType(mimeType);
     if (rc.isEmpty())
         qWarning("%s: WARNING: Unable to find a preferred suffix for %s.",
                  Q_FUNC_INFO, mimeType.toUtf8().constData());

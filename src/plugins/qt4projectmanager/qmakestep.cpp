@@ -653,9 +653,7 @@ void QMakeStepConfigWidget::linkQmlDebuggingLibraryChecked(bool checked)
     updateEffectiveQMakeCall();
     updateQmlDebuggingOption();
 
-
-    Core::ICore * const core = Core::ICore::instance();
-    QMessageBox *question = new QMessageBox(core->mainWindow());
+    QMessageBox *question = new QMessageBox(Core::ICore::mainWindow());
     question->setWindowTitle(tr("QML Debugging"));
     question->setText(tr("The option will only take effect if the project is recompiled. Do you want to recompile now?"));
     question->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
@@ -679,7 +677,7 @@ void QMakeStepConfigWidget::buildQmlDebuggingHelper()
 
     QFuture<void> task = QtConcurrent::run(&QtSupport::DebuggingHelperBuildTask::run, buildTask);
     const QString taskName = tr("Building helpers");
-    Core::ICore::instance()->progressManager()->addTask(task, taskName,
+    Core::ICore::progressManager()->addTask(task, taskName,
                                                         QLatin1String("Qt4ProjectManager::BuildHelpers"));
 }
 

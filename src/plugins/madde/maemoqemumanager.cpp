@@ -97,8 +97,7 @@ MaemoQemuManager::MaemoQemuManager(QObject *parent)
     m_qemuAction->setToolTip(tr("Start MeeGo Emulator"));
     connect(m_qemuAction, SIGNAL(triggered()), this, SLOT(startRuntime()));
 
-    Core::ICore *core = Core::ICore::instance();
-    Core::ActionManager *actionManager = core->actionManager();
+    Core::ActionManager *actionManager = Core::ICore::actionManager();
     Core::Command *qemuCommand = actionManager->registerAction(m_qemuAction,
         "MaemoEmulator", Core::Context(Core::Constants::C_GLOBAL));
     qemuCommand->setAttribute(Core::Command::CA_UpdateText);

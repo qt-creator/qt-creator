@@ -242,7 +242,7 @@ void BuildManager::cancel()
 
 void BuildManager::updateTaskCount()
 {
-    Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
+    Core::ProgressManager *progressManager = Core::ICore::progressManager();
     const int errors = getErrorTaskCount();
     if (errors > 0) {
         progressManager->setApplicationLabel(QString::number(errors));
@@ -254,7 +254,7 @@ void BuildManager::updateTaskCount()
 
 void BuildManager::finish()
 {
-    QApplication::alert(Core::ICore::instance()->mainWindow(), 3000);
+    QApplication::alert(Core::ICore::mainWindow(), 3000);
 }
 
 void BuildManager::emitCancelMessage()
@@ -318,7 +318,7 @@ void BuildManager::startBuildQueue()
     }
     if (!d->m_running) {
         // Progress Reporting
-        Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
+        Core::ProgressManager *progressManager = Core::ICore::progressManager();
         d->m_progressFutureInterface = new QFutureInterface<void>;
         d->m_progressWatcher.setFuture(d->m_progressFutureInterface->future());
         d->m_outputWindow->clearContents();

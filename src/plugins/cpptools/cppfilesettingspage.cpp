@@ -99,7 +99,7 @@ void CppFileSettings::fromSettings(QSettings *s)
 
 bool CppFileSettings::applySuffixesToMimeDB()
 {
-    Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();
+    Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
     return mdb->setPreferredSuffix(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE), sourceSuffix)
             && mdb->setPreferredSuffix(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE), headerSuffix);
 }
@@ -202,7 +202,7 @@ static void parseLicenseTemplatePlaceholders(QString *t, const QString &file, co
 QString CppFileSettings::licenseTemplate(const QString &fileName, const QString &className)
 {
 
-    const QSettings *s = Core::ICore::instance()->settings();
+    const QSettings *s = Core::ICore::settings();
     QString key = QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP);
     key += QLatin1Char('/');
     key += QLatin1String(licenseTemplatePathKeyC);
@@ -237,7 +237,7 @@ CppFileSettingsWidget::CppFileSettingsWidget(QWidget *parent) :
     m_ui(new Internal::Ui::CppFileSettingsPage)
 {
     m_ui->setupUi(this);
-    const Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();
+    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
     // populate suffix combos
     if (const Core::MimeType sourceMt = mdb->findByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)))
         foreach (const QString &suffix, sourceMt.suffixes())
@@ -372,7 +372,7 @@ void CppFileSettingsPage::apply()
         const CppFileSettings newSettings = m_widget->settings();
         if (newSettings != *m_settings) {
             *m_settings = newSettings;
-            m_settings->toSettings(Core::ICore::instance()->settings());
+            m_settings->toSettings(Core::ICore::settings());
             m_settings->applySuffixesToMimeDB();
         }
     }

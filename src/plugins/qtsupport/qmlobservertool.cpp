@@ -171,7 +171,7 @@ QStringList QmlObserverTool::installDirectories(const QString &qtInstallData)
 
 QString QmlObserverTool::sourcePath()
 {
-    return Core::ICore::instance()->resourcePath() + QLatin1String("/qml/qmlobserver/");
+    return Core::ICore::resourcePath() + QLatin1String("/qml/qmlobserver/");
 }
 
 QStringList QmlObserverTool::sourceFileNames()

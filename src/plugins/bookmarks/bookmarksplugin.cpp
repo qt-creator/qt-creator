@@ -70,8 +70,7 @@ void BookmarksPlugin::extensionsInitialized()
 
 bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
 {
-    Core::ICore *core = Core::ICore::instance();
-    Core::ActionManager *am = core->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     Core::Context textcontext(TextEditor::Constants::C_TEXTEDITOR);
     Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
@@ -148,7 +147,7 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
         this, SLOT(bookmarkMarginActionTriggered()));
 
     // EditorManager
-    QObject *editorManager = core->editorManager();
+    QObject *editorManager = Core::ICore::editorManager();
     connect(editorManager, SIGNAL(editorAboutToClose(Core::IEditor*)),
         this, SLOT(editorAboutToClose(Core::IEditor*)));
     connect(editorManager, SIGNAL(editorOpened(Core::IEditor*)),

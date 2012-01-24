@@ -1296,7 +1296,7 @@ MimeDatabasePrivate::MimeDatabasePrivate() :
     m_maxLevel(-1)
 {
     // Assign here to avoid non-local static data initialization issues.
-    kModifiedMimeTypesPath = ICore::instance()->userResourcePath() + QLatin1String("/mimetypes/");
+    kModifiedMimeTypesPath = ICore::userResourcePath() + QLatin1String("/mimetypes/");
 }
 
 /*!

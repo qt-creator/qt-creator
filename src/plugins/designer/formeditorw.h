@@ -69,7 +69,6 @@ namespace Core {
 class ActionManager;
 class ActionContainer;
 class Command;
-class ICore;
 class IEditor;
 class Id;
 class DesignMode;
@@ -183,7 +182,6 @@ private:
 #else
     qdesigner_internal::QDesignerFormWindowManager *m_fwm;
 #endif
-    Core::ICore *m_core;
     InitializationStage m_initStage;
 
     QWidget *m_designerSubWindows[Designer::Constants::DesignerSubWindowCount];

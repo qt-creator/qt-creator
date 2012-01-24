@@ -362,7 +362,7 @@ void LocatorWidget::updateFilterList()
     m_filterMenu->clear();
 
     // update actions and menu
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     QMap<QString, QAction *> actionCopy = m_filterActionMap;
     m_filterActionMap.clear();
     // register new actions, update existent
@@ -661,6 +661,6 @@ void LocatorWidget::showEvent(QShowEvent *event)
 
 void LocatorWidget::showConfigureDialog()
 {
-    Core::ICore::instance()->showOptionsDialog(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE),
+    Core::ICore::showOptionsDialog(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE),
           QLatin1String(Constants::FILTER_OPTIONS_PAGE));
 }

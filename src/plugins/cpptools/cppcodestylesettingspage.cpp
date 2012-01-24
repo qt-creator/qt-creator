@@ -535,7 +535,7 @@ QWidget *CppCodeStyleSettingsPage::createPage(QWidget *parent)
 void CppCodeStyleSettingsPage::apply()
 {
     if (m_widget) {
-        QSettings *s = Core::ICore::instance()->settings();
+        QSettings *s = Core::ICore::settings();
 
         CppCodeStylePreferences *originalCppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStyle();
         if (originalCppCodeStylePreferences->codeStyleSettings() != m_pageCppCodeStylePreferences->codeStyleSettings()) {

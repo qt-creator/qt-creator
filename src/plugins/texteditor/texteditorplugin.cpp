@@ -103,7 +103,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 {
     Q_UNUSED(arguments)
 
-    if (!Core::ICore::instance()->mimeDatabase()->addMimeTypes(QLatin1String(":/texteditor/TextEditor.mimetypes.xml"), errorMessage))
+    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/texteditor/TextEditor.mimetypes.xml"), errorMessage))
         return false;
 
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
@@ -125,15 +125,14 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     addAutoReleasedObject(m_editorFactory);
 
     // Goto line functionality for quick open
-    Core::ICore *core = Core::ICore::instance();
     m_lineNumberFilter = new LineNumberFilter;
     addAutoReleasedObject(m_lineNumberFilter);
 
     Core::Context context(TextEditor::Constants::C_TEXTEDITOR);
-    Core::ActionManager *am = core->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
 
     // Add shortcut for invoking automatic completion
-    QShortcut *completionShortcut = new QShortcut(core->mainWindow());
+    QShortcut *completionShortcut = new QShortcut(Core::ICore::mainWindow());
     completionShortcut->setWhatsThis(tr("Triggers a completion in this scope"));
     // Make sure the shortcut still works when the completion widget is active
     completionShortcut->setContext(Qt::ApplicationShortcut);
@@ -146,7 +145,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     connect(completionShortcut, SIGNAL(activated()), this, SLOT(invokeCompletion()));
 
     // Add shortcut for invoking quick fix options
-    QShortcut *quickFixShortcut = new QShortcut(core->mainWindow());
+    QShortcut *quickFixShortcut = new QShortcut(Core::ICore::mainWindow());
     quickFixShortcut->setWhatsThis(tr("Triggers a quick fix in this scope"));
     // Make sure the shortcut still works when the quick fix widget is active
     quickFixShortcut->setContext(Qt::ApplicationShortcut);

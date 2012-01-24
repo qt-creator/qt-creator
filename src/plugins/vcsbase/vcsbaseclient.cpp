@@ -69,9 +69,9 @@
 
 Q_DECLARE_METATYPE(QVariant)
 
-inline Core::IEditor *locateEditor(const Core::ICore *core, const char *property, const QString &entry)
+inline Core::IEditor *locateEditor(const char *property, const QString &entry)
 {
-    foreach (Core::IEditor *ed, core->editorManager()->openedEditors())
+    foreach (Core::IEditor *ed, Core::ICore::editorManager()->openedEditors())
         if (ed->file()->property(property).toString() == entry)
             return ed;
     return 0;
@@ -100,7 +100,6 @@ public:
     void bindCommandToEditor(Command *cmd, VcsBaseEditorWidget *editor);
     void commandFinishedGotoLine(QObject *editorObject);
 
-    Core::ICore *m_core;
     VcsBaseClientSettings *m_clientSettings;
     QSignalMapper *m_cmdFinishedMapper;
 
@@ -109,7 +108,6 @@ private:
 };
 
 VcsBaseClientPrivate::VcsBaseClientPrivate(VcsBaseClient *client, VcsBaseClientSettings *settings) :
-    m_core(Core::ICore::instance()),
     m_clientSettings(settings),
     m_cmdFinishedMapper(new QSignalMapper(client)),
     m_client(client)
@@ -144,7 +142,7 @@ void VcsBaseClientPrivate::annotateRevision(QString source, QString change, int 
 
 void VcsBaseClientPrivate::saveSettings()
 {
-    m_clientSettings->writeSettings(m_core->settings());
+    m_clientSettings->writeSettings(Core::ICore::settings());
 }
 
 void VcsBaseClientPrivate::bindCommandToEditor(Command *cmd, VcsBaseEditorWidget *editor)
@@ -176,7 +174,7 @@ VcsBaseClient::VcsBaseClient(VcsBaseClientSettings *settings) :
     d(new VcsBaseClientPrivate(this, settings))
 {
     qRegisterMetaType<QVariant>();
-    connect(d->m_core, SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
+    connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
     connect(d->m_cmdFinishedMapper, SIGNAL(mapped(QObject*)), this, SLOT(commandFinishedGotoLine(QObject*)));
 }
 
@@ -562,7 +560,7 @@ VcsBase::VcsBaseEditorWidget *VcsBaseClient::createVcsEditor(const QString &kind
                                                              const QString &dynamicPropertyValue) const
 {
     VcsBase::VcsBaseEditorWidget *baseEditor = 0;
-    Core::IEditor *outputEditor = locateEditor(d->m_core, registerDynamicProperty, dynamicPropertyValue);
+    Core::IEditor *outputEditor = locateEditor(registerDynamicProperty, dynamicPropertyValue);
     const QString progressMsg = tr("Working...");
     if (outputEditor) {
         // Exists already
@@ -570,7 +568,7 @@ VcsBase::VcsBaseEditorWidget *VcsBaseClient::createVcsEditor(const QString &kind
         baseEditor = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
         QTC_ASSERT(baseEditor, return 0);
     } else {
-        outputEditor = d->m_core->editorManager()->openEditorWithContents(Core::Id(kind), &title, progressMsg);
+        outputEditor = Core::ICore::editorManager()->openEditorWithContents(Core::Id(kind), &title, progressMsg);
         outputEditor->file()->setProperty(registerDynamicProperty, dynamicPropertyValue);
         baseEditor = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
         connect(baseEditor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
@@ -582,7 +580,7 @@ VcsBase::VcsBaseEditorWidget *VcsBaseClient::createVcsEditor(const QString &kind
     }
 
     baseEditor->setForceReadOnly(true);
-    d->m_core->editorManager()->activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
+    Core::ICore::editorManager()->activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
     return baseEditor;
 }
 
@@ -633,8 +631,7 @@ void VcsBaseClient::enqueueJob(Command *cmd, const QStringList &args)
 
 void VcsBaseClient::resetCachedVcsInfo(const QString &workingDir)
 {
-    Core::VcsManager *vcsManager = d->m_core->vcsManager();
-    vcsManager->resetVersionControlForDirectory(workingDir);
+    Core::ICore::vcsManager()->resetVersionControlForDirectory(workingDir);
 }
 
 } // namespace VcsBase

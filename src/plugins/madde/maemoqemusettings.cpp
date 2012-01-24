@@ -45,7 +45,7 @@ const QString OpenGlModeKey = QLatin1String("OpenGl Mode");
 MaemoQemuSettings::OpenGlMode MaemoQemuSettings::openGlMode()
 {
     if (!m_initialized) {
-        QSettings *settings = Core::ICore::instance()->settings();
+        QSettings *settings = Core::ICore::settings();
         settings->beginGroup(SettingsGroup);
         m_openGlMode = static_cast<OpenGlMode>(settings->value(OpenGlModeKey, AutoDetect).toInt());
         settings->endGroup();
@@ -58,7 +58,7 @@ void MaemoQemuSettings::setOpenGlMode(OpenGlMode openGlMode)
 {
     Q_ASSERT(m_initialized);
     m_openGlMode = openGlMode;
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
     settings->setValue(OpenGlModeKey, m_openGlMode);
     settings->endGroup();

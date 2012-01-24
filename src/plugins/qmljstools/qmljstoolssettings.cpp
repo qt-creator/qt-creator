@@ -109,7 +109,7 @@ QmlJSToolsSettings::QmlJSToolsSettings(QObject *parent)
     pool->loadCustomCodeStyles();
 
     // load global settings (after built-in settings are added to the pool)
-    if (QSettings *s = Core::ICore::instance()->settings()) {
+    if (QSettings *s = Core::ICore::settings()) {
         d->m_globalCodeStyle->fromSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID, s);
 
         // legacy handling start (Qt Creator Version < 2.4)

@@ -142,7 +142,7 @@ void FileShareProtocolSettingsPage::apply()
     const FileShareProtocolSettings newSettings = m_widget->settings();
     if (newSettings != *m_settings) {
         *m_settings = newSettings;
-        m_settings->toSettings(Core::ICore::instance()->settings());
+        m_settings->toSettings(Core::ICore::settings());
     }
 }
 } // namespace CodePaster

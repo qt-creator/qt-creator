@@ -110,7 +110,7 @@ bool DeploymentSettingsAssistant::addLinesToProFile(const DeployableFilesPerProF
         + separator + lines.join(separator) + QLatin1String("\n}\n");
     Utils::FileSaver saver(proFileInfo->proFilePath(), QIODevice::Append);
     saver.write(proFileString.toLocal8Bit());
-    return saver.finalize(Core::ICore::instance()->mainWindow());
+    return saver.finalize(Core::ICore::mainWindow());
 }
 
 void DeploymentSettingsAssistant::handleDeploymentInfoUpdated()

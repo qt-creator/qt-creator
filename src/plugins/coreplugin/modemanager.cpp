@@ -315,7 +315,7 @@ void ModeManager::currentTabChanged(int index)
         // FIXME: This hardcoded context update is required for the Debug and Edit modes, since
         // they use the editor widget, which is already a context widget so the main window won't
         // go further up the parent tree to find the mode context.
-        ICore::instance()->updateAdditionalContexts(d->m_addedContexts, mode->context());
+        ICore::updateAdditionalContexts(d->m_addedContexts, mode->context());
         d->m_addedContexts = mode->context();
 
         IMode *oldMode = 0;

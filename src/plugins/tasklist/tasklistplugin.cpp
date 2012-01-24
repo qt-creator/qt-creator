@@ -198,8 +198,7 @@ bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMess
     //: Category under which tasklist tasks are listed in Issues view
     d->hub->addCategory(QLatin1String(Constants::TASKLISTTASK_ID), tr("My Tasks"));
 
-    Core::ICore *core = Core::ICore::instance();
-    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":tasklist/TaskList.mimetypes.xml"), errorMessage))
+    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":tasklist/TaskList.mimetypes.xml"), errorMessage))
         return false;
 
     d->fileFactory = new Internal::TaskFileFactory(this);

@@ -236,7 +236,7 @@ DesignModeWidget::~DesignModeWidget()
 
 void DesignModeWidget::restoreDefaultView()
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     m_leftSideBar->closeAllWidgets();
     m_rightSideBar->closeAllWidgets();
     m_leftSideBar->readSettings(settings,  "none.LeftSideBar");
@@ -423,7 +423,7 @@ QAction *DesignModeWidget::goIntoComponentAction() const
 
 void DesignModeWidget::readSettings()
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
 
     settings->beginGroup("Bauhaus");
     m_leftSideBar->readSettings(settings, QLatin1String("LeftSideBar"));
@@ -438,7 +438,7 @@ void DesignModeWidget::readSettings()
 
 void DesignModeWidget::saveSettings()
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
 
     settings->beginGroup("Bauhaus");
     m_leftSideBar->saveSettings(settings, QLatin1String("LeftSideBar"));
@@ -767,10 +767,10 @@ void DesignModeWidget::setup()
         rightLayout->addWidget(m_statesEditorView->widget());
 
         FormEditorContext *formEditorContext = new FormEditorContext(m_formEditorView->widget());
-        Core::ICore::instance()->addContextObject(formEditorContext);
+        Core::ICore::addContextObject(formEditorContext);
 
         NavigatorContext *navigatorContext = new NavigatorContext(m_navigatorView->widget());
-        Core::ICore::instance()->addContextObject(navigatorContext);
+        Core::ICore::addContextObject(navigatorContext);
 
         // editor and output panes
         m_outputPlaceholderSplitter->addWidget(m_formEditorView->widget());

@@ -420,11 +420,11 @@ QList<CustomWizard*> CustomWizard::createWizards()
     QList<CustomWizard*> rc;
     QString errorMessage;
     QString verboseLog;
-    const QString templateDirName = Core::ICore::instance()->resourcePath() +
+    const QString templateDirName = Core::ICore::resourcePath() +
                                     QLatin1Char('/') + QLatin1String(templatePathC);
 
 
-    const QString userTemplateDirName = Core::ICore::instance()->userResourcePath() +
+    const QString userTemplateDirName = Core::ICore::userResourcePath() +
                                         QLatin1Char('/') + QLatin1String(templatePathC);
 
 
@@ -493,7 +493,7 @@ QList<CustomWizard*> CustomWizard::createWizards()
     if (CustomWizardPrivate::verbose) { // Print to output pane for Windows.
         verboseLog += listWizards();
         qWarning("%s", qPrintable(verboseLog));
-        Core::ICore::instance()->messageManager()->printToOutputPanePopup(verboseLog);
+        Core::ICore::messageManager()->printToOutputPanePopup(verboseLog);
     }
     return rc;
 }

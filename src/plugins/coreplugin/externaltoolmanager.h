@@ -43,7 +43,6 @@
 QT_FORWARD_DECLARE_CLASS(QAction)
 
 namespace Core {
-class ICore;
 class ActionContainer;
 
 namespace Internal {
@@ -58,7 +57,7 @@ class CORE_EXPORT ExternalToolManager : public QObject
 public:
     static ExternalToolManager *instance() { return m_instance; }
 
-    ExternalToolManager(Core::ICore *core);
+    ExternalToolManager();
     ~ExternalToolManager();
 
     QMap<QString, QList<Internal::ExternalTool *> > toolsByCategory() const;
@@ -84,7 +83,6 @@ private:
     void writeSettings();
 
     static ExternalToolManager *m_instance;
-    Core::ICore *m_core;
     QMap<QString, Internal::ExternalTool *> m_tools;
     QMap<QString, QList<Internal::ExternalTool *> > m_categoryMap;
     QMap<QString, QAction *> m_actions;

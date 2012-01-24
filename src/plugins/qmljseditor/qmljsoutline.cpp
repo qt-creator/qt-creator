@@ -159,14 +159,14 @@ void QmlJSOutlineWidget::setCursorSynchronization(bool syncWithCursor)
 
 void QmlJSOutlineWidget::restoreSettings(int position)
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     bool showBindings = settings->value("QmlJSOutline."+QString::number(position)+".ShowBindings", true).toBool();
     m_showBindingsAction->setChecked(showBindings);
 }
 
 void QmlJSOutlineWidget::saveSettings(int position)
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->setValue("QmlJSOutline."+QString::number(position)+".ShowBindings",
                        m_showBindingsAction->isChecked());
 }

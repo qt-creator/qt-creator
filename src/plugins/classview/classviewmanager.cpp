@@ -150,12 +150,10 @@ void Manager::initialize()
     connect(sessionManager, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             SLOT(onProjectListChanged()), Qt::QueuedConnection);
 
-    Core::ICore *core = Core::ICore::instance();
-
     // connect to the progress manager for signals about Parsing tasks
-    connect(core->progressManager(), SIGNAL(taskStarted(QString)),
+    connect(Core::ICore::progressManager(), SIGNAL(taskStarted(QString)),
             SLOT(onTaskStarted(QString)), Qt::QueuedConnection);
-    connect(core->progressManager(), SIGNAL(allTasksFinished(QString)),
+    connect(Core::ICore::progressManager(), SIGNAL(allTasksFinished(QString)),
             SLOT(onAllTasksFinished(QString)), Qt::QueuedConnection);
 
     // when we signals that really document is updated - sent it to the parser

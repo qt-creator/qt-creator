@@ -79,7 +79,7 @@ BehaviorSettingsPage::BehaviorSettingsPagePrivate::BehaviorSettingsPagePrivate
 
 void BehaviorSettingsPage::BehaviorSettingsPagePrivate::init()
 {
-    if (const QSettings *s = Core::ICore::instance()->settings()) {
+    if (const QSettings *s = Core::ICore::settings()) {
         m_codeStyle->fromSettings(m_parameters.settingsPrefix, s);
         m_typingSettings.fromSettings(m_parameters.settingsPrefix, s);
         m_storageSettings.fromSettings(m_parameters.settingsPrefix, s);
@@ -151,7 +151,7 @@ void BehaviorSettingsPage::apply()
     settingsFromUI(&newTypingSettings, &newStorageSettings,
                    &newBehaviorSettings, &newExtraEncodingSettings);
 
-    QSettings *s = Core::ICore::instance()->settings();
+    QSettings *s = Core::ICore::settings();
 
     if (d->m_codeStyle->tabSettings() != d->m_pageCodeStyle->tabSettings()) {
         d->m_codeStyle->setTabSettings(d->m_pageCodeStyle->tabSettings());

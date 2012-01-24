@@ -575,7 +575,7 @@ void S60DeployStep::checkForTimeout()
 {
     if (state() != StateConnecting)
         return;
-    QMessageBox *mb = CodaRunControl::createCodaWaitingMessageBox(Core::ICore::instance()->mainWindow());
+    QMessageBox *mb = CodaRunControl::createCodaWaitingMessageBox(Core::ICore::mainWindow());
     connect(this, SIGNAL(codaConnected()), mb, SLOT(close()));
     connect(this, SIGNAL(finished()), mb, SLOT(close()));
     connect(this, SIGNAL(finishNow()), mb, SLOT(close()));
@@ -588,7 +588,7 @@ void S60DeployStep::showManualInstallationInfo()
     const QString title  = tr("Installation");
     const QString text = tr("Continue the installation on your device.");
     QMessageBox *mb = new QMessageBox(QMessageBox::Information, title, text,
-                                      QMessageBox::Ok, Core::ICore::instance()->mainWindow());
+                                      QMessageBox::Ok, Core::ICore::mainWindow());
     connect(this, SIGNAL(allFilesInstalled()), mb, SLOT(close()));
     connect(this, SIGNAL(finished()), mb, SLOT(close()));
     connect(this, SIGNAL(finishNow()), mb, SLOT(close()));

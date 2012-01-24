@@ -54,7 +54,7 @@ namespace CodePaster {
 
 CodePasterSettingsPage::CodePasterSettingsPage()
 {
-    m_settings = Core::ICore::instance()->settings();
+    m_settings = Core::ICore::settings();
     if (m_settings) {
         const QString keyRoot = QLatin1String(settingsGroupC) + QLatin1Char('/');
         m_host = m_settings->value(keyRoot + QLatin1String(serverKeyC), QString()).toString();

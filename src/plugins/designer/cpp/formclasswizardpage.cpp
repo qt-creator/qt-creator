@@ -79,14 +79,13 @@ bool FormClassWizardPage::lowercaseHeaderFiles()
     lowerCaseSettingsKey += QLatin1Char('/');
     lowerCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
     const bool lowerCaseDefault = CppTools::Constants::lowerCaseFilesDefault;
-    return Core::ICore::instance()->settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
+    return Core::ICore::settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
 }
 
 // Set up new class widget from settings
 void FormClassWizardPage::initFileGenerationSettings()
 {
-    Core::ICore *core = Core::ICore::instance();
-    const Core::MimeDatabase *mdb = core->mimeDatabase();
+    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
     m_ui->newClassWidget->setHeaderExtension(mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
     m_ui->newClassWidget->setSourceExtension(mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)));
     m_ui->newClassWidget->setLowerCaseFiles(lowercaseHeaderFiles());

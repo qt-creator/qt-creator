@@ -118,7 +118,7 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
                                                    QString *header, QString *source, int indentation)
 {
     Internal::FormClassWizardGenerationParameters generationParameters;
-    generationParameters.fromSettings(Core::ICore::instance()->settings());
+    generationParameters.fromSettings(Core::ICore::settings());
 
     const QString indent = QString(indentation, QLatin1Char(' '));
     QString formBaseClass;

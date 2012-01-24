@@ -259,7 +259,7 @@ void DisassemblerAgentPrivate::configureMimeType()
         qobject_cast<TextEditor::PlainTextEditorWidget *>(editor->widget());
     QTC_ASSERT(pe, return);
 
-    MimeType mtype = ICore::instance()->mimeDatabase()->findByType(mimeType);
+    MimeType mtype = ICore::mimeDatabase()->findByType(mimeType);
     if (mtype)
         pe->configure(mtype);
     else

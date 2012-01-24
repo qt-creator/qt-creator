@@ -111,7 +111,7 @@ ToolChainManager::ToolChainManager(QObject *parent) :
 void ToolChainManager::restoreToolChains()
 {
     // Restore SDK settings first
-    QFileInfo systemSettingsFile(Core::ICore::instance()->settings(QSettings::SystemScope)->fileName());
+    QFileInfo systemSettingsFile(Core::ICore::settings(QSettings::SystemScope)->fileName());
     restoreToolChains(systemSettingsFile.absolutePath() + QLatin1String(TOOLCHAIN_FILENAME), true);
 
     // Then auto detect
@@ -155,7 +155,7 @@ void ToolChainManager::saveToolChains()
         }
     }
     writer.saveValue(QLatin1String(TOOLCHAIN_COUNT_KEY), count);
-    writer.save(settingsFileName(), QLatin1String("QtCreatorToolChains"), Core::ICore::instance()->mainWindow());
+    writer.save(settingsFileName(), QLatin1String("QtCreatorToolChains"), Core::ICore::mainWindow());
 
     // Do not save default debuggers! Those are set by the SDK!
 }

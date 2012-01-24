@@ -197,7 +197,7 @@ void Command::execute()
         binary = binary.replace(0, 1, binary[0].toUpper()); // Upper the first letter
     const QString taskName = binary + QLatin1Char(' ') + d->m_jobs.front().arguments.at(0);
 
-    Core::ICore::instance()->progressManager()->addTask(task, taskName, binary + QLatin1String(".action"));
+    Core::ICore::progressManager()->addTask(task, taskName, binary + QLatin1String(".action"));
 }
 
 bool Command::lastExecutionSuccess() const

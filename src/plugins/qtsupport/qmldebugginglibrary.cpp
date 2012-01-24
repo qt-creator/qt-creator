@@ -154,7 +154,7 @@ QStringList QmlDebuggingLibrary::installDirectories(const QString &qtInstallData
 
 QString QmlDebuggingLibrary::sourcePath()
 {
-    return Core::ICore::instance()->resourcePath() + QLatin1String("/qml/qmljsdebugger/");
+    return Core::ICore::resourcePath() + QLatin1String("/qml/qmljsdebugger/");
 }
 
 QStringList QmlDebuggingLibrary::sourceFileNames()

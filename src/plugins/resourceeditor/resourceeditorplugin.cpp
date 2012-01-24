@@ -70,8 +70,7 @@ ResourceEditorPlugin::~ResourceEditorPlugin()
 bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
-    Core::ICore *core = Core::ICore::instance();
-    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/resourceeditor/ResourceEditor.mimetypes.xml"), errorMessage))
+    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/resourceeditor/ResourceEditor.mimetypes.xml"), errorMessage))
         return false;
 
     m_editor = new ResourceEditorFactory(this);
@@ -93,7 +92,7 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     const Core::Context context(Constants::C_RESOURCEEDITOR);
     m_undoAction = new QAction(tr("&Undo"), this);
     m_redoAction = new QAction(tr("&Redo"), this);
-    Core::ActionManager * const actionManager = core->actionManager();
+    Core::ActionManager * const actionManager = Core::ICore::actionManager();
     actionManager->registerAction(m_undoAction, Core::Constants::UNDO, context);
     actionManager->registerAction(m_redoAction, Core::Constants::REDO, context);
     connect(m_undoAction, SIGNAL(triggered()), this, SLOT(onUndo()));

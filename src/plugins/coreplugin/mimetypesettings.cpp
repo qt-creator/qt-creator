@@ -73,7 +73,7 @@ class MimeTypeSettingsModel : public QAbstractTableModel
 
 public:
     MimeTypeSettingsModel(QObject *parent = 0)
-        : QAbstractTableModel(parent), m_core(ICore::instance()) {}
+        : QAbstractTableModel(parent) {}
     virtual ~MimeTypeSettingsModel() {}
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -86,7 +86,6 @@ public:
     void validatePatterns(QStringList *candidates, const MimeType &mimeType) const;
     void updateKnownPatterns(const QStringList &oldPatterns, const QStringList &newPatterns);
 
-    ICore *m_core;
     QList<MimeType> m_mimeTypes;
     QSet<QString> m_knownPatterns;
     QHash<QString, QString> m_handlersByMimeType;
@@ -134,20 +133,20 @@ QVariant MimeTypeSettingsModel::data(const QModelIndex &modelIndex, int role) co
 
 void MimeTypeSettingsModel::load()
 {
-    m_mimeTypes = m_core->mimeDatabase()->mimeTypes();
+    m_mimeTypes = ICore::mimeDatabase()->mimeTypes();
     qSort(m_mimeTypes.begin(), m_mimeTypes.end(), MimeTypeComp());
     m_knownPatterns = QSet<QString>::fromList(
-        MimeDatabase::fromGlobPatterns(m_core->mimeDatabase()->globPatterns()));
+        MimeDatabase::fromGlobPatterns(ICore::mimeDatabase()->globPatterns()));
 
     foreach (const MimeType &mimeType, m_mimeTypes) {
         QString value;
         const QList<IEditorFactory *> factories =
-            m_core->editorManager()->editorFactories(mimeType);
+            ICore::editorManager()->editorFactories(mimeType);
         if (!factories.isEmpty()) {
             value = factories.front()->displayName();
         } else {
             const QList<IExternalEditor *> externalEditors =
-                m_core->editorManager()->externalEditors(mimeType);
+                ICore::editorManager()->externalEditors(mimeType);
             if (!externalEditors.isEmpty())
                 value = externalEditors.front()->displayName();
             else
@@ -257,7 +256,7 @@ public:
 const QChar MimeTypeSettingsPrivate::kSemiColon(QLatin1Char(';'));
 
 MimeTypeSettingsPrivate::MimeTypeSettingsPrivate()
-    : m_mimeDatabase(ICore::instance()->mimeDatabase())
+    : m_mimeDatabase(ICore::mimeDatabase())
     , m_model(new MimeTypeSettingsModel)
     , m_mimeForPatternSync(-1)
     , m_mimeForMagicSync(-1)
@@ -518,7 +517,7 @@ void MimeTypeSettingsPrivate::updateMimeDatabase()
     m_modifiedMimeTypes.erase(std::unique(m_modifiedMimeTypes.begin(), m_modifiedMimeTypes.end()),
                               m_modifiedMimeTypes.end());
 
-    MimeDatabase *db = ICore::instance()->mimeDatabase();
+    MimeDatabase *db = ICore::mimeDatabase();
     QList<MimeType> allModified;
     foreach (int index, m_modifiedMimeTypes) {
         const MimeType &mimeType = m_model->m_mimeTypes.at(index);
@@ -615,7 +614,7 @@ void MimeTypeSettings::finish()
 {
     if (d->m_persist) {
         if (d->m_reset)
-            ICore::instance()->mimeDatabase()->clearUserModifiedMimeTypes();
+            ICore::mimeDatabase()->clearUserModifiedMimeTypes();
         else
             d->updateMimeDatabase();
     }

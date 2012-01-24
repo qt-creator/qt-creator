@@ -293,7 +293,6 @@ private:
     mutable unsigned m_cachedGitVersion;
 
     const QString m_msgWait;
-    Core::ICore *m_core;
     QSignalMapper *m_repositoryChangedSignalMapper;
     GitSettings *m_settings;
 };

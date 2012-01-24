@@ -310,7 +310,7 @@ QmlOutlineModel::QmlOutlineModel(QmlJSTextEditorWidget *editor) :
     m_textEditor(editor)
 {
     m_icons = Icons::instance();
-    const QString resourcePath = Core::ICore::instance()->resourcePath();
+    const QString resourcePath = Core::ICore::resourcePath();
     Icons::instance()->setIconFilesPath(resourcePath + "/qmlicons");
 
     // TODO: Maybe add a Copy Action?

@@ -176,12 +176,12 @@ void InspectorUi::setupUi()
 
 void InspectorUi::saveSettings() const
 {
-    m_settings->saveSettings(Core::ICore::instance()->settings());
+    m_settings->saveSettings(Core::ICore::settings());
 }
 
 void InspectorUi::restoreSettings()
 {
-    m_settings->restoreSettings(Core::ICore::instance()->settings());
+    m_settings->restoreSettings(Core::ICore::settings());
 }
 
 void InspectorUi::setDebuggerEngine(QObject *qmlEngine)

@@ -194,7 +194,7 @@ public:
         { return QIcon(_(Constants::SETTINGS_CATEGORY_FAKEVIM_ICON)); }
 
     QWidget *createPage(QWidget *parent);
-    void apply() { m_group.apply(ICore::instance()->settings()); }
+    void apply() { m_group.apply(ICore::settings()); }
     void finish() { m_group.finish(); }
     virtual bool matches(const QString &) const;
 
@@ -380,7 +380,7 @@ QWidget *FakeVimExCommandsPage::createPage(QWidget *parent)
 
 void FakeVimExCommandsPage::initialize()
 {
-    ActionManager *am = ICore::instance()->actionManager();
+    ActionManager *am = ICore::actionManager();
     QTC_ASSERT(am, return);
 
     QMap<QString, QTreeWidgetItem *> sections;
@@ -929,7 +929,7 @@ FakeVimPluginPrivate::~FakeVimPluginPrivate()
 void FakeVimPluginPrivate::onCoreAboutToClose()
 {
     // Don't attach to editors anymore.
-    disconnect(ICore::instance()->editorManager(), SIGNAL(editorOpened(Core::IEditor*)),
+    disconnect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor*)),
         this, SLOT(editorOpened(Core::IEditor*)));
 }
 
@@ -939,9 +939,8 @@ void FakeVimPluginPrivate::aboutToShutdown()
 
 bool FakeVimPluginPrivate::initialize()
 {
-    Core::ICore *core = Core::ICore::instance();
-    EditorManager *editorManager = core->editorManager();
-    ActionManager *actionManager = core->actionManager();
+    EditorManager *editorManager = ICore::editorManager();
+    ActionManager *actionManager = ICore::actionManager();
     QTC_ASSERT(actionManager, return false);
 
     //m_wordCompletion = new WordCompletion;
@@ -991,7 +990,7 @@ bool FakeVimPluginPrivate::initialize()
         connect(act, SIGNAL(triggered()), SLOT(userActionTriggered()));
     }
 
-    connect(core, SIGNAL(coreAboutToClose()), this, SLOT(onCoreAboutToClose()));
+    connect(ICore::instance(), SIGNAL(coreAboutToClose()), this, SLOT(onCoreAboutToClose()));
 
     // EditorManager
     connect(editorManager, SIGNAL(editorAboutToClose(Core::IEditor*)),
@@ -1024,9 +1023,7 @@ void FakeVimPluginPrivate::userActionTriggered()
     if (!key)
         return;
     QString cmd = userCommandMap().value(key);
-    Core::ICore *core = Core::ICore::instance();
-    EditorManager *editorManager = core->editorManager();
-    IEditor *editor = editorManager->currentEditor();
+    IEditor *editor = ICore::editorManager()->currentEditor();
     FakeVimHandler *handler = m_editorToHandler[editor];
     if (handler)
         handler->handleInput(cmd);
@@ -1040,7 +1037,7 @@ static const char idKey[] = "Command";
 
 void FakeVimPluginPrivate::writeSettings()
 {
-    QSettings *settings = ICore::instance()->settings();
+    QSettings *settings = ICore::settings();
 
     theFakeVimSettings()->writeSettings(settings);
 
@@ -1088,7 +1085,7 @@ void FakeVimPluginPrivate::writeSettings()
 
 void FakeVimPluginPrivate::readSettings()
 {
-    QSettings *settings = ICore::instance()->settings();
+    QSettings *settings = ICore::settings();
 
     theFakeVimSettings()->readSettings(settings);
 
@@ -1134,14 +1131,14 @@ void FakeVimPluginPrivate::maybeReadVimRc()
 
 void FakeVimPluginPrivate::showSettingsDialog()
 {
-    ICore::instance()->showOptionsDialog(
+    ICore::showOptionsDialog(
         _(Constants::SETTINGS_CATEGORY),
         _(Constants::SETTINGS_ID));
 }
 
 void FakeVimPluginPrivate::triggerAction(const Id &id)
 {
-    Core::ActionManager *am = ICore::instance()->actionManager();
+    Core::ActionManager *am = ICore::actionManager();
     QTC_ASSERT(am, return);
     Core::Command *cmd = am->command(id);
     QTC_ASSERT(cmd, qDebug() << "UNKNOWN CODE: " << id.name(); return);
@@ -1152,7 +1149,7 @@ void FakeVimPluginPrivate::triggerAction(const Id &id)
 
 void FakeVimPluginPrivate::setActionChecked(const Id &id, bool check)
 {
-    Core::ActionManager *am = ICore::instance()->actionManager();
+    Core::ActionManager *am = ICore::actionManager();
     QTC_ASSERT(am, return);
     Core::Command *cmd = am->command(id);
     QTC_ASSERT(cmd, return);
@@ -1260,7 +1257,7 @@ void FakeVimPluginPrivate::windowCommand(int key)
 
 void FakeVimPluginPrivate::moveSomewhere(DistFunction f)
 {
-    EditorManager *editorManager = ICore::instance()->editorManager();
+    EditorManager *editorManager = ICore::editorManager();
     IEditor *editor = editorManager->currentEditor();
     QWidget *w = editor->widget();
     QPlainTextEdit *pe =
@@ -1500,7 +1497,7 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
         const QString fileName = handler->currentFileName();
         if (editor && editor->file()->fileName() == fileName) {
             // Handle that as a special case for nicer interaction with core
-            Core::ICore::instance()->fileManager()->saveFile(editor->file());
+            ICore::fileManager()->saveFile(editor->file());
             // Check result by reading back.
             QFile file3(fileName);
             file3.open(QIODevice::ReadOnly);
@@ -1515,7 +1512,7 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
         }
     } else if (cmd.matches("wa", "wall")) {
         // :w[all]
-        FileManager *fm = ICore::instance()->fileManager();
+        FileManager *fm = ICore::fileManager();
         QList<IFile *> toSave = fm->modifiedFiles();
         QList<IFile *> failed = fm->saveModifiedFilesSilently(toSave);
         if (failed.isEmpty())
@@ -1592,7 +1589,7 @@ void FakeVimPluginPrivate::handleDelayedQuit(bool forced, Core::IEditor *editor)
 {
     // This tries to simulate vim behaviour. But the models of vim and
     // Qt Creator core do not match well...
-    EditorManager *editorManager = ICore::instance()->editorManager();
+    EditorManager *editorManager = ICore::editorManager();
     if (editorManager->hasSplitter()) {
         triggerAction(Core::Constants::REMOVE_CURRENT_SPLIT);
     } else {
@@ -1605,7 +1602,7 @@ void FakeVimPluginPrivate::handleDelayedQuit(bool forced, Core::IEditor *editor)
 void FakeVimPluginPrivate::handleDelayedQuitAll(bool forced)
 {
     triggerAction(Core::Constants::REMOVE_ALL_SPLITS);
-    ICore::instance()->editorManager()->closeAllEditors(!forced);
+    ICore::editorManager()->closeAllEditors(!forced);
 }
 
 void FakeVimPluginPrivate::moveToMatchingParenthesis(bool *moved, bool *forward,
@@ -1711,7 +1708,7 @@ void FakeVimPluginPrivate::changeSelection
 
 int FakeVimPluginPrivate::currentFile() const
 {
-    EditorManager *editorManager = ICore::instance()->editorManager();
+    EditorManager *editorManager = ICore::editorManager();
     OpenEditorsModel *model = editorManager->openedEditorsModel();
     IEditor *editor = editorManager->currentEditor();
     return model->indexOf(editor).row();
@@ -1719,7 +1716,7 @@ int FakeVimPluginPrivate::currentFile() const
 
 void FakeVimPluginPrivate::switchToFile(int n)
 {
-    EditorManager *editorManager = ICore::instance()->editorManager();
+    EditorManager *editorManager = ICore::editorManager();
     Core::OpenEditorsModel *model = editorManager->openedEditorsModel();
     int size = model->rowCount();
     QTC_ASSERT(size, return);

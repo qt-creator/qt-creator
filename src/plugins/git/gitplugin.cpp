@@ -127,7 +127,6 @@ GitPlugin *GitPlugin::m_instance = 0;
 
 GitPlugin::GitPlugin() :
     VcsBase::VcsBasePlugin(QLatin1String(Git::Constants::GITSUBMITEDITOR_ID)),
-    m_core(0),
     m_commandLocator(0),
     m_showAction(0),
     m_submitCurrentAction(0),
@@ -281,8 +280,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    m_core = Core::ICore::instance();
-    m_settings.readSettings(m_core->settings());
+    m_settings.readSettings(Core::ICore::settings());
 
     m_gitClient = new GitClient(&m_settings);
 
@@ -312,7 +310,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     addAutoReleasedObject(m_commandLocator);
 
     //register actions
-    Core::ActionManager *actionManager = m_core->actionManager();
+    Core::ActionManager *actionManager = Core::ICore::actionManager();
 
     Core::ActionContainer *toolsContainer =
         actionManager->actionContainer(Core::Constants::M_TOOLS);
@@ -638,7 +636,7 @@ void GitPlugin::undoRepositoryChanges()
     QTC_ASSERT(state.hasTopLevel(), return)
     const QString msg = tr("Undo all pending changes to the repository\n%1?").arg(QDir::toNativeSeparators(state.topLevel()));
     const QMessageBox::StandardButton answer
-            = QMessageBox::question(m_core->mainWindow(),
+            = QMessageBox::question(Core::ICore::mainWindow(),
                                     tr("Undo Changes"), msg,
                                     QMessageBox::Yes|QMessageBox::No,
                                     QMessageBox::No);
@@ -710,7 +708,7 @@ void GitPlugin::startCommit(bool amend)
 
 Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &cd, bool amend)
 {
-    Core::IEditor *editor = m_core->editorManager()->openEditor(fileName, Constants::GITSUBMITEDITOR_ID,
+    Core::IEditor *editor = Core::ICore::editorManager()->openEditor(fileName, Constants::GITSUBMITEDITOR_ID,
                                                                 Core::EditorManager::ModeSwitch);
     GitSubmitEditor *submitEditor = qobject_cast<GitSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return 0);
@@ -732,8 +730,8 @@ void GitPlugin::submitCurrentLog()
     // Close the submit editor
     m_submitActionTriggered = true;
     QList<Core::IEditor*> editors;
-    editors.push_back(m_core->editorManager()->currentEditor());
-    m_core->editorManager()->closeEditors(editors);
+    editors.push_back(Core::ICore::editorManager()->currentEditor());
+    Core::ICore::editorManager()->closeEditors(editors);
 }
 
 bool GitPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor)
@@ -776,7 +774,7 @@ bool GitPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEdi
     bool closeEditor = true;
     if (model->hasCheckedFiles() || !m_commitAmendSHA1.isEmpty()) {
         // get message & commit
-        if (!m_core->fileManager()->saveFile(fileIFace))
+        if (!Core::ICore::fileManager()->saveFile(fileIFace))
             return false;
 
         closeEditor = m_gitClient->addAndCommit(m_submitRepository, editor->panelData(),
@@ -860,7 +858,7 @@ void GitPlugin::cleanRepository(const QString &directory)
     const bool gotFiles = m_gitClient->synchronousCleanList(directory, &files, &errorMessage);
     QApplication::restoreOverrideCursor();
 
-    QWidget *parent = Core::ICore::instance()->mainWindow();
+    QWidget *parent = Core::ICore::mainWindow();
     if (!gotFiles) {
         QMessageBox::warning(parent, tr("Unable to retrieve file list"),
                              errorMessage);
@@ -893,7 +891,7 @@ static bool ensureFileSaved(const QString &fileName)
     Core::IFile *file = editors.front()->file();
     if (!file || !file->isModified())
         return true;
-    Core::FileManager *fm = Core::ICore::instance()->fileManager();
+    Core::FileManager *fm = Core::ICore::fileManager();
     bool canceled;
     QList<Core::IFile *> files;
     files << file;
@@ -932,7 +930,7 @@ void GitPlugin::applyPatch(const QString &workingDirectory, QString file)
     // Prompt for file
     if (file.isEmpty()) {
         const QString filter = tr("Patches (*.patch *.diff)");
-        file =  QFileDialog::getOpenFileName(Core::ICore::instance()->mainWindow(),
+        file =  QFileDialog::getOpenFileName(Core::ICore::mainWindow(),
                                              tr("Choose Patch"),
                                              QString(), filter);
         if (file.isEmpty())
@@ -981,7 +979,7 @@ template <class NonModalDialog>
         dialog->show();
         dialog->raise();
     } else {
-        dialog = new NonModalDialog(Core::ICore::instance()->mainWindow());
+        dialog = new NonModalDialog(Core::ICore::mainWindow());
         dialog->refresh(topLevel, true);
         dialog->show();
     }

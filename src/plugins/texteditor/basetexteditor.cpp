@@ -6052,7 +6052,7 @@ QMimeData *BaseTextEditorWidget::duplicateMimeData(const QMimeData *source) cons
 void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
 {
     menu->addSeparator();
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
 
     QAction *a = am->command(Core::Constants::CUT)->action();
     if (a && a->isEnabled())

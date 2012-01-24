@@ -502,9 +502,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     d = new CallgrindToolPrivate(this);
     setObjectName(QLatin1String("CallgrindTool"));
 
-    Core::ICore *core = Core::ICore::instance();
-    QObject *editorManager = core->editorManager();
-    connect(editorManager, SIGNAL(editorOpened(Core::IEditor*)),
+    connect(Core::ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor*)),
         d, SLOT(editorOpened(Core::IEditor*)));
 }
 
@@ -541,8 +539,7 @@ IAnalyzerTool::ToolMode CallgrindTool::toolMode() const
 
 void CallgrindTool::extensionsInitialized()
 {
-    Core::ICore *core = Core::ICore::instance();
-    Core::ActionManager *actionManager = core->actionManager();
+    Core::ActionManager *actionManager = Core::ICore::actionManager();
 
     Core::Context analyzerContext = Core::Context(Analyzer::Constants::C_ANALYZEMODE);
 

@@ -159,7 +159,6 @@ FormEditorW::FormEditorW() :
     m_formeditor(QDesignerComponents::createFormEditor(0)),
     m_integration(0),
     m_fwm(0),
-    m_core(Core::ICore::instance()),
     m_initStage(RegisterPlugins),
     m_actionGroupEditMode(0),
     m_actionPrint(0),
@@ -180,12 +179,11 @@ FormEditorW::FormEditorW() :
         qDebug() << Q_FUNC_INFO;
     QTC_ASSERT(!m_self, return);
     m_self = this;
-    QTC_ASSERT(m_core, return);
 
     qFill(m_designerSubWindows, m_designerSubWindows + Designer::Constants::DesignerSubWindowCount,
           static_cast<QWidget *>(0));
 
-    m_formeditor->setTopLevel(qobject_cast<QWidget *>(m_core->editorManager()));
+    m_formeditor->setTopLevel(Core::ICore::editorManager());
     m_formeditor->setSettingsManager(new SettingsManager());
 
 #if QT_VERSION >= 0x050000
@@ -204,7 +202,7 @@ FormEditorW::FormEditorW() :
         m_settingsPages.append(settingsPage);
     }
 
-    connect(m_core->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor *)),
+    connect(Core::ICore::editorManager(), SIGNAL(currentEditorChanged(Core::IEditor *)),
             this, SLOT(currentEditorChanged(Core::IEditor *)));
     connect(m_shortcutMapper, SIGNAL(mapped(QObject *)),
             this, SLOT(updateShortcut(QObject *)));
@@ -213,10 +211,10 @@ FormEditorW::FormEditorW() :
 FormEditorW::~FormEditorW()
 {
     if (m_context)
-        m_core->removeContextObject(m_context);
+        Core::ICore::removeContextObject(m_context);
     if (m_initStage == FullyInitialized) {
-        if (QSettings *s = m_core->settings()) {
-            m_core->settings()->beginGroup(QLatin1String(settingsGroupC));
+        if (QSettings *s = Core::ICore::settings()) {
+            s->beginGroup(QLatin1String(settingsGroupC));
             m_editorWidget->saveSettings(s);
             s->endGroup();
         }
@@ -251,7 +249,7 @@ void FormEditorW::addDockViewAction(Core::ActionManager *am,
 void FormEditorW::setupViewActions()
 {
     // Populate "View" menu of form editor menu
-    Core::ActionManager *am = m_core->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     Core::ActionContainer *viewMenu = am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
     QTC_ASSERT(viewMenu, return)
 
@@ -327,11 +325,11 @@ void FormEditorW::fullInit()
         delete initTime;
     }
 
-    connect(m_core->editorManager()->instance(), SIGNAL(editorsClosed(QList<Core::IEditor*>)),
+    connect(Core::ICore::editorManager(), SIGNAL(editorsClosed(QList<Core::IEditor*>)),
             SLOT(closeFormEditorsForXmlEditors(QList<Core::IEditor*>)));
     // Nest toolbar and editor widget
     m_editorWidget = new EditorWidget(this);
-    QSettings *settings = m_core->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String(settingsGroupC));
     m_editorWidget->restoreSettings(settings);
     settings->endGroup();
@@ -362,7 +360,7 @@ void FormEditorW::fullInit()
     Core::Context designerContexts = m_contexts;
     designerContexts.add(Core::Constants::C_EDITORMANAGER);
     m_context = new DesignerContext(designerContexts, m_modeWidget, this);
-    m_core->addContextObject(m_context);
+    Core::ICore::addContextObject(m_context);
 
     m_designMode->registerDesignWidget(m_modeWidget, QStringList(QLatin1String(FORM_MIMETYPE)), m_contexts);
 
@@ -436,7 +434,7 @@ void FormEditorW::deleteInstance()
 
 void FormEditorW::setupActions()
 {
-    Core::ActionManager *am = m_core->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     Core::Command *command;
 
     //menus
@@ -614,7 +612,7 @@ void FormEditorW::setupActions()
 QToolBar *FormEditorW::createEditorToolBar() const
 {
     QToolBar *editorToolBar = new QToolBar;
-    Core::ActionManager *am = m_core->actionManager();
+    Core::ActionManager *am = Core::ICore::actionManager();
     const QList<Core::Id>::const_iterator cend = m_toolActionIds.constEnd();
     for (QList<Core::Id>::const_iterator it = m_toolActionIds.constBegin(); it != cend; ++it) {
         Core::Command *cmd = am->command(*it);
@@ -681,7 +679,7 @@ void FormEditorW::saveSettings(QSettings *s)
 
 void FormEditorW::critical(const QString &errorMessage)
 {
-    QMessageBox::critical(m_core->mainWindow(), tr("Designer"),  errorMessage);
+    QMessageBox::critical(Core::ICore::mainWindow(), tr("Designer"),  errorMessage);
 }
 
 // Apply the command shortcut to the action and connects to the command's keySequenceChanged signal
@@ -852,9 +850,10 @@ void FormEditorW::print()
     if (!fw)
         return;
 
-    const bool oldFullPage =  m_core->printer()->fullPage();
-    const QPrinter::Orientation oldOrientation =  m_core->printer()->orientation ();
-    m_core->printer()->setFullPage(false);
+    QPrinter *printer = Core::ICore::printer();
+    const bool oldFullPage =  printer->fullPage();
+    const QPrinter::Orientation oldOrientation =  printer->orientation ();
+    printer->setFullPage(false);
     do {
         // Grab the image to be able to a suggest suitable orientation
         QString errorMessage;
@@ -869,19 +868,20 @@ void FormEditorW::print()
         }
 
         const QSizeF pixmapSize = pixmap.size();
-        m_core->printer()->setOrientation( pixmapSize.width() > pixmapSize.height() ?  QPrinter::Landscape :  QPrinter::Portrait);
+        printer->setOrientation( pixmapSize.width() > pixmapSize.height() ?  QPrinter::Landscape :  QPrinter::Portrait);
 
         // Printer parameters
-        QPrintDialog dialog(m_core->printer(), fw);
+        QPrintDialog dialog(printer, fw);
         if (!dialog.exec())
            break;
 
-        const QCursor oldCursor = m_core->mainWindow()->cursor();
-        m_core->mainWindow()->setCursor(Qt::WaitCursor);
+        QWidget *mainWindow = Core::ICore::mainWindow();
+        const QCursor oldCursor = mainWindow->cursor();
+        mainWindow->setCursor(Qt::WaitCursor);
         // Estimate of required scaling to make form look the same on screen and printer.
-        const double suggestedScaling = static_cast<double>(m_core->printer()->physicalDpiX()) /  static_cast<double>(fw->physicalDpiX());
+        const double suggestedScaling = static_cast<double>(printer->physicalDpiX()) /  static_cast<double>(fw->physicalDpiX());
 
-        QPainter painter(m_core->printer());
+        QPainter painter(printer);
         painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
         // Clamp to page
@@ -896,17 +896,17 @@ void FormEditorW::print()
         painter.translate(xOffset, yOffset);
         painter.scale(scaling, scaling);
         painter.drawPixmap(0, 0, pixmap);
-        m_core->mainWindow()->setCursor(oldCursor);
+        mainWindow->setCursor(oldCursor);
 
     } while (false);
-    m_core->printer()->setFullPage(oldFullPage);
-    m_core->printer()->setOrientation(oldOrientation);
+    printer->setFullPage(oldFullPage);
+    printer->setOrientation(oldOrientation);
 }
 
 // Find out current existing editor file
-static QString currentFile(const Core::EditorManager *em)
+static QString currentFile()
 {
-    if (Core::IEditor *editor = em->currentEditor())
+    if (Core::IEditor *editor = Core::EditorManager::instance()->currentEditor())
         if (const Core::IFile *file = editor->file()) {
             const QString fileName = file->fileName();
             if (!fileName.isEmpty() && QFileInfo(fileName).isFile())
@@ -917,13 +917,13 @@ static QString currentFile(const Core::EditorManager *em)
 
 // Switch between form ('ui') and source file ('cpp'):
 // Find corresponding 'other' file, simply assuming it is in the same directory.
-static QString otherFile(const Core::EditorManager *em)
+static QString otherFile()
 {
     // Determine mime type of current file.
-    const QString current = currentFile(em);
+    const QString current = currentFile();
     if (current.isEmpty())
         return QString();
-    const Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();
+    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
     const Core::MimeType currentMimeType = mdb->findByFile(current);
     if (!currentMimeType)
         return QString();
@@ -952,10 +952,9 @@ static QString otherFile(const Core::EditorManager *em)
 
 void FormEditorW::switchSourceForm()
 {
-    Core::EditorManager *em = Core::EditorManager::instance();
-    const QString fileToOpen = otherFile(em);
+    const QString fileToOpen = otherFile();
     if (!fileToOpen.isEmpty())
-        em->openEditor(fileToOpen, Core::Id(), Core::EditorManager::ModeSwitch);
+        Core::ICore::editorManager()->openEditor(fileToOpen, Core::Id(), Core::EditorManager::ModeSwitch);
 }
 
 } // namespace Internal

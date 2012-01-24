@@ -402,7 +402,7 @@ void SnippetsSettingsPagePrivate::apply()
         if (SnippetsCollection::instance()->synchronize(&errorString))
             m_snippetsCollectionChanged = false;
         else
-            QMessageBox::critical(Core::ICore::instance()->mainWindow(),
+            QMessageBox::critical(Core::ICore::mainWindow(),
                     tr("Error While Saving Snippet Collection"), errorString);
     }
 }
@@ -422,7 +422,7 @@ void SnippetsSettingsPagePrivate::loadSettings()
     if (m_ui.groupCombo->count() == 0)
         return;
 
-    if (QSettings *s = Core::ICore::instance()->settings()) {
+    if (QSettings *s = Core::ICore::settings()) {
         m_settings.fromSettings(m_settingsPrefix, s);
         const QString &lastGroupName = m_settings.lastUsedSnippetGroup();
         const int index = m_ui.groupCombo->findText(lastGroupName);
@@ -438,7 +438,7 @@ void SnippetsSettingsPagePrivate::writeSettings()
     if (m_ui.groupCombo->count() == 0)
         return;
 
-    if (QSettings *s = Core::ICore::instance()->settings()) {
+    if (QSettings *s = Core::ICore::settings()) {
         m_settings.setLastUsedSnippetGroup(m_ui.groupCombo->currentText());
         m_settings.toSettings(m_settingsPrefix, s);
     }

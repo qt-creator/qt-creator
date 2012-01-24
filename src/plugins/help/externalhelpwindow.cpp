@@ -50,7 +50,7 @@ using namespace Help::Internal;
 ExternalHelpWindow::ExternalHelpWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup(Help::Constants::ID_MODE_HELP);
 
     const QVariant geometry = settings->value(QLatin1String("geometry"));
@@ -180,7 +180,7 @@ ExternalHelpWindow::~ExternalHelpWindow()
 
 void ExternalHelpWindow::closeEvent(QCloseEvent *event)
 {
-    QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::settings();
     settings->beginGroup(Help::Constants::ID_MODE_HELP);
     settings->setValue(QLatin1String("geometry"), saveGeometry());
     settings->endGroup();
@@ -195,7 +195,7 @@ bool ExternalHelpWindow::eventFilter(QObject *obj, QEvent *event)
             QKeyEvent *keyEvent = static_cast<QKeyEvent*> (event);
             switch (keyEvent->key()) {
                 case Qt::Key_Escape:
-                    Core::ICore::instance()->mainWindow()->activateWindow();
+                    Core::ICore::mainWindow()->activateWindow();
                 default:
                     break;
             }

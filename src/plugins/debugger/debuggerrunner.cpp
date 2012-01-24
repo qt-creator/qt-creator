@@ -200,7 +200,7 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
         DebuggerToolTipManager::instance()->registerEngine(d->m_engine);
     } else {
         debuggingFinished();
-        Core::ICore::instance()->showWarningWithOptions(DebuggerRunControl::tr("Debugger"), errorMessage);
+        Core::ICore::showWarningWithOptions(DebuggerRunControl::tr("Debugger"), errorMessage);
     }
 }
 
@@ -600,7 +600,7 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
     // Filter out disables types, command line + current settings.
     unsigned cmdLineEnabledEngines = debuggerCore()->enabledEngines();
 #ifdef WITH_LLDB
-    if (!Core::ICore::instance()->settings()->value(QLatin1String("LLDB/enabled")).toBool())
+    if (!Core::ICore::settings()->value(QLatin1String("LLDB/enabled")).toBool())
         cmdLineEnabledEngines &= ~LldbEngineType;
 #else
      cmdLineEnabledEngines &= ~LldbEngineType;
@@ -807,7 +807,7 @@ DebuggerRunControl *DebuggerRunControlFactory::create
 
     if (!check) {
         //appendMessage(errorMessage, true);
-        Core::ICore::instance()->showWarningWithOptions(DebuggerRunControl::tr("Debugger"),
+        Core::ICore::showWarningWithOptions(DebuggerRunControl::tr("Debugger"),
             check.errorMessage, check.errorDetailsString(), check.settingsCategory, check.settingsPage);
         return 0;
     }

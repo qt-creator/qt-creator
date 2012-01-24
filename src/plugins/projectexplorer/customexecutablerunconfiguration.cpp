@@ -131,7 +131,7 @@ QString CustomExecutableRunConfiguration::executable() const
         CustomExecutableRunConfiguration *that = const_cast<CustomExecutableRunConfiguration *>(this);
         QWidget *confWidget = that->createConfigurationWidget();
         confWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-        QDialog dialog(Core::ICore::instance()->mainWindow());
+        QDialog dialog(Core::ICore::mainWindow());
         dialog.setWindowTitle(displayName());
         dialog.setWindowFlags(dialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
         dialog.setLayout(new QVBoxLayout());

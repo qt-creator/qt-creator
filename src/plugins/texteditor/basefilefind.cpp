@@ -158,7 +158,7 @@ void BaseFileFind::runSearch(Find::SearchResult *search)
             ITextEditor::openedTextEditorsContents()));
     }
     Core::FutureProgress *progress =
-        Core::ICore::instance()->progressManager()->addTask(watcher->future(),
+        Core::ICore::progressManager()->addTask(watcher->future(),
                                                                         tr("Search"),
                                                                         QLatin1String(Constants::TASK_SEARCH));
     progress->setWidget(label);
@@ -179,9 +179,8 @@ void BaseFileFind::doReplace(const QString &text,
                                const QList<Find::SearchResultItem> &items)
 {
     QStringList files = replaceAll(text, items);
-    Core::FileManager *fileManager = Core::ICore::instance()->fileManager();
     if (!files.isEmpty()) {
-        fileManager->notifyFilesChangedInternally(files);
+        Core::ICore::fileManager()->notifyFilesChangedInternally(files);
         Find::SearchResultWindow::instance()->hide();
     }
 }

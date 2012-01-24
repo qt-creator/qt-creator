@@ -932,7 +932,7 @@ void FindReferences::displayResults(int first, int last)
         connect(m_currentSearch, SIGNAL(cancelled()), this, SLOT(cancel()));
         Find::SearchResultWindow::instance()->popup(true);
 
-        Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
+        Core::ProgressManager *progressManager = Core::ICore::progressManager();
         Core::FutureProgress *progress = progressManager->addTask(
                     m_watcher.future(), tr("Searching"),
                     QmlJSEditor::Constants::TASK_SEARCH);

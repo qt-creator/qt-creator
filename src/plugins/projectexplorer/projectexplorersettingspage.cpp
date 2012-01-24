@@ -185,7 +185,7 @@ QWidget *ProjectExplorerSettingsPage::createPage(QWidget *parent)
 {
     m_widget = new ProjectExplorerSettingsWidget(parent);
     m_widget->setSettings(ProjectExplorerPlugin::instance()->projectExplorerSettings());
-    const Core::FileManager *fm = Core::ICore::instance()->fileManager();
+    const Core::FileManager *fm = Core::ICore::fileManager();
     m_widget->setProjectsDirectory(fm->projectsDirectory());
     m_widget->setUseProjectsDirectory(fm->useProjectsDirectory());
     if (m_searchKeywords.isEmpty())
@@ -197,7 +197,7 @@ void ProjectExplorerSettingsPage::apply()
 {
     if (m_widget) {
         ProjectExplorerPlugin::instance()->setProjectExplorerSettings(m_widget->settings());
-        Core::FileManager *fm = Core::ICore::instance()->fileManager();
+        Core::FileManager *fm = Core::ICore::fileManager();
         fm->setProjectsDirectory(m_widget->projectsDirectory());
         fm->setUseProjectsDirectory(m_widget->useProjectsDirectory());
     }

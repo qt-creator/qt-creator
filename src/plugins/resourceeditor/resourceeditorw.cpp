@@ -118,7 +118,7 @@ bool ResourceEditorW::createNew(const QString &contents)
 {
     Utils::TempFileSaver saver;
     saver.write(contents.toUtf8());
-    if (!saver.finalize(Core::ICore::instance()->mainWindow()))
+    if (!saver.finalize(Core::ICore::mainWindow()))
         return false;
 
     const bool rc = m_resourceEditor->load(saver.fileName());

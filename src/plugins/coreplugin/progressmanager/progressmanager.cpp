@@ -146,7 +146,7 @@ using namespace Core::Internal;
     // We are already running in a different thread here
     QFutureInterface<void> *progressObject = new QFutureInterface<void>;
     progressObject->setProgressRange(0, MAX);
-    Core::ICore::instance()->progressManager()->addTask(
+    Core::ICore::progressManager()->addTask(
         progressObject->future(),
         tr("DoIt"), MYTASKTYPE);
     progressObject->reportStarted();
@@ -250,8 +250,7 @@ ProgressManagerPrivate::ProgressManagerPrivate(QObject *parent)
     m_applicationTask(0)
 {
     m_progressView = new ProgressView;
-    ICore *core = ICore::instance();
-    connect(core, SIGNAL(coreAboutToClose()), this, SLOT(cancelAllRunningTasks()));
+    connect(ICore::instance(), SIGNAL(coreAboutToClose()), this, SLOT(cancelAllRunningTasks()));
 }
 
 ProgressManagerPrivate::~ProgressManagerPrivate()

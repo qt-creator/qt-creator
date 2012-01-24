@@ -478,7 +478,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
       m_selected(0),
       m_qtVersionId(-1)
 {
-    QSettings *s = Core::ICore::instance()->settings();
+    QSettings *s = Core::ICore::settings();
     QString sourceDir = QFileInfo(m_proFilePath).absolutePath();
 
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
@@ -726,7 +726,7 @@ void Qt4DefaultTargetSetupWidget::storeSettings() const
         }
     }
 
-    QSettings *s = Core::ICore::instance()->settings();
+    QSettings *s = Core::ICore::settings();
     s->setValue(QLatin1String("Qt4ProjectManager.TargetSetupPage.ShadowBuilding"), m_shadowBuildEnabled->isChecked());
     int id = -1;
     int ci = m_versionComboBox->currentIndex();

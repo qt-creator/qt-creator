@@ -269,8 +269,7 @@ void QmlProjectRunConfigurationWidget::qmlDebugServerPortChanged(uint port)
 
 void QmlProjectRunConfigurationWidget::manageQtVersions()
 {
-    ICore *core = ICore::instance();
-    core->showOptionsDialog(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
+    ICore::showOptionsDialog(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
                             QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
 }
 
