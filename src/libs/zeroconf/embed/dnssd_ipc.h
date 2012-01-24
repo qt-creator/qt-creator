@@ -154,8 +154,9 @@ typedef enum
     } reply_op_t;
 }}
 extern "C" {
+
 #if defined(_WIN64)
-#    pragma pack(4)
+#    pragma pack(push,4)
 #endif
 
 // Define context object big enough to hold a 64-bit pointer,
@@ -178,6 +179,10 @@ typedef packedstruct
     // socket connected by DNSServiceCreateConnection().  Must be unique in the scope of the connection, such that and
     // index/socket pair uniquely identifies a record.  (Used to select records for removal by DNSServiceRemoveRecord())
     } ipc_msg_hdr;
+
+#if defined(_WIN64)
+#    pragma pack(pop)
+#endif
 
 // routines to write to and extract data from message buffers.
 // caller responsible for bounds checking.
@@ -216,4 +221,5 @@ struct CompileTimeAssertionChecks_dnssd_ipc
         char assert1[(sizeof(ipc_msg_hdr)      == 28) ? 1 : -1];
         };
         }}
+
 #endif // DNSSD_IPC_H

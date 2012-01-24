@@ -29,6 +29,10 @@
 #include <errno.h>
 #include <stdlib.h>
 
+#if APPLE_OSX_mDNSResponder
+#include <mach-o/dyld.h>
+#endif
+
 #include "dnssd_ipc.h"
 
 namespace ZeroConf { namespace embeddedLib {
@@ -37,7 +41,6 @@ static int gDaemonErr = kDNSServiceErr_NoError;
         }}
 
 extern "C" {
-
 #if defined(_WIN32)
 
         #define _SSIZE_T
@@ -47,6 +50,7 @@ extern "C" {
         #include <ws2tcpip.h>
         #include <windows.h>
         #include <stdarg.h>
+    #include <stdio.h>
 
         #define sockaddr_mdns sockaddr_in
         #define AF_MDNS AF_INET
@@ -62,6 +66,7 @@ extern "C" {
         #define sleep(X) Sleep((X) * 1000)
         #define NOT_HAVE_SA_LEN
 namespace ZeroConf { namespace embeddedLib {
+
         static int g_initWinsock = 0;
         #define LOG_WARNING kDebugLevelWarning
         #define LOG_INFO kDebugLevelInfo
@@ -78,7 +83,6 @@ namespace ZeroConf { namespace embeddedLib {
                 if ( buffer ) { vsprintf( buffer, message, args ); OutputDebugStringA( buffer ); free( buffer ); }
                 WSASetLastError( err );
                 }
-        }}
 #else
 
         #include <sys/fcntl.h>        // For O_RDWR etc.
@@ -88,6 +92,7 @@ namespace ZeroConf { namespace embeddedLib {
 
         #define sockaddr_mdns sockaddr_un
         #define AF_MDNS AF_LOCAL
+
 #endif
 
 #ifdef Q_OS_LINUX
@@ -1134,6 +1139,34 @@ fail:
         syslog(LOG_WARNING, "dnssd_clientstub handle_resolve_response: error reading result from daemon");
         }
 
+#if APPLE_OSX_mDNSResponder
+
+static int32_t libSystemVersion = 0;
+
+// Return true if the application linked against a version of libsystem where P2P
+// interfaces were included by default when using kDNSServiceInterfaceIndexAny.
+// Using 160.0.0 == 0xa00000 as the version threshold.
+static int includeP2PWithIndexAny()
+    {
+    if (libSystemVersion == 0)
+        libSystemVersion = NSVersionOfLinkTimeLibrary("System");
+
+    if (libSystemVersion < 0xa00000)
+        return 1;
+    else
+        return 0;
+    }
+
+#else // APPLE_OSX_mDNSResponder
+
+// always return false for non Apple platforms
+static int includeP2PWithIndexAny()
+    {
+    return 0;
+    }
+
+#endif // APPLE_OSX_mDNSResponder
+
 DNSServiceErrorType DNSSD_API DNSServiceResolve
         (
         DNSServiceRef                 *sdRef,
@@ -1162,6 +1195,9 @@ DNSServiceErrorType DNSSD_API DNSServiceResolve
                 {
                 return kDNSServiceErr_BadParam;
                 }
+
+    if ((interfaceIndex == kDNSServiceInterfaceIndexAny) && includeP2PWithIndexAny())
+        flags |= kDNSServiceFlagsIncludeP2P;
 
         err = ConnectToServer(sdRef, flags, resolve_request, handle_resolve_response, reinterpret_cast<void*>(callBack), context);
         if (err) return err;    // On error ConnectToServer leaves *sdRef set to NULL
@@ -1221,7 +1257,12 @@ DNSServiceErrorType DNSSD_API DNSServiceQueryRecord
         char *ptr;
         size_t len;
         ipc_msg_hdr *hdr;
-        DNSServiceErrorType err = ConnectToServer(sdRef, flags, query_request, handle_query_response, reinterpret_cast<void*>(callBack), context);
+    DNSServiceErrorType err;
+
+    if ((interfaceIndex == kDNSServiceInterfaceIndexAny) && includeP2PWithIndexAny())
+        flags |= kDNSServiceFlagsIncludeP2P;
+
+    err = ConnectToServer(sdRef, flags, query_request, handle_query_response, reinterpret_cast<void*>(callBack), context);
         if (err) return err;    // On error ConnectToServer leaves *sdRef set to NULL
 
         if (!name) name = "\0";
@@ -1366,7 +1407,12 @@ DNSServiceErrorType DNSSD_API DNSServiceBrowse
         char *ptr;
         size_t len;
         ipc_msg_hdr *hdr;
-        DNSServiceErrorType err = ConnectToServer(sdRef, flags, browse_request, handle_browse_response, reinterpret_cast<void*>(callBack), context);
+    DNSServiceErrorType err;
+
+    if ((interfaceIndex == kDNSServiceInterfaceIndexAny) && includeP2PWithIndexAny())
+        flags |= kDNSServiceFlagsIncludeP2P;
+
+    err = ConnectToServer(sdRef, flags, browse_request, handle_browse_response, reinterpret_cast<void*>(callBack), context);
         if (err) return err;    // On error ConnectToServer leaves *sdRef set to NULL
 
         if (!domain) domain = "";
@@ -1449,6 +1495,9 @@ DNSServiceErrorType DNSSD_API DNSServiceRegister
 
         // No callback must have auto-rename
         if (!callBack && (flags & kDNSServiceFlagsNoAutoRename)) return kDNSServiceErr_BadParam;
+
+    if ((interfaceIndex == kDNSServiceInterfaceIndexAny) && includeP2PWithIndexAny())
+        flags |= kDNSServiceFlagsIncludeP2P;
 
         err = ConnectToServer(sdRef, flags, reg_service_request, callBack ? handle_regservice_response : NULL, reinterpret_cast<void*>(callBack), context);
         if (err) return err;    // On error ConnectToServer leaves *sdRef set to NULL
@@ -1594,6 +1643,9 @@ DNSServiceErrorType DNSSD_API DNSServiceRegisterRecord
         int f1 = (flags & kDNSServiceFlagsShared) != 0;
         int f2 = (flags & kDNSServiceFlagsUnique) != 0;
         if (f1 + f2 != 1) return kDNSServiceErr_BadParam;
+
+    if ((interfaceIndex == kDNSServiceInterfaceIndexAny) && includeP2PWithIndexAny())
+        flags |= kDNSServiceFlagsIncludeP2P;
 
         if (!sdRef) { syslog(LOG_WARNING, "dnssd_clientstub DNSServiceRegisterRecord called with NULL DNSServiceRef"); return kDNSServiceErr_BadParam; }
 
