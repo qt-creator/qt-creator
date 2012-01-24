@@ -4653,6 +4653,11 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
     postCommand("pwd");
     postCommand("set width 0");
     postCommand("set height 0");
+
+    postCommand("set breakpoint always-inserted on");
+    // displaced-stepping does not work in Thumb mode.
+    //postCommand("set displaced-stepping on");
+    postCommand("set trust-readonly-sections on");
     postCommand("set auto-solib-add on");
 
     if (0 && debuggerCore()->boolSetting(TargetAsync)) {
