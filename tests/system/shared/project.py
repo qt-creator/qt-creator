@@ -27,7 +27,16 @@ def openCmakeProject(projectPath):
     if index != -1:
         generatorCombo.setCurrentIndex(index)
     clickButton(waitForObject(":CMake Wizard.Run CMake_QPushButton", 20000))
-    clickButton(waitForObject(":CMake Wizard.Finish_QPushButton", 60000))
+    try:
+        clickButton(waitForObject(":CMake Wizard.Finish_QPushButton", 60000))
+    except LookupError:
+        cmakeOutput = waitForObject("{type='QPlainTextEdit' unnamed='1' visible='1' "
+                                    "window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}")
+        test.warning("Error while executing cmake - see details for cmake output.",
+                     str(cmakeOutput.plainText))
+        clickButton(waitForObject(":CMake Wizard.Cancel_QPushButton"))
+        return False
+    return True
 
 def shadowBuildDir(path, project, qtVersion, debugVersion):
     qtVersion = qtVersion.replace(" ", "_")

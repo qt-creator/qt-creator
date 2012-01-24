@@ -3,16 +3,23 @@ source("../../shared/qtcreator.py")
 SpeedCrunchPath = ""
 
 def main():
-    if(which("cmake") == None):
-        test.fatal("cmake not found")
+    if (which("cmake") == None):
+        test.warning("cmake not found in PATH - needed to run this test")
+        return
+    if (which("qmake") == None):
+        test.warning("qmake not found in PATH - needed to run this test")
         return
     if not neededFilePresent(SpeedCrunchPath):
         return
 
     startApplication("qtcreator" + SettingsPath)
 
-    openCmakeProject(SpeedCrunchPath)
-
+    result = openCmakeProject(SpeedCrunchPath)
+    if not result:
+        test.warning("Could not open/create cmake project - leaving test")
+        invokeMenuItem("File", "Exit")
+        waitForCleanShutdown()
+        return
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
 
     # Test that some of the expected items are in the navigation tree
