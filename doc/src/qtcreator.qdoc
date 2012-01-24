@@ -121,7 +121,8 @@
                 Tracker, select \gui {Help > Report Bug}.
 
                 You can also join the \QC mailing list at:
-                \l{http://lists.qt.nokia.com}{http://lists.qt.nokia.com}.
+                \l{http://lists.qt-project.org/mailman/listinfo/}
+                {lists.qt-project.org Mailing Lists}.
     \endtable
 
     \section1 Table Of Contents
