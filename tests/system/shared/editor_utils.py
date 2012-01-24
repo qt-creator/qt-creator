@@ -40,11 +40,35 @@ def placeCursorToLine(editor,line,isRegex=False):
     editor.setTextCursor(cursor)
     return True
 
+# this function returns True if a QMenu is
+# popped up above the given editor
+# param editor is the editor where the menu should appear
+# param menuInList is a list containing one item. This item will be assigned the menu if there is one.
+#                  THIS IS A HACK to get a pass-by-reference
+def menuVisibleAtEditor(editor, menuInList):
+    menuInList[0] = None
+    try:
+        menu = waitForObject("{type='QMenu' unnamed='1' visible='1'}", 200)
+        success = menu.visible and widgetContainsPoint(editor, menu.mapToGlobal(QPoint(0, 0)))
+        if success:
+            menuInList[0] = menu
+        return success
+    except:
+        return False
+
+# this function checks whether the given global point (QPoint)
+# is contained in the given widget
+def widgetContainsPoint(widget, point):
+    return QRect(widget.mapToGlobal(QPoint(0, 0)), widget.size).contains(point)
+
 # this function simply opens the context menu inside the given editor
 # at the same position where the text cursor is located at
 def openContextMenuOnTextCursorPosition(editor):
     rect = editor.cursorRect(editor.textCursor())
     openContextMenu(editor, rect.x+rect.width/2, rect.y+rect.height/2, 0)
+    menuInList = [None]
+    waitFor("menuVisibleAtEditor(editor, menuInList)", 5000)
+    return menuInList[0]
 
 # this function marks/selects the text inside the given editor from position
 # startPosition to endPosition (both inclusive)

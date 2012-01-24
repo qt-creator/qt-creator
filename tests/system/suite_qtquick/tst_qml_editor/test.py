@@ -63,12 +63,8 @@ def testRenameId():
         return False
     type(editor, "<Down>")
     searchFinished = False
-    if platform.system() == "Darwin":
-        invokeMenuItem("Tools", "QML/JS", "Rename Symbol Under Cursor")
-    else:
-        openContextMenuOnTextCursorPosition(editor)
-        ctxtMenu = waitForObject("{type='QMenu' visible='1' unnamed='1'}")
-        activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), "Rename Symbol Under Cursor"))
+    ctxtMenu = openContextMenuOnTextCursorPosition(editor)
+    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), "Rename Symbol Under Cursor"))
     waitFor("searchFinished")
     type(waitForObject("{leftWidget={text='Replace with:' type='QLabel' unnamed='1' visible='1'} "
                        "type='Find::Internal::WideEnoughLineEdit' unnamed='1' visible='1' "
@@ -100,12 +96,8 @@ def __invokeFindUsage__(treeView, filename, line, additionalKeyPresses, expected
     for ty in additionalKeyPresses:
         type(editor, ty)
     searchFinished = False
-    if platform.system() == "Darwin":
-        invokeMenuItem("Tools", "QML/JS", "Find Usages")
-    else:
-        openContextMenuOnTextCursorPosition(editor)
-        ctxtMenu = waitForObject("{type='QMenu' visible='1' unnamed='1'}")
-        activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), "Find Usages"))
+    ctxtMenu = openContextMenuOnTextCursorPosition(editor)
+    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), "Find Usages"))
     waitFor("searchFinished")
     validateSearchResult(expectedCount)
 
