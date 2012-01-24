@@ -19,13 +19,10 @@ OTHER_FILES += dist/copyright_template.txt \
 
 macx {
     APPBUNDLE = "$$OUT_PWD/bin/Qt Creator.app"
-    deployqt.commands = macdeployqt "$${APPBUNDLE}" \
-        -executable="$${APPBUNDLE}/Contents/MacOS/qmlpuppet.app/Contents/MacOS/qmlpuppet" \
-        -executable="$${APPBUNDLE}/Contents/Resources/qtpromaker" \
-        -executable="$${APPBUNDLE}/Contents/MacOS/qmlprofiler"
-    deployqt.depends = default
-    bindist.commands = 7z a -mx9 $$OUT_PWD/qtcreator-mac$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX).7z "$$OUT_PWD/bin/Qt Creator.app/"
+    deployqt.commands = $$PWD/scripts/deployqtHelper_mac.sh \"$${APPBUNDLE}\"
+    bindist.commands = 7z a -mx9 $$OUT_PWD/qtcreator-mac$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX).7z \"$$OUT_PWD/bin/Qt Creator.app/\"
     dmg.commands = $$PWD/scripts/makedmg.sh $$OUT_PWD/bin qt-creator-mac$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX).dmg
+    dmg.depends = deployqt
     QMAKE_EXTRA_TARGETS += dmg
 } else {
     deployqt.commands = $$PWD/scripts/deployqt.py -i $(INSTALL_ROOT)
