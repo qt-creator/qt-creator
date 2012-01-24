@@ -73,8 +73,7 @@ QString TaskFileFactory::displayName() const
 
 Core::IFile *TaskFileFactory::open(const QString &fileName)
 {
-    ProjectExplorer::Project * context =
-        ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject();
+    ProjectExplorer::Project *context = ProjectExplorer::ProjectExplorerPlugin::currentProject();
     return open(context, fileName);
 }
 

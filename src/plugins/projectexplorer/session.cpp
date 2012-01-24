@@ -820,7 +820,7 @@ Project *SessionManager::projectForFile(const QString &fileName) const
     const QList<Project *> &projectList = projects();
 
     // Check current project first
-    Project *currentProject = ProjectExplorerPlugin::instance()->currentProject();
+    Project *currentProject = ProjectExplorerPlugin::currentProject();
     if (currentProject && projectContainsFile(currentProject, fileName))
         return currentProject;
 
@@ -856,7 +856,7 @@ QString SessionManager::currentSession() const
 void SessionManager::updateWindowTitle()
 {
     if (isDefaultSession(m_sessionName)) {
-        if (Project *currentProject = ProjectExplorerPlugin::instance()->currentProject())
+        if (Project *currentProject = ProjectExplorerPlugin::currentProject())
             ICore::editorManager()->setWindowTitleAddition(currentProject->displayName());
         else
             ICore::editorManager()->setWindowTitleAddition(QString());

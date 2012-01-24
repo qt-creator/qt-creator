@@ -1347,15 +1347,16 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
     return openedPro;
 }
 
-Project *ProjectExplorerPlugin::currentProject() const
+Project *ProjectExplorerPlugin::currentProject()
 {
+    Project *project = m_instance->d->m_currentProject;
     if (debug) {
-        if (d->m_currentProject)
-            qDebug() << "ProjectExplorerPlugin::currentProject returns " << d->m_currentProject->displayName();
+        if (project)
+            qDebug() << "ProjectExplorerPlugin::currentProject returns " << project->displayName();
         else
             qDebug() << "ProjectExplorerPlugin::currentProject returns 0";
     }
-    return d->m_currentProject;
+    return project;
 }
 
 Node *ProjectExplorerPlugin::currentNode() const

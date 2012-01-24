@@ -2157,7 +2157,7 @@ TextEditor::IAssistInterface *CPPEditorWidget::createAssistInterface(
         QStringList includePaths;
         QStringList frameworkPaths;
         if (ProjectExplorer::Project *project =
-                ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject()) {
+                ProjectExplorer::ProjectExplorerPlugin::currentProject()) {
             includePaths = m_modelManager->projectInfo(project).includePaths;
             frameworkPaths = m_modelManager->projectInfo(project).frameworkPaths;
         }

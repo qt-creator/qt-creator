@@ -69,13 +69,14 @@ QString CurrentProjectFind::displayName() const
 
 bool CurrentProjectFind::isEnabled() const
 {
-    return m_plugin->currentProject() != 0 && BaseFileFind::isEnabled();
+    return ProjectExplorerPlugin::currentProject() != 0 && BaseFileFind::isEnabled();
 }
 
 QVariant CurrentProjectFind::additionalParameters() const
 {
-    if (m_plugin->currentProject() && m_plugin->currentProject()->file())
-        return qVariantFromValue(m_plugin->currentProject()->file()->fileName());
+    Project *project = ProjectExplorerPlugin::currentProject();
+    if (project && project->file())
+        return qVariantFromValue(project->file()->fileName());
     return QVariant();
 }
 
@@ -95,8 +96,8 @@ Utils::FileIterator *CurrentProjectFind::files(const QStringList &nameFilters,
 
 QString CurrentProjectFind::label() const
 {
-    QTC_ASSERT(m_plugin->currentProject(), return QString());
-    return tr("Project '%1':").arg(m_plugin->currentProject()->displayName());
+    QTC_ASSERT(ProjectExplorerPlugin::currentProject(), return QString());
+    return tr("Project '%1':").arg(ProjectExplorerPlugin::currentProject()->displayName());
 }
 
 void CurrentProjectFind::handleProjectChanged()

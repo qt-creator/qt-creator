@@ -101,7 +101,7 @@ void CMakeManager::updateContextMenu(ProjectExplorer::Project *project, ProjectE
 
 void CMakeManager::runCMake()
 {
-    runCMake(ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject());
+    runCMake(ProjectExplorer::ProjectExplorerPlugin::currentProject());
 }
 
 void CMakeManager::runCMakeContextMenu()

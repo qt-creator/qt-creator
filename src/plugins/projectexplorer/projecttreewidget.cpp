@@ -263,7 +263,7 @@ void ProjectTreeWidget::setAutoSynchronization(bool sync, bool syncNow)
         connect(m_explorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*, ProjectExplorer::Project*)),
                 this, SLOT(setCurrentItem(ProjectExplorer::Node*, ProjectExplorer::Project*)));
         if (syncNow)
-            setCurrentItem(m_explorer->currentNode(), m_explorer->currentProject());
+            setCurrentItem(m_explorer->currentNode(), ProjectExplorerPlugin::currentProject());
     } else {
         disconnect(m_explorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*, ProjectExplorer::Project*)),
                 this, SLOT(setCurrentItem(ProjectExplorer::Node*, ProjectExplorer::Project*)));
@@ -354,7 +354,7 @@ void ProjectTreeWidget::initView()
     for (int i = 0; i < m_model->rowCount(sessionIndex); ++i)
         m_view->expand(m_model->index(i, 0, sessionIndex));
 
-    setCurrentItem(m_explorer->currentNode(), m_explorer->currentProject());
+    setCurrentItem(m_explorer->currentNode(), ProjectExplorerPlugin::currentProject());
 }
 
 void ProjectTreeWidget::openItem(const QModelIndex &mainIndex)

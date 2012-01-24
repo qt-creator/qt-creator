@@ -499,7 +499,7 @@ public:
 bool DummyEngine::hasCapability(unsigned cap) const
 {
     // This can only be a first approximation of what to expect when running.
-    Project *project = ProjectExplorerPlugin::instance()->currentProject();
+    Project *project = ProjectExplorerPlugin::currentProject();
     if (!project)
         return 0;
     Target *target = project->activeTarget();

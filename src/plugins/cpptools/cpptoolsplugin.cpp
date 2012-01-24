@@ -266,9 +266,7 @@ QString CppToolsPlugin::correspondingHeaderOrSourceI(const QString &fileName) co
         return m_headerSourceMapping.value(fi.absoluteFilePath());
 
     const Core::MimeDatabase *mimeDatase = Core::ICore::mimeDatabase();
-    ProjectExplorer::ProjectExplorerPlugin *explorer =
-       ProjectExplorer::ProjectExplorerPlugin::instance();
-    ProjectExplorer::Project *project = (explorer ? explorer->currentProject() : 0);
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
 
     const FileType type = fileType(mimeDatase, fi);
 

@@ -770,18 +770,16 @@ QStringList VcsBaseSubmitEditor::currentProjectFiles(bool nativeSeparators, QStr
     if (name)
         name->clear();
 
-    if (ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance()) {
-        if (const ProjectExplorer::Project *currentProject = pe->currentProject()) {
-            QStringList files = currentProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
-            if (name)
-                *name = currentProject->displayName();
-            if (nativeSeparators && !files.empty()) {
-                const QStringList::iterator end = files.end();
-                for (QStringList::iterator it = files.begin(); it != end; ++it)
-                    *it = QDir::toNativeSeparators(*it);
-            }
-            return files;
+    if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::currentProject()) {
+        QStringList files = currentProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
+        if (name)
+            *name = currentProject->displayName();
+        if (nativeSeparators && !files.empty()) {
+            const QStringList::iterator end = files.end();
+            for (QStringList::iterator it = files.begin(); it != end; ++it)
+                *it = QDir::toNativeSeparators(*it);
         }
+        return files;
     }
     return QStringList();
 }

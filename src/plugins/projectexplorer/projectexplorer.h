@@ -84,7 +84,7 @@ public:
 
     SessionManager *session() const;
 
-    Project *currentProject() const;
+    static Project *currentProject();
     Node *currentNode() const;
 
     void setCurrentFile(Project *project, const QString &file);

@@ -185,7 +185,7 @@ void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
 void Qt4Manager::updateVariable(const QByteArray &variable)
 {
     if (variable == kInstallBins) {
-        Qt4Project *qt4pro = qobject_cast<Qt4Project *>(projectExplorer()->currentProject());
+        Qt4Project *qt4pro = qobject_cast<Qt4Project *>(ProjectExplorer::ProjectExplorerPlugin::currentProject());
         if (!qt4pro) {
             Core::VariableManager::instance()->remove(kInstallBins);
             return;

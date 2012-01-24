@@ -398,8 +398,7 @@ void CallgrindToolPrivate::updateCostFormat()
 
 void CallgrindToolPrivate::handleFilterProjectCosts()
 {
-    ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
-    ProjectExplorer::Project *pro = pe->currentProject();
+    ProjectExplorer::Project *pro = ProjectExplorer::ProjectExplorerPlugin::currentProject();
     QTC_ASSERT(pro, return)
 
     if (m_filterProjectCosts->isChecked()) {

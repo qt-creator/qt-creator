@@ -231,7 +231,6 @@ static inline QString displayNameOfEditor(const QString &fileName)
 
 void StateListener::slotStateChanged()
 {
-    const ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
     Core::VcsManager *vcsManager = Core::ICore::vcsManager();
 
     // Get the current file. Are we on a temporary submit editor indicated by
@@ -280,7 +279,7 @@ void StateListener::slotStateChanged()
     }
     // Check for project, find the control
     Core::IVersionControl *projectControl = 0;
-    if (const ProjectExplorer::Project *currentProject = pe->currentProject()) {
+    if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::currentProject()) {
         state.currentProjectPath = currentProject->projectDirectory();
         state.currentProjectName = currentProject->displayName();
         projectControl = vcsManager->findVersionControlForDirectory(state.currentProjectPath,
@@ -643,7 +642,7 @@ void VcsBasePlugin::createRepository()
     QTC_ASSERT(d->m_versionControl->supportsOperation(Core::IVersionControl::CreateRepositoryOperation), return);
     // Find current starting directory
     QString directory;
-    if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject())
+    if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::currentProject())
         directory = QFileInfo(currentProject->file()->fileName()).absolutePath();
     // Prompt for a directory that is not under version control yet
     QMainWindow *mw = Core::ICore::mainWindow();
