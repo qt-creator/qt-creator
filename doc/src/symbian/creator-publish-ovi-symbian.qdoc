@@ -33,15 +33,17 @@
 
     \title Publishing Qt Content for Symbian Devices
 
-    You can use the \e {Application Signing Services for Nokia Store} to get your
-    application Express Signed for free by Nokia. Make sure to use the
-    \l{Application UID}{application UID} that you receive from Nokia Publisher
-    Support.
-
     The \gui {Publish Qt Symbian Applications to Nokia Store} wizard allows you
-    to check that your application can be published to Nokia Store. It checks that
-    the application UID, vendor name, and the capabilities used meet the Nokia
-    Publish criteria.
+    to check that your application can be published to Nokia Store. It checks
+    that the application UID, vendor name, and the capabilities used meet the
+    \l{http://support.publish.nokia.com/?p=64}{Nokia Publish criteria}.
+
+    You can use the
+    \l{http://www.developer.nokia.com/Distribute/Packaging_and_signing.xhtml}
+    {Application Signing Services for Nokia Store} to get your application
+    Express Signed for free by Nokia. Submit an unsigned SIS file (with the
+    \l{Application UID}{application UID} that you receive from Nokia Publisher
+    Support) to the \l{https://publish.ovi.com/login}{Nokia Publish tool}.
 
     If you use Symbian Signed UIDs or the application uses functions that
     require advanced \l{Capabilities and Signing}{capabilities}, you must use
@@ -80,8 +82,6 @@
             .sis file was created.
 
         \o  Submit the created .sis file to Nokia Publish as a Qt Content item.
-
-            \note You cannot use this .sis file for testing.
 
     \endlist
 
