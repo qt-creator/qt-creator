@@ -16722,7 +16722,7 @@ The following encodings are likely to fit:</source>
     </message>
     <message>
         <source>Number</source>
-        <translation>号</translation>
+        <translation>数字</translation>
     </message>
     <message>
         <source>String</source>
@@ -34175,7 +34175,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>&amp;Compiler path:</source>
-        <translation>编译器路进(&amp;C):</translation>
+        <translation>编译器路径(&amp;C):</translation>
     </message>
     <message>
         <source>Environment Variables</source>
@@ -34276,7 +34276,7 @@ Previous Qt versions have limitations in building suitable SIS files.</source>
     </message>
     <message>
         <source>Compiler path:</source>
-        <translation>编译器路进:</translation>
+        <translation>编译器路径:</translation>
     </message>
     <message>
         <source>System include path:</source>
@@ -36991,7 +36991,7 @@ Do you want to retry?</source>
     <name>ProjectExplorer::Internal::GccToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
-        <translation>编译器路进(&amp;C):</translation>
+        <translation>编译器路径(&amp;C):</translation>
     </message>
     <message>
         <source>&amp;ABI:</source>
@@ -38956,7 +38956,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
     <message>
         <source>Creates a qmake-based subdirs project. This allows you to group your projects in a tree structure.</source>
-        <translation>创建一个基于qmake 的子项目. 这可以让你在一个树形结构李组织你的项目.</translation>
+        <translation>创建一个基于qmake 的子项目. 这可以让你在一个树形结构里组织你的项目.</translation>
     </message>
     <message>
         <source>Done &amp;&amp; Add Subproject</source>

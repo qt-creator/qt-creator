@@ -5,13 +5,14 @@ list of changes, see the Git log for the Qt Creator sources that
 you can check out from the public Git repository. For example:
 
 git clone git://gitorious.org/qt-creator/qt-creator.git
-git log --cherry-pick --pretty=oneline v2.4.0..origin/2.4
+git log --cherry-pick --pretty=oneline v2.4.0..v2.4.1
 
 General
 
 Editing
 
 Managing Projects
+   * Fix a crash on closing a project while a parse is in progress (QTCREATORBUG-6677)
 
 Debugging
 
@@ -27,14 +28,19 @@ QML/JS Support
 Qt Quick Designer
 
 Help
+   * Fix loading of files from documentation (QTSDK-1129)
 
 Platform Specific
 
 Mac
+   * Only force mkspec with specific gcc version if the compiler path suggests it
+   * Find QMLViewer.app even if filesystem is case sensitive (QTCREATORBUG-5975)
+   * Build debugging helper with correct architecture (QTCREATORBUG-6737)
 
 Linux (GNOME and KDE)
 
 Windows
+   * Fix getting proxy settings
 
 Symbian Target
 
