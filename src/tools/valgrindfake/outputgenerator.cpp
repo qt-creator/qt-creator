@@ -41,6 +41,8 @@
 #include <QStringList>
 #include <QDebug>
 
+#include <unistd.h>
+
 using namespace Valgrind::Fake;
 
 OutputGenerator::OutputGenerator(QAbstractSocket *output, QIODevice *input) :
