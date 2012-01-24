@@ -59,7 +59,6 @@
 #include <QtGui/QGroupBox>
 #include <QtGui/QHeaderView>
 #include <QtGui/QMessageBox>
-#include <QtGui/QProxyModel>
 #include <QtGui/QPushButton>
 #include <QtGui/QRadioButton>
 #include <QtGui/QScrollArea>
