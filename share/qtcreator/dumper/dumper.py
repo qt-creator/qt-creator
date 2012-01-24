@@ -325,6 +325,19 @@ class NoAddress:
         self.d.currentPrintsAddress = self.savedPrintsAddress
 
 
+class NoDynamicType:
+    def __init__(self, d):
+        self.d = d
+
+    def __enter__(self):
+        self.savedUseDynamicType = self.d.useDynamicType
+        self.d.useDynamicType = False
+
+    def __exit__(self, exType, exValue, exTraceBack):
+        self.d.useDynamicType = self.savedUseDynamicType
+
+
+
 class SubItem:
     def __init__(self, d, component):
         self.d = d
@@ -1760,10 +1773,11 @@ class Dumper:
                     # strange characters.
                     if dumpBase:
                         baseNumber += 1
-                        with UnnamedSubItem(self, "@%d" % baseNumber):
-                            self.put('iname="%s",' % self.currentIName)
-                            self.put('name="%s",' % field.name)
-                            self.putItem(value.cast(field.type))
+                        with NoDynamicType(self):
+                            with UnnamedSubItem(self, "@%d" % baseNumber):
+                                self.put('iname="%s",' % self.currentIName)
+                                self.put('name="%s",' % field.name)
+                                self.putItem(value.cast(field.type))
                 elif len(field.name) == 0:
                     # Anonymous union. We need a dummy name to distinguish
                     # multiple anonymous unions in the struct.

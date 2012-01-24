@@ -5617,6 +5617,26 @@ namespace bug6465 {
 } // namespace bug6465
 
 
+namespace bug6857 {
+
+    class MyFile : public QFile
+    {
+    public:
+        MyFile(const QString &fileName)
+            : QFile(fileName) {}
+    };
+
+    void test6857()
+    {
+        MyFile file("/tmp/tt");
+        BREAK_HERE;
+        // Expand file.
+        // Check file.QFile "/tmp/tt" QFile.
+        // Continue.
+        dummyStatement(&file);
+    }
+}
+
 namespace varargs {
 
     void test(const char *format, ...)
@@ -5903,6 +5923,7 @@ int main(int argc, char *argv[])
     bug5799::test5799();
     bug6813::test6813();
     bug6465::test6465();
+    bug6857::test6857();
     gdb13393::test13393();
     gdb10586::test10586();
 
