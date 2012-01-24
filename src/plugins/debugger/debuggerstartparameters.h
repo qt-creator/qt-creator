@@ -56,10 +56,6 @@ public:
         CommunicationChannelUsb
     };
 
-    enum SymbianDebugClient {
-        SymbianDebugClientCoda
-    };
-
     DebuggerStartParameters()
       : isSnapshot(false),
         attachPID(-1),
@@ -73,8 +69,7 @@ public:
         startMode(NoStartMode),
         executableUid(0),
         communicationChannel(CommunicationChannelTcpIp),
-        serverPort(0),
-        debugClient(SymbianDebugClientCoda)
+        serverPort(0)
     {}
 
     QString executable;
@@ -130,7 +125,6 @@ public:
     CommunicationChannel communicationChannel;
     QString serverAddress;
     quint16 serverPort;
-    SymbianDebugClient debugClient;
 };
 
 } // namespace Debugger

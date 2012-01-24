@@ -110,8 +110,6 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
                 Debugger::DebuggerStartParameters::CommunicationChannelTcpIp:
                 Debugger::DebuggerStartParameters::CommunicationChannelUsb;
 
-    sp.debugClient = Debugger::DebuggerStartParameters::SymbianDebugClientCoda;
-
     if (const ProjectExplorer::Project *project = rc->target()->project()) {
         sp.projectSourceDirectory = project->projectDirectory();
         if (const ProjectExplorer::BuildConfiguration *buildConfig = rc->target()->activeBuildConfiguration()) {
