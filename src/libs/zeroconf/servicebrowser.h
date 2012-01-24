@@ -110,6 +110,7 @@ public:
 
     void startBrowsing(qint32 interfaceIndex = 0);
     void stopBrowsing();
+    void triggerRefresh();
     bool isBrowsing() const;
     bool didFail() const;
 

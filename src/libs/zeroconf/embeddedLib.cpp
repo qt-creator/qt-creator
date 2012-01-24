@@ -123,6 +123,7 @@ public:
     DNSServiceErrorType resolve(ConnectionRef                       cRef,
                                 DNSServiceRef                       *sdRef,
                                 uint32_t                            interfaceIndex,
+                                ZK_IP_Protocol                      /* protocol */,
                                 const char                          *name,
                                 const char                          *regtype,
                                 const char                          *domain,
@@ -196,8 +197,9 @@ public:
         return embeddedLib::DNSServiceGetProperty(property, result, size);
     }
 
-    ProcessStatus processResult(ConnectionRef sdRef) {
-        if (embeddedLib::DNSServiceProcessResult(reinterpret_cast<DNSServiceRef>(sdRef)) != kDNSServiceErr_NoError)
+    RunLoopStatus processOneEventBlock(ConnectionRef cRef)
+    {
+        if (embeddedLib::DNSServiceProcessResult(reinterpret_cast<DNSServiceRef>(cRef)) != kDNSServiceErr_NoError)
             return ProcessedError;
         return ProcessedOk;
     }

@@ -106,7 +106,7 @@ struct MyAvahiConnection
 };
 
 // represents an avahi library
-class AvahiZConfLib : public ZConfLib{
+class AvahiZConfLib : public ZConfLib {
 private:
     AvahiSimplePollGet m_simplePollGet;
     AvahiSimplePollNewPtr m_simplePollNew;
@@ -203,8 +203,8 @@ public:
     }
 
     DNSServiceErrorType resolve(ConnectionRef cRef, DNSServiceRef *sdRef, uint32_t interfaceIndex,
-                                const char *name, const char *regtype, const char *domain,
-                                ServiceGatherer *gatherer)
+                                ZK_IP_Protocol protocol, const char *name, const char *regtype,
+                                const char *domain, ServiceGatherer *gatherer)
     {
         if (!sdRef) {
             qDebug() << "Error: sdRef is null in resolve";
@@ -213,9 +213,24 @@ public:
         MyAvahiConnection *connection = reinterpret_cast<MyAvahiConnection *>(cRef);
         if (!m_serviceResolverNew)
             return kDNSServiceErr_Unknown;
+        AvahiProtocol avahiProtocol = AVAHI_PROTO_UNSPEC;
+        switch (protocol) {
+        case ZK_PROTO_IPv4:
+            avahiProtocol = AVAHI_PROTO_INET;
+            break;
+        case ZK_PROTO_IPv6:
+            avahiProtocol = AVAHI_PROTO_INET6;
+            break;
+        case ZK_PROTO_IPv4_OR_IPv6:
+            avahiProtocol = AVAHI_PROTO_UNSPEC;
+            break;
+        default:
+            qDebug() << "Zeroconf: unexpected value " << static_cast<int>(protocol) <<
+                        " for protocol in avahiLib.resolve";
+        }
         AvahiServiceResolver *resolver = m_serviceResolverNew(
-                    connection->client, interfaceIndex, AVAHI_PROTO_INET, name, regtype, domain,
-                    AVAHI_PROTO_INET, AvahiLookupFlags(0), &cAvahiResolveReply, gatherer);
+                    connection->client, interfaceIndex, avahiProtocol, name, regtype, domain,
+                    avahiProtocol, AvahiLookupFlags(0), &cAvahiResolveReply, gatherer);
         //*sdRef = reinterpret_cast<DNSServiceRef>(resolver); // add for restart?
         if (!resolver)
             return kDNSServiceErr_Unknown; // avahi_strerror(avahi_client_errno(connection->client));
@@ -282,15 +297,19 @@ public:
         return 0;
     }
 
-    ProcessStatus processResult(ConnectionRef cRef) {
+    RunLoopStatus processOneEvent(ConnectionRef cRef, qint64 maxLockMs) {
         if (!m_simplePollIterate)
             return ProcessedFailure;
         MyAvahiConnection *connection = reinterpret_cast<MyAvahiConnection *>(cRef);
         if (!connection)
             return ProcessedError;
-        if (m_simplePollIterate(connection->simple_poll,-1))
+        if (m_simplePollIterate(connection->simple_poll, static_cast<int>(maxLockMs)))
             return ProcessedError;
         return ProcessedOk;
+    }
+
+    RunLoopStatus processOneEventBlock(ConnectionRef cRef) {
+        return processOneEvent(cRef,-1);
     }
 
     DNSServiceErrorType createConnection(ConnectionRef *sdRef) {
@@ -456,10 +475,24 @@ extern "C" void cAvahiClientReply (AvahiClient * /*s*/, AvahiClientState state, 
 }
 
 extern "C" void cAvahiBrowseReply(
-        AvahiServiceBrowser * /*b*/, AvahiIfIndex interface, AvahiProtocol /*protocol*/,
+        AvahiServiceBrowser * /*b*/, AvahiIfIndex interface, AvahiProtocol avahiProtocol,
         AvahiBrowserEvent event, const char *name, const char *type, const char *domain,
         AvahiLookupResultFlags /*flags*/, void* context)
 {
+    ZK_IP_Protocol protocol = ZK_PROTO_IPv4_OR_IPv6;
+    switch (avahiProtocol) {
+        case AVAHI_PROTO_INET:
+        protocol = ZK_PROTO_IPv4;
+        break;
+    case AVAHI_PROTO_INET6:
+        protocol = ZK_PROTO_IPv6;
+        break;
+    case AVAHI_PROTO_UNSPEC:
+        protocol = ZK_PROTO_IPv4_OR_IPv6;
+        break;
+    default:
+        qDebug() << "Error unexpected protocol value " << avahiProtocol <<  " in cAvahiBrowseReply";
+    }
 
     ServiceBrowserPrivate *browser = reinterpret_cast<ServiceBrowserPrivate *>(context);
     if (browser == 0) {
@@ -467,16 +500,17 @@ extern "C" void cAvahiBrowseReply(
     }
     switch (event) {
         case AVAHI_BROWSER_FAILURE:
-            browser->browseReply(kDNSServiceFlagsMoreComing, 0, kDNSServiceErr_Unknown, 0, 0, 0);
+            browser->browseReply(kDNSServiceFlagsMoreComing, 0, protocol, kDNSServiceErr_Unknown,
+                                 0, 0, 0);
             break;
         case AVAHI_BROWSER_NEW:
             browser->browseReply(kDNSServiceFlagsAdd|kDNSServiceFlagsMoreComing,
-                                 static_cast<uint32_t>(interface), kDNSServiceErr_NoError,
+                                 static_cast<uint32_t>(interface), protocol, kDNSServiceErr_NoError,
                                  name, type, domain);
             break;
         case AVAHI_BROWSER_REMOVE:
             browser->browseReply(kDNSServiceFlagsMoreComing, static_cast<uint32_t>(interface),
-                                 kDNSServiceErr_NoError, name, type, domain);
+                                 protocol, kDNSServiceErr_NoError, name, type, domain);
             break;
         case AVAHI_BROWSER_ALL_FOR_NOW:
             browser->updateFlowStatusForFlags(0);

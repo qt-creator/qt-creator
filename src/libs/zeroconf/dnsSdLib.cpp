@@ -91,7 +91,7 @@ typedef int (DNSSD_API *RefSockFDPtr)(DNSServiceRef sdRef);
 }
 
 // represents a zero conf library exposing the dns-sd interface
-class DnsSdZConfLib : public ZConfLib{
+class DnsSdZConfLib : public ZConfLib {
     Q_DECLARE_TR_FUNCTIONS(ZeroConf)
 private:
     RefDeallocatePtr m_refDeallocate;
@@ -106,10 +106,6 @@ private:
     RefSockFDPtr m_refSockFD;
     QLibrary dnsSdLib;
 public:
-    enum {
-        // Note: the select() implementation on Windows (Winsock2) fails with any timeout much larger than this
-        LONG_TIME = 100000000
-    };
 
     DnsSdZConfLib(QString libName = QLatin1String("dns_sd"), ZConfLib::Ptr fallBack = ZConfLib::Ptr(0)) : ZConfLib(fallBack), dnsSdLib(libName)
     {
@@ -193,7 +189,7 @@ public:
     }
 
     DNSServiceErrorType resolve(ConnectionRef cRef, DNSServiceRef *sdRef,
-                                uint32_t interfaceIndex, const char *name,
+                                uint32_t interfaceIndex, ZK_IP_Protocol /* protocol */, const char *name,
                                 const char *regtype, const char *domain,
                                 ServiceGatherer *gatherer)
     {
@@ -279,66 +275,23 @@ public:
         return m_getProperty(property, result, size);
     }
 
-    ProcessStatus processResult(ConnectionRef sdRef) {
+    RunLoopStatus processOneEventBlock(ConnectionRef cRef)
+    {
         if (m_processResult == 0)
             return ProcessedFailure;
-        if (m_processResult(reinterpret_cast<DNSServiceRef>(sdRef)) != kDNSServiceErr_NoError)
+        if (m_processResult(reinterpret_cast<DNSServiceRef>(cRef)) != kDNSServiceErr_NoError)
             return ProcessedError;
         return ProcessedOk;
     }
 
-    // alternative processResult implementation using select
-    DNSServiceErrorType  processResultSelect(ConnectionRef cRef)
+    DNSServiceErrorType createConnection(ConnectionRef *sdRef)
     {
-#if _DNS_SD_LIBDISPATCH
-        {
-            main_queue = dispatch_get_main_queue();
-            if (mainRef)  DNSServiceSetDispatchQueue(mainRef, main_queue);
-            dispatch_main();
-        }
-#else
-        {
-            if (m_processResult == 0) return kDNSServiceErr_Unsupported;
-            int dns_sd_fd  = (cRef?refSockFD(cRef):-1);
-            int nfds = dns_sd_fd + 1;
-            fd_set readfds;
-            struct timeval tv;
-            int result;
-            while (true) {
-                dns_sd_fd  = (cRef?refSockFD(cRef):-1);
-                if (dns_sd_fd < 0)
-                    return false;
-                nfds = dns_sd_fd + 1;
-                FD_ZERO(&readfds);
-                FD_SET(dns_sd_fd , &readfds);
-
-                tv.tv_sec  = LONG_TIME;
-                tv.tv_usec = 0;
-
-                result = select(nfds, &readfds, (fd_set *)NULL, (fd_set *)NULL, &tv);
-                if (result > 0) {
-                    if (FD_ISSET(dns_sd_fd , &readfds)) {
-                        m_processResult(reinterpret_cast<DNSServiceRef>(cRef));
-                        return true;
-                    }
-                } else if (result == 0) {
-                    // we are idle... could do something productive... :)
-                } else if (errno != EINTR) {
-                    qDebug() << "select() returned " << result << " errno " << errno
-                             << strerror(errno);
-                    return false;
-                }
-            }
-        }
-#endif
-    }
-
-    DNSServiceErrorType createConnection(ConnectionRef *sdRef) {
         if (m_createConnection == 0) return kDNSServiceErr_Unsupported;
         return m_createConnection(reinterpret_cast<DNSServiceRef *>(sdRef));
     }
 
-    int refSockFD(ConnectionRef sdRef) {
+    int refSockFD(ConnectionRef sdRef)
+    {
         if (m_refSockFD == 0) return kDNSServiceErr_Unsupported;
         return m_refSockFD(reinterpret_cast<DNSServiceRef>(sdRef));
     }

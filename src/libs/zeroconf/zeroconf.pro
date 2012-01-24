@@ -24,3 +24,6 @@ include(../../qtcreatorlibrary.pri)
 win32{
     LIBS += -lws2_32
 }
+linux-* {
+    DEFINES += _GNU_SOURCE HAVE_IPV6 USES_NETLINK HAVE_LINUX TARGET_OS_LINUX
+}

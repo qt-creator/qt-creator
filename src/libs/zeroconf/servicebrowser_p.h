@@ -54,6 +54,12 @@ namespace Internal {
 class ServiceGatherer;
 class ServiceBrowserPrivate;
 
+enum ZK_IP_Protocol {
+    ZK_PROTO_IPv4_OR_IPv6,
+    ZK_PROTO_IPv4,
+    ZK_PROTO_IPv6
+};
+
 // represents a zero conf library exposing the dns-sd interface
 class ZConfLib {
     Q_DECLARE_TR_FUNCTIONS(ZeroConf::Internal::ZConfLib)
@@ -61,11 +67,16 @@ public:
     typedef QSharedPointer<ZConfLib> Ptr;
     typedef void *ConnectionRef;
     typedef void *BrowserRef;
-    enum ProcessStatus {
+    enum RunLoopStatus {
+        ProcessedIdle,
         ProcessedOk,
         ProcessedQuit,
         ProcessedError,
         ProcessedFailure
+    };
+    enum {
+        // Note: the select() implementation on Windows (Winsock2) fails with any timeout much larger than this
+        MAX_SEC_FOR_READ = 100000000
     };
     Ptr fallbackLib;
 
@@ -79,9 +90,9 @@ public:
     virtual void refDeallocate(DNSServiceRef sdRef) = 0;
     virtual void browserDeallocate(BrowserRef *sdRef) = 0;
     virtual DNSServiceErrorType resolve(ConnectionRef cRef, DNSServiceRef *sdRef,
-                                        uint32_t interfaceIndex, const char *name,
-                                        const char *regtype, const char *domain,
-                                        ServiceGatherer *gatherer) = 0;
+                                        uint32_t interfaceIndex, ZK_IP_Protocol protocol,
+                                        const char *name, const char *regtype,
+                                        const char *domain, ServiceGatherer *gatherer) = 0;
     virtual DNSServiceErrorType queryRecord(ConnectionRef cRef, DNSServiceRef *sdRef,
                                             uint32_t interfaceIndex, const char *fullname,
                                             ServiceGatherer *gatherer) = 0;
@@ -97,10 +108,12 @@ public:
                                        const char *regtype, const char *domain,
                                        ServiceBrowserPrivate *browser) = 0;
     virtual DNSServiceErrorType getProperty(const char *property, void *result, uint32_t *size) = 0;
-    virtual ProcessStatus processResult(ConnectionRef sdRef) = 0;
+    virtual RunLoopStatus processOneEventBlock(ConnectionRef sdRef) = 0;
+    virtual RunLoopStatus processOneEvent(ConnectionRef sdRef, qint64 maxMsBlock);
     virtual DNSServiceErrorType createConnection(ConnectionRef *sdRef) = 0;
     virtual void stopConnection(ConnectionRef cRef) = 0;
     virtual void destroyConnection(ConnectionRef *sdRef) = 0;
+    virtual int refSockFD(ConnectionRef sdRef) = 0;
     bool isOk();
     QString errorMsg();
     void setError(bool failure, const QString &eMsg);
@@ -125,16 +138,19 @@ public:
 
     typedef QSharedPointer<ServiceGatherer> Ptr;
 
-    enum Status{
+    enum Status {
         ResolveConnectionFailed  = 1 << 0,
         ResolveConnectionActive  = 1 << 1,
         ResolveConnectionSuccess = 1 << 2,
-        TxtConnectionFailed      = 1 << 3,
-        TxtConnectionActive      = 1 << 4,
-        TxtConnectionSuccess     = 1 << 5,
-        AddrConnectionFailed     = 1 << 6,
-        AddrConnectionActive     = 1 << 7,
-        AddrConnectionSuccess    = 1 << 8
+        ResolveConnectionV6Failed  = 1 << 3,
+        ResolveConnectionV6Active  = 1 << 4,
+        ResolveConnectionV6Success = 1 << 5,
+        TxtConnectionFailed      = 1 << 6,
+        TxtConnectionActive      = 1 << 7,
+        TxtConnectionSuccess     = 1 << 8,
+        AddrConnectionFailed     = 1 << 9,
+        AddrConnectionActive     = 1 << 10,
+        AddrConnectionSuccess    = 1 << 11
     };
 
     QString fullName();
@@ -142,10 +158,10 @@ public:
     void retireService();
     Ptr gatherer();
 
-    void stopResolve();
+    void stopResolve(ZK_IP_Protocol protocol = ZK_PROTO_IPv4_OR_IPv6);
     void stopTxt();
     void stopHostResolution();
-    void restartResolve();
+    void restartResolve(ZK_IP_Protocol protocol = ZK_PROTO_IPv4_OR_IPv6);
     void restartTxt();
     void restartHostResolution();
 
@@ -154,7 +170,8 @@ public:
     ~ServiceGatherer();
     static Ptr createGatherer(const QString &newService, const QString &newType,
                               const QString &newDomain, const QString &fullName,
-                              uint32_t interfaceIndex, ServiceBrowserPrivate *serviceBrowser);
+                              uint32_t interfaceIndex, ZK_IP_Protocol protocol,
+                              ServiceBrowserPrivate *serviceBrowser);
 
     void serviceResolveReply(DNSServiceFlags flags, uint32_t interfaceIndex,
                              DNSServiceErrorType errorCode, const char *hosttarget,
@@ -169,17 +186,18 @@ public:
     void addrReply(DNSServiceFlags flags, DNSServiceErrorType errorCode, const char *hostname,
                    const struct sockaddr *address, uint32_t ttl);
     void maybeRemove();
-    void stop();
-    void reload(qint32 interfaceIndex = 0);
+    void stop(ZK_IP_Protocol protocol = ZK_PROTO_IPv4_OR_IPv6);
+    void reload(qint32 interfaceIndex = 0, ZK_IP_Protocol protocol = ZK_PROTO_IPv4_OR_IPv6);
     void remove();
     void reconfirm();
     ZConfLib::Ptr lib();
 private:
     ServiceGatherer(const QString &newService, const QString &newType, const QString &newDomain,
                     const QString &fullName, uint32_t interfaceIndex,
-                    ServiceBrowserPrivate *serviceBrowser);
+                    ZK_IP_Protocol protocol, ServiceBrowserPrivate *serviceBrowser);
 
     DNSServiceRef           resolveConnection;
+    DNSServiceRef           resolveConnectionV6;
     DNSServiceRef           txtConnection;
     DNSServiceRef           addrConnection;
     uint32_t                interfaceIndex;
@@ -192,7 +210,7 @@ private:
 
 class ConnectionThread;
 
-class MainConnection{
+class MainConnection {
     Q_DECLARE_TR_FUNCTIONS(ZeroConf)
 public:
     enum RequestFlowStatus {
@@ -225,7 +243,7 @@ public:
     void abortLib();
     void createConnection();
     void destroyConnection();
-    ZConfLib::ProcessStatus handleEvent();
+    ZConfLib::RunLoopStatus handleEvent();
     bool increaseStatusTo(int s);
     void handleEvents();
     ZConfLib::ConnectionRef mainRef();
@@ -248,7 +266,7 @@ private:
 class ServiceBrowserPrivate {
     friend class ServiceBrowser;
 public:
-    ZeroConf::ServiceBrowser *q;
+    ServiceBrowser *q;
     QString         serviceType;
     QString         domain;
     MainConnectionPtr    mainConnection;
@@ -260,10 +278,12 @@ public:
     QList<Service::ConstPtr> activeServices;
     QList<Service::ConstPtr> nextActiveServices;
     QList<ServiceGatherer::Ptr> pendingGatherers;
+    qint64 delayDeletesUntil;
     bool failed;
     bool browsing;
     bool autoResolveAddresses;
     bool requireAddresses;
+    bool shouldRefresh;
 
     ZConfLib::ConnectionRef mainRef();
     void updateFlowStatusForCancel();
@@ -281,20 +301,23 @@ public:
     void startBrowsing(quint32 interfaceIndex);
     bool internalStartBrowsing();
     void stopBrowsing();
+    void triggerRefresh();
+    void refresh();
     void reconfirmService(Service::ConstPtr s);
 
     void browseReply(DNSServiceFlags flags,
-                     uint32_t interfaceIndex, DNSServiceErrorType errorCode,
+                     uint32_t interfaceIndex, ZK_IP_Protocol proto, DNSServiceErrorType errorCode,
                      const char *serviceName, const char *regtype, const char *replyDomain);
+
     void serviceChanged(const Service::ConstPtr &oldService, const Service::ConstPtr &newService,
-                        ZeroConf::ServiceBrowser *browser);
-    void serviceAdded(const Service::ConstPtr &service, ZeroConf::ServiceBrowser *browser);
-    void serviceRemoved(const Service::ConstPtr &service, ZeroConf::ServiceBrowser *browser);
-    void servicesUpdated(ZeroConf::ServiceBrowser *browser);
+                        ServiceBrowser *browser);
+    void serviceAdded(const Service::ConstPtr &service, ServiceBrowser *browser);
+    void serviceRemoved(const Service::ConstPtr &service, ServiceBrowser *browser);
+    void servicesUpdated(ServiceBrowser *browser);
     void hadError(QStringList errorMsgs, bool completeFailure);
 };
 
-class ConnectionThread: public QThread{
+class ConnectionThread: public QThread {
     MainConnection &connection;
 
     void run();
