@@ -674,7 +674,7 @@ void QmlEngine::attemptBreakpointSynchronization()
 
 bool QmlEngine::acceptsBreakpoint(BreakpointModelId id) const
 {
-    if (!DebuggerEngine::isCppBreakpoint(breakHandler()->breakpointData(id)))
+    if (!breakHandler()->breakpointData(id).isCppBreakpoint())
             return true;
 
     //If it is a Cpp Breakpoint query if the type can be also handled by the debugger client

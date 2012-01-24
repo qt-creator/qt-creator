@@ -383,8 +383,6 @@ protected:
     void showStoppedBySignalMessageBox(const QString meaning, QString name);
     void showStoppedByExceptionMessageBox(const QString &description);
 
-    static bool isCppBreakpoint(const Internal::BreakpointParameters &p);
-
     bool isStateDebugging() const;
     void setStateDebugging(bool on);
 

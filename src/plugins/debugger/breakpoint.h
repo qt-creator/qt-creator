@@ -211,6 +211,7 @@ public:
     // Enough for now.
     bool isBreakpoint() const { return !isWatchpoint() && !isTracepoint(); }
     bool isTracepoint() const { return tracepoint; }
+    bool isCppBreakpoint() const;
     QString toString() const;
     void updateLocation(const QByteArray &location); // file.cpp:42
 

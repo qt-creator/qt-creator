@@ -276,6 +276,21 @@ void BreakpointParameters::updateLocation(const QByteArray &location)
     }
 }
 
+bool BreakpointParameters::isCppBreakpoint() const
+{
+    // Qml specific breakpoint types.
+    if (type == BreakpointAtJavaScriptThrow
+            || type == BreakpointOnQmlSignalHandler)
+        return false;
+
+    // Qml is currently only file.
+    if (type == BreakpointByFileAndLine)
+        return !fileName.endsWith(QLatin1String(".qml"), Qt::CaseInsensitive)
+                && !fileName.endsWith(QLatin1String(".js"), Qt::CaseInsensitive);
+
+    return true;
+}
+
 QString BreakpointParameters::toString() const
 {
     QString result;

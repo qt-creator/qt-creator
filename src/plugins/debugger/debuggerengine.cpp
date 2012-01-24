@@ -1634,20 +1634,6 @@ void DebuggerEngine::showStoppedByExceptionMessageBox(const QString &description
     showMessageBox(QMessageBox::Information, tr("Exception Triggered"), msg);
 }
 
-bool DebuggerEngine::isCppBreakpoint(const BreakpointParameters &p)
-{
-    //Qml specific breakpoint types
-    if (p.type == BreakpointAtJavaScriptThrow
-            || p.type == BreakpointOnQmlSignalHandler)
-        return false;
-
-    // Qml is currently only file
-    if (p.type != BreakpointByFileAndLine)
-        return true;
-    return !p.fileName.endsWith(QLatin1String(".qml"), Qt::CaseInsensitive)
-            && !p.fileName.endsWith(QLatin1String(".js"), Qt::CaseInsensitive);
-}
-
 void DebuggerEngine::openMemoryView(quint64 startAddr, unsigned flags,
                                     const QList<MemoryMarkup> &ml, const QPoint &pos,
                                     const QString &title, QWidget *parent)

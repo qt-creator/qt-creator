@@ -2542,7 +2542,7 @@ bool CdbEngine::stateAcceptsBreakpointChanges() const
 bool CdbEngine::acceptsBreakpoint(BreakpointModelId id) const
 {
     const BreakpointParameters &data = breakHandler()->breakpointData(id);
-    if (!DebuggerEngine::isCppBreakpoint(data))
+    if (!data.isCppBreakpoint())
         return false;
     switch (data.type) {
     case UnknownType:

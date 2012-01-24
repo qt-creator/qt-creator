@@ -2932,7 +2932,7 @@ bool GdbEngine::stateAcceptsBreakpointChanges() const
 
 bool GdbEngine::acceptsBreakpoint(BreakpointModelId id) const
 {
-    return DebuggerEngine::isCppBreakpoint(breakHandler()->breakpointData(id))
+    return breakHandler()->breakpointData(id).isCppBreakpoint()
         && startParameters().startMode != AttachCore;
 }
 
