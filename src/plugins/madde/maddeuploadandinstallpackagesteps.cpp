@@ -42,6 +42,7 @@
 #include <qtsupport/baseqtversion.h>
 #include <remotelinux/abstractuploadandinstallpackageservice.h>
 #include <remotelinux/linuxdeviceconfiguration.h>
+#include <utils/ssh/sshconnection.h>
 
 using namespace RemoteLinux;
 
@@ -83,6 +84,14 @@ protected:
                 "for this Qt version."));
         }
         handleDeviceSetupDone(false);
+    }
+
+private:
+    QString uploadDir() const
+    {
+        const QString uname = deviceConfiguration()->sshParameters().userName;
+        return uname == QLatin1String("root")
+            ? QString::fromLatin1("/root") : QLatin1String("/home/") + uname;
     }
 };
 
