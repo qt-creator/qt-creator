@@ -16,8 +16,6 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 #unix: QMAKE_CXXFLAGS += -msse2
 #DEFINES += USE_BOOST=1
 
-message("this says <foo & bar>")
-
 maemo5 {
     target.path = /opt/usr/lib
     target.path = /opt
