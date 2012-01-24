@@ -351,7 +351,7 @@ public:
 
     const Value &get() const
     {
-        QTC_ASSERT(_set, return Value());
+        QTC_CHECK(_set);
         return _value;
     }
 };
