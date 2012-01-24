@@ -43,6 +43,7 @@
 #include <QtCore/QPointer>
 #include <QtCore/QFuture>
 #include <QtCore/QFutureWatcher>
+#include <QtCore/QMetaType>
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
