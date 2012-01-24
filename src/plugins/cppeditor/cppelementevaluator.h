@@ -36,7 +36,7 @@
 #include "cppeditor.h"
 
 #include <texteditor/helpitem.h>
-
+#include <cpptools/symbolfinder.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
 
@@ -92,6 +92,7 @@ private:
     bool m_lookupDerivedClasses;
     QSharedPointer<CppElement> m_element;
     QString m_diagnosis;
+    CppTools::SymbolFinder m_symbolFinder;
 };
 
 class CppElement

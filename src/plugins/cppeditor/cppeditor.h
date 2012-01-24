@@ -65,7 +65,6 @@ class CppModelManagerInterface;
 namespace CppTools {
 class CppCodeStyleSettings;
 class CppRefactoringFile;
-class SymbolFinder;
 }
 
 namespace TextEditor {
@@ -201,8 +200,6 @@ public:
     QSharedPointer<FunctionDeclDefLink> declDefLink() const;
     void applyDeclDefLinkChanges(bool jumpToMatch);
 
-    QSharedPointer<CppTools::SymbolFinder> symbolFinder() const;
-
 Q_SIGNALS:
     void outlineModelIndexChanged(const QModelIndex &index);
 
@@ -336,7 +333,6 @@ private:
     QSharedPointer<FunctionDeclDefLink> m_declDefLink;
 
     CppTools::CommentsSettings m_commentsSettings;
-    QSharedPointer<CppTools::SymbolFinder> m_symbolFinder;
 };
 
 

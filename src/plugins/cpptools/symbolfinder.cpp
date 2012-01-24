@@ -65,7 +65,7 @@ public:
 
 } // end of anonymous namespace
 
-static const int kMaxSize = 10;
+static const int kMaxCacheSize = 10;
 
 SymbolFinder::SymbolFinder()
 {}
@@ -339,7 +339,7 @@ void SymbolFinder::trackCacheUse(const QString &referenceFile)
     m_recent.append(referenceFile);
 
     // We don't want this to grow too much.
-    if (m_recent.size() > kMaxSize) {
+    if (m_recent.size() > kMaxCacheSize) {
         const QString &oldest = m_recent.takeFirst();
         m_filePriorityCache.remove(oldest);
         m_fileMetaCache.remove(oldest);
