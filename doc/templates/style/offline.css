@@ -190,7 +190,7 @@ margin-left:30px;
 display: block;
 position: relative;
 top:-20px;
-border-top:2px solid #ffffff;
+/*border-top:2px solid #ffffff;*/
 border-bottom: 1px solid #cecece;
 background-color:#F2F2F2;
 z-index:1;
@@ -199,6 +199,8 @@ padding:0px;
 margin:0px;
 padding-left:10px;
 padding-top:2px;
+margin-left:-5px;
+margin-right:-5px;
 }
 
 .breadcrumb ul{
@@ -276,8 +278,8 @@ background-color:#E6E6E6;
 border-bottom: 1px #CCC solid;
 border-top: 2px #CCC solid;
 font-weight:bold;
-margin-left:5px;
-margin-right:5px;
+margin-left:0px;
+margin-right:0px;
 }
 }
 
