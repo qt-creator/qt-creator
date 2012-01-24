@@ -34,11 +34,9 @@
 
 using namespace ProjectExplorer;
 
-namespace {
-const char * const CONFIGURATION_ID_KEY("ProjectExplorer.ProjectConfiguration.Id");
-const char * const DISPLAY_NAME_KEY("ProjectExplorer.ProjectConfiguration.DisplayName");
-const char * const DEFAULT_DISPLAY_NAME_KEY("ProjectExplorer.ProjectConfiguration.DefaultDisplayName");
-}
+const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
+const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayName";
+const char DEFAULT_DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
 
 ProjectConfiguration::ProjectConfiguration(QObject *parent, const QString &id) :
     QObject(parent),
