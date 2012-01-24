@@ -188,7 +188,7 @@ public slots:
     void startTool();
     void selectToolboxAction(int);
     void selectMenuAction();
-    void modeChanged(IMode *mode);
+    void modeChanged(Core::IMode *mode);
     void resetLayout();
     void updateRunActions();
 
@@ -240,8 +240,8 @@ AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
 
     setupActions();
 
-    connect(ModeManager::instance(), SIGNAL(currentModeChanged(IMode*)),
-            this, SLOT(modeChanged(IMode*)));
+    connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
+            this, SLOT(modeChanged(Core::IMode*)));
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     connect(pe, SIGNAL(updateRunActions()), SLOT(updateRunActions()));
 }
