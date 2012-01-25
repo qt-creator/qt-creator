@@ -78,6 +78,7 @@ private:
 #ifdef WITH_TESTS
 private slots:
     void testPythonDumpers();
+    void testStateMachine();
 #endif
 };
 

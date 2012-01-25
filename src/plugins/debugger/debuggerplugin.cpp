@@ -87,6 +87,7 @@
 #include <cplusplus/ModelManagerInterface.h>
 
 #include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/invoker.h>
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/applicationrunconfiguration.h>
@@ -429,10 +430,23 @@ struct BreakpointMenuContextData : public ContextData
     Mode mode;
 };
 
+struct TestCallBack
+{
+    TestCallBack() : receiver(0), slot(0) {}
+    TestCallBack(QObject *ob, const char *s) : receiver(ob), slot(s) {}
+
+    QObject *receiver;
+    const char *slot;
+    QVariant cookie;
+};
+
+
 } // namespace Internal
 } // namespace Debugger
 
 Q_DECLARE_METATYPE(Debugger::Internal::BreakpointMenuContextData)
+Q_DECLARE_METATYPE(Debugger::Internal::TestCallBack)
+
 
 namespace Debugger {
 namespace Internal {
@@ -834,9 +848,26 @@ public slots:
 
 #ifdef WITH_TESTS
 public slots:
-    void testStuff(int testCase);
+    void testLoadProject(const QString &proFile, const TestCallBack &cb);
     void testProjectLoaded(ProjectExplorer::Project *project);
+    void testUnloadProject();
+    void testFinished();
+
+    void testRunProject(const DebuggerStartParameters &sp, const TestCallBack &cb);
     void testRunControlFinished();
+
+    void testPythonDumpers1();
+    void testPythonDumpers2();
+    void testPythonDumpers3();
+
+    void testStateMachine1();
+    void testStateMachine2();
+    void testStateMachine3();
+
+public:
+    bool m_testSuccess;
+    QList<TestCallBack> m_testCallbacks;
+
 #endif
 
 
@@ -3646,44 +3677,21 @@ QAction *DebuggerPlugin::visibleDebugAction()
 
 #ifdef WITH_TESTS
 
-static bool g_success;
-
-class TestCase
-{
-public:
-    TestCases id;
-    DebuggerEngineType suitableEngine;
-    bool needsProject;
-};
-
-static TestCase theTests[] =
-{
-    { TestNoBoundsOfCurrentFunction, GdbEngineType, true },
-    { TestPythonDumpers, GdbEngineType, true },
-};
-
-void DebuggerPluginPrivate::testStuff(int testCase)
+void DebuggerPluginPrivate::testLoadProject(const QString &proFile, const TestCallBack &cb)
 {
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     connect(pe, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(testProjectLoaded(ProjectExplorer::Project*)));
 
-    QString proFile = ICore::instance()->resourcePath() + "/../../tests/manual/debugger/simple/simple.pro";
+    m_testCallbacks.append(cb);
     QString error;
-    if (!pe->openProject(proFile,&error)) {
-        qWarning("Cannot open %s: %s", qPrintable(proFile), qPrintable(error));
-        QVERIFY(false);
-        return;
-    }
+    if (pe->openProject(proFile, &error))
+        return; // Will end up in callback.
 
-    g_success == false;
-    QTestEventLoop::instance().enterLoop(20);
-
-    //QCOMPARE(spy.count(), 1); // make sure the signal was emitted exactly one time
-    //QList<QVariant> arguments = spy.takeFirst(); // take the first signal
-
-    //QVERIFY(arguments.at(0).toBool() == true); // verify the first argument
-    QVERIFY(g_success);
+    // Eat the unused callback.
+    qWarning("Cannot open %s: %s", qPrintable(proFile), qPrintable(error));
+    QVERIFY(false);
+    m_testCallbacks.pop_back();
 }
 
 void DebuggerPluginPrivate::testProjectLoaded(Project *project)
@@ -3692,55 +3700,141 @@ void DebuggerPluginPrivate::testProjectLoaded(Project *project)
         qWarning("Changed to null project.");
         return;
     }
+    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
+    disconnect(pe, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
+            this, SLOT(testProjectLoaded(ProjectExplorer::Project*)));
+
     QString fileName = project->file()->fileName();
     QVERIFY(!fileName.isEmpty());
     qWarning("Project %s loaded", qPrintable(fileName));
 
-    Target *target = project->activeTarget();
-    QVERIFY(target);
-    qWarning("Target %s selected", qPrintable(target->displayName()));
+    QVERIFY(!m_testCallbacks.isEmpty());
+    TestCallBack cb = m_testCallbacks.takeLast();
+    invoke<void>(cb.receiver, cb.slot);
+}
 
-    BuildConfiguration *bc = target->activeBuildConfiguration();
-    QVERIFY(bc);
+void DebuggerPluginPrivate::testUnloadProject()
+{
+    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
+    invoke<void>(pe, "unloadProject");
+}
 
-    RunConfiguration *rc = target->activeRunConfiguration();
-    QVERIFY(rc);
+static Project *currentProject()
+{
+    return ProjectExplorerPlugin::instance()->currentProject();
+}
 
-    LocalApplicationRunConfiguration *lrc =
-            qobject_cast<LocalApplicationRunConfiguration *>(rc);
-    QVERIFY(lrc);
+static Target *activeTarget()
+{
+    Project *project = currentProject();
+    return project->activeTarget();
+}
 
-    ToolChain *tc = bc->toolChain();
-    QVERIFY(tc);
+static BuildConfiguration *activeBuildConfiguration()
+{
+    return activeTarget()->activeBuildConfiguration();
+}
 
-    DebuggerStartParameters sp;
-    sp.toolChainAbi = tc->targetAbi();
-    sp.executable = lrc->executable();
+static RunConfiguration *activeRunConfiguration()
+{
+    return activeTarget()->activeRunConfiguration();
+}
 
+static ToolChain *currentToolChain()
+{
+    return activeBuildConfiguration()->toolChain();
+}
+
+static LocalApplicationRunConfiguration *activeLocalRunConfiguration()
+{
+    return qobject_cast<LocalApplicationRunConfiguration *>(activeRunConfiguration());
+}
+
+void DebuggerPluginPrivate::testRunProject(const DebuggerStartParameters &sp, const TestCallBack &cb)
+{
+    m_testCallbacks.append(cb);
     RunControl *rctl = createDebugger(sp);
     QVERIFY(rctl);
-
     connect(rctl, SIGNAL(finished()), this, SLOT(testRunControlFinished()));
     ProjectExplorerPlugin::instance()->startRunControl(rctl, DebugRunMode);
 }
 
 void DebuggerPluginPrivate::testRunControlFinished()
 {
-    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    qWarning("Run control finished.");
-    g_success = true;
-
-    disconnect(pe, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
-            this, SLOT(testProjectLoaded(ProjectExplorer::Project*)));
-    QTestEventLoop::instance().exitLoop();
+    QVERIFY(!m_testCallbacks.isEmpty());
+    TestCallBack cb = m_testCallbacks.takeLast();
+    ExtensionSystem::invoke<void>(cb.receiver, cb.slot);
 }
+
+void DebuggerPluginPrivate::testFinished()
+{
+    QTestEventLoop::instance().exitLoop();
+    QVERIFY(m_testSuccess);
+}
+
+///////////////////////////////////////////////////////////////////////////
 
 void DebuggerPlugin::testPythonDumpers()
 {
-    //theDebuggerCore->testStuff(TestDumpers);
-    theDebuggerCore->testStuff(TestPythonDumpers);
+    theDebuggerCore->testPythonDumpers1();
 }
 
+void DebuggerPluginPrivate::testPythonDumpers1()
+{
+    m_testSuccess = true;
+    QString proFile = ICore::resourcePath()
+        + "/../../tests/manual/debugger/simple/simple.pro";
+    testLoadProject(proFile, TestCallBack(this,  "testPythonDumpers2"));
+    QVERIFY(m_testSuccess);
+    QTestEventLoop::instance().enterLoop(20);
+}
+
+void DebuggerPluginPrivate::testPythonDumpers2()
+{
+    DebuggerStartParameters sp;
+    sp.toolChainAbi = currentToolChain()->targetAbi();
+    sp.executable = activeLocalRunConfiguration()->executable();
+    testRunProject(sp, TestCallBack(this, "testPythonDumpers3"));
+}
+
+void DebuggerPluginPrivate::testPythonDumpers3()
+{
+    testUnloadProject();
+    testFinished();
+}
+
+
+///////////////////////////////////////////////////////////////////////////
+
+void DebuggerPlugin::testStateMachine()
+{
+    theDebuggerCore->testStateMachine1();
+}
+
+void DebuggerPluginPrivate::testStateMachine1()
+{
+    m_testSuccess = true;
+    QString proFile = ICore::resourcePath()
+        + "/../../tests/manual/debugger/simple/simple.pro";
+    testLoadProject(proFile, TestCallBack(this,  "testStateMachine2"));
+    QVERIFY(m_testSuccess);
+    QTestEventLoop::instance().enterLoop(20);
+}
+
+void DebuggerPluginPrivate::testStateMachine2()
+{
+    DebuggerStartParameters sp;
+    sp.toolChainAbi = currentToolChain()->targetAbi();
+    sp.executable = activeLocalRunConfiguration()->executable();
+    sp.testCase = TestNoBoundsOfCurrentFunction;
+    testRunProject(sp, TestCallBack(this, "testStateMachine3"));
+}
+
+void DebuggerPluginPrivate::testStateMachine3()
+{
+    testUnloadProject();
+    testFinished();
+}
 #endif
 
 } // namespace Debugger

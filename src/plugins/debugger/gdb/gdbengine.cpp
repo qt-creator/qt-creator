@@ -5086,7 +5086,7 @@ bool GdbEngine::isHiddenBreakpoint(const BreakpointResponseId &id) const
 
 void GdbEngine::scheduleTestResponse(int testCase, const QByteArray &response)
 {
-    if (!m_testCases.contains(testCase))
+    if (!m_testCases.contains(testCase) && startParameters().testCase != testCase)
         return;
 
     int token = currentToken() + 1;

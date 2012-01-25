@@ -69,7 +69,10 @@ public:
         startMode(NoStartMode),
         executableUid(0),
         communicationChannel(CommunicationChannelTcpIp),
-        serverPort(0)
+        serverPort(0),
+        testReceiver(0),
+        testCallback(0),
+        testCase(0)
     {}
 
     QString executable;
@@ -125,6 +128,11 @@ public:
     CommunicationChannel communicationChannel;
     QString serverAddress;
     quint16 serverPort;
+
+    // For Debugger testing.
+    QObject *testReceiver;
+    const char *testCallback;
+    int testCase;
 };
 
 } // namespace Debugger
