@@ -45,7 +45,46 @@
 
 namespace QtSupport {
 
-static inline QStringList validBinaryFilenames()
+static QStringList recursiveFileList(const QDir &dir, const QString &prefix)
+{
+    QStringList files;
+
+    QString _prefix = prefix;
+    if (!_prefix.isEmpty() && !_prefix.endsWith(QLatin1Char('/')))
+        _prefix.append(QLatin1Char('/'));
+
+    foreach (const QString &fileName, dir.entryList(QDir::Files))
+        files << _prefix + fileName;
+
+    foreach (const QString &subDir, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
+        files += recursiveFileList(QDir(dir.absoluteFilePath(subDir)), _prefix + subDir);
+
+    return files;
+}
+
+static QStringList installDirectories(const QString &qtInstallData)
+{
+    const QChar slash = QLatin1Char('/');
+    const uint hash = qHash(qtInstallData);
+    QStringList directories;
+    directories
+            << (qtInstallData + QLatin1String("/qtc-qmlobserver/"))
+            << QDir::cleanPath((QCoreApplication::applicationDirPath() + QLatin1String("/../qtc-qmlobserver/") + QString::number(hash))) + slash
+            << (QDesktopServices::storageLocation(QDesktopServices::DataLocation) + QLatin1String("/qtc-qmlobserver/") + QString::number(hash)) + slash;
+    return directories;
+}
+
+static QString sourcePath()
+{
+    return Core::ICore::resourcePath() + QLatin1String("/qml/qmlobserver/");
+}
+
+static QStringList sourceFileNames()
+{
+    return recursiveFileList(QDir(sourcePath()), QString());
+}
+
+static QStringList validBinaryFilenames()
 {
     return QStringList()
             << QLatin1String("debug/qmlobserver.exe")
@@ -92,7 +131,7 @@ QStringList QmlObserverTool::locationsByInstallData(const QString &qtInstallData
     QStringList result;
     QFileInfo fileInfo;
     const QStringList binFilenames = validBinaryFilenames();
-    foreach(const QString &directory, installDirectories(qtInstallData)) {
+    foreach (const QString &directory, installDirectories(qtInstallData)) {
         if (getHelperFileInfoFor(binFilenames, directory, &fileInfo))
             result << fileInfo.filePath();
     }
@@ -118,15 +157,14 @@ static inline bool mkpath(const QString &targetDirectory, QString *errorMessage)
 
 QString QmlObserverTool::copy(const QString &qtInstallData, QString *errorMessage)
 {
-    const QStringList directories = QmlObserverTool::installDirectories(qtInstallData);
+    const QStringList directories = installDirectories(qtInstallData);
 
-    // Try to find a writeable directory.
-    foreach(const QString &directory, directories) {
-        if (!mkpath(directory, errorMessage)) {
+    // Try to find a writable directory.
+    foreach (const QString &directory, directories) {
+        if (!mkpath(directory, errorMessage))
             continue;
-        } else {
-            errorMessage->clear();
-        }
+
+        errorMessage->clear();
 
         if (copyFiles(sourcePath(), sourceFileNames(), directory, errorMessage)) {
             errorMessage->clear();
@@ -137,46 +175,6 @@ QString QmlObserverTool::copy(const QString &qtInstallData, QString *errorMessag
                                                 "QMLObserver could not be built in any of the directories:\n- %1\n\nReason: %2")
                     .arg(directories.join(QLatin1String("\n- ")), *errorMessage);
     return QString();
-}
-
-QStringList QmlObserverTool::recursiveFileList(const QDir &dir, const QString &prefix)
-{
-    QStringList files;
-
-    QString _prefix = prefix;
-    if (!_prefix.isEmpty() && !_prefix.endsWith(QLatin1Char('/'))) {
-        _prefix.append(QLatin1Char('/'));
-    }
-    foreach (const QString &fileName, dir.entryList(QDir::Files)) {
-        files << _prefix + fileName;
-    }
-
-    foreach (const QString &subDir, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
-        files += recursiveFileList(QDir(dir.absoluteFilePath(subDir)), _prefix + subDir);
-    }
-    return files;
-}
-
-QStringList QmlObserverTool::installDirectories(const QString &qtInstallData)
-{
-    const QChar slash = QLatin1Char('/');
-    const uint hash = qHash(qtInstallData);
-    QStringList directories;
-    directories
-            << (qtInstallData + QLatin1String("/qtc-qmlobserver/"))
-            << QDir::cleanPath((QCoreApplication::applicationDirPath() + QLatin1String("/../qtc-qmlobserver/") + QString::number(hash))) + slash
-            << (QDesktopServices::storageLocation(QDesktopServices::DataLocation) + QLatin1String("/qtc-qmlobserver/") + QString::number(hash)) + slash;
-    return directories;
-}
-
-QString QmlObserverTool::sourcePath()
-{
-    return Core::ICore::resourcePath() + QLatin1String("/qml/qmlobserver/");
-}
-
-QStringList QmlObserverTool::sourceFileNames()
-{
-    return recursiveFileList(QDir(sourcePath()));
 }
 
 } // namespace

@@ -39,19 +39,8 @@
 #include <QtCore/QSet>
 #include <QtCore/QStringList>
 
-namespace Utils {
-class Environment;
-}
-
-namespace ProjectExplorer {
-class HeaderPath;
-class IOutputParser;
-class Task;
-}
-
 namespace QtSupport {
 namespace Internal {
-class QtOptionsPageWidget;
 class QtOptionsPage;
 }
 

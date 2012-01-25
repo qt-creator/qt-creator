@@ -36,16 +36,6 @@
 #include "qtsupport_global.h"
 #include <utils/buildablehelperlibrary.h>
 
-QT_FORWARD_DECLARE_CLASS(QDir)
-
-namespace Utils {
-    class Environment;
-}
-
-namespace ProjectExplorer {
-    class Project;
-}
-
 namespace QtSupport {
 
 class BaseQtVersion;
@@ -58,18 +48,12 @@ public:
     static QStringList locationsByInstallData(const QString &qtInstallData);
 
     // Build the helpers and return the output log/errormessage.
-    static bool build(BuildHelperArguments arguments, QString *out,  QString *err);
+    static bool build(BuildHelperArguments arguments, QString *out, QString *err);
 
     // Copy the source files to a target location and return the chosen target location.
     static QString copy(const QString &qtInstallData, QString *errorMessage);
-
-private:
-    static QStringList recursiveFileList(const QDir &dir, const QString &prefix = QString());
-    static QStringList installDirectories(const QString &qtInstallData);
-    static QString sourcePath();
-    static QStringList sourceFileNames();
 };
 
-} // namespace
+} // namespace QtSupport
 
 #endif // QMLOBSERVERTOOL_H

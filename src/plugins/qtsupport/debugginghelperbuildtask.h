@@ -42,11 +42,8 @@
 #include <QtCore/QFutureInterface>
 #include <QtCore/QMetaType>
 
-namespace ProjectExplorer {
-class ToolChain;
-} // namespace ProjectExplorer
-
 namespace QtSupport {
+
 class BaseQtVersion;
 
 class QTSUPPORT_EXPORT DebuggingHelperBuildTask : public QObject
@@ -66,7 +63,6 @@ public:
     explicit DebuggingHelperBuildTask(const BaseQtVersion *version,
                                       ProjectExplorer::ToolChain *toolChain,
                                       Tools tools = AllTools);
-    virtual ~DebuggingHelperBuildTask();
 
     void showOutputOnError(bool show);
     void run(QFutureInterface<void> &future);
@@ -100,7 +96,7 @@ private:
     bool m_showErrors;
 };
 
-} // namespace Qt4ProjectManager
+} // namespace QtSupport
 
 Q_DECLARE_METATYPE(QtSupport::DebuggingHelperBuildTask::Tools)
 
