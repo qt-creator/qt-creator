@@ -217,7 +217,7 @@ void ModeManager::objectAdded(QObject *obj)
         // and still expect the current shortcut to change with it
         bool currentlyHasDefaultSequence = (currentCmd->keySequence()
                                             == currentCmd->defaultKeySequence());
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
         currentCmd->setDefaultKeySequence(QKeySequence(QString::fromLatin1("Meta+%1").arg(i+1)));
 #else
         currentCmd->setDefaultKeySequence(QKeySequence(QString::fromLatin1("Ctrl+%1").arg(i+1)));

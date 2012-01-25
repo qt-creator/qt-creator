@@ -1760,7 +1760,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         // fall through
     case Qt::Key_Right:
     case Qt::Key_Left:
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
         if ((e->modifiers()
              & (Qt::AltModifier | Qt::ShiftModifier)) == (Qt::AltModifier | Qt::ShiftModifier)) {
             int diff_row = 0;
@@ -3392,7 +3392,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                 cursor_pen = painter.pen();
             }
 
-#ifndef Q_WS_MAC // no visible cursor on mac
+#ifndef Q_OS_MAC // no visible cursor on mac
             if (blockSelectionCursorRect.isValid())
                 painter.fillRect(blockSelectionCursorRect, palette().text());
 #endif

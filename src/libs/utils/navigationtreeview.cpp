@@ -35,7 +35,7 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QFocusEvent>
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 #include <QtGui/QKeyEvent>
 #endif
 
@@ -87,7 +87,7 @@ void NavigationTreeView::resizeEvent(QResizeEvent *event)
     QTreeView::resizeEvent(event);
 }
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 void NavigationTreeView::keyPressEvent(QKeyEvent *event)
 {
     if ((event->key() == Qt::Key_Return

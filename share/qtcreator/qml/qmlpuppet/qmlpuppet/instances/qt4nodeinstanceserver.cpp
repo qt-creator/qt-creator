@@ -78,12 +78,12 @@ void Qt4NodeInstanceServer::initializeView(const QVector<AddImportContainer> &/*
     Q_ASSERT(!declarativeView());
 
     m_declarativeView = new QDeclarativeView;
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
     declarativeView()->setAttribute(Qt::WA_DontShowOnScreen, true);
 #endif
     declarativeView()->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
     declarativeView()->show();
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     declarativeView()->setAttribute(Qt::WA_DontShowOnScreen, true);
 #endif
 }

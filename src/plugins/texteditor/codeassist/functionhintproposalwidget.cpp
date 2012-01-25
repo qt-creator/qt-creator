@@ -290,7 +290,7 @@ void FunctionHintProposalWidget::updateContent()
 void FunctionHintProposalWidget::updatePosition()
 {
     const QDesktopWidget *desktop = QApplication::desktop();
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     const QRect &screen = desktop->availableGeometry(desktop->screenNumber(d->m_underlyingWidget));
 #else
     const QRect &screen = desktop->screenGeometry(desktop->screenNumber(d->m_underlyingWidget));

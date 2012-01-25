@@ -61,7 +61,7 @@
 */
 
 /*static*/ const char * const Utils::PathChooser::browseButtonLabel =
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
                    QT_TRANSLATE_NOOP("Utils::PathChooser", "Choose...");
 #else
                    QT_TRANSLATE_NOOP("Utils::PathChooser", "Browse...");

@@ -127,7 +127,7 @@ void FileUtils::openTerminal(const QString &path)
 #ifdef Q_OS_WIN
     const QString terminalEmulator = QString::fromLocal8Bit(qgetenv("COMSPEC"));
     const QStringList args; // none
-#elif defined(Q_WS_MAC)
+#elif defined(Q_OS_MAC)
     const QString terminalEmulator = Core::ICore::resourcePath()
             + QLatin1String("/scripts/openTerminal.command");
     QStringList args;

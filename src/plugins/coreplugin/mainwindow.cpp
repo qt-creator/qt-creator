@@ -164,7 +164,7 @@ MainWindow::MainWindow() :
     m_optionsAction(0),
     m_toggleSideBarAction(0),
     m_toggleFullScreenAction(0),
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     m_minimizeAction(0),
     m_zoomAction(0),
 #endif
@@ -174,7 +174,7 @@ MainWindow::MainWindow() :
     OutputPaneManager::create();
 
     setWindowTitle(tr("Qt Creator"));
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
     QApplication::setWindowIcon(QIcon(QLatin1String(Constants::ICON_QTLOGO_128)));
 #endif
     QCoreApplication::setApplicationName(QLatin1String("QtCreator"));
@@ -476,7 +476,7 @@ void MainWindow::registerDefaultContainers()
 
     ActionContainer *menubar = am->createMenuBar(Constants::MENU_BAR);
 
-#ifndef Q_WS_MAC // System menu bar on Mac
+#ifndef Q_OS_MAC // System menu bar on Mac
     setMenuBar(menubar->menuBar());
 #endif
     menubar->appendGroup(Constants::G_FILE);
@@ -632,7 +632,7 @@ void MainWindow::registerDefaultActions()
     tmpaction = new QAction(icon, tr("Save &As..."), this);
     tmpaction->setEnabled(false);
     cmd = am->registerAction(tmpaction, Constants::SAVEAS, globalContext);
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+S")));
 #endif
     cmd->setAttribute(Command::CA_UpdateText);
@@ -642,7 +642,7 @@ void MainWindow::registerDefaultActions()
     // SaveAll Action
     m_saveAllAction = new QAction(tr("Save A&ll"), this);
     cmd = am->registerAction(m_saveAllAction, Constants::SAVEALL, globalContext);
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+S")));
 #endif
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
@@ -730,14 +730,14 @@ void MainWindow::registerDefaultActions()
     mtools->addAction(cmd, Constants::G_TOOLS_OPTIONS);
     m_optionsAction = new QAction(tr("&Options..."), this);
     cmd = am->registerAction(m_optionsAction, Constants::OPTIONS, globalContext);
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+,")));
     cmd->action()->setMenuRole(QAction::PreferencesRole);
 #endif
     mtools->addAction(cmd, Constants::G_TOOLS_OPTIONS);
     connect(m_optionsAction, SIGNAL(triggered()), this, SLOT(showOptionsDialog()));
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     // Minimize Action
     m_minimizeAction = new QAction(tr("Minimize"), this);
     cmd = am->registerAction(m_minimizeAction, Constants::MINIMIZE_WINDOW, globalContext);
@@ -762,7 +762,7 @@ void MainWindow::registerDefaultActions()
     m_toggleSideBarAction->setCheckable(true);
     cmd = am->registerAction(m_toggleSideBarAction, Constants::TOGGLE_SIDEBAR, globalContext);
     cmd->setAttribute(Command::CA_UpdateText);
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+0")));
 #else
     cmd->setDefaultKeySequence(QKeySequence(tr("Alt+0")));
@@ -772,7 +772,7 @@ void MainWindow::registerDefaultActions()
     mwindow->addAction(cmd, Constants::G_WINDOW_VIEWS);
     m_toggleSideBarAction->setEnabled(false);
 
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
     // Full Screen Action
     m_toggleFullScreenAction = new QAction(tr("Full Screen"), this);
     m_toggleFullScreenAction->setCheckable(true);
@@ -789,7 +789,7 @@ void MainWindow::registerDefaultActions()
 
     // About IDE Action
     icon = QIcon::fromTheme(QLatin1String("help-about"));
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     tmpaction = new QAction(icon, tr("About &Qt Creator"), this); // it's convention not to add dots to the about menu
 #else
     tmpaction = new QAction(icon, tr("About &Qt Creator..."), this);
@@ -797,7 +797,7 @@ void MainWindow::registerDefaultActions()
     cmd = am->registerAction(tmpaction, Constants::ABOUT_QTCREATOR, globalContext);
     mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
     tmpaction->setEnabled(true);
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     cmd->action()->setMenuRole(QAction::ApplicationSpecificRole);
 #endif
     connect(tmpaction, SIGNAL(triggered()), this,  SLOT(aboutQtCreator()));
@@ -807,7 +807,7 @@ void MainWindow::registerDefaultActions()
     cmd = am->registerAction(tmpaction, Constants::ABOUT_PLUGINS, globalContext);
     mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
     tmpaction->setEnabled(true);
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     cmd->action()->setMenuRole(QAction::ApplicationSpecificRole);
 #endif
     connect(tmpaction, SIGNAL(triggered()), this,  SLOT(aboutPlugins()));
@@ -818,7 +818,7 @@ void MainWindow::registerDefaultActions()
 //    tmpaction->setEnabled(true);
 //    connect(tmpaction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     // About sep
-#ifndef Q_WS_MAC // doesn't have the "About" actions in the Help menu
+#ifndef Q_OS_MAC // doesn't have the "About" actions in the Help menu
     tmpaction = new QAction(this);
     tmpaction->setSeparator(true);
     cmd = am->registerAction(tmpaction, "QtCreator.Help.Sep.About", globalContext);
@@ -1125,7 +1125,7 @@ void MainWindow::changeEvent(QEvent *e)
             emit windowActivated();
         }
     } else if (e->type() == QEvent::WindowStateChange) {
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
         bool minimized = isMinimized();
         if (debugMainWindow)
             qDebug() << "main window state changed to minimized=" << minimized;

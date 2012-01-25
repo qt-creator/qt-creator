@@ -66,7 +66,7 @@
 #include <QtGui/QSplitter>
 #include <QtGui/QStackedLayout>
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 #include <qmacstyle_mac.h>
 #endif
 

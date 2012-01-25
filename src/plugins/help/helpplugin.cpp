@@ -247,7 +247,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F1));
     connect(action, SIGNAL(triggered()), this, SLOT(activateContext()));
 
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
     action = new QAction(this);
     action->setSeparator(true);
     cmd = am->registerAction(action, Core::Id("Help.Separator"), globalcontext);
@@ -264,7 +264,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     am->actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(slotReportBug()));
 
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
     action = new QAction(this);
     action->setSeparator(true);
     cmd = am->registerAction(action, Core::Id("Help.Separator2"), globalcontext);

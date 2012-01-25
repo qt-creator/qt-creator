@@ -50,7 +50,7 @@ protected:
     void focusOutEvent(QFocusEvent *event);
     void resizeEvent(QResizeEvent *event);
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     void keyPressEvent(QKeyEvent *event);
 #endif
 };

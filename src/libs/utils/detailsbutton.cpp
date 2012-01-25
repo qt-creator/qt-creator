@@ -81,7 +81,7 @@ QSize DetailsButton::sizeHint() const
 {
     // TODO: Adjust this when icons become available!
     const int w = fontMetrics().width(text()) + 32;
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     return QSize(w, 34);
 #else
     return QSize(w, 22);
@@ -118,7 +118,7 @@ void DetailsButton::paintEvent(QPaintEvent *e)
     QWidget::paintEvent(e);
 
     QPainter p(this);
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
     // draw hover animation
     if (!isDown() && m_fader > 0)
         p.fillRect(rect().adjusted(1, 1, -2, -2), QColor(255, 255, 255, int(m_fader*180)));

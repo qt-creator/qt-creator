@@ -50,7 +50,7 @@
 #include <QtGui/QStyleOption>
 #include <QtGui/QHeaderView>
 #include <QtGui/QKeyEvent>
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 #include <qmacstyle_mac.h>
 #endif
 

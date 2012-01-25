@@ -184,7 +184,7 @@ QWidget *OutputPaneManager::buttonsWidget()
 // Return shortcut as Ctrl+<number>
 static inline int paneShortCut(int number)
 {
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     int modifier = Qt::CTRL;
 #else
     int modifier = Qt::ALT;
@@ -222,7 +222,7 @@ void OutputPaneManager::init()
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     cmd = am->registerAction(m_minMaxAction, "Coreplugin.OutputPane.minmax", globalcontext);
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+9")));
 #else
     cmd->setDefaultKeySequence(QKeySequence(tr("Alt+9")));
@@ -538,7 +538,7 @@ OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text,
                          " border-width: 2px 2px 2px 19px; padding-left: -17; padding-right: 4 } "
             "QToolButton:checked { border-image: url(:/core/images/panel_button_checked.png) 2 2 2 19 } "
             "QToolButton::menu-indicator { width:0; height:0 }"
-#ifndef Q_WS_MAC // Mac UIs usually don't hover
+#ifndef Q_OS_MAC // Mac UIs usually don't hover
             "QToolButton:checked:hover { border-image: url(:/core/images/panel_button_checked_hover.png) 2 2 2 19 } "
             "QToolButton:pressed:hover { border-image: url(:/core/images/panel_button_pressed.png) 2 2 2 19 } "
             "QToolButton:hover { border-image: url(:/core/images/panel_button_hover.png) 2 2 2 19 } "

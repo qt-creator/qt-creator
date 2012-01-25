@@ -53,7 +53,7 @@ static const char schemeFileNameKey[] = "ColorScheme";
 namespace {
 static const bool DEFAULT_ANTIALIAS = true;
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     enum { DEFAULT_FONT_SIZE = 12 };
     static const char *DEFAULT_FONT_FAMILY = "Monaco";
 #else

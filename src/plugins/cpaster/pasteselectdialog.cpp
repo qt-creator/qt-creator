@@ -58,9 +58,9 @@ PasteSelectDialog::PasteSelectDialog(const QList<Protocol*> &protocols,
     connect(m_refreshButton, SIGNAL(clicked()), this, SLOT(list()));
 
     m_ui.listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-#ifndef Q_WS_MACX
+#ifndef Q_OS_MACX
     m_ui.listWidget->setFrameStyle(QFrame::NoFrame);
-#endif // Q_WS_MACX
+#endif // Q_OS_MACX
     // Proportional formatting of columns for CodePaster
     QFont listFont = m_ui.listWidget->font();
     listFont.setFamily(QLatin1String("Courier"));

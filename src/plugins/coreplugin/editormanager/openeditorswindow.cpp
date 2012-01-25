@@ -63,14 +63,14 @@ OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
     m_editorList->setIndentation(0);
     m_editorList->setSelectionMode(QAbstractItemView::SingleSelection);
     m_editorList->setTextElideMode(Qt::ElideMiddle);
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     m_editorList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 #endif
     m_editorList->installEventFilter(this);
 
     // We disable the frame on this list view and use a QFrame around it instead.
     // This improves the look with QGTKStyle.
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
     setFrameStyle(m_editorList->frameStyle());
 #endif
     m_editorList->setFrameStyle(QFrame::NoFrame);

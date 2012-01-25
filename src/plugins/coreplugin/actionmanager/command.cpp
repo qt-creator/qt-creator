@@ -451,7 +451,7 @@ static QString msgActionWarning(QAction *newAction, int k, QAction *oldAction)
 
 void Action::addOverrideAction(QAction *action, const Core::Context &context, bool scriptable)
 {
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     action->setIconVisibleInMenu(false);
 #endif
     if (isEmpty())

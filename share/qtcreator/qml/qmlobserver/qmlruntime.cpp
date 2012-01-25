@@ -1575,7 +1575,7 @@ void QDeclarativeViewer::setUseGL(bool useGL)
 #ifdef GL_SUPPORTED
     if (useGL) {
         QGLFormat format = QGLFormat::defaultFormat();
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
         format.setSampleBuffers(true);
 #else
         format.setSampleBuffers(false);

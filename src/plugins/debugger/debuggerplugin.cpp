@@ -380,7 +380,7 @@ namespace PE = ProjectExplorer::Constants;
 namespace Debugger {
 namespace Constants {
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 const char STOP_KEY[]                     = "Shift+Ctrl+Y";
 const char RESET_KEY[]                    = "Ctrl+Shift+F5";
 const char STEP_KEY[]                     = "Ctrl+Shift+I";

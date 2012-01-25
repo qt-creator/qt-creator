@@ -148,7 +148,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
     // draw borders
     bool isTitledAction = defaultAction()->property("titledAction").toBool();
 
-#ifndef Q_WS_MAC // Mac UIs usually don't hover
+#ifndef Q_OS_MAC // Mac UIs usually don't hover
     if (m_fader > 0 && isEnabled() && !isDown() && !isChecked()) {
         painter.save();
         int fader = int(40 * m_fader);

@@ -182,14 +182,14 @@ void CustomColorDialog::setupWidgets()
 
 void CustomColorDialog::leaveEvent(QEvent *)
 {
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     unsetCursor();
 #endif
 }
 
 void CustomColorDialog::enterEvent(QEvent *)
 {
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     setCursor(Qt::ArrowCursor);
 #endif
 }

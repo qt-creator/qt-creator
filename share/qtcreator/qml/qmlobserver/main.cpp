@@ -152,7 +152,7 @@ void usage()
     qWarning("  -I <directory> ........................... prepend to the module import search path,");
     qWarning("                                             display path if <directory> is empty");
     qWarning("  -P <directory> ........................... prepend to the plugin search path");
-#if defined(Q_WS_MAC)
+#if defined(Q_OS_MAC)
     qWarning("  -no-opengl ............................... don't use a QGLWidget for the viewport");
 #else
     qWarning("  -opengl .................................. use a QGLWidget for the viewport");
@@ -215,7 +215,7 @@ struct ViewerOptions
         useNativeFileBrowser = false;
 #endif
 
-#if defined(Q_WS_MAC)
+#if defined(Q_OS_MAC)
         useGL = true;
 #endif
     }
@@ -375,7 +375,7 @@ static void parseCommandLineOptions(const QStringList &arguments)
         } else if (arg == "-translation") {
             if (lastArg) usage();
             opts.translationFile = arguments.at(++i);
-#if defined(Q_WS_MAC)
+#if defined(Q_OS_MAC)
         } else if (arg == "-no-opengl") {
             opts.useGL = false;
 #else
@@ -530,7 +530,7 @@ int main(int argc, char ** argv)
     systemMsgOutput = qInstallMsgHandler(myMessageOutput);
 #endif
 
-#if defined (Q_WS_X11) || defined (Q_WS_MAC)
+#if defined (Q_WS_X11) || defined (Q_OS_MAC)
     //### default to using raster graphics backend for now
     bool gsSpecified = false;
     for (int i = 0; i < argc; ++i) {

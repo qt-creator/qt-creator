@@ -577,7 +577,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     w = new QWidget;
     m_newBuildsLayout = new QGridLayout;
     m_newBuildsLayout->setMargin(0);
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     m_newBuildsLayout->setSpacing(0);
 #endif
     w->setLayout(m_newBuildsLayout);

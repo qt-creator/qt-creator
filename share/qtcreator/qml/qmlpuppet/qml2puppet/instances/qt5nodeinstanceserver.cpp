@@ -66,11 +66,11 @@ void Qt5NodeInstanceServer::initializeView(const QVector<AddImportContainer> &/*
     Q_ASSERT(!sgView());
 
     m_sgView = new QSGView;
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
     sgView()->setAttribute(Qt::WA_DontShowOnScreen, true);
 #endif
     sgView()->show();
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     sgView()->setAttribute(Qt::WA_DontShowOnScreen, true);
 #endif
     sgView()->setUpdatesEnabled(false);

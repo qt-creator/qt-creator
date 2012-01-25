@@ -157,7 +157,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_forwardButton= new QToolButton(this);
     d->m_forwardButton->setDefaultAction(d->m_goForwardAction);
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     d->m_horizontalSplitAction->setIconVisibleInMenu(false);
     d->m_verticalSplitAction->setIconVisibleInMenu(false);
 #endif

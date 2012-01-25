@@ -291,7 +291,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     } else {
         painter->setPen(selected ? Utils::StyleHelper::panelTextColor() : QColor(255, 255, 255, 120));
     }
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
     if (!selected && enabled) {
         painter->save();
         int fader = int(m_tabs[tabIndex]->fader());

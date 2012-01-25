@@ -562,7 +562,7 @@ QSize QStyleItem::sizeFromContents(int width, int height)
         break;
     case Header:
         size = qApp->style()->sizeFromContents(QStyle::CT_HeaderSection, m_styleoption, QSize(width,height), widget());
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
         if (style() =="mac")
             size.setHeight(15);
 #endif
@@ -575,7 +575,7 @@ QSize QStyleItem::sizeFromContents(int width, int height)
         break;
     }
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     // ### hack - With even heights, the text baseline is off on mac
     if (size.height() %2 == 0)
         size.setHeight(size.height() + 1);
@@ -738,7 +738,7 @@ void QStyleItem::setElementType(const QString &str)
         // Gtk uses qobject cast, hence we need to separate this from menuitem
         // On mac, we temporarily use the menu item because it has more accurate
         // palette.
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
         static QMenu *combo = new QMenu();
 #else
         static QComboBox *combo = new QComboBox();
@@ -826,7 +826,7 @@ void QStyleItem::setElementType(const QString &str)
         m_dummywidget->setAttribute(Qt::WA_QuitOnClose, false); // dont keep app open
         m_dummywidget->setAttribute(Qt::WA_LayoutUsesWidgetRect);
         m_dummywidget->winId();
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
         m_dummywidget->setGeometry(-1000, 0, 10,10);
         m_dummywidget->setVisible(visible); // Mac require us to set the visibility before this
 #endif

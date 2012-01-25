@@ -67,7 +67,7 @@ BuildStepsWidgetData::BuildStepsWidgetData(BuildStep *s) :
     detailsWidget->setWidget(widget);
 
     Utils::FadingPanel *toolWidget = new Utils::FadingPanel(detailsWidget);
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     QSize buttonSize(20, 20);
 #else
     QSize buttonSize(20, 26);

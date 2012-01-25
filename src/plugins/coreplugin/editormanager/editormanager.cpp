@@ -369,7 +369,7 @@ EditorManager::EditorManager(QWidget *parent) :
 
     // Goto Previous In History Action
     cmd = am->registerAction(d->m_gotoPreviousDocHistoryAction, Constants::GOTOPREVINHISTORY, editDesignContext);
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Alt+Tab")));
 #else
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Tab")));
@@ -379,7 +379,7 @@ EditorManager::EditorManager(QWidget *parent) :
 
     // Goto Next In History Action
     cmd = am->registerAction(d->m_gotoNextDocHistoryAction, Constants::GOTONEXTINHISTORY, editDesignContext);
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+Tab")));
 #else
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Tab")));
@@ -389,7 +389,7 @@ EditorManager::EditorManager(QWidget *parent) :
 
     // Go back in navigation history
     cmd = am->registerAction(d->m_goBackAction, Constants::GO_BACK, editDesignContext);
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Left")));
 #else
     cmd->setDefaultKeySequence(QKeySequence(tr("Alt+Left")));
@@ -399,7 +399,7 @@ EditorManager::EditorManager(QWidget *parent) :
 
     // Go forward in navigation history
     cmd = am->registerAction(d->m_goForwardAction, Constants::GO_FORWARD, editDesignContext);
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Right")));
 #else
     cmd->setDefaultKeySequence(QKeySequence(tr("Alt+Right")));
@@ -407,7 +407,7 @@ EditorManager::EditorManager(QWidget *parent) :
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
     connect(d->m_goForwardAction, SIGNAL(triggered()), this, SLOT(goForwardInNavigationHistory()));
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     QString prefix = tr("Meta+E");
 #else
     QString prefix = tr("Ctrl+E");
@@ -1712,7 +1712,7 @@ void EditorManager::updateActions()
             fName = curEditor->displayName();
         }
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
         window()->setWindowModified(curEditor->file()->isModified());
 #endif
         bool ww = curEditor->file()->isModified() && curEditor->file()->isReadOnly();
@@ -1751,7 +1751,7 @@ void EditorManager::updateActions()
                 curEditor->file()->infoBar()->removeInfo(QLatin1String("Core.EditorManager.MakeWritable"));
             }
         }
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     } else { // curEditor
         window()->setWindowModified(false);
 #endif

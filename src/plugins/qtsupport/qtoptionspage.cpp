@@ -580,7 +580,7 @@ static QString filterForQmakeFileDialog()
 {
     QString filter = QLatin1String("qmake (");
     foreach (const QString &s, Utils::BuildableHelperLibrary::possibleQMakeCommands()) {
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
         // work around QTBUG-7739 that prohibits filters that don't start with *
         filter += QLatin1Char('*');
 #endif

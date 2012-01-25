@@ -141,7 +141,7 @@ void ZoomTool::mouseReleaseEvent(QMouseEvent *event)
         view()->setSceneRect(sceneArea);
     } else {
         Qt::KeyboardModifier modifierKey = Qt::ControlModifier;
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
         modifierKey = Qt::AltModifier;
 #endif
         if (event->modifiers() & modifierKey) {

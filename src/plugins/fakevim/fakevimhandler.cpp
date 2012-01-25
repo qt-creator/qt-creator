@@ -129,7 +129,7 @@ namespace Internal {
 #define EDITOR(s) (m_textedit ? m_textedit->s : m_plaintextedit->s)
 
 enum {
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     RealControlModifier = Qt::MetaModifier
 #else
     RealControlModifier = Qt::ControlModifier

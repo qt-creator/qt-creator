@@ -274,12 +274,12 @@ void QDeclarativeTester::updateCurrentTime(int msec)
     if (options & QDeclarativeViewer::TestImages) {
         img.fill(qRgb(255,255,255));
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
         bool oldSmooth = qt_applefontsmoothing_enabled;
         qt_applefontsmoothing_enabled = false;
 #endif
         QPainter p(&img);
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
         qt_applefontsmoothing_enabled = oldSmooth;
 #endif
 

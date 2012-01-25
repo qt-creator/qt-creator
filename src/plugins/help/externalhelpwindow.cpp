@@ -145,7 +145,7 @@ ExternalHelpWindow::ExternalHelpWindow(QWidget *parent)
         tr("Show Sidebar"), this);
     connect(action, SIGNAL(triggered()), this, SIGNAL(showHideSidebar()));
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     reset->setShortcut(QKeySequence(Qt::ALT + Qt::Key_0));
     action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_0));
     ctrlTab->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Tab));

@@ -279,7 +279,7 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
     if ((obj == m_ui.findEdit || obj == m_findCompleter->popup())
                && event->type() == QEvent::KeyPress) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
         if (ke->key() == Qt::Key_Space && (ke->modifiers() & Qt::MetaModifier)) {
 #else
         if (ke->key() == Qt::Key_Space && (ke->modifiers() & Qt::ControlModifier)) {
@@ -300,7 +300,7 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
                 event->accept();
                 return true;
             }
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
         } else if (ke->key() == Qt::Key_Space && (ke->modifiers() & Qt::MetaModifier)) {
 #else
         } else if (ke->key() == Qt::Key_Space && (ke->modifiers() & Qt::ControlModifier)) {

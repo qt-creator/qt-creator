@@ -306,7 +306,7 @@ void GenericProposalWidgetPrivate::maybeShowInfoTip()
 GenericProposalWidget::GenericProposalWidget()
     : d(new GenericProposalWidgetPrivate(this))
 {
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     if (d->m_completionListView->horizontalScrollBar())
         d->m_completionListView->horizontalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
     if (d->m_completionListView->verticalScrollBar())
@@ -493,7 +493,7 @@ void GenericProposalWidget::updatePositionAndSize()
 
     // Determine the position, keeping the popup on the screen
     const QDesktopWidget *desktop = QApplication::desktop();
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     const QRect screen = desktop->availableGeometry(desktop->screenNumber(d->m_underlyingWidget));
 #else
     const QRect screen = desktop->screenGeometry(desktop->screenNumber(d->m_underlyingWidget));
