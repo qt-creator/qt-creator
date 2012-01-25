@@ -309,7 +309,6 @@ QList<CppQuickFixOperation::Ptr> DefFromDecl::match(
                 if (Symbol *symbol = simpleDecl->symbols->value) {
                     if (Declaration *decl = symbol->asDeclaration()) {
                         if (decl->type()->isFunctionType()
-                                && !decl->type()->asFunctionType()->isPureVirtual()
                                 && decl->enclosingScope()
                                 && decl->enclosingScope()->isClass()) {
                             CppRefactoringChanges refactoring(interface->snapshot());
