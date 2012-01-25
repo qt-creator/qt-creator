@@ -5,10 +5,10 @@ BuildPath = tempDir()
 
 def main():
     if (which("cmake") == None):
-        test.warning("cmake not found in PATH - needed to run this test")
+        test.fatal("cmake not found in PATH - needed to run this test")
         return
     if (which("qmake") == None):
-        test.warning("qmake not found in PATH - needed to run this test")
+        test.fatal("qmake not found in PATH - needed to run this test")
         return
     if not neededFilePresent(SpeedCrunchPath):
         return
@@ -17,7 +17,7 @@ def main():
 
     result = openCmakeProject(SpeedCrunchPath, BuildPath)
     if not result:
-        test.warning("Could not open/create cmake project - leaving test")
+        test.fatal("Could not open/create cmake project - leaving test")
         invokeMenuItem("File", "Exit")
         waitForCleanShutdown()
         return
