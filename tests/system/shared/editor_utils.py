@@ -13,14 +13,13 @@ def placeCursorToLine(editor,line,isRegex=False):
     found = False
     if isRegex:
         regex = re.compile(line)
-    editorRealName = objectMap.realName(editor)
     while not found:
         currentLine = str(lineUnderCursor(editor)).strip()
         if isRegex:
             if regex.match(currentLine):
                 found = True
             else:
-                type(editor, "<Down>")
+                moveTextCursor(editor, QTextCursor.Down, QTextCursor.MoveAnchor)
                 if oldPosition==editor.textCursor().position():
                     break
                 oldPosition = editor.textCursor().position()
@@ -28,7 +27,7 @@ def placeCursorToLine(editor,line,isRegex=False):
             if currentLine==line:
                 found = True
             else:
-                type(editorRealName, "<Down>")
+                moveTextCursor(editor, QTextCursor.Down, QTextCursor.MoveAnchor)
                 if oldPosition==editor.textCursor().position():
                     break
                 oldPosition = editor.textCursor().position()
@@ -39,6 +38,21 @@ def placeCursorToLine(editor,line,isRegex=False):
     cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.MoveAnchor)
     editor.setTextCursor(cursor)
     return True
+
+# this function moves the text cursor of an editor by using Qt internal functions
+# this is more reliable (especially on Mac) than the type() approach
+# param editor an editor object
+# param moveOperation a value of enum MoveOperation (of QTextCursor)
+# param moveAnchor a value of enum MoveMode (of QTextCursor)
+# param n how often repeat the move operation?
+def moveTextCursor(editor, moveOperation, moveAnchor, n=1):
+    if not editor or isinstance(editor, (str,unicode)):
+        test.fatal("Either got a NoneType or a string instead of an editor object")
+        return False
+    textCursor = editor.textCursor()
+    result = textCursor.movePosition(moveOperation, moveAnchor, n)
+    editor.setTextCursor(textCursor)
+    return result
 
 # this function returns True if a QMenu is
 # popped up above the given editor

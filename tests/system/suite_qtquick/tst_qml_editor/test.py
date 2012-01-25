@@ -137,8 +137,8 @@ def validateSearchResult(expectedCount):
             doubleClick(resultTreeView, rect.x+5, rect.y+5, 0, Qt.LeftButton)
             editor = waitForObject("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' "
                        "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
-            line = lineUnderCursor(editor)
-            test.compare(line, text)
+            waitFor("lineUnderCursor(editor) == text", 2000)
+            test.compare(lineUnderCursor(editor), text)
 
 def testHovering():
     navTree = waitForObject("{type='Utils::NavigationTreeView' unnamed='1' visible='1' "
@@ -167,7 +167,6 @@ def testHovering():
     editor = waitForObject("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' "
                        "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
     lines = ['focus:\s*true', 'color:\s*"black"', 'states:\s*State\s*\{', 'transitions:\s*Transition\s*\{']
-    additionalKeyPresses = [home, "<Right>"]
     expectedTypes = ["TextTip", "TextTip", "TextTip", "TextTip"]
     expectedValues = [
                       {'text':'<table><tr><td valign=middle>boolean<p>This property indicates whether the item has focus '
@@ -189,9 +188,9 @@ def testHovering():
     editor = waitForObject("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' "
                        "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
     lines=['color:\s*"black"', 'color:\s*"#3E606F"']
+    additionalKeyPresses = ["<Left>"]
     expectedValues = ["black", "#3E606F"]
     expectedTypes = ["ColorTip", "ColorTip"]
-    additionalKeyPresses = ["<Left>"]
     verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues)
     doubleClickFile(navTree, "Core.ListMenu\\.qml")
     editor = waitForObject("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' "
@@ -208,6 +207,17 @@ def doubleClickFile(navTree, file):
                    (maskSpecialCharsForProjectTree(templateDir),file))
     waitForObjectItem(navTree, treeElement)
     doubleClickItem(navTree, treeElement, 5, 5, 0, Qt.LeftButton)
+    mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
+    name = __getUnmaskedFilename__(file)
+    waitFor("name in str(mainWindow.windowTitle)")
+
+def __getUnmaskedFilename__(maskedFilename):
+    name = maskedFilename.split("\\.")
+    path = name[0].rsplit(".", 1)
+    if len(path) < 2:
+        return ".".join(name)
+    else:
+        return ".".join((path[1], ".".join(name[1:])))
 
 def maskSpecialCharsForProjectTree(filename):
     filename = filename.replace("\\", "/").replace("_", "\\_").replace(".","\\.")
