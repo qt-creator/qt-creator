@@ -123,10 +123,10 @@ public:
     {
         setContext(Context(C_EDITORMANAGER, C_ANALYZEMODE, C_NAVIGATION_PANE));
         setDisplayName(tr("Analyze"));
-        setIcon(QIcon(":/images/analyzer_mode.png"));
+        setIcon(QIcon(QLatin1String(":/images/analyzer_mode.png")));
         setPriority(P_MODE_ANALYZE);
         setId(QLatin1String(MODE_ANALYZE));
-        setType(MODE_EDIT_TYPE);
+        setType(QLatin1String(MODE_EDIT_TYPE));
     }
 
     ~AnalyzerMode()
@@ -277,13 +277,13 @@ void AnalyzerManagerPrivate::setupActions()
     menubar->addMenu(mtools, m_menu);
 
     m_startAction = new QAction(tr("Start"), m_menu);
-    m_startAction->setIcon(QIcon(ANALYZER_CONTROL_START_ICON));
+    m_startAction->setIcon(QIcon(QLatin1String(ANALYZER_CONTROL_START_ICON)));
     command = am->registerAction(m_startAction, "Analyzer.Start", globalcontext);
     connect(m_startAction, SIGNAL(triggered()), this, SLOT(startTool()));
 
     m_stopAction = new QAction(tr("Stop"), m_menu);
     m_stopAction->setEnabled(false);
-    m_stopAction->setIcon(QIcon(ANALYZER_CONTROL_STOP_ICON));
+    m_stopAction->setIcon(QIcon(QLatin1String(ANALYZER_CONTROL_STOP_ICON)));
     command = am->registerAction(m_stopAction, "Analyzer.Stop", globalcontext);
     m_menu->addAction(command, G_ANALYZER_CONTROL);
 
@@ -432,7 +432,7 @@ void AnalyzerManagerPrivate::activateDock(Qt::DockWidgetArea area, QDockWidget *
     QAction *toggleViewAction = dockWidget->toggleViewAction();
     toggleViewAction->setText(dockWidget->windowTitle());
     Command *cmd = am->registerAction(toggleViewAction,
-        Id("Analyzer." + dockWidget->objectName()), globalContext);
+        Id(QLatin1String("Analyzer.") + dockWidget->objectName()), globalContext);
     cmd->setAttribute(Command::CA_Hide);
 
     ActionContainer *viewsMenu = am->actionContainer(Id(M_WINDOW_VIEWS));
@@ -443,7 +443,7 @@ void AnalyzerManagerPrivate::deactivateDock(QDockWidget *dockWidget)
 {
     ActionManager *am = ICore::actionManager();
     QAction *toggleViewAction = dockWidget->toggleViewAction();
-    am->unregisterAction(toggleViewAction, Id("Analyzer." + dockWidget->objectName()));
+    am->unregisterAction(toggleViewAction, Id(QLatin1String("Analyzer.") + dockWidget->objectName()));
     m_mainWindow->removeDockWidget(dockWidget);
     dockWidget->hide();
     // Prevent saveState storing the data of the wrong children.
@@ -718,7 +718,7 @@ void AnalyzerManagerPrivate::loadToolSettings(IAnalyzerTool *tool)
     QTC_ASSERT(m_mainWindow, return);
     QSettings *settings = ICore::settings();
     settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + tool->id().toString());
-    if (settings->value("ToolSettingsSaved", false).toBool())
+    if (settings->value(QLatin1String("ToolSettingsSaved"), false).toBool())
         m_mainWindow->restoreSettings(settings);
     else
         m_mainWindow->restoreSettings(m_defaultSettings.value(tool));
@@ -734,7 +734,7 @@ void AnalyzerManagerPrivate::saveToolSettings(IAnalyzerTool *tool, StartMode mod
     QSettings *settings = ICore::settings();
     settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + tool->id().toString());
     m_mainWindow->saveSettings(settings);
-    settings->setValue("ToolSettingsSaved", true);
+    settings->setValue(QLatin1String("ToolSettingsSaved"), true);
     settings->endGroup();
     settings->setValue(QLatin1String(LAST_ACTIVE_TOOL), tool->actionId(mode).toString());
 }

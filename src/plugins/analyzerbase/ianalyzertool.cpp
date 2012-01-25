@@ -55,11 +55,11 @@ Id IAnalyzerTool::defaultActionId(const IAnalyzerTool *tool, StartMode mode)
     Id id = tool->id();
     switch (mode) {
     case StartLocal:
-        return Id(QLatin1String("Analyzer.") + id.name() + QLatin1String(".Local"));
+        return Id(QString::fromLatin1("Analyzer." + id.name() + ".Local"));
     case StartRemote:
-        return Id(QLatin1String("Analyzer.") + id.name() + QLatin1String(".Remote"));
+        return Id(QString::fromLatin1("Analyzer." + id.name() + ".Remote"));
     case StartQml:
-        return Id(QLatin1String("Analyzer.") + id.name() + QLatin1String(".Qml"));
+        return Id(QString::fromLatin1("Analyzer." + id.name() + ".Qml"));
     }
     return Id();
 }

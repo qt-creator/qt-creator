@@ -50,14 +50,14 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
     m_ui->keyFile->setExpectedKind(Utils::PathChooser::File);
 
     QSettings *settings = Core::ICore::settings();
-    settings->beginGroup("AnalyzerStartRemoteDialog");
-    m_ui->host->setText(settings->value("host").toString());
-    m_ui->port->setValue(settings->value("port", 22).toInt());
-    m_ui->user->setText(settings->value("user", qgetenv("USER")).toString());
-    m_ui->keyFile->setPath(settings->value("keyFile").toString());
-    m_ui->executable->setText(settings->value("executable").toString());
-    m_ui->workingDirectory->setText(settings->value("workingDirectory").toString());
-    m_ui->arguments->setText(settings->value("arguments").toString());
+    settings->beginGroup(QLatin1String("AnalyzerStartRemoteDialog"));
+    m_ui->host->setText(settings->value(QLatin1String("host")).toString());
+    m_ui->port->setValue(settings->value(QLatin1String("port"), 22).toInt());
+    m_ui->user->setText(settings->value(QLatin1String("user"), qgetenv("USER")).toString());
+    m_ui->keyFile->setPath(settings->value(QLatin1String("keyFile")).toString());
+    m_ui->executable->setText(settings->value(QLatin1String("executable")).toString());
+    m_ui->workingDirectory->setText(settings->value(QLatin1String("workingDirectory")).toString());
+    m_ui->arguments->setText(settings->value(QLatin1String("arguments")).toString());
     settings->endGroup();
 
     connect(m_ui->host, SIGNAL(textChanged(QString)),
@@ -92,14 +92,14 @@ StartRemoteDialog::~StartRemoteDialog()
 void StartRemoteDialog::accept()
 {
     QSettings *settings = Core::ICore::settings();
-    settings->beginGroup("AnalyzerStartRemoteDialog");
-    settings->setValue("host", m_ui->host->text());
-    settings->setValue("port", m_ui->port->value());
-    settings->setValue("user", m_ui->user->text());
-    settings->setValue("keyFile", m_ui->keyFile->path());
-    settings->setValue("executable", m_ui->executable->text());
-    settings->setValue("workingDirectory", m_ui->workingDirectory->text());
-    settings->setValue("arguments", m_ui->arguments->text());
+    settings->beginGroup(QLatin1String("AnalyzerStartRemoteDialog"));
+    settings->setValue(QLatin1String("host"), m_ui->host->text());
+    settings->setValue(QLatin1String("port"), m_ui->port->value());
+    settings->setValue(QLatin1String("user"), m_ui->user->text());
+    settings->setValue(QLatin1String("keyFile"), m_ui->keyFile->path());
+    settings->setValue(QLatin1String("executable"), m_ui->executable->text());
+    settings->setValue(QLatin1String("workingDirectory"), m_ui->workingDirectory->text());
+    settings->setValue(QLatin1String("arguments"), m_ui->arguments->text());
     settings->endGroup();
 
     QDialog::accept();
