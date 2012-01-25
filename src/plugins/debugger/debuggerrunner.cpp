@@ -644,7 +644,8 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
     // Anything left: Happy.
     result.errorMessage.clear();
     result.errorDetails.clear();
-    if (qmlLanguage && cppLanguage) {
+    if (qmlLanguage && cppLanguage
+            && usableType != QmlEngineType) {
         result.masterSlaveEngineTypes.first = QmlCppEngineType;
         result.masterSlaveEngineTypes.second = usableType;
     } else {
