@@ -190,6 +190,7 @@ static QList<Abi> abiOf(const QByteArray &data)
             break;
         case 3: // Linux:
         case 0: // no extra info available: Default to Linux:
+        case 97: // ARM, also linux most of the time.
             os = Abi::LinuxOS;
             flavor = Abi::GenericLinuxFlavor;
             break;
@@ -821,6 +822,9 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
                               << QString::fromLatin1("x86-macos-generic-mach_o-64bit"));
     QTest::newRow("dynamic QtCore: arm linux 32bit")
             << QString::fromLatin1("%1/dynamic/arm-linux.so").arg(prefix)
+            << (QStringList() << QString::fromLatin1("arm-linux-generic-elf-32bit"));
+    QTest::newRow("dynamic QtCore: arm linux 32bit, using ARM as OSABI")
+            << QString::fromLatin1("%1/dynamic/arm-linux2.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("arm-linux-generic-elf-32bit"));
     QTest::newRow("dynamic QtCore: arm linux 32bit (angstrom)")
             << QString::fromLatin1("%1/dynamic/arm-angstrom-linux.so").arg(prefix)
