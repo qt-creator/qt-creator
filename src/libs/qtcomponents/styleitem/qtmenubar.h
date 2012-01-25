@@ -41,7 +41,6 @@
 #define QTMENUBAR_H
 
 #include <QDeclarativeItem>
-#include <QtGui>
 
 #include "qtmenu.h"
 

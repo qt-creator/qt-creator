@@ -40,10 +40,23 @@
 #ifndef STYLEWRAPPER_H
 #define STYLEWRAPPER_H
 
+#include <QCheckBox>
+#include <QComboBox>
 #include <QDeclarativeItem>
-#include <QtGui/QStyle>
-#include <QtGui>
 #include <QEvent>
+#include <QGraphicsDropShadowEffect>
+#include <QHeaderView>
+#include <QLineEdit>
+#include <QPixmapCache>
+#include <QProgressBar>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QScrollBar>
+#include <QSpinBox>
+#include <QStyle>
+#include <QToolButton>
+#include <QToolTip>
+#include <QTreeView>
 
 class QStyleItem: public QDeclarativeItem
 {
