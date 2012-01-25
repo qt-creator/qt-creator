@@ -34,6 +34,7 @@ Thumbs.db
 *.qmlproject.user*
 *.pluginspec
 src/app/Info.plist
+src/app/app_version.h
 src/libs/utils/app_version.h
 src/plugins/coreplugin/ide_version.h
 share/qtcreator/externaltools
