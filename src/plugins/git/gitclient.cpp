@@ -2329,6 +2329,9 @@ QString GitClient::gitVersionString(bool silent, QString *errorMessage) const
 // determine version as '(major << 16) + (minor << 8) + patch' or 0.
 unsigned GitClient::synchronousGitVersion(bool silent, QString *errorMessage) const
 {
+    if (gitBinaryPath().isEmpty())
+        return 0;
+
     // run git --version
     QByteArray outputText;
     QByteArray errorText;

@@ -793,6 +793,12 @@ static SynchronousProcessResponse runVcsFullySynchronously(const QString &workin
                               unsigned flags,
                               QTextCodec *outputCodec = 0)
 {
+    SynchronousProcessResponse response;
+    if (binary.isEmpty()) {
+        response.result = SynchronousProcessResponse::StartFailed;
+        return response;
+    }
+
     VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
 
     // Set up process
@@ -809,7 +815,6 @@ static SynchronousProcessResponse runVcsFullySynchronously(const QString &workin
     // Start
     process->start(binary, arguments, QIODevice::ReadOnly);
     process->closeWriteChannel();
-    SynchronousProcessResponse response;
     if (!process->waitForStarted()) {
         response.result = SynchronousProcessResponse::StartFailed;
         return response;
@@ -869,6 +874,13 @@ SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
                                                  unsigned flags,
                                                  QTextCodec *outputCodec)
 {
+    SynchronousProcessResponse response;
+
+    if (binary.isEmpty()) {
+        response.result = SynchronousProcessResponse::StartFailed;
+        return response;
+    }
+
     VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
 
     if (!(flags & SuppressCommandLogging))
@@ -900,8 +912,6 @@ SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
     }
 
     VcsBase::VcsBasePlugin::setProcessEnvironment(&env, (flags & ForceCLocale));
-
-    SynchronousProcessResponse response;
 
     if (flags & FullySynchronously) {
         response = runVcsFullySynchronously(workingDir, binary, arguments, timeOutMS,
@@ -964,6 +974,9 @@ bool VcsBasePlugin::runFullySynchronous(const QString &workingDirectory,
                                         int timeoutMS,
                                         bool logCommandToWindow)
 {
+    if (binary.isEmpty())
+        return false;
+
     VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
 
     if (logCommandToWindow)
