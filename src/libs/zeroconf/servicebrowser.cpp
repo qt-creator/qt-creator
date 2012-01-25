@@ -30,6 +30,10 @@
 **
 **************************************************************************/
 
+//disable min max macros from windows headers,
+//because we want to use the template methods from std
+#define NOMINMAX
+
 #include "mdnsderived.h"
 #include "servicebrowser_p.h"
 
@@ -47,6 +51,11 @@
 #include <QtCore/QStringList>
 #include <QtCore/QtEndian>
 #include <QtNetwork/QHostInfo>
+
+//the timeval struct under windows uses long instead of suseconds_t
+#ifdef Q_OS_WIN
+typedef long suseconds_t;
+#endif
 
 /*!
   \namespace ZeroConf
