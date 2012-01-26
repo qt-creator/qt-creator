@@ -1,6 +1,7 @@
 source("../../shared/qtcreator.py")
 
 SpeedCrunchPath = ""
+BuildPath = tempDir()
 
 def main():
     if (which("cmake") == None):
@@ -14,7 +15,7 @@ def main():
 
     startApplication("qtcreator" + SettingsPath)
 
-    result = openCmakeProject(SpeedCrunchPath)
+    result = openCmakeProject(SpeedCrunchPath, BuildPath)
     if not result:
         test.warning("Could not open/create cmake project - leaving test")
         invokeMenuItem("File", "Exit")
@@ -45,15 +46,7 @@ def init():
     cleanup()
 
 def cleanup():
+    global BuildPath
     # Make sure the .user files are gone
     cleanUpUserFiles(SpeedCrunchPath)
-
-    BuildPath = srcPath + "/creator-test-data/speedcrunch/src/qtcreator-build"
-
-    if os.access(BuildPath, os.F_OK):
-        shutil.rmtree(BuildPath)
-    # added because creator uses this one for me
-    BuildPath = srcPath + "/creator-test-data/speedcrunch/qtcreator-build"
-
-    if os.access(BuildPath, os.F_OK):
-        shutil.rmtree(BuildPath)
+    deleteDirIfExists(BuildPath)

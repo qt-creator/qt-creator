@@ -16,9 +16,11 @@ def openQmakeProject(projectPath):
     selectFromCombo(":scrollArea.Create Build Configurations:_QComboBox", "For Each Qt Version One Debug And One Release")
     clickButton(waitForObject("{text~='(Finish|Done)' type='QPushButton'}"))
 
-def openCmakeProject(projectPath):
+def openCmakeProject(projectPath, buildDir):
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(projectPath)
+    replaceEditorContent("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'"
+                         "window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}", buildDir)
     clickButton(waitForObject(":CMake Wizard.Next_QPushButton", 20000))
     generatorCombo = waitForObject(":Generator:_QComboBox")
     index = generatorCombo.findText("MinGW Generator (MinGW from SDK)")
