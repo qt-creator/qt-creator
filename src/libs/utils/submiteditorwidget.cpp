@@ -204,7 +204,7 @@ SubmitEditorWidget::SubmitEditorWidget(QWidget *parent) :
     connect(d->m_ui.description, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(editorCustomContextMenuRequested(QPoint)));
     connect(d->m_ui.description, SIGNAL(textChanged()),
-            this, SLOT(updateSubmitAction()));
+            this, SLOT(descriptionTextChanged()));
 
     // File List
     d->m_ui.fileView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -574,6 +574,19 @@ void SubmitEditorWidget::changeEvent(QEvent *e)
 void SubmitEditorWidget::insertTopWidget(QWidget *w)
 {
     d->m_ui.vboxLayout->insertWidget(0, w);
+}
+
+void SubmitEditorWidget::descriptionTextChanged()
+{
+#if QT_VERSION < 0x050000 // Fix Qt-Bug, see QTCREATORBUG-5633 && QTCREATORBUG-6082
+    static QString lastText;
+    const QString text = d->m_ui.description->toPlainText();
+    if (lastText != text)
+        lastText = text;
+    else
+        return;
+#endif
+    updateSubmitAction();
 }
 
 bool SubmitEditorWidget::canSubmit() const

@@ -131,6 +131,7 @@ protected:
     void insertTopWidget(QWidget *w);
 
 protected slots:
+    void descriptionTextChanged();
     void updateSubmitAction();
 
 private slots:
