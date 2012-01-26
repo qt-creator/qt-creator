@@ -1475,10 +1475,6 @@ class Dumper:
             self.putBetterType(typeName)
             return
 
-        format = self.formats.get(self.currentIName)
-        if format is None:
-            format = self.typeformats.get(stripClassTag(typeName))
-
         if type.code == ArrayCode:
             targettype = type.target()
             self.putAddress(value.address)
@@ -1533,6 +1529,9 @@ class Dumper:
 
             innerType = type.target()
             innerTypeName = str(innerType.unqualified())
+            format = self.formats.get(self.currentIName)
+            if format is None:
+                format = self.typeformats.get(stripForFormat(str(type)))
 
             if innerType.code == VoidCode:
                 #warn("VOID POINTER: %s" % format)
@@ -1663,6 +1662,10 @@ class Dumper:
             #dtypeName = str(lookupType(dtypeName)) # Strip const etc. FIXME
         else:
             dtypeName = typeName
+
+        format = self.formats.get(self.currentIName)
+        if format is None:
+            format = self.typeformats.get(stripForFormat(dtypeName))
 
         if self.useFancy and (format is None or format >= 1):
             self.putAddress(value.address)
