@@ -1218,7 +1218,7 @@ void HelpPlugin::slotOpenSupportPage()
 
 void HelpPlugin::slotReportBug()
 {
-    QDesktopServices::openUrl(QUrl("https://bugreports.qt.nokia.com"));
+    QDesktopServices::openUrl(QUrl("https://bugreports.qt-project.org"));
 }
 
 void HelpPlugin::openFindToolBar()

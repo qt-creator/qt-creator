@@ -4173,7 +4173,7 @@ namespace basic {
         dummyStatement(&foo);
     }
 
-    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-5326
+    // http://bugreports.qt-project.org/browse/QTCREATORBUG-5326
 
     void testChar()
     {
@@ -5237,7 +5237,7 @@ namespace bug842 {
 
     void test842()
     {
-        // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-842
+        // http://bugreports.qt-project.org/browse/QTCREATORBUG-842
         qWarning("Test");
         BREAK_HERE;
         // Continue.
@@ -5252,7 +5252,7 @@ namespace bug3611 {
 
     void test3611()
     {
-        // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-3611
+        // http://bugreports.qt-project.org/browse/QTCREATORBUG-3611
         typedef unsigned char byte;
         byte f = '2';
         int *x = (int*)&f;
@@ -5274,7 +5274,7 @@ namespace bug3611 {
 
 namespace bug4019 {
 
-    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4019
+    // http://bugreports.qt-project.org/browse/QTCREATORBUG-4019
 
     class A4019
     {
@@ -5300,7 +5300,7 @@ namespace bug4019 {
 
 namespace bug4997 {
 
-    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4997
+    // http://bugreports.qt-project.org/browse/QTCREATORBUG-4997
 
     void test4997()
     {
@@ -5314,7 +5314,7 @@ namespace bug4997 {
 
 namespace bug4904 {
 
-    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4904
+    // http://bugreports.qt-project.org/browse/QTCREATORBUG-4904
 
     struct CustomStruct {
         int id;
@@ -5349,7 +5349,7 @@ namespace bug4904 {
 
 namespace bug5046 {
 
-    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-5046
+    // http://bugreports.qt-project.org/browse/QTCREATORBUG-5046
 
     struct Foo { int a, b, c; };
 
@@ -5378,7 +5378,7 @@ namespace bug5046 {
 
 namespace bug5106 {
 
-    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-5106
+    // http://bugreports.qt-project.org/browse/QTCREATORBUG-5106
 
     class A5106
     {
@@ -5410,7 +5410,7 @@ namespace bug5106 {
 
 namespace bug5184 {
 
-    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-5184
+    // http://bugreports.qt-project.org/browse/QTCREATORBUG-5184
 
     // Note: The report there shows type field "QUrl &" instead of QUrl.
     // It's unclear how this can happen. It should never have been like
@@ -5483,7 +5483,7 @@ namespace qc42170 {
 
 namespace bug5799 {
 
-    // https://bugreports.qt.nokia.com/browse/QTCREATORBUG-5799
+    // https://bugreports.qt-project.org/browse/QTCREATORBUG-5799
 
     typedef struct { int m1; int m2; } S1;
 
@@ -5523,7 +5523,7 @@ namespace bug5799 {
 
 namespace bug6813 {
 
-    // https://bugreports.qt.nokia.com/browse/QTCREATORBUG-6813
+    // https://bugreports.qt-project.org/browse/QTCREATORBUG-6813
     void test6813()
     {
       int foo = 0;
@@ -5603,7 +5603,7 @@ namespace cp42895 {
 
 namespace bug6465 {
 
-    // https://bugreports.qt.nokia.com/browse/QTCREATORBUG-6465
+    // https://bugreports.qt-project.org/browse/QTCREATORBUG-6465
 
     void test6465()
     {
