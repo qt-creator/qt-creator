@@ -134,7 +134,13 @@
 #include <QtTest/QTest>
 #include <QtTest/QSignalSpy>
 #include <QtTest/QTestEventLoop>
+
+//#define WITH_BENCHMARK
+#ifdef WITH_BENCHMARK
+#include <valgrind/callgrind.h>
 #endif
+
+#endif // WITH_TESTS
 
 #include <climits>
 
@@ -864,12 +870,13 @@ public slots:
     void testStateMachine2();
     void testStateMachine3();
 
+    void testBenchmark1();
+
 public:
     bool m_testSuccess;
     QList<TestCallBack> m_testCallbacks;
 
 #endif
-
 
 public slots:
     void updateDebugActions();
@@ -3835,7 +3842,34 @@ void DebuggerPluginPrivate::testStateMachine3()
     testUnloadProject();
     testFinished();
 }
+
+
+///////////////////////////////////////////////////////////////////////////
+
+void DebuggerPlugin::testBenchmark()
+{
+    theDebuggerCore->testBenchmark1();
+}
+
+enum FakeEnum { FakeDebuggerCommonSettingsId };
+
+void DebuggerPluginPrivate::testBenchmark1()
+{
+#ifdef WITH_BENCHMARK
+    CALLGRIND_START_INSTRUMENTATION;
+    volatile Core::Id id1 = Core::Id(DEBUGGER_COMMON_SETTINGS_ID);
+    CALLGRIND_STOP_INSTRUMENTATION;
+    CALLGRIND_DUMP_STATS;
+
+    CALLGRIND_START_INSTRUMENTATION;
+    volatile FakeEnum id2 = FakeDebuggerCommonSettingsId;
+    CALLGRIND_STOP_INSTRUMENTATION;
+    CALLGRIND_DUMP_STATS;
 #endif
+}
+
+
+#endif // if  WITH_TESTS
 
 } // namespace Debugger
 
