@@ -1819,7 +1819,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         break;
     }
 
-    if (d->m_inBlockSelectionMode) {
+    if (!ro && d->m_inBlockSelectionMode) {
         QString text = e->text();
         if (!text.isEmpty() && (text.at(0).isPrint() || text.at(0) == QLatin1Char('\t'))) {
             d->removeBlockSelection(text);
