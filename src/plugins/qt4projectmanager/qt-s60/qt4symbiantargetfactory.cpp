@@ -233,7 +233,7 @@ ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Projec
 
     t->addDeployConfiguration(t->createDeployConfiguration(QLatin1String(S60_DEPLOYCONFIGURATION_ID)));
 
-    t->createApplicationProFiles();
+    t->createApplicationProFiles(false);
 
     if (t->runConfigurations().isEmpty())
         t->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(t));

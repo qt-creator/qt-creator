@@ -404,7 +404,7 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     updateCodeModels();
 
     foreach (Target *t, targets())
-        static_cast<Qt4BaseTarget *>(t)->createApplicationProFiles();
+        static_cast<Qt4BaseTarget *>(t)->createApplicationProFiles(false);
 
     foreach (Target *t, targets())
         onAddedTarget(t);
@@ -818,7 +818,7 @@ void Qt4Project::decrementPendingEvaluateFutures()
             m_asyncUpdateState = Base;
             activeTarget()->activeQt4BuildConfiguration()->setEnabled(true);
             foreach (Target *t, targets())
-                static_cast<Qt4BaseTarget *>(t)->createApplicationProFiles();
+                static_cast<Qt4BaseTarget *>(t)->createApplicationProFiles(true);
             updateFileList();
             updateCodeModels();
             emit proParsingDone();

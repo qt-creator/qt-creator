@@ -216,7 +216,7 @@ ProjectExplorer::Target *Qt4MaemoTargetFactory::create(ProjectExplorer::Project 
     foreach (const QString &deployConfigId, deployConfigIds) {
         target->addDeployConfiguration(target->createDeployConfiguration(deployConfigId));
     }
-    target->createApplicationProFiles();
+    target->createApplicationProFiles(false);
     if (target->runConfigurations().isEmpty())
         target->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(target));
     return target;

@@ -65,9 +65,10 @@ ProjectExplorer::IBuildConfigurationFactory *Qt4DesktopTarget::buildConfiguratio
     return m_buildConfigurationFactory;
 }
 
-void Qt4DesktopTarget::createApplicationProFiles()
+void Qt4DesktopTarget::createApplicationProFiles(bool reparse)
 {
-    removeUnconfiguredCustomExectutableRunConfigurations();
+    if (!reparse)
+        removeUnconfiguredCustomExectutableRunConfigurations();
 
     // We use the list twice
     QList<Qt4ProFileNode *> profiles = qt4Project()->applicationProFiles();

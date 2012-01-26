@@ -63,7 +63,7 @@ public:
     virtual ~AbstractQt4MaemoTarget();
 
     ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
-    void createApplicationProFiles();
+    void createApplicationProFiles(bool reparse);
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
     QList<ProjectExplorer::ToolChain *> possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const;
 

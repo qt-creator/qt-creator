@@ -160,9 +160,10 @@ ProjectExplorer::IBuildConfigurationFactory *AbstractQt4MaemoTarget::buildConfig
     return m_buildConfigurationFactory;
 }
 
-void AbstractQt4MaemoTarget::createApplicationProFiles()
+void AbstractQt4MaemoTarget::createApplicationProFiles(bool reparse)
 {
-    removeUnconfiguredCustomExectutableRunConfigurations();
+    if (!reparse)
+        removeUnconfiguredCustomExectutableRunConfigurations();
 
     QList<Qt4ProFileNode *> profiles = qt4Project()->applicationProFiles();
     QSet<QString> paths;

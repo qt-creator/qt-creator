@@ -81,9 +81,10 @@ Utils::FileName EmbeddedLinuxTarget::mkspec(const Qt4ProjectManager::Qt4BuildCon
    return version->mkspec();
 }
 
-void EmbeddedLinuxTarget::createApplicationProFiles()
+void EmbeddedLinuxTarget::createApplicationProFiles(bool reparse)
 {
-    removeUnconfiguredCustomExectutableRunConfigurations();
+    if (!reparse)
+        removeUnconfiguredCustomExectutableRunConfigurations();
 
     // We use the list twice
     QList<Qt4ProjectManager::Qt4ProFileNode *> profiles = qt4Project()->applicationProFiles();

@@ -115,9 +115,10 @@ QList<ProjectExplorer::ToolChain *> Qt4SymbianTarget::possibleToolChains(Project
     return tmp;
 }
 
-void Qt4SymbianTarget::createApplicationProFiles()
+void Qt4SymbianTarget::createApplicationProFiles(bool reparse)
 {
-    removeUnconfiguredCustomExectutableRunConfigurations();
+    if (!reparse)
+        removeUnconfiguredCustomExectutableRunConfigurations();
 
     // We use the list twice
     QList<Qt4ProFileNode *> profiles = qt4Project()->applicationProFiles();

@@ -165,7 +165,7 @@ ProjectExplorer::Target *EmbeddedLinuxTargetFactory::create(ProjectExplorer::Pro
                 t->createDeployConfiguration(
                     RemoteLinuxDeployConfigurationFactory::genericDeployConfigurationId()));
 
-    t->createApplicationProFiles();
+    t->createApplicationProFiles(false);
 
     if (t->runConfigurations().isEmpty())
         t->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(t));

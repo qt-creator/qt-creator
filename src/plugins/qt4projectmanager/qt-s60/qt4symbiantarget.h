@@ -55,7 +55,7 @@ public:
 
     QList<ProjectExplorer::ToolChain *> possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const;
 
-    void createApplicationProFiles();
+    void createApplicationProFiles(bool reparse);
     virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
 
     static QString defaultDisplayName(const QString &id);

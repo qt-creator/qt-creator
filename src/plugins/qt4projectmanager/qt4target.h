@@ -87,7 +87,7 @@ public:
                                                     QString directory,
                                                     bool importing);
 
-    virtual void createApplicationProFiles() = 0;
+    virtual void createApplicationProFiles(bool reparse) = 0;
 
     virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n) = 0;
 

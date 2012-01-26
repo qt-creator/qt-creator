@@ -185,7 +185,7 @@ ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Projec
 
     t->addDeployConfiguration(t->createDeployConfiguration(QLatin1String(ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID)));
 
-    t->createApplicationProFiles();
+    t->createApplicationProFiles(false);
 
     if (t->runConfigurations().isEmpty())
         t->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(t));

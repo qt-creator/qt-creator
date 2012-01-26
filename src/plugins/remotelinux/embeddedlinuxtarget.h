@@ -51,7 +51,7 @@ public:
 
     ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 
-    void createApplicationProFiles();
+    void createApplicationProFiles(bool reparse);
 
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
 
