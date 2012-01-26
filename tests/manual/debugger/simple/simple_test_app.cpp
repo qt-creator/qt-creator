@@ -4173,7 +4173,7 @@ namespace basic {
         dummyStatement(&foo);
     }
 
-    // http://bugreports.qt-project.org/browse/QTCREATORBUG-5326
+    // https://bugreports.qt-project.org/browse/QTCREATORBUG-5326
 
     void testChar()
     {
@@ -5237,7 +5237,7 @@ namespace bug842 {
 
     void test842()
     {
-        // http://bugreports.qt-project.org/browse/QTCREATORBUG-842
+        // https://bugreports.qt-project.org/browse/QTCREATORBUG-842
         qWarning("Test");
         BREAK_HERE;
         // Continue.
@@ -5252,7 +5252,7 @@ namespace bug3611 {
 
     void test3611()
     {
-        // http://bugreports.qt-project.org/browse/QTCREATORBUG-3611
+        // https://bugreports.qt-project.org/browse/QTCREATORBUG-3611
         typedef unsigned char byte;
         byte f = '2';
         int *x = (int*)&f;
@@ -5274,7 +5274,7 @@ namespace bug3611 {
 
 namespace bug4019 {
 
-    // http://bugreports.qt-project.org/browse/QTCREATORBUG-4019
+    // https://bugreports.qt-project.org/browse/QTCREATORBUG-4019
 
     class A4019
     {
@@ -5300,7 +5300,7 @@ namespace bug4019 {
 
 namespace bug4997 {
 
-    // http://bugreports.qt-project.org/browse/QTCREATORBUG-4997
+    // https://bugreports.qt-project.org/browse/QTCREATORBUG-4997
 
     void test4997()
     {
@@ -5314,7 +5314,7 @@ namespace bug4997 {
 
 namespace bug4904 {
 
-    // http://bugreports.qt-project.org/browse/QTCREATORBUG-4904
+    // https://bugreports.qt-project.org/browse/QTCREATORBUG-4904
 
     struct CustomStruct {
         int id;
@@ -5349,7 +5349,7 @@ namespace bug4904 {
 
 namespace bug5046 {
 
-    // http://bugreports.qt-project.org/browse/QTCREATORBUG-5046
+    // https://bugreports.qt-project.org/browse/QTCREATORBUG-5046
 
     struct Foo { int a, b, c; };
 
@@ -5378,7 +5378,7 @@ namespace bug5046 {
 
 namespace bug5106 {
 
-    // http://bugreports.qt-project.org/browse/QTCREATORBUG-5106
+    // https://bugreports.qt-project.org/browse/QTCREATORBUG-5106
 
     class A5106
     {
@@ -5410,7 +5410,7 @@ namespace bug5106 {
 
 namespace bug5184 {
 
-    // http://bugreports.qt-project.org/browse/QTCREATORBUG-5184
+    // https://bugreports.qt-project.org/browse/QTCREATORBUG-5184
 
     // Note: The report there shows type field "QUrl &" instead of QUrl.
     // It's unclear how this can happen. It should never have been like
