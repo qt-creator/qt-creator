@@ -952,11 +952,11 @@ void VcsBaseEditorWidget::mouseMoveEvent(QMouseEvent *e)
             handler->highlightCurrentContents();
             overrideCursor = true;
             cursorShape = Qt::PointingHandCursor;
+        } else {
+            setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());
+            overrideCursor = true;
+            cursorShape = Qt::IBeamCursor;
         }
-    } else {
-        setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());
-        overrideCursor = true;
-        cursorShape = Qt::IBeamCursor;
     }
     TextEditor::BaseTextEditorWidget::mouseMoveEvent(e);
 
