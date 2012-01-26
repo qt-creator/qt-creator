@@ -561,10 +561,8 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent, bool enableStartScript)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
+    m_ui->toolchainComboBox->init(false);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    m_ui->debuggerPathChooser->setExpectedKind(PathChooser::File);
-    m_ui->debuggerPathChooser->setPromptDialogTitle(tr("Select Debugger"));
-    m_ui->debuginfoPathChooser->setExpectedKind(PathChooser::File);
     m_ui->debuginfoPathChooser->setPromptDialogTitle(tr("Select Location of Debugging Information"));
     m_ui->executablePathChooser->setExpectedKind(PathChooser::File);
     m_ui->executablePathChooser->setPromptDialogTitle(tr("Select Executable"));
@@ -611,14 +609,25 @@ QString StartRemoteDialog::localExecutable() const
     return m_ui->executablePathChooser->path();
 }
 
-void StartRemoteDialog::setDebugger(const QString &debugger)
+ProjectExplorer::Abi StartRemoteDialog::abi() const
 {
-    m_ui->debuggerPathChooser->setPath(debugger);
+    return m_ui->toolchainComboBox->abi();
 }
 
-QString StartRemoteDialog::debugger() const
+void StartRemoteDialog::setAbiIndex(int i)
 {
-    return m_ui->debuggerPathChooser->path();
+    if (i >= 0 && i < m_ui->toolchainComboBox->count())
+        m_ui->toolchainComboBox->setCurrentIndex(i);
+}
+
+int StartRemoteDialog::abiIndex() const
+{
+    return m_ui->toolchainComboBox->currentIndex();
+}
+
+QString StartRemoteDialog::debuggerCommand() const
+{
+    return m_ui->toolchainComboBox->debuggerCommand();
 }
 
 void StartRemoteDialog::setDebugInfoLocation(const QString &location)

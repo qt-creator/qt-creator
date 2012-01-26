@@ -195,8 +195,10 @@ public:
     QString sysroot() const;
     void setSysroot(const QString &sysroot);
 
-    QString debugger() const;
-    void setDebugger(const QString &debugger);
+    int abiIndex() const;
+    void setAbiIndex(int);
+    ProjectExplorer::Abi abi() const;
+    QString debuggerCommand() const;
 
     void setDebugInfoLocation(const QString &location);
     QString debugInfoLocation() const;

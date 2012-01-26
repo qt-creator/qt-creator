@@ -1614,7 +1614,7 @@ void DebuggerPluginPrivate::attachCore()
     AttachCoreDialog dlg(mainWindow());
     dlg.setExecutableFile(configValue(_("LastExternalExecutableFile")).toString());
     dlg.setCoreFile(configValue(_("LastExternalCoreFile")).toString());
-    dlg.setAbiIndex(configValue(_("LastExternalCoreAbiIndex")).toInt());
+    dlg.setAbiIndex(configValue(_("LastExternalAbiIndex")).toInt());
     dlg.setSysroot(configValue(_("LastSysroot")).toString());
     dlg.setOverrideStartScript(configValue(_("LastExternalStartScript")).toString());
 
@@ -1623,7 +1623,7 @@ void DebuggerPluginPrivate::attachCore()
 
     setConfigValue(_("LastExternalExecutableFile"), dlg.executableFile());
     setConfigValue(_("LastExternalCoreFile"), dlg.coreFile());
-    setConfigValue(_("LastExternalCoreAbiIndex"), QVariant(dlg.abiIndex()));
+    setConfigValue(_("LastExternalAbiIndex"), QVariant(dlg.abiIndex()));
     setConfigValue(_("LastSysroot"), dlg.sysroot());
     setConfigValue(_("LastExternalStartScript"), dlg.overrideStartScript());
 
@@ -1690,7 +1690,7 @@ bool DebuggerPluginPrivate::queryRemoteParameters(DebuggerStartParameters &sp, b
             configValue(_("LastRemoteChannel")).toString());
     dlg.setLocalExecutable(
             configValue(_("LastLocalExecutable")).toString());
-    dlg.setDebugger(configValue(_("LastDebugger")).toString());
+    dlg.setAbiIndex(configValue(_("LastExternalAbiIndex")).toInt());
     dlg.setRemoteArchitecture(lastUsed);
     dlg.setOverrideStartScript(configValue(_("LastRemoteStartScript")).toString());
     dlg.setServerStartScript(
@@ -1703,7 +1703,7 @@ bool DebuggerPluginPrivate::queryRemoteParameters(DebuggerStartParameters &sp, b
         return false;
     setConfigValue(_("LastRemoteChannel"), dlg.remoteChannel());
     setConfigValue(_("LastLocalExecutable"), dlg.localExecutable());
-    setConfigValue(_("LastDebugger"), dlg.debugger());
+    setConfigValue(_("LastExternalAbiIndex"), QVariant(dlg.abiIndex()));
     setConfigValue(_("LastRemoteArchitecture"), dlg.remoteArchitecture());
     setConfigValue(_("LastRemoteStartScript"), dlg.overrideStartScript());
     setConfigValue(_("LastServerStartScript"), dlg.serverStartScript());
@@ -1714,9 +1714,8 @@ bool DebuggerPluginPrivate::queryRemoteParameters(DebuggerStartParameters &sp, b
     sp.remoteArchitecture = dlg.remoteArchitecture();
     sp.executable = dlg.localExecutable();
     sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
-    sp.debuggerCommand = dlg.debugger(); // Override toolchain-detection.
-    if (!sp.debuggerCommand.isEmpty())
-        sp.toolChainAbi = Abi();
+    sp.debuggerCommand = dlg.debuggerCommand();
+    sp.toolChainAbi = dlg.abi();
     sp.overrideStartScript = dlg.overrideStartScript();
     sp.useServerStartScript = dlg.useServerStartScript();
     sp.serverStartScript = dlg.serverStartScript();
