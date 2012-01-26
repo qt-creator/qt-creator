@@ -200,9 +200,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         if (!projectName.isNull())
             centerRect.adjust(0, lineHeight + 4, 0, 0);
 
-        const QString buildConfiguration = defaultAction()->property("subtitle").toString();
-        if (!buildConfiguration.isNull())
-            centerRect.adjust(0, 0, 0, -lineHeight*2 - 4);
+        centerRect.adjust(0, 0, 0, -lineHeight*2 - 4);
 
         iconRect.moveCenter(centerRect.center());
         Utils::StyleHelper::drawIconWithShadow(icon(), iconRect, &painter, isEnabled() ? QIcon::Normal : QIcon::Disabled);
@@ -237,6 +235,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         buildConfigRect[1] = QRectF(0, textOffset.y() + 5 + lineHeight, rect().width(), lineHeight);
         painter.setFont(boldFont);
         QVector<QString> splitBuildConfiguration(2);
+        const QString buildConfiguration = defaultAction()->property("subtitle").toString();
         if (boldFm.width(buildConfiguration) <= availableWidth) {
             // text fits in one line
             splitBuildConfiguration[0] = buildConfiguration;
@@ -295,9 +294,7 @@ QSize FancyToolButton::sizeHint() const
         if (!projectName.isEmpty())
             buttonSize += QSizeF(0, lineHeight + 2);
 
-        const QString buildConfiguration = defaultAction()->property("subtitle").toString();
-        if (!buildConfiguration.isEmpty())
-            buttonSize += QSizeF(0, lineHeight*2 + 2);
+        buttonSize += QSizeF(0, lineHeight*2 + 2);
     }
     return buttonSize.toSize();
 }
