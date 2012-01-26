@@ -469,7 +469,7 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
         case Qt::Key_Escape:
             if (!ke->modifiers()) {
                 event->accept();
-                QTimer::singleShot(0, Core::ModeManager::instance(), SLOT(setFocusToCurrentMode()));
+                QTimer::singleShot(0, this, SLOT(setFocusToCurrentMode()));
                 return true;
             }
         case Qt::Key_Alt:
@@ -483,6 +483,11 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
         }
     }
     return QWidget::eventFilter(obj, event);
+}
+
+void LocatorWidget::setFocusToCurrentMode()
+{
+    Core::ModeManager::setFocusToCurrentMode();
 }
 
 void LocatorWidget::showCompletionList()

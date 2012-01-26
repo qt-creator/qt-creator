@@ -2462,7 +2462,7 @@ void DebuggerPluginPrivate::updateDebugActions()
 
 void DebuggerPluginPrivate::onCoreAboutToOpen()
 {
-    m_mainWindow->onModeChanged(ModeManager::instance()->currentMode());
+    m_mainWindow->onModeChanged(ModeManager::currentMode());
 }
 
 void DebuggerPluginPrivate::onModeChanged(IMode *mode)
@@ -2517,10 +2517,9 @@ void DebuggerPluginPrivate::dumpLog()
 /*! Activates the previous mode when the current mode is the debug mode. */
 void DebuggerPluginPrivate::activatePreviousMode()
 {
-    ModeManager *modeManager = ModeManager::instance();
-    if (modeManager->currentMode() == modeManager->mode(QLatin1String(MODE_DEBUG))
+    if (ModeManager::currentMode() == ModeManager::mode(QLatin1String(MODE_DEBUG))
             && !m_previousMode.isEmpty()) {
-        modeManager->activateMode(m_previousMode);
+        ModeManager::activateMode(m_previousMode);
         m_previousMode.clear();
     }
 }
@@ -2529,9 +2528,8 @@ void DebuggerPluginPrivate::activateDebugMode()
 {
     m_reverseDirectionAction->setChecked(false);
     m_reverseDirectionAction->setEnabled(false);
-    ModeManager *modeManager = ModeManager::instance();
-    m_previousMode = modeManager->currentMode()->id();
-    modeManager->activateMode(_(MODE_DEBUG));
+    m_previousMode = ModeManager::currentMode()->id();
+    ModeManager::activateMode(_(MODE_DEBUG));
 }
 
 void DebuggerPluginPrivate::sessionLoaded()
@@ -3178,8 +3176,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_visibleStartAction->setAttribute(Utils::ProxyAction::UpdateIcon);
     m_visibleStartAction->setAction(cmd->action());
 
-    ModeManager *modeManager = ModeManager::instance();
-    modeManager->addAction(m_visibleStartAction, Constants::P_ACTION_DEBUG);
+    ModeManager::addAction(m_visibleStartAction, Constants::P_ACTION_DEBUG);
 
     cmd = am->registerAction(m_debugWithoutDeployAction,
         "Debugger.DebugWithoutDeploy", globalcontext);

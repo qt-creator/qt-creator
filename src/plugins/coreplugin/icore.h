@@ -101,7 +101,7 @@ public:
     static ScriptManager *scriptManager();
     static VariableManager *variableManager();
     static VcsManager *vcsManager();
-    static ModeManager *modeManager();
+    static QT_DEPRECATED ModeManager *modeManager(); // Use ModeManager::... directly.
     static MimeDatabase *mimeDatabase();
     static HelpManager *helpManager();
 

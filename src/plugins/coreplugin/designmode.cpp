@@ -236,8 +236,8 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
 
     if (!mimeEditorAvailable) {
         setActiveContext(Context());
-        if (ModeManager::instance()->currentMode() == this)
-            ModeManager::instance()->activateMode(QLatin1String(Core::Constants::MODE_EDIT));
+        if (ModeManager::currentMode() == this)
+            ModeManager::activateMode(QLatin1String(Core::Constants::MODE_EDIT));
         setEnabled(false);
         d->m_currentEditor = QWeakPointer<Core::IEditor>();
         emit actionsUpdated(d->m_currentEditor.data());
@@ -272,7 +272,7 @@ void DesignMode::setActiveContext(const Context &context)
     if (d->m_activeContext == context)
         return;
 
-    if (ModeManager::instance()->currentMode() == this)
+    if (ModeManager::currentMode() == this)
         Core::ICore::updateAdditionalContexts(d->m_activeContext, context);
 
     d->m_activeContext = context;

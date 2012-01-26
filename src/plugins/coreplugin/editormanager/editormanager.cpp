@@ -151,7 +151,7 @@ EditorManagerPlaceHolder::EditorManagerPlaceHolder(Core::IMode *mode, QWidget *p
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode *)),
             this, SLOT(currentModeChanged(Core::IMode *)));
 
-    currentModeChanged(Core::ModeManager::instance()->currentMode());
+    currentModeChanged(ModeManager::currentMode());
 }
 
 EditorManagerPlaceHolder::~EditorManagerPlaceHolder()
@@ -1382,7 +1382,7 @@ void EditorManager::switchToPreferedMode()
     if (preferedMode.isEmpty())
         preferedMode = QLatin1String(Constants::MODE_EDIT_TYPE);
 
-    ModeManager::instance()->activateModeType(preferedMode);
+    ModeManager::activateModeType(preferedMode);
 }
 
 IEditor *EditorManager::openEditorWithContents(const Id &editorId,

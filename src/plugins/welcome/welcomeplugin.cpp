@@ -160,8 +160,7 @@ WelcomeMode::WelcomeMode() :
     PluginManager *pluginManager = PluginManager::instance();
     connect(pluginManager, SIGNAL(objectAdded(QObject*)), SLOT(welcomePluginAdded(QObject*)));
 
-    Core::ModeManager *modeManager = Core::ModeManager::instance();
-    connect(modeManager, SIGNAL(currentModeChanged(Core::IMode*)), SLOT(modeChanged(Core::IMode*)));
+    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)), SLOT(modeChanged(Core::IMode*)));
 
     setWidget(m_modeWidget);
 }
@@ -286,12 +285,11 @@ void WelcomeMode::modeChanged(Core::IMode *mode)
 // Eike doesn't like this, but I do...
 
 //    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
-//    Core::ModeManager *modeManager = Core::ICore::modeManager();
 //    Core::EditorManager *editorManager = Core::ICore::editorManager();
 //    if (mode->id() == id() && (!projectExplorer->currentProject() && editorManager->openedEditors().isEmpty()))
-//        modeManager->setModeBarHidden(true);
+//        ModeManager::setModeBarHidden(true);
 //    else
-//        modeManager->setModeBarHidden(false);
+//        ModeManager::setModeBarHidden(false);
 }
 
 //
@@ -329,7 +327,7 @@ bool WelcomePlugin::initialize(const QStringList & /* arguments */, QString * /*
 void WelcomePlugin::extensionsInitialized()
 {
     m_welcomeMode->initPlugins();
-    Core::ModeManager::instance()->activateMode(m_welcomeMode->id());
+    Core::ModeManager::activateMode(m_welcomeMode->id());
 }
 
 } // namespace Internal

@@ -77,6 +77,7 @@ private slots:
     void showConfigureDialog();
     void updateEntries();
     void scheduleAcceptCurrentEntry();
+    void setFocusToCurrentMode();
 
 private:
     bool eventFilter(QObject *obj, QEvent *event);

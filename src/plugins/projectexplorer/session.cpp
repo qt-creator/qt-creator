@@ -560,8 +560,8 @@ bool SessionManager::createImpl(const QString &fileName)
         setStartupProject(0);
 
         if (!isDefaultVirgin()) {
-            ModeManager::instance()->activateMode(QLatin1String(Core::Constants::MODE_EDIT));
-            ModeManager::instance()->setFocusToCurrentMode();
+            ModeManager::activateMode(QLatin1String(Core::Constants::MODE_EDIT));
+            ModeManager::setFocusToCurrentMode();
         }
 
         emit sessionLoaded();
@@ -636,8 +636,8 @@ bool SessionManager::loadImpl(const QString &fileName)
         if (modeIdentifier.isEmpty())
             modeIdentifier = QLatin1String(Core::Constants::MODE_EDIT);
 
-        ModeManager::instance()->activateMode(modeIdentifier);
-        ModeManager::instance()->setFocusToCurrentMode();
+        ModeManager::activateMode(modeIdentifier);
+        ModeManager::setFocusToCurrentMode();
 
         emit sessionLoaded();
     }

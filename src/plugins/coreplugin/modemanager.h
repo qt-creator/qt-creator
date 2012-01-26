@@ -49,8 +49,6 @@ namespace Internal {
     class FancyTabWidget;
 }
 
-struct ModeManagerPrivate;
-
 class CORE_EXPORT ModeManager : public QObject
 {
     Q_OBJECT
@@ -59,18 +57,20 @@ public:
     explicit ModeManager(Internal::MainWindow *mainWindow, Internal::FancyTabWidget *modeStack);
     virtual ~ModeManager();
 
-    void init();
+    static void init();
     static ModeManager *instance();
 
-    IMode *currentMode() const;
-    IMode *mode(const QString &id) const;
+    static IMode *currentMode();
+    static IMode *mode(const QString &id);
 
-    void addAction(QAction *action, int priority);
-    void addProjectSelector(QAction *action);
-    void addWidget(QWidget *widget);
+    static void addAction(QAction *action, int priority);
+    static void addProjectSelector(QAction *action);
+    static void addWidget(QWidget *widget);
 
-    void activateModeType(const QString &type);
-    void setModeBarHidden(bool hidden);
+    static void activateModeType(const QString &type);
+    static void setModeBarHidden(bool hidden);
+    static void activateMode(const QString &id);
+    static void setFocusToCurrentMode();
 
 signals:
     void currentModeAboutToChange(Core::IMode *mode);
@@ -78,22 +78,14 @@ signals:
     // the default argument '=0' is important for connects without the oldMode argument.
     void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode = 0);
 
-public slots:
-    void activateMode(const QString &id);
-    void setFocusToCurrentMode();
-
 private slots:
+    void slotActivateMode(const QString &id);
     void objectAdded(QObject *obj);
     void aboutToRemoveObject(QObject *obj);
     void currentTabAboutToChange(int index);
     void currentTabChanged(int index);
     void updateModeToolTip();
     void enabledStateChanged();
-
-private:
-    int indexOf(const QString &id) const;
-
-    ModeManagerPrivate *d;
 };
 
 } // namespace Core

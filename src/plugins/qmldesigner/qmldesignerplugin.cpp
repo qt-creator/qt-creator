@@ -288,7 +288,7 @@ void BauhausPlugin::createDesignModeWidget()
 void BauhausPlugin::updateEditor(Core::IEditor *editor)
 {
     if (editor && editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID
-        && Core::ModeManager::instance()->currentMode() == m_designMode)
+        && Core::ModeManager::currentMode() == m_designMode)
     {
         m_mainWidget->showEditor(editor);
     }
@@ -371,18 +371,16 @@ BauhausPlugin *BauhausPlugin::pluginInstance()
 
 void BauhausPlugin::switchTextDesign()
 {
-    Core::ModeManager *modeManager = Core::ModeManager::instance();
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     Core::IEditor *editor = editorManager->currentEditor();
 
-
-    if (modeManager->currentMode()->id() == Core::Constants::MODE_EDIT) {
+    if (Core::ModeManager::currentMode()->id() == Core::Constants::MODE_EDIT) {
         if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
-            modeManager->activateMode(Core::Constants::MODE_DESIGN);
+            Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
             m_mainWidget->setFocus();
         }
-    } else if (modeManager->currentMode()->id() == Core::Constants::MODE_DESIGN) {
-        modeManager->activateMode(Core::Constants::MODE_EDIT);
+    } else if (Core::ModeManager::currentMode()->id() == Core::Constants::MODE_DESIGN) {
+        Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
     }
 }
 

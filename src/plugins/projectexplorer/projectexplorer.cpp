@@ -690,7 +690,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
 
     // Add to mode bar
-    Core::ModeManager::instance()->addAction(cmd->action(), Constants::P_ACTION_BUILDPROJECT);
+    Core::ModeManager::addAction(cmd->action(), Constants::P_ACTION_BUILDPROJECT);
 
     // rebuild action
     d->m_rebuildAction = new Utils::ParameterAction(tr("Rebuild Project"), tr("Rebuild Project \"%1\""),
@@ -780,7 +780,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+R")));
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
 
-    Core::ModeManager::instance()->addAction(cmd->action(), Constants::P_ACTION_RUN);
+    Core::ModeManager::addAction(cmd->action(), Constants::P_ACTION_RUN);
 
     d->m_runActionContextMenu = new QAction(runIcon, tr("Run"), this);
     cmd = am->registerAction(d->m_runActionContextMenu, Constants::RUNCONTEXTMENU, projecTreeContext);
@@ -886,7 +886,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     QWidget *mainWindow = Core::ICore::mainWindow();
     d->m_targetSelector = new Internal::MiniProjectTargetSelector(d->m_projectSelectorAction, d->m_session, mainWindow);
     connect(d->m_projectSelectorAction, SIGNAL(triggered()), d->m_targetSelector, SLOT(show()));
-    Core::ModeManager::instance()->addProjectSelector(d->m_projectSelectorAction);
+    Core::ModeManager::addProjectSelector(d->m_projectSelectorAction);
 
     d->m_projectSelectorActionMenu = new QAction(this);
     d->m_projectSelectorActionMenu->setEnabled(false);
@@ -1197,9 +1197,8 @@ void ProjectExplorerPlugin::showSessionManager()
 
     updateActions();
 
-    Core::ModeManager *modeManager = Core::ModeManager::instance();
-    Core::IMode *welcomeMode = modeManager->mode(QLatin1String(Core::Constants::MODE_WELCOME));
-    if (modeManager->currentMode() == welcomeMode)
+    Core::IMode *welcomeMode = Core::ModeManager::mode(QLatin1String(Core::Constants::MODE_WELCOME));
+    if (Core::ModeManager::currentMode() == welcomeMode)
         updateWelcomePage();
 }
 
@@ -1342,7 +1341,7 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
     updateActions();
 
     if (!openedPro.isEmpty())
-        Core::ModeManager::instance()->activateMode(QLatin1String(Core::Constants::MODE_EDIT));
+        Core::ModeManager::activateMode(QLatin1String(Core::Constants::MODE_EDIT));
 
     return openedPro;
 }
@@ -1435,7 +1434,7 @@ void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
         d->m_sessionToRestoreAtStartup = d->m_session->lastSession();
 
     if (!d->m_sessionToRestoreAtStartup.isNull())
-        Core::ModeManager::instance()->activateMode(QLatin1String(Core::Constants::MODE_EDIT));
+        Core::ModeManager::activateMode(QLatin1String(Core::Constants::MODE_EDIT));
 }
 
 /*!

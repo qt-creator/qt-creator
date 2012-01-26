@@ -98,7 +98,7 @@ QStringList FormEditorFactory::mimeTypes() const
 
 void FormEditorFactory::designerModeClicked()
 {
-    Core::ModeManager::instance()->activateMode(QLatin1String(Core::Constants::MODE_DESIGN));
+    Core::ModeManager::activateMode(QLatin1String(Core::Constants::MODE_DESIGN));
 }
 
 } // namespace Internal

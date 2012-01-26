@@ -871,7 +871,7 @@ QString AnalyzerManager::msgToolFinished(const QString &name, int issuesFound)
 void AnalyzerManager::showMode()
 {
     if (m_instance->d->m_mode)
-        ModeManager::instance()->activateMode(m_instance->d->m_mode->id());
+        ModeManager::activateMode(m_instance->d->m_mode->id());
 }
 
 void AnalyzerManager::stopTool()

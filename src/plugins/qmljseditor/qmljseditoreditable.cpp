@@ -63,7 +63,7 @@ static bool openInDesignMode()
     // Check if Bauhaus is loaded, that is, a Design mode widget is
     // registered for the QML mime type.
     if (!bauhausDetected) {
-        if (const Core::IMode *dm = Core::ModeManager::instance()->mode(QLatin1String(Core::Constants::MODE_DESIGN)))
+        if (const Core::IMode *dm = Core::ModeManager::mode(QLatin1String(Core::Constants::MODE_DESIGN)))
             if (const Core::DesignMode *designMode = qobject_cast<const Core::DesignMode *>(dm))
                 bauhausPresent = designMode->registeredMimeTypes().contains(QLatin1String(QmlJSTools::Constants::QML_MIMETYPE));
         bauhausDetected =  true;
@@ -76,12 +76,11 @@ static bool openInDesignMode()
 
 QString QmlJSEditorEditable::preferredModeType() const
 {
-    Core::ModeManager *modeManager = Core::ModeManager::instance();
-    if (modeManager->currentMode()
-            && (modeManager->currentMode()->type() == Core::Constants::MODE_DESIGN_TYPE
-                || modeManager->currentMode()->type() == Core::Constants::MODE_EDIT_TYPE))
+    Core::IMode *mode = Core::ModeManager::currentMode();
+    if (mode && (mode->type() == Core::Constants::MODE_DESIGN_TYPE
+                || mode->type() == Core::Constants::MODE_EDIT_TYPE))
     {
-        return modeManager->currentMode()->type();
+        return mode->type();
     }
 
     // if we are in other mode than edit or design, use the hard-coded default.

@@ -663,7 +663,7 @@ void HelpPlugin::resetRightPaneScale()
 void HelpPlugin::activateHelpMode()
 {
     if (contextHelpOption() != Help::Constants::ExternalHelpAlways)
-        Core::ModeManager::instance()->activateMode(QLatin1String(Constants::ID_MODE_HELP));
+        Core::ModeManager::activateMode(QLatin1String(Constants::ID_MODE_HELP));
     else
         showExternalWindow();
 }
@@ -785,8 +785,8 @@ void HelpPlugin::contextHelpOptionChanged()
                 m_externalWindow->show();
                 connectExternalHelpWindow();
 
-                if (m_oldMode && m_mode == ModeManager::instance()->currentMode())
-                    ModeManager::instance()->activateMode(m_oldMode->id());
+                if (m_oldMode && m_mode == ModeManager::currentMode())
+                    ModeManager::activateMode(m_oldMode->id());
             }
         }
     } else if (modeWidget != m_splitter
@@ -815,15 +815,15 @@ void HelpPlugin::contextHelpOptionChanged()
 void HelpPlugin::setupHelpEngineIfNeeded()
 {
     m_helpManager->setEngineNeedsUpdate();
-    if (Core::ModeManager::instance()->currentMode() == m_mode
+    if (Core::ModeManager::currentMode() == m_mode
         || contextHelpOption() == Help::Constants::ExternalHelpAlways)
         m_helpManager->setupGuiHelpEngine();
 }
 
 HelpViewer *HelpPlugin::viewerForContextMode()
 {
-    if (ModeManager::instance()->currentMode()->id() == Core::Constants::MODE_WELCOME)
-        ModeManager::instance()->activateMode(Core::Constants::MODE_EDIT);
+    if (ModeManager::currentMode()->id() == Core::Constants::MODE_WELCOME)
+        ModeManager::activateMode(Core::Constants::MODE_EDIT);
 
     bool showSideBySide = false;
     RightPanePlaceHolder *placeHolder = RightPanePlaceHolder::current();
@@ -873,7 +873,7 @@ void HelpPlugin::activateContext()
         switchToHelpMode();
         return;
     }
-    if (ModeManager::instance()->currentMode() == m_mode)
+    if (ModeManager::currentMode() == m_mode)
         return;
 
     // Find out what to show

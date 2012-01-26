@@ -243,8 +243,7 @@ void OpenPagesManager::closeCurrentPage()
         false).toBool();
 
     if (m_model->rowCount() == 1 && closeOnReturn) {
-        Core::ModeManager *modeManager = Core::ModeManager::instance();
-        modeManager->activateMode(Core::Constants::MODE_EDIT);
+        Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
     } else {
         Q_ASSERT(indexes.count() == 1);
         removePage(indexes.first().row());

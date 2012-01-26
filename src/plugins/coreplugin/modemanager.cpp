@@ -71,11 +71,6 @@ namespace Core {
 
 struct ModeManagerPrivate
 {
-    explicit ModeManagerPrivate(Internal::MainWindow *mainWindow,
-                                Internal::FancyTabWidget *modeStack,
-                                ModeManager *q);
-
-    static ModeManager *m_instance;
     Internal::MainWindow *m_mainWindow;
     Internal::FancyTabWidget *m_modeStack;
     Internal::FancyActionBar *m_actionBar;
@@ -87,44 +82,49 @@ struct ModeManagerPrivate
     int m_oldCurrent;
 };
 
-ModeManager *ModeManagerPrivate::m_instance = 0;
+static ModeManagerPrivate *d;
+static ModeManager *m_instance = 0;
 
-ModeManagerPrivate::ModeManagerPrivate(Internal::MainWindow *mainWindow,
-                                       Internal::FancyTabWidget *modeStack,
-                                       ModeManager *q) :
-    m_mainWindow(mainWindow),
-    m_modeStack(modeStack),
-    m_signalMapper(new QSignalMapper(q)),
-    m_oldCurrent(-1)
+static int indexOf(const QString &id)
 {
+    for (int i = 0; i < d->m_modes.count(); ++i) {
+        if (d->m_modes.at(i)->id() == id)
+            return i;
+    }
+    qDebug() << "Warning, no such mode:" << id;
+    return -1;
 }
 
 ModeManager::ModeManager(Internal::MainWindow *mainWindow,
-                         Internal::FancyTabWidget *modeStack) :
-        d(new ModeManagerPrivate(mainWindow, modeStack, this))
+                         Internal::FancyTabWidget *modeStack)
 {
-    ModeManagerPrivate::m_instance = this;
-
+    m_instance = this;
+    d = new ModeManagerPrivate();
+    d->m_mainWindow = mainWindow;
+    d->m_modeStack = modeStack;
+    d->m_signalMapper = new QSignalMapper(this);
+    d->m_oldCurrent = -1;
     d->m_actionBar = new Internal::FancyActionBar(modeStack);
     d->m_modeStack->addCornerWidget(d->m_actionBar);
 
     connect(d->m_modeStack, SIGNAL(currentAboutToShow(int)), SLOT(currentTabAboutToChange(int)));
     connect(d->m_modeStack, SIGNAL(currentChanged(int)), SLOT(currentTabChanged(int)));
-    connect(d->m_signalMapper, SIGNAL(mapped(QString)), this, SLOT(activateMode(QString)));
+    connect(d->m_signalMapper, SIGNAL(mapped(QString)), this, SLOT(slotActivateMode(QString)));
 }
 
 void ModeManager::init()
 {
     QObject::connect(ExtensionSystem::PluginManager::instance(), SIGNAL(objectAdded(QObject*)),
-                     this, SLOT(objectAdded(QObject*)));
+                     m_instance, SLOT(objectAdded(QObject*)));
     QObject::connect(ExtensionSystem::PluginManager::instance(), SIGNAL(aboutToRemoveObject(QObject*)),
-                     this, SLOT(aboutToRemoveObject(QObject*)));
+                     m_instance, SLOT(aboutToRemoveObject(QObject*)));
 }
 
 ModeManager::~ModeManager()
 {
     delete d;
-    ModeManagerPrivate::m_instance = 0;
+    d = 0;
+    m_instance = 0;
 }
 
 void ModeManager::addWidget(QWidget *widget)
@@ -135,7 +135,7 @@ void ModeManager::addWidget(QWidget *widget)
     d->m_modeStack->insertCornerWidget(d->m_modeStack->cornerWidgetCount() -1, widget);
 }
 
-IMode *ModeManager::currentMode() const
+IMode *ModeManager::currentMode()
 {
     int currentIndex = d->m_modeStack->currentIndex();
     if (currentIndex < 0)
@@ -143,17 +143,7 @@ IMode *ModeManager::currentMode() const
     return d->m_modes.at(currentIndex);
 }
 
-int ModeManager::indexOf(const QString &id) const
-{
-    for (int i = 0; i < d->m_modes.count(); ++i) {
-        if (d->m_modes.at(i)->id() == id)
-            return i;
-    }
-    qDebug() << "Warning, no such mode:" << id;
-    return -1;
-}
-
-IMode *ModeManager::mode(const QString &id) const
+IMode *ModeManager::mode(const QString &id)
 {
     const int index = indexOf(id);
     if (index >= 0)
@@ -174,6 +164,11 @@ void ModeManager::activateModeType(const QString &type)
     }
     if (index != -1)
         d->m_modeStack->setCurrentIndex(index);
+}
+
+void ModeManager::slotActivateMode(const QString &id)
+{
+    m_instance->activateMode(id);
 }
 
 void ModeManager::activateMode(const QString &id)
@@ -347,7 +342,7 @@ void ModeManager::setModeBarHidden(bool hidden)
 
 ModeManager *ModeManager::instance()
 {
-    return ModeManagerPrivate::m_instance;
+    return m_instance;
 }
 
 } // namespace Core
