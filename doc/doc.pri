@@ -67,7 +67,7 @@ dev_html_docs_online.depends += $$DEV_HELP_DEP_FILES
 dev_qch_docs.commands = $$HELPGENERATOR -o \"$$DEV_QCH_FILE\" $$DEV_QHP_FILE
 dev_qch_docs.depends += dev_html_docs
 
-unix:!macx {
+!macx {
     inst_qch_docs.files = $$QCH_FILE
     inst_qch_docs.path = /share/doc/qtcreator
     inst_qch_docs.CONFIG += no_check_exist no_default_install
