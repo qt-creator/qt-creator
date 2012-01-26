@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator Instrumentation Tools
 **
-** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Author: Frank Osterfeld, KDAB (frank.osterfeld@kdab.com)
 **

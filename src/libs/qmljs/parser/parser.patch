@@ -5,11 +5,11 @@ index 6888b65..784e47f 100644
 @@ -1,23 +1,32 @@
  ----------------------------------------------------------------------------
  --
---- Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+--- Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 --- All rights reserved.
 +-- This file is part of Qt Creator
 +--
-+-- Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
++-- Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
 +--
  -- Contact: Nokia Corporation (qt-info@nokia.com)
  --
@@ -55,9 +55,9 @@ index 6888b65..784e47f 100644
 +**
 +** This file is part of Qt Creator
 +**
-+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
++** Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
  **
--** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 -** All rights reserved.
  ** Contact: Nokia Corporation (qt-info@nokia.com)
  **
@@ -115,9 +115,9 @@ index 6888b65..784e47f 100644
 +**
 +** This file is part of Qt Creator
 +**
-+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
++** Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
  **
--** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 -** All rights reserved.
  ** Contact: Nokia Corporation (qt-info@nokia.com)
  **

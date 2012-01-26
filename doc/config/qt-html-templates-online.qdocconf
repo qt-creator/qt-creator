@@ -105,7 +105,7 @@ HTML.footer = \
     "  </div> \n" \
     "  <div class=\"footer\">\n" \
     "    <p>\n" \
-    "      <acronym title=\"Copyright\">&copy;</acronym> 2008-2011 Nokia Corporation and/or its\n" \
+    "      <acronym title=\"Copyright\">&copy;</acronym> 2008-2012 Nokia Corporation and/or its\n" \
     "      subsidiaries. Nokia, Qt and their respective logos are trademarks of Nokia Corporation \n" \
     "      in Finland and/or other countries worldwide.</p>\n" \
     "    <p>\n" \
