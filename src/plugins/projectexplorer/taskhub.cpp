@@ -48,7 +48,7 @@ TaskHub::~TaskHub()
 
 }
 
-void TaskHub::addCategory(const QString &categoryId, const QString &displayName, bool visible)
+void TaskHub::addCategory(const Core::Id &categoryId, const QString &displayName, bool visible)
 {
     emit categoryAdded(categoryId, displayName, visible);
 }
@@ -58,7 +58,7 @@ void TaskHub::addTask(const Task &task)
     emit taskAdded(task);
 }
 
-void TaskHub::clearTasks(const QString &categoryId)
+void TaskHub::clearTasks(const Core::Id &categoryId)
 {
     emit tasksCleared(categoryId);
 }
@@ -68,7 +68,7 @@ void TaskHub::removeTask(const Task &task)
     emit taskRemoved(task);
 }
 
-void TaskHub::setCategoryVisibility(const QString &categoryId, bool visible)
+void TaskHub::setCategoryVisibility(const Core::Id &categoryId, bool visible)
 {
     emit categoryVisibilityChanged(categoryId, visible);
 }

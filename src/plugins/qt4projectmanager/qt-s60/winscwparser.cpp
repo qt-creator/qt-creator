@@ -58,9 +58,9 @@ void WinscwParser::stdOutput(const QString &line)
     if (m_compilerProblem.indexIn(lne) > -1) {
         Task task(Task::Error,
                   m_compilerProblem.cap(3) /* description */,
-                  m_compilerProblem.cap(1) /* filename */,
+                  Utils::FileName::fromUserInput(m_compilerProblem.cap(1)) /* filename */,
                   m_compilerProblem.cap(2).toInt() /* linenumber */,
-                  QLatin1String(TASK_CATEGORY_COMPILE));
+                  Core::Id(TASK_CATEGORY_COMPILE));
         if (task.description.startsWith(QLatin1String("warning: "))) {
             task.type = Task::Warning;
             task.description = task.description.mid(9);
@@ -78,9 +78,9 @@ void WinscwParser::stdError(const QString &line)
     if (m_linkerProblem.indexIn(lne) > -1) {
         emit addTask(Task(Task::Error,
                           m_linkerProblem.cap(2) /* description */,
-                          m_linkerProblem.cap(1) /* filename */,
+                          Utils::FileName::fromUserInput(m_linkerProblem.cap(1)) /* filename */,
                           -1 /* linenumber */,
-                          QLatin1String(TASK_CATEGORY_COMPILE)));
+                          Core::Id(TASK_CATEGORY_COMPILE)));
         return;
     }
     IOutputParser::stdError(line);

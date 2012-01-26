@@ -70,17 +70,17 @@ void LdParser::stdError(const QString &line)
     if (lne.startsWith(QLatin1String("collect2:"))) {
         emit addTask(Task(Task::Error,
                           lne /* description */,
-                          QString() /* filename */,
+                          Utils::FileName() /* filename */,
                           -1 /* linenumber */,
-                          QLatin1String(Constants::TASK_CATEGORY_COMPILE)));
+                          Core::Id(Constants::TASK_CATEGORY_COMPILE)));
         return;
     } else if (m_regExpGccNames.indexIn(lne) > -1) {
         QString description = lne.mid(m_regExpGccNames.matchedLength());
         Task task(Task::Error,
                   description,
-                  QString(), /* filename */
+                  Utils::FileName(), /* filename */
                   -1, /* line */
-                  QLatin1String(Constants::TASK_CATEGORY_COMPILE));
+                  Core::Id(Constants::TASK_CATEGORY_COMPILE));
         if (description.startsWith(QLatin1String("warning: "))) {
             task.type = Task::Warning;
             task.description = description.mid(9);
@@ -94,13 +94,13 @@ void LdParser::stdError(const QString &line)
         int lineno = m_regExpLinker.cap(7).toInt(&ok);
         if (!ok)
             lineno = -1;
-        QString filename = m_regExpLinker.cap(1);
+        Utils::FileName filename = Utils::FileName::fromUserInput(m_regExpLinker.cap(1));
         if (!m_regExpLinker.cap(4).isEmpty()
             && !m_regExpLinker.cap(4).startsWith(QLatin1String("(.text")))
-            filename = m_regExpLinker.cap(4);
+            filename = Utils::FileName::fromUserInput(m_regExpLinker.cap(4));
         QString description = m_regExpLinker.cap(8).trimmed();
         Task task(Task::Error, description, filename, lineno,
-                  QLatin1String(Constants::TASK_CATEGORY_COMPILE));
+                  Core::Id(Constants::TASK_CATEGORY_COMPILE));
         if (description.startsWith(QLatin1String("At global scope")) ||
             description.startsWith(QLatin1String("At top level")) ||
             description.startsWith(QLatin1String("instantiated from ")) ||

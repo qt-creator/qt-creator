@@ -72,9 +72,9 @@ void ClangParser::stdError(const QString &line)
         m_expectSnippet = true;
         newTask(Task::Error,
                 m_commandRegExp.cap(4),
-                QString(), /* filename */
+                Utils::FileName(), /* filename */
                 -1, /* line */
-                QLatin1String(Constants::TASK_CATEGORY_COMPILE));
+                Core::Id(Constants::TASK_CATEGORY_COMPILE));
         if (m_commandRegExp.cap(3) == QLatin1String("warning"))
             m_currentTask.type = Task::Warning;
         else if (m_commandRegExp.cap(3) == QLatin1String("note"))
@@ -86,9 +86,9 @@ void ClangParser::stdError(const QString &line)
         m_expectSnippet = true;
         newTask(Task::Unknown,
                 lne.trimmed(),
-                m_inLineRegExp.cap(2), /* filename */
+                Utils::FileName::fromUserInput(m_inLineRegExp.cap(2)), /* filename */
                 m_inLineRegExp.cap(3).toInt(), /* line */
-                QLatin1String(Constants::TASK_CATEGORY_COMPILE));
+                Core::Id(Constants::TASK_CATEGORY_COMPILE));
         return;
     }
 
@@ -100,9 +100,9 @@ void ClangParser::stdError(const QString &line)
             lineNo = m_messageRegExp.cap(5).toInt(&ok);
         newTask(Task::Error,
                 m_messageRegExp.cap(8),
-                m_messageRegExp.cap(1), /* filename */
+                Utils::FileName::fromUserInput(m_messageRegExp.cap(1)), /* filename */
                 lineNo,
-                QLatin1String(Constants::TASK_CATEGORY_COMPILE));
+                Core::Id(Constants::TASK_CATEGORY_COMPILE));
         if (m_messageRegExp.cap(7) == QLatin1String("warning"))
             m_currentTask.type = Task::Warning;
         else if (m_messageRegExp.cap(7) == QLatin1String("note"))
@@ -126,7 +126,7 @@ void ClangParser::stdError(const QString &line)
 }
 
 void ClangParser::newTask(Task::TaskType type_, const QString &description_,
-                          const QString &file_, int line_, const QString &category_)
+                          const Utils::FileName &file_, int line_, const Core::Id &category_)
 {
     emitTask();
     m_currentTask = Task(type_, description_, file_, line_, category_);
@@ -157,7 +157,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
     QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
     QTest::addColumn<QString>("outputLines");
 
-    const QString categoryCompile = QLatin1String(Constants::TASK_CATEGORY_COMPILE);
+    const Core::Id categoryCompile = Core::Id(Constants::TASK_CATEGORY_COMPILE);
 
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
@@ -177,7 +177,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Warning,
                         QLatin1String("argument unused during compilation: '-mthreads'"),
-                        QString(), -1,
+                        Utils::FileName(), -1,
                         categoryCompile))
             << QString();
     QTest::newRow("clang++ error")
@@ -187,7 +187,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Error,
                         QLatin1String("no input files [err_drv_no_input_files]"),
-                        QString(), -1,
+                        Utils::FileName(), -1,
                         categoryCompile))
             << QString();
     QTest::newRow("complex warning")
@@ -200,13 +200,13 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Unknown,
                         QLatin1String("In file included from ..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qnamespace.h:45:"),
-                        QLatin1String("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qnamespace.h"), 45,
+                        Utils::FileName::fromUserInput("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qnamespace.h"), 45,
                         categoryCompile)
                 << Task(Task::Warning,
                         QLatin1String("unknown attribute 'dllimport' ignored [-Wunknown-attributes]\n"
                                       "class Q_CORE_EXPORT QSysInfo {\n"
                                       "      ^"),
-                        QLatin1String("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h"), 1425,
+                        Utils::FileName::fromUserInput("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h"), 1425,
                         categoryCompile))
             << QString();
         QTest::newRow("note")
@@ -220,7 +220,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                             QLatin1String("instantiated from:\n"
                                           "#    define Q_CORE_EXPORT Q_DECL_IMPORT\n"
                                           "                          ^"),
-                            QLatin1String("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h"), 1289,
+                            Utils::FileName::fromUserInput("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h"), 1289,
                             categoryCompile))
                 << QString();
         QTest::newRow("fatal error")
@@ -234,7 +234,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                             QLatin1String("'bits/c++config.h' file not found\n"
                                           "#include <bits/c++config.h>\n"
                                           "         ^"),
-                            QLatin1String("/usr/include/c++/4.6/utility"), 68,
+                            Utils::FileName::fromUserInput("/usr/include/c++/4.6/utility"), 68,
                             categoryCompile))
                 << QString();
 
@@ -249,7 +249,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                             QLatin1String("?: has lower precedence than +; + will be evaluated first [-Wparentheses]\n"
                                           "            int x = option->rect.x() + horizontal ? 2 : 6;\n"
                                           "                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^"),
-                            QLatin1String("/home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp"), 567,
+                            Utils::FileName::fromUserInput("/home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp"), 567,
                             categoryCompile))
                 << QString();
 }

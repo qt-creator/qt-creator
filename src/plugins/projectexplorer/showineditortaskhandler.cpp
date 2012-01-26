@@ -50,13 +50,13 @@ bool ShowInEditorTaskHandler::canHandle(const ProjectExplorer::Task &task)
 {
     if (task.file.isEmpty())
         return false;
-    QFileInfo fi(task.file);
+    QFileInfo fi(task.file.toFileInfo());
     return fi.exists() && fi.isFile() && fi.isReadable();
 }
 
 void ShowInEditorTaskHandler::handle(const ProjectExplorer::Task &task)
 {
-    QFileInfo fi(task.file);
+    QFileInfo fi(task.file.toFileInfo());
     TextEditor::BaseTextEditorWidget::openEditorAt(fi.canonicalFilePath(), task.line);
 }
 

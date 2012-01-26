@@ -54,14 +54,14 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     Task task(const QModelIndex &index) const;
 
-    QStringList categoryIds() const;
-    QString categoryDisplayName(const QString &categoryId) const;
-    void addCategory(const QString &categoryId, const QString &categoryName);
+    QList<Core::Id> categoryIds() const;
+    QString categoryDisplayName(const Core::Id &categoryId) const;
+    void addCategory(const Core::Id &categoryId, const QString &categoryName);
 
-    QList<Task> tasks(const QString &categoryId = QString()) const;
+    QList<Task> tasks(const Core::Id &categoryId = Core::Id()) const;
     void addTask(const Task &task);
     void removeTask(const Task &task);
-    void clearTasks(const QString &categoryId = QString());
+    void clearTasks(const Core::Id &categoryId = Core::Id());
 
     int sizeOfFile(const QFont &font);
     int sizeOfLineNumber(const QFont &font);
@@ -71,9 +71,9 @@ public:
 
     QIcon taskTypeIcon(Task::TaskType t) const;
 
-    int taskCount(const QString &category);
-    int errorTaskCount(const QString &category);
-    int warningTaskCount(const QString &category);
+    int taskCount(const Core::Id &categoryId);
+    int errorTaskCount(const Core::Id &categoryId);
+    int warningTaskCount(const Core::Id &categoryId);
 
     bool hasFile(const QModelIndex &index) const;
 
@@ -114,7 +114,7 @@ private:
         int errors;
     };
 
-    QHash<QString,CategoryData> m_categories; // category id to data
+    QHash<Core::Id,CategoryData> m_categories; // category id to data
     QList<Task> m_tasks;   // all tasks (in order of insertion)
 
     QHash<QString,bool> m_fileNotFound;
@@ -151,8 +151,8 @@ public:
     bool filterIncludesErrors() const { return m_includeErrors; }
     void setFilterIncludesErrors(bool b) { m_includeErrors = b; invalidateFilter(); }
 
-    QStringList filteredCategories() const { return m_categoryIds; }
-    void setFilteredCategories(const QStringList &categoryIds) { m_categoryIds = categoryIds; invalidateFilter(); }
+    QList<Core::Id> filteredCategories() const { return m_categoryIds; }
+    void setFilteredCategories(const QList<Core::Id> &categoryIds) { m_categoryIds = categoryIds; invalidateFilter(); }
 
     Task task(const QModelIndex &index) const
     { return m_sourceModel->task(mapToSource(index)); }
@@ -175,7 +175,7 @@ private:
     bool m_includeUnknowns;
     bool m_includeWarnings;
     bool m_includeErrors;
-    QStringList m_categoryIds;
+    QList<Core::Id> m_categoryIds;
 
     mutable QList<int> m_mapping;
     mutable bool m_mappingUpToDate;

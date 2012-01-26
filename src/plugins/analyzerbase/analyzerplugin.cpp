@@ -86,7 +86,7 @@ bool AnalyzerPlugin::initialize(const QStringList &arguments, QString *errorStri
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     ProjectExplorer::TaskHub *hub = pm->getObject<ProjectExplorer::TaskHub>();
     //: Category under which Analyzer tasks are listed in Issues view
-    hub->addCategory(QLatin1String(Constants::ANALYZERTASK_ID), tr("Analyzer"));
+    hub->addCategory(Core::Id(Constants::ANALYZERTASK_ID), tr("Analyzer"));
 
     return true;
 }

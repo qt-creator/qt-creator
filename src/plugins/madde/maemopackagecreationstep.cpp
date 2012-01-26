@@ -367,7 +367,7 @@ void MaemoDebianPackageCreationStep::checkProjectName()
                "Debian packages.\nThey must only use lower-case letters, "
                "numbers, '-', '+' and '.'.\n""We will try to work around that, "
                "but you may experience problems."),
-            QString(), -1, TASK_CATEGORY_BUILDSYSTEM));
+            Utils::FileName(), -1, Core::Id(TASK_CATEGORY_BUILDSYSTEM)));
     }
 }
 

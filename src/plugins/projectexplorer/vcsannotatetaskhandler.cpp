@@ -51,7 +51,7 @@ VcsAnnotateTaskHandler::VcsAnnotateTaskHandler() :
 
 bool VcsAnnotateTaskHandler::canHandle(const ProjectExplorer::Task &task)
 {
-    QFileInfo fi(task.file);
+    QFileInfo fi(task.file.toFileInfo());
     if (!fi.exists() || !fi.isFile() || !fi.isReadable())
         return false;
     Core::IVersionControl *vc = Core::ICore::vcsManager()->findVersionControlForDirectory(fi.absolutePath());
@@ -62,7 +62,7 @@ bool VcsAnnotateTaskHandler::canHandle(const ProjectExplorer::Task &task)
 
 void VcsAnnotateTaskHandler::handle(const ProjectExplorer::Task &task)
 {
-    QFileInfo fi(task.file);
+    QFileInfo fi(task.file.toFileInfo());
     Core::IVersionControl *vc = Core::ICore::vcsManager()->findVersionControlForDirectory(fi.absolutePath());
     Q_ASSERT(vc);
     Q_ASSERT(vc->supportsOperation(Core::IVersionControl::AnnotateOperation));

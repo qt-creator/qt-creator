@@ -55,7 +55,7 @@ static QHash<QByteArray, int> idFromString;
 
 static int theId(const QByteArray &ba)
 {
-    QTC_ASSERT(!ba.isEmpty(), /**/);
+    QTC_CHECK(!ba.isEmpty());
     int res = idFromString.value(ba);
     if (res == 0) {
         if (lastUid == 0)

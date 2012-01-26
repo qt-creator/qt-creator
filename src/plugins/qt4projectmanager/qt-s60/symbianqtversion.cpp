@@ -344,7 +344,7 @@ QList<ProjectExplorer::Task> SymbianQtVersion::reportIssuesImpl(const QString &p
         results.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
                                              QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
                                                                          "The Symbian SDK and the project sources must reside on the same drive."),
-                                             QString(), -1, QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                                             Utils::FileName(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
     }
     return results;
 }

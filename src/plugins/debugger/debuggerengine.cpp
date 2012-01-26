@@ -1787,10 +1787,10 @@ void DebuggerEnginePrivate::reportTestError(const QString &msg, int line)
     if (!m_taskHub) {
         ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
         m_taskHub = pm->getObject<TaskHub>();
-        m_taskHub->addCategory(QLatin1String("DebuggerTest"), tr("Debugger Test"));
+        m_taskHub->addCategory(Core::Id("DebuggerTest"), tr("Debugger Test"));
     }
 
-    Task task(Task::Error, msg, m_testFileName, line + 1, QLatin1String("DebuggerTest"));
+    Task task(Task::Error, msg, Utils::FileName::fromUserInput(m_testFileName), line + 1, Core::Id("DebuggerTest"));
     m_taskHub->addTask(task);
 }
 

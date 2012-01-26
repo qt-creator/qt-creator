@@ -49,8 +49,9 @@ Task::Task() : taskId(0), type(Unknown), line(-1)
 { }
 
 Task::Task(TaskType type_, const QString &description_,
-           const QString &file_, int line_, const QString &category_) :
-    taskId(s_nextId), type(type_), description(description_), file(QDir::fromNativeSeparators(file_)), line(line_), category(category_)
+           const Utils::FileName &file_, int line_, const Core::Id &category_) :
+    taskId(s_nextId), type(type_), description(description_),
+    file(file_), line(line_), category(category_)
 {
     ++s_nextId;
 }
@@ -80,9 +81,9 @@ bool operator<(const Task &a, const Task &b)
         // Can't happen
         return true;
     } else {
-        if (a.category < b.category)
+        if (a.category.uniqueIdentifier() < b.category.uniqueIdentifier())
             return true;
-        if (b.category < a.category)
+        if (b.category.uniqueIdentifier() < a.category.uniqueIdentifier())
             return false;
         return a.taskId < b.taskId;
     }

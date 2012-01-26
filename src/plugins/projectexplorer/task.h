@@ -35,6 +35,9 @@
 
 #include "projectexplorer_export.h"
 
+#include <coreplugin/id.h>
+#include <utils/fileutils.h>
+
 #include <QtCore/QMetaType>
 
 #include <QtGui/QTextLayout>
@@ -53,16 +56,17 @@ public:
 
     Task();
     Task(TaskType type_, const QString &description_,
-         const QString &file_, int line_, const QString &category_);
+         const Utils::FileName &file_, int line_, const Core::Id &category_);
 
     bool isNull() const;
 
     unsigned int taskId;
     TaskType type;
     QString description;
-    QString file;
+    Utils::FileName file;
     int line;
-    QString category;
+    Core::Id category;
+
     // Having a QList<QTextLayout::FormatRange> in Task isn't that great
     // It would be cleaner to split up the text into
     // the logical hunks and then assemble them again

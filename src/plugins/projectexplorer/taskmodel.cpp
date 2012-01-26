@@ -35,7 +35,7 @@
 #include "task.h"
 #include "taskhub.h"
 
-#include <QtCore/QDebug>
+#include <utils/qtcassert.h>
 
 #include <QtGui/QFontMetrics>
 
@@ -54,22 +54,22 @@ TaskModel::TaskModel(QObject *parent) :
     m_warningIcon(QLatin1String(":/projectexplorer/images/compile_warning.png")),
     m_sizeOfLineNumber(0)
 {
-    m_categories.insert(QString(), CategoryData());
+    m_categories.insert(Core::Id(), CategoryData());
 }
 
-int TaskModel::taskCount(const QString &category)
+int TaskModel::taskCount(const Core::Id &categoryId)
 {
-    return m_categories.value(category).count;
+    return m_categories.value(categoryId).count;
 }
 
-int TaskModel::errorTaskCount(const QString &category)
+int TaskModel::errorTaskCount(const Core::Id &categoryId)
 {
-    return m_categories.value(category).errors;
+    return m_categories.value(categoryId).errors;
 }
 
-int TaskModel::warningTaskCount(const QString &category)
+int TaskModel::warningTaskCount(const Core::Id &categoryId)
 {
-    return m_categories.value(category).warnings;
+    return m_categories.value(categoryId).warnings;
 }
 
 bool TaskModel::hasFile(const QModelIndex &index) const
@@ -93,22 +93,22 @@ QIcon TaskModel::taskTypeIcon(Task::TaskType t) const
     return QIcon();
 }
 
-void TaskModel::addCategory(const QString &categoryId, const QString &categoryName)
+void TaskModel::addCategory(const Core::Id &categoryId, const QString &categoryName)
 {
-    Q_ASSERT(!categoryId.isEmpty());
+    QTC_ASSERT(categoryId.uniqueIdentifier(), return);
     CategoryData data;
     data.displayName = categoryName;
     m_categories.insert(categoryId, data);
 }
 
-QList<Task> TaskModel::tasks(const QString &categoryId) const
+QList<Task> TaskModel::tasks(const Core::Id &categoryId) const
 {
-    if (categoryId.isEmpty())
+    if (categoryId.uniqueIdentifier() == 0)
         return m_tasks;
 
     QList<Task> taskList;
     foreach (const Task &t, m_tasks) {
-        if (t.category == categoryId)
+        if (t.category.uniqueIdentifier() == categoryId.uniqueIdentifier())
             taskList.append(t);
     }
     return taskList;
@@ -118,7 +118,7 @@ void TaskModel::addTask(const Task &task)
 {
     Q_ASSERT(m_categories.keys().contains(task.category));
     CategoryData &data = m_categories[task.category];
-    CategoryData &global = m_categories[QString()];
+    CategoryData &global = m_categories[Core::Id()];
 
     beginInsertRows(QModelIndex(), m_tasks.count(), m_tasks.count());
     m_tasks.append(task);
@@ -135,26 +135,26 @@ void TaskModel::removeTask(const Task &task)
 
         beginRemoveRows(QModelIndex(), index, index);
         m_categories[task.category].removeTask(t);
-        m_categories[QString()].removeTask(t);
+        m_categories[Core::Id()].removeTask(t);
         m_tasks.removeAt(index);
         endRemoveRows();
     }
 }
 
-void TaskModel::clearTasks(const QString &categoryId)
+void TaskModel::clearTasks(const Core::Id &categoryId)
 {
-    if (categoryId.isEmpty()) {
+    if (categoryId.uniqueIdentifier() != 0) {
         if (m_tasks.count() == 0)
             return;
         beginRemoveRows(QModelIndex(), 0, m_tasks.count() -1);
         m_tasks.clear();
-        foreach (const QString &key, m_categories.keys())
+        foreach (const Core::Id &key, m_categories.keys())
             m_categories[key].clear();
         endRemoveRows();
     } else {
         int index = 0;
         int start = 0;
-        CategoryData &global = m_categories[QString()];
+        CategoryData &global = m_categories[Core::Id()];
         CategoryData &cat = m_categories[categoryId];
 
         while (index < m_tasks.count()) {
@@ -214,7 +214,7 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     if (role == TaskModel::File) {
-        return m_tasks.at(index.row()).file;
+        return m_tasks.at(index.row()).file.toString();
     } else if (role == TaskModel::Line) {
         if (m_tasks.at(index.row()).line <= 0)
             return QVariant();
@@ -223,11 +223,11 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
     } else if (role == TaskModel::Description) {
         return m_tasks.at(index.row()).description;
     } else if (role == TaskModel::FileNotFound) {
-        return m_fileNotFound.value(m_tasks.at(index.row()).file);
+        return m_fileNotFound.value(m_tasks.at(index.row()).file.toString());
     } else if (role == TaskModel::Type) {
         return (int)m_tasks.at(index.row()).type;
     } else if (role == TaskModel::Category) {
-        return m_tasks.at(index.row()).category;
+        return m_tasks.at(index.row()).category.uniqueIdentifier();
     } else if (role == TaskModel::Icon) {
         return taskTypeIcon(m_tasks.at(index.row()).type);
     } else if (role == TaskModel::Task_t) {
@@ -243,14 +243,14 @@ Task TaskModel::task(const QModelIndex &index) const
     return m_tasks.at(index.row());
 }
 
-QStringList TaskModel::categoryIds() const
+QList<Core::Id> TaskModel::categoryIds() const
 {
-    QStringList ids = m_categories.keys();
-    ids.removeAll(QString());
-    return ids;
+    QList<Core::Id> categories = m_categories.keys();
+    categories.removeAll(Core::Id()); // remove global category we added for bookkeeping
+    return categories;
 }
 
-QString TaskModel::categoryDisplayName(const QString &categoryId) const
+QString TaskModel::categoryDisplayName(const Core::Id &categoryId) const
 {
     return m_categories.value(categoryId).displayName;
 }
@@ -268,7 +268,7 @@ int TaskModel::sizeOfFile(const QFont &font)
     m_fileMeasurementFont = font;
 
     for (int i = m_lastMaxSizeIndex; i < count; ++i) {
-        QString filename = m_tasks.at(i).file;
+        QString filename = m_tasks.at(i).file.toString();
         const int pos = filename.lastIndexOf(QLatin1Char('/'));
         if (pos != -1)
             filename = filename.mid(pos +1);
@@ -292,7 +292,7 @@ int TaskModel::sizeOfLineNumber(const QFont &font)
 void TaskModel::setFileNotFound(const QModelIndex &idx, bool b)
 {
     if (idx.isValid() && idx.row() < m_tasks.count()) {
-        m_fileNotFound.insert(m_tasks[idx.row()].file, b);
+        m_fileNotFound.insert(m_tasks[idx.row()].file.toUserOutput(), b);
         emit dataChanged(idx, idx);
     }
 }

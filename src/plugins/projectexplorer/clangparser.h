@@ -51,7 +51,7 @@ public:
 
 private:
     void newTask(Task::TaskType type_, const QString &description_,
-                 const QString &file_, int line_, const QString &category_);
+                 const Utils::FileName &file_, int line_, const Core::Id &category_);
 
     void emitTask();
 

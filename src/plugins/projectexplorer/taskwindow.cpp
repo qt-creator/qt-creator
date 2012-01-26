@@ -44,6 +44,7 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -289,16 +290,16 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
 
     d->m_categoriesButton->setMenu(d->m_categoriesMenu);
 
-    connect(d->m_taskHub, SIGNAL(categoryAdded(QString, QString, bool)),
-            this, SLOT(addCategory(QString, QString, bool)));
+    connect(d->m_taskHub, SIGNAL(categoryAdded(Core::Id,QString,bool)),
+            this, SLOT(addCategory(Core::Id,QString,bool)));
     connect(d->m_taskHub, SIGNAL(taskAdded(ProjectExplorer::Task)),
             this, SLOT(addTask(ProjectExplorer::Task)));
     connect(d->m_taskHub, SIGNAL(taskRemoved(ProjectExplorer::Task)),
             this, SLOT(removeTask(ProjectExplorer::Task)));
-    connect(d->m_taskHub, SIGNAL(tasksCleared(QString)),
-            this, SLOT(clearTasks(QString)));
-    connect(d->m_taskHub, SIGNAL(categoryVisibilityChanged(QString,bool)),
-            this, SLOT(setCategoryVisibility(QString,bool)));
+    connect(d->m_taskHub, SIGNAL(tasksCleared(Core::Id)),
+            this, SLOT(clearTasks(Core::Id)));
+    connect(d->m_taskHub, SIGNAL(categoryVisibilityChanged(Core::Id,bool)),
+            this, SLOT(setCategoryVisibility(Core::Id,bool)));
     connect(d->m_taskHub, SIGNAL(popupRequested(bool)),
             this, SLOT(popup(bool)));
 }
@@ -324,7 +325,7 @@ QWidget *TaskWindow::outputWidget(QWidget *)
     return d->m_listview;
 }
 
-void TaskWindow::clearTasks(const QString &categoryId)
+void TaskWindow::clearTasks(const Core::Id &categoryId)
 {
     d->m_model->clearTasks(categoryId);
 
@@ -333,12 +334,12 @@ void TaskWindow::clearTasks(const QString &categoryId)
     navigateStateChanged();
 }
 
-void TaskWindow::setCategoryVisibility(const QString &categoryId, bool visible)
+void TaskWindow::setCategoryVisibility(const Core::Id &categoryId, bool visible)
 {
-    if (categoryId.isEmpty())
+    if (categoryId.uniqueIdentifier() == 0)
         return;
 
-    QStringList categories = d->m_filter->filteredCategories();
+    QList<Core::Id> categories = d->m_filter->filteredCategories();
 
     if (visible) {
         categories.removeOne(categoryId);
@@ -353,11 +354,11 @@ void TaskWindow::visibilityChanged(bool /* b */)
 {
 }
 
-void TaskWindow::addCategory(const QString &categoryId, const QString &displayName, bool visible)
+void TaskWindow::addCategory(const Core::Id &categoryId, const QString &displayName, bool visible)
 {
     d->m_model->addCategory(categoryId, displayName);
     if (!visible) {
-        QStringList filters = d->m_filter->filteredCategories();
+        QList<Core::Id> filters = d->m_filter->filteredCategories();
         filters += categoryId;
         d->m_filter->setFilteredCategories(filters);
     }
@@ -402,7 +403,7 @@ void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
     if (d->m_defaultHandler->canHandle(task)) {
         d->m_defaultHandler->handle(task);
     } else {
-        if (!QFileInfo(task.file).exists())
+        if (!task.file.toFileInfo().exists())
             d->m_model->setFileNotFound(index, true);
     }
 }
@@ -462,42 +463,42 @@ void TaskWindow::updateCategoriesMenu()
 {
     d->m_categoriesMenu->clear();
 
-    const QStringList filteredCategories = d->m_filter->filteredCategories();
+    const QList<Core::Id> filteredCategories = d->m_filter->filteredCategories();
 
-    QMap<QString, QString> nameToIds;
-    foreach (const QString &categoryId, d->m_model->categoryIds())
-        nameToIds.insert(d->m_model->categoryDisplayName(categoryId), categoryId);
+    QMap<QString, QByteArray> nameToIds;
+    foreach (const Core::Id &categoryId, d->m_model->categoryIds())
+        nameToIds.insert(d->m_model->categoryDisplayName(categoryId), categoryId.name());
 
     foreach (const QString &displayName, nameToIds.keys()) {
-        const QString categoryId = nameToIds.value(displayName);
+        const QByteArray categoryId = nameToIds.value(displayName);
         QAction *action = new QAction(d->m_categoriesMenu);
         action->setCheckable(true);
         action->setText(displayName);
         action->setData(categoryId);
-        action->setChecked(!filteredCategories.contains(categoryId));
+        action->setChecked(!filteredCategories.contains(Core::Id(categoryId.constData())));
         d->m_categoriesMenu->addAction(action);
     }
 }
 
 void TaskWindow::filterCategoryTriggered(QAction *action)
 {
-    QString categoryId = action->data().toString();
-    Q_ASSERT(!categoryId.isEmpty());
+    Core::Id categoryId(action->data().toByteArray().constData());
+    QTC_CHECK(categoryId.uniqueIdentifier() != 0);
 
     setCategoryVisibility(categoryId, action->isChecked());
 }
 
-int TaskWindow::taskCount(const QString &category) const
+int TaskWindow::taskCount(const Core::Id &category) const
 {
     return d->m_model->taskCount(category);
 }
 
-int TaskWindow::errorTaskCount(const QString &category) const
+int TaskWindow::errorTaskCount(const Core::Id &category) const
 {
     return d->m_model->errorTaskCount(category);
 }
 
-int TaskWindow::warningTaskCount(const QString &category) const
+int TaskWindow::warningTaskCount(const Core::Id &category) const
 {
     return d->m_model->warningTaskCount(category);
 }
@@ -511,7 +512,7 @@ void TaskWindow::clearContents()
 {
     // clear all tasks in all displays
     // Yeah we are that special
-    d->m_taskHub->clearTasks(QString());
+    d->m_taskHub->clearTasks();
 }
 
 bool TaskWindow::hasFocus() const

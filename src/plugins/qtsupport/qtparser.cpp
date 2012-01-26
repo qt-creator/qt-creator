@@ -60,9 +60,9 @@ void QtParser::stdError(const QString &line)
             lineno = -1;
         Task task(Task::Error,
                   m_mocRegExp.cap(5).trimmed(),
-                  m_mocRegExp.cap(1) /* filename */,
+                  Utils::FileName::fromUserInput(m_mocRegExp.cap(1)) /* filename */,
                   lineno,
-                  QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE));
+                  Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE));
         if (m_mocRegExp.cap(4) == QLatin1String("Warning"))
             task.type = Task::Warning;
         emit addTask(task);
@@ -125,8 +125,8 @@ void QtSupportPlugin::testQtOutputParser_data()
             << QString() << QString()
             << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
                                                        QLatin1String("No relevant classes found. No output generated."),
-                                                       QLatin1String("..\\untitled\\errorfile.h"), 0,
-                                                       QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
+                                                       Utils::FileName::fromUserInput("..\\untitled\\errorfile.h"), 0,
+                                                       Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
     QTest::newRow("moc warning 2")
             << QString::fromLatin1("c:\\code\\test.h(96): Warning: Property declaration ) has no READ accessor function. The property will be invalid.")
@@ -134,8 +134,8 @@ void QtSupportPlugin::testQtOutputParser_data()
             << QString() << QString()
             << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
                                                        QLatin1String("Property declaration ) has no READ accessor function. The property will be invalid."),
-                                                       QLatin1String("c:\\code\\test.h"), 96,
-                                                       QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
+                                                       Utils::FileName::fromUserInput("c:\\code\\test.h"), 96,
+                                                       Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
 }
 

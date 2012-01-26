@@ -137,16 +137,16 @@ bool MakeStep::init()
     if (!bc) {
         m_tasks.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
                                              tr("Qt Creator needs a buildconfiguration set up to build. Configure a tool chain in Project mode."),
-                                             QString(), -1,
-                                             QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                                             Utils::FileName(), -1,
+                                             Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         return false;
     }
 
     if (!bc->toolChain()) {
         m_tasks.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
                                              tr("Qt Creator needs a tool chain set up to build. Configure a tool chain in Project mode."),
-                                             QString(), -1,
-                                             QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                                             Utils::FileName(), -1,
+                                             Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
     }
 
     ProjectExplorer::ProcessParameters *pp = processParameters();

@@ -54,18 +54,18 @@ void QMakeParser::stdError(const QString &line)
         const QString description = lne.mid(15);
         emit addTask(Task(Task::Error,
                           description,
-                          QString() /* filename */,
+                          Utils::FileName() /* filename */,
                           -1 /* linenumber */,
-                          QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                          Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         return;
     }
     if (lne.startsWith(QLatin1String("Project WARNING:"))) {
         const QString description = lne.mid(17);
         emit addTask(Task(Task::Warning,
                           description,
-                          QString() /* filename */,
+                          Utils::FileName() /* filename */,
                           -1 /* linenumber */,
-                          QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                          Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         return;
     }
     if (m_error.indexIn(lne) > -1) {
@@ -79,9 +79,9 @@ void QMakeParser::stdError(const QString &line)
         }
         emit addTask(Task(type,
                           m_error.cap(3) /* description */,
-                          fileName,
+                          Utils::FileName::fromUserInput(fileName),
                           m_error.cap(2).toInt() /* line */,
-                          QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                          Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         return;
     }
     IOutputParser::stdError(line);
@@ -102,7 +102,7 @@ using namespace ProjectExplorer;
 
 void Qt4ProjectManagerPlugin::testQmakeOutputParsers_data()
 {
-    const QString categoryBuildSystem = QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+    const Core::Id categoryBuildSystem = Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
     QTest::addColumn<QString>("childStdOutLines");
@@ -129,7 +129,7 @@ void Qt4ProjectManagerPlugin::testQmakeOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Error,
                         QLatin1String("undefined file"),
-                        QString(), -1,
+                        Utils::FileName(), -1,
                         categoryBuildSystem))
             << QString();
 
@@ -140,7 +140,7 @@ void Qt4ProjectManagerPlugin::testQmakeOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Error,
                         QLatin1String("Parse Error ('sth odd')"),
-                        QLatin1String("e:\\project.pro"),
+                        Utils::FileName::fromUserInput("e:\\project.pro"),
                         14,
                         categoryBuildSystem))
             << QString();
@@ -152,7 +152,7 @@ void Qt4ProjectManagerPlugin::testQmakeOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Warning,
                         QLatin1String("bearer module might require ReadUserData capability"),
-                        QString(), -1,
+                        Utils::FileName(), -1,
                         categoryBuildSystem))
             << QString();
 
@@ -163,7 +163,7 @@ void Qt4ProjectManagerPlugin::testQmakeOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Warning,
                         QLatin1String("Unescaped backslashes are deprecated."),
-                        QLatin1String("e:\\NokiaQtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl"), 1,
+                        Utils::FileName::fromUserInput("e:\\NokiaQtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl"), 1,
                         categoryBuildSystem))
             << QString();
 }

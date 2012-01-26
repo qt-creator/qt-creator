@@ -122,7 +122,9 @@ public:
             }
             description = unescape(description);
 
-            hub->addTask(ProjectExplorer::Task(type, description, file, line, QLatin1String(Constants::TASKLISTTASK_ID)));
+            hub->addTask(ProjectExplorer::Task(type, description,
+                                               Utils::FileName::fromUserInput(file), line,
+                                               Core::Id(Constants::TASKLISTTASK_ID)));
         }
         return true;
     }
@@ -196,7 +198,7 @@ bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMess
     d->hub = pm->getObject<ProjectExplorer::TaskHub>();
 
     //: Category under which tasklist tasks are listed in Issues view
-    d->hub->addCategory(QLatin1String(Constants::TASKLISTTASK_ID), tr("My Tasks"));
+    d->hub->addCategory(Core::Id(Constants::TASKLISTTASK_ID), tr("My Tasks"));
 
     if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":tasklist/TaskList.mimetypes.xml"), errorMessage))
         return false;
@@ -228,7 +230,7 @@ void TaskListPlugin::stopMonitoring()
 
 void TaskListPlugin::clearTasks()
 {
-    d->hub->clearTasks(QLatin1String(Constants::TASKLISTTASK_ID));
+    d->hub->clearTasks(Core::Id(Constants::TASKLISTTASK_ID));
 }
 
 Q_EXPORT_PLUGIN(TaskListPlugin)

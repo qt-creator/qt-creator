@@ -510,8 +510,8 @@ void S60CreatePackageStep::reportPackageStepIssue(const QString &message, bool i
                                            ProjectExplorer::Task::Error:
                                            ProjectExplorer::Task::Warning,
                                        message,
-                                       QString(), -1,
-                                       QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                                       Utils::FileName(), -1,
+                                       Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
 }
 
 void S60CreatePackageStep::packageWarningDialogDone()

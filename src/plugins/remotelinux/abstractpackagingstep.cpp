@@ -172,8 +172,8 @@ void AbstractPackagingStep::setDeploymentInfoUnmodified()
 void AbstractPackagingStep::raiseError(const QString &errorMessage)
 {
     emit addOutput(errorMessage, BuildStep::ErrorOutput);
-    emit addTask(Task(Task::Error, errorMessage, QString(), -1,
-        Constants::TASK_CATEGORY_BUILDSYSTEM));
+    emit addTask(Task(Task::Error, errorMessage, Utils::FileName(), -1,
+                      Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
 }
 
 } // namespace RemoteLinux

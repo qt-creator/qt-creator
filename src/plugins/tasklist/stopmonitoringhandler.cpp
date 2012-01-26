@@ -57,7 +57,7 @@ StopMonitoringHandler::~StopMonitoringHandler()
 
 bool StopMonitoringHandler::canHandle(const ProjectExplorer::Task &task)
 {
-    return task.category == QLatin1String(Constants::TASKLISTTASK_ID);
+    return task.category == Core::Id(Constants::TASKLISTTASK_ID);
 }
 
 void StopMonitoringHandler::handle(const ProjectExplorer::Task &task)

@@ -66,8 +66,8 @@ void SbsV2Parser::stdOutput(const QString &line)
         QString logfile = QDir::fromNativeSeparators(line.mid(18).trimmed());
         parseLogFile(logfile);
         addTask(ProjectExplorer::Task(Task::Unknown, tr("SBSv2 build log"),
-                                      logfile, -1,
-                                      QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                                      Utils::FileName::fromUserInput(logfile), -1,
+                                      Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
     }
 }
 
@@ -81,14 +81,15 @@ void SbsV2Parser::taskAdded(const ProjectExplorer::Task &task)
 {
     // Fix pathes:
     ProjectExplorer::Task tmp(task);
+    const QString filename = tmp.file.toString();
 
     if (!tmp.file.isEmpty()) {
-        QFileInfo fi(tmp.file);
+        QFileInfo fi(tmp.file.toFileInfo());
         if (!fi.isAbsolute()) {
-            if (m_currentSource.exists(tmp.file))
-                tmp.file = m_currentSource.absoluteFilePath(tmp.file);
-            else if (m_currentTarget.exists(tmp.file))
-                tmp.file = m_currentTarget.absoluteFilePath(tmp.file);
+            if (m_currentSource.exists(filename))
+                tmp.file = Utils::FileName::fromString(m_currentSource.absoluteFilePath(filename));
+            else if (m_currentTarget.exists(filename))
+                tmp.file = Utils::FileName::fromString(m_currentTarget.absoluteFilePath(filename));
         }
     }
 
@@ -132,7 +133,7 @@ void SbsV2Parser::readError()
     Q_ASSERT(m_log.isStartElement() && m_log.name() == QLatin1String("error"));
 
     QString error = m_log.readElementText();
-    addTask(Task(Task::Error, error, QString(), -1, QLatin1String(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+    addTask(Task(Task::Error, error, Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
 }
 
 void SbsV2Parser::readWarning()
@@ -140,7 +141,7 @@ void SbsV2Parser::readWarning()
     Q_ASSERT(m_log.isStartElement() && m_log.name() == QLatin1String("warning"));
 
     QString warning = m_log.readElementText();
-    addTask(Task(Task::Warning, warning, QString(), -1, QLatin1String(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+    addTask(Task(Task::Warning, warning, Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
 }
 
 void SbsV2Parser::readRecipe()
@@ -186,10 +187,10 @@ void SbsV2Parser::readRecipe()
     if (returnCode != 0) {
         //: %1 is the SBSv2 build recipe name, %2 the return code of the failed command
         QString description = tr("Recipe %1 failed with exit code %2.").arg(name).arg(returnCode);
-        m_hub->addTask(Task(Task::Error, description, QString(), -1,
-                            QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
-        m_hub->addTask(Task(Task::Unknown, outputText, QString(), -1,
-                            QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+        m_hub->addTask(Task(Task::Error, description, Utils::FileName(), -1,
+                            Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+        m_hub->addTask(Task(Task::Unknown, outputText, Utils::FileName(), -1,
+                            Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
     }
 }
 
@@ -230,8 +231,8 @@ void Qt4ProjectManagerPlugin::testSbsV2OutputParsers_data()
             << QString() << QString()
             << (QList<ProjectExplorer::Task>()
                     << ProjectExplorer::Task(Task::Unknown, QLatin1String("SBSv2 build log"),
-                                             QLatin1String("X:/epoc32/build/Makefile.2010-08-10-15-25-52.log"), -1,
-                                             QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)))
+                                             Utils::FileName::fromUserInput("X:/epoc32/build/Makefile.2010-08-10-15-25-52.log"), -1,
+                                             Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)))
             << QString();
 }
 

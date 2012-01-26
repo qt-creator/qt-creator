@@ -68,9 +68,9 @@ void RvctParser::stdError(const QString &line)
 
         m_task = new Task(Task::Error,
                           m_genericProblem.cap(2) /* description */,
-                          QString(),
+                          Utils::FileName(),
                           -1 /* linenumber */,
-                          QLatin1String(TASK_CATEGORY_COMPILE));
+                          Core::Id(TASK_CATEGORY_COMPILE));
         if (m_warningOrError.cap(4) == QLatin1String("Warning"))
             m_task->type = Task::Warning;
         else if (m_warningOrError.cap(4) == QLatin1String("Error"))
@@ -83,9 +83,9 @@ void RvctParser::stdError(const QString &line)
 
        m_task = new Task(Task::Unknown,
                          m_warningOrError.cap(5) /* description */,
-                         m_warningOrError.cap(1) /* file */,
+                         Utils::FileName::fromUserInput(m_warningOrError.cap(1)) /* file */,
                          m_warningOrError.cap(2).toInt() /* line */,
-                         QLatin1String(TASK_CATEGORY_COMPILE));
+                         Core::Id(TASK_CATEGORY_COMPILE));
        if (m_warningOrError.cap(4) == QLatin1String("Warning"))
            m_task->type = Task::Warning;
        else if (m_warningOrError.cap(4) == QLatin1String("Error"))
@@ -152,7 +152,7 @@ void Qt4ProjectManagerPlugin::testRvctOutputParser_data()
     QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
     QTest::addColumn<QString>("outputLines");
 
-    const QString categoryCompile = QLatin1String(Constants::TASK_CATEGORY_COMPILE);
+    const Core::Id categoryCompile = Core::Id(Constants::TASK_CATEGORY_COMPILE);
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
             << QString::fromLatin1("Sometext\n") << QString()
@@ -175,7 +175,7 @@ void Qt4ProjectManagerPlugin::testRvctOutputParser_data()
                         QLatin1String("#68-D: integer conversion resulted in a change of sign\n"
                                       "  : public _Integer_limits<char, CHAR_MIN, CHAR_MAX, -1, true>\n"
                                       "                                 ^"),
-                        QLatin1String("../../../../s60-sdk/epoc32/include/stdapis/stlport/stl/_limits.h"), 256,
+                        Utils::FileName::fromUserInput("../../../../s60-sdk/epoc32/include/stdapis/stlport/stl/_limits.h"), 256,
                         categoryCompile)
                 )
             << QString();
@@ -190,7 +190,7 @@ void Qt4ProjectManagerPlugin::testRvctOutputParser_data()
                         QLatin1String("#20: identifier \"e\" is undefined\n"
                                       "    delete ui;e\n"
                                       "              ^"),
-                        QLatin1String("mainwindow.cpp"), 22,
+                        Utils::FileName::fromUserInput("mainwindow.cpp"), 22,
                         categoryCompile)
                 )
             << QString();
@@ -201,7 +201,7 @@ void Qt4ProjectManagerPlugin::testRvctOutputParser_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Error,
                         QLatin1String("L6218E: Undefined symbol MainWindow::sth() (referred from mainwindow.o)"),
-                        QString(), -1,
+                        Utils::FileName(), -1,
                         categoryCompile)
                 )
             << QString();
@@ -232,7 +232,7 @@ void Qt4ProjectManagerPlugin::testRvctOutputParser_data()
                                       "FLEXnet Licensing error:-1,359.  System Error: 2 \"No such file or directory\"\n"
                                       "For further information, refer to the FLEXnet Licensing End User Guide,\n"
                                       "available at \"www.macrovision.com\"."),
-                        QString(), -1,
+                        Utils::FileName(), -1,
                         categoryCompile)
                 )
             << QString();

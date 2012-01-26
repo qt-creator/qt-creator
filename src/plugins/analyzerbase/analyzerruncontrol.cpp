@@ -118,7 +118,7 @@ void AnalyzerRunControl::start()
     // clear about-to-be-outdated tasks
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     TaskHub *hub = pm->getObject<TaskHub>();
-    hub->clearTasks(QLatin1String(Constants::ANALYZERTASK_ID));
+    hub->clearTasks(Core::Id(Constants::ANALYZERTASK_ID));
 
     if (d->m_engine->start()) {
         d->m_isRunning = true;
@@ -179,7 +179,8 @@ void AnalyzerRunControl::addTask(Task::TaskType type, const QString &description
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     TaskHub *hub = pm->getObject<TaskHub>();
-    hub->addTask(Task(type, description, file, line, QLatin1String(Constants::ANALYZERTASK_ID)));
+    hub->addTask(Task(type, description, Utils::FileName::fromUserInput(file), line,
+                      Core::Id(Constants::ANALYZERTASK_ID)));
     hub->popup(false);
 }
 

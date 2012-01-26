@@ -371,7 +371,7 @@ void AbstractProcessStep::taskAdded(const ProjectExplorer::Task &task)
         return;
 
     Task editable(task);
-    QString filePath = QDir::cleanPath(task.file.trimmed());
+    QString filePath = task.file.toString();
     if (!filePath.isEmpty() && !QDir::isAbsolutePath(filePath)) {
         // We have no save way to decide which file in which subfolder
         // is meant. Therefore we apply following heuristics:
@@ -388,7 +388,7 @@ void AbstractProcessStep::taskAdded(const ProjectExplorer::Task &task)
         }
 
         if (possibleFiles.count() == 1) {
-            editable.file = possibleFiles.first().filePath();
+            editable.file = Utils::FileName(possibleFiles.first());
         } else {
             // More then one filename, so do a better compare
             // Chop of any "../"
@@ -403,7 +403,7 @@ void AbstractProcessStep::taskAdded(const ProjectExplorer::Task &task)
                 }
             }
             if (count == 1)
-                editable.file = possibleFilePath;
+                editable.file = Utils::FileName::fromString(possibleFilePath);
             else
                 qWarning() << "Could not find absolute location of file " << filePath;
         }

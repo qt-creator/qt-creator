@@ -33,6 +33,7 @@
 #ifndef TASKWINDOW_H
 #define TASKWINDOW_H
 
+#include <coreplugin/id.h>
 #include <coreplugin/ioutputpane.h>
 
 QT_BEGIN_NAMESPACE
@@ -57,9 +58,9 @@ public:
     TaskWindow(ProjectExplorer::TaskHub *taskHub);
     virtual ~TaskWindow();
 
-    int taskCount(const QString &category = QString()) const;
-    int warningTaskCount(const QString &category = QString()) const;
-    int errorTaskCount(const QString &category = QString()) const;
+    int taskCount(const Core::Id &category = Core::Id()) const;
+    int warningTaskCount(const Core::Id &category = Core::Id()) const;
+    int errorTaskCount(const Core::Id &category = Core::Id()) const;
 
     // IOutputPane
     QWidget *outputWidget(QWidget *);
@@ -85,11 +86,11 @@ signals:
     void tasksCleared();
 
 private slots:
-    void addCategory(const QString &categoryId, const QString &displayName, bool visible);
+    void addCategory(const Core::Id &categoryId, const QString &displayName, bool visible);
     void addTask(const ProjectExplorer::Task &task);
     void removeTask(const ProjectExplorer::Task &task);
-    void clearTasks(const QString &categoryId);
-    void setCategoryVisibility(const QString &categoryId, bool visible);
+    void clearTasks(const Core::Id &categoryId);
+    void setCategoryVisibility(const Core::Id &categoryId, bool visible);
 
     void triggerDefaultHandler(const QModelIndex &index);
     void showContextMenu(const QPoint &position);

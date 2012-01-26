@@ -73,9 +73,9 @@ void LinuxIccParser::stdError(const QString &line)
     if (m_expectFirstLine  && m_firstLine.indexIn(line) != -1) {
         // Clear out old task
         m_temporary = ProjectExplorer::Task(Task::Unknown, m_firstLine.cap(6).trimmed(),
-                                            m_firstLine.cap(1),
+                                            Utils::FileName::fromUserInput(m_firstLine.cap(1)),
                                             m_firstLine.cap(2).toInt(),
-                                            QLatin1String(Constants::TASK_CATEGORY_COMPILE));
+                                            Core::Id(Constants::TASK_CATEGORY_COMPILE));
         QString category = m_firstLine.cap(4);
         if (category == QLatin1String("error"))
             m_temporary.type = Task::Error;
@@ -126,8 +126,6 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
     QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
     QTest::addColumn<QString>("outputLines");
 
-    const QString categoryCompile = QLatin1String(Constants::TASK_CATEGORY_COMPILE);
-
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
             << QString::fromLatin1("Sometext\n") << QString()
@@ -149,8 +147,8 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Error,
                         QLatin1String("identifier \"f\" is undefined\nf(0);"),
-                        QLatin1String("main.cpp"), 13,
-                        categoryCompile))
+                        Utils::FileName::fromUserInput("main.cpp"), 13,
+                        Core::Id(Constants::TASK_CATEGORY_COMPILE)))
             << QString();
 
     QTest::newRow("private function")
@@ -163,8 +161,8 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Error,
                         QLatin1String("function \"AClass::privatefunc\" (declared at line 4 of \"main.h\") is inaccessible\nb.privatefunc();"),
-                        QLatin1String("main.cpp"), 53,
-                        categoryCompile))
+                        Utils::FileName::fromUserInput("main.cpp"), 53,
+                        Core::Id(Constants::TASK_CATEGORY_COMPILE)))
             << QString();
 
     QTest::newRow("simple warning")
@@ -177,8 +175,8 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Warning,
                         QLatin1String("use of \"=\" where \"==\" may have been intended\nwhile (a = true)"),
-                        QLatin1String("main.cpp"), 41,
-                        categoryCompile))
+                        Utils::FileName::fromUserInput("main.cpp"), 41,
+                        Core::Id(Constants::TASK_CATEGORY_COMPILE)))
             << QString();
 }
 

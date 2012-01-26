@@ -195,8 +195,8 @@ void S60DeployStep::reportError(const QString &error)
     emit addOutput(error, ProjectExplorer::BuildStep::ErrorMessageOutput);
     emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
                                        error,
-                                       QString(), -1,
-                                       QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                                       Utils::FileName(), -1,
+                                       Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
     emit finished(false);
 }
 
@@ -604,8 +604,8 @@ void S60DeployStep::checkForCancel()
         appendMessage(canceledText, true);
         emit addTask(ProjectExplorer::Task(ProjectExplorer::Task::Error,
                                            canceledText,
-                                           QString(), -1,
-                                           QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                                           Utils::FileName(), -1,
+                                           Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         emit finishNow(false);
     }
 }

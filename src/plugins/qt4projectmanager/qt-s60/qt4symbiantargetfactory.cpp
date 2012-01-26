@@ -153,7 +153,7 @@ QList<ProjectExplorer::Task> Qt4SymbianTargetFactory::reportIssues(const QString
                             QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
                                                         "The Symbian tool chain does not handle spaces "
                                                         "in the project path '%1'.").arg(projectPath),
-                            QString(), -1, QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                            Utils::FileName(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
     }
     if (projectName.contains(QRegExp(QLatin1String("[^a-zA-Z0-9.-]")))) {
         results.append(Task(Task::Warning,
@@ -161,7 +161,7 @@ QList<ProjectExplorer::Task> Qt4SymbianTargetFactory::reportIssues(const QString
                                                         "The Symbian tool chain does not handle special "
                                                         "characters in the project name '%1' well.")
                             .arg(projectName),
-                            QString(), -1, QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                            Utils::FileName(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
     }
     return results;
 }
