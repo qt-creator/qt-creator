@@ -276,10 +276,10 @@
             \o Ctrl+J
         \row
             \o Insert line above current line
-            \o Ctrl+Shift+Return
+            \o Ctrl+Shift+Enter
         \row
             \o Insert line below current line
-            \o Ctrl+Return
+            \o Ctrl+Enter
         \row
             \o Decrease font size
             \o Ctrl+- (Ctrl+Roll mouse wheel down)
@@ -327,7 +327,7 @@
             \o Ctrl+Shift+Up
         \row
             \o Trigger a refactoring action in this scope
-            \o Alt+Return
+            \o Alt+Enter
         \row
             \o Rewrap paragraph
             \o Ctrl+E, R
