@@ -40,7 +40,7 @@ BazaarAnnotationHighlighter::BazaarAnnotationHighlighter(const ChangeNumbers &ch
                                                          const QColor &bg,
                                                          QTextDocument *document)
     : VcsBase::BaseAnnotationHighlighter(changeNumbers, bg, document),
-      m_changeset(QLatin1String(Constants::CHANGESET_ID))
+      m_changeset(QLatin1String(Constants::ANNOTATE_CHANGESET_ID))
 {
 }
 

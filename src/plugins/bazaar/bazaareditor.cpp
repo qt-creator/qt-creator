@@ -55,6 +55,7 @@ using namespace Bazaar;
 
 BazaarEditor::BazaarEditor(const VcsBase::VcsBaseEditorParameters *type, QWidget *parent)
     : VcsBase::VcsBaseEditorWidget(type, parent),
+      m_changesetId(QLatin1String(Constants::CHANGESET_ID)),
       m_exactChangesetId(QLatin1String(Constants::CHANGESET_ID_EXACT)),
       m_diffFileId(QLatin1String("^=== [a-z]+ [a-z]+ '(.*)'\\s*"))
 {
@@ -86,12 +87,30 @@ QSet<QString> BazaarEditor::annotationChanges() const
 
 QString BazaarEditor::changeUnderCursor(const QTextCursor &cursorIn) const
 {
+    // The test is done in two steps: first we check if the line contains a
+    // changesetId. Then we check if the cursor is over the changesetId itself
+    // and not over "revno" or another part of the line.
+    // The two steps are necessary because matching only for the changesetId
+    // leads to many false-positives (a regex like "[0-9]+" matches a lot of text).
+    const int cursorCol = cursorIn.columnNumber();
     QTextCursor cursor = cursorIn;
-    cursor.select(QTextCursor::WordUnderCursor);
+    cursor.select(QTextCursor::LineUnderCursor);
     if (cursor.hasSelection()) {
-        const QString change = cursor.selectedText();
-        if (m_exactChangesetId.exactMatch(change))
-            return change;
+        const QString line = cursor.selectedText();
+        const int start = m_changesetId.indexIn(line);
+        if (start > -1) {
+            const QString match = m_changesetId.cap(0);
+            const int stop = start + match.length();
+            if (start <= cursorCol && cursorCol <= stop) {
+                cursor = cursorIn;
+                cursor.select(QTextCursor::WordUnderCursor);
+                if (cursor.hasSelection()) {
+                    const QString change = cursor.selectedText();
+                    if (m_exactChangesetId.exactMatch(change))
+                        return change;
+                }
+            }
+        }
     }
     return QString();
 }

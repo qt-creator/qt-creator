@@ -54,6 +54,7 @@ private:
     virtual VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes, const QColor &bg) const;
     virtual QString fileNameFromDiffSpecification(const QTextBlock &diffFileSpec) const;
 
+    const QRegExp m_changesetId;
     const QRegExp m_exactChangesetId;
     const QRegExp m_diffFileId;
 };

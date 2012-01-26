@@ -41,8 +41,13 @@ const char BAZAARREPO[] = ".bzr";
 const char BAZAARDEFAULT[] = "bzr";
 
 // Changeset identifiers
-const char CHANGESET_ID[] = "([0-9]+)"; // match and capture
-const char CHANGESET_ID_EXACT[] = "[0-9]+"; // match
+const char CHANGESET_ID[] = "^("
+                            "revno: [.0-9]+" // detailed
+                            "| +[.0-9]+"     // short
+                            "|[.0-9]+: "     // line
+                            ")";
+const char CHANGESET_ID_EXACT[] = "([.0-9]+)";
+const char ANNOTATE_CHANGESET_ID[] = "([.0-9]+)";
 
 // Base editor parameters
 const char COMMANDLOG_ID[] = "Bazaar Command Log Editor";
