@@ -330,7 +330,7 @@ QMenuBar *ActionContainerPrivate::menuBar() const
 
 bool ActionContainerPrivate::canAddAction(Command *action) const
 {
-    return (action->action() != 0);
+    return action && action->action();
 }
 
 void ActionContainerPrivate::scheduleUpdate()

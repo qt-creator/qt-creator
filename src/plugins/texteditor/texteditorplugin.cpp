@@ -163,13 +163,16 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     m_outlineFactory = new OutlineFactory;
     addAutoReleasedObject(m_outlineFactory);
 
+    // We have to initialize the actions because other plugins that
+    // depend upon the texteditorplugin expect that actions will be
+    // registered in the action manager at plugin initialization time.
+    m_editorFactory->actionHandler()->initializeActions();
+
     return true;
 }
 
 void TextEditorPlugin::extensionsInitialized()
 {
-    m_editorFactory->actionHandler()->initializeActions();
-
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
 
     m_searchResultWindow = Find::SearchResultWindow::instance();
