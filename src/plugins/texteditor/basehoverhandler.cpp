@@ -113,7 +113,7 @@ void BaseHoverHandler::appendToolTip(const QString &extension)
 void BaseHoverHandler::addF1ToToolTip()
 {
     m_toolTip = QString(QLatin1String("<table><tr><td valign=middle>%1</td><td>&nbsp;&nbsp;"
-                                      "<img src=\":/cppeditor/images/f1.png\"></td>"
+                                      "<img src=\":/texteditor/images/f1.png\"></td>"
                                       "</tr></table>")).arg(m_toolTip);
 }
 
