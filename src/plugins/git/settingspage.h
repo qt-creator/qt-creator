@@ -59,9 +59,6 @@ public:
 
     QString searchKeywords() const;
 
-private slots:
-    void setSystemPath();
-
 private:
     Ui::SettingsPage m_ui;
 };

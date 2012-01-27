@@ -1408,8 +1408,12 @@ QProcessEnvironment GitClient::processEnvironment() const
 {
 
     QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
-    if (settings()->boolValue(GitSettings::adoptPathKey))
-        environment.insert(QLatin1String("PATH"), settings()->stringValue(GitSettings::pathKey));
+    QString gitPath = settings()->stringValue(GitSettings::pathKey);
+    if (!gitPath.isEmpty()) {
+        gitPath += Utils::SynchronousProcess::pathSeparator();
+        gitPath += environment.value(QLatin1String("PATH"));
+        environment.insert(QLatin1String("PATH"), gitPath);
+    }
 #ifdef Q_OS_WIN
     if (settings()->boolValue(GitSettings::winSetHomeEnvironmentKey))
         environment.insert(QLatin1String("HOME"), QDir::toNativeSeparators(QDir::homePath()));
@@ -1620,7 +1624,7 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
     // This should always use QProcess::startDetached (as not to kill
     // the child), but that does not have an environment parameter.
     bool success = false;
-    if (settings()->boolValue(GitSettings::adoptPathKey)) {
+    if (!settings()->stringValue(GitSettings::pathKey).isEmpty()) {
         QProcess *process = new QProcess(this);
         process->setWorkingDirectory(workingDirectory);
         process->setProcessEnvironment(env);

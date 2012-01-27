@@ -39,7 +39,6 @@
 namespace Git {
 namespace Internal {
 
-const QLatin1String GitSettings::adoptPathKey("SysEnv");
 const QLatin1String GitSettings::pathKey("Path");
 const QLatin1String GitSettings::pullRebaseKey("PullRebase");
 const QLatin1String GitSettings::omitAnnotationDateKey("OmitAnnotationDate");
@@ -61,7 +60,6 @@ GitSettings::GitSettings()
 #else
     declareKey(timeoutKey, 30);
 #endif
-    declareKey(adoptPathKey, false);
     declareKey(pathKey, QString());
     declareKey(pullRebaseKey, false);
     declareKey(omitAnnotationDateKey, false);
@@ -87,7 +85,7 @@ QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const
         const QString binary = stringValue(binaryPathKey);
         QString currentPath = stringValue(pathKey);
         // Easy, git is assumed to be elsewhere accessible
-        if (!boolValue(adoptPathKey))
+        if (currentPath.isEmpty())
             currentPath = QString::fromLocal8Bit(qgetenv("PATH"));
         // Search in path?
         m_binaryPath = Utils::SynchronousProcess::locateBinary(currentPath, binary);

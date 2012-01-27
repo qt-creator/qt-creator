@@ -52,7 +52,6 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     QWidget(parent)
 {
     m_ui.setupUi(this);
-    connect(m_ui.adoptButton, SIGNAL(clicked()), this, SLOT(setSystemPath()));
 #ifdef Q_OS_WIN
     const QByteArray currentHome = qgetenv("HOME");
     const QString toolTip
@@ -72,8 +71,6 @@ GitSettings SettingsPageWidget::settings() const
 {
     GitSettings rc;
     rc.setValue(GitSettings::pathKey, m_ui.pathLineEdit->text());
-    rc.setValue(GitSettings::adoptPathKey, m_ui.environmentGroupBox->isChecked()
-                                           && !rc.stringValue(GitSettings::pathKey).isEmpty());
     rc.setValue(GitSettings::logCountKey, m_ui.logCountSpinBox->value());
     rc.setValue(GitSettings::timeoutKey, m_ui.timeoutSpinBox->value());
     rc.setValue(GitSettings::pullRebaseKey, m_ui.pullRebaseCheckBox->isChecked());
@@ -85,7 +82,6 @@ GitSettings SettingsPageWidget::settings() const
 
 void SettingsPageWidget::setSettings(const GitSettings &s)
 {
-    m_ui.environmentGroupBox->setChecked(s.boolValue(GitSettings::adoptPathKey));
     m_ui.pathLineEdit->setText(s.stringValue(GitSettings::pathKey));
     m_ui.logCountSpinBox->setValue(s.intValue(GitSettings::logCountKey));
     m_ui.timeoutSpinBox->setValue(s.intValue(GitSettings::timeoutKey));
@@ -95,17 +91,11 @@ void SettingsPageWidget::setSettings(const GitSettings &s)
     m_ui.gitkOptionsLineEdit->setText(s.stringValue(GitSettings::gitkOptionsKey));
 }
 
-void SettingsPageWidget::setSystemPath()
-{
-    m_ui.pathLineEdit->setText(QLatin1String(qgetenv("PATH")));
-}
-
 QString SettingsPageWidget::searchKeywords() const
 {
     QString rc;
     QLatin1Char sep(' ');
     QTextStream(&rc)
-            << sep << m_ui.environmentGroupBox->title()
             << sep << m_ui.pathlabel->text()
             << sep << m_ui.winHomeCheckBox->text()
             << sep << m_ui.groupBox->title()

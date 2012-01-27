@@ -46,7 +46,6 @@ class GitSettings : public VcsBase::VcsBaseClientSettings
 public:
     GitSettings();
 
-    static const QLatin1String adoptPathKey;
     static const QLatin1String pathKey;
     static const QLatin1String pullRebaseKey;
     static const QLatin1String omitAnnotationDateKey;

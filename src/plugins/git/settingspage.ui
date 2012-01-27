@@ -12,33 +12,23 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="environmentGroupBox">
+    <widget class="QGroupBox" name="configurationGroupBox">
      <property name="enabled">
       <bool>true</bool>
      </property>
      <property name="title">
-      <string>Customize Environment:</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
+      <string>Configuration</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
        <widget class="QLabel" name="pathlabel">
         <property name="text">
-         <string>PATH:</string>
+         <string>Prepend to PATH:</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
        <widget class="QLineEdit" name="pathLineEdit"/>
-      </item>
-      <item row="0" column="2">
-       <widget class="QPushButton" name="adoptButton">
-        <property name="text">
-         <string>From System</string>
-        </property>
-       </widget>
       </item>
       <item row="1" column="0" colspan="3">
        <widget class="QCheckBox" name="winHomeCheckBox">
