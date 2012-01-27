@@ -23,11 +23,21 @@ def openCmakeProject(projectPath, buildDir):
                          "window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}", buildDir)
     clickButton(waitForObject(":CMake Wizard.Next_QPushButton", 20000))
     generatorCombo = waitForObject(":Generator:_QComboBox")
-    index = generatorCombo.findText("MinGW Generator (MinGW from SDK)")
-    if index == -1:
-        index = generatorCombo.findText("NMake Generator (Microsoft Visual C++ Compiler 9.0 (x86))")
-    if index != -1:
-        generatorCombo.setCurrentIndex(index)
+    mkspec = __getMkspecFromQmake__("qmake")
+    test.log("Using mkspec '%s'" % mkspec)
+
+    if "win32-" in mkspec:
+        generatorName = {"win32-g++" : "MinGW Generator (MinGW from SDK)",
+                         "win32-msvc2008" : "NMake Generator (Microsoft Visual C++ Compiler 9.0 (x86))",
+                         "win32-msvc2010" : "NMake Generator (Microsoft Visual C++ Compiler 10.0 (x86))"}
+        index = -1
+        if mkspec in generatorName:
+            index = generatorCombo.findText(generatorName[mkspec])
+        if index == -1:
+            test.warning("No matching CMake generator for mkspec '%s' found." % mkspec)
+        else:
+            generatorCombo.setCurrentIndex(index)
+
     clickButton(waitForObject(":CMake Wizard.Run CMake_QPushButton", 20000))
     try:
         clickButton(waitForObject(":CMake Wizard.Finish_QPushButton", 60000))

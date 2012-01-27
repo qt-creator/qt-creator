@@ -59,9 +59,7 @@ def modifyRunSettingsForHookIntoQtQuickUI(projectName, port):
     currentQtVersion = qtVersionCombo.currentText
     qmake = getQMakeFromQtVersion(currentQtVersion)
     if qmake != None:
-        mkspec = getOutputFromCmdline("%s -query QMAKE_MKSPECS" % qmake).strip()
-        mkspec = mkspec + os.sep + "default" + os.sep + "qmake.conf"
-        mkspec = __getMkspecFromQMakeConf__(mkspec)
+        mkspec = __getMkspecFromQmake__(qmake)
         if mkspec != None:
             qtVer = getOutputFromCmdline("%s -query QT_VERSION" % qmake).strip()
             squishPath = getSquishPath(mkspec, qtVer)
@@ -146,6 +144,11 @@ def __getMkspecFromQMakeConf__(qmakeConf):
         test.warning("Could not determine mkspec from '%s'" % qmakeConf)
         return None
     return os.path.basename(mkspec)
+
+def __getMkspecFromQmake__(qmakeCall):
+    QmakeConfPath = getOutputFromCmdline("%s -query QMAKE_MKSPECS" % qmakeCall).strip()
+    QmakeConfPath = QmakeConfPath + os.sep + "default" + os.sep + "qmake.conf"
+    return __getMkspecFromQMakeConf__(QmakeConfPath).strip()
 
 def getQMakeFromQtVersion(qtVersion):
     invokeMenuItem("Tools", "Options...")
