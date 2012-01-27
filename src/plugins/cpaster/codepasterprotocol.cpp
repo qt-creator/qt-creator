@@ -102,7 +102,7 @@ void CodePasterProtocol::fetch(const QString &id)
     QTC_ASSERT(!m_fetchReply, return; )
 
     QString hostName = m_page->hostName();
-    const QString httpPrefix = "http://";
+    const QString httpPrefix = QLatin1String("http://");
     QString link;
     // Did the user enter a complete URL instead of an id?
     if (id.startsWith(httpPrefix)) {
@@ -114,7 +114,7 @@ void CodePasterProtocol::fetch(const QString &id)
     } else {
         link = httpPrefix;
         link.append(hostName);
-        link.append("/?format=raw&id=");
+        link.append(QLatin1String("/?format=raw&id="));
         link.append(id);
         m_fetchId = id;
     }
@@ -193,10 +193,10 @@ void CodePasterProtocol::fetchFinished()
     if (error) {
         content = m_fetchReply->errorString();
     } else {
-        content = m_fetchReply->readAll();
+        content = QString::fromAscii(m_fetchReply->readAll()); // Codepaster does not support special characters.
         if (debug)
             qDebug() << content;
-        if (content.contains("<B>No such paste!</B>")) {
+        if (content.contains(QLatin1String("<B>No such paste!</B>"))) {
             content = tr("No such paste");
             error = true;
         }

@@ -34,25 +34,24 @@
 
 #include <QtCore/QRegExp>
 
-FileDataList splitDiffToFiles(const QByteArray &data)
+FileDataList splitDiffToFiles(const QString &strData)
 {
     FileDataList ret;
-    QString strData = data;
     QString splitExpression;
 
-    if (data.contains("==== ") && data.contains(" ====\n")) {
+    if (strData.contains(QLatin1String("==== ")) && strData.contains(QLatin1String(" ====\n"))) {
         // Perforce diff
-        splitExpression = "==== ([^\\n\\r]+) - ([^\\n\\r]+) ====";
+        splitExpression = QLatin1String("==== ([^\\n\\r]+) - ([^\\n\\r]+) ====");
 
-    } else if (data.contains("--- ") && data.contains("\n+++ ")) {
+    } else if (strData.contains(QLatin1String("--- ")) && strData.contains(QLatin1String("\n+++ "))) {
         // Unified contextual diff
-        splitExpression = "\\-\\-\\- ([^\\n\\r]*)"
-                          "\\n\\+\\+\\+ ([^\\n\\r]*)";
+        splitExpression = QLatin1String("\\-\\-\\- ([^\\n\\r]*)"
+                          "\\n\\+\\+\\+ ([^\\n\\r]*)");
 
-    } else if (data.contains("*** ") && data.contains("\n--- ")) {
+    } else if (strData.contains(QLatin1String("*** ")) && strData.contains(QLatin1String("\n--- "))) {
         // Copied contextual diff
-        splitExpression = "\\*\\*\\* ([^\\n\\r]*) [0-9\\-]* [0-9:\\.]*[^\\n\\r]*"
-                          "\\n\\-\\-\\- ([^\\n\\r]*) [0-9\\-]* [0-9:\\.]*[^\\n\\r]*";
+        splitExpression = QLatin1String("\\*\\*\\* ([^\\n\\r]*) [0-9\\-]* [0-9:\\.]*[^\\n\\r]*"
+                          "\\n\\-\\-\\- ([^\\n\\r]*) [0-9\\-]* [0-9:\\.]*[^\\n\\r]*");
 
     } else {
         return FileDataList();
@@ -60,7 +59,7 @@ FileDataList splitDiffToFiles(const QByteArray &data)
 
     int splitIndex = 0, previousSplit = -1;
     QRegExp splitExpr(splitExpression);
-    QString filename, content;
+    QString filename;
     // The algorithm works like this:
     // On the first match we only get the filename of the first patch part
     // On the second match (if any) we get the diff content, and the name of the next file patch
@@ -68,7 +67,7 @@ FileDataList splitDiffToFiles(const QByteArray &data)
     while (-1 != (splitIndex = splitExpr.indexIn(strData,splitIndex))) {
         if (!filename.isEmpty()) {
             QString content = strData.mid(previousSplit, splitIndex - previousSplit);
-            ret.append(FileData(filename, content.toLatin1()));
+            ret.append(FileData(filename, content));
         }
 
         // If the first index in not at the beginning of the file, then we know there's content
@@ -76,7 +75,7 @@ FileDataList splitDiffToFiles(const QByteArray &data)
         // a 'fake' filename.
         if (previousSplit == -1 && splitIndex > 0 && filename.isEmpty()) {
             QString content = strData.left(splitIndex);
-            ret.append(FileData("<Header information>", content.toLatin1()));
+            ret.append(FileData(QLatin1String("<Header information>"), content));
         }
 
         filename = splitExpr.cap(1);
@@ -85,8 +84,8 @@ FileDataList splitDiffToFiles(const QByteArray &data)
     }
     // Append the last patch content
     if (!filename.isEmpty()) {
-        QString content = strData.mid(previousSplit);
-        ret.append(FileData(filename, content.toLatin1()));
+        const QString content = strData.mid(previousSplit);
+        ret.append(FileData(filename, content));
     }
 
     return ret;

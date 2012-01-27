@@ -49,7 +49,7 @@ ColumnIndicatorTextEdit::ColumnIndicatorTextEdit(QWidget *parent) :
     setSizePolicy(sizePolicy);
     int cmx = 0, cmy = 0, cmw = 0, cmh = 0;
     getContentsMargins(&cmx, &cmy, &cmw, &cmh);
-    m_columnIndicator = QFontMetrics(font).width('W') * 100 + cmx + 1;
+    m_columnIndicator = QFontMetrics(font).width(QLatin1Char('W')) * 100 + cmx + 1;
     m_columnIndicatorFont.setFamily(QString::fromUtf8("Times"));
     m_columnIndicatorFont.setPointSizeF(7.0);
 }
@@ -63,7 +63,7 @@ void ColumnIndicatorTextEdit::paintEvent(QPaintEvent *event)
     p.setPen(QPen(QColor(0xa0, 0xa0, 0xa0, 0xa0)));
     p.drawLine(m_columnIndicator, 0, m_columnIndicator, viewport()->height());
     int yOffset = verticalScrollBar()->value();
-    p.drawText(m_columnIndicator + 1, m_columnIndicatorFont.pointSize() - yOffset, "100");
+    p.drawText(m_columnIndicator + 1, m_columnIndicatorFont.pointSize() - yOffset, QLatin1String("100"));
 }
 
 } // namespace CodePaster

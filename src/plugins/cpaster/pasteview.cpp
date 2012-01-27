@@ -93,12 +93,12 @@ QString PasteView::comment() const
     return comment;
 }
 
-QByteArray PasteView::content() const
+QString PasteView::content() const
 {
     if (m_mode == PlainTextMode)
-        return m_ui.plainTextEdit->toPlainText().toUtf8();
+        return m_ui.plainTextEdit->toPlainText();
 
-    QByteArray newContent;
+    QString newContent;
     for (int i = 0; i < m_ui.uiPatchList->count(); ++i) {
         QListWidgetItem *item = m_ui.uiPatchList->item(i);
         if (item->checkState() != Qt::Unchecked)
@@ -157,7 +157,7 @@ int PasteView::show(const QString &user, const QString &description,
     m_ui.uiPatchList->clear();
     m_parts = parts;
     m_mode = DiffChunkMode;
-    QByteArray content;
+    QString content;
     foreach (const FileData &part, parts) {
         QListWidgetItem *itm = new QListWidgetItem(part.filename, m_ui.uiPatchList);
         itm->setCheckState(Qt::Checked);
@@ -191,7 +191,7 @@ void PasteView::accept()
     if (!Protocol::ensureConfiguration(protocol, this))
         return;
 
-    const QByteArray data = content();
+    const QString data = content();
     if (data.isEmpty())
         return;
 

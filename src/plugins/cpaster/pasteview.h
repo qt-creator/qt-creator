@@ -69,7 +69,7 @@ public:
     QString user() const;
     QString description() const;
     QString comment() const;
-    QByteArray content() const;
+    QString content() const;
     QString protocol() const;
 
     virtual void accept();

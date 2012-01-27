@@ -44,13 +44,13 @@ QString CGI::encodeURL(const QString &rawText)
 
     QByteArray::const_iterator it = utf.constBegin();
     while (it != utf.constEnd()) {
-        char ch = *it;
+        const char ch = *it;
         if (('A' <= ch && ch <= 'Z')
             || ('a' <= ch && ch <= 'z')
             || ('0' <= ch && ch <= '9'))
-            enc.append(*it);
+            enc.append(QLatin1Char(ch));
         else if (ch == ' ')
-            enc.append('+');
+            enc.append(QLatin1Char('+'));
         else {
             switch (ch) {
             case '-': case '_':
@@ -58,14 +58,14 @@ QString CGI::encodeURL(const QString &rawText)
             case '.': case '!':
             case '~': case '*':
             case '\'':
-                enc.append(ch);
+                enc.append(QLatin1Char(ch));
                 break;
             default:
                 ushort c1 = (*it & 0xF0) >> 4;
                 ushort c2 = (*it & 0x0F);
-                enc.append('%');
-                enc.append(QChar(*(cgi_chars + c1)));
-                enc.append(QChar(*(cgi_chars + c2)));
+                enc.append(QLatin1Char('%'));
+                enc.append(QLatin1Char(*(cgi_chars + c1)));
+                enc.append(QLatin1Char(*(cgi_chars + c2)));
                 break;
             }
         }
@@ -403,22 +403,22 @@ QString CGI::encodeHTML(const QString &rawText, int conversionFlags)
     while (it != rawText.constEnd()) {
         const char *html = unicodeToHTML((*it).unicode());
         if (html) {
-            enc.append('&');
-            enc.append(html);
-            enc.append(';');
+            enc.append(QLatin1Char('&'));
+            enc.append(QLatin1String(html));
+            enc.append(QLatin1Char(';'));
         } else if ((conversionFlags & CGI::LineBreaks)
                    && ((*it).toLatin1() == '\n')) {
-                enc.append("<BR>\n");
+                enc.append(QLatin1String("<BR>\n"));
         } else if ((conversionFlags & CGI::Spaces)
                    && ((*it).toLatin1() == ' ')) {
-                enc.append("&nbsp;");
+                enc.append(QLatin1String("&nbsp;"));
         } else if ((conversionFlags & CGI::Tabs)
                    && ((*it).toLatin1() == '\t')) {
-                enc.append("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+                enc.append(QLatin1String("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
         } else if ((*it).unicode() > 0x00FF) {
-            enc.append("&#");
+            enc.append(QLatin1String("&#"));
             enc.append(QString::number((*it).unicode()));
-            enc.append(';');
+            enc.append(QLatin1Char(';'));
         } else {
             enc.append(*it);
         }
