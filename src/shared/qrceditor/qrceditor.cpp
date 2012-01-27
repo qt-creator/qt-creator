@@ -304,7 +304,7 @@ void QrcEditor::resolveLocationIssues(QStringList &files)
             if (clickedButton == context.copyButton) {
                 const QFileInfo fi(file);
                 QFileInfo suggestion;
-                QDir tmpTarget(dir.path() + QString(QDir::separator()) + QString("Resources"));;
+                QDir tmpTarget(dir.path() + QDir::separator() + QLatin1String("Resources"));
                 if (tmpTarget.exists())
                     suggestion.setFile(tmpTarget, fi.fileName());
                 else

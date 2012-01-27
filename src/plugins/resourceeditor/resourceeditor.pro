@@ -1,6 +1,8 @@
 TEMPLATE = lib
 TARGET = ResourceEditor
 
+DEFINES += QT_NO_CAST_FROM_ASCII
+
 include(../../qtcreatorplugin.pri)
 include(../../libs/utils/utils.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
