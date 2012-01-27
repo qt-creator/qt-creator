@@ -63,7 +63,7 @@ class AbstractAnalyzerSubConfig;
  * @code
  * bool YourPlugin::initialize(const QStringList &arguments, QString *errorString)
  * {
- *    AnalyzerManager::instance()->addTool(new MemcheckTool(this));
+ *    AnalyzerManager::addTool(new MemcheckTool(this));
  *    return true;
  * }
  * @endcode
