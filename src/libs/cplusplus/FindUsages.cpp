@@ -50,17 +50,21 @@ QString fetchLine(const QByteArray &bytes, const int line)
 {
     int current = 0;
     const char *s = bytes.constData();
-    while (*s) {
-        if (*s == '\n') {
-            ++current;
-            if (current == line)
-                break;
+
+    if (line) {
+        while (*s) {
+            if (*s == '\n') {
+                ++current;
+                if (line == current) {
+                    ++s;
+                    break;
+                }
+            }
+            ++s;
         }
-        ++s;
     }
 
     if (current == line) {
-        ++s;
         const char *e = s;
         while (*e && *e != '\n')
             ++e;
