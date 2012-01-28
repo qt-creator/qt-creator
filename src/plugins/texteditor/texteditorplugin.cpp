@@ -79,7 +79,6 @@ TextEditorPlugin *TextEditorPlugin::m_instance = 0;
 
 TextEditorPlugin::TextEditorPlugin()
   : m_settings(0),
-    m_wizard(0),
     m_editorFactory(0),
     m_lineNumberFilter(0),
     m_searchResultWindow(0)
@@ -112,11 +111,11 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     wizardParameters.setDisplayName(tr("Text File"));
     wizardParameters.setCategory(QLatin1String("U.General"));
     wizardParameters.setDisplayCategory(tr("General"));
-    m_wizard = new TextFileWizard(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT),
-                                  QLatin1String("text$"),
-                                  wizardParameters);
+    TextFileWizard *wizard = new TextFileWizard(QLatin1String(Constants::C_TEXTEDITOR_MIMETYPE_TEXT),
+                                                QLatin1String("text$"),
+                                                wizardParameters);
     // Add text file wizard
-    addAutoReleasedObject(m_wizard);
+    addAutoReleasedObject(wizard);
 
     m_settings = new TextEditorSettings(this);
 
