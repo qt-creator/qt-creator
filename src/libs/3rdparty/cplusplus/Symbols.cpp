@@ -92,11 +92,13 @@ void UsingDeclaration::visitSymbol0(SymbolVisitor *visitor)
 
 Declaration::Declaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name)
+    , _initializer(0)
 { }
 
 Declaration::Declaration(Clone *clone, Subst *subst, Declaration *original)
     : Symbol(clone, subst, original)
     , _type(clone->type(original->_type, subst))
+    , _initializer(clone->stringLiteral(original->_initializer))
 { }
 
 Declaration::~Declaration()
@@ -105,8 +107,18 @@ Declaration::~Declaration()
 void Declaration::setType(const FullySpecifiedType &type)
 { _type = type; }
 
+void Declaration::setInitializer(const StringLiteral *initializer)
+{
+    _initializer = initializer;
+}
+
 FullySpecifiedType Declaration::type() const
 { return _type; }
+
+const StringLiteral *Declaration::getInitializer() const
+{
+    return _initializer;
+}
 
 void Declaration::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }

@@ -35,6 +35,7 @@
 #include "Overview.h"
 #include "DeprecatedGenTemplateInstance.h"
 #include "CppRewriter.h"
+#include "TypeOfExpression.h"
 
 #include <Control.h>
 #include <AST.h>
@@ -45,6 +46,7 @@
 #include <CoreTypes.h>
 #include <TypeVisitor.h>
 #include <NameVisitor.h>
+#include <Templates.h>
 
 #include <QtCore/QList>
 #include <QtCore/QtDebug>
@@ -402,11 +404,39 @@ bool ResolveExpression::visit(UnaryExpressionAST *ast)
         QMutableListIterator<LookupItem > it(_results);
         while (it.hasNext()) {
             LookupItem p = it.next();
-            if (PointerType *ptrTy = p.type()->asPointerType()) {
+            FullySpecifiedType ty = p.type();
+            NamedType *namedTy = ty->asNamedType();
+            if (namedTy != 0) {
+                const QList<LookupItem> types = _context.lookup(namedTy->name(), p.scope());
+                if (!types.empty())
+                    ty = types.front().type();
+            }
+            bool added = false;
+            if (PointerType *ptrTy = ty->asPointerType()) {
                 p.setType(ptrTy->elementType());
                 it.setValue(p);
-            } else {
-                it.remove();
+                added = true;
+            } else if (namedTy != 0) {
+                const Name *starOp = control()->operatorNameId(OperatorNameId::StarOp);
+                if (ClassOrNamespace *b = _context.lookupType(namedTy->name(), p.scope())) {
+                    foreach (const LookupItem &r, b->find(starOp)) {
+                        Symbol *overload = r.declaration();
+                        if (Function *funTy = overload->type()->asFunctionType()) {
+                            if (maybeValidPrototype(funTy, 0)) {
+                                if (Function *proto = instantiate(b->templateId(), funTy)->asFunctionType()) {
+                                    FullySpecifiedType retTy = proto->returnType().simplified();
+                                    p.setType(retTy);
+                                    p.setScope(proto->enclosingScope());
+                                    it.setValue(p);
+                                    added = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (!added)
+                    it.remove();
             }
         }
     }
@@ -431,8 +461,65 @@ bool ResolveExpression::visit(QualifiedNameAST *ast)
 
 bool ResolveExpression::visit(SimpleNameAST *ast)
 {
-    const QList<LookupItem> candidates = _context.lookup(ast->name, _scope);
+    QList<LookupItem> candidates = _context.lookup(ast->name, _scope);
+    QList<LookupItem> newCandidates;
+
+    for (QList<LookupItem>::iterator it = candidates.begin(); it != candidates.end(); ++ it) {
+        LookupItem& item = *it;
+        if (!item.type()->isUndefinedType())
+            continue;
+
+        if (item.declaration() == 0)
+            continue;
+
+        if (item.type().isAuto()) {
+            const Declaration *decl = item.declaration()->asDeclaration();
+            if (!decl)
+                continue;
+
+            Document::Ptr doc = _context.snapshot().document(decl->fileName());
+
+            const StringLiteral *initializationString = decl->getInitializer();
+            if (initializationString == 0)
+                continue;
+
+            QByteArray initializer = QByteArray::fromRawData(initializationString->chars(), initializationString->size()).trimmed();
+
+            // Skip lambda-function initializers
+            if (initializer.length() > 0 && initializer[0] == '[')
+                continue;
+
+            TypeOfExpression exprTyper;
+            exprTyper.init(doc, _context.snapshot(), _context.bindings());
+
+            QList<LookupItem> typeItems = exprTyper(initializer, decl->enclosingScope(), TypeOfExpression::Preprocess);
+            if (typeItems.empty())
+                continue;
+
+            CPlusPlus::Clone cloner(_context.control().data());
+
+            for (int n = 0; n < typeItems.size(); ++ n) {
+                FullySpecifiedType newType = cloner.type(typeItems[n].type(), 0);
+                if (n == 0) {
+                    item.setType(newType);
+                    item.setScope(typeItems[n].scope());
+                }
+                else {
+                    LookupItem newItem(item);
+                    newItem.setType(newType);
+                    newItem.setScope(typeItems[n].scope());
+                    newCandidates.push_back(newItem);
+                }
+            }
+        }
+        else {
+            item.setType(item.declaration()->type());
+            item.setScope(item.declaration()->enclosingScope());
+        }
+    }
+
     addResults(candidates);
+    addResults(newCandidates);
     return false;
 }
 

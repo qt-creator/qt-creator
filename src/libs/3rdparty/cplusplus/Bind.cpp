@@ -337,8 +337,14 @@ FullySpecifiedType Bind::declarator(DeclaratorAST *ast, const FullySpecifiedType
         return type;
 
     std::swap(_declaratorId, declaratorId);
+    bool isAuto = false;
+    if (translationUnit()->cxx0xEnabled())
+        isAuto = type.isAuto();
+
     for (SpecifierListAST *it = ast->attribute_list; it; it = it->next) {
         type = this->specifier(it->value, type);
+        if (type.isAuto())
+            isAuto = true;
     }
     for (PtrOperatorListAST *it = ast->ptr_operator_list; it; it = it->next) {
         type = this->ptrOperator(it->value, type);
@@ -349,9 +355,17 @@ FullySpecifiedType Bind::declarator(DeclaratorAST *ast, const FullySpecifiedType
     type = this->coreDeclarator(ast->core_declarator, type);
     for (SpecifierListAST *it = ast->post_attribute_list; it; it = it->next) {
         type = this->specifier(it->value, type);
+        if (type.isAuto())
+            isAuto = true;
     }
     // unsigned equals_token = ast->equals_token;
     ExpressionTy initializer = this->expression(ast->initializer);
+    if (translationUnit()->cxx0xEnabled() && isAuto) {
+
+        type = initializer;
+        type.setAuto(true);
+    }
+
     std::swap(_declaratorId, declaratorId);
     return type;
 }
@@ -1231,11 +1245,29 @@ bool Bind::visit(ForeachStatementAST *ast)
     }
     DeclaratorIdAST *declaratorId = 0;
     type = this->declarator(ast->declarator, type, &declaratorId);
+    const StringLiteral *initializer = 0;
+    if (type.isAuto() && translationUnit()->cxx0xEnabled()) {
+        ExpressionTy exprType = this->expression(ast->expression);
+
+        ArrayType* arrayType = 0;
+        arrayType = exprType->asArrayType();
+
+        if (arrayType != 0)
+            type = arrayType->elementType();
+        else if (ast->expression != 0) {
+            unsigned startOfExpression = ast->expression->firstToken();
+            unsigned endOfExpression = ast->expression->lastToken();
+            const StringLiteral *sl = asStringLiteral(startOfExpression, endOfExpression);
+            const std::string buff = std::string("*") + sl->chars() + ".begin()";
+            initializer = control()->stringLiteral(buff.c_str(), buff.size());
+        }
+    }
 
     if (declaratorId && declaratorId->name) {
         unsigned sourceLocation = location(declaratorId->name, ast->firstToken());
         Declaration *decl = control()->newDeclaration(sourceLocation, declaratorId->name->name);
         decl->setType(type);
+        decl->setInitializer(initializer);
         block->addMember(decl);
     }
 
@@ -1790,6 +1822,16 @@ bool Bind::visit(SimpleDeclarationAST *ast)
             setDeclSpecifiers(fun, type);
             if (declaratorId && declaratorId->name)
                 fun->setName(declaratorId->name->name); // update the function name
+        }
+        else if (declTy.isAuto()) {
+            const ExpressionAST *initializer = it->value->initializer;
+            if (!initializer)
+                translationUnit()->error(location(declaratorId->name, ast->firstToken()), "auto-initialized variable must have an initializer");
+            else {
+                unsigned startOfExpression = initializer->firstToken();
+                unsigned endOfExpression = initializer->lastToken();
+                decl->setInitializer(asStringLiteral(startOfExpression, endOfExpression));
+            }
         }
 
         if (_scope->isClass()) {
@@ -2576,8 +2618,10 @@ bool Bind::visit(SimpleSpecifierAST *ast)
             break;
 
         case T_AUTO:
-            if (_type.isAuto())
-                translationUnit()->error(ast->specifier_token, "duplicate `%s'", spell(ast->specifier_token));
+            if (!translationUnit()->cxx0xEnabled()) {
+                if (_type.isAuto())
+                    translationUnit()->error(ast->specifier_token, "duplicate `%s'", spell(ast->specifier_token));
+            }
             _type.setAuto(true);
             break;
 

@@ -47,7 +47,6 @@ FullySpecifiedType FullySpecifiedType::qualifiedType() const
 {
     FullySpecifiedType ty = *this;
     ty.setFriend(false);
-    ty.setAuto(false);
     ty.setRegister(false);
     ty.setStatic(false);
     ty.setExtern(false);

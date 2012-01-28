@@ -104,9 +104,11 @@ public:
     virtual ~Declaration();
 
     void setType(const FullySpecifiedType &type);
+    void setInitializer(StringLiteral const* initializer);
 
     // Symbol's interface
     virtual FullySpecifiedType type() const;
+    const StringLiteral *getInitializer() const;
 
     virtual const Declaration *asDeclaration() const
     { return this; }
@@ -125,6 +127,7 @@ protected:
 
 private:
     FullySpecifiedType _type;
+    const StringLiteral *_initializer;
 };
 
 class CPLUSPLUS_EXPORT EnumeratorDeclaration: public Declaration
