@@ -274,6 +274,18 @@ QString AbstractMsvcToolChain::findInstalledJom()
         return jom;
 }
 
+bool AbstractMsvcToolChain::operator ==(const ToolChain &other) const
+{
+    if (!ToolChain::operator ==(other))
+        return false;
+
+    const AbstractMsvcToolChain *msvcTc = static_cast<const AbstractMsvcToolChain *>(&other);
+    return targetAbi() == msvcTc->targetAbi()
+            && m_debuggerCommand == msvcTc->m_debuggerCommand
+            && m_vcvarsBat == msvcTc->m_vcvarsBat;
+}
+
+
 } // namespace Internal
 } // namespace ProjectExplorer
 

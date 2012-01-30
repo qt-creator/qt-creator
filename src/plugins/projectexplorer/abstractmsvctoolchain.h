@@ -65,6 +65,9 @@ public:
 
     QString varsBat() const { return m_vcvarsBat; }
     static QString findInstalledJom();
+
+    bool operator ==(const ToolChain &) const;
+
 protected:
     virtual Utils::Environment readEnvironmentSetting(Utils::Environment& env) const = 0;
     virtual QByteArray msvcPredefinedMacros(const Utils::Environment& env) const;
