@@ -254,7 +254,9 @@ def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP):
                           mustCheck)
         except LookupError:
             if mustCheck:
-                test.fail("Failed to check target '%s'" % QtQuickConstants.getStringForTarget(current))
+                test.fail("Failed to check target '%s'." % QtQuickConstants.getStringForTarget(current))
+            else:
+                test.warning("Target '%s' is not set up correctly." % QtQuickConstants.getStringForTarget(current))
 
 # run and close an application
 # withHookInto - if set to True the function tries to attach to the sub-process instead of simply pressing Stop inside Creator
