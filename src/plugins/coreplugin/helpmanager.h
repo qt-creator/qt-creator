@@ -92,6 +92,7 @@ signals:
     void helpRequested(const QUrl &url);
 
 private slots:
+    void delayedSetupHelpManager();
     void setupHelpManager();
 
 private:

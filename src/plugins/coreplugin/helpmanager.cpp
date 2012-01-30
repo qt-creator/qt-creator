@@ -40,6 +40,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QStringList>
+#include <QtCore/QTimer>
 
 #include <QtHelp/QHelpEngineCore>
 
@@ -90,7 +91,7 @@ HelpManager::HelpManager(QObject *parent) :
 {
     Q_ASSERT(!m_instance);
     m_instance = this;
-    connect(Core::ICore::instance(), SIGNAL(coreOpened()), SLOT(setupHelpManager()));
+    connect(Core::ICore::instance(), SIGNAL(coreOpened()), SLOT(delayedSetupHelpManager()));
 }
 
 HelpManager::~HelpManager()
@@ -99,6 +100,11 @@ HelpManager::~HelpManager()
     d->m_helpEngine = 0;
     m_instance = 0;
     delete d;
+}
+
+void HelpManager::delayedSetupHelpManager()
+{
+    QTimer::singleShot(100, this, SLOT(setupHelpManager()));
 }
 
 HelpManager *HelpManager::instance()
@@ -402,7 +408,6 @@ void HelpManager::setupHelpManager()
     d->m_helpEngine->setAutoSaveFilter(false);
     d->m_helpEngine->setCurrentFilter(tr("Unfiltered"));
     d->m_helpEngine->setupData();
-
     verifyDocumenation();
 
     if (!d->m_nameSpacesToUnregister.isEmpty()) {
