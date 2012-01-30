@@ -41,7 +41,7 @@ ColumnIndicatorTextEdit::ColumnIndicatorTextEdit(QWidget *parent) :
         QTextEdit(parent), m_columnIndicator(0)
 {
     QFont font;
-    font.setFamily(QString::fromUtf8("Courier New"));
+    font.setFamily(QLatin1String("Courier New"));
     setFont(font);
     setReadOnly(true);
     QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -50,7 +50,7 @@ ColumnIndicatorTextEdit::ColumnIndicatorTextEdit(QWidget *parent) :
     int cmx = 0, cmy = 0, cmw = 0, cmh = 0;
     getContentsMargins(&cmx, &cmy, &cmw, &cmh);
     m_columnIndicator = QFontMetrics(font).width(QLatin1Char('W')) * 100 + cmx + 1;
-    m_columnIndicatorFont.setFamily(QString::fromUtf8("Times"));
+    m_columnIndicatorFont.setFamily(QLatin1String("Times"));
     m_columnIndicatorFont.setPointSizeF(7.0);
 }
 

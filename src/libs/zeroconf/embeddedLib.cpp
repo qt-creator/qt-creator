@@ -72,7 +72,7 @@ public:
 
     QString name()
     {
-        return QString::fromUtf8("EmbeddedZeroConfLib@%1").arg(size_t(this), 0, 16);
+        return QString::fromLatin1("EmbeddedZeroConfLib@%1").arg(size_t(this), 0, 16);
     }
 
     bool tryStartDaemon()

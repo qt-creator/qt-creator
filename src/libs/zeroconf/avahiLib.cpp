@@ -175,7 +175,7 @@ public:
     }
 
     QString name(){
-        return QString::fromUtf8("AvahiZeroConfLib@%1").arg(size_t(this), 0, 16);
+        return QString::fromLatin1("AvahiZeroConfLib@%1").arg(size_t(this), 0, 16);
     }
 
     // bool tryStartDaemon();

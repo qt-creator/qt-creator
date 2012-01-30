@@ -460,7 +460,7 @@ void AbstractRemoteLinuxApplicationRunner::handlePostRunCleanupDone()
 
 QString AbstractRemoteLinuxApplicationRunner::killApplicationCommandLine() const
 {
-    return QString::fromLocal8Bit("cd /proc; for pid in `ls -d [0123456789]*`; "
+    return QString::fromLatin1("cd /proc; for pid in `ls -d [0123456789]*`; "
         "do "
             "if [ \"`readlink /proc/$pid/exe`\" = \"%1\" ]; then "
             "    kill $pid; sleep 1; kill -9 $pid; "

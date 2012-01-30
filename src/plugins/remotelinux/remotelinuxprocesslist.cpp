@@ -237,7 +237,7 @@ GenericRemoteLinuxProcessList::GenericRemoteLinuxProcessList(const LinuxDeviceCo
 
 QString GenericRemoteLinuxProcessList::listProcessesCommandLine() const
 {
-    return QString::fromLocal8Bit("for dir in `ls -d /proc/[0123456789]*`; "
+    return QString::fromLatin1("for dir in `ls -d /proc/[0123456789]*`; "
         "do printf \"${dir}%1\";cat $dir/cmdline; printf '%1';cat $dir/stat;printf '\\n'; done")
         .arg(Delimiter);
 }

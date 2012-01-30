@@ -206,7 +206,7 @@ QString MaemoDeployConfigurationWidget::remoteIconFilePath(const DeployableFiles
 
 QString MaemoDeployConfigurationWidget::remoteIconDir() const
 {
-    return QString::fromLocal8Bit("/usr/share/icons/hicolor/%1x%1/apps")
+    return QString::fromLatin1("/usr/share/icons/hicolor/%1x%1/apps")
         .arg(MaemoGlobal::applicationIconSize(deployConfiguration()->supportedOsType()));
 }
 

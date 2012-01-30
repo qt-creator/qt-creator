@@ -100,7 +100,7 @@ private:
         const QString makeExpr(const QStringList &exprs) const
         {
             Q_ASSERT(exprs.size() == 1);
-            return QString::fromLocal8Bit("%1()").arg(exprs.first());
+            return QString::fromLatin1("%1()").arg(exprs.first());
         }
     };
 
@@ -112,7 +112,7 @@ private:
         const QString makeExpr(const QStringList &exprs) const
         {
             Q_ASSERT(exprs.size() == 1);
-            return QString::fromLocal8Bit("%1(%2)").
+            return QString::fromLatin1("%1(%2)").
                 arg(repr).arg(exprs.first());
         }
     };
@@ -125,7 +125,7 @@ private:
         virtual const QString makeExpr(const QStringList &exprs) const
         {
             Q_ASSERT(exprs.size() == 2);
-            return QString::fromLocal8Bit("%1 %2 %3").
+            return QString::fromLatin1("%1 %2 %3").
                 arg(exprs.first()).arg(repr).arg(exprs.at(1));
         }
         OpType type() const { return BinaryOp; }
@@ -142,7 +142,7 @@ private:
         const QString makeExpr(const QStringList &exprs) const
         {
             Q_ASSERT(exprs.size() == 2);
-            return QString::fromLocal8Bit("new %1[%2]").
+            return QString::fromLatin1("new %1[%2]").
                 arg(exprs.first()).arg(exprs.at(1));
         }
     };
@@ -170,7 +170,7 @@ private:
         const QString makeExpr(const QStringList &exprs) const
         {
             Q_ASSERT(exprs.size() == 2);
-            return QString::fromLocal8Bit("%1[%2]").
+            return QString::fromLatin1("%1[%2]").
                 arg(exprs.first()).arg(exprs.at(1));
         }
     };
@@ -186,7 +186,7 @@ private:
         virtual const QString makeExpr(const QStringList &exprs) const
         {
             Q_ASSERT(exprs.size() == 3);
-            return QString::fromLocal8Bit("%1 ? %2 : %3").
+            return QString::fromLatin1("%1 ? %2 : %3").
                 arg(exprs.first()).arg(exprs.at(1)).arg(exprs.at(2));
         }
         OpType type() const { return TernaryOp; }
@@ -893,10 +893,10 @@ const QString NameDemanglerPrivate::parseExpression()
         expr += QLatin1String(")");
     } else if (str == QLatin1String("st")) {
         advance(2);
-        expr = QString::fromLocal8Bit("sizeof(%1)").arg(parseType());
+        expr = QString::fromLatin1("sizeof(%1)").arg(parseType());
     } else if (str == QLatin1String("at")) {
         advance(2);
-        expr = QString::fromLocal8Bit("alignof(%1)").arg(parseType());
+        expr = QString::fromLatin1("alignof(%1)").arg(parseType());
     } else if (str == QLatin1String("sr")) { // TODO: Which syntax to use here?
         advance(2);
         expr = parseType();
@@ -1369,7 +1369,7 @@ const QString NameDemanglerPrivate::parseFunctionType()
                 }
             }
             if (!retTypeIsFuncPtr)
-                funcType = QString::fromLocal8Bit("%1 %2").
+                funcType = QString::fromLatin1("%1 %2").
                     arg(returnType).arg(argList);
         }
     }
@@ -1507,7 +1507,7 @@ const NameDemanglerPrivate::Operator &NameDemanglerPrivate::parseOperatorName()
             static UnaryOperator castOp(QLatin1String("cv"),
                                         QLatin1String(""));
             QString type = parseType();
-            castOp.repr = QString::fromLocal8Bit("(%1)").arg(type);
+            castOp.repr = QString::fromLatin1("(%1)").arg(type);
             op = &castOp;
         } else {
             op = ops.value(id);
@@ -1549,7 +1549,7 @@ const QString NameDemanglerPrivate::parseArrayType()
         if (!parseError && advance() != '_')
             error(QString::fromLatin1("Invalid array-type"));
         if (!parseError)
-            type = QString::fromLocal8Bit("%1[%2]").
+            type = QString::fromLatin1("%1[%2]").
                 arg(parseType()).arg(dimension);
     }
 
@@ -1575,10 +1575,10 @@ const QString NameDemanglerPrivate::parsePointerToMemberType()
                 int parenIndex = memberType.indexOf('(');
                 QString returnType = memberType.left(parenIndex);
                 memberType.remove(0, parenIndex);
-                type = QString::fromLocal8Bit("%1(%2::*)%3").
+                type = QString::fromLatin1("%1(%2::*)%3").
                     arg(returnType).arg(classType).arg(memberType);
             } else {
-                type = QString::fromLocal8Bit("%1 %2::*").
+                type = QString::fromLatin1("%1 %2::*").
                     arg(memberType).arg(classType);
             }
         }
@@ -1703,19 +1703,19 @@ const QString NameDemanglerPrivate::parseSpecialName()
     QString str = readAhead(2);
     if (str == QLatin1String("TV")) {
         advance(2);
-        name = QString::fromLocal8Bit("[virtual table of %1]").arg(parseType());
+        name = QString::fromLatin1("[virtual table of %1]").arg(parseType());
     } else if (str == QLatin1String("TT")) {
         advance(2);
-        name = QString::fromLocal8Bit("[VTT struct of %1]").arg(parseType());
+        name = QString::fromLatin1("[VTT struct of %1]").arg(parseType());
     } else if (str == QLatin1String("TI")) {
         advance(2);
-        name = QString::fromLocal8Bit("typeid(%1)").arg(parseType());
+        name = QString::fromLatin1("typeid(%1)").arg(parseType());
     } else if (str == QLatin1String("TS")) {
         advance(2);
-        name = QString::fromLocal8Bit("typeid(%1).name()").arg(parseType());
+        name = QString::fromLatin1("typeid(%1).name()").arg(parseType());
     } else if (str == QLatin1String("GV")) {
         advance(2);
-        name = QString::fromLocal8Bit("[guard variable of %1]").
+        name = QString::fromLatin1("[guard variable of %1]").
             arg(parseName());
     } else if (str == QLatin1String("Tc")) {
         advance(2);
@@ -2178,7 +2178,7 @@ void NameDemanglerPrivate::insertQualifier(QString &type,
         if (qualifier == QLatin1String("*")
             || qualifier == QLatin1String("&")) {
             insertionPos = funcAnchor;
-            insertionString = QString::fromLocal8Bit("(%1)").arg(qualifier);
+            insertionString = QString::fromLatin1("(%1)").arg(qualifier);
         } else {
             insertionPos = type.size(); // Qualifier for pointer to member.
         }

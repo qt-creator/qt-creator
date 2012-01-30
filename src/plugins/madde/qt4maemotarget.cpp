@@ -456,7 +456,7 @@ bool AbstractDebBasedQt4MaemoTarget::setProjectVersionInternal(const QString &ve
         .arg(utcOffsetMinutes, 2, 10, QLatin1Char('0'));
     const QString maintainerLine = content.mid(maintainerOffset, eolOffset - maintainerOffset + 1)
         .replace(QRegExp(QLatin1String(">  [^\\n]*\n")),
-                 QString::fromLocal8Bit(">  %1").arg(dateString));
+                 QString::fromLatin1(">  %1").arg(dateString));
     QString versionLine = content.left(content.indexOf(QLatin1Char('\n')))
         .replace(QRegExp(QLatin1String("\\([a-zA-Z0-9_\\.]+\\)")),
                  QLatin1Char('(') + version + QLatin1Char(')'));

@@ -201,13 +201,13 @@ void AbstractRemoteLinuxDebugSupport::startExecution()
     const QString &remoteExe = runner()->remoteExecutable();
     QString args = runner()->arguments();
     if (d->qmlDebugging) {
-        args += QString(QLatin1String(" -qmljsdebugger=port:%1,block"))
+        args += QString::fromLatin1(" -qmljsdebugger=port:%1,block")
             .arg(d->qmlPort);
     }
 
     const QString remoteCommandLine = (d->qmlDebugging && !d->cppDebugging)
-        ? QString::fromLocal8Bit("%1 %2 %3").arg(runner()->commandPrefix()).arg(remoteExe).arg(args)
-        : QString::fromLocal8Bit("%1 gdbserver :%2 %3 %4").arg(runner()->commandPrefix())
+        ? QString::fromLatin1("%1 %2 %3").arg(runner()->commandPrefix()).arg(remoteExe).arg(args)
+        : QString::fromLatin1("%1 gdbserver :%2 %3 %4").arg(runner()->commandPrefix())
               .arg(d->gdbServerPort).arg(remoteExe).arg(args);
     connect(runner(), SIGNAL(remoteProcessFinished(qint64)),
         SLOT(handleRemoteProcessFinished(qint64)));

@@ -320,7 +320,7 @@ void FancyToolButton::actionChanged()
 FancyActionBar::FancyActionBar(QWidget *parent)
     : QWidget(parent)
 {
-    setObjectName(QString::fromUtf8("actionbar"));
+    setObjectName(QLatin1String("actionbar"));
     m_actionsLayout = new QVBoxLayout;
     QVBoxLayout *spacerLayout = new QVBoxLayout;
     spacerLayout->addLayout(m_actionsLayout);

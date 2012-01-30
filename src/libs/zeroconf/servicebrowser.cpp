@@ -1743,7 +1743,7 @@ bool ZConfLib::tryStartDaemon()
 }
 
 QString ZConfLib::name(){
-    return QString::fromUtf8("ZeroConfLib@%1").arg(size_t(this), 0, 16);
+    return QString::fromLatin1("ZeroConfLib@%1").arg(size_t(this), 0, 16);
 }
 
 ZConfLib::ZConfLib(ZConfLib::Ptr f) : fallbackLib(f), m_isOk(true)

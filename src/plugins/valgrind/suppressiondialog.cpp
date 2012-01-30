@@ -142,7 +142,7 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, const QList<Error>
     suppressionsLabel->setBuddy(m_suppressionEdit);
 
     QFont font;
-    font.setFamily(QString::fromUtf8("Monospace"));
+    font.setFamily(QLatin1String("Monospace"));
     m_suppressionEdit->setFont(font);
 
     m_buttonBox = new QDialogButtonBox(this);

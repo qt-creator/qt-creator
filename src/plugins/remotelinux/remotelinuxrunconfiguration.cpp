@@ -278,7 +278,7 @@ QString RemoteLinuxRunConfiguration::environmentPreparationCommand() const
     const QStringList filesToSource = QStringList() << QLatin1String("/etc/profile")
         << QLatin1String("$HOME/.profile");
     foreach (const QString &filePath, filesToSource)
-        command += QString::fromLocal8Bit("test -f %1 && source %1;").arg(filePath);
+        command += QString::fromLatin1("test -f %1 && source %1;").arg(filePath);
     if (!workingDirectory().isEmpty())
         command += QLatin1String("cd ") + workingDirectory();
     else
@@ -288,7 +288,7 @@ QString RemoteLinuxRunConfiguration::environmentPreparationCommand() const
 
 QString RemoteLinuxRunConfiguration::commandPrefix() const
 {
-    return QString::fromLocal8Bit("%1; DISPLAY=:0.0 %2")
+    return QString::fromLatin1("%1; DISPLAY=:0.0 %2")
         .arg(environmentPreparationCommand(), userEnvironmentChangesAsString());
 }
 
