@@ -629,6 +629,10 @@ Utils::Environment Qt4RunConfiguration::baseEnvironment() const
             } // foreach
         } // libDirectories
     } // node
+
+    QtSupport::BaseQtVersion *qtVersion = qt4Target()->activeQt4BuildConfiguration()->qtVersion();
+    if (qtVersion)
+        env.prependOrSetLibrarySearchPath(qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_LIBS")));
     return env;
 }
 

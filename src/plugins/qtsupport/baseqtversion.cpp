@@ -890,7 +890,6 @@ void BaseQtVersion::addToEnvironment(Utils::Environment &env) const
 {
     env.set(QLatin1String("QTDIR"), QDir::toNativeSeparators(versionInfo().value(QLatin1String("QT_INSTALL_DATA"))));
     env.prependOrSetPath(versionInfo().value(QLatin1String("QT_INSTALL_BINS")));
-    env.prependOrSetLibrarySearchPath(versionInfo().value(QLatin1String("QT_INSTALL_LIBS")));
 }
 
 bool BaseQtVersion::hasGdbDebuggingHelper() const
