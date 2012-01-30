@@ -47,7 +47,10 @@ using namespace Qt4ProjectManager;
 namespace Madde {
 namespace Internal {
 
-MaemoQtVersion::MaemoQtVersion() : QtSupport::BaseQtVersion()
+MaemoQtVersion::MaemoQtVersion()
+    : QtSupport::BaseQtVersion(),
+      m_isvalidVersion(false),
+      m_initialized(false)
 {
 
 }
@@ -55,7 +58,8 @@ MaemoQtVersion::MaemoQtVersion() : QtSupport::BaseQtVersion()
 MaemoQtVersion::MaemoQtVersion(const Utils::FileName &path, bool isAutodetected, const QString &autodetectionSource)
     : QtSupport::BaseQtVersion(path, isAutodetected, autodetectionSource),
       m_osType(MaemoGlobal::osType(path.toString())),
-      m_isvalidVersion(MaemoGlobal::isValidMaemoQtVersion(path.toString(), m_osType))
+      m_isvalidVersion(false),
+      m_initialized(false)
 {
 
 }
@@ -70,7 +74,6 @@ void MaemoQtVersion::fromMap(const QVariantMap &map)
     QtSupport::BaseQtVersion::fromMap(map);
     QString path = qmakeCommand().toString();
     m_osType = MaemoGlobal::osType(path);
-    m_isvalidVersion = MaemoGlobal::isValidMaemoQtVersion(path, m_osType);
 }
 
 QString MaemoQtVersion::type() const
@@ -80,7 +83,13 @@ QString MaemoQtVersion::type() const
 
 bool MaemoQtVersion::isValid() const
 {
-    return BaseQtVersion::isValid() && m_isvalidVersion;
+    if (!BaseQtVersion::isValid())
+        return false;
+    if (!m_initialized) {
+        m_isvalidVersion = MaemoGlobal::isValidMaemoQtVersion(qmakeCommand().toString(), m_osType);
+        m_initialized = true;
+    }
+    return m_isvalidVersion;
 }
 
 MaemoQtVersion *MaemoQtVersion::clone() const
@@ -113,7 +122,7 @@ QString MaemoQtVersion::systemRoot() const
 QList<ProjectExplorer::Abi> MaemoQtVersion::detectQtAbis() const
 {
     QList<ProjectExplorer::Abi> result;
-    if (!m_isvalidVersion)
+    if (!isValid())
         return result;
     if (m_osType == QLatin1String(Maemo5OsType)) {
         result.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::LinuxOS,
@@ -140,7 +149,7 @@ bool MaemoQtVersion::supportsTargetId(const QString &id) const
 QSet<QString> MaemoQtVersion::supportedTargetIds() const
 {
     QSet<QString> result;
-    if (!m_isvalidVersion)
+    if (!isValid())
         return result;
     if (m_osType == QLatin1String(Maemo5OsType)) {
         result.insert(QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID));

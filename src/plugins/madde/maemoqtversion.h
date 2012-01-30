@@ -66,6 +66,7 @@ private:
     mutable QString m_systemRoot;
     mutable QString m_osType;
     mutable bool m_isvalidVersion;
+    mutable bool m_initialized;
 };
 
 } // namespace Internal
