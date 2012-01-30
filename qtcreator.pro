@@ -20,14 +20,13 @@ OTHER_FILES += dist/copyright_template.txt \
 macx {
     APPBUNDLE = "$$OUT_PWD/bin/Qt Creator.app"
     deployqt.commands = $$PWD/scripts/deployqtHelper_mac.sh \"$${APPBUNDLE}\"
-    bindist.commands = 7z a -mx9 $$OUT_PWD/qtcreator-mac$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX).7z \"$$OUT_PWD/bin/Qt Creator.app/\"
+    bindist.commands = 7z a -mx9 $$OUT_PWD/qt-creator-mac$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX).7z \"$$OUT_PWD/bin/Qt Creator.app/\"
     dmg.commands = $$PWD/scripts/makedmg.sh $$OUT_PWD/bin qt-creator-mac$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX).dmg
     dmg.depends = deployqt
     QMAKE_EXTRA_TARGETS += dmg
 } else {
     deployqt.commands = $$PWD/scripts/deployqt.py -i $(INSTALL_ROOT)
     deployqt.depends = install
-    bindist.commands = $$PWD/scripts/bindist_helper.py $(INSTALL_ROOT) $${PLATFORM}$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX)
     win32 {
         bindist.commands ~= s,/,\\\\,g
         deployqt.commands ~= s,/,\\\\,g
@@ -38,6 +37,7 @@ macx {
     }
     else:linux-*:PLATFORM="linux-$${QT_ARCH}"
     else:PLATFORM="unknown"
+    bindist.commands = $$PWD/scripts/bindistHelper.py "$(INSTALL_ROOT)" "$${PLATFORM}$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX)"
 }
 bindist.depends = deployqt
 QMAKE_EXTRA_TARGETS += deployqt bindist
