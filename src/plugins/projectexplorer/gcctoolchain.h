@@ -80,7 +80,7 @@ public:
 
     bool operator ==(const ToolChain &) const;
 
-    virtual void setCompilerPath(const QString &);
+    void setCompilerPath(const QString &);
     QString compilerPath() const;
 
     ToolChain *clone() const;
@@ -89,7 +89,8 @@ protected:
     GccToolChain(const QString &id, bool autodetect);
     GccToolChain(const GccToolChain &);
 
-    QString defaultDisplayName() const;
+    virtual QString defaultDisplayName() const;
+    virtual QList<Abi> findAbiForCompilerPath(const QString &path);
 
     virtual QList<Abi> detectSupportedAbis() const;
     virtual QString detectVersion() const;

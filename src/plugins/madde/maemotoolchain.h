@@ -68,6 +68,9 @@ public:
 
     QString legacyId() const;
 
+protected:
+    QList<ProjectExplorer::Abi> findAbiForCompilerPath(const QString &path);
+
 private:
     explicit MaemoToolChain(bool);
     MaemoToolChain(const MaemoToolChain &);

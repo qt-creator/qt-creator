@@ -292,12 +292,14 @@ GccToolChain::GccToolChain(const QString &id, bool autodetect) :
 
 GccToolChain::GccToolChain(const GccToolChain &tc) :
     ToolChain(tc),
+    m_predefinedMacros(tc.predefinedMacros()),
     m_compilerPath(tc.compilerPath()),
     m_debuggerCommand(tc.debuggerCommand()),
-    m_targetAbi(tc.m_targetAbi)
-{
-    setCompilerPath(tc.m_compilerPath);
-}
+    m_targetAbi(tc.m_targetAbi),
+    m_supportedAbis(tc.m_supportedAbis),
+    m_headerPathes(tc.m_headerPathes),
+    m_version(tc.m_version)
+{ }
 
 QString GccToolChain::defaultDisplayName() const
 {
@@ -306,6 +308,14 @@ QString GccToolChain::defaultDisplayName() const
     return QString::fromLatin1("%1 (%2 %3)").arg(typeName(),
                                                  ProjectExplorer::Abi::toString(m_targetAbi.architecture()),
                                                  ProjectExplorer::Abi::toString(m_targetAbi.wordWidth()));
+}
+
+QList<Abi> GccToolChain::findAbiForCompilerPath(const QString &path)
+{
+    if (path.isEmpty())
+        return QList<Abi>();
+
+    return detectSupportedAbis();
 }
 
 QString GccToolChain::legacyId() const
@@ -339,14 +349,12 @@ void GccToolChain::setTargetAbi(const Abi &abi)
     if (abi == m_targetAbi)
         return;
 
-    updateSupportedAbis();
     m_targetAbi = abi;
     toolChainUpdated();
 }
 
 QList<Abi> GccToolChain::supportedAbis() const
 {
-    updateSupportedAbis();
     return m_supportedAbis;
 }
 
@@ -450,24 +458,22 @@ void GccToolChain::setCompilerPath(const QString &path)
     bool resetDisplayName = displayName() == defaultDisplayName();
 
     m_compilerPath = path;
-    m_supportedAbis.clear();
 
     Abi currentAbi = m_targetAbi;
+    m_supportedAbis = findAbiForCompilerPath(m_compilerPath);
 
     m_targetAbi = Abi();
-    if (!m_compilerPath.isEmpty()) {
-        updateSupportedAbis();
-        if (!m_supportedAbis.isEmpty()) {
-            if (m_supportedAbis.contains(currentAbi))
-                m_targetAbi = currentAbi;
-            else
-                m_targetAbi = m_supportedAbis.at(0);
-        }
-
-        if (resetDisplayName)
-            setDisplayName(defaultDisplayName());
+    if (!m_supportedAbis.isEmpty()) {
+        if (m_supportedAbis.contains(currentAbi))
+            m_targetAbi = currentAbi;
+        else
+            m_targetAbi = m_supportedAbis.at(0);
     }
-    toolChainUpdated();
+
+    if (resetDisplayName)
+        setDisplayName(defaultDisplayName()); // calls toolChainUpdated()!
+    else
+        toolChainUpdated();
 }
 
 QString GccToolChain::compilerPath() const

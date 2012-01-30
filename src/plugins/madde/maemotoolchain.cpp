@@ -61,12 +61,15 @@ static const char *const MAEMO_QT_VERSION_KEY = "Qt4ProjectManager.Maemo.QtVersi
 MaemoToolChain::MaemoToolChain(bool autodetected) :
     ProjectExplorer::GccToolChain(QLatin1String(Constants::MAEMO_TOOLCHAIN_ID), autodetected),
     m_qtVersionId(-1)
-{ }
+{
+    setQtVersionId(-1);
+}
 
 MaemoToolChain::MaemoToolChain(const MaemoToolChain &tc) :
-    ProjectExplorer::GccToolChain(tc),
-    m_qtVersionId(tc.m_qtVersionId)
-{ }
+    ProjectExplorer::GccToolChain(tc)
+{
+    setQtVersionId(tc.m_qtVersionId);
+}
 
 MaemoToolChain::~MaemoToolChain()
 { }
@@ -167,6 +170,19 @@ QString MaemoToolChain::legacyId() const
     return QString::fromLatin1("%1:%2.%3").arg(Constants::MAEMO_TOOLCHAIN_ID)
                                           .arg(m_qtVersionId)
                                           .arg(debuggerCommand().toString());
+}
+
+QList<ProjectExplorer::Abi> MaemoToolChain::findAbiForCompilerPath(const QString &path)
+{
+    Q_UNUSED(path);
+    if (m_qtVersionId < 0)
+        return QList<ProjectExplorer::Abi>();
+
+    MaemoQtVersion *mqv = dynamic_cast<MaemoQtVersion *>(QtSupport::QtVersionManager::instance()->version(m_qtVersionId));
+    if (!mqv)
+        return QList<ProjectExplorer::Abi>();
+
+    return mqv->qtAbis();
 }
 
 // --------------------------------------------------------------------------
@@ -280,7 +296,7 @@ QList<ProjectExplorer::ToolChain *> MaemoToolChainFactory::createToolChainList(c
             tcm->deregisterToolChain(tc);
 
         const MaemoQtVersion * const mqv = dynamic_cast<MaemoQtVersion *>(v);
-        if (!mqv || !mqv->isValid())
+        if (!mqv || !mqv->isValid() || mqv->qtAbis().isEmpty())
             continue;
 
         // (Re-)add toolchain:
