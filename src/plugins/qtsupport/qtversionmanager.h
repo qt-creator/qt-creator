@@ -113,6 +113,7 @@ public slots:
     void updateDumpFor(const Utils::FileName &qmakeCommand);
 
 private slots:
+    void delayedUpdateSettings();
     void updateSettings();
 
 private:

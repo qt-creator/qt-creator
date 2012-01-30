@@ -59,6 +59,7 @@
 #include <QtCore/QSettings>
 #include <QtCore/QTextStream>
 #include <QtCore/QDir>
+#include <QtCore/QTimer>
 #include <QtGui/QMainWindow>
 
 #include <algorithm>
@@ -137,7 +138,7 @@ void QtVersionManager::extensionsInitialized()
         findSystemQt();
     }
 
-    updateSettings();
+    connect(Core::ICore::instance(), SIGNAL(coreOpened()), this, SLOT(delayedUpdateSettings()));
     saveQtVersions();
 }
 
@@ -512,10 +513,14 @@ void QtVersionManager::updateDumpFor(const Utils::FileName &qmakeCommand)
     emit dumpUpdatedFor(qmakeCommand);
 }
 
+void QtVersionManager::delayedUpdateSettings()
+{
+    QTimer::singleShot(100, this, SLOT(updateSettings()));
+}
+
 void QtVersionManager::updateSettings()
 {
     updateDocumentation();
-
     BaseQtVersion *version = 0;
     QList<BaseQtVersion *> candidates;
 
