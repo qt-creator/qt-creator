@@ -54,7 +54,7 @@ public:
     Utils::FileName mkspec() const;
     QString defaultMakeTarget() const;
 
-    void setCompilerPath(const QString &);
+    void setCompilerCommand(const Utils::FileName &);
 
     ProjectExplorer::ToolChain *clone() const;
 

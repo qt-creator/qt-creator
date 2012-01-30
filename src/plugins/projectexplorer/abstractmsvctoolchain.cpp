@@ -135,6 +135,13 @@ void AbstractMsvcToolChain::setDebuggerCommand(const Utils::FileName &d)
     toolChainUpdated();
 }
 
+Utils::FileName AbstractMsvcToolChain::compilerCommand() const
+{
+    Utils::Environment env;
+    addToEnvironment(env);
+    return Utils::FileName::fromString(env.searchInPath("cl.exe"));
+}
+
 Utils::FileName AbstractMsvcToolChain::debuggerCommand() const
 {
     return m_debuggerCommand;

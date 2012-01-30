@@ -81,8 +81,8 @@ public:
 
     bool operator ==(const ToolChain &) const;
 
-    void setCompilerPath(const QString &);
-    QString compilerPath() const;
+    void setCompilerCommand(const Utils::FileName &);
+    Utils::FileName compilerCommand() const;
 
     ToolChain *clone() const;
 
@@ -103,7 +103,7 @@ private:
 
     void updateSupportedAbis() const;
 
-    QString m_compilerPath;
+    Utils::FileName m_compilerPath;
     Utils::FileName m_debuggerCommand;
 
     Abi m_targetAbi;

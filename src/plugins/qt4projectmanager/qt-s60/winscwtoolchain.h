@@ -64,6 +64,7 @@ public:
     void addToEnvironment(Utils::Environment &env) const;
     Utils::FileName mkspec() const;
     QString makeCommand() const;
+    Utils::FileName compilerCommand() const;
     Utils::FileName debuggerCommand() const;
     QString defaultMakeTarget() const;
     ProjectExplorer::IOutputParser *outputParser() const;
@@ -82,15 +83,14 @@ public:
     void setSystemLibraryPathes(const QStringList &);
     QStringList systemLibraryPathes() const;
 
-    void setCompilerPath(const QString &);
-    QString compilerPath() const;
+    void setCompilerCommand(const Utils::FileName &);
 
 private:
     explicit WinscwToolChain(bool);
 
     QStringList m_systemIncludePathes;
     QStringList m_systemLibraryPathes;
-    QString m_compilerPath;
+    Utils::FileName m_compilerPath;
 
     friend class WinscwToolChainFactory;
 };

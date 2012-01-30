@@ -413,7 +413,7 @@ bool QtVersionManager::legacyRestore()
             if (fi.exists() && fi.isExecutable()) {
                 ProjectExplorer::MingwToolChain *tc = createToolChain<ProjectExplorer::MingwToolChain>(QLatin1String(ProjectExplorer::Constants::MINGW_TOOLCHAIN_ID));
                 if (tc) {
-                    tc->setCompilerPath(fi.absoluteFilePath());
+                    tc->setCompilerCommand(Utils::FileName(fi));
                     tc->setDisplayName(tr("MinGW from %1").arg(version->displayName()));
                     // The debugger is set later in the autoDetect method of the MinGw tool chain factory
                     // as the default debuggers are not yet registered.

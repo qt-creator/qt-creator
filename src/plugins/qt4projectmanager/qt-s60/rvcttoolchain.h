@@ -77,7 +77,7 @@ public:
         int build;
     };
 
-    static RvctVersion version(const QString &rvctPath);
+    static RvctVersion version(const Utils::FileName &rvctPath);
 
     enum ArmVersion { ARMv5, ARMv6 };
 
@@ -102,11 +102,11 @@ public:
     void setEnvironmentChanges(const QList<Utils::EnvironmentItem> &changes);
     QList<Utils::EnvironmentItem> environmentChanges() const;
 
-    void setCompilerPath(const QString &path);
-    QString compilerPath() const;
+    void setCompilerCommand(const Utils::FileName &path);
+    Utils::FileName compilerCommand() const;
 
     void setDebuggerCommand(const Utils::FileName &d);
-    virtual Utils::FileName debuggerCommand() const;
+    Utils::FileName debuggerCommand() const;
 
     void setArmVersion(ArmVersion);
     ArmVersion armVersion() const;
@@ -126,7 +126,7 @@ private:
     QString varName(const QString &postFix) const;
 
     QList<ProjectExplorer::HeaderPath> m_systemHeaderPaths;
-    QString m_compilerPath;
+    Utils::FileName m_compilerCommand;
     QList<Utils::EnvironmentItem> m_environmentChanges;
     ArmVersion m_armVersion;
     mutable RvctVersion m_version;

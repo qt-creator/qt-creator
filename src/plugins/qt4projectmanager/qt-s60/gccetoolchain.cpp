@@ -44,7 +44,7 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-static QString gcceVersion(const QString &command)
+static QString gcceVersion(const Utils::FileName &command)
 {
     if (command.isEmpty())
         return QString();
@@ -56,19 +56,19 @@ static QString gcceVersion(const QString &command)
     env.set(QLatin1String("LC_ALL"), QLatin1String("C"));   //override current locale settings
     gxx.setEnvironment(env.toStringList());
     gxx.setReadChannelMode(QProcess::MergedChannels);
-    gxx.start(command, arguments);
+    gxx.start(command.toString(), arguments);
     if (!gxx.waitForStarted()) {
-        qWarning("Cannot start '%s': %s", qPrintable(command), qPrintable(gxx.errorString()));
+        qWarning("Cannot start '%s': %s", qPrintable(command.toUserOutput()), qPrintable(gxx.errorString()));
         return QString();
     }
     gxx.closeWriteChannel();
     if (!gxx.waitForFinished())      {
         Utils::SynchronousProcess::stopProcess(gxx);
-        qWarning("Timeout running '%s'.", qPrintable(command));
+        qWarning("Timeout running '%s'.", qPrintable(command.toUserOutput()));
         return QString();
     }
     if (gxx.exitStatus() != QProcess::NormalExit) {
-        qWarning("'%s' crashed.", qPrintable(command));
+        qWarning("'%s' crashed.", qPrintable(command.toUserOutput()));
         return QString();
     }
 
@@ -110,7 +110,7 @@ void GcceToolChain::addToEnvironment(Utils::Environment &env) const
     GccToolChain::addToEnvironment(env);
 
     if (m_gcceVersion.isEmpty())
-        m_gcceVersion = gcceVersion(compilerPath());
+        m_gcceVersion = gcceVersion(compilerCommand());
     if (m_gcceVersion.isEmpty())
         return;
 
@@ -118,7 +118,7 @@ void GcceToolChain::addToEnvironment(Utils::Environment &env) const
     QString version = m_gcceVersion;
     env.set(QString::fromLatin1("SBS_GCCE") + version.remove(QLatin1Char('.'))
             + QLatin1String("BIN"),
-            QDir::toNativeSeparators(QFileInfo(compilerPath()).absolutePath()));
+            compilerCommand().toUserOutput());
     // Required for SBS, which checks the version output from its tools
     // and gets confused by localized output.
     env.set(QLatin1String("LANG"), QString(QLatin1Char('C')));
@@ -143,10 +143,10 @@ QString GcceToolChain::defaultMakeTarget() const
     return QLatin1String("gcce");
 }
 
-void GcceToolChain::setCompilerPath(const QString &path)
+void GcceToolChain::setCompilerCommand(const Utils::FileName &path)
 {
     m_gcceVersion.clear();
-    GccToolChain::setCompilerPath(path);
+    GccToolChain::setCompilerCommand(path);
 }
 
 ProjectExplorer::ToolChain *GcceToolChain::clone() const
@@ -185,19 +185,21 @@ QList<ProjectExplorer::ToolChain *> GcceToolChainFactory::autoDetect()
         QFileInfo fi(path + QLatin1String("/bin/arm-none-symbianelf-g++.exe"));
         if (fi.exists() && fi.isExecutable()) {
             GcceToolChain *tc = new GcceToolChain(false);
-            tc->setCompilerPath(fi.absoluteFilePath());
+            tc->setCompilerCommand(Utils::FileName(fi));
             tc->setDisplayName(tr("GCCE from Qt version"));
             tc->setDebuggerCommand(ProjectExplorer::ToolChainManager::instance()->defaultDebugger(tc->targetAbi()));
             result.append(tc);
         }
     }
 
-    QString fullPath = Utils::Environment::systemEnvironment().searchInPath(QLatin1String("arm-none-symbianelf-gcc"));
+    Utils::FileName fullPath =
+            Utils::FileName::fromString(Utils::Environment::systemEnvironment()
+                                        .searchInPath(QLatin1String("arm-none-symbianelf-gcc")));
     QString version = gcceVersion(fullPath);
     // If version is empty then this is not a GCC but e.g. bullseye!
     if (!fullPath.isEmpty() && !version.isEmpty()) {
         GcceToolChain *tc = new GcceToolChain(true);
-        tc->setCompilerPath(fullPath);
+        tc->setCompilerCommand(fullPath);
         tc->setDisplayName(tr("GCCE (%1)").arg(version));
         tc->setDebuggerCommand(ProjectExplorer::ToolChainManager::instance()->defaultDebugger(tc->targetAbi()));
         if (tc->targetAbi() == ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture,
