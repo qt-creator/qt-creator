@@ -138,8 +138,12 @@ QNetworkReply *HelpNetworkAccessManager::createRequest(Operation op,
     if (!engine.findFile(url).isValid()) {
         if (url.startsWith(HelpViewer::NsNokia) || url.startsWith(HelpViewer::NsTrolltech)) {
             QUrl newUrl = request.url();
-            if (!newUrl.path().startsWith(QLatin1String("/qdoc/"))) {
-                newUrl.setPath(QLatin1String("/qdoc/") + newUrl.path());
+            if (!newUrl.path().startsWith(QLatin1String("/qdoc/")) ||
+                    !newUrl.path().startsWith(QLatin1String("/doc/"))) {
+                QString path = newUrl.path();
+                newUrl.setPath(QLatin1String("/qdoc/") + path);
+                if (!engine.findFile(newUrl).isValid())
+                    newUrl.setPath(QLatin1String("/doc/") + path);
                 url = newUrl.toString();
             }
         }
