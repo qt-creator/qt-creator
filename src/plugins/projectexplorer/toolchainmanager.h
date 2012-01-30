@@ -94,12 +94,12 @@ private:
 
     void notifyAboutUpdate(ProjectExplorer::ToolChain *);
 
-
     Internal::ToolChainManagerPrivate *const d;
 
     static ToolChainManager *m_instance;
 
-    friend class ProjectExplorerPlugin;
+    friend class Internal::ToolChainManagerPrivate; // for the restoreToolChains methods
+    friend class ProjectExplorerPlugin; // for constructor
     friend class ToolChain;
 };
 
