@@ -461,6 +461,15 @@ bool WinCEToolChainFactory::canRestore(const QVariantMap &data)
     return idFromMap(data).startsWith(QLatin1String(Constants::WINCE_TOOLCHAIN_ID) + QLatin1Char(':'));
 }
 
+bool WinCEToolChain::operator ==(const ToolChain &other) const
+{
+    if (!AbstractMsvcToolChain::operator ==(other))
+        return false;
+
+    const WinCEToolChain *ceTc = static_cast<const WinCEToolChain *>(&other);
+    return m_ceVer == ceTc->m_ceVer;
+}
+
 ToolChain *WinCEToolChainFactory::restore(const QVariantMap &data)
 {
     return WinCEToolChain::readFromMap(data);

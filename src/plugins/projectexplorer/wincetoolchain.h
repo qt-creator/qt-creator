@@ -76,6 +76,7 @@ public:
 
     static QString autoDetectCdbDebugger(QStringList *checkedDirectories = 0);
 
+    bool operator ==(const ToolChain &other) const;
 protected:
     Utils::Environment readEnvironmentSetting(Utils::Environment& env) const;
 

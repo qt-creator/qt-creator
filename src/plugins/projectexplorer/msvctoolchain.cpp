@@ -648,6 +648,14 @@ QPair<Utils::FileName, Utils::FileName> MsvcToolChain::autoDetectCdbDebugger()
     return result;
 }
 
+bool MsvcToolChain::operator ==(const ToolChain &other) const
+{
+    if (!AbstractMsvcToolChain::operator ==(other))
+        return false;
+    const MsvcToolChain *msvcTc = static_cast<const MsvcToolChain *>(&other);
+    return m_varsBatArg == msvcTc->m_varsBatArg;
+}
+
 bool MsvcToolChainFactory::canRestore(const QVariantMap &data)
 {
     return idFromMap(data).startsWith(QLatin1String(Constants::MSVC_TOOLCHAIN_ID) + QLatin1Char(':'));

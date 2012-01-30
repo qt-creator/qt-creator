@@ -74,6 +74,8 @@ public:
 
     static QPair<Utils::FileName, Utils::FileName> autoDetectCdbDebugger();
 
+    bool operator == (const ToolChain &) const;
+
 protected:
     Utils::Environment readEnvironmentSetting(Utils::Environment& env) const;
     QByteArray msvcPredefinedMacros(const Utils::Environment &env) const;
