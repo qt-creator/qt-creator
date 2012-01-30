@@ -304,8 +304,8 @@ GccToolChain::GccToolChain(const GccToolChain &tc) :
 QString GccToolChain::defaultDisplayName() const
 {
     if (!m_targetAbi.isValid())
-        return typeName();
-    return QString::fromLatin1("%1 (%2 %3)").arg(typeName(),
+        return typeDisplayName();
+    return QString::fromLatin1("%1 (%2 %3)").arg(typeDisplayName(),
                                                  ProjectExplorer::Abi::toString(m_targetAbi.architecture()),
                                                  ProjectExplorer::Abi::toString(m_targetAbi.wordWidth()));
 }
@@ -327,7 +327,12 @@ QString GccToolChain::legacyId() const
                .arg(m_targetAbi.toString()).arg(m_debuggerCommand.toString());
 }
 
-QString GccToolChain::typeName() const
+QString GccToolChain::type() const
+{
+    return QLatin1String("gcc");
+}
+
+QString GccToolChain::typeDisplayName() const
 {
     return Internal::GccToolChainFactory::tr("GCC");
 }
@@ -770,7 +775,12 @@ ClangToolChain::ClangToolChain(bool autodetect) :
     GccToolChain(QLatin1String(Constants::CLANG_TOOLCHAIN_ID), autodetect)
 { }
 
-QString ClangToolChain::typeName() const
+QString ClangToolChain::type() const
+{
+    return QLatin1String("clang");
+}
+
+QString ClangToolChain::typeDisplayName() const
 {
     return Internal::ClangToolChainFactory::tr("Clang");
 }
@@ -862,7 +872,12 @@ MingwToolChain::MingwToolChain(bool autodetect) :
     GccToolChain(QLatin1String(Constants::MINGW_TOOLCHAIN_ID), autodetect)
 { }
 
-QString MingwToolChain::typeName() const
+QString MingwToolChain::type() const
+{
+    return QLatin1String("mingw");
+}
+
+QString MingwToolChain::typeDisplayName() const
 {
     return Internal::MingwToolChainFactory::tr("MinGW");
 }
@@ -951,7 +966,12 @@ LinuxIccToolChain::LinuxIccToolChain(bool autodetect) :
     GccToolChain(QLatin1String(Constants::LINUXICC_TOOLCHAIN_ID), autodetect)
 { }
 
-QString LinuxIccToolChain::typeName() const
+QString LinuxIccToolChain::type() const
+{
+    return QLatin1String("icc");
+}
+
+QString LinuxIccToolChain::typeDisplayName() const
 {
     return Internal::LinuxIccToolChainFactory::tr("Linux ICC");
 }

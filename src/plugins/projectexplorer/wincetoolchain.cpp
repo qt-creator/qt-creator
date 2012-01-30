@@ -295,7 +295,12 @@ QString WinCEToolChain::legacyId() const
     return id;
 }
 
-QString WinCEToolChain::typeName() const
+QString WinCEToolChain::type() const
+{
+    return QLatin1String("wince");
+}
+
+QString WinCEToolChain::typeDisplayName() const
 {
     return WinCEToolChainFactory::tr("WinCE");
 }

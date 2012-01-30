@@ -52,7 +52,8 @@ public:
     WinscwToolChain(const WinscwToolChain &);
     ~WinscwToolChain();
 
-    QString typeName() const;
+    QString type() const;
+    QString typeDisplayName() const;
     ProjectExplorer::Abi targetAbi() const;
     QString legacyId() const;
 

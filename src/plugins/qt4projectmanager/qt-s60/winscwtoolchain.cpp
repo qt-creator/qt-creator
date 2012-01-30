@@ -135,7 +135,12 @@ WinscwToolChain::WinscwToolChain(const WinscwToolChain &tc) :
 WinscwToolChain::~WinscwToolChain()
 { }
 
-QString WinscwToolChain::typeName() const
+QString WinscwToolChain::type() const
+{
+    return QLatin1String("winscw");
+}
+
+QString WinscwToolChain::typeDisplayName() const
 {
     return WinscwToolChainFactory::tr("WINSCW");
 }

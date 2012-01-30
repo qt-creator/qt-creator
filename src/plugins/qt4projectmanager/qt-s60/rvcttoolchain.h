@@ -81,7 +81,8 @@ public:
 
     enum ArmVersion { ARMv5, ARMv6 };
 
-    QString typeName() const;
+    QString type() const;
+    QString typeDisplayName() const;
     ProjectExplorer::Abi targetAbi() const;
 
     QString legacyId() const;

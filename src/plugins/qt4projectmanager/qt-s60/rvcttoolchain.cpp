@@ -143,7 +143,12 @@ RvctToolChain::RvctVersion RvctToolChain::version(const QString &rvctPath)
     return v;
 }
 
-QString RvctToolChain::typeName() const
+QString RvctToolChain::type() const
+{
+    return QLatin1String("rvct");
+}
+
+QString RvctToolChain::typeDisplayName() const
 {
     return RvctToolChainFactory::tr("RVCT");
 }

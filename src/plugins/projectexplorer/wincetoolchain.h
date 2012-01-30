@@ -61,7 +61,8 @@ public:
 
     static WinCEToolChain *readFromMap(const QVariantMap &data);
 
-    QString typeName() const;
+    QString type() const;
+    QString typeDisplayName() const;
 
     Utils::FileName mkspec() const;
 

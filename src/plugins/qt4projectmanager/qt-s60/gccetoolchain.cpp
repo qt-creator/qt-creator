@@ -84,7 +84,12 @@ static QString gcceVersion(const QString &command)
 // GcceToolChain
 // ==========================================================================
 
-QString GcceToolChain::typeName() const
+QString GcceToolChain::type() const
+{
+    return QLatin1String("gcce");
+}
+
+QString GcceToolChain::typeDisplayName() const
 {
     return GcceToolChainFactory::tr("GCCE");
 }

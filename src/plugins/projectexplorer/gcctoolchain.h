@@ -56,7 +56,8 @@ class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 public:
     QString legacyId() const;
 
-    QString typeName() const;
+    QString type() const;
+    QString typeDisplayName() const;
     Abi targetAbi() const;
     QString version() const;
     QList<Abi> supportedAbis() const;
@@ -121,7 +122,8 @@ private:
 class PROJECTEXPLORER_EXPORT ClangToolChain : public GccToolChain
 {
 public:
-    QString typeName() const;
+    QString type() const;
+    QString typeDisplayName() const;
     QString makeCommand() const;
     Utils::FileName mkspec() const;
 
@@ -143,7 +145,8 @@ private:
 class PROJECTEXPLORER_EXPORT MingwToolChain : public GccToolChain
 {
 public:
-    QString typeName() const;
+    QString type() const;
+    QString typeDisplayName() const;
     Utils::FileName mkspec() const;
     QString makeCommand() const;
 
@@ -163,8 +166,8 @@ private:
 class PROJECTEXPLORER_EXPORT LinuxIccToolChain : public GccToolChain
 {
 public:
-
-    QString typeName() const;
+    QString type() const;
+    QString typeDisplayName() const;
 
     IOutputParser *outputParser() const;
 

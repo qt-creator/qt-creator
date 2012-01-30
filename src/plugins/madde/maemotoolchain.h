@@ -48,7 +48,8 @@ class MaemoToolChain : public ProjectExplorer::GccToolChain
 public:
     ~MaemoToolChain();
 
-    QString typeName() const;
+    QString type() const;
+    QString typeDisplayName() const;
     Utils::FileName mkspec() const;
 
     bool isValid() const;

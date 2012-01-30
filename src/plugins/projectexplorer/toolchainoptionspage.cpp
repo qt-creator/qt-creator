@@ -194,7 +194,7 @@ QVariant ToolChainModel::data(const QModelIndex &index, int role) const
                 return node->newName.isEmpty() ?
                     node->toolChain->displayName() : node->newName;
             }
-            return node->toolChain->typeName();
+            return node->toolChain->typeDisplayName();
         }
         if (role == Qt::ToolTipRole) {
             return tr("<nobr><b>ABI:</b> %1")

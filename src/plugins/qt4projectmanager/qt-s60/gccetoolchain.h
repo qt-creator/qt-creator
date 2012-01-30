@@ -45,7 +45,8 @@ namespace Internal {
 class GcceToolChain : public ProjectExplorer::GccToolChain
 {
 public:
-    QString typeName() const;
+    QString type() const;
+    QString typeDisplayName() const;
 
     QByteArray predefinedMacros() const;
     void addToEnvironment(Utils::Environment &env) const;

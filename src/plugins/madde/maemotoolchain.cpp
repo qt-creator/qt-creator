@@ -74,7 +74,12 @@ MaemoToolChain::MaemoToolChain(const MaemoToolChain &tc) :
 MaemoToolChain::~MaemoToolChain()
 { }
 
-QString MaemoToolChain::typeName() const
+QString MaemoToolChain::type() const
+{
+    return QLatin1String("maemogcc");
+}
+
+QString MaemoToolChain::typeDisplayName() const
 {
     return MaemoToolChainFactory::tr("Maemo GCC");
 }

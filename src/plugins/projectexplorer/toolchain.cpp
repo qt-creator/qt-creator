@@ -107,7 +107,7 @@ ToolChain::~ToolChain()
 QString ToolChain::displayName() const
 {
     if (d->m_displayName.isEmpty())
-        return typeName();
+        return typeDisplayName();
     return d->m_displayName;
 }
 

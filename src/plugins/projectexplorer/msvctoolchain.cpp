@@ -318,7 +318,12 @@ QString MsvcToolChain::legacyId() const
     return id;
 }
 
-QString MsvcToolChain::typeName() const
+QString MsvcToolChain::type() const
+{
+    return QLatin1String("msvc");
+}
+
+QString MsvcToolChain::typeDisplayName() const
 {
     return MsvcToolChainFactory::tr("MSVC");
 }

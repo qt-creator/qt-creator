@@ -75,7 +75,8 @@ public:
     // No need to implement this for new tool chains:
     virtual QString legacyId() const { return QString(); }
 
-    virtual QString typeName() const = 0;
+    virtual QString type() const = 0;
+    virtual QString typeDisplayName() const = 0;
     virtual Abi targetAbi() const = 0;
 
     virtual bool isValid() const = 0;
