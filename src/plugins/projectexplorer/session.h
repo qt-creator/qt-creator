@@ -102,7 +102,6 @@ public:
     bool addDependency(Project *project, Project *depProject);
     void removeDependency(Project *project, Project *depProject);
 
-    QString currentSession() const;
     QString sessionNameToFileName(const QString &session) const;
     QString sessionNameFromFileName(const QString &fileName) const;
     Project *startupProject() const;

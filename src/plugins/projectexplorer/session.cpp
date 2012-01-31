@@ -848,11 +848,6 @@ void SessionManager::configureEditor(Core::IEditor *editor, const QString &fileN
     }
 }
 
-QString SessionManager::currentSession() const
-{
-    return QFileInfo(m_file->fileName()).completeBaseName();
-}
-
 void SessionManager::updateWindowTitle()
 {
     if (isDefaultSession(m_sessionName)) {
