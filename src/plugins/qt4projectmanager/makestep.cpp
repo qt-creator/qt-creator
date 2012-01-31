@@ -136,7 +136,7 @@ bool MakeStep::init()
     m_tasks.clear();
     if (!bc) {
         m_tasks.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                             tr("Qt Creator needs a buildconfiguration set up to build. Configure a tool chain in Project mode."),
+                                             tr("Qt Creator needs a build configuration set up to build. Configure a tool chain in Project mode."),
                                              Utils::FileName(), -1,
                                              Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         return false;
@@ -409,7 +409,7 @@ void MakeStepConfigWidget::updateDetails()
     if (!bc)
         bc = qobject_cast<Qt4BuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
     if (!bc)
-        m_summaryText = tr("No qt4 buildconfiguration."); // Can't happen
+        m_summaryText = tr("No Qt4 build configuration."); // Can't happen
 
     ProjectExplorer::ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());

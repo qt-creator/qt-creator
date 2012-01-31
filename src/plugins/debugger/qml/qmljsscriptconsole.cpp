@@ -363,13 +363,10 @@ void QmlJSScriptConsole::onStateChanged(QmlJsDebugClient::QDeclarativeDebugQuery
 void QmlJSScriptConsole::onSelectionChanged()
 {
     if (d->adapter) {
-        QString status(tr("Context: "));
-        if (!d->inferiorStopped) {
-            status.append(d->adapter->currentSelectedDisplayName());
-        } else {
-            status.append(engine()->stackHandler()->currentFrame().function);
-        }
-        emit updateStatusMessage(status, 0);
+        const QString context = d->inferiorStopped ?
+            engine()->stackHandler()->currentFrame().function :
+            d->adapter->currentSelectedDisplayName();
+        emit updateStatusMessage(tr("Context: %1").arg(context), 0);
     }
 }
 

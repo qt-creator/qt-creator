@@ -91,7 +91,7 @@ public:
             new QSpacerItem(0, 1, QSizePolicy::Minimum, QSizePolicy::Minimum);
 
         checkBox = new QCheckBox(q);
-        checkBox->setText(q->tr("Do not ask again"));
+        checkBox->setText(CheckableMessageBox::tr("Do not ask again"));
 
         buttonBox = new QDialogButtonBox(q);
         buttonBox->setOrientation(Qt::Horizontal);

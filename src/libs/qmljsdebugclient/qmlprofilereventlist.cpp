@@ -1572,7 +1572,7 @@ void QmlProfilerEventList::load()
         clear();
         emit countChanged();
         emit dataReady();
-        emit error(tr("Invalid version of QmlProfiler trace file."));
+        emit error(tr("Invalid version of QML Trace file."));
         return;
     }
 
