@@ -331,7 +331,7 @@ class HighestValue
     bool _set;
 public:
     HighestValue()
-        : _set(false)
+        : _key(), _set(false)
     {}
 
     HighestValue(const Key &initialKey, const Value &initialValue)
@@ -369,22 +369,22 @@ public:
 
     void operator()(Declaration *decl, unsigned *line, unsigned *column)
     {
-        *line = *column = 0;
-        if (translationUnit()->ast()->lastToken() < 2)
-            return;
-
-        QList<const Name *> names = LookupContext::fullyQualifiedName(decl);
-        foreach (const Name *name, names) {
-            const Identifier *id = name->asNameId();
-            if (!id)
-                break;
-            _namespaceNames += id;
-        }
-        _currentDepth = 0;
-
         // default to end of file
-        _bestToken.maybeSet(-1, translationUnit()->ast()->lastToken() - 1);
-        accept(translationUnit()->ast());
+        _bestToken.maybeSet(-1, translationUnit()->ast()->lastToken());
+
+        if (translationUnit()->ast()->lastToken() >= 2) {
+
+            QList<const Name *> names = LookupContext::fullyQualifiedName(decl);
+            foreach (const Name *name, names) {
+                const Identifier *id = name->asNameId();
+                if (!id)
+                    break;
+                _namespaceNames += id;
+            }
+            _currentDepth = 0;
+
+            accept(translationUnit()->ast());
+        }
         translationUnit()->getTokenEndPosition(_bestToken.get(), line, column);
     }
 
@@ -586,7 +586,8 @@ QList<InsertionLocation> InsertionPointLocator::methodDefinition(
             target = candidate;
     }
 
-    Document::Ptr doc = m_refactoringChanges.file(target)->cppDocument();
+    CppRefactoringFilePtr targetFile = m_refactoringChanges.file(target);
+    Document::Ptr doc = targetFile->cppDocument();
     if (doc.isNull())
         return result;
 
@@ -594,8 +595,24 @@ QList<InsertionLocation> InsertionPointLocator::methodDefinition(
     FindMethodDefinitionInsertPoint finder(doc->translationUnit());
     finder(declaration, &line, &column);
 
+    // Make sure we have a line before and after the new definition.
     const QLatin1String prefix("\n\n");
-    result.append(InsertionLocation(target, prefix, QString(), line, column));
+    QString suffix;
+    int firstNonSpace = targetFile->position(line, column);
+    QChar c = targetFile->charAt(firstNonSpace);
+    while (c == QLatin1Char(' ') || c == QLatin1Char('\t')) {
+        ++firstNonSpace;
+        c = targetFile->charAt(firstNonSpace);
+    }
+    if (targetFile->charAt(firstNonSpace) != QChar::ParagraphSeparator) {
+        suffix.append(QLatin1String("\n\n"));
+    } else {
+        ++firstNonSpace;
+        if (targetFile->charAt(firstNonSpace) != QChar::ParagraphSeparator)
+            suffix.append(QLatin1Char('\n'));
+    }
+
+    result += InsertionLocation(target, prefix, suffix, line, column);
 
     return result;
 }
