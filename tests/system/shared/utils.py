@@ -221,3 +221,10 @@ def addHelpDocumentationFromSDK():
     clickButton(waitForObject("{type='QPushButton' name='addButton' visible='1' text='Add...'}"))
     selectFromFileDialog("%s/Documentation/qt.qch" % sdkPath)
     clickButton(waitForObject(":Options.OK_QPushButton"))
+
+def verifyOutput(string, substring, outputFrom, outputIn):
+    index = string.find(substring)
+    if (index == -1):
+        test.fail("Output from " + outputFrom + " could not be found in " + outputIn)
+    else:
+        test.passes("Output from " + outputFrom + " found at position " + str(index) + " of " + outputIn)

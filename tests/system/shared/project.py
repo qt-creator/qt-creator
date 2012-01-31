@@ -164,7 +164,13 @@ def createProject_Qt_GUI(path, projectName, qtVersion = None, checks = True):
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 20000)
     __verifyFileCreation__(path, expectedFiles)
 
-def createProject_Qt_Console(path, projectName, qtVersion, checks):
+# Creates a Qt Console project
+# param path specifies where to create the project
+# param projectName is the name for the new project
+# param qtVersion is the name of a Qt version. In the project, build configurations will be
+#                 created for this version. If it is None, all Qt versions will be used
+# param checks turns tests in the function on if set to True
+def createProject_Qt_Console(path, projectName, qtVersion = None, checks = True):
     __createProjectSelectType__("Other Qt Project", "Qt Console Application")
     __createProjectSetNameAndPath__(path, projectName, checks)
     __selectQtVersionDesktop__(qtVersion, checks)
