@@ -4654,15 +4654,15 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
     postCommand("set width 0");
     postCommand("set height 0");
 
-    postCommand("set breakpoint always-inserted on");
+    postCommand("set breakpoint always-inserted on", ConsoleCommand);
     // displaced-stepping does not work in Thumb mode.
     //postCommand("set displaced-stepping on");
-    postCommand("set trust-readonly-sections on");
-    postCommand("set auto-solib-add on");
+    postCommand("set trust-readonly-sections on", ConsoleCommand);
+    postCommand("set auto-solib-add on", ConsoleCommand);
 
     if (0 && debuggerCore()->boolSetting(TargetAsync)) {
-        postCommand("set target-async on");
-        postCommand("set non-stop on");
+        postCommand("set target-async on", ConsoleCommand);
+        postCommand("set non-stop on", ConsoleCommand);
     }
 
     // Work around https://bugreports.qt-project.org/browse/QTCREATORBUG-2004
