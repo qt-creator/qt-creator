@@ -75,7 +75,8 @@ public:
           prompt(_("> ")),
           startOfEditableArea(-1),
           lastKnownPosition(0),
-          inferiorStopped(false)
+          inferiorStopped(false),
+          hasContext(false)
     {
         scriptHistory.append(QString());
         scriptHistoryIndex = scriptHistory.count();
@@ -96,6 +97,7 @@ public:
     InteractiveInterpreter interpreter;
 
     bool inferiorStopped;
+    bool hasContext;
 
     QFlags<QmlJSScriptConsole::DebugLevelFlag> debugLevel;
 };
@@ -189,7 +191,7 @@ void QmlJSScriptConsoleWidget::setEngine(DebuggerEngine *engine)
 {
     if (m_console->engine())
         disconnect(m_console->engine(), SIGNAL(stateChanged(Debugger::DebuggerState)),
-                   this, SLOT(engineStateChanged(Debugger::DebuggerState)));
+                   this, SLOT(onEngineStateChanged(Debugger::DebuggerState)));
 
     QmlEngine *qmlEngine = qobject_cast<QmlEngine *>(engine);
     QmlCppEngine *qmlCppEngine = qobject_cast<QmlCppEngine *>(engine);
@@ -199,9 +201,9 @@ void QmlJSScriptConsoleWidget::setEngine(DebuggerEngine *engine)
     //Supports only QML Engine
     if (qmlEngine) {
         connect(qmlEngine, SIGNAL(stateChanged(Debugger::DebuggerState)),
-                this, SLOT(engineStateChanged(Debugger::DebuggerState)));
+                this, SLOT(onEngineStateChanged(Debugger::DebuggerState)));
 
-        engineStateChanged(qmlEngine->state());
+        onEngineStateChanged(qmlEngine->state());
     }
 
     m_console->setEngine(qmlEngine);
@@ -228,7 +230,7 @@ void QmlJSScriptConsoleWidget::setDebugLevel()
     m_console->setDebugLevel(level);
 }
 
-void QmlJSScriptConsoleWidget::engineStateChanged(Debugger::DebuggerState state)
+void QmlJSScriptConsoleWidget::onEngineStateChanged(Debugger::DebuggerState state)
 {
     if (state == InferiorRunOk || state == InferiorStopOk) {
         setEnabled(true);
@@ -301,11 +303,10 @@ void QmlJSScriptConsole::setEngine(QmlEngine *eng)
     clear();
 }
 
-DebuggerEngine *QmlJSScriptConsole::engine()
+DebuggerEngine *QmlJSScriptConsole::engine() const
 {
-    if (d->adapter) {
+    if (d->adapter)
         return d->adapter->debuggerEngine();
-    }
     return 0;
 }
 
@@ -364,9 +365,11 @@ void QmlJSScriptConsole::onSelectionChanged()
 {
     if (d->adapter) {
         const QString context = d->inferiorStopped ?
-            engine()->stackHandler()->currentFrame().function :
-            d->adapter->currentSelectedDisplayName();
-        emit updateStatusMessage(tr("Context: %1").arg(context), 0);
+                    d->adapter->debuggerEngine()->stackHandler()->currentFrame().function :
+                    d->adapter->currentSelectedDisplayName();
+
+        d->hasContext = !context.isEmpty();
+        emit updateStatusMessage(tr("Context: ").append(context), 0);
     }
 }
 
@@ -562,22 +565,21 @@ void QmlJSScriptConsole::displayPrompt()
 void QmlJSScriptConsole::handleReturnKey()
 {
     QString currentScript = getCurrentScript();
-    bool scriptEvaluated = false;
+    bool showPrompt = true;
+    bool showInvalidContextError = false;
 
     //Check if string is only white spaces
-    if (currentScript.trimmed().isEmpty()) {
-        scriptEvaluated = true;
-    }
-
-    if (!scriptEvaluated) {
-        //check if it can be evaluated
-        if (d->canEvaluateScript(currentScript)) {
-
-            //Select the engine for evaluation based on
-            //inferior state
-            if (!d->inferiorStopped) {
-
-                if (d->adapter) {
+    if (!currentScript.trimmed().isEmpty()) {
+        //Check for a valid context
+        if (d->hasContext) {
+            //check if it can be evaluated
+            if (d->canEvaluateScript(currentScript)) {
+                //Evaluate expression based on engine state
+                //When engine->state() == InferiorStopOk, the expression
+                //is sent to V8DebugService. In all other cases, the
+                //expression is evaluated by QDeclarativeEngine.
+                if (!d->inferiorStopped) {
+                    QTC_ASSERT(d->adapter, return);
                     QDeclarativeEngineDebug *engineDebug = d->adapter->engineDebugClient();
                     int id = d->adapter->currentSelectedDebugId();
                     if (engineDebug && id != -1) {
@@ -585,26 +587,28 @@ void QmlJSScriptConsole::handleReturnKey()
                                 engineDebug->queryExpressionResult(id, currentScript, this);
                         connect(query, SIGNAL(stateChanged(QmlJsDebugClient::QDeclarativeDebugQuery::State)),
                                 this, SLOT(onStateChanged(QmlJsDebugClient::QDeclarativeDebugQuery::State)));
-                        scriptEvaluated = true;
                     }
+                } else {
+                    emit evaluateExpression(currentScript);
                 }
-            }
 
-            if (!scriptEvaluated) {
-                emit evaluateExpression(currentScript);
-                scriptEvaluated = true;
-            }
-
-            if (scriptEvaluated) {
                 d->appendToHistory(currentScript);
+            } else {
+                //The expression is not complete, wait for more input
+                //Move to next line and do not show prompt
+                QPlainTextEdit::appendPlainText(QString());
+                moveCursor(QTextCursor::EndOfLine);
+                showPrompt = false;
             }
+        } else {
+            //Incase of invalid context, append the expression to history
+            //and show Error message
+            d->appendToHistory(currentScript);
+            showInvalidContextError = true;
         }
     }
 
-    if (!scriptEvaluated) {
-        QPlainTextEdit::appendPlainText(QString());
-        moveCursor(QTextCursor::EndOfLine);
-    } else {
+    if (showPrompt) {
         QTextCursor cur = textCursor();
         cur.movePosition(QTextCursor::End);
         cur.insertText(_("\n"));
@@ -612,6 +616,9 @@ void QmlJSScriptConsole::handleReturnKey()
         displayPrompt();
     }
 
+    //Show an error message
+    if (showInvalidContextError)
+        appendResult(QLatin1String("Cannot evaluate without a valid QML/JS Context"));
 }
 
 void QmlJSScriptConsole::handleUpKey()

@@ -1229,8 +1229,7 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
     showMessage(msg, LogDebug);
     updateViews();
 
-    if (isMasterEngine())
-        emit stateChanged(d->m_state);
+    emit stateChanged(d->m_state);
 
     if (isSlaveEngine())
         masterEngine()->slaveEngineStateChanged(this, state);

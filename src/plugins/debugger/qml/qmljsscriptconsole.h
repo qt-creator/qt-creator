@@ -72,7 +72,7 @@ signals:
 
 private slots:
     void setDebugLevel();
-    void engineStateChanged(Debugger::DebuggerState state);
+    void onEngineStateChanged(Debugger::DebuggerState state);
 
 private:
     QmlJSScriptConsole *m_console;
@@ -110,7 +110,7 @@ public:
     void setInferiorStopped(bool inferiorStopped);
 
     void setEngine(QmlEngine *engine);
-    DebuggerEngine *engine();
+    DebuggerEngine *engine() const;
 
     void appendResult(const QString &message, const QColor &color = QColor(Qt::darkGray));
 
