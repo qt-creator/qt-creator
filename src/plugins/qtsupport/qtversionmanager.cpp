@@ -138,7 +138,7 @@ void QtVersionManager::extensionsInitialized()
         findSystemQt();
     }
 
-    connect(Core::ICore::instance(), SIGNAL(coreOpened()), this, SLOT(delayedUpdateSettings()));
+    connect(Core::ICore::instance(), SIGNAL(coreOpened()), this, SLOT(delayedUpdateDocumentation()));
     saveQtVersions();
 }
 
@@ -513,54 +513,9 @@ void QtVersionManager::updateDumpFor(const Utils::FileName &qmakeCommand)
     emit dumpUpdatedFor(qmakeCommand);
 }
 
-void QtVersionManager::delayedUpdateSettings()
+void QtVersionManager::delayedUpdateDocumentation()
 {
-    QTimer::singleShot(100, this, SLOT(updateSettings()));
-}
-
-void QtVersionManager::updateSettings()
-{
-    updateDocumentation();
-    BaseQtVersion *version = 0;
-    QList<BaseQtVersion *> candidates;
-
-    // try to find a version which has both, demos and examples
-    foreach (BaseQtVersion *version, m_versions) {
-        if (version && version->hasExamples() && version->hasDemos())
-            candidates.append(version);
-    }
-
-    // in SDKs, we want to prefer the Qt version shipping with the SDK
-    QSettings *settings = Core::ICore::settings();
-    Utils::FileName preferred = Utils::FileName::fromUserInput(settings->value(QLatin1String("PreferredQMakePath")).toString());
-    if (!preferred.isEmpty()) {
-#ifdef Q_OS_WIN
-        if (!preferred.endsWith(".exe"))
-            preferred.append(".exe");
-#endif
-        foreach (version, candidates) {
-            if (version->qmakeCommand() == preferred) {
-                emit updateExamples(version->examplesPath(), version->demosPath(), version->sourcePath().toString());
-                return;
-            }
-        }
-    }
-
-    // prefer versions with declarative examples
-    foreach (version, candidates) {
-        if (QDir(version->examplesPath() + QLatin1String("/declarative")).exists()) {
-            emit updateExamples(version->examplesPath(), version->demosPath(), version->sourcePath().toString());
-            return;
-        }
-    }
-
-    if (!candidates.isEmpty()) {
-        version = candidates.first();
-        emit updateExamples(version->examplesPath(), version->demosPath(), version->sourcePath().toString());
-        return;
-    }
-    return;
-
+    QTimer::singleShot(100, this, SLOT(updateDocumentation()));
 }
 
 int QtVersionManager::getUniqueId()
@@ -696,7 +651,6 @@ void QtVersionManager::setNewQtVersions(QList<BaseQtVersion *> newVersions)
     if (!changedVersions.isEmpty())
         updateDocumentation();
 
-    updateSettings();
     saveQtVersions();
 
     if (!changedVersions.isEmpty())

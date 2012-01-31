@@ -65,15 +65,6 @@ struct ExampleItem {
     QString videoLength;
 };
 
-struct QMakePathCache {
-    QString examplesPath;
-    QString demosPath;
-    QString sourcePath;
-    QMakePathCache() {}
-    QMakePathCache(const QString &_examplesPath, const QString &_demosPath, const QString &_sourcePath)
-        : examplesPath(_examplesPath), demosPath(_demosPath), sourcePath(_sourcePath) {}
-};
-
 class ExamplesListModel : public QAbstractListModel {
     Q_OBJECT
 public:
@@ -90,8 +81,8 @@ signals:
     void tagsUpdated();
 
 public slots:
-    void readNewsItems(const QString &examplesPath, const QString &demosPath, const QString &sourcePath);
-    void cacheExamplesPath(const QString &examplesPath, const QString &demosPath, const QString &sourcePath);
+    void handleQtVersionsChanged();
+    void updateExamples();
     void helpInitialized();
 
 private:
@@ -99,11 +90,11 @@ private:
     QList<ExampleItem> parseDemos(QXmlStreamReader* reader, const QString& projectsOffset);
     QList<ExampleItem> parseTutorials(QXmlStreamReader* reader, const QString& projectsOffset);
     void clear();
-    QStringList exampleSources() const;
+    QStringList exampleSources(QString *examplesFallback, QString *demosFallback,
+                               QString *sourceFallback);
     QList<ExampleItem> exampleItems;
     QStringList m_tags;
-    QMakePathCache m_cache;
-
+    bool m_updateOnQtVersionsChanged;
 };
 
 class ExamplesListModelFilter : public QSortFilterProxyModel {

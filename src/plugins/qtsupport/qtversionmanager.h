@@ -107,14 +107,13 @@ signals:
     // content of BaseQtVersion objects with qmake path might have changed
     void dumpUpdatedFor(const Utils::FileName &qmakeCommand);
     void qtVersionsChanged(const QList<int> &uniqueIds);
-    void updateExamples(QString, QString, QString);
 
 public slots:
     void updateDumpFor(const Utils::FileName &qmakeCommand);
 
 private slots:
-    void delayedUpdateSettings();
-    void updateSettings();
+    void delayedUpdateDocumentation();
+    void updateDocumentation();
 
 private:
     // This function is really simplistic...
@@ -137,7 +136,6 @@ private:
     // Used by QtVersion
     int getUniqueId();
     void addNewVersionsFromInstaller();
-    void updateDocumentation();
 
     static int indexOfVersionInList(const BaseQtVersion * const version, const QList<BaseQtVersion *> &list);
     void updateUniqueIdToIndexMap();
