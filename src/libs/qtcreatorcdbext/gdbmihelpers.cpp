@@ -587,6 +587,7 @@ static StackFrames getStackTrace(CIDebugControl *debugControl,
     if (FAILED(hr)) {
         delete [] frames;
         *errorMessage = msgDebugEngineComFailed("GetStackTrace", hr);
+        return StackFrames();
     }
     StackFrames rc(frameCount, StackFrame());
     for (ULONG f = 0; f < frameCount; ++f)
