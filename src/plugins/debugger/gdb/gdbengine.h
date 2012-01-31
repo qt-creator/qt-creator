@@ -689,7 +689,6 @@ private: ////////// View & Data Stuff //////////
     void setDebuggingHelperStateClassic(DebuggingHelperState);
     void tryLoadDebuggingHelpersClassic();
     void tryQueryDebuggingHelpersClassic();
-    Q_SLOT void setUseDebuggingHelpers(const QVariant &on);
 
     DebuggingHelperState m_debuggingHelperState;
     DumperHelper m_dumperHelper;

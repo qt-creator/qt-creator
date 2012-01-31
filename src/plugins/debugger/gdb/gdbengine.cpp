@@ -1960,7 +1960,7 @@ void GdbEngine::setupEngine()
     if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable) {
         connect(debuggerCore()->action(UseDebuggingHelpers),
             SIGNAL(valueChanged(QVariant)),
-            SLOT(setUseDebuggingHelpers(QVariant)));
+            SLOT(reloadLocals()));
     }
 
     QTC_CHECK(state() == EngineSetupRequested);
@@ -4975,12 +4975,6 @@ void GdbEngine::handleAdapterCrashed(const QString &msg)
 
     if (!msg.isEmpty())
         showMessageBox(QMessageBox::Critical, tr("Adapter crashed"), msg);
-}
-
-void GdbEngine::setUseDebuggingHelpers(const QVariant &)
-{
-    setTokenBarrier();
-    updateLocals();
 }
 
 bool GdbEngine::hasPython() const
