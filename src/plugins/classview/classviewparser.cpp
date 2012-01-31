@@ -679,7 +679,6 @@ QList<ProjectExplorer::Project *> Parser::getProjectList() const
     // check all projects
     ProjectExplorer::SessionManager *sessionManager
             = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
-    QTC_ASSERT(sessionManager, return list);
 
     list = sessionManager->projects();
 

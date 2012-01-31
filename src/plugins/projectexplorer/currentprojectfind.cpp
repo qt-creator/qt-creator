@@ -83,7 +83,6 @@ QVariant CurrentProjectFind::additionalParameters() const
 Utils::FileIterator *CurrentProjectFind::files(const QStringList &nameFilters,
                            const QVariant &additionalParameters) const
 {
-    QTC_ASSERT(m_plugin->session(), return new Utils::FileIterator());
     QTC_ASSERT(additionalParameters.isValid(), return new Utils::FileIterator());
     QList<Project *> allProjects = m_plugin->session()->projects();
     QString projectFile = additionalParameters.toString();

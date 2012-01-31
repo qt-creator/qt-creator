@@ -73,7 +73,6 @@ QString AllProjectsFind::displayName() const
 bool AllProjectsFind::isEnabled() const
 {
     return BaseFileFind::isEnabled()
-            && m_plugin->session() != 0
             && m_plugin->session()->projects().count() > 0;
 }
 
@@ -81,7 +80,6 @@ Utils::FileIterator *AllProjectsFind::files(const QStringList &nameFilters,
                                             const QVariant &additionalParameters) const
 {
     Q_UNUSED(additionalParameters)
-    QTC_ASSERT(m_plugin->session(), return new Utils::FileIterator());
     return filesForProjects(nameFilters, m_plugin->session()->projects());
 }
 

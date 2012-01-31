@@ -155,10 +155,8 @@ void ModelManager::delayedInitialization()
     }
 
     ProjectExplorer::SessionManager *sessionManager = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
-    if (sessionManager) {
-        connect(sessionManager, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
-                this, SLOT(removeProjectInfo(ProjectExplorer::Project*)));
-    }
+    connect(sessionManager, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+            this, SLOT(removeProjectInfo(ProjectExplorer::Project*)));
 }
 
 void ModelManager::loadQmlTypeDescriptions()
@@ -807,8 +805,6 @@ ModelManager::CppDataHash ModelManager::cppData() const
 LibraryInfo ModelManager::builtins(const Document::Ptr &doc) const
 {
     ProjectExplorer::SessionManager *sessionManager = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
-    if (!sessionManager)
-        return LibraryInfo();
     ProjectExplorer::Project *project = sessionManager->projectForFile(doc->fileName());
     if (!project)
         return LibraryInfo();

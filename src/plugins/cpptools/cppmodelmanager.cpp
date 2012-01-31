@@ -673,8 +673,6 @@ CppModelManager::CppModelManager(QObject *parent)
     QTC_ASSERT(pe, return);
 
     ProjectExplorer::SessionManager *session = pe->session();
-    QTC_ASSERT(session, return);
-
     m_updateEditorSelectionsTimer = new QTimer(this);
     m_updateEditorSelectionsTimer->setInterval(500);
     m_updateEditorSelectionsTimer->setSingleShot(true);
