@@ -1961,6 +1961,9 @@ void GdbEngine::setupEngine()
         connect(debuggerCore()->action(UseDebuggingHelpers),
             SIGNAL(valueChanged(QVariant)),
             SLOT(reloadLocals()));
+        connect(debuggerCore()->action(UseDynamicType),
+            SIGNAL(valueChanged(QVariant)),
+            SLOT(reloadLocals()));
     }
 
     QTC_CHECK(state() == EngineSetupRequested);
