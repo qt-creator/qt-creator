@@ -98,7 +98,7 @@ GitoriousHostWidget::GitoriousHostWidget(QWidget *parent) :
     ui->browseToolButton->setIcon(style()->standardIcon(QStyle::SP_MessageBoxInformation));
     connect(ui->browseToolButton, SIGNAL(clicked()), this, SLOT(slotBrowse()));
     ui->browseToolButton->setEnabled(false);
-    ui->deleteToolButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
+    ui->deleteToolButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_MINUS)));
     connect(ui->deleteToolButton, SIGNAL(clicked()), this, SLOT(slotDelete()));
     ui->deleteToolButton->setEnabled(false);
 

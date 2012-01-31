@@ -152,7 +152,7 @@ public:
             }
             return names;
         }
-        return QStringList(fullName().join(QString('/')));
+        return QStringList(fullName().join(QString(QLatin1Char('/'))));
     }
 
     BranchNode *parent;
@@ -371,7 +371,7 @@ QString BranchModel::branchName(const QModelIndex &idx) const
     if (!node->isLeaf())
         return QString();
     QStringList path = node->fullName();
-    return path.join(QString('/'));
+    return path.join(QString(QLatin1Char('/')));
 }
 
 QStringList BranchModel::localBranchNames() const
@@ -520,7 +520,7 @@ QModelIndex BranchModel::addBranch(const QString &branchName, bool track, const 
     output = toolTip(branchName); // abuse toolTip to get the data;-)
     QStringList lines = output.split(QLatin1Char('\n'));
     foreach (const QString &l, lines) {
-        if (l.startsWith("commit ")) {
+        if (l.startsWith(QLatin1String("commit "))) {
             newNode->sha = l.mid(7, 8);
             break;
         }

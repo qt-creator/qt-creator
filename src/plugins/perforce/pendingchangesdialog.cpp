@@ -41,7 +41,7 @@ PendingChangesDialog::PendingChangesDialog(const QString &data, QWidget *parent)
 {
     m_ui.setupUi(this);
     if (!data.isEmpty()) {
-        QRegExp r("Change\\s(\\d+).*\\s\\*pending\\*\\s(.+)\n");
+        QRegExp r(QLatin1String("Change\\s(\\d+).*\\s\\*pending\\*\\s(.+)\n"));
         r.setMinimal(true);
         int pos = 0;
         QListWidgetItem *item;

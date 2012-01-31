@@ -53,7 +53,7 @@ public:
 BaseVcsSubmitEditorFactoryPrivate::BaseVcsSubmitEditorFactoryPrivate(const VcsBaseSubmitEditorParameters *parameters) :
     m_parameters(parameters),
     m_id(parameters->id),
-    m_displayName(parameters->displayName),
+    m_displayName(QLatin1String(parameters->displayName)),
     m_mimeTypes(QLatin1String(parameters->mimeType))
 {
 }

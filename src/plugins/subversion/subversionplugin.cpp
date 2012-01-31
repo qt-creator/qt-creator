@@ -1304,14 +1304,14 @@ bool SubversionPlugin::vcsCheckout(const QString &directory, const QByteArray &u
         // authentication will always fail (if the username and password data are not stored locally),
         // if for example we are logging into a new host for the first time using svn. There seems to
         // be a bug in subversion, so this might get fixed in the future.
-        tempUrl.setUserInfo("");
-        args << tempUrl.toEncoded() << directory;
+        tempUrl.setUserInfo(QString());
+        args << QLatin1String(tempUrl.toEncoded()) << directory;
         const SubversionResponse response = runSvn(directory, username, password, args,
                                                    m_settings.longTimeOutMS(),
                                                    VcsBase::VcsBasePlugin::SshPasswordPrompt);
         return !response.error;
     } else {
-        args << url << directory;
+        args << QLatin1String(url) << directory;
         const SubversionResponse response = runSvn(directory, args, m_settings.longTimeOutMS(),
                                                    VcsBase::VcsBasePlugin::SshPasswordPrompt);
         return !response.error;

@@ -168,7 +168,7 @@ bool MercurialControl::sccManaged(const QString &filename)
 
 bool MercurialControl::vcsCheckout(const QString &directory, const QByteArray &url)
 {
-    return mercurialClient->synchronousClone(QString(), directory, url);
+    return mercurialClient->synchronousClone(QString(), directory, QLatin1String(url));
 }
 
 QString MercurialControl::vcsGetRepositoryURL(const QString &directory)

@@ -378,7 +378,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                   Core::Id("Git.DiffProject"),
                                   globalcontext, true,
                                   SLOT(diffCurrentProject()));
-    parameterActionCommand.second->setDefaultKeySequence(QKeySequence("Alt+G,Alt+Shift+D"));
+    parameterActionCommand.second->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+Shift+D")));
 
     parameterActionCommand
             = createProjectAction(actionManager, gitContainer,

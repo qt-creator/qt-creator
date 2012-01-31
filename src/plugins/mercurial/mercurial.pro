@@ -2,6 +2,7 @@ TARGET = Mercurial
 TEMPLATE = lib
 include(../../qtcreatorplugin.pri)
 include(mercurial_dependencies.pri)
+DEFINES += QT_NO_CAST_FROM_ASCII
 SOURCES += mercurialplugin.cpp \
     optionspage.cpp \
     mercurialcontrol.cpp \

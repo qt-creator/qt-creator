@@ -65,7 +65,7 @@ bool CloneWizardPagePrivate::urlIsLocal(const QString &url)
 {
     if (url.startsWith(QLatin1String("file://"))
         || url.startsWith(QLatin1Char('/'))
-        || (url.at(0).isLetter() && url.at(1) == QChar(':') && url.at(2) == QChar('\\')))
+        || (url.at(0).isLetter() && url.at(1) == QLatin1Char(':') && url.at(2) == QLatin1Char('\\')))
         return true;
     return false;
 }
@@ -103,10 +103,9 @@ QString CloneWizardPage::directoryFromRepository(const QString &urlIn) const
     /* Try to figure out a good directory name from something like:
      * 'user@host:qt/qt.git', 'http://host/qt/qt.git' 'local repo'
      * ------> 'qt' .  */
-
-    QString url = urlIn.trimmed().replace(QChar('\\'), QChar('/'));
-
     const QChar slash = QLatin1Char('/');
+    QString url = urlIn.trimmed().replace(QLatin1Char('\\'), slash);
+
     // remove host
     const int protocolDelimiterPos = url.indexOf(d->protocolDelimiter); // "://"
     const int startRepoSearchPos = protocolDelimiterPos == -1 ? 0 : protocolDelimiterPos + d->protocolDelimiter.size();

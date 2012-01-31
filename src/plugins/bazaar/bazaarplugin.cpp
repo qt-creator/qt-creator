@@ -388,7 +388,7 @@ void BazaarPlugin::logRepository()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     QStringList extraOptions;
-    extraOptions += QString("--limit=%1").arg(settings().intValue(BazaarSettings::logCountKey));
+    extraOptions += QLatin1String("--limit=") + QString::number(settings().intValue(BazaarSettings::logCountKey));
     m_client->log(state.topLevel(), QStringList(), extraOptions);
 }
 
@@ -647,7 +647,7 @@ bool BazaarPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submit
         //rewrite entries of the form 'file => newfile' to 'newfile' because
         //this would mess the commit command
         for (QStringList::iterator iFile = files.begin(); iFile != files.end(); ++iFile) {
-            const QStringList parts = iFile->split(" => ", QString::SkipEmptyParts);
+            const QStringList parts = iFile->split(QLatin1String(" => "), QString::SkipEmptyParts);
             if (!parts.isEmpty())
                 *iFile = parts.last();
         }

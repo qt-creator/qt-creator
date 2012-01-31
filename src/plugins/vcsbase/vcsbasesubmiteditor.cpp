@@ -510,14 +510,14 @@ void VcsBaseSubmitEditor::setFileModel(QAbstractItemModel *m, const QString &rep
                 if ((sym->isClass() || sym->isFunction() || sym->isNamespace())
                         && (symId != 0 && acceptsWordForCompletion(symId->chars())))
                 {
-                    uniqueSymbols.insert(symId->chars());
+                    uniqueSymbols.insert(QString::fromUtf8(symId->chars()));
                 }
 
                 // Handle specific case : get "Foo" in "void Foo::function() {}"
                 if (sym->isFunction() && !sym->asFunction()->isDeclaration()) {
                     const char *className = belongingClassName(sym->asFunction());
                     if (acceptsWordForCompletion(className))
-                        uniqueSymbols.insert(className);
+                        uniqueSymbols.insert(QString::fromUtf8(className));
                 }
 
                 ++symPtr;

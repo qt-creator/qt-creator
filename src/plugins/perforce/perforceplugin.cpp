@@ -883,7 +883,8 @@ bool PerforcePlugin::managesDirectoryFstat(const QString &directory)
         args << QLatin1String("fstat") << QLatin1String("-m1") << perforceRelativeFileArguments(relativeDirArgs);
         const PerforceResponse result = runP4Cmd(m_settings.topLevel(), args,
                                                  RunFullySynchronous);
-        managed = result.stdOut.contains("depotFile") || result.stdErr.contains("... - no such file(s)");
+        managed = result.stdOut.contains(QLatin1String("depotFile"))
+                  || result.stdErr.contains(QLatin1String("... - no such file(s)"));
     } while(false);
 
     m_managedDirectoryCache.insert(directory, managed);

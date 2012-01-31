@@ -39,10 +39,10 @@ namespace Internal {
 // Parse a branch line: " *name sha description".
 bool RemoteModel::Remote::parse(const QString &line)
 {
-    if (!line.endsWith(" (fetch)"))
+    if (!line.endsWith(QLatin1String(" (fetch)")))
         return false;
 
-    QStringList tokens = line.split(QRegExp("\\s"), QString::SkipEmptyParts);
+    QStringList tokens = line.split(QRegExp(QLatin1String("\\s")), QString::SkipEmptyParts);
     if (tokens.count() != 3)
         return false;
 

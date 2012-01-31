@@ -62,9 +62,8 @@ bool BazaarClient::synchronousSetUserId()
 {
     QStringList args;
     args << QLatin1String("whoami")
-         << QString("%1 <%2>")
-            .arg(settings()->stringValue(BazaarSettings::userNameKey))
-            .arg(settings()->stringValue(BazaarSettings::userEmailKey));
+         << (settings()->stringValue(BazaarSettings::userNameKey) + QLatin1String(" <")
+             + settings()->stringValue(BazaarSettings::userEmailKey) + QLatin1Char('>'));
     QByteArray stdOut;
     return vcsFullySynchronousExec(QDir::currentPath(), args, &stdOut);
 }
@@ -80,8 +79,8 @@ BranchInfo BazaarClient::synchronousBranchQuery(const QString &repositoryRoot) c
     QTextStream ts(&branchConfFile);
     QString branchLocation;
     QString isBranchBound;
-    const QRegExp branchLocationRx("bound_location\\s*=\\s*(.+)$");
-    const QRegExp isBranchBoundRx("bound\\s*=\\s*(.+)$");
+    const QRegExp branchLocationRx(QLatin1String("bound_location\\s*=\\s*(.+)$"));
+    const QRegExp isBranchBoundRx(QLatin1String("bound\\s*=\\s*(.+)$"));
     while (!ts.atEnd() && (branchLocation.isEmpty() || isBranchBound.isEmpty())) {
         const QString line = ts.readLine();
         if (branchLocationRx.indexIn(line) != -1)

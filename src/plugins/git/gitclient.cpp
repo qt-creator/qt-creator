@@ -99,7 +99,7 @@ public:
         m_patienceButton = addToggleButton(QLatin1String("--patience"), tr("Patience"),
                                            tr("Use the patience algorithm for calculating the differences."));
         mapSetting(m_patienceButton, client->settings()->boolPointer(GitSettings::diffPatienceKey));
-        m_ignoreWSButton = addToggleButton("--ignore-space-change", tr("Ignore Whitespace"),
+        m_ignoreWSButton = addToggleButton(QLatin1String("--ignore-space-change"), tr("Ignore Whitespace"),
                                            tr("Ignore whitespace only changes."));
         mapSetting(m_ignoreWSButton, m_client->settings()->boolPointer(GitSettings::ignoreSpaceChangesInDiffKey));
 
@@ -229,7 +229,7 @@ public:
         mapSetting(addToggleButton(QString(), tr("Omit Date"),
                                    tr("Hide the date of a change from the output.")),
                    m_client->settings()->boolPointer(GitSettings::omitAnnotationDateKey));
-        mapSetting(addToggleButton(QString("-w"), tr("Ignore Whitespace"),
+        mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace"),
                                    tr("Ignore whitespace only changes.")),
                    m_client->settings()->boolPointer(GitSettings::ignoreSpaceChangesInBlameKey));
 
@@ -385,7 +385,7 @@ QString GitClient::findRepositoryForDirectory(const QString &dir)
         QStringList arguments;
         arguments << QLatin1String("rev-parse") << QLatin1String("--show-toplevel");
         fullySynchronousGit(directory.absolutePath(), arguments, &outputText, 0, false);
-        return outputText.trimmed();
+        return QString::fromLocal8Bit(outputText.trimmed());
     } else {
         // Check for ".git/config"
         const QString checkFile = QLatin1String(GIT_DIRECTORY) + QLatin1String("/config");
@@ -612,7 +612,7 @@ void GitClient::log(const QString &workingDirectory, const QStringList &fileName
                     bool enableAnnotationContextMenu, const QStringList &args)
 {
     const QString msgArg = fileNames.empty() ? workingDirectory :
-                           fileNames.join(QString(", "));
+                           fileNames.join(QLatin1String(", "));
     const QString title = tr("Git Log \"%1\"").arg(msgArg);
     const Core::Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
     const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(workingDirectory, fileNames);
@@ -1559,14 +1559,14 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
             VcsBase::VcsBasePlugin::SuppressFailMessageInLogWindow;
     const Utils::SynchronousProcessResponse resp = synchronousGit(QString(), arguments, flags);
     QStringList branches;
-    branches << "<detached HEAD>";
+    branches << QLatin1String("<detached HEAD>");
     QString headSha;
     if (resp.result == Utils::SynchronousProcessResponse::Finished) {
         // split "82bfad2f51d34e98b18982211c82220b8db049b<tab>refs/heads/master"
         foreach(const QString &line, resp.stdOut.split(QLatin1Char('\n'))) {
-            if (line.endsWith("\tHEAD")) {
+            if (line.endsWith(QLatin1String("\tHEAD"))) {
                 QTC_CHECK(headSha.isNull());
-                headSha = line.left(line.indexOf(QChar('\t')));
+                headSha = line.left(line.indexOf(QLatin1Char('\t')));
                 continue;
             }
 
@@ -1588,14 +1588,14 @@ void GitClient::launchGitK(const QString &workingDirectory)
 {
     const QFileInfo binaryInfo(gitBinaryPath());
     QDir foundBinDir(binaryInfo.dir());
-    const bool foundBinDirIsCmdDir = foundBinDir.dirName() == "cmd";
+    const bool foundBinDirIsCmdDir = foundBinDir.dirName() == QLatin1String("cmd");
     QProcessEnvironment env = processEnvironment();
     if (tryLauchingGitK(env, workingDirectory, foundBinDir.path(), foundBinDirIsCmdDir))
         return;
     if (!foundBinDirIsCmdDir)
         return;
     foundBinDir.cdUp();
-    tryLauchingGitK(env, workingDirectory, foundBinDir.path() + "/bin", false);
+    tryLauchingGitK(env, workingDirectory, foundBinDir.path() + QLatin1String("/bin"), false);
 }
 
 bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
@@ -1739,7 +1739,9 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     if (amend) {
         // Amend: get last commit data as "SHA1@message".
         QStringList args(QLatin1String("log"));
-        const QString format = synchronousGitVersion(true) > 0x010701 ? "%h@%B" : "%h@%s%n%n%b";
+        const QString format = synchronousGitVersion(true) > 0x010701 ?
+                               QLatin1String("%h@%B") :
+                               QLatin1String("%h@%s%n%n%b");
         args << QLatin1String("--max-count=1") << QLatin1String("--pretty=format:") + format;
         QTextCodec *codec = QTextCodec::codecForName(commitData->commitEncoding.toLocal8Bit());
         const Utils::SynchronousProcessResponse sp = synchronousGit(repoDirectory, args, 0, codec);
@@ -2228,7 +2230,7 @@ bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
             return false;
 
         QStringList arguments(QLatin1String("remote"));
-        arguments << QLatin1String("add") << QLatin1String("origin") << url;
+        arguments << QLatin1String("add") << QLatin1String("origin") << QLatin1String(url);
         if (!fullySynchronousGit(workingDirectory.path(), arguments, 0, 0, true))
             return false;
 
@@ -2256,7 +2258,7 @@ bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
         return true;
     } else {
         QStringList arguments(QLatin1String("clone"));
-        arguments << url << workingDirectory.dirName();
+        arguments << QLatin1String(url) << workingDirectory.dirName();
         workingDirectory.cdUp();
         const Utils::SynchronousProcessResponse resp =
                 synchronousGit(workingDirectory.path(), arguments, flags);
@@ -2326,7 +2328,7 @@ unsigned GitClient::synchronousGitVersion(bool silent, QString *errorMessage) co
     // run git --version
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = fullySynchronousGit(QString(), QStringList("--version"), &outputText, &errorText);
+    const bool rc = fullySynchronousGit(QString(), QStringList(QLatin1String("--version")), &outputText, &errorText);
     if (!rc) {
         const QString msg = tr("Cannot determine git version: %1").arg(commandOutputFromLocal8Bit(errorText));
         if (errorMessage) {
