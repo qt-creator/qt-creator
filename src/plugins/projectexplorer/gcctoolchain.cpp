@@ -293,7 +293,7 @@ GccToolChain::GccToolChain(const QString &id, bool autodetect) :
 GccToolChain::GccToolChain(const GccToolChain &tc) :
     ToolChain(tc),
     m_predefinedMacros(tc.predefinedMacros()),
-    m_compilerCommand(tc.compilerPath()),
+    m_compilerPath(tc.compilerCommand()),
     m_debuggerCommand(tc.debuggerCommand()),
     m_targetAbi(tc.m_targetAbi),
     m_supportedAbis(tc.m_supportedAbis),
@@ -465,7 +465,7 @@ void GccToolChain::setCompilerCommand(const Utils::FileName &path)
     m_compilerPath = path;
 
     Abi currentAbi = m_targetAbi;
-    m_supportedAbis = findAbiForCompilerPath(m_compilerPath);
+    m_supportedAbis = findAbiForCompilerPath(m_compilerPath.toString());
 
     m_targetAbi = Abi();
     if (!m_supportedAbis.isEmpty()) {
