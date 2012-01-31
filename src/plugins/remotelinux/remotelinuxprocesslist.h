@@ -57,6 +57,7 @@ public:
     QString commandLineAt(int row) const;
 
 signals:
+    void processListUpdated();
     void error(const QString &errorMsg);
     void processKilled();
 

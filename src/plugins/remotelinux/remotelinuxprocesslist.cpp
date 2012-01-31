@@ -90,8 +90,11 @@ void AbstractRemoteLinuxProcessList::update()
 {
     QTC_ASSERT(d->state == Inactive, return);
 
-    beginResetModel();
-    d->remoteProcesses.clear();
+    if (!d->remoteProcesses.isEmpty()) {
+        beginRemoveRows(QModelIndex(), 0, d->remoteProcesses.count() - 1);
+        d->remoteProcesses.clear();
+        endRemoveRows();
+    }
     d->state = Listing;
     startProcess(listProcessesCommandLine());
 }
@@ -134,13 +137,17 @@ QVariant AbstractRemoteLinuxProcessList::headerData(int section, Qt::Orientation
 QVariant AbstractRemoteLinuxProcessList::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= rowCount(index.parent())
-            || index.column() >= columnCount() || role != Qt::DisplayRole)
+            || index.column() >= columnCount())
         return QVariant();
-    const RemoteProcess &proc = d->remoteProcesses.at(index.row());
-    if (index.column() == 0)
-        return proc.pid;
-    else
-        return proc.cmdLine;
+
+    if (role == Qt::DisplayRole || role == Qt::ToolTipRole) {
+        const RemoteProcess &proc = d->remoteProcesses.at(index.row());
+        if (index.column() == 0)
+            return proc.pid;
+        else
+            return proc.cmdLine;
+    }
+    return QVariant();
 }
 
 void AbstractRemoteLinuxProcessList::handleRemoteStdOut(const QByteArray &output)
@@ -182,8 +189,14 @@ void AbstractRemoteLinuxProcessList::handleRemoteProcessFinished(int exitStatus)
     case SshRemoteProcess::ExitedNormally:
         if (d->process.processExitCode() == 0) {
             if (d->state == Listing) {
-                d->remoteProcesses = buildProcessList(QString::fromUtf8(d->remoteStdout.data(),
+                beginResetModel();
+                QList<RemoteProcess> processes = buildProcessList(QString::fromUtf8(d->remoteStdout.data(),
                     d->remoteStdout.count()));
+                if (!processes.isEmpty()) {
+                    beginInsertRows(QModelIndex(), 0, processes.count()-1);
+                    d->remoteProcesses = processes;
+                    endInsertRows();
+                }
             }
         } else {
             d->errorMsg = tr("Remote process failed.");
@@ -193,6 +206,9 @@ void AbstractRemoteLinuxProcessList::handleRemoteProcessFinished(int exitStatus)
         Q_ASSERT_X(false, Q_FUNC_INFO, "Invalid exit status");
     }
 
+    if (d->state == Listing)
+        emit processListUpdated();
+
     if (!d->errorMsg.isEmpty()) {
         if (!d->remoteStderr.isEmpty())
             d->errorMsg += tr("\nRemote stderr was: %1").arg(QString::fromUtf8(d->remoteStderr));
@@ -200,9 +216,6 @@ void AbstractRemoteLinuxProcessList::handleRemoteProcessFinished(int exitStatus)
     } else if (d->state == Killing) {
         emit processKilled();
     }
-
-    if (d->state == Listing)
-        endResetModel();
 
     setFinished();
 }
