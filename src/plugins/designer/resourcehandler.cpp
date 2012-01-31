@@ -104,9 +104,7 @@ void ResourceHandler::ensureInitialized()
     if (m_sessionNode)
         return;
     ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
-    ProjectExplorer::SessionManager *session = pe->session();
-
-    m_sessionNode = session->sessionNode();
+    m_sessionNode = pe->session()->sessionNode();
     m_sessionWatcher = new ProjectExplorer::NodesWatcher();
 
     connect(m_sessionWatcher, SIGNAL(filesAdded()), this, SLOT(updateResources()));

@@ -734,27 +734,19 @@ QString BookmarkManager::bookmarkToString(const Bookmark *b)
 /* Saves the bookmarks to the session settings. */
 void BookmarkManager::saveBookmarks()
 {
-    SessionManager *s = sessionManager();
-    if (!s)
-        return;
-
     QStringList list;
     foreach (const FileNameBookmarksMap *bookmarksMap, m_bookmarksMap)
         foreach (const Bookmark *bookmark, *bookmarksMap)
             list << bookmarkToString(bookmark);
 
-    s->setValue("Bookmarks", list);
+    sessionManager()->setValue("Bookmarks", list);
 }
 
 /* Loads the bookmarks from the session settings. */
 void BookmarkManager::loadBookmarks()
 {
     removeAllBookmarks();
-    SessionManager *s = sessionManager();
-    if (!s)
-        return;
-
-    const QStringList &list = s->value("Bookmarks").toStringList();
+    const QStringList &list = sessionManager()->value("Bookmarks").toStringList();
     foreach (const QString &bookmarkString, list)
         addBookmark(bookmarkString);
 
