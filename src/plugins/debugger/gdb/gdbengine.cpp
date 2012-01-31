@@ -5018,11 +5018,13 @@ void GdbEngine::resetCommandQueue()
 
 void GdbEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
 {
+    notifyEngineRemoteSetupDone();
     m_gdbAdapter->handleRemoteSetupDone(gdbServerPort, qmlPort);
 }
 
 void GdbEngine::handleRemoteSetupFailed(const QString &message)
 {
+    notifyEngineRemoteSetupFailed();
     m_gdbAdapter->handleRemoteSetupFailed(message);
 }
 

@@ -406,8 +406,11 @@ void QmlEngine::stopApplicationLauncher()
 void QmlEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
 {
     Q_UNUSED(gdbServerPort);
+
     if (qmlPort != -1)
         startParameters().qmlServerPort = qmlPort;
+
+    notifyEngineRemoteSetupDone();
     notifyEngineSetupOk();
 }
 
@@ -416,6 +419,8 @@ void QmlEngine::handleRemoteSetupFailed(const QString &message)
     if (isMasterEngine())
         QMessageBox::critical(0,tr("Failed to start application"),
             tr("Application startup failed: %1").arg(message));
+
+    notifyEngineRemoteSetupFailed();
     notifyEngineSetupFailed();
 }
 
@@ -450,7 +455,7 @@ void QmlEngine::setupEngine()
 {
     if (startParameters().requestRemoteSetup) {
         // we need to get the port first
-        emit requestRemoteSetup();
+        notifyEngineRequestRemoteSetup();
     } else {
         d->m_applicationLauncher.setEnvironment(startParameters().environment);
         d->m_applicationLauncher.setWorkingDirectory(startParameters().workingDirectory);

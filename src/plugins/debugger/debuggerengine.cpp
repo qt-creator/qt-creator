@@ -137,6 +137,15 @@ QDebug operator<<(QDebug str, const DebuggerStartParameters &sp)
 //
 //////////////////////////////////////////////////////////////////////
 
+// transitions:
+//   None->Requested
+//   Requested->Succeeded
+//   Requested->Failed
+//   Requested->Cancelled
+enum RemoteSetupState { RemoteSetupNone, RemoteSetupRequested,
+                        RemoteSetupSucceeded, RemoteSetupFailed,
+                        RemoteSetupCancelled };
+
 class DebuggerEnginePrivate : public QObject
 {
     Q_OBJECT
@@ -154,6 +163,7 @@ public:
         m_state(DebuggerNotReady),
         m_lastGoodState(DebuggerNotReady),
         m_targetState(DebuggerNotReady),
+        m_remoteSetupState(RemoteSetupNone),
         m_inferiorPid(0),
         m_modulesHandler(),
         m_registerHandler(),
@@ -258,9 +268,11 @@ public slots:
 
 public:
     DebuggerState state() const { return m_state; }
+    RemoteSetupState remoteSetupState() const { return m_remoteSetupState; }
     bool isMasterEngine() const { return m_engine->isMasterEngine(); }
     DebuggerRunControl *runControl() const
         { return m_masterEngine ? m_masterEngine->runControl() : m_runControl; }
+    void setRemoteSetupState(RemoteSetupState state);
 
     DebuggerEngine *m_engine; // Not owned.
     DebuggerEngine *m_masterEngine; // Not owned
@@ -277,6 +289,9 @@ public:
 
     // The state we are aiming for.
     DebuggerState m_targetState;
+
+    // State of RemoteSetup signal/slots.
+    RemoteSetupState m_remoteSetupState;
 
     qint64 m_inferiorPid;
 
@@ -784,6 +799,13 @@ void DebuggerEnginePrivate::doSetupEngine()
 void DebuggerEngine::notifyEngineSetupFailed()
 {
     showMessage(_("NOTE: ENGINE SETUP FAILED"));
+    QTC_ASSERT(d->remoteSetupState() == RemoteSetupNone
+               || d->remoteSetupState() == RemoteSetupRequested
+               || d->remoteSetupState() == RemoteSetupSucceeded,
+               qDebug() << this << "remoteSetupState" << d->remoteSetupState());
+    if (d->remoteSetupState() == RemoteSetupRequested)
+        d->setRemoteSetupState(RemoteSetupCancelled);
+
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
     setState(EngineSetupFailed);
     if (isMasterEngine() && runControl())
@@ -794,6 +816,10 @@ void DebuggerEngine::notifyEngineSetupFailed()
 void DebuggerEngine::notifyEngineSetupOk()
 {
     showMessage(_("NOTE: ENGINE SETUP OK"));
+    QTC_ASSERT(d->remoteSetupState() == RemoteSetupNone
+               || d->remoteSetupState() == RemoteSetupSucceeded,
+               qDebug() << this << "remoteSetupState" << d->remoteSetupState());
+
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
     setState(EngineSetupOk);
     showMessage(_("QUEUE: SETUP INFERIOR"));
@@ -867,6 +893,46 @@ void DebuggerEngine::notifyEngineRunFailed()
     setState(EngineRunFailed);
     if (isMasterEngine())
         d->queueShutdownEngine();
+}
+
+void DebuggerEngine::notifyEngineRequestRemoteSetup()
+{
+    showMessage(_("NOTE: REQUEST REMOTE SETUP"));
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
+    QTC_ASSERT(d->remoteSetupState() == RemoteSetupNone, qDebug() << this
+               << "remoteSetupState" << d->remoteSetupState());
+
+    d->setRemoteSetupState(RemoteSetupRequested);
+    emit requestRemoteSetup();
+}
+
+void DebuggerEngine::notifyEngineRemoteSetupDone()
+{
+    showMessage(_("NOTE: REMOTE SETUP DONE"));
+    QTC_ASSERT(state() == EngineSetupRequested
+               || state() == EngineSetupFailed
+               || state() == DebuggerFinished, qDebug() << this << state());
+
+    QTC_ASSERT(d->remoteSetupState() == RemoteSetupRequested
+               || d->remoteSetupState() == RemoteSetupCancelled,
+               qDebug() << this << "remoteSetupState" << d->remoteSetupState());
+
+    if (d->remoteSetupState() == RemoteSetupCancelled)
+        return;
+
+    d->setRemoteSetupState(RemoteSetupSucceeded);
+}
+
+void DebuggerEngine::notifyEngineRemoteSetupFailed()
+{
+    showMessage(_("NOTE: REMOTE SETUP FAILED"));
+    QTC_ASSERT(state() == EngineSetupRequested
+               || state() == EngineSetupFailed
+               || state() == DebuggerFinished, qDebug() << this << state());
+
+    QTC_ASSERT(d->remoteSetupState() == RemoteSetupRequested
+               || d->remoteSetupState() == RemoteSetupCancelled,
+               qDebug() << this << "remoteSetupState" << d->remoteSetupState());
 }
 
 void DebuggerEngine::notifyEngineRunAndInferiorRunOk()
@@ -1045,6 +1111,27 @@ void DebuggerEnginePrivate::doFinishDebugger()
     QTC_ASSERT(state() == DebuggerFinished, qDebug() << m_engine << state());
     if (isMasterEngine() && m_runControl)
         m_runControl->debuggingFinished();
+}
+
+void DebuggerEnginePrivate::setRemoteSetupState(RemoteSetupState state)
+{
+    bool allowedTransition = true;
+    if (m_remoteSetupState == RemoteSetupNone) {
+        if (state == RemoteSetupRequested)
+            allowedTransition = true;
+    }
+    if (m_remoteSetupState == RemoteSetupRequested) {
+        if (state == RemoteSetupCancelled
+                || state == RemoteSetupSucceeded
+                || state == RemoteSetupFailed)
+            allowedTransition = true;
+    }
+
+
+    if (!allowedTransition)
+        qDebug() << "*** UNEXPECTED REMOTE SETUP TRANSITION from"
+                 << m_remoteSetupState << "to" << state;
+    m_remoteSetupState = state;
 }
 
 void DebuggerEngine::notifyEngineIll()
@@ -1652,15 +1739,13 @@ void DebuggerEngine::openDisassemblerView(const Location &location)
     agent->setLocation(location);
 }
 
-void DebuggerEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
+void DebuggerEngine::handleRemoteSetupDone(int /*gdbServerPort*/,
+                                           int /*qmlPort*/)
 {
-    Q_UNUSED(gdbServerPort);
-    Q_UNUSED(qmlPort);
 }
 
-void DebuggerEngine::handleRemoteSetupFailed(const QString &message)
+void DebuggerEngine::handleRemoteSetupFailed(const QString &/*message*/)
 {
-    Q_UNUSED(message);
 }
 
 bool DebuggerEngine::isStateDebugging() const

@@ -126,9 +126,6 @@ protected:
     void notifyEngineRunAndInferiorRunOk();
     void notifyInferiorShutdownOk();
 
-private slots:
-    void slaveEngineRequestedRemoteSetup();
-
 private:
     void engineStateChanged(DebuggerState newState);
     void setState(DebuggerState newState, bool forced = false);

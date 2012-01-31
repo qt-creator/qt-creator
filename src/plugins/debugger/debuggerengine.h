@@ -306,6 +306,10 @@ protected:
     virtual void notifyEngineSetupFailed();
     virtual void notifyEngineRunFailed();
 
+    virtual void notifyEngineRequestRemoteSetup();
+    virtual void notifyEngineRemoteSetupDone();
+    virtual void notifyEngineRemoteSetupFailed();
+
     virtual void notifyInferiorSetupOk();
     virtual void notifyInferiorSetupFailed();
 

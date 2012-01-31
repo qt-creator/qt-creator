@@ -96,7 +96,7 @@ void RemoteGdbServerAdapter::startAdapter()
         }
     }
     if (startParameters().requestRemoteSetup)
-        m_engine->requestRemoteSetup();
+        m_engine->notifyEngineRequestRemoteSetup();
     else
         handleSetupDone();
 }

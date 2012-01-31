@@ -61,7 +61,7 @@ void RemotePlainGdbAdapter::startAdapter()
         m_gdbProc.setEnvironment(startParameters().environment.toStringList());
 
     if (startParameters().requestRemoteSetup)
-        m_engine->requestRemoteSetup();
+        m_engine->notifyEngineRequestRemoteSetup();
     else
         handleRemoteSetupDone(startParameters().connParams.port, startParameters().qmlServerPort);
 }
