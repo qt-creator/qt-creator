@@ -117,7 +117,6 @@ public:
 
     // NBS rewrite projectOrder (dependency management)
     QList<Project *> projectOrder(Project *project = 0) const;
-    QAbstractItemModel *model(const QString &modelId) const;
 
     SessionNode *sessionNode() const;
 
