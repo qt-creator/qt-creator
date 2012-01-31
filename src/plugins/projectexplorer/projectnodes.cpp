@@ -595,8 +595,8 @@ bool ProjectNode::sortNodesByPath(Node *n1, Node *n2) {
   \class ProjectExplorer::SessionNode
 */
 
-SessionNode::SessionNode(const QString &sessionPath, QObject *parentObject)
-        : FolderNode(sessionPath)
+SessionNode::SessionNode(QObject *parentObject)
+    : FolderNode(QLatin1String("session"))
 {
     setParent(parentObject);
     setNodeType(SessionNodeType);

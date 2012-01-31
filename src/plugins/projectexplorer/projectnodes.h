@@ -77,6 +77,7 @@ class FolderNode;
 class ProjectNode;
 class NodesWatcher;
 class NodesVisitor;
+class SessionManager;
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT Node : public QObject {
@@ -245,8 +246,9 @@ private:
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT SessionNode : public FolderNode {
     Q_OBJECT
+    friend class SessionManager;
 public:
-    SessionNode(const QString &sessionFilePath, QObject *parentObject);
+    SessionNode(QObject *parentObject);
 
     QList<ProjectNode*> projectNodes() const;
 

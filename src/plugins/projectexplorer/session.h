@@ -163,7 +163,7 @@ private:
     void updateName(const QString &session);
 
     Internal::SessionFile *m_file;
-    Internal::SessionNodeImpl *m_sessionNode;
+    SessionNode *m_sessionNode;
     QString m_sessionName;
     bool m_virginSession;
 

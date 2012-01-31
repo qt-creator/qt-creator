@@ -31,13 +31,13 @@
 **************************************************************************/
 
 #include "session.h"
-#include "sessionnodeimpl.h"
 
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "nodesvisitor.h"
 #include "editorconfiguration.h"
+#include "projectnodes.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
@@ -323,7 +323,7 @@ void SessionFile::clearFailedProjectFileNames()
 SessionManager::SessionManager(QObject *parent)
   : QObject(parent),
     m_file(new SessionFile),
-    m_sessionNode(new Internal::SessionNodeImpl(this)),
+    m_sessionNode(new SessionNode(this)),
     m_virginSession(true)
 {
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
@@ -502,7 +502,7 @@ void SessionManager::addProjects(const QList<Project*> &projects)
         if (!m_file->m_projects.contains(pro)) {
             clearedList.append(pro);
             m_file->m_projects.append(pro);
-            m_sessionNode->addProjectNode(pro->rootProjectNode());
+            m_sessionNode->addProjectNodes(QList<ProjectNode *>() << pro->rootProjectNode());
 
             connect(pro, SIGNAL(fileListChanged()),
                     this, SLOT(clearProjectFileCache()));
@@ -918,7 +918,7 @@ void SessionManager::removeProjects(QList<Project *> remove)
 
         if (debug)
             qDebug() << "SessionManager - emitting projectRemoved(" << pro->displayName() << ")";
-        m_sessionNode->removeProjectNode(pro->rootProjectNode());
+        m_sessionNode->removeProjectNodes(QList<ProjectNode *>() << pro->rootProjectNode());
         emit projectRemoved(pro);
         delete pro;
     }

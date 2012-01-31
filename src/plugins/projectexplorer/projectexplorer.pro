@@ -94,7 +94,6 @@ HEADERS += projectexplorer.h \
     taskhub.h \
     localapplicationruncontrol.h \
     customexecutableconfigurationwidget.h \
-    sessionnodeimpl.h \
     metatypedeclarations.h \
     publishing/publishingwizardselectiondialog.h \
     publishing/ipublishingwizardfactory.h \
@@ -185,7 +184,6 @@ SOURCES += projectexplorer.cpp \
     processparameters.cpp \
     localapplicationruncontrol.cpp \
     customexecutableconfigurationwidget.cpp \
-    sessionnodeimpl.cpp \
     publishing/publishingwizardselectiondialog.cpp \
     appoutputpane.cpp \
     codestylesettingspropertiespage.cpp \
