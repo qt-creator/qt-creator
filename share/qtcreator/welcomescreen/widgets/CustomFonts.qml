@@ -56,7 +56,7 @@ QtObject {
             visible: false
 
             font.family: "Helvetica"
-            font.pixelSize: 16
+            font.pixelSize: 14
         },
 
         Text {

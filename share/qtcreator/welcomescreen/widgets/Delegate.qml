@@ -148,7 +148,7 @@ Rectangle {
         color: "#7e7e7e"
         text: qsTr("The 2D Painting example shows how QPainter and QGLWidget. The 2D Painting example shows how QPainter and QGLWidget work together.")
         anchors.top: captionItem.bottom
-        anchors.topMargin: 6
+        anchors.topMargin: 10
         opacity: 0
         anchors.left: parent.left
         anchors.leftMargin: 16
@@ -193,7 +193,7 @@ Rectangle {
         color: "#dddcdc"
         visible: false
         anchors.top: captionItem.bottom
-        anchors.topMargin: 2
+        anchors.topMargin: 4
         anchors.rightMargin: 10
         anchors.right: parent.right
         anchors.leftMargin: 10
@@ -341,7 +341,7 @@ Rectangle {
         anchors.leftMargin: 6
         clip: true
 
-        spacing: 4
+        spacing: 2
 
         Repeater {
             id: repeater
@@ -352,6 +352,7 @@ Rectangle {
                 text: modelData
                 smooth: true
                 font.pixelSize: 11
+                height: 12
                 font.family: "Helvetica" //setting the pixelSize will set the family back to the default
                 wrapMode: Text.WordWrap
                 onEntered: {
