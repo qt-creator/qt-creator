@@ -460,15 +460,21 @@ void TraceWindow::qmlComplete()
 {
     m_qmlDataReady = true;
 
-    if (!m_v8plugin || m_v8plugin.data()->status() != QDeclarativeDebugClient::Enabled || m_v8DataReady)
+    if (!m_v8plugin || m_v8plugin.data()->status() != QDeclarativeDebugClient::Enabled || m_v8DataReady) {
         emit viewUpdated();
+        // once complete is sent, reset the flag
+        m_qmlDataReady = false;
+    }
 }
 
 void TraceWindow::v8Complete()
 {
     m_v8DataReady = true;
-    if (!m_plugin || m_plugin.data()->status() != QDeclarativeDebugClient::Enabled || m_qmlDataReady)
+    if (!m_plugin || m_plugin.data()->status() != QDeclarativeDebugClient::Enabled || m_qmlDataReady) {
         emit viewUpdated();
+        // once complete is sent, reset the flag
+        m_v8DataReady = false;
+    }
 }
 
 void TraceWindow::resizeEvent(QResizeEvent *event)
