@@ -631,13 +631,13 @@ namespace qdatetime {
     {
         QTime time;
         BREAK_HERE;
-        // Expand date.
-        // CheckType date QDateTime.
-        // Check date.(ISO) "" QString.
-        // Check date.(Locale) "" QString.
-        // Check date.(SystemLocale) "" QString.
-        // CheckType date.toLocalTime QDateTime.
-        // Check date.toString "" QString.
+        // Expand time.
+        // CheckType time QTime.
+        // Check time.(ISO) "" QString.
+        // Check time.(Locale) "" QString.
+        // Check time.(SystemLocale) "" QString.
+        // CheckType time.toLocalTime QDateTime.
+        // Check time.toString "" QString.
         // Continue.
 
         // Step, check display.
@@ -652,7 +652,7 @@ namespace qdatetime {
         QDateTime date;
         BREAK_HERE;
         // Expand date.
-        // CheckType date QTime.
+        // CheckType date QDateTime.
         // Check date.(ISO) "" QString.
         // Check date.(Locale) "" QString.
         // Check date.(SystemLocale) "" QString.
@@ -4863,8 +4863,8 @@ namespace sse {
         sseB = _mm_loadu_ps(b);
         BREAK_HERE;
         // Expand a b.
-        // Check sseA FIXME
-        // Check sseB FIXME
+        // CheckType sseA __m128.
+        // CheckType sseB __m128.
         // Continue.
         dummyStatement(&i, &sseA, &sseB);
     #endif
@@ -4908,7 +4908,7 @@ namespace qscript {
         // Check s <not accessible> QScriptValue (JSCoreValue).
         // Check d (invalid) QScriptValue.
         // Check v 43 QVariant (int).
-        // Check x 507002817 int.
+        // Check x 33 int.
         // Check x1 "34" QString.
         // Continue.
         dummyStatement(&x1, &v, &s, &d);
@@ -5768,7 +5768,7 @@ namespace gdb10586 {
         BREAK_HERE;
         // Expand v.
         // Check v  gdb10586::test.
-        // Check a 1 int.
+        // Check v.a 1 int.
         // Continue.
         dummyStatement(&v);
     }
@@ -5778,11 +5778,12 @@ namespace gdb10586 {
         struct { int x; struct { int a; }; struct { int b; }; } v = {1, {2}, {3}};
         struct s { int x, y; } n = {10, 20};
         BREAK_HERE;
-        // Expand v n.
-        // Check v {...}.
-        // Check n gdb10586::s.
-        // Check v.a 2.
-        // Check s.x 1.
+        // Expand v.
+        // Expand n.
+        // CheckType v {...}.
+        // CheckType n gdb10586::s.
+        // Check v.a 2 int.
+        // Check s.x 1 int.
         // Continue.
         dummyStatement(&v, &n);
     }
