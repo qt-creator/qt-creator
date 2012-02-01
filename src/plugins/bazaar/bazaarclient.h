@@ -64,6 +64,7 @@ public:
 
 protected:
     QString vcsEditorKind(VcsCommand cmd) const;
+    QString vcsCommandString(VcsCommand cmd) const;
     QStringList revisionSpec(const QString &revision) const;
     VcsBase::VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
                                                             const QStringList &files,

@@ -140,6 +140,16 @@ QString BazaarClient::vcsEditorKind(VcsCommand cmd) const
     }
 }
 
+QString BazaarClient::vcsCommandString(VcsCommand cmd) const
+{
+    switch (cmd) {
+    case CloneCommand:
+        return QLatin1String("branch");
+    default:
+        return VcsBaseClient::vcsCommandString(cmd);
+    }
+}
+
 QStringList BazaarClient::revisionSpec(const QString &revision) const
 {
     QStringList args;
