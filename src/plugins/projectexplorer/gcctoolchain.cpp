@@ -392,8 +392,10 @@ QList<HeaderPath> GccToolChain::systemHeaderPaths() const
 
 void GccToolChain::addToEnvironment(Utils::Environment &env) const
 {
-    if (!m_compilerCommand.isEmpty())
-        env.prependOrSetPath(m_compilerCommand.toString());
+    if (!m_compilerCommand.isEmpty()) {
+        Utils::FileName path = m_compilerCommand.parentDir();
+        env.prependOrSetPath(path.toString());
+    }
 }
 
 void GccToolChain::setDebuggerCommand(const Utils::FileName &d)
