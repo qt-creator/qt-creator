@@ -135,12 +135,14 @@ public:
     virtual bool matches(const QString &) const;
 
 private slots:
-    void toolChainSelectionChanged(const QItemSelection &);
+    void toolChainSelectionChanged();
     void createToolChain(QObject *);
     void removeToolChain();
     void updateState();
 
 private:
+    QModelIndex currentIndex() const;
+
     Ui::ToolChainOptionsPage *m_ui;
     QWidget *m_configWidget;
     QString m_searchKeywords;
