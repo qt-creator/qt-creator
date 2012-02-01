@@ -275,7 +275,7 @@ QList<ProjectExplorer::ToolChain *> Qt4BaseTarget::possibleToolChains(ProjectExp
     QList<Qt4ProFileNode *> profiles = qt4Project()->allProFiles();
     bool qtUsed = false;
     foreach (Qt4ProFileNode *pro, profiles) {
-        if (!pro->variableValue(QtVar).isEmpty()) {
+        if (pro->variableValue(ConfigVar).contains(QLatin1String("qt")) && !pro->variableValue(QtVar).isEmpty()) {
             qtUsed = true;
             break;
         }
