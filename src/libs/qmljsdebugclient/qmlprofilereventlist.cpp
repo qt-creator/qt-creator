@@ -251,6 +251,11 @@ QmlEventType qmlEventType(const QString &typeString)
     }
 }
 
+QString getHashStringForQmlEvent(QmlEventLocation location, int eventType)
+{
+    return QString("%1:%2:%3:%4").arg(location.filename, QString::number(location.line), QString::number(location.column), QString::number(eventType));
+}
+
 class QmlProfilerEventList::QmlProfilerEventListPrivate
 {
 public:
@@ -404,11 +409,11 @@ void QmlProfilerEventList::addRangedEvent(int type, qint64 startTime, qint64 len
     // generate hash
     if (location.filename.isEmpty()) {
         displayName = tr("<bytecode>");
-        eventHashStr = QString("--:%1:%2").arg(QString::number(type), details);
+        eventHashStr = getHashStringForQmlEvent(location, type);
     } else {
         const QString filePath = QUrl(location.filename).path();
         displayName = filePath.mid(filePath.lastIndexOf(QChar('/')) + 1) + colon + QString::number(location.line);
-        eventHashStr = QString("%1:%2:%3:%4").arg(location.filename, QString::number(location.line), QString::number(location.column), QString::number(type));
+        eventHashStr = getHashStringForQmlEvent(location, type);
     }
 
     QmlEventData *newEvent;
@@ -1047,7 +1052,7 @@ void QmlProfilerEventList::reloadDetails()
 
 void QmlProfilerEventList::rewriteDetailsString(int eventType, const QmlJsDebugClient::QmlEventLocation &location, const QString &newString)
 {
-    QString eventHashStr = QString("%1:%2:%3:%4").arg(location.filename, QString::number(location.line), QString::number(location.column), QString::number(eventType));
+    QString eventHashStr = getHashStringForQmlEvent(location, eventType);
     QTC_ASSERT(d->m_eventDescriptions.contains(eventHashStr), return);
     d->m_eventDescriptions.value(eventHashStr)->details = newString;
     emit detailsChanged(d->m_eventDescriptions.value(eventHashStr)->eventId, newString);
@@ -1582,9 +1587,8 @@ void QmlProfilerEventList::load()
 
     // move the buffered data to the details cache
     foreach (QmlEventData *desc, descriptionBuffer.values()) {
-        QString location = QString("%1:%2:%3").arg(QString::number(desc->eventType), desc->displayname, desc->details);
-        desc->eventHashStr = location;
-        d->m_eventDescriptions[location] = desc;
+        desc->eventHashStr = getHashStringForQmlEvent(desc->location, desc->eventType);;
+        d->m_eventDescriptions[desc->eventHashStr] = desc;
     }
 
     // sort startTimeSortedList
