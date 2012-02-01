@@ -267,8 +267,7 @@ void ExamplesWelcomePage::facilitateQml(QDeclarativeEngine *engine)
     m_engine = engine;
     m_engine->addImageProvider(QLatin1String("helpimage"), new HelpImageProvider);
     connect (examplesModel(), SIGNAL(tagsUpdated()), SLOT(updateTagsModel()));
-    ExamplesListModelFilter *proxy = new ExamplesListModelFilter(this);
-    proxy->setSourceModel(examplesModel());
+    ExamplesListModelFilter *proxy = new ExamplesListModelFilter(examplesModel(), this);
 
     proxy->setDynamicSortFilter(true);
     proxy->sort(0);

@@ -69,13 +69,14 @@ class ExamplesListModel : public QAbstractListModel {
     Q_OBJECT
 public:
     explicit ExamplesListModel(QObject *parent);
-    void addItems(const QList<ExampleItem> &items);
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
-    QStringList tags() const { return m_tags; }
+    QStringList tags() const;
 
+
+    void ensureInitialized() const;
 
 signals:
     void tagsUpdated();
@@ -86,6 +87,7 @@ public slots:
     void helpInitialized();
 
 private:
+    void addItems(const QList<ExampleItem> &items);
     QList<ExampleItem> parseExamples(QXmlStreamReader* reader, const QString& projectsOffset);
     QList<ExampleItem> parseDemos(QXmlStreamReader* reader, const QString& projectsOffset);
     QList<ExampleItem> parseTutorials(QXmlStreamReader* reader, const QString& projectsOffset);
@@ -95,6 +97,8 @@ private:
     QList<ExampleItem> exampleItems;
     QStringList m_tags;
     bool m_updateOnQtVersionsChanged;
+    bool m_initialized;
+    bool m_helpInitialized;
 };
 
 class ExamplesListModelFilter : public QSortFilterProxyModel {
@@ -104,13 +108,16 @@ public:
     Q_PROPERTY(QStringList filterTags READ filterTags WRITE setFilterTags NOTIFY filterTagsChanged)
     Q_PROPERTY(QStringList searchStrings READ searchStrings WRITE setSearchStrings NOTIFY searchStrings)
 
-    explicit ExamplesListModelFilter(QObject *parent);
+    explicit ExamplesListModelFilter(ExamplesListModel *sourceModel, QObject *parent);
 
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 
     bool showTutorialsOnly() {return m_showTutorialsOnly;}
     QStringList filterTags() const { return m_filterTags; }
     QStringList searchStrings() const { return m_searchString; }
+
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
 public slots:
     void setFilterTags(const QStringList& arg)
@@ -145,6 +152,7 @@ private:
     bool m_showTutorialsOnly;
     QStringList m_filterTags;
     QStringList m_searchString;
+    ExamplesListModel *m_sourceModel;
 };
 
 } // namespace Internal

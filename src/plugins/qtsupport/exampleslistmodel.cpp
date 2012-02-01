@@ -54,7 +54,9 @@ namespace Internal {
 
 ExamplesListModel::ExamplesListModel(QObject *parent) :
     QAbstractListModel(parent),
-    m_updateOnQtVersionsChanged(false)
+    m_updateOnQtVersionsChanged(false),
+    m_initialized(false),
+    m_helpInitialized(false)
 {
     QHash<int, QByteArray> roleNames;
     roleNames[Name] = "name";
@@ -382,12 +384,13 @@ void ExamplesListModel::addItems(const QList<ExampleItem> &newItems)
 
 int ExamplesListModel::rowCount(const QModelIndex &) const
 {
+    ensureInitialized();
     return exampleItems.size();
 }
 
 QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
 {
-
+    ensureInitialized();
     if (!index.isValid() || index.row()+1 > exampleItems.count()) {
         qDebug() << Q_FUNC_INFO << "invalid index requested";
         return QVariant();
@@ -433,16 +436,33 @@ QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
 
 }
 
-void ExamplesListModel::helpInitialized()
+QStringList ExamplesListModel::tags() const
 {
-    updateExamples();
+    ensureInitialized();
+    return m_tags;
 }
 
+void ExamplesListModel::helpInitialized()
+{
+    m_helpInitialized = true;
+    if (m_initialized) // if we are already initialized we need to update nevertheless
+        updateExamples();
+}
 
-ExamplesListModelFilter::ExamplesListModelFilter(QObject *parent) :
-    QSortFilterProxyModel(parent), m_showTutorialsOnly(true)
+void ExamplesListModel::ensureInitialized() const
+{
+    if (m_initialized || !m_helpInitialized)
+        return;
+    ExamplesListModel *that = const_cast<ExamplesListModel *>(this);
+    that->m_initialized = true;
+    that->updateExamples();
+}
+
+ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel, QObject *parent) :
+    QSortFilterProxyModel(parent), m_showTutorialsOnly(true), m_sourceModel(sourceModel)
 {
     connect(this, SIGNAL(showTutorialsOnlyChanged()), SLOT(updateFilter()));
+    setSourceModel(m_sourceModel);
 }
 
 void ExamplesListModelFilter::updateFilter()
@@ -508,6 +528,18 @@ bool ExamplesListModelFilter::filterAcceptsRow(int sourceRow, const QModelIndex 
         return false;
 
     return true;
+}
+
+int ExamplesListModelFilter::rowCount(const QModelIndex &parent) const
+{
+    m_sourceModel->ensureInitialized();
+    return QSortFilterProxyModel::rowCount(parent);
+}
+
+QVariant ExamplesListModelFilter::data(const QModelIndex &index, int role) const
+{
+    m_sourceModel->ensureInitialized();
+    return QSortFilterProxyModel::data(index, role);
 }
 
 void ExamplesListModelFilter::setShowTutorialsOnly(bool showTutorialsOnly)
