@@ -83,7 +83,7 @@ SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &id)
 
     QAction *closeAction = new QAction(tr("Close"), m_toolbar);
     closeAction->setToolTip(tr("Close"));
-    closeAction->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE)));
+    closeAction->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_TOP)));
     connect(closeAction, SIGNAL(triggered()), this, SIGNAL(closeMe()));
     m_toolbar->addAction(closeAction);
 

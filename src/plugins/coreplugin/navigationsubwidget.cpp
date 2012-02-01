@@ -88,7 +88,7 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
     splitAction->setIcon(QIcon(QLatin1String(Constants::ICON_SPLIT_HORIZONTAL)));
     splitAction->setToolTip(tr("Split"));
     QToolButton *close = new QToolButton();
-    close->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE)));
+    close->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_TOP)));
     close->setToolTip(tr("Close"));
 
     toolBarLayout->addWidget(splitAction);

@@ -37,6 +37,8 @@
 
 #include <utils/styledbar.h>
 
+#include <QtGui/QIcon>
+
 namespace Core {
 class IEditor;
 
@@ -79,6 +81,7 @@ public:
     void setCanGoForward(bool canGoForward);
     void removeToolbarForEditor(IEditor *editor);
     void setCloseSplitEnabled(bool enable);
+    void setCloseSplitIcon(const QIcon &icon);
 
 public slots:
     void updateEditorStatus(IEditor *editor);

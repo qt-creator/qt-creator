@@ -103,7 +103,7 @@ EditorToolBarPrivate::EditorToolBarPrivate(QWidget *parent, EditorToolBar *q) :
     m_goForwardAction(new QAction(QIcon(QLatin1String(Constants::ICON_NEXT)), EditorManager::tr("Go Forward"), parent)),
     m_splitButton(new QToolButton),
     m_horizontalSplitAction(new QAction(QIcon(QLatin1String(Constants::ICON_SPLIT_HORIZONTAL)), EditorManager::tr("Split"), parent)),
-    m_verticalSplitAction(new QAction(EditorManager::tr("Split Side by Side"), parent)),
+    m_verticalSplitAction(new QAction(QIcon(QLatin1String(Constants::ICON_SPLIT_VERTICAL)), EditorManager::tr("Split Side by Side"), parent)),
     m_closeSplitButton(new QToolButton),
     m_activeToolBar(0),
     m_toolBarPlaceholder(new QWidget),
@@ -141,13 +141,11 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_editorList->setModel(d->m_editorsListModel);
     d->m_editorList->setMaxVisibleItems(40);
     d->m_editorList->setContextMenuPolicy(Qt::CustomContextMenu);
-    d->m_editorList->setProperty("hideborder", true);
 
     d->m_closeEditorButton->setAutoRaise(true);
-    d->m_closeEditorButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE)));
+    d->m_closeEditorButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_DOCUMENT)));
     d->m_closeEditorButton->setToolTip(tr("Close Document"));
     d->m_closeEditorButton->setEnabled(false);
-    d->m_closeEditorButton->setProperty("showborder", true);
 
     d->m_toolBarPlaceholder->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
@@ -165,13 +163,14 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_splitButton->setIcon(QIcon(QLatin1String(Constants::ICON_SPLIT_HORIZONTAL)));
     d->m_splitButton->setToolTip(tr("Split"));
     d->m_splitButton->setPopupMode(QToolButton::InstantPopup);
+    d->m_splitButton->setProperty("noArrow", true);
     QMenu *splitMenu = new QMenu(d->m_splitButton);
     splitMenu->addAction(d->m_horizontalSplitAction);
     splitMenu->addAction(d->m_verticalSplitAction);
     d->m_splitButton->setMenu(splitMenu);
 
     d->m_closeSplitButton->setAutoRaise(true);
-    d->m_closeSplitButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE)));
+    d->m_closeSplitButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_BOTTOM)));
     d->m_closeSplitButton->setToolTip(tr("Remove Split"));
 
     QHBoxLayout *toplayout = new QHBoxLayout(this);
@@ -181,10 +180,10 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     toplayout->addWidget(d->m_forwardButton);
     toplayout->addWidget(d->m_lockButton);
     toplayout->addWidget(d->m_editorList);
-    toplayout->addWidget(d->m_closeEditorButton);
     toplayout->addWidget(d->m_toolBarPlaceholder, 1); // Custom toolbar stretches
     toplayout->addWidget(d->m_splitButton);
     toplayout->addWidget(d->m_closeSplitButton);
+    toplayout->addWidget(d->m_closeEditorButton);
 
     setLayout(toplayout);
 
@@ -238,6 +237,11 @@ void EditorToolBar::removeToolbarForEditor(IEditor *editor)
 void EditorToolBar::setCloseSplitEnabled(bool enable)
 {
     d->m_closeSplitButton->setVisible(enable);
+}
+
+void EditorToolBar::setCloseSplitIcon(const QIcon &icon)
+{
+    d->m_closeSplitButton->setIcon(icon);
 }
 
 void EditorToolBar::closeEditor()

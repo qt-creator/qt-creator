@@ -175,6 +175,11 @@ void EditorView::setCloseSplitEnabled(bool enable)
     m_toolBar->setCloseSplitEnabled(enable);
 }
 
+void EditorView::setCloseSplitIcon(const QIcon &icon)
+{
+    m_toolBar->setCloseSplitIcon(icon);
+}
+
 void EditorView::addEditor(IEditor *editor)
 {
     if (m_editors.contains(editor))
@@ -686,6 +691,14 @@ void SplitterOrView::split(Qt::Orientation orientation)
     otherView->view()->copyNavigationHistoryFrom(m_view);
     otherView->view()->setCurrentEditor(otherView->view()->currentEditor());
 
+    if (orientation == Qt::Horizontal) {
+        view->view()->setCloseSplitIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_LEFT)));
+        otherView->view()->setCloseSplitIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_RIGHT)));
+    } else {
+        view->view()->setCloseSplitIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_TOP)));
+        otherView->view()->setCloseSplitIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_BOTTOM)));
+    }
+
     if (m_view && !m_isRoot) {
         em->emptyView(m_view);
         delete m_view;
@@ -750,6 +763,20 @@ void SplitterOrView::unsplit()
         } else {
             m_view = childSplitterOrView->takeView();
             m_layout->addWidget(m_view);
+            QSplitter *parentSplitter = qobject_cast<QSplitter *>(parentWidget());
+            if (parentSplitter) { // not the toplevel splitterOrView
+                if (parentSplitter->orientation() == Qt::Horizontal) {
+                    if (parentSplitter->widget(0) == this)
+                        m_view->setCloseSplitIcon(QIcon(Constants::ICON_CLOSE_SPLIT_LEFT));
+                    else
+                        m_view->setCloseSplitIcon(QIcon(Constants::ICON_CLOSE_SPLIT_RIGHT));
+                } else {
+                    if (parentSplitter->widget(0) == this)
+                        m_view->setCloseSplitIcon(QIcon(Constants::ICON_CLOSE_SPLIT_TOP));
+                    else
+                        m_view->setCloseSplitIcon(QIcon(Constants::ICON_CLOSE_SPLIT_BOTTOM));
+                }
+            }
         }
         m_layout->setCurrentWidget(m_view);
     }

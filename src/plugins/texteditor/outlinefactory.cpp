@@ -72,6 +72,7 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     m_filterButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
     m_filterButton->setToolTip(tr("Filter tree"));
     m_filterButton->setPopupMode(QToolButton::InstantPopup);
+    m_filterButton->setProperty("noArrow", true);
     m_filterMenu = new QMenu(m_filterButton);
     m_filterButton->setMenu(m_filterMenu);
 

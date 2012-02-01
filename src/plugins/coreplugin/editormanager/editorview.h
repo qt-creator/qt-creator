@@ -38,19 +38,21 @@
 #include <QtCore/QMap>
 #include <QtCore/QList>
 #include <QtCore/QString>
-#include <QtGui/QWidget>
 #include <QtCore/QPointer>
 #include <QtCore/QVariant>
 
+#include <QtGui/QIcon>
+#include <QtGui/QWidget>
+
 QT_BEGIN_NAMESPACE
+class QAction;
 class QComboBox;
-class QToolButton;
+class QFrame;
 class QLabel;
-class QStackedWidget;
 class QSplitter;
 class QStackedLayout;
-class QAction;
-class QFrame;
+class QStackedWidget;
+class QToolButton;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -94,6 +96,7 @@ public:
                            QObject *object, const char *member);
     void hideEditorStatusBar(const QString &id);
     void setCloseSplitEnabled(bool enable);
+    void setCloseSplitIcon(const QIcon &icon);
 
 private slots:
     void closeView();
