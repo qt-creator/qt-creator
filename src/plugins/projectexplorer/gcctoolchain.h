@@ -103,7 +103,7 @@ private:
 
     void updateSupportedAbis() const;
 
-    Utils::FileName m_compilerPath;
+    Utils::FileName m_compilerCommand;
     Utils::FileName m_debuggerCommand;
 
     Abi m_targetAbi;

@@ -94,13 +94,13 @@ public:
     void makeReadOnly();
 
 private slots:
-    void handlePathChange();
+    void handleCompilerCommandChange();
     void handleAbiChange();
 
 private:
     void setFromToolchain();
 
-    Utils::PathChooser *m_compilerPath;
+    Utils::PathChooser *m_compilerCommand;
     AbiWidget *m_abiWidget;
     Utils::FileName m_autoDebuggerCommand;
 

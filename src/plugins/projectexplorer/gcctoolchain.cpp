@@ -59,7 +59,7 @@ namespace ProjectExplorer {
 // Helpers:
 // --------------------------------------------------------------------------
 
-static const char compilerPathKeyC[] = "ProjectExplorer.GccToolChain.Path";
+static const char compilerCommandKeyC[] = "ProjectExplorer.GccToolChain.Path";
 static const char targetAbiKeyC[] = "ProjectExplorer.GccToolChain.TargetAbi";
 static const char supportedAbisKeyC[] = "ProjectExplorer.GccToolChain.SupportedAbis";
 static const char debuggerCommandKeyC[] = "ProjectExplorer.GccToolChain.Debugger";
@@ -293,7 +293,7 @@ GccToolChain::GccToolChain(const QString &id, bool autodetect) :
 GccToolChain::GccToolChain(const GccToolChain &tc) :
     ToolChain(tc),
     m_predefinedMacros(tc.predefinedMacros()),
-    m_compilerPath(tc.compilerCommand()),
+    m_compilerCommand(tc.compilerCommand()),
     m_debuggerCommand(tc.debuggerCommand()),
     m_targetAbi(tc.m_targetAbi),
     m_supportedAbis(tc.m_supportedAbis),
@@ -323,7 +323,7 @@ QString GccToolChain::legacyId() const
     QString i = id();
     i = i.left(i.indexOf(QLatin1Char(':')));
     return QString::fromLatin1("%1:%2.%3.%4")
-               .arg(i).arg(m_compilerPath.toString())
+               .arg(i).arg(m_compilerCommand.toString())
                .arg(m_targetAbi.toString()).arg(m_debuggerCommand.toString());
 }
 
@@ -365,7 +365,7 @@ QList<Abi> GccToolChain::supportedAbis() const
 
 bool GccToolChain::isValid() const
 {
-    return !m_compilerPath.isNull();
+    return !m_compilerCommand.isNull();
 }
 
 QByteArray GccToolChain::predefinedMacros() const
@@ -374,7 +374,7 @@ QByteArray GccToolChain::predefinedMacros() const
         // Using a clean environment breaks ccache/distcc/etc.
         Utils::Environment env = Utils::Environment::systemEnvironment();
         addToEnvironment(env);
-        m_predefinedMacros = gccPredefinedMacros(m_compilerPath, env.toStringList());
+        m_predefinedMacros = gccPredefinedMacros(m_compilerCommand, env.toStringList());
     }
     return m_predefinedMacros;
 }
@@ -385,15 +385,15 @@ QList<HeaderPath> GccToolChain::systemHeaderPaths() const
         // Using a clean environment breaks ccache/distcc/etc.
         Utils::Environment env = Utils::Environment::systemEnvironment();
         addToEnvironment(env);
-        m_headerPathes = gccHeaderPathes(m_compilerPath, env.toStringList());
+        m_headerPathes = gccHeaderPathes(m_compilerCommand, env.toStringList());
     }
     return m_headerPathes;
 }
 
 void GccToolChain::addToEnvironment(Utils::Environment &env) const
 {
-    if (!m_compilerPath.isEmpty())
-        env.prependOrSetPath(m_compilerPath.toString());
+    if (!m_compilerCommand.isEmpty())
+        env.prependOrSetPath(m_compilerCommand.toString());
 }
 
 void GccToolChain::setDebuggerCommand(const Utils::FileName &d)
@@ -415,14 +415,14 @@ Utils::FileName GccToolChain::mkspec() const
     if (abi.os() == Abi::MacOS) {
         QString v = version();
         // prefer versioned g++ on mac. This is required to enable building for older Mac OS versions
-        if (v.startsWith(QLatin1String("4.0")) && m_compilerPath.endsWith(QLatin1String("-4.0")))
+        if (v.startsWith(QLatin1String("4.0")) && m_compilerCommand.endsWith(QLatin1String("-4.0")))
             return Utils::FileName::fromString(QLatin1String("macx-g++40"));
-        if (v.startsWith(QLatin1String("4.2")) && m_compilerPath.endsWith(QLatin1String("-4.2")))
+        if (v.startsWith(QLatin1String("4.2")) && m_compilerCommand.endsWith(QLatin1String("-4.2")))
             return Utils::FileName::fromString(QLatin1String("macx-g++42"));
         return Utils::FileName::fromString(QLatin1String("macx-g++"));
     }
 
-    QList<Abi> gccAbiList = Abi::abisOfBinary(m_compilerPath);
+    QList<Abi> gccAbiList = Abi::abisOfBinary(m_compilerCommand);
     Abi gccAbi;
     if (!gccAbiList.isEmpty())
         gccAbi  = gccAbiList.first();
@@ -457,15 +457,15 @@ IOutputParser *GccToolChain::outputParser() const
 
 void GccToolChain::setCompilerCommand(const Utils::FileName &path)
 {
-    if (path == m_compilerPath)
+    if (path == m_compilerCommand)
         return;
 
     bool resetDisplayName = displayName() == defaultDisplayName();
 
-    m_compilerPath = path;
+    m_compilerCommand = path;
 
     Abi currentAbi = m_targetAbi;
-    m_supportedAbis = findAbiForCompilerPath(m_compilerPath.toString());
+    m_supportedAbis = findAbiForCompilerPath(m_compilerCommand.toString());
 
     m_targetAbi = Abi();
     if (!m_supportedAbis.isEmpty()) {
@@ -483,7 +483,7 @@ void GccToolChain::setCompilerCommand(const Utils::FileName &path)
 
 Utils::FileName GccToolChain::compilerCommand() const
 {
-    return m_compilerPath;
+    return m_compilerCommand;
 }
 
 ToolChain *GccToolChain::clone() const
@@ -494,7 +494,7 @@ ToolChain *GccToolChain::clone() const
 QVariantMap GccToolChain::toMap() const
 {
     QVariantMap data = ToolChain::toMap();
-    data.insert(QLatin1String(compilerPathKeyC), m_compilerPath.toString());
+    data.insert(QLatin1String(compilerCommandKeyC), m_compilerCommand.toString());
     data.insert(QLatin1String(targetAbiKeyC), m_targetAbi.toString());
     QStringList abiList;
     foreach (const ProjectExplorer::Abi &a, m_supportedAbis)
@@ -509,7 +509,7 @@ bool GccToolChain::fromMap(const QVariantMap &data)
     if (!ToolChain::fromMap(data))
         return false;
 
-    m_compilerPath = Utils::FileName::fromString(data.value(QLatin1String(compilerPathKeyC)).toString());
+    m_compilerCommand = Utils::FileName::fromString(data.value(QLatin1String(compilerCommandKeyC)).toString());
     m_targetAbi = Abi(data.value(QLatin1String(targetAbiKeyC)).toString());
     QStringList abiList = data.value(QLatin1String(supportedAbisKeyC)).toStringList();
     m_supportedAbis.clear();
@@ -529,7 +529,7 @@ bool GccToolChain::operator ==(const ToolChain &other) const
         return false;
 
     const GccToolChain *gccTc = static_cast<const GccToolChain *>(&other);
-    return m_compilerPath == gccTc->m_compilerPath && m_targetAbi == gccTc->m_targetAbi
+    return m_compilerCommand == gccTc->m_compilerCommand && m_targetAbi == gccTc->m_targetAbi
             && m_debuggerCommand == gccTc->m_debuggerCommand;
 }
 
@@ -548,14 +548,14 @@ QList<Abi> GccToolChain::detectSupportedAbis() const
 {
     Utils::Environment env = Utils::Environment::systemEnvironment();
     addToEnvironment(env);
-    return guessGccAbi(m_compilerPath, env.toStringList());
+    return guessGccAbi(m_compilerCommand, env.toStringList());
 }
 
 QString GccToolChain::detectVersion() const
 {
     Utils::Environment env = Utils::Environment::systemEnvironment();
     addToEnvironment(env);
-    return gccVersion(m_compilerPath, env.toStringList());
+    return gccVersion(m_compilerCommand, env.toStringList());
 }
 
 // --------------------------------------------------------------------------
@@ -669,7 +669,7 @@ QList<ToolChain *> Internal::GccToolChainFactory::autoDetectToolchains(const QSt
 
 Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     ToolChainConfigWidget(tc),
-    m_compilerPath(new Utils::PathChooser),
+    m_compilerCommand(new Utils::PathChooser),
     m_abiWidget(new AbiWidget),
     m_isReadOnly(false)
 {
@@ -678,9 +678,9 @@ Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     QFormLayout *layout = new QFormLayout(this);
 
     const QStringList gnuVersionArgs = QStringList(QLatin1String("--version"));
-    m_compilerPath->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_compilerPath->setCommandVersionArguments(gnuVersionArgs);
-    layout->addRow(tr("&Compiler path:"), m_compilerPath);
+    m_compilerCommand->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_compilerCommand->setCommandVersionArguments(gnuVersionArgs);
+    layout->addRow(tr("&Compiler path:"), m_compilerCommand);
     layout->addRow(tr("&ABI:"), m_abiWidget);
     m_abiWidget->setEnabled(false);
 
@@ -689,7 +689,7 @@ Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
 
     setFromToolchain();
 
-    connect(m_compilerPath, SIGNAL(changed(QString)), this, SLOT(handlePathChange()));
+    connect(m_compilerCommand, SIGNAL(changed(QString)), this, SLOT(handleCompilerCommandChange()));
     connect(m_abiWidget, SIGNAL(abiChanged()), this, SLOT(handleAbiChange()));
 }
 
@@ -701,7 +701,7 @@ void Internal::GccToolChainConfigWidget::apply()
     GccToolChain *tc = static_cast<GccToolChain *>(toolChain());
     Q_ASSERT(tc);
     QString displayName = tc->displayName();
-    tc->setCompilerCommand(m_compilerPath->fileName());
+    tc->setCompilerCommand(m_compilerCommand->fileName());
     tc->setTargetAbi(m_abiWidget->currentAbi());
     tc->setDisplayName(displayName); // reset display name
     tc->setDebuggerCommand(debuggerCommand());
@@ -713,9 +713,9 @@ void Internal::GccToolChainConfigWidget::setFromToolchain()
     // subwidgets are not yet connected!
     bool blocked = blockSignals(true);
     GccToolChain *tc = static_cast<GccToolChain *>(toolChain());
-    m_compilerPath->setFileName(tc->compilerCommand());
+    m_compilerCommand->setFileName(tc->compilerCommand());
     m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
-    if (!m_isReadOnly && !m_compilerPath->path().isEmpty())
+    if (!m_isReadOnly && !m_compilerCommand->path().isEmpty())
         m_abiWidget->setEnabled(true);
     setDebuggerCommand(tc->debuggerCommand());
     blockSignals(blocked);
@@ -725,21 +725,21 @@ bool Internal::GccToolChainConfigWidget::isDirty() const
 {
     GccToolChain *tc = static_cast<GccToolChain *>(toolChain());
     Q_ASSERT(tc);
-    return m_compilerPath->fileName() != tc->compilerCommand()
+    return m_compilerCommand->fileName() != tc->compilerCommand()
             || m_abiWidget->currentAbi() != tc->targetAbi();
 }
 
 void Internal::GccToolChainConfigWidget::makeReadOnly()
 {
-    m_compilerPath->setEnabled(false);
+    m_compilerCommand->setEnabled(false);
     m_abiWidget->setEnabled(false);
     m_isReadOnly = true;
     ToolChainConfigWidget::makeReadOnly();
 }
 
-void Internal::GccToolChainConfigWidget::handlePathChange()
+void Internal::GccToolChainConfigWidget::handleCompilerCommandChange()
 {
-    Utils::FileName path = m_compilerPath->fileName();
+    Utils::FileName path = m_compilerCommand->fileName();
     QList<Abi> abiList;
     bool haveCompiler = false;
     if (!path.isEmpty()) {
