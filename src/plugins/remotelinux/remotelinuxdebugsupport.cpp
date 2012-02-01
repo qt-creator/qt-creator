@@ -97,10 +97,12 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
     DebuggerStartParameters params;
     const LinuxDeviceConfiguration::ConstPtr &devConf = runConfig->deviceConfig();
     if (runConfig->useQmlDebugger()) {
+        params.languages |= QmlLanguage;
         params.qmlServerAddress = runConfig->deviceConfig()->sshParameters().host;
         params.qmlServerPort = -1;
     }
     if (runConfig->useCppDebugger()) {
+        params.languages |= CppLanguage;
         params.processArgs = runConfig->arguments();
         if (runConfig->activeQt4BuildConfiguration()->qtVersion())
             params.sysroot = runConfig->activeQt4BuildConfiguration()->qtVersion()->systemRoot();

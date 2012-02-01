@@ -365,7 +365,8 @@ RunConfiguration *DebuggerRunControl::runConfiguration() const
 //
 ////////////////////////////////////////////////////////////////////////
 
-static QList<DebuggerEngineType> enginesForToolChain(const Abi &toolChain)
+static QList<DebuggerEngineType> enginesForToolChain(const Abi &toolChain,
+                                                     DebuggerLanguages languages)
 {
     QList<DebuggerEngineType> result;
     switch (toolChain.binaryFormat()) {
@@ -373,6 +374,8 @@ static QList<DebuggerEngineType> enginesForToolChain(const Abi &toolChain)
     case Abi::MachOFormat:
         result.push_back(LldbEngineType);
         result.push_back(GdbEngineType);
+        if (languages & QmlLanguage)
+            result.push_back(QmlEngineType);
         break;
    case Abi::PEFormat:
         if (toolChain.osFlavor() == Abi::WindowsMSysFlavor) {
@@ -382,6 +385,8 @@ static QList<DebuggerEngineType> enginesForToolChain(const Abi &toolChain)
             result.push_back(CdbEngineType);
             result.push_back(GdbEngineType);
         }
+        if (languages & QmlLanguage)
+            result.push_back(QmlEngineType);
         break;
     case Abi::RuntimeQmlFormat:
         result.push_back(QmlEngineType);
@@ -435,9 +440,22 @@ static QList<DebuggerEngineType> enginesForExecutable(const QString &executable)
 
 // Debugger type for mode.
 static QList<DebuggerEngineType> enginesForMode(DebuggerStartMode startMode,
+                                                DebuggerLanguages languages,
                                                 bool hardConstraintsOnly)
 {
     QList<DebuggerEngineType> result;
+
+    if (languages == QmlLanguage) {
+        QTC_ASSERT(startMode == StartInternal
+                   || startMode == AttachToRemoteServer,
+                   qDebug() << "qml debugging not supported for mode"
+                            << startMode);
+
+        // Qml language only
+        result.push_back(QmlEngineType);
+        return result;
+    }
+
     switch (startMode) {
     case NoStartMode:
         break;
@@ -449,6 +467,9 @@ static QList<DebuggerEngineType> enginesForMode(DebuggerStartMode startMode,
             result.push_back(CdbEngineType); // Preferably Windows debugger for attaching locally.
 #endif
             result.push_back(GdbEngineType);
+
+            if (languages & QmlLanguage)
+                result.push_back(QmlEngineType);
         }
         break;
     case AttachCore:
@@ -460,6 +481,8 @@ static QList<DebuggerEngineType> enginesForMode(DebuggerStartMode startMode,
     case StartRemoteProcess:
     case StartRemoteGdb:
         result.push_back(GdbEngineType);
+        if (languages & QmlLanguage)
+            result.push_back(QmlEngineType);
         break;
     case AttachToRemoteProcess:
     case AttachToRemoteServer:
@@ -468,6 +491,9 @@ static QList<DebuggerEngineType> enginesForMode(DebuggerStartMode startMode,
             result.push_back(CdbEngineType);
 #endif
             result.push_back(GdbEngineType);
+
+            if (languages & QmlLanguage)
+                result.push_back(QmlEngineType);
         }
         break;
     case AttachCrashedExternal:
@@ -477,9 +503,6 @@ static QList<DebuggerEngineType> enginesForMode(DebuggerStartMode startMode,
         // FIXME: Unclear IPC override. Someone please have a better idea.
         // For now thats the only supported IPC engine.
         result.push_back(LldbEngineType);
-        break;
-    case AttachToQmlPort:
-        result.push_back(QmlEngineType); // Only QML can do this
         break;
     }
     return result;
@@ -494,14 +517,14 @@ static QList<DebuggerEngineType> engineTypes(const DebuggerStartParameters &sp)
     if (!result.isEmpty())
         return result;
 
-    result = enginesForMode(sp.startMode, true);
+    result = enginesForMode(sp.startMode, sp.languages, true);
     if (!result.isEmpty())
         return result;
 
     //  'hard constraints' done (with the exception of QML ABI checked here),
     // further try to restrict available engines.
     if (sp.toolChainAbi.isValid()) {
-        result = enginesForToolChain(sp.toolChainAbi);
+        result = enginesForToolChain(sp.toolChainAbi, sp.languages);
         if (!result.isEmpty())
             return result;
     }
@@ -519,7 +542,7 @@ static QList<DebuggerEngineType> engineTypes(const DebuggerStartParameters &sp)
     if (!result.isEmpty())
         return result;
 
-    result = enginesForMode(sp.startMode, false);
+    result = enginesForMode(sp.startMode, sp.languages, false);
     return result;
 }
 
@@ -577,27 +600,19 @@ static inline bool canUseEngine(DebuggerEngineType et,
 DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartParameters &sp)
 {
     ConfigurationCheck result;
-    const unsigned activeLangs = debuggerCore()->activeLanguages();
-    const bool qmlLanguage = activeLangs & QmlLanguage;
-    const bool cppLanguage = activeLangs & CppLanguage;
     if (debug)
         qDebug().nospace() << "checkDebugConfiguration " << sp.toolChainAbi.toString()
                            << " Start mode=" << sp.startMode << " Executable=" << sp.executable
                            << " Debugger command=" << sp.debuggerCommand;
     // Get all applicable types.
-    QList<DebuggerEngineType> requiredTypes;
-    if (qmlLanguage && !cppLanguage) {
-        requiredTypes.push_back(QmlEngineType);
-    } else {
-        requiredTypes = engineTypes(sp);
-    }
+    QList<DebuggerEngineType> requiredTypes = engineTypes(sp);
     if (requiredTypes.isEmpty()) {
         result.errorMessage = QLatin1String("Internal error: Unable to determine debugger engine type for this configuration");
         return result;
     }
     if (debug)
         qDebug() << " Required: " << engineTypeNames(requiredTypes);
-    // Filter out disables types, command line + current settings.
+    // Filter out disabled types, command line + current settings.
     unsigned cmdLineEnabledEngines = debuggerCore()->enabledEngines();
 #ifdef WITH_LLDB
     if (!Core::ICore::settings()->value(QLatin1String("LLDB/enabled")).toBool())
@@ -605,6 +620,7 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
 #else
      cmdLineEnabledEngines &= ~LldbEngineType;
 #endif
+
     DebuggerEngineType usableType = NoEngineType;
     QList<DebuggerEngineType> unavailableTypes;
     foreach (DebuggerEngineType et, requiredTypes) {
@@ -644,13 +660,17 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
     // Anything left: Happy.
     result.errorMessage.clear();
     result.errorDetails.clear();
-    if (qmlLanguage && cppLanguage
-            && usableType != QmlEngineType) {
-        result.masterSlaveEngineTypes.first = QmlCppEngineType;
-        result.masterSlaveEngineTypes.second = usableType;
-    } else {
-        result.masterSlaveEngineTypes.first = usableType;
-    }
+
+
+    // Could we actually use a combined qml/cpp-engine?
+     if (usableType != QmlEngineType
+             && requiredTypes.contains(QmlEngineType)) {
+         result.masterSlaveEngineTypes.first = QmlCppEngineType;
+         result.masterSlaveEngineTypes.second = usableType;
+     } else {
+         result.masterSlaveEngineTypes.first = usableType;
+     }
+
     if (debug)
         qDebug() << engineTypeName(result.masterSlaveEngineTypes.first) << engineTypeName(result.masterSlaveEngineTypes.second);
     return result;
@@ -757,9 +777,13 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
         }
     }
 
-    if (debuggerCore()->isActiveDebugLanguage(QmlLanguage)) {
+    if (runConfiguration->useCppDebugger())
+        sp.languages |= CppLanguage;
+
+    if (runConfiguration->useQmlDebugger()) {
         sp.qmlServerAddress = _("127.0.0.1");
         sp.qmlServerPort = runConfiguration->qmlDebugServerPort();
+        sp.languages |= QmlLanguage;
 
         // Makes sure that all bindings go through the JavaScript engine, so that
         // breakpoints are actually hit!

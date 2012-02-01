@@ -130,7 +130,6 @@ enum DebuggerStartMode
     AttachToRemoteServer,  // Attach to a running gdbserver
     AttachToRemoteProcess, // Attach to a running remote process
     StartRemoteProcess,    // Start and attach to a remote process
-    AttachToQmlPort,       // Attach to QML debugging port
     StartRemoteGdb,        // Start gdb itself remotely
     StartRemoteEngine      // Start ipc guest engine on other machine
 };

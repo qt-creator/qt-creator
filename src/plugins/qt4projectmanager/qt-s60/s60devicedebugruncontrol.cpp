@@ -100,11 +100,14 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
     sp.qmlServerAddress = activeDeployConf->deviceAddress();
     sp.qmlServerPort = rc->qmlDebugServerPort();
     if (rc->useQmlDebugger()) {
+        sp.languages |= Debugger::QmlLanguage;
         QString qmlArgs = rc->qmlCommandLineArguments();
         if (sp.processArgs.length())
             sp.processArgs.prepend(QLatin1Char(' '));
         sp.processArgs.prepend(qmlArgs);
     }
+    if (rc->useCppDebugger())
+        sp.languages |= Debugger::CppLanguage;
 
     sp.communicationChannel = activeDeployConf->communicationChannel() == S60DeployConfiguration::CommunicationCodaTcpConnection?
                 Debugger::DebuggerStartParameters::CommunicationChannelTcpIp:

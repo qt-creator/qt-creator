@@ -1844,7 +1844,7 @@ void DebuggerPluginPrivate::attachToQmlPort()
     sp.qmlServerPort = dlg.port();
     sp.sysroot = dlg.sysroot();
 
-    sp.startMode = AttachToQmlPort;
+    sp.startMode = AttachToRemoteServer;
 
     //
     // get files from all the projects in the session
@@ -2713,6 +2713,14 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
     QTextStream str(&rc);
     str << "Start parameters: '" << sp.displayName << "' mode: " << sp.startMode
         << "\nABI: " << sp.toolChainAbi.toString() << '\n';
+    str << "Languages: ";
+    if (sp.languages == AnyLanguage)
+        str << "any";
+    if (sp.languages & CppLanguage)
+        str << "c++ ";
+    if (sp.languages & QmlLanguage)
+        str << "qml";
+    str << '\n';
     if (!sp.executable.isEmpty()) {
         str << "Executable: " << QDir::toNativeSeparators(sp.executable)
             << ' ' << sp.processArgs;

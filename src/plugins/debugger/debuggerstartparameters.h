@@ -61,6 +61,7 @@ public:
         attachPID(-1),
         useTerminal(false),
         breakOnMain(false),
+        languages(AnyLanguage),
         qmlServerAddress(QLatin1String("127.0.0.1")),
         qmlServerPort(ProjectExplorer::Constants::QML_DEFAULT_DEBUG_SERVER_PORT),
         useServerStartScript(false),
@@ -87,6 +88,7 @@ public:
     qint64 attachPID;
     bool useTerminal;
     bool breakOnMain;
+    DebuggerLanguages languages;
 
     // Used by AttachCrashedExternal.
     QString crashParameter;
@@ -97,6 +99,7 @@ public:
     QString projectSourceDirectory;
     QString projectBuildDirectory;
     QStringList projectSourceFiles;
+
 
     QString qtInstallPath;
     // Used by remote debugging.
