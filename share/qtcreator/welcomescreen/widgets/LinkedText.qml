@@ -37,6 +37,7 @@ Text {
     id: root
     height: 16
     color: active ? "#f0f0f0" : colors.linkColor
+    verticalAlignment: Text.AlignVCenter
 
     font: fonts.linkFont
 
