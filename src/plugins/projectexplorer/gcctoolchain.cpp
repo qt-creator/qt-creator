@@ -883,7 +883,14 @@ QString MingwToolChain::typeDisplayName() const
 
 Utils::FileName MingwToolChain::mkspec() const
 {
+#if defined(Q_OS_WIN)
     return Utils::FileName::fromString(QLatin1String("win32-g++"));
+#elif defined(Q_OS_LINUX)
+    if (version().startsWith("4.6."))
+        return Utils::FileName::fromString(QLatin1String("unsupported/win32-g++-4.6-cross"));
+    else
+        return Utils::FileName::fromString(QLatin1String("unsupported/win32-g++-cross"));
+#endif
 }
 
 QString MingwToolChain::makeCommand() const
