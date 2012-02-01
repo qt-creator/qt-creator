@@ -1022,6 +1022,15 @@ public slots:
         currentEngine()->executeJumpToLine(data);
     }
 
+    void slotDisassembleFunction()
+    {
+        const QAction *action = qobject_cast<const QAction *>(sender());
+        QTC_ASSERT(action, return);
+        const StackFrame frame = action->data().value<StackFrame>();
+        QTC_ASSERT(!frame.function.isEmpty(), return);
+        currentEngine()->openDisassemblerView(Location(frame));
+    }
+
     void handleAddToWatchWindow()
     {
         // Requires a selection, but that's the only case we want anyway.
@@ -1939,8 +1948,9 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
     bool contextUsable = true;
 
     BreakpointModelId id = BreakpointModelId();
+    const QString fileName = editor->file()->fileName();
     if (editor->property("DisassemblerView").toBool()) {
-        args.fileName = editor->file()->fileName();
+        args.fileName = fileName;
         QString line = editor->contents()
             .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
         BreakpointResponse needle;
@@ -2030,6 +2040,20 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
             jumpToLineAction->setData(QVariant::fromValue(args));
             connect(jumpToLineAction, SIGNAL(triggered()), SLOT(slotJumpToLine()));
             menu->addAction(jumpToLineAction);
+        }
+        // Disassemble current function in stopped state.
+        if (currentEngine()->state() == InferiorStopOk
+            && currentEngine()->hasCapability(DisassemblerCapability)) {
+            StackFrame frame;
+            frame.function = cppFunctionAt(fileName, lineNumber);
+            frame.line = 42; // trick gdb into mixed mode.
+            if (!frame.function.isEmpty()) {
+                const QString text = tr("Disassemble '%1()'").arg(frame.function);
+                QAction *disassembleAction = new QAction(text, menu);
+                disassembleAction->setData(QVariant::fromValue(frame));
+                connect(disassembleAction, SIGNAL(triggered()), SLOT(slotDisassembleFunction()));
+                menu->addAction(disassembleAction );
+            }
         }
     }
 }

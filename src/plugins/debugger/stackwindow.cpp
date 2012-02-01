@@ -48,6 +48,7 @@
 #include <QtGui/QClipboard>
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QHeaderView>
+#include <QtGui/QInputDialog>
 #include <QtGui/QMenu>
 
 namespace Debugger {
@@ -91,6 +92,33 @@ void StackWindow::setModel(QAbstractItemModel *model)
     showAddressColumn(debuggerCore()->action(UseAddressInStackView)->isChecked());
 }
 
+// Input a function to be disassembled. Accept CDB syntax
+// 'Module!function' for module specification
+
+static inline StackFrame inputFunctionForDisassembly()
+{
+    StackFrame frame;
+    QInputDialog dialog;
+    dialog.setInputMode(QInputDialog::TextInput);
+    dialog.setLabelText(StackWindow::tr("Function:"));
+    dialog.setWindowTitle(StackWindow::tr("Disassemble Function"));
+    dialog.setWindowFlags(dialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    if (dialog.exec() != QDialog::Accepted)
+        return frame;
+    const QString function = dialog.textValue();
+    if (function.isEmpty())
+        return frame;
+    const int bangPos = function.indexOf(QLatin1Char('!'));
+    if (bangPos != -1) {
+        frame.from = function.left(bangPos);
+        frame.function = function.mid(bangPos + 1);
+    } else {
+        frame.function = function;
+    }
+    frame.line = 42; // trick gdb into mixed mode.
+    return frame;
+}
+
 void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     DebuggerEngine *engine = currentEngine();
@@ -124,11 +152,13 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
     }
 
     QAction *actShowDisassemblerAt = 0;
-    QAction *actShowDisassembler = 0;
+    QAction *actShowDisassemblerAtAddress = 0;
+    QAction *actShowDisassemblerAtFunction = 0;
 
     if (engine->hasCapability(DisassemblerCapability)) {
         actShowDisassemblerAt = menu.addAction(QString());
-        actShowDisassembler = menu.addAction(tr("Open Disassembler..."));
+        actShowDisassemblerAtAddress = menu.addAction(tr("Open Disassembler at address..."));
+        actShowDisassemblerAtFunction = menu.addAction(tr("Disassemble Function..."));
         if (address == 0) {
             actShowDisassemblerAt->setText(tr("Open Disassembler"));
             actShowDisassemblerAt->setEnabled(false);
@@ -165,12 +195,16 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
         ml.push_back(MemoryMarkup(address, 1, QColor(Qt::blue).lighter(),
                                   tr("Frame #%1 (%2)").arg(row).arg(frame.function)));
         engine->openMemoryView(address, 0, ml, QPoint(), title);
-    } else if (act == actShowDisassembler) {
+    } else if (act == actShowDisassemblerAtAddress) {
         AddressDialog dialog;
         if (address)
             dialog.setAddress(address);
         if (dialog.exec() == QDialog::Accepted)
             currentEngine()->openDisassemblerView(Location(dialog.address()));
+    } else if (act == actShowDisassemblerAtFunction) {
+        const StackFrame frame = inputFunctionForDisassembly();
+        if (!frame.function.isEmpty())
+            currentEngine()->openDisassemblerView(Location(frame));
     } else if (act == actShowDisassemblerAt)
         engine->openDisassemblerView(frame);
     else if (act == actLoadSymbols)

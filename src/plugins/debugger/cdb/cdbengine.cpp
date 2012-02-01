@@ -1555,24 +1555,32 @@ void CdbEngine::selectThread(int index)
 // Default address range for showing disassembly.
 enum { DisassemblerRange = 512 };
 
-/* Try to emulate gdb's behaviour: When passed an address, display
- * the disassembled function. CDB's 'u' (disassemble) command takes a symbol,
- * but does not display the whole function, only 10 lines per default.
- * So, to ensure the agent's
+/* Called with a stack frame (address and function) or just a function
+ * name from the context menu. When address and function are
+ * passed, try to emulate gdb's behaviour to display the whole function.
+ * CDB's 'u' (disassemble) command takes a symbol,
+ * but displays only 10 lines per default. So, to ensure the agent's
  * address is in that range, resolve the function symbol, cache it and
  * request the disassembly for a range that contains the agent's address. */
 
 void CdbEngine::fetchDisassembler(DisassemblerAgent *agent)
 {
     QTC_ASSERT(m_accessible, return;)
-    const QString function = agent->location().functionName();
-    const QString module = agent->location().from();
     const QVariant cookie = qVariantFromValue<DisassemblerAgent*>(agent);
-    if (function.isEmpty() || module.isEmpty()) {
+    const Location location = agent->location();
+    if (debug)
+        qDebug() << "CdbEngine::fetchDisassembler 0x"
+                 << QString::number(location.address(), 16)
+                 << location.from() << '!' << location.functionName();
+    if (!location.functionName().isEmpty()) {
+        // Resolve function (from stack frame with function and address
+        // or just function from editor).
+        postResolveSymbol(location.from(), location.functionName(), cookie);
+    } else if (location.address()) {
         // No function, display a default range.
-        postDisassemblerCommand(agent->address(), cookie);
+        postDisassemblerCommand(location.address(), cookie);
     } else {
-        postResolveSymbol(module, function, cookie);
+        QTC_ASSERT(false, return);
     }
 }
 
@@ -1594,12 +1602,14 @@ void CdbEngine::postDisassemblerCommand(quint64 address, quint64 endAddress,
 void CdbEngine::postResolveSymbol(const QString &module, const QString &function,
                                   const QVariant &cookie)
 {
-    const QString symbol = module + QLatin1Char('!') + function;
+    QString symbol = module.isEmpty() ? QString(QLatin1Char('*')) : module;
+    symbol += QLatin1Char('!');
+    symbol += function;
     const QList<quint64> addresses = m_symbolAddressCache.values(symbol);
     if (addresses.isEmpty()) {
         QVariantList cookieList;
         cookieList << QVariant(symbol) << cookie;
-        showMessage(QLatin1String("Resolving symbol: ") + symbol, LogMisc);
+        showMessage(QLatin1String("Resolving symbol: ") + symbol + QLatin1String("..."), LogMisc);
         postBuiltinCommand(QByteArray("x ") + symbol.toLatin1(), 0,
                            &CdbEngine::handleResolveSymbol, 0,
                            QVariant(cookieList));
@@ -1674,6 +1684,26 @@ static inline quint64 findClosestFunctionAddress(const QList<quint64> &addresses
     return addresses.at(closestIndex);
 }
 
+static inline QString msgAmbiguousFunction(const QString &functionName,
+                                           quint64 address,
+                                           const QList<quint64> &addresses)
+{
+    QString result;
+    QTextStream str(&result);
+    str.setIntegerBase(16);
+    str.setNumberFlags(str.numberFlags() | QTextStream::ShowBase);
+    str << "Several overloads of function '" << functionName
+        << "()' were found (";
+    for (int i = 0; i < addresses.size(); ++i) {
+        if (i)
+            str << ", ";
+        str << addresses.at(i);
+
+    }
+    str << "), using " << address << '.';
+    return result;
+}
+
 void CdbEngine::handleResolveSymbol(const QList<quint64> &addresses, const QVariant &cookie)
 {
     // Disassembly mode: Determine suitable range containing the
@@ -1681,18 +1711,37 @@ void CdbEngine::handleResolveSymbol(const QList<quint64> &addresses, const QVari
     if (qVariantCanConvert<DisassemblerAgent*>(cookie)) {
         DisassemblerAgent *agent = cookie.value<DisassemblerAgent *>();
         const quint64 agentAddress = agent->address();
-        const quint64 functionAddress
-                = findClosestFunctionAddress(addresses, agentAddress);
-        if (functionAddress > 0 && functionAddress <= agentAddress) {
-            quint64 endAddress = agentAddress + DisassemblerRange / 2;
+        quint64 functionAddress = 0;
+        quint64 endAddress = 0;
+        if (agentAddress) {
+            // We have an address from the agent, find closest.
+            if (const quint64 closest = findClosestFunctionAddress(addresses, agentAddress)) {
+                if (closest <= agentAddress) {
+                    functionAddress = closest;
+                    endAddress = agentAddress + DisassemblerRange / 2;
+                }
+            }
+        } else {
+            // No agent address, disassembly was started with a function name only.
+            if (!addresses.isEmpty()) {
+                functionAddress = addresses.first();
+                endAddress = functionAddress + DisassemblerRange / 2;
+                if (addresses.size() > 1)
+                    showMessage(msgAmbiguousFunction(agent->location().functionName(), functionAddress, addresses), LogMisc);
+            }
+        }
+        // Disassemble a function, else use default range around agent address
+        if (functionAddress) {
             if (const quint64 remainder = endAddress % 8)
                 endAddress += 8 - remainder;
             postDisassemblerCommand(functionAddress, endAddress, cookie);
-        } else {
+        } else if (agentAddress) {
             postDisassemblerCommand(agentAddress, cookie);
+        } else {
+            QTC_ASSERT(false, return);
         }
         return;
-    }
+    } // DisassemblerAgent
 }
 
 // Parse: "00000000`77606060 cc              int     3"

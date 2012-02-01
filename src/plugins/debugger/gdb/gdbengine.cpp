@@ -4325,13 +4325,28 @@ void GdbEngine::fetchDisassemblerByMiRangePlain(const DisassemblerAgentCookie &a
 }
 #endif
 
+static inline QByteArray disassemblerCommand(const Location &location, bool mixed)
+{
+    QByteArray command = "disassemble ";
+    if (mixed)
+        command += "/m ";
+    if (const quint64 address = location.address()) {
+        command += "0x";
+        command += QByteArray::number(address, 16);
+    } else if (!location.functionName().isEmpty()) {
+        command += location.functionName().toLatin1();
+    } else {
+        QTC_ASSERT(false, return QByteArray(); );
+    }
+    return command;
+}
+
 void GdbEngine::fetchDisassemblerByCliPointMixed(const DisassemblerAgentCookie &ac0)
 {
     DisassemblerAgentCookie ac = ac0;
     QTC_ASSERT(ac.agent, return);
-    const quint64 address = ac.agent->address();
-    QByteArray cmd = "disassemble /m 0x" + QByteArray::number(address, 16);
-    postCommand(cmd, Discardable, CB(handleFetchDisassemblerByCliPointMixed),
+    postCommand(disassemblerCommand(ac.agent->location(), true), Discardable,
+        CB(handleFetchDisassemblerByCliPointMixed),
         QVariant::fromValue(ac));
 }
 
@@ -4339,9 +4354,8 @@ void GdbEngine::fetchDisassemblerByCliPointPlain(const DisassemblerAgentCookie &
 {
     DisassemblerAgentCookie ac = ac0;
     QTC_ASSERT(ac.agent, return);
-    const quint64 address = ac.agent->address();
-    QByteArray cmd = "disassemble 0x" + QByteArray::number(address, 16);
-    postCommand(cmd, Discardable, CB(handleFetchDisassemblerByCliPointPlain),
+    postCommand(disassemblerCommand(ac.agent->location(), false), Discardable,
+        CB(handleFetchDisassemblerByCliPointPlain),
         QVariant::fromValue(ac));
 }
 
@@ -4463,18 +4477,21 @@ void GdbEngine::handleFetchDisassemblerByCliPointPlain(const GdbResponse &respon
 {
     DisassemblerAgentCookie ac = response.cookie.value<DisassemblerAgentCookie>();
     QTC_ASSERT(ac.agent, return);
-
+    // Agent address is 0 when disassembling a function name only
+    const quint64 agentAddress = ac.agent->address();
     if (response.resultClass == GdbResultDone) {
         DisassemblerLines dlines = parseDisassembler(response);
-        if (dlines.coversAddress(ac.agent->address())) {
+        if (!agentAddress || dlines.coversAddress(agentAddress)) {
             ac.agent->setContents(dlines);
             return;
         }
     }
-    if (ac.agent->isMixed())
-        fetchDisassemblerByCliRangeMixed(ac);
-    else
-        fetchDisassemblerByCliRangePlain(ac);
+    if (agentAddress) {
+        if (ac.agent->isMixed())
+            fetchDisassemblerByCliRangeMixed(ac);
+        else
+            fetchDisassemblerByCliRangePlain(ac);
+    }
 }
 
 void GdbEngine::handleFetchDisassemblerByCliRangeMixed(const GdbResponse &response)
