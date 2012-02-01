@@ -61,14 +61,16 @@ private slots:
     void handleChannelInitialized();
     void handleChannelInitializationFailure(const QString &reason);
     void handleJobFinished(Utils::SftpJobId job, const QString &error);
+    void handleFileInfo(Utils::SftpJobId job, const QList<Utils::SftpFileInfo> &fileInfoList);
     void handleChannelClosed();
 
 private:
     typedef QHash<Utils::SftpJobId, QString> JobMap;
     typedef QSharedPointer<QFile> FilePtr;
-    enum State { Inactive, Connecting, InitializingChannel, UploadingSmall,
-        DownloadingSmall, RemovingSmall, UploadingBig, DownloadingBig,
-        RemovingBig, ChannelClosing, Disconnecting
+    enum State {
+        Inactive, Connecting, InitializingChannel, UploadingSmall, DownloadingSmall,
+        RemovingSmall, UploadingBig, DownloadingBig, RemovingBig, CreatingDir,
+        CheckingDirAttributes, CheckingDirContents, RemovingDir, ChannelClosing, Disconnecting
     };
 
     void removeFile(const FilePtr &filePtr, bool remoteToo);
@@ -76,8 +78,11 @@ private:
     QString cmpFileName(const QString &localFileName) const;
     QString remoteFilePath(const QString &localFileName) const;
     void earlyDisconnectFromHost();
+    bool checkJobId(Utils::SftpJobId job, Utils::SftpJobId expectedJob, const char *activity);
     bool handleJobFinished(Utils::SftpJobId job, JobMap &jobMap,
         const QString &error, const char *activity);
+    bool handleJobFinished(Utils::SftpJobId job, Utils::SftpJobId expectedJob, const QString &error,
+        const char *activity);
     bool handleBigJobFinished(Utils::SftpJobId job, Utils::SftpJobId expectedJob,
         const QString &error, const char *activity);
     bool compareFiles(QFile *orig, QFile *copy);
@@ -95,7 +100,14 @@ private:
     Utils::SftpJobId m_bigFileUploadJob;
     Utils::SftpJobId m_bigFileDownloadJob;
     Utils::SftpJobId m_bigFileRemovalJob;
+    Utils::SftpJobId m_mkdirJob;
+    Utils::SftpJobId m_statDirJob;
+    Utils::SftpJobId m_lsDirJob;
+    Utils::SftpJobId m_rmDirJob;
     QElapsedTimer m_bigJobTimer;
+    QString m_remoteDirPath;
+    Utils::SftpFileInfo m_dirInfo;
+    QList<Utils::SftpFileInfo> m_dirContents;
 };
 
 

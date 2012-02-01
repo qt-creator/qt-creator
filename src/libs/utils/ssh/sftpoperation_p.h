@@ -53,7 +53,7 @@ struct AbstractSftpOperation
 {
     typedef QSharedPointer<AbstractSftpOperation> Ptr;
     enum Type {
-        ListDir, MakeDir, RmDir, Rm, Rename, CreateLink, CreateFile, Download, UploadFile
+        StatFile, ListDir, MakeDir, RmDir, Rm, Rename, CreateLink, CreateFile, Download, UploadFile
     };
 
     AbstractSftpOperation(SftpJobId jobId);
@@ -69,6 +69,17 @@ private:
 };
 
 struct SftpUploadDir;
+
+struct SftpStatFile : public AbstractSftpOperation
+{
+    typedef QSharedPointer<SftpStatFile> Ptr;
+
+    SftpStatFile(SftpJobId jobId, const QString &path);
+    virtual Type type() const { return StatFile; }
+    virtual SftpOutgoingPacket &initialPacket(SftpOutgoingPacket &packet);
+
+    const QString path;
+};
 
 struct SftpMakeDir : public AbstractSftpOperation
 {

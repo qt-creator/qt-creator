@@ -35,7 +35,8 @@
 
 #include <utils/utils_global.h>
 
-#include <QtCore/QtGlobal>
+#include <QFile>
+#include <QString>
 
 namespace Utils {
 
@@ -44,6 +45,23 @@ QTCREATOR_UTILS_EXPORT extern const SftpJobId SftpInvalidJob;
 
 enum SftpOverwriteMode {
     SftpOverwriteExisting, SftpAppendToExisting, SftpSkipExisting
+};
+
+enum SftpFileType { FileTypeRegular, FileTypeDirectory, FileTypeOther, FileTypeUnknown };
+
+class QTCREATOR_UTILS_EXPORT SftpFileInfo
+{
+public:
+    SftpFileInfo() : type(FileTypeUnknown), sizeValid(false), permissionsValid(false) { }
+
+    QString name;
+    SftpFileType type;
+    quint64 size;
+    QFile::Permissions permissions;
+
+    // The RFC allows an SFTP server not to support any file attributes beyond the name.
+    bool sizeValid;
+    bool permissionsValid;
 };
 
 } // namespace Utils

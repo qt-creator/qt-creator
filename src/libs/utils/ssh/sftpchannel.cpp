@@ -95,6 +95,9 @@ SftpChannel::SftpChannel(quint32 channelId,
         SIGNAL(initializationFailed(QString)), Qt::QueuedConnection);
     connect(d, SIGNAL(dataAvailable(Utils::SftpJobId, QString)), this,
         SIGNAL(dataAvailable(Utils::SftpJobId, QString)), Qt::QueuedConnection);
+    connect(d, SIGNAL(fileInfoAvailable(Utils::SftpJobId, QList<Utils::SftpFileInfo>)), this,
+        SIGNAL(fileInfoAvailable(Utils::SftpJobId, QList<Utils::SftpFileInfo>)),
+        Qt::QueuedConnection);
     connect(d, SIGNAL(finished(Utils::SftpJobId,QString)), this,
         SIGNAL(finished(Utils::SftpJobId,QString)), Qt::QueuedConnection);
     connect(d, SIGNAL(closed()), this, SIGNAL(closed()), Qt::QueuedConnection);
@@ -129,6 +132,12 @@ void SftpChannel::initialize()
 void SftpChannel::closeChannel()
 {
     d->closeChannel();
+}
+
+SftpJobId SftpChannel::statFile(const QString &path)
+{
+    return d->createJob(Internal::SftpStatFile::Ptr(
+        new Internal::SftpStatFile(++d->m_nextJobId, path)));
 }
 
 SftpJobId SftpChannel::listDirectory(const QString &path)
@@ -453,6 +462,7 @@ void SftpChannelPrivate::handleStatus()
     case AbstractSftpOperation::MakeDir:
         handleMkdirStatus(it, response);
         break;
+    case AbstractSftpOperation::StatFile:
     case AbstractSftpOperation::RmDir:
     case AbstractSftpOperation::Rm:
     case AbstractSftpOperation::Rename:
@@ -702,10 +712,16 @@ void SftpChannelPrivate::handleName()
                 "Unexpected SSH_FXP_NAME packet.");
         }
 
+        QList<SftpFileInfo> fileInfoList;
         for (int i = 0; i < response.files.count(); ++i) {
             const SftpFile &file = response.files.at(i);
-            emit dataAvailable(op->jobId, file.fileName);
+
+            SftpFileInfo fileInfo;
+            fileInfo.name = file.fileName;
+            attributesToFileInfo(file.attributes, fileInfo);
+            fileInfoList << fileInfo;
         }
+        emit fileInfoAvailable(op->jobId, fileInfoList);
         sendData(m_outgoingPacket.generateReadDir(op->remoteHandle,
             op->jobId).rawData());
         break;
@@ -753,6 +769,18 @@ void SftpChannelPrivate::handleAttrs()
 {
     const SftpAttrsResponse &response = m_incomingPacket.asAttrsResponse();
     JobMap::Iterator it = lookupJob(response.requestId);
+
+    SftpStatFile::Ptr statOp = it.value().dynamicCast<SftpStatFile>();
+    if (statOp) {
+        SftpFileInfo fileInfo;
+        fileInfo.name = QFileInfo(statOp->path).fileName();
+        attributesToFileInfo(response.attrs, fileInfo);
+        emit fileInfoAvailable(it.key(), QList<SftpFileInfo>() << fileInfo);
+        emit finished(it.key());
+        m_jobs.erase(it);
+        return;
+    }
+
     AbstractSftpTransfer::Ptr transfer
         = it.value().dynamicCast<AbstractSftpTransfer>();
     if (!transfer || transfer->state != AbstractSftpTransfer::Open
@@ -864,6 +892,43 @@ void SftpChannelPrivate::sendTransferCloseHandle(const AbstractSftpTransfer::Ptr
     sendData(m_outgoingPacket.generateCloseHandle(job->remoteHandle,
        requestId).rawData());
     job->state = SftpDownload::CloseRequested;
+}
+
+void SftpChannelPrivate::attributesToFileInfo(const SftpFileAttributes &attributes,
+    SftpFileInfo &fileInfo) const
+{
+    if (attributes.sizePresent) {
+        fileInfo.sizeValid = true;
+        fileInfo.size = attributes.size;
+    }
+    if (attributes.permissionsPresent) {
+        if (attributes.permissions & 0x8000) // S_IFREG
+            fileInfo.type = FileTypeRegular;
+        else if (attributes.permissions & 0x4000) // S_IFDIR
+            fileInfo.type = FileTypeDirectory;
+        else
+            fileInfo.type = FileTypeOther;
+        fileInfo.permissionsValid = true;
+        fileInfo.permissions = 0;
+        if (attributes.permissions & 00001) // S_IXOTH
+            fileInfo.permissions |= QFile::ExeOther;
+        if (attributes.permissions & 00002) // S_IWOTH
+            fileInfo.permissions |= QFile::WriteOther;
+        if (attributes.permissions & 00004) // S_IROTH
+            fileInfo.permissions |= QFile::ReadOther;
+        if (attributes.permissions & 00010) // S_IXGRP
+            fileInfo.permissions |= QFile::ExeGroup;
+        if (attributes.permissions & 00020) // S_IWGRP
+            fileInfo.permissions |= QFile::WriteGroup;
+        if (attributes.permissions & 00040) // S_IRGRP
+            fileInfo.permissions |= QFile::ReadGroup;
+        if (attributes.permissions & 00100) // S_IXUSR
+            fileInfo.permissions |= QFile::ExeUser | QFile::ExeOwner;
+        if (attributes.permissions & 00200) // S_IWUSR
+            fileInfo.permissions |= QFile::WriteUser | QFile::WriteOwner;
+        if (attributes.permissions & 00400) // S_IRUSR
+            fileInfo.permissions |= QFile::ReadUser | QFile::ReadOwner;
+    }
 }
 
 void SftpChannelPrivate::removeTransferRequest(const JobMap::Iterator &it)

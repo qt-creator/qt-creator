@@ -66,6 +66,7 @@ public:
     void initialize();
     void closeChannel();
 
+    SftpJobId statFile(const QString &path);
     SftpJobId listDirectory(const QString &dirPath);
     SftpJobId createDirectory(const QString &dirPath);
     SftpJobId removeDirectory(const QString &dirPath);
@@ -91,12 +92,15 @@ signals:
     // error.isEmpty <=> finished successfully
     void finished(Utils::SftpJobId job, const QString &error = QString());
 
-    /*
-     * This signal is only emitted by the "List Directory" operation,
-     * one file at a time.
      // TODO: Also emit for each file copied by uploadDir().
-     */
     void dataAvailable(Utils::SftpJobId job, const QString &data);
+
+    /*
+     * This signal is emitted as a result of:
+     *     - statFile() (with the list having exactly one element)
+     *     - listDirectory() (potentially more than once)
+     */
+    void fileInfoAvailable(Utils::SftpJobId job, const QList<Utils::SftpFileInfo> &fileInfoList);
 
 private:
     SftpChannel(quint32 channelId, Internal::SshSendFacility &sendFacility);

@@ -46,7 +46,11 @@ SftpTest::SftpTest(const Parameters &params)
     : m_parameters(params), m_state(Inactive), m_error(false),
       m_bigFileUploadJob(SftpInvalidJob),
       m_bigFileDownloadJob(SftpInvalidJob),
-      m_bigFileRemovalJob(SftpInvalidJob)
+      m_bigFileRemovalJob(SftpInvalidJob),
+      m_mkdirJob(SftpInvalidJob),
+      m_statDirJob(SftpInvalidJob),
+      m_lsDirJob(SftpInvalidJob),
+      m_rmDirJob(SftpInvalidJob)
 {
 }
 
@@ -85,6 +89,9 @@ void SftpTest::handleConnected()
             SLOT(handleChannelInitializationFailure(QString)));
         connect(m_channel.data(), SIGNAL(finished(Utils::SftpJobId, QString)),
             this, SLOT(handleJobFinished(Utils::SftpJobId, QString)));
+        connect(m_channel.data(),
+            SIGNAL(fileInfoAvailable(Utils::SftpJobId, QList<Utils::SftpFileInfo>)),
+            SLOT(handleFileInfo(Utils::SftpJobId, QList<Utils::SftpFileInfo>)));
         connect(m_channel.data(), SIGNAL(closed()), this,
             SLOT(handleChannelClosed()));
         m_state = InitializingChannel;
@@ -107,14 +114,16 @@ void SftpTest::handleDisconnected()
     else
         std::cout << "No errors encountered.";
     std::cout << std::endl;
-    qApp->quit();
+    qApp->exit(m_error ? EXIT_FAILURE : EXIT_SUCCESS);
 }
 
 void SftpTest::handleError()
 {
     std::cerr << "Encountered SSH error: "
         << qPrintable(m_connection->errorString()) << "." << std::endl;
-    qApp->quit();
+    m_error = true;
+    m_state = Disconnecting;
+    qApp->exit(EXIT_FAILURE);
 }
 
 void SftpTest::handleChannelInitialized()
@@ -384,17 +393,84 @@ void SftpTest::handleJobFinished(Utils::SftpJobId job, const QString &error)
         m_state = RemovingBig;
         break;
     }
-    case RemovingBig: {
+    case RemovingBig:
         if (!handleBigJobFinished(job, m_bigFileRemovalJob, error, "removing"))
             return;
-        const QString remoteFp
-            = remoteFilePath(QFileInfo(m_localBigFile->fileName()).fileName());
         std::cout << "Big files successfully removed. "
-            << "Now closing the SFTP channel..." << std::endl;
+            << "Now creating remote directory..." << std::endl;
+        m_remoteDirPath = QLatin1String("/tmp/sftptest-") + QDateTime::currentDateTime().toString();
+        m_mkdirJob = m_channel->createDirectory(m_remoteDirPath);
+        m_state = CreatingDir;
+        break;
+    case CreatingDir:
+        if (!handleJobFinished(job, m_mkdirJob, error, "creating remote directory"))
+            return;
+        std::cout << "Directory successfully created. Now checking directory attributes..."
+            << std::endl;
+        m_statDirJob = m_channel->statFile(m_remoteDirPath);
+        m_state = CheckingDirAttributes;
+        break;
+    case CheckingDirAttributes: {
+        if (!handleJobFinished(job, m_statDirJob, error, "checking directory attributes"))
+            return;
+        if (m_dirInfo.type != FileTypeDirectory) {
+            std::cerr << "Error: Newly created directory has file type " << m_dirInfo.type
+                << ", expected was " << FileTypeDirectory << "." << std::endl;
+            earlyDisconnectFromHost();
+            return;
+        }
+        const QString fileName = QFileInfo(m_remoteDirPath).fileName();
+        if (m_dirInfo.name != fileName) {
+            std::cerr << "Error: Remote directory reports file name '"
+                << qPrintable(m_dirInfo.name) << "', expected '" << qPrintable(fileName) << "'."
+                << std::endl;
+            earlyDisconnectFromHost();
+            return;
+        }
+        std::cout << "Directory attributes ok. Now checking directory contents..." << std::endl;
+        m_lsDirJob = m_channel->listDirectory(m_remoteDirPath);
+        m_state = CheckingDirContents;
+        break;
+    }
+    case CheckingDirContents:
+        if (!handleJobFinished(job, m_lsDirJob, error, "checking directory contents"))
+            return;
+        if (m_dirContents.count() != 2) {
+            std::cerr << "Error: Remote directory has " << m_dirContents.count()
+                << " entries, expected 2." << std::endl;
+            earlyDisconnectFromHost();
+            return;
+        }
+        foreach (const SftpFileInfo &fi, m_dirContents) {
+            if (fi.type != FileTypeDirectory) {
+                std::cerr << "Error: Remote directory has entry of type " << fi.type
+                    << ", expected " << FileTypeDirectory << "." << std::endl;
+                earlyDisconnectFromHost();
+                return;
+            }
+            if (fi.name != QLatin1String(".") && fi.name != QLatin1String("..")) {
+                std::cerr << "Error: Remote directory has entry '" << qPrintable(fi.name)
+                    << "', expected '.' or '..'." << std::endl;
+                earlyDisconnectFromHost();
+                return;
+            }
+        }
+        if (m_dirContents.first().name == m_dirContents.last().name) {
+            std::cerr << "Error: Remote directory has two entries of the same name." << std::endl;
+            earlyDisconnectFromHost();
+            return;
+        }
+        std::cout << "Directory contents ok. Now removing directory..." << std::endl;
+        m_rmDirJob = m_channel->removeDirectory(m_remoteDirPath);
+        m_state = RemovingDir;
+        break;
+    case RemovingDir:
+        if (!handleJobFinished(job, m_rmDirJob, error, "removing directory"))
+            return;
+        std::cout << "Directory successfully removed. Now closing the SFTP channel..." << std::endl;
         m_state = ChannelClosing;
         m_channel->closeChannel();
         break;
-    }
     case Disconnecting:
         break;
     default:
@@ -403,6 +479,32 @@ void SftpTest::handleJobFinished(Utils::SftpJobId job, const QString &error)
                 << Q_FUNC_INFO << "." << std::endl;
             earlyDisconnectFromHost();
         }
+    }
+}
+
+void SftpTest::handleFileInfo(SftpJobId job, const QList<SftpFileInfo> &fileInfoList)
+{
+    switch (m_state) {
+    case CheckingDirAttributes: {
+        static int count = 0;
+        if (!checkJobId(job, m_statDirJob, "checking directory attributes"))
+            return;
+        if (++count > 1) {
+            std::cerr << "Error: More than one reply for directory attributes check." << std::endl;
+            earlyDisconnectFromHost();
+            return;
+        }
+        m_dirInfo = fileInfoList.first();
+        break;
+    }
+    case CheckingDirContents:
+        if (!checkJobId(job, m_lsDirJob, "checking directory contents"))
+            return;
+        m_dirContents << fileInfoList;
+        break;
+    default:
+        std::cerr << "Error: Unexpected file info in state " << m_state << "." << std::endl;
+        earlyDisconnectFromHost();
     }
 }
 
@@ -438,6 +540,17 @@ void SftpTest::earlyDisconnectFromHost()
     m_connection->disconnectFromHost();
 }
 
+bool SftpTest::checkJobId(SftpJobId job, SftpJobId expectedJob, const char *activity)
+{
+    if (job != expectedJob) {
+        std::cerr << "Error " << activity << ": Expected job id " << expectedJob
+           << ", got job id " << job << '.' << std::endl;
+        earlyDisconnectFromHost();
+        return false;
+    }
+    return true;
+}
+
 void SftpTest::removeFiles(bool remoteToo)
 {
     foreach (const FilePtr &file, m_localSmallFiles)
@@ -462,6 +575,19 @@ bool SftpTest::handleJobFinished(SftpJobId job, JobMap &jobMap,
         return false;
     }
     jobMap.erase(it);
+    return true;
+}
+
+bool SftpTest::handleJobFinished(SftpJobId job, SftpJobId expectedJob, const QString &error,
+    const char *activity)
+{
+    if (!checkJobId(job, expectedJob, activity))
+        return false;
+    if (!error.isEmpty()) {
+        std::cerr << "Error " << activity << ": " << qPrintable(error) << "." << std::endl;
+        earlyDisconnectFromHost();
+        return false;
+    }
     return true;
 }
 

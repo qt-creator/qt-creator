@@ -76,6 +76,8 @@ namespace {
             Botan::LibraryInitializer::initialize("thread_safe=true");
             qRegisterMetaType<Utils::SshError>("Utils::SshError");
             qRegisterMetaType<Utils::SftpJobId>("Utils::SftpJobId");
+            qRegisterMetaType<Utils::SftpFileInfo>("Utils::SftpFileInfo");
+            qRegisterMetaType<QList <Utils::SftpFileInfo> >("QList<Utils::SftpFileInfo>");
             staticInitializationsDone = true;
         }
     }

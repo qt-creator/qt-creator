@@ -60,6 +60,11 @@ SftpOutgoingPacket &SftpOutgoingPacket::generateInit(quint32 version)
     return init(SSH_FXP_INIT, 0).appendInt(version).finalize();
 }
 
+SftpOutgoingPacket &SftpOutgoingPacket::generateStat(const QString &path, quint32 requestId)
+{
+    return init(SSH_FXP_LSTAT, requestId).appendString(path).finalize();
+}
+
 SftpOutgoingPacket &SftpOutgoingPacket::generateOpenDir(const QString &path,
     quint32 requestId)
 {

@@ -46,6 +46,16 @@ AbstractSftpOperation::AbstractSftpOperation(SftpJobId jobId) : jobId(jobId)
 AbstractSftpOperation::~AbstractSftpOperation() { }
 
 
+SftpStatFile::SftpStatFile(SftpJobId jobId, const QString &path)
+    : AbstractSftpOperation(jobId), path(path)
+{
+}
+
+SftpOutgoingPacket &SftpStatFile::initialPacket(SftpOutgoingPacket &packet)
+{
+    return packet.generateStat(path, jobId);
+}
+
 SftpMakeDir::SftpMakeDir(SftpJobId jobId, const QString &path,
     const SftpUploadDir::Ptr &parentJob)
     : AbstractSftpOperation(jobId), parentJob(parentJob), remoteDir(path)
