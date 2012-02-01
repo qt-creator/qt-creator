@@ -313,12 +313,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 #ifdef Q_OS_WIN
     addAutoReleasedObject(new WinDebugInterface);
 
-    addAutoReleasedObject(new Internal::MingwToolChainFactory);
     addAutoReleasedObject(new Internal::MsvcToolChainFactory);
     addAutoReleasedObject(new Internal::WinCEToolChainFactory);
 #else
     addAutoReleasedObject(new Internal::GccToolChainFactory);
     addAutoReleasedObject(new Internal::LinuxIccToolChainFactory);
+#endif
+#ifndef Q_OS_MAC
+    addAutoReleasedObject(new Internal::MingwToolChainFactory); // Mingw offers cross-compiling to windows
 #endif
     addAutoReleasedObject(new Internal::ClangToolChainFactory);
 

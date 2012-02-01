@@ -199,7 +199,7 @@ static QList<ProjectExplorer::Abi> guessGccAbi(const QString &m)
         } else if (p == QLatin1String("mipsel")) {
             arch = ProjectExplorer::Abi::MipsArchitecture;
             width = 32;
-        } else if (p == QLatin1String("x86_64")) {
+        } else if (p == QLatin1String("x86_64") || p == QLatin1String("amd64")) {
             arch = ProjectExplorer::Abi::X86Architecture;
             width = 64;
         } else if (p == QLatin1String("powerpc")) {
@@ -225,7 +225,7 @@ static QList<ProjectExplorer::Abi> guessGccAbi(const QString &m)
             flavor = ProjectExplorer::Abi::SymbianDeviceFlavor;
             format = ProjectExplorer::Abi::ElfFormat;
             width = 32;
-        } else if (p == QLatin1String("mingw32") || p == QLatin1String("win32")) {
+        } else if (p == QLatin1String("mingw32") || p == QLatin1String("win32") || p == QLatin1String("mingw32msvc")) {
             arch = ProjectExplorer::Abi::X86Architecture;
             os = ProjectExplorer::Abi::WindowsOS;
             flavor = ProjectExplorer::Abi::WindowsMSysFlavor;
@@ -888,7 +888,11 @@ Utils::FileName MingwToolChain::mkspec() const
 
 QString MingwToolChain::makeCommand() const
 {
+#ifdef Q_OS_WIN
     return QLatin1String("mingw32-make.exe");
+#else
+    return QLatin1String("make");
+#endif
 }
 
 ToolChain *MingwToolChain::clone() const
@@ -1105,6 +1109,13 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
                               << QLatin1String("x86-windows-msys-pe-32bit"));
     QTest::newRow("Mingw 2")
             << QString::fromLatin1("mingw32")
+            << (QStringList() << QLatin1String("x86-windows-msys-pe-32bit"));
+    QTest::newRow("Cross Mingw 1")
+            << QString::fromLatin1("amd64-mingw32msvc")
+            << (QStringList() << QLatin1String("x86-windows-msys-pe-64bit")
+                              << QLatin1String("x86-windows-msys-pe-32bit"));
+    QTest::newRow("Cross Mingw 2")
+            << QString::fromLatin1("i586-mingw32msvc")
             << (QStringList() << QLatin1String("x86-windows-msys-pe-32bit"));
     QTest::newRow("Clang 1: windows")
             << QString::fromLatin1("x86_64-pc-win32")
