@@ -94,12 +94,12 @@ QmlProfilerApplication::QmlProfilerApplication(int &argc, char **argv) :
     connect(&m_connection, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(connectionStateChanged(QAbstractSocket::SocketState)));
     connect(&m_connection, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(connectionError(QAbstractSocket::SocketError)));
 
-    connect(&m_qmlProfilerClient, SIGNAL(enabled()), this, SLOT(traceClientEnabled()));
+    connect(&m_qmlProfilerClient, SIGNAL(enabledChanged()), this, SLOT(traceClientEnabled()));
     connect(&m_qmlProfilerClient, SIGNAL(recordingChanged(bool)), this, SLOT(recordingChanged()));
-    connect(&m_qmlProfilerClient, SIGNAL(range(int,qint64,qint64,QStringList,QString,int,int)), &m_eventList, SLOT(addRangedEvent(int,qint64,qint64,QStringList,QString,int,int)));
+    connect(&m_qmlProfilerClient, SIGNAL(range(int,qint64,qint64,QStringList,QmlJsDebugClient::QmlEventLocation)), &m_eventList, SLOT(addRangedEvent(int,qint64,qint64,QStringList,QmlJsDebugClient::QmlEventLocation)));
     connect(&m_qmlProfilerClient, SIGNAL(complete()), this, SLOT(qmlComplete()));
 
-    connect(&m_v8profilerClient, SIGNAL(enabled()), this, SLOT(profilerClientEnabled()));
+    connect(&m_v8profilerClient, SIGNAL(enabledChanged()), this, SLOT(profilerClientEnabled()));
     connect(&m_v8profilerClient, SIGNAL(v8range(int,QString,QString,int,double,double)), &m_eventList, SLOT(addV8Event(int,QString,QString,int,double,double)));
     connect(&m_v8profilerClient, SIGNAL(complete()), this, SLOT(v8Complete()));
 
@@ -331,6 +331,10 @@ void QmlProfilerApplication::traceClientEnabled()
     if (m_verbose)
         qDebug() << "Trace client is attached.";
     logStatus("Trace client is attached.");
+    // blocked server is waiting for recording message from both clients
+    // once the last one is connected, both messages should be sent
+    m_qmlProfilerClient.sendRecordingStatus();
+    m_v8profilerClient.sendRecordingStatus();
 }
 
 void QmlProfilerApplication::profilerClientEnabled()
@@ -338,6 +342,11 @@ void QmlProfilerApplication::profilerClientEnabled()
     if (m_verbose)
         qDebug() << "Profiler client is attached.";
     logStatus("Profiler client is attached.");
+
+    // blocked server is waiting for recording message from both clients
+    // once the last one is connected, both messages should be sent
+    m_qmlProfilerClient.sendRecordingStatus();
+    m_v8profilerClient.sendRecordingStatus();
 }
 
 void QmlProfilerApplication::traceFinished()
@@ -383,13 +392,19 @@ void QmlProfilerApplication::logStatus(const QString &status)
 void QmlProfilerApplication::qmlComplete()
 {
     m_qmlDataReady = true;
-    if (m_v8profilerClient.status() != QDeclarativeDebugClient::Enabled || m_v8DataReady)
+    if (m_v8profilerClient.status() != QDeclarativeDebugClient::Enabled || m_v8DataReady) {
         m_eventList.complete();
+        // once complete is sent, reset the flag
+        m_qmlDataReady = false;
+    }
 }
 
 void QmlProfilerApplication::v8Complete()
 {
     m_v8DataReady = true;
-    if (m_qmlProfilerClient.status() != QDeclarativeDebugClient::Enabled || m_qmlDataReady)
+    if (m_qmlProfilerClient.status() != QDeclarativeDebugClient::Enabled || m_qmlDataReady) {
         m_eventList.complete();
+        // once complete is sent, reset the flag
+        m_v8DataReady = false;
+    }
 }
