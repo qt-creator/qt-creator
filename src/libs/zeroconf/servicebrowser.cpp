@@ -30,9 +30,14 @@
 **
 **************************************************************************/
 
-//disable min max macros from windows headers,
-//because we want to use the template methods from std
-#define NOMINMAX
+#ifdef Q_OS_WIN
+// Disable min max macros from windows headers,
+// because we want to use the template methods from std.
+#  ifndef NOMINMAX
+#    define NOMINMAX
+#  endif
+#  include <winsock.h>
+#endif // Q_OS_WIN
 
 #include "mdnsderived.h"
 #include "servicebrowser_p.h"
