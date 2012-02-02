@@ -940,7 +940,7 @@ void CallgrindToolPrivate::handleShowCostsOfFunction()
     CPlusPlus::Overview view;
     const QString qualifiedFunctionName = view.prettyName(CPlusPlus::LookupContext::fullyQualifiedName(symbol));
 
-    m_toggleCollectFunction = QString("%1()").arg(qualifiedFunctionName);
+    m_toggleCollectFunction = qualifiedFunctionName + QLatin1String("()");
 
     AnalyzerManager::selectTool(q, StartMode(StartLocal));
     AnalyzerManager::startTool(q, StartMode(StartLocal));
