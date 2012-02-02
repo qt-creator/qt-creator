@@ -1900,14 +1900,16 @@ def qdump__std__string(d, value):
 def qdump__std__unique_ptr(d, value):
     i = value["_M_t"]["_M_head_impl"]
     if isNull(i):
-        d.putValue( "(null)" )
+        d.putValue("(null)")
         d.putNumChild(0)
         return
 
+    i = expensiveUpcast(i)
+
     d.putValue( "@0x%x" % long(i) )
     d.putNumChild(1)
-    with Children(d,1):
-        d.putSubItem("data", i.dereference())
+    with Children(d, 1):
+        d.putSubItem("data", i)
 
 
 def qedit__std__vector(expr, value):
