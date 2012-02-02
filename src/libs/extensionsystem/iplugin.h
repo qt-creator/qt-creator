@@ -62,6 +62,7 @@ public:
 
     virtual bool initialize(const QStringList &arguments, QString *errorString) = 0;
     virtual void extensionsInitialized() = 0;
+    virtual bool delayedInitialize() { return false; }
     virtual ShutdownFlag aboutToShutdown() { return SynchronousShutdown; }
     virtual void remoteCommand(const QStringList & /* options */, const QStringList & /* arguments */) { }
 

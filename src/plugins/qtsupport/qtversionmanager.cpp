@@ -138,8 +138,13 @@ void QtVersionManager::extensionsInitialized()
         findSystemQt();
     }
 
-    connect(Core::ICore::instance(), SIGNAL(coreOpened()), this, SLOT(delayedUpdateDocumentation()));
     saveQtVersions();
+}
+
+bool QtVersionManager::delayedInitialize()
+{
+    updateDocumentation();
+    return true;
 }
 
 QtVersionManager::~QtVersionManager()
@@ -511,11 +516,6 @@ void QtVersionManager::updateDumpFor(const Utils::FileName &qmakeCommand)
             v->recheckDumper();
     }
     emit dumpUpdatedFor(qmakeCommand);
-}
-
-void QtVersionManager::delayedUpdateDocumentation()
-{
-    QTimer::singleShot(100, this, SLOT(updateDocumentation()));
 }
 
 int QtVersionManager::getUniqueId()

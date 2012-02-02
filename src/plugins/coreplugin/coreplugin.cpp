@@ -31,13 +31,14 @@
 **************************************************************************/
 
 #include "coreplugin.h"
+#include "designmode.h"
 #include "editmode.h"
 #include "editormanager.h"
-#include "mainwindow.h"
-#include "modemanager.h"
 #include "fileiconprovider.h"
-#include "designmode.h"
+#include "helpmanager.h"
+#include "mainwindow.h"
 #include "mimedatabase.h"
+#include "modemanager.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -103,6 +104,12 @@ void CorePlugin::extensionsInitialized()
     if (m_designMode->designModeIsRequired())
         addObject(m_designMode);
     m_mainWindow->extensionsInitialized();
+}
+
+bool CorePlugin::delayedInitialize()
+{
+    HelpManager::instance()->setupHelpManager();
+    return true;
 }
 
 void CorePlugin::remoteCommand(const QStringList & /* options */, const QStringList &args)

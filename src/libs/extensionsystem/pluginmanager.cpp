@@ -55,6 +55,7 @@
 
 static const char C_IGNORED_PLUGINS[] = "Plugins/Ignored";
 static const char C_FORCEENABLED_PLUGINS[] = "Plugins/ForceEnabled";
+static const int DELAYED_INITIALIZE_INTERVAL = 20; // ms
 
 typedef QList<ExtensionSystem::PluginSpec *> PluginSpecSet;
 
@@ -782,12 +783,32 @@ PluginSpecPrivate *PluginManagerPrivate::privateSpec(PluginSpec *spec)
     return spec->d;
 }
 
+void PluginManagerPrivate::nextDelayedInitialize()
+{
+    while (!delayedInitializeQueue.isEmpty()) {
+        PluginSpec *spec = delayedInitializeQueue.takeFirst();
+        profilingReport(">delayedInitialize", spec);
+        bool delay = spec->d->delayedInitialize();
+        profilingReport("<delayedInitialize", spec);
+        if (delay)
+            break; // do next delayedInitialize after a delay
+    }
+    if (delayedInitializeQueue.isEmpty()) {
+        delete delayedInitializeTimer;
+        delayedInitializeTimer = 0;
+    } else {
+        delayedInitializeTimer->start();
+    }
+}
+
 /*!
     \fn PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager)
     \internal
 */
 PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager) :
     extension(QLatin1String("xml")),
+    delayedInitializeTimer(0),
+    shutdownEventLoop(0),
     m_profileElapsedMS(0),
     m_profilingVerbosity(0),
     settings(0),
@@ -849,6 +870,11 @@ void PluginManagerPrivate::readSettings()
 */
 void PluginManagerPrivate::stopAll()
 {
+    if (delayedInitializeTimer && delayedInitializeTimer->isActive()) {
+        delayedInitializeTimer->stop();
+        delete delayedInitializeTimer;
+        delayedInitializeTimer = 0;
+    }
     QList<PluginSpec *> queue = loadQueue();
     foreach (PluginSpec *spec, queue) {
         loadPlugin(spec, PluginSpec::Stopped);
@@ -941,9 +967,19 @@ void PluginManagerPrivate::loadPlugins()
     QListIterator<PluginSpec *> it(queue);
     it.toBack();
     while (it.hasPrevious()) {
-        loadPlugin(it.previous(), PluginSpec::Running);
+        PluginSpec *spec = it.previous();
+        loadPlugin(spec, PluginSpec::Running);
+        if (spec->state() == PluginSpec::Running)
+            delayedInitializeQueue.append(spec);
     }
     emit q->pluginsChanged();
+
+    delayedInitializeTimer = new QTimer;
+    delayedInitializeTimer->setInterval(DELAYED_INITIALIZE_INTERVAL);
+    delayedInitializeTimer->setSingleShot(true);
+    connect(delayedInitializeTimer, SIGNAL(timeout()),
+            this, SLOT(nextDelayedInitialize()));
+    delayedInitializeTimer->start();
 }
 
 /*!

@@ -139,7 +139,6 @@ bool LocatorPlugin::initialize(const QStringList &, QString *)
 
     addAutoReleasedObject(new LocatorFiltersFilter(this, m_locatorWidget));
 
-    connect(Core::ICore::instance(), SIGNAL(coreOpened()), this, SLOT(startSettingsLoad()));
     return true;
 }
 
@@ -167,10 +166,11 @@ void LocatorPlugin::extensionsInitialized()
     setFilters(m_filters);
 }
 
-void LocatorPlugin::startSettingsLoad()
+bool LocatorPlugin::delayedInitialize()
 {
     connect(&m_loadWatcher, SIGNAL(finished()), this, SLOT(settingsLoaded()));
     m_loadWatcher.setFuture(QtConcurrent::run(this, &LocatorPlugin::loadSettings));
+    return true;
 }
 
 void LocatorPlugin::loadSettings()

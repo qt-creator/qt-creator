@@ -50,10 +50,11 @@ public:
     CorePlugin();
     ~CorePlugin();
 
-    virtual bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    virtual void extensionsInitialized();
-    virtual ShutdownFlag aboutToShutdown();
-    virtual void remoteCommand(const QStringList & /* options */, const QStringList &args);
+    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
+    void extensionsInitialized();
+    bool delayedInitialize();
+    ShutdownFlag aboutToShutdown();
+    void remoteCommand(const QStringList & /* options */, const QStringList &args);
 
 public slots:
     void fileOpenRequest(const QString&);

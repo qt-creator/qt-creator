@@ -63,6 +63,7 @@ public:
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
+    bool delayedInitialize();
 
     QList<ILocatorFilter*> filters();
     QList<ILocatorFilter*> customFilters();
@@ -77,7 +78,6 @@ public slots:
     void openLocator();
 
 private slots:
-    void startSettingsLoad();
     void settingsLoaded();
     void updatePlaceholderText(Core::Command *command = 0);
 

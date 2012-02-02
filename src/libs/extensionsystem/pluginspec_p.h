@@ -60,6 +60,7 @@ public:
     bool loadLibrary();
     bool initializePlugin();
     bool initializeExtensions();
+    bool delayedInitialize();
     IPlugin::ShutdownFlag stop();
     void kill();
 

@@ -42,6 +42,7 @@
 
 QT_BEGIN_NAMESPACE
 class QTime;
+class QTimer;
 class QSettings;
 class QEventLoop;
 QT_END_NAMESPACE
@@ -90,6 +91,10 @@ public:
     QStringList defaultDisabledPlugins;
     QStringList disabledPlugins;
     QStringList forceEnabledPlugins;
+    // delayed initialization
+    QTimer *delayedInitializeTimer;
+    QList<PluginSpec *> delayedInitializeQueue;
+    // ansynchronous shutdown
     QList<PluginSpec *> asynchronousPlugins; // plugins that have requested async shutdown
     QEventLoop *shutdownEventLoop; // used for async shutdown
 
@@ -109,6 +114,7 @@ public:
     static PluginSpecPrivate *privateSpec(PluginSpec *spec);
 
 private slots:
+    void nextDelayedInitialize();
     void asyncShutdownFinished();
 
 private:

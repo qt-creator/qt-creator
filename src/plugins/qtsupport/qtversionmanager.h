@@ -62,6 +62,7 @@ public:
     QtVersionManager();
     ~QtVersionManager();
     void extensionsInitialized();
+    bool delayedInitialize();
 
     // This will *always* return at least one (Qt in Path), even if that is
     // unconfigured.
@@ -110,10 +111,6 @@ signals:
 public slots:
     void updateDumpFor(const Utils::FileName &qmakeCommand);
 
-private slots:
-    void delayedUpdateDocumentation();
-    void updateDocumentation();
-
 private:
     // This function is really simplistic...
     static bool equals(BaseQtVersion *a, BaseQtVersion *b);
@@ -130,6 +127,7 @@ private:
     void findSystemQt();
     void updateFromInstaller();
     void saveQtVersions();
+    void updateDocumentation();
     // Used by QtOptionsPage
     void setNewQtVersions(QList<BaseQtVersion *> newVersions);
     // Used by QtVersion

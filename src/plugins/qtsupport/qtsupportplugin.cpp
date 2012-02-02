@@ -80,7 +80,11 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 void QtSupportPlugin::extensionsInitialized()
 {
     QtVersionManager::instance()->extensionsInitialized();
+}
 
+bool QtSupportPlugin::delayedInitialize()
+{
+    return QtVersionManager::instance()->delayedInitialize();
 }
 
 Q_EXPORT_PLUGIN(QtSupportPlugin)

@@ -46,6 +46,10 @@ QT_FORWARD_DECLARE_CLASS(QUrl)
 namespace Core {
 struct HelpManagerPrivate;
 
+namespace Internal {
+class CorePlugin;
+}
+
 class CORE_EXPORT HelpManager : public QObject
 {
     Q_OBJECT
@@ -91,13 +95,11 @@ signals:
     void collectionFileChanged();
     void helpRequested(const QUrl &url);
 
-private slots:
-    void delayedSetupHelpManager();
-    void setupHelpManager();
-
 private:
+    void setupHelpManager();
     void verifyDocumenation();
     HelpManagerPrivate *d;
+    friend class Internal::CorePlugin; // setupHelpManager
 };
 
 }   // Core

@@ -98,6 +98,7 @@
     describing the reason.
 
     \sa extensionsInitialized()
+    \sa delayedInitialize()
 */
 
 /*!
@@ -112,6 +113,28 @@
     been provided by dependent plugins.
 
     \sa initialize()
+    \sa delayedInitialize()
+*/
+
+/*!
+    \fn bool IPlugin::delayedInitialize()
+    \brief Called after all plugins' IPlugin::extensionsInitialized() method has been called,
+    and after the IPlugin::delayedInitialize() method of plugins that depend on this plugin
+    have been called.
+
+    The plugins' delayedInitialize() methods are called after the application is already running,
+    with a few milliseconds delay to application startup, and between individual delayedInitialize
+    method calls. To avoid unnecessary delays, a plugin should return true from the method if it
+    actually implements it, to indicate that the next plugins' delayedInitialize() call should
+    be delayed a few milliseconds to give input and paint events a chance to be processed.
+
+    This method can be used if a plugin needs to do non-trivial setup that doesn't
+    necessarily needs to be done directly at startup, but still should be done within a
+    short time afterwards. This can increase the felt plugin/application startup
+    time a lot, with very little effort.
+
+    \sa initialize()
+    \sa extensionsInitialized()
 */
 
 /*!

@@ -1014,6 +1014,25 @@ bool PluginSpecPrivate::initializeExtensions()
 }
 
 /*!
+    \fn bool PluginSpecPrivate::delayedInitialize()
+    \internal
+*/
+bool PluginSpecPrivate::delayedInitialize()
+{
+    if (hasError)
+        return false;
+    if (state != PluginSpec::Running) {
+        return false;
+    }
+    if (!plugin) {
+        errorString = QCoreApplication::translate("PluginSpec", "Internal error: have no plugin instance to perform delayedInitialize");
+        hasError = true;
+        return false;
+    }
+    return plugin->delayedInitialize();
+}
+
+/*!
     \fn bool PluginSpecPrivate::stop()
     \internal
 */
