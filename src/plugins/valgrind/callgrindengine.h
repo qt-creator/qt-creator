@@ -85,7 +85,7 @@ private:
     Valgrind::Callgrind::CallgrindRunner m_runner;
     bool m_markAsPaused;
 
-    QStringList m_extraArguments;
+    QString m_argumentForToggleCollect;
 };
 
 } // namespace Internal

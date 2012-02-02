@@ -86,7 +86,8 @@ QStringList CallgrindEngine::toolArguments() const
         arguments << "--instr-atstart=no";
 
     // add extra arguments
-    arguments << m_extraArguments;
+    if (!m_argumentForToggleCollect.isEmpty())
+        arguments << m_argumentForToggleCollect;
 
     return arguments;
 }
@@ -133,7 +134,7 @@ void CallgrindEngine::setToggleCollectFunction(const QString &toggleCollectFunct
     if (toggleCollectFunction.isEmpty())
         return;
 
-    m_extraArguments << QString("--toggle-collect=%1").arg(toggleCollectFunction);
+    m_argumentForToggleCollect = QLatin1String("--toggle-collect=") + toggleCollectFunction;
 }
 
 void CallgrindEngine::reset()
