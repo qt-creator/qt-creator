@@ -414,6 +414,14 @@ Utils::FileName GccToolChain::debuggerCommand() const
 Utils::FileName GccToolChain::mkspec() const
 {
     Abi abi = targetAbi();
+    Abi host = Abi::hostAbi();
+
+    // Cross compile: Leave the mkspec alone!
+    if (abi.architecture() != host.architecture()
+            || abi.os() != host.os()
+            || abi.osFlavor() != host.osFlavor()) // Note: This can fail:-(
+        return Utils::FileName();
+
     if (abi.os() == Abi::MacOS) {
         QString v = version();
         // prefer versioned g++ on mac. This is required to enable building for older Mac OS versions
@@ -424,26 +432,17 @@ Utils::FileName GccToolChain::mkspec() const
         return Utils::FileName::fromString(QLatin1String("macx-g++"));
     }
 
-    QList<Abi> gccAbiList = Abi::abisOfBinary(m_compilerCommand);
-    Abi gccAbi;
-    if (!gccAbiList.isEmpty())
-        gccAbi  = gccAbiList.first();
-    if (!gccAbi.isNull()
-            && (gccAbi.architecture() != abi.architecture()
-                || gccAbi.os() != abi.os()
-                || gccAbi.osFlavor() != abi.osFlavor())) {
-        // Note: This can fail:-(
-        return Utils::FileName(); // this is a cross-compiler, leave the mkspec alone!
-    }
     if (abi.os() == Abi::LinuxOS) {
         if (abi.osFlavor() != Abi::GenericLinuxFlavor)
             return Utils::FileName(); // most likely not a desktop, so leave the mkspec alone.
-        if (abi.wordWidth() == gccAbi.wordWidth())
+        if (abi.wordWidth() == host.wordWidth())
             return Utils::FileName::fromString(QLatin1String("linux-g++")); // no need to explicitly set the word width
         return Utils::FileName::fromString(QLatin1String("linux-g++-") + QString::number(m_targetAbi.wordWidth()));
     }
+
     if (abi.os() == Abi::BsdOS && abi.osFlavor() == Abi::FreeBsdFlavor)
         return Utils::FileName::fromString(QLatin1String("freebsd-g++"));
+
     return Utils::FileName();
 }
 
