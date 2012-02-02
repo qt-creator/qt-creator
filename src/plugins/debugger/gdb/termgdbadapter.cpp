@@ -192,10 +192,7 @@ void TermGdbAdapter::runEngine()
 
 void TermGdbAdapter::interruptInferior()
 {
-    const qint64 attachedPID = m_engine->inferiorPid();
-    QTC_ASSERT(attachedPID > 0, return);
-    if (!interruptProcess(attachedPID))
-        showMessage(_("CANNOT INTERRUPT %1").arg(attachedPID));
+    interruptLocalInferior(m_engine->inferiorPid());
 }
 
 void TermGdbAdapter::stubError(const QString &msg)

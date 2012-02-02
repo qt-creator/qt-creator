@@ -33,10 +33,12 @@
 #ifndef DEBUGGER_PROCINTERRUPT_H
 #define DEBUGGER_PROCINTERRUPT_H
 
+#include <QtCore/QString>
+
 namespace Debugger {
 namespace Internal {
 
-bool interruptProcess(int pID);
+bool interruptProcess(int pID, int engineType, QString *errorMessage);
 
 } // Internal
 } // GdbDebugger

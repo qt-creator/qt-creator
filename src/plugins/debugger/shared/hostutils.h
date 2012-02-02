@@ -59,9 +59,6 @@ QList<ProcData> hostProcessList();
 // Resume a suspended thread by id.
 bool winResumeThread(unsigned long dwThreadId, QString *errorMessage);
 
-// Open a process by PID and break into it.
-bool winDebugBreakProcess(unsigned long  pid, QString *errorMessage, bool isCdb64bit);
-
 unsigned long winGetCurrentProcessId();
 
 bool isWinProcessBeingDebugged(unsigned long pid);

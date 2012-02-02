@@ -31,11 +31,18 @@
 **************************************************************************/
 
 #include "procinterrupt.h"
+#include "debuggerconstants.h"
 
 #include <QtCore/QProcess> // makes kill visible on Windows.
 #include <QtCore/QFile>
+#include <QtCore/QDir>
 
 using namespace Debugger::Internal;
+
+static inline QString msgCannotInterrupt(int pid, const QString &why)
+{
+    return QString::fromLatin1("Cannot interrupt process %1: %2").arg(pid).arg(why);
+}
 
 #if defined(Q_OS_WIN)
 
@@ -44,45 +51,97 @@ using namespace Debugger::Internal;
 #include <utils/winutils.h>
 #include <windows.h>
 
+#if !defined(PROCESS_SUSPEND_RESUME) // Check flag for MinGW
+#    define PROCESS_SUSPEND_RESUME (0x0800)
+#endif // PROCESS_SUSPEND_RESUME
+
 static BOOL isWow64Process(HANDLE hproc)
 {
-    BOOL ret = false;
     typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
-    LPFN_ISWOW64PROCESS fnIsWow64Process = NULL;
-    HMODULE hModule = GetModuleHandle(L"kernel32.dll");
-    if (hModule == NULL)
-        return false;
 
-    fnIsWow64Process = reinterpret_cast<LPFN_ISWOW64PROCESS>(GetProcAddress(hModule, "IsWow64Process"));
-    if (fnIsWow64Process == NULL)
-        return false;
+    BOOL ret = false;
 
-    if (!fnIsWow64Process(hproc, &ret))
+    static LPFN_ISWOW64PROCESS fnIsWow64Process = NULL;
+    if (!fnIsWow64Process) {
+        if (HMODULE hModule = GetModuleHandle(L"kernel32.dll"))
+            fnIsWow64Process = reinterpret_cast<LPFN_ISWOW64PROCESS>(GetProcAddress(hModule, "IsWow64Process"));
+    }
+
+    if (!fnIsWow64Process) {
+        qWarning("Cannot retrieve symbol 'IsWow64Process'.");
         return false;
+    }
+
+    if (!fnIsWow64Process(hproc, &ret)) {
+        qWarning("IsWow64Process() failed for %p: %s",
+                 hproc, qPrintable(Utils::winErrorMessage(GetLastError())));
+        return false;
+    }
     return ret;
 }
 
-bool Debugger::Internal::interruptProcess(int pID)
+// Open the process and break into it
+bool Debugger::Internal::interruptProcess(int pID, int engineType, QString *errorMessage)
 {
-    if (pID <= 0)
-        return false;
-
-    HANDLE hproc = OpenProcess(PROCESS_ALL_ACCESS, false, pID);
-    if (hproc == NULL)
-        return false;
-
-    BOOL proc64bit = false;
-
-    if (Utils::winIs64BitSystem())
-        proc64bit = !isWow64Process(hproc);
-
     bool ok = false;
-    if (proc64bit)
-        ok = !QProcess::execute(QCoreApplication::applicationDirPath() + QString::fromLatin1("/win64interrupt.exe %1").arg(pID));
-    else
-        ok = !DebugBreakProcess(hproc);
-
-    CloseHandle(hproc);
+    HANDLE inferior = NULL;
+    do {
+        const DWORD rights = PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION
+                |PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ
+                |PROCESS_DUP_HANDLE|PROCESS_TERMINATE|PROCESS_CREATE_THREAD|PROCESS_SUSPEND_RESUME;
+        inferior = OpenProcess(rights, FALSE, pID);
+        if (inferior == NULL) {
+            *errorMessage = QString::fromLatin1("Cannot open process %1: %2").
+                    arg(pID).arg(Utils::winErrorMessage(GetLastError()));
+            break;
+        }
+        // Try DebugBreakProcess if either Qt Creator is compiled 64 bit or
+        // both Qt Creator and application are 32 bit.
+#ifdef Q_OS_WIN64
+        Q_UNUSED(engineType)
+        // Qt-Creator compiled 64 bit: Always use DebugBreakProcess.
+        const bool useDebugBreakApi = true;
+#else
+        // Qt-Creator compiled 32 bit:
+        // CDB: If Qt-Creator is a WOW64 process (meaning a 32bit process
+        //    running in emulation), always use win64interrupt.exe for native
+        //    64 bit processes and WOW64 processes. While DebugBreakProcess()
+        //    works in theory for other WOW64 processes, the break appears
+        //    as a WOW64 breakpoint, which CDB is configured to ignore since
+        //    it also triggers on module loading.
+        // GDB: Use win64interrupt for native 64bit processes only (it fails
+        //    for WOW64 processes.
+        static const bool hostIsWow64Process = isWow64Process(GetCurrentProcess());
+        const bool useDebugBreakApi = engineType == CdbEngineType ?
+                                      !hostIsWow64Process :
+                                      isWow64Process(inferior);
+#endif
+        if (useDebugBreakApi) {
+            ok = DebugBreakProcess(inferior);
+            if (!ok)
+                *errorMessage = QLatin1String("DebugBreakProcess failed: ") + Utils::winErrorMessage(GetLastError());
+        } else {
+            const QString executable = QCoreApplication::applicationDirPath() + QLatin1String("/win64interrupt.exe");
+            switch (QProcess::execute(executable + QLatin1Char(' ') + QString::number(pID))) {
+            case -2:
+                *errorMessage = QString::fromLatin1("Cannot start %1. Check src\\tools\\win64interrupt\\win64interrupt.c for more information.").
+                                arg(QDir::toNativeSeparators(executable));
+                break;
+            case 0:
+                ok = true;
+                break;
+            default:
+                *errorMessage = QDir::toNativeSeparators(executable)
+                                + QLatin1String(" could not break the process.");
+                break;
+            }
+            break;
+        }
+    } while (false);
+    if (inferior != NULL)
+        CloseHandle(inferior);
+    if (!ok)
+        *errorMessage = msgCannotInterrupt(pID, *errorMessage);
     return ok;
 }
 
@@ -90,14 +149,21 @@ bool Debugger::Internal::interruptProcess(int pID)
 
 #include <sys/types.h>
 #include <signal.h>
+#include <errno.h>
+#include <string.h>
 
-bool Debugger::Internal::interruptProcess(int pID)
+bool Debugger::Internal::interruptProcess(int pID, int /* engineType */,
+                                          QString *errorMessage)
 {
-    if (pID > 0) {
-        if (kill(pID, SIGINT) == 0)
-            return true;
+    if (pID <= 0) {
+        *errorMessage = msgCannotInterrupt(pID, QString::fromLatin1("Invalid process id."));
+        return false;
     }
-    return false;
+    if (kill(pID, SIGINT)) {
+        *errorMessage = msgCannotInterrupt(pID, QString::fromLocal8Bit(strerror(errno)));
+        return false;
+    }
+    return true;
 }
 
 #endif // !Q_OS_WIN

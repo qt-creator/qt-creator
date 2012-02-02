@@ -174,18 +174,7 @@ void LocalPlainGdbAdapter::checkForReleaseBuild()
 
 void LocalPlainGdbAdapter::interruptInferior()
 {
-    const qint64 attachedPID = m_engine->inferiorPid();
-    if (attachedPID <= 0) {
-        showMessage(_("TRYING TO INTERRUPT INFERIOR BEFORE PID WAS OBTAINED"));
-        return;
-    }
-
-    if (interruptProcess(attachedPID)) {
-        showMessage(_("INTERRUPTED %1").arg(attachedPID));
-    } else {
-        showMessage(_("CANNOT INTERRUPT %1").arg(attachedPID));
-        m_engine->notifyInferiorStopFailed();
-    }
+    interruptLocalInferior(m_engine->inferiorPid());
 }
 
 QByteArray LocalPlainGdbAdapter::execFilePath() const

@@ -1,11 +1,20 @@
 TEMPLATE = subdirs
 
-win32:SUBDIRS = qtcdebugger
-SUBDIRS += qtpromaker \
-    qmlprofilertool
-SUBDIRS += qmlpuppet
+SUBDIRS = qtpromaker \
+    qmlprofilertool \
+     qmlpuppet
 
-!win32 {
+win32 {
+    SUBDIRS += qtcdebugger
+    # win64interrupt only make sense for 64bit builds
+    ENV_CPU=$$(CPU)
+    ENV_LIBPATH=$$(LIBPATH)
+    contains(ENV_CPU, ^AMD64$) {
+        SUBDIRS += win64interrupt
+    } else:isEmpty(ENV_CPU):contains(ENV_LIBPATH, ^.*amd64.*$) {
+        SUBDIRS += win64interrupt
+    }
+} else {
     SUBDIRS += valgrindfake
 }
 

@@ -96,6 +96,7 @@ public:
     virtual void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
     virtual void handleRemoteSetupFailed(const QString &reason);
 
+
 protected:
     DebuggerState state() const;
     GdbEngine *engine() const { return m_engine; }
@@ -103,6 +104,7 @@ protected:
     DebuggerStartParameters &startParameters();
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = 1);
     bool prepareCommand();
+    void interruptLocalInferior(qint64 pid);
 
     GdbEngine * const m_engine;
 };

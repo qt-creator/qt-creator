@@ -39,6 +39,7 @@
 #endif
 
 #include <Windows.h>
+#include <stdio.h>
 
 /* To debug break a 64bit application under Windows, you must call
  * DebugBreakProcess() from an 64bit apllication. Therefore:
@@ -54,22 +55,30 @@
 int main(int argc, char *argv[])
 {
     HANDLE proc;
-    BOOL break_result;
     DWORD proc_id;
+    BOOL break_result = FALSE;
 
-    if (argc != 2)
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <process-id>\n", argv[0]);
         return 1;
+    }
 
     proc_id = strtoul(argv[1], NULL, 0);
 
-    if (proc_id == 0)
+    if (proc_id == 0) {
+        fprintf(stderr, "%s: Invalid argument '%s'\n", argv[0], argv[1]);
         return 2;
+    }
 
     proc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, proc_id);
-    if (!proc)
+    if (!proc) {
+        fprintf(stderr, "%s: OpenProcess() failed, error 0x%lx\n", argv[0], GetLastError());
         return 3;
+    }
 
     break_result = DebugBreakProcess(proc);
+    if (!break_result)
+        fprintf(stderr, "%s: DebugBreakProcess() failed, error 0x%lx\n", argv[0], GetLastError());
     CloseHandle(proc);
     return !break_result;
 }

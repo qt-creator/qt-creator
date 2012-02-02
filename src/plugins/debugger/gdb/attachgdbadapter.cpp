@@ -113,13 +113,7 @@ void AttachGdbAdapter::handleAttach(const GdbResponse &response)
 
 void AttachGdbAdapter::interruptInferior()
 {
-    QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state(); return);
-    const qint64 pid = startParameters().attachPID;
-    QTC_ASSERT(pid > 0, return);
-    if (!interruptProcess(pid)) {
-        showMessage(_("CANNOT INTERRUPT %1").arg(pid));
-        m_engine->notifyInferiorStopFailed();
-    }
+    interruptLocalInferior(startParameters().attachPID);
 }
 
 void AttachGdbAdapter::shutdownInferior()

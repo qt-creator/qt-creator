@@ -34,6 +34,7 @@
 #include "gdbengine.h"
 #include "debuggerstartparameters.h"
 #include "abstractgdbprocess.h"
+#include "procinterrupt.h"
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -156,6 +157,22 @@ void AbstractGdbAdapter::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
 void AbstractGdbAdapter::handleRemoteSetupFailed(const QString &reason)
 {
     Q_UNUSED(reason);
+}
+
+void AbstractGdbAdapter::interruptLocalInferior(qint64 pid)
+{
+    QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state(); return);
+    if (pid <= 0) {
+        showMessage(QLatin1String("TRYING TO INTERRUPT INFERIOR BEFORE PID WAS OBTAINED"), LogError);
+        return;
+    }
+    QString errorMessage;
+    if (interruptProcess(pid, GdbEngineType, &errorMessage)) {
+        showMessage(QLatin1String("Interrupted ") + QString::number(pid));
+    } else {
+        showMessage(errorMessage, LogError);
+        m_engine->notifyInferiorStopFailed();
+    }
 }
 
 } // namespace Internal

@@ -57,6 +57,7 @@
 #include "gdb/gdbmi.h"
 #include "shared/cdbsymbolpathlisteditor.h"
 #include "shared/hostutils.h"
+#include "procinterrupt.h"
 
 #include <TranslationUnit.h>
 
@@ -1155,10 +1156,15 @@ void CdbEngine::interruptInferior()
 {
     if (debug)
         qDebug() << "CdbEngine::interruptInferior()" << stateName(state());
-    if (canInterruptInferior()) {
-        doInterruptInferior(NoSpecialStop);
-    } else {
+
+    bool ok = false;
+    if (!canInterruptInferior()) {
         showMessage(tr("Interrupting is not possible in remote sessions."), LogError);
+    } else {
+        ok = doInterruptInferior(NoSpecialStop);
+    }
+    // Restore running state if stop failed.
+    if (!ok) {
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorStopOk")
         notifyInferiorStopOk();
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorRunRequested")
@@ -1175,20 +1181,19 @@ void CdbEngine::doInterruptInferiorCustomSpecialStop(const QVariant &v)
     m_customSpecialStopData.push_back(v);
 }
 
-void CdbEngine::doInterruptInferior(SpecialStopMode sm)
+bool CdbEngine::doInterruptInferior(SpecialStopMode sm)
 {
-#ifdef Q_OS_WIN
     const SpecialStopMode oldSpecialMode = m_specialStopMode;
     m_specialStopMode = sm;
-    QString errorMessage;
+
     showMessage(QString::fromLatin1("Interrupting process %1...").arg(inferiorPid()), LogMisc);
-    if (!winDebugBreakProcess(inferiorPid(), &errorMessage, Utils::winIs64BitBinary(cdbBinary(startParameters())))) {
+    QString errorMessage;
+    const bool ok = interruptProcess(inferiorPid(), CdbEngineType, &errorMessage);
+    if (!ok) {
         m_specialStopMode = oldSpecialMode;
-        showMessage(QString::fromLatin1("Cannot interrupt process %1: %2").arg(inferiorPid()).arg(errorMessage), LogError);
+        showMessage(errorMessage, LogError);
     }
-#else
-    Q_UNUSED(sm)
-#endif
+    return ok;
 }
 
 void CdbEngine::executeRunToLine(const ContextData &data)

@@ -49,10 +49,6 @@
 #define _WIN32_WINNT 0x0502
 #include <windows.h>
 #include <utils/winutils.h>
-#if !defined(PROCESS_SUSPEND_RESUME) // Check flag for MinGW
-#    define PROCESS_SUSPEND_RESUME (0x0800)
-#endif // PROCESS_SUSPEND_RESUME
-
 #include <tlhelp32.h>
 #include <psapi.h>
 
@@ -142,46 +138,6 @@ bool winResumeThread(unsigned long dwThreadId, QString *errorMessage)
     } while (false);
     if (handle != NULL)
         CloseHandle(handle);
-    return ok;
-}
-
-// Open the process and break into it
-bool winDebugBreakProcess(unsigned long  pid, QString *errorMessage, bool isCdb64bit)
-{
-    bool ok = false;
-    HANDLE inferior = NULL;
-    do {
-        const DWORD rights = PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION
-                |PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ
-                |PROCESS_DUP_HANDLE|PROCESS_TERMINATE|PROCESS_CREATE_THREAD|PROCESS_SUSPEND_RESUME ;
-        inferior = OpenProcess(rights, FALSE, pid);
-        if (inferior == NULL) {
-            *errorMessage = QString::fromLatin1("Cannot open process %1: %2").
-                    arg(pid).arg(Utils::winErrorMessage(GetLastError()));
-            break;
-        }
-
-        if (isCdb64bit) {
-            switch (QProcess::execute(QCoreApplication::applicationDirPath() + QString::fromLatin1("/win64interrupt.exe %1").arg(pid))) {
-            case -2:
-                *errorMessage = QString::fromLatin1("Cannot start win64interrupt.exe. Check src/tools/win64interrupt/win64interrupt.c for more information.");
-                break;
-            case 0:
-                ok = true;
-                break;
-            default:
-                *errorMessage = QString::fromLatin1("win64interrupt.exe could not break the process with the pid %1.").arg(pid);
-                break;
-            }
-            break;
-        } else if (!DebugBreakProcess(inferior)) {
-            *errorMessage = QString::fromLatin1("DebugBreakProcess failed: %1").arg(Utils::winErrorMessage(GetLastError()));
-            break;
-        }
-        ok = true;
-    } while (false);
-    if (inferior != NULL)
-        CloseHandle(inferior);
     return ok;
 }
 

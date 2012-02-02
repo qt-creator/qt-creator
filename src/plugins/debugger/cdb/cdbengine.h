@@ -202,7 +202,7 @@ private:
     void handleSessionAccessible(unsigned long cdbExState);
     void handleSessionInaccessible(unsigned long cdbExState);
     void handleSessionIdle(const QByteArray &message);
-    void doInterruptInferior(SpecialStopMode sm);
+    bool doInterruptInferior(SpecialStopMode sm);
     void doInterruptInferiorCustomSpecialStop(const QVariant &v);
     void doContinueInferior();
     inline void parseOutputLine(QByteArray line);
