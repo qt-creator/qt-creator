@@ -86,7 +86,7 @@ QStringList CallgrindEngine::toolArguments() const
         arguments << "--instr-atstart=no";
 
     // add extra arguments
-    arguments << extraArguments();
+    arguments << m_extraArguments;
 
     return arguments;
 }
@@ -110,11 +110,6 @@ bool CallgrindEngine::start()
 void CallgrindEngine::dump()
 {
     m_runner.controller()->run(Valgrind::Callgrind::CallgrindController::Dump);
-}
-
-void CallgrindEngine::setExtraArguments(const QStringList &extraArguments)
-{
-    m_extraArguments = extraArguments;
 }
 
 void CallgrindEngine::setPaused(bool paused)

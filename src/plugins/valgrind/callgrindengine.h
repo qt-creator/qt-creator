@@ -69,9 +69,6 @@ public slots:
     void setToggleCollectFunction(const QString &toggleCollectFunction);
 
 protected:
-    void setExtraArguments(const QStringList &extraArguments);
-    inline QStringList extraArguments() const { return m_extraArguments; }
-
     virtual QStringList toolArguments() const;
     virtual QString progressTitle() const;
     virtual Valgrind::ValgrindRunner *runner();
