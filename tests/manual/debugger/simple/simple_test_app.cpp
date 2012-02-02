@@ -163,6 +163,7 @@ void dummyStatement(...) {}
 #include <iterator>
 #include <fstream>
 #include <map>
+#include <memory>
 #include <list>
 #include <limits>
 #include <set>
@@ -2645,6 +2646,27 @@ namespace stdmap {
     }
 
 } // namespace stdmap
+
+
+namespace stdptr {
+
+    void testStdUniquePtr()
+    {
+        #ifdef USE_CXX11
+        std::unique_ptr<int> p(new 32);
+        BREAK_HERE;
+        // Check p 32 std::unique_ptr<int>.
+        // Continue.
+        dummyStatement(&p);
+        #endif
+    }
+
+    void testStdPtr()
+    {
+        testStdUniquePtr();
+    }
+
+} // namespace stdptr
 
 
 namespace stdset {
@@ -5897,6 +5919,7 @@ int main(int argc, char *argv[])
     stdstream::testStdStream();
     stdstring::testStdString();
     stdvector::testStdVector();
+    stdptr::testStdPointer();
 
     qbytearray::testQByteArray();
     qdatetime::testDateTime();
