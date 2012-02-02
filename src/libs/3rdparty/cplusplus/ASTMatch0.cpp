@@ -800,6 +800,14 @@ bool NestedExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool StaticAssertDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (StaticAssertDeclarationAST *_other = pattern->asStaticAssertDeclaration())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
 bool StringLiteralAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (StringLiteralAST *_other = pattern->asStringLiteral())

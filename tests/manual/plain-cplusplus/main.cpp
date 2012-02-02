@@ -145,6 +145,7 @@ void parse(const char *fileName, const char *source, unsigned size)
     Control control;
     TranslationUnit unit(&control, control.stringLiteral(fileName));
     unit.setSource(source, size);
+    unit.setCxxOxEnabled(true);
     unit.parse();
 
 #if 1

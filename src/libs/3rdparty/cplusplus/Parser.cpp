@@ -269,6 +269,8 @@ void Parser::skipUntilDeclaration()
         // declarations
         case T_ENUM:
         case T_NAMESPACE:
+        case T_INLINE:
+        case T_STATIC_ASSERT:
         case T_ASM:
         case T_EXPORT:
         case T_AT_CLASS:
@@ -621,6 +623,7 @@ bool Parser::parseDeclaration(DeclarationAST *&node)
         consumeToken();
         break;
 
+    // C++11
     case T_INLINE:
         if (_cxx0xEnabled && LA(2) == T_NAMESPACE)
             return parseNamespace(node);
@@ -705,6 +708,25 @@ bool Parser::parseLinkageBody(DeclarationAST *&node)
         return true;
     }
     return false;
+}
+
+bool Parser::parseStaticAssertDeclaration(DeclarationAST *&node)
+{
+    DEBUG_THIS_RULE();
+    if (LA() != T_STATIC_ASSERT)
+        return false;
+
+    StaticAssertDeclarationAST *ast = new (_pool) StaticAssertDeclarationAST;
+    ast->static_assert_token = consumeToken();
+    match(T_LPAREN, &ast->lparen_token);
+    parseConstantExpression(ast->expression);
+    match(T_COMMA, &ast->comma_token);
+    parseStringLiteral(ast->string_literal);
+    match(T_RPAREN, &ast->rparen_token);
+    match(T_SEMICOLON, &ast->semicolon_token);
+
+    node = ast;
+    return true;
 }
 
 // ### rename parseNamespaceAliarOrDeclaration?
@@ -2258,6 +2280,10 @@ bool Parser::parseMemberSpecification(DeclarationAST *&node, ClassSpecifierAST *
 
     case T_Q_INTERFACES:
         return parseQtInterfaces(node);
+
+    // C++11
+    case T_STATIC_ASSERT:
+        return parseStaticAssertDeclaration(node);
 
     default:
         return parseSimpleDeclaration(node, declaringClass);

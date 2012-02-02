@@ -759,6 +759,14 @@ public:
         return __ast;
     }
 
+    StaticAssertDeclarationAST *StaticAssertDeclaration(ExpressionAST *expression = 0, ExpressionAST *string_literal = 0)
+    {
+        StaticAssertDeclarationAST *__ast = new (&pool) StaticAssertDeclarationAST;
+        __ast->expression = expression;
+        __ast->string_literal = string_literal;
+        return __ast;
+    }
+
     StringLiteralAST *StringLiteral(StringLiteralAST *next = 0)
     {
         StringLiteralAST *__ast = new (&pool) StringLiteralAST;

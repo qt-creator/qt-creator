@@ -843,6 +843,15 @@ void NestedExpressionAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void StaticAssertDeclarationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(expression, visitor);
+        accept(string_literal, visitor);
+    }
+    visitor->endVisit(this);
+}
+
 void StringLiteralAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

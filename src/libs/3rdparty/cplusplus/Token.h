@@ -148,6 +148,7 @@ enum Kind {
     T_SIGNED,
     T_SIZEOF,
     T_STATIC,
+    T_STATIC_ASSERT,
     T_STATIC_CAST,
     T_STRUCT,
     T_SWITCH,

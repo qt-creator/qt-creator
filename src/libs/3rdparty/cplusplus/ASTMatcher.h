@@ -151,6 +151,7 @@ public:
     virtual bool match(SimpleNameAST *node, SimpleNameAST *pattern);
     virtual bool match(SimpleSpecifierAST *node, SimpleSpecifierAST *pattern);
     virtual bool match(SizeofExpressionAST *node, SizeofExpressionAST *pattern);
+    virtual bool match(StaticAssertDeclarationAST *node, StaticAssertDeclarationAST *pattern);
     virtual bool match(StringLiteralAST *node, StringLiteralAST *pattern);
     virtual bool match(SwitchStatementAST *node, SwitchStatementAST *pattern);
     virtual bool match(TemplateDeclarationAST *node, TemplateDeclarationAST *pattern);

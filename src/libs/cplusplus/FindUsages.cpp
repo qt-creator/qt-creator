@@ -1674,6 +1674,12 @@ bool FindUsages::visit(ParameterDeclarationAST *ast)
     return false;
 }
 
+bool FindUsages::visit(StaticAssertDeclarationAST *ast)
+{
+    this->expression(ast->expression);
+    return false;
+}
+
 bool FindUsages::visit(TemplateDeclarationAST *ast)
 {
     // unsigned export_token = ast->export_token;

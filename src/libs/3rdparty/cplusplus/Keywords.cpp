@@ -1360,7 +1360,7 @@ static inline int classify12(const char *s, bool q, bool) {
   return T_IDENTIFIER;
 }
 
-static inline int classify13(const char *s, bool, bool) {
+static inline int classify13(const char *s, bool, bool x) {
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'a') {
@@ -1375,6 +1375,32 @@ static inline int classify13(const char *s, bool, bool) {
                         if (s[11] == '_') {
                           if (s[12] == '_') {
                             return T___ATTRIBUTE__;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  } else if (x && s[0] == 's') {
+    if (s[1] == 't') {
+      if (s[2] == 'a') {
+        if (s[3] == 't') {
+          if (s[4] == 'i') {
+            if (s[5] == 'c') {
+              if (s[6] == '_') {
+                if (s[7] == 'a') {
+                  if (s[8] == 's') {
+                    if (s[9] == 's') {
+                      if (s[10] == 'e') {
+                        if (s[11] == 'r') {
+                          if (s[12] == 't') {
+                            return T_STATIC_ASSERT;
                           }
                         }
                       }

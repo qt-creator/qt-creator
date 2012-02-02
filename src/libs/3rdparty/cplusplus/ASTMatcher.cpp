@@ -1917,6 +1917,34 @@ bool ASTMatcher::match(NestedExpressionAST *node, NestedExpressionAST *pattern)
     return true;
 }
 
+bool ASTMatcher::match(StaticAssertDeclarationAST *node, StaticAssertDeclarationAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->static_assert_token = node->static_assert_token;
+
+    pattern->lparen_token = node->lparen_token;
+
+    if (! pattern->expression)
+        pattern->expression = node->expression;
+    else if (! AST::match(node->expression, pattern->expression, this))
+        return false;
+
+    pattern->comma_token = node->comma_token;
+
+    if (! pattern->string_literal)
+        pattern->string_literal = node->string_literal;
+    else if (! AST::match(node->string_literal, pattern->string_literal, this))
+        return false;
+
+    pattern->rparen_token = node->rparen_token;
+
+    pattern->semicolon_token = node->semicolon_token;
+
+    return true;
+}
+
 bool ASTMatcher::match(StringLiteralAST *node, StringLiteralAST *pattern)
 {
     (void) node;

@@ -1142,6 +1142,21 @@ NestedExpressionAST *NestedExpressionAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+StaticAssertDeclarationAST *StaticAssertDeclarationAST::clone(MemoryPool *pool) const
+{
+    StaticAssertDeclarationAST *ast = new (pool) StaticAssertDeclarationAST;
+    ast->static_assert_token = static_assert_token;
+    ast->lparen_token = lparen_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    ast->comma_token = comma_token;
+    if (string_literal)
+        ast->string_literal = string_literal->clone(pool);
+    ast->rparen_token = rparen_token;
+    ast->semicolon_token = semicolon_token;
+    return ast;
+}
+
 StringLiteralAST *StringLiteralAST::clone(MemoryPool *pool) const
 {
     StringLiteralAST *ast = new (pool) StringLiteralAST;

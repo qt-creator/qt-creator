@@ -48,7 +48,7 @@ static const char *token_names[] = {
     ("mutable"), ("namespace"), ("new"), ("noexcept"),
     ("nullptr"), ("operator"), ("private"),
     ("protected"), ("public"), ("register"), ("reinterpret_cast"),
-    ("return"), ("short"), ("signed"), ("sizeof"), ("static"),
+    ("return"), ("short"), ("signed"), ("sizeof"), ("static"),("static_assert"),
     ("static_cast"), ("struct"), ("switch"), ("template"), ("this"),
     ("throw"), ("true"), ("try"), ("typedef"), ("typeid"), ("typename"),
     ("union"), ("unsigned"), ("using"), ("virtual"), ("void"),

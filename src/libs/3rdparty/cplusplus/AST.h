@@ -254,6 +254,7 @@ public:
     virtual SizeofExpressionAST *asSizeofExpression() { return 0; }
     virtual SpecifierAST *asSpecifier() { return 0; }
     virtual StatementAST *asStatement() { return 0; }
+    virtual StaticAssertDeclarationAST *asStaticAssertDeclaration() { return 0; }
     virtual StringLiteralAST *asStringLiteral() { return 0; }
     virtual SwitchStatementAST *asSwitchStatement() { return 0; }
     virtual TemplateDeclarationAST *asTemplateDeclaration() { return 0; }
@@ -3056,6 +3057,40 @@ public:
     virtual unsigned lastToken() const;
 
     virtual NestedExpressionAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT StaticAssertDeclarationAST: public DeclarationAST
+{
+public:
+    unsigned static_assert_token;
+    unsigned lparen_token;
+    ExpressionAST *expression;
+    unsigned comma_token;
+    ExpressionAST *string_literal;
+    unsigned rparen_token;
+    unsigned semicolon_token;
+
+public:
+    StaticAssertDeclarationAST()
+        : static_assert_token(0)
+        , lparen_token(0)
+        , expression(0)
+        , comma_token(0)
+        , string_literal(0)
+        , rparen_token(0)
+        , semicolon_token(0)
+    {}
+
+    virtual StaticAssertDeclarationAST *asStaticAssertDeclaration() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual StaticAssertDeclarationAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

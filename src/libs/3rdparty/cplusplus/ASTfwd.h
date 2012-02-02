@@ -161,6 +161,7 @@ class SimpleSpecifierAST;
 class SizeofExpressionAST;
 class SpecifierAST;
 class StatementAST;
+class StaticAssertDeclarationAST;
 class StringLiteralAST;
 class SwitchStatementAST;
 class TemplateDeclarationAST;

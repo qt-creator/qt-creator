@@ -236,6 +236,7 @@ protected:
     virtual bool visit(NamespaceAST *ast);
     virtual bool visit(NamespaceAliasDefinitionAST *ast);
     virtual bool visit(ParameterDeclarationAST *ast);
+    virtual bool visit(StaticAssertDeclarationAST *ast);
     virtual bool visit(TemplateDeclarationAST *ast);
     virtual bool visit(TypenameTypeParameterAST *ast);
     virtual bool visit(TemplateTypeParameterAST *ast);
