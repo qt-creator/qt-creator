@@ -621,6 +621,11 @@ bool Parser::parseDeclaration(DeclarationAST *&node)
         consumeToken();
         break;
 
+    case T_INLINE:
+        if (_cxx0xEnabled && LA(2) == T_NAMESPACE)
+            return parseNamespace(node);
+        // else: intentionally fall-through
+
     default: {
         if (_objCEnabled && LA() == T___ATTRIBUTE__) {
             const unsigned start = cursor();
@@ -706,12 +711,18 @@ bool Parser::parseLinkageBody(DeclarationAST *&node)
 bool Parser::parseNamespace(DeclarationAST *&node)
 {
     DEBUG_THIS_RULE();
-    if (LA() != T_NAMESPACE)
+    if (LA() != T_NAMESPACE && !(_cxx0xEnabled && LA() == T_INLINE && LA(2) == T_NAMESPACE))
         return false;
+
+    unsigned inline_token = 0;
+    if (cxx0xEnabled() && LA() == T_INLINE)
+        inline_token = consumeToken();
 
     unsigned namespace_token = consumeToken();
 
     if (LA() == T_IDENTIFIER && LA(2) == T_EQUAL) {
+        if (inline_token)
+            warning(inline_token, "namespace alias cannot be inline");
         NamespaceAliasDefinitionAST *ast =
                 new (_pool) NamespaceAliasDefinitionAST;
         ast->namespace_token = namespace_token;
@@ -724,6 +735,7 @@ bool Parser::parseNamespace(DeclarationAST *&node)
     }
 
     NamespaceAST *ast = new (_pool) NamespaceAST;
+    ast->inline_token = inline_token;
     ast->namespace_token = namespace_token;
     if (LA() == T_IDENTIFIER)
         ast->identifier_token = consumeToken();

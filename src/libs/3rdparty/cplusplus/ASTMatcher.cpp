@@ -1368,6 +1368,8 @@ bool ASTMatcher::match(NamespaceAST *node, NamespaceAST *pattern)
     (void) node;
     (void) pattern;
 
+    pattern->inline_token = node->inline_token;
+
     pattern->namespace_token = node->namespace_token;
 
     pattern->identifier_token = node->identifier_token;

@@ -2123,6 +2123,7 @@ bool Bind::visit(NamespaceAST *ast)
     Namespace *ns = control()->newNamespace(sourceLocation, namespaceName);
     ns->setStartOffset(tokenAt(sourceLocation).end()); // the scope starts after the namespace or the identifier token.
     ns->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    ns->setInline(ast->inline_token != 0);
     ast->symbol = ns;
     _scope->addMember(ns);
 

@@ -2223,6 +2223,7 @@ protected:
 class CPLUSPLUS_EXPORT NamespaceAST: public DeclarationAST
 {
 public:
+    unsigned inline_token;
     unsigned namespace_token;
     unsigned identifier_token;
     SpecifierListAST *attribute_list;
@@ -2233,7 +2234,8 @@ public: // annotations
 
 public:
     NamespaceAST()
-        : namespace_token(0)
+        : inline_token(0)
+        , namespace_token(0)
         , identifier_token(0)
         , attribute_list(0)
         , linkage_body(0)

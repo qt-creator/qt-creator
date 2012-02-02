@@ -810,6 +810,7 @@ TemplateIdAST *TemplateIdAST::clone(MemoryPool *pool) const
 NamespaceAST *NamespaceAST::clone(MemoryPool *pool) const
 {
     NamespaceAST *ast = new (pool) NamespaceAST;
+    ast->inline_token = inline_token;
     ast->namespace_token = namespace_token;
     ast->identifier_token = identifier_token;
     for (SpecifierListAST *iter = attribute_list, **ast_iter = &ast->attribute_list;

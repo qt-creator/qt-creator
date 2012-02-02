@@ -445,10 +445,19 @@ public:
     virtual Namespace *asNamespaceType()
     { return this; }
 
+    bool isInline() const
+    { return _isInline; }
+
+    void setInline(bool onoff)
+    { _isInline = onoff; }
+
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
     virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+
+private:
+    bool _isInline;
 };
 
 class CPLUSPLUS_EXPORT BaseClass: public Symbol

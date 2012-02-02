@@ -555,10 +555,12 @@ bool Template::matchType0(const Type *otherType, TypeMatcher *matcher) const
 
 Namespace::Namespace(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Scope(translationUnit, sourceLocation, name)
+    , _isInline(false)
 { }
 
 Namespace::Namespace(Clone *clone, Subst *subst, Namespace *original)
     : Scope(clone, subst, original)
+    , _isInline(original->_isInline)
 { }
 
 Namespace::~Namespace()

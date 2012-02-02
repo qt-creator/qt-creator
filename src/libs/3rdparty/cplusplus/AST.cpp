@@ -1817,6 +1817,8 @@ unsigned NamedTypeSpecifierAST::lastToken() const
 /** \generated */
 unsigned NamespaceAST::firstToken() const
 {
+    if (inline_token)
+        return inline_token;
     if (namespace_token)
         return namespace_token;
     if (identifier_token)
@@ -1843,6 +1845,8 @@ unsigned NamespaceAST::lastToken() const
         return identifier_token + 1;
     if (namespace_token)
         return namespace_token + 1;
+    if (inline_token)
+        return inline_token + 1;
     return 1;
 }
 
