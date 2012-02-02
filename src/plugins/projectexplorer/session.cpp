@@ -545,7 +545,9 @@ bool SessionManager::createImpl(const QString &fileName)
     bool success = true;
 
     if (!m_file->fileName().isEmpty()) {
-        if (!save() || !clear())
+        if (isDefaultVirgin()) {
+            // do not save initial and virgin default session
+        } else if (!save() || !clear())
             success = false;
     }
 
