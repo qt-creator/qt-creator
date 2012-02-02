@@ -135,6 +135,7 @@ enum Kind {
     T_MUTABLE,
     T_NAMESPACE,
     T_NEW,
+    T_NOEXCEPT,
     T_NULLPTR,
     T_OPERATOR,
     T_PRIVATE,

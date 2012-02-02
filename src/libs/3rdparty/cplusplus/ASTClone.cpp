@@ -578,15 +578,26 @@ ExceptionDeclarationAST *ExceptionDeclarationAST::clone(MemoryPool *pool) const
     return ast;
 }
 
-ExceptionSpecificationAST *ExceptionSpecificationAST::clone(MemoryPool *pool) const
+DynamicExceptionSpecificationAST *DynamicExceptionSpecificationAST::clone(MemoryPool *pool) const
 {
-    ExceptionSpecificationAST *ast = new (pool) ExceptionSpecificationAST;
+    DynamicExceptionSpecificationAST *ast = new (pool) DynamicExceptionSpecificationAST;
     ast->throw_token = throw_token;
     ast->lparen_token = lparen_token;
     ast->dot_dot_dot_token = dot_dot_dot_token;
     for (ExpressionListAST *iter = type_id_list, **ast_iter = &ast->type_id_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) ExpressionListAST((iter->value) ? iter->value->clone(pool) : 0);
+    ast->rparen_token = rparen_token;
+    return ast;
+}
+
+NoExceptSpecificationAST *NoExceptSpecificationAST::clone(MemoryPool *pool) const
+{
+    NoExceptSpecificationAST *ast = new (pool) NoExceptSpecificationAST;
+    ast->noexcept_token = noexcept_token;
+    ast->lparen_token = lparen_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
     ast->rparen_token = rparen_token;
     return ast;
 }

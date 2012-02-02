@@ -968,7 +968,7 @@ bool ASTMatcher::match(ExceptionDeclarationAST *node, ExceptionDeclarationAST *p
     return true;
 }
 
-bool ASTMatcher::match(ExceptionSpecificationAST *node, ExceptionSpecificationAST *pattern)
+bool ASTMatcher::match(DynamicExceptionSpecificationAST *node, DynamicExceptionSpecificationAST *pattern)
 {
     (void) node;
     (void) pattern;
@@ -982,6 +982,25 @@ bool ASTMatcher::match(ExceptionSpecificationAST *node, ExceptionSpecificationAS
     if (! pattern->type_id_list)
         pattern->type_id_list = node->type_id_list;
     else if (! AST::match(node->type_id_list, pattern->type_id_list, this))
+        return false;
+
+    pattern->rparen_token = node->rparen_token;
+
+    return true;
+}
+
+bool ASTMatcher::match(NoExceptSpecificationAST *node, NoExceptSpecificationAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->noexcept_token = node->noexcept_token;
+
+    pattern->lparen_token = node->lparen_token;
+
+    if (! pattern->expression)
+        pattern->expression = node->expression;
+    else if (! AST::match(node->expression, pattern->expression, this))
         return false;
 
     pattern->rparen_token = node->rparen_token;

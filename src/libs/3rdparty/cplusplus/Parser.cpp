@@ -2313,7 +2313,7 @@ bool Parser::parseExceptionSpecification(ExceptionSpecificationAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() == T_THROW) {
-        ExceptionSpecificationAST *ast = new (_pool) ExceptionSpecificationAST;
+        DynamicExceptionSpecificationAST *ast = new (_pool) DynamicExceptionSpecificationAST;
         ast->throw_token = consumeToken();
         if (LA() == T_LPAREN)
             ast->lparen_token = consumeToken();
@@ -2323,6 +2323,14 @@ bool Parser::parseExceptionSpecification(ExceptionSpecificationAST *&node)
             parseTypeIdList(ast->type_id_list);
         if (LA() == T_RPAREN)
             ast->rparen_token = consumeToken();
+        node = ast;
+        return true;
+    } else if (_cxx0xEnabled && LA() == T_NOEXCEPT) {
+        NoExceptSpecificationAST *ast = new (_pool) NoExceptSpecificationAST;
+        ast->noexcept_token = consumeToken();
+        if (LA() == T_LPAREN && parseConstantExpression(ast->expression)) {
+            match(T_RPAREN, &ast->rparen_token);
+        }
         node = ast;
         return true;
     }

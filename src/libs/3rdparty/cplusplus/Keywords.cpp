@@ -814,6 +814,23 @@ static inline int classify8(const char *s, bool q, bool x) {
       }
     }
   }
+  else if (x && s[0] == 'n') {
+    if (s[1] == 'o') {
+      if (s[2] == 'e') {
+        if (s[3] == 'x') {
+          if (s[4] == 'c') {
+            if (s[5] == 'e') {
+              if (s[6] == 'p') {
+                if (s[7] == 't') {
+                  return T_NOEXCEPT;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   else if (s[0] == 'o') {
     if (s[1] == 'p') {
       if (s[2] == 'e') {

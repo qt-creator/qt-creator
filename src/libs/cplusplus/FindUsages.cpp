@@ -511,7 +511,7 @@ void FindUsages::enumerator(EnumeratorAST *ast)
     this->expression(ast->expression);
 }
 
-bool FindUsages::visit(ExceptionSpecificationAST *ast)
+bool FindUsages::visit(DynamicExceptionSpecificationAST *ast)
 {
     (void) ast;
     Q_ASSERT(!"unreachable");
@@ -523,13 +523,17 @@ void FindUsages::exceptionSpecification(ExceptionSpecificationAST *ast)
     if (! ast)
         return;
 
-    // unsigned throw_token = ast->throw_token;
-    // unsigned lparen_token = ast->lparen_token;
-    // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
-    for (ExpressionListAST *it = ast->type_id_list; it; it = it->next) {
-        this->expression(it->value);
+    if (DynamicExceptionSpecificationAST *dyn = ast->asDynamicExceptionSpecification()) {
+        // unsigned throw_token = ast->throw_token;
+        // unsigned lparen_token = ast->lparen_token;
+        // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
+        for (ExpressionListAST *it = dyn->type_id_list; it; it = it->next) {
+            this->expression(it->value);
+        }
+        // unsigned rparen_token = ast->rparen_token;
+    } else if (NoExceptSpecificationAST *no = ast->asNoExceptSpecification()) {
+        this->expression(no->expression);
     }
-    // unsigned rparen_token = ast->rparen_token;
 }
 
 bool FindUsages::visit(MemInitializerAST *ast)

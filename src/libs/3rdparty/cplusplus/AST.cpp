@@ -1161,7 +1161,7 @@ unsigned ExceptionDeclarationAST::lastToken() const
 }
 
 /** \generated */
-unsigned ExceptionSpecificationAST::firstToken() const
+unsigned DynamicExceptionSpecificationAST::firstToken() const
 {
     if (throw_token)
         return throw_token;
@@ -1178,7 +1178,7 @@ unsigned ExceptionSpecificationAST::firstToken() const
 }
 
 /** \generated */
-unsigned ExceptionSpecificationAST::lastToken() const
+unsigned DynamicExceptionSpecificationAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
@@ -4236,6 +4236,36 @@ unsigned PointerLiteralAST::lastToken() const
 {
     if (literal_token)
         return literal_token + 1;
+    return 1;
+}
+
+/** \generated */
+unsigned NoExceptSpecificationAST::firstToken() const
+{
+    if (noexcept_token)
+        return noexcept_token;
+    if (lparen_token)
+        return lparen_token;
+    if (expression)
+        if (unsigned candidate = expression->firstToken())
+            return candidate;
+    if (rparen_token)
+        return rparen_token;
+    return 0;
+}
+
+/** \generated */
+unsigned NoExceptSpecificationAST::lastToken() const
+{
+    if (rparen_token)
+        return rparen_token + 1;
+    if (expression)
+        if (unsigned candidate = expression->lastToken())
+            return candidate;
+    if (lparen_token)
+        return lparen_token + 1;
+    if (noexcept_token)
+        return noexcept_token + 1;
     return 1;
 }
 

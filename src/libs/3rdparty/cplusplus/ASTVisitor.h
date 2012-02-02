@@ -106,12 +106,12 @@ public:
     virtual bool visit(DeleteExpressionAST *) { return true; }
     virtual bool visit(DestructorNameAST *) { return true; }
     virtual bool visit(DoStatementAST *) { return true; }
+    virtual bool visit(DynamicExceptionSpecificationAST *) { return true; }
     virtual bool visit(ElaboratedTypeSpecifierAST *) { return true; }
     virtual bool visit(EmptyDeclarationAST *) { return true; }
     virtual bool visit(EnumSpecifierAST *) { return true; }
     virtual bool visit(EnumeratorAST *) { return true; }
     virtual bool visit(ExceptionDeclarationAST *) { return true; }
-    virtual bool visit(ExceptionSpecificationAST *) { return true; }
     virtual bool visit(ExpressionOrDeclarationStatementAST *) { return true; }
     virtual bool visit(ExpressionStatementAST *) { return true; }
     virtual bool visit(ForStatementAST *) { return true; }
@@ -141,6 +141,7 @@ public:
     virtual bool visit(NewInitializerAST *) { return true; }
     virtual bool visit(NewPlacementAST *) { return true; }
     virtual bool visit(NewTypeIdAST *) { return true; }
+    virtual bool visit(NoExceptSpecificationAST *) { return true; }
     virtual bool visit(NumericLiteralAST *) { return true; }
     virtual bool visit(ObjCClassDeclarationAST *) { return true; }
     virtual bool visit(ObjCClassForwardDeclarationAST *) { return true; }
@@ -246,12 +247,12 @@ public:
     virtual void endVisit(DeleteExpressionAST *) {}
     virtual void endVisit(DestructorNameAST *) {}
     virtual void endVisit(DoStatementAST *) {}
+    virtual void endVisit(DynamicExceptionSpecificationAST *) {}
     virtual void endVisit(ElaboratedTypeSpecifierAST *) {}
     virtual void endVisit(EmptyDeclarationAST *) {}
     virtual void endVisit(EnumSpecifierAST *) {}
     virtual void endVisit(EnumeratorAST *) {}
     virtual void endVisit(ExceptionDeclarationAST *) {}
-    virtual void endVisit(ExceptionSpecificationAST *) {}
     virtual void endVisit(ExpressionOrDeclarationStatementAST *) {}
     virtual void endVisit(ExpressionStatementAST *) {}
     virtual void endVisit(ForStatementAST *) {}
@@ -281,6 +282,7 @@ public:
     virtual void endVisit(NewInitializerAST *) {}
     virtual void endVisit(NewPlacementAST *) {}
     virtual void endVisit(NewTypeIdAST *) {}
+    virtual void endVisit(NoExceptSpecificationAST *) {}
     virtual void endVisit(NumericLiteralAST *) {}
     virtual void endVisit(ObjCClassDeclarationAST *) {}
     virtual void endVisit(ObjCClassForwardDeclarationAST *) {}

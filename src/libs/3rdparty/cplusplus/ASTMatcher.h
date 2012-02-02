@@ -64,12 +64,12 @@ public:
     virtual bool match(DeleteExpressionAST *node, DeleteExpressionAST *pattern);
     virtual bool match(DestructorNameAST *node, DestructorNameAST *pattern);
     virtual bool match(DoStatementAST *node, DoStatementAST *pattern);
+    virtual bool match(DynamicExceptionSpecificationAST *node, DynamicExceptionSpecificationAST *pattern);
     virtual bool match(ElaboratedTypeSpecifierAST *node, ElaboratedTypeSpecifierAST *pattern);
     virtual bool match(EmptyDeclarationAST *node, EmptyDeclarationAST *pattern);
     virtual bool match(EnumSpecifierAST *node, EnumSpecifierAST *pattern);
     virtual bool match(EnumeratorAST *node, EnumeratorAST *pattern);
     virtual bool match(ExceptionDeclarationAST *node, ExceptionDeclarationAST *pattern);
-    virtual bool match(ExceptionSpecificationAST *node, ExceptionSpecificationAST *pattern);
     virtual bool match(ExpressionOrDeclarationStatementAST *node, ExpressionOrDeclarationStatementAST *pattern);
     virtual bool match(ExpressionStatementAST *node, ExpressionStatementAST *pattern);
     virtual bool match(ForStatementAST *node, ForStatementAST *pattern);
@@ -99,6 +99,7 @@ public:
     virtual bool match(NewInitializerAST *node, NewInitializerAST *pattern);
     virtual bool match(NewPlacementAST *node, NewPlacementAST *pattern);
     virtual bool match(NewTypeIdAST *node, NewTypeIdAST *pattern);
+    virtual bool match(NoExceptSpecificationAST *node, NoExceptSpecificationAST *pattern);
     virtual bool match(NumericLiteralAST *node, NumericLiteralAST *pattern);
     virtual bool match(ObjCClassDeclarationAST *node, ObjCClassDeclarationAST *pattern);
     virtual bool match(ObjCClassForwardDeclarationAST *node, ObjCClassForwardDeclarationAST *pattern);

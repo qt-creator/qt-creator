@@ -390,10 +390,17 @@ public:
         return __ast;
     }
 
-    ExceptionSpecificationAST *ExceptionSpecification(ExpressionListAST *type_id_list = 0)
+    DynamicExceptionSpecificationAST *DynamicExceptionSpecification(ExpressionListAST *type_id_list = 0)
     {
-        ExceptionSpecificationAST *__ast = new (&pool) ExceptionSpecificationAST;
+        DynamicExceptionSpecificationAST *__ast = new (&pool) DynamicExceptionSpecificationAST;
         __ast->type_id_list = type_id_list;
+        return __ast;
+    }
+
+    NoExceptSpecificationAST *NoExceptSpecification(ExpressionAST *expression = 0)
+    {
+        NoExceptSpecificationAST *__ast = new (&pool) NoExceptSpecificationAST;
+        __ast->expression = expression;
         return __ast;
     }
 

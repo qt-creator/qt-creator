@@ -119,7 +119,7 @@ protected:
     virtual bool visit(BaseSpecifierAST *ast);
     virtual bool visit(CtorInitializerAST *ast);
     virtual bool visit(EnumeratorAST *ast);
-    virtual bool visit(ExceptionSpecificationAST *ast);
+    virtual bool visit(DynamicExceptionSpecificationAST *ast);
     virtual bool visit(MemInitializerAST *ast);
     virtual bool visit(NestedNameSpecifierAST *ast);
     virtual bool visit(NewPlacementAST *ast);

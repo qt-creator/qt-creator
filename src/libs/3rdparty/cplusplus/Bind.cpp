@@ -473,7 +473,7 @@ void Bind::enumerator(EnumeratorAST *ast, Enum *symbol)
     }
 }
 
-bool Bind::visit(ExceptionSpecificationAST *ast)
+bool Bind::visit(DynamicExceptionSpecificationAST *ast)
 {
     (void) ast;
     assert(!"unreachable");
@@ -487,11 +487,15 @@ FullySpecifiedType Bind::exceptionSpecification(ExceptionSpecificationAST *ast, 
     if (! ast)
         return type;
 
-    // unsigned throw_token = ast->throw_token;
-    // unsigned lparen_token = ast->lparen_token;
-    // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
-    for (ExpressionListAST *it = ast->type_id_list; it; it = it->next) {
-        ExpressionTy value = this->expression(it->value);
+    if (DynamicExceptionSpecificationAST *dyn = ast->asDynamicExceptionSpecification()) {
+        // unsigned throw_token = ast->throw_token;
+        // unsigned lparen_token = ast->lparen_token;
+        // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
+        for (ExpressionListAST *it = dyn->type_id_list; it; it = it->next) {
+            /*ExpressionTy value =*/ this->expression(it->value);
+        }
+    } else if (NoExceptSpecificationAST *no = ast->asNoExceptSpecification()) {
+        /*ExpressionTy value =*/ this->expression(no->expression);
     }
     // unsigned rparen_token = ast->rparen_token;
     return type;
