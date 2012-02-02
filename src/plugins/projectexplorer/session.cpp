@@ -557,7 +557,8 @@ bool SessionManager::createImpl(const QString &fileName)
         m_file = new SessionFile;
         const QString &sessionName = sessionNameFromFileName(fileName);
         emit aboutToLoadSession(sessionName);
-        updateName(sessionName);
+        m_sessionName = sessionName;
+        updateWindowTitle();
         m_file->setFileName(fileName);
         setStartupProject(0);
 
@@ -602,7 +603,8 @@ bool SessionManager::loadImpl(const QString &fileName)
         m_file = new SessionFile;
         const QString &sessionName = sessionNameFromFileName(fileName);
         emit aboutToLoadSession(sessionName);
-        updateName(sessionName);
+        m_sessionName = sessionName;
+        updateWindowTitle();
         if (!m_file->load(fileName)) {
             QMessageBox::warning(0, tr("Error while restoring session"),
                                     tr("Could not restore session %1").arg(fileName));
@@ -864,13 +866,6 @@ void SessionManager::updateWindowTitle()
         ICore::editorManager()->setWindowTitleAddition(sessionName);
     }
 }
-
-void SessionManager::updateName(const QString &session)
-{
-    m_sessionName = session;
-    updateWindowTitle();
-}
-
 
 void SessionManager::removeProjects(QList<Project *> remove)
 {

@@ -159,8 +159,6 @@ private:
     QStringList dependencies(const QString &proName) const;
     QStringList dependenciesOrder() const;
 
-    void updateName(const QString &session);
-
     Internal::SessionFile *m_file;
     SessionNode *m_sessionNode;
     QString m_sessionName;
