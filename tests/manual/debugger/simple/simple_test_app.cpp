@@ -2653,7 +2653,7 @@ namespace stdptr {
     void testStdUniquePtr()
     {
         #ifdef USE_CXX11
-        std::unique_ptr<int> p(new 32);
+        std::unique_ptr<int> p(new int(32));
         BREAK_HERE;
         // Check p 32 std::unique_ptr<int>.
         // Continue.
@@ -5919,7 +5919,7 @@ int main(int argc, char *argv[])
     stdstream::testStdStream();
     stdstring::testStdString();
     stdvector::testStdVector();
-    stdptr::testStdPointer();
+    stdptr::testStdPtr();
 
     qbytearray::testQByteArray();
     qdatetime::testDateTime();
