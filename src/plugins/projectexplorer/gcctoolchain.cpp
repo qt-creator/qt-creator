@@ -889,6 +889,8 @@ Utils::FileName MingwToolChain::mkspec() const
         return Utils::FileName::fromString(QLatin1String("unsupported/win32-g++-4.6-cross"));
     else
         return Utils::FileName::fromString(QLatin1String("unsupported/win32-g++-cross"));
+#else
+    return Utils::FileName();
 #endif
 }
 
