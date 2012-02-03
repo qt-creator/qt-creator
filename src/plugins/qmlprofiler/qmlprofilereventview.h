@@ -72,6 +72,8 @@ public:
     void copyRowToClipboard() const;
 
     bool hasGlobalStats() const;
+    void setShowExtendedStatistics(bool show);
+    bool showExtendedStatistics() const;
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
@@ -141,6 +143,9 @@ public:
     void getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd);
     bool isRangeGlobal(qint64 rangeStart, qint64 rangeEnd) const;
     int selectedEventId() const;
+
+    void setShowExtendedStatistics(bool);
+    bool showExtendedStatistics() const;
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);

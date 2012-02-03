@@ -230,6 +230,7 @@ void QmlProfilerTool::showContextMenu(const QPoint &position)
     QAction *saveAction = menu.addAction(tr("Save QML Trace"));
     QAction *copyRowAction = 0;
     QAction *copyTableAction = 0;
+    QAction *showExtendedStatsAction = 0;
     QAction *viewAllAction = 0;
     QAction *getLocalStatsAction = 0;
     QAction *getGlobalStatsAction = 0;
@@ -239,6 +240,13 @@ void QmlProfilerTool::showContextMenu(const QPoint &position)
         if (eventView->selectedItem().isValid())
             copyRowAction = menu.addAction(tr("Copy Row"));
         copyTableAction = menu.addAction(tr("Copy Table"));
+
+        if (eventView == d->m_eventsView) {
+            // only for qml events view, not for v8
+            showExtendedStatsAction = menu.addAction(tr("Extended Event Statistics"));
+            showExtendedStatsAction->setCheckable(true);
+            showExtendedStatsAction->setChecked(eventView->showExtendedStatistics());
+        }
     }
 
     if (sender() == d->m_traceWindow || sender() == d->m_eventsView) {
@@ -281,6 +289,8 @@ void QmlProfilerTool::showContextMenu(const QPoint &position)
                         d->m_traceWindow->getEventList()->traceStartTime(),
                         d->m_traceWindow->getEventList()->traceEndTime());
         }
+        if (selectedAction == showExtendedStatsAction)
+            eventView->setShowExtendedStatistics(!eventView->showExtendedStatistics());
     }
 }
 
