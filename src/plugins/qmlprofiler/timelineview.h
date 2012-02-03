@@ -95,6 +95,7 @@ public:
     Q_INVOKABLE QString getFilename(int index) const;
     Q_INVOKABLE int getLine(int index) const;
     Q_INVOKABLE QString getDetails(int index) const;
+    Q_INVOKABLE int getYPosition(int index) const;
 
     Q_INVOKABLE void setRowExpanded(int rowIndex, bool expanded);
 

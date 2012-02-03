@@ -127,6 +127,7 @@ public slots:
     void selectNextEvent(int eventId);
     void updateProfilerState();
     void updateToolTip(const QString &text);
+    void updateVerticalScroll(int newPosition);
 
 signals:
     void viewUpdated();

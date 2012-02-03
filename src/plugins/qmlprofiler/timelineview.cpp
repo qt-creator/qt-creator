@@ -347,6 +347,19 @@ QString TimelineView::getDetails(int index) const
     return m_eventList->getDetails(index);
 }
 
+int TimelineView::getYPosition(int index) const
+{
+    Q_ASSERT(m_eventList);
+    if (index >= m_eventList->count())
+        return 0;
+    int y, eventType = m_eventList->getType(index);
+    if (m_rowsExpanded[eventType])
+        y = m_rowStarts[eventType] + DefaultRowHeight*(m_eventList->eventPosInType(index) + 1);
+    else
+        y = m_rowStarts[eventType] + DefaultRowHeight*m_eventList->getNestingLevel(index);
+    return y;
+}
+
 void TimelineView::setRowExpanded(int rowIndex, bool expanded)
 {
     m_rowsExpanded[rowIndex] = expanded;
