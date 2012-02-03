@@ -112,7 +112,7 @@ QString GitEditor::changeUnderCursor(const QTextCursor &c) const
 
 VcsBase::DiffHighlighter *GitEditor::createDiffHighlighter() const
 {
-    const QRegExp filePattern(QLatin1String("^(diff --git a/|index |[+-][+-][+-] [ab]).*$"));
+    const QRegExp filePattern(QLatin1String("^(diff --git a/|index |[+-][+-][+-] [ab/]).*$"));
     return new VcsBase::DiffHighlighter(filePattern);
 }
 
@@ -123,15 +123,29 @@ VcsBase::BaseAnnotationHighlighter *GitEditor::createAnnotationHighlighter(const
 
 QString GitEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) const
 {
-        // Check for "+++ b/src/plugins/git/giteditor.cpp" (blame and diff)
+    // Check for "+++ b/src/plugins/git/giteditor.cpp" (blame and diff)
+    // as well as "--- a/src/plugins/git/giteditor.cpp".
     // Go back chunks.
-    const QString newFileIndicator = QLatin1String("+++ b/");
-    for (QTextBlock  block = inBlock; block.isValid(); block = block.previous()) {
+    bool checkForOld = false;
+
+    const QString oldFileIndicator = QLatin1String("--- a/");
+    const QString newFileIndicator = QLatin1String("+++ ");
+    for (QTextBlock block = inBlock; block.isValid(); block = block.previous()) {
         QString diffFileName = block.text();
-        if (diffFileName.startsWith(newFileIndicator)) {
+        if (diffFileName.startsWith(oldFileIndicator) && checkForOld) {
+            diffFileName.remove(0, oldFileIndicator.size());
+            checkForOld = false;
+            return diffFileName;
+        } else if (diffFileName.startsWith(newFileIndicator)) {
             diffFileName.remove(0, newFileIndicator.size());
+            if (diffFileName == QLatin1String("/dev/null")) {
+                checkForOld = true;
+                continue;
+            }
+            diffFileName.remove(0, 2); // remove "b/"
             return findDiffFile(diffFileName);
         }
+        checkForOld = false;
     }
     return QString();
 }

@@ -1094,7 +1094,7 @@ void VcsBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
     block = block.previous();
     if (!block.isValid())
         return;
-    const QString fileName = fileNameFromDiffSpecification(block);
+    const QString fileName = findDiffFile(fileNameFromDiffSpecification(block));
 
     const bool exists = fileName.isEmpty() ? false : QFile::exists(fileName);
 
@@ -1126,7 +1126,7 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
     }
     if (!chunkStart || !block.isValid())
         return rc;
-    rc.fileName = fileNameFromDiffSpecification(block);
+    rc.fileName = findDiffFile(fileNameFromDiffSpecification(block));
     if (rc.fileName.isEmpty())
         return rc;
     // Concatenate chunk and convert
