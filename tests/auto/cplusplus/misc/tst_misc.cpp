@@ -34,8 +34,6 @@
 
 #include <QtTest>
 #include <QtDebug>
-#include <SimpleLexer.h>
-#include <Token.h>
 
 #include <findcdbbreakpoint.h>
 
@@ -52,14 +50,6 @@ private slots:
 
     void findBreakpoints();
     void findBreakpoints2();
-
-    void testLexerComment();
-    void testLexerComment2();
-    void testLexerComment3();
-    void testLexerMultiLineComment();
-    void testLexerMultiLineComment2();
-    void testLexerMultiLineComment3();
-    void testLexerMultiLineComment4();
 };
 
 void tst_Misc::diagnosticClient_error()
@@ -185,108 +175,6 @@ void tst_Misc::findBreakpoints2()
     QCOMPARE(findBreakpoint(5), 5U);
     QCOMPARE(findBreakpoint(6), 6U);
     QCOMPARE(findBreakpoint(7), 7U);
-}
-
-void tst_Misc::testLexerComment() {
-    const QByteArray src("// int a = 42    ");
-
-    SimpleLexer tokenize;
-    tokenize.setQtMocRunEnabled(false);
-    tokenize.setObjCEnabled(false);
-    tokenize.setCxx0xEnabled(true);
-    const QList<Token> tokens = tokenize(src);
-
-    QCOMPARE(tokenize.state(), 0);
-    QCOMPARE(tokens.size(), 1);
-    QCOMPARE(tokens[0].f.kind, 2U);
-    QCOMPARE(tokens[0].f.length, 17U);
-}
-
-void tst_Misc::testLexerComment2() {
-    const QByteArray src("              // int a = 42    ");
-
-    SimpleLexer tokenize;
-    tokenize.setQtMocRunEnabled(false);
-    tokenize.setObjCEnabled(false);
-    tokenize.setCxx0xEnabled(true);
-    const QList<Token> tokens = tokenize(src);
-
-    QCOMPARE(tokenize.state(), 0);
-    QCOMPARE(tokens.size(), 1);
-    QCOMPARE(tokens[0].f.kind, 2U);
-    QCOMPARE(tokens[0].f.length, 17U);
-}
-
-void tst_Misc::testLexerComment3() {
-    const QByteArray src("  int main( int argc, char** argv) { // Foo m_foo = 42  /n");
-
-    SimpleLexer tokenize;
-    tokenize.setQtMocRunEnabled(false);
-    tokenize.setObjCEnabled(false);
-    tokenize.setCxx0xEnabled(true);
-    const QList<Token> tokens = tokenize(src);
-
-    QCOMPARE(tokenize.state(), 0);
-    QCOMPARE(tokens.size(), 13);
-    QCOMPARE(tokens.last().f.kind, 2U);
-    QCOMPARE(tokens.last().f.length, 21U);
-}
-
-void tst_Misc::testLexerMultiLineComment() {
-    const QByteArray src("/* multi /n"
-                         " * line  /n");
-    SimpleLexer tokenize;
-    tokenize.setQtMocRunEnabled(false);
-    tokenize.setObjCEnabled(false);
-    tokenize.setCxx0xEnabled(true);
-    const QList<Token> tokens = tokenize(src);
-
-    QCOMPARE(tokenize.state(), 1);
-    QCOMPARE(tokens.size(), 1);
-    QCOMPARE(tokens[0].f.kind, 4U);
-    QCOMPARE(tokens.last().f.length, 22U);
-}
-
-void tst_Misc::testLexerMultiLineComment2() {
-    const QByteArray src("");
-    SimpleLexer tokenize;
-    tokenize.setQtMocRunEnabled(false);
-    tokenize.setObjCEnabled(false);
-    tokenize.setCxx0xEnabled(true);
-    QList<Token> tokens = tokenize(src,1);
-
-    QCOMPARE(tokenize.state(), 1);
-    QCOMPARE(tokens.size(), 1);
-    QCOMPARE(tokens[0].f.kind, 4U);
-    QCOMPARE(tokens[0].f.length, 1U);
-}
-
-void tst_Misc::testLexerMultiLineComment3() {
-    const QByteArray src("    ");
-    SimpleLexer tokenize;
-    tokenize.setQtMocRunEnabled(false);
-    tokenize.setObjCEnabled(false);
-    tokenize.setCxx0xEnabled(true);
-    const QList<Token> tokens = tokenize(src,1);
-
-    QCOMPARE(tokenize.state(), 1);
-    QCOMPARE(tokens.size(), 1);
-    QCOMPARE(tokens[0].f.kind, 4U);
-    QCOMPARE(tokens[0].f.length, 5U);
-}
-
-void tst_Misc::testLexerMultiLineComment4() {
-    const QByteArray src("int /* integer */ i");
-    SimpleLexer tokenize;
-    tokenize.setQtMocRunEnabled(false);
-    tokenize.setObjCEnabled(false);
-    tokenize.setCxx0xEnabled(true);
-    const QList<Token> tokens = tokenize(src,0);
-
-    QCOMPARE(tokenize.state(), 0);
-    QCOMPARE(tokens.size(), 3);
-    QCOMPARE(tokens[1].f.kind, 4U);
-    QCOMPARE(tokens[1].f.length, 13U);
 }
 
 QTEST_MAIN(tst_Misc)

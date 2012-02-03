@@ -162,15 +162,15 @@ void CppHighlighter::highlightBlock(const QString &text)
 
         else if (tk.is(T_STRING_LITERAL) || tk.is(T_CHAR_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL) ||
                  tk.is(T_AT_STRING_LITERAL))
-            setFormat(tk.begin(), tk.length(), m_formats[CppStringFormat]);
+            highlightLine(text, tk.begin(), tk.length(), m_formats[CppStringFormat]);
 
         else if (tk.is(T_WIDE_STRING_LITERAL) || tk.is(T_WIDE_CHAR_LITERAL))
-            setFormat(tk.begin(), tk.length(), m_formats[CppStringFormat]);
+            highlightLine(text, tk.begin(), tk.length(), m_formats[CppStringFormat]);
 
         else if (tk.isComment()) {
 
             if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT))
-                setFormat(tk.begin(), tk.length(), m_formats[CppCommentFormat]);
+                highlightLine(text, tk.begin(), tk.length(), m_formats[CppCommentFormat]);
 
             else // a doxygen comment
                 highlightDoxygenComment(text, tk.begin(), tk.length());
@@ -212,7 +212,7 @@ void CppHighlighter::highlightBlock(const QString &text)
         const Token tk = tokens.last();
         const int lastTokenEnd = tk.begin() + tk.length();
         if (text.length() > lastTokenEnd)
-            setFormat(lastTokenEnd, text.length() - lastTokenEnd, QTextCharFormat());
+            highlightLine(text, lastTokenEnd, text.length() - lastTokenEnd, QTextCharFormat());
     }
 
     if (! initialState && state && ! tokens.isEmpty()) {
@@ -439,7 +439,7 @@ void CppHighlighter::highlightDoxygenComment(const QString &text, int position, 
 
             int k = CppTools::classifyDoxygenTag(start, it - start);
             if (k != CppTools::T_DOXY_IDENTIFIER) {
-                setFormat(initial, start - uc - initial, format);
+                highlightLine(text, initial, start - uc - initial, format);
                 setFormat(start - uc - 1, it - start + 1, kwFormat);
                 initial = it - uc;
             }
@@ -447,6 +447,6 @@ void CppHighlighter::highlightDoxygenComment(const QString &text, int position, 
             ++it;
     }
 
-    setFormat(initial, it - uc - initial, format);
+    highlightLine(text, initial, it - uc - initial, format);
 }
 

@@ -157,15 +157,10 @@ void Lexer::scan(Token *tok)
 void Lexer::scan_helper(Token *tok)
 {
   _Lagain:
-    _tokenStart = _currentChar;
-    tok->offset = _currentChar - _firstChar;
-
     while (_yychar && std::isspace(_yychar)) {
         if (_yychar == '\n') {
             tok->f.joined = false;
             tok->f.newline = true;
-            if (_state == State_MultiLineComment || _state == State_MultiLineDoxyComment)
-                break;
         } else {
             tok->f.whitespace = true;
         }
@@ -175,9 +170,11 @@ void Lexer::scan_helper(Token *tok)
     if (! _translationUnit)
         tok->lineno = _currentLine;
 
+    _tokenStart = _currentChar;
+    tok->offset = _currentChar - _firstChar;
+
     if (_state == State_MultiLineComment || _state == State_MultiLineDoxyComment) {
         const int originalState = _state;
-
 
         if (! _yychar) {
             tok->f.kind = T_EOF_SYMBOL;
@@ -206,9 +203,6 @@ void Lexer::scan_helper(Token *tok)
             tok->f.kind = T_DOXY_COMMENT;
         return; // done
     }
-
-    _tokenStart = _currentChar;
-    tok->offset = _currentChar - _firstChar;
 
     if (! _yychar) {
         tok->f.kind = T_EOF_SYMBOL;
