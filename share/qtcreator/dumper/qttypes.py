@@ -1699,6 +1699,19 @@ def qdump__QxXmlAttributes(d, value):
 #
 #######################################################################
 
+def qdump__std__array(d, value):
+    size = numericTemplateArgument(value.type, 1)
+    d.putItemCount(size)
+    d.putNumChild(size)
+    if d.isExpanded():
+        innerType = templateArgument(value.type, 0)
+        with Children(d, size, childType=innerType):
+            pcur = value.address.cast(innerType.pointer())
+            for i in d.childRange():
+                d.putSubItem(i, pcur.dereference())
+                pcur += 1
+
+
 def qdump__std__complex(d, value):
     innerType = templateArgument(value.type, 0)
     base = value.address.cast(innerType.pointer())

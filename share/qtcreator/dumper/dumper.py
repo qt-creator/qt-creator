@@ -278,7 +278,12 @@ def numericTemplateArgument(type, position):
     except RuntimeError, error:
         # ": No type named 30."
         msg = str(error)
-        return int(msg[14:-1])
+        msg = msg[14:-1]
+        # gdb at least until 7.4 produces for std::array<int, 4u>
+        # for template_argument(1): RuntimeError: No type named 4u.
+        if msg[-1] == 'u':
+           msg = msg[0:-1]
+        return int(msg)
 
 
 def showException(msg, exType, exValue, exTraceback):

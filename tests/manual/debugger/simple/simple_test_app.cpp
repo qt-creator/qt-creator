@@ -158,6 +158,9 @@ void dummyStatement(...) {}
 #include <QStandardItemModel>
 #include <QLabel>
 
+#if USE_CXX11
+#include <array>
+#endif
 #include <complex>
 #include <deque>
 #include <iostream>
@@ -2259,6 +2262,25 @@ namespace qxml {
 } // namespace qxml
 
 
+namespace stdarray {
+
+    void testStdArray()
+    {
+        #if USE_CXX11
+        std::array<int, 4> a = { 1, 2, 3, 4};
+        BREAK_HERE;
+        // Expand a.
+        // Check a <4 items> std::array<int>.
+        // Check [0] 1 int.
+        // Continue.
+        dummyStatement(&a);
+        #endif
+    }
+
+} // namespace stdcomplex
+
+
+
 namespace stdcomplex {
 
     void testStdComplex()
@@ -2266,12 +2288,13 @@ namespace stdcomplex {
         std::complex<double> c(1, 2);
         BREAK_HERE;
         // Expand c.
-        // Check c (1.000000, 2.000000) complex.
+        // Check c (1.000000, 2.000000) std::complex<double>.
         // Continue.
         dummyStatement(&c);
     }
 
-} // namespace stddeque
+} // namespace stdcomplex
+
 
 namespace stddeque {
 
@@ -5972,6 +5995,7 @@ int main(int argc, char *argv[])
     namespc::testNamespace();
     painting::testPainting();
 
+    stdarray::testStdArray();
     stdcomplex::testStdComplex();
     stddeque::testStdDeque();
     stdlist::testStdList();
