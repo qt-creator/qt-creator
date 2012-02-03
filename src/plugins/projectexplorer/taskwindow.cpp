@@ -296,6 +296,8 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
             this, SLOT(addTask(ProjectExplorer::Task)));
     connect(d->m_taskHub, SIGNAL(taskRemoved(ProjectExplorer::Task)),
             this, SLOT(removeTask(ProjectExplorer::Task)));
+    connect(d->m_taskHub, SIGNAL(taskLineNumberUpdated(uint,int)),
+            this, SLOT(updatedTaskLineNumber(uint,int)));
     connect(d->m_taskHub, SIGNAL(tasksCleared(Core::Id)),
             this, SLOT(clearTasks(Core::Id)));
     connect(d->m_taskHub, SIGNAL(categoryVisibilityChanged(Core::Id,bool)),
@@ -378,6 +380,12 @@ void TaskWindow::removeTask(const Task &task)
 
     emit tasksChanged();
     navigateStateChanged();
+}
+
+void TaskWindow::updatedTaskLineNumber(unsigned int id, int line)
+{
+    d->m_model->updateTaskLineNumber(id, line);
+    emit tasksChanged();
 }
 
 void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
@@ -788,7 +796,28 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     }
 
     // Paint LineArea
-    QString lineText = index.data(TaskModel::Line).toString();
+    int line = index.data(TaskModel::Line).toInt();
+    int movedLine = index.data(TaskModel::MovedLine).toInt();
+    QString lineText;
+
+    if (line == -1) {
+        // No line information at all
+    } else if (movedLine == -1) {
+        // removed the line, but we had line information, show the line in ()
+        QFont f = painter->font();
+        f.setItalic(true);
+        painter->setFont(f);
+        lineText = "(" + QString::number(line) + ")";
+    }  else if (movedLine != line) {
+        // The line was moved
+        QFont f = painter->font();
+        f.setItalic(true);
+        painter->setFont(f);
+        lineText = QString::number(movedLine);
+    } else {
+        lineText = QString::number(line);
+    }
+
     painter->setClipRect(positions.lineArea());
     const int realLineWidth = fm.width(lineText);
     painter->drawText(positions.lineAreaRight() - realLineWidth, positions.top() + fm.ascent(), lineText);

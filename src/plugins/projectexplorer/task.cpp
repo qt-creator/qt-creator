@@ -51,9 +51,14 @@ Task::Task() : taskId(0), type(Unknown), line(-1)
 Task::Task(TaskType type_, const QString &description_,
            const Utils::FileName &file_, int line_, const Core::Id &category_) :
     taskId(s_nextId), type(type_), description(description_),
-    file(file_), line(line_), category(category_)
+    file(file_), line(line_), movedLine(line_), category(category_)
 {
     ++s_nextId;
+}
+
+void Task::addMark(TextEditor::BaseTextMark *mark)
+{
+    m_mark = QSharedPointer<TextEditor::BaseTextMark>(mark);
 }
 
 bool Task::isNull() const

@@ -57,7 +57,7 @@ bool ShowInEditorTaskHandler::canHandle(const ProjectExplorer::Task &task)
 void ShowInEditorTaskHandler::handle(const ProjectExplorer::Task &task)
 {
     QFileInfo fi(task.file.toFileInfo());
-    TextEditor::BaseTextEditorWidget::openEditorAt(fi.canonicalFilePath(), task.line);
+    TextEditor::BaseTextEditorWidget::openEditorAt(fi.canonicalFilePath(), task.movedLine);
 }
 
 QAction *ShowInEditorTaskHandler::createAction(QObject *parent)

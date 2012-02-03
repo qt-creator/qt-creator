@@ -89,6 +89,7 @@ private slots:
     void addCategory(const Core::Id &categoryId, const QString &displayName, bool visible);
     void addTask(const ProjectExplorer::Task &task);
     void removeTask(const ProjectExplorer::Task &task);
+    void updatedTaskLineNumber(unsigned int id, int line);
     void clearTasks(const Core::Id &categoryId);
     void setCategoryVisibility(const Core::Id &categoryId, bool visible);
 

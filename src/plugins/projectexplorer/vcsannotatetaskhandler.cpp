@@ -66,7 +66,7 @@ void VcsAnnotateTaskHandler::handle(const ProjectExplorer::Task &task)
     Core::IVersionControl *vc = Core::ICore::vcsManager()->findVersionControlForDirectory(fi.absolutePath());
     Q_ASSERT(vc);
     Q_ASSERT(vc->supportsOperation(Core::IVersionControl::AnnotateOperation));
-    vc->vcsAnnotate(fi.absoluteFilePath(), task.line);
+    vc->vcsAnnotate(fi.absoluteFilePath(), task.movedLine);
 }
 
 QAction *VcsAnnotateTaskHandler::createAction(QObject *parent)

@@ -141,6 +141,17 @@ void TaskModel::removeTask(const Task &task)
     }
 }
 
+void TaskModel::updateTaskLineNumber(unsigned int id, int line)
+{
+    for (int i = 0; i < m_tasks.count(); ++i) {
+        if (m_tasks.at(i).taskId == id) {
+            m_tasks[i].movedLine = line;
+            emit dataChanged(index(i, 0), index(i, 0));
+            return;
+        }
+    }
+}
+
 void TaskModel::clearTasks(const Core::Id &categoryId)
 {
     if (categoryId.uniqueIdentifier() == 0) {
@@ -216,10 +227,9 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
     if (role == TaskModel::File) {
         return m_tasks.at(index.row()).file.toString();
     } else if (role == TaskModel::Line) {
-        if (m_tasks.at(index.row()).line <= 0)
-            return QVariant();
-        else
-            return m_tasks.at(index.row()).line;
+        return m_tasks.at(index.row()).line;
+    } else if (role == TaskModel::MovedLine) {
+        return m_tasks.at(index.row()).movedLine;
     } else if (role == TaskModel::Description) {
         return m_tasks.at(index.row()).description;
     } else if (role == TaskModel::FileNotFound) {

@@ -36,6 +36,7 @@
 #include "projectexplorer_export.h"
 
 #include <coreplugin/id.h>
+#include <texteditor/basetextmark.h>
 #include <utils/fileutils.h>
 
 #include <QtCore/QMetaType>
@@ -65,7 +66,9 @@ public:
     QString description;
     Utils::FileName file;
     int line;
+    int movedLine; // contains a line number if the line was moved in the editor
     Core::Id category;
+    void addMark(TextEditor::BaseTextMark *mark);
 
     // Having a QList<QTextLayout::FormatRange> in Task isn't that great
     // It would be cleaner to split up the text into
@@ -77,6 +80,7 @@ public:
     // anywhere near being that good
     QList<QTextLayout::FormatRange> formats;
 private:
+    QSharedPointer<TextEditor::BaseTextMark> m_mark;
     static unsigned int s_nextId;
 };
 

@@ -62,12 +62,13 @@ public:
     void addTask(const Task &task);
     void removeTask(const Task &task);
     void clearTasks(const Core::Id &categoryId = Core::Id());
+    void updateTaskLineNumber(unsigned int id, int line);
 
     int sizeOfFile(const QFont &font);
     int sizeOfLineNumber(const QFont &font);
     void setFileNotFound(const QModelIndex &index, bool b);
 
-    enum Roles { File = Qt::UserRole, Line, Description, FileNotFound, Type, Category, Icon, Task_t };
+    enum Roles { File = Qt::UserRole, Line, MovedLine, Description, FileNotFound, Type, Category, Icon, Task_t };
 
     QIcon taskTypeIcon(Task::TaskType t) const;
 

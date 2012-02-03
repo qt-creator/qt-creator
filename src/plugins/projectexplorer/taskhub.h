@@ -49,9 +49,10 @@ public:
     virtual ~TaskHub();
 
     void addCategory(const Core::Id &categoryId, const QString &displayName, bool visible = true);
-    void addTask(const Task &task);
+    void addTask(Task task);
     void clearTasks(const Core::Id &categoryId = Core::Id());
     void removeTask(const Task &task);
+    void updateTaskLineNumber(unsigned int id, int line);
     void setCategoryVisibility(const Core::Id &categoryId, bool visible);
 
     void popup(bool withFocus);
@@ -63,6 +64,7 @@ signals:
     void taskAdded(const ProjectExplorer::Task &task);
     void taskRemoved(const ProjectExplorer::Task &task);
     void tasksCleared(const Core::Id &categoryId);
+    void taskLineNumberUpdated(unsigned int id, int line);
     void categoryVisibilityChanged(const Core::Id &categoryId, bool visible);
     void popupRequested(bool withFocus);
 private:
