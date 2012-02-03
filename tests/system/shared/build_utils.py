@@ -117,7 +117,12 @@ def createTasksFile(list):
     outfile = os.path.join(tasksFileDir, os.path.basename(squishinfo.testCase)+"_%d.tasks" % tasksFileCount)
     file = codecs.open(outfile, "w", "utf-8")
     test.log("Writing tasks file - can take some time (according to number of issues)")
-    for row in range(model.rowCount()):
+    rows = model.rowCount()
+    if os.environ.get("SYSTEST_DEBUG") == "1":
+        firstrow = 0
+    else:
+        firstrow = max(0, rows - 100)
+    for row in range(firstrow, rows):
         index = model.index(row,0)
         # the following is currently a bad work-around
         fData = index.data(Qt.UserRole).toString() # file
