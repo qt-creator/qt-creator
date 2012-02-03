@@ -52,6 +52,11 @@ Item {
     x: 200
     y: 25
 
+    property int yoffset: root.scrollY
+    onYoffsetChanged: y = relativey + yoffset
+    property int relativey : y - yoffset
+    onYChanged: relativey = y - yoffset
+
     // shadow
     BorderImage {
         property int px: 4
