@@ -81,7 +81,13 @@ GLSLEditorPlugin::InitFile::~InitFile()
 
 GLSLEditorPlugin::GLSLEditorPlugin() :
     m_editor(0),
-    m_actionHandler(0)
+    m_actionHandler(0),
+    m_glsl_120_frag(0),
+    m_glsl_120_vert(0),
+    m_glsl_120_common(0),
+    m_glsl_es_100_frag(0),
+    m_glsl_es_100_vert(0),
+    m_glsl_es_100_common(0)
 {
     m_instance = this;
 }
@@ -90,6 +96,12 @@ GLSLEditorPlugin::~GLSLEditorPlugin()
 {
     removeObject(m_editor);
     delete m_actionHandler;
+    delete m_glsl_120_frag;
+    delete m_glsl_120_vert;
+    delete m_glsl_120_common;
+    delete m_glsl_es_100_frag;
+    delete m_glsl_es_100_vert;
+    delete m_glsl_es_100_common;
     m_instance = 0;
 }
 
@@ -109,14 +121,6 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
 {
     if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/glsleditor/GLSLEditor.mimetypes.xml"), errorMessage))
         return false;
-
-    parseGlslFile(QLatin1String("glsl_120.frag"), &m_glsl_120_frag);
-    parseGlslFile(QLatin1String("glsl_120.vert"), &m_glsl_120_vert);
-    parseGlslFile(QLatin1String("glsl_120_common.glsl"), &m_glsl_120_common);
-    parseGlslFile(QLatin1String("glsl_es_100.frag"), &m_glsl_es_100_frag);
-    parseGlslFile(QLatin1String("glsl_es_100.vert"), &m_glsl_es_100_vert);
-    parseGlslFile(QLatin1String("glsl_es_100_common.glsl"), &m_glsl_es_100_common);
-
 
 //    m_modelManager = new ModelManager(this);
 //    addAutoReleasedObject(m_modelManager);
@@ -251,7 +255,16 @@ Core::Command *GLSLEditorPlugin::addToolAction(QAction *a, Core::ActionManager *
     return command;
 }
 
-QByteArray GLSLEditorPlugin::glslFile(const QString &fileName)
+GLSLEditorPlugin::InitFile *GLSLEditorPlugin::getInitFile(const QString &fileName, InitFile **initFile) const
+{
+    if (*initFile)
+        return *initFile;
+    *initFile = new GLSLEditorPlugin::InitFile;
+    parseGlslFile(fileName, *initFile);
+    return *initFile;
+}
+
+QByteArray GLSLEditorPlugin::glslFile(const QString &fileName) const
 {
     QString path = Core::ICore::resourcePath();
     path += QLatin1String("/glsl/");
@@ -262,7 +275,7 @@ QByteArray GLSLEditorPlugin::glslFile(const QString &fileName)
     return QByteArray();
 }
 
-void GLSLEditorPlugin::parseGlslFile(const QString &fileName, InitFile *initFile)
+void GLSLEditorPlugin::parseGlslFile(const QString &fileName, InitFile *initFile) const
 {
     // Parse the builtins for any langugage variant so we can use all keywords.
     const unsigned variant = GLSL::Lexer::Variant_All;
@@ -276,25 +289,25 @@ void GLSLEditorPlugin::parseGlslFile(const QString &fileName, InitFile *initFile
 const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::fragmentShaderInit(int variant) const
 {
     if (variant & GLSL::Lexer::Variant_GLSL_120)
-        return &m_glsl_120_frag;
+        return getInitFile(QLatin1String("glsl_120.frag"), &m_glsl_120_frag);
     else
-        return &m_glsl_es_100_frag;
+        return getInitFile(QLatin1String("glsl_es_100.frag"), &m_glsl_es_100_frag);
 }
 
 const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::vertexShaderInit(int variant) const
 {
     if (variant & GLSL::Lexer::Variant_GLSL_120)
-        return &m_glsl_120_vert;
+        return getInitFile(QLatin1String("glsl_120.vert"), &m_glsl_120_vert);
     else
-        return &m_glsl_es_100_vert;
+        return getInitFile(QLatin1String("glsl_es_100.vert"), &m_glsl_es_100_vert);
 }
 
 const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::shaderInit(int variant) const
 {
     if (variant & GLSL::Lexer::Variant_GLSL_120)
-        return &m_glsl_120_common;
+        return getInitFile(QLatin1String("glsl_120_common.glsl"), &m_glsl_120_common);
     else
-        return &m_glsl_es_100_common;
+        return getInitFile(QLatin1String("glsl_es_100_common.glsl"), &m_glsl_es_100_common);
 }
 
 Q_EXPORT_PLUGIN(GLSLEditorPlugin)

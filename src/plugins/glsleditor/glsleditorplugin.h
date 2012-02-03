@@ -103,8 +103,9 @@ public:
     const InitFile *shaderInit(int variant) const;
 
 private:
-    QByteArray glslFile(const QString &fileName);
-    void parseGlslFile(const QString &fileName, InitFile *initFile);
+    QByteArray glslFile(const QString &fileName) const;
+    InitFile *getInitFile(const QString &fileName, InitFile **initFile) const;
+    void parseGlslFile(const QString &fileName, InitFile *initFile) const;
 
     // FIXME: Unused?
     Core::Command *addToolAction(QAction *a, Core::ActionManager *am, Core::Context &context, const Core::Id &name,
@@ -117,12 +118,12 @@ private:
 
     QPointer<TextEditor::ITextEditor> m_currentTextEditable;
 
-    InitFile m_glsl_120_frag;
-    InitFile m_glsl_120_vert;
-    InitFile m_glsl_120_common;
-    InitFile m_glsl_es_100_frag;
-    InitFile m_glsl_es_100_vert;
-    InitFile m_glsl_es_100_common;
+    mutable InitFile *m_glsl_120_frag;
+    mutable InitFile *m_glsl_120_vert;
+    mutable InitFile *m_glsl_120_common;
+    mutable InitFile *m_glsl_es_100_frag;
+    mutable InitFile *m_glsl_es_100_vert;
+    mutable InitFile *m_glsl_es_100_common;
 };
 
 } // namespace Internal
