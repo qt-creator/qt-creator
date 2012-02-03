@@ -29,14 +29,14 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
-
+#include "zeroconf_global.h"
 #ifdef Q_OS_WIN
 // Disable min max macros from windows headers,
 // because we want to use the template methods from std.
 #  ifndef NOMINMAX
 #    define NOMINMAX
 #  endif
-#  include <winsock.h>
+#  include <WinSock2.h>
 #endif // Q_OS_WIN
 
 #include "mdnsderived.h"
@@ -147,6 +147,8 @@ ZeroConfLib::ZeroConfLib(): m_lock(QMutex::Recursive),
                  ZConfLib::createEmbeddedLib(QLatin1String("mdnssd")))))
 {
     qRegisterMetaType<Service::ConstPtr>("ZeroConf::Service::ConstPtr");
+    qRegisterMetaType<ErrorMessage::SeverityLevel>("ZeroConf::ErrorMessage::SeverityLevel");
+    qRegisterMetaType<ErrorMessage>("ZeroConf::ErrorMessage");
 }
 
 ZConfLib::Ptr ZeroConfLib::defaultLib(){
@@ -184,6 +186,44 @@ void ZeroConfLib::setDefaultLib(LibUsage usage, const QString &avahiLibName,
 
 namespace ZeroConf {
 
+// ----------------- ErrorMessage impl -----------------
+/*!
+  \class ZeroConf::ErrorMessage
+
+  \brief class representing an error message
+
+  very simple class representing an error message
+ */
+
+/// empty constructor (required by qRegisterMetaType)
+ErrorMessage::ErrorMessage(): severity(FailureLevel) {}
+/// constructor
+ErrorMessage::ErrorMessage(SeverityLevel s, const QString &m): severity(s), msg(m) {}
+
+/// returns a human readable string for each severity level
+QString ErrorMessage::severityLevelToString(ErrorMessage::SeverityLevel severity)
+{
+    const char *ctx = "Zeroconf::SeverityLevel";
+    switch (severity) {
+    case NoteLevel:
+        return QCoreApplication::translate(ctx, "NOTE");
+    case WarningLevel:
+        return QCoreApplication::translate(ctx, "WARNING");
+    case ErrorLevel:
+        return QCoreApplication::translate(ctx, "ERROR");
+    case FailureLevel:
+        return QCoreApplication::translate(ctx, "FATAL_ERROR");
+    default:
+        return QCoreApplication::translate(ctx, "UNKNOWN_LEVEL_%1").arg(severity);
+    }
+}
+
+QDebug operator<<(QDebug dbg, const ErrorMessage &eMsg)
+{
+    dbg << ErrorMessage::severityLevelToString(eMsg.severity) << eMsg.msg;
+    return dbg;
+}
+
 // ----------------- Service impl -----------------
 /*!
   \class ZeroConf::Service
@@ -218,7 +258,7 @@ Service::~Service()
     delete m_host;
 }
 
-QDebug operator<<(QDebug dbg, const Service &service)
+ZEROCONFSHARED_EXPORT QDebug operator<<(QDebug dbg, const Service &service)
 {
     dbg.maybeSpace() << "Service{ name:" << service.name() << ", "
                      << "type:" << service.type() << ", domain:" << service.domain() << ", "
@@ -818,7 +858,7 @@ ServiceGatherer::Ptr ServiceGatherer::createGatherer(
         ServiceBrowserPrivate *serviceBrowser)
 {
     Ptr res(new ServiceGatherer(newServiceName, newType, newDomain, fullName, interfaceIndex,
-                                protocol,serviceBrowser));
+                                protocol, serviceBrowser));
     res->self = res.toWeakRef();
     return res;
 }
@@ -1385,12 +1425,18 @@ void ServiceBrowserPrivate::servicesUpdated(ServiceBrowser *browser)
     emit q->servicesUpdated(browser);
 }
 
-/// called when there is an error
-void ServiceBrowserPrivate::hadError(QStringList errorMsgs, bool completeFailure)
+/// called when there is an error message
+void ServiceBrowserPrivate::errorMessage(ErrorMessage::SeverityLevel severity, const QString &msg)
 {
-    if (completeFailure)
+    if (severity == ErrorMessage::FailureLevel)
         this->failed = true;
-    emit q->hadError(errorMsgs, completeFailure);
+    emit q->errorMessage(severity, msg, q);
+}
+
+/// called when the browsing fails
+void ServiceBrowserPrivate::hadFailure(const QList<ErrorMessage> &messages)
+{
+    emit q->hadFailure(messages, q);
 }
 
 // ----------------- MainConnection impl -----------------
@@ -1475,8 +1521,7 @@ void MainConnection::waitStartup()
 void MainConnection::addBrowser(ServiceBrowserPrivate *browser)
 {
     int actualStatus;
-    QStringList errs;
-    bool didFail;
+    QList<ErrorMessage> errs;
     {
         QMutexLocker l(lock());
 #if QT_VERSION >= 0x050000
@@ -1486,13 +1531,17 @@ void MainConnection::addBrowser(ServiceBrowserPrivate *browser)
 #endif
         m_browsers.append(browser);
         errs = m_errors;
-        didFail = m_failed;
     }
     if (actualStatus == Running) {
         browser->internalStartBrowsing();
     }
-    if (didFail || !errs.isEmpty())
-        browser->hadError(errs, didFail);
+    bool didFail = false;
+    foreach (const ErrorMessage &msg, errs) {
+        browser->errorMessage(msg.severity, msg.msg);
+        didFail = didFail || msg.severity == ErrorMessage::FailureLevel;
+    }
+    if (didFail)
+        browser->hadFailure(errs);
 }
 
 void MainConnection::removeBrowser(ServiceBrowserPrivate *browser)
@@ -1523,31 +1572,29 @@ void MainConnection::maybeUpdateLists()
 void MainConnection::gotoValidLib(){
     while (lib){
         if (lib->isOk()) break;
-        appendError(QStringList(tr("MainConnection giving up on non Ok lib %1 (%2)")
-                                .arg(lib->name()).arg(lib->errorMsg())), false);
+        appendError(ErrorMessage::WarningLevel, tr("MainConnection giving up on non Ok lib %1 (%2)")
+                                .arg(lib->name()).arg(lib->errorMsg()));
         lib = lib->fallbackLib;
     }
     if (!lib) {
-        appendError(QStringList(tr("MainConnection has no valid library, aborting connection")),
-                    true);
+        appendError(ErrorMessage::FailureLevel, tr("MainConnection has no valid library, aborting connection"));
         increaseStatusTo(Stopping);
     }
 }
 
 void MainConnection::abortLib(){
     if (!lib){
-        appendError(QStringList(tr("MainConnection has no valid library, aborting connection")),
-                    true);
+        appendError(ErrorMessage::FailureLevel, tr("MainConnection has no valid library, aborting connection"));
         increaseStatusTo(Stopping);
     } else if (lib->fallbackLib){
-        appendError(QStringList(tr("MainConnection giving up on lib %1, switching to lib %2")
-                                .arg(lib->name()).arg(lib->fallbackLib->name())), false);
+        appendError(ErrorMessage::WarningLevel, tr("MainConnection giving up on lib %1, switching to lib %2")
+                                .arg(lib->name()).arg(lib->fallbackLib->name()));
         lib = lib->fallbackLib;
         m_nErrs = 0;
         gotoValidLib();
     } else {
-        appendError(QStringList(tr("MainConnection giving up on lib %1, no fallback provided, aborting connection")
-                                .arg(lib->name())), true);
+        appendError(ErrorMessage::FailureLevel, tr("MainConnection giving up on lib %1, no fallback provided, aborting connection")
+                                .arg(lib->name()));
         increaseStatusTo(Stopping);
     }
 }
@@ -1570,8 +1617,8 @@ void MainConnection::createConnection()
         if (err == kDNSServiceErr_NoError){
             DNSServiceErrorType error = lib->createConnection(&m_mainRef);
             if (error != kDNSServiceErr_NoError){
-                appendError(QStringList(tr("MainConnection using lib %1 failed the initialization of mainRef with error %2")
-                                        .arg(lib->name()).arg(error)), false);
+                appendError(ErrorMessage::WarningLevel, tr("MainConnection using lib %1 failed the initialization of mainRef with error %2")
+                                        .arg(lib->name()).arg(error));
                 ++m_nErrs;
                 if (m_nErrs > 10 || !lib->isOk())
                     abortLib();
@@ -1590,22 +1637,22 @@ void MainConnection::createConnection()
                 break;
             }
         } else if (err == kDNSServiceErr_ServiceNotRunning) {
-            appendError(QStringList(tr("MainConnection using lib %1 failed because no daemon is running")
-                                    .arg(lib->name())), false);
+            appendError(ErrorMessage::WarningLevel, tr("MainConnection using lib %1 failed because no daemon is running")
+                                    .arg(lib->name()));
             if (m_nErrs > 5 || !lib->isOk()) {
                 abortLib();
             } else if (lib->tryStartDaemon()) {
                 ++m_nErrs;
-                appendError(QStringList(tr("MainConnection using lib %1 daemon starting seem successful, continuing")
-                                        .arg(lib->name())), false);
+                appendError(ErrorMessage::WarningLevel, tr("MainConnection using lib %1 daemon starting seem successful, continuing")
+                                        .arg(lib->name()));
             } else {
-                appendError(QStringList(tr("MainConnection using lib %1 failed because no daemon is running")
-                                        .arg(lib->name())), false);
+                appendError(ErrorMessage::WarningLevel, tr("MainConnection using lib %1 failed because no daemon is running")
+                                        .arg(lib->name()));
                 abortLib();
             }
         } else {
-            appendError(QStringList(tr("MainConnection using lib %1 failed getProperty call with error %2")
-                                    .arg(lib->name()).arg(err)), false);
+            appendError(ErrorMessage::WarningLevel, tr("MainConnection using lib %1 failed getProperty call with error %2")
+                                    .arg(lib->name()).arg(err));
             abortLib();
         }
     }
@@ -1650,8 +1697,7 @@ void MainConnection::destroyConnection()
 void  MainConnection::handleEvents()
 {
     if (!m_status.testAndSetAcquire(Starting, Started)){
-        appendError(QStringList(tr("MainConnection::handleEvents called with m_status != Starting, aborting")),
-                    true);
+        appendError(ErrorMessage::WarningLevel, tr("MainConnection::handleEvents called with m_status != Starting, aborting"));
         increaseStatusTo(Stopped);
         return;
     }
@@ -1680,8 +1726,7 @@ void  MainConnection::handleEvents()
             increaseStatusTo(Stopping);
             break;
         default:
-            appendError(QStringList(tr("MainConnection::handleEvents unexpected return status of handleEvent")),
-                        true);
+            appendError(ErrorMessage::FailureLevel, tr("MainConnection::handleEvents unexpected return status of handleEvent"));
             increaseStatusTo(Stopping);
             break;
         }
@@ -1690,8 +1735,8 @@ void  MainConnection::handleEvents()
     if (m_nErrs > 0){
         QString browsersNames = (m_browsers.isEmpty() ? QString() : m_browsers.at(0)->serviceType)
                 + ((m_browsers.count() > 1) ? QString::fromLatin1(",...") : QString());
-        appendError(QStringList(tr("MainConnection for [%1] accumulated %2 consecutive errors, aborting")
-                                .arg(browsersNames).arg(m_nErrs)), true);
+        appendError(ErrorMessage::FailureLevel, tr("MainConnection for [%1] accumulated %2 consecutive errors, aborting")
+                                .arg(browsersNames).arg(m_nErrs));
     }
     increaseStatusTo(Stopped);
 }
@@ -1708,31 +1753,28 @@ ZConfLib::ConnectionRef MainConnection::mainRef()
     return m_mainRef;
 }
 
-QStringList MainConnection::errors()
+QList<ErrorMessage> MainConnection::errors()
 {
     QMutexLocker l(lock());
     return m_errors;
 }
 
-void MainConnection::clearErrors()
-{
-    QMutexLocker l(lock());
-    m_errors.clear();
-}
-
-void MainConnection::appendError(const QStringList &s, bool failure)
+void MainConnection::appendError(ErrorMessage::SeverityLevel severity, const QString &msg)
 {
     QList<ServiceBrowserPrivate *> browsersAtt;
-    bool didFail;
+    QList<ErrorMessage> errs;
     {
         QMutexLocker l(lock());
-        m_errors.append(s);
+        m_errors.append(ErrorMessage(severity, msg));
+        errs = m_errors;
         browsersAtt = m_browsers;
-        m_failed = failure || m_failed;
-        didFail = m_failed;
+        m_failed = severity == ErrorMessage::FailureLevel || m_failed;
     }
-    foreach (ServiceBrowserPrivate *b, browsersAtt)
-        b->hadError(s, didFail);
+    foreach (ServiceBrowserPrivate *b, browsersAtt) {
+        b->errorMessage(severity, msg);
+        if (severity == ErrorMessage::FailureLevel)
+            b->hadFailure(errs);
+    }
 }
 
 bool MainConnection::isOk()

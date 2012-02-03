@@ -27,6 +27,7 @@
 #ifndef MDNSDERIVED_H
 #define MDNSDERIVED_H
 
+#include "zeroconf_global.h"
 #include "dns_sd_types.h"
 
 namespace ZeroConf {

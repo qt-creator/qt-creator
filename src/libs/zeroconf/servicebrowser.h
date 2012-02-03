@@ -50,6 +50,29 @@ class MainConnection;
 class ServiceBrowserPrivate;
 }
 
+
+class ZEROCONFSHARED_EXPORT ErrorMessage
+{
+public:
+    enum SeverityLevel
+    {
+        NoteLevel,
+        WarningLevel,
+        ErrorLevel,
+        FailureLevel
+    };
+
+    static QString severityLevelToString(SeverityLevel);
+
+    ErrorMessage();
+    ErrorMessage(SeverityLevel s, const QString &m);
+
+    SeverityLevel severity;
+    QString msg;
+};
+
+ZEROCONFSHARED_EXPORT QDebug operator<<(QDebug dbg, const ErrorMessage &eMsg);
+
 typedef QSharedPointer<Internal::MainConnection> MainConnectionPtr;
 
 typedef QHash<QString, QString> ServiceTxtRecord;
@@ -90,7 +113,7 @@ private:
     bool m_outdated;
 };
 
-QDebug operator<<(QDebug dbg, const Service &service);
+ZEROCONFSHARED_EXPORT QDebug operator<<(QDebug dbg, const Service &service);
 
 class ZEROCONFSHARED_EXPORT ServiceBrowser : public QObject
 {
@@ -130,7 +153,8 @@ signals:
     void serviceRemoved(const ZeroConf::Service::ConstPtr &service,
         ZeroConf::ServiceBrowser *browser);
     void servicesUpdated(ZeroConf::ServiceBrowser *browser);
-    void hadError(QStringList errorMsgs, bool completeFailure);
+    void errorMessage(ZeroConf::ErrorMessage::SeverityLevel severity, const QString &msg, ZeroConf::ServiceBrowser *browser);
+    void hadFailure(const QList<ZeroConf::ErrorMessage> &messages, ZeroConf::ServiceBrowser *browser);
 private:
     Internal::ServiceBrowserPrivate *d;
 };

@@ -248,11 +248,11 @@ public:
     void handleEvents();
     ZConfLib::ConnectionRef mainRef();
 
-    QStringList errors();
-    void clearErrors();
-    void appendError(const QStringList &msgs, bool fullFailure);
+    QList<ErrorMessage> errors();
     bool isOk();
 private:
+    void appendError(ErrorMessage::SeverityLevel severity, const QString &msg);
+
     mutable QMutex m_lock;
     QList<ServiceBrowserPrivate *> m_browsers;
     ZConfLib::ConnectionRef m_mainRef;
@@ -260,7 +260,7 @@ private:
     ConnectionThread *m_thread;
     QAtomicInt m_status;
     int m_nErrs;
-    QStringList m_errors;
+    QList<ErrorMessage> m_errors;
 };
 
 class ServiceBrowserPrivate {
@@ -314,7 +314,8 @@ public:
     void serviceAdded(const Service::ConstPtr &service, ServiceBrowser *browser);
     void serviceRemoved(const Service::ConstPtr &service, ServiceBrowser *browser);
     void servicesUpdated(ServiceBrowser *browser);
-    void hadError(QStringList errorMsgs, bool completeFailure);
+    void errorMessage(ErrorMessage::SeverityLevel severity, const QString &msg);
+    void hadFailure(const QList<ErrorMessage> &msgs);
 };
 
 class ConnectionThread: public QThread {
