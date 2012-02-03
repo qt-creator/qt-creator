@@ -84,6 +84,7 @@ namespace {
 }
 
 LocatorPlugin::LocatorPlugin()
+    : m_settingsInitialized(false)
 {
     m_refreshTimer.setSingleShot(false);
     connect(&m_refreshTimer, SIGNAL(timeout()), this, SLOT(refresh()));
@@ -168,8 +169,7 @@ void LocatorPlugin::extensionsInitialized()
 
 bool LocatorPlugin::delayedInitialize()
 {
-    connect(&m_loadWatcher, SIGNAL(finished()), this, SLOT(settingsLoaded()));
-    m_loadWatcher.setFuture(QtConcurrent::run(this, &LocatorPlugin::loadSettings));
+    loadSettings();
     return true;
 }
 
@@ -186,19 +186,17 @@ void LocatorPlugin::loadSettings()
     }
 
     qs->remove(QLatin1String("QuickOpen"));
-}
 
-void LocatorPlugin::settingsLoaded()
-{
     m_locatorWidget->updateFilterList();
     m_locatorWidget->setEnabled(true);
     if (m_refreshTimer.interval() > 0)
         m_refreshTimer.start();
+    m_settingsInitialized = true;
 }
 
 void LocatorPlugin::saveSettings()
 {
-    if (Core::ICore::instance() && Core::ICore::settingsDatabase()) {
+    if (m_settingsInitialized) {
         Core::SettingsDatabase *s = Core::ICore::settingsDatabase();
         s->beginGroup(QLatin1String("QuickOpen"));
         s->remove(QString());

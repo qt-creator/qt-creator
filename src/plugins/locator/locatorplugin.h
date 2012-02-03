@@ -78,7 +78,6 @@ public slots:
     void openLocator();
 
 private slots:
-    void settingsLoaded();
     void updatePlaceholderText(Core::Command *command = 0);
 
 private:
@@ -90,6 +89,7 @@ private:
     LocatorWidget *m_locatorWidget;
     SettingsPage *m_settingsPage;
 
+    bool m_settingsInitialized;
     QList<ILocatorFilter*> m_filters;
     QList<ILocatorFilter*> m_customFilters;
     int m_refreshInterval;
@@ -97,7 +97,6 @@ private:
     OpenDocumentsFilter *m_openDocumentsFilter;
     FileSystemFilter *m_fileSystemFilter;
     ExecuteFilter *m_executeFilter;
-    QFutureWatcher<void> m_loadWatcher;
 };
 
 template <typename S>
