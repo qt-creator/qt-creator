@@ -134,7 +134,7 @@ QString SubversionEditor::fileNameFromDiffSpecification(const QTextBlock &inBloc
             const int tabIndex = diffFileName.lastIndexOf(QLatin1Char('\t'));
             if (tabIndex != -1)
                 diffFileName.truncate(tabIndex);
-            const QString rc = findDiffFile(diffFileName, SubversionPlugin::instance()->versionControl());
+            const QString rc = findDiffFile(diffFileName);
             if (Subversion::Constants::debug)
                 qDebug() << Q_FUNC_INFO << diffFileName << rc << source();
             return rc;

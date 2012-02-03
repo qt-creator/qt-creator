@@ -130,7 +130,7 @@ QString GitEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) cons
         QString diffFileName = block.text();
         if (diffFileName.startsWith(newFileIndicator)) {
             diffFileName.remove(0, newFileIndicator.size());
-            return findDiffFile(diffFileName, GitPlugin::instance()->versionControl());
+            return findDiffFile(diffFileName);
         }
     }
     return QString();

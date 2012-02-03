@@ -236,7 +236,7 @@ protected:
     /* A helper that can be used to locate a file in a diff in case it
      * is relative. Tries to derive the directory from base directory,
      * source and version control. */
-    QString findDiffFile(const QString &f, Core::IVersionControl *control = 0) const;
+    QString findDiffFile(const QString &f) const;
 
     virtual bool canApplyDiffChunk(const DiffChunk &dc) const;
     // Revert a patch chunk. Default implementation uses patch.exe

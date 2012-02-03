@@ -110,7 +110,7 @@ QString MercurialEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock
         QString diffFileName = block.text();
         if (diffFileName.startsWith(newFileIndicator)) {
             diffFileName.remove(0, newFileIndicator.size());
-            return findDiffFile(diffFileName, MercurialPlugin::instance()->versionControl());
+            return findDiffFile(diffFileName);
         }
 
     }

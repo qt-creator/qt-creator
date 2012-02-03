@@ -39,10 +39,12 @@
 #include "vcsbaseplugin.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/vcsmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
@@ -1341,8 +1343,7 @@ QWidget *VcsBaseEditorWidget::configurationWidget() const
 }
 
 // Find the complete file from a diff relative specification.
-QString VcsBaseEditorWidget::findDiffFile(const QString &f,
-                                          Core::IVersionControl *control /* = 0 */) const
+QString VcsBaseEditorWidget::findDiffFile(const QString &f) const
 {
     // Check if file is absolute
     const QFileInfo in(f);
@@ -1366,11 +1367,14 @@ QString VcsBaseEditorWidget::findDiffFile(const QString &f,
             return sourceFileInfo.absoluteFilePath();
 
         QString topLevel;
-        if (control && control->managesDirectory(sourceDir, &topLevel)) {
-            const QFileInfo topLevelFileInfo(topLevel + slash + f);
-            if (topLevelFileInfo.isFile())
-                return topLevelFileInfo.absoluteFilePath();
-        }
+        Core::VcsManager *vcsManager = Core::ICore::vcsManager();
+        vcsManager->findVersionControlForDirectory(sourceDir, &topLevel); //
+        if (topLevel.isEmpty())
+            return QString();
+
+        const QFileInfo topLevelFileInfo(topLevel + slash + f);
+        if (topLevelFileInfo.isFile())
+            return topLevelFileInfo.absoluteFilePath();
     }
 
     // 3) Try working directory

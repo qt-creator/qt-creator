@@ -366,7 +366,7 @@ const char *GitClient::decorateOption = "--decorate";
 
 QString GitClient::findRepositoryForDirectory(const QString &dir)
 {
-    if (synchronousGitVersion(true) >= 0x010700) {
+    if (gitVersion(true) >= 0x010700) {
         // Find a directory to run git in:
         const QString root = QDir::rootPath();
         const QString home = QDir::homePath();
@@ -530,6 +530,7 @@ void GitClient::diff(const QString &workingDirectory,
         connect(editor, SIGNAL(diffChunkReverted(VcsBase::DiffChunk)), argWidget, SLOT(executeCommand()));
         editor->setRevertDiffChunkEnabled(true);
     }
+    editor->setDiffBaseDirectory(workingDirectory);
 
     GitFileDiffArgumentsWidget *argWidget = qobject_cast<GitFileDiffArgumentsWidget *>(editor->configurationWidget());
     QStringList userDiffArgs = argWidget->arguments();
@@ -556,6 +557,7 @@ void GitClient::diffBranch(const QString &workingDirectory,
         editor = createVcsEditor(editorId, title, sourceFile, CodecSource, "BranchName", branchName,
                                  new GitBranchDiffArgumentsWidget(this, workingDirectory,
                                                                   diffArgs, branchName));
+    editor->setDiffBaseDirectory(workingDirectory);
 
     GitBranchDiffArgumentsWidget *argWidget = qobject_cast<GitBranchDiffArgumentsWidget *>(editor->configurationWidget());
     QStringList userDiffArgs = argWidget->arguments();
@@ -683,6 +685,7 @@ void GitClient::show(const QString &source, const QString &id, const QStringList
 
     const QFileInfo sourceFi(source);
     const QString workDir = sourceFi.isDir() ? sourceFi.absoluteFilePath() : sourceFi.absolutePath();
+    editor->setDiffBaseDirectory(workDir);
     executeGit(workDir, arguments, editor);
 }
 
@@ -1743,7 +1746,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     if (amend) {
         // Amend: get last commit data as "SHA1@message".
         QStringList args(QLatin1String("log"));
-        const QString format = synchronousGitVersion(true) > 0x010701 ?
+        const QString format = gitVersion(true) > 0x010701 ?
                                QLatin1String("%h@%B") :
                                QLatin1String("%h@%s%n%n%b");
         args << QLatin1String("--max-count=1") << QLatin1String("--pretty=format:") + format;

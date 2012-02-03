@@ -113,7 +113,7 @@ QString BazaarEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) c
     for (QTextBlock  block = inBlock; block.isValid(); block = block.previous()) {
         const QString line = block.text();
         if (m_diffFileId.indexIn(line) != -1)
-            return findDiffFile(m_diffFileId.cap(1), BazaarPlugin::instance()->versionControl());
+            return findDiffFile(m_diffFileId.cap(1));
     }
     return QString();
 }
