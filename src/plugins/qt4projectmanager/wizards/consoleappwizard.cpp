@@ -68,13 +68,12 @@ ConsoleAppWizard::ConsoleAppWizard()
 }
 
 QWizard *ConsoleAppWizard::createWizardDialog(QWidget *parent,
-                                              const QString &defaultPath,
-                                              const WizardPageList &extensionPages) const
+                                              const Core::WizardDialogParameters &wizardDialogParameters) const
 {
-    ConsoleAppWizardDialog *dialog = new ConsoleAppWizardDialog(displayName(), icon(), extensionPages,
-                                                                showModulesPageForApplications(), parent);
-    dialog->setPath(defaultPath);
-    dialog->setProjectName(ConsoleAppWizardDialog::uniqueProjectName(defaultPath));
+    ConsoleAppWizardDialog *dialog = new ConsoleAppWizardDialog(displayName(), icon(),
+                                                                showModulesPageForApplications(), parent, wizardDialogParameters);
+    dialog->setPath(wizardDialogParameters.defaultPath());
+    dialog->setProjectName(ConsoleAppWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
     return dialog;
 }
 

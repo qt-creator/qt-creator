@@ -46,8 +46,8 @@ class EmptyProjectWizardDialog : public BaseQt4ProjectWizardDialog
 public:
     explicit EmptyProjectWizardDialog(const QString &templateName,
                                     const QIcon &icon,
-                                    const QList<QWizardPage*> &extensionPages,
-                                    QWidget *parent = 0);
+                                    QWidget *parent,
+                                    const Core::WizardDialogParameters &parameters);
 
     QtProjectParameters parameters() const;
 };

@@ -60,12 +60,11 @@ TestWizard::TestWizard() :
 }
 
 QWizard *TestWizard::createWizardDialog(QWidget *parent,
-                                        const QString &defaultPath,
-                                        const WizardPageList &extensionPages) const
+                                        const Core::WizardDialogParameters &wizardDialogParameters) const
 {
-    TestWizardDialog *dialog = new TestWizardDialog(displayName(), icon(), extensionPages, parent);
-    dialog->setPath(defaultPath);
-    dialog->setProjectName(TestWizardDialog::uniqueProjectName(defaultPath));
+    TestWizardDialog *dialog = new TestWizardDialog(displayName(), icon(), parent, wizardDialogParameters);
+    dialog->setPath(wizardDialogParameters.defaultPath());
+    dialog->setProjectName(TestWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
     return dialog;
 }
 

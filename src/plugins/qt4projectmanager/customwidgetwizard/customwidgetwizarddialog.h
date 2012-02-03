@@ -51,8 +51,8 @@ class CustomWidgetWizardDialog : public BaseQt4ProjectWizardDialog
 public:
     explicit CustomWidgetWizardDialog(const QString &templateName,
                                       const QIcon &icon,
-                                      const QList<QWizardPage*> &extensionPages,
-                                      QWidget *parent);
+                                      QWidget *parent,
+                                      const Core::WizardDialogParameters &parameters);
 
     QSharedPointer<PluginOptions> pluginOptions() const;
 

@@ -89,8 +89,7 @@ public:
     // Can be reimplemented to create custom wizards. initWizardDialog() needs to be
     // called.
     virtual QWizard *createWizardDialog(QWidget *parent,
-                                        const QString &defaultPath,
-                                        const WizardPageList &extensionPages) const;
+                                        const Core::WizardDialogParameters &wizardDialogParameters) const;
 
     virtual Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
 
@@ -128,7 +127,8 @@ protected:
 private:
     void setParameters(const CustomWizardParametersPtr &p);
 
-    static CustomWizard *createWizard(const CustomWizardParametersPtr &p, const Core::BaseFileWizardParameters &b);
+    static CustomWizard *createWizard(const CustomWizardParametersPtr &p,
+                                      const Core::BaseFileWizardParameters &b);
     CustomWizardPrivate *d;
 };
 
@@ -141,8 +141,7 @@ public:
                                  QObject *parent = 0);
 
     virtual QWizard *createWizardDialog(QWidget *parent,
-                                        const QString &defaultPath,
-                                        const WizardPageList &extensionPages) const;
+                                        const Core::WizardDialogParameters &wizardDialogParameters) const;
 
     virtual Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
 

@@ -65,7 +65,8 @@ BaseProjectWizardDialogPrivate::BaseProjectWizardDialogPrivate(Utils::ProjectInt
 {
 }
 
-BaseProjectWizardDialog::BaseProjectWizardDialog(QWidget *parent) :
+BaseProjectWizardDialog::BaseProjectWizardDialog(QWidget *parent,
+                                                 const Core::WizardDialogParameters & /*parameters*/) :
     Utils::Wizard(parent),
     d(new BaseProjectWizardDialogPrivate(new Utils::ProjectIntroPage))
 {
@@ -74,7 +75,8 @@ BaseProjectWizardDialog::BaseProjectWizardDialog(QWidget *parent) :
 
 BaseProjectWizardDialog::BaseProjectWizardDialog(Utils::ProjectIntroPage *introPage,
                                                  int introId,
-                                                 QWidget *parent) :
+                                                 QWidget *parent,
+                                                 const Core::WizardDialogParameters & /*parameters*/) :
     Utils::Wizard(parent),
     d(new BaseProjectWizardDialogPrivate(introPage, introId))
 {

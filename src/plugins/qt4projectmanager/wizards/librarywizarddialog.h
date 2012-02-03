@@ -53,9 +53,9 @@ class LibraryWizardDialog : public BaseQt4ProjectWizardDialog
 public:
     LibraryWizardDialog(const QString &templateName,
                         const QIcon &icon,
-                        const QList<QWizardPage*> &extensionPages,
                         bool showModulesPage,
-                        QWidget *parent = 0);
+                        QWidget *parent,
+                        const Core::WizardDialogParameters &parameters);
 
     void setSuffixes(const QString &header, const QString &source,  const QString &form= QString());
     void setLowerCaseFiles(bool);

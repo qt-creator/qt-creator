@@ -437,7 +437,11 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent)
     // Create dialog and run it. Ensure that the dialog is deleted when
     // leaving the func, but not before the IFileWizardExtension::process
     // has been called
-    const QScopedPointer<QWizard> wizard(createWizardDialog(parent, path, allExtensionPages));
+    const QScopedPointer<QWizard> wizard(createWizardDialog(parent,
+                                                            WizardDialogParameters(path,
+                                                                                   allExtensionPages,
+                                                                                   QString(),
+                                                                                   requiredFeatures())));
     QTC_ASSERT(!wizard.isNull(), return);
 
     GeneratedFiles files;
@@ -773,14 +777,13 @@ StandardFileWizard::StandardFileWizard(const BaseFileWizardParameters &parameter
 */
 
 QWizard *StandardFileWizard::createWizardDialog(QWidget *parent,
-                                                const QString &defaultPath,
-                                                const WizardPageList &extensionPages) const
+                                                const WizardDialogParameters &wizardDialogParameters) const
 {
     Utils::FileWizardDialog *standardWizardDialog = new Utils::FileWizardDialog(parent);
     standardWizardDialog->setWindowTitle(tr("New %1").arg(displayName()));
     setupWizard(standardWizardDialog);
-    standardWizardDialog->setPath(defaultPath);
-    foreach (QWizardPage *p, extensionPages)
+    standardWizardDialog->setPath(wizardDialogParameters.defaultPath());
+    foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
         BaseFileWizard::applyExtensionPageShortTitle(standardWizardDialog, standardWizardDialog->addPage(p));
     return standardWizardDialog;
 }

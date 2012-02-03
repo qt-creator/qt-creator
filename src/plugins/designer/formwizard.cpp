@@ -52,11 +52,11 @@ Core::FeatureSet FormWizard::requiredFeatures() const
 }
 
 QWizard *FormWizard::createWizardDialog(QWidget *parent,
-                                        const QString &defaultPath,
-                                        const WizardPageList &extensionPages) const
+                                        const Core::WizardDialogParameters &wizardDialogParameters) const
 {
-    FormFileWizardDialog *wizardDialog = new FormFileWizardDialog(extensionPages, parent);
-    wizardDialog->setPath(defaultPath);
+    FormFileWizardDialog *wizardDialog = new FormFileWizardDialog(wizardDialogParameters.extensionPages(),
+                                                                  parent);
+    wizardDialog->setPath(wizardDialogParameters.defaultPath());
     return wizardDialog;
 }
 

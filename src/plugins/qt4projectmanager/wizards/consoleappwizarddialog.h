@@ -46,9 +46,8 @@ class ConsoleAppWizardDialog : public BaseQt4ProjectWizardDialog
 public:
     explicit ConsoleAppWizardDialog(const QString &templateName,
                                     const QIcon &icon,
-                                    const QList<QWizardPage*> &extensionPages,
-                                    bool showModulesPage = false,
-                                    QWidget *parent = 0);
+                                    bool showModulesPage,
+                                    QWidget *parent, const Core::WizardDialogParameters &parameters);
 
     QtProjectParameters parameters() const;
 };

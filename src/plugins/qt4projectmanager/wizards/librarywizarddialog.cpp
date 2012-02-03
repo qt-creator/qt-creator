@@ -136,10 +136,10 @@ QtProjectParameters::Type LibraryIntroPage::type() const
 // ------------------- LibraryWizardDialog
 LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
                                          const QIcon &icon,
-                                         const QList<QWizardPage*> &extensionPages,
                                          bool showModulesPage,
-                                         QWidget *parent) :
-    BaseQt4ProjectWizardDialog(showModulesPage, new LibraryIntroPage, -1, parent),
+                                         QWidget *parent,
+                                         const Core::WizardDialogParameters &parameters) :
+    BaseQt4ProjectWizardDialog(showModulesPage, new LibraryIntroPage, -1, parent, parameters),
     m_filesPage(new FilesPage),
     m_mobilePage(new MobileLibraryWizardOptionPage),
     m_pluginBaseClassesInitialized(false),
@@ -193,7 +193,7 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
 
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
 
-    foreach (QWizardPage *p, extensionPages)
+    foreach (QWizardPage *p, parameters.extensionPages())
         Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
 }
 

@@ -52,9 +52,9 @@ TestWizardParameters::TestWizardParameters() :
 
 TestWizardDialog::TestWizardDialog(const QString &templateName,
                                    const QIcon &icon,
-                                   const QList<QWizardPage*> &extensionPages,
-                                   QWidget *parent)  :
-    BaseQt4ProjectWizardDialog(true, parent),
+                                   QWidget *parent,
+                                   const Core::WizardDialogParameters &parameters)  :
+    BaseQt4ProjectWizardDialog(true, parent, parameters),
     m_testPage(new TestWizardPage),
     m_testPageId(-1), m_modulesPageId(-1)
 {
@@ -67,7 +67,7 @@ TestWizardDialog::TestWizardDialog(const QString &templateName,
     m_modulesPageId = addModulesPage();
     m_testPageId = addPage(m_testPage);
     wizardProgress()->item(m_testPageId)->setTitle(tr("Details"));
-    foreach (QWizardPage *p, extensionPages)
+    foreach (QWizardPage *p, parameters.extensionPages())
         Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
 }

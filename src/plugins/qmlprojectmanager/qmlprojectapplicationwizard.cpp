@@ -50,8 +50,9 @@
 namespace QmlProjectManager {
 namespace Internal {
 
-QmlProjectApplicationWizardDialog::QmlProjectApplicationWizardDialog(QWidget *parent) :
-    ProjectExplorer::BaseProjectWizardDialog(parent)
+QmlProjectApplicationWizardDialog::QmlProjectApplicationWizardDialog(QWidget *parent,
+                                                                     const Core::WizardDialogParameters &parameters) :
+    ProjectExplorer::BaseProjectWizardDialog(parent, parameters)
 {
     setWindowTitle(tr("New Qt Quick UI Project"));
     setIntroDescription(tr("This wizard generates a Qt Quick UI project."));
@@ -88,15 +89,14 @@ Core::BaseFileWizardParameters QmlProjectApplicationWizard::parameters()
 }
 
 QWizard *QmlProjectApplicationWizard::createWizardDialog(QWidget *parent,
-                                                  const QString &defaultPath,
-                                                  const WizardPageList &extensionPages) const
+                                                         const Core::WizardDialogParameters &wizardDialogParameters) const
 {
-    QmlProjectApplicationWizardDialog *wizard = new QmlProjectApplicationWizardDialog(parent);
+    QmlProjectApplicationWizardDialog *wizard = new QmlProjectApplicationWizardDialog(parent, wizardDialogParameters);
 
-    wizard->setPath(defaultPath);
-    wizard->setProjectName(QmlProjectApplicationWizardDialog::uniqueProjectName(defaultPath));
+    wizard->setPath(wizardDialogParameters.defaultPath());
+    wizard->setProjectName(QmlProjectApplicationWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
 
-    foreach (QWizardPage *p, extensionPages)
+    foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
         BaseFileWizard::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
 
     return wizard;

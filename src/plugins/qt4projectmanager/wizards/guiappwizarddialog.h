@@ -63,10 +63,10 @@ class GuiAppWizardDialog : public BaseQt4ProjectWizardDialog
 public:
     explicit GuiAppWizardDialog(const QString &templateName,
                                 const QIcon &icon,
-                                const QList<QWizardPage*> &extensionPages,
-                                bool showModulesPage = false,
-                                bool mobile = false,
-                                QWidget *parent = 0);
+                                bool showModulesPage,
+                                bool mobile,
+                                QWidget *parent,
+                                const Core::WizardDialogParameters &parameters);
 
     void setBaseClasses(const QStringList &baseClasses);
     void setSuffixes(const QString &header, const QString &source,  const QString &form);

@@ -58,12 +58,11 @@ Core::FeatureSet EmptyProjectWizard::requiredFeatures() const
 }
 
 QWizard *EmptyProjectWizard::createWizardDialog(QWidget *parent,
-                                              const QString &defaultPath,
-                                              const WizardPageList &extensionPages) const
+                                                const Core::WizardDialogParameters &wizardDialogParameters) const
 {
-    EmptyProjectWizardDialog *dialog = new EmptyProjectWizardDialog(displayName(), icon(), extensionPages, parent);
-    dialog->setPath(defaultPath);
-    dialog->setProjectName(EmptyProjectWizardDialog::uniqueProjectName(defaultPath));
+    EmptyProjectWizardDialog *dialog = new EmptyProjectWizardDialog(displayName(), icon(), parent, wizardDialogParameters);
+    dialog->setPath(wizardDialogParameters.defaultPath());
+    dialog->setProjectName(EmptyProjectWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
     return dialog;
 }
 

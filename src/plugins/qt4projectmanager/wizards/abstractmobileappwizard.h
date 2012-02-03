@@ -57,7 +57,9 @@ class QT4PROJECTMANAGER_EXPORT AbstractMobileAppWizardDialog : public ProjectExp
     Q_OBJECT
 
 protected:
-    explicit AbstractMobileAppWizardDialog(QWidget *parent, const QtSupport::QtVersionNumber &minimumQtVersionNumber, const QtSupport::QtVersionNumber &maximumQtVersionNumber);
+    explicit AbstractMobileAppWizardDialog(QWidget *parent, const QtSupport::QtVersionNumber &minimumQtVersionNumber,
+                                           const QtSupport::QtVersionNumber &maximumQtVersionNumber,
+                                           const Core::WizardDialogParameters &parameters);
     void addMobilePages();
 
 public:
@@ -116,7 +118,7 @@ protected:
 
 private:
     virtual QWizard *createWizardDialog(QWidget *parent,
-        const QString &defaultPath, const WizardPageList &extensionPages) const;
+        const Core::WizardDialogParameters &wizardDialogParameters) const;
     virtual Core::GeneratedFiles generateFiles(const QWizard *wizard,
         QString *errorMessage) const;
     virtual bool postGenerateFiles(const QWizard *w,
@@ -124,7 +126,8 @@ private:
 
     virtual AbstractMobileApp *app() const = 0;
     virtual AbstractMobileAppWizardDialog *wizardDialog() const = 0;
-    virtual AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent) const = 0;
+    virtual AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent,
+                                                                      const Core::WizardDialogParameters &wizardDialogParameters) const = 0;
     virtual void projectPathChanged(const QString &path) const = 0;
     virtual void prepareGenerateFiles(const QWizard *wizard,
         QString *errorMessage) const = 0;

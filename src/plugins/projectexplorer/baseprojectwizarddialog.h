@@ -34,6 +34,7 @@
 #define BASEPROJECTWIZARDDIALOG_H
 
 #include "projectexplorer_export.h"
+#include <coreplugin/basefilewizard.h>
 #include <utils/wizard.h>
 
 #include <QtGui/QWizard>
@@ -53,11 +54,11 @@ class PROJECTEXPLORER_EXPORT BaseProjectWizardDialog : public Utils::Wizard
 
 protected:
     explicit BaseProjectWizardDialog(Utils::ProjectIntroPage *introPage,
-                                     int introId = -1,
-                                     QWidget *parent = 0);
+                                     int introId,
+                                     QWidget *parent, const Core::WizardDialogParameters &parameters);
 
 public:
-    explicit BaseProjectWizardDialog(QWidget *parent = 0);
+    explicit BaseProjectWizardDialog(QWidget *parent, const Core::WizardDialogParameters &parameters);
 
     virtual ~BaseProjectWizardDialog();
 

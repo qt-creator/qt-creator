@@ -53,8 +53,7 @@ protected:
     QString fileContents(const QString &baseName, bool statelessLibrary) const;
 
     virtual QWizard *createWizardDialog(QWidget *parent,
-                                        const QString &defaultPath,
-                                        const WizardPageList &extensionPages) const;
+                                        const Core::WizardDialogParameters &wizardDialogParameters) const;
 
     virtual Core::GeneratedFiles generateFiles(const QWizard *w,
                                                QString *errorMessage) const;

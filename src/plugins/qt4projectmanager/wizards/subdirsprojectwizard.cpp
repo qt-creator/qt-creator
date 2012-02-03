@@ -54,12 +54,11 @@ SubdirsProjectWizard::SubdirsProjectWizard()
 }
 
 QWizard *SubdirsProjectWizard::createWizardDialog(QWidget *parent,
-                                              const QString &defaultPath,
-                                              const WizardPageList &extensionPages) const
+                                                  const Core::WizardDialogParameters &wizardDialogParameters) const
 {
-    SubdirsProjectWizardDialog *dialog = new SubdirsProjectWizardDialog(displayName(), icon(), extensionPages, parent);
-    dialog->setPath(defaultPath);
-    dialog->setProjectName(SubdirsProjectWizardDialog::uniqueProjectName(defaultPath));
+    SubdirsProjectWizardDialog *dialog = new SubdirsProjectWizardDialog(displayName(), icon(), parent, wizardDialogParameters);
+    dialog->setPath(wizardDialogParameters.defaultPath());
+    dialog->setProjectName(SubdirsProjectWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
     const QString buttonText = dialog->wizardStyle() == QWizard::MacStyle
             ? tr("Done && Add Subproject") : tr("Finish && Add Subproject");
     dialog->setButtonText(QWizard::FinishButton, buttonText);

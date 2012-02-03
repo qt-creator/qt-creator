@@ -50,11 +50,11 @@ GuiAppParameters::GuiAppParameters()
 
 GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
                                        const QIcon &icon,
-                                       const QList<QWizardPage*> &extensionPages,
                                        bool showModulesPage,
                                        bool isMobile,
-                                       QWidget *parent) :
-    BaseQt4ProjectWizardDialog(showModulesPage, parent),
+                                       QWidget *parent,
+                                       const Core::WizardDialogParameters &parameters) :
+    BaseQt4ProjectWizardDialog(showModulesPage, parent, parameters),
     m_filesPage(new FilesPage)
 {
     setWindowIcon(icon);
@@ -73,7 +73,7 @@ GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
     const int filesPageId = addPage(m_filesPage);
     wizardProgress()->item(filesPageId)->setTitle(tr("Details"));
 
-    foreach (QWizardPage *p, extensionPages)
+    foreach (QWizardPage *p, parameters.extensionPages())
         Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
 }
 

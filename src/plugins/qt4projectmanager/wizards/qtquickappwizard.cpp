@@ -52,7 +52,7 @@ class QtQuickAppWizardDialog : public AbstractMobileAppWizardDialog
     Q_OBJECT
 
 public:
-    explicit QtQuickAppWizardDialog(QWidget *parent = 0);
+    explicit QtQuickAppWizardDialog(QWidget *parent, const Core::WizardDialogParameters &parameters);
 
 protected:
     bool validateCurrentPage();
@@ -66,8 +66,11 @@ private:
     friend class QtQuickAppWizard;
 };
 
-QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent)
-    : AbstractMobileAppWizardDialog(parent, QtSupport::QtVersionNumber(4, 7, 0), QtSupport::QtVersionNumber(4, INT_MAX, INT_MAX))
+QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent,
+                                               const Core::WizardDialogParameters &parameters)
+    : AbstractMobileAppWizardDialog(parent,
+                                    QtSupport::QtVersionNumber(4, 7, 0),
+                                    QtSupport::QtVersionNumber(4, INT_MAX, INT_MAX), parameters)
 {
     setWindowTitle(tr("New Qt Quick Application"));
     setIntroDescription(tr("This wizard generates a Qt Quick application project."));
@@ -147,9 +150,10 @@ Core::BaseFileWizardParameters QtQuickAppWizard::parameters()
     return parameters;
 }
 
-AbstractMobileAppWizardDialog *QtQuickAppWizard::createWizardDialogInternal(QWidget *parent) const
+AbstractMobileAppWizardDialog *QtQuickAppWizard::createWizardDialogInternal(QWidget *parent,
+                                                                            const Core::WizardDialogParameters &parameters) const
 {
-    d->wizardDialog = new QtQuickAppWizardDialog(parent);
+    d->wizardDialog = new QtQuickAppWizardDialog(parent, parameters);
     d->wizardDialog->m_componentOptionsPage->setComponentSet(d->app->componentSet());
     return d->wizardDialog;
 }

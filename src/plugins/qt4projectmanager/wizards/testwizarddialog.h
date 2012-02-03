@@ -67,8 +67,8 @@ class TestWizardDialog : public BaseQt4ProjectWizardDialog
 public:
     explicit TestWizardDialog(const QString &templateName,
                               const QIcon &icon,
-                              const QList<QWizardPage*> &extensionPages,
-                              QWidget *parent = 0);
+                              QWidget *parent,
+                              const Core::WizardDialogParameters &parameters);
 
     TestWizardParameters testParameters() const;
     QtProjectParameters projectParameters() const;

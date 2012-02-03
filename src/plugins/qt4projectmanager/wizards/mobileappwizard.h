@@ -55,7 +55,8 @@ private:
 
     virtual AbstractMobileApp *app() const;
     virtual AbstractMobileAppWizardDialog *wizardDialog() const;
-    virtual AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent) const;
+    virtual AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent,
+                                                                      const Core::WizardDialogParameters &wizardDialogParameters) const;
     virtual void projectPathChanged(const QString &path) const;
     virtual void prepareGenerateFiles(const QWizard *wizard,
         QString *errorMessage) const;

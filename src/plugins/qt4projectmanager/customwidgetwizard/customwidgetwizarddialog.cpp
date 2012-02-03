@@ -42,9 +42,9 @@ enum { IntroPageId = 0};
 
 CustomWidgetWizardDialog::CustomWidgetWizardDialog(const QString &templateName,
                                                    const QIcon &icon,
-                                                   const QList<QWizardPage*> &extensionPages,
-                                                   QWidget *parent) :
-    BaseQt4ProjectWizardDialog(false, parent),
+                                                   QWidget *parent,
+                                                   const Core::WizardDialogParameters &parameters) :
+    BaseQt4ProjectWizardDialog(false, parent, parameters),
     m_widgetsPage(new CustomWidgetWidgetsWizardPage),
     m_pluginPage(new CustomWidgetPluginWizardPage),
     m_widgetPageId(-1), m_pluginPageId(-1)
@@ -61,7 +61,7 @@ CustomWidgetWizardDialog::CustomWidgetWizardDialog(const QString &templateName,
     wizardProgress()->item(m_widgetPageId)->setTitle(tr("Custom Widgets"));
     wizardProgress()->item(m_pluginPageId)->setTitle(tr("Plugin Details"));
 
-    foreach (QWizardPage *p, extensionPages)
+    foreach (QWizardPage *p, parameters.extensionPages())
         Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
 }

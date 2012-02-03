@@ -38,9 +38,8 @@ namespace Internal {
 
 EmptyProjectWizardDialog::EmptyProjectWizardDialog(const QString &templateName,
                                                const QIcon &icon,
-                                               const QList<QWizardPage*> &extensionPages,
-                                               QWidget *parent) :
-    BaseQt4ProjectWizardDialog(parent)
+                                               QWidget *parent, const Core::WizardDialogParameters &parameters) :
+    BaseQt4ProjectWizardDialog(false, parent, parameters)
 {
     setWindowIcon(icon);
     setWindowTitle(templateName);
@@ -50,7 +49,7 @@ EmptyProjectWizardDialog::EmptyProjectWizardDialog(const QString &templateName,
 
     addTargetSetupPage();
 
-    foreach (QWizardPage *p, extensionPages)
+    foreach (QWizardPage *p, parameters.extensionPages())
         Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
 }
 

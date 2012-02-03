@@ -100,8 +100,7 @@ public:
                                     QObject *parent = 0);
 
     virtual QWizard *createWizardDialog(QWidget *parent,
-                                        const QString &defaultPath,
-                                        const WizardPageList &extensionPages) const;
+                                        const Core::WizardDialogParameters &wizardDialogParameters) const;
     static void registerSelf();
 
 protected:
@@ -122,10 +121,12 @@ class BaseQt4ProjectWizardDialog : public ProjectExplorer::BaseProjectWizardDial
 protected:
     explicit BaseQt4ProjectWizardDialog(bool showModulesPage,
                                         Utils::ProjectIntroPage *introPage,
-                                        int introId = -1,
-                                        QWidget *parent = 0);
+                                        int introId,
+                                        QWidget *parent,
+                                        const Core::WizardDialogParameters &parameters);
 public:
-    explicit BaseQt4ProjectWizardDialog(bool showModulesPage, QWidget *parent = 0);
+    explicit BaseQt4ProjectWizardDialog(bool showModulesPage, QWidget *parent,
+                                        const Core::WizardDialogParameters &parameters);
     virtual ~BaseQt4ProjectWizardDialog();
 
     int addModulesPage(int id = -1);

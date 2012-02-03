@@ -61,8 +61,10 @@ class MobileAppWizardDialog : public AbstractMobileAppWizardDialog
 {
     Q_OBJECT
 public:
-    explicit MobileAppWizardDialog(QWidget *parent = 0)
-        : AbstractMobileAppWizardDialog(parent, QtSupport::QtVersionNumber(), QtSupport::QtVersionNumber(4, INT_MAX, INT_MAX))
+    explicit MobileAppWizardDialog(QWidget *parent, const Core::WizardDialogParameters &parameters)
+        : AbstractMobileAppWizardDialog(parent,
+                                        QtSupport::QtVersionNumber(),
+                                        QtSupport::QtVersionNumber(4, INT_MAX, INT_MAX), parameters)
     {
         setWindowTitle(DisplayName);
         setIntroDescription(Description);
@@ -109,9 +111,10 @@ Core::BaseFileWizardParameters MobileAppWizard::parameters()
     return parameters;
 }
 
-AbstractMobileAppWizardDialog *MobileAppWizard::createWizardDialogInternal(QWidget *parent) const
+AbstractMobileAppWizardDialog *MobileAppWizard::createWizardDialogInternal(QWidget *parent,
+                                                                           const Core::WizardDialogParameters &parameters) const
 {
-    d->wizardDialog = new MobileAppWizardDialog(parent);
+    d->wizardDialog = new MobileAppWizardDialog(parent, parameters);
     return d->wizardDialog;
 }
 

@@ -100,6 +100,37 @@ private:
 
 CORE_EXPORT QDebug operator<<(QDebug d, const BaseFileWizardParameters &);
 
+class CORE_EXPORT WizardDialogParameters
+{
+public:
+    typedef QList<QWizardPage *> WizardPageList;
+
+    explicit WizardDialogParameters(const QString &defaultPath, const WizardPageList &extensionPages,
+                                    const QString &platform, const Core::FeatureSet &requiredFeatures)
+        : m_defaultPath(defaultPath),
+          m_extensionPages(extensionPages),
+          m_selectedPlatform(platform),
+          m_requiredFeatures(requiredFeatures) {}
+
+    QString defaultPath() const
+    { return m_defaultPath; }
+
+    WizardPageList extensionPages() const
+    { return m_extensionPages; }
+
+    QString selectedPlatform() const
+    { return m_selectedPlatform; }
+
+    Core::FeatureSet requiredFeatures() const
+    { return m_requiredFeatures; }
+
+private:
+    QString m_defaultPath;
+    WizardPageList m_extensionPages;
+    QString m_selectedPlatform;
+    Core::FeatureSet m_requiredFeatures;
+};
+
 class CORE_EXPORT BaseFileWizard : public IWizard
 {
     Q_OBJECT
@@ -132,8 +163,8 @@ protected:
     BaseFileWizardParameters baseFileWizardParameters() const;
 
     virtual QWizard *createWizardDialog(QWidget *parent,
-                                        const QString &defaultPath,
-                                        const WizardPageList &extensionPages) const = 0;
+                                        const WizardDialogParameters &wizardDialogParameters) const = 0;
+
     virtual GeneratedFiles generateFiles(const QWizard *w,
                                          QString *errorMessage) const = 0;
 
@@ -158,9 +189,7 @@ class CORE_EXPORT StandardFileWizard : public BaseFileWizard
 
 protected:
     explicit StandardFileWizard(const BaseFileWizardParameters &parameters, QObject *parent = 0);
-    virtual QWizard *createWizardDialog(QWidget *parent,
-                                        const QString &defaultPath,
-                                        const WizardPageList &extensionPages) const;
+    virtual QWizard *createWizardDialog(QWidget *parent, const WizardDialogParameters &wizardDialogParameters) const;
     virtual GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
     virtual GeneratedFiles generateFilesFromPath(const QString &path, const QString &name,
                                                  QString *errorMessage) const = 0;

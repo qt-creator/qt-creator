@@ -61,12 +61,14 @@ Core::FeatureSet CustomWidgetWizard::requiredFeatures() const
 }
 
 QWizard *CustomWidgetWizard::createWizardDialog(QWidget *parent,
-                                                const QString &defaultPath,
-                                                const WizardPageList &extensionPages) const
+                                                const Core::WizardDialogParameters &wizardDialogParameters) const
 {
-    CustomWidgetWizardDialog *rc = new CustomWidgetWizardDialog(displayName(), icon(), extensionPages, parent);
-    rc->setPath(defaultPath);
-    rc->setProjectName(CustomWidgetWizardDialog::uniqueProjectName(defaultPath));
+    CustomWidgetWizardDialog *rc = new CustomWidgetWizardDialog(displayName(),
+                                                                icon(),
+                                                                parent,
+                                                                wizardDialogParameters);
+    rc->setPath(wizardDialogParameters.defaultPath());
+    rc->setProjectName(CustomWidgetWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
     rc->setFileNamingParameters(FileNamingParameters(headerSuffix(), sourceSuffix(), QtWizard::lowerCaseFiles()));
     return rc;
 }

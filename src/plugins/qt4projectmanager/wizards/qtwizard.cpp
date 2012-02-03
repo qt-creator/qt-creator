@@ -164,12 +164,12 @@ CustomQt4ProjectWizard::CustomQt4ProjectWizard(const Core::BaseFileWizardParamet
 {
 }
 
-QWizard *CustomQt4ProjectWizard::createWizardDialog(QWidget *parent,
-                                                    const QString &defaultPath,
-                                                    const WizardPageList &extensionPages) const
+    QWizard *CustomQt4ProjectWizard::createWizardDialog(QWidget *parent,
+                                                        const Core::WizardDialogParameters &wizardDialogParameters) const
 {
-    BaseQt4ProjectWizardDialog *wizard =  new BaseQt4ProjectWizardDialog(false, parent);
-    initProjectWizardDialog(wizard, defaultPath, extensionPages);
+    BaseQt4ProjectWizardDialog *wizard = new BaseQt4ProjectWizardDialog(false, parent, wizardDialogParameters);
+
+    initProjectWizardDialog(wizard, wizardDialogParameters.defaultPath(), wizardDialogParameters.extensionPages());
     if (wizard->pageIds().contains(targetPageId))
         qWarning("CustomQt4ProjectWizard: Unable to insert target page at %d", int(targetPageId));
     wizard->addTargetSetupPage(QSet<QString>(), false, targetPageId);
@@ -187,8 +187,9 @@ void CustomQt4ProjectWizard::registerSelf()
 }
 
 // ----------------- BaseQt4ProjectWizardDialog
-BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage, QWidget *parent) :
-    ProjectExplorer::BaseProjectWizardDialog(parent),
+BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage, QWidget *parent,
+                                                       const Core::WizardDialogParameters &parameters) :
+    ProjectExplorer::BaseProjectWizardDialog(parent, parameters),
     m_modulesPage(0),
     m_targetSetupPage(0)
 {
@@ -197,8 +198,9 @@ BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage, QWi
 
 BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage,
                                                        Utils::ProjectIntroPage *introPage,
-                                                       int introId, QWidget *parent) :
-    ProjectExplorer::BaseProjectWizardDialog(introPage, introId, parent),
+                                                       int introId, QWidget *parent,
+                                                       const Core::WizardDialogParameters &parameters) :
+    ProjectExplorer::BaseProjectWizardDialog(introPage, introId, parent, parameters),
     m_modulesPage(0),
     m_targetSetupPage(0)
 {

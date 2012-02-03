@@ -43,7 +43,8 @@ class QmlProjectApplicationWizardDialog : public ProjectExplorer::BaseProjectWiz
 {
     Q_OBJECT
 public:
-    explicit QmlProjectApplicationWizardDialog(QWidget *parent = 0);
+    explicit QmlProjectApplicationWizardDialog(QWidget *parent,
+                                               const Core::WizardDialogParameters &parameters);
 };
 
 class QmlProjectApplicationWizard : public Core::BaseFileWizard
@@ -59,8 +60,7 @@ public:
 
 protected:
     virtual QWizard *createWizardDialog(QWidget *parent,
-                                        const QString &defaultPath,
-                                        const WizardPageList &extensionPages) const;
+                                        const Core::WizardDialogParameters &wizardDialogParameters) const;
 
     virtual Core::GeneratedFiles generateFiles(const QWizard *w,
                                                QString *errorMessage) const;

@@ -142,15 +142,14 @@ Core::BaseFileWizardParameters GenericProjectWizard::parameters()
 }
 
 QWizard *GenericProjectWizard::createWizardDialog(QWidget *parent,
-                                                  const QString &defaultPath,
-                                                  const WizardPageList &extensionPages) const
+                                                  const Core::WizardDialogParameters &wizardDialogParameters) const
 {
     GenericProjectWizardDialog *wizard = new GenericProjectWizardDialog(parent);
     setupWizard(wizard);
 
-    wizard->setPath(defaultPath);
+    wizard->setPath(wizardDialogParameters.defaultPath());
 
-    foreach (QWizardPage *p, extensionPages)
+    foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
         BaseFileWizard::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
 
     return wizard;

@@ -170,13 +170,12 @@ QString CppClassWizard::headerSuffix() const
 }
 
 QWizard *CppClassWizard::createWizardDialog(QWidget *parent,
-                                            const QString &defaultPath,
-                                            const WizardPageList &extensionPages) const
+                                            const Core::WizardDialogParameters &wizardDialogParameters) const
 {
     CppClassWizardDialog *wizard = new CppClassWizardDialog(parent);
-    foreach (QWizardPage *p, extensionPages)
+    foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
         BaseFileWizard::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
-    wizard->setPath(defaultPath);
+    wizard->setPath(wizardDialogParameters.defaultPath());
     return wizard;
 }
 

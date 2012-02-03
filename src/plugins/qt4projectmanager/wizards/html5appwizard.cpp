@@ -53,16 +53,18 @@ class Html5AppWizardDialog : public AbstractMobileAppWizardDialog
     Q_OBJECT
 
 public:
-    explicit Html5AppWizardDialog(QWidget *parent = 0);
+    explicit Html5AppWizardDialog(QWidget *parent, const Core::WizardDialogParameters &parameters);
 
 private:
     class Html5AppWizardOptionsPage *m_htmlOptionsPage;
     friend class Html5AppWizard;
 };
 
-Html5AppWizardDialog::Html5AppWizardDialog(QWidget *parent)
-    : AbstractMobileAppWizardDialog(parent, QtSupport::QtVersionNumber(), QtSupport::QtVersionNumber(4, INT_MAX, INT_MAX))
-    , m_htmlOptionsPage(0)
+Html5AppWizardDialog::Html5AppWizardDialog(QWidget *parent,
+                                           const Core::WizardDialogParameters &parameters)
+    : AbstractMobileAppWizardDialog(parent, QtSupport::QtVersionNumber(),
+      QtSupport::QtVersionNumber(4, INT_MAX, INT_MAX), parameters),
+      m_htmlOptionsPage(0)
 {
     setWindowTitle(tr("New HTML5 Application"));
     setIntroDescription(tr("This wizard generates a HTML5 application project."));
@@ -116,9 +118,10 @@ Core::BaseFileWizardParameters Html5AppWizard::parameters()
     return parameters;
 }
 
-AbstractMobileAppWizardDialog *Html5AppWizard::createWizardDialogInternal(QWidget *parent) const
+AbstractMobileAppWizardDialog *Html5AppWizard::createWizardDialogInternal(QWidget *parent,
+                                                                          const Core::WizardDialogParameters &parameters) const
 {
-    d->wizardDialog = new Html5AppWizardDialog(parent);
+    d->wizardDialog = new Html5AppWizardDialog(parent, parameters);
     d->wizardDialog->m_htmlOptionsPage->setTouchOptimizationEndabled(
                 d->app->touchOptimizedNavigationEnabled());
     return d->wizardDialog;

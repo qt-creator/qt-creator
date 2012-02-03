@@ -41,10 +41,9 @@ namespace Internal {
 
 ConsoleAppWizardDialog::ConsoleAppWizardDialog(const QString &templateName,
                                                const QIcon &icon,
-                                               const QList<QWizardPage*> &extensionPages,
                                                bool showModulesPage,
-                                               QWidget *parent) :
-    BaseQt4ProjectWizardDialog(showModulesPage, parent)
+                                               QWidget *parent, const Core::WizardDialogParameters &parameters) :
+    BaseQt4ProjectWizardDialog(showModulesPage, parent, parameters)
 {
     setWindowIcon(icon);
     setWindowTitle(templateName);
@@ -58,7 +57,7 @@ ConsoleAppWizardDialog::ConsoleAppWizardDialog(const QString &templateName,
     addModulesPage();
     addTargetSetupPage();
 
-    foreach (QWizardPage *p, extensionPages)
+    foreach (QWizardPage *p, parameters.extensionPages())
         Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
 }
 

@@ -63,15 +63,16 @@ LibraryWizard::LibraryWizard()
 {
 }
 
-QWizard *LibraryWizard::createWizardDialog(QWidget *parent,
-                                          const QString &defaultPath,
-                                          const WizardPageList &extensionPages) const
+QWizard *LibraryWizard::createWizardDialog(QWidget *parent, const Core::WizardDialogParameters &wizardDialogParameters) const
 {
-    LibraryWizardDialog *dialog = new  LibraryWizardDialog(displayName(), icon(), extensionPages,
-                                                           showModulesPageForLibraries(), parent);
+    LibraryWizardDialog *dialog = new LibraryWizardDialog(displayName(),
+                                                           icon(),
+                                                           showModulesPageForLibraries(),
+                                                           parent,
+                                                           wizardDialogParameters);
     dialog->setLowerCaseFiles(QtWizard::lowerCaseFiles());
-    dialog->setPath(defaultPath);
-    dialog->setProjectName(LibraryWizardDialog::uniqueProjectName(defaultPath));
+    dialog->setPath(wizardDialogParameters.defaultPath());
+    dialog->setProjectName(LibraryWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
     dialog->setSuffixes(headerSuffix(), sourceSuffix(), formSuffix());
     return dialog;
 }

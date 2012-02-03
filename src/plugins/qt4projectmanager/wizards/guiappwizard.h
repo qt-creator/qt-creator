@@ -57,8 +57,7 @@ protected:
                  const QIcon &icon,
                  bool createMobile);
     virtual QWizard *createWizardDialog(QWidget *parent,
-                                        const QString &defaultPath,
-                                        const WizardPageList &extensionPages) const;
+                                        const Core::WizardDialogParameters &wizardDialogParameters) const;
 
     virtual Core::GeneratedFiles generateFiles(const QWizard *w,
                                                QString *errorMessage) const;
