@@ -4588,6 +4588,19 @@ namespace basic {
         dummyStatement(&a, &b, &c, &d);
     }
 
+    void testReference3(const QString &a)
+    {
+        const QString &b = a;
+        typedef QString &Ref;
+        const Ref d = const_cast<Ref>(a);
+        BREAK_HERE;
+        // Check a "hello" QString.
+        // Check b "hello" QString.
+        // Check d "hello" basic::Ref.
+        // Continue.
+        dummyStatement(&a, &b, &d);
+    }
+
     void testLongEvaluation1()
     {
         QDateTime time = QDateTime::currentDateTime();
@@ -4748,6 +4761,7 @@ namespace basic {
     {
         testReference1();
         testReference2();
+        testReference3("hello");
         testArray1();
         testArray2();
         testArray3();
