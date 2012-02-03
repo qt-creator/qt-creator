@@ -817,7 +817,11 @@ bool CreateBindings::visit(Namespace *ns)
     for (unsigned i = 0; i < ns->memberCount(); ++i)
         process(ns->memberAt(i));
 
+    if (ns->isInline() && previous)
+        previous->addUsing(_currentClassOrNamespace);
+
     _currentClassOrNamespace = previous;
+
     return false;
 }
 

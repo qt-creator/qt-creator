@@ -10,5 +10,5 @@ SUBDIRS = \
     semantic \
     typeprettyprinter \
     simplifytypes \
-    misc
-    
+    misc \
+    cxx11
