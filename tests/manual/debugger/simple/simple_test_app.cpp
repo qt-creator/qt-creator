@@ -4757,11 +4757,44 @@ namespace basic {
         dummyStatement(&n);
     }
 
+    int testReturnInt()
+    {
+        return 1;
+    }
+
+    bool testReturnBool()
+    {
+        return true;
+    }
+
+    QString testReturnQString()
+    {
+        return "string";
+    }
+
+    void testReturn()
+    {
+        bool b = testReturnBool();
+        BREAK_HERE;
+        // Check b true bool.
+        // Continue.
+        int i = testReturnInt();
+        BREAK_HERE;
+        // Check i 1 int.
+        // Continue.
+        QString s = testReturnQString();
+        BREAK_HERE;
+        // Check s "string" QString.
+        // Continue.
+        dummyStatement(&i, &b, &s);
+    }
+
     void testBasic()
     {
         testReference1();
         testReference2();
         testReference3("hello");
+        testReturn();
         testArray1();
         testArray2();
         testArray3();
