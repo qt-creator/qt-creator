@@ -47,7 +47,9 @@ using namespace Internal;
 struct HighlighterSettingsPage::HighlighterSettingsPagePrivate
 {
     explicit HighlighterSettingsPagePrivate(const QString &id);
+    void ensureInitialized();
 
+    bool m_initialized;
     const QString m_id;
     const QString m_displayName;
     const QString m_settingsPrefix;
@@ -61,19 +63,26 @@ struct HighlighterSettingsPage::HighlighterSettingsPagePrivate
 
 HighlighterSettingsPage::HighlighterSettingsPagePrivate::
 HighlighterSettingsPagePrivate(const QString &id) :
+    m_initialized(false),
     m_id(id),
     m_displayName(tr("Generic Highlighter")),
     m_settingsPrefix(QLatin1String("Text")),
     m_page(0)
 {}
 
+void HighlighterSettingsPage::HighlighterSettingsPagePrivate::ensureInitialized()
+{
+    if (m_initialized)
+        return;
+    m_initialized = true;
+    m_settings.fromSettings(m_settingsPrefix, Core::ICore::settings());
+}
+
 HighlighterSettingsPage::HighlighterSettingsPage(const QString &id, QObject *parent) :
     TextEditorOptionsPage(parent),
     m_requestMimeTypeRegistration(false),
     m_d(new HighlighterSettingsPagePrivate(id))
 {
-    if (QSettings *s = Core::ICore::settings())
-        m_d->m_settings.fromSettings(m_d->m_settingsPrefix, s);
 }
 
 HighlighterSettingsPage::~HighlighterSettingsPage()
@@ -150,11 +159,13 @@ bool HighlighterSettingsPage::matches(const QString &s) const
 
 const HighlighterSettings &HighlighterSettingsPage::highlighterSettings() const
 {
+    m_d->ensureInitialized();
     return m_d->m_settings;
 }
 
 void HighlighterSettingsPage::settingsFromUI()
 {
+    m_d->ensureInitialized();
     if (!m_requestMimeTypeRegistration && (
         m_d->m_settings.definitionFilesPath() != m_d->m_page->definitionFilesPath->path() ||
         m_d->m_settings.fallbackDefinitionFilesPath() !=
@@ -174,6 +185,7 @@ void HighlighterSettingsPage::settingsFromUI()
 
 void HighlighterSettingsPage::settingsToUI()
 {
+    m_d->ensureInitialized();
     m_d->m_page->definitionFilesPath->setPath(m_d->m_settings.definitionFilesPath());
     m_d->m_page->fallbackDefinitionFilesPath->setPath(m_d->m_settings.fallbackDefinitionFilesPath());
     m_d->m_page->alertWhenNoDefinition->setChecked(m_d->m_settings.alertWhenNoDefinition());
@@ -248,6 +260,7 @@ void HighlighterSettingsPage::setDownloadDefinitionsState(bool valid)
 
 bool HighlighterSettingsPage::settingsChanged() const
 {
+    m_d->ensureInitialized();
     if (m_d->m_settings.definitionFilesPath() != m_d->m_page->definitionFilesPath->path())
         return true;
     if (m_d->m_settings.fallbackDefinitionFilesPath() !=
