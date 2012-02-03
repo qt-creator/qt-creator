@@ -2303,8 +2303,9 @@ bool CPPEditorWidget::handleDocumentationComment(QKeyEvent *e)
                     doxygen.setStyle(CppTools::DoxygenGenerator::JavaStyle);
 
                 // Move until we reach any possibly meaningful content.
-                while (document()->characterAt(cursor.position()).isSpace())
-                    cursor.movePosition(QTextCursor::NextCharacter);
+                while (document()->characterAt(cursor.position()).isSpace()
+                       && cursor.movePosition(QTextCursor::NextCharacter)) {
+                }
 
                 const QString &comment = doxygen.generate(cursor);
                 if (!comment.isEmpty()) {
