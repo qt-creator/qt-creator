@@ -158,6 +158,7 @@ void dummyStatement(...) {}
 #include <QStandardItemModel>
 #include <QLabel>
 
+#include <complex>
 #include <deque>
 #include <iostream>
 #include <iterator>
@@ -2257,6 +2258,20 @@ namespace qxml {
 
 } // namespace qxml
 
+
+namespace stdcomplex {
+
+    void testStdComplex()
+    {
+        std::complex<double> c(1, 2);
+        BREAK_HERE;
+        // Expand c.
+        // Check c (1.000000, 2.000000) complex.
+        // Continue.
+        dummyStatement(&c);
+    }
+
+} // namespace stddeque
 
 namespace stddeque {
 
@@ -5957,6 +5972,7 @@ int main(int argc, char *argv[])
     namespc::testNamespace();
     painting::testPainting();
 
+    stdcomplex::testStdComplex();
     stddeque::testStdDeque();
     stdlist::testStdList();
     stdhashset::testStdHashSet();

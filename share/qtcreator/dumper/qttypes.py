@@ -1692,11 +1692,25 @@ def qdump__QWeakPointer(d, value):
 def qdump__QxXmlAttributes(d, value):
     pass
 
+
 #######################################################################
 #
 # Standard Library dumper
 #
 #######################################################################
+
+def qdump__std__complex(d, value):
+    innerType = templateArgument(value.type, 0)
+    base = value.address.cast(innerType.pointer())
+    real = base.dereference()
+    imag = (base + 1).dereference()
+    d.putValue("(%f, %f)" % (real, imag));
+    d.putNumChild(2)
+    if d.isExpanded():
+        with Children(d, 2, childType=innerType):
+            d.putSubItem("real", real)
+            d.putSubItem("imag", imag)
+
 
 def qdump__std__deque(d, value):
     innerType = templateArgument(value.type, 0)
