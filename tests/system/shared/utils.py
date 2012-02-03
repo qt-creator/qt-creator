@@ -199,9 +199,14 @@ def selectFromFileDialog(fileName):
         snooze(2)
         nativeType("<Return>")
     else:
+        fName = os.path.basename(os.path.abspath(fileName))
+        pName = os.path.dirname(os.path.abspath(fileName))
         waitForObject("{name='QFileDialog' type='QFileDialog' visible='1'}")
         pathLine = waitForObject("{name='fileNameEdit' type='QLineEdit' visible='1'}")
-        replaceEditorContent(pathLine, os.path.abspath(fileName))
+        replaceEditorContent(pathLine, pName)
+        clickButton(findObject("{text='Open' type='QPushButton'}"))
+        waitFor("str(pathLine.text)==''")
+        replaceEditorContent(pathLine, fName)
         clickButton(findObject("{text='Open' type='QPushButton'}"))
 
 # add qt.qch from SDK path
