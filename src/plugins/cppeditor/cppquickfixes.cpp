@@ -1955,6 +1955,107 @@ private:
     };
 };
 
+/**
+ * Switches places of the parameter declaration under cursor
+ * with the next or the previous one in the parameter declaration list
+ *
+ * Activates on: parameter declarations
+ */
+
+class RearrangeParamDeclList : public CppQuickFixFactory
+{
+public:
+    enum Target
+    {
+        TargetPrevious,
+        TargetNext
+    };
+
+public:
+    virtual QList<CppQuickFixOperation::Ptr> match(const QSharedPointer<const CppQuickFixAssistInterface> &interface)
+    {
+        const QList<AST *> path = interface->path();
+        QList<CppQuickFixOperation::Ptr> result;
+
+        ParameterDeclarationAST *paramDecl = 0;
+        int index = path.size() - 1;
+        for (; index != -1; --index) {
+            paramDecl = path.at(index)->asParameterDeclaration();
+            if (paramDecl)
+                break;
+        }
+
+        if (index < 1)
+            return result;
+
+        ParameterDeclarationClauseAST *paramDeclClause = path.at(index-1)->asParameterDeclarationClause();
+        QTC_ASSERT(paramDeclClause && paramDeclClause->parameter_declaration_list, return result);
+
+        ParameterDeclarationListAST *paramListNode = paramDeclClause->parameter_declaration_list;
+        ParameterDeclarationListAST *prevParamListNode = 0;
+        while (paramListNode) {
+            if (paramDecl == paramListNode->value)
+                break;
+            prevParamListNode = paramListNode;
+            paramListNode = paramListNode->next;
+        }
+
+        if (!paramListNode)
+            return result;
+
+        if (prevParamListNode)
+            result.append(CppQuickFixOperation::Ptr(new Operation(interface, paramListNode->value,
+                                                                  prevParamListNode->value, TargetPrevious)));
+        if (paramListNode->next)
+            result.append(CppQuickFixOperation::Ptr(new Operation(interface, paramListNode->value,
+                                                                  paramListNode->next->value, TargetNext)));
+
+        return result;
+    }
+
+private:
+    class Operation: public CppQuickFixOperation
+    {
+    public:
+        Operation(const QSharedPointer<const CppQuickFixAssistInterface> &interface,
+                  AST *currentParam, AST *targetParam,
+                  Target target)
+            : CppQuickFixOperation(interface)
+            , m_currentParam(currentParam)
+            , m_targetParam(targetParam)
+        {
+            QString targetString;
+            if (target == TargetPrevious)
+            {
+                targetString = QApplication::translate("CppTools::QuickFix",
+                                                       "Switch with Previous Parameter");
+            }
+            else
+            {
+                targetString = QApplication::translate("CppTools::QuickFix",
+                                                       "Switch with Next Parameter");
+            }
+
+            setDescription(targetString);
+        }
+
+        virtual void performChanges(const CppRefactoringFilePtr &currentFile,
+                                    const CppRefactoringChanges &)
+        {
+            int targetEndPos = currentFile->endOf(m_targetParam);
+            Utils::ChangeSet changes;
+            changes.flip(currentFile->startOf(m_currentParam), currentFile->endOf(m_currentParam),
+                         currentFile->startOf(m_targetParam), targetEndPos);
+            currentFile->setChangeSet(changes);
+            currentFile->setOpenEditor(false, targetEndPos);
+            currentFile->apply();
+        }
+
+    private:
+        AST *m_currentParam;
+        AST *m_targetParam;
+    };
+};
 
 } // end of anonymous namespace
 
@@ -1982,4 +2083,5 @@ void registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
     plugIn->addAutoReleasedObject(new ApplyDeclDefLinkChanges);
     plugIn->addAutoReleasedObject(new IncludeAdder);
     plugIn->addAutoReleasedObject(new ExtractFunction);
+    plugIn->addAutoReleasedObject(new RearrangeParamDeclList);
 }
