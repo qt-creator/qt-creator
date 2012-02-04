@@ -350,7 +350,7 @@ QString TimelineView::getDetails(int index) const
 int TimelineView::getYPosition(int index) const
 {
     Q_ASSERT(m_eventList);
-    if (index >= m_eventList->count())
+    if (index >= m_eventList->count() || m_rowStarts.isEmpty())
         return 0;
     int y, eventType = m_eventList->getType(index);
     if (m_rowsExpanded[eventType])
