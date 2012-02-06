@@ -160,6 +160,12 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
             << QList<ProjectExplorer::Task>()
             << QString();
 
+    QTest::newRow("ar output")
+            << QString::fromLatin1("../../../../x86/i686-unknown-linux-gnu/bin/i686-unknown-linux-gnu-ar: creating lib/libSkyView.a") << OutputParserTester::STDERR
+            << QString() << QString::fromLatin1("../../../../x86/i686-unknown-linux-gnu/bin/i686-unknown-linux-gnu-ar: creating lib/libSkyView.a\n")
+            << QList<ProjectExplorer::Task>()
+            << QString();
+
     QTest::newRow("GCCE error")
             << QString::fromLatin1("/temp/test/untitled8/main.cpp: In function `int main(int, char**)':\n"
                                    "/temp/test/untitled8/main.cpp:9: error: `sfasdf' undeclared (first use this function)\n"

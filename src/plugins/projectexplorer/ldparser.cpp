@@ -61,8 +61,9 @@ LdParser::LdParser()
 void LdParser::stdError(const QString &line)
 {
     QString lne = line.trimmed();
-    if (lne.startsWith(QLatin1String("TeamBuilder ")) ||
-        lne.startsWith(QLatin1String("distcc["))) {
+    if (lne.startsWith(QLatin1String("TeamBuilder "))
+            || lne.startsWith(QLatin1String("distcc["))
+            || lne.contains(QLatin1String("ar: creating "))) {
         IOutputParser::stdError(line);
         return;
     }
