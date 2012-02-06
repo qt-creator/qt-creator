@@ -226,8 +226,6 @@ bool SessionFile::load(const QString &fileName)
 
 bool SessionFile::save()
 {
-    Q_ASSERT(!m_fileName.isEmpty());
-
     if (debug)
         qDebug() << "SessionFile - saving " << m_fileName;
 
@@ -545,12 +543,10 @@ bool SessionManager::createImpl(const QString &fileName)
         qDebug() << "SessionManager - creating new session " << fileName << " ...";
 
     bool success = true;
-
-    if (!m_file->fileName().isEmpty()) {
-        if (isDefaultVirgin()) {
-            // do not save initial and virgin default session
-        } else if (!save() || !clear())
-            success = false;
+    if (isDefaultVirgin()) {
+        // do not save initial and virgin default session
+    } else if (!save() || !clear()) {
+        success = false;
     }
 
     if (success) {
@@ -588,13 +584,10 @@ bool SessionManager::loadImpl(const QString &fileName)
         qDebug() << "SessionManager - restoring session " << fileName << " ...";
 
     bool success = true;
-
-    if (!m_file->fileName().isEmpty()) {
-        if (isDefaultVirgin()) {
-            // do not save initial and virgin default session
-        } else if (!save() || !clear()) {
-            success = false;
-        }
+    if (isDefaultVirgin()) {
+        // do not save initial and virgin default session
+    } else if (!save() || !clear()) {
+        success = false;
     }
 
     m_virginSession = false;
@@ -1075,8 +1068,7 @@ void SessionManager::reportProjectLoadingProgress()
 
 void SessionManager::markSessionFileDirty(bool makeDefaultVirginDirty)
 {
-    if (m_file && !m_file->fileName().isEmpty())
-        m_autoSaveSessionTimer->start();
+    m_autoSaveSessionTimer->start();
     if (makeDefaultVirginDirty)
         m_virginSession = false;
 }
