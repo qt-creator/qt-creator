@@ -129,7 +129,6 @@ def __addVariableToRunEnvironment__(name, value, row):
 
 def __getMkspecFromQMakeConf__(qmakeConf):
     if qmakeConf==None or not os.path.exists(qmakeConf):
-        test.warning("Missing qmake.conf file - got '%s'" % qmakeConf)
         return None
     if not platform.system() in ('Microsoft', 'Windows'):
         return os.path.basename(os.path.realpath(os.path.dirname(qmakeConf)))
@@ -147,8 +146,14 @@ def __getMkspecFromQMakeConf__(qmakeConf):
 
 def __getMkspecFromQmake__(qmakeCall):
     QmakeConfPath = getOutputFromCmdline("%s -query QMAKE_MKSPECS" % qmakeCall).strip()
-    QmakeConfPath = QmakeConfPath + os.sep + "default" + os.sep + "qmake.conf"
-    return __getMkspecFromQMakeConf__(QmakeConfPath).strip()
+    for tmpPath in QmakeConfPath.split(os.pathsep):
+        tmpPath = tmpPath + os.sep + "default" + os.sep +"qmake.conf"
+        result = __getMkspecFromQMakeConf__(tmpPath, True)
+        if result != None:
+            return result.strip()
+    test.warning("Could not find qmake.conf inside provided QMAKE_MKSPECS path",
+                 "QMAKE_MKSPECS returned: '%s'" % QmakeConfPath)
+    return None
 
 def getQMakeFromQtVersion(qtVersion):
     invokeMenuItem("Tools", "Options...")
