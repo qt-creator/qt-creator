@@ -87,7 +87,6 @@ public:
     SessionFile();
 
     bool load(const QString &fileName);
-    bool save(const QString &fileName);
 
     QStringList failedProjectFileNames() const;
     void clearFailedProjectFileNames();
@@ -216,69 +215,6 @@ bool SessionFile::load(const QString &fileName)
 
     future.reportFinished();
     return true;
-}
-
-bool SessionFile::save(const QString &fileName)
-{
-    if (debug)
-        qDebug() << "SessionFile - saving " << fileName;
-
-    PersistentSettingsWriter writer;
-
-    // save the startup project
-    if (m_startupProject) {
-        writer.saveValue(QLatin1String("StartupProject"), m_startupProject->file()->fileName());
-    }
-
-    QStringList projectFiles;
-    foreach (Project *pro, m_projects) {
-        projectFiles << pro->file()->fileName();
-    }
-    // Restore infromation on projects that failed to load:
-    projectFiles.append(m_failedProjects);
-
-    writer.saveValue(QLatin1String("ProjectList"), projectFiles);
-
-    QMap<QString, QVariant> depMap;
-    QMap<QString, QStringList>::const_iterator i = m_depMap.constBegin();
-    while (i != m_depMap.constEnd()) {
-        QString key = i.key();
-        QStringList values;
-        foreach (const QString &value, i.value()) {
-            values << value;
-        }
-        depMap.insert(key, values);
-        ++i;
-    }
-    writer.saveValue(QLatin1String("ProjectDependencies"), QVariant(depMap));
-
-
-    int editorCount = 0;
-    QList<Core::IEditor *> editors = ICore::editorManager()->openedEditors();
-    foreach (Core::IEditor *editor, editors) {
-        Q_ASSERT(editor);
-        if (!editor->isTemporary())
-            ++editorCount;
-    }
-    writer.saveValue(QLatin1String("OpenEditors"), editorCount);
-    writer.saveValue(QLatin1String("EditorSettings"),
-                     ICore::editorManager()->saveState().toBase64());
-
-    QMap<QString, QVariant>::const_iterator it, end;
-    end = m_values.constEnd();
-    QStringList keys;
-    for (it = m_values.constBegin(); it != end; ++it) {
-        writer.saveValue(QLatin1String("value-") + it.key(), it.value());
-        keys << it.key();
-    }
-
-    writer.saveValue(QLatin1String("valueKeys"), keys);
-
-
-    if (writer.save(fileName, QLatin1String("QtCreatorSession"), Core::ICore::mainWindow()))
-        return true;
-
-    return false;
 }
 
 QStringList SessionFile::failedProjectFileNames() const
@@ -635,9 +571,58 @@ bool SessionManager::save()
 
     emit aboutToSaveSession();
 
-    QString fileName = sessionNameToFileName(m_sessionName);
-    bool result = m_file->save(fileName);
+    PersistentSettingsWriter writer;
 
+    // save the startup project
+    if (m_file->m_startupProject) {
+        writer.saveValue(QLatin1String("StartupProject"), m_file->m_startupProject->file()->fileName());
+    }
+
+    QStringList projectFiles;
+    foreach (Project *pro, m_file->m_projects)
+        projectFiles << pro->file()->fileName();
+
+    // Restore infromation on projects that failed to load:
+    projectFiles.append(m_file->m_failedProjects);
+
+    writer.saveValue(QLatin1String("ProjectList"), projectFiles);
+
+    QMap<QString, QVariant> depMap;
+    QMap<QString, QStringList>::const_iterator i = m_file->m_depMap.constBegin();
+    while (i != m_file->m_depMap.constEnd()) {
+        QString key = i.key();
+        QStringList values;
+        foreach (const QString &value, i.value()) {
+            values << value;
+        }
+        depMap.insert(key, values);
+        ++i;
+    }
+    writer.saveValue(QLatin1String("ProjectDependencies"), QVariant(depMap));
+
+    int editorCount = 0;
+    QList<Core::IEditor *> editors = ICore::editorManager()->openedEditors();
+    foreach (Core::IEditor *editor, editors) {
+        Q_ASSERT(editor);
+        if (!editor->isTemporary())
+            ++editorCount;
+    }
+    writer.saveValue(QLatin1String("OpenEditors"), editorCount);
+    writer.saveValue(QLatin1String("EditorSettings"),
+                     ICore::editorManager()->saveState().toBase64());
+
+    QMap<QString, QVariant>::const_iterator it, end;
+    end = m_file->m_values.constEnd();
+    QStringList keys;
+    for (it = m_file->m_values.constBegin(); it != end; ++it) {
+        writer.saveValue(QLatin1String("value-") + it.key(), it.value());
+        keys << it.key();
+    }
+
+    writer.saveValue(QLatin1String("valueKeys"), keys);
+
+    QString fileName = sessionNameToFileName(m_sessionName);
+    bool result = writer.save(fileName, QLatin1String("QtCreatorSession"), Core::ICore::mainWindow());
     if (!result) {
         QMessageBox::warning(0, tr("Error while saving session"),
                                 tr("Could not save session to file %1").arg(fileName));
