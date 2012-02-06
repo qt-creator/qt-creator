@@ -87,7 +87,6 @@ public:
     SessionFile();
 
 private:
-    QFutureInterface<void> future;
     friend class ProjectExplorer::SessionManager;
 };
 
@@ -412,7 +411,7 @@ bool SessionManager::loadImpl(const QString &fileName)
         return false;
     }
 
-    ICore::progressManager()->addTask(m_file->future.future(), tr("Session"),
+    ICore::progressManager()->addTask(m_future.future(), tr("Session"),
        QLatin1String("ProjectExplorer.SessionFile.Load"));
 
     const QStringList &keys = reader.restoreValue(QLatin1String("valueKeys")).toStringList();
@@ -425,8 +424,8 @@ bool SessionManager::loadImpl(const QString &fileName)
         reader.restoreValue(QLatin1String("ProjectList")).toStringList();
     int openEditorsCount = reader.restoreValue(QLatin1String("OpenEditors")).toInt();
 
-    m_file->future.setProgressRange(0, fileList.count() + openEditorsCount + 2);
-    m_file->future.setProgressValue(1);
+    m_future.setProgressRange(0, fileList.count() + openEditorsCount + 2);
+    m_future.setProgressValue(1);
 
     // indirectly adds projects to session
     // Keep projects that failed to load in the session!
@@ -482,7 +481,8 @@ bool SessionManager::loadImpl(const QString &fileName)
                    this, SLOT(sessionLoadingProgress()));
     }
 
-    m_file->future.reportFinished();
+    m_future.reportFinished();
+    m_future = QFutureInterface<void>();
 
     // m_file->load() sets the m_file->startupProject
     // but doesn't emit this signal, so we do it here
@@ -996,7 +996,7 @@ void SessionManager::markSessionFileDirty(bool makeDefaultVirginDirty)
 
 void SessionManager::sessionLoadingProgress()
 {
-    m_file->future.setProgressValue(m_file->future.progressValue() + 1);
+    m_future.setProgressValue(m_future.progressValue() + 1);
     QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 }
 

@@ -39,6 +39,7 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
+#include <QtCore/QFutureInterface>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
@@ -174,6 +175,7 @@ private:
     QStringList m_failedProjects;
     QMap<QString, QStringList> m_depMap;
     QMap<QString, QVariant> m_values;
+    QFutureInterface<void> future;
 };
 
 } // namespace ProjectExplorer
