@@ -395,6 +395,9 @@ void TraceWindow::clearDisplay()
     m_zoomControl.data()->setRange(0,0);
     m_profiledTime = 0;
 
+    updateVerticalScroll(0);
+    m_mainView->rootObject()->setProperty("scrollY", QVariant(0));
+
     emit internalClearDisplay();
 }
 
