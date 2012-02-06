@@ -38,6 +38,7 @@
 #include <QtCore/QHash>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+#include <QtCore/QMap>
 #include <QtCore/QPointer>
 
 QT_BEGIN_NAMESPACE
@@ -172,6 +173,7 @@ private:
     Project *m_startupProject;
     QList<Project *> m_projects;
     QStringList m_failedProjects;
+    QMap<QString, QStringList> m_depMap;
 };
 
 } // namespace ProjectExplorer

@@ -87,8 +87,6 @@ public:
     SessionFile();
 
 private:
-    QMap<QString, QStringList> m_depMap;
-
     QMap<QString, QVariant> m_values;
 
     QFutureInterface<void> future;
@@ -185,7 +183,7 @@ bool SessionManager::recursiveDependencyCheck(const QString &newDep, const QStri
     if (newDep == checkDep)
         return false;
 
-    foreach (const QString &dependency, m_file->m_depMap.value(checkDep)) {
+    foreach (const QString &dependency, m_depMap.value(checkDep)) {
         if (!recursiveDependencyCheck(newDep, dependency))
             return false;
     }
@@ -203,7 +201,7 @@ bool SessionManager::recursiveDependencyCheck(const QString &newDep, const QStri
 QList<Project *> SessionManager::dependencies(const Project *project) const
 {
     const QString &proName = project->file()->fileName();
-    const QStringList &proDeps = m_file->m_depMap.value(proName);
+    const QStringList &proDeps = m_depMap.value(proName);
 
     QList<Project *> projects;
     foreach (const QString &dep, proDeps) {
@@ -219,7 +217,7 @@ bool SessionManager::hasDependency(const Project *project, const Project *depPro
     const QString &proName = project->file()->fileName();
     const QString &depName = depProject->file()->fileName();
 
-    const QStringList &proDeps = m_file->m_depMap.value(proName);
+    const QStringList &proDeps = m_depMap.value(proName);
     return proDeps.contains(depName);
 }
 
@@ -240,10 +238,10 @@ bool SessionManager::addDependency(Project *project, Project *depProject)
     if (!recursiveDependencyCheck(proName, depName))
         return false;
 
-    QStringList proDeps = m_file->m_depMap.value(proName);
+    QStringList proDeps = m_depMap.value(proName);
     if (!proDeps.contains(depName)) {
         proDeps.append(depName);
-        m_file->m_depMap[proName] = proDeps;
+        m_depMap[proName] = proDeps;
     }
     emit dependencyChanged(project, depProject);
 
@@ -255,12 +253,12 @@ void SessionManager::removeDependency(Project *project, Project *depProject)
     const QString &proName = project->file()->fileName();
     const QString &depName = depProject->file()->fileName();
 
-    QStringList proDeps = m_file->m_depMap.value(proName);
+    QStringList proDeps = m_depMap.value(proName);
     proDeps.removeAll(depName);
     if (proDeps.isEmpty()) {
-        m_file->m_depMap.remove(proName);
+        m_depMap.remove(proName);
     } else {
-        m_file->m_depMap[proName] = proDeps;
+        m_depMap[proName] = proDeps;
     }
     emit dependencyChanged(project, depProject);
 }
@@ -352,6 +350,7 @@ bool SessionManager::createImpl(const QString &fileName)
         m_file = new SessionFile;
         m_startupProject = 0;
         m_failedProjects.clear();
+        m_depMap.clear();
         const QString &sessionName = sessionNameFromFileName(fileName);
         emit aboutToLoadSession(sessionName);
         m_sessionName = sessionName;
@@ -397,6 +396,7 @@ bool SessionManager::loadImpl(const QString &fileName)
     m_file = new SessionFile;
     m_startupProject = 0;
     m_failedProjects.clear();
+    m_depMap.clear();
     const QString &sessionName = sessionNameFromFileName(fileName);
     emit aboutToLoadSession(sessionName);
     m_sessionName = sessionName;
@@ -454,7 +454,7 @@ bool SessionManager::loadImpl(const QString &fileName)
             if (!m_failedProjects.contains(value))
                 values << value;
         }
-        m_file->m_depMap.insert(key, values);
+        m_depMap.insert(key, values);
         ++i;
     }
 
@@ -547,8 +547,8 @@ bool SessionManager::save()
     writer.saveValue(QLatin1String("ProjectList"), projectFiles);
 
     QMap<QString, QVariant> depMap;
-    QMap<QString, QStringList>::const_iterator i = m_file->m_depMap.constBegin();
-    while (i != m_file->m_depMap.constEnd()) {
+    QMap<QString, QStringList>::const_iterator i = m_depMap.constBegin();
+    while (i != m_depMap.constEnd()) {
         QString key = i.key();
         QStringList values;
         foreach (const QString &value, i.value()) {
@@ -628,7 +628,7 @@ const QList<Project *> &SessionManager::projects() const
 QStringList SessionManager::dependencies(const QString &proName) const
 {
     QStringList result;
-    foreach (const QString &dep, m_file->m_depMap.value(proName))
+    foreach (const QString &dep, m_depMap.value(proName))
         result += dependencies(dep);
 
     result << proName;
@@ -644,7 +644,7 @@ QStringList SessionManager::dependenciesOrder() const
     foreach (Project *pro, projects()) {
         const QString &proName = pro->file()->fileName();
         unordered << QPair<QString, QStringList>
-            (proName, m_file->m_depMap.value(proName));
+            (proName, m_depMap.value(proName));
     }
 
     while (!unordered.isEmpty()) {
@@ -809,7 +809,7 @@ void SessionManager::removeProjects(QList<Project *> remove)
     QSet<QString>::const_iterator i = projectFiles.begin();
     while (i != projectFiles.end()) {
         QStringList dependencies;
-        foreach (const QString &dependency, m_file->m_depMap.value(*i)) {
+        foreach (const QString &dependency, m_depMap.value(*i)) {
             if (projectFiles.contains(dependency))
                 dependencies << dependency;
         }
@@ -818,7 +818,7 @@ void SessionManager::removeProjects(QList<Project *> remove)
         ++i;
     }
 
-    m_file->m_depMap = resMap;
+    m_depMap = resMap;
 
     // TODO: Clear m_modelProjectHash
 
