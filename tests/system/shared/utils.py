@@ -200,7 +200,7 @@ def selectFromFileDialog(fileName):
         nativeType("<Return>")
     else:
         fName = os.path.basename(os.path.abspath(fileName))
-        pName = os.path.dirname(os.path.abspath(fileName))
+        pName = os.path.dirname(os.path.abspath(fileName)) + os.sep
         waitForObject("{name='QFileDialog' type='QFileDialog' visible='1'}")
         pathLine = waitForObject("{name='fileNameEdit' type='QLineEdit' visible='1'}")
         replaceEditorContent(pathLine, pName)
