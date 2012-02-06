@@ -577,6 +577,11 @@ void ToolChainOptionsPage::finish()
         m_model->deleteLater();
         m_model = 0;
     }
+
+    m_configWidget = 0; // deleted by settingsdialog
+    m_selectionModel = 0; // child of m_configWidget
+    m_ui = 0; // child of m_configWidget
+    m_currentTcWidget = 0; // deleted by the model
 }
 
 bool ToolChainOptionsPage::matches(const QString &s) const
@@ -589,7 +594,8 @@ void ToolChainOptionsPage::toolChainSelectionChanged()
     if (m_currentTcWidget)
         m_currentTcWidget->setVisible(false);
 
-    m_currentTcWidget = currentIndex().isValid() ? m_model->widget(currentIndex()) : 0;
+    QModelIndex current = currentIndex();
+    m_currentTcWidget = current.isValid() ? m_model->widget(current) : 0;
 
     if (m_currentTcWidget)
         m_currentTcWidget->setVisible(true);
@@ -604,7 +610,8 @@ void ToolChainOptionsPage::createToolChain(QObject *factoryObject)
     if (!factory) {
         // Copy current item!
         ToolChain *oldTc = m_model->toolChain(currentIndex());
-        QTC_CHECK(oldTc);
+        if (!oldTc)
+            return;
         tc = oldTc->clone();
     } else {
         QTC_CHECK(factory->canCreate());
@@ -623,12 +630,16 @@ void ToolChainOptionsPage::createToolChain(QObject *factoryObject)
 void ToolChainOptionsPage::removeToolChain()
 {
     ToolChain *tc = m_model->toolChain(currentIndex());
-    Q_ASSERT(tc && !tc->isAutoDetected());
+    if (!tc)
+        return;
     m_model->markForRemoval(tc);
 }
 
 void ToolChainOptionsPage::updateState()
 {
+    if (!m_ui)
+        return;
+
     bool canCopy = false;
     bool canDelete = false;
     ToolChain *tc = m_model->toolChain(currentIndex());
@@ -643,6 +654,9 @@ void ToolChainOptionsPage::updateState()
 
 QModelIndex ToolChainOptionsPage::currentIndex() const
 {
+    if (!m_selectionModel)
+        return QModelIndex();
+
     QModelIndexList idxs = m_selectionModel->selectedRows();
     if (idxs.count() != 1)
         return QModelIndex();
