@@ -324,6 +324,7 @@ SessionManager::SessionManager(QObject *parent)
   : QObject(parent),
     m_file(new SessionFile),
     m_sessionNode(new SessionNode(this)),
+    m_sessionName(QLatin1String("default")),
     m_virginSession(true)
 {
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
@@ -340,6 +341,7 @@ SessionManager::SessionManager(QObject *parent)
     connect(em, SIGNAL(editorsClosed(QList<Core::IEditor*>)),
             this, SLOT(markSessionFileDirty()));
 
+    m_file->setFileName(sessionNameToFileName(m_sessionName));
 
     m_autoSaveSessionTimer = new QTimer(this);
     m_autoSaveSessionTimer->setSingleShot(true);
@@ -978,15 +980,6 @@ QString SessionManager::sessionNameFromFileName(const QString &fileName) const
     const int slash = fileName.lastIndexOf(QLatin1Char('/'));
     Q_ASSERT(slash != -1 && fileName.endsWith(QLatin1String(".qws")));
     return fileName.mid(slash + 1, fileName.length() - slash - 5); // Exclude .qws
-}
-
-/*!
-    \brief Creates a new default session and switches to it.
-*/
-
-void SessionManager::createAndLoadNewDefaultSession()
-{
-    createImpl(sessionNameToFileName(QLatin1String("default")));
 }
 
 /*!

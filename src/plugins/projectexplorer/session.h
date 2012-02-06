@@ -76,7 +76,6 @@ public:
     QString lastSession() const;
     QStringList sessions() const;
 
-    void createAndLoadNewDefaultSession();
     bool createSession(const QString &session);
 
     bool deleteSession(const QString &session);

@@ -1468,11 +1468,8 @@ void ProjectExplorerPlugin::restoreSession()
     arguments.removeOne(d->m_sessionToRestoreAtStartup);
 
     // Restore latest session or what was passed on the command line
-    if (d->m_sessionToRestoreAtStartup.isEmpty()) {
-        d->m_session->createAndLoadNewDefaultSession();
-    } else {
+    if (!d->m_sessionToRestoreAtStartup.isEmpty())
         d->m_session->loadSession(d->m_sessionToRestoreAtStartup);
-    }
 
     // update welcome page
     connect(Core::ModeManager::instance(),
