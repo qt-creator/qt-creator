@@ -39,7 +39,6 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
-#include <QtCore/QPointer>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
