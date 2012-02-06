@@ -86,9 +86,6 @@ class SessionFile : QObject
 public:
     SessionFile();
 
-    QStringList failedProjectFileNames() const;
-    void clearFailedProjectFileNames();
-
 public slots:
     void sessionLoadingProgress();
 
@@ -119,16 +116,6 @@ void SessionFile::sessionLoadingProgress()
 SessionFile::SessionFile()
   :  m_startupProject(0)
 {
-}
-
-QStringList SessionFile::failedProjectFileNames() const
-{
-    return m_failedProjects;
-}
-
-void SessionFile::clearFailedProjectFileNames()
-{
-    m_failedProjects.clear();
 }
 
 /*!
@@ -509,7 +496,7 @@ bool SessionManager::loadImpl(const QString &fileName)
     // but doesn't emit this signal, so we do it here
     emit startupProjectChanged(m_file->m_startupProject);
 
-    QStringList failedProjects = m_file->failedProjectFileNames();
+    QStringList failedProjects = m_file->m_failedProjects;
     if (!failedProjects.isEmpty()) {
         QString fileList =
             QDir::toNativeSeparators(failedProjects.join(QLatin1String("<br>")));
@@ -525,7 +512,7 @@ bool SessionManager::loadImpl(const QString &fileName)
         box->exec();
 
         if (box->clickedButton() == removeButton)
-            m_file->clearFailedProjectFileNames();
+            m_file->m_failedProjects.clear();
     }
 
     // restore the active mode
