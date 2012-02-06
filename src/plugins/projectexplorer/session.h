@@ -168,6 +168,8 @@ private:
 
     mutable QHash<Project *, QStringList> m_projectFileCache;
     QTimer *m_autoSaveSessionTimer;
+
+    Project *m_startupProject;
 };
 
 } // namespace ProjectExplorer

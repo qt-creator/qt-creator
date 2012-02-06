@@ -88,7 +88,6 @@ public:
 
 private:
     QList<Project *> m_projects;
-    Project *m_startupProject;
     QStringList m_failedProjects;
     QMap<QString, QStringList> m_depMap;
 
@@ -105,7 +104,6 @@ using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
 SessionFile::SessionFile()
-  :  m_startupProject(0)
 {
 }
 
@@ -125,7 +123,8 @@ SessionManager::SessionManager(QObject *parent)
     m_file(new SessionFile),
     m_sessionNode(new SessionNode(this)),
     m_sessionName(QLatin1String("default")),
-    m_virginSession(true)
+    m_virginSession(true),
+    m_startupProject(0)
 {
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             this, SLOT(saveActiveMode(Core::IMode*)));
@@ -277,16 +276,16 @@ void SessionManager::setStartupProject(Project *startupProject)
         Q_ASSERT(m_file->m_projects.contains(startupProject));
     }
 
-    if (m_file->m_startupProject == startupProject)
+    if (m_startupProject == startupProject)
         return;
 
-    m_file->m_startupProject = startupProject;
+    m_startupProject = startupProject;
     emit startupProjectChanged(startupProject);
 }
 
 Project *SessionManager::startupProject() const
 {
-    return m_file->m_startupProject;
+    return m_startupProject;
 }
 
 void SessionManager::addProject(Project *project)
@@ -353,6 +352,7 @@ bool SessionManager::createImpl(const QString &fileName)
         emit aboutToUnloadSession();
         delete m_file;
         m_file = new SessionFile;
+        m_startupProject = 0;
         const QString &sessionName = sessionNameFromFileName(fileName);
         emit aboutToLoadSession(sessionName);
         m_sessionName = sessionName;
@@ -396,6 +396,7 @@ bool SessionManager::loadImpl(const QString &fileName)
     emit aboutToUnloadSession();
     delete m_file;
     m_file = new SessionFile;
+    m_startupProject = 0;
     const QString &sessionName = sessionNameFromFileName(fileName);
     emit aboutToLoadSession(sessionName);
     m_sessionName = sessionName;
@@ -463,11 +464,11 @@ bool SessionManager::loadImpl(const QString &fileName)
         const QString startupProjectPath = startupProject;
         foreach (Project *pro, m_file->m_projects) {
             if (QDir::cleanPath(pro->file()->fileName()) == startupProjectPath) {
-                m_file->m_startupProject = pro;
+                m_startupProject = pro;
                 break;
             }
         }
-        if (!m_file->m_startupProject)
+        if (!m_startupProject)
             qWarning() << "Could not find startup project" << startupProjectPath;
     }
 
@@ -485,7 +486,7 @@ bool SessionManager::loadImpl(const QString &fileName)
 
     // m_file->load() sets the m_file->startupProject
     // but doesn't emit this signal, so we do it here
-    emit startupProjectChanged(m_file->m_startupProject);
+    emit startupProjectChanged(m_startupProject);
 
     QStringList failedProjects = m_file->m_failedProjects;
     if (!failedProjects.isEmpty()) {
@@ -532,8 +533,8 @@ bool SessionManager::save()
     PersistentSettingsWriter writer;
 
     // save the startup project
-    if (m_file->m_startupProject) {
-        writer.saveValue(QLatin1String("StartupProject"), m_file->m_startupProject->file()->fileName());
+    if (m_startupProject) {
+        writer.saveValue(QLatin1String("StartupProject"), m_startupProject->file()->fileName());
     }
 
     QStringList projectFiles;
@@ -826,7 +827,7 @@ void SessionManager::removeProjects(QList<Project *> remove)
         pro->saveSettings();
         m_file->m_projects.removeOne(pro);
 
-        if (pro == m_file->m_startupProject)
+        if (pro == m_startupProject)
             setStartupProject(0);
 
         disconnect(pro, SIGNAL(fileListChanged()),
