@@ -86,8 +86,6 @@ class SessionFile : QObject
 public:
     SessionFile();
 
-    bool load(const QString &fileName);
-
     QStringList failedProjectFileNames() const;
     void clearFailedProjectFileNames();
 
@@ -121,100 +119,6 @@ void SessionFile::sessionLoadingProgress()
 SessionFile::SessionFile()
   :  m_startupProject(0)
 {
-}
-
-bool SessionFile::load(const QString &fileName)
-{
-    Q_ASSERT(!fileName.isEmpty());
-
-    if (debug)
-        qDebug() << "SessionFile::load " << fileName;
-
-    // NPE: Load the session in the background?
-    // NPE: Let FileManager monitor filename
-
-    PersistentSettingsReader reader;
-    if (!reader.load(fileName)) {
-        qWarning() << "SessionManager::load failed!" << fileName;
-        return false;
-    }
-
-    ICore::progressManager()->addTask(future.future(), tr("Session"),
-       QLatin1String("ProjectExplorer.SessionFile.Load"));
-
-    const QStringList &keys = reader.restoreValue(QLatin1String("valueKeys")).toStringList();
-    foreach (const QString &key, keys) {
-        QVariant value = reader.restoreValue(QLatin1String("value-") + key);
-        m_values.insert(key, value);
-    }
-
-    QStringList fileList =
-        reader.restoreValue(QLatin1String("ProjectList")).toStringList();
-    int openEditorsCount = reader.restoreValue(QLatin1String("OpenEditors")).toInt();
-
-    future.setProgressRange(0, fileList.count() + openEditorsCount + 2);
-    future.setProgressValue(1);
-
-    // indirectly adds projects to session
-    // Keep projects that failed to load in the session!
-    m_failedProjects = fileList;
-    if (!fileList.isEmpty()) {
-        QString errors;
-        QList<Project *> projects = ProjectExplorerPlugin::instance()->openProjects(fileList, &errors);
-        if (!errors.isEmpty())
-            QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to open project"), errors);
-        foreach (Project *p, projects)
-            m_failedProjects.removeAll(p->file()->fileName());
-    }
-
-    sessionLoadingProgress();
-
-    // convert the relative paths in the dependency map to absolute paths
-    QMap<QString, QVariant> depMap = reader.restoreValue(QLatin1String("ProjectDependencies")).toMap();
-    QMap<QString, QVariant>::const_iterator i = depMap.constBegin();
-    while (i != depMap.constEnd()) {
-        const QString &key = i.key();
-        if (m_failedProjects.contains(key))
-            continue;
-        QStringList values;
-        foreach (const QString &value, i.value().toStringList()) {
-            if (!m_failedProjects.contains(value))
-                values << value;
-        }
-        m_depMap.insert(key, values);
-        ++i;
-    }
-
-    // find and set the startup project
-    const QString startupProject = reader.restoreValue(QLatin1String("StartupProject")).toString();
-    if (!startupProject.isEmpty()) {
-        const QString startupProjectPath = startupProject;
-        foreach (Project *pro, m_projects) {
-            if (QDir::cleanPath(pro->file()->fileName()) == startupProjectPath) {
-                m_startupProject = pro;
-                break;
-            }
-        }
-        if (!m_startupProject)
-            qWarning() << "Could not find startup project" << startupProjectPath;
-    }
-
-    const QVariant &editorsettings = reader.restoreValue(QLatin1String("EditorSettings"));
-    if (editorsettings.isValid()) {
-        connect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
-                this, SLOT(sessionLoadingProgress()));
-        ICore::editorManager()->restoreState(
-            QByteArray::fromBase64(editorsettings.toByteArray()));
-        disconnect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
-                   this, SLOT(sessionLoadingProgress()));
-    }
-
-    if (debug)
-        qDebug() << "SessionFile::load finished" << fileName;
-
-
-    future.reportFinished();
-    return true;
 }
 
 QStringList SessionFile::failedProjectFileNames() const
@@ -518,7 +422,9 @@ bool SessionManager::loadImpl(const QString &fileName)
     emit aboutToLoadSession(sessionName);
     m_sessionName = sessionName;
     updateWindowTitle();
-    if (!m_file->load(fileName)) {
+
+    PersistentSettingsReader reader;
+    if (!reader.load(fileName)) {
         QMessageBox::warning(0, tr("Error while restoring session"),
                                 tr("Could not restore session %1").arg(fileName));
         if (debug)
@@ -526,6 +432,79 @@ bool SessionManager::loadImpl(const QString &fileName)
 
         return false;
     }
+
+    ICore::progressManager()->addTask(m_file->future.future(), tr("Session"),
+       QLatin1String("ProjectExplorer.SessionFile.Load"));
+
+    const QStringList &keys = reader.restoreValue(QLatin1String("valueKeys")).toStringList();
+    foreach (const QString &key, keys) {
+        QVariant value = reader.restoreValue(QLatin1String("value-") + key);
+        m_file->m_values.insert(key, value);
+    }
+
+    QStringList fileList =
+        reader.restoreValue(QLatin1String("ProjectList")).toStringList();
+    int openEditorsCount = reader.restoreValue(QLatin1String("OpenEditors")).toInt();
+
+    m_file->future.setProgressRange(0, fileList.count() + openEditorsCount + 2);
+    m_file->future.setProgressValue(1);
+
+    // indirectly adds projects to session
+    // Keep projects that failed to load in the session!
+    m_file->m_failedProjects = fileList;
+    if (!fileList.isEmpty()) {
+        QString errors;
+        QList<Project *> projects = ProjectExplorerPlugin::instance()->openProjects(fileList, &errors);
+        if (!errors.isEmpty())
+            QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to open project"), errors);
+        foreach (Project *p, projects)
+            m_file->m_failedProjects.removeAll(p->file()->fileName());
+    }
+
+    m_file->sessionLoadingProgress();
+
+    // convert the relative paths in the dependency map to absolute paths
+    QMap<QString, QVariant> depMap = reader.restoreValue(QLatin1String("ProjectDependencies")).toMap();
+    QMap<QString, QVariant>::const_iterator i = depMap.constBegin();
+    while (i != depMap.constEnd()) {
+        const QString &key = i.key();
+        if (m_file->m_failedProjects.contains(key))
+            continue;
+        QStringList values;
+        foreach (const QString &value, i.value().toStringList()) {
+            if (!m_file->m_failedProjects.contains(value))
+                values << value;
+        }
+        m_file->m_depMap.insert(key, values);
+        ++i;
+    }
+
+    // find and set the startup project
+    const QString startupProject = reader.restoreValue(QLatin1String("StartupProject")).toString();
+    if (!startupProject.isEmpty()) {
+        const QString startupProjectPath = startupProject;
+        foreach (Project *pro, m_file->m_projects) {
+            if (QDir::cleanPath(pro->file()->fileName()) == startupProjectPath) {
+                m_file->m_startupProject = pro;
+                break;
+            }
+        }
+        if (!m_file->m_startupProject)
+            qWarning() << "Could not find startup project" << startupProjectPath;
+    }
+
+    const QVariant &editorsettings = reader.restoreValue(QLatin1String("EditorSettings"));
+    if (editorsettings.isValid()) {
+        connect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
+                m_file, SLOT(sessionLoadingProgress()));
+        ICore::editorManager()->restoreState(
+            QByteArray::fromBase64(editorsettings.toByteArray()));
+        disconnect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
+                   m_file, SLOT(sessionLoadingProgress()));
+    }
+
+    m_file->future.reportFinished();
+
     // m_file->load() sets the m_file->startupProject
     // but doesn't emit this signal, so we do it here
     emit startupProjectChanged(m_file->m_startupProject);
