@@ -89,7 +89,6 @@ public:
     bool load(const QString &fileName);
     bool save();
 
-    QString fileName() const;
     void setFileName(const QString &fileName);
 
     QStringList failedProjectFileNames() const;
@@ -285,11 +284,6 @@ bool SessionFile::save()
         return true;
 
     return false;
-}
-
-QString SessionFile::fileName() const
-{
-    return m_fileName;
 }
 
 void SessionFile::setFileName(const QString &fileName)
@@ -658,7 +652,7 @@ bool SessionManager::save()
 
     if (!result) {
         QMessageBox::warning(0, tr("Error while saving session"),
-                                tr("Could not save session to file %1").arg(m_file->fileName()));
+                                tr("Could not save session to file %1").arg(sessionNameToFileName(m_sessionName)));
     }
 
     if (debug)
