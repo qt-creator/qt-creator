@@ -87,8 +87,6 @@ public:
     SessionFile();
 
 private:
-    QMap<QString, QVariant> m_values;
-
     QFutureInterface<void> future;
     friend class ProjectExplorer::SessionManager;
 };
@@ -351,6 +349,7 @@ bool SessionManager::createImpl(const QString &fileName)
         m_startupProject = 0;
         m_failedProjects.clear();
         m_depMap.clear();
+        m_values.clear();
         const QString &sessionName = sessionNameFromFileName(fileName);
         emit aboutToLoadSession(sessionName);
         m_sessionName = sessionName;
@@ -397,6 +396,7 @@ bool SessionManager::loadImpl(const QString &fileName)
     m_startupProject = 0;
     m_failedProjects.clear();
     m_depMap.clear();
+    m_values.clear();
     const QString &sessionName = sessionNameFromFileName(fileName);
     emit aboutToLoadSession(sessionName);
     m_sessionName = sessionName;
@@ -418,7 +418,7 @@ bool SessionManager::loadImpl(const QString &fileName)
     const QStringList &keys = reader.restoreValue(QLatin1String("valueKeys")).toStringList();
     foreach (const QString &key, keys) {
         QVariant value = reader.restoreValue(QLatin1String("value-") + key);
-        m_file->m_values.insert(key, value);
+        m_values.insert(key, value);
     }
 
     QStringList fileList =
@@ -571,9 +571,9 @@ bool SessionManager::save()
                      ICore::editorManager()->saveState().toBase64());
 
     QMap<QString, QVariant>::const_iterator it, end;
-    end = m_file->m_values.constEnd();
+    end = m_values.constEnd();
     QStringList keys;
-    for (it = m_file->m_values.constBegin(); it != end; ++it) {
+    for (it = m_values.constBegin(); it != end; ++it) {
         writer.saveValue(QLatin1String("value-") + it.key(), it.value());
         keys << it.key();
     }
@@ -852,21 +852,16 @@ void SessionManager::removeProjects(QList<Project *> remove)
 
 void SessionManager::setValue(const QString &name, const QVariant &value)
 {
-    if (!m_file)
+    if (m_values.value(name) == value)
         return;
-
-    if (m_file->m_values.value(name) == value)
-        return;
-    m_file->m_values.insert(name, value);
+    m_values.insert(name, value);
     markSessionFileDirty(false);
 }
 
 QVariant SessionManager::value(const QString &name)
 {
-    if (!m_file)
-        return QVariant();
-    QMap<QString, QVariant>::const_iterator it = m_file->m_values.find(name);
-    return (it == m_file->m_values.constEnd()) ? QVariant() : *it;
+    QMap<QString, QVariant>::const_iterator it = m_values.find(name);
+    return (it == m_values.constEnd()) ? QVariant() : *it;
 }
 
 QString SessionManager::activeSession() const

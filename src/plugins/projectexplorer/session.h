@@ -173,6 +173,7 @@ private:
     QList<Project *> m_projects;
     QStringList m_failedProjects;
     QMap<QString, QStringList> m_depMap;
+    QMap<QString, QVariant> m_values;
 };
 
 } // namespace ProjectExplorer
