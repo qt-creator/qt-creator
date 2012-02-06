@@ -2630,8 +2630,8 @@ void DebuggerPluginPrivate::showQtDumperLibraryWarning(const QString &details)
         "The debugging helper is used to nicely format the values of some Qt "
         "and Standard Library data types. "
         "It must be compiled for each used Qt version separately. "
-        "On the Qt4 options page, select a Qt installation "
-        "and click Rebuild."));
+        "In the Qt Creator Build and Run preferences page, select a Qt version, "
+        "expand the Details section and click Build All."));
     if (!details.isEmpty())
         dialog.setDetailedText(details);
     dialog.exec();
