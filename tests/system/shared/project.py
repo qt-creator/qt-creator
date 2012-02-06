@@ -12,9 +12,11 @@ def __handleProcessExited__(object, exitCode):
 def openQmakeProject(projectPath):
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(projectPath)
-    waitForObject("{type='Qt4ProjectManager::Internal::ProjectLoadWizard' visible='1' windowTitle='Project Setup'}")
-    selectFromCombo(":scrollArea.Create Build Configurations:_QComboBox", "For Each Qt Version One Debug And One Release")
-    clickButton(waitForObject("{text~='(Finish|Done)' type='QPushButton'}"))
+    selectFromCombo(waitForObject(":Qt Creator.Create Build Configurations:_QComboBox", 180000),
+                    "For Each Qt Version One Debug And One Release")
+    configureButton = waitForObject("{text='Configure Project' type='QPushButton' unnamed='1' visible='1'"
+                                    "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
+    clickButton(configureButton)
 
 def openCmakeProject(projectPath, buildDir):
     invokeMenuItem("File", "Open File or Project...")
