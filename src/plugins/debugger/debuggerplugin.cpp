@@ -1538,47 +1538,9 @@ void DebuggerPluginPrivate::debugProjectBreakMain()
 void DebuggerPluginPrivate::startExternalApplication()
 {
     DebuggerStartParameters sp;
-    StartExternalDialog dlg(mainWindow());
-    dlg.setExecutableFile(
-            configValue(_("LastExternalExecutableFile")).toString());
-    dlg.setExecutableArguments(
-            configValue(_("LastExternalExecutableArguments")).toString());
-    dlg.setRunInTerminal(
-            configValue(_("LastExternalRunInTerminal")).toBool());
-    dlg.setWorkingDirectory(
-            configValue(_("LastExternalWorkingDirectory")).toString());
-    dlg.setAbiIndex(configValue(_("LastExternalAbiIndex")).toInt());
-
-    if (dlg.exec() != QDialog::Accepted)
-        return;
-
-    setConfigValue(_("LastExternalExecutableFile"),
-                   dlg.executableFile());
-    setConfigValue(_("LastExternalExecutableArguments"),
-                   dlg.executableArguments());
-    setConfigValue(_("LastExternalWorkingDirectory"),
-                   dlg.workingDirectory());
-    setConfigValue(_("LastExternalRunInTerminal"),
-                   dlg.runInTerminal());
-    setConfigValue(_("LastExternalAbiIndex"), QVariant(dlg.abiIndex()));
-
-    sp.executable = dlg.executableFile();
-    sp.startMode = StartExternal;
-    sp.toolChainAbi = dlg.abi();
-    sp.debuggerCommand = dlg.debuggerCommand();
-    sp.workingDirectory = dlg.workingDirectory();
-    sp.displayName = sp.executable;
-    sp.useTerminal = dlg.runInTerminal();
-    if (!dlg.executableArguments().isEmpty())
-        sp.processArgs = dlg.executableArguments();
-    // Fixme: 1 of 3 testing hacks.
-    if (sp.processArgs.startsWith(__("@tcf@ ")) || sp.processArgs.startsWith(__("@sym@ ")))
-        // Set up an ARM Symbian Abi
-        sp.toolChainAbi = Abi(Abi::ArmArchitecture, Abi::SymbianOS, Abi::SymbianDeviceFlavor, Abi::ElfFormat, false);
-
-    sp.breakOnMain = dlg.breakAtMain();
-    if (RunControl *rc = m_debuggerRunControlFactory->create(sp))
-        startDebugger(rc);
+    if (StartExternalDialog::run(mainWindow(), m_coreSettings, &sp))
+        if (RunControl *rc = m_debuggerRunControlFactory->create(sp))
+            startDebugger(rc);
 }
 
 void DebuggerPluginPrivate::attachExternalApplication()
@@ -1687,73 +1649,32 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
 
 bool DebuggerPluginPrivate::queryRemoteParameters(DebuggerStartParameters &sp, bool useScript)
 {
-    StartRemoteDialog dlg(mainWindow(), useScript);
-    QStringList arches;
-    arches.append(_("i386:x86-64:intel"));
-    arches.append(_("i386"));
-    arches.append(_("arm"));
-    QString lastUsed = configValue(_("LastRemoteArchitecture")).toString();
-    if (!arches.contains(lastUsed))
-        arches.prepend(lastUsed);
-    dlg.setRemoteArchitectures(arches);
-    dlg.setRemoteChannel(
-            configValue(_("LastRemoteChannel")).toString());
-    dlg.setLocalExecutable(
-            configValue(_("LastLocalExecutable")).toString());
-    dlg.setAbiIndex(configValue(_("LastExternalAbiIndex")).toInt());
-    dlg.setRemoteArchitecture(lastUsed);
-    dlg.setOverrideStartScript(configValue(_("LastRemoteStartScript")).toString());
-    dlg.setServerStartScript(
-            configValue(_("LastServerStartScript")).toString());
-    dlg.setUseServerStartScript(
-            configValue(_("LastUseServerStartScript")).toBool());
-    dlg.setSysroot(configValue(_("LastSysroot")).toString());
-    dlg.setDebugInfoLocation(configValue(_("LastDebugInfoLocation")).toString());
-    if (dlg.exec() != QDialog::Accepted)
-        return false;
-    setConfigValue(_("LastRemoteChannel"), dlg.remoteChannel());
-    setConfigValue(_("LastLocalExecutable"), dlg.localExecutable());
-    setConfigValue(_("LastExternalAbiIndex"), QVariant(dlg.abiIndex()));
-    setConfigValue(_("LastRemoteArchitecture"), dlg.remoteArchitecture());
-    setConfigValue(_("LastRemoteStartScript"), dlg.overrideStartScript());
-    setConfigValue(_("LastServerStartScript"), dlg.serverStartScript());
-    setConfigValue(_("LastUseServerStartScript"), dlg.useServerStartScript());
-    setConfigValue(_("LastSysroot"), dlg.sysroot());
-    setConfigValue(_("LastDebugInfoLocation"), dlg.debugInfoLocation());
-    sp.remoteChannel = dlg.remoteChannel();
-    sp.remoteArchitecture = dlg.remoteArchitecture();
-    sp.executable = dlg.localExecutable();
-    sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
-    sp.debuggerCommand = dlg.debuggerCommand();
-    sp.toolChainAbi = dlg.abi();
-    sp.overrideStartScript = dlg.overrideStartScript();
-    sp.useServerStartScript = dlg.useServerStartScript();
-    sp.serverStartScript = dlg.serverStartScript();
-    sp.sysroot = dlg.sysroot();
-    sp.debugInfoLocation = dlg.debugInfoLocation();
-    return true;
+    return StartRemoteDialog::run(mainWindow(),
+                                  m_coreSettings,
+                                  useScript,
+                                  &sp);
 }
 
 void DebuggerPluginPrivate::startRemoteProcess()
 {
     DebuggerStartParameters sp;
-    sp.startMode = StartRemoteProcess;
-    if (!queryRemoteParameters(sp, true))
-        return;
-    if (RunControl *rc = createDebugger(sp))
-        startDebugger(rc);
+    if (StartRemoteDialog::run(mainWindow(), m_coreSettings, true, &sp)) {
+        sp.startMode = StartRemoteProcess;
+        if (RunControl *rc = createDebugger(sp))
+            startDebugger(rc);
+    }
 }
 
 void DebuggerPluginPrivate::attachToRemoteServer()
 {
     DebuggerStartParameters sp;
-    if (!queryRemoteParameters(sp, false))
-        return;
-    sp.startMode = AttachToRemoteServer;
-    sp.useServerStartScript = false;
-    sp.serverStartScript.clear();
-    if (RunControl *rc = createDebugger(sp))
-        startDebugger(rc);
+    if (StartRemoteDialog::run(mainWindow(), m_coreSettings, false, &sp)) {
+        sp.startMode = AttachToRemoteServer;
+        sp.useServerStartScript = false;
+        sp.serverStartScript.clear();
+        if (RunControl *rc = createDebugger(sp))
+            startDebugger(rc);
+    }
 }
 
 void DebuggerPluginPrivate::attachToRemoteProcess()

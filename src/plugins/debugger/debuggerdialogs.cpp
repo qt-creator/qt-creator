@@ -31,8 +31,10 @@
 **************************************************************************/
 
 #include "debuggerdialogs.h"
+#include "debuggerstartparameters.h"
 
 #include "debuggerconstants.h"
+#include "debuggerstringutils.h"
 #include "cdb/cdbengine.h"
 #include "shared/hostutils.h"
 
@@ -441,6 +443,86 @@ void AttachExternalDialog::accept()
 //
 ///////////////////////////////////////////////////////////////////////
 
+class StartExternalParameters
+{
+public:
+    StartExternalParameters();
+    bool equals(const StartExternalParameters &rhs) const;
+    bool isValid() const { return !executableFile.isEmpty(); }
+    QString displayName() const;
+    void toSettings(QSettings *) const;
+    void fromSettings(const QSettings *settings);
+
+    QString executableFile;
+    QString arguments;
+    QString workingDirectory;
+    int abiIndex;
+    bool breakAtMain;
+    bool runInTerminal;
+};
+
+} // namespace Internal
+} // namespace Debugger
+
+Q_DECLARE_METATYPE(Debugger::Internal::StartExternalParameters)
+
+namespace Debugger {
+namespace Internal {
+
+inline bool operator==(const StartExternalParameters &p1, const StartExternalParameters &p2)
+{ return p1.equals(p2); }
+
+inline bool operator!=(const StartExternalParameters &p1, const StartExternalParameters &p2)
+{ return !p1.equals(p2); }
+
+StartExternalParameters::StartExternalParameters() :
+    abiIndex(0), breakAtMain(false), runInTerminal(false)
+{
+}
+
+bool StartExternalParameters::equals(const StartExternalParameters &rhs) const
+{
+    return executableFile == rhs.executableFile && arguments == rhs.arguments
+        && workingDirectory == rhs.workingDirectory && abiIndex == rhs.abiIndex
+        && breakAtMain == rhs.breakAtMain && runInTerminal == rhs.runInTerminal;
+}
+
+QString StartExternalParameters::displayName() const
+{
+    enum { maxLength = 60 };
+
+    QString name = QFileInfo(executableFile).fileName()
+                   + QLatin1Char(' ') + arguments;
+    if (name.size() > maxLength) {
+        int index = name.lastIndexOf(QLatin1Char(' '), maxLength);
+        if (index == -1)
+            index = maxLength;
+        name.truncate(index);
+        name += QLatin1String("...");
+    }
+    return name;
+}
+
+void StartExternalParameters::toSettings(QSettings *settings) const
+{
+    settings->setValue(_("LastExternalExecutableFile"), executableFile);
+    settings->setValue(_("LastExternalExecutableArguments"), arguments);
+    settings->setValue(_("LastExternalWorkingDirectory"), workingDirectory);
+    settings->setValue(_("LastExternalAbiIndex"), abiIndex);
+    settings->setValue(_("LastExternalBreakAtMain"), breakAtMain);
+    settings->setValue(_("LastExternalRunInTerminal"), runInTerminal);
+}
+
+void StartExternalParameters::fromSettings(const QSettings *settings)
+{
+    executableFile = settings->value(_("LastExternalExecutableFile")).toString();
+    arguments = settings->value(_("LastExternalExecutableArguments")).toString();
+    workingDirectory = settings->value(_("LastExternalWorkingDirectory")).toString();
+    abiIndex = settings->value(_("LastExternalAbiIndex")).toInt();
+    breakAtMain = settings->value(_("LastExternalBreakAtMain")).toBool();
+    runInTerminal = settings->value(_("LastExternalRunInTerminal")).toBool();
+}
+
 StartExternalDialog::StartExternalDialog(QWidget *parent)
   : QDialog(parent), m_ui(new Ui::StartExternalDialog)
 {
@@ -463,12 +545,55 @@ StartExternalDialog::StartExternalDialog(QWidget *parent)
 
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(m_ui->historyComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(historyIndexChanged(int)));
     changed();
 }
 
 StartExternalDialog::~StartExternalDialog()
 {
     delete m_ui;
+}
+
+StartExternalParameters StartExternalDialog::parameters() const
+{
+    StartExternalParameters result;
+    result.executableFile = m_ui->execFile->path();
+    result.arguments = m_ui->argsEdit->text();
+    result.workingDirectory = m_ui->workingDirectory->path();
+    result.abiIndex = m_ui->toolChainComboBox->currentIndex();
+    result.breakAtMain = m_ui->checkBoxBreakAtMain->isChecked();
+    result.runInTerminal = m_ui->checkBoxRunInTerminal->isChecked();
+    return result;
+}
+
+void StartExternalDialog::setParameters(const StartExternalParameters &p)
+{
+    setExecutableFile(p.executableFile);
+    m_ui->argsEdit->setText(p.arguments);
+    m_ui->workingDirectory->setPath(p.workingDirectory);
+    if (p.abiIndex >= 0 && p.abiIndex < m_ui->toolChainComboBox->count())
+        m_ui->toolChainComboBox->setCurrentIndex(p.abiIndex);
+    m_ui->checkBoxRunInTerminal->setChecked(p.runInTerminal);
+    m_ui->checkBoxBreakAtMain->setChecked(p.breakAtMain);
+}
+
+void StartExternalDialog::setHistory(const QList<StartExternalParameters> l)
+{
+    m_ui->historyComboBox->clear();
+    for (int i = l.size() -  1; i >= 0; --i)
+        if (l.at(i).isValid())
+            m_ui->historyComboBox->addItem(l.at(i).displayName(),
+                                           QVariant::fromValue(l.at(i)));
+}
+
+void StartExternalDialog::historyIndexChanged(int index)
+{
+    if (index < 0)
+        return;
+    const QVariant v = m_ui->historyComboBox->itemData(index);
+    QTC_ASSERT(v.canConvert<StartExternalParameters>(), return);
+    setParameters(v.value<StartExternalParameters>());
 }
 
 void StartExternalDialog::setExecutableFile(const QString &str)
@@ -482,55 +607,9 @@ QString StartExternalDialog::executableFile() const
     return m_ui->execFile->path();
 }
 
-void StartExternalDialog::setWorkingDirectory(const QString &str)
-{
-    m_ui->workingDirectory->setPath(str);
-}
-
-QString StartExternalDialog::workingDirectory() const
-{
-    return m_ui->workingDirectory->path();
-}
-
-void StartExternalDialog::setExecutableArguments(const QString &str)
-{
-    m_ui->argsEdit->setText(str);
-}
-
-QString StartExternalDialog::executableArguments() const
-{
-    return m_ui->argsEdit->text();
-}
-
-bool StartExternalDialog::breakAtMain() const
-{
-    return m_ui->checkBoxBreakAtMain->isChecked();
-}
-
-bool StartExternalDialog::runInTerminal() const
-{
-    return m_ui->checkBoxRunInTerminal->isChecked();
-}
-
-void StartExternalDialog::setRunInTerminal(bool v)
-{
-    m_ui->checkBoxRunInTerminal->setChecked(v);
-}
-
 ProjectExplorer::Abi StartExternalDialog::abi() const
 {
     return m_ui->toolChainComboBox->abi();
-}
-
-void StartExternalDialog::setAbiIndex(int i)
-{
-    if (i >= 0 && i < m_ui->toolChainComboBox->count())
-        m_ui->toolChainComboBox->setCurrentIndex(i);
-}
-
-int StartExternalDialog::abiIndex() const
-{
-    return m_ui->toolChainComboBox->currentIndex();
 }
 
 QString StartExternalDialog::debuggerCommand()
@@ -549,11 +628,177 @@ void StartExternalDialog::changed()
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(isValid());
 }
 
+// Read parameter history (start external, remote)
+// from settings array. Always return at least one element.
+template <class Parameter>
+QList<Parameter> readParameterHistory(QSettings *settings,
+                                      const QString &settingsGroup,
+                                      const QString &arrayName)
+{
+    QList<Parameter> result;
+    settings->beginGroup(settingsGroup);
+    const int arraySize = settings->beginReadArray(arrayName);
+    for (int i = 0; i < arraySize; ++i) {
+        settings->setArrayIndex(i);
+        Parameter p;
+        p.fromSettings(settings);
+        result.push_back(p);
+    }
+    settings->endArray();
+    if (result.isEmpty()) { // First time: Read old settings.
+        Parameter p;
+        p.fromSettings(settings);
+        result.push_back(p);
+    }
+    settings->endGroup();
+    return result;
+}
+
+// Write parameter history (start external, remote) to settings.
+template <class Parameter>
+void writeParameterHistory(const QList<Parameter> &history,
+                           QSettings *settings,
+                           const QString &settingsGroup,
+                           const QString &arrayName)
+{
+    settings->beginGroup(settingsGroup);
+    settings->beginWriteArray(arrayName);
+    for (int i = 0; i < history.size(); ++i) {
+        settings->setArrayIndex(i);
+        history.at(i).toSettings(settings);
+    }
+    settings->endArray();
+    settings->endGroup();
+}
+
+bool StartExternalDialog::run(QWidget *parent,
+                              QSettings *settings,
+                              DebuggerStartParameters *sp)
+{
+    const QString settingsGroup = _("DebugMode");
+    const QString arrayName = _("StartExternal");
+    QList<StartExternalParameters> history =
+        readParameterHistory<StartExternalParameters>(settings, settingsGroup, arrayName);
+    QTC_ASSERT(!history.isEmpty(), return false);
+
+    StartExternalDialog dialog(parent);
+    dialog.setHistory(history);
+    dialog.setParameters(history.back());
+    if (dialog.exec() != QDialog::Accepted)
+        return false;
+    const StartExternalParameters newParameters = dialog.parameters();
+
+    if (newParameters != history.back()) {
+        history.push_back(newParameters);
+        if (history.size() > 10)
+            history.pop_front();
+        writeParameterHistory(history, settings, settingsGroup, arrayName);
+    }
+
+    sp->executable = newParameters.executableFile;
+    sp->startMode = StartExternal;
+    sp->toolChainAbi = dialog.abi();
+    sp->debuggerCommand = dialog.debuggerCommand();
+    sp->workingDirectory = newParameters.workingDirectory;
+    sp->displayName = sp->executable;
+    sp->useTerminal = newParameters.runInTerminal;
+    if (!newParameters.arguments.isEmpty())
+        sp->processArgs = newParameters.arguments;
+    // Fixme: 1 of 3 testing hacks.
+    if (sp->processArgs.startsWith(__("@tcf@ ")) || sp->processArgs.startsWith(__("@sym@ ")))
+        // Set up an ARM Symbian Abi
+        sp->toolChainAbi = ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture,
+                                                ProjectExplorer::Abi::SymbianOS,
+                                                ProjectExplorer::Abi::SymbianDeviceFlavor,
+                                                ProjectExplorer::Abi::ElfFormat, false);
+
+    sp->breakOnMain = newParameters.breakAtMain;
+    return true;
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // StartRemoteDialog
 //
 ///////////////////////////////////////////////////////////////////////
+
+class StartRemoteParameters
+{
+public:
+    StartRemoteParameters();
+    bool equals(const StartRemoteParameters &rhs) const;
+    QString displayName() const { return remoteChannel; }
+    bool isValid() const { return !remoteChannel.isEmpty(); }
+
+    void toSettings(QSettings *) const;
+    void fromSettings(const QSettings *settings);
+
+    QString localExecutable;
+    QString remoteChannel;
+    QString remoteArchitecture;
+    QString overrideStartScript;
+    bool useServerStartScript;
+    QString serverStartScript;
+    QString sysroot;
+    int abiIndex;
+    QString debugInfoLocation;
+};
+
+} // namespace Internal
+} // namespace Debugger
+
+Q_DECLARE_METATYPE(Debugger::Internal::StartRemoteParameters)
+
+namespace Debugger {
+namespace Internal {
+
+inline bool operator==(const StartRemoteParameters &p1, const StartRemoteParameters &p2)
+{ return p1.equals(p2); }
+
+inline bool operator!=(const StartRemoteParameters &p1, const StartRemoteParameters &p2)
+{ return !p1.equals(p2); }
+
+StartRemoteParameters::StartRemoteParameters() :
+    useServerStartScript(false), abiIndex(0)
+{
+}
+
+bool StartRemoteParameters::equals(const StartRemoteParameters &rhs) const
+{
+    return localExecutable == rhs.localExecutable && remoteChannel ==rhs.remoteChannel
+            && remoteArchitecture == rhs.remoteArchitecture
+            && overrideStartScript == rhs.overrideStartScript
+            && useServerStartScript == rhs.useServerStartScript
+            && serverStartScript == rhs.serverStartScript
+            && sysroot == rhs.sysroot && abiIndex == rhs.abiIndex
+            && debugInfoLocation == rhs.debugInfoLocation;
+}
+
+void StartRemoteParameters::toSettings(QSettings *settings) const
+{
+    settings->setValue(_("LastRemoteChannel"), remoteChannel);
+    settings->setValue(_("LastLocalExecutable"), localExecutable);
+    settings->setValue(_("LastExternalAbiIndex"), abiIndex);
+    settings->setValue(_("LastRemoteArchitecture"), remoteArchitecture);
+    settings->setValue(_("LastServerStartScript"), serverStartScript);
+    settings->setValue(_("LastUseServerStartScript"), useServerStartScript);
+    settings->setValue(_("LastRemoteStartScript"), overrideStartScript);
+    settings->setValue(_("LastSysroot"), sysroot);
+    settings->setValue(_("LastDebugInfoLocation"), debugInfoLocation);
+}
+
+void StartRemoteParameters::fromSettings(const QSettings *settings)
+{
+    remoteChannel = settings->value(_("LastRemoteChannel")).toString();
+    localExecutable = settings->value(_("LastLocalExecutable")).toString();
+    abiIndex = settings->value(_("LastExternalAbiIndex")).toInt();
+    remoteArchitecture = settings->value(_("LastRemoteArchitecture")).toString();
+    serverStartScript = settings->value(_("LastServerStartScript")).toString();
+    useServerStartScript = settings->value(_("LastUseServerStartScript")).toBool();
+    overrideStartScript = settings->value(_("LastRemoteStartScript")).toString();
+    sysroot = settings->value(_("LastSysroot")).toString();
+    debugInfoLocation = settings->value(_("LastDebugInfoLocation")).toString();
+}
 
 StartRemoteDialog::StartRemoteDialog(QWidget *parent, bool enableStartScript)
   : QDialog(parent),
@@ -580,7 +825,8 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent, bool enableStartScript)
         SLOT(updateState()));
     connect(m_ui->buttonBox, SIGNAL(accepted()), SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), SLOT(reject()));
-
+    connect(m_ui->historyComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(historyIndexChanged(int)));
     updateState();
 }
 
@@ -589,24 +835,102 @@ StartRemoteDialog::~StartRemoteDialog()
     delete m_ui;
 }
 
-void StartRemoteDialog::setRemoteChannel(const QString &channel)
+bool StartRemoteDialog::run(QWidget *parent,
+                            QSettings *settings,
+                            bool useScript,
+                            DebuggerStartParameters *sp)
 {
-    m_ui->channelLineEdit->setText(channel);
+    const QString settingsGroup = _("DebugMode");
+    const QString arrayName = useScript ?
+        _("StartRemoteScript") : _("StartRemote");
+
+    QStringList arches;
+    arches << _("i386:x86-64:intel") << _("i386") << _("arm");
+
+    QList<StartRemoteParameters> history =
+        readParameterHistory<StartRemoteParameters>(settings, settingsGroup, arrayName);
+    QTC_ASSERT(!history.isEmpty(), return false);
+
+    foreach (const StartRemoteParameters &h, history)
+        if (!arches.contains(h.remoteArchitecture))
+            arches.prepend(h.remoteArchitecture);
+
+    StartRemoteDialog dialog(parent, useScript);
+    dialog.setRemoteArchitectures(arches);
+    dialog.setHistory(history);
+    dialog.setParameters(history.back());
+    if (dialog.exec() != QDialog::Accepted)
+        return false;
+    const StartRemoteParameters newParameters = dialog.parameters();
+
+    if (newParameters != history.back()) {
+        history.push_back(newParameters);
+        if (history.size() > 10)
+            history.pop_front();
+        writeParameterHistory(history, settings, settingsGroup, arrayName);
+    }
+
+    sp->remoteChannel = newParameters.remoteChannel;
+    sp->remoteArchitecture = newParameters.remoteArchitecture;
+    sp->executable = newParameters.localExecutable;
+    sp->displayName = tr("Remote: \"%1\"").arg(sp->remoteChannel);
+    sp->debuggerCommand = dialog.debuggerCommand();
+    sp->toolChainAbi = dialog.abi();
+    sp->overrideStartScript = newParameters.overrideStartScript;
+    sp->useServerStartScript = newParameters.useServerStartScript;
+    sp->serverStartScript = newParameters.serverStartScript;
+    sp->sysroot = newParameters.sysroot;
+    sp->debugInfoLocation = newParameters.debugInfoLocation;
+    return true;
 }
 
-QString StartRemoteDialog::remoteChannel() const
+StartRemoteParameters StartRemoteDialog::parameters() const
 {
-    return m_ui->channelLineEdit->text();
+    StartRemoteParameters result;
+    result.remoteChannel = m_ui->channelLineEdit->text();
+    result.localExecutable = m_ui->executablePathChooser->path();
+    result.remoteArchitecture = m_ui->architectureComboBox->currentText();
+    result.overrideStartScript = m_ui->overrideStartScriptPathChooser->path();
+    result.useServerStartScript = m_ui->useServerStartScriptCheckBox->isChecked();
+    result.serverStartScript = m_ui->serverStartScriptPathChooser->path();
+    result.sysroot = m_ui->sysrootPathChooser->path();
+    result.abiIndex = m_ui->toolchainComboBox->currentIndex();
+    result.debugInfoLocation = m_ui->debuginfoPathChooser->path();
+    return result;
 }
 
-void StartRemoteDialog::setLocalExecutable(const QString &executable)
+void StartRemoteDialog::setParameters(const StartRemoteParameters &p)
 {
-    m_ui->executablePathChooser->setPath(executable);
+    m_ui->channelLineEdit->setText(p.remoteChannel);
+    m_ui->executablePathChooser->setPath(p.localExecutable);
+    const int index = m_ui->architectureComboBox->findText(p.remoteArchitecture);
+    if (index != -1)
+        m_ui->architectureComboBox->setCurrentIndex(index);
+    m_ui->overrideStartScriptPathChooser->setPath(p.overrideStartScript);
+    m_ui->useServerStartScriptCheckBox->setChecked(p.useServerStartScript);
+    m_ui->serverStartScriptPathChooser->setPath(p.serverStartScript);
+    m_ui->sysrootPathChooser->setPath(p.sysroot);
+    if (p.abiIndex >= 0 && p.abiIndex < m_ui->toolchainComboBox->count())
+        m_ui->toolchainComboBox->setCurrentIndex(p.abiIndex);
+    m_ui->debuginfoPathChooser->setPath(p.debugInfoLocation);
 }
 
-QString StartRemoteDialog::localExecutable() const
+void StartRemoteDialog::setHistory(const QList<StartRemoteParameters> &l)
 {
-    return m_ui->executablePathChooser->path();
+    m_ui->historyComboBox->clear();
+    for (int i = l.size() -  1; i >= 0; --i)
+        if (l.at(i).isValid())
+            m_ui->historyComboBox->addItem(l.at(i).displayName(),
+                                           QVariant::fromValue(l.at(i)));
+}
+
+void StartRemoteDialog::historyIndexChanged(int index)
+{
+    if (index < 0)
+        return;
+    const QVariant v = m_ui->historyComboBox->itemData(index);
+    QTC_ASSERT(v.canConvert<StartRemoteParameters>(), return);
+    setParameters(v.value<StartRemoteParameters>());
 }
 
 ProjectExplorer::Abi StartRemoteDialog::abi() const
@@ -614,30 +938,9 @@ ProjectExplorer::Abi StartRemoteDialog::abi() const
     return m_ui->toolchainComboBox->abi();
 }
 
-void StartRemoteDialog::setAbiIndex(int i)
-{
-    if (i >= 0 && i < m_ui->toolchainComboBox->count())
-        m_ui->toolchainComboBox->setCurrentIndex(i);
-}
-
-int StartRemoteDialog::abiIndex() const
-{
-    return m_ui->toolchainComboBox->currentIndex();
-}
-
 QString StartRemoteDialog::debuggerCommand() const
 {
     return m_ui->toolchainComboBox->debuggerCommand();
-}
-
-void StartRemoteDialog::setDebugInfoLocation(const QString &location)
-{
-    m_ui->debuginfoPathChooser->setPath(location);
-}
-
-QString StartRemoteDialog::debugInfoLocation() const
-{
-    return m_ui->debuginfoPathChooser->path();
 }
 
 void StartRemoteDialog::setRemoteArchitectures(const QStringList &list)
@@ -647,58 +950,6 @@ void StartRemoteDialog::setRemoteArchitectures(const QStringList &list)
         m_ui->architectureComboBox->insertItems(0, list);
         m_ui->architectureComboBox->setCurrentIndex(0);
     }
-}
-
-void StartRemoteDialog::setRemoteArchitecture(const QString &arch)
-{
-    int index = m_ui->architectureComboBox->findText(arch);
-    if (index != -1)
-        m_ui->architectureComboBox->setCurrentIndex(index);
-}
-
-QString StartRemoteDialog::remoteArchitecture() const
-{
-    return m_ui->architectureComboBox->currentText();
-}
-
-QString StartRemoteDialog::overrideStartScript() const
-{
-    return m_ui->overrideStartScriptPathChooser->path();
-}
-
-void StartRemoteDialog::setOverrideStartScript(const QString &scriptName)
-{
-    m_ui->overrideStartScriptPathChooser->setPath(scriptName);
-}
-
-void StartRemoteDialog::setServerStartScript(const QString &scriptName)
-{
-    m_ui->serverStartScriptPathChooser->setPath(scriptName);
-}
-
-QString StartRemoteDialog::serverStartScript() const
-{
-    return m_ui->serverStartScriptPathChooser->path();
-}
-
-void StartRemoteDialog::setUseServerStartScript(bool on)
-{
-    m_ui->useServerStartScriptCheckBox->setChecked(on);
-}
-
-bool StartRemoteDialog::useServerStartScript() const
-{
-    return m_ui->useServerStartScriptCheckBox->isChecked();
-}
-
-void StartRemoteDialog::setSysroot(const QString &sysroot)
-{
-    m_ui->sysrootPathChooser->setPath(sysroot);
-}
-
-QString StartRemoteDialog::sysroot() const
-{
-    return m_ui->sysrootPathChooser->path();
 }
 
 void StartRemoteDialog::updateState()

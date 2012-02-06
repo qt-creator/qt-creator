@@ -43,11 +43,14 @@ class QModelIndex;
 class QPushButton;
 class QLineEdit;
 class QDialogButtonBox;
+class QSettings;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Abi; }
 
 namespace Debugger {
+class DebuggerStartParameters;
+
 namespace Internal {
 
 namespace Ui {
@@ -60,6 +63,8 @@ class StartRemoteEngineDialog;
 } // namespace Ui
 
 class ProcessListFilterModel;
+class StartExternalParameters;
+class StartRemoteParameters;
 
 class AttachCoreDialog : public QDialog
 {
@@ -137,31 +142,25 @@ public:
     explicit StartExternalDialog(QWidget *parent);
     ~StartExternalDialog();
 
-    QString executableFile() const;
-    void setExecutableFile(const QString &executable);
-
-    QString executableArguments() const;
-    void setExecutableArguments(const QString &args);
-
-    QString workingDirectory() const;
-    void setWorkingDirectory(const QString &str);
-
-    int abiIndex() const;
-    void setAbiIndex(int);
-    ProjectExplorer::Abi abi() const;
-    QString debuggerCommand();
-
-    bool breakAtMain() const;
-
-    bool runInTerminal() const;
-    void setRunInTerminal(bool v);
-
-    bool isValid() const;
+    static bool run(QWidget *parent, QSettings *settings, DebuggerStartParameters *sp);
 
 private slots:
     void changed();
+    void historyIndexChanged(int);
 
 private:
+    StartExternalParameters parameters() const;
+    void setParameters(const StartExternalParameters &p);
+    void setHistory(const QList<StartExternalParameters> l);
+
+    QString executableFile() const;
+    void setExecutableFile(const QString &executable);
+
+    ProjectExplorer::Abi abi() const;
+    QString debuggerCommand();
+
+    bool isValid() const;
+
     Ui::StartExternalDialog *m_ui;
 };
 
@@ -173,40 +172,23 @@ public:
     explicit StartRemoteDialog(QWidget *parent, bool enableStartScript);
     ~StartRemoteDialog();
 
-    QString localExecutable() const;
-    void setLocalExecutable(const QString &executable);
-
-    QString remoteChannel() const;
-    void setRemoteChannel(const QString &host);
-
-    QString remoteArchitecture() const;
-    void setRemoteArchitecture(const QString &arch);
-    void setRemoteArchitectures(const QStringList &arches);
-
-    QString overrideStartScript() const;
-    void setOverrideStartScript(const QString &scriptName);
-
-    bool useServerStartScript() const;
-    void setUseServerStartScript(bool on);
-
-    QString serverStartScript() const;
-    void setServerStartScript(const QString &scriptName);
-
-    QString sysroot() const;
-    void setSysroot(const QString &sysroot);
-
-    int abiIndex() const;
-    void setAbiIndex(int);
-    ProjectExplorer::Abi abi() const;
-    QString debuggerCommand() const;
-
-    void setDebugInfoLocation(const QString &location);
-    QString debugInfoLocation() const;
+    static bool run(QWidget *parent, QSettings *settings,
+                    bool useScript, DebuggerStartParameters *sp);
 
 private slots:
     void updateState();
+    void historyIndexChanged(int);
 
 private:
+    StartRemoteParameters parameters() const;
+    void setParameters(const StartRemoteParameters &);
+    void setHistory(const QList<StartRemoteParameters> &);
+
+    void setRemoteArchitectures(const QStringList &list);
+
+    ProjectExplorer::Abi abi() const;
+    QString debuggerCommand() const;
+
     Ui::StartRemoteDialog *m_ui;
 };
 
