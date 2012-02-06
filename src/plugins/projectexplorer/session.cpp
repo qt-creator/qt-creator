@@ -86,9 +86,6 @@ class SessionFile : QObject
 public:
     SessionFile();
 
-public slots:
-    void sessionLoadingProgress();
-
 private:
     QList<Project *> m_projects;
     Project *m_startupProject;
@@ -106,12 +103,6 @@ private:
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
-
-void SessionFile::sessionLoadingProgress()
-{
-    future.setProgressValue(future.progressValue() + 1);
-    QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-}
 
 SessionFile::SessionFile()
   :  m_startupProject(0)
@@ -448,7 +439,7 @@ bool SessionManager::loadImpl(const QString &fileName)
             m_file->m_failedProjects.removeAll(p->file()->fileName());
     }
 
-    m_file->sessionLoadingProgress();
+    sessionLoadingProgress();
 
     // convert the relative paths in the dependency map to absolute paths
     QMap<QString, QVariant> depMap = reader.restoreValue(QLatin1String("ProjectDependencies")).toMap();
@@ -483,11 +474,11 @@ bool SessionManager::loadImpl(const QString &fileName)
     const QVariant &editorsettings = reader.restoreValue(QLatin1String("EditorSettings"));
     if (editorsettings.isValid()) {
         connect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
-                m_file, SLOT(sessionLoadingProgress()));
+                this, SLOT(sessionLoadingProgress()));
         ICore::editorManager()->restoreState(
             QByteArray::fromBase64(editorsettings.toByteArray()));
         disconnect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
-                   m_file, SLOT(sessionLoadingProgress()));
+                   this, SLOT(sessionLoadingProgress()));
     }
 
     m_file->future.reportFinished();
@@ -997,7 +988,7 @@ SessionNode *SessionManager::sessionNode() const
 
 void SessionManager::reportProjectLoadingProgress()
 {
-    m_file->sessionLoadingProgress();
+    sessionLoadingProgress();
 }
 
 void SessionManager::markSessionFileDirty(bool makeDefaultVirginDirty)
@@ -1005,6 +996,12 @@ void SessionManager::markSessionFileDirty(bool makeDefaultVirginDirty)
     m_autoSaveSessionTimer->start();
     if (makeDefaultVirginDirty)
         m_virginSession = false;
+}
+
+void SessionManager::sessionLoadingProgress()
+{
+    m_file->future.setProgressValue(m_file->future.progressValue() + 1);
+    QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 }
 
 #include "session.moc"

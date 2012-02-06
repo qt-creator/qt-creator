@@ -148,6 +148,7 @@ private slots:
     void updateWindowTitle();
 
     void markSessionFileDirty(bool makeDefaultVirginDirty = true);
+    void sessionLoadingProgress();
 
 private:
     bool loadImpl(const QString &fileName);
