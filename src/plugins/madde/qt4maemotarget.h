@@ -33,7 +33,7 @@
 #ifndef QT4MAEMOTARGET_H
 #define QT4MAEMOTARGET_H
 
-#include <qt4projectmanager/qt4target.h>
+#include <remotelinux/abstractembeddedlinuxtarget.h>
 
 #include <QtCore/QIODevice>
 #include <QtCore/QSharedPointer>
@@ -53,7 +53,7 @@ namespace Internal {
 class Qt4MaemoDeployConfigurationFactory;
 class WatchableFile;
 
-class AbstractQt4MaemoTarget : public Qt4ProjectManager::Qt4BaseTarget
+class AbstractQt4MaemoTarget : public RemoteLinux::AbstractEmbeddedLinuxTarget
 {
     friend class Qt4MaemoTargetFactory;
     Q_OBJECT
@@ -62,7 +62,6 @@ public:
         const QString &id);
     virtual ~AbstractQt4MaemoTarget();
 
-    ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
     void createApplicationProFiles(bool reparse);
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
     QList<ProjectExplorer::ToolChain *> possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const;
@@ -109,7 +108,6 @@ private:
     bool initPackagingSettingsFromOtherTarget();
     virtual bool initAdditionalPackagingSettingsFromOtherTarget() = 0;
 
-    Qt4ProjectManager::Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
     bool m_isInitialized;
 };
 

@@ -34,7 +34,7 @@
 
 #include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxdeployconfigurationfactory.h"
-#include "embeddedlinuxtarget.h"
+#include "genericembeddedlinuxtarget.h"
 #include "remotelinux_constants.h"
 
 #include <projectexplorer/customexecutablerunconfiguration.h>
@@ -109,7 +109,7 @@ ProjectExplorer::Target *EmbeddedLinuxTargetFactory::restore(ProjectExplorer::Pr
 {
     Q_ASSERT(canRestore(parent, map));
 
-    EmbeddedLinuxTarget *t = new EmbeddedLinuxTarget(static_cast<Qt4ProjectManager::Qt4Project *>(parent),
+    GenericEmbeddedLinuxTarget *t = new GenericEmbeddedLinuxTarget(static_cast<Qt4ProjectManager::Qt4Project *>(parent),
                                                      Constants::EMBEDDED_LINUX_TARGET_ID);
     if (t->fromMap(map))
         return t;
@@ -154,7 +154,7 @@ ProjectExplorer::Target *EmbeddedLinuxTargetFactory::create(ProjectExplorer::Pro
     if (!canCreate(parent, id) || infos.isEmpty())
         return 0;
 
-    EmbeddedLinuxTarget *t = new EmbeddedLinuxTarget(static_cast<Qt4ProjectManager::Qt4Project *>(parent), id);
+    GenericEmbeddedLinuxTarget *t = new GenericEmbeddedLinuxTarget(static_cast<Qt4ProjectManager::Qt4Project *>(parent), id);
 
     foreach (const Qt4ProjectManager::BuildConfigurationInfo &info, infos)
         t->addQt4BuildConfiguration(msgBuildConfigurationName(info), QString(),

@@ -29,41 +29,31 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
+#ifndef ABSTRACTEMBEDDEDLINUXTARGET_H
+#define ABSTRACTEMBEDDEDLINUXTARGET_H
 
-#ifndef EMBEDDEDLINUXTARGET_H
-#define EMBEDDEDLINUXTARGET_H
+#include "remotelinux_export.h"
 
 #include <qt4projectmanager/qt4target.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
+
+namespace ProjectExplorer { class IBuildConfigurationFactory; }
+namespace Qt4ProjectManager { class Qt4BuildConfigurationFactory; }
 
 namespace RemoteLinux {
-namespace Internal {
 
-class EmbeddedLinuxTargetFactory;
-
-class EmbeddedLinuxTarget : public Qt4ProjectManager::Qt4BaseTarget
+class REMOTELINUX_EXPORT AbstractEmbeddedLinuxTarget : public Qt4ProjectManager::Qt4BaseTarget
 {
     Q_OBJECT
 
 public:
-    EmbeddedLinuxTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id);
-    ~EmbeddedLinuxTarget();
+    AbstractEmbeddedLinuxTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id);
 
     ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 
-    void createApplicationProFiles(bool reparse);
-
-    QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
-
-    Utils::FileName mkspec(const Qt4ProjectManager::Qt4BuildConfiguration *bc) const;
-
 private:
     Qt4ProjectManager::Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
-
-    friend class EmbeddedLinuxTargetFactory;
 };
 
-} // namespace Internal
 } // namespace RemoteLinux
 
-#endif // EMBEDDEDLINUXTARGET_H
+#endif // ABSTRACTEMBEDDEDLINUXTARGET_H

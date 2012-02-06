@@ -119,9 +119,8 @@ bool adaptTagValue(QByteArray &document, const QByteArray &fieldName,
 
 
 AbstractQt4MaemoTarget::AbstractQt4MaemoTarget(Qt4Project *parent, const QString &id) :
-    Qt4BaseTarget(parent, id),
+    AbstractEmbeddedLinuxTarget(parent, id),
     m_filesWatcher(new Utils::FileSystemWatcher(this)),
-    m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this)),
     m_isInitialized(false)
 {
     m_filesWatcher->setObjectName(QLatin1String("Qt4MaemoTarget"));
@@ -153,11 +152,6 @@ QList<ProjectExplorer::ToolChain *> AbstractQt4MaemoTarget::possibleToolChains(P
     }
 
     return result;
-}
-
-ProjectExplorer::IBuildConfigurationFactory *AbstractQt4MaemoTarget::buildConfigurationFactory() const
-{
-    return m_buildConfigurationFactory;
 }
 
 void AbstractQt4MaemoTarget::createApplicationProFiles(bool reparse)

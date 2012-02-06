@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include "embeddedlinuxtarget.h"
+#include "genericembeddedlinuxtarget.h"
 
 #include "remotelinux_constants.h"
 #include "remotelinuxrunconfiguration.h"
@@ -46,24 +46,13 @@
 namespace RemoteLinux {
 namespace Internal {
 
-EmbeddedLinuxTarget::EmbeddedLinuxTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id) :
-    Qt4ProjectManager::Qt4BaseTarget(parent, id),
-    m_buildConfigurationFactory(new Qt4ProjectManager::Qt4BuildConfigurationFactory)
+GenericEmbeddedLinuxTarget::GenericEmbeddedLinuxTarget(Qt4ProjectManager::Qt4Project *parent,
+    const QString &id) : AbstractEmbeddedLinuxTarget(parent, id)
 {
     setDisplayName(tr("Embedded Linux"));
 }
 
-EmbeddedLinuxTarget::~EmbeddedLinuxTarget()
-{
-    delete m_buildConfigurationFactory;
-}
-
-ProjectExplorer::IBuildConfigurationFactory *EmbeddedLinuxTarget::buildConfigurationFactory() const
-{
-    return m_buildConfigurationFactory;
-}
-
-QList<ProjectExplorer::RunConfiguration *> EmbeddedLinuxTarget::runConfigurationsForNode(ProjectExplorer::Node *n)
+QList<ProjectExplorer::RunConfiguration *> GenericEmbeddedLinuxTarget::runConfigurationsForNode(ProjectExplorer::Node *n)
 {
     QList<ProjectExplorer::RunConfiguration *> result;
     foreach (ProjectExplorer::RunConfiguration *rc, runConfigurations())
@@ -73,7 +62,7 @@ QList<ProjectExplorer::RunConfiguration *> EmbeddedLinuxTarget::runConfiguration
     return result;
 }
 
-Utils::FileName EmbeddedLinuxTarget::mkspec(const Qt4ProjectManager::Qt4BuildConfiguration *bc) const
+Utils::FileName GenericEmbeddedLinuxTarget::mkspec(const Qt4ProjectManager::Qt4BuildConfiguration *bc) const
 {
    QtSupport::BaseQtVersion *version = bc->qtVersion();
    if (!version)
@@ -81,7 +70,7 @@ Utils::FileName EmbeddedLinuxTarget::mkspec(const Qt4ProjectManager::Qt4BuildCon
    return version->mkspec();
 }
 
-void EmbeddedLinuxTarget::createApplicationProFiles(bool reparse)
+void GenericEmbeddedLinuxTarget::createApplicationProFiles(bool reparse)
 {
     if (!reparse)
         removeUnconfiguredCustomExectutableRunConfigurations();

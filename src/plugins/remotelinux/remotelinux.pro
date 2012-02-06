@@ -5,7 +5,7 @@ include(../../qtcreatorplugin.pri)
 include(remotelinux_dependencies.pri)
 
 HEADERS += \
-    embeddedlinuxtarget.h \
+    genericembeddedlinuxtarget.h \
     embeddedlinuxtargetfactory.h \
     embeddedlinuxqtversion.h \
     embeddedlinuxqtversionfactory.h \
@@ -60,10 +60,11 @@ HEADERS += \
     profilesupdatedialog.h \
     startgdbserverdialog.h \
     remotelinuxcustomcommanddeployservice.h \
-    remotelinuxcustomcommanddeploymentstep.h
+    remotelinuxcustomcommanddeploymentstep.h \
+    abstractembeddedlinuxtarget.h
 
 SOURCES += \
-    embeddedlinuxtarget.cpp \
+    genericembeddedlinuxtarget.cpp \
     embeddedlinuxtargetfactory.cpp \
     embeddedlinuxqtversion.cpp \
     embeddedlinuxqtversionfactory.cpp \
@@ -115,7 +116,8 @@ SOURCES += \
     profilesupdatedialog.cpp \
     startgdbserverdialog.cpp \
     remotelinuxcustomcommanddeployservice.cpp \
-    remotelinuxcustomcommanddeploymentstep.cpp
+    remotelinuxcustomcommanddeploymentstep.cpp \
+    abstractembeddedlinuxtarget.cpp
 
 FORMS += \
     linuxdevicefactoryselectiondialog.ui \
