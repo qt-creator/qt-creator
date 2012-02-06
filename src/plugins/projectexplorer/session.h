@@ -170,6 +170,7 @@ private:
     QTimer *m_autoSaveSessionTimer;
 
     Project *m_startupProject;
+    QList<Project *> m_projects;
 };
 
 } // namespace ProjectExplorer

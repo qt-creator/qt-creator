@@ -87,7 +87,6 @@ public:
     SessionFile();
 
 private:
-    QList<Project *> m_projects;
     QStringList m_failedProjects;
     QMap<QString, QStringList> m_depMap;
 
@@ -273,7 +272,7 @@ void SessionManager::setStartupProject(Project *startupProject)
         qDebug() << Q_FUNC_INFO << (startupProject ? startupProject->displayName() : QLatin1String("0"));
 
     if (startupProject) {
-        Q_ASSERT(m_file->m_projects.contains(startupProject));
+        Q_ASSERT(m_projects.contains(startupProject));
     }
 
     if (m_startupProject == startupProject)
@@ -298,9 +297,9 @@ void SessionManager::addProjects(const QList<Project*> &projects)
     m_virginSession = false;
     QList<Project*> clearedList;
     foreach (Project *pro, projects) {
-        if (!m_file->m_projects.contains(pro)) {
+        if (!m_projects.contains(pro)) {
             clearedList.append(pro);
-            m_file->m_projects.append(pro);
+            m_projects.append(pro);
             m_sessionNode->addProjectNodes(QList<ProjectNode *>() << pro->rootProjectNode());
 
             connect(pro, SIGNAL(fileListChanged()),
@@ -320,8 +319,8 @@ void SessionManager::addProjects(const QList<Project*> &projects)
 
     // maybe we have a new startup project?
     if (!startupProject())
-        if (!m_file->m_projects.isEmpty())
-            setStartupProject(m_file->m_projects.first());
+        if (!m_projects.isEmpty())
+            setStartupProject(m_projects.first());
 }
 
 void SessionManager::removeProject(Project *project)
@@ -462,7 +461,7 @@ bool SessionManager::loadImpl(const QString &fileName)
     const QString startupProject = reader.restoreValue(QLatin1String("StartupProject")).toString();
     if (!startupProject.isEmpty()) {
         const QString startupProjectPath = startupProject;
-        foreach (Project *pro, m_file->m_projects) {
+        foreach (Project *pro, m_projects) {
             if (QDir::cleanPath(pro->file()->fileName()) == startupProjectPath) {
                 m_startupProject = pro;
                 break;
@@ -538,7 +537,7 @@ bool SessionManager::save()
     }
 
     QStringList projectFiles;
-    foreach (Project *pro, m_file->m_projects)
+    foreach (Project *pro, m_projects)
         projectFiles << pro->file()->fileName();
 
     // Restore infromation on projects that failed to load:
@@ -622,7 +621,7 @@ bool SessionManager::clear()
 
 const QList<Project *> &SessionManager::projects() const
 {
-    return m_file->m_projects;
+    return m_projects;
 }
 
 QStringList SessionManager::dependencies(const QString &proName) const
@@ -825,7 +824,7 @@ void SessionManager::removeProjects(QList<Project *> remove)
     // Delete projects
     foreach (Project *pro, remove) {
         pro->saveSettings();
-        m_file->m_projects.removeOne(pro);
+        m_projects.removeOne(pro);
 
         if (pro == m_startupProject)
             setStartupProject(0);
@@ -842,8 +841,8 @@ void SessionManager::removeProjects(QList<Project *> remove)
     }
 
     if (startupProject() == 0)
-        if (!m_file->m_projects.isEmpty())
-            setStartupProject(m_file->m_projects.first());
+        if (!m_projects.isEmpty())
+            setStartupProject(m_projects.first());
 }
 
 /*!
