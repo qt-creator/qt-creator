@@ -114,7 +114,7 @@ bool Debugger::Internal::interruptProcess(int pID, int engineType, QString *erro
         static const bool hostIsWow64Process = isWow64Process(GetCurrentProcess());
         const bool useDebugBreakApi = engineType == CdbEngineType ?
                                       !hostIsWow64Process :
-                                      isWow64Process(inferior);
+                                      !isWow64Process(inferior);
 #endif
         if (useDebugBreakApi) {
             ok = DebugBreakProcess(inferior);
