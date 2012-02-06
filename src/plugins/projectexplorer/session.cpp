@@ -500,68 +500,69 @@ bool SessionManager::loadImpl(const QString &fileName)
     if (debug)
         qDebug() << "SessionManager - restoring session " << fileName << " ...";
 
-    bool success = true;
     if (isDefaultVirgin()) {
         // do not save initial and virgin default session
     } else if (!save() || !clear()) {
-        success = false;
+        m_virginSession = false;
+        if (debug)
+            qDebug() << "SessionManager - restoring session returned " << false;
+        return false;
     }
 
     m_virginSession = false;
 
-    if (success) {
-        emit aboutToUnloadSession();
-        delete m_file;
-        m_file = new SessionFile;
-        const QString &sessionName = sessionNameFromFileName(fileName);
-        emit aboutToLoadSession(sessionName);
-        m_sessionName = sessionName;
-        updateWindowTitle();
-        if (!m_file->load(fileName)) {
-            QMessageBox::warning(0, tr("Error while restoring session"),
-                                    tr("Could not restore session %1").arg(fileName));
-            success = false;
-        }
-        // m_file->load() sets the m_file->startupProject
-        // but doesn't emit this signal, so we do it here
-        emit startupProjectChanged(m_file->m_startupProject);
+    emit aboutToUnloadSession();
+    delete m_file;
+    m_file = new SessionFile;
+    const QString &sessionName = sessionNameFromFileName(fileName);
+    emit aboutToLoadSession(sessionName);
+    m_sessionName = sessionName;
+    updateWindowTitle();
+    if (!m_file->load(fileName)) {
+        QMessageBox::warning(0, tr("Error while restoring session"),
+                                tr("Could not restore session %1").arg(fileName));
+        if (debug)
+            qDebug() << "SessionManager - restoring session returned " << false;
 
-        QStringList failedProjects = m_file->failedProjectFileNames();
-        if (!failedProjects.isEmpty()) {
-            QString fileList =
-                QDir::toNativeSeparators(failedProjects.join(QLatin1String("<br>")));
-            QMessageBox * box = new QMessageBox(QMessageBox::Warning,
-                                                tr("Failed to restore project files"),
-                                                tr("Could not restore the following project files:<br><b>%1</b>").
-                                                arg(fileList));
-            QPushButton * keepButton = new QPushButton(tr("Keep projects in Session"), box);
-            QPushButton * removeButton = new QPushButton(tr("Remove projects from Session"), box);
-            box->addButton(keepButton, QMessageBox::AcceptRole);
-            box->addButton(removeButton, QMessageBox::DestructiveRole);
+        return false;
+    }
+    // m_file->load() sets the m_file->startupProject
+    // but doesn't emit this signal, so we do it here
+    emit startupProjectChanged(m_file->m_startupProject);
 
-            box->exec();
+    QStringList failedProjects = m_file->failedProjectFileNames();
+    if (!failedProjects.isEmpty()) {
+        QString fileList =
+            QDir::toNativeSeparators(failedProjects.join(QLatin1String("<br>")));
+        QMessageBox * box = new QMessageBox(QMessageBox::Warning,
+                                            tr("Failed to restore project files"),
+                                            tr("Could not restore the following project files:<br><b>%1</b>").
+                                            arg(fileList));
+        QPushButton * keepButton = new QPushButton(tr("Keep projects in Session"), box);
+        QPushButton * removeButton = new QPushButton(tr("Remove projects from Session"), box);
+        box->addButton(keepButton, QMessageBox::AcceptRole);
+        box->addButton(removeButton, QMessageBox::DestructiveRole);
 
-            if (box->clickedButton() == removeButton)
-                m_file->clearFailedProjectFileNames();
-        }
+        box->exec();
+
+        if (box->clickedButton() == removeButton)
+            m_file->clearFailedProjectFileNames();
     }
 
-    if (success) {
-        // restore the active mode
-        QString modeIdentifier = value(QLatin1String("ActiveMode")).toString();
-        if (modeIdentifier.isEmpty())
-            modeIdentifier = QLatin1String(Core::Constants::MODE_EDIT);
+    // restore the active mode
+    QString modeIdentifier = value(QLatin1String("ActiveMode")).toString();
+    if (modeIdentifier.isEmpty())
+        modeIdentifier = QLatin1String(Core::Constants::MODE_EDIT);
 
-        ModeManager::activateMode(modeIdentifier);
-        ModeManager::setFocusToCurrentMode();
+    ModeManager::activateMode(modeIdentifier);
+    ModeManager::setFocusToCurrentMode();
 
-        emit sessionLoaded();
-    }
+    emit sessionLoaded();
 
     if (debug)
-        qDebug() << "SessionManager - restoring session returned " << success;
+        qDebug() << "SessionManager - restoring session returned " << true;
 
-    return success;
+    return true;
 }
 
 bool SessionManager::save()
