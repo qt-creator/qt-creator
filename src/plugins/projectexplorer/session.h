@@ -59,10 +59,6 @@ class Node;
 class SessionNode;
 class SessionManager;
 
-namespace Internal {
-class SessionNodeImpl;
-} // namespace Internal
-
 class PROJECTEXPLORER_EXPORT SessionManager : public QObject
 {
     Q_OBJECT
