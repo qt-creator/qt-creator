@@ -269,6 +269,7 @@ Rectangle {
         rangeDetails.file = "";
         rangeDetails.line = -1;
         rangeDetails.column = 0;
+        rangeDetails.isBindingLoop = false;
     }
 
     function selectNextWithId( eventId )
@@ -424,6 +425,7 @@ Rectangle {
                     rangeDetails.line = qmlEventList.getLine(selectedItem);
                     rangeDetails.column = qmlEventList.getColumn(selectedItem);
                     rangeDetails.type = root.names[qmlEventList.getType(selectedItem)];
+                    rangeDetails.isBindingLoop = qmlEventList.getBindingLoopDest(selectedItem)!==-1;
 
                     rangeDetails.visible = true;
 

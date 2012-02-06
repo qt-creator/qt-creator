@@ -65,16 +65,18 @@ struct QMLJSDEBUGCLIENT_EXPORT QmlEventData
     double percentOfTime;
     qint64 medianTime;
     int eventId;
+    bool isBindingLoop;
 
     QmlEventData &operator=(const QmlEventData &ref);
 };
 
 struct QMLJSDEBUGCLIENT_EXPORT QmlEventSub {
-    QmlEventSub(QmlEventData *from) : reference(from), duration(0), calls(0) {}
-    QmlEventSub(QmlEventSub *from) : reference(from->reference), duration(from->duration), calls(from->calls) {}
+    QmlEventSub(QmlEventData *from) : reference(from), duration(0), calls(0), inLoopPath(false) {}
+    QmlEventSub(QmlEventSub *from) : reference(from->reference), duration(from->duration), calls(from->calls), inLoopPath(from->inLoopPath) {}
     QmlEventData *reference;
     qint64 duration;
     qint64 calls;
+    bool inLoopPath;
 };
 
 struct QMLJSDEBUGCLIENT_EXPORT QV8EventData
@@ -142,10 +144,12 @@ public:
     Q_INVOKABLE int getColumn(int index) const;
     Q_INVOKABLE QString getDetails(int index) const;
     Q_INVOKABLE int getEventId(int index) const;
+    Q_INVOKABLE int getBindingLoopDest(int index) const;
     Q_INVOKABLE int getFramerate(int index) const;
     Q_INVOKABLE int getAnimationCount(int index) const;
     Q_INVOKABLE int getMaximumAnimationCount() const;
     Q_INVOKABLE int getMinimumAnimationCount() const;
+
 
     // per-type data
     Q_INVOKABLE int uniqueEventsOfType(int type) const;
@@ -206,6 +210,8 @@ private:
     void prepareForDisplay();
     void linkEndsToStarts();
     void reloadDetails();
+    void findBindingLoops(qint64 startTime, qint64 endTime);
+    bool checkBindingLoop(QmlEventData *from, QmlEventData *current, QList<QmlEventData *>visited);
 
 private:
     class QmlProfilerEventListPrivate;

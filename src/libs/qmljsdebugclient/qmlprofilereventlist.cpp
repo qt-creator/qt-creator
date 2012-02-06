@@ -71,6 +71,7 @@ QmlEventData::QmlEventData()
     timePerCall = 0;
     percentOfTime = 0;
     medianTime = 0;
+    isBindingLoop = false;
 }
 
 QmlEventData::~QmlEventData()
@@ -99,6 +100,7 @@ QmlEventData &QmlEventData::operator=(const QmlEventData &ref)
     percentOfTime = ref.percentOfTime;
     medianTime = ref.medianTime;
     eventId = ref.eventId;
+    isBindingLoop = ref.isBindingLoop;
 
     qDeleteAll(parentHash.values());
     parentHash.clear();
@@ -182,6 +184,8 @@ struct QmlEventStartTimeData {
     // animation-related data
     int frameRate;
     int animationCount;
+
+    int bindingLoopHead;
 };
 
 struct QmlEventTypeCount {
@@ -790,6 +794,9 @@ void QmlProfilerEventList::compileStatistics(qint64 startTime, qint64 endTime)
             iter.key()->medianTime = iter.value().at(iter.value().count()/2);
         }
     }
+
+    // find binding loops
+    findBindingLoops(startTime, endTime);
 }
 
 void QmlProfilerEventList::prepareForDisplay()
@@ -1061,6 +1068,59 @@ void QmlProfilerEventList::rewriteDetailsString(int eventType, const QmlJsDebugC
 void QmlProfilerEventList::finishedRewritingDetails()
 {
     emit reloadDetailLabels();
+}
+
+void QmlProfilerEventList::findBindingLoops(qint64 startTime, qint64 endTime)
+{
+    // first clear existing data
+    foreach (QmlEventData *event, d->m_eventDescriptions.values()) {
+        event->isBindingLoop = false;
+        foreach (QmlEventSub *parentEvent, event->parentHash.values())
+            parentEvent->inLoopPath = false;
+        foreach (QmlEventSub *childEvent, event->childrenHash.values())
+            childEvent->inLoopPath = false;
+    }
+
+    QList <QmlEventData *> stackRefs;
+    QList <QmlEventStartTimeData *> stack;
+    int fromIndex = findFirstIndex(startTime);
+    int toIndex = findLastIndex(endTime);
+
+    for (int i = 0; i < d->m_startTimeSortedList.count(); i++) {
+        QmlEventData *currentEvent = d->m_startTimeSortedList[i].description;
+        QmlEventStartTimeData *inTimeEvent = &d->m_startTimeSortedList[i];
+        inTimeEvent->bindingLoopHead = -1;
+
+        // managing call stack
+        for (int j = stack.count() - 1; j >= 0; j--) {
+            if (stack[j]->startTime + stack[j]->length < inTimeEvent->startTime) {
+                stack.removeAt(j);
+                stackRefs.removeAt(j);
+            }
+        }
+
+        bool loopDetected = stackRefs.contains(currentEvent);
+        stack << inTimeEvent;
+        stackRefs << currentEvent;
+
+        if (loopDetected) {
+            if (i >= fromIndex && i <= toIndex) {
+                // for the statistics
+                currentEvent->isBindingLoop = true;
+                for (int j = stackRefs.indexOf(currentEvent); j < stackRefs.count()-1; j++) {
+                    QmlEventSub *nextEventSub = stackRefs[j]->childrenHash.value(stackRefs[j+1]->eventHashStr);
+                    nextEventSub->inLoopPath = true;
+                    QmlEventSub *prevEventSub = stackRefs[j+1]->parentHash.value(stackRefs[j]->eventHashStr);
+                    prevEventSub->inLoopPath = true;
+                }
+            }
+
+            // use crossed references to find index in starttimesortedlist
+            QmlEventStartTimeData *head = stack[stackRefs.indexOf(currentEvent)];
+            inTimeEvent->bindingLoopHead = d->m_endTimeSortedList[head->endTimeIndex].startTimeIndex;
+            d->m_startTimeSortedList[inTimeEvent->bindingLoopHead].bindingLoopHead = i;
+        }
+    }
 }
 
 // get list of events between A and B:
@@ -1689,8 +1749,14 @@ QString QmlProfilerEventList::getDetails(int index) const
     return d->m_startTimeSortedList[index].description->details;
 }
 
-int QmlProfilerEventList::getEventId(int index) const {
+int QmlProfilerEventList::getEventId(int index) const
+{
     return d->m_startTimeSortedList[index].description->eventId;
+}
+
+int QmlProfilerEventList::getBindingLoopDest(int index) const
+{
+    return d->m_startTimeSortedList[index].bindingLoopHead;
 }
 
 int QmlProfilerEventList::getFramerate(int index) const

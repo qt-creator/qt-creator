@@ -54,6 +54,16 @@ using namespace QmlJsDebugClient;
 namespace QmlProfiler {
 namespace Internal {
 
+struct Colors {
+    Colors () {
+        this->bindingLoopBackground = QColor("orange").lighter();
+    }
+
+    QColor bindingLoopBackground;
+};
+
+Q_GLOBAL_STATIC(Colors, colors)
+
 ////////////////////////////////////////////////////////////////////////////////////
 
 class EventsViewItem : public QStandardItem
@@ -531,6 +541,11 @@ void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildModelFrom
             newRow.at(0)->setData(QVariant(binding->location.line),LineRole);
             newRow.at(0)->setData(QVariant(binding->location.column),ColumnRole);
             newRow.at(0)->setData(QVariant(binding->eventId),EventIdRole);
+            if (binding->isBindingLoop)
+                foreach (QStandardItem *item, newRow) {
+                    item->setBackground(colors()->bindingLoopBackground);
+                    item->setToolTip(tr("Binding loop detected"));
+                }
 
             // append
             parentItem->appendRow(newRow);
@@ -877,6 +892,11 @@ void QmlProfilerEventsParentsAndChildrenView::rebuildTree(void *eventList)
             newRow.at(0)->setData(QVariant(event->reference->eventId), EventIdRole);
             newRow.at(2)->setData(QVariant(event->duration));
             newRow.at(3)->setData(QVariant(event->calls));
+            if (event->inLoopPath)
+                foreach (QStandardItem *item, newRow) {
+                    item->setBackground(colors()->bindingLoopBackground);
+                    item->setToolTip(tr("Part of binding loop"));
+                }
         } else {
             QV8EventSub *event = v8List->at(index);
             newRow << new EventsViewItem(event->reference->displayName);

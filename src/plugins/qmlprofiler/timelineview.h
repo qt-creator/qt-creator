@@ -182,7 +182,8 @@ protected:
 private:
     QColor colorForItem(int itemIndex);
     void drawItemsToPainter(QPainter *p, int fromIndex, int toIndex);
-    void drawSelectionBoxes(QPainter *p);
+    void drawSelectionBoxes(QPainter *p, int fromIndex, int toIndex);
+    void drawBindingLoopMarkers(QPainter *p, int fromIndex, int toIndex);
 
     void manageClicked();
     void manageHovered(int x, int y);

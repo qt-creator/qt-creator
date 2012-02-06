@@ -107,9 +107,10 @@ void TimelineView::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget 
 
     int firstIndex = m_eventList->findFirstIndex(m_startTime);
     int lastIndex = m_eventList->findLastIndex(m_endTime);
-    drawItemsToPainter(p, firstIndex, lastIndex);
 
-    drawSelectionBoxes(p);
+    drawItemsToPainter(p, firstIndex, lastIndex);
+    drawSelectionBoxes(p, firstIndex, lastIndex);
+    drawBindingLoopMarkers(p, firstIndex, lastIndex);
 
     m_lastStartTime = m_startTime;
     m_lastEndTime = m_endTime;
@@ -166,13 +167,11 @@ void TimelineView::drawItemsToPainter(QPainter *p, int fromIndex, int toIndex)
     }
 }
 
-void TimelineView::drawSelectionBoxes(QPainter *p)
+void TimelineView::drawSelectionBoxes(QPainter *p, int fromIndex, int toIndex)
 {
     if (m_selectedItem == -1)
         return;
 
-    int fromIndex = m_eventList->findFirstIndex(m_startTime);
-    int toIndex = m_eventList->findLastIndex(m_endTime);
     int id = m_eventList->getEventId(m_selectedItem);
 
     p->setBrush(Qt::transparent);
@@ -214,6 +213,74 @@ void TimelineView::drawSelectionBoxes(QPainter *p)
             p->setPen(strongPen);
             p->drawRect(selectedItemRect);
     }
+}
+
+void TimelineView::drawBindingLoopMarkers(QPainter *p, int fromIndex, int toIndex)
+{
+    int destindex;
+    int xfrom, xto, eventType;
+    int yfrom, yto;
+    int radius = DefaultRowHeight / 3;
+    QPen shadowPen = QPen(QColor("grey"),2);
+    QPen markerPen = QPen(QColor("orange"),2);
+    QBrush shadowBrush = QBrush(QColor("grey"));
+    QBrush markerBrush = QBrush(QColor("orange"));
+
+    p->save();
+    for (int i = fromIndex; i <= toIndex; i++) {
+        destindex = m_eventList->getBindingLoopDest(i);
+        if (destindex >= 0) {
+            // from
+            xfrom = (m_eventList->getStartTime(i) + m_eventList->getDuration(i)/2 -
+                     m_startTime) * m_spacing;
+            eventType = m_eventList->getType(i);
+            if (m_rowsExpanded[eventType])
+                yfrom = m_rowStarts[eventType] + DefaultRowHeight*
+                        (m_eventList->eventPosInType(i) + 1);
+            else
+                yfrom = m_rowStarts[eventType] + DefaultRowHeight*m_eventList->getNestingLevel(i);
+
+            yfrom += DefaultRowHeight / 2;
+
+            // to
+            xto = (m_eventList->getStartTime(destindex) + m_eventList->getDuration(destindex)/2 -
+                   m_startTime) * m_spacing;
+            eventType = m_eventList->getType(destindex);
+            if (m_rowsExpanded[eventType])
+                yto = m_rowStarts[eventType] + DefaultRowHeight*
+                        (m_eventList->eventPosInType(destindex) + 1);
+            else
+                yto = m_rowStarts[eventType] + DefaultRowHeight *
+                        m_eventList->getNestingLevel(destindex);
+
+            yto += DefaultRowHeight / 2;
+
+            // radius
+            int eventWidth = m_eventList->getDuration(i) * m_spacing;
+            radius = 5;
+            if (radius * 2 > eventWidth)
+                radius = eventWidth / 2;
+            if (radius < 2)
+                radius = 2;
+
+            // shadow
+            int shadowoffset = 2;
+            p->setPen(shadowPen);
+            p->setBrush(shadowBrush);
+            p->drawEllipse(QPoint(xfrom, yfrom + shadowoffset), radius, radius);
+            p->drawEllipse(QPoint(xto, yto + shadowoffset), radius, radius);
+            p->drawLine(QPoint(xfrom, yfrom + shadowoffset), QPoint(xto, yto + shadowoffset));
+
+
+            // marker
+            p->setPen(markerPen);
+            p->setBrush(markerBrush);
+            p->drawEllipse(QPoint(xfrom, yfrom), radius, radius);
+            p->drawEllipse(QPoint(xto, yto), radius, radius);
+            p->drawLine(QPoint(xfrom, yfrom), QPoint(xto, yto));
+        }
+    }
+    p->restore();
 }
 
 void TimelineView::mousePressEvent(QGraphicsSceneMouseEvent *event)

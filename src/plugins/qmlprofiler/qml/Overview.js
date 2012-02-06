@@ -95,6 +95,21 @@ function drawData(canvas, ctxt, region)
             highest[ty] = xx+eventWidth;
         }
     }
+
+    // binding loops
+    ctxt.strokeStyle = "orange";
+    ctxt.lineWidth = 2;
+    var radius = 1;
+    for (var ii = 0; ii < qmlEventList.count(); ++ii) {
+        if (qmlEventList.getBindingLoopDest(ii) >= 0) {
+            var xcenter = Math.round(qmlEventList.getStartTime(ii) +
+                                     qmlEventList.getDuration(ii) -
+                                     qmlEventList.traceStartTime()) * spacing;
+            var ycenter = Math.round(bump + qmlEventList.getType(ii) * blockHeight + blockHeight/2);
+            ctxt.arc(xcenter, ycenter, radius, 0, 2*Math.PI, true);
+            ctxt.stroke();
+        }
+    }
 }
 
 function drawTimeBar(canvas, ctxt, region)
