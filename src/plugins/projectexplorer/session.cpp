@@ -75,30 +75,8 @@ using namespace Core;
 using Utils::PersistentSettingsReader;
 using Utils::PersistentSettingsWriter;
 
-/* SessionFile definitions */
-namespace ProjectExplorer {
-namespace Internal {
-
-class SessionFile : QObject
-{
-    Q_OBJECT
-
-public:
-    SessionFile();
-
-private:
-    friend class ProjectExplorer::SessionManager;
-};
-
-} // namespace Internal
-} // namespace ProjectExplorer
-
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
-
-SessionFile::SessionFile()
-{
-}
 
 /*!
      \class ProjectExplorer::SessionManager
@@ -113,7 +91,6 @@ SessionFile::SessionFile()
 
 SessionManager::SessionManager(QObject *parent)
   : QObject(parent),
-    m_file(new SessionFile),
     m_sessionNode(new SessionNode(this)),
     m_sessionName(QLatin1String("default")),
     m_virginSession(true),
@@ -143,7 +120,6 @@ SessionManager::SessionManager(QObject *parent)
 SessionManager::~SessionManager()
 {
     emit aboutToUnloadSession();
-    delete m_file;
 }
 
 
@@ -343,8 +319,6 @@ bool SessionManager::createImpl(const QString &fileName)
 
     if (success) {
         emit aboutToUnloadSession();
-        delete m_file;
-        m_file = new SessionFile;
         m_startupProject = 0;
         m_failedProjects.clear();
         m_depMap.clear();
@@ -390,8 +364,6 @@ bool SessionManager::loadImpl(const QString &fileName)
     m_virginSession = false;
 
     emit aboutToUnloadSession();
-    delete m_file;
-    m_file = new SessionFile;
     m_startupProject = 0;
     m_failedProjects.clear();
     m_depMap.clear();
@@ -484,8 +456,7 @@ bool SessionManager::loadImpl(const QString &fileName)
     m_future.reportFinished();
     m_future = QFutureInterface<void>();
 
-    // m_file->load() sets the m_file->startupProject
-    // but doesn't emit this signal, so we do it here
+    // we emit this signal here
     emit startupProjectChanged(m_startupProject);
 
     QStringList failedProjects = m_failedProjects;
@@ -999,5 +970,3 @@ void SessionManager::sessionLoadingProgress()
     m_future.setProgressValue(m_future.progressValue() + 1);
     QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 }
-
-#include "session.moc"

@@ -60,7 +60,6 @@ class SessionNode;
 class SessionManager;
 
 namespace Internal {
-class SessionFile;
 class SessionNodeImpl;
 } // namespace Internal
 
@@ -160,7 +159,6 @@ private:
     QStringList dependencies(const QString &proName) const;
     QStringList dependenciesOrder() const;
 
-    Internal::SessionFile *m_file;
     SessionNode *m_sessionNode;
     QString m_sessionName;
     bool m_virginSession;
@@ -175,7 +173,7 @@ private:
     QStringList m_failedProjects;
     QMap<QString, QStringList> m_depMap;
     QMap<QString, QVariant> m_values;
-    QFutureInterface<void> future;
+    QFutureInterface<void> m_future;
 };
 
 } // namespace ProjectExplorer
