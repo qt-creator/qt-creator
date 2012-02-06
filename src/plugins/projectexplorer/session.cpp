@@ -87,9 +87,7 @@ public:
     SessionFile();
 
     bool load(const QString &fileName);
-    bool save();
-
-    void setFileName(const QString &fileName);
+    bool save(const QString &fileName);
 
     QStringList failedProjectFileNames() const;
     void clearFailedProjectFileNames();
@@ -98,7 +96,6 @@ public slots:
     void sessionLoadingProgress();
 
 private:
-    QString m_fileName;
     QList<Project *> m_projects;
     Project *m_startupProject;
     QStringList m_failedProjects;
@@ -134,13 +131,11 @@ bool SessionFile::load(const QString &fileName)
     if (debug)
         qDebug() << "SessionFile::load " << fileName;
 
-    m_fileName = fileName;
-
     // NPE: Load the session in the background?
     // NPE: Let FileManager monitor filename
 
     PersistentSettingsReader reader;
-    if (!reader.load(m_fileName)) {
+    if (!reader.load(fileName)) {
         qWarning() << "SessionManager::load failed!" << fileName;
         return false;
     }
@@ -223,10 +218,10 @@ bool SessionFile::load(const QString &fileName)
     return true;
 }
 
-bool SessionFile::save()
+bool SessionFile::save(const QString &fileName)
 {
     if (debug)
-        qDebug() << "SessionFile - saving " << m_fileName;
+        qDebug() << "SessionFile - saving " << fileName;
 
     PersistentSettingsWriter writer;
 
@@ -280,15 +275,10 @@ bool SessionFile::save()
     writer.saveValue(QLatin1String("valueKeys"), keys);
 
 
-    if (writer.save(m_fileName, QLatin1String("QtCreatorSession"), Core::ICore::mainWindow()))
+    if (writer.save(fileName, QLatin1String("QtCreatorSession"), Core::ICore::mainWindow()))
         return true;
 
     return false;
-}
-
-void SessionFile::setFileName(const QString &fileName)
-{
-    m_fileName = fileName;
 }
 
 QStringList SessionFile::failedProjectFileNames() const
@@ -332,8 +322,6 @@ SessionManager::SessionManager(QObject *parent)
             this, SLOT(markSessionFileDirty()));
     connect(em, SIGNAL(editorsClosed(QList<Core::IEditor*>)),
             this, SLOT(markSessionFileDirty()));
-
-    m_file->setFileName(sessionNameToFileName(m_sessionName));
 
     m_autoSaveSessionTimer = new QTimer(this);
     m_autoSaveSessionTimer->setSingleShot(true);
@@ -551,7 +539,6 @@ bool SessionManager::createImpl(const QString &fileName)
         emit aboutToLoadSession(sessionName);
         m_sessionName = sessionName;
         updateWindowTitle();
-        m_file->setFileName(fileName);
         setStartupProject(0);
 
         if (!isDefaultVirgin()) {
@@ -648,11 +635,12 @@ bool SessionManager::save()
 
     emit aboutToSaveSession();
 
-    bool result = m_file->save();
+    QString fileName = sessionNameToFileName(m_sessionName);
+    bool result = m_file->save(fileName);
 
     if (!result) {
         QMessageBox::warning(0, tr("Error while saving session"),
-                                tr("Could not save session to file %1").arg(sessionNameToFileName(m_sessionName)));
+                                tr("Could not save session to file %1").arg(fileName));
     }
 
     if (debug)
