@@ -171,6 +171,7 @@ private:
 
     Project *m_startupProject;
     QList<Project *> m_projects;
+    QStringList m_failedProjects;
 };
 
 } // namespace ProjectExplorer

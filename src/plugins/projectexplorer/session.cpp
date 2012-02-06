@@ -87,7 +87,6 @@ public:
     SessionFile();
 
 private:
-    QStringList m_failedProjects;
     QMap<QString, QStringList> m_depMap;
 
     QMap<QString, QVariant> m_values;
@@ -352,6 +351,7 @@ bool SessionManager::createImpl(const QString &fileName)
         delete m_file;
         m_file = new SessionFile;
         m_startupProject = 0;
+        m_failedProjects.clear();
         const QString &sessionName = sessionNameFromFileName(fileName);
         emit aboutToLoadSession(sessionName);
         m_sessionName = sessionName;
@@ -396,6 +396,7 @@ bool SessionManager::loadImpl(const QString &fileName)
     delete m_file;
     m_file = new SessionFile;
     m_startupProject = 0;
+    m_failedProjects.clear();
     const QString &sessionName = sessionNameFromFileName(fileName);
     emit aboutToLoadSession(sessionName);
     m_sessionName = sessionName;
@@ -429,14 +430,14 @@ bool SessionManager::loadImpl(const QString &fileName)
 
     // indirectly adds projects to session
     // Keep projects that failed to load in the session!
-    m_file->m_failedProjects = fileList;
+    m_failedProjects = fileList;
     if (!fileList.isEmpty()) {
         QString errors;
         QList<Project *> projects = ProjectExplorerPlugin::instance()->openProjects(fileList, &errors);
         if (!errors.isEmpty())
             QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to open project"), errors);
         foreach (Project *p, projects)
-            m_file->m_failedProjects.removeAll(p->file()->fileName());
+            m_failedProjects.removeAll(p->file()->fileName());
     }
 
     sessionLoadingProgress();
@@ -446,11 +447,11 @@ bool SessionManager::loadImpl(const QString &fileName)
     QMap<QString, QVariant>::const_iterator i = depMap.constBegin();
     while (i != depMap.constEnd()) {
         const QString &key = i.key();
-        if (m_file->m_failedProjects.contains(key))
+        if (m_failedProjects.contains(key))
             continue;
         QStringList values;
         foreach (const QString &value, i.value().toStringList()) {
-            if (!m_file->m_failedProjects.contains(value))
+            if (!m_failedProjects.contains(value))
                 values << value;
         }
         m_file->m_depMap.insert(key, values);
@@ -487,7 +488,7 @@ bool SessionManager::loadImpl(const QString &fileName)
     // but doesn't emit this signal, so we do it here
     emit startupProjectChanged(m_startupProject);
 
-    QStringList failedProjects = m_file->m_failedProjects;
+    QStringList failedProjects = m_failedProjects;
     if (!failedProjects.isEmpty()) {
         QString fileList =
             QDir::toNativeSeparators(failedProjects.join(QLatin1String("<br>")));
@@ -503,7 +504,7 @@ bool SessionManager::loadImpl(const QString &fileName)
         box->exec();
 
         if (box->clickedButton() == removeButton)
-            m_file->m_failedProjects.clear();
+            m_failedProjects.clear();
     }
 
     // restore the active mode
@@ -541,7 +542,7 @@ bool SessionManager::save()
         projectFiles << pro->file()->fileName();
 
     // Restore infromation on projects that failed to load:
-    projectFiles.append(m_file->m_failedProjects);
+    projectFiles.append(m_failedProjects);
 
     writer.saveValue(QLatin1String("ProjectList"), projectFiles);
 
