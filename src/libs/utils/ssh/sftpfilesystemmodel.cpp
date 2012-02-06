@@ -94,6 +94,7 @@ public:
     SftpFileNode *rootNode;
     SftpJobId statJobId;
     DirNodeHash lsOps;
+    QList<SftpJobId> externalJobs;
 };
 } // namespace Internal
 
@@ -141,6 +142,19 @@ void SftpFileSystemModel::setRootDirectory(const QString &path)
 QString SftpFileSystemModel::rootDirectory() const
 {
     return d->rootDirectory;
+}
+
+SftpJobId SftpFileSystemModel::downloadFile(const QModelIndex &index, const QString &targetFilePath)
+{
+    QTC_ASSERT(d->rootNode, return SftpInvalidJob);
+    const SftpFileNode * const fileNode = indexToFileNode(index);
+    QTC_ASSERT(fileNode, return SftpInvalidJob);
+    QTC_ASSERT(fileNode->fileInfo.type == FileTypeRegular, return SftpInvalidJob);
+    const SftpJobId jobId = d->sftpChannel->downloadFile(fileNode->path, targetFilePath,
+        SftpOverwriteExisting);
+    if (jobId != SftpInvalidJob)
+        d->externalJobs << jobId;
+    return jobId;
 }
 
 int SftpFileSystemModel::columnCount(const QModelIndex &parent) const
@@ -344,21 +358,29 @@ void SftpFileSystemModel::handleFileInfo(SftpJobId jobId, const QList<SftpFileIn
 
 void SftpFileSystemModel::handleSftpJobFinished(SftpJobId jobId, const QString &errorMessage)
 {
-    QString path;
     if (jobId == d->statJobId) {
         d->statJobId = SftpInvalidJob;
-        path = rootDirectory();
-    } else {
-        DirNodeHash::Iterator it = d->lsOps.find(jobId);
-        QTC_ASSERT(it != d->lsOps.end(), return);
-        QTC_CHECK(it.value()->lsState == SftpDirNode::LsRunning);
-        it.value()->lsState = SftpDirNode::LsFinished;
-        path = it.value()->path;
-        d->lsOps.erase(it);
+        if (!errorMessage.isEmpty())
+            emit sftpOperationFailed(tr("Error getting 'stat' info about '%1': %2")
+                .arg(rootDirectory(), errorMessage));
+        return;
     }
 
-    if (!errorMessage.isEmpty())
-        emit sftpOperationFailed(tr("Error reading '%1': %2").arg(path, errorMessage));
+    DirNodeHash::Iterator it = d->lsOps.find(jobId);
+    if (it != d->lsOps.end()) {
+        QTC_CHECK(it.value()->lsState == SftpDirNode::LsRunning);
+        it.value()->lsState = SftpDirNode::LsFinished;
+        if (!errorMessage.isEmpty())
+            emit sftpOperationFailed(tr("Error listing contents of directory '%1': %2")
+                .arg(it.value()->path, errorMessage));
+        d->lsOps.erase(it);
+        return;
+    }
+
+    const int jobIndex = d->externalJobs.indexOf(jobId);
+    QTC_ASSERT(jobIndex != -1, return);
+    d->externalJobs.removeAt(jobIndex);
+    emit sftpOperationFinished(jobId, errorMessage);
 }
 
 } // namespace Utils

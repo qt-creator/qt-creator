@@ -29,6 +29,8 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
+#include <utils/ssh/sftpdefs.h>
+
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
@@ -46,9 +48,12 @@ public:
 
 private slots:
     void connectToHost();
+    void downloadFile();
     void handleConnectionError(const QString &errorMessage);
     void handleSftpOperationFailed(const QString &errorMessage);
+    void handleSftpOperationFinished(Utils::SftpJobId jobId, const QString &error);
 
 private:
+    Utils::SftpFileSystemModel *m_fsModel;
     Ui::Window *m_ui;
 };

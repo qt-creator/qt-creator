@@ -63,6 +63,8 @@ public:
     void setRootDirectory(const QString &path); // Default is "/".
     QString rootDirectory() const;
 
+    SftpJobId downloadFile(const QModelIndex &index, const QString &targetFilePath);
+
 signals:
      /*
       * E.g. "Permission denied". Note that this can happen without direct user intervention,
@@ -76,6 +78,9 @@ signals:
      * the signal has been emitted.
      */
     void connectionError(const QString &errorMessage);
+
+    // Success <=> error.isEmpty().
+    void sftpOperationFinished(Utils::SftpJobId, const QString &error);
 
 private slots:
     void handleSshConnectionEstablished();
