@@ -60,6 +60,7 @@ class Project;
 class Node;
 class BuildConfiguration;
 class ProjectNode;
+class TaskHub;
 
 namespace Internal {
 struct ProjectExplorerSettings;
@@ -93,6 +94,7 @@ public:
     Project *startupProject() const;
 
     BuildManager *buildManager() const;
+    TaskHub *taskHub() const;
 
     bool saveModifiedFiles();
 
