@@ -5,6 +5,8 @@ isEmpty(PRECOMPILED_HEADER):PRECOMPILED_HEADER = $$PWD/shared/qtcreator_gui_pch.
 
 isEmpty(PROVIDER) {
     PROVIDER = Nokia
+} else {
+    LIBS += -L$$IDE_PLUGIN_PATH/Nokia
 }
 
 isEmpty(USE_USER_DESTDIR) {
