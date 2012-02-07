@@ -727,7 +727,8 @@ bool Internal::GccToolChainConfigWidget::isDirty() const
     GccToolChain *tc = static_cast<GccToolChain *>(toolChain());
     Q_ASSERT(tc);
     return m_compilerCommand->fileName() != tc->compilerCommand()
-            || m_abiWidget->currentAbi() != tc->targetAbi();
+            || m_abiWidget->currentAbi() != tc->targetAbi()
+            || debuggerCommand() != tc->debuggerCommand();
 }
 
 void Internal::GccToolChainConfigWidget::makeReadOnly()
