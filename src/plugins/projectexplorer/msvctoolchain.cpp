@@ -328,7 +328,7 @@ QString MsvcToolChain::typeDisplayName() const
     return MsvcToolChainFactory::tr("MSVC");
 }
 
-Utils::FileName MsvcToolChain::mkspec() const
+Utils::FileName MsvcToolChain::suggestedMkspec() const
 {
     if (m_abi.osFlavor() == Abi::WindowsMsvc2005Flavor)
         return Utils::FileName::fromString(QLatin1String("win32-msvc2005"));
@@ -426,6 +426,7 @@ MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc) :
     formLayout->addRow(new MsvcDebuggerConfigLabel);
     addDebuggerCommandControls(formLayout, QStringList(QLatin1String("-version")));
     addDebuggerAutoDetection(this, SLOT(autoDetectDebugger()));
+    addMkspecControls(formLayout);
     addErrorLabel(formLayout);
     setFromToolChain();
 }
@@ -435,6 +436,7 @@ void MsvcToolChainConfigWidget::apply()
     MsvcToolChain *tc = static_cast<MsvcToolChain *>(toolChain());
     QTC_ASSERT(tc, return; );
     tc->setDebuggerCommand(debuggerCommand());
+    tc->setMkspec(mkspec());
 }
 
 void MsvcToolChainConfigWidget::setFromToolChain()
@@ -448,13 +450,15 @@ void MsvcToolChainConfigWidget::setFromToolChain()
     }
     m_varsBatDisplayLabel->setText(varsBatDisplay);
     setDebuggerCommand(tc->debuggerCommand());
+    setMkspec(tc->mkspec());
 }
 
 bool MsvcToolChainConfigWidget::isDirty() const
 {
     MsvcToolChain *tc = static_cast<MsvcToolChain *>(toolChain());
     QTC_ASSERT(tc, return false);
-    return debuggerCommand() != tc->debuggerCommand();
+    return debuggerCommand() != tc->debuggerCommand()
+            || mkspec() != tc->mkspec();
 }
 
 void MsvcToolChainConfigWidget::autoDetectDebugger()

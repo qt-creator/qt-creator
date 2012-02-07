@@ -88,7 +88,9 @@ public:
     virtual void addToEnvironment(Utils::Environment &env) const = 0;
     virtual QString makeCommand() const = 0;
 
-    virtual Utils::FileName mkspec() const = 0;
+    Utils::FileName mkspec() const;
+    void setMkspec(const Utils::FileName &mkspec);
+    virtual Utils::FileName suggestedMkspec() const { return Utils::FileName(); }
 
     virtual Utils::FileName compilerCommand() const = 0;
     virtual Utils::FileName debuggerCommand() const = 0;

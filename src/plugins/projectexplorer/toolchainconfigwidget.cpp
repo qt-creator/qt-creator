@@ -36,9 +36,34 @@
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 
+#include <QtCore/QString>
+
 #include <QtGui/QFormLayout>
 #include <QtGui/QGridLayout>
+#include <QtGui/QLineEdit>
 #include <QtGui/QLabel>
+#include <QtGui/QPushButton>
+
+namespace {
+const char DEFAULT_MKSPEC[] = "default";
+
+Utils::FileName mkspecFromString(const QString &spec)
+{
+    if (spec == QLatin1String(DEFAULT_MKSPEC))
+        return Utils::FileName();
+    else
+        return Utils::FileName::fromUserInput(spec);
+}
+
+QString mkspecToString(const Utils::FileName spec)
+{
+    if (spec.isEmpty())
+        return QLatin1String(DEFAULT_MKSPEC);
+    else
+        return spec.toUserOutput();
+}
+
+} // namespace
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -51,14 +76,21 @@ class ToolChainConfigWidgetPrivate
 {
 public:
     ToolChainConfigWidgetPrivate(ToolChain *tc) :
-        m_toolChain(tc), m_debuggerPathChooser(0), m_errorLabel(0)
+        m_toolChain(tc), m_debuggerPathChooser(0),
+        m_mkspecLayout(0), m_mkspecEdit(0), m_mkspecResetButton(0), m_mkspecEdited(false),
+        m_errorLabel(0)
     {
-        Q_ASSERT(tc);
+        QTC_CHECK(tc);
     }
 
     ToolChain *m_toolChain;
     Utils::PathChooser *m_debuggerPathChooser;
+    QHBoxLayout *m_mkspecLayout;
+    QLineEdit *m_mkspecEdit;
+    QPushButton *m_mkspecResetButton;
+    bool m_mkspecEdited;
     QLabel *m_errorLabel;
+    Utils::FileName m_suggestedMkspec;
 };
 
 } // namespace Internal
@@ -86,11 +118,27 @@ void ToolChainConfigWidget::makeReadOnly()
 {
     if (d->m_debuggerPathChooser)
         d->m_debuggerPathChooser->setEnabled(false);
+    if (d->m_mkspecEdit)
+        d->m_mkspecEdit->setEnabled(false);
+    if (d->m_mkspecResetButton)
+        d->m_mkspecResetButton->setEnabled(false);
 }
 
 void ToolChainConfigWidget::emitDirty()
 {
+    if (d->m_mkspecEdit)
+        d->m_mkspecEdited = (mkspecFromString(d->m_mkspecEdit->text()) != d->m_suggestedMkspec);
+    if (d->m_mkspecResetButton)
+        d->m_mkspecResetButton->setEnabled(d->m_mkspecEdited);
     emit dirty(toolChain());
+}
+
+void ToolChainConfigWidget::resetMkspec()
+{
+    if (!d->m_mkspecEdit || !d->m_mkspecEdited)
+        return;
+    d->m_mkspecEdit->setText(mkspecToString(d->m_suggestedMkspec));
+    d->m_mkspecEdited = false;
 }
 
 void ToolChainConfigWidget::addDebuggerCommandControls(QFormLayout *lt,
@@ -138,6 +186,61 @@ void ToolChainConfigWidget::setDebuggerCommand(const Utils::FileName &debugger)
 {
     QTC_ASSERT(d->m_debuggerPathChooser, return; )
     d->m_debuggerPathChooser->setFileName(debugger);
+}
+
+void ToolChainConfigWidget::addMkspecControls(QFormLayout *lt)
+{
+    ensureMkspecEdit();
+    lt->addRow(tr("mkspec:"), d->m_mkspecLayout);
+}
+
+void ToolChainConfigWidget::addMkspecControls(QGridLayout *lt, int row, int column)
+{
+    ensureMkspecEdit();
+    QLabel *label = new QLabel(tr("mkspec:"));
+    label->setBuddy(d->m_mkspecEdit);
+    lt->addWidget(label, row, column);
+    lt->addLayout(d->m_mkspecLayout, row, column + 1);
+}
+
+void ToolChainConfigWidget::ensureMkspecEdit()
+{
+    if (d->m_mkspecEdit)
+        return;
+
+    QTC_CHECK(!d->m_mkspecLayout);
+    QTC_CHECK(!d->m_mkspecResetButton);
+
+    d->m_suggestedMkspec = d->m_toolChain->suggestedMkspec();
+
+    d->m_mkspecLayout = new QHBoxLayout;
+    d->m_mkspecLayout->setMargin(0);
+
+    d->m_mkspecEdit = new QLineEdit;
+    d->m_mkspecResetButton = new QPushButton(tr("Reset"));
+    d->m_mkspecResetButton->setEnabled(d->m_mkspecEdited);
+    d->m_mkspecLayout->addWidget(d->m_mkspecEdit);
+    d->m_mkspecLayout->addWidget(d->m_mkspecResetButton);
+
+    connect(d->m_mkspecEdit, SIGNAL(textChanged(QString)), this, SLOT(emitDirty()));
+    connect(d->m_mkspecResetButton, SIGNAL(clicked()), this, SLOT(resetMkspec()));
+}
+
+Utils::FileName ToolChainConfigWidget::mkspec() const
+{
+    QTC_ASSERT(d->m_mkspecEdit, return Utils::FileName());
+
+    return mkspecFromString(d->m_mkspecEdit->text());
+}
+
+void ToolChainConfigWidget::setMkspec(const Utils::FileName &spec)
+{
+    QTC_ASSERT(d->m_mkspecEdit, return);
+
+    QString text = mkspecToString(spec);
+    d->m_mkspecEdit->setText(text);
+
+    emitDirty();
 }
 
 void ToolChainConfigWidget::addErrorLabel(QFormLayout *lt)

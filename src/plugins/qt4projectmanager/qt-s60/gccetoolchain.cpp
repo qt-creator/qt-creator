@@ -133,11 +133,6 @@ QString GcceToolChain::makeCommand() const
 #endif
 }
 
-Utils::FileName GcceToolChain::mkspec() const
-{
-    return Utils::FileName(); // always use default from Qt version
-}
-
 QString GcceToolChain::defaultMakeTarget() const
 {
     return QLatin1String("gcce");

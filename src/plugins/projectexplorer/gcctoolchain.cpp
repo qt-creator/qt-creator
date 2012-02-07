@@ -406,7 +406,7 @@ Utils::FileName GccToolChain::debuggerCommand() const
     return m_debuggerCommand;
 }
 
-Utils::FileName GccToolChain::mkspec() const
+Utils::FileName GccToolChain::suggestedMkspec() const
 {
     Abi abi = targetAbi();
     Abi host = Abi::hostAbi();
@@ -681,6 +681,7 @@ Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     m_abiWidget->setEnabled(false);
 
     addDebuggerCommandControls(layout, gnuVersionArgs);
+    addMkspecControls(layout);
     addErrorLabel(layout);
 
     setFromToolchain();
@@ -701,6 +702,7 @@ void Internal::GccToolChainConfigWidget::apply()
     tc->setTargetAbi(m_abiWidget->currentAbi());
     tc->setDisplayName(displayName); // reset display name
     tc->setDebuggerCommand(debuggerCommand());
+    tc->setMkspec(mkspec());
     m_autoDebuggerCommand = Utils::FileName::fromString(QLatin1String("<manually set>"));
 }
 
@@ -714,6 +716,7 @@ void Internal::GccToolChainConfigWidget::setFromToolchain()
     if (!m_isReadOnly && !m_compilerCommand->path().isEmpty())
         m_abiWidget->setEnabled(true);
     setDebuggerCommand(tc->debuggerCommand());
+    setMkspec(tc->mkspec());
     blockSignals(blocked);
 }
 
@@ -723,7 +726,8 @@ bool Internal::GccToolChainConfigWidget::isDirty() const
     Q_ASSERT(tc);
     return m_compilerCommand->fileName() != tc->compilerCommand()
             || m_abiWidget->currentAbi() != tc->targetAbi()
-            || debuggerCommand() != tc->debuggerCommand();
+            || debuggerCommand() != tc->debuggerCommand()
+            || mkspec() != tc->mkspec();
 }
 
 void Internal::GccToolChainConfigWidget::makeReadOnly()
@@ -788,7 +792,7 @@ QString ClangToolChain::makeCommand() const
 #endif
 }
 
-Utils::FileName ClangToolChain::mkspec() const
+Utils::FileName ClangToolChain::suggestedMkspec() const
 {
     Abi abi = targetAbi();
     if (abi.os() == Abi::MacOS)
@@ -876,7 +880,7 @@ QString MingwToolChain::typeDisplayName() const
     return Internal::MingwToolChainFactory::tr("MinGW");
 }
 
-Utils::FileName MingwToolChain::mkspec() const
+Utils::FileName MingwToolChain::suggestedMkspec() const
 {
 #if defined(Q_OS_WIN)
     return Utils::FileName::fromString(QLatin1String("win32-g++"));
@@ -988,7 +992,7 @@ IOutputParser *LinuxIccToolChain::outputParser() const
     return new LinuxIccParser;
 }
 
-Utils::FileName LinuxIccToolChain::mkspec() const
+Utils::FileName LinuxIccToolChain::suggestedMkspec() const
 {
     return Utils::FileName::fromString(QLatin1String("linux-icc-") + QString::number(targetAbi().wordWidth()));
 }

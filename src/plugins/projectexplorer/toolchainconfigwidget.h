@@ -75,6 +75,7 @@ signals:
 
 protected slots:
     void emitDirty();
+    void resetMkspec();
     void setErrorMessage(const QString &);
     void clearErrorMessage();
 
@@ -85,14 +86,20 @@ protected:
                                     int row = 0, int column = 0,
                                     const QStringList &versionArguments = QStringList());
     void addDebuggerAutoDetection(QObject *receiver, const char *autoDetectSlot);
+    void addMkspecControls(QFormLayout *lt);
+    void addMkspecControls(QGridLayout *lt, int row = 0, int column = 0);
     void addErrorLabel(QFormLayout *lt);
     void addErrorLabel(QGridLayout *lt, int row = 0, int column = 0, int colSpan = 1);
 
     Utils::FileName debuggerCommand() const;
     void setDebuggerCommand(const Utils::FileName &debugger);
 
+    Utils::FileName mkspec() const;
+    void setMkspec(const Utils::FileName &spec);
+
 private:
     void ensureDebuggerPathChooser(const QStringList &versionArguments);
+    void ensureMkspecEdit();
 
     Internal::ToolChainConfigWidgetPrivate *d;
 };

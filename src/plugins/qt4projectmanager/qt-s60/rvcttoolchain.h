@@ -92,7 +92,6 @@ public:
     QByteArray predefinedMacros() const;
     QList<ProjectExplorer::HeaderPath> systemHeaderPaths() const;
     void addToEnvironment(Utils::Environment &env) const;
-    Utils::FileName mkspec() const;
     QString makeCommand() const;
     QString defaultMakeTarget() const;
     ProjectExplorer::IOutputParser *outputParser() const;

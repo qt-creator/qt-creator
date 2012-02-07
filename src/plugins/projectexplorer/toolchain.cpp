@@ -43,6 +43,7 @@
 static const char ID_KEY[] = "ProjectExplorer.ToolChain.Id";
 static const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ToolChain.DisplayName";
 static const char AUTODETECT_KEY[] = "ProjectExplorer.ToolChain.Autodetect";
+static const char MKSPEC_KEY[] = "ProjectExplorer.ToolChain.MkSpecOverride";
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -75,6 +76,7 @@ public:
     QString m_id;
     bool m_autodetect;
     mutable QString m_displayName;
+    Utils::FileName m_mkspec;
 };
 
 } // namespace Internal
@@ -141,6 +143,22 @@ QStringList ToolChain::restrictedToTargets() const
     return QStringList();
 }
 
+Utils::FileName ToolChain::mkspec() const
+{
+    if (d->m_mkspec.isEmpty())
+        return suggestedMkspec();
+    return d->m_mkspec;
+}
+
+void ToolChain::setMkspec(const Utils::FileName &spec)
+{
+    Utils::FileName oldSpecs = mkspec();
+    d->m_mkspec = spec;
+
+    if (oldSpecs != mkspec())
+        toolChainUpdated();
+}
+
 bool ToolChain::canClone() const
 {
     return true;
@@ -175,6 +193,7 @@ QVariantMap ToolChain::toMap() const
     result.insert(QLatin1String(ID_KEY), id());
     result.insert(QLatin1String(DISPLAY_NAME_KEY), displayName());
     result.insert(QLatin1String(AUTODETECT_KEY), isAutoDetected());
+    result.insert(QLatin1String(MKSPEC_KEY), d->m_mkspec.toString());
 
     return result;
 }
@@ -204,6 +223,7 @@ bool ToolChain::fromMap(const QVariantMap &data)
     // make sure we have new style ids:
     d->m_id = Internal::ToolChainPrivate::createId(data.value(QLatin1String(ID_KEY)).toString());
     d->m_autodetect = data.value(QLatin1String(AUTODETECT_KEY), false).toBool();
+    d->m_mkspec = Utils::FileName::fromString(data.value(QLatin1String(MKSPEC_KEY)).toString());
 
     return true;
 }

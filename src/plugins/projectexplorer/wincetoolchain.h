@@ -58,6 +58,7 @@ public:
                    bool autodetect = false);
 
     QString legacyId() const;
+    Utils::FileName suggestedMkspec() const;
 
     static WinCEToolChain *readFromMap(const QVariantMap &data);
 

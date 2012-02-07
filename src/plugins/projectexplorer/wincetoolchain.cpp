@@ -305,7 +305,7 @@ QString WinCEToolChain::typeDisplayName() const
     return WinCEToolChainFactory::tr("WinCE");
 }
 
-Utils::FileName WinCEToolChain::mkspec() const
+Utils::FileName WinCEToolChain::suggestedMkspec() const
 {
     const QChar specSeperator(QLatin1Char('-'));
 

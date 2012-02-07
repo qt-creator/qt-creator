@@ -50,7 +50,6 @@ public:
 
     QString type() const;
     QString typeDisplayName() const;
-    Utils::FileName mkspec() const;
 
     bool isValid() const;
     bool canClone() const;
