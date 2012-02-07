@@ -74,9 +74,9 @@ public:
     virtual void updateBlock(const QTextBlock &block);
     virtual void removedFromEditor();
     virtual void documentClosing();
-    virtual void setIcon(const QIcon &icon);
-    virtual Priority priority() const;
-    virtual void setPriority(Priority prioriy);
+    void setIcon(const QIcon &icon);
+    Priority priority() const;
+    void setPriority(Priority prioriy);
     virtual double widthFactor() const;
 
 private:
