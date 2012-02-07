@@ -1893,5 +1893,11 @@ void WatchHandler::resetLocation()
     }
 }
 
+bool WatchHandler::isValidToolTip(const QByteArray &iname) const
+{
+    WatchItem *item = m_tooltips->findItem(iname, m_tooltips->m_root);
+    return item && !item->type.trimmed().isEmpty();
+}
+
 } // namespace Internal
 } // namespace Debugger

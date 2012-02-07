@@ -203,6 +203,7 @@ public:
 
     void scheduleResetLocation();
     void resetLocation();
+    bool isValidToolTip(const QByteArray &iname) const;
 
 private:
     friend class WatchModel;

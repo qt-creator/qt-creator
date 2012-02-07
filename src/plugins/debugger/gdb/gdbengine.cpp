@@ -3734,10 +3734,9 @@ bool GdbEngine::showToolTip()
         return true;
     }
 
-    const QModelIndex index = watchHandler()->itemIndex(iname);
-    if (!index.isValid()) {
+    if (!watchHandler()->isValidToolTip(iname)) {
         watchHandler()->removeData(iname);
-        return false;
+        return true;
     }
     DebuggerToolTipWidget *tw = new DebuggerToolTipWidget;
     tw->setExpression(expression);
