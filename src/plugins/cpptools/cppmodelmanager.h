@@ -131,8 +131,10 @@ public:
     virtual QList<CPlusPlus::Document::DiagnosticMessage> extraDiagnostics(
             const QString &fileName, int key = AllExtraDiagnostics) const;
 
-
     void finishedRefreshingSourceFiles(const QStringList &files);
+
+    virtual CppCompletionSupport *completionSupport(Core::IEditor *editor) const;
+    virtual CppHighlightingSupport *highlightingSupport(Core::IEditor *editor) const;
 
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);

@@ -30,11 +30,48 @@
 **
 **************************************************************************/
 
-#include "cppsemanticinfo.h"
+#ifndef CPPTOOLS_CPPCOMPLETIONSUPPORT_H
+#define CPPTOOLS_CPPCOMPLETIONSUPPORT_H
 
-using namespace CppEditor::Internal;
+#include "cpptools_global.h"
 
-SemanticInfo::SemanticInfo()
-    : revision(0), hasQ(false), hasD(false), forced(false)
-{
+#include <texteditor/codeassist/assistenums.h>
+
+QT_BEGIN_NAMESPACE
+class QTextDocument;
+QT_END_NAMESPACE
+
+namespace Core {
+class IFile;
 }
+
+namespace ProjectExplorer {
+class Project;
+}
+
+namespace TextEditor {
+class IAssistInterface;
+}
+
+namespace CppTools {
+namespace Internal {
+class CppEditorSupport;
+}
+
+class CPPTOOLS_EXPORT CppCompletionSupport
+{
+public:
+    CppCompletionSupport(Internal::CppEditorSupport *editorSupport);
+
+    TextEditor::IAssistInterface *createAssistInterface(ProjectExplorer::Project *project,
+                                                        QTextDocument *document,
+                                                        int position,
+                                                        TextEditor::AssistReason reason) const;
+
+private:
+    Internal::CppEditorSupport *m_editorSupport;
+};
+
+} // namespace CppTools
+
+#endif // CPPTOOLS_CPPCOMPLETIONSUPPORT_H

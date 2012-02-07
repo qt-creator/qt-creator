@@ -43,7 +43,7 @@
 #include <Literals.h>
 
 using namespace CPlusPlus;
-using namespace CppEditor::Internal;
+using namespace CppTools;
 
 namespace {
 

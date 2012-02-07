@@ -33,7 +33,7 @@
 #ifndef CPPQUICKFIXASSISTANT_H
 #define CPPQUICKFIXASSISTANT_H
 
-#include "cppsemanticinfo.h"
+#include <cpptools/cppsemanticinfo.h>
 
 #include <ASTfwd.h>
 #include <cplusplus/CppDocument.h>
@@ -59,7 +59,7 @@ public:
 
     const QList<CPlusPlus::AST *> &path() const;
     CPlusPlus::Snapshot snapshot() const;
-    CppEditor::Internal::SemanticInfo semanticInfo() const;
+    CppTools::SemanticInfo semanticInfo() const;
     const CPlusPlus::LookupContext &context() const;
     CPPEditorWidget *editor() const;
 
@@ -70,7 +70,7 @@ public:
 
 private:
     CPPEditorWidget *m_editor;
-    CppEditor::Internal::SemanticInfo m_semanticInfo;
+    CppTools::SemanticInfo m_semanticInfo;
     CPlusPlus::Snapshot m_snapshot;
     CppTools::CppRefactoringFilePtr m_currentFile;
     CPlusPlus::LookupContext m_context;

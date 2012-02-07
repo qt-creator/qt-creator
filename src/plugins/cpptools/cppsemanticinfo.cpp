@@ -30,47 +30,11 @@
 **
 **************************************************************************/
 
-#ifndef CPPSEMANTICINFO_H
-#define CPPSEMANTICINFO_H
+#include "cppsemanticinfo.h"
 
-#include <cplusplus/CppDocument.h>
-#include <cplusplus/LookupContext.h>
-#include <texteditor/semantichighlighter.h>
-#include <QtCore/QHash>
+using namespace CppTools;
 
-namespace CppEditor {
-namespace Internal {
-
-class CPPEditorWidget;
-
-class SemanticInfo
+SemanticInfo::SemanticInfo()
+    : revision(0), hasQ(false), hasD(false), forced(false)
 {
-public:
-    typedef TextEditor::SemanticHighlighter::Result Use;
-    enum UseKind {
-        TypeUse = 0,
-        LocalUse,
-        FieldUse,
-        StaticUse,
-        VirtualMethodUse
-    };
-
-    typedef QHash<CPlusPlus::Symbol *, QList<Use> > LocalUseMap;
-    typedef QHashIterator<CPlusPlus::Symbol *, QList<Use> > LocalUseIterator;
-
-    SemanticInfo();
-
-    unsigned revision;
-    bool hasQ: 1;
-    bool hasD: 1;
-    bool forced: 1;
-    CPlusPlus::Snapshot snapshot;
-    CPlusPlus::Document::Ptr doc;
-    LocalUseMap localUses;
-    QList<Use> objcKeywords;
-};
-
-} // namespace Internal
-} // namespace CppEditor;
-
-#endif // CPPSEMANTICINFO_H
+}

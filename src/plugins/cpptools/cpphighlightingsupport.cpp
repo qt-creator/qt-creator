@@ -30,29 +30,23 @@
 **
 **************************************************************************/
 
-#ifndef CPPLOCALSYMBOLS_H
-#define CPPLOCALSYMBOLS_H
+#include "cppchecksymbols.h"
+#include "cpphighlightingsupport.h"
+#include "cpptoolseditorsupport.h"
 
-#include "cppsemanticinfo.h"
-#include <cplusplus/CppDocument.h>
-#include <ASTfwd.h>
+#include <cplusplus/LookupContext.h>
 
-namespace CppEditor {
-namespace Internal {
+using namespace CPlusPlus;
+using namespace CppTools;
+using namespace CppTools::Internal;
 
-class LocalSymbols
+CppHighlightingSupport::CppHighlightingSupport()
 {
-    Q_DISABLE_COPY(LocalSymbols)
+}
 
-public:
-    LocalSymbols(CPlusPlus::Document::Ptr doc, CPlusPlus::DeclarationAST *ast);
-
-    bool hasD;
-    bool hasQ;
-    SemanticInfo::LocalUseMap uses;
-};
-
-} // namespace Internal
-} // namespace CppEditor
-
-#endif // CPPLOCALSYMBOLS_H
+QFuture<CppHighlightingSupport::Use> CppHighlightingSupport::highlightingFuture(
+        const Document::Ptr &doc, const Snapshot &snapshot) const
+{
+    LookupContext context(doc, snapshot);
+    return CheckSymbols::go(doc, context);
+}

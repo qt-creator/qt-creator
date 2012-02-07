@@ -34,7 +34,6 @@
 
 #include "cppeditor.h"
 #include "cppquickfixassistant.h"
-#include "cpplocalsymbols.h"
 
 #include <cplusplus/CppRewriter.h>
 #include <cplusplus/ASTPath.h>
@@ -44,6 +43,7 @@
 #include <cplusplus/TranslationUnit.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
+#include <cpptools/cpplocalsymbols.h>
 #include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/symbolfinder.h>
 #include <texteditor/refactoroverlay.h>
@@ -61,6 +61,7 @@
 using namespace CPlusPlus;
 using namespace CppEditor;
 using namespace CppEditor::Internal;
+using namespace CppTools;
 
 FunctionDeclDefLinkFinder::FunctionDeclDefLinkFinder(QObject *parent)
     : QObject(parent)

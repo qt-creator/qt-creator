@@ -55,6 +55,8 @@ namespace ProjectExplorer {
 
 namespace CppTools {
     class AbstractEditorSupport;
+    class CppCompletionSupport;
+    class CppHighlightingSupport;
 }
 
 namespace CPlusPlus {
@@ -150,6 +152,9 @@ public:
                                      const QList<CPlusPlus::Document::DiagnosticMessage> &diagnostics) = 0;
     virtual QList<CPlusPlus::Document::DiagnosticMessage> extraDiagnostics(
             const QString &fileName, int key = AllExtraDiagnostics) const = 0;
+
+    virtual CppTools::CppCompletionSupport *completionSupport(Core::IEditor *editor) const = 0;
+    virtual CppTools::CppHighlightingSupport *highlightingSupport(Core::IEditor *editor) const = 0;
 
 Q_SIGNALS:
     void documentUpdated(CPlusPlus::Document::Ptr doc);

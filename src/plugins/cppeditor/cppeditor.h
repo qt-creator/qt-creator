@@ -34,7 +34,6 @@
 #define CPPEDITOR_H
 
 #include "cppeditorenums.h"
-#include "cppsemanticinfo.h"
 #include "cppfunctiondecldeflink.h"
 
 #include <cplusplus/ModelManagerInterface.h>
@@ -43,6 +42,7 @@
 #include <texteditor/basetexteditor.h>
 #include <texteditor/quickfix.h>
 #include <cpptools/commentssettings.h>
+#include <cpptools/cppsemanticinfo.h>
 
 #include <QtCore/QThread>
 #include <QtCore/QMutex>
@@ -124,12 +124,12 @@ public:
         }
     };
 
-    SemanticInfo semanticInfo(const Source &source);
+    CppTools::SemanticInfo semanticInfo(const Source &source);
 
     void rehighlight(const Source &source);
 
 Q_SIGNALS:
-    void changed(const CppEditor::Internal::SemanticInfo &semanticInfo);
+    void changed(const CppTools::SemanticInfo &semanticInfo);
 
 protected:
     virtual void run();
@@ -142,7 +142,7 @@ private:
     QWaitCondition m_condition;
     bool m_done;
     Source m_source;
-    SemanticInfo m_lastSemanticInfo;
+    CppTools::SemanticInfo m_lastSemanticInfo;
 };
 
 class CPPEditor : public TextEditor::BaseTextEditor
@@ -172,7 +172,7 @@ public:
 
     unsigned editorRevision() const;
     bool isOutdated() const;
-    SemanticInfo semanticInfo() const;
+    CppTools::SemanticInfo semanticInfo() const;
 
     CPlusPlus::OverviewModel *outlineModel() const;
     QModelIndex outlineModelIndex();
@@ -242,7 +242,7 @@ private Q_SLOTS:
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
     void onContentsChanged(int position, int charsRemoved, int charsAdded);
 
-    void updateSemanticInfo(const CppEditor::Internal::SemanticInfo &semanticInfo);
+    void updateSemanticInfo(const CppTools::SemanticInfo &semanticInfo);
     void highlightSymbolUsages(int from, int to);
     void finishHighlightSymbolUsages();
 
@@ -255,7 +255,7 @@ private Q_SLOTS:
     void onCommentsSettingsChanged(const CppTools::CommentsSettings &settings);
 
 private:
-    void markSymbols(const QTextCursor &tc, const SemanticInfo &info);
+    void markSymbols(const QTextCursor &tc, const CppTools::SemanticInfo &info);
     bool sortedOutline() const;
     CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol, const CPlusPlus::Snapshot &snapshot) const;
 
@@ -264,8 +264,8 @@ private:
 
     SemanticHighlighter::Source currentSource(bool force = false);
 
-    void highlightUses(const QList<SemanticInfo::Use> &uses,
-                       const SemanticInfo &semanticInfo,
+    void highlightUses(const QList<TextEditor::SemanticHighlighter::Result> &uses,
+                       const CppTools::SemanticInfo &semanticInfo,
                        QList<QTextEdit::ExtraSelection> *selections);
 
     void createToolBar(CPPEditor *editable);
@@ -315,13 +315,13 @@ private:
     QTextCursor m_currentRenameSelectionEnd;
 
     SemanticHighlighter *m_semanticHighlighter;
-    SemanticInfo m_lastSemanticInfo;
+    CppTools::SemanticInfo m_lastSemanticInfo;
     QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
     bool m_objcEnabled;
     bool m_initialized;
 
-    QFuture<SemanticInfo::Use> m_highlighter;
-    QFutureWatcher<SemanticInfo::Use> m_highlightWatcher;
+    QFuture<TextEditor::SemanticHighlighter::Result> m_highlighter;
+    QFutureWatcher<TextEditor::SemanticHighlighter::Result> m_highlightWatcher;
     unsigned m_highlightRevision; // the editor revision that requested the highlight
 
     QFuture<QList<int> > m_references;

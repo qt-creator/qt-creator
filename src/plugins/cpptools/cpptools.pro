@@ -38,7 +38,12 @@ HEADERS += completionsettingspage.h \
     cpptoolsreuse.h \
     doxygengenerator.h \
     commentssettings.h \
-    symbolfinder.h
+    symbolfinder.h \
+    cppcompletionsupport.h \
+    cpphighlightingsupport.h \
+    cppchecksymbols.h \
+    cpplocalsymbols.h \
+    cppsemanticinfo.h
 
 SOURCES += completionsettingspage.cpp \
     cppclassesfilter.cpp \
@@ -68,7 +73,12 @@ SOURCES += completionsettingspage.cpp \
     cpptoolsreuse.cpp \
     doxygengenerator.cpp \
     commentssettings.cpp \
-    symbolfinder.cpp
+    symbolfinder.cpp \
+    cppcompletionsupport.cpp \
+    cpphighlightingsupport.cpp \
+    cppchecksymbols.cpp \
+    cpplocalsymbols.cpp \
+    cppsemanticinfo.cpp
 
 FORMS += completionsettingspage.ui \
     cppfilesettingspage.ui \

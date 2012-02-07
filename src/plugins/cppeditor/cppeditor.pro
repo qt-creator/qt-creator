@@ -14,11 +14,8 @@ HEADERS += cppplugin.h \
     cppeditorenums.h \
     cppeditor_global.h \
     cppclasswizard.h \
-    cppchecksymbols.h \
-    cppsemanticinfo.h \
     cppoutline.h \
     cppinsertdecldef.h \
-    cpplocalsymbols.h \
     cpptypehierarchy.h \
     cppelementevaluator.h \
     cppautocompleter.h \
@@ -36,11 +33,8 @@ SOURCES += cppplugin.cpp \
     cppfilewizard.cpp \
     cppclasswizard.cpp \
     cppquickfixes.cpp \
-    cppchecksymbols.cpp \
-    cppsemanticinfo.cpp \
     cppoutline.cpp \
     cppinsertdecldef.cpp \
-    cpplocalsymbols.cpp \
     cpptypehierarchy.cpp \
     cppelementevaluator.cpp \
     cppautocompleter.cpp \

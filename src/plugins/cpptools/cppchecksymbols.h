@@ -39,6 +39,8 @@
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/TypeOfExpression.h>
 
+#include <texteditor/semantichighlighter.h>
+
 #include <ASTVisitor.h>
 #include <QtCore/QSet>
 #include <QtCore/QFuture>
@@ -49,13 +51,13 @@ namespace CPlusPlus {
 class CheckSymbols:
         protected ASTVisitor,
         public QRunnable,
-        public QFutureInterface<CppEditor::Internal::SemanticInfo::Use>
+        public QFutureInterface<TextEditor::SemanticHighlighter::Result>
 {
 public:
     virtual ~CheckSymbols();
 
-    typedef CppEditor::Internal::SemanticInfo::Use Use;
-    typedef CppEditor::Internal::SemanticInfo::UseKind UseKind;
+    typedef TextEditor::SemanticHighlighter::Result Use;
+    typedef CppTools::SemanticInfo::UseKind UseKind;
 
     virtual void run();
 

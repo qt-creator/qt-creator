@@ -34,8 +34,6 @@
 #include "cppeditorconstants.h"
 #include "cppplugin.h"
 #include "cpphighlighter.h"
-#include "cppchecksymbols.h"
-#include "cpplocalsymbols.h"
 #include "cppautocompleter.h"
 #include "cppquickfixassistant.h"
 
@@ -63,8 +61,11 @@
 
 #include <cpptools/cpptoolsplugin.h>
 #include <cpptools/cpptoolsconstants.h>
+#include <cpptools/cppchecksymbols.h>
 #include <cpptools/cppcodeformatter.h>
-#include <cpptools/cppcompletionassist.h>
+#include <cpptools/cppcompletionsupport.h>
+#include <cpptools/cpphighlightingsupport.h>
+#include <cpptools/cpplocalsymbols.h>
 #include <cpptools/cppqtstyleindenter.h>
 #include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpprefactoringchanges.h>
@@ -124,6 +125,7 @@ enum {
 };
 
 using namespace CPlusPlus;
+using namespace CppTools;
 using namespace CppEditor::Internal;
 
 namespace {
@@ -424,7 +426,7 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
     , m_commentsSettings(CppTools::CppToolsSettings::instance()->commentsSettings())
 {
     m_initialized = false;
-    qRegisterMetaType<CppEditor::Internal::SemanticInfo>("CppEditor::Internal::SemanticInfo");
+    qRegisterMetaType<SemanticInfo>("CppTools::SemanticInfo");
 
     m_semanticHighlighter = new SemanticHighlighter(this);
     m_semanticHighlighter->start();
@@ -552,8 +554,8 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateUses()));
     connect(this, SIGNAL(textChanged()), this, SLOT(updateUses()));
 
-    connect(m_semanticHighlighter, SIGNAL(changed(CppEditor::Internal::SemanticInfo)),
-            this, SLOT(updateSemanticInfo(CppEditor::Internal::SemanticInfo)));
+    connect(m_semanticHighlighter, SIGNAL(changed(CppTools::SemanticInfo)),
+            this, SLOT(updateSemanticInfo(CppTools::SemanticInfo)));
 
     editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_outlineCombo);
 }
@@ -1849,11 +1851,11 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
         if (! semanticHighlighterDisabled && semanticInfo.doc) {
             if (Core::EditorManager::instance()->currentEditor() == editor()) {
-                LookupContext context(semanticInfo.doc, semanticInfo.snapshot);
-                CheckSymbols::Future f = CheckSymbols::go(semanticInfo.doc, context);
-                m_highlighter = f;
-                m_highlightRevision = semanticInfo.revision;
-                m_highlightWatcher.setFuture(m_highlighter);
+                if (CppTools::CppHighlightingSupport *hs = modelManager()->highlightingSupport(editor())) {
+                    m_highlighter = hs->highlightingFuture(semanticInfo.doc, semanticInfo.snapshot);
+                    m_highlightRevision = semanticInfo.revision;
+                    m_highlightWatcher.setFuture(m_highlighter);
+                }
             }
         }
 
@@ -2154,21 +2156,9 @@ TextEditor::IAssistInterface *CPPEditorWidget::createAssistInterface(
     TextEditor::AssistReason reason) const
 {
     if (kind == TextEditor::Completion) {
-        QStringList includePaths;
-        QStringList frameworkPaths;
-        if (ProjectExplorer::Project *project =
-                ProjectExplorer::ProjectExplorerPlugin::currentProject()) {
-            includePaths = m_modelManager->projectInfo(project).includePaths;
-            frameworkPaths = m_modelManager->projectInfo(project).frameworkPaths;
-        }
-        return new CppTools::Internal::CppCompletionAssistInterface(
-                    document(),
-                    position(),
-                    editor()->file(),
-                    reason,
-                    m_modelManager->snapshot(),
-                    includePaths,
-                    frameworkPaths);
+        if (CppTools::CppCompletionSupport *cs = m_modelManager->completionSupport(editor()))
+            return cs->createAssistInterface(ProjectExplorer::ProjectExplorerPlugin::currentProject(),
+                                             document(), position(), reason);
     } else if (kind == TextEditor::QuickFix) {
         if (!semanticInfo().doc || isOutdated())
             return 0;
