@@ -148,7 +148,7 @@ def __getMkspecFromQmake__(qmakeCall):
     QmakeConfPath = getOutputFromCmdline("%s -query QMAKE_MKSPECS" % qmakeCall).strip()
     for tmpPath in QmakeConfPath.split(os.pathsep):
         tmpPath = tmpPath + os.sep + "default" + os.sep +"qmake.conf"
-        result = __getMkspecFromQMakeConf__(tmpPath, True)
+        result = __getMkspecFromQMakeConf__(tmpPath)
         if result != None:
             return result.strip()
     test.warning("Could not find qmake.conf inside provided QMAKE_MKSPECS path",
