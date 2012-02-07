@@ -9632,7 +9632,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Report Bug...</source>
-        <translation>汇报错误...</translation>
+        <translation>报告错误...</translation>
     </message>
     <message>
         <source>Previous</source>
@@ -9664,7 +9664,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Report Bug</source>
-        <translation type="obsolete">错误汇报</translation>
+        <translation type="obsolete">报告错误</translation>
     </message>
     <message>
         <source>Activate Index in Help mode</source>
@@ -47655,7 +47655,7 @@ Filter: %2
     </message>
     <message>
         <source>Start Updater</source>
-        <translation>启动</translation>
+        <translation>启动更新工具</translation>
     </message>
     <message>
         <source>Update</source>
