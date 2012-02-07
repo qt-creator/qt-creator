@@ -31,6 +31,7 @@
 #include "remotelinuxdeployconfigurationwidget.h"
 #include "ui_remotelinuxdeployconfigurationwidget.h"
 
+#include "abstractembeddedlinuxtarget.h"
 #include "deployablefilesperprofile.h"
 #include "deploymentinfo.h"
 #include "linuxdeviceconfigurations.h"
@@ -109,20 +110,20 @@ void RemoteLinuxDeployConfigurationWidget::init(DeployConfiguration *dc)
         SLOT(showDeviceConfigurations()));
     connect(&d->tableView, SIGNAL(doubleClicked()), SLOT(openProjectFile()));
 
-    d->ui.deviceConfigsComboBox->setModel(d->deployConfiguration->deviceConfigModel().data());
+    d->ui.deviceConfigsComboBox->setModel(d->deployConfiguration->target()->deviceConfigModel());
     connect(d->ui.deviceConfigsComboBox, SIGNAL(activated(int)),
         SLOT(handleSelectedDeviceConfigurationChanged(int)));
     connect(d->deployConfiguration, SIGNAL(deviceConfigurationListChanged()),
         SLOT(handleDeviceConfigurationListChanged()));
     handleDeviceConfigurationListChanged();
 
-    d->ui.projectsComboBox->setModel(d->deployConfiguration->deploymentInfo().data());
-    connect(d->deployConfiguration->deploymentInfo().data(), SIGNAL(modelAboutToBeReset()),
+    d->ui.projectsComboBox->setModel(d->deployConfiguration->deploymentInfo());
+    connect(d->deployConfiguration->deploymentInfo(), SIGNAL(modelAboutToBeReset()),
         SLOT(handleModelListToBeReset()));
 
     // Queued connection because of race condition with combo box's reaction
     // to modelReset().
-    connect(d->deployConfiguration->deploymentInfo().data(), SIGNAL(modelReset()),
+    connect(d->deployConfiguration->deploymentInfo(), SIGNAL(modelReset()),
         SLOT(handleModelListReset()), Qt::QueuedConnection);
 
     connect(d->ui.projectsComboBox, SIGNAL(currentIndexChanged(int)), SLOT(setModel(int)));
@@ -188,7 +189,8 @@ void RemoteLinuxDeployConfigurationWidget::handleDeviceConfigurationListChanged(
         = d->deployConfiguration->deviceConfiguration();
     const LinuxDeviceConfiguration::Id internalId
         = LinuxDeviceConfigurations::instance()->internalId(devConf);
-    const int newIndex = d->deployConfiguration->deviceConfigModel()->indexForInternalId(internalId);
+    const int newIndex
+        = d->deployConfiguration->target()->deviceConfigModel()->indexForInternalId(internalId);
     d->ui.deviceConfigsComboBox->setCurrentIndex(newIndex);
 }
 

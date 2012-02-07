@@ -61,14 +61,14 @@ class DeploymentSettingsAssistantInternal
 {
 public:
     DeploymentSettingsAssistantInternal(const QString &qmakeScope, const QString &installPrefix,
-            const QSharedPointer<DeploymentInfo> &deploymentInfo)
+        DeploymentInfo *deploymentInfo)
         : qmakeScope(qmakeScope), installPrefix(installPrefix), deploymentInfo(deploymentInfo)
     {
     }
 
     const QString qmakeScope;
     const QString installPrefix;
-    const QSharedPointer<DeploymentInfo> deploymentInfo;
+    DeploymentInfo * const deploymentInfo;
     UpdateSettingsMap updateSettings;
 };
 
@@ -77,12 +77,11 @@ public:
 using namespace Internal;
 
 DeploymentSettingsAssistant::DeploymentSettingsAssistant(const QString &qmakeScope,
-        const QString &installPrefix, const QSharedPointer<DeploymentInfo> &deploymentInfo,
-        QObject *parent)
+        const QString &installPrefix, DeploymentInfo *deploymentInfo, QObject *parent)
     : QObject(parent),
       d(new DeploymentSettingsAssistantInternal(qmakeScope, installPrefix, deploymentInfo))
 {
-    connect(d->deploymentInfo.data(), SIGNAL(modelReset()), SLOT(handleDeploymentInfoUpdated()));
+    connect(d->deploymentInfo, SIGNAL(modelReset()), SLOT(handleDeploymentInfoUpdated()));
 }
 
 DeploymentSettingsAssistant::~DeploymentSettingsAssistant()

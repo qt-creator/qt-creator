@@ -379,7 +379,7 @@ void RemoteLinuxRunConfiguration::handleDeployConfigChanged()
 {
     RemoteLinuxDeployConfiguration * const activeDeployConf = deployConfig();
     if (activeDeployConf) {
-        connect(activeDeployConf->deploymentInfo().data(), SIGNAL(modelReset()),
+        connect(activeDeployConf->deploymentInfo(), SIGNAL(modelReset()),
             SLOT(handleDeployablesUpdated()), Qt::UniqueConnection);
         connect(activeDeployConf, SIGNAL(currentDeviceConfigurationChanged()),
             SLOT(updateDeviceConfigurations()), Qt::UniqueConnection);

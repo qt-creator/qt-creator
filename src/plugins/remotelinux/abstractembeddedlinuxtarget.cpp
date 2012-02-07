@@ -31,6 +31,9 @@
 **************************************************************************/
 #include "abstractembeddedlinuxtarget.h"
 
+#include "deploymentinfo.h"
+#include "typespecificdeviceconfigurationlistmodel.h"
+
 #include <qt4projectmanager/qt4buildconfiguration.h>
 
 using namespace ProjectExplorer;
@@ -38,8 +41,13 @@ using namespace Qt4ProjectManager;
 
 namespace RemoteLinux {
 
-AbstractEmbeddedLinuxTarget::AbstractEmbeddedLinuxTarget(Qt4Project *parent, const QString &id) :
-    Qt4BaseTarget(parent, id), m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this))
+AbstractEmbeddedLinuxTarget::AbstractEmbeddedLinuxTarget(Qt4Project *parent, const QString &id,
+        const QString &supportedOsType) :
+    Qt4BaseTarget(parent, id),
+    m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this)),
+    m_supportedOsType(supportedOsType),
+    m_deploymentInfo(new DeploymentInfo(this)),
+    m_deviceConfigModel(new Internal::TypeSpecificDeviceConfigurationListModel(supportedOsType, this))
 {
 }
 

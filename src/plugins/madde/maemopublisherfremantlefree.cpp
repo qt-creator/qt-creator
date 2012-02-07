@@ -536,8 +536,7 @@ bool MaemoPublisherFremantleFree::updateDesktopFiles(QString *error) const
     bool success = true;
     const Qt4MaemoDeployConfiguration * const deployConfig
         = qobject_cast<Qt4MaemoDeployConfiguration *>(m_buildConfig->target()->activeDeployConfiguration());
-    const QSharedPointer<DeploymentInfo> deploymentInfo
-        = deployConfig->deploymentInfo();
+    const DeploymentInfo * const deploymentInfo = deployConfig->deploymentInfo();
     for (int i = 0; i < deploymentInfo->modelCount(); ++i) {
         const DeployableFilesPerProFile * const model = deploymentInfo->modelAt(i);
         QString desktopFilePath = deployConfig->localDesktopFilePath(model);

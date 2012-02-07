@@ -31,13 +31,13 @@
 
 #include "deploymentinfo.h"
 
+#include "abstractembeddedlinuxtarget.h"
 #include "deployablefile.h"
 #include "deployablefilesperprofile.h"
 
 #include <projectexplorer/buildstep.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4target.h>
 
 #include <QtCore/QList>
 #include <QtCore/QTimer>
@@ -49,16 +49,17 @@ namespace Internal {
 class DeploymentInfoPrivate
 {
 public:
-    DeploymentInfoPrivate(const Qt4BaseTarget *target) : target(target) {}
+    DeploymentInfoPrivate(const AbstractEmbeddedLinuxTarget *target) : target(target) {}
 
     QList<DeployableFilesPerProFile *> listModels;
-    const Qt4ProjectManager::Qt4BaseTarget * const target;
+    const AbstractEmbeddedLinuxTarget * const target;
 };
 } // namespace Internal
 
 using namespace Internal;
 
-DeploymentInfo::DeploymentInfo(const Qt4BaseTarget *target) : d(new DeploymentInfoPrivate(target))
+DeploymentInfo::DeploymentInfo(const AbstractEmbeddedLinuxTarget *target)
+    : d(new DeploymentInfoPrivate(target))
 {
     connect (d->target->qt4Project(), SIGNAL(proParsingDone()), SLOT(createModels()));
     createModels();

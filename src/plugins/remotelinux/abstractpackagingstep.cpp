@@ -130,7 +130,7 @@ RemoteLinuxDeployConfiguration *AbstractPackagingStep::deployConfiguration() con
 
 bool AbstractPackagingStep::isPackagingNeeded() const
 {
-    const QSharedPointer<DeploymentInfo> &deploymentInfo = deployConfiguration()->deploymentInfo();
+    const DeploymentInfo * const deploymentInfo = deployConfiguration()->deploymentInfo();
     QFileInfo packageInfo(packageFilePath());
     if (!packageInfo.exists() || deploymentInfo->isModified())
         return true;

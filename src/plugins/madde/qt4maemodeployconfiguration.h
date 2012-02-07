@@ -83,7 +83,7 @@ private:
     friend class Internal::Qt4MaemoDeployConfigurationFactory;
 
     Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target, const QString &id,
-        const QString &displayName, const QString &supportedOsType);
+        const QString &displayName);
     Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target,
         Qt4MaemoDeployConfiguration *source);
 

@@ -329,7 +329,7 @@ bool MaemoCopyToSysrootStep::init()
     }
     m_systemRoot = qtVersion->systemRoot();
 
-    const QSharedPointer<DeploymentInfo> deploymentInfo
+    const DeploymentInfo * const deploymentInfo
             = static_cast<RemoteLinuxDeployConfiguration *>(deployConfiguration())->deploymentInfo();
     m_files.clear();
     for (int i = 0; i < deploymentInfo->deployableCount(); ++i)

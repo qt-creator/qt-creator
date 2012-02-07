@@ -78,7 +78,7 @@ DeployConfiguration *RemoteLinuxDeployConfigurationFactory::create(Target *paren
     Q_ASSERT(canCreate(parent, id));
 
     DeployConfiguration * const dc = new RemoteLinuxDeployConfiguration(parent, id,
-        genericLinuxDisplayName(), QLatin1String(Constants::GenericLinuxOsType));
+        genericLinuxDisplayName());
     dc->stepList()->insertStep(0, new GenericDirectUploadStep(dc->stepList(),
         GenericDirectUploadStep::stepId()));
     return dc;
@@ -96,7 +96,7 @@ DeployConfiguration *RemoteLinuxDeployConfigurationFactory::restore(Target *pare
         return 0;
     QString id = idFromMap(map);
     RemoteLinuxDeployConfiguration * const dc = new RemoteLinuxDeployConfiguration(parent, id,
-        genericLinuxDisplayName(), QLatin1String(Constants::GenericLinuxOsType));
+        genericLinuxDisplayName());
     if (!dc->fromMap(map)) {
         delete dc;
         return 0;

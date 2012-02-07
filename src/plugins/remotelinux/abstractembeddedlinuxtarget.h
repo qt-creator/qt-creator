@@ -36,22 +36,35 @@
 
 #include <qt4projectmanager/qt4target.h>
 
+#include <QString>
+
 namespace ProjectExplorer { class IBuildConfigurationFactory; }
 namespace Qt4ProjectManager { class Qt4BuildConfigurationFactory; }
 
 namespace RemoteLinux {
+class DeploymentInfo;
+namespace Internal { class TypeSpecificDeviceConfigurationListModel; }
 
 class REMOTELINUX_EXPORT AbstractEmbeddedLinuxTarget : public Qt4ProjectManager::Qt4BaseTarget
 {
     Q_OBJECT
-
 public:
-    AbstractEmbeddedLinuxTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id);
+    AbstractEmbeddedLinuxTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id,
+        const QString &supportedOsType);
 
     ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 
+    QString supportedOsType() const { return m_supportedOsType; }
+    DeploymentInfo *deploymentInfo() const { return m_deploymentInfo; }
+    Internal::TypeSpecificDeviceConfigurationListModel *deviceConfigModel() const {
+        return m_deviceConfigModel;
+    }
+
 private:
-    Qt4ProjectManager::Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
+    Qt4ProjectManager::Qt4BuildConfigurationFactory * const m_buildConfigurationFactory;
+    const QString m_supportedOsType;
+    DeploymentInfo * const m_deploymentInfo;
+    Internal::TypeSpecificDeviceConfigurationListModel * const m_deviceConfigModel;
 };
 
 } // namespace RemoteLinux

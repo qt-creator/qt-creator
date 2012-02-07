@@ -32,6 +32,7 @@
 
 #include "qt4maemotarget.h"
 
+#include "maemoconstants.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemorunconfiguration.h"
@@ -118,8 +119,9 @@ bool adaptTagValue(QByteArray &document, const QByteArray &fieldName,
 } // anonymous namespace
 
 
-AbstractQt4MaemoTarget::AbstractQt4MaemoTarget(Qt4Project *parent, const QString &id) :
-    AbstractEmbeddedLinuxTarget(parent, id),
+AbstractQt4MaemoTarget::AbstractQt4MaemoTarget(Qt4Project *parent, const QString &id,
+        const QString &supportedOsType) :
+    AbstractEmbeddedLinuxTarget(parent, id, supportedOsType),
     m_filesWatcher(new Utils::FileSystemWatcher(this)),
     m_isInitialized(false)
 {
@@ -369,7 +371,8 @@ void AbstractQt4MaemoTarget::raiseError(const QString &reason)
 }
 
 AbstractDebBasedQt4MaemoTarget::AbstractDebBasedQt4MaemoTarget(Qt4Project *parent,
-    const QString &id) : AbstractQt4MaemoTarget(parent, id)
+        const QString &id, const QString &supportedOsType)
+    : AbstractQt4MaemoTarget(parent, id, supportedOsType)
 {
 }
 
@@ -951,7 +954,8 @@ QString AbstractDebBasedQt4MaemoTarget::shortDayOfWeekName(const QDateTime &dt) 
 
 
 AbstractRpmBasedQt4MaemoTarget::AbstractRpmBasedQt4MaemoTarget(Qt4Project *parent,
-    const QString &id) : AbstractQt4MaemoTarget(parent, id)
+        const QString &id, const QString &supportedOsType)
+    : AbstractQt4MaemoTarget(parent, id, supportedOsType)
 {
 }
 
@@ -1116,7 +1120,7 @@ bool AbstractRpmBasedQt4MaemoTarget::setValueForTag(const QByteArray &tag,
 }
 
 Qt4Maemo5Target::Qt4Maemo5Target(Qt4Project *parent, const QString &id)
-        : AbstractDebBasedQt4MaemoTarget(parent, id)
+    : AbstractDebBasedQt4MaemoTarget(parent, id, QLatin1String(Maemo5OsType))
 {
     setDisplayName(defaultDisplayName());
 }
@@ -1155,7 +1159,7 @@ QByteArray Qt4Maemo5Target::defaultSection() const
 }
 
 Qt4HarmattanTarget::Qt4HarmattanTarget(Qt4Project *parent, const QString &id)
-        : AbstractDebBasedQt4MaemoTarget(parent, id)
+    : AbstractDebBasedQt4MaemoTarget(parent, id, QLatin1String(HarmattanOsType))
 {
     setDisplayName(defaultDisplayName());
 }
@@ -1223,7 +1227,7 @@ QByteArray Qt4HarmattanTarget::defaultSection() const
 
 
 Qt4MeegoTarget::Qt4MeegoTarget(Qt4Project *parent, const QString &id)
-       : AbstractRpmBasedQt4MaemoTarget(parent, id)
+    : AbstractRpmBasedQt4MaemoTarget(parent, id, QLatin1String(MeeGoOsType))
 {
     setDisplayName(defaultDisplayName());
 }

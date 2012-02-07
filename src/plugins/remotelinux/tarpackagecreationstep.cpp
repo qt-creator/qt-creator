@@ -117,10 +117,9 @@ bool TarPackageCreationStep::init()
     if (!m_packagingNeeded)
         return true;
 
-    const QSharedPointer<DeploymentInfo> deploymentInfo = deployConfiguration()->deploymentInfo();
-    for (int i = 0; i < deploymentInfo->deployableCount(); ++i) {
+    const DeploymentInfo * const deploymentInfo = deployConfiguration()->deploymentInfo();
+    for (int i = 0; i < deploymentInfo->deployableCount(); ++i)
         m_files.append(deploymentInfo->deployableAt(i));
-    }
 
     return true;
 }

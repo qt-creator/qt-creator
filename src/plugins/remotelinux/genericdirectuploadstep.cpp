@@ -112,7 +112,7 @@ BuildStepConfigWidget *GenericDirectUploadStep::createConfigWidget()
 bool GenericDirectUploadStep::initInternal(QString *error)
 {
     QList<DeployableFile> deployableFiles;
-    const QSharedPointer<DeploymentInfo> deploymentInfo = deployConfiguration()->deploymentInfo();
+    const DeploymentInfo * const deploymentInfo = deployConfiguration()->deploymentInfo();
     const int deployableCount = deploymentInfo->deployableCount();
     for (int i = 0; i < deployableCount; ++i)
         deployableFiles << deploymentInfo->deployableAt(i);

@@ -42,6 +42,7 @@
 #include <QtCore/QSharedPointer>
 
 namespace RemoteLinux {
+class AbstractEmbeddedLinuxTarget;
 class DeploymentInfo;
 
 namespace Internal {
@@ -56,7 +57,7 @@ class REMOTELINUX_EXPORT RemoteLinuxDeployConfiguration
     Q_DISABLE_COPY(RemoteLinuxDeployConfiguration)
 public:
     RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target, const QString &id,
-        const QString &defaultDisplayName, const QString &supportedOsType);
+        const QString &defaultDisplayName);
     RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target,
         RemoteLinuxDeployConfiguration *source);
 
@@ -66,10 +67,9 @@ public:
     ProjectExplorer::DeployConfigurationWidget *configurationWidget() const;
 
     void setDeviceConfiguration(int index);
-    QSharedPointer<DeploymentInfo> deploymentInfo() const;
-    QSharedPointer<Internal::TypeSpecificDeviceConfigurationListModel> deviceConfigModel() const;
+    AbstractEmbeddedLinuxTarget *target() const;
+    DeploymentInfo *deploymentInfo() const;
     QSharedPointer<const LinuxDeviceConfiguration> deviceConfiguration() const;
-    QString supportedOsType() const;
 
     template<class T> T *earlierBuildStep(const ProjectExplorer::BuildStep *laterBuildStep) const
     {

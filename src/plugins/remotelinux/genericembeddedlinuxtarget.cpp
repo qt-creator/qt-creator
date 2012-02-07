@@ -47,7 +47,8 @@ namespace RemoteLinux {
 namespace Internal {
 
 GenericEmbeddedLinuxTarget::GenericEmbeddedLinuxTarget(Qt4ProjectManager::Qt4Project *parent,
-    const QString &id) : AbstractEmbeddedLinuxTarget(parent, id)
+        const QString &id) :
+    AbstractEmbeddedLinuxTarget(parent, id, QLatin1String(Constants::GenericLinuxOsType))
 {
     setDisplayName(tr("Embedded Linux"));
 }

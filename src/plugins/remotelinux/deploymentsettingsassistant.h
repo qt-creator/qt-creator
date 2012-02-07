@@ -34,7 +34,6 @@
 #include "remotelinux_export.h"
 
 #include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
 #include <QtCore/QStringList>
 
 namespace RemoteLinux {
@@ -51,8 +50,8 @@ class REMOTELINUX_EXPORT DeploymentSettingsAssistant : public QObject
     Q_OBJECT
     Q_DISABLE_COPY(DeploymentSettingsAssistant)
 public:
-    DeploymentSettingsAssistant(const QString &qmakeScope, const QString &iunstallPrefix,
-        const QSharedPointer<DeploymentInfo> &deploymentInfo, QObject *parent = 0);
+    DeploymentSettingsAssistant(const QString &qmakeScope, const QString &installPrefix,
+        DeploymentInfo *deploymentInfo, QObject *parent = 0);
     ~DeploymentSettingsAssistant();
 
     bool addDeployableToProFile(const DeployableFilesPerProFile *proFileInfo,
