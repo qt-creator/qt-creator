@@ -457,7 +457,7 @@ void SearchResultWidget::goToPrevious()
     }
 }
 
-void SearchResultWidget::reset()
+void SearchResultWidget::restart()
 {
     m_replaceTextEdit->setEnabled(false);
     m_replaceButton->setEnabled(false);
@@ -466,6 +466,7 @@ void SearchResultWidget::reset()
     m_cancelButton->setVisible(true);
     m_searchAgainButton->setVisible(false);
     updateMatchesFoundLabel();
+    emit restarted();
 }
 
 void SearchResultWidget::setSearchAgainSupported(bool supported)

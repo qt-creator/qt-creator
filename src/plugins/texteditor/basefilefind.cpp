@@ -319,7 +319,7 @@ void BaseFileFind::hideHighlightAll(bool visible)
 void BaseFileFind::searchAgain()
 {
     SearchResult *search = qobject_cast<SearchResult *>(sender());
-    search->reset();
+    search->restart();
     runSearch(search);
 }
 

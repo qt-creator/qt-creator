@@ -107,7 +107,7 @@ public slots:
     void addResults(const QList<SearchResultItem> &items, AddMode mode);
     void finishSearch();
     void setTextToReplace(const QString &textToReplace);
-    void reset();
+    void restart();
     void setSearchAgainEnabled(bool enabled);
 
 signals:

@@ -83,7 +83,7 @@ public:
     void goToNext();
     void goToPrevious();
 
-    void reset();
+    void restart();
 
     void setSearchAgainSupported(bool supported);
     void setSearchAgainEnabled(bool enabled);
@@ -96,6 +96,7 @@ signals:
     void replaceButtonClicked(const QString &replaceText, const QList<Find::SearchResultItem> &checkedItems);
     void searchAgainRequested();
     void cancelled();
+    void restarted();
     void visibilityChanged(bool visible);
 
     void navigateStateChanged();

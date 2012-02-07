@@ -311,7 +311,7 @@ void CppFindReferences::searchAgain()
     Find::SearchResult *search = qobject_cast<Find::SearchResult *>(sender());
     CppFindReferencesParameters parameters = search->userData().value<CppFindReferencesParameters>();
     Snapshot snapshot = CppModelManagerInterface::instance()->snapshot();
-    search->reset();
+    search->restart();
     if (!findSymbol(&parameters, snapshot)) {
         search->finishSearch();
         return;

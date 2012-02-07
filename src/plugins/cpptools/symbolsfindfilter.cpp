@@ -276,7 +276,7 @@ void SymbolsFindFilter::searchAgain()
 {
     Find::SearchResult *search = qobject_cast<Find::SearchResult *>(sender());
     QTC_ASSERT(search, return);
-    search->reset();
+    search->restart();
     startSearch(search);
 }
 

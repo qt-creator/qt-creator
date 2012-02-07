@@ -101,6 +101,7 @@ namespace Internal {
 
     public slots:
         void setCurrentIndex(int index);
+        void moveWidgetToTop();
     };
 
     SearchResultWindowPrivate::SearchResultWindowPrivate(SearchResultWindow *window)
@@ -134,6 +135,40 @@ namespace Internal {
             m_expandCollapseButton->setEnabled(true);
         }
         q->navigateStateChanged();
+    }
+
+    void SearchResultWindowPrivate::moveWidgetToTop()
+    {
+        SearchResultWidget *widget = qobject_cast<SearchResultWidget *>(sender());
+        QTC_ASSERT(widget, return);
+        int index = m_searchResultWidgets.indexOf(widget);
+        if (index == 0)
+            return; // nothing to do
+        int internalIndex = index + 1/*account for "new search" entry*/;
+        QString searchEntry = m_recentSearchesBox->itemText(internalIndex);
+
+        m_searchResultWidgets.removeAt(index);
+        m_widget->removeWidget(widget);
+        m_recentSearchesBox->removeItem(internalIndex);
+        SearchResult *result = m_searchResults.takeAt(index);
+
+        m_searchResultWidgets.prepend(widget);
+        m_widget->insertWidget(1, widget);
+        m_recentSearchesBox->insertItem(1, searchEntry);
+        m_searchResults.prepend(result);
+
+        // adapt the current index
+        if (index == visibleSearchIndex()) {
+            // was visible, so we switch
+            // this is the default case
+            m_currentIndex = 1;
+            m_widget->setCurrentIndex(1);
+            m_recentSearchesBox->setCurrentIndex(1);
+        } else if (visibleSearchIndex() < index) {
+            // academical case where the widget moved before the current widget
+            // only our internal book keeping needed
+            ++m_currentIndex;
+        }
     }
 }
 
@@ -344,6 +379,7 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
     d->m_searchResultWidgets.prepend(widget);
     d->m_widget->insertWidget(1, widget);
     connect(widget, SIGNAL(navigateStateChanged()), this, SLOT(navigateStateChanged()));
+    connect(widget, SIGNAL(restarted()), d, SLOT(moveWidgetToTop()));
     widget->setTextEditorFont(d->m_font);
     widget->setShowReplaceUI(searchOrSearchAndReplace != SearchOnly);
     widget->setAutoExpandResults(d->m_expandCollapseAction->isChecked());
@@ -651,9 +687,9 @@ void SearchResult::setTextToReplace(const QString &textToReplace)
 /*!
  * \brief Removes all search results.
  */
-void SearchResult::reset()
+void SearchResult::restart()
 {
-    m_widget->reset();
+    m_widget->restart();
 }
 
 void SearchResult::setSearchAgainEnabled(bool enabled)
