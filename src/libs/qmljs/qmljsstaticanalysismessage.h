@@ -114,7 +114,19 @@ enum Type
     WarnNumberConstructor = 308,
     HintBinaryOperatorSpacing = 309,
     WarnUnintentinalEmptyBlock = 310,
-    HintPreferNonVarPropertyType = 311
+    HintPreferNonVarPropertyType = 311,
+    ErrMissingRequiredProperty = 312,
+    ErrObjectValueExpected = 313,
+    ErrArrayValueExpected = 314,
+    ErrDifferentValueExpected = 315,
+    ErrSmallerNumberValueExpected = 316,
+    ErrLargerNumberValueExpected = 317,
+    ErrMaximumNumberValueIsExclusive = 318,
+    ErrMinimumNumberValueIsExclusive = 319,
+    ErrInvalidStringValuePattern = 320,
+    ErrLongerStringValueExpected = 321,
+    ErrShorterStringValueExpected = 322,
+    ErrInvalidArrayValueLength = 323
 };
 
 class QMLJS_EXPORT Message
@@ -123,7 +135,8 @@ public:
     Message();
     Message(Type type, AST::SourceLocation location,
             const QString &arg1 = QString(),
-            const QString &arg2 = QString());
+            const QString &arg2 = QString(),
+            bool appendTypeId = true);
 
     static QList<Type> allMessageTypes();
 

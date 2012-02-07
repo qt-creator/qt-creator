@@ -32,7 +32,8 @@ HEADERS += \
     $$PWD/qmljscontext.h \
     $$PWD/qmljsscopechain.h \
     $$PWD/qmljsutils.h \
-    $$PWD/qmljsstaticanalysismessage.h
+    $$PWD/qmljsstaticanalysismessage.h \
+    $$PWD/jsoncheck.h
 
 SOURCES += \
     $$PWD/qmljsbind.cpp \
@@ -56,7 +57,8 @@ SOURCES += \
     $$PWD/qmljscontext.cpp \
     $$PWD/qmljsscopechain.cpp \
     $$PWD/qmljsutils.cpp \
-    $$PWD/qmljsstaticanalysismessage.cpp
+    $$PWD/qmljsstaticanalysismessage.cpp \
+    $$PWD/jsoncheck.cpp
 
 RESOURCES += \
     $$PWD/qmljs.qrc

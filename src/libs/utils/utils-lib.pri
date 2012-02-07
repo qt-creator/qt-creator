@@ -5,7 +5,7 @@ dll {
 }
 
 INCLUDEPATH += $$PWD
-QT += network
+QT += network script
 
 win32-msvc* {
     # disable warnings caused by botan headers
@@ -93,7 +93,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/flowlayout.cpp \
     $$PWD/networkaccessmanager.cpp \
     $$PWD/persistentsettings.cpp \
-    $$PWD/completingtextedit.cpp
+    $$PWD/completingtextedit.cpp \
+    $$PWD/json.cpp
 
 win32 {
     SOURCES += \
@@ -201,7 +202,8 @@ HEADERS += \
     $$PWD/flowlayout.h \
     $$PWD/networkaccessmanager.h \
     $$PWD/persistentsettings.h \
-    $$PWD/completingtextedit.h
+    $$PWD/completingtextedit.h \
+    $$PWD/json.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

@@ -36,9 +36,14 @@
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/id.h>
+
 #include <QtCore/QPointer>
 
 QT_FORWARD_DECLARE_CLASS(QAction)
+
+namespace Utils {
+class JsonSchemaManager;
+}
 
 namespace TextEditor {
 class TextEditorActionHandler;
@@ -91,6 +96,8 @@ public:
 
     void initializeEditor(QmlJSEditor::QmlJSTextEditorWidget *editor);
 
+    Utils::JsonSchemaManager *jsonManager() const;
+
 public Q_SLOTS:
     void followSymbolUnderCursor();
     void findUsages();
@@ -118,6 +125,7 @@ private:
     QAction *m_reformatFileAction;
 
     QPointer<QmlJSTextEditorWidget> m_currentEditor;
+    QScopedPointer<Utils::JsonSchemaManager> m_jsonManager;
 };
 
 } // namespace Internal

@@ -193,6 +193,30 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            tr("unintentional empty block, use ({}) for empty object literal"));
     newMsg(HintPreferNonVarPropertyType, Hint,
            tr("use %1 instead of 'var' or 'variant' to improve performance"), 1);
+    newMsg(ErrMissingRequiredProperty, Error,
+           tr("missing property '%1'"), 1);
+    newMsg(ErrObjectValueExpected, Error,
+           tr("object value expected"));
+    newMsg(ErrArrayValueExpected, Error,
+           tr("array value expected"));
+    newMsg(ErrDifferentValueExpected, Error,
+           tr("%1 value expected"), 1);
+    newMsg(ErrSmallerNumberValueExpected, Error,
+           tr("maximum number value is %1"), 1);
+    newMsg(ErrLargerNumberValueExpected, Error,
+           tr("minimum number value is %1"), 1);
+    newMsg(ErrMaximumNumberValueIsExclusive, Error,
+           tr("maximum number value is exclusive"));
+    newMsg(ErrMinimumNumberValueIsExclusive, Error,
+           tr("minimum number value is exclusive"));
+    newMsg(ErrInvalidStringValuePattern, Error,
+           tr("string value does not match required pattern"));
+    newMsg(ErrLongerStringValueExpected, Error,
+           tr("minimum string value length is %1"), 1);
+    newMsg(ErrShorterStringValueExpected, Error,
+           tr("maximum string value length is %1"), 1);
+    newMsg(ErrInvalidArrayValueLength, Error,
+           tr("%1 elements expected in array value"), 1);
 }
 
 } // anonymous namespace
@@ -208,7 +232,11 @@ Message::Message()
     : type(UnknownType), severity(Hint)
 {}
 
-Message::Message(Type type, AST::SourceLocation location, const QString &arg1, const QString &arg2)
+Message::Message(Type type,
+                 AST::SourceLocation location,
+                 const QString &arg1,
+                 const QString &arg2,
+                 bool appendTypeId)
     : location(location), type(type)
 {
     QTC_ASSERT(messages()->messages.contains(type), return);
@@ -227,7 +255,8 @@ Message::Message(Type type, AST::SourceLocation location, const QString &arg1, c
             qWarning() << "StaticAnalysis message" << type << "expects exactly two arguments";
         message = message.arg(arg1, arg2);
     }
-    message.append(QString(" (M%1)").arg(QString::number(prototype.type)));
+    if (appendTypeId)
+        message.append(QString(" (M%1)").arg(QString::number(prototype.type)));
 }
 
 bool Message::isValid() const

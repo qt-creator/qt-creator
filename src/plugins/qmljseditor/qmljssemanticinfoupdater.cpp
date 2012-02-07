@@ -31,13 +31,19 @@
 **************************************************************************/
 
 #include "qmljssemanticinfoupdater.h"
+#include "qmljseditorplugin.h"
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljscheck.h>
+#include <qmljs/jsoncheck.h>
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljslink.h>
 #include <qmljstools/qmljsmodelmanager.h>
+
+#include <coreplugin/icore.h>
+
+#include <utils/json.h>
 
 namespace QmlJSEditor {
 namespace Internal {
@@ -125,7 +131,14 @@ SemanticInfo SemanticInfoUpdater::makeNewSemanticInfo(const QmlJS::Document::Ptr
     ScopeChain *scopeChain = new ScopeChain(doc, semanticInfo.context);
     semanticInfo.m_rootScopeChain = QSharedPointer<const ScopeChain>(scopeChain);
 
-    if (doc->language() != Document::JsonLanguage) {
+    if (doc->language() == Document::JsonLanguage) {
+        Utils::JsonSchema *schema =
+                QmlJSEditorPlugin::instance()->jsonManager()->schemaForFile(doc->fileName());
+        if (schema) {
+            JsonCheck jsonChecker(doc);
+            semanticInfo.staticAnalysisMessages = jsonChecker(schema);
+        }
+    } else {
         Check checker(doc, semanticInfo.context);
         semanticInfo.staticAnalysisMessages = checker();
     }
