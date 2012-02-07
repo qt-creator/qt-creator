@@ -79,8 +79,12 @@ void CppHighlighter::highlightBlock(const QString &text)
     if (tokens.isEmpty()) {
         setCurrentBlockState(previousState);
         BaseTextDocumentLayout::clearParentheses(currentBlock());
-        if (text.length()) // the empty line can still contain whitespace
-            setFormat(0, text.length(), m_formats[CppVisualWhitespace]);
+        if (text.length())  {// the empty line can still contain whitespace
+            if (!initialState)
+                setFormat(0, text.length(), m_formats[CppVisualWhitespace]);
+            else
+                setFormat(0, text.length(), m_formats[CppCommentFormat]);
+        }
         BaseTextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
         return;
     }
@@ -104,8 +108,10 @@ void CppHighlighter::highlightBlock(const QString &text)
         }
 
         if (previousTokenEnd != tk.begin()) {
-            setFormat(previousTokenEnd, tk.begin() - previousTokenEnd,
-                      m_formats[CppVisualWhitespace]);
+            if (initialState && tk.isComment())
+                setFormat(previousTokenEnd, tk.begin() - previousTokenEnd, m_formats[CppCommentFormat]);
+            else
+                setFormat(previousTokenEnd, tk.begin() - previousTokenEnd, m_formats[CppVisualWhitespace]);
         }
 
         if (tk.is(T_LPAREN) || tk.is(T_LBRACE) || tk.is(T_LBRACKET)) {
@@ -162,15 +168,15 @@ void CppHighlighter::highlightBlock(const QString &text)
 
         else if (tk.is(T_STRING_LITERAL) || tk.is(T_CHAR_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL) ||
                  tk.is(T_AT_STRING_LITERAL))
-            highlightLine(text, tk.begin(), tk.length(), m_formats[CppStringFormat]);
+            setFormat(tk.begin(), tk.length(), m_formats[CppStringFormat]);
 
         else if (tk.is(T_WIDE_STRING_LITERAL) || tk.is(T_WIDE_CHAR_LITERAL))
-            highlightLine(text, tk.begin(), tk.length(), m_formats[CppStringFormat]);
+            setFormat(tk.begin(), tk.length(), m_formats[CppStringFormat]);
 
         else if (tk.isComment()) {
 
             if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT))
-                highlightLine(text, tk.begin(), tk.length(), m_formats[CppCommentFormat]);
+                setFormat(tk.begin(), tk.length(), m_formats[CppCommentFormat]);
 
             else // a doxygen comment
                 highlightDoxygenComment(text, tk.begin(), tk.length());
