@@ -631,7 +631,8 @@ void Qt4Project::updateQmlJSCodeModel()
         }
     } else {
         qtVersion = qt4ProjectManager()->unconfiguredSettings().version;
-        preferDebugDump = qtVersion->defaultBuildConfig() & QtSupport::BaseQtVersion::DebugBuild;
+        if (qtVersion)
+            preferDebugDump = qtVersion->defaultBuildConfig() & QtSupport::BaseQtVersion::DebugBuild;
     }
     if (qtVersion) {
         if (qtVersion && qtVersion->isValid()) {
