@@ -45,7 +45,7 @@
       <item>
        <widget class="QCheckBox" name="checkAllCheckBox">
         <property name="text">
-         <string>&amp;Check all</string>
+         <string>Check a&amp;ll</string>
         </property>
         <property name="tristate">
          <bool>false</bool>
