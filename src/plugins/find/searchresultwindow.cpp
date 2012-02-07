@@ -53,6 +53,7 @@
 
 static const char SETTINGSKEYSECTIONNAME[] = "SearchResults";
 static const char SETTINGSKEYEXPANDRESULTS[] = "ExpandResults";
+static const int MAX_SEARCH_HISTORY = 12;
 
 namespace Find {
 
@@ -329,7 +330,7 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
                                                  SearchMode searchOrSearchAndReplace,
                                                  const QString &cfgGroup)
 {
-    if (d->m_searchResults.size() >= 5) {
+    if (d->m_searchResults.size() >= MAX_SEARCH_HISTORY) {
         d->m_searchResultWidgets.last()->notifyVisibilityChanged(false);
         delete d->m_searchResults.takeLast();
         delete d->m_searchResultWidgets.takeLast();
