@@ -765,6 +765,23 @@ bool CheckSymbols::visit(MemInitializerAST *ast)
     return false;
 }
 
+bool CheckSymbols::visit(GotoStatementAST *ast)
+{
+    if (ast->identifier_token)
+        addUse(ast->identifier_token, SemanticInfo::LabelUse);
+
+    return false;
+}
+
+bool CheckSymbols::visit(LabeledStatementAST *ast)
+{
+    if (ast->label_token)
+        addUse(ast->label_token, SemanticInfo::LabelUse);
+
+    accept(ast->statement);
+    return false;
+}
+
 bool CheckSymbols::visit(FunctionDefinitionAST *ast)
 {
     AST *thisFunction = _astStack.takeLast();

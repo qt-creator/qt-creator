@@ -46,11 +46,13 @@ class CPPTOOLS_EXPORT SemanticInfo
 {
 public:
     enum UseKind {
-        TypeUse = 0,
+        Unknown = 0,
+        TypeUse,
         LocalUse,
         FieldUse,
         StaticUse,
-        VirtualMethodUse
+        VirtualMethodUse,
+        LabelUse
     };
     typedef TextEditor::SemanticHighlighter::Result Use;
 

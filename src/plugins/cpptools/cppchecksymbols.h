@@ -154,6 +154,9 @@ protected:
 
     virtual bool visit(MemInitializerAST *ast);
 
+    virtual bool visit(GotoStatementAST *ast);
+    virtual bool visit(LabeledStatementAST *ast);
+
     NameAST *declaratorId(DeclaratorAST *ast) const;
 
     void flush();
