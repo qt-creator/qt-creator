@@ -57,7 +57,7 @@ public:
     MsvcToolChain(const QString &name, const Abi &abi,
                   const QString &varsBat, const QString &varsBatArg, bool autodetect = false);
     QString legacyId() const;
-    Utils::FileName suggestedMkspec() const;
+    QList<Utils::FileName> suggestedMkspecList() const;
 
     static MsvcToolChain *readFromMap(const QVariantMap &data);
 

@@ -413,7 +413,7 @@ void RvctToolChainConfigWidget::apply()
     tc->setArmVersion(static_cast<RvctToolChain::ArmVersion>(m_ui->versionComboBox->currentIndex()));
     tc->setEnvironmentChanges(changes);
     tc->setDebuggerCommand(debuggerCommand());
-    tc->setMkspec(mkspec());
+    tc->setMkspecList(mkspecList());
 
     m_model->setUserChanges(changes);
 }
@@ -428,7 +428,7 @@ void RvctToolChainConfigWidget::setFromToolChain()
     m_ui->compilerPath->setFileName(tc->compilerCommand());
     m_ui->versionComboBox->setCurrentIndex(static_cast<int>(tc->armVersion()));
     setDebuggerCommand(tc->debuggerCommand());
-    setMkspec(tc->mkspec());
+    setMkspecList(tc->mkspecList());
 }
 
 bool RvctToolChainConfigWidget::isDirty() const
@@ -440,7 +440,7 @@ bool RvctToolChainConfigWidget::isDirty() const
             || tc->armVersion() != static_cast<RvctToolChain::ArmVersion>(m_ui->versionComboBox->currentIndex())
             || tc->environmentChanges() != environmentChanges()
             || tc->debuggerCommand() != debuggerCommand()
-            || tc->mkspec() != mkspec();
+            || tc->mkspecList() != mkspecList();
 }
 
 void RvctToolChainConfigWidget::makeReadOnly()

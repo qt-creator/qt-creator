@@ -468,7 +468,7 @@ UnConfiguredSettings Qt4Manager::unconfiguredSettings() const
             version = versions.first();
 
             foreach (ProjectExplorer::ToolChain *tc, ProjectExplorer::ToolChainManager::instance()->toolChains()) {
-                if (tc->mkspec() == version->mkspec()) {
+                if (tc->mkspecList().contains(version->mkspec())) {
                     toolChain = tc;
                     break;
                 }

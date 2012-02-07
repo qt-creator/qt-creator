@@ -71,7 +71,7 @@ public:
     QString makeCommand() const;
     void setDebuggerCommand(const Utils::FileName &);
     Utils::FileName debuggerCommand() const;
-    Utils::FileName suggestedMkspec() const;
+    QList<Utils::FileName> suggestedMkspecList() const;
     IOutputParser *outputParser() const;
 
     QVariantMap toMap() const;
@@ -129,7 +129,7 @@ public:
 
     ToolChain *clone() const;
 
-    Utils::FileName suggestedMkspec() const;
+    QList<Utils::FileName> suggestedMkspecList() const;
 
 private:
     ClangToolChain(bool autodetect);
@@ -151,7 +151,7 @@ public:
 
     ToolChain *clone() const;
 
-    Utils::FileName suggestedMkspec() const;
+    QList<Utils::FileName> suggestedMkspecList() const;
 
 private:
     MingwToolChain(bool autodetect);
@@ -174,7 +174,7 @@ public:
 
     ToolChain *clone() const;
 
-    Utils::FileName suggestedMkspec() const;
+    QList<Utils::FileName> suggestedMkspecList() const;
 
 private:
     LinuxIccToolChain(bool autodetect);

@@ -45,23 +45,42 @@
 #include <QtGui/QPushButton>
 
 namespace {
+
 const char DEFAULT_MKSPEC[] = "default";
 
-Utils::FileName mkspecFromString(const QString &spec)
+QString mkspecListToString(const QList<Utils::FileName> &specList)
 {
-    if (spec == QLatin1String(DEFAULT_MKSPEC))
-        return Utils::FileName();
-    else
-        return Utils::FileName::fromUserInput(spec);
+    QStringList specStrings;
+    foreach (const Utils::FileName &spec, specList) {
+        if (spec.isEmpty())
+            specStrings.append(QLatin1String(DEFAULT_MKSPEC));
+        else
+            specStrings.append(spec.toUserOutput());
+    }
+    QString specString = specStrings.join(QChar::fromAscii(';'));
+    if (specString.isEmpty())
+        return QLatin1String(DEFAULT_MKSPEC);
+    return specString;
 }
 
-QString mkspecToString(const Utils::FileName spec)
+QList<Utils::FileName> mkspecListFromString(const QString &specString)
 {
-    if (spec.isEmpty())
-        return QLatin1String(DEFAULT_MKSPEC);
-    else
-        return spec.toUserOutput();
+    QStringList specList = specString.split(QLatin1Char(';'));
+    QList<Utils::FileName> result;
+    foreach (const QString &spec, specList) {
+        QString trimmed = spec.trimmed();
+        if (trimmed == QLatin1String(DEFAULT_MKSPEC))
+            result.append(Utils::FileName());
+        else
+            result.append(Utils::FileName::fromUserInput(trimmed));
+    }
+
+    if (result.size() == 1 && result.at(0).isEmpty())
+        return QList<Utils::FileName>();
+
+    return result;
 }
+
 
 } // namespace
 
@@ -90,7 +109,7 @@ public:
     QPushButton *m_mkspecResetButton;
     bool m_mkspecEdited;
     QLabel *m_errorLabel;
-    Utils::FileName m_suggestedMkspec;
+    QList<Utils::FileName> m_suggestedMkspec;
 };
 
 } // namespace Internal
@@ -127,17 +146,17 @@ void ToolChainConfigWidget::makeReadOnly()
 void ToolChainConfigWidget::emitDirty()
 {
     if (d->m_mkspecEdit)
-        d->m_mkspecEdited = (mkspecFromString(d->m_mkspecEdit->text()) != d->m_suggestedMkspec);
+        d->m_mkspecEdited = (mkspecListFromString(d->m_mkspecEdit->text()) != d->m_suggestedMkspec);
     if (d->m_mkspecResetButton)
         d->m_mkspecResetButton->setEnabled(d->m_mkspecEdited);
     emit dirty(toolChain());
 }
 
-void ToolChainConfigWidget::resetMkspec()
+void ToolChainConfigWidget::resetMkspecList()
 {
     if (!d->m_mkspecEdit || !d->m_mkspecEdited)
         return;
-    d->m_mkspecEdit->setText(mkspecToString(d->m_suggestedMkspec));
+    d->m_mkspecEdit->setText(mkspecListToString(d->m_suggestedMkspec));
     d->m_mkspecEdited = false;
 }
 
@@ -211,34 +230,34 @@ void ToolChainConfigWidget::ensureMkspecEdit()
     QTC_CHECK(!d->m_mkspecLayout);
     QTC_CHECK(!d->m_mkspecResetButton);
 
-    d->m_suggestedMkspec = d->m_toolChain->suggestedMkspec();
+    d->m_suggestedMkspec = d->m_toolChain->suggestedMkspecList();
 
     d->m_mkspecLayout = new QHBoxLayout;
     d->m_mkspecLayout->setMargin(0);
 
     d->m_mkspecEdit = new QLineEdit;
+    d->m_mkspecEdit->setWhatsThis(tr("All possible mkspecs separated by a semicolon (';')."));
     d->m_mkspecResetButton = new QPushButton(tr("Reset"));
     d->m_mkspecResetButton->setEnabled(d->m_mkspecEdited);
     d->m_mkspecLayout->addWidget(d->m_mkspecEdit);
     d->m_mkspecLayout->addWidget(d->m_mkspecResetButton);
 
     connect(d->m_mkspecEdit, SIGNAL(textChanged(QString)), this, SLOT(emitDirty()));
-    connect(d->m_mkspecResetButton, SIGNAL(clicked()), this, SLOT(resetMkspec()));
+    connect(d->m_mkspecResetButton, SIGNAL(clicked()), this, SLOT(resetMkspecList()));
 }
 
-Utils::FileName ToolChainConfigWidget::mkspec() const
+QList<Utils::FileName> ToolChainConfigWidget::mkspecList() const
 {
-    QTC_ASSERT(d->m_mkspecEdit, return Utils::FileName());
+    QTC_ASSERT(d->m_mkspecEdit, return QList<Utils::FileName>());
 
-    return mkspecFromString(d->m_mkspecEdit->text());
+    return mkspecListFromString(d->m_mkspecEdit->text());
 }
 
-void ToolChainConfigWidget::setMkspec(const Utils::FileName &spec)
+void ToolChainConfigWidget::setMkspecList(const QList<Utils::FileName> &specList)
 {
     QTC_ASSERT(d->m_mkspecEdit, return);
 
-    QString text = mkspecToString(spec);
-    d->m_mkspecEdit->setText(text);
+    d->m_mkspecEdit->setText(mkspecListToString(specList));
 
     emitDirty();
 }

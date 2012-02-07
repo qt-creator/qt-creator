@@ -75,7 +75,7 @@ signals:
 
 protected slots:
     void emitDirty();
-    void resetMkspec();
+    void resetMkspecList();
     void setErrorMessage(const QString &);
     void clearErrorMessage();
 
@@ -94,8 +94,8 @@ protected:
     Utils::FileName debuggerCommand() const;
     void setDebuggerCommand(const Utils::FileName &debugger);
 
-    Utils::FileName mkspec() const;
-    void setMkspec(const Utils::FileName &spec);
+    QList<Utils::FileName> mkspecList() const;
+    void setMkspecList(const QList<Utils::FileName> &specList);
 
 private:
     void ensureDebuggerPathChooser(const QStringList &versionArguments);

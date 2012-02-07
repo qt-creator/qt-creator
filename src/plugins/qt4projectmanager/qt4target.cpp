@@ -316,7 +316,7 @@ ProjectExplorer::ToolChain *Qt4BaseTarget::preferredToolChain(ProjectExplorer::B
     QList<ProjectExplorer::ToolChain *> tcs = possibleToolChains(bc);
     const Utils::FileName mkspec = qtBc->qtVersion()->mkspec();
     foreach (ProjectExplorer::ToolChain *tc, tcs)
-        if (tc->mkspec() == mkspec)
+        if (tc->mkspecList().contains(mkspec))
             return tc;
     return tcs.isEmpty() ? 0 : tcs.at(0);
 }
@@ -328,11 +328,14 @@ Utils::FileName Qt4BaseTarget::mkspec(const Qt4BuildConfiguration *bc) const
     if (version && version->qtAbis().count() == 1 && version->qtAbis().first().isNull())
         return Utils::FileName();
 
-    const Utils::FileName tcSpec = bc->toolChain() ? bc->toolChain()->mkspec() : Utils::FileName();
+    const QList<Utils::FileName> tcSpecList
+            = bc->toolChain() ? bc->toolChain()->mkspecList() : QList<Utils::FileName>();
     if (!version)
-        return tcSpec;
-    if (!tcSpec.isEmpty() && version->hasMkspec(tcSpec))
-        return tcSpec;
+        return Utils::FileName(); // No Qt version, so no qmake either...
+    foreach (const Utils::FileName &tcSpec, tcSpecList) {
+        if (version->hasMkspec(tcSpec))
+            return tcSpec;
+    }
     return version->mkspec();
 }
 
