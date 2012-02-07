@@ -80,6 +80,7 @@ public:
     bool isDefault() const;
     bool isAutoDetected() const;
     QVariantHash attributes() const;
+    QVariant attribute(const QString &name) const;
 
     static QString defaultPrivateKeyFilePath();
     static QString defaultPublicKeyFilePath();
@@ -107,6 +108,7 @@ private:
     void setDefault(bool isDefault);
     void setSshParameters(const Utils::SshConnectionParameters &sshParameters);
     void setFreePorts(const PortList &freePorts);
+    void setAttribute(const QString &name, const QVariant &value);
     void save(QSettings &settings) const;
 
     Internal::LinuxDeviceConfigurationPrivate *d;

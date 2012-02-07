@@ -233,6 +233,11 @@ void LinuxDeviceConfiguration::setFreePorts(const PortList &freePorts)
     d->freePorts = freePorts;
 }
 
+void LinuxDeviceConfiguration::setAttribute(const QString &name, const QVariant &value)
+{
+    d->attributes[name] = value;
+}
+
 bool LinuxDeviceConfiguration::isAutoDetected() const
 {
     return d->origin == AutoDetected;
@@ -241,6 +246,11 @@ bool LinuxDeviceConfiguration::isAutoDetected() const
 QVariantHash LinuxDeviceConfiguration::attributes() const
 {
     return d->attributes;
+}
+
+QVariant LinuxDeviceConfiguration::attribute(const QString &name) const
+{
+    return d->attributes.value(name);
 }
 
 PortList LinuxDeviceConfiguration::freePorts() const { return d->freePorts; }

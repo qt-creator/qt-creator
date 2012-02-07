@@ -255,6 +255,14 @@ void LinuxDeviceConfigurations::setDefaultDevice(int idx)
     emit dataChanged(newDefaultIndex, newDefaultIndex);
 }
 
+void LinuxDeviceConfigurations::setAttribute(int index, const QString &name, const QVariant &value)
+{
+    QTC_ASSERT(this != LinuxDeviceConfigurationsPrivate::instance, return);
+    Q_ASSERT(index >= 0 && index < rowCount());
+
+    d->devConfigs.at(index)->setAttribute(name, value);
+}
+
 LinuxDeviceConfigurations::LinuxDeviceConfigurations(QObject *parent)
     : QAbstractListModel(parent), d(new LinuxDeviceConfigurationsPrivate)
 {
