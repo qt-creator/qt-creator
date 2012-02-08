@@ -56,7 +56,7 @@ public:
     virtual ~BaseTextMark();
 
     // our location in the "owning" edtitor
-    virtual void setLocation(const QString &fileName, int lineNumber);
+    void setLocation(const QString &fileName, int lineNumber);
 
     // call this if the icon has changed.
     void updateMarker();
