@@ -32,7 +32,7 @@
 
 #include "jsoncheck.h"
 
-#include <parser/qmljsast_p.h>
+#include <qmljs/parser/qmljsast_p.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>

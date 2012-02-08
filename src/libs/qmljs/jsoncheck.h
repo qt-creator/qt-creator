@@ -36,7 +36,7 @@
 #include "qmljs_global.h"
 
 #include <qmljs/qmljsdocument.h>
-#include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsstaticanalysismessage.h>
 
