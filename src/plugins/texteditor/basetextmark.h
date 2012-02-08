@@ -65,8 +65,6 @@ public:
     QString fileName() const { return m_fileName; }
     int lineNumber() const { return m_line; }
 
-    void moveMark(const QString &filename, int line);
-
 private slots:
     void init();
     void editorOpened(Core::IEditor *editor);
