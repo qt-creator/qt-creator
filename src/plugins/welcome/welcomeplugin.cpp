@@ -155,6 +155,8 @@ WelcomeMode::WelcomeMode() :
     layout->setSpacing(0);
     m_modeWidget->setLayout(layout);
 
+    Utils::StyledBar* styledBar = new Utils::StyledBar(m_modeWidget);
+    layout->addWidget(styledBar);
     QScrollArea *scrollArea = new QScrollArea(m_modeWidget);
     layout->addWidget(scrollArea);
     scrollArea->setWidget(m_welcomePage);

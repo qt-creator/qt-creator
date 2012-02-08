@@ -63,14 +63,14 @@ Rectangle {
 
         PageLoader {
             anchors.fill: parent
-            anchors.topMargin: 100
+            anchors.topMargin: 76
             model: pagesModel
         }
 
         CustomTab {
             id: tab
             x: 578
-            y: 120
+            y: 96
             anchors.right: parent.right
             anchors.rightMargin: 36
             model: pagesModel
@@ -79,10 +79,11 @@ Rectangle {
 
         Logo {
             x: 25
-            y: 38
+            y: 14
         }
 
         Rectangle {
+            visible: root.width > 1042
             width: 2
             color: "#919191"
             anchors.left: parent.left
@@ -91,6 +92,7 @@ Rectangle {
         }
 
         Rectangle {
+            visible: root.width > 1042
             width: 2
             color: "#919191"
             anchors.right: parent.right
@@ -98,12 +100,5 @@ Rectangle {
             anchors.bottom: parent.bottom
         }
 
-    }
-
-    BorderImage {
-        anchors.right: parent.right
-        anchors.left: parent.left
-        border.right: 1
-        source: "widgets/images/creatorbar.png"
     }
 }
