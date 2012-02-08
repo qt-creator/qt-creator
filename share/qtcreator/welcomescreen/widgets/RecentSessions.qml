@@ -33,39 +33,58 @@
 import QtQuick 1.0
 import qtcomponents 1.0
 
-ScrollArea {
+ListView {
+    id: root
 
-    property alias model: repeater.model
+    height: Math.min(count * delegateHeight, 276)
+    snapMode: ListView.SnapToItem
+    property int delegateHeight: currentItem.height + spacing
 
-    property alias listHeight: column.height
 
-    height: Math.min(listHeight, 276)
-
-    frame: false
-    horizontalScrollBar.visible: false
     clip: true
+    interactive: false
 
-    Column {
-        id: column
+    spacing: 4
 
-        spacing: 8
+    delegate: SessionItem {
+        id: item
 
-        Repeater {
-            id: repeater
-            SessionItem {
-
-                function fullSessionName()
-                {
-                    var newSessionName = sessionName
-                    if (model.lastSession && sessionList.isDefaultVirgin())
-                        newSessionName = qsTr("%1 (last session)").arg(sessionName);
-                    else if (model.activeSession && !sessionList.isDefaultVirgin())
-                        newSessionName = qsTr("%1 (current session)").arg(sessionName);
-                    return newSessionName;
-                }
-
-                name: fullSessionName()
-            }
+        function fullSessionName()
+        {
+            var newSessionName = sessionName
+            if (model.lastSession && sessionList.isDefaultVirgin())
+                newSessionName = qsTr("%1 (last session)").arg(sessionName);
+            else if (model.activeSession && !sessionList.isDefaultVirgin())
+                newSessionName = qsTr("%1 (current session)").arg(sessionName);
+            return newSessionName;
         }
+
+        name: fullSessionName()
+    }
+
+    WheelArea {
+        id: wheelarea
+        anchors.fill: parent
+        verticalMinimumValue: vscrollbar.minimumValue
+        verticalMaximumValue: vscrollbar.maximumValue
+
+        onVerticalValueChanged: root.contentY =  Math.round(verticalValue / delegateHeight) * delegateHeight
+    }
+
+    ScrollBar {
+        id: vscrollbar
+        orientation: Qt.Vertical
+        property int availableHeight : root.height
+        visible: contentHeight > availableHeight
+        maximumValue: contentHeight > availableHeight ? root.contentHeight - availableHeight : 0
+        minimumValue: 0
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        singleStep: delegateHeight
+        anchors.topMargin: styleitem.style == "mac" ? 1 : 0
+        onValueChanged: root.contentY =  Math.round(value / delegateHeight) * delegateHeight
+        anchors.rightMargin: styleitem.frameoffset
+        anchors.bottomMargin: styleitem.frameoffset
     }
 }
