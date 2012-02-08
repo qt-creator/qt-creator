@@ -41,9 +41,12 @@
 #include <QtNetwork/QLocalServer>
 
 #ifdef Q_OS_WIN
-#include <QtCore/private/qwineventnotifier_p.h>
-
-#include <windows.h>
+#  if QT_VERSION >= 0x050000
+#    include <QtCore/QWinEventNotifier>
+#  else
+#    include <QtCore/private/qwineventnotifier_p.h>
+#  endif
+#  include <windows.h>
 #endif
 
 namespace Utils {

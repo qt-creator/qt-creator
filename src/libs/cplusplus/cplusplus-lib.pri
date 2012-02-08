@@ -8,6 +8,8 @@ INCLUDEPATH += $$PWD
 
 include(../3rdparty/cplusplus/cplusplus.pri)
 
+greaterThan(QT_MAJOR_VERSION, 4): QT += concurrent
+
 contains(QT, gui) {
 HEADERS += \
     $$PWD/Icons.h \

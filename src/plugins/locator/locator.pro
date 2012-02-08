@@ -2,6 +2,7 @@ TEMPLATE = lib
 TARGET = Locator
 DEFINES += LOCATOR_LIBRARY
 include(../../qtcreatorplugin.pri)
+greaterThan(QT_MAJOR_VERSION, 4): QT += concurrent
 include(locator_dependencies.pri)
 HEADERS += locatorplugin.h \
     commandlocator.h \

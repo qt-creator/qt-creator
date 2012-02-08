@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "commandmappings.h"
+#include "shortcutsettings.h"
 #include "ui_commandmappings.h"
 #include "actionmanager_p.h"
 #include "actionmanager/command.h"

@@ -32,7 +32,11 @@
 
 #include "virtualserialdevice.h"
 #include <windows.h>
-#include <QtCore/private/qwineventnotifier_p.h>
+#if QT_VERSION >= 0x050000
+#  include <QtCore/QWinEventNotifier>
+#else
+#  include <QtCore/private/qwineventnotifier_p.h>
+#endif
 #include <QtCore/QThread>
 #include <QtCore/QWaitCondition>
 
