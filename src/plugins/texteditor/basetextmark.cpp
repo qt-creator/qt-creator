@@ -43,7 +43,7 @@
 namespace TextEditor {
 
 BaseTextMark::BaseTextMark()
-    : m_markableInterface(0), m_init(false)
+    : m_markableInterface(0)
 {}
 
 BaseTextMark::~BaseTextMark()
@@ -65,7 +65,6 @@ void BaseTextMark::setLocation(const QString &fileName, int line)
 
 void BaseTextMark::init()
 {
-    m_init = true;
     Core::EditorManager *em = Core::EditorManager::instance();
     connect(em, SIGNAL(editorOpened(Core::IEditor *)),
         SLOT(editorOpened(Core::IEditor *)));

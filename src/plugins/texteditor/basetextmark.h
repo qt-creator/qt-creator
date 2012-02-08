@@ -78,7 +78,6 @@ private:
     QPointer<ITextMarkable> m_markableInterface;
     QString m_fileName;
     int m_line;
-    bool m_init;
 };
 
 } // namespace TextEditor
