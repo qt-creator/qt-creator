@@ -2267,7 +2267,7 @@ namespace stdarray {
     void testStdArray()
     {
         #if USE_CXX11
-        std::array<int, 4> a = { 1, 2, 3, 4};
+        std::array<int, 4> a = { { 1, 2, 3, 4} };
         BREAK_HERE;
         // Expand a.
         // Check a <4 items> std::array<int>.
@@ -3016,7 +3016,6 @@ namespace stdvector {
 
     void testStdVector3()
     {
-        Foo f;
         std::vector<Foo *> v;
         v.push_back(new Foo(1));
         v.push_back(0);
@@ -3050,7 +3049,7 @@ namespace stdvector {
         dummyStatement(&v);
     }
 
-    void testStdVector5()
+    void testStdVectorBool1()
     {
         std::vector<bool> v;
         v.push_back(true);
@@ -3068,6 +3067,24 @@ namespace stdvector {
         // Check v.4 0 bool.
         // Continue.
         dummyStatement(&v);
+    }
+
+    void testStdVectorBool2()
+    {
+        std::vector<bool> v1(50, true);
+        std::vector<bool> v2(65);
+        BREAK_HERE;
+        // Expand v1.
+        // Expand v2.
+        // Check v1 <50 items> std::vector<bool>.
+        // Check v2 <65 items> std::vector<bool>.
+        // Check v.0 1 bool.
+        // Check v.1 0 bool.
+        // Check v.2 0 bool.
+        // Check v.3 1 bool.
+        // Check v.4 0 bool.
+        // Continue.
+        dummyStatement(&v1, &v2);
     }
 
     void testStdVector6()
@@ -3098,7 +3115,8 @@ namespace stdvector {
         testStdVector2();
         testStdVector3();
         testStdVector4();
-        testStdVector5();
+        testStdVectorBool1();
+        testStdVectorBool2();
         testStdVector6();
     }
 
@@ -4135,6 +4153,7 @@ void testMemoryView()
     int a[20];
     for (int i = 0; i != 20; ++i)
         a[i] = i;
+    dummyStatement(&a);
 }
 
 QString fooxx()
@@ -5018,7 +5037,7 @@ namespace qscript {
         // Check x 33 int.
         // Check x1 "34" QString.
         // Continue.
-        dummyStatement(&x1, &v, &s, &d);
+        dummyStatement(&x1, &v, &s, &d, &x);
     #else
         dummyStatement();
     #endif

@@ -1959,8 +1959,9 @@ def qdump__std__vector(d, value):
     if isBool:
         start = impl["_M_start"]["_M_p"]
         finish = impl["_M_finish"]["_M_p"]
-        # FIXME: 32 is sizeof(unsigned long) * CHAR_BIT
-        storagesize = 32
+        # FIXME: 8 is CHAR_BIT
+        storage = lookupType("unsigned long")
+        storagesize = storage.sizeof * 8
         size = (finish - start) * storagesize
         size += impl["_M_finish"]["_M_offset"]
         size -= impl["_M_start"]["_M_offset"]
