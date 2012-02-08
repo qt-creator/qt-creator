@@ -55,8 +55,12 @@
 //           FIXME: Not implemented yet.
 
 
+// Value: 1
 // If the line after a BREAK_HERE line does not contain one of the
 // supported commands, the test stops.
+// Value: 2
+// Same as 1, except that the debugger will stop automatically when
+// a test after a BREAK_HERE failed
 // Default: 0
 #ifndef USE_AUTORUN
 #define USE_AUTORUN 0

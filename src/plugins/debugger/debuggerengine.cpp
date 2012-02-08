@@ -315,6 +315,8 @@ public:
     void handleAutoTestLine(int line);
     void reportTestError(const QString &msg, int line);
     bool m_testsPossible;
+    bool m_breakOnError;
+    bool m_foundError;
     QStringList m_testContents;
     TaskHub *m_taskHub;
     QString m_testFileName;
@@ -1783,7 +1785,13 @@ void DebuggerEnginePrivate::handleAutoTests()
         }
         foreach (const QString &s, m_testContents) {
             if (s.startsWith(QLatin1String("#define USE_AUTORUN"))) {
-                m_testsPossible = s.startsWith(QLatin1String("#define USE_AUTORUN 1"));
+                if (s.startsWith(QLatin1String("#define USE_AUTORUN 1"))) {
+                    m_testsPossible = true;
+                    m_breakOnError = false;
+                } else if (s.startsWith(QLatin1String("#define USE_AUTORUN 2"))) {
+                    m_testsPossible = true;
+                    m_breakOnError = true;
+                }
                 break;
             }
         }
@@ -1860,13 +1868,17 @@ void DebuggerEnginePrivate::handleAutoTestLine(int line)
         handleAutoTestLine(line + 1);
     } else if (cmd == QLatin1String("Continue")) {
         m_engine->showMessage(_("Continue in line %1 processed.").arg(line));
-        m_engine->continueInferior();
+        if (!m_breakOnError || !m_foundError)
+            m_engine->continueInferior();
+        else
+            m_foundError = false;
     }
 }
 
 void DebuggerEnginePrivate::reportTestError(const QString &msg, int line)
 {
     m_engine->showMessage(_("### Line %1: %2").arg(line).arg(msg));
+    m_foundError = true;
 
     if (!m_taskHub) {
         ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
