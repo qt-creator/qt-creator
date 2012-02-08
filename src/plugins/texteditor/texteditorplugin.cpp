@@ -46,6 +46,7 @@
 #include "outlinefactory.h"
 #include "snippets/plaintextsnippetprovider.h"
 #include "codeassist/assistenums.h"
+#include "basetextmark.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -167,6 +168,8 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     // depend upon the texteditorplugin expect that actions will be
     // registered in the action manager at plugin initialization time.
     m_editorFactory->actionHandler()->initializeActions();
+
+    m_baseTextMarkRegistry = new BaseTextMarkRegistry(this);
 
     return true;
 }

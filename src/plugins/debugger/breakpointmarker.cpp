@@ -48,9 +48,8 @@ namespace Internal {
 
 BreakpointMarker::BreakpointMarker(BreakpointModelId id,
         const QString &fileName, int lineNumber)
-  : m_id(id)
+    : BaseTextMark(fileName, lineNumber), m_id(id)
 {
-    setLocation(fileName, lineNumber);
     setIcon(breakHandler()->icon(m_id));
     setPriority(TextEditor::ITextMark::NormalPriority);
     //qDebug() << "CREATE MARKER " << fileName << lineNumber;

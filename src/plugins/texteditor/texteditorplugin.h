@@ -50,6 +50,7 @@ namespace Internal {
 class LineNumberFilter;
 class PlainTextEditorFactory;
 class OutlineFactory;
+class BaseTextMarkRegistry;
 
 class TextEditorPlugin : public ExtensionSystem::IPlugin
 {
@@ -69,6 +70,7 @@ public:
 
     PlainTextEditorFactory *editorFactory() { return m_editorFactory; }
     LineNumberFilter *lineNumberFilter() { return m_lineNumberFilter; }
+    BaseTextMarkRegistry *baseTextMarkRegistry() { return m_baseTextMarkRegistry; }
 
 private slots:
     void invokeCompletion();
@@ -84,6 +86,7 @@ private:
     LineNumberFilter *m_lineNumberFilter;
     Find::SearchResultWindow *m_searchResultWindow;
     OutlineFactory *m_outlineFactory;
+    BaseTextMarkRegistry *m_baseTextMarkRegistry;
 };
 
 } // namespace Internal

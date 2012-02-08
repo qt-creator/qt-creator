@@ -55,11 +55,11 @@ namespace TextEditor {
 
 class ITextEditor;
 
-class TEXTEDITOR_EXPORT ITextMark : public QObject
+class TEXTEDITOR_EXPORT ITextMark
 {
-    Q_OBJECT
 public:
     ITextMark() : m_priority(NormalPriority) {}
+    virtual ~ITextMark();
 
     // determine order on markers on the same line.
     enum Priority

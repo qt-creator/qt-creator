@@ -47,8 +47,6 @@ namespace Internal {
 
 class CallgrindTextMark : public TextEditor::BaseTextMark
 {
-    Q_OBJECT
-
 public:
     /**
      * This creates a callgrind text mark for a specific Function

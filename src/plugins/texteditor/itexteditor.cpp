@@ -38,6 +38,11 @@
 
 using namespace TextEditor;
 
+ITextMark::~ITextMark()
+{
+
+}
+
 void ITextMark::paint(QPainter *painter, const QRect &rect) const
 {
     m_icon.paint(painter, rect, Qt::AlignCenter);

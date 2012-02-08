@@ -41,8 +41,8 @@ using namespace ProjectExplorer;
 class TaskMark : public TextEditor::BaseTextMark
 {
 public:
-    TaskMark(unsigned int id)
-        : m_id(id)
+    TaskMark(unsigned int id, const QString &fileName, int lineNumber)
+        : BaseTextMark(fileName, lineNumber), m_id(id)
     {}
 
     void updateLineNumber(int lineNumber);
@@ -82,13 +82,11 @@ void TaskHub::addCategory(const Core::Id &categoryId, const QString &displayName
 void TaskHub::addTask(Task task)
 {
     if (task.line != -1 && !task.file.isEmpty()) {
-        TaskMark *mark = new TaskMark(task.taskId);
+        TaskMark *mark = new TaskMark(task.taskId, task.file.toString(), task.line);
         mark->setIcon(taskTypeIcon(task.type));
-        mark->setLocation(task.file.toString(), task.line);
         mark->setPriority(TextEditor::ITextMark::HighPriority);
         task.addMark(mark);
     }
-
     emit taskAdded(task);
 }
 

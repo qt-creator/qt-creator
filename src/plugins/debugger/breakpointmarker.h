@@ -43,8 +43,6 @@ namespace Internal {
 // The red blob on the left side in the cpp editor.
 class BreakpointMarker : public TextEditor::BaseTextMark
 {
-    Q_OBJECT
-
 public:
     BreakpointMarker(BreakpointModelId id, const QString &fileName, int lineNumber);
     ~BreakpointMarker();

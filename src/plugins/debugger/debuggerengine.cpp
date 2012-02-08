@@ -621,8 +621,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
         texteditor->gotoLine(line, 0);
 
     if (loc.needsMarker()) {
-        d->m_locationMark.reset(new TextEditor::BaseTextMark);
-        d->m_locationMark->setLocation(file, line);
+        d->m_locationMark.reset(new TextEditor::BaseTextMark(file, line));
         d->m_locationMark->setIcon(debuggerCore()->locationMarkIcon());
         d->m_locationMark->setPriority(TextEditor::ITextMark::HighPriority);
     }

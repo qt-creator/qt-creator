@@ -49,7 +49,6 @@ class BookmarkManager;
 
 class Bookmark : public TextEditor::BaseTextMark
 {
-    Q_OBJECT
 public:
     Bookmark(const QString &fileName, int lineNumber, BookmarkManager *manager);
 
