@@ -59,7 +59,7 @@ class TEXTEDITOR_EXPORT ITextMark : public QObject
 {
     Q_OBJECT
 public:
-    ITextMark(QObject *parent = 0) : QObject(parent), m_priority(NormalPriority) {}
+    ITextMark() : m_priority(NormalPriority) {}
 
     // determine order on markers on the same line.
     enum Priority
