@@ -402,7 +402,25 @@ Qt4BuildConfiguration *Qt4BaseTarget::addQt4BuildConfiguration(QString defaultDi
     bc->setQtVersion(qtversion);
     if (!directory.isEmpty())
         bc->setShadowBuildAndDirectory(directory != project()->projectDirectory(), directory);
+
     addBuildConfiguration(bc);
+
+    Utils::FileName extractedMkspec
+            = Qt4BuildConfiguration::extractSpecFromArguments(&additionalArguments,
+                                                              directory, qtversion);
+    // Find a good tool chain for the mkspec we extracted from the build (rely on default behavior
+    // if no -spec argument was given or it is the default).
+    if (!extractedMkspec.isEmpty()
+            && extractedMkspec != Utils::FileName::fromString(QLatin1String("default"))
+            && extractedMkspec != qtversion->mkspec()) {
+        QList<ProjectExplorer::ToolChain *> tcList = bc->target()->possibleToolChains(bc);
+        foreach (ProjectExplorer::ToolChain *tc, tcList) {
+            if (tc->mkspecList().contains(extractedMkspec)) {
+                bc->setToolChain(tc);
+                qmakeStep->setUserArguments(additionalArguments); // remove unnecessary -spec
+            }
+        }
+    }
 
     return bc;
 }
