@@ -72,13 +72,12 @@ private:
 
     struct AnalysisData
     {
-        AnalysisData() : m_ranking(0), m_hasMatch(false), m_evaluatinType(false) {}
+        AnalysisData() : m_ranking(0), m_hasMatch(false) {}
 
         void boostRanking(int unit = 1) { m_ranking += unit; }
 
         int m_ranking;
         bool m_hasMatch;
-        bool m_evaluatinType;
         QList<StaticAnalysis::Message> m_messages;
     };
 
