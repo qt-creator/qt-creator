@@ -216,6 +216,9 @@ public:
                                       bool fromPath = false);
 
     virtual Core::FeatureSet availableFeatures() const;
+    virtual QString platformName() const;
+    virtual QString platformDisplayName() const;
+    virtual bool supportsPlatform(const QString &platformName) const;
 
 protected:
     BaseQtVersion();

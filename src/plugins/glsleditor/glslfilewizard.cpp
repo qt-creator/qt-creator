@@ -68,6 +68,11 @@ Core::FeatureSet GLSLFileWizard::requiredFeatures() const
     return Core::FeatureSet();
 }
 
+Core::IWizard::WizardFlags GLSLFileWizard::flags() const
+{
+    return Core::IWizard::PlatformIndependent;
+}
+
 Core::GeneratedFiles GLSLFileWizard::generateFiles(const QWizard *w,
                                                  QString * /*errorMessage*/) const
 {

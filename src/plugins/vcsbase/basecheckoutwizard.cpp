@@ -124,7 +124,7 @@ void BaseCheckoutWizard::setId(const QString &id)
     d->id = id;
 }
 
-void BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent)
+void BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent, const QString & /*platform*/)
 {
     // Create dialog and launch
     d->parameterPages = createParameterPages(path);
@@ -150,6 +150,11 @@ void BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent)
 Core::FeatureSet BaseCheckoutWizard::requiredFeatures() const
 {
     return Core::FeatureSet();
+}
+
+Core::IWizard::WizardFlags BaseCheckoutWizard::flags() const
+{
+    return Core::IWizard::PlatformIndependent;
 }
 
 static inline QString msgNoProjectFiles(const QDir &dir, const QStringList &patterns)

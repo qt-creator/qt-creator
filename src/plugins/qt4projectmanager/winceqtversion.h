@@ -59,6 +59,9 @@ public:
     virtual QVariantMap toMap() const;
     virtual void fromMap(const QVariantMap &data);
 
+    virtual QString platformName() const;
+    QString platformDisplayName() const;
+
 private:
     ProjectExplorer::Abi::Architecture m_archType;
 };

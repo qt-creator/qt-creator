@@ -85,8 +85,8 @@ namespace Internal {
 
 GuiAppWizard::GuiAppWizard()
     : QtWizard(QLatin1String("C.Qt4Gui"),
-               QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY),
-               QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY),
+               QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY),
+               QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY),
                tr("Qt Gui Application"),
                tr("Creates a Qt application for the desktop. "
                   "Includes a Qt Designer-based main window.\n\n"

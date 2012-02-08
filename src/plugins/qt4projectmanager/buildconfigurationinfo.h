@@ -74,6 +74,7 @@ struct QT4PROJECTMANAGER_EXPORT BuildConfigurationInfo {
     static QList<BuildConfigurationInfo> checkForBuild(const QString &directory, const QString &proFilePath);
     static QList<BuildConfigurationInfo> filterBuildConfigurationInfos(const QList<BuildConfigurationInfo> &infos, const QString &id);
     static QList<BuildConfigurationInfo> filterBuildConfigurationInfos(const QList<BuildConfigurationInfo> &infos, Core::FeatureSet features);
+    static QList<BuildConfigurationInfo> filterBuildConfigurationInfosByPlatform(const QList<BuildConfigurationInfo> &infos, const QString &platform);
 };
 
 } // namespace Qt4ProjectManager

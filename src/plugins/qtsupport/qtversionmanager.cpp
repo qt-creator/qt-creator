@@ -562,16 +562,36 @@ QString QtVersionManager::popPendingGcceUpdate()
     return m_pendingGcceUpdates.takeFirst();
 }
 
-Core::FeatureSet QtVersionManager::availableFeatures() const
+Core::FeatureSet QtVersionManager::availableFeatures(const QString &platformName) const
 {
     Core::FeatureSet features;
     foreach (BaseQtVersion *const qtVersion, validVersions()) {
-        if (qtVersion->isValid())
+        if (qtVersion->isValid() && ((qtVersion->platformName() == platformName) || platformName.isEmpty()))
             features |= qtVersion->availableFeatures();
     }
     if (validVersions().empty())
         features |= Constants::FEATURE_GENERIC_CPP_ENTRY_POINT;
     return features;
+}
+
+QStringList QtVersionManager::availablePlatforms() const
+{
+    QStringList platforms;
+    foreach (BaseQtVersion *const qtVersion, validVersions()) {
+        if (qtVersion->isValid() && !qtVersion->platformName().isEmpty())
+            platforms.append(qtVersion->platformName());
+    }
+    platforms.removeDuplicates();
+    return platforms;
+}
+
+QString QtVersionManager::displayNameForPlatform(const QString &string) const
+{
+    foreach (BaseQtVersion *const qtVersion, validVersions()) {
+        if (qtVersion->platformName() == string)
+            return qtVersion->platformDisplayName();
+    }
+    return QString();
 }
 
 BaseQtVersion *QtVersionManager::version(int id) const
@@ -893,7 +913,17 @@ BaseQtVersion::QmakeBuildConfigs QtVersionManager::qmakeBuildConfigFromCmdArgs(Q
     return result;
 }
 
-Core::FeatureSet QtFeatureProvider::availableFeatures() const
+Core::FeatureSet QtFeatureProvider::availableFeatures(const QString &platformName) const
 {
-     return QtVersionManager::instance()->availableFeatures();
+     return QtVersionManager::instance()->availableFeatures(platformName);
+}
+
+QStringList QtFeatureProvider::availablePlatforms() const
+{
+    return QtVersionManager::instance()->availablePlatforms();
+}
+
+QString QtFeatureProvider::displayNameForPlatform(const QString &string) const
+{
+    return QtVersionManager::instance()->displayNameForPlatform(string);
 }

@@ -55,6 +55,10 @@ public:
         ProjectWizard = 0x04
     };
     Q_DECLARE_FLAGS(WizardKinds, WizardKind)
+    enum WizardFlag {
+        PlatformIndependent = 0x01
+    };
+    Q_DECLARE_FLAGS(WizardFlags, WizardFlag)
 
     IWizard(QObject *parent = 0) : QObject(parent) {}
     virtual ~IWizard() {}
@@ -69,19 +73,24 @@ public:
     virtual QString displayCategory() const = 0;
 
     virtual FeatureSet requiredFeatures() const = 0;
+    virtual WizardFlags flags() const = 0;
 
-    virtual void runWizard(const QString &path, QWidget *parent) = 0;
+    virtual void runWizard(const QString &path, QWidget *parent, const QString &platform) = 0;
 
-    bool isAvailable() const;
+    bool isAvailable(const QString &platformName) const;
+    QStringList supportedPlatforms() const;
 
     // Utility to find all registered wizards
     static QList<IWizard*> allWizards();
     // Utility to find all registered wizards of a certain kind
     static QList<IWizard*> wizardsOfKind(WizardKind kind);
+    static QStringList allAvailablePlatforms();
+    static QString displayNameForPlatform(const QString &string);
 };
 
 } // namespace Core
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IWizard::WizardKinds)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IWizard::WizardFlags)
 
 #endif // IWIZARD_H

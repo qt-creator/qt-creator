@@ -34,6 +34,7 @@
 #define BASEPROJECTWIZARDDIALOG_H
 
 #include "projectexplorer_export.h"
+#include <coreplugin/featureprovider.h>
 #include <coreplugin/basefilewizard.h>
 #include <utils/wizard.h>
 
@@ -78,6 +79,11 @@ signals:
 
 protected:
     Utils::ProjectIntroPage *introPage() const;
+    QString selectedPlatform() const;
+    void setSelectedPlatform(const QString &platform);
+
+    Core::FeatureSet requiredFeatures() const;
+    void setRequiredFeatures(const Core::FeatureSet &featureSet);
 
 private slots:
     void slotAccepted();

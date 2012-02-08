@@ -64,9 +64,11 @@ public:
     virtual QString displayCategory() const;
     virtual QString id() const;
 
-    virtual void runWizard(const QString &path, QWidget *parent);
+    virtual void runWizard(const QString &path, QWidget *parent, const QString &platform);
 
     virtual Core::FeatureSet requiredFeatures() const;
+
+    virtual WizardFlags flags() const;
 
     static QString openProject(const QString &path, QString *errorMessage);
 

@@ -99,3 +99,10 @@ QString SimulatorQtVersion::description() const
 {
     return QCoreApplication::translate("QtVersion", "Qt Simulator", "Qt Version is meant for Qt Simulator");
 }
+
+bool SimulatorQtVersion::supportsPlatform(const QString &platformName) const
+{
+    return (platformName == QtSupport::Constants::SYMBIAN_PLATFORM
+            || platformName == QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM
+            || platformName.isEmpty());
+}

@@ -82,6 +82,8 @@ public:
     /// Sets the features a qt version must support
     /// call this before \sa initializePage()
     void setRequiredQtFeatures(const Core::FeatureSet &features);
+    /// Sets the platform that was selected in the wizard
+    void setSelectedPlatform(const QString &platform);
     /// Sets the minimum qt version
     /// calls this before \sa initializePage()
     void setMinimumQtVersion(const QtSupport::QtVersionNumber &number);
@@ -119,6 +121,7 @@ private:
     QSet<QString> m_preferredFeatures;
     QSet<QString> m_requiredTargetFeatures;
     Core::FeatureSet m_requiredQtFeatures;
+    QString m_selectedPlatform;
     bool m_importSearch;
     bool m_useScrollArea;
     QtSupport::QtVersionNumber m_minimumQtVersionNumber;

@@ -36,11 +36,13 @@
 #include "iwizard.h"
 
 #include <QtGui/QDialog>
+#include <QtGui/QIcon>
 #include <QtCore/QList>
 #include <QtCore/QModelIndex>
 
 QT_BEGIN_NAMESPACE
 class QAbstractProxyModel;
+class QSortFilterProxyModel;
 class QPushButton;
 class QStandardItem;
 class QStandardItemModel;
@@ -66,20 +68,26 @@ public:
     void setWizards(QList<IWizard*> wizards);
 
     Core::IWizard *showDialog();
+    QString selectedPlatform() const;
+    int selectedWizardOption() const;
 
 private slots:
     void currentCategoryChanged(const QModelIndex &);
     void currentItemChanged(const QModelIndex &);
     void okButtonClicked();
     void updateOkButton();
+    void setSelectedPlatform(const QString &platform);
+
 private:
     Core::IWizard *currentWizard() const;
+    void addItem(QStandardItem *topLEvelCategoryItem, IWizard *wizard);
 
     Ui::NewDialog *m_ui;
     QStandardItemModel *m_model;
-    QAbstractProxyModel *m_proxyModel;
+    QAbstractProxyModel *m_twoLevelProxyModel;
+    QSortFilterProxyModel *m_filterProxyModel;
     QPushButton *m_okButton;
-    QPixmap m_dummyIcon;
+    QIcon m_dummyIcon;
     QList<QStandardItem*> m_categoryItems;
 };
 

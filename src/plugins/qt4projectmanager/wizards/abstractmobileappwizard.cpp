@@ -70,6 +70,8 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent,
     m_targetsPage->setPreferredFeatures(QSet<QString>() << QLatin1String(Constants::MOBILE_TARGETFEATURE_ID));
     m_targetsPage->setMinimumQtVersion(minimumQtVersionNumber);
     m_targetsPage->setMaximumQtVersion(maximumQtVersionNumber);
+    m_targetsPage->setSelectedPlatform(selectedPlatform());
+    m_targetsPage->setRequiredQtFeatures(requiredFeatures());
     resize(900, 450);
 
     m_genericOptionsPage = new Internal::MobileAppWizardGenericOptionsPage;

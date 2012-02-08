@@ -84,6 +84,8 @@ public:
     QtSupport::QtConfigWidget *createConfigurationWidget() const;
 
     Core::FeatureSet availableFeatures() const;
+    QString platformName() const;
+    QString platformDisplayName() const;
 
 protected:
     QList<ProjectExplorer::Task> reportIssuesImpl(const QString &proFile, const QString &buildDir);

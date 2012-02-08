@@ -36,6 +36,7 @@
 
 #include <app/app_version.h>
 #include <projectexplorer/customwizard/customwizard.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <QtGui/QIcon>
@@ -82,9 +83,8 @@ Core::BaseFileWizardParameters QmlProjectApplicationWizard::parameters()
         "You can review Qt Quick UI projects in the QML Viewer and you need not build them. "
         "You do not need to have the development environment installed "
         "on your computer to create and run this type of projects."));
-    parameters.setCategory(QLatin1String(QtSupport::Constants::QML_WIZARD_CATEGORY));
-    parameters.setDisplayCategory(QCoreApplication::translate(QtSupport::Constants::QML_WIZARD_TR_SCOPE,
-                                                              QtSupport::Constants::QML_WIZARD_TR_CATEGORY));
+    parameters.setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
+    parameters.setDisplayCategory(QT_TRANSLATE_NOOP("ProjectExplorer", "Qt Application"));
     return parameters;
 }
 

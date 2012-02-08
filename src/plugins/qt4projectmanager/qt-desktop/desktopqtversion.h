@@ -59,6 +59,8 @@ public:
     QString description() const;
 
     Core::FeatureSet availableFeatures() const;
+    QString platformName() const;
+    QString platformDisplayName() const;
 };
 
 }

@@ -53,8 +53,8 @@ namespace Internal {
 
 LibraryWizard::LibraryWizard()
   : QtWizard(QLatin1String("H.Qt4Library"),
-             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY),
-             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY_DISPLAY),
+             QLatin1String(ProjectExplorer::Constants::LIBRARIES_WIZARD_CATEGORY),
+             QLatin1String(ProjectExplorer::Constants::LIBRARIES_WIZARD_CATEGORY_DISPLAY),
              tr("C++ Library"),
              tr("Creates a C++ library based on qmake. This can be used to create:<ul>"
                 "<li>a shared C++ library for use with <tt>QPluginLoader</tt> and runtime (Plugins)</li>"

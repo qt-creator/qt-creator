@@ -275,6 +275,23 @@ Core::FeatureSet BaseQtVersion::availableFeatures() const
      return features;
 }
 
+QString BaseQtVersion::platformName() const
+{
+    return QString();
+}
+
+QString BaseQtVersion::platformDisplayName() const
+{
+    return platformName();
+}
+
+bool BaseQtVersion::supportsPlatform(const QString &platform) const
+{
+    if (platform.isEmpty()) // empty target == target independent
+        return true;
+    return platform == platformName();
+}
+
 void BaseQtVersion::setId(int id)
 {
     m_id = id;

@@ -56,6 +56,9 @@ public:
     QSet<QString> supportedTargetIds() const;
 
     QString description() const;
+
+    QString platformName() const;
+    QString platformDisplayName() const;
 };
 
 } // namespace Internal

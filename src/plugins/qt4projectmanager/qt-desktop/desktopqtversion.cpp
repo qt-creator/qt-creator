@@ -106,5 +106,16 @@ Core::FeatureSet DesktopQtVersion::availableFeatures() const
     if (qtVersion() >= QtSupport::QtVersionNumber(4, 7, 4)) //no reliable test for components, yet.
         features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_MEEGO)
                 | Core::FeatureSet(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_SYMBIAN);
+    features |= Core::FeatureSet(QtSupport::Constants::FEATURE_DESKTOP);
     return features;
+}
+
+QString DesktopQtVersion::platformName() const
+{
+    return QLatin1String(QtSupport::Constants::DESKTOP_PLATFORM);
+}
+
+QString DesktopQtVersion::platformDisplayName() const
+{
+    return QLatin1String(QtSupport::Constants::DESKTOP_PLATFORM_TR);
 }

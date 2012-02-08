@@ -39,6 +39,7 @@
 #include "qt4projectmanagerconstants.h"
 
 #include <qtsupport/qtsupportconstants.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <coreplugin/dialogs/iwizard.h>
 
 #include <QtCore/QCoreApplication>
@@ -144,9 +145,8 @@ Core::BaseFileWizardParameters QtQuickAppWizard::parameters()
                                  "projects. Moreover, you can select to use a set of premade "
                                  "UI components in your Qt Quick application. "
                                  "To utilize the components, Qt 4.7.4 or newer is required."));
-    parameters.setCategory(QLatin1String(QtSupport::Constants::QML_WIZARD_CATEGORY));
-    parameters.setDisplayCategory(QCoreApplication::translate(QtSupport::Constants::QML_WIZARD_TR_SCOPE,
-                                                              QtSupport::Constants::QML_WIZARD_TR_CATEGORY));
+    parameters.setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
+    parameters.setDisplayCategory(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY);
     return parameters;
 }
 

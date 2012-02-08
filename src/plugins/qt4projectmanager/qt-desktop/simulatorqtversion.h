@@ -57,6 +57,8 @@ public:
     QSet<QString> supportedTargetIds() const;
 
     QString description() const;
+
+    bool supportsPlatform(const QString &platformName) const;
 };
 
 }

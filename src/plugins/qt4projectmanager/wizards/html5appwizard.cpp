@@ -113,8 +113,8 @@ Core::BaseFileWizardParameters Html5AppWizard::parameters()
                                  "mobile target platforms. For example, you can create signed "
                                  "Symbian Installation System (SIS) packages for this type of "
                                  "projects."));
-    parameters.setCategory(QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY));
-    parameters.setDisplayCategory(QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY_DISPLAY));
+    parameters.setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
+    parameters.setDisplayCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY));
     return parameters;
 }
 

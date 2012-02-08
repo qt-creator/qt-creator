@@ -40,6 +40,10 @@
 
 #include <QtCore/QList>
 
+namespace Core {
+class FeatureSet;
+}
+
 namespace QtSupport {
 class QtVersionNumber;
 }
@@ -59,6 +63,7 @@ public:
                                                           const QString &proFilePath,
                                                           const QtSupport::QtVersionNumber &minimumQtVersion,
                                                           const QtSupport::QtVersionNumber &maximumQtVersion,
+                                                          const Core::FeatureSet &requiredFeatures,
                                                           bool importEnabled,
                                                           QList<BuildConfigurationInfo> importInfos);
 
@@ -72,7 +77,8 @@ public:
     /// by default creates one debug + one release buildconfiguration per qtversion
     virtual QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath,
                                                                        const QtSupport::QtVersionNumber &minimumQtVersion,
-                                                                       const QtSupport::QtVersionNumber &maximumQtVersion);
+                                                                       const QtSupport::QtVersionNumber &maximumQtVersion,
+                                                                       const Core::FeatureSet &requiredFeatures);
 
     virtual QList<ProjectExplorer::Task> reportIssues(const QString &proFile);
     /// only used in the TargetSetupPage

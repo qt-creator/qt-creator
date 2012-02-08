@@ -61,9 +61,6 @@ const char SHOW_QT_QUICK_HELPER[] = "QmlJSEditor.ShowQtQuickHelper";
 const char TASK_CATEGORY_QML[] = "Task.Category.Qml";
 const char TASK_CATEGORY_QML_ANALYSIS[] = "Task.Category.QmlAnalysis";
 
-const char WIZARD_CATEGORY_QML[] = "S.Qml";
-const char WIZARD_TR_CATEGORY_QML[] = QT_TRANSLATE_NOOP("QmlJsEditor", "QML");
-
 const char QML_SNIPPETS_GROUP_ID[] = "QML";
 
 } // namespace Constants

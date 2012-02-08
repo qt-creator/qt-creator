@@ -942,6 +942,7 @@ void MainWindow::showNewItemDialog(const QString &title,
     // Scan for wizards matching the filter and pick one. Don't show
     // dialog if there is only one.
     IWizard *wizard = 0;
+    QString selectedPlatform;
     switch (wizards.size()) {
     case 0:
         break;
@@ -953,6 +954,7 @@ void MainWindow::showNewItemDialog(const QString &title,
         dlg.setWizards(wizards);
         dlg.setWindowTitle(title);
         wizard = dlg.showDialog();
+        selectedPlatform = dlg.selectedPlatform();
     }
         break;
     }
@@ -976,7 +978,7 @@ void MainWindow::showNewItemDialog(const QString &title,
             break;
         }
     }
-    wizard->runWizard(path, this);
+    wizard->runWizard(path, this, selectedPlatform);
 }
 
 bool MainWindow::showOptionsDialog(const QString &category,

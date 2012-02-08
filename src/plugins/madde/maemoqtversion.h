@@ -61,6 +61,8 @@ public:
     bool supportsShadowBuilds() const;
     QString osType() const;
     Core::FeatureSet availableFeatures() const;
+    QString platformName() const;
+    QString platformDisplayName() const;
 
 private:
     mutable QString m_systemRoot;

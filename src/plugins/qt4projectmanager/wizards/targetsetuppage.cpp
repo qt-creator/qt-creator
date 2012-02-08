@@ -120,6 +120,11 @@ void TargetSetupPage::setRequiredQtFeatures(const Core::FeatureSet &features)
     m_requiredQtFeatures = features;
 }
 
+void TargetSetupPage::setSelectedPlatform(const QString &platform)
+{
+    m_selectedPlatform = platform;
+}
+
 void TargetSetupPage::setMinimumQtVersion(const QtSupport::QtVersionNumber &number)
 {
     m_minimumQtVersionNumber = number;
@@ -153,11 +158,21 @@ void TargetSetupPage::setupWidgets()
                 continue;
 
             QList<BuildConfigurationInfo> infos = BuildConfigurationInfo::filterBuildConfigurationInfos(m_importInfos, id);
-            infos = BuildConfigurationInfo::filterBuildConfigurationInfos(infos, m_requiredQtFeatures);
+            const QList<BuildConfigurationInfo> platformFilteredInfos =
+                    BuildConfigurationInfo::filterBuildConfigurationInfosByPlatform(factory->availableBuildConfigurations(id,
+                                                                                                                          m_proFilePath,
+                                                                                                                          m_minimumQtVersionNumber,
+                                                                                                                          m_maximumQtVersionNumber,
+                                                                                                                          m_requiredQtFeatures),
+                                                                                    m_selectedPlatform);
+
+
 
             Qt4TargetSetupWidget *widget =
                     factory->createTargetSetupWidget(id, m_proFilePath,
-                                                     m_minimumQtVersionNumber, m_maximumQtVersionNumber,
+                                                     m_minimumQtVersionNumber,
+                                                     m_maximumQtVersionNumber,
+                                                     m_requiredQtFeatures,
                                                      m_importSearch, infos);
             if (widget) {
                 bool selectTarget = false;
@@ -167,6 +182,9 @@ void TargetSetupPage::setupWidgets()
                     if (!m_preferredFeatures.isEmpty()) {
                         selectTarget = factory->targetFeatures(id).contains(m_preferredFeatures)
                                 && factory->selectByDefault(id);
+                    }
+                    if (!m_selectedPlatform.isEmpty()) {
+                        selectTarget = !platformFilteredInfos.isEmpty();
                     }
                 }
                 widget->setTargetSelected(selectTarget);

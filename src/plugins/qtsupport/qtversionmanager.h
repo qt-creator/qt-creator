@@ -101,7 +101,9 @@ public:
     QString popPendingMwcUpdate();
     QString popPendingGcceUpdate();
 
-    Core::FeatureSet availableFeatures() const;
+    Core::FeatureSet availableFeatures(const QString &platformName) const;
+    QStringList availablePlatforms() const;
+    QString displayNameForPlatform(const QString &string) const;
 
 signals:
     // content of BaseQtVersion objects with qmake path might have changed
@@ -155,7 +157,9 @@ class QTSUPPORT_EXPORT QtFeatureProvider : public Core::IFeatureProvider
 
 public:
     QtFeatureProvider() {}
-    virtual Core::FeatureSet availableFeatures() const;
+    Core::FeatureSet availableFeatures(const QString &platformName) const;
+    QStringList availablePlatforms() const;
+    QString displayNameForPlatform(const QString &string) const;
 };
 
 }

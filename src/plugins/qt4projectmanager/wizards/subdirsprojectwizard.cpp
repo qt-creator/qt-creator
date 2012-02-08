@@ -44,8 +44,8 @@ namespace Internal {
 
 SubdirsProjectWizard::SubdirsProjectWizard()
   : QtWizard(QLatin1String("U.Qt4Subdirs"),
-             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY),
-             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY_DISPLAY),
+             QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY),
+             QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY),
              tr("Subdirs Project"),
              tr("Creates a qmake-based subdirs project. This allows you to group "
                 "your projects in a tree structure."),

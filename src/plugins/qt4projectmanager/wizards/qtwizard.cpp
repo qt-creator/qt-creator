@@ -240,6 +240,8 @@ int BaseQt4ProjectWizardDialog::addModulesPage(int id)
 int BaseQt4ProjectWizardDialog::addTargetSetupPage(QSet<QString> targets, bool mobile, int id)
 {
     m_targetSetupPage = new TargetSetupPage;
+    m_targetSetupPage->setSelectedPlatform(selectedPlatform());
+    m_targetSetupPage->setRequiredQtFeatures(requiredFeatures());
     m_targets = targets;
     resize(900, 450);
 

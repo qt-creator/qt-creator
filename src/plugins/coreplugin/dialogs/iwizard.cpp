@@ -178,14 +178,52 @@ QList<IWizard*> IWizard::wizardsOfKind(WizardKind kind)
     return findWizards(WizardKindPredicate(kind));
 }
 
-bool IWizard::isAvailable() const
+bool IWizard::isAvailable(const QString &platformName) const
 {
     FeatureSet availableFeatures;
 
     const QList<Core::IFeatureProvider*> featureManagers = ExtensionSystem::PluginManager::instance()->getObjects<Core::IFeatureProvider>();
 
     foreach (const Core::IFeatureProvider *featureManager, featureManagers)
-        availableFeatures |= featureManager->availableFeatures();
+        availableFeatures |= featureManager->availableFeatures(platformName);
 
     return availableFeatures.contains(requiredFeatures());
+}
+
+QStringList IWizard::supportedPlatforms() const
+{
+    QStringList stringList;
+
+    foreach (const QString &platform, allAvailablePlatforms()) {
+        if (isAvailable(platform))
+            stringList.append(platform);
+    }
+
+    return stringList;
+}
+
+QStringList IWizard::allAvailablePlatforms()
+{
+    QStringList platforms;
+
+    const QList<Core::IFeatureProvider*> featureManagers =
+            ExtensionSystem::PluginManager::instance()->getObjects<Core::IFeatureProvider>();
+
+    foreach (const Core::IFeatureProvider *featureManager, featureManagers)
+        platforms.append(featureManager->availablePlatforms());
+
+    return platforms;
+}
+
+QString IWizard::displayNameForPlatform(const QString &string)
+{
+    const QList<Core::IFeatureProvider*> featureManagers =
+            ExtensionSystem::PluginManager::instance()->getObjects<Core::IFeatureProvider>();
+
+    foreach (const Core::IFeatureProvider *featureManager, featureManagers) {
+        QString displayName = featureManager->displayNameForPlatform(string);
+        if (!displayName.isEmpty())
+            return displayName;
+    }
+    return QString();
 }

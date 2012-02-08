@@ -58,8 +58,8 @@ namespace Internal {
 
 ConsoleAppWizard::ConsoleAppWizard()
   : QtWizard(QLatin1String("E.Qt4Core"),
-             QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY),
-             QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY),
+             QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY),
+             QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY),
              tr("Qt Console Application"),
              tr("Creates a project containing a single main.cpp file with a stub implementation.\n\n"
                 "Preselects a desktop Qt for building the application if available."),

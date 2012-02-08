@@ -34,6 +34,8 @@
 
 #include "remotelinux_constants.h"
 
+#include <qtsupport/qtsupportconstants.h>
+
 #include <QtCore/QCoreApplication>
 
 namespace RemoteLinux {
@@ -85,6 +87,16 @@ QSet<QString> EmbeddedLinuxQtVersion::supportedTargetIds() const
 QString EmbeddedLinuxQtVersion::description() const
 {
     return QCoreApplication::translate("QtVersion", "Embedded Linux", "Qt Version is used for embedded Linux development");
+}
+
+QString EmbeddedLinuxQtVersion::platformName() const
+{
+    return QLatin1String(QtSupport::Constants::EMBEDDED_LINUX_PLATFORM);
+}
+
+QString EmbeddedLinuxQtVersion::platformDisplayName() const
+{
+    return QLatin1String(QtSupport::Constants::EMBEDDED_LINUX_PLATFORM_TR);
 }
 
 } // namespace Internal

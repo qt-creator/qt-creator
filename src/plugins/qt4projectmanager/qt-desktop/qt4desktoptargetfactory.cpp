@@ -128,10 +128,15 @@ ProjectExplorer::Target  *Qt4DesktopTargetFactory::restore(ProjectExplorer::Proj
 Qt4TargetSetupWidget *Qt4DesktopTargetFactory::createTargetSetupWidget(const QString &id, const QString &proFilePath,
                                                                        const QtSupport::QtVersionNumber &minimumQtVersion,
                                                                        const QtSupport::QtVersionNumber &maximumQtVersion,
+                                                                       const Core::FeatureSet &requiredFeatures,
+                                                                       const QString &selectedPlatform,
                                                                        bool importEnabled, QList<BuildConfigurationInfo> importInfos)
 {
 
-    QList<BuildConfigurationInfo> infos = this->availableBuildConfigurations(id, proFilePath, minimumQtVersion, maximumQtVersion);
+    QList<BuildConfigurationInfo> infos = this->availableBuildConfigurations(id, proFilePath,
+                                                                             minimumQtVersion,
+                                                                             maximumQtVersion,
+                                                                             requiredFeatures);
     if (infos.isEmpty())
         return 0;
     Qt4DefaultTargetSetupWidget *widget = new Qt4DefaultTargetSetupWidget(this, id, proFilePath,  infos,

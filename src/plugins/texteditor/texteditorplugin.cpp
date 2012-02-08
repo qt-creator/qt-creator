@@ -111,6 +111,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     wizardParameters.setDisplayName(tr("Text File"));
     wizardParameters.setCategory(QLatin1String("U.General"));
     wizardParameters.setDisplayCategory(tr("General"));
+    wizardParameters.setFlags(Core::IWizard::PlatformIndependent);
     TextFileWizard *wizard = new TextFileWizard(QLatin1String(Constants::C_TEXTEDITOR_MIMETYPE_TEXT),
                                                 QLatin1String("text$"),
                                                 wizardParameters);

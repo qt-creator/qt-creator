@@ -96,6 +96,7 @@ MobileAppWizard::~MobileAppWizard()
 Core::FeatureSet MobileAppWizard::requiredFeatures() const
 {
     return Core::Feature(QtSupport::Constants::FEATURE_GENERIC_CPP_ENTRY_POINT)
+            | Core::FeatureSet(QtSupport::Constants::FEATURE_MOBILE)
             | Core::Feature(QtSupport::Constants::FEATURE_QWIDGETS);
 }
 
@@ -106,8 +107,8 @@ Core::BaseFileWizardParameters MobileAppWizard::parameters()
     parameters.setDisplayName(DisplayName);
     parameters.setId(QLatin1String("C.Qt4GuiMobile"));
     parameters.setDescription(Description);
-    parameters.setCategory(QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY));
-    parameters.setDisplayCategory(QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY));
+    parameters.setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
+    parameters.setDisplayCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY));
     return parameters;
 }
 

@@ -56,6 +56,8 @@ struct BaseProjectWizardDialogPrivate {
     const int desiredIntroPageId;
     Utils::ProjectIntroPage *introPage;
     int introPageId;
+    QString selectedPlatform;
+    Core::FeatureSet requiredFeatureSet;
 };
 
 BaseProjectWizardDialogPrivate::BaseProjectWizardDialogPrivate(Utils::ProjectIntroPage *page, int id) :
@@ -66,20 +68,24 @@ BaseProjectWizardDialogPrivate::BaseProjectWizardDialogPrivate(Utils::ProjectInt
 }
 
 BaseProjectWizardDialog::BaseProjectWizardDialog(QWidget *parent,
-                                                 const Core::WizardDialogParameters & /*parameters*/) :
+                                                 const Core::WizardDialogParameters &parameters) :
     Utils::Wizard(parent),
     d(new BaseProjectWizardDialogPrivate(new Utils::ProjectIntroPage))
 {
+    setSelectedPlatform(parameters.selectedPlatform());
+    setRequiredFeatures(parameters.requiredFeatures());
     init();
 }
 
 BaseProjectWizardDialog::BaseProjectWizardDialog(Utils::ProjectIntroPage *introPage,
                                                  int introId,
                                                  QWidget *parent,
-                                                 const Core::WizardDialogParameters & /*parameters*/) :
+                                                 const Core::WizardDialogParameters &parameters) :
     Utils::Wizard(parent),
     d(new BaseProjectWizardDialogPrivate(introPage, introId))
 {
+    setSelectedPlatform(parameters.selectedPlatform());
+    setRequiredFeatures(parameters.requiredFeatures());
     init();
 }
 
@@ -164,4 +170,25 @@ QString BaseProjectWizardDialog::uniqueProjectName(const QString &path)
     }
     return prefix;
 }
+
+QString BaseProjectWizardDialog::selectedPlatform() const
+{
+    return d->selectedPlatform;
+}
+
+void BaseProjectWizardDialog::setSelectedPlatform(const QString &platform)
+{
+    d->selectedPlatform = platform;
+}
+
+Core::FeatureSet BaseProjectWizardDialog::requiredFeatures() const
+{
+    return d->requiredFeatureSet;
+}
+
+void BaseProjectWizardDialog::setRequiredFeatures(const Core::FeatureSet &featureSet)
+{
+    d->requiredFeatureSet = featureSet;
+}
+
 } // namespace ProjectExplorer

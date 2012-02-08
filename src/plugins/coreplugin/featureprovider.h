@@ -57,7 +57,9 @@ class CORE_EXPORT IFeatureProvider : public QObject
 public:
     IFeatureProvider() {}
     virtual ~IFeatureProvider() {}
-    virtual FeatureSet availableFeatures() const = 0;
+    virtual FeatureSet availableFeatures(const QString &platform) const = 0;
+    virtual QStringList availablePlatforms() const = 0;
+    virtual QString displayNameForPlatform(const QString &string) const = 0;
 };
 
 class CORE_EXPORT Feature : public Id

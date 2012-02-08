@@ -56,6 +56,7 @@ public:
                             ShaderType shaderType, QObject *parent = 0);
 
     virtual Core::FeatureSet requiredFeatures() const;
+    virtual WizardFlags flags() const;
 
 protected:
     QString fileContents(const QString &baseName, ShaderType shaderType) const;

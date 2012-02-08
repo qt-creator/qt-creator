@@ -94,6 +94,8 @@ public:
     Core::FeatureSet requiredFeatures() const;
     void setRequiredFeatures(Core::FeatureSet features);
 
+    Core::IWizard::WizardFlags flags() const;
+    void setFlags(Core::IWizard::WizardFlags flags);
 private:
     QSharedDataPointer<BaseFileWizardParameterData> m_d;
 };
@@ -148,8 +150,9 @@ public:
     virtual QString category() const;
     virtual QString displayCategory() const;
 
-    virtual void runWizard(const QString &path, QWidget *parent);
+    virtual void runWizard(const QString &path, QWidget *parent, const QString &platform);
     virtual Core::FeatureSet requiredFeatures() const;
+    virtual WizardFlags flags() const;
 
     static QString buildFileName(const QString &path, const QString &baseName, const QString &extension);
     static void setupWizard(QWizard *);

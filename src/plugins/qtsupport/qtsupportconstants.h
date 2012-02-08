@@ -59,14 +59,26 @@ const char FEATURE_QT_CONSOLE[] = "QtSupport.Wizards.FeatureQtConsole";
 const char FEATURE_GENERIC_CPP_ENTRY_POINT[] ="QtSupport.Wizards.FeatureGenericCppEntryPoint";
 const char FEATURE_QTQUICK_COMPONENTS_SYMBIAN[] = "QtSupport.Wizards.FeatureQtQuickComponentsSymbian";
 const char FEATURE_QTQUICK_COMPONENTS_MEEGO[] = "QtSupport.Wizards.FeatureQtQuickComponentsMeego";
+const char FEATURE_MOBILE[] = "QtSupport.Wizards.FeatureMobile";
+const char FEATURE_DESKTOP[] = "QtSupport.Wizards.FeatureDesktop";
+
+// Platforms
+const char MEEGO_HARMATTAN_PLATFORM[] = "MeeGo/Harmattan";
+const char SYMBIAN_PLATFORM[] = "Symbian";
+const char DESKTOP_PLATFORM[] = "Desktop";
+const char EMBEDDED_LINUX_PLATFORM[] = "Embedded Linux";
+const char WINDOWS_CE_PLATFORM[] = "Windows CE";
+
+const char MEEGO_HARMATTAN_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "MeeGo/Harmattan");
+const char SYMBIAN_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Symbian");
+const char DESKTOP_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Desktop");
+const char EMBEDDED_LINUX_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Embedded Linux");
+const char WINDOWS_CE_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Windows CE");
 
 
-// QML wizard categories
+// QML wizard icon
 // both the qt4projectmanager and the qmlprojectmanager do have qt quick wizards
-// so we define the category here
-const char QML_WIZARD_CATEGORY[] = "C.Projects"; // (before Qt)
-const char QML_WIZARD_TR_SCOPE[] = "QmlProjectManager";
-const char QML_WIZARD_TR_CATEGORY[] = QT_TRANSLATE_NOOP("QmlProjectManager", "Qt Quick Project");
+// so we define the icon here
 const char QML_WIZARD_ICON[] = ":/qmlproject/images/qml_wizard.png";
 
 } // namepsace Constants

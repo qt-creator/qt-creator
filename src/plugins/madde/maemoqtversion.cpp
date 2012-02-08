@@ -190,9 +190,19 @@ Core::FeatureSet MaemoQtVersion::availableFeatures() const
     Core::FeatureSet features = QtSupport::BaseQtVersion::availableFeatures();
     if (qtVersion() >= QtSupport::QtVersionNumber(4, 7, 4)) //no reliable test for components, yet.
         features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_MEEGO);
+    features |= Core::FeatureSet(QtSupport::Constants::FEATURE_MOBILE);
     return features;
 }
 
+QString MaemoQtVersion::platformName() const
+{
+    return QLatin1String(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM);
+}
+
+QString MaemoQtVersion::platformDisplayName() const
+{
+    return QLatin1String(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM_TR);
+}
 
 void MaemoQtVersion::addToEnvironment(Utils::Environment &env) const
 {

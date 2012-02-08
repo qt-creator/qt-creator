@@ -155,16 +155,16 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
     QObject *core = Core::ICore::instance();
     Core::BaseFileWizardParameters qmlWizardParameters(Core::IWizard::FileWizard);
-    qmlWizardParameters.setCategory(QLatin1String(Constants::WIZARD_CATEGORY_QML));
-    qmlWizardParameters.setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Constants::WIZARD_TR_CATEGORY_QML));
+    qmlWizardParameters.setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
+    qmlWizardParameters.setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Core::Constants::WIZARD_TR_CATEGORY_QT));
     qmlWizardParameters.setDescription(tr("Creates a QML file."));
     qmlWizardParameters.setDisplayName(tr("QML File"));
     qmlWizardParameters.setId(QLatin1String("Q.Qml"));
     addAutoReleasedObject(new QmlFileWizard(qmlWizardParameters, core));
 
     Core::BaseFileWizardParameters jsWizardParameters(Core::IWizard::FileWizard);
-    jsWizardParameters.setCategory(QLatin1String(Constants::WIZARD_CATEGORY_QML));
-    jsWizardParameters.setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Constants::WIZARD_TR_CATEGORY_QML));
+    jsWizardParameters.setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
+    jsWizardParameters.setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Core::Constants::WIZARD_TR_CATEGORY_QT));
     jsWizardParameters.setDescription(tr("Creates a JavaScript file."));
     jsWizardParameters.setDisplayName(tr("JS File"));
     jsWizardParameters.setId(QLatin1String("Z.Js"));
