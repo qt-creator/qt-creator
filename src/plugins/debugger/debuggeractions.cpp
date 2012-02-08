@@ -367,7 +367,7 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
 
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseDynamicType"));
-    item->setText(tr("Use dynamic object type for display"));
+    item->setText(tr("Use Dynamic Object Type for Display"));
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setValue(true);
