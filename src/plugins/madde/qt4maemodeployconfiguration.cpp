@@ -44,7 +44,6 @@
 #include <remotelinux/deployablefile.h>
 #include <remotelinux/deployablefilesperprofile.h>
 #include <remotelinux/deploymentinfo.h>
-#include <remotelinux/deploymentsettingsassistant.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>
@@ -64,41 +63,12 @@ Qt4MaemoDeployConfiguration::Qt4MaemoDeployConfiguration(ProjectExplorer::Target
         const QString &id, const QString &displayName)
     : RemoteLinuxDeployConfiguration(target, id, displayName)
 {
-    const QList<DeployConfiguration *> &deployConfigs = target->deployConfigurations();
-    foreach (const DeployConfiguration * const dc, deployConfigs) {
-        const Qt4MaemoDeployConfiguration * const mdc
-            = qobject_cast<const Qt4MaemoDeployConfiguration *>(dc);
-        if (mdc) {
-            m_deploymentSettingsAssistant = mdc->deploymentSettingsAssistant();
-            break;
-        }
-    }
-    if (!m_deploymentSettingsAssistant) {
-        QString qmakeScope;
-        const QString supportedOsType = this->target()->supportedOsType();
-        if (supportedOsType == QLatin1String(Maemo5OsType))
-            qmakeScope = QLatin1String("maemo5");
-        else if (supportedOsType == QLatin1String(HarmattanOsType))
-            qmakeScope = QLatin1String("contains(MEEGO_EDITION,harmattan)");
-        else if (supportedOsType == QLatin1String(MeeGoOsType))
-            qmakeScope = QLatin1String("!isEmpty(MEEGO_VERSION_MAJOR):!contains(MEEGO_EDITION,harmattan)");
-        else
-            qDebug("%s: Unexpected OS type %s", Q_FUNC_INFO, qPrintable(supportedOsType));
-        m_deploymentSettingsAssistant = QSharedPointer<DeploymentSettingsAssistant>
-            (new DeploymentSettingsAssistant(qmakeScope, QLatin1String("/opt"), deploymentInfo()));
-    }
 }
 
 Qt4MaemoDeployConfiguration::Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target,
         Qt4MaemoDeployConfiguration *source)
     : RemoteLinuxDeployConfiguration(target, source)
 {
-    m_deploymentSettingsAssistant = source->deploymentSettingsAssistant();
-}
-
-QSharedPointer<DeploymentSettingsAssistant> Qt4MaemoDeployConfiguration::deploymentSettingsAssistant() const
-{
-    return m_deploymentSettingsAssistant;
 }
 
 QString Qt4MaemoDeployConfiguration::localDesktopFilePath(const DeployableFilesPerProFile *proFileInfo) const

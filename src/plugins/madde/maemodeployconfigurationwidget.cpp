@@ -132,7 +132,9 @@ void MaemoDeployConfigurationWidget::addDesktopFile()
     if (qobject_cast<Qt4Maemo5Target *>(deployConfiguration()->target()))
         d.remoteDir += QLatin1String("/hildon");
     d.localFilePath = desktopFilePath;
-    if (!deployConfiguration()->deploymentSettingsAssistant()->addDeployableToProFile(proFileInfo,
+    const AbstractQt4MaemoTarget * const target
+        = qobject_cast<AbstractQt4MaemoTarget *>(deployConfiguration()->target());
+    if (!target->deploymentSettingsAssistant()->addDeployableToProFile(proFileInfo,
         QLatin1String("desktopfile"), d)) {
         QMessageBox::critical(this, tr("Project File Update Failed"),
             tr("Could not update the project file."));
@@ -169,7 +171,9 @@ void MaemoDeployConfigurationWidget::addIcon()
         return;
     }
 
-    if (!deployConfiguration()->deploymentSettingsAssistant()->addDeployableToProFile(proFileInfo,
+    const AbstractQt4MaemoTarget * const target
+        = qobject_cast<AbstractQt4MaemoTarget *>(deployConfiguration()->target());
+    if (!target->deploymentSettingsAssistant()->addDeployableToProFile(proFileInfo,
         QLatin1String("icon"), DeployableFile(newFilePath, remoteIconDir()))) {
         QMessageBox::critical(this, tr("Project File Update Failed"),
             tr("Could not update the project file."));

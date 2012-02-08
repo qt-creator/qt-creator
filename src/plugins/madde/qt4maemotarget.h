@@ -42,10 +42,8 @@
 QT_FORWARD_DECLARE_CLASS(QDateTime)
 QT_FORWARD_DECLARE_CLASS(QFile)
 
-namespace Qt4ProjectManager {
-class Qt4Project;
-class Qt4BuildConfigurationFactory;
-}
+namespace Qt4ProjectManager { class Qt4Project; }
+namespace RemoteLinux { class DeploymentSettingsAssistant; }
 namespace Utils { class FileSystemWatcher; }
 
 namespace Madde {
@@ -59,7 +57,7 @@ class AbstractQt4MaemoTarget : public RemoteLinux::AbstractEmbeddedLinuxTarget
     Q_OBJECT
 public:
     explicit AbstractQt4MaemoTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id,
-        const QString &supportedOsType);
+        const QString &supportedOsType, const QString &qmakeScope);
     virtual ~AbstractQt4MaemoTarget();
 
     void createApplicationProFiles(bool reparse);
@@ -78,6 +76,10 @@ public:
     bool setProjectVersion(const QString &version, QString *error = 0);
     bool setPackageName(const QString &packageName);
     bool setShortDescription(const QString &description);
+
+    RemoteLinux::DeploymentSettingsAssistant *deploymentSettingsAssistant() const {
+        return m_deploymentSettingsAssistant;
+    }
 
 protected:
     enum ActionStatus { NoActionRequired, ActionSuccessful, ActionFailed };
@@ -108,6 +110,7 @@ private:
     bool initPackagingSettingsFromOtherTarget();
     virtual bool initAdditionalPackagingSettingsFromOtherTarget() = 0;
 
+    RemoteLinux::DeploymentSettingsAssistant * const m_deploymentSettingsAssistant;
     bool m_isInitialized;
 };
 
@@ -117,7 +120,7 @@ class AbstractDebBasedQt4MaemoTarget : public AbstractQt4MaemoTarget
     Q_OBJECT
 public:
     AbstractDebBasedQt4MaemoTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id,
-        const QString &supportedOsType);
+        const QString &supportedOsType, const QString &qmakeScope);
     ~AbstractDebBasedQt4MaemoTarget();
 
     QString debianDirPath() const;
@@ -190,7 +193,7 @@ class AbstractRpmBasedQt4MaemoTarget : public AbstractQt4MaemoTarget
     Q_OBJECT
 public:
     AbstractRpmBasedQt4MaemoTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id,
-        const QString &supportedOsType);
+        const QString &supportedOsType, const QString &qmakeScope);
     ~AbstractRpmBasedQt4MaemoTarget();
 
     virtual bool allowsRemoteMounts() const { return false; }

@@ -52,6 +52,7 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4nodes.h>
 #include <qtsupport/baseqtversion.h>
+#include <remotelinux/deploymentsettingsassistant.h>
 #include <utils/fileutils.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
@@ -73,6 +74,7 @@
 #include <cctype>
 
 using namespace Qt4ProjectManager;
+using namespace RemoteLinux;
 
 namespace Madde {
 namespace Internal {
@@ -120,9 +122,11 @@ bool adaptTagValue(QByteArray &document, const QByteArray &fieldName,
 
 
 AbstractQt4MaemoTarget::AbstractQt4MaemoTarget(Qt4Project *parent, const QString &id,
-        const QString &supportedOsType) :
+        const QString &supportedOsType, const QString &qmakeScope) :
     AbstractEmbeddedLinuxTarget(parent, id, supportedOsType),
     m_filesWatcher(new Utils::FileSystemWatcher(this)),
+    m_deploymentSettingsAssistant(new DeploymentSettingsAssistant(qmakeScope,
+        QLatin1String("/opt"), deploymentInfo())),
     m_isInitialized(false)
 {
     m_filesWatcher->setObjectName(QLatin1String("Qt4MaemoTarget"));
@@ -371,8 +375,8 @@ void AbstractQt4MaemoTarget::raiseError(const QString &reason)
 }
 
 AbstractDebBasedQt4MaemoTarget::AbstractDebBasedQt4MaemoTarget(Qt4Project *parent,
-        const QString &id, const QString &supportedOsType)
-    : AbstractQt4MaemoTarget(parent, id, supportedOsType)
+        const QString &id, const QString &supportedOsType, const QString &qmakeScope)
+    : AbstractQt4MaemoTarget(parent, id, supportedOsType, qmakeScope)
 {
 }
 
@@ -954,8 +958,8 @@ QString AbstractDebBasedQt4MaemoTarget::shortDayOfWeekName(const QDateTime &dt) 
 
 
 AbstractRpmBasedQt4MaemoTarget::AbstractRpmBasedQt4MaemoTarget(Qt4Project *parent,
-        const QString &id, const QString &supportedOsType)
-    : AbstractQt4MaemoTarget(parent, id, supportedOsType)
+        const QString &id, const QString &supportedOsType, const QString &qmakeScope)
+    : AbstractQt4MaemoTarget(parent, id, supportedOsType, qmakeScope)
 {
 }
 
@@ -1120,7 +1124,8 @@ bool AbstractRpmBasedQt4MaemoTarget::setValueForTag(const QByteArray &tag,
 }
 
 Qt4Maemo5Target::Qt4Maemo5Target(Qt4Project *parent, const QString &id)
-    : AbstractDebBasedQt4MaemoTarget(parent, id, QLatin1String(Maemo5OsType))
+    : AbstractDebBasedQt4MaemoTarget(parent, id, QLatin1String(Maemo5OsType),
+          QLatin1String("maemo5"))
 {
     setDisplayName(defaultDisplayName());
 }
@@ -1159,7 +1164,8 @@ QByteArray Qt4Maemo5Target::defaultSection() const
 }
 
 Qt4HarmattanTarget::Qt4HarmattanTarget(Qt4Project *parent, const QString &id)
-    : AbstractDebBasedQt4MaemoTarget(parent, id, QLatin1String(HarmattanOsType))
+    : AbstractDebBasedQt4MaemoTarget(parent, id, QLatin1String(HarmattanOsType),
+          QLatin1String("contains(MEEGO_EDITION,harmattan)"))
 {
     setDisplayName(defaultDisplayName());
 }
@@ -1227,7 +1233,8 @@ QByteArray Qt4HarmattanTarget::defaultSection() const
 
 
 Qt4MeegoTarget::Qt4MeegoTarget(Qt4Project *parent, const QString &id)
-    : AbstractRpmBasedQt4MaemoTarget(parent, id, QLatin1String(MeeGoOsType))
+    : AbstractRpmBasedQt4MaemoTarget(parent, id, QLatin1String(MeeGoOsType),
+          QLatin1String("!isEmpty(MEEGO_VERSION_MAJOR):!contains(MEEGO_EDITION,harmattan)"))
 {
     setDisplayName(defaultDisplayName());
 }
