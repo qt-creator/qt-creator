@@ -2622,11 +2622,7 @@ void BaseTextEditorWidget::processTooltipRequest(const QTextCursor &c)
 bool BaseTextEditorWidget::viewportEvent(QEvent *event)
 {
     d->m_contentsChanged = false;
-    if (event->type() == QEvent::ContextMenu) {
-        const QContextMenuEvent *ce = static_cast<QContextMenuEvent*>(event);
-        if (ce->reason() == QContextMenuEvent::Mouse && !textCursor().hasSelection())
-            setTextCursor(cursorForPosition(ce->pos()));
-    } else if (event->type() == QEvent::ToolTip) {
+    if (event->type() == QEvent::ToolTip) {
         if (QApplication::keyboardModifiers() & Qt::ControlModifier
                 || (!(QApplication::keyboardModifiers() & Qt::ShiftModifier)
                     && d->m_behaviorSettings.m_constrainHoverTooltips)) {
@@ -4222,6 +4218,12 @@ void BaseTextEditorWidget::mousePressEvent(QMouseEvent *e)
 
             if (d->m_currentLink.isValid())
                 d->m_linkPressed = true;
+        }
+    } else if (e->button() == Qt::RightButton) {
+        int eventCursorPosition = cursorForPosition(e->pos()).position();
+        if (eventCursorPosition < textCursor().selectionStart()
+                || eventCursorPosition > textCursor().selectionEnd()) {
+            setTextCursor(cursorForPosition(e->pos()));
         }
     }
 
