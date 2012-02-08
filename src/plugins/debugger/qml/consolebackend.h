@@ -30,69 +30,71 @@
 **
 **************************************************************************/
 
-#ifndef QMLJSSCRIPTCONSOLE_H
-#define QMLJSSCRIPTCONSOLE_H
+#ifndef CONSOLEBACKEND_H
+#define CONSOLEBACKEND_H
 
 #include "consoleitemmodel.h"
-#include <debugger/debuggerconstants.h>
-#include <QtGui/QWidget>
+#include "interactiveinterpreter.h"
 
-QT_BEGIN_NAMESPACE
-class QToolButton;
-QT_END_NAMESPACE
+#include <qmljsdebugclient/qdeclarativeenginedebug.h>
 
-namespace Utils {
-class StatusLabel;
-class SavedAction;
-}
+#include <QtCore/QObject>
 
 namespace Debugger {
-
-class DebuggerEngine;
-
 namespace Internal {
 
-class ConsoleTreeView;
-class ConsoleItemDelegate;
-class QmlJSConsoleBackend;
-class QmlJSScriptConsoleWidget : public QWidget
+class ConsoleBackend : public QObject
 {
     Q_OBJECT
 public:
-    QmlJSScriptConsoleWidget(QWidget *parent = 0);
-    ~QmlJSScriptConsoleWidget();
+    explicit ConsoleBackend(QObject *parent = 0);
 
-    void setEngine(DebuggerEngine *engine);
-    void readSettings();
+    virtual void emitErrorMessage() = 0;
 
-public slots:
-    void writeSettings() const;
-    void appendResult(const QString &result);
-    void appendOutput(ConsoleItemModel::ItemType, const QString &message);
-    void appendMessage(QtMsgType type, const QString &message);
+    virtual void evaluate(const QString &, bool *returnKeyConsumed) = 0;
 
 signals:
-    void evaluateExpression(const QString &expr);
+    void message(ConsoleItemModel::ItemType itemType, const QString &msg);
+};
+
+class QmlEngine;
+class QmlJSConsoleBackend : public ConsoleBackend
+{
+    Q_OBJECT
+public:
+    explicit QmlJSConsoleBackend(QObject *parent = 0);
+
+    void setInferiorStopped(bool inferiorStopped);
+    bool inferiorStopped() const;
+
+    void setEngine(QmlEngine *engine);
+    QmlEngine *engine() const;
+
+    void setIsValidContext(bool isValidContext);
+    bool isValidContext() const;
+
+    virtual void evaluate(const QString &, bool *returnKeyConsumed);
+    void emitErrorMessage();
 
 private slots:
-    void onEngineStateChanged(Debugger::DebuggerState state);
-    void onSelectionChanged();
+    void onDebugQueryStateChanged(
+            QmlJsDebugClient::QDeclarativeDebugQuery::State state);
+
+signals:
+    void evaluateExpression(const QString &);
 
 private:
-    ConsoleTreeView *m_consoleView;
-    ConsoleItemModel *m_model;
-    ConsoleItemDelegate *m_itemDelegate;
-    QmlJSConsoleBackend *m_consoleBackend;
-    Utils::StatusLabel *m_statusLabel;
-    QToolButton *m_showLog;
-    QToolButton *m_showWarning;
-    QToolButton *m_showError;
-    Utils::SavedAction *m_showLogAction;
-    Utils::SavedAction *m_showWarningAction;
-    Utils::SavedAction *m_showErrorAction;
+     bool canEvaluateScript(const QString &script);
+
+private:
+    QmlEngine *m_engine;
+    InteractiveInterpreter m_interpreter;
+    bool m_inferiorStopped;
+    bool m_isValidContext;
+    bool m_Error;
 };
 
 } //Internal
 } //Debugger
 
-#endif
+#endif // CONSOLEBACKEND_H

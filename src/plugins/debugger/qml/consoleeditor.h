@@ -30,69 +30,52 @@
 **
 **************************************************************************/
 
-#ifndef QMLJSSCRIPTCONSOLE_H
-#define QMLJSSCRIPTCONSOLE_H
+#ifndef CONSOLEEDITOR_H
+#define CONSOLEEDITOR_H
 
 #include "consoleitemmodel.h"
-#include <debugger/debuggerconstants.h>
-#include <QtGui/QWidget>
 
-QT_BEGIN_NAMESPACE
-class QToolButton;
-QT_END_NAMESPACE
-
-namespace Utils {
-class StatusLabel;
-class SavedAction;
-}
+#include <QtGui/QTextEdit>
+#include <QtCore/QModelIndex>
 
 namespace Debugger {
-
-class DebuggerEngine;
-
 namespace Internal {
 
-class ConsoleTreeView;
-class ConsoleItemDelegate;
-class QmlJSConsoleBackend;
-class QmlJSScriptConsoleWidget : public QWidget
+class ConsoleBackend;
+class ConsoleEditor : public QTextEdit
 {
     Q_OBJECT
 public:
-    QmlJSScriptConsoleWidget(QWidget *parent = 0);
-    ~QmlJSScriptConsoleWidget();
+    explicit ConsoleEditor(const QModelIndex &index,
+                           ConsoleBackend *backend = 0,
+                           QWidget *parent = 0);
 
-    void setEngine(DebuggerEngine *engine);
-    void readSettings();
+    QString getCurrentScript() const;
 
-public slots:
-    void writeSettings() const;
-    void appendResult(const QString &result);
-    void appendOutput(ConsoleItemModel::ItemType, const QString &message);
-    void appendMessage(QtMsgType type, const QString &message);
+protected:
+    void keyPressEvent(QKeyEvent *e);
+    void contextMenuEvent(QContextMenuEvent *event);
+    void focusOutEvent(QFocusEvent *e);
 
 signals:
-    void evaluateExpression(const QString &expr);
+    void editingFinished();
+    void appendEditableRow();
 
-private slots:
-    void onEngineStateChanged(Debugger::DebuggerState state);
-    void onSelectionChanged();
+protected:
+    void handleUpKey();
+    void handleDownKey();
+
+    void replaceCurrentScript(const QString &script);
 
 private:
-    ConsoleTreeView *m_consoleView;
-    ConsoleItemModel *m_model;
-    ConsoleItemDelegate *m_itemDelegate;
-    QmlJSConsoleBackend *m_consoleBackend;
-    Utils::StatusLabel *m_statusLabel;
-    QToolButton *m_showLog;
-    QToolButton *m_showWarning;
-    QToolButton *m_showError;
-    Utils::SavedAction *m_showLogAction;
-    Utils::SavedAction *m_showWarningAction;
-    Utils::SavedAction *m_showErrorAction;
+    ConsoleBackend *m_consoleBackend;
+    QModelIndex m_historyIndex;
+    QString m_cachedScript;
+    QImage m_prompt;
+    int m_startOfEditableArea;
 };
 
 } //Internal
 } //Debugger
 
-#endif
+#endif // CONSOLEEDITOR_H
