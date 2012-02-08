@@ -4691,6 +4691,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
     //postCommand("set displaced-stepping on");
     postCommand("set trust-readonly-sections on", ConsoleCommand);
     postCommand("set auto-solib-add on", ConsoleCommand);
+    postCommand("set remotecache on", ConsoleCommand);
 
     if (0 && debuggerCore()->boolSetting(TargetAsync)) {
         postCommand("set target-async on", ConsoleCommand);
