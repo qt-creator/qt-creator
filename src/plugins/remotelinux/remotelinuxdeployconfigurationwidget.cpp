@@ -43,18 +43,18 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QTableView>
+#include <QtGui/QTreeView>
 
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 namespace Internal {
 namespace {
-class MyTableView : public QTableView
+class MyTreeView : public QTreeView
 {
     Q_OBJECT
 public:
-    MyTableView(QWidget *parent = 0) : QTableView(parent) {}
+    MyTreeView(QWidget *parent = 0) : QTreeView(parent) {}
 
 signals:
     void doubleClicked();
@@ -63,7 +63,7 @@ private:
     void mouseDoubleClickEvent(QMouseEvent *event)
     {
         emit doubleClicked();
-        QTableView::mouseDoubleClickEvent(event);
+        QTreeView::mouseDoubleClickEvent(event);
     }
 };
 
@@ -73,7 +73,7 @@ class RemoteLinuxDeployConfigurationWidgetPrivate
 {
 public:
     Ui::RemoteLinuxDeployConfigurationWidget ui;
-    MyTableView tableView;
+    MyTreeView treeView;
     RemoteLinuxDeployConfiguration *deployConfiguration;
 };
 
@@ -85,15 +85,10 @@ RemoteLinuxDeployConfigurationWidget::RemoteLinuxDeployConfigurationWidget(QWidg
     DeployConfigurationWidget(parent), d(new RemoteLinuxDeployConfigurationWidgetPrivate)
 {
     d->ui.setupUi(this);
-    d->tableView.setTextElideMode(Qt::ElideMiddle);
-    d->tableView.setShowGrid(false);
-    d->tableView.setWordWrap(false);
-    d->tableView.horizontalHeader()->setMinimumSectionSize(100);
-    d->tableView.horizontalHeader()->setDefaultSectionSize(400);
-    d->tableView.horizontalHeader()->setHighlightSections(false);
-    d->tableView.horizontalHeader()->setStretchLastSection(true);
-    d->tableView.verticalHeader()->setVisible(false);
-    layout()->addWidget(&d->tableView);
+    d->treeView.setTextElideMode(Qt::ElideMiddle);
+    d->treeView.setWordWrap(false);
+    d->treeView.setUniformRowHeights(true);
+    layout()->addWidget(&d->treeView);
 }
 
 RemoteLinuxDeployConfigurationWidget::~RemoteLinuxDeployConfigurationWidget()
@@ -108,7 +103,7 @@ void RemoteLinuxDeployConfigurationWidget::init(DeployConfiguration *dc)
 
     connect(d->ui.manageDevConfsLabel, SIGNAL(linkActivated(QString)),
         SLOT(showDeviceConfigurations()));
-    connect(&d->tableView, SIGNAL(doubleClicked()), SLOT(openProjectFile()));
+    connect(&d->treeView, SIGNAL(doubleClicked()), SLOT(openProjectFile()));
 
     d->ui.deviceConfigsComboBox->setModel(d->deployConfiguration->target()->deviceConfigModel());
     connect(d->ui.deviceConfigsComboBox, SIGNAL(activated(int)),
@@ -145,7 +140,7 @@ DeployableFilesPerProFile *RemoteLinuxDeployConfigurationWidget::currentModel() 
 
 void RemoteLinuxDeployConfigurationWidget::handleModelListToBeReset()
 {
-    d->tableView.setModel(0);
+    d->treeView.setModel(0);
 }
 
 void RemoteLinuxDeployConfigurationWidget::handleModelListReset()
@@ -154,13 +149,13 @@ void RemoteLinuxDeployConfigurationWidget::handleModelListReset()
         == d->ui.projectsComboBox->count(), return);
 
     if (d->deployConfiguration->deploymentInfo()->modelCount() > 0) {
-        d->tableView.setToolTip(tr("Double-click to edit the project file"));
+        d->treeView.setToolTip(tr("Double-click to edit the project file"));
         if (d->ui.projectsComboBox->currentIndex() == -1)
             d->ui.projectsComboBox->setCurrentIndex(0);
         else
             setModel(d->ui.projectsComboBox->currentIndex());
     } else {
-        d->tableView.setToolTip(QString());
+        d->treeView.setToolTip(QString());
     }
 }
 
@@ -168,9 +163,9 @@ void RemoteLinuxDeployConfigurationWidget::setModel(int row)
 {
     DeployableFilesPerProFile * const proFileInfo = row == -1
         ? 0 : d->deployConfiguration->deploymentInfo()->modelAt(row);
-    d->tableView.setModel(proFileInfo);
+    d->treeView.setModel(proFileInfo);
     if (proFileInfo)
-        d->tableView.resizeRowsToContents();
+        d->treeView.resizeColumnToContents(0);
     emit currentModelChanged(proFileInfo);
 }
 
