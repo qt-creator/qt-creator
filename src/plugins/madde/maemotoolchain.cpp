@@ -177,9 +177,8 @@ QString MaemoToolChain::legacyId() const
                                           .arg(debuggerCommand().toString());
 }
 
-QList<ProjectExplorer::Abi> MaemoToolChain::findAbiForCompilerPath(const QString &path)
+QList<ProjectExplorer::Abi> MaemoToolChain::detectSupportedAbis() const
 {
-    Q_UNUSED(path);
     if (m_qtVersionId < 0)
         return QList<ProjectExplorer::Abi>();
 

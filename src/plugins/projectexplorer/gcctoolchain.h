@@ -91,7 +91,6 @@ protected:
     GccToolChain(const GccToolChain &);
 
     virtual QString defaultDisplayName() const;
-    virtual QList<Abi> findAbiForCompilerPath(const QString &path);
 
     virtual QList<Abi> detectSupportedAbis() const;
     virtual QString detectVersion() const;

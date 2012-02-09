@@ -267,6 +267,9 @@ static QList<ProjectExplorer::Abi> guessGccAbi(const QString &m)
 
 static QList<ProjectExplorer::Abi> guessGccAbi(const Utils::FileName &path, const QStringList &env)
 {
+    if (path.isEmpty())
+        return QList<ProjectExplorer::Abi>();
+
     QStringList arguments(QLatin1String("-dumpmachine"));
     QString machine = QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
     return guessGccAbi(machine);
@@ -308,14 +311,6 @@ QString GccToolChain::defaultDisplayName() const
     return QString::fromLatin1("%1 (%2 %3)").arg(typeDisplayName(),
                                                  ProjectExplorer::Abi::toString(m_targetAbi.architecture()),
                                                  ProjectExplorer::Abi::toString(m_targetAbi.wordWidth()));
-}
-
-QList<Abi> GccToolChain::findAbiForCompilerPath(const QString &path)
-{
-    if (path.isEmpty())
-        return QList<Abi>();
-
-    return detectSupportedAbis();
 }
 
 QString GccToolChain::legacyId() const
@@ -466,7 +461,7 @@ void GccToolChain::setCompilerCommand(const Utils::FileName &path)
     m_compilerCommand = path;
 
     Abi currentAbi = m_targetAbi;
-    m_supportedAbis = findAbiForCompilerPath(m_compilerCommand.toString());
+    m_supportedAbis = detectSupportedAbis();
 
     m_targetAbi = Abi();
     if (!m_supportedAbis.isEmpty()) {
