@@ -31,10 +31,9 @@
 **************************************************************************/
 #include "remotelinuxdeployconfigurationfactory.h"
 
+#include "genericembeddedlinuxtarget.h"
 #include "genericdirectuploadstep.h"
 #include "remotelinuxdeployconfiguration.h"
-#include "remotelinuxutils.h"
-#include "remotelinux_constants.h"
 
 #include <QtCore/QCoreApplication>
 
@@ -55,7 +54,7 @@ RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory(QOb
 QStringList RemoteLinuxDeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
     QStringList ids;
-    if (RemoteLinuxUtils::hasUnixQt(parent))
+    if (qobject_cast<GenericEmbeddedLinuxTarget *>(parent))
         ids << genericDeployConfigurationId();
     return ids;
 }
