@@ -822,6 +822,8 @@ void MiniProjectTargetSelector::activeTargetChanged(ProjectExplorer::Target *tar
 
     m_target = target;
 
+    m_listWidgets[TARGET]->setActiveProjectConfiguration(m_target);
+
     if (m_buildConfiguration)
         disconnect(m_buildConfiguration, SIGNAL(displayNameChanged()),
                    this, SLOT(updateActionAndSummary()));
@@ -906,6 +908,7 @@ void MiniProjectTargetSelector::activeDeployConfigurationChanged(ProjectExplorer
         connect(m_deployConfiguration, SIGNAL(displayNameChanged()),
                 this, SLOT(updateActionAndSummary()));
     m_listWidgets[DEPLOY]->setActiveProjectConfiguration(dc);
+    updateActionAndSummary();
 }
 
 void MiniProjectTargetSelector::activeRunConfigurationChanged(ProjectExplorer::RunConfiguration *rc)
