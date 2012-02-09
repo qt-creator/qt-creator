@@ -172,6 +172,26 @@
            a hard requirement or optional. Defaults to \c{required}.
     \endtable
 
+    \section3 Optional Dependencies
+
+    A plugin can specify that a dependency on another plugin is optional, by adding the
+    \c {type="optional"} attribute to the \c dependency tag:
+
+    \list
+        \o If the dependency can be resolved, the plugin and
+           its dependency are loaded and initialized as for \c required dependencies.
+        \o If the dependency can not be resolved, the plugin is loaded and initialized
+           as if the dependency was not declared at all.
+    \endlist
+
+    The plugin is not informed about the existence of optional dependencies in any way. Since the
+    dependency might be loaded or not, the plugin may also not link against the dependency.
+    A common way to access objects from optional dependencies is to get the object from the
+    \l{The Plugin Manager, the Object Pool, and Registered Objects}{global object pool}
+    via ExtensionSystem::PluginManager::getObjectByName() or
+    ExtensionSystem::PluginManager::getObjectByClassName(), and use QMetaObject functions to call
+    methods on it.
+
     \section2 Command Line Arguments
 
     Plugins can register command line arguments that the user can give
