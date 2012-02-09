@@ -56,6 +56,10 @@
 
             \QC checks for errors when you write code and displays inline
             error and warning messages.
+            Similarly, it checks the  data structure of an instance of a
+            JavaScript object notation (JSON) entity. In addition, you can run
+            static checks on the QML and JavaScript code in your project to find
+            common problems.
 
         \o  \l{Completing Code}
 

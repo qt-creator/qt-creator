@@ -150,9 +150,11 @@
 
     \title Checking Code Syntax
 
-    As you write code \QC checks code syntax. When \QC spots a syntax error in
+    As you write code, \QC checks code syntax. When \QC spots a syntax error in
     your code it underlines it and shows error details when you move the mouse
     pointer over the error.
+    Similarly, when you are working on an instance of a JavaScript object
+    notation (JSON) entity, \QC underlines errors in JSON data structure.
 
     \list
 
@@ -171,10 +173,30 @@
 
     \endlist
 
-    \section1 Checking JavaScript and QML Syntax
+    In addition, you can run static checks on the QML and JavaScript code in
+    your project to find common problems.
 
-    You can run static checks on the QML and JavaScript code in your project
-    to find common problems.
+    \section1 Checking JSON Data Structure
+
+    \QC validates instances of JSON entities against
+    \l{http://tools.ietf.org/html/draft-zyp-json-schema-03}
+    {A JSON Media Type for Describing the Structure and Meaning of JSON Documents}.
+    However, this feature is still under development, and \QC does not yet
+    understand the entire specification.
+
+    A JSON schema defines the structure of JSON data. It determines what JSON
+    data is required for an application and how to interact with it.
+
+    The specification does not define how to map JSON instances with JSON
+    schemas. As a temporary solution, \QC looks for a JSON schema file with a
+    name that matches the name of the JSON instance file in the user
+    configuration folder. For example, \c {~/config/Nokia/qtcreator/json} on
+    Linux and Mac OS and
+    \c {C:\Users\username\AppData\Roaming\Nokia\qtcreator\json}
+    in Windows. To check JSON data structure, copy the JSON schema file to the
+    above folder.
+
+    \section1 Checking JavaScript and QML Syntax
 
     To run the checks, select \gui {Tools > QML/JS > Run Checks} or press
     \key Ctrl+Shift+C. The results are shown in the \gui {QML Analysis}
@@ -551,6 +573,7 @@
         \o
 
     \endtable
+
 */
 
 
