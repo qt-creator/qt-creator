@@ -26,7 +26,11 @@ RESOURCES += \
 OTHER_FILES += \
     ImageViewer.mimetypes.xml
 
-contains(QT_CONFIG, svg):QT += svg
+greaterThan(QT_MAJOR_VERSION, 4) {
+    !isEmpty(QT.svg.name): QT += svg
+} else {
+    contains(QT_CONFIG, svg):QT += svg
+}
 
 FORMS += \
     imageviewertoolbar.ui
