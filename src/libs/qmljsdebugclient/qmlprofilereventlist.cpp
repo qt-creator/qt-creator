@@ -1093,7 +1093,7 @@ void QmlProfilerEventList::findBindingLoops(qint64 startTime, qint64 endTime)
 
         // managing call stack
         for (int j = stack.count() - 1; j >= 0; j--) {
-            if (stack[j]->startTime + stack[j]->length < inTimeEvent->startTime) {
+            if (stack[j]->startTime + stack[j]->length <= inTimeEvent->startTime) {
                 stack.removeAt(j);
                 stackRefs.removeAt(j);
             }
