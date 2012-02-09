@@ -100,6 +100,16 @@ QString SimulatorQtVersion::description() const
     return QCoreApplication::translate("QtVersion", "Qt Simulator", "Qt Version is meant for Qt Simulator");
 }
 
+Core::FeatureSet SimulatorQtVersion::availableFeatures() const
+{
+    Core::FeatureSet features = QtSupport::BaseQtVersion::availableFeatures();
+    if (qtVersion() >= QtSupport::QtVersionNumber(4, 7, 4)) //no reliable test for components, yet.
+           features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_MEEGO)
+                   | Core::FeatureSet(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_SYMBIAN);
+
+    return features;
+}
+
 bool SimulatorQtVersion::supportsPlatform(const QString &platformName) const
 {
     return (platformName == QtSupport::Constants::SYMBIAN_PLATFORM

@@ -58,6 +58,7 @@ public:
 
     QString description() const;
 
+    Core::FeatureSet availableFeatures() const;
     bool supportsPlatform(const QString &platformName) const;
 };
 

@@ -103,9 +103,6 @@ QString DesktopQtVersion::description() const
 Core::FeatureSet DesktopQtVersion::availableFeatures() const
 {
     Core::FeatureSet features = QtSupport::BaseQtVersion::availableFeatures();
-    if (qtVersion() >= QtSupport::QtVersionNumber(4, 7, 4)) //no reliable test for components, yet.
-        features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_MEEGO)
-                | Core::FeatureSet(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_SYMBIAN);
     features |= Core::FeatureSet(QtSupport::Constants::FEATURE_DESKTOP);
     return features;
 }
