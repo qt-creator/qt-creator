@@ -1,0 +1,55 @@
+import qbs.base 1.0
+
+DynamicLibrary {
+    name: "extensionsystem"
+    destination: "lib"
+
+    cpp.includePaths: [
+        ".",
+        ".."
+    ]
+    cpp.defines: [
+        "EXTENSIONSYSTEM_LIBRARY",
+        "IDE_TEST_DIR=\".\""
+    ]
+
+    Depends { name: "cpp" }
+    Depends { name: "Qt"; submodules: ["core", "gui"] }
+    Depends { name: "aggregation" }
+
+    files: [
+        "plugindetailsview.ui",
+        "pluginerrorview.ui",
+        "pluginview.qrc",
+        "pluginview.ui",
+        "extensionsystem_global.h",
+        "invoker.cpp",
+        "invoker.h",
+        "iplugin.cpp",
+        "iplugin.h",
+        "iplugin_p.h",
+        "optionsparser.cpp",
+        "optionsparser.h",
+        "plugincollection.cpp",
+        "plugincollection.h",
+        "plugindetailsview.cpp",
+        "plugindetailsview.h",
+        "pluginerroroverview.cpp",
+        "pluginerroroverview.h",
+        "pluginerroroverview.ui",
+        "pluginerrorview.cpp",
+        "pluginerrorview.h",
+        "pluginmanager.cpp",
+        "pluginmanager.h",
+        "pluginmanager_p.h",
+        "pluginspec.h",
+        "pluginspec_p.h",
+        "pluginview.cpp",
+        "pluginview.h",
+        "pluginview_p.h",
+        "pluginspec.cpp",
+        "images/error.png",
+        "images/notloaded.png",
+        "images/ok.png",
+    ]
+}
