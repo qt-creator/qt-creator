@@ -65,7 +65,7 @@
         \o Sets the plugins to \c Loaded state.
 
         \o Calls the \l{ExtensionSystem::IPlugin::initialize()}{initialize()} methods of
-           all plugins in the order of the load queue. In the initialize method,
+           all plugins in the order of the load queue. In the \c initialize method,
            a plugin should make sure that all exported interfaces are set up and available
            to other plugins. A plugin can assume that plugins they depend on have set up
            their exported interfaces. For example, the \c Core plugin sets up the
@@ -86,7 +86,7 @@
 
         \o Calls the \l{ExtensionSystem::IPlugin::extensionsInitialized()}{extensionsInitialized()}
            methods of all plugins in \e reverse order of the load queue. After
-           the extensionsInitialized method, a plugin should be fully initialized, set up
+           the \c extensionsInitialized method, a plugin should be fully initialized, set up
            and running. A plugin can assume that plugins that depend on it are fully set up,
            and can finish the initialization of parts that can be extended by other plugins.
            For example, the \c Core plugin assumes that all plugins have registered
@@ -98,6 +98,13 @@
     At the end of startup, the \c Core plugin's \l{Core::ICore} sends two signals.
     Before the \QC UI is shown it sends \l{Core::ICore::coreAboutToOpen()}{coreAboutToOpen()},
     and afterwards \l{Core::ICore::coreOpened()}{coreOpened()}.
+
+    After startup, when the event loop of \QC is running, the plugin manager calls
+    the \l{ExtensionSystem::IPlugin::delayedInitialize()}{delayedInitialize()} methods of all
+    plugins in \e reverse order of the load queue. The calls are done on the main thread, but
+    separated by a delay of a few milliseconds to ensure responsiveness of \QC.
+    In the \c delayedInitialize method, a plugin can perform non-critical initialization
+    that could unnecessarily delay showing the \QC UI if done during startup.
 
     Before shutdown, the \c Core plugin's \l{Core::ICore} sends the
     \l{Core::ICore::coreAboutToClose()}{coreAboutToClose()} signal. After that, the
