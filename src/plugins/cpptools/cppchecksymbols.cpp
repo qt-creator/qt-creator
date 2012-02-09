@@ -49,7 +49,7 @@
 #include <QtCore/QThreadPool>
 #include <QtCore/QDebug>
 
-#include <qtconcurrent/runextensions.h>
+#include <utils/runextensions.h>
 
 using namespace CPlusPlus;
 using namespace CppTools;

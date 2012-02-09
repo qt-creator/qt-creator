@@ -49,7 +49,7 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/id.h>
 #include <extensionsystem/pluginmanager.h>
-#include <qtconcurrent/QtConcurrentTools>
+#include <utils/QtConcurrentTools>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QSettings>

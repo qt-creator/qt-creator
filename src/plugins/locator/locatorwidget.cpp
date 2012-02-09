@@ -47,7 +47,7 @@
 #include <coreplugin/fileiconprovider.h>
 #include <utils/filterlineedit.h>
 #include <utils/qtcassert.h>
-#include <qtconcurrent/runextensions.h>
+#include <utils/runextensions.h>
 
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QFileInfo>

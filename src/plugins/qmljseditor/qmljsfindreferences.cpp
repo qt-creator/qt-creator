@@ -62,7 +62,7 @@
 #include <QtCore/QDir>
 #include <QtGui/QApplication>
 #include <QtGui/QLabel>
-#include <qtconcurrent/runextensions.h>
+#include <utils/runextensions.h>
 
 #include <functional>
 

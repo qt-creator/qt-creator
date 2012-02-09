@@ -45,7 +45,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
-#include <qtconcurrent/QtConcurrentTools>
+#include <utils/QtConcurrentTools>
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QSettings>

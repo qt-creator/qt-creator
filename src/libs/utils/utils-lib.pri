@@ -203,7 +203,9 @@ HEADERS += \
     $$PWD/networkaccessmanager.h \
     $$PWD/persistentsettings.h \
     $$PWD/completingtextedit.h \
-    $$PWD/json.h
+    $$PWD/json.h \
+    $$PWD/multitask.h \
+    $$PWD/runextensions.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

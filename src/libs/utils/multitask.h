@@ -33,7 +33,7 @@
 #ifndef MULTITASK_H
 #define MULTITASK_H
 
-#include "qtconcurrent_global.h"
+#include "utils_global.h"
 #include "runextensions.h"
 
 #include <QtCore/QObject>
@@ -49,7 +49,7 @@ QT_BEGIN_NAMESPACE
 
 namespace QtConcurrent {
 
-class QTCONCURRENT_EXPORT MultiTaskBase : public QObject, public QRunnable
+class QTCREATOR_UTILS_EXPORT MultiTaskBase : public QObject, public QRunnable
 {
     Q_OBJECT
 protected slots:

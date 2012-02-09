@@ -45,7 +45,7 @@
 #include <QtCore/QtConcurrentRun>
 #ifndef ICHECK_BUILD
 #  include <QtCore/QFutureSynchronizer>
-#  include <qtconcurrent/runextensions.h>
+#  include <utils/runextensions.h>
 #  include <texteditor/itexteditor.h>
 #  include <texteditor/basetexteditor.h>
 #  include <projectexplorer/project.h>

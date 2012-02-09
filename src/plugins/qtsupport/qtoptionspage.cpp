@@ -51,7 +51,7 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <qtconcurrent/runextensions.h>
+#include <utils/runextensions.h>
 
 #include <QtCore/QDir>
 #include <QtGui/QToolTip>

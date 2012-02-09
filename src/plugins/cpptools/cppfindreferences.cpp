@@ -66,7 +66,7 @@
 #include <QtCore/QtConcurrentMap>
 #include <QtCore/QDir>
 #include <QtGui/QApplication>
-#include <qtconcurrent/runextensions.h>
+#include <utils/runextensions.h>
 
 #include <functional>
 

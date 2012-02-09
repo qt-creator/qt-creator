@@ -64,7 +64,7 @@
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
-#include <qtconcurrent/QtConcurrentTools>
+#include <utils/QtConcurrentTools>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>

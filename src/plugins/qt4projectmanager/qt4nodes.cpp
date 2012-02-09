@@ -74,7 +74,7 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
-#include <qtconcurrent/QtConcurrentTools>
+#include <utils/QtConcurrentTools>
 
 // Static cached data in struct Qt4NodeStaticData providing information and icons
 // for file types and the project. Do some magic via qAddPostRoutine()

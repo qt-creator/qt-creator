@@ -44,7 +44,7 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <qtconcurrent/QtConcurrentTools>
+#include <utils/QtConcurrentTools>
 
 #include <QtCore/QtAlgorithms>
 #include <QtCore/QtPlugin>

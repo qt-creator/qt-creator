@@ -6,7 +6,6 @@ QT += core gui
 # because of dependencies of app
 SUBDIRS   = \
     3rdparty \
-    qtconcurrent \
     utils \
     utils/process_stub.pro \
     languageutils \

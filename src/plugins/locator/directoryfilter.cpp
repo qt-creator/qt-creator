@@ -38,7 +38,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 
-#include <qtconcurrent/QtConcurrentTools>
+#include <utils/QtConcurrentTools>
 #include <utils/filesearch.h>
 
 using namespace Locator;

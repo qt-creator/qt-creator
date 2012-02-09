@@ -59,7 +59,7 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
-#include <qtconcurrent/runextensions.h>
+#include <utils/runextensions.h>
 #include <QtCore/QtConcurrentRun>
 #include <QtGui/QMessageBox>
 

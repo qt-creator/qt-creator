@@ -38,7 +38,7 @@
 #include "directoryfilter.h"
 
 #include <coreplugin/coreconstants.h>
-#include <qtconcurrent/QtConcurrentTools>
+#include <utils/QtConcurrentTools>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QCoreApplication>

@@ -58,7 +58,7 @@
 #include <QtCore/QHash>
 #include <QtCore/QFutureWatcher>
 
-#include <qtconcurrent/QtConcurrentTools>
+#include <utils/QtConcurrentTools>
 
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>

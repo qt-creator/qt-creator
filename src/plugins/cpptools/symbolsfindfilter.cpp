@@ -38,7 +38,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/icore.h>
 #include <find/textfindconstants.h>
-#include <qtconcurrent/runextensions.h>
+#include <utils/runextensions.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>

@@ -156,6 +156,7 @@ win32-msvc* {
 }
 
 qt:greaterThan(QT_MAJOR_VERSION, 4) {
+    contains(QT, core): QT += concurrent
     contains(QT, gui): QT += widgets
     contains(QT, declarative): QT += quick1
 }

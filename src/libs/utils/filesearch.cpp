@@ -40,7 +40,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QTextCodec>
 
-#include <qtconcurrent/runextensions.h>
+#include "runextensions.h"
 
 using namespace Utils;
 

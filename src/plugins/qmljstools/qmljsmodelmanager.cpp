@@ -58,7 +58,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QtConcurrentRun>
-#include <qtconcurrent/runextensions.h>
+#include <utils/runextensions.h>
 #include <QtCore/QTextStream>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QTimer>

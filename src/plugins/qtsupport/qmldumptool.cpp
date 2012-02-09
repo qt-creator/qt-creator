@@ -42,7 +42,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runconfiguration.h>
-#include <qtconcurrent/runextensions.h>
+#include <utils/runextensions.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <utils/qtcassert.h>
 #include <QtGui/QDesktopServices>

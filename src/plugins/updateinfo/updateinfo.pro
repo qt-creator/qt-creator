@@ -1,7 +1,6 @@
 TARGET = UpdateInfo
 TEMPLATE = lib
 QT += network xml
-greaterThan(QT_MAJOR_VERSION, 4): QT += concurrent
 
 HEADERS += updateinfoplugin.h \
     updateinfobutton.h

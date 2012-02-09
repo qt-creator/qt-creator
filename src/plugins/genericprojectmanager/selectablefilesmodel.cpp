@@ -34,7 +34,7 @@
 
 #include <coreplugin/fileiconprovider.h>
 
-#include <qtconcurrent/QtConcurrentTools>
+#include <utils/QtConcurrentTools>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QTreeView>

@@ -45,7 +45,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QtConcurrentRun>
-#include <qtconcurrent/runextensions.h>
+#include <utils/runextensions.h>
 
 using namespace QmlJS;
 
