@@ -35,18 +35,17 @@
 
 #include <QtCore/QMetaType>
 
-#if QT_VERSION >= 0x050000
-// Qt 5 requires the types to be defined.
-#  include "iprojectmanager.h"
-#  include "session.h"
-#  include "project.h"
-#else
 namespace ProjectExplorer {
 class IProjectManager;
 class SessionManager;
 class Project;
 }
-#endif // QT_VERSION < 0x050000
+
+#if QT_VERSION >= 0x050000
+// Required for Q_DECLARE_METATYPE of forward-declared types in Qt 5.
+   Q_DECLARE_OPAQUE_POINTER(ProjectExplorer::IProjectManager*)
+   Q_DECLARE_OPAQUE_POINTER(ProjectExplorer::SessionManager*)
+#endif // QT_VERSION >= 0x050000
 
 Q_DECLARE_METATYPE(QList<ProjectExplorer::Project*>)
 Q_DECLARE_METATYPE(ProjectExplorer::SessionManager*)
