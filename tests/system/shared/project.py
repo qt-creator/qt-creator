@@ -134,7 +134,7 @@ def __verifyFileCreation__(path, expectedFiles):
 #                 created for this version. If it is None, all Qt versions will be used
 # param checks turns tests in the function on if set to True
 def createProject_Qt_GUI(path, projectName, qtVersion = None, checks = True):
-    __createProjectSelectType__("Other Qt Project", "Qt Gui Application")
+    __createProjectSelectType__("  Applications", "Qt Gui Application")
     __createProjectSetNameAndPath__(path, projectName, checks)
     __selectQtVersionDesktop__(qtVersion, checks)
 
@@ -173,7 +173,7 @@ def createProject_Qt_GUI(path, projectName, qtVersion = None, checks = True):
 #                 created for this version. If it is None, all Qt versions will be used
 # param checks turns tests in the function on if set to True
 def createProject_Qt_Console(path, projectName, qtVersion = None, checks = True):
-    __createProjectSelectType__("Other Qt Project", "Qt Console Application")
+    __createProjectSelectType__("  Applications", "Qt Console Application")
     __createProjectSetNameAndPath__(path, projectName, checks)
     __selectQtVersionDesktop__(qtVersion, checks)
 
@@ -191,7 +191,7 @@ def createProject_Qt_Console(path, projectName, qtVersion = None, checks = True)
     __verifyFileCreation__(path, expectedFiles)
 
 def createNewQtQuickApplication(workingDir, projectName = None, templateFile = None, targets = QtQuickConstants.Targets.DESKTOP):
-    __createProjectSelectType__("Qt Quick Project", "Qt Quick Application")
+    __createProjectSelectType__("  Applications", "Qt Quick Application")
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
     if (templateFile==None):
         __chooseComponents__()
@@ -209,7 +209,7 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
     return projectName
 
 def createNewQtQuickUI(workingDir):
-    __createProjectSelectType__("Qt Quick Project", "Qt Quick UI")
+    __createProjectSelectType__("  Applications", "Qt Quick UI")
     if workingDir == None:
         workingDir = tempDir()
     projectName = __createProjectSetNameAndPath__(workingDir)
@@ -217,7 +217,7 @@ def createNewQtQuickUI(workingDir):
     return projectName
 
 def createNewQmlExtension(workingDir):
-    __createProjectSelectType__("Qt Quick Project", "Custom QML Extension Plugin")
+    __createProjectSelectType__("  Libraries", "Custom QML Extension Plugin")
     if workingDir == None:
         workingDir = tempDir()
     __createProjectSetNameAndPath__(workingDir)
