@@ -442,7 +442,7 @@ int main(int argc, char *argv[])
 
         Document::Ptr doc = Document::create(fileName);
         //doc->control()->setDiagnosticClient(0);
-        doc->setSource(source);
+        doc->setUtf8Source(source);
         doc->parse();
 
         doc->translationUnit()->blockErrors(true);
