@@ -46,6 +46,7 @@ namespace Internal {
 
 class UnConfiguredSettingsWidget : public QWidget
 {
+   Q_OBJECT
 public:
     UnConfiguredSettingsWidget(QWidget *parent);
     void apply();
