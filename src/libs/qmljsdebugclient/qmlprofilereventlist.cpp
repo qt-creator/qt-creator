@@ -55,7 +55,7 @@ const char *const TYPE_COMPILING_STR = "Compiling";
 const char *const TYPE_CREATING_STR = "Creating";
 const char *const TYPE_BINDING_STR = "Binding";
 const char *const TYPE_HANDLINGSIGNAL_STR = "HandlingSignal";
-const char *const PROFILER_FILE_VERSION = "1.01";
+const char *const PROFILER_FILE_VERSION = "1.02";
 }
 
 #define MIN_LEVEL 1
@@ -393,6 +393,7 @@ void QmlProfilerEventList::addRangedEvent(int type, qint64 startTime, qint64 len
 {
     const QChar colon = QLatin1Char(':');
     QString displayName, eventHashStr, details;
+    QmlJsDebugClient::QmlEventLocation eventLocation = location;
 
     emit processingData();
 
@@ -410,14 +411,22 @@ void QmlProfilerEventList::addRangedEvent(int type, qint64 startTime, qint64 len
             details = details.mid(details.lastIndexOf(QChar('/')) + 1);
     }
 
+    // backwards compatibility: "compiling" events don't have a proper location in older
+    // version of the protocol, but the filename is passed in the details string
+    if (type == QmlJsDebugClient::Compiling && eventLocation.filename.isEmpty()) {
+        eventLocation.filename = details;
+        eventLocation.line = 1;
+        eventLocation.column = 1;
+    }
+
     // generate hash
-    if (location.filename.isEmpty()) {
+    if (eventLocation.filename.isEmpty()) {
         displayName = tr("<bytecode>");
-        eventHashStr = getHashStringForQmlEvent(location, type);
+        eventHashStr = getHashStringForQmlEvent(eventLocation, type);
     } else {
-        const QString filePath = QUrl(location.filename).path();
-        displayName = filePath.mid(filePath.lastIndexOf(QChar('/')) + 1) + colon + QString::number(location.line);
-        eventHashStr = getHashStringForQmlEvent(location, type);
+        const QString filePath = QUrl(eventLocation.filename).path();
+        displayName = filePath.mid(filePath.lastIndexOf(QChar('/')) + 1) + colon + QString::number(eventLocation.line);
+        eventHashStr = getHashStringForQmlEvent(eventLocation, type);
     }
 
     QmlEventData *newEvent;
@@ -426,7 +435,7 @@ void QmlProfilerEventList::addRangedEvent(int type, qint64 startTime, qint64 len
     } else {
         newEvent = new QmlEventData;
         newEvent->displayname = displayName;
-        newEvent->location = location;
+        newEvent->location = eventLocation;
         newEvent->eventHashStr = eventHashStr;
         newEvent->eventType = (QmlJsDebugClient::QmlEventType)type;
         newEvent->details = details;
