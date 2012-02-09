@@ -118,6 +118,10 @@ private Q_SLOTS:
     //
     void inlineNamespace_data();
     void inlineNamespace();
+    void staticAssert();
+    void staticAssert_data();
+    void noExcept();
+    void noExcept_data();
 
     //
     // checks for the semantic
@@ -162,6 +166,50 @@ void tst_cxx11::inlineNamespaceLookup()
 
     QList<LookupItem> results = context.lookup(control->identifier("foo"), doc->globalNamespace());
     QCOMPARE(results.size(), 1); // the symbol is visible from the global scope
+}
+
+void tst_cxx11::staticAssert_data()
+{
+    QTest::addColumn<QString>("file");
+    QTest::addColumn<QString>("errorFile");
+
+    QTest::newRow("staticAssert.1") << "staticAssert.1.cpp" << "staticAssert.1.errors.txt";
+}
+
+void tst_cxx11::staticAssert()
+{
+    QFETCH(QString, file);
+    QFETCH(QString, errorFile);
+
+    QByteArray errors;
+    Document::Ptr doc = document(file, &errors);
+
+    if (! qgetenv("DEBUG").isNull())
+        printf("%s\n", errors.constData());
+
+    VERIFY_ERRORS();
+}
+
+void tst_cxx11::noExcept_data()
+{
+    QTest::addColumn<QString>("file");
+    QTest::addColumn<QString>("errorFile");
+
+    QTest::newRow("noExcept.1") << "noExcept.1.cpp" << "noExcept.1.errors.txt";
+}
+
+void tst_cxx11::noExcept()
+{
+    QFETCH(QString, file);
+    QFETCH(QString, errorFile);
+
+    QByteArray errors;
+    Document::Ptr doc = document(file, &errors);
+
+    if (! qgetenv("DEBUG").isNull())
+        printf("%s\n", errors.constData());
+
+    VERIFY_ERRORS();
 }
 
 QTEST_APPLESS_MAIN(tst_cxx11)
