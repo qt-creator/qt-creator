@@ -122,6 +122,7 @@ void SearchResultTreeItemDelegate::paint(QPainter *painter, const QStyleOptionVi
     painter->restore();
 }
 
+// returns the width of the line number area
 int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyleOptionViewItemV3 &option,
                                                  const QRect &rect,
                                                  const QModelIndex &index) const
@@ -131,8 +132,8 @@ int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyle
     if (lineNumber < 1)
         return 0;
     const bool isSelected = option.state & QStyle::State_Selected;
-    int lineNumberDigits = (int)floor(log10((double)lineNumber)) + 1;
-    int minimumLineNumberDigits = qMax((int)m_minimumLineNumberDigits, lineNumberDigits);
+    QString lineText = QString::number(lineNumber);
+    int minimumLineNumberDigits = qMax((int)m_minimumLineNumberDigits, lineText.count());
     int fontWidth = painter->fontMetrics().width(QString(minimumLineNumberDigits, QLatin1Char('0')));
     int lineNumberAreaWidth = lineNumberAreaHorizontalPadding + fontWidth + lineNumberAreaHorizontalPadding;
     QRect lineNumberAreaRect(rect);
@@ -156,7 +157,7 @@ int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyle
     const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, 0) + 1;
 
     const QRect rowRect = lineNumberAreaRect.adjusted(-textMargin, 0, textMargin-lineNumberAreaHorizontalPadding, 0);
-    QItemDelegate::drawDisplay(painter, opt, rowRect, QString::number(lineNumber));
+    QItemDelegate::drawDisplay(painter, opt, rowRect, lineText);
 
     return lineNumberAreaWidth;
 }
