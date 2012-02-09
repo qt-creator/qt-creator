@@ -8,9 +8,26 @@ git clone git://gitorious.org/qt-creator/qt-creator.git
 git log --cherry-pick --pretty=oneline v2.4.0...origin/2.5
 
 General
+   * Add a keyboard shortcut (Alt) to the locator to display the full path to
+     a located file (QTCREATORBUG-3805)
 
 Editing
    * Use the QML/JS editor for opening json files (QTCREATORBUG-4639)
+   * Add basic JSON validation according to the draft at
+     tools.ietf.org/html/draft-zyp-json-schema-03. Still work in progress.
+   * Add clipboad history that contains up to ten previous clips
+     (QTCREATORBUG-146)
+   * Add a shortcut for toggling bookmarks by pressing Shift and clicking
+     the left margin at a line (QTCREATORBUG-2852)
+   * Highlight search results of one character when whole words only is
+     specified (QTCREATORBUG-6372)
+   * Fix clean whitespace affecting lines that are already clean
+     (QTCREATORBUG-5712) [by Orgad Shaneh]
+   * Add a keyboard shortcut (Alt) to display context-sensitive help in a
+     popup if the corresponding option is enabled (QTCREATORBUG-6644)
+   * Fix layout update when folding/unfolding regions (QTCREATORBUG-6666)
+   * Fix position of code-assist popup when cursor is outside viewport
+     (QTCREATORBUG-6843)
 
 Managing Projects
 
@@ -33,6 +50,29 @@ C++ Support
      synchronization (QTCREATORBUG-6620)
    * Improve default argument handling with function signature synchronization
      (QTCREATORBUG-5978)
+   * Add Doxygen/QDoc comment completion when typing /*@ or /*! before
+     declarations (QTCREATORBUG-2752)
+   * Add "extract function" refactoring action (QTCREATORBUG-5485)
+   * Change behavior of "select all" during rename so that it selects
+     the symbol in question (QTCREATORBUG-5520) [by Bojan Pretrovic]
+   * Fix preprocess for multiline #if directives (QTCREATORBUG-5843)
+   * Fix encoding issues during refactoring operations (QTCREATORBUG-6147)
+   * Fix "convert to decimal" refactoring for lower case letters
+     (QTCREATORBUG-6240)
+   * Fix "add definition" refactoring when the matching implementation file
+     has no other definition yet (QTCREATORBUG-6696)
+   * Improve behavior of switch header/source when files with the same name
+     exist (QTCREATORBUG-6799) [by Nicolas Arnaud-Cormos]
+   * Improve behavior of follow symbol and add definition for projects with
+     equivalent symbol names (QTCREATORBUG-6697) (QTCREATORBUG-6792)
+   * Improve support for C++11 nullptr, constexpr, static_assert, noexcept,
+     inline namespaces, and auto.
+   * Fix missing result of find usages when there is a match on the first
+     line (QTCREATERBUG-6176)
+   * Fix highlighting for spaces in comments and strings (QTCREATORBUG-5802)
+   * Add "rearrange parameter list" refactoring action [by Bojan Petrovic]
+   * Add indent/unindent actions shortcut [by Adam Treat]
+   * Improve sorting of completion items (QTCREATORBUG-6404)
 
 QML/JS Support
    * Add correct scoping for signal handlers; enables completion of signal
