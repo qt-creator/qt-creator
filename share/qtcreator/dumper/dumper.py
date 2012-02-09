@@ -498,14 +498,21 @@ def check(exp):
     if not exp:
         raise RuntimeError("Check failed")
 
+def checkSimpleRef(ref):
+    count = ref["_q_value"]
+    check(count > 0)
+    check(count < 1000000)
+
 def checkRef(ref):
-    count = 0
+    # assume there aren't a million references to any object
     if qtMajorVersion() >= 5:
         count = ref["atomic"]["_q_value"]
+        check(count >= -1)
+        check(count < 1000000)
     else:
         count = ref["_q_value"]
-    check(count > 0)
-    check(count < 1000000) # assume there aren't a million references to any object
+        check(count > 0)
+        check(count < 1000000)
 
 #def couldBePointer(p, align):
 #    type = lookupType("unsigned int")

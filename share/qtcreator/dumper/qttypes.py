@@ -511,7 +511,7 @@ def qdump__QImage(d, value):
     if isNull(d_ptr):
         d.putValue("(null)")
     else:
-        checkRef(d_ptr["ref"])
+        checkSimpleRef(d_ptr["ref"])
         d.putValue("(%dx%d)" % (d_ptr["width"], d_ptr["height"]))
     bits = d_ptr["data"]
     nbytes = d_ptr["nbytes"]
@@ -1116,7 +1116,7 @@ def qdump__QPixmap(d, value):
     if isNull(d_ptr):
         d.putValue("(null)")
     else:
-        checkRef(d_ptr["ref"])
+        checkSimpleRef(d_ptr["ref"])
         d.putValue("(%dx%d)" % (d_ptr["w"], d_ptr["h"]))
     d.putNumChild(0)
 
