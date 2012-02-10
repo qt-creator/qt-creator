@@ -698,7 +698,7 @@ void QMakeStepConfigWidget::updateSummaryLabel()
     if (!tc)
         return;
     QList<Utils::FileName> tcSpecList = tc->mkspecList();
-    if (!tcSpecList.contains(m_step->mkspec()))
+    if (!tcSpecList.isEmpty() && !tcSpecList.contains(m_step->mkspec()))
         setAdditionalSummaryText(tr("<b>Warning:</b> The tool chain suggests using another mkspec."));
     else
         setAdditionalSummaryText(QString());
