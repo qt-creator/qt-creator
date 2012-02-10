@@ -182,6 +182,8 @@ QList<PropertyInfo> getQmlTypes(const CppComponentValue *ov, const ContextPtr &c
     QList<PropertyInfo> list;
     if (!ov)
         return list;
+    if (ov->className().isEmpty())
+        return list;
 
     PropertyMemberProcessor processor;
     ov->processMembers(&processor);
@@ -256,6 +258,9 @@ QList<PropertyInfo> getObjectTypes(const ObjectValue *ov, const ContextPtr &cont
     QList<PropertyInfo> list;
     if (!ov)
         return list;
+    if (ov->className().isEmpty())
+        return list;
+
     PropertyMemberProcessor processor;
     ov->processMembers(&processor);
 
