@@ -63,6 +63,7 @@ class DeclarationAST;
 class DeclarationStatementAST;
 class DeclaratorAST;
 class DeclaratorIdAST;
+class DecltypeSpecifierAST;
 class DeleteExpressionAST;
 class DestructorNameAST;
 class DoStatementAST;

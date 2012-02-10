@@ -94,6 +94,18 @@ virtual bool visit(TypeofSpecifierAST *ast)
     return false;
 }
 
+virtual bool visit(DecltypeSpecifierAST *ast)
+{
+    if (ast->decltype_token)
+        terminal(ast->decltype_token, ast);
+    if (ast->lparen_token)
+        terminal(ast->lparen_token, ast);
+    nonterminal(ast->expression);
+    if (ast->rparen_token)
+        terminal(ast->rparen_token, ast);
+    return false;
+}
+
 virtual bool visit(DeclaratorAST *ast)
 {
     for (SpecifierListAST *iter = ast->attribute_list; iter; iter = iter->next)

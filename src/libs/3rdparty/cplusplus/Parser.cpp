@@ -3483,6 +3483,7 @@ bool Parser::lookAtBuiltinTypeSpecifier() const
     case T_DOUBLE:
     case T_VOID:
     case T_AUTO:
+    case T_DECLTYPE:
         return true;
     // [gcc] extensions
     case T___TYPEOF__:
@@ -3578,6 +3579,17 @@ bool Parser::parseBuiltinTypeSpecifier(SpecifierListAST *&node)
         }
         parseUnaryExpression(ast->expression);
         node = new (_pool) SpecifierListAST(ast);
+        return true;
+    } else if (LA() == T_DECLTYPE) {
+        DecltypeSpecifierAST *ast = new (_pool) DecltypeSpecifierAST;
+        ast->decltype_token = consumeToken();
+        match(T_LPAREN, &ast->lparen_token);
+        if (parseExpression(ast->expression)) {
+            match(T_RPAREN, &ast->rparen_token);
+            node = new (_pool) SpecifierListAST(ast);
+            return true;
+        }
+        skipUntilDeclaration();
         return true;
     } else if (lookAtBuiltinTypeSpecifier()) {
         SimpleSpecifierAST *ast = new (_pool) SimpleSpecifierAST;

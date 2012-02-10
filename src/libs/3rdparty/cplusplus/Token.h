@@ -113,6 +113,7 @@ enum Kind {
     T_CONST_CAST,
     T_CONSTEXPR,
     T_CONTINUE,
+    T_DECLTYPE,
     T_DEFAULT,
     T_DELETE,
     T_DO,
@@ -244,6 +245,8 @@ enum Kind {
 
     T_TYPEOF = T___TYPEOF__,
     T___TYPEOF = T___TYPEOF__,
+
+    T___DECLTYPE = T_DECLTYPE,
 
     T___INLINE = T_INLINE,
     T___INLINE__ = T_INLINE,

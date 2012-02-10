@@ -265,6 +265,7 @@ protected:
     virtual bool visit(SimpleSpecifierAST *ast);
     virtual bool visit(AttributeSpecifierAST *ast);
     virtual bool visit(TypeofSpecifierAST *ast);
+    virtual bool visit(DecltypeSpecifierAST *ast);
     virtual bool visit(ClassSpecifierAST *ast);
     virtual bool visit(NamedTypeSpecifierAST *ast);
     virtual bool visit(ElaboratedTypeSpecifierAST *ast);

@@ -156,6 +156,7 @@ public:
     virtual DeclarationStatementAST *asDeclarationStatement() { return 0; }
     virtual DeclaratorAST *asDeclarator() { return 0; }
     virtual DeclaratorIdAST *asDeclaratorId() { return 0; }
+    virtual DecltypeSpecifierAST *asDecltypeSpecifier() { return 0; }
     virtual DeleteExpressionAST *asDeleteExpression() { return 0; }
     virtual DestructorNameAST *asDestructorName() { return 0; }
     virtual DoStatementAST *asDoStatement() { return 0; }
@@ -536,6 +537,34 @@ public:
     virtual unsigned lastToken() const;
 
     virtual TypeofSpecifierAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT DecltypeSpecifierAST: public SpecifierAST
+{
+public:
+    unsigned decltype_token;
+    unsigned lparen_token;
+    ExpressionAST *expression;
+    unsigned rparen_token;
+
+public:
+    DecltypeSpecifierAST()
+        : decltype_token(0)
+        , lparen_token(0)
+        , expression(0)
+        , rparen_token(0)
+    {}
+
+    virtual DecltypeSpecifierAST *asDecltypeSpecifier() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual DecltypeSpecifierAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

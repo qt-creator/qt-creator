@@ -93,6 +93,17 @@ TypeofSpecifierAST *TypeofSpecifierAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+DecltypeSpecifierAST *DecltypeSpecifierAST::clone(MemoryPool *pool) const
+{
+    DecltypeSpecifierAST *ast = new (pool) DecltypeSpecifierAST;
+    ast->decltype_token = decltype_token;
+    ast->lparen_token = lparen_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    ast->rparen_token = rparen_token;
+    return ast;
+}
+
 DeclaratorAST *DeclaratorAST::clone(MemoryPool *pool) const
 {
     DeclaratorAST *ast = new (pool) DeclaratorAST;

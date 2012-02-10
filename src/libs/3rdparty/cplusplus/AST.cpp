@@ -4313,3 +4313,33 @@ unsigned StaticAssertDeclarationAST::lastToken() const
     return 1;
 }
 
+/** \generated */
+unsigned DecltypeSpecifierAST::firstToken() const
+{
+    if (decltype_token)
+        return decltype_token;
+    if (lparen_token)
+        return lparen_token;
+    if (expression)
+        if (unsigned candidate = expression->firstToken())
+            return candidate;
+    if (rparen_token)
+        return rparen_token;
+    return 0;
+}
+
+/** \generated */
+unsigned DecltypeSpecifierAST::lastToken() const
+{
+    if (rparen_token)
+        return rparen_token + 1;
+    if (expression)
+        if (unsigned candidate = expression->lastToken())
+            return candidate;
+    if (lparen_token)
+        return lparen_token + 1;
+    if (decltype_token)
+        return decltype_token + 1;
+    return 1;
+}
+

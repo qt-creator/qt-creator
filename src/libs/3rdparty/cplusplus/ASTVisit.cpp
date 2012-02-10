@@ -78,6 +78,14 @@ void TypeofSpecifierAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void DecltypeSpecifierAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(expression, visitor);
+    }
+    visitor->endVisit(this);
+}
+
 void DeclaratorAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

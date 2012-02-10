@@ -84,6 +84,13 @@ public:
         return __ast;
     }
 
+    DecltypeSpecifierAST *DecltypeSpecifier(ExpressionAST *expression = 0)
+    {
+        DecltypeSpecifierAST *__ast = new (&pool) DecltypeSpecifierAST;
+        __ast->expression = expression;
+        return __ast;
+    }
+
     DeclaratorAST *Declarator(SpecifierListAST *attribute_list = 0, PtrOperatorListAST *ptr_operator_list = 0, CoreDeclaratorAST *core_declarator = 0, PostfixDeclaratorListAST *postfix_declarator_list = 0, SpecifierListAST *post_attribute_list = 0, ExpressionAST *initializer = 0)
     {
         DeclaratorAST *__ast = new (&pool) DeclaratorAST;

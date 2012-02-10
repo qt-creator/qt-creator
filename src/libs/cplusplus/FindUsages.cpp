@@ -2031,6 +2031,15 @@ bool FindUsages::visit(TypeofSpecifierAST *ast)
     return false;
 }
 
+bool FindUsages::visit(DecltypeSpecifierAST *ast)
+{
+    // unsigned typeof_token = ast->typeof_token;
+    // unsigned lparen_token = ast->lparen_token;
+    this->expression(ast->expression);
+    // unsigned rparen_token = ast->rparen_token;
+    return false;
+}
+
 bool FindUsages::visit(ClassSpecifierAST *ast)
 {
     // unsigned classkey_token = ast->classkey_token;

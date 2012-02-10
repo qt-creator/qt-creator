@@ -136,6 +136,25 @@ bool ASTMatcher::match(TypeofSpecifierAST *node, TypeofSpecifierAST *pattern)
     return true;
 }
 
+bool ASTMatcher::match(DecltypeSpecifierAST *node, DecltypeSpecifierAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->decltype_token = node->decltype_token;
+
+    pattern->lparen_token = node->lparen_token;
+
+    if (! pattern->expression)
+        pattern->expression = node->expression;
+    else if (! AST::match(node->expression, pattern->expression, this))
+        return false;
+
+    pattern->rparen_token = node->rparen_token;
+
+    return true;
+}
+
 bool ASTMatcher::match(DeclaratorAST *node, DeclaratorAST *pattern)
 {
     (void) node;

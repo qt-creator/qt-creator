@@ -80,6 +80,14 @@ bool TypeofSpecifierAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool DecltypeSpecifierAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (DecltypeSpecifierAST *_other = pattern->asDecltypeSpecifier())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
 bool DeclaratorAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (DeclaratorAST *_other = pattern->asDeclarator())

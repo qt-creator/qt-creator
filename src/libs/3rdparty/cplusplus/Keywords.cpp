@@ -788,7 +788,7 @@ static inline int classify8(const char *s, bool q, bool x) {
             if (s[5] == 'y') {
               if (s[6] == 'p') {
                 if (s[7] == 'e') {
-                  return T___TYPEOF;
+                  return T_DECLTYPE;
                 }
               }
             }
@@ -1102,6 +1102,23 @@ static inline int classify10(const char *s, bool q, bool) {
                   if (s[8] == '_') {
                     if (s[9] == '_') {
                       return T___INLINE__;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      else if (s[2] == 'd') {
+        if (s[3] == 'e') {
+          if (s[4] == 'c') {
+            if (s[5] == 'l') {
+              if (s[6] == 't') {
+                if (s[7] == 'y') {
+                  if (s[8] == 'p') {
+                    if (s[9] == 'e') {
+                      return T___DECLTYPE;
                     }
                   }
                 }

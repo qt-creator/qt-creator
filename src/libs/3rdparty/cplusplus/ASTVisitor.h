@@ -103,6 +103,7 @@ public:
     virtual bool visit(DeclarationStatementAST *) { return true; }
     virtual bool visit(DeclaratorAST *) { return true; }
     virtual bool visit(DeclaratorIdAST *) { return true; }
+    virtual bool visit(DecltypeSpecifierAST *) { return true; }
     virtual bool visit(DeleteExpressionAST *) { return true; }
     virtual bool visit(DestructorNameAST *) { return true; }
     virtual bool visit(DoStatementAST *) { return true; }
@@ -245,6 +246,7 @@ public:
     virtual void endVisit(DeclarationStatementAST *) {}
     virtual void endVisit(DeclaratorAST *) {}
     virtual void endVisit(DeclaratorIdAST *) {}
+    virtual void endVisit(DecltypeSpecifierAST *) {}
     virtual void endVisit(DeleteExpressionAST *) {}
     virtual void endVisit(DestructorNameAST *) {}
     virtual void endVisit(DoStatementAST *) {}

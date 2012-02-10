@@ -2799,6 +2799,12 @@ bool Bind::visit(TypeofSpecifierAST *ast)
     return false;
 }
 
+bool Bind::visit(DecltypeSpecifierAST *ast)
+{
+    _type = this->expression(ast->expression);
+    return false;
+}
+
 bool Bind::visit(ClassSpecifierAST *ast)
 {
     // unsigned classkey_token = ast->classkey_token;
