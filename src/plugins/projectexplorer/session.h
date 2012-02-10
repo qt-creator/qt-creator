@@ -84,7 +84,7 @@ public:
     bool loadSession(const QString &session);
 
     bool save();
-    bool clear();
+    void closeAllProjects();
 
     void addProject(Project *project);
     void addProjects(const QList<Project*> &projects);

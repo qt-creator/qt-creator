@@ -372,31 +372,15 @@ bool SessionManager::save()
     return result;
 }
 
-
 /*!
-  \fn bool SessionManager::clear()
+  \fn bool SessionManager::closeAllProjects()
 
-  Returns whether the clear operation has been not cancelled & all projects could be closed.
+  Closes all projects
   */
-bool SessionManager::clear()
+void SessionManager::closeAllProjects()
 {
-    if (debug)
-        qDebug() << "SessionManager - clearing session ...";
-
-    bool success = ICore::editorManager()->closeAllEditors();
-
-    if (success) {
-        if (debug)
-            qDebug() << "SessionManager - Removing projects ...";
-
-        setStartupProject(0);
-        removeProjects(projects());
-    }
-
-    if (debug)
-        qDebug() << "SessionManager - clearing session result is " << success;
-
-    return success;
+    setStartupProject(0);
+    removeProjects(projects());
 }
 
 const QList<Project *> &SessionManager::projects() const
