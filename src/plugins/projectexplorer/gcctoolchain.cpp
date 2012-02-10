@@ -898,7 +898,7 @@ QList<Utils::FileName> MingwToolChain::suggestedMkspecList() const
                 << Utils::FileName::fromString(QLatin1String("win32-g++-cross"))
                 << Utils::FileName::fromString(QLatin1String("unsupported/win32-g++-cross"));
 #else
-    return Utils::FileName();
+    return QList<Utils::FileName>();
 #endif
 }
 
