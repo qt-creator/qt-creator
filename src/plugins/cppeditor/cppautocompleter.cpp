@@ -63,7 +63,7 @@ bool CppAutoCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
            || ch == QLatin1Char('\'')
            || ch == QLatin1Char('"')))
         return false;
-    else if (isInComment(cursor))
+    else if (isInCommentHelper(cursor))
         return false;
 
     return true;
@@ -71,30 +71,15 @@ bool CppAutoCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
 
 bool CppAutoCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor) const
 {
-    const Token tk = SimpleLexer::tokenAt(cursor.block().text(), cursor.positionInBlock(),
-                                          BackwardsScanner::previousBlockState(cursor.block()));
+    Token token;
 
-    // XXX Duplicated from CPPEditor::isInComment to avoid tokenizing twice
-    if (tk.isComment()) {
+    if (isInCommentHelper(cursor, &token))
+        return false;
+
+    if (token.is(T_STRING_LITERAL) || token.is(T_WIDE_STRING_LITERAL)
+            || token.is(T_CHAR_LITERAL) || token.is(T_WIDE_CHAR_LITERAL)) {
         const unsigned pos = cursor.selectionEnd() - cursor.block().position();
-
-        if (pos == tk.end()) {
-            if (tk.is(T_CPP_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))
-                return false;
-
-            const int state = cursor.block().userState() & 0xFF;
-            if (state > 0)
-                return false;
-        }
-
-        if (pos < tk.end())
-            return false;
-    }
-    else if (tk.is(T_STRING_LITERAL) || tk.is(T_WIDE_STRING_LITERAL)
-        || tk.is(T_CHAR_LITERAL) || tk.is(T_WIDE_CHAR_LITERAL)) {
-
-        const unsigned pos = cursor.selectionEnd() - cursor.block().position();
-        if (pos <= tk.end())
+        if (pos <= token.end())
             return false;
     }
 
@@ -103,26 +88,7 @@ bool CppAutoCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor
 
 bool CppAutoCompleter::isInComment(const QTextCursor &cursor) const
 {
-    const Token tk = SimpleLexer::tokenAt(cursor.block().text(), cursor.positionInBlock(),
-                                          BackwardsScanner::previousBlockState(cursor.block()));
-
-    if (tk.isComment()) {
-        const unsigned pos = cursor.selectionEnd() - cursor.block().position();
-
-        if (pos == tk.end()) {
-            if (tk.is(T_CPP_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))
-                return true;
-
-            const int state = cursor.block().userState() & 0xFF;
-            if (state > 0)
-                return true;
-        }
-
-        if (pos < tk.end())
-            return true;
-    }
-
-    return false;
+    return isInCommentHelper(cursor);
 }
 
 QString CppAutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
@@ -138,4 +104,44 @@ QString CppAutoCompleter::insertParagraphSeparator(const QTextCursor &cursor) co
 {
     MatchingText m;
     return m.insertParagraphSeparator(cursor);
+}
+
+bool CppAutoCompleter::isInCommentHelper(const QTextCursor &cursor, Token *retToken) const
+{
+    SimpleLexer tokenize;
+    tokenize.setQtMocRunEnabled(false);
+    tokenize.setObjCEnabled(false);
+    tokenize.setCxx0xEnabled(true);
+
+    const int prevState = BackwardsScanner::previousBlockState(cursor.block()) & 0xFF;
+    const QList<Token> tokens = tokenize(cursor.block().text(), prevState);
+
+    const unsigned pos = cursor.selectionEnd() - cursor.block().position();
+
+    if (tokens.isEmpty() || pos < tokens.first().begin())
+        return prevState > 0;
+
+    if (pos >= tokens.last().end()) {
+        const Token tk = tokens.last();
+        if (tk.is(T_CPP_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))
+            return true;
+        return tk.isComment() && (cursor.block().userState() & 0xFF);
+    }
+
+    Token tk = tokenAtPosition(tokens, pos);
+
+    if (retToken)
+        *retToken = tk;
+
+    return tk.isComment();
+}
+
+const Token CppAutoCompleter::tokenAtPosition(const QList<Token> &tokens, const unsigned pos) const
+{
+    for (int i = tokens.size() - 1; i >= 0; --i) {
+        const Token tk = tokens.at(i);
+        if (pos >= tk.begin() && pos < tk.end())
+            return tk;
+    }
+    return Token();
 }

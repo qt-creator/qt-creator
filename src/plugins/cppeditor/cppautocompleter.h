@@ -34,6 +34,7 @@
 #define CPPAUTOCOMPLETER_H
 
 #include <texteditor/autocompleter.h>
+#include <Token.h>
 
 namespace CppEditor {
 namespace Internal {
@@ -53,6 +54,10 @@ public:
                                         QChar la,
                                         int *skippedChars) const;
     virtual QString insertParagraphSeparator(const QTextCursor &cursor) const;
+
+private:
+    bool isInCommentHelper(const QTextCursor &cursor, CPlusPlus::Token *retToken = 0) const;
+    const CPlusPlus::Token tokenAtPosition(const QList<CPlusPlus::Token> &tokens, const unsigned pos) const;
 };
 
 } // Internal
