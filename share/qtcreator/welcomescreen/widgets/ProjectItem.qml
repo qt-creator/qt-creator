@@ -34,7 +34,7 @@ import QtQuick 1.0
 
 Item {
     id: projectItem
-    width: 400
+    width: 480
     height: 32
 
     property alias projectName: projectNameText.text
@@ -68,5 +68,6 @@ Item {
         anchors.left: parent.left
         anchors.leftMargin: 8
         font: fonts.italicDescription
+        elide: Text.ElideRight
     }
 }
