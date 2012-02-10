@@ -33,6 +33,7 @@
 #include "procinterrupt.h"
 #include "debuggerconstants.h"
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QProcess> // makes kill visible on Windows.
 #include <QtCore/QFile>
 #include <QtCore/QDir>
