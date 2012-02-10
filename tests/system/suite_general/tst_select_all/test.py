@@ -25,8 +25,7 @@ def main():
         selectFromFileDialog(currentFile)
         editor = waitForObject("{type='%s' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}"
                                % filesAndEditors[currentFile], 20000)
-        # needed on Mac because of QTCREATORBUG-6918
-        nativeMouseClick(editor.mapToGlobal(QPoint(50, 50)).x, editor.mapToGlobal(QPoint(50, 50)).y, Qt.LeftButton)
+        JIRA.performWorkaroundIfStillOpen(6918, JIRA.Bug.CREATOR, editor)
         for key in ["<Up>", "<Down>", "<Left>", "<Right>"]:
             test.log("Selecting everything")
             invokeMenuItem("Edit", "Select All")

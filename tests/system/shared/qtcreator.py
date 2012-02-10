@@ -22,6 +22,7 @@ source("../../shared/editor_utils.py")
 source("../../shared/project_explorer.py")
 source("../../shared/hook_utils.py")
 source("../../shared/debugger.py")
+source("../../shared/workarounds.py")
 
 def waitForCleanShutdown(timeOut=10):
     appCtxt = currentApplicationContext()
