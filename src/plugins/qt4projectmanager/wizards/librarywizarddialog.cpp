@@ -85,9 +85,9 @@ static const PluginBaseClasses *findPluginBaseClass(const QString &name)
 
 // return dependencies of a plugin as a line ready for the 'QT=' line in a pro
 // file
-static QString pluginDependencies(const PluginBaseClasses *plb)
+static QStringList pluginDependencies(const PluginBaseClasses *plb)
 {
-    QString dependencies;
+    QStringList dependencies;
     const QChar blank = QLatin1Char(' ');
     // Find the module names and convert to ids
     QStringList pluginModules= plb->dependentModules ?
@@ -95,9 +95,7 @@ static QString pluginDependencies(const PluginBaseClasses *plb)
                                QStringList();
     pluginModules.push_back(QLatin1String(plb->module));
     foreach (const QString &module, pluginModules) {
-        if (!dependencies.isEmpty())
-            dependencies += blank;
-        dependencies += ModulesPage::idOfModule(module);
+        dependencies.append(ModulesPage::idOfModule(module));
     }
     return dependencies;
 }
@@ -303,8 +301,8 @@ QtProjectParameters LibraryWizardDialog::parameters() const
         }
     } else {
         // Modules from modules page
-        rc.selectedModules = selectedModules();
-        rc.deselectedModules = deselectedModules();
+        rc.selectedModules = selectedModulesList();
+        rc.deselectedModules = deselectedModulesList();
     }
     return rc;
 }

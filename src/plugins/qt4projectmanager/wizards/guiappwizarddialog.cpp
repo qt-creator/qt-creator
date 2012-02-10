@@ -98,10 +98,11 @@ QtProjectParameters GuiAppWizardDialog::projectParameters() const
 {
     QtProjectParameters rc;
     rc.type =  QtProjectParameters::GuiApp;
+    rc.flags |= QtProjectParameters::WidgetsRequiredFlag;
     rc.fileName = projectName();
     rc.path = path();
-    rc.selectedModules = selectedModules();
-    rc.deselectedModules = deselectedModules();
+    rc.selectedModules = selectedModulesList();
+    rc.deselectedModules = deselectedModulesList();
     return rc;
 }
 

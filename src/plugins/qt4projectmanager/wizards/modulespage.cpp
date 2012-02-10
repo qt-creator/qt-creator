@@ -91,12 +91,12 @@ QString ModulesPage::idOfModule(const QString &module)
     return QString();
 }
 
-QString ModulesPage::selectedModules() const
+QStringList ModulesPage::selectedModulesList() const
 {
     return modules(true);
 }
 
-QString ModulesPage::deselectedModules() const
+QStringList ModulesPage::deselectedModulesList() const
 {
     return modules(false);
 }
@@ -115,7 +115,7 @@ void ModulesPage::setModuleEnabled(const QString &module, bool enabled) const
     checkBox->setEnabled(enabled);
 }
 
-QString ModulesPage::modules(bool selected) const
+QStringList ModulesPage::modules(bool selected) const
 {
     QStringList modules;
     foreach (const QString &module, QtModulesInfo::modules()) {
@@ -123,5 +123,5 @@ QString ModulesPage::modules(bool selected) const
             && selected == field(module).toBool())
             modules << module;
     }
-    return modules.join(QString(QLatin1Char(' ')));
+    return modules;
 }

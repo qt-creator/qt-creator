@@ -51,6 +51,8 @@ QString createMacro(const QString &name, const QString &suffix);
 
 struct QtProjectParameters {
     enum Type { ConsoleApp, GuiApp, StaticLibrary, SharedLibrary, Qt4Plugin, EmptyProject };
+    enum QtVersionSupport { SupportQt4And5, SupportQt4Only, SupportQt5Only };
+    enum Flags { WidgetsRequiredFlag = 0x1 };
 
     QtProjectParameters();
     // Return project path as "path/name"
@@ -64,11 +66,13 @@ struct QtProjectParameters {
     static QString libraryMacro(const QString &projectName);
 
     Type type;
+    unsigned flags;
+    QtVersionSupport qtVersionSupport;
     QString fileName;
     QString target;
     QString path;
-    QString selectedModules;
-    QString deselectedModules;
+    QStringList selectedModules;
+    QStringList deselectedModules;
     QString targetDirectory;
 };
 

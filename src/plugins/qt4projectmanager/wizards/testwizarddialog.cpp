@@ -91,8 +91,8 @@ QtProjectParameters TestWizardDialog::projectParameters() const
     rc.path = path();
     // Name binary "tst_xx" after the main source
     rc.target = QFileInfo(m_testPage->sourcefileName()).baseName();
-    rc.selectedModules = selectedModules();
-    rc.deselectedModules = deselectedModules();
+    rc.selectedModules = selectedModulesList();
+    rc.deselectedModules = deselectedModulesList();
     return rc;
 }
 

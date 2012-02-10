@@ -260,35 +260,37 @@ int BaseQt4ProjectWizardDialog::addTargetSetupPage(QSet<QString> targets, bool m
     return id;
 }
 
-QString BaseQt4ProjectWizardDialog::selectedModules() const
+QStringList BaseQt4ProjectWizardDialog::selectedModulesList() const
 {
-    return m_modulesPage ? m_modulesPage->selectedModules() : m_selectedModules;
+    return m_modulesPage ? m_modulesPage->selectedModulesList() : m_selectedModules;
 }
 
 void BaseQt4ProjectWizardDialog::setSelectedModules(const QString &modules, bool lock)
 {
+    const QStringList modulesList = modules.split(QLatin1Char(' '));
     if (m_modulesPage) {
-        foreach(const QString &module, modules.split(QLatin1Char(' '))) {
+        foreach (const QString &module, modulesList) {
             m_modulesPage->setModuleSelected(module, true);
             m_modulesPage->setModuleEnabled(module, !lock);
         }
     } else {
-        m_selectedModules = modules;
+        m_selectedModules = modulesList;
     }
 }
 
-QString BaseQt4ProjectWizardDialog::deselectedModules() const
+QStringList BaseQt4ProjectWizardDialog::deselectedModulesList() const
 {
-    return m_modulesPage ? m_modulesPage->deselectedModules() : m_deselectedModules;
+    return m_modulesPage ? m_modulesPage->deselectedModulesList() : m_deselectedModules;
 }
 
 void BaseQt4ProjectWizardDialog::setDeselectedModules(const QString &modules)
 {
+    const QStringList modulesList = modules.split(QLatin1Char(' '));
     if (m_modulesPage) {
-        foreach(const QString &module, modules.split(QLatin1Char(' ')))
+        foreach (const QString &module, modulesList)
             m_modulesPage->setModuleSelected(module, false);
     } else {
-        m_deselectedModules = modules;
+        m_deselectedModules = modulesList;
     }
 }
 

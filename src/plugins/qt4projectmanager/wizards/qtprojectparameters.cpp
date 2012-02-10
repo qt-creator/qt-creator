@@ -44,7 +44,7 @@ namespace Internal {
 
 // ----------- QtProjectParameters
 QtProjectParameters::QtProjectParameters()
-  : type(ConsoleApp)
+  : type(ConsoleApp), flags(WidgetsRequiredFlag), qtVersionSupport(SupportQt4And5)
 {
 }
 
@@ -57,12 +57,37 @@ QString QtProjectParameters::projectPath() const
     return rc;
 }
 
+// Write out a QT module line.
+static inline void writeQtModulesList(QTextStream &str,
+                                      const QStringList &modules,
+                                      char op ='+')
+{
+    if (const int size = modules.size()) {
+        str << "QT       " << op << "= ";
+        for (int i =0; i < size; ++i) {
+            if (i)
+                str << ' ';
+            str << modules.at(i);
+        }
+        str << "\n\n";
+    }
+}
+
 void QtProjectParameters::writeProFile(QTextStream &str) const
 {
-    if (!selectedModules.isEmpty())
-        str << "QT       += " << selectedModules << "\n\n";
-    if (!deselectedModules.isEmpty())
-        str << "QT       -= " << deselectedModules << "\n\n";
+    QStringList allSelectedModules = selectedModules;
+    // Handling of widgets module.
+    const bool addWidgetsModule =
+        (flags & WidgetsRequiredFlag) && qtVersionSupport != SupportQt4Only
+        && !allSelectedModules.contains(QLatin1String("widgets"));
+
+    if (addWidgetsModule && qtVersionSupport == SupportQt5Only)
+        allSelectedModules.append(QLatin1String("widgets"));
+    writeQtModulesList(str, allSelectedModules, '+');
+    writeQtModulesList(str, deselectedModules, '-');
+    if (addWidgetsModule && qtVersionSupport == SupportQt4And5)
+        str << "greaterThan(QT_MAJOR_VERSION, 4): QT += widgets\n\n";
+
     const QString &effectiveTarget = target.isEmpty() ? fileName : target;
     if (!effectiveTarget.isEmpty())
         str << "TARGET = " <<  effectiveTarget << '\n';

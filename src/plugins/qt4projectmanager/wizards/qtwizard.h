@@ -134,10 +134,10 @@ public:
 
     static QSet<QString> desktopTarget();
 
-    QString selectedModules() const;
+    QStringList selectedModulesList() const;
     void setSelectedModules(const QString &, bool lock = false);
 
-    QString deselectedModules() const;
+    QStringList deselectedModulesList() const;
     void setDeselectedModules(const QString &);
 
     bool writeUserFile(const QString &proFileName) const;
@@ -152,8 +152,8 @@ private:
 
     ModulesPage *m_modulesPage;
     TargetSetupPage *m_targetSetupPage;
-    QString m_selectedModules;
-    QString m_deselectedModules;
+    QStringList m_selectedModules;
+    QStringList m_deselectedModules;
     QSet<QString> m_targets;
 };
 

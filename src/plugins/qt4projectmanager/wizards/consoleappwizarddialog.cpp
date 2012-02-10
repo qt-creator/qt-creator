@@ -68,8 +68,8 @@ QtProjectParameters ConsoleAppWizardDialog::parameters() const
     rc.fileName = projectName();
     rc.path = path();
 
-    rc.selectedModules = selectedModules();
-    rc.deselectedModules = deselectedModules();
+    rc.selectedModules = selectedModulesList();
+    rc.deselectedModules = deselectedModulesList();
     return rc;
 }
 

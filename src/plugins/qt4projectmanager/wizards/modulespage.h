@@ -34,6 +34,7 @@
 #define MODULESPAGE_H
 
 #include <QtCore/QMap>
+#include <QtCore/QStringList>
 #include <QtGui/QWizard>
 
 QT_BEGIN_NAMESPACE
@@ -49,8 +50,10 @@ class ModulesPage : public QWizardPage
 
 public:
     explicit ModulesPage(QWidget* parent = 0);
-    QString selectedModules() const;
-    QString deselectedModules() const;
+
+    QStringList selectedModulesList() const;
+    QStringList deselectedModulesList() const;
+
     void setModuleSelected(const QString &module, bool selected = true) const;
     void setModuleEnabled(const QString &module, bool enabled = true) const;
 
@@ -59,7 +62,7 @@ public:
 
 private:
     QMap<QString, QCheckBox*> m_moduleCheckBoxMap;
-    QString modules(bool selected = true) const;
+    QStringList modules(bool selected = true) const;
 };
 
 } // namespace Internal
