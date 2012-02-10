@@ -43,7 +43,7 @@ void QtSingleApplication::sysInit(const QString &appId)
     actWin = 0;
     firstPeer = new QtLocalPeer(this, appId);
     connect(firstPeer, SIGNAL(messageReceived(const QString&)), SIGNAL(messageReceived(const QString&)));
-    pidPeer = new QtLocalPeer(this, appId + QLatin1Char('-') + QString::number(::getpid(), 10));
+    pidPeer = new QtLocalPeer(this, appId + QLatin1Char('-') + QString::number(QCoreApplication::applicationPid(), 10));
     connect(pidPeer, SIGNAL(messageReceived(const QString&)), SIGNAL(messageReceived(const QString&)));
 }
 
