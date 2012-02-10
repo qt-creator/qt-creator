@@ -86,7 +86,7 @@ void RemoteLinuxUsedPortsGatherer::start(const Utils::SshConnection::Ptr &connec
         SLOT(handleRemoteStdErr(QByteArray)));
     QString procFilePath;
     int addressLength;
-    if (connection->ipProtocolVersion() == QAbstractSocket::IPv4Protocol) {
+    if (connection->connectionInfo().localAddress.protocol() == QAbstractSocket::IPv4Protocol) {
         procFilePath = QLatin1String("/proc/net/tcp");
         addressLength = 8;
     } else {

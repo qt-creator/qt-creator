@@ -41,7 +41,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
-#include <QtNetwork/QAbstractSocket>
+#include <QtNetwork/QHostAddress>
 
 namespace Utils {
 class SftpChannel;
@@ -71,6 +71,19 @@ public:
 QTCREATOR_UTILS_EXPORT bool operator==(const SshConnectionParameters &p1, const SshConnectionParameters &p2);
 QTCREATOR_UTILS_EXPORT bool operator!=(const SshConnectionParameters &p1, const SshConnectionParameters &p2);
 
+class QTCREATOR_UTILS_EXPORT SshConnectionInfo
+{
+public:
+    SshConnectionInfo() : localPort(0), peerPort(0) {}
+    SshConnectionInfo(const QHostAddress &la, quint16 lp, const QHostAddress &pa, quint16 pp)
+        : localAddress(la), localPort(lp), peerAddress(pa), peerPort(pp) {}
+
+    QHostAddress localAddress;
+    quint16 localPort;
+    QHostAddress peerAddress;
+    quint16 peerPort;
+};
+
 class QTCREATOR_UTILS_EXPORT SshConnection : public QObject
 {
     Q_OBJECT
@@ -87,7 +100,7 @@ public:
     SshError errorState() const;
     QString errorString() const;
     SshConnectionParameters connectionParameters() const;
-    QAbstractSocket::NetworkLayerProtocol ipProtocolVersion() const;
+    SshConnectionInfo connectionInfo() const;
     ~SshConnection();
 
     QSharedPointer<SshRemoteProcess> createRemoteProcess(const QByteArray &command);

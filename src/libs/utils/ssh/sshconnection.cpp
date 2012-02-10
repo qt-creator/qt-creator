@@ -167,9 +167,12 @@ SshConnectionParameters SshConnection::connectionParameters() const
     return d->m_connParams;
 }
 
-QAbstractSocket::NetworkLayerProtocol SshConnection::ipProtocolVersion() const
+SshConnectionInfo SshConnection::connectionInfo() const
 {
-    return d->m_socket->localAddress().protocol();
+    QTC_ASSERT(state() == Connected, return SshConnectionInfo());
+
+    return SshConnectionInfo(d->m_socket->localAddress(), d->m_socket->localPort(),
+        d->m_socket->peerAddress(), d->m_socket->peerPort());
 }
 
 SshConnection::~SshConnection()
