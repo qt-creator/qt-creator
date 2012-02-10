@@ -209,8 +209,9 @@ void AbstractRemoteLinuxDebugSupport::startExecution()
 
     const QString remoteCommandLine = (d->qmlDebugging && !d->cppDebugging)
         ? QString::fromLatin1("%1 %2 %3").arg(runner()->commandPrefix()).arg(remoteExe).arg(args)
-        : QString::fromLatin1("%1 gdbserver :%2 %3 %4").arg(runner()->commandPrefix())
-              .arg(d->gdbServerPort).arg(remoteExe).arg(args);
+        : QString::fromLatin1("%1 gdbserver %5:%2 %3 %4").arg(runner()->commandPrefix())
+              .arg(d->gdbServerPort).arg(remoteExe).arg(args)
+              .arg(runner()->connection()->connectionInfo().peerAddress.toString());
     connect(runner(), SIGNAL(remoteProcessFinished(qint64)),
         SLOT(handleRemoteProcessFinished(qint64)));
     runner()->startExecution(remoteCommandLine.toUtf8());
