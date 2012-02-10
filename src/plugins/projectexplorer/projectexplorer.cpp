@@ -356,9 +356,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             this, SLOT(startupProjectChanged()));
     connect(d->m_session, SIGNAL(dependencyChanged(ProjectExplorer::Project*,ProjectExplorer::Project*)),
             this, SLOT(updateActions()));
-    connect(d->m_session, SIGNAL(sessionLoaded()),
+    connect(d->m_session, SIGNAL(sessionLoaded(QString)),
             this, SLOT(updateActions()));
-    connect(d->m_session, SIGNAL(sessionLoaded()),
+    connect(d->m_session, SIGNAL(sessionLoaded(QString)),
             this, SLOT(updateWelcomePage()));
 
     d->m_proWindow = new ProjectWindow;

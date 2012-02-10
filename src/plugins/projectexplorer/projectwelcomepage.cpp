@@ -52,7 +52,7 @@ SessionModel::SessionModel(SessionManager *manager, QObject *parent)
     roleNames[ActiveSessionRole] = "activeSession";
     roleNames[LastSessionRole] = "lastSession";
     setRoleNames(roleNames);
-    connect(manager, SIGNAL(sessionLoaded()), SLOT(resetSessions()));
+    connect(manager, SIGNAL(sessionLoaded(QString)), SLOT(resetSessions()));
 }
 
 int SessionModel::rowCount(const QModelIndex &) const

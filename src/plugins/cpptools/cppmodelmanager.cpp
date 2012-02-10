@@ -685,7 +685,7 @@ CppModelManager::CppModelManager(QObject *parent)
     connect(session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project *)),
             this, SLOT(onAboutToRemoveProject(ProjectExplorer::Project *)));
 
-    connect(session, SIGNAL(aboutToUnloadSession()),
+    connect(session, SIGNAL(aboutToUnloadSession(QString)),
             this, SLOT(onAboutToUnloadSession()));
 
     qRegisterMetaType<CPlusPlus::Document::Ptr>("CPlusPlus::Document::Ptr");

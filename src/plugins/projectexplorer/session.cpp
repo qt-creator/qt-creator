@@ -52,7 +52,6 @@
 
 #include <utils/listutils.h>
 #include <utils/qtcassert.h>
-#include <utils/persistentsettings.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -119,7 +118,7 @@ SessionManager::SessionManager(QObject *parent)
 
 SessionManager::~SessionManager()
 {
-    emit aboutToUnloadSession();
+    emit aboutToUnloadSession(m_sessionName);
 }
 
 
@@ -301,197 +300,6 @@ void SessionManager::removeProject(Project *project)
         return;
     }
     removeProjects(QList<Project*>() << project);
-}
-
-bool SessionManager::createImpl(const QString &fileName)
-{
-    Q_ASSERT(!fileName.isEmpty());
-
-    if (debug)
-        qDebug() << "SessionManager - creating new session " << fileName << " ...";
-
-    bool success = true;
-    if (isDefaultVirgin()) {
-        // do not save initial and virgin default session
-    } else if (!save() || !clear()) {
-        success = false;
-    }
-
-    if (success) {
-        emit aboutToUnloadSession();
-        m_startupProject = 0;
-        m_failedProjects.clear();
-        m_depMap.clear();
-        m_values.clear();
-        const QString &sessionName = sessionNameFromFileName(fileName);
-        emit aboutToLoadSession(sessionName);
-        m_sessionName = sessionName;
-        updateWindowTitle();
-        setStartupProject(0);
-
-        if (!isDefaultVirgin()) {
-            ModeManager::activateMode(QLatin1String(Core::Constants::MODE_EDIT));
-            ModeManager::setFocusToCurrentMode();
-        }
-
-        emit sessionLoaded();
-    }
-
-    m_virginSession = true;
-
-    if (debug)
-        qDebug() << "SessionManager - creating new session returns " << success;
-
-    return success;
-}
-
-bool SessionManager::loadImpl(const QString &fileName)
-{
-    Q_ASSERT(!fileName.isEmpty());
-
-    if (debug)
-        qDebug() << "SessionManager - restoring session " << fileName << " ...";
-
-    if (isDefaultVirgin()) {
-        // do not save initial and virgin default session
-    } else if (!save() || !clear()) {
-        m_virginSession = false;
-        if (debug)
-            qDebug() << "SessionManager - restoring session returned " << false;
-        return false;
-    }
-
-    m_virginSession = false;
-
-    emit aboutToUnloadSession();
-    m_startupProject = 0;
-    m_failedProjects.clear();
-    m_depMap.clear();
-    m_values.clear();
-    const QString &sessionName = sessionNameFromFileName(fileName);
-    emit aboutToLoadSession(sessionName);
-    m_sessionName = sessionName;
-    updateWindowTitle();
-
-    PersistentSettingsReader reader;
-    if (!reader.load(fileName)) {
-        QMessageBox::warning(0, tr("Error while restoring session"),
-                                tr("Could not restore session %1").arg(fileName));
-        if (debug)
-            qDebug() << "SessionManager - restoring session returned " << false;
-
-        return false;
-    }
-
-    ICore::progressManager()->addTask(m_future.future(), tr("Session"),
-       QLatin1String("ProjectExplorer.SessionFile.Load"));
-
-    const QStringList &keys = reader.restoreValue(QLatin1String("valueKeys")).toStringList();
-    foreach (const QString &key, keys) {
-        QVariant value = reader.restoreValue(QLatin1String("value-") + key);
-        m_values.insert(key, value);
-    }
-
-    QStringList fileList =
-        reader.restoreValue(QLatin1String("ProjectList")).toStringList();
-    int openEditorsCount = reader.restoreValue(QLatin1String("OpenEditors")).toInt();
-
-    m_future.setProgressRange(0, fileList.count() + openEditorsCount + 2);
-    m_future.setProgressValue(1);
-
-    // indirectly adds projects to session
-    // Keep projects that failed to load in the session!
-    m_failedProjects = fileList;
-    if (!fileList.isEmpty()) {
-        QString errors;
-        QList<Project *> projects = ProjectExplorerPlugin::instance()->openProjects(fileList, &errors);
-        if (!errors.isEmpty())
-            QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to open project"), errors);
-        foreach (Project *p, projects)
-            m_failedProjects.removeAll(p->file()->fileName());
-    }
-
-    sessionLoadingProgress();
-
-    // convert the relative paths in the dependency map to absolute paths
-    QMap<QString, QVariant> depMap = reader.restoreValue(QLatin1String("ProjectDependencies")).toMap();
-    QMap<QString, QVariant>::const_iterator i = depMap.constBegin();
-    while (i != depMap.constEnd()) {
-        const QString &key = i.key();
-        if (m_failedProjects.contains(key))
-            continue;
-        QStringList values;
-        foreach (const QString &value, i.value().toStringList()) {
-            if (!m_failedProjects.contains(value))
-                values << value;
-        }
-        m_depMap.insert(key, values);
-        ++i;
-    }
-
-    // find and set the startup project
-    const QString startupProject = reader.restoreValue(QLatin1String("StartupProject")).toString();
-    if (!startupProject.isEmpty()) {
-        const QString startupProjectPath = startupProject;
-        foreach (Project *pro, m_projects) {
-            if (QDir::cleanPath(pro->file()->fileName()) == startupProjectPath) {
-                m_startupProject = pro;
-                break;
-            }
-        }
-        if (!m_startupProject)
-            qWarning() << "Could not find startup project" << startupProjectPath;
-    }
-
-    const QVariant &editorsettings = reader.restoreValue(QLatin1String("EditorSettings"));
-    if (editorsettings.isValid()) {
-        connect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
-                this, SLOT(sessionLoadingProgress()));
-        ICore::editorManager()->restoreState(
-            QByteArray::fromBase64(editorsettings.toByteArray()));
-        disconnect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
-                   this, SLOT(sessionLoadingProgress()));
-    }
-
-    m_future.reportFinished();
-    m_future = QFutureInterface<void>();
-
-    // we emit this signal here
-    emit startupProjectChanged(m_startupProject);
-
-    QStringList failedProjects = m_failedProjects;
-    if (!failedProjects.isEmpty()) {
-        QString fileList =
-            QDir::toNativeSeparators(failedProjects.join(QLatin1String("<br>")));
-        QMessageBox * box = new QMessageBox(QMessageBox::Warning,
-                                            tr("Failed to restore project files"),
-                                            tr("Could not restore the following project files:<br><b>%1</b>").
-                                            arg(fileList));
-        QPushButton * keepButton = new QPushButton(tr("Keep projects in Session"), box);
-        QPushButton * removeButton = new QPushButton(tr("Remove projects from Session"), box);
-        box->addButton(keepButton, QMessageBox::AcceptRole);
-        box->addButton(removeButton, QMessageBox::DestructiveRole);
-
-        box->exec();
-
-        if (box->clickedButton() == removeButton)
-            m_failedProjects.clear();
-    }
-
-    // restore the active mode
-    QString modeIdentifier = value(QLatin1String("ActiveMode")).toString();
-    if (modeIdentifier.isEmpty())
-        modeIdentifier = QLatin1String(Core::Constants::MODE_EDIT);
-
-    ModeManager::activateMode(modeIdentifier);
-    ModeManager::setFocusToCurrentMode();
-
-    emit sessionLoaded();
-
-    if (debug)
-        qDebug() << "SessionManager - restoring session returned " << true;
-
-    return true;
 }
 
 bool SessionManager::save()
@@ -860,13 +668,6 @@ QString SessionManager::sessionNameToFileName(const QString &session) const
     return ICore::userResourcePath() + QLatin1Char('/') + session + QLatin1String(".qws");
 }
 
-QString SessionManager::sessionNameFromFileName(const QString &fileName) const
-{
-    const int slash = fileName.lastIndexOf(QLatin1Char('/'));
-    Q_ASSERT(slash != -1 && fileName.endsWith(QLatin1String(".qws")));
-    return fileName.mid(slash + 1, fileName.length() - slash - 5); // Exclude .qws
-}
-
 /*!
     \brief Just creates a new session (Does not actually create the file).
 */
@@ -892,7 +693,6 @@ bool SessionManager::renameSession(const QString &original, const QString &newNa
 /*!
      \brief Deletes session name from session list and file from disk.
 */
-
 bool SessionManager::deleteSession(const QString &session)
 {
     if (!m_sessions.contains(session))
@@ -919,9 +719,101 @@ bool SessionManager::cloneSession(const QString &original, const QString &clone)
     return false;
 }
 
+void SessionManager::restoreValues(const Utils::PersistentSettingsReader &reader)
+{
+    const QStringList &keys = reader.restoreValue(QLatin1String("valueKeys")).toStringList();
+    foreach (const QString &key, keys) {
+        QVariant value = reader.restoreValue(QLatin1String("value-") + key);
+        m_values.insert(key, value);
+    }
+}
+
+void SessionManager::restoreDependencies(const Utils::PersistentSettingsReader &reader)
+{
+    QMap<QString, QVariant> depMap = reader.restoreValue(QLatin1String("ProjectDependencies")).toMap();
+    QMap<QString, QVariant>::const_iterator i = depMap.constBegin();
+    while (i != depMap.constEnd()) {
+        const QString &key = i.key();
+        if (m_failedProjects.contains(key))
+            continue;
+        QStringList values;
+        foreach (const QString &value, i.value().toStringList()) {
+            if (!m_failedProjects.contains(value))
+                values << value;
+        }
+        m_depMap.insert(key, values);
+        ++i;
+    }
+}
+
+void SessionManager::askUserAboutFailedProjects()
+{
+    QStringList failedProjects = m_failedProjects;
+    if (!failedProjects.isEmpty()) {
+        QString fileList =
+            QDir::toNativeSeparators(failedProjects.join(QLatin1String("<br>")));
+        QMessageBox * box = new QMessageBox(QMessageBox::Warning,
+                                            tr("Failed to restore project files"),
+                                            tr("Could not restore the following project files:<br><b>%1</b>").
+                                            arg(fileList));
+        QPushButton * keepButton = new QPushButton(tr("Keep projects in Session"), box);
+        QPushButton * removeButton = new QPushButton(tr("Remove projects from Session"), box);
+        box->addButton(keepButton, QMessageBox::AcceptRole);
+        box->addButton(removeButton, QMessageBox::DestructiveRole);
+
+        box->exec();
+
+        if (box->clickedButton() == removeButton)
+            m_failedProjects.clear();
+    }
+}
+
+void SessionManager::restoreStartupProject(const Utils::PersistentSettingsReader &reader)
+{
+    const QString startupProject = reader.restoreValue(QLatin1String("StartupProject")).toString();
+    if (!startupProject.isEmpty()) {
+        const QString startupProjectPath = startupProject;
+        foreach (Project *pro, m_projects) {
+            if (QDir::cleanPath(pro->file()->fileName()) == startupProjectPath) {
+                setStartupProject(m_startupProject);
+                break;
+            }
+        }
+        if (!m_startupProject)
+            qWarning() << "Could not find startup project" << startupProjectPath;
+    }
+}
+
+void SessionManager::restoreEditors(const Utils::PersistentSettingsReader &reader)
+{
+    const QVariant &editorsettings = reader.restoreValue(QLatin1String("EditorSettings"));
+    if (editorsettings.isValid()) {
+        connect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
+                this, SLOT(sessionLoadingProgress()));
+        ICore::editorManager()->restoreState(
+            QByteArray::fromBase64(editorsettings.toByteArray()));
+        disconnect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
+                   this, SLOT(sessionLoadingProgress()));
+    }
+}
+
 /*!
      \brief Loads a session, takes a session name (not filename).
 */
+void SessionManager::restoreProjects(const QStringList &fileList)
+{
+    // indirectly adds projects to session
+    // Keep projects that failed to load in the session!
+    m_failedProjects = fileList;
+    if (!fileList.isEmpty()) {
+        QString errors;
+        QList<Project *> projects = ProjectExplorerPlugin::instance()->openProjects(fileList, &errors);
+        if (!errors.isEmpty())
+            QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to open project"), errors);
+        foreach (Project *p, projects)
+            m_failedProjects.removeAll(p->file()->fileName());
+    }
+}
 
 bool SessionManager::loadSession(const QString &session)
 {
@@ -934,12 +826,80 @@ bool SessionManager::loadSession(const QString &session)
     if (!sessions().contains(session))
         return false;
 
+    // Try loading the file
     QString fileName = sessionNameToFileName(session);
-    if (QFileInfo(fileName).exists())
-        return loadImpl(fileName);
+    PersistentSettingsReader reader;
+    if (QFileInfo(fileName).exists()) {
+        if (!reader.load(fileName)) {
+            QMessageBox::warning(0, tr("Error while restoring session"),
+                                 tr("Could not restore session %1").arg(fileName));
+            return false;
+        }
+    }
 
-    // Create a new session with that name
-    return createImpl(sessionNameToFileName(session));
+    // Allow everyone to set something in the session and before saving
+    emit aboutToUnloadSession(m_sessionName);
+
+    if (!isDefaultVirgin()) {
+        if (!save())
+            return false;
+    }
+
+    // Clean up
+    if (!ICore::editorManager()->closeAllEditors())
+        return false;
+
+    setStartupProject(0);
+    removeProjects(projects());
+
+    m_failedProjects.clear();
+    m_depMap.clear();
+    m_values.clear();
+
+    m_sessionName = session;
+    updateWindowTitle();
+
+    if (QFileInfo(fileName).exists()) {
+        m_virginSession = false;
+
+        ICore::progressManager()->addTask(m_future.future(), tr("Session"),
+           QLatin1String("ProjectExplorer.SessionFile.Load"));
+
+        restoreValues(reader);
+        emit aboutToLoadSession(session);
+
+        QStringList fileList =
+            reader.restoreValue(QLatin1String("ProjectList")).toStringList();
+        int openEditorsCount = reader.restoreValue(QLatin1String("OpenEditors")).toInt();
+
+        m_future.setProgressRange(0, fileList.count() + openEditorsCount + 2);
+        m_future.setProgressValue(1);
+
+        restoreProjects(fileList);
+        sessionLoadingProgress();
+        restoreDependencies(reader);
+        restoreStartupProject(reader);
+        restoreEditors(reader);
+
+        m_future.reportFinished();
+        m_future = QFutureInterface<void>();
+
+        // restore the active mode
+        QString modeIdentifier = value(QLatin1String("ActiveMode")).toString();
+        if (modeIdentifier.isEmpty())
+            modeIdentifier = QLatin1String(Core::Constants::MODE_EDIT);
+
+        ModeManager::activateMode(modeIdentifier);
+        ModeManager::setFocusToCurrentMode();
+    } else {
+        ModeManager::activateMode(QLatin1String(Core::Constants::MODE_EDIT));
+        ModeManager::setFocusToCurrentMode();
+    }
+    emit sessionLoaded(session);
+
+    // Starts a event loop, better do that at the very end
+    askUserAboutFailedProjects();
+    return true;
 }
 
 QString SessionManager::lastSession() const

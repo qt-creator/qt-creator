@@ -3398,11 +3398,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
         SLOT(fontSettingsChanged(TextEditor::FontSettings)));
 
     // ProjectExplorer
-    connect(sessionManager(), SIGNAL(sessionLoaded()),
+    connect(sessionManager(), SIGNAL(sessionLoaded(QString)),
         SLOT(sessionLoaded()));
     connect(sessionManager(), SIGNAL(aboutToSaveSession()),
         SLOT(aboutToSaveSession()));
-    connect(sessionManager(), SIGNAL(aboutToUnloadSession()),
+    connect(sessionManager(), SIGNAL(aboutToUnloadSession(QString)),
         SLOT(aboutToUnloadSession()));
     connect(ProjectExplorerPlugin::instance(), SIGNAL(updateRunActions()),
         SLOT(updateDebugActions()));

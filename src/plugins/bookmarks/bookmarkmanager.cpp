@@ -318,7 +318,7 @@ BookmarkManager::BookmarkManager() :
     connect(Core::ICore::instance(), SIGNAL(contextChanged(Core::IContext*,Core::Context)),
             this, SLOT(updateActionStatus()));
 
-    connect(ProjectExplorerPlugin::instance()->session(), SIGNAL(sessionLoaded()),
+    connect(ProjectExplorerPlugin::instance()->session(), SIGNAL(sessionLoaded(QString)),
             this, SLOT(loadBookmarks()));
 
     updateActionStatus();

@@ -174,7 +174,7 @@ AppOutputPane::AppOutputPane() :
 
     m_mainWidget->setLayout(layout);
 
-    connect(ProjectExplorerPlugin::instance()->session(), SIGNAL(aboutToUnloadSession()),
+    connect(ProjectExplorerPlugin::instance()->session(), SIGNAL(aboutToUnloadSession(QString)),
             this, SLOT(aboutToUnloadSession()));
     connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateFromSettings()));

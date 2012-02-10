@@ -40,6 +40,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
 #include <QtCore/QFutureInterface>
+#include <utils/persistentsettings.h>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
@@ -98,7 +99,6 @@ public:
     void removeDependency(Project *project, Project *depProject);
 
     QString sessionNameToFileName(const QString &session) const;
-    QString sessionNameFromFileName(const QString &fileName) const;
     Project *startupProject() const;
 
     const QList<Project *> &projects() const;
@@ -121,7 +121,6 @@ public:
 
 
     void reportProjectLoadingProgress();
-
 signals:
     void projectAdded(ProjectExplorer::Project *project);
     void singleProjectAdded(ProjectExplorer::Project *project);
@@ -131,9 +130,9 @@ signals:
 
     void startupProjectChanged(ProjectExplorer::Project *project);
 
+    void aboutToUnloadSession(QString sessionName);
     void aboutToLoadSession(QString sessionName);
-    void sessionLoaded();
-    void aboutToUnloadSession();
+    void sessionLoaded(QString sessionName);
     void aboutToSaveSession();
     void dependencyChanged(ProjectExplorer::Project *a, ProjectExplorer::Project *b);
 
@@ -147,9 +146,13 @@ private slots:
     void sessionLoadingProgress();
 
 private:
-    bool loadImpl(const QString &fileName);
-    bool createImpl(const QString &fileName);
     bool projectContainsFile(Project *p, const QString &fileName) const;
+    void restoreValues(const Utils::PersistentSettingsReader &reader);
+    void restoreDependencies(const Utils::PersistentSettingsReader &reader);
+    void restoreStartupProject(const Utils::PersistentSettingsReader &reader);
+    void restoreEditors(const Utils::PersistentSettingsReader &reader);
+    void restoreProjects(const QStringList &fileList);
+    void askUserAboutFailedProjects();
 
     bool recursiveDependencyCheck(const QString &newDep, const QString &checkDep) const;
     QStringList dependencies(const QString &proName) const;
