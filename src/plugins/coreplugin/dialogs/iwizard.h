@@ -72,6 +72,8 @@ public:
     virtual QString category() const = 0;
     virtual QString displayCategory() const = 0;
 
+    virtual QString descriptionImage() const = 0;
+
     virtual FeatureSet requiredFeatures() const = 0;
     virtual WizardFlags flags() const = 0;
 

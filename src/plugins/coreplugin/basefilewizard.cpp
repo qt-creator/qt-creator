@@ -88,6 +88,7 @@ public:
     QString displayCategory;
     Core::FeatureSet requiredFeatures;
     Core::IWizard::WizardFlags flags;
+    QString descriptionImage;
 };
 
 BaseFileWizardParameterData::BaseFileWizardParameterData(IWizard::WizardKind k) :
@@ -242,6 +243,17 @@ void BaseFileWizardParameters::setFlags(Core::IWizard::WizardFlags flags)
 {
     m_d->flags = flags;
 }
+
+QString BaseFileWizardParameters::descriptionImage() const
+{
+  return m_d->descriptionImage;
+}
+
+void BaseFileWizardParameters::setDescriptionImage(const QString &path)
+{
+    m_d->descriptionImage = path;
+}
+
 /*!
     \class Core::Internal::WizardEventLoop
     \brief Special event loop that runs a QWizard and terminates if the page changes.
@@ -415,6 +427,11 @@ QString BaseFileWizard::category() const
 QString BaseFileWizard::displayCategory() const
 {
     return d->m_parameters.displayCategory();
+}
+
+QString BaseFileWizard::descriptionImage() const
+{
+       return d->m_parameters.descriptionImage();
 }
 
 void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QString &platform)

@@ -119,6 +119,11 @@ QString BaseCheckoutWizard::id() const
     return d->id;
 }
 
+QString BaseCheckoutWizard::descriptionImage() const
+{
+    return QString();
+}
+
 void BaseCheckoutWizard::setId(const QString &id)
 {
     d->id = id;

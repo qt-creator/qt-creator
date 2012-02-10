@@ -436,6 +436,13 @@ void NewDialog::currentItemChanged(const QModelIndex &index)
 
         m_ui->templateDescription->setHtml(desciption);
 
+        if (!wizard->descriptionImage().isEmpty()) {
+            m_ui->imageLabel->setVisible(true);
+            m_ui->imageLabel->setPixmap(wizard->descriptionImage());
+        } else {
+            m_ui->imageLabel->setVisible(false);
+        }
+
     } else {
         m_ui->templateDescription->setText(QString());
     }

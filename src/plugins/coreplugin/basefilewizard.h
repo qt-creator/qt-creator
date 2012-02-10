@@ -96,6 +96,10 @@ public:
 
     Core::IWizard::WizardFlags flags() const;
     void setFlags(Core::IWizard::WizardFlags flags);
+
+    QString descriptionImage() const;
+    void setDescriptionImage(const QString &path);
+
 private:
     QSharedDataPointer<BaseFileWizardParameterData> m_d;
 };
@@ -149,6 +153,8 @@ public:
 
     virtual QString category() const;
     virtual QString displayCategory() const;
+
+    virtual QString descriptionImage() const;
 
     virtual void runWizard(const QString &path, QWidget *parent, const QString &platform);
     virtual Core::FeatureSet requiredFeatures() const;

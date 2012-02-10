@@ -64,6 +64,8 @@ public:
     virtual QString displayCategory() const;
     virtual QString id() const;
 
+    virtual QString descriptionImage() const;
+
     virtual void runWizard(const QString &path, QWidget *parent, const QString &platform);
 
     virtual Core::FeatureSet requiredFeatures() const;
