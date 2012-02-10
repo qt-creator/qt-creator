@@ -94,8 +94,17 @@
 
     \section1 Using Bookmarks
 
-    To insert or delete a bookmark right-click the line number and select
-    \gui{Toggle Bookmark} or press \key{Ctrl+M}.
+    To insert or delete a bookmark:
+
+    \list
+
+        \o  Right-click the line number and select \gui{Toggle Bookmark}.
+
+        \o  Press \key Shift and click the left margin at a line.
+
+        \o  Press \key{Ctrl+M} when the cursor is on a line.
+
+    \endlist
 
     \image qtcreator-togglebookmark.png
 
