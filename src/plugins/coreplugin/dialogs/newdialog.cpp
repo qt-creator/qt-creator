@@ -271,14 +271,16 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
     if (availablePlatforms.count() > 1) {
         m_ui->comboBox->addItem(tr("All templates"), QString());
         foreach (const QString &platform, availablePlatforms) {
-            m_ui->comboBox->addItem(tr("%1 templates").arg(platform), platform);
+            const QString displayNameForPlatform = IWizard::displayNameForPlatform(platform);
+            m_ui->comboBox->addItem(tr("%1 templates").arg(displayNameForPlatform), platform);
         }
     } else {
         if (availablePlatforms.isEmpty()) {
             m_ui->comboBox->addItem(tr("All templates"), QString());
         } else {
             const QString platform = availablePlatforms.first();
-            m_ui->comboBox->addItem(tr("%1 templates").arg(platform), platform);
+            const QString displayNameForPlatform = IWizard::displayNameForPlatform(platform);
+            m_ui->comboBox->addItem(tr("%1 templates").arg(displayNameForPlatform), platform);
         }
         m_ui->comboBox->setDisabled(true);
     }
@@ -418,6 +420,9 @@ void NewDialog::currentItemChanged(const QModelIndex &index)
     QStandardItem* cat = (m_model->itemFromIndex(sourceIndex));
     if (const IWizard *wizard = wizardOfItem(cat)) {
         QString desciption = wizard->description();
+        QStringList displayNamesForSupporttedPlatforms;
+        foreach (const QString &platform, wizard->supportedPlatforms())
+            displayNamesForSupporttedPlatforms << IWizard::displayNameForPlatform(platform);
         if (!Qt::mightBeRichText(desciption))
             desciption.replace(QLatin1Char('\n'), QLatin1String("<br>"));
         desciption += QLatin1String("<br><br><b>");
@@ -426,7 +431,7 @@ void NewDialog::currentItemChanged(const QModelIndex &index)
         else
             desciption += tr("Supported Platforms")
                     + QLatin1String("</b>: <tt>")
-                    + wizard->supportedPlatforms().join(QLatin1String(" "))
+                    + displayNamesForSupporttedPlatforms.join(QLatin1String(" "))
                     + QLatin1String("</tt>");
 
         m_ui->templateDescription->setHtml(desciption);
