@@ -589,7 +589,14 @@ void Context2D::setFont(const QString &fontString)
         else if (token.endsWith(QLatin1String("px"))) {
             QString number = token;
             number.remove("px");
+#ifdef Q_OS_MACX
+            // compensating the extra antialias space with bigger fonts
+            // this class is only used by the QML Profiler
+            // not much harm can be inflicted by this dirty hack
+            font.setPointSizeF(number.trimmed().toFloat()*4.0f/3.0f);
+#else
             font.setPointSizeF(number.trimmed().toFloat());
+#endif
         } else
             font.setFamily(token);
     }
