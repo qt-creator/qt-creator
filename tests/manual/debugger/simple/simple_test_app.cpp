@@ -113,6 +113,10 @@
 
 void dummyStatement(...) {}
 
+#if USE_CXX11 && defined(__GNUC__) && defined(__STRICT_ANSI__)
+#undef __STRICT_ANSI__ // working around compile error with MinGW
+#endif
+
 #include <QtCore/QDebug>
 #include <QtCore/QDateTime>
 #include <QtCore/QDir>
