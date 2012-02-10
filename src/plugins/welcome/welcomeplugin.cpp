@@ -158,6 +158,7 @@ WelcomeMode::WelcomeMode() :
     Utils::StyledBar* styledBar = new Utils::StyledBar(m_modeWidget);
     layout->addWidget(styledBar);
     QScrollArea *scrollArea = new QScrollArea(m_modeWidget);
+    scrollArea->setFrameShape(QFrame::NoFrame);
     layout->addWidget(scrollArea);
     scrollArea->setWidget(m_welcomePage);
     scrollArea->setWidgetResizable(true);
