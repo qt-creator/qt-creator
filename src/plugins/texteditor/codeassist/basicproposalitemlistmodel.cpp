@@ -216,8 +216,10 @@ void BasicProposalItemListModel::filter(const QString &prefix)
     }
 }
 
-bool BasicProposalItemListModel::isSortable() const
+bool BasicProposalItemListModel::isSortable(const QString &prefix) const
 {
+    Q_UNUSED(prefix);
+
     if (m_currentItems.size() < kMaxSort)
         return true;
     return false;

@@ -60,7 +60,7 @@ public:
     virtual int persistentId(int index) const;
     virtual void removeDuplicates();
     virtual void filter(const QString &prefix);
-    virtual bool isSortable() const;
+    virtual bool isSortable(const QString &prefix) const;
     virtual void sort();
     virtual bool supportsPrefixExpansion() const;
     virtual QString proposalPrefix() const;

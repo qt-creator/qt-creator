@@ -437,7 +437,7 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
         abort();
         return false;
     }
-    if (d->m_model->isSortable())
+    if (d->m_model->isSortable(prefix))
         d->m_model->sort();
     d->m_completionListView->reset();
 

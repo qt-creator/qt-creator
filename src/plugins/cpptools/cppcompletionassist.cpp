@@ -183,16 +183,14 @@ class CppAssistProposalModel : public TextEditor::BasicProposalItemListModel
 public:
     CppAssistProposalModel()
         : TextEditor::BasicProposalItemListModel()
-        , m_sortable(false)
         , m_completionOperator(T_EOF_SYMBOL)
         , m_replaceDotForArrow(false)
         , m_typeOfExpression(new TypeOfExpression)
     {}
 
-    virtual bool isSortable() const { return m_sortable; }
+    virtual bool isSortable(const QString &prefix) const;
     virtual IAssistProposalItem *proposalItem(int index) const;
 
-    bool m_sortable;
     unsigned m_completionOperator;
     bool m_replaceDotForArrow;
     QSharedPointer<TypeOfExpression> m_typeOfExpression;
@@ -228,6 +226,14 @@ private:
 } // CppTools
 
 Q_DECLARE_METATYPE(CppTools::Internal::CompleteFunctionDeclaration)
+
+bool CppAssistProposalModel::isSortable(const QString &prefix) const
+{
+    if (m_completionOperator != T_EOF_SYMBOL)
+        return true;
+
+    return !prefix.isEmpty();
+}
 
 IAssistProposalItem *CppAssistProposalModel::proposalItem(int index) const
 {
@@ -699,10 +705,6 @@ IAssistProposal * CppCompletionAssistProcessor::perform(const IAssistInterface *
         if (m_hintProposal)
             return m_hintProposal;
 
-        if (m_model->m_completionOperator != T_EOF_SYMBOL)
-            m_model->m_sortable = true;
-        else
-            m_model->m_sortable = false;
         return createContentProposal();
     }
 

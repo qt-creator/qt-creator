@@ -97,7 +97,7 @@ public:
     ProFileAssistProposalModel(const QList<TextEditor::BasicProposalItem *> &items);
     virtual ~ProFileAssistProposalModel();
 
-    virtual bool isSortable() const;
+    virtual bool isSortable(const QString &prefix) const;
 };
 
 } // Internal

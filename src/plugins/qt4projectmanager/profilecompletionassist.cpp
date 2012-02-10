@@ -225,7 +225,7 @@ ProFileAssistProposalModel::ProFileAssistProposalModel(
 ProFileAssistProposalModel::~ProFileAssistProposalModel()
 {}
 
-bool ProFileAssistProposalModel::isSortable() const
+bool ProFileAssistProposalModel::isSortable(const QString &prefix) const
 {
     return false;
 }
