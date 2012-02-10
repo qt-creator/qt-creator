@@ -33,7 +33,7 @@
 #ifndef QTPROJECTPARAMETERS_H
 #define QTPROJECTPARAMETERS_H
 
-#include <QtCore/QString>
+#include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
 class QTextStream;
