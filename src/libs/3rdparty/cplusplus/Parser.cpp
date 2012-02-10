@@ -2998,7 +2998,7 @@ bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
 
     const unsigned start = cursor();
 
-    if (lookAtCVQualifier() || lookAtStorageClassSpecifier() || lookAtBuiltinTypeSpecifier() || LA() == T_TYPENAME || LA() == T_ENUM || lookAtClassKey())
+    if (lookAtCVQualifier() || lookAtStorageClassSpecifier() || lookAtBuiltinTypeSpecifier() || LA() == T_TYPENAME || LA() == T_ENUM || lookAtClassKey() || LA() == T_STATIC_ASSERT)
         return parseDeclarationStatement(node);
 
     if (LA() == T_IDENTIFIER || (LA() == T_COLON_COLON && LA(2) == T_IDENTIFIER)) {
@@ -3382,6 +3382,9 @@ bool Parser::parseBlockDeclaration(DeclarationAST *&node)
 
     case T_NAMESPACE:
         return parseNamespaceAliasDefinition(node);
+
+    case T_STATIC_ASSERT:
+        return parseStaticAssertDeclaration(node);
 
     default:
         return parseSimpleDeclaration(node);
