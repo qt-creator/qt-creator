@@ -174,7 +174,7 @@ public:
 };
 
 void extractGdbVersion(const QString &msg,
-    int *gdbVersion, int *gdbBuildVersion, bool *isMacGdb);
+    int *gdbVersion, int *gdbBuildVersion, bool *isMacGdb, bool *isQnxGdb);
 
 } // namespace Internal
 } // namespace Debugger

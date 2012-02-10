@@ -90,6 +90,8 @@ private:
     void handleFileExecAndSymbols(const GdbResponse &response);
     void callTargetRemote();
     void handleTargetRemote(const GdbResponse &response);
+    void handleTargetQnx(const GdbResponse &response);
+    void handleAttach(const GdbResponse &response);
     void handleInterruptInferior(const GdbResponse &response);
 
     QProcess m_uploadProc;

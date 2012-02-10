@@ -438,6 +438,7 @@ private: ////////// Gdb Output, State & Capability Handling //////////
     int m_gdbVersion; // 6.8.0 is 60800
     int m_gdbBuildVersion; // MAC only?
     bool m_isMacGdb;
+    bool m_isQnxGdb;
     bool m_hasBreakpointNotifications;
     bool m_hasPython;
     bool m_hasInferiorThreadList;

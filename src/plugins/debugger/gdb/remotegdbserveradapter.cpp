@@ -173,6 +173,7 @@ void RemoteGdbServerAdapter::setupInferior()
     const QByteArray sysroot = sp.sysroot.toLocal8Bit();
     const QByteArray remoteArch = sp.remoteArchitecture.toLatin1();
     const QByteArray gnuTarget = sp.gnuTarget.toLatin1();
+    const QByteArray searchPath = startParameters().searchPath.toLocal8Bit();
     const QString args = sp.processArgs;
 
     if (!remoteArch.isEmpty())
@@ -181,6 +182,8 @@ void RemoteGdbServerAdapter::setupInferior()
         m_engine->postCommand("set gnutarget " + gnuTarget);
     if (!sysroot.isEmpty())
         m_engine->postCommand("set sysroot " + sysroot);
+    if (!searchPath.isEmpty())
+        m_engine->postCommand("set solib-search-path " + searchPath);
     if (!args.isEmpty())
         m_engine->postCommand("-exec-arguments " + args.toLocal8Bit());
 
@@ -245,8 +248,13 @@ void RemoteGdbServerAdapter::callTargetRemote()
     //     (2) starts the remote application
     //     (3) stops the remote application (early, e.g. in the dynamic linker)
     QString channel = startParameters().remoteChannel;
-    m_engine->postCommand("target remote " + channel.toLatin1(),
-        CB(handleTargetRemote));
+    if (m_engine->m_isQnxGdb) {
+        m_engine->postCommand("target qnx " + channel.toLatin1(),
+            CB(handleTargetQnx));
+    } else {
+        m_engine->postCommand("target remote " + channel.toLatin1(),
+            CB(handleTargetRemote));
+    }
 }
 
 void RemoteGdbServerAdapter::handleTargetRemote(const GdbResponse &record)
@@ -261,6 +269,52 @@ void RemoteGdbServerAdapter::handleTargetRemote(const GdbResponse &record)
         // 16^error,msg="hd:5555: Connection timed out."
         QString msg = msgConnectRemoteServerFailed(
             QString::fromLocal8Bit(record.data.findChild("msg").data()));
+        m_engine->notifyInferiorSetupFailed(msg);
+    }
+}
+
+void RemoteGdbServerAdapter::handleTargetQnx(const GdbResponse &response)
+{
+    QTC_ASSERT(m_engine->m_isQnxGdb, qDebug() << m_engine->m_isQnxGdb);
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    if (response.resultClass == GdbResultDone) {
+        // gdb server will stop the remote application itself.
+        showMessage(_("INFERIOR STARTED"));
+        showMessage(msgAttachedToStoppedInferior(), StatusBar);
+
+        const qint64 pid = startParameters().attachPID;
+        if (pid > -1) {
+            m_engine->postCommand("attach " + QByteArray::number(pid), CB(handleAttach));
+        } else {
+            m_engine->handleInferiorPrepared();
+        }
+    } else {
+        // 16^error,msg="hd:5555: Connection timed out."
+        QString msg = msgConnectRemoteServerFailed(
+            QString::fromLocal8Bit(response.data.findChild("msg").data()));
+        m_engine->notifyInferiorSetupFailed(msg);
+    }
+}
+
+void RemoteGdbServerAdapter::handleAttach(const GdbResponse &response)
+{
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    switch (response.resultClass) {
+    case GdbResultDone:
+    case GdbResultRunning: {
+        showMessage(_("INFERIOR ATTACHED"));
+        showMessage(msgAttachedToStoppedInferior(), StatusBar);
+        m_engine->handleInferiorPrepared();
+        break;
+    }
+    case GdbResultError:
+        if (response.data.findChild("msg").data() == "ptrace: Operation not permitted.") {
+            m_engine->notifyInferiorSetupFailed(DumperHelper::msgPtraceError(startParameters().startMode));
+            break;
+        }
+        // if msg != "ptrace: ..." fall through
+    default:
+        QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
         m_engine->notifyInferiorSetupFailed(msg);
     }
 }

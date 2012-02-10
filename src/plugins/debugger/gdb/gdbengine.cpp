@@ -196,6 +196,7 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters,
     m_gdbVersion = 100;
     m_gdbBuildVersion = -1;
     m_isMacGdb = false;
+    m_isQnxGdb = false;
     m_hasBreakpointNotifications = false;
     m_hasPython = false;
     m_registerNamesListed = false;
@@ -1689,9 +1690,10 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
         m_gdbVersion = 100;
         m_gdbBuildVersion = -1;
         m_isMacGdb = false;
+        m_isQnxGdb = false;
         QString msg = QString::fromLocal8Bit(response.consoleStreamOutput);
         extractGdbVersion(msg,
-              &m_gdbVersion, &m_gdbBuildVersion, &m_isMacGdb);
+              &m_gdbVersion, &m_gdbBuildVersion, &m_isMacGdb, &m_isQnxGdb);
 
         // On Mac, fsf gdb does not work sufficiently well,
         // and on Linux and Windows we require at least 7.2.

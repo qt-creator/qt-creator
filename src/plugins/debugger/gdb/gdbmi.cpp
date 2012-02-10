@@ -409,7 +409,7 @@ QByteArray GdbResponse::toString() const
 //////////////////////////////////////////////////////////////////////////////////
 
 void extractGdbVersion(const QString &msg,
-    int *gdbVersion, int *gdbBuildVersion, bool *isMacGdb)
+    int *gdbVersion, int *gdbBuildVersion, bool *isMacGdb, bool *isQnxGdb)
 {
     const QChar dot(QLatin1Char('.'));
 
@@ -433,6 +433,7 @@ void extractGdbVersion(const QString &msg,
     }
 
     *isMacGdb = msg.contains(QLatin1String("Apple version"));
+    *isQnxGdb = msg.contains(QLatin1String("qnx-nto"));
 
     *gdbVersion = 10000 * cleaned.section(dot, 0, 0).toInt()
                   + 100 * cleaned.section(dot, 1, 1).toInt()
