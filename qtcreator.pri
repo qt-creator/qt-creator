@@ -100,7 +100,6 @@ macx {
     IDE_DATA_PATH    = $$IDE_APP_PATH/$${IDE_APP_TARGET}.app/Contents/Resources
     IDE_DOC_PATH     = $$IDE_DATA_PATH/doc
     IDE_BIN_PATH     = $$IDE_APP_PATH/$${IDE_APP_TARGET}.app/Contents/MacOS
-    contains(QT_CONFIG, ppc):CONFIG += ppc x86
     copydata = 1
     isEmpty(TIGER_COMPAT_MODE):TIGER_COMPAT_MODE=$$(QTC_TIGER_COMPAT)
     isEmpty(TIGER_COMPAT_MODE) {
