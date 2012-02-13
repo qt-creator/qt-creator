@@ -41,14 +41,16 @@ using namespace ProjectExplorer;
 class TaskMark : public TextEditor::BaseTextMark
 {
 public:
-    TaskMark(unsigned int id, const QString &fileName, int lineNumber)
-        : BaseTextMark(fileName, lineNumber), m_id(id)
+    TaskMark(unsigned int id, const QString &fileName, int lineNumber, bool visible)
+        : BaseTextMark(fileName, lineNumber), m_id(id), m_visible(visible)
     {}
 
     void updateLineNumber(int lineNumber);
     void removedFromEditor();
+    bool visible() const;
 private:
     unsigned int m_id;
+    bool m_visible;
 };
 
 void TaskMark::updateLineNumber(int lineNumber)
@@ -59,6 +61,11 @@ void TaskMark::updateLineNumber(int lineNumber)
 void TaskMark::removedFromEditor()
 {
     ProjectExplorerPlugin::instance()->taskHub()->updateTaskLineNumber(m_id, -1);
+}
+
+bool TaskMark::visible() const
+{
+    return m_visible;
 }
 
 TaskHub::TaskHub()
@@ -82,7 +89,8 @@ void TaskHub::addCategory(const Core::Id &categoryId, const QString &displayName
 void TaskHub::addTask(Task task)
 {
     if (task.line != -1 && !task.file.isEmpty()) {
-        TaskMark *mark = new TaskMark(task.taskId, task.file.toString(), task.line);
+        bool visible = (task.type == Task::Warning || task.type == Task::Error);
+        TaskMark *mark = new TaskMark(task.taskId, task.file.toString(), task.line, visible);
         mark->setIcon(taskTypeIcon(task.type));
         mark->setPriority(TextEditor::ITextMark::HighPriority);
         task.addMark(mark);
