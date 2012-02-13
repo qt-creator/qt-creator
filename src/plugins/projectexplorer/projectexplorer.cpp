@@ -1105,7 +1105,7 @@ void ProjectExplorerPlugin::closeAllProjects()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::closeAllProject";
 
-    if (!ICore::editorManager()->closeAllEditors())
+    if (!Core::ICore::editorManager()->closeAllEditors())
         return; // Action has been cancelled
 
     d->m_session->closeAllProjects();
