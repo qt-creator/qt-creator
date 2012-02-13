@@ -77,6 +77,7 @@ public:
     void setIcon(const QIcon &icon);
     Priority priority() const;
     void setPriority(Priority prioriy);
+    virtual bool visible() const;
     virtual double widthFactor() const;
 
 private:

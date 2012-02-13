@@ -3797,6 +3797,8 @@ void BaseTextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
                 if (d->m_marksVisible) {
                     int xoffset = 0;
                     foreach (ITextMark *mark, userData->marks()) {
+                        if (!mark->visible())
+                            continue;
                         const int height = fmLineSpacing - 1;
                         const int width = int(.5 + height * mark->widthFactor());
                         const QRect r(xoffset, top, width, height);

@@ -72,6 +72,10 @@ ITextMark::Priority ITextMark::priority() const
     return m_priority;
 }
 
+bool ITextMark::visible() const
+{
+    return true;
+}
 
 double ITextMark::widthFactor() const
 {
