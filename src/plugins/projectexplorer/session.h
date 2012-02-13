@@ -35,12 +35,13 @@
 
 #include "projectexplorer_export.h"
 
+#include <utils/persistentsettings.h>
+
 #include <QtCore/QHash>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
 #include <QtCore/QFutureInterface>
-#include <utils/persistentsettings.h>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
