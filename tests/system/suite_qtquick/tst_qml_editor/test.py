@@ -23,6 +23,7 @@ def main():
     testRenameId()
     testFindUsages()
     testHovering()
+    test.log("Test finished")
     invokeMenuItem("File", "Exit")
 
 def prepareTemplate(sourceExample):
