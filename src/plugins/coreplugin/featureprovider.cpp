@@ -69,20 +69,20 @@
 */
 
 /*!
-    \class Core::FeatureProvider::Feature
+    \class Core::Feature
 
     \brief This class describes a single Feature
 
     This class describes a single Feature to be used
     in Core::FeatureProvider::Features.
 
-    \sa Core::FeatureProvider::Features
+    \sa Core::FeaturesSet
     \sa Core::IWizard
     \sa QtSupport::QtVersionManager
 */
 
 /*!
-    \class Core::FeatureProvider::Features
+    \class Core::FeatureSet
 
     \brief This class is a set of features
 
@@ -92,7 +92,7 @@
     But instead of enums Features relies on string ids
     and is therefore extendable.
 
-    \sa Core::FeatureProvider::Feature
+    \sa Core::Feature
     \sa Core::IWizard
     \sa QtSupport::QtVersionManager
 */
