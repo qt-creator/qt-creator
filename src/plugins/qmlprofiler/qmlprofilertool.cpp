@@ -368,6 +368,7 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     connect(engine, SIGNAL(finished()), this, SLOT(disconnectClient()));
     connect(engine, SIGNAL(finished()), this, SLOT(updateTimers()));
     connect(engine, SIGNAL(stopRecording()), this, SLOT(stopRecording()));
+    connect(engine, SIGNAL(recordingChanged(bool)), this, SLOT(setRecording(bool)));
     connect(engine, SIGNAL(timeUpdate()), this, SLOT(updateTimers()));
     connect(d->m_traceWindow, SIGNAL(viewUpdated()), engine, SLOT(dataReceived()));
     connect(this, SIGNAL(connectionFailed()), engine, SLOT(finishProcess()));
@@ -456,9 +457,9 @@ QWidget *QmlProfilerTool::createWidgets()
     connect(d->m_traceWindow, SIGNAL(gotoSourceLocation(QString,int,int)),this, SLOT(gotoSourceLocation(QString,int,int)));
     connect(d->m_traceWindow, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(d->m_traceWindow->getEventList(), SIGNAL(error(QString)), this, SLOT(showErrorDialog(QString)));
-    connect(d->m_traceWindow->getEventList(), SIGNAL(dataReady()), this, SLOT(showSaveOption()));
-    connect(d->m_traceWindow->getEventList(), SIGNAL(dataReady()), this, SLOT(updateTimers()));
+    connect(d->m_traceWindow->getEventList(), SIGNAL(stateChanged()), this, SLOT(eventListStateChanged()));
     connect(d->m_traceWindow, SIGNAL(profilerStateChanged(bool,bool)), this, SLOT(profilerStateChanged(bool,bool)));
+    connect(d->m_traceWindow, SIGNAL(recordingChanged(bool)), this, SLOT(setRecording(bool)));
 
     d->m_eventsView = new QmlProfilerEventsWidget(d->m_traceWindow->getEventList(), mw);
     connect(d->m_eventsView, SIGNAL(gotoSourceLocation(QString,int,int)), this, SLOT(gotoSourceLocation(QString,int,int)));
@@ -500,11 +501,11 @@ QWidget *QmlProfilerTool::createWidgets()
     layout->setSpacing(0);
 
     d->m_recordButton = new QToolButton(toolbarWidget);
-    // icon and tooltip set in setRecording(), called later
     d->m_recordButton->setCheckable(true);
 
-    connect(d->m_recordButton,SIGNAL(toggled(bool)), this, SLOT(setRecording(bool)));
+    connect(d->m_recordButton,SIGNAL(clicked(bool)), this, SLOT(recordingButtonChanged(bool)));
     d->m_recordButton->setChecked(true);
+    setRecording(d->m_recordingEnabled);
     layout->addWidget(d->m_recordButton);
 
     d->m_clearButton = new QToolButton(toolbarWidget);
@@ -583,20 +584,25 @@ void QmlProfilerTool::stopRecording()
         emit cancelRun();
 }
 
-void QmlProfilerTool::setRecording(bool recording)
+void QmlProfilerTool::recordingButtonChanged(bool recording)
 {
-    d->m_recordingEnabled = recording;
-
-    // update record button
-    d->m_recordButton->setToolTip( d->m_recordingEnabled ? tr("Disable profiling") : tr("Enable profiling"));
-    d->m_recordButton->setIcon(QIcon(d->m_recordingEnabled ? QLatin1String(":/qmlprofiler/recordOn.png") :
-                                                             QLatin1String(":/qmlprofiler/recordOff.png")));
-
     if (recording)
         startRecording();
     else
         stopRecording();
 
+    setRecording(recording);
+}
+
+void QmlProfilerTool::setRecording(bool recording)
+{
+    // update record button
+    d->m_recordingEnabled = recording;
+    d->m_recordButton->setToolTip( recording ? tr("Disable profiling") : tr("Enable profiling"));
+    d->m_recordButton->setIcon(QIcon(recording ? QLatin1String(":/qmlprofiler/recordOn.png") :
+                                                 QLatin1String(":/qmlprofiler/recordOff.png")));
+
+    d->m_recordButton->setChecked(recording);
     updateTimers();
 }
 
@@ -884,5 +890,13 @@ void QmlProfilerTool::retryMessageBoxFinished(int result)
         emit connectionFailed();
         break;
     }
+    }
+}
+
+void QmlProfilerTool::eventListStateChanged()
+{
+    if (d->m_traceWindow->getEventList()->currentState() == QmlProfilerEventList::Done) {
+        showSaveOption();
+        updateTimers();
     }
 }

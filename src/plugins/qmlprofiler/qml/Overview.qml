@@ -77,8 +77,9 @@ Canvas2D {
 
     Connections {
         target: qmlEventList
-        onDataReady: {
-            if (qmlEventList.count() > 0) {
+        onStateChanged: {
+            // State is "done"
+            if (qmlEventList.getCurrentStateFromQml() == 3) {
                 dataAvailable = true;
                 requestRedraw();
             }

@@ -89,6 +89,11 @@ QmlProfilerTraceClient::~QmlProfilerTraceClient()
 void QmlProfilerTraceClient::clearData()
 {
     ::memset(d->rangeCount, 0, MaximumQmlEventType * sizeof(int));
+    for (int eventType = 0; eventType < MaximumQmlEventType; eventType++) {
+        d->rangeDatas[eventType].clear();
+        d->rangeLocations[eventType].clear();
+        d->rangeStartTimes[eventType].clear();
+    }
     emit cleared();
 }
 
@@ -121,6 +126,14 @@ void QmlProfilerTraceClient::setRecording(bool v)
     emit recordingChanged(v);
 }
 
+void QmlProfilerTraceClient::setRecordingFromServer(bool v)
+{
+    if (v == d->recording)
+        return;
+    d->recording = v;
+    emit recordingChanged(v);
+}
+
 void QmlProfilerTraceClient::statusChanged(Status /*status*/)
 {
     emit enabledChanged();
@@ -135,8 +148,6 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
     int messageType;
 
     stream >> time >> messageType;
-
-//    qDebug() << __FUNCTION__ << messageType;
 
     if (messageType >= MaximumMessage)
         return;
@@ -158,6 +169,9 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
             emit this->frame(time, frameRate, animationCount);
             d->maximumTime = qMax(time, d->maximumTime);
         } else if (event == StartTrace) {
+            // special: StartTrace is now asynchronous
+            if (!d->recording)
+                setRecordingFromServer(true);
             emit this->traceStarted(time);
             d->maximumTime = time;
         } else if (event < MaximumEventType) {

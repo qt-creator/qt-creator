@@ -267,6 +267,8 @@ public:
 
     QmlProfilerEventList *q;
 
+    QmlProfilerEventList::State m_state;
+
     // convenience functions
     void clearQmlRootEvent();
     void clearV8RootEvent();
@@ -308,6 +310,8 @@ QmlProfilerEventList::QmlProfilerEventList(QObject *parent) :
     QObject(parent), d(new QmlProfilerEventListPrivate(this))
 {
     setObjectName("QmlProfilerEventStatistics");
+
+    d->m_state = Empty;
 
     d->m_traceEndTime = 0;
     d->m_traceStartTime = -1;
@@ -357,7 +361,7 @@ void QmlProfilerEventList::clear()
     d->m_minimumAnimationCount = 0;
 
     emit countChanged();
-    emit dataClear();
+    setState(Empty);
 }
 
 QList <QmlEventData *> QmlProfilerEventList::getEventDescriptions() const
@@ -395,7 +399,7 @@ void QmlProfilerEventList::addRangedEvent(int type, qint64 startTime, qint64 len
     QString displayName, eventHashStr, details;
     QmlJsDebugClient::QmlEventLocation eventLocation = location;
 
-    emit processingData();
+    setState(AcquiringData);
 
     // generate details string
     if (data.isEmpty())
@@ -466,11 +470,14 @@ void QmlProfilerEventList::addV8Event(int depth, const QString &function, const 
     QString displayName = filename.mid(filename.lastIndexOf(QLatin1Char('/')) + 1) + QLatin1Char(':') + QString::number(lineNumber);
     QV8EventData *eventData = 0;
 
+    setState(AcquiringData);
+
     // time is given in milliseconds, but internally we store it in microseconds
     totalTime *= 1e6;
     selfTime *= 1e6;
 
     // cumulate information
+    // TODO: use hashes
     foreach (QV8EventData *v8event, d->m_v8EventList) {
         if (v8event->displayName == displayName && v8event->functionName == function) {
             eventData = v8event;
@@ -529,7 +536,7 @@ void QmlProfilerEventList::addFrameEvent(qint64 time, int framerate, int animati
 {
     QString displayName, eventHashStr, details;
 
-    emit processingData();
+    setState(AcquiringData);
 
     details = tr("Animation Timer Update");
     displayName = tr("<Animation Update>");
@@ -636,7 +643,7 @@ void QmlProfilerEventList::setTraceStartTime( qint64 time )
 
 void QmlProfilerEventList::complete()
 {
-    emit postProcessing();
+    setState(ProcessingData);
     d->collectV8Statistics();
     postProcess();
 }
@@ -1030,9 +1037,10 @@ void QmlProfilerEventList::postProcess()
         reloadDetails();
         compileStatistics(traceStartTime(), traceEndTime());
         prepareForDisplay();
+        setState(Done);
+    } else {
+        setState(Empty);
     }
-    // data is ready even when there's no data
-    emit dataReady();
 }
 
 void QmlProfilerEventList::linkEndsToStarts()
@@ -1398,7 +1406,7 @@ void QmlProfilerEventList::load()
         return;
     }
 
-    emit processingData();
+    setState(AcquiringData);
 
     // erase current
     clear();
@@ -1645,8 +1653,6 @@ void QmlProfilerEventList::load()
 
     if (!validVersion) {
         clear();
-        emit countChanged();
-        emit dataReady();
         emit error(tr("Invalid version of QML Trace file."));
         return;
     }
@@ -1697,7 +1703,7 @@ void QmlProfilerEventList::load()
 
     descriptionBuffer.clear();
 
-    emit postProcessing();
+    setState(ProcessingData);
     d->collectV8Statistics();
     postProcess();
 }
@@ -1828,6 +1834,48 @@ int QmlProfilerEventList::eventPosInType(int index) const
 {
     int eventType = d->m_startTimeSortedList[index].description->eventType;
     return d->m_typeCounts[eventType]->eventIds.indexOf(d->m_startTimeSortedList[index].description->eventId);
+}
+
+/////////////////////////////////////////
+QmlProfilerEventList::State QmlProfilerEventList::currentState() const
+{
+    return d->m_state;
+}
+
+int QmlProfilerEventList::getCurrentStateFromQml() const
+{
+    return (int)d->m_state;
+}
+
+void QmlProfilerEventList::setState(QmlProfilerEventList::State state)
+{
+    // It's not an error, we are continuously calling "AcquiringData" for example
+    if (d->m_state == state)
+        return;
+
+    switch (state) {
+        case Empty:
+            // if it's not empty, complain but go on
+            QTC_ASSERT(count() == 0, /**/);
+        break;
+        case AcquiringData:
+            // we're not supposed to receive new data while processing older data
+            QTC_ASSERT(d->m_state != ProcessingData, return);
+        break;
+        case ProcessingData:
+            QTC_ASSERT(d->m_state == AcquiringData, return);
+        break;
+        case Done:
+            QTC_ASSERT(d->m_state == ProcessingData, return);
+        break;
+        default:
+        qDebug() << "Trying to set unknown state in events list at" << __FILE__ << __LINE__;
+        break;
+    }
+
+    d->m_state = state;
+    emit stateChanged();
+    return;
 }
 
 } // namespace QmlJsDebugClient

@@ -78,6 +78,7 @@ public slots:
 
     void startRecording();
     void stopRecording();
+    void recordingButtonChanged(bool recording);
     void setRecording(bool recording);
 
     void setAppIsRunning();
@@ -106,6 +107,7 @@ private slots:
     void showLoadDialog();
     void showErrorDialog(const QString &error);
     void retryMessageBoxFinished(int result);
+    void eventListStateChanged();
 
 private:
     void connectToClient();

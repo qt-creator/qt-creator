@@ -84,6 +84,9 @@ public slots:
     void updateSelectedEvent(int eventId) const;
     void selectBySourceLocation(const QString &filename, int line, int column);
 
+private slots:
+    void eventListStateChanged();
+
 protected:
     void contextMenuEvent(QContextMenuEvent *ev);
 
@@ -91,6 +94,7 @@ private:
     QmlProfilerEventsMainView *m_eventTree;
     QmlProfilerEventsParentsAndChildrenView *m_eventChildren;
     QmlProfilerEventsParentsAndChildrenView *m_eventParents;
+    QmlJsDebugClient::QmlProfilerEventList *m_eventStatistics;
 
     bool m_globalStatsEnabled;
 };
@@ -153,6 +157,7 @@ signals:
     void showEventInTimeline(int eventId);
 
 public slots:
+    void eventListStateChanged();
     void clear();
     void jumpToItem(const QModelIndex &index);
     void selectEvent(int eventId);

@@ -123,9 +123,9 @@ QmlProfilerEventsWidget::QmlProfilerEventsWidget(QmlJsDebugClient::QmlProfilerEv
     groupLayout->addWidget(splitterVertical);
     setLayout(groupLayout);
 
+    m_eventStatistics = model;
     if (model) {
-        connect(model,SIGNAL(dataReady()),m_eventChildren,SLOT(clear()));
-        connect(model,SIGNAL(dataReady()),m_eventParents,SLOT(clear()));
+        connect(model, SIGNAL(stateChanged()), this, SLOT(eventListStateChanged()));
     }
 
     m_globalStatsEnabled = true;
@@ -133,6 +133,16 @@ QmlProfilerEventsWidget::QmlProfilerEventsWidget(QmlJsDebugClient::QmlProfilerEv
 
 QmlProfilerEventsWidget::~QmlProfilerEventsWidget()
 {
+}
+
+void QmlProfilerEventsWidget::eventListStateChanged()
+{
+    if (m_eventStatistics) {
+        QmlProfilerEventList::State newState = m_eventStatistics->currentState();
+        if (newState == QmlProfilerEventList::Empty) {
+            clear();
+        }
+    }
 }
 
 void QmlProfilerEventsWidget::switchToV8View()
@@ -278,13 +288,22 @@ QmlProfilerEventsMainView::~QmlProfilerEventsMainView()
 void QmlProfilerEventsMainView::setEventStatisticsModel( QmlProfilerEventList *model )
 {
     if (d->m_eventStatistics) {
-        disconnect(d->m_eventStatistics,SIGNAL(dataReady()),this,SLOT(buildModel()));
+        disconnect(d->m_eventStatistics,SIGNAL(stateChanged()),this,SLOT(eventListStateChanged()));
         disconnect(d->m_eventStatistics,SIGNAL(detailsChanged(int,QString)),this,SLOT(changeDetailsForEvent(int,QString)));
     }
     d->m_eventStatistics = model;
     if (model) {
-        connect(d->m_eventStatistics,SIGNAL(dataReady()),this,SLOT(buildModel()));
+        connect(d->m_eventStatistics,SIGNAL(stateChanged()),this,SLOT(eventListStateChanged()));
         connect(d->m_eventStatistics,SIGNAL(detailsChanged(int,QString)),this,SLOT(changeDetailsForEvent(int,QString)));
+    }
+}
+
+void QmlProfilerEventsMainView::eventListStateChanged()
+{
+    if (d->m_eventStatistics) {
+        QmlProfilerEventList::State newState = d->m_eventStatistics->currentState();
+        if (newState == QmlProfilerEventList::Done)
+            buildModel();
     }
 }
 

@@ -110,9 +110,12 @@ public:
     double profiledTime() const;
 
 public slots:
+    void clearDisplay();
+    void selectNextEvent(int eventId);
+
+private slots:
     void updateCursorPosition();
     void updateTimer();
-    void clearDisplay();
     void updateToolbar();
     void toggleRangeMode(bool);
     void toggleLockMode(bool);
@@ -124,10 +127,13 @@ public slots:
 
     void qmlComplete();
     void v8Complete();
-    void selectNextEvent(int eventId);
     void updateProfilerState();
     void updateToolTip(const QString &text);
     void updateVerticalScroll(int newPosition);
+    void eventListStateChanged();
+    void manageTraceStart(qint64 traceStart);
+    void firstDataReceived();
+    void correctTimer();
 
 signals:
     void viewUpdated();
@@ -139,6 +145,7 @@ signals:
     void traceFinished(qint64);
     void traceStarted(qint64);
     void frameEvent(qint64, int, int);
+    void recordingChanged(bool);
 
     void internalClearDisplay();
     void jumpToPrev();

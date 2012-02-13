@@ -115,6 +115,12 @@ class QMLJSDEBUGCLIENT_EXPORT QmlProfilerEventList : public QObject
 {
     Q_OBJECT
 public:
+    enum State {
+        Empty,
+        AcquiringData,
+        ProcessingData,
+        Done
+    };
 
     explicit QmlProfilerEventList(QObject *parent = 0);
     ~QmlProfilerEventList();
@@ -167,13 +173,13 @@ public:
 
     void showErrorDialog(const QString &st ) const;
     void compileStatistics(qint64 startTime, qint64 endTime);
+    State currentState() const;
+    Q_INVOKABLE int getCurrentStateFromQml() const;
+
 signals:
-    void dataReady();
+    void stateChanged();
     void countChanged();
     void error(const QString &error);
-    void dataClear();
-    void processingData();
-    void postProcessing();
 
     void requestDetailsForLocation(int eventType, const QmlJsDebugClient::QmlEventLocation &location);
     void detailsChanged(int eventId, const QString &newString);
@@ -212,6 +218,7 @@ private:
     void reloadDetails();
     void findBindingLoops(qint64 startTime, qint64 endTime);
     bool checkBindingLoop(QmlEventData *from, QmlEventData *current, QList<QmlEventData *>visited);
+    void setState(State state);
 
 private:
     class QmlProfilerEventListPrivate;

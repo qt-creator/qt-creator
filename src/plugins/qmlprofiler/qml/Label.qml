@@ -81,12 +81,18 @@ Item {
     Connections {
         target: qmlEventList
         onReloadDetailLabels: getDescriptions();
-        onDataReady: getDescriptions();
-        onDataClear: {
-            descriptions = [];
-            eventIds = [];
-            extdescriptions = [];
-            updateHeight();
+        onStateChanged: {
+            // Empty
+            if (qmlEventList.getCurrentStateFromQml() == 0) {
+                descriptions = [];
+                eventIds = [];
+                extdescriptions = [];
+                updateHeight();
+            } else
+            // Done
+            if (qmlEventList.getCurrentStateFromQml() == 3) {
+                getDescriptions();
+            }
         }
     }
 

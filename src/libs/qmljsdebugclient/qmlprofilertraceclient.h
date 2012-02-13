@@ -83,6 +83,7 @@ public:
 
 public slots:
     void setRecording(bool);
+    void setRecordingFromServer(bool);
     void clearData();
     void sendRecordingStatus();
 

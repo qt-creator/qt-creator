@@ -138,7 +138,7 @@ TraceWindow::TraceWindow(QWidget *parent)
     connect(this, SIGNAL(traceFinished(qint64)), m_eventList, SLOT(setTraceEndTime(qint64)));
     connect(this, SIGNAL(traceStarted(qint64)), m_eventList, SLOT(setTraceStartTime(qint64)));
     connect(this, SIGNAL(frameEvent(qint64,int,int)), m_eventList, SLOT(addFrameEvent(qint64,int,int)));
-    connect(this,SIGNAL(viewUpdated()), m_eventList, SLOT(complete()));
+    connect(m_eventList, SIGNAL(stateChanged()), this, SLOT(eventListStateChanged()));
     m_mainView->rootContext()->setContextProperty("qmlEventList", m_eventList);
     m_overview->rootContext()->setContextProperty("qmlEventList", m_eventList);
 
@@ -319,10 +319,11 @@ void TraceWindow::connectClientSignals()
         connect(m_plugin.data(), SIGNAL(range(int,qint64,qint64,QStringList,QmlJsDebugClient::QmlEventLocation)),
                 this, SIGNAL(range(int,qint64,qint64,QStringList,QmlJsDebugClient::QmlEventLocation)));
         connect(m_plugin.data(), SIGNAL(traceFinished(qint64)), this, SIGNAL(traceFinished(qint64)));
-        connect(m_plugin.data(), SIGNAL(traceStarted(qint64)), this, SIGNAL(traceStarted(qint64)));
+        connect(m_plugin.data(), SIGNAL(traceStarted(qint64)), this, SLOT(manageTraceStart(qint64)));
         connect(m_plugin.data(), SIGNAL(frame(qint64,int,int)), this, SIGNAL(frameEvent(qint64,int,int)));
         connect(m_plugin.data(), SIGNAL(enabledChanged()), this, SLOT(updateProfilerState()));
         connect(m_plugin.data(), SIGNAL(enabledChanged()), m_plugin.data(), SLOT(sendRecordingStatus()));
+        connect(m_plugin.data(), SIGNAL(recordingChanged(bool)), this, SIGNAL(recordingChanged(bool)));
     }
     if (m_v8plugin) {
         connect(m_v8plugin.data(), SIGNAL(complete()), this, SLOT(v8Complete()));
@@ -339,9 +340,10 @@ void TraceWindow::disconnectClientSignals()
         disconnect(m_plugin.data(), SIGNAL(range(int,qint64,qint64,QStringList,QmlJsDebugClient::QmlEventLocation)),
                 this, SIGNAL(range(int,qint64,qint64,QStringList,QmlJsDebugClient::QmlEventLocation)));
         disconnect(m_plugin.data(), SIGNAL(traceFinished(qint64)), this, SIGNAL(traceFinished(qint64)));
-        disconnect(m_plugin.data(), SIGNAL(traceStarted(qint64)), this, SIGNAL(traceStarted(qint64)));
+        disconnect(m_plugin.data(), SIGNAL(traceStarted(qint64)), this, SLOT(manageTraceStart(qint64)));
         disconnect(m_plugin.data(), SIGNAL(enabledChanged()), this, SLOT(updateProfilerState()));
         disconnect(m_plugin.data(), SIGNAL(enabledChanged()), m_plugin.data(), SLOT(sendRecordingStatus()));
+        disconnect(m_plugin.data(), SIGNAL(recordingChanged(bool)), this, SIGNAL(recordingChanged(bool)));
     }
     if (m_v8plugin) {
         disconnect(m_v8plugin.data(), SIGNAL(complete()), this, SLOT(v8Complete()));
@@ -376,6 +378,15 @@ void TraceWindow::updateCursorPosition()
 void TraceWindow::updateTimer()
 {
     m_profiledTime = m_mainView->rootObject()->property("elapsedTime").toDouble();
+}
+
+void TraceWindow::correctTimer()
+{
+    // once the data is post-processed, use the eventlist time instead of the qml timer
+    m_profiledTime = (m_eventList->traceEndTime() - m_eventList->traceStartTime()) / 1.0e9;
+    if (m_profiledTime < 0)
+        m_profiledTime = 0;
+    emit viewUpdated();
 }
 
 double TraceWindow::profiledTime() const
@@ -463,11 +474,11 @@ bool TraceWindow::isRecording() const
 void TraceWindow::qmlComplete()
 {
     m_qmlDataReady = true;
-
     if (!m_v8plugin || m_v8plugin.data()->status() != QDeclarativeDebugClient::Enabled || m_v8DataReady) {
-        emit viewUpdated();
-        // once complete is sent, reset the flag
+        m_eventList->complete();
+        // once complete is sent, reset the flags
         m_qmlDataReady = false;
+        m_v8DataReady = false;
     }
 }
 
@@ -475,9 +486,10 @@ void TraceWindow::v8Complete()
 {
     m_v8DataReady = true;
     if (!m_plugin || m_plugin.data()->status() != QDeclarativeDebugClient::Enabled || m_qmlDataReady) {
-        emit viewUpdated();
-        // once complete is sent, reset the flag
+        m_eventList->complete();
+        // once complete is sent, reset the flags
         m_v8DataReady = false;
+        m_qmlDataReady = false;
     }
 }
 
@@ -589,6 +601,42 @@ void TraceWindow::updateToolTip(const QString &text)
 void TraceWindow::updateVerticalScroll(int newPosition)
 {
     m_mainView->verticalScrollBar()->setValue(newPosition);
+}
+
+void TraceWindow::eventListStateChanged()
+{
+    switch (m_eventList->currentState()) {
+    case QmlProfilerEventList::Empty :
+        clearDisplay();
+        break;
+    case QmlProfilerEventList::AcquiringData :
+        firstDataReceived();
+        break;
+    case QmlProfilerEventList::ProcessingData :
+        // nothing to be done
+        break;
+    case QmlProfilerEventList::Done :
+        correctTimer();
+    break;
+    default:
+        break;
+    }
+}
+
+void TraceWindow::manageTraceStart(qint64 traceStart)
+{
+    // new trace started
+    clearDisplay();
+
+    emit traceStarted(traceStart);
+}
+
+void TraceWindow::firstDataReceived()
+{
+    if (m_plugin && m_plugin.data()->isRecording()) {
+        // serverside recording disabled
+        m_plugin.data()->setRecordingFromServer(false);
+    }
 }
 
 } // namespace Internal

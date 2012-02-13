@@ -217,15 +217,15 @@ bool QmlProfilerEngine::start()
 
 void QmlProfilerEngine::stop()
 {
-    // keep the flag for the next restart
-    d->m_fetchDataFromStart = d->m_fetchingData;
     if (d->m_fetchingData) {
         if (d->m_running)
             d->m_delayedDelete = true;
         // will result in dataReceived() call
         emit stopRecording();
+        d->m_fetchDataFromStart = true;
     } else {
         finishProcess();
+        d->m_fetchDataFromStart = false;
     }
 }
 
@@ -242,8 +242,9 @@ void QmlProfilerEngine::stopped()
 
     d->m_running = false;
     d->m_runningTimer.stop();
-    AnalyzerManager::stopTool(); // FIXME: Needed?
+    AnalyzerManager::stopTool();
     emit finished();
+    emit recordingChanged(d->m_fetchDataFromStart);
 }
 
 void QmlProfilerEngine::setFetchingData(bool b)
@@ -269,6 +270,7 @@ void QmlProfilerEngine::finishProcess()
         if (d->m_runner)
             d->m_runner->stop();
         emit finished();
+        emit recordingChanged(d->m_fetchDataFromStart);
     }
 }
 
@@ -299,6 +301,7 @@ void QmlProfilerEngine::wrongSetupMessageBox(const QString &errorMessage)
     d->m_runningTimer.stop();
     AnalyzerManager::stopTool();
     emit finished();
+    emit recordingChanged(d->m_fetchDataFromStart);
 }
 
 void QmlProfilerEngine::wrongSetupMessageBoxFinished(int button)
