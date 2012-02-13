@@ -143,7 +143,7 @@ void TaskModel::removeTask(const Task &task)
 
 void TaskModel::clearTasks(const Core::Id &categoryId)
 {
-    if (categoryId.uniqueIdentifier() != 0) {
+    if (categoryId.uniqueIdentifier() == 0) {
         if (m_tasks.count() == 0)
             return;
         beginRemoveRows(QModelIndex(), 0, m_tasks.count() -1);
