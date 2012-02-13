@@ -51,7 +51,7 @@ class REMOTELINUX_EXPORT DeploymentInfo : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    DeploymentInfo(const AbstractEmbeddedLinuxTarget *target);
+    DeploymentInfo(AbstractEmbeddedLinuxTarget *target);
     ~DeploymentInfo();
 
     void setUnmodified();

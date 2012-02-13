@@ -58,8 +58,9 @@ public:
 
 using namespace Internal;
 
-DeploymentInfo::DeploymentInfo(const AbstractEmbeddedLinuxTarget *target)
-    : d(new DeploymentInfoPrivate(target))
+DeploymentInfo::DeploymentInfo(AbstractEmbeddedLinuxTarget *target) :
+    QAbstractListModel(target),
+    d(new DeploymentInfoPrivate(target))
 {
     connect (d->target->qt4Project(), SIGNAL(proParsingDone()), SLOT(createModels()));
     createModels();
