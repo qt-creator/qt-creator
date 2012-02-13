@@ -227,5 +227,6 @@ ProFileAssistProposalModel::~ProFileAssistProposalModel()
 
 bool ProFileAssistProposalModel::isSortable(const QString &prefix) const
 {
+    Q_UNUSED(prefix)
     return false;
 }
