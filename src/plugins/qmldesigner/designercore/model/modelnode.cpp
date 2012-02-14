@@ -286,7 +286,7 @@ A node might become invalid if e.g. it or one of its ancestors is deleted.
 */
 bool ModelNode::isValid() const
 {
-    return !m_model.isNull() && !m_view.isNull() && m_internalNode &&m_internalNode->isValid() /*&& model()->metaInfo().hasNodeMetaInfo(m_internalNode->type(), m_internalNode->majorVersion(), m_internalNode->minorVersion())*/;
+    return !m_model.isNull() && !m_view.isNull() && m_internalNode && m_internalNode->isValid();
 }
 
 /*!
@@ -695,10 +695,6 @@ Internal::InternalNodePointer ModelNode::internalNode() const
 
 uint qHash(const ModelNode &node)
 {
-//    if (!node.isValid()) {
-//        Q_ASSERT_X(node.isValid(), Q_FUNC_INFO, "model node is invalid");
-//        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-//    }
     return ::qHash(node.internalId());
 }
 

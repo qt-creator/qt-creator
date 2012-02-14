@@ -1678,40 +1678,7 @@ WriteLocker::~WriteLocker()
     m_model->m_writeLock = false;
 }
 
-//static QString anchorLinePropertyValue(const InternalNode::Pointer &sourceNode, const InternalNode::Pointer &targetNode, const AnchorLine::Type &targetType)
-//{
-//    if (targetNode.isNull() || !targetNode->isValid())
-//        return QString();
-//
-//    if (sourceNode.isNull() || !sourceNode->isValid())
-//        return QString();
-//
-//    if (targetNode == sourceNode)
-//        return QString();
-//
-//    QString anchorLineType = InternalNodeAnchors::lineTypeToString(targetType);
-//
-//    // handle "parent" and "parent.something"
-//    if (targetNode == sourceNode->parentNode()) {
-//        if (anchorLineType.isNull())
-//            return QLatin1String("parent");
-//        else
-//            return QString("parent.%1").arg(anchorLineType);
-//    }
-//
-//    if (anchorLineType.isNull())
-//        return QString(); // for sibling reference, the type cannot be empty anymore.
-//
-//    foreach (const InternalNode::Pointer &sibling, sourceNode->parentNode()->childNodes()) {
-//        if (sibling == targetNode) {
-//            return QString("%1.%2").arg(sibling->id(), anchorLineType);
-//        }
-//    }
-//
-//    return QString();
-//}
-
-}
+} //namespace internal
 
 
 Model::Model()  :
@@ -1731,44 +1698,6 @@ Model *Model::create(QString type, int major, int minor, Model *metaInfoPropxyMo
 {
     return Internal::ModelPrivate::create(type, major, minor, metaInfoPropxyModel);
 }
-
-
-/*!
-  \brief Creates a model for a component definition
-
-  Creates a model containing the content of a component node. The component node itself is
-  not part of the newly created model; it's the first item defined after "Component {"
-  that is the root node.
-
-  \arg componentNode must be valid & of type "Qt/Component"
-  \return the newly created model. The caller takes ownership of the object life time.
-  */
-//Model *Model::createComponentModel(const ModelNode &componentNode)
-//{
-//
-//    if (!componentNode.isValid() || componentNode.type() != "Qt/Component") {
-//        throw new InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, QString("componentNode"));
-//    }
-//
-//    // the data property does not include the Component element itself
-//    const TextLocation componentRootLocation
-//            = componentNode.baseNodeState().m_internalNodeState->propertyLocation("data");
-//
-//    TextModifier *textModifier
-//            = new Internal::ComponentTextModifier(d->m_rewriter->textModifier(),
-//                                                  componentRootLocation,
-//                                                  d->m_rootInternalNode->baseNodeState()->location());
-//
-//    QList<QDeclarativeError> errors;
-//    Model *subModel = create(textModifier, d->m_fileUrl, &errors);
-//
-//    Q_ASSERT(subModel);
-//    Q_ASSERT(errors.size() == 0); // should never happen, after all it was already compiled!
-//
-//    textModifier->setParent(subModel);
-//
-//    return subModel;
-//}
 
 QList<Import> Model::imports() const
 {
