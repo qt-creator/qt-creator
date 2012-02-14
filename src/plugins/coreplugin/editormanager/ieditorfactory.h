@@ -33,18 +33,18 @@
 #ifndef IEDITORFACTORY_H
 #define IEDITORFACTORY_H
 
-#include <coreplugin/ifilefactory.h>
+#include <coreplugin/idocumentfactory.h>
 
 namespace Core {
 
 class IEditor;
 
-class CORE_EXPORT IEditorFactory : public Core::IFileFactory
+class CORE_EXPORT IEditorFactory : public Core::IDocumentFactory
 {
     Q_OBJECT
 
 public:
-    IEditorFactory(QObject *parent = 0) : IFileFactory(parent) {}
+    IEditorFactory(QObject *parent = 0) : IDocumentFactory(parent) {}
 
     virtual IEditor *createEditor(QWidget *parent) = 0;
 };

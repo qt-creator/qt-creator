@@ -40,7 +40,7 @@
 #include <app/app_version.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <utils/qtcassert.h>
@@ -601,14 +601,14 @@ void ExternalToolRunner::run()
     }
     if (m_tool->modifiesCurrentDocument()) {
         if (IEditor *editor = EditorManager::instance()->currentEditor()) {
-            m_expectedFileName = editor->file()->fileName();
+            m_expectedFileName = editor->document()->fileName();
             bool cancelled = false;
-            FileManager::saveModifiedFiles(QList<IFile *>() << editor->file(), &cancelled);
+            DocumentManager::saveModifiedDocuments(QList<IDocument *>() << editor->document(), &cancelled);
             if (cancelled) {
                 deleteLater();
                 return;
             }
-            FileManager::expectFileChange(m_expectedFileName);
+            DocumentManager::expectFileChange(m_expectedFileName);
         }
     }
     m_process = new Utils::QtcProcess(this);
@@ -641,7 +641,7 @@ void ExternalToolRunner::finished(int exitCode, QProcess::ExitStatus status)
             emit ExternalToolManager::instance()->replaceSelectionRequested(m_processOutput);
         }
         if (m_tool->modifiesCurrentDocument()) {
-            FileManager::unexpectFileChange(m_expectedFileName);
+            DocumentManager::unexpectFileChange(m_expectedFileName);
         }
     }
     ICore::messageManager()->printToOutputPane(
@@ -652,7 +652,7 @@ void ExternalToolRunner::finished(int exitCode, QProcess::ExitStatus status)
 void ExternalToolRunner::error(QProcess::ProcessError error)
 {
     if (m_tool->modifiesCurrentDocument())
-        FileManager::unexpectFileChange(m_expectedFileName);
+        DocumentManager::unexpectFileChange(m_expectedFileName);
     // TODO inform about errors
     Q_UNUSED(error);
     deleteLater();

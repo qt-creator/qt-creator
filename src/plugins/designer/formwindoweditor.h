@@ -53,7 +53,7 @@ namespace Internal {
 struct FormWindowEditorPrivate;
 
 // The actual Core::IEditor belonging to Qt Designer. Uses FormWindowFile
-// as the Core::IFile to do the isModified() handling,
+// as the Core::IDocument to do the isModified() handling,
 // which needs to be done by Qt Designer.
 // However, to make the read-only XML text editor work,
 // a TextEditor::PlainTextEditorEditable (IEditor) is also required.
@@ -72,7 +72,7 @@ public:
     // IEditor
     virtual bool createNew(const QString &contents = QString());
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    virtual Core::IFile *file();
+    virtual Core::IDocument *document();
     virtual Core::Id id() const;
     virtual QString displayName() const;
     virtual void setDisplayName(const QString &title);

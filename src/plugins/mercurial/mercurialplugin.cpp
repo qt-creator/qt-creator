@@ -49,7 +49,7 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <locator/commandlocator.h>
@@ -627,7 +627,7 @@ bool MercurialPlugin::submitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor
 {
     if (!changeLog)
         return true;
-    Core::IFile *editorFile = submitEditor->file();
+    Core::IDocument *editorFile = submitEditor->document();
     CommitEditor *commitEditor = qobject_cast<CommitEditor *>(submitEditor);
     if (!editorFile || !commitEditor)
         return true;
@@ -651,7 +651,7 @@ bool MercurialPlugin::submitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor
     const QStringList files = commitEditor->checkedFiles();
     if (!files.empty()) {
         //save the commit message
-        if (!Core::FileManager::saveFile(editorFile))
+        if (!Core::DocumentManager::saveDocument(editorFile))
             return false;
 
         QStringList extraOptions;

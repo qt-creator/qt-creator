@@ -36,7 +36,7 @@
 #include "command_p.h"
 #include "commandsfile.h"
 #include "coreconstants.h"
-#include "filemanager.h"
+#include "documentmanager.h"
 #include "icore.h"
 #include "id.h"
 
@@ -266,7 +266,7 @@ void ShortcutSettings::defaultAction()
 
 void ShortcutSettings::exportAction()
 {
-    QString fileName = FileManager::getSaveFileNameWithExtension(
+    QString fileName = DocumentManager::getSaveFileNameWithExtension(
         tr("Export Keyboard Mapping Scheme"),
         ICore::resourcePath() + QLatin1String("/schemes/"),
         tr("Keyboard Mapping Scheme (*.kms)"));

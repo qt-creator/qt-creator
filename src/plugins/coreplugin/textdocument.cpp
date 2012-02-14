@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include "textfile.h"
+#include "textdocument.h"
 #include "editormanager.h"
 
 #include <QDebug>
@@ -51,10 +51,10 @@ enum { debug = 0 };
 namespace Core {
 
 namespace Internal {
-class TextFilePrivate
+class TextDocumentPrivate
 {
 public:
-    TextFilePrivate() : m_readResult(Utils::TextFileFormat::ReadSuccess) {}
+    TextDocumentPrivate() : m_readResult(Utils::TextFileFormat::ReadSuccess) {}
 
     Utils::TextFileFormat m_format;
     Utils::TextFileFormat::ReadResult m_readResult;
@@ -63,23 +63,23 @@ public:
 
 } // namespace Internal
 
-TextFile::TextFile(QObject *parent) :
-    IFile(parent), d(new Internal::TextFilePrivate)
+TextDocument::TextDocument(QObject *parent) :
+    IDocument(parent), d(new Internal::TextDocumentPrivate)
 {
     setCodec(Core::EditorManager::instance()->defaultTextCodec());
 }
 
-TextFile::~TextFile()
+TextDocument::~TextDocument()
 {
     delete d;
 }
 
-bool TextFile::hasDecodingError() const
+bool TextDocument::hasDecodingError() const
 {
     return d->m_readResult == Utils::TextFileFormat::ReadEncodingError;
 }
 
-QByteArray TextFile::decodingErrorSample() const
+QByteArray TextDocument::decodingErrorSample() const
 {
     return d->m_decodingErrorSample;
 }
@@ -88,7 +88,7 @@ QByteArray TextFile::decodingErrorSample() const
     \brief Writes out text using the format obtained from the last read.
 */
 
-bool TextFile::write(const QString &fileName, const QString &data, QString *errorMessage) const
+bool TextDocument::write(const QString &fileName, const QString &data, QString *errorMessage) const
 {
     return write(fileName, format(), data, errorMessage);
 }
@@ -97,7 +97,7 @@ bool TextFile::write(const QString &fileName, const QString &data, QString *erro
     \brief Writes out text using a custom format obtained.
 */
 
-bool TextFile::write(const QString &fileName, const Utils::TextFileFormat &format, const QString &data, QString *errorMessage) const
+bool TextDocument::write(const QString &fileName, const Utils::TextFileFormat &format, const QString &data, QString *errorMessage) const
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << this << fileName;
@@ -108,7 +108,7 @@ bool TextFile::write(const QString &fileName, const Utils::TextFileFormat &forma
     \brief Autodetect format and read in a text file.
 */
 
-TextFile::ReadResult TextFile::read(const QString &fileName, QStringList *plainTextList, QString *errorString)
+TextDocument::ReadResult TextDocument::read(const QString &fileName, QStringList *plainTextList, QString *errorString)
 {
     d->m_readResult =
         Utils::TextFileFormat::readFile(fileName, codec(),
@@ -120,7 +120,7 @@ TextFile::ReadResult TextFile::read(const QString &fileName, QStringList *plainT
     \brief Autodetect format and read in a text file.
 */
 
-TextFile::ReadResult TextFile::read(const QString &fileName, QString *plainText, QString *errorString)
+TextDocument::ReadResult TextDocument::read(const QString &fileName, QString *plainText, QString *errorString)
 {
     d->m_readResult =
         Utils::TextFileFormat::readFile(fileName, codec(),
@@ -128,12 +128,12 @@ TextFile::ReadResult TextFile::read(const QString &fileName, QString *plainText,
     return d->m_readResult;
 }
 
-const QTextCodec *TextFile::codec() const
+const QTextCodec *TextDocument::codec() const
 {
     return d->m_format.codec;
 }
 
-void TextFile::setCodec(const QTextCodec *codec)
+void TextDocument::setCodec(const QTextCodec *codec)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << this << (codec ? codec->name() : QByteArray());
@@ -144,7 +144,7 @@ void TextFile::setCodec(const QTextCodec *codec)
     \brief Returns the format obtained from the last call to read().
 */
 
-Utils::TextFileFormat TextFile::format() const
+Utils::TextFileFormat TextDocument::format() const
 {
     return d->m_format;
 }

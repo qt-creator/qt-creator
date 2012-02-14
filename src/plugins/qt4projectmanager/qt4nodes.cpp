@@ -45,7 +45,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/fileiconprovider.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
@@ -166,7 +166,7 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 Qt4PriFile::Qt4PriFile(Qt4ProjectManager::Qt4PriFileNode *qt4PriFile)
-    : IFile(qt4PriFile), m_priFile(qt4PriFile)
+    : IDocument(qt4PriFile), m_priFile(qt4PriFile)
 {
 
 }
@@ -216,7 +216,7 @@ bool Qt4PriFile::isSaveAsAllowed() const
     return false;
 }
 
-Core::IFile::ReloadBehavior Qt4PriFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
+Core::IDocument::ReloadBehavior Qt4PriFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state)
     Q_UNUSED(type)
@@ -250,7 +250,7 @@ Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNo
 {
     Q_ASSERT(project);
     m_qt4PriFile = new Qt4PriFile(this);
-    Core::FileManager::addFile(m_qt4PriFile);
+    Core::DocumentManager::addDocument(m_qt4PriFile);
 
     setDisplayName(QFileInfo(filePath).completeBaseName());
 
@@ -1004,14 +1004,14 @@ bool Qt4PriFileNode::priFileWritable(const QString &path)
 {
     const QString dir = QFileInfo(path).dir().path();
     Core::IVersionControl *versionControl = Core::ICore::vcsManager()->findVersionControlForDirectory(dir);
-    switch (Core::FileManager::promptReadOnlyFile(path, versionControl, Core::ICore::mainWindow(), false)) {
-    case Core::FileManager::RO_OpenVCS:
+    switch (Core::DocumentManager::promptReadOnlyFile(path, versionControl, Core::ICore::mainWindow(), false)) {
+    case Core::DocumentManager::RO_OpenVCS:
         if (!versionControl->vcsOpen(path)) {
             QMessageBox::warning(Core::ICore::mainWindow(), tr("Cannot Open File"), tr("Cannot open the file for editing with VCS."));
             return false;
         }
         break;
-    case Core::FileManager::RO_MakeWriteable: {
+    case Core::DocumentManager::RO_MakeWriteable: {
         const bool permsOk = QFile::setPermissions(path, QFile::permissions(path) | QFile::WriteUser);
         if (!permsOk) {
             QMessageBox::warning(Core::ICore::mainWindow(), tr("Cannot Set Permissions"),  tr("Cannot set permissions to writable."));
@@ -1019,8 +1019,8 @@ bool Qt4PriFileNode::priFileWritable(const QString &path)
         }
         break;
     }
-    case Core::FileManager::RO_SaveAs:
-    case Core::FileManager::RO_Cancel:
+    case Core::DocumentManager::RO_SaveAs:
+    case Core::DocumentManager::RO_Cancel:
         return false;
     }
     return true;
@@ -1028,18 +1028,18 @@ bool Qt4PriFileNode::priFileWritable(const QString &path)
 
 bool Qt4PriFileNode::saveModifiedEditors()
 {
-    QList<Core::IFile*> modifiedFileHandles;
+    QList<Core::IDocument*> modifiedDocuments;
 
     foreach (Core::IEditor *editor, Core::ICore::editorManager()->editorsForFileName(m_projectFilePath)) {
-        if (Core::IFile *editorFile = editor->file()) {
-            if (editorFile->isModified())
-                modifiedFileHandles << editorFile;
+        if (Core::IDocument *editorDocument = editor->document()) {
+            if (editorDocument->isModified())
+                modifiedDocuments << editorDocument;
         }
     }
 
-    if (!modifiedFileHandles.isEmpty()) {
+    if (!modifiedDocuments.isEmpty()) {
         bool cancelled;
-        Core::FileManager::saveModifiedFiles(modifiedFileHandles, &cancelled,
+        Core::DocumentManager::saveModifiedDocuments(modifiedDocuments, &cancelled,
                                          tr("There are unsaved changes for project file %1.").arg(m_projectFilePath));
         if (cancelled)
             return false;
@@ -1146,9 +1146,9 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     }
 
     // save file
-    Core::FileManager::expectFileChange(m_projectFilePath);
+    Core::DocumentManager::expectFileChange(m_projectFilePath);
     save(lines);
-    Core::FileManager::unexpectFileChange(m_projectFilePath);
+    Core::DocumentManager::unexpectFileChange(m_projectFilePath);
 
     // This is a hack.
     // We are saving twice in a very short timeframe, once the editor and once the ProFile.
@@ -1157,9 +1157,9 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     // (The .pro files are notified by the file system watcher.)
     QStringList errorStrings;
     foreach (Core::IEditor *editor, Core::ICore::editorManager()->editorsForFileName(m_projectFilePath)) {
-        if (Core::IFile *editorFile = editor->file()) {
+        if (Core::IDocument *editorDocument= editor->document()) {
             QString errorString;
-            if (!editorFile->reload(&errorString, Core::IFile::FlagReload, Core::IFile::TypeContents))
+            if (!editorDocument->reload(&errorString, Core::IDocument::FlagReload, Core::IDocument::TypeContents))
                 errorStrings << errorString;
         }
     }

@@ -41,7 +41,7 @@ using namespace TaskList::Internal;
 // TaskFile
 // --------------------------------------------------------------------------
 
-TaskFile::TaskFile(QObject *parent) : Core::IFile(parent),
+TaskFile::TaskFile(QObject *parent) : Core::IDocument(parent),
     m_context(0)
 { }
 
@@ -86,7 +86,7 @@ bool TaskFile::isSaveAsAllowed() const
     return false;
 }
 
-Core::IFile::ReloadBehavior TaskFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
+Core::IDocument::ReloadBehavior TaskFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state);
     Q_UNUSED(type);

@@ -35,7 +35,7 @@
 #include "cpptoolseditorsupport.h"
 #include "cppmodelmanager.h"
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
@@ -137,7 +137,7 @@ void CppEditorSupport::updateDocumentNow()
     } else {
         _updateDocumentTimer->stop();
 
-        QStringList sourceFiles(_textEditor->file()->fileName());
+        QStringList sourceFiles(_textEditor->document()->fileName());
         _cachedContents = _textEditor->contents().toUtf8();
         _documentParser = _modelManager->refreshSourceFiles(sourceFiles);
     }

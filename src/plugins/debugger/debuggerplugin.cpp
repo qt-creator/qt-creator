@@ -585,9 +585,9 @@ static bool currentTextEditorPosition(ContextData *data)
     TextEditor::ITextEditor *textEditor = currentTextEditor();
     if (!textEditor)
         return false;
-    const Core::IFile *file = textEditor->file();
-    QTC_ASSERT(file, return false);
-    data->fileName = file->fileName();
+    const Core::IDocument *document = textEditor->document();
+    QTC_ASSERT(document, return false);
+    data->fileName = document->fileName();
     if (textEditor->property("DisassemblerView").toBool()) {
         int lineNumber = textEditor->currentLine();
         QString line = textEditor->contents()
@@ -1868,7 +1868,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
     bool contextUsable = true;
 
     BreakpointModelId id = BreakpointModelId();
-    const QString fileName = editor->file()->fileName();
+    const QString fileName = editor->document()->fileName();
     if (editor->property("DisassemblerView").toBool()) {
         args.fileName = fileName;
         QString line = editor->contents()
@@ -1881,7 +1881,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
         id = breakHandler()->findSimilarBreakpoint(needle);
         contextUsable = args.address != 0;
     } else {
-        args.fileName = editor->file()->fileName();
+        args.fileName = editor->document()->fileName();
         id = breakHandler()
             ->findBreakpointByFileAndLine(args.fileName, lineNumber);
         if (!id)
@@ -1989,7 +1989,7 @@ void DebuggerPluginPrivate::toggleBreakpoint()
         quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
         toggleBreakpointByAddress(address);
     } else if (lineNumber >= 0) {
-        toggleBreakpointByFileAndLine(textEditor->file()->fileName(), lineNumber);
+        toggleBreakpointByFileAndLine(textEditor->document()->fileName(), lineNumber);
     }
 }
 
@@ -2043,8 +2043,8 @@ void DebuggerPluginPrivate::requestMark(ITextEditor *editor,
             .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
         quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
         toggleBreakpointByAddress(address);
-    } else if (editor->file()) {
-        toggleBreakpointByFileAndLine(editor->file()->fileName(), lineNumber);
+    } else if (editor->document()) {
+        toggleBreakpointByFileAndLine(editor->document()->fileName(), lineNumber);
     }
 }
 
@@ -2146,7 +2146,7 @@ void DebuggerPluginPrivate::cleanupViews()
             // Close disassembly views. Close other opened files
             // if they are not modified and not current editor.
             if (editor->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()
-                    || (!editor->file()->isModified()
+                    || (!editor->document()->isModified()
                         && editor != editorManager->currentEditor())) {
                 toClose.append(editor);
             } else {
@@ -3659,7 +3659,7 @@ void DebuggerPluginPrivate::testProjectLoaded(Project *project)
     disconnect(pe, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(testProjectLoaded(ProjectExplorer::Project*)));
 
-    QString fileName = project->file()->fileName();
+    QString fileName = project->document()->fileName();
     QVERIFY(!fileName.isEmpty());
     qWarning("Project %s loaded", qPrintable(fileName));
 

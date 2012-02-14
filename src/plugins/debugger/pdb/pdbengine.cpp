@@ -54,7 +54,7 @@
 #include <utils/qtcassert.h>
 
 #include <texteditor/itexteditor.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 
 #include <QDateTime>
@@ -466,7 +466,7 @@ bool PdbEngine::setToolTipExpression(const QPoint &mousePos,
     // Check mime type and get expression (borrowing some C++ - functions)
     const QString javaPythonMimeType =
         QLatin1String("application/javascript");
-    if (!editor->file() || editor->file()->mimeType() != javaPythonMimeType)
+    if (!editor->document() || editor->document()->mimeType() != javaPythonMimeType)
         return false;
 
     int line;

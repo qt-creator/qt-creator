@@ -141,7 +141,7 @@ public:
     void setChangeSet(const Utils::ChangeSet &changeSet);
 
     // EditorInterface
-    Core::IFile * file() const;
+    Core::IDocument *editorDocument() const;
     bool createNew(const QString &contents);
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     QByteArray saveState() const;
@@ -599,7 +599,7 @@ public:
 
     // EditorInterface
     //QWidget *widget() { return e; }
-    Core::IFile * file() { return e->file(); }
+    Core::IDocument * document() { return e->editorDocument(); }
     bool createNew(const QString &contents) { return e->createNew(contents); }
     bool open(QString *errorString, const QString &fileName, const QString &realFileName) { return e->open(errorString, fileName, realFileName); }
     QString displayName() const { return e->displayName(); }

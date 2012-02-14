@@ -201,10 +201,10 @@ void FormWindowEditor::syncXmlEditor(const QString &contents)
     d->m_textEditor.editorWidget()->setPlainText(contents);
     d->m_textEditor.editorWidget()->setReadOnly(true);
     static_cast<TextEditor::PlainTextEditorWidget *>
-            (d->m_textEditor.editorWidget())->configure(file()->mimeType());
+            (d->m_textEditor.editorWidget())->configure(document()->mimeType());
 }
 
-Core::IFile *FormWindowEditor::file()
+Core::IDocument *FormWindowEditor::document()
 {
     return &d->m_file;
 }
@@ -271,7 +271,7 @@ QString FormWindowEditor::contents() const
 
 TextEditor::BaseTextDocument *FormWindowEditor::textDocument()
 {
-    return qobject_cast<TextEditor::BaseTextDocument*>(d->m_textEditor.file());
+    return qobject_cast<TextEditor::BaseTextDocument*>(d->m_textEditor.document());
 }
 
 TextEditor::PlainTextEditor *FormWindowEditor::textEditor()

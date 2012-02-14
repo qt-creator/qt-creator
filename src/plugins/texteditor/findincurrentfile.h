@@ -35,7 +35,7 @@
 
 #include "basefilefind.h"
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <QPointer>
@@ -67,7 +67,7 @@ private slots:
     void handleFileChange(Core::IEditor *editor);
 
 private:
-    QPointer<Core::IFile> m_currentFile;
+    QPointer<Core::IDocument> m_currentDocument;
 };
 
 } // namespace Internal

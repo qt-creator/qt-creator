@@ -84,7 +84,7 @@ bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
     // Objects
     m_modelManager = new ModelManager(this);
 //    Core::VCSManager *vcsManager = core->vcsManager();
-//    Core::FileManager *fileManager = core->fileManager();
+//    Core::DocumentManager *fileManager = core->fileManager();
 //    connect(vcsManager, SIGNAL(repositoryChanged(QString)),
 //            m_modelManager, SLOT(updateModifiedSourceFiles()));
 //    connect(fileManager, SIGNAL(filesChangedInternally(QStringList)),

@@ -79,7 +79,7 @@ Core::Id CMakeEditor::id() const
 
 void CMakeEditor::markAsChanged()
 {
-    if (!file()->isModified())
+    if (!document()->isModified())
         return;
     if (m_infoBarShown)
         return;
@@ -87,7 +87,7 @@ void CMakeEditor::markAsChanged()
     Core::InfoBarEntry info(QLatin1String("CMakeEditor.RunCMake"),
                             tr("Changes to cmake files are shown in the project tree after building."));
     info.setCustomButtonInfo(tr("Build now"), this, SLOT(build()));
-    file()->infoBar()->addInfo(info);
+    document()->infoBar()->addInfo(info);
 }
 
 void CMakeEditor::build()
@@ -97,7 +97,7 @@ void CMakeEditor::build()
     foreach (ProjectExplorer::Project *p, projects) {
         CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(p);
         if (cmakeProject) {
-            if (cmakeProject->isProjectFile(file()->fileName())) {
+            if (cmakeProject->isProjectFile(document()->fileName())) {
                 ProjectExplorer::ProjectExplorerPlugin::instance()->buildProject(cmakeProject);
                 break;
             }

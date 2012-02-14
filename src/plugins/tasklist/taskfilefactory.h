@@ -33,8 +33,8 @@
 #ifndef TASKFILEFACTORY_H
 #define TASKFILEFACTORY_H
 
-#include <coreplugin/ifilefactory.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocumentfactory.h>
+#include <coreplugin/idocument.h>
 
 #include <QStringList>
 
@@ -45,7 +45,7 @@ class Project;
 namespace TaskList {
 namespace Internal {
 
-class TaskFileFactory : public Core::IFileFactory
+class TaskFileFactory : public Core::IDocumentFactory
 {
     Q_OBJECT
 public:
@@ -57,14 +57,14 @@ public:
     Core::Id id() const;
     QString displayName() const;
 
-    Core::IFile *open(const QString &fileName);
-    Core::IFile *open(ProjectExplorer::Project *context, const QString &fileName);
+    Core::IDocument *open(const QString &fileName);
+    Core::IDocument *open(ProjectExplorer::Project *context, const QString &fileName);
 
     void closeAllFiles();
 
 private:
     QStringList m_mimeTypes;
-    QList<Core::IFile *> m_openFiles;
+    QList<Core::IDocument *> m_openFiles;
 };
 
 } // namespace Internal

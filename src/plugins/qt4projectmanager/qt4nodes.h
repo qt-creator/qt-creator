@@ -36,7 +36,7 @@
 #include "qt4projectmanager_global.h"
 
 #include <utils/fileutils.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <projectexplorer/projectnodes.h>
 
 #include <QHash>
@@ -219,7 +219,7 @@ private:
 };
 
 namespace Internal {
-class Qt4PriFile : public Core::IFile
+class Qt4PriFile : public Core::IDocument
 {
     Q_OBJECT
 public:

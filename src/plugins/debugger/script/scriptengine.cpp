@@ -50,7 +50,7 @@
 #include <utils/qtcassert.h>
 
 #include <texteditor/itexteditor.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/scriptmanager/scriptmanager.h>
 #include <coreplugin/icore.h>
 
@@ -522,7 +522,7 @@ bool ScriptEngine::setToolTipExpression(const QPoint &mousePos,
     // Check mime type and get expression (borrowing some C++ - functions)
     const QString javaScriptMimeType =
         QLatin1String("application/javascript");
-    if (!editor->file() || editor->file()->mimeType() != javaScriptMimeType)
+    if (!editor->document() || editor->document()->mimeType() != javaScriptMimeType)
         return false;
 
     int line;

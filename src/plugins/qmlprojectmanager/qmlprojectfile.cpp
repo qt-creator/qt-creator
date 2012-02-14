@@ -39,7 +39,7 @@ namespace QmlProjectManager {
 namespace Internal {
 
 QmlProjectFile::QmlProjectFile(QmlProject *parent, QString fileName)
-    : Core::IFile(parent),
+    : Core::IDocument(parent),
       m_project(parent),
       m_fileName(fileName)
 {
@@ -93,7 +93,7 @@ bool QmlProjectFile::isSaveAsAllowed() const
     return false;
 }
 
-Core::IFile::ReloadBehavior QmlProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
+Core::IDocument::ReloadBehavior QmlProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state)
     Q_UNUSED(type)

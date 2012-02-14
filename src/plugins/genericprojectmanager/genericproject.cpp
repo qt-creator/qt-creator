@@ -49,7 +49,7 @@
 #include <utils/fileutils.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 
 #include <QDir>
 #include <QProcessEnvironment>
@@ -86,17 +86,17 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
     m_includesFileName = QFileInfo(dir, m_projectName + QLatin1String(".includes")).absoluteFilePath();
     m_configFileName   = QFileInfo(dir, m_projectName + QLatin1String(".config")).absoluteFilePath();
 
-    m_creatorIFile  = new GenericProjectFile(this, m_fileName, GenericProject::Everything);
-    m_filesIFile    = new GenericProjectFile(this, m_filesFileName, GenericProject::Files);
-    m_includesIFile = new GenericProjectFile(this, m_includesFileName, GenericProject::Configuration);
-    m_configIFile   = new GenericProjectFile(this, m_configFileName, GenericProject::Configuration);
+    m_creatorIDocument  = new GenericProjectFile(this, m_fileName, GenericProject::Everything);
+    m_filesIDocument    = new GenericProjectFile(this, m_filesFileName, GenericProject::Files);
+    m_includesIDocument = new GenericProjectFile(this, m_includesFileName, GenericProject::Configuration);
+    m_configIDocument   = new GenericProjectFile(this, m_configFileName, GenericProject::Configuration);
 
-    Core::FileManager::addFile(m_creatorIFile);
-    Core::FileManager::addFile(m_filesIFile);
-    Core::FileManager::addFile(m_includesIFile);
-    Core::FileManager::addFile(m_configIFile);
+    Core::DocumentManager::addDocument(m_creatorIDocument);
+    Core::DocumentManager::addDocument(m_filesIDocument);
+    Core::DocumentManager::addDocument(m_includesIDocument);
+    Core::DocumentManager::addDocument(m_configIDocument);
 
-    m_rootNode = new GenericProjectNode(this, m_creatorIFile);
+    m_rootNode = new GenericProjectNode(this, m_creatorIDocument);
 
     m_manager->registerProject(this);
 }
@@ -420,9 +420,9 @@ QString GenericProject::id() const
     return QLatin1String(Constants::GENERICPROJECT_ID);
 }
 
-Core::IFile *GenericProject::file() const
+Core::IDocument *GenericProject::document() const
 {
-    return m_creatorIFile;
+    return m_creatorIDocument;
 }
 
 IProjectManager *GenericProject::projectManager() const
@@ -605,7 +605,7 @@ void GenericBuildSettingsWidget::updateToolChainList()
 ////////////////////////////////////////////////////////////////////////////////////
 
 GenericProjectFile::GenericProjectFile(GenericProject *parent, QString fileName, GenericProject::RefreshOptions options)
-    : Core::IFile(parent),
+    : Core::IDocument(parent),
       m_project(parent),
       m_fileName(fileName),
       m_options(options)
@@ -656,7 +656,7 @@ void GenericProjectFile::rename(const QString &newName)
     QTC_CHECK(false);
 }
 
-Core::IFile::ReloadBehavior GenericProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
+Core::IDocument::ReloadBehavior GenericProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state)
     Q_UNUSED(type)

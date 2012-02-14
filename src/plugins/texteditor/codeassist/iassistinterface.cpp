@@ -78,7 +78,7 @@ IAssistInterface::~IAssistInterface()
 */
 
 /*!
-    \fn const Core::IFile *TextEditor::IAssistInterface::file() const
+    \fn const Core::IDocument *TextEditor::IAssistInterface::file() const
 
     Returns the file associated.
 */

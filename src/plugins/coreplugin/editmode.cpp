@@ -40,7 +40,7 @@
 #include "navigationwidget.h"
 #include "rightpane.h"
 #include "ieditor.h"
-#include "ifile.h"
+#include "idocument.h"
 
 #include <QLatin1String>
 #include <QHBoxLayout>

@@ -186,7 +186,7 @@
     \row
     \o Add a new editor type.
     \o Such as an editor for XML files.
-    \o \l{Core::IEditorFactory}, \l{Core::IEditor}, \l{Core::IFile}
+    \o \l{Core::IEditorFactory}, \l{Core::IEditor}, \l{Core::IDocument}
 
     \row
     \o Add a new wizard.

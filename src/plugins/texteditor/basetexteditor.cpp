@@ -663,7 +663,7 @@ void BaseTextEditorWidget::setChangeSet(const Utils::ChangeSet &changeSet)
     }
 }
 
-Core::IFile *BaseTextEditorWidget::file() const
+Core::IDocument *BaseTextEditorWidget::editorDocument() const
 {
     return d->m_document;
 }

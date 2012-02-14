@@ -32,7 +32,7 @@
 
 #include "openeditorsmodel.h"
 #include "ieditor.h"
-#include "ifile.h"
+#include "idocument.h"
 
 #include <QDir>
 #include <QIcon>
@@ -82,7 +82,7 @@ QIcon OpenEditorsModel::unlockedIcon() const
 }
 
 QString OpenEditorsModel::Entry::fileName() const {
-    return editor ? editor->file()->fileName() : m_fileName;
+    return editor ? editor->document()->fileName() : m_fileName;
 }
 
 QString OpenEditorsModel::Entry::displayName() const {
@@ -252,9 +252,9 @@ bool OpenEditorsModel::isDuplicate(IEditor *editor) const
 
 IEditor *OpenEditorsModel::originalForDuplicate(IEditor *duplicate) const
 {
-    IFile *file = duplicate->file();
+    IDocument *document = duplicate->document();
     foreach(const Entry &e, d->m_editors)
-        if (e.editor && e.editor->file() == file)
+        if (e.editor && e.editor->document() == document)
             return e.editor;
     return 0;
 }
@@ -262,9 +262,9 @@ IEditor *OpenEditorsModel::originalForDuplicate(IEditor *duplicate) const
 QList<IEditor *> OpenEditorsModel::duplicatesFor(IEditor *editor) const
 {
     QList<IEditor *> result;
-    IFile *file = editor->file();
+    IDocument *document = editor->document();
     foreach(IEditor *e, d->m_duplicateEditors)
-        if (e->file() == file)
+        if (e->document() == document)
             result += e;
     return result;
 }
@@ -306,16 +306,16 @@ QVariant OpenEditorsModel::data(const QModelIndex &index, int role) const
     Entry e = d->m_editors.at(index.row());
     switch (role) {
     case Qt::DisplayRole:
-        return (e.editor && e.editor->file()->isModified())
+        return (e.editor && e.editor->document()->isModified())
                 ? e.displayName() + QLatin1Char('*')
                 : e.displayName();
     case Qt::DecorationRole:
     {
         bool showLock = false;
         if (e.editor) {
-            showLock = e.editor->file()->fileName().isEmpty()
+            showLock = e.editor->document()->fileName().isEmpty()
                     ? false
-                    : e.editor->file()->isReadOnly();
+                    : e.editor->document()->isFileReadOnly();
         } else {
             showLock = !QFileInfo(e.m_fileName).isWritable();
         }
@@ -343,10 +343,10 @@ QModelIndex OpenEditorsModel::indexOf(IEditor *editor) const
     return createIndex(idx, 0);
 }
 
-QString OpenEditorsModel::displayNameForFile(IFile *file) const
+QString OpenEditorsModel::displayNameForDocument(IDocument *document) const
 {
     for (int i = 0; i < d->m_editors.count(); ++i)
-        if (d->m_editors.at(i).editor && d->m_editors.at(i).editor->file() == file)
+        if (d->m_editors.at(i).editor && d->m_editors.at(i).editor->document() == document)
             return d->m_editors.at(i).editor->displayName();
     return QString();
 }

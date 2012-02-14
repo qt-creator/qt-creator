@@ -105,7 +105,7 @@ QString ImageViewerFactory::displayName() const
     return tr(Constants::IMAGEVIEWER_DISPLAY_NAME);
 }
 
-Core::IFile *ImageViewerFactory::open(const QString & /*fileName*/)
+Core::IDocument *ImageViewerFactory::open(const QString & /*fileName*/)
 {
     return 0;
 }

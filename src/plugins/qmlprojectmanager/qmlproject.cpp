@@ -42,7 +42,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <qtsupport/qmldumptool.h>
 #include <qtsupport/baseqtversion.h>
@@ -72,7 +72,7 @@ QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
     m_file = new Internal::QmlProjectFile(this, fileName);
     m_rootNode = new Internal::QmlProjectNode(this, m_file);
 
-    Core::FileManager::addFile(m_file, true);
+    Core::DocumentManager::addDocument(m_file, true);
 
     m_manager->registerProject(this);
 }
@@ -81,7 +81,7 @@ QmlProject::~QmlProject()
 {
     m_manager->unregisterProject(this);
 
-    Core::FileManager::removeFile(m_file);
+    Core::DocumentManager::removeDocument(m_file);
 
     delete m_projectItem.data();
     delete m_rootNode;
@@ -89,7 +89,7 @@ QmlProject::~QmlProject()
 
 QDir QmlProject::projectDir() const
 {
-    return QFileInfo(file()->fileName()).dir();
+    return QFileInfo(document()->fileName()).dir();
 }
 
 QString QmlProject::filesFileName() const
@@ -262,7 +262,7 @@ QString QmlProject::id() const
     return QLatin1String("QmlProjectManager.QmlProject");
 }
 
-Core::IFile *QmlProject::file() const
+Core::IDocument *QmlProject::document() const
 {
     return m_file;
 }

@@ -197,8 +197,8 @@ bool CMakeProject::parseCMakeLists()
         return false;
 
     foreach (Core::IEditor *editor, Core::EditorManager::instance()->openedEditors())
-        if (isProjectFile(editor->file()->fileName()))
-            editor->file()->infoBar()->removeInfo(QLatin1String("CMakeEditor.RunCMake"));
+        if (isProjectFile(editor->document()->fileName()))
+            editor->document()->infoBar()->removeInfo(QLatin1String("CMakeEditor.RunCMake"));
 
     // Find cbp file
     CMakeBuildConfiguration *activeBC = activeTarget()->activeBuildConfiguration();
@@ -481,7 +481,7 @@ QString CMakeProject::id() const
     return QLatin1String(Constants::CMAKEPROJECT_ID);
 }
 
-Core::IFile *CMakeProject::file() const
+Core::IDocument *CMakeProject::document() const
 {
     return m_file;
 }
@@ -692,7 +692,7 @@ void CMakeProject::editorChanged(Core::IEditor *editor)
         disconnect(m_lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
         if (m_dirtyUic) {
             const QString contents =  formWindowEditorContents(m_lastEditor);
-            updateCodeModelSupportFromEditor(m_lastEditor->file()->fileName(), contents);
+            updateCodeModelSupportFromEditor(m_lastEditor->document()->fileName(), contents);
             m_dirtyUic = false;
         }
     }
@@ -713,7 +713,7 @@ void CMakeProject::editorAboutToClose(Core::IEditor *editor)
             disconnect(m_lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
             if (m_dirtyUic) {
                 const QString contents = formWindowEditorContents(m_lastEditor);
-                updateCodeModelSupportFromEditor(m_lastEditor->file()->fileName(), contents);
+                updateCodeModelSupportFromEditor(m_lastEditor->document()->fileName(), contents);
                 m_dirtyUic = false;
             }
         }
@@ -744,7 +744,7 @@ void CMakeProject::buildStateChanged(ProjectExplorer::Project *project)
 // CMakeFile
 
 CMakeFile::CMakeFile(CMakeProject *parent, QString fileName)
-    : Core::IFile(parent), m_project(parent), m_fileName(fileName)
+    : Core::IDocument(parent), m_project(parent), m_fileName(fileName)
 {
 
 }
@@ -797,7 +797,7 @@ void CMakeFile::rename(const QString &newName)
     // Can't happen....
 }
 
-Core::IFile::ReloadBehavior CMakeFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
+Core::IDocument::ReloadBehavior CMakeFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state)
     Q_UNUSED(type)

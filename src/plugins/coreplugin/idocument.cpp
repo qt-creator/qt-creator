@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include "ifile.h"
+#include "idocument.h"
 
 #include "infobar.h"
 
@@ -39,17 +39,17 @@
 
 namespace Core {
 
-IFile::IFile(QObject *parent) : QObject(parent), m_infoBar(0), m_hasWriteWarning(false), m_restored(false)
+IDocument::IDocument(QObject *parent) : QObject(parent), m_infoBar(0), m_hasWriteWarning(false), m_restored(false)
 {
 }
 
-IFile::~IFile()
+IDocument::~IDocument()
 {
     removeAutoSaveFile();
     delete m_infoBar;
 }
 
-IFile::ReloadBehavior IFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
+IDocument::ReloadBehavior IDocument::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     if (type == TypePermissions)
         return BehaviorSilent;
@@ -58,23 +58,23 @@ IFile::ReloadBehavior IFile::reloadBehavior(ChangeTrigger state, ChangeType type
     return BehaviorAsk;
 }
 
-void IFile::checkPermissions()
+void IDocument::checkPermissions()
 {
 }
 
-bool IFile::shouldAutoSave() const
+bool IDocument::shouldAutoSave() const
 {
     return false;
 }
 
-bool IFile::isReadOnly() const
+bool IDocument::isFileReadOnly() const
 {
     if (fileName().isEmpty())
         return false;
     return !QFileInfo(fileName()).isWritable();
 }
 
-bool IFile::autoSave(QString *errorString, const QString &fileName)
+bool IDocument::autoSave(QString *errorString, const QString &fileName)
 {
     if (!save(errorString, fileName, true))
         return false;
@@ -84,7 +84,7 @@ bool IFile::autoSave(QString *errorString, const QString &fileName)
 
 static const char kRestoredAutoSave[] = "RestoredAutoSave";
 
-void IFile::setRestoredFrom(const QString &name)
+void IDocument::setRestoredFrom(const QString &name)
 {
     m_autoSaveName = name;
     m_restored = true;
@@ -94,7 +94,7 @@ void IFile::setRestoredFrom(const QString &name)
     infoBar()->addInfo(info);
 }
 
-void IFile::removeAutoSaveFile()
+void IDocument::removeAutoSaveFile()
 {
     if (!m_autoSaveName.isEmpty()) {
         QFile::remove(m_autoSaveName);
@@ -106,7 +106,7 @@ void IFile::removeAutoSaveFile()
     }
 }
 
-InfoBar *IFile::infoBar()
+InfoBar *IDocument::infoBar()
 {
     if (!m_infoBar)
         m_infoBar = new InfoBar;

@@ -51,7 +51,7 @@ class IWizard;
 class ActionManager;
 class Context;
 class EditorManager;
-class FileManager;
+class DocumentManager;
 class HelpManager;
 class IContext;
 class MessageManager;
@@ -94,7 +94,7 @@ public:
                                        QWidget *parent = 0);
 
     static ActionManager *actionManager();
-    static QT_DEPRECATED FileManager *fileManager(); // Use FileManager::... directly.
+    static QT_DEPRECATED DocumentManager *documentManager(); // Use DocumentManager::... directly.
     static MessageManager *messageManager();
     static EditorManager *editorManager();
     static ProgressManager *progressManager();

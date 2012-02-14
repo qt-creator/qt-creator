@@ -52,7 +52,7 @@
 #include "watchhandler.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>

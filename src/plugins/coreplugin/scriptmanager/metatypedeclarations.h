@@ -34,8 +34,8 @@
 #define METATYPEDECLARATIONS_H
 
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/filemanager.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/documentmanager.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -50,9 +50,9 @@ class QSettings;
 QT_END_NAMESPACE
 
 Q_DECLARE_METATYPE(Core::MessageManager*)
-Q_DECLARE_METATYPE(Core::FileManager*)
-Q_DECLARE_METATYPE(Core::IFile*)
-Q_DECLARE_METATYPE(QList<Core::IFile*>)
+Q_DECLARE_METATYPE(Core::DocumentManager*)
+Q_DECLARE_METATYPE(Core::IDocument*)
+Q_DECLARE_METATYPE(QList<Core::IDocument*>)
 Q_DECLARE_METATYPE(QList<Core::IEditor*>)
 Q_DECLARE_METATYPE(Core::EditorManager*)
 Q_DECLARE_METATYPE(Core::ICore*)

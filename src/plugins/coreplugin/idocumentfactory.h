@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef IFILEFACTORY_H
-#define IFILEFACTORY_H
+#ifndef IDOCUMENTFACTORY_H
+#define IDOCUMENTFACTORY_H
 
 #include "core_global.h"
 
@@ -43,22 +43,22 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class IFile;
+class IDocument;
 class Id;
 
-class CORE_EXPORT IFileFactory : public QObject
+class CORE_EXPORT IDocumentFactory : public QObject
 {
     Q_OBJECT
 
 public:
-    IFileFactory(QObject *parent = 0) : QObject(parent) {}
+    IDocumentFactory(QObject *parent = 0) : QObject(parent) {}
 
     virtual QStringList mimeTypes() const = 0;
     virtual Id id() const = 0;
     virtual QString displayName() const = 0;
-    virtual IFile *open(const QString &fileName) = 0;
+    virtual IDocument *open(const QString &fileName) = 0;
 };
 
 } // namespace Core
 
-#endif // IFILEFACTORY_H
+#endif // IDOCUMENTFACTORY_H

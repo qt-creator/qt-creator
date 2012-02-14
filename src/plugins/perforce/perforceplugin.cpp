@@ -47,7 +47,7 @@
 #include <coreplugin/id.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/mimedatabase.h>
@@ -1350,9 +1350,9 @@ bool PerforcePlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *subm
 {
     if (!isCommitEditorOpen())
         return true;
-    Core::IFile *fileIFace = submitEditor->file();
+    Core::IDocument *editorDocument = submitEditor->document();
     const PerforceSubmitEditor *perforceEditor = qobject_cast<PerforceSubmitEditor *>(submitEditor);
-    if (!fileIFace || !perforceEditor)
+    if (!editorDocument || !perforceEditor)
         return true;
     // Prompt the user. Force a prompt unless submit was actually invoked (that
     // is, the editor was closed or shutdown).
@@ -1372,7 +1372,7 @@ bool PerforcePlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *subm
         m_settings.setPromptToSubmit(wantsPrompt);
         m_settings.toSettings(Core::ICore::settings());
     }
-    if (!Core::FileManager::saveFile(fileIFace))
+    if (!Core::DocumentManager::saveDocument(editorDocument))
         return false;
     if (answer == VcsBase::VcsBaseSubmitEditor::SubmitDiscarded) {
         cleanCommitMessageFile();

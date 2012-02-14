@@ -121,9 +121,9 @@ private:
 class QmlJSCompletionAssistInterface : public TextEditor::DefaultAssistInterface
 {
 public:
-    QmlJSCompletionAssistInterface(QTextDocument *document,
+    QmlJSCompletionAssistInterface(QTextDocument *textDocument,
                                    int position,
-                                   Core::IFile *file,
+                                   Core::IDocument *document,
                                    TextEditor::AssistReason reason,
                                    const SemanticInfo &info);
     const SemanticInfo &semanticInfo() const;

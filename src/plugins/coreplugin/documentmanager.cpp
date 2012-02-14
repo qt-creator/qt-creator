@@ -30,14 +30,14 @@
 **
 **************************************************************************/
 
-#include "filemanager.h"
+#include "documentmanager.h"
 
 #include "editormanager.h"
 #include "icore.h"
 #include "ieditor.h"
 #include "ieditorfactory.h"
 #include "iexternaleditor.h"
-#include "ifile.h"
+#include "idocument.h"
 #include "iversioncontrol.h"
 #include "mimedatabase.h"
 #include "saveitemsdialog.h"
@@ -64,26 +64,26 @@
 #include <QPushButton>
 
 /*!
-  \class Core::FileManager
+  \class Core::DocumentManager
   \mainclass
-  \inheaderfile filemanager.h
-  \brief Manages a set of IFile objects.
+  \inheaderfile documentmanager.h
+  \brief Manages a set of IDocument objects.
 
-  The FileManager service monitors a set of IFile's. Plugins should register
-  files they work with at the service. The files the IFile's point to will be
-  monitored at filesystem level. If a file changes, the status of the IFile's
+  The DocumentManager service monitors a set of IDocument's. Plugins should register
+  files they work with at the service. The files the IDocument's point to will be
+  monitored at filesystem level. If a file changes, the status of the IDocument's
   will be adjusted accordingly. Furthermore, on application exit the user will
   be asked to save all modified files.
 
-  Different IFile objects in the set can point to the same file in the
-  filesystem. The monitoring for a IFile can be blocked by blockFileChange(), and
+  Different IDocument objects in the set can point to the same file in the
+  filesystem. The monitoring for a IDocument can be blocked by blockFileChange(), and
   enabled again by unblockFileChange().
 
   The functions expectFileChange() and unexpectFileChange() mark a file change
-  as expected. On expected file changes all IFile objects are notified to reload
+  as expected. On expected file changes all IDocument objects are notified to reload
   themselves.
 
-  The FileManager service also provides two convenience methods for saving
+  The DocumentManager service also provides two convenience methods for saving
   files: saveModifiedFiles() and saveModifiedFilesSilently(). Both take a list
   of FileInterfaces as an argument, and return the list of files which were
   _not_ saved.
@@ -105,7 +105,7 @@ namespace Core {
 
 static void readSettings();
 
-static QList<IFile *> saveModifiedFilesHelper(const QList<IFile *> &files,
+static QList<IDocument *> saveModifiedFilesHelper(const QList<IDocument *> &documents,
                                bool *cancelled, bool silently,
                                const QString &message,
                                const QString &alwaysSaveMessage = QString(),
@@ -129,24 +129,24 @@ struct FileStateItem
 
 struct FileState
 {
-    QMap<IFile *, FileStateItem> lastUpdatedState;
+    QMap<IDocument *, FileStateItem> lastUpdatedState;
     FileStateItem expected;
 };
 
 
-struct FileManagerPrivate
+struct DocumentManagerPrivate
 {
-    explicit FileManagerPrivate(QMainWindow *mw);
+    explicit DocumentManagerPrivate(QMainWindow *mw);
     QFileSystemWatcher *fileWatcher();
     QFileSystemWatcher *linkWatcher();
 
     QMap<QString, FileState> m_states;
     QSet<QString> m_changedFiles;
-    QList<IFile *> m_filesWithoutWatch;
-    QMap<IFile *, QStringList> m_filesWithWatch;
+    QList<IDocument *> m_documentsWithoutWatch;
+    QMap<IDocument *, QStringList> m_documentsWithWatch;
     QSet<QString> m_expectedFileNames;
 
-    QList<FileManager::RecentFile> m_recentFiles;
+    QList<DocumentManager::RecentFile> m_recentFiles;
     static const int m_maxRecentFiles = 7;
 
     QString m_currentFile;
@@ -158,17 +158,17 @@ struct FileManagerPrivate
     QString m_lastVisitedDirectory;
     QString m_projectsDirectory;
     bool m_useProjectsDirectory;
-    // When we are callling into a IFile
+    // When we are callling into a IDocument
     // we don't want to receive a changed()
     // signal
     // That makes the code easier
-    IFile *m_blockedIFile;
+    IDocument *m_blockedIDocument;
 };
 
-static FileManager *m_instance;
-static Internal::FileManagerPrivate *d;
+static DocumentManager *m_instance;
+static Internal::DocumentManagerPrivate *d;
 
-QFileSystemWatcher *FileManagerPrivate::fileWatcher()
+QFileSystemWatcher *DocumentManagerPrivate::fileWatcher()
 {
     if (!m_fileWatcher) {
         m_fileWatcher= new QFileSystemWatcher(m_instance);
@@ -178,7 +178,7 @@ QFileSystemWatcher *FileManagerPrivate::fileWatcher()
     return m_fileWatcher;
 }
 
-QFileSystemWatcher *FileManagerPrivate::linkWatcher()
+QFileSystemWatcher *DocumentManagerPrivate::linkWatcher()
 {
 #ifdef Q_OS_UNIX
     if (!m_linkWatcher) {
@@ -193,7 +193,7 @@ QFileSystemWatcher *FileManagerPrivate::linkWatcher()
 #endif
 }
 
-FileManagerPrivate::FileManagerPrivate(QMainWindow *mw) :
+DocumentManagerPrivate::DocumentManagerPrivate(QMainWindow *mw) :
     m_mainWindow(mw),
     m_fileWatcher(0),
     m_linkWatcher(0),
@@ -204,7 +204,7 @@ FileManagerPrivate::FileManagerPrivate(QMainWindow *mw) :
 #else
     m_useProjectsDirectory(false),
 #endif
-    m_blockedIFile(0)
+    m_blockedIDocument(0)
 {
 }
 
@@ -217,10 +217,10 @@ namespace Core {
 
 using namespace Internal;
 
-FileManager::FileManager(QMainWindow *mw)
+DocumentManager::DocumentManager(QMainWindow *mw)
   : QObject(mw)
 {
-    d = new FileManagerPrivate(mw);
+    d = new DocumentManagerPrivate(mw);
     m_instance = this;
     connect(d->m_mainWindow, SIGNAL(windowActivated()),
         this, SLOT(mainWindowActivated()));
@@ -230,18 +230,18 @@ FileManager::FileManager(QMainWindow *mw)
     readSettings();
 }
 
-FileManager::~FileManager()
+DocumentManager::~DocumentManager()
 {
     delete d;
 }
 
-FileManager *FileManager::instance()
+DocumentManager *DocumentManager::instance()
 {
     return m_instance;
 }
 
-/* only called from addFileInfo(IFile *) */
-static void addFileInfo(const QString &fileName, IFile *file, bool isLink)
+/* only called from addFileInfo(IDocument *) */
+static void addFileInfo(const QString &fileName, IDocument *document, bool isLink)
 {
     FileStateItem state;
     if (!fileName.isEmpty()) {
@@ -261,67 +261,67 @@ static void addFileInfo(const QString &fileName, IFile *file, bool isLink)
         if (!watcher->files().contains(fileName))
             watcher->addPath(fileName);
 
-        d->m_states[fileName].lastUpdatedState.insert(file, state);
+        d->m_states[fileName].lastUpdatedState.insert(document, state);
     }
-    d->m_filesWithWatch[file].append(fileName); // inserts a new QStringList if not already there
+    d->m_documentsWithWatch[document].append(fileName); // inserts a new QStringList if not already there
 }
 
-/* Adds the IFile's file and possibly it's final link target to both m_states
+/* Adds the IDocument's file and possibly it's final link target to both m_states
    (if it's file name is not empty), and the m_filesWithWatch list,
    and adds a file watcher for each if not already done.
    (The added file names are guaranteed to be absolute and cleaned.) */
-static void addFileInfo(IFile *file)
+static void addFileInfo(IDocument *document)
 {
-    const QString fixedName = FileManager::fixFileName(file->fileName(), FileManager::KeepLinks);
-    const QString fixedResolvedName = FileManager::fixFileName(file->fileName(), FileManager::ResolveLinks);
-    addFileInfo(fixedResolvedName, file, false);
+    const QString fixedName = DocumentManager::fixFileName(document->fileName(), DocumentManager::KeepLinks);
+    const QString fixedResolvedName = DocumentManager::fixFileName(document->fileName(), DocumentManager::ResolveLinks);
+    addFileInfo(fixedResolvedName, document, false);
     if (fixedName != fixedResolvedName)
-        addFileInfo(fixedName, file, true);
+        addFileInfo(fixedName, document, true);
 }
 
 /*!
-    \fn bool FileManager::addFiles(const QList<IFile *> &files, bool addWatcher)
+    \fn bool DocumentManager::addFiles(const QList<IDocument *> &documents, bool addWatcher)
 
-    Adds a list of IFile's to the collection. If \a addWatcher is true (the default),
+    Adds a list of IDocument's to the collection. If \a addWatcher is true (the default),
     the files are added to a file system watcher that notifies the file manager
     about file changes.
 */
-void FileManager::addFiles(const QList<IFile *> &files, bool addWatcher)
+void DocumentManager::addDocuments(const QList<IDocument *> &documents, bool addWatcher)
 {
     if (!addWatcher) {
         // We keep those in a separate list
 
-        foreach (IFile *file, files) {
-            if (file && !d->m_filesWithoutWatch.contains(file)) {
-                connect(file, SIGNAL(destroyed(QObject *)), m_instance, SLOT(fileDestroyed(QObject *)));
-                d->m_filesWithoutWatch.append(file);
+        foreach (IDocument *document, documents) {
+            if (document && !d->m_documentsWithoutWatch.contains(document)) {
+                connect(document, SIGNAL(destroyed(QObject *)), m_instance, SLOT(documentDestroyed(QObject *)));
+                d->m_documentsWithoutWatch.append(document);
             }
         }
         return;
     }
 
-    foreach (IFile *file, files) {
-        if (file && !d->m_filesWithWatch.contains(file)) {
-            connect(file, SIGNAL(changed()), m_instance, SLOT(checkForNewFileName()));
-            connect(file, SIGNAL(destroyed(QObject *)), m_instance, SLOT(fileDestroyed(QObject *)));
-            addFileInfo(file);
+    foreach (IDocument *document, documents) {
+        if (document && !d->m_documentsWithWatch.contains(document)) {
+            connect(document, SIGNAL(changed()), m_instance, SLOT(checkForNewFileName()));
+            connect(document, SIGNAL(destroyed(QObject *)), m_instance, SLOT(documentDestroyed(QObject *)));
+            addFileInfo(document);
         }
     }
 }
 
 
-/* Removes all occurrences of the IFile from m_filesWithWatch and m_states.
-   If that results in a file no longer being referenced by any IFile, this
+/* Removes all occurrences of the IDocument from m_filesWithWatch and m_states.
+   If that results in a file no longer being referenced by any IDocument, this
    also removes the file watcher.
 */
-static void removeFileInfo(IFile *file)
+static void removeFileInfo(IDocument *document)
 {
-    if (!d->m_filesWithWatch.contains(file))
+    if (!d->m_documentsWithWatch.contains(document))
         return;
-    foreach (const QString &fileName, d->m_filesWithWatch.value(file)) {
+    foreach (const QString &fileName, d->m_documentsWithWatch.value(document)) {
         if (!d->m_states.contains(fileName))
             continue;
-        d->m_states[fileName].lastUpdatedState.remove(file);
+        d->m_states[fileName].lastUpdatedState.remove(document);
         if (d->m_states.value(fileName).lastUpdatedState.isEmpty()) {
             if (d->m_fileWatcher && d->m_fileWatcher->files().contains(fileName))
                 d->m_fileWatcher->removePath(fileName);
@@ -330,7 +330,7 @@ static void removeFileInfo(IFile *file)
             d->m_states.remove(fileName);
         }
     }
-    d->m_filesWithWatch.remove(file);
+    d->m_documentsWithWatch.remove(document);
 }
 
 /// Dumps the state of the file manager's map
@@ -346,7 +346,7 @@ static void dump()
         qDebug() << it.key();
         qDebug() << "   expected:" << it.value().expected.modified;
 
-        QMap<IFile *, FileStateItem>::const_iterator jt, jend;
+        QMap<IDocument *, FileStateItem>::const_iterator jt, jend;
         jt = it.value().lastUpdatedState.constBegin();
         jend = it.value().lastUpdatedState.constEnd();
         for (; jt != jend; ++jt) {
@@ -354,7 +354,7 @@ static void dump()
         }
     }
     qDebug() << "------- dumping files with watch list";
-    foreach (IFile *key, d->m_filesWithWatch.keys()) {
+    foreach (IDocument *key, d->m_filesWithWatch.keys()) {
         qDebug() << key->fileName() << d->m_filesWithWatch.value(key);
     }
     qDebug() << "------- dumping watch list";
@@ -367,105 +367,105 @@ static void dump()
 */
 
 /*!
-    \fn void FileManager::renamedFile(const QString &from, const QString &to)
+    \fn void DocumentManager::renamedFile(const QString &from, const QString &to)
     \brief Tells the file manager that a file has been renamed on disk from within Qt Creator.
 
     Needs to be called right after the actual renaming on disk (i.e. before the file system
     watcher can report the event during the next event loop run). \a from needs to be an absolute file path.
-    This will notify all IFile objects pointing to that file of the rename
-    by calling IFile::rename, and update the cached time and permission
+    This will notify all IDocument objects pointing to that file of the rename
+    by calling IDocument::rename, and update the cached time and permission
     information to avoid annoying the user with "file has been removed"
     popups.
 */
-void FileManager::renamedFile(const QString &from, const QString &to)
+void DocumentManager::renamedFile(const QString &from, const QString &to)
 {
     const QString &fixedFrom = fixFileName(from, KeepLinks);
 
-    // gather the list of IFiles
-    QList<IFile *> filesToRename;
-    QMapIterator<IFile *, QStringList> it(d->m_filesWithWatch);
+    // gather the list of IDocuments
+    QList<IDocument *> documentsToRename;
+    QMapIterator<IDocument *, QStringList> it(d->m_documentsWithWatch);
     while (it.hasNext()) {
         it.next();
         if (it.value().contains(fixedFrom))
-            filesToRename.append(it.key());
+            documentsToRename.append(it.key());
     }
 
-    // rename the IFiles
-    foreach (IFile *file, filesToRename) {
-        d->m_blockedIFile = file;
-        removeFileInfo(file);
-        file->rename(to);
-        addFileInfo(file);
-        d->m_blockedIFile = 0;
+    // rename the IDocuments
+    foreach (IDocument *document, documentsToRename) {
+        d->m_blockedIDocument = document;
+        removeFileInfo(document);
+        document->rename(to);
+        addFileInfo(document);
+        d->m_blockedIDocument = 0;
     }
 }
 /*!
-    \fn bool FileManager::addFile(IFile *files, bool addWatcher)
+    \fn bool DocumentManager::addFile(IDocument *document, bool addWatcher)
 
-    Adds a IFile object to the collection. If \a addWatcher is true (the default),
+    Adds a IDocument object to the collection. If \a addWatcher is true (the default),
     the file is added to a file system watcher that notifies the file manager
     about file changes.
 */
-void FileManager::addFile(IFile *file, bool addWatcher)
+void DocumentManager::addDocument(IDocument *document, bool addWatcher)
 {
-    addFiles(QList<IFile *>() << file, addWatcher);
+    addDocuments(QList<IDocument *>() << document, addWatcher);
 }
 
-void FileManager::fileDestroyed(QObject *obj)
+void DocumentManager::documentDestroyed(QObject *obj)
 {
-    IFile *file = static_cast<IFile*>(obj);
+    IDocument *document = static_cast<IDocument*>(obj);
     // Check the special unwatched first:
-    if (!d->m_filesWithoutWatch.removeOne(file))
-        removeFileInfo(file);
+    if (!d->m_documentsWithoutWatch.removeOne(document))
+        removeFileInfo(document);
 }
 
 /*!
-    \fn bool FileManager::removeFile(IFile *file)
+    \fn bool DocumentManager::removeFile(IDocument *document)
 
-    Removes a IFile object from the collection.
+    Removes a IDocument object from the collection.
 
-    Returns true if the file specified by \a file had the addWatcher argument to addFile() set.
+    Returns true if the file specified by \a document had the addWatcher argument to addDocument() set.
 */
-bool FileManager::removeFile(IFile *file)
+bool DocumentManager::removeDocument(IDocument *document)
 {
-    QTC_ASSERT(file, return false);
+    QTC_ASSERT(document, return false);
 
     bool addWatcher = false;
     // Special casing unwatched files
-    if (!d->m_filesWithoutWatch.removeOne(file)) {
+    if (!d->m_documentsWithoutWatch.removeOne(document)) {
         addWatcher = true;
-        removeFileInfo(file);
-        disconnect(file, SIGNAL(changed()), m_instance, SLOT(checkForNewFileName()));
+        removeFileInfo(document);
+        disconnect(document, SIGNAL(changed()), m_instance, SLOT(checkForNewFileName()));
     }
-    disconnect(file, SIGNAL(destroyed(QObject *)), m_instance, SLOT(fileDestroyed(QObject *)));
+    disconnect(document, SIGNAL(destroyed(QObject *)), m_instance, SLOT(documentDestroyed(QObject *)));
     return addWatcher;
 }
 
-/* Slot reacting on IFile::changed. We need to check if the signal was sent
+/* Slot reacting on IDocument::changed. We need to check if the signal was sent
    because the file was saved under different name. */
-void FileManager::checkForNewFileName()
+void DocumentManager::checkForNewFileName()
 {
-    IFile *file = qobject_cast<IFile *>(sender());
-    // We modified the IFile
+    IDocument *document = qobject_cast<IDocument *>(sender());
+    // We modified the IDocument
     // Trust the other code to also update the m_states map
-    if (file == d->m_blockedIFile)
+    if (document == d->m_blockedIDocument)
         return;
-    QTC_ASSERT(file, return);
-    QTC_ASSERT(d->m_filesWithWatch.contains(file), return);
+    QTC_ASSERT(document, return);
+    QTC_ASSERT(d->m_documentsWithWatch.contains(document), return);
 
     // Maybe the name has changed or file has been deleted and created again ...
     // This also updates the state to the on disk state
-    removeFileInfo(file);
-    addFileInfo(file);
+    removeFileInfo(document);
+    addFileInfo(document);
 }
 
 /*!
-    \fn QString FileManager::fixFileName(const QString &fileName, FixMode fixmode)
+    \fn QString DocumentManager::fixFileName(const QString &fileName, FixMode fixmode)
     Returns a guaranteed cleaned path in native form. If the file exists,
     it will either be a cleaned absolute file path (fixmode == KeepLinks), or
     a cleaned canonical file path (fixmode == ResolveLinks).
 */
-QString FileManager::fixFileName(const QString &fileName, FixMode fixmode)
+QString DocumentManager::fixFileName(const QString &fileName, FixMode fixmode)
 {
     QString s = fileName;
     QFileInfo fi(s);
@@ -485,35 +485,35 @@ QString FileManager::fixFileName(const QString &fileName, FixMode fixmode)
 }
 
 /*!
-    \fn QList<IFile*> FileManager::modifiedFiles() const
+    \fn QList<IDocument*> DocumentManager::modifiedFiles() const
 
-    Returns the list of IFile's that have been modified.
+    Returns the list of IDocument's that have been modified.
 */
-QList<IFile *> FileManager::modifiedFiles()
+QList<IDocument *> DocumentManager::modifiedDocuments()
 {
-    QList<IFile *> modifiedFiles;
+    QList<IDocument *> modified;
 
-    foreach (IFile *file, d->m_filesWithWatch.keys()) {
-        if (file->isModified())
-            modifiedFiles << file;
+    foreach (IDocument *document, d->m_documentsWithWatch.keys()) {
+        if (document->isModified())
+            modified << document;
     }
 
-    foreach(IFile *file, d->m_filesWithoutWatch) {
-        if (file->isModified())
-            modifiedFiles << file;
+    foreach (IDocument *document, d->m_documentsWithoutWatch) {
+        if (document->isModified())
+            modified << document;
     }
 
-    return modifiedFiles;
+    return modified;
 }
 
 /*!
-    \fn void FileManager::expectFileChange(const QString &fileName)
+    \fn void DocumentManager::expectFileChange(const QString &fileName)
 
     Any subsequent change to \a fileName is treated as a expected file change.
 
-    \see FileManager::unexpectFileChange(const QString &fileName)
+    \see DocumentManager::unexpectFileChange(const QString &fileName)
 */
-void FileManager::expectFileChange(const QString &fileName)
+void DocumentManager::expectFileChange(const QString &fileName)
 {
     if (fileName.isEmpty())
         return;
@@ -533,13 +533,13 @@ static void updateExpectedState(const QString &fileName)
 }
 
 /*!
-    \fn void FileManager::unexpectFileChange(const QString &fileName)
+    \fn void DocumentManager::unexpectFileChange(const QString &fileName)
 
     Any change to \a fileName are unexpected again.
 
-    \see FileManager::expectFileChange(const QString &fileName)
+    \see DocumentManager::expectFileChange(const QString &fileName)
 */
-void FileManager::unexpectFileChange(const QString &fileName)
+void DocumentManager::unexpectFileChange(const QString &fileName)
 {
     // We are updating the expected time of the file
     // And in changedFile we'll check if the modification time
@@ -557,20 +557,20 @@ void FileManager::unexpectFileChange(const QString &fileName)
 }
 
 /*!
-    \fn QList<IFile*> FileManager::saveModifiedFilesSilently(const QList<IFile*> &files)
+    \fn QList<IDocument*> DocumentManager::saveModifiedFilesSilently(const QList<IDocument*> &documents)
 
-    Tries to save the files listed in \a files. The \a cancelled argument is set to true
+    Tries to save the files listed in \a documents. The \a cancelled argument is set to true
     if the user cancelled the dialog. Returns the files that could not be saved.
 */
-QList<IFile *> FileManager::saveModifiedFilesSilently(const QList<IFile *> &files, bool *cancelled)
+QList<IDocument *> DocumentManager::saveModifiedDocumentsSilently(const QList<IDocument *> &documents, bool *cancelled)
 {
-    return saveModifiedFilesHelper(files, cancelled, true, QString());
+    return saveModifiedFilesHelper(documents, cancelled, true, QString());
 }
 
 /*!
-    \fn QList<IFile*> FileManager::saveModifiedFiles(const QList<IFile *> &files, bool *cancelled, const QString &message, const QString &alwaysSaveMessage, bool *alwaysSave)
+    \fn QList<IDocument*> DocumentManager::saveModifiedFiles(const QList<IDocument *> &documents, bool *cancelled, const QString &message, const QString &alwaysSaveMessage, bool *alwaysSave)
 
-    Asks the user whether to save the files listed in \a files .
+    Asks the user whether to save the files listed in \a documents .
     Opens a dialog with the given \a message, and a additional
     text that should be used to ask if the user wants to enabled automatic save
     of modified files (in this context).
@@ -579,15 +579,15 @@ QList<IFile *> FileManager::saveModifiedFilesSilently(const QList<IFile *> &file
     always automatically be saved.
     Returns the files that have not been saved.
 */
-QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
+QList<IDocument *> DocumentManager::saveModifiedDocuments(const QList<IDocument *> &documents,
                                               bool *cancelled, const QString &message,
                                               const QString &alwaysSaveMessage,
                                               bool *alwaysSave)
 {
-    return saveModifiedFilesHelper(files, cancelled, false, message, alwaysSaveMessage, alwaysSave);
+    return saveModifiedFilesHelper(documents, cancelled, false, message, alwaysSaveMessage, alwaysSave);
 }
 
-static QList<IFile *> saveModifiedFilesHelper(const QList<IFile *> &files,
+static QList<IDocument *> saveModifiedFilesHelper(const QList<IDocument *> &documents,
                                               bool *cancelled,
                                               bool silently,
                                               const QString &message,
@@ -597,30 +597,30 @@ static QList<IFile *> saveModifiedFilesHelper(const QList<IFile *> &files,
     if (cancelled)
         (*cancelled) = false;
 
-    QList<IFile *> notSaved;
-    QMap<IFile *, QString> modifiedFilesMap;
-    QList<IFile *> modifiedFiles;
+    QList<IDocument *> notSaved;
+    QMap<IDocument *, QString> modifiedDocumentsMap;
+    QList<IDocument *> modifiedDocuments;
 
-    foreach (IFile *file, files) {
-        if (file->isModified()) {
-            QString name = file->fileName();
+    foreach (IDocument *document, documents) {
+        if (document->isModified()) {
+            QString name = document->fileName();
             if (name.isEmpty())
-                name = file->suggestedFileName();
+                name = document->suggestedFileName();
 
-            // There can be several IFiles pointing to the same file
+            // There can be several IDocuments pointing to the same file
             // Prefer one that is not readonly
-            // (even though it *should* not happen that the IFiles are inconsistent with readonly)
-            if (!modifiedFilesMap.key(name, 0) || !file->isReadOnly())
-                modifiedFilesMap.insert(file, name);
+            // (even though it *should* not happen that the IDocuments are inconsistent with readonly)
+            if (!modifiedDocumentsMap.key(name, 0) || !document->isFileReadOnly())
+                modifiedDocumentsMap.insert(document, name);
         }
     }
-    modifiedFiles = modifiedFilesMap.keys();
-    if (!modifiedFiles.isEmpty()) {
-        QList<IFile *> filesToSave;
+    modifiedDocuments = modifiedDocumentsMap.keys();
+    if (!modifiedDocuments.isEmpty()) {
+        QList<IDocument *> documentsToSave;
         if (silently) {
-            filesToSave = modifiedFiles;
+            documentsToSave = modifiedDocuments;
         } else {
-            SaveItemsDialog dia(d->m_mainWindow, modifiedFiles);
+            SaveItemsDialog dia(d->m_mainWindow, modifiedDocuments);
             if (!message.isEmpty())
                 dia.setMessage(message);
             if (!alwaysSaveMessage.isNull())
@@ -630,34 +630,34 @@ static QList<IFile *> saveModifiedFilesHelper(const QList<IFile *> &files,
                     (*cancelled) = true;
                 if (alwaysSave)
                     *alwaysSave = dia.alwaysSaveChecked();
-                notSaved = modifiedFiles;
+                notSaved = modifiedDocuments;
                 return notSaved;
             }
             if (alwaysSave)
                 *alwaysSave = dia.alwaysSaveChecked();
-            filesToSave = dia.itemsToSave();
+            documentsToSave = dia.itemsToSave();
         }
 
-        foreach (IFile *file, filesToSave) {
-            if (!EditorManager::instance()->saveFile(file)) {
+        foreach (IDocument *document, documentsToSave) {
+            if (!EditorManager::instance()->saveDocument(document)) {
                 if (cancelled)
                     *cancelled = true;
-                notSaved.append(file);
+                notSaved.append(document);
             }
         }
     }
     return notSaved;
 }
 
-bool FileManager::saveFile(IFile *file, const QString &fileName, bool *isReadOnly)
+bool DocumentManager::saveDocument(IDocument *document, const QString &fileName, bool *isReadOnly)
 {
     bool ret = true;
-    QString effName = fileName.isEmpty() ? file->fileName() : fileName;
-    expectFileChange(effName); // This only matters to other IFiles which refer to this file
-    bool addWatcher = removeFile(file); // So that our own IFile gets no notification at all
+    QString effName = fileName.isEmpty() ? document->fileName() : fileName;
+    expectFileChange(effName); // This only matters to other IDocuments which refer to this file
+    bool addWatcher = removeDocument(document); // So that our own IDocument gets no notification at all
 
     QString errorString;
-    if (!file->save(&errorString, fileName, false)) {
+    if (!document->save(&errorString, fileName, false)) {
         if (isReadOnly) {
             QFile ofi(effName);
             // Check whether the existing file is writable
@@ -672,12 +672,12 @@ bool FileManager::saveFile(IFile *file, const QString &fileName, bool *isReadOnl
         ret = false;
     }
 
-    addFile(file, addWatcher);
+    addDocument(document, addWatcher);
     unexpectFileChange(effName);
     return ret;
 }
 
-QString FileManager::getSaveFileName(const QString &title, const QString &pathIn,
+QString DocumentManager::getSaveFileName(const QString &title, const QString &pathIn,
                                      const QString &filter, QString *selectedFilter)
 {
     const QString &path = pathIn.isEmpty() ? fileDialogInitialDirectory() : pathIn;
@@ -724,7 +724,7 @@ QString FileManager::getSaveFileName(const QString &title, const QString &pathIn
     return fileName;
 }
 
-QString FileManager::getSaveFileNameWithExtension(const QString &title, const QString &pathIn,
+QString DocumentManager::getSaveFileNameWithExtension(const QString &title, const QString &pathIn,
                                                   const QString &filter)
 {
     QString selected = filter;
@@ -732,21 +732,21 @@ QString FileManager::getSaveFileNameWithExtension(const QString &title, const QS
 }
 
 /*!
-    \fn QString FileManager::getSaveAsFileName(IFile *file, const QString &filter, QString *selectedFilter)
+    \fn QString DocumentManager::getSaveAsFileName(IDocument *document, const QString &filter, QString *selectedFilter)
 
-    Asks the user for a new file name (Save File As) for /arg file.
+    Asks the user for a new file name (Save File As) for /arg document.
 */
-QString FileManager::getSaveAsFileName(IFile *file, const QString &filter, QString *selectedFilter)
+QString DocumentManager::getSaveAsFileName(IDocument *document, const QString &filter, QString *selectedFilter)
 {
-    if (!file)
+    if (!document)
         return QLatin1String("");
-    QString absoluteFilePath = file->fileName();
+    QString absoluteFilePath = document->fileName();
     const QFileInfo fi(absoluteFilePath);
     QString fileName = fi.fileName();
     QString path = fi.absolutePath();
     if (absoluteFilePath.isEmpty()) {
-        fileName = file->suggestedFileName();
-        const QString defaultPath = file->defaultPath();
+        fileName = document->suggestedFileName();
+        const QString defaultPath = document->defaultPath();
         if (!defaultPath.isEmpty())
             path = defaultPath;
     }
@@ -768,7 +768,7 @@ QString FileManager::getSaveAsFileName(IFile *file, const QString &filter, QStri
 }
 
 /*!
-    \fn QStringList FileManager::getOpenFileNames(const QString &filters,
+    \fn QStringList DocumentManager::getOpenFileNames(const QString &filters,
                                                   const QString pathIn,
                                                   QString *selectedFilter)
 
@@ -778,7 +778,7 @@ QString FileManager::getSaveAsFileName(IFile *file, const QString &filter, QStri
     in, if that is not overridden by the users policy.
 */
 
-QStringList FileManager::getOpenFileNames(const QString &filters,
+QStringList DocumentManager::getOpenFileNames(const QString &filters,
                                           const QString pathIn,
                                           QString *selectedFilter)
 {
@@ -798,8 +798,8 @@ QStringList FileManager::getOpenFileNames(const QString &filters,
     return files;
 }
 
-FileManager::ReadOnlyAction
-    FileManager::promptReadOnlyFile(const QString &fileName,
+DocumentManager::ReadOnlyAction
+    DocumentManager::promptReadOnlyFile(const QString &fileName,
                                       const IVersionControl *versionControl,
                                       QWidget *parent,
                                       bool displaySaveAsButton)
@@ -840,7 +840,7 @@ FileManager::ReadOnlyAction
     return  RO_Cancel;
 }
 
-void FileManager::changedFile(const QString &fileName)
+void DocumentManager::changedFile(const QString &fileName)
 {
     const bool wasempty = d->m_changedFiles.isEmpty();
 
@@ -852,7 +852,7 @@ void FileManager::changedFile(const QString &fileName)
     }
 }
 
-void FileManager::mainWindowActivated()
+void DocumentManager::mainWindowActivated()
 {
     //we need to do this asynchronously because
     //opening a dialog ("Reload?") in a windowactivated event
@@ -860,7 +860,7 @@ void FileManager::mainWindowActivated()
     QTimer::singleShot(0, this, SLOT(checkForReload()));
 }
 
-void FileManager::checkForReload()
+void DocumentManager::checkForReload()
 {
     if (d->m_changedFiles.isEmpty())
         return;
@@ -872,30 +872,30 @@ void FileManager::checkForReload()
 
     d->m_blockActivated = true;
 
-    IFile::ReloadSetting defaultBehavior = EditorManager::instance()->reloadSetting();
+    IDocument::ReloadSetting defaultBehavior = EditorManager::instance()->reloadSetting();
     Utils::ReloadPromptAnswer previousAnswer = Utils::ReloadCurrent;
 
     QList<IEditor*> editorsToClose;
-    QMap<IFile*, QString> filesToSave;
+    QMap<IDocument*, QString> documentsToSave;
 
     // collect file information
     QMap<QString, FileStateItem> currentStates;
-    QMap<QString, IFile::ChangeType> changeTypes;
-    QSet<IFile *> changedIFiles;
+    QMap<QString, IDocument::ChangeType> changeTypes;
+    QSet<IDocument *> changedIDocuments;
     foreach (const QString &fileName, d->m_changedFiles) {
-        IFile::ChangeType type = IFile::TypeContents;
+        IDocument::ChangeType type = IDocument::TypeContents;
         FileStateItem state;
         QFileInfo fi(fileName);
         if (!fi.exists()) {
-            type = IFile::TypeRemoved;
+            type = IDocument::TypeRemoved;
         } else {
             state.modified = fi.lastModified();
             state.permissions = fi.permissions();
         }
         currentStates.insert(fileName, state);
         changeTypes.insert(fileName, type);
-        foreach (IFile *file, d->m_states.value(fileName).lastUpdatedState.keys())
-            changedIFiles.insert(file);
+        foreach (IDocument *document, d->m_states.value(fileName).lastUpdatedState.keys())
+            changedIDocuments.insert(document);
     }
 
     // clean up. do this before we may enter the main loop, otherwise we would
@@ -915,23 +915,23 @@ void FileManager::checkForReload()
             expectedFileNames.insert(fixedResolvedName);
     }
 
-    // handle the IFiles
+    // handle the IDocuments
     QStringList errorStrings;
-    foreach (IFile *file, changedIFiles) {
-        IFile::ChangeTrigger trigger = IFile::TriggerInternal;
-        IFile::ChangeType type = IFile::TypePermissions;
+    foreach (IDocument *document, changedIDocuments) {
+        IDocument::ChangeTrigger trigger = IDocument::TriggerInternal;
+        IDocument::ChangeType type = IDocument::TypePermissions;
         bool changed = false;
         // find out the type & behavior from the two possible files
         // behavior is internal if all changes are expected (and none removed)
         // type is "max" of both types (remove > contents > permissions)
-        foreach (const QString & fileName, d->m_filesWithWatch.value(file)) {
+        foreach (const QString & fileName, d->m_documentsWithWatch.value(document)) {
             // was the file reported?
             if (!currentStates.contains(fileName))
                 continue;
 
             FileStateItem currentState = currentStates.value(fileName);
             FileStateItem expectedState = d->m_states.value(fileName).expected;
-            FileStateItem lastState = d->m_states.value(fileName).lastUpdatedState.value(file);
+            FileStateItem lastState = d->m_states.value(fileName).lastUpdatedState.value(document);
 
             // did the file actually change?
             if (lastState.modified == currentState.modified && lastState.permissions == currentState.permissions)
@@ -945,15 +945,15 @@ void FileManager::checkForReload()
             // was the change unexpected?
             if ((currentState.modified != expectedState.modified || currentState.permissions != expectedState.permissions)
                     && !expectedFileNames.contains(fileName)) {
-                trigger = IFile::TriggerExternal;
+                trigger = IDocument::TriggerExternal;
             }
 
             // find out the type
-            IFile::ChangeType fileChange = changeTypes.value(fileName);
-            if (fileChange == IFile::TypeRemoved) {
-                type = IFile::TypeRemoved;
-            } else if (fileChange == IFile::TypeContents && type == IFile::TypePermissions) {
-                type = IFile::TypeContents;
+            IDocument::ChangeType fileChange = changeTypes.value(fileName);
+            if (fileChange == IDocument::TypeRemoved) {
+                type = IDocument::TypeRemoved;
+            } else if (fileChange == IDocument::TypeContents && type == IDocument::TypePermissions) {
+                type = IDocument::TypeContents;
             }
         }
 
@@ -961,82 +961,82 @@ void FileManager::checkForReload()
             continue;
 
         // handle it!
-        d->m_blockedIFile = file;
+        d->m_blockedIDocument = document;
 
         bool success = true;
         QString errorString;
         // we've got some modification
         // check if it's contents or permissions:
-        if (type == IFile::TypePermissions) {
+        if (type == IDocument::TypePermissions) {
             // Only permission change
-            success = file->reload(&errorString, IFile::FlagReload, IFile::TypePermissions);
+            success = document->reload(&errorString, IDocument::FlagReload, IDocument::TypePermissions);
         // now we know it's a content change or file was removed
-        } else if (defaultBehavior == IFile::ReloadUnmodified
-                   && type == IFile::TypeContents && !file->isModified()) {
+        } else if (defaultBehavior == IDocument::ReloadUnmodified
+                   && type == IDocument::TypeContents && !document->isModified()) {
             // content change, but unmodified (and settings say to reload in this case)
-            success = file->reload(&errorString, IFile::FlagReload, type);
+            success = document->reload(&errorString, IDocument::FlagReload, type);
         // file was removed or it's a content change and the default behavior for
         // unmodified files didn't kick in
-        } else if (defaultBehavior == IFile::ReloadUnmodified
-                   && type == IFile::TypeRemoved && !file->isModified()) {
+        } else if (defaultBehavior == IDocument::ReloadUnmodified
+                   && type == IDocument::TypeRemoved && !document->isModified()) {
             // file removed, but unmodified files should be reloaded
             // so we close the file
-            editorsToClose << EditorManager::instance()->editorsForFile(file);
-        } else if (defaultBehavior == IFile::IgnoreAll) {
+            editorsToClose << EditorManager::instance()->editorsForDocument(document);
+        } else if (defaultBehavior == IDocument::IgnoreAll) {
             // content change or removed, but settings say ignore
-            success = file->reload(&errorString, IFile::FlagIgnore, type);
+            success = document->reload(&errorString, IDocument::FlagIgnore, type);
         // either the default behavior is to always ask,
         // or the ReloadUnmodified default behavior didn't kick in,
-        // so do whatever the IFile wants us to do
+        // so do whatever the IDocument wants us to do
         } else {
-            // check if IFile wants us to ask
-            if (file->reloadBehavior(trigger, type) == IFile::BehaviorSilent) {
-                // content change or removed, IFile wants silent handling
-                success = file->reload(&errorString, IFile::FlagReload, type);
-            // IFile wants us to ask
-            } else if (type == IFile::TypeContents) {
-                // content change, IFile wants to ask user
+            // check if IDocument wants us to ask
+            if (document->reloadBehavior(trigger, type) == IDocument::BehaviorSilent) {
+                // content change or removed, IDocument wants silent handling
+                success = document->reload(&errorString, IDocument::FlagReload, type);
+            // IDocument wants us to ask
+            } else if (type == IDocument::TypeContents) {
+                // content change, IDocument wants to ask user
                 if (previousAnswer == Utils::ReloadNone) {
                     // answer already given, ignore
-                    success = file->reload(&errorString, IFile::FlagIgnore, IFile::TypeContents);
+                    success = document->reload(&errorString, IDocument::FlagIgnore, IDocument::TypeContents);
                 } else if (previousAnswer == Utils::ReloadAll) {
                     // answer already given, reload
-                    success = file->reload(&errorString, IFile::FlagReload, IFile::TypeContents);
+                    success = document->reload(&errorString, IDocument::FlagReload, IDocument::TypeContents);
                 } else {
                     // Ask about content change
-                    previousAnswer = Utils::reloadPrompt(file->fileName(), file->isModified(), QApplication::activeWindow());
+                    previousAnswer = Utils::reloadPrompt(document->fileName(), document->isModified(), QApplication::activeWindow());
                     switch (previousAnswer) {
                     case Utils::ReloadAll:
                     case Utils::ReloadCurrent:
-                        success = file->reload(&errorString, IFile::FlagReload, IFile::TypeContents);
+                        success = document->reload(&errorString, IDocument::FlagReload, IDocument::TypeContents);
                         break;
                     case Utils::ReloadSkipCurrent:
                     case Utils::ReloadNone:
-                        success = file->reload(&errorString, IFile::FlagIgnore, IFile::TypeContents);
+                        success = document->reload(&errorString, IDocument::FlagIgnore, IDocument::TypeContents);
                         break;
                     }
                 }
-            // IFile wants us to ask, and it's the TypeRemoved case
+            // IDocument wants us to ask, and it's the TypeRemoved case
             } else {
                 // Ask about removed file
                 bool unhandled = true;
                 while (unhandled) {
-                    switch (Utils::fileDeletedPrompt(file->fileName(), trigger == IFile::TriggerExternal, QApplication::activeWindow())) {
+                    switch (Utils::fileDeletedPrompt(document->fileName(), trigger == IDocument::TriggerExternal, QApplication::activeWindow())) {
                     case Utils::FileDeletedSave:
-                        filesToSave.insert(file, file->fileName());
+                        documentsToSave.insert(document, document->fileName());
                         unhandled = false;
                         break;
                     case Utils::FileDeletedSaveAs:
                     {
-                        const QString &saveFileName = getSaveAsFileName(file);
+                        const QString &saveFileName = getSaveAsFileName(document);
                         if (!saveFileName.isEmpty()) {
-                            filesToSave.insert(file, saveFileName);
+                            documentsToSave.insert(document, saveFileName);
                             unhandled = false;
                         }
                         break;
                     }
                     case Utils::FileDeletedClose:
-                        editorsToClose << EditorManager::instance()->editorsForFile(file);
+                        editorsToClose << EditorManager::instance()->editorsForDocument(document);
                         unhandled = false;
                         break;
                     }
@@ -1045,15 +1045,15 @@ void FileManager::checkForReload()
         }
         if (!success) {
             if (errorString.isEmpty())
-                errorStrings << tr("Cannot reload %1").arg(QDir::toNativeSeparators(file->fileName()));
+                errorStrings << tr("Cannot reload %1").arg(QDir::toNativeSeparators(document->fileName()));
             else
                 errorStrings << errorString;
         }
 
         // update file info, also handling if e.g. link target has changed
-        removeFileInfo(file);
-        addFileInfo(file);
-        d->m_blockedIFile = 0;
+        removeFileInfo(document);
+        addFileInfo(document);
+        d->m_blockedIDocument = 0;
     }
     if (!errorStrings.isEmpty())
         QMessageBox::critical(d->m_mainWindow, tr("File Error"),
@@ -1061,10 +1061,10 @@ void FileManager::checkForReload()
 
     // handle deleted files
     EditorManager::instance()->closeEditors(editorsToClose, false);
-    QMapIterator<IFile *, QString> it(filesToSave);
+    QMapIterator<IDocument *, QString> it(documentsToSave);
     while (it.hasNext()) {
         it.next();
-        saveFile(it.key(), it.value());
+        saveDocument(it.key(), it.value());
         it.key()->checkPermissions();
     }
 
@@ -1073,7 +1073,7 @@ void FileManager::checkForReload()
 //    dump();
 }
 
-void FileManager::syncWithEditor(Core::IContext *context)
+void DocumentManager::syncWithEditor(Core::IContext *context)
 {
     if (!context)
         return;
@@ -1081,18 +1081,18 @@ void FileManager::syncWithEditor(Core::IContext *context)
     Core::IEditor *editor = Core::EditorManager::instance()->currentEditor();
     if (editor && (editor->widget() == context->widget()) &&
         !editor->isTemporary())
-        setCurrentFile(editor->file()->fileName());
+        setCurrentFile(editor->document()->fileName());
 }
 
 /*!
-    \fn void FileManager::addToRecentFiles(const QString &fileName, const QString &editorId)
+    \fn void DocumentManager::addToRecentFiles(const QString &fileName, const QString &editorId)
 
     Adds the \a fileName to the list of recent files. Associates the file to
     be reopened with an editor of the given \a editorId, if possible.
     \a editorId defaults to the empty id, which means to let the system figure out
     the best editor itself.
 */
-void FileManager::addToRecentFiles(const QString &fileName, const Id &editorId)
+void DocumentManager::addToRecentFiles(const QString &fileName, const Id &editorId)
 {
     if (fileName.isEmpty())
         return;
@@ -1100,7 +1100,7 @@ void FileManager::addToRecentFiles(const QString &fileName, const Id &editorId)
     QMutableListIterator<RecentFile > it(d->m_recentFiles);
     while (it.hasNext()) {
         RecentFile file = it.next();
-        QString recentUnifiedForm(fixFileName(file.first, FileManager::KeepLinks));
+        QString recentUnifiedForm(fixFileName(file.first, DocumentManager::KeepLinks));
         if (unifiedForm == recentUnifiedForm)
             it.remove();
     }
@@ -1110,27 +1110,27 @@ void FileManager::addToRecentFiles(const QString &fileName, const Id &editorId)
 }
 
 /*!
-    \fn void FileManager::clearRecentFiles()
+    \fn void DocumentManager::clearRecentFiles()
 
     Clears the list of recent files. Should only be called by
     the core plugin when the user chooses to clear it.
 */
-void FileManager::clearRecentFiles()
+void DocumentManager::clearRecentFiles()
 {
     d->m_recentFiles.clear();
 }
 
 /*!
-    \fn QStringList FileManager::recentFiles() const
+    \fn QStringList DocumentManager::recentFiles() const
 
     Returns the list of recent files.
 */
-QList<FileManager::RecentFile> FileManager::recentFiles()
+QList<DocumentManager::RecentFile> DocumentManager::recentFiles()
 {
     return d->m_recentFiles;
 }
 
-void FileManager::saveSettings()
+void DocumentManager::saveSettings()
 {
     QStringList recentFiles;
     QStringList recentEditorIds;
@@ -1165,7 +1165,7 @@ void readSettings()
         if (ids.hasNext()) // guard against old or weird settings
             editorId = ids.next();
         if (QFileInfo(fileName).isFile())
-            d->m_recentFiles.append(FileManager::RecentFile(QDir::fromNativeSeparators(fileName), // from native to guard against old settings
+            d->m_recentFiles.append(DocumentManager::RecentFile(QDir::fromNativeSeparators(fileName), // from native to guard against old settings
                                                Id(editorId)));
     }
 
@@ -1189,7 +1189,7 @@ void readSettings()
 
   \sa currentFile
   */
-void FileManager::setCurrentFile(const QString &filePath)
+void DocumentManager::setCurrentFile(const QString &filePath)
 {
     if (d->m_currentFile == filePath)
         return;
@@ -1205,7 +1205,7 @@ void FileManager::setCurrentFile(const QString &filePath)
 
   \sa setCurrentFile
   */
-QString FileManager::currentFile()
+QString DocumentManager::currentFile()
 {
     return d->m_currentFile;
 }
@@ -1218,7 +1218,7 @@ QString FileManager::currentFile()
   \sa setFileDialogLastVisitedDirectory
 */
 
-QString FileManager::fileDialogInitialDirectory()
+QString DocumentManager::fileDialogInitialDirectory()
 {
     if (!d->m_currentFile.isEmpty())
         return QFileInfo(d->m_currentFile).absolutePath();
@@ -1232,7 +1232,7 @@ QString FileManager::fileDialogInitialDirectory()
   \sa setProjectsDirectory, setUseProjectsDirectory
 */
 
-QString FileManager::projectsDirectory()
+QString DocumentManager::projectsDirectory()
 {
     return d->m_projectsDirectory;
 }
@@ -1244,7 +1244,7 @@ QString FileManager::projectsDirectory()
   \sa projectsDirectory, useProjectsDirectory
 */
 
-void FileManager::setProjectsDirectory(const QString &dir)
+void DocumentManager::setProjectsDirectory(const QString &dir)
 {
     d->m_projectsDirectory = dir;
 }
@@ -1257,7 +1257,7 @@ void FileManager::setProjectsDirectory(const QString &dir)
   \sa setProjectsDirectory, setUseProjectsDirectory
 */
 
-bool FileManager::useProjectsDirectory()
+bool DocumentManager::useProjectsDirectory()
 {
     return d->m_useProjectsDirectory;
 }
@@ -1269,7 +1269,7 @@ bool FileManager::useProjectsDirectory()
   \sa projectsDirectory, useProjectsDirectory
 */
 
-void FileManager::setUseProjectsDirectory(bool useProjectsDirectory)
+void DocumentManager::setUseProjectsDirectory(bool useProjectsDirectory)
 {
     d->m_useProjectsDirectory = useProjectsDirectory;
 }
@@ -1282,7 +1282,7 @@ void FileManager::setUseProjectsDirectory(bool useProjectsDirectory)
 
 */
 
-QString FileManager::fileDialogLastVisitedDirectory()
+QString DocumentManager::fileDialogLastVisitedDirectory()
 {
     return d->m_lastVisitedDirectory;
 }
@@ -1296,17 +1296,17 @@ QString FileManager::fileDialogLastVisitedDirectory()
 
   */
 
-void FileManager::setFileDialogLastVisitedDirectory(const QString &directory)
+void DocumentManager::setFileDialogLastVisitedDirectory(const QString &directory)
 {
     d->m_lastVisitedDirectory = directory;
 }
 
-void FileManager::notifyFilesChangedInternally(const QStringList &files)
+void DocumentManager::notifyFilesChangedInternally(const QStringList &files)
 {
     emit m_instance->filesChangedInternally(files);
 }
 
-void FileManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
+void DocumentManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
 {
     typedef QList<IEditorFactory*> EditorFactoryList;
     typedef QList<IExternalEditor*> ExternalEditorList;
@@ -1343,7 +1343,7 @@ void FileManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
     menu->setEnabled(anyMatches);
 }
 
-void FileManager::executeOpenWithMenuAction(QAction *action)
+void DocumentManager::executeOpenWithMenuAction(QAction *action)
 {
     QTC_ASSERT(action, return);
     EditorManager *em = EditorManager::instance();
@@ -1368,7 +1368,7 @@ void FileManager::executeOpenWithMenuAction(QAction *action)
         em->openExternalEditor(entry.fileName, entry.externalEditor->id());
 }
 
-void FileManager::slotExecuteOpenWithMenuAction(QAction *action)
+void DocumentManager::slotExecuteOpenWithMenuAction(QAction *action)
 {
     executeOpenWithMenuAction(action);
 }
@@ -1378,12 +1378,12 @@ void FileManager::slotExecuteOpenWithMenuAction(QAction *action)
 FileChangeBlocker::FileChangeBlocker(const QString &fileName)
     : m_fileName(fileName)
 {
-    FileManager::expectFileChange(fileName);
+    DocumentManager::expectFileChange(fileName);
 }
 
 FileChangeBlocker::~FileChangeBlocker()
 {
-    FileManager::unexpectFileChange(m_fileName);
+    DocumentManager::unexpectFileChange(m_fileName);
 }
 
 } // namespace Core

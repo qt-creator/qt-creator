@@ -36,7 +36,7 @@
 #include "qmljsoutlinetreeview.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <QDebug>

@@ -43,7 +43,7 @@ using namespace TextEditor;
 using namespace TextEditor::Internal;
 
 FindInCurrentFile::FindInCurrentFile()
-  : m_currentFile(0)
+  : m_currentDocument(0)
 {
     connect(Core::ICore::editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(handleFileChange(Core::IEditor*)));
@@ -74,36 +74,36 @@ Utils::FileIterator *FindInCurrentFile::files(const QStringList &nameFilters,
 
 QVariant FindInCurrentFile::additionalParameters() const
 {
-    return qVariantFromValue(m_currentFile->fileName());
+    return qVariantFromValue(m_currentDocument->fileName());
 }
 
 QString FindInCurrentFile::label() const
 {
-    return tr("File '%1':").arg(QFileInfo(m_currentFile->fileName()).fileName());
+    return tr("File '%1':").arg(QFileInfo(m_currentDocument->fileName()).fileName());
 }
 
 QString FindInCurrentFile::toolTip() const
 {
     // %2 is filled by BaseFileFind::runNewSearch
-    return tr("File path: %1\n%2").arg(QDir::toNativeSeparators(m_currentFile->fileName()));
+    return tr("File path: %1\n%2").arg(QDir::toNativeSeparators(m_currentDocument->fileName()));
 }
 
 bool FindInCurrentFile::isEnabled() const
 {
-    return m_currentFile && !m_currentFile->fileName().isEmpty();
+    return m_currentDocument && !m_currentDocument->fileName().isEmpty();
 }
 
 void FindInCurrentFile::handleFileChange(Core::IEditor *editor)
 {
     if (!editor) {
-        if (m_currentFile) {
-            m_currentFile = 0;
+        if (m_currentDocument) {
+            m_currentDocument = 0;
             emit enabledChanged(isEnabled());
         }
     } else {
-        Core::IFile *file = editor->file();
-        if (file != m_currentFile) {
-            m_currentFile = file;
+        Core::IDocument *document = editor->document();
+        if (document != m_currentDocument) {
+            m_currentDocument = document;
             emit enabledChanged(isEnabled());
         }
     }

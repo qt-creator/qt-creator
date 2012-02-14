@@ -33,7 +33,7 @@
 #ifndef FORMWINDOWFILE_H
 #define FORMWINDOWFILE_H
 
-#include <coreplugin/textfile.h>
+#include <coreplugin/textdocument.h>
 
 #include <QPointer>
 
@@ -45,14 +45,14 @@ QT_END_NAMESPACE
 namespace Designer {
 namespace Internal {
 
-class FormWindowFile : public Core::TextFile
+class FormWindowFile : public Core::TextDocument
 {
     Q_OBJECT
 
 public:
     explicit FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent = 0);
 
-    // IFile
+    // IDocument
     virtual bool save(QString *errorString, const QString &fileName, bool autoSave);
     virtual QString fileName() const;
     virtual bool shouldAutoSave() const;

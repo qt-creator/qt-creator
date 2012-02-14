@@ -91,10 +91,10 @@ QStringList BaseVcsSubmitEditorFactory::mimeTypes() const
     return d->m_mimeTypes;
 }
 
-Core::IFile *BaseVcsSubmitEditorFactory::open(const QString &fileName)
+Core::IDocument *BaseVcsSubmitEditorFactory::open(const QString &fileName)
 {
     if (Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id()))
-        return iface->file();
+        return iface->document();
     return 0;
 }
 

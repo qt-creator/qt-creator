@@ -98,7 +98,7 @@ CPlusPlus::Symbol *AnalyzerUtils::findSymbolUnderCursor()
     editorWidget->convertPosition(pos, &line, &column);
 
     const CPlusPlus::Snapshot &snapshot = CPlusPlus::CppModelManagerInterface::instance()->snapshot();
-    CPlusPlus::Document::Ptr doc = snapshot.document(editor->file()->fileName());
+    CPlusPlus::Document::Ptr doc = snapshot.document(editor->document()->fileName());
     QTC_ASSERT(doc, return 0)
 
     // fetch the expression's code

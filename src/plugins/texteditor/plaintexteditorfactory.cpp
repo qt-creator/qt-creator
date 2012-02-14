@@ -75,10 +75,10 @@ QString PlainTextEditorFactory::displayName() const
     return tr(Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME);
 }
 
-Core::IFile *PlainTextEditorFactory::open(const QString &fileName)
+Core::IDocument *PlainTextEditorFactory::open(const QString &fileName)
 {
     Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
-    return iface ? iface->file() : 0;
+    return iface ? iface->document() : 0;
 }
 
 Core::IEditor *PlainTextEditorFactory::createEditor(QWidget *parent)
@@ -95,7 +95,7 @@ void PlainTextEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
 {
     PlainTextEditor *editorEditable = qobject_cast<PlainTextEditor *>(editor);
     if (editorEditable) {
-        BaseTextDocument *file = qobject_cast<BaseTextDocument *>(editor->file());
+        BaseTextDocument *file = qobject_cast<BaseTextDocument *>(editor->document());
         if (!file)
             return;
         PlainTextEditorWidget *textEditor = static_cast<PlainTextEditorWidget *>(editorEditable->editorWidget());

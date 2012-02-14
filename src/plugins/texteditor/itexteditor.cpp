@@ -93,7 +93,7 @@ QMap<QString, QString> ITextEditor::openedTextEditorsContents()
         ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
         if (!textEditor)
             continue;
-        QString fileName = textEditor->file()->fileName();
+        QString fileName = textEditor->document()->fileName();
         workingCopy[fileName] = textEditor->contents();
     }
     return workingCopy;
@@ -106,7 +106,7 @@ QMap<QString, QTextCodec *> TextEditor::ITextEditor::openedTextEditorsEncodings(
         ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
         if (!textEditor)
             continue;
-        QString fileName = textEditor->file()->fileName();
+        QString fileName = textEditor->document()->fileName();
         workingCopy[fileName] = textEditor->textCodec();
     }
     return workingCopy;

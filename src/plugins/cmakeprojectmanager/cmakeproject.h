@@ -43,7 +43,7 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildconfiguration.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
@@ -81,7 +81,7 @@ public:
 
     QString displayName() const;
     QString id() const;
-    Core::IFile *file() const;
+    Core::IDocument *document() const;
     CMakeManager *projectManager() const;
 
     CMakeTarget *activeTarget() const;
@@ -193,7 +193,7 @@ private:
     QString m_compiler;
 };
 
-class CMakeFile : public Core::IFile
+class CMakeFile : public Core::IDocument
 {
     Q_OBJECT
 public:

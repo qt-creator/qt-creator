@@ -33,7 +33,7 @@
 #ifndef RESOURCEDITORW_H
 #define RESOURCEDITORW_H
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <QPointer>
@@ -52,15 +52,15 @@ namespace Internal {
 class ResourceEditorPlugin;
 class ResourceEditorW;
 
-class ResourceEditorFile
-  : public virtual Core::IFile
+class ResourceEditorDocument
+  : public virtual Core::IDocument
 {
     Q_OBJECT
 
 public:
-    ResourceEditorFile(ResourceEditorW *parent = 0);
+    ResourceEditorDocument(ResourceEditorW *parent = 0);
 
-    //IFile
+    //IDocument
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     QString fileName() const;
     bool shouldAutoSave() const;
@@ -92,7 +92,7 @@ public:
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     bool duplicateSupported() const { return false; }
     Core::IEditor *duplicate(QWidget *) { return 0; }
-    Core::IFile *file() { return m_resourceFile; }
+    Core::IDocument *document() { return m_resourceDocument; }
     Core::Id id() const;
     QString displayName() const { return m_displayName; }
     void setDisplayName(const QString &title) { m_displayName = title; emit changed(); }
@@ -115,7 +115,7 @@ private:
     QString m_displayName;
     QString m_suggestedName;
     QPointer<SharedTools::QrcEditor> m_resourceEditor;
-    ResourceEditorFile *m_resourceFile;
+    ResourceEditorDocument *m_resourceDocument;
     ResourceEditorPlugin *m_plugin;
     bool m_shouldAutoSave;
     bool m_diskIo;
@@ -126,7 +126,7 @@ public:
     void onUndo();
     void onRedo();
 
-    friend class ResourceEditorFile;
+    friend class ResourceEditorDocument;
 };
 
 } // namespace Internal

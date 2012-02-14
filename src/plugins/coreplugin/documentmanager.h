@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef FILEMANAGER_H
-#define FILEMANAGER_H
+#ifndef DOCUMENTMANAGER_H
+#define DOCUMENTMANAGER_H
 
 #include <coreplugin/id.h>
 
@@ -49,10 +49,10 @@ QT_END_NAMESPACE
 namespace Core {
 
 class IContext;
-class IFile;
+class IDocument;
 class IVersionControl;
 
-class CORE_EXPORT FileManager : public QObject
+class CORE_EXPORT DocumentManager : public QObject
 {
     Q_OBJECT
 public:
@@ -63,16 +63,16 @@ public:
 
     typedef QPair<QString, Id> RecentFile;
 
-    explicit FileManager(QMainWindow *ew);
-    virtual ~FileManager();
+    explicit DocumentManager(QMainWindow *ew);
+    virtual ~DocumentManager();
 
-    static FileManager *instance();
+    static DocumentManager *instance();
 
     // file pool to monitor
-    static void addFiles(const QList<IFile *> &files, bool addWatcher = true);
-    static void addFile(IFile *file, bool addWatcher = true);
-    static bool removeFile(IFile *file);
-    static QList<IFile *> modifiedFiles();
+    static void addDocuments(const QList<IDocument *> &documents, bool addWatcher = true);
+    static void addDocument(IDocument *document, bool addWatcher = true);
+    static bool removeDocument(IDocument *document);
+    static QList<IDocument *> modifiedDocuments();
 
     static void renamedFile(const QString &from, const QString &to);
 
@@ -93,7 +93,7 @@ public:
     // helper methods
     static QString fixFileName(const QString &fileName, FixMode fixmode);
 
-    static bool saveFile(IFile *file, const QString &fileName = QString(), bool *isReadOnly = 0);
+    static bool saveDocument(IDocument *document, const QString &fileName = QString(), bool *isReadOnly = 0);
 
     static QStringList getOpenFileNames(const QString &filters,
                                  const QString path = QString(),
@@ -102,11 +102,11 @@ public:
                             const QString &filter = QString(), QString *selectedFilter = 0);
     static QString getSaveFileNameWithExtension(const QString &title, const QString &pathIn,
                                          const QString &filter);
-    static QString getSaveAsFileName(IFile *file, const QString &filter = QString(),
+    static QString getSaveAsFileName(IDocument *document, const QString &filter = QString(),
                               QString *selectedFilter = 0);
 
-    static QList<IFile *> saveModifiedFilesSilently(const QList<IFile *> &files, bool *cancelled = 0);
-    static QList<IFile *> saveModifiedFiles(const QList<IFile *> &files,
+    static QList<IDocument *> saveModifiedDocumentsSilently(const QList<IDocument *> &documents, bool *cancelled = 0);
+    static QList<IDocument *> saveModifiedDocuments(const QList<IDocument *> &documents,
                                      bool *cancelled = 0,
                                      const QString &message = QString(),
                                      const QString &alwaysSaveMessage = QString(),
@@ -150,7 +150,7 @@ signals:
     void filesChangedInternally(const QStringList &files);
 
 private slots:
-    void fileDestroyed(QObject *obj);
+    void documentDestroyed(QObject *obj);
     void checkForNewFileName();
     void checkForReload();
     void changedFile(const QString &file);
@@ -158,10 +158,10 @@ private slots:
     void syncWithEditor(Core::IContext *context);
 };
 
-/*! The FileChangeBlocker blocks all change notifications to all IFile * that
+/*! The FileChangeBlocker blocks all change notifications to all IDocument * that
     match the given filename. And unblocks in the destructor.
 
-    To also reload the IFile in the destructor class set modifiedReload to true
+    To also reload the IDocument in the destructor class set modifiedReload to true
 
   */
 class CORE_EXPORT FileChangeBlocker
@@ -176,6 +176,6 @@ private:
 
 } // namespace Core
 
-Q_DECLARE_METATYPE(Core::FileManager::RecentFile)
+Q_DECLARE_METATYPE(Core::DocumentManager::RecentFile)
 
-#endif // FILEMANAGER_H
+#endif // DOCUMENTMANAGER_H

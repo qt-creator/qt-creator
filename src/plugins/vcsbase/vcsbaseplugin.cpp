@@ -38,9 +38,9 @@
 #include "corelistener.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/iversioncontrol.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/vcsmanager.h>
@@ -238,10 +238,10 @@ void StateListener::slotStateChanged()
     // folder?
     State state;
     Core::EditorManager *em = Core::ICore::editorManager();
-    if (!em || !em->currentEditor() || !em->currentEditor()->file())
+    if (!em || !em->currentEditor() || !em->currentEditor()->document())
         state.currentFile.clear();
     else
-        state.currentFile = em->currentEditor()->file()->fileName();
+        state.currentFile = em->currentEditor()->document()->fileName();
     QScopedPointer<QFileInfo> currentFileInfo; // Instantiate QFileInfo only once if required.
     if (!state.currentFile.isEmpty()) {
         const bool isTempFile = state.currentFile.startsWith(QDir::tempPath());
@@ -643,7 +643,7 @@ void VcsBasePlugin::createRepository()
     // Find current starting directory
     QString directory;
     if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::currentProject())
-        directory = QFileInfo(currentProject->file()->fileName()).absolutePath();
+        directory = QFileInfo(currentProject->document()->fileName()).absolutePath();
     // Prompt for a directory that is not under version control yet
     QMainWindow *mw = Core::ICore::mainWindow();
     do {

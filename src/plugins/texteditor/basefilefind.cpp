@@ -39,7 +39,7 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <find/textfindconstants.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
@@ -180,7 +180,7 @@ void BaseFileFind::doReplace(const QString &text,
 {
     QStringList files = replaceAll(text, items);
     if (!files.isEmpty()) {
-        Core::FileManager::notifyFilesChangedInternally(files);
+        Core::DocumentManager::notifyFilesChangedInternally(files);
         Find::SearchResultWindow::instance()->hide();
     }
 }

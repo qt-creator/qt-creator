@@ -53,7 +53,7 @@ class ActionManager;
 class StatusBarWidget;
 class EditorManager;
 class ExternalToolManager;
-class FileManager;
+class DocumentManager;
 class HelpManager;
 class IWizard;
 class MessageManager;
@@ -100,7 +100,6 @@ public:
     void openFiles(const QStringList &fileNames, ICore::OpenFilesFlags flags);
 
     Core::ActionManager *actionManager() const;
-    Core::FileManager *fileManager() const;
     Core::MessageManager *messageManager() const;
     Core::EditorManager *editorManager() const;
     Core::ProgressManager *progressManager() const;

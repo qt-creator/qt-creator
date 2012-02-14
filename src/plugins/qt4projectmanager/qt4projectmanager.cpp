@@ -162,7 +162,7 @@ void Qt4Manager::editorChanged(Core::IEditor *editor)
         if (m_dirty) {
             const QString contents = formWindowEditorContents(m_lastEditor);
             foreach(Qt4Project *project, m_projects)
-                project->rootQt4ProjectNode()->updateCodeModelSupportFromEditor(m_lastEditor->file()->fileName(), contents);
+                project->rootQt4ProjectNode()->updateCodeModelSupportFromEditor(m_lastEditor->document()->fileName(), contents);
             m_dirty = false;
         }
     }
@@ -184,7 +184,7 @@ void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
             if (m_dirty) {
                 const QString contents = formWindowEditorContents(m_lastEditor);
                 foreach(Qt4Project *project, m_projects)
-                    project->rootQt4ProjectNode()->updateCodeModelSupportFromEditor(m_lastEditor->file()->fileName(), contents);
+                    project->rootQt4ProjectNode()->updateCodeModelSupportFromEditor(m_lastEditor->document()->fileName(), contents);
                 m_dirty = false;
             }
         }
@@ -263,7 +263,7 @@ ProjectExplorer::Project *Qt4Manager::openProject(const QString &fileName, QStri
     }
 
     foreach (ProjectExplorer::Project *pi, projectExplorer()->session()->projects()) {
-        if (canonicalFilePath == pi->file()->fileName()) {
+        if (canonicalFilePath == pi->document()->fileName()) {
             if (errorString)
                 *errorString = tr("Failed opening project '%1': Project already open").arg(QDir::toNativeSeparators(canonicalFilePath));
             return 0;
@@ -309,7 +309,7 @@ void Qt4Manager::addLibrary()
     Core::EditorManager *em = Core::EditorManager::instance();
     ProFileEditorWidget *editor = qobject_cast<ProFileEditorWidget*>(em->currentEditor()->widget());
     if (editor)
-        addLibrary(editor->file()->fileName(), editor);
+        addLibrary(editor->editorDocument()->fileName(), editor);
 }
 
 void Qt4Manager::addLibraryContextMenu()

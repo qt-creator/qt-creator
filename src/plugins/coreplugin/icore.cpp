@@ -67,7 +67,7 @@
     in \a defaultLocation. It defaults to the path of the file manager's
     current file.
 
-    \sa Core::FileManager
+    \sa Core::DocumentManager
 */
 
 /*!
@@ -103,7 +103,7 @@
 */
 
 /*!
-    \fn FileManager *ICore::fileManager() const
+    \fn DocumentManager *ICore::fileManager() const
     \brief Returns the application's file manager.
 
     The file manager keeps track of files for changes outside the application.
@@ -346,6 +346,7 @@
 
 #include "icore.h"
 #include "mainwindow.h"
+#include "documentmanager.h"
 
 #include <QDir>
 #include <QCoreApplication>
@@ -410,9 +411,9 @@ ActionManager *ICore::actionManager()
     return m_mainwindow->actionManager();
 }
 
-FileManager *ICore::fileManager()
+DocumentManager *ICore::documentManager()
 {
-    return m_mainwindow->fileManager();
+    return DocumentManager::instance();
 }
 
 MessageManager *ICore::messageManager()

@@ -56,7 +56,7 @@
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/LookupContext.h>
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <cppeditor/cppeditorconstants.h>
@@ -719,7 +719,7 @@ bool CppCompletionAssistProcessor::accepts() const
     const int start = startOfOperator(pos, &token, /*want function call=*/ true);
     if (start != pos) {
         if (token == T_POUND) {
-            const int column = pos - m_interface->document()->findBlock(start).position();
+            const int column = pos - m_interface->textDocument()->findBlock(start).position();
             if (column != 1)
                 return false;
         }
@@ -734,7 +734,7 @@ bool CppCompletionAssistProcessor::accepts() const
                 const QChar firstCharacter = m_interface->characterAt(startOfName);
                 if (firstCharacter.isLetter() || firstCharacter == QLatin1Char('_')) {
                     // Finally check that we're not inside a comment or string (code copied from startOfOperator)
-                    QTextCursor tc(m_interface->document());
+                    QTextCursor tc(m_interface->textDocument());
                     tc.setPosition(pos);
 
                     SimpleLexer tokenize;
@@ -818,7 +818,7 @@ int CppCompletionAssistProcessor::startOfOperator(int pos,
 
     int start = pos - activationSequenceChar(ch, ch2, ch3, kind, wantFunctionCall);
     if (start != pos) {
-        QTextCursor tc(m_interface->document());
+        QTextCursor tc(m_interface->textDocument());
         tc.setPosition(pos);
 
         // Include completion: make sure the quote character is the first one on the line
@@ -944,8 +944,8 @@ int CppCompletionAssistProcessor::startCompletionHelper()
                                           &m_model->m_completionOperator,
                                           /*want function call =*/ true);
 
-    const Core::IFile *file = m_interface->file();
-    QString fileName = file->fileName();
+    const Core::IDocument *document = m_interface->document();
+    QString fileName = document->fileName();
 
     if (m_model->m_completionOperator == T_DOXY_COMMENT) {
         for (int i = 1; i < T_DOXY_LAST_TAG; ++i)
@@ -965,7 +965,7 @@ int CppCompletionAssistProcessor::startCompletionHelper()
         || m_model->m_completionOperator == T_ANGLE_STRING_LITERAL
         || m_model->m_completionOperator == T_SLASH) {
 
-        QTextCursor c(m_interface->document());
+        QTextCursor c(m_interface->textDocument());
         c.setPosition(endOfExpression);
         if (completeInclude(c))
             m_startPosition = startOfName;
@@ -973,7 +973,7 @@ int CppCompletionAssistProcessor::startCompletionHelper()
     }
 
     ExpressionUnderCursor expressionUnderCursor;
-    QTextCursor tc(m_interface->document());
+    QTextCursor tc(m_interface->textDocument());
 
     if (m_model->m_completionOperator == T_COMMA) {
         tc.setPosition(endOfExpression);
@@ -1017,7 +1017,7 @@ int CppCompletionAssistProcessor::startCompletionHelper()
     }
 
     int line = 0, column = 0;
-    Convenience::convertPosition(m_interface->document(), startOfExpression, &line, &column);
+    Convenience::convertPosition(m_interface->textDocument(), startOfExpression, &line, &column);
     return startCompletionInternal(fileName, line, column, expression, endOfExpression);
 }
 
@@ -1029,7 +1029,7 @@ bool CppCompletionAssistProcessor::tryObjCCompletion()
     if (m_interface->characterAt(end) != QLatin1Char(']'))
         return false;
 
-    QTextCursor tc(m_interface->document());
+    QTextCursor tc(m_interface->textDocument());
     tc.setPosition(end);
     BackwardsScanner tokens(tc);
     if (tokens[tokens.startToken() - 1].isNot(T_RBRACKET))
@@ -1042,14 +1042,14 @@ bool CppCompletionAssistProcessor::tryObjCCompletion()
     const int startPos = tokens[start].begin() + tokens.startPosition();
     const QString expr = m_interface->textAt(startPos, m_interface->position() - startPos);
 
-    Document::Ptr thisDocument = m_interface->snapshot().document(m_interface->file()->fileName());
+    Document::Ptr thisDocument = m_interface->snapshot().document(m_interface->document()->fileName());
     if (! thisDocument)
         return false;
 
     m_model->m_typeOfExpression->init(thisDocument, m_interface->snapshot());
 
     int line = 0, column = 0;
-    Convenience::convertPosition(m_interface->document(), m_interface->position(), &line, &column);
+    Convenience::convertPosition(m_interface->textDocument(), m_interface->position(), &line, &column);
     Scope *scope = thisDocument->scopeAt(line, column);
     if (!scope)
         return false;
@@ -1171,7 +1171,7 @@ bool CppCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
 
     // Make completion for all relevant includes
     QStringList includePaths = m_interface->includePaths();
-    const QString &currentFilePath = QFileInfo(m_interface->file()->fileName()).path();
+    const QString &currentFilePath = QFileInfo(m_interface->document()->fileName()).path();
     if (!includePaths.contains(currentFilePath))
         includePaths.append(currentFilePath);
 
@@ -1232,8 +1232,8 @@ bool CppCompletionAssistProcessor::objcKeywordsWanted() const
     if (!m_objcEnabled)
         return false;
 
-    const Core::IFile *file = m_interface->file();
-    QString fileName = file->fileName();
+    const Core::IDocument *document = m_interface->document();
+    QString fileName = document->fileName();
 
     const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
     return mdb->findByFile(fileName).type() == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE;
@@ -1291,7 +1291,7 @@ int CppCompletionAssistProcessor::startCompletionInternal(const QString fileName
                 --index;
             index = findStartOfName(index);
 
-            QTextCursor tc(m_interface->document());
+            QTextCursor tc(m_interface->textDocument());
             tc.setPosition(index);
 
             ExpressionUnderCursor expressionUnderCursor;
@@ -1824,7 +1824,7 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
 
         // get current line and column
         int lineSigned = 0, columnSigned = 0;
-        Convenience::convertPosition(m_interface->document(), m_interface->position(), &lineSigned, &columnSigned);
+        Convenience::convertPosition(m_interface->textDocument(), m_interface->position(), &lineSigned, &columnSigned);
         unsigned line = lineSigned, column = columnSigned;
 
         // find a scope that encloses the current location, starting from the lastVisibileSymbol
@@ -1837,7 +1837,7 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
             // declaration, we should be certain that it isn't.
             bool autocompleteSignature = false;
 
-            QTextCursor tc(m_interface->document());
+            QTextCursor tc(m_interface->textDocument());
             tc.setPosition(endOfExpression);
             BackwardsScanner bs(tc);
             const int startToken = bs.startToken();

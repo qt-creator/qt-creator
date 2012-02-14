@@ -121,7 +121,7 @@ public:
     Core::IEditor *createEditor(QWidget *parent);
     Core::Id id() const;
     QString displayName() const;
-    Core::IFile *open(const QString &fileName);
+    Core::IDocument *open(const QString &fileName);
 
 private:
     CppPlugin *m_owner;

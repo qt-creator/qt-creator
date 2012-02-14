@@ -51,7 +51,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -477,14 +477,14 @@ bool SubversionPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *su
     if (!isCommitEditorOpen())
         return true;
 
-    Core::IFile *fileIFace = submitEditor->file();
+    Core::IDocument *editorDocument = submitEditor->document();
     const SubversionSubmitEditor *editor = qobject_cast<SubversionSubmitEditor *>(submitEditor);
-    if (!fileIFace || !editor)
+    if (!editorDocument || !editor)
         return true;
 
     // Submit editor closing. Make it write out the commit message
     // and retrieve files
-    const QFileInfo editorFile(fileIFace->fileName());
+    const QFileInfo editorFile(editorDocument->fileName());
     const QFileInfo changeFile(m_commitMessageFileName);
     if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())
         return true; // Oops?!
@@ -512,7 +512,7 @@ bool SubversionPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *su
     bool closeEditor = true;
     if (!fileList.empty()) {
         // get message & commit
-        closeEditor = Core::FileManager::saveFile(fileIFace);
+        closeEditor = Core::DocumentManager::saveDocument(editorDocument);
         if (closeEditor)
             closeEditor = commit(m_commitMessageFileName, fileList);
     }

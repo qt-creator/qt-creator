@@ -75,7 +75,7 @@ QString ProjectFileFactory::displayName() const
     return tr("Project File Factory", "ProjectExplorer::ProjectFileFactory display name.");
 }
 
-Core::IFile *ProjectFileFactory::open(const QString &fileName)
+Core::IDocument *ProjectFileFactory::open(const QString &fileName)
 {
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     pe->openProject(fileName, 0);

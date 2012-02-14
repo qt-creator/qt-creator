@@ -71,7 +71,7 @@
 #include "logwindow.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <texteditor/itexteditor.h>

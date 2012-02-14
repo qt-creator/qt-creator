@@ -36,7 +36,7 @@
 #define AUTOTOOLSPROJECTNODE_H
 
 #include <projectexplorer/projectnodes.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 
 namespace AutotoolsProjectManager {
 namespace Internal {
@@ -57,7 +57,7 @@ class AutotoolsProjectNode : public ProjectExplorer::ProjectNode
     Q_OBJECT
 
 public:
-    AutotoolsProjectNode(AutotoolsProject *project, Core::IFile *projectFile);
+    AutotoolsProjectNode(AutotoolsProject *project, Core::IDocument *projectFile);
 
     bool hasBuildTargets() const;
     QList<ProjectExplorer::ProjectNode::ProjectAction> supportedActions(Node *node) const;
@@ -79,7 +79,7 @@ public:
 
 private:
     AutotoolsProject *m_project;
-    Core::IFile *m_projectFile;
+    Core::IDocument *m_projectFile;
 
     // TODO: AutotoolsProject calls the protected method addFileNodes() from AutotoolsProjectNode.
     // Instead of this friend declaration, a public interface might be preferable.

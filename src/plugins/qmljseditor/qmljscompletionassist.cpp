@@ -35,7 +35,7 @@
 #include "qmljsreuse.h"
 #include "qmlexpressionundercursor.h"
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 
 #include <texteditor/codeassist/iassistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
@@ -530,10 +530,10 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
     if (assistInterface->reason() == IdleEditor && !acceptsIdleEditor())
         return 0;
 
-    const QString &fileName = m_interface->file()->fileName();
+    const QString &fileName = m_interface->document()->fileName();
 
     m_startPosition = assistInterface->position();
-    while (isIdentifierChar(m_interface->document()->characterAt(m_startPosition - 1), false, false))
+    while (isIdentifierChar(m_interface->textDocument()->characterAt(m_startPosition - 1), false, false))
         --m_startPosition;
     const bool onIdentifier = m_startPosition != assistInterface->position();
 
@@ -563,9 +563,9 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
     // a +b<complete> -> '+'
     QChar completionOperator;
     if (m_startPosition > 0)
-        completionOperator = m_interface->document()->characterAt(m_startPosition - 1);
+        completionOperator = m_interface->textDocument()->characterAt(m_startPosition - 1);
 
-    QTextCursor startPositionCursor(qmlInterface->document());
+    QTextCursor startPositionCursor(qmlInterface->textDocument());
     startPositionCursor.setPosition(m_startPosition);
     CompletionContextFinder contextFinder(startPositionCursor);
 
@@ -609,7 +609,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
     if (contextFinder.isInStringLiteral()) {
         // get the text of the literal up to the cursor position
         //QTextCursor tc = textWidget->textCursor();
-        QTextCursor tc(qmlInterface->document());
+        QTextCursor tc(qmlInterface->textDocument());
         tc.setPosition(qmlInterface->position());
         QmlExpressionUnderCursor expressionUnderCursor;
         expressionUnderCursor(tc);
@@ -656,7 +656,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             || (completionOperator == QLatin1Char('(') && !onIdentifier)) {
         // Look at the expression under cursor.
         //QTextCursor tc = textWidget->textCursor();
-        QTextCursor tc(qmlInterface->document());
+        QTextCursor tc(qmlInterface->textDocument());
         tc.setPosition(m_startPosition - 1);
 
         QmlExpressionUnderCursor expressionUnderCursor;
@@ -822,11 +822,11 @@ bool QmlJSCompletionAssistProcessor::acceptsIdleEditor() const
     const int cursorPos = m_interface->position();
 
     bool maybeAccept = false;
-    const QChar &charBeforeCursor = m_interface->document()->characterAt(cursorPos - 1);
+    const QChar &charBeforeCursor = m_interface->textDocument()->characterAt(cursorPos - 1);
     if (isActivationChar(charBeforeCursor)) {
         maybeAccept = true;
     } else {
-        const QChar &charUnderCursor = m_interface->document()->characterAt(cursorPos);
+        const QChar &charUnderCursor = m_interface->textDocument()->characterAt(cursorPos);
         if (isIdentifierChar(charBeforeCursor)
                 && ((charUnderCursor.isSpace()
                     || charUnderCursor.isNull()
@@ -835,7 +835,7 @@ bool QmlJSCompletionAssistProcessor::acceptsIdleEditor() const
 
             int startPos = cursorPos - 1;
             for (; startPos != -1; --startPos) {
-                if (!isIdentifierChar(m_interface->document()->characterAt(startPos)))
+                if (!isIdentifierChar(m_interface->textDocument()->characterAt(startPos)))
                     break;
             }
             ++startPos;
@@ -852,7 +852,7 @@ bool QmlJSCompletionAssistProcessor::acceptsIdleEditor() const
     }
 
     if (maybeAccept) {
-        QTextCursor tc(m_interface->document());
+        QTextCursor tc(m_interface->textDocument());
         tc.setPosition(m_interface->position());
         const QTextBlock &block = tc.block();
         const QString &blockText = block.text();
@@ -933,12 +933,12 @@ bool QmlJSCompletionAssistProcessor::completeUrl(const QString &relativeBasePath
 // ------------------------------
 // QmlJSCompletionAssistInterface
 // ------------------------------
-QmlJSCompletionAssistInterface::QmlJSCompletionAssistInterface(QTextDocument *document,
+QmlJSCompletionAssistInterface::QmlJSCompletionAssistInterface(QTextDocument *textDocument,
                                                                int position,
-                                                               Core::IFile *file,
+                                                               Core::IDocument *document,
                                                                TextEditor::AssistReason reason,
                                                                const SemanticInfo &info)
-    : DefaultAssistInterface(document, position, file, reason)
+    : DefaultAssistInterface(textDocument, position, document, reason)
     , m_semanticInfo(info)
     , m_darkBlueIcon(iconForColor(Qt::darkBlue))
     , m_darkYellowIcon(iconForColor(Qt::darkYellow))

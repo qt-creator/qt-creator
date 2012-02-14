@@ -757,7 +757,7 @@ EditorData FormEditorW::createEditor(QWidget *parent)
     data.formWindowEditor = xmlEditor->designerEditor();
     connect(data.widgetHost, SIGNAL(formWindowSizeChanged(int,int)),
             xmlEditor, SIGNAL(changed()));
-    connect(data.formWindowEditor->file(), SIGNAL(changed()),
+    connect(data.formWindowEditor->document(), SIGNAL(changed()),
             resourceHandler, SLOT(updateResources()));
     m_editorWidget->add(data);
 
@@ -907,8 +907,8 @@ void FormEditorW::print()
 static QString currentFile()
 {
     if (Core::IEditor *editor = Core::EditorManager::instance()->currentEditor())
-        if (const Core::IFile *file = editor->file()) {
-            const QString fileName = file->fileName();
+        if (const Core::IDocument *document= editor->document()) {
+            const QString fileName = document->fileName();
             if (!fileName.isEmpty() && QFileInfo(fileName).isFile())
                 return fileName;
         }

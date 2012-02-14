@@ -31,7 +31,7 @@
 **************************************************************************/
 
 #include "variablemanager.h"
-#include "ifile.h"
+#include "idocument.h"
 #include "editormanager/ieditor.h"
 #include "editormanager/editormanager.h"
 

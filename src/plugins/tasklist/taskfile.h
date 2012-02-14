@@ -33,7 +33,7 @@
 #ifndef TASKFILE_H
 #define TASKFILE_H
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 
 namespace ProjectExplorer {
 class Project;
@@ -42,7 +42,7 @@ class Project;
 namespace TaskList {
 namespace Internal {
 
-class TaskFile : public Core::IFile
+class TaskFile : public Core::IDocument
 {
 public:
     TaskFile(QObject *parent);

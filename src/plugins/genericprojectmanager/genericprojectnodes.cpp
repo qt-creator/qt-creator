@@ -33,7 +33,7 @@
 #include "genericprojectnodes.h"
 #include "genericproject.h"
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <projectexplorer/projectexplorer.h>
 
 #include <QFileInfo>
@@ -41,7 +41,7 @@
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
 
-GenericProjectNode::GenericProjectNode(GenericProject *project, Core::IFile *projectFile)
+GenericProjectNode::GenericProjectNode(GenericProject *project, Core::IDocument *projectFile)
     : ProjectExplorer::ProjectNode(projectFile->fileName()),
       m_project(project),
       m_projectFile(projectFile)
@@ -49,7 +49,7 @@ GenericProjectNode::GenericProjectNode(GenericProject *project, Core::IFile *pro
     setDisplayName(QFileInfo(projectFile->fileName()).completeBaseName());
 }
 
-Core::IFile *GenericProjectNode::projectFile() const
+Core::IDocument *GenericProjectNode::projectFile() const
 {
     return m_projectFile;
 }

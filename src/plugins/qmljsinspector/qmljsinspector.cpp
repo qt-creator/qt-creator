@@ -438,7 +438,7 @@ void InspectorUi::serverReloaded()
 
 void InspectorUi::removePreviewForEditor(Core::IEditor *oldEditor)
 {
-    if (QmlJSLiveTextPreview *preview = m_textPreviews.value(oldEditor->file()->fileName())) {
+    if (QmlJSLiveTextPreview *preview = m_textPreviews.value(oldEditor->document()->fileName())) {
         preview->unassociateEditor(oldEditor);
     }
 }
@@ -453,7 +453,7 @@ QmlJSLiveTextPreview *InspectorUi::createPreviewForEditor(Core::IEditor *newEdit
             && newEditor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID
             )
     {
-        QString filename = newEditor->file()->fileName();
+        QString filename = newEditor->document()->fileName();
         QmlJS::Document::Ptr doc = modelManager()->snapshot().document(filename);
         if (!doc) {
             if (filename.endsWith(".qml")) {
@@ -482,7 +482,7 @@ QmlJSLiveTextPreview *InspectorUi::createPreviewForEditor(Core::IEditor *newEdit
                     m_clientProxy, SLOT(reloadQmlViewer()));
             connect(preview, SIGNAL(disableLivePreviewRequested()), SLOT(disableLivePreview()));
 
-            m_textPreviews.insert(newEditor->file()->fileName(), preview);
+            m_textPreviews.insert(newEditor->document()->fileName(), preview);
             preview->associateEditor(newEditor);
             preview->updateDebugIds();
         }

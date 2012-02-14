@@ -41,7 +41,7 @@
 #include <utils/stringutils.h>
 
 #include <coreplugin/basefilewizard.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>

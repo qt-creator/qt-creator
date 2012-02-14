@@ -576,7 +576,7 @@ void QmlJSLiveTextPreview::showExperimentalWarning()
                     tr("You changed a QML file in Live Preview mode, which modifies the running QML application. "
                        "In case of unexpected behavior, please reload the QML application."));
             info.setCustomButtonInfo(tr("Disable Live Preview"), this, SLOT(disableLivePreview()));
-            editor.data()->file()->infoBar()->addInfo(info);
+            editor.data()->editorDocument()->infoBar()->addInfo(info);
         }
 }
 
@@ -602,7 +602,7 @@ void QmlJSLiveTextPreview::showSyncWarning(UnsyncronizableChangeType unsyncroniz
 
     foreach (QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> editor, m_editors)
         if (editor)
-            editor.data()->file()->infoBar()->addInfo(Core::InfoBarEntry(
+            editor.data()->editorDocument()->infoBar()->addInfo(Core::InfoBarEntry(
                     QLatin1String(Constants::INFO_OUT_OF_SYNC), errorMessage));
 }
 
@@ -610,7 +610,7 @@ void QmlJSLiveTextPreview::reloadQmlViewer()
 {
     foreach (QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> editor, m_editors)
         if (editor)
-            editor.data()->file()->infoBar()->removeInfo(Constants::INFO_OUT_OF_SYNC);
+            editor.data()->editorDocument()->infoBar()->removeInfo(Constants::INFO_OUT_OF_SYNC);
     emit reloadQmlViewerRequested();
 }
 
@@ -618,7 +618,7 @@ void QmlJSLiveTextPreview::disableLivePreview()
 {
     foreach (QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> editor, m_editors)
         if (editor)
-            editor.data()->file()->infoBar()->removeInfo(Constants::INFO_OUT_OF_SYNC);
+            editor.data()->editorDocument()->infoBar()->removeInfo(Constants::INFO_OUT_OF_SYNC);
     emit disableLivePreviewRequested();
 }
 

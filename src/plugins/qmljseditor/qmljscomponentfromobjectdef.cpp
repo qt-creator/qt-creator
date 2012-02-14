@@ -34,7 +34,7 @@
 #include "qmljscomponentnamedialog.h"
 #include "qmljsquickfixassist.h"
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsdocument.h>

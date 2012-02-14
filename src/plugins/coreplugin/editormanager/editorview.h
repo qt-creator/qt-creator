@@ -57,7 +57,7 @@ QT_END_NAMESPACE
 
 namespace Core {
 class IContext;
-class IFile;
+class IDocument;
 class IEditor;
 class InfoBarDisplay;
 class OpenEditorsModel;
@@ -66,7 +66,7 @@ class EditorToolBar;
 namespace Internal {
 
 struct EditLocation {
-    QPointer<IFile> file;
+    QPointer<IDocument> document;
     QString fileName;
     Id id;
     QVariant state;

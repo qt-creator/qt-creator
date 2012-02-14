@@ -59,7 +59,7 @@ namespace Designer {
 namespace Internal {
 
 FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent)
-  : Core::TextFile(parent),
+  : Core::TextDocument(parent),
     m_mimeType(QLatin1String(Designer::Constants::FORM_MIMETYPE)),
     m_shouldAutoSave(false),
     m_formWindow(form)

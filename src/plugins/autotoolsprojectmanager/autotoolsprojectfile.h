@@ -35,7 +35,7 @@
 #ifndef AUTOTOOLSPROJECTFILE_H
 #define AUTOTOOLSPROJECTFILE_H
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 
 namespace AutotoolsProjectManager {
 namespace Internal {
@@ -43,7 +43,7 @@ namespace Internal {
 class AutotoolsProject;
 
 /**
- * @brief Implementation of the Core::IFile interface.
+ * @brief Implementation of the Core::IDocument interface.
  *
  * Is used in AutotoolsProject and describes the root
  * of a project. In the context of autotools the implementation
@@ -52,7 +52,7 @@ class AutotoolsProject;
  *
  * @see AutotoolsProject
  */
-class AutotoolsProjectFile : public Core::IFile
+class AutotoolsProjectFile : public Core::IDocument
 {
     Q_OBJECT
 

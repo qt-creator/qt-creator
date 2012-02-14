@@ -251,7 +251,7 @@ void DisassemblerAgentPrivate::configureMimeType()
     QTC_ASSERT(editor, return);
 
     TextEditor::BaseTextDocument *doc =
-        qobject_cast<TextEditor::BaseTextDocument *>(editor->file());
+        qobject_cast<TextEditor::BaseTextDocument *>(editor->document());
     QTC_ASSERT(doc, return);
     doc->setMimeType(mimeType);
 

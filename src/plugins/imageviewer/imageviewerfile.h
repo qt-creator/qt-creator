@@ -34,7 +34,7 @@
 #ifndef IMAGEVIEWERFILE_H
 #define IMAGEVIEWERFILE_H
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 
 #include <QScopedPointer>
 
@@ -43,7 +43,7 @@ namespace Internal {
 
 class ImageViewer;
 
-class ImageViewerFile : public Core::IFile
+class ImageViewerFile : public Core::IDocument
 {
     Q_OBJECT
 public:

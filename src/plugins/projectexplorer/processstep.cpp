@@ -37,7 +37,7 @@
 #include "projectexplorerconstants.h"
 #include "target.h"
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 

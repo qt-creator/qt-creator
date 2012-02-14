@@ -351,7 +351,7 @@ void EditorToolBar::listContextMenu(QPoint pos)
 void EditorToolBar::makeEditorWritable()
 {
     if (currentEditor())
-        ICore::editorManager()->makeFileWritable(currentEditor()->file());
+        ICore::editorManager()->makeFileWritable(currentEditor()->document());
 }
 
 void EditorToolBar::setCanGoBack(bool canGoBack)
@@ -390,7 +390,7 @@ void EditorToolBar::updateEditorStatus(IEditor *editor)
 {
     d->m_closeEditorButton->setEnabled(editor != 0);
 
-    if (!editor || !editor->file()) {
+    if (!editor || !editor->document()) {
         d->m_lockButton->setIcon(QIcon());
         d->m_lockButton->setEnabled(false);
         d->m_lockButton->setToolTip(QString());
@@ -400,11 +400,11 @@ void EditorToolBar::updateEditorStatus(IEditor *editor)
 
     d->m_editorList->setCurrentIndex(d->m_editorsListModel->indexOf(editor).row());
 
-    if (editor->file()->fileName().isEmpty()) {
+    if (editor->document()->fileName().isEmpty()) {
         d->m_lockButton->setIcon(QIcon());
         d->m_lockButton->setEnabled(false);
         d->m_lockButton->setToolTip(QString());
-    } else if (editor->file()->isReadOnly()) {
+    } else if (editor->document()->isFileReadOnly()) {
         d->m_lockButton->setIcon(QIcon(d->m_editorsListModel->lockedIcon()));
         d->m_lockButton->setEnabled(true);
         d->m_lockButton->setToolTip(tr("Make Writable"));
@@ -415,9 +415,9 @@ void EditorToolBar::updateEditorStatus(IEditor *editor)
     }
     if (editor == currentEditor())
         d->m_editorList->setToolTip(
-                currentEditor()->file()->fileName().isEmpty()
+                currentEditor()->document()->fileName().isEmpty()
                 ? currentEditor()->displayName()
-                    : QDir::toNativeSeparators(editor->file()->fileName())
+                    : QDir::toNativeSeparators(editor->document()->fileName())
                     );
 
 }

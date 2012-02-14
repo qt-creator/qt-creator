@@ -540,7 +540,7 @@
     name to the user, convert it back to native format with
     QDir::toNativeSeparators.
 
-    When comparing file names, consider using FileManager::fixFileName which
+    When comparing file names, consider using DocumentManager::fixFileName which
     makes sure that paths are clean and absolute and also takes Windows
     case-insensitivity into account (even if it is an expensive operation).
 

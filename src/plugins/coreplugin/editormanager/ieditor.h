@@ -41,7 +41,7 @@
 
 namespace Core {
 
-class IFile;
+class IDocument;
 
 class CORE_EXPORT IEditor : public IContext
 {
@@ -53,7 +53,7 @@ public:
 
     virtual bool createNew(const QString &contents = QString()) = 0;
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName) = 0;
-    virtual IFile *file() = 0;
+    virtual IDocument *document() = 0;
     virtual Core::Id id() const = 0;
     virtual QString displayName() const = 0;
     virtual void setDisplayName(const QString &title) = 0;

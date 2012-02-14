@@ -47,7 +47,7 @@
 #include <cplusplus/Symbol.h>
 #include <cplusplus/Symbols.h>
 #include <cplusplus/TranslationUnit.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/id.h>
@@ -141,8 +141,8 @@ static const char *belongingClassName(const CPlusPlus::Function *function)
     it.
 
     The submit process is started by listening on the editor close
-    signal and then asking the IFile interface of the editor to save the file
-    within a IFileManager::blockFileChange() section
+    signal and then asking the IDocument interface of the editor to save the file
+    within a DocumentManager::blockFileChange() section
     and to launch the submit process. In addition, the action registered
     for submit should be connected to a slot triggering the close of the
     current editor in the editor manager.
@@ -391,7 +391,7 @@ bool VcsBaseSubmitEditor::open(QString *errorString, const QString &fileName, co
     return true;
 }
 
-Core::IFile *VcsBaseSubmitEditor::file()
+Core::IDocument *VcsBaseSubmitEditor::document()
 {
     return d->m_file;
 }

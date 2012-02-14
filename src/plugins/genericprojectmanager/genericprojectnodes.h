@@ -39,7 +39,7 @@
 #include <QHash>
 
 namespace Core {
-class IFile;
+class IDocument;
 }
 
 namespace GenericProjectManager {
@@ -50,9 +50,9 @@ class GenericProject;
 class GenericProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
-    GenericProjectNode(GenericProject *project, Core::IFile *projectFile);
+    GenericProjectNode(GenericProject *project, Core::IDocument *projectFile);
 
-    Core::IFile *projectFile() const;
+    Core::IDocument *projectFile() const;
     QString projectFilePath() const;
 
     virtual bool hasBuildTargets() const;
@@ -89,7 +89,7 @@ private:
 
 private:
     GenericProject *m_project;
-    Core::IFile *m_projectFile;
+    Core::IDocument *m_projectFile;
 };
 
 } // namespace Internal

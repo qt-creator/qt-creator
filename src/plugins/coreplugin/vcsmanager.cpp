@@ -33,7 +33,7 @@
 #include "vcsmanager.h"
 #include "iversioncontrol.h"
 #include "icore.h"
-#include "filemanager.h"
+#include "documentmanager.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
@@ -181,7 +181,7 @@ void VcsManager::extensionsInitialized()
     // Change signal connections
     foreach (IVersionControl *versionControl, allVersionControls()) {
         connect(versionControl, SIGNAL(filesChanged(QStringList)),
-                FileManager::instance(), SIGNAL(filesChangedInternally(QStringList)));
+                DocumentManager::instance(), SIGNAL(filesChangedInternally(QStringList)));
         connect(versionControl, SIGNAL(repositoryChanged(QString)),
                 this, SIGNAL(repositoryChanged(QString)));
     }

@@ -44,7 +44,7 @@
 #include "target.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
@@ -367,7 +367,7 @@ void ProjectWindow::registerProject(ProjectExplorer::Project *project)
     }
 
     m_tabIndexToProject.insert(index, project);
-    m_tabWidget->insertTab(index, project->displayName(), project->file()->fileName(), subtabs);
+    m_tabWidget->insertTab(index, project->displayName(), project->document()->fileName(), subtabs);
 }
 
 void ProjectWindow::deregisterProject(ProjectExplorer::Project *project)

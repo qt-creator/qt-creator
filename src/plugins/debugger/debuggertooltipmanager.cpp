@@ -210,26 +210,26 @@ class DebuggerToolTipEditor
 {
 public:
     explicit DebuggerToolTipEditor(IEditor *ie = 0);
-    bool isValid() const { return textEditor && baseTextEditor && file; }
+    bool isValid() const { return textEditor && baseTextEditor && document; }
     operator bool() const { return isValid(); }
-    QString fileName() const { return file ? file->fileName() : QString(); }
+    QString fileName() const { return document ? document->fileName() : QString(); }
 
     static DebuggerToolTipEditor currentToolTipEditor();
 
     ITextEditor *textEditor;
     BaseTextEditorWidget *baseTextEditor;
-    IFile *file;
+    IDocument *document;
 };
 
 DebuggerToolTipEditor::DebuggerToolTipEditor(IEditor *ie) :
-    textEditor(0), baseTextEditor(0), file(0)
+    textEditor(0), baseTextEditor(0), document(0)
 {
-    if (ie && ie->file() && isEditorDebuggable(ie)) {
+    if (ie && ie->document() && isEditorDebuggable(ie)) {
         if (ITextEditor *te = qobject_cast<ITextEditor *>(ie)) {
             if (BaseTextEditorWidget *pe = qobject_cast<BaseTextEditorWidget *>(ie->widget())) {
                 textEditor = te;
                 baseTextEditor = pe;
-                file = ie->file();
+                document = ie->document();
             }
         }
     }
@@ -552,9 +552,9 @@ DebuggerToolTipContext::DebuggerToolTipContext() : position(0), line(0), column(
 DebuggerToolTipContext DebuggerToolTipContext::fromEditor(IEditor *ie, int pos)
 {
     DebuggerToolTipContext rc;
-    if (const IFile *file = ie->file()) {
+    if (const IDocument *document = ie->document()) {
         if (const ITextEditor *te = qobject_cast<const ITextEditor *>(ie)) {
-            rc.fileName = file->fileName();
+            rc.fileName = document->fileName();
             rc.position = pos;
             te->convertPosition(pos, &rc.line, &rc.column);
         }

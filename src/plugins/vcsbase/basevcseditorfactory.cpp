@@ -99,10 +99,10 @@ QString BaseVcsEditorFactory::displayName() const
     return d->m_displayName;
 }
 
-Core::IFile *BaseVcsEditorFactory::open(const QString &fileName)
+Core::IDocument *BaseVcsEditorFactory::open(const QString &fileName)
 {
     Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
-    return iface ? iface->file() : 0;
+    return iface ? iface->document() : 0;
 }
 
 Core::IEditor *BaseVcsEditorFactory::createEditor(QWidget *parent)

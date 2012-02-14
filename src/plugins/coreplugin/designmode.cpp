@@ -213,8 +213,8 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
 
     bool mimeEditorAvailable = false;
 
-    if (editor && editor->file()) {
-        const QString mimeType = editor->file()->mimeType();
+    if (editor && editor->document()) {
+        const QString mimeType = editor->document()->mimeType();
         if (!mimeType.isEmpty()) {
             foreach (DesignEditorInfo *editorInfo, d->m_editors) {
                 foreach (const QString &mime, editorInfo->mimeTypes) {

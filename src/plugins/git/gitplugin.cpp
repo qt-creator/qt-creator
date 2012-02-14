@@ -48,7 +48,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -56,7 +56,7 @@
 #include <coreplugin/id.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
@@ -738,13 +738,13 @@ bool GitPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEdi
 {
     if (!isCommitEditorOpen())
         return false;
-    Core::IFile *fileIFace = submitEditor->file();
+    Core::IDocument *editorDocument = submitEditor->document();
     const GitSubmitEditor *editor = qobject_cast<GitSubmitEditor *>(submitEditor);
-    if (!fileIFace || !editor)
+    if (!editorDocument || !editor)
         return true;
     // Submit editor closing. Make it write out the commit message
     // and retrieve files
-    const QFileInfo editorFile(fileIFace->fileName());
+    const QFileInfo editorFile(editorDocument->fileName());
     const QFileInfo changeFile(m_commitMessageFileName);
     // Paranoia!
     if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())
@@ -774,7 +774,7 @@ bool GitPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEdi
     bool closeEditor = true;
     if (model->hasCheckedFiles() || !m_commitAmendSHA1.isEmpty()) {
         // get message & commit
-        if (!Core::FileManager::saveFile(fileIFace))
+        if (!Core::DocumentManager::saveDocument(editorDocument))
             return false;
 
         closeEditor = m_gitClient->addAndCommit(m_submitRepository, editor->panelData(),
@@ -888,13 +888,13 @@ static bool ensureFileSaved(const QString &fileName)
     const QList<Core::IEditor*> editors = Core::EditorManager::instance()->editorsForFileName(fileName);
     if (editors.isEmpty())
         return true;
-    Core::IFile *file = editors.front()->file();
-    if (!file || !file->isModified())
+    Core::IDocument *document = editors.front()->document();
+    if (!document || !document->isModified())
         return true;
     bool canceled;
-    QList<Core::IFile *> files;
-    files << file;
-    Core::FileManager::saveModifiedFiles(files, &canceled);
+    QList<Core::IDocument *> documents;
+    documents << document;
+    Core::DocumentManager::saveModifiedDocuments(documents, &canceled);
     return !canceled;
 }
 

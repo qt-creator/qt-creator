@@ -44,7 +44,7 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class IFile;
+class IDocument;
 class EditorManager;
 
 namespace Internal {
@@ -57,12 +57,12 @@ class SaveItemsDialog : public QDialog
 
 public:
     SaveItemsDialog(QWidget *parent,
-        QList<Core::IFile *> items);
+        QList<Core::IDocument *> items);
 
     void setMessage(const QString &msg);
     void setAlwaysSaveMessage(const QString &msg);
     bool alwaysSaveChecked();
-    QList<Core::IFile *> itemsToSave() const;
+    QList<Core::IDocument *> itemsToSave() const;
 
 private slots:
     void collectItemsToSave();
@@ -71,7 +71,7 @@ private slots:
 
 private:
     Ui::SaveItemsDialog m_ui;
-    QList<Core::IFile*> m_itemsToSave;
+    QList<Core::IDocument*> m_itemsToSave;
 };
 
 } // namespace Internal

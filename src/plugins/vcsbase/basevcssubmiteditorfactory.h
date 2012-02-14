@@ -62,7 +62,7 @@ public:
     Core::Id id() const;
     QString displayName() const;
     QStringList mimeTypes() const;
-    Core::IFile *open(const QString &fileName);
+    Core::IDocument *open(const QString &fileName);
 
 private:
     virtual VcsBaseSubmitEditor

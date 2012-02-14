@@ -34,7 +34,7 @@
 #include "mainwindow.h"
 #include "vcsmanager.h"
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -43,13 +43,13 @@
 #include <QHeaderView>
 #include <QCheckBox>
 
-Q_DECLARE_METATYPE(Core::IFile*)
+Q_DECLARE_METATYPE(Core::IDocument*)
 
 using namespace Core;
 using namespace Core::Internal;
 
 SaveItemsDialog::SaveItemsDialog(QWidget *parent,
-                                 QList<IFile *> items)
+                                 QList<IDocument *> items)
     : QDialog(parent)
 {
     m_ui.setupUi(this);
@@ -61,12 +61,12 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
 
     m_ui.saveBeforeBuildCheckBox->setVisible(false);
 
-    foreach (IFile *file, items) {
+    foreach (IDocument *document, items) {
         QString visibleName;
         QString directory;
-        QString fileName = file->fileName();
+        QString fileName = document->fileName();
         if (fileName.isEmpty()) {
-            visibleName = file->suggestedFileName();
+            visibleName = document->suggestedFileName();
         } else {
             QFileInfo info = QFileInfo(fileName);
             directory = info.absolutePath();
@@ -74,7 +74,7 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
         }
         QTreeWidgetItem *item = new QTreeWidgetItem(m_ui.treeWidget, QStringList()
                                                     << visibleName << QDir::toNativeSeparators(directory));
-        item->setData(0, Qt::UserRole, qVariantFromValue(file));
+        item->setData(0, Qt::UserRole, qVariantFromValue(document));
     }
 
     m_ui.treeWidget->resizeColumnToContents(0);
@@ -112,7 +112,7 @@ void SaveItemsDialog::collectItemsToSave()
 {
     m_itemsToSave.clear();
     foreach (QTreeWidgetItem *item, m_ui.treeWidget->selectedItems()) {
-        m_itemsToSave.append(item->data(0, Qt::UserRole).value<IFile*>());
+        m_itemsToSave.append(item->data(0, Qt::UserRole).value<IDocument*>());
     }
     accept();
 }
@@ -123,7 +123,7 @@ void SaveItemsDialog::discardAll()
     collectItemsToSave();
 }
 
-QList<IFile*> SaveItemsDialog::itemsToSave() const
+QList<IDocument*> SaveItemsDialog::itemsToSave() const
 {
     return m_itemsToSave;
 }

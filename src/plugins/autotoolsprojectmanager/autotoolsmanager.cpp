@@ -37,7 +37,7 @@
 #include "autotoolsprojectconstants.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
@@ -62,7 +62,7 @@ Project *AutotoolsManager::openProject(const QString &fileName, QString *errorSt
     // Check whether the project is already open or not.
     ProjectExplorerPlugin *projectExplorer = ProjectExplorerPlugin::instance();
     foreach (Project *pi, projectExplorer->session()->projects()) {
-        if (canonicalFilePath == pi->file()->fileName()) {
+        if (canonicalFilePath == pi->document()->fileName()) {
             *errorString = tr("Failed opening project '%1': Project already open")
                              .arg(QDir::toNativeSeparators(canonicalFilePath));
             return 0;

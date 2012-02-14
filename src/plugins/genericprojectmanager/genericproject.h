@@ -43,7 +43,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildconfiguration.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 
 #include <QFuture>
 
@@ -82,7 +82,7 @@ public:
 
     QString displayName() const;
     QString id() const;
-    Core::IFile *file() const;
+    Core::IDocument *document() const;
     ProjectExplorer::IProjectManager *projectManager() const;
     GenericTarget *activeTarget() const;
 
@@ -139,10 +139,10 @@ private:
     QString m_includesFileName;
     QString m_configFileName;
     QString m_projectName;
-    GenericProjectFile *m_creatorIFile;
-    GenericProjectFile *m_filesIFile;
-    GenericProjectFile *m_includesIFile;
-    GenericProjectFile *m_configIFile;
+    GenericProjectFile *m_creatorIDocument;
+    GenericProjectFile *m_filesIDocument;
+    GenericProjectFile *m_includesIDocument;
+    GenericProjectFile *m_configIDocument;
     QStringList m_rawFileList;
     QStringList m_files;
     QHash<QString, QString> m_rawListEntries;
@@ -156,7 +156,7 @@ private:
     QFuture<void> m_codeModelFuture;
 };
 
-class GenericProjectFile : public Core::IFile
+class GenericProjectFile : public Core::IDocument
 {
     Q_OBJECT
 

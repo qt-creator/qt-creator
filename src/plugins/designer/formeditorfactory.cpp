@@ -71,7 +71,7 @@ QString FormEditorFactory::displayName() const
     return tr(C_DESIGNER_XML_DISPLAY_NAME);
 }
 
-Core::IFile *FormEditorFactory::open(const QString &fileName)
+Core::IDocument *FormEditorFactory::open(const QString &fileName)
 {
     Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
     if (!iface)
@@ -80,9 +80,9 @@ Core::IFile *FormEditorFactory::open(const QString &fileName)
         Core::InfoBarEntry info(QLatin1String(Constants::INFO_READ_ONLY),
                                 tr("This file can only be edited in <b>Design</b> mode."));
         info.setCustomButtonInfo(tr("Switch mode"), this, SLOT(designerModeClicked()));
-        iface->file()->infoBar()->addInfo(info);
+        iface->document()->infoBar()->addInfo(info);
     }
-    return iface->file();
+    return iface->document();
 }
 
 Core::IEditor *FormEditorFactory::createEditor(QWidget *parent)

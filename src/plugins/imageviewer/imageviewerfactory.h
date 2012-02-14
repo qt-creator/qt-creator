@@ -36,7 +36,7 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 
 namespace ImageViewer {
 namespace Internal {
@@ -53,7 +53,7 @@ public:
     QStringList mimeTypes() const;
     Core::Id id() const;
     QString displayName() const;
-    Core::IFile *open(const QString &fileName);
+    Core::IDocument *open(const QString &fileName);
 
     void extensionsInitialized();
 

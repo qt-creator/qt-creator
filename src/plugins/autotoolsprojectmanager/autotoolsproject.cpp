@@ -133,7 +133,7 @@ QString AutotoolsProject::id() const
     return QLatin1String(Constants::AUTOTOOLS_PROJECT_ID);
 }
 
-Core::IFile *AutotoolsProject::file() const
+Core::IDocument *AutotoolsProject::document() const
 {
     return m_file;
 }

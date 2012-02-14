@@ -43,7 +43,7 @@
 #include "ui_qt4projectconfigwidget.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
@@ -362,7 +362,7 @@ void Qt4ProjectConfigWidget::updateImportLabel()
         if (!qmakePath.isEmpty()) {
             // Is it from the same build?
             QtSupport::QtVersionManager::MakefileCompatible mc =
-                    QtSupport::QtVersionManager::makefileIsFor(makefile, m_buildConfiguration->target()->project()->file()->fileName());
+                    QtSupport::QtVersionManager::makefileIsFor(makefile, m_buildConfiguration->target()->project()->document()->fileName());
             if (mc == QtSupport::QtVersionManager::DifferentProject) {
                 incompatibleBuild = true;
             } else if (mc == QtSupport::QtVersionManager::SameProject) {
@@ -395,11 +395,11 @@ void Qt4ProjectConfigWidget::updateImportLabel()
         buildDirectory = m_buildConfiguration->buildDirectory();
     QList<ProjectExplorer::Task> issues;
     if (QtSupport::BaseQtVersion *version = m_buildConfiguration->qtVersion()) {
-        issues = version->reportIssues(m_buildConfiguration->target()->project()->file()->fileName(),
+        issues = version->reportIssues(m_buildConfiguration->target()->project()->document()->fileName(),
                                        buildDirectory);
         foreach (Qt4BaseTargetFactory *factory,
                  Qt4BaseTargetFactory::qt4BaseTargetFactoriesForIds(version->supportedTargetIds().toList()))
-            issues.append(factory->reportIssues(m_buildConfiguration->target()->project()->file()->fileName()));
+            issues.append(factory->reportIssues(m_buildConfiguration->target()->project()->document()->fileName()));
 
         qSort(issues);
     }

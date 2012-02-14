@@ -205,7 +205,7 @@ int ProFileCompletionAssistProcessor::findStartOfName(int pos) const
 
 bool ProFileCompletionAssistProcessor::isInComment() const
 {
-    QTextCursor tc(m_interface->document());
+    QTextCursor tc(m_interface->textDocument());
     tc.setPosition(m_interface->position());
     tc.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
     const QString &lineBeginning = tc.selectedText();

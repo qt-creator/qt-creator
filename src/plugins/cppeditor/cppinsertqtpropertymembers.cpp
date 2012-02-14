@@ -40,7 +40,7 @@
 #include <cpptools/insertionpointlocator.h>
 #include <cpptools/cpprefactoringchanges.h>
 #include <cppeditor/cppquickfix.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 
 #include <utils/qtcassert.h>
 

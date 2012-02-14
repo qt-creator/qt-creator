@@ -36,7 +36,7 @@
 #include "project.h"
 #include "session.h"
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -75,8 +75,8 @@ bool CurrentProjectFind::isEnabled() const
 QVariant CurrentProjectFind::additionalParameters() const
 {
     Project *project = ProjectExplorerPlugin::currentProject();
-    if (project && project->file())
-        return qVariantFromValue(project->file()->fileName());
+    if (project && project->document())
+        return qVariantFromValue(project->document()->fileName());
     return QVariant();
 }
 
@@ -87,7 +87,7 @@ Utils::FileIterator *CurrentProjectFind::files(const QStringList &nameFilters,
     QList<Project *> allProjects = m_plugin->session()->projects();
     QString projectFile = additionalParameters.toString();
     foreach (Project *project, allProjects) {
-        if (project->file() && projectFile == project->file()->fileName())
+        if (project->document() && projectFile == project->document()->fileName())
             return filesForProjects(nameFilters, QList<Project *>() << project);
     }
     return new Utils::FileIterator();

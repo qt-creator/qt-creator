@@ -33,7 +33,7 @@
 #include "qmltaskmanager.h"
 #include "qmljseditorconstants.h"
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/taskhub.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>

@@ -32,7 +32,7 @@
 
 #include "cppelementevaluator.h"
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <cpptools/cpptoolsreuse.h>
 
 #include <FullySpecifiedType.h>
@@ -100,7 +100,7 @@ void CppElementEvaluator::execute()
         return;
 
     const Snapshot &snapshot = m_modelManager->snapshot();
-    Document::Ptr doc = snapshot.document(m_editor->file()->fileName());
+    Document::Ptr doc = snapshot.document(m_editor->editorDocument()->fileName());
     if (!doc)
         return;
 

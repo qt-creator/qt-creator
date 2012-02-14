@@ -213,7 +213,7 @@ bool BaseTextDocument::save(QString *errorString, const QString &fileName, bool 
     // When saving the current editor, make sure to maintain the cursor position for undo
     Core::IEditor *currentEditor = Core::EditorManager::instance()->currentEditor();
     if (BaseTextEditor *editable = qobject_cast<BaseTextEditor*>(currentEditor)) {
-        if (editable->file() == this) {
+        if (editable->document() == this) {
             editorWidget = editable->editorWidget();
             QTextCursor cur = editorWidget->textCursor();
             savedPosition = cur.position();
@@ -289,7 +289,7 @@ void BaseTextDocument::rename(const QString &newName)
     emit changed();
 }
 
-bool BaseTextDocument::isReadOnly() const
+bool BaseTextDocument::isFileReadOnly() const
 {
     if (d->m_fileName.isEmpty()) //have no corresponding file, so editing is ok
         return false;

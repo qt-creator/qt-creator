@@ -36,7 +36,7 @@
 #include "../core_global.h"
 
 #include <coreplugin/id.h>
-#include <coreplugin/ifile.h> // enumerations
+#include <coreplugin/idocument.h> // enumerations
 
 #include <QList>
 #include <QWidget>
@@ -53,7 +53,7 @@ class IEditor;
 class IEditorFactory;
 class IExternalEditor;
 class MimeType;
-class IFile;
+class IDocument;
 class IMode;
 class IVersionControl;
 
@@ -129,7 +129,7 @@ public:
 
     bool hasEditor(const QString &fileName) const;
     QList<IEditor *> editorsForFileName(const QString &filename) const;
-    QList<IEditor *> editorsForFile(IFile *file) const;
+    QList<IEditor *> editorsForDocument(IDocument *document) const;
 
     IEditor *currentEditor() const;
     QList<IEditor *> visibleEditors() const;
@@ -137,13 +137,13 @@ public:
 
     void activateEditor(IEditor *editor, OpenEditorFlags flags = 0);
     void activateEditorForIndex(const QModelIndex &index, OpenEditorFlags = 0);
-    IEditor *activateEditorForFile(Internal::EditorView *view, IFile *file, OpenEditorFlags flags = 0);
+    IEditor *activateEditorForDocument(Internal::EditorView *view, IDocument *document, OpenEditorFlags flags = 0);
 
     OpenEditorsModel *openedEditorsModel() const;
     void closeEditor(const QModelIndex &index);
     void closeOtherEditors(IEditor *editor);
 
-    QList<IEditor*> editorsForFiles(QList<IFile *> files) const;
+    QList<IEditor*> editorsForDocuments(QList<IDocument *> documents) const;
     void addCurrentPositionToNavigationHistory(IEditor *editor = 0, const QByteArray &saveState = QByteArray());
     void cutForwardNavigationHistory();
 
@@ -151,7 +151,7 @@ public:
 
     bool closeEditors(const QList<IEditor *> &editorsToClose, bool askAboutModifiedEditors = true);
 
-    MakeWritableResult makeFileWritable(IFile *file);
+    MakeWritableResult makeFileWritable(IDocument *document);
 
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
@@ -173,8 +173,8 @@ public:
     EditorFactoryList editorFactories(const MimeType &mimeType, bool bestMatchOnly = true) const;
     ExternalEditorList externalEditors(const MimeType &mimeType, bool bestMatchOnly = true) const;
 
-    void setReloadSetting(IFile::ReloadSetting behavior);
-    IFile::ReloadSetting reloadSetting() const;
+    void setReloadSetting(IDocument::ReloadSetting behavior);
+    IDocument::ReloadSetting reloadSetting() const;
 
     void setAutoSaveEnabled(bool enabled);
     bool autoSaveEnabled() const;
@@ -202,8 +202,8 @@ signals:
 public slots:
     bool closeAllEditors(bool askAboutModifiedEditors = true);
 
-    bool saveFile(Core::IFile *file = 0);
-    bool saveFileAs(Core::IFile *file = 0);
+    bool saveDocument(Core::IDocument *documentParam = 0);
+    bool saveDocumentAs(Core::IDocument *documentParam = 0);
     void revertToSaved();
     void closeEditor();
     void closeOtherEditors();
@@ -237,7 +237,7 @@ public slots:
     void gotoOtherSplit();
 
 private:
-    QList<IFile *> filesForEditors(QList<IEditor *> editors) const;
+    QList<IDocument *> documentsForEditors(QList<IEditor *> editors) const;
     IEditor *createEditor(const Id &id = Id(), const QString &fileName = QString());
     void addEditor(IEditor *editor, bool isDuplicate = false);
     void removeEditor(IEditor *editor);
@@ -261,7 +261,7 @@ private:
     void emptyView(Internal::EditorView *view);
     Internal::EditorView *currentEditorView() const;
     IEditor *pickUnusedEditor() const;
-    void addFileToRecentFiles(IFile *file);
+    void addDocumentToRecentFiles(IDocument *document);
     void switchToPreferedMode();
     void updateAutoSave();
     void setCloseSplitEnabled(Internal::SplitterOrView *splitterOrView, bool enable);

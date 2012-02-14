@@ -42,7 +42,7 @@ class QTextDocument;
 QT_END_NAMESPACE
 
 namespace Core {
-class IFile;
+class IDocument;
 }
 
 namespace ProjectExplorer {

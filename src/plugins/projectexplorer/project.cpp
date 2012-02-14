@@ -40,7 +40,7 @@
 #include "target.h"
 #include "settingsaccessor.h"
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/icontext.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildmanager.h>
@@ -274,7 +274,7 @@ QVariantMap Project::toMap() const
 
 QString Project::projectDirectory() const
 {
-    return projectDirectory(file()->fileName());
+    return projectDirectory(document()->fileName());
 }
 
 QString Project::projectDirectory(const QString &proFile)

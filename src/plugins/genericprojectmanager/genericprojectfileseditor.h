@@ -62,7 +62,7 @@ public:
     virtual QStringList mimeTypes() const;
     virtual Core::Id id() const;
     virtual QString displayName() const;
-    virtual Core::IFile *open(const QString &fileName);
+    virtual Core::IDocument *open(const QString &fileName);
 
 private:
     TextEditor::TextEditorActionHandler *m_actionHandler;

@@ -37,7 +37,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 
 #include <QMainWindow>
 #include <QMessageBox>
@@ -49,7 +49,7 @@ using namespace TaskList::Internal;
 // --------------------------------------------------------------------------
 
 TaskFileFactory::TaskFileFactory(QObject * parent) :
-    Core::IFileFactory(parent),
+    Core::IDocumentFactory(parent),
     m_mimeTypes(QStringList() << QLatin1String("text/x-tasklist"))
 { }
 
@@ -71,13 +71,13 @@ QString TaskFileFactory::displayName() const
     return tr("Task file reader");
 }
 
-Core::IFile *TaskFileFactory::open(const QString &fileName)
+Core::IDocument *TaskFileFactory::open(const QString &fileName)
 {
     ProjectExplorer::Project *context = ProjectExplorer::ProjectExplorerPlugin::currentProject();
     return open(context, fileName);
 }
 
-Core::IFile *TaskFileFactory::open(ProjectExplorer::Project *context, const QString &fileName)
+Core::IDocument *TaskFileFactory::open(ProjectExplorer::Project *context, const QString &fileName)
 {
     TaskFile *file = new TaskFile(this);
     file->setContext(context);
@@ -92,14 +92,14 @@ Core::IFile *TaskFileFactory::open(ProjectExplorer::Project *context, const QStr
     m_openFiles.append(file);
 
     // Register with filemanager:
-    Core::FileManager::addFile(file);
+    Core::DocumentManager::addDocument(file);
 
     return file;
 }
 
 void TaskFileFactory::closeAllFiles()
 {
-    foreach(Core::IFile *file, m_openFiles)
-        file->deleteLater();
+    foreach (Core::IDocument *document, m_openFiles)
+        document->deleteLater();
     m_openFiles.clear();
 }

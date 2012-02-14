@@ -40,7 +40,7 @@
 #include "target.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/persistentsettings.h>
@@ -774,7 +774,7 @@ void SettingsAccessor::FileAccessor::assignSuffix(const QString &defaultSuffix,
 
 QString SettingsAccessor::FileAccessor::assembleFileName(const Project *project) const
 {
-    return project->file()->fileName() + m_suffix;
+    return project->document()->fileName() + m_suffix;
 }
 
 bool SettingsAccessor::FileAccessor::findNewestCompatibleSetting(SettingsData *settings) const

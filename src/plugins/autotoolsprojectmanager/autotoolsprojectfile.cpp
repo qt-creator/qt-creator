@@ -40,7 +40,7 @@ using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 
 AutotoolsProjectFile::AutotoolsProjectFile(AutotoolsProject *project, const QString &fileName) :
-    Core::IFile(project),
+    Core::IDocument(project),
     m_project(project),
     m_fileName(fileName)
 {

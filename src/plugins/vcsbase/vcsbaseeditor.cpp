@@ -39,7 +39,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
@@ -1202,8 +1202,8 @@ static QTextCodec *findProjectCodec(const QString &dir)
     if (!projects.empty()) {
         const ProjectList::const_iterator pcend = projects.constEnd();
         for (ProjectList::const_iterator it = projects.constBegin(); it != pcend; ++it)
-            if (const Core::IFile *file = (*it)->file())
-                if (file->fileName().startsWith(dir)) {
+            if (const Core::IDocument *document = (*it)->document())
+                if (document->fileName().startsWith(dir)) {
                     QTextCodec *codec = (*it)->editorConfiguration()->textCodec();
                     return codec;
                 }
@@ -1248,8 +1248,8 @@ int VcsBaseEditorWidget::lineNumberOfCurrentEditor(const QString &currentFile)
     if (!ed)
         return -1;
     if (!currentFile.isEmpty()) {
-        const Core::IFile *ifile  = ed->file();
-        if (!ifile || ifile->fileName() != currentFile)
+        const Core::IDocument *idocument  = ed->document();
+        if (!idocument || idocument->fileName() != currentFile)
             return -1;
     }
     const TextEditor::BaseTextEditor *eda = qobject_cast<const TextEditor::BaseTextEditor *>(ed);

@@ -30,27 +30,27 @@
 **
 **************************************************************************/
 
-#ifndef CORE_TEXTFILE_H
-#define CORE_TEXTFILE_H
+#ifndef CORE_TEXTDOCUMENT_H
+#define CORE_TEXTDOCUMENT_H
 
-#include "ifile.h"
+#include "idocument.h"
 
 #include <utils/textfileformat.h>
 
 namespace Core {
 
 namespace Internal {
-class TextFilePrivate;
+class TextDocumentPrivate;
 }
 
-class CORE_EXPORT TextFile : public IFile
+class CORE_EXPORT TextDocument : public IDocument
 {
     Q_OBJECT
 public:
     typedef Utils::TextFileFormat::ReadResult ReadResult;
 
-    explicit TextFile(QObject *parent = 0);
-    virtual ~TextFile();
+    explicit TextDocument(QObject *parent = 0);
+    virtual ~TextDocument();
 
     Utils::TextFileFormat format() const;
     const QTextCodec *codec() const;
@@ -66,9 +66,9 @@ public:
     bool write(const QString &fileName, const Utils::TextFileFormat &format, const QString &data, QString *errorMessage) const;
 
 private:
-    Internal::TextFilePrivate *d;
+    Internal::TextDocumentPrivate *d;
 };
 
 } // namespace Core
 
-#endif // CORE_TEXTFILE_H
+#endif // CORE_TEXTDOCUMENT_H

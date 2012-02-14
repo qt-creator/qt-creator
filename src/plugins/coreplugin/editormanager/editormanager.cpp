@@ -36,7 +36,7 @@
 #include "openeditorsview.h"
 #include "openeditorsmodel.h"
 #include "openwithdialog.h"
-#include "filemanager.h"
+#include "documentmanager.h"
 #include "icore.h"
 #include "ieditor.h"
 #include "iversioncontrol.h"
@@ -228,7 +228,7 @@ struct EditorManagerPrivate
 
     OpenEditorsModel *m_editorModel;
 
-    IFile::ReloadSetting m_reloadSetting;
+    IDocument::ReloadSetting m_reloadSetting;
 
     QString m_titleAddition;
 
@@ -258,7 +258,7 @@ EditorManagerPrivate::EditorManagerPrivate(QWidget *parent) :
     m_openTerminalAction(new QAction(FileUtils::msgTerminalAction(), parent)),
     m_windowPopup(0),
     m_coreListener(0),
-    m_reloadSetting(IFile::AlwaysAsk),
+    m_reloadSetting(IDocument::AlwaysAsk),
     m_autoSaveEnabled(true),
     m_autoSaveInterval(5)
 {
@@ -310,11 +310,11 @@ EditorManager::EditorManager(QWidget *parent) :
 
     // Save Action
     am->registerAction(d->m_saveAction, Constants::SAVE, editManagerContext);
-    connect(d->m_saveAction, SIGNAL(triggered()), this, SLOT(saveFile()));
+    connect(d->m_saveAction, SIGNAL(triggered()), this, SLOT(saveDocument()));
 
     // Save As Action
     am->registerAction(d->m_saveAsAction, Constants::SAVEAS, editManagerContext);
-    connect(d->m_saveAsAction, SIGNAL(triggered()), this, SLOT(saveFileAs()));
+    connect(d->m_saveAsAction, SIGNAL(triggered()), this, SLOT(saveDocumentAs()));
 
     // Window Menu
     ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
@@ -536,7 +536,7 @@ void EditorManager::removeEditor(IEditor *editor)
     bool isDuplicate = d->m_editorModel->isDuplicate(editor);
     d->m_editorModel->removeEditor(editor);
     if (!isDuplicate)
-        FileManager::removeFile(editor->file());
+        DocumentManager::removeDocument(editor->document());
     ICore::removeContextObject(editor);
 }
 
@@ -616,19 +616,19 @@ Core::Internal::EditorView *EditorManager::currentEditorView() const
 QList<IEditor *> EditorManager::editorsForFileName(const QString &filename) const
 {
     QList<IEditor *> found;
-    QString fixedname = FileManager::fixFileName(filename, FileManager::KeepLinks);
+    QString fixedname = DocumentManager::fixFileName(filename, DocumentManager::KeepLinks);
     foreach (IEditor *editor, openedEditors()) {
-        if (fixedname == FileManager::fixFileName(editor->file()->fileName(), FileManager::KeepLinks))
+        if (fixedname == DocumentManager::fixFileName(editor->document()->fileName(), DocumentManager::KeepLinks))
             found << editor;
     }
     return found;
 }
 
-QList<IEditor *> EditorManager::editorsForFile(IFile *file) const
+QList<IEditor *> EditorManager::editorsForDocument(IDocument *document) const
 {
     QList<IEditor *> found;
     foreach (IEditor *editor, openedEditors()) {
-        if (editor->file() == file)
+        if (editor->document() == document)
             found << editor;
     }
     return found;
@@ -713,13 +713,13 @@ void EditorManager::closeView(Core::Internal::EditorView *view)
 }
 
 QList<IEditor*>
-    EditorManager::editorsForFiles(QList<IFile*> files) const
+    EditorManager::editorsForDocuments(QList<IDocument*> documents) const
 {
     const QList<IEditor *> editors = openedEditors();
     QSet<IEditor *> found;
-    foreach (IFile *file, files) {
+    foreach (IDocument *document, documents) {
         foreach (IEditor *editor, editors) {
-            if (editor->file() == file && !found.contains(editor)) {
+            if (editor->document() == document && !found.contains(editor)) {
                     found << editor;
             }
         }
@@ -727,17 +727,17 @@ QList<IEditor*>
     return found.toList();
 }
 
-QList<IFile *> EditorManager::filesForEditors(QList<IEditor *> editors) const
+QList<IDocument *> EditorManager::documentsForEditors(QList<IEditor *> editors) const
 {
     QSet<IEditor *> handledEditors;
-    QList<IFile *> files;
+    QList<IDocument *> documents;
     foreach (IEditor *editor, editors) {
         if (!handledEditors.contains(editor)) {
-            files << editor->file();
+            documents << editor->document();
             handledEditors.insert(editor);
         }
     }
-    return files;
+    return documents;
 }
 
 bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
@@ -870,12 +870,12 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
     //ask whether to save modified files
     if (askAboutModifiedEditors) {
         bool cancelled = false;
-        QList<IFile*> list = FileManager::saveModifiedFiles(filesForEditors(acceptedEditors), &cancelled);
+        QList<IDocument*> list = DocumentManager::saveModifiedDocuments(documentsForEditors(acceptedEditors), &cancelled);
         if (cancelled)
             return false;
         if (!list.isEmpty()) {
             closingFailed = true;
-            QSet<IEditor*> skipSet = editorsForFiles(list).toSet();
+            QSet<IEditor*> skipSet = editorsForDocuments(list).toSet();
             acceptedEditors = acceptedEditors.toSet().subtract(skipSet).toList();
         }
     }
@@ -891,11 +891,11 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
     // remove the editors
     foreach (IEditor *editor, acceptedEditors) {
         emit editorAboutToClose(editor);
-        if (!editor->file()->fileName().isEmpty()
+        if (!editor->document()->fileName().isEmpty()
                 && !editor->isTemporary()) {
             QByteArray state = editor->saveState();
             if (!state.isEmpty())
-                d->m_editorStates.insert(editor->file()->fileName(), QVariant(state));
+                d->m_editorStates.insert(editor->document()->fileName(), QVariant(state));
         }
 
         removeEditor(editor);
@@ -1018,7 +1018,7 @@ Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core
 {
     Q_ASSERT(view && editor);
 
-    if (view->currentEditor() && view->currentEditor()->file() == editor->file())
+    if (view->currentEditor() && view->currentEditor()->document() == editor->document())
         editor = view->currentEditor();
 
     if (!view->hasEditor(editor)) {
@@ -1078,10 +1078,10 @@ Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, C
     return editor;
 }
 
-Core::IEditor *EditorManager::activateEditorForFile(Core::Internal::EditorView *view, Core::IFile *file, OpenEditorFlags flags)
+Core::IEditor *EditorManager::activateEditorForDocument(Core::Internal::EditorView *view, Core::IDocument *document, OpenEditorFlags flags)
 {
     Q_ASSERT(view);
-    const QList<IEditor*> editors = editorsForFile(file);
+    const QList<IEditor*> editors = editorsForDocument(document);
     if (editors.isEmpty())
         return 0;
 
@@ -1205,9 +1205,9 @@ void EditorManager::addEditor(IEditor *editor, bool isDuplicate)
     if (!isDuplicate) {
         const bool isTemporary = editor->isTemporary();
         const bool addWatcher = !isTemporary;
-        FileManager::addFile(editor->file(), addWatcher);
+        DocumentManager::addDocument(editor->document(), addWatcher);
         if (!isTemporary)
-            FileManager::addToRecentFiles(editor->file()->fileName(), editor->id());
+            DocumentManager::addToRecentFiles(editor->document()->fileName(), editor->id());
     }
     emit editorOpened(editor);
 }
@@ -1330,7 +1330,7 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
         return 0;
     }
     if (realFn != fn)
-        editor->file()->setRestoredFrom(realFn);
+        editor->document()->setRestoredFrom(realFn);
     addEditor(editor);
 
     if (newEditor)
@@ -1365,7 +1365,7 @@ QStringList EditorManager::getOpenFileNames() const
 {
     QString selectedFilter;
     const QString &fileFilters = ICore::mimeDatabase()->allFiltersString(&selectedFilter);
-    return FileManager::getOpenFileNames(fileFilters, QString(), &selectedFilter);
+    return DocumentManager::getOpenFileNames(fileFilters, QString(), &selectedFilter);
 }
 
 
@@ -1405,7 +1405,7 @@ IEditor *EditorManager::openEditorWithContents(const Id &editorId,
             int i = 1;
             QSet<QString> docnames;
             foreach (IEditor *editor, openedEditors()) {
-                QString name = editor->file()->fileName();
+                QString name = editor->document()->fileName();
                 if (name.isEmpty()) {
                     name = editor->displayName();
                 } else {
@@ -1454,51 +1454,51 @@ bool EditorManager::hasEditor(const QString &fileName) const
 void EditorManager::restoreEditorState(IEditor *editor)
 {
     QTC_ASSERT(editor, return);
-    QString fileName = editor->file()->fileName();
+    QString fileName = editor->document()->fileName();
     editor->restoreState(d->m_editorStates.value(fileName).toByteArray());
 }
 
 bool EditorManager::saveEditor(IEditor *editor)
 {
-    return saveFile(editor->file());
+    return saveDocument(editor->document());
 }
 
-bool EditorManager::saveFile(IFile *fileParam)
+bool EditorManager::saveDocument(IDocument *documentParam)
 {
-    IFile *file = fileParam;
-    if (!file && currentEditor())
-        file = currentEditor()->file();
-    if (!file)
+    IDocument *document = documentParam;
+    if (!document && currentEditor())
+        document = currentEditor()->document();
+    if (!document)
         return false;
 
-    file->checkPermissions();
+    document->checkPermissions();
 
-    const QString &fileName = file->fileName();
+    const QString &fileName = document->fileName();
 
     if (fileName.isEmpty())
-        return saveFileAs(file);
+        return saveDocumentAs(document);
 
     bool success = false;
     bool isReadOnly;
 
     // try saving, no matter what isReadOnly tells us
-    success = FileManager::saveFile(file, QString(), &isReadOnly);
+    success = DocumentManager::saveDocument(document, QString(), &isReadOnly);
 
     if (!success && isReadOnly) {
         MakeWritableResult answer =
-                makeFileWritable(file);
+                makeFileWritable(document);
         if (answer == Failed)
             return false;
         if (answer == SavedAs)
             return true;
 
-        file->checkPermissions();
+        document->checkPermissions();
 
-        success = FileManager::saveFile(file);
+        success = DocumentManager::saveDocument(document);
     }
 
     if (success) {
-        addFileToRecentFiles(file);
+        addDocumentToRecentFiles(document);
     }
 
     return success;
@@ -1509,13 +1509,13 @@ void EditorManager::autoSave()
     QStringList errors;
     // FIXME: the saving should be staggered
     foreach (IEditor *editor, openedEditors()) {
-        IFile *file = editor->file();
-        if (!file->isModified() || !file->shouldAutoSave())
+        IDocument *document = editor->document();
+        if (!document->isModified() || !document->shouldAutoSave())
             continue;
-        if (file->fileName().isEmpty()) // FIXME: save them to a dedicated directory
+        if (document->fileName().isEmpty()) // FIXME: save them to a dedicated directory
             continue;
         QString errorString;
-        if (!file->autoSave(&errorString, autoSaveName(file->fileName())))
+        if (!document->autoSave(&errorString, autoSaveName(document->fileName())))
             errors << errorString;
     }
     if (!errors.isEmpty())
@@ -1523,57 +1523,57 @@ void EditorManager::autoSave()
                               errors.join(QLatin1String("\n")));
 }
 
-MakeWritableResult EditorManager::makeFileWritable(IFile *file)
+MakeWritableResult EditorManager::makeFileWritable(IDocument *document)
 {
-    if (!file)
+    if (!document)
         return Failed;
-    QString directory = QFileInfo(file->fileName()).absolutePath();
+    QString directory = QFileInfo(document->fileName()).absolutePath();
     IVersionControl *versionControl = ICore::vcsManager()->findVersionControlForDirectory(directory);
-    const QString &fileName = file->fileName();
+    const QString &fileName = document->fileName();
 
-    switch (FileManager::promptReadOnlyFile(fileName, versionControl, ICore::mainWindow(), file->isSaveAsAllowed())) {
-    case FileManager::RO_OpenVCS:
+    switch (DocumentManager::promptReadOnlyFile(fileName, versionControl, ICore::mainWindow(), document->isSaveAsAllowed())) {
+    case DocumentManager::RO_OpenVCS:
         if (!versionControl->vcsOpen(fileName)) {
             QMessageBox::warning(ICore::mainWindow(), tr("Cannot Open File"), tr("Cannot open the file for editing with SCC."));
             return Failed;
         }
-        file->checkPermissions();
+        document->checkPermissions();
         return OpenedWithVersionControl;
-    case FileManager::RO_MakeWriteable: {
+    case DocumentManager::RO_MakeWriteable: {
         const bool permsOk = QFile::setPermissions(fileName, QFile::permissions(fileName) | QFile::WriteUser);
         if (!permsOk) {
             QMessageBox::warning(ICore::mainWindow(), tr("Cannot Set Permissions"),  tr("Cannot set permissions to writable."));
             return Failed;
         }
     }
-        file->checkPermissions();
+        document->checkPermissions();
         return MadeWritable;
-    case FileManager::RO_SaveAs :
-        return saveFileAs(file) ? SavedAs : Failed;
-    case FileManager::RO_Cancel:
+    case DocumentManager::RO_SaveAs :
+        return saveDocumentAs(document) ? SavedAs : Failed;
+    case DocumentManager::RO_Cancel:
         break;
     }
     return Failed;
 }
 
-bool EditorManager::saveFileAs(IFile *fileParam)
+bool EditorManager::saveDocumentAs(IDocument *documentParam)
 {
-    IFile *file = fileParam;
-    if (!file && currentEditor())
-        file = currentEditor()->file();
-    if (!file)
+    IDocument *document = documentParam;
+    if (!document && currentEditor())
+        document = currentEditor()->document();
+    if (!document)
         return false;
 
     const QString &filter = ICore::mimeDatabase()->allFiltersString();
     QString selectedFilter =
-        ICore::mimeDatabase()->findByFile(QFileInfo(file->fileName())).filterString();
+        ICore::mimeDatabase()->findByFile(QFileInfo(document->fileName())).filterString();
     const QString &absoluteFilePath =
-        FileManager::getSaveAsFileName(file, filter, &selectedFilter);
+        DocumentManager::getSaveAsFileName(document, filter, &selectedFilter);
 
     if (absoluteFilePath.isEmpty())
         return false;
 
-    if (absoluteFilePath != file->fileName()) {
+    if (absoluteFilePath != document->fileName()) {
         // close existing editors for the new file name
         const QList<IEditor *> existList = editorsForFileName(absoluteFilePath);
         if (!existList.isEmpty()) {
@@ -1581,8 +1581,8 @@ bool EditorManager::saveFileAs(IFile *fileParam)
         }
     }
 
-    const bool success = FileManager::saveFile(file, absoluteFilePath);
-    file->checkPermissions();
+    const bool success = DocumentManager::saveDocument(document, absoluteFilePath);
+    document->checkPermissions();
 
     // @todo: There is an issue to be treated here. The new file might be of a different mime
     // type than the original and thus require a different editor. An alternative strategy
@@ -1591,18 +1591,18 @@ bool EditorManager::saveFileAs(IFile *fileParam)
     // re-think part of the editors design.
 
     if (success)
-        addFileToRecentFiles(file);
+        addDocumentToRecentFiles(document);
 
     updateActions();
     return success;
 }
 
 /* Adds the file name to the recent files if there is at least one non-temporary editor for it */
-void EditorManager::addFileToRecentFiles(IFile *file)
+void EditorManager::addDocumentToRecentFiles(IDocument *document)
 {
     bool isTemporary = true;
     Id editorId;
-    QList<IEditor *> editors = editorsForFile(file);
+    QList<IEditor *> editors = editorsForDocument(document);
     foreach (IEditor *editor, editors) {
         if (!editor->isTemporary()) {
             editorId = editor->id();
@@ -1611,7 +1611,7 @@ void EditorManager::addFileToRecentFiles(IFile *file)
         }
     }
     if (!isTemporary)
-        FileManager::addToRecentFiles(file->fileName(), editorId);
+        DocumentManager::addToRecentFiles(document->fileName(), editorId);
 }
 
 void EditorManager::gotoNextDocHistory()
@@ -1643,7 +1643,7 @@ void EditorManager::gotoPreviousDocHistory()
 void EditorManager::makeCurrentEditorWritable()
 {
     if (IEditor* curEditor = currentEditor())
-        makeFileWritable(curEditor->file());
+        makeFileWritable(curEditor->document());
 }
 
 void EditorManager::vcsOpenCurrentEditor()
@@ -1652,12 +1652,12 @@ void EditorManager::vcsOpenCurrentEditor()
     if (!curEditor)
         return;
 
-    const QString directory = QFileInfo(curEditor->file()->fileName()).absolutePath();
+    const QString directory = QFileInfo(curEditor->document()->fileName()).absolutePath();
     IVersionControl *versionControl = ICore::vcsManager()->findVersionControlForDirectory(directory);
     if (!versionControl || !versionControl->supportsOperation(IVersionControl::OpenOperation))
         return;
 
-    if (!versionControl->vcsOpen(curEditor->file()->fileName())) {
+    if (!versionControl->vcsOpen(curEditor->document()->fileName())) {
         QMessageBox::warning(ICore::mainWindow(), tr("Cannot Open File"),
                              tr("Cannot open the file for editing with VCS."));
     }
@@ -1675,7 +1675,7 @@ void EditorManager::updateWindowTitle()
         QString editorName = curEditor->displayName();
         if (!editorName.isEmpty())
             windowTitle.prepend(editorName + dashSep);
-        QString filePath = QFileInfo(curEditor->file()->fileName()).absoluteFilePath();
+        QString filePath = QFileInfo(curEditor->document()->fileName()).absoluteFilePath();
         if (!filePath.isEmpty())
             ICore::mainWindow()->setWindowFilePath(filePath);
     } else {
@@ -1688,8 +1688,8 @@ void EditorManager::handleEditorStateChange()
 {
     updateActions();
     IEditor *theEditor = qobject_cast<IEditor *>(sender());
-    if (!theEditor->file()->isModified())
-        theEditor->file()->removeAutoSaveFile();
+    if (!theEditor->document()->isModified())
+        theEditor->document()->removeAutoSaveFile();
     IEditor *currEditor = currentEditor();
     if (theEditor == currEditor) {
         updateWindowTitle();
@@ -1705,24 +1705,24 @@ void EditorManager::updateActions()
 
     if (curEditor) {
 
-        if (!curEditor->file()->fileName().isEmpty()) {
-            QFileInfo fi(curEditor->file()->fileName());
+        if (!curEditor->document()->fileName().isEmpty()) {
+            QFileInfo fi(curEditor->document()->fileName());
             fName = fi.fileName();
         } else {
             fName = curEditor->displayName();
         }
 
 #ifdef Q_OS_MAC
-        window()->setWindowModified(curEditor->file()->isModified());
+        window()->setWindowModified(curEditor->document()->isModified());
 #endif
-        bool ww = curEditor->file()->isModified() && curEditor->file()->isReadOnly();
-        if (ww != curEditor->file()->hasWriteWarning()) {
-            curEditor->file()->setWriteWarning(ww);
+        bool ww = curEditor->document()->isModified() && curEditor->document()->isFileReadOnly();
+        if (ww != curEditor->document()->hasWriteWarning()) {
+            curEditor->document()->setWriteWarning(ww);
 
             // Do this after setWriteWarning so we don't re-evaluate this part even
             // if we do not really show a warning.
             bool promptVCS = false;
-            const QString directory = QFileInfo(curEditor->file()->fileName()).absolutePath();
+            const QString directory = QFileInfo(curEditor->document()->fileName()).absolutePath();
             IVersionControl *versionControl = ICore::vcsManager()->findVersionControlForDirectory(directory);
             if (versionControl && versionControl->supportsOperation(IVersionControl::OpenOperation)) {
                 if (versionControl->settingsFlags() & IVersionControl::AutoOpen) {
@@ -1740,15 +1740,15 @@ void EditorManager::updateActions()
                                       tr("<b>Warning:</b> This file was not opened in %1 yet.")
                                       .arg(versionControl->displayName()));
                     info.setCustomButtonInfo(tr("Open"), this, SLOT(vcsOpenCurrentEditor()));
-                    curEditor->file()->infoBar()->addInfo(info);
+                    curEditor->document()->infoBar()->addInfo(info);
                 } else {
                     InfoBarEntry info(QLatin1String("Core.EditorManager.MakeWritable"),
                                       tr("<b>Warning:</b> You are changing a read-only file."));
                     info.setCustomButtonInfo(tr("Make Writable"), this, SLOT(makeCurrentEditorWritable()));
-                    curEditor->file()->infoBar()->addInfo(info);
+                    curEditor->document()->infoBar()->addInfo(info);
                 }
             } else {
-                curEditor->file()->infoBar()->removeInfo(QLatin1String("Core.EditorManager.MakeWritable"));
+                curEditor->document()->infoBar()->removeInfo(QLatin1String("Core.EditorManager.MakeWritable"));
             }
         }
 #ifdef Q_OS_MAC
@@ -1759,10 +1759,10 @@ void EditorManager::updateActions()
 
     setCloseSplitEnabled(d->m_splitter, d->m_splitter->isSplitter());
 
-    d->m_saveAction->setEnabled(curEditor != 0 && curEditor->file()->isModified());
-    d->m_saveAsAction->setEnabled(curEditor != 0 && curEditor->file()->isSaveAsAllowed());
+    d->m_saveAction->setEnabled(curEditor != 0 && curEditor->document()->isModified());
+    d->m_saveAsAction->setEnabled(curEditor != 0 && curEditor->document()->isSaveAsAllowed());
     d->m_revertToSavedAction->setEnabled(curEditor != 0
-        && !curEditor->file()->fileName().isEmpty() && curEditor->file()->isModified());
+        && !curEditor->document()->fileName().isEmpty() && curEditor->document()->isModified());
 
     QString quotedName;
     if (!fName.isEmpty())
@@ -1894,11 +1894,11 @@ QByteArray EditorManager::saveState() const
 
     QList<IEditor *> editors = openedEditors();
     foreach (IEditor *editor, editors) {
-        if (!editor->file()->fileName().isEmpty()
+        if (!editor->document()->fileName().isEmpty()
                 && !editor->isTemporary()) {
             QByteArray state = editor->saveState();
             if (!state.isEmpty())
-                d->m_editorStates.insert(editor->file()->fileName(), QVariant(state));
+                d->m_editorStates.insert(editor->document()->fileName(), QVariant(state));
         }
     }
 
@@ -2012,7 +2012,7 @@ void EditorManager::readSettings()
             .value<QMap<QString, QVariant> >();
 
     if (settings->contains(QLatin1String(reloadBehaviorKey)))
-        d->m_reloadSetting = (IFile::ReloadSetting)settings->value(QLatin1String(reloadBehaviorKey)).toInt();
+        d->m_reloadSetting = (IDocument::ReloadSetting)settings->value(QLatin1String(reloadBehaviorKey)).toInt();
 
     if (settings->contains(QLatin1String(autoSaveEnabledKey))) {
         d->m_autoSaveEnabled = settings->value(QLatin1String(autoSaveEnabledKey)).toBool();
@@ -2027,10 +2027,10 @@ void EditorManager::revertToSaved()
     IEditor *currEditor = currentEditor();
     if (!currEditor)
         return;
-    const QString fileName =  currEditor->file()->fileName();
+    const QString fileName =  currEditor->document()->fileName();
     if (fileName.isEmpty())
         return;
-    if (currEditor->file()->isModified()) {
+    if (currEditor->document()->isModified()) {
         QMessageBox msgBox(QMessageBox::Question, tr("Revert to Saved"),
                            tr("You will lose your current changes if you proceed reverting %1.").arg(QDir::toNativeSeparators(fileName)),
                            QMessageBox::Yes|QMessageBox::No, ICore::mainWindow());
@@ -2043,7 +2043,7 @@ void EditorManager::revertToSaved()
 
     }
     QString errorString;
-    if (!currEditor->file()->reload(&errorString, IFile::FlagReload, IFile::TypeContents))
+    if (!currEditor->document()->reload(&errorString, IDocument::FlagReload, IDocument::TypeContents))
         QMessageBox::critical(ICore::mainWindow(), tr("File Error"), errorString);
 }
 
@@ -2061,12 +2061,12 @@ void EditorManager::hideEditorStatusBar(const QString &id)
     currentEditorView()->hideEditorStatusBar(id);
 }
 
-void EditorManager::setReloadSetting(IFile::ReloadSetting behavior)
+void EditorManager::setReloadSetting(IDocument::ReloadSetting behavior)
 {
     d->m_reloadSetting = behavior;
 }
 
-IFile::ReloadSetting EditorManager::reloadSetting() const
+IDocument::ReloadSetting EditorManager::reloadSetting() const
 {
     return d->m_reloadSetting;
 }
@@ -2110,7 +2110,7 @@ Core::IEditor *EditorManager::duplicateEditor(Core::IEditor *editor)
     IEditor *duplicate = editor->duplicate(0);
     duplicate->restoreState(editor->saveState());
     connect(duplicate, SIGNAL(changed()), this, SLOT(handleEditorStateChange()));
-    emit editorCreated(duplicate, duplicate->file()->fileName());
+    emit editorCreated(duplicate, duplicate->document()->fileName());
     addEditor(duplicate, true);
     return duplicate;
 }
@@ -2211,7 +2211,7 @@ void EditorManager::updateVariable(const QByteArray &variable)
         QString value;
         IEditor *curEditor = currentEditor();
         if (curEditor) {
-            QString fileName = curEditor->file()->fileName();
+            QString fileName = curEditor->document()->fileName();
             if (!fileName.isEmpty()) {
                 if (variable == kCurrentDocumentFilePath)
                     value = QFileInfo(fileName).filePath();

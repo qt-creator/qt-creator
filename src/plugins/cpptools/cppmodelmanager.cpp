@@ -850,7 +850,7 @@ CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
         it.next();
         TextEditor::ITextEditor *textEditor = it.key();
         CppEditorSupport *editorSupport = it.value();
-        QString fileName = textEditor->file()->fileName();
+        QString fileName = textEditor->document()->fileName();
         workingCopy.insert(fileName, editorSupport->contents(), editorSupport->editorRevision());
     }
 
@@ -1072,7 +1072,7 @@ void CppModelManager::updateEditor(Document::Ptr doc)
 
     QList<Core::IEditor *> openedEditors = Core::ICore::editorManager()->openedEditors();
     foreach (Core::IEditor *editor, openedEditors) {
-        if (editor->file()->fileName() == fileName) {
+        if (editor->document()->fileName() == fileName) {
             TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor);
             if (! textEditor)
                 continue;

@@ -235,7 +235,7 @@ QString Qt4BuildConfiguration::defaultShadowBuildDirectory() const
 {
     Qt4BaseTargetFactory *factory = Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(qt4Target()->id());
     // todo displayName isn't ideal
-    return factory->shadowBuildDirectory(qt4Target()->qt4Project()->file()->fileName(), qt4Target()->id(), displayName());
+    return factory->shadowBuildDirectory(qt4Target()->qt4Project()->document()->fileName(), qt4Target()->id(), displayName());
 }
 
 /// returns the unexpanded build directory

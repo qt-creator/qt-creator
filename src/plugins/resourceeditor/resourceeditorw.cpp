@@ -38,7 +38,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <utils/reloadpromptutils.h>
 #include <utils/fileutils.h>
 
@@ -57,8 +57,8 @@ enum { debugResourceEditorW = 0 };
 
 
 
-ResourceEditorFile::ResourceEditorFile(ResourceEditorW *parent) :
-    IFile(parent),
+ResourceEditorDocument::ResourceEditorDocument(ResourceEditorW *parent) :
+    IDocument(parent),
     m_mimeType(QLatin1String(ResourceEditor::Constants::C_RESOURCE_MIMETYPE)),
     m_parent(parent)
 {
@@ -66,7 +66,7 @@ ResourceEditorFile::ResourceEditorFile(ResourceEditorW *parent) :
         qDebug() <<  "ResourceEditorFile::ResourceEditorFile()";
 }
 
-QString ResourceEditorFile::mimeType() const
+QString ResourceEditorDocument::mimeType() const
 {
     return m_mimeType;
 }
@@ -76,7 +76,7 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
                                ResourceEditorPlugin *plugin,
                                QWidget *parent)
       : m_resourceEditor(new SharedTools::QrcEditor(parent)),
-        m_resourceFile(new ResourceEditorFile(this)),
+        m_resourceDocument(new ResourceEditorDocument(this)),
         m_plugin(plugin),
         m_shouldAutoSave(false),
         m_diskIo(false),
@@ -92,7 +92,7 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
     // (That is because this editor instance is deleted in executeOpenWithMenuAction
     // in that case.)
     connect(m_openWithMenu, SIGNAL(triggered(QAction*)),
-            Core::FileManager::instance(), SLOT(slotExecuteOpenWithMenuAction(QAction*)),
+            Core::DocumentManager::instance(), SLOT(slotExecuteOpenWithMenuAction(QAction*)),
             Qt::QueuedConnection);
 
     connect(m_resourceEditor, SIGNAL(dirtyChanged(bool)), this, SLOT(dirtyChanged(bool)));
@@ -102,7 +102,7 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
             this, SLOT(showContextMenu(QPoint,QString)));
     connect(m_resourceEditor->commandHistory(), SIGNAL(indexChanged(int)),
             this, SLOT(setShouldAutoSave()));
-    connect(m_resourceFile, SIGNAL(changed()), this, SIGNAL(changed()));
+    connect(m_resourceDocument, SIGNAL(changed()), this, SIGNAL(changed()));
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorW::ResourceEditorW()";
 }
@@ -158,7 +158,7 @@ bool ResourceEditorW::open(QString *errorString, const QString &fileName, const 
     return true;
 }
 
-bool ResourceEditorFile::save(QString *errorString, const QString &name, bool autoSave)
+bool ResourceEditorDocument::save(QString *errorString, const QString &name, bool autoSave)
 {
     if (debugResourceEditorW)
         qDebug(">ResourceEditorW::save: %s", qPrintable(name));
@@ -192,7 +192,7 @@ bool ResourceEditorFile::save(QString *errorString, const QString &name, bool au
     return true;
 }
 
-void ResourceEditorFile::rename(const QString &newName)
+void ResourceEditorDocument::rename(const QString &newName)
 {
     m_parent->m_resourceEditor->setFileName(newName);
     emit changed();
@@ -203,27 +203,27 @@ Core::Id ResourceEditorW::id() const
     return Core::Id(ResourceEditor::Constants::RESOURCEEDITOR_ID);
 }
 
-QString ResourceEditorFile::fileName() const
+QString ResourceEditorDocument::fileName() const
 {
     return m_parent->m_resourceEditor->fileName();
 }
 
-bool ResourceEditorFile::shouldAutoSave() const
+bool ResourceEditorDocument::shouldAutoSave() const
 {
     return m_parent->m_shouldAutoSave;
 }
 
-bool ResourceEditorFile::isModified() const
+bool ResourceEditorDocument::isModified() const
 {
     return m_parent->m_resourceEditor->isDirty();
 }
 
-bool ResourceEditorFile::isSaveAsAllowed() const
+bool ResourceEditorDocument::isSaveAsAllowed() const
 {
     return true;
 }
 
-bool ResourceEditorFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
+bool ResourceEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
     if (flag == FlagIgnore)
         return true;
@@ -239,7 +239,7 @@ bool ResourceEditorFile::reload(QString *errorString, ReloadFlag flag, ChangeTyp
     return true;
 }
 
-QString ResourceEditorFile::defaultPath() const
+QString ResourceEditorDocument::defaultPath() const
 {
     return QString();
 }
@@ -249,7 +249,7 @@ void ResourceEditorW::setSuggestedFileName(const QString &fileName)
     m_suggestedName = fileName;
 }
 
-QString ResourceEditorFile::suggestedFileName() const
+QString ResourceEditorDocument::suggestedFileName() const
 {
     return m_parent->m_suggestedName;
 }
@@ -271,7 +271,7 @@ void ResourceEditorW::onUndoStackChanged(bool canUndo, bool canRedo)
 
 void ResourceEditorW::showContextMenu(const QPoint &globalPoint, const QString &fileName)
 {
-    Core::FileManager::populateOpenWithMenu(m_openWithMenu, fileName);
+    Core::DocumentManager::populateOpenWithMenu(m_openWithMenu, fileName);
     if (!m_openWithMenu->actions().isEmpty())
         m_contextMenu->popup(globalPoint);
 }

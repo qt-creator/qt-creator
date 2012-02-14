@@ -72,7 +72,7 @@ Q_DECLARE_METATYPE(QVariant)
 inline Core::IEditor *locateEditor(const char *property, const QString &entry)
 {
     foreach (Core::IEditor *ed, Core::ICore::editorManager()->openedEditors())
-        if (ed->file()->property(property).toString() == entry)
+        if (ed->document()->property(property).toString() == entry)
             return ed;
     return 0;
 }
@@ -569,7 +569,7 @@ VcsBase::VcsBaseEditorWidget *VcsBaseClient::createVcsEditor(const QString &kind
         QTC_ASSERT(baseEditor, return 0);
     } else {
         outputEditor = Core::ICore::editorManager()->openEditorWithContents(Core::Id(kind), &title, progressMsg);
-        outputEditor->file()->setProperty(registerDynamicProperty, dynamicPropertyValue);
+        outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
         baseEditor = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
         connect(baseEditor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
                 this, SLOT(annotateRevision(QString,QString,int)));

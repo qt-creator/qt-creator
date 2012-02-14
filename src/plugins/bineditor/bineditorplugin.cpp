@@ -58,7 +58,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/mimedatabase.h>
 #include <extensionsystem/pluginmanager.h>
 #include <find/ifindsupport.h>
@@ -185,12 +185,12 @@ private:
 };
 
 
-class BinEditorFile : public Core::IFile
+class BinEditorDocument : public Core::IDocument
 {
     Q_OBJECT
 public:
-    BinEditorFile(BinEditor *parent) :
-        Core::IFile(parent)
+    BinEditorDocument(BinEditor *parent) :
+        Core::IDocument(parent)
     {
         m_editor = parent;
         connect(m_editor, SIGNAL(dataRequested(Core::IEditor*,quint64)),
@@ -202,7 +202,7 @@ public:
         connect(m_editor, SIGNAL(endOfFileRequested(Core::IEditor*)), this,
             SLOT(handleEndOfFileRequested(Core::IEditor*)));
     }
-    ~BinEditorFile() {}
+    ~BinEditorDocument() {}
 
     QString mimeType() const {
         return QLatin1String(Constants::C_BINEDITOR_MIMETYPE);
@@ -296,7 +296,7 @@ public:
 
     bool isModified() const { return m_editor->isMemoryView() ? false : m_editor->isModified(); }
 
-    bool isReadOnly() const {
+    bool isFileReadOnly() const {
         if (m_editor->isMemoryView() || m_fileName.isEmpty())
             return false;
         const QFileInfo fi(m_fileName);
@@ -332,7 +332,7 @@ public:
     {
         setWidget(editor);
         m_editor = editor;
-        m_file = new BinEditorFile(m_editor);
+        m_file = new BinEditorDocument(m_editor);
         m_context.add(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
         m_context.add(Constants::C_BINEDITOR);
         m_addressEdit = new QLineEdit;
@@ -373,7 +373,7 @@ public:
         QTC_ASSERT(fileName == realFileName, return false); // The bineditor can do no autosaving
         return m_file->open(errorString, fileName);
     }
-    Core::IFile *file() { return m_file; }
+    Core::IDocument *document() { return m_file; }
     Core::Id id() const { return Core::Constants::K_DEFAULT_BINARY_EDITOR_ID; }
     QString displayName() const { return m_displayName; }
     void setDisplayName(const QString &title) { m_displayName = title; emit changed(); }
@@ -401,7 +401,7 @@ private slots:
 private:
     BinEditor *m_editor;
     QString m_displayName;
-    BinEditorFile *m_file;
+    BinEditorDocument *m_file;
     QToolBar *m_toolBar;
     QLineEdit *m_addressEdit;
 };
@@ -426,11 +426,11 @@ QString BinEditorFactory::displayName() const
     return tr(Constants::C_BINEDITOR_DISPLAY_NAME);
 }
 
-Core::IFile *BinEditorFactory::open(const QString &fileName)
+Core::IDocument *BinEditorFactory::open(const QString &fileName)
 {
     Core::EditorManager *em = Core::EditorManager::instance();
     Core::IEditor *iface = em->openEditor(fileName, id());
-    return iface ? iface->file() : 0;
+    return iface ? iface->document() : 0;
 }
 
 Core::IEditor *BinEditorFactory::createEditor(QWidget *parent)

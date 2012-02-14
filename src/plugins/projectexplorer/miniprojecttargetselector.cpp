@@ -37,7 +37,7 @@
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
@@ -229,7 +229,7 @@ QListWidgetItem *ProjectListWidget::itemForProject(Project *project)
 
 QString ProjectListWidget::fullName(ProjectExplorer::Project *project)
 {
-    return tr("%1 (%2)").arg(project->displayName(), project->file()->fileName());
+    return tr("%1 (%2)").arg(project->displayName(), project->document()->fileName());
 }
 
 void ProjectListWidget::addProject(Project *project)

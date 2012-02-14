@@ -78,7 +78,7 @@ public:
 
     QString displayName() const;
     QString id() const;
-    Core::IFile *file() const;
+    Core::IDocument *document() const;
     ProjectExplorer::IProjectManager *projectManager() const;
     AutotoolsTarget *activeTarget() const;
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();

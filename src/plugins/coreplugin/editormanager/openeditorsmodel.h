@@ -44,7 +44,7 @@ namespace Core {
 
 struct OpenEditorsModelPrivate;
 class IEditor;
-class IFile;
+class IDocument;
 
 class CORE_EXPORT OpenEditorsModel : public QAbstractItemModel
 {
@@ -96,7 +96,7 @@ public:
     void makeOriginal(IEditor *duplicate);
     QModelIndex indexOf(IEditor *editor) const;
 
-    QString displayNameForFile(IFile *file) const;
+    QString displayNameForDocument(IDocument *document) const;
 
 private slots:
     void itemChanged();

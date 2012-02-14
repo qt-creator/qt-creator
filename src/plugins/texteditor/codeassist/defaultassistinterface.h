@@ -40,25 +40,25 @@ namespace TextEditor {
 class TEXTEDITOR_EXPORT DefaultAssistInterface : public IAssistInterface
 {
 public:
-    DefaultAssistInterface(QTextDocument *document,
+    DefaultAssistInterface(QTextDocument *textDocument,
                            int position,
-                           Core::IFile *file,
+                           Core::IDocument *document,
                            AssistReason reason);
     virtual ~DefaultAssistInterface();
 
     virtual int position() const { return m_position; }
     virtual QChar characterAt(int position) const;
     virtual QString textAt(int position, int length) const;
-    virtual const Core::IFile *file() const { return m_file; }
-    virtual QTextDocument *document() const { return m_document; }
+    virtual const Core::IDocument *document() const { return m_document; }
+    virtual QTextDocument *textDocument() const { return m_textDocument; }
     virtual void detach(QThread *destination);
     virtual AssistReason reason() const;
 
 private:
-    QTextDocument *m_document;
+    QTextDocument *m_textDocument;
     bool m_detached;
     int m_position;
-    Core::IFile *m_file;
+    Core::IDocument *m_document;
     AssistReason m_reason;
 };
 

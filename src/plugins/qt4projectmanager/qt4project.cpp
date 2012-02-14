@@ -43,7 +43,7 @@
 #include "findqt4profiles.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/coreconstants.h>
@@ -81,7 +81,7 @@ enum { debug = 0 };
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class Qt4ProjectFile : public Core::IFile
+class Qt4ProjectFile : public Core::IDocument
 {
     Q_OBJECT
 
@@ -237,7 +237,7 @@ void ProjectFilesVisitor::visitFolderNode(FolderNode *folderNode)
 // ----------- Qt4ProjectFile
 namespace Internal {
 Qt4ProjectFile::Qt4ProjectFile(Qt4Project *project, const QString &filePath, QObject *parent)
-    : Core::IFile(parent),
+    : Core::IDocument(parent),
       m_mimeType(QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE)),
       m_project(project),
       m_filePath(filePath)
@@ -287,7 +287,7 @@ bool Qt4ProjectFile::isSaveAsAllowed() const
     return false;
 }
 
-Core::IFile::ReloadBehavior Qt4ProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
+Core::IDocument::ReloadBehavior Qt4ProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state)
     Q_UNUSED(type)
@@ -853,7 +853,7 @@ Qt4Manager *Qt4Project::qt4ProjectManager() const
 
 QString Qt4Project::displayName() const
 {
-    return QFileInfo(file()->fileName()).completeBaseName();
+    return QFileInfo(document()->fileName()).completeBaseName();
 }
 
 QString Qt4Project::id() const
@@ -861,7 +861,7 @@ QString Qt4Project::id() const
     return QLatin1String(Constants::QT4PROJECT_ID);
 }
 
-Core::IFile *Qt4Project::file() const
+Core::IDocument *Qt4Project::document() const
 {
     return m_fileInfo;
 }

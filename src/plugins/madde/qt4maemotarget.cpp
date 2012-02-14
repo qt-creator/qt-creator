@@ -39,7 +39,7 @@
 #include "maemotoolchain.h"
 #include "qt4maemodeployconfiguration.h"
 
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
@@ -720,7 +720,7 @@ void AbstractDebBasedQt4MaemoTarget::handleTargetAddedSpecial()
     connect(m_controlFile, SIGNAL(modified()), SIGNAL(controlChanged()));
     m_changeLogFile = new WatchableFile(changeLogFilePath(), this);
     connect(m_changeLogFile, SIGNAL(modified()), SIGNAL(changeLogChanged()));
-    Core::FileManager::addFiles(QList<Core::IFile *>()
+    Core::DocumentManager::addDocuments(QList<Core::IDocument *>()
         << m_controlFile << m_changeLogFile);
     connect(m_filesWatcher, SIGNAL(directoryChanged(QString)), this,
         SLOT(handleDebianDirContentsChanged()));
@@ -1070,7 +1070,7 @@ void AbstractRpmBasedQt4MaemoTarget::handleTargetAddedSpecial()
 {
     m_specFile = new WatchableFile(specFilePath(), this);
     connect(m_specFile, SIGNAL(modified()), SIGNAL(specFileChanged()));
-    Core::FileManager::addFile(m_specFile);
+    Core::DocumentManager::addDocument(m_specFile);
     emit specFileChanged();
 }
 

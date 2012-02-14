@@ -37,7 +37,7 @@
 #include "qt4project.h"
 #include "qt4projectmanager.h"
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/coreconstants.h>
@@ -107,7 +107,7 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(ProjectExplorer::Project *project
     m_targetSetupPage = new TargetSetupPage(this);
     m_targetSetupPage->setUseScrollArea(false);
     m_targetSetupPage->setImportSearch(true);
-    m_targetSetupPage->setProFilePath(project->file()->fileName());
+    m_targetSetupPage->setProFilePath(project->document()->fileName());
     m_targetSetupPage->initializePage();
     m_targetSetupPage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     updateNoteText();

@@ -88,7 +88,7 @@ void OpenDocumentsFilter::refreshInternally()
         OpenEditorsModel::Entry entry;
         // don't work on IEditor directly, since that will be useless with split windows
         entry.m_displayName = editor->displayName();
-        entry.m_fileName = editor->file()->fileName();
+        entry.m_fileName = editor->document()->fileName();
         m_editors.append(entry);
     }
     m_editors += m_editorManager->openedEditorsModel()->restoredEditors();

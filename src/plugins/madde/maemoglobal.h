@@ -33,7 +33,7 @@
 #ifndef MAEMOGLOBAL_H
 #define MAEMOGLOBAL_H
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <remotelinux/portlist.h>
 #include <utils/environment.h>
 
@@ -56,12 +56,12 @@ class LinuxDeviceConfiguration;
 namespace Madde {
 namespace Internal {
 
-class WatchableFile : public Core::IFile
+class WatchableFile : public Core::IDocument
 {
     Q_OBJECT
 public:
     WatchableFile(const QString &fileName, QObject *parent = 0)
-        : Core::IFile(parent), m_fileName(fileName) {}
+        : Core::IDocument(parent), m_fileName(fileName) {}
 
     bool save(QString *, const QString &, bool) { return false; }
     QString fileName() const { return m_fileName; }

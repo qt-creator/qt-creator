@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef IFILE_H
-#define IFILE_H
+#ifndef IDOCUMENT_H
+#define IDOCUMENT_H
 
 #include "core_global.h"
 #include <QObject>
@@ -41,7 +41,7 @@ namespace Core {
 class MimeType;
 class InfoBar;
 
-class CORE_EXPORT IFile : public QObject
+class CORE_EXPORT IDocument : public QObject
 {
     Q_OBJECT
 
@@ -81,11 +81,12 @@ public:
         FlagIgnore
     };
 
-    IFile(QObject *parent = 0);
-    virtual ~IFile();
+    IDocument(QObject *parent = 0);
+    virtual ~IDocument();
 
     virtual bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false) = 0;
     virtual QString fileName() const = 0;
+    virtual bool isFileReadOnly() const;
 
     virtual QString defaultPath() const = 0;
     virtual QString suggestedFileName() const = 0;
@@ -93,7 +94,6 @@ public:
 
     virtual bool shouldAutoSave() const;
     virtual bool isModified() const = 0;
-    virtual bool isReadOnly() const;
     virtual bool isSaveAsAllowed() const = 0;
 
     virtual ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
@@ -126,4 +126,4 @@ private:
 
 } // namespace Core
 
-#endif // IFILE_H
+#endif // IDOCUMENT_H

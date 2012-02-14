@@ -131,7 +131,7 @@ bool ImageViewer::open(QString *errorString, const QString &fileName, const QStr
     return true;
 }
 
-Core::IFile *ImageViewer::file()
+Core::IDocument *ImageViewer::document()
 {
     return d->file;
 }

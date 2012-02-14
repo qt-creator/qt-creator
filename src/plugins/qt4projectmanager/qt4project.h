@@ -89,13 +89,13 @@ public:
 
     QString displayName() const;
     QString id() const;
-    Core::IFile *file() const;
+    Core::IDocument *document() const;
     ProjectExplorer::IProjectManager *projectManager() const;
     Qt4Manager *qt4ProjectManager() const;
 
     Qt4BaseTarget *activeTarget() const;
 
-    QList<Core::IFile *> dependencies();     //NBS remove
+    QList<Core::IDocument *> dependencies();     //NBS remove
     QList<ProjectExplorer::Project *>dependsOn();
 
     ProjectExplorer::ProjectNode *rootProjectNode() const;

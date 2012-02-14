@@ -35,7 +35,7 @@
 #define IMAGEVIEWER_H
 
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 
 #include <QScopedPointer>
 #include <QStringList>
@@ -59,7 +59,7 @@ public:
 
     bool createNew(const QString &contents = QString());
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    Core::IFile *file();
+    Core::IDocument *document();
     Core::Id id() const;
     QString displayName() const;
     void setDisplayName(const QString &title);

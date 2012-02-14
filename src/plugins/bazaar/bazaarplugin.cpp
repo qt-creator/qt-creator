@@ -50,7 +50,7 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <locator/commandlocator.h>
@@ -617,9 +617,9 @@ bool BazaarPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submit
 {
     if (!m_changeLog)
         return true;
-    Core::IFile *editorFile = submitEditor->file();
+    Core::IDocument *editorDocument = submitEditor->document();
     const CommitEditor *commitEditor = qobject_cast<const CommitEditor *>(submitEditor);
-    if (!editorFile || !commitEditor)
+    if (!editorDocument || !commitEditor)
         return true;
 
     bool dummyPrompt = m_bazaarSettings.boolValue(BazaarSettings::promptOnSubmitKey);
@@ -641,7 +641,7 @@ bool BazaarPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submit
     QStringList files = commitEditor->checkedFiles();
     if (!files.empty()) {
         //save the commit message
-        if (!Core::FileManager::saveFile(editorFile))
+        if (!Core::DocumentManager::saveDocument(editorDocument))
             return false;
 
         //rewrite entries of the form 'file => newfile' to 'newfile' because
@@ -665,7 +665,7 @@ bool BazaarPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submit
         // Whether local commit or not
         if (commitWidget->isLocalOptionEnabled())
             extraOptions += QLatin1String("--local");
-        m_client->commit(m_submitRepository, files, editorFile->fileName(), extraOptions);
+        m_client->commit(m_submitRepository, files, editorDocument->fileName(), extraOptions);
     }
     return true;
 }

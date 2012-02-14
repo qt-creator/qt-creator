@@ -60,8 +60,8 @@ QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::Filter
             directory.replace(0, 1, QDir::homePath());
         } else {
             IEditor *editor = m_editorManager->currentEditor();
-            if (editor && !editor->file()->fileName().isEmpty()) {
-                QFileInfo info(editor->file()->fileName());
+            if (editor && !editor->document()->fileName().isEmpty()) {
+                QFileInfo info(editor->document()->fileName());
                 directory.prepend(info.absolutePath() + QLatin1Char('/'));
             }
         }

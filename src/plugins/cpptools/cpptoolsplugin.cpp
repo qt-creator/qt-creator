@@ -56,7 +56,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <cppeditor/cppeditorconstants.h>
 
 #include <QtConcurrentRun>
@@ -112,7 +112,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     Core::VcsManager *vcsManager = Core::ICore::vcsManager();
     connect(vcsManager, SIGNAL(repositoryChanged(QString)),
             m_modelManager, SLOT(updateModifiedSourceFiles()));
-    connect(Core::FileManager::instance(), SIGNAL(filesChangedInternally(QStringList)),
+    connect(Core::DocumentManager::instance(), SIGNAL(filesChangedInternally(QStringList)),
             m_modelManager, SLOT(updateSourceFiles(QStringList)));
     addAutoReleasedObject(m_modelManager);
 
@@ -163,7 +163,7 @@ void CppToolsPlugin::switchHeaderSource()
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     Core::IEditor *editor = editorManager->currentEditor();
-    QString otherFile = correspondingHeaderOrSource(editor->file()->fileName());
+    QString otherFile = correspondingHeaderOrSource(editor->document()->fileName());
     if (!otherFile.isEmpty())
         editorManager->openEditor(otherFile);
 }

@@ -38,7 +38,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/fileiconprovider.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/fileutils.h>
@@ -188,11 +188,11 @@ void FolderNavigationWidget::setAutoSynchronization(bool sync)
     m_autoSync = sync;
 
     if (m_autoSync) {
-        connect(Core::FileManager::instance(), SIGNAL(currentFileChanged(QString)),
+        connect(Core::DocumentManager::instance(), SIGNAL(currentFileChanged(QString)),
                 this, SLOT(setCurrentFile(QString)));
-        setCurrentFile(Core::FileManager::currentFile());
+        setCurrentFile(Core::DocumentManager::currentFile());
     } else {
-        disconnect(Core::FileManager::instance(), SIGNAL(currentFileChanged(QString)),
+        disconnect(Core::DocumentManager::instance(), SIGNAL(currentFileChanged(QString)),
                 this, SLOT(setCurrentFile(QString)));
     }
 }
@@ -322,7 +322,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     // open with...
     if (!m_fileSystemModel->isDir(current)) {
         QMenu *openWith = menu.addMenu(tr("Open with"));
-        Core::FileManager::populateOpenWithMenu(openWith,
+        Core::DocumentManager::populateOpenWithMenu(openWith,
                                                 m_fileSystemModel->filePath(current));
     }
 
@@ -360,7 +360,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
             findOnFileSystem(info.absolutePath());
         return;
     }
-    Core::FileManager::executeOpenWithMenuAction(action);
+    Core::DocumentManager::executeOpenWithMenuAction(action);
 }
 
 QString FolderNavigationWidget::msgFindOnFileSystem()

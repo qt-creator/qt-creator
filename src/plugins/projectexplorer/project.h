@@ -40,7 +40,7 @@
 #include <QFileSystemModel>
 
 namespace Core {
-class IFile;
+class IDocument;
 class Context;
 }
 
@@ -71,7 +71,7 @@ public:
 
     virtual QString displayName() const = 0;
     virtual QString id() const = 0;
-    virtual Core::IFile *file() const = 0;
+    virtual Core::IDocument *document() const = 0;
     virtual IProjectManager *projectManager() const = 0;
 
     virtual QList<Project *> dependsOn() = 0; //NBS TODO implement dependsOn

@@ -41,11 +41,11 @@
 #include "toolsettings.h"
 #include "mimetypesettings.h"
 #include "fancytabwidget.h"
-#include "filemanager.h"
+#include "documentmanager.h"
 #include "generalsettings.h"
 #include "helpmanager.h"
 #include "ieditor.h"
-#include "ifilefactory.h"
+#include "idocumentfactory.h"
 #include "messagemanager.h"
 #include "modemanager.h"
 #include "mimedatabase.h"
@@ -170,7 +170,7 @@ MainWindow::MainWindow() :
 #endif
     m_toggleSideBarButton(new QToolButton)
 {
-    (void) new FileManager(this);
+    (void) new DocumentManager(this);
     OutputPaneManager::create();
 
     setWindowTitle(tr("Qt Creator"));
@@ -376,7 +376,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
     // Save opened files
     bool cancelled;
-    QList<IFile*> notSaved = FileManager::saveModifiedFiles(FileManager::modifiedFiles(), &cancelled);
+    QList<IDocument*> notSaved = DocumentManager::saveModifiedDocuments(DocumentManager::modifiedDocuments(), &cancelled);
     if (cancelled || !notSaved.isEmpty()) {
         event->ignore();
         return;
@@ -836,25 +836,25 @@ void MainWindow::openFile()
     openFiles(editorManager()->getOpenFileNames(), ICore::SwitchMode);
 }
 
-static QList<IFileFactory*> getNonEditorFileFactories()
+static QList<IDocumentFactory*> getNonEditorDocumentFactories()
 {
-    const QList<IFileFactory*> allFileFactories =
-        ExtensionSystem::PluginManager::instance()->getObjects<IFileFactory>();
-    QList<IFileFactory*> nonEditorFileFactories;
-    foreach (IFileFactory *factory, allFileFactories) {
+    const QList<IDocumentFactory*> allFileFactories =
+        ExtensionSystem::PluginManager::instance()->getObjects<IDocumentFactory>();
+    QList<IDocumentFactory*> nonEditorFileFactories;
+    foreach (IDocumentFactory *factory, allFileFactories) {
         if (!qobject_cast<IEditorFactory *>(factory))
             nonEditorFileFactories.append(factory);
     }
     return nonEditorFileFactories;
 }
 
-static IFileFactory *findFileFactory(const QList<IFileFactory*> &fileFactories,
+static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fileFactories,
                                      const MimeDatabase *db,
                                      const QFileInfo &fi)
 {
     if (const MimeType mt = db->findByFile(fi)) {
         const QString type = mt.type();
-        foreach (IFileFactory *factory, fileFactories) {
+        foreach (IDocumentFactory *factory, fileFactories) {
             if (factory->mimeTypes().contains(type))
                 return factory;
         }
@@ -865,16 +865,16 @@ static IFileFactory *findFileFactory(const QList<IFileFactory*> &fileFactories,
 // opens either an editor or loads a project
 void MainWindow::openFiles(const QStringList &fileNames, ICore::OpenFilesFlags flags)
 {
-    QList<IFileFactory*> nonEditorFileFactories = getNonEditorFileFactories();
+    QList<IDocumentFactory*> nonEditorFileFactories = getNonEditorDocumentFactories();
 
     foreach (const QString &fileName, fileNames) {
         const QFileInfo fi(fileName);
         const QString absoluteFilePath = fi.absoluteFilePath();
-        if (IFileFactory *fileFactory = findFileFactory(nonEditorFileFactories, mimeDatabase(), fi)) {
-            Core::IFile *file = fileFactory->open(absoluteFilePath);
-            if (!file && (flags & ICore::StopOnLoadFail))
+        if (IDocumentFactory *documentFactory = findDocumentFactory(nonEditorFileFactories, mimeDatabase(), fi)) {
+            Core::IDocument *document = documentFactory->open(absoluteFilePath);
+            if (!document && (flags & ICore::StopOnLoadFail))
                 return;
-            if (file && (flags & ICore::SwitchMode))
+            if (document && (flags & ICore::SwitchMode))
                 ModeManager::activateMode(QLatin1String(Core::Constants::MODE_EDIT));
         } else {
             QFlags<EditorManager::OpenEditorFlag> emFlags;
@@ -969,12 +969,12 @@ void MainWindow::showNewItemDialog(const QString &title,
             // Project wizards: Check for projects directory or
             // use last visited directory of file dialog. Never start
             // at current.
-            path = FileManager::useProjectsDirectory() ?
-                       FileManager::projectsDirectory() :
-                       FileManager::fileDialogLastVisitedDirectory();
+            path = DocumentManager::useProjectsDirectory() ?
+                       DocumentManager::projectsDirectory() :
+                       DocumentManager::fileDialogLastVisitedDirectory();
             break;
         default:
-            path = FileManager::fileDialogInitialDirectory();
+            path = DocumentManager::fileDialogInitialDirectory();
             break;
         }
     }
@@ -994,7 +994,7 @@ bool MainWindow::showOptionsDialog(const QString &category,
 
 void MainWindow::saveAll()
 {
-    FileManager::saveModifiedFilesSilently(FileManager::modifiedFiles());
+    DocumentManager::saveModifiedDocumentsSilently(DocumentManager::modifiedDocuments());
     emit m_coreImpl->saveSettingsRequested();
 }
 
@@ -1027,11 +1027,6 @@ void MainWindow::openFileWith()
 ActionManager *MainWindow::actionManager() const
 {
     return m_actionManager;
-}
-
-FileManager *MainWindow::fileManager() const
-{
-    return FileManager::instance();
 }
 
 MessageManager *MainWindow::messageManager() const
@@ -1237,7 +1232,7 @@ void MainWindow::writeSettings()
 
     m_settings->endGroup();
 
-    FileManager::saveSettings();
+    DocumentManager::saveSettings();
     m_actionManager->saveSettings(m_settings);
     m_editorManager->saveSettings();
     m_navigationWidget->saveSettings(m_settings);
@@ -1297,7 +1292,7 @@ void MainWindow::aboutToShowRecentFiles()
     aci->menu()->clear();
 
     bool hasRecentFiles = false;
-    foreach (const FileManager::RecentFile &file, FileManager::recentFiles()) {
+    foreach (const DocumentManager::RecentFile &file, DocumentManager::recentFiles()) {
         hasRecentFiles = true;
         QAction *action = aci->menu()->addAction(
                     QDir::toNativeSeparators(Utils::withTildeHomePath(file.first)));
@@ -1311,14 +1306,14 @@ void MainWindow::aboutToShowRecentFiles()
         aci->menu()->addSeparator();
         QAction *action = aci->menu()->addAction(QCoreApplication::translate(
                                                      "Core", Core::Constants::TR_CLEAR_MENU));
-        connect(action, SIGNAL(triggered()), FileManager::instance(), SLOT(clearRecentFiles()));
+        connect(action, SIGNAL(triggered()), DocumentManager::instance(), SLOT(clearRecentFiles()));
     }
 }
 
 void MainWindow::openRecentFile()
 {
     if (const QAction *action = qobject_cast<const QAction*>(sender())) {
-        const FileManager::RecentFile file = action->data().value<FileManager::RecentFile>();
+        const DocumentManager::RecentFile file = action->data().value<DocumentManager::RecentFile>();
         editorManager()->openEditor(file.first, file.second, Core::EditorManager::ModeSwitch);
     }
 }

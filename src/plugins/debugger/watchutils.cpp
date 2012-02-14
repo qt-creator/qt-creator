@@ -36,7 +36,7 @@
 
 #include <utils/qtcassert.h>
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 
 #include <texteditor/basetexteditor.h>
 #include <texteditor/basetextmark.h>
@@ -151,7 +151,7 @@ bool isEditorDebuggable(Core::IEditor *editor)
 {
     // Only blacklist Qml. Whitelisting would fail on C++ code in files
     // with strange names, more harm would be done this way.
-    //   IFile *file = editor->file();
+    //   IDocument *file = editor->document();
     //   return !(file && file->mimeType() == "application/x-qml");
     // Nowadays, even Qml is debuggable.
     return editor;
@@ -442,9 +442,9 @@ bool getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
 
 QByteArray gdbQuoteTypes(const QByteArray &type)
 {
-    // gdb does not understand sizeof(Core::IFile*).
-    // "sizeof('Core::IFile*')" is also not acceptable,
-    // it needs to be "sizeof('Core::IFile'*)"
+    // gdb does not understand sizeof(Core::IDocument*).
+    // "sizeof('Core::IDocument*')" is also not acceptable,
+    // it needs to be "sizeof('Core::IDocument'*)"
     //
     // We never will have a perfect solution here (even if we had a full blown
     // C++ parser as we do not have information on what is a type and what is
@@ -647,10 +647,10 @@ QString decodeData(const QByteArray &ba, int encoding)
 bool isCppEditor(Core::IEditor *editor)
 {
     using namespace CppTools::Constants;
-    const Core::IFile *file = editor->file();
-    if (!file)
+    const Core::IDocument *document= editor->document();
+    if (!document)
         return false;
-    const QByteArray mimeType = file->mimeType().toLatin1();
+    const QByteArray mimeType = document->mimeType().toLatin1();
     return mimeType == C_SOURCE_MIMETYPE
         || mimeType == CPP_SOURCE_MIMETYPE
         || mimeType == CPP_HEADER_MIMETYPE
@@ -693,10 +693,10 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
     }
 
     if (function && !expr.isEmpty())
-        if (const Core::IFile *file = editor->file())
+        if (const Core::IDocument *document= editor->document())
             if (modelManager)
                 *function = AbstractEditorSupport::functionAt(modelManager,
-                    file->fileName(), *line, *column);
+                    document->fileName(), *line, *column);
 
     return expr;
 }

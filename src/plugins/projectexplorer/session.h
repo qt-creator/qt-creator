@@ -51,7 +51,7 @@ QT_END_NAMESPACE
 namespace Core {
 class IMode;
 class IEditor;
-class IFile;
+class IDocument;
 }
 
 namespace ProjectExplorer {

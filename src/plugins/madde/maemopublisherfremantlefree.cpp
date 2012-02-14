@@ -37,7 +37,7 @@
 #include "qt4maemodeployconfiguration.h"
 #include "qt4maemotarget.h"
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qmakestep.h>
@@ -218,7 +218,7 @@ bool MaemoPublisherFremantleFree::copyRecursively(const QString &srcFilePath,
             QByteArray rulesContents = reader.data();
             rulesContents.replace("$(MAKE) clean", "# $(MAKE) clean");
             rulesContents.replace("# Add here commands to configure the package.",
-                "qmake " + QFileInfo(m_project->file()->fileName()).fileName().toLocal8Bit());
+                "qmake " + QFileInfo(m_project->document()->fileName()).fileName().toLocal8Bit());
             MaemoDebianPackageCreationStep::ensureShlibdeps(rulesContents);
             Utils::FileSaver saver(tgtFilePath);
             saver.write(rulesContents);

@@ -108,10 +108,10 @@ QString CppEditorFactory::displayName() const
     return tr(CppEditor::Constants::CPPEDITOR_DISPLAY_NAME);
 }
 
-Core::IFile *CppEditorFactory::open(const QString &fileName)
+Core::IDocument *CppEditorFactory::open(const QString &fileName)
 {
     Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
-    return iface ? iface->file() : 0;
+    return iface ? iface->document() : 0;
 }
 
 Core::IEditor *CppEditorFactory::createEditor(QWidget *parent)

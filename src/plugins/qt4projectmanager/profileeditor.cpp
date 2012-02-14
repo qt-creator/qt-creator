@@ -172,7 +172,7 @@ ProFileEditorWidget::Link ProFileEditorWidget::findLinkAt(const QTextCursor &cur
         }
     }
 
-    QDir dir(QFileInfo(file()->fileName()).absolutePath());
+    QDir dir(QFileInfo(editorDocument()->fileName()).absolutePath());
     QString fileName = dir.filePath(buffer);
     QFileInfo fi(fileName);
     if (fi.exists()) {

@@ -346,7 +346,7 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     // If the mime type has a preferred suffix (cpp/h/patch...), use that for
     // the temporary file. This is to make it more convenient to "Save as"
     // for the user and also to be able to tell a patch or diff in the VCS plugins
-    // by looking at the file name of FileManager::currentFile() without expensive checking.
+    // by looking at the file name of DocumentManager::currentFile() without expensive checking.
     // Default to "txt".
     QByteArray byteContent = content.toUtf8();
     QString suffix;

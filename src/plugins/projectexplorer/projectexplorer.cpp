@@ -90,7 +90,7 @@
 
 #include <extensionsystem/pluginspec.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/mimedatabase.h>
@@ -339,7 +339,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_welcomePage, SIGNAL(manageSessions()), this, SLOT(showSessionManager()));
     addObject(d->m_welcomePage);
 
-    connect(Core::FileManager::instance(), SIGNAL(currentFileChanged(QString)),
+    connect(Core::DocumentManager::instance(), SIGNAL(currentFileChanged(QString)),
             this, SLOT(setCurrentFile(QString)));
 
     d->m_session = new SessionManager(this);
@@ -519,7 +519,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_openWithMenu->setTitle(tr("Open With"));
 
     connect(d->m_openWithMenu, SIGNAL(triggered(QAction *)),
-            Core::FileManager::instance(), SLOT(slotExecuteOpenWithMenuAction(QAction*)));
+            Core::DocumentManager::instance(), SLOT(slotExecuteOpenWithMenuAction(QAction*)));
 
     //
     // Separators
@@ -1032,9 +1032,9 @@ void ProjectExplorerPlugin::loadAction()
     // for your special convenience, we preselect a pro file if it is
     // the current file
     if (Core::IEditor *editor = Core::EditorManager::instance()->currentEditor()) {
-        if (const Core::IFile *file = editor->file()) {
-            const QString fn = file->fileName();
-            const bool isProject = d->m_profileMimeTypes.contains(file->mimeType());
+        if (const Core::IDocument *document= editor->document()) {
+            const QString fn = document->fileName();
+            const bool isProject = d->m_profileMimeTypes.contains(document->mimeType());
             dir = isProject ? fn : QFileInfo(fn).absolutePath();
         }
     }
@@ -1071,23 +1071,23 @@ void ProjectExplorerPlugin::unloadProject()
         buildManager()->cancel();
     }
 
-    Core::IFile *fi = d->m_currentProject->file();
+    Core::IDocument *document = d->m_currentProject->document();
 
-    if (!fi || fi->fileName().isEmpty()) //nothing to save?
+    if (!document || document->fileName().isEmpty()) //nothing to save?
         return;
 
-    QList<Core::IFile*> filesToSave;
-    filesToSave << fi;
+    QList<Core::IDocument*> documentsToSave;
+    documentsToSave << document;
     bool success = false;
-    if (fi->isReadOnly())
-        success = Core::FileManager::saveModifiedFiles(filesToSave).isEmpty();
+    if (document->isFileReadOnly())
+        success = Core::DocumentManager::saveModifiedDocuments(documentsToSave).isEmpty();
     else
-        success = Core::FileManager::saveModifiedFilesSilently(filesToSave).isEmpty();
+        success = Core::DocumentManager::saveModifiedDocumentsSilently(documentsToSave).isEmpty();
 
     if (!success)
         return;
 
-    addToRecentProjects(fi->fileName(), d->m_currentProject->displayName());
+    addToRecentProjects(document->fileName(), d->m_currentProject->displayName());
     d->m_session->removeProject(d->m_currentProject);
     updateActions();
 }
@@ -1130,16 +1130,16 @@ void ProjectExplorerPlugin::loadCustomWizards()
 void ProjectExplorerPlugin::updateVariable(const QByteArray &variable)
 {
     if (variable == kCurrentProjectFilePath) {
-        if (currentProject() && currentProject()->file()) {
+        if (currentProject() && currentProject()->document()) {
             Core::VariableManager::instance()->insert(variable,
-                                                      currentProject()->file()->fileName());
+                                                      currentProject()->document()->fileName());
         } else {
             Core::VariableManager::instance()->remove(variable);
         }
     } else if (variable == kCurrentProjectPath) {
-        if (currentProject() && currentProject()->file()) {
+        if (currentProject() && currentProject()->document()) {
             Core::VariableManager::instance()->insert(variable,
-                                                      QFileInfo(currentProject()->file()->fileName()).path());
+                                                      QFileInfo(currentProject()->document()->fileName()).path());
         } else {
             Core::VariableManager::instance()->remove(variable);
         }
@@ -1556,7 +1556,7 @@ void ProjectExplorerPlugin::buildStateChanged(Project * pro)
 {
     if (debug) {
         qDebug() << "buildStateChanged";
-        qDebug() << pro->file()->fileName() << "isBuilding()" << d->m_buildManager->isBuilding(pro);
+        qDebug() << pro->document()->fileName() << "isBuilding()" << d->m_buildManager->isBuilding(pro);
     }
     Q_UNUSED(pro)
     updateActions();
@@ -1666,7 +1666,7 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
         updateActions();
     }
 
-    Core::FileManager::setCurrentFile(filePath);
+    Core::DocumentManager::setCurrentFile(filePath);
 }
 
 void ProjectExplorerPlugin::updateActions()
@@ -1747,7 +1747,7 @@ void ProjectExplorerPlugin::updateActions()
 QStringList ProjectExplorerPlugin::allFilesWithDependencies(Project *pro)
 {
     if (debug)
-        qDebug() << "ProjectExplorerPlugin::allFilesWithDependencies(" << pro->file()->fileName() << ")";
+        qDebug() << "ProjectExplorerPlugin::allFilesWithDependencies(" << pro->document()->fileName() << ")";
 
     QStringList filesToSave;
     foreach (Project *p, d->m_session->projectOrder(pro)) {
@@ -1764,17 +1764,17 @@ bool ProjectExplorerPlugin::saveModifiedFiles()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::saveModifiedFiles";
 
-    QList<Core::IFile *> filesToSave = Core::FileManager::modifiedFiles();
-    if (!filesToSave.isEmpty()) {
+    QList<Core::IDocument *> documentsToSave = Core::DocumentManager::modifiedDocuments();
+    if (!documentsToSave.isEmpty()) {
         if (d->m_projectExplorerSettings.saveBeforeBuild) {
             bool cancelled = false;
-            Core::FileManager::saveModifiedFilesSilently(filesToSave, &cancelled);
+            Core::DocumentManager::saveModifiedDocumentsSilently(documentsToSave, &cancelled);
             if (cancelled)
                 return false;
         } else {
             bool cancelled = false;
             bool alwaysSave = false;
-            Core::FileManager::saveModifiedFiles(filesToSave, &cancelled, QString(),
+            Core::DocumentManager::saveModifiedDocuments(documentsToSave, &cancelled, QString(),
                                   tr("Always save files before build"), &alwaysSave);
 
             if (cancelled)
@@ -2750,7 +2750,7 @@ void ProjectExplorerPlugin::deleteFile()
 
     projectNode->deleteFiles(fileNode->fileType(), QStringList(filePath));
 
-    Core::FileManager::expectFileChange(filePath);
+    Core::DocumentManager::expectFileChange(filePath);
     if (Core::IVersionControl *vc =
             Core::ICore::vcsManager()->findVersionControlForDirectory(QFileInfo(filePath).absolutePath())) {
         vc->vcsDelete(filePath);
@@ -2761,7 +2761,7 @@ void ProjectExplorerPlugin::deleteFile()
             QMessageBox::warning(Core::ICore::mainWindow(), tr("Deleting File Failed"),
                                  tr("Could not delete file %1.").arg(filePath));
     }
-    Core::FileManager::unexpectFileChange(filePath);
+    Core::DocumentManager::unexpectFileChange(filePath);
 }
 
 void ProjectExplorerPlugin::renameFile()
@@ -2810,7 +2810,7 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
         result = fileSystemRenameFile(orgFilePath, newFilePath);
     if (result) {
         // yeah we moved, tell the filemanager about it
-        Core::FileManager::renamedFile(orgFilePath, newFilePath);
+        Core::DocumentManager::renamedFile(orgFilePath, newFilePath);
         // Tell the project plugin about it
         ProjectNode *projectNode = fileNode->projectNode();
         projectNode->renameFile(fileNode->fileType(), orgFilePath, newFilePath);
@@ -2825,7 +2825,7 @@ void ProjectExplorerPlugin::setStartupProject()
 
 void ProjectExplorerPlugin::populateOpenWithMenu()
 {
-    Core::FileManager::populateOpenWithMenu(d->m_openWithMenu, currentNode()->path());
+    Core::DocumentManager::populateOpenWithMenu(d->m_openWithMenu, currentNode()->path());
 }
 
 void ProjectExplorerPlugin::updateSessionMenu()
@@ -2877,8 +2877,8 @@ QStringList ProjectExplorerPlugin::projectFilePatterns()
 
 void ProjectExplorerPlugin::openOpenProjectDialog()
 {
-    const QString path = Core::FileManager::useProjectsDirectory() ? Core::FileManager::projectsDirectory() : QString();
-    const QStringList files = Core::FileManager::getOpenFileNames(d->m_projectFilterString, path);
+    const QString path = Core::DocumentManager::useProjectsDirectory() ? Core::DocumentManager::projectsDirectory() : QString();
+    const QStringList files = Core::DocumentManager::getOpenFileNames(d->m_projectFilterString, path);
     if (!files.isEmpty())
         Core::ICore::openFiles(files, Core::ICore::SwitchMode);
 }

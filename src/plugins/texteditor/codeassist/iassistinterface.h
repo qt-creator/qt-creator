@@ -45,7 +45,7 @@ class QThread;
 QT_END_NAMESPACE
 
 namespace Core {
-class IFile;
+class IDocument;
 }
 
 namespace TextEditor {
@@ -59,8 +59,8 @@ public:
     virtual int position() const = 0;
     virtual QChar characterAt(int position) const = 0;
     virtual QString textAt(int position, int length) const = 0;
-    virtual const Core::IFile *file() const = 0;
-    virtual QTextDocument *document() const = 0;
+    virtual const Core::IDocument *document() const = 0;
+    virtual QTextDocument *textDocument() const = 0;
     virtual void detach(QThread *destination) = 0;
     virtual AssistReason reason() const = 0;
 };

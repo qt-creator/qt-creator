@@ -38,11 +38,11 @@ using namespace VcsBase::Internal;
 /*!
     \class VcsBase::Internal::SubmitEditorFile
 
-    \brief A non-saveable IFile for submit editor files.
+    \brief A non-saveable IDocument for submit editor files.
 */
 
 SubmitEditorFile::SubmitEditorFile(const QString &mimeType, QObject *parent) :
-    Core::IFile(parent),
+    Core::IDocument(parent),
     m_mimeType(mimeType),
     m_modified(false)
 {
@@ -83,7 +83,7 @@ QString SubmitEditorFile::mimeType() const
     return m_mimeType;
 }
 
-Core::IFile::ReloadBehavior SubmitEditorFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
+Core::IDocument::ReloadBehavior SubmitEditorFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state)
     Q_UNUSED(type)

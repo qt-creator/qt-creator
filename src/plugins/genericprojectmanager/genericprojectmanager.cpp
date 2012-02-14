@@ -58,7 +58,7 @@ ProjectExplorer::Project *Manager::openProject(const QString &fileName, QString 
 
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     foreach (ProjectExplorer::Project *pi, projectExplorer->session()->projects()) {
-        if (fileName == pi->file()->fileName()) {
+        if (fileName == pi->document()->fileName()) {
             if (errorString)
                 *errorString = tr("Failed opening project '%1': Project already open")
                     .arg(QDir::toNativeSeparators(fileName));

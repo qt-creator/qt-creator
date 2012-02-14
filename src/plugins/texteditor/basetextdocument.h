@@ -35,7 +35,7 @@
 
 #include "texteditor_global.h"
 
-#include <coreplugin/textfile.h>
+#include <coreplugin/textdocument.h>
 
 QT_BEGIN_NAMESPACE
 class QTextCursor;
@@ -52,7 +52,7 @@ class ExtraEncodingSettings;
 class SyntaxHighlighter;
 class BaseTextDocumentPrivate;
 
-class TEXTEDITOR_EXPORT BaseTextDocument : public Core::TextFile
+class TEXTEDITOR_EXPORT BaseTextDocument : public Core::TextDocument
 {
     Q_OBJECT
 
@@ -72,11 +72,11 @@ public:
 
     ITextMarkable *documentMarker() const;
 
-    // IFile implementation.
+    // IDocument implementation.
     virtual bool save(QString *errorString, const QString &fileName, bool autoSave);
     virtual QString fileName() const;
     virtual bool shouldAutoSave() const;
-    virtual bool isReadOnly() const;
+    virtual bool isFileReadOnly() const;
     virtual bool isModified() const;
     virtual bool isSaveAsAllowed() const;
     virtual void checkPermissions();

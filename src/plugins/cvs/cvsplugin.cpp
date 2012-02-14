@@ -50,7 +50,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -469,14 +469,14 @@ bool CvsPlugin::submitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor)
     if (!isCommitEditorOpen())
         return true;
 
-    IFile *fileIFace = submitEditor->file();
+    IDocument *editorDocument = submitEditor->document();
     const CvsSubmitEditor *editor = qobject_cast<CvsSubmitEditor *>(submitEditor);
-    if (!fileIFace || !editor)
+    if (!editorDocument || !editor)
         return true;
 
     // Submit editor closing. Make it write out the commit message
     // and retrieve files
-    const QFileInfo editorFile(fileIFace->fileName());
+    const QFileInfo editorFile(editorDocument->fileName());
     const QFileInfo changeFile(m_commitMessageFileName);
     if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())
         return true; // Oops?!
@@ -504,7 +504,7 @@ bool CvsPlugin::submitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor)
     bool closeEditor = true;
     if (!fileList.empty()) {
         // get message & commit
-        closeEditor = FileManager::saveFile(fileIFace);
+        closeEditor = DocumentManager::saveDocument(editorDocument);
         if (closeEditor)
             closeEditor = commit(m_commitMessageFileName, fileList);
     }

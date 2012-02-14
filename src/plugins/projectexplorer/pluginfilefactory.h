@@ -33,7 +33,7 @@
 #ifndef PLUGINFILEFACTORY_H
 #define PLUGINFILEFACTORY_H
 
-#include <coreplugin/ifilefactory.h>
+#include <coreplugin/idocumentfactory.h>
 
 #include <QStringList>
 
@@ -44,7 +44,7 @@ class ProjectExplorerPlugin;
 
 namespace Internal {
 
-class ProjectFileFactory : public Core::IFileFactory
+class ProjectFileFactory : public Core::IDocumentFactory
 {
     Q_OBJECT
 
@@ -56,7 +56,7 @@ public:
     Core::Id id() const;
     QString displayName() const;
 
-    Core::IFile *open(const QString &fileName);
+    Core::IDocument *open(const QString &fileName);
 
     static QList<ProjectFileFactory*> createFactories(QString *filterString);
 

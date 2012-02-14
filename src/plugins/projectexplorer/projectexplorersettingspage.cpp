@@ -36,7 +36,7 @@
 #include "projectexplorer.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 
 #include <QLabel>
 #include <QCoreApplication>
@@ -185,8 +185,8 @@ QWidget *ProjectExplorerSettingsPage::createPage(QWidget *parent)
 {
     m_widget = new ProjectExplorerSettingsWidget(parent);
     m_widget->setSettings(ProjectExplorerPlugin::instance()->projectExplorerSettings());
-    m_widget->setProjectsDirectory(Core::FileManager::projectsDirectory());
-    m_widget->setUseProjectsDirectory(Core::FileManager::useProjectsDirectory());
+    m_widget->setProjectsDirectory(Core::DocumentManager::projectsDirectory());
+    m_widget->setUseProjectsDirectory(Core::DocumentManager::useProjectsDirectory());
     if (m_searchKeywords.isEmpty())
         m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
@@ -196,8 +196,8 @@ void ProjectExplorerSettingsPage::apply()
 {
     if (m_widget) {
         ProjectExplorerPlugin::instance()->setProjectExplorerSettings(m_widget->settings());
-        Core::FileManager::setProjectsDirectory(m_widget->projectsDirectory());
-        Core::FileManager::setUseProjectsDirectory(m_widget->useProjectsDirectory());
+        Core::DocumentManager::setProjectsDirectory(m_widget->projectsDirectory());
+        Core::DocumentManager::setUseProjectsDirectory(m_widget->useProjectsDirectory());
     }
 }
 

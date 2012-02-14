@@ -120,7 +120,7 @@ public:
     // Core::IEditor
     bool createNew(const QString &contents);
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    Core::IFile *file();
+    Core::IDocument *document();
     QString displayName() const;
     void setDisplayName(const QString &title);
     bool duplicateSupported() const;

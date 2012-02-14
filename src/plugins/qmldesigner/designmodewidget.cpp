@@ -276,9 +276,9 @@ void DesignModeWidget::toggleSidebars()
 void DesignModeWidget::showEditor(Core::IEditor *editor)
 {
     if (m_textEditor && editor)
-        if (m_textEditor->file()->fileName() != editor->file()->fileName()) {
+        if (m_textEditor->document()->fileName() != editor->document()->fileName()) {
             if (!m_keepNavigatorHistory)
-                addNavigatorHistoryEntry(editor->file()->fileName());
+                addNavigatorHistoryEntry(editor->document()->fileName());
             setupNavigatorHistory();
         }
 
@@ -299,7 +299,7 @@ void DesignModeWidget::showEditor(Core::IEditor *editor)
     TextEditor::ITextEditor *textEditor = 0;
 
     if (editor) {
-        fileName = editor->file()->fileName();
+        fileName = editor->document()->fileName();
         textEdit = qobject_cast<QPlainTextEdit*>(editor->widget());
         textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
         if (textEditor)
@@ -352,7 +352,7 @@ void DesignModeWidget::closeEditors(QList<Core::IEditor*> editors)
             }
             if (m_documentHash.contains(textEdit)) {
                 if (debug)
-                    qDebug() << Q_FUNC_INFO << editor->file()->fileName();
+                    qDebug() << Q_FUNC_INFO << editor->document()->fileName();
                 DesignDocumentController *document = m_documentHash.take(textEdit).data();
                 delete document;
             }

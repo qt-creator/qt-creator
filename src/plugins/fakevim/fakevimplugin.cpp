@@ -44,9 +44,9 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/openeditorsmodel.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/id.h>
 #include <coreplugin/statusbarwidget.h>
@@ -726,7 +726,7 @@ public:
 
         const int basePosition = interface->position() - needle.size();
 
-        QTextCursor tc(interface->document());
+        QTextCursor tc(interface->textDocument());
         tc.setPosition(interface->position());
         tc.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
 
@@ -1388,7 +1388,7 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
     connect(ICore::instance(), SIGNAL(saveSettingsRequested()),
         SLOT(writeSettings()));
 
-    handler->setCurrentFileName(editor->file()->fileName());
+    handler->setCurrentFileName(editor->document()->fileName());
     handler->installEventFilter();
 
     // pop up the bar
@@ -1495,9 +1495,9 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
         // :w[rite]
         Core::IEditor *editor = m_editorToHandler.key(handler);
         const QString fileName = handler->currentFileName();
-        if (editor && editor->file()->fileName() == fileName) {
+        if (editor && editor->document()->fileName() == fileName) {
             // Handle that as a special case for nicer interaction with core
-            FileManager::saveFile(editor->file());
+            DocumentManager::saveDocument(editor->document());
             // Check result by reading back.
             QFile file3(fileName);
             file3.open(QIODevice::ReadOnly);
@@ -1512,8 +1512,8 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
         }
     } else if (cmd.matches("wa", "wall")) {
         // :w[all]
-        QList<IFile *> toSave = FileManager::modifiedFiles();
-        QList<IFile *> failed = FileManager::saveModifiedFilesSilently(toSave);
+        QList<IDocument *> toSave = DocumentManager::modifiedDocuments();
+        QList<IDocument *> failed = DocumentManager::saveModifiedDocumentsSilently(toSave);
         if (failed.isEmpty())
             handler->showBlackMessage(tr("Saving succeeded"));
         else

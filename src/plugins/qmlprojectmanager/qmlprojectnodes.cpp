@@ -34,7 +34,7 @@
 #include "qmlprojectmanager.h"
 #include "qmlproject.h"
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/fileiconprovider.h>
 #include <projectexplorer/projectexplorer.h>
 
@@ -46,7 +46,7 @@
 namespace QmlProjectManager {
 namespace Internal {
 
-QmlProjectNode::QmlProjectNode(QmlProject *project, Core::IFile *projectFile)
+QmlProjectNode::QmlProjectNode(QmlProject *project, Core::IDocument *projectFile)
     : ProjectExplorer::ProjectNode(QFileInfo(projectFile->fileName()).absoluteFilePath()),
       m_project(project),
       m_projectFile(projectFile)
@@ -64,7 +64,7 @@ QmlProjectNode::QmlProjectNode(QmlProject *project, Core::IFile *projectFile)
 QmlProjectNode::~QmlProjectNode()
 { }
 
-Core::IFile *QmlProjectNode::projectFile() const
+Core::IDocument *QmlProjectNode::projectFile() const
 { return m_projectFile; }
 
 QString QmlProjectNode::projectFilePath() const

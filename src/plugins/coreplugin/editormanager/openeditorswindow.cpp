@@ -34,7 +34,7 @@
 #include "openeditorsmodel.h"
 #include "editormanager.h"
 #include "editorview.h"
-#include "ifile.h"
+#include "idocument.h"
 
 #include <utils/qtcassert.h>
 
@@ -44,7 +44,7 @@
 #include <QVBoxLayout>
 
 Q_DECLARE_METATYPE(Core::Internal::EditorView*)
-Q_DECLARE_METATYPE(Core::IFile *)
+Q_DECLARE_METATYPE(Core::IDocument*)
 
 using namespace Core;
 using namespace Core::Internal;
@@ -203,21 +203,21 @@ void OpenEditorsWindow::setEditors(EditorView *mainView, EditorView *view, OpenE
     m_editorList->clear();
     bool first = true;
 
-    QSet<IFile*> filesDone;
+    QSet<IDocument*> documentsDone;
     foreach (const EditLocation &hi, view->editorHistory()) {
-        if (hi.file.isNull() || filesDone.contains(hi.file))
+        if (hi.document.isNull() || documentsDone.contains(hi.document))
             continue;
-        QString title = model->displayNameForFile(hi.file);
+        QString title = model->displayNameForDocument(hi.document);
         QTC_ASSERT(!title.isEmpty(), continue;)
-        filesDone.insert(hi.file.data());
+        documentsDone.insert(hi.document.data());
         QTreeWidgetItem *item = new QTreeWidgetItem();
-        if (hi.file->isModified())
+        if (hi.document->isModified())
             title += tr("*");
-        item->setIcon(0, !hi.file->fileName().isEmpty() && hi.file->isReadOnly()
+        item->setIcon(0, !hi.document->fileName().isEmpty() && hi.document->isFileReadOnly()
                       ? model->lockedIcon() : m_emptyIcon);
         item->setText(0, title);
-        item->setToolTip(0, hi.file->fileName());
-        item->setData(0, Qt::UserRole, QVariant::fromValue(hi.file.data()));
+        item->setToolTip(0, hi.document->fileName());
+        item->setData(0, Qt::UserRole, QVariant::fromValue(hi.document.data()));
         item->setData(0, Qt::UserRole+1, QVariant::fromValue(view));
         item->setTextAlignment(0, Qt::AlignLeft);
 
@@ -232,20 +232,20 @@ void OpenEditorsWindow::setEditors(EditorView *mainView, EditorView *view, OpenE
     // add missing editors from the main view
     if (mainView != view) {
         foreach (const EditLocation &hi, mainView->editorHistory()) {
-            if (hi.file.isNull() || filesDone.contains(hi.file))
+            if (hi.document.isNull() || documentsDone.contains(hi.document))
                 continue;
-            filesDone.insert(hi.file.data());
+            documentsDone.insert(hi.document.data());
 
             QTreeWidgetItem *item = new QTreeWidgetItem();
 
-            QString title = model->displayNameForFile(hi.file);
-            if (hi.file->isModified())
+            QString title = model->displayNameForDocument(hi.document);
+            if (hi.document->isModified())
                 title += tr("*");
-            item->setIcon(0, !hi.file->fileName().isEmpty() && hi.file->isReadOnly()
+            item->setIcon(0, !hi.document->fileName().isEmpty() && hi.document->isFileReadOnly()
                           ? model->lockedIcon() : m_emptyIcon);
             item->setText(0, title);
-            item->setToolTip(0, hi.file->fileName());
-            item->setData(0, Qt::UserRole, QVariant::fromValue(hi.file.data()));
+            item->setToolTip(0, hi.document->fileName());
+            item->setData(0, Qt::UserRole, QVariant::fromValue(hi.document.data()));
             item->setData(0, Qt::UserRole+1, QVariant::fromValue(view));
             item->setData(0, Qt::UserRole+2, QVariant::fromValue(hi.id));
             item->setTextAlignment(0, Qt::AlignLeft);
@@ -280,9 +280,9 @@ void OpenEditorsWindow::selectEditor(QTreeWidgetItem *item)
 {
     if (!item)
         return;
-    if (IFile *file = item->data(0, Qt::UserRole).value<IFile*>()) {
+    if (IDocument *document = item->data(0, Qt::UserRole).value<IDocument*>()) {
         EditorView *view = item->data(0, Qt::UserRole+1).value<EditorView*>();
-        EditorManager::instance()->activateEditorForFile(view, file, EditorManager::ModeSwitch);
+        EditorManager::instance()->activateEditorForDocument(view, document, EditorManager::ModeSwitch);
     } else {
         if (!EditorManager::instance()->openEditor(
                     item->toolTip(0), item->data(0, Qt::UserRole+2).value<Core::Id>(),

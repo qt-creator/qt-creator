@@ -78,14 +78,14 @@ QString QmlJSEditorFactory::displayName() const
 }
 
 
-Core::IFile *QmlJSEditorFactory::open(const QString &fileName)
+Core::IDocument *QmlJSEditorFactory::open(const QString &fileName)
 {
     Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
     if (!iface) {
         qWarning() << "QmlEditorFactory::open: openEditor failed for " << fileName;
         return 0;
     }
-    return iface->file();
+    return iface->document();
 }
 
 Core::IEditor *QmlJSEditorFactory::createEditor(QWidget *parent)

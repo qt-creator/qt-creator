@@ -38,7 +38,7 @@
 #include "command_p.h"
 #include "commandsfile.h"
 #include "coreconstants.h"
-#include "filemanager.h"
+#include "documentmanager.h"
 #include "icore.h"
 #include "id.h"
 

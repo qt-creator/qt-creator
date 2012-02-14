@@ -278,7 +278,7 @@ void EditorView::setCurrentEditor(IEditor *editor)
 
     updateEditorHistory(editor);
 
-    m_infoBarDisplay->setInfoBar(editor->file()->infoBar());
+    m_infoBarDisplay->setInfoBar(editor->document()->infoBar());
 }
 
 int EditorView::editorCount() const
@@ -295,22 +295,22 @@ void EditorView::updateEditorHistory(IEditor *editor)
 {
     if (!editor)
         return;
-    IFile *file = editor->file();
+    IDocument *document = editor->document();
 
-    if (!file)
+    if (!document)
         return;
 
     QByteArray state = editor->saveState();
 
     EditLocation location;
-    location.file = file;
-    location.fileName = file->fileName();
+    location.document = document;
+    location.fileName = document->fileName();
     location.id = editor->id();
     location.state = QVariant(state);
 
     for(int i = 0; i < m_editorHistory.size(); ++i) {
-        if (m_editorHistory.at(i).file == 0
-            || m_editorHistory.at(i).file == file
+        if (m_editorHistory.at(i).document == 0
+            || m_editorHistory.at(i).document == document
             ){
             m_editorHistory.removeAt(i--);
             continue;
@@ -335,9 +335,9 @@ void EditorView::addCurrentPositionToNavigationHistory(IEditor *editor, const QB
         editor = currentEditor();
     if (!editor)
         return;
-    IFile *file = editor->file();
+    IDocument *document = editor->document();
 
-    if (!file)
+    if (!document)
         return;
 
     QByteArray state;
@@ -348,8 +348,8 @@ void EditorView::addCurrentPositionToNavigationHistory(IEditor *editor, const QB
     }
 
     EditLocation location;
-    location.file = file;
-    location.fileName = file->fileName();
+    location.document = document;
+    location.fileName = document->fileName();
     location.id = editor->id();
     location.state = QVariant(state);
     m_currentNavigationHistoryPosition = qMin(m_currentNavigationHistoryPosition, m_navigationHistory.size()); // paranoia
@@ -392,10 +392,10 @@ void EditorView::copyNavigationHistoryFrom(EditorView* other)
 void EditorView::updateCurrentPositionInNavigationHistory()
 {
     IEditor *editor = currentEditor();
-    if (!editor || !editor->file())
+    if (!editor || !editor->document())
         return;
 
-    IFile *file = editor->file();
+    IDocument *document = editor->document();
     EditLocation *location;
     if (m_currentNavigationHistoryPosition < m_navigationHistory.size()) {
         location = &m_navigationHistory[m_currentNavigationHistoryPosition];
@@ -403,8 +403,8 @@ void EditorView::updateCurrentPositionInNavigationHistory()
         m_navigationHistory.append(EditLocation());
         location = &m_navigationHistory[m_navigationHistory.size()-1];
     }
-    location->file = file;
-    location->fileName = file->fileName();
+    location->document = document;
+    location->fileName = document->fileName();
     location->id = editor->id();
     location->state = QVariant(editor->saveState());
 }
@@ -417,8 +417,8 @@ void EditorView::goBackInNavigationHistory()
         --m_currentNavigationHistoryPosition;
         EditLocation location = m_navigationHistory.at(m_currentNavigationHistoryPosition);
         IEditor *editor;
-        if (location.file) {
-            editor = em->activateEditorForFile(this, location.file,
+        if (location.document) {
+            editor = em->activateEditorForDocument(this, location.document,
                                         EditorManager::IgnoreNavigationHistory | EditorManager::ModeSwitch);
         } else {
             editor = em->openEditor(this, location.fileName, location.id,
@@ -443,8 +443,8 @@ void EditorView::goForwardInNavigationHistory()
     ++m_currentNavigationHistoryPosition;
     EditLocation location = m_navigationHistory.at(m_currentNavigationHistoryPosition);
     IEditor *editor;
-    if (location.file) {
-        editor = em->activateEditorForFile(this, location.file,
+    if (location.document) {
+        editor = em->activateEditorForDocument(this, location.document,
                                     EditorManager::IgnoreNavigationHistory | EditorManager::ModeSwitch);
     } else {
         editor = em->openEditor(this, location.fileName, location.id, EditorManager::IgnoreNavigationHistory);
@@ -801,11 +801,11 @@ QByteArray SplitterOrView::saveState() const
         EditorManager *em = ICore::editorManager();
 
         // don't save state of temporary or ad-hoc editors
-        if (e && (e->isTemporary() || e->file()->fileName().isEmpty())) {
+        if (e && (e->isTemporary() || e->document()->fileName().isEmpty())) {
             // look for another editor that is more suited
             e = 0;
             foreach (IEditor *otherEditor, editors()) {
-                if (!otherEditor->isTemporary() && !otherEditor->file()->fileName().isEmpty()) {
+                if (!otherEditor->isTemporary() && !otherEditor->document()->fileName().isEmpty()) {
                     e = otherEditor;
                     break;
                 }
@@ -816,10 +816,10 @@ QByteArray SplitterOrView::saveState() const
             stream << QByteArray("empty");
         } else if (e == em->currentEditor()) {
             stream << QByteArray("currenteditor")
-                    << e->file()->fileName() << e->id().toString() << e->saveState();
+                    << e->document()->fileName() << e->id().toString() << e->saveState();
         } else {
             stream << QByteArray("editor")
-                    << e->file()->fileName() << e->id().toString() << e->saveState();
+                    << e->document()->fileName() << e->id().toString() << e->saveState();
         }
     }
     return bytes;

@@ -23,7 +23,6 @@ SOURCES += mainwindow.cpp \
     fancyactionbar.cpp \
     fancytabwidget.cpp \
     generalsettings.cpp \
-    filemanager.cpp \
     id.cpp \
     messagemanager.cpp \
     messageoutputwindow.cpp \
@@ -71,7 +70,6 @@ SOURCES += mainwindow.cpp \
     fileiconprovider.cpp \
     mimedatabase.cpp \
     icore.cpp \
-    ifile.cpp \
     infobar.cpp \
     editormanager/ieditor.cpp \
     dialogs/ioptionspage.cpp \
@@ -94,8 +92,10 @@ SOURCES += mainwindow.cpp \
     mimetypesettings.cpp \
     dialogs/promptoverwritedialog.cpp \
     fileutils.cpp \
-    textfile.cpp \
-    featureprovider.cpp
+    featureprovider.cpp \
+    idocument.cpp \
+    textdocument.cpp \
+    documentmanager.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -103,7 +103,6 @@ HEADERS += mainwindow.h \
     fancyactionbar.h \
     fancytabwidget.h \
     generalsettings.h \
-    filemanager.h \
     id.h \
     messagemanager.h \
     messageoutputwindow.h \
@@ -141,9 +140,7 @@ HEADERS += mainwindow.h \
     progressmanager/progressmanager.h \
     icontext.h \
     icore.h \
-    ifile.h \
     infobar.h \
-    ifilefactory.h \
     imode.h \
     ioutputpane.h \
     coreconstants.h \
@@ -190,9 +187,12 @@ HEADERS += mainwindow.h \
     dialogs/promptoverwritedialog.h \
     fileutils.h \
     externaltoolmanager.h \
-    textfile.h \
     generatedfile.h \
-    featureprovider.h
+    featureprovider.h \
+    idocument.h \
+    idocumentfactory.h \
+    textdocument.h \
+    documentmanager.h
 
 FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \

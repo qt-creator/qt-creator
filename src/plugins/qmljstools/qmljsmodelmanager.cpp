@@ -209,7 +209,7 @@ ModelManagerInterface::WorkingCopy ModelManager::workingCopy() const
         return workingCopy;
 
     foreach (Core::IEditor *editor, Core::ICore::editorManager()->openedEditors()) {
-        const QString key = editor->file()->fileName();
+        const QString key = editor->document()->fileName();
 
         if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor)) {
             if (textEditor->context().contains(ProjectExplorer::Constants::LANG_QMLJS)) {

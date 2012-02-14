@@ -35,7 +35,7 @@
 #include "deployablefilesperprofile.h"
 #include "profilesupdatedialog.h"
 
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <qt4projectmanager/qt4nodes.h>
 #include <utils/fileutils.h>

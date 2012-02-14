@@ -174,11 +174,11 @@ void BauhausPlugin::createDesignModeWidget()
 
     //Save
     actionManager->registerAction(m_saveAction, Core::Constants::SAVE, qmlDesignerMainContext);
-    connect(m_saveAction, SIGNAL(triggered()), m_editorManager, SLOT(saveFile()));
+    connect(m_saveAction, SIGNAL(triggered()), m_editorManager, SLOT(saveDocument()));
 
     //Save As
     actionManager->registerAction(m_saveAsAction, Core::Constants::SAVEAS, qmlDesignerMainContext);
-    connect(m_saveAsAction, SIGNAL(triggered()), m_editorManager, SLOT(saveFileAs()));
+    connect(m_saveAsAction, SIGNAL(triggered()), m_editorManager, SLOT(saveDocumentAs()));
 
     //Close Editor
     actionManager->registerAction(m_closeCurrentEditorAction, Core::Constants::CLOSE, qmlDesignerMainContext);
@@ -326,19 +326,19 @@ void BauhausPlugin::updateActions(Core::IEditor* editor)
 
     QString fName;
     if (curEditor) {
-        if (!curEditor->file()->fileName().isEmpty()) {
-            QFileInfo fi(curEditor->file()->fileName());
+        if (!curEditor->document()->fileName().isEmpty()) {
+            QFileInfo fi(curEditor->document()->fileName());
             fName = fi.fileName();
         } else {
             fName = curEditor->displayName();
         }
     }
 
-    m_saveAction->setEnabled(curEditor != 0 && curEditor->file()->isModified());
-    m_saveAsAction->setEnabled(curEditor != 0 && curEditor->file()->isSaveAsAllowed());
+    m_saveAction->setEnabled(curEditor != 0 && curEditor->document()->isModified());
+    m_saveAsAction->setEnabled(curEditor != 0 && curEditor->document()->isSaveAsAllowed());
     m_revertToSavedAction->setEnabled(curEditor != 0
-                                      && !curEditor->file()->fileName().isEmpty()
-                                      && curEditor->file()->isModified());
+                                      && !curEditor->document()->fileName().isEmpty()
+                                      && curEditor->document()->isModified());
 
     QString quotedName;
     if (!fName.isEmpty())

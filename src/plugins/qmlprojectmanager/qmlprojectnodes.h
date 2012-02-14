@@ -39,7 +39,7 @@
 #include <QHash>
 
 namespace Core {
-class IFile;
+class IDocument;
 }
 
 namespace QmlProjectManager {
@@ -51,10 +51,10 @@ namespace Internal {
 class QmlProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
-    QmlProjectNode(QmlProject *project, Core::IFile *projectFile);
+    QmlProjectNode(QmlProject *project, Core::IDocument *projectFile);
     virtual ~QmlProjectNode();
 
-    Core::IFile *projectFile() const;
+    Core::IDocument *projectFile() const;
     QString projectFilePath() const;
 
     virtual bool hasBuildTargets() const;
@@ -91,7 +91,7 @@ private:
 
 private:
     QmlProject *m_project;
-    Core::IFile *m_projectFile;
+    Core::IDocument *m_projectFile;
     QHash<QString, FolderNode *> m_folderByName;
 };
 

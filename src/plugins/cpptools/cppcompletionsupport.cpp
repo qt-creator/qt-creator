@@ -35,7 +35,7 @@
 #include "cppmodelmanager.h"
 #include "cpptoolseditorsupport.h"
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <projectexplorer/project.h>
 #include <texteditor/codeassist/iassistinterface.h>
 
@@ -64,7 +64,7 @@ TextEditor::IAssistInterface *CppCompletionSupport::createAssistInterface(Projec
     return new CppTools::Internal::CppCompletionAssistInterface(
                 document,
                 position,
-                m_editorSupport->textEditor()->file(),
+                m_editorSupport->textEditor()->document(),
                 reason,
                 modelManager->snapshot(),
                 includePaths,

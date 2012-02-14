@@ -43,7 +43,7 @@
 #include <glsl/glslsymbols.h>
 #include <glsl/glslastdump.h>
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 #include <texteditor/completionsettings.h>
 #include <texteditor/codeassist/basicproposalitem.h>
 #include <texteditor/codeassist/basicproposalitemlistmodel.h>
@@ -239,7 +239,7 @@ IAssistProposal *GLSLCompletionAssistProcessor::perform(const IAssistInterface *
     bool functionCall = (ch == QLatin1Char('(') && pos == m_interface->position() - 1);
 
     if (ch == QLatin1Char(',')) {
-        QTextCursor tc(m_interface->document());
+        QTextCursor tc(m_interface->textDocument());
         tc.setPosition(pos);
         const int start = expressionUnderCursor.startOfFunctionCall(tc);
         if (start == -1)
@@ -254,7 +254,7 @@ IAssistProposal *GLSLCompletionAssistProcessor::perform(const IAssistInterface *
 
     if (ch == QLatin1Char('.') || functionCall) {
         const bool memberCompletion = ! functionCall;
-        QTextCursor tc(m_interface->document());
+        QTextCursor tc(m_interface->textDocument());
         tc.setPosition(pos);
 
         // get the expression under cursor
@@ -465,13 +465,13 @@ void GLSLCompletionAssistProcessor::addCompletion(const QString &text,
 // -----------------------------
 // GLSLCompletionAssistInterface
 // -----------------------------
-GLSLCompletionAssistInterface::GLSLCompletionAssistInterface(QTextDocument *document,
+GLSLCompletionAssistInterface::GLSLCompletionAssistInterface(QTextDocument *textDocument,
                                                              int position,
-                                                             Core::IFile *file,
+                                                             Core::IDocument *document,
                                                              TextEditor::AssistReason reason,
                                                              const QString &mimeType,
                                                              const Document::Ptr &glslDoc)
-    : DefaultAssistInterface(document, position, file, reason)
+    : DefaultAssistInterface(textDocument, position, document, reason)
     , m_mimeType(mimeType)
     , m_glslDoc(glslDoc)
 {

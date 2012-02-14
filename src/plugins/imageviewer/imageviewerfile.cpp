@@ -54,7 +54,7 @@ struct ImageViewerFilePrivate
 };
 
 ImageViewerFile::ImageViewerFile(ImageViewer *parent)
-    : Core::IFile(parent),
+    : Core::IDocument(parent),
     d(new ImageViewerFilePrivate)
 {
     d->editor = parent;
@@ -66,8 +66,8 @@ ImageViewerFile::~ImageViewerFile()
 }
 
 bool ImageViewerFile::reload(QString *errorString,
-                             Core::IFile::ReloadFlag flag,
-                             Core::IFile::ChangeType type)
+                             Core::IDocument::ReloadFlag flag,
+                             Core::IDocument::ChangeType type)
 {
     if (flag == FlagIgnore)
         return true;

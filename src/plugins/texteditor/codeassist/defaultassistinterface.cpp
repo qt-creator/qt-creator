@@ -40,37 +40,37 @@
 
 using namespace TextEditor;
 
-DefaultAssistInterface::DefaultAssistInterface(QTextDocument *document,
+DefaultAssistInterface::DefaultAssistInterface(QTextDocument *textDocument,
                                                int position,
-                                               Core::IFile *file,
+                                               Core::IDocument *document,
                                                AssistReason reason)
-    : m_document(document)
+    : m_textDocument(textDocument)
     , m_detached(false)
     , m_position(position)
-    , m_file(file)
+    , m_document(document)
     , m_reason(reason)
 {}
 
 DefaultAssistInterface::~DefaultAssistInterface()
 {
     if (m_detached)
-        delete m_document;
+        delete m_textDocument;
 }
 
 QChar DefaultAssistInterface::characterAt(int position) const
 {
-    return m_document->characterAt(position);
+    return m_textDocument->characterAt(position);
 }
 
 QString DefaultAssistInterface::textAt(int pos, int length) const
 {
-    return Convenience::textAt(QTextCursor(m_document), pos, length);
+    return Convenience::textAt(QTextCursor(m_textDocument), pos, length);
 }
 
 void DefaultAssistInterface::detach(QThread *destination)
 {
-    m_document = m_document->clone();
-    m_document->moveToThread(destination);
+    m_textDocument = m_textDocument->clone();
+    m_textDocument->moveToThread(destination);
     m_detached = true;
 }
 

@@ -808,7 +808,7 @@ void QmlJSTextEditorWidget::reparseDocumentNow()
 {
     m_updateDocumentTimer->stop();
 
-    const QString fileName = file()->fileName();
+    const QString fileName = editorDocument()->fileName();
     m_modelManager->updateSourceFiles(QStringList() << fileName, false);
 }
 
@@ -889,7 +889,7 @@ static void appendExtraSelectionsForMessages(
 
 void QmlJSTextEditorWidget::onDocumentUpdated(QmlJS::Document::Ptr doc)
 {
-    if (file()->fileName() != doc->fileName())
+    if (editorDocument()->fileName() != doc->fileName())
         return;
 
     if (doc->editorRevision() != editorRevision()) {
@@ -918,7 +918,7 @@ void QmlJSTextEditorWidget::onDocumentUpdated(QmlJS::Document::Ptr doc)
 void QmlJSTextEditorWidget::modificationChanged(bool changed)
 {
     if (!changed && m_modelManager)
-        m_modelManager->fileChangedOnDisk(file()->fileName());
+        m_modelManager->fileChangedOnDisk(editorDocument()->fileName());
 }
 
 void QmlJSTextEditorWidget::jumpToOutlineElement(int /*index*/)
@@ -1301,7 +1301,7 @@ void QmlJSTextEditorWidget::createToolBar(QmlJSEditorEditable *editor)
     connect(m_outlineCombo, SIGNAL(activated(int)), this, SLOT(jumpToOutlineElement(int)));
     connect(this, SIGNAL(cursorPositionChanged()), m_updateOutlineIndexTimer, SLOT(start()));
 
-    connect(file(), SIGNAL(changed()), this, SLOT(updateFileName()));
+    connect(editorDocument(), SIGNAL(changed()), this, SLOT(updateFileName()));
 
     editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_outlineCombo);
 }
@@ -1394,12 +1394,12 @@ void QmlJSTextEditorWidget::followSymbolUnderCursor()
 
 void QmlJSTextEditorWidget::findUsages()
 {
-    m_findReferences->findUsages(file()->fileName(), textCursor().position());
+    m_findReferences->findUsages(editorDocument()->fileName(), textCursor().position());
 }
 
 void QmlJSTextEditorWidget::renameUsages()
 {
-    m_findReferences->renameUsages(file()->fileName(), textCursor().position());
+    m_findReferences->renameUsages(editorDocument()->fileName(), textCursor().position());
 }
 
 void QmlJSTextEditorWidget::showContextPane()
@@ -1680,7 +1680,7 @@ TextEditor::IAssistInterface *QmlJSTextEditorWidget::createAssistInterface(
     if (assistKind == TextEditor::Completion) {
         return new QmlJSCompletionAssistInterface(document(),
                                                   position(),
-                                                  editor()->file(),
+                                                  editor()->document(),
                                                   reason,
                                                   m_semanticInfo);
     } else if (assistKind == TextEditor::QuickFix) {

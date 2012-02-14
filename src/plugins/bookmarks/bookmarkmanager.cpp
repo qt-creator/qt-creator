@@ -393,7 +393,7 @@ void BookmarkManager::toggleBookmark()
     if (!editor)
         return;
 
-    toggleBookmark(editor->file()->fileName(), editor->currentLine());
+    toggleBookmark(editor->document()->fileName(), editor->currentLine());
 }
 
 void BookmarkManager::toggleBookmark(const QString &fileName, int lineNumber)
@@ -508,7 +508,7 @@ void BookmarkManager::documentPrevNext(bool next)
 {
     TextEditor::ITextEditor *editor = currentTextEditor();
     int editorLine = editor->currentLine();
-    QFileInfo fi(editor->file()->fileName());
+    QFileInfo fi(editor->document()->fileName());
     if (!m_bookmarksMap.contains(fi.path()))
         return;
 
@@ -615,7 +615,7 @@ BookmarkManager::State BookmarkManager::state() const
     if (!editor)
         return HasBookMarks;
 
-    const QFileInfo fi(editor->file()->fileName());
+    const QFileInfo fi(editor->document()->fileName());
 
     const DirectoryFileBookmarksMap::const_iterator dit = m_bookmarksMap.constFind(fi.path());
     if (dit == m_bookmarksMap.constEnd())
@@ -757,8 +757,8 @@ void BookmarkManager::handleBookmarkRequest(TextEditor::ITextEditor *textEditor,
                                             int line,
                                             TextEditor::ITextEditor::MarkRequestKind kind)
 {
-    if (kind == TextEditor::ITextEditor::BookmarkRequest && textEditor->file())
-        toggleBookmark(textEditor->file()->fileName(), line);
+    if (kind == TextEditor::ITextEditor::BookmarkRequest && textEditor->document())
+        toggleBookmark(textEditor->document()->fileName(), line);
 }
 
 // BookmarkViewFactory

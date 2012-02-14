@@ -33,12 +33,12 @@
 #ifndef SUBMITEDITORFILE_H
 #define SUBMITEDITORFILE_H
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/idocument.h>
 
 namespace VcsBase {
 namespace Internal {
 
-class SubmitEditorFile : public Core::IFile
+class SubmitEditorFile : public Core::IDocument
 {
     Q_OBJECT
 public:

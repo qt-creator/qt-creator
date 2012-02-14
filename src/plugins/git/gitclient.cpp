@@ -49,7 +49,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/id.h>
-#include <coreplugin/filemanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/variablemanager.h>
 
@@ -298,7 +298,7 @@ private:
 Core::IEditor *locateEditor(const char *property, const QString &entry)
 {
     foreach (Core::IEditor *ed, Core::ICore::editorManager()->openedEditors())
-        if (ed->file()->property(property).toString() == entry)
+        if (ed->document()->property(property).toString() == entry)
             return ed;
     return 0;
 }
@@ -428,7 +428,7 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(const Core::Id &id,
 
     // Create new, set wait message, set up with source and codec
     Core::IEditor *outputEditor = Core::ICore::editorManager()->openEditorWithContents(id, &title, m_msgWait);
-    outputEditor->file()->setProperty(registerDynamicProperty, dynamicPropertyValue);
+    outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
     rc = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
     connect(rc, SIGNAL(annotateRevisionRequested(QString,QString,int)),
             this, SLOT(slotBlameRevisionRequested(QString,QString,int)));
