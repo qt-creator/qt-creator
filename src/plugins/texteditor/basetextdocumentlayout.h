@@ -82,7 +82,6 @@ public:
     void addMark(ITextMark *mark);
     inline bool removeMark(ITextMark *mark) { return m_marks.removeAll(mark); }
 
-    inline void clearMarks() { m_marks.clear(); }
     inline void documentClosing() { m_marks.clear(); }
 
     inline void setFolded(bool b) { m_folded = b; }
