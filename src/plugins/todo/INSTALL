@@ -1,0 +1,7 @@
+Installation.
+1. Download QtCreator sources.
+2. Build QtCreator from sources or download and install binary.
+3. Change todoplugin.pro, You need QTC_BUILD_DIR set to your path to qtcreator binary and set QTC_SOURCE_DIR your path to qtcreator source 
+4. Build plugin:
+    qmake
+    make
