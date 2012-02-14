@@ -73,7 +73,6 @@ public:
     virtual void updateLineNumber(int lineNumber);
     virtual void updateBlock(const QTextBlock &block);
     virtual void removedFromEditor();
-    virtual void documentClosing();
     void setIcon(const QIcon &icon);
     Priority priority() const;
     void setPriority(Priority prioriy);

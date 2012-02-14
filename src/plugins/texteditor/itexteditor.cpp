@@ -59,9 +59,6 @@ void ITextMark::updateBlock(const QTextBlock &)
 void ITextMark::removedFromEditor()
 {}
 
-void ITextMark::documentClosing()
-{}
-
 void ITextMark::setIcon(const QIcon &icon)
 {
     m_icon = icon;
