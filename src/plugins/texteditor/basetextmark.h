@@ -82,6 +82,7 @@ public:
     BaseTextMarkRegistry(QObject *parent);
 
     void add(BaseTextMark *mark);
+    void remove(BaseTextMark *mark);
 private slots:
     void editorOpened(Core::IEditor *editor);
     void documentReloaded();

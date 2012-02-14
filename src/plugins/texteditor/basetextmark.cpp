@@ -69,6 +69,11 @@ void BaseTextMarkRegistry::add(BaseTextMark *mark)
     }
 }
 
+void BaseTextMarkRegistry::remove(BaseTextMark *mark)
+{
+    m_marks[Utils::FileName::fromString(mark->fileName())].removeOne(mark);
+}
+
 void BaseTextMarkRegistry::editorOpened(Core::IEditor *editor)
 {
     ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
@@ -120,6 +125,7 @@ BaseTextMark::~BaseTextMark()
     if (m_markableInterface)
         m_markableInterface.data()->removeMark(this);
     m_markableInterface.clear();
+    Internal::TextEditorPlugin::instance()->baseTextMarkRegistry()->remove(this);
 }
 
 void BaseTextMark::updateMarker()
