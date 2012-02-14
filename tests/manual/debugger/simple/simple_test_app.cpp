@@ -63,7 +63,7 @@
 // a test after a BREAK_HERE failed
 // Default: 0
 #ifndef USE_AUTORUN
-#define USE_AUTORUN 2
+#define USE_AUTORUN 0
 #endif
 
 // With USE_AUTOBREAK, the debugger will stop automatically on all
