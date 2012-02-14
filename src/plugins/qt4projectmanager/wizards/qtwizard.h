@@ -144,6 +144,8 @@ public:
     bool setupProject(Qt4Project *project) const;
     bool isTargetSelected(const QString &targetid) const;
 
+    void addExtensionPages(const QList<QWizardPage *> &wizardPageList);
+
 private slots:
     void generateProfileName(const QString &name, const QString &path);
 

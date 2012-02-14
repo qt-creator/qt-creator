@@ -72,6 +72,7 @@ BaseProjectWizardDialog::BaseProjectWizardDialog(QWidget *parent,
     Utils::Wizard(parent),
     d(new BaseProjectWizardDialogPrivate(new Utils::ProjectIntroPage))
 {
+    setPath(parameters.defaultPath());
     setSelectedPlatform(parameters.selectedPlatform());
     setRequiredFeatures(parameters.requiredFeatures());
     init();
@@ -84,6 +85,7 @@ BaseProjectWizardDialog::BaseProjectWizardDialog(Utils::ProjectIntroPage *introP
     Utils::Wizard(parent),
     d(new BaseProjectWizardDialogPrivate(introPage, introId))
 {
+    setPath(parameters.defaultPath());
     setSelectedPlatform(parameters.selectedPlatform());
     setRequiredFeatures(parameters.requiredFeatures());
     init();
@@ -169,6 +171,12 @@ QString BaseProjectWizardDialog::uniqueProjectName(const QString &path)
             return name;
     }
     return prefix;
+}
+
+void BaseProjectWizardDialog::addExtensionPages(const QList<QWizardPage *> &wizardPageList)
+{
+    foreach (QWizardPage *p,wizardPageList)
+        Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
 }
 
 QString BaseProjectWizardDialog::selectedPlatform() const

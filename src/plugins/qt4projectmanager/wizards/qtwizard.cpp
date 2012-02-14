@@ -320,6 +320,12 @@ bool BaseQt4ProjectWizardDialog::isTargetSelected(const QString &targetid) const
     return m_targetSetupPage->isTargetSelected(targetid);
 }
 
+void BaseQt4ProjectWizardDialog::addExtensionPages(const QList<QWizardPage *> &wizardPageList)
+{
+    foreach (QWizardPage *p,wizardPageList)
+        Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
+}
+
 void BaseQt4ProjectWizardDialog::generateProfileName(const QString &name, const QString &path)
 {
     const QString proFile =

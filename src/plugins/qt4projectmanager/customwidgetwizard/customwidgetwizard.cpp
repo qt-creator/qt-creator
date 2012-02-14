@@ -67,7 +67,6 @@ QWizard *CustomWidgetWizard::createWizardDialog(QWidget *parent,
                                                                 icon(),
                                                                 parent,
                                                                 wizardDialogParameters);
-    rc->setPath(wizardDialogParameters.defaultPath());
     rc->setProjectName(CustomWidgetWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
     rc->setFileNamingParameters(FileNamingParameters(headerSuffix(), sourceSuffix(), QtWizard::lowerCaseFiles()));
     return rc;

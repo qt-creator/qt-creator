@@ -120,7 +120,6 @@ QWizard *GuiAppWizard::createWizardDialog(QWidget *parent,
                                                         showModulesPageForApplications(),
                                                         m_createMobileProject,
                                                         parent, wizardDialogParameters);
-    dialog->setPath(wizardDialogParameters.defaultPath());
     dialog->setProjectName(GuiAppWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
     // Order! suffixes first to generate files correctly
     dialog->setLowerCaseFiles(QtWizard::lowerCaseFiles());

@@ -72,7 +72,6 @@ QWizard *ConsoleAppWizard::createWizardDialog(QWidget *parent,
 {
     ConsoleAppWizardDialog *dialog = new ConsoleAppWizardDialog(displayName(), icon(),
                                                                 showModulesPageForApplications(), parent, wizardDialogParameters);
-    dialog->setPath(wizardDialogParameters.defaultPath());
     dialog->setProjectName(ConsoleAppWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
     return dialog;
 }

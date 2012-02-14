@@ -63,7 +63,6 @@ QWizard *TestWizard::createWizardDialog(QWidget *parent,
                                         const Core::WizardDialogParameters &wizardDialogParameters) const
 {
     TestWizardDialog *dialog = new TestWizardDialog(displayName(), icon(), parent, wizardDialogParameters);
-    dialog->setPath(wizardDialogParameters.defaultPath());
     dialog->setProjectName(TestWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
     return dialog;
 }

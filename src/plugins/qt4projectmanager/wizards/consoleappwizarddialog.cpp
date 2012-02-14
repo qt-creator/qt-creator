@@ -57,8 +57,7 @@ ConsoleAppWizardDialog::ConsoleAppWizardDialog(const QString &templateName,
     addModulesPage();
     addTargetSetupPage();
 
-    foreach (QWizardPage *p, parameters.extensionPages())
-        Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
+    addExtensionPages(parameters.extensionPages());
 }
 
 QtProjectParameters ConsoleAppWizardDialog::parameters() const

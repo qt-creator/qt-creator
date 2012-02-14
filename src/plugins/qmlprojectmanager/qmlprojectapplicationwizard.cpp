@@ -93,11 +93,9 @@ QWizard *QmlProjectApplicationWizard::createWizardDialog(QWidget *parent,
 {
     QmlProjectApplicationWizardDialog *wizard = new QmlProjectApplicationWizardDialog(parent, wizardDialogParameters);
 
-    wizard->setPath(wizardDialogParameters.defaultPath());
     wizard->setProjectName(QmlProjectApplicationWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
 
-    foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
-        BaseFileWizard::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
+    wizard->addExtensionPages(wizardDialogParameters.extensionPages());
 
     return wizard;
 }

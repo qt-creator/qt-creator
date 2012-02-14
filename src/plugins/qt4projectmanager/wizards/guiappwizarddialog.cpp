@@ -73,8 +73,7 @@ GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
     const int filesPageId = addPage(m_filesPage);
     wizardProgress()->item(filesPageId)->setTitle(tr("Details"));
 
-    foreach (QWizardPage *p, parameters.extensionPages())
-        Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
+    addExtensionPages(parameters.extensionPages());
 }
 
 void GuiAppWizardDialog::setBaseClasses(const QStringList &baseClasses)
