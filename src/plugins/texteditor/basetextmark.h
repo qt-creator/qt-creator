@@ -61,6 +61,8 @@ public:
     BaseTextMark(const QString &fileName, int lineNumber);
     virtual ~BaseTextMark();
 
+    void updateLineNumber(int lineNumber);
+
     // call this if the icon has changed.
     void updateMarker();
 

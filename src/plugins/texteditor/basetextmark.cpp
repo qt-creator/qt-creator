@@ -128,6 +128,11 @@ BaseTextMark::~BaseTextMark()
     Internal::TextEditorPlugin::instance()->baseTextMarkRegistry()->remove(this);
 }
 
+void BaseTextMark::updateLineNumber(int lineNumber)
+{
+    m_line = lineNumber;
+}
+
 void BaseTextMark::updateMarker()
 {
     if (m_markableInterface)

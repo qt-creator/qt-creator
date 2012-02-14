@@ -62,6 +62,7 @@ void Bookmark::updateLineNumber(int lineNumber)
         m_lineNumber = lineNumber;
         m_manager->updateBookmark(this);
     }
+    BaseTextMark::updateLineNumber(lineNumber);
 }
 
 void Bookmark::updateBlock(const QTextBlock &block)

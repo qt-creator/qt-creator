@@ -56,6 +56,7 @@ private:
 void TaskMark::updateLineNumber(int lineNumber)
 {
     ProjectExplorerPlugin::instance()->taskHub()->updateTaskLineNumber(m_id, lineNumber);
+    BaseTextMark::updateLineNumber(lineNumber);
 }
 
 void TaskMark::removedFromEditor()
