@@ -211,6 +211,8 @@ public:
 
     QSizeF documentSize() const;
 
+    void updateMarksLineNumber();
+    void updateMarksBlock(const QTextBlock &block);
 };
 
 } // namespace TextEditor

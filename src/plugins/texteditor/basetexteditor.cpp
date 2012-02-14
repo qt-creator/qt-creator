@@ -675,20 +675,21 @@ void BaseTextEditorWidget::editorContentsChange(int position, int charsRemoved, 
 
     d->m_contentsChanged = true;
     QTextDocument *doc = document();
+    BaseTextDocumentLayout *documentLayout = static_cast<BaseTextDocumentLayout*>(doc->documentLayout());
 
     // Keep the line numbers and the block information for the text marks updated
     if (charsRemoved != 0) {
-        d->updateMarksLineNumber();
-        d->updateMarksBlock(document()->findBlock(position));
+        documentLayout->updateMarksLineNumber();
+        documentLayout->updateMarksBlock(document()->findBlock(position));
     } else {
         const QTextBlock posBlock = doc->findBlock(position);
         const QTextBlock nextBlock = doc->findBlock(position + charsAdded);
         if (posBlock != nextBlock) {
-            d->updateMarksLineNumber();
-            d->updateMarksBlock(posBlock);
-            d->updateMarksBlock(nextBlock);
+            documentLayout->updateMarksLineNumber();
+            documentLayout->updateMarksBlock(posBlock);
+            documentLayout->updateMarksBlock(nextBlock);
         } else {
-            d->updateMarksBlock(posBlock);
+            documentLayout->updateMarksBlock(posBlock);
         }
     }
 
@@ -4821,28 +4822,6 @@ void BaseTextEditorWidget::clearLink()
     viewport()->setCursor(Qt::IBeamCursor);
     d->m_currentLink = Link();
     d->m_linkPressed = false;
-}
-
-void BaseTextEditorPrivate::updateMarksBlock(const QTextBlock &block)
-{
-    if (const TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(block))
-        foreach (ITextMark *mrk, userData->marks())
-            mrk->updateBlock(block);
-}
-
-void BaseTextEditorPrivate::updateMarksLineNumber()
-{
-    QTextDocument *doc = q->document();
-    QTextBlock block = doc->begin();
-    int blockNumber = 0;
-    while (block.isValid()) {
-        if (const TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(block))
-            foreach (ITextMark *mrk, userData->marks()) {
-                mrk->updateLineNumber(blockNumber + 1);
-            }
-        block = block.next();
-        ++blockNumber;
-    }
 }
 
 void BaseTextEditorWidget::markBlocksAsChanged(QList<int> blockNumbers)

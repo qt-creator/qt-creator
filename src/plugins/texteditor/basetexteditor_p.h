@@ -233,8 +233,6 @@ public:
     void foldLicenseHeader();
 
     QBasicTimer autoScrollTimer;
-    void updateMarksLineNumber();
-    void updateMarksBlock(const QTextBlock &block);
     uint m_marksVisible : 1;
     uint m_codeFoldingVisible : 1;
     uint m_codeFoldingSupported : 1;
