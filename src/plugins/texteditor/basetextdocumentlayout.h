@@ -81,7 +81,7 @@ public:
     inline TextMarks marks() const { return m_marks; }
     void addMark(ITextMark *mark);
     inline bool removeMark(ITextMark *mark) { return m_marks.removeAll(mark); }
-    inline bool hasMark(ITextMark *mark) const { return m_marks.contains(mark); }
+
     inline void clearMarks() { m_marks.clear(); }
     inline void documentClosing() { Q_FOREACH(ITextMark *tm, m_marks) { tm->documentClosing(); } m_marks.clear();}
 

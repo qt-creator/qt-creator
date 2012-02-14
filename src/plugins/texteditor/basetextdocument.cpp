@@ -74,7 +74,6 @@ public:
     bool addMark(ITextMark *mark, int line);
     TextMarks marksAt(int line) const;
     void removeMark(ITextMark *mark);
-    bool hasMark(ITextMark *mark) const;
     void updateMark(ITextMark *mark);
 
 private:
@@ -154,19 +153,6 @@ void DocumentMarker::removeMark(TextEditor::ITextMark *mark)
         documentLayout->maxMarkWidthFactor = recalculateMaxMarkWidthFactor();
         updateMark(0);
     }
-}
-
-bool DocumentMarker::hasMark(TextEditor::ITextMark *mark) const
-{
-    QTextBlock block = document->begin();
-    while (block.isValid()) {
-        if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData())) {
-            if (data->hasMark(mark))
-                return true;
-        }
-        block = block.next();
-    }
-    return false;
 }
 
 void DocumentMarker::updateMark(ITextMark *mark)

@@ -97,7 +97,6 @@ public:
     virtual bool addMark(ITextMark *mark, int line) = 0;
     virtual TextMarks marksAt(int line) const = 0;
     virtual void removeMark(ITextMark *mark) = 0;
-    virtual bool hasMark(ITextMark *mark) const = 0;
     virtual void updateMark(ITextMark *mark) = 0;
 };
 
