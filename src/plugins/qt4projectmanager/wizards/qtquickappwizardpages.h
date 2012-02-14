@@ -48,15 +48,8 @@ public:
     explicit QtQuickComponentSetOptionsPage(QWidget *parent = 0);
     virtual ~QtQuickComponentSetOptionsPage();
 
-    QtQuickApp::Mode mainQmlMode() const;
     QString mainQmlFile() const;
     virtual bool isComplete() const;
-
-    QtQuickApp::ComponentSet componentSet() const;
-    void setComponentSet(QtQuickApp::ComponentSet componentSet);
-
-private slots:
-    void radioButtonChecked(int index);
 
 private:
     class QtQuickComponentSetOptionsPagePrivate *d;

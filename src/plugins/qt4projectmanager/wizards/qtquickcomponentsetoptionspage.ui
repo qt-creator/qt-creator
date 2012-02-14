@@ -18,170 +18,23 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QRadioButton" name="qtquick10RadioButton">
-     <property name="text">
-      <string>Built-in elements only (for all platforms)</string>
-     </property>
-     <property name="checked">
+    <widget class="Utils::PathChooser" name="importLineEdit" native="true">
+     <property name="enabled">
       <bool>true</bool>
      </property>
-     <attribute name="buttonGroup">
-      <string notr="true">buttonGroup</string>
-     </attribute>
     </widget>
    </item>
    <item>
-    <widget class="QRadioButton" name="symbian10RadioButton">
+    <widget class="QLabel" name="importDescriptionLabel">
      <property name="text">
-      <string>Qt Quick Components for Symbian</string>
+      <string>All files and directories that reside in the same directory as the main QML file are deployed. You can modify the contents of the directory any time before deploying.</string>
      </property>
-     <attribute name="buttonGroup">
-      <string notr="true">buttonGroup</string>
-     </attribute>
-    </widget>
-   </item>
-   <item>
-    <widget class="QRadioButton" name="meego10RadioButton">
-     <property name="text">
-      <string>Qt Quick Components for MeeGo/Harmattan</string>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
      </property>
-     <attribute name="buttonGroup">
-      <string notr="true">buttonGroup</string>
-     </attribute>
-    </widget>
-   </item>
-   <item>
-    <widget class="QRadioButton" name="importRadioButton">
-     <property name="text">
-      <string>Use an existing .qml file</string>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
-     <attribute name="buttonGroup">
-      <string notr="true">buttonGroup</string>
-     </attribute>
-    </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Maximum</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>12</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="Utils::PathChooser" name="importLineEdit" native="true">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
-    <widget class="QStackedWidget" name="descriptionStackedWidget">
-     <property name="currentIndex">
-      <number>3</number>
-     </property>
-     <widget class="QWidget" name="qtquick10DescriptionWidget">
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QLabel" name="qtquick10DescriptionLabel">
-         <property name="text">
-          <string>The built-in elements in the QtQuick namespace allow you to write cross-platform applications with a custom look and feel.
-
-Requires Qt 4.7.1 or newer.</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="symbian10DescriptionWidget">
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0">
-        <widget class="QLabel" name="symbian10DescriptionLabel">
-         <property name="text">
-          <string>The Qt Quick Components for Symbian are a set of ready-made components that are designed with specific native appearance for the Symbian platform.
-
-Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="meego10DescriptionWidget">
-      <layout class="QGridLayout" name="gridLayout_4">
-       <item row="0" column="0">
-        <widget class="QLabel" name="meego1DescriptionLabel">
-         <property name="text">
-          <string>The Qt Quick Components for MeeGo/Harmattan are a set of ready-made components that are designed with specific native appearance for the MeeGo/Harmattan platform.
-
-Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="importDescriptionWidget">
-      <layout class="QGridLayout" name="gridLayout_5">
-       <item row="0" column="0">
-        <widget class="QLabel" name="importDescriptionLabel">
-         <property name="text">
-          <string>All files and directories that reside in the same directory as the main QML file are deployed. You can modify the contents of the directory any time before deploying.</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
     </widget>
    </item>
   </layout>
@@ -200,7 +53,4 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
  </customwidgets>
  <resources/>
  <connections/>
- <buttongroups>
-  <buttongroup name="buttonGroup"/>
- </buttongroups>
 </ui>

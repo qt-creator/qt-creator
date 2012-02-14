@@ -41,25 +41,35 @@ namespace Internal {
 class QtQuickAppWizard : public AbstractMobileAppWizard
 {
     Q_OBJECT
-
 public:
+
+    enum Kind {
+        QtQuick1_1 = 0,
+        SymbianComponents = 1,
+        MeegoComponents = 2,
+        ImportQml = 3
+    };
+
     QtQuickAppWizard();
+    explicit QtQuickAppWizard(const Core::BaseFileWizardParameters &params, QObject *parent = 0);
     virtual ~QtQuickAppWizard();
-    virtual Core::FeatureSet requiredFeatures() const;
+    static void createInstances(ExtensionSystem::IPlugin *plugin);
 
 protected:
     QString fileToOpenPostGeneration() const;
 
 private:
-    static Core::BaseFileWizardParameters parameters();
+    static Core::BaseFileWizardParameters baseParameters();
 
     virtual AbstractMobileApp *app() const;
     virtual AbstractMobileAppWizardDialog *wizardDialog() const;
     virtual AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent,
-                                                                      const Core::WizardDialogParameters &parameters) const;
+                                                                      const Core::WizardDialogParameters &baseParameters) const;
     virtual void projectPathChanged(const QString &path) const;
     virtual void prepareGenerateFiles(const QWizard *wizard,
         QString *errorMessage) const;
+    void setQtQuickKind(Kind kind);
+    Kind qtQuickKind() const;
 
     class QtQuickAppWizardPrivate *d;
 };

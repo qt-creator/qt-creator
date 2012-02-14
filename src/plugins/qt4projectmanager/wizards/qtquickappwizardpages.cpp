@@ -58,19 +58,8 @@ QtQuickComponentSetOptionsPage::QtQuickComponentSetOptionsPage(QWidget *parent)
     d->ui.importLineEdit->setPromptDialogFilter(QLatin1String("*.qml"));
     d->ui.importLineEdit->setPromptDialogTitle(tr("Select QML File"));
     connect(d->ui.importLineEdit, SIGNAL(changed(QString)), SIGNAL(completeChanged()));
-    connect(d->ui.importRadioButton,
-            SIGNAL(toggled(bool)), SIGNAL(completeChanged()));
 
-    connect(d->ui.importRadioButton, SIGNAL(toggled(bool)),
-            d->ui.importLineEdit, SLOT(setEnabled(bool)));
-
-    d->ui.buttonGroup->setId(d->ui.qtquick10RadioButton, 0);
-    d->ui.buttonGroup->setId(d->ui.symbian10RadioButton, 1);
-    d->ui.buttonGroup->setId(d->ui.meego10RadioButton, 2);
-    d->ui.buttonGroup->setId(d->ui.importRadioButton, 3);
-    connect(d->ui.buttonGroup, SIGNAL(buttonClicked(int)), this, SLOT(radioButtonChecked(int)));
-
-    setTitle(tr("Qt Quick Application Type"));
+    setTitle(tr("Select Existing QML file"));
 }
 
 QtQuickComponentSetOptionsPage::~QtQuickComponentSetOptionsPage()
@@ -78,47 +67,14 @@ QtQuickComponentSetOptionsPage::~QtQuickComponentSetOptionsPage()
     delete d;
 }
 
-QtQuickApp::ComponentSet QtQuickComponentSetOptionsPage::componentSet() const
-{
-    switch (d->ui.buttonGroup->checkedId()) {
-    case 2: return QtQuickApp::Meego10Components;
-    case 1: return QtQuickApp::Symbian11Components;
-    case 0:
-    default: return QtQuickApp::QtQuick10Components;
-    }
-}
-
-void QtQuickComponentSetOptionsPage::setComponentSet(QtQuickApp::ComponentSet componentSet)
-{
-    switch (componentSet) {
-    case QtQuickApp::Meego10Components: d->ui.meego10RadioButton->click(); break;
-    case QtQuickApp::Symbian11Components: d->ui.symbian10RadioButton->click(); break;
-    case QtQuickApp::QtQuick10Components:
-    default: d->ui.qtquick10RadioButton->click(); break;
-    }
-}
-
-void QtQuickComponentSetOptionsPage::radioButtonChecked(int index)
-{
-    d->ui.descriptionStackedWidget->setCurrentIndex(index);
-}
-
-QtQuickApp::Mode QtQuickComponentSetOptionsPage::mainQmlMode() const
-{
-    return  d->ui.importRadioButton->isChecked() ? QtQuickApp::ModeImport
-                                                 : QtQuickApp::ModeGenerate;
-}
-
 QString QtQuickComponentSetOptionsPage::mainQmlFile() const
 {
-    return mainQmlMode() == QtQuickApp::ModeImport ?
-                d->ui.importLineEdit->path() : QString();
+    return d->ui.importLineEdit->path();
 }
 
 bool QtQuickComponentSetOptionsPage::isComplete() const
 {
-    return mainQmlMode() != QtQuickApp::ModeImport
-            || d->ui.importLineEdit->isValid();
+    return d->ui.importLineEdit->isValid();
 }
 
 } // namespace Internal

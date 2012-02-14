@@ -44,6 +44,7 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtGui/QIcon>
+#include <QtCore/QDebug>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -53,13 +54,14 @@ class QtQuickAppWizardDialog : public AbstractMobileAppWizardDialog
     Q_OBJECT
 
 public:
-    explicit QtQuickAppWizardDialog(QWidget *parent, const Core::WizardDialogParameters &parameters);
+    explicit QtQuickAppWizardDialog(QWidget *parent, const Core::WizardDialogParameters &parameters,
+                                    QtQuickAppWizard::Kind kind);
 
 protected:
     bool validateCurrentPage();
 
 private:
-    class QtQuickComponentSetOptionsPage *m_componentOptionsPage;
+    QtQuickComponentSetOptionsPage *m_componentOptionsPage;
     int m_componentOptionsPageId;
 
     Utils::WizardProgressItem *m_componentItem;
@@ -68,7 +70,8 @@ private:
 };
 
 QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent,
-                                               const Core::WizardDialogParameters &parameters)
+                                               const Core::WizardDialogParameters &parameters,
+                                               QtQuickAppWizard::Kind kind)
     : AbstractMobileAppWizardDialog(parent,
                                     QtSupport::QtVersionNumber(4, 7, 0),
                                     QtSupport::QtVersionNumber(4, INT_MAX, INT_MAX), parameters)
@@ -76,29 +79,24 @@ QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent,
     setWindowTitle(tr("New Qt Quick Application"));
     setIntroDescription(tr("This wizard generates a Qt Quick application project."));
 
-    m_componentOptionsPage = new Internal::QtQuickComponentSetOptionsPage;
-    m_componentOptionsPageId = addPageWithTitle(m_componentOptionsPage, tr("Application Type"));
-    m_componentItem = wizardProgress()->item(m_componentOptionsPageId);
+    if (kind == QtQuickAppWizard::ImportQml) { //Choose existing qml file
+        m_componentOptionsPage = new Internal::QtQuickComponentSetOptionsPage;
+        m_componentOptionsPageId = addPageWithTitle(m_componentOptionsPage, tr("Select existing QML file"));
+        m_componentItem = wizardProgress()->item(m_componentOptionsPageId);
+    }
 
     AbstractMobileAppWizardDialog::addMobilePages();
 
-    m_componentItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                                  << targetsPageItem());
+    if (kind == QtQuickAppWizard::ImportQml) {
+        m_componentItem->setNextItems(QList<Utils::WizardProgressItem *>()
+                                      << targetsPageItem());
+    }
 }
 
 bool QtQuickAppWizardDialog::validateCurrentPage()
 {
     if (currentPage() == m_componentOptionsPage) {
         setIgnoreGenericOptionsPage(false);
-        if (m_componentOptionsPage->componentSet() == QtQuickApp::Symbian11Components) {
-            setIgnoreGenericOptionsPage(true);
-            targetsPage()->setRequiredQtFeatures(Core::FeatureSet(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_MEEGO));
-        } else if (m_componentOptionsPage->componentSet() == QtQuickApp::Meego10Components) {
-            targetsPage()->setRequiredQtFeatures(Core::FeatureSet(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_MEEGO));
-        } else {
-            targetsPage()->setMinimumQtVersion(QtSupport::QtVersionNumber(4, 7, 0));
-            targetsPage()->setRequiredQtFeatures(Core::FeatureSet());
-        }
     }
     return AbstractMobileAppWizardDialog::validateCurrentPage();
 }
@@ -107,12 +105,21 @@ class QtQuickAppWizardPrivate
 {
     class QtQuickApp *app;
     class QtQuickAppWizardDialog *wizardDialog;
+    QtQuickAppWizard::Kind kind;
     friend class QtQuickAppWizard;
 };
 
 QtQuickAppWizard::QtQuickAppWizard()
-    : AbstractMobileAppWizard(parameters())
+    : AbstractMobileAppWizard(baseParameters())
     , d(new QtQuickAppWizardPrivate)
+{
+    d->app = new QtQuickApp;
+    d->wizardDialog = 0;
+}
+
+QtQuickAppWizard::QtQuickAppWizard(const Core::BaseFileWizardParameters &params, QObject *parent)
+    : AbstractMobileAppWizard(params, parent)
+      , d(new QtQuickAppWizardPrivate)
 {
     d->app = new QtQuickApp;
     d->wizardDialog = 0;
@@ -124,35 +131,103 @@ QtQuickAppWizard::~QtQuickAppWizard()
     delete d;
 }
 
-Core::FeatureSet QtQuickAppWizard::requiredFeatures() const
+void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
 {
-    return Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK);
+    Core::BaseFileWizardParameters base = baseParameters();
+    QList<Core::BaseFileWizardParameters> list;
+    Core::BaseFileWizardParameters parameter;
+
+    const QString basicDescription = tr("Creates a Qt Quick application project that can contain "
+                                        "both QML and C++ code and includes a QDeclarativeView.\n\n");
+
+    Core::FeatureSet basicFeatures;
+    basicFeatures = Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1_1);
+
+    parameter = base;
+    parameter.setDisplayName(tr("Qt Quick Application (Built-in elements)"));
+    parameter.setDescription(basicDescription + tr("The built-in elements in the QtQuick namespace allow "
+                                                   "you to write cross-platform applications with "
+                                                   "a custom look and feel.\n\nRequires Qt 4.7.1 or newer."));
+    parameter.setRequiredFeatures(basicFeatures);
+    list << parameter;
+
+    parameter = base;
+    parameter.setDisplayName(tr("Qt Quick Application for Symbian"));
+    parameter.setDescription(basicDescription +  tr("The Qt Quick Components for Symbian are a set of "
+                                                    "ready-made components that are designed with specific "
+                                                    "native appearance for the Symbian platform.\n\nRequires "
+                                                    "Qt 4.7.4 or newer, and the component set installed for "
+                                                    "your Qt version."));
+    parameter.setRequiredFeatures(basicFeatures | Core::Feature(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_SYMBIAN));
+    list << parameter;
+
+    parameter = base;
+    parameter.setDisplayName(tr("Qt Quick Application for MeeGo/Harmattan"));
+    parameter.setDescription(basicDescription +  tr("The Qt Quick Components for MeeGo/Harmattan are "
+                                                    "a set of ready-made components that are designed "
+                                                    "with specific native appearance for the MeeGo/Harmattan "
+                                                    "platform.\n\nRequires Qt 4.7.4 or newer, and the "
+                                                    "component set installed for your Qt version."));
+    parameter.setRequiredFeatures(basicFeatures | Core::Feature(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_MEEGO));
+    list << parameter;
+
+    parameter = base;
+    parameter.setDisplayName(tr("Qt Quick Application (from existing .qml file)"));
+    parameter.setDescription(basicDescription +  tr("Creates a deployable Qt Quick application from "
+                                                    "existing QML files. All files and directories that "
+                                                    "reside in the same directory as the main QML file "
+                                                    "are deployed. You can modify the contents of the "
+                                                    "directory any time before deploying."));
+    parameter.setRequiredFeatures(basicFeatures);
+    list << parameter;
+
+    QList<QtQuickAppWizard*> wizardList = Core::createMultipleBaseFileWizardInstances<QtQuickAppWizard>(list, plugin);
+
+    Q_ASSERT(wizardList.count() == 4);
+
+    for (int i = 0; i < wizardList.count(); i++) {
+        wizardList.at(i)->setQtQuickKind(Kind(i));
+    }
 }
 
-Core::BaseFileWizardParameters QtQuickAppWizard::parameters()
+Core::BaseFileWizardParameters QtQuickAppWizard::baseParameters()
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_QTQUICK_APP)));
-    parameters.setDisplayName(tr("Qt Quick Application"));
     parameters.setId(QLatin1String("QA.QMLA Application"));
-    parameters.setDescription(tr("Creates a Qt Quick application project that can contain "
-                                 "both QML and C++ code and includes a QDeclarativeView.\n\n"
-                                 "You can build the application and deploy it on desktop and "
-                                 "mobile target platforms. For example, you can create signed "
-                                 "Symbian Installation System (SIS) packages for this type of "
-                                 "projects. Moreover, you can select to use a set of premade "
-                                 "UI components in your Qt Quick application. "
-                                 "To utilize the components, Qt 4.7.4 or newer is required."));
     parameters.setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
     parameters.setDisplayCategory(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY);
+
     return parameters;
 }
 
 AbstractMobileAppWizardDialog *QtQuickAppWizard::createWizardDialogInternal(QWidget *parent,
                                                                             const Core::WizardDialogParameters &parameters) const
 {
-    d->wizardDialog = new QtQuickAppWizardDialog(parent, parameters);
-    d->wizardDialog->m_componentOptionsPage->setComponentSet(d->app->componentSet());
+    d->wizardDialog = new QtQuickAppWizardDialog(parent, parameters, qtQuickKind());
+
+    switch (qtQuickKind()) {
+    case QtQuick1_1:
+        d->app->setComponentSet(QtQuickApp::QtQuick10Components);
+        d->app->setMainQml(QtQuickApp::ModeGenerate);
+        break;
+    case SymbianComponents:
+        d->app->setComponentSet(QtQuickApp::Symbian11Components);
+        d->app->setMainQml(QtQuickApp::ModeGenerate);
+        break;
+    case MeegoComponents:
+        d->app->setComponentSet(QtQuickApp::Meego10Components);
+        d->app->setMainQml(QtQuickApp::ModeGenerate);
+        break;
+    case ImportQml:
+        d->app->setComponentSet(QtQuickApp::QtQuick10Components);
+        d->app->setMainQml(QtQuickApp::ModeImport);
+        break;
+    default:
+        qWarning() << "QtQuickAppWizard illegal subOption:" << qtQuickKind();
+        break;
+    }
+
     return d->wizardDialog;
 }
 
@@ -166,15 +241,23 @@ void QtQuickAppWizard::prepareGenerateFiles(const QWizard *w,
 {
     Q_UNUSED(errorMessage)
     const QtQuickAppWizardDialog *wizard = qobject_cast<const QtQuickAppWizardDialog*>(w);
-    if (wizard->m_componentOptionsPage->mainQmlMode() == QtQuickApp::ModeGenerate) {
+
+    if (d->app->mainQmlMode() == QtQuickApp::ModeGenerate) {
         d->app->setMainQml(QtQuickApp::ModeGenerate);
     } else {
         const QString mainQmlFile = wizard->m_componentOptionsPage->mainQmlFile();
         d->app->setMainQml(QtQuickApp::ModeImport, mainQmlFile);
     }
-    d->app->setComponentSet(wizard->m_componentOptionsPage->componentSet());
-    if (d->app->componentSet() == QtQuickApp::Symbian11Components)
-        d->app->setOrientation(AbstractMobileApp::ScreenOrientationImplicit);
+}
+
+void QtQuickAppWizard::setQtQuickKind(QtQuickAppWizard::Kind kind)
+{
+    d->kind = kind;
+}
+
+QtQuickAppWizard::Kind QtQuickAppWizard::qtQuickKind() const
+{
+    return d->kind;
 }
 
 QString QtQuickAppWizard::fileToOpenPostGeneration() const
