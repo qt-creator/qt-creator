@@ -328,7 +328,7 @@ def __closeSubprocessByPushingStop__(sType):
         test.verify(playButton.enabled)
         test.compare(stopButton.enabled, False)
         if sType == SubprocessType.QT_QUICK_UI and platform.system() == "Darwin":
-            waitFor("stop.enabled==False")
+            waitFor("stopButton.enabled==False")
             snooze(2)
             nativeType("<Escape>")
     else:
