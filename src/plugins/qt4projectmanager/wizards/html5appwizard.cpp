@@ -98,7 +98,7 @@ Html5AppWizard::~Html5AppWizard()
 
 Core::FeatureSet Html5AppWizard::requiredFeatures() const
 {
-    return Core::Feature(QtSupport::Constants::FEATURE_GENERIC_CPP_ENTRY_POINT);
+    return Core::Feature(QtSupport::Constants::FEATURE_QT_WEBKIT);
 }
 
 Core::BaseFileWizardParameters Html5AppWizard::parameters()

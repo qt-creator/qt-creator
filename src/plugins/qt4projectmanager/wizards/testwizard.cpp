@@ -188,7 +188,7 @@ Core::GeneratedFiles TestWizard::generateFiles(const QWizard *w, QString *errorM
 
 Core::FeatureSet TestWizard::requiredFeatures() const
 {
-    return Core::Feature(QtSupport::Constants::FEATURE_GENERIC_CPP_ENTRY_POINT) |
+    return Core::Feature(QtSupport::Constants::FEATURE_QT_CONSOLE) |
             Core::Feature(QtSupport::Constants::FEATURE_QT);
 }
 

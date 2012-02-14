@@ -95,8 +95,7 @@ MobileAppWizard::~MobileAppWizard()
 
 Core::FeatureSet MobileAppWizard::requiredFeatures() const
 {
-    return Core::Feature(QtSupport::Constants::FEATURE_GENERIC_CPP_ENTRY_POINT)
-            | Core::FeatureSet(QtSupport::Constants::FEATURE_MOBILE)
+    return Core::FeatureSet(QtSupport::Constants::FEATURE_MOBILE)
             | Core::Feature(QtSupport::Constants::FEATURE_QWIDGETS);
 }
 

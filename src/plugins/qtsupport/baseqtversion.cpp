@@ -255,8 +255,7 @@ QString BaseQtVersion::defaultDisplayName(const QString &versionString, const Ut
 
 Core::FeatureSet BaseQtVersion::availableFeatures() const
 {
-    Core::FeatureSet features = Core::FeatureSet(QtSupport::Constants::FEATURE_GENERIC_CPP_ENTRY_POINT) |
-            Core::FeatureSet(QtSupport::Constants::FEATURE_QWIDGETS)
+    Core::FeatureSet features = Core::FeatureSet(QtSupport::Constants::FEATURE_QWIDGETS)
             | Core::FeatureSet(QtSupport::Constants::FEATURE_QT)
             | Core::FeatureSet(QtSupport::Constants::FEATURE_QT_WEBKIT)
             | Core::FeatureSet(QtSupport::Constants::FEATURE_QT_CONSOLE);

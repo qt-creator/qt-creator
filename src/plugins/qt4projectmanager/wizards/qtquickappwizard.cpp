@@ -126,9 +126,7 @@ QtQuickAppWizard::~QtQuickAppWizard()
 
 Core::FeatureSet QtQuickAppWizard::requiredFeatures() const
 {
-    return Core::Feature(QtSupport::Constants::FEATURE_GENERIC_CPP_ENTRY_POINT) |
-            Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK);
-
+    return Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK);
 }
 
 Core::BaseFileWizardParameters QtQuickAppWizard::parameters()

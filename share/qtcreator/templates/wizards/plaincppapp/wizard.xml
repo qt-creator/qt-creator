@@ -40,7 +40,7 @@ leave room for the Qt 4 target page.
 <wizard version="1" kind="project"
         class="qt4project" firstpage="10"
         id="R.Plain C++" category="H.QtProjects"
-        featuresRequired="QtSupport.Wizards.FeatureGenericCppEntryPoint">
+        featuresRequired="QtSupport.Wizards.FeatureQt">
     <icon>console.png</icon>
     <description>Creates a plain C++ project using qmake, not using the Qt library.</description>
     <displayname>Plain C++ Project</displayname>;

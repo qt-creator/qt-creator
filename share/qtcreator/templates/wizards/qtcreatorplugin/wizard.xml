@@ -40,7 +40,7 @@ leave room for the Qt 4 target page.
 <wizard version="1" kind="project"
         class="qt4project" firstpage="10"
         id="R.QtCreatorPlugin" category="G.Libraries"
-        featuresRequired="QtSupport.Wizards.FeatureGenericCppEntryPoint,QtSupport.Wizards.FeatureQt,QtSupport.Wizards.FeatureDesktop">
+        featuresRequired="QtSupport.Wizards.FeatureQt,QtSupport.Wizards.FeatureDesktop">
     <icon>qtcreator_logo_24.png</icon>
     <description>Creates a custom Qt Creator plugin.</description>
     <displayname>Qt Creator Plugin</displayname>;

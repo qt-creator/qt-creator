@@ -569,8 +569,7 @@ Core::FeatureSet QtVersionManager::availableFeatures(const QString &platformName
         if (qtVersion->isValid() && ((qtVersion->platformName() == platformName) || platformName.isEmpty()))
             features |= qtVersion->availableFeatures();
     }
-    if (validVersions().empty())
-        features |= Constants::FEATURE_GENERIC_CPP_ENTRY_POINT;
+
     return features;
 }
 

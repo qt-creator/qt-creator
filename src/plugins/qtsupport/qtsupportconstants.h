@@ -56,7 +56,6 @@ const char FEATURE_QT_QUICK_1_1[] = "QtSupport.Wizards.FeatureQtQuick.1.1";
 const char FEATURE_QT_QUICK_2[] = "QtSupport.Wizards.FeatureQtQuick.2";
 const char FEATURE_QT_WEBKIT[] = "QtSupport.Wizards.FeatureQtWebkit";
 const char FEATURE_QT_CONSOLE[] = "QtSupport.Wizards.FeatureQtConsole";
-const char FEATURE_GENERIC_CPP_ENTRY_POINT[] ="QtSupport.Wizards.FeatureGenericCppEntryPoint";
 const char FEATURE_QTQUICK_COMPONENTS_SYMBIAN[] = "QtSupport.Wizards.FeatureQtQuickComponentsSymbian";
 const char FEATURE_QTQUICK_COMPONENTS_MEEGO[] = "QtSupport.Wizards.FeatureQtQuickComponentsMeego";
 const char FEATURE_MOBILE[] = "QtSupport.Wizards.FeatureMobile";

@@ -109,7 +109,7 @@ Core::GeneratedFiles
 
 Core::FeatureSet ConsoleAppWizard::requiredFeatures() const
 {
-    return Core::Feature(QtSupport::Constants::FEATURE_GENERIC_CPP_ENTRY_POINT);
+    return Core::Feature(QtSupport::Constants::FEATURE_QT_CONSOLE);
 }
 
 } // namespace Internal
