@@ -639,11 +639,6 @@ bool GenericProjectFile::isModified() const
     return false;
 }
 
-bool GenericProjectFile::isReadOnly() const
-{
-    return true;
-}
-
 bool GenericProjectFile::isSaveAsAllowed() const
 {
     return false;

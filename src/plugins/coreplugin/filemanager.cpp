@@ -607,10 +607,10 @@ static QList<IFile *> saveModifiedFilesHelper(const QList<IFile *> &files,
             if (name.isEmpty())
                 name = file->suggestedFileName();
 
-            // There can be several FileInterfaces pointing to the same file
-            // Select one that is not readonly.
-            if (!(modifiedFilesMap.key(name, 0)
-                    && file->isReadOnly()))
+            // There can be several IFiles pointing to the same file
+            // Prefer one that is not readonly
+            // (even though it *should* not happen that the IFiles are inconsistent with readonly)
+            if (!modifiedFilesMap.key(name, 0) || !file->isReadOnly())
                 modifiedFilesMap.insert(file, name);
         }
     }

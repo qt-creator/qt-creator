@@ -780,11 +780,6 @@ bool CMakeFile::isModified() const
     return false;
 }
 
-bool CMakeFile::isReadOnly() const
-{
-    return true;
-}
-
 bool CMakeFile::isSaveAsAllowed() const
 {
     return false;

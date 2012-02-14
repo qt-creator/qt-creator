@@ -80,11 +80,6 @@ bool AutotoolsProjectFile::isModified() const
     return false;
 }
 
-bool AutotoolsProjectFile::isReadOnly() const
-{
-    return true;
-}
-
 bool AutotoolsProjectFile::isSaveAsAllowed() const
 {
     return false;

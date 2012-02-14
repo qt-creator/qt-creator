@@ -1078,16 +1078,8 @@ void ProjectExplorerPlugin::unloadProject()
 
     QList<Core::IFile*> filesToSave;
     filesToSave << fi;
-
-    // check the number of modified files
-    int readonlycount = 0;
-    foreach (const Core::IFile *file, filesToSave) {
-        if (file->isReadOnly())
-            ++readonlycount;
-    }
-
     bool success = false;
-    if (readonlycount > 0)
+    if (fi->isReadOnly())
         success = Core::FileManager::saveModifiedFiles(filesToSave).isEmpty();
     else
         success = Core::FileManager::saveModifiedFilesSilently(filesToSave).isEmpty();

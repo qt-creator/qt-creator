@@ -51,7 +51,6 @@ public:
 
     bool isModified() const { return m_modified; }
     QString mimeType() const;
-    bool isReadOnly() const { return false; }
     bool isSaveAsAllowed() const { return false; }
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;

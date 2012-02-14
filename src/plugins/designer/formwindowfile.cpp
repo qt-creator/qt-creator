@@ -137,14 +137,6 @@ bool FormWindowFile::isModified() const
     return m_formWindow && m_formWindow->isDirty();
 }
 
-bool FormWindowFile::isReadOnly() const
-{
-    if (m_fileName.isEmpty())
-        return false;
-    const QFileInfo fi(m_fileName);
-    return !fi.isWritable();
-}
-
 bool FormWindowFile::isSaveAsAllowed() const
 {
     return true;

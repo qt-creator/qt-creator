@@ -97,7 +97,6 @@ public:
     virtual QString mimeType() const;
 
     bool isModified() const;
-    bool isReadOnly() const;
     bool isSaveAsAllowed() const;
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
@@ -281,12 +280,6 @@ QString Qt4ProjectFile::mimeType() const
 bool Qt4ProjectFile::isModified() const
 {
     return false; // we save after changing anyway
-}
-
-bool Qt4ProjectFile::isReadOnly() const
-{
-    QFileInfo fi(m_filePath);
-    return !fi.isWritable();
 }
 
 bool Qt4ProjectFile::isSaveAsAllowed() const

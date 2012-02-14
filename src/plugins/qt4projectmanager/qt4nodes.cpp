@@ -211,11 +211,6 @@ bool Qt4PriFile::isModified() const
     return false;
 }
 
-bool Qt4PriFile::isReadOnly() const
-{
-    return false;
-}
-
 bool Qt4PriFile::isSaveAsAllowed() const
 {
     return false;

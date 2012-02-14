@@ -116,11 +116,6 @@ bool ImageViewerFile::isModified() const
     return false;
 }
 
-bool ImageViewerFile::isReadOnly() const
-{
-    return true;
-}
-
 bool ImageViewerFile::isSaveAsAllowed() const
 {
     return false;

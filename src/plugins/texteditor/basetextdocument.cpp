@@ -411,8 +411,6 @@ void BaseTextDocument::rename(const QString &newName)
 
 bool BaseTextDocument::isReadOnly() const
 {
-    if (hasDecodingError())
-        return true;
     if (d->m_fileName.isEmpty()) //have no corresponding file, so editing is ok
         return false;
     return d->m_fileIsReadOnly;

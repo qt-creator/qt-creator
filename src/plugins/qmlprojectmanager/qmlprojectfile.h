@@ -58,7 +58,6 @@ public:
     virtual QString mimeType() const;
 
     virtual bool isModified() const;
-    virtual bool isReadOnly() const;
     virtual bool isSaveAsAllowed() const;
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;

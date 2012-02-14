@@ -213,7 +213,8 @@ void OpenEditorsWindow::setEditors(EditorView *mainView, EditorView *view, OpenE
         QTreeWidgetItem *item = new QTreeWidgetItem();
         if (hi.file->isModified())
             title += tr("*");
-        item->setIcon(0, hi.file->isReadOnly() ? model->lockedIcon() : m_emptyIcon);
+        item->setIcon(0, !hi.file->fileName().isEmpty() && hi.file->isReadOnly()
+                      ? model->lockedIcon() : m_emptyIcon);
         item->setText(0, title);
         item->setToolTip(0, hi.file->fileName());
         item->setData(0, Qt::UserRole, QVariant::fromValue(hi.file.data()));
@@ -240,7 +241,8 @@ void OpenEditorsWindow::setEditors(EditorView *mainView, EditorView *view, OpenE
             QString title = model->displayNameForFile(hi.file);
             if (hi.file->isModified())
                 title += tr("*");
-            item->setIcon(0, hi.file->isReadOnly() ? model->lockedIcon() : m_emptyIcon);
+            item->setIcon(0, !hi.file->fileName().isEmpty() && hi.file->isReadOnly()
+                          ? model->lockedIcon() : m_emptyIcon);
             item->setText(0, title);
             item->setToolTip(0, hi.file->fileName());
             item->setData(0, Qt::UserRole, QVariant::fromValue(hi.file.data()));

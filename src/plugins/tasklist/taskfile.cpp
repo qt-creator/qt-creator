@@ -81,11 +81,6 @@ bool TaskFile::isModified() const
     return false;
 }
 
-bool TaskFile::isReadOnly() const
-{
-    return true;
-}
-
 bool TaskFile::isSaveAsAllowed() const
 {
     return false;

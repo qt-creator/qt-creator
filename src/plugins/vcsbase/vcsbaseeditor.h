@@ -113,7 +113,6 @@ public:
      * by default since it should not  trigger when patches are opened as
      * files. */
     void setForceReadOnly(bool b);
-    bool isForceReadOnly() const;
 
     QString source() const;
     void setSource(const  QString &source);

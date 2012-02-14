@@ -400,9 +400,13 @@ void EditorToolBar::updateEditorStatus(IEditor *editor)
 
     d->m_editorList->setCurrentIndex(d->m_editorsListModel->indexOf(editor).row());
 
-    if (editor->file()->isReadOnly()) {
+    if (editor->file()->fileName().isEmpty()) {
+        d->m_lockButton->setIcon(QIcon());
+        d->m_lockButton->setEnabled(false);
+        d->m_lockButton->setToolTip(QString());
+    } else if (editor->file()->isReadOnly()) {
         d->m_lockButton->setIcon(QIcon(d->m_editorsListModel->lockedIcon()));
-        d->m_lockButton->setEnabled(!editor->file()->fileName().isEmpty());
+        d->m_lockButton->setEnabled(true);
         d->m_lockButton->setToolTip(tr("Make Writable"));
     } else {
         d->m_lockButton->setIcon(QIcon(d->m_editorsListModel->unlockedIcon()));

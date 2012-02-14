@@ -56,7 +56,6 @@ public:
     QString mimeType() const;
 
     bool isModified() const;
-    bool isReadOnly() const;
     bool isSaveAsAllowed() const;
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;

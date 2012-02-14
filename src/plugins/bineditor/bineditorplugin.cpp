@@ -297,7 +297,7 @@ public:
     bool isModified() const { return m_editor->isMemoryView() ? false : m_editor->isModified(); }
 
     bool isReadOnly() const {
-        if (m_editor->isMemoryView())
+        if (m_editor->isMemoryView() || m_fileName.isEmpty())
             return false;
         const QFileInfo fi(m_fileName);
         return !fi.isWritable();

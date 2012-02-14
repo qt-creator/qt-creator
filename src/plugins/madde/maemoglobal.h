@@ -69,7 +69,6 @@ public:
     QString suggestedFileName() const { return QString(); }
     QString mimeType() const { return QLatin1String("text/plain"); }
     bool isModified() const { return false; }
-    bool isReadOnly() const { return false; }
     bool isSaveAsAllowed() const { return false; }
     ReloadBehavior reloadBehavior(ChangeTrigger, ChangeType) const { return BehaviorSilent; }
     bool reload(QString *, ReloadFlag, ChangeType) { emit modified(); return true; }

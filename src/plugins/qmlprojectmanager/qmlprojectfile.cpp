@@ -88,11 +88,6 @@ bool QmlProjectFile::isModified() const
     return false;
 }
 
-bool QmlProjectFile::isReadOnly() const
-{
-    return true;
-}
-
 bool QmlProjectFile::isSaveAsAllowed() const
 {
     return false;

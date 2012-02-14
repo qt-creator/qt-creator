@@ -59,7 +59,6 @@ public:
     QString mimeType() const;
 
     bool isModified() const;
-    bool isReadOnly() const;
     bool isSaveAsAllowed() const;
 
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
