@@ -31,8 +31,121 @@
 **************************************************************************/
 
 #include "basetextdocumentlayout.h"
+#include <utils/qtcassert.h>
 
 using namespace TextEditor;
+
+namespace Internal {
+
+class DocumentMarker : public ITextMarkable
+{
+    Q_OBJECT
+public:
+    DocumentMarker(QTextDocument *);
+    ~DocumentMarker();
+
+    TextMarks marks() const { return m_marksCache; }
+
+    // ITextMarkable
+    bool addMark(ITextMark *mark, int line);
+    TextMarks marksAt(int line) const;
+    void removeMark(ITextMark *mark);
+    void updateMark(ITextMark *mark);
+
+private:
+    double recalculateMaxMarkWidthFactor() const;
+
+    TextMarks m_marksCache; // not owned
+    QTextDocument *document;
+};
+
+DocumentMarker::DocumentMarker(QTextDocument *doc)
+  : ITextMarkable(doc), document(doc)
+{
+}
+
+DocumentMarker::~DocumentMarker()
+{
+
+}
+
+bool DocumentMarker::addMark(TextEditor::ITextMark *mark, int line)
+{
+    QTC_ASSERT(line >= 1, return false);
+    int blockNumber = line - 1;
+    BaseTextDocumentLayout *documentLayout =
+        qobject_cast<BaseTextDocumentLayout*>(document->documentLayout());
+    QTC_ASSERT(documentLayout, return false);
+    QTextBlock block = document->findBlockByNumber(blockNumber);
+
+    if (block.isValid()) {
+        TextBlockUserData *userData = BaseTextDocumentLayout::userData(block);
+        userData->addMark(mark);
+        m_marksCache.append(mark);
+        mark->updateLineNumber(blockNumber + 1);
+        mark->updateBlock(block);
+        documentLayout->hasMarks = true;
+        documentLayout->maxMarkWidthFactor = qMax(mark->widthFactor(),
+            documentLayout->maxMarkWidthFactor);
+        documentLayout->requestUpdate();
+        return true;
+    }
+    return false;
+}
+
+double DocumentMarker::recalculateMaxMarkWidthFactor() const
+{
+    double maxWidthFactor = 1.0;
+    foreach (const ITextMark *mark, marks())
+        maxWidthFactor = qMax(mark->widthFactor(), maxWidthFactor);
+    return maxWidthFactor;
+}
+
+TextEditor::TextMarks DocumentMarker::marksAt(int line) const
+{
+    QTC_ASSERT(line >= 1, return TextMarks());
+    int blockNumber = line - 1;
+    QTextBlock block = document->findBlockByNumber(blockNumber);
+
+    if (block.isValid()) {
+        if (TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(block))
+            return userData->marks();
+    }
+    return TextMarks();
+}
+
+void DocumentMarker::removeMark(TextEditor::ITextMark *mark)
+{
+    BaseTextDocumentLayout *documentLayout =
+        qobject_cast<BaseTextDocumentLayout*>(document->documentLayout());
+    QTC_ASSERT(documentLayout, return)
+
+    bool needUpdate = false;
+    QTextBlock block = document->begin();
+    while (block.isValid()) {
+        if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData())) {
+            needUpdate |= data->removeMark(mark);
+        }
+        block = block.next();
+    }
+    m_marksCache.removeAll(mark);
+
+    if (needUpdate) {
+        documentLayout->maxMarkWidthFactor = recalculateMaxMarkWidthFactor();
+        updateMark(0);
+    }
+}
+
+void DocumentMarker::updateMark(ITextMark *mark)
+{
+    Q_UNUSED(mark)
+    BaseTextDocumentLayout *documentLayout =
+        qobject_cast<BaseTextDocumentLayout*>(document->documentLayout());
+    QTC_ASSERT(documentLayout, return);
+    documentLayout->requestUpdate();
+}
+
+} // namespace Internal
 
 CodeFormatterData::~CodeFormatterData()
 {
@@ -391,11 +504,14 @@ void TextBlockUserData::addMark(ITextMark *mark)
 
 
 BaseTextDocumentLayout::BaseTextDocumentLayout(QTextDocument *doc)
-    :QPlainTextDocumentLayout(doc) {
-    lastSaveRevision = 0;
-    hasMarks = 0;
-    maxMarkWidthFactor = 1.0;
-    m_requiredWidth = 0;
+    : QPlainTextDocumentLayout(doc),
+      lastSaveRevision(0),
+      hasMarks(false),
+      maxMarkWidthFactor(1.0),
+      m_requiredWidth(0),
+      m_documentMarker(new Internal::DocumentMarker(doc))
+{
+
 }
 
 BaseTextDocumentLayout::~BaseTextDocumentLayout()
@@ -537,6 +653,11 @@ void BaseTextDocumentLayout::setFolded(const QTextBlock &block, bool folded)
     }
 }
 
+ITextMarkable *BaseTextDocumentLayout::markableInterface()
+{
+    return m_documentMarker;
+}
+
 void BaseTextDocumentLayout::doFoldOrUnfold(const QTextBlock& block, bool unfold)
 {
     if (!canFold(block))
@@ -664,3 +785,5 @@ void BaseTextDocumentLayout::FoldValidator::finalize()
         m_layout->emitDocumentSizeChanged();
     }
 }
+
+#include "basetextdocumentlayout.moc"

@@ -41,7 +41,6 @@
 #include <QPlainTextDocumentLayout>
 
 namespace TextEditor {
-
 struct Parenthesis;
 typedef QVector<Parenthesis> Parentheses;
 
@@ -202,11 +201,15 @@ public:
 
 
     void emitDocumentSizeChanged() { emit documentSizeChanged(documentSize()); }
+    ITextMarkable *markableInterface();
+
     int lastSaveRevision;
     bool hasMarks;
     double maxMarkWidthFactor;
 
     int m_requiredWidth;
+    ITextMarkable *m_documentMarker;
+
     void setRequiredWidth(int width);
 
     QSizeF documentSize() const;

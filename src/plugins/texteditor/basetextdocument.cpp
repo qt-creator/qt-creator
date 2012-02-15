@@ -60,112 +60,6 @@
 #include <utils/reloadpromptutils.h>
 
 namespace TextEditor {
-namespace Internal {
-
-class DocumentMarker : public ITextMarkable
-{
-    Q_OBJECT
-public:
-    DocumentMarker(QTextDocument *);
-
-    TextMarks marks() const { return m_marksCache; }
-
-    // ITextMarkable
-    bool addMark(ITextMark *mark, int line);
-    TextMarks marksAt(int line) const;
-    void removeMark(ITextMark *mark);
-    void updateMark(ITextMark *mark);
-
-private:
-    double recalculateMaxMarkWidthFactor() const;
-
-    TextMarks m_marksCache; // not owned
-    QTextDocument *document;
-};
-
-DocumentMarker::DocumentMarker(QTextDocument *doc)
-  : ITextMarkable(doc), document(doc)
-{
-}
-
-bool DocumentMarker::addMark(TextEditor::ITextMark *mark, int line)
-{
-    QTC_ASSERT(line >= 1, return false);
-    int blockNumber = line - 1;
-    BaseTextDocumentLayout *documentLayout =
-        qobject_cast<BaseTextDocumentLayout*>(document->documentLayout());
-    QTC_ASSERT(documentLayout, return false);
-    QTextBlock block = document->findBlockByNumber(blockNumber);
-
-    if (block.isValid()) {
-        TextBlockUserData *userData = BaseTextDocumentLayout::userData(block);
-        userData->addMark(mark);
-        m_marksCache.append(mark);
-        mark->updateLineNumber(blockNumber + 1);
-        mark->updateBlock(block);
-        documentLayout->hasMarks = true;
-        documentLayout->maxMarkWidthFactor = qMax(mark->widthFactor(),
-            documentLayout->maxMarkWidthFactor);
-        documentLayout->requestUpdate();
-        return true;
-    }
-    return false;
-}
-
-double DocumentMarker::recalculateMaxMarkWidthFactor() const
-{
-    double maxWidthFactor = 1.0;
-    foreach (const ITextMark *mark, marks())
-        maxWidthFactor = qMax(mark->widthFactor(), maxWidthFactor);
-    return maxWidthFactor;
-}
-
-TextEditor::TextMarks DocumentMarker::marksAt(int line) const
-{
-    QTC_ASSERT(line >= 1, return TextMarks());
-    int blockNumber = line - 1;
-    QTextBlock block = document->findBlockByNumber(blockNumber);
-
-    if (block.isValid()) {
-        if (TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(block))
-            return userData->marks();
-    }
-    return TextMarks();
-}
-
-void DocumentMarker::removeMark(TextEditor::ITextMark *mark)
-{
-    BaseTextDocumentLayout *documentLayout =
-        qobject_cast<BaseTextDocumentLayout*>(document->documentLayout());
-    QTC_ASSERT(documentLayout, return)
-
-    bool needUpdate = false;
-    QTextBlock block = document->begin();
-    while (block.isValid()) {
-        if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData())) {
-            needUpdate |= data->removeMark(mark);
-        }
-        block = block.next();
-    }
-    m_marksCache.removeAll(mark);
-
-    if (needUpdate) {
-        documentLayout->maxMarkWidthFactor = recalculateMaxMarkWidthFactor();
-        updateMark(0);
-    }
-}
-
-void DocumentMarker::updateMark(ITextMark *mark)
-{
-    Q_UNUSED(mark)
-    BaseTextDocumentLayout *documentLayout =
-        qobject_cast<BaseTextDocumentLayout*>(document->documentLayout());
-    QTC_ASSERT(documentLayout, return);
-    documentLayout->requestUpdate();
-}
-
-} // namespace Internal
-
 class BaseTextDocumentPrivate
 {
 public:
@@ -180,7 +74,6 @@ public:
     TabSettings m_tabSettings;
     ExtraEncodingSettings m_extraEncodingSettings;
     QTextDocument *m_document;
-    Internal::DocumentMarker *m_documentMarker;
     SyntaxHighlighter *m_highlighter;
 
     bool m_fileIsReadOnly;
@@ -191,7 +84,6 @@ public:
 
 BaseTextDocumentPrivate::BaseTextDocumentPrivate(BaseTextDocument *q) :
     m_document(new QTextDocument(q)),
-    m_documentMarker(new Internal::DocumentMarker(m_document)),
     m_highlighter(0),
     m_fileIsReadOnly(false),
     m_hasHighlightWarning(false),
@@ -303,7 +195,10 @@ SyntaxHighlighter *BaseTextDocument::syntaxHighlighter() const
 
 ITextMarkable *BaseTextDocument::documentMarker() const
 {
-    return d->m_documentMarker;
+    BaseTextDocumentLayout *documentLayout =
+        qobject_cast<BaseTextDocumentLayout *>(d->m_document->documentLayout());
+    QTC_ASSERT(documentLayout, return 0)
+    return documentLayout->markableInterface();
 }
 
 bool BaseTextDocument::save(QString *errorString, const QString &fileName, bool autoSave)
@@ -597,5 +492,3 @@ void BaseTextDocument::setHighlightWarning(bool has)
 }
 
 } // namespace TextEditor
-
-#include "basetextdocument.moc"
