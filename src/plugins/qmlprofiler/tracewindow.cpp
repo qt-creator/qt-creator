@@ -639,5 +639,11 @@ void TraceWindow::firstDataReceived()
     }
 }
 
+void TraceWindow::applicationDied()
+{
+    if (m_mainView->rootObject())
+        m_mainView->rootObject()->setProperty("applicationDied",QVariant(true));
+}
+
 } // namespace Internal
 } // namespace QmlProfiler

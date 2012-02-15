@@ -77,6 +77,8 @@ Rectangle {
     signal changeToolTip(string text)
     signal updateVerticalScroll(int newPosition)
 
+    property bool applicationDied : false
+
     // ***** connections with external objects
     Connections {
         target: zoomControl
@@ -149,6 +151,7 @@ Rectangle {
     function clearData() {
         view.clearData();
         dataAvailable = false;
+        applicationDied = false;
         eventCount = 0;
         hideRangeDetails();
         selectionRangeMode = false;

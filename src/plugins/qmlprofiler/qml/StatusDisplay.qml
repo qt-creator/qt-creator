@@ -99,7 +99,7 @@ Item {
         // loading data
         State {
             name: "loading"
-            when: (!root.dataAvailable) && (root.eventCount > 0)
+            when: (!root.dataAvailable) && (root.eventCount > 0) && !root.applicationDied
             PropertyChanges {
                 target: statusDisplay
                 visible: true
@@ -110,6 +110,23 @@ Item {
                 text: qsTr("Loading data")
             }
 
+            PropertyChanges {
+                target: progressBar
+                visible: true
+            }
+        },
+        // application died
+        State {
+            name: "deadApp"
+            when: (!root.dataAvailable) && (root.eventCount > 0) && root.applicationDied
+            PropertyChanges {
+                target: statusDisplay
+                visible: true
+            }
+            PropertyChanges {
+                target: statusText
+                text: qsTr("Application stopped before loading all data")
+            }
             PropertyChanges {
                 target: progressBar
                 visible: true

@@ -133,6 +133,7 @@ private slots:
     void eventListStateChanged();
     void manageTraceStart(qint64 traceStart);
     void firstDataReceived();
+    void applicationDied();
     void correctTimer();
 
 signals:

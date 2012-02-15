@@ -376,6 +376,7 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     connect(engine, SIGNAL(starting(const Analyzer::IAnalyzerEngine*)), this, SLOT(setAppIsRunning()));
     connect(engine, SIGNAL(finished()), this, SLOT(setAppIsStopped()));
     connect(this, SIGNAL(cancelRun()), engine, SLOT(finishProcess()));
+    connect(engine, SIGNAL(applicationDied()), d->m_traceWindow, SLOT(applicationDied()));
     emit fetchingData(d->m_recordButton->isChecked());
 
     return engine;

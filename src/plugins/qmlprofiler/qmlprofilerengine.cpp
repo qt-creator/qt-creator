@@ -80,6 +80,7 @@ public:
     AbstractQmlProfilerRunner *m_runner;
     bool m_running;
     bool m_fetchingData;
+    bool m_hasData;
     bool m_fetchDataFromStart;
     bool m_delayedDelete;
     QTimer m_noDebugOutputTimer;
@@ -209,6 +210,7 @@ bool QmlProfilerEngine::start()
 
     if (d->m_fetchDataFromStart) {
         d->m_fetchingData = true;
+        d->m_hasData = false;
     }
 
     emit starting(this);
@@ -236,8 +238,9 @@ void QmlProfilerEngine::stopped()
         d->m_fetchDataFromStart = d->m_fetchingData;
 
     // user feedback
-    if (d->m_running && d->m_fetchingData) {
+    if (d->m_running && d->m_fetchingData && !d->m_hasData) {
         showNonmodalWarning(tr("Application finished before loading profiled data.\n Please use the stop button instead."));
+        emit applicationDied();
     }
 
     d->m_running = false;
@@ -250,6 +253,8 @@ void QmlProfilerEngine::stopped()
 void QmlProfilerEngine::setFetchingData(bool b)
 {
     d->m_fetchingData = b;
+    if (d->m_running && b)
+        d->m_hasData = false;
     if (!d->m_running)
         d->m_fetchDataFromStart = b;
 }
@@ -259,6 +264,7 @@ void QmlProfilerEngine::dataReceived()
     if (d->m_delayedDelete)
         finishProcess();
     d->m_delayedDelete = false;
+    d->m_hasData = true;
 }
 
 void QmlProfilerEngine::finishProcess()
