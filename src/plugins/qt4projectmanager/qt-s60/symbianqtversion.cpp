@@ -369,7 +369,6 @@ Core::FeatureSet SymbianQtVersion::availableFeatures() const
     Core::FeatureSet features = QtSupport::BaseQtVersion::availableFeatures();
     if (qtVersion() >= QtSupport::QtVersionNumber(4, 7, 4)) //no reliable test for components, yet.
         features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_SYMBIAN);
-    features.remove(Core::Feature(QtSupport::Constants::FEATURE_QT_CONSOLE));
     features |= Core::FeatureSet(QtSupport::Constants::FEATURE_MOBILE);
 
     return features;
