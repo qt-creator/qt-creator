@@ -701,8 +701,14 @@ void QmlProfilerEventList::compileStatistics(qint64 startTime, qint64 endTime)
         eventDescription->childrenHash.clear();
     }
 
-    // create root event for statistics
+    // create root event for statistics & insert into list
     d->clearQmlRootEvent();
+    QmlEventData *listedRootEvent = d->m_eventDescriptions.value(d->m_rootEventName);
+    if (!listedRootEvent) {
+        listedRootEvent = new QmlEventData;
+        d->m_eventDescriptions.insert(d->m_rootEventName, listedRootEvent);
+    }
+    *listedRootEvent = d->m_qmlRootEvent;
 
     // compute parent-child relationship and call count
     QHash<int, QmlEventData*> lastParent;
@@ -729,7 +735,7 @@ void QmlProfilerEventList::compileStatistics(qint64 startTime, qint64 endTime)
 
         int level = d->m_startTimeSortedList[index].level;
 
-        QmlEventData *parentEvent = &d->m_qmlRootEvent;
+        QmlEventData *parentEvent = listedRootEvent;
         if (level > MIN_LEVEL && lastParent.contains(level-1)) {
             parentEvent = lastParent[level-1];
         }
@@ -767,20 +773,15 @@ void QmlProfilerEventList::compileStatistics(qint64 startTime, qint64 endTime)
 
     // fake rootEvent statistics
     // the +1 nanosecond is to force it to be on top of the sorted list
-    d->m_qmlRootEvent.duration = totalTime+1;
-    d->m_qmlRootEvent.minTime = totalTime+1;
-    d->m_qmlRootEvent.maxTime = totalTime+1;
-    d->m_qmlRootEvent.medianTime = totalTime+1;
+    listedRootEvent->duration = totalTime+1;
+    listedRootEvent->minTime = totalTime+1;
+    listedRootEvent->maxTime = totalTime+1;
+    listedRootEvent->medianTime = totalTime+1;
     if (totalTime > 0)
-        d->m_qmlRootEvent.calls = 1;
+        listedRootEvent->calls = 1;
 
-    // insert into list
-    QmlEventData *listedRootEvent = d->m_eventDescriptions.value(d->m_rootEventName);
-    if (!listedRootEvent) {
-        listedRootEvent = new QmlEventData;
-        d->m_eventDescriptions.insert(d->m_rootEventName, listedRootEvent);
-    }
-    *listedRootEvent = d->m_qmlRootEvent;
+    // copy to the global root reference
+    d->m_qmlRootEvent = *listedRootEvent;
 
     // compute percentages
     foreach (QmlEventData *binding, d->m_eventDescriptions.values()) {
