@@ -433,7 +433,7 @@ void extractGdbVersion(const QString &msg,
     }
 
     *isMacGdb = msg.contains(QLatin1String("Apple version"));
-    *isQnxGdb = msg.contains(QLatin1String("qnx-nto"));
+    *isQnxGdb = msg.contains(QLatin1String("qnx"));
 
     *gdbVersion = 10000 * cleaned.section(dot, 0, 0).toInt()
                   + 100 * cleaned.section(dot, 1, 1).toInt()
