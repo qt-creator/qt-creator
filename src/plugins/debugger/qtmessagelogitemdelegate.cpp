@@ -30,91 +30,90 @@
 **
 **************************************************************************/
 
-#include "consoleitemdelegate.h"
-#include "consoleeditor.h"
-#include "qmlengine.h"
+#include "qtmessagelogitemdelegate.h"
+#include "qtmessagelogeditor.h"
+#include "qtmessageloghandler.h"
 
 #include <QPainter>
 #include <QTreeView>
 
-const char CONSOLE_LOG_BACKGROUND_COLOR[] = "#2378B7";
-const char CONSOLE_WARNING_BACKGROUND_COLOR[] = "#E6CD49";
-const char CONSOLE_ERROR_BACKGROUND_COLOR[] = "#ED471A";
+const char CONSOLE_LOG_BACKGROUND_COLOR[] = "#E8EEF2";
+const char CONSOLE_WARNING_BACKGROUND_COLOR[] = "#F6F4EB";
+const char CONSOLE_ERROR_BACKGROUND_COLOR[] = "#F6EBE7";
 const char CONSOLE_EDITOR_BACKGROUND_COLOR[] = "#F7F7F7";
+
+const char CONSOLE_LOG_BACKGROUND_SELECTED_COLOR[] = "#CDDEEA";
+const char CONSOLE_WARNING_BACKGROUND_SELECTED_COLOR[] = "#F3EED1";
+const char CONSOLE_ERROR_BACKGROUND_SELECTED_COLOR[] = "#F5D4CB";
+const char CONSOLE_EDITOR_BACKGROUND_SELECTED_COLOR[] = "#DEDEDE";
 
 const char CONSOLE_LOG_TEXT_COLOR[] = "#333333";
 const char CONSOLE_WARNING_TEXT_COLOR[] = "#666666";
 const char CONSOLE_ERROR_TEXT_COLOR[] = "#1D5B93";
 const char CONSOLE_EDITOR_TEXT_COLOR[] = "#000000";
 
-const char CONSOLE_BORDER_COLOR[] = "#DEDEDE";
-const float CONSOLE_ALPHA = 0.7f;
+const char CONSOLE_BORDER_COLOR[] = "#C9C9C9";
 
 namespace Debugger {
 namespace Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
-// ConsoleItemDelegate
+// QtMessageLogItemDelegate
 //
 ///////////////////////////////////////////////////////////////////////
 
-ConsoleItemDelegate::ConsoleItemDelegate(QObject *parent) :
+QtMessageLogItemDelegate::QtMessageLogItemDelegate(QObject *parent) :
     QStyledItemDelegate(parent),
     m_logIcon(QLatin1String(":/debugger/images/log.png")),
     m_warningIcon(QLatin1String(":/debugger/images/warning.png")),
     m_errorIcon(QLatin1String(":/debugger/images/error.png")),
     m_expandIcon(QLatin1String(":/debugger/images/expand.png")),
     m_collapseIcon(QLatin1String(":/debugger/images/collapse.png")),
-    m_prompt(QLatin1String(":/debugger/images/prompt.png")),
-    m_consoleBackend(0)
+    m_prompt(QLatin1String(":/debugger/images/prompt.png"))
 {
 }
 
-void ConsoleItemDelegate::emitSizeHintChanged(const QModelIndex &index)
+void QtMessageLogItemDelegate::emitSizeHintChanged(const QModelIndex &index)
 {
     emit sizeHintChanged(index);
 }
 
-void ConsoleItemDelegate::setConsoleBackend(ConsoleBackend *consoleBackend)
-{
-    m_consoleBackend = consoleBackend;
-}
-
-void ConsoleItemDelegate::drawBackground(QPainter *painter, const QRect &rect,
-                             ConsoleItemModel::ItemType itemType,
+void QtMessageLogItemDelegate::drawBackground(QPainter *painter, const QRect &rect,
+                                         const QModelIndex &index,
                                          bool selected) const
 {
+    painter->save();
+    QtMessageLogHandler::ItemType itemType = (QtMessageLogHandler::ItemType)index.data(
+                QtMessageLogHandler::TypeRole).toInt();
     QColor backgroundColor;
     switch (itemType) {
-    case ConsoleItemModel::LogType:
-        backgroundColor = QColor(CONSOLE_LOG_BACKGROUND_COLOR);
+    case QtMessageLogHandler::DebugType:
+        backgroundColor = selected ? QColor(CONSOLE_LOG_BACKGROUND_SELECTED_COLOR) :
+                                     QColor(CONSOLE_LOG_BACKGROUND_COLOR);
         break;
-    case ConsoleItemModel::WarningType:
-        backgroundColor = QColor(CONSOLE_WARNING_BACKGROUND_COLOR);
+    case QtMessageLogHandler::WarningType:
+        backgroundColor = selected ? QColor(CONSOLE_WARNING_BACKGROUND_SELECTED_COLOR) :
+                                     QColor(CONSOLE_WARNING_BACKGROUND_COLOR);
         break;
-    case ConsoleItemModel::ErrorType:
-        backgroundColor = QColor(CONSOLE_ERROR_BACKGROUND_COLOR);
+    case QtMessageLogHandler::ErrorType:
+        backgroundColor = selected ? QColor(CONSOLE_ERROR_BACKGROUND_SELECTED_COLOR) :
+                                     QColor(CONSOLE_ERROR_BACKGROUND_COLOR);
         break;
-    case ConsoleItemModel::InputType:
-        backgroundColor = QColor(CONSOLE_EDITOR_BACKGROUND_COLOR);
-        break;
+    case QtMessageLogHandler::InputType:
     default:
-        backgroundColor = QColor(CONSOLE_EDITOR_BACKGROUND_COLOR);
+        backgroundColor = selected ? QColor(CONSOLE_EDITOR_BACKGROUND_SELECTED_COLOR) :
+                                     QColor(CONSOLE_EDITOR_BACKGROUND_COLOR);
         break;
     }
-    if (selected)
-        backgroundColor.setAlphaF(0.5f);
-    else
-        backgroundColor.setAlphaF(1 - CONSOLE_ALPHA);
-
-    painter->setBrush(backgroundColor);
-
+    if (!(index.flags() & Qt::ItemIsEditable))
+        painter->setBrush(backgroundColor);
     painter->setPen(Qt::NoPen);
     painter->drawRect(rect);
+    painter->restore();
 }
 
-void ConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+void QtMessageLogItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                          const QModelIndex &index) const
 {
     QStyleOptionViewItemV4 opt = option;
@@ -124,23 +123,22 @@ void ConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     //Set Colors
     QColor textColor;
     QIcon taskIcon;
-    ConsoleItemModel::ItemType type =
-            (ConsoleItemModel::ItemType)index.data(
-                ConsoleItemModel::TypeRole).toInt();
+    QtMessageLogHandler::ItemType type = (QtMessageLogHandler::ItemType)index.data(
+                QtMessageLogHandler::TypeRole).toInt();
     switch (type) {
-    case ConsoleItemModel::LogType:
+    case QtMessageLogHandler::DebugType:
         textColor = QColor(CONSOLE_LOG_TEXT_COLOR);
         taskIcon = m_logIcon;
         break;
-    case ConsoleItemModel::WarningType:
+    case QtMessageLogHandler::WarningType:
         textColor = QColor(CONSOLE_WARNING_TEXT_COLOR);
         taskIcon = m_warningIcon;
         break;
-    case ConsoleItemModel::ErrorType:
+    case QtMessageLogHandler::ErrorType:
         textColor = QColor(CONSOLE_ERROR_TEXT_COLOR);
         taskIcon = m_errorIcon;
         break;
-    case ConsoleItemModel::InputType:
+    case QtMessageLogHandler::InputType:
         textColor = QColor(CONSOLE_EDITOR_TEXT_COLOR);
         taskIcon = m_prompt;
         break;
@@ -150,7 +148,7 @@ void ConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     }
 
     //Paint background
-    drawBackground(painter, opt.rect, type,
+    drawBackground(painter, opt.rect, index,
                    bool(opt.state & QStyle::State_Selected));
 
     //Calculate positions
@@ -163,8 +161,7 @@ void ConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     }
     int width = view->width() - level * view->indentation();
     bool showTypeIcon = index.parent() == QModelIndex();
-    bool showExpandableIcon = type != ConsoleItemModel::InputType &&
-            type != ConsoleItemModel::UndefinedType;
+    bool showExpandableIcon = type == QtMessageLogHandler::UndefinedType;
 
     QRect rect(opt.rect.x(), opt.rect.top(), width, opt.rect.height());
     ConsoleItemPositions positions(rect, opt.font, showTypeIcon,
@@ -203,13 +200,13 @@ void ConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 
     // Separator lines
     painter->setPen(QColor(CONSOLE_BORDER_COLOR));
-    if (!index.flags() & Qt::ItemIsEditable)
+    if (!(index.flags() & Qt::ItemIsEditable))
         painter->drawLine(0, opt.rect.bottom(), opt.rect.right(),
                       opt.rect.bottom());
     painter->restore();
 }
 
-QSize ConsoleItemDelegate::sizeHint(const QStyleOptionViewItem &option,
+QSize QtMessageLogItemDelegate::sizeHint(const QStyleOptionViewItem &option,
                              const QModelIndex &index) const
 {
     QStyleOptionViewItemV4 opt = option;
@@ -226,12 +223,10 @@ QSize ConsoleItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     if (index.flags() & Qt::ItemIsEditable)
         return QSize(width, view->height() * 1/2);
 
-    ConsoleItemModel::ItemType type =
-            (ConsoleItemModel::ItemType)index.data(
-                ConsoleItemModel::TypeRole).toInt();
+    QtMessageLogHandler::ItemType type = (QtMessageLogHandler::ItemType)index.data(
+                QtMessageLogHandler::TypeRole).toInt();
     bool showTypeIcon = index.parent() == QModelIndex();
-    bool showExpandableIcon = type != ConsoleItemModel::InputType &&
-            type != ConsoleItemModel::UndefinedType;
+    bool showExpandableIcon = type == QtMessageLogHandler::UndefinedType;
 
     QRect rect(level * view->indentation(), 0, width, 0);
     ConsoleItemPositions positions(rect, opt.font,
@@ -247,36 +242,34 @@ QSize ConsoleItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     return QSize(width, height);
 }
 
-QWidget *ConsoleItemDelegate::createEditor(QWidget *parent,
+QWidget *QtMessageLogItemDelegate::createEditor(QWidget *parent,
                                     const QStyleOptionViewItem &/*option*/,
                                     const QModelIndex &index) const
 
 {
-    ConsoleEditor *editor = new ConsoleEditor(index, m_consoleBackend, parent);
-    connect(editor, SIGNAL(appendEditableRow()),
-            this, SIGNAL(appendEditableRow()));
+    QtMessageLogEditor *editor = new QtMessageLogEditor(index, parent);
     connect(editor, SIGNAL(editingFinished()),
             this, SLOT(commitAndCloseEditor()));
     return editor;
 }
 
-void ConsoleItemDelegate::setEditorData(QWidget *editor,
+void QtMessageLogItemDelegate::setEditorData(QWidget *editor,
                                  const QModelIndex &index) const
 {
-    ConsoleEditor *edtr = qobject_cast<ConsoleEditor *>(editor);
+    QtMessageLogEditor *edtr = qobject_cast<QtMessageLogEditor *>(editor);
     edtr->insertPlainText(index.data(Qt::DisplayRole).toString());
 }
 
-void ConsoleItemDelegate::setModelData(QWidget *editor,
+void QtMessageLogItemDelegate::setModelData(QWidget *editor,
                                        QAbstractItemModel *model,
                                 const QModelIndex &index) const
 {
-    ConsoleEditor *edtr = qobject_cast<ConsoleEditor *>(editor);
+    QtMessageLogEditor *edtr = qobject_cast<QtMessageLogEditor *>(editor);
     model->setData(index, edtr->getCurrentScript(), Qt::DisplayRole);
-    model->setData(index, edtr->getCurrentScript(), ConsoleItemModel::TypeRole);
+    model->setData(index, QtMessageLogHandler::InputType, QtMessageLogHandler::TypeRole);
 }
 
-void ConsoleItemDelegate::updateEditorGeometry(QWidget *editor,
+void QtMessageLogItemDelegate::updateEditorGeometry(QWidget *editor,
                                                const QStyleOptionViewItem &option,
                                                const QModelIndex &/*index*/) const
 {
@@ -285,21 +278,21 @@ void ConsoleItemDelegate::updateEditorGeometry(QWidget *editor,
                               opt.rect.width(), opt.rect.bottom()));
 }
 
-void ConsoleItemDelegate::currentChanged(const QModelIndex &current,
+void QtMessageLogItemDelegate::currentChanged(const QModelIndex &current,
                                          const QModelIndex &previous)
 {
     emit sizeHintChanged(current);
     emit sizeHintChanged(previous);
 }
 
-void ConsoleItemDelegate::commitAndCloseEditor()
+void QtMessageLogItemDelegate::commitAndCloseEditor()
 {
-    ConsoleEditor *editor = qobject_cast<ConsoleEditor *>(sender());
+    QtMessageLogEditor *editor = qobject_cast<QtMessageLogEditor *>(sender());
     emit commitData(editor);
     emit closeEditor(editor);
 }
 
-qreal ConsoleItemDelegate::layoutText(QTextLayout &tl, int width) const
+qreal QtMessageLogItemDelegate::layoutText(QTextLayout &tl, int width) const
 {
     qreal height = 0;
     tl.beginLayout();

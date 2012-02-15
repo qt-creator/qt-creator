@@ -1146,7 +1146,9 @@ void QmlV8DebuggerClient::assignValueInDebugger(const QByteArray /*expr*/, const
     if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {
         d->evaluate(expression, false, false, stackHandler->currentIndex());
     } else {
-        d->engine->showMessage(QString(_("Cannot evaluate %1 in current stack frame")).arg(expression), ScriptConsoleOutput);
+        d->engine->showMessage(QString(_("Cannot evaluate"
+                                         "%1 in current stack frame")).
+                               arg(expression), QtMessageLogOutput);
     }
 }
 
@@ -1163,8 +1165,9 @@ void QmlV8DebuggerClient::executeDebuggerCommand(const QString &command)
         d->evaluatingExpression.insert(d->sequence, command);
     } else {
         //Currently cannot evaluate if not in a javascript break
-        d->engine->showMessage(QString(_("Cannot evaluate %1 in current stack frame")).arg(command), ScriptConsoleOutput);
-        //        d->evaluate(command);
+        d->engine->showMessage(QString(_("Cannot evaluate %1"
+                                         "in current stack frame")).
+                               arg(command), QtMessageLogOutput);
     }
 }
 
@@ -1825,7 +1828,7 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success, con
             d->engine->watchHandler()->endCycle();
 
         } else {
-            d->engine->showMessage(body.value.toString(), ScriptConsoleOutput);
+            d->engine->showMessage(body.value.toString(), QtMessageLogOutput);
             //Update the locals
             foreach (int index, d->currentFrameScopes)
                 d->scope(index);
@@ -2014,7 +2017,7 @@ void QmlV8DebuggerClient::highlightExceptionCode(int lineNumber,
 
             QString message = QString(_("%1: %2: %3")).arg(filePath).arg(lineNumber)
                     .arg(errorMessage);
-            d->engine->showMessage(message, ScriptConsoleOutput);
+            d->engine->showMessage(message, QtMessageLogOutput);
         }
     }
 }

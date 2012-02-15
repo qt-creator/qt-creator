@@ -82,6 +82,7 @@ class BreakpointParameters;
 class QmlCppEngine;
 class DebuggerToolTipContext;
 class MemoryMarkup;
+class QtMessageLogHandler;
 
 struct WatchUpdateFlags
 {
@@ -224,6 +225,7 @@ public:
     virtual Internal::WatchHandler *watchHandler() const;
     virtual Internal::SourceFilesHandler *sourceFilesHandler() const;
     virtual Internal::BreakHandler *breakHandler() const;
+    virtual Internal::QtMessageLogHandler *qtMessageLogHandler() const;
 
     virtual QAbstractItemModel *modulesModel() const;
     virtual QAbstractItemModel *registerModel() const;
@@ -234,6 +236,7 @@ public:
     virtual QAbstractItemModel *returnModel() const;
     virtual QAbstractItemModel *toolTipsModel() const;
     virtual QAbstractItemModel *sourceFilesModel() const;
+    virtual QAbstractItemModel *qtMessageLogModel() const;
 
     void progressPing();
     void handleFinished();
@@ -361,6 +364,7 @@ protected:
     virtual void executeRunToFunction(const QString &functionName);
     virtual void executeJumpToLine(const Internal::ContextData &data);
     virtual void executeDebuggerCommand(const QString &command);
+    virtual bool evaluateScriptExpression(const QString &expression);
 
     virtual void frameUp();
     virtual void frameDown();

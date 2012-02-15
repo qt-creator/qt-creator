@@ -30,15 +30,15 @@
 **
 **************************************************************************/
 
-#include "consoleeditor.h"
-#include "consoleitemmodel.h"
-#include "consoleitemdelegate.h"
-#include "consolebackend.h"
-
+#include "qtmessagelogeditor.h"
+#include "qtmessageloghandler.h"
 #include "debuggerstringutils.h"
+#include "debuggercore.h"
+#include "debuggerengine.h"
 
 #include <utils/qtcassert.h>
 
+#include <QUrl>
 #include <QMenu>
 #include <QKeyEvent>
 
@@ -47,56 +47,47 @@ namespace Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
-// ConsoleEditor
+// QtMessageLogEditor
 //
 ///////////////////////////////////////////////////////////////////////
 
-ConsoleEditor::ConsoleEditor(const QModelIndex &index,
-                             ConsoleBackend *backend,
+QtMessageLogEditor::QtMessageLogEditor(const QModelIndex &index,
                              QWidget *parent) :
     QTextEdit(parent),
-    m_consoleBackend(backend),
     m_historyIndex(index),
-    m_prompt(QLatin1String(":/debugger/images/prompt.png")),
+    m_prompt(_(":/debugger/images/prompt.png")),
     m_startOfEditableArea(0)
 {
     setFrameStyle(QFrame::NoFrame);
     setUndoRedoEnabled(false);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     document()->addResource(QTextDocument::ImageResource,
-                            QUrl(QLatin1String("prompt")), m_prompt);
+                            QUrl(_("prompt")), m_prompt);
     QTextImageFormat format;
-    format.setName(QLatin1String("prompt"));
+    format.setName(_("prompt"));
     format.setHeight(9);
     format.setWidth(9);
     textCursor().insertImage(format);
-    textCursor().insertText(QLatin1String("  "));
+    textCursor().insertText(_("  "));
     m_startOfEditableArea = textCursor().position();
 
     ensureCursorVisible();
     setTextInteractionFlags(Qt::TextEditorInteraction);
 }
 
-void ConsoleEditor::keyPressEvent(QKeyEvent *e)
+void QtMessageLogEditor::keyPressEvent(QKeyEvent *e)
 {
     bool keyConsumed = false;
 
     switch (e->key()) {
     case Qt::Key_Return:
-    case Qt::Key_Enter:
-        if (m_consoleBackend) {
-            m_consoleBackend->evaluate(getCurrentScript(), &keyConsumed);
-            if (keyConsumed) {
-                emit editingFinished();
-                emit appendEditableRow();
-                //emit error message if there is an error
-                m_consoleBackend->emitErrorMessage();
-            }
-        } else {
+    case Qt::Key_Enter: {
+        keyConsumed = debuggerCore()->evaluateScriptExpression(getCurrentScript());
+        if (keyConsumed) {
             emit editingFinished();
-            emit appendEditableRow();
-            keyConsumed = true;
+            debuggerCore()->currentEngine()->qtMessageLogHandler()->appendEditableRow();
         }
+    }
         break;
 
     case Qt::Key_Backspace:
@@ -171,7 +162,7 @@ void ConsoleEditor::keyPressEvent(QKeyEvent *e)
         QTextEdit::keyPressEvent(e);
 }
 
-void ConsoleEditor::contextMenuEvent(QContextMenuEvent *event)
+void QtMessageLogEditor::contextMenuEvent(QContextMenuEvent *event)
 {
     QTextCursor cursor = textCursor();
     bool editable = cursor.position() > m_startOfEditableArea;
@@ -199,12 +190,12 @@ void ConsoleEditor::contextMenuEvent(QContextMenuEvent *event)
     delete menu;
 }
 
-void ConsoleEditor::focusOutEvent(QFocusEvent * /*e*/)
+void QtMessageLogEditor::focusOutEvent(QFocusEvent * /*e*/)
 {
     emit editingFinished();
 }
 
-void ConsoleEditor::handleUpKey()
+void QtMessageLogEditor::handleUpKey()
 {
     QTC_ASSERT(m_historyIndex.isValid(), return);
     int currentRow = m_historyIndex.row();
@@ -216,9 +207,8 @@ void ConsoleEditor::handleUpKey()
         currentRow--;
         if (model->hasIndex(currentRow, 0)) {
             QModelIndex index = model->index(currentRow, 0);
-            if (ConsoleItemModel::InputType ==
-                    (ConsoleItemModel::ItemType)model->data(
-                        index, ConsoleItemModel::TypeRole).toInt()) {
+            if (QtMessageLogHandler::InputType == (QtMessageLogHandler::ItemType)model->data(
+                        index, QtMessageLogHandler::TypeRole).toInt()) {
                 m_historyIndex = index;
                 replaceCurrentScript(model->data(
                                          index, Qt::DisplayRole).
@@ -229,7 +219,7 @@ void ConsoleEditor::handleUpKey()
     }
 }
 
-void ConsoleEditor::handleDownKey()
+void QtMessageLogEditor::handleDownKey()
 {
     QTC_ASSERT(m_historyIndex.isValid(), return);
     int currentRow = m_historyIndex.row();
@@ -238,9 +228,8 @@ void ConsoleEditor::handleDownKey()
         currentRow++;
         if (model->hasIndex(currentRow, 0)) {
             QModelIndex index = model->index(currentRow, 0);
-            if (ConsoleItemModel::InputType ==
-                    (ConsoleItemModel::ItemType)model->data(
-                        index, ConsoleItemModel::TypeRole).toInt()) {
+            if (QtMessageLogHandler::InputType == (QtMessageLogHandler::ItemType)model->data(
+                        index, QtMessageLogHandler::TypeRole).toInt()) {
                 m_historyIndex = index;
                 if (currentRow == model->rowCount() - 1)
                     replaceCurrentScript(m_cachedScript);
@@ -254,7 +243,7 @@ void ConsoleEditor::handleDownKey()
     }
 }
 
-QString ConsoleEditor::getCurrentScript() const
+QString QtMessageLogEditor::getCurrentScript() const
 {
     QTextCursor cursor = textCursor();
     cursor.setPosition(m_startOfEditableArea);
@@ -264,7 +253,7 @@ QString ConsoleEditor::getCurrentScript() const
     return script.trimmed();
 }
 
-void ConsoleEditor::replaceCurrentScript(const QString &script)
+void QtMessageLogEditor::replaceCurrentScript(const QString &script)
 {
     QTextCursor cursor = textCursor();
     cursor.setPosition(m_startOfEditableArea);

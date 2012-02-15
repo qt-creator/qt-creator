@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef CONSOLEITEMMODEL_H
-#define CONSOLEITEMMODEL_H
+#ifndef QTMESSAGELOGHANDLER_H
+#define QTMESSAGELOGHANDLER_H
 
 #include <QAbstractItemModel>
 #include <QItemSelectionModel>
@@ -39,29 +39,48 @@
 namespace Debugger {
 namespace Internal {
 
-class ConsoleItem;
-class ConsoleItemModel : public QAbstractItemModel
+class QtMessageLogItem;
+class QtMessageLogHandler : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
-    enum ItemType { InputType, LogType, WarningType, ErrorType,
-                    UndefinedType //Can be used for unknown and for Return values
-                  };
+    enum ItemType
+    {
+    InputType = 0x01,
+    DebugType = 0x02,
+    WarningType = 0x04,
+    ErrorType = 0x08,
+    UndefinedType = 0x10, //Can be used for unknown and for Return values
+    DefaultTypes = InputType | UndefinedType
+    };
+    Q_DECLARE_FLAGS(ItemTypes, ItemType)
+
     enum Roles { TypeRole = Qt::UserRole };
 
-    explicit ConsoleItemModel(QObject *parent = 0);
-    ~ConsoleItemModel();
+    explicit QtMessageLogHandler(QObject *parent = 0);
+    ~QtMessageLogHandler();
 
-    void appendItem(ItemType,QString);
+    void setHasEditableRow(bool hasEditableRow);
+    bool hasEditableRow() const;
+    void appendEditableRow();
+    void removeEditableRow();
+
+    bool appendItem(QtMessageLogItem *item, int position = -1);
+    bool appendMessage(QtMessageLogHandler::ItemType itemType,
+                       const QString &message, int position = -1);
+
+    QAbstractItemModel *model() { return this; }
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
 public slots:
     void clear();
-    void appendEditableRow();
 
 signals:
-    void editableRowAppended(const QModelIndex &index,
+    void selectEditableRow(const QModelIndex &index,
                              QItemSelectionModel::SelectionFlags flags);
+    void rowInserted(const QModelIndex &index);
 
 protected:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
@@ -70,7 +89,7 @@ protected:
                       const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
     Qt::ItemFlags flags(const QModelIndex &index) const;
@@ -82,13 +101,42 @@ protected:
     bool removeRows(int position, int rows,
                     const QModelIndex &parent = QModelIndex());
 
-    ConsoleItem *getItem(const QModelIndex &index) const;
+    QtMessageLogItem *getItem(const QModelIndex &index) const;
 
 private:
-    ConsoleItem *m_rootItem;
+    bool m_hasEditableRow;
+    QtMessageLogItem *m_rootItem;
 };
+
+class QtMessageLogItem
+ {
+ public:
+    QtMessageLogItem(QtMessageLogHandler::ItemType type = QtMessageLogHandler::UndefinedType,
+                  const QString &data = QString(),
+                  QtMessageLogItem *parent = 0);
+     ~QtMessageLogItem();
+
+     QtMessageLogItem *child(int number);
+     int childCount() const;
+     QString text() const;
+     QtMessageLogHandler::ItemType itemType() const;
+     bool insertChildren(int position, int count);
+     bool insertChild(int position, QtMessageLogItem *item);
+     QtMessageLogItem *parent();
+     bool removeChildren(int position, int count);
+     bool detachChild(int position);
+     int childNumber() const;
+     bool setText(const QString &text);
+     bool setItemType(QtMessageLogHandler::ItemType itemType);
+
+ private:
+     QList<QtMessageLogItem *> m_childItems;
+     QString m_text;
+     QtMessageLogHandler::ItemType m_itemType;
+     QtMessageLogItem *m_parentItem;
+ };
 
 } //Internal
 } //Debugger
 
-#endif // CONSOLEITEMMODEL_H
+#endif // QTMESSAGELOGHANDLER_H

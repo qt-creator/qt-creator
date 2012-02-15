@@ -660,7 +660,7 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
     QDockWidget *threadsDock = q->dockWidget(QLatin1String(DOCKWIDGET_THREADS));
     QDockWidget *outputDock = q->dockWidget(QLatin1String(DOCKWIDGET_OUTPUT));
     QDockWidget *qmlInspectorDock = q->dockWidget(QLatin1String(DOCKWIDGET_QML_INSPECTOR));
-    QDockWidget *scriptConsoleDock = q->dockWidget(QLatin1String(DOCKWIDGET_QML_SCRIPTCONSOLE));
+    QDockWidget *consoleDock = q->dockWidget(QLatin1String(DOCKWIDGET_QML_SCRIPTCONSOLE));
     QDockWidget *modulesDock = q->dockWidget(QLatin1String(DOCKWIDGET_MODULES));
     QDockWidget *registerDock = q->dockWidget(QLatin1String(DOCKWIDGET_REGISTER));
     QDockWidget *sourceFilesDock = q->dockWidget(QLatin1String(DOCKWIDGET_SOURCE_FILES));
@@ -671,7 +671,7 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
     QTC_ASSERT(snapshotsDock, return);
     QTC_ASSERT(threadsDock, return);
     QTC_ASSERT(outputDock, return);
-    QTC_ASSERT(scriptConsoleDock, return);
+    QTC_ASSERT(consoleDock, return);
     QTC_ASSERT(modulesDock, return);
     QTC_ASSERT(registerDock, return);
     QTC_ASSERT(sourceFilesDock, return);
@@ -697,13 +697,13 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
     q->tabifyDockWidget(breakDock, threadsDock);
     q->tabifyDockWidget(breakDock, sourceFilesDock);
     q->tabifyDockWidget(breakDock, snapshotsDock);
-    q->tabifyDockWidget(breakDock, scriptConsoleDock);
+    q->tabifyDockWidget(breakDock, consoleDock);
 
     if (m_activeDebugLanguages.testFlag(Debugger::QmlLanguage)) {
         if (qmlInspectorDock)
             qmlInspectorDock->show();
-        if (scriptConsoleDock)
-            scriptConsoleDock->show();
+        if (consoleDock)
+            consoleDock->show();
     } else {
         // CPP only
         threadsDock->show();

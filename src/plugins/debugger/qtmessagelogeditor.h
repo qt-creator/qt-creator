@@ -30,30 +30,46 @@
 **
 **************************************************************************/
 
-#ifndef CONSOLETREEVIEW_H
-#define CONSOLETREEVIEW_H
+#ifndef QTMESSAGELOGEDITOR_H
+#define QTMESSAGELOGEDITOR_H
 
-#include <QTreeView>
+#include <QModelIndex>
+#include <QTextEdit>
 
 namespace Debugger {
 namespace Internal {
 
-class ConsoleTreeView : public QTreeView
+class QtMessageLogEditor : public QTextEdit
 {
     Q_OBJECT
 public:
-    explicit ConsoleTreeView(QWidget *parent = 0);
+    explicit QtMessageLogEditor(const QModelIndex &index,
+                           QWidget *parent = 0);
 
-    void setItemDelegate(QAbstractItemDelegate *delegate);
+    QString getCurrentScript() const;
 
 protected:
-    void mousePressEvent(QMouseEvent *event);
-    void resizeEvent(QResizeEvent *e);
-    void drawBranches(QPainter *painter, const QRect &rect,
-                      const QModelIndex &index) const;
+    void keyPressEvent(QKeyEvent *e);
+    void contextMenuEvent(QContextMenuEvent *event);
+    void focusOutEvent(QFocusEvent *e);
+
+signals:
+    void editingFinished();
+
+protected:
+    void handleUpKey();
+    void handleDownKey();
+
+    void replaceCurrentScript(const QString &script);
+
+private:
+    QModelIndex m_historyIndex;
+    QString m_cachedScript;
+    QImage m_prompt;
+    int m_startOfEditableArea;
 };
 
 } //Internal
 } //Debugger
 
-#endif // CONSOLETREEVIEW_H
+#endif // QTMESSAGELOGEDITOR_H

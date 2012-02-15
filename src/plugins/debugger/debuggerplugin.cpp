@@ -47,7 +47,7 @@
 #include "breakpoint.h"
 #include "breakhandler.h"
 #include "breakwindow.h"
-#include "consolewindow.h"
+#include "qtmessagelogwindow.h"
 #include "disassemblerlines.h"
 #include "logwindow.h"
 #include "moduleswindow.h"
@@ -113,8 +113,6 @@
 #include <utils/proxyaction.h>
 #include <utils/statuslabel.h>
 #include <utils/fileutils.h>
-
-#include <qml/qmljsscriptconsole.h>
 
 #include <QTimer>
 #include <QtPlugin>
@@ -849,7 +847,7 @@ public slots:
     void aboutToSaveSession();
 
     void executeDebuggerCommand(const QString &command);
-    void evaluateExpression(const QString &expression);
+    bool evaluateScriptExpression(const QString &expression);
     void coreShutdown();
 
 #ifdef WITH_TESTS
@@ -1172,7 +1170,7 @@ public:
 
     BreakWindow *m_breakWindow;
     BreakHandler *m_breakHandler;
-    //ConsoleWindow *m_consoleWindow;
+    QtMessageLogWindow *m_qtMessageLogWindow;
     QTreeView *m_returnWindow;
     QTreeView *m_localsWindow;
     QTreeView *m_watchersWindow;
@@ -1183,7 +1181,6 @@ public:
     QAbstractItemView *m_stackWindow;
     QAbstractItemView *m_threadsWindow;
     LogWindow *m_logWindow;
-    QmlJSScriptConsoleWidget *m_scriptConsoleWindow;
 
     bool m_busy;
     QString m_lastPermanentStatusMessage;
@@ -1237,7 +1234,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
     m_stackWindow = 0;
     m_threadsWindow = 0;
     m_logWindow = 0;
-    m_scriptConsoleWindow = 0;
+    m_qtMessageLogWindow = 0;
 
     m_mainWindow = 0;
     m_snapshotHandler = 0;
@@ -2096,8 +2093,7 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
     //m_threadBox->setModel(engine->threadsModel());
     //m_threadBox->setModelColumn(ThreadData::ComboNameColumn);
     m_watchersWindow->setModel(engine->watchersModel());
-
-    m_scriptConsoleWindow->setEngine(engine);
+    m_qtMessageLogWindow->setModel(engine->qtMessageLogModel());
 
     engine->watchHandler()->rebuildModel();
 
@@ -2219,7 +2215,7 @@ void DebuggerPluginPrivate::setInitialState()
     action(AutoDerefPointers)->setEnabled(true);
     action(ExpandStack)->setEnabled(false);
 
-    m_scriptConsoleWindow->setEnabled(false);
+    m_qtMessageLogWindow->setEnabled(true);
 }
 
 void DebuggerPluginPrivate::updateWatchersWindow()
@@ -2519,9 +2515,9 @@ void DebuggerPluginPrivate::showStatusMessage(const QString &msg0, int timeout)
     m_statusLabel->showStatusMessage(msg, timeout);
 }
 
-void DebuggerPluginPrivate::evaluateExpression(const QString &expression)
+bool DebuggerPluginPrivate::evaluateScriptExpression(const QString &expression)
 {
-    currentEngine()->executeDebuggerCommand(expression);
+    return currentEngine()->evaluateScriptExpression(expression);
 }
 
 void DebuggerPluginPrivate::openMemoryEditor()
@@ -2595,9 +2591,6 @@ void DebuggerPluginPrivate::showMessage(const QString &msg, int channel, int tim
             m_logWindow->showInput(LogInput, msg);
             m_logWindow->showOutput(LogInput, msg);
             break;
-        case ScriptConsoleOutput:
-            m_scriptConsoleWindow->appendResult(msg);
-            break;
         case LogError: {
             m_logWindow->showOutput(channel, msg);
             QAction *action = m_mainWindow->dockWidget(_(DOCKWIDGET_OUTPUT))
@@ -2606,6 +2599,10 @@ void DebuggerPluginPrivate::showMessage(const QString &msg, int channel, int tim
                 action->trigger();
             break;
         }
+        case QtMessageLogStatus:
+            QTC_ASSERT(m_qtMessageLogWindow, return);
+            m_qtMessageLogWindow->showStatus(msg, timeout);
+            break;
         default:
             m_logWindow->showOutput(channel, msg);
             break;
@@ -2874,8 +2871,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_breakWindow->setObjectName(QLatin1String(DOCKWIDGET_BREAK));
     m_breakWindow->setModel(m_breakHandler->model());
 
-    //m_consoleWindow = new ConsoleWindow;
-    //m_consoleWindow->setObjectName(QLatin1String("CppDebugConsole"));
+    m_qtMessageLogWindow = new QtMessageLogWindow();
+    m_qtMessageLogWindow->setObjectName(QLatin1String(DOCKWIDGET_QML_SCRIPTCONSOLE));
     m_modulesWindow = new ModulesWindow;
     m_modulesWindow->setObjectName(QLatin1String(DOCKWIDGET_MODULES));
     m_logWindow = new LogWindow;
@@ -2894,11 +2891,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_localsWindow->setObjectName(QLatin1String("CppDebugLocals"));
     m_watchersWindow = new WatchWindow(WatchWindow::WatchersType);
     m_watchersWindow->setObjectName(QLatin1String("CppDebugWatchers"));
-    m_scriptConsoleWindow = new QmlJSScriptConsoleWidget;
-    m_scriptConsoleWindow->setWindowTitle(tr("QML Script Console"));
-    m_scriptConsoleWindow->setObjectName(QLatin1String(DOCKWIDGET_QML_SCRIPTCONSOLE));
-    connect(m_scriptConsoleWindow, SIGNAL(evaluateExpression(QString)),
-        SLOT(evaluateExpression(QString)));
 
     // Snapshot
     m_snapshotHandler = new SnapshotHandler;
@@ -3011,11 +3003,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
     dock->setProperty(DOCKWIDGET_DEFAULT_AREA, Qt::TopDockWidgetArea);
 
     m_mainWindow->createDockWidget(CppLanguage, m_breakWindow);
-    //m_mainWindow->createDockWidget(CppLanguage, m_consoleWindow);
+    m_mainWindow->createDockWidget(QmlLanguage, m_qtMessageLogWindow);
     m_mainWindow->createDockWidget(CppLanguage, m_snapshotWindow);
     m_mainWindow->createDockWidget(CppLanguage, m_stackWindow);
     m_mainWindow->createDockWidget(CppLanguage, m_threadsWindow);
-    m_mainWindow->createDockWidget(QmlLanguage, m_scriptConsoleWindow);
 
     QSplitter *localsAndWatchers = new MiniSplitter(Qt::Vertical);
     localsAndWatchers->setObjectName(QLatin1String(DOCKWIDGET_WATCHERS));

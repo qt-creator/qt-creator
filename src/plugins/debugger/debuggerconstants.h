@@ -178,7 +178,8 @@ enum LogChannel
     AppError,                // stderr
     AppStuff,                // (possibly) windows debug channel
     StatusBar,                // LogStatus and also put to the status bar
-    ScriptConsoleOutput
+    QtMessageLogOutput,
+    QtMessageLogStatus
 };
 
 enum DebuggerEngineType

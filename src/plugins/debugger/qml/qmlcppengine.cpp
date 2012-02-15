@@ -36,6 +36,7 @@
 #include "debuggerstartparameters.h"
 #include "stackhandler.h"
 #include "qmlengine.h"
+#include "qtmessageloghandler.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
@@ -426,6 +427,11 @@ void QmlCppEngine::executeDebuggerCommand(const QString &command)
     }
 }
 
+bool QmlCppEngine::evaluateScriptExpression(const QString &expression)
+{
+    return d->m_qmlEngine->evaluateScriptExpression(expression);
+}
+
 /////////////////////////////////////////////////////////
 
 void QmlCppEngine::setupEngine()
@@ -809,6 +815,11 @@ void QmlCppEngine::resetLocation()
         d->m_cppEngine->resetLocation();
 
     DebuggerEngine::resetLocation();
+}
+
+Internal::QtMessageLogHandler *QmlCppEngine::qtMessageLogHandler() const
+{
+    return d->m_qmlEngine->qtMessageLogHandler();
 }
 
 DebuggerEngine *QmlCppEngine::cppEngine() const

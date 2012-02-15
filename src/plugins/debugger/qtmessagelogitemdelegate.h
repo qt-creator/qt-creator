@@ -30,10 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef CONSOLEITEMDELEGATE_H
-#define CONSOLEITEMDELEGATE_H
-
-#include "consoleitemmodel.h"
+#ifndef QTMESSAGELOGITEMDELEGATE_H
+#define QTMESSAGELOGITEMDELEGATE_H
 
 #include <QTextLayout>
 #include <QStyledItemDelegate>
@@ -41,17 +39,15 @@
 namespace Debugger {
 namespace Internal {
 
-class ConsoleBackend;
-class ConsoleItemDelegate : public QStyledItemDelegate
+class QtMessageLogItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    explicit ConsoleItemDelegate(QObject *parent = 0);
+    explicit QtMessageLogItemDelegate(QObject *parent = 0);
     void emitSizeHintChanged(const QModelIndex &index);
-    void setConsoleBackend(ConsoleBackend *consoleBackend);
-
     void drawBackground(QPainter *painter, const QRect &rect,
-                      ConsoleItemModel::ItemType itemType, bool selected) const;
+                        const QModelIndex &index,
+                        bool selected) const;
 
 public slots:
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
@@ -71,9 +67,6 @@ protected:
                               const QStyleOptionViewItem &option,
                               const QModelIndex &index) const;
 
-signals:
-    void appendEditableRow();
-
 private slots:
     void commitAndCloseEditor();
 
@@ -87,7 +80,6 @@ private:
     const QIcon m_expandIcon;
     const QIcon m_collapseIcon;
     const QIcon m_prompt;
-    ConsoleBackend *m_consoleBackend;
 };
 
 /*
@@ -164,11 +156,11 @@ private:
 
 public:
     static const int TASK_ICON_SIZE = 16;
-    static const int ITEM_PADDING = 2;
-    static const int ITEM_SPACING = 2 * ITEM_PADDING;
+    static const int ITEM_PADDING = 7;
+    static const int ITEM_SPACING = 4;
 
 };
 } //Internal
 } //Debugger
 
-#endif // CONSOLEITEMDELEGATE_H
+#endif // QTMESSAGELOGITEMDELEGATE_H

@@ -30,15 +30,14 @@
 **
 **************************************************************************/
 
-#ifndef QMLJSSCRIPTCONSOLE_H
-#define QMLJSSCRIPTCONSOLE_H
+#ifndef QTMESSAGELOGWINDOW_H
+#define QTMESSAGELOGWINDOW_H
 
-#include "consoleitemmodel.h"
-#include <debugger/debuggerconstants.h>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QToolButton;
+class QAbstractItemModel;
+class QAction;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -47,52 +46,36 @@ class SavedAction;
 }
 
 namespace Debugger {
-
-class DebuggerEngine;
-
 namespace Internal {
 
-class ConsoleTreeView;
-class ConsoleItemDelegate;
-class QmlJSConsoleBackend;
-class QmlJSScriptConsoleWidget : public QWidget
+class QtMessageLogView;
+class QtMessageLogProxyModel;
+class QtMessageLogWindow : public QWidget
 {
     Q_OBJECT
 public:
-    QmlJSScriptConsoleWidget(QWidget *parent = 0);
-    ~QmlJSScriptConsoleWidget();
+    QtMessageLogWindow(QWidget *parent = 0);
+    ~QtMessageLogWindow();
 
-    void setEngine(DebuggerEngine *engine);
+    void setModel(QAbstractItemModel *model);
     void readSettings();
+    void showStatus(const QString &context, int timeout);
 
 public slots:
     void writeSettings() const;
-    void appendResult(const QString &result);
-    void appendOutput(ConsoleItemModel::ItemType, const QString &message);
-    void appendMessage(QtMsgType type, const QString &message);
-
-signals:
-    void evaluateExpression(const QString &expr);
-
-private slots:
-    void onEngineStateChanged(Debugger::DebuggerState state);
-    void onSelectionChanged();
 
 private:
-    ConsoleTreeView *m_consoleView;
-    ConsoleItemModel *m_model;
-    ConsoleItemDelegate *m_itemDelegate;
-    QmlJSConsoleBackend *m_consoleBackend;
     Utils::StatusLabel *m_statusLabel;
-    QToolButton *m_showLog;
-    QToolButton *m_showWarning;
-    QToolButton *m_showError;
     Utils::SavedAction *m_showLogAction;
     Utils::SavedAction *m_showWarningAction;
     Utils::SavedAction *m_showErrorAction;
+    QAction *m_clearAction;
+    QtMessageLogView *m_treeView;
+    QtMessageLogProxyModel *m_proxyModel;
 };
 
-} //Internal
-} //Debugger
+} // namespace Internal
+} // namespace Debugger
 
-#endif
+#endif // QTMESSAGELOGWINDOW_H
+

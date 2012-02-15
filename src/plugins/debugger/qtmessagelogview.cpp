@@ -30,10 +30,9 @@
 **
 **************************************************************************/
 
-#include "consoletreeview.h"
-#include "consoleitemdelegate.h"
-#include "consoleitemmodel.h"
-#include "debuggerinternalconstants.h"
+#include "qtmessagelogview.h"
+#include "qtmessagelogitemdelegate.h"
+#include "qtmessageloghandler.h"
 
 #include <QMouseEvent>
 #include <QProxyStyle>
@@ -42,7 +41,7 @@
 namespace Debugger {
 namespace Internal {
 
-class ConsoleTreeViewStyle : public QProxyStyle
+class QtMessageLogViewViewStyle : public QProxyStyle
 {
 public:
     void drawPrimitive(PrimitiveElement element,
@@ -54,7 +53,8 @@ public:
             QProxyStyle::drawPrimitive(element, option, painter, widget);
     }
 
-    int styleHint(StyleHint hint, const QStyleOption *option = 0,
+    int styleHint(StyleHint hint,
+                  const QStyleOption *option = 0,
                   const QWidget *widget = 0,
                   QStyleHintReturn *returnData = 0) const {
         if (hint == SH_ItemView_ShowDecorationSelected)
@@ -66,11 +66,11 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 //
-// ConsoleTreeView
+// QtMessageLogView
 //
 ///////////////////////////////////////////////////////////////////////
 
-ConsoleTreeView::ConsoleTreeView(QWidget *parent) :
+QtMessageLogView::QtMessageLogView(QWidget *parent) :
     QTreeView(parent)
 {
     setFrameStyle(QFrame::NoFrame);
@@ -94,29 +94,20 @@ ConsoleTreeView::ConsoleTreeView(QWidget *parent) :
                                 "QTreeView::branch:open:has-children:has-siblings  {"
                                 "border-image: none;"
                                 "image: none; }"));
-    ConsoleTreeViewStyle *style = new ConsoleTreeViewStyle;
+    QtMessageLogViewViewStyle *style = new QtMessageLogViewViewStyle;
     setStyle(style);
     style->setParent(this);
 }
 
-void ConsoleTreeView::setItemDelegate(QAbstractItemDelegate *delegate)
-{
-    connect(selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            delegate, SLOT(currentChanged(QModelIndex,QModelIndex)));
-    QTreeView::setItemDelegate(delegate);
-}
-
-void ConsoleTreeView::mousePressEvent(QMouseEvent *event)
+void QtMessageLogView::mousePressEvent(QMouseEvent *event)
 {
     QPoint pos = event->pos();
     QModelIndex index = indexAt(pos);
     if (index.isValid()) {
-        ConsoleItemModel::ItemType type =
-                (ConsoleItemModel::ItemType)index.data(
-                    ConsoleItemModel::TypeRole).toInt();
+        QtMessageLogHandler::ItemType type = (QtMessageLogHandler::ItemType)index.data(
+                    QtMessageLogHandler::TypeRole).toInt();
         bool showTypeIcon = index.parent() == QModelIndex();
-        bool showExpandableIcon = type != ConsoleItemModel::InputType &&
-                type != ConsoleItemModel::UndefinedType;
+        bool showExpandableIcon = type == QtMessageLogHandler::UndefinedType;
         ConsoleItemPositions positions(visualRect(index), viewOptions().font,
                                        showTypeIcon, showExpandableIcon);
 
@@ -135,21 +126,18 @@ void ConsoleTreeView::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void ConsoleTreeView::resizeEvent(QResizeEvent *e)
+void QtMessageLogView::resizeEvent(QResizeEvent *e)
 {
-    static_cast<ConsoleItemDelegate *>(itemDelegate())->emitSizeHintChanged(
+    static_cast<QtMessageLogItemDelegate *>(itemDelegate())->emitSizeHintChanged(
                 selectionModel()->currentIndex());
     QTreeView::resizeEvent(e);
 }
 
-void ConsoleTreeView::drawBranches(QPainter *painter, const QRect &rect,
+void QtMessageLogView::drawBranches(QPainter *painter, const QRect &rect,
                              const QModelIndex &index) const
 {
-    ConsoleItemModel::ItemType type =
-            (ConsoleItemModel::ItemType)index.data(
-                ConsoleItemModel::TypeRole).toInt();
-    static_cast<ConsoleItemDelegate *>(itemDelegate())->drawBackground(
-                painter, rect, type, true);
+    static_cast<QtMessageLogItemDelegate *>(itemDelegate())->drawBackground(
+                painter, rect, index, false);
     QTreeView::drawBranches(painter, rect, index);
 }
 

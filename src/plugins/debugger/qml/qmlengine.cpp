@@ -32,6 +32,7 @@
 
 #include "qmlengine.h"
 #include "qmladapter.h"
+#include "interactiveinterpreter.h"
 
 #include "debuggerstartparameters.h"
 #include "debuggeractions.h"
@@ -51,11 +52,13 @@
 #include "watchhandler.h"
 #include "sourcefileshandler.h"
 #include "watchutils.h"
+#include "qtmessageloghandler.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/applicationlauncher.h>
 #include <qmljsdebugclient/qdeclarativeoutputparser.h>
 #include <qmljseditor/qmljseditorconstants.h>
+#include <qmljsdebugclient/qdebugmessageclient.h>
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
@@ -112,10 +115,13 @@ private:
     QmlJsDebugClient::QDeclarativeOutputParser m_outputParser;
     QHash<QString, QTextDocument*> m_sourceDocuments;
     QHash<QString, QWeakPointer<TextEditor::ITextEditor> > m_sourceEditors;
+    InteractiveInterpreter m_interpreter;
+    bool m_validContext;
 };
 
 QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q)
-    : m_adapter(q)
+    : m_adapter(q),
+      m_validContext(false)
 {}
 
 
@@ -145,6 +151,15 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
     connect(&d->m_adapter, SIGNAL(connectionStartupFailed()),
         SLOT(connectionStartupFailed()));
 
+    connect(this, SIGNAL(stateChanged(Debugger::DebuggerState)),
+            SLOT(updateCurrentContext()));
+    connect(this->stackHandler(), SIGNAL(currentIndexChanged()),
+            SLOT(updateCurrentContext()));
+    connect(&d->m_adapter, SIGNAL(selectionChanged()),
+            SLOT(updateCurrentContext()));
+    connect(d->m_adapter.messageClient(), SIGNAL(message(QtMsgType,QString)),
+            SLOT(appendDebugOutput(QtMsgType,QString)));
+
     connect(&d->m_applicationLauncher,
         SIGNAL(processExited(int)),
         SLOT(disconnected()));
@@ -169,6 +184,8 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
     d->m_noDebugOutputTimer.setSingleShot(true);
     d->m_noDebugOutputTimer.setInterval(8000);
     connect(&d->m_noDebugOutputTimer, SIGNAL(timeout()), this, SLOT(beginConnection()));
+
+    qtMessageLogHandler()->setHasEditableRow(true);
 }
 
 QmlEngine::~QmlEngine()
@@ -781,6 +798,23 @@ void QmlEngine::synchronizeWatchers()
     }
 }
 
+void QmlEngine::onDebugQueryStateChanged(
+        QmlJsDebugClient::QDeclarativeDebugQuery::State state)
+{
+    QmlJsDebugClient::QDeclarativeDebugExpressionQuery *query =
+            qobject_cast<QmlJsDebugClient::QDeclarativeDebugExpressionQuery *>(
+                sender());
+    if (query && state != QmlJsDebugClient::QDeclarativeDebugQuery::Error)
+        qtMessageLogHandler()->
+                appendItem(new QtMessageLogItem(QtMessageLogHandler::UndefinedType,
+                                             query->result().toString()));
+    else
+        qtMessageLogHandler()->
+                appendItem(new QtMessageLogItem(QtMessageLogHandler::ErrorType,
+                                             _("Error evaluating expression.")));
+    delete query;
+}
+
 bool QmlEngine::hasCapability(unsigned cap) const
 {
     return cap & (AddWatcherCapability
@@ -828,6 +862,36 @@ void QmlEngine::wrongSetupMessageBoxFinished(int result)
     }
 }
 
+void QmlEngine::updateCurrentContext()
+{
+    const QString context = state() == InferiorStopOk ?
+                stackHandler()->currentFrame().function :
+                d->m_adapter.currentSelectedDisplayName();
+    d->m_validContext = !context.isEmpty();
+    showMessage(tr("Context: ").append(context), QtMessageLogStatus);
+}
+
+void QmlEngine::appendDebugOutput(QtMsgType type, const QString &message)
+{
+    QtMessageLogHandler::ItemType itemType;
+    switch (type) {
+    case QtDebugMsg:
+        itemType = QtMessageLogHandler::DebugType;
+        break;
+    case QtWarningMsg:
+        itemType = QtMessageLogHandler::WarningType;
+        break;
+    case QtCriticalMsg:
+    case QtFatalMsg:
+        itemType = QtMessageLogHandler::ErrorType;
+        break;
+    default:
+        //This case is not possible
+        return;
+    }
+    qtMessageLogHandler()->appendItem(new QtMessageLogItem(itemType, message));
+}
+
 void QmlEngine::executeDebuggerCommand(const QString& command)
 {
     if (d->m_adapter.activeDebuggerClient()) {
@@ -835,6 +899,54 @@ void QmlEngine::executeDebuggerCommand(const QString& command)
     }
 }
 
+bool QmlEngine::evaluateScriptExpression(const QString& expression)
+{
+    bool didEvaluate = true;
+    //Check if string is only white spaces
+    if (!expression.trimmed().isEmpty()) {
+        //Check for a valid context
+        if (d->m_validContext) {
+            //check if it can be evaluated
+            if (canEvaluateScript(expression)) {
+                //Evaluate expression based on engine state
+                //When engine->state() == InferiorStopOk, the expression
+                //is sent to V8DebugService. In all other cases, the
+                //expression is evaluated by QDeclarativeEngine.
+                if (state() != InferiorStopOk) {
+                    QDeclarativeEngineDebug *engineDebug =
+                            d->m_adapter.engineDebugClient();
+
+                    int id = d->m_adapter.currentSelectedDebugId();
+                    if (engineDebug && id != -1) {
+                        QDeclarativeDebugExpressionQuery *query =
+                                engineDebug->queryExpressionResult(id, expression);
+                        connect(query,
+                                SIGNAL(stateChanged(
+                                           QmlJsDebugClient::QDeclarativeDebugQuery
+                                           ::State)),
+                                this,
+                                SLOT(onDebugQueryStateChanged(
+                                         QmlJsDebugClient::QDeclarativeDebugQuery
+                                         ::State)));
+                    }
+                } else {
+                    executeDebuggerCommand(expression);
+                }
+            } else {
+                didEvaluate = false;
+            }
+        } else {
+            //Incase of invalid context, show Error message
+            qtMessageLogHandler()->
+                            appendItem(new QtMessageLogItem(
+                                           QtMessageLogHandler::ErrorType,
+                                           _("Cannot evaluate without"
+                                             "a valid QML/JS Context.")),
+                                       qtMessageLogHandler()->rowCount());
+        }
+    }
+    return didEvaluate;
+}
 
 QString QmlEngine::qmlImportPath() const
 {
@@ -929,6 +1041,13 @@ void QmlEngine::updateEditor(Core::IEditor *editor, const QTextDocument *documen
         return;
     plainTextEdit->setPlainText(document->toPlainText());
     plainTextEdit->setReadOnly(true);
+}
+
+bool QmlEngine::canEvaluateScript(const QString &script)
+{
+    d->m_interpreter.clearText();
+    d->m_interpreter.appendText(script);
+    return d->m_interpreter.canEvaluate();
 }
 
 QmlAdapter *QmlEngine::adapter() const

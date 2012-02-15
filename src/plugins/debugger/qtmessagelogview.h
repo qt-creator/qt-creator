@@ -30,50 +30,28 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_CONSOLEWINDOW_H
-#define DEBUGGER_CONSOLEWINDOW_H
+#ifndef QTMESSAGELOGVIEW_H
+#define QTMESSAGELOGVIEW_H
 
-#include <QWidget>
-
-QT_BEGIN_NAMESPACE
-class QCursor;
-QT_END_NAMESPACE
+#include <QTreeView>
 
 namespace Debugger {
 namespace Internal {
 
-class Console;
-
-class ConsoleWindow : public QWidget
+class QtMessageLogView : public QTreeView
 {
     Q_OBJECT
-
 public:
-    explicit ConsoleWindow(QWidget *parent = 0);
+    explicit QtMessageLogView(QWidget *parent = 0);
 
-    void setCursor(const QCursor &cursor);
-
-    QString combinedContents() const;
-    QString inputContents() const;
-
-    static QString logTimeStamp();
-
-public slots:
-    void clearContents();
-    void showOutput(int channel, const QString &output);
-    void showInput(int channel, const QString &input);
-
-signals:
-    void showPage();
-    void statusMessageRequested(const QString &msg, int);
-
-private:
-    Console *m_console;  // combined input/output
+protected:
+    void mousePressEvent(QMouseEvent *event);
+    void resizeEvent(QResizeEvent *e);
+    void drawBranches(QPainter *painter, const QRect &rect,
+                      const QModelIndex &index) const;
 };
 
+} //Internal
+} //Debugger
 
-} // namespace Internal
-} // namespace Debugger
-
-#endif // DEBUGGER_CONSOLEWINDOW_H
-
+#endif // QTMESSAGELOGVIEW_H

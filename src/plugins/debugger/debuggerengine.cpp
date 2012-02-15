@@ -50,6 +50,7 @@
 #include "stackhandler.h"
 #include "threadshandler.h"
 #include "watchhandler.h"
+#include "qtmessageloghandler.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -301,6 +302,7 @@ public:
     StackHandler m_stackHandler;
     ThreadsHandler m_threadsHandler;
     WatchHandler m_watchHandler;
+    QtMessageLogHandler m_qtMessageHandler;
     QFutureInterface<void> m_progress;
 
     DisassemblerAgent m_disassemblerAgent;
@@ -434,6 +436,11 @@ WatchHandler *DebuggerEngine::watchHandler() const
         : &d->m_watchHandler;
 }
 
+QtMessageLogHandler *DebuggerEngine::qtMessageLogHandler() const
+{
+    return &d->m_qtMessageHandler;
+}
+
 SourceFilesHandler *DebuggerEngine::sourceFilesHandler() const
 {
     return d->m_masterEngine
@@ -513,6 +520,14 @@ QAbstractItemModel *DebuggerEngine::sourceFilesModel() const
     return model;
 }
 
+QAbstractItemModel *DebuggerEngine::qtMessageLogModel() const
+{
+    QAbstractItemModel *model = qtMessageLogHandler()->model();
+    if (model->objectName().isEmpty()) // Make debugging easier.
+        model->setObjectName(objectName() + QLatin1String("QtMessageLogModel"));
+    return model;
+}
+
 void DebuggerEngine::fetchMemory(MemoryAgent *, QObject *,
         quint64 addr, quint64 length)
 {
@@ -541,6 +556,9 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
     }
     //if (msg.size() && msg.at(0).isUpper() && msg.at(1).isUpper())
     //    qDebug() << qPrintable(msg) << "IN STATE" << state();
+    if (channel == QtMessageLogOutput)
+        qtMessageLogHandler()->appendMessage(QtMessageLogHandler::UndefinedType, msg);
+
     debuggerCore()->showMessage(msg, channel, timeout);
     if (d->m_runControl) {
         d->m_runControl->showMessage(msg, channel);
@@ -1615,6 +1633,12 @@ void DebuggerEngine::executeJumpToLine(const ContextData &)
 void DebuggerEngine::executeDebuggerCommand(const QString &)
 {
     showStatusMessage(tr("This debugger cannot handle user input."));
+}
+
+bool DebuggerEngine::evaluateScriptExpression(const QString &)
+{
+    showStatusMessage(tr("This debugger cannot handle user input."));
+    return false;
 }
 
 BreakHandler *DebuggerEngine::breakHandler() const

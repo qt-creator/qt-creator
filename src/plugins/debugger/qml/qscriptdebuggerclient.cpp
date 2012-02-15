@@ -519,7 +519,7 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
         if (iname.startsWith("watch.")) {
             d->engine->watchHandler()->insertData(data);
         } else if (iname == "console") {
-            d->engine->showMessage(data.value, ScriptConsoleOutput);
+            d->engine->showMessage(data.value, QtMessageLogOutput);
         } else {
             qWarning() << "QmlEngine: Unexcpected result: " << iname << data.value;
         }

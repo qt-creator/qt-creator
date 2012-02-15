@@ -30,52 +30,44 @@
 **
 **************************************************************************/
 
-#ifndef CONSOLEEDITOR_H
-#define CONSOLEEDITOR_H
+#ifndef QTMESSAGELOGPROXYMODEL_H
+#define QTMESSAGELOGPROXYMODEL_H
 
-#include "consoleitemmodel.h"
+#include "qtmessageloghandler.h"
 
-#include <QTextEdit>
-#include <QModelIndex>
+#include <QSortFilterProxyModel>
+#include <QItemSelectionModel>
 
 namespace Debugger {
 namespace Internal {
 
-class ConsoleBackend;
-class ConsoleEditor : public QTextEdit
+class QtMessageLogProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    explicit ConsoleEditor(const QModelIndex &index,
-                           ConsoleBackend *backend = 0,
-                           QWidget *parent = 0);
+    explicit QtMessageLogProxyModel(QObject *parent = 0);
 
-    QString getCurrentScript() const;
-
-protected:
-    void keyPressEvent(QKeyEvent *e);
-    void contextMenuEvent(QContextMenuEvent *event);
-    void focusOutEvent(QFocusEvent *e);
+public slots:
+    void setShowLogs(bool show);
+    void setShowWarnings(bool show);
+    void setShowErrors(bool show);
+    void selectEditableRow(const QModelIndex &index,
+                               QItemSelectionModel::SelectionFlags command);
+    void onRowsInserted(const QModelIndex &index, int start, int end);
 
 signals:
-    void editingFinished();
-    void appendEditableRow();
+    void scrollToBottom();
+    void setCurrentIndex(const QModelIndex &index,
+                         QItemSelectionModel::SelectionFlags command);
 
 protected:
-    void handleUpKey();
-    void handleDownKey();
-
-    void replaceCurrentScript(const QString &script);
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 
 private:
-    ConsoleBackend *m_consoleBackend;
-    QModelIndex m_historyIndex;
-    QString m_cachedScript;
-    QImage m_prompt;
-    int m_startOfEditableArea;
+    QFlags<QtMessageLogHandler::ItemType> m_filter;
 };
 
-} //Internal
-} //Debugger
+} // namespace Internal
+} // namespace Debugger
 
-#endif // CONSOLEEDITOR_H
+#endif // QTMESSAGELOGPROXYMODEL_H

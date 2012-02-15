@@ -23,7 +23,6 @@ HEADERS += \
     breakpointmarker.h \
     breakwindow.h \
     commonoptionspage.h \
-    consolewindow.h \
     debugger_global.h \
     debuggeractions.h \
     debuggercore.h \
@@ -67,7 +66,13 @@ HEADERS += \
     debuggertooltipmanager.h \
     debuggertoolchaincombobox.h \
     debuggersourcepathmappingwidget.h \
-    memoryview.h
+    memoryview.h \
+    qtmessagelogwindow.h \
+    qtmessagelogeditor.h \
+    qtmessagelogview.h \
+    qtmessagelogproxymodel.h \
+    qtmessagelogitemdelegate.h \
+    qtmessageloghandler.h
 
 SOURCES += \
     basewindow.cpp \
@@ -76,7 +81,6 @@ SOURCES += \
     breakpointmarker.cpp \
     breakwindow.cpp \
     commonoptionspage.cpp \
-    consolewindow.cpp \
     debuggeractions.cpp \
     debuggerdialogs.cpp \
     debuggerengine.cpp \
@@ -113,7 +117,13 @@ SOURCES += \
     debuggertooltipmanager.cpp \
     debuggertoolchaincombobox.cpp \
     debuggersourcepathmappingwidget.cpp \
-    memoryview.cpp
+    memoryview.cpp \
+    qtmessagelogwindow.cpp \
+    qtmessagelogproxymodel.cpp \
+    qtmessagelogview.cpp \
+    qtmessagelogitemdelegate.cpp \
+    qtmessageloghandler.cpp \
+    qtmessagelogeditor.cpp
 
 FORMS += attachexternaldialog.ui \
     attachcoredialog.ui \
