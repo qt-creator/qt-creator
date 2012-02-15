@@ -65,27 +65,27 @@
 #include <utils/consoleprocess.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDateTime>
-#include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
-#include <QtCore/QMap>
-#include <QtCore/QProcess>
-#include <QtCore/QSet>
-#include <QtCore/QSettings>
-#include <QtCore/QTextCodec>
-#include <QtCore/QTimer>
+#include <QDateTime>
+#include <QDebug>
+#include <QFileInfo>
+#include <QMap>
+#include <QProcess>
+#include <QSet>
+#include <QSettings>
+#include <QTextCodec>
+#include <QTimer>
 
-#include <QtGui/QAction>
-#include <QtGui/QShortcut>
-#include <QtGui/QApplication>
-#include <QtGui/QFileDialog>
-#include <QtGui/QLayout>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QSplitter>
-#include <QtGui/QStackedLayout>
+#include <QAction>
+#include <QShortcut>
+#include <QApplication>
+#include <QFileDialog>
+#include <QLayout>
+#include <QMainWindow>
+#include <QMenu>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QSplitter>
+#include <QStackedLayout>
 
 enum { debugEditorManager=0 };
 

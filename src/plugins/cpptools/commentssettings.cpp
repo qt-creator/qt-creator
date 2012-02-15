@@ -1,6 +1,6 @@
 #include "commentssettings.h"
 
-#include <QtCore/QSettings>
+#include <QSettings>
 
 using namespace CppTools;
 

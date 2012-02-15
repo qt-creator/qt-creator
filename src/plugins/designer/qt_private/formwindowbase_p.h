@@ -46,10 +46,10 @@
 
 #include "shared_global_p.h"
 
-#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QDesignerFormWindowInterface>
 
-#include <QtCore/QVariantMap>
-#include <QtCore/QList>
+#include <QVariantMap>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 

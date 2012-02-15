@@ -33,7 +33,7 @@
 #include "filewizarddialog.h"
 #include "filewizardpage.h"
 
-#include <QtGui/QAbstractButton>
+#include <QAbstractButton>
 
 /*!
   \class Utils::FileWizardDialog

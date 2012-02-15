@@ -33,10 +33,10 @@
 #include "profilehighlighter.h"
 #include "profilekeywords.h"
 
-#include <QtCore/QRegExp>
-#include <QtGui/QColor>
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextEdit>
+#include <QRegExp>
+#include <QColor>
+#include <QTextDocument>
+#include <QTextEdit>
 
 using namespace Qt4ProjectManager::Internal;
 

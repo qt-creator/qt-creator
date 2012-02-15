@@ -37,9 +37,9 @@
 
 #include <coreplugin/basefilewizard.h>
 
-#include <QtCore/QSharedPointer>
-#include <QtCore/QList>
-#include <QtCore/QMap>
+#include <QSharedPointer>
+#include <QList>
+#include <QMap>
 
 QT_BEGIN_NAMESPACE
 class QDir;

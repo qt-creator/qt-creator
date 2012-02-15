@@ -32,9 +32,9 @@
 
 #include <QtDebug>
 #include <QEvent>
-#include <QtGui/QDockWidget>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QWidget>
+#include <QDockWidget>
+#include <QVBoxLayout>
+#include <QWidget>
 
 #include "utilitypanelcontroller.h"
 

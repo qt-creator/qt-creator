@@ -33,7 +33,7 @@
 #ifndef JSON_GLOBAL_H
 #define JSON_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(JSON_BUILD_LIB)
 #    define JSON_EXPORT Q_DECL_EXPORT

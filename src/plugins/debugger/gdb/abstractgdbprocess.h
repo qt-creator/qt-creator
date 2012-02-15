@@ -33,8 +33,8 @@
 #ifndef GDBPROCESSWRAPPER_H
 #define GDBPROCESSWRAPPER_H
 
-#include <QtCore/QObject>
-#include <QtCore/QProcess>
+#include <QObject>
+#include <QProcess>
 
 namespace Debugger {
 namespace Internal {

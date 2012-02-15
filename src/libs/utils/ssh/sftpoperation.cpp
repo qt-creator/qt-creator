@@ -34,7 +34,7 @@
 
 #include "sftpoutgoingpacket_p.h"
 
-#include <QtCore/QFile>
+#include <QFile>
 
 namespace Utils {
 namespace Internal {

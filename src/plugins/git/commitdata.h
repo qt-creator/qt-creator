@@ -33,8 +33,8 @@
 #ifndef COMMITDATA_H
 #define COMMITDATA_H
 
-#include <QtCore/QStringList>
-#include <QtCore/QPair>
+#include <QStringList>
+#include <QPair>
 
 QT_BEGIN_NAMESPACE
 class QDebug;

@@ -35,7 +35,7 @@
 #include "tips.h"
 #include <utils/qtcassert.h>
 
-#include <QtGui/QVBoxLayout>
+#include <QVBoxLayout>
 
 using namespace TextEditor;
 using namespace Internal;

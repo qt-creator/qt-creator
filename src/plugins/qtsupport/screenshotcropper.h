@@ -1,9 +1,9 @@
 #ifndef SCREENSHOTCROPPER_H
 #define SCREENSHOTCROPPER_H
 
-#include <QtCore/QMap>
-#include <QtCore/QRect>
-#include <QtGui/QImage>
+#include <QMap>
+#include <QRect>
+#include <QImage>
 
 namespace QtSupport {
 namespace Internal {

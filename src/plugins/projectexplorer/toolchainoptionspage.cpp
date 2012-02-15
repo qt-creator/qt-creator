@@ -42,13 +42,13 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QSignalMapper>
-#include <QtCore/QTextStream>
-#include <QtGui/QAction>
-#include <QtGui/QItemSelectionModel>
-#include <QtGui/QLabel>
-#include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
+#include <QSignalMapper>
+#include <QTextStream>
+#include <QAction>
+#include <QItemSelectionModel>
+#include <QLabel>
+#include <QMenu>
+#include <QMessageBox>
 
 namespace ProjectExplorer {
 namespace Internal {

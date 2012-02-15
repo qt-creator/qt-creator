@@ -44,8 +44,8 @@
 #include <vcsbase/vcsconfigurationpage.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QUrl>
-#include <QtGui/QIcon>
+#include <QUrl>
+#include <QIcon>
 
 namespace Gitorious {
 namespace Internal {

@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include <QtTest/QtTest>
+#include <QtTest>
 #include "ichecklib.h"
 #include <QDebug>
 

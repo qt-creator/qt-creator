@@ -39,15 +39,15 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/featureprovider.h>
 
-#include <QtGui/QAbstractProxyModel>
-#include <QtGui/QSortFilterProxyModel>
-#include <QtGui/QItemSelectionModel>
-#include <QtGui/QHeaderView>
-#include <QtGui/QPushButton>
-#include <QtGui/QStandardItem>
-#include <QtGui/QItemDelegate>
-#include <QtGui/QPainter>
-#include <QtCore/QDebug>
+#include <QAbstractProxyModel>
+#include <QSortFilterProxyModel>
+#include <QItemSelectionModel>
+#include <QHeaderView>
+#include <QPushButton>
+#include <QStandardItem>
+#include <QItemDelegate>
+#include <QPainter>
+#include <QDebug>
 
 Q_DECLARE_METATYPE(Core::IWizard*)
 

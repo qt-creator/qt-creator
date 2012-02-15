@@ -35,11 +35,11 @@
 
 #include "utils_global.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QIODevice>
-#include <QtCore/QXmlStreamWriter> // Mac.
-#include <QtCore/QFileInfo>
-#include <QtCore/QMetaType>
+#include <QCoreApplication>
+#include <QIODevice>
+#include <QXmlStreamWriter> // Mac.
+#include <QFileInfo>
+#include <QMetaType>
 
 QT_BEGIN_NAMESPACE
 class QFile;

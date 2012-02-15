@@ -38,16 +38,16 @@
 #include "iplugin.h"
 #include "plugincollection.h"
 
-#include <QtCore/QEventLoop>
-#include <QtCore/QDateTime>
-#include <QtCore/QDir>
-#include <QtCore/QMetaProperty>
-#include <QtCore/QSettings>
-#include <QtCore/QTextStream>
-#include <QtCore/QTime>
-#include <QtCore/QWriteLocker>
-#include <QtCore/QtDebug>
-#include <QtCore/QTimer>
+#include <QEventLoop>
+#include <QDateTime>
+#include <QDir>
+#include <QMetaProperty>
+#include <QSettings>
+#include <QTextStream>
+#include <QTime>
+#include <QWriteLocker>
+#include <QtDebug>
+#include <QTimer>
 
 #ifdef WITH_TESTS
 #include <QTest>

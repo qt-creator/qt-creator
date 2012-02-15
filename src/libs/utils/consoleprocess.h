@@ -37,10 +37,10 @@
 
 #include "environment.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QProcess>
+#include <QObject>
+#include <QString>
+#include <QStringList>
+#include <QProcess>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

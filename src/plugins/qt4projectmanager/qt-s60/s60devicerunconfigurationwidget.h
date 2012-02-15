@@ -33,8 +33,8 @@
 #ifndef S60DEVICERUNCONFIGURATIONWIDGET_H
 #define S60DEVICERUNCONFIGURATIONWIDGET_H
 
-#include <QtGui/QWidget>
-#include <QtGui/QLabel>
+#include <QWidget>
+#include <QLabel>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;

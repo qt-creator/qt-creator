@@ -33,15 +33,15 @@
 #include "synchronousprocess.h"
 #include <qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QTimer>
-#include <QtCore/QEventLoop>
-#include <QtCore/QTextCodec>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtGui/QMessageBox>
+#include <QDebug>
+#include <QTimer>
+#include <QEventLoop>
+#include <QTextCodec>
+#include <QFileInfo>
+#include <QDir>
+#include <QMessageBox>
 
-#include <QtGui/QApplication>
+#include <QApplication>
 
 #include <limits.h>
 

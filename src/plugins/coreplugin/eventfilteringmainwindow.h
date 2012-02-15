@@ -33,7 +33,7 @@
 #ifndef EVENTFILTERINGMAINWINDOW_H
 #define EVENTFILTERINGMAINWINDOW_H
 
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
 

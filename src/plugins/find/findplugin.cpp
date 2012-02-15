@@ -51,12 +51,12 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtGui/QMenu>
-#include <QtGui/QStringListModel>
-#include <QtGui/QAction>
+#include <QMenu>
+#include <QStringListModel>
+#include <QAction>
 
-#include <QtCore/QtPlugin>
-#include <QtCore/QSettings>
+#include <QtPlugin>
+#include <QSettings>
 
 /*!
     \namespace Find

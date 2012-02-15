@@ -33,8 +33,8 @@
 #ifndef CUSTOMWIZARDSCRIPTGENERATOR_H
 #define CUSTOMWIZARDSCRIPTGENERATOR_H
 
-#include <QtCore/QMap>
-#include <QtCore/QStringList>
+#include <QMap>
+#include <QStringList>
 
 namespace Core {
 class GeneratedFile;

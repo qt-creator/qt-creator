@@ -34,9 +34,9 @@
 
 #include <texteditor/convenience.h>
 
-#include <QtCore/QThread>
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextCursor>
+#include <QThread>
+#include <QTextDocument>
+#include <QTextCursor>
 
 using namespace TextEditor;
 

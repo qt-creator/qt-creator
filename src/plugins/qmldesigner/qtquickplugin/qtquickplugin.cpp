@@ -32,7 +32,7 @@
 
 #include "qtquickplugin.h"
 #include <widgetplugin_helper.h>
-#include <QtCore/QtPlugin>
+#include <QtPlugin>
 #include <private/qdeclarativerectangle_p.h>
 #include <private/qdeclarativescalegrid_p_p.h>
 

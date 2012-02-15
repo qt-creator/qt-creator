@@ -34,7 +34,7 @@
 #define EXTRASPLUGIN_H
 
 #include <iwidgetplugin.h>
-#include <QtDeclarative/qdeclarative.h>
+#include <qdeclarative.h>
 
 namespace QmlDesigner {
 

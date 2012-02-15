@@ -42,8 +42,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/QtPlugin>
-#include <QtCore/QDebug>
+#include <QtPlugin>
+#include <QDebug>
 
 using namespace Core;
 using namespace Core::Internal;

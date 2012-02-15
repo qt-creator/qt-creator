@@ -33,11 +33,11 @@
 #ifndef FANCYTABWIDGET_H
 #define FANCYTABWIDGET_H
 
-#include <QtGui/QIcon>
-#include <QtGui/QWidget>
+#include <QIcon>
+#include <QWidget>
 
-#include <QtCore/QTimer>
-#include <QtCore/QPropertyAnimation>
+#include <QTimer>
+#include <QPropertyAnimation>
 
 QT_BEGIN_NAMESPACE
 class QPainter;

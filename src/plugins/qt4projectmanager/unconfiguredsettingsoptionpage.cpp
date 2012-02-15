@@ -40,11 +40,11 @@
 #include <qtsupport/qtversionmanager.h>
 #include <qt4projectmanager/qt4projectmanager.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtGui/QIcon>
-#include <QtGui/QComboBox>
-#include <QtGui/QLabel>
-#include <QtGui/QCheckBox>
+#include <QCoreApplication>
+#include <QIcon>
+#include <QComboBox>
+#include <QLabel>
+#include <QCheckBox>
 #include <QFormLayout>
 
 using namespace Qt4ProjectManager;

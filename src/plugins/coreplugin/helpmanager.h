@@ -35,11 +35,11 @@
 
 #include "core_global.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
-#include <QtCore/QVariant>
-#include <QtCore/QMap>
-#include <QtCore/QHash>
+#include <QObject>
+#include <QStringList>
+#include <QVariant>
+#include <QMap>
+#include <QHash>
 
 QT_FORWARD_DECLARE_CLASS(QUrl)
 

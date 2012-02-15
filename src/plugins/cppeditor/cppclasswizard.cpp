@@ -42,17 +42,17 @@
 #include <utils/newclasswidget.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QTextStream>
-#include <QtCore/QSettings>
+#include <QDebug>
+#include <QDir>
+#include <QTextStream>
+#include <QSettings>
 
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QPushButton>
-#include <QtGui/QToolButton>
-#include <QtGui/QSpacerItem>
-#include <QtGui/QWizard>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QPushButton>
+#include <QToolButton>
+#include <QSpacerItem>
+#include <QWizard>
 
 using namespace CppEditor;
 using namespace CppEditor::Internal;

@@ -38,7 +38,7 @@
 #include "projectconfiguration.h"
 #include "namedwidget.h"
 
-#include <QtCore/QString>
+#include <QString>
 
 QT_FORWARD_DECLARE_CLASS(QStringList)
 

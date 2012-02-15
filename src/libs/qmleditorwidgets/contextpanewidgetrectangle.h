@@ -34,7 +34,7 @@
 #define CONTEXTPANEWIDGETRECTANGLE_H
 
 #include <qmleditorwidgets_global.h>
-#include <QtGui/QWidget>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

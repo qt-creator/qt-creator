@@ -35,11 +35,11 @@
 
 #include "coreplugin/dialogs/ioptionspage.h"
 
-#include <QtCore/QList>
-#include <QtCore/QSet>
-#include <QtCore/QPointer>
-#include <QtCore/QEventLoop>
-#include <QtGui/QDialog>
+#include <QList>
+#include <QSet>
+#include <QPointer>
+#include <QEventLoop>
+#include <QDialog>
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;

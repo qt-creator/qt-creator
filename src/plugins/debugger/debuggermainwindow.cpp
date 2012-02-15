@@ -58,17 +58,17 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QList>
-#include <QtCore/QMap>
-#include <QtCore/QPair>
-#include <QtCore/QSettings>
+#include <QDebug>
+#include <QList>
+#include <QMap>
+#include <QPair>
+#include <QSettings>
 
-#include <QtGui/QDockWidget>
-#include <QtGui/QMenu>
-#include <QtGui/QResizeEvent>
-#include <QtGui/QStackedWidget>
-#include <QtGui/QVBoxLayout>
+#include <QDockWidget>
+#include <QMenu>
+#include <QResizeEvent>
+#include <QStackedWidget>
+#include <QVBoxLayout>
 
 using namespace Core;
 using namespace ProjectExplorer;

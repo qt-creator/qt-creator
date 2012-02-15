@@ -34,7 +34,7 @@
 #define CPLUSPLUS_NAMEPRETTYPRINTER_H
 
 #include <NameVisitor.h>
-#include <QtCore/QString>
+#include <QString>
 
 namespace CPlusPlus {
 

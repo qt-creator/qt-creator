@@ -58,9 +58,9 @@
 #include <debugger/debuggerconstants.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 
-#include <QtCore/QDir>
+#include <QDir>
 
 namespace Qt4ProjectManager {
 namespace Internal {

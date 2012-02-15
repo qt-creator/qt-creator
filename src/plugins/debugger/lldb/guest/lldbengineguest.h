@@ -35,10 +35,10 @@
 
 #include "ipcengineguest.h"
 
-#include <QtCore/QQueue>
-#include <QtCore/QVariant>
-#include <QtCore/QThread>
-#include <QtCore/QStringList>
+#include <QQueue>
+#include <QVariant>
+#include <QThread>
+#include <QStringList>
 
 #include <lldb/API/LLDB.h>
 

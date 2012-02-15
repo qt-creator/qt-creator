@@ -35,7 +35,7 @@
 
 #include <vcsbase/vcsbaseeditor.h>
 
-#include <QtCore/QRegExp>
+#include <QRegExp>
 
 QT_BEGIN_NAMESPACE
 class QVariant;

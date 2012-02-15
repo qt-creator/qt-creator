@@ -32,9 +32,9 @@
 #ifndef TOOLBARCOLORBOX_H
 #define TOOLBARCOLORBOX_H
 
-#include <QtGui/QLabel>
-#include <QtGui/QColor>
-#include <QtCore/QPoint>
+#include <QLabel>
+#include <QColor>
+#include <QPoint>
 
 QT_FORWARD_DECLARE_CLASS(QContextMenuEvent)
 QT_FORWARD_DECLARE_CLASS(QAction)

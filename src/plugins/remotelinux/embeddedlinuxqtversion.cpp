@@ -36,7 +36,7 @@
 
 #include <qtsupport/qtsupportconstants.h>
 
-#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 
 namespace RemoteLinux {
 namespace Internal {

@@ -44,14 +44,14 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/basetexteditor.h>
 
-#include <QtGui/QTextBlock>
-#include <QtCore/QVariant>
-#include <QtCore/QStack>
-#include <QtCore/QQueue>
-#include <QtCore/QFileInfo>
-#include <QtGui/QTextDocument>
-#include <QtScript/QScriptEngine>
-#include <QtScript/QScriptValue>
+#include <QTextBlock>
+#include <QVariant>
+#include <QStack>
+#include <QQueue>
+#include <QFileInfo>
+#include <QTextDocument>
+#include <QScriptEngine>
+#include <QScriptValue>
 
 #define DEBUG_QML 0
 #if DEBUG_QML

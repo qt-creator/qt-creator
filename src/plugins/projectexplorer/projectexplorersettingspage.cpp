@@ -38,8 +38,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/filemanager.h>
 
-#include <QtGui/QLabel>
-#include <QtCore/QCoreApplication>
+#include <QLabel>
+#include <QCoreApplication>
 
 namespace ProjectExplorer {
 namespace Internal {

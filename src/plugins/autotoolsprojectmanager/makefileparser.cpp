@@ -36,9 +36,9 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFile>
-#include <QtCore/QFileInfoList>
-#include <QtCore/QMutexLocker>
+#include <QFile>
+#include <QFileInfoList>
+#include <QMutexLocker>
 
 using namespace AutotoolsProjectManager::Internal;
 

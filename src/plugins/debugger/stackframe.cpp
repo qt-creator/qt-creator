@@ -32,11 +32,11 @@
 
 #include "stackframe.h"
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QTextStream>
-#include <QtCore/QCoreApplication>
+#include <QFileInfo>
+#include <QDebug>
+#include <QDir>
+#include <QTextStream>
+#include <QCoreApplication>
 
 namespace Debugger {
 namespace Internal {

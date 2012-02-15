@@ -37,8 +37,8 @@
 #include "helpviewer.h"
 #include "openpagesmanager.h"
 
-#include <QtCore/QObject>
-#include <QtGui/QTextBrowser>
+#include <QObject>
+#include <QTextBrowser>
 
 namespace Help {
     namespace Internal {

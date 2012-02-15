@@ -33,7 +33,7 @@
 #ifndef LIBVALGRIND_CALLGRIND_CALLEE_H
 #define LIBVALGRIND_CALLGRIND_CALLEE_H
 
-#include <QtCore/QMetaType>
+#include <QMetaType>
 
 QT_BEGIN_NAMESPACE
 template <typename T> class QVector;

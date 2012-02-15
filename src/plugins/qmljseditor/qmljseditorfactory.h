@@ -35,7 +35,7 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 namespace QmlJSEditor {
 namespace Internal {

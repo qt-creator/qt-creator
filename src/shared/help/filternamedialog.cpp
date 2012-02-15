@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include <QtGui/QPushButton>
+#include <QPushButton>
 
 #include "filternamedialog.h"
 

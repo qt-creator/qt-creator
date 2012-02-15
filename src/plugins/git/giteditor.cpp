@@ -37,22 +37,22 @@
 #include "gitplugin.h"
 #include "gitclient.h"
 #include "gitsettings.h"
-#include <QtCore/QTextCodec>
+#include <QTextCodec>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
 #include <vcsbase/diffhighlighter.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QRegExp>
-#include <QtCore/QSet>
-#include <QtCore/QTextStream>
+#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QRegExp>
+#include <QSet>
+#include <QTextStream>
 
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextEdit>
-#include <QtGui/QTextBlock>
+#include <QTextCursor>
+#include <QTextEdit>
+#include <QTextBlock>
 
 #define CHANGE_PATTERN_8C "[a-f0-9]{7,8}"
 #define CHANGE_PATTERN_40C "[a-f0-9]{40,40}"

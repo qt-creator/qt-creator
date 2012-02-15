@@ -37,8 +37,8 @@
 #include "qmljsdocument.h"
 #include "qmljscontext.h"
 
-#include <QtCore/QList>
-#include <QtCore/QSharedPointer>
+#include <QList>
+#include <QSharedPointer>
 
 namespace QmlJS {
 

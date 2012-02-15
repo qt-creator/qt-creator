@@ -38,11 +38,11 @@
 #include <utils/ssh/sftpchannel.h>
 #include <utils/ssh/sshconnection.h>
 
-#include <QtCore/QElapsedTimer>
-#include <QtCore/QHash>
-#include <QtCore/QList>
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
+#include <QElapsedTimer>
+#include <QHash>
+#include <QList>
+#include <QObject>
+#include <QSharedPointer>
 
 QT_FORWARD_DECLARE_CLASS(QFile);
 

@@ -35,8 +35,8 @@
 
 #include"abstractview.h"
 
-#include <QtDeclarative/QDeclarativeImageProvider>
-#include <QtCore/QWeakPointer>
+#include <QDeclarativeImageProvider>
+#include <QWeakPointer>
 
 namespace QmlDesigner {
 namespace Internal {

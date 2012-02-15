@@ -35,13 +35,13 @@
 
 #include <utils/synchronousprocess.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QLibrary>
-#include <QtCore/QProcess>
-#include <QtCore/QString>
-#include <QtCore/QTextStream>
+#include <QDebug>
+#include <QDir>
+#include <QFile>
+#include <QLibrary>
+#include <QProcess>
+#include <QString>
+#include <QTextStream>
 
 #ifdef Q_OS_WIN
 

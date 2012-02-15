@@ -33,7 +33,7 @@
 #ifndef REMOVEFILEDIALOG_H
 #define REMOVEFILEDIALOG_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 namespace ProjectExplorer {
 namespace Internal {

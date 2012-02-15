@@ -38,7 +38,7 @@
 #include "abi.h"
 #include "abiwidget.h"
 
-#include <QtCore/QList>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;

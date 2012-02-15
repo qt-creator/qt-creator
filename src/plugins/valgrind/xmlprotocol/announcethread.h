@@ -35,7 +35,7 @@
 #ifndef LIBVALGRIND_PROTOCOL_ANNOUNCETHREAD_H
 #define LIBVALGRIND_PROTOCOL_ANNOUNCETHREAD_H
 
-#include <QtCore/QSharedDataPointer>
+#include <QSharedDataPointer>
 
 QT_BEGIN_NAMESPACE
 template <typename T> class QVector;

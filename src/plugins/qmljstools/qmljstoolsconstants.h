@@ -33,7 +33,7 @@
 #ifndef QMLJSTOOLS_CONSTANTS_H
 #define QMLJSTOOLS_CONSTANTS_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 namespace QmlJSTools {
 namespace Constants {

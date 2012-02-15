@@ -50,20 +50,20 @@
 #include <texteditor/basetexteditor.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QDebug>
+#include <QDir>
+#include <QDebug>
 
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QClipboard>
-#include <QtGui/QLabel>
-#include <QtGui/QListView>
-#include <QtGui/QMenu>
-#include <QtGui/QPainter>
-#include <QtGui/QScrollBar>
-#include <QtGui/QSortFilterProxyModel>
-#include <QtGui/QStyledItemDelegate>
-#include <QtGui/QVBoxLayout>
+#include <QAction>
+#include <QApplication>
+#include <QClipboard>
+#include <QLabel>
+#include <QListView>
+#include <QMenu>
+#include <QPainter>
+#include <QScrollBar>
+#include <QSortFilterProxyModel>
+#include <QStyledItemDelegate>
+#include <QVBoxLayout>
 
 using namespace Valgrind::XmlProtocol;
 

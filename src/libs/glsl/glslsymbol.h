@@ -34,7 +34,7 @@
 #define GLSLSYMBOL_H
 
 #include "glsl.h"
-#include <QtCore/QString>
+#include <QString>
 
 namespace GLSL {
 

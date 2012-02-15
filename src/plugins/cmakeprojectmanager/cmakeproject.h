@@ -47,10 +47,10 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <QtCore/QXmlStreamReader>
-#include <QtCore/QFileSystemWatcher>
-#include <QtGui/QPushButton>
-#include <QtGui/QLineEdit>
+#include <QXmlStreamReader>
+#include <QFileSystemWatcher>
+#include <QPushButton>
+#include <QLineEdit>
 
 namespace CMakeProjectManager {
 namespace Internal {

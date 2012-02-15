@@ -36,9 +36,9 @@
 #include "pluginspec.h"
 #include "iplugin.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
-#include <QtCore/QXmlStreamReader>
+#include <QObject>
+#include <QStringList>
+#include <QXmlStreamReader>
 
 namespace ExtensionSystem {
 

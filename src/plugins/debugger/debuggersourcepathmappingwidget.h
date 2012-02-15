@@ -33,9 +33,9 @@
 #ifndef DEBUGGERSOURCEPATHMAPPINGWIDGET_H
 #define DEBUGGERSOURCEPATHMAPPINGWIDGET_H
 
-#include <QtGui/QGroupBox>
-#include <QtCore/QMap>
-#include <QtCore/QPair>
+#include <QGroupBox>
+#include <QMap>
+#include <QPair>
 
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;

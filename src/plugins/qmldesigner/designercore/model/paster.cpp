@@ -30,9 +30,9 @@
 **
 **************************************************************************/
 
-#include <QtCore/QByteArray>
-#include <QtCore/QDataStream>
-#include <QtCore/QSet>
+#include <QByteArray>
+#include <QDataStream>
+#include <QSet>
 
 #include "changeimportsvisitor.h"
 #include "copypasteutil.h"

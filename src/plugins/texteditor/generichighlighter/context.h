@@ -35,9 +35,9 @@
 
 #include "includerulesinstruction.h"
 
-#include <QtCore/QString>
-#include <QtCore/QList>
-#include <QtCore/QSharedPointer>
+#include <QString>
+#include <QList>
+#include <QSharedPointer>
 
 namespace TextEditor {
 namespace Internal {

@@ -37,7 +37,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/toolchain.h>
 
-#include <QtCore/QFutureInterface>
+#include <QFutureInterface>
 
 namespace Qt4ProjectManager {
 

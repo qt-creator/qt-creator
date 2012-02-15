@@ -36,7 +36,7 @@
 #include "locator_global.h"
 #include "ilocatorfilter.h"
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 namespace Locator {
 

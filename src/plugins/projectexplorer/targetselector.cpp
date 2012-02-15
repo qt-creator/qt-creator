@@ -35,10 +35,10 @@
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
-#include <QtGui/QPainter>
-#include <QtGui/QMenu>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QFontMetrics>
+#include <QPainter>
+#include <QMenu>
+#include <QMouseEvent>
+#include <QFontMetrics>
 
 static const int TARGET_HEIGHT = 43;
 static const int ADDBUTTON_WIDTH = 27;

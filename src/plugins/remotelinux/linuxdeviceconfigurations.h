@@ -35,7 +35,7 @@
 #include "linuxdeviceconfiguration.h"
 #include "remotelinux_export.h"
 
-#include <QtCore/QAbstractListModel>
+#include <QAbstractListModel>
 
 QT_FORWARD_DECLARE_CLASS(QString)
 

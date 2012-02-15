@@ -35,7 +35,7 @@
 #include "genericdirectuploadstep.h"
 #include "remotelinuxdeployconfiguration.h"
 
-#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 
 using namespace ProjectExplorer;
 

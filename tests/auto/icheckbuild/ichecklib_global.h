@@ -32,7 +32,7 @@
 #ifndef ICHECKLIB_GLOBAL_H
 #define ICHECKLIB_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 
 #ifdef ICHECK_APP_BUILD

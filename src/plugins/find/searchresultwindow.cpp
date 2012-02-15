@@ -41,15 +41,15 @@
 #include <coreplugin/icontext.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFile>
-#include <QtCore/QSettings>
-#include <QtCore/QDebug>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QFont>
-#include <QtGui/QAction>
-#include <QtGui/QComboBox>
-#include <QtGui/QScrollArea>
-#include <QtGui/QStackedWidget>
+#include <QFile>
+#include <QSettings>
+#include <QDebug>
+#include <QVBoxLayout>
+#include <QFont>
+#include <QAction>
+#include <QComboBox>
+#include <QScrollArea>
+#include <QStackedWidget>
 
 static const char SETTINGSKEYSECTIONNAME[] = "SearchResults";
 static const char SETTINGSKEYEXPANDRESULTS[] = "ExpandResults";

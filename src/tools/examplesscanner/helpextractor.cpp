@@ -32,7 +32,7 @@
 
 #include "helpextractor.h"
 
-#include <QtGui>
+#include <QtWidgets>
 #include <QDebug>
 
 HelpExtractor::HelpExtractor()

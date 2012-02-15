@@ -33,7 +33,7 @@
 #ifndef QMLJSCOMPONENTNAMEDIALOG_H
 #define QMLJSCOMPONENTNAMEDIALOG_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 namespace QmlJSEditor {
 namespace Internal {

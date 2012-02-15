@@ -33,12 +33,12 @@
 #include "codecselector.h"
 #include "basetextdocument.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTextCodec>
-#include <QtGui/QPushButton>
-#include <QtGui/QScrollBar>
-#include <QtGui/QVBoxLayout>
+#include <QDebug>
+#include <QFileInfo>
+#include <QTextCodec>
+#include <QPushButton>
+#include <QScrollBar>
+#include <QVBoxLayout>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;

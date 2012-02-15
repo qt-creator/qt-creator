@@ -33,7 +33,7 @@
 #ifndef QMLPROFILEREVENTTYPES_H
 #define QMLPROFILEREVENTTYPES_H
 
-#include <QtCore/QString>
+#include <QString>
 
 namespace QmlJsDebugClient {
 

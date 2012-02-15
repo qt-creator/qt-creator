@@ -35,8 +35,8 @@
 
 #include <projectexplorer/ioutputparser.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QXmlStreamReader>
+#include <QDir>
+#include <QXmlStreamReader>
 
 namespace ProjectExplorer {
 class TaskHub;

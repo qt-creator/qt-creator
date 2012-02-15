@@ -32,8 +32,8 @@
 #ifndef MAEMOPUBLISHINGFILESELECTIONDIALOG_H
 #define MAEMOPUBLISHINGFILESELECTIONDIALOG_H
 
-#include <QtCore/QStringList>
-#include <QtGui/QDialog>
+#include <QStringList>
+#include <QDialog>
 
 namespace Madde {
 namespace Internal {

@@ -36,8 +36,8 @@
 #include "glsl.h"
 #include "glslmemorypool.h"
 #include "glsltypes.h"
-#include <QtCore/qstring.h>
-#include <QtCore/qset.h>
+#include <qstring.h>
+#include <qset.h>
 #include <functional>
 #include <set>
 

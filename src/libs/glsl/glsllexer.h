@@ -34,8 +34,8 @@
 #define GLSLLEXER_H
 
 #include "glsl.h"
-#include <QtCore/qstring.h>
-#include <QtCore/qstringlist.h>
+#include <qstring.h>
+#include <qstringlist.h>
 
 namespace GLSL {
 

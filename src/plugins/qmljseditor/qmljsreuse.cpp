@@ -32,8 +32,8 @@
 
 #include "qmljsreuse.h"
 
-#include <QtCore/QChar>
-#include <QtGui/QPainter>
+#include <QChar>
+#include <QPainter>
 
 namespace QmlJSEditor {
 namespace Internal {

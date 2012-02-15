@@ -38,11 +38,11 @@
 
 #include <coreplugin/helpmanager.h>
 
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QFormLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QFormLayout>
 
 namespace Qt4ProjectManager {
 namespace Internal {

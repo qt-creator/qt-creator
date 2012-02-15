@@ -33,9 +33,9 @@
 #ifndef QMLPROFILERAPPLICATION_H
 #define QMLPROFILERAPPLICATION_H
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QStringList>
-#include <QtCore/QTimer>
+#include <QCoreApplication>
+#include <QStringList>
+#include <QTimer>
 
 #include <qdeclarativedebugclient.h>
 #include <qmlprofilertraceclient.h>

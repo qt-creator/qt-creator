@@ -52,12 +52,12 @@
 #include <utils/wizard.h>
 #include <utils/crumblepath.h>
 
-#include <QtDesigner/QDesignerCustomWidgetCollectionInterface>
-#include <QtDesigner/QDesignerContainerExtension>
-#include <QtDesigner/QExtensionFactory>
+#include <QDesignerCustomWidgetCollectionInterface>
+#include <QDesignerContainerExtension>
+#include <QExtensionFactory>
 
-#include <QtCore/qplugin.h>
-#include <QtCore/QList>
+#include <qplugin.h>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 class QExtensionManager;

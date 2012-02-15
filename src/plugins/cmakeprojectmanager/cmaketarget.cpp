@@ -42,8 +42,8 @@
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <QtGui/QApplication>
-#include <QtGui/QStyle>
+#include <QApplication>
+#include <QStyle>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;

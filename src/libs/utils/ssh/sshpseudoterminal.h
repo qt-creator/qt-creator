@@ -35,8 +35,8 @@
 
 #include <utils/utils_global.h>
 
-#include <QtCore/QByteArray>
-#include <QtCore/QHash>
+#include <QByteArray>
+#include <QHash>
 
 namespace Utils {
 

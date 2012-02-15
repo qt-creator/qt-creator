@@ -35,10 +35,10 @@
 
 #include "symbianutils_global.h"
 
-#include <QtCore/QByteArray>
-#include <QtCore/QHash>
-#include <QtCore/QStringList>
-#include <QtCore/QVariant>
+#include <QByteArray>
+#include <QHash>
+#include <QStringList>
+#include <QVariant>
 
 QT_BEGIN_NAMESPACE
 class QDateTime;

@@ -33,8 +33,8 @@
 #ifndef DEBUGGER_HOSTUTILS_H
 #define DEBUGGER_HOSTUTILS_H
 
-#include <QtCore/QList>
-#include <QtCore/QString>
+#include <QList>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 class QTextStream;

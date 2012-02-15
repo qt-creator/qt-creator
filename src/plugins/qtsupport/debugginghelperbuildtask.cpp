@@ -44,7 +44,7 @@
 #include <projectexplorer/abi.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 
 using namespace QtSupport;
 using namespace QtSupport::Internal;

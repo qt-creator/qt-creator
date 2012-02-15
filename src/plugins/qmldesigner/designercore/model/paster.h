@@ -33,10 +33,10 @@
 #ifndef PASTER_H
 #define PASTER_H
 
-#include <QtCore/QList>
-#include <QtCore/QMimeData>
-#include <QtCore/QSet>
-#include <QtCore/QString>
+#include <QList>
+#include <QMimeData>
+#include <QSet>
+#include <QString>
 
 #include "import.h"
 #include "internalnode_p.h"

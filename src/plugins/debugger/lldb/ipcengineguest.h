@@ -39,9 +39,9 @@
 #include "stackhandler.h"
 #include "threadshandler.h"
 
-#include <QtCore/QQueue>
-#include <QtCore/QThread>
-#include <QtCore/QVariant>
+#include <QQueue>
+#include <QThread>
+#include <QVariant>
 
 namespace Debugger {
 namespace Internal {

@@ -33,19 +33,19 @@
 #include "futureprogress.h"
 #include "progressbar.h"
 
-#include <QtCore/QFutureWatcher>
-#include <QtCore/QTimer>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QPropertyAnimation>
-#include <QtCore/QSequentialAnimationGroup>
+#include <QFutureWatcher>
+#include <QTimer>
+#include <QCoreApplication>
+#include <QPropertyAnimation>
+#include <QSequentialAnimationGroup>
 
-#include <QtGui/QColor>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QMenu>
-#include <QtGui/QProgressBar>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QPainter>
-#include <QtGui/QMouseEvent>
+#include <QColor>
+#include <QVBoxLayout>
+#include <QMenu>
+#include <QProgressBar>
+#include <QHBoxLayout>
+#include <QPainter>
+#include <QMouseEvent>
 #include <utils/stylehelper.h>
 
 const int notificationTimeout = 8000;

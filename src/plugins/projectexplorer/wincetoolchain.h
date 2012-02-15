@@ -39,7 +39,7 @@
 
 #include <utils/environment.h>
 
-#include <QtGui/QLabel>
+#include <QLabel>
 
 namespace ProjectExplorer {
 namespace Internal {

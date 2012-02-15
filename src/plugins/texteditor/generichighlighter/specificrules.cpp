@@ -36,7 +36,7 @@
 #include "progressdata.h"
 #include "reuse.h"
 
-#include <QtCore/QLatin1Char>
+#include <QLatin1Char>
 
 using namespace TextEditor;
 using namespace Internal;

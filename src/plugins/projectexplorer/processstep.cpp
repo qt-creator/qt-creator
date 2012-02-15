@@ -41,8 +41,8 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtGui/QFileDialog>
+#include <QDebug>
+#include <QFileDialog>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

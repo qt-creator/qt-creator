@@ -39,9 +39,9 @@
 
 #include <cplusplus/CppDocument.h>
 
-#include <QtCore/QFuture>
-#include <QtCore/QFutureSynchronizer>
-#include <QtCore/QMutex>
+#include <QFuture>
+#include <QFutureSynchronizer>
+#include <QMutex>
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 

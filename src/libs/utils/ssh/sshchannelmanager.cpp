@@ -39,7 +39,7 @@
 #include "sshremoteprocess_p.h"
 #include "sshsendfacility_p.h"
 
-#include <QtCore/QList>
+#include <QList>
 
 namespace Utils {
 namespace Internal {

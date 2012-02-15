@@ -33,7 +33,7 @@
 #ifndef DESIGNER_EXPORT_H
 #define DESIGNER_EXPORT_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(DESIGNER_LIBRARY)
 #  define DESIGNER_EXPORT Q_DECL_EXPORT

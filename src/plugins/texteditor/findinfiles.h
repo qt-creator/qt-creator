@@ -37,10 +37,10 @@
 
 #include <find/ifindfilter.h>
 
-#include <QtCore/QPointer>
-#include <QtGui/QLabel>
-#include <QtGui/QComboBox>
-#include <QtGui/QStringListModel>
+#include <QPointer>
+#include <QLabel>
+#include <QComboBox>
+#include <QStringListModel>
 
 
 namespace TextEditor {

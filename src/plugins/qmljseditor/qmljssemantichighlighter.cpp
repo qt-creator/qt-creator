@@ -49,9 +49,9 @@
 #include <texteditor/fontsettings.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QThreadPool>
-#include <QtCore/QFutureInterface>
-#include <QtCore/QRunnable>
+#include <QThreadPool>
+#include <QFutureInterface>
+#include <QRunnable>
 
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;

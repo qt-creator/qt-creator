@@ -33,8 +33,8 @@
 
 #include "remotelinux_export.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
+#include <QObject>
+#include <QStringList>
 
 namespace RemoteLinux {
 class DeployableFile;

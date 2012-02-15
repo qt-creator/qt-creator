@@ -44,7 +44,7 @@
 #ifndef ABSTRACTOPTIONSPAGE_P_H
 #define ABSTRACTOPTIONSPAGE_P_H
 
-#include <QtDesigner/sdk_global.h>
+#include <sdk_global.h>
 
 QT_BEGIN_HEADER
 

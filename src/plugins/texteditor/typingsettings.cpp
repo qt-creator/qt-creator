@@ -33,8 +33,8 @@
 #include "typingsettings.h"
 
 #include <utils/settingsutils.h>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextDocument>
+#include <QTextCursor>
+#include <QTextDocument>
 
 static const char autoIndentKey[] = "AutoIndent";
 static const char tabKeyBehaviorKey[] = "TabKeyBehavior";

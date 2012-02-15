@@ -38,7 +38,7 @@
 #include <coreplugin/ifile.h>
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <QtCore/QPointer>
+#include <QPointer>
 
 namespace TextEditor {
 namespace Internal {

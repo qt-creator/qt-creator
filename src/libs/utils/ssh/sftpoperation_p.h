@@ -35,10 +35,10 @@
 
 #include "sftpdefs.h"
 
-#include <QtCore/QByteArray>
-#include <QtCore/QList>
-#include <QtCore/QMap>
-#include <QtCore/QSharedPointer>
+#include <QByteArray>
+#include <QList>
+#include <QMap>
+#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QFile;

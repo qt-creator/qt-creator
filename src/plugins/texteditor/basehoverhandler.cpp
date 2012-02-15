@@ -43,7 +43,7 @@
 #include <coreplugin/id.h>
 #include <debugger/debuggerconstants.h>
 
-#include <QtCore/QPoint>
+#include <QPoint>
 
 using namespace TextEditor;
 using namespace Core;

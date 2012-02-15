@@ -33,7 +33,7 @@
 #ifndef EFFECTS_H
 #define EFFECTS_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 // This is a copy of a Qt private header. Please read comments in tooltip.h.
 

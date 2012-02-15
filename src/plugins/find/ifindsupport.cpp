@@ -32,11 +32,11 @@
 
 #include "ifindsupport.h"
 
-#include <QtCore/QTimer>
-#include <QtCore/QPropertyAnimation>
-#include <QtGui/QWidget>
-#include <QtGui/QPaintEvent>
-#include <QtGui/QPainter>
+#include <QTimer>
+#include <QPropertyAnimation>
+#include <QWidget>
+#include <QPaintEvent>
+#include <QPainter>
 
 namespace Find {
 namespace Internal {

@@ -35,13 +35,13 @@
 
 #include "qtcassert.h"
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTemporaryFile>
-#include <QtCore/QDateTime>
-#include <QtCore/QDataStream>
-#include <QtCore/QTextStream>
-#include <QtGui/QMessageBox>
+#include <QDir>
+#include <QFileInfo>
+#include <QTemporaryFile>
+#include <QDateTime>
+#include <QDataStream>
+#include <QTextStream>
+#include <QMessageBox>
 
 namespace Utils {
 

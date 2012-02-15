@@ -35,7 +35,7 @@
 #include <texteditor/generichighlighter/specificrules.h>
 #include <texteditor/generichighlighter/progressdata.h>
 
-#include <QtTest/QtTest>
+#include <QtTest>
 
 //TESTED_COMPONENT=src/plugins/texteditor/generichighlighter
 using namespace TextEditor;

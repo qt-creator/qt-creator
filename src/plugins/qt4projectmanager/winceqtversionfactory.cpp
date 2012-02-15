@@ -34,7 +34,7 @@
 #include "winceqtversion.h"
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/profilereader.h>
-#include <QtCore/QFileInfo>
+#include <QFileInfo>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

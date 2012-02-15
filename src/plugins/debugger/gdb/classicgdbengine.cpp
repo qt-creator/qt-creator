@@ -46,9 +46,9 @@
 #include <utils/savedaction.h>
 #include <utils/fileutils.h>
 
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtGui/QMessageBox>
+#include <QFile>
+#include <QFileInfo>
+#include <QMessageBox>
 
 #if !defined(Q_OS_WIN)
 #include <dlfcn.h>

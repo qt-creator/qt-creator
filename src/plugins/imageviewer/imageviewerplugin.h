@@ -36,7 +36,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QtCore/QtPlugin>
+#include <QtPlugin>
 
 namespace ImageViewer {
 

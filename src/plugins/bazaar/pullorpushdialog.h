@@ -33,7 +33,7 @@
 #ifndef PULLORPUSHDIALOG_H
 #define PULLORPUSHDIALOG_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 namespace Bazaar {
 namespace Internal {

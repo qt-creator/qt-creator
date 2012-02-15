@@ -34,15 +34,15 @@
 
 #include <qmlruntime.h>
 
-#include <QtDeclarative/qdeclarativelist.h>
-#include <QtDeclarative/qdeclarative.h>
+#include <qdeclarativelist.h>
+#include <qdeclarative.h>
 
-#include <QtGui/QMouseEvent>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QImage>
-#include <QtCore/QUrl>
-#include <QtCore/QEvent>
-#include <QtCore/QAbstractAnimation>
+#include <QMouseEvent>
+#include <QKeyEvent>
+#include <QImage>
+#include <QUrl>
+#include <QEvent>
+#include <QAbstractAnimation>
 
 QT_BEGIN_NAMESPACE
 

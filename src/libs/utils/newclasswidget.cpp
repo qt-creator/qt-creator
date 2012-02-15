@@ -35,12 +35,12 @@
 
 #include <utils/filewizardpage.h>
 
-#include <QtGui/QFileDialog>
-#include <QtCore/QFileInfo>
-#include <QtCore/QStringList>
-#include <QtCore/QDir>
-#include <QtCore/QDebug>
-#include <QtCore/QRegExp>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QStringList>
+#include <QDir>
+#include <QDebug>
+#include <QRegExp>
 
 enum { debugNewClassWidget = 0 };
 

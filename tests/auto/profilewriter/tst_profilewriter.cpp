@@ -33,7 +33,7 @@
 #include <profileparser.h>
 #include <prowriter.h>
 
-#include <QtTest/QtTest>
+#include <QtTest>
 
 #define BASE_DIR "/some/stuff"
 

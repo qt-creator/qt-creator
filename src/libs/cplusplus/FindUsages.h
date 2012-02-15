@@ -37,7 +37,7 @@
 #include "CppDocument.h"
 #include "TypeOfExpression.h"
 #include <ASTVisitor.h>
-#include <QtCore/QSet>
+#include <QSet>
 
 namespace CPlusPlus {
 

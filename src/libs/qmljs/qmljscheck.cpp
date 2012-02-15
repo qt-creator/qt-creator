@@ -39,10 +39,10 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtGui/QColor>
-#include <QtGui/QApplication>
+#include <QDebug>
+#include <QDir>
+#include <QColor>
+#include <QApplication>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

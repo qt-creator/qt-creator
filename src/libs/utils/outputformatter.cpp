@@ -32,10 +32,10 @@
 
 #include "outputformatter.h"
 
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QColor>
+#include <QPlainTextEdit>
+#include <QColor>
 
-#include <QtCore/QString>
+#include <QString>
 
 using namespace Utils;
 

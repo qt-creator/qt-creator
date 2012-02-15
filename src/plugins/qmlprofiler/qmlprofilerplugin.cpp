@@ -36,7 +36,7 @@
 
 #include <analyzerbase/analyzermanager.h>
 
-#include <QtCore/QtPlugin>
+#include <QtPlugin>
 
 using namespace Analyzer;
 using namespace QmlProfiler::Internal;

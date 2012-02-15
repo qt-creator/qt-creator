@@ -41,13 +41,13 @@
 #include "suppression.h"
 #include <utils/qtcassert.h>
 
-#include <QtNetwork/QAbstractSocket>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QHash>
-#include <QtCore/QIODevice>
-#include <QtCore/QPair>
-#include <QtCore/QThread>
-#include <QtCore/QXmlStreamReader>
+#include <QAbstractSocket>
+#include <QCoreApplication>
+#include <QHash>
+#include <QIODevice>
+#include <QPair>
+#include <QThread>
+#include <QXmlStreamReader>
 
 namespace {
 

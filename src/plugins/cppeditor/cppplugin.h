@@ -36,9 +36,9 @@
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-#include <QtCore/QtPlugin>
-#include <QtCore/QStringList>
-#include <QtGui/QAction>
+#include <QtPlugin>
+#include <QStringList>
+#include <QAction>
 
 namespace TextEditor {
 class TextEditorActionHandler;

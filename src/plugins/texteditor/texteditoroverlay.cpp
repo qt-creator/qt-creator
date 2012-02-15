@@ -33,10 +33,10 @@
 #include "texteditoroverlay.h"
 #include "basetexteditor.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QMap>
-#include <QtGui/QPainter>
-#include <QtGui/QTextBlock>
+#include <QDebug>
+#include <QMap>
+#include <QPainter>
+#include <QTextBlock>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;

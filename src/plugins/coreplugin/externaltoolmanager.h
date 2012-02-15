@@ -35,10 +35,10 @@
 
 #include "core_global.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QMap>
-#include <QtCore/QList>
-#include <QtCore/QString>
+#include <QObject>
+#include <QMap>
+#include <QList>
+#include <QString>
 
 QT_FORWARD_DECLARE_CLASS(QAction)
 

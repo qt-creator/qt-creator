@@ -39,7 +39,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
 
-#include <QtCore/QSharedPointer>
+#include <QSharedPointer>
 
 namespace RemoteLinux {
 class AbstractEmbeddedLinuxTarget;

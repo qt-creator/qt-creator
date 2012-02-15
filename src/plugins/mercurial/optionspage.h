@@ -37,8 +37,8 @@
 
 #include <vcsbase/vcsbaseoptionspage.h>
 
-#include <QtGui/QWidget>
-#include <QtCore/QPointer>
+#include <QWidget>
+#include <QPointer>
 
 namespace Mercurial {
 namespace Internal {

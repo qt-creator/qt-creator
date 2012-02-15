@@ -36,7 +36,7 @@
 #include "find_global.h"
 #include "textfindconstants.h"
 
-#include <QtGui/QPixmap>
+#include <QPixmap>
 
 QT_BEGIN_NAMESPACE
 class QWidget;

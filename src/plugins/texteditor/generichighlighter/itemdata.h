@@ -33,8 +33,8 @@
 #ifndef ITEMDATA_H
 #define ITEMDATA_H
 
-#include <QtCore/QString>
-#include <QtGui/QColor>
+#include <QString>
+#include <QColor>
 
 namespace TextEditor {
 namespace Internal {

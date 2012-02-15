@@ -40,10 +40,10 @@
 #include <cplusplus/OverviewModel.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QTimer>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QMenu>
+#include <QDebug>
+#include <QTimer>
+#include <QVBoxLayout>
+#include <QMenu>
 
 using namespace CppEditor::Internal;
 

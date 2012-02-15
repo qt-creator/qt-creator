@@ -39,7 +39,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/task.h>
 
-#include <QtGui/QSpacerItem>
+#include <QSpacerItem>
 
 namespace Utils {
 class DetailsWidget;

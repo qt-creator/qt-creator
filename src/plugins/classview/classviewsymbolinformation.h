@@ -33,8 +33,8 @@
 #ifndef CLASSVIEWSYMBOLINFORMATION_H
 #define CLASSVIEWSYMBOLINFORMATION_H
 
-#include <QtCore/QMetaType>
-#include <QtCore/QString>
+#include <QMetaType>
+#include <QString>
 
 #include <limits.h>
 

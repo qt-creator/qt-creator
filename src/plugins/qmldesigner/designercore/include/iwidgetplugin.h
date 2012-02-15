@@ -33,7 +33,7 @@
 #ifndef IWIDGETPLUGIN_H
 #define IWIDGETPLUGIN_H
 
-#include <QtCore/QObject>
+#include <QObject>
 
 #define QMLDESIGNER_WIDGETPLUGIN_INTERFACE "com.Nokia.QmlDesigner.IWidgetPlugin.v10"
 

@@ -38,8 +38,8 @@
 #include <coreplugin/actionmanager/command.h>
 #include "coreplugin/icontext.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QList>
+#include <QObject>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 class QAction;

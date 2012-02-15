@@ -45,7 +45,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <coreplugin/ifile.h>
 
-#include <QtCore/QFuture>
+#include <QFuture>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;

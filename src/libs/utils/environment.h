@@ -35,10 +35,10 @@
 
 #include "utils_global.h"
 
-#include <QtCore/QList>
-#include <QtCore/QMap>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+#include <QList>
+#include <QMap>
+#include <QString>
+#include <QStringList>
 
 namespace Utils {
 

@@ -41,8 +41,8 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QPointer>
+#include <QDebug>
+#include <QPointer>
 
 enum { debug = false };
 

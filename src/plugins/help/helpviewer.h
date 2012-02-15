@@ -35,18 +35,18 @@
 
 #include <find/ifindsupport.h>
 
-#include <QtCore/qglobal.h>
-#include <QtCore/QString>
-#include <QtCore/QUrl>
-#include <QtCore/QVariant>
+#include <qglobal.h>
+#include <QString>
+#include <QUrl>
+#include <QVariant>
 
-#include <QtGui/QAction>
-#include <QtGui/QFont>
+#include <QAction>
+#include <QFont>
 
 #if defined(QT_NO_WEBKIT)
-#include <QtGui/QTextBrowser>
+#include <QTextBrowser>
 #else
-#include <QtWebKit/QWebView>
+#include <QWebView>
 #endif
 
 namespace Help {

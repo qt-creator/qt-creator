@@ -35,8 +35,8 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtGui/QPushButton>
+#include <QDebug>
+#include <QPushButton>
 
 namespace CodePaster {
 

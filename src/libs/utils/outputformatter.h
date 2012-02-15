@@ -36,8 +36,8 @@
 #include "utils_global.h"
 #include "outputformat.h"
 
-#include <QtCore/QObject>
-#include <QtGui/QFont>
+#include <QObject>
+#include <QFont>
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;

@@ -38,9 +38,9 @@
 #include "qmljsutils.h"
 #include "qmljsmodelmanagerinterface.h"
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/QDebug>
+#include <QFileInfo>
+#include <QDir>
+#include <QDebug>
 
 using namespace LanguageUtils;
 using namespace QmlJS;

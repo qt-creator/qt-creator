@@ -35,7 +35,7 @@
 
 #include "glsl.h"
 #include "glslmemorypool.h"
-#include <QtCore/qstring.h>
+#include <qstring.h>
 
 namespace GLSL {
 

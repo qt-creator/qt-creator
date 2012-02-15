@@ -36,11 +36,11 @@
 #include "ui_directoryfilter.h"
 #include "basefilefilter.h"
 
-#include <QtCore/QString>
-#include <QtCore/QList>
-#include <QtCore/QByteArray>
-#include <QtCore/QFutureInterface>
-#include <QtCore/QMutex>
+#include <QString>
+#include <QList>
+#include <QByteArray>
+#include <QFutureInterface>
+#include <QMutex>
 
 namespace Locator {
 namespace Internal {

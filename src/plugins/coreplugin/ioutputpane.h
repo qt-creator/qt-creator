@@ -35,9 +35,9 @@
 
 #include "core_global.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QList>
-#include <QtCore/QString>
+#include <QObject>
+#include <QList>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 class QWidget;

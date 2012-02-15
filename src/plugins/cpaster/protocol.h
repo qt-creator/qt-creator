@@ -33,9 +33,9 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
-#include <QtCore/QObject>
-#include <QtCore/QScopedPointer>
-#include <QtCore/QSharedPointer>
+#include <QObject>
+#include <QScopedPointer>
+#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QNetworkAccessManager;

@@ -34,8 +34,8 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QStringMatcher>
+#include <QDir>
+#include <QStringMatcher>
 
 using namespace Core;
 using namespace Locator;

@@ -33,10 +33,10 @@
 #include "disassemblerlines.h"
 #include "debuggerstringutils.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QRegExp>
-#include <QtCore/QFile>
-#include <QtCore/QTextStream>
+#include <QDebug>
+#include <QRegExp>
+#include <QFile>
+#include <QTextStream>
 
 namespace Debugger {
 namespace Internal {

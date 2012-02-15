@@ -61,13 +61,13 @@
 
 #include <integrationcore.h>
 
-#include <QtGui/QAction>
+#include <QAction>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QCoreApplication>
-#include <QtCore/qplugin.h>
-#include <QtCore/QDebug>
-#include <QtCore/QProcessEnvironment>
+#include <QFileInfo>
+#include <QCoreApplication>
+#include <qplugin.h>
+#include <QDebug>
+#include <QProcessEnvironment>
 
 namespace QmlDesigner {
 namespace Internal {

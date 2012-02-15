@@ -33,7 +33,7 @@
 #ifndef BASETEXTDOCUMENTLAYOUT_H
 #define BASETEXTDOCUMENTLAYOUT_H
 
-#include <QtGui/QTextBlockUserData>
+#include <QTextBlockUserData>
 
 // Replaces the "real" basetextdocumentlayout.h file.
 

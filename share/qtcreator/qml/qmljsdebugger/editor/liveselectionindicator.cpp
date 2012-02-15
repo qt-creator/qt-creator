@@ -34,10 +34,10 @@
 #include "../qdeclarativeviewinspector_p.h"
 #include "qmlinspectorconstants.h"
 
-#include <QtGui/QGraphicsRectItem>
-#include <QtGui/QGraphicsObject>
-#include <QtGui/QGraphicsScene>
-#include <QtGui/QPen>
+#include <QGraphicsRectItem>
+#include <QGraphicsObject>
+#include <QGraphicsScene>
+#include <QPen>
 
 namespace QmlJSDebugger {
 

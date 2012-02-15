@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include <QtCore/QRegExp>
+#include <QRegExp>
 
 #include "pendingchangesdialog.h"
 

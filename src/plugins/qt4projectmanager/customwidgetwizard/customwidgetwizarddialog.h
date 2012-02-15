@@ -35,7 +35,7 @@
 
 #include "../wizards/qtwizard.h"
 
-#include <QtCore/QSharedPointer>
+#include <QSharedPointer>
 
 namespace Qt4ProjectManager {
 namespace Internal {

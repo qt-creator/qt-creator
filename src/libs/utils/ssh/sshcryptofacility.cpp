@@ -51,8 +51,8 @@
 #include <botan/pubkey.h>
 #include <botan/rsa.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QList>
+#include <QDebug>
+#include <QList>
 
 #include <string>
 

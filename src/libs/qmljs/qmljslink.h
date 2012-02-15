@@ -38,7 +38,7 @@
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <languageutils/componentversion.h>
 
-#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 
 namespace QmlJS {
 

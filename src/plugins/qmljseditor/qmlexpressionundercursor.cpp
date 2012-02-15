@@ -35,9 +35,9 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsscanner.h>
 
-#include <QtGui/QTextBlock>
+#include <QTextBlock>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

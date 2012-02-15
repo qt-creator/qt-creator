@@ -33,10 +33,10 @@
 #ifndef SEARCHWIDGET_H
 #define SEARCHWIDGET_H
 
-#include <QtCore/QFutureInterface>
-#include <QtCore/QFutureWatcher>
+#include <QFutureInterface>
+#include <QFutureWatcher>
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 QT_FORWARD_DECLARE_CLASS(QHelpSearchEngine)
 QT_FORWARD_DECLARE_CLASS(QHelpSearchResultWidget)

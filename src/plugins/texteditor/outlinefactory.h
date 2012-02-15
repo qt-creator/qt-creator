@@ -35,8 +35,8 @@
 
 #include <texteditor/ioutlinewidget.h>
 #include <coreplugin/inavigationwidgetfactory.h>
-#include <QtGui/QStackedWidget>
-#include <QtGui/QMenu>
+#include <QStackedWidget>
+#include <QMenu>
 
 namespace Core {
 class IEditor;

@@ -38,8 +38,8 @@
 
 #include "CppDocument.h"
 
-#include <QtCore/QList>
-#include <QtGui/QTextCursor>
+#include <QList>
+#include <QTextCursor>
 
 #undef DEBUG_AST_PATH
 

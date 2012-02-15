@@ -46,10 +46,10 @@
 #include <texteditor/itexteditor.h>
 #include <texteditor/texteditorconstants.h>
 
-#include <QtCore/QtPlugin>
-#include <QtCore/QDebug>
+#include <QtPlugin>
+#include <QDebug>
 
-#include <QtGui/QMenu>
+#include <QMenu>
 
 using namespace Bookmarks::Constants;
 using namespace Bookmarks::Internal;

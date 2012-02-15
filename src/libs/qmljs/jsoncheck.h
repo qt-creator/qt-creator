@@ -42,10 +42,10 @@
 
 #include <utils/json.h>
 
-#include <QtCore/QString>
-#include <QtCore/QSet>
-#include <QtCore/QStack>
-#include <QtCore/QList>
+#include <QString>
+#include <QSet>
+#include <QStack>
+#include <QList>
 
 
 namespace QmlJS {

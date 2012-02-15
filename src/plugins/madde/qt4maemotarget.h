@@ -35,9 +35,9 @@
 
 #include <remotelinux/abstractembeddedlinuxtarget.h>
 
-#include <QtCore/QIODevice>
-#include <QtCore/QSharedPointer>
-#include <QtGui/QIcon>
+#include <QIODevice>
+#include <QSharedPointer>
+#include <QIcon>
 
 QT_FORWARD_DECLARE_CLASS(QDateTime)
 QT_FORWARD_DECLARE_CLASS(QFile)

@@ -35,11 +35,11 @@
 
 #include "aggregation_global.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QList>
-#include <QtCore/QHash>
-#include <QtCore/QReadWriteLock>
-#include <QtCore/QReadLocker>
+#include <QObject>
+#include <QList>
+#include <QHash>
+#include <QReadWriteLock>
+#include <QReadLocker>
 
 namespace Aggregation {
 

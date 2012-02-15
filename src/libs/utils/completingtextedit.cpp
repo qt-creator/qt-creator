@@ -32,10 +32,10 @@
 
 #include "completingtextedit.h"
 
-#include <QtGui/QAbstractItemView>
-#include <QtGui/QCompleter>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QScrollBar>
+#include <QAbstractItemView>
+#include <QCompleter>
+#include <QKeyEvent>
+#include <QScrollBar>
 
 static bool isEndOfWordChar(const QChar &c)
 {

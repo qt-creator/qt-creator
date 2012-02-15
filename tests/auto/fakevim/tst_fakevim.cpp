@@ -32,12 +32,12 @@
 
 #include "fakevimhandler.h"
 
-#include <QtCore/QSet>
+#include <QSet>
 
-#include <QtGui/QTextEdit>
-#include <QtGui/QPlainTextEdit>
+#include <QTextEdit>
+#include <QPlainTextEdit>
 
-#include <QtTest/QtTest>
+#include <QtTest>
 
 //TESTED_COMPONENT=src/plugins/fakevim
 using namespace FakeVim;
@@ -853,7 +853,7 @@ void tst_FakeVim::Visual_d()
 /*
 
 #include <QtCore>
-#include <QtGui>
+#include <QtWidgets>
 
 int main(int argc, char *argv[])
 {

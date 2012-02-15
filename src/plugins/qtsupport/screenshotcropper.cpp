@@ -1,12 +1,12 @@
 #include "screenshotcropper.h"
 
 #include <coreplugin/icore.h>
-#include <QtCore/QXmlStreamReader>
-#include <QtCore/QXmlStreamWriter>
-#include <QtCore/QDebug>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtGui/QPainter>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
+#include <QDebug>
+#include <QFile>
+#include <QFileInfo>
+#include <QPainter>
 
 namespace QtSupport {
 namespace Internal {

@@ -33,10 +33,10 @@
 #ifndef MODEL_P_H
 #define MODEL_P_H
 
-#include <QtCore/QList>
+#include <QList>
 #include <QWeakPointer>
-#include <QtCore/QSet>
-#include <QtCore/QUrl>
+#include <QSet>
+#include <QUrl>
 
 #include "modelnode.h"
 #include "abstractview.h"

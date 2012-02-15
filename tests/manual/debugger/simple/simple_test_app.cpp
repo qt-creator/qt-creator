@@ -117,49 +117,49 @@ void dummyStatement(...) {}
 #undef __STRICT_ANSI__ // working around compile error with MinGW
 #endif
 
-#include <QtCore/QDebug>
-#include <QtCore/QDateTime>
-#include <QtCore/QDir>
-#include <QtCore/QHash>
-#include <QtCore/QLibrary>
-#include <QtCore/QLinkedList>
-#include <QtCore/QList>
-#include <QtCore/QMap>
-#include <QtCore/QPointer>
-#include <QtCore/QProcess>
-#include <QtCore/QRegExp>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QSettings>
-#include <QtCore/QStack>
-#include <QtCore/QThread>
-#include <QtCore/QVariant>
-#include <QtCore/QVector>
-#include <QtCore/QUrl>
+#include <QDebug>
+#include <QDateTime>
+#include <QDir>
+#include <QHash>
+#include <QLibrary>
+#include <QLinkedList>
+#include <QList>
+#include <QMap>
+#include <QPointer>
+#include <QProcess>
+#include <QRegExp>
+#include <QString>
+#include <QStringList>
+#include <QSettings>
+#include <QStack>
+#include <QThread>
+#include <QVariant>
+#include <QVector>
+#include <QUrl>
 #if USE_SHARED_POINTER
-#include <QtCore/QSharedPointer>
+#include <QSharedPointer>
 #endif
 
-#include <QtGui/QColor>
-#include <QtGui/QFont>
+#include <QColor>
+#include <QFont>
 
 //#include <QtGui/private/qfixed_p.h>
-#include <QtGui/QPainter>
-#include <QtGui/QPainterPath>
-#include <QtGui/QRegion>
+#include <QPainter>
+#include <QPainterPath>
+#include <QRegion>
 
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextDocument>
+#include <QTextCursor>
+#include <QTextDocument>
 
 #if USE_SCRIPTLIB
-#include <QtScript/QScriptEngine>
-#include <QtScript/QScriptValue>
+#include <QScriptEngine>
+#include <QScriptValue>
 #endif
 
-#include <QtXml/QXmlAttributes>
+#include <QXmlAttributes>
 
-#include <QtNetwork/QHostAddress>
-#include <QtNetwork/QNetworkRequest>
+#include <QHostAddress>
+#include <QNetworkRequest>
 
 #include <QApplication> // QWidgets: Separate module as of Qt 5
 #include <QAction>
@@ -201,7 +201,7 @@ void dummyStatement(...) {}
 #endif
 
 #if USE_PRIVATE
-#include <QtCore/private/qobject_p.h>
+#include <private/qobject_p.h>
 #endif
 
 #if defined(__GNUC__) && !defined(__llvm__) && !defined(Q_OS_MAC)

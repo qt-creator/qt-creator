@@ -32,8 +32,8 @@
 
 #include "cvssettings.h"
 
-#include <QtCore/QSettings>
-#include <QtCore/QTextStream>
+#include <QSettings>
+#include <QTextStream>
 
 static const char groupC[] = "CVS";
 static const char commandKeyC[] = "Command";

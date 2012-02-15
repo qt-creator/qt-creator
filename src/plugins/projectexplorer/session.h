@@ -37,11 +37,11 @@
 
 #include <utils/persistentsettings.h>
 
-#include <QtCore/QHash>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QMap>
-#include <QtCore/QFutureInterface>
+#include <QHash>
+#include <QString>
+#include <QStringList>
+#include <QMap>
+#include <QFutureInterface>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;

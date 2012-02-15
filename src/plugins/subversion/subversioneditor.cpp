@@ -39,10 +39,10 @@
 #include <utils/qtcassert.h>
 #include <vcsbase/diffhighlighter.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextBlock>
+#include <QDebug>
+#include <QFileInfo>
+#include <QTextCursor>
+#include <QTextBlock>
 
 using namespace Subversion;
 using namespace Subversion::Internal;

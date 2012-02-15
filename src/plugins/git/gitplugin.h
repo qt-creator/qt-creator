@@ -40,12 +40,12 @@
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <extensionsystem/iplugin.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QProcess>
-#include <QtCore/QStringList>
-#include <QtCore/QPointer>
-#include <QtCore/QPair>
-#include <QtCore/QVector>
+#include <QObject>
+#include <QProcess>
+#include <QStringList>
+#include <QPointer>
+#include <QPair>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QFile;

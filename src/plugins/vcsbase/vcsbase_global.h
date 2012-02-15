@@ -33,7 +33,7 @@
 #ifndef VCSBASEGLOBAL_H
 #define VCSBASEGLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(VCSBASE_LIBRARY)
 #  define VCSBASE_EXPORT Q_DECL_EXPORT

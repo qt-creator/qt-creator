@@ -33,7 +33,7 @@
 #ifndef QTC_ASSERT_H
 #define QTC_ASSERT_H
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 #define QTC_ASSERT_STRINGIFY_INTERNAL(x) #x
 #define QTC_ASSERT_STRINGIFY(x) QTC_ASSERT_STRINGIFY_INTERNAL(x)

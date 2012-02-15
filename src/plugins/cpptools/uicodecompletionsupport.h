@@ -39,7 +39,7 @@
 
 #include <cplusplus/ModelManagerInterface.h>
 
-#include <QtCore/QDateTime>
+#include <QDateTime>
 
 namespace CppTools {
 

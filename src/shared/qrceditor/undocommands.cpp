@@ -32,7 +32,7 @@
 
 #include "undocommands_p.h"
 
-#include <QtCore/QModelIndex>
+#include <QModelIndex>
 
 namespace SharedTools {
 

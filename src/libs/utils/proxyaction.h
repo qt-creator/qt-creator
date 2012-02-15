@@ -35,8 +35,8 @@
 
 #include "utils_global.h"
 
-#include <QtCore/QPointer>
-#include <QtGui/QAction>
+#include <QPointer>
+#include <QAction>
 
 namespace Utils {
 

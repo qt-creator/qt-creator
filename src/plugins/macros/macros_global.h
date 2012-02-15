@@ -33,7 +33,7 @@
 #ifndef MACROSPLUGIN_MACROS_GLOBAL_H
 #define MACROSPLUGIN_MACROS_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(MACROS_LIBRARY)
 #  define MACROS_EXPORT Q_DECL_EXPORT

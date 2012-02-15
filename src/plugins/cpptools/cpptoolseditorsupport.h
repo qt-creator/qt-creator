@@ -33,13 +33,13 @@
 #ifndef CPPTOOLSEDITORSUPPORT_H
 #define CPPTOOLSEDITORSUPPORT_H
 
-#include <QtCore/QObject>
-#include <QtCore/QPointer>
-#include <QtCore/QFuture>
-#include <QtCore/QScopedPointer>
-#include <QtCore/QSharedPointer>
+#include <QObject>
+#include <QPointer>
+#include <QFuture>
+#include <QScopedPointer>
+#include <QSharedPointer>
 
-#include <QtGui/QTextCursor>
+#include <QTextCursor>
 
 #include <cplusplus/CppDocument.h>
 

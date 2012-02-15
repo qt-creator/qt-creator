@@ -45,14 +45,14 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QHash>
-#include <QtCore/QStringBuilder>
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextBlock>
-#include <QtGui/QInputDialog>
-#include <QtGui/QMessageBox>
+#include <QCoreApplication>
+#include <QDir>
+#include <QHash>
+#include <QStringBuilder>
+#include <QTextDocument>
+#include <QTextBlock>
+#include <QInputDialog>
+#include <QMessageBox>
 
 using namespace CPlusPlus;
 using namespace CppEditor;

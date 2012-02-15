@@ -42,11 +42,11 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTextCodec>
-#include <QtCore/QTextStream>
-#include <QtCore/QVariant>
+#include <QDir>
+#include <QFileInfo>
+#include <QTextCodec>
+#include <QTextStream>
+#include <QVariant>
 
 namespace Mercurial {
 namespace Internal  {

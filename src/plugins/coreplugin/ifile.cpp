@@ -34,8 +34,8 @@
 
 #include "infobar.h"
 
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
+#include <QFile>
+#include <QFileInfo>
 
 namespace Core {
 

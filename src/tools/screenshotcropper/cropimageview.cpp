@@ -1,6 +1,6 @@
 #include "cropimageview.h"
-#include <QtGui/QPainter>
-#include <QtGui/QMouseEvent>
+#include <QPainter>
+#include <QMouseEvent>
 
 CropImageView::CropImageView(QWidget *parent)
     : QWidget(parent)

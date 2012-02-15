@@ -30,10 +30,10 @@
 **
 **************************************************************************/
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QObject>
-#include <QtCore/QCoreApplication>
+#include <QDebug>
+#include <QDir>
+#include <QObject>
+#include <QCoreApplication>
 
 #include "xuifiledialog.h"
 

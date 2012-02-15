@@ -44,14 +44,14 @@
 #include <texteditor/basetexteditor.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
+#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
 
-#include <QtGui/QAction>
-#include <QtGui/QContextMenuEvent>
-#include <QtGui/QMenu>
-#include <QtGui/QPainter>
+#include <QAction>
+#include <QContextMenuEvent>
+#include <QMenu>
+#include <QPainter>
 
 Q_DECLARE_METATYPE(Bookmarks::Internal::Bookmark*)
 

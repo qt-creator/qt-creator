@@ -34,12 +34,12 @@
 
 #include <coreplugin/coreconstants.h>
 
-#include <QtGui/QFrame>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QToolButton>
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QToolButton>
 
-#include <QtCore/QVariant>
+#include <QVariant>
 
 namespace Core {
 

@@ -32,8 +32,8 @@
 #ifndef WATCHUTILS_H
 #define WATCHUTILS_H
 
-#include <QtCore/QSet>
-#include <QtCore/QString>
+#include <QSet>
+#include <QString>
 
 namespace TextEditor {
     class ITextEditor;

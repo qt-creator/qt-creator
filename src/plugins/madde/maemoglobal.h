@@ -37,8 +37,8 @@
 #include <remotelinux/portlist.h>
 #include <utils/environment.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QSharedPointer>
+#include <QCoreApplication>
+#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QProcess;

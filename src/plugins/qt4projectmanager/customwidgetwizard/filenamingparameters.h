@@ -33,8 +33,8 @@
 #ifndef FILENAMINGPARAMETERS_H
 #define FILENAMINGPARAMETERS_H
 
-#include <QtCore/QString>
-#include <QtCore/QFileInfo>
+#include <QString>
+#include <QFileInfo>
 
 namespace Qt4ProjectManager {
 namespace Internal {

@@ -34,7 +34,7 @@
 
 #include <utils/environment.h>
 
-#include <QtGui/QFont>
+#include <QFont>
 
 namespace Utils {
 

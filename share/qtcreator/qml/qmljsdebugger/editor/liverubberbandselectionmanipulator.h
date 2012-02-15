@@ -36,7 +36,7 @@
 
 #include "liveselectionrectangle.h"
 
-#include <QtCore/QPointF>
+#include <QPointF>
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsItem)
 

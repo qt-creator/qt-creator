@@ -40,8 +40,8 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QVector>
+#include <QDir>
+#include <QVector>
 
 namespace Valgrind {
 namespace XmlProtocol {

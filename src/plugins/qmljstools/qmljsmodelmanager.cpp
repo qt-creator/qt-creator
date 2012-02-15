@@ -53,17 +53,17 @@
 #include <projectexplorer/session.h>
 #include <qtsupport/baseqtversion.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QLibraryInfo>
-#include <QtCore/QtConcurrentRun>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QLibraryInfo>
+#include <QtConcurrentRun>
 #include <utils/runextensions.h>
-#include <QtCore/QTextStream>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QTimer>
+#include <QTextStream>
+#include <QCoreApplication>
+#include <QTimer>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace QmlJS;
 using namespace QmlJSTools;

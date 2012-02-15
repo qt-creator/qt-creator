@@ -36,7 +36,7 @@
 #include "ioutputparser.h"
 #include "task.h"
 
-#include <QtCore/QRegExp>
+#include <QRegExp>
 
 namespace ProjectExplorer {
 

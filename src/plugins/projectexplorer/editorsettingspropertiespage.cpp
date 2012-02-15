@@ -34,7 +34,7 @@
 #include "editorconfiguration.h"
 #include "project.h"
 
-#include <QtCore/QTextCodec>
+#include <QTextCodec>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

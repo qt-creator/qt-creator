@@ -35,7 +35,7 @@
 
 #include "stackframe.h"
 
-#include <QtCore/QAbstractItemModel>
+#include <QAbstractItemModel>
 
 namespace Debugger {
 namespace Internal {

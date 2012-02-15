@@ -32,7 +32,7 @@
 
 #include "subversionsettings.h"
 
-#include <QtCore/QSettings>
+#include <QSettings>
 
 static const char groupC[] = "Subversion";
 static const char commandKeyC[] = "Command";

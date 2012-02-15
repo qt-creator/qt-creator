@@ -35,11 +35,11 @@
 
 #include "debuggerconstants.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QPointer>
-#include <QtCore/QString>
-#include <QtCore/QList>
-#include <QtGui/QColor>
+#include <QObject>
+#include <QPointer>
+#include <QString>
+#include <QList>
+#include <QColor>
 
 QT_FORWARD_DECLARE_CLASS(QPoint)
 

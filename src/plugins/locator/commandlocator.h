@@ -35,7 +35,7 @@
 
 #include "locator_global.h"
 #include "ilocatorfilter.h"
-#include <QtCore/QList>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 class QAction;

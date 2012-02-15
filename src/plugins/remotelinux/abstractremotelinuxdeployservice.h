@@ -34,9 +34,9 @@
 
 #include "remotelinux_export.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QVariantMap>
+#include <QObject>
+#include <QSharedPointer>
+#include <QVariantMap>
 QT_FORWARD_DECLARE_CLASS(QString)
 
 namespace Utils { class SshConnection; }

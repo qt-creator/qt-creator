@@ -36,7 +36,7 @@
 #include "designerconstants.h"
 #include <qtsupport/qtsupportconstants.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace Designer;
 using namespace Designer::Internal;

@@ -33,7 +33,7 @@
 #ifndef WELCOME_GLOBAL_H
 #define WELCOME_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(WELCOME_LIBRARY)
 #  define WELCOME_EXPORT Q_DECL_EXPORT

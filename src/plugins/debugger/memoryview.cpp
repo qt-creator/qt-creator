@@ -36,9 +36,9 @@
 
 #include <bineditor/markup.h>
 
-#include <QtGui/QVBoxLayout>
-#include <QtCore/QModelIndex>
-#include <QtCore/QDebug>
+#include <QVBoxLayout>
+#include <QModelIndex>
+#include <QDebug>
 
 namespace Debugger {
 namespace Internal {

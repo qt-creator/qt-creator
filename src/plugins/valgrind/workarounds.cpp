@@ -32,7 +32,7 @@
 
 #include "workarounds.h"
 
-#include <QtGui/QPalette>
+#include <QPalette>
 
 #include <utils/stylehelper.h>
 

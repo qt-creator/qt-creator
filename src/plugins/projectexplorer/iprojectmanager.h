@@ -35,7 +35,7 @@
 
 #include "projectexplorer_export.h"
 
-#include <QtCore/QObject>
+#include <QObject>
 
 namespace Core {
 class Context;

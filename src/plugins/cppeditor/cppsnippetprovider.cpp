@@ -43,8 +43,8 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/snippets/snippeteditor.h>
 
-#include <QtCore/QLatin1String>
-#include <QtCore/QCoreApplication>
+#include <QLatin1String>
+#include <QCoreApplication>
 
 using namespace CppEditor;
 using namespace Internal;

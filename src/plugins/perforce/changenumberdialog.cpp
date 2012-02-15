@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include <QtGui/QIntValidator>
+#include <QIntValidator>
 
 #include "changenumberdialog.h"
 

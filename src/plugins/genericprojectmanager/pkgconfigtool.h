@@ -33,8 +33,8 @@
 #ifndef PKGCONFIGTOOL_H
 #define PKGCONFIGTOOL_H
 
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
+#include <QObject>
+#include <QStringList>
 
 namespace GenericProjectManager {
 namespace Internal {

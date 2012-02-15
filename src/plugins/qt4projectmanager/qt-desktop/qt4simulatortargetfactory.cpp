@@ -42,8 +42,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 
-#include <QtGui/QApplication>
-#include <QtGui/QStyle>
+#include <QApplication>
+#include <QStyle>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

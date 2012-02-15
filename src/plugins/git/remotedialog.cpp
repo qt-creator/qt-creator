@@ -41,9 +41,9 @@
 
 #include <vcsbase/vcsbaseoutputwindow.h>
 
-#include <QtGui/QItemSelectionModel>
-#include <QtGui/QPushButton>
-#include <QtGui/QMessageBox>
+#include <QItemSelectionModel>
+#include <QPushButton>
+#include <QMessageBox>
 
 namespace Git {
 namespace Internal {

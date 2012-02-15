@@ -44,7 +44,7 @@
 #ifndef SHARED_GLOBAL_H
 #define SHARED_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #ifdef QT_DESIGNER_STATIC
 #define QDESIGNER_SHARED_EXTERN

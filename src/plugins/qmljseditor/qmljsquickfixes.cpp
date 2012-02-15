@@ -41,7 +41,7 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
 
-#include <QtGui/QApplication>
+#include <QApplication>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

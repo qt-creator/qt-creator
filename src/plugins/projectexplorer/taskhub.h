@@ -35,8 +35,8 @@
 
 #include "task.h"
 
-#include <QtCore/QObject>
-#include <QtGui/QIcon>
+#include <QObject>
+#include <QIcon>
 
 namespace ProjectExplorer {
 class Task;

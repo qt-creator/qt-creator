@@ -35,7 +35,7 @@
 
 #include <utils/ssh/sshremoteprocessrunner.h>
 
-#include <QtCore/QObject>
+#include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QTextStream)
 QT_FORWARD_DECLARE_CLASS(QTimer)

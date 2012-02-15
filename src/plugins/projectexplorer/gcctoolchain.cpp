@@ -43,15 +43,15 @@
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 
-#include <QtCore/QBuffer>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QFileInfo>
-#include <QtCore/QProcess>
-#include <QtCore/QScopedPointer>
+#include <QBuffer>
+#include <QCoreApplication>
+#include <QFileInfo>
+#include <QProcess>
+#include <QScopedPointer>
 
-#include <QtGui/QComboBox>
-#include <QtGui/QFormLayout>
-#include <QtGui/QLabel>
+#include <QComboBox>
+#include <QFormLayout>
+#include <QLabel>
 
 namespace ProjectExplorer {
 
@@ -1065,7 +1065,7 @@ GccToolChain *Internal::LinuxIccToolChainFactory::createToolChain(bool autoDetec
 #   include "projectexplorer.h"
 
 #   include <QTest>
-#   include <QtCore/QUrl>
+#   include <QUrl>
 
 namespace ProjectExplorer {
 void ProjectExplorerPlugin::testGccAbiGuessing_data()

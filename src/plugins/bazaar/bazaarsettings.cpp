@@ -33,7 +33,7 @@
 #include "bazaarsettings.h"
 #include "constants.h"
 
-#include <QtCore/QSettings>
+#include <QSettings>
 
 namespace Bazaar {
 namespace Internal {

@@ -41,7 +41,7 @@
 #include <qt4projectmanager/qt4project.h>
 #include <qtsupport/baseqtversion.h>
 
-#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 
 namespace RemoteLinux {
 namespace Internal {

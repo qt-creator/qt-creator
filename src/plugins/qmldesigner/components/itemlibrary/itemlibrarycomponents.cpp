@@ -33,12 +33,12 @@
 #include "itemlibrarycomponents.h"
 #include "customdraganddrop.h"
 
-#include <QtCore/QMimeData>
-#include <QtCore/QDebug>
+#include <QMimeData>
+#include <QDebug>
 
-#include <QtGui/QImage>
-#include <QtGui/QPixmap>
-#include <QtGui/QDrag>
+#include <QImage>
+#include <QPixmap>
+#include <QDrag>
 #include <QPainter>
 #include <QLabel>
 #include <itemlibraryinfo.h>

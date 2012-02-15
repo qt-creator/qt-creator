@@ -35,7 +35,7 @@
 
 #include <cppeditor/cppquickfix.h>
 
-#include <QtCore/QString>
+#include <QString>
 
 namespace CPlusPlus {
 class QtPropertyDeclarationAST;

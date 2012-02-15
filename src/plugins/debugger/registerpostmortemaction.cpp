@@ -38,9 +38,9 @@
 
 #include "registryaccess.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QString>
+#include <QCoreApplication>
+#include <QDir>
+#include <QString>
 
 #include <Windows.h>
 #include <Objbase.h>

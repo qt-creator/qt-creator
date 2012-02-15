@@ -38,9 +38,9 @@
 #include <analyzerbase/analyzersettings.h>
 #include "callgrindcostdelegate.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtCore/QVariant>
+#include <QObject>
+#include <QString>
+#include <QVariant>
 
 namespace Valgrind {
 namespace Internal {

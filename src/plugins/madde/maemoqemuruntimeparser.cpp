@@ -37,10 +37,10 @@
 #include <qtsupport/baseqtversion.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QProcess>
-#include <QtCore/QStringList>
-#include <QtCore/QTextStream>
+#include <QDir>
+#include <QProcess>
+#include <QStringList>
+#include <QTextStream>
 
 using namespace RemoteLinux;
 

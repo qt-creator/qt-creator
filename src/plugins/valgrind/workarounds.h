@@ -33,7 +33,7 @@
 #ifndef WORKAROUNDS_H
 #define WORKAROUNDS_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 QT_BEGIN_NAMESPACE
 class QPalette;

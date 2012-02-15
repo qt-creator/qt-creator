@@ -35,9 +35,9 @@
 
 #include "texteditor_global.h"
 
-#include <QtCore/QMap>
-#include <QtCore/QString>
-#include <QtGui/QColor>
+#include <QMap>
+#include <QString>
+#include <QColor>
 
 QT_BEGIN_NAMESPACE
 class QWidget;

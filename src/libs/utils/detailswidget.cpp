@@ -33,15 +33,15 @@
 #include "detailswidget.h"
 #include "detailsbutton.h"
 
-#include <QtCore/QStack>
-#include <QtCore/QPropertyAnimation>
+#include <QStack>
+#include <QPropertyAnimation>
 
-#include <QtGui/QGridLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QCheckBox>
-#include <QtGui/QPainter>
-#include <QtGui/QScrollArea>
-#include <QtGui/QApplication>
+#include <QGridLayout>
+#include <QLabel>
+#include <QCheckBox>
+#include <QPainter>
+#include <QScrollArea>
+#include <QApplication>
 
 /*!
     \class Utils::DetailsWidget

@@ -32,7 +32,7 @@
 
 #include "inavigationwidgetfactory.h"
 
-#include <QtGui/QKeySequence>
+#include <QKeySequence>
 
 using namespace Core;
 

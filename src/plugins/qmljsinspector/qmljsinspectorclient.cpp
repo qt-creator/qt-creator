@@ -33,7 +33,7 @@
 #include "qmljsclientproxy.h"
 #include "qmljsinspectorconstants.h"
 
-#include <QtGui/QColor>
+#include <QColor>
 
 using namespace QmlJSDebugger;
 

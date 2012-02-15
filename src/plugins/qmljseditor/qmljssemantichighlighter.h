@@ -34,7 +34,7 @@
 #define QMLJSSEMANTICHIGHLIGHTER_H
 
 #include <texteditor/semantichighlighter.h>
-#include <QtCore/QFutureWatcher>
+#include <QFutureWatcher>
 
 namespace QmlJS {
 class ScopeChain;

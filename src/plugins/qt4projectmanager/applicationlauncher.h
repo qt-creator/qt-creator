@@ -33,9 +33,9 @@
 #ifndef APPLICATIONLAUNCHER_H
 #define APPLICATIONLAUNCHER_H
 
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
-#include <QtCore/QProcess>
+#include <QObject>
+#include <QStringList>
+#include <QProcess>
 
 namespace Qt4ProjectManager {
 namespace Internal {

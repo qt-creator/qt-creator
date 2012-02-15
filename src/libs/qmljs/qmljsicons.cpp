@@ -31,10 +31,10 @@
 **************************************************************************/
 
 #include "qmljsicons.h"
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QHash>
-#include <QtCore/QPair>
+#include <QDebug>
+#include <QDir>
+#include <QHash>
+#include <QPair>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

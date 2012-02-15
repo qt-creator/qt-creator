@@ -33,8 +33,8 @@
 #ifndef THREADDATA_H
 #define THREADDATA_H
 
-#include <QtCore/QVector>
-#include <QtCore/QString>
+#include <QVector>
+#include <QString>
 
 namespace Debugger {
 namespace Internal {

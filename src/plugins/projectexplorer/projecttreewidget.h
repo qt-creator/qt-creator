@@ -35,8 +35,8 @@
 
 #include <coreplugin/inavigationwidgetfactory.h>
 
-#include <QtGui/QWidget>
-#include <QtCore/QModelIndex>
+#include <QWidget>
+#include <QModelIndex>
 
 QT_FORWARD_DECLARE_CLASS(QTreeView)
 

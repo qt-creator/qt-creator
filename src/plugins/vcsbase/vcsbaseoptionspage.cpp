@@ -34,8 +34,8 @@
 
 #include "vcsbaseconstants.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtGui/QIcon>
+#include <QCoreApplication>
+#include <QIcon>
 
 /*!
     \class VcsBase::VcsBaseOptionsPage

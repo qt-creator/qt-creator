@@ -35,8 +35,8 @@
 
 #include <coreplugin/imode.h>
 
-#include <QtCore/QString>
-#include <QtGui/QIcon>
+#include <QString>
+#include <QIcon>
 
 namespace Help {
 namespace Internal {

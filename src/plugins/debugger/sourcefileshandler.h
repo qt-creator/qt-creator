@@ -33,8 +33,8 @@
 #ifndef DEBUGGER_SOURCEFILESHANDLER_H
 #define DEBUGGER_SOURCEFILESHANDLER_H
 
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QStringList>
+#include <QAbstractItemModel>
+#include <QStringList>
 
 namespace Debugger {
 namespace Internal {

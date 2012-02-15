@@ -37,7 +37,7 @@
 
 #include <texteditor/texteditor_global.h>
 
-#include <QtGui/QFrame>
+#include <QFrame>
 
 namespace TextEditor {
 

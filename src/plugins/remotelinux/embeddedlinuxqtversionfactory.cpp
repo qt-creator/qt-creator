@@ -35,7 +35,7 @@
 #include "embeddedlinuxqtversion.h"
 #include "remotelinux_constants.h"
 
-#include <QtCore/QFileInfo>
+#include <QFileInfo>
 
 namespace RemoteLinux {
 namespace Internal {

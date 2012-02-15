@@ -33,7 +33,7 @@
 #ifndef RUNCONFIGURATIONMODEL_H
 #define RUNCONFIGURATIONMODEL_H
 
-#include <QtCore/QAbstractItemModel>
+#include <QAbstractItemModel>
 
 namespace ProjectExplorer {
 class Target;

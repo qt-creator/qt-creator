@@ -48,19 +48,19 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDirIterator>
-#include <QtCore/QSettings>
-#include <QtCore/QHash>
-#include <QtCore/QPair>
-#include <QtGui/QFileDialog>
-#include <QtGui/QCheckBox>
-#include <QtGui/QComboBox>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QMainWindow>
-#include <QtGui/QPushButton>
-#include <QtGui/QTextBlock>
+#include <QDebug>
+#include <QDirIterator>
+#include <QSettings>
+#include <QHash>
+#include <QPair>
+#include <QFileDialog>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QMainWindow>
+#include <QPushButton>
+#include <QTextBlock>
 
 using namespace Utils;
 using namespace Find;

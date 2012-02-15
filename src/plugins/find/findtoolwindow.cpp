@@ -35,12 +35,12 @@
 
 #include <coreplugin/icore.h>
 
-#include <QtCore/QSettings>
-#include <QtGui/QMainWindow>
-#include <QtGui/QStringListModel>
-#include <QtGui/QCompleter>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QScrollArea>
+#include <QSettings>
+#include <QMainWindow>
+#include <QStringListModel>
+#include <QCompleter>
+#include <QKeyEvent>
+#include <QScrollArea>
 
 using namespace Find;
 using namespace Find::Internal;

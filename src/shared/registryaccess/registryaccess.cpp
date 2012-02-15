@@ -32,10 +32,10 @@
 
 #include "registryaccess.h"
 
-#include <QtGui/QApplication>
+#include <QApplication>
 
-#include <QtCore/QDir>
-#include <QtCore/QTextStream>
+#include <QDir>
+#include <QTextStream>
 
 namespace RegistryAccess {
 

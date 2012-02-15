@@ -35,7 +35,7 @@
 
 #include "projectexplorer_export.h"
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 namespace ProjectExplorer {
 

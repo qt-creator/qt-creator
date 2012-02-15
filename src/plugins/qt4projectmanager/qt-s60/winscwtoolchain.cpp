@@ -42,9 +42,9 @@
 #include <utils/environment.h>
 #include <qtsupport/qtversionmanager.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QStringList>
+#include <QDir>
+#include <QFileInfo>
+#include <QStringList>
 
 namespace Qt4ProjectManager {
 namespace Internal {

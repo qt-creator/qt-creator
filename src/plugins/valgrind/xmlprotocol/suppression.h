@@ -35,7 +35,7 @@
 #ifndef LIBVALGRIND_PROTOCOL_SUPPRESSION_H
 #define LIBVALGRIND_PROTOCOL_SUPPRESSION_H
 
-#include <QtCore/QSharedDataPointer>
+#include <QSharedDataPointer>
 
 QT_BEGIN_NAMESPACE
 class QString;

@@ -46,8 +46,8 @@
 #include <remotelinux/deploymentinfo.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QString>
+#include <QFileInfo>
+#include <QString>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;

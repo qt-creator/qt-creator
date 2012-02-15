@@ -33,10 +33,10 @@
 #ifndef CODACLIENTAPPLICATION_H
 #define CODACLIENTAPPLICATION_H
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QStringList>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QTime>
+#include <QCoreApplication>
+#include <QStringList>
+#include <QSharedPointer>
+#include <QTime>
 
 QT_FORWARD_DECLARE_CLASS(QFile)
 

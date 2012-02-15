@@ -35,7 +35,7 @@
 #include "sshkeyexchange_p.h"
 #include "sshoutgoingpacket_p.h"
 
-#include <QtNetwork/QTcpSocket>
+#include <QTcpSocket>
 
 namespace Utils {
 namespace Internal {

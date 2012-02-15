@@ -36,8 +36,8 @@
 #include "pluginoptions.h"
 #include "filenamingparameters.h"
 
-#include <QtCore/QList>
-#include <QtGui/QWizardPage>
+#include <QList>
+#include <QWizardPage>
 
 QT_BEGIN_NAMESPACE
 class QStackedLayout;

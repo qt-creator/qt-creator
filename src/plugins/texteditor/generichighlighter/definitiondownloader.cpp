@@ -34,12 +34,12 @@
 
 #include <utils/fileutils.h>
 
-#include <QtCore/QLatin1Char>
-#include <QtCore/QEventLoop>
-#include <QtCore/QFile>
-#include <QtCore/QScopedPointer>
-#include <QtNetwork/QNetworkRequest>
-#include <QtNetwork/QNetworkReply>
+#include <QLatin1Char>
+#include <QEventLoop>
+#include <QFile>
+#include <QScopedPointer>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 
 #include <utils/networkaccessmanager.h>
 

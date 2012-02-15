@@ -34,7 +34,7 @@
 #define GENERALSETTINGS_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <QtCore/QPointer>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QMessageBox;

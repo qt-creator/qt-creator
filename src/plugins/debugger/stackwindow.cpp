@@ -42,14 +42,14 @@
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
-#include <QtGui/QApplication>
-#include <QtGui/QClipboard>
-#include <QtGui/QContextMenuEvent>
-#include <QtGui/QHeaderView>
-#include <QtGui/QInputDialog>
-#include <QtGui/QMenu>
+#include <QApplication>
+#include <QClipboard>
+#include <QContextMenuEvent>
+#include <QHeaderView>
+#include <QInputDialog>
+#include <QMenu>
 
 namespace Debugger {
 namespace Internal {

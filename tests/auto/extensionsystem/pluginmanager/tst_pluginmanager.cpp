@@ -34,9 +34,9 @@
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/iplugin.h>
 
-#include <QtTest/QtTest>
+#include <QtTest>
 
-#include <QtCore/QObject>
+#include <QObject>
 
 using namespace ExtensionSystem;
 

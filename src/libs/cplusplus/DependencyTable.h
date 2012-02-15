@@ -35,11 +35,11 @@
 
 #include <CPlusPlusForwardDeclarations.h>
 
-#include <QtCore/QBitArray>
-#include <QtCore/QHash>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QVector>
+#include <QBitArray>
+#include <QHash>
+#include <QString>
+#include <QStringList>
+#include <QVector>
 
 namespace CPlusPlus {
 

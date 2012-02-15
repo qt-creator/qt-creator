@@ -40,10 +40,10 @@
 #include <aggregation/aggregate.h>
 #include <coreplugin/icore.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QSettings>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
+#include <QDir>
+#include <QSettings>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 namespace Find {
 namespace Internal {

@@ -35,7 +35,7 @@
 
 #include <texteditor/basetextmark.h>
 
-#include <QtCore/QPersistentModelIndex>
+#include <QPersistentModelIndex>
 
 namespace Valgrind {
 

@@ -35,7 +35,7 @@
 
 #include "locator_global.h"
 
-#include <QtCore/QObject>
+#include <QObject>
 
 namespace Locator {
 

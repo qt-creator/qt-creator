@@ -38,13 +38,13 @@
 #include <find/ifindfilter.h>
 #include <utils/filesearch.h>
 
-#include <QtGui/QTextDocument>
-#include <QtGui/QKeySequence>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QFutureInterface>
-#include <QtCore/QPointer>
-#include <QtCore/QFutureWatcher>
-#include <QtCore/QHash>
+#include <QTextDocument>
+#include <QKeySequence>
+#include <QSharedPointer>
+#include <QFutureInterface>
+#include <QPointer>
+#include <QFutureWatcher>
+#include <QHash>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;

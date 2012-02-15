@@ -33,8 +33,8 @@
 #ifndef GITORIOUSPROJECTWIZARDPAGE_H
 #define GITORIOUSPROJECTWIZARDPAGE_H
 
-#include <QtCore/QSharedPointer>
-#include <QtGui/QWizardPage>
+#include <QSharedPointer>
+#include <QWizardPage>
 
 QT_BEGIN_NAMESPACE
 class QStackedWidget;

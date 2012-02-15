@@ -36,11 +36,11 @@
 #include "languageutils_global.h"
 #include "componentversion.h"
 
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QList>
-#include <QtCore/QHash>
-#include <QtCore/QSharedPointer>
+#include <QString>
+#include <QStringList>
+#include <QList>
+#include <QHash>
+#include <QSharedPointer>
 
 namespace LanguageUtils {
 

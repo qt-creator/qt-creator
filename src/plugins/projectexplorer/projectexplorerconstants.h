@@ -33,7 +33,7 @@
 #ifndef PROJECTEXPLORERCONSTANTS_H
 #define PROJECTEXPLORERCONSTANTS_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 namespace ProjectExplorer {
 namespace Constants {

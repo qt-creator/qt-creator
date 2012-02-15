@@ -43,8 +43,8 @@
 
 #include <qmljstools/qmljsindenter.h>
 
-#include <QtCore/QLatin1String>
-#include <QtCore/QCoreApplication>
+#include <QLatin1String>
+#include <QCoreApplication>
 
 using namespace QmlJSEditor;
 using namespace Internal;

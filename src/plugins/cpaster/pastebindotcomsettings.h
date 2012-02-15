@@ -35,9 +35,9 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QUrl>
-#include <QtGui/QWidget>
+#include <QStringList>
+#include <QUrl>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

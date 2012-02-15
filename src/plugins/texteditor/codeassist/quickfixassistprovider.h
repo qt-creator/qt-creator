@@ -35,7 +35,7 @@
 
 #include "iassistprovider.h"
 
-#include <QtCore/QList>
+#include <QList>
 
 namespace TextEditor {
 

@@ -42,10 +42,10 @@
 #include <Scope.h>
 #include <Control.h>
 
-#include <QtCore/QStack>
-#include <QtCore/QHash>
-#include <QtCore/QVarLengthArray>
-#include <QtCore/QtDebug>
+#include <QStack>
+#include <QHash>
+#include <QVarLengthArray>
+#include <QtDebug>
 
 using namespace CPlusPlus;
 

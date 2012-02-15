@@ -44,7 +44,7 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QTextStream>
+#include <QTextStream>
 
 using namespace CPlusPlus;
 using namespace CppTools;

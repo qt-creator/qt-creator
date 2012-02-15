@@ -35,10 +35,10 @@
 
 #include <QDesignerCustomWidgetInterface>
 
-#include <QtCore/QString>
-#include <QtCore/QSize>
-#include <QtCore/QTextStream>
-#include <QtGui/QIcon>
+#include <QString>
+#include <QSize>
+#include <QTextStream>
+#include <QIcon>
 
 // Parametrizable Template for custom widgets.
 

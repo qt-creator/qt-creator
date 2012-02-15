@@ -35,7 +35,7 @@
 #include "sshcapabilities_p.h"
 #include "sshcryptofacility_p.h"
 
-#include <QtCore/QtEndian>
+#include <QtEndian>
 
 namespace Utils {
 namespace Internal {

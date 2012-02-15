@@ -34,7 +34,7 @@
 #define CPLUSPLUS_EXPRESSIONUNDERCURSOR_H
 
 #include "CPlusPlusForwardDeclarations.h"
-#include <QtCore/QList>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 class QString;

@@ -35,7 +35,7 @@
 
 #include <utils/ssh/sshconnection.h>
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 
 namespace RemoteLinux {
 namespace Internal {

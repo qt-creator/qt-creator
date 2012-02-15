@@ -32,15 +32,15 @@
 
 #include "historycompleter.h"
 
-#include <QtCore/QAbstractListModel>
-#include <QtCore/QSettings>
+#include <QAbstractListModel>
+#include <QSettings>
 
-#include <QtGui/QLineEdit>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QItemDelegate>
-#include <QtGui/QListView>
-#include <QtGui/QPainter>
-#include <QtGui/QStyle>
+#include <QLineEdit>
+#include <QKeyEvent>
+#include <QItemDelegate>
+#include <QListView>
+#include <QPainter>
+#include <QStyle>
 
 static const char SETTINGS_PREFIX[] = "CompleterHistory/";
 

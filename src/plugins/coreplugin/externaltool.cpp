@@ -49,14 +49,14 @@
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QXmlStreamReader>
-#include <QtCore/QXmlStreamWriter>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QDateTime>
-#include <QtGui/QMenu>
-#include <QtGui/QAction>
+#include <QCoreApplication>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
+#include <QDir>
+#include <QFile>
+#include <QDateTime>
+#include <QMenu>
+#include <QAction>
 
 #include <QtDebug>
 

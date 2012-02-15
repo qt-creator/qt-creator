@@ -32,7 +32,7 @@
 #ifndef MAEMOCONSTANTS_H
 #define MAEMOCONSTANTS_H
 
-#include <QtCore/QLatin1String>
+#include <QLatin1String>
 
 namespace Madde {
 namespace Internal {

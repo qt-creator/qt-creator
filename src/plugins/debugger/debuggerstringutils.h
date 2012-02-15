@@ -35,7 +35,7 @@
 
 #ifndef qdoc
 
-#include <QtCore/QString>
+#include <QString>
 
 namespace Debugger {
 namespace Internal {

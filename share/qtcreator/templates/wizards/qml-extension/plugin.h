@@ -1,7 +1,7 @@
 #ifndef %ProjectName:h%_PLUGIN_H
 #define %ProjectName:h%_PLUGIN_H
 
-#include <QtDeclarative/QDeclarativeExtensionPlugin>
+#include <QDeclarativeExtensionPlugin>
 
 class %ProjectName:s%Plugin : public QDeclarativeExtensionPlugin
 {

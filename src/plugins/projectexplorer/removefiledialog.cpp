@@ -33,7 +33,7 @@
 #include "removefiledialog.h"
 #include "ui_removefiledialog.h"
 
-#include <QtCore/QDir>
+#include <QDir>
 
 using namespace ProjectExplorer::Internal;
 

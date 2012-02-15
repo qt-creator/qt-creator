@@ -37,10 +37,10 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 
-#include <QtCore/QDebug>
-#include <QtGui/QAction>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMessageBox>
+#include <QDebug>
+#include <QAction>
+#include <QMainWindow>
+#include <QMessageBox>
 
 namespace QmlJSEditor {
 namespace Internal {

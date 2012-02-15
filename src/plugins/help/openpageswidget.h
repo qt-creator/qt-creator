@@ -33,8 +33,8 @@
 #ifndef OPENPAGESWIDGET_H
 #define OPENPAGESWIDGET_H
 
-#include <QtGui/QStyledItemDelegate>
-#include <QtGui/QTreeView>
+#include <QStyledItemDelegate>
+#include <QTreeView>
 
 namespace Help {
     namespace Internal {

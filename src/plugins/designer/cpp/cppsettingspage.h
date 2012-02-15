@@ -38,7 +38,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QtCore/QPointer>
+#include <QPointer>
 
 namespace Designer {
 namespace Internal {

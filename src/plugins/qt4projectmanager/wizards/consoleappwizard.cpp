@@ -39,12 +39,12 @@
 #include <cpptools/abstracteditorsupport.h>
 #include <qtsupport/qtsupportconstants.h>
 
-#include <QtGui/QIcon>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTextStream>
+#include <QIcon>
+#include <QFileInfo>
+#include <QTextStream>
 
 static const char mainCppC[] =
-"#include <QtCore/QCoreApplication>\n\n"
+"#include <QCoreApplication>\n\n"
 "int main(int argc, char *argv[])\n"
 "{\n"
 "    QCoreApplication a(argc, argv);\n\n"

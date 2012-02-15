@@ -34,11 +34,11 @@
 
 #include <utils/settingsutils.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
-#include <QtCore/QString>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextDocument>
+#include <QDebug>
+#include <QSettings>
+#include <QString>
+#include <QTextCursor>
+#include <QTextDocument>
 
 static const char spacesForTabsKey[] = "SpacesForTabs";
 static const char autoSpacesForTabsKey[] = "AutoSpacesForTabs";

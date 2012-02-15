@@ -25,7 +25,7 @@
 #include <cstddef>
 
 #ifndef CPLUSPLUS_WITHOUT_QT
-#  include <QtCore/qglobal.h>
+#  include <qglobal.h>
 
 #  if defined(CPLUSPLUS_BUILD_LIB)
 #    define CPLUSPLUS_EXPORT Q_DECL_EXPORT

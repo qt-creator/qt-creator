@@ -35,8 +35,8 @@
 
 #include "pluginmanager_p.h"
 
-#include <QtCore/QStringList>
-#include <QtCore/QMap>
+#include <QStringList>
+#include <QMap>
 
 namespace ExtensionSystem {
 namespace Internal {

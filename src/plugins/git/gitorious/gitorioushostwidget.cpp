@@ -36,16 +36,16 @@
 
 #include <coreplugin/coreconstants.h>
 
-#include <QtCore/QUrl>
-#include <QtCore/QDebug>
-#include <QtCore/QTimer>
+#include <QUrl>
+#include <QDebug>
+#include <QTimer>
 
-#include <QtGui/QStandardItem>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QItemSelectionModel>
-#include <QtGui/QDesktopServices>
-#include <QtGui/QIcon>
-#include <QtGui/QStyle>
+#include <QStandardItem>
+#include <QStandardItemModel>
+#include <QItemSelectionModel>
+#include <QDesktopServices>
+#include <QIcon>
+#include <QStyle>
 
 enum { debug = 0 };
 

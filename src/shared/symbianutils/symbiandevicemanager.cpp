@@ -34,19 +34,19 @@
 #include "codadevice.h"
 #include "virtualserialdevice.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QEvent>
-#include <QtCore/QSettings>
-#include <QtCore/QStringList>
-#include <QtCore/QFileInfo>
-#include <QtCore/QtDebug>
-#include <QtCore/QTextStream>
-#include <QtCore/QSharedData>
-#include <QtCore/QScopedPointer>
-#include <QtCore/QSignalMapper>
-#include <QtCore/QThread>
-#include <QtCore/QWaitCondition>
-#include <QtCore/QTimer>
+#include <QCoreApplication>
+#include <QEvent>
+#include <QSettings>
+#include <QStringList>
+#include <QFileInfo>
+#include <QtDebug>
+#include <QTextStream>
+#include <QSharedData>
+#include <QScopedPointer>
+#include <QSignalMapper>
+#include <QThread>
+#include <QWaitCondition>
+#include <QTimer>
 
 #ifdef Q_OS_MACX
 #include <CoreFoundation/CoreFoundation.h>

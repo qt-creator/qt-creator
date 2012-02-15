@@ -39,10 +39,10 @@
 #include "textfinder.h"
 
 //! [1]
-#include <QtCore/QFile>
-#include <QtCore/QTextStream>
+#include <QFile>
+#include <QTextStream>
 //! [1]
-#include <QtGui/QMessageBox>
+#include <QMessageBox>
 
 //! [3]
 TextFinder::TextFinder(QWidget *parent)

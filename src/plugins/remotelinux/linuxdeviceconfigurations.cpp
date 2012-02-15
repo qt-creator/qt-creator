@@ -36,10 +36,10 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QHash>
-#include <QtCore/QList>
-#include <QtCore/QSettings>
-#include <QtCore/QString>
+#include <QHash>
+#include <QList>
+#include <QSettings>
+#include <QString>
 
 #include <algorithm>
 

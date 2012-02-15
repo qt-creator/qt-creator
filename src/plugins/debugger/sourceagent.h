@@ -33,7 +33,7 @@
 #ifndef DEBUGGER_SOURCE_AGENT_H
 #define DEBUGGER_SOURCE_AGENT_H
 
-#include <QtCore/QObject>
+#include <QObject>
 
 namespace Debugger {
 

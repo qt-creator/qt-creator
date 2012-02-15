@@ -38,7 +38,7 @@
 #include <cplusplus/CppDocument.h>
 #include <texteditor/semantichighlighter.h>
 
-#include <QtCore/QFuture>
+#include <QFuture>
 
 namespace CppTools {
 namespace Internal {

@@ -33,8 +33,8 @@
 #include "fileinprojectfinder.h"
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QUrl>
+#include <QFileInfo>
+#include <QUrl>
 
 namespace Utils {
 

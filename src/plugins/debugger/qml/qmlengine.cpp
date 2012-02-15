@@ -68,22 +68,22 @@
 
 #include <texteditor/itexteditor.h>
 
-#include <QtCore/QDateTime>
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTimer>
+#include <QDateTime>
+#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QTimer>
 
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QToolTip>
-#include <QtGui/QTextDocument>
+#include <QAction>
+#include <QApplication>
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QPlainTextEdit>
+#include <QToolTip>
+#include <QTextDocument>
 
-#include <QtNetwork/QTcpSocket>
-#include <QtNetwork/QHostAddress>
+#include <QTcpSocket>
+#include <QHostAddress>
 
 #define DEBUG_QML 1
 #if DEBUG_QML

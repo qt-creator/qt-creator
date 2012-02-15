@@ -49,9 +49,9 @@
 #include <Scope.h>
 #include <Symbol.h>
 
-#include <QtGui/QTextDocumentFragment>
-#include <QtGui/QTextCursor>
-#include <QtGui/QWidget>
+#include <QTextDocumentFragment>
+#include <QTextCursor>
+#include <QWidget>
 
 using namespace Analyzer;
 using namespace Core;

@@ -40,7 +40,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
-#include <QtGui/QAbstractButton>
+#include <QAbstractButton>
 
 namespace Qt4ProjectManager {
 namespace Internal {

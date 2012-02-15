@@ -61,13 +61,13 @@
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpptoolssettings.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QSettings>
-#include <QtCore/QTimer>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QStringList>
+#include <QFileInfo>
+#include <QSettings>
+#include <QTimer>
+#include <QCoreApplication>
+#include <QStringList>
 
-#include <QtGui/QMenu>
+#include <QMenu>
 
 using namespace CppEditor;
 using namespace CppEditor::Internal;

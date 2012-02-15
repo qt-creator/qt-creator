@@ -33,15 +33,15 @@
 #ifndef QDECLARATIVECONTEXT2D_P_H
 #define QDECLARATIVECONTEXT2D_P_H
 
-#include <QtGui/qpainter.h>
-#include <QtGui/qpainterpath.h>
-#include <QtGui/qpixmap.h>
-#include <QtCore/qstring.h>
-#include <QtCore/qstack.h>
-#include <QtCore/qmetatype.h>
-#include <QtCore/qcoreevent.h>
-#include <QtCore/qvariant.h>
-#include <QtScript/qscriptvalue.h>
+#include <qpainter.h>
+#include <qpainterpath.h>
+#include <qpixmap.h>
+#include <qstring.h>
+#include <qstack.h>
+#include <qmetatype.h>
+#include <qcoreevent.h>
+#include <qvariant.h>
+#include <qscriptvalue.h>
 
 QT_BEGIN_NAMESPACE
 

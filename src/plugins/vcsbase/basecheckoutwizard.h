@@ -36,8 +36,8 @@
 #include "vcsbase_global.h"
 #include <coreplugin/dialogs/iwizard.h>
 
-#include <QtCore/QSharedPointer>
-#include <QtCore/QList>
+#include <QSharedPointer>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 class QWizardPage;

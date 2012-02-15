@@ -43,7 +43,7 @@
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/messagemanager.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

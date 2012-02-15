@@ -34,8 +34,8 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QRegExp>
+#include <QDebug>
+#include <QRegExp>
 
 /*!
     \class Utils::ClassNameValidatingLineEdit

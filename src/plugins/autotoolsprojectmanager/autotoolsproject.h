@@ -44,8 +44,8 @@
 #include <projectexplorer/projectnodes.h>
 #include <utils/filesystemwatcher.h>
 
-#include <QtCore/QPointer>
-#include <QtCore/QDir>
+#include <QPointer>
+#include <QDir>
 
 namespace ProjectExplorer {
 class ToolChain;

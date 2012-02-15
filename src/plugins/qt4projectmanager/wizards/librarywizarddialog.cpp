@@ -41,11 +41,11 @@
 
 #include <utils/projectintropage.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
+#include <QDebug>
+#include <QDir>
 
-#include <QtGui/QComboBox>
-#include <QtGui/QLabel>
+#include <QComboBox>
+#include <QLabel>
 
 enum { debugLibWizard = 0 };
 

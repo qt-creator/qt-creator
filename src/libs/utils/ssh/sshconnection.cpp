@@ -46,11 +46,11 @@
 #include <botan/exceptn.h>
 #include <botan/init.h>
 
-#include <QtCore/QFile>
-#include <QtCore/QMutex>
-#include <QtCore/QMutexLocker>
-#include <QtNetwork/QNetworkProxy>
-#include <QtNetwork/QTcpSocket>
+#include <QFile>
+#include <QMutex>
+#include <QMutexLocker>
+#include <QNetworkProxy>
+#include <QTcpSocket>
 
 /*!
     \class Utils::SshConnection

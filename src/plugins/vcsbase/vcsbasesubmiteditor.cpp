@@ -66,24 +66,24 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QTemporaryFile>
-#include <QtCore/QProcess>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QPointer>
-#include <QtGui/QStringListModel>
-#include <QtCore/QTextStream>
-#include <QtGui/QStyle>
-#include <QtGui/QToolBar>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QMessageBox>
-#include <QtGui/QMainWindow>
-#include <QtGui/QCompleter>
-#include <QtGui/QLineEdit>
-#include <QtGui/QTextEdit>
+#include <QDebug>
+#include <QDir>
+#include <QTemporaryFile>
+#include <QProcess>
+#include <QFile>
+#include <QFileInfo>
+#include <QPointer>
+#include <QStringListModel>
+#include <QTextStream>
+#include <QStyle>
+#include <QToolBar>
+#include <QAction>
+#include <QApplication>
+#include <QMessageBox>
+#include <QMainWindow>
+#include <QCompleter>
+#include <QLineEdit>
+#include <QTextEdit>
 #include <cstring>
 
 enum { debug = 0 };

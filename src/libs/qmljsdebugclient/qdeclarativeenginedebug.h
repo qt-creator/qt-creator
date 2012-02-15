@@ -34,9 +34,9 @@
 
 #include "qmljsdebugclient_global.h"
 #include "qdeclarativedebugclient.h"
-#include <QtCore/qobject.h>
-#include <QtCore/qurl.h>
-#include <QtCore/qvariant.h>
+#include <qobject.h>
+#include <qurl.h>
+#include <qvariant.h>
 
 namespace QmlJsDebugClient {
 

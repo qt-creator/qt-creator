@@ -39,10 +39,10 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QHash>
-#include <QtCore/QVector>
-#include <QtCore/QStringList>
-#include <QtCore/QDebug>
+#include <QHash>
+#include <QVector>
+#include <QStringList>
+#include <QDebug>
 
 // #define DEBUG_PARSER
 

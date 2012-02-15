@@ -37,8 +37,8 @@
 #include "icontext.h"
 #include "icore.h"
 
-#include <QtCore/QMap>
-#include <QtGui/QColor>
+#include <QMap>
+#include <QColor>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

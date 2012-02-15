@@ -33,9 +33,9 @@
 #ifndef DEBUGGER_DISASSEMBLERLINES_H
 #define DEBUGGER_DISASSEMBLERLINES_H
 
-#include <QtCore/QStringList>
-#include <QtCore/QHash>
-#include <QtCore/QVector>
+#include <QStringList>
+#include <QHash>
+#include <QVector>
 
 namespace Debugger {
 namespace Internal {

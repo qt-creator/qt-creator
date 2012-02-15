@@ -1,7 +1,7 @@
 #include "%ProjectName:l%_plugin.%CppHeaderSuffix%"
 #include "%ObjectName:l%.%CppHeaderSuffix%"
 
-#include <QtDeclarative/qdeclarative.h>
+#include <qdeclarative.h>
 
 void %ProjectName:s%Plugin::registerTypes(const char *uri)
 {

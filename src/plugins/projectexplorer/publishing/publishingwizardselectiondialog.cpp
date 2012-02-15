@@ -38,7 +38,7 @@
 #include <projectexplorer/project.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QPushButton>
+#include <QPushButton>
 
 namespace ProjectExplorer {
 namespace Internal {

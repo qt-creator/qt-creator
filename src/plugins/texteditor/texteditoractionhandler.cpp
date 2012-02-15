@@ -48,10 +48,10 @@
 #include <coreplugin/id.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QSet>
-#include <QtCore/QtDebug>
-#include <QtGui/QAction>
-#include <QtGui/QTextCursor>
+#include <QSet>
+#include <QtDebug>
+#include <QAction>
+#include <QTextCursor>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;

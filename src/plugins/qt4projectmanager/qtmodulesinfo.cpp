@@ -32,10 +32,10 @@
 
 #include "qtmodulesinfo.h"
 #include "qglobal.h"
-#include <QtCore/QtDebug>
-#include <QtCore/QString>
-#include <QtCore/QHash>
-#include <QtCore/QCoreApplication>
+#include <QtDebug>
+#include <QString>
+#include <QHash>
+#include <QCoreApplication>
 
 using namespace Qt4ProjectManager::Internal;
 

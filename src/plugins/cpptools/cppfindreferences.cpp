@@ -60,12 +60,12 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/FindUsages.h>
 
-#include <QtCore/QTime>
-#include <QtCore/QTimer>
-#include <QtCore/QtConcurrentRun>
-#include <QtCore/QtConcurrentMap>
-#include <QtCore/QDir>
-#include <QtGui/QApplication>
+#include <QTime>
+#include <QTimer>
+#include <QtConcurrentRun>
+#include <QtConcurrentMap>
+#include <QDir>
+#include <QApplication>
 #include <utils/runextensions.h>
 
 #include <functional>

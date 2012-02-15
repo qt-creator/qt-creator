@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#include <QtCore/QtDebug>
-#include <QtCore/QCoreApplication>
+#include <QtDebug>
+#include <QCoreApplication>
 
 #include <string.h>
 

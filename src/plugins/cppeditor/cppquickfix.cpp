@@ -48,8 +48,8 @@
 
 #include <cpptools/cpprefactoringchanges.h>
 
-#include <QtGui/QTextBlock>
-#include <QtCore/QFileInfo>
+#include <QTextBlock>
+#include <QFileInfo>
 
 using namespace CppEditor;
 using namespace CppEditor::Internal;

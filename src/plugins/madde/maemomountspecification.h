@@ -32,7 +32,7 @@
 #ifndef MAEMOMOUNTSPECIFICATION_H
 #define MAEMOMOUNTSPECIFICATION_H
 
-#include <QtCore/QString>
+#include <QString>
 
 namespace Madde {
 namespace Internal {

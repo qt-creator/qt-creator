@@ -63,15 +63,15 @@
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 
-#include <QtDesigner/QDesignerFormWindowInterface>
-#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QDesignerFormWindowInterface>
+#include <QDesignerFormEditorInterface>
 
-#include <QtGui/QMessageBox>
+#include <QMessageBox>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/QDebug>
-#include <QtCore/QUrl>
+#include <QFileInfo>
+#include <QDir>
+#include <QDebug>
+#include <QUrl>
 
 enum { indentation = 4 };
 

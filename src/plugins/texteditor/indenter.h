@@ -35,7 +35,7 @@
 
 #include "texteditor_global.h"
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;

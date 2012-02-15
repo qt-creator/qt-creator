@@ -37,12 +37,12 @@
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 
-#include <QtGui/QLayout>
-#include <QtGui/QFocusEvent>
-#include <QtGui/QMenu>
+#include <QLayout>
+#include <QFocusEvent>
+#include <QMenu>
 
-#include <QtHelp/QHelpEngine>
-#include <QtHelp/QHelpContentWidget>
+#include <QHelpEngine>
+#include <QHelpContentWidget>
 
 using namespace Help::Internal;
 

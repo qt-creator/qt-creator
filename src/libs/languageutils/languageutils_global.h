@@ -33,7 +33,7 @@
 #ifndef LANGUAGEUTILS_GLOBAL_H
 #define LANGUAGEUTILS_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(LANGUAGEUTILS_BUILD_DIR)
 #  define LANGUAGEUTILS_EXPORT Q_DECL_EXPORT

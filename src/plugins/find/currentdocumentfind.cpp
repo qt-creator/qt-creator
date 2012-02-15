@@ -36,9 +36,9 @@
 #include <coreplugin/coreconstants.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtGui/QApplication>
-#include <QtGui/QWidget>
+#include <QDebug>
+#include <QApplication>
+#include <QWidget>
 
 using namespace Core;
 using namespace Find;

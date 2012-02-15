@@ -66,13 +66,13 @@
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QTimer>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QFutureInterface>
+#include <QDebug>
+#include <QTimer>
+#include <QFile>
+#include <QFileInfo>
+#include <QFutureInterface>
 
-#include <QtGui/QMessageBox>
+#include <QMessageBox>
 
 using namespace Core;
 using namespace Debugger::Internal;

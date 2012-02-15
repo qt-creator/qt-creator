@@ -42,9 +42,9 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QProcess>
-#include <QtGui/QMessageBox>
+#include <QFileInfo>
+#include <QProcess>
+#include <QMessageBox>
 
 namespace Debugger {
 namespace Internal {

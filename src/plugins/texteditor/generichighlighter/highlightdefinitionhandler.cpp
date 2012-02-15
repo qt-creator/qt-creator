@@ -40,7 +40,7 @@
 #include "manager.h"
 #include "highlighterexception.h"
 
-#include <QtCore/QLatin1String>
+#include <QLatin1String>
 
 using namespace TextEditor;
 using namespace Internal;

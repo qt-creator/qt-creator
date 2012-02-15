@@ -33,7 +33,7 @@
 #ifndef SYMBIANUTILS_GLOBAL_H
 #define SYMBIANUTILS_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(SYMBIANUTILS_BUILD_LIB)
 #    define SYMBIANUTILS_EXPORT Q_DECL_EXPORT

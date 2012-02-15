@@ -55,11 +55,11 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QProcess>
-#include <QtCore/QFileInfo>
-#include <QtCore/QThread>
-#include <QtCore/QCoreApplication>
+#include <QDebug>
+#include <QProcess>
+#include <QFileInfo>
+#include <QThread>
+#include <QCoreApplication>
 
 namespace Debugger {
 namespace Internal {

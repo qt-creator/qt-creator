@@ -32,8 +32,8 @@
 
 #include "commonvcssettings.h"
 
-#include <QtCore/QSettings>
-#include <QtCore/QDebug>
+#include <QSettings>
+#include <QDebug>
 
 static const char settingsGroupC[] = "VCS";
 static const char nickNameMailMapKeyC[] = "NickNameMailMap";

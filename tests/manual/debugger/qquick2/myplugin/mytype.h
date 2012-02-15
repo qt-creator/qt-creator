@@ -1,8 +1,8 @@
 #ifndef MYTYPE_H
 #define MYTYPE_H
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
+#include <QObject>
+#include <QString>
 
 class QTimer;
 

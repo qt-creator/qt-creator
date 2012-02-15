@@ -34,8 +34,8 @@
 
 #include "linuxdeviceconfiguration.h"
 
-#include <QtCore/QAbstractListModel>
-#include <QtCore/QSharedPointer>
+#include <QAbstractListModel>
+#include <QSharedPointer>
 
 namespace RemoteLinux {
 namespace Internal {

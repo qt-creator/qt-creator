@@ -41,9 +41,9 @@
 #include "indenter.h"
 #include "snippets/snippeteditor.h"
 #include "snippets/isnippetprovider.h"
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QTextBlock>
-#include <QtGui/QLabel>
+#include <QVBoxLayout>
+#include <QTextBlock>
+#include <QLabel>
 
 using namespace TextEditor;
 

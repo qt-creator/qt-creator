@@ -49,14 +49,14 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QList>
-#include <QtCore/QMap>
-#include <QtCore/QVector>
+#include <QDebug>
+#include <QList>
+#include <QMap>
+#include <QVector>
 
-#include <QtCore/QSignalMapper>
-#include <QtGui/QShortcut>
-#include <QtGui/QAction>
+#include <QSignalMapper>
+#include <QShortcut>
+#include <QAction>
 
 namespace Core {
 

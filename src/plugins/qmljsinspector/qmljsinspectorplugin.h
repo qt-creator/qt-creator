@@ -35,9 +35,9 @@
 #include <extensionsystem/iplugin.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QPointer>
-#include <QtCore/QTimer>
+#include <QObject>
+#include <QPointer>
+#include <QTimer>
 
 namespace Core {
 class IMode;

@@ -35,7 +35,7 @@
 #ifndef ANALYZERCONSTANTS_H
 #define ANALYZERCONSTANTS_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 namespace Analyzer {
 

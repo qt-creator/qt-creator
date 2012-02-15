@@ -34,7 +34,7 @@
 
 #include "styleanimator.h"
 
-#include <QtCore/QLibrary>
+#include <QLibrary>
 
 #include <coreplugin/coreconstants.h>
 
@@ -43,27 +43,27 @@
 
 #include <utils/fancymainwindow.h>
 
-#include <QtGui/QApplication>
-#include <QtGui/QComboBox>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QDockWidget>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMenuBar>
-#include <QtGui/QPainter>
-#include <QtGui/QPixmap>
-#include <QtGui/QPixmapCache>
-#include <QtGui/QPushButton>
-#include <QtGui/QScrollArea>
-#include <QtGui/QSplitter>
-#include <QtGui/QStatusBar>
-#include <QtGui/QStyleFactory>
-#include <QtGui/QStyleOption>
-#include <QtGui/QToolBar>
-#include <QtGui/QTreeView>
-#include <QtGui/QToolButton>
-#include <QtGui/QAbstractItemView>
+#include <QApplication>
+#include <QComboBox>
+#include <QDialogButtonBox>
+#include <QDockWidget>
+#include <QLabel>
+#include <QLineEdit>
+#include <QMainWindow>
+#include <QMenuBar>
+#include <QPainter>
+#include <QPixmap>
+#include <QPixmapCache>
+#include <QPushButton>
+#include <QScrollArea>
+#include <QSplitter>
+#include <QStatusBar>
+#include <QStyleFactory>
+#include <QStyleOption>
+#include <QToolBar>
+#include <QTreeView>
+#include <QToolButton>
+#include <QAbstractItemView>
 
 // We define a currently unused state for indicating animations
 #define State_Animating 0x00000040

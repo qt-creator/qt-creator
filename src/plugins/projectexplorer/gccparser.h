@@ -35,7 +35,7 @@
 
 #include "ioutputparser.h"
 
-#include <QtCore/QRegExp>
+#include <QRegExp>
 
 namespace ProjectExplorer {
 

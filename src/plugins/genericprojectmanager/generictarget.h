@@ -37,8 +37,8 @@
 
 #include "genericbuildconfiguration.h"
 
-#include <QtCore/QStringList>
-#include <QtCore/QVariantMap>
+#include <QStringList>
+#include <QVariantMap>
 
 namespace ProjectExplorer {
 class IBuildConfigurationFactory;

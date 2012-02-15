@@ -33,7 +33,7 @@
 #ifndef LOCATORCONSTANTS_H
 #define LOCATORCONSTANTS_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 namespace Locator {
 namespace Constants {

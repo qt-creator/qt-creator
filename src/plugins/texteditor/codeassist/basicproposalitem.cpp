@@ -35,7 +35,7 @@
 #include <texteditor/basetexteditor.h>
 #include <texteditor/quickfix.h>
 
-#include <QtGui/QTextCursor>
+#include <QTextCursor>
 
 using namespace TextEditor;
 

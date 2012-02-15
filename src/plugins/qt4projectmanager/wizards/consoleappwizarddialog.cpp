@@ -34,7 +34,7 @@
 #include "consoleappwizard.h"
 #include <coreplugin/basefilewizard.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 namespace Qt4ProjectManager {
 namespace Internal {

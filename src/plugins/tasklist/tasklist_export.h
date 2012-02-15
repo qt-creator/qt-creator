@@ -33,7 +33,7 @@
 #ifndef TASKLIST_TASKLIST_EXPORT_H
 #define TASKLIST_TASKLIST_EXPORT_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(TASKLIST_LIBRARY)
 #  define TASKLIST_EXPORT Q_DECL_EXPORT

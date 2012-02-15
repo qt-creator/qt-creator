@@ -37,8 +37,8 @@
 
 #include <coreplugin/icore.h>
 
-#include <QtCore/QSettings>
-#include <QtGui/QVBoxLayout>
+#include <QSettings>
+#include <QVBoxLayout>
 
 static const char settingsGroupC[] = "Gitorious";
 static const char selectionKeyC[] = "/SelectedHost";

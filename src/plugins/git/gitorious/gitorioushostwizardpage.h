@@ -33,7 +33,7 @@
 #ifndef GITORIOUSHOSTWIZARDPAGE_H
 #define GITORIOUSHOSTWIZARDPAGE_H
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 
 namespace Gitorious {
 namespace Internal {

@@ -34,13 +34,13 @@
 #define MIMEDATABASE_H
 
 #include <coreplugin/core_global.h>
-#include <QtCore/QStringList>
-#include <QtCore/QSharedDataPointer>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QByteArray>
-#include <QtCore/QMutex>
-#include <QtCore/QFileInfo>
-#include <QtCore/QPair>
+#include <QStringList>
+#include <QSharedDataPointer>
+#include <QSharedPointer>
+#include <QByteArray>
+#include <QMutex>
+#include <QFileInfo>
+#include <QPair>
 
 QT_BEGIN_NAMESPACE
 class QIODevice;

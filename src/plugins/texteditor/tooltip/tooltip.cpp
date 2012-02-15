@@ -37,14 +37,14 @@
 #include "effects.h"
 #include "reuse.h"
 
-#include <QtCore/QString>
-#include <QtGui/QColor>
-#include <QtGui/QApplication>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QMenu>
+#include <QString>
+#include <QColor>
+#include <QApplication>
+#include <QKeyEvent>
+#include <QMouseEvent>
+#include <QMenu>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace TextEditor;
 using namespace Internal;

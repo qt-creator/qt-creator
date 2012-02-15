@@ -33,7 +33,7 @@
 #ifndef TARGETSETTINGSPANEL_H
 #define TARGETSETTINGSPANEL_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QAction;

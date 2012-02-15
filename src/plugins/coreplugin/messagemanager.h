@@ -34,7 +34,7 @@
 #define MESSAGEMANAGER_H
 
 #include "core_global.h"
-#include <QtCore/QObject>
+#include <QObject>
 
 namespace Core {
 

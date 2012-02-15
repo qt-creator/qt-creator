@@ -33,7 +33,7 @@
 #ifndef DEBUGGER_BACKTRACE_H
 #define DEBUGGER_BACKTRACE_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 namespace Debugger {
 namespace Internal {

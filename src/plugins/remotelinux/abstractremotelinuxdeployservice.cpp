@@ -39,10 +39,10 @@
 #include <utils/ssh/sshconnection.h>
 #include <utils/ssh/sshconnectionmanager.h>
 
-#include <QtCore/QDateTime>
-#include <QtCore/QFileInfo>
-#include <QtCore/QPointer>
-#include <QtCore/QString>
+#include <QDateTime>
+#include <QFileInfo>
+#include <QPointer>
+#include <QString>
 
 using namespace Qt4ProjectManager;
 using namespace Utils;

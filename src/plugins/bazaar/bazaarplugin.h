@@ -40,9 +40,9 @@
 #include <vcsbase/vcsbaseplugin.h>
 #include <coreplugin/icontext.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QHash>
-#include <QtCore/qglobal.h>
+#include <QFileInfo>
+#include <QHash>
+#include <qglobal.h>
 
 QT_BEGIN_NAMESPACE
 class QAction;

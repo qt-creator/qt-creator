@@ -35,10 +35,10 @@
 
 #include "extensionsystem_global.h"
 
-#include <QtCore/QMetaMethod>
-#include <QtCore/QMetaObject>
-#include <QtCore/QMetaType>
-#include <QtCore/QVarLengthArray>
+#include <QMetaMethod>
+#include <QMetaObject>
+#include <QMetaType>
+#include <QVarLengthArray>
 
 namespace ExtensionSystem {
 

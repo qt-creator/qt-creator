@@ -46,8 +46,8 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtCore/QSettings>
-#include <QtCore/QTextCodec>
+#include <QSettings>
+#include <QTextCodec>
 
 using namespace TextEditor;
 

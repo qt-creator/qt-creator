@@ -34,7 +34,7 @@
 #define LINECOLUMNLABEL_H
 
 #include "utils_global.h"
-#include <QtGui/QLabel>
+#include <QLabel>
 
 namespace Utils {
 

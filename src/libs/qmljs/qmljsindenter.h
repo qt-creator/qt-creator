@@ -36,7 +36,7 @@
 #include <qmljs/qmljs_global.h>
 #include <qmljs/qmljslineinfo.h>
 
-#include <QtCore/QRegExp>
+#include <QRegExp>
 
 QT_FORWARD_DECLARE_CLASS(QTextBlock)
 

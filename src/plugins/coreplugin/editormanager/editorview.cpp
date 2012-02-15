@@ -45,26 +45,26 @@
 #include <coreplugin/findplaceholder.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QMimeData>
+#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QMimeData>
 
-#include <QtGui/QApplication>
-#include <QtGui/QComboBox>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QPainter>
-#include <QtGui/QStackedWidget>
-#include <QtGui/QStyle>
-#include <QtGui/QStyleOption>
-#include <QtGui/QToolButton>
-#include <QtGui/QMenu>
-#include <QtGui/QClipboard>
-#include <QtGui/QAction>
-#include <QtGui/QSplitter>
-#include <QtGui/QStackedLayout>
+#include <QApplication>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QStackedWidget>
+#include <QStyle>
+#include <QStyleOption>
+#include <QToolButton>
+#include <QMenu>
+#include <QClipboard>
+#include <QAction>
+#include <QSplitter>
+#include <QStackedLayout>
 
 #ifdef Q_OS_MAC
 #include <qmacstyle_mac.h>

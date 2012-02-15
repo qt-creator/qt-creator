@@ -37,14 +37,14 @@
 
 #include <coreplugin/mimedatabase.h>
 
-#include <QtCore/QString>
-#include <QtCore/QHash>
-#include <QtCore/QSet>
-#include <QtCore/QUrl>
-#include <QtCore/QList>
-#include <QtCore/QPair>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QFutureWatcher>
+#include <QString>
+#include <QHash>
+#include <QSet>
+#include <QUrl>
+#include <QList>
+#include <QPair>
+#include <QSharedPointer>
+#include <QFutureWatcher>
 
 #include <utils/networkaccessmanager.h>
 

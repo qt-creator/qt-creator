@@ -36,7 +36,7 @@
 
 #include <utils/pathchooser.h>
 
-#include <QtCore/QDir>
+#include <QDir>
 
 namespace Madde {
 namespace Internal {

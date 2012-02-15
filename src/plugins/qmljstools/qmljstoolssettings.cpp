@@ -43,7 +43,7 @@
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 
-#include <QtCore/QSettings>
+#include <QSettings>
 
 static const char *idKey = "QmlJSGlobal";
 

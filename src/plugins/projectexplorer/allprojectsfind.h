@@ -35,7 +35,7 @@
 
 #include <texteditor/basefilefind.h>
 
-#include <QtCore/QPointer>
+#include <QPointer>
 
 namespace ProjectExplorer {
 

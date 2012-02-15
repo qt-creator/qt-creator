@@ -31,7 +31,7 @@
 **************************************************************************/
 
 #include "glslastdump.h"
-#include <QtCore/QTextStream>
+#include <QTextStream>
 
 #include <typeinfo>
 

@@ -46,9 +46,9 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtGui/QMenu>
+#include <QFileInfo>
+#include <QDir>
+#include <QMenu>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

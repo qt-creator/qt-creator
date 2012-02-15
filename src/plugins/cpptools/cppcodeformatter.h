@@ -40,11 +40,11 @@
 #include <texteditor/tabsettings.h>
 #include <cpptools/cppcodestylesettings.h>
 
-#include <QtCore/QChar>
-#include <QtCore/QStack>
-#include <QtCore/QList>
-#include <QtCore/QVector>
-#include <QtCore/QPointer>
+#include <QChar>
+#include <QStack>
+#include <QList>
+#include <QVector>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;

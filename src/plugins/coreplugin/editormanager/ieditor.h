@@ -37,7 +37,7 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/id.h>
 
-#include <QtCore/QMetaType>
+#include <QMetaType>
 
 namespace Core {
 

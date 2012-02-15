@@ -40,10 +40,10 @@
 
 #include <utils/persistentsettings.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QSettings>
-#include <QtGui/QMainWindow>
+#include <QCoreApplication>
+#include <QDir>
+#include <QSettings>
+#include <QMainWindow>
 
 static const char TOOLCHAIN_DATA_KEY[] = "ToolChain.";
 static const char TOOLCHAIN_COUNT_KEY[] = "ToolChain.Count";

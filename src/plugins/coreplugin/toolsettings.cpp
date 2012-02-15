@@ -39,11 +39,11 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/QTime>
-#include <QtGui/QIcon>
+#include <QCoreApplication>
+#include <QFileInfo>
+#include <QDir>
+#include <QTime>
+#include <QIcon>
 
 #include <QtDebug>
 

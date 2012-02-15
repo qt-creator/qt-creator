@@ -77,22 +77,22 @@
 #include <texteditor/itexteditor.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QMetaObject>
-#include <QtCore/QTime>
-#include <QtCore/QTimer>
-#include <QtCore/QTemporaryFile>
-#include <QtCore/QTextStream>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QMetaObject>
+#include <QTime>
+#include <QTimer>
+#include <QTemporaryFile>
+#include <QTextStream>
 
-#include <QtGui/QAction>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QLabel>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
+#include <QAction>
+#include <QDialogButtonBox>
+#include <QLabel>
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QPushButton>
 
 #ifdef Q_OS_UNIX
 #include <unistd.h>

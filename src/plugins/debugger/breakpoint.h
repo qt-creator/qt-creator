@@ -33,10 +33,10 @@
 #ifndef DEBUGGER_BREAKPOINT_H
 #define DEBUGGER_BREAKPOINT_H
 
-#include <QtCore/QDebug>
-#include <QtCore/QList>
-#include <QtCore/QMetaType>
-#include <QtCore/QString>
+#include <QDebug>
+#include <QList>
+#include <QMetaType>
+#include <QString>
 
 namespace Debugger {
 namespace Internal {

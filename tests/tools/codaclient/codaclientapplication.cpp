@@ -35,9 +35,9 @@
 
 
 #include "codadevice.h"
-#include <QtNetwork/QTcpSocket>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
+#include <QTcpSocket>
+#include <QFile>
+#include <QFileInfo>
 
 #include <cstdio>
 

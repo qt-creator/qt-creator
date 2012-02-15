@@ -33,7 +33,7 @@
 #ifndef BRANCHINFO_H
 #define BRANCHINFO_H
 
-#include <QtCore/QString>
+#include <QString>
 
 namespace Bazaar {
 namespace Internal {

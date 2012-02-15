@@ -34,7 +34,7 @@
 #ifndef FILEWIDGET_H
 #define FILEWIDGET_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <QLabel>
 #include <QToolButton>
 #include <QLineEdit>

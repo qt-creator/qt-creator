@@ -37,9 +37,9 @@
 #include "proparser/profileparser.h"
 #include "proparser/profileevaluator.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QMap>
-#include <QtCore/QTimer>
+#include <QObject>
+#include <QMap>
+#include <QTimer>
 
 namespace QtSupport {
 namespace Internal {

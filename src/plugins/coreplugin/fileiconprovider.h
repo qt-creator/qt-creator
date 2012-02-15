@@ -35,8 +35,8 @@
 
 #include <coreplugin/core_global.h>
 
-#include <QtGui/QStyle>
-#include <QtGui/QFileIconProvider>
+#include <QStyle>
+#include <QFileIconProvider>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;

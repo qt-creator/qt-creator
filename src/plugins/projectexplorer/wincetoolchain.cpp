@@ -40,12 +40,12 @@
 #include <projectexplorer/projectexplorersettings.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QSettings>
+#include <QDir>
+#include <QFileInfo>
+#include <QSettings>
 
-#include <QtGui/QFormLayout>
-#include <QtGui/QLabel>
+#include <QFormLayout>
+#include <QLabel>
 
 #include <QXmlStreamReader>
 

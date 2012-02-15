@@ -33,11 +33,11 @@
 #ifndef TEXTEDITOROVERLAY_H
 #define TEXTEDITOROVERLAY_H
 
-#include <QtCore/QObject>
-#include <QtCore/QList>
-#include <QtCore/QVector>
-#include <QtGui/QTextCursor>
-#include <QtGui/QColor>
+#include <QObject>
+#include <QList>
+#include <QVector>
+#include <QTextCursor>
+#include <QColor>
 
 QT_FORWARD_DECLARE_CLASS(QWidget)
 

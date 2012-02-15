@@ -39,9 +39,9 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/savedaction.h>
 
-#include <QtCore/QSharedPointer>
-#include <QtCore/QPointer>
-#include <QtGui/QWidget>
+#include <QSharedPointer>
+#include <QPointer>
+#include <QWidget>
 
 namespace Debugger {
 namespace Internal {

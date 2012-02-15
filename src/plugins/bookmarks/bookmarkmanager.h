@@ -38,12 +38,12 @@
 
 #include <texteditor/itexteditor.h>
 
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QMultiMap>
-#include <QtCore/QList>
-#include <QtGui/QListView>
-#include <QtGui/QPixmap>
-#include <QtGui/QStyledItemDelegate>
+#include <QAbstractItemModel>
+#include <QMultiMap>
+#include <QList>
+#include <QListView>
+#include <QPixmap>
+#include <QStyledItemDelegate>
 
 namespace ProjectExplorer {
 class SessionManager;

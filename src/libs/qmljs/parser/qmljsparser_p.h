@@ -55,8 +55,8 @@
 #include "qmljsast_p.h"
 #include "qmljsengine_p.h"
 
-#include <QtCore/QList>
-#include <QtCore/QString>
+#include <QList>
+#include <QString>
 
 QT_QML_BEGIN_NAMESPACE
 

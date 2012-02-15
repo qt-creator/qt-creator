@@ -43,9 +43,9 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildconfiguration.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/QTextStream>
+#include <QFileInfo>
+#include <QDir>
+#include <QTextStream>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

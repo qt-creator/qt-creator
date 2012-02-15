@@ -48,20 +48,20 @@
 #include <utils/pathchooser.h>
 #include <utils/reloadpromptutils.h>
 
-#include <QtCore/QDateTime>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QFileSystemWatcher>
-#include <QtCore/QPair>
-#include <QtCore/QSettings>
-#include <QtCore/QTimer>
-#include <QtGui/QAction>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
+#include <QDateTime>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QFileSystemWatcher>
+#include <QPair>
+#include <QSettings>
+#include <QTimer>
+#include <QAction>
+#include <QFileDialog>
+#include <QMainWindow>
+#include <QMenu>
+#include <QMessageBox>
+#include <QPushButton>
 
 /*!
   \class Core::FileManager

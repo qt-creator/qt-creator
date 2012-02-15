@@ -35,9 +35,9 @@
 
 #include <texteditor/texteditor_global.h>
 
-#include <QtCore/QString>
-#include <QtCore/QList>
-#include <QtGui/QIcon>
+#include <QString>
+#include <QList>
+#include <QIcon>
 
 namespace TextEditor {
 

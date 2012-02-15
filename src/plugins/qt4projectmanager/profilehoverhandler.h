@@ -35,7 +35,7 @@
 
 #include <texteditor/basehoverhandler.h>
 
-#include <QtCore/QObject>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QUrl;

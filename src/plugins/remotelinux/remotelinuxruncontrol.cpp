@@ -37,8 +37,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QString>
-#include <QtGui/QIcon>
+#include <QString>
+#include <QIcon>
 
 using namespace ProjectExplorer;
 

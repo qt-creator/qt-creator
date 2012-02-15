@@ -33,7 +33,7 @@
 #ifndef CHANGEIMPORTSVISITOR_H
 #define CHANGEIMPORTSVISITOR_H
 
-#include <QtCore/QSet>
+#include <QSet>
 
 #include "import.h"
 #include "qmlrewriter.h"

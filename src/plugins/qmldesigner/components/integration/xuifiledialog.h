@@ -33,10 +33,10 @@
 #ifndef XUIFILEDIALOG_H
 #define XUIFILEDIALOG_H
 
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+#include <QString>
+#include <QStringList>
 
-#include <QtGui/QFileDialog>
+#include <QFileDialog>
 
 namespace QmlDesigner {
 

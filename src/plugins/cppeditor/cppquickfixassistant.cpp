@@ -53,8 +53,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/QFileInfo>
-#include <QtGui/QTextBlock>
+#include <QFileInfo>
+#include <QTextBlock>
 
 using namespace CppEditor;
 using namespace CppEditor::Internal;

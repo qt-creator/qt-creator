@@ -38,12 +38,12 @@
 #include <cplusplus/DependencyTable.h>
 #include <cplusplus/FindUsages.h>
 
-#include <QtCore/QMutex>
-#include <QtCore/QObject>
-#include <QtCore/QPointer>
-#include <QtCore/QFuture>
-#include <QtCore/QFutureWatcher>
-#include <QtCore/QMetaType>
+#include <QMutex>
+#include <QObject>
+#include <QPointer>
+#include <QFuture>
+#include <QFutureWatcher>
+#include <QMetaType>
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 

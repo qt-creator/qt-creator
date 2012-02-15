@@ -38,8 +38,8 @@
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/qdebug.h>
+#include <QFileInfo>
+#include <qdebug.h>
 
 using namespace ResourceEditor::Internal;
 using namespace ResourceEditor::Constants;

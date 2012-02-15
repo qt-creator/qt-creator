@@ -34,7 +34,7 @@
 #define IOUTLINEWIDGET_H
 
 #include <texteditor/texteditor_global.h>
-#include <QtGui/QWidget>
+#include <QWidget>
 
 namespace Core {
 class IEditor;

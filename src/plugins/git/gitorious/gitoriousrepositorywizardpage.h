@@ -33,7 +33,7 @@
 #ifndef GITORIOUSREPOSITORYWIZARDPAGE_H
 #define GITORIOUSREPOSITORYWIZARDPAGE_H
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 
 QT_BEGIN_NAMESPACE
 class QSortFilterProxyModel;

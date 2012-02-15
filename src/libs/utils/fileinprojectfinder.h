@@ -35,8 +35,8 @@
 
 #include <utils/utils_global.h>
 
-#include <QtCore/QHash>
-#include <QtCore/QStringList>
+#include <QHash>
+#include <QStringList>
 
 QT_FORWARD_DECLARE_CLASS(QUrl)
 

@@ -40,11 +40,11 @@
 #include <remotelinux/remotelinux_constants.h>
 #include <utils/environment.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QProcess>
-#include <QtCore/QString>
-#include <QtGui/QDesktopServices>
+#include <QDir>
+#include <QFileInfo>
+#include <QProcess>
+#include <QString>
+#include <QDesktopServices>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Constants;

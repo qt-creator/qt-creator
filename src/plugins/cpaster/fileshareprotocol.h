@@ -35,7 +35,7 @@
 
 #include "protocol.h"
 
-#include <QtCore/QSharedPointer>
+#include <QSharedPointer>
 
 namespace CodePaster {
 

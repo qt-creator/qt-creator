@@ -32,7 +32,7 @@
 
 #include "splitter.h"
 
-#include <QtCore/QRegExp>
+#include <QRegExp>
 
 FileDataList splitDiffToFiles(const QString &strData)
 {

@@ -33,9 +33,9 @@
 #include "systemeditor.h"
 #include "id.h"
 
-#include <QtCore/QStringList>
-#include <QtCore/QUrl>
-#include <QtGui/QDesktopServices>
+#include <QStringList>
+#include <QUrl>
+#include <QDesktopServices>
 
 using namespace Core;
 using namespace Core::Internal;

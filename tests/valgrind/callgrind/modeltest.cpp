@@ -32,24 +32,24 @@
 
 #include "modeltest.h"
 
-#include <QtCore/QStringList>
-#include <QtCore/QFile>
-#include <QtCore/QTextStream>
-#include <QtCore/QDebug>
+#include <QStringList>
+#include <QFile>
+#include <QTextStream>
+#include <QDebug>
 
-#include <QtGui/QApplication>
-#include <QtGui/QTableView>
-#include <QtGui/QDesktopWidget>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QMenu>
-#include <QtGui/QSortFilterProxyModel>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QPushButton>
-#include <QtGui/QSpinBox>
-#include <QtGui/QComboBox>
-#include <QtGui/QMainWindow>
-#include <QtGui/QDockWidget>
-#include <QtGui/QToolButton>
+#include <QApplication>
+#include <QTableView>
+#include <QDesktopWidget>
+#include <QVBoxLayout>
+#include <QMenu>
+#include <QSortFilterProxyModel>
+#include <QStandardItemModel>
+#include <QPushButton>
+#include <QSpinBox>
+#include <QComboBox>
+#include <QMainWindow>
+#include <QDockWidget>
+#include <QToolButton>
 
 #include <callgrindcostview.h>
 #include <callgrindcostdelegate.h>

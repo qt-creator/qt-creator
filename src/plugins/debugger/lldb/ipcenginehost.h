@@ -39,9 +39,9 @@
 #include "breakhandler.h"
 #include "sourceagent.h"
 
-#include <QtCore/QQueue>
-#include <QtCore/QVariant>
-#include <QtCore/QThread>
+#include <QQueue>
+#include <QVariant>
+#include <QThread>
 
 namespace Debugger {
 namespace Internal {

@@ -32,12 +32,12 @@
 
 #include "topicchooser.h"
 
-#include <QtCore/QMap>
-#include <QtCore/QUrl>
+#include <QMap>
+#include <QUrl>
 
-#include <QtGui/QKeyEvent>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QSortFilterProxyModel>
+#include <QKeyEvent>
+#include <QStandardItemModel>
+#include <QSortFilterProxyModel>
 
 TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
         const QMap<QString, QUrl> &links)

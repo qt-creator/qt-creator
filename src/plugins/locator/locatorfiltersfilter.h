@@ -35,7 +35,7 @@
 
 #include "ilocatorfilter.h"
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
 namespace Locator {
 namespace Internal {

@@ -39,9 +39,9 @@
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QVariant>
-#include <QtCore/QSettings>
+#include <QDebug>
+#include <QVariant>
+#include <QSettings>
 
 using namespace Utils;
 

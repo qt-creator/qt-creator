@@ -49,26 +49,26 @@
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
-#include <QtCore/QtConcurrentRun>
-#include <QtCore/QFileInfo>
-#include <QtCore/QFile>
-#include <QtCore/QTimer>
-#include <QtCore/QSettings>
-#include <QtCore/QEvent>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QContextMenuEvent>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QHeaderView>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QMenu>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QPushButton>
-#include <QtGui/QScrollBar>
-#include <QtGui/QTreeView>
-#include <QtGui/QToolTip>
+#include <QtConcurrentRun>
+#include <QFileInfo>
+#include <QFile>
+#include <QTimer>
+#include <QSettings>
+#include <QEvent>
+#include <QAction>
+#include <QApplication>
+#include <QContextMenuEvent>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QKeyEvent>
+#include <QLabel>
+#include <QLineEdit>
+#include <QMenu>
+#include <QMouseEvent>
+#include <QPushButton>
+#include <QScrollBar>
+#include <QTreeView>
+#include <QToolTip>
 
 Q_DECLARE_METATYPE(Locator::ILocatorFilter*)
 Q_DECLARE_METATYPE(Locator::FilterEntry)

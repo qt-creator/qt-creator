@@ -39,9 +39,9 @@
 
 #include <utils/reloadpromptutils.h>
 
-#include <QtCore/QMap>
-#include <QtCore/QFileInfo>
-#include <QtCore/QtDebug>
+#include <QMap>
+#include <QFileInfo>
+#include <QtDebug>
 
 namespace ImageViewer {
 namespace Internal {

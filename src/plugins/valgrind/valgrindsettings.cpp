@@ -39,8 +39,8 @@
 #include <utils/qtcassert.h>
 #include <valgrind/xmlprotocol/error.h>
 
-#include <QtCore/QSettings>
-#include <QtCore/QDebug>
+#include <QSettings>
+#include <QDebug>
 
 
 using namespace Analyzer;

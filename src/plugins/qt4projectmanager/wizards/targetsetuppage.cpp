@@ -49,8 +49,8 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <QtGui/QLabel>
-#include <QtGui/QLayout>
+#include <QLabel>
+#include <QLayout>
 
 using namespace Qt4ProjectManager;
 

@@ -33,7 +33,7 @@
 #ifndef PROJECTEXPLORER_DEPLOYCONFIGURATIONMODEL_H
 #define PROJECTEXPLORER_DEPLOYCONFIGURATIONMODEL_H
 
-#include <QtCore/QAbstractItemModel>
+#include <QAbstractItemModel>
 
 namespace ProjectExplorer {
 

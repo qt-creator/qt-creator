@@ -35,7 +35,7 @@
 
 #include "qt4projectmanager_global.h"
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 namespace Qt4ProjectManager {
 struct BuildConfigurationInfo;

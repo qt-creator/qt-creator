@@ -33,7 +33,7 @@
 #ifndef TESTPLUGIN_GLOBAL_H
 #define TESTPLUGIN_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(MYPLUGIN_LIBRARY)
 #  define MYPLUGIN_EXPORT Q_DECL_EXPORT

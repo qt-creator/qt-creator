@@ -40,8 +40,8 @@
 #include <CoreTypes.h>
 #include <Literals.h>
 
-#include <QtCore/QVarLengthArray>
-#include <QtCore/QDebug>
+#include <QVarLengthArray>
+#include <QDebug>
 
 using namespace CPlusPlus;
 

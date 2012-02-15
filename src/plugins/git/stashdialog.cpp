@@ -39,15 +39,15 @@
 #include <utils/qtcassert.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QModelIndex>
-#include <QtCore/QDateTime>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QSortFilterProxyModel>
-#include <QtGui/QItemSelectionModel>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
+#include <QDebug>
+#include <QDir>
+#include <QModelIndex>
+#include <QDateTime>
+#include <QStandardItemModel>
+#include <QSortFilterProxyModel>
+#include <QItemSelectionModel>
+#include <QMessageBox>
+#include <QPushButton>
 
 enum { NameColumn, BranchColumn, MessageColumn, ColumnCount };
 

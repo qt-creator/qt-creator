@@ -46,17 +46,17 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtGui/QApplication>
-#include <QtGui/QClipboard>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QListView>
-#include <QtGui/QPainter>
-#include <QtGui/QStyledItemDelegate>
-#include <QtGui/QSortFilterProxyModel>
-#include <QtGui/QMenu>
-#include <QtGui/QToolButton>
+#include <QDir>
+#include <QFileInfo>
+#include <QApplication>
+#include <QClipboard>
+#include <QKeyEvent>
+#include <QListView>
+#include <QPainter>
+#include <QStyledItemDelegate>
+#include <QSortFilterProxyModel>
+#include <QMenu>
+#include <QToolButton>
 
 namespace {
 const int ELLIPSIS_GRADIENT_WIDTH = 16;

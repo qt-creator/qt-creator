@@ -35,8 +35,8 @@
 #include "projectexplorerconstants.h"
 #include "task.h"
 
-#include <QtCore/QDir>
-#include <QtCore/QFile>
+#include <QDir>
+#include <QFile>
 
 using namespace ProjectExplorer;
 
@@ -172,7 +172,7 @@ QStringList GnuMakeParser::searchDirectories() const
 #ifdef WITH_TESTS
 #   include <QTest>
 
-#   include <QtCore/QUuid>
+#   include <QUuid>
 
 #   include "outputparser_test.h"
 #   include "projectexplorer.h"

@@ -33,7 +33,7 @@
 #ifndef PROGRESSDATA_H
 #define PROGRESSDATA_H
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 namespace TextEditor {
 namespace Internal {

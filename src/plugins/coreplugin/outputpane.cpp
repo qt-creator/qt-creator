@@ -38,8 +38,8 @@
 #include "ioutputpane.h"
 #include "modemanager.h"
 
-#include <QtGui/QSplitter>
-#include <QtGui/QVBoxLayout>
+#include <QSplitter>
+#include <QVBoxLayout>
 
 namespace Core {
 

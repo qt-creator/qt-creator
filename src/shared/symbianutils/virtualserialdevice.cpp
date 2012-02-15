@@ -31,8 +31,8 @@
 **************************************************************************/
 
 #include "virtualserialdevice.h"
-#include <QtCore/QThread>
-#include <QtCore/QWaitCondition>
+#include <QThread>
+#include <QWaitCondition>
 
 namespace SymbianUtils {
 

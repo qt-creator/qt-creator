@@ -37,7 +37,7 @@
 // highlight definition's context engine. Using a mock derived from QSyntaxHighlighter as a
 // base instead of the real TextEditor::SyntaxHighlighter should not affect it.
 
-#include <QtGui/QSyntaxHighlighter>
+#include <QSyntaxHighlighter>
 
 namespace TextEditor {
 

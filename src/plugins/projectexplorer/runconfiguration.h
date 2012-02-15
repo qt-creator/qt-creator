@@ -39,9 +39,9 @@
 
 #include <utils/outputformat.h>
 
-#include <QtCore/QMetaType>
-#include <QtCore/QWeakPointer>
-#include <QtGui/QWidget>
+#include <QMetaType>
+#include <QWeakPointer>
+#include <QWidget>
 
 QT_FORWARD_DECLARE_CLASS(QIcon)
 

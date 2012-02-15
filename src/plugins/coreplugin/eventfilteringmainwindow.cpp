@@ -36,9 +36,9 @@
 #include <windows.h>
 #endif
 
-#include <QtCore/QtDebug>
-#include <QtCore/QEvent>
-#include <QtCore/QCoreApplication>
+#include <QtDebug>
+#include <QEvent>
+#include <QCoreApplication>
 
 namespace Core {
 namespace Internal {

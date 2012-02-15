@@ -49,8 +49,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QVariant>
+#include <QCoreApplication>
+#include <QVariant>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

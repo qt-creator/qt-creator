@@ -33,9 +33,9 @@
 #ifndef MODULESPAGE_H
 #define MODULESPAGE_H
 
-#include <QtCore/QMap>
-#include <QtCore/QStringList>
-#include <QtGui/QWizard>
+#include <QMap>
+#include <QStringList>
+#include <QWizard>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;

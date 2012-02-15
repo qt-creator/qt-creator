@@ -35,8 +35,8 @@
 
 #include "extensionsystem_global.h"
 
-#include <QtCore/QList>
-#include <QtCore/QString>
+#include <QList>
+#include <QString>
 
 namespace ExtensionSystem {
 class PluginSpec;

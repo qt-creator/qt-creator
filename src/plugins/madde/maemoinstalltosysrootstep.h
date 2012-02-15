@@ -37,7 +37,7 @@
 #include <projectexplorer/buildstep.h>
 #include <remotelinux/deployablefile.h>
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 QT_FORWARD_DECLARE_CLASS(QProcess)
 

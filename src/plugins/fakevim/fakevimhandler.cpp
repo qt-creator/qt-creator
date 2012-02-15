@@ -64,27 +64,27 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QFile>
-#include <QtCore/QObject>
-#include <QtCore/QPointer>
-#include <QtCore/QProcess>
-#include <QtCore/QRegExp>
-#include <QtCore/QTextStream>
-#include <QtCore/QTimer>
-#include <QtCore/QtAlgorithms>
-#include <QtCore/QStack>
+#include <QDebug>
+#include <QFile>
+#include <QObject>
+#include <QPointer>
+#include <QProcess>
+#include <QRegExp>
+#include <QTextStream>
+#include <QTimer>
+#include <QtAlgorithms>
+#include <QStack>
 
-#include <QtGui/QApplication>
-#include <QtGui/QInputMethodEvent>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QLineEdit>
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QScrollBar>
-#include <QtGui/QTextBlock>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextDocumentFragment>
-#include <QtGui/QTextEdit>
+#include <QApplication>
+#include <QInputMethodEvent>
+#include <QKeyEvent>
+#include <QLineEdit>
+#include <QPlainTextEdit>
+#include <QScrollBar>
+#include <QTextBlock>
+#include <QTextCursor>
+#include <QTextDocumentFragment>
+#include <QTextEdit>
 
 #include <algorithm>
 #include <climits>

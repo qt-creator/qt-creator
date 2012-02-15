@@ -33,7 +33,7 @@
 #ifndef GIT_CONSTANTS_H
 #define GIT_CONSTANTS_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 namespace Git {
 namespace Constants {

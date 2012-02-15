@@ -33,7 +33,7 @@
 #ifndef PROJECTWIZARDPAGE_H
 #define PROJECTWIZARDPAGE_H
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 
 namespace ProjectExplorer {
 namespace Internal {

@@ -39,9 +39,9 @@
 #include <qt4projectmanager/qt4target.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+#include <QFileInfo>
+#include <QString>
+#include <QStringList>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;

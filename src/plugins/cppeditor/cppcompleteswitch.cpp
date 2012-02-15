@@ -43,7 +43,7 @@
 #include <CoreTypes.h>
 #include <Symbols.h>
 
-#include <QtGui/QApplication>
+#include <QApplication>
 
 using namespace CPlusPlus;
 using namespace CppEditor;

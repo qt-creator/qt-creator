@@ -45,9 +45,9 @@
 #define QDESIGNER_INTEGRATION_H
 
 #include "shared_global_p.h"
-#include <QtDesigner/QDesignerIntegrationInterface>
+#include <QDesignerIntegrationInterface>
 
-#include <QtCore/QObject>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 

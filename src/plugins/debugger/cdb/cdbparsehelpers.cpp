@@ -41,11 +41,11 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QByteArray>
-#include <QtCore/QVariant>
-#include <QtCore/QString>
-#include <QtCore/QDir>
-#include <QtCore/QDebug>
+#include <QByteArray>
+#include <QVariant>
+#include <QString>
+#include <QDir>
+#include <QDebug>
 
 #include <cctype>
 

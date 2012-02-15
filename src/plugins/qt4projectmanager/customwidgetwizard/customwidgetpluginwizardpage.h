@@ -35,8 +35,8 @@
 
 #include "filenamingparameters.h"
 
-#include <QtGui/QWizardPage>
-#include <QtCore/QSharedPointer>
+#include <QWizardPage>
+#include <QSharedPointer>
 
 namespace Qt4ProjectManager {
 namespace Internal {

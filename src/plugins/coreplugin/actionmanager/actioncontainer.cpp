@@ -40,10 +40,10 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QTimer>
-#include <QtGui/QAction>
-#include <QtGui/QMenuBar>
+#include <QDebug>
+#include <QTimer>
+#include <QAction>
+#include <QMenuBar>
 
 Q_DECLARE_METATYPE(Core::Internal::MenuActionContainer*)
 

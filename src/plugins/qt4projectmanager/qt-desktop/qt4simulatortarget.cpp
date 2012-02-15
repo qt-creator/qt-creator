@@ -38,7 +38,7 @@
 
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
-#include <QtGui/QApplication>
+#include <QApplication>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

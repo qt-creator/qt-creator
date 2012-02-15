@@ -33,18 +33,18 @@
 #include "managedefinitionsdialog.h"
 #include "manager.h"
 
-#include <QtCore/QUrl>
-#include <QtCore/QIODevice>
-#include <QtCore/QXmlStreamReader>
-#include <QtCore/QXmlStreamAttributes>
-#include <QtCore/QFuture>
-#include <QtCore/QFutureWatcher>
-#include <QtCore/QtConcurrentMap>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtGui/QMessageBox>
+#include <QUrl>
+#include <QIODevice>
+#include <QXmlStreamReader>
+#include <QXmlStreamAttributes>
+#include <QFuture>
+#include <QFutureWatcher>
+#include <QtConcurrentMap>
+#include <QFile>
+#include <QFileInfo>
+#include <QMessageBox>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace TextEditor;
 using namespace Internal;

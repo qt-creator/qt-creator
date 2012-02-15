@@ -37,9 +37,9 @@
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsdocument.h>
 
-#include <QtCore/QHash>
-#include <QtCore/QVariant>
-#include <QtCore/QStringList>
+#include <QHash>
+#include <QVariant>
+#include <QStringList>
 
 QT_FORWARD_DECLARE_CLASS(QLinearGradient)
 

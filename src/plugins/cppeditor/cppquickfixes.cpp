@@ -70,10 +70,10 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFileInfo>
-#include <QtGui/QApplication>
-#include <QtGui/QTextBlock>
-#include <QtGui/QTextCursor>
+#include <QFileInfo>
+#include <QApplication>
+#include <QTextBlock>
+#include <QTextCursor>
 #include <cctype>
 
 using namespace CppEditor;

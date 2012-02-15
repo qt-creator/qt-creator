@@ -37,7 +37,7 @@
 #include "Overview.h"
 #include "Icons.h"
 
-#include <QtCore/QAbstractItemModel>
+#include <QAbstractItemModel>
 
 namespace CPlusPlus {
 

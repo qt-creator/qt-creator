@@ -37,7 +37,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
-#include <QtGui/QLabel>
+#include <QLabel>
 
 namespace Utils {
 

@@ -34,7 +34,7 @@
 
 #include <utils/synchronousprocess.h>
 
-#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 
 namespace Git {
 namespace Internal {

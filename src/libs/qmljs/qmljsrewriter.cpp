@@ -38,9 +38,9 @@
 #include <utils/changeset.h>
 
 // ### FIXME: remove these includes:
-#include <QtGui/QTextBlock>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextDocument>
+#include <QTextBlock>
+#include <QTextCursor>
+#include <QTextDocument>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

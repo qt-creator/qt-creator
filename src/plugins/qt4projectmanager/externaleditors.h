@@ -36,8 +36,8 @@
 #include <coreplugin/editormanager/iexternaleditor.h>
 #include <coreplugin/id.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QMap>
+#include <QStringList>
+#include <QMap>
 
 QT_BEGIN_NAMESPACE
 class QProcess;

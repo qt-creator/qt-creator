@@ -35,10 +35,10 @@
 
 #include "qmljseditor.h"
 
-#include <QtCore/QWaitCondition>
-#include <QtCore/QModelIndex>
-#include <QtCore/QMutex>
-#include <QtCore/QThread>
+#include <QWaitCondition>
+#include <QModelIndex>
+#include <QMutex>
+#include <QThread>
 
 namespace QmlJSEditor {
 namespace Internal {

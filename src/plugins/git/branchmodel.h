@@ -33,9 +33,9 @@
 #ifndef BRANCHMODEL_H
 #define BRANCHMODEL_H
 
-#include <QtCore/QAbstractListModel>
-#include <QtCore/QList>
-#include <QtCore/QVariant>
+#include <QAbstractListModel>
+#include <QList>
+#include <QVariant>
 
 namespace Git {
 namespace Internal {

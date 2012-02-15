@@ -40,16 +40,16 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QFile>
-#include <QtCore/QObject>
-#include <QtCore/QPointer>
-#include <QtCore/QProcess>
-#include <QtCore/QRegExp>
-#include <QtCore/QTextStream>
-#include <QtCore/QtAlgorithms>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QStack>
+#include <QDebug>
+#include <QFile>
+#include <QObject>
+#include <QPointer>
+#include <QProcess>
+#include <QRegExp>
+#include <QTextStream>
+#include <QtAlgorithms>
+#include <QCoreApplication>
+#include <QStack>
 
 using namespace Utils;
 

@@ -34,11 +34,11 @@
 
 #include "servicebrowser_p.h"
 
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QProcess>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
+#include <QString>
+#include <QStringList>
+#include <QProcess>
+#include <QCoreApplication>
+#include <QDebug>
 
 #ifdef Q_OS_LINUX
 #define EMBEDDED_LIB

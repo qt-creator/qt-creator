@@ -43,8 +43,8 @@
 #ifndef IMAGEVIEW_H
 #define IMAGEVIEW_H
 
-#include <QtGui/QGraphicsView>
-#include <QtCore/QScopedPointer>
+#include <QGraphicsView>
+#include <QScopedPointer>
 
 namespace ImageViewer {
 namespace Internal {

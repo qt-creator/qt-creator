@@ -43,13 +43,13 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QFile>
-#include <QtCore/QMap>
-#include <QtCore/QDir>
-#include <QtCore/QTextStream>
-#include <QtCore/QFileInfo>
-#include <QtCore/QCoreApplication>
+#include <QDebug>
+#include <QFile>
+#include <QMap>
+#include <QDir>
+#include <QTextStream>
+#include <QFileInfo>
+#include <QCoreApplication>
 
 static const char templatePathC[] = "templates/wizards";
 static const char configFileC[] = "wizard.xml";

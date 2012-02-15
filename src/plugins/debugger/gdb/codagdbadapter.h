@@ -39,10 +39,10 @@
 #include "codautils.h"
 #include "symbian.h"
 
-#include <QtCore/QPointer>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QStringList>
-#include <QtCore/QHash>
+#include <QPointer>
+#include <QSharedPointer>
+#include <QStringList>
+#include <QHash>
 
 QT_BEGIN_NAMESPACE
 class QTcpServer;

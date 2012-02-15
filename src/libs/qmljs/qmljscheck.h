@@ -40,10 +40,10 @@
 #include <qmljs/qmljsstaticanalysismessage.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QSet>
-#include <QtCore/QStack>
-#include <QtGui/QColor>
+#include <QCoreApplication>
+#include <QSet>
+#include <QStack>
+#include <QColor>
 
 namespace QmlJS {
 

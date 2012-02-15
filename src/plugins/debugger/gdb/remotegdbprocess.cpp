@@ -38,7 +38,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/ssh/sshconnectionmanager.h>
 
-#include <QtCore/QFileInfo>
+#include <QFileInfo>
 
 #include <ctype.h>
 

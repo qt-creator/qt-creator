@@ -62,12 +62,12 @@
 #include <cpptools/cpptoolsconstants.h>
 #include <utils/qtcassert.h>
 
-#include <QtDesigner/QDesignerFormEditorPluginInterface>
-#include <QtDesigner/QDesignerFormEditorInterface>
-#include <QtDesigner/QDesignerComponents>
+#include <QDesignerFormEditorPluginInterface>
+#include <QDesignerFormEditorInterface>
+#include <QDesignerComponents>
 
 #if QT_VERSION >= 0x050000
-#    include <QtDesigner/QDesignerFormWindowManagerInterface>
+#    include <QDesignerFormWindowManagerInterface>
 #else
 #    include "qt_private/pluginmanager_p.h"
 #    include "qt_private/iconloader_p.h"  // createIconSet
@@ -75,33 +75,33 @@
 #    include "qt_private/formwindowbase_p.h"
 #endif
 
-#include <QtDesigner/QDesignerWidgetBoxInterface>
-#include <QtDesigner/abstractobjectinspector.h>
-#include <QtDesigner/QDesignerPropertyEditorInterface>
-#include <QtDesigner/QDesignerActionEditorInterface>
-#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QDesignerWidgetBoxInterface>
+#include <abstractobjectinspector.h>
+#include <QDesignerPropertyEditorInterface>
+#include <QDesignerActionEditorInterface>
+#include <QDesignerFormEditorInterface>
 
-#include <QtGui/QAction>
-#include <QtGui/QActionGroup>
-#include <QtGui/QApplication>
-#include <QtGui/QCursor>
-#include <QtGui/QDockWidget>
-#include <QtGui/QMenu>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMessageBox>
-#include <QtGui/QKeySequence>
-#include <QtGui/QPrintDialog>
-#include <QtGui/QPrinter>
-#include <QtGui/QPainter>
-#include <QtGui/QStyle>
-#include <QtGui/QToolBar>
-#include <QtGui/QVBoxLayout>
+#include <QAction>
+#include <QActionGroup>
+#include <QApplication>
+#include <QCursor>
+#include <QDockWidget>
+#include <QMenu>
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QKeySequence>
+#include <QPrintDialog>
+#include <QPrinter>
+#include <QPainter>
+#include <QStyle>
+#include <QToolBar>
+#include <QVBoxLayout>
 
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
-#include <QtCore/QSignalMapper>
-#include <QtCore/QPluginLoader>
-#include <QtCore/QTime>
+#include <QDebug>
+#include <QSettings>
+#include <QSignalMapper>
+#include <QPluginLoader>
+#include <QTime>
 
 static const char settingsGroupC[] = "Designer";
 

@@ -38,10 +38,10 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtGui/QFocusEvent>
-#include <QtGui/QHeaderView>
-#include <QtGui/QTreeWidget>
-#include <QtGui/QVBoxLayout>
+#include <QFocusEvent>
+#include <QHeaderView>
+#include <QTreeWidget>
+#include <QVBoxLayout>
 
 Q_DECLARE_METATYPE(Core::Internal::EditorView*)
 Q_DECLARE_METATYPE(Core::IFile *)

@@ -52,12 +52,12 @@
 #include <debugger/stackhandler.h>
 #include <debugger/stackframe.h>
 
-#include <QtGui/QMenu>
-#include <QtGui/QTextBlock>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QToolButton>
-#include <QtGui/QCheckBox>
+#include <QMenu>
+#include <QTextBlock>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QToolButton>
+#include <QCheckBox>
 
 static const char SCRIPT_CONSOLE[] = "ScriptConsole";
 static const char SHOW_LOG[] = "showLog";

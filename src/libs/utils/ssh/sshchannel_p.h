@@ -33,9 +33,9 @@
 #ifndef SSHCHANNEL_P_H
 #define SSHCHANNEL_P_H
 
-#include <QtCore/QByteArray>
-#include <QtCore/QObject>
-#include <QtCore/QString>
+#include <QByteArray>
+#include <QObject>
+#include <QString>
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 

@@ -39,8 +39,8 @@
 #include <utils/qtcassert.h>
 #include <utils/ssh/sshconnection.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QString>
+#include <QFileInfo>
+#include <QString>
 
 namespace RemoteLinux {
 namespace Internal {

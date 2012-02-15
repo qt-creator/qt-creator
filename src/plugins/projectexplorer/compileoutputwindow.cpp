@@ -43,14 +43,14 @@
 #include <aggregation/aggregate.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtGui/QKeyEvent>
-#include <QtGui/QIcon>
-#include <QtGui/QTextCharFormat>
-#include <QtGui/QTextBlock>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextEdit>
-#include <QtGui/QScrollBar>
-#include <QtGui/QPlainTextEdit>
+#include <QKeyEvent>
+#include <QIcon>
+#include <QTextCharFormat>
+#include <QTextBlock>
+#include <QTextCursor>
+#include <QTextEdit>
+#include <QScrollBar>
+#include <QPlainTextEdit>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

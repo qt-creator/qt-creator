@@ -34,10 +34,10 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtNetwork/QNetworkReply>
-#include <QtCore/QXmlStreamReader>
-#include <QtCore/QXmlStreamAttributes>
-#include <QtCore/QStringList>
+#include <QNetworkReply>
+#include <QXmlStreamReader>
+#include <QXmlStreamAttributes>
+#include <QStringList>
 
 static const char urlC[] = "http://pastebin.ca/";
 

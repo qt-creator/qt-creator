@@ -39,7 +39,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <QtCore/QProcess>
+#include <QProcess>
 
 namespace Debugger {
 namespace Internal {

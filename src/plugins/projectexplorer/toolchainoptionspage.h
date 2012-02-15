@@ -37,7 +37,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QtCore/QAbstractItemModel>
+#include <QAbstractItemModel>
 
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;

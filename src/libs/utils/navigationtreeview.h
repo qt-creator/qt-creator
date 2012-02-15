@@ -35,7 +35,7 @@
 
 #include "utils_global.h"
 
-#include <QtGui/QTreeView>
+#include <QTreeView>
 
 namespace Utils {
 

@@ -34,11 +34,11 @@
 
 #include <qmljs/qmljsscanner.h>
 
-#include <QtCore/QChar>
-#include <QtCore/QLatin1Char>
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextBlock>
+#include <QChar>
+#include <QLatin1Char>
+#include <QTextDocument>
+#include <QTextCursor>
+#include <QTextBlock>
 
 using namespace QmlJSEditor;
 using namespace Internal;

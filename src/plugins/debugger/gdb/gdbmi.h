@@ -33,9 +33,9 @@
 #ifndef DEBUGGER_GDBMI_H
 #define DEBUGGER_GDBMI_H
 
-#include <QtCore/QByteArray>
-#include <QtCore/QList>
-#include <QtCore/QVariant>
+#include <QByteArray>
+#include <QList>
+#include <QVariant>
 
 namespace Debugger {
 namespace Internal {

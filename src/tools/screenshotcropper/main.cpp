@@ -1,4 +1,4 @@
-#include <QtGui>
+#include <QtWidgets>
 #include "screenshotcropperwindow.h"
 
 using namespace QtSupport::Internal;

@@ -40,11 +40,11 @@
 #include <coreplugin/fileiconprovider.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
+#include <QDebug>
+#include <QFileInfo>
 
-#include <QtGui/QFont>
-#include <QtGui/QIcon>
+#include <QFont>
+#include <QIcon>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

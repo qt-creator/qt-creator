@@ -37,9 +37,9 @@
 
 #include <vcsbase/vcsbaseoptionspage.h>
 
-#include <QtGui/QWidget>
-#include <QtCore/QPointer>
-#include <QtCore/QString>
+#include <QWidget>
+#include <QPointer>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

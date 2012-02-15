@@ -34,7 +34,7 @@
 #define PROWRITER_H
 
 #include "proparser_global.h"
-#include <QtCore/QStringList>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 class QDir;

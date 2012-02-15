@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 
 namespace SharedTools {
 

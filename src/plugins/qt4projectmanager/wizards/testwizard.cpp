@@ -39,10 +39,10 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QTextStream>
-#include <QtCore/QFileInfo>
+#include <QTextStream>
+#include <QFileInfo>
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -98,9 +98,9 @@ static QString generateTestCode(const TestWizardParameters &testParams,
     QTextStream str(&rc);
     // Includes
     str << CppTools::AbstractEditorSupport::licenseTemplate(testParams.fileName, testParams.className)
-        << "#include <QtCore/QString>\n#include <QtTest/QtTest>\n";
+        << "#include <QString>\n#include <QtTest>\n";
     if (testParams.requiresQApplication)
-        str << "#include <QtCore/QCoreApplication>\n";
+        str << "#include <QCoreApplication>\n";
     // Class declaration
     str  << "\nclass " << testParams.className << " : public QObject\n"
         "{\n" << indent << "Q_OBJECT\n\npublic:\n"

@@ -36,11 +36,11 @@
 
 #include <remotelinux/portlist.h>
 
-#include <QtCore/QHash>
-#include <QtCore/QList>
-#include <QtCore/QPair>
-#include <QtCore/QProcessEnvironment>
-#include <QtCore/QString>
+#include <QHash>
+#include <QList>
+#include <QPair>
+#include <QProcessEnvironment>
+#include <QString>
 
 namespace Madde {
 namespace Internal {

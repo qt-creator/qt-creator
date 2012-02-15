@@ -35,8 +35,8 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QtCore/QObject>
-#include <QtGui/QAction>
+#include <QObject>
+#include <QAction>
 
 namespace ProjectExplorer {
 class Project;

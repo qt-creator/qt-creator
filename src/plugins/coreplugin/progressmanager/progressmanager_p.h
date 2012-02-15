@@ -35,9 +35,9 @@
 
 #include "progressmanager.h"
 
-#include <QtCore/QPointer>
-#include <QtCore/QList>
-#include <QtCore/QFutureWatcher>
+#include <QPointer>
+#include <QList>
+#include <QFutureWatcher>
 
 namespace Core {
 namespace Internal {

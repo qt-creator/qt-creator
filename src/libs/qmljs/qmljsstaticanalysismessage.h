@@ -36,9 +36,9 @@
 #include "qmljs_global.h"
 #include "parser/qmljsengine_p.h"
 
-#include <QtCore/QRegExp>
-#include <QtCore/QString>
-#include <QtCore/QList>
+#include <QRegExp>
+#include <QString>
+#include <QList>
 
 namespace QmlJS {
 namespace StaticAnalysis {

@@ -33,7 +33,7 @@
 #include "glsllexer.h"
 #include "glslparser.h"
 #include "glslengine.h"
-#include <QtCore/qbytearray.h>
+#include <qbytearray.h>
 #include <cctype>
 #include <iostream>
 #include <cstdio>

@@ -32,10 +32,10 @@
 
 #include "gitutils.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QStringList>
-#include <QtGui/QInputDialog>
-#include <QtGui/QLineEdit>
+#include <QDebug>
+#include <QStringList>
+#include <QInputDialog>
+#include <QLineEdit>
 
 namespace Git {
 namespace Internal {

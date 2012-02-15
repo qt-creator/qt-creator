@@ -33,8 +33,8 @@
 #include <utils/ssh/sshremoteprocessrunner.h>
 #include <utils/fileutils.h>
 
-#include <QtCore/QFile>
-#include <QtCore/QSharedPointer>
+#include <QFile>
+#include <QSharedPointer>
 
 using namespace Utils;
 

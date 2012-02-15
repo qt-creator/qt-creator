@@ -38,9 +38,9 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include "ui_cdboptionspagewidget.h"
 
-#include <QtGui/QWidget>
-#include <QtCore/QPointer>
-#include <QtCore/QSharedPointer>
+#include <QWidget>
+#include <QPointer>
+#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;

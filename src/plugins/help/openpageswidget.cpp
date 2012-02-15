@@ -37,13 +37,13 @@
 
 #include <coreplugin/coreconstants.h>
 
-#include <QtGui/QApplication>
-#include <QtGui/QPainter>
+#include <QApplication>
+#include <QPainter>
 
-#include <QtGui/QHeaderView>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QMenu>
+#include <QHeaderView>
+#include <QKeyEvent>
+#include <QMouseEvent>
+#include <QMenu>
 
 #ifdef Q_OS_MAC
 #include <qmacstyle_mac.h>

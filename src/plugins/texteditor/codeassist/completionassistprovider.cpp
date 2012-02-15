@@ -32,7 +32,7 @@
 
 #include "completionassistprovider.h"
 
-#include <QtCore/QChar>
+#include <QChar>
 
 using namespace TextEditor;
 

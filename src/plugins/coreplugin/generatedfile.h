@@ -36,8 +36,8 @@
 
 #include "coreplugin/id.h"
 
-#include <QtCore/QSharedDataPointer>
-#include <QtCore/QList>
+#include <QSharedDataPointer>
+#include <QList>
 
 namespace Core {
 class GeneratedFilePrivate;

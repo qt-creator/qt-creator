@@ -54,8 +54,8 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <QtCore/QtPlugin>
-#include <QtGui/QAction>
+#include <QtPlugin>
+#include <QAction>
 
 namespace RemoteLinux {
 namespace Internal {

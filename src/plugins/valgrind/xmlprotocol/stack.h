@@ -35,7 +35,7 @@
 #ifndef VALGRIND_PROTOCOL_STACK_H
 #define VALGRIND_PROTOCOL_STACK_H
 
-#include <QtCore/QSharedDataPointer>
+#include <QSharedDataPointer>
 
 QT_BEGIN_NAMESPACE
 template <typename T> class QVector;

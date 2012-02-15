@@ -35,7 +35,7 @@
 
 #include "utils_global.h"
 
-#include <QtCore/QAbstractTableModel>
+#include <QAbstractTableModel>
 
 namespace Utils {
 class Environment;

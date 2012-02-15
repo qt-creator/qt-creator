@@ -32,12 +32,12 @@
 
 #include "name_demangler.h"
 
-#include <QtCore/QChar>
-#include <QtCore/QMap>
-#include <QtCore/QRegExp>
-#include <QtCore/QSet>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+#include <QChar>
+#include <QMap>
+#include <QRegExp>
+#include <QSet>
+#include <QString>
+#include <QStringList>
 
 // Debugging facility.
 //#define DO_TRACE

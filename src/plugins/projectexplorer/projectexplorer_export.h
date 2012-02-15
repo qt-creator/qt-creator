@@ -33,7 +33,7 @@
 #ifndef PROJECTEXPLORER_EXPORT_H
 #define PROJECTEXPLORER_EXPORT_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(PROJECTEXPLORER_LIBRARY)
 #  define PROJECTEXPLORER_EXPORT Q_DECL_EXPORT

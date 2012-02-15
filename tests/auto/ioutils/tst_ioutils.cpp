@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include <QtTest/QtTest>
+#include <QtTest>
 #include <proparser/ioutils.h>
 
 

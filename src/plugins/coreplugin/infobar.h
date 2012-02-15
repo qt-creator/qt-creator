@@ -35,7 +35,7 @@
 
 #include "core_global.h"
 
-#include <QtCore/QObject>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QBoxLayout;

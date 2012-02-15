@@ -41,21 +41,21 @@
 #include <utils/stringutils.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
-#include <QtCore/QTimer>
-#include <QtGui/QCheckBox>
-#include <QtGui/QComboBox>
-#include <QtGui/QFileDialog>
-#include <QtGui/QFontDatabase>
-#include <QtGui/QInputDialog>
-#include <QtGui/QListWidget>
-#include <QtGui/QMessageBox>
-#include <QtGui/QMainWindow>
-#include <QtGui/QPalette>
-#include <QtGui/QTextCharFormat>
-#include <QtGui/QTextEdit>
-#include <QtGui/QToolButton>
+#include <QDebug>
+#include <QSettings>
+#include <QTimer>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QFileDialog>
+#include <QFontDatabase>
+#include <QInputDialog>
+#include <QListWidget>
+#include <QMessageBox>
+#include <QMainWindow>
+#include <QPalette>
+#include <QTextCharFormat>
+#include <QTextEdit>
+#include <QToolButton>
 
 namespace TextEditor {
 namespace Internal {

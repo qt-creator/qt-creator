@@ -32,7 +32,7 @@
 #ifndef FIND_GLOBAL_H
 #define FIND_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(FIND_LIBRARY)
 #  define FIND_EXPORT Q_DECL_EXPORT

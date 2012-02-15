@@ -10,7 +10,7 @@
 #ifndef QMLAPPLICATIONVIEWER_H
 #define QMLAPPLICATIONVIEWER_H
 
-#include <QtDeclarative/QDeclarativeView>
+#include <QDeclarativeView>
 
 class QmlApplicationViewer : public QDeclarativeView
 {

@@ -33,7 +33,7 @@
 #ifndef CHANGENUMBERDIALOG_H
 #define CHANGENUMBERDIALOG_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 #include "ui_changenumberdialog.h"
 

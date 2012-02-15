@@ -39,11 +39,11 @@
 #include <coreplugin/ifile.h>
 #include <projectexplorer/projectnodes.h>
 
-#include <QtCore/QHash>
-#include <QtCore/QStringList>
-#include <QtCore/QDateTime>
-#include <QtCore/QMap>
-#include <QtCore/QFutureWatcher>
+#include <QHash>
+#include <QStringList>
+#include <QDateTime>
+#include <QMap>
+#include <QFutureWatcher>
 
 // defined in proitems.h
 QT_BEGIN_NAMESPACE

@@ -35,8 +35,8 @@
 
 #include "coreplugin/externaltool.h"
 
-#include <QtGui/QWidget>
-#include <QtCore/QAbstractItemModel>
+#include <QWidget>
+#include <QAbstractItemModel>
 
 namespace Core {
 namespace Internal {

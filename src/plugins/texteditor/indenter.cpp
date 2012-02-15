@@ -33,8 +33,8 @@
 #include "indenter.h"
 #include "tabsettings.h"
 
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextCursor>
+#include <QTextDocument>
+#include <QTextCursor>
 
 using namespace TextEditor;
 

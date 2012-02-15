@@ -35,9 +35,9 @@
 #include <vcsbaseplugin.h>
 #include <vcsbaseoutputwindow.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QQueue>
-#include <QtCore/QDir>
+#include <QDebug>
+#include <QQueue>
+#include <QDir>
 #include <utils/synchronousprocess.h>
 #include <utils/qtcassert.h>
 

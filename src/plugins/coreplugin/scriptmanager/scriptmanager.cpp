@@ -39,14 +39,14 @@
 
 #include <limits.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
-#include <QtGui/QMessageBox>
-#include <QtGui/QInputDialog>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMainWindow>
-#include <QtGui/QToolBar>
-#include <QtGui/QStatusBar>
+#include <QDebug>
+#include <QSettings>
+#include <QMessageBox>
+#include <QInputDialog>
+#include <QFileDialog>
+#include <QMainWindow>
+#include <QToolBar>
+#include <QStatusBar>
 
 // Script function template to pop up a message box
 // with a certain icon and buttons.

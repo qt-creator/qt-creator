@@ -44,7 +44,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFileInfo>
+#include <QFileInfo>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;

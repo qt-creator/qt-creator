@@ -32,21 +32,21 @@
 
 #include "qmlprofilereventview.h"
 
-#include <QtCore/QUrl>
-#include <QtCore/QHash>
+#include <QUrl>
+#include <QHash>
 
-#include <QtGui/QStandardItem>
-#include <QtGui/QHeaderView>
+#include <QStandardItem>
+#include <QHeaderView>
 
-#include <QtGui/QApplication>
-#include <QtGui/QClipboard>
+#include <QApplication>
+#include <QClipboard>
 
-#include <QtGui/QContextMenuEvent>
+#include <QContextMenuEvent>
 #include <QDebug>
 
 #include <coreplugin/minisplitter.h>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 
 using namespace QmlJsDebugClient;

@@ -62,19 +62,19 @@
 #include <utils/qtcassert.h>
 #include <utils/crumblepath.h>
 
-#include <QtCore/QSettings>
-#include <QtCore/QEvent>
-#include <QtCore/QDir>
-#include <QtGui/QApplication>
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QScrollArea>
-#include <QtGui/QTabWidget>
-#include <QtGui/QToolButton>
-#include <QtGui/QMenu>
-#include <QtGui/QClipboard>
-#include <QtGui/QLabel>
-#include <QtGui/QProgressDialog>
+#include <QSettings>
+#include <QEvent>
+#include <QDir>
+#include <QApplication>
+#include <QPlainTextEdit>
+#include <QVBoxLayout>
+#include <QScrollArea>
+#include <QTabWidget>
+#include <QToolButton>
+#include <QMenu>
+#include <QClipboard>
+#include <QLabel>
+#include <QProgressDialog>
 
 using Core::MiniSplitter;
 using Core::IEditor;

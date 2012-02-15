@@ -37,10 +37,10 @@
 
 #include <coreplugin/helpmanager.h>
 
-#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
+#include <QFileDialog>
+#include <QMessageBox>
 
 using namespace Help::Internal;
 

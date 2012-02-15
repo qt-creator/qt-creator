@@ -33,11 +33,11 @@
 #include "codautils.h"
 #include <ctype.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
-#include <QtCore/QDate>
-#include <QtCore/QDateTime>
-#include <QtCore/QTime>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QDate>
+#include <QDateTime>
+#include <QTime>
 
 #define logMessage(s)  do { qDebug() << "CODACLIENT: " << s; } while (0)
 

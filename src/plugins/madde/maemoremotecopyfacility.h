@@ -35,10 +35,10 @@
 
 #include <remotelinux/deployablefile.h>
 
-#include <QtCore/QList>
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QString>
+#include <QList>
+#include <QObject>
+#include <QSharedPointer>
+#include <QString>
 
 namespace Utils {
 class SshConnection;

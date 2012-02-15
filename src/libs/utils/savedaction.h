@@ -35,11 +35,11 @@
 
 #include "utils_global.h"
 
-#include <QtCore/QString>
-#include <QtCore/QVariant>
-#include <QtCore/QList>
+#include <QString>
+#include <QVariant>
+#include <QList>
 
-#include <QtGui/QAction>
+#include <QAction>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

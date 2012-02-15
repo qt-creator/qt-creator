@@ -35,7 +35,7 @@
 
 #include <locator/basefilefilter.h>
 
-#include <QtCore/QFutureInterface>
+#include <QFutureInterface>
 
 namespace ProjectExplorer {
 

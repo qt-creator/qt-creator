@@ -36,17 +36,17 @@
  * See usage() on how to install/use.
  * Installs itself in the bin directory of Qt Creator. */
 
-#include <QtGui/QApplication>
-#include <QtGui/QMessageBox>
-#include <QtCore/QDebug>
-#include <QtCore/QTextStream>
-#include <QtCore/QFileInfo>
-#include <QtCore/QByteArray>
-#include <QtCore/QString>
-#include <QtCore/QDir>
-#include <QtCore/QTime>
-#include <QtCore/QProcess>
-#include <QtGui/QPushButton>
+#include <QApplication>
+#include <QMessageBox>
+#include <QDebug>
+#include <QTextStream>
+#include <QFileInfo>
+#include <QByteArray>
+#include <QString>
+#include <QDir>
+#include <QTime>
+#include <QProcess>
+#include <QPushButton>
 
 #include "registryaccess.h"
 

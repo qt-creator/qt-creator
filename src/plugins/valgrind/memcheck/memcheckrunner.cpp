@@ -40,16 +40,16 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtNetwork/QNetworkInterface>
-#include <QtNetwork/QTcpServer>
-#include <QtNetwork/QTcpSocket>
-#include <QtCore/QEventLoop>
-#include <QtGui/QApplication>
-#include <QtGui/QDialog>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QLabel>
-#include <QtGui/QListWidget>
-#include <QtGui/QVBoxLayout>
+#include <QNetworkInterface>
+#include <QTcpServer>
+#include <QTcpSocket>
+#include <QEventLoop>
+#include <QApplication>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QLabel>
+#include <QListWidget>
+#include <QVBoxLayout>
 
 namespace Valgrind {
 namespace Memcheck {

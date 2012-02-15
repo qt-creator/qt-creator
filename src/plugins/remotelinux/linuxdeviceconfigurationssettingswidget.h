@@ -32,11 +32,11 @@
 #ifndef LINUXDEVICECONFIGURATIONSSETTINGSWIDGET_H
 #define LINUXDEVICECONFIGURATIONSSETTINGSWIDGET_H
 
-#include <QtCore/QList>
-#include <QtCore/QScopedPointer>
-#include <QtCore/QString>
-#include <QtGui/QPushButton>
-#include <QtGui/QWidget>
+#include <QList>
+#include <QScopedPointer>
+#include <QString>
+#include <QPushButton>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;

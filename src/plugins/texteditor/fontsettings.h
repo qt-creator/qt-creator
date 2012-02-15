@@ -37,9 +37,9 @@
 
 #include "colorscheme.h"
 
-#include <QtCore/QString>
-#include <QtCore/QList>
-#include <QtCore/QVector>
+#include <QString>
+#include <QList>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QTextCharFormat;

@@ -35,10 +35,10 @@
 
 #include "zeroconf_global.h"
 
-#include <QtCore/QHash>
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QStringList>
+#include <QHash>
+#include <QObject>
+#include <QSharedPointer>
+#include <QStringList>
 
 QT_FORWARD_DECLARE_CLASS(QHostInfo)
 

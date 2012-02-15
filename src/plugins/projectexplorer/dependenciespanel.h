@@ -35,9 +35,9 @@
 
 #include "iprojectproperties.h"
 
-#include <QtCore/QAbstractListModel>
+#include <QAbstractListModel>
 
-#include <QtGui/QTreeView>
+#include <QTreeView>
 
 namespace Utils {
     class DetailsWidget;

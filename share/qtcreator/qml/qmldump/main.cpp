@@ -33,26 +33,26 @@
 // WARNING: This code is shared with the qmlplugindump tool code in Qt.
 //          Modifications to this file need to be applied there.
 
-#include <QtDeclarative/QtDeclarative>
-#include <QtDeclarative/private/qdeclarativemetatype_p.h>
-#include <QtDeclarative/private/qdeclarativeopenmetaobject_p.h>
-#include <QtDeclarative/QDeclarativeView>
+#include <QtDeclarative>
+#include <private/qdeclarativemetatype_p.h>
+#include <private/qdeclarativeopenmetaobject_p.h>
+#include <QDeclarativeView>
 
-#include <QtGui/QApplication>
+#include <QApplication>
 
-#include <QtCore/QSet>
-#include <QtCore/QMetaObject>
-#include <QtCore/QMetaProperty>
-#include <QtCore/QDebug>
-#include <QtCore/private/qobject_p.h>
-#include <QtCore/private/qmetaobject_p.h>
+#include <QSet>
+#include <QMetaObject>
+#include <QMetaProperty>
+#include <QDebug>
+#include <private/qobject_p.h>
+#include <private/qmetaobject_p.h>
 
 #include <iostream>
 
 #include "qmlstreamwriter.h"
 
 #ifdef QT_SIMULATOR
-#include <QtGui/private/qsimulatorconnection_p.h>
+#include <private/qsimulatorconnection_p.h>
 #endif
 
 #ifdef Q_OS_UNIX

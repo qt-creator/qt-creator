@@ -37,10 +37,10 @@
 
 #include <coreplugin/editormanager/openeditorsmodel.h>
 
-#include <QtCore/QString>
-#include <QtCore/QList>
-#include <QtCore/QByteArray>
-#include <QtCore/QFutureInterface>
+#include <QString>
+#include <QList>
+#include <QByteArray>
+#include <QFutureInterface>
 
 namespace Core {
     class EditorManager;

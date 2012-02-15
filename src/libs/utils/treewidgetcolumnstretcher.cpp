@@ -31,9 +31,9 @@
 **************************************************************************/
 
 #include "treewidgetcolumnstretcher.h"
-#include <QtGui/QTreeWidget>
-#include <QtGui/QHideEvent>
-#include <QtGui/QHeaderView>
+#include <QTreeWidget>
+#include <QHideEvent>
+#include <QHeaderView>
 
 using namespace Utils;
 

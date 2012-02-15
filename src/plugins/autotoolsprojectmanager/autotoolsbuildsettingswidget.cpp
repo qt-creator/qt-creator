@@ -39,12 +39,12 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/toolchainmanager.h>
 
-#include <QtGui/QGridLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QFormLayout>
-#include <QtGui/QComboBox>
-#include <QtCore/QPointer>
+#include <QGridLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QFormLayout>
+#include <QComboBox>
+#include <QPointer>
 
 using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;

@@ -38,7 +38,7 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsicons.h>
 
-#include <QtGui/QStandardItemModel>
+#include <QStandardItemModel>
 
 namespace QmlJS {
 class Value;

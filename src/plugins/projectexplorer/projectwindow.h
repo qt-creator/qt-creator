@@ -33,8 +33,8 @@
 #ifndef PROJECTWINDOW_H
 #define PROJECTWINDOW_H
 
-#include <QtCore/QMap>
-#include <QtGui/QScrollArea>
+#include <QMap>
+#include <QScrollArea>
 
 QT_BEGIN_NAMESPACE
 class QLabel;

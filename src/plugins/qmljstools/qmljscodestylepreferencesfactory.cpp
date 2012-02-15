@@ -39,7 +39,7 @@
 #include <texteditor/snippets/isnippetprovider.h>
 #include <extensionsystem/pluginmanager.h>
 #include <qmljseditor/qmljseditorconstants.h>
-#include <QtGui/QLayout>
+#include <QLayout>
 
 using namespace QmlJSTools;
 

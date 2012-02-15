@@ -37,7 +37,7 @@
 //#include <qmljs/qmljsinterpreter.h>
 #include <qmljs/parser/qmljsast_p.h>
 
-#include <QtCore/QFileInfo>
+#include <QFileInfo>
 
 using namespace QmlJSTools::Internal;
 using namespace QmlJS;

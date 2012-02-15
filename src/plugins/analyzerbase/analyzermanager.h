@@ -40,7 +40,7 @@
 #include <coreplugin/id.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <QtCore/QObject>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QDockWidget;

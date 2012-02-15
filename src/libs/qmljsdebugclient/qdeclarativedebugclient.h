@@ -33,7 +33,7 @@
 #define QDECLARATIVEDEBUGCLIENT_H
 
 #include "qmljsdebugclient_global.h"
-#include <QtNetwork/qtcpsocket.h>
+#include <qtcpsocket.h>
 
 namespace QmlJsDebugClient {
 

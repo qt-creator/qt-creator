@@ -39,12 +39,12 @@
 #include "actionmanager/actionmanager.h"
 #include "actionmanager/command.h"
 
-#include <QtCore/QEvent>
-#include <QtCore/QSettings>
-#include <QtGui/QLayout>
-#include <QtGui/QToolBar>
-#include <QtGui/QAction>
-#include <QtGui/QToolButton>
+#include <QEvent>
+#include <QSettings>
+#include <QLayout>
+#include <QToolBar>
+#include <QAction>
+#include <QToolButton>
 
 namespace Core {
 

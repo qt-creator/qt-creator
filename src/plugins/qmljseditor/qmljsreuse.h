@@ -33,8 +33,8 @@
 #ifndef QMLJSREUSE_H
 #define QMLJSREUSE_H
 
-#include <QtCore/QtGlobal>
-#include <QtGui/QIcon>
+#include <QtGlobal>
+#include <QIcon>
 
 QT_BEGIN_NAMESPACE
 class QChar;

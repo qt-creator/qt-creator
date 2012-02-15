@@ -31,8 +31,8 @@
 **************************************************************************/
 #include "argumentscollector.h"
 
-#include <QtCore/QDir>
-#include <QtCore/QProcessEnvironment>
+#include <QDir>
+#include <QProcessEnvironment>
 
 #include <iostream>
 

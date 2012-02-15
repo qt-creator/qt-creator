@@ -39,7 +39,7 @@
 
 #include "qtmenubar.h"
 
-#include <QtGui/QMenu>
+#include <QMenu>
 
 QtMenuBar::QtMenuBar(QDeclarativeItem *parent)
     : QDeclarativeItem(parent)

@@ -34,17 +34,17 @@
 #include "ui_contextpanewidgetimage.h"
 #include "ui_contextpanewidgetborderimage.h"
 #include <qmljs/qmljspropertyreader.h>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtGui/QPixmap>
-#include <QtGui/QPainter>
-#include <QtGui/QGraphicsEffect>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QScrollArea>
-#include <QtGui/QSlider>
-#include <QtGui/QToolButton>
-#include <QtCore/QDebug>
+#include <QFile>
+#include <QFileInfo>
+#include <QDir>
+#include <QPixmap>
+#include <QPainter>
+#include <QGraphicsEffect>
+#include <QMouseEvent>
+#include <QScrollArea>
+#include <QSlider>
+#include <QToolButton>
+#include <QDebug>
 
 namespace QmlEditorWidgets {
 

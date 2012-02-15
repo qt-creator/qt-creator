@@ -32,10 +32,10 @@
 #ifndef QMLDOCUMENT_H
 #define QMLDOCUMENT_H
 
-#include <QtCore/QList>
-#include <QtCore/QPair>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QString>
+#include <QList>
+#include <QPair>
+#include <QSharedPointer>
+#include <QString>
 
 #include <languageutils/fakemetaobject.h>
 

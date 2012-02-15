@@ -33,7 +33,7 @@
 #ifndef FANCYACTIONBAR_H
 #define FANCYACTIONBAR_H
 
-#include <QtGui/QToolButton>
+#include <QToolButton>
 
 QT_BEGIN_NAMESPACE
 class QVBoxLayout;

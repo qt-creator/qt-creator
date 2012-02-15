@@ -32,7 +32,7 @@
 #ifndef QMLJSGLOBAL_P_H
 #define QMLJSGLOBAL_P_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #ifdef QT_CREATOR
 #  define QT_QML_BEGIN_NAMESPACE

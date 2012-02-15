@@ -32,8 +32,8 @@
 
 #include "aggregate.h"
 
-#include <QtCore/QWriteLocker>
-#include <QtCore/QDebug>
+#include <QWriteLocker>
+#include <QDebug>
 
 /*!
     \namespace Aggregation

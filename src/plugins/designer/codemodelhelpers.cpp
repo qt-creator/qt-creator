@@ -48,8 +48,8 @@
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
+#include <QCoreApplication>
+#include <QDebug>
 
 // Debug helpers for code model. @todo: Move to some CppTools library?
 

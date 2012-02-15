@@ -34,9 +34,9 @@
 #include "filewizardpage.h"
 #include "ui_projectintropage.h"
 
-#include <QtGui/QMessageBox>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
+#include <QMessageBox>
+#include <QDir>
+#include <QFileInfo>
 
 
 /*!

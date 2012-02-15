@@ -36,11 +36,11 @@
 #include "cpptools_global.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <QtGui/QWidget>
-#include <QtCore/QPointer>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QVariant>
-#include <QtCore/QStringList>
+#include <QWidget>
+#include <QPointer>
+#include <QSharedPointer>
+#include <QVariant>
+#include <QStringList>
 
 #include "cppcodestylesettings.h"
 #include "cppcodeformatter.h"

@@ -36,7 +36,7 @@
 #include "ui_finddialog.h"
 #include "ifindfilter.h"
 
-#include <QtCore/QList>
+#include <QList>
 
 QT_FORWARD_DECLARE_CLASS(QCompleter)
 

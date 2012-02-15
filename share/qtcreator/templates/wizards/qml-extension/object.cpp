@@ -1,6 +1,6 @@
 #include "%ObjectName:l%.%CppHeaderSuffix%"
 
-#include <QtDeclarative/qdeclarative.h>
+#include <qdeclarative.h>
 
 %ObjectName%::%ObjectName%(QDeclarativeItem *parent):
         QDeclarativeItem(parent)

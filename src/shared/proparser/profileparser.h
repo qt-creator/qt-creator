@@ -35,11 +35,11 @@
 
 #include "proparser_global.h"
 #include "proitems.h"
-#include <QtCore/QHash>
-#include <QtCore/QStack>
+#include <QHash>
+#include <QStack>
 #ifdef PROPARSER_THREAD_SAFE
-# include <QtCore/QMutex>
-# include <QtCore/QWaitCondition>
+# include <QMutex>
+# include <QWaitCondition>
 #endif
 
 // Be fast even for debug builds

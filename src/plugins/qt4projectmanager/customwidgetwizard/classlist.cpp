@@ -34,15 +34,15 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtGui/QKeyEvent>
-#include <QtGui/QMessageBox>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QStandardItem>
-#include <QtGui/QLabel>
-#include <QtGui/QToolButton>
+#include <QKeyEvent>
+#include <QMessageBox>
+#include <QStandardItemModel>
+#include <QStandardItem>
+#include <QLabel>
+#include <QToolButton>
 
-#include <QtCore/QDebug>
-#include <QtCore/QRegExp>
+#include <QDebug>
+#include <QRegExp>
 
 namespace Qt4ProjectManager {
 namespace Internal {

@@ -40,18 +40,18 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QLocale>
-#include <QtCore/QFile>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QXmlStreamReader>
-#include <QtCore/QXmlStreamAttribute>
-#include <QtCore/QTemporaryFile>
-#include <QtScript/QScriptEngine>
+#include <QDebug>
+#include <QCoreApplication>
+#include <QLocale>
+#include <QFile>
+#include <QDir>
+#include <QFileInfo>
+#include <QXmlStreamReader>
+#include <QXmlStreamAttribute>
+#include <QTemporaryFile>
+#include <QScriptEngine>
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
 enum { debug = 0 };
 

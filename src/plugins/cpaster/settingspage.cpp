@@ -37,9 +37,9 @@
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 
-#include <QtCore/QSettings>
-#include <QtCore/QTextStream>
-#include <QtCore/QCoreApplication>
+#include <QSettings>
+#include <QTextStream>
+#include <QCoreApplication>
 
 namespace CodePaster {
 

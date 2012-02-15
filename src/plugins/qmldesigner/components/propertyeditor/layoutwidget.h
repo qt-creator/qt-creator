@@ -34,7 +34,7 @@
 #ifndef LAYOUTWIDGET_H
 #define LAYOUTWIDGET_H
 
-#include <QtGui/QFrame>
+#include <QFrame>
 #include <QLabel>
 #include <QPushButton>
 #include <QUrl>

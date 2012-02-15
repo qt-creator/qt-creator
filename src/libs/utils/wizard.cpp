@@ -32,14 +32,14 @@
 
 #include "wizard.h"
 
-#include <QtCore/QMap>
-#include <QtCore/QHash>
-#include <QtCore/QVariant>
+#include <QMap>
+#include <QHash>
+#include <QVariant>
 
-#include <QtGui/QLabel>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QStyle>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QStyle>
 
 /*! \class Utils::Wizard
 

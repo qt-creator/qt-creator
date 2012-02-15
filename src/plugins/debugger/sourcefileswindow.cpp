@@ -40,11 +40,11 @@
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
+#include <QDebug>
+#include <QFileInfo>
 
-#include <QtGui/QContextMenuEvent>
-#include <QtGui/QMenu>
+#include <QContextMenuEvent>
+#include <QMenu>
 
 
 //////////////////////////////////////////////////////////////////

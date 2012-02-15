@@ -43,8 +43,8 @@
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <analyzerbase/analyzermanager.h>
 
-#include <QtGui/QApplication>
-#include <QtGui/QMainWindow>
+#include <QApplication>
+#include <QMainWindow>
 
 #define VALGRIND_DEBUG_OUTPUT 0
 

@@ -37,8 +37,8 @@
 
 #include <projectexplorer/abi.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
+#include <QObject>
+#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QIcon;

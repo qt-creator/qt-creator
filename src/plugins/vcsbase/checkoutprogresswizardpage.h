@@ -33,8 +33,8 @@
 #ifndef CHECKOUTPROGRESSWIZARDPAGE_H
 #define CHECKOUTPROGRESSWIZARDPAGE_H
 
-#include <QtCore/QSharedPointer>
-#include <QtGui/QWizardPage>
+#include <QSharedPointer>
+#include <QWizardPage>
 
 namespace VcsBase {
 class AbstractCheckoutJob;

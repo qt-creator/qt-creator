@@ -33,9 +33,9 @@
 #ifndef TIPS_H
 #define TIPS_H
 
-#include <QtCore/QSharedPointer>
-#include <QtGui/QLabel>
-#include <QtGui/QPixmap>
+#include <QSharedPointer>
+#include <QLabel>
+#include <QPixmap>
 
 QT_FORWARD_DECLARE_CLASS(QVBoxLayout)
 

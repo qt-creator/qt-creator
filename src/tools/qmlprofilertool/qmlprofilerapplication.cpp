@@ -33,13 +33,13 @@
 #include "qmlprofilerapplication.h"
 #include "constants.h"
 #include <utils/qtcassert.h>
-#include <QtCore/QStringList>
-#include <QtCore/QTextStream>
-#include <QtCore/QProcess>
-#include <QtCore/QTimer>
-#include <QtCore/QDateTime>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
+#include <QStringList>
+#include <QTextStream>
+#include <QProcess>
+#include <QTimer>
+#include <QDateTime>
+#include <QFileInfo>
+#include <QDebug>
 
 using namespace QmlJsDebugClient;
 

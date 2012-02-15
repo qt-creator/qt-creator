@@ -39,15 +39,15 @@
 
 #include "qstyleitem.h"
 
-#include <QtGui/QPainter>
-#include <QtGui/QStyle>
-#include <QtGui/QStyleOption>
-#include <QtGui/QApplication>
-#include <QtGui/QMainWindow>
-#include <QtGui/QGroupBox>
-#include <QtGui/QToolBar>
-#include <QtGui/QMenu>
-#include <QtCore/QStringBuilder>
+#include <QPainter>
+#include <QStyle>
+#include <QStyleOption>
+#include <QApplication>
+#include <QMainWindow>
+#include <QGroupBox>
+#include <QToolBar>
+#include <QMenu>
+#include <QStringBuilder>
 
 
 QStyleItem::QStyleItem(QDeclarativeItem *parent)

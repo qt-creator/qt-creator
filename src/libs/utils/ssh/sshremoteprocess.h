@@ -35,8 +35,8 @@
 
 #include <utils/utils_global.h>
 
-#include <QtCore/QProcess>
-#include <QtCore/QSharedPointer>
+#include <QProcess>
+#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QByteArray;

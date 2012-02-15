@@ -33,7 +33,7 @@
 #ifndef CHANGESELECTIONDIALOG_H
 #define CHANGESELECTIONDIALOG_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 #include "ui_changeselectiondialog.h"
 

@@ -33,8 +33,8 @@
 #include "sessiondialog.h"
 #include "session.h"
 
-#include <QtGui/QInputDialog>
-#include <QtGui/QValidator>
+#include <QInputDialog>
+#include <QValidator>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

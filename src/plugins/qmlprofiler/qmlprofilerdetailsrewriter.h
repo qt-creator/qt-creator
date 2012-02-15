@@ -33,7 +33,7 @@
 #ifndef QMLPROFILERDETAILSREWRITER_H
 #define QMLPROFILERDETAILSREWRITER_H
 
-#include <QtCore/QObject>
+#include <QObject>
 
 #include "qmljsdebugclient/qmlprofilereventlocation.h"
 #include <qmljs/qmljsdocument.h>

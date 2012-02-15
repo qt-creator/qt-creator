@@ -35,9 +35,9 @@
 
 #include "taskwindow.h"
 
-#include <QtCore/QPointer>
-#include <QtGui/QWidget>
-#include <QtGui/QLabel>
+#include <QPointer>
+#include <QWidget>
+#include <QLabel>
 
 namespace ProjectExplorer {
 namespace Internal {

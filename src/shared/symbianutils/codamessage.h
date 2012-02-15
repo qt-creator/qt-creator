@@ -36,8 +36,8 @@
 #include "symbianutils_global.h"
 #include "json_global.h"
 
-#include <QtCore/QStringList>
-#include <QtCore/QVector>
+#include <QStringList>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QTextStream;

@@ -32,7 +32,7 @@
 
 #include "desktopplugin.h"
 #include <widgetplugin_helper.h>
-#include <QtCore/QtPlugin>
+#include <QtPlugin>
 
 namespace QmlDesigner {
 

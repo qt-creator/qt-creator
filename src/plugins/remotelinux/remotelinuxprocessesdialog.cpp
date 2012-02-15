@@ -34,8 +34,8 @@
 
 #include "remotelinuxprocesslist.h"
 
-#include <QtGui/QMessageBox>
-#include <QtGui/QSortFilterProxyModel>
+#include <QMessageBox>
+#include <QSortFilterProxyModel>
 
 namespace RemoteLinux {
 namespace Internal {

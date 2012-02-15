@@ -43,18 +43,18 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/id.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
+#include <QDir>
+#include <QFileInfo>
 
-#include <QtGui/QShortcut>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QTreeWidget>
-#include <QtGui/QTreeWidgetItem>
-#include <QtGui/QCheckBox>
-#include <QtGui/QGroupBox>
-#include <QtGui/QHeaderView>
-#include <QtGui/QRegExpValidator>
-#include <QtGui/QLineEdit>
+#include <QShortcut>
+#include <QButtonGroup>
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
+#include <QCheckBox>
+#include <QGroupBox>
+#include <QHeaderView>
+#include <QRegExpValidator>
+#include <QLineEdit>
 
 namespace {
     int NAME_ROLE = Qt::UserRole;

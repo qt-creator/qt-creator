@@ -35,9 +35,9 @@
 #include <coreplugin/helpmanager.h>
 #include <utils/htmldocextractor.h>
 
-#include <QtCore/QUrl>
-#include <QtCore/QByteArray>
-#include <QtCore/QMap>
+#include <QUrl>
+#include <QByteArray>
+#include <QMap>
 
 using namespace TextEditor;
 

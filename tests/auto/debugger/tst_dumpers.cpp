@@ -31,7 +31,7 @@
 **************************************************************************/
 
 #define private public // Give us access to private 'backward' member of QMapNode.
-#    include <QtCore/QMap>
+#    include <QMap>
 #undef private
 
 #include "gdb/gdbmi.h"
@@ -41,15 +41,15 @@
 #include "json.h"
 
 #ifdef USE_PRIVATE
-#include <QtCore/private/qobject_p.h>
+#include <private/qobject_p.h>
 #else
 #warning "No private headers for this Qt version available"
 #endif
 
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QStringListModel>
+#include <QStandardItemModel>
+#include <QStringListModel>
 
-#include <QtTest/QtTest>
+#include <QtTest>
 //#include <QtTest/qtest_gui.h>
 
 //TESTED_COMPONENT=src/plugins/debugger/gdb

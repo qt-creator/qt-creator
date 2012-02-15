@@ -34,7 +34,7 @@
 
 #include "remotelinux_export.h"
 
-#include <QtCore/QAbstractListModel>
+#include <QAbstractListModel>
 
 namespace Qt4ProjectManager { class Qt4ProFileNode; }
 

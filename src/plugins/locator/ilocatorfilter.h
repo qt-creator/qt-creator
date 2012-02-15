@@ -35,9 +35,9 @@
 
 #include "locator_global.h"
 
-#include <QtCore/QVariant>
-#include <QtCore/QFutureInterface>
-#include <QtGui/QIcon>
+#include <QVariant>
+#include <QFutureInterface>
+#include <QIcon>
 
 namespace Locator {
 

@@ -51,22 +51,22 @@
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QRegExp>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QDir>
+#include <QRegExp>
 
-#include <QtGui/QButtonGroup>
-#include <QtGui/QFileDialog>
-#include <QtGui/QGroupBox>
-#include <QtGui/QHeaderView>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QRadioButton>
-#include <QtGui/QScrollArea>
-#include <QtGui/QSortFilterProxyModel>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QGridLayout>
+#include <QButtonGroup>
+#include <QFileDialog>
+#include <QGroupBox>
+#include <QHeaderView>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QScrollArea>
+#include <QSortFilterProxyModel>
+#include <QStandardItemModel>
+#include <QGridLayout>
 
 using namespace Utils;
 

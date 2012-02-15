@@ -41,13 +41,13 @@
 #include <utils/navigationtreeview.h>
 #include <utils/annotateditemdelegate.h>
 
-#include <QtCore/QLatin1Char>
-#include <QtCore/QLatin1String>
-#include <QtCore/QModelIndex>
-#include <QtCore/QVector>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QLabel>
+#include <QLatin1Char>
+#include <QLatin1String>
+#include <QModelIndex>
+#include <QVector>
+#include <QVBoxLayout>
+#include <QStandardItemModel>
+#include <QLabel>
 
 using namespace CppEditor;
 using namespace Internal;

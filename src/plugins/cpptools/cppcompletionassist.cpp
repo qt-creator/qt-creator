@@ -71,10 +71,10 @@
 #include <texteditor/completionsettings.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QLatin1String>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextDocument>
-#include <QtGui/QIcon>
+#include <QLatin1String>
+#include <QTextCursor>
+#include <QTextDocument>
+#include <QIcon>
 
 using namespace CPlusPlus;
 using namespace CppEditor;

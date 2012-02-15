@@ -35,7 +35,7 @@
 
 #include "extensionsystem_global.h"
 
-#include <QtCore/QObject>
+#include <QObject>
 
 namespace ExtensionSystem {
 

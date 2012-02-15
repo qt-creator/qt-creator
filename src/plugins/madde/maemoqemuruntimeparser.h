@@ -34,8 +34,8 @@
 
 #include "maemoqemuruntime.h"
 
-#include <QtCore/QString>
-#include <QtCore/QXmlStreamReader>
+#include <QString>
+#include <QXmlStreamReader>
 
 namespace QtSupport {
 class BaseQtVersion;

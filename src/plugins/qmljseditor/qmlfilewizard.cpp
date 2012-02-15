@@ -34,8 +34,8 @@
 
 #include <qmljstools/qmljstoolsconstants.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QTextStream>
+#include <QFileInfo>
+#include <QTextStream>
 
 using namespace QmlJSEditor;
 

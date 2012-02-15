@@ -35,8 +35,8 @@
 
 #include <find/ifindfilter.h>
 
-#include <QtCore/QVariant>
-#include <QtGui/QLabel>
+#include <QVariant>
+#include <QLabel>
 
 namespace TextEditor {
 namespace Internal {

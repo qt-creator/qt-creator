@@ -35,7 +35,7 @@
 
 #include "utils_global.h"
 
-#include <QtCore/QString>
+#include <QString>
 
 namespace Utils {
 

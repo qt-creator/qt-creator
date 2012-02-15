@@ -37,7 +37,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-#include <QtCore/QWeakPointer>
+#include <QWeakPointer>
 
 QT_FORWARD_DECLARE_CLASS(QStringListModel)
 

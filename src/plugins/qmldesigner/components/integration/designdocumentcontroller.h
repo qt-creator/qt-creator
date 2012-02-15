@@ -35,8 +35,8 @@
 
 #include "rewriterview.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
+#include <QObject>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 class QUndoStack;

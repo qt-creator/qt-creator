@@ -35,12 +35,12 @@
 
 #include "ui_topicchooser.h"
 
-#include <QtCore/QUrl>
-#include <QtCore/QMap>
-#include <QtCore/QModelIndex>
-#include <QtCore/QString>
+#include <QUrl>
+#include <QMap>
+#include <QModelIndex>
+#include <QString>
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 QT_FORWARD_DECLARE_CLASS(QSortFilterProxyModel)
 

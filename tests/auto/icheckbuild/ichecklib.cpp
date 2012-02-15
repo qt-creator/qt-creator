@@ -31,7 +31,7 @@
 
 #include "ichecklib.h"
 #include "parsemanager.h"
-#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 #include <QString>
 #include <QStringList>
 #include <iostream>

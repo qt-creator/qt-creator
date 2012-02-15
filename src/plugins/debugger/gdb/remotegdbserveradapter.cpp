@@ -43,8 +43,8 @@
 #include <utils/fancymainwindow.h>
 #include <projectexplorer/abi.h>
 
-#include <QtCore/QFileInfo>
-#include <QtGui/QMessageBox>
+#include <QFileInfo>
+#include <QMessageBox>
 
 namespace Debugger {
 namespace Internal {

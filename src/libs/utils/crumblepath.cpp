@@ -33,14 +33,14 @@
 #include "crumblepath.h"
 #include "stylehelper.h"
 
-#include <QtCore/QList>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QPushButton>
-#include <QtGui/QMenu>
-#include <QtGui/QStyle>
-#include <QtGui/QResizeEvent>
-#include <QtGui/QPainter>
-#include <QtGui/QImage>
+#include <QList>
+#include <QHBoxLayout>
+#include <QPushButton>
+#include <QMenu>
+#include <QStyle>
+#include <QResizeEvent>
+#include <QPainter>
+#include <QImage>
 
 #include <qtcassert.h>
 

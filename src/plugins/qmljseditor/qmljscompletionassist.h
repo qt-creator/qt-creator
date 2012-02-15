@@ -42,10 +42,10 @@
 #include <texteditor/snippets/snippetassistcollector.h>
 #include <texteditor/codeassist/defaultassistinterface.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QScopedPointer>
-#include <QtCore/QVariant>
-#include <QtGui/QIcon>
+#include <QStringList>
+#include <QScopedPointer>
+#include <QVariant>
+#include <QIcon>
 
 namespace QmlJS {
 class Value;

@@ -40,20 +40,20 @@
 #include <utils/qtcassert.h>
 #include <vcsbase/diffhighlighter.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
-#include <QtCore/QProcess>
-#include <QtCore/QRegExp>
-#include <QtCore/QSet>
-#include <QtCore/QTextStream>
+#include <QDebug>
+#include <QFileInfo>
+#include <QProcess>
+#include <QRegExp>
+#include <QSet>
+#include <QTextStream>
 
-#include <QtGui/QAction>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QLayout>
-#include <QtGui/QMenu>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextEdit>
-#include <QtGui/QTextBlock>
+#include <QAction>
+#include <QKeyEvent>
+#include <QLayout>
+#include <QMenu>
+#include <QTextCursor>
+#include <QTextEdit>
+#include <QTextBlock>
 
 namespace Perforce {
 namespace Internal {

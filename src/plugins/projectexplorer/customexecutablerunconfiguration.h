@@ -37,7 +37,7 @@
 
 #include <utils/environment.h>
 
-#include <QtCore/QVariantMap>
+#include <QVariantMap>
 
 namespace ProjectExplorer {
 class Target;

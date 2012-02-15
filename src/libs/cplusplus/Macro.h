@@ -54,9 +54,9 @@
 
 #include <CPlusPlusForwardDeclarations.h>
 
-#include <QtCore/QByteArray>
-#include <QtCore/QVector>
-#include <QtCore/QString>
+#include <QByteArray>
+#include <QVector>
+#include <QString>
 
 namespace CPlusPlus {
 

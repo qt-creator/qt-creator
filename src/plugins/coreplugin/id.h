@@ -35,8 +35,8 @@
 
 #include "core_global.h"
 
-#include <QtCore/QMetaType>
-#include <QtCore/QString>
+#include <QMetaType>
+#include <QString>
 
 namespace Core {
 

@@ -33,9 +33,9 @@
 #ifndef VIRTUALSERIALPORT_H
 #define VIRTUALSERIALPORT_H
 
-#include <QtCore/QIODevice>
-#include <QtCore/QString>
-#include <QtCore/QMutex>
+#include <QIODevice>
+#include <QString>
+#include <QMutex>
 
 QT_BEGIN_NAMESPACE
 class QWaitCondition;

@@ -32,8 +32,8 @@
 
 #include "faketooltip.h"
 
-#include <QtGui/QStyleOption>
-#include <QtGui/QStylePainter>
+#include <QStyleOption>
+#include <QStylePainter>
 
 /*!
     \class Utils::FakeToolTip

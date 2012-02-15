@@ -74,23 +74,23 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTimer>
+#include <QFile>
+#include <QFileInfo>
+#include <QTimer>
 
-#include <QtGui/QAction>
-#include <QtGui/QActionGroup>
-#include <QtGui/QCheckBox>
-#include <QtGui/QComboBox>
-#include <QtGui/QDockWidget>
-#include <QtGui/QGraphicsItem>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLineEdit>
-#include <QtGui/QMenu>
-#include <QtGui/QSortFilterProxyModel>
-#include <QtGui/QToolBar>
-#include <QtGui/QToolButton>
-#include <QtGui/QVBoxLayout>
+#include <QAction>
+#include <QActionGroup>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QDockWidget>
+#include <QGraphicsItem>
+#include <QHBoxLayout>
+#include <QLineEdit>
+#include <QMenu>
+#include <QSortFilterProxyModel>
+#include <QToolBar>
+#include <QToolButton>
+#include <QVBoxLayout>
 
 // shared/cplusplus includes
 #include <Symbols.h>

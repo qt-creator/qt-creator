@@ -36,7 +36,7 @@
 #include <utils/qtcassert.h>
 #include <utils/ssh/sshremoteprocessrunner.h>
 
-#include <QtCore/QString>
+#include <QString>
 
 using namespace Utils;
 

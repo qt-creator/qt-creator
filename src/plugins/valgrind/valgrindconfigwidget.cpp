@@ -39,10 +39,10 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QFileDialog>
+#include <QStandardItemModel>
+#include <QFileDialog>
 
 namespace Valgrind {
 namespace Internal {

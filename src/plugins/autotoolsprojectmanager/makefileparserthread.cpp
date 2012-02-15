@@ -34,7 +34,7 @@
 
 #include "makefileparserthread.h"
 
-#include <QtCore/QMutexLocker>
+#include <QMutexLocker>
 
 using namespace AutotoolsProjectManager::Internal;
 

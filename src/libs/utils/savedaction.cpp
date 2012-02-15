@@ -35,18 +35,18 @@
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
+#include <QDebug>
+#include <QSettings>
 
-#include <QtGui/QAbstractButton>
-#include <QtGui/QAction>
-#include <QtGui/QActionGroup>
-#include <QtGui/QCheckBox>
-#include <QtGui/QGroupBox>
-#include <QtGui/QLineEdit>
-#include <QtGui/QRadioButton>
-#include <QtGui/QSpinBox>
-#include <QtGui/QTextEdit>
+#include <QAbstractButton>
+#include <QAction>
+#include <QActionGroup>
+#include <QCheckBox>
+#include <QGroupBox>
+#include <QLineEdit>
+#include <QRadioButton>
+#include <QSpinBox>
+#include <QTextEdit>
 
 using namespace Utils;
 

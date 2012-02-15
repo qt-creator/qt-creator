@@ -46,7 +46,7 @@
 
 #include "shared_global_p.h"
 #include "abstractformbuilder.h"
-#include <QtCore/QStringList>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 

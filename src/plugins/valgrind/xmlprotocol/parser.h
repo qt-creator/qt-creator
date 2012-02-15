@@ -35,7 +35,7 @@
 #ifndef LIBVALGRIND_PROTOCOL_PARSER_H
 #define LIBVALGRIND_PROTOCOL_PARSER_H
 
-#include <QtCore/QObject>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QIODevice;

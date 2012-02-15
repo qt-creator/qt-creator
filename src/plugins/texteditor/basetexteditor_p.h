@@ -41,10 +41,10 @@
 
 #include <utils/changeset.h>
 
-#include <QtCore/QBasicTimer>
-#include <QtCore/QSharedData>
-#include <QtCore/QPointer>
-#include <QtCore/QScopedPointer>
+#include <QBasicTimer>
+#include <QSharedData>
+#include <QPointer>
+#include <QScopedPointer>
 
 namespace TextEditor {
 

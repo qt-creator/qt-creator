@@ -35,8 +35,8 @@
 
 #include "utils_global.h"
 
-#include <QtGui/QWidget>
-#include <QtCore/QStringList>
+#include <QWidget>
+#include <QStringList>
 
 namespace Utils {
 

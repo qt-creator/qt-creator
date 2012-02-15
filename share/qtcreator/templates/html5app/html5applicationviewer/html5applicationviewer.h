@@ -9,8 +9,8 @@
 #ifndef HTML5APPLICATIONVIEWER_H
 #define HTML5APPLICATIONVIEWER_H
 
-#include <QtGui/QWidget>
-#include <QtCore/QUrl>
+#include <QWidget>
+#include <QUrl>
 
 class QGraphicsWebView;
 

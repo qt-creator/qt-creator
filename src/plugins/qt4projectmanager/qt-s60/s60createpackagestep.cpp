@@ -57,12 +57,12 @@
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/task.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QTimer>
-#include <QtCore/QCryptographicHash>
+#include <QDir>
+#include <QTimer>
+#include <QCryptographicHash>
 
-#include <QtCore/QSettings>
-#include <QtGui/QMessageBox>
+#include <QSettings>
+#include <QMessageBox>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

@@ -32,7 +32,7 @@
 #ifndef MAEMOQEMUSETTINGSWIDGET_H
 #define MAEMOQEMUSETTINGSWIDGET_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 namespace Madde {
 namespace Internal {

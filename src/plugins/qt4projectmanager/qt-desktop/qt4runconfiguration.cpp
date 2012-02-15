@@ -60,15 +60,15 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/profilereader.h>
 
-#include <QtGui/QFormLayout>
-#include <QtGui/QInputDialog>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QCheckBox>
-#include <QtGui/QToolButton>
-#include <QtGui/QComboBox>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
+#include <QFormLayout>
+#include <QInputDialog>
+#include <QLabel>
+#include <QLineEdit>
+#include <QCheckBox>
+#include <QToolButton>
+#include <QComboBox>
+#include <QFileInfo>
+#include <QDir>
 
 using namespace Qt4ProjectManager::Internal;
 using namespace Qt4ProjectManager;

@@ -38,8 +38,8 @@
 #include "callgrindcostitem.h"
 #include "callgrindfunctioncall.h"
 
-#include <QtCore/QVector>
-#include <QtCore/QHash>
+#include <QVector>
+#include <QHash>
 
 namespace Valgrind {
 namespace Callgrind {

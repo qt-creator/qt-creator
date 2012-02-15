@@ -36,24 +36,24 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QByteArray>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
-#include <QtCore/QFile>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QLocale>
-#include <QtCore/QMap>
-#include <QtCore/QHash>
-#include <QtCore/QMultiHash>
-#include <QtCore/QRegExp>
-#include <QtCore/QSharedData>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QStringList>
-#include <QtCore/QTextStream>
-#include <QtCore/QMutexLocker>
-#include <QtCore/QXmlStreamReader>
-#include <QtCore/QXmlStreamWriter>
+#include <QByteArray>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QFile>
+#include <QDir>
+#include <QFileInfo>
+#include <QLocale>
+#include <QMap>
+#include <QHash>
+#include <QMultiHash>
+#include <QRegExp>
+#include <QSharedData>
+#include <QSharedPointer>
+#include <QStringList>
+#include <QTextStream>
+#include <QMutexLocker>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 #include <algorithm>
 #include <functional>

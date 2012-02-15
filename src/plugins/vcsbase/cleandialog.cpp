@@ -38,19 +38,19 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QMessageBox>
-#include <QtGui/QApplication>
-#include <QtGui/QStyle>
-#include <QtGui/QIcon>
+#include <QStandardItemModel>
+#include <QMessageBox>
+#include <QApplication>
+#include <QStyle>
+#include <QIcon>
 
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
-#include <QtCore/QDateTime>
-#include <QtCore/QFuture>
-#include <QtCore/QtConcurrentRun>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QDebug>
+#include <QDateTime>
+#include <QFuture>
+#include <QtConcurrentRun>
 
 namespace VcsBase {
 namespace Internal {

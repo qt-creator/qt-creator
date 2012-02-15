@@ -43,13 +43,13 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QTimer>
-#include <QtGui/QMenu>
-#include <QtGui/QPainter>
-#include <QtGui/QStyle>
-#include <QtGui/QStyleOption>
-#include <QtGui/QHeaderView>
-#include <QtGui/QKeyEvent>
+#include <QTimer>
+#include <QMenu>
+#include <QPainter>
+#include <QStyle>
+#include <QStyleOption>
+#include <QHeaderView>
+#include <QKeyEvent>
 #ifdef Q_OS_MAC
 #include <qmacstyle_mac.h>
 #endif

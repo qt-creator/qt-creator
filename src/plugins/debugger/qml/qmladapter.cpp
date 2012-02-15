@@ -44,8 +44,8 @@
 
 #include <qmljsdebugclient/qdebugmessageclient.h>
 
-#include <QtCore/QTimer>
-#include <QtCore/QDebug>
+#include <QTimer>
+#include <QDebug>
 
 namespace Debugger {
 namespace Internal {

@@ -35,9 +35,9 @@
 
 #include "classviewsymbollocation.h"
 #include "classviewsymbolinformation.h"
-#include <QtCore/QVariant>
-#include <QtCore/QList>
-#include <QtCore/QSet>
+#include <QVariant>
+#include <QList>
+#include <QSet>
 
 QT_FORWARD_DECLARE_CLASS(QStandardItem)
 

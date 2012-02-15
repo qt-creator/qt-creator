@@ -37,9 +37,9 @@
 
 #include <utils/fileutils.h>
 
-#include <QtCore/QList>
-#include <QtCore/QObject>
-#include <QtCore/QString>
+#include <QList>
+#include <QObject>
+#include <QString>
 
 namespace ProjectExplorer {
 class ProjectExplorerPlugin;

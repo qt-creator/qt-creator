@@ -37,11 +37,11 @@
 
 #include <coreplugin/coreconstants.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QTimer>
+#include <QFileInfo>
+#include <QTimer>
 
-#include <QtGui/QStackedLayout>
-#include <QtGui/QIcon>
+#include <QStackedLayout>
+#include <QIcon>
 
 namespace Qt4ProjectManager {
 namespace Internal {

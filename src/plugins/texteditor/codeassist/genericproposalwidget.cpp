@@ -42,20 +42,20 @@
 
 #include <utils/faketooltip.h>
 
-#include <QtCore/QRect>
-#include <QtCore/QLatin1String>
-#include <QtCore/QAbstractListModel>
-#include <QtCore/QPointer>
-#include <QtCore/QDebug>
-#include <QtCore/QTimer>
-#include <QtGui/QApplication>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QListView>
-#include <QtGui/QAbstractItemView>
-#include <QtGui/QScrollBar>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QDesktopWidget>
-#include <QtGui/QLabel>
+#include <QRect>
+#include <QLatin1String>
+#include <QAbstractListModel>
+#include <QPointer>
+#include <QDebug>
+#include <QTimer>
+#include <QApplication>
+#include <QVBoxLayout>
+#include <QListView>
+#include <QAbstractItemView>
+#include <QScrollBar>
+#include <QKeyEvent>
+#include <QDesktopWidget>
+#include <QLabel>
 
 
 namespace TextEditor {

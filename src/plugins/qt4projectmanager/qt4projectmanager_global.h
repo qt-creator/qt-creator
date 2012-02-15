@@ -33,7 +33,7 @@
 #ifndef QT4PROJECTMANAGER_GLOBAL_H
 #define QT4PROJECTMANAGER_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(QT4PROJECTMANAGER_LIBRARY)
 #  define QT4PROJECTMANAGER_EXPORT Q_DECL_EXPORT

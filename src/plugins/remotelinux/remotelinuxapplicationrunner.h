@@ -33,8 +33,8 @@
 
 #include "remotelinux_export.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
+#include <QObject>
+#include <QSharedPointer>
 
 namespace Utils {
 class SshConnection;

@@ -35,8 +35,8 @@
 
 #include "core_global.h"
 
-#include <QtCore/QPointer>
-#include <QtGui/QWidget>
+#include <QPointer>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;

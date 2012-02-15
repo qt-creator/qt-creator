@@ -1,6 +1,6 @@
-#include <QtCore/QTimer>
-#include <QtCore/QTime>
-#include <QtDeclarative/qdeclarative.h>
+#include <QTimer>
+#include <QTime>
+#include <qdeclarative.h>
 
 #include "mytype.h"
 

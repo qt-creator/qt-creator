@@ -42,8 +42,8 @@
 #include <coreplugin/id.h>
 #include <coreplugin/mimedatabase.h>
 
-#include <QtCore/QtPlugin>
-#include <QtCore/QDebug>
+#include <QtPlugin>
+#include <QDebug>
 
 namespace VcsBase {
 namespace Internal {

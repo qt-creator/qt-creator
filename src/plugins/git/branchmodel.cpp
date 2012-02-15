@@ -36,9 +36,9 @@
 #include <utils/qtcassert.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 
-#include <QtGui/QFont>
-#include <QtCore/QRegExp>
-#include <QtCore/QTimer>
+#include <QFont>
+#include <QRegExp>
+#include <QTimer>
 
 namespace Git {
 namespace Internal {

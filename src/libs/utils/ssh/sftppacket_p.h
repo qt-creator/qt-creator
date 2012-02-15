@@ -33,9 +33,9 @@
 #ifndef SFTPPACKET_P_H
 #define SFTPPACKET_P_H
 
-#include <QtCore/QByteArray>
-#include <QtCore/QList>
-#include <QtCore/QString>
+#include <QByteArray>
+#include <QList>
+#include <QString>
 
 namespace Utils {
 namespace Internal {

@@ -33,7 +33,7 @@
 #ifndef DEBUGGER_INTERNAL_MEMORYVIEW_H
 #define DEBUGGER_INTERNAL_MEMORYVIEW_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 QT_FORWARD_DECLARE_CLASS(QModelIndex)
 

@@ -35,7 +35,7 @@
 
 #include "analyzerbase_global.h"
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 namespace Utils { class SshConnectionParameters; }
 

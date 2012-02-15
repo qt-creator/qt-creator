@@ -42,10 +42,10 @@
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
 
-#include <QtCore/QFuture>
-#include <QtCore/QStringList>
-#include <QtCore/QDir>
-#include <QtGui/QAction>
+#include <QFuture>
+#include <QStringList>
+#include <QDir>
+#include <QAction>
 
 QT_FORWARD_DECLARE_CLASS(QProcess)
 QT_FORWARD_DECLARE_CLASS(QLabel)

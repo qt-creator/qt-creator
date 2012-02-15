@@ -33,7 +33,7 @@
 #ifndef GLSL_H
 #define GLSL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 #include <cstdlib>
 #include <cstddef>
 

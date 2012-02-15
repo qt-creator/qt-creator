@@ -64,16 +64,16 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 
-#include <QtCore/QtPlugin>
-#include <QtGui/QAction>
-#include <QtGui/QMenu>
-#include <QtGui/QMainWindow>
-#include <QtCore/QtDebug>
-#include <QtCore/QtGlobal>
-#include <QtCore/QDir>
-#include <QtGui/QDialog>
-#include <QtGui/QFileDialog>
-#include <QtCore/QTemporaryFile>
+#include <QtPlugin>
+#include <QAction>
+#include <QMenu>
+#include <QMainWindow>
+#include <QtDebug>
+#include <QtGlobal>
+#include <QDir>
+#include <QDialog>
+#include <QFileDialog>
+#include <QTemporaryFile>
 
 
 using namespace Bazaar::Internal;

@@ -35,9 +35,9 @@
 
 #include "remotelinux_export.h"
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QHash>
-#include <QtCore/QString>
+#include <QFileInfo>
+#include <QHash>
+#include <QString>
 
 namespace RemoteLinux {
 

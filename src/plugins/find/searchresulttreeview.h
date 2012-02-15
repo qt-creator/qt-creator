@@ -35,7 +35,7 @@
 
 #include "searchresultwindow.h"
 
-#include <QtGui/QTreeView>
+#include <QTreeView>
 
 namespace Find {
 namespace Internal {

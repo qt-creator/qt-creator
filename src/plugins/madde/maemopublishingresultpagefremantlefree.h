@@ -34,7 +34,7 @@
 #define MAEMOPUBLISHINGRESULTPAGEFREMANTLEFREE_H
 
 #include "maemopublisherfremantlefree.h"
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 
 namespace Madde {
 namespace Internal {

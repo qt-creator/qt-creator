@@ -38,8 +38,8 @@
 #include "sshcryptofacility_p.h"
 #include "sshpacketparser_p.h"
 
-#include <QtCore/QList>
-#include <QtCore/QString>
+#include <QList>
+#include <QString>
 
 namespace Utils {
 namespace Internal {

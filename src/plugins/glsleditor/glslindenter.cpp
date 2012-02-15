@@ -37,10 +37,10 @@
 #include <cpptools/cppcodestylepreferences.h>
 #include <texteditor/tabsettings.h>
 
-#include <QtCore/QChar>
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextBlock>
-#include <QtGui/QTextCursor>
+#include <QChar>
+#include <QTextDocument>
+#include <QTextBlock>
+#include <QTextCursor>
 
 using namespace GLSLEditor;
 using namespace Internal;

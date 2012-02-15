@@ -35,7 +35,7 @@
 
 #include "abstractliveedittool.h"
 
-#include <QtGui/QColor>
+#include <QColor>
 
 QT_FORWARD_DECLARE_CLASS(QPoint)
 

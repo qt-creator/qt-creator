@@ -35,8 +35,8 @@
 #include "announcethread.h"
 #include "frame.h"
 
-#include <QtCore/QSharedData>
-#include <QtCore/QVector>
+#include <QSharedData>
+#include <QVector>
 
 #include <algorithm>
 

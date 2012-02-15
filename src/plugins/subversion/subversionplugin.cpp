@@ -64,21 +64,21 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTemporaryFile>
-#include <QtCore/QTextCodec>
-#include <QtCore/QtPlugin>
-#include <QtCore/QProcessEnvironment>
-#include <QtCore/QUrl>
-#include <QtCore/QXmlStreamReader>
-#include <QtGui/QAction>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
-#include <QtGui/QInputDialog>
+#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QTemporaryFile>
+#include <QTextCodec>
+#include <QtPlugin>
+#include <QProcessEnvironment>
+#include <QUrl>
+#include <QXmlStreamReader>
+#include <QAction>
+#include <QFileDialog>
+#include <QMainWindow>
+#include <QMenu>
+#include <QMessageBox>
+#include <QInputDialog>
 #include <limits.h>
 
 namespace Subversion {

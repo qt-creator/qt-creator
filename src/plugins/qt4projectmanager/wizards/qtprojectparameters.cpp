@@ -33,11 +33,11 @@
 #include "qtprojectparameters.h"
 #include <utils/codegeneration.h>
 
-#include <QtCore/QTextStream>
-#include <QtCore/QDir>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDateTime>
-#include <QtCore/QDebug>
+#include <QTextStream>
+#include <QDir>
+#include <QCoreApplication>
+#include <QDateTime>
+#include <QDebug>
 
 namespace Qt4ProjectManager {
 namespace Internal {

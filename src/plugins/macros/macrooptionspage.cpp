@@ -38,9 +38,9 @@
 
 #include <texteditor/texteditorconstants.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtGui/QWidget>
-#include <QtGui/QIcon>
+#include <QCoreApplication>
+#include <QWidget>
+#include <QIcon>
 
 using namespace Macros;
 using namespace Macros::Internal;

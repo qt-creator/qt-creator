@@ -39,8 +39,8 @@
 #include "livesingleselectionmanipulator.h"
 #include "liveselectionindicator.h"
 
-#include <QtCore/QList>
-#include <QtCore/QTime>
+#include <QList>
+#include <QTime>
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsItem)
 QT_FORWARD_DECLARE_CLASS(QMouseEvent)

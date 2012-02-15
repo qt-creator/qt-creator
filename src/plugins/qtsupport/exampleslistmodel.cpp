@@ -32,9 +32,9 @@
 
 #include "exampleslistmodel.h"
 
-#include <QtCore/QFile>
-#include <QtCore/QDir>
-#include <QtCore/QXmlStreamReader>
+#include <QFile>
+#include <QDir>
+#include <QXmlStreamReader>
 
 #include <QDebug>
 

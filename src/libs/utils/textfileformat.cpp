@@ -34,10 +34,10 @@
 #include "fileutils.h"
 #include "qtcassert.h"
 
-#include <QtCore/QTextCodec>
-#include <QtCore/QStringList>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
+#include <QTextCodec>
+#include <QStringList>
+#include <QCoreApplication>
+#include <QDebug>
 
 enum { debug = 0 };
 

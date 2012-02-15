@@ -36,7 +36,7 @@
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/id.h>
 
-#include <QtCore/QHash>
+#include <QHash>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

@@ -49,22 +49,22 @@
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QMetaObject>
-#include <QtCore/QMetaProperty>
-#include <QtCore/QVariant>
-#include <QtCore/QMimeData>
+#include <QDebug>
+#include <QMetaObject>
+#include <QMetaProperty>
+#include <QVariant>
+#include <QMimeData>
 
-#include <QtGui/QApplication>
-#include <QtGui/QPalette>
-#include <QtGui/QClipboard>
-#include <QtGui/QContextMenuEvent>
-#include <QtGui/QHeaderView>
-#include <QtGui/QItemDelegate>
-#include <QtGui/QMenu>
-#include <QtGui/QPainter>
-#include <QtGui/QInputDialog>
-#include <QtGui/QMessageBox>
+#include <QApplication>
+#include <QPalette>
+#include <QClipboard>
+#include <QContextMenuEvent>
+#include <QHeaderView>
+#include <QItemDelegate>
+#include <QMenu>
+#include <QPainter>
+#include <QInputDialog>
+#include <QMessageBox>
 
 /////////////////////////////////////////////////////////////////////
 //

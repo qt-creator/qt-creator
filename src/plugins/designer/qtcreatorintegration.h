@@ -36,7 +36,7 @@
 #include <cplusplus/ModelManagerInterface.h>
 
 #if QT_VERSION >= 0x050000
-#    include <QtDesigner/QDesignerIntegration>
+#    include <QDesignerIntegration>
 #else
 #    include "qt_private/qdesigner_integration_p.h"
 #endif

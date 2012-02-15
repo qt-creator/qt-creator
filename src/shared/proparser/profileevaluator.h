@@ -36,14 +36,14 @@
 #include "proparser_global.h"
 #include "proitems.h"
 
-#include <QtCore/QHash>
-#include <QtCore/QStringList>
+#include <QHash>
+#include <QStringList>
 #ifndef QT_BOOTSTRAPPED
-# include <QtCore/QProcess>
+# include <QProcess>
 #endif
 #ifdef PROEVALUATOR_THREAD_SAFE
-# include <QtCore/QMutex>
-# include <QtCore/QWaitCondition>
+# include <QMutex>
+# include <QWaitCondition>
 #endif
 
 QT_BEGIN_NAMESPACE

@@ -37,9 +37,9 @@
 #include <NameVisitor.h>
 #include <FullySpecifiedType.h>
 
-#include <QtCore/QList>
-#include <QtCore/QPair>
-#include <QtCore/QSharedPointer>
+#include <QList>
+#include <QPair>
+#include <QSharedPointer>
 
 namespace CPlusPlus {
 

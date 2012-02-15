@@ -37,10 +37,10 @@
 
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QList>
-#include <QtCore/QMap>
-#include <QtGui/QIcon>
+#include <QObject>
+#include <QList>
+#include <QMap>
+#include <QIcon>
 
 QT_BEGIN_NAMESPACE
 class QIcon;

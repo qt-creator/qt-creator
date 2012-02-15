@@ -36,19 +36,19 @@
 #include "localhelpmanager.h"
 #include "topicchooser.h"
 
-#include <QtCore/QEvent>
-#include <QtCore/QTimer>
+#include <QEvent>
+#include <QTimer>
 
-#include <QtGui/QKeyEvent>
-#include <QtGui/QLayout>
-#include <QtGui/QPageSetupDialog>
-#include <QtGui/QPrinter>
-#include <QtGui/QPrintDialog>
-#include <QtGui/QPrintPreviewDialog>
-#include <QtGui/QStackedWidget>
+#include <QKeyEvent>
+#include <QLayout>
+#include <QPageSetupDialog>
+#include <QPrinter>
+#include <QPrintDialog>
+#include <QPrintPreviewDialog>
+#include <QStackedWidget>
 
-#include <QtHelp/QHelpEngine>
-#include <QtHelp/QHelpSearchEngine>
+#include <QHelpEngine>
+#include <QHelpSearchEngine>
 
 using namespace Help::Internal;
 

@@ -33,8 +33,8 @@
 #ifndef CLASSVIEWSYMBOLLOCATION_H
 #define CLASSVIEWSYMBOLLOCATION_H
 
-#include <QtCore/QMetaType>
-#include <QtCore/QString>
+#include <QMetaType>
+#include <QString>
 
 namespace ClassView {
 namespace Internal {

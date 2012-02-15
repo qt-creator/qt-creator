@@ -33,10 +33,10 @@
 #ifndef DEBUGGER_DIALOGS_H
 #define DEBUGGER_DIALOGS_H
 
-#include <QtCore/QHash>
-#include <QtCore/QStringList>
-#include <QtGui/QDialog>
-#include <QtGui/QVBoxLayout>
+#include <QHash>
+#include <QStringList>
+#include <QDialog>
+#include <QVBoxLayout>
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;

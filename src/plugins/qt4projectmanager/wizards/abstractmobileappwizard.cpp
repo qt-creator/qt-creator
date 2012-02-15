@@ -45,7 +45,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
 namespace Qt4ProjectManager {
 

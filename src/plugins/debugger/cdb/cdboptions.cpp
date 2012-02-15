@@ -32,7 +32,7 @@
 
 #include "cdboptions.h"
 
-#include <QtCore/QSettings>
+#include <QSettings>
 
 static const char settingsGroupC[] = "CDB2";
 static const char symbolPathsKeyC[] = "SymbolPaths";

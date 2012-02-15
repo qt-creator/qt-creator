@@ -43,8 +43,8 @@
 #include <coreplugin/mimedatabase.h>
 #include <texteditor/texteditoractionhandler.h>
 
-#include <QtCore/QtPlugin>
-#include <QtCore/QDebug>
+#include <QtPlugin>
+#include <QDebug>
 
 
 using namespace CMakeProjectManager::Internal;

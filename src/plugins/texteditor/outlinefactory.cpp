@@ -36,12 +36,12 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QToolButton>
-#include <QtGui/QLabel>
-#include <QtGui/QStackedWidget>
+#include <QVBoxLayout>
+#include <QToolButton>
+#include <QLabel>
+#include <QStackedWidget>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 namespace TextEditor {
 namespace Internal {

@@ -34,7 +34,7 @@
 
 #include <remotelinux/linuxdevicetester.h>
 
-#include <QtCore/QByteArray>
+#include <QByteArray>
 
 namespace Utils {
 class SshRemoteProcessRunner;

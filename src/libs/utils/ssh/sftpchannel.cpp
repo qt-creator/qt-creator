@@ -37,8 +37,8 @@
 #include "sshincomingpacket_p.h"
 #include "sshsendfacility_p.h"
 
-#include <QtCore/QDir>
-#include <QtCore/QFile>
+#include <QDir>
+#include <QFile>
 
 /*!
     \class Utils::SftpChannel

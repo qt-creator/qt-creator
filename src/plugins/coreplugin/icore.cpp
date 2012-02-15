@@ -347,11 +347,11 @@
 #include "icore.h"
 #include "mainwindow.h"
 
-#include <QtCore/QDir>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
+#include <QDir>
+#include <QCoreApplication>
+#include <QDebug>
 
-#include <QtGui/QStatusBar>
+#include <QStatusBar>
 
 namespace Core {
 

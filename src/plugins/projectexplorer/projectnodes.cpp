@@ -39,11 +39,11 @@
 #include <coreplugin/fileiconprovider.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtGui/QApplication>
-#include <QtGui/QIcon>
-#include <QtGui/QStyle>
+#include <QFileInfo>
+#include <QDir>
+#include <QApplication>
+#include <QIcon>
+#include <QStyle>
 
 using namespace ProjectExplorer;
 

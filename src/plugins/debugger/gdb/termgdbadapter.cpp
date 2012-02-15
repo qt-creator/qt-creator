@@ -43,7 +43,7 @@
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 
-#include <QtGui/QMessageBox>
+#include <QMessageBox>
 
 namespace Debugger {
 namespace Internal {

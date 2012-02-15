@@ -33,13 +33,13 @@
 #include "searchresulttreeitemdelegate.h"
 #include "searchresulttreeitemroles.h"
 
-#include <QtGui/QTextDocument>
-#include <QtGui/QPainter>
-#include <QtGui/QAbstractTextDocumentLayout>
-#include <QtGui/QApplication>
+#include <QTextDocument>
+#include <QPainter>
+#include <QAbstractTextDocumentLayout>
+#include <QApplication>
 
-#include <QtCore/QModelIndex>
-#include <QtCore/QDebug>
+#include <QModelIndex>
+#include <QDebug>
 
 #include <math.h>
 

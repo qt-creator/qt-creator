@@ -34,8 +34,8 @@
 
 #include "qdeclarativecontext2d_p.h"
 
-#include <QtGui/qpixmap.h>
-#include <QtGui/qpainter.h>
+#include <qpixmap.h>
+#include <qpainter.h>
 
 namespace QmlProfiler {
 namespace Internal {

@@ -37,15 +37,15 @@
 #include <coreplugin/coreconstants.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDate>
-#include <QtCore/QFile>
-#include <QtCore/QSysInfo>
+#include <QDate>
+#include <QFile>
+#include <QSysInfo>
 
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QGridLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
-#include <QtGui/QTextBrowser>
+#include <QDialogButtonBox>
+#include <QGridLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QTextBrowser>
 
 using namespace Core;
 using namespace Core::Internal;

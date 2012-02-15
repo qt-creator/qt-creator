@@ -33,7 +33,7 @@
 #ifndef TIPFACTORY_H
 #define TIPFACTORY_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 namespace TextEditor {
 

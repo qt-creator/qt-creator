@@ -33,12 +33,12 @@
 #include "s60certificateinfo.h"
 #include "s60symbiancertificate.h"
 
-#include <QtCore/QDateTime>
-#include <QtCore/QFileInfo>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QTextStream>
-#include <QtCore/QHash>
-#include <QtCore/QMutableHashIterator>
+#include <QDateTime>
+#include <QFileInfo>
+#include <QCoreApplication>
+#include <QTextStream>
+#include <QHash>
+#include <QMutableHashIterator>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

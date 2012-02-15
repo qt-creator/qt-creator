@@ -47,12 +47,12 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <QtCore/QtPlugin>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
-#include <QtGui/QMenu>
+#include <QtPlugin>
+#include <QFileInfo>
+#include <QDir>
+#include <QDebug>
+#include <QSettings>
+#include <QMenu>
 
 using namespace QmlJSTools::Internal;
 

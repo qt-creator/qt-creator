@@ -38,7 +38,7 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 
 /*!
     \class VcsBase::BaseVCSEditorFactory

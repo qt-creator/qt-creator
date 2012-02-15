@@ -33,7 +33,7 @@
 #ifndef OUTPUT_COLLECTOR_H
 #define OUTPUT_COLLECTOR_H
 
-#include <QtCore/QObject>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QLocalServer;

@@ -33,10 +33,10 @@
 #ifndef COMMANDSFILE_H
 #define COMMANDSFILE_H
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtCore/QMap>
-#include <QtGui/QKeySequence>
+#include <QObject>
+#include <QString>
+#include <QMap>
+#include <QKeySequence>
 
 namespace Core {
 namespace Internal {

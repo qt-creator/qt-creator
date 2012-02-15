@@ -35,7 +35,7 @@
 
 #include <projectexplorer/buildstep.h>
 
-#include <QtCore/QString>
+#include <QString>
 
 QT_FORWARD_DECLARE_CLASS(QEventLoop)
 QT_FORWARD_DECLARE_CLASS(QFile)

@@ -33,7 +33,7 @@
 #include "basecheckoutwizardpage.h"
 #include "ui_basecheckoutwizardpage.h"
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
 /*!
     \class VcsBase::BaseCheckoutWizardPage

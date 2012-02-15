@@ -37,11 +37,11 @@
 #include <projectexplorer/abi.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/QPair>
+#include <QFileInfo>
+#include <QDir>
+#include <QPair>
 
-#include <QtGui/QtEvents>
+#include <QtEvents>
 
 typedef QPair<ProjectExplorer::Abi, QString> AbiDebuggerCommandPair;
 

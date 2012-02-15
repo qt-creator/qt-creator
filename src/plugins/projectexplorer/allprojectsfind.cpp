@@ -41,12 +41,12 @@
 #include <texteditor/itexteditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtCore/QSettings>
-#include <QtCore/QRegExp>
+#include <QSettings>
+#include <QRegExp>
 
-#include <QtGui/QGridLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QHBoxLayout>
+#include <QGridLayout>
+#include <QLabel>
+#include <QHBoxLayout>
 
 using namespace Find;
 using namespace ProjectExplorer;

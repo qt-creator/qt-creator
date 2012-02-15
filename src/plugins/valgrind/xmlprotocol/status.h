@@ -35,8 +35,8 @@
 #ifndef LIBVALGRIND_PROTOCOL_STATUS_H
 #define LIBVALGRIND_PROTOCOL_STATUS_H
 
-#include <QtCore/QMetaType>
-#include <QtCore/QSharedDataPointer>
+#include <QMetaType>
+#include <QSharedDataPointer>
 
 namespace Valgrind {
 namespace XmlProtocol {

@@ -36,15 +36,15 @@
 
 #include <utils/faketooltip.h>
 
-#include <QtCore/QDebug>
-#include <QtGui/QApplication>
-#include <QtGui/QLabel>
-#include <QtGui/QToolButton>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QDesktopWidget>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QShortcutEvent>
+#include <QDebug>
+#include <QApplication>
+#include <QLabel>
+#include <QToolButton>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QDesktopWidget>
+#include <QKeyEvent>
+#include <QShortcutEvent>
 
 namespace TextEditor {
 

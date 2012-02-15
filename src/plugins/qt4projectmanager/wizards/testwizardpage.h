@@ -33,7 +33,7 @@
 #ifndef TESTWIZARDPAGE_H
 #define TESTWIZARDPAGE_H
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 
 namespace Qt4ProjectManager {
 namespace Internal {

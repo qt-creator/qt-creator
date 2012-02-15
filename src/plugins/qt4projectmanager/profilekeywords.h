@@ -33,7 +33,7 @@
 #ifndef PROFILEKEYWORDS_H
 #define PROFILEKEYWORDS_H
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 namespace Qt4ProjectManager {
 

@@ -34,7 +34,7 @@
 
 #include "qmljsinspectorplugin.h"
 #include "qmljsprivateapi.h"
-#include <QtCore/QObject>
+#include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QUrl)
 

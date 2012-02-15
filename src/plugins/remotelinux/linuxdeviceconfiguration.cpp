@@ -36,8 +36,8 @@
 
 #include <utils/ssh/sshconnection.h>
 
-#include <QtCore/QSettings>
-#include <QtGui/QDesktopServices>
+#include <QSettings>
+#include <QDesktopServices>
 
 using namespace Utils;
 typedef SshConnectionParameters::AuthenticationType AuthType;

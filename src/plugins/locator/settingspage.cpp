@@ -41,7 +41,7 @@
 #include <utils/QtConcurrentTools>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 
 Q_DECLARE_METATYPE(Locator::ILocatorFilter*)
 

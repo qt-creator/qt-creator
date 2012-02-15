@@ -35,10 +35,10 @@
 #include "modelhelpers.h"
 #include "frame.h"
 
-#include <QtCore/QString>
-#include <QtCore/QDir>
-#include <QtCore/QPair>
-#include <QtCore/QCoreApplication>
+#include <QString>
+#include <QDir>
+#include <QPair>
+#include <QCoreApplication>
 
 namespace Valgrind {
 namespace XmlProtocol {

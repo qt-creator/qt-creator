@@ -33,7 +33,7 @@
 #ifndef FILESPAGE_H
 #define FILESPAGE_H
 
-#include <QtGui/QWizard>
+#include <QWizard>
 
 QT_BEGIN_NAMESPACE
 class QLabel;

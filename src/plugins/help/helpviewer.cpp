@@ -38,17 +38,17 @@
 
 #include <utils/fileutils.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QStringBuilder>
-#include <QtCore/QDir>
-#include <QtCore/QUrl>
+#include <QFileInfo>
+#include <QStringBuilder>
+#include <QDir>
+#include <QUrl>
 
-#include <QtGui/QApplication>
-#include <QtGui/QDesktopServices>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMouseEvent>
+#include <QApplication>
+#include <QDesktopServices>
+#include <QMainWindow>
+#include <QMouseEvent>
 
-#include <QtHelp/QHelpEngine>
+#include <QHelpEngine>
 
 using namespace Help::Internal;
 

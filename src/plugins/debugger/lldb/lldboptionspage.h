@@ -36,10 +36,10 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include "ui_lldboptionspagewidget.h"
 
-#include <QtGui/QWidget>
-#include <QtCore/QPointer>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QSettings>
+#include <QWidget>
+#include <QPointer>
+#include <QSharedPointer>
+#include <QSettings>
 
 namespace Debugger {
 namespace Internal {

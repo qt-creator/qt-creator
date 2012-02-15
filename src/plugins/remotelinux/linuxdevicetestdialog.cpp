@@ -32,11 +32,11 @@
 #include "linuxdevicetestdialog.h"
 #include "ui_linuxdevicetestdialog.h"
 
-#include <QtGui/QBrush>
-#include <QtGui/QColor>
-#include <QtGui/QFont>
-#include <QtGui/QPushButton>
-#include <QtGui/QTextCharFormat>
+#include <QBrush>
+#include <QColor>
+#include <QFont>
+#include <QPushButton>
+#include <QTextCharFormat>
 
 namespace RemoteLinux {
 namespace Internal {

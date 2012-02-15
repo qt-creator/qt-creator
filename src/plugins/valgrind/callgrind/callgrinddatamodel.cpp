@@ -38,10 +38,10 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QChar>
-#include <QtCore/QDebug>
-#include <QtCore/QStringList>
-#include <QtCore/QVector>
+#include <QChar>
+#include <QDebug>
+#include <QStringList>
+#include <QVector>
 
 namespace Valgrind {
 namespace Callgrind {

@@ -38,10 +38,10 @@
 #include <coreplugin/fileiconprovider.h>
 #include <projectexplorer/projectexplorer.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/QTextStream>
-#include <QtGui/QStyle>
+#include <QFileInfo>
+#include <QDir>
+#include <QTextStream>
+#include <QStyle>
 
 namespace QmlProjectManager {
 namespace Internal {

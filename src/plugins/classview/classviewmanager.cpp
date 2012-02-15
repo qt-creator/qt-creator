@@ -48,9 +48,9 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <texteditor/itexteditor.h>
 
-#include <QtCore/QThread>
-#include <QtCore/QMutex>
-#include <QtCore/QMutexLocker>
+#include <QThread>
+#include <QMutex>
+#include <QMutexLocker>
 
 namespace ClassView {
 namespace Internal {

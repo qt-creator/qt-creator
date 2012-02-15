@@ -35,7 +35,7 @@
 
 #include <coreplugin/actionmanager/commandmappings.h>
 
-#include <QtGui/QKeySequence>
+#include <QKeySequence>
 
 QT_BEGIN_NAMESPACE
 class QKeyEvent;

@@ -36,14 +36,14 @@
 
 #include <utils/fileutils.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QFile>
-#include <QtCore/QVariant>
-#include <QtCore/QStack>
-#include <QtCore/QXmlStreamAttributes>
-#include <QtCore/QXmlStreamReader>
-#include <QtCore/QXmlStreamWriter>
-#include <QtCore/QDateTime>
+#include <QDebug>
+#include <QFile>
+#include <QVariant>
+#include <QStack>
+#include <QXmlStreamAttributes>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
+#include <QDateTime>
 
 #include <utils/qtcassert.h>
 

@@ -32,11 +32,11 @@
 
 #include "reloadpromptutils.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QAbstractButton>
+#include <QCoreApplication>
+#include <QDir>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QAbstractButton>
 
 using namespace Utils;
 

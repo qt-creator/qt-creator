@@ -34,8 +34,8 @@
 
 #include <utils/newclasswidget.h>
 
-#include <QtGui/QLabel>
-#include <QtGui/QLayout>
+#include <QLabel>
+#include <QLayout>
 
 namespace Qt4ProjectManager {
 namespace Internal {

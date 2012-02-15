@@ -34,9 +34,9 @@
 
 #include <utils/environment.h>
 
-#include <QtCore/QFile>
-#include <QtCore/QDebug>
-#include <QtCore/QXmlStreamReader>
+#include <QFile>
+#include <QDebug>
+#include <QXmlStreamReader>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

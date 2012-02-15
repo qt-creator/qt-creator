@@ -44,8 +44,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/modemanager.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
+#include <QFileInfo>
+#include <QDebug>
 
 using namespace Designer::Constants;
 

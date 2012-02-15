@@ -34,15 +34,15 @@
 #include "searchresulttreeitems.h"
 #include "searchresulttreeitemroles.h"
 
-#include <QtGui/QApplication>
-#include <QtGui/QFont>
-#include <QtGui/QFontMetrics>
-#include <QtGui/QColor>
-#include <QtGui/QPalette>
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextCursor>
-#include <QtCore/QDir>
-#include <QtCore/QDebug>
+#include <QApplication>
+#include <QFont>
+#include <QFontMetrics>
+#include <QColor>
+#include <QPalette>
+#include <QTextDocument>
+#include <QTextCursor>
+#include <QDir>
+#include <QDebug>
 
 using namespace Find;
 using namespace Find::Internal;

@@ -34,8 +34,8 @@
 
 #include "texteditor_global.h"
 
-#include <QtCore/QObject>
-#include <QtGui/QTextLayout>
+#include <QObject>
+#include <QTextLayout>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;

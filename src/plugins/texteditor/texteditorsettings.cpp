@@ -54,7 +54,7 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QApplication>
+#include <QApplication>
 
 using namespace TextEditor;
 using namespace TextEditor::Constants;

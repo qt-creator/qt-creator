@@ -36,7 +36,7 @@
 #include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
 
-#include <QtCore/QFileInfo>
+#include <QFileInfo>
 
 namespace VcsBase {
 class SubmitFileModel;

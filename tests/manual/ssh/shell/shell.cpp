@@ -34,9 +34,9 @@
 #include <utils/ssh/sshconnection.h>
 #include <utils/ssh/sshremoteprocess.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QFile>
-#include <QtCore/QSocketNotifier>
+#include <QCoreApplication>
+#include <QFile>
+#include <QSocketNotifier>
 
 #include <cstdlib>
 #include <iostream>

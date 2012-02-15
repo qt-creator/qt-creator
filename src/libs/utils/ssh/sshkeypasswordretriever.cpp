@@ -31,9 +31,9 @@
 **************************************************************************/
 #include "sshkeypasswordretriever_p.h"
 
-#include <QtCore/QString>
-#include <QtGui/QApplication>
-#include <QtGui/QInputDialog>
+#include <QString>
+#include <QApplication>
+#include <QInputDialog>
 
 #include <iostream>
 

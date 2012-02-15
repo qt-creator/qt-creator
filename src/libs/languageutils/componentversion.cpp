@@ -32,7 +32,7 @@
 
 #include "componentversion.h"
 
-#include <QtCore/QString>
+#include <QString>
 
 #include <limits>
 

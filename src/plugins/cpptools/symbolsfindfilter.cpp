@@ -44,11 +44,11 @@
 #include <projectexplorer/project.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QSet>
-#include <QtCore/QRegExp>
-#include <QtGui/QGridLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QButtonGroup>
+#include <QSet>
+#include <QRegExp>
+#include <QGridLayout>
+#include <QLabel>
+#include <QButtonGroup>
 
 using namespace CppTools;
 using namespace CppTools::Internal;

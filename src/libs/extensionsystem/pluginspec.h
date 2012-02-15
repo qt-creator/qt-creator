@@ -35,9 +35,9 @@
 
 #include "extensionsystem_global.h"
 
-#include <QtCore/QString>
-#include <QtCore/QList>
-#include <QtCore/QHash>
+#include <QString>
+#include <QList>
+#include <QHash>
 
 QT_BEGIN_NAMESPACE
 class QStringList;

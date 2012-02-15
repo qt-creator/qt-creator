@@ -30,9 +30,9 @@
 **
 **************************************************************************/
 
-#include <QtTest/QtTest>
-#include <QtCore/QObject>
-#include <QtCore/QFile>
+#include <QtTest>
+#include <QObject>
+#include <QFile>
 #include <CPlusPlus.h>
 #include <CppDocument.h>
 #include <LookupContext.h>

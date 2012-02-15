@@ -32,16 +32,16 @@
 
 #include "settingsdatabase.h"
 
-#include <QtCore/QDir>
-#include <QtCore/QMap>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QVariant>
+#include <QDir>
+#include <QMap>
+#include <QString>
+#include <QStringList>
+#include <QVariant>
 
-#include <QtSql/QSqlDatabase>
-#include <QtSql/QSqlError>
-#include <QtSql/QSqlQuery>
-#include <QtCore/QDebug>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QDebug>
 
 /*!
     \class Core::SettingsDatabase

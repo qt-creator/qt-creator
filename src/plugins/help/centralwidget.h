@@ -35,7 +35,7 @@
 
 #include <find/ifindsupport.h>
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 QT_FORWARD_DECLARE_CLASS(QEvent)
 QT_FORWARD_DECLARE_CLASS(QAction)

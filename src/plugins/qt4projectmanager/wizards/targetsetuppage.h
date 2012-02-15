@@ -38,8 +38,8 @@
 #include <qtsupport/qtversionmanager.h>
 #include <coreplugin/featureprovider.h>
 
-#include <QtCore/QString>
-#include <QtGui/QWizard>
+#include <QString>
+#include <QWizard>
 
 
 QT_BEGIN_NAMESPACE

@@ -36,9 +36,9 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include "ui_fileshareprotocolsettingswidget.h"
 
-#include <QtCore/QSharedPointer>
-#include <QtCore/QPointer>
-#include <QtGui/QWidget>
+#include <QSharedPointer>
+#include <QPointer>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

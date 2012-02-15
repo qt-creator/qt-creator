@@ -32,9 +32,9 @@
 
 #include "openwithdialog.h"
 
-#include <QtGui/QListWidget>
-#include <QtGui/QPushButton>
-#include <QtCore/QFileInfo>
+#include <QListWidget>
+#include <QPushButton>
+#include <QFileInfo>
 
 using namespace Core;
 using namespace Core::Internal;

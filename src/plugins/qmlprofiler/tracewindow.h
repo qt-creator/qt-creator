@@ -38,12 +38,12 @@
 #include "qmlprofilerdetailsrewriter.h"
 #include <qmljsdebugclient/qv8profilerclient.h>
 
-#include <QtCore/QPointer>
-#include <QtGui/QWidget>
-#include <QtGui/QToolButton>
+#include <QPointer>
+#include <QWidget>
+#include <QToolButton>
 
-#include <QtCore/QEvent>
-#include <QtDeclarative/QDeclarativeView>
+#include <QEvent>
+#include <QDeclarativeView>
 
 namespace QmlProfiler {
 namespace Internal {

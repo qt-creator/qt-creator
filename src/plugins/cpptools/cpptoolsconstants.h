@@ -33,7 +33,7 @@
 #ifndef CPPTOOLSCONSTANTS_H
 #define CPPTOOLSCONSTANTS_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 namespace CppTools {
 namespace Constants {

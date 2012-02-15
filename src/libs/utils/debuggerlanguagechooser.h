@@ -35,7 +35,7 @@
 
 #include "utils_global.h"
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 QT_FORWARD_DECLARE_CLASS(QCheckBox)
 QT_FORWARD_DECLARE_CLASS(QLabel)

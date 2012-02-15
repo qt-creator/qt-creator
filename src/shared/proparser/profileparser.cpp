@@ -35,9 +35,9 @@
 #include "ioutils.h"
 using namespace ProFileEvaluatorInternal;
 
-#include <QtCore/QFile>
+#include <QFile>
 #ifdef PROPARSER_THREAD_SAFE
-# include <QtCore/QThreadPool>
+# include <QThreadPool>
 #endif
 
 QT_BEGIN_NAMESPACE

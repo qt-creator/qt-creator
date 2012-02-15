@@ -49,19 +49,19 @@
 #include <utils/stylehelper.h>
 #include <utils/flowlayout.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
+#include <QDebug>
+#include <QSettings>
 
-#include <QtGui/QClipboard>
-#include <QtGui/QCompleter>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QLineEdit>
-#include <QtGui/QMenu>
-#include <QtGui/QPushButton>
-#include <QtGui/QToolButton>
-#include <QtGui/QPainter>
-#include <QtGui/QPixmapCache>
-#include <QtGui/QStringListModel>
+#include <QClipboard>
+#include <QCompleter>
+#include <QKeyEvent>
+#include <QLineEdit>
+#include <QMenu>
+#include <QPushButton>
+#include <QToolButton>
+#include <QPainter>
+#include <QPixmapCache>
+#include <QStringListModel>
 
 Q_DECLARE_METATYPE(QStringList)
 Q_DECLARE_METATYPE(Find::IFindFilter*)

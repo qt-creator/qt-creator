@@ -39,12 +39,12 @@
 #include <qmljs/qmljs_global.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 
-#include <QtCore/QFileInfoList>
-#include <QtCore/QList>
-#include <QtCore/QString>
-#include <QtCore/QHash>
-#include <QtCore/QSet>
-#include <QtCore/QMutex>
+#include <QFileInfoList>
+#include <QList>
+#include <QString>
+#include <QHash>
+#include <QSet>
+#include <QMutex>
 
 namespace QmlJS {
 

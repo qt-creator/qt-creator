@@ -32,10 +32,10 @@
 
 #include "abstractmobileapp.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QTextStream>
+#include <QCoreApplication>
+#include <QDir>
+#include <QFile>
+#include <QTextStream>
 
 #ifndef CREATORLESSTEST
 #include <coreplugin/icore.h>

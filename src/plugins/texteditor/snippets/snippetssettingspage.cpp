@@ -44,14 +44,14 @@
 #include <texteditor/fontsettings.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/QModelIndex>
-#include <QtCore/QAbstractTableModel>
-#include <QtCore/QList>
-#include <QtCore/QSettings>
-#include <QtCore/QTextStream>
-#include <QtCore/QHash>
-#include <QtGui/QMessageBox>
-#include <QtGui/QMainWindow>
+#include <QModelIndex>
+#include <QAbstractTableModel>
+#include <QList>
+#include <QSettings>
+#include <QTextStream>
+#include <QHash>
+#include <QMessageBox>
+#include <QMainWindow>
 
 namespace TextEditor {
 namespace Internal {

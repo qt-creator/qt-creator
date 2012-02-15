@@ -32,11 +32,11 @@
 
 #include "html5app.h"
 
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QRegExp>
-#include <QtCore/QTextStream>
-#include <QtCore/QCoreApplication>
+#include <QDir>
+#include <QFile>
+#include <QRegExp>
+#include <QTextStream>
+#include <QCoreApplication>
 
 #ifndef CREATORLESSTEST
 #include <coreplugin/icore.h>

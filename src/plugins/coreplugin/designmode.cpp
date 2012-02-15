@@ -45,14 +45,14 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QPair>
-#include <QtCore/QFileInfo>
-#include <QtCore/QStringList>
-#include <QtCore/QDebug>
+#include <QPair>
+#include <QFileInfo>
+#include <QStringList>
+#include <QDebug>
 
-#include <QtGui/QAction>
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QStackedWidget>
+#include <QAction>
+#include <QPlainTextEdit>
+#include <QStackedWidget>
 
 static Core::DesignMode *m_instance = 0;
 

@@ -35,8 +35,8 @@
 #include "texteditorsettings.h"
 #include "tabsettings.h"
 
-#include <QtCore/QDebug>
-#include <QtGui/QTextCursor>
+#include <QDebug>
+#include <QTextCursor>
 
 using namespace TextEditor;
 

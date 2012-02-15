@@ -35,7 +35,7 @@
 
 #include "qt4target.h"
 
-#include <QtGui/QPixmap>
+#include <QPixmap>
 
 namespace Qt4ProjectManager {
 class Qt4Project;

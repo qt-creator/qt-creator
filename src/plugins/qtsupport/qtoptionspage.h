@@ -36,8 +36,8 @@
 #include "debugginghelperbuildtask.h"
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QtGui/QWidget>
-#include <QtGui/QIcon>
+#include <QWidget>
+#include <QIcon>
 
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;

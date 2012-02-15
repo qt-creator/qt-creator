@@ -33,9 +33,9 @@
 #include "mainwindow.h"
 
 #include <utils/synchronousprocess.h>
-#include <QtGui/QApplication>
-#include <QtCore/QDebug>
-#include <QtCore/QTimer>
+#include <QApplication>
+#include <QDebug>
+#include <QTimer>
 
 #include <cstdio>
 

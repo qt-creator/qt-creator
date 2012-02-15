@@ -37,9 +37,9 @@
 
 #include <qmljs/qmljsscanner.h>
 
-#include <QtCore/QVector>
-#include <QtCore/QSet>
-#include <QtGui/QSyntaxHighlighter>
+#include <QVector>
+#include <QSet>
+#include <QSyntaxHighlighter>
 
 #include <texteditor/basetextdocumentlayout.h>
 #include <texteditor/syntaxhighlighter.h>

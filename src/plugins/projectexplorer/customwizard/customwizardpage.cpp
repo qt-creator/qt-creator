@@ -36,19 +36,19 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QRegExp>
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
+#include <QRegExp>
+#include <QDebug>
+#include <QDir>
 
-#include <QtGui/QWizardPage>
-#include <QtGui/QFormLayout>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QLineEdit>
-#include <QtGui/QLabel>
-#include <QtGui/QRegExpValidator>
-#include <QtGui/QComboBox>
-#include <QtGui/QTextEdit>
-#include <QtGui/QSpacerItem>
+#include <QWizardPage>
+#include <QFormLayout>
+#include <QVBoxLayout>
+#include <QLineEdit>
+#include <QLabel>
+#include <QRegExpValidator>
+#include <QComboBox>
+#include <QTextEdit>
+#include <QSpacerItem>
 
 enum { debug = 0 };
 

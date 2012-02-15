@@ -34,9 +34,9 @@
 
 #include "remotelinux_export.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QString>
+#include <QObject>
+#include <QSharedPointer>
+#include <QString>
 
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;

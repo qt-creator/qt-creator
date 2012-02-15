@@ -53,11 +53,11 @@
 
 #include <qtsupport/qtsupportconstants.h>
 
-#include <QtCore/QtPlugin>
+#include <QtPlugin>
 
-#include <QtGui/QApplication>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
+#include <QApplication>
+#include <QMessageBox>
+#include <QPushButton>
 
 namespace QmlProjectManager {
 

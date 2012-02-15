@@ -37,7 +37,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QPushButton>
+#include <QPushButton>
 
 namespace RemoteLinux {
 namespace Internal {

@@ -35,9 +35,9 @@
 
 #include <coreplugin/icore.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QSettings>
-#include <QtCore/QCoreApplication>
+#include <QDir>
+#include <QSettings>
+#include <QCoreApplication>
 
 static const char settingsGroupC[] = "FileSharePasterSettings";
 static const char pathKeyC[] = "Path";

@@ -35,14 +35,14 @@
 
 #include "coreplugin/id.h"
 
-#include <QtCore/QMap>
-#include <QtCore/QList>
-#include <QtCore/QString>
-#include <QtCore/QPointer>
-#include <QtCore/QVariant>
+#include <QMap>
+#include <QList>
+#include <QString>
+#include <QPointer>
+#include <QVariant>
 
-#include <QtGui/QIcon>
-#include <QtGui/QWidget>
+#include <QIcon>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QAction;

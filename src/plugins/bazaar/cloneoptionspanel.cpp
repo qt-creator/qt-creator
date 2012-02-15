@@ -33,7 +33,7 @@
 #include "cloneoptionspanel.h"
 #include "ui_cloneoptionspanel.h"
 
-#include <QtCore/QtDebug>
+#include <QtDebug>
 
 namespace Bazaar {
 namespace Internal {

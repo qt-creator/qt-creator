@@ -32,8 +32,8 @@
 
 #include "changeselectiondialog.h"
 
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
+#include <QFileDialog>
+#include <QMessageBox>
 
 namespace Git {
 namespace Internal {

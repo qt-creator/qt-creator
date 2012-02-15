@@ -35,8 +35,8 @@
 
 #include "macros_global.h"
 
-#include <QtCore/QList>
-#include <QtCore/QString>
+#include <QList>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 class QWidget;

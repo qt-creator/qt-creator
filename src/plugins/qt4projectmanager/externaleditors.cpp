@@ -42,13 +42,13 @@
 #include <qtsupport/qtversionmanager.h>
 #include <designer/designerconstants.h>
 
-#include <QtCore/QProcess>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
-#include <QtCore/QSignalMapper>
+#include <QProcess>
+#include <QFileInfo>
+#include <QDebug>
+#include <QSignalMapper>
 
-#include <QtNetwork/QTcpSocket>
-#include <QtNetwork/QTcpServer>
+#include <QTcpSocket>
+#include <QTcpServer>
 
 enum { debug = 0 };
 

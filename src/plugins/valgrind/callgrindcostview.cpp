@@ -39,9 +39,9 @@
 #include <valgrind/callgrind/callgrindfunction.h>
 #include <valgrind/callgrind/callgrindcallmodel.h>
 
-#include <QtGui/QAbstractProxyModel>
-#include <QtGui/QHeaderView>
-#include <QtCore/QDebug>
+#include <QAbstractProxyModel>
+#include <QHeaderView>
+#include <QDebug>
 
 using namespace Valgrind::Callgrind;
 

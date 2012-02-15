@@ -36,14 +36,14 @@
 #include "basetextdocumentlayout.h"
 #include "syntaxhighlighter.h"
 
-#include <QtCore/QString>
-#include <QtCore/QVector>
-#include <QtCore/QStack>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QStringList>
+#include <QString>
+#include <QVector>
+#include <QStack>
+#include <QSharedPointer>
+#include <QStringList>
 
-#include <QtGui/QSyntaxHighlighter>
-#include <QtGui/QTextCharFormat>
+#include <QSyntaxHighlighter>
+#include <QTextCharFormat>
 
 namespace TextEditor {
 

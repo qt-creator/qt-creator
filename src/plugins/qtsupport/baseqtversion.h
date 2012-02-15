@@ -42,8 +42,8 @@
 #include <projectexplorer/task.h>
 #include <coreplugin/featureprovider.h>
 
-#include <QtCore/QVariantMap>
-#include <QtGui/QWidget>
+#include <QVariantMap>
+#include <QWidget>
 
 namespace Utils {
 class Environment;

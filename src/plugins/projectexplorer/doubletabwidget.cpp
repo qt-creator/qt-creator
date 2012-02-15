@@ -35,12 +35,12 @@
 
 #include <utils/stylehelper.h>
 
-#include <QtCore/QRect>
-#include <QtGui/QPainter>
-#include <QtGui/QFont>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QMenu>
-#include <QtGui/QToolTip>
+#include <QRect>
+#include <QPainter>
+#include <QFont>
+#include <QMouseEvent>
+#include <QMenu>
+#include <QToolTip>
 
 #include <QtDebug>
 

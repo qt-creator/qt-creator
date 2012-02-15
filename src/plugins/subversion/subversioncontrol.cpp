@@ -36,7 +36,7 @@
 
 #include <vcsbase/vcsbaseconstants.h>
 
-#include <QtCore/QFileInfo>
+#include <QFileInfo>
 
 using namespace Subversion;
 using namespace Subversion::Internal;

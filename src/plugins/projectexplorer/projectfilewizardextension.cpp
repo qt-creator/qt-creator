@@ -56,14 +56,14 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/editorconfiguration.h>
 
-#include <QtCore/QVariant>
-#include <QtCore/QtAlgorithms>
-#include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
-#include <QtCore/QMultiMap>
-#include <QtCore/QDir>
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextCursor>
+#include <QVariant>
+#include <QtAlgorithms>
+#include <QDebug>
+#include <QFileInfo>
+#include <QMultiMap>
+#include <QDir>
+#include <QTextDocument>
+#include <QTextCursor>
 
 /*!
     \class ProjectExplorer::Internal::ProjectFileWizardExtension

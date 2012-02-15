@@ -32,7 +32,7 @@
 
 #include "ipaddresslineedit.h"
 
-#include <QtGui/QRegExpValidator>
+#include <QRegExpValidator>
 
 /*!
   \class Utils::IpAddressLineEdit

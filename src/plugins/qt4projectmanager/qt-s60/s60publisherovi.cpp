@@ -50,7 +50,7 @@
 #include <utils/fileutils.h>
 #include <proparser/prowriter.h>
 
-#include <QtCore/QProcess>
+#include <QProcess>
 
 namespace Qt4ProjectManager {
 namespace Internal {

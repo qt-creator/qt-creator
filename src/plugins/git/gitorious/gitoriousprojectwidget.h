@@ -33,8 +33,8 @@
 #ifndef GITORIOUSPROJECTWIDGET_H
 #define GITORIOUSPROJECTWIDGET_H
 
-#include <QtCore/QSharedPointer>
-#include <QtGui/QWidget>
+#include <QSharedPointer>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;

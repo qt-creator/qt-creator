@@ -32,7 +32,7 @@
 
 #include "changeset.h"
 
-#include <QtGui/QTextCursor>
+#include <QTextCursor>
 
 namespace Utils {
 

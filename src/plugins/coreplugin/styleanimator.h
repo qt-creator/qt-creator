@@ -33,12 +33,12 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
-#include <QtCore/QPointer>
-#include <QtCore/QTime>
-#include <QtCore/QBasicTimer>
-#include <QtGui/QStyle>
-#include <QtGui/QPainter>
-#include <QtGui/QWidget>
+#include <QPointer>
+#include <QTime>
+#include <QBasicTimer>
+#include <QStyle>
+#include <QPainter>
+#include <QWidget>
 
 /*
  * This is a set of helper classes to allow for widget animations in

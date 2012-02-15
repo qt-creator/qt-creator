@@ -36,7 +36,7 @@
 #include <QDeclarativeContext>
 #include <QDeclarativeEngine>
 #include <QDeclarativeComponent>
-#include <QtCore/QDebug>
+#include <QDebug>
 #include <QFile>
 #include <QPixmap>
 #include <QTimeLine>

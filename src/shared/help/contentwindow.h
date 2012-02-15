@@ -33,9 +33,9 @@
 #ifndef CONTENTWINDOW_H
 #define CONTENTWINDOW_H
 
-#include <QtCore/QUrl>
-#include <QtCore/QModelIndex>
-#include <QtGui/QWidget>
+#include <QUrl>
+#include <QModelIndex>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 

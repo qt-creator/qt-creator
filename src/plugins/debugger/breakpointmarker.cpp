@@ -34,7 +34,7 @@
 #include "breakhandler.h"
 #include "debuggercore.h"
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
 //////////////////////////////////////////////////////////////////
 //

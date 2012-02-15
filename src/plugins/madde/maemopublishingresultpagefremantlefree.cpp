@@ -32,7 +32,7 @@
 #include "maemopublishingresultpagefremantlefree.h"
 #include "ui_maemopublishingresultpagefremantlefree.h"
 
-#include <QtGui/QAbstractButton>
+#include <QAbstractButton>
 
 namespace Madde {
 namespace Internal {

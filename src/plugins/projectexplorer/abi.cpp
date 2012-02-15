@@ -32,13 +32,13 @@
 
 #include "abi.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
-#include <QtCore/QtEndian>
-#include <QtCore/QFile>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QSysInfo>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QtEndian>
+#include <QFile>
+#include <QString>
+#include <QStringList>
+#include <QSysInfo>
 
 /*!
     \class ProjectExplorer::Abi
@@ -738,7 +738,7 @@ QList<Abi> Abi::abisOfBinary(const Utils::FileName &path)
 // Unit tests:
 #ifdef WITH_TESTS
 #   include <QTest>
-#   include <QtCore/QFileInfo>
+#   include <QFileInfo>
 
 #   include "projectexplorer.h"
 

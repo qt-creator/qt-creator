@@ -45,9 +45,9 @@
 #define QTRESOURCEMODEL_H
 
 #include "shared_global_p.h"
-#include <QtCore/QMap>
-#include <QtCore/QObject>
-#include <QtCore/QScopedPointer>
+#include <QMap>
+#include <QObject>
+#include <QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 

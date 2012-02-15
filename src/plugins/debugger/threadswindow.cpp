@@ -40,10 +40,10 @@
 
 #include <utils/savedaction.h>
 
-#include <QtCore/QDebug>
-#include <QtGui/QContextMenuEvent>
-#include <QtGui/QHeaderView>
-#include <QtGui/QMenu>
+#include <QDebug>
+#include <QContextMenuEvent>
+#include <QHeaderView>
+#include <QMenu>
 
 namespace Debugger {
 namespace Internal {

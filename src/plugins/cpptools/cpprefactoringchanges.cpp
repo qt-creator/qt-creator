@@ -45,7 +45,7 @@
 #include <projectexplorer/editorconfiguration.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QTextBlock>
+#include <QTextBlock>
 
 using namespace CPlusPlus;
 using namespace CppTools;

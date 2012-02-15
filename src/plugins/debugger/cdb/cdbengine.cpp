@@ -77,15 +77,15 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/ModelManagerInterface.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/QDebug>
-#include <QtCore/QTextStream>
-#include <QtCore/QDateTime>
-#include <QtGui/QToolTip>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMessageBox>
+#include <QCoreApplication>
+#include <QFileInfo>
+#include <QDir>
+#include <QDebug>
+#include <QTextStream>
+#include <QDateTime>
+#include <QToolTip>
+#include <QMainWindow>
+#include <QMessageBox>
 
 #include <cctype>
 

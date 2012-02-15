@@ -44,14 +44,14 @@
 
 #include <utils/fileutils.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QTextStream>
-#include <QtCore/QUuid>
-#include <QtCore/QFileInfo>
-#include <QtCore/QSharedPointer>
+#include <QDir>
+#include <QFile>
+#include <QTextStream>
+#include <QUuid>
+#include <QFileInfo>
+#include <QSharedPointer>
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
 static const char mainSourceFileC[] = "main";
 static const char mainSourceShowC[] = "    w.show();\n";

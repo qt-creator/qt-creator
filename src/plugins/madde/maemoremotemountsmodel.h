@@ -35,10 +35,10 @@
 
 #include "maemomountspecification.h"
 
-#include <QtCore/QAbstractTableModel>
-#include <QtCore/QList>
-#include <QtCore/QString>
-#include <QtCore/QVariantMap>
+#include <QAbstractTableModel>
+#include <QList>
+#include <QString>
+#include <QVariantMap>
 
 namespace Madde {
 namespace Internal {

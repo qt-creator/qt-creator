@@ -34,7 +34,7 @@
 #define CPLUSPLUS_LOOKUPITEM_H
 
 #include <FullySpecifiedType.h>
-#include <QtCore/QHash>
+#include <QHash>
 
 namespace CPlusPlus {
 

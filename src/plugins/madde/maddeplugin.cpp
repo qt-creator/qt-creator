@@ -45,7 +45,7 @@
 #include "maemoqtversionfactory.h"
 #include "qt4maemotargetfactory.h"
 
-#include <QtCore/QtPlugin>
+#include <QtPlugin>
 
 namespace Madde {
 namespace Internal {

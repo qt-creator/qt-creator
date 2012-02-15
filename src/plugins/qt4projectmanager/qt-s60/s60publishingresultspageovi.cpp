@@ -33,10 +33,10 @@
 #include "s60publisherovi.h"
 #include "ui_s60publishingresultspageovi.h"
 
-#include <QtGui/QDesktopServices>
-#include <QtGui/QAbstractButton>
-#include <QtGui/QScrollBar>
-#include <QtCore/QProcess>
+#include <QDesktopServices>
+#include <QAbstractButton>
+#include <QScrollBar>
+#include <QProcess>
 
 namespace Qt4ProjectManager {
 namespace Internal {

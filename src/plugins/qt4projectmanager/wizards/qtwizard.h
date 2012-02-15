@@ -39,7 +39,7 @@
 
 #include <coreplugin/basefilewizard.h>
 
-#include <QtCore/QSet>
+#include <QSet>
 
 namespace Qt4ProjectManager {
 

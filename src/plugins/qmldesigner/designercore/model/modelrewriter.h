@@ -33,10 +33,10 @@
 #ifndef MODELREWRITER_H
 #define MODELREWRITER_H
 
-#include <QtCore/QByteArray>
-#include <QtCore/QMimeData>
-#include <QtCore/QObject>
-#include <QtCore/QUrl>
+#include <QByteArray>
+#include <QMimeData>
+#include <QObject>
+#include <QUrl>
 
 #include "anchorline.h"
 #include "import.h"

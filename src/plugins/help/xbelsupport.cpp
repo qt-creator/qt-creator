@@ -33,7 +33,7 @@
 #include "xbelsupport.h"
 #include "bookmarkmanager.h"
 
-#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 
 using namespace Help::Internal;
 

@@ -36,8 +36,8 @@
 #include "callgrindfunctioncall.h"
 #include "callgrindparsedata.h"
 
-#include <QtCore/QStringList>
-#include <QtCore/QDebug>
+#include <QStringList>
+#include <QDebug>
 
 namespace Valgrind {
 namespace Callgrind {

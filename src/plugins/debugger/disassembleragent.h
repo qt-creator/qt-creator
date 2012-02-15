@@ -33,7 +33,7 @@
 #ifndef DEBUGGER_DISASSEMBLERAGENT_H
 #define DEBUGGER_DISASSEMBLERAGENT_H
 
-#include <QtCore/QObject>
+#include <QObject>
 
 namespace Debugger {
 

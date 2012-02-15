@@ -38,14 +38,14 @@
 #include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QLineEdit>
-#include <QtGui/QRegExpValidator>
-#include <QtGui/QSyntaxHighlighter>
-#include <QtGui/QTextEdit>
+#include <QLineEdit>
+#include <QRegExpValidator>
+#include <QSyntaxHighlighter>
+#include <QTextEdit>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QRegExp>
+#include <QDebug>
+#include <QDir>
+#include <QRegExp>
 
 namespace Git {
 namespace Internal {

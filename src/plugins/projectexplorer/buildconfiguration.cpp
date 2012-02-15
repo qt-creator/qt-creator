@@ -46,7 +46,7 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
-#include <QtCore/QProcess>
+#include <QProcess>
 
 static const char BUILD_STEP_LIST_COUNT[] = "ProjectExplorer.BuildConfiguration.BuildStepListCount";
 static const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildStepList.";

@@ -33,7 +33,7 @@
 #ifndef QMLJSDEBUGGER_GLOBAL_H
 #define QMLJSDEBUGGER_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 # if defined(BUILD_QMLJSDEBUGGER_LIB)
 #    define QMLJSDEBUGGER_EXPORT Q_DECL_EXPORT

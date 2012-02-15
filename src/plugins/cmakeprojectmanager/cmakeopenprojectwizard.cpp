@@ -48,13 +48,13 @@
 #include <projectexplorer/abi.h>
 #include <texteditor/fontsettings.h>
 
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QFormLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
-#include <QtGui/QPlainTextEdit>
-#include <QtCore/QDateTime>
-#include <QtCore/QStringList>
+#include <QVBoxLayout>
+#include <QFormLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QPlainTextEdit>
+#include <QDateTime>
+#include <QStringList>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;

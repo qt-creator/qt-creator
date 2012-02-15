@@ -35,9 +35,9 @@
 
 #include "texteditor_global.h"
 
-#include <QtCore/QString>
-#include <QtCore/QMetaType>
-#include <QtCore/QSharedPointer>
+#include <QString>
+#include <QMetaType>
+#include <QSharedPointer>
 
 namespace TextEditor {
 

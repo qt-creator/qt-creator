@@ -37,11 +37,11 @@
 #include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QSyntaxHighlighter>
-#include <QtGui/QTextEdit>
+#include <QSyntaxHighlighter>
+#include <QTextEdit>
 
-#include <QtCore/QDebug>
-#include <QtCore/QRegExp>
+#include <QDebug>
+#include <QRegExp>
 
 //see the git submit widget for details of the syntax Highlighter
 

@@ -38,17 +38,17 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QtNetwork/QNetworkRequest>
-#include <QtNetwork/QNetworkReply>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 
-#include <QtCore/QUrl>
-#include <QtCore/QDebug>
-#include <QtCore/QVariant>
+#include <QUrl>
+#include <QDebug>
+#include <QVariant>
 
-#include <QtGui/QMessageBox>
-#include <QtGui/QApplication>
-#include <QtGui/QMainWindow>
-#include <QtGui/QPushButton>
+#include <QMessageBox>
+#include <QApplication>
+#include <QMainWindow>
+#include <QPushButton>
 
 namespace CodePaster {
 

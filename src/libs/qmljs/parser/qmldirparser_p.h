@@ -44,8 +44,8 @@
 // We mean it.
 //
 
-#include <QtCore/QUrl>
-#include <QtCore/QHash>
+#include <QUrl>
+#include <QHash>
 
 #include "qmljsglobal_p.h"
 

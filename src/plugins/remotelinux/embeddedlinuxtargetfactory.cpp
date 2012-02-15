@@ -45,7 +45,7 @@
 
 #include <qtsupport/qtversionmanager.h>
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
 namespace RemoteLinux {
 namespace Internal {

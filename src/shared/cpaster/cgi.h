@@ -33,7 +33,7 @@
 #ifndef CGI_H
 #define CGI_H
 
-#include <QtCore/QString>
+#include <QString>
 
 class CGI
 {

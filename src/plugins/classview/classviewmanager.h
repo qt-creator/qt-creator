@@ -33,9 +33,9 @@
 #ifndef CLASSVIEWMANAGER_H
 #define CLASSVIEWMANAGER_H
 
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
-#include <QtGui/QStandardItem>
+#include <QObject>
+#include <QSharedPointer>
+#include <QStandardItem>
 
 #include <cplusplus/CppDocument.h>
 

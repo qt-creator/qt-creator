@@ -35,8 +35,8 @@
 
 #include "scriptmanager.h"
 
-#include <QtCore/QObject>
-#include <QtScript/QScriptEngine>
+#include <QObject>
+#include <QScriptEngine>
 
 namespace Core {
 namespace Internal {

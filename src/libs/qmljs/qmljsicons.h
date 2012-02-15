@@ -35,7 +35,7 @@
 
 #include <qmljs/qmljs_global.h>
 #include <qmljs/parser/qmljsast_p.h>
-#include <QtGui/QIcon>
+#include <QIcon>
 
 namespace QmlJS {
 

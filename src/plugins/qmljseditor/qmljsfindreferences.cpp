@@ -55,13 +55,13 @@
 
 #include "qmljseditorconstants.h"
 
-#include <QtCore/QTime>
-#include <QtCore/QTimer>
-#include <QtCore/QtConcurrentRun>
-#include <QtCore/QtConcurrentMap>
-#include <QtCore/QDir>
-#include <QtGui/QApplication>
-#include <QtGui/QLabel>
+#include <QTime>
+#include <QTimer>
+#include <QtConcurrentRun>
+#include <QtConcurrentMap>
+#include <QDir>
+#include <QApplication>
+#include <QLabel>
 #include <utils/runextensions.h>
 
 #include <functional>

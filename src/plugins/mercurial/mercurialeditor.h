@@ -35,7 +35,7 @@
 
 #include <vcsbase/vcsbaseeditor.h>
 
-#include <QtCore/QRegExp>
+#include <QRegExp>
 
 namespace Mercurial {
 namespace Internal {

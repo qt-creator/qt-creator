@@ -33,13 +33,13 @@
 #include "colorpickertool.h"
 #include "qdeclarativeviewinspector.h"
 
-#include <QtGui/QMouseEvent>
-#include <QtGui/QKeyEvent>
-#include <QtCore/QRectF>
-#include <QtGui/QRgb>
-#include <QtGui/QImage>
-#include <QtGui/QApplication>
-#include <QtGui/QPalette>
+#include <QMouseEvent>
+#include <QKeyEvent>
+#include <QRectF>
+#include <QRgb>
+#include <QImage>
+#include <QApplication>
+#include <QPalette>
 
 namespace QmlJSDebugger {
 

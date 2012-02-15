@@ -36,9 +36,9 @@
 
 #include <qmleditorwidgets_global.h>
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
-#include <QtCore/QUrl>
+#include <QUrl>
 
 QT_BEGIN_NAMESPACE
 class QLabel;

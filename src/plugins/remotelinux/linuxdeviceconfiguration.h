@@ -34,11 +34,11 @@
 
 #include "remotelinux_export.h"
 
-#include <QtCore/QSharedPointer>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QVariantHash>
-#include <QtGui/QWizard>
+#include <QSharedPointer>
+#include <QString>
+#include <QStringList>
+#include <QVariantHash>
+#include <QWizard>
 
 QT_BEGIN_NAMESPACE
 class QDialog;

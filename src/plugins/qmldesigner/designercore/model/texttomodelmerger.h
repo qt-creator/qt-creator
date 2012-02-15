@@ -41,8 +41,8 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsscopechain.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QTimer>
+#include <QStringList>
+#include <QTimer>
 
 namespace QmlDesigner {
 

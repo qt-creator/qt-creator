@@ -35,10 +35,10 @@
 
 #include <coreplugin/id.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
-#include <QtCore/QPair>
-#include <QtCore/QVariant>
+#include <QObject>
+#include <QStringList>
+#include <QPair>
+#include <QVariant>
 
 QT_BEGIN_NAMESPACE
 class QAction;

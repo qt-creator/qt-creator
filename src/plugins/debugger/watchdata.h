@@ -33,9 +33,9 @@
 #ifndef DEBUGGER_WATCHDATA_H
 #define DEBUGGER_WATCHDATA_H
 
-#include <QtCore/QMetaType>
-#include <QtCore/QtGlobal>
-#include <QtCore/QCoreApplication>
+#include <QMetaType>
+#include <QtGlobal>
+#include <QCoreApplication>
 
 namespace Debugger {
 namespace Internal {

@@ -33,8 +33,8 @@
 #ifndef MINIPROJECTTARGETSELECTOR_H
 #define MINIPROJECTTARGETSELECTOR_H
 
-#include <QtGui/QListWidget>
-#include <QtCore/QDateTime>
+#include <QListWidget>
+#include <QDateTime>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;

@@ -33,9 +33,9 @@
 #ifndef REMOTEMODEL_H
 #define REMOTEMODEL_H
 
-#include <QtCore/QAbstractTableModel>
-#include <QtCore/QList>
-#include <QtCore/QVariant>
+#include <QAbstractTableModel>
+#include <QList>
+#include <QVariant>
 
 namespace Git {
 namespace Internal {

@@ -39,18 +39,18 @@
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QString>
-#include <QtCore/QStringBuilder>
-#include <QtCore/QTimer>
+#include <QFileInfo>
+#include <QString>
+#include <QStringBuilder>
+#include <QTimer>
 
-#include <QtGui/QApplication>
-#include <QtGui/QWheelEvent>
+#include <QApplication>
+#include <QWheelEvent>
 
-#include <QtHelp/QHelpEngine>
+#include <QHelpEngine>
 
-#include <QtNetwork/QNetworkReply>
-#include <QtNetwork/QNetworkRequest>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 
 #include <utils/networkaccessmanager.h>
 

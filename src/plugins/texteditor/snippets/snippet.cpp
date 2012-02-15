@@ -32,9 +32,9 @@
 
 #include "snippet.h"
 
-#include <QtCore/QLatin1Char>
-#include <QtCore/QLatin1String>
-#include <QtGui/QTextDocument>
+#include <QLatin1Char>
+#include <QLatin1String>
+#include <QTextDocument>
 
 using namespace TextEditor;
 

@@ -33,7 +33,7 @@
 #ifndef PERFORCE_CONSTANTS_H
 #define PERFORCE_CONSTANTS_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 namespace Perforce {
 namespace Constants {

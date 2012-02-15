@@ -33,7 +33,7 @@
 #ifndef GLSLEDITOR_CONSTANTS_H
 #define GLSLEDITOR_CONSTANTS_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 namespace GLSLEditor {
 namespace Constants {

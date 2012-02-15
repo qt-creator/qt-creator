@@ -43,8 +43,8 @@
 #include <utils/qtcassert.h>
 #include <projectexplorer/project.h>
 
-#include <QtCore/QUrl>
-#include <QtNetwork/QAbstractSocket>
+#include <QUrl>
+#include <QAbstractSocket>
 
 using namespace QmlJSInspector::Internal;
 

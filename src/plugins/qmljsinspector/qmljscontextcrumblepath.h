@@ -33,7 +33,7 @@
 #define QMLJSCONTEXTCRUMBLEPATH_H
 
 #include <utils/crumblepath.h>
-#include <QtCore/QStringList>
+#include <QStringList>
 
 namespace QmlJSInspector {
 namespace Internal {

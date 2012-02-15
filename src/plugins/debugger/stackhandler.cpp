@@ -39,8 +39,8 @@
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
+#include <QDebug>
+#include <QFileInfo>
 
 namespace Debugger {
 namespace Internal {

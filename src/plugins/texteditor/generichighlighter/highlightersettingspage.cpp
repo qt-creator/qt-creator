@@ -39,7 +39,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 
-#include <QtGui/QMessageBox>
+#include <QMessageBox>
 
 using namespace TextEditor;
 using namespace Internal;

@@ -82,23 +82,23 @@
 
 #include <cpptools/cpptoolsconstants.h>
 
-#include <QtCore/QAbstractTableModel>
-#include <QtCore/QDebug>
-#include <QtCore/QFile>
-#include <QtCore/QtPlugin>
-#include <QtCore/QObject>
-#include <QtCore/QSettings>
-#include <QtCore/QTextStream>
+#include <QAbstractTableModel>
+#include <QDebug>
+#include <QFile>
+#include <QtPlugin>
+#include <QObject>
+#include <QSettings>
+#include <QTextStream>
 
-#include <QtGui/QDesktopServices>
-#include <QtGui/QItemDelegate>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QShortcut>
-#include <QtGui/QTextBlock>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextEdit>
-#include <QtGui/QTreeWidgetItem>
+#include <QDesktopServices>
+#include <QItemDelegate>
+#include <QMessageBox>
+#include <QPlainTextEdit>
+#include <QShortcut>
+#include <QTextBlock>
+#include <QTextCursor>
+#include <QTextEdit>
+#include <QTreeWidgetItem>
 
 using namespace FakeVim::Internal;
 using namespace TextEditor;

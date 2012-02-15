@@ -36,8 +36,8 @@
 
 #include <coreplugin/icore.h>
 
-#include <QtCore/QSettings>
-#include <QtCore/QTextStream>
+#include <QSettings>
+#include <QTextStream>
 
 using namespace TextEditor;
 

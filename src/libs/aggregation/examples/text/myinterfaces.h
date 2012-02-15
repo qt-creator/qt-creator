@@ -35,7 +35,7 @@
 
 #include <aggregate.h>
 
-#include <QtCore/QString>
+#include <QString>
 
 class IComboEntry : public QObject
 {

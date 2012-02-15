@@ -37,7 +37,7 @@
 
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <QtGui/QAbstractItemView>
+#include <QAbstractItemView>
 
 QT_BEGIN_NAMESPACE
 class QIcon;

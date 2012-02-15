@@ -37,7 +37,7 @@
 
 #include "compileoutputwindow.h"
 
-#include <QtGui/QAction>
+#include <QAction>
 
 using namespace ProjectExplorer::Internal;
 

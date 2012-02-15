@@ -32,14 +32,14 @@
 
 #include "fakevimhandler.h"
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
-#include <QtGui/QApplication>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QStatusBar>
-#include <QtGui/QTextEdit>
+#include <QApplication>
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QPlainTextEdit>
+#include <QStatusBar>
+#include <QTextEdit>
 
 using namespace FakeVim::Internal;
 

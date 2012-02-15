@@ -33,8 +33,8 @@
 #ifndef LIVESINGLESELECTIONMANIPULATOR_H
 #define LIVESINGLESELECTIONMANIPULATOR_H
 
-#include <QtCore/QPointF>
-#include <QtCore/QList>
+#include <QPointF>
+#include <QList>
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsItem);
 

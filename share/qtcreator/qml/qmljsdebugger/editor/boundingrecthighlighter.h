@@ -35,8 +35,8 @@
 
 #include "livelayeritem.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QWeakPointer>
+#include <QObject>
+#include <QWeakPointer>
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsItem)
 QT_FORWARD_DECLARE_CLASS(QPainter)

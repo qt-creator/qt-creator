@@ -41,15 +41,15 @@
 
 #include "qt_private/qdeclarativedebughelper_p.h"
 
-#include <QtDeclarative/QDeclarativeItem>
-#include <QtDeclarative/QDeclarativeEngine>
-#include <QtDeclarative/QDeclarativeContext>
-#include <QtDeclarative/QDeclarativeExpression>
-#include <QtGui/QWidget>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QGraphicsObject>
-#include <QtGui/QApplication>
+#include <QDeclarativeItem>
+#include <QDeclarativeEngine>
+#include <QDeclarativeContext>
+#include <QDeclarativeExpression>
+#include <QWidget>
+#include <QVBoxLayout>
+#include <QMouseEvent>
+#include <QGraphicsObject>
+#include <QApplication>
 
 #include "qt_private/qdeclarativestate_p.h"
 

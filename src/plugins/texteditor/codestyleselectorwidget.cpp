@@ -37,19 +37,19 @@
 #include "codestylepool.h"
 #include "tabsettings.h"
 
-#include <QtGui/QComboBox>
-#include <QtGui/QBoxLayout>
-#include <QtGui/QCheckBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QMenu>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QDialog>
-#include <QtGui/QInputDialog>
-#include <QtGui/QLabel>
-#include <QtGui/QMessageBox>
-#include <QtGui/QFileDialog>
-#include <QtCore/QTextStream>
-#include <QtCore/QSignalMapper>
+#include <QComboBox>
+#include <QBoxLayout>
+#include <QCheckBox>
+#include <QPushButton>
+#include <QMenu>
+#include <QDialogButtonBox>
+#include <QDialog>
+#include <QInputDialog>
+#include <QLabel>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QTextStream>
+#include <QSignalMapper>
 
 #include <QDebug>
 

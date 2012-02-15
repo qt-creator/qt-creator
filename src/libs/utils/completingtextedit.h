@@ -35,7 +35,7 @@
 
 #include "utils_global.h"
 
-#include <QtGui/QTextEdit>
+#include <QTextEdit>
 
 QT_BEGIN_NAMESPACE
 class QCompleter;

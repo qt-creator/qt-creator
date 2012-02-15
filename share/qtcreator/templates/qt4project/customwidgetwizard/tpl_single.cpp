@@ -1,7 +1,7 @@
 #include "@WIDGET_HEADER@"
 #include "@PLUGIN_HEADER@"
 
-#include <QtCore/QtPlugin>
+#include <QtPlugin>
 
 @PLUGIN_CLASS@::@PLUGIN_CLASS@(QObject *parent)
     : QObject(parent)

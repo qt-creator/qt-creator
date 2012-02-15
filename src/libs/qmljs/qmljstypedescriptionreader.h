@@ -38,7 +38,7 @@
 #include "qmljsdocument.h"
 
 // for Q_DECLARE_TR_FUNCTIONS
-#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 
 QT_BEGIN_NAMESPACE
 class QIODevice;

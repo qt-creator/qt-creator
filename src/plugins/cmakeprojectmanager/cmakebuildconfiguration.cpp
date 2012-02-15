@@ -42,7 +42,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QInputDialog>
+#include <QInputDialog>
 
 using namespace CMakeProjectManager;
 using namespace Internal;

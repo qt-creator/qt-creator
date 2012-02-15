@@ -47,12 +47,12 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
 
-#include <QtGui/QLineEdit>
-#include <QtGui/QComboBox>
-#include <QtGui/QFormLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
-#include <QtGui/QStandardItemModel>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QFormLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QStandardItemModel>
 
 using Core::ICore;
 using Utils::DebuggerLanguageChooser;

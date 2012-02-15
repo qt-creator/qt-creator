@@ -34,10 +34,10 @@
 
 #include <qdeclarativecontext.h>
 #include <qdeclarativeproperty.h>
-#include <QtCore/QTimer>
-#include <QtGui/QPixmap>
-#include <QtGui/QPainter>
-#include <QtGui/QGraphicsSceneMouseEvent>
+#include <QTimer>
+#include <QPixmap>
+#include <QPainter>
+#include <QGraphicsSceneMouseEvent>
 
 #include <math.h>
 

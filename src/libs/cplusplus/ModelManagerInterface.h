@@ -35,11 +35,11 @@
 
 #include <cplusplus/CppDocument.h>
 #include <languageutils/fakemetaobject.h>
-#include <QtCore/QObject>
-#include <QtCore/QHash>
-#include <QtCore/QPointer>
-#include <QtCore/QStringList>
-#include <QtCore/QFuture>
+#include <QObject>
+#include <QHash>
+#include <QPointer>
+#include <QStringList>
+#include <QFuture>
 
 namespace Core {
     class IEditor;

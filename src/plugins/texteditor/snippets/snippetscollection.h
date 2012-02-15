@@ -35,10 +35,10 @@
 
 #include "snippet.h"
 
-#include <QtCore/QVector>
-#include <QtCore/QStringList>
-#include <QtCore/QHash>
-#include <QtCore/QXmlStreamWriter>
+#include <QVector>
+#include <QStringList>
+#include <QHash>
+#include <QXmlStreamWriter>
 
 namespace TextEditor {
 namespace Internal {

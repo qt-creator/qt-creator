@@ -32,7 +32,7 @@
 #ifndef QMLINSPECTOR_GLOBAL_H
 #define QMLINSPECTOR_GLOBAL_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 #if defined(QMLJSINSPECTOR_LIBRARY)
 #  define QMLINSPECTOR_EXPORT Q_DECL_EXPORT

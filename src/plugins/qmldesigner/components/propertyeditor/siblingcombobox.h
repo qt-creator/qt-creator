@@ -33,7 +33,7 @@
 #ifndef SIBLINGCOMBOBOX_H
 #define SIBLINGCOMBOBOX_H
 
-#include <QtGui/QComboBox>
+#include <QComboBox>
 
 #include <qmlitemnode.h>
 

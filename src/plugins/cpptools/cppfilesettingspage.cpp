@@ -43,18 +43,18 @@
 
 #include <utils/fileutils.h>
 
-#include <QtCore/QSettings>
-#include <QtCore/QDebug>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDate>
-#include <QtCore/QLocale>
-#include <QtCore/QTextCodec>
-#include <QtCore/QTextStream>
+#include <QSettings>
+#include <QDebug>
+#include <QFile>
+#include <QFileInfo>
+#include <QCoreApplication>
+#include <QDate>
+#include <QLocale>
+#include <QTextCodec>
+#include <QTextStream>
 
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
+#include <QFileDialog>
+#include <QMessageBox>
 
 static const char headerSuffixKeyC[] = "HeaderSuffix";
 static const char sourceSuffixKeyC[] = "SourceSuffix";

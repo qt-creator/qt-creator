@@ -37,7 +37,7 @@
 #include "sshexception_p.h"
 #include "sshpacketparser_p.h"
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 #include <cctype>
 

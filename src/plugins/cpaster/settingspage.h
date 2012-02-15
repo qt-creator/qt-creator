@@ -37,9 +37,9 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QPointer>
+#include <QStringList>
+#include <QSharedPointer>
+#include <QPointer>
 
 namespace CodePaster {
 

@@ -44,7 +44,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/infobar.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;

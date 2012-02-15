@@ -35,7 +35,7 @@
 
 #include "callgrindabstractmodel.h"
 
-#include <QtCore/QAbstractItemModel>
+#include <QAbstractItemModel>
 
 namespace Valgrind {
 namespace Callgrind {

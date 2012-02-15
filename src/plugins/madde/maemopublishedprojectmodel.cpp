@@ -31,7 +31,7 @@
 
 #include "maemopublishedprojectmodel.h"
 
-#include <QtCore/QFileInfo>
+#include <QFileInfo>
 
 namespace Madde {
 namespace Internal {

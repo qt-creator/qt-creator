@@ -45,9 +45,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 
-#include <QtGui/QLabel>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QPushButton>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QPushButton>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

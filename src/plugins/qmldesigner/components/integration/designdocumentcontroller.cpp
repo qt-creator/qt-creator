@@ -65,27 +65,27 @@
 #include <utils/fileutils.h>
 #include <utils/crumblepath.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QUrl>
-#include <QtCore/QProcess>
-#include <QtCore/QTemporaryFile>
-#include <QtCore/QtDebug>
-#include <QtCore/QEvent>
+#include <QCoreApplication>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QUrl>
+#include <QProcess>
+#include <QTemporaryFile>
+#include <QtDebug>
+#include <QEvent>
 
-#include <QtGui/QBoxLayout>
-#include <QtGui/QComboBox>
-#include <QtGui/QErrorMessage>
-#include <QtGui/QFileDialog>
-#include <QtGui/QLabel>
-#include <QtGui/QMdiArea>
-#include <QtGui/QMdiSubWindow>
-#include <QtGui/QMessageBox>
-#include <QtGui/QUndoStack>
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QApplication>
+#include <QBoxLayout>
+#include <QComboBox>
+#include <QErrorMessage>
+#include <QFileDialog>
+#include <QLabel>
+#include <QMdiArea>
+#include <QMdiSubWindow>
+#include <QMessageBox>
+#include <QUndoStack>
+#include <QPlainTextEdit>
+#include <QApplication>
 
 #include <projectexplorer/projectexplorer.h>
 #include <qt4projectmanager/qt4project.h>

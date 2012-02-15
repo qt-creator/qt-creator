@@ -38,12 +38,12 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/synchronousprocess.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QProcess>
-#include <QtCore/QFuture>
-#include <QtCore/QtConcurrentRun>
-#include <QtCore/QFileInfo>
-#include <QtCore/QCoreApplication>
+#include <QDebug>
+#include <QProcess>
+#include <QFuture>
+#include <QtConcurrentRun>
+#include <QFileInfo>
+#include <QCoreApplication>
 
 Q_DECLARE_METATYPE(QVariant)
 

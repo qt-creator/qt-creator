@@ -32,8 +32,8 @@
 
 #include "helloworldwindow.h"
 
-#include <QtGui/QTextEdit>
-#include <QtGui/QVBoxLayout>
+#include <QTextEdit>
+#include <QVBoxLayout>
 
 using namespace HelloWorld::Internal;
 

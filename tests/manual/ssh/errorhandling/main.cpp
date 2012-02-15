@@ -34,11 +34,11 @@
 #include <utils/ssh/sshconnection.h>
 #include <utils/ssh/sshremoteprocess.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QList>
-#include <QtCore/QObject>
-#include <QtCore/QPair>
-#include <QtCore/QTimer>
+#include <QCoreApplication>
+#include <QList>
+#include <QObject>
+#include <QPair>
+#include <QTimer>
 
 using namespace Utils;
 

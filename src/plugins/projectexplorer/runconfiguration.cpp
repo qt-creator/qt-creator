@@ -46,11 +46,11 @@
 
 #include <coreplugin/icore.h>
 
-#include <QtCore/QTimer>
-#include <QtCore/QSettings>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
+#include <QTimer>
+#include <QSettings>
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QPushButton>
 
 #ifdef Q_OS_MAC
 #include <Carbon/Carbon.h>

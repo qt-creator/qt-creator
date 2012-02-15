@@ -35,8 +35,8 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QMultiMap>
+#include <QObject>
+#include <QMultiMap>
 
 QT_BEGIN_NAMESPACE
 class QAction;

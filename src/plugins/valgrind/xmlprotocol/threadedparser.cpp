@@ -40,9 +40,9 @@
 #include "suppression.h"
 #include <utils/qtcassert.h>
 
-#include <QtCore/QMetaType>
-#include <QtCore/QThread>
-#include <QtCore/QSharedPointer>
+#include <QMetaType>
+#include <QThread>
+#include <QSharedPointer>
 
 namespace {
 

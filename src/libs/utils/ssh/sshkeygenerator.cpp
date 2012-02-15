@@ -45,8 +45,8 @@
 #include <botan/rsa.h>
 #include <botan/x509_key.h>
 
-#include <QtCore/QDateTime>
-#include <QtGui/QInputDialog>
+#include <QDateTime>
+#include <QInputDialog>
 
 #include <string>
 

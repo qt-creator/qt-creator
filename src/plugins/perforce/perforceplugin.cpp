@@ -62,18 +62,18 @@
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
 
-#include <QtCore/QtPlugin>
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QSettings>
-#include <QtCore/QTextCodec>
+#include <QtPlugin>
+#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QSettings>
+#include <QTextCodec>
 
-#include <QtGui/QAction>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
+#include <QAction>
+#include <QFileDialog>
+#include <QMainWindow>
+#include <QMenu>
+#include <QMessageBox>
 
 static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
 {

@@ -34,7 +34,7 @@
 #define SRCDESTDIALOG_H
 
 #include <utils/pathchooser.h>
-#include <QtGui/QDialog>
+#include <QDialog>
 
 namespace Mercurial {
 namespace Internal {

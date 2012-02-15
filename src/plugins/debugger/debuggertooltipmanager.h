@@ -35,14 +35,14 @@
 
 #include "debuggerconstants.h"
 
-#include <QtGui/QTreeView>
+#include <QTreeView>
 
-#include <QtCore/QPointer>
-#include <QtCore/QPoint>
-#include <QtCore/QList>
-#include <QtCore/QXmlStreamWriter>
-#include <QtCore/QXmlStreamReader>
-#include <QtCore/QDate>
+#include <QPointer>
+#include <QPoint>
+#include <QList>
+#include <QXmlStreamWriter>
+#include <QXmlStreamReader>
+#include <QDate>
 
 QT_BEGIN_NAMESPACE
 class QVBoxLayout;

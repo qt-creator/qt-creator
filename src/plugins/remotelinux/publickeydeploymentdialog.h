@@ -33,8 +33,8 @@
 
 #include "remotelinux_export.h"
 
-#include <QtCore/QSharedPointer>
-#include <QtGui/QProgressDialog>
+#include <QSharedPointer>
+#include <QProgressDialog>
 
 QT_BEGIN_NAMESPACE
 class QString;

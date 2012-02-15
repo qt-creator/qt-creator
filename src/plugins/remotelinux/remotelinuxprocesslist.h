@@ -33,9 +33,9 @@
 
 #include "remotelinux_export.h"
 
-#include <QtCore/QAbstractTableModel>
-#include <QtCore/QList>
-#include <QtCore/QSharedPointer>
+#include <QAbstractTableModel>
+#include <QList>
+#include <QSharedPointer>
 
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;

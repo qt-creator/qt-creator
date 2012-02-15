@@ -35,8 +35,8 @@
 #include "highlightdefinition.h"
 #include "formats.h"
 
-#include <QtCore/QDebug>
-#include <QtTest/QtTest>
+#include <QDebug>
+#include <QtTest>
 
 QT_BEGIN_NAMESPACE
 namespace QTest {

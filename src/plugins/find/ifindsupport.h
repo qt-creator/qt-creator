@@ -36,8 +36,8 @@
 #include "find_global.h"
 #include "textfindconstants.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
+#include <QObject>
+#include <QString>
 
 namespace Find {
 

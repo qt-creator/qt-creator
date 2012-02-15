@@ -39,7 +39,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
 using namespace Locator;
 using namespace Help;

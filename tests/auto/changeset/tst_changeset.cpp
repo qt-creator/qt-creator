@@ -32,7 +32,7 @@
 
 #include <utils/changeset.h>
 
-#include <QtTest/QtTest>
+#include <QtTest>
 
 //TESTED_COMPONENT=src/utils/changeset
 

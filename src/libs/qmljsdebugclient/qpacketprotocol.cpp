@@ -31,8 +31,8 @@
 
 #include "qpacketprotocol.h"
 
-#include <QtCore/qbuffer.h>
-#include <QtCore/qelapsedtimer.h>
+#include <qbuffer.h>
+#include <qelapsedtimer.h>
 
 namespace QmlJsDebugClient {
 

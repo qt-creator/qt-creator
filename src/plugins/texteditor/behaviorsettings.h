@@ -35,7 +35,7 @@
 
 #include "texteditor_global.h"
 
-#include <QtCore/QVariantMap>
+#include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

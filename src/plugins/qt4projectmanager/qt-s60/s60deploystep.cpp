@@ -47,17 +47,17 @@
 #include <symbianutils/symbiandevicemanager.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QMessageBox>
-#include <QtGui/QMainWindow>
+#include <QMessageBox>
+#include <QMainWindow>
 
-#include <QtCore/QTimer>
-#include <QtCore/QDateTime>
-#include <QtCore/QDir>
-#include <QtCore/QEventLoop>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
+#include <QTimer>
+#include <QDateTime>
+#include <QDir>
+#include <QEventLoop>
+#include <QFile>
+#include <QFileInfo>
 
-#include <QtNetwork/QTcpSocket>
+#include <QTcpSocket>
 
 using namespace ProjectExplorer;
 using namespace SymbianUtils;

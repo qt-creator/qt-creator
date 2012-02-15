@@ -33,8 +33,8 @@
 #ifndef CHECKOUTWIZARDDIALOG_H
 #define CHECKOUTWIZARDDIALOG_H
 
-#include <QtCore/QSharedPointer>
-#include <QtCore/QList>
+#include <QSharedPointer>
+#include <QList>
 #include <utils/wizard.h>
 
 namespace VcsBase {

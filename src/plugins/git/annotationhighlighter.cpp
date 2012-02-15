@@ -32,7 +32,7 @@
 
 #include "annotationhighlighter.h"
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 namespace Git {
 namespace Internal {

@@ -33,7 +33,7 @@
 #ifndef QTSUPPORT_GLOBAL_H
 #define QTSUPPORT_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(QTSUPPORT_LIBRARY)
 #  define QTSUPPORT_EXPORT Q_DECL_EXPORT

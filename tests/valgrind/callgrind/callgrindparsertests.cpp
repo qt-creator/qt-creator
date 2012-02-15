@@ -42,7 +42,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QString>
-#include <QtTest/QTest>
+#include <QTest>
 
 using namespace Valgrind;
 using namespace Valgrind::Callgrind;

@@ -37,8 +37,8 @@
 
 #include <utils/settingsutils.h>
 
-#include <QtCore/QSettings>
-#include <QtCore/QStringList>
+#include <QSettings>
+#include <QStringList>
 
 using namespace TextEditor;
 

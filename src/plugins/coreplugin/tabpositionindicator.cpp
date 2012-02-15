@@ -32,10 +32,10 @@
 
 #include "tabpositionindicator.h"
 
-#include <QtGui/QPainter>
-#include <QtGui/QPaintEvent>
-#include <QtGui/QBrush>
-#include <QtGui/QPalette>
+#include <QPainter>
+#include <QPaintEvent>
+#include <QBrush>
+#include <QPalette>
 
 using namespace Core::Internal;
 

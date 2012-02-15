@@ -33,7 +33,7 @@
 #include "helpmode.h"
 #include "helpconstants.h"
 
-#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 
 using namespace Help;
 using namespace Help::Internal;

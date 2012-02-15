@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if USE_QT_CORE
 #include <QDateTime>

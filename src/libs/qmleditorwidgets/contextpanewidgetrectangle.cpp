@@ -36,7 +36,7 @@
 #include <qmljs/qmljspropertyreader.h>
 #include <qmljs/qmljsutils.h>
 #include <customcolordialog.h>
-#include <QtCore/QDebug>
+#include <QDebug>
 
 namespace QmlEditorWidgets {
 

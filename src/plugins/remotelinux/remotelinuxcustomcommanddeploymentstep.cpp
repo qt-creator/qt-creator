@@ -31,11 +31,11 @@
 **************************************************************************/
 #include "remotelinuxcustomcommanddeploymentstep.h"
 
-#include <QtCore/QString>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QVBoxLayout>
+#include <QString>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QVBoxLayout>
 
 using namespace ProjectExplorer;
 

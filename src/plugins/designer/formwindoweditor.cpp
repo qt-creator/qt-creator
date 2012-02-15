@@ -48,16 +48,16 @@
 #include <utils/fileutils.h>
 
 #if QT_VERSION >= 0x050000
-#    include <QtDesigner/QDesignerFormWindowInterface>
-#    include <QtCore/QBuffer>
+#    include <QDesignerFormWindowInterface>
+#    include <QBuffer>
 #else
 #    include "qt_private/formwindowbase_p.h"
 #endif
 
-#include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
-#include <QtCore/QFile>
-#include <QtGui/QApplication>
+#include <QDebug>
+#include <QFileInfo>
+#include <QFile>
+#include <QApplication>
 
 namespace Designer {
 

@@ -35,8 +35,8 @@
 
 #include <coreplugin/core_global.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QList>
+#include <QObject>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 class QWizardPage;

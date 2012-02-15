@@ -36,7 +36,7 @@
 #include <analyzerbase/ianalyzertool.h>
 #include <analyzerbase/ianalyzerengine.h>
 
-#include <QtCore/QPoint>
+#include <QPoint>
 
 namespace QmlProfiler {
 namespace Internal {

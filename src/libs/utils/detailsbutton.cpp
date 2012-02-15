@@ -34,10 +34,10 @@
 
 #include <utils/stylehelper.h>
 
-#include <QtCore/QPropertyAnimation>
-#include <QtGui/QPaintEvent>
-#include <QtGui/QPainter>
-#include <QtGui/QStyleOption>
+#include <QPropertyAnimation>
+#include <QPaintEvent>
+#include <QPainter>
+#include <QStyleOption>
 
 using namespace Utils;
 

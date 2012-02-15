@@ -32,9 +32,9 @@
 
 #include "convenience.h"
 
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextBlock>
-#include <QtGui/QTextCursor>
+#include <QTextDocument>
+#include <QTextBlock>
+#include <QTextCursor>
 
 namespace TextEditor {
 namespace Convenience {

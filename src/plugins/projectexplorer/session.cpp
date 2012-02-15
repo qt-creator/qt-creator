@@ -53,18 +53,18 @@
 #include <utils/listutils.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QFuture>
-#include <QtCore/QSettings>
-#include <QtCore/QTimer>
+#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QFuture>
+#include <QSettings>
+#include <QTimer>
 
-#include <QtGui/QApplication>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
-#include <QtCore/QTextCodec>
+#include <QApplication>
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QTextCodec>
 
 namespace {
     bool debug = false;

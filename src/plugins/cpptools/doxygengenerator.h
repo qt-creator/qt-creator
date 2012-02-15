@@ -5,8 +5,8 @@
 
 #include <cplusplus/Overview.h>
 
-#include <QtCore/QLatin1String>
-#include <QtGui/QTextCursor>
+#include <QLatin1String>
+#include <QTextCursor>
 
 namespace CPlusPlus {
 class DeclarationAST;

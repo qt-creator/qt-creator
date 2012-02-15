@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#include <QtCore/QBuffer>
-#include <QtCore/QDataStream>
+#include <QBuffer>
+#include <QDataStream>
 
 #include "copyhelper.h"
 #include "internalnode_p.h"

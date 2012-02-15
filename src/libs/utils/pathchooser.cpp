@@ -38,18 +38,18 @@
 
 #include "synchronousprocess.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QSettings>
-#include <QtCore/QProcess>
+#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QSettings>
+#include <QProcess>
 
-#include <QtGui/qevent.h>
-#include <QtGui/QDesktopServices>
-#include <QtGui/QFileDialog>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLineEdit>
-#include <QtGui/QPushButton>
+#include <qevent.h>
+#include <QDesktopServices>
+#include <QFileDialog>
+#include <QHBoxLayout>
+#include <QLineEdit>
+#include <QPushButton>
 
 /*!
     \class Utils::PathChooser

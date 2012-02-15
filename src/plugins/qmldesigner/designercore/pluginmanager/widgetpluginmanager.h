@@ -33,8 +33,8 @@
 #ifndef WIDGETPLUGINMANAGER_H
 #define WIDGETPLUGINMANAGER_H
 
-#include <QtCore/QObject>
-#include <QtCore/QList>
+#include <QObject>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 class QString;

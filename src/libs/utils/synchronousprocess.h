@@ -35,10 +35,10 @@
 
 #include "utils_global.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QProcess>
-#include <QtCore/QStringList>
-#include <QtCore/QSharedPointer>
+#include <QObject>
+#include <QProcess>
+#include <QStringList>
+#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QTextCodec;

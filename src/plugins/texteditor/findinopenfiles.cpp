@@ -37,7 +37,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/openeditorsmodel.h>
 
-#include <QtCore/QSettings>
+#include <QSettings>
 
 using namespace Find;
 using namespace TextEditor;

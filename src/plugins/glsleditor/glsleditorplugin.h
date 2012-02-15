@@ -36,7 +36,7 @@
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/id.h>
-#include <QtCore/QPointer>
+#include <QPointer>
 #include <glsl/glsl.h>
 
 QT_FORWARD_DECLARE_CLASS(QAction)

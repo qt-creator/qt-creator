@@ -37,13 +37,13 @@
 
 #include <vcsbase/vcsbaseconstants.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
-#include <QtCore/QTextStream>
-#include <QtCore/QProcessEnvironment>
-#include <QtGui/QMessageBox>
+#include <QCoreApplication>
+#include <QDir>
+#include <QFileInfo>
+#include <QDebug>
+#include <QTextStream>
+#include <QProcessEnvironment>
+#include <QMessageBox>
 
 namespace Git {
 namespace Internal {

@@ -36,7 +36,7 @@
 #include "ui_pasteview.h"
 #include "splitter.h"
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 namespace CodePaster {
 class Protocol;

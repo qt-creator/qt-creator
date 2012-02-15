@@ -50,8 +50,8 @@
 #include <utils/qtcassert.h>
 #include <utils/ssh/sshconnection.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QList>
+#include <QFileInfo>
+#include <QList>
 
 using namespace ProjectExplorer;
 using namespace RemoteLinux;

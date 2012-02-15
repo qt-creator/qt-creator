@@ -37,7 +37,7 @@
 
 #include <utils/ssh/sftpdefs.h>
 
-#include <QtCore/QList>
+#include <QList>
 
 QT_FORWARD_DECLARE_CLASS(QString)
 

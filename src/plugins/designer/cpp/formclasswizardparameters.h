@@ -33,8 +33,8 @@
 #ifndef FORMCLASSWIZARDPARAMETERS_H
 #define FORMCLASSWIZARDPARAMETERS_H
 
-#include <QtCore/QString>
-#include <QtCore/QMetaType>
+#include <QString>
+#include <QMetaType>
 
 namespace Designer {
 /* Parameters passed to generate the code part of a form class.

@@ -39,7 +39,7 @@
 #include <find/ifindsupport.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtGui/QPlainTextEdit>
+#include <QPlainTextEdit>
 
 QT_BEGIN_NAMESPACE
 class QToolBar;

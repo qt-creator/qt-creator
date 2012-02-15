@@ -42,11 +42,11 @@
 #include "ieditor.h"
 #include "ifile.h"
 
-#include <QtCore/QLatin1String>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QWidget>
-#include <QtGui/QSplitter>
-#include <QtGui/QIcon>
+#include <QLatin1String>
+#include <QHBoxLayout>
+#include <QWidget>
+#include <QSplitter>
+#include <QIcon>
 
 using namespace Core;
 using namespace Core::Internal;

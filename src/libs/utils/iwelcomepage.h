@@ -35,8 +35,8 @@
 
 #include "utils_global.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QUrl>
+#include <QObject>
+#include <QUrl>
 
 QT_FORWARD_DECLARE_CLASS(QDeclarativeEngine)
 

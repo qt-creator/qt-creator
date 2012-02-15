@@ -33,7 +33,7 @@
 #include "qdockarrows.h"
 #include "mainwindow.h"
 
-#include <QtGui>
+#include <QtWidgets>
 
 class TestTool : public QWidget
 {

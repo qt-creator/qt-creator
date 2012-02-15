@@ -37,8 +37,8 @@
 
 #include <qmljseditor/qmljseditorconstants.h>
 
-#include <QtCore/QTextStream>
-#include <QtGui/QCheckBox>
+#include <QTextStream>
+#include <QCheckBox>
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;

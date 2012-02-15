@@ -36,7 +36,7 @@
 #include "watchdata.h"
 #include "disassemblerlines.h"
 
-#include <QtCore/QDataStream>
+#include <QDataStream>
 
 namespace Debugger {
 namespace Internal {

@@ -38,24 +38,24 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QLibraryInfo>
-#include <QtCore/QSettings>
-#include <QtCore/QTextStream>
-#include <QtCore/QThreadPool>
-#include <QtCore/QTimer>
-#include <QtCore/QTranslator>
-#include <QtCore/QUrl>
-#include <QtCore/QVariant>
+#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QLibraryInfo>
+#include <QSettings>
+#include <QTextStream>
+#include <QThreadPool>
+#include <QTimer>
+#include <QTranslator>
+#include <QUrl>
+#include <QVariant>
 
-#include <QtNetwork/QNetworkProxyFactory>
+#include <QNetworkProxyFactory>
 
-#include <QtGui/QApplication>
-#include <QtGui/QDesktopServices>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMessageBox>
+#include <QApplication>
+#include <QDesktopServices>
+#include <QMainWindow>
+#include <QMessageBox>
 
 #ifdef ENABLE_QT_BREAKPAD
 #include <qtsystemexceptionhandler.h>

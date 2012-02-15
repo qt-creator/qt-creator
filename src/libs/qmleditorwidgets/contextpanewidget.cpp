@@ -31,19 +31,19 @@
 **************************************************************************/
 
 #include "contextpanewidget.h"
-#include <QtGui/QToolButton>
-#include <QtGui/QFontComboBox>
-#include <QtGui/QComboBox>
-#include <QtGui/QSpinBox>
-#include <QtGui/QToolButton>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QGridLayout>
-#include <QtGui/QToolButton>
-#include <QtGui/QGraphicsEffect>
-#include <QtGui/QAction>
+#include <QToolButton>
+#include <QFontComboBox>
+#include <QComboBox>
+#include <QSpinBox>
+#include <QToolButton>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QMouseEvent>
+#include <QGridLayout>
+#include <QToolButton>
+#include <QGraphicsEffect>
+#include <QAction>
 #include "contextpanetextwidget.h"
 #include "easingcontextpane.h"
 #include "contextpanewidgetimage.h"

@@ -46,9 +46,9 @@
 #include "modeltest.h"
 #endif
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTimerEvent>
+#include <QDir>
+#include <QFileInfo>
+#include <QTimerEvent>
 
 #define BREAK_ASSERT(cond, action) if (cond) {} else { action; }
 //#define BREAK_ASSERT(cond, action) QTC_ASSERT(cond, action)

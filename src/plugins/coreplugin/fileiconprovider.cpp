@@ -35,16 +35,16 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtGui/QApplication>
-#include <QtGui/QStyle>
-#include <QtGui/QPainter>
-#include <QtCore/QFileInfo>
-#include <QtCore/QPair>
-#include <QtCore/QDebug>
+#include <QApplication>
+#include <QStyle>
+#include <QPainter>
+#include <QFileInfo>
+#include <QPair>
+#include <QDebug>
 
-#include <QtGui/QFileIconProvider>
-#include <QtGui/QIcon>
-#include <QtGui/QStyle>
+#include <QFileIconProvider>
+#include <QIcon>
+#include <QStyle>
 
 /*!
   \class Core::FileIconProvider

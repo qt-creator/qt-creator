@@ -38,7 +38,7 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/LookupContext.h>
 #include <texteditor/semantichighlighter.h>
-#include <QtCore/QHash>
+#include <QHash>
 
 namespace CppTools {
 

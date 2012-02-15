@@ -36,7 +36,7 @@
 
 #include "ui_quicktoolbarsettingspage.h"
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <QtGui/QWidget>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

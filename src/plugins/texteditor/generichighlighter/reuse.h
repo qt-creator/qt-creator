@@ -34,10 +34,10 @@
 #define REUSE_H
 
 #include <Qt>
-#include <QtCore/QString>
-#include <QtCore/QLatin1String>
-#include <QtCore/QChar>
-#include <QtGui/QFont>
+#include <QString>
+#include <QLatin1String>
+#include <QChar>
+#include <QFont>
 
 namespace TextEditor {
 namespace Internal {

@@ -34,8 +34,8 @@
 
 #include "remotelinux_export.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
+#include <QObject>
+#include <QSharedPointer>
 
 QT_FORWARD_DECLARE_CLASS(QString)
 

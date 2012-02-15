@@ -35,7 +35,7 @@
 
 #include "qmljstools_global.h"
 
-#include <QtCore/QObject>
+#include <QObject>
 
 namespace TextEditor
 {

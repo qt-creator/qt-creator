@@ -37,9 +37,9 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/LookupContext.h>
 
-#include <QtCore/QSet>
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextCursor>
+#include <QSet>
+#include <QTextDocument>
+#include <QTextCursor>
 
 using namespace CPlusPlus;
 

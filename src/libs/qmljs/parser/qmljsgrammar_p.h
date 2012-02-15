@@ -46,7 +46,7 @@
 #define QMLJSGRAMMAR_P_H
 
 #include "qmljsglobal_p.h"
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 QT_BEGIN_NAMESPACE
 

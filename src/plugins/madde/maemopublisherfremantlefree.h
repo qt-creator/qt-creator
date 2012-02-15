@@ -34,8 +34,8 @@
 
 #include <utils/ssh/sshconnection.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QProcess>
+#include <QObject>
+#include <QProcess>
 
 namespace ProjectExplorer {
 class Project;

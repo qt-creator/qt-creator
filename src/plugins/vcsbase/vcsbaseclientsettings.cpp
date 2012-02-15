@@ -32,7 +32,7 @@
 
 #include "vcsbaseclientsettings.h"
 
-#include <QtCore/QSettings>
+#include <QSettings>
 
 namespace {
 

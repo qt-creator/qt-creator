@@ -33,10 +33,10 @@
 #ifndef COPYHELPER_H
 #define COPYHELPER_H
 
-#include <QtCore/QByteArray>
-#include <QtCore/QMimeData>
-#include <QtCore/QSet>
-#include <QtCore/QString>
+#include <QByteArray>
+#include <QMimeData>
+#include <QSet>
+#include <QString>
 
 #include "internalnodestate.h"
 #include "textlocation.h"

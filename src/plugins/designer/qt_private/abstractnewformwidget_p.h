@@ -44,9 +44,9 @@
 #ifndef ABSTRACTNEWFORMWIDGET_H
 #define ABSTRACTNEWFORMWIDGET_H
 
-#include <QtDesigner/sdk_global.h>
+#include <sdk_global.h>
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 QT_BEGIN_HEADER
 

@@ -36,7 +36,7 @@
  */
 
 #if defined __cplusplus
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 #ifdef Q_WS_WIN
 # define _POSIX_
@@ -44,18 +44,18 @@
 # undef _POSIX_
 #endif
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QList>
-#include <QtCore/QVariant>
-#include <QtCore/QObject>
-#include <QtCore/QRegExp>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QTextCodec>
-#include <QtCore/QPointer>
-#include <QtCore/QScopedPointer>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QDebug>
+#include <QCoreApplication>
+#include <QList>
+#include <QVariant>
+#include <QObject>
+#include <QRegExp>
+#include <QString>
+#include <QStringList>
+#include <QTextCodec>
+#include <QPointer>
+#include <QScopedPointer>
+#include <QSharedPointer>
+#include <QDebug>
 
 #include <stdlib.h>
 #endif

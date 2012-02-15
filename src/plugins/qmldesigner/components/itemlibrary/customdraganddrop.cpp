@@ -32,8 +32,8 @@
 
 #include "customdraganddrop.h"
 
-#include <QtCore/QMimeData>
-#include <QtCore/QPoint>
+#include <QMimeData>
+#include <QPoint>
 #include <QLabel>
 
 #include <QMouseEvent>

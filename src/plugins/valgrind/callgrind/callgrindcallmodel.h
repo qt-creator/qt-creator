@@ -33,7 +33,7 @@
 #ifndef VALGRIND_CALLGRIND_CALLGRINDCALLMODEL_H
 #define VALGRIND_CALLGRIND_CALLGRINDCALLMODEL_H
 
-#include <QtCore/QAbstractItemModel>
+#include <QAbstractItemModel>
 
 #include "callgrindabstractmodel.h"
 

@@ -40,13 +40,13 @@
 #include "openpagesswitcher.h"
 #include "openpageswidget.h"
 
-#include <QtGui/QApplication>
-#include <QtGui/QClipboard>
-#include <QtGui/QComboBox>
-#include <QtGui/QMenu>
-#include <QtGui/QTreeView>
+#include <QApplication>
+#include <QClipboard>
+#include <QComboBox>
+#include <QMenu>
+#include <QTreeView>
 
-#include <QtHelp/QHelpEngine>
+#include <QHelpEngine>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/helpmanager.h>

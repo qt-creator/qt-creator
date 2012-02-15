@@ -41,8 +41,8 @@
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <QtGui/QApplication>
-#include <QtGui/QStyle>
+#include <QApplication>
+#include <QStyle>
 
 const char GENERIC_DESKTOP_TARGET_DISPLAY_NAME[] = "Desktop";
 

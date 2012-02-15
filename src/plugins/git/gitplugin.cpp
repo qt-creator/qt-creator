@@ -70,17 +70,17 @@
 #include <vcsbase/cleandialog.h>
 #include <locator/commandlocator.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTemporaryFile>
-#include <QtCore/QtPlugin>
+#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QTemporaryFile>
+#include <QtPlugin>
 
-#include <QtGui/QAction>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
+#include <QAction>
+#include <QFileDialog>
+#include <QMainWindow>
+#include <QMenu>
+#include <QMessageBox>
 
 static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
 {

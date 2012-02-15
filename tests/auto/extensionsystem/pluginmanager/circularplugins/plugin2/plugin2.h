@@ -35,7 +35,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QtCore/QObject>
+#include <QObject>
 
 namespace Plugin2 {
 

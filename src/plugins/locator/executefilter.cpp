@@ -36,7 +36,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/variablemanager.h>
 
-#include <QtGui/QMessageBox>
+#include <QMessageBox>
 
 using namespace Core;
 using namespace Locator;

@@ -35,7 +35,7 @@
 
 #include <utils/iwelcomepage.h>
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 class QDeclarativeEngine;

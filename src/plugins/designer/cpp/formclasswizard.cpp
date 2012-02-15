@@ -40,8 +40,8 @@
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
+#include <QDebug>
+#include <QSettings>
 
 namespace Designer {
 namespace Internal {

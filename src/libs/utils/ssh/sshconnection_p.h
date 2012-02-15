@@ -39,12 +39,12 @@
 #include "sshremoteprocess.h"
 #include "sshsendfacility_p.h"
 
-#include <QtCore/QHash>
-#include <QtCore/QList>
-#include <QtCore/QObject>
-#include <QtCore/QPair>
-#include <QtCore/QScopedPointer>
-#include <QtCore/QTimer>
+#include <QHash>
+#include <QList>
+#include <QObject>
+#include <QPair>
+#include <QScopedPointer>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QTcpSocket;

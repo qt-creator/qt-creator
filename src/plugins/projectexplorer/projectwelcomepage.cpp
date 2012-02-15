@@ -34,8 +34,8 @@
 
 #include <utils/stringutils.h>
 
-#include <QtDeclarative/QDeclarativeEngine>
-#include <QtDeclarative/QDeclarativeContext>
+#include <QDeclarativeEngine>
+#include <QDeclarativeContext>
 
 #include <projectexplorer/session.h>
 #include <projectexplorer/projectexplorer.h>

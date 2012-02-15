@@ -44,8 +44,8 @@
 #include <remotelinux/portlist.h>
 #include <utils/ssh/sshconnection.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
+#include <QDir>
+#include <QFileInfo>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;

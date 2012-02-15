@@ -38,19 +38,19 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
-#include <QtCore/QTextStream>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QTextStream>
 
-#include <QtGui/QCheckBox>
-#include <QtGui/QFormLayout>
-#include <QtGui/QGridLayout>
-#include <QtGui/QGroupBox>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QRadioButton>
-#include <QtGui/QSpinBox>
-#include <QtGui/QTextEdit>
+#include <QCheckBox>
+#include <QFormLayout>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLineEdit>
+#include <QRadioButton>
+#include <QSpinBox>
+#include <QTextEdit>
 
 namespace Debugger {
 namespace Internal {

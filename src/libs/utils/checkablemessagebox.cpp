@@ -32,21 +32,21 @@
 
 #include "checkablemessagebox.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QVariant>
+#include <QDebug>
+#include <QVariant>
 
-#include <QtGui/QPushButton>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QCheckBox>
-#include <QtGui/QDialog>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QHeaderView>
-#include <QtGui/QLabel>
-#include <QtGui/QSpacerItem>
-#include <QtGui/QVBoxLayout>
+#include <QPushButton>
+#include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QCheckBox>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QLabel>
+#include <QSpacerItem>
+#include <QVBoxLayout>
 
 
 /*!

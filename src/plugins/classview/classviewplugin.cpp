@@ -34,7 +34,7 @@
 #include "classviewmanager.h"
 #include "classviewnavigationwidgetfactory.h"
 
-#include <QtCore/QtPlugin>
+#include <QtPlugin>
 
 namespace ClassView {
 namespace Internal {

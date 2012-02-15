@@ -39,11 +39,11 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
-#include <QtCore/QCoreApplication>
+#include <QString>
+#include <QStringList>
+#include <QDebug>
+#include <QFileInfo>
+#include <QCoreApplication>
 
 namespace Valgrind {
 namespace Callgrind {

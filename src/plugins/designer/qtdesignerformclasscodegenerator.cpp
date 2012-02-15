@@ -38,11 +38,11 @@
 #include <coreplugin/icore.h>
 #include <cpptools/abstracteditorsupport.h>
 
-#include <QtCore/QTextStream>
-#include <QtCore/QSettings>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
-#include <QtCore/QSharedData>
+#include <QTextStream>
+#include <QSettings>
+#include <QFileInfo>
+#include <QDebug>
+#include <QSharedData>
 
 static const char uiMemberC[] = "ui";
 static const char uiNamespaceC[] = "Ui";

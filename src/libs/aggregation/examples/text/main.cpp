@@ -32,7 +32,7 @@
 
 #include "main.h"
 
-#include <QtGui/QApplication>
+#include <QApplication>
 
 MyMain::MyMain(QWidget *parent, Qt::WFlags flags)
     : QWidget(parent, flags)

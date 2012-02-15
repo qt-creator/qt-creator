@@ -36,7 +36,7 @@
 #include <coreplugin/core_global.h>
 #include <coreplugin/featureprovider.h>
 
-#include <QtCore/QObject>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QIcon;

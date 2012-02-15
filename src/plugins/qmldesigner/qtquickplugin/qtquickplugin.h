@@ -34,7 +34,7 @@
 #define QTQUICKPLUGIN_H
 
 #include <iwidgetplugin.h>
-#include <QtDeclarative/qdeclarative.h>
+#include <qdeclarative.h>
 
 QT_BEGIN_NAMESPACE
 QT_END_NAMESPACE

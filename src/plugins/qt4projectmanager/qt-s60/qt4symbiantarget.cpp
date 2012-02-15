@@ -47,8 +47,8 @@
 #include <projectexplorer/toolchain.h>
 #include <symbianutils/symbiandevicemanager.h>
 #include <extensionsystem/pluginmanager.h>
-#include <QtGui/QPainter>
-#include <QtGui/QApplication>
+#include <QPainter>
+#include <QApplication>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

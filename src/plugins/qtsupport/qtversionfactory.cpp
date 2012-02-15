@@ -36,7 +36,7 @@
 #include "baseqtversion.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include <QtCore/QSettings>
+#include <QSettings>
 
 using namespace QtSupport;
 using namespace QtSupport::Internal;

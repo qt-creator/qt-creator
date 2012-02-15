@@ -45,11 +45,11 @@
 #include <remotelinux/deploymentinfo.h>
 #include <remotelinux/remotelinuxdeployconfiguration.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QLatin1Char>
-#include <QtCore/QProcess>
-#include <QtCore/QWeakPointer>
+#include <QDir>
+#include <QFileInfo>
+#include <QLatin1Char>
+#include <QProcess>
+#include <QWeakPointer>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;

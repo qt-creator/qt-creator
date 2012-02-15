@@ -33,8 +33,8 @@
 #ifndef QDECLARATIVEVIEWINSPECTOR_P_H
 #define QDECLARATIVEVIEWINSPECTOR_P_H
 
-#include <QtCore/QWeakPointer>
-#include <QtCore/QPointF>
+#include <QWeakPointer>
+#include <QPointF>
 
 #include "qdeclarativeviewinspector.h"
 #include "qdeclarativeinspectorservice.h"

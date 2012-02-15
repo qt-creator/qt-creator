@@ -39,9 +39,9 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <QtCore/QFileInfo>
+#include <QFileInfo>
 
-#include <QtGui/QAction>
+#include <QAction>
 
 using namespace ProjectExplorer::Internal;
 

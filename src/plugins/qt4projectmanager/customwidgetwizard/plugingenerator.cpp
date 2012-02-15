@@ -39,9 +39,9 @@
 
 #include <cpptools/abstracteditorsupport.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/QSet>
+#include <QFileInfo>
+#include <QDir>
+#include <QSet>
 
 static QString headerGuard(const QString &header)
 {

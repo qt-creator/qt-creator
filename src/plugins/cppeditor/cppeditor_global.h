@@ -33,7 +33,7 @@
 #ifndef CPPEDITOR_GLOBAL_H
 #define CPPEDITOR_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(CPPEDITOR_LIBRARY)
 #  define CPPEDITOR_EXPORT Q_DECL_EXPORT

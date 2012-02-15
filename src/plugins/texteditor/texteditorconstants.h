@@ -33,7 +33,7 @@
 #ifndef TEXTEDITORCONSTANTS_H
 #define TEXTEDITORCONSTANTS_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 namespace TextEditor {
 namespace Constants {

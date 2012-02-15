@@ -33,7 +33,7 @@
 #ifndef QMLEDITORWIDGETS_GLOBAL_H
 #define QMLEDITORWIDGETS_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 # if defined(BUILD_QMLEDITORWIDGETS_LIB)
 #    define QMLEDITORWIDGETS_EXPORT Q_DECL_EXPORT

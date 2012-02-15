@@ -35,8 +35,8 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QSharedPointer>
+#include <QStringList>
+#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QAction;

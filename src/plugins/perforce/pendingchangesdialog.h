@@ -33,7 +33,7 @@
 #ifndef PENDINGCHANGESDIALOG_H
 #define PENDINGCHANGESDIALOG_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 #include "ui_pendingchangesdialog.h"
 

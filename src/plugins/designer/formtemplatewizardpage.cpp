@@ -35,25 +35,25 @@
 #include "designerconstants.h"
 
 #if QT_VERSION >= 0x050000
-#    include <QtDesigner/QDesignerNewFormWidgetInterface>
+#    include <QDesignerNewFormWidgetInterface>
 #else
 #    include "qt_private/abstractnewformwidget_p.h"
 #endif
 
-#include <QtCore/QDebug>
-#include <QtCore/QXmlStreamReader>
-#include <QtCore/QXmlStreamAttributes>
-#include <QtCore/QByteArray>
-#include <QtCore/QBuffer>
+#include <QDebug>
+#include <QXmlStreamReader>
+#include <QXmlStreamAttributes>
+#include <QByteArray>
+#include <QBuffer>
 
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QMessageBox>
-#include <QtGui/QAbstractButton>
+#include <QVBoxLayout>
+#include <QMessageBox>
+#include <QAbstractButton>
 
 #ifdef USE_XSLT
-#    include <QtXmlPatterns/QXmlQuery>
+#    include <QXmlQuery>
 #else
-#    include <QtXml/QDomDocument>
+#    include <QDomDocument>
 #endif
 
 namespace Designer {

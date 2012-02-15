@@ -33,7 +33,7 @@
 #ifndef DEBUGGERGLOBAL_H
 #define DEBUGGERGLOBAL_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 #if defined(DEBUGGER_LIBRARY)
 #  define DEBUGGER_EXPORT Q_DECL_EXPORT

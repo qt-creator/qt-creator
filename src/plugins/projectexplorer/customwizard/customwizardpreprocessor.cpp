@@ -34,13 +34,13 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QStack>
-#include <QtCore/QRegExp>
-#include <QtCore/QDebug>
+#include <QStringList>
+#include <QStack>
+#include <QRegExp>
+#include <QDebug>
 
-#include <QtScript/QScriptEngine>
-#include <QtScript/QScriptValue>
+#include <QScriptEngine>
+#include <QScriptValue>
 
 namespace ProjectExplorer {
 namespace Internal {

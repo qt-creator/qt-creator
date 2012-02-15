@@ -32,16 +32,16 @@
 
 #include "filewidget.h"
 
-#include <QtGui/QLabel>
-#include <QtGui/QToolButton>
-#include <QtGui/QLineEdit>
-#include <QtGui/QComboBox>
+#include <QLabel>
+#include <QToolButton>
+#include <QLineEdit>
+#include <QComboBox>
 
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QFont>
-#include <QtGui/QFileDialog>
-#include <QtCore/QDirIterator>
-#include <QtCore/QDebug>
+#include <QHBoxLayout>
+#include <QFont>
+#include <QFileDialog>
+#include <QDirIterator>
+#include <QDebug>
 
 namespace QmlEditorWidgets {
 

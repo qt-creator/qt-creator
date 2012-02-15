@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include <QtGui/QStackedWidget>
+#include <QStackedWidget>
 
 #include "designdocumentcontroller.h"
 #include "stackedutilitypanelcontroller.h"

@@ -42,15 +42,15 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/ssh/sshremoteprocessrunner.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QRegExp>
-#include <QtCore/QSettings>
-#include <QtCore/QSignalMapper>
-#include <QtCore/QTextStream>
+#include <QFileInfo>
+#include <QRegExp>
+#include <QSettings>
+#include <QSignalMapper>
+#include <QTextStream>
 
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
-#include <QtGui/QIntValidator>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QIntValidator>
 
 #include <algorithm>
 

@@ -35,22 +35,22 @@
 #include <utils/qtcassert.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QTextCharFormat>
-#include <QtGui/QContextMenuEvent>
-#include <QtGui/QTextBlock>
-#include <QtGui/QMenu>
-#include <QtGui/QAction>
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextBlockUserData>
+#include <QPlainTextEdit>
+#include <QTextCharFormat>
+#include <QContextMenuEvent>
+#include <QTextBlock>
+#include <QMenu>
+#include <QAction>
+#include <QTextDocument>
+#include <QTextBlockUserData>
 
-#include <QtCore/QPointer>
-#include <QtCore/QTextCodec>
-#include <QtCore/QDir>
-#include <QtCore/QTextStream>
-#include <QtCore/QTime>
-#include <QtCore/QPoint>
-#include <QtCore/QFileInfo>
+#include <QPointer>
+#include <QTextCodec>
+#include <QDir>
+#include <QTextStream>
+#include <QTime>
+#include <QPoint>
+#include <QFileInfo>
 
 /*!
     \class VcsBase::VcsBaseOutputWindow

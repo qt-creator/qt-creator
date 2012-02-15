@@ -35,7 +35,7 @@
 #include "icontext.h"
 #include "coreconstants.h"
 
-#include <QtGui/QScrollBar>
+#include <QScrollBar>
 
 using namespace Core::Internal;
 

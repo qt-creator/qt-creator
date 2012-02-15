@@ -32,8 +32,8 @@
 #ifndef PUBLISHINGWIZARDSELECTIONDIALOG_H
 #define PUBLISHINGWIZARDSELECTIONDIALOG_H
 
-#include <QtCore/QList>
-#include <QtGui/QDialog>
+#include <QList>
+#include <QDialog>
 
 QT_FORWARD_DECLARE_CLASS(QWizard)
 

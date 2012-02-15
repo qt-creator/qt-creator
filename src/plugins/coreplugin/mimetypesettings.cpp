@@ -42,17 +42,17 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QLatin1String>
-#include <QtCore/QStringList>
-#include <QtCore/QVector>
-#include <QtCore/QSet>
-#include <QtCore/QScopedPointer>
-#include <QtCore/QAbstractTableModel>
-#include <QtCore/QHash>
-#include <QtGui/QIcon>
-#include <QtGui/QTableWidgetItem>
-#include <QtGui/QMessageBox>
+#include <QCoreApplication>
+#include <QLatin1String>
+#include <QStringList>
+#include <QVector>
+#include <QSet>
+#include <QScopedPointer>
+#include <QAbstractTableModel>
+#include <QHash>
+#include <QIcon>
+#include <QTableWidgetItem>
+#include <QMessageBox>
 #include <QtAlgorithms>
 
 #include <algorithm>

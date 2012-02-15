@@ -33,7 +33,7 @@
 #ifndef ABSTRACTQMLPROFILERRUNNER_H
 #define ABSTRACTQMLPROFILERRUNNER_H
 
-#include <QtCore/QObject>
+#include <QObject>
 #include <utils/outputformat.h>
 
 namespace QmlProfiler {

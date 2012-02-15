@@ -34,7 +34,7 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 
 using namespace QmlJS;
 using namespace QmlJS::StaticAnalysis;

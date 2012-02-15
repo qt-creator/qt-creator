@@ -33,7 +33,7 @@
 #include "designersettings.h"
 #include "qmldesignerconstants.h"
 
-#include <QtCore/QSettings>
+#include <QSettings>
 
 using namespace QmlDesigner;
 

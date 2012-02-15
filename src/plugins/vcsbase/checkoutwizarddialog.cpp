@@ -37,7 +37,7 @@
 
 #include <coreplugin/basefilewizard.h>
 
-#include <QtGui/QPushButton>
+#include <QPushButton>
 
 /*!
     \class VcsBase::Internal::CheckoutWizardDialog

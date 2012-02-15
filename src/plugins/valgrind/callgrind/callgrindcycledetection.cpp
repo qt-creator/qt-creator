@@ -39,7 +39,7 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 namespace Valgrind {
 namespace Callgrind {

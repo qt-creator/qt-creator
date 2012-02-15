@@ -33,7 +33,7 @@
 #include "snippetssettings.h"
 #include "reuse.h"
 
-#include <QtCore/QSettings>
+#include <QSettings>
 
 namespace {
 

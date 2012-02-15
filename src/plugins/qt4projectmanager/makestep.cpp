@@ -47,8 +47,8 @@
 #include <utils/qtcprocess.h>
 #include <qtsupport/qtparser.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
+#include <QDir>
+#include <QFileInfo>
 
 using ExtensionSystem::PluginManager;
 using namespace Qt4ProjectManager;

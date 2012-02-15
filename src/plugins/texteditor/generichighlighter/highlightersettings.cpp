@@ -34,14 +34,14 @@
 
 #include <coreplugin/icore.h>
 
-#include <QtCore/QSettings>
-#include <QtCore/QLatin1String>
-#include <QtCore/QLatin1Char>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QStringList>
+#include <QSettings>
+#include <QLatin1String>
+#include <QLatin1Char>
+#include <QDir>
+#include <QFile>
+#include <QStringList>
 #ifdef Q_OS_UNIX
-#include <QtCore/QProcess>
+#include <QProcess>
 #endif
 
 namespace TextEditor {

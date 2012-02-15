@@ -35,7 +35,7 @@
 
 #include "projectexplorer_export.h"
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 QT_FORWARD_DECLARE_CLASS(QModelIndex)
 

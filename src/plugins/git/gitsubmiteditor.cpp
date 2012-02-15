@@ -38,9 +38,9 @@
 #include <utils/qtcassert.h>
 #include <vcsbase/submitfilemodel.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QStringList>
-#include <QtCore/QTextCodec>
+#include <QDebug>
+#include <QStringList>
+#include <QTextCodec>
 
 namespace Git {
 namespace Internal {

@@ -35,21 +35,21 @@
 #include "debuggeractions.h"
 #include "debuggercore.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QFile>
-#include <QtCore/QTime>
+#include <QDebug>
+#include <QFile>
+#include <QTime>
 
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QMenu>
-#include <QtGui/QSpacerItem>
-#include <QtGui/QSyntaxHighlighter>
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QKeyEvent>
+#include <QMenu>
+#include <QSpacerItem>
+#include <QSyntaxHighlighter>
+#include <QPlainTextEdit>
+#include <QFileDialog>
+#include <QMessageBox>
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/findplaceholder.h>

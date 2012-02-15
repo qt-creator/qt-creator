@@ -36,13 +36,13 @@
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QSettings>
-#include <QtCore/QCoreApplication>
-#include <QtGui/QTextCharFormat>
-#include <QtGui/QFont>
-#include <QtGui/QMainWindow>
+#include <QFile>
+#include <QFileInfo>
+#include <QSettings>
+#include <QCoreApplication>
+#include <QTextCharFormat>
+#include <QFont>
+#include <QMainWindow>
 
 static const char fontFamilyKey[] = "FontFamily";
 static const char fontSizeKey[] = "FontSize";

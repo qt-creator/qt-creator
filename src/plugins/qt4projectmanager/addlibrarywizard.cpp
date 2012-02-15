@@ -34,12 +34,12 @@
 #include "ui_librarydetailswidget.h"
 #include "librarydetailscontroller.h"
 
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QRadioButton>
-#include <QtGui/QLabel>
+#include <QVBoxLayout>
+#include <QRadioButton>
+#include <QLabel>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
+#include <QFileInfo>
+#include <QDebug>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

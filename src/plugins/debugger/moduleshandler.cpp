@@ -34,8 +34,8 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtGui/QSortFilterProxyModel>
+#include <QDebug>
+#include <QSortFilterProxyModel>
 
 
 //////////////////////////////////////////////////////////////////

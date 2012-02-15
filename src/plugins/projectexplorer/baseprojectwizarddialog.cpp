@@ -37,7 +37,7 @@
 #include <coreplugin/filemanager.h>
 #include <utils/projectintropage.h>
 
-#include <QtCore/QDir>
+#include <QDir>
 
 /*!
     \class ProjectExplorer::BaseProjectWizardDialog

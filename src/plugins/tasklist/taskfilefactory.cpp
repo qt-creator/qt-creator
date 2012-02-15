@@ -39,8 +39,8 @@
 #include <coreplugin/id.h>
 #include <coreplugin/filemanager.h>
 
-#include <QtGui/QMainWindow>
-#include <QtGui/QMessageBox>
+#include <QMainWindow>
+#include <QMessageBox>
 
 using namespace TaskList::Internal;
 

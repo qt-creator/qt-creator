@@ -33,8 +33,8 @@
 #ifndef PLUGINOPTIONS_H
 #define PLUGINOPTIONS_H
 
-#include <QtCore/QString>
-#include <QtCore/QList>
+#include <QString>
+#include <QList>
 
 namespace Qt4ProjectManager {
 namespace Internal {

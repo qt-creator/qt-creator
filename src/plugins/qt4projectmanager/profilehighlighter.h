@@ -34,9 +34,9 @@
 #define PROFILEHIGHLIGHTER_H
 
 #include <texteditor/syntaxhighlighter.h>
-#include <QtCore/QtAlgorithms>
-#include <QtGui/QSyntaxHighlighter>
-#include <QtGui/QTextCharFormat>
+#include <QtAlgorithms>
+#include <QSyntaxHighlighter>
+#include <QTextCharFormat>
 
 namespace Qt4ProjectManager {
 namespace Internal {

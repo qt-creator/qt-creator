@@ -33,9 +33,9 @@
 #ifndef DEBUGGER_MODULESHANDLER_H
 #define DEBUGGER_MODULESHANDLER_H
 
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QObject>
-#include <QtCore/QVector>
+#include <QAbstractItemModel>
+#include <QObject>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QSortFilterProxyModel;

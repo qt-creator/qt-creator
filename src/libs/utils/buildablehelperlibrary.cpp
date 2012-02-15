@@ -32,19 +32,19 @@
 
 #include "buildablehelperlibrary.h"
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QHash>
-#include <QtCore/QProcess>
-#include <QtCore/QDir>
-#include <QtCore/QDateTime>
+#include <QFileInfo>
+#include <QCoreApplication>
+#include <QHash>
+#include <QProcess>
+#include <QDir>
+#include <QDateTime>
 
 #include <utils/environment.h>
 #include <utils/synchronousprocess.h>
 #include <utils/fileutils.h>
 
-#include <QtGui/QDesktopServices>
-#include <QtCore/QDebug>
+#include <QDesktopServices>
+#include <QDebug>
 
 namespace Utils {
 

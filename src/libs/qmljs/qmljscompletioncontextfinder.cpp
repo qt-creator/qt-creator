@@ -32,8 +32,8 @@
 
 #include "qmljscompletioncontextfinder.h"
 
-#include <QtCore/QDebug>
-#include <QtGui/QTextDocument>
+#include <QDebug>
+#include <QTextDocument>
 
 using namespace QmlJS;
 

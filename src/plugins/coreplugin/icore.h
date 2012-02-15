@@ -35,8 +35,8 @@
 
 #include "core_global.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QSettings>
+#include <QObject>
+#include <QSettings>
 
 QT_BEGIN_NAMESPACE
 class QMainWindow;

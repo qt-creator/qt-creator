@@ -40,7 +40,7 @@ QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
 QT_END_NAMESPACE
 
-#include <QtCore/QFileInfo>
+#include <QFileInfo>
 
 namespace Bookmarks {
 namespace Internal {

@@ -40,17 +40,17 @@
 
 #include <utils/filewizardpage.h>
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
-#include <QtGui/QApplication>
-#include <QtGui/QStyle>
-#include <QtGui/QPainter>
-#include <QtGui/QPixmap>
+#include <QApplication>
+#include <QStyle>
+#include <QPainter>
+#include <QPixmap>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QtDebug>
-#include <QtCore/QCoreApplication>
+#include <QDir>
+#include <QFileInfo>
+#include <QtDebug>
+#include <QCoreApplication>
 
 using namespace GenericProjectManager::Internal;
 using namespace Utils;

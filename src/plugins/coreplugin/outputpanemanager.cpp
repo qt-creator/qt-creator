@@ -54,18 +54,18 @@
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QComboBox>
-#include <QtGui/QFocusEvent>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QSplitter>
-#include <QtGui/QPainter>
-#include <QtGui/QToolButton>
-#include <QtGui/QStackedWidget>
-#include <QtGui/QMenu>
+#include <QAction>
+#include <QApplication>
+#include <QComboBox>
+#include <QFocusEvent>
+#include <QHBoxLayout>
+#include <QSplitter>
+#include <QPainter>
+#include <QToolButton>
+#include <QStackedWidget>
+#include <QMenu>
 
 namespace Core {
 namespace Internal {

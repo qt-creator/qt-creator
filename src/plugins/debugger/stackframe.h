@@ -33,10 +33,10 @@
 #ifndef DEBUGGER_STACKFRAME_H
 #define DEBUGGER_STACKFRAME_H
 
-#include <QtCore/QList>
-#include <QtCore/QMetaType>
-#include <QtCore/QString>
-#include <QtCore/QCoreApplication>
+#include <QList>
+#include <QMetaType>
+#include <QString>
+#include <QCoreApplication>
 
 QT_BEGIN_NAMESPACE
 class QDebug;

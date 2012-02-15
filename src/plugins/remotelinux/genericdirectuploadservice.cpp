@@ -38,10 +38,10 @@
 #include <utils/ssh/sshconnection.h>
 #include <utils/ssh/sshremoteprocess.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QList>
-#include <QtCore/QString>
+#include <QDir>
+#include <QFileInfo>
+#include <QList>
+#include <QString>
 
 using namespace Utils;
 

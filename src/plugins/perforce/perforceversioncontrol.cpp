@@ -37,8 +37,8 @@
 
 #include <vcsbase/vcsbaseconstants.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
+#include <QFileInfo>
+#include <QDebug>
 
 namespace Perforce {
 namespace Internal {

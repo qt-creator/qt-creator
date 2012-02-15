@@ -38,7 +38,7 @@
 // on invoking the first adapter callback in a *derived* adapter class.
 #include "gdbengine.h"
 
-#include <QtCore/QObject>
+#include <QObject>
 
 namespace Debugger {
 class DebuggerStartParameters;

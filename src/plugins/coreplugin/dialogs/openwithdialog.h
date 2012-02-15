@@ -33,7 +33,7 @@
 #ifndef OPENWITHDIALOG_H
 #define OPENWITHDIALOG_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include "ui_openwithdialog.h"
 
 namespace Core {

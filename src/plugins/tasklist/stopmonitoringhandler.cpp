@@ -38,8 +38,8 @@
 #include <projectexplorer/task.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QAction>
-#include <QtCore/QCoreApplication>
+#include <QAction>
+#include <QCoreApplication>
 
 using namespace TaskList;
 using namespace TaskList::Internal;

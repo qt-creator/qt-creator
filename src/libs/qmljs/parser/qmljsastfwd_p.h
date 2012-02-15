@@ -35,7 +35,7 @@
 
 #include "qmljsglobal_p.h"
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 //
 //  W A R N I N G

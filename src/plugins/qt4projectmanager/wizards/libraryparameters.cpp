@@ -34,8 +34,8 @@
 
 #include <utils/codegeneration.h>
 
-#include <QtCore/QTextStream>
-#include <QtCore/QStringList>
+#include <QTextStream>
+#include <QStringList>
 
 // Contents of the header defining the shared library export.
 #define GUARD_VARIABLE "<GUARD>"

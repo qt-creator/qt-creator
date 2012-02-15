@@ -35,9 +35,9 @@
 #include "imageviewer.h"
 #include "imageviewerconstants.h"
 
-#include <QtCore/QList>
-#include <QtCore/QSignalMapper>
-#include <QtGui/QAction>
+#include <QList>
+#include <QSignalMapper>
+#include <QAction>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>

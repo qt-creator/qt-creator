@@ -37,7 +37,7 @@
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <utils/changeset.h>
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 namespace QmlJS {
 

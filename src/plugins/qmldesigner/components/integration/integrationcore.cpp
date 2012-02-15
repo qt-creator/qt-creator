@@ -36,8 +36,8 @@
 #include "navigatorwidget.h"
 #include "metainfo.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QObject>
+#include <QCoreApplication>
+#include <QObject>
 
 namespace QmlDesigner {
 

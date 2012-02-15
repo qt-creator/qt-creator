@@ -44,9 +44,9 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 
-#include <QtCore/QDateTime>
-#include <QtCore/QProcess>
-#include <QtCore/QRegExp>
+#include <QDateTime>
+#include <QProcess>
+#include <QRegExp>
 
 namespace {
     const QLatin1String MagicFileName(".qtcreator");

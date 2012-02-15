@@ -37,8 +37,8 @@
 #ifndef REGISTRYACCESS_H
 #define REGISTRYACCESS_H
 
-#include <QtCore/QString>
-#include <QtCore/QLatin1String>
+#include <QString>
+#include <QLatin1String>
 
 #include <Windows.h>
 

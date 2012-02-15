@@ -52,14 +52,14 @@
 #include <utils/qtcassert.h>
 #include <utils/outputformatter.h>
 
-#include <QtGui/QAction>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QTabWidget>
-#include <QtGui/QToolButton>
-#include <QtGui/QTabBar>
-#include <QtGui/QMenu>
+#include <QAction>
+#include <QVBoxLayout>
+#include <QTabWidget>
+#include <QToolButton>
+#include <QTabBar>
+#include <QMenu>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 enum { debug = 0 };
 

@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = QmlProjectManager
 
-QT += declarative
+QT += declarative network
 
 include(../../qtcreatorplugin.pri)
 include(qmlprojectmanager_dependencies.pri)

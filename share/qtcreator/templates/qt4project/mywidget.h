@@ -1,7 +1,7 @@
 #ifndef %PRE_DEF%
 #define %PRE_DEF%
 
-#include <QtGui/%BASECLASS%>
+#include <%BASECLASS%>
 
 class %CLASS% : public %BASECLASS%
 {

@@ -35,8 +35,8 @@
 
 #include <qmljs/qmljsdocument.h>
 
-#include <QtCore/QList>
-#include <QtCore/QStack>
+#include <QList>
+#include <QStack>
 
 namespace QmlJS {
 

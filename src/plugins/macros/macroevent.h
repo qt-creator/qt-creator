@@ -35,7 +35,7 @@
 
 #include "macros_global.h"
 
-#include <QtCore/QMap>
+#include <QMap>
 
 QT_BEGIN_NAMESPACE
 class QByteArray;

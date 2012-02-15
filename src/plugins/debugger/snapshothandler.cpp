@@ -41,9 +41,9 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QFile>
-#include <QtGui/QIcon>
+#include <QDebug>
+#include <QFile>
+#include <QIcon>
 
 namespace Debugger {
 namespace Internal {

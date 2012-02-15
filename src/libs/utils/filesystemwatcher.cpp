@@ -32,11 +32,11 @@
 
 #include "filesystemwatcher.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QFileSystemWatcher>
-#include <QtCore/QDateTime>
+#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QFileSystemWatcher>
+#include <QDateTime>
 
 enum { debug = 0 };
 

@@ -1,7 +1,7 @@
 #include "screenshotcropperwindow.h"
 #include "ui_screenshotcropperwindow.h"
-#include <QtGui/QListWidget>
-#include <QtCore/QDebug>
+#include <QListWidget>
+#include <QDebug>
 
 using namespace QtSupport::Internal;
 

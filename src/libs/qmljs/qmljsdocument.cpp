@@ -36,7 +36,7 @@
 #include <qmljs/parser/qmljslexer_p.h>
 #include <qmljs/parser/qmljsparser_p.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
-#include <QtCore/QDir>
+#include <QDir>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

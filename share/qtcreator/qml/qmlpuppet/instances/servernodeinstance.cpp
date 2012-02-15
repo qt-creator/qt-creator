@@ -58,7 +58,7 @@
 #include <QSGItem>
 #endif
 
-#include <QtDeclarative/QDeclarativeEngine>
+#include <QDeclarativeEngine>
 
 /*!
   \class QmlDesigner::NodeInstance

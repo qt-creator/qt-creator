@@ -33,7 +33,7 @@
 
 #include <coreplugin/icore.h>
 
-#include <QtCore/QSettings>
+#include <QSettings>
 
 namespace Madde {
 namespace Internal {

@@ -43,32 +43,30 @@
 #include <coreplugin/helpmanager.h>
 #include <projectexplorer/projectexplorer.h>
 
-#include <QtCore/QMutex>
-#include <QtCore/QThread>
-#include <QtCore/QMutexLocker>
-#include <QtCore/QWeakPointer>
-#include <QtCore/QWaitCondition>
-#include <QtCore/QDir>
-#include <QtCore/QBuffer>
-#include <QtGui/QGraphicsProxyWidget>
-#include <QtGui/QScrollBar>
-#include <QtGui/QSortFilterProxyModel>
-#include <QtGui/QImage>
-#include <QtGui/QImageReader>
-#include <QtGui/QGridLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QMessageBox>
-#include <QtGui/QApplication>
-#include <QtGui/QMainWindow>
-#include <QtSql/QSqlQueryModel>
-#include <QtSql/QSqlQuery>
-#include <QtDeclarative/QDeclarativeImageProvider>
-#include <QtDeclarative/QDeclarativeEngine>
-#include <QtDeclarative/QDeclarativeContext>
+#include <QMutex>
+#include <QThread>
+#include <QMutexLocker>
+#include <QWeakPointer>
+#include <QWaitCondition>
+#include <QDir>
+#include <QBuffer>
+#include <QGraphicsProxyWidget>
+#include <QScrollBar>
+#include <QSortFilterProxyModel>
+#include <QImage>
+#include <QImageReader>
+#include <QGridLayout>
+#include <QLabel>
+#include <QDialogButtonBox>
+#include <QPushButton>
+#include <QMessageBox>
+#include <QApplication>
+#include <QMainWindow>
+#include <QDeclarativeImageProvider>
+#include <QDeclarativeEngine>
+#include <QDeclarativeContext>
 #include <QtDeclarative>
-#include <QtGui/QDesktopServices>
+#include <QDesktopServices>
 
 namespace QtSupport {
 namespace Internal {

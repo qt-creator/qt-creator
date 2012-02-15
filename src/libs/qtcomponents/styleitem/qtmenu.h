@@ -33,9 +33,9 @@
 #ifndef QTMLMENU_H
 #define QTMLMENU_H
 
-#include <QtGui/qmenu.h>
-#include <QtDeclarative/qdeclarative.h>
-#include <QtDeclarative/QDeclarativeListProperty>
+#include <qmenu.h>
+#include <qdeclarative.h>
+#include <QDeclarativeListProperty>
 #include "qtmenuitem.h"
 class QtMenu : public QObject
 {

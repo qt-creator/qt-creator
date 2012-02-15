@@ -42,7 +42,7 @@
 #include <coreplugin/id.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <QtCore/QObject>
+#include <QObject>
 
 namespace ProjectExplorer {
 class RunConfiguration;

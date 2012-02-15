@@ -39,9 +39,9 @@
 #include <Scope.h>
 #include <Overview.h>
 
-#include <QtCore/QVarLengthArray>
-#include <QtCore/QRegExp>
-#include <QtCore/QDebug>
+#include <QVarLengthArray>
+#include <QRegExp>
+#include <QDebug>
 
 namespace CPlusPlus {
 

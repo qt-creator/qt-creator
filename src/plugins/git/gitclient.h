@@ -38,10 +38,10 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <vcsbase/command.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtGui/QWidget>
+#include <QObject>
+#include <QString>
+#include <QStringList>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;

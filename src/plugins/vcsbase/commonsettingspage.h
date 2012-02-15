@@ -37,8 +37,8 @@
 
 #include "vcsbaseoptionspage.h"
 
-#include <QtCore/QPointer>
-#include <QtGui/QWidget>
+#include <QPointer>
+#include <QWidget>
 
 namespace VcsBase {
 namespace Internal {

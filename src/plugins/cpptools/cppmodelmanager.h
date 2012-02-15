@@ -49,12 +49,12 @@
 #ifdef ICHECK_BUILD
 #  include "parsemanager.h"
 #else
-#  include <QtCore/QHash>
-#  include <QtCore/QFutureInterface>
-#  include <QtCore/QFutureSynchronizer>
-#  include <QtCore/QMutex>
-#  include <QtCore/QTimer>
-#  include <QtGui/QTextEdit> // for QTextEdit::ExtraSelection
+#  include <QHash>
+#  include <QFutureInterface>
+#  include <QFutureSynchronizer>
+#  include <QMutex>
+#  include <QTimer>
+#  include <QTextEdit> // for QTextEdit::ExtraSelection
 #endif
 
 namespace Core {

@@ -33,9 +33,9 @@
 #ifndef PACKAGEUPLOADER_H
 #define PACKAGEUPLOADER_H
 
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QString>
+#include <QObject>
+#include <QSharedPointer>
+#include <QString>
 
 #include <utils/ssh/sftpdefs.h>
 

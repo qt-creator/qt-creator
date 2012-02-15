@@ -39,9 +39,9 @@
 #include <texteditor/basetextmark.h>
 #include <utils/fileutils.h>
 
-#include <QtCore/QMetaType>
+#include <QMetaType>
 
-#include <QtGui/QTextLayout>
+#include <QTextLayout>
 
 namespace ProjectExplorer {
 

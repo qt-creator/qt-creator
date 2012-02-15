@@ -34,8 +34,8 @@
 #define COLORBOX_H
 
 #include <qmleditorwidgets_global.h>
-#include <QtGui/QWidget>
-#include <QtDeclarative/qdeclarative.h>
+#include <QWidget>
+#include <qdeclarative.h>
 
 namespace QmlEditorWidgets {
 

@@ -40,12 +40,12 @@
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QProcess>
+#include <QDebug>
+#include <QProcess>
 
-#include <QtGui/QHeaderView>
-#include <QtGui/QMenu>
-#include <QtGui/QResizeEvent>
+#include <QHeaderView>
+#include <QMenu>
+#include <QResizeEvent>
 
 
 ///////////////////////////////////////////////////////////////////////////

@@ -32,10 +32,10 @@
 
 #include "debuggerlanguagechooser.h"
 
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QCheckBox>
-#include <QtGui/QSpinBox>
-#include <QtGui/QLabel>
+#include <QHBoxLayout>
+#include <QCheckBox>
+#include <QSpinBox>
+#include <QLabel>
 
 namespace Utils {
 

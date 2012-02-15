@@ -1,8 +1,8 @@
 #ifndef MYPLUGIN_H
 #define MYPLUGIN_H
 
-#include <QtDeclarative/qdeclarative.h>
-#include <QtDeclarative/QDeclarativeExtensionPlugin>
+#include <qdeclarative.h>
+#include <QDeclarativeExtensionPlugin>
 
 class MyPlugin : public QDeclarativeExtensionPlugin
 {

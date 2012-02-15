@@ -33,9 +33,9 @@
 #ifndef PROPERTYBINDING_H
 #define PROPERTYBINDING_H
 
-#include <QtCore/QMetaType>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QString>
+#include <QMetaType>
+#include <QSharedPointer>
+#include <QString>
 
 #include "corelib_global.h"
 #include "modelnode.h"

@@ -53,11 +53,11 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtGui/QTextBlock>
-#include <QtGui/QIcon>
-#include <QtCore/QPointer>
-#include <QtCore/QPair>
-#include <QtCore/QDir>
+#include <QTextBlock>
+#include <QIcon>
+#include <QPointer>
+#include <QPair>
+#include <QDir>
 
 using namespace Core;
 using namespace TextEditor;

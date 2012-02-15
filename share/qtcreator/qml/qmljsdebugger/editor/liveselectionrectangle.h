@@ -33,7 +33,7 @@
 #ifndef LIVESELECTIONRECTANGLE_H
 #define LIVESELECTIONRECTANGLE_H
 
-#include <QtCore/QWeakPointer>
+#include <QWeakPointer>
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsObject)
 QT_FORWARD_DECLARE_CLASS(QGraphicsRectItem)

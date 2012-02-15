@@ -35,7 +35,7 @@
 #ifndef ANALYZER_VALGRINDCONFIGWIDGET_H
 #define ANALYZER_VALGRINDCONFIGWIDGET_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;

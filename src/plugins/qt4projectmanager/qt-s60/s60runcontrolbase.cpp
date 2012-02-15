@@ -47,9 +47,9 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <QtCore/QDateTime>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
+#include <QDateTime>
+#include <QDir>
+#include <QFileInfo>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;

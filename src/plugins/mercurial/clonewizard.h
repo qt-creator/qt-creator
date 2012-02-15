@@ -35,7 +35,7 @@
 
 #include <vcsbase/basecheckoutwizard.h>
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
 namespace Mercurial {
 namespace Internal {

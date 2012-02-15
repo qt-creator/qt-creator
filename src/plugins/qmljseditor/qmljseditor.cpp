@@ -81,19 +81,19 @@
 #include <utils/uncommentselection.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QSignalMapper>
-#include <QtCore/QTimer>
-#include <QtCore/QScopedPointer>
-#include <QtCore/QTextCodec>
+#include <QFileInfo>
+#include <QSignalMapper>
+#include <QTimer>
+#include <QScopedPointer>
+#include <QTextCodec>
 
-#include <QtGui/QMenu>
-#include <QtGui/QComboBox>
-#include <QtGui/QHeaderView>
-#include <QtGui/QInputDialog>
-#include <QtGui/QMainWindow>
-#include <QtGui/QToolBar>
-#include <QtGui/QTreeView>
+#include <QMenu>
+#include <QComboBox>
+#include <QHeaderView>
+#include <QInputDialog>
+#include <QMainWindow>
+#include <QToolBar>
+#include <QTreeView>
 
 enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 100,

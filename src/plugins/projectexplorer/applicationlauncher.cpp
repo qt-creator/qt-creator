@@ -43,8 +43,8 @@
 #include <utils/winutils.h>
 #endif
 
-#include <QtCore/QTimer>
-#include <QtCore/QTextCodec>
+#include <QTimer>
+#include <QTextCodec>
 
 #ifdef Q_OS_WIN
 #include <windows.h>

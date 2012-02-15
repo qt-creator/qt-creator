@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#include <QtCore/QVariant>
-#include <QtGui/QColor>
+#include <QVariant>
+#include <QColor>
 
 #include "bindingproperty.h"
 #include "nodeproperty.h"

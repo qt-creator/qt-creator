@@ -41,16 +41,16 @@
 #include "syntaxhighlighter.h"
 #include "texteditorconstants.h"
 
-#include <QtCore/QStringList>
-#include <QtCore/QFile>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTextStream>
-#include <QtCore/QTextCodec>
-#include <QtCore/QFutureInterface>
-#include <QtGui/QMainWindow>
-#include <QtGui/QSyntaxHighlighter>
-#include <QtGui/QApplication>
+#include <QStringList>
+#include <QFile>
+#include <QDir>
+#include <QFileInfo>
+#include <QTextStream>
+#include <QTextCodec>
+#include <QFutureInterface>
+#include <QMainWindow>
+#include <QSyntaxHighlighter>
+#include <QApplication>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>

@@ -37,7 +37,7 @@
 
 #include <utils/outputformat.h>
 
-#include <QtCore/QProcess>
+#include <QProcess>
 
 namespace Utils {
 class Environment;

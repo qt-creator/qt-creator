@@ -36,7 +36,7 @@
 #include "classviewsymbollocation.h"
 #include "classviewsymbolinformation.h"
 
-#include <QtCore/QSharedPointer>
+#include <QSharedPointer>
 
 QT_FORWARD_DECLARE_CLASS(QStandardItem)
 

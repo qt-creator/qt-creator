@@ -36,10 +36,10 @@
 
 #include <coreplugin/coreconstants.h>
 
-#include <QtGui/QToolBar>
-#include <QtGui/QToolButton>
-#include <QtGui/QAction>
-#include <QtGui/QVBoxLayout>
+#include <QToolBar>
+#include <QToolButton>
+#include <QAction>
+#include <QVBoxLayout>
 
 namespace Core {
 namespace Internal {

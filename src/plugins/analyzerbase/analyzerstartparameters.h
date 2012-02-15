@@ -36,7 +36,7 @@
 #include "analyzerbase_global.h"
 #include "analyzerconstants.h"
 
-#include <QtCore/QMetaType>
+#include <QMetaType>
 
 #include <coreplugin/id.h>
 #include <utils/ssh/sshconnection.h>

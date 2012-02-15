@@ -33,7 +33,7 @@
 #ifndef REWRITEACTIONCOMPRESSOR_H
 #define REWRITEACTIONCOMPRESSOR_H
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 #include "rewriteaction.h"
 

@@ -35,7 +35,7 @@
 
 #include <utils/ssh/sshconnection.h>
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 class ArgumentsCollector
 {

@@ -35,8 +35,8 @@
 #include "searchresulttreemodel.h"
 #include "searchresulttreeitemdelegate.h"
 
-#include <QtGui/QHeaderView>
-#include <QtGui/QKeyEvent>
+#include <QHeaderView>
+#include <QKeyEvent>
 
 using namespace Find::Internal;
 

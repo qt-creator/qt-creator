@@ -36,7 +36,7 @@
 #include <coreplugin/ifile.h>
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <QtCore/QPointer>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QMenu;

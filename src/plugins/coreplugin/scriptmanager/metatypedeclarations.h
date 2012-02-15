@@ -40,8 +40,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
-#include <QtCore/QList>
-#include <QtCore/QMetaType>
+#include <QList>
+#include <QMetaType>
 
 QT_BEGIN_NAMESPACE
 class QMainWindow;

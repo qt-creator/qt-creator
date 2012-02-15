@@ -36,8 +36,8 @@
 #include <texteditor/snippets/snippeteditor.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QDialogButtonBox>
+#include <QVBoxLayout>
+#include <QDialogButtonBox>
 
 namespace ProjectExplorer {
 

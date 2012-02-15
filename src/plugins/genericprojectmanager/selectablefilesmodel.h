@@ -33,14 +33,14 @@
 #ifndef SELECTABLEFILESMODEL_H
 #define SELECTABLEFILESMODEL_H
 
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QSet>
-#include <QtCore/QFutureInterface>
-#include <QtCore/QFutureWatcher>
-#include <QtGui/QFileSystemModel>
-#include <QtGui/QDialog>
-#include <QtGui/QTreeView>
-#include <QtGui/QLabel>
+#include <QAbstractItemModel>
+#include <QSet>
+#include <QFutureInterface>
+#include <QFutureWatcher>
+#include <QFileSystemModel>
+#include <QDialog>
+#include <QTreeView>
+#include <QLabel>
 
 namespace GenericProjectManager {
 namespace Internal {

@@ -33,7 +33,7 @@
 #ifndef QMLJSPREVIEWRUNNER_H
 #define QMLJSPREVIEWRUNNER_H
 
-#include <QtCore/QObject>
+#include <QObject>
 
 #include <projectexplorer/applicationlauncher.h>
 

@@ -33,8 +33,8 @@
 #ifndef SETTINGSPAGE_H
 #define SETTINGSPAGE_H
 
-#include <QtCore/QPointer>
-#include <QtGui/QWidget>
+#include <QPointer>
+#include <QWidget>
 
 #include <vcsbase/vcsbaseoptionspage.h>
 

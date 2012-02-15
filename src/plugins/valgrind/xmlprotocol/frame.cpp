@@ -34,8 +34,8 @@
 
 #include "frame.h"
 
-#include <QtCore/QString>
-#include <QtCore/QtAlgorithms>
+#include <QString>
+#include <QtAlgorithms>
 
 namespace Valgrind {
 namespace XmlProtocol {

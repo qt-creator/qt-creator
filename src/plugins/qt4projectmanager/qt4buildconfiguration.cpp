@@ -50,9 +50,9 @@
 #include <qtsupport/qtversionfactory.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtversionmanager.h>
-#include <QtCore/QDebug>
+#include <QDebug>
 
-#include <QtGui/QInputDialog>
+#include <QInputDialog>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

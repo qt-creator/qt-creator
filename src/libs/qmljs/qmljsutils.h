@@ -5,7 +5,7 @@
 #include "parser/qmljsastfwd_p.h"
 #include "parser/qmljsengine_p.h"
 
-#include <QtGui/QColor>
+#include <QColor>
 
 namespace QmlJS {
 

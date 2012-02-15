@@ -49,10 +49,10 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 
-#include <QtCore/QSharedPointer>
-#include <QtCore/QFileInfo>
+#include <QSharedPointer>
+#include <QFileInfo>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;

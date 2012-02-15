@@ -34,7 +34,7 @@
 #include "ui_plugindetailsview.h"
 #include "pluginspec.h"
 
-#include <QtCore/QDir>
+#include <QDir>
 
 /*!
     \class ExtensionSystem::PluginDetailsView

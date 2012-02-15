@@ -33,10 +33,10 @@
 #ifndef HIGHLIGHTERSETTINGS_H
 #define HIGHLIGHTERSETTINGS_H
 
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QList>
-#include <QtCore/QRegExp>
+#include <QString>
+#include <QStringList>
+#include <QList>
+#include <QRegExp>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

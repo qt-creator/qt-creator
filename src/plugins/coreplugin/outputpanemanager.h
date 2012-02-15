@@ -33,8 +33,8 @@
 #ifndef OUTPUTPANEMANAGER_H
 #define OUTPUTPANEMANAGER_H
 
-#include <QtCore/QMap>
-#include <QtGui/QToolButton>
+#include <QMap>
+#include <QToolButton>
 
 QT_BEGIN_NAMESPACE
 class QAction;

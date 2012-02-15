@@ -33,7 +33,7 @@
 #ifndef CLASSVIEWTREEITEMMODEL_H
 #define CLASSVIEWTREEITEMMODEL_H
 
-#include <QtGui/QStandardItemModel>
+#include <QStandardItemModel>
 
 namespace ClassView {
 namespace Internal {

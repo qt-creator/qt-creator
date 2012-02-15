@@ -38,21 +38,21 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/styledbar.h>
 
-#include <QtCore/QMap>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+#include <QMap>
+#include <QString>
+#include <QStringList>
 
-#include <QtGui/QMenu>
-#include <QtGui/QLayout>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QClipboard>
-#include <QtGui/QApplication>
-#include <QtGui/QTextBrowser>
+#include <QMenu>
+#include <QLayout>
+#include <QKeyEvent>
+#include <QClipboard>
+#include <QApplication>
+#include <QTextBrowser>
 
-#include <QtHelp/QHelpEngine>
-#include <QtHelp/QHelpSearchEngine>
-#include <QtHelp/QHelpSearchQueryWidget>
-#include <QtHelp/QHelpSearchResultWidget>
+#include <QHelpEngine>
+#include <QHelpSearchEngine>
+#include <QHelpSearchQueryWidget>
+#include <QHelpSearchResultWidget>
 
 using namespace Help::Internal;
 

@@ -49,11 +49,11 @@
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
-#include <QtGui/QApplication>
-#include <QtGui/QGridLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QPainter>
-#include <QtGui/QStackedWidget>
+#include <QApplication>
+#include <QGridLayout>
+#include <QLabel>
+#include <QPainter>
+#include <QStackedWidget>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

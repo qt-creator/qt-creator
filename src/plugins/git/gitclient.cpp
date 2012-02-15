@@ -65,18 +65,18 @@
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
 
-#include <QtCore/QRegExp>
-#include <QtCore/QTemporaryFile>
-#include <QtCore/QTime>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/QSignalMapper>
+#include <QRegExp>
+#include <QTemporaryFile>
+#include <QTime>
+#include <QFileInfo>
+#include <QDir>
+#include <QSignalMapper>
 
-#include <QtGui/QComboBox>
-#include <QtGui/QMainWindow> // for msg box parent
-#include <QtGui/QMessageBox>
-#include <QtGui/QToolButton>
-#include <QtCore/QTextCodec>
+#include <QComboBox>
+#include <QMainWindow> // for msg box parent
+#include <QMessageBox>
+#include <QToolButton>
+#include <QTextCodec>
 
 static const char GIT_DIRECTORY[] = ".git";
 

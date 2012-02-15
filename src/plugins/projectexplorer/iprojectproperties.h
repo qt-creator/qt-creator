@@ -35,9 +35,9 @@
 
 #include "projectexplorer_export.h"
 
-#include <QtCore/QObject>
-#include <QtGui/QIcon>
-#include <QtGui/QWidget>
+#include <QObject>
+#include <QIcon>
+#include <QWidget>
 
 namespace ProjectExplorer {
 class Project;

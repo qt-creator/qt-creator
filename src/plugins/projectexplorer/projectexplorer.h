@@ -38,7 +38,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QtCore/QPair>
+#include <QPair>
 
 QT_BEGIN_NAMESPACE
 class QPoint;

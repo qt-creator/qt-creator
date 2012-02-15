@@ -36,9 +36,9 @@
 #include "debuggerconstants.h"
 #include "debuggercore.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QTextStream>
-#include <QtGui/QSortFilterProxyModel>
+#include <QDebug>
+#include <QTextStream>
+#include <QSortFilterProxyModel>
 
 namespace Debugger {
 namespace Internal {

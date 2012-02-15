@@ -47,22 +47,22 @@
 #include <utils/iwelcomepage.h>
 #include <utils/networkaccessmanager.h>
 
-#include <QtGui/QScrollArea>
-#include <QtGui/QDesktopServices>
-#include <QtGui/QPainter>
-#include <QtGui/QHBoxLayout>
+#include <QScrollArea>
+#include <QDesktopServices>
+#include <QPainter>
+#include <QHBoxLayout>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QSettings>
-#include <QtCore/QDebug>
-#include <QtCore/QUrl>
-#include <QtCore/QtPlugin>
+#include <QCoreApplication>
+#include <QDir>
+#include <QSettings>
+#include <QDebug>
+#include <QUrl>
+#include <QtPlugin>
 
-#include <QtDeclarative/QDeclarativeView>
-#include <QtDeclarative/QDeclarativeContext>
-#include <QtDeclarative/QDeclarativeEngine>
-#include <QtDeclarative/QDeclarativeNetworkAccessManagerFactory>
+#include <QDeclarativeView>
+#include <QDeclarativeContext>
+#include <QDeclarativeEngine>
+#include <QDeclarativeNetworkAccessManagerFactory>
 
 enum { debug = 0 };
 

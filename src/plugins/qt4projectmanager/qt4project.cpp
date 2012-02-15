@@ -66,11 +66,11 @@
 #include <qtsupport/qtversionmanager.h>
 #include <utils/QtConcurrentTools>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileSystemWatcher>
-#include <QtGui/QFileDialog>
-#include <QtGui/QInputDialog>
+#include <QDebug>
+#include <QDir>
+#include <QFileSystemWatcher>
+#include <QFileDialog>
+#include <QInputDialog>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

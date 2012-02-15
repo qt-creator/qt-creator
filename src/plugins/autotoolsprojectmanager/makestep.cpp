@@ -45,9 +45,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcprocess.h>
 
-#include <QtCore/QVariantMap>
-#include <QtGui/QLineEdit>
-#include <QtGui/QFormLayout>
+#include <QVariantMap>
+#include <QLineEdit>
+#include <QFormLayout>
 
 using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;

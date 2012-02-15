@@ -33,8 +33,8 @@
 #ifndef QMLERROR_H
 #define QMLERROR_H
 
-#include <QtCore/qurl.h>
-#include <QtCore/qstring.h>
+#include <qurl.h>
+#include <qstring.h>
 
 QT_BEGIN_HEADER
 

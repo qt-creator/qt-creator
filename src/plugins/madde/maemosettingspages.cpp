@@ -36,14 +36,14 @@
 #include <coreplugin/icore.h>
 #include <remotelinux/remotelinux_constants.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtGui/QDialog>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QFrame>
-#include <QtGui/QLabel>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QIcon>
-#include <QtGui/QMainWindow>
+#include <QCoreApplication>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QFrame>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QIcon>
+#include <QMainWindow>
 
 namespace Madde {
 namespace Internal {

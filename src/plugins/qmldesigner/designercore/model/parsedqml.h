@@ -33,7 +33,7 @@
 #ifndef PARSEDQML_H
 #define PARSEDQML_H
 
-#include <QtCore/QString>
+#include <QString>
 
 #include <qmljsengine_p.h>
 #include <qmljslexer_p.h>

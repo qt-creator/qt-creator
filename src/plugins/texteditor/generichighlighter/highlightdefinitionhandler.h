@@ -33,12 +33,12 @@
 #ifndef HIGHLIGHTDEFINITIONHANDLER_H
 #define HIGHLIGHTDEFINITIONHANDLER_H
 
-#include <QtCore/QString>
-#include <QtCore/QList>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QStack>
+#include <QString>
+#include <QList>
+#include <QSharedPointer>
+#include <QStack>
 
-#include <QtXml/QXmlDefaultHandler>
+#include <QXmlDefaultHandler>
 
 namespace TextEditor {
 namespace Internal {

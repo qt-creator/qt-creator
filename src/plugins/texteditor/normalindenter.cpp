@@ -33,7 +33,7 @@
 #include "normalindenter.h"
 #include "tabsettings.h"
 
-#include <QtGui/QTextDocument>
+#include <QTextDocument>
 
 using namespace TextEditor;
 

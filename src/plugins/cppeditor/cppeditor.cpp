@@ -97,24 +97,24 @@
 #include <texteditor/codeassist/basicproposalitem.h>
 #include <texteditor/codeassist/genericproposal.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QTime>
-#include <QtCore/QTimer>
-#include <QtCore/QStack>
-#include <QtCore/QSettings>
-#include <QtCore/QSignalMapper>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QHeaderView>
-#include <QtGui/QLayout>
-#include <QtGui/QMenu>
-#include <QtGui/QShortcut>
-#include <QtGui/QTextEdit>
-#include <QtGui/QComboBox>
-#include <QtGui/QToolBar>
-#include <QtGui/QTreeView>
-#include <QtGui/QSortFilterProxyModel>
-#include <QtGui/QMainWindow>
+#include <QDebug>
+#include <QTime>
+#include <QTimer>
+#include <QStack>
+#include <QSettings>
+#include <QSignalMapper>
+#include <QAction>
+#include <QApplication>
+#include <QHeaderView>
+#include <QLayout>
+#include <QMenu>
+#include <QShortcut>
+#include <QTextEdit>
+#include <QComboBox>
+#include <QToolBar>
+#include <QTreeView>
+#include <QSortFilterProxyModel>
+#include <QMainWindow>
 
 #include <sstream>
 

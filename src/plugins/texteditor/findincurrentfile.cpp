@@ -36,7 +36,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtCore/QSettings>
+#include <QSettings>
 
 using namespace Find;
 using namespace TextEditor;

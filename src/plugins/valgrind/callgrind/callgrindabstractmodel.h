@@ -33,7 +33,7 @@
 #ifndef LIBVALGRIND_CALLGRINDABSTRACTMODEL_H
 #define LIBVALGRIND_CALLGRINDABSTRACTMODEL_H
 
-#include <QtGui/QAbstractItemView>
+#include <QAbstractItemView>
 
 namespace Valgrind {
 namespace Callgrind {

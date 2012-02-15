@@ -35,7 +35,7 @@
 #include <QApplication>
 #include <QStringList>
 #ifdef QT_SIMULATOR
-#include <QtGui/private/qsimulatorconnection_p.h>
+#include <private/qsimulatorconnection_p.h>
 #endif
 
 #include <qt4nodeinstanceclientproxy.h>

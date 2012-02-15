@@ -34,10 +34,10 @@
 
 #include <coreplugin/icore.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QRegExp>
-#include <QtCore/QTextStream>
+#include <QDir>
+#include <QFile>
+#include <QRegExp>
+#include <QTextStream>
 
 namespace Qt4ProjectManager {
 namespace Internal {

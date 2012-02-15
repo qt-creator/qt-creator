@@ -35,7 +35,7 @@
 
 #include "callgrindcostdelegate.h"
 
-#include <QtGui/QTreeView>
+#include <QTreeView>
 
 namespace Valgrind {
 namespace Internal {

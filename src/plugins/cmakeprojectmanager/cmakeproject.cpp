@@ -54,14 +54,14 @@
 #include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtCore/QMap>
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QDateTime>
-#include <QtCore/QProcess>
-#include <QtGui/QFormLayout>
-#include <QtGui/QMainWindow>
-#include <QtGui/QInputDialog>
+#include <QMap>
+#include <QDebug>
+#include <QDir>
+#include <QDateTime>
+#include <QProcess>
+#include <QFormLayout>
+#include <QMainWindow>
+#include <QInputDialog>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;

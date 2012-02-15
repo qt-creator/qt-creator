@@ -33,7 +33,7 @@
 #include "header.h"
 #include "dummy.h"
 
-#include <QtCore/QString>
+#include <QString>
 
 int xi = 10;
 

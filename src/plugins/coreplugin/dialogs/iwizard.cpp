@@ -35,7 +35,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 /*!
     \class Core::IWizard

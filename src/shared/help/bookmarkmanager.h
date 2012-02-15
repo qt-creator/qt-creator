@@ -35,17 +35,17 @@
 
 #include "ui_bookmarkdialog.h"
 
-#include <QtCore/QUrl>
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtCore/QByteArray>
-#include <QtCore/QDataStream>
+#include <QUrl>
+#include <QObject>
+#include <QString>
+#include <QByteArray>
+#include <QDataStream>
 
-#include <QtGui/QIcon>
-#include <QtGui/QDialog>
-#include <QtGui/QWidget>
-#include <QtGui/QTreeView>
-#include <QtGui/QStandardItemModel>
+#include <QIcon>
+#include <QDialog>
+#include <QWidget>
+#include <QTreeView>
+#include <QStandardItemModel>
 
 QT_BEGIN_NAMESPACE
 

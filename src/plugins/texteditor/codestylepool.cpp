@@ -37,9 +37,9 @@
 #include <utils/persistentsettings.h>
 #include <coreplugin/icore.h>
 
-#include <QtCore/QMap>
-#include <QtCore/QDir>
-#include <QtCore/QDebug>
+#include <QMap>
+#include <QDir>
+#include <QDebug>
 
 using namespace TextEditor;
 

@@ -34,12 +34,12 @@
 #define QWHEELAREA_H
 
 
-#include <QtCore/qobject.h>
-#include <QtDeclarative/qdeclarative.h>
-#include <QtDeclarative/qdeclarativeitem.h>
-#include <QtCore/qcoreevent.h>
-#include <QtGui/qevent.h>
-#include <QtGui/qgraphicssceneevent.h>
+#include <qobject.h>
+#include <qdeclarative.h>
+#include <qdeclarativeitem.h>
+#include <qcoreevent.h>
+#include <qevent.h>
+#include <qgraphicssceneevent.h>
 
 class QWheelArea : public QDeclarativeItem
 {

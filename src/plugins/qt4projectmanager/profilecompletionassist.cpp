@@ -42,7 +42,7 @@
 
 #include <cplusplus/Icons.h>
 
-#include <QtGui/QTextCursor>
+#include <QTextCursor>
 
 using namespace Qt4ProjectManager::Internal;
 using namespace TextEditor;

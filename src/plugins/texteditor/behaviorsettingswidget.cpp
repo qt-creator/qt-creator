@@ -39,11 +39,11 @@
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/extraencodingsettings.h>
 
-#include <QtCore/QList>
-#include <QtCore/QString>
-#include <QtCore/QByteArray>
-#include <QtCore/QTextCodec>
-#include <QtCore/QTextStream>
+#include <QList>
+#include <QString>
+#include <QByteArray>
+#include <QTextCodec>
+#include <QTextStream>
 
 #include <algorithm>
 #include <functional>

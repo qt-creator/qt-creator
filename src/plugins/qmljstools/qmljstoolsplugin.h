@@ -36,8 +36,8 @@
 #include <extensionsystem/iplugin.h>
 #include <projectexplorer/projectexplorer.h>
 
-#include <QtGui/QTextDocument>
-#include <QtCore/QSharedPointer>
+#include <QTextDocument>
+#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;

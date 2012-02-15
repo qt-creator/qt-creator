@@ -37,8 +37,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/environment.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QUuid>
+#include <QCoreApplication>
+#include <QUuid>
 
 static const char ID_KEY[] = "ProjectExplorer.ToolChain.Id";
 static const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ToolChain.DisplayName";

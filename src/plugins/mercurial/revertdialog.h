@@ -35,7 +35,7 @@
 
 #include "ui_revertdialog.h"
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 namespace Mercurial {
 namespace Internal {

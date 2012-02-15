@@ -37,9 +37,9 @@
 
 #include <coreplugin/ioutputpane.h>
 
-#include <QtCore/QVariant>
-#include <QtCore/QStringList>
-#include <QtGui/QIcon>
+#include <QVariant>
+#include <QStringList>
+#include <QIcon>
 
 QT_BEGIN_NAMESPACE
 class QFont;

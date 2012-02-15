@@ -33,7 +33,7 @@
 #ifndef IOUTILS_H
 #define IOUTILS_H
 
-#include <QtCore/QString>
+#include <QString>
 
 QT_USE_NAMESPACE
 

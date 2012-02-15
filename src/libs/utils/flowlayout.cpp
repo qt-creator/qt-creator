@@ -32,9 +32,9 @@
 
 #include "flowlayout.h"
 
-#include <QtCore/QRect>
-#include <QtGui/QWidgetItem>
-#include <QtGui/QWidget>
+#include <QRect>
+#include <QWidgetItem>
+#include <QWidget>
 
 using namespace Utils;
 

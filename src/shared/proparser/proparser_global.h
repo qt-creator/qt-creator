@@ -33,7 +33,7 @@
 #ifndef PROPARSER_GLOBAL_H
 #define PROPARSER_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(PROPARSER_AS_LIBRARY)
 #  if defined(PROPARSER_LIBRARY)

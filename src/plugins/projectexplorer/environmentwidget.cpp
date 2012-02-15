@@ -37,12 +37,12 @@
 #include <utils/environment.h>
 #include <utils/environmentmodel.h>
 
-#include <QtCore/QString>
-#include <QtGui/QHeaderView>
-#include <QtGui/QPushButton>
-#include <QtGui/QTableView>
-#include <QtGui/QTextDocument> // for Qt::escape
-#include <QtGui/QVBoxLayout>
+#include <QString>
+#include <QHeaderView>
+#include <QPushButton>
+#include <QTableView>
+#include <QTextDocument> // for Qt::escape
+#include <QVBoxLayout>
 
 namespace ProjectExplorer {
 

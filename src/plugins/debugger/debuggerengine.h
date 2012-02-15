@@ -37,8 +37,8 @@
 #include "debuggerconstants.h"
 #include "breakpoint.h" // For 'BreakpointId'
 
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
+#include <QObject>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 class QDebug;

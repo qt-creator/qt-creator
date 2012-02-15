@@ -35,10 +35,10 @@
 
 #include "vcsbase_global.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
-#include <QtCore/QVariant>
-#include <QtCore/QProcessEnvironment>
+#include <QObject>
+#include <QStringList>
+#include <QVariant>
+#include <QProcessEnvironment>
 
 namespace VcsBase {
 

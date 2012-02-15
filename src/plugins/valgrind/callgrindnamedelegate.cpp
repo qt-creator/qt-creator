@@ -34,8 +34,8 @@
 
 #include "callgrindhelper.h"
 
-#include <QtGui/QApplication>
-#include <QtGui/QPainter>
+#include <QApplication>
+#include <QPainter>
 
 namespace Valgrind {
 namespace Internal {

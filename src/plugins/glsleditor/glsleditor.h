@@ -37,8 +37,8 @@
 
 #include <texteditor/basetexteditor.h>
 
-#include <QtCore/QSharedPointer>
-#include <QtCore/QSet>
+#include <QSharedPointer>
+#include <QSet>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;

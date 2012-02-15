@@ -42,7 +42,7 @@
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsconfigurationpage.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace Bazaar::Internal;
 

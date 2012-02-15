@@ -33,7 +33,7 @@
 #ifndef IPLUGIN_H
 #define IPLUGIN_H
 
-#include <QtCore/QObject>
+#include <QObject>
 
 #define QMLDESIGNER_PLUGIN_INTERFACE "com.Nokia.QmlDesigner.IPlugin.v10"
 

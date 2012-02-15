@@ -51,14 +51,14 @@
 #include <coreplugin/id.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QLibraryInfo>
-#include <QtCore/QTranslator>
-#include <QtCore/QtPlugin>
+#include <QDebug>
+#include <QLibraryInfo>
+#include <QTranslator>
+#include <QtPlugin>
 
 #ifdef CPP_ENABLED
-#    include <QtGui/QWizard>
-#    include <QtGui/QMainWindow>
+#    include <QWizard>
+#    include <QMainWindow>
 #endif
 
 using namespace Designer::Internal;

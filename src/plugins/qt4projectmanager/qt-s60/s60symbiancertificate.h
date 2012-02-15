@@ -33,7 +33,7 @@
 #ifndef S60SYMBIANCERTIFICATE_H
 #define S60SYMBIANCERTIFICATE_H
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 QT_FORWARD_DECLARE_CLASS(QDateTime)
 

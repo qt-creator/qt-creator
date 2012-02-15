@@ -33,8 +33,8 @@
 #ifndef THREADSHANDLER_H
 #define THREADSHANDLER_H
 
-#include <QtCore/QAbstractTableModel>
-#include <QtGui/QIcon>
+#include <QAbstractTableModel>
+#include <QIcon>
 
 #include "threaddata.h"
 

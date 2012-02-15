@@ -37,7 +37,7 @@
 
 #include <coreplugin/inavigationwidgetfactory.h>
 
-#include <QtGui/QStyledItemDelegate>
+#include <QStyledItemDelegate>
 
 namespace Core {
 class IEditor;

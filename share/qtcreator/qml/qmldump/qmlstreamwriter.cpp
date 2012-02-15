@@ -35,8 +35,8 @@
 
 #include "qmlstreamwriter.h"
 
-#include <QtCore/QBuffer>
-#include <QtCore/QStringList>
+#include <QBuffer>
+#include <QStringList>
 
 QmlStreamWriter::QmlStreamWriter(QByteArray *array)
     : m_indentDepth(0)

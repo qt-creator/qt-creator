@@ -46,7 +46,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
 namespace {
 const char ACTIVE_BC_KEY[] = "ProjectExplorer.Target.ActiveBuildConfiguration";

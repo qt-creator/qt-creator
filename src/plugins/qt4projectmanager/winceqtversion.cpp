@@ -33,7 +33,7 @@
 #include "winceqtversion.h"
 #include "qt4projectmanagerconstants.h"
 #include <qtsupport/qtsupportconstants.h>
-#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

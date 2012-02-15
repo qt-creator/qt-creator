@@ -36,10 +36,10 @@
 #include <vcsbase/vcsbaseclientsettings.h>
 #include <vcsbase/vcsbaseconstants.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QVariant>
-#include <QtCore/QStringList>
-#include <QtCore/QDir>
+#include <QFileInfo>
+#include <QVariant>
+#include <QStringList>
+#include <QDir>
 
 using namespace Bazaar::Internal;
 

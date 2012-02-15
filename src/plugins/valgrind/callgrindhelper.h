@@ -33,7 +33,7 @@
 #ifndef CALLGRINDHELPER_H
 #define CALLGRINDHELPER_H
 
-#include <QtCore/QLocale>
+#include <QLocale>
 
 QT_BEGIN_NAMESPACE
 class QColor;

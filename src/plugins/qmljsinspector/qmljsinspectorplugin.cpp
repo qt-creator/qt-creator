@@ -49,14 +49,14 @@
 #include <qmlprojectmanager/qmlproject.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QtPlugin>
-#include <QtCore/QTimer>
+#include <QStringList>
+#include <QtPlugin>
+#include <QTimer>
 
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QToolButton>
+#include <QHBoxLayout>
+#include <QToolButton>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace QmlJSInspector::Internal;
 using namespace QmlJSInspector::Constants;

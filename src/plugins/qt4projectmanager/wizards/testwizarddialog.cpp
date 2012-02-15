@@ -33,7 +33,7 @@
 #include "testwizarddialog.h"
 #include "testwizardpage.h"
 
-#include <QtCore/QFileInfo>
+#include <QFileInfo>
 
 enum PageIds { StartPageId = 0 };
 

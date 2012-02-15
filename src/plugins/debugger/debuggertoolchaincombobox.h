@@ -33,7 +33,7 @@
 #ifndef DEBUGGERTOOLCHAINCOMBOBOX_H
 #define DEBUGGERTOOLCHAINCOMBOBOX_H
 
-#include <QtGui/QComboBox>
+#include <QComboBox>
 
 namespace ProjectExplorer {
 class Abi;

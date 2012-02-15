@@ -34,7 +34,7 @@
 #include "qmloutlinemodel.h"
 
 #include <utils/annotateditemdelegate.h>
-#include <QtGui/QMenu>
+#include <QMenu>
 
 namespace QmlJSEditor {
 namespace Internal {

@@ -34,7 +34,7 @@
 
 #include "remotelinux_export.h"
 
-#include <QtCore/QSharedPointer>
+#include <QSharedPointer>
 
 namespace ProjectExplorer {
 class Target;

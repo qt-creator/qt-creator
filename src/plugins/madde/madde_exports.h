@@ -33,7 +33,7 @@
 #ifndef MADDEEXPORT_H
 #define MADDEEXPORT_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(MADDE_LIBRARY)
 #  define MADDE_EXPORT Q_DECL_EXPORT

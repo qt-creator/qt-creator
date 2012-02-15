@@ -57,16 +57,16 @@
 #include <coreplugin/ifile.h>
 #include <coreplugin/icore.h>
 
-#include <QtCore/QDateTime>
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTimer>
-#include <QtCore/QVariant>
+#include <QDateTime>
+#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QTimer>
+#include <QVariant>
 
-#include <QtGui/QApplication>
-#include <QtGui/QMessageBox>
-#include <QtGui/QToolTip>
+#include <QApplication>
+#include <QMessageBox>
+#include <QToolTip>
 
 
 #define DEBUG_SCRIPT 1

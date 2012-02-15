@@ -55,12 +55,12 @@
 #    include <utils/winutils.h>
 #endif
 
-#include <QtCore/QFile>
-#include <QtCore/QSettings>
-#include <QtCore/QTextStream>
-#include <QtCore/QDir>
-#include <QtCore/QTimer>
-#include <QtGui/QMainWindow>
+#include <QFile>
+#include <QSettings>
+#include <QTextStream>
+#include <QDir>
+#include <QTimer>
+#include <QMainWindow>
 
 #include <algorithm>
 

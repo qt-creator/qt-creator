@@ -34,7 +34,7 @@
 #ifndef DESIGNERSETTINGS_H
 #define DESIGNERSETTINGS_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

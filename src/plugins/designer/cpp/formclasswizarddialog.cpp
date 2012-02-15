@@ -37,8 +37,8 @@
 
 #include <coreplugin/basefilewizard.h>
 
-#include <QtCore/QDebug>
-#include <QtGui/QAbstractButton>
+#include <QDebug>
+#include <QAbstractButton>
 
 enum { FormPageId, ClassPageId };
 

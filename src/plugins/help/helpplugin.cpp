@@ -71,29 +71,29 @@
 #include <texteditor/texteditorconstants.h>
 #include <utils/styledbar.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QLibraryInfo>
-#include <QtCore/QTimer>
-#include <QtCore/QTranslator>
-#include <QtCore/qplugin.h>
-#include <QtCore/QRegExp>
+#include <QDir>
+#include <QFileInfo>
+#include <QLibraryInfo>
+#include <QTimer>
+#include <QTranslator>
+#include <qplugin.h>
+#include <QRegExp>
 
-#include <QtGui/QAction>
-#include <QtGui/QComboBox>
-#include <QtGui/QDesktopServices>
-#include <QtGui/QMenu>
-#include <QtGui/QShortcut>
-#include <QtGui/QStackedLayout>
-#include <QtGui/QSplitter>
+#include <QAction>
+#include <QComboBox>
+#include <QDesktopServices>
+#include <QMenu>
+#include <QShortcut>
+#include <QStackedLayout>
+#include <QSplitter>
 
-#include <QtHelp/QHelpEngine>
+#include <QHelpEngine>
 
 #if !defined(QT_NO_WEBKIT)
-#include <QtWebKit/QWebElement>
-#include <QtWebKit/QWebElementCollection>
-#include <QtWebKit/QWebFrame>
-#include <QtWebKit/QWebHistory>
+#include <QWebElement>
+#include <QWebElementCollection>
+#include <QWebFrame>
+#include <QWebHistory>
 #endif
 
 using namespace Help::Internal;

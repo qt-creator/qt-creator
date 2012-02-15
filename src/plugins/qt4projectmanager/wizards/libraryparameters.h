@@ -35,7 +35,7 @@
 
 #include "qtprojectparameters.h"
 
-#include <QtCore/QString>
+#include <QString>
 
 namespace Qt4ProjectManager {
 namespace Internal {

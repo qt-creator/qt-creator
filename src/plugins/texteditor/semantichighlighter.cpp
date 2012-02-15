@@ -36,8 +36,8 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextBlock>
+#include <QTextDocument>
+#include <QTextBlock>
 
 using namespace TextEditor;
 using namespace TextEditor::SemanticHighlighter;

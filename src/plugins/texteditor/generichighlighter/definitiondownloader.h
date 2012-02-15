@@ -33,9 +33,9 @@
 #ifndef DEFINITIONDOWNLOADER_H
 #define DEFINITIONDOWNLOADER_H
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtCore/QUrl>
+#include <QObject>
+#include <QString>
+#include <QUrl>
 
 QT_BEGIN_NAMESPACE
 class QNetworkReply;

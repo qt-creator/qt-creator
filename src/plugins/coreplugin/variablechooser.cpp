@@ -37,11 +37,11 @@
 
 #include <utils/fancylineedit.h> // IconButton
 
-#include <QtCore/QTimer>
-#include <QtGui/QLineEdit>
-#include <QtGui/QTextEdit>
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QListWidgetItem>
+#include <QTimer>
+#include <QLineEdit>
+#include <QTextEdit>
+#include <QPlainTextEdit>
+#include <QListWidgetItem>
 
 using namespace Core;
 

@@ -33,7 +33,7 @@
 #ifndef LIBVALGRIND_CALLGRIND_PARSEDATA_P_H
 #define LIBVALGRIND_CALLGRIND_PARSEDATA_P_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 QT_BEGIN_NAMESPACE
 class QString;

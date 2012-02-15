@@ -115,19 +115,19 @@
 #include <utils/stringutils.h>
 #include <utils/persistentsettings.h>
 
-#include <QtCore/QtPlugin>
-#include <QtCore/QDateTime>
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
-#include <QtCore/QAbstractFileEngine>
+#include <QtPlugin>
+#include <QDateTime>
+#include <QDebug>
+#include <QSettings>
+#include <QAbstractFileEngine>
 
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
-#include <QtGui/QMainWindow>
-#include <QtGui/QWizard>
+#include <QAction>
+#include <QApplication>
+#include <QFileDialog>
+#include <QMenu>
+#include <QMessageBox>
+#include <QMainWindow>
+#include <QWizard>
 
 /*!
     \namespace ProjectExplorer

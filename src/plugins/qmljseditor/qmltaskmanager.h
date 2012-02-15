@@ -37,12 +37,12 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QList>
-#include <QtCore/QHash>
-#include <QtCore/QString>
-#include <QtCore/QFutureWatcher>
-#include <QtCore/QTimer>
+#include <QObject>
+#include <QList>
+#include <QHash>
+#include <QString>
+#include <QFutureWatcher>
+#include <QTimer>
 
 namespace QmlJSEditor {
 class QmlJSTextEditorWidget;

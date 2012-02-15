@@ -38,11 +38,11 @@
 #include <coreplugin/coreconstants.h>
 #include <utils/fileutils.h>
 
-#include <QtCore/QTemporaryFile>
-#include <QtGui/QDesktopServices>
-#include <QtGui/QFileDialog>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
+#include <QTemporaryFile>
+#include <QDesktopServices>
+#include <QFileDialog>
+#include <QFileDialog>
+#include <QMessageBox>
 
 namespace Qt4ProjectManager {
 namespace Internal {

@@ -45,7 +45,7 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <QtCore/QFileInfo>
+#include <QFileInfo>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;

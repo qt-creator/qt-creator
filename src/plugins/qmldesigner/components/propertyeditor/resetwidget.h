@@ -33,8 +33,8 @@
 #ifndef ResetWidget_h
 #define ResetWidget_h
 
-#include <QtGui/QGroupBox>
-#include <QtGui/QPushButton>
+#include <QGroupBox>
+#include <QPushButton>
 
 QT_BEGIN_NAMESPACE
 class QListWidget;

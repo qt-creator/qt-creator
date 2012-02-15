@@ -36,7 +36,7 @@
 
 #include <vcsbase/submitfilemodel.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 #include <QDir> //TODO REMOVE WHEN BASE FILE CHANGES ARE PULLED
 

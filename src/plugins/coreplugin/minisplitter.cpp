@@ -34,9 +34,9 @@
 
 #include <utils/stylehelper.h>
 
-#include <QtGui/QPaintEvent>
-#include <QtGui/QPainter>
-#include <QtGui/QSplitterHandle>
+#include <QPaintEvent>
+#include <QPainter>
+#include <QSplitterHandle>
 
 namespace Core {
 namespace Internal {

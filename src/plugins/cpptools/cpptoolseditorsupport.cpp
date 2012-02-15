@@ -44,7 +44,7 @@
 #include <ASTVisitor.h>
 #include <TranslationUnit.h>
 
-#include <QtCore/QTimer>
+#include <QTimer>
 
 using namespace CppTools;
 using namespace CppTools::Internal;

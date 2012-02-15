@@ -43,14 +43,14 @@
 #include <coreplugin/id.h>
 #include <coreplugin/icontext.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QEvent>
-#include <QtCore/QSignalMapper>
-#include <QtCore/QtAlgorithms>
-#include <QtCore/QStringList>
+#include <QObject>
+#include <QEvent>
+#include <QSignalMapper>
+#include <QtAlgorithms>
+#include <QStringList>
 
-#include <QtGui/QAction>
-#include <QtGui/QShortcut>
+#include <QAction>
+#include <QShortcut>
 
 using namespace Macros;
 using namespace Macros::Internal;

@@ -33,7 +33,7 @@
 #ifndef CORECONSTANTS_H
 #define CORECONSTANTS_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 namespace Core {
 namespace Constants {

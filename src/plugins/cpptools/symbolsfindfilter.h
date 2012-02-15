@@ -38,12 +38,12 @@
 #include <find/ifindfilter.h>
 #include <find/searchresultwindow.h>
 
-#include <QtCore/QFutureInterface>
-#include <QtCore/QFutureWatcher>
-#include <QtCore/QPointer>
-#include <QtGui/QWidget>
-#include <QtGui/QCheckBox>
-#include <QtGui/QRadioButton>
+#include <QFutureInterface>
+#include <QFutureWatcher>
+#include <QPointer>
+#include <QWidget>
+#include <QCheckBox>
+#include <QRadioButton>
 
 namespace CppTools {
 namespace Internal {

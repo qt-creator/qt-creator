@@ -35,7 +35,7 @@
 
 #include "utils_global.h"
 
-#include <QtCore/QProcess> // Q_PID (is PROCESS_INFORMATION*)
+#include <QProcess> // Q_PID (is PROCESS_INFORMATION*)
 
 QT_BEGIN_NAMESPACE
 class QString;

@@ -36,8 +36,8 @@
 #include "core_global.h"
 #include "minisplitter.h"
 
-#include <QtCore/QMap>
-#include <QtCore/QList>
+#include <QMap>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

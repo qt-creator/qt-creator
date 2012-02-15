@@ -85,28 +85,28 @@
 #include <utils/stringutils.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
-#include <QtCore/QSettings>
-#include <QtCore/QTimer>
-#include <QtCore/QtPlugin>
-#include <QtCore/QUrl>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QMimeData>
+#include <QDebug>
+#include <QFileInfo>
+#include <QSettings>
+#include <QTimer>
+#include <QtPlugin>
+#include <QUrl>
+#include <QDir>
+#include <QFile>
+#include <QMimeData>
 
-#include <QtGui/QApplication>
-#include <QtGui/QCloseEvent>
-#include <QtGui/QMenu>
-#include <QtGui/QPixmap>
-#include <QtGui/QPrinter>
-#include <QtGui/QShortcut>
-#include <QtGui/QStatusBar>
-#include <QtGui/QWizard>
-#include <QtGui/QToolButton>
-#include <QtGui/QMessageBox>
-#include <QtGui/QMenuBar>
-#include <QtGui/QPushButton>
+#include <QApplication>
+#include <QCloseEvent>
+#include <QMenu>
+#include <QPixmap>
+#include <QPrinter>
+#include <QShortcut>
+#include <QStatusBar>
+#include <QWizard>
+#include <QToolButton>
+#include <QMessageBox>
+#include <QMenuBar>
+#include <QPushButton>
 
 /*
 #ifdef Q_OS_UNIX

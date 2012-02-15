@@ -33,7 +33,7 @@
 #include "certificatepathchooser.h"
 #include "s60certificateinfo.h"
 
-#include <QtGui/QMessageBox>
+#include <QMessageBox>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

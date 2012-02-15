@@ -37,7 +37,7 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtGui/QAction>
+#include <QAction>
 
 namespace Locator {
 

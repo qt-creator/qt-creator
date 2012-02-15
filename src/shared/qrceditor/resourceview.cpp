@@ -34,16 +34,16 @@
 
 #include "undocommands_p.h"
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QFileDialog>
-#include <QtGui/QHeaderView>
-#include <QtGui/QInputDialog>
-#include <QtGui/QMenu>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QUndoStack>
+#include <QAction>
+#include <QApplication>
+#include <QFileDialog>
+#include <QHeaderView>
+#include <QInputDialog>
+#include <QMenu>
+#include <QMouseEvent>
+#include <QUndoStack>
 
 namespace SharedTools {
 

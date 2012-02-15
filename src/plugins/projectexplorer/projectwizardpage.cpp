@@ -36,8 +36,8 @@
 #include <coreplugin/icore.h>
 #include <vcsbase/vcsbaseconstants.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QTextStream>
+#include <QDir>
+#include <QTextStream>
 
 /*!
     \class ProjectExplorer::Internal::ProjectWizardPage

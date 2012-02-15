@@ -62,9 +62,9 @@
 #include <find/searchresultwindow.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QtPlugin>
-#include <QtGui/QMainWindow>
-#include <QtGui/QShortcut>
+#include <QtPlugin>
+#include <QMainWindow>
+#include <QShortcut>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;

@@ -49,11 +49,11 @@
 #include <utils/qtcassert.h>
 #include <utils/ssh/sshremoteprocessrunner.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QStringList>
-#include <QtGui/QIcon>
+#include <QCoreApplication>
+#include <QDir>
+#include <QFileInfo>
+#include <QStringList>
+#include <QIcon>
 
 using namespace Core;
 using namespace Qt4ProjectManager;

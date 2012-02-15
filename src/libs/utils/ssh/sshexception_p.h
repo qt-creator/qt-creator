@@ -35,9 +35,9 @@
 
 #include "ssherrors.h"
 
-#include <QtCore/QByteArray>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QString>
+#include <QByteArray>
+#include <QCoreApplication>
+#include <QString>
 
 namespace Utils {
 namespace Internal {

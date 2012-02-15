@@ -33,8 +33,8 @@
 #ifndef GITORIOUSHOSTWIDGET_H
 #define GITORIOUSHOSTWIDGET_H
 
-#include <QtGui/QWizardPage>
-#include <QtGui/QStandardItemModel>
+#include <QWizardPage>
+#include <QStandardItemModel>
 
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;

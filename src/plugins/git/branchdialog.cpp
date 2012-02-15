@@ -42,11 +42,11 @@
 #include <utils/qtcassert.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 
-#include <QtGui/QItemSelectionModel>
-#include <QtGui/QPushButton>
-#include <QtGui/QMessageBox>
+#include <QItemSelectionModel>
+#include <QPushButton>
+#include <QMessageBox>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 namespace Git {
 namespace Internal {

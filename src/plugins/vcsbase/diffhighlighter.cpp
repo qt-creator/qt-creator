@@ -36,10 +36,10 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QtAlgorithms>
-#include <QtCore/QRegExp>
-#include <QtGui/QBrush>
+#include <QDebug>
+#include <QtAlgorithms>
+#include <QRegExp>
+#include <QBrush>
 
 /*!
     \class VcsBase::DiffHighlighter

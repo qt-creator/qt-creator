@@ -36,12 +36,12 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtGui/QApplication>
-#include <QtGui/QLabel>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QComboBox>
-#include <QtGui/QPushButton>
+#include <QDebug>
+#include <QApplication>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QComboBox>
+#include <QPushButton>
 
 namespace Analyzer {
 namespace Internal {

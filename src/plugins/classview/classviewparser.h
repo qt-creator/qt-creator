@@ -33,7 +33,7 @@
 #ifndef CLASSVIEWPARSER_H
 #define CLASSVIEWPARSER_H
 
-#include <QtCore/QObject>
+#include <QObject>
 
 #include "classviewparsertreeitem.h"
 
@@ -45,9 +45,9 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/project.h>
 
-#include <QtCore/QList>
-#include <QtCore/QSharedPointer>
-#include <QtGui/QStandardItem>
+#include <QList>
+#include <QSharedPointer>
+#include <QStandardItem>
 
 namespace ClassView {
 namespace Internal {

@@ -32,9 +32,9 @@
 
 #include "uicodecompletionsupport.h"
 
-#include <QtCore/QProcess>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
+#include <QProcess>
+#include <QFile>
+#include <QFileInfo>
 
 enum { debug = 0 };
 

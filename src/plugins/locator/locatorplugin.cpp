@@ -52,11 +52,11 @@
 #include <utils/QtConcurrentTools>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QSettings>
-#include <QtCore/QtPlugin>
-#include <QtCore/QFuture>
-#include <QtCore/QFutureWatcher>
-#include <QtGui/QAction>
+#include <QSettings>
+#include <QtPlugin>
+#include <QFuture>
+#include <QFutureWatcher>
+#include <QAction>
 
 /*!
     \namespace Locator

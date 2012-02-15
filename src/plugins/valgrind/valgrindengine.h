@@ -41,10 +41,10 @@
 
 #include <valgrind/valgrindrunner.h>
 
-#include <QtCore/QString>
-#include <QtCore/QByteArray>
-#include <QtCore/QFutureInterface>
-#include <QtCore/QFutureWatcher>
+#include <QString>
+#include <QByteArray>
+#include <QFutureInterface>
+#include <QFutureWatcher>
 
 namespace Analyzer {
 class AnalyzerSettings;

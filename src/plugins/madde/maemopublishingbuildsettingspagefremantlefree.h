@@ -33,8 +33,8 @@
 #ifndef MAEMOPUBLISHINGBUILDSETTINGSPAGEFREMANTLEFREE_H
 #define MAEMOPUBLISHINGBUILDSETTINGSPAGEFREMANTLEFREE_H
 
-#include <QtCore/QList>
-#include <QtGui/QWizardPage>
+#include <QList>
+#include <QWizardPage>
 
 namespace ProjectExplorer { class Project; }
 namespace Qt4ProjectManager { class Qt4BuildConfiguration; }

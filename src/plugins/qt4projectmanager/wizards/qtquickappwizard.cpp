@@ -42,9 +42,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <coreplugin/dialogs/iwizard.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtGui/QIcon>
-#include <QtCore/QDebug>
+#include <QCoreApplication>
+#include <QIcon>
+#include <QDebug>
 
 namespace Qt4ProjectManager {
 namespace Internal {

@@ -43,7 +43,7 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QTreeView>
+#include <QTreeView>
 
 using namespace ProjectExplorer;
 

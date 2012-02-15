@@ -43,7 +43,7 @@
 #include <remotelinux/remotelinuxusedportsgatherer.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QTimer>
+#include <QTimer>
 
 using namespace Qt4ProjectManager;
 using namespace RemoteLinux;

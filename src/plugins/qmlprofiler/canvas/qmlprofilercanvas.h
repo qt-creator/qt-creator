@@ -33,7 +33,7 @@
 #ifndef QMLPROFILERCANVAS_H
 #define QMLPROFILERCANVAS_H
 
-#include <QtDeclarative/QDeclarativeItem>
+#include <QDeclarativeItem>
 
 QT_BEGIN_NAMESPACE
 class Context2D;

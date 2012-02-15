@@ -44,12 +44,12 @@
 #include <utils/winutils.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QProcess>
-#include <QtCore/QSettings>
-#include <QtCore/QUrl>
-#include <QtGui/QFormLayout>
-#include <QtGui/QDesktopServices>
+#include <QDir>
+#include <QProcess>
+#include <QSettings>
+#include <QUrl>
+#include <QFormLayout>
+#include <QDesktopServices>
 
 #define KEY_ROOT "ProjectExplorer.MsvcToolChain."
 static const char debuggerCommandKeyC[] = KEY_ROOT"Debugger";

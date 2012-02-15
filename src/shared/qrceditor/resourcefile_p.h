@@ -33,11 +33,11 @@
 #ifndef RESOURCEFILE_P_H
 #define RESOURCEFILE_P_H
 
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QMap>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtGui/QIcon>
+#include <QAbstractItemModel>
+#include <QMap>
+#include <QString>
+#include <QStringList>
+#include <QIcon>
 
 QT_BEGIN_NAMESPACE
 

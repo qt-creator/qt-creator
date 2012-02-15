@@ -4,12 +4,12 @@
 #include <utils/filewizarddialog.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QXmlStreamWriter>
+#include <QXmlStreamWriter>
 
-#include <QtGui/QGridLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QPlainTextEdit>
+#include <QGridLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPlainTextEdit>
 
 namespace MyPlugin {
 namespace Internal {

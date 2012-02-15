@@ -32,7 +32,7 @@
 
 #include "formats.h"
 
-#include <QtCore/Qt>
+#include <Qt>
 
 Formats::Formats()
 {

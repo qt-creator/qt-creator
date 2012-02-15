@@ -8,20 +8,20 @@
 
 #include "html5applicationviewer.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QGraphicsView>
-#include <QtGui/QGraphicsScene>
-#include <QtGui/QGraphicsLinearLayout>
-#include <QtWebKit/QGraphicsWebView>
-#include <QtWebKit/QWebFrame>
+#include <QCoreApplication>
+#include <QDir>
+#include <QFileInfo>
+#include <QVBoxLayout>
+#include <QGraphicsView>
+#include <QGraphicsScene>
+#include <QGraphicsLinearLayout>
+#include <QGraphicsWebView>
+#include <QWebFrame>
 
 #ifdef TOUCH_OPTIMIZED_NAVIGATION
-#include <QtCore/QTimer>
-#include <QtGui/QGraphicsSceneMouseEvent>
-#include <QtWebKit/QWebElement>
+#include <QTimer>
+#include <QGraphicsSceneMouseEvent>
+#include <QWebElement>
 #include "navigationcontroller.h"
 #include "webtouchevent.h"
 #include "webtouchnavigation.h"

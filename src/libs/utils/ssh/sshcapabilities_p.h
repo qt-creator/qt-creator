@@ -33,8 +33,8 @@
 #ifndef CAPABILITIES_P_H
 #define CAPABILITIES_P_H
 
-#include <QtCore/QByteArray>
-#include <QtCore/QList>
+#include <QByteArray>
+#include <QList>
 
 namespace Utils {
 namespace Internal {

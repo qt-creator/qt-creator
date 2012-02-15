@@ -36,9 +36,9 @@
 #include "core_global.h"
 #include "id.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtCore/QFlags>
+#include <QObject>
+#include <QString>
+#include <QFlags>
 
 namespace Core {
 

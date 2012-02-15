@@ -38,23 +38,23 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QByteArrayMatcher>
-#include <QtCore/QDebug>
-#include <QtCore/QFile>
-#include <QtCore/QTemporaryFile>
-#include <QtCore/QVariant>
+#include <QByteArrayMatcher>
+#include <QDebug>
+#include <QFile>
+#include <QTemporaryFile>
+#include <QVariant>
 
-#include <QtGui/QApplication>
-#include <QtGui/QAction>
-#include <QtGui/QClipboard>
-#include <QtGui/QFontMetrics>
-#include <QtGui/QHelpEvent>
-#include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPainter>
-#include <QtGui/QScrollBar>
-#include <QtGui/QToolTip>
-#include <QtGui/QWheelEvent>
+#include <QApplication>
+#include <QAction>
+#include <QClipboard>
+#include <QFontMetrics>
+#include <QHelpEvent>
+#include <QMenu>
+#include <QMessageBox>
+#include <QPainter>
+#include <QScrollBar>
+#include <QToolTip>
+#include <QWheelEvent>
 
 // QByteArray::toLower() is broken, it stops at the first \0
 static void lower(QByteArray &ba)

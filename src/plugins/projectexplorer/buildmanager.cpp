@@ -50,18 +50,18 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QTime>
-#include <QtCore/QTimer>
-#include <QtCore/QMetaType>
-#include <QtCore/QList>
-#include <QtCore/QHash>
-#include <QtCore/QFutureWatcher>
+#include <QDir>
+#include <QTime>
+#include <QTimer>
+#include <QMetaType>
+#include <QList>
+#include <QHash>
+#include <QFutureWatcher>
 
 #include <utils/QtConcurrentTools>
 
-#include <QtGui/QApplication>
-#include <QtGui/QMainWindow>
+#include <QApplication>
+#include <QMainWindow>
 
 static inline QString msgProgress(int progress, int total)
 {

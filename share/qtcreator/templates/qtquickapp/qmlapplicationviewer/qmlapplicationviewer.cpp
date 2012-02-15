@@ -9,12 +9,12 @@
 
 #include "qmlapplicationviewer.h"
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtGui/QApplication>
-#include <QtDeclarative/QDeclarativeComponent>
-#include <QtDeclarative/QDeclarativeEngine>
-#include <QtDeclarative/QDeclarativeContext>
+#include <QDir>
+#include <QFileInfo>
+#include <QApplication>
+#include <QDeclarativeComponent>
+#include <QDeclarativeEngine>
+#include <QDeclarativeContext>
 
 #include <qplatformdefs.h> // MEEGO_EDITION_HARMATTAN
 

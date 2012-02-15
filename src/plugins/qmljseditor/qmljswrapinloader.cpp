@@ -41,9 +41,9 @@
 #include <qmljs/qmljsbind.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QCoreApplication>
+#include <QDir>
+#include <QFileInfo>
+#include <QCoreApplication>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

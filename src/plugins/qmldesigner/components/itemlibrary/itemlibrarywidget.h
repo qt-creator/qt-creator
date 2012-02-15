@@ -34,8 +34,8 @@
 #define ITEMLIBRARYWIDGET_H
 
 #include "itemlibraryinfo.h"
-#include <QtGui/QFrame>
-#include <QtGui/QToolButton>
+#include <QFrame>
+#include <QToolButton>
 
 namespace QmlDesigner {
 

@@ -36,8 +36,8 @@
 
 #include <qdeclarative.h>
 #include <qdeclarativeproperty.h>
-#include <QtCore/qobject.h>
-#include <QtCore/qsharedpointer.h>
+#include <qobject.h>
+#include <qsharedpointer.h>
 
 QT_BEGIN_HEADER
 

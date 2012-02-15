@@ -35,7 +35,7 @@
 
 #include <QFrame>
 #include <QAbstractItemModel>
-#include <QtGui/QToolButton>
+#include <QToolButton>
 
 #include "navigatortreeview.h"
 

@@ -53,11 +53,11 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/runextensions.h>
 
-#include <QtCore/QDir>
-#include <QtGui/QToolTip>
-#include <QtGui/QMessageBox>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMainWindow>
+#include <QDir>
+#include <QToolTip>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QMainWindow>
 
 enum ModelRoles { VersionIdRole = Qt::UserRole, ToolChainIdRole, BuildLogRole, BuildRunningRole};
 

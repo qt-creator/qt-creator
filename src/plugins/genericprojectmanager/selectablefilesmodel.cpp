@@ -35,11 +35,11 @@
 #include <coreplugin/fileiconprovider.h>
 
 #include <utils/QtConcurrentTools>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QTreeView>
-#include <QtGui/QLineEdit>
-#include <QtGui/QPushButton>
+#include <QHBoxLayout>
+#include <QDialogButtonBox>
+#include <QTreeView>
+#include <QLineEdit>
+#include <QPushButton>
 
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;

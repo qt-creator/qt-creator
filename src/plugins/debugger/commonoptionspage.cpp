@@ -43,8 +43,8 @@
 
 #include <projectexplorer/projectexplorer.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QTextStream>
+#include <QFileInfo>
+#include <QTextStream>
 
 using namespace Core;
 using namespace Debugger::Constants;

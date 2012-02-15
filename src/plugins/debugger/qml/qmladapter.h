@@ -36,8 +36,8 @@
 #include "debugger_global.h"
 #include "qmldebuggerclient.h"
 
-#include <QtCore/QObject>
-#include <QtNetwork/QAbstractSocket>
+#include <QObject>
+#include <QAbstractSocket>
 
 namespace QmlJsDebugClient {
 class QDeclarativeEngineDebug;

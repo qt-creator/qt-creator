@@ -51,14 +51,14 @@
 #include <coreplugin/ifile.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QStandardItem>
-#include <QtCore/QDebug>
-#include <QtCore/QHash>
-#include <QtCore/QSet>
-#include <QtCore/QTimer>
-#include <QtCore/QReadWriteLock>
-#include <QtCore/QReadLocker>
-#include <QtCore/QWriteLocker>
+#include <QStandardItem>
+#include <QDebug>
+#include <QHash>
+#include <QSet>
+#include <QTimer>
+#include <QReadWriteLock>
+#include <QReadLocker>
+#include <QWriteLocker>
 
 enum { debug = false };
 

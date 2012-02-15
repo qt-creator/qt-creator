@@ -38,7 +38,7 @@
 #include <iostream>
 #include <cstdio>
 #include <cassert>
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace GLSL;
 

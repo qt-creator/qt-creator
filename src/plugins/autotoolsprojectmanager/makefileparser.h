@@ -35,13 +35,13 @@
 #ifndef MAKEFILEPARSER_H
 #define MAKEFILEPARSER_H
 
-#include <QtCore/QMutex>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QTextStream>
-#include <QtCore/QObject>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
+#include <QMutex>
+#include <QString>
+#include <QStringList>
+#include <QTextStream>
+#include <QObject>
+#include <QDir>
+#include <QFileInfo>
 
 namespace AutotoolsProjectManager {
 namespace Internal {

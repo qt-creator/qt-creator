@@ -36,21 +36,21 @@
 
 #include <coreplugin/icore.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
-#include <QtCore/QRegExp>
-#include <QtCore/QVariant>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QDebug>
+#include <QRegExp>
+#include <QVariant>
 
-#include <QtGui/QMenu>
-#include <QtGui/QAction>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMessageBox>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLineEdit>
-#include <QtGui/QRegExpValidator>
-#include <QtGui/QToolBar>
+#include <QMenu>
+#include <QAction>
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QHBoxLayout>
+#include <QLineEdit>
+#include <QRegExpValidator>
+#include <QToolBar>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>

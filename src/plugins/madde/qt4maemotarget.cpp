@@ -57,19 +57,19 @@
 #include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QApplication>
-#include <QtGui/QMainWindow>
-#include <QtCore/QBuffer>
-#include <QtCore/QDateTime>
-#include <QtCore/QLocale>
-#include <QtCore/QRegExp>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QProcess>
-#include <QtCore/QStringList>
-#include <QtGui/QIcon>
-#include <QtGui/QMessageBox>
+#include <QApplication>
+#include <QMainWindow>
+#include <QBuffer>
+#include <QDateTime>
+#include <QLocale>
+#include <QRegExp>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QProcess>
+#include <QStringList>
+#include <QIcon>
+#include <QMessageBox>
 
 #include <cctype>
 

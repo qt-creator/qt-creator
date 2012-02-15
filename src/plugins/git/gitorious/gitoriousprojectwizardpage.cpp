@@ -37,8 +37,8 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtGui/QStackedWidget>
-#include <QtGui/QVBoxLayout>
+#include <QStackedWidget>
+#include <QVBoxLayout>
 
 namespace Gitorious {
 namespace Internal {

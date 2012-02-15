@@ -32,7 +32,7 @@
 
 #include "plugin1.h"
 
-#include <QtCore/qplugin.h>
+#include <qplugin.h>
 #include <QStringList>
 
 using namespace Plugin1;

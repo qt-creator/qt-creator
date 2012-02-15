@@ -36,8 +36,8 @@
 #include "qmljsdebugger_global.h"
 #include "qmlinspectorconstants.h"
 
-#include <QtCore/QScopedPointer>
-#include <QtDeclarative/QDeclarativeView>
+#include <QScopedPointer>
+#include <QDeclarativeView>
 
 QT_FORWARD_DECLARE_CLASS(QDeclarativeItem)
 QT_FORWARD_DECLARE_CLASS(QMouseEvent)

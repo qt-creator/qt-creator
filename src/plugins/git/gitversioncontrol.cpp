@@ -38,8 +38,8 @@
 #include <utils/qtcassert.h>
 #include <vcsbase/vcsbaseconstants.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
+#include <QDebug>
+#include <QFileInfo>
 
 static const char stashMessageKeywordC[] = "IVersionControl@";
 static const char stashRevisionIdC[] = "revision";

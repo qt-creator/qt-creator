@@ -32,10 +32,10 @@
 
 
 #include "unixutils.h"
-#include <QtCore/QSettings>
-#include <QtCore/QObject>
-#include <QtCore/QFileInfo>
-#include <QtCore/QCoreApplication>
+#include <QSettings>
+#include <QObject>
+#include <QFileInfo>
+#include <QCoreApplication>
 
 using namespace Utils;
 

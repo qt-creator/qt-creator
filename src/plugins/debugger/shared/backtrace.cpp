@@ -30,9 +30,9 @@
 **
 **************************************************************************/
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
-#include <QtCore/QProcess>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QProcess>
 
 #if defined(Q_OS_LINUX)
 #include <stdio.h>

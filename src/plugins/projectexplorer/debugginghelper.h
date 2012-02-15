@@ -37,7 +37,7 @@
 
 #include <utils/buildablehelperlibrary.h>
 
-#include <QtCore/QString>
+#include <QString>
 
 QT_FORWARD_DECLARE_CLASS(QStringList)
 

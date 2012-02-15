@@ -32,7 +32,7 @@
 
 #include <qmljs/qmljsscanner.h>
 
-#include <QtGui/QTextCharFormat>
+#include <QTextCharFormat>
 
 using namespace QmlJS;
 

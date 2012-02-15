@@ -35,8 +35,8 @@
 
 #include "utils_global.h"
 
-#include <QtCore/QMap>
-#include <QtCore/QVariant>
+#include <QMap>
+#include <QVariant>
 
 QT_BEGIN_NAMESPACE
 class QWidget;

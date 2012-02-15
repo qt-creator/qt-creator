@@ -33,7 +33,7 @@
 #ifndef GITUTILS_H
 #define GITUTILS_H
 
-#include <QtCore/QString>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 class QDebug;

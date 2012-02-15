@@ -36,8 +36,8 @@
 #include "qtsupport_global.h"
 #include "baseqtversion.h"
 
-#include <QtCore/QSet>
-#include <QtCore/QStringList>
+#include <QSet>
+#include <QStringList>
 
 namespace QtSupport {
 namespace Internal {

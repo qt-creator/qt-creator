@@ -34,9 +34,9 @@
 
 #include <cstdlib>
 
-#include <QtGui/QColor>
-#include <QtCore/QMap>
-#include <QtCore/QString>
+#include <QColor>
+#include <QMap>
+#include <QString>
 
 namespace Valgrind {
 namespace Internal {

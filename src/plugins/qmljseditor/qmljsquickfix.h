@@ -40,7 +40,7 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
 
-#include <QtCore/QSharedPointer>
+#include <QSharedPointer>
 
 namespace ExtensionSystem {
 class IPlugin;

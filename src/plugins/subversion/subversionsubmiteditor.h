@@ -33,8 +33,8 @@
 #ifndef SUBVERSIONSUBMITEDITOR_H
 #define SUBVERSIONSUBMITEDITOR_H
 
-#include <QtCore/QPair>
-#include <QtCore/QStringList>
+#include <QPair>
+#include <QStringList>
 
 #include <vcsbase/vcsbasesubmiteditor.h>
 

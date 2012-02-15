@@ -42,9 +42,9 @@
 #endif
 
 #include <functional>
-#include <QtCore/QtConcurrentRun>
+#include <QtConcurrentRun>
 #ifndef ICHECK_BUILD
-#  include <QtCore/QFutureSynchronizer>
+#  include <QFutureSynchronizer>
 #  include <utils/runextensions.h>
 #  include <texteditor/itexteditor.h>
 #  include <texteditor/basetexteditor.h>
@@ -58,7 +58,7 @@
 #  include <coreplugin/progressmanager/progressmanager.h>
 #  include <extensionsystem/pluginmanager.h>
 #else
-#  include <QtCore/QDir>
+#  include <QDir>
 #endif
 
 #include <utils/qtcassert.h>
@@ -78,14 +78,14 @@
 #include <Control.h>
 #include <CoreTypes.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
-#include <QtCore/QMutexLocker>
-#include <QtCore/QTime>
-#include <QtCore/QTimer>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QMutexLocker>
+#include <QTime>
+#include <QTimer>
 #include <QtConcurrentMap>
 
-#include <QtGui/QTextBlock>
+#include <QTextBlock>
 
 #include <iostream>
 #include <sstream>

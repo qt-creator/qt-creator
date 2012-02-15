@@ -40,11 +40,11 @@
 
 #include <utils/proxyaction.h>
 
-#include <QtCore/QList>
-#include <QtCore/QMultiMap>
-#include <QtCore/QPointer>
-#include <QtCore/QMap>
-#include <QtGui/QKeySequence>
+#include <QList>
+#include <QMultiMap>
+#include <QPointer>
+#include <QMap>
+#include <QKeySequence>
 
 namespace Core {
 namespace Internal {

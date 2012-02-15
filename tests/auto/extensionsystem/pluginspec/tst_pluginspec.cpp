@@ -35,9 +35,9 @@
 #include <extensionsystem/pluginmanager_p.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QMetaObject>
-#include <QtTest/QtTest>
+#include <QObject>
+#include <QMetaObject>
+#include <QtTest>
 
 using namespace ExtensionSystem;
 

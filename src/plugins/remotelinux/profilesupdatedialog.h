@@ -33,10 +33,10 @@
 #ifndef PROFILESUPDATEDIALOG_H
 #define PROFILESUPDATEDIALOG_H
 
-#include <QtCore/QList>
-#include <QtCore/QPair>
-#include <QtCore/QString>
-#include <QtGui/QDialog>
+#include <QList>
+#include <QPair>
+#include <QString>
+#include <QDialog>
 
 namespace RemoteLinux {
 class DeployableFilesPerProFile;

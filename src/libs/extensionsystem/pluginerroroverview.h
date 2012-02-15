@@ -35,7 +35,7 @@
 
 #include "extensionsystem_global.h"
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 namespace ExtensionSystem {
 

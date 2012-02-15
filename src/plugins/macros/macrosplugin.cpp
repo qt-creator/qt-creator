@@ -47,11 +47,11 @@
 #include <coreplugin/id.h>
 #include <coreplugin/icontext.h>
 
-#include <QtCore/QtPlugin>
-#include <QtCore/QSettings>
-#include <QtGui/QAction>
-#include <QtGui/QKeySequence>
-#include <QtGui/QMenu>
+#include <QtPlugin>
+#include <QSettings>
+#include <QAction>
+#include <QKeySequence>
+#include <QMenu>
 
 using namespace Macros;
 using namespace Macros::Internal;

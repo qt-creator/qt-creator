@@ -35,11 +35,11 @@
 
 #include "vcsbase_global.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QVariant>
-#include <QtCore/QProcessEnvironment>
+#include <QObject>
+#include <QStringList>
+#include <QSharedPointer>
+#include <QVariant>
+#include <QProcessEnvironment>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;

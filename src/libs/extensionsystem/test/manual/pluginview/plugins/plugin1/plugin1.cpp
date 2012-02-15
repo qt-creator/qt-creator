@@ -34,8 +34,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/qplugin.h>
-#include <QtCore/QObject>
+#include <qplugin.h>
+#include <QObject>
 
 using namespace Plugin1;
 

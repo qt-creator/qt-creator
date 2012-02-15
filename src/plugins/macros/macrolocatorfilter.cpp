@@ -38,7 +38,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <QtGui/QPixmap>
+#include <QPixmap>
 
 using namespace Macros;
 using namespace Macros::Internal;

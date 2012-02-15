@@ -34,7 +34,7 @@
 #include "extensionsystem/pluginmanager.h"
 #include "projectexplorer.h"
 #include <texteditor/basetextmark.h>
-#include <QtCore/QMetaType>
+#include <QMetaType>
 
 using namespace ProjectExplorer;
 

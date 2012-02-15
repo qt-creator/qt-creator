@@ -39,11 +39,11 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 
-#include <QtGui/QAction>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QStatusBar>
-#include <QtGui/QToolButton>
+#include <QAction>
+#include <QHBoxLayout>
+#include <QKeyEvent>
+#include <QStatusBar>
+#include <QToolButton>
 
 using namespace Help::Internal;
 

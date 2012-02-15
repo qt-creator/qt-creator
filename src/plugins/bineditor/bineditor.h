@@ -35,15 +35,15 @@
 
 #include "markup.h"
 
-#include <QtCore/QBasicTimer>
-#include <QtCore/QMap>
-#include <QtCore/QSet>
-#include <QtCore/QStack>
-#include <QtCore/QString>
+#include <QBasicTimer>
+#include <QMap>
+#include <QSet>
+#include <QStack>
+#include <QString>
 
-#include <QtGui/QAbstractScrollArea>
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextFormat>
+#include <QAbstractScrollArea>
+#include <QTextDocument>
+#include <QTextFormat>
 
 QT_FORWARD_DECLARE_CLASS(QMenu)
 QT_FORWARD_DECLARE_CLASS(QHelpEvent)

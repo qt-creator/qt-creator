@@ -41,8 +41,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/QtPlugin>
-#include <QtGui/QMenu>
+#include <QtPlugin>
+#include <QMenu>
 
 using namespace QtSupport;
 using namespace QtSupport::Internal;

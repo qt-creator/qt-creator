@@ -33,7 +33,7 @@
 #ifndef QMLJSEDITOR_CONSTANTS_H
 #define QMLJSEDITOR_CONSTANTS_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 namespace QmlJSEditor {
 namespace Constants {

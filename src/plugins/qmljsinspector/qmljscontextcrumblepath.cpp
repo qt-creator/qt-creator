@@ -31,8 +31,8 @@
 **************************************************************************/
 #include "qmljscontextcrumblepath.h"
 
-#include <QtGui/QMouseEvent>
-#include <QtCore/QDebug>
+#include <QMouseEvent>
+#include <QDebug>
 
 namespace QmlJSInspector {
 namespace Internal {

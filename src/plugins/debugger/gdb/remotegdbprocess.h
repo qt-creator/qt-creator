@@ -38,8 +38,8 @@
 #include <utils/ssh/sshconnection.h>
 #include <utils/ssh/sshremoteprocess.h>
 
-#include <QtCore/QByteArray>
-#include <QtCore/QQueue>
+#include <QByteArray>
+#include <QQueue>
 
 namespace Debugger {
 namespace Internal {

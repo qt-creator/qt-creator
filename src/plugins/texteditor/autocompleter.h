@@ -35,8 +35,8 @@
 
 #include "texteditor_global.h"
 
-#include <QtCore/QChar>
-#include <QtCore/QString>
+#include <QChar>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 class QTextCursor;

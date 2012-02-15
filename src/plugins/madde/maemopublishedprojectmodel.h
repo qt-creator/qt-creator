@@ -32,9 +32,9 @@
 #ifndef MAEMOPUBLISHEDPROJECTMODEL_H
 #define MAEMOPUBLISHEDPROJECTMODEL_H
 
-#include <QtCore/QSet>
-#include <QtCore/QStringList>
-#include <QtGui/QFileSystemModel>
+#include <QSet>
+#include <QStringList>
+#include <QFileSystemModel>
 
 namespace Madde {
 namespace Internal {

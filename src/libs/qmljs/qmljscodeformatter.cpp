@@ -32,11 +32,11 @@
 
 #include "qmljscodeformatter.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QMetaEnum>
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextBlock>
+#include <QDebug>
+#include <QMetaEnum>
+#include <QTextDocument>
+#include <QTextCursor>
+#include <QTextBlock>
 
 using namespace QmlJS;
 

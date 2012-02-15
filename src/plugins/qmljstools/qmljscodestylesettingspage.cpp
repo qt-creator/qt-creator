@@ -49,7 +49,7 @@
 #include <qmljseditor/qmljseditorconstants.h>
 #include <coreplugin/icore.h>
 
-#include <QtCore/QTextStream>
+#include <QTextStream>
 
 using namespace TextEditor;
 

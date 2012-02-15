@@ -36,10 +36,10 @@
 #include <qt4projectmanager/qt4project.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QUrl>
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QTextCursor>
+#include <QFileInfo>
+#include <QUrl>
+#include <QPlainTextEdit>
+#include <QTextCursor>
 
 using namespace ProjectExplorer;
 using namespace QtSupport;

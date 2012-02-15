@@ -39,13 +39,13 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFile>
-#include <QtCore/QSet>
-#include <QtGui/QMainWindow>
-#include <QtGui/QTextBlock>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextDocument>
-#include <QtCore/QDebug>
+#include <QFile>
+#include <QSet>
+#include <QMainWindow>
+#include <QTextBlock>
+#include <QTextCursor>
+#include <QTextDocument>
+#include <QDebug>
 
 using namespace TextEditor;
 

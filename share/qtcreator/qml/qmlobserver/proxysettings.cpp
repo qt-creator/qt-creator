@@ -29,8 +29,8 @@
 **
 **************************************************************************/
 
-#include <QtGui/QIntValidator>
-#include <QtCore/QSettings>
+#include <QIntValidator>
+#include <QSettings>
 
 #include "proxysettings.h"
 

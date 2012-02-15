@@ -33,7 +33,7 @@
 #ifndef MOBILELIBRARYWIZARDOPTIONPAGE_H
 #define MOBILELIBRARYWIZARDOPTIONPAGE_H
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 
 namespace Qt4ProjectManager {
 namespace Internal {

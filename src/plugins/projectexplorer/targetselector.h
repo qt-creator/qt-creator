@@ -33,8 +33,8 @@
 #ifndef TARGETSELECTOR_H
 #define TARGETSELECTOR_H
 
-#include <QtGui/QWidget>
-#include <QtGui/QPixmap>
+#include <QWidget>
+#include <QPixmap>
 
 QT_BEGIN_NAMESPACE
 class QMenu;

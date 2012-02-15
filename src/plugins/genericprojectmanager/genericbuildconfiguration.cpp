@@ -41,7 +41,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QInputDialog>
+#include <QInputDialog>
 
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;

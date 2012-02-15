@@ -34,8 +34,8 @@
 #define QMLJSCODESTYLESETTINGSPAGE_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <QtGui/QWidget>
-#include <QtCore/QPointer>
+#include <QWidget>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

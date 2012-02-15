@@ -62,12 +62,12 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtversionmanager.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QVariant>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
+#include <QCoreApplication>
+#include <QDir>
+#include <QFileInfo>
+#include <QVariant>
+#include <QFileDialog>
+#include <QMessageBox>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

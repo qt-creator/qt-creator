@@ -36,11 +36,11 @@
 
 #include <coreplugin/icore.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QUrl>
-#include <QtCore/QTextStream>
-#include <QtGui/QMessageBox>
-#include <QtGui/QDesktopServices>
+#include <QCoreApplication>
+#include <QUrl>
+#include <QTextStream>
+#include <QMessageBox>
+#include <QDesktopServices>
 
 namespace Debugger {
 namespace Internal {

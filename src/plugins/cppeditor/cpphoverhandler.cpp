@@ -43,8 +43,8 @@
 #include <texteditor/basetexteditor.h>
 #include <texteditor/helpitem.h>
 
-#include <QtGui/QTextCursor>
-#include <QtCore/QUrl>
+#include <QTextCursor>
+#include <QUrl>
 
 using namespace CppEditor::Internal;
 using namespace Core;

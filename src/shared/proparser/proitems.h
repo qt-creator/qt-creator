@@ -34,8 +34,8 @@
 #define PROITEMS_H
 
 #include "proparser_global.h"
-#include <QtCore/QString>
-#include <QtCore/QVector>
+#include <QString>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
 

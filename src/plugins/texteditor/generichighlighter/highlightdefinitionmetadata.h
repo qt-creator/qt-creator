@@ -33,10 +33,10 @@
 #ifndef HIGHLIGHTDEFINITIONMETADATA_H
 #define HIGHLIGHTDEFINITIONMETADATA_H
 
-#include <QtCore/QString>
-#include <QtCore/QLatin1String>
-#include <QtCore/QStringList>
-#include <QtCore/QUrl>
+#include <QString>
+#include <QLatin1String>
+#include <QStringList>
+#include <QUrl>
 
 namespace TextEditor {
 namespace Internal {

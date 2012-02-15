@@ -34,7 +34,7 @@
 #define FONTSIZESPINBOX_H
 
 #include <qmleditorwidgets_global.h>
-#include <QtGui/QAbstractSpinBox>
+#include <QAbstractSpinBox>
 
 namespace QmlEditorWidgets {
 

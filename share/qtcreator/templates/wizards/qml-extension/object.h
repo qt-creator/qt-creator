@@ -1,7 +1,7 @@
 #ifndef %ObjectName:u%_H
 #define %ObjectName:u%_H
 
-#include <QtDeclarative/QDeclarativeItem>
+#include <QDeclarativeItem>
 
 class %ObjectName% : public QDeclarativeItem
 {

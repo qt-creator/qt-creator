@@ -46,15 +46,15 @@
 
 #include <utils/styledbar.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
+#include <QDebug>
+#include <QSettings>
 
-#include <QtGui/QAction>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QResizeEvent>
-#include <QtGui/QToolButton>
-#include <QtGui/QShortcut>
-#include <QtGui/QStandardItemModel>
+#include <QAction>
+#include <QHBoxLayout>
+#include <QResizeEvent>
+#include <QToolButton>
+#include <QShortcut>
+#include <QStandardItemModel>
 
 Q_DECLARE_METATYPE(Core::INavigationWidgetFactory *)
 

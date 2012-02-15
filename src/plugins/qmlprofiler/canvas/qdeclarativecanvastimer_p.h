@@ -33,9 +33,9 @@
 #ifndef QDECLARATIVECANVASTIMER_P_H
 #define QDECLARATIVECANVASTIMER_P_H
 
-#include <QtScript/qscriptvalue.h>
-#include <QtCore/qtimer.h>
-#include <QtCore/qlist.h>
+#include <qscriptvalue.h>
+#include <qtimer.h>
+#include <qlist.h>
 
 QT_BEGIN_HEADER
 

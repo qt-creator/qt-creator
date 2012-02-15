@@ -38,13 +38,13 @@
 #include "helpviewer_p.h"
 #include "localhelpmanager.h"
 
-#include <QtGui/QApplication>
-#include <QtGui/QClipboard>
-#include <QtGui/QContextMenuEvent>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QMenu>
+#include <QApplication>
+#include <QClipboard>
+#include <QContextMenuEvent>
+#include <QKeyEvent>
+#include <QMenu>
 
-#include <QtHelp/QHelpEngine>
+#include <QHelpEngine>
 
 using namespace Find;
 using namespace Help;

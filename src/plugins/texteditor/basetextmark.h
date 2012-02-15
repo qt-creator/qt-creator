@@ -38,8 +38,8 @@
 
 #include <utils/fileutils.h>
 
-#include <QtCore/QWeakPointer>
-#include <QtCore/QHash>
+#include <QWeakPointer>
+#include <QHash>
 
 QT_BEGIN_NAMESPACE
 class QTextBlock;

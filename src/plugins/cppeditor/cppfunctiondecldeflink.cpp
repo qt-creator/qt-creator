@@ -55,8 +55,8 @@
 #include <coreplugin/icore.h>
 #include <texteditor/texteditorconstants.h>
 
-#include <QtCore/QtConcurrentRun>
-#include <QtCore/QVarLengthArray>
+#include <QtConcurrentRun>
+#include <QVarLengthArray>
 
 using namespace CPlusPlus;
 using namespace CppEditor;

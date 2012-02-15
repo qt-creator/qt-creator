@@ -37,9 +37,9 @@
 #include "ModelManagerInterface.h"
 #include "Overview.h"
 
-#include <QtCore/QList>
-#include <QtCore/QStringList>
-#include <QtCore/QSet>
+#include <QList>
+#include <QStringList>
+#include <QSet>
 
 namespace CPlusPlus {
 

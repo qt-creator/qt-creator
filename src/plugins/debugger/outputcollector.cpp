@@ -34,18 +34,18 @@
 
 #ifdef Q_OS_WIN
 
-#include <QtNetwork/QLocalServer>
-#include <QtNetwork/QLocalSocket>
-#include <QtCore/QCoreApplication>
+#include <QLocalServer>
+#include <QLocalSocket>
+#include <QCoreApplication>
 
 #include <stdlib.h>
 
 #else
 
-#include <QtCore/QFile>
-#include <QtCore/QSocketNotifier>
-#include <QtCore/QTemporaryFile>
-#include <QtCore/QVarLengthArray>
+#include <QFile>
+#include <QSocketNotifier>
+#include <QTemporaryFile>
+#include <QVarLengthArray>
 
 #include <sys/ioctl.h>
 #include <sys/types.h>

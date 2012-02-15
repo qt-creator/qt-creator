@@ -44,10 +44,10 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/id.h>
 
-#include <QtGui/QWidget>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QApplication>
-#include <QtGui/QShortcut>
+#include <QWidget>
+#include <QKeyEvent>
+#include <QApplication>
+#include <QShortcut>
 
 using namespace Macros;
 using namespace Macros::Internal;

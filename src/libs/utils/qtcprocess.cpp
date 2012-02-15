@@ -33,9 +33,9 @@
 #include "qtcprocess.h"
 #include "stringutils.h"
 
-#include <QtCore/QDir>
-#include <QtCore/QDebug>
-#include <QtCore/QCoreApplication>
+#include <QDir>
+#include <QDebug>
+#include <QCoreApplication>
 
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
@@ -776,7 +776,7 @@ QT_BEGIN_NAMESPACE
 Q_DECLARE_TYPEINFO(MxSave, Q_MOVABLE_TYPE);
 QT_END_NAMESPACE
 
-#include <QtCore/QStack>
+#include <QStack>
 
 #endif
 

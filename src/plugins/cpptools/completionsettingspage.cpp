@@ -38,8 +38,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <QtCore/QTextStream>
-#include <QtCore/QCoreApplication>
+#include <QTextStream>
+#include <QCoreApplication>
 
 using namespace CppTools;
 using namespace CppTools::Internal;

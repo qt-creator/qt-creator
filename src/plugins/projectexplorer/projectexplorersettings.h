@@ -33,7 +33,7 @@
 #ifndef PROJECTEXPLORERSETTINGS_H
 #define PROJECTEXPLORERSETTINGS_H
 
-#include <QtCore/QUuid>
+#include <QUuid>
 
 namespace ProjectExplorer {
 namespace Internal {

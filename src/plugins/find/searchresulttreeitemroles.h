@@ -33,7 +33,7 @@
 #ifndef SEARCHRESULTTREEITEMROLES_H
 #define SEARCHRESULTTREEITEMROLES_H
 
-#include <QtGui/QAbstractItemView>
+#include <QAbstractItemView>
 
 namespace Find {
 namespace Internal {

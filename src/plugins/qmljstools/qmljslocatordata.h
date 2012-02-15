@@ -35,8 +35,8 @@
 
 #include <qmljs/qmljsdocument.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QHash>
+#include <QObject>
+#include <QHash>
 
 namespace QmlJSTools {
 namespace Internal {

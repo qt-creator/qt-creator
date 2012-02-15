@@ -36,9 +36,9 @@
 #include <coreplugin/icore.h>
 #include <utils/ssh/sshconnection.h>
 
-#include <QtCore/QTimer>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMainWindow>
+#include <QTimer>
+#include <QFileDialog>
+#include <QMainWindow>
 
 namespace RemoteLinux {
 namespace Internal {

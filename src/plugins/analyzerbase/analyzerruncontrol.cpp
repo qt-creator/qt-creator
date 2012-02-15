@@ -46,7 +46,7 @@
 #include <projectexplorer/taskhub.h>
 #include <coreplugin/ioutputpane.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace ProjectExplorer;
 

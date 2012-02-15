@@ -37,9 +37,9 @@
 
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QLineEdit>
-#include <QtGui/QPushButton>
+#include <QVBoxLayout>
+#include <QLineEdit>
+#include <QPushButton>
 
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;

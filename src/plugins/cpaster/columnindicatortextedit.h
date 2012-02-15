@@ -33,7 +33,7 @@
 #ifndef COLUMNINDICATORTEXTEDIT_H
 #define COLUMNINDICATORTEXTEDIT_H
 
-#include <QtGui/QTextEdit>
+#include <QTextEdit>
 
 namespace CodePaster {
 

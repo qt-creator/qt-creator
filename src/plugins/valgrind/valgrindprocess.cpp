@@ -34,14 +34,14 @@
 
 #include "valgrindprocess.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QEventLoop>
-#include <QtCore/QFileInfo>
+#include <QDebug>
+#include <QEventLoop>
+#include <QFileInfo>
 
 #include <utils/qtcassert.h>
 
 #ifdef Q_OS_WIN
-#    include <QtCore/qt_windows.h>
+#    include <qt_windows.h>
 #endif
 
 namespace Valgrind {

@@ -33,8 +33,8 @@
 #include "bookmark.h"
 #include "bookmarkmanager.h"
 
-#include <QtCore/QDebug>
-#include <QtGui/QTextBlock>
+#include <QDebug>
+#include <QTextBlock>
 
 using namespace Bookmarks::Internal;
 

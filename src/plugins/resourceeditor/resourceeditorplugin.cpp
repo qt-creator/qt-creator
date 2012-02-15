@@ -47,9 +47,9 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QtPlugin>
-#include <QtCore/QCoreApplication>
-#include <QtGui/QAction>
+#include <QtPlugin>
+#include <QCoreApplication>
+#include <QAction>
 
 using namespace ResourceEditor::Internal;
 

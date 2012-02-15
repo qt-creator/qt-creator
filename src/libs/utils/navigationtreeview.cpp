@@ -32,11 +32,11 @@
 
 #include "navigationtreeview.h"
 
-#include <QtGui/QHeaderView>
-#include <QtGui/QFocusEvent>
+#include <QHeaderView>
+#include <QFocusEvent>
 
 #ifdef Q_OS_MAC
-#include <QtGui/QKeyEvent>
+#include <QKeyEvent>
 #endif
 
 /*!

@@ -33,8 +33,8 @@
 #ifndef REUSE_H
 #define REUSE_H
 
-#include <QtCore/QString>
-#include <QtCore/QLatin1String>
+#include <QString>
+#include <QLatin1String>
 
 namespace TextEditor {
 namespace Internal {

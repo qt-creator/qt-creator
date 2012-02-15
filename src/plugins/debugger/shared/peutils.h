@@ -33,7 +33,7 @@
 #ifndef DEBUGGER_PEUTILS_H
 #define DEBUGGER_PEUTILS_H
 
-#include <QtCore/qnamespace.h>
+#include <qnamespace.h>
 
 QT_BEGIN_NAMESPACE
 class QStringList;

@@ -35,7 +35,7 @@
 
 #include <projectexplorer/ioutputparser.h>
 
-#include <QtCore/QRegExp>
+#include <QRegExp>
 
 namespace Qt4ProjectManager {
 namespace Internal {

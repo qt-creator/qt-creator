@@ -32,14 +32,14 @@
 #include "jsdebuggeragent.h"
 #include "qt_private/qdeclarativedebughelper_p.h"
 
-#include <QtCore/qdatetime.h>
-#include <QtCore/qdebug.h>
-#include <QtCore/qcoreapplication.h>
-#include <QtCore/qset.h>
-#include <QtCore/qurl.h>
-#include <QtScript/qscriptcontextinfo.h>
-#include <QtScript/qscriptengine.h>
-#include <QtScript/qscriptvalueiterator.h>
+#include <qdatetime.h>
+#include <qdebug.h>
+#include <qcoreapplication.h>
+#include <qset.h>
+#include <qurl.h>
+#include <qscriptcontextinfo.h>
+#include <qscriptengine.h>
+#include <qscriptvalueiterator.h>
 
 namespace QmlJSDebugger {
 

@@ -33,8 +33,8 @@
 #include "qtsingleapplication.h"
 #include "qtlocalpeer.h"
 
-#include <QtGui/QWidget>
-#include <QtGui/QFileOpenEvent>
+#include <QWidget>
+#include <QFileOpenEvent>
 
 namespace SharedTools {
 

@@ -33,8 +33,8 @@
 #ifndef BRANCHDIALOG_H
 #define BRANCHDIALOG_H
 
-#include <QtGui/QDialog>
-#include <QtGui/QItemSelection>
+#include <QDialog>
+#include <QItemSelection>
 
 QT_BEGIN_NAMESPACE
 class QPushButton;

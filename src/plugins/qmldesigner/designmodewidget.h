@@ -52,11 +52,11 @@
 
 #include <QWeakPointer>
 #include <QDeclarativeError>
-#include <QtCore/QHash>
-#include <QtGui/QWidget>
-#include <QtGui/QToolBar>
-#include <QtGui/QComboBox>
-#include <QtGui/QLabel>
+#include <QHash>
+#include <QWidget>
+#include <QToolBar>
+#include <QComboBox>
+#include <QLabel>
 
 QT_BEGIN_NAMESPACE
 class QStackedWidget;

@@ -36,10 +36,10 @@
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
 
-#include <QtGui/QMessageBox>
-#include <QtGui/QApplication>
+#include <QMessageBox>
+#include <QApplication>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 namespace QmlJSEditor {
 namespace Internal {

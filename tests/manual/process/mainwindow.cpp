@@ -34,10 +34,10 @@
 
 #include <utils/synchronousprocess.h>
 
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QApplication>
-#include <QtCore/QDebug>
-#include <QtCore/QTimer>
+#include <QPlainTextEdit>
+#include <QApplication>
+#include <QDebug>
+#include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),

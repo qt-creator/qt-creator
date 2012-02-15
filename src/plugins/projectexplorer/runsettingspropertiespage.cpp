@@ -46,20 +46,20 @@
 #include <projectexplorer/buildmanager.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QPair>
-#include <QtCore/QVariant>
-#include <QtGui/QAction>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QComboBox>
-#include <QtGui/QGridLayout>
-#include <QtGui/QHeaderView>
-#include <QtGui/QInputDialog>
-#include <QtGui/QLabel>
-#include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QSpacerItem>
-#include <QtGui/QWidget>
+#include <QPair>
+#include <QVariant>
+#include <QAction>
+#include <QButtonGroup>
+#include <QComboBox>
+#include <QGridLayout>
+#include <QHeaderView>
+#include <QInputDialog>
+#include <QLabel>
+#include <QMenu>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QSpacerItem>
+#include <QWidget>
 
 namespace ProjectExplorer {
 namespace Internal {

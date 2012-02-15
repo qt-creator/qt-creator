@@ -51,13 +51,13 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFile>
+#include <QFile>
 
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QFormLayout>
-#include <QtGui/QPushButton>
-#include <QtGui/QLabel>
-#include <QtGui/QPlainTextEdit>
+#include <QDialogButtonBox>
+#include <QFormLayout>
+#include <QPushButton>
+#include <QLabel>
+#include <QPlainTextEdit>
 
 using namespace Analyzer;
 using namespace Valgrind::XmlProtocol;

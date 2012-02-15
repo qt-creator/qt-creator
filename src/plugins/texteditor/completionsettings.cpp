@@ -32,7 +32,7 @@
 
 #include "completionsettings.h"
 
-#include <QtCore/QSettings>
+#include <QSettings>
 
 static const char groupPostfix[] = "Completion";
 static const char caseSensitivityKey[] = "CaseSensitivity";

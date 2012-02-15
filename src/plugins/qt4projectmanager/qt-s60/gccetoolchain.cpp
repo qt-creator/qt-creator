@@ -39,7 +39,7 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <qtsupport/qtversionmanager.h>
 
-#include <QtCore/QDir>
+#include <QDir>
 
 namespace Qt4ProjectManager {
 namespace Internal {

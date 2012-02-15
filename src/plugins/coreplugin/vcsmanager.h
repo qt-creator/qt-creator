@@ -35,8 +35,8 @@
 
 #include "core_global.h"
 
-#include <QtCore/QString>
-#include <QtCore/QObject>
+#include <QString>
+#include <QObject>
 
 namespace Core {
 

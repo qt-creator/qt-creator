@@ -34,7 +34,7 @@
 #include <utils/stringutils.h>
 #include <utils/environment.h>
 
-#include <QtTest/QtTest>
+#include <QtTest>
 
 using namespace Utils;
 

@@ -44,10 +44,10 @@
 
 #include <qtsupport/qtversionmanager.h>
 
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QApplication>
-#include <QtGui/QStyle>
-#include <QtGui/QLabel>
+#include <QVBoxLayout>
+#include <QApplication>
+#include <QStyle>
+#include <QLabel>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

@@ -32,10 +32,10 @@
 
 #include "sourcefileshandler.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
+#include <QDebug>
+#include <QFileInfo>
 
-#include <QtGui/QSortFilterProxyModel>
+#include <QSortFilterProxyModel>
 
 namespace Debugger {
 namespace Internal {

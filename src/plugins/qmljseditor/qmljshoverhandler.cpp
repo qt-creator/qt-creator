@@ -52,7 +52,7 @@
 #include <texteditor/tooltip/tooltip.h>
 #include <texteditor/tooltip/tipcontents.h>
 
-#include <QtCore/QList>
+#include <QList>
 
 using namespace Core;
 using namespace QmlJS;

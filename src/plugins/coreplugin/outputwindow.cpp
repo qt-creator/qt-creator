@@ -40,8 +40,8 @@
 #include <utils/qtcassert.h>
 #include <utils/outputformatter.h>
 
-#include <QtGui/QAction>
-#include <QtGui/QScrollBar>
+#include <QAction>
+#include <QScrollBar>
 
 using namespace Utils;
 

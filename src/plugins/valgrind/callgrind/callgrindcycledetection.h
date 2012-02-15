@@ -33,8 +33,8 @@
 #ifndef LIBVALGRIND_CALLGRINDCYCLEDETECTION_H
 #define LIBVALGRIND_CALLGRINDCYCLEDETECTION_H
 
-#include <QtCore/QHash>
-#include <QtCore/QStack>
+#include <QHash>
+#include <QStack>
 
 namespace Valgrind {
 namespace Callgrind {

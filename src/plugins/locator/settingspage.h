@@ -35,8 +35,8 @@
 
 #include "ui_settingspage.h"
 
-#include <QtCore/QPointer>
-#include <QtCore/QHash>
+#include <QPointer>
+#include <QHash>
 
 #include <coreplugin/dialogs/ioptionspage.h>
 

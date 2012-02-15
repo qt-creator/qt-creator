@@ -39,24 +39,24 @@
 #include <utils/filterlineedit.h>
 #include <utils/styledbar.h>
 
-#include <QtGui/QMenu>
-#include <QtGui/QIcon>
-#include <QtGui/QStyle>
-#include <QtGui/QLabel>
-#include <QtGui/QLayout>
-#include <QtCore/QEvent>
-#include <QtGui/QComboBox>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QLineEdit>
-#include <QtGui/QMessageBox>
-#include <QtGui/QHeaderView>
-#include <QtGui/QToolButton>
-#include <QtGui/QPushButton>
-#include <QtGui/QApplication>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QSortFilterProxyModel>
+#include <QMenu>
+#include <QIcon>
+#include <QStyle>
+#include <QLabel>
+#include <QLayout>
+#include <QEvent>
+#include <QComboBox>
+#include <QKeyEvent>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QHeaderView>
+#include <QToolButton>
+#include <QPushButton>
+#include <QApplication>
+#include <QDialogButtonBox>
+#include <QSortFilterProxyModel>
 
-#include <QtHelp/QHelpEngine>
+#include <QHelpEngine>
 
 using namespace Help::Internal;
 

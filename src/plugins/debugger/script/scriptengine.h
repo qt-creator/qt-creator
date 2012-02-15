@@ -35,9 +35,9 @@
 
 #include "debuggerengine.h"
 
-#include <QtCore/QSharedPointer>
-#include <QtCore/QScopedPointer>
-#include <QtCore/QHash>
+#include <QSharedPointer>
+#include <QScopedPointer>
+#include <QHash>
 
 QT_BEGIN_NAMESPACE
 class QScriptEngine;

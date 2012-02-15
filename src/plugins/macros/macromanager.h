@@ -35,8 +35,8 @@
 
 #include "macros_global.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QMap>
+#include <QObject>
+#include <QMap>
 
 QT_BEGIN_NAMESPACE
 class QAction;

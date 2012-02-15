@@ -50,7 +50,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/toolchain.h>
 
-#include <QtCore/QFileInfo>
+#include <QFileInfo>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;

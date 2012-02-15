@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include <QtCore/QSet>
+#include <QSet>
 
 #include "modelnode.h"
 #include "nodelistproperty.h"

@@ -44,20 +44,20 @@
 #include <utils/stringutils.h>
 #include <utils/fileutils.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QVector>
-#include <QtCore/QDebug>
-#include <QtCore/QSharedData>
-#include <QtCore/QEventLoop>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QScopedPointer>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QVector>
+#include <QDebug>
+#include <QSharedData>
+#include <QEventLoop>
+#include <QSharedPointer>
+#include <QScopedPointer>
 
-#include <QtGui/QMessageBox>
-#include <QtGui/QWizard>
-#include <QtGui/QMainWindow>
-#include <QtGui/QIcon>
+#include <QMessageBox>
+#include <QWizard>
+#include <QMainWindow>
+#include <QIcon>
 
 enum { debugWizard = 0 };
 

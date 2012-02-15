@@ -38,22 +38,22 @@
 #include <coreplugin/ifile.h>
 #include <utils/detailswidget.h>
 
-#include <QtCore/QVector>
-#include <QtCore/QDebug>
-#include <QtCore/QSize>
-#include <QtCore/QCoreApplication>
+#include <QVector>
+#include <QDebug>
+#include <QSize>
+#include <QCoreApplication>
 
-#include <QtGui/QLabel>
-#include <QtGui/QApplication>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QTreeView>
-#include <QtGui/QSpacerItem>
-#include <QtGui/QHeaderView>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QToolButton>
-#include <QtGui/QWidget>
-#include <QtGui/QLabel>
+#include <QLabel>
+#include <QApplication>
+#include <QHBoxLayout>
+#include <QTreeView>
+#include <QSpacerItem>
+#include <QHeaderView>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QToolButton>
+#include <QWidget>
+#include <QLabel>
 
 namespace ProjectExplorer {
 namespace Internal {

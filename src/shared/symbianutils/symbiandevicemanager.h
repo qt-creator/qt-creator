@@ -35,9 +35,9 @@
 
 #include "symbianutils_global.h"
 
-#include <QtCore/QIODevice>
-#include <QtCore/QExplicitlySharedDataPointer>
-#include <QtCore/QSharedPointer>
+#include <QIODevice>
+#include <QExplicitlySharedDataPointer>
+#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QDebug;

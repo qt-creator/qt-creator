@@ -38,10 +38,10 @@
 #include <utils/stringutils.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QObject>
-#include <QtCore/QMap>
-#include <QtCore/QDebug>
+#include <QFileInfo>
+#include <QObject>
+#include <QMap>
+#include <QDebug>
 
 namespace Core {
 

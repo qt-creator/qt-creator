@@ -32,8 +32,8 @@
 
 #include "watchdelegatewidgets.h"
 
-#include <QtGui/QDoubleValidator>
-#include <QtCore/QDebug>
+#include <QDoubleValidator>
+#include <QDebug>
 
 #include <utils/qtcassert.h>
 

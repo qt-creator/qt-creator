@@ -33,7 +33,7 @@
 #ifndef HTML5APPWIZARDPAGES_H
 #define HTML5APPWIZARDPAGES_H
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 #include "html5app.h"
 
 namespace Qt4ProjectManager {

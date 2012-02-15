@@ -33,8 +33,8 @@
 #include "proitems.h"
 #include "prowriter.h"
 
-#include <QtCore/QDir>
-#include <QtCore/QPair>
+#include <QDir>
+#include <QPair>
 
 using namespace Qt4ProjectManager::Internal;
 

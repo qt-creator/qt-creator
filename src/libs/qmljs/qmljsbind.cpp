@@ -37,9 +37,9 @@
 
 #include <languageutils/componentversion.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QDebug>
 
 using namespace LanguageUtils;
 using namespace QmlJS;

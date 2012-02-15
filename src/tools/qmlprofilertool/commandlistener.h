@@ -33,7 +33,7 @@
 #ifndef COMMANDLISTENER_H
 #define COMMANDLISTENER_H
 
-#include <QtCore/QThread>
+#include <QThread>
 
 class CommandListener : public QThread
 {

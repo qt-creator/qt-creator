@@ -42,10 +42,10 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QTimer>
-#include <QtGui/QFileDialog>
-#include <QtGui/QImageReader>
-#include <QtGui/QMessageBox>
+#include <QTimer>
+#include <QFileDialog>
+#include <QImageReader>
+#include <QMessageBox>
 
 using namespace ProjectExplorer;
 

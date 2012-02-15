@@ -35,11 +35,11 @@
 #ifndef PARSERTESTS_H
 #define PARSERTESTS_H
 
-#include <QtCore/QObject>
-#include <QtCore/QPair>
-#include <QtCore/QStringList>
-#include <QtCore/QVector>
-#include <QtCore/QDebug>
+#include <QObject>
+#include <QPair>
+#include <QStringList>
+#include <QVector>
+#include <QDebug>
 
 #include <valgrind/xmlprotocol/error.h>
 #include <valgrind/xmlprotocol/status.h>

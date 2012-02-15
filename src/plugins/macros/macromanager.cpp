@@ -53,18 +53,18 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QSettings>
-#include <QtCore/QSignalMapper>
-#include <QtCore/QList>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QSettings>
+#include <QSignalMapper>
+#include <QList>
 
-#include <QtGui/QShortcut>
-#include <QtGui/QMainWindow>
-#include <QtGui/QAction>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
+#include <QShortcut>
+#include <QMainWindow>
+#include <QAction>
+#include <QFileDialog>
+#include <QMessageBox>
 
 using namespace Macros;
 using namespace Macros::Internal;

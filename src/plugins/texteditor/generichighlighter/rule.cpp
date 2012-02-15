@@ -36,7 +36,7 @@
 #include "highlightdefinition.h"
 #include "reuse.h"
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 #include <functional>
 

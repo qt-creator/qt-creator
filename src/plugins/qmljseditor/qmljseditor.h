@@ -42,8 +42,8 @@
 #include <texteditor/basetexteditor.h>
 #include <texteditor/quickfix.h>
 
-#include <QtCore/QSharedPointer>
-#include <QtCore/QModelIndex>
+#include <QSharedPointer>
+#include <QModelIndex>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;

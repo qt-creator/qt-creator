@@ -33,7 +33,7 @@
 #ifndef CALLGRINDCOSTDELEGATE_H
 #define CALLGRINDCOSTDELEGATE_H
 
-#include <QtGui/QStyledItemDelegate>
+#include <QStyledItemDelegate>
 
 namespace Valgrind {
 namespace Internal {

@@ -36,7 +36,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <texteditor/basehoverhandler.h>
 
-#include <QtGui/QColor>
+#include <QColor>
 
 QT_BEGIN_NAMESPACE
 template <class> class QList;

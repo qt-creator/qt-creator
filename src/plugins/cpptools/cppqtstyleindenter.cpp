@@ -39,10 +39,10 @@
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <QtCore/QChar>
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextBlock>
-#include <QtGui/QTextCursor>
+#include <QChar>
+#include <QTextDocument>
+#include <QTextBlock>
+#include <QTextCursor>
 
 using namespace CppTools;
 

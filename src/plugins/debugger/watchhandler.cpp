@@ -49,15 +49,15 @@
 
 #include <cplusplus/CppRewriter.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QEvent>
-#include <QtCore/QFile>
-#include <QtCore/QProcess>
-#include <QtCore/QTextStream>
-#include <QtCore/QtAlgorithms>
+#include <QDebug>
+#include <QEvent>
+#include <QFile>
+#include <QProcess>
+#include <QTextStream>
+#include <QtAlgorithms>
 
-#include <QtGui/QLabel>
-#include <QtGui/QTextEdit>
+#include <QLabel>
+#include <QTextEdit>
 
 #include <ctype.h>
 #include <utils/qtcassert.h>

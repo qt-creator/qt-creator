@@ -35,8 +35,8 @@
 
 #include "corelib_global.h"
 #include <QWeakPointer>
-#include <QtCore/QList>
-#include <QtCore/QMetaType>
+#include <QList>
+#include <QMetaType>
 #include <QVariant>
 
 QT_BEGIN_NAMESPACE

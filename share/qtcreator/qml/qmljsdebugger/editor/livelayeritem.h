@@ -33,7 +33,7 @@
 #ifndef LIVELAYERITEM_H
 #define LIVELAYERITEM_H
 
-#include <QtGui/QGraphicsObject>
+#include <QGraphicsObject>
 
 namespace QmlJSDebugger {
 

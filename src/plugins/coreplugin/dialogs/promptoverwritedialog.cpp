@@ -34,14 +34,14 @@
 
 #include <utils/stringutils.h>
 
-#include <QtGui/QTreeView>
-#include <QtGui/QLabel>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QStandardItem>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QVBoxLayout>
+#include <QTreeView>
+#include <QLabel>
+#include <QStandardItemModel>
+#include <QStandardItem>
+#include <QDialogButtonBox>
+#include <QVBoxLayout>
 
-#include <QtCore/QDir>
+#include <QDir>
 
 enum { FileNameRole = Qt::UserRole + 1 };
 

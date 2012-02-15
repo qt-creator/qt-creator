@@ -35,7 +35,7 @@
 
 #include "iplugin.h"
 
-#include <QtCore/QString>
+#include <QString>
 
 namespace ExtensionSystem {
 

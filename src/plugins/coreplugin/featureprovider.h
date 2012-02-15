@@ -37,9 +37,9 @@
 
 #include <coreplugin/id.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QSet>
-#include <QtCore/QStringList>
+#include <QObject>
+#include <QSet>
+#include <QStringList>
 
 
 namespace Utils {

@@ -37,11 +37,11 @@
 #include <utils/wizard.h>
 #include <utils/qtcprocess.h>
 
-#include <QtGui/QPushButton>
-#include <QtGui/QComboBox>
-#include <QtGui/QLineEdit>
-#include <QtGui/QLabel>
-#include <QtGui/QPlainTextEdit>
+#include <QPushButton>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QLabel>
+#include <QPlainTextEdit>
 
 namespace Utils {
     class PathChooser;

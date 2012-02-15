@@ -33,10 +33,10 @@
 #ifndef GITORIOUS_H
 #define GITORIOUS_H
 
-#include <QtCore/QStringList>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QUrl>
-#include <QtCore/QObject>
+#include <QStringList>
+#include <QSharedPointer>
+#include <QUrl>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QNetworkAccessManager;

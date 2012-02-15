@@ -40,7 +40,7 @@
 #include <SymbolVisitor.h>
 #include <Control.h>
 #include <Name.h>
-#include <QtCore/QSet>
+#include <QSet>
 #include <map>
 #include <functional>
 

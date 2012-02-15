@@ -35,7 +35,7 @@
 
 #include "core_global.h"
 
-#include <QtGui/QProxyStyle>
+#include <QProxyStyle>
 
 class ManhattanStylePrivate;
 

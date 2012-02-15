@@ -32,7 +32,7 @@
 
 #include "glsltypes.h"
 #include "glslsymbols.h"
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace GLSL;
 

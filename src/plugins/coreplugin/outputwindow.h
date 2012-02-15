@@ -38,7 +38,7 @@
 
 #include <utils/outputformatter.h>
 
-#include <QtGui/QPlainTextEdit>
+#include <QPlainTextEdit>
 
 namespace Core {
 

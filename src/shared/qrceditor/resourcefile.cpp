@@ -32,18 +32,18 @@
 
 #include "resourcefile_p.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QMimeData>
-#include <QtCore/QtAlgorithms>
-#include <QtCore/QTextStream>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QDir>
+#include <QFile>
+#include <QMimeData>
+#include <QtAlgorithms>
+#include <QTextStream>
 
-#include <QtGui/QIcon>
-#include <QtGui/QImageReader>
+#include <QIcon>
+#include <QImageReader>
 
-#include <QtXml/QDomDocument>
+#include <QDomDocument>
 
 QT_BEGIN_NAMESPACE
 

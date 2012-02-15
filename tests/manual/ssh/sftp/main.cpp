@@ -36,9 +36,9 @@
 #include <utils/ssh/sftpchannel.h>
 #include <utils/ssh/sshconnection.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
+#include <QCoreApplication>
+#include <QObject>
+#include <QStringList>
 
 #include <cstdlib>
 #include <iostream>

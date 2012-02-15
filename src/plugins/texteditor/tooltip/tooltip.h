@@ -35,11 +35,11 @@
 
 #include "texteditor/texteditor_global.h"
 
-#include <QtCore/QSharedPointer>
-#include <QtCore/QObject>
-#include <QtCore/QTimer>
-#include <QtCore/QRect>
-#include <QtGui/QFont>
+#include <QSharedPointer>
+#include <QObject>
+#include <QTimer>
+#include <QRect>
+#include <QFont>
 
 /*
  * In its current form QToolTip is not extensible. So this is an attempt to provide a more

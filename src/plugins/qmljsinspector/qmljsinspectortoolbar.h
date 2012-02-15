@@ -35,8 +35,8 @@
 
 #include <debugger/debuggerconstants.h>
 
-#include <QtCore/QObject>
-#include <QtGui/QIcon>
+#include <QObject>
+#include <QIcon>
 
 QT_BEGIN_NAMESPACE
 class QAction;

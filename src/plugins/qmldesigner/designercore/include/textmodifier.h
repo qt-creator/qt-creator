@@ -37,10 +37,10 @@
 
 #include <qmljs/qmljsdocument.h>
 
-#include <QtCore/QByteArray>
-#include <QtCore/QObject>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextDocument>
+#include <QByteArray>
+#include <QObject>
+#include <QTextCursor>
+#include <QTextDocument>
 
 namespace QmlDesigner {
 

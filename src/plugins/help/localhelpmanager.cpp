@@ -36,9 +36,9 @@
 #include <app/app_version.h>
 #include <coreplugin/helpmanager.h>
 
-#include <QtCore/QMutexLocker>
+#include <QMutexLocker>
 
-#include <QtHelp/QHelpEngine>
+#include <QHelpEngine>
 
 using namespace Help::Internal;
 

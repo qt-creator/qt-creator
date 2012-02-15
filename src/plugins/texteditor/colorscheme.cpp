@@ -36,9 +36,9 @@
 
 #include <utils/fileutils.h>
 
-#include <QtCore/QFile>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QXmlStreamWriter>
+#include <QFile>
+#include <QCoreApplication>
+#include <QXmlStreamWriter>
 
 using namespace TextEditor;
 

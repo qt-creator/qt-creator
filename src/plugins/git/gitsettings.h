@@ -35,7 +35,7 @@
 
 #include <vcsbase/vcsbaseclientsettings.h>
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 namespace Git {
 namespace Internal {

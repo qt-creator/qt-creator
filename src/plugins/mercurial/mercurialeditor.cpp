@@ -39,12 +39,12 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <vcsbase/diffhighlighter.h>
 
-#include <QtCore/QString>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextBlock>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
+#include <QString>
+#include <QTextCursor>
+#include <QTextBlock>
+#include <QDir>
+#include <QFileInfo>
+#include <QDebug>
 
 using namespace Mercurial::Internal;
 using namespace Mercurial;

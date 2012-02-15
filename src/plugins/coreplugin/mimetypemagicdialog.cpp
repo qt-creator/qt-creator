@@ -33,8 +33,8 @@
 #include "mimetypemagicdialog.h"
 #include "mimedatabase.h"
 
-#include <QtCore/QLatin1String>
-#include <QtGui/QMessageBox>
+#include <QLatin1String>
+#include <QMessageBox>
 
 using namespace Core;
 using namespace Internal;

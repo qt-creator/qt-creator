@@ -32,7 +32,7 @@
 
 #include "task.h"
 
-#include <QtCore/QDir>
+#include <QDir>
 
 namespace ProjectExplorer
 {

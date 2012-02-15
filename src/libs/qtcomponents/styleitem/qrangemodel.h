@@ -33,10 +33,10 @@
 #ifndef QRANGEMODEL_H
 #define QRANGEMODEL_H
 
-#include <QtCore/qobject.h>
-#include <QtGui/qgraphicsitem.h>
-#include <QtGui/qabstractslider.h>
-#include <QtDeclarative/qdeclarative.h>
+#include <qobject.h>
+#include <qgraphicsitem.h>
+#include <qabstractslider.h>
+#include <qdeclarative.h>
 
 class QRangeModelPrivate;
 

@@ -35,10 +35,10 @@
 
 #include "searchresultwindow.h"
 
-#include <QtCore/QString>
-#include <QtCore/QList>
-#include <QtCore/qnamespace.h>
-#include <QtGui/QIcon>
+#include <QString>
+#include <QList>
+#include <qnamespace.h>
+#include <QIcon>
 
 namespace Find {
 namespace Internal {

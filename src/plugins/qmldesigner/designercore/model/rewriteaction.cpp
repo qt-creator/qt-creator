@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 #include "nodeabstractproperty.h"
 #include "nodelistproperty.h"

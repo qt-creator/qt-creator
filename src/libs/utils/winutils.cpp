@@ -37,12 +37,12 @@
 #define _WIN32_WINNT 0x0501
 #include <windows.h>
 
-#include <QtCore/QString>
-#include <QtCore/QVector>
-#include <QtCore/QDebug>
-#include <QtCore/QLibrary>
-#include <QtCore/QTextStream>
-#include <QtCore/QDir>
+#include <QString>
+#include <QVector>
+#include <QDebug>
+#include <QLibrary>
+#include <QTextStream>
+#include <QDir>
 
 namespace Utils {
 

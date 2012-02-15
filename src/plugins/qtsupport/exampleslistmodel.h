@@ -35,8 +35,8 @@
 
 #include <QAbstractListModel>
 #include <QStringList>
-#include <QtCore/QXmlStreamReader>
-#include <QtGui/QSortFilterProxyModel>
+#include <QXmlStreamReader>
+#include <QSortFilterProxyModel>
 
 namespace QtSupport {
 namespace Internal {

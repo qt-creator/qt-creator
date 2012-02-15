@@ -30,9 +30,9 @@
 **
 **************************************************************************/
 
-#include <QtCore/QAbstractItemModel>
+#include <QAbstractItemModel>
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
 #include "task.h"
 

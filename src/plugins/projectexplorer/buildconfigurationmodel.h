@@ -33,7 +33,7 @@
 #ifndef BUILDCONFIGURATIONMODEL_H
 #define BUILDCONFIGURATIONMODEL_H
 
-#include <QtCore/QAbstractItemModel>
+#include <QAbstractItemModel>
 
 namespace ProjectExplorer {
 class Target;

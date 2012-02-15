@@ -31,7 +31,7 @@
 **************************************************************************/
 #include "BackwardsScanner.h"
 #include <Token.h>
-#include <QtGui/QTextCursor>
+#include <QTextCursor>
 #include <QTextDocument>
 
 using namespace CPlusPlus;

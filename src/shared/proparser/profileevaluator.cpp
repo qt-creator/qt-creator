@@ -35,21 +35,21 @@
 #include "profileparser.h"
 #include "ioutils.h"
 
-#include <QtCore/QByteArray>
-#include <QtCore/QDateTime>
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QList>
-#include <QtCore/QRegExp>
-#include <QtCore/QSet>
-#include <QtCore/QStack>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QTextStream>
+#include <QByteArray>
+#include <QDateTime>
+#include <QDebug>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QList>
+#include <QRegExp>
+#include <QSet>
+#include <QStack>
+#include <QString>
+#include <QStringList>
+#include <QTextStream>
 #ifdef PROEVALUATOR_THREAD_SAFE
-# include <QtCore/QThreadPool>
+# include <QThreadPool>
 #endif
 
 #ifdef Q_OS_UNIX

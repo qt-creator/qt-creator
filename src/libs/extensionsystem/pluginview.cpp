@@ -37,10 +37,10 @@
 #include "plugincollection.h"
 #include "ui_pluginview.h"
 
-#include <QtCore/QDir>
-#include <QtGui/QHeaderView>
-#include <QtGui/QTreeWidgetItem>
-#include <QtGui/QPalette>
+#include <QDir>
+#include <QHeaderView>
+#include <QTreeWidgetItem>
+#include <QPalette>
 
 #include <QtDebug>
 

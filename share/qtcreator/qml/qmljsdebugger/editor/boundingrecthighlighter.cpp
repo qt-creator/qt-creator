@@ -34,11 +34,11 @@
 #include "qdeclarativeviewinspector.h"
 #include "qmlinspectorconstants.h"
 
-#include <QtGui/QGraphicsPolygonItem>
+#include <QGraphicsPolygonItem>
 
-#include <QtCore/QTimer>
-#include <QtCore/QObject>
-#include <QtCore/QDebug>
+#include <QTimer>
+#include <QObject>
+#include <QDebug>
 
 namespace QmlJSDebugger {
 

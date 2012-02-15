@@ -35,7 +35,7 @@
 
 #include "coreplugin/id.h"
 
-#include <QtCore/QObject>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QMenu;

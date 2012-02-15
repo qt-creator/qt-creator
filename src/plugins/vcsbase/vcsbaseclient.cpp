@@ -46,16 +46,16 @@
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QDir>
-#include <QtCore/QProcess>
-#include <QtCore/QSignalMapper>
-#include <QtCore/QTextCodec>
-#include <QtCore/QtDebug>
-#include <QtCore/QFileInfo>
-#include <QtCore/QByteArray>
-#include <QtCore/QMetaType>
+#include <QStringList>
+#include <QSharedPointer>
+#include <QDir>
+#include <QProcess>
+#include <QSignalMapper>
+#include <QTextCodec>
+#include <QtDebug>
+#include <QFileInfo>
+#include <QByteArray>
+#include <QMetaType>
 
 /*!
     \class VcsBase::VcsBaseClient

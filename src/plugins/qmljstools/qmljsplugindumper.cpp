@@ -40,8 +40,8 @@
 #include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
 
-#include <QtCore/QMetaType>
-#include <QtCore/QDir>
+#include <QMetaType>
+#include <QDir>
 
 using namespace LanguageUtils;
 using namespace QmlJS;

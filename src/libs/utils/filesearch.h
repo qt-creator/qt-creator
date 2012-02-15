@@ -35,12 +35,12 @@
 
 #include "utils_global.h"
 
-#include <QtCore/QStringList>
-#include <QtCore/QFuture>
-#include <QtCore/QMap>
-#include <QtCore/QStack>
-#include <QtCore/QDir>
-#include <QtGui/QTextDocument>
+#include <QStringList>
+#include <QFuture>
+#include <QMap>
+#include <QStack>
+#include <QDir>
+#include <QTextDocument>
 
 QT_FORWARD_DECLARE_CLASS(QTextCodec)
 

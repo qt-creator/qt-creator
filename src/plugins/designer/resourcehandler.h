@@ -33,8 +33,8 @@
 #ifndef RESOURCEHANDLER_H
 #define RESOURCEHANDLER_H
 
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
+#include <QObject>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 #if QT_VERSION >= 0x050000

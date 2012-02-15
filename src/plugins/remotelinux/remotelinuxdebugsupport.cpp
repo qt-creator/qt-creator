@@ -44,8 +44,8 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QPointer>
-#include <QtCore/QSharedPointer>
+#include <QPointer>
+#include <QSharedPointer>
 
 using namespace Utils;
 using namespace Debugger;

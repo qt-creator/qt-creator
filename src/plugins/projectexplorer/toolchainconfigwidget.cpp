@@ -36,13 +36,13 @@
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 
-#include <QtCore/QString>
+#include <QString>
 
-#include <QtGui/QFormLayout>
-#include <QtGui/QGridLayout>
-#include <QtGui/QLineEdit>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
+#include <QFormLayout>
+#include <QGridLayout>
+#include <QLineEdit>
+#include <QLabel>
+#include <QPushButton>
 
 namespace {
 

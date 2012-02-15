@@ -33,7 +33,7 @@
 #ifndef S60MANAGER_H
 #define S60MANAGER_H
 
-#include <QtCore/QObject>
+#include <QObject>
 
 namespace ProjectExplorer {
 class ToolChain;

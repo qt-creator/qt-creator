@@ -45,11 +45,11 @@
 #include <utils/runextensions.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <utils/qtcassert.h>
-#include <QtGui/QDesktopServices>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QDebug>
-#include <QtCore/QHash>
+#include <QDesktopServices>
+#include <QCoreApplication>
+#include <QDir>
+#include <QDebug>
+#include <QHash>
 
 namespace {
 

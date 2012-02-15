@@ -33,7 +33,7 @@
 #ifndef WINDEBUGINTERFACE_H
 #define WINDEBUGINTERFACE_H
 
-#include <QtCore/QThread>
+#include <QThread>
 
 namespace ProjectExplorer {
 namespace Internal {

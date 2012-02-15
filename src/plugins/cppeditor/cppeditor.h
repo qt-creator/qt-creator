@@ -44,12 +44,12 @@
 #include <cpptools/commentssettings.h>
 #include <cpptools/cppsemanticinfo.h>
 
-#include <QtCore/QThread>
-#include <QtCore/QMutex>
-#include <QtCore/QWaitCondition>
-#include <QtCore/QFutureWatcher>
-#include <QtCore/QModelIndex>
-#include <QtCore/QVector>
+#include <QThread>
+#include <QMutex>
+#include <QWaitCondition>
+#include <QFutureWatcher>
+#include <QModelIndex>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;

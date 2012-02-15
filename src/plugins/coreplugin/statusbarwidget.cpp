@@ -32,7 +32,7 @@
 
 #include "statusbarwidget.h"
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 using namespace Core;
 

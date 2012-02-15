@@ -39,8 +39,8 @@
 #include "sftpoutgoingpacket_p.h"
 #include "sshchannel_p.h"
 
-#include <QtCore/QByteArray>
-#include <QtCore/QMap>
+#include <QByteArray>
+#include <QMap>
 
 namespace Utils {
 class SftpChannel;

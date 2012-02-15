@@ -33,7 +33,7 @@
 #ifndef MACROSPLUGIN_SAVEDIALOG_H
 #define MACROSPLUGIN_SAVEDIALOG_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 namespace Macros {
 namespace Internal {

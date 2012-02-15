@@ -38,12 +38,12 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QStandardItem>
-#include <QtGui/QItemSelectionModel>
-#include <QtGui/QSortFilterProxyModel>
+#include <QStandardItemModel>
+#include <QStandardItem>
+#include <QItemSelectionModel>
+#include <QSortFilterProxyModel>
 
 enum { TypeRole = Qt::UserRole + 1};
 enum { HeaderType, RepositoryType };

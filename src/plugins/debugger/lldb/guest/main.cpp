@@ -32,10 +32,10 @@
 
 #include "lldbengineguest.h"
 
-#include <QtNetwork/QLocalSocket>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QSocketNotifier>
-#include <QtCore/QQueue>
+#include <QLocalSocket>
+#include <QCoreApplication>
+#include <QSocketNotifier>
+#include <QQueue>
 
 #include <cstdio>
 

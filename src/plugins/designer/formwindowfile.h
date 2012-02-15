@@ -35,7 +35,7 @@
 
 #include <coreplugin/textfile.h>
 
-#include <QtCore/QPointer>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;

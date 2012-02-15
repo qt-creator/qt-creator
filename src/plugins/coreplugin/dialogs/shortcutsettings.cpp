@@ -42,15 +42,15 @@
 
 #include <utils/treewidgetcolumnstretcher.h>
 
-#include <QtGui/QKeyEvent>
-#include <QtGui/QShortcut>
-#include <QtGui/QHeaderView>
-#include <QtGui/QFileDialog>
-#include <QtGui/QLineEdit>
-#include <QtGui/QAction>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QTreeWidgetItem>
-#include <QtCore/QCoreApplication>
+#include <QKeyEvent>
+#include <QShortcut>
+#include <QHeaderView>
+#include <QFileDialog>
+#include <QLineEdit>
+#include <QAction>
+#include <QKeyEvent>
+#include <QTreeWidgetItem>
+#include <QCoreApplication>
 #include <QtDebug>
 
 Q_DECLARE_METATYPE(Core::Internal::ShortcutItem*)

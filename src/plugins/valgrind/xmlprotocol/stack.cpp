@@ -35,9 +35,9 @@
 #include "stack.h"
 #include "frame.h"
 
-#include <QtCore/QSharedData>
-#include <QtCore/QString>
-#include <QtCore/QVector>
+#include <QSharedData>
+#include <QString>
+#include <QVector>
 
 namespace Valgrind {
 namespace XmlProtocol {

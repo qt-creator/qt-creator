@@ -35,7 +35,7 @@
 
 #include "remotelinux_export.h"
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 namespace RemoteLinux {
 

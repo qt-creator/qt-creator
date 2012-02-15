@@ -36,8 +36,8 @@
 #include <app/app_version.h>
 #include <utils/fileutils.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QDataStream>
+#include <QFileInfo>
+#include <QDataStream>
 
 using namespace Macros;
 

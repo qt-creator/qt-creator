@@ -35,8 +35,8 @@
 
 #include "utils_global.h"
 
-#include <QtCore/QString>
-#include <QtCore/QList>
+#include <QString>
+#include <QList>
 
 QT_FORWARD_DECLARE_CLASS(QTextCursor)
 

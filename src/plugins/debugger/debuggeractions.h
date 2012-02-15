@@ -33,8 +33,8 @@
 #ifndef DEBUGGER_ACTIONS_H
 #define DEBUGGER_ACTIONS_H
 
-#include <QtCore/QHash>
-#include <QtCore/QMap>
+#include <QHash>
+#include <QMap>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

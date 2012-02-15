@@ -33,8 +33,8 @@
 #ifndef ABSTRACTLIVEEDITTOOL_H
 #define ABSTRACTLIVEEDITTOOL_H
 
-#include <QtCore/QList>
-#include <QtCore/QObject>
+#include <QList>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QMouseEvent;

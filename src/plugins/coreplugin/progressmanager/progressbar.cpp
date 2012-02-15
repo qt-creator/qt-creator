@@ -34,12 +34,12 @@
 
 #include <utils/stylehelper.h>
 
-#include <QtCore/QPropertyAnimation>
-#include <QtGui/QPainter>
-#include <QtGui/QFont>
-#include <QtGui/QBrush>
-#include <QtGui/QColor>
-#include <QtGui/QMouseEvent>
+#include <QPropertyAnimation>
+#include <QPainter>
+#include <QFont>
+#include <QBrush>
+#include <QColor>
+#include <QMouseEvent>
 
 using namespace Core;
 using namespace Core::Internal;

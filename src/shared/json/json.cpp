@@ -36,11 +36,11 @@
 #include <utils/qtcassert.h>
 #endif // TODO_USE_CREATOR
 
-#include <QtCore/QByteArray>
-#include <QtCore/QTextStream>
-#include <QtCore/QDebug>
-#include <QtCore/QStringList>
-#include <QtCore/QVariant>
+#include <QByteArray>
+#include <QTextStream>
+#include <QDebug>
+#include <QStringList>
+#include <QVariant>
 
 #include <ctype.h>
 

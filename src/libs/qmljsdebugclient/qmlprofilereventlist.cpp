@@ -32,17 +32,17 @@
 
 #include "qmlprofilereventlist.h"
 
-#include <QtCore/QUrl>
-#include <QtCore/QHash>
-#include <QtCore/QtAlgorithms>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+#include <QUrl>
+#include <QHash>
+#include <QtAlgorithms>
+#include <QString>
+#include <QStringList>
 
-#include <QtCore/QFile>
-#include <QtCore/QXmlStreamReader>
-#include <QtCore/QXmlStreamWriter>
+#include <QFile>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
-#include <QtCore/QTimer>
+#include <QTimer>
 #include <utils/qtcassert.h>
 
 #include <QDebug>

@@ -33,10 +33,10 @@
 #ifndef INSPECTORPROTOCOL_H
 #define INSPECTORPROTOCOL_H
 
-#include <QtCore/QDebug>
-#include <QtCore/QMetaType>
-#include <QtCore/QMetaEnum>
-#include <QtCore/QObject>
+#include <QDebug>
+#include <QMetaType>
+#include <QMetaEnum>
+#include <QObject>
 
 namespace QmlJSDebugger {
 

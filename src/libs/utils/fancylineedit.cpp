@@ -32,18 +32,18 @@
 
 #include "fancylineedit.h"
 
-#include <QtCore/QEvent>
-#include <QtCore/QDebug>
-#include <QtCore/QString>
-#include <QtCore/QPropertyAnimation>
-#include <QtGui/QApplication>
-#include <QtGui/QMenu>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QLabel>
-#include <QtGui/QAbstractButton>
-#include <QtGui/QPainter>
-#include <QtGui/QStyle>
-#include <QtGui/QPaintEvent>
+#include <QEvent>
+#include <QDebug>
+#include <QString>
+#include <QPropertyAnimation>
+#include <QApplication>
+#include <QMenu>
+#include <QMouseEvent>
+#include <QLabel>
+#include <QAbstractButton>
+#include <QPainter>
+#include <QStyle>
+#include <QPaintEvent>
 
 /*!
     \class Utils::FancyLineEdit

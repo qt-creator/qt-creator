@@ -32,8 +32,8 @@
 #ifndef QPACKETPROTOCOL_H
 #define QPACKETPROTOCOL_H
 
-#include <QtCore/qobject.h>
-#include <QtCore/qdatastream.h>
+#include <qobject.h>
+#include <qdatastream.h>
 
 QT_BEGIN_NAMESPACE
 class QIODevice;

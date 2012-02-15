@@ -38,7 +38,7 @@
 #include <utils/qtcassert.h>
 #include <utils/ssh/sshremoteprocessrunner.h>
 
-#include <QtCore/QRegExp>
+#include <QRegExp>
 
 using namespace RemoteLinux;
 using namespace Utils;

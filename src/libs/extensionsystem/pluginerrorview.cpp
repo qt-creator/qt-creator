@@ -34,7 +34,7 @@
 #include "ui_pluginerrorview.h"
 #include "pluginspec.h"
 
-#include <QtCore/QString>
+#include <QString>
 
 /*!
     \class ExtensionSystem::PluginErrorView

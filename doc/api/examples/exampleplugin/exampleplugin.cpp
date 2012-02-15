@@ -8,12 +8,12 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/coreconstants.h>
 
-#include <QtGui/QAction>
-#include <QtGui/QMessageBox>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMenu>
+#include <QAction>
+#include <QMessageBox>
+#include <QMainWindow>
+#include <QMenu>
 
-#include <QtCore/QtPlugin>
+#include <QtPlugin>
 
 using namespace Example::Internal;
 

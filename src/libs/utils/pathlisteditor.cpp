@@ -32,22 +32,22 @@
 
 #include "pathlisteditor.h"
 
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QToolButton>
-#include <QtGui/QSpacerItem>
-#include <QtGui/QFileDialog>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextBlock>
-#include <QtGui/QMenu>
-#include <QtGui/QAction>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QPlainTextEdit>
+#include <QToolButton>
+#include <QSpacerItem>
+#include <QFileDialog>
+#include <QTextCursor>
+#include <QTextBlock>
+#include <QMenu>
+#include <QAction>
 
-#include <QtCore/QSignalMapper>
-#include <QtCore/QMimeData>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QDir>
-#include <QtCore/QDebug>
+#include <QSignalMapper>
+#include <QMimeData>
+#include <QSharedPointer>
+#include <QDir>
+#include <QDebug>
 
 /*!
     \class Utils::PathListEditor

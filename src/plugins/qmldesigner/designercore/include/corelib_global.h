@@ -54,6 +54,6 @@
 //#  define TEST_CORESHARED_EXPORT
 //#endif
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #endif // CORELIB_GLOBAL_H

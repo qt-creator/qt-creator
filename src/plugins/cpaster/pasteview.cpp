@@ -35,12 +35,12 @@
 
 #include <coreplugin/icore.h>
 
-#include <QtGui/QFontMetrics>
-#include <QtGui/QPainter>
-#include <QtGui/QScrollBar>
-#include <QtGui/QPushButton>
-#include <QtCore/QSettings>
-#include <QtCore/QByteArray>
+#include <QFontMetrics>
+#include <QPainter>
+#include <QScrollBar>
+#include <QPushButton>
+#include <QSettings>
+#include <QByteArray>
 
 static const char groupC[] = "CPaster";
 static const char heightKeyC[] = "PasteViewHeight";

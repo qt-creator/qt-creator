@@ -32,17 +32,17 @@
 
 #include "submitfieldwidget.h"
 
-#include <QtGui/QComboBox>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QLineEdit>
-#include <QtGui/QToolButton>
-#include <QtGui/QCompleter>
-#include <QtGui/QIcon>
-#include <QtGui/QToolBar>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QLineEdit>
+#include <QToolButton>
+#include <QCompleter>
+#include <QIcon>
+#include <QToolBar>
 
-#include <QtCore/QList>
-#include <QtCore/QDebug>
+#include <QList>
+#include <QDebug>
 
 enum { debug = 0 };
 enum { spacing = 2 };

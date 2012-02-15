@@ -33,9 +33,9 @@
 #ifndef UtilityPanelController_h
 #define UtilityPanelController_h
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtGui/QWidget>
+#include <QObject>
+#include <QString>
+#include <QWidget>
 
 namespace QmlDesigner {
 

@@ -50,7 +50,7 @@
 #include <coreplugin/icore.h>
 #include <customcolordialog.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace QmlJS;
 using namespace AST;

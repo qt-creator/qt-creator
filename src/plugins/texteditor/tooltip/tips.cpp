@@ -36,19 +36,19 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QRect>
-#include <QtGui/QColor>
-#include <QtGui/QPainter>
-#include <QtGui/QPen>
-#include <QtGui/QPixmap>
-#include <QtGui/QStyle>
-#include <QtGui/QFontMetrics>
-#include <QtGui/QTextDocument>
-#include <QtGui/QStylePainter>
-#include <QtGui/QStyleOptionFrame>
-#include <QtGui/QResizeEvent>
-#include <QtGui/QPaintEvent>
-#include <QtGui/QVBoxLayout>
+#include <QRect>
+#include <QColor>
+#include <QPainter>
+#include <QPen>
+#include <QPixmap>
+#include <QStyle>
+#include <QFontMetrics>
+#include <QTextDocument>
+#include <QStylePainter>
+#include <QStyleOptionFrame>
+#include <QResizeEvent>
+#include <QPaintEvent>
+#include <QVBoxLayout>
 
 namespace TextEditor {
     namespace Internal {

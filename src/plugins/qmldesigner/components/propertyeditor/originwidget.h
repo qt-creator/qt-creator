@@ -33,7 +33,7 @@
 #ifndef ORIGINWIDGET_H
 #define ORIGINWIDGET_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 namespace QmlDesigner {
 

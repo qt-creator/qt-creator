@@ -42,13 +42,13 @@
 #include <utils/reloadpromptutils.h>
 #include <utils/fileutils.h>
 
-#include <QtCore/QTemporaryFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/qdebug.h>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMenu>
+#include <QTemporaryFile>
+#include <QFileInfo>
+#include <QDir>
+#include <qdebug.h>
+#include <QHBoxLayout>
+#include <QMainWindow>
+#include <QMenu>
 
 namespace ResourceEditor {
 namespace Internal {

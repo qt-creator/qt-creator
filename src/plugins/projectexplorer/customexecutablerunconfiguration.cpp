@@ -44,13 +44,13 @@
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
-#include <QtGui/QDialog>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QLabel>
-#include <QtGui/QMainWindow>
-#include <QtGui/QVBoxLayout>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QLabel>
+#include <QMainWindow>
+#include <QVBoxLayout>
 
-#include <QtCore/QDir>
+#include <QDir>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

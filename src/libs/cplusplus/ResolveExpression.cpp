@@ -48,9 +48,9 @@
 #include <NameVisitor.h>
 #include <Templates.h>
 
-#include <QtCore/QList>
-#include <QtCore/QtDebug>
-#include <QtCore/QSet>
+#include <QList>
+#include <QtDebug>
+#include <QSet>
 
 using namespace CPlusPlus;
 

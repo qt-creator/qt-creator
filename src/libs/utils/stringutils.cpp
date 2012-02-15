@@ -32,10 +32,10 @@
 
 #include "stringutils.h"
 
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
+#include <QString>
+#include <QStringList>
+#include <QFileInfo>
+#include <QDir>
 
 #include <limits.h>
 

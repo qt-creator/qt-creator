@@ -33,7 +33,7 @@
 #ifndef MODEMANAGER_H
 #define MODEMANAGER_H
 
-#include <QtCore/QObject>
+#include <QObject>
 #include <coreplugin/core_global.h>
 
 QT_BEGIN_NAMESPACE

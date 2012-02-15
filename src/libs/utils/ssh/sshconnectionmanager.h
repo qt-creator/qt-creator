@@ -35,8 +35,8 @@
 
 #include <utils/utils_global.h>
 
-#include <QtCore/QScopedPointer>
-#include <QtCore/QSharedPointer>
+#include <QScopedPointer>
+#include <QSharedPointer>
 
 namespace Utils {
 class SshConnection;

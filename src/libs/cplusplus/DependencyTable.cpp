@@ -33,7 +33,7 @@
 #include "DependencyTable.h"
 #include "CppDocument.h"
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace CPlusPlus;
 

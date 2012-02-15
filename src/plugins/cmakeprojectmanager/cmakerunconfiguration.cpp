@@ -49,13 +49,13 @@
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
-#include <QtGui/QFormLayout>
-#include <QtGui/QLineEdit>
-#include <QtGui/QGroupBox>
-#include <QtGui/QLabel>
-#include <QtGui/QComboBox>
-#include <QtGui/QToolButton>
-#include <QtGui/QCheckBox>
+#include <QFormLayout>
+#include <QLineEdit>
+#include <QGroupBox>
+#include <QLabel>
+#include <QComboBox>
+#include <QToolButton>
+#include <QCheckBox>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;

@@ -36,11 +36,11 @@
 #include <CPlusPlusForwardDeclarations.h>
 #include "Macro.h"
 
-#include <QtCore/QSharedPointer>
-#include <QtCore/QDateTime>
-#include <QtCore/QHash>
-#include <QtCore/QFileInfo>
-#include <QtCore/QAtomicInt>
+#include <QSharedPointer>
+#include <QDateTime>
+#include <QHash>
+#include <QFileInfo>
+#include <QAtomicInt>
 
 namespace CPlusPlus {
 

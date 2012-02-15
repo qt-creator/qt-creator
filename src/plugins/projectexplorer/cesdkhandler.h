@@ -35,8 +35,8 @@
 
 #include <projectexplorer/projectexplorer.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QDir>
+#include <QStringList>
+#include <QDir>
 
 namespace Utils {
 class Environment;

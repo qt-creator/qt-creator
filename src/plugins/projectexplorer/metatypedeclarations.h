@@ -33,7 +33,7 @@
 #ifndef PROJECTEXPLORERMETATYPEDECLARATIONS_H
 #define PROJECTEXPLORERMETATYPEDECLARATIONS_H
 
-#include <QtCore/QMetaType>
+#include <QMetaType>
 
 namespace ProjectExplorer {
 class IProjectManager;

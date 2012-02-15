@@ -31,7 +31,7 @@
 **************************************************************************/
 
 #include "colorbutton.h"
-#include <QtGui/QPainter>
+#include <QPainter>
 
 static inline QPixmap tilePixMap(int size)
 {

@@ -36,9 +36,9 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <proparser/profileevaluator.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfoList>
+#include <QCoreApplication>
+#include <QDir>
+#include <QFileInfoList>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

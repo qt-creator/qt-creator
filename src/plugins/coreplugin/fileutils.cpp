@@ -34,12 +34,12 @@
 
 #include <utils/environment.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QProcess>
-#include <QtGui/QApplication>
-#include <QtGui/QMessageBox>
-#include <QtGui/QWidget>
+#include <QDir>
+#include <QFileInfo>
+#include <QProcess>
+#include <QApplication>
+#include <QMessageBox>
+#include <QWidget>
 
 #ifndef Q_OS_WIN
 #include <coreplugin/icore.h>
@@ -48,7 +48,7 @@
 #ifndef Q_OS_MAC
 #include <coreplugin/coreconstants.h>
 #include <utils/unixutils.h>
-#include <QtGui/QPushButton>
+#include <QPushButton>
 #endif
 #endif
 

@@ -36,14 +36,14 @@
 #include "invalidpropertyexception.h"
 #include "invalidargumentexception.h"
 
-#include <QtCore/QFile>
-#include <QtCore/QByteArray>
+#include <QFile>
+#include <QByteArray>
 #include <QWeakPointer>
-#include <QtCore/QFileInfo>
+#include <QFileInfo>
 
-#include <QtGui/QUndoStack>
-#include <QtXml/QXmlStreamReader>
-#include <QtCore/QDebug>
+#include <QUndoStack>
+#include <QXmlStreamReader>
+#include <QDebug>
 #include <QPlainTextEdit>
 #include <QHashIterator>
 

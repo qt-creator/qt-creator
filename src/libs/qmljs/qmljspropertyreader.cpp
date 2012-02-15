@@ -35,7 +35,7 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsutils.h>
 
-#include <QtGui/QLinearGradient>
+#include <QLinearGradient>
 
 namespace QmlJS {
 

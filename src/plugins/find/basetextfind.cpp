@@ -35,11 +35,11 @@
 #include <utils/qtcassert.h>
 #include <utils/filesearch.h>
 
-#include <QtCore/QPointer>
+#include <QPointer>
 
-#include <QtGui/QTextBlock>
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QTextCursor>
+#include <QTextBlock>
+#include <QPlainTextEdit>
+#include <QTextCursor>
 
 namespace Find {
 

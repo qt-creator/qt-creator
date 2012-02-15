@@ -35,9 +35,9 @@
 
 #include <utils/fileutils.h>
 
-#include <QtCore/QString>
-#include <QtCore/QDir>
-#include <QtCore/QCoreApplication>
+#include <QString>
+#include <QDir>
+#include <QCoreApplication>
 
 namespace Core {
 

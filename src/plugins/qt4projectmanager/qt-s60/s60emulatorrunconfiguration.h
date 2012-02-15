@@ -36,8 +36,8 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/applicationlauncher.h>
 
-#include <QtCore/QVariantMap>
-#include <QtGui/QWidget>
+#include <QVariantMap>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QLabel;

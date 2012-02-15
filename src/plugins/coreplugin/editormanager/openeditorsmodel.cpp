@@ -34,8 +34,8 @@
 #include "ieditor.h"
 #include "ifile.h"
 
-#include <QtCore/QDir>
-#include <QtGui/QIcon>
+#include <QDir>
+#include <QIcon>
 
 namespace Core {
 

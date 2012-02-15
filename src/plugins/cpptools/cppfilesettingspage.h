@@ -35,9 +35,9 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QtCore/QPointer>
-#include <QtCore/QSharedPointer>
-#include <QtGui/QWidget>
+#include <QPointer>
+#include <QSharedPointer>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

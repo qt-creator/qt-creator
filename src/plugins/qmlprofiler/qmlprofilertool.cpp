@@ -82,17 +82,17 @@
 #include <qt4projectmanager/qt-s60/s60devicerunconfiguration.h>
 #include <qt4projectmanager/qt-s60/s60deployconfiguration.h>
 
-#include <QtCore/QFile>
+#include <QFile>
 
-#include <QtGui/QApplication>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QTabWidget>
-#include <QtGui/QToolButton>
-#include <QtGui/QMessageBox>
-#include <QtGui/QDockWidget>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMenu>
+#include <QApplication>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QTabWidget>
+#include <QToolButton>
+#include <QMessageBox>
+#include <QDockWidget>
+#include <QFileDialog>
+#include <QMenu>
 
 using namespace Core;
 using namespace Core::Constants;

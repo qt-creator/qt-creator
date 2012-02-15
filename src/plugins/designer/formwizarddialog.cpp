@@ -39,8 +39,8 @@
 
 #include <utils/filewizardpage.h>
 
-#include <QtCore/QDebug>
-#include <QtGui/QAbstractButton>
+#include <QDebug>
+#include <QAbstractButton>
 
 // Make sure there is a gap before the extension pages
 enum { FormPageId, FilePageId, FirstExtensionPageId = 10 };

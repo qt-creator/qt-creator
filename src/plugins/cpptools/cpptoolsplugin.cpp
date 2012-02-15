@@ -59,8 +59,8 @@
 #include <coreplugin/filemanager.h>
 #include <cppeditor/cppeditorconstants.h>
 
-#include <QtCore/QtConcurrentRun>
-#include <QtCore/QFutureSynchronizer>
+#include <QtConcurrentRun>
+#include <QFutureSynchronizer>
 #include <utils/runextensions.h>
 
 #include <find/ifindfilter.h>
@@ -68,13 +68,13 @@
 #include <utils/filesearch.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QtPlugin>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
-#include <QtGui/QMenu>
-#include <QtGui/QAction>
+#include <QtPlugin>
+#include <QFileInfo>
+#include <QDir>
+#include <QDebug>
+#include <QSettings>
+#include <QMenu>
+#include <QAction>
 
 #include <sstream>
 

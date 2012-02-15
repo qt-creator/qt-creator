@@ -33,7 +33,7 @@
 #ifndef CDBSETTINGS_H
 #define CDBSETTINGS_H
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

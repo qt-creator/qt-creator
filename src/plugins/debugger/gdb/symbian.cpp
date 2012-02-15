@@ -37,9 +37,9 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QTextStream>
-#include <QtCore/QFileInfo>
+#include <QDebug>
+#include <QTextStream>
+#include <QFileInfo>
 
 namespace Debugger {
 namespace Internal {

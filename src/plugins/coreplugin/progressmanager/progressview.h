@@ -35,8 +35,8 @@
 
 #include "progressmanager.h"
 
-#include <QtCore/QFuture>
-#include <QtGui/QWidget>
+#include <QFuture>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QVBoxLayout;

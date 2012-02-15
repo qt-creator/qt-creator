@@ -51,11 +51,11 @@
 
 #include <texteditor/texteditoractionhandler.h>
 
-#include <QtCore/QtPlugin>
-#include <QtCore/QDebug>
+#include <QtPlugin>
+#include <QDebug>
 
-#include <QtGui/QTreeView>
-#include <QtGui/QMainWindow>
+#include <QTreeView>
+#include <QMainWindow>
 
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;

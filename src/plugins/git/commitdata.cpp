@@ -33,9 +33,9 @@
 #include "commitdata.h"
 #include <utils/qtcassert.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
-#include <QtCore/QRegExp>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QRegExp>
 
 namespace Git {
 namespace Internal {

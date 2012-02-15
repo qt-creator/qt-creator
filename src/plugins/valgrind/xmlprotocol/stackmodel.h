@@ -35,7 +35,7 @@
 #ifndef LIBVALGRIND_PROTOCOL_STACKMODEL_H
 #define LIBVALGRIND_PROTOCOL_STACKMODEL_H
 
-#include <QtCore/QAbstractItemModel>
+#include <QAbstractItemModel>
 
 namespace Valgrind {
 namespace XmlProtocol {

@@ -33,9 +33,9 @@
 #ifndef QMLPROJECTITEM_H
 #define QMLPROJECTITEM_H
 
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
-#include <QtDeclarative/qdeclarative.h>
+#include <QObject>
+#include <QStringList>
+#include <qdeclarative.h>
 
 namespace QmlProjectManager {
 

@@ -35,8 +35,8 @@
 
 #include "cpptools_global.h"
 
-#include <QtCore/QMetaType>
-#include <QtCore/QVariant>
+#include <QMetaType>
+#include <QVariant>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

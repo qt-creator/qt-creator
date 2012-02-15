@@ -32,7 +32,7 @@
 
 #include <filesearch.h>
 
-#include <QtTest/QtTest>
+#include <QtTest>
 
 QT_BEGIN_NAMESPACE
 bool operator==(const Utils::FileSearchResult &r1, const Utils::FileSearchResult &r2)

@@ -37,13 +37,13 @@
 #include "parser/qmljsast_p.h"
 #include "parser/qmljsastvisitor_p.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QString>
-#include <QtCore/QFile>
-#include <QtCore/QTextStream>
-#include <QtGui/QTextBlock>
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextCursor>
+#include <QCoreApplication>
+#include <QString>
+#include <QFile>
+#include <QTextStream>
+#include <QTextBlock>
+#include <QTextDocument>
+#include <QTextCursor>
 
 #include <limits>
 

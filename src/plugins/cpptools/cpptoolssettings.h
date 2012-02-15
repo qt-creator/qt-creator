@@ -35,7 +35,7 @@
 
 #include "cpptools_global.h"
 
-#include <QtCore/QObject>
+#include <QObject>
 
 namespace CppTools
 {

@@ -34,14 +34,14 @@
 #include "formresizer.h"
 #include "widgethostconstants.h"
 
-#include <QtDesigner/QDesignerFormWindowInterface>
-#include <QtDesigner/QDesignerFormWindowCursorInterface>
+#include <QDesignerFormWindowInterface>
+#include <QDesignerFormWindowCursorInterface>
 
-#include <QtGui/QPalette>
-#include <QtGui/QLayout>
-#include <QtGui/QFrame>
-#include <QtGui/QResizeEvent>
-#include <QtCore/QDebug>
+#include <QPalette>
+#include <QLayout>
+#include <QFrame>
+#include <QResizeEvent>
+#include <QDebug>
 
 using namespace SharedTools;
 

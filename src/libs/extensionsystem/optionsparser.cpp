@@ -32,7 +32,7 @@
 
 #include "optionsparser.h"
 
-#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 
 using namespace ExtensionSystem;
 using namespace ExtensionSystem::Internal;

@@ -47,8 +47,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtGui/QApplication>
-#include <QtGui/QStyle>
+#include <QApplication>
+#include <QStyle>
 
 using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;

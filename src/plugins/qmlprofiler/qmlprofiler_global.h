@@ -33,7 +33,7 @@
 #ifndef QMLPROFILER_GLOBAL_H
 #define QMLPROFILER_GLOBAL_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 #if defined(QMLPROFILERPLUGIN_LIBRARY)
 #  define QMLPROFILERPLUGINSHARED_EXPORT Q_DECL_EXPORT

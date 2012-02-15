@@ -33,7 +33,7 @@
 #ifndef FORMWIZARDPAGE_H
 #define FORMWIZARDPAGE_H
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 
 QT_BEGIN_NAMESPACE
 class QDesignerNewFormWidgetInterface;

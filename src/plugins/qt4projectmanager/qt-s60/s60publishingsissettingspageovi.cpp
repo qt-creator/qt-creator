@@ -35,7 +35,7 @@
 #include "s60publisherovi.h"
 #include "s60certificateinfo.h"
 
-#include <QtGui/QAbstractButton>
+#include <QAbstractButton>
 
 using namespace ProjectExplorer;
 

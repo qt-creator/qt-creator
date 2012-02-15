@@ -36,12 +36,12 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QProcess>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
-#include <QtCore/QTemporaryFile>
-#include <QtCore/QSharedPointer>
+#include <QProcess>
+#include <QDir>
+#include <QFileInfo>
+#include <QDebug>
+#include <QTemporaryFile>
+#include <QSharedPointer>
 
 namespace ProjectExplorer {
 namespace Internal {

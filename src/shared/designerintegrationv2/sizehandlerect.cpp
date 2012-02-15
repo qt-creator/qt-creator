@@ -32,12 +32,12 @@
 #include "sizehandlerect.h"
 #include "widgethostconstants.h"
 
-#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QDesignerFormWindowInterface>
 
-#include <QtGui/QMouseEvent>
-#include <QtGui/QPainter>
-#include <QtGui/QFrame>
-#include <QtCore/QDebug>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QFrame>
+#include <QDebug>
 
 enum { debugSizeHandle = 0 };
 

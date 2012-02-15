@@ -34,8 +34,8 @@
 #include "formwindoweditor.h"
 #include "designerconstants.h"
 
-#include <QtDesigner/QDesignerFormWindowInterface>
-#include <QtCore/QDebug>
+#include <QDesignerFormWindowInterface>
+#include <QDebug>
 
 namespace Designer {
 namespace Internal {

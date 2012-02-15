@@ -38,7 +38,7 @@
 
 #include <utils/styledbar.h>
 
-#include <QtCore/QTimer>
+#include <QTimer>
 
 namespace Core {
 class FindToolBarPlaceHolder;

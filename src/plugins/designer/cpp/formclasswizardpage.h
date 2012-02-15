@@ -33,7 +33,7 @@
 #ifndef FORMCLASSWIZARDPAGE_H
 #define FORMCLASSWIZARDPAGE_H
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 
 namespace Designer {
 

@@ -50,19 +50,19 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QSize>
-#include <QtGui/QFileSystemModel>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QToolButton>
-#include <QtGui/QPushButton>
-#include <QtGui/QLabel>
-#include <QtGui/QListView>
-#include <QtGui/QSortFilterProxyModel>
-#include <QtGui/QAction>
-#include <QtGui/QMenu>
-#include <QtGui/QFileDialog>
-#include <QtGui/QContextMenuEvent>
+#include <QDebug>
+#include <QSize>
+#include <QFileSystemModel>
+#include <QVBoxLayout>
+#include <QToolButton>
+#include <QPushButton>
+#include <QLabel>
+#include <QListView>
+#include <QSortFilterProxyModel>
+#include <QAction>
+#include <QMenu>
+#include <QFileDialog>
+#include <QContextMenuEvent>
 
 enum { debug = 0 };
 

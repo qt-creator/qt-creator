@@ -36,7 +36,7 @@
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsdocument.h>
 
-#include <QtCore/QString>
+#include <QString>
 
 namespace QmlDesigner {
 

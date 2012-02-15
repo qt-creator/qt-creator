@@ -31,9 +31,9 @@
 **************************************************************************/
 #include "portlist.h"
 
-#include <QtCore/QList>
-#include <QtCore/QPair>
-#include <QtCore/QString>
+#include <QList>
+#include <QPair>
+#include <QString>
 
 #include <cctype>
 

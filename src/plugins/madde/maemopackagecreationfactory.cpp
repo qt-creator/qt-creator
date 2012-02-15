@@ -41,7 +41,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
-#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 
 using ProjectExplorer::BuildStepList;
 using ProjectExplorer::BuildStep;

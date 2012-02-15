@@ -36,7 +36,7 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include "ui_projectexplorersettingspage.h"
 
-#include <QtCore/QPointer>
+#include <QPointer>
 
 namespace ProjectExplorer {
 namespace Internal {

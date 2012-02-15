@@ -76,24 +76,24 @@
 #include <utils/statuslabel.h>
 #include <utils/ssh/sshconnection.h>
 
-#include <QtCore/QVariant>
-#include <QtCore/QDebug>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QDockWidget>
-#include <QtGui/QAction>
-#include <QtGui/QMenu>
-#include <QtGui/QMenuBar>
-#include <QtGui/QToolButton>
-#include <QtGui/QComboBox>
-#include <QtGui/QStackedWidget>
-#include <QtGui/QDialog>
-#include <QtGui/QApplication>
-#include <QtGui/QLabel>
-#include <QtGui/QCheckBox>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QMainWindow>
-#include <QtGui/QPushButton>
+#include <QVariant>
+#include <QDebug>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QDockWidget>
+#include <QAction>
+#include <QMenu>
+#include <QMenuBar>
+#include <QToolButton>
+#include <QComboBox>
+#include <QStackedWidget>
+#include <QDialog>
+#include <QApplication>
+#include <QLabel>
+#include <QCheckBox>
+#include <QDialogButtonBox>
+#include <QMainWindow>
+#include <QPushButton>
 
 using namespace Core;
 using namespace Core::Constants;

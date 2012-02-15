@@ -32,9 +32,9 @@
 
 #include "qtlockedfile.h"
 
-#include <QtNetwork/QLocalServer>
-#include <QtNetwork/QLocalSocket>
-#include <QtCore/QDir>
+#include <QLocalServer>
+#include <QLocalSocket>
+#include <QDir>
 
 namespace SharedTools {
 

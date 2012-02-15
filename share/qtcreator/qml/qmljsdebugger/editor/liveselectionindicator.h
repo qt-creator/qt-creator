@@ -33,8 +33,8 @@
 #ifndef LIVESELECTIONINDICATOR_H
 #define LIVESELECTIONINDICATOR_H
 
-#include <QtCore/QWeakPointer>
-#include <QtCore/QHash>
+#include <QWeakPointer>
+#include <QHash>
 
 QT_BEGIN_NAMESPACE
 class QGraphicsObject;

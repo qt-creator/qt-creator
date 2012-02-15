@@ -33,7 +33,7 @@
 #ifndef COMMONVCSSETTINGS_H
 #define COMMONVCSSETTINGS_H
 
-#include <QtCore/QString>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

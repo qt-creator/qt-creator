@@ -35,7 +35,7 @@
 
 #include "abstractmobileapp.h"
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 
 namespace Qt4ProjectManager {
 namespace Internal {

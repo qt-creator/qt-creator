@@ -37,7 +37,7 @@
 
 #include <utils/fileutils.h>
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 QT_FORWARD_DECLARE_CLASS(QFormLayout)
 QT_FORWARD_DECLARE_CLASS(QGridLayout)

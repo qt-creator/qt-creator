@@ -35,8 +35,8 @@
 #ifndef LIBVALGRIND_PROTOCOL_ERRORLISTMODEL_H
 #define LIBVALGRIND_PROTOCOL_ERRORLISTMODEL_H
 
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QSharedPointer>
+#include <QAbstractItemModel>
+#include <QSharedPointer>
 
 namespace Valgrind {
 namespace XmlProtocol {

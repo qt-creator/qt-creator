@@ -33,7 +33,7 @@
 #ifndef SUBVERSION_CONSTANTS_H
 #define SUBVERSION_CONSTANTS_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 namespace Subversion {
 namespace Constants {

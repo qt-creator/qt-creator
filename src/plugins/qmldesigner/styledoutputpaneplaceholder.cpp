@@ -34,10 +34,10 @@
 
 #include <utils/fileutils.h>
 
-#include <QtCore/QChildEvent>
-#include <QtCore/QFile>
-#include <QtGui/QTabWidget>
-#include <QtGui/QStackedWidget>
+#include <QChildEvent>
+#include <QFile>
+#include <QTabWidget>
+#include <QStackedWidget>
 #include <QDebug>
 
 StyledOutputpanePlaceHolder::StyledOutputpanePlaceHolder(Core::IMode *mode, QSplitter *parent) : Core::OutputPanePlaceHolder(mode, parent)

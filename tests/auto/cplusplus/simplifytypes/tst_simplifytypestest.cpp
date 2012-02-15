@@ -32,8 +32,8 @@
 
 #include <cplusplus/CppRewriter.h>
 
-#include <QtCore/QString>
-#include <QtTest/QtTest>
+#include <QString>
+#include <QtTest>
 
 const char *description[] =
 {

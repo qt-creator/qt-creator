@@ -33,12 +33,12 @@
 #define PROPERTYINSPECTOR_H
 
 #include <qmljsprivateapi.h>
-#include <QtGui/QTreeView>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QSortFilterProxyModel>
+#include <QTreeView>
+#include <QStandardItemModel>
+#include <QSortFilterProxyModel>
 
-#include <QtGui/QDialog>
-#include <QtGui/QDialogButtonBox>
+#include <QDialog>
+#include <QDialogButtonBox>
 
 #include "customcolordialog.h"
 

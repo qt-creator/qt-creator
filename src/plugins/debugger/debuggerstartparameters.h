@@ -41,7 +41,7 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <QtCore/QMetaType>
+#include <QMetaType>
 
 namespace Debugger {
 

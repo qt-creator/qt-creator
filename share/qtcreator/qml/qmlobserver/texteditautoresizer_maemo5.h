@@ -29,10 +29,10 @@
 **
 **************************************************************************/
 
-#include <QtGui/qplaintextedit.h>
-#include <QtGui/qtextedit.h>
-#include <QtGui/qabstractkineticscroller.h>
-#include <QtGui/qscrollarea.h>
+#include <qplaintextedit.h>
+#include <qtextedit.h>
+#include <qabstractkineticscroller.h>
+#include <qscrollarea.h>
 #include <QtDebug>
 
 #ifndef TEXTEDITAUTORESIZER_H

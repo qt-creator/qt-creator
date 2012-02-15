@@ -32,9 +32,9 @@
 
 #include "environment.h"
 
-#include <QtCore/QDir>
-#include <QtCore/QProcess>
-#include <QtCore/QString>
+#include <QDir>
+#include <QProcess>
+#include <QString>
 
 namespace Utils {
 

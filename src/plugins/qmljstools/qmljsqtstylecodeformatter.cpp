@@ -34,7 +34,7 @@
 
 #include <texteditor/tabsettings.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace QmlJS;
 using namespace QmlJSTools;

@@ -32,13 +32,13 @@
 
 #include "annotateditemdelegate.h"
 
-#include <QtCore/QSize>
-#include <QtCore/QModelIndex>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QPainter>
-#include <QtGui/QStyle>
-#include <QtGui/QStyleOptionViewItemV4>
-#include <QtGui/QApplication>
+#include <QSize>
+#include <QModelIndex>
+#include <QStandardItemModel>
+#include <QPainter>
+#include <QStyle>
+#include <QStyleOptionViewItemV4>
+#include <QApplication>
 
 using namespace Utils;
 

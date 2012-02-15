@@ -37,10 +37,10 @@
 #include <coreplugin/actionmanager/command_p.h>
 #include <coreplugin/icontext.h>
 
-#include <QtCore/QMap>
-#include <QtCore/QHash>
-#include <QtCore/QMultiHash>
-#include <QtCore/QTimer>
+#include <QMap>
+#include <QHash>
+#include <QMultiHash>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QLabel;

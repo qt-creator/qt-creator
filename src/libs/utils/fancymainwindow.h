@@ -35,7 +35,7 @@
 
 #include "utils_global.h"
 
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

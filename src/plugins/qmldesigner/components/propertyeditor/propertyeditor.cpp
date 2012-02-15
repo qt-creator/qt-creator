@@ -60,17 +60,17 @@
 
 #include <utils/fileutils.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QFileSystemWatcher>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
-#include <QtCore/QTimer>
-#include <QtDeclarative/QDeclarativeView>
-#include <QtDeclarative/QDeclarativeContext>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QShortcut>
-#include <QtGui/QStackedWidget>
+#include <QCoreApplication>
+#include <QDir>
+#include <QFileSystemWatcher>
+#include <QFileInfo>
+#include <QDebug>
+#include <QTimer>
+#include <QDeclarativeView>
+#include <QDeclarativeContext>
+#include <QVBoxLayout>
+#include <QShortcut>
+#include <QStackedWidget>
 #include <QDeclarativeEngine>
 #include <private/qdeclarativemetatype_p.h>
 #include <QMessageBox>

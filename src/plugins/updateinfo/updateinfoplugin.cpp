@@ -43,19 +43,19 @@
 
 #include <qtconcurrentrun.h>
 
-#include <QtCore/QtPlugin>
-#include <QtCore/QProcess>
-#include <QtCore/QTimer>
-#include <QtCore/QTimerEvent>
-#include <QtCore/QDebug>
-#include <QtCore/QFile>
-#include <QtCore/QThread>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QProcess>
-#include <QtXml/QDomDocument>
-#include <QtGui/QMessageBox>
-#include <QtGui/QMenu>
-#include <QtCore/QFutureWatcher>
+#include <QtPlugin>
+#include <QProcess>
+#include <QTimer>
+#include <QTimerEvent>
+#include <QDebug>
+#include <QFile>
+#include <QThread>
+#include <QCoreApplication>
+#include <QProcess>
+#include <QDomDocument>
+#include <QMessageBox>
+#include <QMenu>
+#include <QFutureWatcher>
 
 namespace {
     static const quint32 OneMinute = 60000;

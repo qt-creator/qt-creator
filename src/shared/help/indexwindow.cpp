@@ -41,16 +41,16 @@
 #include <utils/filterlineedit.h>
 #include <utils/styledbar.h>
 
-#include <QtGui/QLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QMenu>
-#include <QtGui/QContextMenuEvent>
-#include <QtGui/QListWidgetItem>
+#include <QLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QKeyEvent>
+#include <QMenu>
+#include <QContextMenuEvent>
+#include <QListWidgetItem>
 
-#include <QtHelp/QHelpEngine>
-#include <QtHelp/QHelpIndexWidget>
+#include <QHelpEngine>
+#include <QHelpIndexWidget>
 
 using namespace Help::Internal;
 

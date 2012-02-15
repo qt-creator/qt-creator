@@ -32,9 +32,9 @@
 
 #include "cvsutils.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QRegExp>
-#include <QtCore/QStringList>
+#include <QDebug>
+#include <QRegExp>
+#include <QStringList>
 
 namespace Cvs {
 namespace Internal {

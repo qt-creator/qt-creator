@@ -41,11 +41,11 @@
 #include <Symbols.h>
 #include <SymbolVisitor.h>
 
-#include <QtGui/QIcon>
-#include <QtCore/QMetaType>
-#include <QtCore/QString>
-#include <QtCore/QSet>
-#include <QtCore/QHash>
+#include <QIcon>
+#include <QMetaType>
+#include <QString>
+#include <QSet>
+#include <QHash>
 
 #include <functional>
 

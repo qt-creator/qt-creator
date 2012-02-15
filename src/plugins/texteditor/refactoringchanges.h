@@ -37,10 +37,10 @@
 #include <utils/textfileformat.h>
 #include <texteditor/texteditor_global.h>
 
-#include <QtCore/QList>
-#include <QtCore/QString>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QPair>
+#include <QList>
+#include <QString>
+#include <QSharedPointer>
+#include <QPair>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;

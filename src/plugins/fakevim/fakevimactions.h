@@ -35,9 +35,9 @@
 
 #include <utils/savedaction.h>
 
-#include <QtCore/QHash>
-#include <QtCore/QObject>
-#include <QtCore/QString>
+#include <QHash>
+#include <QObject>
+#include <QString>
 
 namespace FakeVim {
 namespace Internal {

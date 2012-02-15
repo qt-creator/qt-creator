@@ -34,10 +34,10 @@
 #define DESIGNERMODEL_H
 
 #include <corelib_global.h>
-#include <QtCore/QObject>
-#include <QtCore/QMimeData>
-#include <QtCore/QPair>
-#include <QtDeclarative/QDeclarativeError>
+#include <QObject>
+#include <QMimeData>
+#include <QPair>
+#include <QDeclarativeError>
 
 #include <import.h>
 

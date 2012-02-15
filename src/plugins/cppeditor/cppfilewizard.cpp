@@ -37,9 +37,9 @@
 #include <cpptools/abstracteditorsupport.h>
 #include <utils/codegeneration.h>
 
-#include <QtCore/QTextStream>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
+#include <QTextStream>
+#include <QFileInfo>
+#include <QDebug>
 
 using namespace CppEditor;
 using namespace CppEditor::Internal;

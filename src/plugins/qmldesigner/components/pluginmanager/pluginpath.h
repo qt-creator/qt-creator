@@ -35,11 +35,11 @@
 
 #include "pluginmanager.h"
 
-#include <QtCore/QObject>
+#include <QObject>
 #include <QWeakPointer>
-#include <QtCore/QList>
-#include <QtCore/QDir>
-#include <QtGui/QStandardItem>
+#include <QList>
+#include <QDir>
+#include <QStandardItem>
 
 QT_BEGIN_NAMESPACE
 class QString;

@@ -33,7 +33,7 @@
 #ifndef DESIGNERPLUGIN_CONSTANTS_H
 #define DESIGNERPLUGIN_CONSTANTS_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 namespace Designer {
 namespace Constants {

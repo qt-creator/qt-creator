@@ -36,15 +36,15 @@
 
 #include <utils/synchronousprocess.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QHash>
-#include <QtCore/QProcess>
-#include <QtCore/QDir>
-#include <QtCore/QDateTime>
-#include <QtCore/QStringList>
+#include <QFileInfo>
+#include <QCoreApplication>
+#include <QHash>
+#include <QProcess>
+#include <QDir>
+#include <QDateTime>
+#include <QStringList>
 
-#include <QtGui/QDesktopServices>
+#include <QDesktopServices>
 
 using namespace ProjectExplorer;
 

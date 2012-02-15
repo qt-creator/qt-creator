@@ -33,8 +33,8 @@
 #include "textfile.h"
 #include "editormanager.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QTextCodec>
+#include <QDebug>
+#include <QTextCodec>
 
 /*!
     \class Core::TextFile

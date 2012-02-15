@@ -37,10 +37,10 @@
 #include "PreprocessorEnvironment.h"
 
 #include <ASTfwd.h>
-#include <QtCore/QMap>
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtCore/QByteArray>
+#include <QMap>
+#include <QObject>
+#include <QString>
+#include <QByteArray>
 
 namespace CPlusPlus {
 

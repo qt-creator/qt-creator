@@ -36,15 +36,15 @@
 #include "dns_sd_types.h"
 #include "servicebrowser.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QAtomicInt>
-#include <QtCore/QHash>
-#include <QtCore/QList>
-#include <QtCore/QMap>
-#include <QtCore/QMutex>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QStringList>
-#include <QtCore/QThread>
+#include <QCoreApplication>
+#include <QAtomicInt>
+#include <QHash>
+#include <QList>
+#include <QMap>
+#include <QMutex>
+#include <QSharedPointer>
+#include <QStringList>
+#include <QThread>
 
 class QHostInfo;
 

@@ -39,18 +39,18 @@
 #include <invalidargumentexception.h>
 #include <invalidqmlsourceexception.h>
 
-#include <QtCore/QFile>
+#include <QFile>
 #include <qapplication.h>
 
-#include <QtGui/QBoxLayout>
-#include <QtGui/QListWidget>
-#include <QtGui/QPushButton>
-#include <QtGui/QMessageBox>
+#include <QBoxLayout>
+#include <QListWidget>
+#include <QPushButton>
+#include <QMessageBox>
 
-#include <QtDeclarative/QDeclarativeView>
-#include <QtDeclarative/QDeclarativeContext>
-#include <QtDeclarative/QDeclarativeEngine>
-#include <QtDeclarative/QDeclarativeItem>
+#include <QDeclarativeView>
+#include <QDeclarativeContext>
+#include <QDeclarativeEngine>
+#include <QDeclarativeItem>
 
 enum {
     debug = false

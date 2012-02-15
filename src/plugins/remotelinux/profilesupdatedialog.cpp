@@ -36,8 +36,8 @@
 
 #include <qt4projectmanager/qt4nodes.h>
 
-#include <QtCore/QDir>
-#include <QtGui/QTableWidgetItem>
+#include <QDir>
+#include <QTableWidgetItem>
 
 namespace RemoteLinux {
 namespace Internal {

@@ -34,8 +34,8 @@
 #define HELPPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
-#include <QtCore/QMap>
-#include <QtCore/QStringList>
+#include <QMap>
+#include <QStringList>
 
 QT_FORWARD_DECLARE_CLASS(QAction)
 QT_FORWARD_DECLARE_CLASS(QComboBox)

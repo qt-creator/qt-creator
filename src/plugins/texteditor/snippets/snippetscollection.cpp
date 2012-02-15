@@ -38,12 +38,12 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/fileutils.h>
 
-#include <QtCore/QLatin1String>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/QDebug>
-#include <QtCore/QXmlStreamReader>
+#include <QLatin1String>
+#include <QFile>
+#include <QFileInfo>
+#include <QDir>
+#include <QDebug>
+#include <QXmlStreamReader>
 #include <QtAlgorithms>
 
 #include <iterator>

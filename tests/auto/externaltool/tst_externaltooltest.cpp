@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#include <QtCore/QString>
-#include <QtTest/QtTest>
+#include <QString>
+#include <QtTest>
 
 #include <coreplugin/externaltool.h>
 

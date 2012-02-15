@@ -33,7 +33,7 @@
 #ifndef DEBUGGER_CONSOLEWINDOW_H
 #define DEBUGGER_CONSOLEWINDOW_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QCursor;

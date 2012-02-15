@@ -36,7 +36,7 @@
 #include "qmlinspectorconstants.h"
 #include "qmljsdebugger_global.h"
 
-#include <QtCore/QHash>
+#include <QHash>
 
 QT_FORWARD_DECLARE_CLASS(QColor)
 QT_FORWARD_DECLARE_CLASS(QDeclarativeEngine)

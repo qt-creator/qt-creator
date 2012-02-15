@@ -34,8 +34,8 @@
 
 #include "sshexception_p.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QString>
+#include <QCoreApplication>
+#include <QString>
 
 namespace Utils {
 namespace Internal {

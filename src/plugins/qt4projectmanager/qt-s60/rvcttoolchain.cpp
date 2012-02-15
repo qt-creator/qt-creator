@@ -42,11 +42,11 @@
 #include <utils/environmentmodel.h>
 #include <utils/synchronousprocess.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QProcess>
-#include <QtGui/QGridLayout>
-#include <QtGui/QLabel>
+#include <QDir>
+#include <QFileInfo>
+#include <QProcess>
+#include <QGridLayout>
+#include <QLabel>
 
 namespace Qt4ProjectManager {
 namespace Internal {

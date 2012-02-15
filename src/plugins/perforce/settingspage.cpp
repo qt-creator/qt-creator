@@ -37,10 +37,10 @@
 
 #include <vcsbase/vcsbaseconstants.h>
 
-#include <QtGui/QApplication>
-#include <QtGui/QLineEdit>
-#include <QtGui/QFileDialog>
-#include <QtCore/QTextStream>
+#include <QApplication>
+#include <QLineEdit>
+#include <QFileDialog>
+#include <QTextStream>
 
 using namespace Perforce::Internal;
 using namespace Utils;

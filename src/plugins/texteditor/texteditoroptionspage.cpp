@@ -34,8 +34,8 @@
 
 #include "texteditorconstants.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtGui/QIcon>
+#include <QCoreApplication>
+#include <QIcon>
 
 using namespace TextEditor;
 

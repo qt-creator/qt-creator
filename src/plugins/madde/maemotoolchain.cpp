@@ -42,10 +42,10 @@
 #include <utils/environment.h>
 #include <qtsupport/qtversionmanager.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtGui/QLabel>
-#include <QtGui/QVBoxLayout>
+#include <QDir>
+#include <QFileInfo>
+#include <QLabel>
+#include <QVBoxLayout>
 
 using namespace Qt4ProjectManager;
 

@@ -34,8 +34,8 @@
 #define CPLUSPLUS_ASTPARENT_H
 
 #include <ASTVisitor.h>
-#include <QtCore/QHash>
-#include <QtCore/QStack>
+#include <QHash>
+#include <QStack>
 
 namespace CPlusPlus {
 

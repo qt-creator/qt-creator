@@ -35,9 +35,9 @@
 
 #include "sshexception_p.h"
 
-#include <QtCore/QtEndian>
-#include <QtCore/QByteArray>
-#include <QtCore/QList>
+#include <QtEndian>
+#include <QByteArray>
+#include <QList>
 
 #include <botan/bigint.h>
 

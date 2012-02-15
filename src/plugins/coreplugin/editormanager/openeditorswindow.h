@@ -33,8 +33,8 @@
 #ifndef OPENEDITORSWINDOW_H
 #define OPENEDITORSWINDOW_H
 
-#include <QtGui/QFrame>
-#include <QtGui/QIcon>
+#include <QFrame>
+#include <QIcon>
 
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;

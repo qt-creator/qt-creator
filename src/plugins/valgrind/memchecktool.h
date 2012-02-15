@@ -37,8 +37,8 @@
 
 #include "valgrindtool.h"
 
-#include <QtGui/QSortFilterProxyModel>
-#include <QtCore/QSharedPointer>
+#include <QSortFilterProxyModel>
+#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QItemSelection;

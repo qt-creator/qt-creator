@@ -41,11 +41,11 @@
 #include <cpptools/cpprefactoringchanges.h>
 #include <utils/changeset.h>
 
-#include <QtCore/QString>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QFutureWatcher>
-#include <QtGui/QTextCursor>
+#include <QString>
+#include <QCoreApplication>
+#include <QSharedPointer>
+#include <QFutureWatcher>
+#include <QTextCursor>
 
 namespace CppEditor {
 namespace Internal {

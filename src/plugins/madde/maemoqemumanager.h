@@ -36,11 +36,11 @@
 #include "maemoconstants.h"
 #include "maemoqemuruntime.h"
 
-#include <QtCore/QMap>
-#include <QtCore/QObject>
-#include <QtCore/QProcess>
+#include <QMap>
+#include <QObject>
+#include <QProcess>
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
 QT_FORWARD_DECLARE_CLASS(QAction)
 QT_FORWARD_DECLARE_CLASS(QStringList)

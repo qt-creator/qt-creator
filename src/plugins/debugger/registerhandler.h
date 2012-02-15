@@ -33,8 +33,8 @@
 #ifndef DEBUGGER_REGISTERHANDLER_H
 #define DEBUGGER_REGISTERHANDLER_H
 
-#include <QtCore/QAbstractTableModel>
-#include <QtCore/QVector>
+#include <QAbstractTableModel>
+#include <QVector>
 
 namespace Debugger {
 namespace Internal {

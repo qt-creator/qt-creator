@@ -33,7 +33,7 @@
 #ifndef S60PUBLISHINGBUILDSETTINGSPAGEOVI_H
 #define S60PUBLISHINGBUILDSETTINGSPAGEOVI_H
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 
 namespace ProjectExplorer {
 class Project;

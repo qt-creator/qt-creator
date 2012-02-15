@@ -34,9 +34,9 @@
 #define CMAKEHIGHLIGHTER_H
 
 #include <texteditor/syntaxhighlighter.h>
-#include <QtCore/QtAlgorithms>
-#include <QtGui/QSyntaxHighlighter>
-#include <QtGui/QTextCharFormat>
+#include <QtAlgorithms>
+#include <QSyntaxHighlighter>
+#include <QTextCharFormat>
 
 namespace CMakeProjectManager {
 namespace Internal {

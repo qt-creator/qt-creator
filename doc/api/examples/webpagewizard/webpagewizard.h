@@ -6,7 +6,7 @@
 #include "basefilewizard.h"
 #include "utils/filewizarddialog.h"
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;

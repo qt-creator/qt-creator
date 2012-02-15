@@ -33,7 +33,7 @@
 #ifndef VCSBASE_CONSTANTS_H
 #define VCSBASE_CONSTANTS_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 namespace VcsBase {
 namespace Constants {

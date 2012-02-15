@@ -29,26 +29,26 @@
 **
 **************************************************************************/
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QHash>
-#include <QtCore/QLibrary>
-#include <QtCore/QMap>
-#include <QtCore/QPointer>
-#include <QtCore/QString>
-#include <QtCore/QThread>
-#include <QtCore/QVariant>
-#include <QtCore/QVector>
+#include <QDebug>
+#include <QDir>
+#include <QHash>
+#include <QLibrary>
+#include <QMap>
+#include <QPointer>
+#include <QString>
+#include <QThread>
+#include <QVariant>
+#include <QVector>
 
-#include <QtGui/QApplication>
-#include <QtGui/QAction>
-#include <QtGui/QColor>
-#include <QtGui/QFont>
-#include <QtGui/QLabel>
-#include <QtGui/QPainter>
-#include <QtGui/QPainterPath>
+#include <QApplication>
+#include <QAction>
+#include <QColor>
+#include <QFont>
+#include <QLabel>
+#include <QPainter>
+#include <QPainterPath>
 
-#include <QtNetwork/QHostAddress>
+#include <QHostAddress>
 
 #include <iostream>
 

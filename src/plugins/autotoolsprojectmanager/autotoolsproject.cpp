@@ -52,14 +52,14 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QTimer>
-#include <QtCore/QPointer>
-#include <QtGui/QApplication>
-#include <QtGui/QCursor>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
-#include <QtGui/QVBoxLayout>
+#include <QFileInfo>
+#include <QTimer>
+#include <QPointer>
+#include <QApplication>
+#include <QCursor>
+#include <QLabel>
+#include <QPushButton>
+#include <QVBoxLayout>
 
 using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;

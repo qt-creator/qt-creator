@@ -36,7 +36,7 @@
 #include "qmljs_global.h"
 #include "qmljsvalueowner.h"
 
-#include <QtCore/QSharedPointer>
+#include <QSharedPointer>
 
 namespace QmlJS {
 

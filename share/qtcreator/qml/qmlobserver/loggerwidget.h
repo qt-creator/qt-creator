@@ -32,8 +32,8 @@
 #ifndef LOGGERWIDGET_H
 #define LOGGERWIDGET_H
 
-#include <QtGui/QMainWindow>
-#include <QtCore/QMetaType>
+#include <QMainWindow>
+#include <QMetaType>
 
 QT_BEGIN_NAMESPACE
 

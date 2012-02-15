@@ -45,7 +45,7 @@
 #include <remotelinux/genericdirectuploadstep.h>
 #include <remotelinux/uploadandinstalltarpackagestep.h>
 
-#include <QtCore/QCoreApplication>
+#include <QCoreApplication>
 
 using namespace ProjectExplorer;
 using namespace RemoteLinux;

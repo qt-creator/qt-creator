@@ -38,8 +38,8 @@
 #include <utils/navigationtreeview.h>
 #include <texteditor/ioutlinewidget.h>
 
-#include <QtGui/QSortFilterProxyModel>
-#include <QtGui/QTreeView>
+#include <QSortFilterProxyModel>
+#include <QTreeView>
 
 namespace CppEditor {
 namespace Internal {

@@ -42,8 +42,8 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <limits>
 
-#include <QtCore/QCoreApplication>
-#include <QtGui/QIcon>
+#include <QCoreApplication>
+#include <QIcon>
 
 namespace Qt4ProjectManager {
 namespace Internal {

@@ -36,14 +36,14 @@
 #include "debuggerengine.h"
 #include "breakpoint.h"
 
-#include <QtCore/QSharedPointer>
-#include <QtCore/QProcess>
-#include <QtCore/QVariantList>
-#include <QtCore/QMap>
-#include <QtCore/QMultiHash>
-#include <QtCore/QTime>
-#include <QtCore/QPair>
-#include <QtCore/QList>
+#include <QSharedPointer>
+#include <QProcess>
+#include <QVariantList>
+#include <QMap>
+#include <QMultiHash>
+#include <QTime>
+#include <QPair>
+#include <QList>
 
 namespace Utils {
 class ConsoleProcess;

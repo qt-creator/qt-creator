@@ -32,9 +32,9 @@
 
 #include "qmlerror.h"
 
-#include <QtCore/qdebug.h>
-#include <QtCore/qfile.h>
-#include <QtCore/qstringlist.h>
+#include <qdebug.h>
+#include <qfile.h>
+#include <qstringlist.h>
 
 QT_BEGIN_NAMESPACE
 

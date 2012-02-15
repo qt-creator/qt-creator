@@ -35,7 +35,7 @@
 
 #include <vcsbase/basecheckoutwizardpage.h>
 
-#include <QtCore/QSharedPointer>
+#include <QSharedPointer>
 
 namespace VcsBase {
     class AbstractCheckoutJob;

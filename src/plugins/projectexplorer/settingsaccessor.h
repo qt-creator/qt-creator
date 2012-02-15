@@ -33,7 +33,7 @@
 #ifndef PROJECTMANAGER_USERFILEACCESSOR_H
 #define PROJECTMANAGER_USERFILEACCESSOR_H
 
-#include <QtCore/QVariantMap>
+#include <QVariantMap>
 
 
 namespace ProjectExplorer {

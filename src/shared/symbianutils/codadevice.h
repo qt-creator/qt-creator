@@ -38,12 +38,12 @@
 #include "callback.h"
 #include "json.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QVector>
-#include <QtCore/QVariant>
-#include <QtCore/QStringList>
-#include <QtCore/QDateTime>
+#include <QObject>
+#include <QSharedPointer>
+#include <QVector>
+#include <QVariant>
+#include <QStringList>
+#include <QDateTime>
 
 QT_BEGIN_NAMESPACE
 class QIODevice;

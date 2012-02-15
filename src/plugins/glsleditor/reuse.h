@@ -33,7 +33,7 @@
 #ifndef REUSE_H
 #define REUSE_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 namespace GLSLEditor {
 namespace Internal {

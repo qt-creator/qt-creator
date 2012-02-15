@@ -52,9 +52,9 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <utils/filesystemwatcher.h>
 
-#include <QtCore/QTextStream>
-#include <QtDeclarative/QDeclarativeComponent>
-#include <QtCore/QtDebug>
+#include <QTextStream>
+#include <QDeclarativeComponent>
+#include <QtDebug>
 
 namespace QmlProjectManager {
 

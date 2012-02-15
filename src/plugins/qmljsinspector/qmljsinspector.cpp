@@ -86,26 +86,26 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QStringList>
-#include <QtCore/QTimer>
-#include <QtCore/QtPlugin>
-#include <QtCore/QDateTime>
+#include <QDebug>
+#include <QStringList>
+#include <QTimer>
+#include <QtPlugin>
+#include <QDateTime>
 
-#include <QtGui/QLabel>
-#include <QtGui/QDockWidget>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QAction>
-#include <QtGui/QLineEdit>
-#include <QtGui/QLabel>
-#include <QtGui/QPainter>
-#include <QtGui/QSpinBox>
-#include <QtGui/QMessageBox>
-#include <QtGui/QTextBlock>
+#include <QLabel>
+#include <QDockWidget>
+#include <QVBoxLayout>
+#include <QAction>
+#include <QLineEdit>
+#include <QLabel>
+#include <QPainter>
+#include <QSpinBox>
+#include <QMessageBox>
+#include <QTextBlock>
 
-#include <QtGui/QToolTip>
-#include <QtGui/QCursor>
-#include <QtNetwork/QHostAddress>
+#include <QToolTip>
+#include <QCursor>
+#include <QHostAddress>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

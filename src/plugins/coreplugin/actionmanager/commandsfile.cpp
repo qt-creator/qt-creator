@@ -42,12 +42,12 @@
 
 #include <utils/fileutils.h>
 
-#include <QtCore/QFile>
-#include <QtCore/QXmlStreamAttributes>
-#include <QtCore/QXmlStreamWriter>
-#include <QtCore/QXmlStreamReader>
-#include <QtCore/QDebug>
-#include <QtCore/QDateTime>
+#include <QFile>
+#include <QXmlStreamAttributes>
+#include <QXmlStreamWriter>
+#include <QXmlStreamReader>
+#include <QDebug>
+#include <QDateTime>
 
 namespace Core {
 namespace Internal {

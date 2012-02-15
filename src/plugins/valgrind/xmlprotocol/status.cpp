@@ -34,8 +34,8 @@
 
 #include "status.h"
 
-#include <QtCore/QSharedData>
-#include <QtCore/QString>
+#include <QSharedData>
+#include <QString>
 
 namespace Valgrind {
 namespace XmlProtocol {

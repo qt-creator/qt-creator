@@ -33,8 +33,8 @@
 #ifndef BYTEARRAYINPUTSTREAM_H
 #define BYTEARRAYINPUTSTREAM_H
 
-#include <QtCore/QByteArray>
-#include <QtCore/QString>
+#include <QByteArray>
+#include <QString>
 
 namespace Debugger {
 namespace Internal {

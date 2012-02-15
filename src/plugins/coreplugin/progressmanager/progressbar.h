@@ -33,8 +33,8 @@
 #ifndef PROGRESSPIE_H
 #define PROGRESSPIE_H
 
-#include <QtCore/QString>
-#include <QtGui/QWidget>
+#include <QString>
+#include <QWidget>
 
 namespace Core {
 namespace Internal {

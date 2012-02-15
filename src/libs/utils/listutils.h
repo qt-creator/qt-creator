@@ -33,7 +33,7 @@
 #ifndef LISTUTILS_H
 #define LISTUTILS_H
 
-#include <QtCore/QList>
+#include <QList>
 
 namespace Utils {
 

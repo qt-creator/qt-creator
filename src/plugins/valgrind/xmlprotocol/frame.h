@@ -35,7 +35,7 @@
 #ifndef LIBVALGRIND_PROTOCOL_FRAME_H
 #define LIBVALGRIND_PROTOCOL_FRAME_H
 
-#include <QtCore/QSharedDataPointer>
+#include <QSharedDataPointer>
 
 namespace Valgrind {
 namespace XmlProtocol {

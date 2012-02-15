@@ -38,9 +38,9 @@
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
 
-#include <QtGui/QLabel>
-#include <QtGui/QIcon>
-#include <QtCore/QDir>
+#include <QLabel>
+#include <QIcon>
+#include <QDir>
 
 namespace ProjectExplorer {
 namespace Internal {

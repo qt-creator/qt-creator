@@ -35,7 +35,7 @@
 
 #include "highlighter.h"
 
-#include <QtCore/QList>
+#include <QList>
 
 namespace TextEditor {
 namespace Internal {

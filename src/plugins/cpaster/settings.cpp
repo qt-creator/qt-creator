@@ -33,8 +33,8 @@
 #include "settings.h"
 #include "pastebindotcomprotocol.h"
 
-#include <QtCore/QVariant>
-#include <QtCore/QSettings>
+#include <QVariant>
+#include <QSettings>
 
 static const char groupC[] = "CodePaster";
 static const char userNameKeyC[] = "UserName";

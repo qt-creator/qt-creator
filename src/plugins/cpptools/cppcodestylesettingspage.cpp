@@ -45,8 +45,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <coreplugin/icore.h>
-#include <QtGui/QTextBlock>
-#include <QtCore/QTextStream>
+#include <QTextBlock>
+#include <QTextStream>
 
 static const char *defaultCodeStyleSnippets[] = {
     "#include <math.h>\n"

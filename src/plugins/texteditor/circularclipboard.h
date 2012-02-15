@@ -33,8 +33,8 @@
 #ifndef CIRCULARCLIPBOARD_H
 #define CIRCULARCLIPBOARD_H
 
-#include <QtCore/QList>
-#include <QtCore/QMimeData>
+#include <QList>
+#include <QMimeData>
 
 namespace TextEditor {
 namespace Internal {

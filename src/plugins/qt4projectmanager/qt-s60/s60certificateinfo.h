@@ -33,9 +33,9 @@
 #ifndef S60CERTIFICATEINFO_H
 #define S60CERTIFICATEINFO_H
 
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
-#include <QtCore/QtGlobal>
+#include <QObject>
+#include <QStringList>
+#include <QtGlobal>
 
 namespace Qt4ProjectManager {
 namespace Internal {

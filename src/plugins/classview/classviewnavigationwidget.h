@@ -33,12 +33,12 @@
 #ifndef CLASSVIEWNAVIGATIONWIDGET_H
 #define CLASSVIEWNAVIGATIONWIDGET_H
 
-#include <QtCore/QList>
-#include <QtCore/QSharedPointer>
+#include <QList>
+#include <QSharedPointer>
 
-#include <QtGui/QStandardItem>
-#include <QtGui/QToolButton>
-#include <QtGui/QWidget>
+#include <QStandardItem>
+#include <QToolButton>
+#include <QWidget>
 
 namespace ClassView {
 namespace Internal {

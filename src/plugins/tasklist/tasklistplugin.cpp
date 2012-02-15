@@ -44,9 +44,9 @@
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QStringList>
-#include <QtCore/QtPlugin>
+#include <QDir>
+#include <QStringList>
+#include <QtPlugin>
 
 namespace {
 

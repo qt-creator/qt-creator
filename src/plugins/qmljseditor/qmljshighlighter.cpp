@@ -32,9 +32,9 @@
 
 #include "qmljshighlighter.h"
 
-#include <QtCore/QSet>
-#include <QtCore/QtAlgorithms>
-#include <QtCore/QDebug>
+#include <QSet>
+#include <QtAlgorithms>
+#include <QDebug>
 
 #include <utils/qtcassert.h>
 

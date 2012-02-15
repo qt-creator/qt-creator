@@ -33,8 +33,8 @@
 #ifndef PERFOCESETTINGS_H
 #define PERFOCESETTINGS_H
 
-#include <QtCore/QString>
-#include <QtCore/QScopedPointer>
+#include <QString>
+#include <QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

@@ -34,14 +34,14 @@
 #include "sizehandlerect.h"
 #include "widgethostconstants.h"
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
-#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QDesignerFormWindowInterface>
 
-#include <QtGui/QResizeEvent>
-#include <QtGui/QPalette>
-#include <QtGui/QLayout>
-#include <QtGui/QFrame>
+#include <QResizeEvent>
+#include <QPalette>
+#include <QLayout>
+#include <QFrame>
 
 enum { debugFormResizer = 0 };
 

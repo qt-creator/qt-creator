@@ -33,7 +33,7 @@
 #ifndef STASHDIALOG_H
 #define STASHDIALOG_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 QT_BEGIN_NAMESPACE
 class QSortFilterProxyModel;

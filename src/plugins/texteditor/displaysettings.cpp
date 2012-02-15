@@ -32,8 +32,8 @@
 
 #include "displaysettings.h"
 
-#include <QtCore/QSettings>
-#include <QtCore/QString>
+#include <QSettings>
+#include <QString>
 
 static const char displayLineNumbersKey[] = "DisplayLineNumbers";
 static const char textWrappingKey[] = "TextWrapping";

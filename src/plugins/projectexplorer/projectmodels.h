@@ -33,8 +33,8 @@
 #ifndef PROJECTMODELS_H
 #define PROJECTMODELS_H
 
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QSet>
+#include <QAbstractItemModel>
+#include <QSet>
 
 namespace ProjectExplorer {
 

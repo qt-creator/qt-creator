@@ -37,7 +37,7 @@
 
 #include "projectconfiguration.h"
 
-#include <QtCore/QVariantMap>
+#include <QVariantMap>
 
 namespace ProjectExplorer {
 

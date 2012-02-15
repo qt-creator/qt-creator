@@ -36,8 +36,8 @@
 #include "qmljs_global.h"
 #include <qmljs/qmljslineinfo.h>
 
-#include <QtCore/QStringList>
-#include <QtGui/QTextCursor>
+#include <QStringList>
+#include <QTextCursor>
 
 namespace QmlJS {
 

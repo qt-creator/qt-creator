@@ -35,11 +35,11 @@
 
 #include "maemomountspecification.h"
 
-#include <QtCore/QList>
-#include <QtCore/QObject>
-#include <QtCore/QProcess>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QString>
+#include <QList>
+#include <QObject>
+#include <QProcess>
+#include <QSharedPointer>
+#include <QString>
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 

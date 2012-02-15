@@ -38,18 +38,18 @@
 #include "stackframe.h"
 #include "watchutils.h"
 
-#include <QtCore/QByteArray>
-#include <QtCore/QProcess>
-#include <QtCore/QHash>
-#include <QtCore/QMap>
-#include <QtCore/QMultiMap>
-#include <QtCore/QObject>
-#include <QtCore/QPoint>
-#include <QtCore/QSet>
-#include <QtCore/QTextCodec>
-#include <QtCore/QTime>
-#include <QtCore/QTimer>
-#include <QtCore/QVariant>
+#include <QByteArray>
+#include <QProcess>
+#include <QHash>
+#include <QMap>
+#include <QMultiMap>
+#include <QObject>
+#include <QPoint>
+#include <QSet>
+#include <QTextCodec>
+#include <QTime>
+#include <QTimer>
+#include <QVariant>
 
 
 namespace Debugger {

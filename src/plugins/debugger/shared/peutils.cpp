@@ -33,8 +33,8 @@
 #include "peutils.h"
 
 #include <utils/winutils.h>
-#include <QtCore/QStringList>
-#include <QtCore/QDebug>
+#include <QStringList>
+#include <QDebug>
 #include <climits>
 #include <windows.h>
 

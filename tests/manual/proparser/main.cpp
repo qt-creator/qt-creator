@@ -33,15 +33,15 @@
 #include "profileparser.h"
 #include "profileevaluator.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QLibraryInfo>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QTextCodec>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QLibraryInfo>
+#include <QString>
+#include <QStringList>
+#include <QTextCodec>
 
 static void print(const QString &fileName, int lineNo, const QString &msg)
 {

@@ -33,7 +33,7 @@
 #ifndef ABSTRACTROPERTY_H
 #define ABSTRACTROPERTY_H
 
-#include <QtCore/QVariant>
+#include <QVariant>
 #include <QWeakPointer>
 #include <QSharedPointer>
 #include "corelib_global.h"

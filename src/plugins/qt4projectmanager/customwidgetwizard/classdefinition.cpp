@@ -32,8 +32,8 @@
 
 #include "classdefinition.h"
 
-#include <QtCore/QFileInfo>
-#include <QtGui/QFileDialog>
+#include <QFileInfo>
+#include <QFileDialog>
 
 namespace Qt4ProjectManager {
 namespace Internal {

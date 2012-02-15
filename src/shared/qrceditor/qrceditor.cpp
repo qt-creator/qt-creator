@@ -33,11 +33,11 @@
 #include "qrceditor.h"
 #include "undocommands_p.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QScopedPointer>
-#include <QtGui/QMenu>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
+#include <QDebug>
+#include <QScopedPointer>
+#include <QMenu>
+#include <QFileDialog>
+#include <QMessageBox>
 
 using namespace SharedTools;
 

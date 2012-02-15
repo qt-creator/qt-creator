@@ -40,7 +40,7 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QTimer>
+#include <QTimer>
 
 #include <cstring>
 #include <cstdlib>

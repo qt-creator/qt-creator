@@ -37,10 +37,10 @@
 
 #include <coreplugin/infobar.h>
 
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QToolButton>
-#include <QtGui/QWidget>
+#include <QLabel>
+#include <QLineEdit>
+#include <QToolButton>
+#include <QWidget>
 
 namespace Find {
 namespace Internal {

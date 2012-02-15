@@ -32,12 +32,12 @@
 
 #include "gitorious.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QXmlStreamReader>
-#include <QtCore/QSettings>
+#include <QDebug>
+#include <QCoreApplication>
+#include <QXmlStreamReader>
+#include <QSettings>
 
-#include <QtNetwork/QNetworkReply>
+#include <QNetworkReply>
 
 #include <utils/qtcassert.h>
 #include <utils/networkaccessmanager.h>

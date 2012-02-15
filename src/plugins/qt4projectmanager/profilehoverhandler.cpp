@@ -44,9 +44,9 @@
 #include <texteditor/tooltip/tooltip.h>
 #include <utils/htmldocextractor.h>
 
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextBlock>
-#include <QtCore/QUrl>
+#include <QTextCursor>
+#include <QTextBlock>
+#include <QUrl>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

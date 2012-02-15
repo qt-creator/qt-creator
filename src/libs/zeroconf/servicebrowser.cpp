@@ -46,16 +46,16 @@
 #include <errno.h>
 #include <limits>
 
-#include <QtCore/QAtomicPointer>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDateTime>
-#include <QtCore/QGlobalStatic>
-#include <QtCore/QMetaType>
-#include <QtCore/QMutexLocker>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QtEndian>
-#include <QtNetwork/QHostInfo>
+#include <QAtomicPointer>
+#include <QCoreApplication>
+#include <QDateTime>
+#include <QGlobalStatic>
+#include <QMetaType>
+#include <QMutexLocker>
+#include <QString>
+#include <QStringList>
+#include <QtEndian>
+#include <QHostInfo>
 
 //the timeval struct under windows uses long instead of suseconds_t
 #ifdef Q_OS_WIN

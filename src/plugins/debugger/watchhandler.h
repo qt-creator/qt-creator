@@ -35,11 +35,11 @@
 
 #include "watchdata.h"
 
-#include <QtCore/QPointer>
-#include <QtCore/QHash>
-#include <QtCore/QSet>
-#include <QtCore/QStringList>
-#include <QtCore/QAbstractItemModel>
+#include <QPointer>
+#include <QHash>
+#include <QSet>
+#include <QStringList>
+#include <QAbstractItemModel>
 
 namespace Debugger {
 class DebuggerEngine;

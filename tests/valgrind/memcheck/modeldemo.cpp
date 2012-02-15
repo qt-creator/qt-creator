@@ -40,8 +40,8 @@
 
 #include "modeldemo.h"
 
-#include <QtGui/QApplication>
-#include <QtGui/QTreeView>
+#include <QApplication>
+#include <QTreeView>
 
 using namespace Valgrind;
 using namespace Valgrind::XmlProtocol;

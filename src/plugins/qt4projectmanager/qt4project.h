@@ -38,11 +38,11 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QMap>
-#include <QtCore/QFutureInterface>
-#include <QtCore/QTimer>
-#include <QtCore/QFuture>
+#include <QStringList>
+#include <QMap>
+#include <QFutureInterface>
+#include <QTimer>
+#include <QFuture>
 
 QT_BEGIN_NAMESPACE
 struct ProFileOption;

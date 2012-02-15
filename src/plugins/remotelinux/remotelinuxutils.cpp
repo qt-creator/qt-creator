@@ -39,9 +39,9 @@
 #include <qt4projectmanager/qt4target.h>
 #include <qtsupport/baseqtversion.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QList>
-#include <QtCore/QString>
+#include <QCoreApplication>
+#include <QList>
+#include <QString>
 
 using namespace ExtensionSystem;
 using namespace ProjectExplorer;

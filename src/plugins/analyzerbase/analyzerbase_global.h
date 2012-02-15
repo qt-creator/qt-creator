@@ -35,7 +35,7 @@
 #ifndef ANALYZERBASE_GLOBAL_H
 #define ANALYZERBASE_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(ANALYZER_LIBRARY)
 #  define ANALYZER_EXPORT Q_DECL_EXPORT

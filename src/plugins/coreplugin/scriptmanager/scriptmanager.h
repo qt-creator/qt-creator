@@ -35,9 +35,9 @@
 
 #include <coreplugin/core_global.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtCore/QSharedPointer>
+#include <QObject>
+#include <QString>
+#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QScriptEngine;

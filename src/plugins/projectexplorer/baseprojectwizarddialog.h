@@ -38,7 +38,7 @@
 #include <coreplugin/basefilewizard.h>
 #include <utils/wizard.h>
 
-#include <QtGui/QWizard>
+#include <QWizard>
 
 namespace Utils {
     class ProjectIntroPage;

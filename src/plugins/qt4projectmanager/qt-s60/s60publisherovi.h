@@ -32,8 +32,8 @@
 #ifndef S60PUBLISHEROVI_H
 #define S60PUBLISHEROVI_H
 
-#include <QtCore/QObject>
-#include <QtGui/QColor>
+#include <QObject>
+#include <QColor>
 
 QT_BEGIN_NAMESPACE
 class QProcess;

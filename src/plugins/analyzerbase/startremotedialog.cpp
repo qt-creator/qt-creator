@@ -37,7 +37,7 @@
 #include <coreplugin/icore.h>
 #include <utils/ssh/sshconnection.h>
 
-#include <QtGui/QPushButton>
+#include <QPushButton>
 
 namespace Analyzer {
 

@@ -33,9 +33,9 @@
 #ifndef MODELTEST_H
 #define MODELTEST_H
 
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QObject>
-#include <QtCore/QStack>
+#include <QAbstractItemModel>
+#include <QObject>
+#include <QStack>
 
 class ModelTest : public QObject
 {

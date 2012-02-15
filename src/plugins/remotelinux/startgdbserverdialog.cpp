@@ -47,27 +47,27 @@
 #include <utils/ssh/sshconnection.h>
 #include <utils/ssh/sshremoteprocessrunner.h>
 
-#include <QtCore/QVariant>
-#include <QtCore/QSettings>
+#include <QVariant>
+#include <QSettings>
 
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QComboBox>
-#include <QtGui/QDialog>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QFormLayout>
-#include <QtGui/QGridLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QHeaderView>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QSortFilterProxyModel>
-#include <QtGui/QSpacerItem>
-#include <QtGui/QTableView>
-#include <QtGui/QTextBrowser>
-#include <QtGui/QVBoxLayout>
+#include <QAction>
+#include <QApplication>
+#include <QComboBox>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QFormLayout>
+#include <QGridLayout>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QLabel>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QSortFilterProxyModel>
+#include <QSpacerItem>
+#include <QTableView>
+#include <QTextBrowser>
+#include <QVBoxLayout>
 
 using namespace Core;
 using namespace Utils;

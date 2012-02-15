@@ -35,9 +35,9 @@
 
 #include "debuggerengine.h"
 
-#include <QtCore/QProcess>
-#include <QtCore/QQueue>
-#include <QtCore/QVariant>
+#include <QProcess>
+#include <QQueue>
+#include <QVariant>
 
 
 namespace Debugger {

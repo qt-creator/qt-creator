@@ -35,9 +35,9 @@
 #include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtGui/QImageReader>
+#include <QDebug>
+#include <QDir>
+#include <QImageReader>
 
 namespace QmlProjectManager {
 

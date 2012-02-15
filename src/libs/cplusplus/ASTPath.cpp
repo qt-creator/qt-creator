@@ -36,7 +36,7 @@
 #include <TranslationUnit.h>
 
 #ifdef DEBUG_AST_PATH
-#  include <QtCore/QDebug>
+#  include <QDebug>
 #  include <typeinfo>
 #endif // DEBUG_AST_PATH
 

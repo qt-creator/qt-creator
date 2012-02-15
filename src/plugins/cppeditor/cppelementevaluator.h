@@ -40,11 +40,11 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
 
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QSharedPointer>
-#include <QtGui/QTextCursor>
-#include <QtGui/QIcon>
+#include <QString>
+#include <QStringList>
+#include <QSharedPointer>
+#include <QTextCursor>
+#include <QIcon>
 
 namespace CPlusPlus {
 class LookupItem;

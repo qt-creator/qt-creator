@@ -37,10 +37,10 @@
 
 #include <utils/environment.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QMetaType>
-#include <QtGui/QLabel>
-#include <QtGui/QWidget>
+#include <QStringList>
+#include <QMetaType>
+#include <QLabel>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;

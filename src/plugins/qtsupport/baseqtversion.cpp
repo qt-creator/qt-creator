@@ -50,10 +50,10 @@
 #include <utils/environment.h>
 #include <utils/synchronousprocess.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QProcess>
+#include <QDir>
+#include <QFileInfo>
+#include <QCoreApplication>
+#include <QProcess>
 
 using namespace QtSupport;
 using namespace QtSupport::Internal;

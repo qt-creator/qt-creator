@@ -56,8 +56,8 @@
 #include <qmljs/qmljsutils.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
-#include <QtCore/QSet>
-#include <QtGui/QMessageBox>
+#include <QSet>
+#include <QMessageBox>
 #include <QDir>
 
 using namespace LanguageUtils;

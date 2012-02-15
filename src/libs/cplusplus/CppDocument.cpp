@@ -52,10 +52,10 @@
 #include <CoreTypes.h>
 #include <LookupContext.h>
 
-#include <QtCore/QByteArray>
-#include <QtCore/QBitArray>
-#include <QtCore/QDir>
-#include <QtCore/QtDebug>
+#include <QByteArray>
+#include <QBitArray>
+#include <QDir>
+#include <QtDebug>
 
 /*!
     \namespace CPlusPlus

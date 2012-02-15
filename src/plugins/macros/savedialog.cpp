@@ -33,9 +33,9 @@
 #include "savedialog.h"
 #include "ui_savedialog.h"
 
-#include <QtGui/QLineEdit>
-#include <QtGui/QCheckBox>
-#include <QtGui/QRegExpValidator>
+#include <QLineEdit>
+#include <QCheckBox>
+#include <QRegExpValidator>
 
 using namespace Macros::Internal;
 

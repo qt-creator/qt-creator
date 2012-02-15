@@ -33,8 +33,8 @@
 #ifndef TIMELINEVIEW_H
 #define TIMELINEVIEW_H
 
-#include <QtDeclarative/QDeclarativeItem>
-#include <QtScript/QScriptValue>
+#include <QDeclarativeItem>
+#include <QScriptValue>
 #include <qmljsdebugclient/qmlprofilereventlist.h>
 
 namespace QmlProfiler {

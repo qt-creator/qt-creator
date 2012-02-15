@@ -35,8 +35,8 @@
 
 #include "utils_global.h"
 
-#include <QtGui/QLayout>
-#include <QtGui/QStyle>
+#include <QLayout>
+#include <QStyle>
 
 namespace Utils {
 

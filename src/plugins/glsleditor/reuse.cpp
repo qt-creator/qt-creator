@@ -32,7 +32,7 @@
 
 #include "reuse.h"
 
-#include <QtCore/QLatin1String>
+#include <QLatin1String>
 
 #include <glsl/glsllexer.h>
 

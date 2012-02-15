@@ -37,10 +37,10 @@
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/icontext.h>
 
-#include <QtCore/QtPlugin>
-#include <QtCore/QPointer>
-#include <QtCore/QStringList>
-#include <QtGui/QAction>
+#include <QtPlugin>
+#include <QPointer>
+#include <QStringList>
+#include <QAction>
 
 namespace BINEditor {
 class BinEditor;

@@ -34,7 +34,7 @@
 #define ANNOTATIONHIGHLIGHTER_H
 
 #include <vcsbase/baseannotationhighlighter.h>
-#include <QtCore/QRegExp>
+#include <QRegExp>
 
 namespace Bazaar {
 namespace Internal {

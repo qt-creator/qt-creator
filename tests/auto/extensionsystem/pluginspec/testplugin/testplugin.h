@@ -36,7 +36,7 @@
 #include "testplugin_global.h"
 #include <extensionsystem/iplugin.h>
 
-#include <QtCore/QObject>
+#include <QObject>
 
 namespace MyPlugin {
 

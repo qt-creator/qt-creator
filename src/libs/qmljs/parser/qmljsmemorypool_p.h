@@ -46,9 +46,9 @@
 
 #include "qmljsglobal_p.h"
 
-#include <QtCore/qglobal.h>
-#include <QtCore/qshareddata.h>
-#include <QtCore/qdebug.h>
+#include <qglobal.h>
+#include <qshareddata.h>
+#include <qdebug.h>
 
 #include <cstring>
 

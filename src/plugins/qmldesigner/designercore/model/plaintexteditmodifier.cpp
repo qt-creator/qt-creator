@@ -36,10 +36,10 @@
 #include <extensionsystem/pluginmanager.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QUndoStack>
+#include <QPlainTextEdit>
+#include <QUndoStack>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace Utils;
 using namespace QmlDesigner;

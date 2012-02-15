@@ -37,8 +37,8 @@
 #include "qmlprofilereventtypes.h"
 #include "qmljsdebugclient_global.h"
 
-#include <QtCore/QStack>
-#include <QtCore/QStringList>
+#include <QStack>
+#include <QStringList>
 
 namespace QmlJsDebugClient {
 

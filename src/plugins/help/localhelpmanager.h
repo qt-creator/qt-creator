@@ -33,8 +33,8 @@
 #ifndef LOCALHELPMANAGER_H
 #define LOCALHELPMANAGER_H
 
-#include <QtCore/QMutex>
-#include <QtCore/QObject>
+#include <QMutex>
+#include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QHelpEngine)
 

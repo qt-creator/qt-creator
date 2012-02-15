@@ -35,10 +35,10 @@
 
 #include "pluginspec.h"
 
-#include <QtCore/QSet>
-#include <QtCore/QStringList>
-#include <QtCore/QObject>
-#include <QtCore/QScopedPointer>
+#include <QSet>
+#include <QStringList>
+#include <QObject>
+#include <QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 class QTime;

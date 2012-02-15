@@ -33,8 +33,8 @@
 #ifndef OPENPAGESMODEL_H
 #define OPENPAGESMODEL_H
 
-#include <QtCore/QList>
-#include <QtCore/QAbstractTableModel>
+#include <QList>
+#include <QAbstractTableModel>
 
 QT_FORWARD_DECLARE_CLASS(QUrl)
 

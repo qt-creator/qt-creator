@@ -37,7 +37,7 @@
 #include <vcsbase/checkoutjobs.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QCheckBox>
+#include <QCheckBox>
 
 namespace Git {
 

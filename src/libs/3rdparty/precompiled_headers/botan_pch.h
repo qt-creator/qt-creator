@@ -31,7 +31,7 @@
 **************************************************************************/
 
 #if defined __cplusplus
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 #ifdef Q_WS_WIN
 # define _POSIX_

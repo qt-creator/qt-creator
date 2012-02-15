@@ -35,8 +35,8 @@
 
 #include "texteditor_global.h"
 
-#include <QtGui/QTextCursor>
-#include <QtGui/QIcon>
+#include <QTextCursor>
+#include <QIcon>
 
 namespace TextEditor {
 class BaseTextEditorWidget;

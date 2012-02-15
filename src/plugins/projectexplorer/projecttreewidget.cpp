@@ -47,17 +47,17 @@
 #include <utils/qtcassert.h>
 #include <utils/navigationtreeview.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
+#include <QDebug>
+#include <QSettings>
 
-#include <QtGui/QHeaderView>
-#include <QtGui/QTreeView>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QToolButton>
-#include <QtGui/QFocusEvent>
-#include <QtGui/QAction>
-#include <QtGui/QPalette>
-#include <QtGui/QMenu>
+#include <QHeaderView>
+#include <QTreeView>
+#include <QVBoxLayout>
+#include <QToolButton>
+#include <QFocusEvent>
+#include <QAction>
+#include <QPalette>
+#include <QMenu>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

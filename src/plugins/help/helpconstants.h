@@ -33,8 +33,8 @@
 #ifndef HELPCONSTANTS_H
 #define HELPCONSTANTS_H
 
-#include <QtCore/QtGlobal>
-#include <QtCore/QLatin1String>
+#include <QtGlobal>
+#include <QLatin1String>
 
 namespace Help {
 namespace Constants {

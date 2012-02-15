@@ -35,9 +35,9 @@
 
 #include <coreplugin/inavigationwidgetfactory.h>
 
-#include <QtCore/QString>
-#include <QtGui/QWidget>
-#include <QtGui/QStackedWidget>
+#include <QString>
+#include <QWidget>
+#include <QStackedWidget>
 
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;

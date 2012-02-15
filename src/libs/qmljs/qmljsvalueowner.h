@@ -36,7 +36,7 @@
 #include "qmljs_global.h"
 #include "qmljsinterpreter.h"
 
-#include <QtCore/QList>
+#include <QList>
 
 namespace QmlJS {
 

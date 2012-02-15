@@ -38,7 +38,7 @@
 #include <projectexplorer/task.h>
 #include <projectexplorer/target.h>
 
-#include <QtCore/QList>
+#include <QList>
 
 namespace Core {
 class FeatureSet;

@@ -47,9 +47,9 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/invoker.h>
 
-#include <QtGui/QMessageBox>
-#include <QtGui/QMainWindow>
-#include <QtGui/QVBoxLayout>
+#include <QMessageBox>
+#include <QMainWindow>
+#include <QVBoxLayout>
 
 #include <cstring>
 

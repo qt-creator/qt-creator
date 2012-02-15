@@ -45,9 +45,9 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QThreadPool>
-#include <QtCore/QDebug>
+#include <QCoreApplication>
+#include <QThreadPool>
+#include <QDebug>
 
 #include <utils/runextensions.h>
 

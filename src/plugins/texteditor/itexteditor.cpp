@@ -34,7 +34,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtCore/QTextCodec>
+#include <QTextCodec>
 
 using namespace TextEditor;
 

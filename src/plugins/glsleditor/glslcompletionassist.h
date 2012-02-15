@@ -40,8 +40,8 @@
 #include <texteditor/codeassist/defaultassistinterface.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 
-#include <QtCore/QScopedPointer>
-#include <QtGui/QIcon>
+#include <QScopedPointer>
+#include <QIcon>
 
 namespace GLSL {
 class Function;

@@ -35,11 +35,11 @@
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QFile>
-#include <QtCore/QStringBuilder>
-#include <QtCore/QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QFile>
+#include <QStringBuilder>
+#include <QDebug>
 
 using namespace Utils;
 

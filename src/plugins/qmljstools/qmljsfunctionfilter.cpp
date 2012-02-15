@@ -36,7 +36,7 @@
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 
-#include <QtCore/QStringMatcher>
+#include <QStringMatcher>
 
 using namespace QmlJSTools::Internal;
 

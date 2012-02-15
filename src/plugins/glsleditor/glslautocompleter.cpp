@@ -37,8 +37,8 @@
 #include <cplusplus/MatchingText.h>
 #include <cplusplus/BackwardsScanner.h>
 
-#include <QtCore/QLatin1Char>
-#include <QtGui/QTextCursor>
+#include <QLatin1Char>
+#include <QTextCursor>
 
 using namespace GLSLEditor;
 using namespace Internal;

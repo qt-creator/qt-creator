@@ -42,12 +42,12 @@
 #include <utils/pathchooser.h>
 #include <utils/debuggerlanguagechooser.h>
 
-#include <QtGui/QCheckBox>
-#include <QtGui/QComboBox>
-#include <QtGui/QFormLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QFormLayout>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
 
 
 namespace ProjectExplorer {

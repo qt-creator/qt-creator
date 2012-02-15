@@ -36,7 +36,7 @@
 #include "ui_managedefinitionsdialog.h"
 #include "highlightdefinitionmetadata.h"
 
-#include <QtCore/QList>
+#include <QList>
 
 namespace TextEditor {
 namespace Internal {

@@ -35,7 +35,7 @@
 
 #include "CPlusPlusForwardDeclarations.h"
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
 namespace CPlusPlus {
 

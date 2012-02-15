@@ -42,9 +42,9 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtGui/QListWidget>
-#include <QtNetwork/QNetworkReply>
-#include <QtCore/QDebug>
+#include <QListWidget>
+#include <QNetworkReply>
+#include <QDebug>
 
 enum { debug = 0 };
 

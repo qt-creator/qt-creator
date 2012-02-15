@@ -36,7 +36,7 @@
 
 #include <projectexplorer/buildstep.h>
 
-#include <QtCore/QVariantMap>
+#include <QVariantMap>
 
 namespace RemoteLinux {
 class AbstractRemoteLinuxDeployService;

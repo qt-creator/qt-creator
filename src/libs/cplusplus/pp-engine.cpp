@@ -59,7 +59,7 @@
 
 #include <QtDebug>
 #include <algorithm>
-#include <QtCore/QList>
+#include <QList>
 
 namespace CPlusPlus {
 

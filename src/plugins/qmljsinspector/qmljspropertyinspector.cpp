@@ -31,19 +31,19 @@
 **************************************************************************/
 #include "qmljspropertyinspector.h"
 
-#include <QtGui/QHeaderView>
-#include <QtGui/QItemDelegate>
-#include <QtGui/QLineEdit>
-#include <QtGui/QDoubleValidator>
-#include <QtGui/QPainter>
+#include <QHeaderView>
+#include <QItemDelegate>
+#include <QLineEdit>
+#include <QDoubleValidator>
+#include <QPainter>
 
 // expression editor
-#include <QtGui/QContextMenuEvent>
-#include <QtGui/QVBoxLayout>
+#include <QContextMenuEvent>
+#include <QVBoxLayout>
 
 // context menu
-#include <QtGui/QAction>
-#include <QtGui/QMenu>
+#include <QAction>
+#include <QMenu>
 
 #include <utils/qtcassert.h>
 

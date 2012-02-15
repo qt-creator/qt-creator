@@ -36,10 +36,10 @@
 #include "openpagesmodel.h"
 #include "openpageswidget.h"
 
-#include <QtCore/QEvent>
+#include <QEvent>
 
-#include <QtGui/QKeyEvent>
-#include <QtGui/QVBoxLayout>
+#include <QKeyEvent>
+#include <QVBoxLayout>
 
 using namespace Help::Internal;
 

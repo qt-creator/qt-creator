@@ -36,11 +36,11 @@
 #ifndef QMLSTREAMWRITER_H
 #define QMLSTREAMWRITER_H
 
-#include <QtCore/QIODevice>
-#include <QtCore/QList>
-#include <QtCore/QString>
-#include <QtCore/QScopedPointer>
-#include <QtCore/QPair>
+#include <QIODevice>
+#include <QList>
+#include <QString>
+#include <QScopedPointer>
+#include <QPair>
 
 class QmlStreamWriter
 {

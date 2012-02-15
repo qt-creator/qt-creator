@@ -36,7 +36,7 @@
 
 #include <coreplugin/ifile.h>
 
-#include <QtCore/QScopedPointer>
+#include <QScopedPointer>
 
 namespace ImageViewer {
 namespace Internal {

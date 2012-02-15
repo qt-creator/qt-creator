@@ -34,14 +34,14 @@
 
 #include "qtcassert.h"
 
-#include <QtCore/QList>
-#include <QtCore/QHash>
+#include <QList>
+#include <QHash>
 
-#include <QtGui/QAction>
-#include <QtGui/QContextMenuEvent>
-#include <QtGui/QMenu>
-#include <QtGui/QDockWidget>
-#include <QtCore/QSettings>
+#include <QAction>
+#include <QContextMenuEvent>
+#include <QMenu>
+#include <QDockWidget>
+#include <QSettings>
 
 static const char lockedKeyC[] = "Locked";
 static const char stateKeyC[] = "State";

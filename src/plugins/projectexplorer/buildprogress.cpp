@@ -35,10 +35,10 @@
 
 #include <utils/stylehelper.h>
 
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QFont>
-#include <QtGui/QPixmap>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QFont>
+#include <QPixmap>
 #include <QtDebug>
 
 using namespace ProjectExplorer;

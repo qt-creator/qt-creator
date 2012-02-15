@@ -33,7 +33,7 @@
 #ifndef INCLUDERULESINSTRUCTION_H
 #define INCLUDERULESINSTRUCTION_H
 
-#include <QtCore/QString>
+#include <QString>
 
 namespace TextEditor {
 namespace Internal {

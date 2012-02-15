@@ -37,8 +37,8 @@
 #include <cplusplus/SimpleLexer.h>
 #include <texteditor/basetextdocumentlayout.h>
 
-#include <QtGui/QTextDocument>
-#include <QtCore/QDebug>
+#include <QTextDocument>
+#include <QDebug>
 
 using namespace CppEditor::Internal;
 using namespace TextEditor;

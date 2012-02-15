@@ -36,8 +36,8 @@
 #include "projectexplorer_export.h"
 #include "buildstep.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
+#include <QObject>
+#include <QStringList>
 
 namespace ProjectExplorer {
 class Task;

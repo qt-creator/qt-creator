@@ -35,10 +35,10 @@
 #include "texteditorsettings.h"
 #include "completionsettings.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QRegExp>
-#include <QtCore/QtAlgorithms>
-#include <QtCore/QHash>
+#include <QDebug>
+#include <QRegExp>
+#include <QtAlgorithms>
+#include <QHash>
 
 #include <algorithm>
 

@@ -6,10 +6,10 @@
 #include <CppDocument.h>
 #include <CPlusPlusForwardDeclarations.h>
 
-#include <QtCore/QHash>
-#include <QtCore/QStringList>
-#include <QtCore/QMultiMap>
-#include <QtCore/QSet>
+#include <QHash>
+#include <QStringList>
+#include <QMultiMap>
+#include <QSet>
 
 namespace CppTools {
 

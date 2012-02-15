@@ -33,9 +33,9 @@
 #ifndef NAVIGATIONSSUBWIDGET_H
 #define NAVIGATIONSSUBWIDGET_H
 
-#include <QtGui/QComboBox>
+#include <QComboBox>
 
-#include <QtCore/QList>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 class QToolButton;

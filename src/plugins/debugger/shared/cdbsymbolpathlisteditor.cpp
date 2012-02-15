@@ -37,15 +37,15 @@
 #include <utils/pathchooser.h>
 #include <utils/checkablemessagebox.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QDebug>
-#include <QtGui/QFileDialog>
-#include <QtGui/QAction>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QFormLayout>
-#include <QtGui/QMessageBox>
-#include <QtGui/QMainWindow>
+#include <QDir>
+#include <QDebug>
+#include <QFileDialog>
+#include <QAction>
+#include <QDialogButtonBox>
+#include <QVBoxLayout>
+#include <QFormLayout>
+#include <QMessageBox>
+#include <QMainWindow>
 
 namespace Debugger {
 namespace Internal {

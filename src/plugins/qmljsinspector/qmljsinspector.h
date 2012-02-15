@@ -41,8 +41,8 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 
-#include <QtGui/QAction>
-#include <QtCore/QObject>
+#include <QAction>
+#include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QLineEdit)
 

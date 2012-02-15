@@ -35,8 +35,8 @@
 
 #include <vcsbase/vcsbasesubmiteditor.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QMap>
+#include <QStringList>
+#include <QMap>
 
 namespace VcsBase {
     class SubmitFileModel;

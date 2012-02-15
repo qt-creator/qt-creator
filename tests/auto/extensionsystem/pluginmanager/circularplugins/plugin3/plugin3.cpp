@@ -31,7 +31,7 @@
 **************************************************************************/
 #include "plugin3.h"
 
-#include <QtCore/qplugin.h>
+#include <qplugin.h>
 
 using namespace Plugin3;
 

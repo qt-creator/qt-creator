@@ -37,8 +37,8 @@
 
 
 #include <typeinfo>
-#include <QtCore/QDebug>
-#include <QtCore/QStringList>
+#include <QDebug>
+#include <QStringList>
 
 
 using namespace QmlJS::AST;

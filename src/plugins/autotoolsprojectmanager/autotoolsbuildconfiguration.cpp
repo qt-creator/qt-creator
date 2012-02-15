@@ -47,7 +47,7 @@
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QInputDialog>
+#include <QInputDialog>
 
 using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Constants;

@@ -45,10 +45,10 @@
 #include <utils/qtcprocess.h>
 #include <utils/persistentsettings.h>
 
-#include <QtCore/QFile>
-#include <QtGui/QApplication>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMessageBox>
+#include <QFile>
+#include <QApplication>
+#include <QMainWindow>
+#include <QMessageBox>
 
 namespace ProjectExplorer {
 namespace Internal {

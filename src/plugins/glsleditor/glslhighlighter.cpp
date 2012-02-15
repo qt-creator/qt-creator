@@ -36,7 +36,7 @@
 #include <texteditor/basetextdocumentlayout.h>
 #include <texteditor/basetextdocument.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace GLSLEditor;
 using namespace GLSLEditor::Internal;

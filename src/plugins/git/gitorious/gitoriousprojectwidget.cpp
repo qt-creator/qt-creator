@@ -37,16 +37,16 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QRegExp>
-#include <QtCore/QDebug>
+#include <QRegExp>
+#include <QDebug>
 
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QSortFilterProxyModel>
-#include <QtGui/QStandardItem>
-#include <QtGui/QItemSelectionModel>
-#include <QtGui/QDesktopServices>
-#include <QtGui/QIcon>
-#include <QtGui/QStyle>
+#include <QStandardItemModel>
+#include <QSortFilterProxyModel>
+#include <QStandardItem>
+#include <QItemSelectionModel>
+#include <QDesktopServices>
+#include <QIcon>
+#include <QStyle>
 
 enum {
     urlRole = Qt::UserRole + 1  // Project has a URL in the description

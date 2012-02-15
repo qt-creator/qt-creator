@@ -38,8 +38,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QKeySequence>
-#include <QtCore/QSettings>
+#include <QKeySequence>
+#include <QSettings>
 
 namespace ClassView {
 namespace Internal {

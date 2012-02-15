@@ -33,7 +33,7 @@
 #ifndef UTILS_GLOBAL_H
 #define UTILS_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(QTCREATOR_UTILS_LIB)
 #  define QTCREATOR_UTILS_EXPORT Q_DECL_EXPORT

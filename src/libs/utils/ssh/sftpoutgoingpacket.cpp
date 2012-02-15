@@ -34,7 +34,7 @@
 
 #include "sshpacket_p.h"
 
-#include <QtCore/QtEndian>
+#include <QtEndian>
 
 #include <limits>
 

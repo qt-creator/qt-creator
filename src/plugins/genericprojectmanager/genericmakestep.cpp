@@ -48,11 +48,11 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <QtGui/QFormLayout>
-#include <QtGui/QGroupBox>
-#include <QtGui/QCheckBox>
-#include <QtGui/QLineEdit>
-#include <QtGui/QListWidget>
+#include <QFormLayout>
+#include <QGroupBox>
+#include <QCheckBox>
+#include <QLineEdit>
+#include <QListWidget>
 
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;

@@ -45,7 +45,7 @@
 #define QDESIGNER_FORMWINDOMANAGER_H
 
 #include "shared_global_p.h"
-#include <QtDesigner/QDesignerFormWindowManagerInterface>
+#include <QDesignerFormWindowManagerInterface>
 
 QT_BEGIN_NAMESPACE
 

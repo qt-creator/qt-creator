@@ -34,13 +34,13 @@
 #include "json.h"
 #include "codautils.h"
 
-#include <QtNetwork/QAbstractSocket>
-#include <QtCore/QDebug>
-#include <QtCore/QVector>
-#include <QtCore/QQueue>
-#include <QtCore/QTextStream>
-#include <QtCore/QDateTime>
-#include <QtCore/QFileInfo>
+#include <QAbstractSocket>
+#include <QDebug>
+#include <QVector>
+#include <QQueue>
+#include <QTextStream>
+#include <QDateTime>
+#include <QFileInfo>
 
 enum { debug = 0 };
 

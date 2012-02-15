@@ -39,12 +39,12 @@
 
 #include <coreplugin/icore.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QLatin1String>
-#include <QtCore/QDebug>
+#include <QCoreApplication>
+#include <QLatin1String>
+#include <QDebug>
 
-#include <QtGui/QIcon>
-#include <QtGui/QWidget>
+#include <QIcon>
+#include <QWidget>
 
 using namespace Analyzer;
 using namespace Analyzer::Internal;

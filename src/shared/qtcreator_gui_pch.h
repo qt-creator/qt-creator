@@ -39,17 +39,17 @@
 
 #if defined __cplusplus
 
-#include <QtCore/QEvent>
-#include <QtCore/QTimer>
-#include <QtGui/QApplication>
-#include <QtGui/QBitmap>
-#include <QtGui/QCursor>
-#include <QtGui/QDesktopWidget>
-#include <QtGui/QImage>
-#include <QtGui/QLayout>
-#include <QtGui/QPainter>
-#include <QtGui/QPixmap>
-#include <QtGui/QStyle>
-#include <QtGui/QWidget>
+#include <QEvent>
+#include <QTimer>
+#include <QApplication>
+#include <QBitmap>
+#include <QCursor>
+#include <QDesktopWidget>
+#include <QImage>
+#include <QLayout>
+#include <QPainter>
+#include <QPixmap>
+#include <QStyle>
+#include <QWidget>
 
 #endif

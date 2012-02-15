@@ -32,7 +32,7 @@
 
 #include "statuslabel.h"
 
-#include <QtCore/QTimer>
+#include <QTimer>
 
 /*!
     \class Utils::StatusLabel

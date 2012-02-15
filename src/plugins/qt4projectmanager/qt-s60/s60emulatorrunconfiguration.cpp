@@ -47,9 +47,9 @@
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/baseqtversion.h>
 
-#include <QtGui/QLabel>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QFormLayout>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QFormLayout>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;

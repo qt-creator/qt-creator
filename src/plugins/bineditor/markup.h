@@ -33,10 +33,10 @@
 #ifndef MARKUP_H
 #define MARKUP_H
 
-#include <QtGui/QColor>
-#include <QtCore/QString>
-#include <QtCore/QList>
-#include <QtCore/QMetaType>
+#include <QColor>
+#include <QString>
+#include <QList>
+#include <QMetaType>
 
 namespace BINEditor {
 /*!

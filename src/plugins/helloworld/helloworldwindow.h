@@ -33,7 +33,7 @@
 #ifndef HELLOWORLDWINDOW_H
 #define HELLOWORLDWINDOW_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 QT_FORWARD_DECLARE_CLASS(QLabel)
 

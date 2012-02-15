@@ -33,12 +33,12 @@
 #ifndef EXTERNALTOOL_H
 #define EXTERNALTOOL_H
 
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
-#include <QtCore/QProcess>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QTextCodec>
-#include <QtCore/QMetaType>
+#include <QObject>
+#include <QStringList>
+#include <QProcess>
+#include <QSharedPointer>
+#include <QTextCodec>
+#include <QMetaType>
 
 namespace Utils {
 class QtcProcess;

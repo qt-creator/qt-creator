@@ -35,7 +35,7 @@
 
 #include "utils_global.h"
 
-#include <QtGui/QCompleter>
+#include <QCompleter>
 
 QT_FORWARD_DECLARE_CLASS(QSettings)
 

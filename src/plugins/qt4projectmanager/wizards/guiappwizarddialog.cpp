@@ -37,7 +37,7 @@
 #include "qtprojectparameters.h"
 #include "qt4projectmanagerconstants.h"
 
-#include <QtCore/QSet>
+#include <QSet>
 
 namespace Qt4ProjectManager {
 namespace Internal {

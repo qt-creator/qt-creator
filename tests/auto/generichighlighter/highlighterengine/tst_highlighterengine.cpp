@@ -38,12 +38,12 @@
 #include "highlightermock.h"
 #include "formats.h"
 
-#include <QtCore/QSharedPointer>
-#include <QtCore/QScopedPointer>
-#include <QtCore/QList>
-#include <QtCore/QMetaType>
-#include <QtGui/QPlainTextEdit>
-#include <QtTest/QtTest>
+#include <QSharedPointer>
+#include <QScopedPointer>
+#include <QList>
+#include <QMetaType>
+#include <QPlainTextEdit>
+#include <QtTest>
 
 using namespace TextEditor;
 using namespace Internal;

@@ -37,7 +37,7 @@
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/codestyleeditor.h>
 
-#include <QtCore/QTextCodec>
+#include <QTextCodec>
 
 using namespace TextEditor;
 using namespace ProjectExplorer;

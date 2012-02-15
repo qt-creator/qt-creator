@@ -49,10 +49,10 @@
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 
-#include <QtCore/QLatin1String>
-#include <QtCore/QByteArray>
-#include <QtCore/QTextCodec>
-#include <QtCore/QDebug>
+#include <QLatin1String>
+#include <QByteArray>
+#include <QTextCodec>
+#include <QDebug>
 
 static const QLatin1String kPrefix("EditorConfiguration.");
 static const QLatin1String kUseGlobal("EditorConfiguration.UseGlobal");

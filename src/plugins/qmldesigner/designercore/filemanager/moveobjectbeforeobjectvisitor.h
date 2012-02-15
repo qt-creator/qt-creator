@@ -35,7 +35,7 @@
 
 #include "qmlrewriter.h"
 
-#include <QtCore/QStack>
+#include <QStack>
 
 namespace QmlDesigner {
 namespace Internal {

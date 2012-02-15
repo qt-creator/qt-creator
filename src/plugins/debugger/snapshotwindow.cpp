@@ -41,11 +41,11 @@
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
-#include <QtGui/QHeaderView>
-#include <QtGui/QMenu>
-#include <QtGui/QKeyEvent>
+#include <QHeaderView>
+#include <QMenu>
+#include <QKeyEvent>
 
 namespace Debugger {
 namespace Internal {

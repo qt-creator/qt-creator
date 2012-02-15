@@ -35,7 +35,7 @@
 #ifndef MEMCHECKERRORVIEW_H
 #define MEMCHECKERRORVIEW_H
 
-#include <QtGui/QListView>
+#include <QListView>
 
 namespace Analyzer { class AnalyzerSettings; }
 

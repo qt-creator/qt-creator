@@ -33,12 +33,12 @@
 #include "baseannotationhighlighter.h"
 
 #include <math.h>
-#include <QtCore/QSet>
-#include <QtCore/QDebug>
-#include <QtGui/QColor>
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextEdit>
-#include <QtGui/QTextCharFormat>
+#include <QSet>
+#include <QDebug>
+#include <QColor>
+#include <QTextDocument>
+#include <QTextEdit>
+#include <QTextCharFormat>
 
 typedef QMap<QString, QTextCharFormat> ChangeNumberFormatMap;
 

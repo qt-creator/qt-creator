@@ -37,8 +37,8 @@
 // needed for the correct sorting order
 #include <cplusplus/Icons.h>
 
-#include <QtGui/QStandardItem>
-#include <QtCore/QDebug>
+#include <QStandardItem>
+#include <QDebug>
 
 namespace ClassView {
 namespace Constants {

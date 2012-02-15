@@ -40,14 +40,14 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
-#include <QtGui/QDesktopWidget>
-#include <QtGui/QLabel>
-#include <QtGui/QMenu>
-#include <QtGui/QAction>
-#include <QtGui/QShortcut>
-#include <QtGui/QMenuBar>
+#include <QDebug>
+#include <QSettings>
+#include <QDesktopWidget>
+#include <QLabel>
+#include <QMenu>
+#include <QAction>
+#include <QShortcut>
+#include <QMenuBar>
 
 namespace {
     enum { warnAboutFindFailures = 0 };

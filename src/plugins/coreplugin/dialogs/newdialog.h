@@ -35,10 +35,10 @@
 
 #include "iwizard.h"
 
-#include <QtGui/QDialog>
-#include <QtGui/QIcon>
-#include <QtCore/QList>
-#include <QtCore/QModelIndex>
+#include <QDialog>
+#include <QIcon>
+#include <QList>
+#include <QModelIndex>
 
 QT_BEGIN_NAMESPACE
 class QAbstractProxyModel;

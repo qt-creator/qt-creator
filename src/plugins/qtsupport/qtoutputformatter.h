@@ -38,8 +38,8 @@
 #include <utils/outputformatter.h>
 #include <utils/fileinprojectfinder.h>
 
-#include <QtCore/QRegExp>
-#include <QtCore/QWeakPointer>
+#include <QRegExp>
+#include <QWeakPointer>
 
 QT_FORWARD_DECLARE_CLASS(QTextCursor)
 

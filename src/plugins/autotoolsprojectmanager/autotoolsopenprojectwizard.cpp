@@ -34,10 +34,10 @@
 
 #include "autotoolsopenprojectwizard.h"
 
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QFormLayout>
-#include <QtGui/QLabel>
-#include <QtCore/QDir>
+#include <QVBoxLayout>
+#include <QFormLayout>
+#include <QLabel>
+#include <QDir>
 
 using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;

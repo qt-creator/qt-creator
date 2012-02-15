@@ -35,9 +35,9 @@
 
 #include "vcsbase_global.h"
 
-#include <QtCore/QStringList>
-#include <QtCore/QVariant>
-#include <QtGui/QWidget>
+#include <QStringList>
+#include <QVariant>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;

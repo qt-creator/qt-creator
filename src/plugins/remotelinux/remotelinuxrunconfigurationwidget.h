@@ -34,7 +34,7 @@
 
 #include "remotelinux_export.h"
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QVBoxLayout;

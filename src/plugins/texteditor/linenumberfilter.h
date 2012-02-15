@@ -35,9 +35,9 @@
 
 #include <locator/ilocatorfilter.h>
 
-#include <QtCore/QString>
-#include <QtCore/QList>
-#include <QtCore/QFutureInterface>
+#include <QString>
+#include <QList>
+#include <QFutureInterface>
 
 namespace TextEditor {
 

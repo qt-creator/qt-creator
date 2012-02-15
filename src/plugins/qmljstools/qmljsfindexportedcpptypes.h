@@ -36,8 +36,8 @@
 #include <cplusplus/CppDocument.h>
 #include <languageutils/fakemetaobject.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QHash>
+#include <QCoreApplication>
+#include <QHash>
 
 namespace QmlJSTools {
 

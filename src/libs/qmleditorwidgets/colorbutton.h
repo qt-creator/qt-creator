@@ -34,8 +34,8 @@
 #define COLORBUTTON_H
 
 #include <qmleditorwidgets_global.h>
-#include <QtGui/QToolButton>
-#include <QtDeclarative/qdeclarative.h>
+#include <QToolButton>
+#include <qdeclarative.h>
 
 namespace QmlEditorWidgets {
 

@@ -36,12 +36,12 @@
 #include "icontext.h"
 #include "id.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QTextStream>
+#include <QDebug>
+#include <QTextStream>
 
-#include <QtGui/QAction>
-#include <QtGui/QShortcut>
-#include <QtGui/QMainWindow>
+#include <QAction>
+#include <QShortcut>
+#include <QMainWindow>
 
 /*!
     \class Core::Command

@@ -37,7 +37,7 @@
 
 #include <utils/outputformat.h>
 
-#include <QtNetwork/QAbstractSocket>
+#include <QAbstractSocket>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;

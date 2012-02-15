@@ -42,9 +42,9 @@
 #include <texteditor/semantichighlighter.h>
 
 #include <ASTVisitor.h>
-#include <QtCore/QSet>
-#include <QtCore/QFuture>
-#include <QtCore/QtConcurrentRun>
+#include <QSet>
+#include <QFuture>
+#include <QtConcurrentRun>
 
 namespace CPlusPlus {
 

@@ -40,7 +40,7 @@
 #include <texteditor/tabsettings.h>
 #include <texteditor/snippets/isnippetprovider.h>
 #include <cppeditor/cppeditorconstants.h>
-#include <QtGui/QLayout>
+#include <QLayout>
 
 using namespace CppTools;
 

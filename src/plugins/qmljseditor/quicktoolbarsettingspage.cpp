@@ -36,9 +36,9 @@
 #include <qmldesigner/qmldesignerconstants.h>
 #include <coreplugin/icore.h>
 
-#include <QtCore/QSettings>
-#include <QtCore/QTextStream>
-#include <QtGui/QCheckBox>
+#include <QSettings>
+#include <QTextStream>
+#include <QCheckBox>
 
 
 using namespace QmlJSEditor;

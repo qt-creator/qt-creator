@@ -31,7 +31,7 @@
 **************************************************************************/
 
 #include "glslsymbol.h"
-#include <QtCore/QStringList>
+#include <QStringList>
 
 using namespace GLSL;
 

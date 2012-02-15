@@ -33,7 +33,7 @@
 
 #include "remotelinux_export.h"
 
-#include <QtCore/QObject>
+#include <QObject>
 
 namespace Utils {
 class SshConnectionParameters;

@@ -41,9 +41,9 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtGui/QMessageBox>
+#include <QDir>
+#include <QFileInfo>
+#include <QMessageBox>
 
 namespace Debugger {
 namespace Internal {

@@ -44,21 +44,21 @@
 #include <remotelinux/remotelinuxrunconfigurationwidget.h>
 #include <utils/detailswidget.h>
 
-#include <QtGui/QButtonGroup>
-#include <QtCore/QCoreApplication>
-#include <QtGui/QComboBox>
-#include <QtGui/QFileDialog>
-#include <QtGui/QFormLayout>
-#include <QtGui/QGroupBox>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QHeaderView>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QRadioButton>
-#include <QtGui/QTableView>
-#include <QtGui/QToolButton>
+#include <QButtonGroup>
+#include <QCoreApplication>
+#include <QComboBox>
+#include <QFileDialog>
+#include <QFormLayout>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QLabel>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QTableView>
+#include <QToolButton>
 
 using namespace Qt4ProjectManager;
 using namespace RemoteLinux;

@@ -37,7 +37,7 @@
 
 #include <utils/styledbar.h>
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
 namespace Core {
 class IEditor;

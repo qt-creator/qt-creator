@@ -38,14 +38,14 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QString>
-#include <QtCore/QList>
-#include <QtCore/QMap>
-#include <QtCore/QCoreApplication>
+#include <QDir>
+#include <QString>
+#include <QList>
+#include <QMap>
+#include <QCoreApplication>
 
-#include <QtCore/QFileInfo>
-#include <QtGui/QMessageBox>
+#include <QFileInfo>
+#include <QMessageBox>
 
 namespace Core {
 

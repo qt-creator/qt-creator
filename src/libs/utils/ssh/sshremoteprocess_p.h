@@ -37,9 +37,9 @@
 
 #include "sshchannel_p.h"
 
-#include <QtCore/QList>
-#include <QtCore/QPair>
-#include <QtCore/QProcess>
+#include <QList>
+#include <QPair>
+#include <QProcess>
 
 namespace Utils {
 class SshRemoteProcess;

@@ -33,11 +33,11 @@
 #ifndef SYMBIANUTILS_H
 #define SYMBIANUTILS_H
 
-#include <QtCore/QMap>
-#include <QtCore/QByteArray>
-#include <QtCore/QMetaType>
-#include <QtCore/QVector>
-#include <QtCore/QPair>
+#include <QMap>
+#include <QByteArray>
+#include <QMetaType>
+#include <QVector>
+#include <QPair>
 
 QT_BEGIN_NAMESPACE
 class QDebug;

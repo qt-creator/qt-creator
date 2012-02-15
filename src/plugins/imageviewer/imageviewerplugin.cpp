@@ -35,7 +35,7 @@
 #include "imageviewerfactory.h"
 #include "imageviewerconstants.h"
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>

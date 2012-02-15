@@ -33,7 +33,7 @@
 #ifndef QT4PROJECTMANAGERCONSTANTS_H
 #define QT4PROJECTMANAGERCONSTANTS_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 namespace Qt4ProjectManager {
 namespace Constants {

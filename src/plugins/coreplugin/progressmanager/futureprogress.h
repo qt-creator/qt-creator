@@ -35,9 +35,9 @@
 
 #include <coreplugin/core_global.h>
 
-#include <QtCore/QString>
-#include <QtCore/QFuture>
-#include <QtGui/QWidget>
+#include <QString>
+#include <QFuture>
+#include <QWidget>
 
 namespace Core {
 struct FutureProgressPrivate;

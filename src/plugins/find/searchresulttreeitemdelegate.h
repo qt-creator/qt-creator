@@ -33,7 +33,7 @@
 #ifndef SEARCHRESULTTREEITEMDELEGATE_H
 #define SEARCHRESULTTREEITEMDELEGATE_H
 
-#include <QtGui/QItemDelegate>
+#include <QItemDelegate>
 
 namespace Find {
 namespace Internal {

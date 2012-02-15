@@ -35,8 +35,8 @@
 
 #include <utils/utils_global.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QSharedPointer>
+#include <QCoreApplication>
+#include <QSharedPointer>
 
 namespace Botan {
     class Private_Key;

@@ -55,17 +55,17 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QMetaObject>
-#include <QtCore/QTimer>
-#include <QtCore/QPointer>
-#include <QtCore/QFileInfo>
+#include <QDebug>
+#include <QMetaObject>
+#include <QTimer>
+#include <QPointer>
+#include <QFileInfo>
 
-#include <QtGui/QMessageBox>
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QTextBlock>
-#include <QtGui/QTextCursor>
-#include <QtGui/QIcon>
+#include <QMessageBox>
+#include <QPlainTextEdit>
+#include <QTextBlock>
+#include <QTextCursor>
+#include <QIcon>
 
 #include <limits.h>
 

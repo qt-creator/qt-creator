@@ -35,16 +35,16 @@
 
 #include "utils_global.h"
 
-#include <QtCore/QHash>
-#include <QtCore/QVector>
-#include <QtCore/QScopedPointer>
-#include <QtCore/QVariant>
-#include <QtCore/QStringList>
-#include <QtCore/QLatin1String>
-#include <QtCore/QDateTime>
-#include <QtScript/QScriptEngine>
-#include <QtScript/QScriptValue>
-#include <QtScript/QScriptValueIterator>
+#include <QHash>
+#include <QVector>
+#include <QScopedPointer>
+#include <QVariant>
+#include <QStringList>
+#include <QLatin1String>
+#include <QDateTime>
+#include <QScriptEngine>
+#include <QScriptValue>
+#include <QScriptValueIterator>
 
 namespace Utils {
 

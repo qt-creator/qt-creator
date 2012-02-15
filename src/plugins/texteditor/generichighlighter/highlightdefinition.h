@@ -33,10 +33,10 @@
 #ifndef HIGHLIGHTDEFINITION_H
 #define HIGHLIGHTDEFINITION_H
 
-#include <QtCore/QString>
-#include <QtCore/QHash>
-#include <QtCore/QSet>
-#include <QtCore/QSharedPointer>
+#include <QString>
+#include <QHash>
+#include <QSet>
+#include <QSharedPointer>
 
 namespace TextEditor {
 namespace Internal {

@@ -35,9 +35,9 @@
 
 #include "projectexplorer_export.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtCore/QVariantMap>
+#include <QObject>
+#include <QString>
+#include <QVariantMap>
 
 namespace ProjectExplorer {
 

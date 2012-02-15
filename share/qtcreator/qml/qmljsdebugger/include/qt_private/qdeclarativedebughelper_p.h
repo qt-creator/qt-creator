@@ -33,7 +33,7 @@
 #define QDECLARATIVEDEBUGHELPER_P_H
 
 #include "../qmljsdebugger_global.h"
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 QT_BEGIN_HEADER
 

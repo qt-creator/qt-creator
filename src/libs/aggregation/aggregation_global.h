@@ -33,7 +33,7 @@
 #ifndef AGGREGATION_GLOBAL_H
 #define AGGREGATION_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(AGGREGATION_LIBRARY)
 #  define AGGREGATION_EXPORT Q_DECL_EXPORT

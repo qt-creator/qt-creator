@@ -38,10 +38,10 @@
 
 #include <utils/utils_global.h>
 
-#include <QtCore/QByteArray>
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QString>
+#include <QByteArray>
+#include <QObject>
+#include <QSharedPointer>
+#include <QString>
 
 namespace Utils {
 

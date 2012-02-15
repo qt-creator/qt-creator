@@ -37,7 +37,7 @@
 
 #include <botan/exceptn.h>
 
-#include <QtCore/QTimer>
+#include <QTimer>
 
 namespace Utils {
 namespace Internal {

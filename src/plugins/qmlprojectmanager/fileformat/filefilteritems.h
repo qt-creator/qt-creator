@@ -35,11 +35,11 @@
 
 #include "qmlprojectitem.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QSet>
-#include <QtCore/QTimer>
+#include <QObject>
+#include <QSet>
+#include <QTimer>
 
-#include <QtDeclarative/qdeclarative.h>
+#include <qdeclarative.h>
 
 QT_FORWARD_DECLARE_CLASS(QDir)
 

@@ -35,8 +35,8 @@
 #include "ui_pastebindotcomsettings.h"
 
 #include <coreplugin/icore.h>
-#include <QtCore/QSettings>
-#include <QtCore/QCoreApplication>
+#include <QSettings>
+#include <QCoreApplication>
 
 static const char groupC[] = "PasteBinDotComSettings";
 static const char prefixKeyC[] = "Prefix";

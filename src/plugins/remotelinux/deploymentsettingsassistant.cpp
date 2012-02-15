@@ -41,10 +41,10 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QHash>
-#include <QtCore/QString>
-#include <QtGui/QMainWindow>
+#include <QDir>
+#include <QHash>
+#include <QString>
+#include <QMainWindow>
 
 using namespace Qt4ProjectManager;
 

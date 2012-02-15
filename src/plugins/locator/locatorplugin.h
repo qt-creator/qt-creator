@@ -40,9 +40,9 @@
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/actionmanager/command.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QTimer>
-#include <QtCore/QFutureWatcher>
+#include <QObject>
+#include <QTimer>
+#include <QFutureWatcher>
 
 namespace Locator {
 namespace Internal {

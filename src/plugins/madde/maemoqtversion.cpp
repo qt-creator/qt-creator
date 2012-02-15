@@ -37,10 +37,10 @@
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/qtsupportconstants.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QFile>
-#include <QtCore/QDir>
-#include <QtCore/QTextStream>
+#include <QCoreApplication>
+#include <QFile>
+#include <QDir>
+#include <QTextStream>
 
 using namespace Qt4ProjectManager;
 

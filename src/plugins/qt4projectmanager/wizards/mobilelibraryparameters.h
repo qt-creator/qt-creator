@@ -33,7 +33,7 @@
 #ifndef MOBILELIBRARYPARAMETERS_H
 #define MOBILELIBRARYPARAMETERS_H
 
-#include <QtCore/QString>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 class QTextStream;

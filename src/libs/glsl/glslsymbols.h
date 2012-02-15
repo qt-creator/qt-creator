@@ -35,9 +35,9 @@
 
 #include "glsltype.h"
 #include "glslsymbol.h"
-#include <QtCore/QVector>
-#include <QtCore/QString>
-#include <QtCore/QHash>
+#include <QVector>
+#include <QString>
+#include <QHash>
 
 namespace GLSL {
 

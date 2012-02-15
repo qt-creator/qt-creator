@@ -35,7 +35,7 @@
 
 #include "core_global.h"
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QSplitter;

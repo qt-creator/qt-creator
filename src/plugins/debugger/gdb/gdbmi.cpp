@@ -34,9 +34,9 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QByteArray>
-#include <QtCore/QRegExp>
-#include <QtCore/QTextStream>
+#include <QByteArray>
+#include <QRegExp>
+#include <QTextStream>
 
 #include <ctype.h>
 

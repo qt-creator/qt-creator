@@ -35,7 +35,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QtXml/QDomDocument>
+#include <QDomDocument>
 
 namespace UpdateInfo {
 namespace Internal {

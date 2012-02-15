@@ -34,7 +34,7 @@
 
 #include <qmljs/parser/qmljsast_p.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace QmlJS;
 using namespace QmlDesigner;

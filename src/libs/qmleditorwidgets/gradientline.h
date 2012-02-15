@@ -34,8 +34,8 @@
 #define GRADIENTLINE_H
 
 #include <qmleditorwidgets_global.h>
-#include <QtGui/QWidget>
-#include <QtGui/QLinearGradient>
+#include <QWidget>
+#include <QLinearGradient>
 
 namespace QmlEditorWidgets {
 

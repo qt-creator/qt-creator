@@ -35,9 +35,9 @@
 
 #include "find_global.h"
 
-#include <QtCore/QMetaType>
-#include <QtCore/QFlags>
-#include <QtGui/QTextDocument>
+#include <QMetaType>
+#include <QFlags>
+#include <QTextDocument>
 
 namespace Find {
 namespace Constants {

@@ -33,10 +33,10 @@
 #ifndef CODECSELECTOR_H
 #define CODECSELECTOR_H
 
-#include <QtGui/QDialog>
-#include <QtGui/QLabel>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QListWidget>
+#include <QDialog>
+#include <QLabel>
+#include <QDialogButtonBox>
+#include <QListWidget>
 
 namespace TextEditor {
 

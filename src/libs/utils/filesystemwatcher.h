@@ -35,8 +35,8 @@
 
 #include "utils_global.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
+#include <QObject>
+#include <QStringList>
 
 namespace Utils {
 class FileSystemWatcherPrivate;

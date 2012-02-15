@@ -50,9 +50,9 @@
 #include <qt4projectmanager/qt-s60/s60devicerunconfiguration.h>
 #include <qmljsdebugclient/qdeclarativeoutputparser.h>
 
-#include <QtGui/QMainWindow>
-#include <QtGui/QMessageBox>
-#include <QtCore/QTimer>
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QTimer>
 
 using namespace Analyzer;
 using namespace ProjectExplorer;

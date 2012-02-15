@@ -38,7 +38,7 @@
 
 #include <aggregate.h>
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 class MyMain : public QWidget
 {

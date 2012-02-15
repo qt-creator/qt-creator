@@ -36,8 +36,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/QList>
-#include <QtGui/QWizard>
+#include <QList>
+#include <QWizard>
 
 namespace ProjectExplorer {
 class Project;

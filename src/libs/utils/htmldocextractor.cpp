@@ -32,10 +32,10 @@
 
 #include "htmldocextractor.h"
 
-#include <QtCore/QLatin1String>
-#include <QtCore/QLatin1Char>
-#include <QtCore/QStringList>
-#include <QtCore/QRegExp>
+#include <QLatin1String>
+#include <QLatin1Char>
+#include <QStringList>
+#include <QRegExp>
 
 using namespace Utils;
 

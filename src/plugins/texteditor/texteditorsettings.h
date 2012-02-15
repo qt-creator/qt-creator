@@ -35,7 +35,7 @@
 
 #include "texteditor_global.h"
 
-#include <QtCore/QObject>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 template <class Key, class T>

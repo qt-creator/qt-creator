@@ -33,9 +33,9 @@
 #include "abiwidget.h"
 #include "abi.h"
 
-#include <QtGui/QComboBox>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLabel>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QLabel>
 
 /*!
     \class ProjectExplorer::AbiWidget

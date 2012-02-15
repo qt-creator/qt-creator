@@ -32,7 +32,7 @@
 
 #include "testplugin.h"
 
-#include <QtCore/qplugin.h>
+#include <qplugin.h>
 
 using namespace MyPlugin;
 

@@ -33,9 +33,9 @@
 #include "linuxdeviceconfigurationssettingswidget.h"
 #include "remotelinux_constants.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QString>
-#include <QtGui/QIcon>
+#include <QCoreApplication>
+#include <QString>
+#include <QIcon>
 
 namespace RemoteLinux {
 namespace Internal {

@@ -40,13 +40,13 @@
 #include <utils/qtcassert.h>
 #include <vcsbase/diffhighlighter.h>
 
-#include <QtCore/QRegExp>
-#include <QtCore/QString>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextBlock>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
+#include <QRegExp>
+#include <QString>
+#include <QTextCursor>
+#include <QTextBlock>
+#include <QDir>
+#include <QFileInfo>
+#include <QDebug>
 
 #define BZR_CHANGE_PATTERN "[0-9]+"
 

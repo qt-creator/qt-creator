@@ -39,9 +39,9 @@
 #include <vcsbase/vcsbaseconstants.h>
 #include <utils/pathchooser.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QTextStream>
-#include <QtGui/QFileDialog>
+#include <QCoreApplication>
+#include <QTextStream>
+#include <QFileDialog>
 
 using namespace Subversion::Internal;
 using namespace Utils;

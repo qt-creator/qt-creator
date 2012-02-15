@@ -49,14 +49,14 @@
 
 #include <symbianutils/symbiandevicemanager.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTimer>
+#include <QDir>
+#include <QFileInfo>
+#include <QTimer>
 
-#include <QtGui/QMessageBox>
-#include <QtGui/QMainWindow>
+#include <QMessageBox>
+#include <QMainWindow>
 
-#include <QtNetwork/QTcpSocket>
+#include <QTcpSocket>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;

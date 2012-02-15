@@ -43,14 +43,14 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtDesigner/QDesignerFormWindowInterface>
-#include <QtDesigner/QDesignerFormWindowManagerInterface>
-#include <QtDesigner/QDesignerFormEditorInterface>
-#include <QtDesigner/QDesignerPropertyEditorInterface>
+#include <QDesignerFormWindowInterface>
+#include <QDesignerFormWindowManagerInterface>
+#include <QDesignerFormEditorInterface>
+#include <QDesignerPropertyEditorInterface>
 
-#include <QtCore/QDebug>
-#include <QtCore/QVariant>
-#include <QtCore/QRect>
+#include <QDebug>
+#include <QVariant>
+#include <QRect>
 
 namespace Designer {
 namespace Internal {

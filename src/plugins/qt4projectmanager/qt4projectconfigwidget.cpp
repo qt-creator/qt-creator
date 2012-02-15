@@ -58,8 +58,8 @@
 #include <utils/qtcprocess.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtGui/QFileDialog>
-#include <QtGui/QPushButton>
+#include <QFileDialog>
+#include <QPushButton>
 #include <utils/detailswidget.h>
 
 namespace {

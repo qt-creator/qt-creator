@@ -36,8 +36,8 @@
 #include <coreplugin/basefilewizard.h>
 #include <utils/wizard.h>
 
-#include <QtCore/QStringList>
-#include <QtGui/QWizardPage>
+#include <QStringList>
+#include <QWizardPage>
 
 namespace Utils {
 

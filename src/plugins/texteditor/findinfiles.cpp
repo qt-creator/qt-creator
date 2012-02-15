@@ -34,14 +34,14 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtCore/QtDebug>
-#include <QtCore/QSettings>
-#include <QtCore/QDir>
-#include <QtCore/QDirIterator>
-#include <QtGui/QPushButton>
-#include <QtGui/QFileDialog>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QVBoxLayout>
+#include <QtDebug>
+#include <QSettings>
+#include <QDir>
+#include <QDirIterator>
+#include <QPushButton>
+#include <QFileDialog>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 
 using namespace Find;
 using namespace TextEditor;

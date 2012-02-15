@@ -35,8 +35,8 @@
 
 #include <botan/dh.h>
 
-#include <QtCore/QByteArray>
-#include <QtCore/QScopedPointer>
+#include <QByteArray>
+#include <QScopedPointer>
 
 namespace Botan { class HashFunction; }
 

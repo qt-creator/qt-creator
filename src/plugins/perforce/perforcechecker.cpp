@@ -35,13 +35,13 @@
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 
-#include <QtCore/QRegExp>
-#include <QtCore/QTimer>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
+#include <QRegExp>
+#include <QTimer>
+#include <QFileInfo>
+#include <QDir>
 
-#include <QtGui/QApplication>
-#include <QtGui/QCursor>
+#include <QApplication>
+#include <QCursor>
 
 namespace Perforce {
 namespace Internal {

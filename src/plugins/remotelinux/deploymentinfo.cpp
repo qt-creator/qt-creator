@@ -39,8 +39,8 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
 
-#include <QtCore/QList>
-#include <QtCore/QTimer>
+#include <QList>
+#include <QTimer>
 
 using namespace Qt4ProjectManager;
 

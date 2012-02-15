@@ -42,18 +42,18 @@
 #include <utils/qtcassert.h>
 #include <utils/detailswidget.h>
 
-#include <QtCore/QSignalMapper>
+#include <QSignalMapper>
 
-#include <QtCore/QPropertyAnimation>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
-#include <QtGui/QMenu>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QToolButton>
-#include <QtGui/QMessageBox>
-#include <QtGui/QMainWindow>
-#include <QtGui/QGraphicsOpacityEffect>
+#include <QPropertyAnimation>
+#include <QLabel>
+#include <QPushButton>
+#include <QMenu>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QToolButton>
+#include <QMessageBox>
+#include <QMainWindow>
+#include <QGraphicsOpacityEffect>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

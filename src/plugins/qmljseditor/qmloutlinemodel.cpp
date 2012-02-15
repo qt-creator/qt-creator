@@ -43,9 +43,9 @@
 #include <utils/qtcassert.h>
 
 #include <coreplugin/icore.h>
-#include <QtCore/QDebug>
-#include <QtCore/QTime>
-#include <QtCore/QMimeData>
+#include <QDebug>
+#include <QTime>
+#include <QMimeData>
 #include <typeinfo>
 
 using namespace QmlJS;

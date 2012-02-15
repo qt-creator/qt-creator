@@ -43,11 +43,11 @@
 #include <coreplugin/actionmanager/command.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QMap>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtGui/QWidget>
-#include <QtCore/QtDebug>
+#include <QMap>
+#include <QFileInfo>
+#include <QDir>
+#include <QWidget>
+#include <QtDebug>
 
 namespace ImageViewer {
 namespace Internal {

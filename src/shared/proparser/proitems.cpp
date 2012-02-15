@@ -32,8 +32,8 @@
 
 #include "proitems.h"
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QSet>
+#include <QFileInfo>
+#include <QSet>
 
 QT_BEGIN_NAMESPACE
 

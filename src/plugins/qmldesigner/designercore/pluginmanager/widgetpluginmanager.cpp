@@ -34,19 +34,19 @@
 #include "widgetpluginpath.h"
 #include <iwidgetplugin.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QObject>
-#include <QtCore/QSharedData>
-#include <QtCore/QDir>
-#include <QtCore/QStringList>
-#include <QtCore/QDebug>
+#include <QCoreApplication>
+#include <QObject>
+#include <QSharedData>
+#include <QDir>
+#include <QStringList>
+#include <QDebug>
 #include <QWeakPointer>
-#include <QtCore/QPluginLoader>
-#include <QtCore/QFileInfo>
-#include <QtCore/QLibraryInfo>
+#include <QPluginLoader>
+#include <QFileInfo>
+#include <QLibraryInfo>
 
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QStandardItem>
+#include <QStandardItemModel>
+#include <QStandardItem>
 
 enum { debug = 0 };
 

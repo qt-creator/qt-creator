@@ -32,7 +32,7 @@
 
 #include "remotehelpfilter.h"
 
-#include <QtCore/QUrl>
+#include <QUrl>
 
 namespace Help {
     namespace Internal {

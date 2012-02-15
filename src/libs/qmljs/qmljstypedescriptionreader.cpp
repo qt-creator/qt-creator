@@ -42,8 +42,8 @@
 #include "qmljsinterpreter.h"
 #include "qmljsutils.h"
 
-#include <QtCore/QIODevice>
-#include <QtCore/QBuffer>
+#include <QIODevice>
+#include <QBuffer>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

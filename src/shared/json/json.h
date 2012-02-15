@@ -35,9 +35,9 @@
 
 #include "json_global.h"
 
-#include <QtCore/QByteArray>
-#include <QtCore/QStringList>
-#include <QtCore/QVector>
+#include <QByteArray>
+#include <QStringList>
+#include <QVector>
 
 namespace Json {
 

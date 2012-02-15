@@ -40,7 +40,7 @@
 #include <vcsbase/vcsconfigurationpage.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
 namespace Cvs {
 namespace Internal {

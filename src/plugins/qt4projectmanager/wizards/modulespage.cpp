@@ -36,13 +36,13 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QVariant>
+#include <QDebug>
+#include <QVariant>
 
-#include <QtGui/QCheckBox>
-#include <QtGui/QLabel>
-#include <QtGui/QLayout>
-#include <QtGui/QWidget>
+#include <QCheckBox>
+#include <QLabel>
+#include <QLayout>
+#include <QWidget>
 
 #include <math.h>
 

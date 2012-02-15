@@ -39,8 +39,8 @@
 
 #include <Control.h>
 
-#include <QtCore/QSet>
-#include <QtCore/QString>
+#include <QSet>
+#include <QString>
 
 namespace CPlusPlus {
 

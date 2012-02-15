@@ -37,9 +37,9 @@
 
 #include <remotelinux/portlist.h>
 
-#include <QtCore/QList>
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
+#include <QList>
+#include <QObject>
+#include <QSharedPointer>
 
 namespace Utils { class SshConnection; }
 namespace Qt4ProjectManager { class Qt4BuildConfiguration; }

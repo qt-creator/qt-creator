@@ -59,14 +59,14 @@
 #include <glsl/glslparser.h>
 #include <glsl/glsllexer.h>
 
-#include <QtCore/QtPlugin>
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
-#include <QtCore/QDir>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QTimer>
-#include <QtGui/QMenu>
-#include <QtGui/QAction>
+#include <QtPlugin>
+#include <QDebug>
+#include <QSettings>
+#include <QDir>
+#include <QCoreApplication>
+#include <QTimer>
+#include <QMenu>
+#include <QAction>
 
 using namespace GLSLEditor;
 using namespace GLSLEditor::Internal;

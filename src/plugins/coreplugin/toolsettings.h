@@ -35,7 +35,7 @@
 
 #include "ioptionspage.h"
 
-#include <QtCore/QPointer>
+#include <QPointer>
 
 namespace Core {
 namespace Internal {

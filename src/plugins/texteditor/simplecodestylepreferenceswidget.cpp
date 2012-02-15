@@ -35,7 +35,7 @@
 #include "tabsettings.h"
 #include "tabsettingswidget.h"
 
-#include <QtGui/QVBoxLayout>
+#include <QVBoxLayout>
 
 namespace TextEditor {
 

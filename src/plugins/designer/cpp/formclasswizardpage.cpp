@@ -39,11 +39,11 @@
 #include <cppeditor/cppeditorconstants.h>
 #include <cpptools/cpptoolsconstants.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
+#include <QDebug>
+#include <QSettings>
 
-#include <QtGui/QAbstractButton>
-#include <QtGui/QMessageBox>
+#include <QAbstractButton>
+#include <QMessageBox>
 
 namespace Designer {
 namespace Internal {

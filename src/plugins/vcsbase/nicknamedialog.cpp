@@ -35,12 +35,12 @@
 
 #include <utils/fileutils.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QFile>
-#include <QtCore/QDir>
-#include <QtGui/QPushButton>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QSortFilterProxyModel>
+#include <QDebug>
+#include <QFile>
+#include <QDir>
+#include <QPushButton>
+#include <QStandardItemModel>
+#include <QSortFilterProxyModel>
 
 enum { NickNameRole = Qt::UserRole + 1 };
 

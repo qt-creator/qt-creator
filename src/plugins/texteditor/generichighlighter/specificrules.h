@@ -36,10 +36,10 @@
 #include "rule.h"
 #include "dynamicrule.h"
 
-#include <QtCore/QChar>
-#include <QtCore/QStringList>
-#include <QtCore/QRegExp>
-#include <QtCore/QSharedPointer>
+#include <QChar>
+#include <QStringList>
+#include <QRegExp>
+#include <QSharedPointer>
 
 namespace TextEditor {
 namespace Internal {

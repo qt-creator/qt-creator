@@ -36,11 +36,11 @@
 #include "corelib_global.h"
 #include "nodeinstanceview.h"
 #include "propertycontainer.h"
-#include <QtCore/QHash>
-#include <QtCore/QList>
-#include <QtCore/QString>
-#include <QtCore/QVariant>
-#include <QtGui/QImage>
+#include <QHash>
+#include <QList>
+#include <QString>
+#include <QVariant>
+#include <QImage>
 
 namespace QmlDesigner {
 

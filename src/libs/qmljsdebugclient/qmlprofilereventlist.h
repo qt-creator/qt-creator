@@ -37,8 +37,8 @@
 #include "qmlprofilereventlocation.h"
 #include "qmljsdebugclient_global.h"
 
-#include <QtCore/QHash>
-#include <QtCore/QObject>
+#include <QHash>
+#include <QObject>
 
 namespace QmlJsDebugClient {
 

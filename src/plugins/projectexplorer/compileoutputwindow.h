@@ -37,7 +37,7 @@
 #include <coreplugin/outputwindow.h>
 #include <coreplugin/ioutputpane.h>
 
-#include <QtCore/QHash>
+#include <QHash>
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;

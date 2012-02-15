@@ -33,9 +33,9 @@
 #ifndef WRAP_HELPERS_H
 #define WRAP_HELPERS_H
 
-#include <QtScript/QScriptEngine>
-#include <QtScript/QScriptContext>
-#include <QtScript/QScriptValue>
+#include <QScriptEngine>
+#include <QScriptContext>
+#include <QScriptValue>
 
 namespace SharedTools {
 

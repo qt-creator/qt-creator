@@ -34,21 +34,21 @@
 #include <utils/stylehelper.h>
 #include <utils/styledbar.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
-#include <QtGui/QColorDialog>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QWindowsStyle>
-#include <QtGui/QPainter>
-#include <QtGui/QSplitter>
-#include <QtGui/QStackedLayout>
-#include <QtGui/QStatusBar>
-#include <QtGui/QToolButton>
-#include <QtGui/QToolTip>
-#include <QtCore/QAnimationGroup>
-#include <QtCore/QPropertyAnimation>
+#include <QColorDialog>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QMouseEvent>
+#include <QWindowsStyle>
+#include <QPainter>
+#include <QSplitter>
+#include <QStackedLayout>
+#include <QStatusBar>
+#include <QToolButton>
+#include <QToolTip>
+#include <QAnimationGroup>
+#include <QPropertyAnimation>
 
 using namespace Core;
 using namespace Internal;

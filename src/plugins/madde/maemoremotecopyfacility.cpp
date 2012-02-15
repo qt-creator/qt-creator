@@ -37,7 +37,7 @@
 #include <utils/ssh/sshconnection.h>
 #include <utils/ssh/sshremoteprocessrunner.h>
 
-#include <QtCore/QDir>
+#include <QDir>
 
 using namespace RemoteLinux;
 using namespace Utils;

@@ -44,13 +44,13 @@
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
-#include <QtGui/QHeaderView>
-#include <QtGui/QItemDelegate>
-#include <QtGui/QMenu>
-#include <QtGui/QPainter>
-#include <QtGui/QResizeEvent>
+#include <QHeaderView>
+#include <QItemDelegate>
+#include <QMenu>
+#include <QPainter>
+#include <QResizeEvent>
 
 
 namespace Debugger {

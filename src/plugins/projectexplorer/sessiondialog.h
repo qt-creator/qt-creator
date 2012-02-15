@@ -33,8 +33,8 @@
 #ifndef SESSIONDIALOG_H
 #define SESSIONDIALOG_H
 
-#include <QtCore/QString>
-#include <QtGui/QDialog>
+#include <QString>
+#include <QDialog>
 
 #include "ui_sessiondialog.h"
 

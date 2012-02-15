@@ -87,8 +87,8 @@
 #    include <QTest>
 #endif
 
-#include <QtCore/QtPlugin>
-#include <QtGui/QMenu>
+#include <QtPlugin>
+#include <QMenu>
 
 using namespace Qt4ProjectManager::Internal;
 using namespace Qt4ProjectManager;

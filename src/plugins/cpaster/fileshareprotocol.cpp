@@ -40,12 +40,12 @@
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 
-#include <QtCore/QXmlStreamReader>
-#include <QtCore/QXmlStreamAttribute>
-#include <QtCore/QTemporaryFile>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
+#include <QXmlStreamReader>
+#include <QXmlStreamAttribute>
+#include <QTemporaryFile>
+#include <QDir>
+#include <QFileInfo>
+#include <QDebug>
 
 enum { debug = 0 };
 

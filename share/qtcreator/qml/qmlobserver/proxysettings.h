@@ -32,8 +32,8 @@
 #ifndef PROXYSETTINGS_H
 #define PROXYSETTINGS_H
 
-#include <QtGui/QDialog>
-#include <QtNetwork/QNetworkProxy>
+#include <QDialog>
+#include <QNetworkProxy>
 #ifdef Q_WS_MAEMO_5
 #include "ui_proxysettings_maemo5.h"
 #else

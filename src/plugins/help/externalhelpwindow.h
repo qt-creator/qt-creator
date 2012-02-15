@@ -33,7 +33,7 @@
 #ifndef EXTERNALHELPWINDOW
 #define EXTERNALHELPWINDOW
 
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 
 QT_FORWARD_DECLARE_CLASS(QCloseEvent)
 QT_FORWARD_DECLARE_CLASS(QToolButton)

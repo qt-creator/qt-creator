@@ -46,17 +46,17 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
 #include <utils/QtConcurrentTools>
-#include <QtCore/QtConcurrentRun>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QSettings>
-#include <QtCore/QDateTime>
-#include <QtGui/QFormLayout>
-#include <QtGui/QBoxLayout>
-#include <QtGui/QDesktopServices>
-#include <QtGui/QApplication>
-#include <QtGui/QLabel>
-#include <QtGui/QGroupBox>
-#include <QtGui/QSpacerItem>
+#include <QtConcurrentRun>
+#include <QCoreApplication>
+#include <QSettings>
+#include <QDateTime>
+#include <QFormLayout>
+#include <QBoxLayout>
+#include <QDesktopServices>
+#include <QApplication>
+#include <QLabel>
+#include <QGroupBox>
+#include <QSpacerItem>
 
 using namespace CMakeProjectManager::Internal;
 

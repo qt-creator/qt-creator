@@ -38,9 +38,9 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/id.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QPointer>
-#include <QtCore/QList>
+#include <QObject>
+#include <QPointer>
+#include <QList>
 
 QT_FORWARD_DECLARE_CLASS(QAction)
 

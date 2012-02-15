@@ -40,8 +40,8 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QTimer>
-#include <QtGui/QMainWindow>
+#include <QTimer>
+#include <QMainWindow>
 
 namespace Debugger {
 namespace Internal {

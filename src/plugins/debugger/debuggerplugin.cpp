@@ -116,24 +116,24 @@
 
 #include <qml/qmljsscriptconsole.h>
 
-#include <QtCore/QTimer>
-#include <QtCore/QtPlugin>
-#include <QtGui/QComboBox>
-#include <QtGui/QDockWidget>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QTextBlock>
-#include <QtGui/QTextCursor>
-#include <QtGui/QToolButton>
-#include <QtGui/QTreeWidget>
-#include <QtGui/QInputDialog>
+#include <QTimer>
+#include <QtPlugin>
+#include <QComboBox>
+#include <QDockWidget>
+#include <QFileDialog>
+#include <QMenu>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QTextBlock>
+#include <QTextCursor>
+#include <QToolButton>
+#include <QTreeWidget>
+#include <QInputDialog>
 
 #ifdef WITH_TESTS
-#include <QtTest/QTest>
-#include <QtTest/QSignalSpy>
-#include <QtTest/QTestEventLoop>
+#include <QTest>
+#include <QSignalSpy>
+#include <QTestEventLoop>
 
 //#define WITH_BENCHMARK
 #ifdef WITH_BENCHMARK

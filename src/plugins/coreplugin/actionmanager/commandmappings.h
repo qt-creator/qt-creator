@@ -35,7 +35,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QtCore/QObject>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;

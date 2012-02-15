@@ -33,8 +33,8 @@
 #ifndef PERFORCECHECKER_H
 #define PERFORCECHECKER_H
 
-#include <QtCore/QObject>
-#include <QtCore/QProcess>
+#include <QObject>
+#include <QProcess>
 
 namespace Perforce {
 namespace Internal {

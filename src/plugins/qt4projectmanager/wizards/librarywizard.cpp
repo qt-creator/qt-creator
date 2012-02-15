@@ -40,10 +40,10 @@
 #include <cpptools/abstracteditorsupport.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTextStream>
-#include <QtGui/QIcon>
+#include <QDir>
+#include <QFileInfo>
+#include <QTextStream>
+#include <QIcon>
 
 static const char sharedHeaderPostfixC[] = "_global";
 

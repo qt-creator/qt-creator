@@ -41,8 +41,8 @@
 #define STYLEPLUGIN_H
 
 #include <QDeclarativeExtensionPlugin>
-#include <QtScript/QScriptValue>
-#include <QtCore/QTimer>
+#include <QScriptValue>
+#include <QTimer>
 #include <QFileSystemModel>
 #include "qdeclarativefolderlistmodel.h"
 

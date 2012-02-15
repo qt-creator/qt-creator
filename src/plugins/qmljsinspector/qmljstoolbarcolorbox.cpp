@@ -31,18 +31,18 @@
 **************************************************************************/
 #include "qmljstoolbarcolorbox.h"
 
-#include <QtGui/QPixmap>
-#include <QtGui/QPainter>
-#include <QtGui/QMenu>
-#include <QtGui/QAction>
-#include <QtGui/QContextMenuEvent>
-#include <QtGui/QClipboard>
-#include <QtGui/QApplication>
-#include <QtGui/QColorDialog>
-#include <QtGui/QDrag>
+#include <QPixmap>
+#include <QPainter>
+#include <QMenu>
+#include <QAction>
+#include <QContextMenuEvent>
+#include <QClipboard>
+#include <QApplication>
+#include <QColorDialog>
+#include <QDrag>
 
-#include <QtCore/QMimeData>
-#include <QtCore/QDebug>
+#include <QMimeData>
+#include <QDebug>
 
 namespace QmlJSInspector {
 

@@ -35,7 +35,7 @@
 
 #include "ui_pasteselect.h"
 
-#include <QtCore/QList>
+#include <QList>
 
 QT_FORWARD_DECLARE_CLASS(QPushButton)
 

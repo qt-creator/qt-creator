@@ -38,9 +38,9 @@
 #include <utils/fileutils.h>
 #include <projectexplorer/toolchain.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QFutureInterface>
-#include <QtCore/QMetaType>
+#include <QObject>
+#include <QFutureInterface>
+#include <QMetaType>
 
 namespace QtSupport {
 

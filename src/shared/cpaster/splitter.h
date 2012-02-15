@@ -33,9 +33,9 @@
 #ifndef SPLITTER_H
 #define SPLITTER_H
 
-#include <QtCore/QByteArray>
-#include <QtCore/QList>
-#include <QtCore/QString>
+#include <QByteArray>
+#include <QList>
+#include <QString>
 
 struct FileData
 {

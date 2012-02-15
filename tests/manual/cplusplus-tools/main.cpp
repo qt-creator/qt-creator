@@ -34,7 +34,7 @@
  Folow includes
  */
 #include <QDebug>
-#include <QtCore/QString>
+#include <QString>
 #include <iostream>
 #include <vector>
 #include <cstdio>

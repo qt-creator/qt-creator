@@ -50,7 +50,7 @@
 #include <memory>
 #include <string>
 
-#include <QtCore/QDateTime>
+#include <QDateTime>
 
 using namespace Botan;
 using namespace Qt4ProjectManager;

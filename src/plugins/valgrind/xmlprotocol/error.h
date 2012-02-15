@@ -35,8 +35,8 @@
 #ifndef LIBVALGRIND_PROTOCOL_ERROR_H
 #define LIBVALGRIND_PROTOCOL_ERROR_H
 
-#include <QtCore/QMetaType>
-#include <QtCore/QSharedDataPointer>
+#include <QMetaType>
+#include <QSharedDataPointer>
 
 QT_BEGIN_NAMESPACE
 class QString;

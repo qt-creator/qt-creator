@@ -33,7 +33,7 @@
 #include "openpagesmodel.h"
 #include "helpviewer.h"
 
-#include <QtCore/QUrl>
+#include <QUrl>
 
 using namespace Help::Internal;
 

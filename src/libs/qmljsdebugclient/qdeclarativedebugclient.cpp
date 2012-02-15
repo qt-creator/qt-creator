@@ -33,9 +33,9 @@
 
 #include "qpacketprotocol.h"
 
-#include <QtCore/qdebug.h>
-#include <QtCore/qstringlist.h>
-#include <QtNetwork/qnetworkproxy.h>
+#include <qdebug.h>
+#include <qstringlist.h>
+#include <qnetworkproxy.h>
 #include <symbiandevicemanager.h>
 
 namespace QmlJsDebugClient {

@@ -38,14 +38,14 @@
 #include <qmljsdebugclient/qmlprofilertraceclient.h>
 #include <utils/styledbar.h>
 
-#include <QtDeclarative/QDeclarativeView>
-#include <QtDeclarative/QDeclarativeContext>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QGraphicsObject>
-#include <QtGui/QContextMenuEvent>
-#include <QtGui/QScrollBar>
-#include <QtGui/QSlider>
-#include <QtGui/QWidget>
+#include <QDeclarativeView>
+#include <QDeclarativeContext>
+#include <QVBoxLayout>
+#include <QGraphicsObject>
+#include <QContextMenuEvent>
+#include <QScrollBar>
+#include <QSlider>
+#include <QWidget>
 
 #include <math.h>
 

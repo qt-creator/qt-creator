@@ -33,8 +33,8 @@
 #include "qmlprojectitem.h"
 #include "filefilteritems.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
+#include <QDebug>
+#include <QDir>
 
 namespace QmlProjectManager {
 

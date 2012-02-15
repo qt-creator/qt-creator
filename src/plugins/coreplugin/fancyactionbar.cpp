@@ -39,20 +39,20 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QPainter>
-#include <QtGui/QPicture>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QAction>
-#include <QtGui/QStatusBar>
-#include <QtGui/QStyle>
-#include <QtGui/QStyleOption>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QApplication>
-#include <QtCore/QEvent>
-#include <QtCore/QAnimationGroup>
-#include <QtCore/QPropertyAnimation>
-#include <QtCore/QDebug>
+#include <QHBoxLayout>
+#include <QPainter>
+#include <QPicture>
+#include <QVBoxLayout>
+#include <QAction>
+#include <QStatusBar>
+#include <QStyle>
+#include <QStyleOption>
+#include <QMouseEvent>
+#include <QApplication>
+#include <QEvent>
+#include <QAnimationGroup>
+#include <QPropertyAnimation>
+#include <QDebug>
 
 using namespace Core;
 using namespace Internal;

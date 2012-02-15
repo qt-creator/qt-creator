@@ -33,7 +33,7 @@
 #ifndef OPENPAGESMANAGER_H
 #define OPENPAGESMANAGER_H
 
-#include <QtCore/QObject>
+#include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QComboBox)
 QT_FORWARD_DECLARE_CLASS(QListView)

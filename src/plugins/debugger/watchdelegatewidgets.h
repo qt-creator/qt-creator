@@ -33,9 +33,9 @@
 #ifndef WATCHDELEGATEEDITS_H
 #define WATCHDELEGATEEDITS_H
 
-#include <QtGui/QLineEdit>
-#include <QtGui/QComboBox>
-#include <QtCore/QVariant>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QVariant>
 
 namespace Debugger {
 namespace Internal {

@@ -35,8 +35,8 @@
 #include <utils/qtcassert.h>
 #include <utils/ssh/sshremoteprocessrunner.h>
 
-#include <QtCore/QByteArray>
-#include <QtCore/QString>
+#include <QByteArray>
+#include <QString>
 
 using namespace Utils;
 

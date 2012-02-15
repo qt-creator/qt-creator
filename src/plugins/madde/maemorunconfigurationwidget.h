@@ -32,7 +32,7 @@
 #ifndef MAEMORUNCONFIGURATIONWIDGET_H
 #define MAEMORUNCONFIGURATIONWIDGET_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QLabel;

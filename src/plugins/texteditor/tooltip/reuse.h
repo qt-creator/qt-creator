@@ -33,11 +33,11 @@
 #ifndef TOOLTIPREUSE_H
 #define TOOLTIPREUSE_H
 
-#include <QtCore/QPoint>
-#include <QtCore/QRect>
-#include <QtGui/QWidget>
-#include <QtGui/QApplication>
-#include <QtGui/QDesktopWidget>
+#include <QPoint>
+#include <QRect>
+#include <QWidget>
+#include <QApplication>
+#include <QDesktopWidget>
 
 namespace TextEditor {
 namespace Internal {

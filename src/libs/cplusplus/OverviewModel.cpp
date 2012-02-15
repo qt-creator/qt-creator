@@ -37,8 +37,8 @@
 #include <Literals.h>
 #include <Symbols.h>
 
-#include <QtCore/QFile>
-#include <QtCore/QtDebug>
+#include <QFile>
+#include <QtDebug>
 
 using namespace CPlusPlus;
 

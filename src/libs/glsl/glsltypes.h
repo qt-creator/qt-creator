@@ -35,10 +35,10 @@
 
 #include "glsltype.h"
 #include "glslsymbol.h"
-#include <QtCore/QVector>
-#include <QtCore/QHash>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+#include <QVector>
+#include <QHash>
+#include <QString>
+#include <QStringList>
 
 namespace GLSL {
 

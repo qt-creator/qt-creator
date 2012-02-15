@@ -33,9 +33,9 @@
 #ifndef SSHCHANNELLAYER_P_H
 #define SSHCHANNELLAYER_P_H
 
-#include <QtCore/QHash>
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
+#include <QHash>
+#include <QObject>
+#include <QSharedPointer>
 
 namespace Utils {
 

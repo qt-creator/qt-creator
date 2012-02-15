@@ -37,7 +37,7 @@
 
 #include <cplusplus/ModelManagerInterface.h>
 
-#include <QtCore/QProcess>
+#include <QProcess>
 
 using namespace CMakeProjectManager;
 using namespace Internal;

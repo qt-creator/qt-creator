@@ -35,8 +35,8 @@
 
 #include "fakevimactions.h"
 
-#include <QtCore/QObject>
-#include <QtGui/QTextEdit>
+#include <QObject>
+#include <QTextEdit>
 
 namespace FakeVim {
 namespace Internal {

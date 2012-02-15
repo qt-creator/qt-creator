@@ -33,9 +33,9 @@
 #ifndef RULE_H
 #define RULE_H
 
-#include <QtCore/QString>
-#include <QtCore/QList>
-#include <QtCore/QSharedPointer>
+#include <QString>
+#include <QList>
+#include <QSharedPointer>
 
 namespace TextEditor {
 namespace Internal {

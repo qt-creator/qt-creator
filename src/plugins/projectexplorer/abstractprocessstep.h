@@ -36,8 +36,8 @@
 #include "buildstep.h"
 #include "processparameters.h"
 
-#include <QtCore/QString>
-#include <QtCore/QProcess>
+#include <QString>
+#include <QProcess>
 
 QT_BEGIN_NAMESPACE
 class QEventLoop;

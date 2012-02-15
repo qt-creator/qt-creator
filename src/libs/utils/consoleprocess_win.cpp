@@ -35,9 +35,9 @@
 #include "qtcprocess.h"
 #include "winutils.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QAbstractEventDispatcher>
+#include <QCoreApplication>
+#include <QDir>
+#include <QAbstractEventDispatcher>
 
 #include <stdlib.h>
 

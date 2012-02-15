@@ -34,7 +34,7 @@
 #define SETTINGSMANAGER_H
 
 #if QT_VERSION >= 0x050000
-#    include <QtDesigner/QDesignerSettingsInterface>
+#    include <QDesignerSettingsInterface>
 #else
 #    include "qt_private/abstractsettings_p.h"
 #endif

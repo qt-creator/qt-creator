@@ -34,9 +34,9 @@
 #define METAINFOPARSER_H
 
 #include "corelib_global.h"
-#include <QtCore/QXmlStreamReader>
-#include <QtCore/QString>
-#include <QtCore/QFile>
+#include <QXmlStreamReader>
+#include <QString>
+#include <QFile>
 #include <metainfo.h>
 
 namespace QmlDesigner {

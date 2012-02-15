@@ -33,7 +33,7 @@
 #ifndef REMOTE_LINUX_EXPORT_H
 #define REMOTE_LINUX_EXPORT_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(REMOTELINUX_LIBRARY)
 #  define REMOTELINUX_EXPORT Q_DECL_EXPORT

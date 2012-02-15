@@ -33,8 +33,8 @@
 #ifndef LINUXDEVICEFACTORYSELECTIONDIALOG_H
 #define LINUXDEVICEFACTORYSELECTIONDIALOG_H
 
-#include <QtCore/QList>
-#include <QtGui/QDialog>
+#include <QList>
+#include <QDialog>
 
 namespace RemoteLinux {
 class ILinuxDeviceConfigurationFactory;

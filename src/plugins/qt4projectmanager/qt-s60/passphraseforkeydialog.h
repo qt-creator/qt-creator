@@ -33,7 +33,7 @@
 #ifndef PASSPHRASEFORKEYDIALOG_H
 #define PASSPHRASEFORKEYDIALOG_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 QT_FORWARD_DECLARE_CLASS(QCheckBox)
 QT_FORWARD_DECLARE_CLASS(QDialogButtonBox)

@@ -33,7 +33,7 @@
 #include "stateseditormodel.h"
 #include "stateseditorview.h"
 
-#include <QtCore/QDebug>
+#include <QDebug>
 #include <QMessageBox>
 
 #include <nodelistproperty.h>

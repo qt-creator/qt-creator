@@ -36,10 +36,10 @@
 
 #include <coreplugin/coreconstants.h>
 
-#include <QtCore/QDir>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QClipboard>
+#include <QDir>
+#include <QAction>
+#include <QApplication>
+#include <QClipboard>
 
 using namespace ProjectExplorer::Internal;
 

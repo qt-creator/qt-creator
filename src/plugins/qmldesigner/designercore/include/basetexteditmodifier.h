@@ -39,7 +39,7 @@
 
 #include <texteditor/basetexteditor.h>
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 namespace QmlJS {
 class Snapshot;

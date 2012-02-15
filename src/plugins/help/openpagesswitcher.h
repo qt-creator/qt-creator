@@ -33,7 +33,7 @@
 #ifndef OPENPAGESSWITCHER_H
 #define OPENPAGESSWITCHER_H
 
-#include <QtGui/QFrame>
+#include <QFrame>
 
 QT_FORWARD_DECLARE_CLASS(QModelIndex)
 

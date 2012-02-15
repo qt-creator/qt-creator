@@ -33,9 +33,9 @@
 #ifndef DOUBLETABWIDGET_H
 #define DOUBLETABWIDGET_H
 
-#include <QtCore/QVector>
-#include <QtGui/QWidget>
-#include <QtGui/QPixmap>
+#include <QVector>
+#include <QWidget>
+#include <QPixmap>
 
 namespace ProjectExplorer {
 namespace Internal {

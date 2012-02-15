@@ -35,8 +35,8 @@
 
 #include <projectexplorer/target.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QVariantMap>
+#include <QStringList>
+#include <QVariantMap>
 
 namespace QmlProjectManager {
 class QmlProject;

@@ -33,7 +33,7 @@
 #ifndef ZEROCONF_GLOBAL_H
 #define ZEROCONF_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(ZEROCONF_LIBRARY)
 #  define ZEROCONFSHARED_EXPORT Q_DECL_EXPORT

@@ -34,11 +34,11 @@
 
 #include <Token.h>
 
-#include <QtGui/QTextDocument>
-#include <QtGui/QTextCursor>
+#include <QTextDocument>
+#include <QTextCursor>
 
-#include <QtCore/QChar>
-#include <QtCore/QtDebug>
+#include <QChar>
+#include <QtDebug>
 
 using namespace CPlusPlus;
 

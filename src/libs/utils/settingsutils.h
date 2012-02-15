@@ -33,10 +33,10 @@
 #ifndef SETTINGSUTILS_H
 #define SETTINGSUTILS_H
 
-#include <QtCore/QSettings>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QVariant>
+#include <QSettings>
+#include <QString>
+#include <QStringList>
+#include <QVariant>
 
 namespace Utils {
 

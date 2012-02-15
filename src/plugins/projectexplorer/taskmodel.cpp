@@ -37,7 +37,7 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtGui/QFontMetrics>
+#include <QFontMetrics>
 
 namespace ProjectExplorer {
 namespace Internal {

@@ -40,8 +40,8 @@
 // @TODO: Move...
 #include <texteditor/quickfix.h>
 
-#include <QtCore/QMap>
-#include <QtCore/QDebug>
+#include <QMap>
+#include <QDebug>
 
 using namespace TextEditor;
 

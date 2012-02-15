@@ -34,9 +34,9 @@
 #include "qmlerror.h"
 bool Qml_isFileCaseCorrect(const QString &) { return true; }
 
-#include <QtCore/QTextStream>
-#include <QtCore/QFile>
-#include <QtCore/QtDebug>
+#include <QTextStream>
+#include <QFile>
+#include <QtDebug>
 
 QT_BEGIN_NAMESPACE
 

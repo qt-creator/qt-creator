@@ -36,7 +36,7 @@
 #include "../core_global.h"
 #include "../id.h"
 
-#include <QtCore/QAbstractItemModel>
+#include <QAbstractItemModel>
 
 QT_FORWARD_DECLARE_CLASS(QIcon)
 

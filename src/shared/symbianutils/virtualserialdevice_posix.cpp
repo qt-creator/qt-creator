@@ -36,10 +36,10 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
-#include <QtCore/QSocketNotifier>
-#include <QtCore/QTimer>
-#include <QtCore/QThread>
-#include <QtCore/QWaitCondition>
+#include <QSocketNotifier>
+#include <QTimer>
+#include <QThread>
+#include <QWaitCondition>
 #include "virtualserialdevice.h"
 
 namespace SymbianUtils {

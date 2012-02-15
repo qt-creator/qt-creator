@@ -56,14 +56,14 @@
 #include <qmljs/qmljscompletioncontextfinder.h>
 #include <qmljs/qmljsscopebuilder.h>
 
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/QDebug>
-#include <QtCore/QtAlgorithms>
-#include <QtCore/QDirIterator>
-#include <QtCore/QStringList>
-#include <QtGui/QIcon>
+#include <QFile>
+#include <QFileInfo>
+#include <QDir>
+#include <QDebug>
+#include <QtAlgorithms>
+#include <QDirIterator>
+#include <QStringList>
+#include <QIcon>
 
 using namespace QmlJS;
 using namespace QmlJSEditor;

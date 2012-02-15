@@ -33,7 +33,7 @@
 #ifndef CPASTERCONSTANTS_H
 #define CPASTERCONSTANTS_H
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 namespace CodePaster {
 namespace Constants {

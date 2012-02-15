@@ -33,7 +33,7 @@
 #ifndef LOCATOR_GLOBAL_H
 #define LOCATOR_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(LOCATOR_LIBRARY)
 #  define LOCATOR_EXPORT Q_DECL_EXPORT

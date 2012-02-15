@@ -36,10 +36,10 @@
 #include "genericdirectuploadservice.h"
 #include "remotelinuxdeployconfiguration.h"
 
-#include <QtGui/QCheckBox>
-#include <QtGui/QVBoxLayout>
-#include <QtCore/QList>
-#include <QtCore/QSharedPointer>
+#include <QCheckBox>
+#include <QVBoxLayout>
+#include <QList>
+#include <QSharedPointer>
 
 using namespace ProjectExplorer;
 

@@ -35,24 +35,24 @@
 #include "pluginpath.h"
 #include <metainfo.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QObject>
-#include <QtCore/QSharedData>
-#include <QtCore/QDir>
-#include <QtCore/QStringList>
-#include <QtCore/QDebug>
+#include <QCoreApplication>
+#include <QObject>
+#include <QSharedData>
+#include <QDir>
+#include <QStringList>
+#include <QDebug>
 #include <QWeakPointer>
-#include <QtCore/QPluginLoader>
-#include <QtCore/QFileInfo>
-#include <QtCore/QLibraryInfo>
+#include <QPluginLoader>
+#include <QFileInfo>
+#include <QLibraryInfo>
 
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QStandardItem>
-#include <QtGui/QTreeView>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QDialog>
-#include <QtGui/QLabel>
-#include <QtGui/QDialogButtonBox>
+#include <QStandardItemModel>
+#include <QStandardItem>
+#include <QTreeView>
+#include <QVBoxLayout>
+#include <QDialog>
+#include <QLabel>
+#include <QDialogButtonBox>
 
 enum { debug = 0 };
 

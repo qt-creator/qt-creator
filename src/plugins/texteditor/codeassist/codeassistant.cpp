@@ -45,11 +45,11 @@
 #include <texteditor/completionsettings.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QList>
-#include <QtCore/QTimer>
-#include <QtCore/QDebug>
-#include <QtGui/QKeyEvent>
+#include <QObject>
+#include <QList>
+#include <QTimer>
+#include <QDebug>
+#include <QKeyEvent>
 
 using namespace TextEditor;
 using namespace Internal;

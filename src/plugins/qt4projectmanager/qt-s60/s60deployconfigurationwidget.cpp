@@ -46,25 +46,25 @@
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QTimer>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QComboBox>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QFormLayout>
-#include <QtGui/QToolButton>
-#include <QtGui/QStyle>
-#include <QtGui/QApplication>
-#include <QtGui/QSpacerItem>
-#include <QtGui/QMessageBox>
-#include <QtGui/QCheckBox>
-#include <QtGui/QGroupBox>
-#include <QtGui/QRadioButton>
-#include <QtGui/QValidator>
+#include <QDir>
+#include <QTimer>
+#include <QLabel>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QFormLayout>
+#include <QToolButton>
+#include <QStyle>
+#include <QApplication>
+#include <QSpacerItem>
+#include <QMessageBox>
+#include <QCheckBox>
+#include <QGroupBox>
+#include <QRadioButton>
+#include <QValidator>
 
-#include <QtNetwork/QTcpSocket>
+#include <QTcpSocket>
 
 Q_DECLARE_METATYPE(SymbianUtils::SymbianDevice)
 

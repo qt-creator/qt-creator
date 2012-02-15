@@ -36,8 +36,8 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/normalindenter.h>
 
-#include <QtGui/QTextDocument>
-#include <QtGui/QFocusEvent>
+#include <QTextDocument>
+#include <QFocusEvent>
 
 using namespace TextEditor;
 

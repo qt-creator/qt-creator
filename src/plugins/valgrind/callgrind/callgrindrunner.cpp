@@ -35,7 +35,7 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFile>
+#include <QFile>
 
 namespace Valgrind {
 namespace Callgrind {

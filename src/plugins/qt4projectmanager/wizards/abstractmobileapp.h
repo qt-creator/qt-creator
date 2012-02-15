@@ -34,8 +34,8 @@
 #define ABSTRACTMOBILEAPP_H
 
 #include "../qt4projectmanager_global.h"
-#include <QtCore/QFileInfo>
-#include <QtCore/QPair>
+#include <QFileInfo>
+#include <QPair>
 
 #ifndef CREATORLESSTEST
 #include <coreplugin/basefilewizard.h>

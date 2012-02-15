@@ -45,11 +45,11 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFileInfo>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPixmap>
-#include <QtGui/QVBoxLayout>
+#include <QFileInfo>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QPixmap>
+#include <QVBoxLayout>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;

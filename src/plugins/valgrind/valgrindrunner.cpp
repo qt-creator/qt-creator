@@ -41,7 +41,7 @@
 #include <utils/ssh/sshconnection.h>
 #include <utils/ssh/sshremoteprocess.h>
 
-#include <QtCore/QEventLoop>
+#include <QEventLoop>
 
 namespace Valgrind {
 

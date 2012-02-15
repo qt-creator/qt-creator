@@ -36,9 +36,9 @@
 
 #include <coreplugin/coreconstants.h>
 
-#include <QtGui/QDesktopServices>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
+#include <QDesktopServices>
+#include <QFileDialog>
+#include <QMessageBox>
 
 namespace Qt4ProjectManager {
 namespace Internal {

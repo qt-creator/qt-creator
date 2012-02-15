@@ -40,17 +40,17 @@
 #include <valgrind/callgrind/callgrindproxymodel.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QGraphicsRectItem>
-#include <QtGui/QGraphicsScene>
-#include <QtGui/QGraphicsSimpleTextItem>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QStaticText>
-#include <QtGui/QStyleOptionGraphicsItem>
-#include <QtCore/QPair>
-#include <QtCore/QPersistentModelIndex>
-#include <QtCore/QLinkedList>
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QDebug>
+#include <QGraphicsRectItem>
+#include <QGraphicsScene>
+#include <QGraphicsSimpleTextItem>
+#include <QMouseEvent>
+#include <QStaticText>
+#include <QStyleOptionGraphicsItem>
+#include <QPair>
+#include <QPersistentModelIndex>
+#include <QLinkedList>
+#include <QAbstractItemModel>
+#include <QDebug>
 
 #define VISUALISATION_DEBUG 0
 // Margin from hardcoded value in:

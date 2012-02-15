@@ -39,9 +39,9 @@
 
 #include <coreplugin/icore.h>
 
-#include <QtCore/QTextStream>
-#include <QtGui/QLineEdit>
-#include <QtGui/QCheckBox>
+#include <QTextStream>
+#include <QLineEdit>
+#include <QCheckBox>
 
 namespace Debugger {
 namespace Internal {

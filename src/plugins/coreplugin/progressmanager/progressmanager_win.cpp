@@ -30,18 +30,18 @@
 **
 **************************************************************************/
 
-#include <QtCore/QVariant>
-#include <QtGui/QMainWindow>
-#include <QtGui/QFont>
-#include <QtGui/QFontMetrics>
-#include <QtGui/QPixmap>
-#include <QtGui/QPainter>
+#include <QVariant>
+#include <QMainWindow>
+#include <QFont>
+#include <QFontMetrics>
+#include <QPixmap>
+#include <QPainter>
 #if QT_VERSION >= 0x050000
-#    include <QtGui/QGuiApplication>
-#    include <QtGui/QWindow>
-#    include <QtGui/QPlatformNativeInterface>
+#    include <QGuiApplication>
+#    include <QWindow>
+#    include <QPlatformNativeInterface>
 #endif
-#include <QtGui/QLabel>
+#include <QLabel>
 
 #include <coreplugin/icore.h>
 

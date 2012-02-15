@@ -35,8 +35,8 @@
 
 #include "texteditorconstants.h"
 
-#include <QtCore/QAbstractListModel>
-#include <QtGui/QColorDialog>
+#include <QAbstractListModel>
+#include <QColorDialog>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;

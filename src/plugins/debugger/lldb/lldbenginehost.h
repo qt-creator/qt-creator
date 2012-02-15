@@ -39,8 +39,8 @@
 #include <utils/ssh/sshremoteprocess.h>
 #include <utils/ssh/sshremoteprocessrunner.h>
 
-#include <QtCore/QProcess>
-#include <QtCore/QQueue>
+#include <QProcess>
+#include <QQueue>
 
 namespace Debugger {
 namespace Internal {

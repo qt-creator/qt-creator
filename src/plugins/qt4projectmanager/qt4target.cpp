@@ -59,15 +59,15 @@
 #include <utils/detailswidget.h>
 #include <utils/qtcprocess.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtGui/QPushButton>
-#include <QtGui/QMessageBox>
-#include <QtGui/QCheckBox>
-#include <QtGui/QComboBox>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QMainWindow>
-#include <QtGui/QVBoxLayout>
+#include <QCoreApplication>
+#include <QPushButton>
+#include <QMessageBox>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QMainWindow>
+#include <QVBoxLayout>
 
 #include <algorithm>
 

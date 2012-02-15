@@ -40,7 +40,7 @@
 #ifndef QTMENUITEM_H
 #define QTMENUITEM_H
 
-#include <QtCore/QObject>
+#include <QObject>
 
 class QtMenuItem: public QObject
 {

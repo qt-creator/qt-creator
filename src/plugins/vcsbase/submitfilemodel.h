@@ -35,7 +35,7 @@
 
 #include "vcsbase_global.h"
 
-#include <QtGui/QStandardItemModel>
+#include <QStandardItemModel>
 
 namespace VcsBase {
 

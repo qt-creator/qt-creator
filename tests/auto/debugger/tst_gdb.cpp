@@ -42,25 +42,25 @@ bool checkUninitialized = false;
 #include "gdb/gdbmi.h"
 
 #ifdef QT_GUI_LIB
-#include <QtGui/QBitmap>
-#include <QtGui/QBrush>
-#include <QtGui/QColor>
-#include <QtGui/QCursor>
-#include <QtGui/QFont>
-#include <QtGui/QIcon>
-#include <QtGui/QKeySequence>
-#include <QtGui/QMatrix4x4>
-#include <QtGui/QPen>
-#include <QtGui/QQuaternion>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QStringListModel>
-#include <QtGui/QTextFormat>
-#include <QtGui/QTextLength>
-#include <QtGui/QVector2D>
-#include <QtGui/QWidget>
+#include <QBitmap>
+#include <QBrush>
+#include <QColor>
+#include <QCursor>
+#include <QFont>
+#include <QIcon>
+#include <QKeySequence>
+#include <QMatrix4x4>
+#include <QPen>
+#include <QQuaternion>
+#include <QStandardItemModel>
+#include <QStringListModel>
+#include <QTextFormat>
+#include <QTextLength>
+#include <QVector2D>
+#include <QWidget>
 #endif
 
-#include <QtTest/QtTest>
+#include <QtTest>
 
 #include <deque>
 #include <map>

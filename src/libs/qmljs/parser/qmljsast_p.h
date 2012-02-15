@@ -48,7 +48,7 @@
 #include "qmljsglobal_p.h"
 #include "qmljsmemorypool_p.h"
 
-#include <QtCore/QString>
+#include <QString>
 
 QT_QML_BEGIN_NAMESPACE
 

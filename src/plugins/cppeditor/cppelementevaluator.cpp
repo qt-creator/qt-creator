@@ -51,10 +51,10 @@
 #include <cplusplus/LookupItem.h>
 #include <cplusplus/Icons.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QSet>
-#include <QtCore/QQueue>
+#include <QDir>
+#include <QFileInfo>
+#include <QSet>
+#include <QQueue>
 
 using namespace CppEditor;
 using namespace Internal;

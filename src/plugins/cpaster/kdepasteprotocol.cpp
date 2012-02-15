@@ -34,13 +34,13 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QTextStream>
-#include <QtCore/QXmlStreamReader>
-#include <QtCore/QByteArray>
-#include <QtCore/QStringList>
+#include <QDebug>
+#include <QTextStream>
+#include <QXmlStreamReader>
+#include <QByteArray>
+#include <QStringList>
 
-#include <QtNetwork/QNetworkReply>
+#include <QNetworkReply>
 
 enum { debug =  0 };
 

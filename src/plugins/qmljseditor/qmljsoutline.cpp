@@ -39,11 +39,11 @@
 #include <coreplugin/ifile.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
-#include <QtGui/QAction>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QTextBlock>
+#include <QDebug>
+#include <QSettings>
+#include <QAction>
+#include <QVBoxLayout>
+#include <QTextBlock>
 
 using namespace QmlJS;
 

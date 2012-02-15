@@ -30,9 +30,9 @@
 **
 **************************************************************************/
 
-#include <QtScript/qscriptengine.h>
-#include <QtScript/qscriptvalue.h>
-#include <QtCore/qtimer.h>
+#include <qscriptengine.h>
+#include <qscriptvalue.h>
+#include <qtimer.h>
 
 #include "qdeclarativecanvastimer_p.h"
 

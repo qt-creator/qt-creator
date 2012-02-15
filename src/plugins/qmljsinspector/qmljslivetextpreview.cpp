@@ -54,7 +54,7 @@
 
 #include <debugger/debuggerconstants.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

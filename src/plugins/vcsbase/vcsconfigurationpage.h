@@ -35,7 +35,7 @@
 
 #include "vcsbase_global.h"
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 
 namespace Core { class IVersionControl; }
 

@@ -35,11 +35,11 @@
 
 #include "texteditor_global.h"
 
-#include <QtCore/QHash>
-#include <QtCore/QMap>
-#include <QtCore/QVector>
-#include <QtCore/QFuture>
-#include <QtGui/QTextCharFormat>
+#include <QHash>
+#include <QMap>
+#include <QVector>
+#include <QFuture>
+#include <QTextCharFormat>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;

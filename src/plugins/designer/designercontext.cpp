@@ -34,17 +34,17 @@
 #include "designerconstants.h"
 #include "formeditorw.h"
 
-#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QDesignerFormEditorInterface>
 
 #if QT_VERSION >= 0x050000
-#    include <QtDesigner/QDesignerIntegration>
+#    include <QDesignerIntegration>
 #else
 #    include "qt_private/qdesigner_integration_p.h"
 #endif
 
-#include <QtGui/QWidget>
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
+#include <QWidget>
+#include <QDebug>
+#include <QSettings>
 
 enum { debug = 0 };
 

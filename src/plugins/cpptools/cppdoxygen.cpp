@@ -32,7 +32,7 @@
 
 #include "cppdoxygen.h"
 
-#include <QtCore/QString>
+#include <QString>
 
 using namespace CppTools;
 

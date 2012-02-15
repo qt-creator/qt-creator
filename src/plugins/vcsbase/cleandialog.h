@@ -35,7 +35,7 @@
 
 #include "vcsbase_global.h"
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;

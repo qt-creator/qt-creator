@@ -38,11 +38,11 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/variablechooser.h>
 
-#include <QtCore/QTextStream>
-#include <QtCore/QFile>
-#include <QtCore/QMimeData>
-#include <QtGui/QMessageBox>
-#include <QtGui/QMenu>
+#include <QTextStream>
+#include <QFile>
+#include <QMimeData>
+#include <QMessageBox>
+#include <QMenu>
 
 using namespace Core;
 using namespace Core::Internal;

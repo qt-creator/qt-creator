@@ -40,8 +40,8 @@
 #include "reuse.h"
 #include "tabsettings.h"
 
-#include <QtCore/QLatin1String>
-#include <QtCore/QLatin1Char>
+#include <QLatin1String>
+#include <QLatin1Char>
 
 using namespace TextEditor;
 using namespace Internal;

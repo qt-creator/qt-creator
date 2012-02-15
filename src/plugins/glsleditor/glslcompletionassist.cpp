@@ -52,14 +52,14 @@
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <utils/faketooltip.h>
 
-#include <QtGui/QIcon>
-#include <QtGui/QPainter>
-#include <QtGui/QLabel>
-#include <QtGui/QToolButton>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QApplication>
-#include <QtGui/QDesktopWidget>
-#include <QtCore/QDebug>
+#include <QIcon>
+#include <QPainter>
+#include <QLabel>
+#include <QToolButton>
+#include <QHBoxLayout>
+#include <QApplication>
+#include <QDesktopWidget>
+#include <QDebug>
 
 using namespace GLSLEditor;
 using namespace Internal;

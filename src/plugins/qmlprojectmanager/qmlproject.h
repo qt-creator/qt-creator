@@ -37,7 +37,7 @@
 
 #include <projectexplorer/project.h>
 
-#include <QtDeclarative/QDeclarativeEngine>
+#include <QDeclarativeEngine>
 
 namespace QmlJS {
 class ModelManagerInterface;

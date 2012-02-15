@@ -35,9 +35,9 @@
 
 #include <coreplugin/basefilewizard.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QMap>
-#include <QtCore/QSharedPointer>
+#include <QStringList>
+#include <QMap>
+#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QIODevice;

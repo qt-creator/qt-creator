@@ -32,7 +32,7 @@
 
 #include "ifindfilter.h"
 
-#include <QtGui/QPainter>
+#include <QPainter>
 
 /*!
     \class Find::IFindFilter

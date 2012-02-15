@@ -33,7 +33,7 @@
 #ifndef SUBVERSIONSETTINGS_H
 #define SUBVERSIONSETTINGS_H
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

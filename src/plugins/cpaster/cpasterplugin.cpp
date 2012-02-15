@@ -56,16 +56,16 @@
 #include <utils/fileutils.h>
 #include <texteditor/basetexteditor.h>
 
-#include <QtCore/QtPlugin>
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTemporaryFile>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QClipboard>
-#include <QtGui/QMenu>
-#include <QtGui/QMainWindow>
+#include <QtPlugin>
+#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QTemporaryFile>
+#include <QAction>
+#include <QApplication>
+#include <QClipboard>
+#include <QMenu>
+#include <QMainWindow>
 
 using namespace Core;
 using namespace TextEditor;

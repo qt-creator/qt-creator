@@ -35,9 +35,9 @@
 #include "environment.h"
 #include "qtcprocess.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QSettings>
+#include <QCoreApplication>
+#include <QDir>
+#include <QSettings>
 
 #include <sys/stat.h>
 #include <sys/types.h>

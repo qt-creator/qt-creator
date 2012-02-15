@@ -33,7 +33,7 @@
 #ifndef PROPERTYPARSER_H
 #define PROPERTYPARSER_H
 
-#include <QtCore/QVariant>
+#include <QVariant>
 
 namespace QmlDesigner {
 class MetaInfo;

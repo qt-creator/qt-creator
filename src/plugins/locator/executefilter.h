@@ -37,9 +37,9 @@
 
 #include <utils/qtcprocess.h>
 
-#include <QtCore/QQueue>
-#include <QtCore/QStringList>
-#include <QtCore/QTimer>
+#include <QQueue>
+#include <QStringList>
+#include <QTimer>
 
 namespace Locator {
 namespace Internal {

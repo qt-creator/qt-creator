@@ -33,7 +33,7 @@
 #ifndef IMPORT_H
 #define IMPORT_H
 
-#include <QtCore/QString>
+#include <QString>
 #include <QStringList>
 
 #include "corelib_global.h"

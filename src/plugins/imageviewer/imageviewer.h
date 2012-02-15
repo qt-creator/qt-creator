@@ -37,8 +37,8 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/ifile.h>
 
-#include <QtCore/QScopedPointer>
-#include <QtCore/QStringList>
+#include <QScopedPointer>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 class QAbstractButton;

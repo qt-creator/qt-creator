@@ -32,7 +32,7 @@
 
 #include "qmljsinspectorsettings.h"
 #include "qmljsinspectorconstants.h"
-#include <QtCore/QSettings>
+#include <QSettings>
 
 namespace QmlJSInspector {
 namespace Internal {

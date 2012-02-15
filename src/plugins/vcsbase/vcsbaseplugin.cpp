@@ -50,19 +50,19 @@
 #include <utils/synchronousprocess.h>
 #include <utils/environment.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QSharedData>
-#include <QtCore/QScopedPointer>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QProcessEnvironment>
-#include <QtCore/QTextStream>
-#include <QtCore/QTextCodec>
+#include <QDebug>
+#include <QDir>
+#include <QSharedData>
+#include <QScopedPointer>
+#include <QSharedPointer>
+#include <QProcessEnvironment>
+#include <QTextStream>
+#include <QTextCodec>
 
-#include <QtGui/QAction>
-#include <QtGui/QMessageBox>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMainWindow>
+#include <QAction>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QMainWindow>
 
 using namespace Utils;
 

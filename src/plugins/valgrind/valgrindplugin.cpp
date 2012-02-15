@@ -52,10 +52,10 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QStringList>
-#include <QtCore/QtPlugin>
-#include <QtGui/QAction>
+#include <QDebug>
+#include <QStringList>
+#include <QtPlugin>
+#include <QAction>
 
 using namespace Analyzer;
 using namespace ProjectExplorer;

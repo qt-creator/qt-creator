@@ -36,8 +36,8 @@
 #include <projectexplorer/runconfiguration.h>
 #include <qt4projectmanager/qt4projectmanager_global.h>
 
-#include <QtCore/QFutureInterface>
-#include <QtCore/QStringList>
+#include <QFutureInterface>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 class QWidget;

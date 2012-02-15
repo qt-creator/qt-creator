@@ -39,10 +39,10 @@
 #include <coreplugin/ifile.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
-#include <QtGui/QLabel>
-#include <QtGui/QHBoxLayout>
+#include <QDebug>
+#include <QSettings>
+#include <QLabel>
+#include <QHBoxLayout>
 
 using namespace Find;
 using namespace ProjectExplorer;

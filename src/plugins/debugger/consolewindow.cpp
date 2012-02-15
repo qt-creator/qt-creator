@@ -36,14 +36,14 @@
 #include "debuggeractions.h"
 #include "debuggercore.h"
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QMenu>
-#include <QtGui/QSyntaxHighlighter>
-#include <QtGui/QPlainTextEdit>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QKeyEvent>
+#include <QMenu>
+#include <QSyntaxHighlighter>
+#include <QPlainTextEdit>
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/findplaceholder.h>

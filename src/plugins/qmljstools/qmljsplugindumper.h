@@ -35,9 +35,9 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QHash>
-#include <QtCore/QProcess>
+#include <QObject>
+#include <QHash>
+#include <QProcess>
 
 QT_BEGIN_NAMESPACE
 class QDir;

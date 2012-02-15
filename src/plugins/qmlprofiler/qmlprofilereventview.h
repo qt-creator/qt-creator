@@ -33,10 +33,10 @@
 #ifndef QMLPROFILEREVENTVIEW_H
 #define QMLPROFILEREVENTVIEW_H
 
-#include <QtGui/QTreeView>
+#include <QTreeView>
 #include <qmljsdebugclient/qmlprofilereventtypes.h>
 #include <qmljsdebugclient/qmlprofilereventlist.h>
-#include <QtGui/QStandardItemModel>
+#include <QStandardItemModel>
 
 namespace QmlProfiler {
 namespace Internal {

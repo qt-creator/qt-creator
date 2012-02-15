@@ -38,9 +38,9 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QDockWidget>
-#include <QtGui/QAbstractItemView>
+#include <QVBoxLayout>
+#include <QDockWidget>
+#include <QAbstractItemView>
 
 using namespace Designer::Constants;
 

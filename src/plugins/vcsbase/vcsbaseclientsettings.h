@@ -35,9 +35,9 @@
 
 #include "vcsbase_global.h"
 
-#include <QtCore/QStringList>
-#include <QtCore/QVariant>
-#include <QtCore/QSharedDataPointer>
+#include <QStringList>
+#include <QVariant>
+#include <QSharedDataPointer>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

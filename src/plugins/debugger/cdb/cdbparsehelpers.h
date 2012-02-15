@@ -35,11 +35,11 @@
 
 #include "breakpoint.h"
 
-#include <QtCore/QtGlobal>
-#include <QtCore/QList>
-#include <QtCore/QVector>
-#include <QtCore/QPair>
-#include <QtCore/QByteArray>
+#include <QtGlobal>
+#include <QList>
+#include <QVector>
+#include <QPair>
+#include <QByteArray>
 
 QT_BEGIN_NAMESPACE
 class QVariant;

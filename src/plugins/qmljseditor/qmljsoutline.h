@@ -37,7 +37,7 @@
 
 #include <texteditor/ioutlinewidget.h>
 
-#include <QtGui/QSortFilterProxyModel>
+#include <QSortFilterProxyModel>
 
 namespace Core {
 class IEditor;

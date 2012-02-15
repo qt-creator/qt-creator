@@ -35,10 +35,10 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QLatin1String>
-#include <QtCore/QRegExp>
-#include <QtCore/QMap>
+#include <QDebug>
+#include <QLatin1String>
+#include <QRegExp>
+#include <QMap>
 
 #include <cmath>
 

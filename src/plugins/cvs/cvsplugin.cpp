@@ -63,16 +63,16 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDate>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTextCodec>
-#include <QtCore/QtPlugin>
-#include <QtGui/QAction>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
+#include <QDebug>
+#include <QDate>
+#include <QDir>
+#include <QFileInfo>
+#include <QTextCodec>
+#include <QtPlugin>
+#include <QAction>
+#include <QMainWindow>
+#include <QMenu>
+#include <QMessageBox>
 
 using namespace VcsBase;
 using namespace Core;

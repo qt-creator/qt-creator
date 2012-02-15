@@ -44,7 +44,7 @@
 #ifndef ABSTRACTSETTINGS_P_H
 #define ABSTRACTSETTINGS_P_H
 
-#include <QtDesigner/sdk_global.h>
+#include <sdk_global.h>
 
 #include <QVariant>
 

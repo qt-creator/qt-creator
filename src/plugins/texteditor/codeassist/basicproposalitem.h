@@ -37,8 +37,8 @@
 
 #include <texteditor/texteditor_global.h>
 
-#include <QtCore/QVariant>
-#include <QtGui/QIcon>
+#include <QVariant>
+#include <QIcon>
 
 namespace TextEditor {
 

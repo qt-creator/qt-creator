@@ -47,8 +47,8 @@
 #include <texteditor/snippets/snippetassistcollector.h>
 #include <texteditor/codeassist/defaultassistinterface.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QVariant>
+#include <QStringList>
+#include <QVariant>
 
 QT_BEGIN_NAMESPACE
 class QTextCursor;

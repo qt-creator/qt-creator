@@ -40,10 +40,10 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTextStream>
-#include <QtCore/QtDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QTextStream>
+#include <QtDebug>
 
 namespace Bazaar {
 namespace Internal {

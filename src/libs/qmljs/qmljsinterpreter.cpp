@@ -45,15 +45,15 @@
 #include <languageutils/fakemetaobject.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFile>
-#include <QtCore/QDir>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QMetaObject>
-#include <QtCore/QMetaProperty>
-#include <QtCore/QXmlStreamReader>
-#include <QtCore/QProcess>
-#include <QtCore/QDebug>
+#include <QFile>
+#include <QDir>
+#include <QString>
+#include <QStringList>
+#include <QMetaObject>
+#include <QMetaProperty>
+#include <QXmlStreamReader>
+#include <QProcess>
+#include <QDebug>
 
 #include <algorithm>
 

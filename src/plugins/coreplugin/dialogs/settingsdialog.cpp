@@ -37,27 +37,27 @@
 
 #include <utils/filterlineedit.h>
 
-#include <QtCore/QSettings>
-#include <QtGui/QSortFilterProxyModel>
-#include <QtGui/QItemSelectionModel>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QIcon>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
-#include <QtGui/QToolButton>
-#include <QtGui/QToolBar>
-#include <QtGui/QScrollBar>
-#include <QtGui/QSpacerItem>
-#include <QtGui/QStyle>
-#include <QtGui/QStackedLayout>
-#include <QtGui/QGridLayout>
-#include <QtGui/QLineEdit>
-#include <QtGui/QFrame>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QListView>
-#include <QtGui/QApplication>
-#include <QtGui/QGroupBox>
-#include <QtGui/QStyledItemDelegate>
+#include <QSettings>
+#include <QSortFilterProxyModel>
+#include <QItemSelectionModel>
+#include <QHBoxLayout>
+#include <QIcon>
+#include <QLabel>
+#include <QPushButton>
+#include <QToolButton>
+#include <QToolBar>
+#include <QScrollBar>
+#include <QSpacerItem>
+#include <QStyle>
+#include <QStackedLayout>
+#include <QGridLayout>
+#include <QLineEdit>
+#include <QFrame>
+#include <QDialogButtonBox>
+#include <QListView>
+#include <QApplication>
+#include <QGroupBox>
+#include <QStyledItemDelegate>
 
 static const char categoryKeyC[] = "General/LastPreferenceCategory";
 static const char pageKeyC[] = "General/LastPreferencePage";

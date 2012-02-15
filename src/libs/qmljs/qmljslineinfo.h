@@ -36,8 +36,8 @@
 #include <qmljs/qmljs_global.h>
 #include <qmljs/qmljsscanner.h>
 
-#include <QtCore/QRegExp>
-#include <QtGui/QTextBlock>
+#include <QRegExp>
+#include <QTextBlock>
 
 namespace QmlJS {
 

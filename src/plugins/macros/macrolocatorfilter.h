@@ -35,7 +35,7 @@
 
 #include <locator/ilocatorfilter.h>
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
 namespace Macros {
 

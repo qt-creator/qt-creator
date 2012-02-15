@@ -63,17 +63,17 @@
 #include <proparser/prowriter.h>
 #include <algorithm>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QXmlStreamReader>
+#include <QDebug>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QCoreApplication>
+#include <QXmlStreamReader>
 
-#include <QtGui/QPainter>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
+#include <QPainter>
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QPushButton>
 #include <utils/QtConcurrentTools>
 
 // Static cached data in struct Qt4NodeStaticData providing information and icons

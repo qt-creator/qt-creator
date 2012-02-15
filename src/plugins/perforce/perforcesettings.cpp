@@ -37,11 +37,11 @@
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
 
-#include <QtCore/QSettings>
-#include <QtCore/QStringList>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
+#include <QSettings>
+#include <QStringList>
+#include <QCoreApplication>
+#include <QDir>
+#include <QFileInfo>
 
 static const char groupC[] = "Perforce";
 static const char commandKeyC[] = "Command";

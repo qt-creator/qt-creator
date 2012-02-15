@@ -32,7 +32,7 @@
 
 #include <stringutils.h>
 
-#include <QtTest/QtTest>
+#include <QtTest>
 
 //TESTED_COMPONENT=src/libs/utils
 

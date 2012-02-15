@@ -45,16 +45,16 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
 
-#include <QtCore/QMargins>
-#include <QtCore/QTimer>
-#include <QtCore/QCoreApplication>
-#include <QtGui/QComboBox>
-#include <QtGui/QInputDialog>
-#include <QtGui/QLabel>
-#include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QVBoxLayout>
+#include <QMargins>
+#include <QTimer>
+#include <QCoreApplication>
+#include <QComboBox>
+#include <QInputDialog>
+#include <QLabel>
+#include <QMenu>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QVBoxLayout>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

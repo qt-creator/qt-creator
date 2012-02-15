@@ -30,16 +30,16 @@
 **
 **************************************************************************/
 
-#include <QtCore/QStringList>
-#include <QtCore/QLinkedList>
-#include <QtCore/QVector>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QTimer>
-#include <QtCore/QMap>
-#include <QtCore/QSet>
-#include <QtCore/QVariant>
-#include <QtCore/QFileInfo>
-#include <QtCore/QCoreApplication>
+#include <QStringList>
+#include <QLinkedList>
+#include <QVector>
+#include <QSharedPointer>
+#include <QTimer>
+#include <QMap>
+#include <QSet>
+#include <QVariant>
+#include <QFileInfo>
+#include <QCoreApplication>
 #include <QAction>
 
 #include <string>

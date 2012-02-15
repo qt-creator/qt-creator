@@ -33,8 +33,8 @@
 #include "cppsettingspage.h"
 #include "designerconstants.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QTextStream>
+#include <QCoreApplication>
+#include <QTextStream>
 #include <coreplugin/icore.h>
 
 namespace Designer {

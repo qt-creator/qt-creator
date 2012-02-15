@@ -35,11 +35,11 @@
 #include "servicebrowser.h"
 #include "servicebrowser_p.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
-#include <QtCore/QLibrary>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QLibrary>
+#include <QString>
+#include <QStringList>
 
 #include <errno.h>
 

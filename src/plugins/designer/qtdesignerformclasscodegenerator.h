@@ -33,9 +33,9 @@
 #ifndef QTDESIGNERFORMCLASSCODEGENERATOR_H
 #define QTDESIGNERFORMCLASSCODEGENERATOR_H
 
-#include <QtCore/QString>
-#include <QtCore/QVariant>
-#include <QtCore/QObject>
+#include <QString>
+#include <QVariant>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

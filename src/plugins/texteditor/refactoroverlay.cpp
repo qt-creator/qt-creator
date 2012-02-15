@@ -34,10 +34,10 @@
 #include "basetextdocumentlayout.h"
 #include "basetexteditor.h"
 
-#include <QtGui/QPainter>
-#include <QtGui/QTextBlock>
+#include <QPainter>
+#include <QTextBlock>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 namespace TextEditor {
 

@@ -33,7 +33,7 @@
 #ifndef TEXTEDITOR_GLOBAL_H
 #define TEXTEDITOR_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(TEXTEDITOR_LIBRARY)
 #  define TEXTEDITOR_EXPORT Q_DECL_EXPORT

@@ -33,7 +33,7 @@
 #ifndef S60PUBLISHINGSISSETTINGSPAGEOVI_H
 #define S60PUBLISHINGSISSETTINGSPAGEOVI_H
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 
 QT_BEGIN_NAMESPACE
 class QLabel;

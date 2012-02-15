@@ -35,7 +35,7 @@
 
 #include "icontext.h"
 
-#include <QtGui/QIcon>
+#include <QIcon>
 
 namespace Core {
 

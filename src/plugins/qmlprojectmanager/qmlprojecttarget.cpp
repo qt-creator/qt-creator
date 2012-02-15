@@ -36,9 +36,9 @@
 #include "qmlprojectmanagerconstants.h"
 #include "qmlprojectrunconfiguration.h"
 
-#include <QtCore/QDebug>
-#include <QtGui/QApplication>
-#include <QtGui/QStyle>
+#include <QDebug>
+#include <QApplication>
+#include <QStyle>
 
 namespace QmlProjectManager {
 namespace Internal {

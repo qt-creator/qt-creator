@@ -35,7 +35,7 @@
 
 #include <qmljsdebugclient/qdeclarativeenginedebug.h>
 #include <debugger/debuggerconstants.h>
-#include <QtGui/QPlainTextEdit>
+#include <QPlainTextEdit>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;

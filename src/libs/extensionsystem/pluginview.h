@@ -35,9 +35,9 @@
 
 #include "extensionsystem_global.h"
 
-#include <QtCore/QHash>
-#include <QtGui/QWidget>
-#include <QtGui/QIcon>
+#include <QHash>
+#include <QWidget>
+#include <QIcon>
 
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;

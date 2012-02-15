@@ -43,12 +43,12 @@
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
-#include <QtGui/QAction>
-#include <QtGui/QIntValidator>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QMenu>
+#include <QAction>
+#include <QIntValidator>
+#include <QKeyEvent>
+#include <QMenu>
 
 namespace Debugger {
 namespace Internal {

@@ -37,7 +37,7 @@
 #include "filenamingparameters.h"
 #include "pluginoptions.h"
 
-#include <QtGui/QTabWidget>
+#include <QTabWidget>
 
 namespace Qt4ProjectManager {
 namespace Internal {

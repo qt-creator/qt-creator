@@ -33,7 +33,7 @@
 #ifndef NICKNAMEDIALOG_H
 #define NICKNAMEDIALOG_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 QT_BEGIN_NAMESPACE
 class QSortFilterProxyModel;

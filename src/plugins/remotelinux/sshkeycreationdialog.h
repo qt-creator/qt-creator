@@ -32,7 +32,7 @@
 #ifndef SSHKEYCREATIONDIALOG_H
 #define SSHKEYCREATIONDIALOG_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 namespace Utils {
 class SshKeyGenerator;

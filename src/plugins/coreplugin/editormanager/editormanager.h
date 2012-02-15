@@ -38,9 +38,9 @@
 #include <coreplugin/id.h>
 #include <coreplugin/ifile.h> // enumerations
 
-#include <QtCore/QList>
-#include <QtGui/QWidget>
-#include <QtGui/QMenu>
+#include <QList>
+#include <QWidget>
+#include <QMenu>
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;

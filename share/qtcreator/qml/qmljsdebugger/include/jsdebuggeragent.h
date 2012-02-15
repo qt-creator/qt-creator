@@ -43,7 +43,7 @@
 // We mean it.
 //
 
-#include <QtScript/qscriptengineagent.h>
+#include <qscriptengineagent.h>
 
 #include "qt_private/qdeclarativedebugservice_p.h"
 

@@ -33,7 +33,7 @@
 #ifndef QMLDESIGNERCORE_H
 #define QMLDESIGNERCORE_H
 
-#include <QtCore/QObject>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QWidget;

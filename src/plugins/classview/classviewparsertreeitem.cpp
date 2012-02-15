@@ -36,13 +36,13 @@
 #include "classviewconstants.h"
 #include "classviewutils.h"
 
-#include <QtCore/QHash>
-#include <QtCore/QPair>
-#include <QtGui/QIcon>
-#include <QtGui/QStandardItem>
-#include <QtCore/QMutex>
+#include <QHash>
+#include <QPair>
+#include <QIcon>
+#include <QStandardItem>
+#include <QMutex>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 enum { debug = true };
 

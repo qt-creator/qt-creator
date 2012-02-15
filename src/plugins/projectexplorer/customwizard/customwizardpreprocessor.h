@@ -33,7 +33,7 @@
 #ifndef CUSTOMWIZARDPREPROCESSOR_H
 #define CUSTOMWIZARDPREPROCESSOR_H
 
-#include <QtCore/QString>
+#include <QString>
 
 QT_FORWARD_DECLARE_CLASS(QScriptEngine)
 

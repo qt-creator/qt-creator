@@ -41,7 +41,7 @@
 
 #include "ui_textfinder.h"
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 namespace Ui
 {

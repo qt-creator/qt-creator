@@ -33,8 +33,8 @@
 #include "qmljscomponentnamedialog.h"
 #include "ui_qmljscomponentnamedialog.h"
 
-#include <QtCore/QFileInfo>
-#include <QtGui/QFileDialog>
+#include <QFileInfo>
+#include <QFileDialog>
 
 using namespace QmlJSEditor::Internal;
 

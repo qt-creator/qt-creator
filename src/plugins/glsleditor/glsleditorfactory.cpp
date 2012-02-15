@@ -43,12 +43,12 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QMainWindow>
+#include <QFileInfo>
+#include <QDebug>
+#include <QSettings>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QMainWindow>
 
 using namespace GLSLEditor::Internal;
 using namespace GLSLEditor::Constants;

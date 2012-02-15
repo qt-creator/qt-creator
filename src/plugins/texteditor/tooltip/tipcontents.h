@@ -35,8 +35,8 @@
 
 #include "texteditor/texteditor_global.h"
 
-#include <QtCore/QString>
-#include <QtGui/QColor>
+#include <QString>
+#include <QColor>
 
 namespace TextEditor {
 

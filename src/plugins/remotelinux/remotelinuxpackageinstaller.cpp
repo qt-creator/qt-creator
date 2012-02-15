@@ -36,7 +36,7 @@
 #include <utils/qtcassert.h>
 #include <utils/ssh/sshremoteprocessrunner.h>
 
-#include <QtCore/QByteArray>
+#include <QByteArray>
 
 using namespace Utils;
 

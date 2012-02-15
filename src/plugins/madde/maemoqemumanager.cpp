@@ -56,15 +56,15 @@
 #include <remotelinux/remotelinuxrunconfiguration.h>
 #include <utils/filesystemwatcher.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QList>
-#include <QtCore/QSet>
-#include <QtCore/QStringBuilder>
+#include <QDebug>
+#include <QDir>
+#include <QList>
+#include <QSet>
+#include <QStringBuilder>
 
-#include <QtGui/QAction>
-#include <QtGui/QDesktopServices>
-#include <QtGui/QMessageBox>
+#include <QAction>
+#include <QDesktopServices>
+#include <QMessageBox>
 
 #include <limits.h>
 

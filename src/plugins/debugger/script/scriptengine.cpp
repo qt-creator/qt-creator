@@ -54,23 +54,23 @@
 #include <coreplugin/scriptmanager/scriptmanager.h>
 #include <coreplugin/icore.h>
 
-#include <QtCore/QDateTime>
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTimer>
+#include <QDateTime>
+#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QTimer>
 
-#include <QtGui/QApplication>
-#include <QtGui/QMessageBox>
-#include <QtGui/QToolTip>
+#include <QApplication>
+#include <QMessageBox>
+#include <QToolTip>
 
-#include <QtScript/QScriptContext>
-#include <QtScript/QScriptClassPropertyIterator>
-#include <QtScript/QScriptContextInfo>
-#include <QtScript/QScriptEngine>
-#include <QtScript/QScriptEngineAgent>
-#include <QtScript/QScriptValue>
-#include <QtScript/QScriptValueIterator>
+#include <QScriptContext>
+#include <QScriptClassPropertyIterator>
+#include <QScriptContextInfo>
+#include <QScriptEngine>
+#include <QScriptEngineAgent>
+#include <QScriptValue>
+#include <QScriptValueIterator>
 
 
 namespace Debugger {

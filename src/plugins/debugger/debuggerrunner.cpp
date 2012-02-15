@@ -67,10 +67,10 @@
 #include <coreplugin/icore.h>
 #include <utils/buildablehelperlibrary.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QDebug>
-#include <QtGui/QMessageBox>
-#include <QtGui/QErrorMessage>
+#include <QDir>
+#include <QDebug>
+#include <QMessageBox>
+#include <QErrorMessage>
 
 using namespace ProjectExplorer;
 using namespace Debugger::Internal;

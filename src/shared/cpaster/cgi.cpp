@@ -32,7 +32,7 @@
 
 #include "cgi.h"
 
-#include <QtCore/QByteArray>
+#include <QByteArray>
 
 const char cgi_chars[] = "0123456789abcdef"; // RFC 1738 suggests lower-case to be optimal
 

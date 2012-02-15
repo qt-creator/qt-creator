@@ -41,9 +41,9 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <QtCore/QEventLoop>
-#include <QtCore/QTimer>
-#include <QtCore/QDir>
+#include <QEventLoop>
+#include <QTimer>
+#include <QDir>
 
 using namespace ProjectExplorer;
 

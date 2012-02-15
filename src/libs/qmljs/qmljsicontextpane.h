@@ -33,7 +33,7 @@
 #ifndef QMLJSICONTEXTPANE_H
 #define QMLJSICONTEXTPANE_H
 
-#include <QtCore/QObject>
+#include <QObject>
 
 #include "qmljs_global.h"
 

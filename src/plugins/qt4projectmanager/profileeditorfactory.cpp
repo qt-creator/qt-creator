@@ -41,9 +41,9 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <QtCore/QFileInfo>
-#include <QtGui/QAction>
-#include <QtGui/QMenu>
+#include <QFileInfo>
+#include <QAction>
+#include <QMenu>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

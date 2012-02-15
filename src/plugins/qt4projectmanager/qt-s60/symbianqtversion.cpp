@@ -44,11 +44,11 @@
 #include <utils/environment.h>
 #include <proparser/profileevaluator.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QSettings>
-#include <QtGui/QLabel>
-#include <QtGui/QFormLayout>
+#include <QCoreApplication>
+#include <QDir>
+#include <QSettings>
+#include <QLabel>
+#include <QFormLayout>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

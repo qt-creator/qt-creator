@@ -35,9 +35,9 @@
 
 #include "projectexplorer_export.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QSet>
-#include <QtGui/QFileSystemModel>
+#include <QObject>
+#include <QSet>
+#include <QFileSystemModel>
 
 namespace Core {
 class IFile;

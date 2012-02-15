@@ -41,8 +41,8 @@
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 
-#include <QtGui/QTextCursor>
-#include <QtCore/QUrl>
+#include <QTextCursor>
+#include <QUrl>
 
 using namespace GLSLEditor;
 using namespace GLSLEditor::Internal;

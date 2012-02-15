@@ -42,15 +42,15 @@
 
 #include "imageview.h"
 
-#include <QtCore/QFile>
-#include <QtGui/QWheelEvent>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QGraphicsRectItem>
-#include <QtGui/QPixmap>
+#include <QFile>
+#include <QWheelEvent>
+#include <QMouseEvent>
+#include <QGraphicsRectItem>
+#include <QPixmap>
 #ifndef QT_NO_SVG
-#include <QtSvg/QGraphicsSvgItem>
+#include <QGraphicsSvgItem>
 #endif
-#include <QtGui/QImageReader>
+#include <QImageReader>
 #include <qmath.h>
 
 

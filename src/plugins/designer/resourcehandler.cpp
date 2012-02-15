@@ -40,7 +40,7 @@
 #include <projectexplorer/session.h>
 
 #if QT_VERSION >= 0x050000
-#    include <QtDesigner/QDesignerFormWindowInterface>
+#    include <QDesignerFormWindowInterface>
 #else
 #    include "qt_private/formwindowbase_p.h"
 #    include "qt_private/qtresourcemodel_p.h"

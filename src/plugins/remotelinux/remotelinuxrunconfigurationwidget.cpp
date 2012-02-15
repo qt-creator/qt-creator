@@ -44,17 +44,17 @@
 #include <qt4projectmanager/qt4target.h>
 #include <utils/detailswidget.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtGui/QCheckBox>
-#include <QtGui/QComboBox>
-#include <QtGui/QFormLayout>
-#include <QtGui/QGroupBox>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
+#include <QCoreApplication>
+#include <QDir>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QFormLayout>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QPushButton>
 
 using namespace Qt4ProjectManager;
 

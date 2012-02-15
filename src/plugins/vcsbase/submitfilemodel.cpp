@@ -35,9 +35,9 @@
 
 #include <coreplugin/fileiconprovider.h>
 
-#include <QtGui/QStandardItem>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
+#include <QStandardItem>
+#include <QFileInfo>
+#include <QDebug>
 
 namespace VcsBase {
 

@@ -37,10 +37,10 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
-#include <QtCore/QDateTime>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
+#include <QDateTime>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 
 using namespace ProjectExplorer;
 

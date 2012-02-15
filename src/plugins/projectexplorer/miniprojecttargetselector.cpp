@@ -49,17 +49,17 @@
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/runconfiguration.h>
 
-#include <QtCore/QTimer>
-#include <QtGui/QLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QListWidget>
-#include <QtGui/QStatusBar>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QPainter>
-#include <QtGui/QAction>
-#include <QtGui/QItemDelegate>
-#include <QtGui/QMainWindow>
-#include <QtGui/QApplication>
+#include <QTimer>
+#include <QLayout>
+#include <QLabel>
+#include <QListWidget>
+#include <QStatusBar>
+#include <QKeyEvent>
+#include <QPainter>
+#include <QAction>
+#include <QItemDelegate>
+#include <QMainWindow>
+#include <QApplication>
 
 static QIcon createCenteredIcon(const QIcon &icon, const QIcon &overlay)
 {

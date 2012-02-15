@@ -33,11 +33,11 @@
 #ifndef QMLJSFINDREFERENCES_H
 #define QMLJSFINDREFERENCES_H
 
-#include <QtCore/QMutex>
-#include <QtCore/QObject>
-#include <QtCore/QFuture>
-#include <QtCore/QFutureWatcher>
-#include <QtCore/QPointer>
+#include <QMutex>
+#include <QObject>
+#include <QFuture>
+#include <QFutureWatcher>
+#include <QPointer>
 #include <utils/filesearch.h>
 #include <qmljs/qmljsdocument.h>
 

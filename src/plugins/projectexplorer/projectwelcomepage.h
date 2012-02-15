@@ -33,8 +33,8 @@
 #ifndef PROJECTWELCOMEPAGE_H
 #define PROJECTWELCOMEPAGE_H
 
-#include <QtCore/QAbstractListModel>
-#include <QtCore/QStringList>
+#include <QAbstractListModel>
+#include <QStringList>
 
 #include <utils/iwelcomepage.h>
 #include <coreplugin/icore.h>

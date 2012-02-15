@@ -36,12 +36,12 @@
 
 #include <coreplugin/ifile.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtGui/QPushButton>
-#include <QtGui/QTreeWidget>
-#include <QtGui/QHeaderView>
-#include <QtGui/QCheckBox>
+#include <QDir>
+#include <QFileInfo>
+#include <QPushButton>
+#include <QTreeWidget>
+#include <QHeaderView>
+#include <QCheckBox>
 
 Q_DECLARE_METATYPE(Core::IFile*)
 

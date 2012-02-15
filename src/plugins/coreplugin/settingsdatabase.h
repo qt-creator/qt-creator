@@ -35,10 +35,10 @@
 
 #include "core_global.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QVariant>
+#include <QObject>
+#include <QString>
+#include <QStringList>
+#include <QVariant>
 
 namespace Core {
 

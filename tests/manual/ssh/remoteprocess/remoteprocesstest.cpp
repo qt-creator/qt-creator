@@ -34,9 +34,9 @@
 
 #include <utils/ssh/sshpseudoterminal.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QTextStream>
-#include <QtCore/QTimer>
+#include <QCoreApplication>
+#include <QTextStream>
+#include <QTimer>
 
 #include <iostream>
 

@@ -35,8 +35,8 @@
 #include <utils/stringutils.h>
 #include <utils/qtcprocess.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
+#include <QFileInfo>
+#include <QDir>
 
 /*!
     \class ProjectExplorer::ProcessParameters

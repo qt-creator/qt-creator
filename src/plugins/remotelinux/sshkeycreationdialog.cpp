@@ -36,12 +36,12 @@
 #include <utils/ssh/sshkeygenerator.h>
 #include <utils/fileutils.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtGui/QApplication>
-#include <QtGui/QDesktopServices>
-#include <QtGui/QMessageBox>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QApplication>
+#include <QDesktopServices>
+#include <QMessageBox>
 
 using namespace Utils;
 using namespace RemoteLinux::Internal;

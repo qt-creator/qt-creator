@@ -32,8 +32,8 @@
 
 #include "watchdata.h"
 
-#include <QtCore/QTextStream>
-#include <QtCore/QDebug>
+#include <QTextStream>
+#include <QDebug>
 
 ////////////////////////////////////////////////////////////////////
 //

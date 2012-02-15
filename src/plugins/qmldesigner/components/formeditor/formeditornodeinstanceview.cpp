@@ -34,7 +34,7 @@
 #include "formeditorview.h"
 
 #include <modelnode.h>
-#include <QtCore/QDebug>
+#include <QDebug>
 
 
 namespace QmlDesigner {

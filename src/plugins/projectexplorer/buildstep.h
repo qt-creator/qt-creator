@@ -36,8 +36,8 @@
 #include "projectconfiguration.h"
 #include "projectexplorer_export.h"
 
-#include <QtCore/QFutureInterface>
-#include <QtGui/QWidget>
+#include <QFutureInterface>
+#include <QWidget>
 
 namespace ProjectExplorer {
 class Task;

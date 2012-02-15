@@ -38,10 +38,10 @@
 #include <utils/qtcassert.h>
 
 #include <projectexplorer/project.h>
-#include <QtGui/QDesktopServices>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QDebug>
+#include <QDesktopServices>
+#include <QCoreApplication>
+#include <QDir>
+#include <QDebug>
 
 namespace QtSupport {
 

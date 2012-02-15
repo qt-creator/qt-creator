@@ -39,10 +39,10 @@
 #include <find/searchresultwindow.h>
 #include <utils/filesearch.h>
 
-#include <QtGui/QStringListModel>
+#include <QStringListModel>
 
-#include <QtCore/QFutureWatcher>
-#include <QtCore/QPointer>
+#include <QFutureWatcher>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QLabel;

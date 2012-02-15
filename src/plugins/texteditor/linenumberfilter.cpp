@@ -37,7 +37,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
 
-#include <QtCore/QVariant>
+#include <QVariant>
 
 using namespace Core;
 using namespace Locator;

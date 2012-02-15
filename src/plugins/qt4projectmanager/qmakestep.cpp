@@ -57,11 +57,11 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFile>
+#include <QDir>
+#include <QFile>
 #include <utils/runextensions.h>
-#include <QtCore/QtConcurrentRun>
-#include <QtGui/QMessageBox>
+#include <QtConcurrentRun>
+#include <QMessageBox>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;

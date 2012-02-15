@@ -33,7 +33,7 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include <QtCore/QString>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

@@ -54,10 +54,10 @@
 #include <utils/savedaction.h>
 #include <utils/qtcprocess.h>
 
-#include <QtCore/QTimer>
-#include <QtCore/QDir>
-#include <QtNetwork/QTcpServer>
-#include <QtNetwork/QTcpSocket>
+#include <QTimer>
+#include <QDir>
+#include <QTcpServer>
+#include <QTcpSocket>
 
 #ifndef Q_OS_WIN
 #  include <sys/types.h>

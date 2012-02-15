@@ -33,10 +33,10 @@
 #ifndef PLUGINGENERATOR_H
 #define PLUGINGENERATOR_H
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtCore/QList>
-#include <QtCore/QMap>
+#include <QObject>
+#include <QString>
+#include <QList>
+#include <QMap>
 
 QT_BEGIN_NAMESPACE
 class QWidget;

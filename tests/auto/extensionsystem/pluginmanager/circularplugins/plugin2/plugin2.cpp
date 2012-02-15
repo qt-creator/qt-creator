@@ -32,7 +32,7 @@
 
 #include "plugin2.h"
 
-#include <QtCore/qplugin.h>
+#include <qplugin.h>
 
 using namespace Plugin2;
 

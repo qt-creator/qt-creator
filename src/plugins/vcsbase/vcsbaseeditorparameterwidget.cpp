@@ -32,11 +32,11 @@
 
 #include "vcsbaseeditorparameterwidget.h"
 
-#include <QtGui/QComboBox>
-#include <QtGui/QToolButton>
-#include <QtGui/QHBoxLayout>
+#include <QComboBox>
+#include <QToolButton>
+#include <QHBoxLayout>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 namespace VcsBase {
 

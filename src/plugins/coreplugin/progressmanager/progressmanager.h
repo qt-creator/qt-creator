@@ -35,8 +35,8 @@
 
 #include <coreplugin/core_global.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QFuture>
+#include <QObject>
+#include <QFuture>
 
 namespace Core {
 class FutureProgress;

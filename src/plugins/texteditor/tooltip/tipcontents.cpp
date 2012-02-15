@@ -36,7 +36,7 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 namespace TextEditor {
 

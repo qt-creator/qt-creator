@@ -32,10 +32,10 @@
 
 #include "customwidgets.h"
 
-#include <QtGui/QMenu>
-#include <QtGui/QAction>
-#include <QtDesigner/QExtensionManager>
-#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QMenu>
+#include <QAction>
+#include <QExtensionManager>
+#include <QDesignerFormEditorInterface>
 
 static const char groupC[] = "QtCreator";
 

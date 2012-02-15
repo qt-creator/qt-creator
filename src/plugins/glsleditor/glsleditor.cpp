@@ -65,18 +65,18 @@
 #include <utils/changeset.h>
 #include <utils/uncommentselection.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QSignalMapper>
-#include <QtCore/QTimer>
-#include <QtCore/QDebug>
+#include <QFileInfo>
+#include <QSignalMapper>
+#include <QTimer>
+#include <QDebug>
 
-#include <QtGui/QMenu>
-#include <QtGui/QComboBox>
-#include <QtGui/QHeaderView>
-#include <QtGui/QInputDialog>
-#include <QtGui/QMainWindow>
-#include <QtGui/QToolBar>
-#include <QtGui/QTreeView>
+#include <QMenu>
+#include <QComboBox>
+#include <QHeaderView>
+#include <QInputDialog>
+#include <QMainWindow>
+#include <QToolBar>
+#include <QTreeView>
 
 using namespace GLSL;
 using namespace GLSLEditor;

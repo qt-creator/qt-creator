@@ -39,7 +39,7 @@
 #include <utils/pathchooser.h>
 #include <vcsbase/vcsbaseconstants.h>
 
-#include <QtCore/QTextStream>
+#include <QTextStream>
 
 using namespace Bazaar::Internal;
 using namespace Bazaar;

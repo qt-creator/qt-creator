@@ -33,8 +33,8 @@
 #ifndef QMLTEXTGENERATOR_H
 #define QMLTEXTGENERATOR_H
 
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+#include <QString>
+#include <QStringList>
 
 #include "abstractproperty.h"
 #include "modelnode.h"

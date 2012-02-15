@@ -43,8 +43,8 @@
 #include <qmljseditor/qmljseditor.h>
 #include <qmljseditor/qmljseditoreditable.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QtConcurrentRun>
+#include <QDebug>
+#include <QtConcurrentRun>
 #include <utils/runextensions.h>
 
 using namespace QmlJS;

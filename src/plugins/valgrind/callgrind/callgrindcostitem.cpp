@@ -32,9 +32,9 @@
 
 #include "callgrindcostitem.h"
 
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QVector>
+#include <QString>
+#include <QStringList>
+#include <QVector>
 
 #include "callgrindparsedata.h"
 #include "callgrindfunctioncall.h"

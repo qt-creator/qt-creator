@@ -33,8 +33,8 @@
 #ifndef STATESEDITORWIDGET_H
 #define STATESEDITORWIDGET_H
 
-#include <QtGui/QWidget>
-#include <QtGui/QListWidgetItem>
+#include <QWidget>
+#include <QListWidgetItem>
 
 QT_BEGIN_NAMESPACE
 class QDeclarativeView;

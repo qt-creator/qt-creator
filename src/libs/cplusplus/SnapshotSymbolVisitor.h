@@ -35,7 +35,7 @@
 
 #include "CppDocument.h"
 #include <SymbolVisitor.h>
-#include <QtCore/QSet>
+#include <QSet>
 
 namespace CPlusPlus {
 

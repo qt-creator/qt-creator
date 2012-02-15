@@ -32,18 +32,18 @@
 
 #include "settingsselector.h"
 
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QVariant>
+#include <QAbstractItemModel>
+#include <QVariant>
 
-#include <QtGui/QAction>
-#include <QtGui/QComboBox>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QInputDialog>
-#include <QtGui/QLabel>
-#include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QSpacerItem>
+#include <QAction>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QInputDialog>
+#include <QLabel>
+#include <QMenu>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QSpacerItem>
 
 namespace Utils {
 

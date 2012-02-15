@@ -36,7 +36,7 @@
 #include <cplusplus/ModelManagerInterface.h>
 #include <cpptools/uicodecompletionsupport.h>
 
-#include <QtCore/QDateTime>
+#include <QDateTime>
 
 namespace CMakeProjectManager {
 namespace Internal {

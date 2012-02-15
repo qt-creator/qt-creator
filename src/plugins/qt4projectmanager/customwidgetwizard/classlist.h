@@ -33,7 +33,7 @@
 #ifndef CLASSLIST_H
 #define CLASSLIST_H
 
-#include <QtGui/QListView>
+#include <QListView>
 
 QT_FORWARD_DECLARE_CLASS(QModelIndex)
 

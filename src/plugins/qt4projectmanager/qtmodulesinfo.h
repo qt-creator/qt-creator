@@ -32,7 +32,7 @@
 #ifndef QTMODULESINFO_H
 #define QTMODULESINFO_H
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 namespace Qt4ProjectManager {
 namespace Internal {

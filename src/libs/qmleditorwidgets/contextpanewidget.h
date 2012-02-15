@@ -34,8 +34,8 @@
 #define CONTEXTPANEWIDGET_H
 
 #include <qmleditorwidgets_global.h>
-#include <QtGui/QFrame>
-#include <QtCore/QWeakPointer>
+#include <QFrame>
+#include <QWeakPointer>
 
 QT_BEGIN_NAMESPACE
 class QToolButton;

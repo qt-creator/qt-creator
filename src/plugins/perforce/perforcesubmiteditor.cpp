@@ -38,7 +38,7 @@
 #include <vcsbase/submitfilemodel.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 namespace Perforce {
 namespace Internal {

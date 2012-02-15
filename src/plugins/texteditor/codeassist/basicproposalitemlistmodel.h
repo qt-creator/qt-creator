@@ -37,9 +37,9 @@
 
 #include <texteditor/texteditor_global.h>
 
-#include <QtCore/QList>
-#include <QtCore/QHash>
-#include <QtCore/QPair>
+#include <QList>
+#include <QHash>
+#include <QPair>
 
 namespace TextEditor {
 

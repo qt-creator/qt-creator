@@ -11,7 +11,7 @@
 #include <Control.h>
 #include <LookupContext.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 #include <utils/qtcassert.h>
 

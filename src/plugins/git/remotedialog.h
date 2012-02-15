@@ -33,7 +33,7 @@
 #ifndef REMOTEDIALOG_H
 #define REMOTEDIALOG_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 namespace Git {
 namespace Internal {

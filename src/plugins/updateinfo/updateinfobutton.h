@@ -33,7 +33,7 @@
 #ifndef UPDATEINFOBUTTON_H
 #define UPDATEINFOBUTTON_H
 
-#include <QtGui/QAbstractButton>
+#include <QAbstractButton>
 
 namespace UpdateInfo {
 namespace Internal {

@@ -33,7 +33,7 @@
 #include "qtlockedfile.h"
 
 #include <qt_windows.h>
-#include <QtCore/QFileInfo>
+#include <QFileInfo>
 
 namespace SharedTools {
 

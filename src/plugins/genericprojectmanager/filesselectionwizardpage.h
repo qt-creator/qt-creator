@@ -33,9 +33,9 @@
 #ifndef FILESSELECTIONWIZARDPAGE_H
 #define FILESSELECTIONWIZARDPAGE_H
 
-#include <QtGui/QWizardPage>
-#include <QtGui/QLabel>
-#include <QtGui/QTreeView>
+#include <QWizardPage>
+#include <QLabel>
+#include <QTreeView>
 
 namespace GenericProjectManager {
 namespace Internal {

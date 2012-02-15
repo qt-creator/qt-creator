@@ -33,8 +33,8 @@
 #include "codamessage.h"
 #include "json.h"
 
-#include <QtCore/QString>
-#include <QtCore/QTextStream>
+#include <QString>
+#include <QTextStream>
 
 // Names matching the enum
 static const char *serviceNamesC[] =

@@ -32,8 +32,8 @@
 
 #include "columnindicatortextedit.h"
 
-#include <QtGui/QPainter>
-#include <QtGui/QScrollBar>
+#include <QPainter>
+#include <QScrollBar>
 
 namespace CodePaster {
 

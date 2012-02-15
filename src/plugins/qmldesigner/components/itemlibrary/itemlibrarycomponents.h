@@ -33,8 +33,8 @@
 #ifndef ITEMLIBRARYTREEVIEW_H
 #define ITEMLIBRARYTREEVIEW_H
 
-#include <QtGui/QTreeView>
-#include <QtGui/QStandardItemModel>
+#include <QTreeView>
+#include <QStandardItemModel>
 #include <QDrag>
 #include <QDebug>
 #include <QTimeLine>

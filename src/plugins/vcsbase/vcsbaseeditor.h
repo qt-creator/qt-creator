@@ -37,7 +37,7 @@
 
 #include <texteditor/basetexteditor.h>
 
-#include <QtCore/QSet>
+#include <QSet>
 
 QT_BEGIN_NAMESPACE
 class QAction;

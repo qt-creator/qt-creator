@@ -39,11 +39,11 @@
 #include <coreplugin/iversioncontrol.h>
 #include <vcsbase/vcsbaseplugin.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QProcess>
-#include <QtCore/QStringList>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QHash>
+#include <QObject>
+#include <QProcess>
+#include <QStringList>
+#include <QSharedPointer>
+#include <QHash>
 
 QT_BEGIN_NAMESPACE
 class QFile;

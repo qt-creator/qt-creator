@@ -34,8 +34,8 @@
 
 #include <utils/settingsutils.h>
 
-#include <QtCore/QLatin1String>
-#include <QtCore/QSettings>
+#include <QLatin1String>
+#include <QSettings>
 
 // Keep this for compatibility reasons.
 static const char kGroupPostfix[] = "EditorManager";

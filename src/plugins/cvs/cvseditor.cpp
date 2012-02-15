@@ -39,9 +39,9 @@
 #include <utils/qtcassert.h>
 #include <vcsbase/diffhighlighter.h>
 
-#include <QtCore/QDebug>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextBlock>
+#include <QDebug>
+#include <QTextCursor>
+#include <QTextBlock>
 
 namespace Cvs {
 namespace Internal {

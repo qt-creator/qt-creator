@@ -32,8 +32,8 @@
 
 #include "easinggraph.h"
 
-#include <QtGui/QPainter>
-#include <QtGui/QStyleOptionGraphicsItem>
+#include <QPainter>
+#include <QStyleOptionGraphicsItem>
 #include <math.h>
 
 QT_BEGIN_NAMESPACE

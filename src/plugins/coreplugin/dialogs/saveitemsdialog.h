@@ -33,8 +33,8 @@
 #ifndef SAVEITEMSDIALOG_H
 #define SAVEITEMSDIALOG_H
 
-#include <QtCore/QList>
-#include <QtGui/QDialog>
+#include <QList>
+#include <QDialog>
 
 #include "ui_saveitemsdialog.h"
 

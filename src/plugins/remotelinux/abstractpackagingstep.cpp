@@ -40,8 +40,8 @@
 #include <projectexplorer/task.h>
 #include <utils/fileutils.h>
 
-#include <QtCore/QDateTime>
-#include <QtCore/QFileInfo>
+#include <QDateTime>
+#include <QFileInfo>
 
 using namespace ProjectExplorer;
 

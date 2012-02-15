@@ -34,12 +34,12 @@
 
 #include "sshconnection.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QList>
-#include <QtCore/QMutex>
-#include <QtCore/QMutexLocker>
-#include <QtCore/QObject>
-#include <QtCore/QThread>
+#include <QCoreApplication>
+#include <QList>
+#include <QMutex>
+#include <QMutexLocker>
+#include <QObject>
+#include <QThread>
 
 namespace Utils {
 namespace Internal {

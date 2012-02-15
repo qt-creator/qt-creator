@@ -38,7 +38,7 @@
 #include <QMultiHash>
 #include <QString>
 #include <QStringList>
-#include <QtCore/QSharedPointer>
+#include <QSharedPointer>
 
 #include <nodemetainfo.h>
 #include "itemlibraryinfo.h"

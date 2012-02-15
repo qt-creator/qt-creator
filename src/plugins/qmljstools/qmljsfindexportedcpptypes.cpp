@@ -48,7 +48,7 @@
 #include <cplusplus/ModelManagerInterface.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace QmlJSTools;
 

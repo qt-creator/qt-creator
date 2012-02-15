@@ -34,17 +34,17 @@
 #include "submitfieldwidget.h"
 #include "ui_submiteditorwidget.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QPointer>
-#include <QtCore/QTimer>
-#include <QtCore/QScopedPointer>
+#include <QDebug>
+#include <QPointer>
+#include <QTimer>
+#include <QScopedPointer>
 
-#include <QtGui/QPushButton>
-#include <QtGui/QMenu>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QToolButton>
-#include <QtGui/QSpacerItem>
-#include <QtGui/QShortcut>
+#include <QPushButton>
+#include <QMenu>
+#include <QHBoxLayout>
+#include <QToolButton>
+#include <QSpacerItem>
+#include <QShortcut>
 
 enum { debug = 0 };
 enum { defaultLineWidth = 72 };

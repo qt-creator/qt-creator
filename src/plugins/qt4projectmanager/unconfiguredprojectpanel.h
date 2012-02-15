@@ -35,7 +35,7 @@
 
 #include <projectexplorer/iprojectproperties.h>
 
-#include <QtCore/QString>
+#include <QString>
 
 namespace Qt4ProjectManager {
 class TargetSetupPage;

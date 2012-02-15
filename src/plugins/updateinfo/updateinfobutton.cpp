@@ -35,8 +35,8 @@
 #include <coreplugin/coreconstants.h>
 #include <utils/stylehelper.h>
 
-#include <QtGui/QIcon>
-#include <QtGui/QPainter>
+#include <QIcon>
+#include <QPainter>
 
 
 namespace UpdateInfo {

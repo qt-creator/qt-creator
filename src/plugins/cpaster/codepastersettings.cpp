@@ -35,17 +35,17 @@
 
 #include <coreplugin/icore.h>
 
-#include <QtCore/QSettings>
-#include <QtCore/QCoreApplication>
-#include <QtGui/QLineEdit>
-#include <QtGui/QFileDialog>
-#include <QtGui/QGroupBox>
-#include <QtGui/QFormLayout>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QIcon>
-#include <QtCore/QDebug>
-#include <QtCore/QVariant>
+#include <QSettings>
+#include <QCoreApplication>
+#include <QLineEdit>
+#include <QFileDialog>
+#include <QGroupBox>
+#include <QFormLayout>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QIcon>
+#include <QDebug>
+#include <QVariant>
 
 static const char settingsGroupC[] = "CodePasterSettings";
 static const char serverKeyC[] = "Server";

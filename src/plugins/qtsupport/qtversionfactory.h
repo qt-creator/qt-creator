@@ -36,8 +36,8 @@
 #include "qtsupport_global.h"
 
 #include <utils/fileutils.h>
-#include <QtCore/QObject>
-#include <QtCore/QVariantMap>
+#include <QObject>
+#include <QVariantMap>
 
 QT_FORWARD_DECLARE_CLASS(QSettings)
 QT_FORWARD_DECLARE_CLASS(ProFileEvaluator)

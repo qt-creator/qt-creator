@@ -35,7 +35,7 @@
 
 #include <utils/pathlisteditor.h>
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 namespace Utils {
     class PathChooser;

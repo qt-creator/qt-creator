@@ -33,12 +33,12 @@
 #include "virtualserialdevice.h"
 #include <windows.h>
 #if QT_VERSION >= 0x050000
-#  include <QtCore/QWinEventNotifier>
+#  include <QWinEventNotifier>
 #else
-#  include <QtCore/private/qwineventnotifier_p.h>
+#  include <private/qwineventnotifier_p.h>
 #endif
-#include <QtCore/QThread>
-#include <QtCore/QWaitCondition>
+#include <QThread>
+#include <QWaitCondition>
 
 namespace SymbianUtils {
 

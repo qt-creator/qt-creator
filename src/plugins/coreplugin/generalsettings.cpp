@@ -40,14 +40,14 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
-#include <QtGui/QMainWindow>
-#include <QtGui/QMessageBox>
+#include <QMainWindow>
+#include <QMessageBox>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QTextStream>
-#include <QtCore/QDir>
-#include <QtCore/QLibraryInfo>
-#include <QtCore/QSettings>
+#include <QCoreApplication>
+#include <QTextStream>
+#include <QDir>
+#include <QLibraryInfo>
+#include <QSettings>
 
 #include "ui_generalsettings.h"
 

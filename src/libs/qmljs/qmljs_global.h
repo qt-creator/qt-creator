@@ -33,7 +33,7 @@
 #ifndef QMLJS_GLOBAL_H
 #define QMLJS_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <qglobal.h>
 
 #if defined(QMLJS_BUILD_DIR)
 #  define QMLJS_EXPORT Q_DECL_EXPORT

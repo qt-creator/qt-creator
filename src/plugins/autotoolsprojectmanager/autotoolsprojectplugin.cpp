@@ -45,8 +45,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QtPlugin>
+#include <QStringList>
+#include <QtPlugin>
 
 using namespace AutotoolsProjectManager::Internal;
 

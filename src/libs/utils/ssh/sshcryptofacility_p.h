@@ -36,8 +36,8 @@
 #include <botan/auto_rng.h>
 #include <botan/symkey.h>
 
-#include <QtCore/QByteArray>
-#include <QtCore/QScopedPointer>
+#include <QByteArray>
+#include <QScopedPointer>
 
 namespace Botan {
     class BigInt;

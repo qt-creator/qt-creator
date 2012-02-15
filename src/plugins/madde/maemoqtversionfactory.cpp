@@ -37,7 +37,7 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QFileInfo>
+#include <QFileInfo>
 
 namespace Madde {
 namespace Internal {

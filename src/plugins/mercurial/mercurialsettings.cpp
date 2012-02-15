@@ -33,7 +33,7 @@
 #include "mercurialsettings.h"
 #include "constants.h"
 
-#include <QtCore/QSettings>
+#include <QSettings>
 
 namespace Mercurial {
 namespace Internal {

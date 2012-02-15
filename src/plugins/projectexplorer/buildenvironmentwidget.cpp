@@ -37,8 +37,8 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QCheckBox>
+#include <QVBoxLayout>
+#include <QCheckBox>
 
 using namespace ProjectExplorer;
 

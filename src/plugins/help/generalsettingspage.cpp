@@ -45,15 +45,15 @@
 
 #include <utils/fileutils.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QSettings>
-#include <QtCore/QTextStream>
+#include <QCoreApplication>
+#include <QSettings>
+#include <QTextStream>
 
-#include <QtGui/QApplication>
-#include <QtGui/QFileDialog>
+#include <QApplication>
+#include <QFileDialog>
 
 #if !defined(QT_NO_WEBKIT)
-#include <QtWebKit/QWebSettings>
+#include <QWebSettings>
 #endif
 
 using namespace Help::Internal;

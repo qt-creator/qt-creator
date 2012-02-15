@@ -12,8 +12,8 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QStringBuilder>
-#include <QtGui/QTextDocument>
+#include <QStringBuilder>
+#include <QTextDocument>
 #include <QDebug>
 
 using namespace CppTools;

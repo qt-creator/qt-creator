@@ -37,10 +37,10 @@
 #include <utils/qtcassert.h>
 #include <utils/filewizarddialog.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QTextStream>
-#include <QtGui/QWizard>
-#include <QtGui/QPushButton>
+#include <QFileInfo>
+#include <QTextStream>
+#include <QWizard>
+#include <QPushButton>
 
 namespace {
 class GLSLFileWizardDialog : public Utils::FileWizardDialog

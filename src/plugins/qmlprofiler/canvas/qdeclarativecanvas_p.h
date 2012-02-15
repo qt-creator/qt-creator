@@ -33,7 +33,7 @@
 #ifndef QDECLARATIVECANVAS_P_H
 #define QDECLARATIVECANVAS_P_H
 
-#include <QtDeclarative/qdeclarativeitem.h>
+#include <qdeclarativeitem.h>
 
 #include "qdeclarativecontext2d_p.h"
 #include "qdeclarativecanvastimer_p.h"

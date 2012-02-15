@@ -35,7 +35,7 @@
 
 #include "iassistproposalwidget.h"
 
-#include <QtCore/QThread>
+#include <QThread>
 
 namespace TextEditor {
 

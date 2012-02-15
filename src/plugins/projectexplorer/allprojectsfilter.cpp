@@ -35,7 +35,7 @@
 #include "session.h"
 #include "project.h"
 
-#include <QtCore/QVariant>
+#include <QVariant>
 
 using namespace Core;
 using namespace Locator;

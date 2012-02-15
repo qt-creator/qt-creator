@@ -39,8 +39,8 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/runconfiguration.h>
 
-#include <QtCore/QPair>
-#include <QtCore/QStringList>
+#include <QPair>
+#include <QStringList>
 
 namespace Utils {
 class Environment;

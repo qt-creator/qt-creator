@@ -33,7 +33,7 @@
 #ifndef MAEMOPUBLISHINGUPLOADSETTINGSWIZARDPAGE_H
 #define MAEMOPUBLISHINGUPLOADSETTINGSWIZARDPAGE_H
 
-#include <QtGui/QWizardPage>
+#include <QWizardPage>
 
 namespace Madde {
 namespace Internal {

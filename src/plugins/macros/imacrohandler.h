@@ -34,7 +34,7 @@
 #define MACROSPLUGIN_IMACROHANDLER_H
 
 #include "macros_global.h"
-#include <QtCore/QObject>
+#include <QObject>
 
 namespace Macros {
 

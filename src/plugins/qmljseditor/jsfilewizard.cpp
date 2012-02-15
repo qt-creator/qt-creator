@@ -38,12 +38,12 @@
 #include <utils/qtcassert.h>
 #include <utils/filewizarddialog.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QTextStream>
-#include <QtGui/QWizard>
-#include <QtGui/QPushButton>
-#include <QtGui/QBoxLayout>
-#include <QtGui/QCheckBox>
+#include <QFileInfo>
+#include <QTextStream>
+#include <QWizard>
+#include <QPushButton>
+#include <QBoxLayout>
+#include <QCheckBox>
 
 namespace {
 class JsFileOptionsPage : public QWizardPage

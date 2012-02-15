@@ -40,12 +40,12 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/id.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QtPlugin>
-#include <QtGui/QAction>
-#include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
+#include <QDebug>
+#include <QtPlugin>
+#include <QAction>
+#include <QMenu>
+#include <QMessageBox>
+#include <QPushButton>
 
 namespace HelloWorld {
 namespace Internal {

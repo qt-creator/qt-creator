@@ -36,9 +36,9 @@
 #include "imageviewerconstants.h"
 #include "imageviewer.h"
 
-#include <QtCore/QMap>
-#include <QtGui/QImageReader>
-#include <QtCore/QtDebug>
+#include <QMap>
+#include <QImageReader>
+#include <QtDebug>
 
 namespace ImageViewer {
 namespace Internal {

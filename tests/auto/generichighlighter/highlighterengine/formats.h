@@ -33,7 +33,7 @@
 #ifndef FORMATS_H
 #define FORMATS_H
 
-#include <QtGui/QTextCharFormat>
+#include <QTextCharFormat>
 
 class Formats
 {

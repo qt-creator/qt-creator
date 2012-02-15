@@ -32,11 +32,11 @@
 
 #include "directoryfilter.h"
 
-#include <QtCore/QDir>
-#include <QtCore/QStack>
-#include <QtGui/QCompleter>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
+#include <QDir>
+#include <QStack>
+#include <QCompleter>
+#include <QFileDialog>
+#include <QMessageBox>
 
 #include <utils/QtConcurrentTools>
 #include <utils/filesearch.h>

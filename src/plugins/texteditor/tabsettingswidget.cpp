@@ -34,7 +34,7 @@
 #include "ui_tabsettingswidget.h"
 #include "tabsettings.h"
 
-#include <QtCore/QTextStream>
+#include <QTextStream>
 
 namespace TextEditor {
 

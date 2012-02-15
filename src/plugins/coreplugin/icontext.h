@@ -35,10 +35,10 @@
 
 #include <coreplugin/core_global.h>
 
-#include <QtCore/QList>
-#include <QtCore/QObject>
-#include <QtCore/QPointer>
-#include <QtGui/QWidget>
+#include <QList>
+#include <QObject>
+#include <QPointer>
+#include <QWidget>
 
 namespace Core {
 

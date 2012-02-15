@@ -35,7 +35,7 @@
 
 #include <qmljs/qmljs_global.h>
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 namespace QmlJS {
 

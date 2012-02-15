@@ -38,10 +38,10 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtGui/QMessageBox>
+#include <QCoreApplication>
+#include <QFileInfo>
+#include <QDir>
+#include <QMessageBox>
 
 /*!
     \class VcsBase::BaseCheckoutWizard

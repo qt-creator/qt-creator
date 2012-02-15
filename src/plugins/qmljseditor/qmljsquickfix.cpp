@@ -41,7 +41,7 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

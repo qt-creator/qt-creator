@@ -35,7 +35,7 @@
 
 #include "parameters.h"
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 class ArgumentsCollector
 {

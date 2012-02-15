@@ -33,10 +33,10 @@
 #ifndef CUSTOMPROJECTWIZARDDIALOG_H
 #define CUSTOMPROJECTWIZARDDIALOG_H
 
-#include <QtGui/QComboBox>
-#include <QtGui/QCheckBox>
-#include <QtGui/QWizardPage>
-#include <QtCore/QSharedPointer>
+#include <QComboBox>
+#include <QCheckBox>
+#include <QWizardPage>
+#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QFormLayout;

@@ -37,10 +37,10 @@
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsvalueowner.h>
 
-#include <QtCore/QHash>
-#include <QtCore/QStringList>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QCoreApplication>
+#include <QHash>
+#include <QStringList>
+#include <QSharedPointer>
+#include <QCoreApplication>
 
 namespace QmlJS {
 

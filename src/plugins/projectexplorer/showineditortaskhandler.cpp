@@ -37,8 +37,8 @@
 
 #include <texteditor/basetexteditor.h>
 
-#include <QtGui/QAction>
-#include <QtCore/QFileInfo>
+#include <QAction>
+#include <QFileInfo>
 
 using namespace ProjectExplorer::Internal;
 

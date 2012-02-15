@@ -34,7 +34,7 @@
 #define CONTEXTPANEWIDGETIMAGE_H
 
 #include <qmleditorwidgets_global.h>
-#include <QtGui/QLabel>
+#include <QLabel>
 #include <contextpanewidget.h>
 #include <qdrawutil.h>
 

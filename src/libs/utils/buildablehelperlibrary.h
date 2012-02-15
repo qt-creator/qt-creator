@@ -37,7 +37,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 
-#include <QtCore/QString>
+#include <QString>
 
 QT_FORWARD_DECLARE_CLASS(QFileInfo)
 

@@ -35,10 +35,10 @@
 
 #include "searchresultwindow.h"
 
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QRegExp>
-#include <QtGui/QFont>
-#include <QtGui/QTextDocument>
+#include <QAbstractItemModel>
+#include <QRegExp>
+#include <QFont>
+#include <QTextDocument>
 
 namespace Find {
 namespace Internal {

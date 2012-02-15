@@ -35,16 +35,16 @@
 
 #include "consoleprocess.h"
 
-#include <QtCore/QTemporaryFile>
+#include <QTemporaryFile>
 
-#include <QtNetwork/QLocalSocket>
-#include <QtNetwork/QLocalServer>
+#include <QLocalSocket>
+#include <QLocalServer>
 
 #ifdef Q_OS_WIN
 #  if QT_VERSION >= 0x050000
-#    include <QtCore/QWinEventNotifier>
+#    include <QWinEventNotifier>
 #  else
-#    include <QtCore/private/qwineventnotifier_p.h>
+#    include <private/qwineventnotifier_p.h>
 #  endif
 #  include <windows.h>
 #endif

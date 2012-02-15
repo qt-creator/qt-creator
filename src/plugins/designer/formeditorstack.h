@@ -35,9 +35,9 @@
 
 #include "editordata.h"
 
-#include <QtGui/QStackedWidget>
-#include <QtCore/QList>
-#include <QtCore/QString>
+#include <QStackedWidget>
+#include <QList>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;

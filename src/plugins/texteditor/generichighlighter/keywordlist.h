@@ -33,8 +33,8 @@
 #ifndef KEYWORDLIST_H
 #define KEYWORDLIST_H
 
-#include <QtCore/QString>
-#include <QtCore/QSet>
+#include <QString>
+#include <QSet>
 
 namespace TextEditor {
 namespace Internal {

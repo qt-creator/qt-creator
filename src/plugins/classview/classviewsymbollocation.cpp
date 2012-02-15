@@ -31,8 +31,8 @@
 **************************************************************************/
 
 #include "classviewsymbollocation.h"
-#include <QtCore/QPair>
-#include <QtCore/QHash>
+#include <QPair>
+#include <QHash>
 
 namespace ClassView {
 namespace Internal {

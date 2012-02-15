@@ -29,8 +29,8 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
+#include <QObject>
+#include <QSharedPointer>
 
 namespace Utils {
 class SshConnection;

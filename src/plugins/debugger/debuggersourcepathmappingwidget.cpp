@@ -35,20 +35,20 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QStandardItem>
-#include <QtGui/QTreeView>
-#include <QtGui/QLineEdit>
-#include <QtGui/QSpacerItem>
-#include <QtGui/QPushButton>
-#include <QtGui/QFormLayout>
-#include <QtGui/QFileDialog>
-#include <QtGui/QLabel>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QStandardItemModel>
+#include <QStandardItem>
+#include <QTreeView>
+#include <QLineEdit>
+#include <QSpacerItem>
+#include <QPushButton>
+#include <QFormLayout>
+#include <QFileDialog>
+#include <QLabel>
 
-#include <QtCore/QDir>
-#include <QtCore/QPair>
+#include <QDir>
+#include <QPair>
 
 // Qt's various build paths for unpatched versions.
 #if defined(Q_OS_WIN)

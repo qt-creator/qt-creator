@@ -39,9 +39,9 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QCoreApplication>
-#include <QtGui/QMessageBox>
+#include <QDebug>
+#include <QCoreApplication>
+#include <QMessageBox>
 
 namespace VcsBase {
 namespace Internal {
