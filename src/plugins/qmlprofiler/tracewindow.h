@@ -148,6 +148,7 @@ signals:
     void recordingChanged(bool);
 
     void internalClearDisplay();
+    void clearViewsFromTool();
     void jumpToPrev();
     void jumpToNext();
     void rangeModeChanged(bool);

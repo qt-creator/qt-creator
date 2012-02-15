@@ -626,7 +626,7 @@ void TraceWindow::eventListStateChanged()
 void TraceWindow::manageTraceStart(qint64 traceStart)
 {
     // new trace started
-    clearDisplay();
+    emit clearViewsFromTool();
 
     emit traceStarted(traceStart);
 }

@@ -454,6 +454,7 @@ QWidget *QmlProfilerTool::createWidgets()
     d->m_traceWindow = new TraceWindow(mw);
     d->m_traceWindow->reset(d->m_client);
 
+    connect(d->m_traceWindow, SIGNAL(clearViewsFromTool()), this, SLOT(clearDisplay()));
     connect(d->m_traceWindow, SIGNAL(gotoSourceLocation(QString,int,int)),this, SLOT(gotoSourceLocation(QString,int,int)));
     connect(d->m_traceWindow, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(d->m_traceWindow->getEventList(), SIGNAL(error(QString)), this, SLOT(showErrorDialog(QString)));
