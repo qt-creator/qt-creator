@@ -51,8 +51,7 @@ def main():
         test.log("Debugging application")
         runControlFinished = False
         invokeMenuItem("Debug", "Start Debugging", "Start Debugging")
-        if "Release" in config and platform.system() == "Linux":
-            snooze(1) # work around QTCREATORBUG-6853
+        JIRA.performWorkaroundIfStillOpen(6853, JIRA.Bug.CREATOR, config)
         handleDebuggerWarnings(config)
         waitFor("runControlFinished==True")
         try:
