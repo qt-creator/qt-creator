@@ -97,7 +97,6 @@ BaseTextDocument::BaseTextDocument() : d(new BaseTextDocumentPrivate(this))
 
 BaseTextDocument::~BaseTextDocument()
 {
-    documentClosing();
     delete d->m_document;
     d->m_document = 0;
     delete d;
@@ -377,7 +376,10 @@ bool BaseTextDocument::reload(QString *errorString, QTextCodec *codec)
 bool BaseTextDocument::reload(QString *errorString)
 {
     emit aboutToReload();
-    documentClosing(); // removes text marks non-permanently
+    BaseTextDocumentLayout *documentLayout =
+        qobject_cast<BaseTextDocumentLayout*>(d->m_document->documentLayout());
+    if (documentLayout)
+        documentLayout->documentClosing(); // removes text marks non-permanently
 
     if (!open(errorString, d->m_fileName, d->m_fileName))
         return false;
@@ -468,16 +470,6 @@ void BaseTextDocument::ensureFinalNewLine(QTextCursor& cursor)
     {
         cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
         cursor.insertText(QLatin1String("\n"));
-    }
-}
-
-void BaseTextDocument::documentClosing()
-{
-    QTextBlock block = d->m_document->begin();
-    while (block.isValid()) {
-        if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData()))
-            data->documentClosing();
-        block = block.next();
     }
 }
 

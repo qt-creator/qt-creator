@@ -214,6 +214,7 @@ public:
 
     QSizeF documentSize() const;
 
+    void documentClosing();
     void updateMarksLineNumber();
     void updateMarksBlock(const QTextBlock &block);
 };

@@ -516,6 +516,7 @@ BaseTextDocumentLayout::BaseTextDocumentLayout(QTextDocument *doc)
 
 BaseTextDocumentLayout::~BaseTextDocumentLayout()
 {
+    documentClosing();
 }
 
 void BaseTextDocumentLayout::setParentheses(const QTextBlock &block, const Parentheses &parentheses)
@@ -698,6 +699,17 @@ QSizeF BaseTextDocumentLayout::documentSize() const
     size.setWidth(qMax((qreal)m_requiredWidth, size.width()));
     return size;
 }
+
+void BaseTextDocumentLayout::documentClosing()
+{
+    QTextBlock block = document()->begin();
+    while (block.isValid()) {
+        if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData()))
+            data->documentClosing();
+        block = block.next();
+    }
+}
+
 
 void BaseTextDocumentLayout::updateMarksLineNumber()
 {
