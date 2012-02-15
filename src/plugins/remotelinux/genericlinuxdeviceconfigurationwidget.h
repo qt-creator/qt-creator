@@ -6,7 +6,6 @@
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
-**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -29,35 +28,50 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
-#ifndef GENERICLINUXDEVICECONFIGURATIONFACTORY_H
-#define GENERICLINUXDEVICECONFIGURATIONFACTORY_H
+
+#ifndef REMOTELINUX_GENERICLINUXDEVICECONFIGURATIONWIDGET_H
+#define REMOTELINUX_GENERICLINUXDEVICECONFIGURATIONWIDGET_H
+
+#include "remotelinux_export.h"
 
 #include "linuxdeviceconfiguration.h"
-#include "remotelinux_export.h"
 
 namespace RemoteLinux {
 
-class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationFactory
-    : public ILinuxDeviceConfigurationFactory
+namespace Ui {
+class GenericLinuxDeviceConfigurationWidget;
+}
+
+class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWidget : public ILinuxDeviceConfigurationWidget
 {
     Q_OBJECT
 
 public:
-    GenericLinuxDeviceConfigurationFactory(QObject *parent = 0);
-
-    QString displayName() const;
-    ILinuxDeviceConfigurationWizard *createWizard(QWidget *parent) const;
-    ILinuxDeviceConfigurationWidget *createWidget(
+    explicit GenericLinuxDeviceConfigurationWidget(
             const LinuxDeviceConfiguration::Ptr &deviceConfig,
-            QWidget *parent = 0) const;
-    bool supportsOsType(const QString &osType) const;
-    QString displayNameForOsType(const QString &osType) const;
-    QStringList supportedDeviceActionIds() const;
-    QString displayNameForActionId(const QString &actionId) const;
-    QDialog *createDeviceAction(const QString &actionId,
-        const LinuxDeviceConfiguration::ConstPtr &deviceConfig, QWidget *parent) const;
+            QWidget *parent = 0);
+    ~GenericLinuxDeviceConfigurationWidget();
+
+private slots:
+    void authenticationTypeChanged();
+    void hostNameEditingFinished();
+    void sshPortEditingFinished();
+    void timeoutEditingFinished();
+    void userNameEditingFinished();
+    void passwordEditingFinished();
+    void keyFileEditingFinished();
+    void showPassword(bool showClearText);
+    void handleFreePortsChanged();
+    void setDefaultKeyFilePath();
+    void setPrivateKey(const QString &path);
+
+private:
+    void updatePortsWarningLabel();
+    void initGui();
+
+    Ui::GenericLinuxDeviceConfigurationWidget *m_ui;
 };
 
 } // namespace RemoteLinux
 
-#endif // GENERICLINUXDEVICECONFIGURATIONFACTORY_H
+#endif // REMOTELINUX_GENERICLINUXDEVICECONFIGURATIONWIDGET_H

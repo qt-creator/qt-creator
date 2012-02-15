@@ -102,7 +102,8 @@ LinuxDeviceConfigurationsSettingsWidget::LinuxDeviceConfigurationsSettingsWidget
       m_devConfigs(LinuxDeviceConfigurations::cloneInstance()),
       m_nameValidator(new NameValidator(m_devConfigs.data(), this)),
       m_saveSettingsRequested(false),
-      m_additionalActionsMapper(new QSignalMapper(this))
+      m_additionalActionsMapper(new QSignalMapper(this)),
+      m_configWidget(0)
 {
     LinuxDeviceConfigurations::blockCloning();
     initGui();
@@ -125,23 +126,11 @@ QString LinuxDeviceConfigurationsSettingsWidget::searchKeywords() const
 {
     QString rc;
     QTextStream(&rc) << m_ui->configurationLabel->text()
-        << ' ' << m_ui->sshPortLabel->text()
-        << ' ' << m_ui->keyButton->text()
-        << ' ' << m_ui->passwordButton->text()
-        << ' ' << m_ui->authTypeLabel->text()
-        << ' ' << m_ui->connectionTimeoutLabel->text()
         << ' ' << m_ui->deviceTypeLabel->text()
         << ' ' << m_ui->deviceTypeValueLabel->text()
         << ' ' << m_ui->deviceNameLabel->text()
-        << ' ' << m_ui->hostNameLabel->text()
-        << ' ' << m_ui->keyLabel->text()
-        << ' ' << m_ui->nameLineEdit->text()
-        << ' ' << m_ui->passwordLabel->text()
-        << ' ' << m_ui->freePortsLabel->text()
-        << ' ' << m_ui->pwdLineEdit->text()
-        << ' ' << m_ui->timeoutSpinBox->value()
-        << ' ' << m_ui->userLineEdit->text()
-        << ' ' << m_ui->userNameLabel->text();
+        << ' ' << m_ui->nameLineEdit->text();
+    if (m_configWidget)
     rc.remove(QLatin1Char('&'));
     return rc;
 }
@@ -149,18 +138,9 @@ QString LinuxDeviceConfigurationsSettingsWidget::searchKeywords() const
 void LinuxDeviceConfigurationsSettingsWidget::initGui()
 {
     m_ui->setupUi(this);
-    m_ui->portsWarningLabel->setPixmap(QPixmap(":/projectexplorer/images/compile_error.png"));
-    m_ui->portsWarningLabel->setToolTip(QLatin1String("<font color=\"red\">")
-        + tr("You will need at least one port.") + QLatin1String("</font>"));
     m_ui->configurationComboBox->setModel(m_devConfigs.data());
     m_ui->nameLineEdit->setValidator(m_nameValidator);
-    m_ui->keyFileLineEdit->setExpectedKind(Utils::PathChooser::File);
-    m_ui->keyFileLineEdit->lineEdit()->setMinimumWidth(0);
-    QRegExpValidator * const portsValidator
-        = new QRegExpValidator(QRegExp(PortList::regularExpression()), this);
-    m_ui->portsLineEdit->setValidator(portsValidator);
-    connect(m_ui->makeKeyFileDefaultButton, SIGNAL(clicked()),
-        SLOT(setDefaultKeyFilePath()));
+
     int lastIndex = Core::ICore::settings()
         ->value(LastDeviceConfigIndexKey, 0).toInt();
     if (lastIndex == -1)
@@ -207,20 +187,13 @@ void LinuxDeviceConfigurationsSettingsWidget::displayCurrent()
     const LinuxDeviceConfiguration::ConstPtr &current = currentConfig();
     m_ui->defaultDeviceButton->setEnabled(!current->isDefault());
     m_ui->osTypeValueLabel->setText(RemoteLinuxUtils::osTypeToString(current->osType()));
-    const SshConnectionParameters &sshParams = current->sshParameters();
+
     if (current->deviceType() == LinuxDeviceConfiguration::Hardware)
         m_ui->deviceTypeValueLabel->setText(tr("Physical Device"));
     else
         m_ui->deviceTypeValueLabel->setText(tr("Emulator"));
-    if (sshParams.authenticationType == Utils::SshConnectionParameters::AuthenticationByPassword)
-        m_ui->passwordButton->setChecked(true);
-    else
-        m_ui->keyButton->setChecked(true);
     m_nameValidator->setDisplayName(current->displayName());
-    m_ui->timeoutSpinBox->setValue(sshParams.timeout);
     m_ui->removeConfigButton->setEnabled(!current->isAutoDetected());
-    m_ui->hostLineEdit->setReadOnly(current->isAutoDetected());
-    m_ui->sshPortSpinBox->setEnabled(!current->isAutoDetected());
     fillInValues();
 }
 
@@ -228,16 +201,6 @@ void LinuxDeviceConfigurationsSettingsWidget::fillInValues()
 {
     const LinuxDeviceConfiguration::ConstPtr &current = currentConfig();
     m_ui->nameLineEdit->setText(current->displayName());
-    const SshConnectionParameters &sshParams = current->sshParameters();
-    m_ui->hostLineEdit->setText(sshParams.host);
-    m_ui->sshPortSpinBox->setValue(sshParams.port);
-    m_ui->portsLineEdit->setText(current->freePorts().toString());
-    m_ui->timeoutSpinBox->setValue(sshParams.timeout);
-    m_ui->userLineEdit->setText(sshParams.userName);
-    m_ui->pwdLineEdit->setText(sshParams.password);
-    m_ui->keyFileLineEdit->setPath(sshParams.privateKeyFile);
-    m_ui->showPasswordCheckBox->setChecked(false);
-    updatePortsWarningLabel();
 }
 
 void LinuxDeviceConfigurationsSettingsWidget::saveSettings()
@@ -267,73 +230,10 @@ void LinuxDeviceConfigurationsSettingsWidget::configNameEditingFinished()
     m_nameValidator->setDisplayName(newName);
 }
 
-void LinuxDeviceConfigurationsSettingsWidget::authenticationTypeChanged()
+void LinuxDeviceConfigurationsSettingsWidget::setDefaultDevice()
 {
-    SshConnectionParameters sshParams = currentConfig()->sshParameters();
-    const bool usePassword = m_ui->passwordButton->isChecked();
-    sshParams.authenticationType = usePassword
-        ? SshConnectionParameters::AuthenticationByPassword
-        : SshConnectionParameters::AuthenticationByKey;
-    m_devConfigs->setSshParameters(currentIndex(), sshParams);
-    m_ui->pwdLineEdit->setEnabled(usePassword);
-    m_ui->passwordLabel->setEnabled(usePassword);
-    m_ui->keyFileLineEdit->setEnabled(!usePassword);
-    m_ui->keyLabel->setEnabled(!usePassword);
-    m_ui->makeKeyFileDefaultButton->setEnabled(!usePassword);
-}
-
-void LinuxDeviceConfigurationsSettingsWidget::hostNameEditingFinished()
-{
-    SshConnectionParameters sshParams = currentConfig()->sshParameters();
-    sshParams.host = m_ui->hostLineEdit->text();
-    m_devConfigs->setSshParameters(currentIndex(), sshParams);
-}
-
-void LinuxDeviceConfigurationsSettingsWidget::sshPortEditingFinished()
-{
-    SshConnectionParameters sshParams = currentConfig()->sshParameters();
-    sshParams.port = m_ui->sshPortSpinBox->value();
-    m_devConfigs->setSshParameters(currentIndex(), sshParams);
-}
-
-void LinuxDeviceConfigurationsSettingsWidget::timeoutEditingFinished()
-{
-    SshConnectionParameters sshParams = currentConfig()->sshParameters();
-    sshParams.timeout = m_ui->timeoutSpinBox->value();
-    m_devConfigs->setSshParameters(currentIndex(), sshParams);
-}
-
-void LinuxDeviceConfigurationsSettingsWidget::userNameEditingFinished()
-{
-    SshConnectionParameters sshParams = currentConfig()->sshParameters();
-    sshParams.userName = m_ui->userLineEdit->text();
-    m_devConfigs->setSshParameters(currentIndex(), sshParams);
-}
-
-void LinuxDeviceConfigurationsSettingsWidget::passwordEditingFinished()
-{
-    SshConnectionParameters sshParams = currentConfig()->sshParameters();
-    sshParams.password = m_ui->pwdLineEdit->text();
-    m_devConfigs->setSshParameters(currentIndex(), sshParams);
-}
-
-void LinuxDeviceConfigurationsSettingsWidget::keyFileEditingFinished()
-{
-    SshConnectionParameters sshParams = currentConfig()->sshParameters();
-    sshParams.privateKeyFile = m_ui->keyFileLineEdit->path();
-    m_devConfigs->setSshParameters(currentIndex(), sshParams);
-}
-
-void LinuxDeviceConfigurationsSettingsWidget::handleFreePortsChanged()
-{
-    m_devConfigs->setFreePorts(currentIndex(), PortList::fromString(m_ui->portsLineEdit->text()));
-    updatePortsWarningLabel();
-}
-
-void LinuxDeviceConfigurationsSettingsWidget::showPassword(bool showClearText)
-{
-    m_ui->pwdLineEdit->setEchoMode(showClearText
-        ? QLineEdit::Normal : QLineEdit::Password);
+    m_devConfigs->setDefaultDevice(currentIndex());
+    m_ui->defaultDeviceButton->setEnabled(false);
 }
 
 void LinuxDeviceConfigurationsSettingsWidget::showGenerateSshKeyDialog()
@@ -342,28 +242,14 @@ void LinuxDeviceConfigurationsSettingsWidget::showGenerateSshKeyDialog()
     dialog.exec();
 }
 
-void LinuxDeviceConfigurationsSettingsWidget::setDefaultKeyFilePath()
-{
-    m_devConfigs->setDefaultSshKeyFilePath(m_ui->keyFileLineEdit->path());
-}
-
-void LinuxDeviceConfigurationsSettingsWidget::setDefaultDevice()
-{
-    m_devConfigs->setDefaultDevice(currentIndex());
-    m_ui->defaultDeviceButton->setEnabled(false);
-}
-
-void LinuxDeviceConfigurationsSettingsWidget::setPrivateKey(const QString &path)
-{
-    m_ui->keyFileLineEdit->setPath(path);
-    keyFileEditingFinished();
-}
-
 void LinuxDeviceConfigurationsSettingsWidget::currentConfigChanged(int index)
 {
     qDeleteAll(m_additionalActionButtons);
+    delete m_configWidget;
+    m_configWidget = 0;
     m_additionalActionButtons.clear();
-    m_ui->detailsWidget->setEnabled(false);
+    m_ui->generalGroupBox->setEnabled(false);
+    m_ui->osSpecificGroupBox->setEnabled(false);
     if (index == -1) {
         m_ui->removeConfigButton->setEnabled(false);
         m_ui->generateKeyButton->setEnabled(false);
@@ -376,13 +262,24 @@ void LinuxDeviceConfigurationsSettingsWidget::currentConfigChanged(int index)
         if (factory) {
             const QStringList &actionIds = factory->supportedDeviceActionIds();
             foreach (const QString &actionId, actionIds) {
-                QPushButton * const button = new QPushButton(factory->displayNameForActionId(actionId));
+                QPushButton * const button = new QPushButton(
+                            factory->displayNameForActionId(actionId));
                 m_additionalActionButtons << button;
                 connect(button, SIGNAL(clicked()), m_additionalActionsMapper, SLOT(map()));
                 m_additionalActionsMapper->setMapping(button, actionId);
                 m_ui->buttonsLayout->insertWidget(m_ui->buttonsLayout->count() - 1, button);
             }
-            m_ui->detailsWidget->setEnabled(factory->isUserEditable());
+            if (!m_ui->osSpecificGroupBox->layout())
+                new QVBoxLayout(m_ui->osSpecificGroupBox);
+            m_configWidget = factory->createWidget(m_devConfigs->mutableDeviceAt(currentIndex()),
+                                                   m_ui->osSpecificGroupBox);
+            if (m_configWidget) {
+                connect(m_configWidget, SIGNAL(defaultSshKeyFilePathChanged(QString)),
+                        m_devConfigs.data(), SLOT(setDefaultSshKeyFilePath(QString)));
+                m_ui->osSpecificGroupBox->layout()->addWidget(m_configWidget);
+                m_ui->osSpecificGroupBox->setEnabled(factory->isUserEditable());
+            }
+            m_ui->generalGroupBox->setEnabled(factory->isUserEditable());
         }
         m_ui->configurationComboBox->setCurrentIndex(index);
         displayCurrent();
@@ -394,19 +291,6 @@ void LinuxDeviceConfigurationsSettingsWidget::clearDetails()
     m_ui->nameLineEdit->clear();
     m_ui->osTypeValueLabel->clear();
     m_ui->deviceTypeValueLabel->clear();
-    m_ui->hostLineEdit->clear();
-    m_ui->sshPortSpinBox->clear();
-    m_ui->timeoutSpinBox->clear();
-    m_ui->userLineEdit->clear();
-    m_ui->pwdLineEdit->clear();
-    m_ui->portsLineEdit->clear();
-    m_ui->portsWarningLabel->clear();
-    m_ui->keyFileLineEdit->lineEdit()->clear();
-}
-
-void LinuxDeviceConfigurationsSettingsWidget::updatePortsWarningLabel()
-{
-    m_ui->portsWarningLabel->setVisible(!currentConfig()->freePorts().hasMore());
 }
 
 const ILinuxDeviceConfigurationFactory *LinuxDeviceConfigurationsSettingsWidget::factoryForCurrentConfig() const

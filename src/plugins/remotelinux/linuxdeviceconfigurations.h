@@ -70,7 +70,6 @@ public:
     int indexForInternalId(LinuxDeviceConfiguration::Id internalId) const;
     LinuxDeviceConfiguration::Id internalId(LinuxDeviceConfiguration::ConstPtr devConf) const;
 
-    void setDefaultSshKeyFilePath(const QString &path);
     QString defaultSshKeyFilePath() const;
 
     void addConfiguration(const LinuxDeviceConfiguration::Ptr &devConfig);
@@ -85,12 +84,17 @@ public:
     virtual QVariant data(const QModelIndex &index,
         int role = Qt::DisplayRole) const;
 
+public slots:
+    void setDefaultSshKeyFilePath(const QString &path);
+
 signals:
     void updated();
     void cloningPossible();
 
 private:
     LinuxDeviceConfigurations(QObject *parent);
+
+    LinuxDeviceConfiguration::Ptr mutableDeviceAt(int index) const;
 
     static void blockCloning();
     static void unblockCloning();

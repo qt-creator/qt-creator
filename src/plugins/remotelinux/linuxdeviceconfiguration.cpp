@@ -31,10 +31,12 @@
 **************************************************************************/
 #include "linuxdeviceconfiguration.h"
 
+#include "linuxdeviceconfigurations.h"
 #include "portlist.h"
 #include "remotelinux_constants.h"
 
 #include <utils/ssh/sshconnection.h>
+#include <utils/qtcassert.h>
 
 #include <QSettings>
 #include <QDesktopServices>
@@ -263,5 +265,20 @@ void LinuxDeviceConfiguration::setInternalId(Id id) { d->internalId = id; }
 void LinuxDeviceConfiguration::setDefault(bool isDefault) { d->isDefault = isDefault; }
 
 const LinuxDeviceConfiguration::Id LinuxDeviceConfiguration::InvalidId = 0;
+
+
+ILinuxDeviceConfigurationWidget::ILinuxDeviceConfigurationWidget(
+        const LinuxDeviceConfiguration::Ptr &deviceConfig,
+        QWidget *parent)
+    : QWidget(parent),
+      m_deviceConfiguration(deviceConfig)
+{
+    QTC_CHECK(m_deviceConfiguration);
+}
+
+LinuxDeviceConfiguration::Ptr ILinuxDeviceConfigurationWidget::deviceConfiguration() const
+{
+    return m_deviceConfiguration;
+}
 
 } // namespace RemoteLinux

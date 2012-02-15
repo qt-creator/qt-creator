@@ -47,6 +47,7 @@ namespace RemoteLinux {
 class ILinuxDeviceConfigurationFactory;
 class LinuxDeviceConfiguration;
 class LinuxDeviceConfigurations;
+class ILinuxDeviceConfigurationWidget;
 
 namespace Internal {
 namespace Ui { class LinuxDeviceConfigurationsSettingsWidget; }
@@ -67,20 +68,9 @@ private slots:
     void addConfig();
     void deleteConfig();
     void configNameEditingFinished();
-    void authenticationTypeChanged();
-    void hostNameEditingFinished();
-    void sshPortEditingFinished();
-    void timeoutEditingFinished();
-    void userNameEditingFinished();
-    void passwordEditingFinished();
-    void keyFileEditingFinished();
-    void showPassword(bool showClearText);
-    void handleFreePortsChanged();
-    void setDefaultKeyFilePath();
     void setDefaultDevice();
 
     void showGenerateSshKeyDialog();
-    void setPrivateKey(const QString &path);
 
     void handleAdditionalActionRequest(const QString &actionId);
 
@@ -92,7 +82,6 @@ private:
     void clearDetails();
     QString parseTestOutput();
     void fillInValues();
-    void updatePortsWarningLabel();
     const ILinuxDeviceConfigurationFactory *factoryForCurrentConfig() const;
 
     Ui::LinuxDeviceConfigurationsSettingsWidget *m_ui;
@@ -101,6 +90,7 @@ private:
     bool m_saveSettingsRequested;
     QList<QPushButton *> m_additionalActionButtons;
     QSignalMapper * const m_additionalActionsMapper;
+    ILinuxDeviceConfigurationWidget *m_configWidget;
 };
 
 } // namespace Internal

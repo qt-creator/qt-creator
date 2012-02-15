@@ -82,6 +82,10 @@ public:
     QVariantHash attributes() const;
     QVariant attribute(const QString &name) const;
 
+    void setSshParameters(const Utils::SshConnectionParameters &sshParameters);
+    void setFreePorts(const PortList &freePorts);
+    void setAttribute(const QString &name, const QVariant &value);
+
     static QString defaultPrivateKeyFilePath();
     static QString defaultPublicKeyFilePath();
 
@@ -106,9 +110,6 @@ private:
     void setDisplayName(const QString &name);
     void setInternalId(Id id);
     void setDefault(bool isDefault);
-    void setSshParameters(const Utils::SshConnectionParameters &sshParameters);
-    void setFreePorts(const PortList &freePorts);
-    void setAttribute(const QString &name, const QVariant &value);
     void save(QSettings &settings) const;
 
     Internal::LinuxDeviceConfigurationPrivate *d;
@@ -137,7 +138,35 @@ protected:
 
 
 /*!
-  \class ProjectExplorer::ILinuxDeviceConfiguration factory.
+ \class RemoteLinux::LinuxDeviceConfigurationWidget : public QWidget
+
+ \brief Provides an interface for the widget configuring a LinuxDeviceConfiguration
+
+ A class implementing this interface will display a widget in the configuration
+ options page "Linux Device", in the "Device configuration" tab.
+ It's used to configure a particular device, the default widget is empty.
+*/
+class REMOTELINUX_EXPORT ILinuxDeviceConfigurationWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    ILinuxDeviceConfigurationWidget(const LinuxDeviceConfiguration::Ptr &deviceConfig,
+                                    QWidget *parent = 0);
+
+signals:
+    void defaultSshKeyFilePathChanged(const QString &path);
+
+protected:
+    LinuxDeviceConfiguration::Ptr deviceConfiguration() const;
+
+private:
+    LinuxDeviceConfiguration::Ptr m_deviceConfiguration;
+};
+
+
+/*!
+  \class RemoteLinux::ILinuxDeviceConfiguration factory.
 
   \brief Provides an interface for classes providing services related to certain type of Linux devices.
 
@@ -162,6 +191,12 @@ public:
     */
     virtual ILinuxDeviceConfigurationWizard *createWizard(QWidget *parent = 0) const = 0;
 
+    /*!
+      A widget that can configure the device this factory supports.
+    */
+    virtual ILinuxDeviceConfigurationWidget *createWidget(
+            const LinuxDeviceConfiguration::Ptr &deviceConfig,
+            QWidget *parent = 0) const = 0;
 
     /*!
       Returns true iff this factory supports the given device type.

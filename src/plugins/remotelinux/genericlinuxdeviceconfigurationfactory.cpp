@@ -32,6 +32,7 @@
 #include "genericlinuxdeviceconfigurationfactory.h"
 
 #include "genericlinuxdeviceconfigurationwizard.h"
+#include "genericlinuxdeviceconfigurationwidget.h"
 #include "linuxdevicetestdialog.h"
 #include "publickeydeploymentdialog.h"
 #include "remotelinuxprocessesdialog.h"
@@ -55,6 +56,13 @@ QString GenericLinuxDeviceConfigurationFactory::displayName() const
 ILinuxDeviceConfigurationWizard *GenericLinuxDeviceConfigurationFactory::createWizard(QWidget *parent) const
 {
     return new GenericLinuxDeviceConfigurationWizard(parent);
+}
+
+ILinuxDeviceConfigurationWidget *GenericLinuxDeviceConfigurationFactory::createWidget(
+        const LinuxDeviceConfiguration::Ptr &deviceConfig,
+        QWidget *parent) const
+{
+    return new GenericLinuxDeviceConfigurationWidget(deviceConfig, parent);
 }
 
 bool GenericLinuxDeviceConfigurationFactory::supportsOsType(const QString &osType) const

@@ -45,6 +45,9 @@ public:
 
     QString displayName() const;
     RemoteLinux::ILinuxDeviceConfigurationWizard *createWizard(QWidget *parent) const;
+    RemoteLinux::ILinuxDeviceConfigurationWidget *createWidget(
+            const RemoteLinux::LinuxDeviceConfiguration::Ptr &deviceConfig,
+            QWidget *parent = 0) const;
     bool supportsOsType(const QString &osType) const;
     QString displayNameForOsType(const QString &osType) const;
     QStringList supportedDeviceActionIds() const;

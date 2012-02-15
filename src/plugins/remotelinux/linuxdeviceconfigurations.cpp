@@ -268,6 +268,12 @@ LinuxDeviceConfigurations::LinuxDeviceConfigurations(QObject *parent)
 {
 }
 
+LinuxDeviceConfiguration::Ptr LinuxDeviceConfigurations::mutableDeviceAt(int idx) const
+{
+    Q_ASSERT(idx >= 0 && idx < rowCount());
+    return d->devConfigs.at(idx);
+}
+
 void LinuxDeviceConfigurations::blockCloning()
 {
     QTC_ASSERT(!cloningBlocked, return);

@@ -62,7 +62,8 @@ HEADERS += \
     startgdbserverdialog.h \
     remotelinuxcustomcommanddeployservice.h \
     remotelinuxcustomcommanddeploymentstep.h \
-    abstractembeddedlinuxtarget.h
+    abstractembeddedlinuxtarget.h \
+    genericlinuxdeviceconfigurationwidget.h
 
 SOURCES += \
     genericembeddedlinuxtarget.cpp \
@@ -118,7 +119,8 @@ SOURCES += \
     startgdbserverdialog.cpp \
     remotelinuxcustomcommanddeployservice.cpp \
     remotelinuxcustomcommanddeploymentstep.cpp \
-    abstractembeddedlinuxtarget.cpp
+    abstractembeddedlinuxtarget.cpp \
+    genericlinuxdeviceconfigurationwidget.cpp
 
 FORMS += \
     linuxdevicefactoryselectiondialog.ui \
@@ -128,7 +130,8 @@ FORMS += \
     linuxdeviceconfigurationssettingswidget.ui \
     sshkeycreationdialog.ui \
     remotelinuxdeployconfigurationwidget.ui \
-    profilesupdatedialog.ui
+    profilesupdatedialog.ui \
+    genericlinuxdeviceconfigurationwidget.ui
 
 RESOURCES += remotelinux.qrc
 

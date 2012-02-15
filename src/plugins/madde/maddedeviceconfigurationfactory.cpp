@@ -40,6 +40,7 @@
 #include <remotelinux/remotelinuxprocessesdialog.h>
 #include <remotelinux/remotelinuxprocesslist.h>
 #include <remotelinux/remotelinux_constants.h>
+#include <remotelinux/genericlinuxdeviceconfigurationwidget.h>
 #include <utils/qtcassert.h>
 
 using namespace RemoteLinux;
@@ -64,6 +65,13 @@ QString MaddeDeviceConfigurationFactory::displayName() const
 ILinuxDeviceConfigurationWizard *MaddeDeviceConfigurationFactory::createWizard(QWidget *parent) const
 {
     return new MaemoDeviceConfigWizard(parent);
+}
+
+ILinuxDeviceConfigurationWidget *MaddeDeviceConfigurationFactory::createWidget(
+        const LinuxDeviceConfiguration::Ptr &deviceConfig,
+        QWidget *parent) const
+{
+    return new GenericLinuxDeviceConfigurationWidget(deviceConfig, parent);
 }
 
 bool MaddeDeviceConfigurationFactory::supportsOsType(const QString &osType) const

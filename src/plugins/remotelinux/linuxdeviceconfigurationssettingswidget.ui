@@ -47,281 +47,77 @@
       </layout>
      </item>
      <item>
-      <widget class="QFrame" name="frame">
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
+      <widget class="QGroupBox" name="generalGroupBox">
+       <property name="title">
+        <string>General</string>
        </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QWidget" name="detailsWidget" native="true">
-          <property name="enabled">
-           <bool>false</bool>
+       <layout class="QFormLayout" name="formLayout_3">
+        <property name="fieldGrowthPolicy">
+         <enum>QFormLayout::FieldsStayAtSizeHint</enum>
+        </property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="deviceNameLabel">
+          <property name="text">
+           <string>&amp;Name:</string>
           </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
+          <property name="buddy">
+           <cstring>nameLineEdit</cstring>
           </property>
-          <layout class="QFormLayout" name="formLayout_2">
-           <property name="fieldGrowthPolicy">
-            <enum>QFormLayout::FieldsStayAtSizeHint</enum>
-           </property>
-           <property name="margin">
-            <number>0</number>
-           </property>
-           <item row="0" column="0">
-            <widget class="QLabel" name="deviceNameLabel">
-             <property name="text">
-              <string>&amp;Name:</string>
-             </property>
-             <property name="buddy">
-              <cstring>nameLineEdit</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="nameLineEdit"/>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="oSTypeLabel">
-             <property name="text">
-              <string>OS type:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLabel" name="osTypeValueLabel">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="deviceTypeLabel">
-             <property name="text">
-              <string>Device type:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLabel" name="deviceTypeValueLabel">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="authTypeLabel">
-             <property name="text">
-              <string>Authentication type:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QWidget" name="authTypeButtonsWidget" native="true">
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
-              <property name="margin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QRadioButton" name="passwordButton">
-                <property name="text">
-                 <string>Password</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QRadioButton" name="keyButton">
-                <property name="text">
-                 <string>&amp;Key</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_4">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="hostNameLabel">
-             <property name="text">
-              <string>&amp;Host name:</string>
-             </property>
-             <property name="buddy">
-              <cstring>hostLineEdit</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_4">
-             <item>
-              <widget class="QLineEdit" name="hostLineEdit">
-               <property name="placeholderText">
-                <string>IP or host name of the device</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="sshPortLabel">
-               <property name="text">
-                <string>&amp;SSH port:</string>
-               </property>
-               <property name="buddy">
-                <cstring>sshPortSpinBox</cstring>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QSpinBox" name="sshPortSpinBox">
-               <property name="minimum">
-                <number>0</number>
-               </property>
-               <property name="maximum">
-                <number>65535</number>
-               </property>
-               <property name="value">
-                <number>22</number>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="freePortsLabel">
-             <property name="text">
-              <string>Free ports:</string>
-             </property>
-             <property name="buddy">
-              <cstring>portsLineEdit</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_7">
-             <item>
-              <widget class="QLineEdit" name="portsLineEdit">
-               <property name="toolTip">
-                <string>You can enter lists and ranges like this: 1024,1026-1028,1030</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="portsWarningLabel">
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="connectionTimeoutLabel">
-               <property name="text">
-                <string>Timeout:</string>
-               </property>
-               <property name="buddy">
-                <cstring>timeoutSpinBox</cstring>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QSpinBox" name="timeoutSpinBox">
-               <property name="suffix">
-                <string>s</string>
-               </property>
-               <property name="maximum">
-                <number>10000</number>
-               </property>
-               <property name="singleStep">
-                <number>10</number>
-               </property>
-               <property name="value">
-                <number>1000</number>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="7" column="0">
-            <widget class="QLabel" name="userNameLabel">
-             <property name="text">
-              <string>&amp;Username:</string>
-             </property>
-             <property name="buddy">
-              <cstring>userLineEdit</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="1">
-            <widget class="QLineEdit" name="userLineEdit"/>
-           </item>
-           <item row="8" column="0">
-            <widget class="QLabel" name="passwordLabel">
-             <property name="text">
-              <string>&amp;Password:</string>
-             </property>
-             <property name="buddy">
-              <cstring>pwdLineEdit</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="8" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_6">
-             <item>
-              <widget class="QLineEdit" name="pwdLineEdit">
-               <property name="echoMode">
-                <enum>QLineEdit::Password</enum>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="showPasswordCheckBox">
-               <property name="text">
-                <string>Show password</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="9" column="0">
-            <widget class="QLabel" name="keyLabel">
-             <property name="text">
-              <string>Private key file:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="9" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_8">
-             <item>
-              <widget class="Utils::PathChooser" name="keyFileLineEdit" native="true"/>
-             </item>
-             <item>
-              <widget class="QPushButton" name="makeKeyFileDefaultButton">
-               <property name="text">
-                <string>Set as Default</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="nameLineEdit"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="oSTypeLabel">
+          <property name="text">
+           <string>OS type:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLabel" name="osTypeValueLabel">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="deviceTypeLabel">
+          <property name="text">
+           <string>Device type:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLabel" name="deviceTypeValueLabel">
+          <property name="text">
+           <string/>
+          </property>
          </widget>
         </item>
        </layout>
       </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="osSpecificGroupBox">
+       <property name="title">
+        <string>OS Type Specific</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
@@ -403,68 +199,8 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>Utils::PathChooser</class>
-   <extends>QWidget</extends>
-   <header location="global">utils/pathchooser.h</header>
-   <container>1</container>
-   <slots>
-    <signal>editingFinished()</signal>
-    <signal>browsingFinished()</signal>
-   </slots>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections>
-  <connection>
-   <sender>hostLineEdit</sender>
-   <signal>editingFinished()</signal>
-   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
-   <slot>hostNameEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>484</x>
-     <y>174</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>424</x>
-     <y>231</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>userLineEdit</sender>
-   <signal>editingFinished()</signal>
-   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
-   <slot>userNameEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>540</x>
-     <y>317</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>422</x>
-     <y>301</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pwdLineEdit</sender>
-   <signal>editingFinished()</signal>
-   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
-   <slot>passwordEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>424</x>
-     <y>349</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>423</x>
-     <y>336</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>addConfigButton</sender>
    <signal>clicked()</signal>
@@ -482,78 +218,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>passwordButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
-   <slot>authenticationTypeChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>228</x>
-     <y>147</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>513</x>
-     <y>240</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>keyFileLineEdit</sender>
-   <signal>editingFinished()</signal>
-   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
-   <slot>keyFileEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>344</x>
-     <y>383</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>257</x>
-     <y>185</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>keyFileLineEdit</sender>
-   <signal>browsingFinished()</signal>
-   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
-   <slot>keyFileEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>344</x>
-     <y>383</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>257</x>
-     <y>185</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>keyButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
-   <slot>authenticationTypeChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>279</x>
-     <y>156</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>525</x>
-     <y>351</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>nameLineEdit</sender>
    <signal>editingFinished()</signal>
    <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>configNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>520</x>
-     <y>82</y>
+     <x>204</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>330</x>
@@ -574,102 +246,6 @@
     <hint type="destinationlabel">
      <x>358</x>
      <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>timeoutSpinBox</sender>
-   <signal>editingFinished()</signal>
-   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
-   <slot>timeoutEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>222</x>
-     <y>285</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>6</x>
-     <y>333</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>timeoutSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
-   <slot>timeoutEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>222</x>
-     <y>285</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>sshPortSpinBox</sender>
-   <signal>editingFinished()</signal>
-   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
-   <slot>sshPortEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>210</x>
-     <y>201</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>4</x>
-     <y>211</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>sshPortSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
-   <slot>sshPortEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>210</x>
-     <y>201</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>3</x>
-     <y>136</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>showPasswordCheckBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
-   <slot>showPassword(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>539</x>
-     <y>347</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>3</x>
-     <y>262</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>portsLineEdit</sender>
-   <signal>editingFinished()</signal>
-   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
-   <slot>handleFreePortsChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>310</x>
-     <y>230</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>393</y>
     </hint>
    </hints>
   </connection>
