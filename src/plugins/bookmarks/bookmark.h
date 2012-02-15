@@ -61,8 +61,6 @@ public:
     QString path() const;
     QString lineText() const;
 
-    int lineNumber() const { return m_lineNumber; }
-
 private:
     BookmarkManager *m_manager;
     const QFileInfo m_fileInfo;
@@ -70,7 +68,6 @@ private:
     const QString m_onlyFile;
     const QString m_path;
     QString m_lineText;
-    int m_lineNumber;
 };
 
 } // namespace Internal

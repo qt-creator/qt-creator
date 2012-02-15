@@ -44,8 +44,7 @@ Bookmark::Bookmark(const QString& fileName, int lineNumber, BookmarkManager *man
     m_fileInfo(fileName),
     m_fileName(fileName),
     m_onlyFile(m_fileInfo.fileName()),
-    m_path(m_fileInfo.path()),
-    m_lineNumber(lineNumber)
+    m_path(m_fileInfo.path())
 {
     setPriority(TextEditor::ITextMark::LowPriority);
     setIcon(m_manager->bookmarkIcon());
@@ -56,13 +55,11 @@ void Bookmark::removedFromEditor()
     m_manager->removeBookmark(this);
 }
 
-void Bookmark::updateLineNumber(int lineNumber)
+void Bookmark::updateLineNumber(int line)
 {
-    if (lineNumber != m_lineNumber) {
-        m_lineNumber = lineNumber;
+    if (line != lineNumber())
         m_manager->updateBookmark(this);
-    }
-    BaseTextMark::updateLineNumber(lineNumber);
+    BaseTextMark::updateLineNumber(line);
 }
 
 void Bookmark::updateBlock(const QTextBlock &block)
