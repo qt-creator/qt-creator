@@ -72,6 +72,8 @@ TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
 
     m_addMenu = new QMenu(this);
 
+    setFocusPolicy(Qt::NoFocus);
+
     setupUi();
 
     connect(m_project, SIGNAL(addedTarget(ProjectExplorer::Target*)),

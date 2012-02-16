@@ -94,7 +94,9 @@ public:
 class RootWidget : public QWidget
 {
 public:
-    RootWidget(QWidget *parent) : QWidget(parent) {}
+    RootWidget(QWidget *parent) : QWidget(parent) {
+        setFocusPolicy(Qt::NoFocus);
+    }
     void paintEvent(QPaintEvent *);
 };
 
