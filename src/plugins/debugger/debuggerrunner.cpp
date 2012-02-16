@@ -530,7 +530,7 @@ static QList<DebuggerEngineType> engineTypes(const DebuggerStartParameters &sp)
     }
 
     // FIXME: 1 of 3 testing hacks.
-    if (sp.processArgs.startsWith(__("@tcf@ "))) {
+    if (sp.processArgs.startsWith(QLatin1String("@tcf@ "))) {
         result.push_back(GdbEngineType);
         return result;
     }

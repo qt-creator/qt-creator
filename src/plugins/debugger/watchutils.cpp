@@ -888,7 +888,7 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
             data1.iname += data1.name.toLatin1();
         }
         if (!data1.name.isEmpty() && data1.name.at(0).isDigit())
-            data1.name = _c('[') + data1.name + _c(']');
+            data1.name = QLatin1Char('[') + data1.name + QLatin1Char(']');
         if (addressStep) {
             setWatchDataAddress(data1, addressBase);
             addressBase += addressStep;

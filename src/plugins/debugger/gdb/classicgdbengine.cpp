@@ -1047,7 +1047,7 @@ void GdbEngine::handleDebuggingHelperValue3Classic(const GdbResponse &response)
             int l = out.isEmpty() ? 0 : list.size();
             for (int i = 0; i < l; ++i)
                  str.append(list.at(i).toInt());
-            data.setValue(_c('"') + str + _c('"'));
+            data.setValue(QLatin1Char('"') + str + QLatin1Char('"'));
             data.setHasChildren(false);
             data.setAllUnneeded();
             insertData(data);
@@ -1425,9 +1425,9 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
             data.exp = "*(" + parent.exp + ')';
         } else if (startsWithDigit(data.name)) {
             // An array. No variables needed?
-            data.name = _c('[') + data.name + _c(']');
+            data.name = QLatin1Char('[') + data.name + QLatin1Char(']');
             data.exp = parent.exp + '[' + exp + ']';
-        } else if (0 && parent.name.endsWith(_c('.'))) {
+        } else if (0 && parent.name.endsWith(QLatin1Char('.'))) {
             // Happens with anonymous unions
             data.exp = parent.exp + data.name.toLatin1();
             //data.name = "<anonymous union>";

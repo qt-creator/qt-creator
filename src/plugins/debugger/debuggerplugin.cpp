@@ -2858,13 +2858,13 @@ void DebuggerPluginPrivate::extensionsInitialized()
     const Context cppeditorcontext(CppEditor::Constants::C_CPPEDITOR);
 
     m_startIcon = QIcon(_(":/debugger/images/debugger_start_small.png"));
-    m_startIcon.addFile(__(":/debugger/images/debugger_start.png"));
+    m_startIcon.addFile(QLatin1String(":/debugger/images/debugger_start.png"));
     m_exitIcon = QIcon(_(":/debugger/images/debugger_stop_small.png"));
-    m_exitIcon.addFile(__(":/debugger/images/debugger_stop.png"));
-    m_continueIcon = QIcon(__(":/debugger/images/debugger_continue_small.png"));
-    m_continueIcon.addFile(__(":/debugger/images/debugger_continue.png"));
+    m_exitIcon.addFile(QLatin1String(":/debugger/images/debugger_stop.png"));
+    m_continueIcon = QIcon(QLatin1String(":/debugger/images/debugger_continue_small.png"));
+    m_continueIcon.addFile(QLatin1String(":/debugger/images/debugger_continue.png"));
     m_interruptIcon = QIcon(_(":/debugger/images/debugger_interrupt_small.png"));
-    m_interruptIcon.addFile(__(":/debugger/images/debugger_interrupt.png"));
+    m_interruptIcon.addFile(QLatin1String(":/debugger/images/debugger_interrupt.png"));
     m_locationMarkIcon = QIcon(_(":/debugger/images/location_16.png"));
 
     m_busy = false;
@@ -2937,15 +2937,15 @@ void DebuggerPluginPrivate::extensionsInitialized()
     connect(act, SIGNAL(triggered()), SLOT(handleAbort()));
 
     act = m_nextAction = new QAction(tr("Step Over"), this);
-    act->setIcon(QIcon(__(":/debugger/images/debugger_stepover_small.png")));
+    act->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_stepover_small.png")));
     connect(act, SIGNAL(triggered()), SLOT(handleExecNext()));
 
     act = m_stepAction = new QAction(tr("Step Into"), this);
-    act->setIcon(QIcon(__(":/debugger/images/debugger_stepinto_small.png")));
+    act->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_stepinto_small.png")));
     connect(act, SIGNAL(triggered()), SLOT(handleExecStep()));
 
     act = m_stepOutAction = new QAction(tr("Step Out"), this);
-    act->setIcon(QIcon(__(":/debugger/images/debugger_stepout_small.png")));
+    act->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_stepout_small.png")));
     connect(act, SIGNAL(triggered()), SLOT(handleExecStepOut()));
 
     act = m_runToLineAction = new QAction(tr("Run to Line"), this);
@@ -2980,7 +2980,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act->setCheckable(true);
     act->setChecked(false);
     act->setCheckable(false);
-    act->setIcon(QIcon(__(":/debugger/images/debugger_reversemode_16.png")));
+    act->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_reversemode_16.png")));
     act->setIconVisibleInMenu(false);
 
     act = m_frameDownAction = new QAction(tr("Move to Called Frame"), this);

@@ -135,7 +135,7 @@ void CoreGdbAdapter::handleTemporaryTargetCore(const GdbResponse &response)
 
     m_executable = QLatin1String(console.mid(pos1 + 1, pos2 - pos1 - 1));
     // Strip off command line arguments. FIXME: make robust.
-    int idx = m_executable.indexOf(_c(' '));
+    int idx = m_executable.indexOf(QLatin1Char(' '));
     if (idx >= 0)
         m_executable.truncate(idx);
     if (m_executable.isEmpty()) {

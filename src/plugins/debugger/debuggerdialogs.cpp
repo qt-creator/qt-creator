@@ -705,7 +705,7 @@ bool StartExternalDialog::run(QWidget *parent,
     if (!newParameters.arguments.isEmpty())
         sp->processArgs = newParameters.arguments;
     // Fixme: 1 of 3 testing hacks.
-    if (sp->processArgs.startsWith(__("@tcf@ ")) || sp->processArgs.startsWith(__("@sym@ ")))
+    if (sp->processArgs.startsWith(QLatin1String("@tcf@ ")) || sp->processArgs.startsWith(QLatin1String("@sym@ ")))
         // Set up an ARM Symbian Abi
         sp->toolChainAbi = ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture,
                                                 ProjectExplorer::Abi::SymbianOS,
