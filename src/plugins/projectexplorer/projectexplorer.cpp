@@ -2777,6 +2777,18 @@ void ProjectExplorerPlugin::renameFile()
     }
 }
 
+static inline bool fileSystemRenameFile(const QString &orgFilePath,
+                                        const QString &newFilePath)
+{
+#if QT_VERSION < 0x050000 // ### fixme: QTBUG-3570 might be fixed in Qt 5?
+    QFile f(orgFilePath); // Due to QTBUG-3570
+    QAbstractFileEngine *fileEngine = f.fileEngine();
+    if (!fileEngine->caseSensitive() && orgFilePath.compare(newFilePath, Qt::CaseInsensitive) == 0)
+        return fileEngine->rename(newFilePath);
+#endif
+    return QFile::rename(orgFilePath, newFilePath);
+}
+
 void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
 {
     FileNode *fileNode = qobject_cast<FileNode *>(node);
@@ -2794,16 +2806,8 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
     bool result = false;
     if (vc && vc->supportsOperation(Core::IVersionControl::MoveOperation))
         result = vc->vcsMove(orgFilePath, newFilePath);
-    if (!result) { // The moving via vcs failed or the vcs does not support moving, fall back
-        QFile f(orgFilePath);
-        if (!f.fileEngine()->caseSensitive()
-                && orgFilePath.compare(newFilePath, Qt::CaseInsensitive) == 0) {
-            // Due to QTBUG-3570
-            result = f.fileEngine()->rename(newFilePath);
-        } else {
-            result = QFile::rename(orgFilePath, newFilePath);
-        }
-    }
+    if (!result) // The moving via vcs failed or the vcs does not support moving, fall back
+        result = fileSystemRenameFile(orgFilePath, newFilePath);
     if (result) {
         // yeah we moved, tell the filemanager about it
         Core::FileManager::renamedFile(orgFilePath, newFilePath);
