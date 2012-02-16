@@ -159,14 +159,14 @@ struct BaseTextEditorPrivateHighlightBlocks
 };
 
 
-class BaseTextEditorPrivate
+class BaseTextEditorWidgetPrivate
 {
-    BaseTextEditorPrivate(const BaseTextEditorPrivate &);
-    BaseTextEditorPrivate &operator=(const BaseTextEditorPrivate &);
+    BaseTextEditorWidgetPrivate(const BaseTextEditorWidgetPrivate &);
+    BaseTextEditorWidgetPrivate &operator=(const BaseTextEditorWidgetPrivate &);
 
 public:
-    BaseTextEditorPrivate();
-    ~BaseTextEditorPrivate();
+    BaseTextEditorWidgetPrivate();
+    ~BaseTextEditorWidgetPrivate();
 
     void setupBasicEditActions(TextEditorActionHandler *actionHandler);
     void setupDocumentSignals(BaseTextDocument *document);
