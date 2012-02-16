@@ -63,13 +63,19 @@ def shadowBuildDir(path, project, qtVersion, debugVersion):
     else:
         return buildDir + "_Release"
 
+# this function returns a list of available targets - this is not 100% error proof
+# because the Simulator target is added for some cases even when Simulator has not
+# been set up inside Qt versions/Toolchains
+# this list can be used in __chooseTargets__()
 def __createProjectSelectType__(category, template):
     invokeMenuItem("File", "New File or Project...")
     categoriesView = waitForObject("{type='QTreeView' name='templateCategoryView'}", 20000)
     clickItem(categoriesView, "Projects." + category, 5, 5, 0, Qt.LeftButton)
     templatesView = waitForObject("{name='templatesView' type='QListView'}", 20000)
     clickItem(templatesView, template, 5, 5, 0, Qt.LeftButton)
+    text = waitForObject("{type='QTextBrowser' name='templateDescription' visible='1'}").plainText
     clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
+    return __getSupportedPlatforms__(str(text))
 
 def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
     directoryEdit = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
@@ -93,8 +99,9 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
 # param qtVersion is the name of a Qt version. In the project, build configurations will be
 #                 created for this version. If it is None, all Qt versions will be used
 # param checks turns tests in the function on if set to True
-def __selectQtVersionDesktop__(qtVersion, checks):
-    __chooseTargets__()
+# param available a list holding the available targets
+def __selectQtVersionDesktop__(qtVersion, checks, available=None):
+    __chooseTargets__(QtQuickConstants.Targets.DESKTOP, available)
     if qtVersion == None:
         selectFromCombo(":scrollArea.Create Build Configurations:_QComboBox_2",
                         "For Each Qt Version One Debug And One Release")
@@ -134,9 +141,9 @@ def __verifyFileCreation__(path, expectedFiles):
 #                 created for this version. If it is None, all Qt versions will be used
 # param checks turns tests in the function on if set to True
 def createProject_Qt_GUI(path, projectName, qtVersion = None, checks = True):
-    __createProjectSelectType__("  Applications", "Qt Gui Application")
+    available = __createProjectSelectType__("  Applications", "Qt Gui Application")
     __createProjectSetNameAndPath__(path, projectName, checks)
-    __selectQtVersionDesktop__(qtVersion, checks)
+    __selectQtVersionDesktop__(qtVersion, checks, available)
 
     if checks:
         exp_filename = "mainwindow"
@@ -173,9 +180,9 @@ def createProject_Qt_GUI(path, projectName, qtVersion = None, checks = True):
 #                 created for this version. If it is None, all Qt versions will be used
 # param checks turns tests in the function on if set to True
 def createProject_Qt_Console(path, projectName, qtVersion = None, checks = True):
-    __createProjectSelectType__("  Applications", "Qt Console Application")
+    available = __createProjectSelectType__("  Applications", "Qt Console Application")
     __createProjectSetNameAndPath__(path, projectName, checks)
-    __selectQtVersionDesktop__(qtVersion, checks)
+    __selectQtVersionDesktop__(qtVersion, checks, available)
 
     expectedFiles = None
     if checks:
@@ -191,19 +198,19 @@ def createProject_Qt_Console(path, projectName, qtVersion = None, checks = True)
     __verifyFileCreation__(path, expectedFiles)
 
 def createNewQtQuickApplication(workingDir, projectName = None, templateFile = None, targets = QtQuickConstants.Targets.DESKTOP):
-    __createProjectSelectType__("  Applications", "Qt Quick Application")
-    projectName = __createProjectSetNameAndPath__(workingDir, projectName)
-    if (templateFile==None):
-        __chooseComponents__()
+    if templateFile:
+        available = __createProjectSelectType__("  Applications", "Qt Quick Application (from existing \.qml file)")
     else:
-        __chooseComponents__(QtQuickConstants.Components.EXISTING_QML)
-        # define the existing qml file to import
+        available = __createProjectSelectType__("  Applications", "Qt Quick Application (Built-in elements)")
+    projectName = __createProjectSetNameAndPath__(workingDir, projectName)
+    if templateFile:
         baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
         type(baseLineEd, templateFile)
-    nextButton = waitForObject(":Next_QPushButton", 20000)
-    clickButton(nextButton)
-    __chooseTargets__(targets)
+        nextButton = waitForObject(":Next_QPushButton", 20000)
+        clickButton(nextButton)
+    __chooseTargets__(targets, available)
     snooze(1)
+    nextButton = waitForObject(":Next_QPushButton", 20000)
     clickButton(nextButton)
     __createProjectHandleLastPage__()
     return projectName
@@ -217,11 +224,11 @@ def createNewQtQuickUI(workingDir):
     return projectName
 
 def createNewQmlExtension(workingDir):
-    __createProjectSelectType__("  Libraries", "Custom QML Extension Plugin")
+    available = __createProjectSelectType__("  Libraries", "Custom QML Extension Plugin")
     if workingDir == None:
         workingDir = tempDir()
     __createProjectSetNameAndPath__(workingDir)
-    __chooseTargets__()
+    __chooseTargets__(QtQuickConstants.Targets.DESKTOP, available)
     nextButton = waitForObject(":Next_QPushButton")
     clickButton(nextButton)
     nameLineEd = waitForObject("{buddy={type='QLabel' text='Object Class-name:' unnamed='1' visible='1'} "
@@ -245,16 +252,17 @@ def __chooseComponents__(components=QtQuickConstants.Components.BUILTIN):
                 % QtQuickConstants.getStringForComponents(components))
 
 # parameter target can be an OR'd value of QtQuickConstants.Targets
-def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP):
-     # DESKTOP should be always accessible
-    ensureChecked("{type='QCheckBox' text='%s' visible='1'}"
-                  % QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.DESKTOP),
-                  targets & QtQuickConstants.Targets.DESKTOP)
-    # following targets depend on the build environment - added for further/later tests
-    available = [QtQuickConstants.Targets.MAEMO5,
-                 QtQuickConstants.Targets.SIMULATOR, QtQuickConstants.Targets.HARMATTAN]
-    if platform.system() in ('Windows', 'Microsoft'):
-        available += [QtQuickConstants.Targets.SYMBIAN]
+# parameter availableTargets should be the result of __createProjectSelectType__()
+#           or use None as a fallback
+def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP, availableTargets=None):
+    if availableTargets != None:
+        available = availableTargets
+    else:
+        # following targets depend on the build environment - added for further/later tests
+        available = [QtQuickConstants.Targets.MAEMO5,
+                     QtQuickConstants.Targets.SIMULATOR, QtQuickConstants.Targets.HARMATTAN]
+        if platform.system() in ('Windows', 'Microsoft'):
+            available += [QtQuickConstants.Targets.SYMBIAN]
     for current in available:
         mustCheck = targets & current == current
         try:
@@ -264,7 +272,9 @@ def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP):
             if mustCheck:
                 test.fail("Failed to check target '%s'." % QtQuickConstants.getStringForTarget(current))
             else:
-                test.warning("Target '%s' is not set up correctly." % QtQuickConstants.getStringForTarget(current))
+                # Simulator has been added without knowing whether configured or not - so skip warning here?
+                if current != QtQuickConstants.Targets.SIMULATOR:
+                    test.warning("Target '%s' is not set up correctly." % QtQuickConstants.getStringForTarget(current))
 
 # run and close an application
 # withHookInto - if set to True the function tries to attach to the sub-process instead of simply pressing Stop inside Creator
@@ -383,3 +393,36 @@ def resetApplicationContextToCreator():
     if appCtxt.name == "":
         appCtxt = applicationContext("Qt Creator")
     setApplicationContext(appCtxt)
+
+# helper that examines the text (coming from the create project wizard)
+# to figure out which available targets we have
+# Simulator must be handled in a special way, because this depends on the
+# configured Qt versions and Toolchains and cannot be looked up the same way
+def __getSupportedPlatforms__(text):
+    if 'Supported Platforms' in text:
+        supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split(" ")
+        result = []
+        addSimulator = False
+        if 'Desktop' in supports:
+            result.append(QtQuickConstants.Targets.DESKTOP)
+        if 'MeeGo/Harmattan' in supports:
+            result.append(QtQuickConstants.Targets.HARMATTAN)
+            addSimulator = True
+        if 'Maemo' in supports:
+            result.append(QtQuickConstants.Targets.MAEMO5)
+            addSimulator = True
+        if 'Symbian' in supports:
+            result.append(QtQuickConstants.Targets.SYMBIAN)
+            addSimulator = True
+        if len(result) == 0 or addSimulator:
+            result.append(QtQuickConstants.Targets.SIMULATOR)
+    elif 'Platform independent' in text:
+        result = [QtQuickConstants.Targets.DESKTOP, QtQuickConstants.Targets.MAEMO5,
+                  QtQuickConstants.Targets.SIMULATOR, QtQuickConstants.Targets.HARMATTAN]
+        if platform.system() in ('Microsoft', 'Windows'):
+            result.append(QtQuickConstants.Targets.SYMBIAN)
+    else:
+        test.warning("Returning None (__getSupportedPlatforms__())",
+                     "Parsed text: '%s'" % text)
+        return None
+    return result
