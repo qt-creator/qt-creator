@@ -83,7 +83,13 @@ public:
 
     virtual QStringList restrictedToTargets() const;
 
-    virtual QByteArray predefinedMacros() const = 0;
+    virtual QByteArray predefinedMacros(const QStringList &cxxflags) const = 0;
+
+    enum CompilerFlags {
+        NO_FLAGS = 0,
+        STD_CXX11 = 1
+    };
+    virtual CompilerFlags compilerFlags(const QStringList &cxxflags) const = 0;
     virtual QList<HeaderPath> systemHeaderPaths() const = 0;
     virtual void addToEnvironment(Utils::Environment &env) const = 0;
     virtual QString makeCommand() const = 0;

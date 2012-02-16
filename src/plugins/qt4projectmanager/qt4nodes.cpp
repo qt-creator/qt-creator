@@ -1410,6 +1410,27 @@ QStringList Qt4ProFileNode::symbianCapabilities() const
     return result;
 }
 
+QByteArray Qt4ProFileNode::cxxDefines() const
+{
+    QByteArray result;
+    foreach (const QString &def, variableValue(DefinesVar)) {
+        result += "#define ";
+        const int index = def.indexOf(QLatin1Char('='));
+        if (index == -1) {
+            result += def.toLatin1();
+            result += " 1\n";
+        } else {
+            const QString name = def.left(index);
+            const QString value = def.mid(index + 1);
+            result += name.toLatin1();
+            result += ' ';
+            result += value.toLocal8Bit();
+            result += '\n';
+        }
+    }
+    return result;
+}
+
 bool Qt4ProFileNode::isDeployable() const
 {
     return m_isDeployable;
@@ -1829,6 +1850,15 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
 
         newVarValues[DefinesVar] = m_readerExact->values(QLatin1String("DEFINES"));
         newVarValues[IncludePathVar] = includePaths(m_readerExact);
+        newVarValues[CppFlagsVar] = m_readerExact->values("QMAKE_CXXFLAGS");
+        newVarValues[CppSourceVar] = m_readerExact->absoluteFileValues(QLatin1String("SOURCES"),
+                                                                       m_projectDir,
+                                                                       QStringList() << m_projectDir,
+                                                                       0);
+        newVarValues[ObjCSourceVar] = m_readerExact->absoluteFileValues(QLatin1String("OBJECTIVE_SOURCES"),
+                                                                        m_projectDir,
+                                                                        QStringList() << m_projectDir,
+                                                                        0);
         newVarValues[UiDirVar] = QStringList() << uiDirPath(m_readerExact);
         newVarValues[MocDirVar] = QStringList() << mocDirPath(m_readerExact);
         newVarValues[PkgConfigVar] = m_readerExact->values(QLatin1String("PKGCONFIG"));

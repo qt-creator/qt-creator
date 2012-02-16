@@ -48,7 +48,7 @@ public:
     QString type() const;
     QString typeDisplayName() const;
 
-    QByteArray predefinedMacros() const;
+    QByteArray predefinedMacros(const QStringList &list) const;
     void addToEnvironment(Utils::Environment &env) const;
     QString makeCommand() const;
     QString defaultMakeTarget() const;

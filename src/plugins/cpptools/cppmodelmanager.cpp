@@ -90,6 +90,34 @@
 #include <iostream>
 #include <sstream>
 
+namespace CPlusPlus {
+uint qHash(const CppModelManagerInterface::ProjectPart &p)
+{
+    uint h = qHash(p.defines) ^ p.language ^ p.flags;
+
+    foreach (const QString &i, p.includePaths)
+        h ^= qHash(i);
+
+    foreach (const QString &f, p.frameworkPaths)
+        h ^= qHash(f);
+
+    return h;
+}
+bool operator==(const CppModelManagerInterface::ProjectPart &p1,
+                const CppModelManagerInterface::ProjectPart &p2)
+{
+    if (p1.defines != p2.defines)
+        return false;
+    if (p1.language != p2.language)
+        return false;
+    if (p1.flags != p2.flags)
+        return false;
+    if (p1.includePaths != p2.includePaths)
+        return false;
+    return p1.frameworkPaths == p2.frameworkPaths;
+}
+} // namespace CPlusPlus
+
 using namespace CppTools;
 using namespace CppTools::Internal;
 using namespace CPlusPlus;
@@ -733,7 +761,8 @@ QStringList CppModelManager::internalProjectFiles() const
     while (it.hasNext()) {
         it.next();
         ProjectInfo pinfo = it.value();
-        files += pinfo.sourceFiles;
+        foreach (const ProjectPart::Ptr &part, pinfo.projectParts())
+            files += part->sourceFiles;
     }
     files.removeDuplicates();
     return files;
@@ -746,7 +775,8 @@ QStringList CppModelManager::internalIncludePaths() const
     while (it.hasNext()) {
         it.next();
         ProjectInfo pinfo = it.value();
-        includePaths += pinfo.includePaths;
+        foreach (const ProjectPart::Ptr &part, pinfo.projectParts())
+            includePaths += part->includePaths;
     }
     includePaths.removeDuplicates();
     return includePaths;
@@ -759,7 +789,8 @@ QStringList CppModelManager::internalFrameworkPaths() const
     while (it.hasNext()) {
         it.next();
         ProjectInfo pinfo = it.value();
-        frameworkPaths += pinfo.frameworkPaths;
+        foreach (const ProjectPart::Ptr &part, pinfo.projectParts())
+            frameworkPaths += part->frameworkPaths;
     }
     frameworkPaths.removeDuplicates();
     return frameworkPaths;
@@ -772,7 +803,8 @@ QByteArray CppModelManager::internalDefinedMacros() const
     while (it.hasNext()) {
         it.next();
         ProjectInfo pinfo = it.value();
-        macros += pinfo.defines;
+        foreach (const ProjectPart::Ptr &part, pinfo.projectParts())
+            macros += part->defines;
     }
     return macros;
 }
@@ -860,13 +892,66 @@ CppModelManager::ProjectInfo CppModelManager::projectInfo(ProjectExplorer::Proje
 
 void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 {
+#if 0
+    // Tons of debug output...
+    qDebug()<<"========= CppModelManager::updateProjectInfo ======";
+    qDebug()<<" for project:"<< pinfo.project.data()->file()->fileName();
+    foreach (const ProjectPart::Ptr &part, pinfo.projectParts) {
+        qDebug() << "=== part ===";
+        qDebug() << "language:" << (part->language == CXX ? "C++" : "ObjC++");
+        qDebug() << "compilerflags:" << part->flags;
+        qDebug() << "precompiled header:" << part->precompiledHeaders;
+        qDebug() << "defines:" << part->defines;
+        qDebug() << "includes:" << part->includePaths;
+        qDebug() << "frameworkPaths:" << part->frameworkPaths;
+        qDebug() << "sources:" << part->sourceFiles;
+        qDebug() << "";
+    }
+
+    qDebug() << "";
+#endif
     QMutexLocker locker(&mutex);
 
     if (! pinfo.isValid())
         return;
 
-    m_projects.insert(pinfo.project, pinfo);
+    ProjectExplorer::Project *project = pinfo.project().data();
+    m_projects.insert(project, pinfo);
     m_dirty = true;
+
+    m_srcToProjectPart.clear();
+
+    foreach (const ProjectPart::Ptr &projectPart, pinfo.projectParts()) {
+        foreach (const QString &sourceFile, projectPart->sourceFiles) {
+            m_srcToProjectPart[sourceFile].append(projectPart);
+        }
+    }
+}
+
+QList<CppModelManager::ProjectPart::Ptr> CppModelManager::projectPart(const QString &fileName) const
+{
+    QList<CppModelManager::ProjectPart::Ptr> parts = m_srcToProjectPart.value(fileName);
+    if (!parts.isEmpty())
+        return parts;
+
+    //### FIXME: This is a DIRTY hack!
+    if (fileName.endsWith(".h")) {
+        QString cppFile = fileName.mid(0, fileName.length() - 2) + QLatin1String(".cpp");
+        parts = m_srcToProjectPart.value(cppFile);
+        if (!parts.isEmpty())
+            return parts;
+    }
+
+    DependencyTable table;
+    table.build(snapshot());
+    QStringList deps = table.filesDependingOn(fileName);
+    foreach (const QString &dep, deps) {
+        parts = m_srcToProjectPart.value(dep);
+        if (!parts.isEmpty())
+            return parts;
+    }
+
+    return parts;
 }
 
 QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles)

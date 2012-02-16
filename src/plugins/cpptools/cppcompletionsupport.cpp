@@ -58,8 +58,8 @@ TextEditor::IAssistInterface *CppCompletionSupport::createAssistInterface(Projec
     QStringList includePaths;
     QStringList frameworkPaths;
     if (project) {
-        includePaths = modelManager->projectInfo(project).includePaths;
-        frameworkPaths = modelManager->projectInfo(project).frameworkPaths;
+        includePaths = modelManager->projectInfo(project).includePaths();
+        frameworkPaths = modelManager->projectInfo(project).frameworkPaths();
     }
     return new CppTools::Internal::CppCompletionAssistInterface(
                 document,

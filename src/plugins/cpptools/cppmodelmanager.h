@@ -83,7 +83,7 @@ class CppPreprocessor;
 class CppFindReferences;
 
 #ifndef ICHECK_BUILD
-class CppModelManager : public CPlusPlus::CppModelManagerInterface
+class CPPTOOLS_EXPORT CppModelManager : public CPlusPlus::CppModelManagerInterface
 {
     Q_OBJECT
 
@@ -99,6 +99,7 @@ public:
     virtual QList<ProjectInfo> projectInfos() const;
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
     virtual void updateProjectInfo(const ProjectInfo &pinfo);
+    virtual QList<ProjectPart::Ptr> projectPart(const QString &fileName) const;
 
     virtual CPlusPlus::Snapshot snapshot() const;
     virtual void GC();
@@ -237,6 +238,8 @@ private:
 
     mutable QMutex protectExtraDiagnostics;
     QHash<QString, QHash<int, QList<CPlusPlus::Document::DiagnosticMessage> > > m_extraDiagnostics;
+
+    QMap<QString, QList<ProjectPart::Ptr> > m_srcToProjectPart;
 };
 #endif
 

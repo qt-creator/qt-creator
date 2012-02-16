@@ -35,6 +35,9 @@
 
 #include <cplusplus/CppDocument.h>
 #include <languageutils/fakemetaobject.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/toolchain.h>
+
 #include <QObject>
 #include <QHash>
 #include <QPointer>
@@ -66,33 +69,88 @@ class CPLUSPLUS_EXPORT CppModelManagerInterface : public QObject
     Q_OBJECT
 
 public:
+    enum Language { CXX, OBJC };
+
+    class CPLUSPLUS_EXPORT ProjectPart
+    {
+    public:
+        ProjectPart()
+            : qtVersion(UnknownQt)
+        {}
+
+    public: //attributes
+        QStringList sourceFiles;
+        QByteArray defines;
+        QStringList includePaths;
+        QStringList frameworkPaths;
+        QStringList precompiledHeaders;
+        Language language;
+        ProjectExplorer::ToolChain::CompilerFlags flags;
+        enum QtVersion {
+            UnknownQt = -1,
+            NoQt = 0,
+            Qt4 = 1,
+            Qt5 = 2
+        };
+        QtVersion qtVersion;
+
+        bool cpp0xEnabled() const
+        { return flags == ProjectExplorer::ToolChain::STD_CXX11; }
+
+        bool objcEnabled() const
+        { return language == CppModelManagerInterface::OBJC; }
+
+        typedef QSharedPointer<ProjectPart> Ptr;
+    };
+
     class ProjectInfo
     {
     public:
         ProjectInfo()
         { }
 
-        ProjectInfo(QPointer<ProjectExplorer::Project> project)
-            : project(project)
+        ProjectInfo(QWeakPointer<ProjectExplorer::Project> project)
+            : m_project(project)
         { }
 
         operator bool() const
-        { return ! project.isNull(); }
+        { return ! m_project.isNull(); }
 
         bool isValid() const
-        { return ! project.isNull(); }
+        { return ! m_project.isNull(); }
 
         bool isNull() const
-        { return project.isNull(); }
+        { return m_project.isNull(); }
 
-    public: // attributes
-        QPointer<ProjectExplorer::Project> project;
-        QString projectPath;
-        QByteArray defines;
-        QStringList sourceFiles;
-        QStringList includePaths;
-        QStringList frameworkPaths;
-        QStringList precompiledHeaders;
+        QWeakPointer<ProjectExplorer::Project> project() const
+        { return m_project; }
+
+        const QList<ProjectPart::Ptr> projectParts() const
+        { return m_projectParts; }
+
+        void clearProjectParts();
+        void appendProjectPart(const ProjectPart::Ptr &part);
+
+        const QStringList includePaths() const
+        { return m_includePaths; }
+
+        const QStringList frameworkPaths() const
+        { return m_frameworkPaths; }
+
+        const QStringList sourceFiles() const
+        { return m_sourceFiles; }
+
+        const QByteArray defines() const
+        { return m_defines; }
+
+    private: // attributes
+        QWeakPointer<ProjectExplorer::Project> m_project;
+        QList<ProjectPart::Ptr> m_projectParts;
+        // the attributes below are calculated from the project parts.
+        QStringList m_includePaths;
+        QStringList m_frameworkPaths;
+        QStringList m_sourceFiles;
+        QByteArray m_defines;
     };
 
     class WorkingCopy
@@ -109,6 +167,9 @@ public:
 
         QPair<QString, unsigned> get(const QString &fileName) const
         { return _elements.value(fileName); }
+
+        QHashIterator<QString, QPair<QString, unsigned> > iterator() const
+        { return QHashIterator<QString, QPair<QString, unsigned> >(_elements); }
 
     private:
         typedef QHash<QString, QPair<QString, unsigned> > Table;
@@ -135,6 +196,7 @@ public:
     virtual QList<ProjectInfo> projectInfos() const = 0;
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const = 0;
     virtual void updateProjectInfo(const ProjectInfo &pinfo) = 0;
+    virtual QList<ProjectPart::Ptr> projectPart(const QString &fileName) const = 0;
 
     virtual void addEditorSupport(CppTools::AbstractEditorSupport *editorSupport) = 0;
     virtual void removeEditorSupport(CppTools::AbstractEditorSupport *editorSupport) = 0;

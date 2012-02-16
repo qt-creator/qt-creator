@@ -58,6 +58,12 @@ public:
     unsigned length;
     int kind;
 
+    bool isValid() const
+    { return line != 0; }
+
+    bool isInvalid() const
+    { return line == 0; }
+
     Result()
         : line(0), column(0), length(0), kind(-1) {}
     Result(unsigned line, unsigned column, unsigned length, int kind)

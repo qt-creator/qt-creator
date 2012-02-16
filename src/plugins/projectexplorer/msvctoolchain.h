@@ -79,7 +79,8 @@ public:
 
 protected:
     Utils::Environment readEnvironmentSetting(Utils::Environment& env) const;
-    QByteArray msvcPredefinedMacros(const Utils::Environment &env) const;
+    QByteArray msvcPredefinedMacros(const QStringList cxxflags,
+                                    const Utils::Environment &env) const;
 
 private:
     MsvcToolChain();

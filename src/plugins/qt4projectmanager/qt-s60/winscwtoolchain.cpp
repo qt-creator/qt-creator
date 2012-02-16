@@ -166,9 +166,16 @@ bool WinscwToolChain::isValid() const
     return fi.exists() && fi.isExecutable();
 }
 
-QByteArray WinscwToolChain::predefinedMacros() const
+QByteArray WinscwToolChain::predefinedMacros(const QStringList &cxxflags) const
 {
+    Q_UNUSED(cxxflags);
     return QByteArray("#define __SYMBIAN32__\n");
+}
+
+ProjectExplorer::ToolChain::CompilerFlags WinscwToolChain::compilerFlags(const QStringList &cxxflags) const
+{
+    Q_UNUSED(cxxflags);
+    return NO_FLAGS;
 }
 
 QList<ProjectExplorer::HeaderPath> WinscwToolChain::systemHeaderPaths() const

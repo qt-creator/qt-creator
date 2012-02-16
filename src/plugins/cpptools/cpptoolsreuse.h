@@ -45,6 +45,7 @@ class LookupContext;
 namespace CppTools {
 
 void CPPTOOLS_EXPORT moveCursorToEndOfIdentifier(QTextCursor *tc);
+void CPPTOOLS_EXPORT moveCursorToStartOfIdentifier(QTextCursor *tc);
 
 bool CPPTOOLS_EXPORT isOwnershipRAIIType(CPlusPlus::Symbol *symbol,
                                          const CPlusPlus::LookupContext &context);

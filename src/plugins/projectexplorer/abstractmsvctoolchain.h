@@ -50,11 +50,12 @@ public:
     Abi targetAbi() const;
 
     bool isValid() const;
-    QByteArray predefinedMacros() const;
 
+    QByteArray predefinedMacros(const QStringList &cxxflags) const;
+    CompilerFlags compilerFlags(const QStringList &cxxflags) const;
     QList<HeaderPath> systemHeaderPaths() const;
-
     void addToEnvironment(Utils::Environment &env) const;
+
     QString makeCommand() const;
     void setDebuggerCommand(const Utils::FileName &d);
 
@@ -71,7 +72,8 @@ public:
 
 protected:
     virtual Utils::Environment readEnvironmentSetting(Utils::Environment& env) const = 0;
-    virtual QByteArray msvcPredefinedMacros(const Utils::Environment& env) const;
+    virtual QByteArray msvcPredefinedMacros(const QStringList cxxflags,
+                                            const Utils::Environment& env) const;
 
     bool generateEnvironmentSettings(Utils::Environment &env,
                                      const QString& batchFile,

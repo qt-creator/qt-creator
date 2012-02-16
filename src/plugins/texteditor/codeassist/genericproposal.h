@@ -43,7 +43,7 @@ class TEXTEDITOR_EXPORT GenericProposal : public IAssistProposal
 {
 public:
     GenericProposal(int cursorPos, IGenericProposalModel *model);
-    ~GenericProposal();
+    virtual ~GenericProposal();
 
     virtual bool isFragile() const;
     virtual int basePosition() const;

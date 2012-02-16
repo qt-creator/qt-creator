@@ -307,18 +307,23 @@ bool CMakeProject::parseCMakeLists()
             CPlusPlus::CppModelManagerInterface::instance();
     if (modelmanager) {
         CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
-        if (pinfo.includePaths != allIncludePaths
-            || pinfo.sourceFiles != m_files
-            || pinfo.defines != (activeBC->toolChain() ? activeBC->toolChain()->predefinedMacros() : QByteArray())
-            || pinfo.frameworkPaths != allFrameworkPaths)  {
-            pinfo.includePaths = allIncludePaths;
+        if (pinfo.includePaths() != allIncludePaths
+                || pinfo.sourceFiles() != m_files
+                || pinfo.defines() != (activeBC->toolChain() ? activeBC->toolChain()->predefinedMacros(QStringList()) : QByteArray())
+                || pinfo.frameworkPaths() != allFrameworkPaths)  {
+            pinfo.clearProjectParts();
+            CPlusPlus::CppModelManagerInterface::ProjectPart::Ptr part(
+                        new CPlusPlus::CppModelManagerInterface::ProjectPart);
+            part->includePaths = allIncludePaths;
             // TODO we only want C++ files, not all other stuff that might be in the project
-            pinfo.sourceFiles = m_files;
-            pinfo.defines =  (activeBC->toolChain() ? activeBC->toolChain()->predefinedMacros() : QByteArray()); // TODO this is to simplistic
-            pinfo.frameworkPaths = allFrameworkPaths;
+            part->sourceFiles = m_files;
+            part->defines = (activeBC->toolChain() ? activeBC->toolChain()->predefinedMacros(QStringList()) : QByteArray()); // TODO this is to simplistic
+            part->frameworkPaths = allFrameworkPaths;
+            part->language = CPlusPlus::CppModelManagerInterface::CXX;
+            pinfo.appendProjectPart(part);
             modelmanager->updateProjectInfo(pinfo);
             m_codeModelFuture.cancel();
-            m_codeModelFuture = modelmanager->updateSourceFiles(pinfo.sourceFiles);
+            m_codeModelFuture = modelmanager->updateSourceFiles(m_files);
         }
     }
     emit buildTargetsChanged();

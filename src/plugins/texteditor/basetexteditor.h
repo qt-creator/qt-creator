@@ -141,7 +141,7 @@ public:
     void setChangeSet(const Utils::ChangeSet &changeSet);
 
     // EditorInterface
-    Core::IFile * file();
+    Core::IFile * file() const;
     bool createNew(const QString &contents);
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     QByteArray saveState() const;

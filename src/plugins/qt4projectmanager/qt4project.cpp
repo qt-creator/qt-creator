@@ -469,6 +469,8 @@ void Qt4Project::updateCodeModels()
 
 void Qt4Project::updateCppCodeModel()
 {
+    typedef CPlusPlus::CppModelManagerInterface::ProjectPart ProjectPart;
+
     QtSupport::BaseQtVersion *qtVersion = 0;
     ToolChain *tc = 0;
     if (Qt4BaseTarget *target = activeTarget()) {
@@ -485,115 +487,78 @@ void Qt4Project::updateCppCodeModel()
     if (!modelmanager)
         return;
 
-    // Collect global headers/defines
-    QStringList predefinedIncludePaths;
-    QStringList predefinedFrameworkPaths;
-    QByteArray predefinedMacros;
-
-    QString qtFrameworkPath;
-    if (qtVersion)
-        qtFrameworkPath = qtVersion->frameworkInstallPath();
-    if (!qtFrameworkPath.isEmpty())
-        predefinedFrameworkPaths.append(qtFrameworkPath);
-
-    if (tc) {
-        predefinedMacros = tc->predefinedMacros();
-
-        QList<HeaderPath> headers = tc->systemHeaderPaths();
-        if (qtVersion)
-            headers.append(qtVersion->systemHeaderPathes());
-        foreach (const HeaderPath &headerPath, headers) {
-            if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
-                predefinedFrameworkPaths.append(headerPath.path());
-            else
-                predefinedIncludePaths.append(headerPath.path());
-        }
-    }
-
     FindQt4ProFiles findQt4ProFiles;
     QList<Qt4ProFileNode *> proFiles = findQt4ProFiles(rootProjectNode());
-    QByteArray allDefinedMacros = predefinedMacros;
-    QStringList allIncludePaths;
-    QStringList allFrameworkPaths = predefinedFrameworkPaths;
-    QStringList allPrecompileHeaders;
-
-    // Collect per .pro file information
-    foreach (Qt4ProFileNode *pro, proFiles) {
-        allPrecompileHeaders.append(pro->variableValue(PrecompiledHeaderVar));
-
-        // Add custom defines
-
-        foreach (const QString &def, pro->variableValue(DefinesVar)) {
-            allDefinedMacros += "#define ";
-            const int index = def.indexOf(QLatin1Char('='));
-            if (index == -1) {
-                allDefinedMacros += def.toLatin1();
-                allDefinedMacros += " 1\n";
-            } else {
-                const QString name = def.left(index);
-                const QString value = def.mid(index + 1);
-                allDefinedMacros += name.toLatin1();
-                allDefinedMacros += ' ';
-                allDefinedMacros += value.toLocal8Bit();
-                allDefinedMacros += '\n';
-            }
-        }
-
-        const QStringList proIncludePaths = pro->variableValue(IncludePathVar);
-        foreach (const QString &includePath, proIncludePaths) {
-            if (!allIncludePaths.contains(includePath))
-                allIncludePaths.append(includePath);
-        }
-    }
-
-    // Add mkspec directory
-    if (rootQt4ProjectNode())
-        allIncludePaths.append(rootQt4ProjectNode()->resolvedMkspecPath());
-    else if (qtVersion)
-        allIncludePaths.append(qtVersion->mkspecPath().toString());
-
-    allIncludePaths.append(predefinedIncludePaths);
-
-    QStringList files;
-    files += m_projectFiles->files[HeaderType];
-    files += m_projectFiles->generatedFiles[HeaderType];
-    files += m_projectFiles->files[SourceType];
-    files += m_projectFiles->generatedFiles[SourceType];
 
     CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
+    pinfo.clearProjectParts();
+    ProjectPart::QtVersion qtVersionForPart = ProjectPart::NoQt;
+    if (qtVersion) {
+        if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
+            qtVersionForPart = ProjectPart::Qt4;
+        else
+            qtVersionForPart = ProjectPart::Qt5;
+    }
 
-    //qDebug()<<"Using precompiled header"<<allPrecompileHeaders;
+    QStringList allFiles;
+    foreach (Qt4ProFileNode *pro, proFiles) {
+        ProjectPart::Ptr part(new ProjectPart);
+        part->qtVersion = qtVersionForPart;
 
-    bool fileList = equalFileList(pinfo.sourceFiles, files);
+        // part->defines
+        if (tc)
+            part->defines = tc->predefinedMacros(pro->variableValue(CppFlagsVar));
+        part->defines += pro->cxxDefines();
 
-    if (pinfo.defines == allDefinedMacros
-        && pinfo.includePaths == allIncludePaths
-        && pinfo.frameworkPaths == allFrameworkPaths
-        && fileList
-        && pinfo.precompiledHeaders == allPrecompileHeaders
-        && !m_codeModelCanceled) {
-        // Nothing to update...
-    } else {
-        pinfo.sourceFiles.clear();
-        if (pinfo.defines != allDefinedMacros
-            || pinfo.includePaths != allIncludePaths
-            || pinfo.frameworkPaths != allFrameworkPaths
-            || pinfo.precompiledHeaders != allPrecompileHeaders)
-        {
-            pinfo.sourceFiles.append(QLatin1String("<configuration>"));
+        // part->includePaths
+        part->includePaths.append(pro->variableValue(IncludePathVar));
+
+        QList<HeaderPath> headers;
+        if (tc)
+            headers = tc->systemHeaderPaths(); // todo pass cxxflags?
+        if (qtVersion) {
+            headers.append(qtVersion->systemHeaderPathes());
         }
 
-        //pinfo.defines = predefinedMacros;
-        pinfo.defines = allDefinedMacros;
-        pinfo.includePaths = allIncludePaths;
-        pinfo.frameworkPaths = allFrameworkPaths;
-        pinfo.sourceFiles += files;
-        pinfo.precompiledHeaders = allPrecompileHeaders;
+        foreach (const HeaderPath &headerPath, headers) {
+            if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
+                part->frameworkPaths.append(headerPath.path());
+            else
+                part->includePaths.append(headerPath.path());
+        }
 
-        modelmanager->updateProjectInfo(pinfo);
-        m_codeModelFuture = modelmanager->updateSourceFiles(pinfo.sourceFiles);
-        m_codeModelCanceled = false;
+        if (qtVersion) {
+            if (!qtVersion->frameworkInstallPath().isEmpty())
+                part->frameworkPaths.append(qtVersion->frameworkInstallPath());
+            part->includePaths.append(qtVersion->mkspecPath().toString());
+        }
+
+        // part->precompiledHeaders
+        part->precompiledHeaders.append(pro->variableValue(PrecompiledHeaderVar));
+
+        // part->language
+        part->language = CPlusPlus::CppModelManagerInterface::CXX;
+        // part->flags
+        if (tc)
+            part->flags = tc->compilerFlags(pro->variableValue(CppFlagsVar));
+
+        part->sourceFiles = pro->variableValue(CppSourceVar);
+        pinfo.appendProjectPart(part);
+
+        allFiles += part->sourceFiles;
+
+        part = ProjectPart::Ptr(new ProjectPart);
+        //  todo objc code?
+        part->language = CPlusPlus::CppModelManagerInterface::OBJC;
+        part->sourceFiles = pro->variableValue(ObjCSourceVar);
+        if (!part->sourceFiles.isEmpty())
+            pinfo.appendProjectPart(part);
+
+        allFiles += part->sourceFiles;
     }
+
+    modelmanager->updateProjectInfo(pinfo);
+    m_codeModelFuture = modelmanager->updateSourceFiles(allFiles);
 }
 
 void Qt4Project::updateQmlJSCodeModel()

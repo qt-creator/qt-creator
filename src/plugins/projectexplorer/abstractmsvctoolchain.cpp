@@ -85,14 +85,20 @@ bool AbstractMsvcToolChain::isValid() const
     return !m_vcvarsBat.isEmpty();
 }
 
-QByteArray AbstractMsvcToolChain::predefinedMacros() const
+QByteArray AbstractMsvcToolChain::predefinedMacros(const QStringList &cxxflags) const
 {
     if (m_predefinedMacros.isEmpty()) {
         Utils::Environment env(m_lastEnvironment);
         addToEnvironment(env);
-        m_predefinedMacros = msvcPredefinedMacros(env);
+        m_predefinedMacros = msvcPredefinedMacros(cxxflags, env);
     }
     return m_predefinedMacros;
+}
+
+ToolChain::CompilerFlags AbstractMsvcToolChain::compilerFlags(const QStringList &cxxflags) const
+{
+    Q_UNUSED(cxxflags);
+    return NO_FLAGS;
 }
 
 QList<HeaderPath> AbstractMsvcToolChain::systemHeaderPaths() const
@@ -117,7 +123,6 @@ void AbstractMsvcToolChain::addToEnvironment(Utils::Environment &env) const
     }
     env = m_resultEnvironment;
 }
-
 
 QString AbstractMsvcToolChain::makeCommand() const
 {
@@ -158,9 +163,12 @@ bool AbstractMsvcToolChain::canClone() const
     return true;
 }
 
-QByteArray AbstractMsvcToolChain::msvcPredefinedMacros(const Utils::Environment& env) const
+QByteArray AbstractMsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
+                                                       const Utils::Environment& env) const
 {
+    Q_UNUSED(cxxflags);
     Q_UNUSED(env);
+
     QByteArray predefinedMacros = "#define __MSVCRT__\n"
             "#define __w64\n"
             "#define __int64 long long\n"

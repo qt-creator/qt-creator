@@ -143,16 +143,16 @@ static QByteArray msvcCompilationFile()
                                    "__cplusplus_cli", "__COUNTER__", "__cplusplus",
                                    "_CPPLIB_VER", "_CPPRTTI", "_CPPUNWIND",
                                    "_DEBUG", "_DLL", "__FUNCDNAME__",
-                                   "__FUNCSIG__","__FUNCTION__","_INTEGRAL_MAX_BITS",
-                                   "_M_ALPHA","_M_CEE","_M_CEE_PURE",
-                                   "_M_CEE_SAFE","_M_IX86","_M_IA64",
-                                   "_M_IX86_FP","_M_MPPC","_M_MRX000",
-                                   "_M_PPC","_M_X64","_MANAGED",
-                                   "_MFC_VER","_MSC_BUILD", /* "_MSC_EXTENSIONS", */
-                                   "_MSC_FULL_VER","_MSC_VER","__MSVC_RUNTIME_CHECKS",
+                                   "__FUNCSIG__", "__FUNCTION__", "_INTEGRAL_MAX_BITS",
+                                   "_M_ALPHA", "_M_AAMD64", "_M_CEE", "_M_CEE_PURE",
+                                   "_M_CEE_SAFE", "_M_IX86", "_M_IA64",
+                                   "_M_IX86_FP", "_M_MPPC", "_M_MRX000",
+                                   "_M_PPC", "_M_X64", "_MANAGED",
+                                   "_MFC_VER", "_MSC_BUILD", "_MSC_EXTENSIONS",
+                                   "_MSC_FULL_VER", "_MSC_VER", "__MSVC_RUNTIME_CHECKS",
                                    "_MT", "_NATIVE_WCHAR_T_DEFINED", "_OPENMP",
                                    "_VC_NODEFAULTLIB", "_WCHAR_T_DEFINED", "_WIN32",
-                                   "_WIN32_WCE", "_WIN64", "_Wp64", "__DATE__",
+                                   "_WIN32_WCE", "_WIN64", "_Wp64",
                                    "__DATE__", "__TIME__", "__TIMESTAMP__",
                                    0};
     QByteArray file = "#define __PPOUT__(x) V##x=x\n\n";
@@ -166,9 +166,35 @@ static QByteArray msvcCompilationFile()
 }
 
 // Run MSVC 'cl' compiler to obtain #defines.
-QByteArray MsvcToolChain::msvcPredefinedMacros(const Utils::Environment &env) const
+QByteArray MsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
+                                               const Utils::Environment &env) const
 {
-    QByteArray predefinedMacros = AbstractMsvcToolChain::msvcPredefinedMacros(env);
+    QByteArray predefinedMacros = AbstractMsvcToolChain::msvcPredefinedMacros(cxxflags, env);
+
+    QStringList toProcess;
+    foreach (const QString &arg, cxxflags) {
+        if (arg.startsWith(QLatin1String("/D"))) {
+            QString define = arg.mid(2);
+            int pos = define.indexOf(QLatin1Char('='));
+            if (pos < 0) {
+                predefinedMacros += "#define ";
+                predefinedMacros += define.toLocal8Bit();
+                predefinedMacros += '\n';
+            } else {
+                predefinedMacros += "#define ";
+                predefinedMacros += define.left(pos).toLocal8Bit();
+                predefinedMacros += ' ';
+                predefinedMacros += define.mid(pos + 1).toLocal8Bit();
+                predefinedMacros += '\n';
+            }
+        } else if (arg.startsWith(QLatin1String("/U"))) {
+            predefinedMacros += "#undef ";
+            predefinedMacros += arg.mid(2).toLocal8Bit();
+            predefinedMacros += '\n';
+        } else {
+            toProcess.append(arg);
+        }
+    }
 
     Utils::TempFileSaver saver(QDir::tempPath() + QLatin1String("/envtestXXXXXX.cpp"));
     saver.write(msvcCompilationFile());
@@ -186,7 +212,7 @@ QByteArray MsvcToolChain::msvcPredefinedMacros(const Utils::Environment &env) co
         return predefinedMacros;
     }
 
-    arguments << QLatin1String("/EP") << QDir::toNativeSeparators(saver.fileName());
+    arguments << toProcess << QLatin1String("/EP") << QDir::toNativeSeparators(saver.fileName());
     cpp.start(binary, arguments);
     if (!cpp.waitForStarted()) {
         qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(binary),

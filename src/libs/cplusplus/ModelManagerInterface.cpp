@@ -32,6 +32,8 @@
 
 #include "ModelManagerInterface.h"
 
+#include <QtCore/QSet>
+
 using namespace CPlusPlus;
 
 static CppModelManagerInterface *g_instance = 0;
@@ -54,3 +56,44 @@ CppModelManagerInterface *CppModelManagerInterface::instance()
     return g_instance;
 }
 
+
+void CppModelManagerInterface::ProjectInfo::clearProjectParts()
+{
+    m_projectParts.clear();
+    m_includePaths.clear();
+    m_frameworkPaths.clear();
+    m_sourceFiles.clear();
+    m_defines.clear();
+}
+
+void CppModelManagerInterface::ProjectInfo::appendProjectPart(
+        const CppModelManagerInterface::ProjectPart::Ptr &part)
+{
+    if (!part)
+        return;
+
+    m_projectParts.append(part);
+
+    // update include paths
+    QSet<QString> incs = QSet<QString>::fromList(m_includePaths);
+    foreach (const QString &ins, part->includePaths)
+        incs.insert(ins);
+    m_includePaths = incs.toList();
+
+    // update framework paths
+    QSet<QString> frms = QSet<QString>::fromList(m_frameworkPaths);
+    foreach (const QString &frm, part->frameworkPaths)
+        frms.insert(frm);
+    m_frameworkPaths = frms.toList();
+
+    // update source files
+    QSet<QString> srcs = QSet<QString>::fromList(m_sourceFiles);
+    foreach (const QString &src, part->sourceFiles)
+        srcs.insert(src);
+    m_sourceFiles = srcs.toList();
+
+    // update defines
+    if (!m_defines.isEmpty())
+        m_defines.append('\n');
+    m_defines.append(part->defines);
+}

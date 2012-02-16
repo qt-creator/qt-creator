@@ -513,19 +513,23 @@ void AutotoolsProject::updateCppCodeModel()
 
     CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
 
-    const bool update = (pinfo.includePaths != allIncludePaths)
-                        || (pinfo.sourceFiles != m_files)
-                        || (pinfo.defines != m_toolChain->predefinedMacros())
-                        || (pinfo.frameworkPaths != allFrameworkPaths);
+    const bool update = (pinfo.includePaths() != allIncludePaths)
+            || (pinfo.sourceFiles() != m_files)
+            || (pinfo.defines() != m_toolChain->predefinedMacros(QStringList()))
+            || (pinfo.frameworkPaths() != allFrameworkPaths);
     if (update) {
-        pinfo.includePaths = allIncludePaths;
-        pinfo.sourceFiles = m_files;
+        pinfo.clearProjectParts();
+        CPlusPlus::CppModelManagerInterface::ProjectPart::Ptr part(
+                    new CPlusPlus::CppModelManagerInterface::ProjectPart);
+        part->includePaths = allIncludePaths;
+        part->sourceFiles = m_files;
         if (m_toolChain)
-            pinfo.defines = m_toolChain->predefinedMacros();
-        pinfo.frameworkPaths = allFrameworkPaths;
-        modelManager->updateProjectInfo(pinfo);
-        modelManager->updateSourceFiles(pinfo.sourceFiles);
-    }
+            part->defines = m_toolChain->predefinedMacros(QStringList());
+        part->frameworkPaths = allFrameworkPaths;
+        part->language = CPlusPlus::CppModelManagerInterface::CXX;
+        pinfo.appendProjectPart(part);
 
-    modelManager->updateProjectInfo(pinfo);
+        modelManager->updateProjectInfo(pinfo);
+        modelManager->updateSourceFiles(m_files);
+    }
 }

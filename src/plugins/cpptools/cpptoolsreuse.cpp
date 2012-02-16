@@ -45,16 +45,29 @@ using namespace CPlusPlus;
 
 namespace CppTools {
 
-void moveCursorToEndOfIdentifier(QTextCursor *tc) {
+static void moveCursorToStartOrEndOfIdentifier(QTextCursor *tc,
+                                               QTextCursor::MoveOperation op,
+                                               int posDiff = 0)
+{
     QTextDocument *doc = tc->document();
     if (!doc)
         return;
 
-    QChar ch = doc->characterAt(tc->position());
+    QChar ch = doc->characterAt(tc->position() - posDiff);
     while (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
-        tc->movePosition(QTextCursor::NextCharacter);
-        ch = doc->characterAt(tc->position());
+        tc->movePosition(op);
+        ch = doc->characterAt(tc->position() - posDiff);
     }
+}
+
+void moveCursorToEndOfIdentifier(QTextCursor *tc)
+{
+    moveCursorToStartOrEndOfIdentifier(tc, QTextCursor::NextCharacter);
+}
+
+void moveCursorToStartOfIdentifier(QTextCursor *tc)
+{
+    moveCursorToStartOrEndOfIdentifier(tc, QTextCursor::PreviousCharacter, 1);
 }
 
 static bool isOwnershipRAIIName(const QString &name)

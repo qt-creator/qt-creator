@@ -94,10 +94,10 @@ QString GcceToolChain::typeDisplayName() const
     return GcceToolChainFactory::tr("GCCE");
 }
 
-QByteArray GcceToolChain::predefinedMacros() const
+QByteArray GcceToolChain::predefinedMacros(const QStringList &list) const
 {
     if (m_predefinedMacros.isEmpty()) {
-        ProjectExplorer::GccToolChain::predefinedMacros();
+        ProjectExplorer::GccToolChain::predefinedMacros(list);
         m_predefinedMacros += "\n"
                 "#define __GCCE__\n"
                 "#define __SYMBIAN32__\n";
