@@ -55,6 +55,8 @@ void writeIncludeFileDirective(const QString &file,
                                bool globalInclude,
                                QTextStream &str);
 
+QTCREATOR_UTILS_EXPORT void writeBeginQtVersionCheck(QTextStream &str);
+
 // Write opening namespaces and return an indentation string to be used
 // in the following code if there are any.
 QTCREATOR_UTILS_EXPORT

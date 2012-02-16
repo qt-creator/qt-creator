@@ -65,6 +65,7 @@ struct FormClassWizardGenerationParameters
     UiClassEmbedding embedding;
     bool retranslationSupport; // Add handling for language change events
     bool includeQtModule; // Include "<QtGui/[Class]>" or just "<[Class]>"
+    bool addQtVersionCheck; // Include #ifdef when using "#include <QtGui/..."
     bool indentNamespace;
 };
 

@@ -81,6 +81,11 @@ void writeIncludeFileDirective(const QString &file, bool globalInclude,
     str << QLatin1String("#include ") << opening << file <<  closing << QLatin1Char('\n');
 }
 
+QTCREATOR_UTILS_EXPORT void writeBeginQtVersionCheck(QTextStream &str)
+{
+    str << QLatin1String("#if QT_VERSION >= 0x050000\n");
+}
+
 QTCREATOR_UTILS_EXPORT
 QString writeOpeningNameSpaces(const QStringList &l, const QString &indent,
                                QTextStream &str)

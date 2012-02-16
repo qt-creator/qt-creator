@@ -46,6 +46,8 @@ CppSettingsPageWidget::CppSettingsPageWidget(QWidget *parent) :
         QWidget(parent)
 {
     m_ui.setupUi(this);
+    connect(m_ui.includeQtModuleCheckBox, SIGNAL(toggled(bool)),
+            m_ui.addQtVersionCheckBox, SLOT(setEnabled(bool)));
 }
 
 FormClassWizardGenerationParameters CppSettingsPageWidget::parameters() const
@@ -54,6 +56,7 @@ FormClassWizardGenerationParameters CppSettingsPageWidget::parameters() const
     rc.embedding = static_cast<UiClassEmbedding>(uiEmbedding());
     rc.retranslationSupport =m_ui.retranslateCheckBox->isChecked();
     rc.includeQtModule = m_ui.includeQtModuleCheckBox->isChecked();
+    rc.addQtVersionCheck = m_ui.addQtVersionCheckBox->isChecked();
     return rc;
 }
 
@@ -61,6 +64,7 @@ void CppSettingsPageWidget::setParameters(const FormClassWizardGenerationParamet
 {
     m_ui.retranslateCheckBox->setChecked(p.retranslationSupport);
     m_ui.includeQtModuleCheckBox->setChecked(p.includeQtModule);
+    m_ui.addQtVersionCheckBox->setChecked(p.addQtVersionCheck);
     setUiEmbedding(p.embedding);
 }
 

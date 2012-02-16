@@ -51,9 +51,10 @@ static const char formClassWizardPageGroupC[] = "FormClassWizardPage";
 static const char translationKeyC[] = "RetranslationSupport";
 static const char embeddingModeKeyC[] = "Embedding";
 
-// TODO: These 2 are general coding convention settings and
+// TODO: These 3 are general coding convention settings and
 // should go to CppTools...
 static const char includeQtModuleKeyC[] = "IncludeQtModule";
+static const char addQtVersionCheckKeyC[] = "AddQtVersionCheck";
 static const char indentNamespaceKeyC[] = "IndentNamespace";
 
 static const bool retranslationSupportDefault = false;
@@ -65,6 +66,7 @@ FormClassWizardGenerationParameters::FormClassWizardGenerationParameters() :
     embedding(PointerAggregatedUiClass),
     retranslationSupport(retranslationSupportDefault),
     includeQtModule(false),
+    addQtVersionCheck(false),
     indentNamespace(false)
 {
 }
@@ -76,6 +78,7 @@ void FormClassWizardGenerationParameters::fromSettings(const QSettings *settings
     retranslationSupport = settings->value(group + QLatin1String(translationKeyC), retranslationSupportDefault).toBool();
     embedding =  static_cast<UiClassEmbedding>(settings->value(group + QLatin1String(embeddingModeKeyC), int(PointerAggregatedUiClass)).toInt());
     includeQtModule = settings->value(group + QLatin1String(includeQtModuleKeyC), false).toBool();
+    addQtVersionCheck = settings->value(group + QLatin1String(addQtVersionCheckKeyC), false).toBool();
     indentNamespace = settings->value(group + QLatin1String(indentNamespaceKeyC), false).toBool();
 }
 
@@ -85,14 +88,18 @@ void FormClassWizardGenerationParameters::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(translationKeyC), retranslationSupport);
     settings->setValue(QLatin1String(embeddingModeKeyC), embedding);
     settings->setValue(QLatin1String(includeQtModuleKeyC), includeQtModule);
+    settings->setValue(QLatin1String(addQtVersionCheckKeyC), addQtVersionCheck);
     settings->setValue(QLatin1String(indentNamespaceKeyC), indentNamespace);
     settings->endGroup();
 }
 
 bool FormClassWizardGenerationParameters::equals(const FormClassWizardGenerationParameters &rhs) const
 {
-    return embedding == rhs.embedding && retranslationSupport == rhs.retranslationSupport
-         && includeQtModule == rhs.includeQtModule && indentNamespace == rhs.indentNamespace;
+    return embedding == rhs.embedding
+            && retranslationSupport == rhs.retranslationSupport
+            && includeQtModule == rhs.includeQtModule
+            && addQtVersionCheck == rhs.addQtVersionCheck
+            && indentNamespace == rhs.indentNamespace;
 }
 
 // Generation code
@@ -166,10 +173,19 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
         // Todo: Can we obtain the header from the code model for custom widgets?
         // Alternatively, from Designer.
         if (formBaseClass.startsWith(QLatin1Char('Q'))) {
-            QString baseInclude = formBaseClass;
-            if (generationParameters.includeQtModule)
-                baseInclude.insert(0, QLatin1String("QtGui/"));
-            Utils::writeIncludeFileDirective(baseInclude, true, headerStr);
+            if (generationParameters.includeQtModule) {
+                if (generationParameters.addQtVersionCheck) {
+                    Utils::writeBeginQtVersionCheck(headerStr);
+                    Utils::writeIncludeFileDirective(QLatin1String("QtWidgets/") + formBaseClass, true, headerStr);
+                    headerStr << "#else\n";
+                    Utils::writeIncludeFileDirective(QLatin1String("QtGui/") + formBaseClass, true, headerStr);
+                    headerStr << "#endif\n";
+                } else {
+                    Utils::writeIncludeFileDirective(QLatin1String("QtGui/") + formBaseClass, true, headerStr);
+                }
+            } else {
+                Utils::writeIncludeFileDirective(formBaseClass, true, headerStr);
+            }
         }
     }
 

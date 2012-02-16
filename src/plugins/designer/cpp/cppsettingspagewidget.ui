@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>Designer::Internal::CppSettingsPageWidget</class>
  <widget class="QWidget" name="Designer::Internal::CppSettingsPageWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>340</width>
+    <height>232</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -59,6 +67,16 @@
        <widget class="QCheckBox" name="includeQtModuleCheckBox">
         <property name="text">
          <string>Use Qt module name in #include-directive</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="addQtVersionCheckBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Add Qt version #ifdef for module names</string>
         </property>
        </widget>
       </item>
