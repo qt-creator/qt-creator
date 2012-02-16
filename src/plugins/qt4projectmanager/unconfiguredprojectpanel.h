@@ -37,6 +37,8 @@
 
 #include <QString>
 
+QT_FORWARD_DECLARE_CLASS(QPushButton)
+
 namespace Qt4ProjectManager {
 class TargetSetupPage;
 class Qt4Project;
@@ -69,10 +71,12 @@ private slots:
     void done();
     void noteTextLinkActivated();
     void updateNoteText();
+    void completeChanged();
 
 private:
     Qt4Project *m_project;
     TargetSetupPage *m_targetSetupPage;
+    QPushButton *m_configureButton;
 };
 
 }

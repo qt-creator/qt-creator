@@ -119,16 +119,20 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(ProjectExplorer::Project *project
     layout->addLayout(hbox);
     layout->setMargin(0);
     hbox->addStretch();
-    QPushButton *button = new QPushButton(this);
-    button->setText(tr("Configure Project"));
-    hbox->addWidget(button);
+    m_configureButton = new QPushButton(this);
+    m_configureButton->setText(tr("Configure Project"));
+    hbox->addWidget(m_configureButton);
 
     layout->addStretch(10);
 
-    connect(button, SIGNAL(clicked()),
+    completeChanged();
+
+    connect(m_configureButton, SIGNAL(clicked()),
             this, SLOT(done()));
     connect(m_targetSetupPage, SIGNAL(noteTextLinkActivated()),
             this, SLOT(noteTextLinkActivated()));
+    connect(m_targetSetupPage, SIGNAL(completeChanged()),
+            this, SLOT(completeChanged()));
     connect(m_project->qt4ProjectManager(), SIGNAL(unconfiguredSettingsChanged()),
             this, SLOT(updateNoteText()));
 }
@@ -192,4 +196,9 @@ void TargetSetupPageWrapper::noteTextLinkActivated()
 {
     Core::ICore::instance()->showOptionsDialog(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
                                                QLatin1String(Constants::UNCONFIGURED_SETTINGS_PAGE_ID));
+}
+
+void TargetSetupPageWrapper::completeChanged()
+{
+    m_configureButton->setEnabled(m_targetSetupPage->isComplete());
 }
