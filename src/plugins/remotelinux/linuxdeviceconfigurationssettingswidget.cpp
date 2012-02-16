@@ -219,7 +219,7 @@ void LinuxDeviceConfigurationsSettingsWidget::displayCurrent()
     m_nameValidator->setDisplayName(current->displayName());
     m_ui->timeoutSpinBox->setValue(sshParams.timeout);
     m_ui->removeConfigButton->setEnabled(!current->isAutoDetected());
-    m_ui->hostLineEdit->setEnabled(!current->isAutoDetected());
+    m_ui->hostLineEdit->setReadOnly(current->isAutoDetected());
     m_ui->sshPortSpinBox->setEnabled(!current->isAutoDetected());
     fillInValues();
 }
