@@ -62,7 +62,7 @@ class IAssistProvider;
 class ICodeStylePreferences;
 
 namespace Internal {
-    class BaseTextEditorPrivate;
+    class BaseTextEditorWidgetPrivate;
     class TextEditorOverlay;
     typedef QList<RefactorMarker> RefactorMarkers;
     typedef QString (QString::*TransformationMethod)() const;
@@ -375,8 +375,8 @@ private slots:
     void onCodeStylePreferencesDestroyed();
 
 private:
-    Internal::BaseTextEditorPrivate *d;
-    friend class Internal::BaseTextEditorPrivate;
+    Internal::BaseTextEditorWidgetPrivate *d;
+    friend class Internal::BaseTextEditorWidgetPrivate;
     friend class Internal::TextEditorOverlay;
     friend class RefactorOverlay;
 

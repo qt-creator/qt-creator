@@ -218,7 +218,7 @@ static const char kVerticalTextBlockMimeType[] = "application/vnd.nokia.qtcreato
 BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)
     : QPlainTextEdit(parent)
 {
-    d = new BaseTextEditorPrivate;
+    d = new BaseTextEditorWidgetPrivate;
     d->q = this;
     d->m_extraArea = new TextEditExtraArea(this);
     d->m_extraArea->setMouseTracking(true);
@@ -358,7 +358,7 @@ static void printPage(int index, QPainter *painter, const QTextDocument *doc,
     painter->restore();
 }
 
-void BaseTextEditorPrivate::print(QPrinter *printer)
+void BaseTextEditorWidgetPrivate::print(QPrinter *printer)
 {
     QTextDocument *doc = q->document();
 
@@ -495,7 +495,7 @@ UserCanceled:
 }
 
 
-int BaseTextEditorPrivate::visualIndent(const QTextBlock &block) const
+int BaseTextEditorWidgetPrivate::visualIndent(const QTextBlock &block) const
 {
     if (!block.isValid())
         return 0;
@@ -600,7 +600,7 @@ bool BaseTextEditorWidget::open(QString *errorString, const QString &fileName, c
 /*
   Collapses the first comment in a file, if there is only whitespace above
   */
-void BaseTextEditorPrivate::foldLicenseHeader()
+void BaseTextEditorWidgetPrivate::foldLicenseHeader()
 {
     QTextDocument *doc = q->document();
     BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
@@ -2458,7 +2458,7 @@ AutoCompleter *BaseTextEditorWidget::autoCompleter() const
 
 //--------- BaseTextEditorPrivate -----------
 
-BaseTextEditorPrivate::BaseTextEditorPrivate()
+BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate()
     :
     m_lastScrollPos(-1),
     m_lineNumber(-1),
@@ -2510,11 +2510,11 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
 {
 }
 
-BaseTextEditorPrivate::~BaseTextEditorPrivate()
+BaseTextEditorWidgetPrivate::~BaseTextEditorWidgetPrivate()
 {
 }
 
-void BaseTextEditorPrivate::setupDocumentSignals(BaseTextDocument *document)
+void BaseTextEditorWidgetPrivate::setupDocumentSignals(BaseTextDocument *document)
 {
     BaseTextDocument *oldDocument = q->baseTextDocument();
     if (oldDocument) {
@@ -2551,7 +2551,7 @@ void BaseTextEditorPrivate::setupDocumentSignals(BaseTextDocument *document)
 }
 
 
-bool BaseTextEditorPrivate::snippetCheckCursor(const QTextCursor &cursor)
+bool BaseTextEditorWidgetPrivate::snippetCheckCursor(const QTextCursor &cursor)
 {
     if (!m_snippetOverlay->isVisible() || m_snippetOverlay->isEmpty())
         return false;
@@ -2570,7 +2570,7 @@ bool BaseTextEditorPrivate::snippetCheckCursor(const QTextCursor &cursor)
     return true;
 }
 
-void BaseTextEditorPrivate::snippetTabOrBacktab(bool forward)
+void BaseTextEditorWidgetPrivate::snippetTabOrBacktab(bool forward)
 {
     if (!m_snippetOverlay->isVisible() || m_snippetOverlay->isEmpty())
         return;
@@ -2735,7 +2735,7 @@ QTextBlock BaseTextEditorWidget::foldedBlockAt(const QPoint &pos, QRect *box) co
     return QTextBlock();
 }
 
-void BaseTextEditorPrivate::highlightSearchResults(const QTextBlock &block,
+void BaseTextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block,
                                                    TextEditorOverlay *overlay)
 {
     if (m_searchExpr.isEmpty())
@@ -2788,7 +2788,7 @@ namespace TextEditor {
     }
 }
 
-void BaseTextEditorPrivate::clearBlockSelection()
+void BaseTextEditorWidgetPrivate::clearBlockSelection()
 {
     if (m_inBlockSelectionMode) {
         m_inBlockSelectionMode = false;
@@ -2799,7 +2799,7 @@ void BaseTextEditorPrivate::clearBlockSelection()
     }
 }
 
-QString BaseTextEditorPrivate::copyBlockSelection()
+QString BaseTextEditorWidgetPrivate::copyBlockSelection()
 {
     QString selection;
     QTextCursor cursor = q->textCursor();
@@ -2837,7 +2837,7 @@ QString BaseTextEditorPrivate::copyBlockSelection()
     return selection;
 }
 
-void BaseTextEditorPrivate::removeBlockSelection(const QString &text)
+void BaseTextEditorWidgetPrivate::removeBlockSelection(const QString &text)
 {
     QTextCursor cursor = q->textCursor();
     if (!cursor.hasSelection() || !m_inBlockSelectionMode)
@@ -2878,7 +2878,7 @@ void BaseTextEditorPrivate::removeBlockSelection(const QString &text)
     q->setTextCursor(cursor);
 }
 
-void BaseTextEditorPrivate::moveCursorVisible(bool ensureVisible)
+void BaseTextEditorWidgetPrivate::moveCursorVisible(bool ensureVisible)
 {
     QTextCursor cursor = q->textCursor();
     if (!cursor.block().isVisible()) {
@@ -4137,7 +4137,7 @@ void BaseTextEditorWidget::timerEvent(QTimerEvent *e)
 }
 
 
-void BaseTextEditorPrivate::clearVisibleFoldedBlock()
+void BaseTextEditorWidgetPrivate::clearVisibleFoldedBlock()
 {
     if (suggestedVisibleFoldedBlockNumber) {
         suggestedVisibleFoldedBlockNumber = -1;
