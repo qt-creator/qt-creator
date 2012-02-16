@@ -1689,6 +1689,8 @@ class Dumper:
 
             nsStrippedType = self.stripNamespaceFromType(dtypeName)\
                 .replace("::", "__")
+            # The following line is only needed for D:
+            #nsStrippedType = nsStrippedType.replace(" ", "__")
             #warn(" STRIPPED: %s" % nsStrippedType)
             #warn(" DUMPERS: %s" % (nsStrippedType in qqDumpers))
             if nsStrippedType in qqDumpers:

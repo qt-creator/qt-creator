@@ -2375,6 +2375,37 @@ def qdump__Eigen__Matrix(d, value):
 
 #######################################################################
 #
+# D
+#
+#######################################################################
+
+
+def qdump___Array_char(d, value):
+    n = value["length"]
+    p = value["ptr"]
+    d.putAddress(value.address)
+    d.putType("char[%d]" % n)
+    d.putValue(encodeCharArray(p, 100), Hex2EncodedLocal8Bit)
+    d.putNumChild(0)
+
+# DMD v2.058 encodes string[] as _Array_uns long long. With spaces.
+def qdump___Array_uns__long__long(d, value):
+    n = value["length"]
+    p = value["ptr"]
+    d.putAddress(value.address)
+    d.putType("string[%d]" % n)
+    d.putValue(" ")
+    d.putNumChild(n)
+    innerType = p.type
+    if d.isExpanded():
+        with Children(d, n, childType=innerType):
+            for i in range(0, n):
+                d.putSubItem(i, p.dereference())
+                p = p + 1
+
+
+#######################################################################
+#
 # Display Test
 #
 #######################################################################
