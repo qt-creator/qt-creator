@@ -784,8 +784,7 @@ virtual bool visit(DestructorNameAST *ast)
 {
     if (ast->tilde_token)
         terminal(ast->tilde_token, ast);
-    if (ast->identifier_token)
-        terminal(ast->identifier_token, ast);
+    nonterminal(ast->unqualified_name);
     return false;
 }
 

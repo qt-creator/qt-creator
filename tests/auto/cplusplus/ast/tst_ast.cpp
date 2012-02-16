@@ -109,6 +109,11 @@ private slots:
     void init_1();
     void conditional_1();
     void throw_1();
+    void templated_dtor_1();
+    void templated_dtor_2();
+    void templated_dtor_3();
+    void templated_dtor_4();
+    void templated_dtor_5();
 
     // possible declaration-or-expression statements
     void call_call_1();
@@ -413,6 +418,229 @@ void tst_AST::throw_1()
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
     QVERIFY(ast->asExpressionStatement());
+}
+
+void tst_AST::templated_dtor_1()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement(
+                                             "\n"
+                                             "a.b::~b<c>();"
+                                             ));
+
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+    ExpressionStatementAST *e = ast->asExpressionStatement();
+    QVERIFY(e);
+    QVERIFY(e->expression);
+    CallAST *call = e->expression->asCall();
+    QVERIFY(call);
+    QVERIFY(!call->expression_list);
+    QVERIFY(call->base_expression);
+    MemberAccessAST *mem = call->base_expression->asMemberAccess();
+    QVERIFY(mem);
+    QCOMPARE(unit->spell(mem->base_expression->asIdExpression()->name->asSimpleName()->identifier_token), "a");
+
+    QualifiedNameAST *qName = mem->member_name->asQualifiedName();
+    QVERIFY(qName);
+    QVERIFY(qName->nested_name_specifier_list);
+    QVERIFY(!qName->nested_name_specifier_list->next);
+    QVERIFY(qName->nested_name_specifier_list->value);
+    QVERIFY(qName->nested_name_specifier_list->value->class_or_namespace_name);
+    SimpleNameAST *bName = qName->nested_name_specifier_list->value->class_or_namespace_name->asSimpleName();
+    QVERIFY(bName);
+    QCOMPARE(unit->spell(bName->identifier_token), "b");
+
+    QVERIFY(qName->unqualified_name);
+    DestructorNameAST *dtor = qName->unqualified_name->asDestructorName();
+    QVERIFY(dtor);
+    QVERIFY(dtor->unqualified_name);
+    TemplateIdAST *tid = dtor->unqualified_name->asTemplateId();
+    QVERIFY(tid);
+    QCOMPARE(unit->spell(tid->identifier_token), "b");
+
+    QVERIFY(tid->template_argument_list);
+    QVERIFY(!tid->template_argument_list->next);
+    QVERIFY(tid->template_argument_list->value);
+    TypeIdAST *typeId = tid->template_argument_list->value->asTypeId();
+    QVERIFY(typeId);
+    QVERIFY(!typeId->declarator);
+    QVERIFY(typeId->type_specifier_list);
+    QVERIFY(!typeId->type_specifier_list->next);
+    QVERIFY(typeId->type_specifier_list->value);
+    NamedTypeSpecifierAST *nts = typeId->type_specifier_list->value->asNamedTypeSpecifier();
+    QVERIFY(nts);
+    QVERIFY(nts->name);
+    SimpleNameAST *cName = nts->name->asSimpleName();
+    QVERIFY(cName);
+    QCOMPARE(unit->spell(cName->identifier_token), "c");
+}
+
+void tst_AST::templated_dtor_2()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement(
+                                             "\n"
+                                             "a.~b<c>();"
+                                             ));
+
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+    ExpressionStatementAST *e = ast->asExpressionStatement();
+    QVERIFY(e);
+    QVERIFY(e->expression);
+    CallAST *call = e->expression->asCall();
+    QVERIFY(call);
+    QVERIFY(!call->expression_list);
+    QVERIFY(call->base_expression);
+    MemberAccessAST *mem = call->base_expression->asMemberAccess();
+    QVERIFY(mem);
+    QCOMPARE(unit->spell(mem->base_expression->asIdExpression()->name->asSimpleName()->identifier_token), "a");
+
+    QVERIFY(mem->member_name);
+    DestructorNameAST *dtor = mem->member_name->asDestructorName();
+    QVERIFY(dtor);
+    QVERIFY(dtor->unqualified_name);
+    TemplateIdAST *tid = dtor->unqualified_name->asTemplateId();
+    QVERIFY(tid);
+    QCOMPARE(unit->spell(tid->identifier_token), "b");
+
+    QVERIFY(tid->template_argument_list);
+    QVERIFY(!tid->template_argument_list->next);
+    QVERIFY(tid->template_argument_list->value);
+    TypeIdAST *typeId = tid->template_argument_list->value->asTypeId();
+    QVERIFY(typeId);
+    QVERIFY(!typeId->declarator);
+    QVERIFY(typeId->type_specifier_list);
+    QVERIFY(!typeId->type_specifier_list->next);
+    QVERIFY(typeId->type_specifier_list->value);
+    NamedTypeSpecifierAST *nts = typeId->type_specifier_list->value->asNamedTypeSpecifier();
+    QVERIFY(nts);
+    QVERIFY(nts->name);
+    SimpleNameAST *cName = nts->name->asSimpleName();
+    QVERIFY(cName);
+    QCOMPARE(unit->spell(cName->identifier_token), "c");
+}
+
+void tst_AST::templated_dtor_3()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement(
+                                             "\n"
+                                             "a::~b<c>();"
+                                             ));
+
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+    ExpressionStatementAST *e = ast->asExpressionStatement();
+    QVERIFY(e);
+    QVERIFY(e->expression);
+    CallAST *call = e->expression->asCall();
+    QVERIFY(call);
+    QVERIFY(!call->expression_list);
+    QVERIFY(call->base_expression);
+    IdExpressionAST *idExpr = call->base_expression->asIdExpression();
+    QVERIFY(idExpr);
+    QVERIFY(idExpr->name);
+    QualifiedNameAST *qName = idExpr->name->asQualifiedName();
+    QVERIFY(qName);
+    QVERIFY(qName->nested_name_specifier_list);
+    QVERIFY(!qName->nested_name_specifier_list->next);
+    QVERIFY(qName->nested_name_specifier_list->value);
+    QVERIFY(qName->nested_name_specifier_list->value->class_or_namespace_name);
+    SimpleNameAST *bName = qName->nested_name_specifier_list->value->class_or_namespace_name->asSimpleName();
+    QVERIFY(bName);
+    QCOMPARE(unit->spell(bName->identifier_token), "a");
+
+    QVERIFY(qName->unqualified_name);
+    DestructorNameAST *dtor = qName->unqualified_name->asDestructorName();
+    QVERIFY(dtor);
+    QVERIFY(dtor->unqualified_name);
+    TemplateIdAST *tid = dtor->unqualified_name->asTemplateId();
+    QVERIFY(tid);
+    QCOMPARE(unit->spell(tid->identifier_token), "b");
+
+    QVERIFY(tid->template_argument_list);
+    QVERIFY(!tid->template_argument_list->next);
+    QVERIFY(tid->template_argument_list->value);
+    TypeIdAST *typeId = tid->template_argument_list->value->asTypeId();
+    QVERIFY(typeId);
+    QVERIFY(!typeId->declarator);
+    QVERIFY(typeId->type_specifier_list);
+    QVERIFY(!typeId->type_specifier_list->next);
+    QVERIFY(typeId->type_specifier_list->value);
+    NamedTypeSpecifierAST *nts = typeId->type_specifier_list->value->asNamedTypeSpecifier();
+    QVERIFY(nts);
+    QVERIFY(nts->name);
+    SimpleNameAST *cName = nts->name->asSimpleName();
+    QVERIFY(cName);
+    QCOMPARE(unit->spell(cName->identifier_token), "c");
+}
+
+void tst_AST::templated_dtor_4()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement(
+                                             "\n"
+                                             "~b<c>();"
+                                             ));
+
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+    ExpressionStatementAST *e = ast->asExpressionStatement();
+    QVERIFY(e);
+    QVERIFY(e->expression);
+    UnaryExpressionAST *u = e->expression->asUnaryExpression();
+    QVERIFY(u);
+    QCOMPARE(unit->tokenKind(u->unary_op_token), (int) T_TILDE);
+    QVERIFY(u->expression);
+    CallAST *call = u->expression->asCall();
+    QVERIFY(call);
+    QVERIFY(call->base_expression);
+    IdExpressionAST *idExpr = call->base_expression->asIdExpression();
+    QVERIFY(idExpr);
+    QVERIFY(idExpr->name);
+    TemplateIdAST *tid = idExpr->name->asTemplateId();
+    QVERIFY(tid);
+    QCOMPARE(unit->spell(tid->identifier_token), "b");
+    QVERIFY(tid->template_argument_list);
+    QVERIFY(!tid->template_argument_list->next);
+    QVERIFY(tid->template_argument_list->value);
+    TypeIdAST *typeId = tid->template_argument_list->value->asTypeId();
+    QVERIFY(typeId);
+    QVERIFY(!typeId->declarator);
+    QVERIFY(typeId->type_specifier_list);
+    QVERIFY(!typeId->type_specifier_list->next);
+    QVERIFY(typeId->type_specifier_list->value);
+    NamedTypeSpecifierAST *nts = typeId->type_specifier_list->value->asNamedTypeSpecifier();
+    QVERIFY(nts);
+    QVERIFY(nts->name);
+    SimpleNameAST *cName = nts->name->asSimpleName();
+    QVERIFY(cName);
+    QCOMPARE(unit->spell(cName->identifier_token), "c");
+}
+
+void tst_AST::templated_dtor_5()
+{
+    QSharedPointer<TranslationUnit> unit(parseExpression(
+                                             "\n"
+                                             "~a < b()"
+                                             ));
+
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    BinaryExpressionAST *binExpr = ast->asBinaryExpression();
+    QVERIFY(binExpr);
+    QVERIFY(binExpr->left_expression);
+    UnaryExpressionAST *notExpr = binExpr->left_expression->asUnaryExpression();
+    QVERIFY(notExpr);
+    QCOMPARE(unit->tokenKind(notExpr->unary_op_token), (int) T_TILDE);
+
+    CallAST *call = binExpr->right_expression->asCall();
+    QVERIFY(call->base_expression);
+    QVERIFY(!call->expression_list);
+    IdExpressionAST *bExpr = call->base_expression->asIdExpression();
+    QVERIFY(bExpr);
+    SimpleNameAST *bName = bExpr->name->asSimpleName();
+    QVERIFY(bName);
+    QCOMPARE(unit->spell(bName->identifier_token), "b");
 }
 
 void tst_AST::call_call_1()

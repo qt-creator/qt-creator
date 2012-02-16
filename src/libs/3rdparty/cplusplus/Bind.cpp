@@ -91,7 +91,7 @@ unsigned Bind::location(NameAST *name, unsigned defaultLocation) const
         return defaultLocation;
 
     else if (DestructorNameAST *dtor = name->asDestructorName())
-        return dtor->identifier_token;
+        return location(dtor->unqualified_name, defaultLocation);
 
     else if (TemplateIdAST *templId = name->asTemplateId())
         return templId->identifier_token;
@@ -2624,8 +2624,7 @@ bool Bind::visit(SimpleNameAST *ast)
 
 bool Bind::visit(DestructorNameAST *ast)
 {
-    const Identifier *id = identifier(ast->identifier_token);
-    _name = control()->destructorNameId(id);
+    _name = control()->destructorNameId(name(ast->unqualified_name));
     ast->name = _name;
     return false;
 }

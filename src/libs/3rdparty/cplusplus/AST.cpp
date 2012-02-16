@@ -963,16 +963,18 @@ unsigned DestructorNameAST::firstToken() const
 {
     if (tilde_token)
         return tilde_token;
-    if (identifier_token)
-        return identifier_token;
+    if (unqualified_name)
+        if (unsigned candidate = unqualified_name->firstToken())
+            return candidate;
     return 0;
 }
 
 /** \generated */
 unsigned DestructorNameAST::lastToken() const
 {
-    if (identifier_token)
-        return identifier_token + 1;
+    if (unqualified_name)
+        if (unsigned candidate = unqualified_name->lastToken())
+            return candidate;
     if (tilde_token)
         return tilde_token + 1;
     return 1;

@@ -259,7 +259,6 @@ protected:
     virtual bool visit(OperatorFunctionIdAST *ast);
     virtual bool visit(ConversionFunctionIdAST *ast);
     virtual bool visit(SimpleNameAST *ast);
-    virtual bool visit(DestructorNameAST *ast);
     virtual bool visit(TemplateIdAST *ast);
 
     // SpecifierAST

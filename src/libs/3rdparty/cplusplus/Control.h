@@ -55,7 +55,7 @@ public:
                                          unsigned argc = 0);
 
     /// Returns the canonical destructor name id.
-    const DestructorNameId *destructorNameId(const Identifier *id);
+    const DestructorNameId *destructorNameId(const Name *name);
 
     /// Returns the canonical operator name id.
     const OperatorNameId *operatorNameId(OperatorNameId::Kind operatorId);

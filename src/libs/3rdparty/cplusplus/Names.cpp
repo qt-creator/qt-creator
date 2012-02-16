@@ -62,8 +62,8 @@ bool QualifiedNameId::isEqualTo(const Name *other) const
     return false;
 }
 
-DestructorNameId::DestructorNameId(const Identifier *identifier)
-    : _identifier(identifier)
+DestructorNameId::DestructorNameId(const Name *name)
+    : _name(name)
 { }
 
 DestructorNameId::~DestructorNameId()
@@ -72,8 +72,11 @@ DestructorNameId::~DestructorNameId()
 void DestructorNameId::accept0(NameVisitor *visitor) const
 { visitor->visit(this); }
 
+const Name *DestructorNameId::name() const
+{ return _name; }
+
 const Identifier *DestructorNameId::identifier() const
-{ return _identifier; }
+{ return _name->identifier(); }
 
 bool DestructorNameId::isEqualTo(const Name *other) const
 {
@@ -81,8 +84,8 @@ bool DestructorNameId::isEqualTo(const Name *other) const
         const DestructorNameId *d = other->asDestructorNameId();
         if (! d)
             return false;
-        const Identifier *l = identifier();
-        const Identifier *r = d->identifier();
+        const Name *l = name();
+        const Name *r = d->name();
         return l->isEqualTo(r);
     }
     return false;

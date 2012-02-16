@@ -57,8 +57,10 @@ private:
 class CPLUSPLUS_EXPORT DestructorNameId: public Name
 {
 public:
-    DestructorNameId(const Identifier *identifier);
+    DestructorNameId(const Name *name);
     virtual ~DestructorNameId();
+
+    virtual const Name *name() const;
 
     virtual const Identifier *identifier() const;
 
@@ -71,7 +73,7 @@ protected:
     virtual void accept0(NameVisitor *visitor) const;
 
 private:
-    const Identifier *_identifier;
+    const Name *_name;
 };
 
 class CPLUSPLUS_EXPORT TemplateNameId: public Name

@@ -1416,7 +1416,10 @@ bool ASTMatcher::match(DestructorNameAST *node, DestructorNameAST *pattern)
 
     pattern->tilde_token = node->tilde_token;
 
-    pattern->identifier_token = node->identifier_token;
+    if (! pattern->unqualified_name)
+        pattern->unqualified_name = node->unqualified_name;
+    else if (! AST::match(node->unqualified_name, pattern->unqualified_name, this))
+        return false;
 
     return true;
 }

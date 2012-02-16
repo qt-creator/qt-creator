@@ -606,6 +606,7 @@ void SimpleNameAST::accept0(ASTVisitor *visitor)
 void DestructorNameAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
+        accept(unqualified_name, visitor);
     }
     visitor->endVisit(this);
 }

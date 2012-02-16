@@ -829,6 +829,8 @@ void CheckSymbols::addUse(NameAST *ast, UseKind kind)
 
     if (QualifiedNameAST *q = ast->asQualifiedName())
         ast = q->unqualified_name;
+    if (DestructorNameAST *dtor = ast->asDestructorName())
+        ast = dtor->unqualified_name;
 
     if (! ast)
         return; // nothing to do
@@ -837,10 +839,7 @@ void CheckSymbols::addUse(NameAST *ast, UseKind kind)
 
     unsigned startToken = ast->firstToken();
 
-    if (DestructorNameAST *dtor = ast->asDestructorName())
-        startToken = dtor->identifier_token;
-
-    else if (TemplateIdAST *templ = ast->asTemplateId())
+    if (TemplateIdAST *templ = ast->asTemplateId())
         startToken = templ->identifier_token;
 
     addUse(startToken, kind);
@@ -888,7 +887,8 @@ void CheckSymbols::addType(ClassOrNamespace *b, NameAST *ast)
 
     unsigned startToken = ast->firstToken();
     if (DestructorNameAST *dtor = ast->asDestructorName())
-        startToken = dtor->identifier_token;
+        if (dtor->unqualified_name)
+            startToken = dtor->unqualified_name->firstToken();
 
     const Token &tok = tokenAt(startToken);
     if (tok.generated())
@@ -919,7 +919,8 @@ void CheckSymbols::addTypeOrStatic(const QList<LookupItem> &candidates, NameAST 
 {
     unsigned startToken = ast->firstToken();
     if (DestructorNameAST *dtor = ast->asDestructorName())
-        startToken = dtor->identifier_token;
+        if (dtor->unqualified_name)
+            startToken = dtor->unqualified_name->firstToken();
 
     const Token &tok = tokenAt(startToken);
     if (tok.generated())
@@ -956,7 +957,8 @@ void CheckSymbols::addClassMember(const QList<LookupItem> &candidates, NameAST *
 {
     unsigned startToken = ast->firstToken();
     if (DestructorNameAST *dtor = ast->asDestructorName())
-        startToken = dtor->identifier_token;
+        if (dtor->unqualified_name)
+            startToken = dtor->unqualified_name->firstToken();
 
     const Token &tok = tokenAt(startToken);
     if (tok.generated())
@@ -1014,7 +1016,8 @@ void CheckSymbols::addVirtualMethod(const QList<LookupItem> &candidates, NameAST
 {
     unsigned startToken = ast->firstToken();
     if (DestructorNameAST *dtor = ast->asDestructorName())
-        startToken = dtor->identifier_token;
+        if (dtor->unqualified_name)
+            startToken = dtor->unqualified_name->firstToken();
 
     const Token &tok = tokenAt(startToken);
     if (tok.generated())

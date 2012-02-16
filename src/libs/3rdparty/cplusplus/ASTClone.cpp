@@ -833,7 +833,8 @@ DestructorNameAST *DestructorNameAST::clone(MemoryPool *pool) const
 {
     DestructorNameAST *ast = new (pool) DestructorNameAST;
     ast->tilde_token = tilde_token;
-    ast->identifier_token = identifier_token;
+    if (unqualified_name)
+        ast->unqualified_name = unqualified_name->clone(pool);
     return ast;
 }
 

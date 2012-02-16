@@ -549,9 +549,10 @@ public:
         return __ast;
     }
 
-    DestructorNameAST *DestructorName()
+    DestructorNameAST *DestructorName(NameAST *unqualified_name = 0)
     {
         DestructorNameAST *__ast = new (&pool) DestructorNameAST;
+        __ast->unqualified_name = unqualified_name;
         return __ast;
     }
 

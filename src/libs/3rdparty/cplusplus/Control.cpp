@@ -227,9 +227,9 @@ public:
         return templateNameIds.intern(TemplateNameId(id, first, last));
     }
 
-    const DestructorNameId *findOrInsertDestructorNameId(const Identifier *id)
+    const DestructorNameId *findOrInsertDestructorNameId(const Name *name)
     {
-        return destructorNameIds.intern(DestructorNameId(id));
+        return destructorNameIds.intern(DestructorNameId(name));
     }
 
     const OperatorNameId *findOrInsertOperatorNameId(OperatorNameId::Kind kind)
@@ -610,8 +610,8 @@ const TemplateNameId *Control::templateNameId(const Identifier *id,
     return d->findOrInsertTemplateNameId(id, args, args + argv);
 }
 
-const DestructorNameId *Control::destructorNameId(const Identifier *id)
-{ return d->findOrInsertDestructorNameId(id); }
+const DestructorNameId *Control::destructorNameId(const Name *name)
+{ return d->findOrInsertDestructorNameId(name); }
 
 const OperatorNameId *Control::operatorNameId(OperatorNameId::Kind kind)
 { return d->findOrInsertOperatorNameId(kind); }

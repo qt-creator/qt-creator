@@ -2286,12 +2286,12 @@ class CPLUSPLUS_EXPORT DestructorNameAST: public NameAST
 {
 public:
     unsigned tilde_token;
-    unsigned identifier_token;
+    NameAST *unqualified_name;
 
 public:
     DestructorNameAST()
         : tilde_token(0)
-        , identifier_token(0)
+        , unqualified_name(0)
     {}
 
     virtual DestructorNameAST *asDestructorName() { return this; }

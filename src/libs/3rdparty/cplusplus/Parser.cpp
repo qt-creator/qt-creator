@@ -2740,7 +2740,7 @@ bool Parser::parseUnqualifiedName(NameAST *&node, bool acceptTemplateId)
     if (LA() == T_TILDE && LA(2) == T_IDENTIFIER) {
         DestructorNameAST *ast = new (_pool) DestructorNameAST;
         ast->tilde_token = consumeToken();
-        ast->identifier_token = consumeToken();
+        parseUnqualifiedName(ast->unqualified_name);
         node = ast;
         return true;
     } else if (LA() == T_OPERATOR) {

@@ -1945,9 +1945,6 @@ bool FindUsages::visit(QualifiedNameAST *ast)
         if (SimpleNameAST *simple_name = unqualified_name->asSimpleName())
             identifier_token = simple_name->identifier_token;
 
-        else if (DestructorNameAST *dtor_name = unqualified_name->asDestructorName())
-            identifier_token = dtor_name->identifier_token;
-
         TemplateIdAST *template_id = 0;
         if (! identifier_token) {
             template_id = unqualified_name->asTemplateId();
@@ -1992,14 +1989,6 @@ bool FindUsages::visit(ConversionFunctionIdAST *ast)
 
 bool FindUsages::visit(SimpleNameAST *ast)
 {
-    // unsigned identifier_token = ast->identifier_token;
-    reportResult(ast->identifier_token, ast->name);
-    return false;
-}
-
-bool FindUsages::visit(DestructorNameAST *ast)
-{
-    // unsigned tilde_token = ast->tilde_token;
     // unsigned identifier_token = ast->identifier_token;
     reportResult(ast->identifier_token, ast->name);
     return false;
