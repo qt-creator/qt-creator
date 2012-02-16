@@ -184,7 +184,7 @@ QList<MemoryMarkup> RegisterMemoryView::registerMarkup(quint64 a, const QString 
 void RegisterMemoryView::init(RegisterHandler *h, int registerIndex)
 {
     m_registerIndex = registerIndex;
-    m_registerName = QString::fromAscii(h->registerAt(registerIndex).name);
+    m_registerName = QString::fromLatin1(h->registerAt(registerIndex).name);
     // Known issue: CDB might reset the model by changing the special
     // registers it reports.
     connect(h, SIGNAL(modelReset()), this, SLOT(close()));

@@ -620,7 +620,7 @@ QByteArray symFileLoadCommand(const QString &symFileNameIn,
 QString msgLoadLocalSymFile(const QString &symFileName,
                             const QByteArray &libName, quint64 code)
 {
-    return QString::fromAscii("Loading symbol file '%1' for '%2' at 0x%3").
+    return QString::fromLatin1("Loading symbol file '%1' for '%2' at 0x%3").
             arg(symFileName, QString::fromLatin1(libName)).
             arg(code, 0, 16);
 }

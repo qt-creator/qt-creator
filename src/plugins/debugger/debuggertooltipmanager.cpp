@@ -816,7 +816,7 @@ void DebuggerToolTipWidget::saveSessionData(QXmlStreamWriter &w) const
 {
     w.writeStartElement(QLatin1String(toolTipElementC));
     QXmlStreamAttributes attributes;
-    attributes.append(QLatin1String(toolTipClassAttributeC), QString::fromAscii(metaObject()->className()));
+    attributes.append(QLatin1String(toolTipClassAttributeC), QString::fromLatin1(metaObject()->className()));
     attributes.append(QLatin1String(fileNameAttributeC), m_context.fileName);
     if (!m_context.function.isEmpty())
         attributes.append(QLatin1String(functionAttributeC), m_context.function);

@@ -236,7 +236,7 @@ void IntegerWatchLineEdit::setModelData(const QVariant &v)
         }
         break;
     case QVariant::ByteArray:
-        setNumberText(QString::fromAscii(v.toByteArray()));
+        setNumberText(QString::fromLatin1(v.toByteArray()));
         break;
     case QVariant::String:
         setNumberText(v.toString());
@@ -281,7 +281,7 @@ void FloatWatchLineEdit::setModelData(const QVariant &v)
         setText(v.toString());
         break;
     case QVariant::ByteArray:
-        setText(QString::fromAscii(v.toByteArray()));
+        setText(QString::fromLatin1(v.toByteArray()));
         break;
     default:
         qWarning("Invalid value (%s) passed to FloatWatchLineEdit::setModelData",

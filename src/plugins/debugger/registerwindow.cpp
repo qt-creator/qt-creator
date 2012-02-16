@@ -207,7 +207,7 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
         actEditMemory->setText(tr("Open Memory Editor at 0x%1").arg(address, 0, 16));
         actEditMemory->setEnabled(canShow);
         actViewMemory->setText(tr("Open Memory View at Value of Register %1 0x%2")
-            .arg(QString::fromAscii(aRegister.name)).arg(address, 0, 16));
+            .arg(QString::fromLatin1(aRegister.name)).arg(address, 0, 16));
         actShowDisassemblerAt->setText(tr("Open Disassembler at 0x%1")
             .arg(address, 0, 16));
         actShowDisassemblerAt->setEnabled(engine->hasCapability(DisassemblerCapability));
@@ -243,7 +243,7 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     if (act == actReload)
         engine->reloadRegisters();
     else if (act == actEditMemory) {
-        const QString registerName = QString::fromAscii(aRegister.name);
+        const QString registerName = QString::fromLatin1(aRegister.name);
         engine->openMemoryView(address, 0,
             RegisterMemoryView::registerMarkup(address, registerName),
             QPoint(), RegisterMemoryView::title(registerName), 0);

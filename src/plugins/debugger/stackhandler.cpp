@@ -112,7 +112,7 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
             return frame.line >= 0 ? QVariant(frame.line) : QVariant();
         case 4: // Address
             if (frame.address)
-                return QString::fromAscii("0x%1").arg(frame.address, 0, 16);
+                return QString::fromLatin1("0x%1").arg(frame.address, 0, 16);
             return QString();
         }
         return QVariant();

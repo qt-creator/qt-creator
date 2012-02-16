@@ -438,9 +438,9 @@ void CodaGdbAdapter::readGdbServerCommand()
     m_gdbReadBuffer.append(packet);
 
     logMessage(QLatin1String("gdb: -> ") + currentTime()
-               + QLatin1Char(' ') + QString::fromAscii(packet));
+               + QLatin1Char(' ') + QString::fromLatin1(packet));
     if (packet != m_gdbReadBuffer)
-        logMessage(_("buffer: ") + QString::fromAscii(m_gdbReadBuffer));
+        logMessage(_("buffer: ") + QString::fromLatin1(m_gdbReadBuffer));
 
     QByteArray &ba = m_gdbReadBuffer;
     while (ba.size()) {
@@ -550,7 +550,7 @@ void CodaGdbAdapter::sendGdbServerMessage(const QByteArray &msg, const QByteArra
     packet.append(checkSum);
     int pad = qMax(0, 24 - packet.size());
     logMessage(QLatin1String("gdb: <- ") + currentTime() + QLatin1Char(' ')
-               + QString::fromAscii(packet) + QString(pad, QLatin1Char(' '))
+               + QString::fromLatin1(packet) + QString(pad, QLatin1Char(' '))
                + QLatin1String(logNote));
     sendGdbServerPacket(packet, true);
 }
@@ -712,7 +712,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         }
         logMessage(_("Writing %1 bytes from 0x%2: %3").
                    arg(addrLength.second).arg(addrLength.first, 0, 16).
-                   arg(QString::fromAscii(data.toHex())));
+                   arg(QString::fromLatin1(data.toHex())));
         m_codaDevice->sendMemorySetCommand(
             CodaCallback(this, &CodaGdbAdapter::handleWriteMemory),
             m_codaProcessId, addrLength.first, data);
@@ -976,7 +976,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
 
         if (!handled) {
             const QString msg = _("FIXME unknown 'XFER'-request: ")
-                + QString::fromAscii(cmd);
+                + QString::fromLatin1(cmd);
             logMessage(msgGdbPacket(msg), LogWarning);
             sendGdbServerMessage("E20", msg.toLatin1());
         }
@@ -984,7 +984,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     } // qPart/qXfer
        else {
         logMessage(msgGdbPacket(_("FIXME unknown: ")
-            + QString::fromAscii(cmd)), LogWarning);
+            + QString::fromLatin1(cmd)), LogWarning);
     }
 }
 
@@ -1126,7 +1126,7 @@ void CodaGdbAdapter::setupInferior()
     QStringList libraries;
     const unsigned libraryCount = sizeof(librariesC)/sizeof(char *);
     for (unsigned i = 0; i < libraryCount; ++i)
-        libraries.push_back(QString::fromAscii(librariesC[i]));
+        libraries.push_back(QString::fromLatin1(librariesC[i]));
 
     m_codaDevice->sendProcessStartCommand(
         CodaCallback(this, &CodaGdbAdapter::handleCreateProcess),
@@ -1337,7 +1337,7 @@ void CodaGdbAdapter::handleRegisterChildren(const CodaCommandResult &result)
         registerNames[i].remove(0, contextLength);
         if (i)
             msg += QLatin1Char(',');
-        msg += QString::fromAscii(registerNames[i]);
+        msg += QString::fromLatin1(registerNames[i]);
     }
     logMessage(msg);
     m_codaDevice->setRegisterNames(registerNames);

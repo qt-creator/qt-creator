@@ -379,10 +379,10 @@ QString WatchData::toToolTip() const
     }
     formatToolTipRow(str, tr("Value"), val);
     formatToolTipRow(str, tr("Object Address"),
-                     QString::fromAscii(hexAddress()));
+                     QString::fromLatin1(hexAddress()));
     if (referencingAddress)
         formatToolTipRow(str, tr("Referencing Address"),
-                         QString::fromAscii(hexReferencingAddress()));
+                         QString::fromLatin1(hexReferencingAddress()));
     if (size)
         formatToolTipRow(str, tr("Size"), QString::number(size));
     formatToolTipRow(str, tr("Internal ID"), QLatin1String(iname));

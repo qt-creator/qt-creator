@@ -970,7 +970,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
         // Ideally, this code should not be present at all.
         showMessage(_("COOKIE FOR TOKEN %1 ALREADY EATEN (%2). "
                       "TWO RESPONSES FOR ONE COMMAND?").arg(token).
-                    arg(QString::fromAscii(stateName(state()))));
+                    arg(QString::fromLatin1(stateName(state()))));
         if (response->resultClass == GdbResultError) {
             QByteArray msg = response->data.findChild("msg").data();
             if (msg == "Cannot find new threads: generic error") {

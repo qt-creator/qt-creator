@@ -92,7 +92,7 @@ static QString stateToString(BreakpointState state)
 
 static QString msgBreakpointAtSpecialFunc(const char *func)
 {
-    return BreakHandler::tr("Breakpoint at \"%1\"").arg(QString::fromAscii(func));
+    return BreakHandler::tr("Breakpoint at \"%1\"").arg(QString::fromLatin1(func));
 }
 
 static QString typeToString(BreakpointType type)
@@ -578,7 +578,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
         case 4:
             if (role == Qt::DisplayRole)
                 if (res.address)
-                    return QString::fromAscii("0x%1").arg(res.address, 0, 16);
+                    return QString::fromLatin1("0x%1").arg(res.address, 0, 16);
         }
         return QVariant();
     }
@@ -646,7 +646,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             if (role == Qt::DisplayRole) {
                 const quint64 address = orig ? data.address : response.address;
                 if (address)
-                    return QString::fromAscii("0x%1").arg(address, 0, 16);
+                    return QString::fromLatin1("0x%1").arg(address, 0, 16);
                 return QVariant();
             }
             break;

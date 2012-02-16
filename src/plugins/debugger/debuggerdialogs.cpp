@@ -1093,7 +1093,7 @@ QString StartRemoteCdbDialog::connection() const
     QRegExp ipRegexp(QLatin1String("([\\w\\.\\-_]+):([0-9]{1,4})"));
     QTC_ASSERT(ipRegexp.isValid(), return QString());
     if (ipRegexp.exactMatch(rc))
-        return QString::fromAscii("tcp:server=%1,port=%2").arg(ipRegexp.cap(1), ipRegexp.cap(2));
+        return QString::fromLatin1("tcp:server=%1,port=%2").arg(ipRegexp.cap(1), ipRegexp.cap(2));
     return rc;
 }
 

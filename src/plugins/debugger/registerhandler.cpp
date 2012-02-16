@@ -380,7 +380,7 @@ QString Register::displayValue(int base, int strlen) const
 {
     const QVariant editV = editValue();
     if (editV.type() == QVariant::ULongLong)
-        return QString::fromAscii("%1").arg(editV.toULongLong(), strlen, base);
+        return QString::fromLatin1("%1").arg(editV.toULongLong(), strlen, base);
     const QString stringValue = editV.toString();
     if (stringValue.size() < strlen)
         return QString(strlen - stringValue.size(), QLatin1Char(' ')) + QLatin1String(value);

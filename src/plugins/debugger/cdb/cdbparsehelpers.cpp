@@ -263,7 +263,7 @@ static inline bool parseThread(QByteArray line, ThreadData *thread, bool *curren
         const QByteArray &pidTid = tokens.at(2);
         const int dotPos = pidTid.indexOf('.');
         if (dotPos != -1)
-            thread->targetId = QLatin1String("0x") + QString::fromAscii(pidTid.mid(dotPos + 1));
+            thread->targetId = QLatin1String("0x") + QString::fromLatin1(pidTid.mid(dotPos + 1));
     }
     case 1:
         thread->id = tokens.at(0).toInt();

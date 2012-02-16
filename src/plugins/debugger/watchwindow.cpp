@@ -181,7 +181,7 @@ RegisterMap registerMap(const DebuggerEngine *engine)
     foreach (const Register &reg, engine->registerHandler()->registers()) {
         const QVariant v = reg.editValue();
         if (v.type() == QVariant::ULongLong)
-            result.insert(v.toULongLong(), QString::fromAscii(reg.name));
+            result.insert(v.toULongLong(), QString::fromLatin1(reg.name));
     }
     return result;
 }

@@ -315,7 +315,7 @@ void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
     if (mask & AddressPart) {
         if (data.address) {
             m_ui.lineEditAddress->setText(
-                QString::fromAscii("0x%1").arg(data.address, 0, 16));
+                QString::fromLatin1("0x%1").arg(data.address, 0, 16));
         } else {
             m_ui.lineEditAddress->clear();
         }

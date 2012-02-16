@@ -748,7 +748,7 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
     arguments << QLatin1String("-lines") << QLatin1String("-G")
     // register idle (debuggee stop) notification
               << QLatin1String("-c")
-              << QLatin1String(".idle_cmd ") + QString::fromAscii(m_extensionCommandPrefixBA) + QLatin1String("idle");
+              << QLatin1String(".idle_cmd ") + QString::fromLatin1(m_extensionCommandPrefixBA) + QLatin1String("idle");
     if (sp.useTerminal) // Separate console
         arguments << QLatin1String("-2");
     if (!m_options->symbolPaths.isEmpty())
@@ -1049,7 +1049,7 @@ void CdbEngine::handleAddWatch(const CdbExtensionCommandPtr &reply)
         item.setError(tr("Unable to add expression"));
         watchHandler()->insertData(item);
         showMessage(QString::fromLatin1("Unable to add watch item '%1'/'%2': %3").
-                    arg(QString::fromAscii(item.iname), QString::fromAscii(item.exp),
+                    arg(QString::fromLatin1(item.iname), QString::fromLatin1(item.exp),
                         QString::fromLocal8Bit(reply->errorMessage)), LogError);
     }
 }
@@ -1383,7 +1383,7 @@ void CdbEngine::postBuiltinCommand(const QByteArray &cmd, unsigned flags,
 {
     if (!m_accessible) {
         const QString msg = QString::fromLatin1("Attempt to issue builtin command '%1' to non-accessible session (%2)")
-                .arg(QString::fromLocal8Bit(cmd), QString::fromAscii(stateName(state())));
+                .arg(QString::fromLocal8Bit(cmd), QString::fromLatin1(stateName(state())));
         showMessage(msg, LogError);
         return;
     }
@@ -1420,7 +1420,7 @@ void CdbEngine::postExtensionCommand(const QByteArray &cmd,
 {
     if (!m_accessible) {
         const QString msg = QString::fromLatin1("Attempt to issue extension command '%1' to non-accessible session (%2)")
-                .arg(QString::fromLocal8Bit(cmd), QString::fromAscii(stateName(state())));
+                .arg(QString::fromLocal8Bit(cmd), QString::fromLatin1(stateName(state())));
         showMessage(msg, LogError);
         return;
     }
@@ -1878,8 +1878,8 @@ void CdbEngine::handleModules(const CdbExtensionCommandPtr &reply)
             modules.reserve(value.childCount());
             foreach (const GdbMi &gdbmiModule, value.children()) {
                 Module module;
-                module.moduleName = QString::fromAscii(gdbmiModule.findChild("name").data());
-                module.modulePath = QString::fromAscii(gdbmiModule.findChild("image").data());
+                module.moduleName = QString::fromLatin1(gdbmiModule.findChild("name").data());
+                module.modulePath = QString::fromLatin1(gdbmiModule.findChild("image").data());
                 module.startAddress = gdbmiModule.findChild("start").data().toULongLong(0, 0);
                 module.endAddress = gdbmiModule.findChild("end").data().toULongLong(0, 0);
                 if (gdbmiModule.findChild("deferred").type() == GdbMi::Invalid)
@@ -2034,7 +2034,7 @@ static inline QString msgCheckingConditionalBreakPoint(BreakpointModelId id, con
                                                        const QString &threadId)
 {
     return CdbEngine::tr("Conditional breakpoint %1 (%2) in thread %3 triggered, examining expression '%4'.")
-            .arg(id.toString()).arg(number).arg(threadId, QString::fromAscii(condition));
+            .arg(id.toString()).arg(number).arg(threadId, QString::fromLatin1(condition));
 }
 
 unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
@@ -2057,7 +2057,7 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
     // Additional stop messages occurring for debuggee function calls (widgetAt, etc). Just log.
     if (state() == InferiorStopOk) {
         *message = QString::fromLatin1("Ignored stop notification from function call (%1).").
-                    arg(QString::fromAscii(reason));
+                    arg(QString::fromLatin1(reason));
         rc |= StopReportLog;
         return rc;
     }
@@ -2248,14 +2248,14 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
                     return;
                 }
             } else {
-                showMessage(QString::fromAscii(stopReason.findChild("stackerror").data()), LogError);
+                showMessage(QString::fromLatin1(stopReason.findChild("stackerror").data()), LogError);
             }
         }
         const GdbMi threads = stopReason.findChild("threads");
         if (threads.isValid()) {
             parseThreads(threads, forcedThreadId);
         } else {
-            showMessage(QString::fromAscii(stopReason.findChild("threaderror").data()), LogError);
+            showMessage(QString::fromLatin1(stopReason.findChild("threaderror").data()), LogError);
         }
         // Fire off remaining commands asynchronously
         if (!m_pendingBreakpointMap.isEmpty())
@@ -2379,7 +2379,7 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
     }
 
     if (what == "event") {
-        showStatusMessage(QString::fromAscii(message),  5000);
+        showStatusMessage(QString::fromLatin1(message),  5000);
         return;
     }
 
@@ -2873,7 +2873,7 @@ unsigned CdbEngine::parseStackTrace(const GdbMi &data, bool sourceStepInto)
         const bool hasFile = !frames.at(i).file.isEmpty();
         // jmp-frame hit by step into, do another 't' and abort sequence.
         if (!hasFile && i == 0 && sourceStepInto && frames.at(i).function.contains(QLatin1String("ILT+"))) {
-            showMessage(QString::fromAscii("Step into: Call instruction hit, performing additional step..."), LogMisc);
+            showMessage(QString::fromLatin1("Step into: Call instruction hit, performing additional step..."), LogMisc);
             return ParseStackStepInto;
         }
         if (hasFile) {
@@ -2982,19 +2982,19 @@ void CdbEngine::handleWidgetAt(const CdbExtensionCommandPtr &reply)
     QString message;
     do {
         if (!reply->success) {
-            message = QString::fromAscii(reply->errorMessage);
+            message = QString::fromLatin1(reply->errorMessage);
             break;
         }
         // Should be "namespace::QWidget:0x555"
-        QString watchExp = QString::fromAscii(reply->reply);
+        QString watchExp = QString::fromLatin1(reply->reply);
         const int sepPos = watchExp.lastIndexOf(QLatin1Char(':'));
         if (sepPos == -1) {
-            message = QString::fromAscii("Invalid output: %1").arg(watchExp);
+            message = QString::fromLatin1("Invalid output: %1").arg(watchExp);
             break;
         }
         // 0x000 -> nothing found
         if (!watchExp.mid(sepPos + 1).toULongLong(0, 0)) {
-            message = QString::fromAscii("No widget could be found at %1, %2.").arg(m_watchPointX).arg(m_watchPointY);
+            message = QString::fromLatin1("No widget could be found at %1, %2.").arg(m_watchPointX).arg(m_watchPointY);
             break;
         }
         // Turn into watch expression: "*(namespace::QWidget*)0x555"
@@ -3031,13 +3031,13 @@ void CdbEngine::handleBreakPoints(const CdbExtensionCommandPtr &reply)
     if (debugBreakpoints)
         qDebug("CdbEngine::handleBreakPoints: success=%d: %s", reply->success, reply->reply.constData());
     if (!reply->success) {
-        showMessage(QString::fromAscii(reply->errorMessage), LogError);
+        showMessage(QString::fromLatin1(reply->errorMessage), LogError);
         return;
     }
     GdbMi value;
     value.fromString(reply->reply);
     if (value.type() != GdbMi::List) {
-        showMessage(QString::fromAscii("Unabled to parse breakpoints reply"), LogError);
+        showMessage(QString::fromLatin1("Unabled to parse breakpoints reply"), LogError);
         return;
     }
     handleBreakPoints(value);
@@ -3105,7 +3105,7 @@ void CdbEngine::watchPoint(const QPoint &p)
         break;
     default:
         showMessage(tr("\"Select Widget to Watch\": Not supported in state '%1'.").
-                    arg(QString::fromAscii(stateName(state()))), LogWarning);
+                    arg(QString::fromLatin1(stateName(state()))), LogWarning);
         break;
     }
 }

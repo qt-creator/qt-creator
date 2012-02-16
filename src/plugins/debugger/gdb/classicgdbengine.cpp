@@ -275,7 +275,7 @@ static double getDumperVersion(const GdbMi &contents)
     const GdbMi dumperVersionG = contents.findChild("dumperversion");
     if (dumperVersionG.type() != GdbMi::Invalid) {
         bool ok;
-        const double v = QString::fromAscii(dumperVersionG.data()).toDouble(&ok);
+        const double v = QString::fromLatin1(dumperVersionG.data()).toDouble(&ok);
         if (ok)
             return v;
     }
