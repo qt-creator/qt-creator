@@ -113,8 +113,6 @@ private:
                                 const QVariant &refsVal);
     void updateBreakpoints(const QVariant &bodyVal);
 
-    QVariant valueFromRef(int handle, const QVariant &refsVal);
-
     void expandLocalsAndWatchers(const QVariant &bodyVal, const QVariant &refsVal);
 
     void highlightExceptionCode(int lineNumber, const QString &filePath,

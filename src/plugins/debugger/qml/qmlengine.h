@@ -53,6 +53,7 @@ class QmlAdapter;
 
 namespace Internal {
 
+class QtMessageLogItem;
 class QmlEnginePrivate;
 
 class QmlEngine : public DebuggerEngine
@@ -182,6 +183,8 @@ private:
 
     void updateEditor(Core::IEditor *editor, const QTextDocument *document);
     bool canEvaluateScript(const QString &script);
+    QtMessageLogItem *constructLogItemTree(const QVariant &result,
+                                           const QString &key = QString());
 
 private:
     friend class QmlCppEngine;

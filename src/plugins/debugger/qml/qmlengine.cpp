@@ -804,11 +804,11 @@ void QmlEngine::onDebugQueryStateChanged(
     QmlJsDebugClient::QDeclarativeDebugExpressionQuery *query =
             qobject_cast<QmlJsDebugClient::QDeclarativeDebugExpressionQuery *>(
                 sender());
-    if (query && state != QmlJsDebugClient::QDeclarativeDebugQuery::Error)
-        qtMessageLogHandler()->
-                appendItem(new QtMessageLogItem(QtMessageLogHandler::UndefinedType,
-                                             query->result().toString()));
-    else
+    if (query && state != QmlJsDebugClient::QDeclarativeDebugQuery::Error) {
+        QtMessageLogItem *item = constructLogItemTree(query->result());
+        if (item)
+            qtMessageLogHandler()->appendItem(item);
+    } else
         qtMessageLogHandler()->
                 appendItem(new QtMessageLogItem(QtMessageLogHandler::ErrorType,
                                              _("Error evaluating expression.")));
@@ -1048,6 +1048,47 @@ bool QmlEngine::canEvaluateScript(const QString &script)
     d->m_interpreter.clearText();
     d->m_interpreter.appendText(script);
     return d->m_interpreter.canEvaluate();
+}
+
+QtMessageLogItem *QmlEngine::constructLogItemTree(
+        const QVariant &result, const QString &key)
+{
+    if (!result.isValid())
+        return 0;
+
+    QtMessageLogItem *item = new QtMessageLogItem();
+    if (result.type() == QVariant::Map) {
+        if (key.isEmpty())
+            item->setText(_("Object"));
+        else
+            item->setText(QString(_("%1: Object")).arg(key));
+
+        QMapIterator<QString, QVariant> i(result.toMap());
+        while (i.hasNext()) {
+            i.next();
+            QtMessageLogItem *child = constructLogItemTree(i.value(), i.key());
+            if (child)
+                item->insertChild(item->childCount(), child);
+        }
+    } else if (result.type() == QVariant::List) {
+        if (key.isEmpty())
+            item->setText(_("List"));
+        else
+            item->setText(QString(_("[%1] : List")).arg(key));
+        QVariantList resultList = result.toList();
+        for (int i = 0; i < resultList.count(); i++) {
+            QtMessageLogItem *child = constructLogItemTree(resultList.at(i),
+                                                          QString::number(i));
+            if (child)
+                item->insertChild(item->childCount(), child);
+        }
+    } else if (result.canConvert(QVariant::String)) {
+        item->setText(result.toString());
+    } else {
+        item->setText(_("Unknown Value"));
+    }
+
+    return item;
 }
 
 QmlAdapter *QmlEngine::adapter() const
