@@ -4,7 +4,7 @@
 #include <botan/build.h>
 
 #ifdef BOTAN_USE_QT_SHARED_POINTER
-    #include <QtCore/QSharedPointer>
+    #include <QSharedPointer>
 #elif defined(BOTAN_USE_STD_TR1)
     #include <tr1/memory>
 #elif defined(BOTAN_USE_BOOST_TR1)
