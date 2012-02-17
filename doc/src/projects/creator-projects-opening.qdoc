@@ -39,13 +39,18 @@
     instance, \QC asks whether you want to use the old settings. The settings
     are specific to the development environment, and should not be copied from
     one environment to another. Therefore, we recommend that you click \gui No
-    and enter the information again in the \gui {Project Setup} dialog.
+    and enter the information again in the \gui {Configure Project} tab.
 
-    The \gui {Project Setup} dialog displays a list of development environments
+    The \gui {Configure Project} tab displays a list of development environments
     for target platforms that are installed on the development PC. Select the Qt
     versions that you want to use to build the project for each target.
 
-    \image qtcreator-open-project-targets.png "Target Setup dialog"
+    \image qtcreator-open-project-targets.png "Configure Project tab"
+
+    Even if you do not intend to build the project, the C++ and QML code models
+    need a Qt version and tool chain to offer code completion. To specify them,
+    select the \gui options link, or select \gui {Tools > Options > Build & Run
+    > Unconfigured Project}.
 
     If \QC cannot find an existing build for a particular development
     environment (Qt version) and target, it starts out from a clean slate, and

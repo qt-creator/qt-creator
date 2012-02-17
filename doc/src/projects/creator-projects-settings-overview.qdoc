@@ -57,9 +57,17 @@
     \list
 
         \o  \l{Running on Multiple Targets}{Targets}
-            (If you have installed the development environment for only one
-            target, the \gui Targets tab is replaced by a \gui Build tab and a
-            \gui Run tab.)
+
+            \list
+
+                \o  If you have installed the development environment for only
+                    one target, the \gui Targets tab is replaced by a \gui Build
+                    tab and a \gui Run tab.
+
+                \o  If you have not configured the project for building, the
+                    \gui Targets tab is replaced by the \l{Opening Projects}
+                    {Configure Projects} tab.
+            \endlist
 
         \o  \l{Specifying Build Settings}{Build Settings}
 
