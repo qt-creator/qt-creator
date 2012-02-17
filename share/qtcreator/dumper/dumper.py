@@ -1689,8 +1689,18 @@ class Dumper:
 
             nsStrippedType = self.stripNamespaceFromType(dtypeName)\
                 .replace("::", "__")
-            # The following line is only needed for D:
-            #nsStrippedType = nsStrippedType.replace(" ", "__")
+
+            # The following block is only needed for D.
+            if nsStrippedType.startswith("_A"):
+                # DMD v2.058 encodes string[] as _Array_uns long long.
+                # With spaces.
+                if nsStrippedType.startswith("_Array_"):
+                    qdump_Array(self, value)
+                    return
+                if nsStrippedType.startswith("_AArray_"):
+                    qdump_AArray(self, value)
+                    return
+
             #warn(" STRIPPED: %s" % nsStrippedType)
             #warn(" DUMPERS: %s" % (nsStrippedType in qqDumpers))
             if nsStrippedType in qqDumpers:
