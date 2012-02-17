@@ -103,7 +103,7 @@ public:
         typedef QSharedPointer<ProjectPart> Ptr;
     };
 
-    class ProjectInfo
+    class CPLUSPLUS_EXPORT ProjectInfo
     {
     public:
         ProjectInfo()
@@ -153,7 +153,7 @@ public:
         QByteArray m_defines;
     };
 
-    class WorkingCopy
+    class CPLUSPLUS_EXPORT WorkingCopy
     {
     public:
         void insert(const QString &fileName, const QString &source, unsigned revision = 0)
