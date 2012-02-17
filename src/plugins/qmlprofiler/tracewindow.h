@@ -112,6 +112,7 @@ public:
 public slots:
     void clearDisplay();
     void selectNextEvent(int eventId);
+    void applicationDied();
 
 private slots:
     void updateCursorPosition();
@@ -133,7 +134,6 @@ private slots:
     void eventListStateChanged();
     void manageTraceStart(qint64 traceStart);
     void firstDataReceived();
-    void applicationDied();
     void correctTimer();
 
 signals:
