@@ -145,7 +145,7 @@ void TargetSetupPageWrapper::updateNoteText()
     if (us.version && us.toolchain)
         text = tr("<p>The project <b>%1</b> is not yet configured.</p><p>Qt Creator uses the Qt version: <b>%2</b> "
                   "and the tool chain: <b>%3</b> to parse the project. You can edit "
-                  "these in the <b><a href=\"edit\">settings</a></b></p>")
+                  "these in the <b><a href=\"edit\">options.</a></b></p>")
                 .arg(m_project->displayName())
                 .arg(us.version->displayName())
                 .arg(us.toolchain->displayName());

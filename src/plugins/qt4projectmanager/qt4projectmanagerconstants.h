@@ -103,7 +103,7 @@ const char QMAKEVAR_DECLARATIVE_DEBUG[] = "CONFIG+=declarative_debug";
 
 // Unconfigured Settings page
 const char UNCONFIGURED_SETTINGS_PAGE_ID[] = "R.UnconfiguredSettings";
-const char UNCONFIGURED_SETTINGS_PAGE_NAME[] = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Unconfigured Project Settings");
+const char UNCONFIGURED_SETTINGS_PAGE_NAME[] = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Unconfigured Project");
 
 // Unconfigured Panel
 const char UNCONFIGURED_PANEL_PAGE_ID[] = "UnconfiguredPanel";
