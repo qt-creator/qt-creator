@@ -34,8 +34,8 @@
 #include "consoleeditor.h"
 #include "qmlengine.h"
 
-#include <QtGui/QPainter>
-#include <QtGui/QTreeView>
+#include <QPainter>
+#include <QTreeView>
 
 const char CONSOLE_LOG_BACKGROUND_COLOR[] = "#2378B7";
 const char CONSOLE_WARNING_BACKGROUND_COLOR[] = "#E6CD49";

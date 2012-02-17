@@ -33,7 +33,7 @@
 #ifndef CONSOLETREEVIEW_H
 #define CONSOLETREEVIEW_H
 
-#include <QtGui/QTreeView>
+#include <QTreeView>
 
 namespace Debugger {
 namespace Internal {

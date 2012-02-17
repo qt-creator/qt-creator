@@ -39,8 +39,8 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtGui/QMenu>
-#include <QtGui/QKeyEvent>
+#include <QMenu>
+#include <QKeyEvent>
 
 namespace Debugger {
 namespace Internal {

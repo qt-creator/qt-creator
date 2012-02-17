@@ -35,9 +35,9 @@
 #include "consoleitemmodel.h"
 #include "debuggerinternalconstants.h"
 
-#include <QtGui/QMouseEvent>
-#include <QtGui/QProxyStyle>
-#include <QtGui/QPainter>
+#include <QMouseEvent>
+#include <QProxyStyle>
+#include <QPainter>
 
 namespace Debugger {
 namespace Internal {

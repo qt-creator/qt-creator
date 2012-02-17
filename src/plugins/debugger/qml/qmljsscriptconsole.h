@@ -35,7 +35,7 @@
 
 #include "consoleitemmodel.h"
 #include <debugger/debuggerconstants.h>
-#include <QtGui/QWidget>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QToolButton;

@@ -35,8 +35,8 @@
 
 #include "consoleitemmodel.h"
 
-#include <QtGui/QTextEdit>
-#include <QtCore/QModelIndex>
+#include <QTextEdit>
+#include <QModelIndex>
 
 namespace Debugger {
 namespace Internal {

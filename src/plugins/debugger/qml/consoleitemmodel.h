@@ -34,7 +34,7 @@
 #define CONSOLEITEMMODEL_H
 
 #include <QAbstractItemModel>
-#include <QtGui/QItemSelectionModel>
+#include <QItemSelectionModel>
 
 namespace Debugger {
 namespace Internal {
