@@ -238,7 +238,6 @@ struct ProjectExplorerPluginPrivate {
 
     Core::IMode *m_projectsMode;
 
-    ToolChainManager *m_toolChainManager;
     TaskHub *m_taskHub;
 };
 
@@ -247,8 +246,7 @@ ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
     m_currentNode(0),
     m_delayedRunConfiguration(0),
     m_runMode(NoRunMode),
-    m_projectsMode(0),
-    m_toolChainManager(0)
+    m_projectsMode(0)
 {
 }
 
@@ -286,7 +284,6 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
 {
     removeObject(d->m_welcomePage);
     delete d->m_welcomePage;
-    delete d->m_toolChainManager;
     removeObject(this);
     delete d;
 }
@@ -325,8 +322,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 #endif
     addAutoReleasedObject(new Internal::ClangToolChainFactory);
 
-    d->m_toolChainManager = new ToolChainManager(this);
-
+    new ToolChainManager(this);
     addAutoReleasedObject(new Internal::ToolChainOptionsPage);
 
     d->m_taskHub = new TaskHub;
