@@ -35,6 +35,7 @@
 
 using namespace TextEditor;
 
+namespace TextEditor {
 namespace Internal {
 
 class DocumentMarker : public ITextMarkable
@@ -147,6 +148,7 @@ void DocumentMarker::updateMark(ITextMark *mark)
 }
 
 } // namespace Internal
+} // namespace TextEditor
 
 CodeFormatterData::~CodeFormatterData()
 {
