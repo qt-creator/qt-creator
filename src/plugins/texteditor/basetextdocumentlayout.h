@@ -203,6 +203,7 @@ public:
         return data;
     }
 
+    void requestExtraAreaUpdate();
 
     void emitDocumentSizeChanged() { emit documentSizeChanged(documentSize()); }
     ITextMarkable *markableInterface();
@@ -222,6 +223,9 @@ public:
     void documentReloaded(TextMarks marks);
     void updateMarksLineNumber();
     void updateMarksBlock(const QTextBlock &block);
+
+signals:
+    void updateExtraArea();
 };
 
 } // namespace TextEditor

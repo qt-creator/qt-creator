@@ -2529,6 +2529,7 @@ void BaseTextEditorWidgetPrivate::setupDocumentSignals(BaseTextDocument *documen
     q->setCursorWidth(2); // Applies to the document layout
 
     QObject::connect(documentLayout, SIGNAL(updateBlock(QTextBlock)), q, SLOT(slotUpdateBlockNotify(QTextBlock)));
+    QObject::connect(documentLayout, SIGNAL(updateExtraArea()), q, SLOT(slotUpdateExtraArea()));
     QObject::connect(q, SIGNAL(requestBlockUpdate(QTextBlock)), documentLayout, SIGNAL(updateBlock(QTextBlock)));
     QObject::connect(doc, SIGNAL(modificationChanged(bool)), q, SIGNAL(changed()));
     QObject::connect(doc, SIGNAL(contentsChange(int,int,int)), q,
@@ -4111,6 +4112,11 @@ void BaseTextEditorWidget::slotUpdateBlockNotify(const QTextBlock &block)
         }
     }
     blockRecursion = false;
+}
+
+void BaseTextEditorWidget::slotUpdateExtraArea()
+{
+    d->m_extraArea->update();
 }
 
 void BaseTextEditorWidget::timerEvent(QTimerEvent *e)

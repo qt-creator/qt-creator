@@ -525,6 +525,7 @@ protected:
     virtual QString foldReplacementText(const QTextBlock &block) const;
 
 protected slots:
+    virtual void slotUpdateExtraArea();
     virtual void slotUpdateExtraAreaWidth();
     virtual void slotModificationChanged(bool);
     virtual void slotUpdateRequest(const QRect &r, int dy);
