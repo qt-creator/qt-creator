@@ -140,7 +140,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_minMaxAction->setIcon(m_maximizeIcon);
     m_minMaxAction->setText(tr("Maximize Output Pane"));
 
-    m_closeButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE)));
+    m_closeButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_DOCUMENT)));
     connect(m_closeButton, SIGNAL(clicked()), this, SLOT(slotHide()));
 
     QVBoxLayout *mainlayout = new QVBoxLayout;

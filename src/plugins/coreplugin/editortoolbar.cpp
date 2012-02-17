@@ -144,7 +144,6 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
 
     d->m_closeEditorButton->setAutoRaise(true);
     d->m_closeEditorButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_DOCUMENT)));
-    d->m_closeEditorButton->setToolTip(tr("Close Document"));
     d->m_closeEditorButton->setEnabled(false);
 
     d->m_toolBarPlaceholder->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -171,7 +170,6 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
 
     d->m_closeSplitButton->setAutoRaise(true);
     d->m_closeSplitButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_SPLIT_BOTTOM)));
-    d->m_closeSplitButton->setToolTip(tr("Remove Split"));
 
     QHBoxLayout *toplayout = new QHBoxLayout(this);
     toplayout->setSpacing(0);
@@ -210,6 +208,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     connect(am->command(Constants::GO_FORWARD), SIGNAL(keySequenceChanged()),
             this, SLOT(updateActionShortcuts()));
 
+    updateActionShortcuts();
 }
 
 EditorToolBar::~EditorToolBar()
@@ -367,9 +366,10 @@ void EditorToolBar::setCanGoForward(bool canGoForward)
 void EditorToolBar::updateActionShortcuts()
 {
     ActionManager *am = ICore::actionManager();
-    d->m_closeEditorButton->setToolTip(am->command(Constants::CLOSE)->stringWithAppendedShortcut(EditorManager::tr("Close")));
+    d->m_closeEditorButton->setToolTip(am->command(Constants::CLOSE)->stringWithAppendedShortcut(EditorManager::tr("Close Document")));
     d->m_goBackAction->setToolTip(am->command(Constants::GO_BACK)->action()->toolTip());
     d->m_goForwardAction->setToolTip(am->command(Constants::GO_FORWARD)->action()->toolTip());
+    d->m_closeSplitButton->setToolTip(am->command(Constants::REMOVE_CURRENT_SPLIT)->stringWithAppendedShortcut(tr("Remove Split")));
 }
 
 IEditor *EditorToolBar::currentEditor() const

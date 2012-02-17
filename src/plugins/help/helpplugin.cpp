@@ -554,7 +554,7 @@ void HelpPlugin::createRightPaneContextViewer()
         tr("Previous"), toolBar);
     QAction *next = new QAction(QIcon(QLatin1String(IMAGEPATH "next.png")),
         tr("Next"), toolBar);
-    QAction *close = new QAction(QIcon(QLatin1String(Core::Constants::ICON_CLOSE)),
+    QAction *close = new QAction(QIcon(QLatin1String(Core::Constants::ICON_CLOSE_DOCUMENT)),
         QLatin1String(""), toolBar);
     connect(close, SIGNAL(triggered()), this, SLOT(slotHideRightPane()));
 
@@ -991,7 +991,7 @@ Utils::StyledBar *HelpPlugin::createWidgetToolBar()
         SLOT(updateSideBarSource()));
 
     m_closeButton = new QToolButton();
-    m_closeButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLOSE)));
+    m_closeButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLOSE_DOCUMENT)));
     m_closeButton->setToolTip(tr("Close current page"));
     connect(m_closeButton, SIGNAL(clicked()), &OpenPagesManager::instance(),
         SLOT(closeCurrentPage()));
