@@ -407,8 +407,6 @@ def __getSupportedPlatforms__(text):
             result.append(QtQuickConstants.Targets.DESKTOP)
         if 'MeeGo/Harmattan' in supports:
             result.append(QtQuickConstants.Targets.HARMATTAN)
-            addSimulator = True
-        if 'Maemo' in supports:
             result.append(QtQuickConstants.Targets.MAEMO5)
             addSimulator = True
         if 'Symbian' in supports:
