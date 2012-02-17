@@ -65,12 +65,17 @@
 #include <utils/fancymainwindow.h>
 #include <utils/qtcprocess.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/helpmanager.h>
 #include <utils/buildablehelperlibrary.h>
 
 #include <QDir>
+#include <QCheckBox>
+#include <QSpinBox>
 #include <QDebug>
-#include <QMessageBox>
 #include <QErrorMessage>
+#include <QFormLayout>
+#include <QLabel>
+#include <QMessageBox>
 
 using namespace ProjectExplorer;
 using namespace Debugger::Internal;
@@ -146,6 +151,203 @@ static inline QString msgEngineNotAvailable(DebuggerEngineType et)
 {
     return msgEngineNotAvailable(engineTypeName(et));
 }
+
+////////////////////////////////////////////////////////////////////////
+//
+// DebuggerRunConfigWidget
+//
+////////////////////////////////////////////////////////////////////////
+
+class DebuggerLanguageChooser : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit DebuggerLanguageChooser(QWidget *parent = 0);
+
+    bool cppChecked() const;
+    bool qmlChecked() const;
+    uint qmlDebugServerPort() const;
+
+    void setCppChecked(bool value);
+    void setQmlChecked(bool value);
+    void setQmlDebugServerPort(uint port);
+
+signals:
+    void cppLanguageToggled(bool value);
+    void qmlLanguageToggled(bool value);
+    void qmlDebugServerPortChanged(uint port);
+    void openHelpUrl(const QString &url);
+
+private slots:
+    void useCppDebuggerToggled(bool toggled);
+    void useQmlDebuggerToggled(bool toggled);
+    void onDebugServerPortChanged(int port);
+
+private:
+    QCheckBox *m_useCppDebugger;
+    QCheckBox *m_useQmlDebugger;
+    QSpinBox *m_debugServerPort;
+    QLabel *m_debugServerPortLabel;
+    QLabel *m_qmlDebuggerInfoLabel;
+};
+
+DebuggerLanguageChooser::DebuggerLanguageChooser(QWidget *parent)
+    : QWidget(parent)
+{
+    m_useCppDebugger = new QCheckBox(tr("C++"), this);
+    m_useQmlDebugger = new QCheckBox(tr("QML"), this);
+
+    connect(m_useCppDebugger, SIGNAL(toggled(bool)),
+            this, SLOT(useCppDebuggerToggled(bool)));
+    connect(m_useQmlDebugger, SIGNAL(toggled(bool)),
+            this, SLOT(useQmlDebuggerToggled(bool)));
+
+    m_debugServerPortLabel = new QLabel(tr("Debug port:"), this);
+    m_debugServerPort = new QSpinBox(this);
+    m_debugServerPort->setMinimum(1);
+    m_debugServerPort->setMaximum(65535);
+
+    m_debugServerPortLabel->setBuddy(m_debugServerPort);
+
+    m_qmlDebuggerInfoLabel = new QLabel(tr("<a href=\""
+        "qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html"
+        "\">What are the prerequisites?</a>"));
+
+    connect(m_qmlDebuggerInfoLabel, SIGNAL(linkActivated(QString)),
+        this, SIGNAL(openHelpUrl(QString)));
+    connect(m_useQmlDebugger, SIGNAL(toggled(bool)),
+        m_debugServerPort, SLOT(setEnabled(bool)));
+    connect(m_useQmlDebugger, SIGNAL(toggled(bool)),
+        m_debugServerPortLabel, SLOT(setEnabled(bool)));
+    connect(m_debugServerPort, SIGNAL(valueChanged(int)),
+        this, SLOT(onDebugServerPortChanged(int)));
+
+    QHBoxLayout *qmlLayout = new QHBoxLayout;
+    qmlLayout->setMargin(0);
+    qmlLayout->addWidget(m_useQmlDebugger);
+    qmlLayout->addWidget(m_debugServerPortLabel);
+    qmlLayout->addWidget(m_debugServerPort);
+    qmlLayout->addWidget(m_qmlDebuggerInfoLabel);
+    qmlLayout->addStretch();
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->setMargin(0);
+    layout->addWidget(m_useCppDebugger);
+    layout->addLayout(qmlLayout);
+
+    setLayout(layout);
+}
+
+bool DebuggerLanguageChooser::cppChecked() const
+{
+    return m_useCppDebugger->isChecked();
+}
+
+bool DebuggerLanguageChooser::qmlChecked() const
+{
+    return m_useQmlDebugger->isChecked();
+}
+
+uint DebuggerLanguageChooser::qmlDebugServerPort() const
+{
+    return m_debugServerPort->value();
+}
+
+void DebuggerLanguageChooser::setCppChecked(bool value)
+{
+    m_useCppDebugger->setChecked(value);
+}
+
+void DebuggerLanguageChooser::setQmlChecked(bool value)
+{
+    m_useQmlDebugger->setChecked(value);
+    m_debugServerPortLabel->setEnabled(value);
+    m_debugServerPort->setEnabled(value);
+}
+
+void DebuggerLanguageChooser::setQmlDebugServerPort(uint port)
+{
+    m_debugServerPort->setValue(port);
+}
+
+void DebuggerLanguageChooser::useCppDebuggerToggled(bool toggled)
+{
+    emit cppLanguageToggled(toggled);
+    if (!toggled && !m_useQmlDebugger->isChecked())
+        m_useQmlDebugger->setChecked(true);
+}
+
+void DebuggerLanguageChooser::useQmlDebuggerToggled(bool toggled)
+{
+    emit qmlLanguageToggled(toggled);
+    if (!toggled && !m_useCppDebugger->isChecked())
+        m_useCppDebugger->setChecked(true);
+}
+
+void DebuggerLanguageChooser::onDebugServerPortChanged(int port)
+{
+    emit qmlDebugServerPortChanged((uint)port);
+}
+
+class DebuggerRunConfigWidget : public ProjectExplorer::RunConfigWidget
+{
+    Q_OBJECT
+
+public:
+    explicit DebuggerRunConfigWidget(RunConfiguration *runConfiguration)
+    {
+        m_settings = runConfiguration->debuggerAspect();
+
+        QLabel *debuggerLabel = new QLabel(tr("Languages:"), this);
+        debuggerLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
+
+        m_debuggerLanguageChooser = new DebuggerLanguageChooser(this);
+        m_debuggerLanguageChooser->setCppChecked(m_settings->useCppDebugger());
+        m_debuggerLanguageChooser->setQmlChecked(runConfiguration->useQmlDebugger());
+        m_debuggerLanguageChooser->setQmlDebugServerPort(m_settings->qmlDebugServerPort());
+
+        QFormLayout *layout = new QFormLayout(this);
+        layout->addRow(debuggerLabel, m_debuggerLanguageChooser);
+        setLayout(layout);
+
+        connect(m_debuggerLanguageChooser, SIGNAL(cppLanguageToggled(bool)),
+                this, SLOT(useCppDebuggerToggled(bool)));
+        connect(m_debuggerLanguageChooser, SIGNAL(qmlLanguageToggled(bool)),
+                this, SLOT(useQmlDebuggerToggled(bool)));
+        connect(m_debuggerLanguageChooser, SIGNAL(qmlDebugServerPortChanged(uint)),
+                this, SLOT(qmlDebugServerPortChanged(uint)));
+        connect(m_debuggerLanguageChooser, SIGNAL(openHelpUrl(QString)),
+                Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
+    }
+
+    QString displayName() const
+    {
+        return tr("Debugger Settings");
+    }
+
+public slots:
+    void useCppDebuggerToggled(bool toggled)
+    {
+        m_settings->m_useCppDebugger = toggled;
+    }
+
+    void useQmlDebuggerToggled(bool toggled)
+    {
+        m_settings->m_useQmlDebugger = toggled
+                ? DebuggerProjectSettings::EnableQmlDebugger
+                : DebuggerProjectSettings::DisableQmlDebugger;
+    }
+
+    void qmlDebugServerPortChanged(uint port)
+    {
+        m_settings->m_qmlDebugServerPort = port;
+    }
+
+public:
+    DebuggerProjectSettings *m_settings; // not owned
+    DebuggerLanguageChooser *m_debuggerLanguageChooser; // owned
+};
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -777,12 +979,12 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
         }
     }
 
-    if (runConfiguration->useCppDebugger())
+    if (runConfiguration->debuggerAspect()->useCppDebugger())
         sp.languages |= CppLanguage;
 
     if (runConfiguration->useQmlDebugger()) {
         sp.qmlServerAddress = _("127.0.0.1");
-        sp.qmlServerPort = runConfiguration->qmlDebugServerPort();
+        sp.qmlServerPort = runConfiguration->debuggerAspect()->qmlDebugServerPort();
         sp.languages |= QmlLanguage;
 
         // Makes sure that all bindings go through the JavaScript engine, so that
@@ -820,9 +1022,7 @@ RunControl *DebuggerRunControlFactory::create
 RunConfigWidget *DebuggerRunControlFactory::createConfigurationWidget
     (RunConfiguration *runConfiguration)
 {
-    // NBS TODO: Add GDB-specific configuration widget
-    Q_UNUSED(runConfiguration)
-    return 0;
+    return new DebuggerRunConfigWidget(runConfiguration);
 }
 
 DebuggerRunControl *DebuggerRunControlFactory::create
@@ -867,5 +1067,6 @@ DebuggerEngine *DebuggerRunControlFactory::createEngine
     return 0;
 }
 
-
 } // namespace Debugger
+
+#include "debuggerrunner.moc"

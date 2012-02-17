@@ -64,16 +64,10 @@ public slots:
     void updateFileComboBox();
 
 private slots:
-
     void setMainScript(int index);
     void onQtVersionSelectionChanged();
     void onViewerArgsChanged();
-    void useCppDebuggerToggled(bool toggled);
-    void useQmlDebuggerToggled(bool toggled);
-    void qmlDebugServerPortChanged(uint port);
-
     void userChangesChanged();
-
     void manageQtVersions();
 
 private:

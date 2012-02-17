@@ -363,7 +363,7 @@ int RemoteLinuxRunConfiguration::portsUsedByDebuggers() const
     int ports = 0;
     if (useQmlDebugger())
         ++ports;
-    if (useCppDebugger())
+    if (debuggerAspect()->useCppDebugger())
         ++ports;
 
     return ports;

@@ -59,7 +59,6 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/htmldocextractor.cpp \
     $$PWD/navigationtreeview.cpp \
     $$PWD/crumblepath.cpp \
-    $$PWD/debuggerlanguagechooser.cpp \
     $$PWD/historycompleter.cpp \
     $$PWD/buildablehelperlibrary.cpp \
     $$PWD/annotateditemdelegate.cpp \
@@ -160,7 +159,6 @@ HEADERS += \
     $$PWD/htmldocextractor.h \
     $$PWD/navigationtreeview.h \
     $$PWD/crumblepath.h \
-    $$PWD/debuggerlanguagechooser.h \
     $$PWD/historycompleter.h \
     $$PWD/buildablehelperlibrary.h \
     $$PWD/annotateditemdelegate.h \

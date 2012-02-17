@@ -40,7 +40,6 @@
 #include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <utils/debuggerlanguagechooser.h>
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
@@ -55,7 +54,6 @@
 #include <QStandardItemModel>
 
 using Core::ICore;
-using Utils::DebuggerLanguageChooser;
 using QtSupport::QtVersionManager;
 
 namespace QmlProjectManager {
@@ -114,25 +112,6 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
     //
     // Debugging
     //
-
-    QLabel *debuggerLabel = new QLabel(tr("Debugger:"));
-    debuggerLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
-
-    DebuggerLanguageChooser *debuggerLanguageChooser = new DebuggerLanguageChooser(formWidget);
-    form->addRow(debuggerLabel, debuggerLanguageChooser);
-
-    debuggerLanguageChooser->setCppChecked(rc->useCppDebugger());
-    debuggerLanguageChooser->setQmlChecked(rc->useQmlDebugger());
-    debuggerLanguageChooser->setQmlDebugServerPort(rc->qmlDebugServerPort());
-
-    connect(debuggerLanguageChooser, SIGNAL(cppLanguageToggled(bool)),
-            this, SLOT(useCppDebuggerToggled(bool)));
-    connect(debuggerLanguageChooser, SIGNAL(qmlLanguageToggled(bool)),
-            this, SLOT(useQmlDebuggerToggled(bool)));
-    connect(debuggerLanguageChooser, SIGNAL(qmlDebugServerPortChanged(uint)),
-            this, SLOT(qmlDebugServerPortChanged(uint)));
-    connect(debuggerLanguageChooser, SIGNAL(openHelpUrl(QString)),
-            Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
 
     QtVersionManager *qtVersions = QtVersionManager::instance();
     connect(qtVersions, SIGNAL(qtVersionsChanged(QList<int>)),
@@ -250,21 +229,6 @@ void QmlProjectRunConfigurationWidget::onViewerArgsChanged()
 {
     if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(sender()))
         m_runConfiguration->m_qmlViewerArgs = lineEdit->text();
-}
-
-void QmlProjectRunConfigurationWidget::useCppDebuggerToggled(bool toggled)
-{
-    m_runConfiguration->setUseCppDebugger(toggled);
-}
-
-void QmlProjectRunConfigurationWidget::useQmlDebuggerToggled(bool toggled)
-{
-    m_runConfiguration->setUseQmlDebugger(toggled);
-}
-
-void QmlProjectRunConfigurationWidget::qmlDebugServerPortChanged(uint port)
-{
-    m_runConfiguration->setQmlDebugServerPort(port);
 }
 
 void QmlProjectRunConfigurationWidget::manageQtVersions()

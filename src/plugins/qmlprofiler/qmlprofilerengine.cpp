@@ -103,7 +103,7 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
         conf.executableArguments = rc1->viewerArguments();
         conf.workingDirectory = rc1->workingDirectory();
         conf.environment = rc1->environment();
-        conf.port = rc1->qmlDebugServerPort();
+        conf.port = rc1->debuggerAspect()->qmlDebugServerPort();
         runner = new LocalQmlProfilerRunner(conf, parent);
     } else if (LocalApplicationRunConfiguration *rc2 =
             qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
@@ -113,7 +113,7 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
         conf.executableArguments = rc2->commandLineArguments();
         conf.workingDirectory = rc2->workingDirectory();
         conf.environment = rc2->environment();
-        conf.port = rc2->qmlDebugServerPort();
+        conf.port = rc2->debuggerAspect()->qmlDebugServerPort();
         runner = new LocalQmlProfilerRunner(conf, parent);
     } else if (Qt4ProjectManager::S60DeviceRunConfiguration *s60Config =
             qobject_cast<Qt4ProjectManager::S60DeviceRunConfiguration*>(runConfiguration)) {

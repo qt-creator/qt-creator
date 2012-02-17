@@ -526,7 +526,7 @@ bool DummyEngine::hasCapability(unsigned cap) const
     QTC_ASSERT(activeRc, return 0);
 
     // This is a non-started Cdb or Gdb engine:
-    if (activeRc->useCppDebugger())
+    if (activeRc->debuggerAspect()->useCppDebugger())
         return cap & (WatchpointByAddressCapability
                | BreakConditionCapability
                | TracePointCapability

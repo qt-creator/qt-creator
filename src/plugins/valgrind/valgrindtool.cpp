@@ -69,7 +69,7 @@ Analyzer::AnalyzerStartParameters ValgrindTool::createStartParameters(
         sp.debuggeeArgs = rc1->commandLineArguments();
         sp.displayName = rc1->displayName();
         sp.connParams.host = QLatin1String("localhost");
-        sp.connParams.port = rc1->qmlDebugServerPort();
+        sp.connParams.port = rc1->debuggerAspect()->qmlDebugServerPort();
     } else if (RemoteLinuxRunConfiguration *rc2 =
                qobject_cast<RemoteLinuxRunConfiguration *>(runConfiguration)) {
         sp.startMode = Analyzer::StartRemote;

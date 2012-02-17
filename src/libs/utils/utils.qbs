@@ -44,8 +44,6 @@ DynamicLibrary {
         "consoleprocess.h",
         "consoleprocess_p.h",
         "crumblepath.h",
-        "debuggerlanguagechooser.cpp",
-        "debuggerlanguagechooser.h",
         "detailsbutton.cpp",
         "detailsbutton.h",
         "detailswidget.cpp",

@@ -45,7 +45,6 @@
 #include <utils/pathchooser.h>
 #include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
-#include <utils/debuggerlanguagechooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
@@ -365,16 +364,6 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     QCheckBox *runInTerminal = new QCheckBox;
     fl->addRow(tr("Run in Terminal"), runInTerminal);
 
-    QLabel *debuggerLabel = new QLabel(tr("Debugger:"), this);
-    debuggerLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
-
-    m_debuggerLanguageChooser = new Utils::DebuggerLanguageChooser(this);
-    fl->addRow(debuggerLabel, m_debuggerLanguageChooser);
-
-    m_debuggerLanguageChooser->setCppChecked(m_cmakeRunConfiguration->useCppDebugger());
-    m_debuggerLanguageChooser->setQmlChecked(m_cmakeRunConfiguration->useQmlDebugger());
-    m_debuggerLanguageChooser->setQmlDebugServerPort(m_cmakeRunConfiguration->qmlDebugServerPort());
-
     m_detailsContainer = new Utils::DetailsWidget(this);
     m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
 
@@ -426,15 +415,6 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     connect(runInTerminal, SIGNAL(toggled(bool)),
             this, SLOT(runInTerminalToggled(bool)));
 
-    connect(m_debuggerLanguageChooser, SIGNAL(cppLanguageToggled(bool)),
-            this, SLOT(useCppDebuggerToggled(bool)));
-    connect(m_debuggerLanguageChooser, SIGNAL(qmlLanguageToggled(bool)),
-            this, SLOT(useQmlDebuggerToggled(bool)));
-    connect(m_debuggerLanguageChooser, SIGNAL(qmlDebugServerPortChanged(uint)),
-            this, SLOT(qmlDebugServerPortChanged(uint)));
-    connect(m_debuggerLanguageChooser, SIGNAL(openHelpUrl(QString)),
-            Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
-
     connect(m_environmentWidget, SIGNAL(userChangesChanged()),
             this, SLOT(userChangesChanged()));
 
@@ -474,21 +454,6 @@ void CMakeRunConfigurationWidget::runInTerminalToggled(bool toggled)
 {
     m_cmakeRunConfiguration->setRunMode(toggled ? ProjectExplorer::LocalApplicationRunConfiguration::Console
                                                 : ProjectExplorer::LocalApplicationRunConfiguration::Gui);
-}
-
-void CMakeRunConfigurationWidget::useCppDebuggerToggled(bool toggled)
-{
-    m_cmakeRunConfiguration->setUseCppDebugger(toggled);
-}
-
-void CMakeRunConfigurationWidget::useQmlDebuggerToggled(bool toggled)
-{
-    m_cmakeRunConfiguration->setUseQmlDebugger(toggled);
-}
-
-void CMakeRunConfigurationWidget::qmlDebugServerPortChanged(uint port)
-{
-    m_cmakeRunConfiguration->setQmlDebugServerPort(port);
 }
 
 void CMakeRunConfigurationWidget::userChangesChanged()

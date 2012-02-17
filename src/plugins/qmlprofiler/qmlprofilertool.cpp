@@ -409,7 +409,7 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
         sp.debuggeeArgs = rc1->viewerArguments();
         sp.displayName = rc1->displayName();
         sp.connParams.host = QLatin1String("localhost");
-        sp.connParams.port = rc1->qmlDebugServerPort();
+        sp.connParams.port = rc1->debuggerAspect()->qmlDebugServerPort();
     } else if (LocalApplicationRunConfiguration *rc2 =
             qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
         sp.environment = rc2->environment();
@@ -418,7 +418,7 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
         sp.debuggeeArgs = rc2->commandLineArguments();
         sp.displayName = rc2->displayName();
         sp.connParams.host = QLatin1String("localhost");
-        sp.connParams.port = rc2->qmlDebugServerPort();
+        sp.connParams.port = rc2->debuggerAspect()->qmlDebugServerPort();
     } else if (RemoteLinux::RemoteLinuxRunConfiguration *rc3 =
             qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
         sp.debuggee = rc3->remoteExecutableFilePath();
@@ -434,7 +434,7 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
         sp.debuggeeArgs = rc4->commandLineArguments();
         sp.displayName = rc4->displayName();
         sp.connParams.host = deployConf->deviceAddress();
-        sp.connParams.port = rc4->qmlDebugServerPort();
+        sp.connParams.port = rc4->debuggerAspect()->qmlDebugServerPort();
     } else {
         // What could that be?
         QTC_ASSERT(false, return sp);

@@ -40,7 +40,6 @@
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
-#include <utils/debuggerlanguagechooser.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -77,16 +76,6 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
 
     m_useTerminalCheck = new QCheckBox(tr("Run in &Terminal"), this);
     layout->addRow(QString(), m_useTerminalCheck);
-
-    QLabel *debuggerLabel = new QLabel(tr("Debugger:"), this);
-    debuggerLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
-
-    m_debuggerLanguageChooser = new Utils::DebuggerLanguageChooser(this);
-    layout->addRow(debuggerLabel, m_debuggerLanguageChooser);
-
-    m_debuggerLanguageChooser->setCppChecked(m_runConfiguration->useCppDebugger());
-    m_debuggerLanguageChooser->setQmlChecked(m_runConfiguration->useQmlDebugger());
-    m_debuggerLanguageChooser->setQmlDebugServerPort(m_runConfiguration->qmlDebugServerPort());
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
@@ -140,15 +129,6 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
             this, SLOT(termToggled(bool)));
 
-    connect(m_debuggerLanguageChooser, SIGNAL(cppLanguageToggled(bool)),
-            this, SLOT(useCppDebuggerToggled(bool)));
-    connect(m_debuggerLanguageChooser, SIGNAL(qmlLanguageToggled(bool)),
-            this, SLOT(useQmlDebuggerToggled(bool)));
-    connect(m_debuggerLanguageChooser, SIGNAL(qmlDebugServerPortChanged(uint)),
-            this, SLOT(qmlDebugServerPortChanged(uint)));
-    connect(m_debuggerLanguageChooser, SIGNAL(openHelpUrl(QString)),
-            Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
-
     connect(m_runConfiguration, SIGNAL(changed()), this, SLOT(changed()));
 
     connect(m_environmentWidget, SIGNAL(userChangesChanged()),
@@ -173,21 +153,6 @@ void CustomExecutableConfigurationWidget::baseEnvironmentSelected(int index)
     m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
     m_environmentWidget->setBaseEnvironmentText(m_runConfiguration->baseEnvironmentText());
     m_ignoreChange = false;
-}
-
-void CustomExecutableConfigurationWidget::useCppDebuggerToggled(bool toggled)
-{
-    m_runConfiguration->setUseCppDebugger(toggled);
-}
-
-void CustomExecutableConfigurationWidget::useQmlDebuggerToggled(bool toggled)
-{
-    m_runConfiguration->setUseQmlDebugger(toggled);
-}
-
-void CustomExecutableConfigurationWidget::qmlDebugServerPortChanged(uint port)
-{
-    m_runConfiguration->setQmlDebugServerPort(port);
 }
 
 void CustomExecutableConfigurationWidget::baseEnvironmentChanged()

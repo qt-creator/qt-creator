@@ -100,8 +100,8 @@ QString QmlProjectRunConfiguration::disabledReason() const
 void QmlProjectRunConfiguration::ctor()
 {
     // reset default settings in constructor
-    setUseCppDebugger(false);
-    setUseQmlDebugger(true);
+    debuggerAspect()->setUseCppDebugger(false);
+    debuggerAspect()->setUseQmlDebugger(true);
 
     EditorManager *em = Core::EditorManager::instance();
     connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),

@@ -64,7 +64,7 @@ public:
             DebuggerEngine *engine)
         : engine(engine), deviceConfig(runConfig->deviceConfig()),
           qmlDebugging(runConfig->useQmlDebugger()),
-          cppDebugging(runConfig->useCppDebugger()),
+          cppDebugging(runConfig->debuggerAspect()->useCppDebugger()),
           state(Inactive),
           gdbServerPort(-1), qmlPort(-1)
     {
@@ -101,7 +101,7 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
         params.qmlServerAddress = runConfig->deviceConfig()->sshParameters().host;
         params.qmlServerPort = -1;
     }
-    if (runConfig->useCppDebugger()) {
+    if (runConfig->debuggerAspect()->useCppDebugger()) {
         params.languages |= CppLanguage;
         params.processArgs = runConfig->arguments();
         if (runConfig->activeQt4BuildConfiguration()->qtVersion())

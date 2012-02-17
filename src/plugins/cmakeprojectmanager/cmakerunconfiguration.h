@@ -41,7 +41,6 @@ class QComboBox;
 QT_END_NAMESPACE
 
 namespace Utils {
-class DebuggerLanguageChooser;
 class PathChooser;
 class DetailsWidget;
 }
@@ -147,9 +146,6 @@ private slots:
     void setWorkingDirectory();
     void resetWorkingDirectory();
     void runInTerminalToggled(bool toggled);
-    void useCppDebuggerToggled(bool toggled);
-    void useQmlDebuggerToggled(bool toggled);
-    void qmlDebugServerPortChanged(uint port);
 
     void baseEnvironmentComboBoxChanged(int index);
     void workingDirectoryChanged(const QString &workingDirectory);
@@ -160,7 +156,6 @@ private:
     CMakeRunConfiguration *m_cmakeRunConfiguration;
     Utils::PathChooser *m_workingDirectoryEdit;
     QComboBox *m_baseEnvironmentComboBox;
-    Utils::DebuggerLanguageChooser *m_debuggerLanguageChooser;
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
     Utils::DetailsWidget *m_detailsContainer;
 };

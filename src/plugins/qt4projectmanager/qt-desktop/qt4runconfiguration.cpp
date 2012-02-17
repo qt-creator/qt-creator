@@ -55,7 +55,6 @@
 #include <utils/detailswidget.h>
 #include <utils/stringutils.h>
 #include <utils/persistentsettings.h>
-#include <utils/debuggerlanguagechooser.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/profilereader.h>
@@ -249,16 +248,6 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     toplayout->addRow(QString(), m_useTerminalCheck);
     m_useTerminalCheck->setVisible(qt4RunConfiguration->target()->id() != QLatin1String(Constants::QT_SIMULATOR_TARGET_ID));
 
-    QLabel *debuggerLabel = new QLabel(tr("Debugger:"), this);
-    debuggerLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
-
-    m_debuggerLanguageChooser = new Utils::DebuggerLanguageChooser(this);
-    toplayout->addRow(debuggerLabel, m_debuggerLanguageChooser);
-
-    m_debuggerLanguageChooser->setCppChecked(m_qt4RunConfiguration->useCppDebugger());
-    m_debuggerLanguageChooser->setQmlChecked(m_qt4RunConfiguration->useQmlDebugger());
-    m_debuggerLanguageChooser->setQmlDebugServerPort(m_qt4RunConfiguration->qmlDebugServerPort());
-
 #ifdef Q_OS_MAC
     m_usingDyldImageSuffix = new QCheckBox(tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)"), this);
     m_usingDyldImageSuffix->setChecked(m_qt4RunConfiguration->isUsingDyldImageSuffix());
@@ -311,15 +300,6 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
             this, SLOT(termToggled(bool)));
 
-    connect(m_debuggerLanguageChooser, SIGNAL(cppLanguageToggled(bool)),
-            this, SLOT(useCppDebuggerToggled(bool)));
-    connect(m_debuggerLanguageChooser, SIGNAL(qmlLanguageToggled(bool)),
-            this, SLOT(useQmlDebuggerToggled(bool)));
-    connect(m_debuggerLanguageChooser, SIGNAL(qmlDebugServerPortChanged(uint)),
-            this, SLOT(qmlDebugServerPortChanged(uint)));
-    connect(m_debuggerLanguageChooser, SIGNAL(openHelpUrl(QString)),
-            Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
-
     connect(m_environmentWidget, SIGNAL(userChangesChanged()),
             this, SLOT(userChangesEdited()));
 
@@ -347,21 +327,6 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
 
 Qt4RunConfigurationWidget::~Qt4RunConfigurationWidget()
 {
-}
-
-void Qt4RunConfigurationWidget::useCppDebuggerToggled(bool toggled)
-{
-    m_qt4RunConfiguration->setUseCppDebugger(toggled);
-}
-
-void Qt4RunConfigurationWidget::useQmlDebuggerToggled(bool toggled)
-{
-    m_qt4RunConfiguration->setUseQmlDebugger(toggled);
-}
-
-void Qt4RunConfigurationWidget::qmlDebugServerPortChanged(uint port)
-{
-    m_qt4RunConfiguration->setQmlDebugServerPort(port);
 }
 
 void Qt4RunConfigurationWidget::baseEnvironmentSelected(int index)

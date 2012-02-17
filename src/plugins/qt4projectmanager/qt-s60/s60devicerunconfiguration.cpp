@@ -292,7 +292,7 @@ QString S60DeviceRunConfiguration::qmlCommandLineArguments() const
         QTC_ASSERT(activeDeployConf, return args);
 
         if (activeDeployConf->communicationChannel() == S60DeployConfiguration::CommunicationCodaTcpConnection)
-            args = QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(qmlDebugServerPort());
+            args = QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(debuggerAspect()->qmlDebugServerPort());
         else
             args = QLatin1String("-qmljsdebugger=ost");
     }

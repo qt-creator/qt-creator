@@ -82,6 +82,6 @@ void CodaQmlProfilerRunner::appendMessage(ProjectExplorer::RunControl *, const Q
 
 int QmlProfiler::Internal::CodaQmlProfilerRunner::debugPort() const
 {
-    return m_configuration->qmlDebugServerPort();
+    return m_configuration->debuggerAspect()->qmlDebugServerPort();
 }
 

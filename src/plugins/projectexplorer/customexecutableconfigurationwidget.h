@@ -46,7 +46,6 @@ QT_END_NAMESPACE
 namespace Utils {
 class DetailsWidget;
 class PathChooser;
-class DebuggerLanguageChooser;
 }
 
 namespace ProjectExplorer {
@@ -74,9 +73,6 @@ private slots:
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged();
     void baseEnvironmentSelected(int index);
-    void useCppDebuggerToggled(bool toggled);
-    void useQmlDebuggerToggled(bool toggled);
-    void qmlDebugServerPortChanged(uint port);
 
 private:
     bool m_ignoreChange;
@@ -89,7 +85,6 @@ private:
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
     QComboBox *m_baseEnvironmentComboBox;
     Utils::DetailsWidget *m_detailsContainer;
-    Utils::DebuggerLanguageChooser *m_debuggerLanguageChooser;
 };
 
 } // namespace Internal
