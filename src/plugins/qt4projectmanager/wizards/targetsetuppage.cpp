@@ -152,7 +152,7 @@ void TargetSetupPage::setupWidgets()
     QList<Qt4BaseTargetFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
     bool atLeastOneTargetSelected = false;
     foreach (Qt4BaseTargetFactory *factory, factories) {
-        QStringList ids = factory->supportedTargetIds(0);
+        QStringList ids = factory->supportedTargetIds();
         foreach (const QString &id, ids) {
             if (!factory->targetFeatures(id).contains(m_requiredTargetFeatures))
                 continue;
@@ -165,7 +165,6 @@ void TargetSetupPage::setupWidgets()
                                                                                                                           m_maximumQtVersionNumber,
                                                                                                                           m_requiredQtFeatures),
                                                                                     m_selectedPlatform);
-
 
 
             Qt4TargetSetupWidget *widget =

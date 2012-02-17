@@ -74,7 +74,7 @@ public:
     ~QmlProjectTargetFactory();
 
     bool supportsTargetId(const QString &id) const;
-    QStringList supportedTargetIds(ProjectExplorer::Project *parent) const;
+    QStringList supportedTargetIds() const;
     QString displayNameForId(const QString &id) const;
 
     bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;

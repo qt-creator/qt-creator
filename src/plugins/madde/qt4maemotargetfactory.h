@@ -45,7 +45,7 @@ public:
     Qt4MaemoTargetFactory(QObject *parent = 0);
     ~Qt4MaemoTargetFactory();
 
-    QStringList supportedTargetIds(ProjectExplorer::Project *parent) const;
+    QStringList supportedTargetIds() const;
     QString displayNameForId(const QString &id) const;
     QIcon iconForId(const QString &id) const;
 

@@ -316,8 +316,10 @@ void TargetSettingsPanelWidget::updateTargetAddAndRemoveButtons()
             ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>();
 
     foreach (ITargetFactory *fac, factories) {
-        foreach (const QString &id, fac->supportedTargetIds(m_project)) {
+        foreach (const QString &id, fac->supportedTargetIds()) {
             if (m_project->target(id))
+                continue;
+            if (!fac->canCreate(m_project, id))
                 continue;
             QString displayName = fac->displayNameForId(id);
             QAction *action = new QAction(displayName, m_addMenu);

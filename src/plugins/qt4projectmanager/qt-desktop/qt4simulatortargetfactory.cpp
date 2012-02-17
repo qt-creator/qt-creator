@@ -69,13 +69,9 @@ bool Qt4SimulatorTargetFactory::supportsTargetId(const QString &id) const
     return id == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID);
 }
 
-QStringList Qt4SimulatorTargetFactory::supportedTargetIds(ProjectExplorer::Project *parent) const
+QStringList Qt4SimulatorTargetFactory::supportedTargetIds() const
 {
-    if (parent && !qobject_cast<Qt4Project *>(parent))
-        return QStringList();
-    const QString simulatorId = QLatin1String(Constants::QT_SIMULATOR_TARGET_ID);
-    return QtSupport::QtVersionManager::instance()->supportsTargetId(simulatorId) ?
-           QStringList(simulatorId) : QStringList();
+    return QStringList() << QLatin1String(Constants::QT_SIMULATOR_TARGET_ID);
 }
 
 QString Qt4SimulatorTargetFactory::displayNameForId(const QString &id) const
@@ -103,12 +99,14 @@ bool Qt4SimulatorTargetFactory::canCreate(ProjectExplorer::Project *parent, cons
 {
     if (!qobject_cast<Qt4Project *>(parent))
         return false;
-    return supportsTargetId(id);
+    if (!supportsTargetId(id))
+        return false;
+    return QtSupport::QtVersionManager::instance()->supportsTargetId(id);
 }
 
 bool Qt4SimulatorTargetFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
 {
-    return canCreate(parent, idFromMap(map));
+    return qobject_cast<Qt4Project *>(parent) && supportsTargetId(idFromMap(map));
 }
 
 ProjectExplorer::Target *Qt4SimulatorTargetFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)

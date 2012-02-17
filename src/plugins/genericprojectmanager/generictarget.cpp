@@ -101,10 +101,8 @@ bool GenericTargetFactory::supportsTargetId(const QString &id) const
     return id == QLatin1String(GENERIC_DESKTOP_TARGET_ID);
 }
 
-QStringList GenericTargetFactory::supportedTargetIds(ProjectExplorer::Project *parent) const
+QStringList GenericTargetFactory::supportedTargetIds() const
 {
-    if (!qobject_cast<GenericProject *>(parent))
-        return QStringList();
     return QStringList() << QLatin1String(GENERIC_DESKTOP_TARGET_ID);
 }
 

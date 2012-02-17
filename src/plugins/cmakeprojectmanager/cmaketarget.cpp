@@ -179,10 +179,8 @@ CMakeTargetFactory::~CMakeTargetFactory()
 {
 }
 
-QStringList CMakeTargetFactory::supportedTargetIds(ProjectExplorer::Project *parent) const
+QStringList CMakeTargetFactory::supportedTargetIds() const
 {
-    if (!qobject_cast<CMakeProject *>(parent))
-        return QStringList();
     return QStringList() << QLatin1String(DEFAULT_CMAKE_TARGET_ID);
 }
 QString CMakeTargetFactory::displayNameForId(const QString &id) const

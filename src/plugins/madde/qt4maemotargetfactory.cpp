@@ -71,17 +71,12 @@ bool Qt4MaemoTargetFactory::supportsTargetId(const QString &id) const
     return MaemoGlobal::isMaemoTargetId(id);
 }
 
-QStringList Qt4MaemoTargetFactory::supportedTargetIds(ProjectExplorer::Project *parent) const
+QStringList Qt4MaemoTargetFactory::supportedTargetIds() const
 {
     QStringList targetIds;
-    if (parent && !qobject_cast<Qt4Project *>(parent))
-        return targetIds;
-    if (!QtSupport::QtVersionManager::instance()->versionsForTargetId(QLatin1String(MAEMO5_DEVICE_TARGET_ID)).isEmpty())
-        targetIds << QLatin1String(MAEMO5_DEVICE_TARGET_ID);
-    if (!QtSupport::QtVersionManager::instance()->versionsForTargetId(QLatin1String(HARMATTAN_DEVICE_TARGET_ID)).isEmpty())
-        targetIds << QLatin1String(HARMATTAN_DEVICE_TARGET_ID);
-    if (!QtSupport::QtVersionManager::instance()->versionsForTargetId(QLatin1String(MEEGO_DEVICE_TARGET_ID)).isEmpty())
-        targetIds << QLatin1String(MEEGO_DEVICE_TARGET_ID);
+    targetIds << QLatin1String(MAEMO5_DEVICE_TARGET_ID)
+              << QLatin1String(HARMATTAN_DEVICE_TARGET_ID)
+              << QLatin1String(MEEGO_DEVICE_TARGET_ID);
     return targetIds;
 }
 
@@ -106,12 +101,15 @@ bool Qt4MaemoTargetFactory::canCreate(ProjectExplorer::Project *parent, const QS
 {
     if (!qobject_cast<Qt4Project *>(parent))
         return false;
-    return supportsTargetId(id);
+    if (!supportsTargetId(id))
+        return false;
+
+    return !QtSupport::QtVersionManager::instance()->versionsForTargetId(id).isEmpty();
 }
 
 bool Qt4MaemoTargetFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
 {
-    return canCreate(parent, idFromMap(map));
+    return qobject_cast<Qt4Project *>(parent) && supportsTargetId(idFromMap(map));
 }
 
 ProjectExplorer::Target *Qt4MaemoTargetFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)

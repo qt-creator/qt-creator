@@ -80,12 +80,9 @@ QSet<QString> EmbeddedLinuxTargetFactory::targetFeatures(const QString & /*id*/)
     return features;
 }
 
-QStringList EmbeddedLinuxTargetFactory::supportedTargetIds(ProjectExplorer::Project *project) const
+QStringList EmbeddedLinuxTargetFactory::supportedTargetIds() const
 {
-    Q_UNUSED(project);
-    if (QtSupport::QtVersionManager::instance()->supportsTargetId(RemoteLinux::Constants::EMBEDDED_LINUX_TARGET_ID))
-        return QStringList() << QLatin1String(RemoteLinux::Constants::EMBEDDED_LINUX_TARGET_ID);
-    return QStringList();
+    return QStringList() << QLatin1String(RemoteLinux::Constants::EMBEDDED_LINUX_TARGET_ID);
 }
 
 bool EmbeddedLinuxTargetFactory::supportsTargetId(const QString &id) const
@@ -102,7 +99,7 @@ QString EmbeddedLinuxTargetFactory::displayNameForId(const QString &id) const
 
 bool EmbeddedLinuxTargetFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
 {
-    return canCreate(parent, ProjectExplorer::idFromMap(map));
+    return qobject_cast<Qt4ProjectManager::Qt4Project *>(parent) && supportsTargetId(ProjectExplorer::idFromMap(map));
 }
 
 ProjectExplorer::Target *EmbeddedLinuxTargetFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
@@ -124,7 +121,10 @@ bool EmbeddedLinuxTargetFactory::canCreate(ProjectExplorer::Project *parent, con
     if (!project)
         return false;
 
-    return supportsTargetId(id);
+    if (!supportsTargetId(id))
+        return false;
+
+    return QtSupport::QtVersionManager::instance()->supportsTargetId(id);
 }
 
 ProjectExplorer::Target *EmbeddedLinuxTargetFactory::create(ProjectExplorer::Project *parent,

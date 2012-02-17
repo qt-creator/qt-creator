@@ -51,7 +51,7 @@ public:
 
     QSet<QString> targetFeatures(const QString &id) const;
 
-    QStringList supportedTargetIds(ProjectExplorer::Project *project) const;
+    QStringList supportedTargetIds() const;
     bool supportsTargetId(const QString &id) const;
 
     QString displayNameForId(const QString &id) const;

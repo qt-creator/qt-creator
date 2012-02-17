@@ -47,7 +47,7 @@ public:
 
     bool supportsTargetId(const QString &id);
 
-    QStringList supportedTargetIds(ProjectExplorer::Project *parent) const;
+    QStringList supportedTargetIds() const;
     QString displayNameForId(const QString &id) const;
     QIcon iconForId(const QString &id) const;
 

@@ -44,7 +44,7 @@ public:
     Qt4SymbianTargetFactory(QObject *parent = 0);
     ~Qt4SymbianTargetFactory();
 
-    QStringList supportedTargetIds(ProjectExplorer::Project *parent) const;
+    QStringList supportedTargetIds() const;
     bool supportsTargetId(const QString &id) const;
     QString displayNameForId(const QString &id) const;
     QIcon iconForId(const QString &id) const;

@@ -118,10 +118,8 @@ bool AutotoolsTargetFactory::supportsTargetId(const QString &id) const
     return id == QLatin1String(Constants::DEFAULT_AUTOTOOLS_TARGET_ID);
 }
 
-QStringList AutotoolsTargetFactory::supportedTargetIds(Project *parent) const
+QStringList AutotoolsTargetFactory::supportedTargetIds() const
 {
-    if (!qobject_cast<AutotoolsProject *>(parent))
-        return QStringList();
     return QStringList() << QLatin1String(Constants::DEFAULT_AUTOTOOLS_TARGET_ID);
 }
 

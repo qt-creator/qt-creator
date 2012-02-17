@@ -312,11 +312,14 @@ bool ProjectWindow::useTargetPage(ProjectExplorer::Project *project)
         return false;
     if (project->targets().size() > 1)
         return true;
-    QStringList tmp;
+    int count = 0;
     foreach (ITargetFactory *fac, ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>()) {
-        tmp.append(fac->supportedTargetIds(project));
-        if (tmp.size() > 1)
-            return true;
+        foreach (const QString &targetId, fac->supportedTargetIds()) {
+            if (fac->canCreate(project, targetId))
+                ++count;
+            if (count > 1)
+                return true;
+        }
     }
     return false;
 }

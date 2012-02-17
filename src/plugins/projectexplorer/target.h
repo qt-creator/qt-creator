@@ -168,7 +168,7 @@ class PROJECTEXPLORER_EXPORT ITargetFactory :
 public:
     explicit ITargetFactory(QObject *parent = 0);
 
-    virtual QStringList supportedTargetIds(ProjectExplorer::Project *project) const = 0;
+    virtual QStringList supportedTargetIds() const = 0;
     virtual bool supportsTargetId(const QString &id) const = 0;
 
     // used to translate the types to names to display to the user

@@ -1251,7 +1251,7 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::importBuildConfigurations(
     QList<Qt4BaseTargetFactory *> factories =
             ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
     foreach (Qt4BaseTargetFactory *factory, factories) {
-        foreach (const QString &id, factory->supportedTargetIds(0)) {
+        foreach (const QString &id, factory->supportedTargetIds()) {
             QString expectedBuildprefix = factory->shadowBuildDirectory(proFilePath, id, QString());
             QString baseDir = QFileInfo(expectedBuildprefix).absolutePath();
             foreach (const QString &dir, QDir(baseDir).entryList()) {

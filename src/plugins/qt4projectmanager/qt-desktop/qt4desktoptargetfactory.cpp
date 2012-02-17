@@ -69,13 +69,9 @@ bool Qt4DesktopTargetFactory::supportsTargetId(const QString &id) const
     return id == QLatin1String(Constants::DESKTOP_TARGET_ID);
 }
 
-QStringList Qt4DesktopTargetFactory::supportedTargetIds(ProjectExplorer::Project *parent) const
+QStringList Qt4DesktopTargetFactory::supportedTargetIds() const
 {
-    if (parent && !qobject_cast<Qt4Project *>(parent))
-        return QStringList();
-    const QString desktopId = QLatin1String(Constants::DESKTOP_TARGET_ID);
-    return QtSupport::QtVersionManager::instance()->supportsTargetId(desktopId) ?
-           QStringList(desktopId) : QStringList();
+    return QStringList(QLatin1String(Constants::DESKTOP_TARGET_ID));
 }
 
 QString Qt4DesktopTargetFactory::displayNameForId(const QString &id) const
@@ -103,12 +99,14 @@ bool Qt4DesktopTargetFactory::canCreate(ProjectExplorer::Project *parent, const 
 {
     if (!qobject_cast<Qt4Project *>(parent))
         return false;
-    return supportsTargetId(id);
+    if (!supportsTargetId(id))
+        return false;
+    return QtSupport::QtVersionManager::instance()->supportsTargetId(id);
 }
 
 bool Qt4DesktopTargetFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
 {
-    return canCreate(parent, idFromMap(map));
+    return qobject_cast<Qt4Project *>(parent) && supportsTargetId(idFromMap(map));
 }
 
 ProjectExplorer::Target  *Qt4DesktopTargetFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)

@@ -74,20 +74,11 @@ bool Qt4SymbianTargetFactory::supportsTargetId(const QString &id) const
             || id == QLatin1String(Constants::S60_EMULATOR_TARGET_ID);
 }
 
-QStringList Qt4SymbianTargetFactory::supportedTargetIds(ProjectExplorer::Project *parent) const
+QStringList Qt4SymbianTargetFactory::supportedTargetIds() const
 {
-    if (parent && !qobject_cast<Qt4Project *>(parent))
-        return QStringList();
-
     QStringList ids;
-    // The QtVersionManager will just check whether theres
-    const QString deviceId = QLatin1String(Constants::S60_DEVICE_TARGET_ID);
-    if (QtSupport::QtVersionManager::instance()->supportsTargetId(deviceId))
-        ids << deviceId;
-    const QString emulatorId = QLatin1String(Constants::S60_EMULATOR_TARGET_ID);
-    if (QtSupport::QtVersionManager::instance()->supportsTargetId(emulatorId))
-        ids << emulatorId;
-
+    ids << QLatin1String(Constants::S60_DEVICE_TARGET_ID)
+        << QLatin1String(Constants::S60_EMULATOR_TARGET_ID);
     return ids;
 }
 
@@ -109,12 +100,14 @@ bool Qt4SymbianTargetFactory::canCreate(ProjectExplorer::Project *parent, const 
 {
     if (!qobject_cast<Qt4Project *>(parent))
         return false;
-    return supportsTargetId(id);
+    if (!supportsTargetId(id))
+        return false;
+    return QtSupport::QtVersionManager::instance()->supportsTargetId(id);
 }
 
 bool Qt4SymbianTargetFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
 {
-    return canCreate(parent, idFromMap(map));
+    return qobject_cast<Qt4Project *>(parent) && supportsTargetId(idFromMap(map));
 }
 
 ProjectExplorer::Target *Qt4SymbianTargetFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
