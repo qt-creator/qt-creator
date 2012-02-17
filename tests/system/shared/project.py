@@ -1,3 +1,5 @@
+import re
+
 processStarted = False
 processExited = False
 
@@ -75,7 +77,7 @@ def __createProjectSelectType__(category, template):
     clickItem(templatesView, template, 5, 5, 0, Qt.LeftButton)
     text = waitForObject("{type='QTextBrowser' name='templateDescription' visible='1'}").plainText
     clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
-    return __getSupportedPlatforms__(str(text))
+    return __getSupportedPlatforms__(str(text))[0]
 
 def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
     directoryEdit = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
@@ -401,7 +403,15 @@ def resetApplicationContextToCreator():
 # to figure out which available targets we have
 # Simulator must be handled in a special way, because this depends on the
 # configured Qt versions and Toolchains and cannot be looked up the same way
-def __getSupportedPlatforms__(text):
+# if you set getAsStrings to True this function returns a list of strings instead
+# of the constants defined in QtQuickConstants.Targets
+def __getSupportedPlatforms__(text, getAsStrings=False):
+    reqPattern = re.compile("requires qt (?P<version>\d+\.\d+(\.\d+)?)", re.IGNORECASE)
+    res = reqPattern.search(text)
+    if res:
+        version = res.group("version")
+    else:
+        version = None
     if 'Supported Platforms' in text:
         supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split(" ")
         result = []
@@ -425,5 +435,7 @@ def __getSupportedPlatforms__(text):
     else:
         test.warning("Returning None (__getSupportedPlatforms__())",
                      "Parsed text: '%s'" % text)
-        return None
-    return result
+        return None, None
+    if getAsStrings:
+        result = QtQuickConstants.getTargetsAsStrings(result)
+    return result, version

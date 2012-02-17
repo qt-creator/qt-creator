@@ -260,3 +260,37 @@ def __checkParentAccess__(filePath):
             test.log("Got execute permission on '%s'" % tmp)
         else:
             test.fail("No execute permission on '%s'" % tmp)
+
+# this function checks for all configured Qt versions inside
+# options dialog and returns a dict holding the targets as keys
+# and a list of supported versions as value
+def getCorrectlyConfiguredTargets():
+    result = {}
+    invokeMenuItem("Tools", "Options...")
+    waitForObjectItem(":Options_QListView", "Build & Run")
+    clickItem(":Options_QListView", "Build & Run", 14, 15, 0, Qt.LeftButton)
+    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Qt Versions")
+    pattern = re.compile("Qt version (?P<version>.*?) for (?P<target>.*)")
+    treeWidget = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
+    root = treeWidget.invisibleRootItem()
+    for childRow in range(root.childCount()):
+        rootChild = root.child(childRow)
+        rootChildText = str(rootChild.text(0)).replace(".", "\\.")
+        for row in range(rootChild.childCount()):
+            subChild = rootChild.child(row)
+            subChildText = str(subChild.text(0)).replace(".", "\\.")
+            clickItem(treeWidget, ".".join([rootChildText,subChildText]), 5, 5, 0, Qt.LeftButton)
+            currentText = str(waitForObject(":QtSupport__Internal__QtVersionManager.QLabel").text)
+            matches = pattern.match(currentText)
+            if matches:
+                target = matches.group("target")
+                version = matches.group("version")
+                if target in result:
+                    oldV = result[target]
+                    if version not in oldV:
+                        oldV.append(version)
+                        result.update({target:oldV})
+                else:
+                    result.update({target:[version]})
+    clickButton(waitForObject(":Options.OK_QPushButton"))
+    return result

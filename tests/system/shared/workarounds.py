@@ -168,6 +168,7 @@ class JIRA:
         # ALWAYS update this dict when adding a new function for a workaround!
         def __initBugDict__(self):
             self.__bugs__= {
+                            'QTCREATORBUG-6967':self._workaroundCreator6967_,
                             'QTCREATORBUG-6853':self._workaroundCreator6853_,
                             'QTCREATORBUG-6918':self._workaroundCreator_MacEditorFocus_,
                             'QTCREATORBUG-6953':self._workaroundCreator_MacEditorFocus_
@@ -177,6 +178,10 @@ class JIRA:
             test.fatal("No workaround found for bug %s-%d" % (bugType, number))
 
 ############### functions that hold workarounds #################################
+
+        def _workaroundCreator6967_(self, *args):
+            if args[0] == 'Mobile Qt Application':
+                args[1].remove('Qt Simulator')
 
         def _workaroundCreator6853_(self, *args):
             if "Release" in args[0] and platform.system() == "Linux":

@@ -41,6 +41,28 @@ class QtQuickConstants:
         else:
             return None
 
+    @staticmethod
+    def getAllTargets():
+        return [QtQuickConstants.Targets.DESKTOP, QtQuickConstants.Targets.HARMATTAN,
+                QtQuickConstants.Targets.MAEMO5, QtQuickConstants.Targets.SIMULATOR,
+                QtQuickConstants.Targets.SYMBIAN]
+
+    @staticmethod
+    def getAllTargetStrings():
+        return QtQuickConstants.getTargetsAsStrings(QtQuickConstants.getAllTargets())
+
+    @staticmethod
+    def getTargetsAsStrings(targets):
+        if not isinstance(targets, (tuple,list)):
+            test.fatal("Wrong usage... This function handles only tuples or lists.")
+            return None
+        result = []
+        for target in targets:
+            result.append(QtQuickConstants.getStringForTarget(target))
+        if None in result:
+            test.fatal("You've passed at least one unknown target!")
+        return result
+
 # this class holds some constants for easier usage inside the Projects view
 class ProjectSettings:
     BUILD = 1
