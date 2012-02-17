@@ -1330,8 +1330,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
 {
     const QString &option = *it;
     // '-debug <pid>'
-    // '-debug <corefile>'
-    // '-debug <server:port>@<exe>@<arch>'
+    // '-debug <exe>[,server=<server:port>|,core=<core>][,arch=<arch>][,sysroot=<sysroot>]'
     if (*it == _("-debug")) {
         ++it;
         if (it == cend) {
@@ -1340,51 +1339,50 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         }
         DebuggerStartParameters sp;
         qulonglong pid = it->toULongLong();
-        QString remoteChannel = it->contains(QLatin1Char('@')) ?
-                                it->section(QLatin1Char('@'), 0, 0) : *it;
-        uint port = 0;
-        int pos = remoteChannel.indexOf(QLatin1Char(':'));
-        if (pos != -1)
-            port = remoteChannel.mid(pos + 1).toUInt();
         if (pid) {
             sp.startMode = AttachExternal;
             sp.attachPID = pid;
             sp.displayName = tr("Process %1").arg(sp.attachPID);
             sp.startMessage = tr("Attaching to local process %1.").arg(sp.attachPID);
             sp.toolChainAbi = Abi::hostAbi();
-        } else if (port) {
-            sp.startMode = AttachToRemoteServer;
-            sp.remoteChannel = remoteChannel;
-            sp.executable = it->section(QLatin1Char('@'), 1, 1);
-            if (sp.remoteChannel.isEmpty()) {
-                *errorMessage = DebuggerPlugin::tr("The parameter '%1' of option "
-                    "'%2' does not match the pattern <server:port>@<executable>@<architecture>.")
-                        .arg(*it, option);
-                return false;
-            }
-            sp.remoteArchitecture = it->section(QLatin1Char('@'), 2, 2);
-            sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
-            sp.startMessage = tr("Attaching to remote server %1.")
-                .arg(sp.remoteChannel);
-            sp.toolChainAbi = anyAbiOfBinary(sp.executable);
         } else {
-            // Fixme: Distinguish between core-file and executable by argument syntax?
-            // (default up to 2.2 was core-file (".dmp on Windows)).
-            const bool isExecutable = Abi::hostAbi().os() == Abi::WindowsOS ?
-                !it->endsWith(QLatin1String(".dmp"), Qt::CaseInsensitive) :
-                QFileInfo(*it).isExecutable();
-            if (isExecutable) {
-                sp.startMode = StartExternal;
-                sp.executable = *it;
-                sp.displayName = tr("Executable file \"%1\"").arg(sp.executable);
-                sp.startMessage = tr("Debugging file %1.").arg(sp.executable);
-            } else {
-                sp.startMode = AttachCore;
-                sp.coreFile = *it;
-                sp.displayName = tr("Core file \"%1\"").arg(sp.coreFile);
-                sp.startMessage = tr("Attaching to core file %1.").arg(sp.coreFile);
+            QStringList args = it->split(QLatin1Char(','));
+            sp.startMode = StartExternal;
+            foreach (const QString &arg, args) {
+                QString key = arg.section(QLatin1Char('='), 0, 0);
+                QString val = arg.section(QLatin1Char('='), 1, 1);
+                if (val.isEmpty()) {
+                    if (key.isEmpty())
+                        continue;
+                    else if (sp.executable.isEmpty())
+                        sp.executable = key;
+                    else {
+                        *errorMessage = DebuggerPlugin::tr("Only one executable allowed!");
+                        return false;
+                    }
+                }
+                if (key == QLatin1String("server")) {
+                    sp.startMode = AttachToRemoteServer;
+                    sp.remoteChannel = val;
+                    sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
+                    sp.startMessage = tr("Attaching to remote server %1.").arg(sp.remoteChannel);
+                }
+                else if (key == QLatin1String("arch"))
+                    sp.remoteArchitecture = val;
+                else if (key == QLatin1String("core")) {
+                    sp.startMode = AttachCore;
+                    sp.coreFile = val;
+                    sp.displayName = tr("Core file \"%1\"").arg(sp.coreFile);
+                    sp.startMessage = tr("Attaching to core file %1.").arg(sp.coreFile);
+                }
+                else if (key == QLatin1String("sysroot"))
+                    sp.sysroot = val;
             }
-            sp.toolChainAbi = anyAbiOfBinary(*it);
+            sp.toolChainAbi = anyAbiOfBinary(sp.executable);
+        }
+        if (sp.startMode == StartExternal) {
+            sp.displayName = tr("Executable file \"%1\"").arg(sp.executable);
+            sp.startMessage = tr("Debugging file %1.").arg(sp.executable);
         }
         m_scheduledStarts.append(sp);
         return true;
