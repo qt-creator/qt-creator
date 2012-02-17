@@ -187,6 +187,18 @@ void ActionContainerPrivate::appendGroup(const Id &groupId)
     m_groups.append(Group(groupId));
 }
 
+void ActionContainerPrivate::insertGroup(const Id &before, const Id &groupId)
+{
+    QList<Group>::iterator it = m_groups.begin();
+    while (it != m_groups.end()) {
+        if (it->id == before) {
+            m_groups.insert(it, Group(groupId));
+            break;
+        }
+        ++it;
+    }
+}
+
 QList<Group>::const_iterator ActionContainerPrivate::findGroup(const Id &groupId) const
 {
     QList<Group>::const_iterator it = m_groups.constBegin();

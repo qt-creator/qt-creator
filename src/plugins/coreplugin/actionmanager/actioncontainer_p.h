@@ -61,6 +61,7 @@ public:
 
     QAction *insertLocation(const Id &groupId) const;
     void appendGroup(const Id &id);
+    void insertGroup(const Id &before, const Id &groupId);
     void addAction(Command *action, const Id &group = Id());
     void addMenu(ActionContainer *menu, const Id &group = Id());
     void addMenu(ActionContainer *before, ActionContainer *menu, const Id &group = Id());
