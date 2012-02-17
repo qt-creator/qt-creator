@@ -98,7 +98,7 @@ void LinuxDeviceConfigurationsSettingsPage::finish()
 
 QString LinuxDeviceConfigurationsSettingsPage::pageId()
 {
-    return QLatin1String("AA.Remote Linux Device Configurations");
+    return QLatin1String(Constants::RemoteLinuxSettingsPageId);
 }
 
 QString LinuxDeviceConfigurationsSettingsPage::pageCategory()
