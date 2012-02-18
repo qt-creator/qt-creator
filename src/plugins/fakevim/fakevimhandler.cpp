@@ -1844,7 +1844,10 @@ EventResult FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
         else if (input.is('"') || input.is('\'') || input.is('`'))
             selectQuotedStringTextObject(m_subsubdata.is('i'), input.key());
         m_subsubmode = NoSubSubMode;
-        finishMovement();
+        finishMovement(QString("%1%2%3")
+                       .arg(count())
+                       .arg(m_subsubdata.text())
+                       .arg(input.text()));
     } else if (m_subsubmode == MarkSubSubMode) {
         setMark(input.asChar().unicode(), position());
         m_subsubmode = NoSubSubMode;
