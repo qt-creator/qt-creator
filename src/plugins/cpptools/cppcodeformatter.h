@@ -177,7 +177,16 @@ public: // must be public to make Q_GADGET introspection work
         assign_open, // after an assignment token
 
         expression, // after a '=' in a declaration_start once we're sure it's not '= {'
-        assign_open_or_initializer // after a '=' in a declaration start
+        assign_open_or_initializer, // after a '=' in a declaration start
+
+        lambda_instroducer_or_subscribtion, // just after '[' or in cases '[]' and '[id]' when we're not sure in the exact kind of expression
+        lambda_declarator_expected, // just after ']' in lambda_introducer_or_subscribtion
+        lambda_declarator_or_expression, // just after '](' when previous state is 'lambda_instroducer_or_subscribtion'
+        lambda_statement_expected,
+        lambda_instroducer,              // when '=', '&' or ',' occurred within '[]'
+        lambda_declarator,               // just after ']' when previous state is lambda_introducer
+        lambda_statement                 // just after '{' when previous state is lambda_declarator or lambda_declarator_or_expression
+
     };
     Q_ENUMS(StateType)
 

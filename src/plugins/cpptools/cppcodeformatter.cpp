@@ -229,9 +229,74 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             default:            tryExpression(); break;
             } break;
 
+        case lambda_instroducer_or_subscribtion:
+            switch (kind) {
+            case T_RBRACKET:    turnInto(lambda_declarator_expected); break; // we can't determine exact kind of expression. Try again
+            case T_COMMA:
+            case T_EQUAL:       turnInto(lambda_instroducer); break;              // ',' or '=' inside brackets can be only whithin lambda capture list
+            case T_IDENTIFIER:          // '&', id, 'this' are allowed both in the capture list and subscribtion
+            case T_AMPER:
+            case T_THIS:        break;
+            default:            leave(); leave(); tryExpression(m_currentState.at(m_currentState.size() - 1).type == declaration_start); break;
+                                        // any other symbol allowed only in subscribtion operator
+            } break;
+
+        case lambda_declarator_expected:
+            switch (kind) {
+            case T_LPAREN:      turnInto(lambda_declarator_or_expression); break; // '(' just after ']'. We can't make decisioin here
+            case T_LBRACE:      turnInto(substatement_open); break; // '{' just after ']' opens a lambda-compound statement
+            default:
+                if (m_currentState.size() >= 3 && m_currentState.at(m_currentState.size() - 3).type == declaration_start)
+                    leave();
+
+                leave();
+                continue;
+            } break;
+
+        case lambda_instroducer:
+            switch (kind) {
+            case T_RBRACKET:    turnInto(lambda_declarator); break;
+            } break;
+
+        case lambda_declarator_or_expression:
+            switch (kind) {
+            case T_LBRACE:      turnInto(substatement_open); /*tryStatement();*/ break;
+            case T_RPAREN:      turnInto(lambda_statement_expected); break;
+            case T_IDENTIFIER:
+            case T_SEMICOLON:   leave(); continue;
+            default:
+                if (tryDeclaration()) {// We found the declaration within '()' so it is lambda declarator
+                    leave();
+                    turnInto(lambda_declarator);
+                    break;
+                } else {
+                    turnInto(expression);
+                    enter(arglist_open);
+                    continue;
+                }
+            } break;
+
+        case lambda_statement_expected:
+            switch (kind) {
+            case T_LBRACE:      turnInto(substatement_open); /*tryStatement()*/; break;
+            case T_NOEXCEPT:    // 'noexcept', 'decltype' and 'mutable' are only part of lambda declarator
+            case T_DECLTYPE:
+            case T_MUTABLE:     turnInto(lambda_declarator); break;
+            case T_RBRACKET:    // '[', ']' and '->' can be part of lambda declarator
+            case T_LBRACKET:
+            case T_ARROW:       break;
+            default:            leave(); continue;
+            } break;
+
+        case lambda_declarator:
+            switch (kind) {
+            case T_LBRACE:      turnInto(substatement_open); /*tryStatement()*/; break;
+            } break;
+
         case arglist_open:
             switch (kind) {
             case T_SEMICOLON:   leave(true); break;
+            case T_LBRACE:      enter(brace_list_open); break;
             case T_RBRACE:      leave(true); continue;
             case T_RPAREN:      leave(); break;
             default:            tryExpression(); break;
@@ -738,6 +803,9 @@ bool CodeFormatter::tryExpression(bool alsoExpression)
                 break;
             }
         }
+        break;
+    case T_LBRACKET:
+        newState = lambda_instroducer_or_subscribtion;
         break;
     }
 

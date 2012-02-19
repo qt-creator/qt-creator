@@ -120,6 +120,7 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
     QString text = textToProcess;
 
     const QString blockText = tc.block().text().mid(tc.positionInBlock());
+    const QString trimmedBlockText = blockText.trimmed();
     const int length = qMin(blockText.length(), textToProcess.length());
 
     const QChar previousChar = doc->characterAt(tc.selectionEnd() - 1);
@@ -190,10 +191,14 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
     QString result;
 
     foreach (const QChar &ch, text) {
-        if      (ch == QLatin1Char('('))  result += ')';
-        else if (ch == QLatin1Char('['))  result += ']';
-        else if (ch == QLatin1Char('"'))  result += '"';
-        else if (ch == QLatin1Char('\'')) result += '\'';
+        if      (ch == QLatin1Char('('))  result += QLatin1Char(')');
+        else if (ch == QLatin1Char('['))  result += QLatin1Char(']');
+        else if (ch == QLatin1Char('"'))  result += QLatin1Char('"');
+        else if (ch == QLatin1Char('\'')) result += QLatin1Char('\'');
+        // Handle '{' appearance within functinon call context
+        else if (ch == QLatin1Char('{') && !trimmedBlockText.isEmpty() && trimmedBlockText.at(0) == QLatin1Char(')'))
+            result += QLatin1Char('}');
+
     }
 
     return result;
