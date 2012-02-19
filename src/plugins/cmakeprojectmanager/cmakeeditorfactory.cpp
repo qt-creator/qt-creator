@@ -34,18 +34,48 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeeditor.h"
 
+#include <coreplugin/icore.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/texteditoractionhandler.h>
+#include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 
-CMakeEditorFactory::CMakeEditorFactory(CMakeManager *manager, TextEditor::TextEditorActionHandler *handler)
+CMakeEditorFactory::CMakeEditorFactory(CMakeManager *manager)
     : m_mimeTypes(QStringList() << QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE)),
-      m_manager(manager),
-      m_actionHandler(handler)
+      m_manager(manager)
 {
+    using namespace Core;
+    using namespace TextEditor;
 
+    m_actionHandler =
+            new TextEditorActionHandler(Constants::C_CMAKEEDITOR,
+            TextEditorActionHandler::UnCommentSelection);
+
+    ICore *core = ICore::instance();
+    ActionManager *am = core->actionManager();
+    ActionContainer *contextMenu = am->createMenu(Constants::M_CONTEXT);
+    Command *cmd;
+    Context cmakeEditorContext = Context(Constants::C_CMAKEEDITOR);
+
+    QAction *jumpToFile = new QAction(tr("Jump to File Under Cursor"), this);
+    cmd = am->registerAction(jumpToFile,
+        Constants::JUMP_TO_FILE, cmakeEditorContext);
+    cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
+    connect(jumpToFile, SIGNAL(triggered()), this, SLOT(jumpToFile()));
+    contextMenu->addAction(cmd);
+
+    QAction *separator = new QAction(this);
+    separator->setSeparator(true);
+    contextMenu->addAction(am->registerAction(separator,
+                  Id(Constants::SEPARATOR), cmakeEditorContext));
+
+    cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
+    contextMenu->addAction(cmd);
 }
 
 Core::Id CMakeEditorFactory::id() const
@@ -69,6 +99,14 @@ Core::IEditor *CMakeEditorFactory::createEditor(QWidget *parent)
     CMakeEditorWidget *rc = new CMakeEditorWidget(parent, this, m_actionHandler);
     TextEditor::TextEditorSettings::instance()->initializeEditor(rc);
     return rc->editor();
+}
+
+void CMakeEditorFactory::jumpToFile()
+{
+    Core::EditorManager *em = Core::EditorManager::instance();
+    CMakeEditorWidget *editor = qobject_cast<CMakeEditorWidget*>(em->currentEditor()->widget());
+    if (editor)
+        editor->jumpToFile();
 }
 
 QStringList CMakeEditorFactory::mimeTypes() const

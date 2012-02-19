@@ -37,7 +37,10 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <texteditor/fontsettings.h>
@@ -70,6 +73,11 @@ Core::IEditor *CMakeEditor::duplicate(QWidget *parent)
     ret->duplicateFrom(w);
     TextEditor::TextEditorSettings::instance()->initializeEditor(ret);
     return ret->editor();
+}
+
+Core::Context CMakeEditor::context() const
+{
+    return Core::Context(Constants::C_CMAKEEDITOR);
 }
 
 Core::Id CMakeEditor::id() const
@@ -116,14 +124,39 @@ CMakeEditorWidget::CMakeEditorWidget(QWidget *parent, CMakeEditorFactory *factor
     doc->setMimeType(QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
     setBaseTextDocument(doc);
 
-    ah->setupActions(this);
-
     baseTextDocument()->setSyntaxHighlighter(new CMakeHighlighter);
+
+    m_commentDefinition.clearCommentStyles();
+    m_commentDefinition.setSingleLine(QLatin1String("#"));
+
+    ah->setupActions(this);
 }
 
 TextEditor::BaseTextEditor *CMakeEditorWidget::createEditor()
 {
     return new CMakeEditor(this);
+}
+
+void CMakeEditorWidget::unCommentSelection()
+{
+    Utils::unCommentSelection(this, m_commentDefinition);
+}
+
+void CMakeEditorWidget::contextMenuEvent(QContextMenuEvent *e)
+{
+    QMenu *menu = new QMenu();
+
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionContainer *mcontext = am->actionContainer(Constants::M_CONTEXT);
+    QMenu *contextMenu = mcontext->menu();
+
+    foreach (QAction *action, contextMenu->actions())
+        menu->addAction(action);
+
+    appendStandardContextMenuActions(menu);
+
+    menu->exec(e->globalPos());
+    delete menu;
 }
 
 void CMakeEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
@@ -147,8 +180,90 @@ void CMakeEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
     highlighter->rehighlight();
 }
 
+void CMakeEditorWidget::jumpToFile()
+{
+    openLink(findLinkAt(textCursor()));
+}
+
+static bool isValidFileNameChar(const QChar &c)
+{
+    if (c.isLetterOrNumber()
+            || c == QLatin1Char('.')
+            || c == QLatin1Char('_')
+            || c == QLatin1Char('-')
+            || c == QLatin1Char('/')
+            || c == QLatin1Char('\\'))
+        return true;
+    return false;
+}
+
+CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
+                                                      bool/* resolveTarget*/)
+{
+    Link link;
+
+    int lineNumber = 0, positionInBlock = 0;
+    convertPosition(cursor.position(), &lineNumber, &positionInBlock);
+
+    const QString block = cursor.block().text();
+
+    // check if the current position is commented out
+    const int hashPos = block.indexOf(QLatin1Char('#'));
+    if (hashPos >= 0 && hashPos < positionInBlock)
+        return link;
+
+    // find the beginning of a filename
+    QString buffer;
+    int beginPos = positionInBlock - 1;
+    while (beginPos >= 0) {
+        QChar c = block.at(beginPos);
+        if (isValidFileNameChar(c)) {
+            buffer.prepend(c);
+            beginPos--;
+        } else {
+            break;
+        }
+    }
+
+    // find the end of a filename
+    int endPos = positionInBlock;
+    while (endPos < block.count()) {
+        QChar c = block.at(endPos);
+        if (isValidFileNameChar(c)) {
+            buffer.append(c);
+            endPos++;
+        } else {
+            break;
+        }
+    }
+
+    if (buffer.isEmpty())
+        return link;
+
+    // TODO: Resolve variables
+
+    QDir dir(QFileInfo(editorDocument()->fileName()).absolutePath());
+    QString fileName = dir.filePath(buffer);
+    QFileInfo fi(fileName);
+    if (fi.exists()) {
+        if (fi.isDir()) {
+            QDir subDir(fi.absoluteFilePath());
+            QString subProject = subDir.filePath("CMakeLists.txt");
+            if (QFileInfo(subProject).exists())
+                fileName = subProject;
+            else
+                return link;
+        }
+        link.fileName = fileName;
+        link.begin = cursor.position() - positionInBlock + beginPos + 1;
+        link.end = cursor.position() - positionInBlock + endPos;
+    }
+    return link;
+}
+
+
 //
-// ProFileDocument
+// CMakeDocument
 //
 
 CMakeDocument::CMakeDocument()

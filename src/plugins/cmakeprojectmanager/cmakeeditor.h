@@ -37,6 +37,7 @@
 
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetexteditor.h>
+#include <utils/uncommentselection.h>
 
 
 namespace TextEditor {
@@ -59,6 +60,7 @@ public:
 
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
+    Core::Context context() const;
     Core::Id id() const;
     bool isTemporary() const { return false; }
 
@@ -81,15 +83,23 @@ public:
     CMakeEditorFactory *factory() { return m_factory; }
     TextEditor::TextEditorActionHandler *actionHandler() const { return m_ah; }
 
+    void jumpToFile();
+
+    Link findLinkAt(const QTextCursor &cursor,
+                                     bool resolveTarget = true);
+
 protected:
     TextEditor::BaseTextEditor *createEditor();
+    void contextMenuEvent(QContextMenuEvent *e);
 
 public slots:
-    virtual void setFontSettings(const TextEditor::FontSettings &);
+    void unCommentSelection();
+    void setFontSettings(const TextEditor::FontSettings &);
 
 private:
     CMakeEditorFactory *m_factory;
     TextEditor::TextEditorActionHandler *m_ah;
+    Utils::CommentDefinition m_commentDefinition;
 };
 
 class CMakeDocument : public TextEditor::BaseTextDocument

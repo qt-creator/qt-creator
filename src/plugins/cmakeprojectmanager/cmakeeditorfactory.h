@@ -51,7 +51,7 @@ class CMakeEditorFactory : public Core::IEditorFactory
     Q_OBJECT
 
 public:
-    CMakeEditorFactory(CMakeManager *parent, TextEditor::TextEditorActionHandler *handler);
+    CMakeEditorFactory(CMakeManager *parent);
 
     // IEditorFactory
     QStringList mimeTypes() const;
@@ -59,6 +59,9 @@ public:
     QString displayName() const;
     Core::IDocument *open(const QString &fileName);
     Core::IEditor *createEditor(QWidget *parent);
+
+public slots:
+    void jumpToFile();
 
 private:
     const QStringList m_mimeTypes;

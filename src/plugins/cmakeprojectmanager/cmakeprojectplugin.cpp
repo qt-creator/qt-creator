@@ -67,10 +67,8 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     addAutoReleasedObject(manager);
     addAutoReleasedObject(new MakeStepFactory);
     addAutoReleasedObject(new CMakeRunConfigurationFactory);
-    TextEditor::TextEditorActionHandler *editorHandler
-           = new TextEditor::TextEditorActionHandler(CMakeProjectManager::Constants::C_CMAKEEDITOR);
 
-    addAutoReleasedObject(new CMakeEditorFactory(manager, editorHandler));
+    addAutoReleasedObject(new CMakeEditorFactory(manager));
     addAutoReleasedObject(new CMakeTargetFactory);
     addAutoReleasedObject(new CMakeLocatorFilter);
 
