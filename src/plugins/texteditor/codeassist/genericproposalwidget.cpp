@@ -530,7 +530,11 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
         switch (ke->key()) {
         case Qt::Key_N:
         case Qt::Key_P:
+#ifdef Q_OS_MAC
+            if (ke->modifiers() == Qt::MetaModifier) {
+#else
             if (ke->modifiers() == Qt::ControlModifier) {
+#endif
                 e->accept();
                 return true;
             }
@@ -546,7 +550,11 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
         case Qt::Key_P:
             // select next/previous completion
             d->m_explicitlySelected = true;
+#ifdef Q_OS_MAC
+            if (ke->modifiers() == Qt::MetaModifier) {
+#else
             if (ke->modifiers() == Qt::ControlModifier) {
+#endif
                 int change = (ke->key() == Qt::Key_N) ? 1 : -1;
                 int nrows = d->m_model->size();
                 int row = d->m_completionListView->currentIndex().row();
