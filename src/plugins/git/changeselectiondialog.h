@@ -48,8 +48,8 @@ public:
 
     QString change() const;
 
-    QString repository() const;
-    void setRepository(const QString &s);
+    QString workingDirectory() const;
+    void setWorkingDirectory(const QString &s);
 
 public slots:
     void selectWorkingDirectory();

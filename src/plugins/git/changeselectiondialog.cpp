@@ -31,6 +31,8 @@
 **************************************************************************/
 
 #include "changeselectiondialog.h"
+#include "gitplugin.h"
+#include "gitclient.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -43,7 +45,7 @@ ChangeSelectionDialog::ChangeSelectionDialog(QWidget *parent)
 {
     m_ui.setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    connect(m_ui.repositoryButton, SIGNAL(clicked()), this, SLOT(selectWorkingDirectory()));
+    connect(m_ui.workingDirectoryButton, SIGNAL(clicked()), this, SLOT(selectWorkingDirectory()));
     setWindowTitle(tr("Select a Git Commit"));
 }
 
@@ -52,14 +54,14 @@ QString ChangeSelectionDialog::change() const
     return m_ui.changeNumberEdit->text();
 }
 
-QString ChangeSelectionDialog::repository() const
+QString ChangeSelectionDialog::workingDirectory() const
 {
-    return m_ui.repositoryEdit->text();
+    return m_ui.workingDirectoryEdit->text();
 }
 
-void ChangeSelectionDialog::setRepository(const QString &s)
+void ChangeSelectionDialog::setWorkingDirectory(const QString &s)
 {
-    m_ui.repositoryEdit->setText(QDir::toNativeSeparators(s));
+    m_ui.workingDirectoryEdit->setText(QDir::toNativeSeparators(s));
     m_ui.changeNumberEdit->setFocus(Qt::ActiveWindowFocusReason);
     m_ui.changeNumberEdit->setText(QLatin1String("HEAD"));
     m_ui.changeNumberEdit->selectAll();
@@ -67,28 +69,20 @@ void ChangeSelectionDialog::setRepository(const QString &s)
 
 void ChangeSelectionDialog::selectWorkingDirectory()
 {
-    static QString location;
-    location = QFileDialog::getExistingDirectory(this,
-                                      tr("Select Git Repository"),
-                                      location);
+    QString location = QFileDialog::getExistingDirectory(this, tr("Select Working Directory"),
+                                                         m_ui.workingDirectoryEdit->text());
     if (location.isEmpty())
         return;
 
     // Verify that the location is a repository
-    // We are polite, we also allow to specify a directory, which is not
-    // the head directory of the repository.
-    QDir repository(location);
-    do {
-        if (repository.entryList(QDir::AllDirs|QDir::Hidden).contains(QLatin1String(".git"))) {
-            m_ui.repositoryEdit->setText(repository.absolutePath());
-            return;
-        }
-    } while (repository.cdUp());
-
-    // Did not find a repo
-    QMessageBox::critical(this, tr("Error"),
-                          tr("Selected directory is not a Git repository"));
-
+    // We allow specifying a directory, which is not the head directory of the repository.
+    // This is useful for git show commit:./file
+    QString topLevel = GitPlugin::instance()->gitClient()->findRepositoryForDirectory(location);
+    if (!topLevel.isEmpty())
+        m_ui.workingDirectoryEdit->setText(location);
+    else // Did not find a repo
+        QMessageBox::critical(this, tr("Error"),
+                              tr("Selected directory is not a Git repository"));
 }
 
 }

@@ -438,7 +438,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            tr("Remotes..."), Core::Id("Git.RemoteList"),
                            globalcontext, false, SLOT(remoteList()));
 
-    m_showAction = new QAction(tr("Show Commit..."), this);
+    m_showAction = new QAction(tr("Show..."), this);
     Core::Command *showCommitCommand = actionManager->registerAction(m_showAction, "Git.ShowCommit", globalcontext);
     connect(m_showAction, SIGNAL(triggered()), this, SLOT(showCommit()));
     gitContainer->addAction(showCommitCommand);
@@ -1038,8 +1038,10 @@ void GitPlugin::showCommit()
     if (!m_changeSelectionDialog)
         m_changeSelectionDialog = new ChangeSelectionDialog();
 
-    if (state.hasTopLevel())
-        m_changeSelectionDialog->setRepository(state.topLevel());
+    if (state.hasFile())
+        m_changeSelectionDialog->setWorkingDirectory(state.currentFileDirectory());
+    else if (state.hasTopLevel())
+        m_changeSelectionDialog->setWorkingDirectory(state.topLevel());
 
     if (m_changeSelectionDialog->exec() != QDialog::Accepted)
         return;
@@ -1047,7 +1049,7 @@ void GitPlugin::showCommit()
     if (change.isEmpty())
         return;
 
-    m_gitClient->show(m_changeSelectionDialog->repository(), change);
+    m_gitClient->show(m_changeSelectionDialog->workingDirectory(), change);
 }
 
 const GitSettings &GitPlugin::settings() const
