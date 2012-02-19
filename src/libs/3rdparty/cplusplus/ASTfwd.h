@@ -154,6 +154,7 @@ class QtPrivateSlotAST;
 class QtPropertyDeclarationAST;
 class QtPropertyDeclarationItemAST;
 class QualifiedNameAST;
+class RangeBasedForStatementAST;
 class ReferenceAST;
 class ReturnStatementAST;
 class SimpleDeclarationAST;

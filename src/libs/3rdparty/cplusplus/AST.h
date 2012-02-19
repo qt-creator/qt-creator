@@ -247,6 +247,7 @@ public:
     virtual QtPropertyDeclarationAST *asQtPropertyDeclaration() { return 0; }
     virtual QtPropertyDeclarationItemAST *asQtPropertyDeclarationItem() { return 0; }
     virtual QualifiedNameAST *asQualifiedName() { return 0; }
+    virtual RangeBasedForStatementAST *asRangeBasedForStatement() { return 0; }
     virtual ReferenceAST *asReference() { return 0; }
     virtual ReturnStatementAST *asReturnStatement() { return 0; }
     virtual SimpleDeclarationAST *asSimpleDeclaration() { return 0; }
@@ -1900,6 +1901,50 @@ public:
     virtual unsigned lastToken() const;
 
     virtual ForeachStatementAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT RangeBasedForStatementAST : public StatementAST
+{
+public:
+    unsigned for_token;
+    unsigned lparen_token;
+    // declaration
+    SpecifierListAST *type_specifier_list;
+    DeclaratorAST *declarator;
+    // or an expression
+    ExpressionAST *initializer;
+    unsigned colon_token;
+    ExpressionAST *expression;
+    unsigned rparen_token;
+    StatementAST *statement;
+
+public: // annotations
+    Block *symbol;
+
+public:
+    RangeBasedForStatementAST()
+        : for_token(0)
+        , lparen_token(0)
+        , type_specifier_list(0)
+        , declarator(0)
+        , initializer(0)
+        , colon_token(0)
+        , expression(0)
+        , rparen_token(0)
+        , statement(0)
+        , symbol(0)
+    {}
+
+    virtual RangeBasedForStatementAST *asRangeBasedForStatement() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual RangeBasedForStatementAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

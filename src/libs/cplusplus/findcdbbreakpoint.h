@@ -78,6 +78,7 @@ protected:
     bool visit(DoStatementAST *ast);
     bool visit(ExpressionStatementAST *ast);
     bool visit(ForeachStatementAST *ast);
+    bool visit(RangeBasedForStatementAST *ast);
     bool visit(ForStatementAST *ast);
     bool visit(IfStatementAST *ast);
     bool visit(LabeledStatementAST *ast);

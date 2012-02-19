@@ -456,6 +456,14 @@ bool ForeachStatementAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool RangeBasedForStatementAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (RangeBasedForStatementAST *_other = pattern->asRangeBasedForStatement())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
 bool ForStatementAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (ForStatementAST *_other = pattern->asForStatement())

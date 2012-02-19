@@ -639,6 +639,12 @@ public:
         return false;
     }
 
+    bool visit(RangeBasedForStatementAST *stmt)
+    {
+        statement(stmt->statement);
+        return false;
+    }
+
     bool visit(ForStatementAST *stmt)
     {
         statement(stmt->initializer);

@@ -253,6 +253,19 @@ protected:
             _scopeStack.removeLast();
     }
 
+    virtual bool visit(RangeBasedForStatementAST *ast)
+    {
+        if (ast->symbol)
+            enterScope(ast->symbol);
+        return true;
+    }
+
+    virtual void endVisit(RangeBasedForStatementAST *ast)
+    {
+        if (ast->symbol)
+            _scopeStack.removeLast();
+    }
+
     virtual bool visit(SwitchStatementAST *ast)
     {
         if (ast->symbol)

@@ -90,5 +90,3 @@ void ASTVisitor::getTokenStartPosition(unsigned index, unsigned *line, unsigned 
 
 void ASTVisitor::getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const
 { getPosition(tokenAt(index).end(), line, column); }
-
-

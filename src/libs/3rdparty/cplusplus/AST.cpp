@@ -4343,3 +4343,61 @@ unsigned DecltypeSpecifierAST::lastToken() const
     return 1;
 }
 
+/** \generated */
+unsigned RangeBasedForStatementAST::firstToken() const
+{
+    if (for_token)
+        return for_token;
+    if (lparen_token)
+        return lparen_token;
+    if (type_specifier_list)
+        if (unsigned candidate = type_specifier_list->firstToken())
+            return candidate;
+    if (declarator)
+        if (unsigned candidate = declarator->firstToken())
+            return candidate;
+    if (initializer)
+        if (unsigned candidate = initializer->firstToken())
+            return candidate;
+    if (colon_token)
+        return colon_token;
+    if (expression)
+        if (unsigned candidate = expression->firstToken())
+            return candidate;
+    if (rparen_token)
+        return rparen_token;
+    if (statement)
+        if (unsigned candidate = statement->firstToken())
+            return candidate;
+    return 0;
+}
+
+/** \generated */
+unsigned RangeBasedForStatementAST::lastToken() const
+{
+    if (statement)
+        if (unsigned candidate = statement->lastToken())
+            return candidate;
+    if (rparen_token)
+        return rparen_token + 1;
+    if (expression)
+        if (unsigned candidate = expression->lastToken())
+            return candidate;
+    if (colon_token)
+        return colon_token + 1;
+    if (initializer)
+        if (unsigned candidate = initializer->lastToken())
+            return candidate;
+    if (declarator)
+        if (unsigned candidate = declarator->lastToken())
+            return candidate;
+    if (type_specifier_list)
+        if (unsigned candidate = type_specifier_list->lastToken())
+            return candidate;
+    if (lparen_token)
+        return lparen_token + 1;
+    if (for_token)
+        return for_token + 1;
+    return 1;
+}
+

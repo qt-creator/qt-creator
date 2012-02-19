@@ -3230,6 +3230,32 @@ bool Parser::parseForStatement(StatementAST *&node)
         rewind(startOfTypeSpecifier);
     }
 
+    if (cxx0xEnabled()) {
+        RangeBasedForStatementAST *ast = new (_pool) RangeBasedForStatementAST;
+        ast->for_token = for_token;
+        ast->lparen_token = lparen_token;
+
+        if (parseTypeSpecifier(ast->type_specifier_list))
+            parseDeclarator(ast->declarator, ast->type_specifier_list);
+
+        if ((ast->type_specifier_list || ast->declarator) && LA() == T_COLON) {
+            ast->colon_token = consumeToken();
+            blockErrors(blocked);
+
+            parseExpression(ast->expression);
+            match(T_RPAREN, &ast->rparen_token);
+            parseStatement(ast->statement);
+
+            // We need both type specifier and declarator for C++11 range-based for
+            if (!ast->type_specifier_list || !ast->declarator)
+               error(for_token, "expected declaration with type specifier");
+
+            node = ast;
+            return true;
+        }
+        rewind(startOfTypeSpecifier);
+    }
+
     blockErrors(blocked);
 
     // Normal C/C++ for-statement parsing
@@ -6108,4 +6134,3 @@ void Parser::fatal(unsigned index, const char *format, ...)
     va_end(ap);
     va_end(args);
 }
-

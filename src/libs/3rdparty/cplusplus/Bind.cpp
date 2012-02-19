@@ -1282,6 +1282,56 @@ bool Bind::visit(ForeachStatementAST *ast)
     return false;
 }
 
+bool Bind::visit(RangeBasedForStatementAST *ast)
+{
+    Block *block = control()->newBlock(ast->firstToken());
+    const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
+    block->setStartOffset(tokenAt(startScopeToken).end());
+    block->setEndOffset(tokenAt(ast->lastToken()).begin());
+    _scope->addMember(block);
+    ast->symbol = block;
+
+    Scope *previousScope = switchScope(block);
+
+    FullySpecifiedType type;
+    for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
+        type = this->specifier(it->value, type);
+    }
+    DeclaratorIdAST *declaratorId = 0;
+    type = this->declarator(ast->declarator, type, &declaratorId);
+    const StringLiteral *initializer = 0;
+    if (type.isAuto() && translationUnit()->cxx0xEnabled()) {
+        ExpressionTy exprType = this->expression(ast->expression);
+
+        ArrayType* arrayType = 0;
+        arrayType = exprType->asArrayType();
+
+        if (arrayType != 0)
+            type = arrayType->elementType();
+        else if (ast->expression != 0) {
+            unsigned startOfExpression = ast->expression->firstToken();
+            unsigned endOfExpression = ast->expression->lastToken();
+            const StringLiteral *sl = asStringLiteral(startOfExpression, endOfExpression);
+            const std::string buff = std::string("*") + sl->chars() + ".begin()";
+            initializer = control()->stringLiteral(buff.c_str(), buff.size());
+        }
+    }
+
+    if (declaratorId && declaratorId->name) {
+        unsigned sourceLocation = location(declaratorId->name, ast->firstToken());
+        Declaration *decl = control()->newDeclaration(sourceLocation, declaratorId->name->name);
+        decl->setType(type);
+        decl->setInitializer(initializer);
+        block->addMember(decl);
+    }
+
+    /*ExpressionTy initializer =*/ this->expression(ast->initializer);
+    /*ExpressionTy expression =*/ this->expression(ast->expression);
+    this->statement(ast->statement);
+    (void) switchScope(previousScope);
+    return false;
+}
+
 bool Bind::visit(ForStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());

@@ -1131,6 +1131,47 @@ bool ASTMatcher::match(ForeachStatementAST *node, ForeachStatementAST *pattern)
     return true;
 }
 
+bool ASTMatcher::match(RangeBasedForStatementAST *node, RangeBasedForStatementAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->for_token = node->for_token;
+
+    pattern->lparen_token = node->lparen_token;
+
+    if (! pattern->type_specifier_list)
+        pattern->type_specifier_list = node->type_specifier_list;
+    else if (! AST::match(node->type_specifier_list, pattern->type_specifier_list, this))
+        return false;
+
+    if (! pattern->declarator)
+        pattern->declarator = node->declarator;
+    else if (! AST::match(node->declarator, pattern->declarator, this))
+        return false;
+
+    if (! pattern->initializer)
+        pattern->initializer = node->initializer;
+    else if (! AST::match(node->initializer, pattern->initializer, this))
+        return false;
+
+    pattern->colon_token = node->colon_token;
+
+    if (! pattern->expression)
+        pattern->expression = node->expression;
+    else if (! AST::match(node->expression, pattern->expression, this))
+        return false;
+
+    pattern->rparen_token = node->rparen_token;
+
+    if (! pattern->statement)
+        pattern->statement = node->statement;
+    else if (! AST::match(node->statement, pattern->statement, this))
+        return false;
+
+    return true;
+}
+
 bool ASTMatcher::match(ForStatementAST *node, ForStatementAST *pattern)
 {
     (void) node;

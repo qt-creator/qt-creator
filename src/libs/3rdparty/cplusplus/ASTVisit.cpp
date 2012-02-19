@@ -488,6 +488,18 @@ void ForeachStatementAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void RangeBasedForStatementAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(type_specifier_list, visitor);
+        accept(declarator, visitor);
+        accept(initializer, visitor);
+        accept(expression, visitor);
+        accept(statement, visitor);
+    }
+    visitor->endVisit(this);
+}
+
 void ForStatementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

@@ -188,6 +188,7 @@ public:
     virtual bool visit(QtPropertyDeclarationAST *) { return true; }
     virtual bool visit(QtPropertyDeclarationItemAST *) { return true; }
     virtual bool visit(QualifiedNameAST *) { return true; }
+    virtual bool visit(RangeBasedForStatementAST *) { return true; }
     virtual bool visit(ReferenceAST *) { return true; }
     virtual bool visit(ReturnStatementAST *) { return true; }
     virtual bool visit(SimpleDeclarationAST *) { return true; }
@@ -331,6 +332,7 @@ public:
     virtual void endVisit(QtPropertyDeclarationAST *) {}
     virtual void endVisit(QtPropertyDeclarationItemAST *) {}
     virtual void endVisit(QualifiedNameAST *) {}
+    virtual void endVisit(RangeBasedForStatementAST *) {}
     virtual void endVisit(ReferenceAST *) {}
     virtual void endVisit(ReturnStatementAST *) {}
     virtual void endVisit(SimpleDeclarationAST *) {}

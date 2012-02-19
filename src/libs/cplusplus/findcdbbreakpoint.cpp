@@ -144,6 +144,15 @@ bool FindCdbBreakpoint::visit(ForeachStatementAST *ast)
     return false;
 }
 
+bool FindCdbBreakpoint::visit(RangeBasedForStatementAST *ast)
+{
+    if (m_initialLine <= endLine(ast->rparen_token))
+        foundLine(ast->rparen_token);
+
+    accept(ast->statement);
+    return false;
+}
+
 bool FindCdbBreakpoint::visit(ForStatementAST *ast)
 {
     if (m_initialLine <= endLine(ast->rparen_token))

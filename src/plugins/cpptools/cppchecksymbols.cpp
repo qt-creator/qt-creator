@@ -407,6 +407,10 @@ Scope *CheckSymbols::enclosingScope() const
             if (foreachStmt->symbol)
                 return foreachStmt->symbol;
 
+        } else if (RangeBasedForStatementAST *rangeBasedForStmt = ast->asRangeBasedForStatement()) {
+            if (rangeBasedForStmt->symbol)
+                return rangeBasedForStmt->symbol;
+
         } else if (SwitchStatementAST *switchStmt = ast->asSwitchStatement()) {
             if (switchStmt->symbol)
                 return switchStmt->symbol;

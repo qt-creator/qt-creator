@@ -1050,6 +1050,23 @@ bool FindUsages::visit(ForeachStatementAST *ast)
     return false;
 }
 
+bool FindUsages::visit(RangeBasedForStatementAST *ast)
+{
+    Scope *previousScope = switchScope(ast->symbol);
+    for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
+        this->specifier(it->value);
+    }
+    this->declarator(ast->declarator);
+    this->expression(ast->initializer);
+    // unsigned comma_token = ast->comma_token;
+    this->expression(ast->expression);
+    // unsigned rparen_token = ast->rparen_token;
+    this->statement(ast->statement);
+    // Block *symbol = ast->symbol;
+    (void) switchScope(previousScope);
+    return false;
+}
+
 bool FindUsages::visit(ForStatementAST *ast)
 {
     // unsigned for_token = ast->for_token;
@@ -2215,5 +2232,3 @@ bool FindUsages::visit(ArrayDeclaratorAST *ast)
     // unsigned rbracket_token = ast->rbracket_token;
     return false;
 }
-
-

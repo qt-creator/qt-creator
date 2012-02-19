@@ -669,6 +669,27 @@ ForeachStatementAST *ForeachStatementAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+RangeBasedForStatementAST *RangeBasedForStatementAST::clone(MemoryPool *pool) const
+{
+    RangeBasedForStatementAST *ast = new (pool) RangeBasedForStatementAST;
+    ast->for_token = for_token;
+    ast->lparen_token = lparen_token;
+    for (SpecifierListAST *iter = type_specifier_list, **ast_iter = &ast->type_specifier_list;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
+    if (declarator)
+        ast->declarator = declarator->clone(pool);
+    if (initializer)
+        ast->initializer = initializer->clone(pool);
+    ast->colon_token = colon_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    ast->rparen_token = rparen_token;
+    if (statement)
+        ast->statement = statement->clone(pool);
+    return ast;
+}
+
 ForStatementAST *ForStatementAST::clone(MemoryPool *pool) const
 {
     ForStatementAST *ast = new (pool) ForStatementAST;
