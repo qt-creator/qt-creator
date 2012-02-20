@@ -111,7 +111,6 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
         params.executable = runConfig->localExecutableFilePath();
         params.debuggerCommand = runConfig->gdbCmd();
         params.remoteChannel = devConf->sshParameters().host + QLatin1String(":-1");
-        params.requestRemoteSetup = true;
 
         // TODO: This functionality should be inside the debugger.
         const ProjectExplorer::Abi &abi = runConfig->target()
@@ -122,6 +121,7 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
     } else {
         params.startMode = AttachToRemoteServer;
     }
+    params.requestRemoteSetup = true;
     params.displayName = runConfig->displayName();
 
     if (const ProjectExplorer::Project *project = runConfig->target()->project()) {
