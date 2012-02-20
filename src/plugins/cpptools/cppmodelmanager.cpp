@@ -1101,22 +1101,6 @@ void CppModelManager::updateEditor(Document::Ptr doc)
 
             QList<QTextEdit::ExtraSelection> selections;
 
-#ifdef QTCREATOR_WITH_MACRO_HIGHLIGHTING
-            // set up the format for the macros
-            QTextCharFormat macroFormat;
-            macroFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-
-            QTextCursor c = ed->textCursor();
-            foreach (const Document::MacroUse &block, doc->macroUses()) {
-                QTextEdit::ExtraSelection sel;
-                sel.cursor = c;
-                sel.cursor.setPosition(block.begin());
-                sel.cursor.setPosition(block.end(), QTextCursor::KeepAnchor);
-                sel.format = macroFormat;
-                selections.append(sel);
-            }
-#endif // QTCREATOR_WITH_MACRO_HIGHLIGHTING
-
             // set up the format for the errors
             QTextCharFormat errorFormat;
             errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
@@ -1127,52 +1111,6 @@ void CppModelManager::updateEditor(Document::Ptr doc)
             warningFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
             warningFormat.setUnderlineColor(Qt::darkYellow);
 
-#ifdef QTCREATOR_WITH_ADVANCED_HIGHLIGHTER
-            QSet<QPair<unsigned, unsigned> > lines;
-            foreach (const Document::DiagnosticMessage &m, doc->diagnosticMessages()) {
-                if (m.fileName() != fileName)
-                    continue;
-
-                const QPair<unsigned, unsigned> coordinates = qMakePair(m.line(), m.column());
-
-                if (lines.contains(coordinates))
-                    continue;
-
-                lines.insert(coordinates);
-
-                QTextEdit::ExtraSelection sel;
-                if (m.isWarning())
-                    sel.format = warningFormat;
-                else
-                    sel.format = errorFormat;
-
-                QTextCursor c(ed->document()->findBlockByNumber(m.line() - 1));
-
-                // ### check for generated tokens.
-
-                int column = m.column();
-
-                if (column > c.block().length()) {
-                    column = 0;
-
-                    const QString text = c.block().text();
-                    for (int i = 0; i < text.size(); ++i) {
-                        if (! text.at(i).isSpace()) {
-                            ++column;
-                            break;
-                        }
-                    }
-                }
-
-                if (column != 0)
-                    --column;
-
-                c.setPosition(c.position() + column);
-                c.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
-                sel.cursor = c;
-                selections.append(sel);
-            }
-#else
             QSet<int> lines;
             QList<Document::DiagnosticMessage> messages = doc->diagnosticMessages();
             messages += extraDiagnostics(doc->fileName());
@@ -1203,7 +1141,7 @@ void CppModelManager::updateEditor(Document::Ptr doc)
                 sel.format.setToolTip(m.text());
                 selections.append(sel);
             }
-#endif
+
             QList<Editor> todo;
             foreach (const Editor &e, todo) {
                 if (e.textEditor != textEditor)
