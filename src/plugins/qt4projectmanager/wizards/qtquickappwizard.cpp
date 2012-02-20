@@ -147,7 +147,7 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
     parameter.setDisplayName(tr("Qt Quick Application (Built-in elements)"));
     parameter.setDescription(basicDescription + tr("The built-in elements in the QtQuick namespace allow "
                                                    "you to write cross-platform applications with "
-                                                   "a custom look and feel.\n\nRequires Qt 4.7.1 or newer."));
+                                                   "a custom look and feel.\n\nRequires <b>Qt 4.7.4</b> or newer."));
     parameter.setRequiredFeatures(basicFeatures);
     list << parameter;
 
@@ -156,7 +156,7 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
     parameter.setDescription(basicDescription +  tr("The Qt Quick Components for Symbian are a set of "
                                                     "ready-made components that are designed with specific "
                                                     "native appearance for the Symbian platform.\n\nRequires "
-                                                    "Qt 4.7.4 or newer, and the component set installed for "
+                                                    "<b>Qt 4.7.4</b> or newer, and the component set installed for "
                                                     "your Qt version."));
     parameter.setRequiredFeatures(basicFeatures | Core::Feature(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_SYMBIAN));
     list << parameter;
@@ -166,7 +166,7 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
     parameter.setDescription(basicDescription +  tr("The Qt Quick Components for MeeGo/Harmattan are "
                                                     "a set of ready-made components that are designed "
                                                     "with specific native appearance for the MeeGo/Harmattan "
-                                                    "platform.\n\nRequires Qt 4.7.4 or newer, and the "
+                                                    "platform.\n\nRequires <b>Qt 4.7.4</b> or newer, and the "
                                                     "component set installed for your Qt version."));
     parameter.setRequiredFeatures(basicFeatures | Core::Feature(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_MEEGO));
     list << parameter;
@@ -177,8 +177,8 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
                                                     "existing QML files. All files and directories that "
                                                     "reside in the same directory as the main QML file "
                                                     "are deployed. You can modify the contents of the "
-                                                    "directory any time before deploying."));
-    parameter.setRequiredFeatures(basicFeatures);
+                                                    "directory any time before deploying.\n\nRequires <b>Qt 4.7.0</b> or newer."));
+    parameter.setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK));
     list << parameter;
 
     QList<QtQuickAppWizard*> wizardList = Core::createMultipleBaseFileWizardInstances<QtQuickAppWizard>(list, plugin);
