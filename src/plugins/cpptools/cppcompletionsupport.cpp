@@ -30,43 +30,20 @@
 **
 **************************************************************************/
 
-#include "cppcompletionassist.h"
 #include "cppcompletionsupport.h"
-#include "cppmodelmanager.h"
-#include "cpptoolseditorsupport.h"
 
-#include <coreplugin/idocument.h>
-#include <projectexplorer/project.h>
-#include <texteditor/codeassist/iassistinterface.h>
-
-using namespace CPlusPlus;
 using namespace CppTools;
-using namespace CppTools::Internal;
 
-CppCompletionSupport::CppCompletionSupport(CppEditorSupport *editorSupport)
-    : m_editorSupport(editorSupport)
+CppCompletionSupport::CppCompletionSupport(TextEditor::ITextEditor *editor)
+    : m_editor(editor)
 {
-    Q_ASSERT(editorSupport);
+    Q_ASSERT(editor);
 }
 
-TextEditor::IAssistInterface *CppCompletionSupport::createAssistInterface(ProjectExplorer::Project *project,
-                                                                          QTextDocument *document,
-                                                                          int position,
-                                                                          TextEditor::AssistReason reason) const
+CppCompletionSupport::~CppCompletionSupport()
 {
-    CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
-    QStringList includePaths;
-    QStringList frameworkPaths;
-    if (project) {
-        includePaths = modelManager->projectInfo(project).includePaths();
-        frameworkPaths = modelManager->projectInfo(project).frameworkPaths();
-    }
-    return new CppTools::Internal::CppCompletionAssistInterface(
-                document,
-                position,
-                m_editorSupport->textEditor()->document(),
-                reason,
-                modelManager->snapshot(),
-                includePaths,
-                frameworkPaths);
+}
+
+CppCompletionSupportFactory::~CppCompletionSupportFactory()
+{
 }

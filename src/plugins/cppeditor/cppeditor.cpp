@@ -424,6 +424,8 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
     , m_firstRenameChange(false)
     , m_objcEnabled(false)
     , m_commentsSettings(CppTools::CppToolsSettings::instance()->commentsSettings())
+    , m_completionSupport(0)
+    , m_highlightingSupport(0)
 {
     m_initialized = false;
     qRegisterMetaType<SemanticInfo>("CppTools::SemanticInfo");
@@ -440,10 +442,11 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
     baseTextDocument()->setSyntaxHighlighter(new CppHighlighter);
 
     m_modelManager = CppModelManagerInterface::instance();
-
     if (m_modelManager) {
         connect(m_modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
                 this, SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)));
+        m_completionSupport = m_modelManager->completionSupport(editor());
+        m_highlightingSupport = m_modelManager->highlightingSupport(editor());
     }
 
     m_highlightRevision = 0;
@@ -477,6 +480,9 @@ CPPEditorWidget::~CPPEditorWidget()
         m_modelManager->GC();
         numberOfClosedEditors = 0;
     }
+
+    delete m_highlightingSupport;
+    delete m_completionSupport;
 }
 
 TextEditor::BaseTextEditor *CPPEditorWidget::createEditor()
@@ -1853,8 +1859,8 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
         if (! semanticHighlighterDisabled && semanticInfo.doc) {
             if (Core::EditorManager::instance()->currentEditor() == editor()) {
-                if (CppTools::CppHighlightingSupport *hs = modelManager()->highlightingSupport(editor())) {
-                    m_highlighter = hs->highlightingFuture(semanticInfo.doc, semanticInfo.snapshot);
+                if (m_highlightingSupport) {
+                    m_highlighter = m_highlightingSupport->highlightingFuture(semanticInfo.doc, semanticInfo.snapshot);
                     m_highlightRevision = semanticInfo.revision;
                     m_highlightWatcher.setFuture(m_highlighter);
                 }
@@ -2158,9 +2164,10 @@ TextEditor::IAssistInterface *CPPEditorWidget::createAssistInterface(
     TextEditor::AssistReason reason) const
 {
     if (kind == TextEditor::Completion) {
-        if (CppTools::CppCompletionSupport *cs = m_modelManager->completionSupport(editor()))
-            return cs->createAssistInterface(ProjectExplorer::ProjectExplorerPlugin::currentProject(),
-                                             document(), position(), reason);
+        if (m_completionSupport)
+            return m_completionSupport->createAssistInterface(
+                        ProjectExplorer::ProjectExplorerPlugin::currentProject(),
+                        document(), position(), reason);
     } else if (kind == TextEditor::QuickFix) {
         if (!semanticInfo().doc || isOutdated())
             return 0;

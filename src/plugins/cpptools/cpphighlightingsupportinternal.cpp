@@ -30,20 +30,37 @@
 **
 **************************************************************************/
 
-#include "cpphighlightingsupport.h"
+#include "cppchecksymbols.h"
+#include "cpphighlightingsupportinternal.h"
 
+#include <cplusplus/LookupContext.h>
+
+using namespace CPlusPlus;
 using namespace CppTools;
+using namespace CppTools::Internal;
 
-CppHighlightingSupport::CppHighlightingSupport(TextEditor::ITextEditor *editor)
-    : m_editor(editor)
-{
-    Q_ASSERT(editor);
-}
-
-CppHighlightingSupport::~CppHighlightingSupport()
+CppHighlightingSupportInternal::CppHighlightingSupportInternal(TextEditor::ITextEditor *editor)
+    : CppHighlightingSupport(editor)
 {
 }
 
-CppHighlightingSupportFactory::~CppHighlightingSupportFactory()
+CppHighlightingSupportInternal::~CppHighlightingSupportInternal()
 {
+}
+
+QFuture<CppHighlightingSupport::Use> CppHighlightingSupportInternal::highlightingFuture(
+        const Document::Ptr &doc,
+        const Snapshot &snapshot) const
+{
+    LookupContext context(doc, snapshot);
+    return CheckSymbols::go(doc, context);
+}
+
+CppHighlightingSupportInternalFactory::~CppHighlightingSupportInternalFactory()
+{
+}
+
+CppHighlightingSupport *CppHighlightingSupportInternalFactory::highlightingSupport(TextEditor::ITextEditor *editor)
+{
+    return new CppHighlightingSupportInternal(editor);
 }

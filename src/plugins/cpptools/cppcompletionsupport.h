@@ -41,35 +41,42 @@ QT_BEGIN_NAMESPACE
 class QTextDocument;
 QT_END_NAMESPACE
 
-namespace Core {
-class IDocument;
-}
-
 namespace ProjectExplorer {
 class Project;
 }
 
 namespace TextEditor {
 class IAssistInterface;
+class ITextEditor;
 }
 
 namespace CppTools {
-namespace Internal {
-class CppEditorSupport;
-}
 
 class CPPTOOLS_EXPORT CppCompletionSupport
 {
 public:
-    CppCompletionSupport(Internal::CppEditorSupport *editorSupport);
+    CppCompletionSupport(TextEditor::ITextEditor *editor);
+    virtual ~CppCompletionSupport() = 0;
 
-    TextEditor::IAssistInterface *createAssistInterface(ProjectExplorer::Project *project,
-                                                        QTextDocument *document,
-                                                        int position,
-                                                        TextEditor::AssistReason reason) const;
+    virtual TextEditor::IAssistInterface *createAssistInterface(ProjectExplorer::Project *project,
+                                                                QTextDocument *document,
+                                                                int position,
+                                                                TextEditor::AssistReason reason) const = 0;
+
+protected:
+    TextEditor::ITextEditor *editor() const
+    { return m_editor; }
 
 private:
-    Internal::CppEditorSupport *m_editorSupport;
+    TextEditor::ITextEditor *m_editor;
+};
+
+class CPPTOOLS_EXPORT CppCompletionSupportFactory
+{
+public:
+    virtual ~CppCompletionSupportFactory() = 0;
+
+    virtual CppCompletionSupport *completionSupport(TextEditor::ITextEditor *editor) = 0;
 };
 
 } // namespace CppTools

@@ -76,6 +76,9 @@ namespace CPlusPlus {
 
 namespace CppTools {
 
+class CppCompletionSupportFactory;
+class CppHighlightingSupportFactory;
+
 namespace Internal {
 
 class CppEditorSupport;
@@ -135,7 +138,10 @@ public:
     void finishedRefreshingSourceFiles(const QStringList &files);
 
     virtual CppCompletionSupport *completionSupport(Core::IEditor *editor) const;
+    void setCompletionSupportFactory(CppCompletionSupportFactory *completionFactory);
+
     virtual CppHighlightingSupport *highlightingSupport(Core::IEditor *editor) const;
+    void setHighlightingSupportFactory(CppHighlightingSupportFactory *highlightingFactory);
 
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
@@ -240,6 +246,11 @@ private:
     QHash<QString, QHash<int, QList<CPlusPlus::Document::DiagnosticMessage> > > m_extraDiagnostics;
 
     QMap<QString, QList<ProjectPart::Ptr> > m_srcToProjectPart;
+
+    CppCompletionSupportFactory *m_completionFactory;
+    CppCompletionSupportFactory *m_completionFallback;
+    CppHighlightingSupportFactory *m_highlightingFactory;
+    CppHighlightingSupportFactory *m_highlightingFallback;
 };
 #endif
 

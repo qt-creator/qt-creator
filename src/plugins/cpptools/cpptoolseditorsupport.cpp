@@ -53,9 +53,7 @@ using namespace CPlusPlus;
 CppEditorSupport::CppEditorSupport(CppModelManager *modelManager)
     : QObject(modelManager),
       _modelManager(modelManager),
-      _updateDocumentInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL),
-      m_completionSupport(new CppCompletionSupport(this)),
-      m_highlightingSupport(new CppHighlightingSupport)
+      _updateDocumentInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL)
 {
     _revision = 0;
 
@@ -101,16 +99,6 @@ unsigned CppEditorSupport::editorRevision() const
     }
 
     return 0;
-}
-
-CppTools::CppCompletionSupport *CppEditorSupport::completionSupport() const
-{
-    return m_completionSupport.data();
-}
-
-CppHighlightingSupport *CppEditorSupport::highlightingSupport() const
-{
-    return m_highlightingSupport.data();
 }
 
 int CppEditorSupport::updateDocumentInterval() const

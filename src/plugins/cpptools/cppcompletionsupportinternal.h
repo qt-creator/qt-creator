@@ -30,20 +30,35 @@
 **
 **************************************************************************/
 
-#include "cpphighlightingsupport.h"
+#ifndef CPPTOOLS_CPPCOMPLETIONSUPPORTINTERNAL_H
+#define CPPTOOLS_CPPCOMPLETIONSUPPORTINTERNAL_H
 
-using namespace CppTools;
+#include "cppcompletionsupport.h"
 
-CppHighlightingSupport::CppHighlightingSupport(TextEditor::ITextEditor *editor)
-    : m_editor(editor)
+namespace CppTools {
+namespace Internal {
+
+class CppCompletionSupportInternal: public CppCompletionSupport
 {
-    Q_ASSERT(editor);
-}
+public:
+    CppCompletionSupportInternal(TextEditor::ITextEditor *editor);
+    virtual ~CppCompletionSupportInternal();
 
-CppHighlightingSupport::~CppHighlightingSupport()
-{
-}
+    virtual TextEditor::IAssistInterface *createAssistInterface(ProjectExplorer::Project *project,
+                                                                QTextDocument *document,
+                                                                int position,
+                                                                TextEditor::AssistReason reason) const;
+};
 
-CppHighlightingSupportFactory::~CppHighlightingSupportFactory()
+class CppCompletionSupportInternalFactory: public CppCompletionSupportFactory
 {
-}
+public:
+    virtual ~CppCompletionSupportInternalFactory();
+
+    virtual CppCompletionSupport *completionSupport(TextEditor::ITextEditor *editor);
+};
+
+} // namespace Internal
+} // namespace CppTools
+
+#endif // CPPTOOLS_CPPCOMPLETIONSUPPORTINTERNAL_H
