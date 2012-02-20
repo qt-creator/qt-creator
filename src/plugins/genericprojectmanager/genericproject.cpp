@@ -261,9 +261,6 @@ void GenericProject::refresh(RefreshOptions options)
         CPlusPlus::CppModelManagerInterface::ProjectPart::Ptr part(
                     new CPlusPlus::CppModelManagerInterface::ProjectPart);
 
-        pinfo.frameworkPaths.clear();
-        pinfo.includePaths.clear();
-
         if (m_toolChain) {
             part->defines = m_toolChain->predefinedMacros(QStringList());
             part->defines += '\n';
