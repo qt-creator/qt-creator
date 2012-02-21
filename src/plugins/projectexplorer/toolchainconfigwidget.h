@@ -71,7 +71,7 @@ public:
     virtual void makeReadOnly();
 
 signals:
-    void dirty(ProjectExplorer::ToolChain *);
+    void dirty();
 
 protected slots:
     void emitDirty();

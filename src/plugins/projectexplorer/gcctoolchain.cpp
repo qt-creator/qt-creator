@@ -795,7 +795,7 @@ void Internal::GccToolChainConfigWidget::handleAbiChange()
         m_autoDebuggerCommand = ToolChainManager::instance()->defaultDebugger(abi);
         setDebuggerCommand(m_autoDebuggerCommand);
     }
-    emit dirty(toolChain());
+    emit dirty();
 }
 
 // --------------------------------------------------------------------------

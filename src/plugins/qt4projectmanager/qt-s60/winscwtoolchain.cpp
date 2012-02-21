@@ -369,7 +369,7 @@ void WinscwToolChainConfigWidget::handleCompilerPathUpdate()
 
 void WinscwToolChainConfigWidget::makeDirty()
 {
-    emit dirty(toolChain());
+    emit dirty();
 }
 
 // --------------------------------------------------------------------------

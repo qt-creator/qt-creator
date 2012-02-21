@@ -285,10 +285,11 @@ bool ToolChainModel::isDirty(ToolChain *tc) const
     return false;
 }
 
-void ToolChainModel::setDirty(ToolChain *tc)
+void ToolChainModel::setDirty()
 {
+    ToolChainConfigWidget *w = qobject_cast<ToolChainConfigWidget *>(sender());
     foreach (ToolChainNode *n, m_manualRoot->childNodes) {
-        if (n->toolChain == tc) {
+        if (n->widget == w) {
             n->changed = true;
             emit dataChanged(index(n, 0), index(n, columnCount(QModelIndex())));
         }
@@ -404,8 +405,8 @@ ToolChainNode *ToolChainModel::createNode(ToolChainNode *parent, ToolChain *tc, 
     ToolChainNode *node = new ToolChainNode(parent, tc, changed);
     if (node->widget) {
         m_configWidgetParent->layout()->addWidget(node->widget);
-        connect(node->widget, SIGNAL(dirty(ProjectExplorer::ToolChain*)),
-                this, SLOT(setDirty(ProjectExplorer::ToolChain*)));
+        connect(node->widget, SIGNAL(dirty()),
+                this, SLOT(setDirty()));
     }
     return node;
 }

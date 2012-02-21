@@ -96,7 +96,7 @@ signals:
 private slots:
     void addToolChain(ProjectExplorer::ToolChain *);
     void removeToolChain(ProjectExplorer::ToolChain *);
-    void setDirty(ProjectExplorer::ToolChain *);
+    void setDirty();
 
 private:
     QModelIndex index(ToolChainNode *, int column = 0) const;

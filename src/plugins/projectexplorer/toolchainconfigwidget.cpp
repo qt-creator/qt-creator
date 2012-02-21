@@ -149,7 +149,7 @@ void ToolChainConfigWidget::emitDirty()
         d->m_mkspecEdited = (mkspecListFromString(d->m_mkspecEdit->text()) != d->m_suggestedMkspec);
     if (d->m_mkspecResetButton)
         d->m_mkspecResetButton->setEnabled(d->m_mkspecEdited);
-    emit dirty(toolChain());
+    emit dirty();
 }
 
 void ToolChainConfigWidget::resetMkspecList()
