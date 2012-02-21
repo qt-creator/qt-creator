@@ -215,11 +215,12 @@ void RvctToolChain::addToEnvironment(Utils::Environment &env) const
 
     env.set(QLatin1String("QT_RVCT_VERSION"), QString::fromLatin1("%1.%2")
             .arg(m_version.majorVersion).arg(m_version.minorVersion));
-    env.set(varName(QLatin1String("BIN")), m_compilerCommand.toUserOutput());
+    const QString cxxPath = compilerCommand().toFileInfo().absolutePath();
+    env.set(varName(QLatin1String("BIN")), QDir::toNativeSeparators(cxxPath));
 
     // Add rvct to path and set locale to 'C'
     if (!m_compilerCommand.isEmpty())
-        env.prependOrSetPath(m_compilerCommand.toString());
+        env.prependOrSetPath(cxxPath);
     env.set(QLatin1String("LANG"), QString(QLatin1Char('C')));
 }
 
