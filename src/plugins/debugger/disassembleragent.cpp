@@ -138,6 +138,7 @@ DisassemblerAgentPrivate::~DisassemblerAgentPrivate()
     }
     editor = 0;
     delete locationMark;
+    qDeleteAll(breakpointMarks);
 }
 
 DisassemblerLines DisassemblerAgentPrivate::contentsAtCurrentLocation() const
@@ -383,6 +384,7 @@ void DisassemblerAgent::updateBreakpointMarkers()
     const DisassemblerLines contents = d->contentsAtCurrentLocation();
     foreach (TextEditor::ITextMark *marker, d->breakpointMarks)
         d->editor->markableInterface()->removeMark(marker);
+    qDeleteAll(d->breakpointMarks);
     d->breakpointMarks.clear();
     foreach (BreakpointModelId id, ids) {
         const quint64 address = handler->response(id).address;
