@@ -63,6 +63,7 @@ public slots:
 class CodepasterPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CodePaster.json")
 
 public:
     CodepasterPlugin();

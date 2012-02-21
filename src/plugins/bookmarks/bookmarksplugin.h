@@ -59,6 +59,7 @@ class BookmarkManager;
 class BookmarksPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Bookmarks.json")
 
 public:
     BookmarksPlugin();

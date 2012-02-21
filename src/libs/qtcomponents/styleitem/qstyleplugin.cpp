@@ -95,4 +95,6 @@ void StylePlugin::initializeEngine(QDeclarativeEngine *engine, const char *uri)
     engine->addImageProvider("desktoptheme", new DesktopIconProvider);
 }
 
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(styleplugin, StylePlugin)
+#endif

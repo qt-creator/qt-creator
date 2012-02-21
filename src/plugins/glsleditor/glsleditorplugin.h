@@ -73,6 +73,7 @@ class GLSLQuickFixCollector;
 class GLSLEditorPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "GLSLEditor.json")
 
 public:
     GLSLEditorPlugin();

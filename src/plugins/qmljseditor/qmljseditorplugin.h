@@ -79,6 +79,7 @@ class QmlTaskManager;
 class QmlJSEditorPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlJSEditor.json")
 
 public:
     QmlJSEditorPlugin();

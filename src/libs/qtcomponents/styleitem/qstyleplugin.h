@@ -50,6 +50,11 @@
 class StylePlugin : public QDeclarativeExtensionPlugin
 {
     Q_OBJECT
+#if QT_VERSION >= 0x050000
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QDeclarativeExtensionInterface" FILE "styleitem.json")
+    Q_INTERFACES(QDeclarativeExtensionInterface)
+#endif
+
 public:
     void registerTypes(const char *uri);
     void initializeEngine(QDeclarativeEngine *engine, const char *uri);

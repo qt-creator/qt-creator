@@ -43,6 +43,7 @@ namespace Internal {
 class QmlProfilerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfiler.json")
 
 public:
     QmlProfilerPlugin() {}

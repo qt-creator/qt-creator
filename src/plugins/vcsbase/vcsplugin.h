@@ -51,6 +51,7 @@ class CoreListener;
 class VcsPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "VcsBase.json")
 
 public:
     VcsPlugin();

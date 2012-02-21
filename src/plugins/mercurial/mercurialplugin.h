@@ -68,6 +68,7 @@ class MercurialSettings;
 class MercurialPlugin : public VcsBase::VcsBasePlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Mercurial.json")
 
 public:
     MercurialPlugin();

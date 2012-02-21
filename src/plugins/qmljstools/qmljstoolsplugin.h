@@ -56,6 +56,7 @@ class ModelManager;
 class QmlJSToolsPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlJSTools.json")
 
 public:
     static QmlJSToolsPlugin *instance() { return m_instance; }

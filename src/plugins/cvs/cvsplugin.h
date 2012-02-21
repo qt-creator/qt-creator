@@ -74,6 +74,7 @@ struct CvsResponse
 class CvsPlugin : public VcsBase::VcsBasePlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CVS.json")
 
 public:
     CvsPlugin();

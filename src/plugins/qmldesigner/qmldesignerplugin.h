@@ -65,6 +65,7 @@ class DesignModeContext;
 class BauhausPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlDesigner.json")
 
 public:
     BauhausPlugin();

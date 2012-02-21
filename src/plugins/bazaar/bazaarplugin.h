@@ -81,6 +81,7 @@ class BazaarEditor;
 class BazaarPlugin : public VcsBase::VcsBasePlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Bazaar.json")
 
 public:
     BazaarPlugin();

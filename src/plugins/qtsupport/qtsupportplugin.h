@@ -45,6 +45,7 @@ class ExamplesWelcomePage;
 class QtSupportPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QtSupport.json")
 
 public:
     bool initialize(const QStringList &arguments, QString *errorMessage);

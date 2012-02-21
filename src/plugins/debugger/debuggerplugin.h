@@ -53,6 +53,7 @@ class DebuggerStartParameters;
 class DEBUGGER_EXPORT DebuggerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Debugger.json")
 
 public:
     DebuggerPlugin();

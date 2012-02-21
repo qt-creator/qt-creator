@@ -44,6 +44,10 @@
 #include <QTimer>
 #include <QFutureWatcher>
 
+#if QT_VERSION >= 0x050000
+#    include <QtPlugin>
+#endif
+
 namespace Locator {
 namespace Internal {
 
@@ -56,6 +60,7 @@ class LocatorPlugin;
 class LocatorPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Locator.json")
 
 public:
     LocatorPlugin();

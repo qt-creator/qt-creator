@@ -41,6 +41,7 @@ namespace Internal {
 class RemoteLinuxPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "RemoteLinux.json")
 
 public:
     RemoteLinuxPlugin();

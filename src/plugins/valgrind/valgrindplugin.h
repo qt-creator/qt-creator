@@ -44,6 +44,7 @@ namespace Internal {
 class ValgrindPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Valgrind.json")
 
 public:
     ValgrindPlugin() {}

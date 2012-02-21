@@ -72,6 +72,7 @@ class PROJECTEXPLORER_EXPORT ProjectExplorerPlugin
     : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ProjectExplorer.json")
 
 public:
     ProjectExplorerPlugin();

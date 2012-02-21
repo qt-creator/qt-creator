@@ -57,6 +57,22 @@ copy2build.name = COPY ${QMAKE_FILE_IN}
 copy2build.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += copy2build
 
+greaterThan(QT_MAJOR_VERSION, 4) {
+#   Create a Json file containing the plugin information required by
+#   Qt 5's plugin system by running a XSLT sheet on the
+#   pluginspec file before moc runs.
+    XMLPATTERNS = $$targetPath($$[QT_INSTALL_BINS]/xmlpatterns)
+
+    pluginspec2json.name = Create Qt 5 plugin json file
+    pluginspec2json.input = PLUGINSPEC
+    pluginspec2json.variable_out = GENERATED_FILES
+    pluginspec2json.output = $${TARGET}.json
+    pluginspec2json.commands = $$XMLPATTERNS -no-format -output $$pluginspec2json.output $$PWD/pluginjsonmetadata.xsl $$PLUGINSPEC
+    pluginspec2json.CONFIG += no_link
+    moc_header.depends += $$pluginspec2json.output
+    QMAKE_EXTRA_COMPILERS += pluginspec2json
+}
+
 macx {
     !isEmpty(TIGER_COMPAT_MODE) {
         QMAKE_LFLAGS_SONAME = -Wl,-install_name,@executable_path/../PlugIns/$${PROVIDER}/

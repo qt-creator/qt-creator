@@ -86,6 +86,7 @@ typedef QPair<Utils::ParameterAction *, Core::Command* > ParameterActionCommandP
 class GitPlugin : public VcsBase::VcsBasePlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Git.json")
 
 public:
     GitPlugin();

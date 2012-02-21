@@ -79,6 +79,7 @@ struct SubversionResponse
 class SubversionPlugin : public VcsBase::VcsBasePlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Subversion.json")
 
 public:
     SubversionPlugin();

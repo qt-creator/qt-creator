@@ -46,6 +46,7 @@ namespace Internal {
 class Plugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClassView.json")
 
 public:
     //! Constructor

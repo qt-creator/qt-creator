@@ -55,6 +55,7 @@ class CppQuickFixAssistProvider;
 class CppPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CppEditor.json")
 
 public:
     CppPlugin();
