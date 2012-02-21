@@ -43,7 +43,3 @@ CppCompletionSupport::CppCompletionSupport(TextEditor::ITextEditor *editor)
 CppCompletionSupport::~CppCompletionSupport()
 {
 }
-
-CppCompletionSupportFactory::~CppCompletionSupportFactory()
-{
-}

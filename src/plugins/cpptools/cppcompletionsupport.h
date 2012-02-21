@@ -71,14 +71,6 @@ private:
     TextEditor::ITextEditor *m_editor;
 };
 
-class CPPTOOLS_EXPORT CppCompletionSupportFactory
-{
-public:
-    virtual ~CppCompletionSupportFactory() = 0;
-
-    virtual CppCompletionSupport *completionSupport(TextEditor::ITextEditor *editor) = 0;
-};
-
 } // namespace CppTools
 
 #endif // CPPTOOLS_CPPCOMPLETIONSUPPORT_H

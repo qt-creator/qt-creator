@@ -33,6 +33,8 @@
 #ifndef CPPCOMPLETIONASSIST_H
 #define CPPCOMPLETIONASSIST_H
 
+#include "cppcompletionassistprovider.h"
+
 #include <cplusplus/Icons.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
@@ -67,13 +69,13 @@ namespace Internal {
 class CppCompletionAssistInterface;
 class CppAssistProposalModel;
 
-class CppCompletionAssistProvider : public TextEditor::CompletionAssistProvider
+class InternalCompletionAssistProvider : public CppCompletionAssistProvider
 {
+    Q_OBJECT
+
 public:
-    virtual bool supportsEditor(const Core::Id &editorId) const;
-    virtual int activationCharSequenceLength() const;
-    virtual bool isActivationCharSequence(const QString &sequence) const;
     virtual TextEditor::IAssistProcessor *createProcessor() const;
+    virtual CppCompletionSupport *completionSupport(TextEditor::ITextEditor *editor);
 };
 
 class CppCompletionAssistProcessor : public TextEditor::IAssistProcessor
@@ -135,7 +137,7 @@ private:
     QScopedPointer<const CppCompletionAssistInterface> m_interface;
     QList<TextEditor::BasicProposalItem *> m_completions;
     TextEditor::SnippetAssistCollector m_snippetCollector;
-    const CppCompletionAssistProvider *m_provider;
+    const InternalCompletionAssistProvider *m_provider;
     CPlusPlus::Icons m_icons;
     QStringList preprocessorCompletions;
     QScopedPointer<CppAssistProposalModel> m_model;
