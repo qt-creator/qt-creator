@@ -70,11 +70,6 @@ public:
 
     QList<QModelIndex> addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode);
 
-    QModelIndex find(const QRegExp &expr, const QModelIndex &index,
-                     QTextDocument::FindFlags flags, bool startWithCurrentIndex, bool *wrapped = 0);
-    QModelIndex find(const QString &term, const QModelIndex &index,
-                     QTextDocument::FindFlags flags, bool startWithCurrentIndex, bool *wrapped = 0);
-
 signals:
     void jumpToSearchResult(const QString &fileName, int lineNumber,
                             int searchTermStart, int searchTermLength);
@@ -90,8 +85,6 @@ private:
     bool setCheckState(const QModelIndex &idx, Qt::CheckState checkState, bool firstCall = true);
     QModelIndex nextIndex(const QModelIndex &idx, bool *wrapped = 0) const;
     QModelIndex prevIndex(const QModelIndex &idx, bool *wrapped = 0) const;
-    QModelIndex followingIndex(const QModelIndex &idx, bool backward, bool includeGenerated = false,
-                               bool *wrapped = 0);
     SearchResultTreeItem *treeItemAtIndex(const QModelIndex &idx) const;
 
     SearchResultTreeItem *m_rootItem;

@@ -43,6 +43,10 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/findplaceholder.h>
+
+#include <aggregation/aggregate.h>
+#include <find/treeviewfind.h>
 
 #include <QSettings>
 #include <QHBoxLayout>
@@ -168,10 +172,15 @@ QtMessageLogWindow::QtMessageLogWindow(QWidget *parent)
 
     vbox->addWidget(statusbarContainer);
     vbox->addWidget(m_treeView);
+    vbox->addWidget(new Core::FindToolBarPlaceHolder(this));
 
     readSettings();
     connect(Core::ICore::instance(),
             SIGNAL(saveSettingsRequested()), SLOT(writeSettings()));
+
+    Aggregation::Aggregate *aggregate = new Aggregation::Aggregate();
+    aggregate->add(m_treeView);
+    aggregate->add(new Find::TreeViewFind(m_treeView));
 }
 
 QtMessageLogWindow::~QtMessageLogWindow()

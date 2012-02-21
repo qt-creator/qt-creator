@@ -34,8 +34,10 @@
 #include "searchresulttreeview.h"
 #include "searchresulttreemodel.h"
 #include "searchresulttreeitems.h"
+#include "searchresulttreeitemroles.h"
 
 #include "ifindsupport.h"
+#include "treeviewfind.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/icore.h>
@@ -64,142 +66,6 @@ public:
     }
 public slots:
     void updateGeometry() { QLineEdit::updateGeometry(); }
-};
-
-class SearchResultFindSupport : public IFindSupport
-{
-    Q_OBJECT
-public:
-    SearchResultFindSupport(SearchResultTreeView *view)
-        : m_view(view),
-          m_incrementalWrappedState(false)
-    {
-    }
-
-    bool supportsReplace() const { return false; }
-
-    Find::FindFlags supportedFindFlags() const
-    {
-        return Find::FindBackward | Find::FindCaseSensitively
-                | Find::FindRegularExpression | Find::FindWholeWords;
-    }
-
-    void resetIncrementalSearch()
-    {
-        m_incrementalFindStart = QModelIndex();
-        m_incrementalWrappedState = false;
-    }
-
-    void clearResults() { }
-
-    QString currentFindString() const
-    {
-        return QString();
-    }
-
-    QString completedFindString() const
-    {
-        return QString();
-    }
-
-    void highlightAll(const QString &txt, Find::FindFlags findFlags)
-    {
-        Q_UNUSED(txt)
-        Q_UNUSED(findFlags)
-        return;
-    }
-
-    IFindSupport::Result findIncremental(const QString &txt, Find::FindFlags findFlags)
-    {
-        if (!m_incrementalFindStart.isValid()) {
-            m_incrementalFindStart = m_view->currentIndex();
-            m_incrementalWrappedState = false;
-        }
-        m_view->setCurrentIndex(m_incrementalFindStart);
-        bool wrapped = false;
-        IFindSupport::Result result = find(txt, findFlags, true/*startFromCurrent*/, &wrapped);
-        if (wrapped != m_incrementalWrappedState) {
-            m_incrementalWrappedState = wrapped;
-            showWrapIndicator(m_view);
-        }
-        return result;
-    }
-
-    IFindSupport::Result findStep(const QString &txt, Find::FindFlags findFlags)
-    {
-        bool wrapped = false;
-        IFindSupport::Result result = find(txt, findFlags, false/*startFromNext*/, &wrapped);
-        if (wrapped)
-            showWrapIndicator(m_view);
-        if (result == IFindSupport::Found) {
-            m_incrementalFindStart = m_view->currentIndex();
-            m_incrementalWrappedState = false;
-        }
-        return result;
-    }
-
-    IFindSupport::Result find(const QString &txt, Find::FindFlags findFlags,
-                              bool startFromCurrentIndex, bool *wrapped)
-    {
-        if (wrapped)
-            *wrapped = false;
-        if (txt.isEmpty())
-            return IFindSupport::NotFound;
-        QModelIndex index;
-        if (findFlags & Find::FindRegularExpression) {
-            bool sensitive = (findFlags & Find::FindCaseSensitively);
-            index = m_view->model()->find(QRegExp(txt, (sensitive ? Qt::CaseSensitive : Qt::CaseInsensitive)),
-                                          m_view->currentIndex(),
-                                          Find::textDocumentFlagsForFindFlags(findFlags),
-                                          startFromCurrentIndex,
-                                          wrapped);
-        } else {
-            index = m_view->model()->find(txt,
-                                          m_view->currentIndex(),
-                                          Find::textDocumentFlagsForFindFlags(findFlags),
-                                          startFromCurrentIndex,
-                                          wrapped);
-        }
-        if (index.isValid()) {
-            m_view->setCurrentIndex(index);
-            m_view->scrollTo(index);
-            if (index.parent().isValid())
-                m_view->expand(index.parent());
-            return IFindSupport::Found;
-        }
-        return IFindSupport::NotFound;
-    }
-
-    void replace(const QString &before, const QString &after,
-        Find::FindFlags findFlags)
-    {
-        Q_UNUSED(before)
-        Q_UNUSED(after)
-        Q_UNUSED(findFlags)
-    }
-
-    bool replaceStep(const QString &before, const QString &after,
-        Find::FindFlags findFlags)
-    {
-        Q_UNUSED(before)
-        Q_UNUSED(after)
-        Q_UNUSED(findFlags)
-        return false;
-    }
-
-    int replaceAll(const QString &before, const QString &after,
-        Find::FindFlags findFlags)
-    {
-        Q_UNUSED(before)
-        Q_UNUSED(after)
-        Q_UNUSED(findFlags)
-        return 0;
-    }
-
-private:
-    SearchResultTreeView *m_view;
-    QModelIndex m_incrementalFindStart;
-    bool m_incrementalWrappedState;
 };
 
 } // Internal
@@ -236,7 +102,8 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_searchResultTreeView->setAttribute(Qt::WA_MacShowFocusRect, false);
     Aggregation::Aggregate * agg = new Aggregation::Aggregate;
     agg->add(m_searchResultTreeView);
-    agg->add(new SearchResultFindSupport(m_searchResultTreeView));
+    agg->add(new TreeViewFind(m_searchResultTreeView,
+                              ItemDataRoles::ResultLineRole));
 
     layout->addWidget(topWidget);
     layout->addWidget(m_searchResultTreeView);
