@@ -149,8 +149,8 @@ def verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, e
                 __handleTextTips__(tip, expectedVals, altVal)
             elif expectedType == "WidgetTip":
                 test.warning("Sorry - WidgetTip checks aren't implemented yet.")
-            mouseMove(editor, -50, -50)
-            waitFor("isNull(tip)", 3000)
+            sendEvent("QMouseEvent", editor, QEvent.MouseMove, 0, -50, Qt.NoButton, 0)
+            waitFor("isNull(tip)", 10000)
 
 # helper function that handles verification of TextTip hoverings
 # param textTip the TextTip object
