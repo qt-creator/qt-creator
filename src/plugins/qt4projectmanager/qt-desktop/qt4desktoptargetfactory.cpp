@@ -134,7 +134,7 @@ Qt4TargetSetupWidget *Qt4DesktopTargetFactory::createTargetSetupWidget(const QSt
                                                                              minimumQtVersion,
                                                                              maximumQtVersion,
                                                                              requiredFeatures);
-    if (infos.isEmpty())
+    if (infos.isEmpty() && importInfos.isEmpty())
         return 0;
     Qt4DefaultTargetSetupWidget *widget = new Qt4DefaultTargetSetupWidget(this, id, proFilePath,  infos,
                                                                           minimumQtVersion, maximumQtVersion,

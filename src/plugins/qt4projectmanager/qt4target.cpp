@@ -102,7 +102,7 @@ Qt4TargetSetupWidget *Qt4BaseTargetFactory::createTargetSetupWidget(const QStrin
                                                                              minimumQtVersion,
                                                                              maximumQtVersion,
                                                                              requiredFeatures);
-    if (infos.isEmpty())
+    if (infos.isEmpty() && importInfos.isEmpty())
         return 0;
     const bool supportsShadowBuilds
             = targetFeatures(id).contains(QLatin1String(Constants::SHADOWBUILD_TARGETFEATURE_ID));
