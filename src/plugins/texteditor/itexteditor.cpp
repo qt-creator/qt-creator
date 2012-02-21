@@ -43,6 +43,11 @@ ITextMark::~ITextMark()
 
 }
 
+int ITextMark::lineNumber() const
+{
+    return m_lineNumber;
+}
+
 void ITextMark::paint(QPainter *painter, const QRect &rect) const
 {
     m_icon.paint(painter, rect, Qt::AlignCenter);
@@ -50,7 +55,7 @@ void ITextMark::paint(QPainter *painter, const QRect &rect) const
 
 void ITextMark::updateLineNumber(int lineNumber)
 {
-    Q_UNUSED(lineNumber)
+    m_lineNumber = lineNumber;
 }
 
 void ITextMark::updateBlock(const QTextBlock &)

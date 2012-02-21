@@ -58,7 +58,7 @@ class ITextEditor;
 class TEXTEDITOR_EXPORT ITextMark
 {
 public:
-    ITextMark() : m_priority(NormalPriority) {}
+    ITextMark(int line) : m_lineNumber(line), m_priority(NormalPriority) {}
     virtual ~ITextMark();
 
     // determine order on markers on the same line.
@@ -69,6 +69,7 @@ public:
         HighPriority // shown on top.
     };
 
+    int lineNumber() const;
     virtual void paint(QPainter *painter, const QRect &rect) const;
     virtual void updateLineNumber(int lineNumber);
     virtual void updateBlock(const QTextBlock &block);
@@ -80,6 +81,7 @@ public:
     virtual double widthFactor() const;
 
 private:
+    int m_lineNumber;
     QIcon m_icon;
     Priority m_priority;
 };
@@ -93,7 +95,7 @@ class TEXTEDITOR_EXPORT ITextMarkable : public QObject
 public:
     ITextMarkable(QObject *parent = 0) : QObject(parent) {}
 
-    virtual bool addMark(ITextMark *mark, int line) = 0;
+    virtual bool addMark(ITextMark *mark) = 0;
     virtual TextMarks marksAt(int line) const = 0;
     virtual void removeMark(ITextMark *mark) = 0;
     virtual void updateMark(ITextMark *mark) = 0;

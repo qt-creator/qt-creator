@@ -57,7 +57,7 @@ void BaseTextMarkRegistry::add(BaseTextMark *mark)
         if (ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor)) {
             if (mark->m_markableInterface == 0) { // We aren't added to something
                 ITextMarkable *markableInterface = textEditor->markableInterface();
-                if (markableInterface->addMark(mark, mark->m_line)) {
+                if (markableInterface->addMark(mark)) {
                     mark->m_markableInterface = markableInterface;
                     // Handle reload of text documents, readding the mark as necessary
                     connect(textEditor->document(), SIGNAL(reloaded()),
@@ -89,7 +89,7 @@ void BaseTextMarkRegistry::editorOpened(Core::IEditor *editor)
     foreach (BaseTextMark *mark, m_marks.value(Utils::FileName::fromString(editor->document()->fileName()))) {
         if (mark->m_markableInterface == 0) { // We aren't added to something
             ITextMarkable *markableInterface = textEditor->markableInterface();
-            if (markableInterface->addMark(mark, mark->m_line))
+            if (markableInterface->addMark(mark))
                 mark->m_markableInterface = markableInterface;
         }
     }
@@ -108,13 +108,13 @@ void BaseTextMarkRegistry::documentReloaded()
         if (mark->m_markableInterface)
             return;
         ITextMarkable *markableInterface = doc->documentMarker();
-        if (markableInterface->addMark(mark, mark->m_line))
+        if (markableInterface->addMark(mark))
             mark->m_markableInterface = markableInterface;
     }
 }
 
 BaseTextMark::BaseTextMark(const QString &fileName, int lineNumber)
-    : m_fileName(fileName), m_line(lineNumber)
+    : ITextMark(lineNumber), m_fileName(fileName)
 {
     Internal::TextEditorPlugin::instance()->baseTextMarkRegistry()->add(this);
 }
@@ -126,11 +126,6 @@ BaseTextMark::~BaseTextMark()
         m_markableInterface.data()->removeMark(this);
     m_markableInterface.clear();
     Internal::TextEditorPlugin::instance()->baseTextMarkRegistry()->remove(this);
-}
-
-void BaseTextMark::updateLineNumber(int lineNumber)
-{
-    m_line = lineNumber;
 }
 
 void BaseTextMark::updateMarker()

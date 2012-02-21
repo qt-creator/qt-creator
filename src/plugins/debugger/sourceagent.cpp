@@ -90,11 +90,10 @@ public:
 
 SourceAgentPrivate::SourceAgentPrivate()
   : editor(0)
+  , locationMark(0)
   , producer(QLatin1String("remote"))
 {
-    locationMark = new TextEditor::ITextMark;
-    locationMark->setIcon(debuggerCore()->locationMarkIcon());
-    locationMark->setPriority(TextEditor::ITextMark::HighPriority);
+
 }
 
 SourceAgentPrivate::~SourceAgentPrivate()
@@ -163,10 +162,16 @@ void SourceAgent::updateLocationMarker()
 {
     QTC_ASSERT(d->editor, return);
 
-    d->editor->markableInterface()->removeMark(d->locationMark);
+    if (d->locationMark)
+        d->editor->markableInterface()->removeMark(d->locationMark);
+    delete d->locationMark;
+    d->locationMark = 0;
     if (d->engine->stackHandler()->currentFrame().file == d->path) {
         int lineNumber = d->engine->stackHandler()->currentFrame().line;
-        d->editor->markableInterface()->addMark(d->locationMark, lineNumber);
+        d->locationMark = new TextEditor::ITextMark(lineNumber);
+        d->locationMark->setIcon(debuggerCore()->locationMarkIcon());
+        d->locationMark->setPriority(TextEditor::ITextMark::HighPriority);
+        d->editor->markableInterface()->addMark(d->locationMark);
         QPlainTextEdit *plainTextEdit = qobject_cast<QPlainTextEdit *>(d->editor->widget());
         QTC_ASSERT(plainTextEdit, return);
         QTextCursor tc = plainTextEdit->textCursor();

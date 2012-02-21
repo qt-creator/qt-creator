@@ -61,19 +61,15 @@ public:
     BaseTextMark(const QString &fileName, int lineNumber);
     virtual ~BaseTextMark();
 
-    void updateLineNumber(int lineNumber);
-
     // call this if the icon has changed.
     void updateMarker();
 
     // access to internal data
     QString fileName() const { return m_fileName; }
-    int lineNumber() const { return m_line; }
 
 private:
     QWeakPointer<ITextMarkable> m_markableInterface;
     QString m_fileName;
-    int m_line;
 };
 
 namespace Internal {

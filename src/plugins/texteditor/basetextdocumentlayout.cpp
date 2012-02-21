@@ -47,7 +47,7 @@ public:
     TextMarks marks() const { return m_marksCache; }
 
     // ITextMarkable
-    bool addMark(ITextMark *mark, int line);
+    bool addMark(ITextMark *mark);
     TextMarks marksAt(int line) const;
     void removeMark(ITextMark *mark);
     void updateMark(ITextMark *mark);
@@ -69,10 +69,10 @@ DocumentMarker::~DocumentMarker()
 
 }
 
-bool DocumentMarker::addMark(TextEditor::ITextMark *mark, int line)
+bool DocumentMarker::addMark(TextEditor::ITextMark *mark)
 {
-    QTC_ASSERT(line >= 1, return false);
-    int blockNumber = line - 1;
+    QTC_ASSERT(mark->lineNumber() >= 1, return false);
+    int blockNumber = mark->lineNumber() - 1;
     BaseTextDocumentLayout *documentLayout =
         qobject_cast<BaseTextDocumentLayout*>(document->documentLayout());
     QTC_ASSERT(documentLayout, return false);
@@ -83,6 +83,7 @@ bool DocumentMarker::addMark(TextEditor::ITextMark *mark, int line)
         userData->addMark(mark);
         m_marksCache.append(mark);
         mark->updateLineNumber(blockNumber + 1);
+        QTC_CHECK(mark->lineNumber() == blockNumber + 1);
         mark->updateBlock(block);
         documentLayout->hasMarks = true;
         documentLayout->maxMarkWidthFactor = qMax(mark->widthFactor(),
@@ -719,6 +720,7 @@ void BaseTextDocumentLayout::updateMarksLineNumber()
         if (const TextBlockUserData *userData = testUserData(block))
             foreach (ITextMark *mrk, userData->marks()) {
                 mrk->updateLineNumber(blockNumber + 1);
+                QTC_CHECK(mrk->lineNumber() == blockNumber +1);
             }
         block = block.next();
         ++blockNumber;
