@@ -37,7 +37,6 @@
 #include <QFont>
 
 namespace Utils {
-
 namespace Internal {
 
 class EnvironmentModelPrivate
@@ -364,6 +363,13 @@ void EnvironmentModel::setUserChanges(QList<Utils::EnvironmentItem> list)
         return;
     beginResetModel();
     d->m_items = list;
+    for (int i = 0; i != list.size(); ++i) {
+        QString &name = d->m_items[i].name;
+        name = name.trimmed();
+        if (name.startsWith(QLatin1String("export ")))
+            name = name.mid(7).trimmed();
+    }
+
     d->updateResultEnvironment();
     endResetModel();
     emit userChangesChanged();
