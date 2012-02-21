@@ -67,7 +67,6 @@ bool AutotoolsProjectPlugin::initialize(const QStringList &arguments,
         return false;
 
     addAutoReleasedObject(new AutotoolsTargetFactory);
-    addAutoReleasedObject(new AutotoolsBuildConfigurationFactory);
     addAutoReleasedObject(new MakeStepFactory);
     addAutoReleasedObject(new AutogenStepFactory);
     addAutoReleasedObject(new ConfigureStepFactory);

@@ -146,7 +146,7 @@ AutotoolsTarget *AutotoolsTargetFactory::create(Project *parent, const QString &
     AutotoolsTarget *t = new AutotoolsTarget(project);
 
     // Add default build configuration:
-    AutotoolsBuildConfigurationFactory *bcf = ExtensionSystem::PluginManager::instance()->getObject<AutotoolsBuildConfigurationFactory>();
+    AutotoolsBuildConfigurationFactory *bcf = t->buildConfigurationFactory();
     AutotoolsBuildConfiguration *bc = bcf->createDefaultConfiguration(t);
     bc->setDisplayName("Default Build");
 
