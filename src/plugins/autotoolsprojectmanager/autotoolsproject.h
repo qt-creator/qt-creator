@@ -86,7 +86,6 @@ public:
     QStringList files(FilesMode fileMode) const;
     QList<ProjectExplorer::Project *> dependsOn();
     QString defaultBuildDirectory() const;
-    QString sourceDirectory() const;
     QStringList buildTargets() const;
     ProjectExplorer::ToolChain *toolChain() const;
     void setToolChain(ProjectExplorer::ToolChain *tc);

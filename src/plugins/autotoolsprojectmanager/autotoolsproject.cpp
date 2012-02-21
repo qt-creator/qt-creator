@@ -155,7 +155,7 @@ QList<Project *> AutotoolsProject::dependsOn()
 
 QString AutotoolsProject::defaultBuildDirectory() const
 {
-    return sourceDirectory();
+    return projectDirectory();
 }
 
 QList<BuildConfigWidget *> AutotoolsProject::subConfigWidgets()
@@ -172,11 +172,6 @@ QStringList AutotoolsProject::files(FilesMode fileMode) const
 {
     Q_UNUSED(fileMode);
     return m_files;
-}
-
-QString AutotoolsProject::sourceDirectory() const
-{
-    return QFileInfo(m_fileName).absolutePath();
 }
 
 QVariantMap AutotoolsProject::toMap() const
@@ -205,10 +200,7 @@ bool AutotoolsProject::fromMap(const QVariantMap &map)
         QTC_ASSERT(t->activeBuildConfiguration(), return false);
 
         // Ask the user for where he/she wants to build it.
-        QFileInfo fileInfo(m_fileName);
-        const QString defaultBuildDir = fileInfo.absolutePath();
-
-        QPointer<AutotoolsOpenProjectWizard> wizard = new AutotoolsOpenProjectWizard(m_manager, sourceDirectory());
+        QPointer<AutotoolsOpenProjectWizard> wizard = new AutotoolsOpenProjectWizard(m_manager, projectDirectory());
         if (!wizard->exec() == QDialog::Accepted)
             return false;
 

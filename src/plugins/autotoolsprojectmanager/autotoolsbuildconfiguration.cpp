@@ -185,7 +185,7 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::createDefaultCo
 
     // ### Build Steps Build ###
     // autogen.sh or autoreconf
-    QFile autogenFile(target->autotoolsProject()->sourceDirectory() + QLatin1String("/autogen.sh"));
+    QFile autogenFile(target->autotoolsProject()->projectDirectory() + QLatin1String("/autogen.sh"));
     if (autogenFile.exists()) {
         AutogenStep *autogenStep = new AutogenStep(buildSteps);
         buildSteps->insertStep(0, autogenStep);
