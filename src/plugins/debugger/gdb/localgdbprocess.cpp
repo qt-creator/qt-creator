@@ -32,13 +32,15 @@
 
 #include "localgdbprocess.h"
 
+#include "procinterrupt.h"
+#include "debuggerconstants.h"
+
+#ifdef Q_OS_WIN
+#include <utils/winutils.h>
+#endif
+
 #include <utils/qtcassert.h>
 
-#ifdef Q_OS_UNIX
-#include <errno.h>
-#include <signal.h>
-#include <string.h>
-#endif
 
 namespace Debugger {
 namespace Internal {
@@ -87,16 +89,13 @@ void LocalGdbProcess::kill()
 
 bool LocalGdbProcess::interrupt()
 {
-#ifdef Q_OS_UNIX
-    Q_PID pid = m_gdbProc.pid();
-    int res = ::kill(pid, SIGINT);
-    if (res != 0)
-        m_errorString = QString::fromLocal8Bit(strerror(errno));
-    return res == 0;
+    long pid;
+#ifdef Q_OS_WIN
+    pid = Utils::winQPidToPid(m_gdbProc.pid());
 #else
-    QTC_ASSERT(false, "NOT IMPLEMENTED");
-    return false;
+    pid = m_gdbProc.pid();
 #endif
+    return interruptProcess(pid, GdbEngineType, &m_errorString);
 }
 
 QProcess::ProcessState LocalGdbProcess::state() const
