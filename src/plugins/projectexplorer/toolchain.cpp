@@ -86,13 +86,8 @@ public:
 
     static QString createId(const QString &id)
     {
-        QString newId = id;
-
-        QUuid uuid(id.mid(id.indexOf(":") + 1));
-        if (uuid.isNull()) {
-            newId = id.left(id.indexOf(':'));
-            newId.append(QLatin1Char(':') + QUuid::createUuid().toString());
-        }
+        QString newId = id.left(id.indexOf(':'));
+        newId.append(QLatin1Char(':') + QUuid::createUuid().toString());
         return newId;
     }
 
@@ -117,7 +112,7 @@ ToolChain::ToolChain(const QString &id, bool autodetect) :
 { }
 
 ToolChain::ToolChain(const ToolChain &other) :
-    d(new Internal::ToolChainPrivate(other.id(), false))
+    d(new Internal::ToolChainPrivate(other.d->m_id, false))
 {
     // leave the autodetection bit at false.
     d->m_displayName = QCoreApplication::translate("ProjectExplorer::ToolChain", "Clone of %1")
@@ -244,7 +239,7 @@ bool ToolChain::fromMap(const QVariantMap &data)
 {
     d->m_displayName = data.value(QLatin1String(DISPLAY_NAME_KEY)).toString();
     // make sure we have new style ids:
-    d->m_id = Internal::ToolChainPrivate::createId(data.value(QLatin1String(ID_KEY)).toString());
+    d->m_id = data.value(QLatin1String(ID_KEY)).toString();
     d->m_autodetect = data.value(QLatin1String(AUTODETECT_KEY), false).toBool();
     d->m_mkspecList = mkspecListFromString(data.value(QLatin1String(MKSPEC_KEY)).toString());
 
