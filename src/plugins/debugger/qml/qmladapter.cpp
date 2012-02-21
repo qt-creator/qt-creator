@@ -32,7 +32,6 @@
 
 #include "qmladapter.h"
 
-#include "debuggerstartparameters.h"
 #include "qscriptdebuggerclient.h"
 #include "qmlv8debuggerclient.h"
 #include "qmljsprivateapi.h"
@@ -46,6 +45,7 @@
 
 #include <QTimer>
 #include <QDebug>
+#include <QWeakPointer>
 
 namespace Debugger {
 namespace Internal {
@@ -108,23 +108,28 @@ QmlAdapter::~QmlAdapter()
     delete d;
 }
 
-void QmlAdapter::beginConnection()
+void QmlAdapter::beginConnectionTcp(const QString &address, quint16 port)
 {
     if (d->m_engine.isNull()
             || (d->m_conn && d->m_conn->state() != QAbstractSocket::UnconnectedState))
         return;
 
-    const DebuggerStartParameters &parameters = d->m_engine.data()->startParameters();
-    if (parameters.communicationChannel == DebuggerStartParameters::CommunicationChannelUsb) {
-        const QString &port = parameters.remoteChannel;
-        showConnectionStatusMessage(tr("Connecting to debug server on %1").arg(port));
-        d->m_conn->connectToOst(port);
-    } else {
-        const QString &address = parameters.qmlServerAddress;
-        quint16 port = parameters.qmlServerPort;
-        showConnectionStatusMessage(tr("Connecting to debug server %1:%2").arg(address).arg(QString::number(port)));
-        d->m_conn->connectToHost(address, port);
-    }
+    showConnectionStatusMessage(tr("Connecting to debug server %1:%2").arg(address).arg(
+                                    QString::number(port)));
+    d->m_conn->connectToHost(address, port);
+
+    //A timeout to check the connection state
+    d->m_connectionTimer.start();
+}
+
+void QmlAdapter::beginConnectionOst(const QString &channel)
+{
+    if (d->m_engine.isNull()
+            || (d->m_conn && d->m_conn->state() != QAbstractSocket::UnconnectedState))
+        return;
+
+    showConnectionStatusMessage(tr("Connecting to debug server on %1").arg(channel));
+    d->m_conn->connectToOst(channel);
 
     //A timeout to check the connection state
     d->m_connectionTimer.start();

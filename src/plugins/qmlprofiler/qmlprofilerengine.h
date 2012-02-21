@@ -70,7 +70,7 @@ private slots:
     void logApplicationMessage(const QString &msg, Utils::OutputFormat format);
     void wrongSetupMessageBox(const QString &errorMessage);
     void wrongSetupMessageBoxFinished(int);
-    void processIsRunning();
+    void processIsRunning(quint16 port = 0);
 
 private:
     class QmlProfilerEnginePrivate;

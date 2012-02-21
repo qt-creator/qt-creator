@@ -62,7 +62,8 @@ public:
     explicit QmlAdapter(DebuggerEngine *engine, QObject *parent = 0);
     virtual ~QmlAdapter();
 
-    void beginConnection();
+    void beginConnectionTcp(const QString &address, quint16 port);
+    void beginConnectionOst(const QString &port);
     void closeConnection();
 
     bool isConnected() const;

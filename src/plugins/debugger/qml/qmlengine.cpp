@@ -172,7 +172,9 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
             SLOT(start()));
 
     d->m_outputParser.setNoOutputText(ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput());
-    connect(&d->m_outputParser, SIGNAL(waitingForConnectionMessage()),
+    connect(&d->m_outputParser, SIGNAL(waitingForConnectionOnPort(quint16)),
+            this, SLOT(beginConnection(quint16)));
+    connect(&d->m_outputParser, SIGNAL(waitingForConnectionViaOst()),
             this, SLOT(beginConnection()));
     connect(&d->m_outputParser, SIGNAL(noOutputMessage()),
             this, SLOT(beginConnection()));
@@ -235,10 +237,29 @@ void QmlEngine::connectionEstablished()
         notifyEngineRunAndInferiorRunOk();
 }
 
-void QmlEngine::beginConnection()
+void QmlEngine::beginConnection(quint16 port)
 {
     d->m_noDebugOutputTimer.stop();
-    d->m_adapter.beginConnection();
+    if (port > 0) {
+        QTC_CHECK(startParameters().communicationChannel
+                  == DebuggerStartParameters::CommunicationChannelTcpIp);
+        QTC_ASSERT(startParameters().connParams.port == 0
+                   || startParameters().connParams.port == port,
+                   qWarning() << "Port " << port << "from application output does not match"
+                   << startParameters().connParams.port << "from start parameters.")
+        d->m_adapter.beginConnectionTcp(startParameters().qmlServerAddress, port);
+        return;
+    }
+    if (startParameters().communicationChannel
+           == DebuggerStartParameters::CommunicationChannelTcpIp) {
+        // no port from application output, use the one from start parameters ...
+        d->m_adapter.beginConnectionTcp(startParameters().qmlServerAddress,
+                                        startParameters().qmlServerPort);
+    } else {
+        QTC_CHECK(startParameters().communicationChannel
+                  == DebuggerStartParameters::CommunicationChannelUsb);
+        d->m_adapter.beginConnectionOst(startParameters().remoteChannel);
+    }
 }
 
 void QmlEngine::connectionStartupFailed()
@@ -393,8 +414,6 @@ void QmlEngine::runEngine()
     if (!isSlaveEngine()) {
         if (startParameters().startMode != AttachToRemoteServer)
             startApplicationLauncher();
-        else
-            beginConnection();
     }
 }
 

@@ -31,6 +31,7 @@
 
 #include "qdeclarativeoutputparser.h"
 #include "qmljsdebugclientconstants.h"
+#include <QRegExp>
 
 namespace QmlJsDebugClient {
 
@@ -70,7 +71,22 @@ void QDeclarativeOutputParser::processOutput(const QString &output)
             static QString connectionEstablished = QLatin1String(Constants::STR_CONNECTION_ESTABLISHED);
 
             if (status.startsWith(waitingForConnection)) {
-                emit waitingForConnectionMessage();
+                status.remove(0, waitingForConnection.size()); // chop of 'Waiting for connection '
+
+                static QRegExp waitingTcp(
+                            QString::fromLatin1(Constants::STR_ON_PORT_PATTERN));
+                if (waitingTcp.indexIn(status) > -1) {
+                    bool canConvert;
+                    quint16 port = waitingTcp.cap(1).toUShort(&canConvert);
+                    if (canConvert)
+                        emit waitingForConnectionOnPort(port);
+                    continue;
+                }
+
+                static QString waitingOst
+                        = QLatin1String(Constants::STR_VIA_OST);
+                if (status.startsWith(waitingOst))
+                    emit waitingForConnectionViaOst();
             } else if (status.startsWith(unableToListen)) {
                 //: Error message shown after 'Could not connect ... debugger:"
                 emit errorMessage(tr("The port seems to be in use."));

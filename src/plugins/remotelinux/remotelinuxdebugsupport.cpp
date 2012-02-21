@@ -99,7 +99,7 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
     if (runConfig->useQmlDebugger()) {
         params.languages |= QmlLanguage;
         params.qmlServerAddress = runConfig->deviceConfig()->sshParameters().host;
-        params.qmlServerPort = -1;
+        params.qmlServerPort = 0; // port is selected later on
     }
     if (runConfig->debuggerAspect()->useCppDebugger()) {
         params.languages |= CppLanguage;
