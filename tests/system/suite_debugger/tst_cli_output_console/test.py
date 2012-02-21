@@ -41,7 +41,9 @@ def main():
         test.log("Running application")
         runControlFinished = False
         clickButton(waitForObject("{type='Core::Internal::FancyToolButton' text='Run' visible='1'}", 20000))
-        waitFor("runControlFinished==True")
+        waitFor("runControlFinished==True", 20000)
+        if not runControlFinished:
+            test.warning("Waiting for runControlFinished timed out")
         appOutput = str(waitForObject("{type='Core::OutputWindow' unnamed='1' visible='1'}", 20000).plainText)
         verifyOutput(appOutput, outputStdOut, "std::cout", "Application Output")
         verifyOutput(appOutput, outputStdErr, "std::cerr", "Application Output")
@@ -53,7 +55,9 @@ def main():
         invokeMenuItem("Debug", "Start Debugging", "Start Debugging")
         JIRA.performWorkaroundIfStillOpen(6853, JIRA.Bug.CREATOR, config)
         handleDebuggerWarnings(config)
-        waitFor("runControlFinished==True")
+        waitFor("runControlFinished==True", 20000)
+        if not runControlFinished:
+            test.warning("Waiting for runControlFinished timed out")
         try:
             debuggerLog = takeDebuggerLog()
             if not "MSVC" in config:
