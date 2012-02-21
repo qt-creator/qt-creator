@@ -1771,6 +1771,7 @@ void DebuggerPluginPrivate::attachToQmlPort()
     sp.sysroot = dlg.sysroot();
 
     sp.startMode = AttachToRemoteServer;
+    sp.languages = QmlLanguage;
 
     //
     // get files from all the projects in the session
