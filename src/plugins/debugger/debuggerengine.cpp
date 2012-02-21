@@ -1360,6 +1360,10 @@ void DebuggerEngine::quitDebugger()
     case EngineSetupRequested:
         notifyEngineSetupFailed();
         break;
+    case EngineSetupOk:
+        setState(InferiorSetupRequested);
+        notifyInferiorSetupFailed();
+        break;
     case EngineRunRequested:
         notifyEngineRunFailed();
         break;
