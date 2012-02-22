@@ -72,7 +72,7 @@ DependenciesModel::DependenciesModel(SessionManager *session,
             this, SLOT(resetModel()));
     connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
             this, SLOT(resetModel()));
-    connect(session, SIGNAL(sessionLoaded()),
+    connect(session, SIGNAL(sessionLoaded(QString)),
             this, SLOT(resetModel()));
 //    qDebug()<<"Dependencies Model"<<this<<"for project"<<project<<"("<<project->file()->fileName()<<")";
 }
