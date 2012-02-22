@@ -19,7 +19,7 @@ def main():
     categoriesView = waitForObject("{type='QTreeView' name='templateCategoryView' visible='1'}", 20000)
     catModel = categoriesView.model()
     projects = catModel.index(0, 0)
-    test.compare("Projects", projects.data())
+    test.compare("Projects", str(projects.data()))
     comboBox = waitForObject("{name='comboBox' type='QComboBox' visible='1' "
                              "window=':New_Core::Internal::NewDialog'}")
     test.compare(comboBox.currentText, "All templates")
