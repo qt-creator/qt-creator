@@ -1671,7 +1671,10 @@ class Dumper:
             self.putType(dtypeName)
 
             if dtypeName in qqDumpers:
-                qqDumpers[dtypeName](self, expensiveUpcast(value))
+                if tryDynamic:
+                    qqDumpers[dtypeName](self, expensiveUpcast(value))
+                else:
+                    qqDumpers[dtypeName](self, value)
                 return
 
             nsStrippedType = self.stripNamespaceFromType(dtypeName)\
