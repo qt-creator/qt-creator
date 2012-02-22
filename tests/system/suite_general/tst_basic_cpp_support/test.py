@@ -5,7 +5,9 @@ def main():
         return
 
     startApplication("qtcreator" + SettingsPath)
-
+    overrideInstallLazySignalHandler()
+    installLazySignalHandler(":Qt Creator_CppEditor::Internal::CPPEditorWidget", "textChanged()",
+                             "__handleTextChanged__")
     prepareForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     openQmakeProject(srcPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro")
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 20000)
@@ -29,7 +31,7 @@ def main():
     type(cppwindow, "<Ctrl+F>")
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "    xi")
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "<Return>")
-    type(cppwindow, "<F2>")
+    __typeAndWaitForAction__(cppwindow, "<F2>")
     test.compare(lineUnderCursor(waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "extern int xi;")
 
 #    - Move the cursor to a function call.
@@ -39,7 +41,7 @@ def main():
     clickButton(waitForObject(":*Qt Creator_Utils::IconButton"))
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "freefunc2")
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "<Return>")
-    type(cppwindow, "<F2>")
+    __typeAndWaitForAction__(cppwindow, "<F2>")
     test.compare(lineUnderCursor(waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "int freefunc2(double)")
 
 #    - Move the cursor to a function declaration
@@ -60,10 +62,10 @@ def main():
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "Dummy::Dummy")
     # Take us to the second instance
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "<Return>")
-    cppWindowRealName = objectMap.realName(cppwindow)
-    type(cppWindowRealName, "<Shift+F2>")
+    cppWindowRealName = waitForObject(objectMap.realName(cppwindow))
+    __typeAndWaitForAction__(cppWindowRealName, "<Shift+F2>")
     test.compare(lineUnderCursor(findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "    Dummy(int a);")
-    type(cppWindowRealName, "<Shift+F2>")
+    __typeAndWaitForAction__(cppWindowRealName, "<Shift+F2>")
     test.compare(lineUnderCursor(findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "Dummy::Dummy(int)")
 
     invokeMenuItem("File", "Exit")
@@ -82,3 +84,14 @@ def cleanup():
     for dir in BuildPath:
         if os.access(dir, os.F_OK):
             shutil.rmtree(dir)
+
+def __handleTextChanged__(object):
+    global textChanged
+    textChanged = True
+
+def __typeAndWaitForAction__(editor, keyCombination):
+    global textChanged
+    textChanged = False
+    cursorPos = editor.textCursor().position()
+    type(editor, keyCombination)
+    waitFor("textChanged or editor.textCursor().position() != cursorPos")
