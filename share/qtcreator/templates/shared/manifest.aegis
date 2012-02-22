@@ -63,8 +63,7 @@ AutoGenerateAegisFile
 		<credential name="GRP::audio" />
 	-->
 
+		<for path="/opt/%%PROJECTNAME%%/bin/%%PROJECTNAME%%" />
+		<for path="applauncherd-launcher::/usr/bin/applauncherd.bin" id="" />
 	</request>
-
-	<for path="/opt/%%PROJECTNAME%%/bin/%%PROJECTNAME%%" />
-	<for path="applauncherd-launcher::/usr/bin/applauncherd.bin" id="" />
 </aegis>
