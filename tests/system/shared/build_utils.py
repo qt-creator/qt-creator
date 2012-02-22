@@ -30,12 +30,7 @@ def __addSignalHandlerDict__(lazySignalHandlerFunction):
             lazySignalHandlerFunction(name, signalSignature, handlerFunctionName)
             installedSignalHandlers.setdefault("%s____%s" % (name,signalSignature), [handlerFunctionName])
         else:
-            alreadyInstalled = False
-            for h in handlers:
-                if (h == handlerFunctionName):
-                    alreadyInstalled = True
-                    break
-            if not alreadyInstalled:
+            if not handlerFunctionName in handlers:
                 lazySignalHandlerFunction(name, signalSignature, handlerFunctionName)
                 handlers.append(handlerFunctionName)
                 installedSignalHandlers.setdefault("%s____%s" % (name,signalSignature), handlers)
@@ -148,13 +143,12 @@ def createTasksFile(list):
 def iterateBuildConfigs(targetCount, currentTarget, filter = ""):
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(targetCount, currentTarget, ProjectSettings.BUILD)
-    configs = []
     model = waitForObject(":scrollArea.Edit build configuration:_QComboBox", 20000).model()
     prog = re.compile(filter)
-    for row in range(model.rowCount()):
-        configName = str(model.index(row, 0).data())
-        if prog.match(configName):
-            configs += [configName]
+    # for each row in the model, write its data to a list
+    configNames = [str(model.index(row, 0).data()) for row in range(model.rowCount())]
+    # pick only those configuration names which pass the filter
+    configs = [config for config in configNames if prog.match(config)]
     switchViewTo(ViewConstants.EDIT)
     return configs
 

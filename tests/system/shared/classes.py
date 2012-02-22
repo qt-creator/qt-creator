@@ -56,9 +56,7 @@ class QtQuickConstants:
         if not isinstance(targets, (tuple,list)):
             test.fatal("Wrong usage... This function handles only tuples or lists.")
             return None
-        result = []
-        for target in targets:
-            result.append(QtQuickConstants.getStringForTarget(target))
+        result = map(QtQuickConstants.getStringForTarget, targets)
         if None in result:
             test.fatal("You've passed at least one unknown target!")
         return result

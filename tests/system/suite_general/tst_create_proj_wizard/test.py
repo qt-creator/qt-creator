@@ -69,14 +69,8 @@ def main():
                 clickButton(waitForObject(":Next_QPushButton"))
             except LookupError:
                 pass
-        availableCheckboxes = []
         waitForObject("{type='QLabel' unnamed='1' visible='1' text='Target Setup'}")
-        for current in QtQuickConstants.getAllTargetStrings():
-            try:
-                findObject("{type='QCheckBox' text='%s' visible='1'}" % current)
-                availableCheckboxes.append(current)
-            except:
-                pass
+        availableCheckboxes = filter(visibleCheckBoxExists, QtQuickConstants.getAllTargetStrings())
         JIRA.performWorkaroundIfStillOpen(6967, JIRA.Bug.CREATOR, template, displayedPlatforms)
         # verification whether expected, found and configured match
         for t in targets:

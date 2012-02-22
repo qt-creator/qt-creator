@@ -36,18 +36,15 @@ def prepareQmlFile():
             return False
         markText(editor, start, end)
         type(editor, "<Ctrl+C>")
-        for i in range(10):
+        for j in range(10):
             type(editor, "<Ctrl+V>")
     global originalText
     # assume the current editor content to be indented correctly
     originalText = "%s" % editor.plainText
     indented = editor.plainText
-    unindented = ""
     lines = str(indented).splitlines()
     test.log("Using %d lines..." % len(lines))
-    for line in lines:
-        unindented += line.lstrip()+"\n"
-    editor.plainText = unindented
+    editor.plainText = "\n".join([line.lstrip() for line in lines]) + "\n"
     return True
 
 def handleTextChanged(object):

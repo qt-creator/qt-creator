@@ -239,13 +239,11 @@ def __configureCustomExecutable__(projectName, port, mkspec, qmakeVersion):
 # occur more than once - but could easily be found by using a compound object
 # (e.g. search for Utils::PathChooser instead of Utils::BaseValidatingLineEdit and get the child)
 def getChildByClass(parent, classToSearchFor, occurence=1):
-    counter = 0
-    for child in object.children(parent):
-        if className(child) == classToSearchFor:
-            counter = counter + 1
-            if counter == occurence:
-                return child
-    return None
+    children = [child for child in object.children(parent) if className(child) == classToSearchFor]
+    if len(children) < occurence:
+        return None
+    else:
+        return children[occurence - 1]
 
 # helper that tries to get the mkspec entry of the QtVersion ToolTip
 def __getMkspec__(qtToolTip):

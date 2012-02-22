@@ -294,3 +294,10 @@ def getCorrectlyConfiguredTargets():
                     result.update({target:[version]})
     clickButton(waitForObject(":Options.OK_QPushButton"))
     return result
+
+def visibleCheckBoxExists(text):
+    try:
+        findObject("{type='QCheckBox' text='%s' visible='1'}" % text)
+        return True
+    except:
+        return False
