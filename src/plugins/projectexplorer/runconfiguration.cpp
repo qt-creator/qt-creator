@@ -201,7 +201,8 @@ bool ProcessHandle::equals(const ProcessHandle &rhs) const
 DebuggerProjectSettings::DebuggerProjectSettings() :
     m_useCppDebugger(true),
     m_useQmlDebugger(AutoEnableQmlDebugger),
-    m_qmlDebugServerPort(Constants::QML_DEFAULT_DEBUG_SERVER_PORT)
+    m_qmlDebugServerPort(Constants::QML_DEFAULT_DEBUG_SERVER_PORT),
+    m_suppressQmlDebuggingOptions(false)
 {}
 
 DebuggerProjectSettings::DebuggerProjectSettings(DebuggerProjectSettings *other) :
@@ -260,7 +261,12 @@ void DebuggerProjectSettings::setQmlDebugServerPort(uint port)
 
 void DebuggerProjectSettings::suppressQmlDebuggingOptions()
 {
-    m_useQmlDebugger = SuppressQmlDebugger;
+    m_suppressQmlDebuggingOptions = true;
+}
+
+bool DebuggerProjectSettings::areQmlDebuggingOptionsSuppressed() const
+{
+    return m_suppressQmlDebuggingOptions;
 }
 
 QString DebuggerProjectSettings::displayName() const

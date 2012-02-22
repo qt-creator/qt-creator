@@ -99,7 +99,6 @@ public:
     enum QmlDebuggerStatus {
         DisableQmlDebugger = 0,
         EnableQmlDebugger,
-        SuppressQmlDebugger,
         AutoEnableQmlDebugger
     };
 
@@ -115,6 +114,7 @@ public:
     uint qmlDebugServerPort() const;
     void setQmlDebugServerPort(uint port);
     void suppressQmlDebuggingOptions();
+    bool areQmlDebuggingOptionsSuppressed() const;
 
 signals:
     void debuggersChanged();
@@ -124,6 +124,7 @@ public:
     bool m_useCppDebugger;
     QmlDebuggerStatus m_useQmlDebugger;
     uint m_qmlDebugServerPort;
+    bool m_suppressQmlDebuggingOptions;
 };
 
 

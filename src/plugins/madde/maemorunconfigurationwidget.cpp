@@ -91,8 +91,6 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     const AbstractQt4MaemoTarget * const maemoTarget
         = qobject_cast<AbstractQt4MaemoTarget *>(runConfiguration->target());
     m_mountDetailsContainer->setVisible(maemoTarget->allowsRemoteMounts());
-    if (!maemoTarget->allowsQmlDebugging())
-        m_remoteLinuxRunConfigWidget->suppressQmlDebuggingOptions();
 
     connect(m_runConfiguration, SIGNAL(isEnabledChanged(bool)),
             this, SLOT(runConfigurationEnabledChange(bool)));

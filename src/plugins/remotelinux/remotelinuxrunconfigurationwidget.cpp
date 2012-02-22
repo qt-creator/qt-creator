@@ -141,11 +141,6 @@ void RemoteLinuxRunConfigurationWidget::addDisabledLabel(QVBoxLayout *topLayout)
     topLayout->addLayout(hl);
 }
 
-void RemoteLinuxRunConfigurationWidget::suppressQmlDebuggingOptions()
-{
-    d->runConfiguration->debuggerAspect()->suppressQmlDebuggingOptions();
-}
-
 void RemoteLinuxRunConfigurationWidget::runConfigurationEnabledChange(bool enabled)
 {
     d->topWidget.setEnabled(enabled);

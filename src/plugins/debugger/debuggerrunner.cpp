@@ -158,33 +158,22 @@ static inline QString msgEngineNotAvailable(DebuggerEngineType et)
 //
 ////////////////////////////////////////////////////////////////////////
 
-class DebuggerLanguageChooser : public QWidget
+class DebuggerRunConfigWidget : public ProjectExplorer::RunConfigWidget
 {
     Q_OBJECT
 
 public:
-    explicit DebuggerLanguageChooser(QWidget *parent = 0);
-
-    bool cppChecked() const;
-    bool qmlChecked() const;
-    uint qmlDebugServerPort() const;
-
-    void setCppChecked(bool value);
-    void setQmlChecked(bool value);
-    void setQmlDebugServerPort(uint port);
-
-signals:
-    void cppLanguageToggled(bool value);
-    void qmlLanguageToggled(bool value);
-    void qmlDebugServerPortChanged(uint port);
-    void openHelpUrl(const QString &url);
+    explicit DebuggerRunConfigWidget(RunConfiguration *runConfiguration);
+    QString displayName() const { return tr("Debugger Settings"); }
 
 private slots:
     void useCppDebuggerToggled(bool toggled);
     void useQmlDebuggerToggled(bool toggled);
-    void onDebugServerPortChanged(int port);
+    void qmlDebugServerPortChanged(int port);
 
-private:
+public:
+    DebuggerProjectSettings *m_settings; // not owned
+
     QCheckBox *m_useCppDebugger;
     QCheckBox *m_useQmlDebugger;
     QSpinBox *m_debugServerPort;
@@ -192,36 +181,42 @@ private:
     QLabel *m_qmlDebuggerInfoLabel;
 };
 
-DebuggerLanguageChooser::DebuggerLanguageChooser(QWidget *parent)
-    : QWidget(parent)
+DebuggerRunConfigWidget::DebuggerRunConfigWidget(RunConfiguration *runConfiguration)
 {
-    m_useCppDebugger = new QCheckBox(tr("C++"), this);
-    m_useQmlDebugger = new QCheckBox(tr("QML"), this);
+    m_settings = runConfiguration->debuggerAspect();
 
-    connect(m_useCppDebugger, SIGNAL(toggled(bool)),
-            this, SLOT(useCppDebuggerToggled(bool)));
-    connect(m_useQmlDebugger, SIGNAL(toggled(bool)),
-            this, SLOT(useQmlDebuggerToggled(bool)));
+    m_useCppDebugger = new QCheckBox(tr("Enable C++"), this);
+    m_useQmlDebugger = new QCheckBox(tr("Enable QML"), this);
 
-    m_debugServerPortLabel = new QLabel(tr("Debug port:"), this);
     m_debugServerPort = new QSpinBox(this);
     m_debugServerPort->setMinimum(1);
     m_debugServerPort->setMaximum(65535);
 
+    m_debugServerPortLabel = new QLabel(tr("Debug port:"), this);
     m_debugServerPortLabel->setBuddy(m_debugServerPort);
 
     m_qmlDebuggerInfoLabel = new QLabel(tr("<a href=\""
         "qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html"
         "\">What are the prerequisites?</a>"));
 
+    useCppDebuggerToggled(m_settings->useCppDebugger());
+    useQmlDebuggerToggled(m_settings->useQmlDebugger());
+    m_debugServerPort->setValue(m_settings->qmlDebugServerPort());
+
     connect(m_qmlDebuggerInfoLabel, SIGNAL(linkActivated(QString)),
-        this, SIGNAL(openHelpUrl(QString)));
+            Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
     connect(m_useQmlDebugger, SIGNAL(toggled(bool)),
-        m_debugServerPort, SLOT(setEnabled(bool)));
-    connect(m_useQmlDebugger, SIGNAL(toggled(bool)),
-        m_debugServerPortLabel, SLOT(setEnabled(bool)));
+            SLOT(useQmlDebuggerToggled(bool)));
+    connect(m_useCppDebugger, SIGNAL(toggled(bool)),
+            SLOT(useCppDebuggerToggled(bool)));
     connect(m_debugServerPort, SIGNAL(valueChanged(int)),
-        this, SLOT(onDebugServerPortChanged(int)));
+            SLOT(qmlDebugServerPortChanged(int)));
+
+    if (m_settings->areQmlDebuggingOptionsSuppressed()) {
+        m_debugServerPortLabel->hide();
+        m_debugServerPort->hide();
+        m_useQmlDebugger->hide();
+    }
 
     QHBoxLayout *qmlLayout = new QHBoxLayout;
     qmlLayout->setMargin(0);
@@ -235,119 +230,32 @@ DebuggerLanguageChooser::DebuggerLanguageChooser(QWidget *parent)
     layout->setMargin(0);
     layout->addWidget(m_useCppDebugger);
     layout->addLayout(qmlLayout);
-
     setLayout(layout);
 }
 
-bool DebuggerLanguageChooser::cppChecked() const
+void DebuggerRunConfigWidget::qmlDebugServerPortChanged(int port)
 {
-    return m_useCppDebugger->isChecked();
+    m_settings->m_qmlDebugServerPort = port;
 }
 
-bool DebuggerLanguageChooser::qmlChecked() const
+void DebuggerRunConfigWidget::useCppDebuggerToggled(bool toggled)
 {
-    return m_useQmlDebugger->isChecked();
-}
-
-uint DebuggerLanguageChooser::qmlDebugServerPort() const
-{
-    return m_debugServerPort->value();
-}
-
-void DebuggerLanguageChooser::setCppChecked(bool value)
-{
-    m_useCppDebugger->setChecked(value);
-}
-
-void DebuggerLanguageChooser::setQmlChecked(bool value)
-{
-    m_useQmlDebugger->setChecked(value);
-    m_debugServerPortLabel->setEnabled(value);
-    m_debugServerPort->setEnabled(value);
-}
-
-void DebuggerLanguageChooser::setQmlDebugServerPort(uint port)
-{
-    m_debugServerPort->setValue(port);
-}
-
-void DebuggerLanguageChooser::useCppDebuggerToggled(bool toggled)
-{
-    emit cppLanguageToggled(toggled);
+    m_settings->m_useCppDebugger = toggled;
     if (!toggled && !m_useQmlDebugger->isChecked())
         m_useQmlDebugger->setChecked(true);
 }
 
-void DebuggerLanguageChooser::useQmlDebuggerToggled(bool toggled)
+void DebuggerRunConfigWidget::useQmlDebuggerToggled(bool toggled)
 {
-    emit qmlLanguageToggled(toggled);
+    m_debugServerPort->setEnabled(toggled);
+    m_debugServerPortLabel->setEnabled(toggled);
+
+    m_settings->m_useQmlDebugger = toggled
+            ? DebuggerProjectSettings::EnableQmlDebugger
+            : DebuggerProjectSettings::DisableQmlDebugger;
     if (!toggled && !m_useCppDebugger->isChecked())
         m_useCppDebugger->setChecked(true);
 }
-
-void DebuggerLanguageChooser::onDebugServerPortChanged(int port)
-{
-    emit qmlDebugServerPortChanged((uint)port);
-}
-
-class DebuggerRunConfigWidget : public ProjectExplorer::RunConfigWidget
-{
-    Q_OBJECT
-
-public:
-    explicit DebuggerRunConfigWidget(RunConfiguration *runConfiguration)
-    {
-        m_settings = runConfiguration->debuggerAspect();
-
-        QLabel *debuggerLabel = new QLabel(tr("Languages:"), this);
-        debuggerLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
-
-        m_debuggerLanguageChooser = new DebuggerLanguageChooser(this);
-        m_debuggerLanguageChooser->setCppChecked(m_settings->useCppDebugger());
-        m_debuggerLanguageChooser->setQmlChecked(runConfiguration->useQmlDebugger());
-        m_debuggerLanguageChooser->setQmlDebugServerPort(m_settings->qmlDebugServerPort());
-
-        QFormLayout *layout = new QFormLayout(this);
-        layout->addRow(debuggerLabel, m_debuggerLanguageChooser);
-        setLayout(layout);
-
-        connect(m_debuggerLanguageChooser, SIGNAL(cppLanguageToggled(bool)),
-                this, SLOT(useCppDebuggerToggled(bool)));
-        connect(m_debuggerLanguageChooser, SIGNAL(qmlLanguageToggled(bool)),
-                this, SLOT(useQmlDebuggerToggled(bool)));
-        connect(m_debuggerLanguageChooser, SIGNAL(qmlDebugServerPortChanged(uint)),
-                this, SLOT(qmlDebugServerPortChanged(uint)));
-        connect(m_debuggerLanguageChooser, SIGNAL(openHelpUrl(QString)),
-                Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
-    }
-
-    QString displayName() const
-    {
-        return tr("Debugger Settings");
-    }
-
-public slots:
-    void useCppDebuggerToggled(bool toggled)
-    {
-        m_settings->m_useCppDebugger = toggled;
-    }
-
-    void useQmlDebuggerToggled(bool toggled)
-    {
-        m_settings->m_useQmlDebugger = toggled
-                ? DebuggerProjectSettings::EnableQmlDebugger
-                : DebuggerProjectSettings::DisableQmlDebugger;
-    }
-
-    void qmlDebugServerPortChanged(uint port)
-    {
-        m_settings->m_qmlDebugServerPort = port;
-    }
-
-public:
-    DebuggerProjectSettings *m_settings; // not owned
-    DebuggerLanguageChooser *m_debuggerLanguageChooser; // owned
-};
 
 ////////////////////////////////////////////////////////////////////////
 //

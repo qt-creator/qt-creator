@@ -80,7 +80,7 @@ void MaemoRunConfiguration::init()
     connect(m_remoteMounts, SIGNAL(modelReset()), SLOT(handleRemoteMountsChanged()));
 
     if (!maemoTarget()->allowsQmlDebugging())
-        debuggerAspect()->setUseQmlDebugger(false);
+        debuggerAspect()->suppressQmlDebuggingOptions();
 }
 
 bool MaemoRunConfiguration::isEnabled() const
