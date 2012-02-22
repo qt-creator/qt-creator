@@ -33,10 +33,20 @@
 #include "qtmessagelogview.h"
 #include "qtmessagelogitemdelegate.h"
 #include "qtmessageloghandler.h"
+#include "debuggerstringutils.h"
+#include "debuggercore.h"
+#include "debuggerengine.h"
+
+#include <texteditor/basetexteditor.h>
 
 #include <QMouseEvent>
 #include <QProxyStyle>
 #include <QPainter>
+#include <QApplication>
+#include <QClipboard>
+#include <QAbstractProxyModel>
+#include <QFileInfo>
+#include <QUrl>
 
 namespace Debugger {
 namespace Internal {
@@ -97,6 +107,12 @@ QtMessageLogView::QtMessageLogView(QWidget *parent) :
     QtMessageLogViewViewStyle *style = new QtMessageLogViewViewStyle;
     setStyle(style);
     style->setParent(this);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+
+    connect(this, SIGNAL(activated(QModelIndex)),
+            SLOT(onRowActivated(QModelIndex)));
 }
 
 void QtMessageLogView::mousePressEvent(QMouseEvent *event)
@@ -106,24 +122,37 @@ void QtMessageLogView::mousePressEvent(QMouseEvent *event)
     if (index.isValid()) {
         QtMessageLogHandler::ItemType type = (QtMessageLogHandler::ItemType)index.data(
                     QtMessageLogHandler::TypeRole).toInt();
-        bool showTypeIcon = index.parent() == QModelIndex();
-        bool showExpandableIcon = type == QtMessageLogHandler::UndefinedType;
-        ConsoleItemPositions positions(visualRect(index), viewOptions().font,
-                                       showTypeIcon, showExpandableIcon);
+        bool handled = false;
+        if (type == QtMessageLogHandler::UndefinedType) {
+            bool showTypeIcon = index.parent() == QModelIndex();
+            ConsoleItemPositions positions(visualRect(index), viewOptions().font,
+                                           showTypeIcon, true);
 
-        if (positions.expandCollapseIcon().contains(pos)) {
-            if (isExpanded(index))
-                setExpanded(index, false);
-            else
-                setExpanded(index, true);
-        } else {
-            QTreeView::mousePressEvent(event);
+            if (positions.expandCollapseIcon().contains(pos)) {
+                if (isExpanded(index))
+                    setExpanded(index, false);
+                else
+                    setExpanded(index, true);
+                handled = true;
+            }
         }
+        if (!handled)
+            QTreeView::mousePressEvent(event);
     } else {
         selectionModel()->setCurrentIndex(model()->index(
                                               model()->rowCount() - 1, 0),
                                  QItemSelectionModel::ClearAndSelect);
     }
+}
+
+void QtMessageLogView::keyPressEvent(QKeyEvent *e)
+{
+    if (!e->modifiers() && e->key() == Qt::Key_Return) {
+        emit activated(currentIndex());
+        e->accept();
+        return;
+    }
+    QTreeView::keyPressEvent(e);
 }
 
 void QtMessageLogView::resizeEvent(QResizeEvent *e)
@@ -139,6 +168,96 @@ void QtMessageLogView::drawBranches(QPainter *painter, const QRect &rect,
     static_cast<QtMessageLogItemDelegate *>(itemDelegate())->drawBackground(
                 painter, rect, index, false);
     QTreeView::drawBranches(painter, rect, index);
+}
+
+void QtMessageLogView::contextMenuEvent(QContextMenuEvent *event)
+{
+    QModelIndex itemIndex = indexAt(event->pos());
+    QMenu menu;
+
+    QAction *copy = new QAction(tr("&Copy"), this);
+    copy->setEnabled(itemIndex.isValid());
+    menu.addAction(copy);
+    QAction *show = new QAction(tr("&Show in Editor"), this);
+    show->setEnabled(canShowItemInTextEditor(itemIndex));
+    menu.addAction(show);
+    menu.addSeparator();
+    QAction *clear = new QAction(tr("C&lear"), this);
+    menu.addAction(clear);
+
+    QAction *a = menu.exec(event->globalPos());
+    if (a == 0)
+        return;
+
+    if (a == copy)
+        copyToClipboard(itemIndex);
+    else if (a == show)
+        onRowActivated(itemIndex);
+    else if (a == clear) {
+        QAbstractProxyModel *proxyModel =
+                qobject_cast<QAbstractProxyModel *>(model());
+        QtMessageLogHandler *handler =
+                qobject_cast<QtMessageLogHandler *>(proxyModel->sourceModel());
+        handler->clear();
+    }
+}
+
+void QtMessageLogView::onRowActivated(const QModelIndex &index)
+{
+    if (!index.isValid())
+        return;
+
+    //See if we have file and line Info
+    QString filePath = model()->data(index,
+                                     QtMessageLogHandler::FileRole).toString();
+    if (!filePath.isEmpty()) {
+        filePath = debuggerCore()->currentEngine()->toFileInProject(
+                    QUrl(filePath));
+        QFileInfo fi(filePath);
+        if (fi.exists() && fi.isFile() && fi.isReadable()) {
+            int line = model()->data(index,
+                                     QtMessageLogHandler::LineRole).toInt();
+            TextEditor::BaseTextEditorWidget::openEditorAt(
+                        fi.canonicalFilePath(), line);
+        }
+    }
+}
+
+void QtMessageLogView::copyToClipboard(const QModelIndex &index)
+{
+    if (!index.isValid())
+        return;
+
+    QString contents = model()->data(index).toString();
+    //See if we have file and line Info
+    QString filePath = model()->data(index,
+                                     QtMessageLogHandler::FileRole).toString();
+    if (!filePath.isEmpty()) {
+        contents = QString(_("%1 %2: %3")).arg(contents).arg(filePath).arg(
+                    model()->data(index,
+                                  QtMessageLogHandler::LineRole).toString());
+    }
+    QClipboard *cb = QApplication::clipboard();
+    cb->setText(contents);
+}
+
+bool QtMessageLogView::canShowItemInTextEditor(const QModelIndex &index)
+{
+    if (!index.isValid())
+        return false;
+
+    //See if we have file and line Info
+    QString filePath = model()->data(index,
+                                     QtMessageLogHandler::FileRole).toString();
+    if (!filePath.isEmpty()) {
+        filePath = debuggerCore()->currentEngine()->toFileInProject(
+                    QUrl(filePath));
+        QFileInfo fi(filePath);
+        if (fi.exists() && fi.isFile() && fi.isReadable()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 } //Internal

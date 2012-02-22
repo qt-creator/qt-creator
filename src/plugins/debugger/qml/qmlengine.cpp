@@ -58,11 +58,9 @@
 #include <projectexplorer/applicationlauncher.h>
 #include <qmljsdebugclient/qdeclarativeoutputparser.h>
 #include <qmljseditor/qmljseditorconstants.h>
-#include <qmljsdebugclient/qdebugmessageclient.h>
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
-#include <utils/fileinprojectfinder.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -110,7 +108,6 @@ private:
     friend class QmlEngine;
     QmlAdapter m_adapter;
     ApplicationLauncher m_applicationLauncher;
-    Utils::FileInProjectFinder fileFinder;
     QTimer m_noDebugOutputTimer;
     QmlJsDebugClient::QDeclarativeOutputParser m_outputParser;
     QHash<QString, QTextDocument*> m_sourceDocuments;
@@ -157,8 +154,11 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
             SLOT(updateCurrentContext()));
     connect(&d->m_adapter, SIGNAL(selectionChanged()),
             SLOT(updateCurrentContext()));
-    connect(d->m_adapter.messageClient(), SIGNAL(message(QtMsgType,QString)),
-            SLOT(appendDebugOutput(QtMsgType,QString)));
+    connect(d->m_adapter.messageClient(),
+            SIGNAL(message(QtMsgType,QString,
+                           QmlJsDebugClient::QDebugContextInfo)),
+            SLOT(appendDebugOutput(QtMsgType,QString,
+                                   QmlJsDebugClient::QDebugContextInfo)));
 
     connect(&d->m_applicationLauncher,
         SIGNAL(processExited(int)),
@@ -852,16 +852,6 @@ bool QmlEngine::hasCapability(unsigned cap) const
         | AddWatcherCapability;*/
 }
 
-QString QmlEngine::toFileInProject(const QUrl &fileUrl)
-{
-    // make sure file finder is properly initialized
-    d->fileFinder.setProjectDirectory(startParameters().projectSourceDirectory);
-    d->fileFinder.setProjectFiles(startParameters().projectSourceFiles);
-    d->fileFinder.setSysroot(startParameters().sysroot);
-
-    return d->fileFinder.findFile(fileUrl);
-}
-
 void QmlEngine::inferiorSpontaneousStop()
 {
     if (state() == InferiorRunOk)
@@ -892,7 +882,8 @@ void QmlEngine::updateCurrentContext()
     showMessage(tr("Context: ").append(context), QtMessageLogStatus);
 }
 
-void QmlEngine::appendDebugOutput(QtMsgType type, const QString &message)
+void QmlEngine::appendDebugOutput(QtMsgType type, const QString &message,
+                                  const QmlJsDebugClient::QDebugContextInfo &info)
 {
     QtMessageLogHandler::ItemType itemType;
     switch (type) {
@@ -910,7 +901,10 @@ void QmlEngine::appendDebugOutput(QtMsgType type, const QString &message)
         //This case is not possible
         return;
     }
-    qtMessageLogHandler()->appendItem(new QtMessageLogItem(itemType, message));
+    QtMessageLogItem *item = new QtMessageLogItem(itemType, message);
+    item->file = info.file;
+    item->line = info.line;
+    qtMessageLogHandler()->appendItem(item);
 }
 
 void QmlEngine::executeDebuggerCommand(const QString& command)
@@ -987,7 +981,7 @@ void QmlEngine::setSourceFiles(const QStringList &fileNames)
     QMap<QString,QString> files;
     foreach (const QString &file, fileNames) {
         QString shortName = file;
-        QString fullName = d->fileFinder.findFile(file);
+        QString fullName = toFileInProject(file);
         files.insert(shortName, fullName);
     }
 
@@ -1080,9 +1074,9 @@ QtMessageLogItem *QmlEngine::constructLogItemTree(
     QtMessageLogItem *item = new QtMessageLogItem();
     if (result.type() == QVariant::Map) {
         if (key.isEmpty())
-            item->setText(_("Object"));
+            item->text = _("Object");
         else
-            item->setText(QString(_("%1: Object")).arg(key));
+            item->text = QString(_("%1: Object")).arg(key);
 
         QMapIterator<QString, QVariant> i(result.toMap());
         while (i.hasNext()) {
@@ -1093,9 +1087,9 @@ QtMessageLogItem *QmlEngine::constructLogItemTree(
         }
     } else if (result.type() == QVariant::List) {
         if (key.isEmpty())
-            item->setText(_("List"));
+            item->text = _("List");
         else
-            item->setText(QString(_("[%1] : List")).arg(key));
+            item->text = QString(_("[%1] : List")).arg(key);
         QVariantList resultList = result.toList();
         for (int i = 0; i < resultList.count(); i++) {
             QtMessageLogItem *child = constructLogItemTree(resultList.at(i),
@@ -1104,9 +1098,9 @@ QtMessageLogItem *QmlEngine::constructLogItemTree(
                 item->insertChild(item->childCount(), child);
         }
     } else if (result.canConvert(QVariant::String)) {
-        item->setText(result.toString());
+        item->text = result.toString();
     } else {
-        item->setText(_("Unknown Value"));
+        item->text = _("Unknown Value");
     }
 
     return item;

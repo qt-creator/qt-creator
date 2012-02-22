@@ -164,6 +164,10 @@ void QtMessageLogEditor::keyPressEvent(QKeyEvent *e)
 
 void QtMessageLogEditor::contextMenuEvent(QContextMenuEvent *event)
 {
+    //TODO:: on right click the editor closes
+    //FIXIT
+    return QTextEdit::contextMenuEvent(event);
+
     QTextCursor cursor = textCursor();
     bool editable = cursor.position() > m_startOfEditableArea;
     QMenu *menu = new QMenu();

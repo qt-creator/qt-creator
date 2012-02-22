@@ -35,6 +35,7 @@
 
 #include "debuggerengine.h"
 #include <qmljsdebugclient/qdeclarativeenginedebug.h>
+#include <qmljsdebugclient/qdebugmessageclient.h>
 #include <utils/outputformat.h>
 
 #include <QAbstractSocket>
@@ -80,7 +81,6 @@ public:
     void gotoLocation(const Internal::Location &location);
 
     void filterApplicationMessage(const QString &msg, int channel);
-    QString toFileInProject(const QUrl &fileUrl);
     void inferiorSpontaneousStop();
 
     void logMessage(const QString &service, LogDirection direction, const QString &str);
@@ -98,7 +98,8 @@ private slots:
     void wrongSetupMessageBox(const QString &errorMessage);
     void wrongSetupMessageBoxFinished(int result);
     void updateCurrentContext();
-    void appendDebugOutput(QtMsgType type, const QString &message);
+    void appendDebugOutput(QtMsgType type, const QString &message,
+                           const QmlJsDebugClient::QDebugContextInfo &info);
 
 private:
     // DebuggerEngine implementation.

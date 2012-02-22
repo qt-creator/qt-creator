@@ -161,10 +161,10 @@ QtMessageLogWindow::QtMessageLogWindow(QWidget *parent)
             m_treeView,
             SLOT(scrollToBottom()));
 
-    QtMessageLogItemDelegate *itemDelegate = new QtMessageLogItemDelegate(this);
+    m_itemDelegate = new QtMessageLogItemDelegate(this);
     connect(m_treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            itemDelegate, SLOT(currentChanged(QModelIndex,QModelIndex)));
-    m_treeView->setItemDelegate(itemDelegate);
+            m_itemDelegate, SLOT(currentChanged(QModelIndex,QModelIndex)));
+    m_treeView->setItemDelegate(m_itemDelegate);
 
     vbox->addWidget(statusbarContainer);
     vbox->addWidget(m_treeView);
@@ -204,6 +204,7 @@ void QtMessageLogWindow::setModel(QAbstractItemModel *model)
 {
     m_proxyModel->setSourceModel(model);
     QtMessageLogHandler *handler = qobject_cast<QtMessageLogHandler *>(model);
+    m_itemDelegate->setItemModel(handler);
     connect(m_clearAction, SIGNAL(triggered()), handler, SLOT(clear()));
     connect(handler,
             SIGNAL(selectEditableRow(QModelIndex,QItemSelectionModel::SelectionFlags)),

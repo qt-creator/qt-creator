@@ -32,10 +32,10 @@
 
 #include "qtmessagelogitemdelegate.h"
 #include "qtmessagelogeditor.h"
-#include "qtmessageloghandler.h"
 
 #include <QPainter>
 #include <QTreeView>
+#include <QScrollBar>
 
 const char CONSOLE_LOG_BACKGROUND_COLOR[] = "#E8EEF2";
 const char CONSOLE_WARNING_BACKGROUND_COLOR[] = "#F6F4EB";
@@ -54,6 +54,8 @@ const char CONSOLE_EDITOR_TEXT_COLOR[] = "#000000";
 
 const char CONSOLE_BORDER_COLOR[] = "#C9C9C9";
 
+const int ELLIPSIS_GRADIENT_WIDTH = 16;
+
 namespace Debugger {
 namespace Internal {
 
@@ -70,7 +72,8 @@ QtMessageLogItemDelegate::QtMessageLogItemDelegate(QObject *parent) :
     m_errorIcon(QLatin1String(":/debugger/images/error.png")),
     m_expandIcon(QLatin1String(":/debugger/images/expand.png")),
     m_collapseIcon(QLatin1String(":/debugger/images/collapse.png")),
-    m_prompt(QLatin1String(":/debugger/images/prompt.png"))
+    m_prompt(QLatin1String(":/debugger/images/prompt.png")),
+    m_itemModel(0)
 {
 }
 
@@ -79,7 +82,7 @@ void QtMessageLogItemDelegate::emitSizeHintChanged(const QModelIndex &index)
     emit sizeHintChanged(index);
 }
 
-void QtMessageLogItemDelegate::drawBackground(QPainter *painter, const QRect &rect,
+QColor QtMessageLogItemDelegate::drawBackground(QPainter *painter, const QRect &rect,
                                          const QModelIndex &index,
                                          bool selected) const
 {
@@ -110,7 +113,14 @@ void QtMessageLogItemDelegate::drawBackground(QPainter *painter, const QRect &re
         painter->setBrush(backgroundColor);
     painter->setPen(Qt::NoPen);
     painter->drawRect(rect);
+
+    // Separator lines
+    painter->setPen(QColor(CONSOLE_BORDER_COLOR));
+    if (!(index.flags() & Qt::ItemIsEditable))
+        painter->drawLine(0, rect.bottom(), rect.right(),
+                      rect.bottom());
     painter->restore();
+    return backgroundColor;
 }
 
 void QtMessageLogItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -148,7 +158,7 @@ void QtMessageLogItemDelegate::paint(QPainter *painter, const QStyleOptionViewIt
     }
 
     //Paint background
-    drawBackground(painter, opt.rect, index,
+    QColor backgroundColor = drawBackground(painter, opt.rect, index,
                    bool(opt.state & QStyle::State_Selected));
 
     //Calculate positions
@@ -159,13 +169,14 @@ void QtMessageLogItemDelegate::paint(QPainter *painter, const QStyleOptionViewIt
         idx = idx.parent();
         level++;
     }
-    int width = view->width() - level * view->indentation();
+    int width = view->width() - level * view->indentation() -
+            view->verticalScrollBar()->width();
     bool showTypeIcon = index.parent() == QModelIndex();
     bool showExpandableIcon = type == QtMessageLogHandler::UndefinedType;
 
     QRect rect(opt.rect.x(), opt.rect.top(), width, opt.rect.height());
     ConsoleItemPositions positions(rect, opt.font, showTypeIcon,
-                        showExpandableIcon);
+                        showExpandableIcon, m_itemModel);
 
     // Paint TaskIconArea:
     if (showTypeIcon)
@@ -198,11 +209,39 @@ void QtMessageLogItemDelegate::paint(QPainter *painter, const QStyleOptionViewIt
                                 positions.expandCollapseIconHeight()));
     }
 
-    // Separator lines
-    painter->setPen(QColor(CONSOLE_BORDER_COLOR));
-    if (!(index.flags() & Qt::ItemIsEditable))
-        painter->drawLine(0, opt.rect.bottom(), opt.rect.right(),
-                      opt.rect.bottom());
+    //Check for file info
+    QString file = index.data(QtMessageLogHandler::FileRole).toString();
+    if (!file.isEmpty()) {
+        QFontMetrics fm(option.font);
+        // Paint FileArea
+        const int pos = file.lastIndexOf(QLatin1Char('/'));
+        if (pos != -1)
+            file = file.mid(pos +1);
+        const int realFileWidth = fm.width(file);
+        painter->setClipRect(positions.fileArea());
+        painter->drawText(qMin(positions.fileAreaLeft(),
+                               positions.fileAreaRight() - realFileWidth),
+                          positions.adjustedTop() + fm.ascent(), file);
+        if (realFileWidth > positions.fileAreaWidth()) {
+            // draw a gradient to mask the text
+            int gradientStart = positions.fileAreaLeft() - 1;
+            QLinearGradient lg(gradientStart +
+                               ELLIPSIS_GRADIENT_WIDTH, 0, gradientStart, 0);
+            lg.setColorAt(0, Qt::transparent);
+            lg.setColorAt(1, backgroundColor);
+            painter->fillRect(gradientStart, positions.adjustedTop(),
+                              ELLIPSIS_GRADIENT_WIDTH, positions.lineHeight(),
+                              lg);
+        }
+
+        // Paint LineArea
+        QString lineText  = index.data(QtMessageLogHandler::LineRole).toString();
+        painter->setClipRect(positions.lineArea());
+        const int realLineWidth = fm.width(lineText);
+        painter->drawText(positions.lineAreaRight() - realLineWidth,
+                          positions.adjustedTop() + fm.ascent(), lineText);
+    }
+    painter->setClipRect(opt.rect);
     painter->restore();
 }
 
@@ -219,7 +258,8 @@ QSize QtMessageLogItemDelegate::sizeHint(const QStyleOptionViewItem &option,
         idx = idx.parent();
         level++;
     }
-    int width = view->width() - level * view->indentation();
+    int width = view->width() - level * view->indentation() -
+            view->verticalScrollBar()->width();
     if (index.flags() & Qt::ItemIsEditable)
         return QSize(width, view->height() * 1/2);
 
@@ -230,8 +270,7 @@ QSize QtMessageLogItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 
     QRect rect(level * view->indentation(), 0, width, 0);
     ConsoleItemPositions positions(rect, opt.font,
-                        showTypeIcon,
-                        showExpandableIcon);
+                        showTypeIcon, showExpandableIcon, m_itemModel);
 
     QTextLayout tl(index.data(Qt::DisplayRole).toString(), option.font);
     qreal height = layoutText(tl, positions.textAreaWidth());
@@ -308,6 +347,11 @@ qreal QtMessageLogItemDelegate::layoutText(QTextLayout &tl, int width) const
     }
     tl.endLayout();
     return height;
+}
+
+void QtMessageLogItemDelegate::setItemModel(QtMessageLogHandler *model)
+{
+    m_itemModel = model;
 }
 
 } //Internal

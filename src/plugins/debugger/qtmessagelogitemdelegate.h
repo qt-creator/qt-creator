@@ -33,6 +33,8 @@
 #ifndef QTMESSAGELOGITEMDELEGATE_H
 #define QTMESSAGELOGITEMDELEGATE_H
 
+#include "qtmessageloghandler.h"
+
 #include <QTextLayout>
 #include <QStyledItemDelegate>
 
@@ -45,9 +47,11 @@ class QtMessageLogItemDelegate : public QStyledItemDelegate
 public:
     explicit QtMessageLogItemDelegate(QObject *parent = 0);
     void emitSizeHintChanged(const QModelIndex &index);
-    void drawBackground(QPainter *painter, const QRect &rect,
+    QColor drawBackground(QPainter *painter, const QRect &rect,
                         const QModelIndex &index,
                         bool selected) const;
+
+    void setItemModel(QtMessageLogHandler *model);
 
 public slots:
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
@@ -80,11 +84,12 @@ private:
     const QIcon m_expandIcon;
     const QIcon m_collapseIcon;
     const QIcon m_prompt;
+    QtMessageLogHandler *m_itemModel;
 };
 
 /*
   +----------------------------------------------------------------------------+
-  | TYPEICONAREA  EXPANDABLEICONAREA  TEXTAREA                                 |
+  | TYPEICONAREA  EXPANDABLEICONAREA  TEXTAREA               FILEAREA LINEAREA |
   +----------------------------------------------------------------------------+
 
  */
@@ -98,9 +103,10 @@ class ConsoleItemPositions
 {
 public:
     ConsoleItemPositions(const QRect &rect,
-              const QFont &font = QFont(),
-              bool showTaskIconArea = true,
-              bool showExpandableIconArea = true)
+                         const QFont &font,
+                         bool showTaskIconArea,
+                         bool showExpandableIconArea,
+                         QtMessageLogHandler *model = 0)
         : m_x(rect.x()),
           m_width(rect.width()),
           m_top(rect.top()),
@@ -109,6 +115,10 @@ public:
           m_showExpandableIconArea(showExpandableIconArea)
     {
         m_fontHeight = QFontMetrics(font).height();
+        if (model) {
+            m_maxFileLength = model->sizeOfFile(font);
+            m_maxLineLength = model->sizeOfLineNumber(font);
+        }
     }
 
     int adjustedTop() const { return m_top + ITEM_PADDING; }
@@ -141,9 +151,21 @@ public:
 
     int textAreaLeft() const { return  expandCollapseIconRight() + ITEM_SPACING; }
     int textAreaWidth() const { return textAreaRight() - textAreaLeft(); }
-    int textAreaRight() const { return adjustedRight() - ITEM_SPACING; }
+    int textAreaRight() const { return fileAreaLeft() - ITEM_SPACING; }
     QRect textArea() const { return
                 QRect(textAreaLeft(), adjustedTop(), textAreaWidth(), lineHeight()); }
+
+    int fileAreaLeft() const { return fileAreaRight() - fileAreaWidth(); }
+    int fileAreaWidth() const { return m_maxFileLength; }
+    int fileAreaRight() const { return lineAreaLeft() - ITEM_SPACING; }
+    QRect fileArea() const { return
+                QRect(fileAreaLeft(), adjustedTop(), fileAreaWidth(), lineHeight()); }
+
+    int lineAreaLeft() const { return lineAreaRight() - lineAreaWidth(); }
+    int lineAreaWidth() const { return m_maxLineLength; }
+    int lineAreaRight() const { return adjustedRight() - ITEM_SPACING; }
+    QRect lineArea() const { return
+                QRect(lineAreaLeft(), adjustedTop(), lineAreaWidth(), lineHeight()); }
 
 private:
     int m_x;
@@ -151,6 +173,8 @@ private:
     int m_top;
     int m_bottom;
     int m_fontHeight;
+    int m_maxFileLength;
+    int m_maxLineLength;
     bool m_showTaskIconArea;
     bool m_showExpandableIconArea;
 

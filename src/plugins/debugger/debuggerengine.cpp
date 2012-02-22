@@ -66,6 +66,7 @@
 
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>
+#include <utils/fileinprojectfinder.h>
 
 #include <QDebug>
 #include <QTimer>
@@ -312,6 +313,7 @@ public:
 
     bool m_isStateDebugging;
 
+    Utils::FileInProjectFinder m_fileFinder;
     // Testing
     void handleAutoTests();
     void handleAutoTestLine(int line);
@@ -1280,6 +1282,16 @@ DebuggerEngine *DebuggerEngine::masterEngine() const
 DebuggerLanguages DebuggerEngine::languages() const
 {
     return d->m_languages;
+}
+
+QString DebuggerEngine::toFileInProject(const QUrl &fileUrl)
+{
+    // make sure file finder is properly initialized
+    d->m_fileFinder.setProjectDirectory(startParameters().projectSourceDirectory);
+    d->m_fileFinder.setProjectFiles(startParameters().projectSourceFiles);
+    d->m_fileFinder.setSysroot(startParameters().sysroot);
+
+    return d->m_fileFinder.findFile(fileUrl);
 }
 
 bool DebuggerEngine::debuggerActionsEnabled() const

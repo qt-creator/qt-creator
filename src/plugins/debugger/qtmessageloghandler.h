@@ -35,6 +35,7 @@
 
 #include <QAbstractItemModel>
 #include <QItemSelectionModel>
+#include <QFont>
 
 namespace Debugger {
 namespace Internal {
@@ -56,7 +57,7 @@ public:
     };
     Q_DECLARE_FLAGS(ItemTypes, ItemType)
 
-    enum Roles { TypeRole = Qt::UserRole };
+    enum Roles { TypeRole = Qt::UserRole, FileRole, LineRole };
 
     explicit QtMessageLogHandler(QObject *parent = 0);
     ~QtMessageLogHandler();
@@ -73,6 +74,9 @@ public:
     QAbstractItemModel *model() { return this; }
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
+
+    int sizeOfFile(const QFont &font);
+    int sizeOfLineNumber(const QFont &font);
 
 public slots:
     void clear();
@@ -106,35 +110,36 @@ protected:
 private:
     bool m_hasEditableRow;
     QtMessageLogItem *m_rootItem;
+    int m_maxSizeOfFileName;
 };
 
 class QtMessageLogItem
- {
- public:
+{
+public:
     QtMessageLogItem(QtMessageLogHandler::ItemType type = QtMessageLogHandler::UndefinedType,
-                  const QString &data = QString(),
-                  QtMessageLogItem *parent = 0);
-     ~QtMessageLogItem();
+                     const QString &data = QString(),
+                     QtMessageLogItem *parent = 0);
+    ~QtMessageLogItem();
 
-     QtMessageLogItem *child(int number);
-     int childCount() const;
-     QString text() const;
-     QtMessageLogHandler::ItemType itemType() const;
-     bool insertChildren(int position, int count);
-     bool insertChild(int position, QtMessageLogItem *item);
-     QtMessageLogItem *parent();
-     bool removeChildren(int position, int count);
-     bool detachChild(int position);
-     int childNumber() const;
-     bool setText(const QString &text);
-     bool setItemType(QtMessageLogHandler::ItemType itemType);
+    QtMessageLogItem *child(int number);
+    int childCount() const;
+    bool insertChildren(int position, int count);
+    bool insertChild(int position, QtMessageLogItem *item);
+    QtMessageLogItem *parent();
+    bool removeChildren(int position, int count);
+    bool detachChild(int position);
+    int childNumber() const;
 
- private:
-     QList<QtMessageLogItem *> m_childItems;
-     QString m_text;
-     QtMessageLogHandler::ItemType m_itemType;
-     QtMessageLogItem *m_parentItem;
- };
+private:
+    QtMessageLogItem *m_parentItem;
+    QList<QtMessageLogItem *> m_childItems;
+
+public:
+    QString text;
+    QtMessageLogHandler::ItemType itemType;
+    QString file;
+    int line;
+};
 
 } //Internal
 } //Debugger

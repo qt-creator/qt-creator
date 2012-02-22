@@ -63,12 +63,21 @@ void QDebugMessageClient::messageReceived(const QByteArray &data)
             int type;
             QDataStream ms(messagePacket);
             ms >> type >> debugMessage;
-            emit message(QtMsgType(type), QString::fromUtf8(debugMessage.data()));
+            QDebugContextInfo info;
+            emit message(QtMsgType(type), QString::fromUtf8(debugMessage.data()),
+                         info);
         } else {
             int type;
+            int line;
             QByteArray debugMessage;
-            ds >> type >> debugMessage;
-            emit message(QtMsgType(type), QString::fromUtf8(debugMessage));
+            QByteArray file;
+            QByteArray function;
+            ds >> type >> debugMessage >> file >> line >> function;
+            QDebugContextInfo info;
+            info.line = line;
+            info.file = QString::fromUtf8(file);
+            info.function = QString::fromUtf8(function);
+            emit message(QtMsgType(type), QString::fromUtf8(debugMessage), info);
         }
     }
 }

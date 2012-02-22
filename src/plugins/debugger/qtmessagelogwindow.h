@@ -49,6 +49,7 @@ namespace Debugger {
 namespace Internal {
 
 class QtMessageLogView;
+class QtMessageLogItemDelegate;
 class QtMessageLogProxyModel;
 class QtMessageLogWindow : public QWidget
 {
@@ -71,6 +72,7 @@ private:
     Utils::SavedAction *m_showErrorAction;
     QAction *m_clearAction;
     QtMessageLogView *m_treeView;
+    QtMessageLogItemDelegate *m_itemDelegate;
     QtMessageLogProxyModel *m_proxyModel;
 };
 

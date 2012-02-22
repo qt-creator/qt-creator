@@ -32,6 +32,10 @@
 
 #include "qtmessageloghandler.h"
 
+#include <utils/qtcassert.h>
+
+#include <QFontMetrics>
+
 namespace Debugger {
 namespace Internal {
 
@@ -43,9 +47,10 @@ namespace Internal {
 
 QtMessageLogItem::QtMessageLogItem(QtMessageLogHandler::ItemType itemType,
                              const QString &text, QtMessageLogItem *parent)
-    : m_text(text),
-      m_itemType(itemType),
-      m_parentItem(parent)
+    : m_parentItem(parent),
+      text(text),
+      itemType(itemType),
+      line(-1)
 
 {
 }
@@ -62,34 +67,27 @@ QtMessageLogItem *QtMessageLogItem::child(int number)
 
 int QtMessageLogItem::childCount() const
 {
-    return m_childItems.count();
+    return m_childItems.size();
 }
 
 int QtMessageLogItem::childNumber() const
 {
     if (m_parentItem)
-        return m_parentItem->m_childItems.indexOf(const_cast<QtMessageLogItem *>(this));
+        return m_parentItem->m_childItems.indexOf(
+                    const_cast<QtMessageLogItem *>(this));
 
     return 0;
 }
 
-QString QtMessageLogItem::text() const
-{
-    return m_text;
-}
-
-QtMessageLogHandler::ItemType QtMessageLogItem::itemType() const
-{
-    return m_itemType;
-}
-\
 bool QtMessageLogItem::insertChildren(int position, int count)
 {
     if (position < 0 || position > m_childItems.size())
         return false;
 
     for (int row = 0; row < count; ++row) {
-        QtMessageLogItem *item = new QtMessageLogItem(QtMessageLogHandler::UndefinedType, QString(), this);
+        QtMessageLogItem *item = new
+                QtMessageLogItem(QtMessageLogHandler::UndefinedType, QString(),
+                                 this);
         m_childItems.insert(position, item);
     }
 
@@ -136,18 +134,6 @@ bool QtMessageLogItem::detachChild(int position)
     return true;
 }
 
-bool QtMessageLogItem::setText(const QString &text)
-{
-    m_text = text;
-    return true;
-}
-
-bool QtMessageLogItem::setItemType(QtMessageLogHandler::ItemType itemType)
-{
-    m_itemType = itemType;
-    return true;
-}
-
 ///////////////////////////////////////////////////////////////////////
 //
 // QtMessageLogHandler
@@ -157,7 +143,8 @@ bool QtMessageLogItem::setItemType(QtMessageLogHandler::ItemType itemType)
 QtMessageLogHandler::QtMessageLogHandler(QObject *parent) :
     QAbstractItemModel(parent),
     m_hasEditableRow(false),
-    m_rootItem(new QtMessageLogItem())
+    m_rootItem(new QtMessageLogItem()),
+    m_maxSizeOfFileName(0)
 {
 }
 
@@ -222,8 +209,35 @@ void QtMessageLogHandler::appendEditableRow()
 
 void QtMessageLogHandler::removeEditableRow()
 {
-    if (m_rootItem->child(m_rootItem->childCount() - 1)->itemType() == QtMessageLogHandler::InputType)
+    if (m_rootItem->child(m_rootItem->childCount() - 1)->itemType ==
+            QtMessageLogHandler::InputType)
         removeRow(m_rootItem->childCount() - 1);
+}
+
+int QtMessageLogHandler::sizeOfFile(const QFont &font)
+{
+    int lastReadOnlyRow = m_rootItem->childCount();
+    if (m_hasEditableRow)
+        lastReadOnlyRow -= 2;
+    else
+        lastReadOnlyRow -= 1;
+    if (lastReadOnlyRow < 0)
+        return 0;
+    QString filename = m_rootItem->child(lastReadOnlyRow)->file;
+    const int pos = filename.lastIndexOf(QLatin1Char('/'));
+    if (pos != -1)
+        filename = filename.mid(pos + 1);
+
+    QFontMetrics fm(font);
+    m_maxSizeOfFileName = qMax(m_maxSizeOfFileName, fm.width(filename));
+
+    return m_maxSizeOfFileName;
+}
+
+int QtMessageLogHandler::sizeOfLineNumber(const QFont &font)
+{
+    QFontMetrics fm(font);
+    return fm.width(QLatin1String("88888"));
 }
 
 QVariant QtMessageLogHandler::data(const QModelIndex &index, int role) const
@@ -234,9 +248,13 @@ QVariant QtMessageLogHandler::data(const QModelIndex &index, int role) const
     QtMessageLogItem *item = getItem(index);
 
     if (role == Qt::DisplayRole )
-        return item->text();
+        return item->text;
     else if (role == QtMessageLogHandler::TypeRole)
-        return int(item->itemType());
+        return int(item->itemType);
+    else if (role == QtMessageLogHandler::FileRole)
+        return item->file;
+    else if (role == QtMessageLogHandler::LineRole)
+        return item->line;
     else
         return QVariant();
 }
@@ -270,6 +288,8 @@ QModelIndex QtMessageLogHandler::parent(const QModelIndex &index) const
     if (parentItem == m_rootItem)
         return QModelIndex();
 
+    //can parentItem be 0?
+    QTC_ASSERT(parentItem, qDebug("Parent is Null!!"));
     return createIndex(parentItem->childNumber(), 0, parentItem);
 }
 
@@ -302,12 +322,19 @@ bool QtMessageLogHandler::setData(const QModelIndex &index, const QVariant &valu
 {
     QtMessageLogItem *item = getItem(index);
     bool result = false;
-    if (role == Qt::DisplayRole )
-        result = item->setText(value.toString());
-    else if (role == QtMessageLogHandler::TypeRole)
-        result = item->setItemType((QtMessageLogHandler::ItemType)value.toInt());
-    else if (value.canConvert(QVariant::String))
-        result = item->setText(value.toString());
+    if (role == Qt::DisplayRole) {
+        item->text = value.toString();
+        result = true;
+    } else if (role == QtMessageLogHandler::TypeRole) {
+        item->itemType = (QtMessageLogHandler::ItemType)value.toInt();
+        result = true;
+    } else if (role == QtMessageLogHandler::FileRole) {
+        item->file = value.toString();
+        result = true;
+    } else if (role == QtMessageLogHandler::LineRole) {
+        item->line = value.toInt();
+        result = true;
+    }
 
     if (result)
         emit dataChanged(index, index);

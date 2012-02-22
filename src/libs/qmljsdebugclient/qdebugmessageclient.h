@@ -39,6 +39,13 @@
 namespace QmlJsDebugClient {
 
 class QDebugMessageClientPrivate;
+struct QDebugContextInfo
+{
+    int line;
+    QString file;
+    QString function;
+};
+
 class QMLJSDEBUGCLIENT_EXPORT QDebugMessageClient : public QDeclarativeDebugClient
 {
     Q_OBJECT
@@ -53,7 +60,8 @@ protected:
 
 signals:
     void newStatus(QDeclarativeDebugClient::Status);
-    void message(QtMsgType, const QString &);
+    void message(QtMsgType, const QString &,
+                 const QmlJsDebugClient::QDebugContextInfo &);
 
 private:
     class QDebugMessageClientPrivate *d;

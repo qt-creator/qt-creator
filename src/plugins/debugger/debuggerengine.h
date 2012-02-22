@@ -286,6 +286,8 @@ public:
 
     virtual void notifyInferiorIll();
 
+    QString toFileInProject(const QUrl &fileUrl);
+
 signals:
     void stateChanged(const Debugger::DebuggerState &state);
     // A new stack frame is on display including locals.
