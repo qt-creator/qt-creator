@@ -150,12 +150,13 @@ void TaskModel::removeTask(const Task &task)
 
 void TaskModel::updateTaskLineNumber(unsigned int id, int line)
 {
-    for (int i = 0; i < m_tasks.count(); ++i) {
-        if (m_tasks.at(i).taskId == id) {
-            m_tasks[i].movedLine = line;
-            emit dataChanged(index(i, 0), index(i, 0));
-            return;
-        }
+    QList<Task>::iterator it = qLowerBound(m_tasks.begin(), m_tasks.end(), id, sortById);
+    QTC_ASSERT(it != m_tasks.end(), return)
+    int i = it - m_tasks.begin();
+    if (m_tasks.at(i).taskId == id) {
+        m_tasks[i].movedLine = line;
+        emit dataChanged(index(i, 0), index(i, 0));
+        return;
     }
 }
 
