@@ -67,18 +67,15 @@ QVariantMap AnalyzerSettings::defaults() const
     return map;
 }
 
-bool AnalyzerSettings::fromMap(const QVariantMap &map)
+void AnalyzerSettings::fromMap(const QVariantMap &map)
 {
-    return fromMap(map, &m_subConfigs);
+    fromMap(map, &m_subConfigs);
 }
 
-bool AnalyzerSettings::fromMap(const QVariantMap &map, QList<AbstractAnalyzerSubConfig *> *subConfigs)
+void AnalyzerSettings::fromMap(const QVariantMap &map, QList<AbstractAnalyzerSubConfig *> *subConfigs)
 {
-    bool ret = true;
-    foreach (AbstractAnalyzerSubConfig *config, *subConfigs) {
-        ret = ret && config->fromMap(map);
-    }
-    return ret;
+    foreach (AbstractAnalyzerSubConfig *config, *subConfigs)
+        config->fromMap(map);
 }
 
 QVariantMap AnalyzerSettings::toMap() const
@@ -180,12 +177,10 @@ QString AnalyzerProjectSettings::displayName() const
     return tr("Analyzer Settings");
 }
 
-bool AnalyzerProjectSettings::fromMap(const QVariantMap &map)
+void AnalyzerProjectSettings::fromMap(const QVariantMap &map)
 {
-    if (!AnalyzerSettings::fromMap(map, &m_customConfigurations))
-        return false;
+    AnalyzerSettings::fromMap(map, &m_customConfigurations);
     m_useGlobalSettings = map.value(QLatin1String(useGlobalC), true).toBool();
-    return true;
 }
 
 QVariantMap AnalyzerProjectSettings::toMap() const

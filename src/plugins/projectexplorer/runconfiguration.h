@@ -84,7 +84,7 @@ public:
     virtual QString displayName() const = 0;
 protected:
     friend class RunConfiguration;
-    virtual bool fromMap(const QVariantMap &map) = 0;
+    virtual void fromMap(const QVariantMap &map) = 0;
 };
 
 class PROJECTEXPLORER_EXPORT DebuggerProjectSettings
@@ -104,7 +104,7 @@ public:
     };
 
     QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &map);
+    void fromMap(const QVariantMap &map);
 
     QString displayName() const;
 

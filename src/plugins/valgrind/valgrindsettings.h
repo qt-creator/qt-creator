@@ -57,7 +57,7 @@ public:
 
     virtual QVariantMap toMap() const;
     virtual QVariantMap defaults() const;
-    virtual bool fromMap(const QVariantMap &map);
+    virtual void fromMap(const QVariantMap &map);
 
     virtual QString id() const;
     virtual QString displayName() const;
@@ -176,7 +176,7 @@ public:
     QWidget *createConfigWidget(QWidget *parent);
     QVariantMap toMap() const;
     QVariantMap defaults() const;
-    bool fromMap(const QVariantMap &map);
+    void fromMap(const QVariantMap &map);
 
     /*
      * Global memcheck settings
@@ -231,7 +231,7 @@ public:
     QWidget *createConfigWidget(QWidget *parent);
     QVariantMap toMap() const;
     QVariantMap defaults() const;
-    bool fromMap(const QVariantMap &map);
+    void fromMap(const QVariantMap &map);
 
     /**
      * Per-project memcheck settings, saves a diff to the global suppression files list

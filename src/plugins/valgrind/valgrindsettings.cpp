@@ -106,7 +106,7 @@ QVariantMap ValgrindBaseSettings::defaults() const
     return map;
 }
 
-bool ValgrindBaseSettings::fromMap(const QVariantMap &map)
+void ValgrindBaseSettings::fromMap(const QVariantMap &map)
 {
     // General
     setIfPresent(map, QLatin1String(valgrindExeC), &m_valgrindExecutable);
@@ -132,7 +132,6 @@ bool ValgrindBaseSettings::fromMap(const QVariantMap &map)
                  &m_visualisationMinimumInclusiveCostRatio);
 
     emit changed();
-    return true;
 }
 
 QVariantMap ValgrindBaseSettings::toMap() const
@@ -311,7 +310,7 @@ QVariantMap ValgrindGlobalSettings::defaults() const
     return map;
 }
 
-bool ValgrindGlobalSettings::fromMap(const QVariantMap &map)
+void ValgrindGlobalSettings::fromMap(const QVariantMap &map)
 {
     ValgrindBaseSettings::fromMap(map);
 
@@ -325,8 +324,6 @@ bool ValgrindGlobalSettings::fromMap(const QVariantMap &map)
     if (map.contains(QLatin1String(callgrindCostFormatC)))
         m_costFormat = static_cast<CostDelegate::CostFormat>(map.value(QLatin1String(callgrindCostFormatC)).toInt());
     setIfPresent(map, QLatin1String(callgrindCycleDetectionC), &m_detectCycles);
-
-    return true;
 }
 
 QVariantMap ValgrindGlobalSettings::toMap() const
@@ -441,15 +438,13 @@ QVariantMap ValgrindProjectSettings::defaults() const
     return map;
 }
 
-bool ValgrindProjectSettings::fromMap(const QVariantMap &map)
+void ValgrindProjectSettings::fromMap(const QVariantMap &map)
 {
     ValgrindBaseSettings::fromMap(map);
 
     // Memcheck
     setIfPresent(map, addedSuppressionFilesC, &m_addedSuppressionFiles);
     setIfPresent(map, removedSuppressionFilesC, &m_disabledGlobalSuppressionFiles);
-
-    return true;
 }
 
 QVariantMap ValgrindProjectSettings::toMap() const

@@ -277,7 +277,7 @@ QVariantMap DebuggerProjectSettings::toMap() const
     return map;
 }
 
-bool DebuggerProjectSettings::fromMap(const QVariantMap &map)
+void DebuggerProjectSettings::fromMap(const QVariantMap &map)
 {
     m_useCppDebugger = map.value(QLatin1String(USE_CPP_DEBUGGER_KEY), true).toBool();
     if (map.value(QLatin1String(USE_QML_DEBUGGER_AUTO_KEY), false).toBool()) {
@@ -286,7 +286,6 @@ bool DebuggerProjectSettings::fromMap(const QVariantMap &map)
         bool useQml = map.value(QLatin1String(USE_QML_DEBUGGER_KEY), false).toBool();
         m_useQmlDebugger = useQml ? EnableQmlDebugger : DisableQmlDebugger;
     }
-    return true;
 }
 
 
@@ -391,12 +390,10 @@ ProjectExplorer::Abi RunConfiguration::abi() const
 
 bool RunConfiguration::fromMap(const QVariantMap &map)
 {
-    if (!m_debuggerAspect->fromMap(map))
-        return false;
+    m_debuggerAspect->fromMap(map);
 
     foreach (IRunConfigurationAspect *aspect, m_aspects)
-        if (!aspect->fromMap(map))
-            return false;
+        aspect->fromMap(map);
 
     return ProjectConfiguration::fromMap(map);
 }

@@ -74,7 +74,7 @@ public:
     /// convert current configuration into map for storage
     virtual QVariantMap toMap() const = 0;
     /// read configuration from @p map
-    virtual bool fromMap(const QVariantMap &map) = 0;
+    virtual void fromMap(const QVariantMap &map) = 0;
 
     /// unique ID for this configuration
     virtual QString id() const = 0;
@@ -113,10 +113,10 @@ public:
     virtual QVariantMap toMap() const;
 
 protected:
-    virtual bool fromMap(const QVariantMap &map);
+    virtual void fromMap(const QVariantMap &map);
 
     QVariantMap toMap(const QList<AbstractAnalyzerSubConfig *> &subConfigs) const;
-    bool fromMap(const QVariantMap &map, QList<AbstractAnalyzerSubConfig *> *subConfigs);
+    void fromMap(const QVariantMap &map, QList<AbstractAnalyzerSubConfig *> *subConfigs);
 
     AnalyzerSettings(QObject *parent);
     QList<AbstractAnalyzerSubConfig *> m_subConfigs;
@@ -179,7 +179,7 @@ public:
     QList<AbstractAnalyzerSubConfig *> customSubConfigs() const { return m_customConfigurations; }
 
 protected:
-    virtual bool fromMap(const QVariantMap &map);
+    virtual void fromMap(const QVariantMap &map);
 
 private:
     bool m_useGlobalSettings;
