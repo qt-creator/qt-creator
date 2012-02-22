@@ -128,7 +128,7 @@ private:
     QFont m_lineMeasurementFont;
 };
 
-class TaskFilterModel : public TaskModel
+class TaskFilterModel : public QAbstractItemModel
 {
     Q_OBJECT
 
