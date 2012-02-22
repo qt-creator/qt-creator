@@ -116,7 +116,7 @@ private:
     };
 
     QHash<Core::Id,CategoryData> m_categories; // category id to data
-    QList<Task> m_tasks;   // all tasks (in order of insertion)
+    QList<Task> m_tasks;   // all tasks (in order of id)
 
     QHash<QString,bool> m_fileNotFound;
     int m_maxSizeOfFileName;
