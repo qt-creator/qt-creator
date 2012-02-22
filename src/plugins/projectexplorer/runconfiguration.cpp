@@ -368,7 +368,9 @@ Target *RunConfiguration::target() const
 
 QVariantMap RunConfiguration::toMap() const
 {
-    QVariantMap map = m_debuggerAspect->toMap();
+    QVariantMap map = ProjectConfiguration::toMap();
+
+    map.unite(m_debuggerAspect->toMap());
 
     foreach (IRunConfigurationAspect *aspect, m_aspects)
         map.unite(aspect->toMap());
