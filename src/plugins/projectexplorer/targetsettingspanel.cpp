@@ -88,7 +88,7 @@ TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
             ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>();
 
     foreach (ITargetFactory *fac, factories) {
-        connect(fac, SIGNAL(supportedTargetIdsChanged()),
+        connect(fac, SIGNAL(canCreateTargetIdsChanged()),
                 this, SLOT(updateTargetAddAndRemoveButtons()));
     }
 }

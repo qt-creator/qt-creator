@@ -263,7 +263,7 @@ ProjectWindow::~ProjectWindow()
 void ProjectWindow::extensionsInitialized()
 {
     foreach (ITargetFactory *fac, ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>())
-        connect(fac, SIGNAL(supportedTargetIdsChanged()),
+        connect(fac, SIGNAL(canCreateTargetIdsChanged()),
                 this, SLOT(targetFactoriesChanged()));
 
     QList<IProjectPanelFactory *> list = ExtensionSystem::PluginManager::instance()->getObjects<IProjectPanelFactory>();

@@ -57,7 +57,7 @@ Qt4SimulatorTargetFactory::Qt4SimulatorTargetFactory(QObject *parent) :
     Qt4BaseTargetFactory(parent)
 {
     connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>)),
-            this, SIGNAL(supportedTargetIdsChanged()));
+            this, SIGNAL(canCreateTargetIdsChanged()));
 }
 
 Qt4SimulatorTargetFactory::~Qt4SimulatorTargetFactory()

@@ -180,7 +180,7 @@ public:
     virtual Target *restore(Project *parent, const QVariantMap &map) = 0;
 
 signals:
-    void supportedTargetIdsChanged();
+    void canCreateTargetIdsChanged();
 };
 
 } // namespace ProjectExplorer

@@ -568,7 +568,7 @@ ITargetFactory::ITargetFactory(QObject *parent) :
     QObject(parent)
 {
     connect(ToolChainManager::instance(), SIGNAL(toolChainsChanged()),
-            this, SIGNAL(supportedTargetIdsChanged()));
+            this, SIGNAL(canCreateTargetIdsChanged()));
 }
 
 } // namespace ProjectExplorer
