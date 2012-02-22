@@ -194,7 +194,7 @@ Core::BaseFileWizardParameters QtQuickAppWizard::baseParameters()
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_QTQUICK_APP)));
-    parameters.setId(QLatin1String("QA.QMLA Application"));
+    parameters.setId(QLatin1String("D.QMLA Application"));
     parameters.setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
     parameters.setDisplayCategory(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY);
 
