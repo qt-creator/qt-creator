@@ -2554,6 +2554,12 @@ if False:
         d.putNoType()
         d.putNumChild(0)
 
+
+if False:
+    def qdump__bug6933__Base(d, value):
+        d.putValue("foo")
+        d.putPlainChildren(value)
+
 if False:
     def qdump__gdb13393__Base(d, value):
         d.putValue("Base (%s)" % value["a"])
