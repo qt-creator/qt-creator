@@ -330,18 +330,6 @@ class NoAddress:
         self.d.currentPrintsAddress = self.savedPrintsAddress
 
 
-class NoDynamicType:
-    def __init__(self, d):
-        self.d = d
-
-    def __enter__(self):
-        self.savedUseDynamicType = self.d.useDynamicType
-        self.d.useDynamicType = False
-
-    def __exit__(self, exType, exValue, exTraceBack):
-        self.d.useDynamicType = self.savedUseDynamicType
-
-
 
 class SubItem:
     def __init__(self, d, component):
@@ -1404,7 +1392,7 @@ class Dumper:
         with SubItem(self, name):
             self.putItem(result)
 
-    def putItem(self, value):
+    def putItem(self, value, tryDynamic=True):
         if value is None:
             # Happens for non-available watchers in gdb versions that
             # need to use gdb.execute instead of gdb.parse_and_eval
@@ -1669,9 +1657,8 @@ class Dumper:
             check(False)
 
 
-        if self.useDynamicType:
+        if self.useDynamicType and tryDynamic:
             dtypeName = dynamicTypeName(value.cast(type))
-            #dtypeName = str(lookupType(dtypeName)) # Strip const etc. FIXME
         else:
             dtypeName = typeName
 
@@ -1800,11 +1787,10 @@ class Dumper:
                     # strange characters.
                     if dumpBase:
                         baseNumber += 1
-                        with NoDynamicType(self):
-                            with UnnamedSubItem(self, "@%d" % baseNumber):
-                                self.put('iname="%s",' % self.currentIName)
-                                self.put('name="%s",' % field.name)
-                                self.putItem(value.cast(field.type))
+                        with UnnamedSubItem(self, "@%d" % baseNumber):
+                            self.put('iname="%s",' % self.currentIName)
+                            self.put('name="%s",' % field.name)
+                            self.putItem(value.cast(field.type), False)
                 elif len(field.name) == 0:
                     # Anonymous union. We need a dummy name to distinguish
                     # multiple anonymous unions in the struct.
