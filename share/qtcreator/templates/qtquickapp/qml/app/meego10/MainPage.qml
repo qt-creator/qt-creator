@@ -2,22 +2,65 @@ import QtQuick 1.1
 import com.nokia.meego 1.0
 
 Page {
+    id: page
     tools: commonTools
 
-    Label {
-        id: label
-        anchors.centerIn: parent
-        text: qsTr("Hello world!")
-        visible: false
+    property string title : "Application Title"
+
+    Image {
+        id: pageHeader
+        anchors {
+            top: page.top
+            left: page.left
+            right: page.right
+        }
+
+        height: parent.width < parent.height ? 72 : 46
+        width: parent.width
+        source: "image://theme/meegotouch-view-header-fixed" + (theme.inverted ? "-inverted" : "")
+        z: 1
+
+        Label {
+            id: header
+            anchors {
+                verticalCenter: parent.verticalCenter
+                left: parent.left
+                leftMargin: 16
+            }
+            platformStyle: LabelStyle {
+                fontFamily: "Nokia Pure Text Light"
+                fontPixelSize: 32
+            }
+            text: page.title
+        }
     }
 
-    Button{
+    Flickable {
+        id: pageFlickableContent
         anchors {
-            horizontalCenter: parent.horizontalCenter
-            top: label.bottom
-            topMargin: 10
+            top: pageHeader.bottom
+            bottom: page.bottom
+            left: page.left
+            right: page.right
+            margins: 16
         }
-        text: qsTr("Click here!")
-        onClicked: label.visible = true
+        contentHeight: pageContent.height
+        contentWidth: pageContent.width
+        flickableDirection: Flickable.VerticalFlick
+
+        Column {
+            id: pageContent
+            width: page.width - pageFlickableContent.anchors.margins * 2
+            spacing: 16
+
+            Button{
+                text: qsTr("Click here!")
+                onClicked: appWindow.showStatusBar = !appWindow.showStatusBar
+            }
+        }
+    }
+
+    ScrollDecorator {
+        flickableItem: pageFlickableContent
     }
 }
