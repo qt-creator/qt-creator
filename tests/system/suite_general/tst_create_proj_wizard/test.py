@@ -71,7 +71,6 @@ def main():
                 pass
         waitForObject("{type='QLabel' unnamed='1' visible='1' text='Target Setup'}")
         availableCheckboxes = filter(visibleCheckBoxExists, QtQuickConstants.getAllTargetStrings())
-        JIRA.performWorkaroundIfStillOpen(6967, JIRA.Bug.CREATOR, template, displayedPlatforms)
         # verification whether expected, found and configured match
         for t in targets:
             if requiredVersion:
