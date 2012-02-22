@@ -2592,14 +2592,10 @@ void DebuggerPluginPrivate::showMessage(const QString &msg, int channel, int tim
             m_logWindow->showInput(LogInput, msg);
             m_logWindow->showOutput(LogInput, msg);
             break;
-        case LogError: {
-            m_logWindow->showOutput(channel, msg);
-            QAction *action = m_mainWindow->dockWidget(_(DOCKWIDGET_OUTPUT))
-                ->toggleViewAction();
-            if (!action->isChecked())
-                action->trigger();
+        case LogError:
+            m_logWindow->showInput(LogError, QLatin1String("ERROR: ") + msg);
+            m_logWindow->showOutput(LogError, QLatin1String("ERROR: ") + msg);
             break;
-        }
         case QtMessageLogStatus:
             QTC_ASSERT(m_qtMessageLogWindow, return);
             m_qtMessageLogWindow->showStatus(msg, timeout);
