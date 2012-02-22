@@ -51,6 +51,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QStringList>
 #include <QIcon>
@@ -224,6 +225,12 @@ bool MaemoPublisherFremantleFree::copyRecursively(const QString &srcFilePath,
             saver.write(rulesContents);
             if (!saver.finalize()) {
                 emit progressReport(saver.errorString(), ErrorOutput);
+                return false;
+            }
+            QFile rulesFile(tgtFilePath);
+            if (!rulesFile.setPermissions(rulesFile.permissions() | QFile::ExeUser)) {
+                emit progressReport(tr("Could not set execute permissions for rules file: %1")
+                    .arg(rulesFile.errorString()));
                 return false;
             }
         } else {
