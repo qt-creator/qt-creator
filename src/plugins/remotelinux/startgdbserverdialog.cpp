@@ -359,7 +359,12 @@ void StartGdbServerDialog::reportOpenPort(int port)
         return;
 
     LinuxDeviceConfiguration::ConstPtr device = d->currentDevice();
-    QString channel = QString("%1:%2").arg(device->sshParameters().host).arg(port);
+    QString host = device->sshParameters().host;
+    QString channel;
+    if (host.contains(QLatin1Char(':')))
+        channel = QString::fromLatin1("[%1]:%2").arg(host).arg(port);
+    else
+        channel = QString::fromLatin1("%1:%2").arg(host).arg(port);
     logMessage(tr("Server started on %1").arg(channel));
 
     QMetaObject::invokeMethod(ob, "gdbServerStarted", Qt::QueuedConnection,
