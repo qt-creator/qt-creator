@@ -59,12 +59,13 @@
 using namespace ProjectExplorer;
 
 namespace {
-// Function objects:
 
-const char * const USE_CPP_DEBUGGER_KEY("RunConfiguration.UseCppDebugger");
-const char * const USE_QML_DEBUGGER_KEY("RunConfiguration.UseQmlDebugger");
-const char * const USE_QML_DEBUGGER_AUTO_KEY("RunConfiguration.UseQmlDebuggerAuto");
-const char * const QML_DEBUG_SERVER_PORT_KEY("RunConfiguration.QmlDebugServerPort");
+const char USE_CPP_DEBUGGER_KEY[] = "RunConfiguration.UseCppDebugger";
+const char USE_QML_DEBUGGER_KEY[] = "RunConfiguration.UseQmlDebugger";
+const char USE_QML_DEBUGGER_AUTO_KEY[] = "RunConfiguration.UseQmlDebuggerAuto";
+const char QML_DEBUG_SERVER_PORT_KEY[] = "RunConfiguration.QmlDebugServerPort";
+
+// Function objects:
 
 class RunConfigurationFactoryMatcher
 {
