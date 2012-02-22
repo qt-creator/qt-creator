@@ -1240,7 +1240,7 @@ void ServiceBrowserPrivate::maybeUpdateLists()
         QMap<QString, ServiceGatherer::Ptr>::iterator j = gatherers.begin();
         while (i != endi && j != gatherers.end()) {
             const QString vi = *i;
-            QString vj = (*j)->fullName();
+            QString vj = j.value()->fullName();
             if (vi == vj){
                 ++i;
                 ++j;
@@ -1364,13 +1364,15 @@ bool ServiceBrowserPrivate::internalStartBrowsing()
 void ServiceBrowserPrivate::triggerRefresh()
 {
     QMutexLocker l(mainConnection->lock());
+    const qint64 msecDelay = 5100;
+    delayDeletesUntil = QDateTime::currentMSecsSinceEpoch() + msecDelay;
     stopBrowsing();
     shouldRefresh = true;
 }
 
 void ServiceBrowserPrivate::refresh()
 {
-    const qint64 msecDelay = 100;
+    const qint64 msecDelay = 500;
     delayDeletesUntil = QDateTime::currentMSecsSinceEpoch() + msecDelay;
     shouldRefresh = false;
     internalStartBrowsing();
@@ -1386,6 +1388,8 @@ void ServiceBrowserPrivate::stopBrowsing()
             updateFlowStatusForCancel();
             serviceConnection = 0;
         }
+        knownServices.clear();
+        browsing = false;
     }
 }
 
@@ -1667,9 +1671,10 @@ ZConfLib::RunLoopStatus MainConnection::handleEvent()
             nextEvent = bAtt->delayDeletesUntil;
     }
     if (nextEvent <= now)
-        nextEvent = -1;
+        nextEvent = 5000;
     else
         nextEvent -= now;
+    maybeUpdateLists();
     ZConfLib::RunLoopStatus err = lib->processOneEvent(m_mainRef, nextEvent);
     if (err != ZConfLib::ProcessedOk && err != ZConfLib::ProcessedIdle) {
         qDebug() << "processOneEvent returned " << err;
