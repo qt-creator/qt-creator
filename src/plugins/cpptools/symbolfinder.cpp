@@ -217,6 +217,9 @@ void SymbolFinder::findMatchingDeclaration(const LookupContext &context,
                                            QList<Declaration *> *argumentCountMatch,
                                            QList<Declaration *> *nameMatch)
 {
+    if (!functionType)
+        return;
+
     Scope *enclosingScope = functionType->enclosingScope();
     while (! (enclosingScope->isNamespace() || enclosingScope->isClass()))
         enclosingScope = enclosingScope->enclosingScope();
