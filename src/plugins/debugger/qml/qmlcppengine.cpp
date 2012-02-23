@@ -317,6 +317,19 @@ void QmlCppEngine::assignValueInDebugger(const WatchData *data,
     d->m_activeEngine->assignValueInDebugger(data, expr, value);
 }
 
+void QmlCppEngine::notifyInferiorIll()
+{
+    //This will eventually shutdown the engine
+    //Set final state to avoid quitDebugger() being called
+    //after this call
+    setTargetState(DebuggerFinished);
+
+    //Call notifyInferiorIll of cpp engine
+    //as qml engine will follow state transitions
+    //of cpp engine
+    d->m_cppEngine->notifyInferiorIll();
+}
+
 void QmlCppEngine::detachDebugger()
 {
     d->m_qmlEngine->detachDebugger();

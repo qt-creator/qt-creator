@@ -98,6 +98,8 @@ public:
 
     Internal::QtMessageLogHandler *qtMessageLogHandler() const;
 
+    void notifyInferiorIll();
+
 protected:
     void detachDebugger();
     void executeStep();
