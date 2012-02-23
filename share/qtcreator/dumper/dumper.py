@@ -1795,7 +1795,7 @@ class Dumper:
                         baseNumber += 1
                         with UnnamedSubItem(self, "@%d" % baseNumber):
                             self.put('iname="%s",' % self.currentIName)
-                            self.put('name="%s",' % field.name)
+                            self.put('name="[%s]",' % field.name)
                             self.putItem(value.cast(field.type), False)
                 elif len(field.name) == 0:
                     # Anonymous union. We need a dummy name to distinguish
