@@ -1114,6 +1114,7 @@ void QmlV8DebuggerClient::activateFrame(int index)
 {
     if (index != d->engine->stackHandler()->currentIndex())
         d->frame(index);
+    d->engine->stackHandler()->setCurrentIndex(index);
 }
 
 bool QmlV8DebuggerClient::acceptsBreakpoint(const BreakpointModelId &id)
@@ -1716,7 +1717,6 @@ void QmlV8DebuggerClient::setCurrentFrameDetails(const QVariant &bodyVal, const 
     QVariantMap currentFrame = bodyVal.toMap();
 
     StackHandler *stackHandler = d->engine->stackHandler();
-    int frameIndex = currentFrame.value(QLatin1String("index")).toInt();
 
     d->clearCache();
     //Set "this" variable
@@ -1746,7 +1746,6 @@ void QmlV8DebuggerClient::setCurrentFrameDetails(const QVariant &bodyVal, const 
         d->currentFrameScopes.append(scopeIndex);
         d->scope(scopeIndex);
     }
-    stackHandler->setCurrentIndex(frameIndex);
     d->engine->gotoLocation(stackHandler->currentFrame());
 }
 

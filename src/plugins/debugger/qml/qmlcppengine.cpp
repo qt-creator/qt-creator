@@ -83,17 +83,12 @@ public:
             const DebuggerStartParameters &sp);
     ~QmlCppEnginePrivate() {}
 
-private slots:
-    void cppStackChanged();
-    void qmlStackChanged();
-
 private:
     friend class QmlCppEngine;
     QmlCppEngine *q;
     QmlEngine *m_qmlEngine;
     DebuggerEngine *m_cppEngine;
     DebuggerEngine *m_activeEngine;
-    int m_stackBoundary;
 };
 
 
@@ -104,32 +99,6 @@ QmlCppEnginePrivate::QmlCppEnginePrivate(QmlCppEngine *parent,
 {
     setObjectName(QLatin1String("QmlCppEnginePrivate"));
 }
-
-void QmlCppEnginePrivate::cppStackChanged()
-{
-    const QLatin1String firstFunction("QScript::FunctionWrapper::proxyCall");
-    StackFrames frames;
-    foreach (const StackFrame &frame, m_cppEngine->stackHandler()->frames()) {
-        if (frame.function.endsWith(firstFunction))
-            break;
-        frames.append(frame);
-    }
-    int level = frames.size();
-    m_stackBoundary = level;
-    foreach (StackFrame frame, m_qmlEngine->stackHandler()->frames()) {
-        frame.level = level++;
-        frames.append(frame);
-    }
-    q->stackHandler()->setFrames(frames);
-}
-
-void QmlCppEnginePrivate::qmlStackChanged()
-{
-    StackFrames frames = m_qmlEngine->stackHandler()->frames();
-    q->stackHandler()->setFrames(frames);
-    m_stackBoundary = 0;
-}
-
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -149,13 +118,6 @@ QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp,
         return;
     }
     d->m_activeEngine = d->m_cppEngine;
-
-    connect(d->m_cppEngine->stackHandler(), SIGNAL(stackChanged()),
-            d, SLOT(cppStackChanged()), Qt::QueuedConnection);
-    connect(d->m_qmlEngine->stackHandler(), SIGNAL(stackChanged()),
-            d, SLOT(qmlStackChanged()), Qt::QueuedConnection);
-    connect(d->m_cppEngine, SIGNAL(stackFrameCompleted()), this, SIGNAL(stackFrameCompleted()));
-    connect(d->m_qmlEngine, SIGNAL(stackFrameCompleted()), this, SIGNAL(stackFrameCompleted()));
 }
 
 QmlCppEngine::~QmlCppEngine()
@@ -198,10 +160,8 @@ void QmlCppEngine::activateFrame(int index)
     if (state() != InferiorStopOk && state() != InferiorUnrunnable)
         return;
 
-    if (index >= d->m_stackBoundary)
-        d->m_qmlEngine->activateFrame(index - d->m_stackBoundary);
-    else
-        d->m_cppEngine->activateFrame(index);
+    d->m_activeEngine->activateFrame(index);
+
     stackHandler()->setCurrentIndex(index);
 }
 
@@ -451,7 +411,6 @@ void QmlCppEngine::setupEngine()
 {
     EDEBUG("\nMASTER SETUP ENGINE");
     d->m_activeEngine = d->m_cppEngine;
-    d->m_stackBoundary = 0;
     d->m_qmlEngine->setupSlaveEngine();
     d->m_cppEngine->setupSlaveEngine();
 
