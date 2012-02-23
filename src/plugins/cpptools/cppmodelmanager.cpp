@@ -934,11 +934,10 @@ void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 
     m_srcToProjectPart.clear();
 
-    foreach (const ProjectPart::Ptr &projectPart, pinfo.projectParts()) {
-        foreach (const QString &sourceFile, projectPart->sourceFiles) {
-            m_srcToProjectPart[sourceFile].append(projectPart);
-        }
-    }
+    foreach (const ProjectInfo &projectInfo, m_projects.values())
+        foreach (const ProjectPart::Ptr &projectPart, projectInfo.projectParts())
+            foreach (const QString &sourceFile, projectPart->sourceFiles)
+                m_srcToProjectPart[sourceFile].append(projectPart);
 }
 
 QList<CppModelManager::ProjectPart::Ptr> CppModelManager::projectPart(const QString &fileName) const
