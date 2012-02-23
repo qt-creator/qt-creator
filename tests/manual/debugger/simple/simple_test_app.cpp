@@ -5283,7 +5283,7 @@ namespace mpi {
                 >     }}
                 > }
         */
-
+        dummyStatement(&i);
     }
 
 } // namespace mpi
