@@ -3727,7 +3727,8 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
 
     if (LA() != T_SEMICOLON) {
         const bool maybeCtor = (LA() == T_LPAREN && named_type_specifier);
-        if (! parseInitDeclarator(declarator, decl_specifier_seq, declaringClass) && maybeCtor) {
+        bool didParseInitDeclarator = parseInitDeclarator(declarator, decl_specifier_seq, declaringClass);
+        if ((! didParseInitDeclarator && maybeCtor) || (didParseInitDeclarator && maybeCtor && LA() == T_COLON)){
             rewind(startOfNamedTypeSpecifier);
             named_type_specifier = 0;
             // pop the named type specifier from the decl-specifier-seq
