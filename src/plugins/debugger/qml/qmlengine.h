@@ -94,9 +94,7 @@ public slots:
     void disconnected();
 
 private slots:
-    void retryMessageBoxFinished(int result);
-    void wrongSetupMessageBox(const QString &errorMessage);
-    void wrongSetupMessageBoxFinished(int result);
+    void errorMessageBoxFinished(int result);
     void updateCurrentContext();
     void appendDebugOutput(QtMsgType type, const QString &message,
                            const QmlJsDebugClient::QDebugContextInfo &info);
@@ -162,7 +160,7 @@ signals:
 private slots:
     void beginConnection(quint16 port = 0);
     void connectionEstablished();
-    void connectionStartupFailed();
+    void connectionStartupFailed(const QString &errorMessage = QString());
     void connectionError(QAbstractSocket::SocketError error);
     void serviceConnectionError(const QString &service);
     void appendMessage(const QString &msg, Utils::OutputFormat);
