@@ -358,12 +358,13 @@ FullySpecifiedType Bind::declarator(DeclaratorAST *ast, const FullySpecifiedType
         if (type.isAuto())
             isAuto = true;
     }
-    // unsigned equals_token = ast->equals_token;
-    ExpressionTy initializer = this->expression(ast->initializer);
-    if (translationUnit()->cxx0xEnabled() && isAuto) {
+    if (!type->isFunctionType()) {
+        ExpressionTy initializer = this->expression(ast->initializer);
+        if (translationUnit()->cxx0xEnabled() && isAuto) {
 
-        type = initializer;
-        type.setAuto(true);
+            type = initializer;
+            type.setAuto(true);
+        }
     }
 
     std::swap(_declaratorId, declaratorId);
@@ -3085,6 +3086,8 @@ bool Bind::visit(FunctionDeclaratorAST *ast)
     Function *fun = control()->newFunction(0, 0);
     fun->setStartOffset(tokenAt(ast->firstToken()).begin());
     fun->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    if (ast->trailing_return_type)
+        _type = this->trailingReturnType(ast->trailing_return_type, _type);
     fun->setReturnType(_type);
 
     // unsigned lparen_token = ast->lparen_token;
@@ -3100,7 +3103,6 @@ bool Bind::visit(FunctionDeclaratorAST *ast)
     fun->setVolatile(type.isVolatile());
 
     this->exceptionSpecification(ast->exception_specification, type);
-    this->trailingReturnType(ast->trailing_return_type, type);
     if (ast->as_cpp_initializer != 0) {
         fun->setAmbiguous(true);
         /*ExpressionTy as_cpp_initializer =*/ this->expression(ast->as_cpp_initializer);
