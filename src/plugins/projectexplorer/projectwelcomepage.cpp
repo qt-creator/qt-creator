@@ -36,9 +36,12 @@
 
 #include <QDeclarativeEngine>
 #include <QDeclarativeContext>
+#include <QFileInfo>
+#include <QDir>
 
 #include <projectexplorer/session.h>
 #include <projectexplorer/projectexplorer.h>
+#include <sessiondialog.h>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -51,6 +54,8 @@ SessionModel::SessionModel(SessionManager *manager, QObject *parent)
     roleNames[DefaultSessionRole] = "defaultSession";
     roleNames[ActiveSessionRole] = "activeSession";
     roleNames[LastSessionRole] = "lastSession";
+    roleNames[ProjectsPathRole] = "projectsPath";
+    roleNames[ProjectsDisplayRole] = "projectsName";
     setRoleNames(roleNames);
     connect(manager, SIGNAL(sessionLoaded(QString)), SLOT(resetSessions()));
 }
@@ -60,10 +65,28 @@ int SessionModel::rowCount(const QModelIndex &) const
     return m_manager->sessions().count();
 }
 
+QStringList pathsToBaseNames(const QStringList &paths)
+{
+    QStringList stringList;
+    foreach (const QString &path, paths)
+        stringList.append(QFileInfo(path).completeBaseName());
+    return stringList;
+}
+
+
+
+QStringList pathsWithTildeHomePath(const QStringList &paths)
+{
+    QStringList stringList;
+    foreach (const QString &path, paths)
+        stringList.append(Utils::withTildeHomePath(QDir::toNativeSeparators(path)));
+    return stringList;
+}
+
 QVariant SessionModel::data(const QModelIndex &index, int role) const
 {
     if (role == Qt::DisplayRole || role == DefaultSessionRole ||
-            role == LastSessionRole || role == ActiveSessionRole) {
+            role == LastSessionRole || role == ActiveSessionRole || role == ProjectsPathRole  || role == ProjectsDisplayRole) {
         QString sessionName = m_manager->sessions().at(index.row());
         if (role == Qt::DisplayRole)
             return sessionName;
@@ -73,6 +96,10 @@ QVariant SessionModel::data(const QModelIndex &index, int role) const
             return m_manager->lastSession() == sessionName;
         else if (role == ActiveSessionRole)
             return m_manager->activeSession() == sessionName;
+        else if (role == ProjectsPathRole)
+            return pathsWithTildeHomePath(m_manager->projectsForSessionName(sessionName));
+        else if (role == ProjectsDisplayRole)
+            return pathsToBaseNames(m_manager->projectsForSessionName(sessionName));
     }
     return QVariant();
 }
@@ -87,6 +114,49 @@ void SessionModel::resetSessions()
     reset();
 }
 
+void SessionModel::cloneSession(const QString &session)
+{
+    SessionNameInputDialog newSessionInputDialog(m_manager->sessions(), 0);
+    newSessionInputDialog.setWindowTitle(tr("New session name"));
+    newSessionInputDialog.setValue(session + QLatin1String(" (2)"));
+
+    if (newSessionInputDialog.exec() == QDialog::Accepted) {
+        QString newSession = newSessionInputDialog.value();
+        if (newSession.isEmpty() || m_manager->sessions().contains(newSession))
+            return;
+        m_manager->cloneSession(session, newSession);
+        reset();
+
+        if (newSessionInputDialog.isSwitchToRequested()) {
+            m_manager->loadSession(newSession);
+        }
+    }
+}
+
+void SessionModel::deleteSession(const QString &session)
+{
+    m_manager->deleteSession(session);
+    reset();
+}
+
+void SessionModel::renameSession(const QString &session)
+{
+    SessionNameInputDialog newSessionInputDialog(m_manager->sessions(), 0);
+    newSessionInputDialog.setWindowTitle(tr("New session name"));
+    newSessionInputDialog.setValue(session);
+
+    if (newSessionInputDialog.exec() == QDialog::Accepted) {
+        QString newSession = newSessionInputDialog.value();
+        if (newSession.isEmpty() || m_manager->sessions().contains(newSession))
+            return;
+        m_manager->renameSession(session, newSession);
+        reset();
+
+        if (newSessionInputDialog.isSwitchToRequested()) {
+            m_manager->loadSession(newSession);
+        }
+    }
+}
 
 ProjectModel::ProjectModel(ProjectExplorerPlugin *plugin, QObject *parent)
     : QAbstractListModel(parent), m_plugin(plugin)

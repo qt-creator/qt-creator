@@ -85,26 +85,6 @@ void SessionValidator::fixup(QString &input) const
     input = copy;
 }
 
-
-class SessionNameInputDialog : public QDialog
-{
-    Q_OBJECT
-public:
-    SessionNameInputDialog(const QStringList &sessions, QWidget *parent = 0);
-
-    void setValue(const QString &value);
-    QString value() const;
-    bool isSwitchToRequested() const;
-
-private slots:
-    void clicked(QAbstractButton *button);
-
-private:
-    QLineEdit *m_newSessionLineEdit;
-    QPushButton *m_switchToButton;
-    bool m_usedSwitchTo;
-};
-
 SessionNameInputDialog::SessionNameInputDialog(const QStringList &sessions, QWidget *parent)
     : QDialog(parent), m_usedSwitchTo(false)
 {
@@ -299,5 +279,3 @@ void SessionDialog::switchToSession()
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#include "sessiondialog.moc"

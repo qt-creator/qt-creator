@@ -38,6 +38,11 @@
 
 #include "ui_sessiondialog.h"
 
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+class QPushButton;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer {
 
 class SessionManager;
@@ -67,6 +72,25 @@ private:
     void markItems();
     Ui::SessionDialog m_ui;
     SessionManager *m_sessionManager;
+};
+
+class SessionNameInputDialog : public QDialog
+{
+    Q_OBJECT
+public:
+    SessionNameInputDialog(const QStringList &sessions, QWidget *parent = 0);
+
+    void setValue(const QString &value);
+    QString value() const;
+    bool isSwitchToRequested() const;
+
+private slots:
+    void clicked(QAbstractButton *button);
+
+private:
+    QLineEdit *m_newSessionLineEdit;
+    QPushButton *m_switchToButton;
+    bool m_usedSwitchTo;
 };
 
 } // namespace Internal

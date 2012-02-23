@@ -120,6 +120,7 @@ public:
     Node *nodeForFile(const QString &fileName, Project *project = 0) const;
     Project *projectForFile(const QString &fileName) const;
 
+    QStringList projectsForSessionName(const QString &session) const;
 
     void reportProjectLoadingProgress();
 signals:

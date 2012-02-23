@@ -54,7 +54,7 @@ class SessionModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    enum { DefaultSessionRole = Qt::UserRole+1, LastSessionRole, ActiveSessionRole };
+    enum { DefaultSessionRole = Qt::UserRole+1, LastSessionRole, ActiveSessionRole, ProjectsPathRole, ProjectsDisplayRole };
 
     SessionModel(SessionManager* manager, QObject* parent = 0);
     int rowCount(const QModelIndex &parent) const;
@@ -64,6 +64,9 @@ public:
 
 public slots:
     void resetSessions();
+    void cloneSession(const QString &session);
+    void deleteSession(const QString &session);
+    void renameSession(const QString &session);
 
 private:
     SessionManager *m_manager;

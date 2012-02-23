@@ -914,3 +914,16 @@ void SessionManager::sessionLoadingProgress()
     m_future.setProgressValue(m_future.progressValue() + 1);
     QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 }
+
+QStringList ProjectExplorer::SessionManager::projectsForSessionName(const QString &session) const
+{
+    const QString fileName = sessionNameToFileName(session);
+    PersistentSettingsReader reader;
+    if (QFileInfo(fileName).exists()) {
+        if (!reader.load(fileName)) {
+            qWarning() << "Could not restore session" << fileName;
+            return QStringList();
+        }
+    }
+    return reader.restoreValue(QLatin1String("ProjectList")).toStringList();
+}

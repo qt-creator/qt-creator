@@ -35,6 +35,13 @@ import QtQuick 1.1
 Row {
     spacing: 4
     property alias name: sessionText.text
+
+    property alias hovered: sessionText.hovered
+
+    signal clicked
+
+    id: root
+
     Image {
         source: "images/bullet.png"
         anchors.verticalCenter: sessionText.verticalCenter
@@ -42,6 +49,9 @@ Row {
 
     LinkedText {
         id: sessionText
-        onClicked: projectWelcomePage.requestSession(sessionName)
+        onClicked: {
+            projectWelcomePage.requestSession(sessionName);
+            root.clicked();
+        }
     }
 }

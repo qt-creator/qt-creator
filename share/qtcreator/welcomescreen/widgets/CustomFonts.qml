@@ -37,6 +37,7 @@ QtObject {
     property alias standardCaption: standardCaptionText.font
     property alias standstandardDescription: standardDescriptionText.font
     property alias italicDescription: italicDescriptionText.font
+    property alias boldDescription: boldText.font
 
     property list<Item> texts: [
 
@@ -47,6 +48,16 @@ QtObject {
 
             font.pixelSize: 13
             //font.bold: true
+            font.family: "Helvetica"
+        },
+
+        Text {
+            id: boldText
+
+            visible: false
+
+            font.pixelSize: 13
+            font.bold: true
             font.family: "Helvetica"
         },
 

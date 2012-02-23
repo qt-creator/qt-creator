@@ -64,22 +64,6 @@ Rectangle {
         anchors.top: parent.top
         anchors.topMargin: 0
 
-        RecentSessions {
-            id: recentSessions
-
-            x: 87
-            y: 144
-            width: 274
-
-            anchors.left: recentlyUsedSessions.left
-            anchors.right: recentlyUsedProjects.left
-            anchors.rightMargin: 40
-            anchors.top: recentlyUsedSessions.bottom
-            anchors.topMargin: 20
-
-            model: sessionList
-        }
-
         Rectangle {
             width: 1
             height: line.height
@@ -94,7 +78,7 @@ Rectangle {
             x: 406
             y: 144
             width: 481
-            height: 416
+            height: 432
             id: recentProjects
 
             anchors.left: recentlyUsedProjects.left
@@ -183,6 +167,22 @@ Rectangle {
                 id: icon01
                 source: "widgets/images/icons/createIcon.png"
             }
+        }
+
+        RecentSessions {
+            id: recentSessions
+
+            x: 87
+            y: 144
+            width: 274
+
+            anchors.left: recentlyUsedSessions.left
+            anchors.right: recentlyUsedProjects.left
+            anchors.rightMargin: 40
+            anchors.top: recentlyUsedSessions.bottom
+            anchors.topMargin: 20
+
+            model: sessionList
         }
     }
 }

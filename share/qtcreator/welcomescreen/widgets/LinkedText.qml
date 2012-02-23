@@ -47,6 +47,7 @@ Text {
 
     property bool active: false
 
+    property bool hovered: mouseArea.state === "hovered"
     onActiveChanged: {
         if (active)
             mouseArea.state = ""
