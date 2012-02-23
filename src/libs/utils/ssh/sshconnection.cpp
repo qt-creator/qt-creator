@@ -332,6 +332,10 @@ void SshConnectionPrivate::handleIncomingData()
 
 void SshConnectionPrivate::handleServerId()
 {
+#ifdef CREATOR_SSH_DEBUG
+    qDebug("%s: incoming data size = %d, incoming data = '%s'",
+        Q_FUNC_INFO, m_incomingData.count(), m_incomingData.data());
+#endif
     const int idOffset = m_incomingData.indexOf("SSH-");
     if (idOffset == -1)
         return;
