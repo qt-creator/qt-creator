@@ -253,12 +253,6 @@ uint DebuggerProjectSettings::qmlDebugServerPort() const
     return m_qmlDebugServerPort;
 }
 
-void DebuggerProjectSettings::setQmlDebugServerPort(uint port)
-{
-    m_qmlDebugServerPort = port;
-    emit qmlDebugServerPortChanged(port);
-}
-
 void DebuggerProjectSettings::suppressQmlDebuggingOptions()
 {
     m_suppressQmlDebuggingOptions = true;

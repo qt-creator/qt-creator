@@ -205,13 +205,13 @@ void DebuggerMainWindowPrivate::updateUiForTarget(Target *target)
 void DebuggerMainWindowPrivate::updateUiForRunConfiguration(RunConfiguration *rc)
 {
     if (m_previousRunConfiguration)
-        disconnect(m_previousRunConfiguration, SIGNAL(debuggersChanged()),
+        disconnect(m_previousRunConfiguration->debuggerAspect(), SIGNAL(debuggersChanged()),
                    this, SLOT(updateUiForCurrentRunConfiguration()));
     m_previousRunConfiguration = rc;
     updateUiForCurrentRunConfiguration();
     if (!rc)
         return;
-    connect(m_previousRunConfiguration,
+    connect(m_previousRunConfiguration->debuggerAspect(),
             SIGNAL(debuggersChanged()),
             SLOT(updateUiForCurrentRunConfiguration()));
 }

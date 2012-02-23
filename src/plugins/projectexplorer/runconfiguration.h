@@ -112,13 +112,11 @@ public:
     bool useCppDebugger() const;
     QmlDebuggerStatus useQmlDebugger() const;
     uint qmlDebugServerPort() const;
-    void setQmlDebugServerPort(uint port);
     void suppressQmlDebuggingOptions();
     bool areQmlDebuggingOptionsSuppressed() const;
 
 signals:
     void debuggersChanged();
-    void qmlDebugServerPortChanged(uint port);
 
 public:
     bool m_useCppDebugger;
@@ -168,8 +166,6 @@ public:
 
 signals:
     void isEnabledChanged(bool value);
-    void debuggersChanged();
-    void qmlDebugServerPortChanged(uint port);
 
 protected:
     RunConfiguration(Target *parent, const QString &id);

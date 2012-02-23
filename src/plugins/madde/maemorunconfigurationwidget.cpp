@@ -85,7 +85,8 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     addMountWidgets(subLayout);
     connect(m_runConfiguration, SIGNAL(deviceConfigurationChanged(ProjectExplorer::Target*)),
         this, SLOT(updateMountWarning()));
-    connect(m_runConfiguration, SIGNAL(debuggersChanged()), SLOT(updateMountWarning()));
+    connect(m_runConfiguration->debuggerAspect(), SIGNAL(debuggersChanged()),
+            SLOT(updateMountWarning()));
     updateMountWarning();
 
     const AbstractQt4MaemoTarget * const maemoTarget
