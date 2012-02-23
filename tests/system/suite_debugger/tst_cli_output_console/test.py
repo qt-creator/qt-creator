@@ -55,7 +55,7 @@ def main():
         invokeMenuItem("Debug", "Start Debugging", "Start Debugging")
         JIRA.performWorkaroundIfStillOpen(6853, JIRA.Bug.CREATOR, config)
         handleDebuggerWarnings(config)
-        waitFor("runControlFinished==True", 20000)
+        waitFor("runControlFinished==True", 60000)
         if not runControlFinished:
             test.warning("Waiting for runControlFinished timed out")
         try:
