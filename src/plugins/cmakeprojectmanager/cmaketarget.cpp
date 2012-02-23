@@ -32,7 +32,6 @@
 
 #include "cmaketarget.h"
 
-#include "cmakeopenprojectwizard.h"
 #include "cmakeproject.h"
 #include "cmakerunconfiguration.h"
 #include "cmakebuildconfiguration.h"
