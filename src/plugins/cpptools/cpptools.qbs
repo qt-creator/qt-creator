@@ -52,8 +52,6 @@ QtcPlugin {
         "cppcurrentdocumentfilter.h",
         "cppdoxygen.cpp",
         "cppdoxygen.h",
-        "cppcompletionsupportinternal.cpp",
-        "cppcompletionsupportinternal.h",
         "cppcompletionsupport.cpp",
         "cppcompletionsupport.h",
         "cppfilesettingspage.cpp",
@@ -103,10 +101,9 @@ QtcPlugin {
         "symbolsfindfilter.h",
         "uicodecompletionsupport.cpp",
         "uicodecompletionsupport.h",
+        "cppcompletionassistprovider.cpp",
+        "cppcompletionassistprovider.h",
         "cppcodestylepreferencesfactory.h"
     ]
 }
-
-
-
 

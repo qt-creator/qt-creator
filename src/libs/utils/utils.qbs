@@ -155,7 +155,6 @@ DynamicLibrary {
         "savedaction.cpp",
         "stylehelper.cpp",
         "multitask.h",
-        "qtconcurrent_global.h",
         "runextensions.h",
         "images/arrow.png",
         "images/crumblepath-segment-end.png",
