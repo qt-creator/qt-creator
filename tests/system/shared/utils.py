@@ -293,6 +293,7 @@ def getCorrectlyConfiguredTargets():
                 else:
                     result.update({target:[version]})
     clickButton(waitForObject(":Options.OK_QPushButton"))
+    test.log("Correctly configured targets: %s" % str(result))
     return result
 
 def visibleCheckBoxExists(text):
