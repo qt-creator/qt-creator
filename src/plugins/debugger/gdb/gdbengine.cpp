@@ -4947,8 +4947,7 @@ void GdbEngine::handleNamespaceExtraction(const GdbResponse &response)
     if (startParameters().startMode == AttachCore) {
         notifyInferiorSetupOk(); // No breakpoints in core files.
     } else {
-        if (debuggerCore()->boolSetting(BreakOnAbort)
-                && startParameters().toolChainAbi.os() == Abi::WindowsOS)
+        if (debuggerCore()->boolSetting(BreakOnRaise))
             postCommand("-break-insert -f raise");
         if (debuggerCore()->boolSetting(BreakOnWarning))
             postCommand("-break-insert -f '" + qtNamespace() + "qWarning'");

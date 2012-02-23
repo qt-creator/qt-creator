@@ -155,7 +155,7 @@ enum DebuggerActionCode
     BreakOnCatch,
     BreakOnWarning,
     BreakOnFatal,
-    BreakOnAbort,
+    BreakOnRaise,
 
     // Registers
     AlwaysAdjustRegistersColumnWidths,

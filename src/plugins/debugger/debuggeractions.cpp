@@ -338,12 +338,12 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     insertItem(BreakOnFatal, item);
 
     item = new SavedAction(this);
-    item->setText(tr("Break on \"abort\""));
+    item->setText(tr("Break on \"raise\""));
     item->setCheckable(true);
     item->setDefaultValue(false);
     item->setValue(false);
-    item->setSettingsKey(debugModeGroup, QLatin1String("BreakOnAbort"));
-    insertItem(BreakOnAbort, item);
+    item->setSettingsKey(debugModeGroup, QLatin1String("BreakOnRaise"));
+    insertItem(BreakOnRaise, item);
 
     //
     // Settings
