@@ -283,8 +283,8 @@ def getCorrectlyConfiguredTargets():
             currentText = str(waitForObject(":QtSupport__Internal__QtVersionManager.QLabel").text)
             matches = pattern.match(currentText)
             if matches:
-                target = matches.group("target")
-                version = matches.group("version")
+                target = matches.group("target").strip()
+                version = matches.group("version").strip()
                 if target in result:
                     oldV = result[target]
                     if version not in oldV:
@@ -292,7 +292,7 @@ def getCorrectlyConfiguredTargets():
                         result.update({target:oldV})
                 else:
                     result.update({target:[version]})
-    clickButton(waitForObject(":Options.OK_QPushButton"))
+    clickButton(waitForObject(":Options.Cancel_QPushButton"))
     test.log("Correctly configured targets: %s" % str(result))
     return result
 
