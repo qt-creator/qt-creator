@@ -2706,9 +2706,21 @@ namespace stdptr {
         #endif
     }
 
+    void testStdSharedPtr()
+    {
+        #ifdef USE_CXX11
+        std::shared_ptr<int> p(new int(32));
+        BREAK_HERE;
+        // Check p 32 std::shared_ptr<int, std::default_delete<int> >.
+        // Continue.
+        dummyStatement(&p);
+        #endif
+    }
+
     void testStdPtr()
     {
         testStdUniquePtr();
+        testStdSharedPtr();
     }
 
 } // namespace stdptr
