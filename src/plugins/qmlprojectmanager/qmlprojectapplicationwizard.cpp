@@ -68,7 +68,7 @@ QmlProjectApplicationWizard::~QmlProjectApplicationWizard()
 
 Core::FeatureSet QmlProjectApplicationWizard::requiredFeatures() const
 {
-    return Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK);
+    return Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK) | Core::Feature(QtSupport::Constants::FEATURE_QMLPROJECT);
 }
 
 Core::BaseFileWizardParameters QmlProjectApplicationWizard::parameters()

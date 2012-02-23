@@ -104,6 +104,7 @@ Core::FeatureSet DesktopQtVersion::availableFeatures() const
 {
     Core::FeatureSet features = QtSupport::BaseQtVersion::availableFeatures();
     features |= Core::FeatureSet(QtSupport::Constants::FEATURE_DESKTOP);
+    features |= Core::Feature(QtSupport::Constants::FEATURE_QMLPROJECT);
     return features;
 }
 

@@ -51,6 +51,7 @@ const char WINCEQT[]     = "Qt4ProjectManager.QtVersion.WinCE";
 const char FEATURE_QT[] = "QtSupport.Wizards.FeatureQt";
 const char FEATURE_QWIDGETS[] = "QtSupport.Wizards.FeatureQWidgets";
 const char FEATURE_QT_QUICK[] = "QtSupport.Wizards.FeatureQtQuick";
+const char FEATURE_QMLPROJECT[] = "QtSupport.Wizards.FeatureQtQuickProject";
 const char FEATURE_QT_QUICK_1[] = "QtSupport.Wizards.FeatureQtQuick.1";
 const char FEATURE_QT_QUICK_1_1[] = "QtSupport.Wizards.FeatureQtQuick.1.1";
 const char FEATURE_QT_QUICK_2[] = "QtSupport.Wizards.FeatureQtQuick.2";
