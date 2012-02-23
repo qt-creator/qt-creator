@@ -197,8 +197,10 @@ void StackHandler::setFrames(const StackFrames &frames, bool canExpand)
     m_contentsValid = true;
     m_canExpand = canExpand;
     m_stackFrames = frames;
-    if (m_currentIndex >= m_stackFrames.size())
-        setCurrentIndex(m_stackFrames.size() - 1);
+    if (m_stackFrames.size() >= 0)
+        setCurrentIndex(0);
+    else
+        m_currentIndex = -1;
     reset();
     emit stackChanged();
 }
