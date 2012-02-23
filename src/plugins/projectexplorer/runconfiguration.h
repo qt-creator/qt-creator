@@ -46,7 +46,6 @@
 QT_FORWARD_DECLARE_CLASS(QIcon)
 
 namespace Utils { class OutputFormatter; }
-namespace Debugger { namespace Internal { class DebuggerRunConfigWidget; } }
 
 namespace ProjectExplorer {
 class Abi;
@@ -120,9 +119,7 @@ public:
 signals:
     void debuggersChanged();
 
-private:
-    friend class RunConfiguration;
-    friend class Debugger::Internal::DebuggerRunConfigWidget;
+public:
     RunConfiguration *m_runConfiguration;
     bool m_useCppDebugger;
     QmlDebuggerStatus m_useQmlDebugger;

@@ -53,7 +53,7 @@
 #include <QPushButton>
 
 #ifdef Q_OS_MAC
-#include <Carbon/Carbon.h>
+#include <ApplicationServices/ApplicationServices.h>
 #endif
 
 using namespace ProjectExplorer;
