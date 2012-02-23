@@ -63,7 +63,7 @@ ValgrindEngine::ValgrindEngine(IAnalyzerTool *tool, const AnalyzerStartParameter
       m_isStopping(false)
 {
     if (runConfiguration)
-        m_settings = runConfiguration->extraAspect<AnalyzerProjectSettings>();
+        m_settings = runConfiguration->extraAspect<AnalyzerRunConfigurationAspect>();
 
     if  (!m_settings)
         m_settings = AnalyzerGlobalSettings::instance();

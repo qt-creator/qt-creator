@@ -601,7 +601,7 @@ IAnalyzerEngine *CallgrindToolPrivate::createEngine(const AnalyzerStartParameter
 
     // apply project settings
     if (runConfiguration) {
-        if (const AnalyzerProjectSettings *analyzerSettings = runConfiguration->extraAspect<AnalyzerProjectSettings>()) {
+        if (const AnalyzerRunConfigurationAspect *analyzerSettings = runConfiguration->extraAspect<AnalyzerRunConfigurationAspect>()) {
             if (const ValgrindProjectSettings *settings = analyzerSettings->subConfig<ValgrindProjectSettings>()) {
                 m_visualisation->setMinimumInclusiveCostRatio(settings->visualisationMinimumInclusiveCostRatio() / 100.0);
                 m_proxyModel->setMinimumInclusiveCostRatio(settings->minimumInclusiveCostRatio() / 100.0);

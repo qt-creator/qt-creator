@@ -86,15 +86,11 @@ RunControl *AnalyzerRunControlFactory::create(RunConfiguration *runConfiguration
 
 IRunConfigurationAspect *AnalyzerRunControlFactory::createRunConfigurationAspect()
 {
-    return new AnalyzerProjectSettings;
+    return new AnalyzerRunConfigurationAspect;
 }
 
 RunConfigWidget *AnalyzerRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
 {
-    AnalyzerProjectSettings *settings = runConfiguration->extraAspect<AnalyzerProjectSettings>();
-    if (!settings)
-        return 0;
-
     AnalyzerRunConfigWidget *ret = new AnalyzerRunConfigWidget;
     ret->setRunConfiguration(runConfiguration);
     return ret;

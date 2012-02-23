@@ -50,7 +50,7 @@ namespace Utils { class OutputFormatter; }
 namespace ProjectExplorer {
 class Abi;
 class BuildConfiguration;
-class DebuggerProjectSettings;
+class DebuggerRunConfigurationAspect;
 class RunConfiguration;
 class RunControl;
 class Target;
@@ -86,14 +86,14 @@ protected:
     virtual void fromMap(const QVariantMap &map) = 0;
 };
 
-class PROJECTEXPLORER_EXPORT DebuggerProjectSettings
+class PROJECTEXPLORER_EXPORT DebuggerRunConfigurationAspect
     : public QObject, public ProjectExplorer::IRunConfigurationAspect
 {
     Q_OBJECT
 
 public:
-    DebuggerProjectSettings(RunConfiguration *runConfiguration);
-    DebuggerProjectSettings(DebuggerProjectSettings *other);
+    DebuggerRunConfigurationAspect(RunConfiguration *runConfiguration);
+    DebuggerRunConfigurationAspect(DebuggerRunConfigurationAspect *other);
 
     enum QmlDebuggerStatus {
         DisableQmlDebugger = 0,
@@ -147,7 +147,7 @@ public:
     virtual bool fromMap(const QVariantMap &map);
     virtual QVariantMap toMap() const;
 
-    DebuggerProjectSettings *debuggerAspect() const { return m_debuggerAspect; }
+    DebuggerRunConfigurationAspect *debuggerAspect() const { return m_debuggerAspect; }
 
     QList<IRunConfigurationAspect *> extraAspects() const;
     template <typename T> T *extraAspect() const
@@ -178,7 +178,7 @@ private:
     void addExtraAspects();
 
     QList<IRunConfigurationAspect *> m_aspects;
-    DebuggerProjectSettings *m_debuggerAspect;
+    DebuggerRunConfigurationAspect *m_debuggerAspect;
 };
 
 class PROJECTEXPLORER_EXPORT IRunConfigurationFactory : public QObject

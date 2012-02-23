@@ -160,14 +160,14 @@ private:
  * rc->extraAspect<AnalyzerProjectSettings>()->subConfig<YourProjectConfig>()->...
  * @endcode
  */
-class ANALYZER_EXPORT AnalyzerProjectSettings
+class ANALYZER_EXPORT AnalyzerRunConfigurationAspect
     : public AnalyzerSettings, public ProjectExplorer::IRunConfigurationAspect
 {
     Q_OBJECT
 
 public:
-    AnalyzerProjectSettings(QObject *parent = 0);
-    ~AnalyzerProjectSettings();
+    AnalyzerRunConfigurationAspect(QObject *parent = 0);
+    ~AnalyzerRunConfigurationAspect();
 
     QString displayName() const;
     virtual QVariantMap toMap() const;

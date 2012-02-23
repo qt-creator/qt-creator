@@ -152,7 +152,7 @@ void AnalyzerGlobalSettings::registerTool(IAnalyzerTool *tool)
 }
 
 
-AnalyzerProjectSettings::AnalyzerProjectSettings(QObject *parent)
+AnalyzerRunConfigurationAspect::AnalyzerRunConfigurationAspect(QObject *parent)
     : AnalyzerSettings(parent), m_useGlobalSettings(true)
 {
     QList<IAnalyzerTool*> tools = AnalyzerManager::tools();
@@ -167,30 +167,30 @@ AnalyzerProjectSettings::AnalyzerProjectSettings(QObject *parent)
     resetCustomToGlobalSettings();
 }
 
-AnalyzerProjectSettings::~AnalyzerProjectSettings()
+AnalyzerRunConfigurationAspect::~AnalyzerRunConfigurationAspect()
 {
     qDeleteAll(m_customConfigurations);
 }
 
-QString AnalyzerProjectSettings::displayName() const
+QString AnalyzerRunConfigurationAspect::displayName() const
 {
     return tr("Analyzer Settings");
 }
 
-void AnalyzerProjectSettings::fromMap(const QVariantMap &map)
+void AnalyzerRunConfigurationAspect::fromMap(const QVariantMap &map)
 {
     AnalyzerSettings::fromMap(map, &m_customConfigurations);
     m_useGlobalSettings = map.value(QLatin1String(useGlobalC), true).toBool();
 }
 
-QVariantMap AnalyzerProjectSettings::toMap() const
+QVariantMap AnalyzerRunConfigurationAspect::toMap() const
 {
     QVariantMap map = AnalyzerSettings::toMap(m_customConfigurations);
     map.insert(QLatin1String(useGlobalC), m_useGlobalSettings);
     return map;
 }
 
-void AnalyzerProjectSettings::setUsingGlobalSettings(bool value)
+void AnalyzerRunConfigurationAspect::setUsingGlobalSettings(bool value)
 {
     if (value == m_useGlobalSettings)
         return;
@@ -202,7 +202,7 @@ void AnalyzerProjectSettings::setUsingGlobalSettings(bool value)
     }
 }
 
-void AnalyzerProjectSettings::resetCustomToGlobalSettings()
+void AnalyzerRunConfigurationAspect::resetCustomToGlobalSettings()
 {
     AnalyzerGlobalSettings *gs = AnalyzerGlobalSettings::instance();
     AnalyzerSettings::fromMap(gs->toMap(), &m_customConfigurations);

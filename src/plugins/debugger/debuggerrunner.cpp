@@ -172,7 +172,7 @@ private slots:
     void qmlDebugServerPortChanged(int port);
 
 public:
-    DebuggerProjectSettings *m_settings; // not owned
+    DebuggerRunConfigurationAspect *m_aspect; // not owned
 
     QCheckBox *m_useCppDebugger;
     QCheckBox *m_useQmlDebugger;
@@ -183,7 +183,7 @@ public:
 
 DebuggerRunConfigWidget::DebuggerRunConfigWidget(RunConfiguration *runConfiguration)
 {
-    m_settings = runConfiguration->debuggerAspect();
+    m_aspect = runConfiguration->debuggerAspect();
 
     m_useCppDebugger = new QCheckBox(tr("Enable C++"), this);
     m_useQmlDebugger = new QCheckBox(tr("Enable QML"), this);
@@ -199,9 +199,9 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(RunConfiguration *runConfigurat
         "qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html"
         "\">What are the prerequisites?</a>"));
 
-    useCppDebuggerToggled(m_settings->useCppDebugger());
-    useQmlDebuggerToggled(m_settings->useQmlDebugger());
-    m_debugServerPort->setValue(m_settings->qmlDebugServerPort());
+    useCppDebuggerToggled(m_aspect->useCppDebugger());
+    useQmlDebuggerToggled(m_aspect->useQmlDebugger());
+    m_debugServerPort->setValue(m_aspect->qmlDebugServerPort());
 
     connect(m_qmlDebuggerInfoLabel, SIGNAL(linkActivated(QString)),
             Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
@@ -212,7 +212,7 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(RunConfiguration *runConfigurat
     connect(m_debugServerPort, SIGNAL(valueChanged(int)),
             SLOT(qmlDebugServerPortChanged(int)));
 
-    if (m_settings->areQmlDebuggingOptionsSuppressed()) {
+    if (m_aspect->areQmlDebuggingOptionsSuppressed()) {
         m_debugServerPortLabel->hide();
         m_debugServerPort->hide();
         m_useQmlDebugger->hide();
@@ -235,12 +235,12 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(RunConfiguration *runConfigurat
 
 void DebuggerRunConfigWidget::qmlDebugServerPortChanged(int port)
 {
-    m_settings->m_qmlDebugServerPort = port;
+    m_aspect->m_qmlDebugServerPort = port;
 }
 
 void DebuggerRunConfigWidget::useCppDebuggerToggled(bool toggled)
 {
-    m_settings->m_useCppDebugger = toggled;
+    m_aspect->m_useCppDebugger = toggled;
     if (!toggled && !m_useQmlDebugger->isChecked())
         m_useQmlDebugger->setChecked(true);
 }
@@ -250,9 +250,9 @@ void DebuggerRunConfigWidget::useQmlDebuggerToggled(bool toggled)
     m_debugServerPort->setEnabled(toggled);
     m_debugServerPortLabel->setEnabled(toggled);
 
-    m_settings->m_useQmlDebugger = toggled
-            ? DebuggerProjectSettings::EnableQmlDebugger
-            : DebuggerProjectSettings::DisableQmlDebugger;
+    m_aspect->m_useQmlDebugger = toggled
+            ? DebuggerRunConfigurationAspect::EnableQmlDebugger
+            : DebuggerRunConfigurationAspect::DisableQmlDebugger;
     if (!toggled && !m_useCppDebugger->isChecked())
         m_useCppDebugger->setChecked(true);
 }

@@ -98,17 +98,17 @@ void AnalyzerRunConfigWidget::setRunConfiguration(ProjectExplorer::RunConfigurat
 {
     QTC_ASSERT(rc, return);
 
-    m_settings = rc->extraAspect<AnalyzerProjectSettings>();
-    QTC_ASSERT(m_settings, return);
+    m_aspect = rc->extraAspect<AnalyzerRunConfigurationAspect>();
+    QTC_ASSERT(m_aspect, return);
 
     // add config widget for each sub config
-    foreach (AbstractAnalyzerSubConfig *config, m_settings->customSubConfigs()) {
+    foreach (AbstractAnalyzerSubConfig *config, m_aspect->customSubConfigs()) {
         QWidget *widget = new AnalyzerToolDetailWidget(config);
         m_subConfigWidget->layout()->addWidget(widget);
     }
-    setDetailEnabled(!m_settings->isUsingGlobalSettings());
-    m_settingsCombo->setCurrentIndex(m_settings->isUsingGlobalSettings() ? 0 : 1);
-    m_restoreButton->setEnabled(!m_settings->isUsingGlobalSettings());
+    setDetailEnabled(!m_aspect->isUsingGlobalSettings());
+    m_settingsCombo->setCurrentIndex(m_aspect->isUsingGlobalSettings() ? 0 : 1);
+    m_restoreButton->setEnabled(!m_aspect->isUsingGlobalSettings());
 }
 
 void AnalyzerRunConfigWidget::setDetailEnabled(bool value)
@@ -120,16 +120,16 @@ void AnalyzerRunConfigWidget::setDetailEnabled(bool value)
 
 void AnalyzerRunConfigWidget::chooseSettings(int setting)
 {
-    QTC_ASSERT(m_settings, return);
+    QTC_ASSERT(m_aspect, return);
     setDetailEnabled(setting != 0);
-    m_settings->setUsingGlobalSettings(setting == 0);
-    m_restoreButton->setEnabled(!m_settings->isUsingGlobalSettings());
+    m_aspect->setUsingGlobalSettings(setting == 0);
+    m_restoreButton->setEnabled(!m_aspect->isUsingGlobalSettings());
 }
 
 void AnalyzerRunConfigWidget::restoreGlobal()
 {
-    QTC_ASSERT(m_settings, return);
-    m_settings->resetCustomToGlobalSettings();
+    QTC_ASSERT(m_aspect, return);
+    m_aspect->resetCustomToGlobalSettings();
 }
 
 } // namespace Internal

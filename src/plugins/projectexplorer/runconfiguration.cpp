@@ -195,10 +195,10 @@ bool ProcessHandle::equals(const ProcessHandle &rhs) const
 }
 
 /*!
-    \class ProjectExplorer::DebuggerProjectSettings
+    \class ProjectExplorer::DebuggerRunConfigurationAspect
 */
 
-DebuggerProjectSettings::DebuggerProjectSettings(RunConfiguration *rc) :
+DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(RunConfiguration *rc) :
     m_runConfiguration(rc),
     m_useCppDebugger(true),
     m_useQmlDebugger(AutoEnableQmlDebugger),
@@ -206,31 +206,31 @@ DebuggerProjectSettings::DebuggerProjectSettings(RunConfiguration *rc) :
     m_suppressQmlDebuggingOptions(false)
 {}
 
-DebuggerProjectSettings::DebuggerProjectSettings(DebuggerProjectSettings *other) :
+DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(DebuggerRunConfigurationAspect *other) :
     m_runConfiguration(other->m_runConfiguration),
     m_useCppDebugger(other->m_useCppDebugger),
     m_useQmlDebugger(other->m_useQmlDebugger),
     m_qmlDebugServerPort(other->m_qmlDebugServerPort)
 {}
 
-RunConfiguration *DebuggerProjectSettings::runConfiguration()
+RunConfiguration *DebuggerRunConfigurationAspect::runConfiguration()
 {
     return m_runConfiguration;
 }
 
-void DebuggerProjectSettings::setUseQmlDebugger(bool value)
+void DebuggerRunConfigurationAspect::setUseQmlDebugger(bool value)
 {
     m_useQmlDebugger = value ? EnableQmlDebugger : DisableQmlDebugger;
     emit debuggersChanged();
 }
 
-void DebuggerProjectSettings::setUseCppDebugger(bool value)
+void DebuggerRunConfigurationAspect::setUseCppDebugger(bool value)
 {
     m_useCppDebugger = value;
     emit debuggersChanged();
 }
 
-bool DebuggerProjectSettings::useCppDebugger() const
+bool DebuggerRunConfigurationAspect::useCppDebugger() const
 {
     return m_useCppDebugger;
 }
@@ -242,39 +242,39 @@ static bool isQtQuickAppProject(Project *project)
     return project->files(Project::ExcludeGeneratedFiles).contains(filePath);
 }
 
-bool DebuggerProjectSettings::useQmlDebugger() const
+bool DebuggerRunConfigurationAspect::useQmlDebugger() const
 {
-    if (m_useQmlDebugger == DebuggerProjectSettings::AutoEnableQmlDebugger)
+    if (m_useQmlDebugger == DebuggerRunConfigurationAspect::AutoEnableQmlDebugger)
         return isQtQuickAppProject(m_runConfiguration->target()->project());
-    return m_useQmlDebugger == DebuggerProjectSettings::EnableQmlDebugger;
+    return m_useQmlDebugger == DebuggerRunConfigurationAspect::EnableQmlDebugger;
 }
 
-uint DebuggerProjectSettings::qmlDebugServerPort() const
+uint DebuggerRunConfigurationAspect::qmlDebugServerPort() const
 {
     return m_qmlDebugServerPort;
 }
 
-void DebuggerProjectSettings::setQmllDebugServerPort(uint port)
+void DebuggerRunConfigurationAspect::setQmllDebugServerPort(uint port)
 {
     m_qmlDebugServerPort = port;
 }
 
-void DebuggerProjectSettings::suppressQmlDebuggingOptions()
+void DebuggerRunConfigurationAspect::suppressQmlDebuggingOptions()
 {
     m_suppressQmlDebuggingOptions = true;
 }
 
-bool DebuggerProjectSettings::areQmlDebuggingOptionsSuppressed() const
+bool DebuggerRunConfigurationAspect::areQmlDebuggingOptionsSuppressed() const
 {
     return m_suppressQmlDebuggingOptions;
 }
 
-QString DebuggerProjectSettings::displayName() const
+QString DebuggerRunConfigurationAspect::displayName() const
 {
     return tr("Debugger settings");
 }
 
-QVariantMap DebuggerProjectSettings::toMap() const
+QVariantMap DebuggerRunConfigurationAspect::toMap() const
 {
     QVariantMap map;
     map.insert(QLatin1String(USE_CPP_DEBUGGER_KEY), m_useCppDebugger);
@@ -284,7 +284,7 @@ QVariantMap DebuggerProjectSettings::toMap() const
     return map;
 }
 
-void DebuggerProjectSettings::fromMap(const QVariantMap &map)
+void DebuggerRunConfigurationAspect::fromMap(const QVariantMap &map)
 {
     m_useCppDebugger = map.value(QLatin1String(USE_CPP_DEBUGGER_KEY), true).toBool();
     if (map.value(QLatin1String(USE_QML_DEBUGGER_AUTO_KEY), false).toBool()) {
@@ -312,7 +312,7 @@ void DebuggerProjectSettings::fromMap(const QVariantMap &map)
 
 RunConfiguration::RunConfiguration(Target *target, const QString &id) :
     ProjectConfiguration(target, id),
-    m_debuggerAspect(new DebuggerProjectSettings(this))
+    m_debuggerAspect(new DebuggerRunConfigurationAspect(this))
 {
     Q_ASSERT(target);
     addExtraAspects();
@@ -320,7 +320,7 @@ RunConfiguration::RunConfiguration(Target *target, const QString &id) :
 
 RunConfiguration::RunConfiguration(Target *target, RunConfiguration *source) :
     ProjectConfiguration(target, source),
-    m_debuggerAspect(new DebuggerProjectSettings(source->debuggerAspect()))
+    m_debuggerAspect(new DebuggerRunConfigurationAspect(source->debuggerAspect()))
 {
     Q_ASSERT(target);
     addExtraAspects();
