@@ -84,7 +84,7 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
 
     sp.remoteChannel = activeDeployConf->serialPortName();
     sp.processArgs = rc->commandLineArguments();
-    if (rc->useQmlDebugger() && !rc->debuggerAspect()->useCppDebugger()) {
+    if (rc->debuggerAspect()->useQmlDebugger() && !rc->debuggerAspect()->useCppDebugger()) {
         sp.requestRemoteSetup = true;
         sp.startMode = Debugger::AttachToRemoteServer;
     } else {
@@ -99,7 +99,7 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
     sp.displayName = rc->displayName();
     sp.qmlServerAddress = activeDeployConf->deviceAddress();
     sp.qmlServerPort = rc->debuggerAspect()->qmlDebugServerPort();
-    if (rc->useQmlDebugger()) {
+    if (rc->debuggerAspect()->useQmlDebugger()) {
         sp.languages |= Debugger::QmlLanguage;
         QString qmlArgs = rc->qmlCommandLineArguments();
         if (sp.processArgs.length())
@@ -162,7 +162,7 @@ bool S60DeviceDebugRunControl::promptToStop(bool *) const
 void S60DeviceDebugRunControl::remoteSetupRequested()
 {
     // This is called from Engine->setupInferior(), ie InferiorSetupRequested state
-    QTC_ASSERT(runConfiguration()->useQmlDebugger() && !runConfiguration()->debuggerAspect()->useCppDebugger(), return);
+    QTC_CHECK(runConfiguration()->debuggerAspect()->useQmlDebugger() && !runConfiguration()->debuggerAspect()->useCppDebugger());
     m_codaRunControl = new CodaRunControl(runConfiguration(), DebugRunMode);
     connect(m_codaRunControl, SIGNAL(connected()), this, SLOT(codaConnected()));
     connect(m_codaRunControl, SIGNAL(finished()), this, SLOT(codaFinished()));

@@ -45,14 +45,14 @@
 
 QT_FORWARD_DECLARE_CLASS(QIcon)
 
-namespace Utils {
-class OutputFormatter;
-}
+namespace Utils { class OutputFormatter; }
+namespace Debugger { namespace Internal { class DebuggerRunConfigWidget; } }
 
 namespace ProjectExplorer {
 class Abi;
 class BuildConfiguration;
-class IRunConfigurationAspect;
+class DebuggerProjectSettings;
+class RunConfiguration;
 class RunControl;
 class Target;
 
@@ -93,7 +93,7 @@ class PROJECTEXPLORER_EXPORT DebuggerProjectSettings
     Q_OBJECT
 
 public:
-    DebuggerProjectSettings();
+    DebuggerProjectSettings(RunConfiguration *runConfiguration);
     DebuggerProjectSettings(DebuggerProjectSettings *other);
 
     enum QmlDebuggerStatus {
@@ -110,21 +110,25 @@ public:
     void setUseQmlDebugger(bool value);
     void setUseCppDebugger(bool value);
     bool useCppDebugger() const;
-    QmlDebuggerStatus useQmlDebugger() const;
+    bool useQmlDebugger() const;
     uint qmlDebugServerPort() const;
+    void setQmllDebugServerPort(uint port);
     void suppressQmlDebuggingOptions();
     bool areQmlDebuggingOptionsSuppressed() const;
+    RunConfiguration *runConfiguration();
 
 signals:
     void debuggersChanged();
 
-public:
+private:
+    friend class RunConfiguration;
+    friend class Debugger::Internal::DebuggerRunConfigWidget;
+    RunConfiguration *m_runConfiguration;
     bool m_useCppDebugger;
     QmlDebuggerStatus m_useQmlDebugger;
     uint m_qmlDebugServerPort;
     bool m_suppressQmlDebuggingOptions;
 };
-
 
 
 // Documentation inside.
@@ -162,7 +166,6 @@ public:
     }
 
     virtual ProjectExplorer::Abi abi() const;
-    bool useQmlDebugger() const;
 
 signals:
     void isEnabledChanged(bool value);

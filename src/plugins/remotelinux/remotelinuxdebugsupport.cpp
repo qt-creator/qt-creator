@@ -63,7 +63,7 @@ public:
     AbstractRemoteLinuxDebugSupportPrivate(RemoteLinuxRunConfiguration *runConfig,
             DebuggerEngine *engine)
         : engine(engine), deviceConfig(runConfig->deviceConfig()),
-          qmlDebugging(runConfig->useQmlDebugger()),
+          qmlDebugging(runConfig->debuggerAspect()->useQmlDebugger()),
           cppDebugging(runConfig->debuggerAspect()->useCppDebugger()),
           state(Inactive),
           gdbServerPort(-1), qmlPort(-1)
@@ -96,7 +96,7 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
 {
     DebuggerStartParameters params;
     const LinuxDeviceConfiguration::ConstPtr &devConf = runConfig->deviceConfig();
-    if (runConfig->useQmlDebugger()) {
+    if (runConfig->debuggerAspect()->useQmlDebugger()) {
         params.languages |= QmlLanguage;
         params.qmlServerAddress = runConfig->deviceConfig()->sshParameters().host;
         params.qmlServerPort = 0; // port is selected later on

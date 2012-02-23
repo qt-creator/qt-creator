@@ -216,7 +216,7 @@ RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConf
     params.displayName = runConfig->displayName();
     params.projectSourceDirectory = runConfig->target()->project()->projectDirectory();
     params.projectSourceFiles = runConfig->target()->project()->files(Project::ExcludeGeneratedFiles);
-    if (runConfig->useQmlDebugger())
+    if (runConfig->debuggerAspect()->useQmlDebugger())
         params.languages |= Debugger::QmlLanguage;
     if (runConfig->debuggerAspect()->useCppDebugger())
         params.languages |= Debugger::CppLanguage;

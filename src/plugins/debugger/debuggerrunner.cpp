@@ -890,7 +890,7 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     if (runConfiguration->debuggerAspect()->useCppDebugger())
         sp.languages |= CppLanguage;
 
-    if (runConfiguration->useQmlDebugger()) {
+    if (runConfiguration->debuggerAspect()->useQmlDebugger()) {
         sp.qmlServerAddress = _("127.0.0.1");
         sp.qmlServerPort = runConfiguration->debuggerAspect()->qmlDebugServerPort();
         sp.languages |= QmlLanguage;
