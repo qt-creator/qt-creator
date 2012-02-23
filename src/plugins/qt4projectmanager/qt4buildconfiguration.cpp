@@ -119,13 +119,6 @@ QVariantMap Qt4BuildConfiguration::toMap() const
     return map;
 }
 
-static inline QString msgBuildConfigNotApplicable(const QString &d, const QtSupport::BaseQtVersion *qtVersion,
-                                                  const Target *target)
-{
-    return QString::fromLatin1("Warning: Buildconfiguration '%1' : Qt '%2' from %3 not supported by target '%4'").
-            arg(d, qtVersion->displayName(), qtVersion->qmakeCommand().toUserOutput(), target->id());
-}
-
 bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
 {
     if (!BuildConfiguration::fromMap(map))
