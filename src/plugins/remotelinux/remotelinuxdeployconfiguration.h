@@ -83,12 +83,14 @@ public:
         return 0;
     }
 
+protected:
+    QVariantMap toMap() const;
+
 signals:
     void deviceConfigurationListChanged();
     void currentDeviceConfigurationChanged();
 
 private:
-    QVariantMap toMap() const;
 
     void initialize();
     void setDeviceConfig(LinuxDeviceConfiguration::Id internalId);
