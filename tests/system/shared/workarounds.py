@@ -170,13 +170,19 @@ class JIRA:
             self.__bugs__= {
                             'QTCREATORBUG-6853':self._workaroundCreator6853_,
                             'QTCREATORBUG-6918':self._workaroundCreator_MacEditorFocus_,
-                            'QTCREATORBUG-6953':self._workaroundCreator_MacEditorFocus_
+                            'QTCREATORBUG-6953':self._workaroundCreator_MacEditorFocus_,
+                            'QTCREATORBUG-6994':self._workaroundCreator6994_
                             }
         # helper function - will be called if no workaround for the requested bug is deposited
         def _exitFatal_(self, bugType, number):
             test.fatal("No workaround found for bug %s-%d" % (bugType, number))
 
 ############### functions that hold workarounds #################################
+
+        def _workaroundCreator6994_(self, *args):
+            if args[0] in ('Mobile Qt Application', 'Qt Gui Application', 'Qt Custom Designer Widget'):
+                args[1].remove('Harmattan')
+                test.xverify(False, "Removed Harmattan from expected targets.")
 
         def _workaroundCreator6853_(self, *args):
             if "Release" in args[0] and platform.system() == "Linux":
