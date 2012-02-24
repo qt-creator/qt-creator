@@ -3,7 +3,7 @@ import qbs.base 1.0
 import "../QtcPlugin.qbs" as QtcPlugin
 
 QtcPlugin {
-    name: "VCSBase"
+    name: "VcsBase"
 
     Depends { name: "aggregation" }     // ### should be injected by product dependency "Core"
     Depends { name: "extensionsystem" } // ### should be injected by product dependency "Core"
@@ -25,7 +25,7 @@ QtcPlugin {
     ]
 
     files: [
-        "VCSBase.mimetypes.xml",
+        "VcsBase.mimetypes.xml",
         "vcsbase.qrc",
         "vcsbase_global.h",
         "baseannotationhighlighter.cpp",

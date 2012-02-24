@@ -1,3 +1,3 @@
 include(vcsbase_dependencies.pri)
 
-LIBS *= -l$$qtLibraryName(VCSBase)
+LIBS *= -l$$qtLibraryName(VcsBase)

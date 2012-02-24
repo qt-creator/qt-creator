@@ -12,7 +12,7 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "Find" }
-    Depends { name: "VCSBase" }
+    Depends { name: "VcsBase" }
     Depends { name: "Locator" }
 
     Depends { name: "cpp" }

@@ -42301,7 +42301,7 @@ Filtr: %2
     </message>
 </context>
 <context>
-    <name>VCSBase::Command</name>
+    <name>VcsBase::Command</name>
     <message>
         <source>Error: VCS timed out after %1s.</source>
         <translation>Chyba: Překročení času u správy verzí po %1s.</translation>
