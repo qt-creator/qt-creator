@@ -126,7 +126,7 @@ Utils::SshConnectionParameters StartRemoteDialog::sshParams() const
         params.password = m_ui->password->text();
     }
     params.port = m_ui->port->value();
-    params.timeout = 1;
+    params.timeout = 10;
     return params;
 }
 
