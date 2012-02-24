@@ -212,11 +212,17 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(RunConfiguration *runConfigurat
     connect(m_debugServerPort, SIGNAL(valueChanged(int)),
             SLOT(qmlDebugServerPortChanged(int)));
 
+    if (m_aspect->isDisplaySuppressed())
+        hide();
+
     if (m_aspect->areQmlDebuggingOptionsSuppressed()) {
         m_debugServerPortLabel->hide();
         m_debugServerPort->hide();
         m_useQmlDebugger->hide();
     }
+
+    if (m_aspect->areCppDebuggingOptionsSuppressed())
+        m_useCppDebugger->hide();
 
     if (m_aspect->isQmlDebuggingSpinboxSuppressed()) {
         m_debugServerPort->hide();
