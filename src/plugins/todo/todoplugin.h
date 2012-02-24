@@ -34,18 +34,17 @@
 #ifndef TODOPLUGIN_H
 #define TODOPLUGIN_H
 
-#include "optionspage.h"
-#include "keyword.h"
-#include "todooutputpane.h"
 #include "settings.h"
-#include "todoitemsprovider.h"
 
 #include <extensionsystem/iplugin.h>
 
-#include <QStringList>
-
 namespace Todo {
 namespace Internal {
+
+class TodoOutputPane;
+class OptionsPage;
+class TodoItemsProvider;
+class TodoItem;
 
 class TodoPlugin : public ExtensionSystem::IPlugin
 {

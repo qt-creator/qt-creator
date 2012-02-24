@@ -34,9 +34,6 @@
 #ifndef OPTIONSDIALOG_H
 #define OPTIONSDIALOG_H
 
-#include "keyword.h"
-#include "settings.h"
-
 #include <QWidget>
 
 namespace Todo {
@@ -45,6 +42,9 @@ namespace Internal {
 namespace Ui {
     class OptionsDialog;
 }
+
+class Settings;
+class Keyword;
 
 class OptionsDialog : public QWidget
 {

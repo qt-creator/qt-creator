@@ -33,9 +33,13 @@
 
 #include "todooutputpane.h"
 #include "constants.h"
+#include "todoitemsmodel.h"
 
 #include <QIcon>
 #include <QHeaderView>
+#include <QTreeView>
+#include <QToolButton>
+#include <QButtonGroup>
 
 namespace Todo {
 namespace Internal {
@@ -147,7 +151,7 @@ void TodoOutputPane::scopeButtonClicked(QAbstractButton* button)
         emit scanningScopeChanged(ScanningScopeProject);
 }
 
-void TodoOutputPane::todoTreeViewClicked(QModelIndex index)
+void TodoOutputPane::todoTreeViewClicked(const QModelIndex &index)
 {
     // Create a to-do item and notify that it was clicked on
 
@@ -190,12 +194,12 @@ void TodoOutputPane::freeTreeView()
 void TodoOutputPane::createScopeButtons()
 {
     m_currentFileButton = new QToolButton();
-    m_currentFileButton->setIcon(QIcon(QString(Constants::ICON_CURRENT_FILE)));
+    m_currentFileButton->setIcon(QIcon(QLatin1String(Constants::ICON_CURRENT_FILE)));
     m_currentFileButton->setCheckable(true);
     m_currentFileButton->setToolTip(tr("Scan in the current opened file"));
 
     m_wholeProjectButton = new QToolButton();
-    m_wholeProjectButton->setIcon(QIcon(QString(Constants::ICON_WHOLE_PROJECT)));
+    m_wholeProjectButton->setIcon(QIcon(QLatin1String(Constants::ICON_WHOLE_PROJECT)));
     m_wholeProjectButton->setCheckable(true);
     m_wholeProjectButton->setToolTip(tr("Scan in the whole project"));
 
@@ -205,7 +209,7 @@ void TodoOutputPane::createScopeButtons()
     connect(m_scopeButtons, SIGNAL(buttonClicked(QAbstractButton*)), SLOT(scopeButtonClicked(QAbstractButton*)));
 
     m_spacer = new QWidget;
-    m_spacer->setMinimumWidth(Constants::OUTPUT_TOOLBAR_SPACER_WIDHT);
+    m_spacer->setMinimumWidth(Constants::OUTPUT_TOOLBAR_SPACER_WIDTH);
 }
 
 void TodoOutputPane::freeScopeButtons()

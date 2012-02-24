@@ -34,20 +34,27 @@
 #include "settings.h"
 #include "constants.h"
 
+#include <QSettings>
+
 namespace Todo {
 namespace Internal {
 
 void Settings::save(QSettings *settings) const
 {
-    settings->beginGroup(Constants::SETTINGS_GROUP);
-    settings->setValue(Constants::SCANNING_SCOPE, scanningScope);
+    settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP));
+    settings->setValue(QLatin1String(Constants::SCANNING_SCOPE), scanningScope);
 
-    settings->beginWriteArray(Constants::KEYWORDS_LIST);
-    for (int i = 0; i < keywords.size(); ++i) {
-        settings->setArrayIndex(i);
-        settings->setValue("name", keywords.at(i).name);
-        settings->setValue("color", keywords.at(i).color);
-        settings->setValue("iconResource", keywords.at(i).iconResource);
+    settings->beginWriteArray(QLatin1String(Constants::KEYWORDS_LIST));
+    if (const int size = keywords.size()) {
+        const QString nameKey = QLatin1String("name");
+        const QString colorKey = QLatin1String("color");
+        const QString iconResourceKey = QLatin1String("iconResource");
+        for (int i = 0; i < size; ++i) {
+            settings->setArrayIndex(i);
+            settings->setValue(nameKey, keywords.at(i).name);
+            settings->setValue(colorKey, keywords.at(i).color);
+            settings->setValue(iconResourceKey, keywords.at(i).iconResource);
+        }
     }
     settings->endArray();
 
@@ -59,20 +66,23 @@ void Settings::load(QSettings *settings)
 {
     setDefault();
 
-    settings->beginGroup(Constants::SETTINGS_GROUP);
+    settings->beginGroup(QLatin1String(Constants::SETTINGS_GROUP));
 
-    scanningScope = static_cast<ScanningScope>(settings->value(Constants::SCANNING_SCOPE,
+    scanningScope = static_cast<ScanningScope>(settings->value(QLatin1String(Constants::SCANNING_SCOPE),
         scanningScope).toInt());
 
     KeywordList newKeywords;
-    int size = settings->beginReadArray(Constants::KEYWORDS_LIST);
+    const int size = settings->beginReadArray(QLatin1String(Constants::KEYWORDS_LIST));
     if (size > 0) {
+        const QString nameKey = QLatin1String("name");
+        const QString colorKey = QLatin1String("color");
+        const QString iconResourceKey = QLatin1String("iconResource");
         for (int i = 0; i < size; ++i) {
             settings->setArrayIndex(i);
             Keyword keyword;
-            keyword.name = settings->value("name").toString();
-            keyword.color = settings->value("color").value<QColor>();
-            keyword.iconResource = settings->value("iconResource").toString();
+            keyword.name = settings->value(nameKey).toString();
+            keyword.color = settings->value(colorKey).value<QColor>();
+            keyword.iconResource = settings->value(iconResourceKey).toString();
             newKeywords << keyword;
         }
         keywords = newKeywords;

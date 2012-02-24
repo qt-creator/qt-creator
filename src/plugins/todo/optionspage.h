@@ -34,13 +34,14 @@
 #ifndef SETTINGSPAGE_H
 #define SETTINGSPAGE_H
 
-#include "optionsdialog.h"
 #include "settings.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
 namespace Todo {
 namespace Internal {
+
+class OptionsDialog;
 
 class OptionsPage : public Core::IOptionsPage
 {

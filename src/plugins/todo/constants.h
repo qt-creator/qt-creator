@@ -58,7 +58,7 @@ const char ICON_TODO[] = ":/todoplugin/images/todo.png";
 const char ICON_WARNING[] = ":/projectexplorer/images/compile_warning.png";
 const char ICON_ERROR[] = ":/projectexplorer/images/compile_error.png";
 
-// Public domain, I’m the author
+// Public domain, I am the author
 const char ICON_CURRENT_FILE[] = ":/todoplugin/images/current-file.png";
 const char ICON_WHOLE_PROJECT[] = ":/todoplugin/images/whole-project.png";
 
@@ -77,14 +77,14 @@ enum OutputColumnIndex {
     OUTPUT_COLUMN_LAST
 };
 
-const char OUPTUT_COLUMN_TEXT_TITLE[] = QT_TRANSLATE_NOOP("TodoOutputPane", "Description");
-const char OUTPUT_COLUMN_FILE_TITLE[] = QT_TRANSLATE_NOOP("TodoOutputPane", "File");
-const char OUTPUT_COLUMN_LINE_TITLE[] = QT_TRANSLATE_NOOP("TodoOutputPane", "Line");
+const char OUTPUT_COLUMN_TEXT_TITLE[] = QT_TRANSLATE_NOOP("Todo::Internal::TodoItemsModel", "Description");
+const char OUTPUT_COLUMN_FILE_TITLE[] = QT_TRANSLATE_NOOP("Todo::Internal::TodoItemsModel", "File");
+const char OUTPUT_COLUMN_LINE_TITLE[] = QT_TRANSLATE_NOOP("Todo::Internal::TodoItemsModel", "Line");
 
-const int OUTPUT_TOOLBAR_SPACER_WIDHT = 25;
+const int OUTPUT_TOOLBAR_SPACER_WIDTH = 25;
 
 const int OUTPUT_PANE_UPDATE_INTERVAL = 2000;
-const char OUTPUT_PANE_TITLE[] = QT_TRANSLATE_NOOP("TodoOutputPane", "To-Do Entries");
+const char OUTPUT_PANE_TITLE[] = QT_TRANSLATE_NOOP("Todo::Internal::TodoOutputPane", "To-Do Entries");
 
 } // namespace Constants
 } // namespace Todo

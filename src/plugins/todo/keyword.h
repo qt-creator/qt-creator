@@ -34,7 +34,6 @@
 #ifndef KEYWORD_H
 #define KEYWORD_H
 
-#include <QIcon>
 #include <QColor>
 #include <QString>
 #include <QList>

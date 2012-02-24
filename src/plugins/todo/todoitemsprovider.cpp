@@ -35,6 +35,8 @@
 #include "constants.h"
 #include "cpptodoitemsscanner.h"
 #include "qmljstodoitemsscanner.h"
+#include "todoitemsmodel.h"
+#include "todoitemsscanner.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <coreplugin/editormanager/editormanager.h>

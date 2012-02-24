@@ -36,7 +36,7 @@
 
 #include "keyword.h"
 
-#include <QSettings>
+QT_FORWARD_DECLARE_CLASS(QSettings)
 
 namespace Todo {
 namespace Internal {
@@ -46,7 +46,8 @@ enum ScanningScope {
     ScanningScopeProject
 };
 
-struct Settings {
+class Settings {
+public:
     KeywordList keywords;
     ScanningScope scanningScope;
     void save(QSettings *settings) const;

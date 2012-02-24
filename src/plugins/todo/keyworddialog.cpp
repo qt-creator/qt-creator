@@ -32,6 +32,7 @@
 **************************************************************************/
 
 #include "keyworddialog.h"
+#include "keyword.h"
 #include "ui_keyworddialog.h"
 #include "constants.h"
 
@@ -74,16 +75,22 @@ void KeywordDialog::setupListWidget(const QString &selectedIcon)
 {
     ui->listWidget->setViewMode(QListWidget::IconMode);
 
-    QListWidgetItem *item = new QListWidgetItem(QIcon(Constants::ICON_INFO), "information");
-    item->setData(Qt::UserRole, Constants::ICON_INFO);
+    const QString infoIconName = QLatin1String(Constants::ICON_INFO);
+    QListWidgetItem *item = new QListWidgetItem(QIcon(infoIconName),
+                                                QLatin1String("information"));
+    item->setData(Qt::UserRole, infoIconName);
     ui->listWidget->addItem(item);
 
-    item = new QListWidgetItem(QIcon(Constants::ICON_WARNING), "warning");
-    item->setData(Qt::UserRole, Constants::ICON_WARNING);
+    const QString warningIconName = QLatin1String(Constants::ICON_WARNING);
+    item = new QListWidgetItem(QIcon(warningIconName),
+                               QLatin1String("warning"));
+    item->setData(Qt::UserRole, warningIconName);
     ui->listWidget->addItem(item);
 
-    item = new QListWidgetItem(QIcon(Constants::ICON_ERROR), "error");
-    item->setData(Qt::UserRole, Constants::ICON_ERROR);
+    const QString errorIconName = QLatin1String(Constants::ICON_ERROR);
+    item = new QListWidgetItem(QIcon(errorIconName),
+                               QLatin1String("error"));
+    item->setData(Qt::UserRole, errorIconName);
     ui->listWidget->addItem(item);
 
     for (int i = 0; i < ui->listWidget->count(); ++i) {

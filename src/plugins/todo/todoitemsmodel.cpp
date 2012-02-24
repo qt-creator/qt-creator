@@ -34,6 +34,8 @@
 #include "todoitemsmodel.h"
 #include "constants.h"
 
+#include <QIcon>
+
 namespace Todo {
 namespace Internal {
 
@@ -117,7 +119,7 @@ QVariant TodoItemsModel::headerData(int section, Qt::Orientation orientation, in
 
     switch (section) {
         case Constants::OUTPUT_COLUMN_TEXT:
-            return tr(Constants::OUPTUT_COLUMN_TEXT_TITLE);
+            return tr(Constants::OUTPUT_COLUMN_TEXT_TITLE);
 
         case Constants::OUTPUT_COLUMN_FILE:
             return tr(Constants::OUTPUT_COLUMN_FILE_TITLE);

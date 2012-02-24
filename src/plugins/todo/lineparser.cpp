@@ -66,7 +66,8 @@ LineParser::KeywordEntryCandidates LineParser::findKeywordEntryCandidates(const 
     for (int i = 0; i < m_keywords.count(); ++i) {
         int searchFrom = -1;
         forever {
-            int index = line.lastIndexOf(m_keywords.at(i).name + ":", searchFrom);
+            const int index = line.lastIndexOf(m_keywords.at(i).name
+                                               + QLatin1Char(':'), searchFrom);
 
             if (index == -1)
                 break; // 'forever' loop exit condition
@@ -133,9 +134,8 @@ QList<TodoItem> LineParser::todoItemsFromKeywordEntries(const QList<KeywordEntry
 
     foreach (const KeywordEntry &entry, entries) {
         TodoItem item;
-        item.text = QString("%1: %2")
-            .arg(m_keywords.at(entry.keywordIndex).name)
-            .arg(entry.text);
+        item.text =  m_keywords.at(entry.keywordIndex).name
+                     + QLatin1String(": ") + entry.text;
         item.color = m_keywords.at(entry.keywordIndex).color;
         item.iconResource = m_keywords.at(entry.keywordIndex).iconResource;
         todoItems << item;

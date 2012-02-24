@@ -34,6 +34,8 @@
 #include "optionsdialog.h"
 #include "ui_optionsdialog.h"
 #include "keyworddialog.h"
+#include "keyword.h"
+#include "settings.h"
 #include "constants.h"
 
 namespace Todo {

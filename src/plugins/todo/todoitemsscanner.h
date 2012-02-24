@@ -35,7 +35,7 @@
 #define TODOITEMSSCANNER_H
 
 #include "todoitem.h"
-#include "settings.h"
+#include "keyword.h"
 
 #include <QObject>
 

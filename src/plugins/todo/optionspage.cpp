@@ -33,10 +33,12 @@
 
 #include "optionspage.h"
 #include "constants.h"
+#include "optionsdialog.h"
 
 #include <coreplugin/icore.h>
 
 #include <QList>
+#include <QIcon>
 #include <QMessageBox>
 
 Todo::Internal::OptionsDialog *some = 0;
@@ -62,7 +64,7 @@ void OptionsPage::setSettings(const Settings &settings)
 
 QString OptionsPage::id() const
 {
-    return "TodoSettings";
+    return QLatin1String("TodoSettings");
 }
 
 QString OptionsPage::trName() const
@@ -72,7 +74,7 @@ QString OptionsPage::trName() const
 
 QString OptionsPage::category() const
 {
-    return "To-Do";
+    return QLatin1String("To-Do");
 }
 
 QString OptionsPage::trCategory() const
@@ -92,7 +94,7 @@ QString OptionsPage::displayCategory() const
 
 QIcon OptionsPage::categoryIcon() const
 {
-    return QIcon(Constants::ICON_TODO);
+    return QIcon(QLatin1String(Constants::ICON_TODO));
 }
 
 
@@ -119,7 +121,7 @@ void OptionsPage::finish()
 
 bool OptionsPage::matches(const QString &searchKeyWord) const
 {
-    return searchKeyWord == QString("todo");
+    return searchKeyWord == QLatin1String("todo");
 }
 
 } // namespace Internal

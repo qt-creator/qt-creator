@@ -38,13 +38,16 @@
 
 #include <QMetaType>
 #include <QString>
-#include <QIcon>
+#include <QColor>
 
 namespace Todo {
 namespace Internal {
 
-struct TodoItem
+class TodoItem
 {
+public:
+    TodoItem() : line(-1) {}
+
     QString text;
     QString file;
     int line;

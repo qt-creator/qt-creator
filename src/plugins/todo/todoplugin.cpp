@@ -33,6 +33,10 @@
 
 #include "todoplugin.h"
 #include "constants.h"
+#include "optionspage.h"
+#include "keyword.h"
+#include "todooutputpane.h"
+#include "todoitemsprovider.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>

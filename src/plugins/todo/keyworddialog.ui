@@ -37,10 +37,10 @@
           <item>
            <widget class="QLineEdit" name="colorEdit">
             <property name="inputMask">
-             <string>\#HHHHHH; </string>
+             <string notr="true">\#HHHHHH; </string>
             </property>
             <property name="text">
-             <string>#000000</string>
+             <string notr="true">#000000</string>
             </property>
            </widget>
           </item>

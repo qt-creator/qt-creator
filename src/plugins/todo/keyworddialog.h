@@ -34,8 +34,6 @@
 #ifndef ADDKEYWORDDIALOG_H
 #define ADDKEYWORDDIALOG_H
 
-#include "keyword.h"
-
 #include <QDialog>
 
 namespace Todo {
@@ -44,6 +42,8 @@ namespace Internal {
 namespace Ui {
     class AddKeywordDialog;
 }
+
+class Keyword;
 
 class KeywordDialog : public QDialog
 {

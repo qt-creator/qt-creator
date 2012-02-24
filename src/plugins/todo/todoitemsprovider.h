@@ -36,8 +36,6 @@
 
 #include "todoitem.h"
 #include "settings.h"
-#include "todoitemsmodel.h"
-#include "todoitemsscanner.h"
 
 #include <projectexplorer/project.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -47,6 +45,9 @@
 
 namespace Todo {
 namespace Internal {
+
+class TodoItemsModel;
+class TodoItemsScanner;
 
 class TodoItemsProvider : public QObject
 {

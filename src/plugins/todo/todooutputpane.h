@@ -34,19 +34,23 @@
 #ifndef TODOOUTPUTPANE_H
 #define TODOOUTPUTPANE_H
 
-#include "keyword.h"
-#include "todoitem.h"
 #include "settings.h"
-#include "todoitemsmodel.h"
 
 #include <coreplugin/ioutputpane.h>
 
-#include <QTreeView>
-#include <QToolButton>
-#include <QButtonGroup>
+QT_BEGIN_NAMESPACE
+class QTreeView;
+class QToolButton;
+class QButtonGroup;
+class QModelIndex;
+class QAbstractButton;
+QT_END_NAMESPACE
 
 namespace Todo {
 namespace Internal {
+
+class TodoItem;
+class TodoItemsModel;
 
 class TodoOutputPane : public Core::IOutputPane
 {
@@ -79,7 +83,7 @@ signals:
 
 private slots:
     void scopeButtonClicked(QAbstractButton *button);
-    void todoTreeViewClicked(QModelIndex index);
+    void todoTreeViewClicked(const QModelIndex &index);
 
 private:
     QTreeView *m_todoTreeView;
