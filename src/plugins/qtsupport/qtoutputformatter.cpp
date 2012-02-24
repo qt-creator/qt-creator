@@ -33,7 +33,7 @@
 #include "qtoutputformatter.h"
 
 #include <texteditor/basetexteditor.h>
-#include <qt4projectmanager/qt4project.h>
+#include <projectexplorer/project.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
