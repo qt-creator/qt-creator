@@ -7,11 +7,11 @@ contains(CONFIG, dll) {
 INCLUDEPATH += $$PWD/..
 
 HEADERS += \
+    $$PWD/qmlprofilereventlocation.h \
     $$PWD/qdeclarativedebugclient.h \
     $$PWD/qdeclarativeenginedebug.h \
     $$PWD/qdeclarativeoutputparser.h \
     $$PWD/qmljsdebugclient_global.h \
-    $$PWD/qmlprofilereventlist.h \
     $$PWD/qmlprofilereventtypes.h \
     $$PWD/qmlprofilertraceclient.h \
     $$PWD/qpacketprotocol.h \
@@ -23,7 +23,6 @@ SOURCES += \
     $$PWD/qdeclarativedebugclient.cpp \
     $$PWD/qdeclarativeenginedebug.cpp \
     $$PWD/qdeclarativeoutputparser.cpp \
-    $$PWD/qmlprofilereventlist.cpp \
     $$PWD/qmlprofilertraceclient.cpp \
     $$PWD/qpacketprotocol.cpp \
     $$PWD/qv8profilerclient.cpp \

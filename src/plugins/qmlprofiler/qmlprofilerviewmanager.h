@@ -30,25 +30,50 @@
 **
 **************************************************************************/
 
-#ifndef COMMANDLISTENER_H
-#define COMMANDLISTENER_H
+#ifndef QMLPROFILERVIEWMANAGER_H
+#define QMLPROFILERVIEWMANAGER_H
 
-#include <QThread>
+#include <QObject>
 
-class CommandListener : public QThread
+namespace QmlProfiler {
+namespace Internal {
+
+class QmlProfilerTool;
+class QmlProfilerDataModel;
+class QmlProfilerStateManager;
+
+class QmlProfilerViewManager : public QObject
 {
     Q_OBJECT
 public:
-    CommandListener(QObject *parent = 0);
+    explicit QmlProfilerViewManager(QObject *parent,
+                                    QmlProfilerTool *profilerTool,
+                                    QmlProfilerDataModel *model,
+                                    QmlProfilerStateManager *profilerState);
+    ~QmlProfilerViewManager();
 
-    void run();
+    void createViews();
 
-    void requestStop() { m_stopRequested = true; }
+    // used by the options "limit events to range"
+    bool hasValidSelection() const;
+    qint64 selectionStart() const;
+    qint64 selectionEnd() const;
+    bool hasGlobalStats() const;
+    void getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd);
+
+public slots:
+    void clear();
+
 signals:
-    void command(const QString &command);
+    void gotoSourceLocation(QString,int,int);
 
 private:
-    bool m_stopRequested;
+    class QmlProfilerViewManagerPrivate;
+    QmlProfilerViewManagerPrivate *d;
 };
 
-#endif // COMMANDLISTENER_H
+
+} // namespace Internal
+} // namespace QmlProfiler
+
+#endif // QMLPROFILERVIEWMANAGER_H

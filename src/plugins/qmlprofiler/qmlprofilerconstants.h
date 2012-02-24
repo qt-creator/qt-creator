@@ -37,6 +37,7 @@ namespace QmlProfiler {
 namespace Constants {
 
 const char ATTACH[] = "Menu.Analyzer.Attach";
+const char TraceFileExtension[] = ".qtd";
 
 } // namespace Constants
 } // namespace QmlProfiler

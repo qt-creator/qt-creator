@@ -52,6 +52,9 @@ public:
     enum Message {
         V8Entry,
         V8Complete,
+        V8SnapshotChunk,
+        V8SnapshotComplete,
+        V8ProfilingStarted,
 
         V8MaximumMessage
     };
@@ -61,9 +64,9 @@ public:
 
     bool isEnabled() const;
     bool isRecording() const;
+    void setRecording(bool);
 
 public slots:
-    void setRecording(bool);
     void clearData();
     void sendRecordingStatus();
 
@@ -76,6 +79,9 @@ signals:
 
     void enabledChanged();
     void cleared();
+
+private:
+    void setRecordingFromServer(bool);
 
 protected:
     virtual void statusChanged(Status);

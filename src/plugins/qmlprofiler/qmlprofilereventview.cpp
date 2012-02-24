@@ -48,6 +48,11 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
+#include "qmlprofilerviewmanager.h"
+#include "qmlprofilertool.h"
+#include <QMenu>
+
+#include <utils/qtcassert.h>
 
 using namespace QmlJsDebugClient;
 
@@ -90,31 +95,63 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-QmlProfilerEventsWidget::QmlProfilerEventsWidget(QmlJsDebugClient::QmlProfilerEventList *model, QWidget *parent) : QWidget(parent)
+class QmlProfilerEventsWidget::QmlProfilerEventsWidgetPrivate
+{
+public:
+    QmlProfilerEventsWidgetPrivate(QmlProfilerEventsWidget *qq):q(qq) {}
+    ~QmlProfilerEventsWidgetPrivate() {}
+
+    QmlProfilerEventsWidget *q;
+
+    Analyzer::IAnalyzerTool *m_profilerTool;
+    QmlProfilerViewManager *m_viewContainer;
+
+    QmlProfilerEventsMainView *m_eventTree;
+    QmlProfilerEventsParentsAndChildrenView *m_eventChildren;
+    QmlProfilerEventsParentsAndChildrenView *m_eventParents;
+    QmlProfilerDataModel *m_profilerDataModel;
+
+    bool m_globalStatsEnabled;
+};
+
+QmlProfilerEventsWidget::QmlProfilerEventsWidget(QWidget *parent,
+                                 Analyzer::IAnalyzerTool *profilerTool,
+                                 QmlProfilerViewManager *container,
+                                 QmlProfilerDataModel *profilerDataModel )
+    : QWidget(parent), d(new QmlProfilerEventsWidgetPrivate(this))
 {
     setObjectName("QmlProfilerEventsView");
 
-    m_eventTree = new QmlProfilerEventsMainView(model, this);
-    m_eventTree->setViewType(QmlProfilerEventsMainView::EventsView);
-    connect(m_eventTree, SIGNAL(gotoSourceLocation(QString,int,int)), this, SIGNAL(gotoSourceLocation(QString,int,int)));
-    connect(m_eventTree, SIGNAL(showEventInTimeline(int)), this, SIGNAL(showEventInTimeline(int)));
+    d->m_profilerDataModel = profilerDataModel;
+    connect(d->m_profilerDataModel, SIGNAL(stateChanged()),
+            this, SLOT(profilerDataModelStateChanged()));
 
-    m_eventChildren = new QmlProfilerEventsParentsAndChildrenView(model, QmlProfilerEventsParentsAndChildrenView::ChildrenView, this);
-    m_eventParents = new QmlProfilerEventsParentsAndChildrenView(model, QmlProfilerEventsParentsAndChildrenView::ParentsView, this);
-    connect(m_eventTree, SIGNAL(eventSelected(int)), m_eventChildren, SLOT(displayEvent(int)));
-    connect(m_eventTree, SIGNAL(eventSelected(int)), m_eventParents, SLOT(displayEvent(int)));
-    connect(m_eventChildren, SIGNAL(eventClicked(int)), m_eventTree, SLOT(selectEvent(int)));
-    connect(m_eventParents, SIGNAL(eventClicked(int)), m_eventTree, SLOT(selectEvent(int)));
+    d->m_eventTree = new QmlProfilerEventsMainView(QmlProfilerEventsMainView::EventsView, this, d->m_profilerDataModel);
+    connect(d->m_eventTree, SIGNAL(gotoSourceLocation(QString,int,int)), this, SIGNAL(gotoSourceLocation(QString,int,int)));
+    connect(d->m_eventTree, SIGNAL(showEventInTimeline(int)), this, SIGNAL(showEventInTimeline(int)));
+
+    d->m_eventChildren = new QmlProfilerEventsParentsAndChildrenView(
+                QmlProfilerEventsParentsAndChildrenView::ChildrenView,
+                this,
+                d->m_profilerDataModel);
+    d->m_eventParents = new QmlProfilerEventsParentsAndChildrenView(
+                QmlProfilerEventsParentsAndChildrenView::ParentsView,
+                this,
+                d->m_profilerDataModel);
+    connect(d->m_eventTree, SIGNAL(eventSelected(int)), d->m_eventChildren, SLOT(displayEvent(int)));
+    connect(d->m_eventTree, SIGNAL(eventSelected(int)), d->m_eventParents, SLOT(displayEvent(int)));
+    connect(d->m_eventChildren, SIGNAL(eventClicked(int)), d->m_eventTree, SLOT(selectEvent(int)));
+    connect(d->m_eventParents, SIGNAL(eventClicked(int)), d->m_eventTree, SLOT(selectEvent(int)));
 
     // widget arrangement
     QVBoxLayout *groupLayout = new QVBoxLayout;
     groupLayout->setContentsMargins(0,0,0,0);
     groupLayout->setSpacing(0);
     Core::MiniSplitter *splitterVertical = new Core::MiniSplitter;
-    splitterVertical->addWidget(m_eventTree);
+    splitterVertical->addWidget(d->m_eventTree);
     Core::MiniSplitter *splitterHorizontal = new Core::MiniSplitter;
-    splitterHorizontal->addWidget(m_eventParents);
-    splitterHorizontal->addWidget(m_eventChildren);
+    splitterHorizontal->addWidget(d->m_eventParents);
+    splitterHorizontal->addWidget(d->m_eventChildren);
     splitterHorizontal->setOrientation(Qt::Horizontal);
     splitterVertical->addWidget(splitterHorizontal);
     splitterVertical->setOrientation(Qt::Vertical);
@@ -123,23 +160,21 @@ QmlProfilerEventsWidget::QmlProfilerEventsWidget(QmlJsDebugClient::QmlProfilerEv
     groupLayout->addWidget(splitterVertical);
     setLayout(groupLayout);
 
-    m_eventStatistics = model;
-    if (model) {
-        connect(model, SIGNAL(stateChanged()), this, SLOT(eventListStateChanged()));
-    }
-
-    m_globalStatsEnabled = true;
+    d->m_profilerTool = profilerTool;
+    d->m_viewContainer = container;
+    d->m_globalStatsEnabled = true;
 }
 
 QmlProfilerEventsWidget::~QmlProfilerEventsWidget()
 {
+    delete d;
 }
 
-void QmlProfilerEventsWidget::eventListStateChanged()
+void QmlProfilerEventsWidget::profilerDataModelStateChanged()
 {
-    if (m_eventStatistics) {
-        QmlProfilerEventList::State newState = m_eventStatistics->currentState();
-        if (newState == QmlProfilerEventList::Empty) {
+    if (d->m_profilerDataModel) {
+        QmlProfilerDataModel::State newState = d->m_profilerDataModel->currentState();
+        if (newState == QmlProfilerDataModel::Empty) {
             clear();
         }
     }
@@ -148,57 +183,119 @@ void QmlProfilerEventsWidget::eventListStateChanged()
 void QmlProfilerEventsWidget::switchToV8View()
 {
     setObjectName("QmlProfilerV8ProfileView");
-    m_eventTree->setViewType(QmlProfilerEventsMainView::V8ProfileView);
-    m_eventParents->setViewType(QmlProfilerEventsParentsAndChildrenView::V8ParentsView);
-    m_eventChildren->setViewType(QmlProfilerEventsParentsAndChildrenView::V8ChildrenView);
+    d->m_eventTree->setViewType(QmlProfilerEventsMainView::V8ProfileView);
+    d->m_eventParents->setViewType(QmlProfilerEventsParentsAndChildrenView::V8ParentsView);
+    d->m_eventChildren->setViewType(QmlProfilerEventsParentsAndChildrenView::V8ChildrenView);
     setToolTip(tr("Trace information from the v8 JavaScript engine. Available only in Qt5 based applications"));
 }
 
 void QmlProfilerEventsWidget::clear()
 {
-    m_eventTree->clear();
-    m_eventChildren->clear();
-    m_eventParents->clear();
+    d->m_eventTree->clear();
+    d->m_eventChildren->clear();
+    d->m_eventParents->clear();
 }
 
 void QmlProfilerEventsWidget::getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd)
 {
     clear();
-    m_eventTree->getStatisticsInRange(rangeStart, rangeEnd);
-    m_globalStatsEnabled = m_eventTree->isRangeGlobal(rangeStart, rangeEnd);
+    d->m_eventTree->getStatisticsInRange(rangeStart, rangeEnd);
+    d->m_globalStatsEnabled = d->m_eventTree->isRangeGlobal(rangeStart, rangeEnd);
 }
 
 QModelIndex QmlProfilerEventsWidget::selectedItem() const
 {
-    return m_eventTree->selectedItem();
+    return d->m_eventTree->selectedItem();
 }
 
 void QmlProfilerEventsWidget::contextMenuEvent(QContextMenuEvent *ev)
 {
-    emit contextMenuRequested(ev->globalPos());
+    QTC_ASSERT(d->m_viewContainer, return;);
+
+    QMenu menu;
+    QAction *copyRowAction = 0;
+    QAction *copyTableAction = 0;
+    QAction *showExtendedStatsAction = 0;
+    QAction *getLocalStatsAction = 0;
+    QAction *getGlobalStatsAction = 0;
+
+    QmlProfilerTool *profilerTool = qobject_cast<QmlProfilerTool *>(d->m_profilerTool);
+    QPoint position = ev->globalPos();
+
+    if (profilerTool) {
+        QList <QAction *> commonActions = profilerTool->profilerContextMenuActions();
+        foreach (QAction *act, commonActions) {
+            menu.addAction(act);
+        }
+    }
+
+    if (mouseOnTable(position)) {
+        menu.addSeparator();
+        if (selectedItem().isValid())
+            copyRowAction = menu.addAction(tr("Copy Row"));
+        copyTableAction = menu.addAction(tr("Copy Table"));
+
+        if (isQml()) {
+            // only for qml events view, not for v8
+            showExtendedStatsAction = menu.addAction(tr("Extended Event Statistics"));
+            showExtendedStatsAction->setCheckable(true);
+            showExtendedStatsAction->setChecked(showExtendedStatistics());
+        }
+    }
+
+    if (isQml()) {
+        menu.addSeparator();
+        getLocalStatsAction = menu.addAction(tr("Limit Events Pane to Current Range"));
+        if (!d->m_viewContainer->hasValidSelection())
+            getLocalStatsAction->setEnabled(false);
+        getGlobalStatsAction = menu.addAction(tr("Reset Events Pane"));
+        if (hasGlobalStats())
+            getGlobalStatsAction->setEnabled(false);
+    }
+
+    QAction *selectedAction = menu.exec(position);
+
+    if (selectedAction) {
+        if (selectedAction == copyRowAction)
+            copyRowToClipboard();
+        if (selectedAction == copyTableAction)
+            copyTableToClipboard();
+        if (selectedAction == getLocalStatsAction) {
+            getStatisticsInRange(d->m_viewContainer->selectionStart(),
+                                 d->m_viewContainer->selectionEnd());
+        }
+        if (selectedAction == getGlobalStatsAction) {
+            if (d->m_profilerDataModel) {
+                getStatisticsInRange(d->m_profilerDataModel->traceStartTime(),
+                                     d->m_profilerDataModel->traceEndTime());
+            }
+        }
+        if (selectedAction == showExtendedStatsAction)
+            setShowExtendedStatistics(!showExtendedStatistics());
+    }
 }
 
 bool QmlProfilerEventsWidget::mouseOnTable(const QPoint &position) const
 {
-    QPoint tableTopLeft = m_eventTree->mapToGlobal(QPoint(0,0));
-    QPoint tableBottomRight = m_eventTree->mapToGlobal(QPoint(m_eventTree->width(), m_eventTree->height()));
+    QPoint tableTopLeft = d->m_eventTree->mapToGlobal(QPoint(0,0));
+    QPoint tableBottomRight = d->m_eventTree->mapToGlobal(QPoint(d->m_eventTree->width(), d->m_eventTree->height()));
     return (position.x() >= tableTopLeft.x() && position.x() <= tableBottomRight.x() && position.y() >= tableTopLeft.y() && position.y() <= tableBottomRight.y());
 }
 
 void QmlProfilerEventsWidget::copyTableToClipboard() const
 {
-    m_eventTree->copyTableToClipboard();
+    d->m_eventTree->copyTableToClipboard();
 }
 
 void QmlProfilerEventsWidget::copyRowToClipboard() const
 {
-    m_eventTree->copyRowToClipboard();
+    d->m_eventTree->copyRowToClipboard();
 }
 
 void QmlProfilerEventsWidget::updateSelectedEvent(int eventId) const
 {
-    if (m_eventTree->selectedEventId() != eventId)
-        m_eventTree->selectEvent(eventId);
+    if (d->m_eventTree->selectedEventId() != eventId)
+        d->m_eventTree->selectEvent(eventId);
 }
 
 void QmlProfilerEventsWidget::selectBySourceLocation(const QString &filename, int line, int column)
@@ -207,22 +304,31 @@ void QmlProfilerEventsWidget::selectBySourceLocation(const QString &filename, in
     // Our javascript trace data does not store column information
     // thus we ignore it here
     Q_UNUSED(column);
-    m_eventTree->selectEventByLocation(filename, line);
+    d->m_eventTree->selectEventByLocation(filename, line);
 }
 
 bool QmlProfilerEventsWidget::hasGlobalStats() const
 {
-    return m_globalStatsEnabled;
+    return d->m_globalStatsEnabled;
 }
 
 void QmlProfilerEventsWidget::setShowExtendedStatistics(bool show)
 {
-    m_eventTree->setShowExtendedStatistics(show);
+    d->m_eventTree->setShowExtendedStatistics(show);
 }
 
 bool QmlProfilerEventsWidget::showExtendedStatistics() const
 {
-    return m_eventTree->showExtendedStatistics();
+    return d->m_eventTree->showExtendedStatistics();
+}
+
+bool QmlProfilerEventsWidget::isQml() const
+{
+    return d->m_eventTree->viewType() == QmlProfilerEventsMainView::EventsView;
+}
+bool QmlProfilerEventsWidget::isV8() const
+{
+    return d->m_eventTree->viewType() == QmlProfilerEventsMainView::V8ProfileView;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -232,8 +338,8 @@ class QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate
 public:
     QmlProfilerEventsMainViewPrivate(QmlProfilerEventsMainView *qq) : q(qq) {}
 
-    void buildModelFromList(const QmlEventDescriptions &list, QStandardItem *parentItem, const QmlEventDescriptions &visitedFunctionsList = QmlEventDescriptions() );
-    void buildV8ModelFromList( const QV8EventDescriptions &list );
+    void buildModelFromList(const QList<QmlRangeEventData *> &list, QStandardItem *parentItem );
+    void buildV8ModelFromList( const QList<QV8EventData *> &list );
     int getFieldCount();
 
     QString textForItem(QStandardItem *item, bool recursive) const;
@@ -242,7 +348,7 @@ public:
     QmlProfilerEventsMainView *q;
 
     QmlProfilerEventsMainView::ViewTypes m_viewType;
-    QmlProfilerEventList *m_eventStatistics;
+    QmlProfilerDataModel *m_profilerDataModel;
     QStandardItemModel *m_model;
     QList<bool> m_fieldShown;
     QHash<int, int> m_columnIndex; // maps field enum to column index
@@ -254,8 +360,10 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-QmlProfilerEventsMainView::QmlProfilerEventsMainView(QmlProfilerEventList *model, QWidget *parent) :
-    QTreeView(parent), d(new QmlProfilerEventsMainViewPrivate(this))
+QmlProfilerEventsMainView::QmlProfilerEventsMainView(ViewTypes viewType,
+                                                     QWidget *parent,
+                                                     QmlProfilerDataModel *dataModel)
+    : QTreeView(parent), d(new QmlProfilerEventsMainViewPrivate(this))
 {
     setObjectName("QmlProfilerEventsTable");
     header()->setResizeMode(QHeaderView::Interactive);
@@ -268,15 +376,17 @@ QmlProfilerEventsMainView::QmlProfilerEventsMainView(QmlProfilerEventList *model
     setModel(d->m_model);
     connect(this,SIGNAL(clicked(QModelIndex)), this,SLOT(jumpToItem(QModelIndex)));
 
-    d->m_eventStatistics = 0;
-    setEventStatisticsModel(model);
+    d->m_profilerDataModel = dataModel;
+    connect(d->m_profilerDataModel,SIGNAL(stateChanged()),
+            this,SLOT(profilerDataModelStateChanged()));
+    connect(d->m_profilerDataModel,SIGNAL(detailsChanged(int,QString)),
+            this,SLOT(changeDetailsForEvent(int,QString)));
 
     d->m_firstNumericColumn = 0;
     d->m_preventSelectBounce = false;
     d->m_showExtendedStatistics = false;
 
-    // default view
-    setViewType(EventsView);
+    setViewType(viewType);
 }
 
 QmlProfilerEventsMainView::~QmlProfilerEventsMainView()
@@ -285,24 +395,11 @@ QmlProfilerEventsMainView::~QmlProfilerEventsMainView()
     delete d->m_model;
 }
 
-void QmlProfilerEventsMainView::setEventStatisticsModel( QmlProfilerEventList *model )
+void QmlProfilerEventsMainView::profilerDataModelStateChanged()
 {
-    if (d->m_eventStatistics) {
-        disconnect(d->m_eventStatistics,SIGNAL(stateChanged()),this,SLOT(eventListStateChanged()));
-        disconnect(d->m_eventStatistics,SIGNAL(detailsChanged(int,QString)),this,SLOT(changeDetailsForEvent(int,QString)));
-    }
-    d->m_eventStatistics = model;
-    if (model) {
-        connect(d->m_eventStatistics,SIGNAL(stateChanged()),this,SLOT(eventListStateChanged()));
-        connect(d->m_eventStatistics,SIGNAL(detailsChanged(int,QString)),this,SLOT(changeDetailsForEvent(int,QString)));
-    }
-}
-
-void QmlProfilerEventsMainView::eventListStateChanged()
-{
-    if (d->m_eventStatistics) {
-        QmlProfilerEventList::State newState = d->m_eventStatistics->currentState();
-        if (newState == QmlProfilerEventList::Done)
+    if (d->m_profilerDataModel) {
+        QmlProfilerDataModel::State newState = d->m_profilerDataModel->currentState();
+        if (newState == QmlProfilerDataModel::Done)
             buildModel();
     }
 }
@@ -317,6 +414,11 @@ void QmlProfilerEventsMainView::setFieldViewable(Fields field, bool show)
         }
         d->m_fieldShown[field] = show;
     }
+}
+
+QmlProfilerEventsMainView::ViewTypes QmlProfilerEventsMainView::viewType() const
+{
+    return d->m_viewType;
 }
 
 void QmlProfilerEventsMainView::setViewType(ViewTypes type)
@@ -465,12 +567,12 @@ int QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::getFieldCount()
 
 void QmlProfilerEventsMainView::buildModel()
 {
-    if (d->m_eventStatistics) {
+    if (d->m_profilerDataModel) {
         clear();
         if (d->m_viewType == V8ProfileView)
-            d->buildV8ModelFromList( d->m_eventStatistics->getV8Events() );
+            d->buildV8ModelFromList( d->m_profilerDataModel->getV8Events() );
         else
-            d->buildModelFromList( d->m_eventStatistics->getEventDescriptions(), d->m_model->invisibleRootItem() );
+            d->buildModelFromList( d->m_profilerDataModel->getEventDescriptions(), d->m_model->invisibleRootItem() );
 
         setShowExtendedStatistics(d->m_showExtendedStatistics);
 
@@ -488,18 +590,15 @@ void QmlProfilerEventsMainView::buildModel()
     }
 }
 
-void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildModelFromList( const QmlEventDescriptions &list, QStandardItem *parentItem, const QmlEventDescriptions &visitedFunctionsList )
+void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildModelFromList( const QList<QmlRangeEventData *> &list, QStandardItem *parentItem)
 {
-    foreach (QmlEventData *binding, list) {
-        if (visitedFunctionsList.contains(binding))
-            continue;
-
+    foreach (QmlRangeEventData *binding, list) {
         if (binding->calls == 0)
             continue;
 
         QList<QStandardItem *> newRow;
         if (m_fieldShown[Name]) {
-            newRow << new EventsViewItem(binding->displayname);
+            newRow << new EventsViewItem(binding->displayName);
         }
 
         if (m_fieldShown[Type]) {
@@ -572,7 +671,7 @@ void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildModelFrom
     }
 }
 
-void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildV8ModelFromList(const QV8EventDescriptions &list)
+void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildV8ModelFromList(const QList<QV8EventData *> &list)
 {
     for (int index = 0; index < list.count(); index++) {
         QV8EventData *v8event = list.at(index);
@@ -649,13 +748,17 @@ QString QmlProfilerEventsMainView::nameForType(int typeNumber)
 
 void QmlProfilerEventsMainView::getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd)
 {
-    d->m_eventStatistics->compileStatistics(rangeStart, rangeEnd);
+    if (d->m_profilerDataModel)
+        d->m_profilerDataModel->compileStatistics(rangeStart, rangeEnd);
     buildModel();
 }
 
 bool QmlProfilerEventsMainView::isRangeGlobal(qint64 rangeStart, qint64 rangeEnd) const
 {
-    return d->m_eventStatistics->traceStartTime() == rangeStart && d->m_eventStatistics->traceEndTime() == rangeEnd;
+    if (d->m_profilerDataModel)
+        return d->m_profilerDataModel->traceStartTime() == rangeStart && d->m_profilerDataModel->traceEndTime() == rangeEnd;
+    else
+        return true;
 }
 
 int QmlProfilerEventsMainView::selectedEventId() const
@@ -691,7 +794,7 @@ void QmlProfilerEventsMainView::jumpToItem(const QModelIndex &index)
     // show in callers/callees subwindow
     emit eventSelected(infoItem->data(EventIdRole).toInt());
 
-    // show in timelineview
+    // show in timelinerenderer
     if (d->m_viewType == EventsView) {
         emit showEventInTimeline(infoItem->data(EventIdRole).toInt());
     }
@@ -819,9 +922,11 @@ void QmlProfilerEventsMainView::copyRowToClipboard() const
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-QmlProfilerEventsParentsAndChildrenView::QmlProfilerEventsParentsAndChildrenView(QmlJsDebugClient::QmlProfilerEventList *model, SubViewType subtableType, QWidget *parent):QTreeView(parent)
+QmlProfilerEventsParentsAndChildrenView::QmlProfilerEventsParentsAndChildrenView(
+        SubViewType subtableType, QWidget *parent, QmlProfilerDataModel *model)
+    : QTreeView(parent)
 {
-    m_eventList = model;
+    m_profilerDataModel = model;
     setModel(new QStandardItemModel(this));
     setRootIsDecorated(false);
     setFrameStyle(QFrame::NoFrame);
@@ -843,30 +948,33 @@ void QmlProfilerEventsParentsAndChildrenView::setViewType(SubViewType type)
 
 void QmlProfilerEventsParentsAndChildrenView::displayEvent(int eventId)
 {
+    if (!m_profilerDataModel)
+        return;
+
     bool isV8 = m_subtableType == V8ParentsView || m_subtableType == V8ChildrenView;
     bool isChildren = m_subtableType == ChildrenView || m_subtableType == V8ChildrenView;
 
     if (isV8) {
-        QmlJsDebugClient::QV8EventData *v8event = m_eventList->v8EventDescription(eventId);
+        QV8EventData *v8event = m_profilerDataModel->v8EventDescription(eventId);
         if (v8event) {
             if (isChildren) {
-                QList <QmlJsDebugClient::QV8EventSub *> childrenList = v8event->childrenHash.values();
+                QList <QV8EventSub *> childrenList = v8event->childrenHash.values();
                 rebuildTree((QObject *)&childrenList);
             }
             else {
-                QList <QmlJsDebugClient::QV8EventSub *> parentList = v8event->parentHash.values();
+                QList <QV8EventSub *> parentList = v8event->parentHash.values();
                 rebuildTree((QObject *)&parentList);
             }
         }
     } else {
-        QmlJsDebugClient::QmlEventData *qmlEvent = m_eventList->eventDescription(eventId);
+        QmlRangeEventData *qmlEvent = m_profilerDataModel->eventDescription(eventId);
         if (qmlEvent) {
             if (isChildren) {
-                QList <QmlJsDebugClient::QmlEventSub *> childrenList = qmlEvent->childrenHash.values();
+                QList <QmlRangeEventRelative *> childrenList = qmlEvent->childrenHash.values();
                 rebuildTree((QObject *)&childrenList);
             }
             else {
-                QList <QmlJsDebugClient::QmlEventSub *> parentList = qmlEvent->parentHash.values();
+                QList <QmlRangeEventRelative *> parentList = qmlEvent->parentHash.values();
                 rebuildTree((QObject *)&parentList);
             }
         }
@@ -881,7 +989,7 @@ void QmlProfilerEventsParentsAndChildrenView::displayEvent(int eventId)
         sortByColumn(2);
 }
 
-void QmlProfilerEventsParentsAndChildrenView::rebuildTree(void *eventList)
+void QmlProfilerEventsParentsAndChildrenView::rebuildTree(void *profilerDataModel)
 {
     Q_ASSERT(treeModel());
     treeModel()->clear();
@@ -889,8 +997,8 @@ void QmlProfilerEventsParentsAndChildrenView::rebuildTree(void *eventList)
     QStandardItem *topLevelItem = treeModel()->invisibleRootItem();
     bool isV8 = m_subtableType == V8ParentsView || m_subtableType == V8ChildrenView;
 
-    QList <QmlEventSub *> *qmlList = static_cast< QList <QmlEventSub *> *>(eventList);
-    QList <QV8EventSub*> *v8List = static_cast< QList <QV8EventSub *> *>(eventList);
+    QList <QmlRangeEventRelative *> *qmlList = static_cast< QList <QmlRangeEventRelative *> *>(profilerDataModel);
+    QList <QV8EventSub*> *v8List = static_cast< QList <QV8EventSub *> *>(profilerDataModel);
 
     int listLength;
     if (!isV8)
@@ -901,9 +1009,9 @@ void QmlProfilerEventsParentsAndChildrenView::rebuildTree(void *eventList)
     for (int index=0; index < listLength; index++) {
         QList<QStandardItem *> newRow;
         if (!isV8) {
-            QmlEventSub *event = qmlList->at(index);
+            QmlRangeEventRelative *event = qmlList->at(index);
 
-            newRow << new EventsViewItem(event->reference->displayname);
+            newRow << new EventsViewItem(event->reference->displayName);
             newRow << new EventsViewItem(QmlProfilerEventsMainView::nameForType(event->reference->eventType));
             newRow << new EventsViewItem(QmlProfilerEventsMainView::displayTime(event->duration));
             newRow << new EventsViewItem(QString::number(event->calls));

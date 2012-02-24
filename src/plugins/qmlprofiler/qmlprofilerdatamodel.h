@@ -30,33 +30,37 @@
 **
 **************************************************************************/
 
-#ifndef QMLPROFILEREVENTLIST_H
-#define QMLPROFILEREVENTLIST_H
+#ifndef QMLPROFILERDATAMODEL_H
+#define QMLPROFILERDATAMODEL_H
 
-#include "qmlprofilereventtypes.h"
-#include "qmlprofilereventlocation.h"
-#include "qmljsdebugclient_global.h"
+#include <qmljsdebugclient/qmlprofilereventtypes.h>
+#include <qmljsdebugclient/qmlprofilereventlocation.h>
+#include "qv8profilerdatamodel.h"
 
 #include <QHash>
 #include <QObject>
 
-namespace QmlJsDebugClient {
+namespace QmlProfiler {
+namespace Internal {
 
-struct QmlEventSub;
-struct QV8EventSub;
+// used for parents and children
+struct QmlRangeEventRelative;
 
-struct QMLJSDEBUGCLIENT_EXPORT QmlEventData
+struct QmlRangeEventData
 {
-    QmlEventData();
-    ~QmlEventData();
+    QmlRangeEventData();
+    ~QmlRangeEventData();
 
-    QString displayname;
+    int eventId;
+    QString displayName;
     QString eventHashStr;
     QString details;
-    QmlEventLocation location;
+    QmlJsDebugClient::QmlEventLocation location;
     QmlJsDebugClient::QmlEventType eventType;
-    QHash <QString, QmlEventSub *> parentHash;
-    QHash <QString, QmlEventSub *> childrenHash;
+
+    QHash <QString, QmlRangeEventRelative *> parentHash;
+    QHash <QString, QmlRangeEventRelative *> childrenHash;
+
     qint64 duration;
     qint64 calls;
     qint64 minTime;
@@ -64,54 +68,22 @@ struct QMLJSDEBUGCLIENT_EXPORT QmlEventData
     double timePerCall;
     double percentOfTime;
     qint64 medianTime;
-    int eventId;
+
     bool isBindingLoop;
 
-    QmlEventData &operator=(const QmlEventData &ref);
+    QmlRangeEventData &operator=(const QmlRangeEventData &ref);
 };
 
-struct QMLJSDEBUGCLIENT_EXPORT QmlEventSub {
-    QmlEventSub(QmlEventData *from) : reference(from), duration(0), calls(0), inLoopPath(false) {}
-    QmlEventSub(QmlEventSub *from) : reference(from->reference), duration(from->duration), calls(from->calls), inLoopPath(from->inLoopPath) {}
-    QmlEventData *reference;
+struct QmlRangeEventRelative {
+    QmlRangeEventRelative(QmlRangeEventData *from) : reference(from), duration(0), calls(0), inLoopPath(false) {}
+    QmlRangeEventRelative(QmlRangeEventRelative *from) : reference(from->reference), duration(from->duration), calls(from->calls), inLoopPath(from->inLoopPath) {}
+    QmlRangeEventData *reference;
     qint64 duration;
     qint64 calls;
     bool inLoopPath;
 };
 
-struct QMLJSDEBUGCLIENT_EXPORT QV8EventData
-{
-    QV8EventData();
-    ~QV8EventData();
-
-    QString displayName;
-    QString filename;
-    QString functionName;
-    int line;
-    double totalTime; // given in milliseconds
-    double totalPercent;
-    double selfTime;
-    double selfPercent;
-    QHash <QString, QV8EventSub *> parentHash;
-    QHash <QString, QV8EventSub *> childrenHash;
-    int eventId;
-
-    QV8EventData &operator=(const QV8EventData &ref);
-};
-
-struct QMLJSDEBUGCLIENT_EXPORT QV8EventSub {
-    QV8EventSub(QV8EventData *from) : reference(from), totalTime(0) {}
-    QV8EventSub(QV8EventSub *from) : reference(from->reference), totalTime(from->totalTime) {}
-
-    QV8EventData *reference;
-    qint64 totalTime;
-};
-
-typedef QHash<QString, QmlEventData *> QmlEventHash;
-typedef QList<QmlEventData *> QmlEventDescriptions;
-typedef QList<QV8EventData *> QV8EventDescriptions;
-
-class QMLJSDEBUGCLIENT_EXPORT QmlProfilerEventList : public QObject
+class QmlProfilerDataModel : public QObject
 {
     Q_OBJECT
 public:
@@ -122,13 +94,20 @@ public:
         Done
     };
 
-    explicit QmlProfilerEventList(QObject *parent = 0);
-    ~QmlProfilerEventList();
+    explicit QmlProfilerDataModel(QObject *parent = 0);
+    ~QmlProfilerDataModel();
 
-    QmlEventDescriptions getEventDescriptions() const;
-    QmlEventData *eventDescription(int eventId) const;
-    const QV8EventDescriptions& getV8Events() const;
+    QList<QmlRangeEventData *> getEventDescriptions() const;
+    QmlRangeEventData *eventDescription(int eventId) const;
+    QList<QV8EventData *> getV8Events() const;
     QV8EventData *v8EventDescription(int eventId) const;
+
+    static QString getHashStringForQmlEvent(const QmlJsDebugClient::QmlEventLocation &location, int eventType);
+    static QString getHashStringForV8Event(const QString &displayName, const QString &function);
+    static QString rootEventName();
+    static QString rootEventDescription();
+    static QString qmlEventTypeAsString(QmlJsDebugClient::QmlEventType typeEnum);
+    static QmlJsDebugClient::QmlEventType qmlEventTypeAsEnum(const QString &typeString);
 
     int findFirstIndex(qint64 startTime) const;
     int findFirstIndexNoParents(qint64 startTime) const;
@@ -136,9 +115,9 @@ public:
     Q_INVOKABLE qint64 firstTimeMark() const;
     Q_INVOKABLE qint64 lastTimeMark() const;
 
-    Q_INVOKABLE int count() const;
-
     // data access
+    Q_INVOKABLE int count() const;
+    Q_INVOKABLE bool isEmpty() const;
     Q_INVOKABLE qint64 getStartTime(int index) const;
     Q_INVOKABLE qint64 getEndTime(int index) const;
     Q_INVOKABLE qint64 getDuration(int index) const;
@@ -171,7 +150,6 @@ public:
     Q_INVOKABLE qint64 qmlMeasuredTime() const;
     Q_INVOKABLE qint64 v8MeasuredTime() const;
 
-    void showErrorDialog(const QString &st ) const;
     void compileStatistics(qint64 startTime, qint64 endTime);
     State currentState() const;
     Q_INVOKABLE int getCurrentStateFromQml() const;
@@ -188,44 +166,37 @@ signals:
 
 public slots:
     void clear();
+
     void addRangedEvent(int type, qint64 startTime, qint64 length,
                         const QStringList &data, const QmlJsDebugClient::QmlEventLocation &location);
-    void complete();
-
     void addV8Event(int depth,const QString &function,const QString &filename, int lineNumber, double totalTime, double selfTime);
     void addFrameEvent(qint64 time, int framerate, int animationcount);
+    void setTraceStartTime(qint64 time);
+    void setTraceEndTime(qint64 time);
+
+    void complete();
+
     bool save(const QString &filename);
     void load(const QString &filename);
     void setFilename(const QString &filename);
     void load();
 
-    void setTraceEndTime( qint64 time );
-    void setTraceStartTime( qint64 time );
-
     void rewriteDetailsString(int eventType, const QmlJsDebugClient::QmlEventLocation &location, const QString &newString);
     void finishedRewritingDetails();
 
 private:
-    void postProcess();
-    void sortEndTimes();
-    void findAnimationLimits();
-    void sortStartTimes();
-    void computeLevels();
-    void computeNestingLevels();
-    void computeNestingDepth();
-    void prepareForDisplay();
-    void linkEndsToStarts();
-    void reloadDetails();
-    void findBindingLoops(qint64 startTime, qint64 endTime);
-    bool checkBindingLoop(QmlEventData *from, QmlEventData *current, QList<QmlEventData *>visited);
     void setState(State state);
+    void reloadDetails();
 
 private:
-    class QmlProfilerEventListPrivate;
-    QmlProfilerEventListPrivate *d;
+    class QmlProfilerDataModelPrivate;
+    QmlProfilerDataModelPrivate *d;
+
+    friend class QV8ProfilerDataModel;
 };
 
 
-} // namespace QmlJsDebugClient
+} // namespace Internal
+} // namespace QmlProfiler
 
-#endif // QMLPROFILEREVENTLIST_H
+#endif // QMLPROFILERDATAMODEL_H

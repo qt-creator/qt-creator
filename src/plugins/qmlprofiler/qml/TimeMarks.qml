@@ -91,15 +91,15 @@ Canvas2D {
 
         // gray off out-of-bounds areas
         var rectWidth;
-        if (startTime < qmlEventList.traceStartTime()) {
+        if (startTime < qmlProfilerDataModel.traceStartTime()) {
             ctxt.fillStyle = "rgba(127,127,127,0.2)";
-            rectWidth = (qmlEventList.traceStartTime() - startTime) * spacing;
+            rectWidth = (qmlProfilerDataModel.traceStartTime() - startTime) * spacing;
             ctxt.fillRect(0, 0, rectWidth, height);
         }
-        if (endTime > qmlEventList.traceEndTime()) {
+        if (endTime > qmlProfilerDataModel.traceEndTime()) {
             ctxt.fillStyle = "rgba(127,127,127,0.2)";
-            var rectX = (qmlEventList.traceEndTime() - startTime) * spacing;
-            rectWidth = (endTime - qmlEventList.traceEndTime()) * spacing;
+            var rectX = (qmlProfilerDataModel.traceEndTime() - startTime) * spacing;
+            rectWidth = (endTime - qmlProfilerDataModel.traceEndTime()) * spacing;
             ctxt.fillRect(rectX, 0, rectWidth, height);
         }
     }
@@ -126,8 +126,8 @@ Canvas2D {
         var cumulatedHeight = 0;
         for (var i=0; i<labels.rowCount; i++) {
             cumulatedHeight += root.singleRowHeight + (labels.rowExpanded[i] ?
-                    qmlEventList.uniqueEventsOfType(i) * root.singleRowHeight :
-                    qmlEventList.maxNestingForType(i) * root.singleRowHeight);
+                    qmlProfilerDataModel.uniqueEventsOfType(i) * root.singleRowHeight :
+                    qmlProfilerDataModel.maxNestingForType(i) * root.singleRowHeight);
 
             ctxt.strokeStyle = "#B0B0B0";
             ctxt.beginPath();

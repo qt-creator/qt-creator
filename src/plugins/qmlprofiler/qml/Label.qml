@@ -60,17 +60,19 @@ Item {
 
     function updateHeight() {
         height = root.singleRowHeight * (1 +
-            (expanded ? qmlEventList.uniqueEventsOfType(typeIndex) : qmlEventList.maxNestingForType(typeIndex)));
+            (expanded ? qmlProfilerDataModel.uniqueEventsOfType(typeIndex) :
+                        qmlProfilerDataModel.maxNestingForType(typeIndex)));
     }
 
     function getDescriptions() {
         var desc=[];
         var ids=[];
         var extdesc=[];
-        for (var i=0; i<qmlEventList.uniqueEventsOfType(typeIndex); i++) {
-            desc[i] = qmlEventList.eventTextForType(typeIndex, i);
-            ids[i] = qmlEventList.eventIdForType(typeIndex, i);
-            extdesc[i] = qmlEventList.eventDisplayNameForType(typeIndex, i) + " : " + desc[i];
+        for (var i=0; i<qmlProfilerDataModel.uniqueEventsOfType(typeIndex); i++) {
+            desc[i] = qmlProfilerDataModel.eventTextForType(typeIndex, i);
+            ids[i] = qmlProfilerDataModel.eventIdForType(typeIndex, i);
+            extdesc[i] = qmlProfilerDataModel.eventDisplayNameForType(typeIndex, i) +
+                        " : " + desc[i];
         }
         descriptions = desc;
         eventIds = ids;
@@ -79,18 +81,18 @@ Item {
     }
 
     Connections {
-        target: qmlEventList
+        target: qmlProfilerDataModel
         onReloadDetailLabels: getDescriptions();
         onStateChanged: {
             // Empty
-            if (qmlEventList.getCurrentStateFromQml() == 0) {
+            if (qmlProfilerDataModel.getCurrentStateFromQml() == 0) {
                 descriptions = [];
                 eventIds = [];
                 extdescriptions = [];
                 updateHeight();
             } else
             // Done
-            if (qmlEventList.getCurrentStateFromQml() == 3) {
+            if (qmlProfilerDataModel.getCurrentStateFromQml() == 3) {
                 getDescriptions();
             }
         }

@@ -36,12 +36,10 @@
 #include <analyzerbase/ianalyzertool.h>
 #include <analyzerbase/ianalyzerengine.h>
 
-#include <QPoint>
+class QMessageBox;
 
 namespace QmlProfiler {
 namespace Internal {
-
-#define TraceFileExtension ".qtd"
 
 class QmlProfilerTool : public Analyzer::IAnalyzerTool
 {
@@ -72,49 +70,37 @@ public:
     QWidget *createWidgets();
     void startTool(Analyzer::StartMode mode);
 
-public slots:
-    void connectClient(quint16 port);
-    void disconnectClient();
+    QList <QAction *> profilerContextMenuActions() const;
 
-    void startRecording();
-    void stopRecording();
+    // display dialogs / log output
+    static QMessageBox *requestMessageBox();
+    static void handleHelpRequest(const QString &link);
+    static void logStatus(const QString &msg);
+    static void logError(const QString &msg);
+    static void showNonmodalWarning(const QString &warningMsg);
+
+public slots:
+    void profilerStateChanged();
+    void clientRecordingChanged();
+    void serverRecordingChanged();
+
     void recordingButtonChanged(bool recording);
     void setRecording(bool recording);
 
-    void setAppIsRunning();
-    void setAppIsStopped();
-
     void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber);
-    void updateTimers();
-    void profilerStateChanged(bool qmlActive, bool v8active);
-
-    void clearDisplay();
-
-    void showContextMenu(const QPoint &position);
-
-signals:
-    void setTimeLabel(const QString &);
-    void setStatusLabel(const QString &);
-    void fetchingData(bool);
-    void connectionFailed();
-    void cancelRun();
 
 private slots:
-    void tryToConnect();
-    void connectionStateChanged();
+    void clearData();
+    void showErrorDialog(const QString &error);
+    void profilerDataModelStateChanged();
+    void updateTimeDisplay();
+
     void showSaveOption();
     void showSaveDialog();
     void showLoadDialog();
-    void showErrorDialog(const QString &error);
-    void retryMessageBoxFinished(int result);
-    void eventListStateChanged();
 
 private:
-    void connectToClient();
-    void updateRecordingState();
-    void ensureWidgets();
-    void logStatus(const QString &msg);
-    void logError(const QString &msg);
+    void clearDisplay();
 
     class QmlProfilerToolPrivate;
     QmlProfilerToolPrivate *d;

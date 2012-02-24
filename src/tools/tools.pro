@@ -1,7 +1,6 @@
 TEMPLATE = subdirs
 
 SUBDIRS = qtpromaker \
-    qmlprofilertool \
      qmlpuppet
 
 win32 {

@@ -159,6 +159,12 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         int event;
         stream >> event;
 
+        // stop with the first data
+        if (d->recording && event != StartTrace)
+            setRecordingFromServer(false);
+        else if ((!d->recording) && event == StartTrace)
+            setRecordingFromServer(true);
+
         if (event == EndTrace) {
             emit this->traceFinished(time);
             d->maximumTime = time;
@@ -169,9 +175,6 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
             emit this->frame(time, frameRate, animationCount);
             d->maximumTime = qMax(time, d->maximumTime);
         } else if (event == StartTrace) {
-            // special: StartTrace is now asynchronous
-            if (!d->recording)
-                setRecordingFromServer(true);
             emit this->traceStarted(time);
             d->maximumTime = time;
         } else if (event < MaximumEventType) {
@@ -191,6 +194,9 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
             d->rangeStartTimes[range].push(time);
             d->inProgressRanges |= (static_cast<qint64>(1) << range);
             ++d->rangeCount[range];
+            // stop with the first data
+            if (d->recording)
+                setRecordingFromServer(false);
         } else if (messageType == RangeData) {
             QString data;
             stream >> data;

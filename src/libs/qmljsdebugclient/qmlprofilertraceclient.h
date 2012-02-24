@@ -80,10 +80,9 @@ public:
 
     bool isEnabled() const;
     bool isRecording() const;
+    void setRecording(bool);
 
 public slots:
-    void setRecording(bool);
-    void setRecordingFromServer(bool);
     void clearData();
     void sendRecordingStatus();
 
@@ -105,6 +104,9 @@ signals:
 protected:
     virtual void statusChanged(Status);
     virtual void messageReceived(const QByteArray &);
+
+private:
+    void setRecordingFromServer(bool);
 
 private:
     class QmlProfilerTraceClientPrivate *d;

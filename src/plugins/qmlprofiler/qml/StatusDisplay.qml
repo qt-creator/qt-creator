@@ -69,7 +69,7 @@ Item {
     states: [
         // no data available
         State {
-            when: (root.eventCount == 0) && !elapsedTimer.running
+            when: (root.eventCount == 0) && !root.recordingEnabled
             PropertyChanges {
                 target: statusDisplay
                 visible: true
@@ -85,7 +85,7 @@ Item {
         },
         // running app
         State {
-            when: elapsedTimer.running
+            when: root.recordingEnabled
             PropertyChanges {
                 target: statusDisplay
                 visible: true
@@ -99,7 +99,7 @@ Item {
         // loading data
         State {
             name: "loading"
-            when: (!root.dataAvailable) && (root.eventCount > 0) && !root.applicationDied
+            when: !root.dataAvailable && (root.eventCount > 0) && !root.appKilled
             PropertyChanges {
                 target: statusDisplay
                 visible: true
@@ -118,7 +118,7 @@ Item {
         // application died
         State {
             name: "deadApp"
-            when: (!root.dataAvailable) && (root.eventCount > 0) && root.applicationDied
+            when: !root.dataAvailable && (root.eventCount > 0) && root.appKilled
             PropertyChanges {
                 target: statusDisplay
                 visible: true

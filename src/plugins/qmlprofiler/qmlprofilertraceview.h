@@ -30,24 +30,23 @@
 **
 **************************************************************************/
 
-#ifndef TRACEWINDOW_H
-#define TRACEWINDOW_H
+#ifndef QMLPROFILERTRACEVIEW_H
+#define QMLPROFILERTRACEVIEW_H
 
-#include <qmljsdebugclient/qmlprofilertraceclient.h>
-#include <qmljsdebugclient/qmlprofilereventlist.h>
-#include "qmlprofilerdetailsrewriter.h"
-#include <qmljsdebugclient/qv8profilerclient.h>
-
-#include <QPointer>
-#include <QWidget>
-#include <QToolButton>
-
-#include <QEvent>
 #include <QDeclarativeView>
+
+namespace Analyzer {
+class IAnalyzerTool;
+}
 
 namespace QmlProfiler {
 namespace Internal {
 
+class QmlProfilerStateManager;
+class QmlProfilerViewManager;
+class QmlProfilerDataModel;
+
+// capture mouse wheel events
 class MouseWheelResizer : public QObject {
     Q_OBJECT
 public:
@@ -87,117 +86,73 @@ protected:
     void scrollContentsBy(int dx, int dy);
 };
 
-class TraceWindow : public QWidget
+class QmlProfilerTraceView : public QWidget
 {
     Q_OBJECT
 
 public:
-    TraceWindow(QWidget *parent = 0);
-    ~TraceWindow();
+    explicit QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerTool *profilerTool, QmlProfilerViewManager *container, QmlProfilerDataModel *model, QmlProfilerStateManager *profilerState);
+    ~QmlProfilerTraceView();
 
-    void reset(QmlJsDebugClient::QDeclarativeDebugConnection *conn);
-
-    QmlJsDebugClient::QmlProfilerEventList *getEventList() const;
-    ZoomControl *rangeTimes() const;
-
-    void setRecording(bool recording);
-    bool isRecording() const;
-    void viewAll();
+    void reset();
 
     bool hasValidSelection() const;
     qint64 selectionStart() const;
     qint64 selectionEnd() const;
-    double profiledTime() const;
 
 public slots:
     void clearDisplay();
-    void selectNextEvent(int eventId);
-    void applicationDied();
+    void selectNextEventWithId(int eventId);
 
 private slots:
     void updateCursorPosition();
-    void updateTimer();
-    void updateToolbar();
     void toggleRangeMode(bool);
-    void toggleLockMode(bool);
     void updateRangeButton();
+    void toggleLockMode(bool);
     void updateLockButton();
+
     void setZoomLevel(int zoomLevel);
     void updateRange();
-    void mouseWheelMoved(int x, int y, int delta);
+    void mouseWheelMoved(int mouseX, int mouseY, int wheelDelta);
 
-    void qmlComplete();
-    void v8Complete();
-    void updateProfilerState();
     void updateToolTip(const QString &text);
     void updateVerticalScroll(int newPosition);
-    void eventListStateChanged();
-    void manageTraceStart(qint64 traceStart);
-    void firstDataReceived();
-    void correctTimer();
+    void profilerDataModelStateChanged();
+
+protected:
+    virtual void resizeEvent(QResizeEvent *event);
+
+private slots:
+    void profilerStateChanged();
+    void clientRecordingChanged();
+    void serverRecordingChanged();
 
 signals:
-    void viewUpdated();
-    void profilerStateChanged(bool qmlActive, bool v8active);
     void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columNumber);
-    void range(int type, qint64 startTime, qint64 length, const QStringList &data, const QmlJsDebugClient::QmlEventLocation &location);
-    void v8range(int depth,const QString &function,const QString &filename,
-               int lineNumber, double totalTime, double selfTime);
-    void traceFinished(qint64);
-    void traceStarted(qint64);
-    void frameEvent(qint64, int, int);
-    void recordingChanged(bool);
+    void selectedEventChanged(int eventId);
 
-    void internalClearDisplay();
-    void clearViewsFromTool();
     void jumpToPrev();
     void jumpToNext();
     void rangeModeChanged(bool);
     void lockModeChanged(bool);
     void enableToolbar(bool);
     void zoomLevelChanged(int);
-    void updateViewZoom(QVariant zoomLevel);
-    void wheelZoom(QVariant wheelCenter, QVariant wheelDelta);
-    void globalZoom();
-
-    void contextMenuRequested(const QPoint& position);
-    void selectNextEventInDisplay(QVariant eventId);
-    void selectedEventIdChanged(int eventId);
 
 private:
     void contextMenuEvent(QContextMenuEvent *);
     QWidget *createToolbar();
     QWidget *createZoomToolbar();
-    void connectClientSignals();
-    void disconnectClientSignals();
 
-protected:
-    virtual void resizeEvent(QResizeEvent *event);
+    void setRecording(bool recording);
+    void setAppKilled();
 
 private:
-    QWeakPointer<QmlJsDebugClient::QmlProfilerTraceClient> m_plugin;
-    QWeakPointer<QmlJsDebugClient::QV8ProfilerClient> m_v8plugin;
-    QSize m_sizeHint;
-
-    ScrollableDeclarativeView *m_mainView;
-    QDeclarativeView *m_timebar;
-    QDeclarativeView *m_overview;
-    QmlJsDebugClient::QmlProfilerEventList *m_eventList;
-    QmlProfilerDetailsRewriter *m_rewriter;
-    bool m_qmlDataReady;
-    bool m_v8DataReady;
-    double m_profiledTime;
-
-    QWeakPointer<ZoomControl> m_zoomControl;
-
-    QToolButton *m_buttonRange;
-    QToolButton *m_buttonLock;
-    QWidget *m_zoomToolbar;
-    int m_currentZoomLevel;
+    class QmlProfilerTraceViewPrivate;
+    QmlProfilerTraceViewPrivate *d;
 };
 
 } // namespace Internal
 } // namespace QmlProfiler
 
-#endif // TRACEWINDOW_H
+#endif // QMLPROFILERTRACEVIEW_H
 

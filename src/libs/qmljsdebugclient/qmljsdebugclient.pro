@@ -11,6 +11,3 @@ OTHER_FILES += \
     qmljsdebugclient.pri \
     qmljsdebugclient-lib.pri
 
-HEADERS += \
-    qmlprofilereventlocation.h
-

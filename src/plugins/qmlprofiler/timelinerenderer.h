@@ -30,29 +30,29 @@
 **
 **************************************************************************/
 
-#ifndef TIMELINEVIEW_H
-#define TIMELINEVIEW_H
+#ifndef TIMELINERENDERER_H
+#define TIMELINERENDERER_H
 
 #include <QDeclarativeItem>
 #include <QScriptValue>
-#include <qmljsdebugclient/qmlprofilereventlist.h>
+#include "qmlprofilerdatamodel.h"
 
 namespace QmlProfiler {
 namespace Internal {
 
-class TimelineView : public QDeclarativeItem
+class TimelineRenderer : public QDeclarativeItem
 {
     Q_OBJECT
     Q_PROPERTY(qint64 startTime READ startTime WRITE setStartTime NOTIFY startTimeChanged)
     Q_PROPERTY(qint64 endTime READ endTime WRITE setEndTime NOTIFY endTimeChanged)
-    Q_PROPERTY(QObject* eventList READ eventList WRITE setEventList NOTIFY eventListChanged)
+    Q_PROPERTY(QObject* profilerDataModel READ profilerDataModel WRITE setProfilerDataModel NOTIFY profilerDataModelChanged)
     Q_PROPERTY(bool selectionLocked READ selectionLocked WRITE setSelectionLocked NOTIFY selectionLockedChanged)
     Q_PROPERTY(int selectedItem READ selectedItem WRITE setSelectedItem NOTIFY selectedItemChanged)
     Q_PROPERTY(int startDragArea READ startDragArea WRITE setStartDragArea NOTIFY startDragAreaChanged)
     Q_PROPERTY(int endDragArea READ endDragArea WRITE setEndDragArea NOTIFY endDragAreaChanged)
 
 public:
-    explicit TimelineView(QDeclarativeItem *parent = 0);
+    explicit TimelineRenderer(QDeclarativeItem *parent = 0);
 
     qint64 startTime() const
     {
@@ -84,11 +84,11 @@ public:
         return m_endDragArea;
     }
 
-    QmlJsDebugClient::QmlProfilerEventList *eventList() const { return m_eventList; }
-    void setEventList(QObject *eventList)
+    QmlProfilerDataModel *profilerDataModel() const { return m_profilerDataModel; }
+    void setProfilerDataModel(QObject *profilerDataModel)
     {
-        m_eventList = qobject_cast<QmlJsDebugClient::QmlProfilerEventList *>(eventList);
-        emit eventListChanged(m_eventList);
+        m_profilerDataModel = qobject_cast<QmlProfilerDataModel *>(profilerDataModel);
+        emit profilerDataModelChanged(m_profilerDataModel);
     }
 
     Q_INVOKABLE qint64 getDuration(int index) const;
@@ -109,7 +109,7 @@ public:
 signals:
     void startTimeChanged(qint64 arg);
     void endTimeChanged(qint64 arg);
-    void eventListChanged(QmlJsDebugClient::QmlProfilerEventList *list);
+    void profilerDataModelChanged(QmlProfilerDataModel *list);
     void selectionLockedChanged(bool locked);
     void selectedItemChanged(int itemIndex);
     void startDragAreaChanged(int startDragArea);
@@ -195,7 +195,7 @@ private:
     qint64 m_lastStartTime;
     qint64 m_lastEndTime;
 
-    QmlJsDebugClient::QmlProfilerEventList *m_eventList;
+    QmlProfilerDataModel *m_profilerDataModel;
 
     QList<int> m_rowLastX;
     QList<int> m_rowStarts;
@@ -218,6 +218,6 @@ private:
 } // namespace Internal
 } // namespace QmlProfiler
 
-QML_DECLARE_TYPE(QmlProfiler::Internal::TimelineView)
+QML_DECLARE_TYPE(QmlProfiler::Internal::TimelineRenderer)
 
-#endif // TIMELINEVIEW_H
+#endif // TIMELINERENDERER_H

@@ -51,8 +51,8 @@ Canvas2D {
     }
 
     function updateRange() {
-        var newStartTime = Math.round(rangeMover.x * qmlEventList.traceDuration() / width) + qmlEventList.traceStartTime();
-        var newEndTime = Math.round((rangeMover.x + rangeMover.width) * qmlEventList.traceDuration() / width) + qmlEventList.traceStartTime();
+        var newStartTime = Math.round(rangeMover.x * qmlProfilerDataModel.traceDuration() / width) + qmlProfilerDataModel.traceStartTime();
+        var newEndTime = Math.round((rangeMover.x + rangeMover.width) * qmlProfilerDataModel.traceDuration() / width) + qmlProfilerDataModel.traceStartTime();
         if (startTime !== newStartTime || endTime !== newEndTime) {
             zoomControl.setRange(newStartTime, newEndTime);
         }
@@ -62,13 +62,13 @@ Canvas2D {
     Connections {
         target: zoomControl
         onRangeChanged: {
-            if (qmlEventList) {
+            if (qmlProfilerDataModel) {
                 startTime = zoomControl.startTime();
                 endTime = zoomControl.endTime();
-                var newRangeX = (startTime - qmlEventList.traceStartTime()) * width / qmlEventList.traceDuration();
+                var newRangeX = (startTime - qmlProfilerDataModel.traceStartTime()) * width / qmlProfilerDataModel.traceDuration();
                 if (rangeMover.x !== newRangeX)
                     rangeMover.x = newRangeX;
-                var newWidth = (endTime-startTime) * width / qmlEventList.traceDuration();
+                var newWidth = (endTime-startTime) * width / qmlProfilerDataModel.traceDuration();
                 if (rangeMover.width !== newWidth)
                     rangeMover.width = newWidth;
             }
@@ -76,10 +76,10 @@ Canvas2D {
     }
 
     Connections {
-        target: qmlEventList
+        target: qmlProfilerDataModel
         onStateChanged: {
             // State is "done"
-            if (qmlEventList.getCurrentStateFromQml() == 3) {
+            if (qmlProfilerDataModel.getCurrentStateFromQml() == 3) {
                 dataAvailable = true;
                 requestRedraw();
             }
@@ -88,7 +88,7 @@ Canvas2D {
 
     // ***** slots
     onDrawRegion: {
-        Plotter.qmlEventList = qmlEventList;
+        Plotter.qmlProfilerDataModel = qmlProfilerDataModel;
         if (dataAvailable) {
             Plotter.plot(canvas, ctxt, region);
         } else {

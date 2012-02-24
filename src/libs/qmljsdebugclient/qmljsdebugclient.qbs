@@ -24,7 +24,7 @@ DynamicLibrary {
         "qdeclarativeoutputparser.h",
         "qmljsdebugclient_global.h",
         "qmljsdebugclientconstants.h",
-        "qmlprofilereventlist.h",
+        "qmlprofilereventlocation.h",
         "qmlprofilertraceclient.cpp",
         "qpacketprotocol.cpp",
         "qv8profilerclient.cpp",
@@ -36,7 +36,6 @@ DynamicLibrary {
         "qmlprofilertraceclient.h",
         "qpacketprotocol.h",
         "qdebugmessageclient.cpp",
-        "qmlprofilereventlist.cpp",
         "qdebugmessageclient.h"
     ]
 

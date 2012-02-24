@@ -32,7 +32,7 @@
 
 .pragma library
 
-var qmlEventList = 0;
+var qmlProfilerDataModel = 0;
 
 //draw background of the graph
 function drawGraph(canvas, ctxt, region)
@@ -44,7 +44,7 @@ function drawGraph(canvas, ctxt, region)
 //draw the actual data to be graphed
 function drawData(canvas, ctxt, region)
 {
-    if ((!qmlEventList) || qmlEventList.count() == 0)
+    if ((!qmlProfilerDataModel) || qmlProfilerDataModel.count() == 0)
         return;
 
     var typeCount = 5;
@@ -53,17 +53,18 @@ function drawData(canvas, ctxt, region)
     var height = canvas.height - bump;
     var blockHeight = height / typeCount;
 
-    var spacing = width / qmlEventList.traceDuration();
+    var spacing = width / qmlProfilerDataModel.traceDuration();
 
     var highest = [0,0,0,0,0]; // note: change if typeCount changes
 
-    for (var ii = 0; ii < qmlEventList.count(); ++ii) {
+    for (var ii = 0; ii < qmlProfilerDataModel.count(); ++ii) {
 
-        var xx = (qmlEventList.getStartTime(ii) - qmlEventList.traceStartTime()) * spacing;
+        var xx = (qmlProfilerDataModel.getStartTime(ii) -
+                  qmlProfilerDataModel.traceStartTime()) * spacing;
         if (xx > region.x + region.width)
             continue;
 
-        var eventWidth = qmlEventList.getDuration(ii) * spacing;
+        var eventWidth = qmlProfilerDataModel.getDuration(ii) * spacing;
         if (xx + eventWidth < region.x)
             continue;
 
@@ -71,24 +72,26 @@ function drawData(canvas, ctxt, region)
             eventWidth = 1;
 
         xx = Math.round(xx);
-        var ty = qmlEventList.getType(ii);
+        var ty = qmlProfilerDataModel.getType(ii);
         if (xx + eventWidth > highest[ty]) {
             // special: animations
-            if (ty === 0 && qmlEventList.getAnimationCount(ii) >= 0) {
-                var vertScale = qmlEventList.getMaximumAnimationCount() - qmlEventList.getMinimumAnimationCount();
+            if (ty === 0 && qmlProfilerDataModel.getAnimationCount(ii) >= 0) {
+                var vertScale = qmlProfilerDataModel.getMaximumAnimationCount() -
+                        qmlProfilerDataModel.getMinimumAnimationCount();
                 if (vertScale < 1)
                     vertScale = 1;
-                var fraction = (qmlEventList.getAnimationCount(ii) - qmlEventList.getMinimumAnimationCount()) / vertScale;
+                var fraction = (qmlProfilerDataModel.getAnimationCount(ii) -
+                                qmlProfilerDataModel.getMinimumAnimationCount()) / vertScale;
                 var eventHeight = blockHeight * (fraction * 0.85 + 0.15);
                 var yy = bump + ty*blockHeight + blockHeight - eventHeight;
 
-                var fpsFraction = qmlEventList.getFramerate(ii) / 60.0;
+                var fpsFraction = qmlProfilerDataModel.getFramerate(ii) / 60.0;
                 if (fpsFraction > 1.0)
                     fpsFraction = 1.0;
                 ctxt.fillStyle = "hsl("+(fpsFraction*0.27+0.028)+",0.3,0.65)";
                 ctxt.fillRect(xx, yy, eventWidth, eventHeight);
             } else {
-                var hue = ( qmlEventList.getEventId(ii) * 25 ) % 360;
+                var hue = ( qmlProfilerDataModel.getEventId(ii) * 25 ) % 360;
                 ctxt.fillStyle = "hsl("+(hue/360.0+0.001)+",0.3,0.65)";
                 ctxt.fillRect(xx, bump + ty*blockHeight, eventWidth, blockHeight);
             }
@@ -100,12 +103,13 @@ function drawData(canvas, ctxt, region)
     ctxt.strokeStyle = "orange";
     ctxt.lineWidth = 2;
     var radius = 1;
-    for (var ii = 0; ii < qmlEventList.count(); ++ii) {
-        if (qmlEventList.getBindingLoopDest(ii) >= 0) {
-            var xcenter = Math.round(qmlEventList.getStartTime(ii) +
-                                     qmlEventList.getDuration(ii) -
-                                     qmlEventList.traceStartTime()) * spacing;
-            var ycenter = Math.round(bump + qmlEventList.getType(ii) * blockHeight + blockHeight/2);
+    for (var ii = 0; ii < qmlProfilerDataModel.count(); ++ii) {
+        if (qmlProfilerDataModel.getBindingLoopDest(ii) >= 0) {
+            var xcenter = Math.round(qmlProfilerDataModel.getStartTime(ii) +
+                                     qmlProfilerDataModel.getDuration(ii) -
+                                     qmlProfilerDataModel.traceStartTime()) * spacing;
+            var ycenter = Math.round(bump + qmlProfilerDataModel.getType(ii) *
+                                     blockHeight + blockHeight/2);
             ctxt.arc(xcenter, ycenter, radius, 0, 2*Math.PI, true);
             ctxt.stroke();
         }
@@ -114,19 +118,20 @@ function drawData(canvas, ctxt, region)
 
 function drawTimeBar(canvas, ctxt, region)
 {
-    if (!qmlEventList)
+    if (!qmlProfilerDataModel)
         return;
 
     var width = canvas.width;
     var height = 10;
-    var startTime = qmlEventList.traceStartTime();
-    var endTime = qmlEventList.traceEndTime();
+    var startTime = qmlProfilerDataModel.traceStartTime();
+    var endTime = qmlProfilerDataModel.traceEndTime();
 
-    var totalTime = qmlEventList.traceDuration();
+    var totalTime = qmlProfilerDataModel.traceDuration();
     var spacing = width / totalTime;
 
     var initialBlockLength = 120;
-    var timePerBlock = Math.pow(2, Math.floor( Math.log( totalTime / width * initialBlockLength ) / Math.LN2 ) );
+    var timePerBlock = Math.pow(2, Math.floor( Math.log( totalTime / width *
+                       initialBlockLength ) / Math.LN2 ) );
     var pixelsPerBlock = timePerBlock * spacing;
     var pixelsPerSection = pixelsPerBlock / 5;
     var blockCount = width / pixelsPerBlock;

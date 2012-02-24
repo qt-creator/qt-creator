@@ -118,6 +118,16 @@ void QV8ProfilerClient::setRecording(bool v)
     emit recordingChanged(v);
 }
 
+void QV8ProfilerClient::setRecordingFromServer(bool v)
+{
+    if (v == d->recording)
+        return;
+
+    d->recording = v;
+
+    emit recordingChanged(v);
+}
+
 void QV8ProfilerClient::statusChanged(Status /*status*/)
 {
     emit enabledChanged();
@@ -133,7 +143,10 @@ void QV8ProfilerClient::messageReceived(const QByteArray &data)
     stream >> messageType;
 
     if (messageType == V8Complete) {
+        setRecordingFromServer(false);
         emit complete();
+    } else if (messageType == V8ProfilingStarted) {
+        setRecordingFromServer(true);
     } else if (messageType == V8Entry) {
         QString filename;
         QString function;

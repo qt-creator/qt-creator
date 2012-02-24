@@ -35,8 +35,6 @@
 #include "codaqmlprofilerrunner.h"
 #include "localqmlprofilerrunner.h"
 #include "remotelinuxqmlprofilerrunner.h"
-#include "qmlprofilerplugin.h"
-#include "qmlprofilertool.h"
 
 #include <analyzerbase/analyzermanager.h>
 #include <coreplugin/icore.h>
@@ -76,16 +74,11 @@ public:
 
     QmlProfilerEngine *q;
 
-    //AnalyzerStartParameters m_params;
+    QmlProfilerStateManager *m_profilerState;
+
     AbstractQmlProfilerRunner *m_runner;
-    bool m_running;
-    bool m_fetchingData;
-    bool m_hasData;
-    bool m_fetchDataFromStart;
-    bool m_delayedDelete;
     QTimer m_noDebugOutputTimer;
     QmlJsDebugClient::QDeclarativeOutputParser m_outputParser;
-    QTimer m_runningTimer;
 };
 
 AbstractQmlProfilerRunner *
@@ -137,10 +130,7 @@ QmlProfilerEngine::QmlProfilerEngine(IAnalyzerTool *tool,
     : IAnalyzerEngine(tool, sp, runConfiguration)
     , d(new QmlProfilerEnginePrivate(this))
 {
-    d->m_running = false;
-    d->m_fetchingData = false;
-    d->m_fetchDataFromStart = false;
-    d->m_delayedDelete = false;
+    d->m_profilerState = 0;
 
     // Only wait 4 seconds for the 'Waiting for connection' on application ouput, then just try to connect
     // (application output might be redirected / blocked)
@@ -157,29 +147,31 @@ QmlProfilerEngine::QmlProfilerEngine(IAnalyzerTool *tool,
             this, SLOT(processIsRunning()));
     connect(&d->m_outputParser, SIGNAL(errorMessage(QString)),
             this, SLOT(wrongSetupMessageBox(QString)));
-
-    d->m_runningTimer.setInterval(100); // ten times per second
-    connect(&d->m_runningTimer, SIGNAL(timeout()), this, SIGNAL(timeUpdate()));
 }
 
 QmlProfilerEngine::~QmlProfilerEngine()
 {
-    if (d->m_running)
+    if (d->m_profilerState && d->m_profilerState->currentState() == QmlProfilerStateManager::AppRunning)
         stop();
     delete d;
 }
 
 bool QmlProfilerEngine::start()
 {
+    QTC_ASSERT(d->m_profilerState, return false);
+
     if (d->m_runner) {
         delete d->m_runner;
         d->m_runner = 0;
     }
 
+    d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStarting);
+
     if (QmlProjectManager::QmlProjectRunConfiguration *rc =
             qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration())) {
         if (rc->observerPath().isEmpty()) {
             QmlProjectManager::QmlProjectPlugin::showQmlObserverToolWarning();
+            d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
             AnalyzerManager::stopTool();
             return false;
         }
@@ -190,13 +182,14 @@ bool QmlProfilerEngine::start()
     if (LocalQmlProfilerRunner *qmlRunner = qobject_cast<LocalQmlProfilerRunner *>(d->m_runner)) {
         if (!qmlRunner->hasExecutable()) {
             showNonmodalWarning(tr("No executable file to launch."));
+            d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
             AnalyzerManager::stopTool();
             return false;
         }
     }
 
     if (d->m_runner) {
-        connect(d->m_runner, SIGNAL(stopped()), this, SLOT(stopped()));
+        connect(d->m_runner, SIGNAL(stopped()), this, SLOT(processEnded()));
         connect(d->m_runner, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
                 this, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
         d->m_runner->start();
@@ -205,81 +198,80 @@ bool QmlProfilerEngine::start()
         emit processRunning(startParameters().connParams.port);
     }
 
-
-    d->m_running = true;
-    d->m_delayedDelete = false;
-    d->m_runningTimer.start();
-
-    if (d->m_fetchDataFromStart) {
-        d->m_fetchingData = true;
-        d->m_hasData = false;
-    }
-
+    d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
     emit starting(this);
     return true;
 }
 
 void QmlProfilerEngine::stop()
 {
-    if (d->m_fetchingData) {
-        if (d->m_running)
-            d->m_delayedDelete = true;
-        // will result in dataReceived() call
-        emit stopRecording();
-        d->m_fetchDataFromStart = true;
-    } else {
-        finishProcess();
-        d->m_fetchDataFromStart = false;
+    QTC_ASSERT(d->m_profilerState, return);
+
+    switch (d->m_profilerState->currentState()) {
+    case QmlProfilerStateManager::AppRunning : {
+        d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStopRequested);
+        break;
+    }
+    case QmlProfilerStateManager::AppReadyToStop : {
+        cancelProcess();
+        break;
+    }
+    case QmlProfilerStateManager::AppKilled : {
+        d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
+        break;
+    }
+    default:
+        qDebug() << tr("Unexpected engine stop from state %1 in %2:%3").arg(d->m_profilerState->currentStateAsString(), QString(__FILE__), QString::number(__LINE__));
+        break;
     }
 }
 
-void QmlProfilerEngine::stopped()
+void QmlProfilerEngine::processEnded()
 {
-    // if it was killed, preserve recording flag
-    if (d->m_running)
-        d->m_fetchDataFromStart = d->m_fetchingData;
+    QTC_ASSERT(d->m_profilerState, return);
 
-    // user feedback
-    if (d->m_running && d->m_fetchingData && !d->m_hasData) {
-        showNonmodalWarning(tr("Application finished before loading profiled data.\n Please use the stop button instead."));
-        emit applicationDied();
-    }
+    switch (d->m_profilerState->currentState()) {
+    case QmlProfilerStateManager::AppRunning : {
+        d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppKilled);
+        AnalyzerManager::stopTool();
 
-    d->m_running = false;
-    d->m_runningTimer.stop();
-    AnalyzerManager::stopTool();
-    emit finished();
-    emit recordingChanged(d->m_fetchDataFromStart);
-}
-
-void QmlProfilerEngine::setFetchingData(bool b)
-{
-    d->m_fetchingData = b;
-    if (d->m_running && b)
-        d->m_hasData = false;
-    if (!d->m_running)
-        d->m_fetchDataFromStart = b;
-}
-
-void QmlProfilerEngine::dataReceived()
-{
-    if (d->m_delayedDelete)
-        finishProcess();
-    d->m_delayedDelete = false;
-    d->m_hasData = true;
-}
-
-void QmlProfilerEngine::finishProcess()
-{
-    // user stop?
-    if (d->m_running) {
-        d->m_running = false;
-        d->m_runningTimer.stop();
-        if (d->m_runner)
-            d->m_runner->stop();
         emit finished();
-        emit recordingChanged(d->m_fetchDataFromStart);
+        break;
     }
+    case QmlProfilerStateManager::AppStopped :
+        // fallthrough
+    case QmlProfilerStateManager::AppKilled : {
+        d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
+        break;
+    }
+    default:
+        qDebug() << tr("Process died unexpectedly from state %1 in %2:%3").arg(d->m_profilerState->currentStateAsString(), QString(__FILE__), QString::number(__LINE__));
+        break;
+    }
+}
+
+void QmlProfilerEngine::cancelProcess()
+{
+    QTC_ASSERT(d->m_profilerState, return);
+
+    switch (d->m_profilerState->currentState()) {
+    case QmlProfilerStateManager::AppReadyToStop : {
+        d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStopped);
+        break;
+    }
+    case QmlProfilerStateManager::AppRunning : {
+        d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppKilled);
+        break;
+    }
+    default: {
+        qDebug() << tr("Unexpected process termination requested with state %1 in %2:%3").arg(d->m_profilerState->currentStateAsString(), QString(__FILE__), QString::number(__LINE__));
+        return;
+    }
+    }
+
+    if (d->m_runner)
+        d->m_runner->stop();
+    emit finished();
 }
 
 void QmlProfilerEngine::logApplicationMessage(const QString &msg, Utils::OutputFormat format)
@@ -305,11 +297,10 @@ void QmlProfilerEngine::wrongSetupMessageBox(const QString &errorMessage)
 
     infoBox->show();
 
-    d->m_running = false;
-    d->m_runningTimer.stop();
+    // KILL
+    d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppKilled);
     AnalyzerManager::stopTool();
     emit finished();
-    emit recordingChanged(d->m_fetchDataFromStart);
 }
 
 void QmlProfilerEngine::wrongSetupMessageBoxFinished(int button)
@@ -346,6 +337,45 @@ void QmlProfilerEngine::processIsRunning(quint16 port)
         emit processRunning(port);
     else
         emit processRunning(d->m_runner->debugPort());
+}
+
+////////////////////////////////////////////////////////////////
+// Profiler State
+void QmlProfilerEngine::registerProfilerStateManager( QmlProfilerStateManager *profilerState )
+{
+    // disconnect old
+    if (d->m_profilerState) {
+        disconnect(d->m_profilerState, SIGNAL(stateChanged()), this, SLOT(profilerStateChanged()));
+    }
+
+    d->m_profilerState = profilerState;
+
+    // connect
+    if (d->m_profilerState) {
+        connect(d->m_profilerState, SIGNAL(stateChanged()), this, SLOT(profilerStateChanged()));
+    }
+}
+
+void QmlProfilerEngine::profilerStateChanged()
+{
+    switch (d->m_profilerState->currentState()) {
+    case QmlProfilerStateManager::AppReadyToStop : {
+        cancelProcess();
+        break;
+    }
+    case QmlProfilerStateManager::Idle : {
+        // for some reason the engine is not deleted when it goes to idle
+        // a new one will be created on the next run, and this one will
+        // be only deleted if the new one is running the same app
+
+        // we need to explictly disconnect it here without expecting a deletion
+        // as it will not be run any more, otherwise we will get funny side effects
+        registerProfilerStateManager(0);
+        break;
+    }
+    default:
+        break;
+    }
 }
 
 } // namespace Internal

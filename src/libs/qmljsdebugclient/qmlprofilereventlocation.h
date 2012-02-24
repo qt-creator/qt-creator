@@ -35,6 +35,8 @@
 
 #include "qmljsdebugclient_global.h"
 
+#include <QString>
+
 namespace QmlJsDebugClient {
 
 struct QMLJSDEBUGCLIENT_EXPORT QmlEventLocation

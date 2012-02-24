@@ -30,21 +30,53 @@
 **
 **************************************************************************/
 
-#ifndef CONSTANTS_H
-#define CONSTANTS_H
+#ifndef QMLPROFILERSTATEMANAGER_H
+#define QMLPROFILERSTATEMANAGER_H
 
-namespace Constants {
+#include <QObject>
 
-const char CMD_HELP[] ="help";
-const char CMD_HELP2[] = "h";
-const char CMD_HELP3[] = "?";
+namespace QmlProfiler {
+namespace Internal {
 
-const char CMD_RECORD[] ="record";
-const char CMD_RECORD2[] ="r";
+class QmlProfilerStateManager : public QObject
+{
+    Q_OBJECT
+public:
+    enum QmlProfilerState {
+        Idle,
+        AppStarting,
+        AppRunning,
+        AppStopRequested,
+        AppReadyToStop,
+        AppStopped,
+        AppKilled
+    };
 
-const char CMD_QUIT[] ="quit";
-const char CMD_QUIT2[] = "q";
+    explicit QmlProfilerStateManager(QObject *parent = 0);
+    ~QmlProfilerStateManager();
 
-} // Contants
+    QmlProfilerState currentState();
+    bool clientRecording();
+    bool serverRecording();
 
-#endif // CONSTANTS_H
+    QString currentStateAsString();
+
+signals:
+    void stateChanged();
+    void clientRecordingChanged();
+    void serverRecordingChanged();
+
+public slots:
+    void setCurrentState(QmlProfilerState newState);
+    void setClientRecording(bool recording);
+    void setServerRecording(bool recording);
+
+private:
+    class QmlProfilerStateManagerPrivate;
+    QmlProfilerStateManagerPrivate *d;
+};
+
+}
+}
+
+#endif // QMLPROFILERSTATEMANAGER_H

@@ -30,55 +30,73 @@
 **
 **************************************************************************/
 
-#ifndef QMLPROFILERENGINE_H
-#define QMLPROFILERENGINE_H
+#ifndef QMLPROFILERCLIENTMANAGER_H
+#define QMLPROFILERCLIENTMANAGER_H
 
-#include <analyzerbase/ianalyzerengine.h>
+#include <QObject>
+#include <QStringList>
+
 #include "qmlprofilerstatemanager.h"
-#include <utils/outputformat.h>
+#include <qmljsdebugclient/qmlprofilereventlocation.h>
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerEngine : public Analyzer::IAnalyzerEngine
+class QmlProfilerClientManager : public QObject
 {
     Q_OBJECT
-
 public:
-    QmlProfilerEngine(Analyzer::IAnalyzerTool *tool,
-                      const Analyzer::AnalyzerStartParameters &sp,
-                      ProjectExplorer::RunConfiguration *runConfiguration);
-    ~QmlProfilerEngine();
+    explicit QmlProfilerClientManager(QObject *parent = 0);
+    ~QmlProfilerClientManager();
 
-    void registerProfilerStateManager( QmlProfilerStateManager *profilerState );
+    void registerProfilerStateManager(QmlProfilerStateManager *profilerState);
 
-    static void showNonmodalWarning(const QString &warningMsg);
+    void setTcpConnection(QString host, quint64 port);
+    void setOstConnection(QString ostDevice);
+
+    void clearBufferedData();
+
 signals:
-    void processRunning(quint16 port);
-    void timeUpdate();
+    void connectionFailed();
+
+    // data
+    void addRangedEvent(int,qint64,qint64,QStringList,QmlJsDebugClient::QmlEventLocation);
+    void addV8Event(int,QString,QString,int,double,double);
+    void addFrameEvent(qint64,int,int);
+    void traceStarted(qint64);
+    void traceFinished(qint64);
+    void dataReadyForProcessing();
 
 public slots:
-    bool start();
-    void stop();
+    void connectClient(quint16 port);
+    void disconnectClient();
 
 private slots:
-    void processEnded();
+    void tryToConnect();
+    void connectionStateChanged();
+    void retryMessageBoxFinished(int result);
 
-    void cancelProcess();
-    void logApplicationMessage(const QString &msg, Utils::OutputFormat format);
-    void wrongSetupMessageBox(const QString &errorMessage);
-    void wrongSetupMessageBoxFinished(int);
-    void processIsRunning(quint16 port = 0);
+    void qmlComplete();
+    void v8Complete();
 
-private slots:
     void profilerStateChanged();
+    void clientRecordingChanged();
+    void serverRecordingChanged();
 
 private:
-    class QmlProfilerEnginePrivate;
-    QmlProfilerEnginePrivate *d;
+    class QmlProfilerClientManagerPrivate;
+    QmlProfilerClientManagerPrivate *d;
+
+    void connectToClient();
+
+    void enableServices();
+    void connectClientSignals();
+    void disconnectClientSignals();
+
+    void stopClientsRecording();
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+}
+}
 
-#endif // QMLPROFILERENGINE_H
+#endif // QMLPROFILERCLIENTMANAGER_H

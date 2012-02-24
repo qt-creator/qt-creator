@@ -35,7 +35,7 @@
 
 #include <QObject>
 
-#include "qmljsdebugclient/qmlprofilereventlocation.h"
+#include <qmljsdebugclient/qmlprofilereventlocation.h>
 #include <qmljs/qmljsdocument.h>
 
 namespace QmlProfiler {

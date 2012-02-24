@@ -34,18 +34,19 @@
 #define QMLPROFILEREVENTVIEW_H
 
 #include <QTreeView>
-#include <qmljsdebugclient/qmlprofilereventtypes.h>
-#include <qmljsdebugclient/qmlprofilereventlist.h>
 #include <QStandardItemModel>
+#include <qmljsdebugclient/qmlprofilereventtypes.h>
+#include "qmlprofilerdatamodel.h"
+
+#include <analyzerbase/ianalyzertool.h>
+
+#include "qmlprofilerviewmanager.h"
 
 namespace QmlProfiler {
 namespace Internal {
 
 class QmlProfilerEventsMainView;
 class QmlProfilerEventsParentsAndChildrenView;
-
-typedef QHash<QString, QmlJsDebugClient::QmlEventData *> QmlEventHash;
-typedef QList<QmlJsDebugClient::QmlEventData *> QmlEventList;
 
 enum ItemRole {
     EventHashStrRole = Qt::UserRole+1,
@@ -59,7 +60,10 @@ class QmlProfilerEventsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerEventsWidget(QmlJsDebugClient::QmlProfilerEventList *model, QWidget *parent);
+    explicit QmlProfilerEventsWidget(QWidget *parent,
+                                     Analyzer::IAnalyzerTool *profilerTool,
+                                     QmlProfilerViewManager *container,
+                                     QmlProfilerDataModel *profilerDataModel );
     ~QmlProfilerEventsWidget();
 
     void switchToV8View();
@@ -75,9 +79,11 @@ public:
     void setShowExtendedStatistics(bool show);
     bool showExtendedStatistics() const;
 
+    bool isQml() const;
+    bool isV8() const;
+
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
-    void contextMenuRequested(const QPoint &position);
     void showEventInTimeline(int eventId);
 
 public slots:
@@ -85,18 +91,14 @@ public slots:
     void selectBySourceLocation(const QString &filename, int line, int column);
 
 private slots:
-    void eventListStateChanged();
+    void profilerDataModelStateChanged();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *ev);
 
 private:
-    QmlProfilerEventsMainView *m_eventTree;
-    QmlProfilerEventsParentsAndChildrenView *m_eventChildren;
-    QmlProfilerEventsParentsAndChildrenView *m_eventParents;
-    QmlJsDebugClient::QmlProfilerEventList *m_eventStatistics;
-
-    bool m_globalStatsEnabled;
+    class QmlProfilerEventsWidgetPrivate;
+    QmlProfilerEventsWidgetPrivate *d;
 };
 
 class QmlProfilerEventsMainView : public QTreeView
@@ -129,12 +131,14 @@ public:
         MaxViewTypes
     };
 
-    explicit QmlProfilerEventsMainView(QmlJsDebugClient::QmlProfilerEventList *model, QWidget *parent);
+    explicit QmlProfilerEventsMainView(ViewTypes viewType,
+                                       QWidget *parent,
+                                       QmlProfilerDataModel *dataModel);
     ~QmlProfilerEventsMainView();
 
-    void setEventStatisticsModel(QmlJsDebugClient::QmlProfilerEventList *model);
     void setFieldViewable(Fields field, bool show);
     void setViewType(ViewTypes type);
+    ViewTypes viewType() const;
     void setShowAnonymousEvents( bool showThem );
 
     QModelIndex selectedItem() const;
@@ -157,13 +161,15 @@ signals:
     void showEventInTimeline(int eventId);
 
 public slots:
-    void eventListStateChanged();
     void clear();
     void jumpToItem(const QModelIndex &index);
     void selectEvent(int eventId);
     void selectEventByLocation(const QString &filename, int line);
     void buildModel();
     void changeDetailsForEvent(int eventId, const QString &newString);
+
+private slots:
+    void profilerDataModelStateChanged();
 
 private:
     void setHeaderLabels();
@@ -186,7 +192,9 @@ public:
         MaxSubtableTypes
     };
 
-    explicit QmlProfilerEventsParentsAndChildrenView(QmlJsDebugClient::QmlProfilerEventList *model, SubViewType subtableType, QWidget *parent);
+    explicit QmlProfilerEventsParentsAndChildrenView(SubViewType subtableType,
+                                                     QWidget *parent,
+                                                     QmlProfilerDataModel *model);
     ~QmlProfilerEventsParentsAndChildrenView();
 
     void setViewType(SubViewType type);
@@ -200,10 +208,10 @@ public slots:
     void clear();
 
 private:
-    void rebuildTree(void *eventList);
+    void rebuildTree(void *profilerDataModel);
     void updateHeader();
     QStandardItemModel *treeModel();
-    QmlJsDebugClient::QmlProfilerEventList *m_eventList;
+    QmlProfilerDataModel *m_profilerDataModel;
 
     SubViewType m_subtableType;
 };

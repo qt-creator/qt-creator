@@ -50,7 +50,7 @@ Rectangle {
     property string endTimeString: detailedPrintTime(startTime+duration)
     property string durationString: detailedPrintTime(duration)
 
-    property variant startTime: x * selectionRange.viewTimePerPixel + qmlEventList.traceStartTime()
+    property variant startTime: x * selectionRange.viewTimePerPixel + qmlProfilerDataModel.traceStartTime()
     property variant duration: width * selectionRange.viewTimePerPixel
     property variant viewTimePerPixel: 1
     property variant creationState : 0
