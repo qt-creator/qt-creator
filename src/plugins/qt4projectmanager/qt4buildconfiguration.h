@@ -144,7 +144,7 @@ signals:
     void buildDirectoryInitialized();
 
 private slots:
-    void qtVersionsChanged(const QList<int> &changedVersions);
+    void qtVersionsChanged(const QList<int> &addedVersions, const QList<int> &removedVersions, const QList<int> &changedVersions);
     void emitBuildDirectoryChanged();
     void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *, bool, bool parseInProgress);
 

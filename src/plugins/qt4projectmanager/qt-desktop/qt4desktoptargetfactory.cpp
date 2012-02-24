@@ -56,7 +56,7 @@ using ProjectExplorer::idFromMap;
 Qt4DesktopTargetFactory::Qt4DesktopTargetFactory(QObject *parent) :
     Qt4BaseTargetFactory(parent)
 {
-    connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>)),
+    connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
             this, SIGNAL(canCreateTargetIdsChanged()));
 }
 

@@ -241,8 +241,8 @@ QString MaemoToolChainFactory::id() const
 QList<ProjectExplorer::ToolChain *> MaemoToolChainFactory::autoDetect()
 {
     QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
-    connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
-            this, SLOT(handleQtVersionChanges(QList<int>)));
+    connect(vm, SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
+            this, SLOT(handleQtVersionChanges(QList<int>,QList<int>,QList<int>)));
 
     QList<int> versionList;
     foreach (QtSupport::BaseQtVersion *v, vm->versions())
@@ -266,8 +266,10 @@ ProjectExplorer::ToolChain *MaemoToolChainFactory::restore(const QVariantMap &da
     return 0;
 }
 
-void MaemoToolChainFactory::handleQtVersionChanges(const QList<int> &changes)
+void MaemoToolChainFactory::handleQtVersionChanges(const QList<int> &added, const QList<int> &removed, const QList<int> &changed)
 {
+    QList<int> changes;
+    changes << added << removed << changed;
     ProjectExplorer::ToolChainManager *tcm = ProjectExplorer::ToolChainManager::instance();
     QList<ProjectExplorer::ToolChain *> tcList = createToolChainList(changes);
     foreach (ProjectExplorer::ToolChain *tc, tcList)

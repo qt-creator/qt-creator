@@ -114,7 +114,7 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
     //
 
     QtVersionManager *qtVersions = QtVersionManager::instance();
-    connect(qtVersions, SIGNAL(qtVersionsChanged(QList<int>)),
+    connect(qtVersions, SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
             this, SLOT(updateQtVersionComboBox()));
 
     //

@@ -449,7 +449,7 @@ void QtVersionManager::addVersion(BaseQtVersion *version)
     int uniqueId = version->uniqueId();
     m_versions.insert(uniqueId, version);
 
-    emit qtVersionsChanged(QList<int>() << uniqueId);
+    emit qtVersionsChanged(QList<int>() << uniqueId, QList<int>(), QList<int>());
     saveQtVersions();
 }
 
@@ -457,7 +457,7 @@ void QtVersionManager::removeVersion(BaseQtVersion *version)
 {
     QTC_ASSERT(version != 0, return);
     m_versions.remove(version->uniqueId());
-    emit qtVersionsChanged(QList<int>() << version->uniqueId());
+    emit qtVersionsChanged(QList<int>(), QList<int>() << version->uniqueId(), QList<int>());
     saveQtVersions();
     delete version;
 }
@@ -623,6 +623,8 @@ void QtVersionManager::setNewQtVersions(QList<BaseQtVersion *> newVersions)
     SortByUniqueId sortByUniqueId;
     qSort(sortedNewVersions.begin(), sortedNewVersions.end(), sortByUniqueId);
 
+    QList<int> addedVersions;
+    QList<int> removedVersions;
     QList<int> changedVersions;
     // So we trying to find the minimal set of changed versions,
     // iterate over both sorted list
@@ -639,10 +641,10 @@ void QtVersionManager::setNewQtVersions(QList<BaseQtVersion *> newVersions)
         int nid = (*nit)->uniqueId();
         int oid = (*oit)->uniqueId();
         if (nid < oid) {
-            changedVersions.push_back(nid);
+            addedVersions.push_back(nid);
             ++nit;
         } else if (oid < nid) {
-            changedVersions.push_back(oid);
+            removedVersions.push_back(oid);
             ++oit;
         } else {
             if (!equals(*oit, *nit))
@@ -653,12 +655,12 @@ void QtVersionManager::setNewQtVersions(QList<BaseQtVersion *> newVersions)
     }
 
     while (nit != nend) {
-        changedVersions.push_back((*nit)->uniqueId());
+        addedVersions.push_back((*nit)->uniqueId());
         ++nit;
     }
 
     while (oit != oend) {
-        changedVersions.push_back((*oit)->uniqueId());
+        removedVersions.push_back((*oit)->uniqueId());
         ++oit;
     }
 
@@ -667,13 +669,13 @@ void QtVersionManager::setNewQtVersions(QList<BaseQtVersion *> newVersions)
     foreach (BaseQtVersion *v, sortedNewVersions)
         m_versions.insert(v->uniqueId(), v);
 
-    if (!changedVersions.isEmpty())
+    if (!changedVersions.isEmpty() || !addedVersions.isEmpty() || !removedVersions.isEmpty())
         updateDocumentation();
 
     saveQtVersions();
 
-    if (!changedVersions.isEmpty())
-        emit qtVersionsChanged(changedVersions);
+    if (!changedVersions.isEmpty() || !addedVersions.isEmpty() || !removedVersions.isEmpty())
+        emit qtVersionsChanged(addedVersions, removedVersions, changedVersions);
 }
 
 // Returns the version that was used to build the project in that directory

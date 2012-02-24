@@ -225,7 +225,7 @@ void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
 
     qtVersionsChanged();
     QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
-    connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
+    connect(vm, SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
             this, SLOT(qtVersionsChanged()));
 
     bool shadowBuild = m_buildConfiguration->shadowBuild();

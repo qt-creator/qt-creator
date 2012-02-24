@@ -117,8 +117,8 @@ public:
     ProjectExplorer::ToolChain *restore(const QVariantMap &data);
 
 private slots:
-    void handleQtVersionChanges(const QList<int> &);
-    QList<ProjectExplorer::ToolChain *> createToolChainList(const QList<int> &);
+    void handleQtVersionChanges(const QList<int> &added, const QList<int> &removed, const QList<int> &changed);
+    QList<ProjectExplorer::ToolChain *> createToolChainList(const QList<int> &changes);
 };
 
 } // namespace Internal

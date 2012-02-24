@@ -58,7 +58,7 @@ namespace Internal {
 Qt4MaemoTargetFactory::Qt4MaemoTargetFactory(QObject *parent) :
     Qt4BaseTargetFactory(parent)
 {
-    connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>)),
+    connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
             this, SIGNAL(canCreateTargetIdsChanged()));
 }
 
