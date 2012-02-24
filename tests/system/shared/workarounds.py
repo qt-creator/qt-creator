@@ -81,6 +81,7 @@ class JIRA:
             self._bugType = bugType
             self._localOnly = os.getenv("SYSTEST_JIRA_NO_LOOKUP")=="1"
             self.__initBugDict__()
+            self._fetchResults_ = {}
             self.__fetchStatusAndResolutionFromJira__()
 
         # function to retrieve the status of the current bug
@@ -108,10 +109,16 @@ class JIRA:
         # dict whether a function for the given bug is deposited or not
         def __fetchStatusAndResolutionFromJira__(self):
             global JIRA_URL
+            bug = "%s-%d" % (self._bugType, self._number)
+            if bug in self._fetchResults_:
+                result = self._fetchResults_[bug]
+                self._resolution = result[0]
+                self._status = result[1]
+                return
             data = None
             if not self._localOnly:
                 try:
-                    bugReport = urllib2.urlopen('%s/%s-%d' % (JIRA_URL, self._bugType, self._number))
+                    bugReport = urllib2.urlopen('%s/%s' % (JIRA_URL, bug))
                     data = bugReport.read()
                 except:
                     data = self.__tryExternalTools__()
@@ -122,34 +129,33 @@ class JIRA:
                                      "ssl support OR install wget or curl to get rid of this warning!")
                         self._localOnly = True
             if data == None:
-                if '%s-%d' % (self._bugType, self._number) in self.__bugs__:
+                if bug in self.__bugs__:
                     test.warning("Using internal dict - bug status could have changed already",
                                  "Please check manually!")
                     self._status = None
                     self._resolution = None
-                    return
                 else:
-                    test.fatal("No workaround function deposited for %s-%d" % (self._bugType, self._number))
+                    test.fatal("No workaround function deposited for %s" % bug)
                     self._resolution = 'Done'
-                    return
             else:
                 data = data.replace("\r", "").replace("\n", "")
                 resPattern = re.compile('<span\s+id="resolution-val".*?>(?P<resolution>.*?)</span>')
                 statPattern = re.compile('<span\s+id="status-val".*?>(.*?<img.*?>)?(?P<status>.*?)</span>')
                 status = statPattern.search(data)
                 resolution = resPattern.search(data)
-            if status:
-                self._status = status.group("status").strip()
-            else:
-                test.fatal("FATAL: Cannot get status of bugreport %s-%d" % (self._bugType, self._number),
-                           "Looks like JIRA has changed.... Please verify!")
-                self._status = None
-            if resolution:
-                self._resolution = resolution.group("resolution").strip()
-            else:
-                test.fatal("FATAL: Cannot get resolution of bugreport %s-%d" % (self._bugType, self._number),
-                           "Looks like JIRA has changed.... Please verify!")
-                self._resolution = None
+                if status:
+                    self._status = status.group("status").strip()
+                else:
+                    test.fatal("FATAL: Cannot get status of bugreport %s" % bug,
+                               "Looks like JIRA has changed.... Please verify!")
+                    self._status = None
+                if resolution:
+                    self._resolution = resolution.group("resolution").strip()
+                else:
+                    test.fatal("FATAL: Cannot get resolution of bugreport %s" % bug,
+                               "Looks like JIRA has changed.... Please verify!")
+                    self._resolution = None
+            self._fetchResults_.update({bug:[self._resolution, self._status]})
 
         # simple helper function - used as fallback if python has no ssl support
         # tries to find curl or wget in PATH and fetches data with it instead of
@@ -186,7 +192,7 @@ class JIRA:
 
         def _workaroundCreator6853_(self, *args):
             if "Release" in args[0] and platform.system() == "Linux":
-                snooze(1)
+                snooze(2)
 
         def _workaroundCreator_MacEditorFocus_(self, *args):
             editor = args[0]
