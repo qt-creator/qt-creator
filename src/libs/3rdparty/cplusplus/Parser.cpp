@@ -766,8 +766,33 @@ bool Parser::parseNamespace(DeclarationAST *&node)
         parseAttributeSpecifier(*attr_ptr);
         attr_ptr = &(*attr_ptr)->next;
     }
-    if (LA() == T_LBRACE)
+    if (LA() == T_LBRACE) {
         parseLinkageBody(ast->linkage_body);
+    } else { // attempt to do error recovery
+        unsigned pos = cursor();
+        for (;LA() != T_EOF_SYMBOL; consumeToken()) {
+            switch (LA()) {
+            case T_IDENTIFIER:
+            case T_POUND:
+            case T_POUND_POUND:
+            case T___ATTRIBUTE__:
+            case T_LPAREN:
+            case T_RPAREN:
+            case T_DEFAULT:
+            case T_PUBLIC:
+            case T_PRIVATE:
+            case T_PROTECTED:
+                continue;
+            }
+            if (tok().isLiteral())
+                continue;
+            break;
+        }
+        if (LA() == T_LBRACE && parseLinkageBody(ast->linkage_body))
+            warning(pos, "expected '{' before '%s'", _translationUnit->tokenAt(pos).spell());
+        else
+            rewind(pos);
+    }
     node = ast;
     return true;
 }

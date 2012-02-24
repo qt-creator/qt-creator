@@ -99,6 +99,8 @@ private slots:
     void initTestCase();
     // declarations
     void gcc_attributes_1();
+    void gcc_attributes_2();
+    void gcc_attributes_3();
 
     // expressions
     void simple_name_1();
@@ -159,7 +161,55 @@ void tst_AST::gcc_attributes_1()
 {
     QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
 "static inline void *__attribute__((__always_inline__)) _mm_malloc(size_t size, size_t align);"
-    ));
+                                                          ));
+}
+
+void tst_AST::gcc_attributes_2()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration(
+                                             "\nnamespace std __attribute__ ((__visibility__ (\"default\"))) {\n}\n"
+                                             ));
+    AST *ast = unit->ast();
+    QVERIFY(ast);
+    NamespaceAST* ns = ast->asNamespace();
+    QVERIFY(ns);
+    QCOMPARE(unit->spell(ns->identifier_token), "std");
+    QVERIFY(ns->attribute_list);
+    QVERIFY(!ns->attribute_list->next);
+    QVERIFY(ns->attribute_list->value);
+    AttributeSpecifierAST *attrSpec = ns->attribute_list->value->asAttributeSpecifier();
+    QVERIFY(attrSpec);
+    QVERIFY(attrSpec->attribute_list);
+    QVERIFY(!attrSpec->attribute_list->next);
+    QVERIFY(attrSpec->attribute_list->value);
+    AttributeAST *attr = attrSpec->attribute_list->value->asAttribute();
+    QVERIFY(attr);
+    QCOMPARE(unit->spell(attr->identifier_token), "__visibility__");
+    QVERIFY(attr->expression_list);
+    QVERIFY(!attr->expression_list->next);
+    QVERIFY(attr->expression_list->value);
+    StringLiteralAST *e = attr->expression_list->value->asStringLiteral();
+    QVERIFY(e);
+    QVERIFY(!e->next);
+    QCOMPARE(unit->spell(e->literal_token), "default");
+}
+
+void tst_AST::gcc_attributes_3()
+{
+    const char *inp = "\nnamespace std X {\n}\n";
+    QSharedPointer<TranslationUnit> unit(parseDeclaration(inp));
+    AST *ast = unit->ast();
+    QVERIFY(ast);
+    NamespaceAST* ns = ast->asNamespace();
+    QVERIFY(ns);
+    QCOMPARE(unit->spell(ns->identifier_token), "std");
+    QVERIFY(!ns->attribute_list);
+    QVERIFY(ns->linkage_body);
+    LinkageBodyAST *link = ns->linkage_body->asLinkageBody();
+    QVERIFY(link);
+    QCOMPARE(unit->tokenKind(link->lbrace_token), (int) T_LBRACE);
+    QVERIFY(!link->declaration_list);
+    QCOMPARE(unit->tokenKind(link->rbrace_token), (int) T_RBRACE);
 }
 
 void tst_AST::simple_declaration_1()

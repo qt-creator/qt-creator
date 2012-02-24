@@ -43,6 +43,7 @@ Q_OBJECT
 private Q_SLOTS:
     void unfinished_function_like_macro_call();
     void nasty_macro_expansion();
+    void tstst();
 };
 
 void tst_Preprocessor::unfinished_function_like_macro_call()
@@ -109,6 +110,29 @@ void tst_Preprocessor::nasty_macro_expansion()
     QByteArray preprocessed = preprocess(QLatin1String("<stdin>"), input);
 
     QVERIFY(!preprocessed.contains("FIELD32"));
+}
+
+void tst_Preprocessor::tstst()
+{
+    Client *client = 0; // no client.
+    Environment env;
+
+    Preprocessor preprocess(client, &env);
+    QByteArray preprocessed = preprocess(
+                QLatin1String("<stdin>"),
+                QByteArray("\n"
+                           "# define _GLIBCXX_VISIBILITY(V) __attribute__ ((__visibility__ (#V)))\n"
+                           "namespace std _GLIBCXX_VISIBILITY(default) {\n"
+                           "}\n"
+                           ));
+
+    qDebug() << preprocessed;
+
+    /*
+# define _GLIBCXX_VISIBILITY(V) __attribute__ ((__visibility__ (#V)))
+namespace std _GLIBCXX_VISIBILITY(default)
+
+     */
 }
 
 QTEST_APPLESS_MAIN(tst_Preprocessor)
