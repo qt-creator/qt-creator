@@ -3,7 +3,7 @@ import qbs.base 1.0
 import "../QtcPlugin.qbs" as QtcPlugin
 
 QtcPlugin {
-    name: "ScmGit"
+    name: "Git"
 
     Depends { name: "qt"; submodules: ['gui'] }
     Depends { name: "utils" }
