@@ -37,6 +37,10 @@
 
 #include <QWidget>
 
+namespace QtSupport {
+class BaseQtVersion;
+}
+
 namespace Qt4ProjectManager {
 struct BuildConfigurationInfo;
 
@@ -49,7 +53,13 @@ public:
     virtual bool isTargetSelected() const = 0;
     virtual void setTargetSelected(bool b) = 0;
     virtual void setProFilePath(const QString &proFilePath) = 0;
-    virtual QList<BuildConfigurationInfo> usedImportInfos() = 0;
+
+    virtual void updateBuildConfigurationInfos(const QList<BuildConfigurationInfo> &infos) = 0;
+
+    virtual QList<QtSupport::BaseQtVersion *> usedTemporaryQtVersions() = 0;
+    virtual void replaceQtVersionWithQtVersion(int oldId, int newId) = 0;
+    virtual void replaceTemporaryQtVersionWithQtVersion(QtSupport::BaseQtVersion *version, int id) = 0;
+    virtual void replaceQtVersionWithTemporaryQtVersion(int id, QtSupport::BaseQtVersion *version) = 0;
 
 signals:
     void selectedToggled() const;

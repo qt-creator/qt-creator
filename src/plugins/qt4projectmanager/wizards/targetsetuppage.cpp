@@ -60,6 +60,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     m_useScrollArea(true),
     m_maximumQtVersionNumber(INT_MAX, INT_MAX, INT_MAX),
     m_spacer(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding)),
+    m_ignoreQtVersionChange(false),
     m_ui(new Internal::Ui::TargetSetupPage)
 {
     m_ui->setupUi(this);
@@ -73,6 +74,9 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
 
     connect(m_ui->descriptionLabel, SIGNAL(linkActivated(QString)),
             this, SIGNAL(noteTextLinkActivated()));
+
+    connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
+            this, SLOT(qtVersionsChanged(QList<int>,QList<int>,QList<int>)));
 }
 
 void TargetSetupPage::initializePage()
@@ -260,10 +264,20 @@ void TargetSetupPage::setupImportInfos()
 
 void TargetSetupPage::cleanupImportInfos()
 {
+    // The same qt version can be twice in the list, for the following case
+    // A Project with two import build using the same already existing qt version
+    // If that qt version is deleted, it is replaced by ONE temporary qt version
+    // So two entries in m_importInfos refer to the same qt version
+    QSet<QtSupport::BaseQtVersion *> alreadyDeleted;
     foreach (const BuildConfigurationInfo &info, m_importInfos) {
-        if (info.temporaryQtVersion)
-            delete info.version;
+        if (info.temporaryQtVersion) {
+            if (!alreadyDeleted.contains(info.temporaryQtVersion)) {
+                alreadyDeleted << info.temporaryQtVersion;
+                delete info.temporaryQtVersion;
+            }
+        }
     }
+    m_importInfos.clear();
 }
 
 void TargetSetupPage::newImportBuildConfiguration(const BuildConfigurationInfo &info)
@@ -271,26 +285,122 @@ void TargetSetupPage::newImportBuildConfiguration(const BuildConfigurationInfo &
     m_importInfos.append(info);
 }
 
-bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
+void TargetSetupPage::qtVersionsChanged(const QList<int> &added, const QList<int> &removed, const QList<int> &changed)
 {
-    QMap<QString, Qt4TargetSetupWidget *>::const_iterator it, end;
-    end = m_widgets.constEnd();
-    it = m_widgets.constBegin();
+    Q_UNUSED(added)
+    if (m_ignoreQtVersionChange)
+        return;
+    QMap<QString, Qt4TargetSetupWidget *>::iterator it, end;
+    end = m_widgets.end();
+    it = m_widgets.begin();
     for ( ; it != end; ++it) {
         Qt4BaseTargetFactory *factory = m_factories.value(it.value());
+        it.value()->updateBuildConfigurationInfos(factory->availableBuildConfigurations(it.key(),
+                                                                                        m_proFilePath,
+                                                                                        m_minimumQtVersionNumber,
+                                                                                        m_maximumQtVersionNumber,
+                                                                                        m_requiredQtFeatures));
+    }
 
-        foreach (const BuildConfigurationInfo &info, it.value()->usedImportInfos()) {
-            QtSupport::BaseQtVersion *version = info.version;
-            for (int i=0; i < m_importInfos.size(); ++i) {
-                if (m_importInfos.at(i).version == version) {
-                    if (m_importInfos[i].temporaryQtVersion) {
-                        QtSupport::QtVersionManager::instance()->addVersion(m_importInfos[i].version);
-                        m_importInfos[i].temporaryQtVersion = false;
-                    }
+    QtSupport::QtVersionManager *mgr = QtSupport::QtVersionManager::instance();
+    for (int i = 0; i < m_importInfos.size(); ++i) {
+        if (QtSupport::BaseQtVersion *tmpVersion = m_importInfos[i].temporaryQtVersion) {
+            // Check whether we have a qt version now
+            QtSupport::BaseQtVersion *version =
+                    mgr->qtVersionForQMakeBinary(tmpVersion->qmakeCommand());
+            if (version)
+                replaceTemporaryQtVersion(tmpVersion, version->uniqueId());
+        } else {
+            // Check whether we need to replace the qt version id
+            int oldId = m_importInfos[i].qtVersionId;
+            if (removed.contains(oldId) || changed.contains(oldId)) {
+                QString makefile = m_importInfos[i].directory + QLatin1Char('/') + m_importInfos[i].makefile;
+                Utils::FileName qmakeBinary = QtSupport::QtVersionManager::findQMakeBinaryFromMakefile(makefile);
+                QtSupport::BaseQtVersion *version = QtSupport::QtVersionManager::instance()->qtVersionForQMakeBinary(qmakeBinary);
+                if (version) {
+                    replaceQtVersionWithQtVersion(oldId, version->uniqueId());
+                } else {
+                    version = QtSupport::QtVersionFactory::createQtVersionFromQMakePath(qmakeBinary);
+                    replaceQtVersionWithTemporaryQtVersion(oldId, version);
                 }
             }
         }
+    }
+}
 
+void TargetSetupPage::replaceQtVersionWithQtVersion(int oldId, int newId)
+{
+    for (int i = 0; i < m_importInfos.size(); ++i) {
+        if (m_importInfos[i].qtVersionId == oldId) {
+            m_importInfos[i].qtVersionId = newId;
+        }
+    }
+    QMap<QString, Qt4TargetSetupWidget *>::const_iterator it, end;
+    it = m_widgets.constBegin();
+    end = m_widgets.constEnd();
+    for ( ; it != end; ++it)
+        (*it)->replaceQtVersionWithQtVersion(oldId, newId);
+}
+
+void TargetSetupPage::replaceQtVersionWithTemporaryQtVersion(int id, QtSupport::BaseQtVersion *version)
+{
+    for (int i = 0; i < m_importInfos.size(); ++i) {
+        if (m_importInfos[i].qtVersionId == id) {
+            m_importInfos[i].temporaryQtVersion = version;
+            m_importInfos[i].qtVersionId = -1;
+        }
+    }
+    QMap<QString, Qt4TargetSetupWidget *>::const_iterator it, end;
+    it = m_widgets.constBegin();
+    end = m_widgets.constEnd();
+    for ( ; it != end; ++it)
+        (*it)->replaceQtVersionWithTemporaryQtVersion(id, version);
+}
+
+void TargetSetupPage::replaceTemporaryQtVersion(QtSupport::BaseQtVersion *version, int id)
+{
+    for (int i = 0; i < m_importInfos.size(); ++i) {
+        if (m_importInfos[i].temporaryQtVersion == version) {
+            m_importInfos[i].temporaryQtVersion = 0;
+            m_importInfos[i].qtVersionId = id;
+        }
+    }
+    QMap<QString, Qt4TargetSetupWidget *>::const_iterator it, end;
+    it = m_widgets.constBegin();
+    end = m_widgets.constEnd();
+    for ( ; it != end; ++it)
+        (*it)->replaceTemporaryQtVersionWithQtVersion(version, id);
+}
+
+bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
+{
+    m_ignoreQtVersionChange = true;
+    QtSupport::QtVersionManager *mgr = QtSupport::QtVersionManager::instance();
+    QMap<QString, Qt4TargetSetupWidget *>::const_iterator it, end;
+    end = m_widgets.constEnd();
+    it = m_widgets.constBegin();
+
+    QSet<QtSupport::BaseQtVersion *> temporaryQtVersions;
+    for ( ; it != end; ++it)
+        foreach (QtSupport::BaseQtVersion *tempVersion, it.value()->usedTemporaryQtVersions())
+            temporaryQtVersions.insert(tempVersion);
+
+    foreach (QtSupport::BaseQtVersion *tempVersion, temporaryQtVersions) {
+        QtSupport::BaseQtVersion *version = mgr->qtVersionForQMakeBinary(tempVersion->qmakeCommand());
+        if (version) {
+            replaceTemporaryQtVersion(tempVersion, version->uniqueId());
+            delete tempVersion;
+        } else {
+            mgr->addVersion(tempVersion);
+            replaceTemporaryQtVersion(tempVersion, tempVersion->uniqueId());
+        }
+    }
+
+    m_ignoreQtVersionChange = false;
+
+    it = m_widgets.constBegin();
+    for ( ; it != end; ++it) {
+        Qt4BaseTargetFactory *factory = m_factories.value(it.value());
         if (ProjectExplorer::Target *target = factory->create(project, it.key(), it.value()))
             project->addTarget(target);
     }

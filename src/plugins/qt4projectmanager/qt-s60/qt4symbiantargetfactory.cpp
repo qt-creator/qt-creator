@@ -203,13 +203,13 @@ ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Projec
 
     QList<BuildConfigurationInfo> infos;
     if (id != QLatin1String(Constants::S60_EMULATOR_TARGET_ID)) {
-        infos.append(BuildConfigurationInfo(qtVersion, config, QString(), QString()));
-        infos.append(BuildConfigurationInfo(qtVersion, config ^ QtSupport::BaseQtVersion::DebugBuild, QString(), QString()));
+        infos.append(BuildConfigurationInfo(qtVersion->uniqueId(), config, QString(), QString()));
+        infos.append(BuildConfigurationInfo(qtVersion->uniqueId(), config ^ QtSupport::BaseQtVersion::DebugBuild, QString(), QString()));
     } else {
         if (config & QtSupport::BaseQtVersion::DebugBuild)
-            infos.append(BuildConfigurationInfo(qtVersion, config, QString(), QString()));
+            infos.append(BuildConfigurationInfo(qtVersion->uniqueId(), config, QString(), QString()));
         else
-            infos.append(BuildConfigurationInfo(qtVersion, config ^ QtSupport::BaseQtVersion::DebugBuild, QString(), QString()));
+            infos.append(BuildConfigurationInfo(qtVersion->uniqueId(), config ^ QtSupport::BaseQtVersion::DebugBuild, QString(), QString()));
     }
 
     return create(parent, id, infos);
@@ -222,7 +222,7 @@ ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Projec
     Qt4SymbianTarget *t = new Qt4SymbianTarget(static_cast<Qt4Project *>(parent), id);
     foreach (const BuildConfigurationInfo &info, infos)
         t->addQt4BuildConfiguration(msgBuildConfigurationName(info), QString(),
-                                    info.version, info.buildConfig,
+                                    info.version(), info.buildConfig,
                                     info.additionalArguments, info.directory, info.importing);
 
     t->addDeployConfiguration(t->createDeployConfiguration(QLatin1String(S60_DEPLOYCONFIGURATION_ID)));
