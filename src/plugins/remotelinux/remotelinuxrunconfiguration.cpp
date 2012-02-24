@@ -127,6 +127,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Qt4BaseTarget *parent,
 void RemoteLinuxRunConfiguration::init()
 {
     setDefaultDisplayName(defaultDisplayName());
+    debuggerAspect()->suppressQmlDebuggingSpinbox();
 
     connect(target(),
         SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),

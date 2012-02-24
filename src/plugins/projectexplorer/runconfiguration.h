@@ -113,7 +113,9 @@ public:
     uint qmlDebugServerPort() const;
     void setQmllDebugServerPort(uint port);
     void suppressQmlDebuggingOptions();
+    void suppressQmlDebuggingSpinbox();
     bool areQmlDebuggingOptionsSuppressed() const;
+    bool isQmlDebuggingSpinboxSuppressed() const;
     RunConfiguration *runConfiguration();
 
 signals:
@@ -125,6 +127,7 @@ public:
     QmlDebuggerStatus m_useQmlDebugger;
     uint m_qmlDebugServerPort;
     bool m_suppressQmlDebuggingOptions;
+    bool m_suppressQmlDebuggingSpinbox;
 };
 
 

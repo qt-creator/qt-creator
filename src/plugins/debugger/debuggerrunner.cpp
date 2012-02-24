@@ -218,6 +218,11 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(RunConfiguration *runConfigurat
         m_useQmlDebugger->hide();
     }
 
+    if (m_aspect->isQmlDebuggingSpinboxSuppressed()) {
+        m_debugServerPort->hide();
+        m_debugServerPortLabel->hide();
+    }
+
     QHBoxLayout *qmlLayout = new QHBoxLayout;
     qmlLayout->setMargin(0);
     qmlLayout->addWidget(m_useQmlDebugger);
