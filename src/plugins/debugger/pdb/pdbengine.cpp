@@ -369,6 +369,8 @@ void PdbEngine::handleBreakInsert(const PdbResponse &response)
     br.fileName = _(file);
     br.lineNumber = line.toInt();
     handler->setResponse(id, br);
+    QTC_CHECK(!handler->needsChange(id));
+    handler->notifyBreakpointInsertOk(id);
 }
 
 void PdbEngine::removeBreakpoint(BreakpointModelId id)
@@ -717,6 +719,7 @@ void PdbEngine::updateAll()
 void PdbEngine::updateLocals()
 {
     WatchHandler *handler = watchHandler();
+    handler->beginCycle(true);
 
     QByteArray watchers;
     //if (!m_toolTipExpression.isEmpty())
@@ -781,6 +784,7 @@ void PdbEngine::handleBacktrace(const PdbResponse &response)
                 frame.file = _(fileName);
                 frame.line = lineNumber;
                 frame.function = _(line.mid(pos2 + 1));
+                frame.usable = QFileInfo(frame.file).isReadable();
                 if (frame.line > 0 && QFileInfo(frame.file).exists()) {
                     if (line.startsWith("> "))
                         currentIndex = level;
@@ -826,6 +830,7 @@ void PdbEngine::handleListLocals(const PdbResponse &response)
         parseWatchData(handler->expandedINames(), dummy, child, &list);
     }
     handler->insertBulkData(list);
+    handler->endCycle();
 }
 
 bool PdbEngine::hasCapability(unsigned cap) const
