@@ -62,10 +62,11 @@ def main():
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "Dummy::Dummy")
     # Take us to the second instance
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "<Return>")
-    cppWindowRealName = waitForObject(objectMap.realName(cppwindow))
-    __typeAndWaitForAction__(cppWindowRealName, "<Shift+F2>")
+    cppwindow = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
+    __typeAndWaitForAction__(cppwindow, "<Shift+F2>")
     test.compare(lineUnderCursor(findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "    Dummy(int a);")
-    __typeAndWaitForAction__(cppWindowRealName, "<Shift+F2>")
+    cppwindow = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
+    __typeAndWaitForAction__(cppwindow, "<Shift+F2>")
     test.compare(lineUnderCursor(findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "Dummy::Dummy(int)")
 
     invokeMenuItem("File", "Exit")
@@ -94,4 +95,6 @@ def __typeAndWaitForAction__(editor, keyCombination):
     textChanged = False
     cursorPos = editor.textCursor().position()
     type(editor, keyCombination)
-    waitFor("textChanged or editor.textCursor().position() != cursorPos")
+    waitFor("textChanged or editor.textCursor().position() != cursorPos", 2000)
+    if not (textChanged or editor.textCursor().position()!=cursorPos):
+        test.warning("Waiting timed out...")

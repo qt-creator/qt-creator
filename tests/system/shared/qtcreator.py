@@ -24,6 +24,17 @@ source("../../shared/hook_utils.py")
 source("../../shared/debugger.py")
 source("../../shared/workarounds.py")
 
+if platform.system() == "Darwin":
+    __origStartApplication__ = startApplication
+
+    def startApplication(*args):
+        args = list(args)
+        if str(args[0]).startswith('qtcreator'):
+            args[0] = args[0].replace('qtcreator', '"Qt Creator"', 1)
+        __origStartApplication__(*args)
+        test.log("Using workaround for MacOS (losing focus & different AUT name)")
+        setWindowState(findObject(":Qt Creator_Core::Internal::MainWindow"), WindowState.Maximize)
+
 def waitForCleanShutdown(timeOut=10):
     appCtxt = currentApplicationContext()
     shutdownDone = (str(appCtxt)=="")

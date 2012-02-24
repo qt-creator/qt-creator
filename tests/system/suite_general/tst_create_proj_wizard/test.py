@@ -10,13 +10,13 @@ def main():
     prepareTemplate(sourceExample)
     startApplication("qtcreator" + SettingsPath)
     overrideInstallLazySignalHandler()
-    installLazySignalHandler("{type='QTextBrowser' name='templateDescription' visible='1'}",
+    installLazySignalHandler(":frame.templateDescription_QTextBrowser",
                              "textChanged()","__handleTextChanged__")
     targets = getCorrectlyConfiguredTargets()
     test.log("Collecting potential project types...")
     availableProjectTypes = []
     invokeMenuItem("File", "New File or Project...")
-    categoriesView = waitForObject("{type='QTreeView' name='templateCategoryView' visible='1'}", 20000)
+    categoriesView = waitForObject(":New.templateCategoryView_QTreeView", 20000)
     catModel = categoriesView.model()
     projects = catModel.index(0, 0)
     test.compare("Projects", str(projects.data()))
@@ -46,14 +46,14 @@ def main():
         category = current.keys()[0]
         template = current.values()[0]
         invokeMenuItem("File", "New File or Project...")
-        categoriesView = waitForObject("{type='QTreeView' name='templateCategoryView' visible='1'}", 20000)
+        categoriesView = waitForObject(":New.templateCategoryView_QTreeView", 20000)
         clickItem(categoriesView, "Projects." + category, 5, 5, 0, Qt.LeftButton)
         templatesView = waitForObject("{name='templatesView' type='QListView' visible='1'}", 20000)
         test.log("Verifying '%s' -> '%s'" % (category.replace("\\.", "."), template.replace("\\.", ".")))
         textChanged = False
         clickItem(templatesView, template, 5, 5, 0, Qt.LeftButton)
         waitFor("textChanged", 2000)
-        text = waitForObject("{type='QTextBrowser' name='templateDescription' visible='1'}").plainText
+        text = waitForObject(":frame.templateDescription_QTextBrowser").plainText
         displayedPlatforms, requiredVersion = __getSupportedPlatforms__(str(text), True)
         clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
         # don't check because project could exist
