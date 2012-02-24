@@ -384,7 +384,7 @@ void StartGdbServerDialog::startGdbServerOnPort(int port, int pid)
         SLOT(handleProcessErrorOutput(QByteArray)));
     connect(&d->runner, SIGNAL(processClosed(int)), SLOT(handleProcessClosed(int)));
 
-    QByteArray cmd = "/usr/bin/gdbserver --attach localhost:"
+    QByteArray cmd = "/usr/bin/gdbserver --attach :"
         + QByteArray::number(port) + " " + QByteArray::number(pid);
     logMessage(tr("Running command: %1").arg(QString::fromLatin1(cmd)));
     d->runner.run(cmd, device->sshParameters());
