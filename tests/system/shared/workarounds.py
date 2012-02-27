@@ -160,7 +160,7 @@ class JIRA:
             for call in cmdAndArgs:
                 prog = which(call)
                 if prog:
-                    return getOutputFromCmdline("%s %s %s/%s-%d" % (prog, cmdAndArgs[call], JIRA_URL, self._bugType, self._number))
+                    return getOutputFromCmdline('"%s" %s %s/%s-%d' % (prog, cmdAndArgs[call], JIRA_URL, self._bugType, self._number))
             return None
 
         # this function initializes the bug dict for localOnly usage and
