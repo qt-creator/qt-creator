@@ -412,7 +412,9 @@ void QmlEngine::runEngine()
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
     if (!isSlaveEngine()) {
-        if (startParameters().startMode != AttachToRemoteServer)
+        if (startParameters().startMode == AttachToRemoteServer)
+            beginConnection();
+        else
             startApplicationLauncher();
     }
 }
