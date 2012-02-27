@@ -1,4 +1,4 @@
-QT       = core
+QT       = core network
 
 include (../../../qtcreator.pri)
 include (../../../src/plugins/coreplugin/coreplugin.pri)

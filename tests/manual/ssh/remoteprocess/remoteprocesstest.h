@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef SFTPTEST_H
-#define SFTPTEST_H
+#ifndef REMOTEPROCESSTEST_H
+#define REMOTEPROCESSTEST_H
 
 #include <utils/ssh/sshremoteprocessrunner.h>
 
@@ -83,4 +83,4 @@ private:
 };
 
 
-#endif // SFTPTEST_H
+#endif // REMOTEPROCESSTEST_H

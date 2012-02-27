@@ -29,6 +29,9 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
+#ifndef SHELL_H
+#define SHELL_H
+
 #include <QObject>
 #include <QSharedPointer>
 
@@ -68,3 +71,5 @@ private:
     QSharedPointer<Utils::SshRemoteProcess> m_shell;
     QFile * const m_stdin;
 };
+
+#endif // SHELL_H
