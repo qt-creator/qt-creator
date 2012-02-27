@@ -119,7 +119,10 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QSettings>
+
+#if QT_VERSION < 0x050000
 #include <QAbstractFileEngine>
+#endif
 
 #include <QAction>
 #include <QApplication>
