@@ -24,6 +24,7 @@ Project {
         "src/libs/qtcomponents/styleitem/styleitem.qbs",
         "src/libs/symbianutils/symbianutils.qbs",
         "src/libs/utils/utils.qbs",
+        "src/libs/zeroconf/zeroconf.qbs",
         "src/plugins/analyzerbase/analyzerbase.qbs",
         "src/plugins/bazaar/bazaar.qbs",
         "src/plugins/bineditor/bineditor.qbs",
