@@ -506,8 +506,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
       m_showImport(importEnabled),
       m_buildConfigurationTemplateUnchanged(true),
       m_shadowBuildCheckBoxVisible(false),
-      m_selected(0),
-      m_qtVersionId(-1)
+      m_selected(0)
 {
     QSettings *s = Core::ICore::settings();
     QString sourceDir = QFileInfo(m_proFilePath).absolutePath();
