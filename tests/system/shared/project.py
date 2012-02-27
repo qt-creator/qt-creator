@@ -436,6 +436,7 @@ def __getSupportedPlatforms__(text, getAsStrings=False):
         test.warning("Returning None (__getSupportedPlatforms__())",
                      "Parsed text: '%s'" % text)
         return None, None
+    JIRA.performWorkaroundIfStillOpen(7002, JIRA.Bug.CREATOR, result)
     if getAsStrings:
         result = QtQuickConstants.getTargetsAsStrings(result)
     return result, version

@@ -171,7 +171,8 @@ class JIRA:
                             'QTCREATORBUG-6853':self._workaroundCreator6853_,
                             'QTCREATORBUG-6918':self._workaroundCreator_MacEditorFocus_,
                             'QTCREATORBUG-6953':self._workaroundCreator_MacEditorFocus_,
-                            'QTCREATORBUG-6994':self._workaroundCreator6994_
+                            'QTCREATORBUG-6994':self._workaroundCreator6994_,
+                            'QTCREATORBUG-7002':self._workaroundCreator7002_
                             }
         # helper function - will be called if no workaround for the requested bug is deposited
         def _exitFatal_(self, bugType, number):
@@ -191,3 +192,8 @@ class JIRA:
         def _workaroundCreator_MacEditorFocus_(self, *args):
             editor = args[0]
             nativeMouseClick(editor.mapToGlobal(QPoint(50, 50)).x, editor.mapToGlobal(QPoint(50, 50)).y, Qt.LeftButton)
+
+        def _workaroundCreator7002_(self, *args):
+            if platform.system() in ("Linux", "Darwin"):
+                result = args[0]
+                result.append(QtQuickConstants.Targets.EMBEDDED_LINUX)
