@@ -55,7 +55,9 @@ QtcPlugin {
         "searchresultwidget.h",
         "searchresultwindow.cpp",
         "searchresultwindow.h",
-        "textfindconstants.h"
+        "textfindconstants.h",
+        "treeviewfind.cpp",
+        "treeviewfind.h"
     ]
 }
 
