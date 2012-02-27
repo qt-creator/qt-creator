@@ -5,8 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "Designer"
 
-    Depends { id: qtcore; name: "Qt.core" }
-    Depends { name: "qt"; submodules: ['gui', 'xml'] }
+    Depends { name: "qt"; submodules: ['gui', 'xml', 'designer', 'designercomponents'] }
     Depends { name: "utils" }
     Depends { name: "extensionsystem" }
     Depends { name: "aggregation" }
@@ -20,7 +19,6 @@ QtcPlugin {
     cpp.defines: base.concat(["CPP_ENABLED"])
     cpp.includePaths: [
         "../../libs/3rdparty",
-        qtcore.qtPath + "/include/QtDesigner",
         "cpp",
         "../../shared/designerintegrationv2",
         ".",
@@ -28,7 +26,6 @@ QtcPlugin {
         "../../libs",
         buildDirectory
     ]
-    cpp.dynamicLibraries: ["QtDesigner", "QtDesignerComponents"]
 
     files: [
         "../../shared/designerintegrationv2/widgethost.h",
