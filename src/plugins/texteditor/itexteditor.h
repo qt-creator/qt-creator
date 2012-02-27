@@ -35,6 +35,8 @@
 
 #include "texteditor_global.h"
 
+#include "itextmark.h"
+
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <QObject>
@@ -52,54 +54,6 @@ class QTextBlock;
 QT_END_NAMESPACE
 
 namespace TextEditor {
-
-class ITextEditor;
-
-class TEXTEDITOR_EXPORT ITextMark
-{
-public:
-    ITextMark(int line) : m_lineNumber(line), m_priority(NormalPriority) {}
-    virtual ~ITextMark();
-
-    // determine order on markers on the same line.
-    enum Priority
-    {
-        LowPriority,
-        NormalPriority,
-        HighPriority // shown on top.
-    };
-
-    int lineNumber() const;
-    virtual void paint(QPainter *painter, const QRect &rect) const;
-    virtual void updateLineNumber(int lineNumber);
-    virtual void updateBlock(const QTextBlock &block);
-    virtual void removedFromEditor();
-    void setIcon(const QIcon &icon);
-    Priority priority() const;
-    void setPriority(Priority prioriy);
-    virtual bool visible() const;
-    virtual double widthFactor() const;
-
-private:
-    int m_lineNumber;
-    QIcon m_icon;
-    Priority m_priority;
-};
-
-typedef QList<ITextMark *> TextMarks;
-
-
-class TEXTEDITOR_EXPORT ITextMarkable : public QObject
-{
-    Q_OBJECT
-public:
-    ITextMarkable(QObject *parent = 0) : QObject(parent) {}
-
-    virtual bool addMark(ITextMark *mark) = 0;
-    virtual TextMarks marksAt(int line) const = 0;
-    virtual void removeMark(ITextMark *mark) = 0;
-    virtual void updateMark(ITextMark *mark) = 0;
-};
 
 class TEXTEDITOR_EXPORT ITextEditor : public Core::IEditor
 {

@@ -30,36 +30,57 @@
 **
 **************************************************************************/
 
-#include "itexteditor.h"
-
-#include <coreplugin/editormanager/editormanager.h>
-
-#include <QTextCodec>
+#include "itextmark.h"
 
 using namespace TextEditor;
 
-QMap<QString, QString> ITextEditor::openedTextEditorsContents()
+ITextMark::~ITextMark()
 {
-    QMap<QString, QString> workingCopy;
-    foreach (Core::IEditor *editor, Core::EditorManager::instance()->openedEditors()) {
-        ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
-        if (!textEditor)
-            continue;
-        QString fileName = textEditor->document()->fileName();
-        workingCopy[fileName] = textEditor->contents();
-    }
-    return workingCopy;
+
 }
 
-QMap<QString, QTextCodec *> TextEditor::ITextEditor::openedTextEditorsEncodings()
+int ITextMark::lineNumber() const
 {
-    QMap<QString, QTextCodec *> workingCopy;
-    foreach (Core::IEditor *editor, Core::EditorManager::instance()->openedEditors()) {
-        ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
-        if (!textEditor)
-            continue;
-        QString fileName = textEditor->document()->fileName();
-        workingCopy[fileName] = textEditor->textCodec();
-    }
-    return workingCopy;
+    return m_lineNumber;
+}
+
+void ITextMark::paint(QPainter *painter, const QRect &rect) const
+{
+    m_icon.paint(painter, rect, Qt::AlignCenter);
+}
+
+void ITextMark::updateLineNumber(int lineNumber)
+{
+    m_lineNumber = lineNumber;
+}
+
+void ITextMark::updateBlock(const QTextBlock &)
+{}
+
+void ITextMark::removedFromEditor()
+{}
+
+void ITextMark::setIcon(const QIcon &icon)
+{
+    m_icon = icon;
+}
+
+void ITextMark::setPriority(Priority priority)
+{
+    m_priority = priority;
+}
+
+ITextMark::Priority ITextMark::priority() const
+{
+    return m_priority;
+}
+
+bool ITextMark::visible() const
+{
+    return true;
+}
+
+double ITextMark::widthFactor() const
+{
+    return 1.0;
 }
