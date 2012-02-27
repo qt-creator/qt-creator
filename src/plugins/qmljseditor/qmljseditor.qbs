@@ -6,16 +6,13 @@ QtcPlugin {
     name: "QmlJSEditor"
 
     Depends { name: "qt"; submodules: ['gui'] }
-    Depends { name: "utils" }
-    Depends { name: "extensionsystem" }
-    Depends { name: "aggregation" }
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QmlJSTools" }
     Depends { name: "QmlJS" }
     Depends { name: "LanguageUtils" }
-    Depends { name: "find" }
+    Depends { name: "Find" }
     Depends { name: "QmlEditorWidgets" }
     Depends { name: "CPlusPlus" }
 

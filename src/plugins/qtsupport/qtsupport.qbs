@@ -6,9 +6,6 @@ QtcPlugin {
     name: "QtSupport"
 
     Depends { name: "qt"; submodules: ['gui', 'declarative'] }
-    Depends { name: "utils" }
-    Depends { name: "extensionsystem" }
-    Depends { name: "aggregation" }
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }

@@ -6,13 +6,10 @@ QtcPlugin {
     name: "CMakeProjectManager"
 
     Depends { name: "qt"; submodules: ['gui'] }
-    Depends { name: "utils" }
-    Depends { name: "extensionsystem" }
-    Depends { name: "aggregation" }
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "CppTools" }
-    Depends { name: "cplusplus" }
+    Depends { name: "CPlusPlus" }
     Depends { name: "TextEditor" }
     Depends { name: "Locator" }
 

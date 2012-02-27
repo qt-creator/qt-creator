@@ -6,9 +6,6 @@ QtcPlugin {
     name: "RemoteLinux"
 
     Depends { name: "qt"; submodules: ['gui'] }
-    Depends { name: "utils" }
-    Depends { name: "extensionsystem" }
-    Depends { name: "aggregation" }
     Depends { name: "Core" }
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }

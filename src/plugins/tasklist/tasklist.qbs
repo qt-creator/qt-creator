@@ -6,12 +6,9 @@ QtcPlugin {
     name: "TaskList"
 
     Depends { name: "qt"; submodules: ['gui'] }
-    Depends { name: "utils" }
-    Depends { name: "extensionsystem" }
-    Depends { name: "aggregation" }
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "find" }
+    Depends { name: "Find" }
     Depends { name: "Locator" }
     Depends { name: "TextEditor" }
 

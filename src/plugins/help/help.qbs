@@ -6,11 +6,8 @@ QtcPlugin {
     name: "Help"
 
     Depends { name: "qt"; submodules: ['gui', 'help', 'webkit'] }
-    Depends { name: "utils" }
-    Depends { name: "extensionsystem" }
-    Depends { name: "aggregation" }
     Depends { name: "Core" }
-    Depends { name: "find" }
+    Depends { name: "Find" }
     Depends { name: "Locator" }
 
     Depends { name: "cpp" }

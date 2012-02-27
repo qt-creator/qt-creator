@@ -6,13 +6,10 @@ QtcPlugin {
     name: "Bookmarks"
 
     Depends { name: "qt"; submodules: ['gui'] }
-    Depends { name: "utils" }
-    Depends { name: "extensionsystem" }
-    Depends { name: "aggregation" }
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
-    Depends { name: "find" }
+    Depends { name: "Find" }
     Depends { name: "Locator" }
 
     Depends { name: "cpp" }

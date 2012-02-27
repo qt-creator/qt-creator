@@ -6,16 +6,13 @@ QtcPlugin {
     name: "GenericProjectManager"
 
     Depends { name: "qt"; submodules: ['gui'] }
-    Depends { name: "utils" }
-    Depends { name: "extensionsystem" }
-    Depends { name: "aggregation" }
     Depends { name: "Core" }
     Depends { name: "CPlusPlus" }
     Depends { name: "CppTools" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "find" }
-    Depends { name: "locator" }
+    Depends { name: "Find" }
+    Depends { name: "Locator" }
 
     Depends { name: "cpp" }
     cpp.includePaths: [

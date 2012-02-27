@@ -6,9 +6,6 @@ QtcPlugin {
     name: "Qt4ProjectManager"
 
     Depends { name: "qt"; submodules: ['gui', 'network'] }
-    Depends { name: "utils" }
-    Depends { name: "extensionsystem" }
-    Depends { name: "aggregation" }
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
@@ -17,7 +14,7 @@ QtcPlugin {
     Depends { name: "symbianutils" }
     Depends { name: "QmlJS" }
     Depends { name: "botan" }
-    Depends { name: "cplusplus" }
+    Depends { name: "CPlusPlus" }
     Depends { name: "TextEditor" }
 
     Depends { name: "cpp" }
@@ -307,7 +304,3 @@ QtcPlugin {
         "wizards/images/qtquickapp.png"
     ]
 }
-
-
-
-

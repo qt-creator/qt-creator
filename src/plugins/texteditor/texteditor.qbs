@@ -6,11 +6,8 @@ QtcPlugin {
     name: "TextEditor"
 
     Depends { name: "qt"; submodules: ['gui', 'xml', 'network', 'script'] }
-    Depends { name: "utils" }
-    Depends { name: "aggregation" }
-    Depends { name: "extensionsystem" }
-    Depends { name: "find" }
-    Depends { name: "locator" }
+    Depends { name: "Find" }
+    Depends { name: "Locator" }
     Depends { name: "Core" }
     Depends { name: "cpp" }
 

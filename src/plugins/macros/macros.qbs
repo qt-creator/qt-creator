@@ -6,12 +6,9 @@ QtcPlugin {
     name: "Macros"
 
     Depends { name: "qt"; submodules: ['gui'] }
-    Depends { name: "utils" }
-    Depends { name: "extensionsystem" }
-    Depends { name: "aggregation" }
     Depends { name: "Core" }
     Depends { name: "Locator" }
-    Depends { name: "find" }
+    Depends { name: "Find" }
     Depends { name: "TextEditor" }
 
     Depends { name: "cpp" }

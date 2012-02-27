@@ -6,9 +6,6 @@ QtcPlugin {
     name: "Designer"
 
     Depends { name: "qt"; submodules: ['gui', 'xml', 'designer', 'designercomponents'] }
-    Depends { name: "utils" }
-    Depends { name: "extensionsystem" }
-    Depends { name: "aggregation" }
     Depends { name: "Core" }
     Depends { name: "CPlusPlus" }
     Depends { name: "CppTools" }

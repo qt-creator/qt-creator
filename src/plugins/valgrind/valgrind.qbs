@@ -6,9 +6,6 @@ QtcPlugin {
     name: "Valgrind"
 
     Depends { name: "qt"; submodules: ['gui', 'network'] }
-    Depends { name: "utils" }
-    Depends { name: "extensionsystem" }
-    Depends { name: "aggregation" }
     Depends { name: "Core" }
     Depends { name: "AnalyzerBase" }
     Depends { name: "ProjectExplorer" }

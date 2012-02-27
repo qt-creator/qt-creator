@@ -6,9 +6,6 @@ QtcPlugin {
     name: "QmlProfiler"
 
     Depends { name: "qt"; submodules: ['gui', 'network', 'script', 'declarative'] }
-    Depends { name: "utils" }
-    Depends { name: "extensionsystem" }
-    Depends { name: "aggregation" }
     Depends { name: "Core" }
     Depends { name: "AnalyzerBase" }
     Depends { name: "QmlProjectManager" }

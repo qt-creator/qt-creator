@@ -5,12 +5,9 @@ QtcPlugin {
     name: "ProjectExplorer"
 
     Depends { name: "qt"; submodules: ['gui', 'xml', 'network', 'script', 'declarative'] }
-    Depends { name: "utils" }
-    Depends { name: "extensionsystem" }
-    Depends { name: "aggregation" }
     Depends { name: "Core" }
-    Depends { name: "locator" }
-    Depends { name: "find" }
+    Depends { name: "Locator" }
+    Depends { name: "Find" }
     Depends { name: "TextEditor" }
 
     Depends { name: "cpp" }

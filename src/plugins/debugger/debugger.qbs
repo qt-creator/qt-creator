@@ -8,11 +8,10 @@ QtcPlugin {
     Depends { name: "qt"; submodules: ['gui', 'network', 'script'] }
     Depends { name: "Core" }
     Depends { name: "CppTools" }
-    Depends { name: "find" }
+    Depends { name: "Find" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "CPlusPlus" }
-    Depends { name: "Utils" }
     Depends { name: "symbianutils" }
     Depends { name: "QmlJS" }
     Depends { name: "QmlJSDebugClient" }
