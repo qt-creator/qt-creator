@@ -44,6 +44,9 @@ class QtMessageLogView : public QTreeView
 public:
     explicit QtMessageLogView(QWidget *parent = 0);
 
+public slots:
+    void onScrollToBottom();
+
 protected:
     void mousePressEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent *e);

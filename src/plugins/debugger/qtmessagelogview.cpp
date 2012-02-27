@@ -47,6 +47,7 @@
 #include <QAbstractProxyModel>
 #include <QFileInfo>
 #include <QUrl>
+#include <QScrollBar>
 
 namespace Debugger {
 namespace Internal {
@@ -113,6 +114,13 @@ QtMessageLogView::QtMessageLogView(QWidget *parent) :
 
     connect(this, SIGNAL(activated(QModelIndex)),
             SLOT(onRowActivated(QModelIndex)));
+}
+
+void QtMessageLogView::onScrollToBottom()
+{
+    //Keep scrolling to bottom if scroll bar is at maximum()
+    if (verticalScrollBar()->value() == verticalScrollBar()->maximum())
+        scrollToBottom();
 }
 
 void QtMessageLogView::mousePressEvent(QMouseEvent *event)

@@ -159,7 +159,7 @@ QtMessageLogWindow::QtMessageLogWindow(QWidget *parent)
     connect(m_proxyModel,
             SIGNAL(scrollToBottom()),
             m_treeView,
-            SLOT(scrollToBottom()));
+            SLOT(onScrollToBottom()));
 
     m_itemDelegate = new QtMessageLogItemDelegate(this);
     connect(m_treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
