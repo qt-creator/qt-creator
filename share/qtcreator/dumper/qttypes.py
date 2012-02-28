@@ -1924,6 +1924,27 @@ def qdump__std__string(d, value):
     d.putNumChild(0)
 
 
+def qdump__std__shared_ptr(d, value):
+    i = value["_M_ptr"]
+    if isNull(i):
+        d.putValue("(null)")
+        d.putNumChild(0)
+        return
+
+    if isSimpleType(templateArgument(value.type, 0)):
+        d.putValue("%s @0x%x" % (i.dereference(), long(i)))
+    else:
+        i = expensiveUpcast(i)
+        d.putValue("@0x%x" % long(i))
+
+    d.putNumChild(3)
+    with Children(d, 3):
+        d.putSubItem("data", i)
+        refcount = value["_M_refcount"]["_M_pi"]
+        d.putIntItem("usecount", refcount["_M_use_count"])
+        d.putIntItem("weakcount", refcount["_M_weak_count"])
+
+
 def qdump__std__unique_ptr(d, value):
     i = value["_M_t"]["_M_head_impl"]
     if isNull(i):
@@ -1931,9 +1952,12 @@ def qdump__std__unique_ptr(d, value):
         d.putNumChild(0)
         return
 
-    i = expensiveUpcast(i)
+    if isSimpleType(templateArgument(value.type, 0)):
+        d.putValue("%s @0x%x" % (i.dereference(), long(i)))
+    else:
+        i = expensiveUpcast(i)
+        d.putValue("@0x%x" % long(i))
 
-    d.putValue( "@0x%x" % long(i) )
     d.putNumChild(1)
     with Children(d, 1):
         d.putSubItem("data", i)

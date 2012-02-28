@@ -2695,7 +2695,7 @@ namespace stdmap {
 
 namespace stdptr {
 
-    void testStdUniquePtr()
+    void testStdUniquePtrInt()
     {
         #ifdef USE_CXX11
         std::unique_ptr<int> p(new int(32));
@@ -2706,7 +2706,18 @@ namespace stdptr {
         #endif
     }
 
-    void testStdSharedPtr()
+    void testStdUniquePtrFoo()
+    {
+        #ifdef USE_CXX11
+        std::unique_ptr<Foo> p(new Foo);
+        BREAK_HERE;
+        // Check p 32 std::unique_ptr<Foo, std::default_delete<Foo> >.
+        // Continue.
+        dummyStatement(&p);
+        #endif
+    }
+
+    void testStdSharedPtrInt()
     {
         #ifdef USE_CXX11
         std::shared_ptr<int> p(new int(32));
@@ -2717,10 +2728,23 @@ namespace stdptr {
         #endif
     }
 
+    void testStdSharedPtrFoo()
+    {
+        #ifdef USE_CXX11
+        std::shared_ptr<Foo> p(new Foo);
+        BREAK_HERE;
+        // Check p 32 std::shared_ptr<Foo, std::default_delete<int> >.
+        // Continue.
+        dummyStatement(&p);
+        #endif
+    }
+
     void testStdPtr()
     {
-        testStdUniquePtr();
-        testStdSharedPtr();
+        testStdUniquePtrInt();
+        testStdUniquePtrFoo();
+        testStdSharedPtrInt();
+        testStdSharedPtrFoo();
     }
 
 } // namespace stdptr
