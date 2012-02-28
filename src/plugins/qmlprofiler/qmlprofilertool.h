@@ -73,7 +73,7 @@ public:
     void startTool(Analyzer::StartMode mode);
 
 public slots:
-    void connectClient(int port);
+    void connectClient(quint16 port);
     void disconnectClient();
 
     void startRecording();

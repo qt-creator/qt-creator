@@ -80,7 +80,7 @@ void CodaQmlProfilerRunner::appendMessage(ProjectExplorer::RunControl *, const Q
     emit appendMessage(message, format);
 }
 
-int QmlProfiler::Internal::CodaQmlProfilerRunner::debugPort() const
+quint16 QmlProfiler::Internal::CodaQmlProfilerRunner::debugPort() const
 {
     return m_configuration->debuggerAspect()->qmlDebugServerPort();
 }

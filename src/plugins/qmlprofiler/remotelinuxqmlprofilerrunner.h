@@ -53,7 +53,7 @@ public:
     // AbstractQmlProfilerRunner
     virtual void start();
     virtual void stop();
-    virtual int debugPort() const;
+    virtual quint16 debugPort() const;
 
 private slots:
     void getPorts();
@@ -67,7 +67,7 @@ private slots:
 private:
     RemoteLinux::AbstractRemoteLinuxApplicationRunner *runner() const;
 
-    int m_port;
+    quint16 m_port;
     RemoteLinux::AbstractRemoteLinuxRunControl *m_runControl;
 };
 

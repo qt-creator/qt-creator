@@ -59,7 +59,7 @@ public:
     // AbstractQmlProfilerRunner
     virtual void start();
     virtual void stop();
-    virtual int debugPort() const;
+    virtual quint16 debugPort() const;
 
     bool hasExecutable() const { return !m_configuration.executable.isEmpty(); }
 

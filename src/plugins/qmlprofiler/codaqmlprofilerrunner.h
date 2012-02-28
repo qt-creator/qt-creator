@@ -55,7 +55,7 @@ public:
     // AbstractQmlProfilerRunner
     virtual void start();
     virtual void stop();
-    virtual int debugPort() const;
+    virtual quint16 debugPort() const;
 
 private slots:
     void appendMessage(ProjectExplorer::RunControl *, const QString &message,

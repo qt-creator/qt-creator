@@ -136,7 +136,7 @@ public:
 
     ConnectMode m_connectMode;
     QString m_tcpHost;
-    quint64 m_tcpPort;
+    quint16 m_tcpPort;
     QString m_ostDevice;
     QString m_sysroot;
     QAction *m_saveQmlTrace;
@@ -364,7 +364,7 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     d->m_projectFinder.setProjectFiles(sourceFiles);
     d->m_projectFinder.setSysroot(sp.sysroot);
 
-    connect(engine, SIGNAL(processRunning(int)), this, SLOT(connectClient(int)));
+    connect(engine, SIGNAL(processRunning(quint16)), this, SLOT(connectClient(quint16)));
     connect(engine, SIGNAL(finished()), this, SLOT(disconnectClient()));
     connect(engine, SIGNAL(finished()), this, SLOT(updateTimers()));
     connect(engine, SIGNAL(stopRecording()), this, SLOT(stopRecording()));
@@ -531,7 +531,7 @@ QWidget *QmlProfilerTool::createWidgets()
     return toolbarWidget;
 }
 
-void QmlProfilerTool::connectClient(int port)
+void QmlProfilerTool::connectClient(quint16 port)
 {
     if (d->m_client)
         delete d->m_client;

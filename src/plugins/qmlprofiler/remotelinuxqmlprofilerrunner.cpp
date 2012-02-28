@@ -45,7 +45,7 @@ using namespace RemoteLinux;
 RemoteLinuxQmlProfilerRunner::RemoteLinuxQmlProfilerRunner(
     RemoteLinuxRunConfiguration *runConfiguration, QObject *parent)
     : AbstractQmlProfilerRunner(parent)
-    , m_port(-1)
+    , m_port(0)
     , m_runControl(0)
 {
     // find run control factory
@@ -96,7 +96,7 @@ void RemoteLinuxQmlProfilerRunner::stop()
     runner()->stop();
 }
 
-int RemoteLinuxQmlProfilerRunner::debugPort() const
+quint16 RemoteLinuxQmlProfilerRunner::debugPort() const
 {
     return m_port;
 }
@@ -105,7 +105,7 @@ void RemoteLinuxQmlProfilerRunner::getPorts()
 {
     QTC_ASSERT(runner(), return);
     m_port = runner()->freePorts()->getNext();
-    if (m_port == -1) {
+    if (m_port == 0) {
         emit appendMessage(tr("Not enough free ports on device for analyzing.\n"),
                            Utils::ErrorMessageFormat);
         runner()->stop();

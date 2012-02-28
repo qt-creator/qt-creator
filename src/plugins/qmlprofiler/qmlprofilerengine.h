@@ -51,7 +51,7 @@ public:
 
     static void showNonmodalWarning(const QString &warningMsg);
 signals:
-    void processRunning(int port);
+    void processRunning(quint16 port);
     void stopRecording();
     void timeUpdate();
     void recordingChanged(bool recording);

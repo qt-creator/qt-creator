@@ -85,7 +85,7 @@ void LocalQmlProfilerRunner::stop()
     }
 }
 
-int LocalQmlProfilerRunner::debugPort() const
+quint16 LocalQmlProfilerRunner::debugPort() const
 {
     return m_configuration.port;
 }
