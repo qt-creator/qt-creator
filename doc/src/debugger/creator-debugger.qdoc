@@ -936,7 +936,7 @@
     In some cases, it is convenient to directly interact with the command
     line of the native debugger. In \QC, you can use the left
     pane of the \gui {Debugger Log} view for that purpose. When you press
-    \key {Ctrl+Return}, the contents of the line under the text cursor
+    \key {Ctrl+Enter}, the contents of the line under the text cursor
     are sent directly to the native debugger. Alternatively, you
     can use the line edit at the bottom of the view. Output is displayed in the
     right pane of the \gui {Debugger Log} view.
