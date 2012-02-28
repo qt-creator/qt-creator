@@ -246,7 +246,7 @@ void LinuxDeviceConfigurations::setSshParameters(int i,
     d->devConfigs.at(i)->setSshParameters(params);
 }
 
-void LinuxDeviceConfigurations::setFreePorts(int i, const PortList &freePorts)
+void LinuxDeviceConfigurations::setFreePorts(int i, const Utils::PortList &freePorts)
 {
     QTC_ASSERT(this != LinuxDeviceConfigurationsPrivate::instance, return);
     Q_ASSERT(i >= 0 && i < rowCount());

@@ -33,8 +33,8 @@
 #include "remotelinuxqmlprofilerrunner.h"
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <remotelinux/portlist.h>
 #include <remotelinux/remotelinuxapplicationrunner.h>
+#include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
 using namespace ExtensionSystem;

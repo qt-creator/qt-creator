@@ -34,7 +34,7 @@
 
 #include "maemoqemusettings.h"
 
-#include <remotelinux/portlist.h>
+#include <utils/portlist.h>
 
 #include <QHash>
 #include <QList>
@@ -79,7 +79,7 @@ struct MaemoQemuRuntime
     QString m_args;
     QString m_sshPort;
     QString m_watchPath;
-    RemoteLinux::PortList m_freePorts;
+    Utils::PortList m_freePorts;
     QList<Variable> m_normalVars;
     QString m_openGlBackendVarName;
     QHash<MaemoQemuSettings::OpenGlMode, QString> m_openGlBackendVarValues;

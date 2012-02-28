@@ -34,7 +34,7 @@
 #define MAEMOGLOBAL_H
 
 #include <coreplugin/idocument.h>
-#include <remotelinux/portlist.h>
+#include <utils/portlist.h>
 #include <utils/environment.h>
 
 #include <QCoreApplication>
@@ -100,7 +100,7 @@ public:
     static int applicationIconSize(const QString &osType);
     static QString remoteSudo(const QString &osType, const QString &uname);
     static QString remoteSourceProfilesCommand();
-    static RemoteLinux::PortList freePorts(const QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> &devConf,
+    static Utils::PortList freePorts(const QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> &devConf,
         const QtSupport::BaseQtVersion *qtVersion);
 
     static void addMaddeEnvironment(Utils::Environment &env, const QString &qmakePath);

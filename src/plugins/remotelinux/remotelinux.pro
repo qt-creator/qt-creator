@@ -26,7 +26,6 @@ HEADERS += \
     remotelinuxruncontrolfactory.h \
     remotelinuxdebugsupport.h \
     genericlinuxdeviceconfigurationwizardpages.h \
-    portlist.h \
     deployablefile.h \
     deployablefilesperprofile.h \
     deploymentinfo.h \
@@ -85,7 +84,6 @@ SOURCES += \
     remotelinuxruncontrolfactory.cpp \
     remotelinuxdebugsupport.cpp \
     genericlinuxdeviceconfigurationwizardpages.cpp \
-    portlist.cpp \
     deployablefilesperprofile.cpp \
     deploymentinfo.cpp \
     abstractremotelinuxdeploystep.cpp \

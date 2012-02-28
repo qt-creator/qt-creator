@@ -214,7 +214,7 @@ void MaemoRunConfigurationWidget::handleRemoteMountsChanged()
 void MaemoRunConfigurationWidget::updateMountWarning()
 {
     QString mountWarning;
-    const PortList &portList = m_runConfiguration->freePorts();
+    const Utils::PortList &portList = m_runConfiguration->freePorts();
     const int availablePortCount = portList.count();
     const int mountDirCount
             = m_runConfiguration->remoteMounts()->validMountSpecificationCount();

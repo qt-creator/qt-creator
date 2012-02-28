@@ -47,11 +47,11 @@ QT_END_NAMESPACE
 
 namespace Utils {
 class SshConnectionParameters;
+class PortList;
 }
 
 namespace RemoteLinux {
 class LinuxDeviceConfigurations;
-class PortList;
 
 namespace Internal {
 class LinuxDeviceConfigurationPrivate;
@@ -71,7 +71,7 @@ public:
 
     ~LinuxDeviceConfiguration();
 
-    PortList freePorts() const;
+    Utils::PortList freePorts() const;
     Utils::SshConnectionParameters sshParameters() const;
     QString displayName() const;
     QString osType() const;
@@ -83,7 +83,7 @@ public:
     QVariant attribute(const QString &name) const;
 
     void setSshParameters(const Utils::SshConnectionParameters &sshParameters);
-    void setFreePorts(const PortList &freePorts);
+    void setFreePorts(const Utils::PortList &freePorts);
     void setAttribute(const QString &name, const QVariant &value);
 
     static QString defaultPrivateKeyFilePath();
@@ -92,11 +92,11 @@ public:
     static const Id InvalidId;
 
     static Ptr create(const QString &name, const QString &osType, DeviceType deviceType,
-        const PortList &freePorts, const Utils::SshConnectionParameters &sshParams,
+        const Utils::PortList &freePorts, const Utils::SshConnectionParameters &sshParams,
         const QVariantHash &attributes = QVariantHash(), Origin origin = ManuallyAdded);
 private:
     LinuxDeviceConfiguration(const QString &name, const QString &osType, DeviceType deviceType,
-        const PortList &freePorts, const Utils::SshConnectionParameters &sshParams,
+        const Utils::PortList &freePorts, const Utils::SshConnectionParameters &sshParams,
         const QVariantHash &attributes, Origin origin);
     LinuxDeviceConfiguration(const QSettings &settings, Id &nextId);
     LinuxDeviceConfiguration(const ConstPtr &other);

@@ -32,10 +32,10 @@
 #include "remotelinuxapplicationrunner.h"
 
 #include "linuxdeviceconfiguration.h"
-#include "portlist.h"
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxusedportsgatherer.h"
 
+#include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/ssh/sshconnection.h>
 #include <utils/ssh/sshconnectionmanager.h>

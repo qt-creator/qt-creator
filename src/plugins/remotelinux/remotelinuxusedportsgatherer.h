@@ -40,12 +40,12 @@
 QT_FORWARD_DECLARE_CLASS(QString)
 
 namespace Utils {
+class PortList;
 class SshConnection;
 } // namespace Utils
 
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
-class PortList;
 
 namespace Internal {
 class RemoteLinuxUsedPortsGathererPrivate;
@@ -61,7 +61,7 @@ public:
     void start(const QSharedPointer<Utils::SshConnection> &connection,
         const QSharedPointer<const LinuxDeviceConfiguration> &devConf);
     void stop();
-    int getNextFreePort(PortList *freePorts) const; // returns -1 if no more are left
+    int getNextFreePort(Utils::PortList *freePorts) const; // returns -1 if no more are left
     QList<int> usedPorts() const;
 
 signals:

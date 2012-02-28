@@ -93,7 +93,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/networkaccessmanager.cpp \
     $$PWD/persistentsettings.cpp \
     $$PWD/completingtextedit.cpp \
-    $$PWD/json.cpp
+    $$PWD/json.cpp \
+    $$PWD/portlist.cpp
 
 win32 {
     SOURCES += \
@@ -203,7 +204,8 @@ HEADERS += \
     $$PWD/completingtextedit.h \
     $$PWD/json.h \
     $$PWD/multitask.h \
-    $$PWD/runextensions.h
+    $$PWD/runextensions.h \
+    $$PWD/portlist.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

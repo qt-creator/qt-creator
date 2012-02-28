@@ -153,11 +153,11 @@ QString MaemoGlobal::remoteSourceProfilesCommand()
     return QString::fromAscii(remoteCall);
 }
 
-PortList MaemoGlobal::freePorts(const LinuxDeviceConfiguration::ConstPtr &devConf,
+Utils::PortList MaemoGlobal::freePorts(const LinuxDeviceConfiguration::ConstPtr &devConf,
     const QtSupport::BaseQtVersion *qtVersion)
 {
     if (!devConf || !qtVersion)
-        return PortList();
+        return Utils::PortList();
     if (devConf->deviceType() == LinuxDeviceConfiguration::Emulator) {
         MaemoQemuRuntime rt;
         const int id = qtVersion->uniqueId();

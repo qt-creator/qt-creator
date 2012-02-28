@@ -69,8 +69,6 @@ QtcPlugin {
         "linuxdevicetestdialog.h",
         "linuxdevicetester.cpp",
         "linuxdevicetester.h",
-        "portlist.cpp",
-        "portlist.h",
         "publickeydeploymentdialog.cpp",
         "publickeydeploymentdialog.h",
         "remotelinux.qrc",

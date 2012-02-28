@@ -29,6 +29,7 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
+
 #include "portlist.h"
 
 #include <QList>
@@ -37,7 +38,7 @@
 
 #include <cctype>
 
-namespace RemoteLinux {
+namespace Utils {
 namespace Internal {
 namespace {
 
@@ -217,4 +218,4 @@ QString PortList::regularExpression()
     return QString::fromLatin1("((%1)(,%1)*)?").arg(listElemExpr);
 }
 
-} // namespace RemoteLinux
+} // namespace Utils

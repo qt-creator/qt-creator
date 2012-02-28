@@ -41,7 +41,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
-#include <remotelinux/portlist.h>
+#include <utils/portlist.h>
 #include <utils/ssh/sshconnection.h>
 
 #include <QDir>
@@ -131,12 +131,12 @@ QString MaemoRunConfiguration::commandPrefix() const
     return QString::fromLatin1("%1 %2").arg(prefix, userEnvironmentChangesAsString());
 }
 
-PortList MaemoRunConfiguration::freePorts() const
+Utils::PortList MaemoRunConfiguration::freePorts() const
 {
     const Qt4BuildConfiguration * const bc = activeQt4BuildConfiguration();
     return bc && deployConfig()
             ? MaemoGlobal::freePorts(deployConfig()->deviceConfiguration(), bc->qtVersion())
-        : PortList();
+        : Utils::PortList();
 }
 
 QString MaemoRunConfiguration::localDirToMountForRemoteGdb() const

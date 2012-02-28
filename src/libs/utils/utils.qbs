@@ -150,6 +150,8 @@ DynamicLibrary {
         "networkaccessmanager.cpp",
         "pathlisteditor.cpp",
         "persistentsettings.cpp",
+        "portlist.cpp",
+        "portlist.h",
         "proxyaction.cpp",
         "qtcprocess.cpp",
         "savedaction.cpp",

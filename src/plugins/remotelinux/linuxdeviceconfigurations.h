@@ -67,7 +67,7 @@ public:
     void removeConfiguration(int index);
     void setConfigurationName(int i, const QString &name);
     void setSshParameters(int i, const Utils::SshConnectionParameters &params);
-    void setFreePorts(int i, const PortList &freePorts);
+    void setFreePorts(int i, const Utils::PortList &freePorts);
     void setDefaultDevice(int index);
     void setAttribute(int index, const QString &name, const QVariant &value);
 

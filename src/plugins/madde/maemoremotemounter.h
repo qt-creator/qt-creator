@@ -44,6 +44,7 @@
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace Utils {
+class PortList;
 class SftpChannel;
 class SshConnection;
 class SshRemoteProcess;
@@ -53,7 +54,6 @@ namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
 
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
-class PortList;
 class RemoteLinuxUsedPortsGatherer;
 }
 
@@ -76,7 +76,7 @@ public:
         bool mountAsRoot);
     bool hasValidMountSpecifications() const;
     void resetMountSpecifications() { m_mountSpecs.clear(); }
-    void mount(RemoteLinux::PortList *freePorts,
+    void mount(Utils::PortList *freePorts,
         const RemoteLinux::RemoteLinuxUsedPortsGatherer *portsGatherer);
     void unmount();
     void stop();
@@ -132,7 +132,7 @@ private:
     typedef QSharedPointer<QProcess> ProcPtr;
     QList<ProcPtr> m_utfsServers;
 
-    RemoteLinux::PortList *m_freePorts;
+    Utils::PortList *m_freePorts;
     const RemoteLinux::RemoteLinuxUsedPortsGatherer *m_portsGatherer;
     bool m_remoteMountsAllowed;
     QString m_maddeRoot;

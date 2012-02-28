@@ -52,7 +52,7 @@ public:
     QWidget *createConfigurationWidget();
     QString environmentPreparationCommand() const;
     QString commandPrefix() const;
-    RemoteLinux::PortList freePorts() const;
+    Utils::PortList freePorts() const;
 
     Internal::MaemoRemoteMountsModel *remoteMounts() const { return m_remoteMounts; }
     bool hasEnoughFreePorts(ProjectExplorer::RunMode mode) const;

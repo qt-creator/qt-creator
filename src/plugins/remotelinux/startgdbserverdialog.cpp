@@ -36,13 +36,13 @@
 #include "linuxdeviceconfiguration.h"
 #include "linuxdeviceconfigurations.h"
 #include "remotelinuxusedportsgatherer.h"
-#include "portlist.h"
 
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/pathchooser.h>
+#include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/ssh/sshconnection.h>
 #include <utils/ssh/sshremoteprocessrunner.h>

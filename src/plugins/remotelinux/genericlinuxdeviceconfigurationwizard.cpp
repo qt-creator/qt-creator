@@ -33,8 +33,8 @@
 #include "genericlinuxdeviceconfigurationwizardpages.h"
 #include "linuxdevicetestdialog.h"
 #include "linuxdevicetester.h"
-#include "portlist.h"
 #include "remotelinux_constants.h"
+#include <utils/portlist.h>
 
 using namespace Utils;
 
@@ -86,7 +86,7 @@ LinuxDeviceConfiguration::Ptr GenericLinuxDeviceConfigurationWizard::deviceConfi
         sshParams.privateKeyFile = d->setupPage.privateKeyFilePath();
     LinuxDeviceConfiguration::Ptr devConf = LinuxDeviceConfiguration::create(d->setupPage.configurationName(),
         QLatin1String(Constants::GenericLinuxOsType), LinuxDeviceConfiguration::Hardware,
-        PortList::fromString(QLatin1String("10000-10100")), sshParams);
+        Utils::PortList::fromString(QLatin1String("10000-10100")), sshParams);
     LinuxDeviceTestDialog dlg(devConf, new GenericLinuxDeviceTester(this), this);
     dlg.exec();
     return devConf;

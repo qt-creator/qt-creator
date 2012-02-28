@@ -37,12 +37,12 @@
 #include <QSharedPointer>
 
 namespace Utils {
+class PortList;
 class SshConnection;
 }
 
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
-class PortList;
 class RemoteLinuxRunConfiguration;
 class RemoteLinuxUsedPortsGatherer;
 
@@ -67,7 +67,7 @@ public:
     QSharedPointer<Utils::SshConnection> connection() const;
     QSharedPointer<const LinuxDeviceConfiguration> devConfig() const;
     const RemoteLinuxUsedPortsGatherer *usedPortsGatherer() const;
-    PortList *freePorts();
+    Utils::PortList *freePorts();
     QString remoteExecutable() const;
     QString arguments() const;
     QString commandPrefix() const;

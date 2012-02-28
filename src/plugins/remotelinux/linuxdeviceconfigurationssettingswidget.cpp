@@ -34,12 +34,12 @@
 
 #include "linuxdeviceconfigurations.h"
 #include "linuxdevicefactoryselectiondialog.h"
-#include "portlist.h"
 #include "remotelinuxutils.h"
 #include "sshkeycreationdialog.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/portlist.h>
 #include <utils/ssh/sshremoteprocessrunner.h>
 
 #include <QFileInfo>

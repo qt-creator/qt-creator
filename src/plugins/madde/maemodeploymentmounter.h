@@ -35,7 +35,7 @@
 
 #include "maemomountspecification.h"
 
-#include <remotelinux/portlist.h>
+#include <utils/portlist.h>
 
 #include <QList>
 #include <QObject>
@@ -97,7 +97,7 @@ private:
     QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> m_devConf;
     MaemoRemoteMounter * const m_mounter;
     RemoteLinux::RemoteLinuxUsedPortsGatherer * const m_portsGatherer;
-    RemoteLinux::PortList m_freePorts;
+    Utils::PortList m_freePorts;
     QList<MaemoMountSpecification> m_mountSpecs;
     const Qt4ProjectManager::Qt4BuildConfiguration *m_buildConfig;
 };

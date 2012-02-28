@@ -32,14 +32,15 @@
 #include "genericlinuxdeviceconfigurationwidget.h"
 #include "ui_genericlinuxdeviceconfigurationwidget.h"
 
-#include <remotelinux/portlist.h>
 #include <remotelinux/linuxdeviceconfigurations.h>
 
+#include <utils/portlist.h>
 #include <utils/ssh/sshconnection.h>
 
 #include <QTextStream>
 
 using namespace RemoteLinux;
+using namespace Utils;
 
 GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
         const LinuxDeviceConfiguration::Ptr &deviceConfig,
@@ -73,11 +74,11 @@ GenericLinuxDeviceConfigurationWidget::~GenericLinuxDeviceConfigurationWidget()
 
 void GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged()
 {
-    Utils::SshConnectionParameters sshParams = deviceConfiguration()->sshParameters();
+    SshConnectionParameters sshParams = deviceConfiguration()->sshParameters();
     const bool usePassword = m_ui->passwordButton->isChecked();
     sshParams.authenticationType = usePassword
-        ? Utils::SshConnectionParameters::AuthenticationByPassword
-        : Utils::SshConnectionParameters::AuthenticationByKey;
+        ? SshConnectionParameters::AuthenticationByPassword
+        : SshConnectionParameters::AuthenticationByKey;
     deviceConfiguration()->setSshParameters(sshParams);
     m_ui->pwdLineEdit->setEnabled(usePassword);
     m_ui->passwordLabel->setEnabled(usePassword);
@@ -88,42 +89,42 @@ void GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged()
 
 void GenericLinuxDeviceConfigurationWidget::hostNameEditingFinished()
 {
-    Utils::SshConnectionParameters sshParams = deviceConfiguration()->sshParameters();
+    SshConnectionParameters sshParams = deviceConfiguration()->sshParameters();
     sshParams.host = m_ui->hostLineEdit->text();
     deviceConfiguration()->setSshParameters(sshParams);
 }
 
 void GenericLinuxDeviceConfigurationWidget::sshPortEditingFinished()
 {
-    Utils::SshConnectionParameters sshParams = deviceConfiguration()->sshParameters();
+    SshConnectionParameters sshParams = deviceConfiguration()->sshParameters();
     sshParams.port = m_ui->sshPortSpinBox->value();
     deviceConfiguration()->setSshParameters(sshParams);
 }
 
 void GenericLinuxDeviceConfigurationWidget::timeoutEditingFinished()
 {
-    Utils::SshConnectionParameters sshParams = deviceConfiguration()->sshParameters();
+    SshConnectionParameters sshParams = deviceConfiguration()->sshParameters();
     sshParams.timeout = m_ui->timeoutSpinBox->value();
     deviceConfiguration()->setSshParameters(sshParams);
 }
 
 void GenericLinuxDeviceConfigurationWidget::userNameEditingFinished()
 {
-    Utils::SshConnectionParameters sshParams = deviceConfiguration()->sshParameters();
+    SshConnectionParameters sshParams = deviceConfiguration()->sshParameters();
     sshParams.userName = m_ui->userLineEdit->text();
     deviceConfiguration()->setSshParameters(sshParams);
 }
 
 void GenericLinuxDeviceConfigurationWidget::passwordEditingFinished()
 {
-    Utils::SshConnectionParameters sshParams = deviceConfiguration()->sshParameters();
+    SshConnectionParameters sshParams = deviceConfiguration()->sshParameters();
     sshParams.password = m_ui->pwdLineEdit->text();
     deviceConfiguration()->setSshParameters(sshParams);
 }
 
 void GenericLinuxDeviceConfigurationWidget::keyFileEditingFinished()
 {
-    Utils::SshConnectionParameters sshParams = deviceConfiguration()->sshParameters();
+    SshConnectionParameters sshParams = deviceConfiguration()->sshParameters();
     sshParams.privateKeyFile = m_ui->keyFileLineEdit->path();
     deviceConfiguration()->setSshParameters(sshParams);
 }
@@ -161,15 +162,15 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
     m_ui->portsWarningLabel->setPixmap(QPixmap(":/projectexplorer/images/compile_error.png"));
     m_ui->portsWarningLabel->setToolTip(QLatin1String("<font color=\"red\">")
         + tr("You will need at least one port.") + QLatin1String("</font>"));
-    m_ui->keyFileLineEdit->setExpectedKind(Utils::PathChooser::File);
+    m_ui->keyFileLineEdit->setExpectedKind(PathChooser::File);
     m_ui->keyFileLineEdit->lineEdit()->setMinimumWidth(0);
     QRegExpValidator * const portsValidator
         = new QRegExpValidator(QRegExp(PortList::regularExpression()), this);
     m_ui->portsLineEdit->setValidator(portsValidator);
 
-    const Utils::SshConnectionParameters &sshParams = deviceConfiguration()->sshParameters();
+    const SshConnectionParameters &sshParams = deviceConfiguration()->sshParameters();
 
-    if (sshParams.authenticationType == Utils::SshConnectionParameters::AuthenticationByPassword)
+    if (sshParams.authenticationType == SshConnectionParameters::AuthenticationByPassword)
         m_ui->passwordButton->setChecked(true);
     else
         m_ui->keyButton->setChecked(true);

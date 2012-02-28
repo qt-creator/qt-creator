@@ -34,7 +34,6 @@
 
 #include "deploymentinfo.h"
 #include "linuxdeviceconfiguration.h"
-#include "portlist.h"
 #include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxrunconfigurationwidget.h"
 
@@ -47,10 +46,12 @@
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4target.h>
 
+#include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
+using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -94,8 +95,8 @@ public:
     QString gdbPath;
     QString arguments;
     RemoteLinuxRunConfiguration::BaseEnvironmentType baseEnvironmentType;
-    Utils::Environment remoteEnvironment;
-    QList<Utils::EnvironmentItem> userEnvironmentChanges;
+    Environment remoteEnvironment;
+    QList<EnvironmentItem> userEnvironmentChanges;
     bool validParse;
     bool parseInProgress;
     QString disabledReason;
@@ -185,7 +186,7 @@ QWidget *RemoteLinuxRunConfiguration::createConfigurationWidget()
     return new RemoteLinuxRunConfigurationWidget(this);
 }
 
-Utils::OutputFormatter *RemoteLinuxRunConfiguration::createOutputFormatter() const
+OutputFormatter *RemoteLinuxRunConfiguration::createOutputFormatter() const
 {
     return new QtSupport::QtOutputFormatter(qt4Target()->qt4Project());
 }
@@ -211,7 +212,7 @@ QVariantMap RemoteLinuxRunConfiguration::toMap() const
     map.insert(QLatin1String(ProFileKey), dir.relativeFilePath(d->proFilePath));
     map.insert(QLatin1String(BaseEnvironmentBaseKey), d->baseEnvironmentType);
     map.insert(QLatin1String(UserEnvironmentChangesKey),
-        Utils::EnvironmentItem::toStringList(d->userEnvironmentChanges));
+        EnvironmentItem::toStringList(d->userEnvironmentChanges));
     map.insert(QLatin1String(UseAlternateExeKey), d->useAlternateRemoteExecutable);
     map.insert(QLatin1String(AlternateExeKey), d->alternateRemoteExecutable);
     map.insert(QLatin1String(WorkingDirectoryKey), d->workingDirectory);
@@ -227,7 +228,7 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
     const QDir dir = QDir(target()->project()->projectDirectory());
     d->proFilePath = QDir::cleanPath(dir.filePath(map.value(QLatin1String(ProFileKey)).toString()));
     d->userEnvironmentChanges =
-        Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(UserEnvironmentChangesKey))
+        EnvironmentItem::fromStringList(map.value(QLatin1String(UserEnvironmentChangesKey))
         .toStringList());
     d->baseEnvironmentType = static_cast<BaseEnvironmentType>(map.value(QLatin1String(BaseEnvironmentBaseKey),
         RemoteBaseEnvironment).toInt());
@@ -417,20 +418,20 @@ void RemoteLinuxRunConfiguration::setBaseEnvironmentType(BaseEnvironmentType env
     }
 }
 
-Utils::Environment RemoteLinuxRunConfiguration::environment() const
+Environment RemoteLinuxRunConfiguration::environment() const
 {
-    Utils::Environment env = baseEnvironment();
+    Environment env = baseEnvironment();
     env.modify(userEnvironmentChanges());
     return env;
 }
 
-Utils::Environment RemoteLinuxRunConfiguration::baseEnvironment() const
+Environment RemoteLinuxRunConfiguration::baseEnvironment() const
 {
     return (d->baseEnvironmentType == RemoteBaseEnvironment ? remoteEnvironment()
-        : Utils::Environment());
+        : Environment());
 }
 
-QList<Utils::EnvironmentItem> RemoteLinuxRunConfiguration::userEnvironmentChanges() const
+QList<EnvironmentItem> RemoteLinuxRunConfiguration::userEnvironmentChanges() const
 {
     return d->userEnvironmentChanges;
 }
@@ -439,13 +440,13 @@ QString RemoteLinuxRunConfiguration::userEnvironmentChangesAsString() const
 {
     QString env;
     QString placeHolder = QLatin1String("%1=%2 ");
-    foreach (const Utils::EnvironmentItem &item, userEnvironmentChanges())
+    foreach (const EnvironmentItem &item, userEnvironmentChanges())
         env.append(placeHolder.arg(item.name, item.value));
     return env.mid(0, env.size() - 1);
 }
 
 void RemoteLinuxRunConfiguration::setUserEnvironmentChanges(
-    const QList<Utils::EnvironmentItem> &diff)
+    const QList<EnvironmentItem> &diff)
 {
     if (d->userEnvironmentChanges != diff) {
         d->userEnvironmentChanges = diff;
@@ -453,12 +454,12 @@ void RemoteLinuxRunConfiguration::setUserEnvironmentChanges(
     }
 }
 
-Utils::Environment RemoteLinuxRunConfiguration::remoteEnvironment() const
+Environment RemoteLinuxRunConfiguration::remoteEnvironment() const
 {
     return d->remoteEnvironment;
 }
 
-void RemoteLinuxRunConfiguration::setRemoteEnvironment(const Utils::Environment &environment)
+void RemoteLinuxRunConfiguration::setRemoteEnvironment(const Environment &environment)
 {
     if (d->remoteEnvironment.size() == 0 || d->remoteEnvironment != environment) {
         d->remoteEnvironment = environment;

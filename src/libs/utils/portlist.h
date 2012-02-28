@@ -29,19 +29,20 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
+
 #ifndef PORTLIST_H
 #define PORTLIST_H
 
-#include "remotelinux_export.h"
+#include "utils_global.h"
 
 QT_FORWARD_DECLARE_CLASS(QString)
 
-namespace RemoteLinux {
+namespace Utils {
 namespace Internal {
 class PortListPrivate;
 } // namespace Internal
 
-class REMOTELINUX_EXPORT PortList
+class QTCREATOR_UTILS_EXPORT PortList
 {
 public:
     PortList();
@@ -64,6 +65,6 @@ private:
     Internal::PortListPrivate * const d;
 };
 
-} // namespace RemoteLinux
+} // namespace Utils
 
 #endif // PORTLIST_H

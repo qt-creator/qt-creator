@@ -44,9 +44,12 @@ class Qt4BaseTarget;
 class Qt4ProFileNode;
 } // namespace Qt4ProjectManager
 
+namespace Utils {
+class PortList;
+}
+
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
-class PortList;
 class RemoteLinuxRunConfigurationWidget;
 class RemoteLinuxDeployConfiguration;
 
@@ -85,7 +88,7 @@ public:
 
     virtual QString environmentPreparationCommand() const;
     virtual QString commandPrefix() const;
-    virtual PortList freePorts() const;
+    virtual Utils::PortList freePorts() const;
 
     QString localExecutableFilePath() const;
     QString defaultRemoteExecutableFilePath() const;

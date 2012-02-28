@@ -32,9 +32,9 @@
 #include "linuxdeviceconfiguration.h"
 
 #include "linuxdeviceconfigurations.h"
-#include "portlist.h"
 #include "remotelinux_constants.h"
 
+#include <utils/portlist.h>
 #include <utils/ssh/sshconnection.h>
 #include <utils/qtcassert.h>
 
