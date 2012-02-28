@@ -396,7 +396,6 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             } break;
 
         case maybe_catch_or_finally:
-            dump();
             switch (kind) {
             case Catch:             turnInto(catch_statement); break;
             case Finally:           turnInto(finally_statement); break;
@@ -1125,17 +1124,27 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         }
         break;
 
-    case function_start:
-        if (parentState.type == expression) {
-            // undo the continuation indent of the expression
-            *indentDepth = parentState.savedIndentDepth;
-            *savedIndentDepth = *indentDepth;
-        } else {
-            // always align to function keyword
+    case function_start: {
+        // in these states, align to the 'function' keyword
+        const int parentType = parentState.type;
+        if (parentType == objectdefinition_open
+                || parentType == paren_open
+                || parentType == bracket_open) {
             *indentDepth = tokenPosition;
             *savedIndentDepth = *indentDepth;
+            break;
+        }
+
+        // otherwise find the enclosing expression end state and align to that
+        for (int i = 1; state(i).type != topmost_intro; ++i) {
+            const int type = state(i).type;
+            if (isExpressionEndState(type)) {
+                *indentDepth = state(i - 1).savedIndentDepth;
+                break;
+            }
         }
         break;
+    }
 
     case do_statement_while_paren_open:
     case statement_with_condition_paren_open:
