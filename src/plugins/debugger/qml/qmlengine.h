@@ -37,6 +37,7 @@
 #include <qmljsdebugclient/qdeclarativeenginedebug.h>
 #include <qmljsdebugclient/qdebugmessageclient.h>
 #include <utils/outputformat.h>
+#include <qmljs/qmljsdocument.h>
 
 #include <QAbstractSocket>
 
@@ -92,6 +93,7 @@ public:
 
 public slots:
     void disconnected();
+    void documentUpdated(QmlJS::Document::Ptr doc);
 
 private slots:
     void errorMessageBoxFinished(int result);
@@ -184,6 +186,8 @@ private:
     bool canEvaluateScript(const QString &script);
     QtMessageLogItem *constructLogItemTree(const QVariant &result,
                                            const QString &key = QString());
+    bool adjustBreakpointLineAndColumn(const QString &filePath, quint32 *line,
+                                       quint32 *column, bool *valid);
 
 private:
     friend class QmlCppEngine;
