@@ -14,7 +14,7 @@ DynamicLibrary {
 
     Properties {
         condition: qbs.targetOS == "windows"
-        cpp.dynamicLibraries: ["User32.lib"]
+        cpp.dynamicLibraries: ["User32.lib", "iphlpapi.lib", "Ws2_32.lib"]
     }
 
     Depends { name: "cpp" }
@@ -127,6 +127,8 @@ DynamicLibrary {
         "submitfieldwidget.h",
         "synchronousprocess.cpp",
         "synchronousprocess.h",
+        "tcpportsgatherer.cpp",
+        "tcpportsgatherer.h",
         "textfileformat.cpp",
         "textfileformat.h",
         "treewidgetcolumnstretcher.cpp",

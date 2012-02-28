@@ -5,7 +5,8 @@ cplusplus-frontend \
 fakevim \
 debugger \
 preprocessor \
-subdir_proparser
+subdir_proparser \
+utils
 
 unix {
 #   Uses popen

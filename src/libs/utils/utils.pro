@@ -20,3 +20,5 @@ SOURCES += \
     proxyaction.cpp
 
 win32: LIBS += -lUser32
+# PortsGatherer
+win32: LIBS += -liphlpapi -lWs2_32

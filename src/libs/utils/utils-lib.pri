@@ -94,7 +94,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/persistentsettings.cpp \
     $$PWD/completingtextedit.cpp \
     $$PWD/json.cpp \
-    $$PWD/portlist.cpp
+    $$PWD/portlist.cpp \
+    $$PWD/tcpportsgatherer.cpp
 
 win32 {
     SOURCES += \
@@ -205,7 +206,8 @@ HEADERS += \
     $$PWD/json.h \
     $$PWD/multitask.h \
     $$PWD/runextensions.h \
-    $$PWD/portlist.h
+    $$PWD/portlist.h \
+    $$PWD/tcpportsgatherer.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
