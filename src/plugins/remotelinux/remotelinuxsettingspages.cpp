@@ -66,7 +66,7 @@ QString LinuxDeviceConfigurationsSettingsPage::category() const
 
 QString LinuxDeviceConfigurationsSettingsPage::displayCategory() const
 {
-    return QCoreApplication::translate("RemoteLinux", "Linux Devices");
+    return QCoreApplication::translate("RemoteLinux", "Devices");
 }
 
 QIcon LinuxDeviceConfigurationsSettingsPage::categoryIcon() const

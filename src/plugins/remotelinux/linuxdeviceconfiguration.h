@@ -210,7 +210,7 @@ public:
 
     /*!
       Returns a list of ids representing actions that can be run on device configurations
-      that this factory supports. These actions will be available in the "Linux Devices"
+      that this factory supports. These actions will be available in the "Devices"
       options page.
     */
     virtual QStringList supportedDeviceActionIds() const = 0;
