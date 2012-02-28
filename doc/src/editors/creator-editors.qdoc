@@ -1208,6 +1208,9 @@
 
     \endlist
 
+    The search results are stored in the search history (1) from which you can
+    select earlier searches.
+
     \note You can use \gui{Advanced Find} also to search for symbols. For more
     information, see \l{Finding Symbols}.
 
@@ -1627,6 +1630,16 @@
             definition into the class declaration. The function can be public,
             protected, private, public slot, protected slot, or private slot.
             \o Method name
+        \row
+            \o Switch with Next/Previous Parameter
+            \o Moves a parameter down or up one position in a parameter list.
+            \o Parameter in the declaration or definition of a fuction or method
+        \row
+            \o Extract Method
+            \o Moves the selected code to a new method and replaces the block of
+            code with a call to the new method. Enter a name for the method in
+            the \gui {Extract Function Refactoring} dialog.
+            \o Block of code selected
         \row
             \o Add Local Declaration
             \i
