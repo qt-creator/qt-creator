@@ -44,7 +44,7 @@ namespace Internal {
 
 // ----------- QtProjectParameters
 QtProjectParameters::QtProjectParameters()
-  : type(ConsoleApp), flags(WidgetsRequiredFlag), qtVersionSupport(SupportQt4And5)
+  : type(ConsoleApp), flags(0), qtVersionSupport(SupportQt4And5)
 {
 }
 
