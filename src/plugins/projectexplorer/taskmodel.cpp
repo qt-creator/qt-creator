@@ -148,11 +148,18 @@ void TaskModel::removeTask(const Task &task)
     }
 }
 
+int TaskModel::rowForId(unsigned int id)
+{
+    QList<Task>::const_iterator it = qLowerBound(m_tasks.constBegin(), m_tasks.constEnd(), id, sortById);
+    if (it == m_tasks.constEnd())
+        return -1;
+    return it - m_tasks.constBegin();
+}
+
 void TaskModel::updateTaskLineNumber(unsigned int id, int line)
 {
-    QList<Task>::iterator it = qLowerBound(m_tasks.begin(), m_tasks.end(), id, sortById);
-    QTC_ASSERT(it != m_tasks.end(), return)
-    int i = it - m_tasks.begin();
+    int i = rowForId(id);
+    QTC_ASSERT(i != -1, return)
     if (m_tasks.at(i).taskId == id) {
         m_tasks[i].movedLine = line;
         emit dataChanged(index(i, 0), index(i, 0));
@@ -442,6 +449,15 @@ void TaskFilterModel::handleDataChanged(QModelIndex top, QModelIndex bottom)
 void TaskFilterModel::handleReset()
 {
     invalidateFilter();
+}
+
+QModelIndex TaskFilterModel::mapFromSource(const QModelIndex &idx) const
+{
+    updateMapping();
+    QList<int>::const_iterator it = qBinaryFind(m_mapping.constBegin(), m_mapping.constEnd(), idx.row());
+    if (it == m_mapping.constEnd())
+        return QModelIndex();
+    return index(it - m_mapping.constBegin(), 0);
 }
 
 QModelIndex TaskFilterModel::mapToSource(const QModelIndex &index) const

@@ -110,7 +110,8 @@ public:
 
     enum MarkRequestKind {
         BreakpointRequest,
-        BookmarkRequest
+        BookmarkRequest,
+        TaskMarkRequest
     };
 
 signals:

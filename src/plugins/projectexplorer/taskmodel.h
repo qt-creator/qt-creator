@@ -78,6 +78,7 @@ public:
 
     bool hasFile(const QModelIndex &index) const;
 
+    int rowForId(unsigned int id);
 private:
 
     class CategoryData
@@ -161,6 +162,7 @@ public:
     bool hasFile(const QModelIndex &index) const
     { return m_sourceModel->hasFile(mapToSource(index)); }
 
+    QModelIndex mapFromSource(const QModelIndex &idx) const;
 private slots:
     void handleNewRows(const QModelIndex &index, int first, int last);
     void handleRemovedRows(const QModelIndex &index, int first, int last);

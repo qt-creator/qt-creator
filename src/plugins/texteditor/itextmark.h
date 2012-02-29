@@ -75,6 +75,8 @@ public:
     void setPriority(Priority prioriy);
     virtual bool visible() const;
     virtual double widthFactor() const;
+    virtual bool clickable() const;
+    virtual void clicked();
 
 private:
     int m_lineNumber;
