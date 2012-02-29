@@ -199,8 +199,9 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(RunConfiguration *runConfigurat
         "qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html"
         "\">What are the prerequisites?</a>"));
 
-    useCppDebuggerToggled(m_aspect->useCppDebugger());
-    useQmlDebuggerToggled(m_aspect->useQmlDebugger());
+    m_useCppDebugger->setChecked(m_aspect->useCppDebugger());
+    m_useQmlDebugger->setChecked(m_aspect->useQmlDebugger());
+
     m_debugServerPort->setValue(m_aspect->qmlDebugServerPort());
 
     connect(m_qmlDebuggerInfoLabel, SIGNAL(linkActivated(QString)),
