@@ -197,7 +197,7 @@ void S60DeployStep::reportError(const QString &error)
                                        error,
                                        Utils::FileName(), -1,
                                        Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
-    emit finished(false);
+    emit s60DeploymentFinished(false);
 }
 
 bool S60DeployStep::processPackageName(QString &errorMessage)
@@ -273,7 +273,7 @@ void S60DeployStep::stop()
         SymbianDeviceManager::instance()->releaseCodaDevice(m_codaDevice);
     }
     setState(StateUninit);
-    emit finished(false);
+    emit s60DeploymentFinished(false);
 }
 
 void S60DeployStep::setupConnections()
@@ -331,10 +331,10 @@ void S60DeployStep::run(QFutureInterface<bool> &fi)
 
     m_futureInterface->setProgressRange(0, 100*m_signedPackages.count());
 
-    connect(this, SIGNAL(finished(bool)), this, SLOT(deploymentFinished(bool)));
+    connect(this, SIGNAL(s60DeploymentFinished(bool)), this, SLOT(deploymentFinished(bool)));
     connect(this, SIGNAL(finishNow(bool)), this, SLOT(deploymentFinished(bool)), Qt::DirectConnection);
     connect(this, SIGNAL(allFilesSent()), this, SLOT(startInstalling()), Qt::DirectConnection);
-    connect(this, SIGNAL(allFilesInstalled()), this, SIGNAL(finished()), Qt::DirectConnection);
+    connect(this, SIGNAL(allFilesInstalled()), this, SIGNAL(s60DeploymentFinished()), Qt::DirectConnection);
     connect(this, SIGNAL(copyProgressChanged(int)), this, SLOT(updateProgress(int)));
 
     start();
@@ -577,7 +577,7 @@ void S60DeployStep::checkForTimeout()
         return;
     QMessageBox *mb = CodaRunControl::createCodaWaitingMessageBox(Core::ICore::mainWindow());
     connect(this, SIGNAL(codaConnected()), mb, SLOT(close()));
-    connect(this, SIGNAL(finished()), mb, SLOT(close()));
+    connect(this, SIGNAL(s60DeploymentFinished()), mb, SLOT(close()));
     connect(this, SIGNAL(finishNow()), mb, SLOT(close()));
     connect(mb, SIGNAL(finished(int)), this, SLOT(slotWaitingForCodaClosed(int)));
     mb->open();
@@ -590,7 +590,7 @@ void S60DeployStep::showManualInstallationInfo()
     QMessageBox *mb = new QMessageBox(QMessageBox::Information, title, text,
                                       QMessageBox::Ok, Core::ICore::mainWindow());
     connect(this, SIGNAL(allFilesInstalled()), mb, SLOT(close()));
-    connect(this, SIGNAL(finished()), mb, SLOT(close()));
+    connect(this, SIGNAL(s60DeploymentFinished()), mb, SLOT(close()));
     connect(this, SIGNAL(finishNow()), mb, SLOT(close()));
     mb->open();
 }
