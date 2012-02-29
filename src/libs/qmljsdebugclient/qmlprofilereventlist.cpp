@@ -1406,10 +1406,10 @@ void QmlProfilerEventList::load()
         return;
     }
 
-    setState(AcquiringData);
-
     // erase current
     clear();
+
+    setState(AcquiringData);
 
     bool readingQmlEvents = false;
     bool readingV8Events = false;

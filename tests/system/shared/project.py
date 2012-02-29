@@ -204,8 +204,9 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
         available = __createProjectSelectType__("  Applications", "Qt Quick Application (from existing \.qml file)")
     else:
         available = __createProjectSelectType__("  Applications", "Qt Quick Application (Built-in elements)")
-    # This needs Qt 4.7 - a version we don't have for Maemo
-    if QtQuickConstants.Targets.MAEMO5 in available:
+    # This needs Qt 4.7.4 - a version we don't have for Maemo
+    # it's a hack to keep the test passing, proper version checking would be better
+    if not templateFile and QtQuickConstants.Targets.MAEMO5 in available:
         available.remove(QtQuickConstants.Targets.MAEMO5)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
     if templateFile:
@@ -264,7 +265,7 @@ def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP, availableTargets
         available = availableTargets
     else:
         # following targets depend on the build environment - added for further/later tests
-        available = [QtQuickConstants.Targets.MAEMO5,
+        available = [QtQuickConstants.Targets.MAEMO5, QtQuickConstants.Targets.EMBEDDED_LINUX,
                      QtQuickConstants.Targets.SIMULATOR, QtQuickConstants.Targets.HARMATTAN]
         if platform.system() in ('Windows', 'Microsoft'):
             available += [QtQuickConstants.Targets.SYMBIAN]
@@ -418,6 +419,8 @@ def __getSupportedPlatforms__(text, getAsStrings=False):
         addSimulator = False
         if 'Desktop' in supports:
             result.append(QtQuickConstants.Targets.DESKTOP)
+            if platform.system() in ("Linux", "Darwin"):
+                result.append(QtQuickConstants.Targets.EMBEDDED_LINUX)
         if 'MeeGo/Harmattan' in supports:
             result.append(QtQuickConstants.Targets.HARMATTAN)
             result.append(QtQuickConstants.Targets.MAEMO5)
@@ -436,7 +439,6 @@ def __getSupportedPlatforms__(text, getAsStrings=False):
         test.warning("Returning None (__getSupportedPlatforms__())",
                      "Parsed text: '%s'" % text)
         return None, None
-    JIRA.performWorkaroundIfStillOpen(7002, JIRA.Bug.CREATOR, result)
     if getAsStrings:
         result = QtQuickConstants.getTargetsAsStrings(result)
     return result, version

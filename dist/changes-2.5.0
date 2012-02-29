@@ -34,6 +34,9 @@ Managing Projects
 Debugging
 
 Debugging QML/JS
+   * Relocate breakpoints to next executable code
+   * Implement run-to-line functionality
+   * Spruce up the script console for evaluating QML/JS expressions
 
 Analyzing Code
 
