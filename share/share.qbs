@@ -81,11 +81,37 @@ Product {
     }
 
     Group {
-        qbs.installDir: "share/qtcreator/qml/qmlpuppet/images"
+        qbs.installDir: "share/qtcreator/welcomescreen/widgets/dummydata/context"
         fileTags: ["install"]
         files: [
-            "qtcreator/qml/qmlpuppet/images/template_image.png",
-            "qtcreator/qml/qmlpuppet/images/webkit.png",
+            "qtcreator/welcomescreen/widgets/dummydata/context/ExampleDelegate.qml",
+            "qtcreator/welcomescreen/widgets/dummydata/context/ExampleGridView.qml",
+        ]
+    }
+
+    Group {
+        qbs.installDir: "share/qtcreator/qml-type-descriptions"
+        fileTags: ["install"]
+        files: [
+            "qtcreator/qml-type-descriptions/qtmobility-feedback.qmltypes",
+            "qtcreator/qml-type-descriptions/qtmobility-systeminfo.qmltypes",
+            "qtcreator/qml-type-descriptions/qtwebkit.qmltypes",
+            "qtcreator/qml-type-descriptions/qtmobility-connectivity.qmltypes",
+            "qtcreator/qml-type-descriptions/qtmobility-contacts.qmltypes",
+            "qtcreator/qml-type-descriptions/qtmobility-serviceframework.qmltypes",
+            "qtcreator/qml-type-descriptions/qmlproject.qmltypes",
+            "qtcreator/qml-type-descriptions/qtmobility-gallery.qmltypes",
+            "qtcreator/qml-type-descriptions/qt-labs-gestures.qmltypes",
+            "qtcreator/qml-type-descriptions/qtmultimediakit.qmltypes",
+            "qtcreator/qml-type-descriptions/qtmobility-messaging.qmltypes",
+            "qtcreator/qml-type-descriptions/qtmobility-sensors.qmltypes",
+            "qtcreator/qml-type-descriptions/qmlruntime.qmltypes",
+            "qtcreator/qml-type-descriptions/qt-labs-folderlistmodel.qmltypes",
+            "qtcreator/qml-type-descriptions/qtmobility-organizer.qmltypes",
+            "qtcreator/qml-type-descriptions/qtmobility-location.qmltypes",
+            "qtcreator/qml-type-descriptions/builtins.qmltypes",
+            "qtcreator/qml-type-descriptions/qt-labs-particles.qmltypes",
+            "qtcreator/qml-type-descriptions/qtmobility-publishsubscribe.qmltypes",
         ]
     }
 
@@ -161,6 +187,19 @@ Product {
     }
 
     Group {
+        qbs.installDir: "share/qtcreator/glsl"
+        fileTags: ["install"]
+        files: [
+            "qtcreator/glsl/glsl_120_common.glsl",
+            "qtcreator/glsl/glsl_es_100.frag",
+            "qtcreator/glsl/glsl_120.vert",
+            "qtcreator/glsl/glsl_120.frag",
+            "qtcreator/glsl/glsl_es_100_common.glsl",
+            "qtcreator/glsl/glsl_es_100.vert",
+        ]
+    }
+
+    Group {
         qbs.installDir: "share/qtcreator/qml/qmlpuppet/container"
         fileTags: ["install"]
         files: [
@@ -177,6 +216,7 @@ Product {
             "qtcreator/qml/qmlpuppet/container/idcontainer.h",
             "qtcreator/qml/qmlpuppet/container/idcontainer.cpp",
             "qtcreator/qml/qmlpuppet/container/addimportcontainer.cpp",
+            "qtcreator/qml/qmlpuppet/container/container.pri",
             "qtcreator/qml/qmlpuppet/container/informationcontainer.h",
             "qtcreator/qml/qmlpuppet/container/reparentcontainer.cpp",
             "qtcreator/qml/qmlpuppet/container/instancecontainer.h",
@@ -189,8 +229,11 @@ Product {
         qbs.installDir: "share/qtcreator/qmldesigner/propertyeditor/Qt"
         fileTags: ["install"]
         files: [
+            "qtcreator/qmldesigner/propertyeditor/Qt/cancelbutton.css",
             "qtcreator/qmldesigner/propertyeditor/Qt/FlickableGroupBox.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/ColorScheme.qml",
+            "qtcreator/qmldesigner/propertyeditor/Qt/anchorbox.css",
+            "qtcreator/qmldesigner/propertyeditor/Qt/checkbox_tr.css",
             "qtcreator/qmldesigner/propertyeditor/Qt/Type.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/ColorGroupBox.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/ExtendedPane.qml",
@@ -198,12 +241,16 @@ Product {
             "qtcreator/qmldesigner/propertyeditor/Qt/FlagedButton.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/FlowSpecifics.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/ExtendedSwitches.qml",
+            "qtcreator/qmldesigner/propertyeditor/Qt/layoutWidget.css",
             "qtcreator/qmldesigner/propertyeditor/Qt/PropertyFrame.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/PlaceHolder.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/Extended.qml",
+            "qtcreator/qmldesigner/propertyeditor/Qt/anchorhorizontal.css",
+            "qtcreator/qmldesigner/propertyeditor/Qt/anchorvertical.css",
             "qtcreator/qmldesigner/propertyeditor/Qt/Modifiers.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/TextInputSpecifics.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/ColorLabel.qml",
+            "qtcreator/qmldesigner/propertyeditor/Qt/styledbuttonleft.css",
             "qtcreator/qmldesigner/propertyeditor/Qt/FlipableSpecifics.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/RectangleColorGroupBox.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/HorizontalLayout.qml",
@@ -214,13 +261,16 @@ Product {
             "qtcreator/qmldesigner/propertyeditor/Qt/ExpressionEditor.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/AlignmentVerticalButtons.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/SliderWidget.qml",
+            "qtcreator/qmldesigner/propertyeditor/Qt/anchorleft.css",
             "qtcreator/qmldesigner/propertyeditor/Qt/LineEdit.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/FlickableSpecifics.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/DoubleSpinBox.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/LayoutPane.qml",
+            "qtcreator/qmldesigner/propertyeditor/Qt/specialCheckBox.css",
             "qtcreator/qmldesigner/propertyeditor/Qt/RectangleSpecifics.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/RowSpecifics.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/FontComboBox.qml",
+            "qtcreator/qmldesigner/propertyeditor/Qt/anchorspacer.css",
             "qtcreator/qmldesigner/propertyeditor/Qt/ItemPane.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/Layout.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/Geometry.qml",
@@ -228,28 +278,39 @@ Product {
             "qtcreator/qmldesigner/propertyeditor/Qt/StandardTextColorGroupBox.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/ImageSpecifics.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/AnchorButtons.qml",
+            "qtcreator/qmldesigner/propertyeditor/Qt/aspectlock.css",
             "qtcreator/qmldesigner/propertyeditor/Qt/emptyPane.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/FontGroupBox.qml",
+            "qtcreator/qmldesigner/propertyeditor/Qt/anchorright.css",
+            "qtcreator/qmldesigner/propertyeditor/Qt/styledbuttonright.css",
             "qtcreator/qmldesigner/propertyeditor/Qt/HorizontalWhiteLine.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/GroupBoxOption.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/ExtendedFunctionButton.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/Switches.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/VerticalLayout.qml",
+            "qtcreator/qmldesigner/propertyeditor/Qt/propertyEditor.css",
             "qtcreator/qmldesigner/propertyeditor/Qt/GridViewSpecifics.qml",
+            "qtcreator/qmldesigner/propertyeditor/Qt/styledbuttonmiddle.css",
+            "qtcreator/qmldesigner/propertyeditor/Qt/anchorfill.css",
             "qtcreator/qmldesigner/propertyeditor/Qt/MouseAreaSpecifics.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/GroupBox.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/ComboBox.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/IntEditor.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/AlignmentHorizontalButtons.qml",
+            "qtcreator/qmldesigner/propertyeditor/Qt/applybutton.css",
             "qtcreator/qmldesigner/propertyeditor/Qt/Label.qml",
+            "qtcreator/qmldesigner/propertyeditor/Qt/anchorbottom.css",
             "qtcreator/qmldesigner/propertyeditor/Qt/TextEditSpecifics.qml",
+            "qtcreator/qmldesigner/propertyeditor/Qt/typeLabel.css",
             "qtcreator/qmldesigner/propertyeditor/Qt/ListViewSpecifics.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/BorderImageSpecifics.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/Visibility.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/Transformation.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/AnchorBox.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/ScrollArea.qml",
+            "qtcreator/qmldesigner/propertyeditor/Qt/anchortop.css",
             "qtcreator/qmldesigner/propertyeditor/Qt/CheckBox.qml",
+            "qtcreator/qmldesigner/propertyeditor/Qt/switch.css",
             "qtcreator/qmldesigner/propertyeditor/Qt/TextSpecifics.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/StandardTextGroupBox.qml",
             "qtcreator/qmldesigner/propertyeditor/Qt/SpinBox.qml",
@@ -278,6 +339,15 @@ Product {
             "qtcreator/welcomescreen/widgets/Delegate.qml",
             "qtcreator/welcomescreen/widgets/RecentSessions.qml",
             "qtcreator/welcomescreen/widgets/GettingStartedItem.qml",
+        ]
+    }
+
+    Group {
+        qbs.installDir: "share/qtcreator/schemes"
+        fileTags: ["install"]
+        files: [
+            "qtcreator/schemes/Xcode.kms",
+            "qtcreator/schemes/MS_Visual_C++.kms",
         ]
     }
 
@@ -341,7 +411,9 @@ Product {
         fileTags: ["install"]
         files: [
             "qtcreator/templates/wizards/plaincapp/console.png",
+            "qtcreator/templates/wizards/plaincapp/main.c",
             "qtcreator/templates/wizards/plaincapp/wizard.xml",
+            "qtcreator/templates/wizards/plaincapp/project.pro",
         ]
     }
 
@@ -351,6 +423,7 @@ Product {
         files: [
             "qtcreator/templates/wizards/plaincppapp/console.png",
             "qtcreator/templates/wizards/plaincppapp/wizard.xml",
+            "qtcreator/templates/wizards/plaincppapp/project.pro",
             "qtcreator/templates/wizards/plaincppapp/main.cpp",
         ]
     }
@@ -370,6 +443,7 @@ Product {
             "qtcreator/qml/qmlpuppet/qml2puppet/instances/sgitemnodeinstance.cpp",
             "qtcreator/qml/qmlpuppet/qml2puppet/instances/qt5rendernodeinstanceserver.cpp",
             "qtcreator/qml/qmlpuppet/qml2puppet/instances/qt5nodeinstanceserver.h",
+            "qtcreator/qml/qmlpuppet/qml2puppet/instances/instances.pri",
             "qtcreator/qml/qmlpuppet/qml2puppet/instances/qt5nodeinstanceclientproxy.h",
         ]
     }
@@ -408,7 +482,22 @@ Product {
         fileTags: ["install"]
         files: [
             "qtcreator/templates/qtquickapp/qmlapplicationviewer/qmlapplicationviewer.h",
+            "qtcreator/templates/qtquickapp/qmlapplicationviewer/qmlapplicationviewer.pri",
             "qtcreator/templates/qtquickapp/qmlapplicationviewer/qmlapplicationviewer.cpp",
+        ]
+    }
+
+    Group {
+        qbs.installDir: "share/qtcreator/patches"
+        fileTags: ["install"]
+        files: [
+            "qtcreator/patches/gdb-increased-dcache-line-size.patch",
+            "qtcreator/patches/.gitattributes",
+            "qtcreator/patches/README",
+            "qtcreator/patches/gdb-stepping-for-maemo.patch",
+            "qtcreator/patches/gdb-expand-line-sal-maybe.patch",
+            "qtcreator/patches/gdb-work-around-trk-single-step.patch",
+            "qtcreator/patches/gdb-without-dwarf-name-canonicalization.patch",
         ]
     }
 
@@ -426,6 +515,7 @@ Product {
         files: [
             "qtcreator/templates/wizards/plaincppapp-cmake/console.png",
             "qtcreator/templates/wizards/plaincppapp-cmake/wizard.xml",
+            "qtcreator/templates/wizards/plaincppapp-cmake/CMakeLists.txt",
             "qtcreator/templates/wizards/plaincppapp-cmake/main.cpp",
         ]
     }
@@ -455,6 +545,7 @@ Product {
             "qtcreator/qml/qmlpuppet/instances/nodeinstancemetaobject.h",
             "qtcreator/qml/qmlpuppet/instances/dummynodeinstance.cpp",
             "qtcreator/qml/qmlpuppet/instances/nodeinstanceserver.cpp",
+            "qtcreator/qml/qmlpuppet/instances/instances.pri",
             "qtcreator/qml/qmlpuppet/instances/servernodeinstance.cpp",
             "qtcreator/qml/qmlpuppet/instances/componentnodeinstance.h",
             "qtcreator/qml/qmlpuppet/instances/nodeinstanceserver.h",
@@ -472,7 +563,9 @@ Product {
         fileTags: ["install"]
         files: [
             "qtcreator/templates/wizards/plaincapp-cmake/console.png",
+            "qtcreator/templates/wizards/plaincapp-cmake/main.c",
             "qtcreator/templates/wizards/plaincapp-cmake/wizard.xml",
+            "qtcreator/templates/wizards/plaincapp-cmake/CMakeLists.txt",
         ]
     }
 
@@ -480,9 +573,39 @@ Product {
         qbs.installDir: "share/qtcreator/qml/qmldump"
         fileTags: ["install"]
         files: [
+            "qtcreator/qml/qmldump/Info.plist.in",
+            "qtcreator/qml/qmldump/LGPL_EXCEPTION.TXT",
             "qtcreator/qml/qmldump/qmlstreamwriter.h",
             "qtcreator/qml/qmldump/qmlstreamwriter.cpp",
+            "qtcreator/qml/qmldump/LICENSE.LGPL",
+            "qtcreator/qml/qmldump/qmldump.pro",
             "qtcreator/qml/qmldump/main.cpp",
+        ]
+    }
+
+    Group {
+        qbs.installDir: "share/qtcreator/translations"
+        fileTags: ["install"]
+        files: [
+            "qtcreator/translations/qtcreator_hu.ts",
+            "qtcreator/translations/qtcreator_zh_CN.ts",
+            "qtcreator/translations/extract-externaltools.xq",
+            "qtcreator/translations/check-ts.pl",
+            "qtcreator/translations/check-ts.xq",
+            "qtcreator/translations/qtcreator_de.ts",
+            "qtcreator/translations/qtcreator_fr.ts",
+            "qtcreator/translations/README",
+            "qtcreator/translations/qtcreator_it.ts",
+            "qtcreator/translations/qtcreator_uk.ts",
+            "qtcreator/translations/qtcreator_es.ts",
+            "qtcreator/translations/extract-customwizards.xq",
+            "qtcreator/translations/extract-mimetypes.xq",
+            "qtcreator/translations/qtcreator_pl.ts",
+            "qtcreator/translations/qtcreator_ja.ts",
+            "qtcreator/translations/qtcreator_ru.ts",
+            "qtcreator/translations/qtcreator_cs.ts",
+            "qtcreator/translations/translations.pro",
+            "qtcreator/translations/qtcreator_sl.ts",
         ]
     }
 
@@ -490,6 +613,7 @@ Product {
         qbs.installDir: "share/qtcreator/templates/qtquickapp"
         fileTags: ["install"]
         files: [
+            "qtcreator/templates/qtquickapp/app.pro",
             "qtcreator/templates/qtquickapp/main.cpp",
         ]
     }
@@ -507,7 +631,11 @@ Product {
         fileTags: ["install"]
         files: [
             "qtcreator/templates/shared/icon64.png",
+            "qtcreator/templates/shared/symbianicon.svg",
+            "qtcreator/templates/shared/manifest.aegis",
             "qtcreator/templates/shared/icon80.png",
+            "qtcreator/templates/shared/app.desktop",
+            "qtcreator/templates/shared/deployment.pri",
         ]
     }
 
@@ -515,9 +643,11 @@ Product {
         qbs.installDir: "share/qtcreator/templates/wizards/qtcreatorplugin"
         fileTags: ["install"]
         files: [
+            "qtcreator/templates/wizards/qtcreatorplugin/MyPlugin.pluginspec.in",
             "qtcreator/templates/wizards/qtcreatorplugin/wizard.xml",
             "qtcreator/templates/wizards/qtcreatorplugin/mypluginconstants.h",
             "qtcreator/templates/wizards/qtcreatorplugin/myplugin.h",
+            "qtcreator/templates/wizards/qtcreatorplugin/myplugin.pro",
             "qtcreator/templates/wizards/qtcreatorplugin/qtcreator_logo_24.png",
             "qtcreator/templates/wizards/qtcreatorplugin/myplugin.cpp",
             "qtcreator/templates/wizards/qtcreatorplugin/myplugin_global.h",
@@ -525,9 +655,19 @@ Product {
     }
 
     Group {
+        qbs.installDir: "share/qtcreator/templates/wizards"
+        fileTags: ["install"]
+        files: [
+            "qtcreator/templates/wizards/README.txt",
+        ]
+    }
+
+    Group {
         qbs.installDir: "share/qtcreator/qml/qmlpuppet/qml2puppet"
         fileTags: ["install"]
         files: [
+            "qtcreator/qml/qmlpuppet/qml2puppet/Info.plist.in",
+            "qtcreator/qml/qmlpuppet/qml2puppet/qml2puppet.pro",
             "qtcreator/qml/qmlpuppet/qml2puppet/main.cpp",
         ]
     }
@@ -542,6 +682,8 @@ Product {
             "qtcreator/templates/wizards/qml-extension/wizard.xml",
             "qtcreator/templates/wizards/qml-extension/lib.png",
             "qtcreator/templates/wizards/qml-extension/plugin.cpp",
+            "qtcreator/templates/wizards/qml-extension/qmldir",
+            "qtcreator/templates/wizards/qml-extension/project.pro",
         ]
     }
 
@@ -593,6 +735,7 @@ Product {
         files: [
             "qtcreator/qml/qmlpuppet/interfaces/nodeinstanceserverinterface.h",
             "qtcreator/qml/qmlpuppet/interfaces/commondefines.h",
+            "qtcreator/qml/qmlpuppet/interfaces/interfaces.pri",
             "qtcreator/qml/qmlpuppet/interfaces/nodeinstanceclientinterface.h",
             "qtcreator/qml/qmlpuppet/interfaces/nodeinstanceserverinterface.cpp",
         ]
@@ -617,6 +760,7 @@ Product {
             "qtcreator/welcomescreen/gettingstarted.qml",
             "qtcreator/welcomescreen/develop.qml",
             "qtcreator/welcomescreen/images_areaofinterest.xml",
+            "qtcreator/welcomescreen/welcomescreen.qmlproject",
             "qtcreator/welcomescreen/tutorials.qml",
             "qtcreator/welcomescreen/welcomescreen.qml",
             "qtcreator/welcomescreen/qtcreator_tutorials.xml",
@@ -628,6 +772,7 @@ Product {
         qbs.installDir: "share/qtcreator/dumper/test"
         fileTags: ["install"]
         files: [
+            "qtcreator/dumper/test/dumpertest.pro",
             "qtcreator/dumper/test/main.cpp",
         ]
     }
@@ -650,17 +795,25 @@ Product {
             "qtcreator/qml/qmlpuppet/qmlpuppet/instances/qt4nodeinstanceclientproxy.cpp",
             "qtcreator/qml/qmlpuppet/qmlpuppet/instances/qt4informationnodeinstanceserver.h",
             "qtcreator/qml/qmlpuppet/qmlpuppet/instances/qt4previewnodeinstanceserver.cpp",
+            "qtcreator/qml/qmlpuppet/qmlpuppet/instances/instances.pri",
             "qtcreator/qml/qmlpuppet/qmlpuppet/instances/positionernodeinstance.cpp",
             "qtcreator/qml/qmlpuppet/qmlpuppet/instances/qt4nodeinstanceclientproxy.h",
         ]
     }
 
     Group {
-        qbs.installDir: "share/qtcreator/welcomescreen/widgets/dummydata/context"
+        qbs.installDir: "share/qtcreator/qml/qmlpuppet/html"
         fileTags: ["install"]
         files: [
-            "qtcreator/welcomescreen/widgets/dummydata/context/ExampleDelegate.qml",
-            "qtcreator/welcomescreen/widgets/dummydata/context/ExampleGridView.qml",
+            "qtcreator/qml/qmlpuppet/html/welcome.html",
+        ]
+    }
+
+    Group {
+        qbs.installDir: "share/qtcreator/templates/html5app/html"
+        fileTags: ["install"]
+        files: [
+            "qtcreator/templates/html5app/html/index.html",
         ]
     }
 
@@ -705,9 +858,18 @@ Product {
     }
 
     Group {
+        qbs.installDir: "share/qtcreator/scripts"
+        fileTags: ["install"]
+        files: [
+            "qtcreator/scripts/openTerminal.command",
+        ]
+    }
+
+    Group {
         qbs.installDir: "share/qtcreator/templates/wizards/scriptgeneratedproject"
         fileTags: ["install"]
         files: [
+            "qtcreator/templates/wizards/scriptgeneratedproject/generate.pl",
             "qtcreator/templates/wizards/scriptgeneratedproject/wizard_sample.xml",
         ]
     }
@@ -718,6 +880,7 @@ Product {
         files: [
             "qtcreator/qml/qmlobserver/browser/images/titlebar.png",
             "qtcreator/qml/qmlobserver/browser/images/folder.png",
+            "qtcreator/qml/qmlobserver/browser/images/titlebar.sci",
             "qtcreator/qml/qmlobserver/browser/images/up.png",
         ]
     }
@@ -742,6 +905,7 @@ Product {
             "qtcreator/templates/html5app/html5applicationviewer/touchnavigation/navigationcontroller.cpp",
             "qtcreator/templates/html5app/html5applicationviewer/touchnavigation/webtouchnavigation.h",
             "qtcreator/templates/html5app/html5applicationviewer/touchnavigation/webtouchphysics.h",
+            "qtcreator/templates/html5app/html5applicationviewer/touchnavigation/touchnavigation.pri",
             "qtcreator/templates/html5app/html5applicationviewer/touchnavigation/webnavigation.cpp",
             "qtcreator/templates/html5app/html5applicationviewer/touchnavigation/webtouchscroller.cpp",
             "qtcreator/templates/html5app/html5applicationviewer/touchnavigation/webtouchphysics.cpp",
@@ -762,6 +926,9 @@ Product {
             "qtcreator/templates/qt4project/customwidgetwizard/tpl_resources.qrc",
             "qtcreator/templates/qt4project/customwidgetwizard/tpl_widget.h",
             "qtcreator/templates/qt4project/customwidgetwizard/tpl_collection.h",
+            "qtcreator/templates/qt4project/customwidgetwizard/tpl_widget_lib.pro",
+            "qtcreator/templates/qt4project/customwidgetwizard/tpl_plugin.pro",
+            "qtcreator/templates/qt4project/customwidgetwizard/tpl_widget_include.pri",
             "qtcreator/templates/qt4project/customwidgetwizard/tpl_single.h",
             "qtcreator/templates/qt4project/customwidgetwizard/tpl_collection.cpp",
             "qtcreator/templates/qt4project/customwidgetwizard/tpl_widget.cpp",
@@ -781,7 +948,10 @@ Product {
         qbs.installDir: "share/qtcreator/qml/qmljsdebugger"
         fileTags: ["install"]
         files: [
+            "qtcreator/qml/qmljsdebugger/qmljsdebugger.pro",
+            "qtcreator/qml/qmljsdebugger/qmljsdebugger-src.pri",
             "qtcreator/qml/qmljsdebugger/jsdebuggeragent.cpp",
+            "qtcreator/qml/qmljsdebugger/qmljsdebugger-lib.pri",
             "qtcreator/qml/qmljsdebugger/qdeclarativeviewinspector.cpp",
             "qtcreator/qml/qmljsdebugger/qdeclarativeinspectorservice.cpp",
             "qtcreator/qml/qmljsdebugger/qdeclarativeviewinspector_p.h",
@@ -789,12 +959,11 @@ Product {
     }
 
     Group {
-        qbs.installDir: "share/qtcreator/snippets"
+        qbs.installDir: "share/qtcreator/qml/qmlpuppet/images"
         fileTags: ["install"]
         files: [
-            "qtcreator/snippets/cpp.xml",
-            "qtcreator/snippets/text.xml",
-            "qtcreator/snippets/qml.xml",
+            "qtcreator/qml/qmlpuppet/images/template_image.png",
+            "qtcreator/qml/qmlpuppet/images/webkit.png",
         ]
     }
 
@@ -805,6 +974,7 @@ Product {
             "qtcreator/templates/mobileapp/mainwindow.h",
             "qtcreator/templates/mobileapp/mainwindow.ui",
             "qtcreator/templates/mobileapp/mainwindow.cpp",
+            "qtcreator/templates/mobileapp/app.pro",
             "qtcreator/templates/mobileapp/main.cpp",
         ]
     }
@@ -822,9 +992,20 @@ Product {
     }
 
     Group {
+        qbs.installDir: "share/qtcreator/snippets"
+        fileTags: ["install"]
+        files: [
+            "qtcreator/snippets/cpp.xml",
+            "qtcreator/snippets/text.xml",
+            "qtcreator/snippets/qml.xml",
+        ]
+    }
+
+    Group {
         qbs.installDir: "share/qtcreator/templates/html5app/html5applicationviewer"
         fileTags: ["install"]
         files: [
+            "qtcreator/templates/html5app/html5applicationviewer/html5applicationviewer.pri",
             "qtcreator/templates/html5app/html5applicationviewer/html5applicationviewer.cpp",
             "qtcreator/templates/html5app/html5applicationviewer/html5applicationviewer.h",
         ]
@@ -835,6 +1016,7 @@ Product {
         fileTags: ["install"]
         files: [
             "qtcreator/qml/qmljsdebugger/protocol/inspectorprotocol.h",
+            "qtcreator/qml/qmljsdebugger/protocol/protocol.pri",
         ]
     }
 
@@ -843,8 +1025,15 @@ Product {
         fileTags: ["install"]
         files: [
             "qtcreator/dumper/dumper_p.h",
+            "qtcreator/dumper/dumper.pro",
+            "qtcreator/dumper/LGPL_EXCEPTION.TXT",
             "qtcreator/dumper/dumper.h",
             "qtcreator/dumper/dumper.cpp",
+            "qtcreator/dumper/bridge.py",
+            "qtcreator/dumper/LICENSE.LGPL",
+            "qtcreator/dumper/pdumper.py",
+            "qtcreator/dumper/qttypes.py",
+            "qtcreator/dumper/dumper.py",
         ]
     }
 
@@ -852,8 +1041,12 @@ Product {
         qbs.installDir: "share/qtcreator/qml/qmlobserver"
         fileTags: ["install"]
         files: [
+            "qtcreator/qml/qmlobserver/Info.plist.in",
+            "qtcreator/qml/qmlobserver/qmlobserver.pro",
             "qtcreator/qml/qmlobserver/deviceorientation_symbian.cpp",
+            "qtcreator/qml/qmlobserver/qml.icns",
             "qtcreator/qml/qmlobserver/qdeclarativetester.cpp",
+            "qtcreator/qml/qmlobserver/LGPL_EXCEPTION.TXT",
             "qtcreator/qml/qmlobserver/deviceorientation_harmattan.cpp",
             "qtcreator/qml/qmlobserver/deviceorientation.cpp",
             "qtcreator/qml/qmlobserver/proxysettings.h",
@@ -863,6 +1056,8 @@ Product {
             "qtcreator/qml/qmlobserver/loggerwidget.h",
             "qtcreator/qml/qmlobserver/proxysettings.cpp",
             "qtcreator/qml/qmlobserver/loggerwidget.cpp",
+            "qtcreator/qml/qmlobserver/LICENSE.LGPL",
+            "qtcreator/qml/qmlobserver/qml.pri",
             "qtcreator/qml/qmlobserver/deviceorientation_maemo5.cpp",
             "qtcreator/qml/qmlobserver/proxysettings_maemo5.ui",
             "qtcreator/qml/qmlobserver/texteditautoresizer_maemo5.h",
@@ -888,7 +1083,9 @@ Product {
         qbs.installDir: "share/qtcreator/qml/qmlpuppet"
         fileTags: ["install"]
         files: [
+            "qtcreator/qml/qmlpuppet/qmlpuppet.pro",
             "qtcreator/qml/qmlpuppet/qmlpuppet.qrc",
+            "qtcreator/qml/qmlpuppet/qmlpuppet_utilities.pri",
         ]
     }
 
@@ -896,6 +1093,7 @@ Product {
         qbs.installDir: "share/qtcreator/templates/html5app"
         fileTags: ["install"]
         files: [
+            "qtcreator/templates/html5app/app.pro",
             "qtcreator/templates/html5app/main.cpp",
         ]
     }
@@ -913,6 +1111,9 @@ Product {
         qbs.installDir: "share/qtcreator/qml/qmlpuppet/qmlpuppet"
         fileTags: ["install"]
         files: [
+            "qtcreator/qml/qmlpuppet/qmlpuppet/Info.plist.in",
+            "qtcreator/qml/qmlpuppet/qmlpuppet/qmlpuppet.pro",
+            "qtcreator/qml/qmlpuppet/qmlpuppet/qmlpuppet.pri",
             "qtcreator/qml/qmlpuppet/qmlpuppet/main.cpp",
         ]
     }
@@ -937,6 +1138,7 @@ Product {
             "qtcreator/qml/qmlpuppet/commands/childrenchangedcommand.cpp",
             "qtcreator/qml/qmlpuppet/commands/createscenecommand.h",
             "qtcreator/qml/qmlpuppet/commands/completecomponentcommand.h",
+            "qtcreator/qml/qmlpuppet/commands/commands.pri",
             "qtcreator/qml/qmlpuppet/commands/componentcompletedcommand.cpp",
             "qtcreator/qml/qmlpuppet/commands/changeauxiliarycommand.cpp",
             "qtcreator/qml/qmlpuppet/commands/pixmapchangedcommand.h",
@@ -973,6 +1175,7 @@ Product {
         fileTags: ["install"]
         files: [
             "qtcreator/templates/wizards/helloworld/console.png",
+            "qtcreator/templates/wizards/helloworld/project.pro",
             "qtcreator/templates/wizards/helloworld/wizard_sample.xml",
             "qtcreator/templates/wizards/helloworld/main.cpp",
         ]
