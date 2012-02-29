@@ -46,7 +46,7 @@ Bookmark::Bookmark(const QString& fileName, int lineNumber, BookmarkManager *man
     m_onlyFile(m_fileInfo.fileName()),
     m_path(m_fileInfo.path())
 {
-    setPriority(TextEditor::ITextMark::LowPriority);
+    setPriority(TextEditor::ITextMark::NormalPriority);
     setIcon(m_manager->bookmarkIcon());
 }
 

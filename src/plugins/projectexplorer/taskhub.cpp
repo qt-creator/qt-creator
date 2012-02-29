@@ -93,7 +93,7 @@ void TaskHub::addTask(Task task)
         bool visible = (task.type == Task::Warning || task.type == Task::Error);
         TaskMark *mark = new TaskMark(task.taskId, task.file.toString(), task.line, visible);
         mark->setIcon(taskTypeIcon(task.type));
-        mark->setPriority(TextEditor::ITextMark::HighPriority);
+        mark->setPriority(TextEditor::ITextMark::LowPriority);
         task.addMark(mark);
     }
     emit taskAdded(task);
