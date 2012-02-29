@@ -52,8 +52,6 @@ const QLatin1String IdCounterKey("IdCounter");
 const QLatin1String ConfigListKey("ConfigList");
 const QLatin1String DefaultKeyFilePathKey("DefaultKeyFile");
 
-bool cloningBlocked = false;
-
 class DevConfNameMatcher
 {
 public:
@@ -72,11 +70,13 @@ class LinuxDeviceConfigurationsPrivate
 {
 public:
     static LinuxDeviceConfigurations *instance;
+    static LinuxDeviceConfigurations *clonedInstance;
     LinuxDeviceConfiguration::Id nextId;
     QList<LinuxDeviceConfiguration::Ptr> devConfigs;
     QString defaultSshKeyFilePath;
 };
 LinuxDeviceConfigurations *LinuxDeviceConfigurationsPrivate::instance = 0;
+LinuxDeviceConfigurations *LinuxDeviceConfigurationsPrivate::clonedInstance = 0;
 
 } // namespace Internal
 
@@ -92,24 +92,33 @@ LinuxDeviceConfigurations *LinuxDeviceConfigurations::instance(QObject *parent)
     return LinuxDeviceConfigurationsPrivate::instance;
 }
 
-void LinuxDeviceConfigurations::replaceInstance(const LinuxDeviceConfigurations *other)
+void LinuxDeviceConfigurations::replaceInstance()
 {
     Q_ASSERT(LinuxDeviceConfigurationsPrivate::instance);
 
     LinuxDeviceConfigurationsPrivate::instance->beginResetModel();
-    copy(other, LinuxDeviceConfigurationsPrivate::instance, false);
+    copy(LinuxDeviceConfigurationsPrivate::clonedInstance,
+        LinuxDeviceConfigurationsPrivate::instance, false);
     LinuxDeviceConfigurationsPrivate::instance->save();
     LinuxDeviceConfigurationsPrivate::instance->endResetModel();
     emit LinuxDeviceConfigurationsPrivate::instance->updated();
 }
 
+void LinuxDeviceConfigurations::removeClonedInstance()
+{
+    delete LinuxDeviceConfigurationsPrivate::clonedInstance;
+    LinuxDeviceConfigurationsPrivate::clonedInstance = 0;
+}
+
 LinuxDeviceConfigurations *LinuxDeviceConfigurations::cloneInstance()
 {
-    if (cloningBlocked)
-        return 0;
-    LinuxDeviceConfigurations * const other = new LinuxDeviceConfigurations(0);
-    copy(LinuxDeviceConfigurationsPrivate::instance, other, true);
-    return other;
+    QTC_ASSERT(!LinuxDeviceConfigurationsPrivate::clonedInstance, return 0);
+
+    LinuxDeviceConfigurationsPrivate::clonedInstance
+        = new LinuxDeviceConfigurations(LinuxDeviceConfigurationsPrivate::instance);
+    copy(LinuxDeviceConfigurationsPrivate::instance,
+        LinuxDeviceConfigurationsPrivate::clonedInstance, true);
+    return LinuxDeviceConfigurationsPrivate::clonedInstance;
 }
 
 void LinuxDeviceConfigurations::copy(const LinuxDeviceConfigurations *source,
@@ -148,7 +157,8 @@ void LinuxDeviceConfigurations::save()
 
 void LinuxDeviceConfigurations::addConfiguration(const LinuxDeviceConfiguration::Ptr &devConfig)
 {
-    QTC_ASSERT(this != LinuxDeviceConfigurationsPrivate::instance, return);
+    QTC_ASSERT(this != LinuxDeviceConfigurationsPrivate::instance
+        || (devConfig->isAutoDetected()), return);
 
     // Ensure uniqueness of name.
     QString name = devConfig->displayName();
@@ -161,22 +171,31 @@ void LinuxDeviceConfigurations::addConfiguration(const LinuxDeviceConfiguration:
     }
     devConfig->setDisplayName(name);
 
-    devConfig->setInternalId(d->nextId++);
+    if (this == LinuxDeviceConfigurations::instance())
+        devConfig->setInternalId(d->nextId++);
+
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     if (!defaultDeviceConfig(devConfig->osType()))
         devConfig->setDefault(true);
     d->devConfigs << devConfig;
     endInsertRows();
+    if (this == d->instance && d->clonedInstance) {
+        d->clonedInstance->addConfiguration(
+            LinuxDeviceConfiguration::Ptr(new LinuxDeviceConfiguration(devConfig)));
+    }
+    emit updated();
 }
 
 void LinuxDeviceConfigurations::removeConfiguration(int idx)
 {
-    QTC_ASSERT(this != LinuxDeviceConfigurationsPrivate::instance, return);
-    Q_ASSERT(idx >= 0 && idx < rowCount());
+    QTC_ASSERT(idx >= 0 && idx < rowCount(), return);
+    const LinuxDeviceConfiguration::ConstPtr deviceConfig = deviceAt(idx);
+    QTC_ASSERT(this != LinuxDeviceConfigurationsPrivate::instance
+        || deviceConfig->isAutoDetected(), return);
 
     beginRemoveRows(QModelIndex(), idx, idx);
-    const bool wasDefault = deviceAt(idx)->isDefault();
-    const QString osType = deviceAt(idx)->osType();
+    const bool wasDefault = deviceConfig->isDefault();
+    const QString osType = deviceConfig->osType();
     d->devConfigs.removeAt(idx);
     endRemoveRows();
     if (wasDefault) {
@@ -189,6 +208,11 @@ void LinuxDeviceConfigurations::removeConfiguration(int idx)
             }
         }
     }
+    if (this == d->instance && d->clonedInstance) {
+        d->clonedInstance->removeConfiguration(d->clonedInstance->
+            indexForInternalId(deviceConfig->internalId()));
+    }
+    emit updated();
 }
 
 void LinuxDeviceConfigurations::setDefaultSshKeyFilePath(const QString &path)
@@ -272,19 +296,6 @@ LinuxDeviceConfiguration::Ptr LinuxDeviceConfigurations::mutableDeviceAt(int idx
 {
     Q_ASSERT(idx >= 0 && idx < rowCount());
     return d->devConfigs.at(idx);
-}
-
-void LinuxDeviceConfigurations::blockCloning()
-{
-    QTC_ASSERT(!cloningBlocked, return);
-    cloningBlocked = true;
-}
-
-void LinuxDeviceConfigurations::unblockCloning()
-{
-    QTC_ASSERT(cloningBlocked, return);
-    cloningBlocked = false;
-    emit instance()->cloningPossible();
 }
 
 LinuxDeviceConfigurations::~LinuxDeviceConfigurations()

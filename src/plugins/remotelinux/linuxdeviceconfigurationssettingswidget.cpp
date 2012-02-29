@@ -100,12 +100,11 @@ LinuxDeviceConfigurationsSettingsWidget::LinuxDeviceConfigurationsSettingsWidget
     : QWidget(parent),
       m_ui(new Ui::LinuxDeviceConfigurationsSettingsWidget),
       m_devConfigs(LinuxDeviceConfigurations::cloneInstance()),
-      m_nameValidator(new NameValidator(m_devConfigs.data(), this)),
+      m_nameValidator(new NameValidator(m_devConfigs, this)),
       m_saveSettingsRequested(false),
       m_additionalActionsMapper(new QSignalMapper(this)),
       m_configWidget(0)
 {
-    LinuxDeviceConfigurations::blockCloning();
     initGui();
     connect(m_additionalActionsMapper, SIGNAL(mapped(QString)),
         SLOT(handleAdditionalActionRequest(QString)));
@@ -116,9 +115,9 @@ LinuxDeviceConfigurationsSettingsWidget::~LinuxDeviceConfigurationsSettingsWidge
     if (m_saveSettingsRequested) {
         Core::ICore::settings()->setValue(LastDeviceConfigIndexKey,
             currentIndex());
-        LinuxDeviceConfigurations::replaceInstance(m_devConfigs.data());
+        LinuxDeviceConfigurations::replaceInstance();
     }
-    LinuxDeviceConfigurations::unblockCloning();
+    LinuxDeviceConfigurations::removeClonedInstance();
     delete m_ui;
 }
 
@@ -138,7 +137,7 @@ QString LinuxDeviceConfigurationsSettingsWidget::searchKeywords() const
 void LinuxDeviceConfigurationsSettingsWidget::initGui()
 {
     m_ui->setupUi(this);
-    m_ui->configurationComboBox->setModel(m_devConfigs.data());
+    m_ui->configurationComboBox->setModel(m_devConfigs);
     m_ui->nameLineEdit->setValidator(m_nameValidator);
 
     int lastIndex = Core::ICore::settings()
@@ -275,7 +274,7 @@ void LinuxDeviceConfigurationsSettingsWidget::currentConfigChanged(int index)
                                                    m_ui->osSpecificGroupBox);
             if (m_configWidget) {
                 connect(m_configWidget, SIGNAL(defaultSshKeyFilePathChanged(QString)),
-                        m_devConfigs.data(), SLOT(setDefaultSshKeyFilePath(QString)));
+                        m_devConfigs, SLOT(setDefaultSshKeyFilePath(QString)));
                 m_ui->osSpecificGroupBox->layout()->addWidget(m_configWidget);
                 m_ui->osSpecificGroupBox->setEnabled(factory->isUserEditable());
             }

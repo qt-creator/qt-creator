@@ -54,15 +54,6 @@ public:
 
     static LinuxDeviceConfigurations *instance(QObject *parent = 0);
 
-    // If you want to edit the list of device configurations programatically
-    // (e.g. when doing device auto-detection), call cloneInstance() to get a copy,
-    // do the changes there and then call replaceInstance() to write them back.
-    // Callers must be prepared to deal with cloneInstance() temporarily returning null,
-    // which happens if the settings dialog is currently open.
-    // All other callers are required to do the clone/replace operation synchronously!
-    static void replaceInstance(const LinuxDeviceConfigurations *other);
-    static LinuxDeviceConfigurations *cloneInstance();
-
     LinuxDeviceConfiguration::ConstPtr deviceAt(int index) const;
     LinuxDeviceConfiguration::ConstPtr find(LinuxDeviceConfiguration::Id id) const;
     LinuxDeviceConfiguration::ConstPtr defaultDeviceConfig(const QString &osType) const;
@@ -89,18 +80,17 @@ public slots:
 
 signals:
     void updated();
-    void cloningPossible();
 
 private:
     LinuxDeviceConfigurations(QObject *parent);
 
     LinuxDeviceConfiguration::Ptr mutableDeviceAt(int index) const;
 
-    static void blockCloning();
-    static void unblockCloning();
-
     void load();
     void save();
+    static LinuxDeviceConfigurations *cloneInstance();
+    static void replaceInstance();
+    static void removeClonedInstance();
     static void copy(const LinuxDeviceConfigurations *source,
         LinuxDeviceConfigurations *target, bool deep);
     void ensureOneDefaultConfigurationPerOsType();

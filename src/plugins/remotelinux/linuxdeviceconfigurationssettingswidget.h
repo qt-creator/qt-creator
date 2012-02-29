@@ -33,7 +33,6 @@
 #define LINUXDEVICECONFIGURATIONSSETTINGSWIDGET_H
 
 #include <QList>
-#include <QScopedPointer>
 #include <QString>
 #include <QPushButton>
 #include <QWidget>
@@ -85,7 +84,7 @@ private:
     const ILinuxDeviceConfigurationFactory *factoryForCurrentConfig() const;
 
     Ui::LinuxDeviceConfigurationsSettingsWidget *m_ui;
-    const QScopedPointer<LinuxDeviceConfigurations> m_devConfigs;
+    LinuxDeviceConfigurations * const m_devConfigs;
     NameValidator * const m_nameValidator;
     bool m_saveSettingsRequested;
     QList<QPushButton *> m_additionalActionButtons;
