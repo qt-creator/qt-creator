@@ -110,10 +110,7 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
         params.startMode = AttachToRemoteServer;
         params.executable = runConfig->localExecutableFilePath();
         params.debuggerCommand = runConfig->gdbCmd();
-        QString host = devConf->sshParameters().host;
-        params.remoteChannel = host.contains(QLatin1Char(':'))
-                ? QString::fromLatin1("[%1]:-1").arg(host)
-                : host + QLatin1String(":-1");
+        params.remoteChannel = devConf->sshParameters().host + QLatin1String(":-1");
 
         // TODO: This functionality should be inside the debugger.
         const ProjectExplorer::Abi &abi = runConfig->target()

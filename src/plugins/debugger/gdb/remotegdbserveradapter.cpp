@@ -247,14 +247,24 @@ void RemoteGdbServerAdapter::callTargetRemote()
     //     (1) connects to the gdb server
     //     (2) starts the remote application
     //     (3) stops the remote application (early, e.g. in the dynamic linker)
-    QString channel = startParameters().remoteChannel;
-    if (m_engine->m_isQnxGdb) {
-        m_engine->postCommand("target qnx " + channel.toLatin1(),
-            CB(handleTargetQnx));
-    } else {
-        m_engine->postCommand("target remote " + channel.toLatin1(),
-            CB(handleTargetRemote));
+    QByteArray channel = startParameters().remoteChannel.toLatin1();
+
+    // Don't touch channels with explicitly set protocols.
+    if (!channel.startsWith("tcp:") && !channel.startsWith("udp:")
+            && !channel.startsWith("file:") && channel.contains(':'))
+    {
+        // "Fix" the IPv6 case with host names without '['...']'
+        if (!channel.startsWith('[') && channel.count(':') >= 2) {
+            channel.insert(0, '[');
+            channel.insert(channel.lastIndexOf(':'), ']');
+        }
+        channel = "tcp:" + channel;
     }
+
+    if (m_engine->m_isQnxGdb)
+        m_engine->postCommand("target qnx " + channel, CB(handleTargetQnx));
+    else
+        m_engine->postCommand("target remote " + channel, CB(handleTargetRemote));
 }
 
 void RemoteGdbServerAdapter::handleTargetRemote(const GdbResponse &record)
