@@ -69,11 +69,6 @@ void SelectableFilesModel::setInitialMarkedFiles(const QStringList &files)
     m_allFiles = false;
 }
 
-void SelectableFilesModel::setSuffixes(QSet<QString> suffixes)
-{
-    m_suffixes = suffixes;
-}
-
 void SelectableFilesModel::init()
 {
 }
@@ -164,7 +159,7 @@ void SelectableFilesModel::buildTree(const QString &baseDir, Tree *tree, QFuture
             allChecked &= t->checked == Qt::Checked;
             allUnchecked &= t->checked == Qt::Unchecked;
             tree->childDirectories.append(t);
-        } else if (m_suffixes.contains(fileInfo.suffix())) {
+        } else {
             Tree *t = new Tree;
             t->parent = tree;
             t->name = fileInfo.fileName();
@@ -509,7 +504,7 @@ Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &index)
 // SelectableFilesDialog
 //////////
 
-SelectableFilesDialog::SelectableFilesDialog(const QString &path, const QStringList files, const QSet<QString> &suffixes, QWidget *parent)
+SelectableFilesDialog::SelectableFilesDialog(const QString &path, const QStringList files, QWidget *parent)
     : QDialog(parent)
 {
     QVBoxLayout *layout = new QVBoxLayout();
@@ -537,7 +532,6 @@ SelectableFilesDialog::SelectableFilesDialog(const QString &path, const QStringL
 
     m_selectableFilesModel = new SelectableFilesModel(path, this);
     m_selectableFilesModel->setInitialMarkedFiles(files);
-    m_selectableFilesModel->setSuffixes(suffixes);
     m_view->setModel(m_selectableFilesModel);
     m_view->setMinimumSize(500, 400);
     m_view->setHeaderHidden(true);

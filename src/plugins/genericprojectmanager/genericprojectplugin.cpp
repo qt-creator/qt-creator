@@ -122,10 +122,8 @@ void GenericProjectPlugin::updateContextMenu(ProjectExplorer::Project *project, 
 void GenericProjectPlugin::editFiles()
 {
     GenericProject *genericProject = static_cast<GenericProject *>(m_contextMenuProject);
-
-    Core::MimeDatabase *mimeDatabase = Core::ICore::mimeDatabase();
     SelectableFilesDialog sfd(QFileInfo(genericProject->document()->fileName()).path(), genericProject->files(),
-                              mimeDatabase->suffixes().toSet(), Core::ICore::mainWindow());
+                              Core::ICore::mainWindow());
     if (sfd.exec() == QDialog::Accepted) {
         genericProject->setFiles(sfd.selectedFiles());
     }

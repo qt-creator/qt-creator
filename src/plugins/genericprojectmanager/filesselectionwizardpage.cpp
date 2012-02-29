@@ -84,9 +84,7 @@ void FilesSelectionWizardPage::initializePage()
 {
     m_view->setModel(0);
     delete m_model;
-    Core::MimeDatabase *mimeDatabase = Core::ICore::mimeDatabase();
     m_model = new SelectableFilesModel(m_genericProjectWizardDialog->path(), this);
-    m_model->setSuffixes(mimeDatabase->suffixes().toSet());
     connect(m_model, SIGNAL(parsingProgress(QString)),
             this, SLOT(parsingProgress(QString)));
     connect(m_model, SIGNAL(parsingFinished()),

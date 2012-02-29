@@ -74,7 +74,6 @@ public:
     SelectableFilesModel(const QString &baseDir, QObject *parent);
     ~SelectableFilesModel();
 
-    void setSuffixes(QSet<QString> suffixes);
     void setInitialMarkedFiles(const QStringList &files);
 
     int columnCount(const QModelIndex &parent) const;
@@ -117,7 +116,6 @@ private:
     QString m_baseDir;
     QSet<QString> m_files;
     QStringList m_outOfBaseDirFiles;
-    QSet<QString> m_suffixes;
     QFutureWatcher<void> m_watcher;
     Tree *m_rootForFuture;
     int m_futureCount;
@@ -129,7 +127,7 @@ class SelectableFilesDialog : public QDialog
 {
     Q_OBJECT
 public:
-    SelectableFilesDialog(const QString &path, const QStringList files, const QSet<QString> &suffixes, QWidget *parent);
+    SelectableFilesDialog(const QString &path, const QStringList files, QWidget *parent);
     ~SelectableFilesDialog();
     QStringList selectedFiles() const;
 
