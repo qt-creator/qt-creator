@@ -167,6 +167,11 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case Signal:
             case Property:
             case Identifier:    enter(expression_or_objectdefinition); break;
+
+            // error recovery
+            case RightBracket:
+            case RightParenthesis:  leave(true); break;
+
             default:            enter(expression); continue;
             } break;
 
@@ -251,9 +256,14 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         case expression_or_objectdefinition:
             switch (kind) {
             case Dot:
-            case Identifier:    break; // need to become an objectdefinition_open in cases like "width: Qt.Foo {"
-            case LeftBrace:     turnInto(objectdefinition_open); break;
-            default:            enter(expression); continue; // really? identifier and more tokens might already be gone
+            case Identifier:        break; // need to become an objectdefinition_open in cases like "width: Qt.Foo {"
+            case LeftBrace:         turnInto(objectdefinition_open); break;
+
+            // propagate 'leave' from expression state
+            case RightBracket:
+            case RightParenthesis:  leave(); continue;
+
+            default:                enter(expression); continue; // really? identifier and more tokens might already be gone
             } break;
 
         case expression_or_label:
