@@ -821,7 +821,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeTarget *target)
     setLayout(fl);
 
     // TODO add action to Build menu?
-    QPushButton *runCmakeButton = new QPushButton("Run cmake");
+    QPushButton *runCmakeButton = new QPushButton(tr("Run cmake"));
     connect(runCmakeButton, SIGNAL(clicked()),
             this, SLOT(runCMake()));
     fl->addRow(tr("Reconfigure project:"), runCmakeButton);
@@ -837,7 +837,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeTarget *target)
     connect(m_changeButton, SIGNAL(clicked()), this, SLOT(openChangeBuildDirectoryDialog()));
     hbox->addWidget(m_changeButton);
 
-    fl->addRow("Build directory:", hbox);
+    fl->addRow(tr("Build directory:"), hbox);
 }
 
 QString CMakeBuildSettingsWidget::displayName() const
