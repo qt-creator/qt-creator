@@ -288,13 +288,22 @@ def getCorrectlyConfiguredTargets():
             if matches:
                 target = matches.group("target").strip()
                 version = matches.group("version").strip()
-                if target in result:
-                    oldV = result[target]
-                    if version not in oldV:
-                        oldV.append(version)
-                        result.update({target:oldV})
-                else:
-                    result.update({target:[version]})
+                 # Dialog sometimes differs from targets' names
+                if target == "Maemo":
+                    target = "Maemo5"
+                elif target == "Symbian":
+                    target = "Symbian Device"
+                implicitTargets = [target]
+                if target == "Desktop" and platform.system() in ("Linux", "Darwin"):
+                    implicitTargets.append("Embedded Linux")
+                for currentTarget in implicitTargets:
+                    if currentTarget in result:
+                        oldV = result[currentTarget]
+                        if version not in oldV:
+                            oldV.append(version)
+                            result.update({currentTarget:oldV})
+                    else:
+                        result.update({currentTarget:[version]})
     clickButton(waitForObject(":Options.Cancel_QPushButton"))
     test.log("Correctly configured targets: %s" % str(result))
     return result

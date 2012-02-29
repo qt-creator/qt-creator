@@ -79,6 +79,7 @@ def main():
                     if t in availableCheckboxes:
                         test.fail("Target '%s' found as checkbox, but required version (%s) is higher "
                                   "than configured version(s) (%s)!" % (t, requiredVersion, str(targets[t])))
+                        availableCheckboxes.remove(t)
                     else:
                         test.passes("Irrelevant target '%s' not found on 'Target setup' page - "
                                     "required version is '%s', current version(s) are '%s'." %
@@ -88,6 +89,7 @@ def main():
             if t in displayedPlatforms:
                 if t in availableCheckboxes:
                     test.passes("Found expected target '%s' on 'Target setup' page." % t)
+                    availableCheckboxes.remove(t)
                 else:
                     test.fail("Expected target '%s' missing on 'Target setup' page." % t)
             else:
@@ -95,6 +97,8 @@ def main():
                     test.fail("Target '%s' found on 'Target setup' page - but has not been expected!" % t)
                 else:
                     test.passes("Irrelevant target '%s' not found on 'Target setup' page." % t)
+        if len(availableCheckboxes) != 0:
+            test.fail("Found unexpected additional target(s) %s on 'Target setup' page." % str(availableCheckboxes))
         clickButton(waitForObject("{text='Cancel' type='QPushButton' unnamed='1' visible='1'}", 20000))
     invokeMenuItem("File", "Exit")
 
