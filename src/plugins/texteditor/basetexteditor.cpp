@@ -4289,11 +4289,13 @@ void BaseTextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
 
 void BaseTextEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    QTextCursor cursor = textCursor();
-    const int position = cursor.position();
-    if (TextBlockUserData::findPreviousOpenParenthesis(&cursor, false, true)) {
-        if (position - cursor.position() == 1 && selectBlockUp())
-            return;
+    if (e->button() == Qt::LeftButton) {
+        QTextCursor cursor = textCursor();
+        const int position = cursor.position();
+        if (TextBlockUserData::findPreviousOpenParenthesis(&cursor, false, true)) {
+            if (position - cursor.position() == 1 && selectBlockUp())
+                return;
+        }
     }
 
     QPlainTextEdit::mouseDoubleClickEvent(e);
