@@ -6,6 +6,8 @@
         <comment>QML file</comment>
         <glob pattern="*.qml"/>
         <glob pattern="*.qmlproject"/>
+        <glob pattern="*.qbs"/>
+        <glob pattern="*.qbp"/>
     </mime-type>
     <mime-type type="application/javascript">
         <alias type="application/x-javascript"/>
