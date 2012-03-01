@@ -74,9 +74,15 @@ Qt::DropActions ExternalToolModel::supportedDropActions() const
     return Qt::MoveAction;
 }
 
+QString ExternalToolModel::uncategorizedDisplayName() const
+{
+    static QString uncategorized = tr("Uncategorized");
+    return uncategorized;
+}
+
 int ExternalToolModel::columnCount(const QModelIndex &parent) const
 {
-    if (!parent.isValid() || toolForIndex(parent) || !categoryForIndex(parent).isNull())
+    if (!parent.isValid() || toolForIndex(parent) || !categoryForIndex(parent).isEmpty())
         return 1;
     return 0;
 }
@@ -86,9 +92,8 @@ QVariant ExternalToolModel::data(const QModelIndex &index, int role) const
     if (ExternalTool *tool = toolForIndex(index))
         return data(tool, role);
     QString category = categoryForIndex(index);
-    if (!category.isNull())
-        return data(category, role);
-    return QVariant();
+    QTC_ASSERT(!category.isEmpty(), return QVariant());
+    return data(category, role);
 }
 
 QVariant ExternalToolModel::data(ExternalTool *tool, int role) const
@@ -108,9 +113,10 @@ QVariant ExternalToolModel::data(const QString &category, int role) const
     switch (role) {
     case Qt::DisplayRole:
     case Qt::EditRole:
-        return category.isEmpty() ? tr("Uncategorized") : category;
+        return category;
     case Qt::ToolTipRole:
-        return category.isEmpty() ? tr("Tools that will appear directly under the External Tools menu.") : QVariant();
+        return category == uncategorizedDisplayName()
+                ? tr("Tools that will appear directly under the External Tools menu.") : QVariant();
     default:
         break;
     }
@@ -125,7 +131,7 @@ QMimeData *ExternalToolModel::mimeData(const QModelIndexList &indexes) const
     ExternalTool *tool = toolForIndex(modelIndex);
     QTC_ASSERT(tool, return 0);
     QString category = categoryForIndex(modelIndex.parent());
-    QTC_ASSERT(!category.isNull(), return 0);
+    QTC_ASSERT(!category.isEmpty(), return 0);
     QMimeData *md = new QMimeData();
     QByteArray ba;
     QDataStream stream(&ba, QIODevice::WriteOnly);
@@ -144,7 +150,7 @@ bool ExternalToolModel::dropMimeData(const QMimeData *data,
     if (action != Qt::MoveAction || !data)
         return false;
     QString toCategory = categoryForIndex(parent);
-    QTC_ASSERT(!toCategory.isNull(), return false);
+    QTC_ASSERT(!toCategory.isEmpty(), return false);
     QByteArray ba = data->data(QLatin1String("application/qtcreator-externaltool-config"));
     if (ba.isEmpty())
         return false;
@@ -153,15 +159,15 @@ bool ExternalToolModel::dropMimeData(const QMimeData *data,
     int pos = -1;
     stream >> category;
     stream >> pos;
-    QTC_ASSERT(!category.isNull(), return false);
+    QTC_ASSERT(!category.isEmpty(), return false);
     QList<ExternalTool *> &items = m_tools[category];
     QTC_ASSERT(pos >= 0 && pos < items.count(), return false);
-    beginRemoveRows(index(m_tools.keys().indexOf(category), 0), pos, pos);
+    beginRemoveRows(index(rowForCategory(category), 0), pos, pos);
     ExternalTool *tool = items.takeAt(pos);
     endRemoveRows();
     if (row < 0)
         row = m_tools.value(toCategory).count();
-    beginInsertRows(index(m_tools.keys().indexOf(toCategory), 0), row, row);
+    beginInsertRows(index(rowForCategory(toCategory), 0), row, row);
     m_tools[toCategory].insert(row, tool);
     endInsertRows();
     return true;
@@ -176,7 +182,7 @@ QModelIndex ExternalToolModel::index(int row, int column, const QModelIndex &par
 {
     if (column == 0 && parent.isValid()) {
         QString category = categoryForIndex(parent);
-        if (!category.isNull()) {
+        if (!category.isEmpty()) {
             QList<ExternalTool *> items = m_tools.value(category);
             if (row < items.count()) {
                 return createIndex(row, 0, items.at(row));
@@ -191,13 +197,11 @@ QModelIndex ExternalToolModel::index(int row, int column, const QModelIndex &par
 QModelIndex ExternalToolModel::parent(const QModelIndex &child) const
 {
     if (ExternalTool *tool = toolForIndex(child)) {
-        int categoryIndex = 0;
         QMapIterator<QString, QList<ExternalTool *> > it(m_tools);
         while (it.hasNext()) {
             it.next();
             if (it.value().contains(tool))
-                return index(categoryIndex, 0);
-            ++categoryIndex;
+                return index(rowForCategory(it.key()), 0);
         }
     }
     return QModelIndex();
@@ -211,7 +215,7 @@ int ExternalToolModel::rowCount(const QModelIndex &parent) const
         return 0;
     }
     QString category = categoryForIndex(parent);
-    if (!category.isNull()) {
+    if (!category.isEmpty()) {
         return m_tools.value(category).count();
     }
 
@@ -223,8 +227,8 @@ Qt::ItemFlags ExternalToolModel::flags(const QModelIndex &index) const
     if (toolForIndex(index))
         return TOOL_ITEM_FLAGS;
     QString category = categoryForIndex(index);
-    if (!category.isNull()) {
-        if (category.isEmpty())
+    if (!category.isEmpty()) {
+        if (category == uncategorizedDisplayName())
             return TOOLSMENU_ITEM_FLAGS;
         return CATEGORY_ITEM_FLAGS;
     }
@@ -245,15 +249,17 @@ bool ExternalToolModel::setData(const QModelIndex &modelIndex, const QVariant &v
         return true;
     } else {
         QString category = categoryForIndex(modelIndex);
-        if (!category.isNull()) {
+        if (!category.isEmpty()) {
             if (string.isEmpty() || m_tools.contains(string))
                 return false;
             // rename category
             QList<QString> categories = m_tools.keys();
-            int previousIndex = categories.indexOf(category);
+            int previousIndex = rowForCategory(category);
+            categories.removeAll(uncategorizedDisplayName()); // prepended again after sorting new list
             categories.removeAt(previousIndex);
             categories.append(string);
             qSort(categories);
+            categories.prepend(uncategorizedDisplayName()); // prepend, so order is like in view
             int newIndex = categories.indexOf(string);
             if (newIndex != previousIndex) {
                 // we have same parent so we have to do special stuff for beginMoveRows...
@@ -291,10 +297,28 @@ QString ExternalToolModel::categoryForIndex(const QModelIndex &index) const
 {
     if (index.isValid() && !index.parent().isValid() && index.column() == 0 && index.row() >= 0) {
         const QList<QString> &keys = m_tools.keys();
-        if (index.row() < keys.count())
+        if (index.row() == 0)
+            return uncategorizedDisplayName();
+        if (index.row() < keys.count()) {
+            int uncategorizedIndex = keys.indexOf(uncategorizedDisplayName());
+            if (index.row() <= uncategorizedIndex)
+                return keys.at(index.row() - 1);
             return keys.at(index.row());
+        }
     }
     return QString();
+}
+
+int ExternalToolModel::rowForCategory(const QString &category) const
+{
+    if (category == uncategorizedDisplayName())
+        return 0;
+    const QList<QString> &keys = m_tools.keys();
+    int uncategorizedIndex = keys.indexOf(uncategorizedDisplayName());
+    int index = keys.indexOf(category);
+    if (index < uncategorizedIndex)
+        return index + 1;
+    return index;
 }
 
 void ExternalToolModel::revertTool(const QModelIndex &modelIndex)
@@ -319,8 +343,10 @@ QModelIndex ExternalToolModel::addCategory()
         category = categoryBase + QString::number(count);
     }
     QList<QString> categories = m_tools.keys();
+    categories.removeAll(uncategorizedDisplayName()); // prepended again after sorting new list
     categories.append(category);
     qSort(categories);
+    categories.prepend(uncategorizedDisplayName()); // prepend, so order is like in view
     int pos = categories.indexOf(category);
 
     beginInsertRows(QModelIndex(), pos, pos);
@@ -332,7 +358,7 @@ QModelIndex ExternalToolModel::addCategory()
 QModelIndex ExternalToolModel::addTool(const QModelIndex &atIndex)
 {
     QString category = categoryForIndex(atIndex);
-    if (category.isNull())
+    if (category.isEmpty())
         category = categoryForIndex(atIndex.parent());
 
     ExternalTool *tool = new ExternalTool;
@@ -465,8 +491,8 @@ void ExternalToolConfig::setTools(const QMap<QString, QList<ExternalTool *> > &t
             itemCopy.append(new ExternalTool(tool));
         toolsCopy.insert(it.key(), itemCopy);
     }
-    if (!toolsCopy.contains(QString()))
-        toolsCopy.insert(QString(), QList<ExternalTool *>());
+    if (!toolsCopy.contains(m_model->uncategorizedDisplayName()))
+        toolsCopy.insert(m_model->uncategorizedDisplayName(), QList<ExternalTool *>());
     m_model->setTools(toolsCopy);
     ui->toolTree->expandAll();
 }
