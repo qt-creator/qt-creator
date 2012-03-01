@@ -70,6 +70,8 @@ GridView {
         verticalMaximumValue: vscrollbar.maximumValue
 
         onVerticalValueChanged: gridView.contentY = verticalValue
+        verticalValue: gridView.contentY
+
     }
 
     ScrollBar {
@@ -86,5 +88,6 @@ GridView {
         onValueChanged: gridView.contentY = value
         anchors.rightMargin: styleitem.frameoffset
         anchors.bottomMargin: hscrollbar.visible ? hscrollbar.height : styleitem.frameoffset
+        value: gridView.contentY
     }
 }
