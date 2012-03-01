@@ -3,6 +3,15 @@ CONFIG          -= qt app_bundle
 
 include(../../../qtcreator.pri)
 
+# Switch to statically linked CRT. Note: There will be only one
+# global state of the CRT, reconsider if other DLLs are required!
+# TODO: No effect, currently?
+
+QMAKE_CXXFLAGS_RELEASE    -= -MD
+QMAKE_CXXFLAGS_DEBUG      -= -MDd
+QMAKE_CXXFLAGS_RELEASE    += -MT
+QMAKE_CXXFLAGS_DEBUG      += -MT
+
 SOURCES = win64interrupt.c
 
 TEMPLATE        = app
