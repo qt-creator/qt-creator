@@ -237,23 +237,6 @@ void LinuxDeviceConfigurations::setConfigurationName(int i, const QString &name)
     emit dataChanged(changedIndex, changedIndex);
 }
 
-void LinuxDeviceConfigurations::setSshParameters(int i,
-    const Utils::SshConnectionParameters &params)
-{
-    QTC_ASSERT(this != LinuxDeviceConfigurationsPrivate::instance, return);
-    Q_ASSERT(i >= 0 && i < rowCount());
-
-    d->devConfigs.at(i)->setSshParameters(params);
-}
-
-void LinuxDeviceConfigurations::setFreePorts(int i, const Utils::PortList &freePorts)
-{
-    QTC_ASSERT(this != LinuxDeviceConfigurationsPrivate::instance, return);
-    Q_ASSERT(i >= 0 && i < rowCount());
-
-    d->devConfigs.at(i)->setFreePorts(freePorts);
-}
-
 void LinuxDeviceConfigurations::setDefaultDevice(int idx)
 {
     QTC_ASSERT(this != LinuxDeviceConfigurationsPrivate::instance, return);
@@ -277,14 +260,6 @@ void LinuxDeviceConfigurations::setDefaultDevice(int idx)
     devConf->setDefault(true);
     const QModelIndex newDefaultIndex = index(idx, 0);
     emit dataChanged(newDefaultIndex, newDefaultIndex);
-}
-
-void LinuxDeviceConfigurations::setAttribute(int index, const QString &name, const QVariant &value)
-{
-    QTC_ASSERT(this != LinuxDeviceConfigurationsPrivate::instance, return);
-    Q_ASSERT(index >= 0 && index < rowCount());
-
-    d->devConfigs.at(index)->setAttribute(name, value);
 }
 
 LinuxDeviceConfigurations::LinuxDeviceConfigurations(QObject *parent)

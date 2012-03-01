@@ -66,10 +66,7 @@ public:
     void addConfiguration(const LinuxDeviceConfiguration::Ptr &devConfig);
     void removeConfiguration(int index);
     void setConfigurationName(int i, const QString &name);
-    void setSshParameters(int i, const Utils::SshConnectionParameters &params);
-    void setFreePorts(int i, const Utils::PortList &freePorts);
     void setDefaultDevice(int index);
-    void setAttribute(int index, const QString &name, const QVariant &value);
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex &index,
