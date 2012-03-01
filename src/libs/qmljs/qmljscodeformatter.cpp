@@ -1124,27 +1124,10 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         }
         break;
 
-    case function_start: {
-        // in these states, align to the 'function' keyword
-        const int parentType = parentState.type;
-        if (parentType == objectdefinition_open
-                || parentType == paren_open
-                || parentType == bracket_open) {
-            *indentDepth = tokenPosition;
-            *savedIndentDepth = *indentDepth;
-            break;
-        }
-
-        // otherwise find the enclosing expression end state and align to that
-        for (int i = 1; state(i).type != topmost_intro; ++i) {
-            const int type = state(i).type;
-            if (isExpressionEndState(type)) {
-                *indentDepth = state(i - 1).savedIndentDepth;
-                break;
-            }
-        }
+    case function_start:
+        // align to the beginning of the line
+        *savedIndentDepth = *indentDepth = column(tokenAt(0).begin());
         break;
-    }
 
     case do_statement_while_paren_open:
     case statement_with_condition_paren_open:
