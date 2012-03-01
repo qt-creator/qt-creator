@@ -1541,7 +1541,7 @@ class Dumper:
                 self.putAddress(value.address)
                 return
 
-            if format == -1 and innerTypeName == "char":
+            if format == None and innerTypeName == "char":
                 # Use Latin1 as default for char *.
                 self.putAddress(value.address)
                 self.putType(typeName)
