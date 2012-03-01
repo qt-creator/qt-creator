@@ -560,6 +560,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     m_importLineLayout->addWidget(m_importLineButton);
     m_importLineStretch = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed);
     m_importLineLayout->addSpacerItem(m_importLineStretch);
+    m_importLinePath->installEventFilter(this);
     layout->addWidget(w);
 
     m_importLineLabel->setVisible(false);
@@ -782,6 +783,21 @@ void Qt4DefaultTargetSetupWidget::storeSettings() const
     // and for the importing case "None" is likely the most sensible
     if (!importing)
         s->setValue(QLatin1String("Qt4ProjectManager.TargetSetupPage.BuildTemplate"), m_buildConfigurationComboBox->currentIndex());
+}
+
+bool Qt4DefaultTargetSetupWidget::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == m_importLinePath) {
+        if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
+            QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+            if (ke->key() == Qt::Key_Return || ke->key() == Qt::Key_Enter) {
+                if (event->type() == QEvent::KeyPress)
+                    addImportClicked();
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 QList<BuildConfigurationInfo> Qt4DefaultTargetSetupWidget::buildConfigurationInfos() const

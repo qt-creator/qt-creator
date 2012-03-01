@@ -157,6 +157,8 @@ public:
     void setBuildConfigurationTemplate(BuildConfigurationTemplate value);
 
     void storeSettings() const;
+protected:
+    bool eventFilter(QObject *, QEvent *);
 private slots:
     void addImportClicked();
     void checkBoxToggled(bool b);
