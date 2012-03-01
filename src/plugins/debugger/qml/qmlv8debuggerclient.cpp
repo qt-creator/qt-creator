@@ -1055,7 +1055,7 @@ void QmlV8DebuggerClient::executeStepI()
 void QmlV8DebuggerClient::executeRunToLine(const ContextData &data)
 {
     d->setBreakpoint(QString(_(SCRIPTREGEXP)), data.fileName,
-                     data.lineNumber);
+                     true, data.lineNumber);
     clearExceptionSelection();
     d->continueDebugging(Continue);
 }
