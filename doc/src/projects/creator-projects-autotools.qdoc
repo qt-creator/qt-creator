@@ -39,7 +39,9 @@
     \nextpage creator-project-generic.html
 
     \title Setting Up an Autotools Project
-    The AutotoolsProjectManager is a plugin for autotools support.
+    The AutotoolsProjectManager is a plugin for autotools support. It is disabled by default.
+    To enable the plugin, select \gui{Help > About Plugins > Build Systems > AutotoolsProjectManager}.
+    To use the plugin, restart \QC.
 
     \image qtcreator-autotools-buildrun.png
 
