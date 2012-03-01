@@ -207,11 +207,14 @@ void AbstractRemoteLinuxDebugSupport::startExecution()
             .arg(d->qmlPort);
     }
 
+    const QHostAddress peerAddress = runner()->connection()->connectionInfo().peerAddress;
+    QString peerAddressString = peerAddress.toString();
+    if (peerAddress.protocol() == QAbstractSocket::IPv6Protocol)
+        peerAddressString.prepend(QLatin1Char('[')).append(QLatin1Char(']'));
     const QString remoteCommandLine = (d->qmlDebugging && !d->cppDebugging)
         ? QString::fromLatin1("%1 %2 %3").arg(runner()->commandPrefix()).arg(remoteExe).arg(args)
         : QString::fromLatin1("%1 gdbserver %5:%2 %3 %4").arg(runner()->commandPrefix())
-              .arg(d->gdbServerPort).arg(remoteExe).arg(args)
-              .arg(runner()->connection()->connectionInfo().peerAddress.toString());
+              .arg(d->gdbServerPort).arg(remoteExe).arg(args).arg(peerAddressString);
     connect(runner(), SIGNAL(remoteProcessFinished(qint64)),
         SLOT(handleRemoteProcessFinished(qint64)));
     runner()->startExecution(remoteCommandLine.toUtf8());
