@@ -59,7 +59,6 @@ const QLatin1String AuthKey("Authentication");
 const QLatin1String KeyFileKey("KeyFile");
 const QLatin1String PasswordKey("Password");
 const QLatin1String TimeoutKey("Timeout");
-const QLatin1String IsDefaultKey("IsDefault");
 const QLatin1String InternalIdKey("InternalId");
 const QLatin1String AttributesKey("Attributes");
 
@@ -81,7 +80,6 @@ public:
     QString osType;
     LinuxDeviceConfiguration::DeviceType deviceType;
     PortList freePorts;
-    bool isDefault;
     LinuxDeviceConfiguration::Origin origin;
     LinuxDeviceConfiguration::Id internalId;
     QVariantHash attributes;
@@ -124,7 +122,6 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name, const QS
     d->osType = osType;
     d->deviceType = deviceType;
     d->freePorts = freePorts;
-    d->isDefault = false;
     d->origin = origin;
     d->attributes = attributes;
 }
@@ -136,7 +133,6 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QSettings &settings, Id
     d->displayName = settings.value(NameKey).toString();
     d->osType = settings.value(OsTypeKey).toString();
     d->deviceType = static_cast<DeviceType>(settings.value(TypeKey, DefaultDeviceType).toInt());
-    d->isDefault = settings.value(IsDefaultKey, false).toBool();
     d->internalId = settings.value(InternalIdKey, nextId).toULongLong();
 
     if (d->internalId == nextId)
@@ -174,7 +170,6 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration(const LinuxDeviceConfiguratio
     d->osType = other->d->osType;
     d->deviceType = other->deviceType();
     d->freePorts = other->freePorts();
-    d->isDefault = other->d->isDefault;
     d->origin = other->d->origin;
     d->internalId = other->d->internalId;
     d->attributes = other->d->attributes;
@@ -204,7 +199,6 @@ void LinuxDeviceConfiguration::save(QSettings &settings) const
     settings.setValue(PasswordKey, d->sshParameters.password);
     settings.setValue(KeyFileKey, d->sshParameters.privateKeyFile);
     settings.setValue(TimeoutKey, d->sshParameters.timeout);
-    settings.setValue(IsDefaultKey, d->isDefault);
     settings.setValue(InternalIdKey, d->internalId);
     settings.setValue(AttributesKey, d->attributes);
 }
@@ -258,11 +252,9 @@ QVariant LinuxDeviceConfiguration::attribute(const QString &name) const
 PortList LinuxDeviceConfiguration::freePorts() const { return d->freePorts; }
 QString LinuxDeviceConfiguration::displayName() const { return d->displayName; }
 QString LinuxDeviceConfiguration::osType() const { return d->osType; }
-bool LinuxDeviceConfiguration::isDefault() const { return d->isDefault; }
 
 void LinuxDeviceConfiguration::setDisplayName(const QString &name) { d->displayName = name; }
 void LinuxDeviceConfiguration::setInternalId(Id id) { d->internalId = id; }
-void LinuxDeviceConfiguration::setDefault(bool isDefault) { d->isDefault = isDefault; }
 
 const LinuxDeviceConfiguration::Id LinuxDeviceConfiguration::InvalidId = 0;
 

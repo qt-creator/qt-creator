@@ -40,6 +40,7 @@
 #include <QList>
 #include <QSettings>
 #include <QString>
+#include <QVariantHash>
 
 #include <algorithm>
 
@@ -51,6 +52,7 @@ const QLatin1String SettingsGroup("MaemoDeviceConfigs");
 const QLatin1String IdCounterKey("IdCounter");
 const QLatin1String ConfigListKey("ConfigList");
 const QLatin1String DefaultKeyFilePathKey("DefaultKeyFile");
+const char DefaultConfigsKey[] = "DefaultConfigs";
 
 class DevConfNameMatcher
 {
@@ -73,6 +75,7 @@ public:
     static LinuxDeviceConfigurations *clonedInstance;
     LinuxDeviceConfiguration::Id nextId;
     QList<LinuxDeviceConfiguration::Ptr> devConfigs;
+    QHash<QString, LinuxDeviceConfiguration::Id> defaultConfigs;
     QString defaultSshKeyFilePath;
 };
 LinuxDeviceConfigurations *LinuxDeviceConfigurationsPrivate::instance = 0;
@@ -132,6 +135,7 @@ void LinuxDeviceConfigurations::copy(const LinuxDeviceConfigurations *source,
     }
     target->d->defaultSshKeyFilePath = source->d->defaultSshKeyFilePath;
     target->d->nextId = source->d->nextId;
+    target->d->defaultConfigs = source->d->defaultConfigs;
 }
 
 void LinuxDeviceConfigurations::save()
@@ -140,6 +144,12 @@ void LinuxDeviceConfigurations::save()
     settings->beginGroup(SettingsGroup);
     settings->setValue(IdCounterKey, d->nextId);
     settings->setValue(DefaultKeyFilePathKey, d->defaultSshKeyFilePath);
+    QVariantHash defaultDevsHash;
+    for (QHash<QString, LinuxDeviceConfiguration::Id>::ConstIterator it = d->defaultConfigs.constBegin();
+             it != d->defaultConfigs.constEnd(); ++it) {
+        defaultDevsHash.insert(it.key(), it.value());
+    }
+    settings->setValue(QLatin1String(DefaultConfigsKey), defaultDevsHash);
     settings->beginWriteArray(ConfigListKey);
     int skippedCount = 0;
     for (int i = 0; i < d->devConfigs.count(); ++i) {
@@ -176,7 +186,7 @@ void LinuxDeviceConfigurations::addConfiguration(const LinuxDeviceConfiguration:
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     if (!defaultDeviceConfig(devConfig->osType()))
-        devConfig->setDefault(true);
+        d->defaultConfigs.insert(devConfig->osType(), devConfig->internalId());
     d->devConfigs << devConfig;
     endInsertRows();
     if (this == d->instance && d->clonedInstance) {
@@ -194,14 +204,15 @@ void LinuxDeviceConfigurations::removeConfiguration(int idx)
         || deviceConfig->isAutoDetected(), return);
 
     beginRemoveRows(QModelIndex(), idx, idx);
-    const bool wasDefault = deviceConfig->isDefault();
+    const bool wasDefault
+        = d->defaultConfigs.value(deviceConfig->osType()) == deviceConfig->internalId();
     const QString osType = deviceConfig->osType();
     d->devConfigs.removeAt(idx);
     endRemoveRows();
     if (wasDefault) {
         for (int i = 0; i < d->devConfigs.count(); ++i) {
             if (deviceAt(i)->osType() == osType) {
-                d->devConfigs.at(i)->setDefault(true);
+                d->defaultConfigs.insert(deviceAt(i)->osType(), deviceAt(i)->internalId());
                 const QModelIndex changedIndex = index(i, 0);
                 emit dataChanged(changedIndex, changedIndex);
                 break;
@@ -242,22 +253,22 @@ void LinuxDeviceConfigurations::setDefaultDevice(int idx)
     QTC_ASSERT(this != LinuxDeviceConfigurationsPrivate::instance, return);
     Q_ASSERT(idx >= 0 && idx < rowCount());
 
-    const LinuxDeviceConfiguration::Ptr &devConf = d->devConfigs.at(idx);
-    if (devConf->isDefault())
+    const LinuxDeviceConfiguration::ConstPtr &devConf = d->devConfigs.at(idx);
+    const LinuxDeviceConfiguration::ConstPtr &oldDefaultDevConf
+        = defaultDeviceConfig(devConf->osType());
+    if (defaultDeviceConfig(devConf->osType()) == devConf)
         return;
     QModelIndex oldDefaultIndex;
     for (int i = 0; i < d->devConfigs.count(); ++i) {
-        const LinuxDeviceConfiguration::Ptr &oldDefaultDev = d->devConfigs.at(i);
-        if (oldDefaultDev->isDefault() && oldDefaultDev->osType() == devConf->osType()) {
-            oldDefaultDev->setDefault(false);
+        if (d->devConfigs.at(i) == oldDefaultDevConf) {
             oldDefaultIndex = index(i, 0);
             break;
         }
     }
 
     QTC_CHECK(oldDefaultIndex.isValid());
+    d->defaultConfigs.insert(devConf->osType(), devConf->internalId());
     emit dataChanged(oldDefaultIndex, oldDefaultIndex);
-    devConf->setDefault(true);
     const QModelIndex newDefaultIndex = index(idx, 0);
     emit dataChanged(newDefaultIndex, newDefaultIndex);
 }
@@ -285,6 +296,11 @@ void LinuxDeviceConfigurations::load()
     d->nextId = settings->value(IdCounterKey, 1).toULongLong();
     d->defaultSshKeyFilePath = settings->value(DefaultKeyFilePathKey,
         LinuxDeviceConfiguration::defaultPrivateKeyFilePath()).toString();
+    const QVariantHash defaultDevsHash = settings->value(QLatin1String(DefaultConfigsKey)).toHash();
+    for (QVariantHash::ConstIterator it = defaultDevsHash.constBegin();
+            it != defaultDevsHash.constEnd(); ++it) {
+        d->defaultConfigs.insert(it.key(), it.value().toULongLong());
+    }
     int count = settings->beginReadArray(ConfigListKey);
     for (int i = 0; i < count; ++i) {
         settings->setArrayIndex(i);
@@ -319,11 +335,11 @@ LinuxDeviceConfiguration::ConstPtr LinuxDeviceConfigurations::find(LinuxDeviceCo
 
 LinuxDeviceConfiguration::ConstPtr LinuxDeviceConfigurations::defaultDeviceConfig(const QString &osType) const
 {
-    foreach (const LinuxDeviceConfiguration::ConstPtr &devConf, d->devConfigs) {
-        if (devConf->isDefault() && devConf->osType() == osType)
-            return devConf;
-    }
-    return LinuxDeviceConfiguration::ConstPtr();
+    const LinuxDeviceConfiguration::Id id = d->defaultConfigs.value(osType,
+        LinuxDeviceConfiguration::InvalidId);
+    if (id == LinuxDeviceConfiguration::InvalidId)
+        return LinuxDeviceConfiguration::ConstPtr();
+    return find(id);
 }
 
 int LinuxDeviceConfigurations::indexForInternalId(LinuxDeviceConfiguration::Id internalId) const
@@ -342,24 +358,9 @@ LinuxDeviceConfiguration::Id LinuxDeviceConfigurations::internalId(LinuxDeviceCo
 
 void LinuxDeviceConfigurations::ensureOneDefaultConfigurationPerOsType()
 {
-    QHash<QString, bool> osTypeHasDefault;
-
-    // Step 1: Ensure there's at most one default configuration per device type.
     foreach (const LinuxDeviceConfiguration::Ptr &devConf, d->devConfigs) {
-        if (devConf->isDefault()) {
-            if (osTypeHasDefault.value(devConf->osType()))
-                devConf->setDefault(false);
-            else
-                osTypeHasDefault.insert(devConf->osType(), true);
-        }
-    }
-
-    // Step 2: Ensure there's at least one default configuration per device type.
-    foreach (const LinuxDeviceConfiguration::Ptr &devConf, d->devConfigs) {
-        if (!osTypeHasDefault.value(devConf->osType())) {
-            devConf->setDefault(true);
-            osTypeHasDefault.insert(devConf->osType(), true);
-        }
+        if (!defaultDeviceConfig(devConf->osType()))
+            d->defaultConfigs.insert(devConf->osType(), devConf->internalId());
     }
 }
 
@@ -375,7 +376,7 @@ QVariant LinuxDeviceConfigurations::data(const QModelIndex &index, int role) con
         return QVariant();
     const LinuxDeviceConfiguration::ConstPtr devConf = deviceAt(index.row());
     QString name = devConf->displayName();
-    if (devConf->isDefault()) {
+    if (defaultDeviceConfig(devConf->osType()) == devConf) {
         name += QLatin1Char(' ') + tr("(default for %1)")
             .arg(RemoteLinuxUtils::osTypeToString(devConf->osType()));
     }

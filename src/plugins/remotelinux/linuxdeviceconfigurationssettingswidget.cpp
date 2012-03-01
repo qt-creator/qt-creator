@@ -184,7 +184,8 @@ void LinuxDeviceConfigurationsSettingsWidget::deleteConfig()
 void LinuxDeviceConfigurationsSettingsWidget::displayCurrent()
 {
     const LinuxDeviceConfiguration::ConstPtr &current = currentConfig();
-    m_ui->defaultDeviceButton->setEnabled(!current->isDefault());
+    m_ui->defaultDeviceButton->setEnabled(
+        m_devConfigs->defaultDeviceConfig(current->osType()) != current);
     m_ui->osTypeValueLabel->setText(RemoteLinuxUtils::osTypeToString(current->osType()));
 
     if (current->deviceType() == LinuxDeviceConfiguration::Hardware)

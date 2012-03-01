@@ -77,7 +77,6 @@ public:
     QString osType() const;
     DeviceType deviceType() const;
     Id internalId() const;
-    bool isDefault() const;
     bool isAutoDetected() const;
     QVariantHash attributes() const;
     QVariant attribute(const QString &name) const;
