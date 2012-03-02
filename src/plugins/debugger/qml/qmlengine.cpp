@@ -861,13 +861,14 @@ void QmlEngine::attemptBreakpointSynchronization()
 
     BreakHandler *handler = breakHandler();
 
+    DebuggerEngine *bpOwner = isSlaveEngine() ? masterEngine() : this;
     foreach (BreakpointModelId id, handler->unclaimedBreakpointIds()) {
         // Take ownership of the breakpoint. Requests insertion.
         if (acceptsBreakpoint(id))
-            handler->setEngine(id, this);
+            handler->setEngine(id, bpOwner);
     }
 
-    foreach (BreakpointModelId id, handler->engineBreakpointIds(this)) {
+    foreach (BreakpointModelId id, handler->engineBreakpointIds(bpOwner)) {
         switch (handler->state(id)) {
         case BreakpointNew:
             // Should not happen once claimed.
