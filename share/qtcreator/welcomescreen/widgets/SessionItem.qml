@@ -68,6 +68,8 @@ Item {
                 width: delegate.ListView.view.width - 80
                 elide: Text.ElideRight
 
+                enlargeMouseArea: false
+
                 Rectangle {
                     z: -4
                     color: "#f9f9f9"
