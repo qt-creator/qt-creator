@@ -177,6 +177,7 @@ public:
         m_memoryAgent(engine),
         m_isStateDebugging(false),
         m_testsPossible(true),
+        m_testsRunning(false),
         m_taskHub(0)
     {
         connect(&m_locationTimer, SIGNAL(timeout()), SLOT(resetLocation()));
@@ -319,6 +320,7 @@ public:
     void handleAutoTestLine(int line);
     void reportTestError(const QString &msg, int line);
     bool m_testsPossible;
+    bool m_testsRunning;
     bool m_breakOnError;
     bool m_foundError;
     QStringList m_testContents;
@@ -1802,6 +1804,11 @@ void DebuggerEngine::handleAutoTests()
     d->handleAutoTests();
 }
 
+bool DebuggerEngine::isAutoTestRunning() const
+{
+    return d->m_testsRunning;
+}
+
 void DebuggerEnginePrivate::handleAutoTests()
 {
     if (!m_testsPossible)
@@ -1826,11 +1833,14 @@ void DebuggerEnginePrivate::handleAutoTests()
                 if (s.startsWith(QLatin1String("#define USE_AUTORUN 1"))) {
                     m_testsPossible = true;
                     m_breakOnError = false;
+                    m_testsRunning = true;
                 } else if (s.startsWith(QLatin1String("#define USE_AUTORUN 2"))) {
                     m_testsPossible = true;
+                    m_testsRunning = true;
                     m_breakOnError = true;
                 } else {
                     m_testsPossible = false;
+                    m_testsRunning = false;
                     m_breakOnError = false;
                 }
                 break;
@@ -1856,15 +1866,20 @@ void DebuggerEnginePrivate::handleAutoTestLine(int line)
         return;
     s = s.mid(pos + 2).trimmed();
     QString cmd = s.section(QLatin1Char(' '), 0, 0);
-    if (cmd == QLatin1String("Expand")) {
-        m_engine->showMessage(_("'Expand' found in line %1, but not implemented yet.").arg(line));
+    if (cmd == QLatin1String("Skip")) {
+        m_engine->showMessage(_("Skipping test %1").arg(line));
+        handleAutoTestLine(line + 1);
+    } else if (cmd == QLatin1String("Expand")) {
+        m_engine->showMessage(_("'Expand' found in line %1, "
+            "but is not implemented yet.").arg(line));
         handleAutoTestLine(line + 1);
     } else if (cmd == QLatin1String("Check")) {
         QString name = s.section(QLatin1Char(' '), 1, 1);
         if (name.isEmpty()) {
-            reportTestError(_("'Check'  needs arguments."), line);
-        } else if (name.contains(QLatin1Char('.'))) {
-            m_engine->showMessage(_("variable %1 found in line %2 contains '.', but 'Expand' is not implemented yet.").arg(name).arg(line));
+            reportTestError(_("'Check' needs arguments."), line);
+        } else if (name.count(QLatin1Char('.')) >= 2) {
+            m_engine->showMessage(_("Variable %1 found in line %2 is nested "
+                "too deeply for the current implementation.").arg(name).arg(line));
         } else {
             QByteArray iname = "local." + name.toLatin1();
             QString found = m_engine->watchHandler()->displayForAutoTest(iname);
@@ -1886,9 +1901,10 @@ void DebuggerEnginePrivate::handleAutoTestLine(int line)
     } else if (cmd == QLatin1String("CheckType")) {
         QString name = s.section(QLatin1Char(' '), 1, 1);
         if (name.isEmpty()) {
-            reportTestError(_("'CheckType'  needs arguments."), line);
-        } else if (name.contains(QLatin1Char('.'))) {
-            m_engine->showMessage(_("variable %1 found in line %2 contains '.', but 'Expand' is not implemented yet.").arg(name).arg(line));
+            reportTestError(_("'CheckType' needs arguments."), line);
+        } else if (name.count(QLatin1Char('.')) >= 2) {
+            m_engine->showMessage(_("Variable %1 found in line %2 is nested "
+                "too deeply for the current implementation.").arg(name).arg(line));
         } else {
             QByteArray iname = "local." + name.toLatin1();
             QString found = m_engine->watchHandler()->displayForAutoTest(iname);
