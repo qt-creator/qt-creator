@@ -117,6 +117,7 @@ CodeStyleDialog::CodeStyleDialog(ICodeStylePreferencesFactory *factory,
     m_codeStyle = factory->createCodeStyle();
     m_codeStyle->setTabSettings(codeStyle->tabSettings());
     m_codeStyle->setValue(codeStyle->value());
+    m_codeStyle->setId(codeStyle->id());
     m_codeStyle->setDisplayName(m_originalDisplayName);
     QWidget *editor = factory->createEditor(m_codeStyle, this);
 
