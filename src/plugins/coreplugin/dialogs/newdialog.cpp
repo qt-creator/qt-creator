@@ -269,18 +269,18 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
     QStringList availablePlatforms = IWizard::allAvailablePlatforms();
 
     if (availablePlatforms.count() > 1) {
-        m_ui->comboBox->addItem(tr("All templates"), QString());
+        m_ui->comboBox->addItem(tr("All Templates"), QString());
         foreach (const QString &platform, availablePlatforms) {
             const QString displayNameForPlatform = IWizard::displayNameForPlatform(platform);
-            m_ui->comboBox->addItem(tr("%1 templates").arg(displayNameForPlatform), platform);
+            m_ui->comboBox->addItem(tr("%1 Templates").arg(displayNameForPlatform), platform);
         }
     } else {
         if (availablePlatforms.isEmpty()) {
-            m_ui->comboBox->addItem(tr("All templates"), QString());
+            m_ui->comboBox->addItem(tr("All Templates"), QString());
         } else {
             const QString platform = availablePlatforms.first();
             const QString displayNameForPlatform = IWizard::displayNameForPlatform(platform);
-            m_ui->comboBox->addItem(tr("%1 templates").arg(displayNameForPlatform), platform);
+            m_ui->comboBox->addItem(tr("%1 Templates").arg(displayNameForPlatform), platform);
         }
         m_ui->comboBox->setDisabled(true);
     }
