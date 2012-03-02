@@ -1829,6 +1829,9 @@ void DebuggerEnginePrivate::handleAutoTests()
                 } else if (s.startsWith(QLatin1String("#define USE_AUTORUN 2"))) {
                     m_testsPossible = true;
                     m_breakOnError = true;
+                } else {
+                    m_testsPossible = false;
+                    m_breakOnError = false;
                 }
                 break;
             }
