@@ -38,6 +38,7 @@
 #include <QString>
 #include <QStringList>
 #include <QVariantHash>
+#include <QVariantMap>
 #include <QWizard>
 
 QT_BEGIN_NAMESPACE
@@ -90,10 +91,12 @@ public:
 
     static const Id InvalidId;
 
+    static Ptr create();
     static Ptr create(const QString &name, const QString &osType, DeviceType deviceType,
         const Utils::PortList &freePorts, const Utils::SshConnectionParameters &sshParams,
         const QVariantHash &attributes = QVariantHash(), Origin origin = ManuallyAdded);
 private:
+    LinuxDeviceConfiguration();
     LinuxDeviceConfiguration(const QString &name, const QString &osType, DeviceType deviceType,
         const Utils::PortList &freePorts, const Utils::SshConnectionParameters &sshParams,
         const QVariantHash &attributes, Origin origin);
@@ -109,7 +112,9 @@ private:
     void setDisplayName(const QString &name);
     void setInternalId(Id id);
     void setDefault(bool isDefault);
-    void save(QSettings &settings) const;
+
+    void fromMap(const QVariantMap &map);
+    QVariantMap toMap() const;
 
     Internal::LinuxDeviceConfigurationPrivate *d;
 };

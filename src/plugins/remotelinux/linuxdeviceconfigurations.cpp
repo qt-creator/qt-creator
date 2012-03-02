@@ -34,13 +34,18 @@
 #include "remotelinuxutils.h"
 
 #include <coreplugin/icore.h>
+#include <extensionsystem/pluginmanager.h>
+#include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 
+#include <QFileInfo>
 #include <QHash>
 #include <QList>
+#include <QMainWindow>
 #include <QSettings>
 #include <QString>
 #include <QVariantHash>
+#include <QVariantList>
 
 #include <algorithm>
 #include <limits>
@@ -48,11 +53,13 @@
 namespace RemoteLinux {
 namespace Internal {
 
+const char FileFormatVersionKey[] = "DeviceManagerFileFormatVersion";
+const char DeviceManagerKey[] = "DeviceManager";
+const char DeviceListKey[] = "DeviceList";
+const char DefaultKeyFilePathKey[] = "DefaultKeyFile";
+const char DefaultDevicesKey[] = "DefaultDevices";
+
 namespace {
-const QLatin1String SettingsGroup("MaemoDeviceConfigs");
-const QLatin1String ConfigListKey("ConfigList");
-const QLatin1String DefaultKeyFilePathKey("DefaultKeyFile");
-const char DefaultConfigsKey[] = "DefaultConfigs";
 
 class DevConfNameMatcher
 {
@@ -142,28 +149,91 @@ void LinuxDeviceConfigurations::copy(const LinuxDeviceConfigurations *source,
 
 void LinuxDeviceConfigurations::save()
 {
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(SettingsGroup);
-    settings->setValue(DefaultKeyFilePathKey, d->defaultSshKeyFilePath);
-    QVariantHash defaultDevsHash;
-    for (QHash<QString, LinuxDeviceConfiguration::Id>::ConstIterator it = d->defaultConfigs.constBegin();
-             it != d->defaultConfigs.constEnd(); ++it) {
-        defaultDevsHash.insert(it.key(), it.value());
+    Utils::PersistentSettingsWriter writer;
+    writer.saveValue(QLatin1String(FileFormatVersionKey), 1);
+    writer.saveValue(QLatin1String(DeviceManagerKey), toMap());
+    writer.save(settingsFilePath(), QLatin1String("QtCreatorDevices"), Core::ICore::mainWindow());
+}
+
+void LinuxDeviceConfigurations::load()
+{
+    Utils::PersistentSettingsReader reader;
+    if (reader.load(settingsFilePath())) {
+        const QVariantMap data = reader.restoreValues();
+        const int version = data.value(QLatin1String(FileFormatVersionKey), 0).toInt();
+        if (version < 1)
+            return;
+        fromMap(data.value(QLatin1String(DeviceManagerKey)).toMap());
+    } else {
+        loadPre2_6();
     }
-    settings->setValue(QLatin1String(DefaultConfigsKey), defaultDevsHash);
-    settings->beginWriteArray(ConfigListKey);
-    int skippedCount = 0;
-    for (int i = 0; i < d->devConfigs.count(); ++i) {
-        const LinuxDeviceConfiguration::ConstPtr &devConf = d->devConfigs.at(i);
-        if (devConf->isAutoDetected()) {
-            ++skippedCount;
-        } else {
-            settings->setArrayIndex(i-skippedCount);
-            devConf->save(*settings);
-        }
+    ensureOneDefaultConfigurationPerOsType();
+}
+
+void LinuxDeviceConfigurations::loadPre2_6()
+{
+    QSettings *settings = Core::ICore::settings();
+    settings->beginGroup(QLatin1String("MaemoDeviceConfigs"));
+    d->defaultSshKeyFilePath = settings->value(QLatin1String(DefaultKeyFilePathKey),
+        LinuxDeviceConfiguration::defaultPrivateKeyFilePath()).toString();
+    const QVariantHash defaultDevsHash = settings->value(QLatin1String("DefaultConfigs")).toHash();
+    for (QVariantHash::ConstIterator it = defaultDevsHash.constBegin();
+            it != defaultDevsHash.constEnd(); ++it) {
+        d->defaultConfigs.insert(it.key(), it.value().toULongLong());
+    }
+    int count = settings->beginReadArray(QLatin1String("ConfigList"));
+    for (int i = 0; i < count; ++i) {
+        settings->setArrayIndex(i);
+        LinuxDeviceConfiguration::Ptr devConf = LinuxDeviceConfiguration::create(*settings);
+        if (devConf->internalId() == LinuxDeviceConfiguration::InvalidId)
+            devConf->setInternalId(unusedId());
+        d->devConfigs << devConf;
     }
     settings->endArray();
     settings->endGroup();
+}
+
+void LinuxDeviceConfigurations::fromMap(const QVariantMap &map)
+{
+    d->defaultSshKeyFilePath = map.value(QLatin1String(DefaultKeyFilePathKey),
+        LinuxDeviceConfiguration::defaultPrivateKeyFilePath()).toString();
+    const QVariantMap defaultDevsMap = map.value(QLatin1String(DefaultDevicesKey)).toMap();
+    for (QVariantMap::ConstIterator it = defaultDevsMap.constBegin();
+         it != defaultDevsMap.constEnd(); ++it) {
+        d->defaultConfigs.insert(it.key(), it.value().toULongLong());
+    }
+    const QVariantList deviceList = map.value(QLatin1String(DeviceListKey)).toList();
+    foreach (const QVariant &v, deviceList) {
+        LinuxDeviceConfiguration::Ptr device = LinuxDeviceConfiguration::create();
+        device->fromMap(v.toMap());
+        d->devConfigs << device;
+    }
+}
+
+QVariantMap LinuxDeviceConfigurations::toMap() const
+{
+    QVariantMap map;
+    map.insert(QLatin1String(DefaultKeyFilePathKey), d->defaultSshKeyFilePath);
+    QVariantMap defaultDeviceMap;
+    typedef QHash<QString, LinuxDeviceConfiguration::Id> TypeIdHash;
+    for (TypeIdHash::ConstIterator it = d->defaultConfigs.constBegin();
+             it != d->defaultConfigs.constEnd(); ++it) {
+        defaultDeviceMap.insert(it.key(), it.value());
+    }
+    map.insert(QLatin1String(DefaultDevicesKey), defaultDeviceMap);
+    QVariantList deviceList;
+    foreach (const LinuxDeviceConfiguration::ConstPtr &device, d->devConfigs) {
+        if (!device->isAutoDetected())
+            deviceList << device->toMap();
+    }
+    map.insert(QLatin1String(DeviceListKey), deviceList);
+    return map;
+}
+
+QString LinuxDeviceConfigurations::settingsFilePath()
+{
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    return QFileInfo(pm->settings()->fileName()).absolutePath() + QLatin1String("/devices.xml");
 }
 
 void LinuxDeviceConfigurations::addConfiguration(const LinuxDeviceConfiguration::Ptr &devConfig)
@@ -253,7 +323,7 @@ void LinuxDeviceConfigurations::setDefaultDevice(int idx)
     const LinuxDeviceConfiguration::ConstPtr &devConf = d->devConfigs.at(idx);
     const LinuxDeviceConfiguration::ConstPtr &oldDefaultDevConf
         = defaultDeviceConfig(devConf->osType());
-    if (defaultDeviceConfig(devConf->osType()) == devConf)
+    if (devConf == oldDefaultDevConf)
         return;
     d->defaultConfigs.insert(devConf->osType(), devConf->internalId());
     emit defaultStatusChanged(idx);
@@ -281,30 +351,6 @@ LinuxDeviceConfiguration::Ptr LinuxDeviceConfigurations::mutableDeviceAt(int idx
 LinuxDeviceConfigurations::~LinuxDeviceConfigurations()
 {
     delete d;
-}
-
-void LinuxDeviceConfigurations::load()
-{
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(SettingsGroup);
-    d->defaultSshKeyFilePath = settings->value(DefaultKeyFilePathKey,
-        LinuxDeviceConfiguration::defaultPrivateKeyFilePath()).toString();
-    const QVariantHash defaultDevsHash = settings->value(QLatin1String(DefaultConfigsKey)).toHash();
-    for (QVariantHash::ConstIterator it = defaultDevsHash.constBegin();
-            it != defaultDevsHash.constEnd(); ++it) {
-        d->defaultConfigs.insert(it.key(), it.value().toULongLong());
-    }
-    int count = settings->beginReadArray(ConfigListKey);
-    for (int i = 0; i < count; ++i) {
-        settings->setArrayIndex(i);
-        LinuxDeviceConfiguration::Ptr devConf = LinuxDeviceConfiguration::create(*settings);
-        if (devConf->internalId() == LinuxDeviceConfiguration::InvalidId)
-            devConf->setInternalId(unusedId());
-        d->devConfigs << devConf;
-    }
-    settings->endArray();
-    settings->endGroup();
-    ensureOneDefaultConfigurationPerOsType();
 }
 
 LinuxDeviceConfiguration::ConstPtr LinuxDeviceConfigurations::deviceAt(int idx) const

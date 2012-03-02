@@ -87,6 +87,11 @@ private:
 
     void load();
     void save();
+    void loadPre2_6();
+    void fromMap(const QVariantMap &map);
+    QVariantMap toMap() const;
+    static QString settingsFilePath();
+
     static LinuxDeviceConfigurations *cloneInstance();
     static void replaceInstance();
     static void removeClonedInstance();

@@ -94,6 +94,7 @@ LinuxDeviceConfiguration::~LinuxDeviceConfiguration()
     delete d;
 }
 
+// TODO: For pre-2.6 versions. Remove in 2.8.
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const QSettings &settings)
 {
     return Ptr(new LinuxDeviceConfiguration(settings));
@@ -109,7 +110,12 @@ LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const QString &na
     const SshConnectionParameters &sshParams, const QVariantHash &attributes, Origin origin)
 {
     return Ptr(new LinuxDeviceConfiguration(name, osType, deviceType, freePorts, sshParams,
-        attributes, origin));
+                                            attributes, origin));
+}
+
+LinuxDeviceConfiguration::LinuxDeviceConfiguration()
+    : d(new LinuxDeviceConfigurationPrivate(SshConnectionParameters(SshConnectionParameters::NoProxy)))
+{
 }
 
 LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name, const QString &osType,
@@ -125,6 +131,7 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name, const QS
     d->attributes = attributes;
 }
 
+// TODO: For pre-2.6 versions. Remove in 2.8.
 LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QSettings &settings)
     : d(new LinuxDeviceConfigurationPrivate(SshConnectionParameters::NoProxy))
 {
@@ -181,21 +188,56 @@ QString LinuxDeviceConfiguration::defaultPublicKeyFilePath()
     return defaultPrivateKeyFilePath() + QLatin1String(".pub");
 }
 
-void LinuxDeviceConfiguration::save(QSettings &settings) const
+LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create()
 {
-    settings.setValue(NameKey, d->displayName);
-    settings.setValue(OsTypeKey, d->osType);
-    settings.setValue(TypeKey, d->deviceType);
-    settings.setValue(HostKey, d->sshParameters.host);
-    settings.setValue(SshPortKey, d->sshParameters.port);
-    settings.setValue(PortsSpecKey, d->freePorts.toString());
-    settings.setValue(UserNameKey, d->sshParameters.userName);
-    settings.setValue(AuthKey, d->sshParameters.authenticationType);
-    settings.setValue(PasswordKey, d->sshParameters.password);
-    settings.setValue(KeyFileKey, d->sshParameters.privateKeyFile);
-    settings.setValue(TimeoutKey, d->sshParameters.timeout);
-    settings.setValue(InternalIdKey, d->internalId);
-    settings.setValue(AttributesKey, d->attributes);
+    return Ptr(new LinuxDeviceConfiguration);
+}
+
+void LinuxDeviceConfiguration::fromMap(const QVariantMap &map)
+{
+    d->origin = ManuallyAdded;
+    d->displayName = map.value(NameKey).toString();
+    d->osType = map.value(OsTypeKey).toString();
+    d->deviceType = static_cast<DeviceType>(map.value(TypeKey, DefaultDeviceType).toInt());
+    d->internalId = map.value(InternalIdKey, InvalidId).toULongLong();
+    const QVariantMap attrMap = map.value(AttributesKey).toMap();
+    for (QVariantMap::ConstIterator it = attrMap.constBegin(); it != attrMap.constEnd(); ++it)
+        d->attributes.insert(it.key(), it.value());
+
+    d->freePorts = PortList::fromString(map.value(PortsSpecKey,
+        QLatin1String("10000-10100")).toString());
+    d->sshParameters.host = map.value(HostKey).toString();
+    d->sshParameters.port = map.value(SshPortKey, 22).toInt();
+    d->sshParameters.userName = map.value(UserNameKey).toString();
+    d->sshParameters.authenticationType
+        = static_cast<AuthType>(map.value(AuthKey, DefaultAuthType).toInt());
+    d->sshParameters.password = map.value(PasswordKey).toString();
+    d->sshParameters.privateKeyFile = map.value(KeyFileKey, defaultPrivateKeyFilePath()).toString();
+    d->sshParameters.timeout = map.value(TimeoutKey, DefaultTimeout).toInt();
+}
+
+QVariantMap LinuxDeviceConfiguration::toMap() const
+{
+    QVariantMap map;
+    map.insert(NameKey, d->displayName);
+    map.insert(OsTypeKey, d->osType);
+    map.insert(TypeKey, d->deviceType);
+    map.insert(HostKey, d->sshParameters.host);
+    map.insert(SshPortKey, d->sshParameters.port);
+    map.insert(PortsSpecKey, d->freePorts.toString());
+    map.insert(UserNameKey, d->sshParameters.userName);
+    map.insert(AuthKey, d->sshParameters.authenticationType);
+    map.insert(PasswordKey, d->sshParameters.password);
+    map.insert(KeyFileKey, d->sshParameters.privateKeyFile);
+    map.insert(TimeoutKey, d->sshParameters.timeout);
+    map.insert(InternalIdKey, d->internalId);
+    QVariantMap attrMap;
+    for (QVariantHash::ConstIterator it = d->attributes.constBegin();
+         it != d->attributes.constEnd(); ++it) {
+        attrMap.insert(it.key(), it.value());
+    }
+    map.insert(AttributesKey, attrMap);
+    return map;
 }
 
 SshConnectionParameters LinuxDeviceConfiguration::sshParameters() const
