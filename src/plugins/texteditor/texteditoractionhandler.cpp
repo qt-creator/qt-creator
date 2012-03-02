@@ -65,6 +65,7 @@ TextEditorActionHandler::TextEditorActionHandler(const char *context,
     m_cutAction(0),
     m_pasteAction(0),
     m_circularPasteAction(0),
+    m_switchUtf8bomAction(0),
     m_selectAllAction(0),
     m_gotoAction(0),
     m_printAction(0),
@@ -379,6 +380,11 @@ void TextEditorActionHandler::createActions()
     connect(m_circularPasteAction, SIGNAL(triggered()), this, SLOT(circularPasteAction()));
     medit->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
+    m_switchUtf8bomAction = new QAction(this);
+    m_modifyingActions << m_switchUtf8bomAction;
+    command = am->registerAction(m_switchUtf8bomAction, Constants::SWITCH_UTF8BOM, m_contextId, true);
+    connect(m_switchUtf8bomAction, SIGNAL(triggered()), this, SLOT(switchUtf8bomAction()));
+
     m_indentAction = new QAction(tr("Indent"), this);
     m_modifyingActions << m_indentAction;
     command = am->registerAction(m_indentAction, Constants::INDENT, m_contextId, true);
@@ -589,6 +595,7 @@ FUNCTION2(copyAction, copy)
 FUNCTION2(cutAction, cut)
 FUNCTION2(pasteAction, paste)
 FUNCTION2(circularPasteAction, circularPaste)
+FUNCTION2(switchUtf8bomAction, switchUtf8bom)
 FUNCTION2(formatAction, format)
 FUNCTION2(rewrapParagraphAction, rewrapParagraph)
 FUNCTION2(selectAllAction, selectAll)

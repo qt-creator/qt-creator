@@ -140,6 +140,13 @@ void TextDocument::setCodec(const QTextCodec *codec)
     d->m_format.codec = codec;
 }
 
+void TextDocument::switchUtf8Bom()
+{
+    if (debug)
+        qDebug() << Q_FUNC_INFO << this << "UTF-8 BOM: " << !d->m_format.hasUtf8Bom;
+    d->m_format.hasUtf8Bom = !d->m_format.hasUtf8Bom;
+}
+
 /*!
     \brief Returns the format obtained from the last call to read().
 */

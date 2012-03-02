@@ -5838,6 +5838,11 @@ void BaseTextEditorWidget::circularPaste()
     QPlainTextEdit::copy();
 }
 
+void BaseTextEditorWidget::switchUtf8bom()
+{
+    baseTextDocument()->switchUtf8Bom();
+}
+
 QMimeData *BaseTextEditorWidget::createMimeDataFromSelection() const
 {
     if (d->m_inBlockSelectionMode) {
@@ -6087,6 +6092,17 @@ void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
     a = am->command(Constants::CIRCULAR_PASTE)->action();
     if (a && a->isEnabled())
         menu->addAction(a);
+
+    BaseTextDocument *doc = baseTextDocument();
+    if (doc->codec()->name() == QString(QLatin1String("UTF-8"))) {
+        a = am->command(Constants::SWITCH_UTF8BOM)->action();
+        if (a && a->isEnabled()) {
+            a->setText(doc->format().hasUtf8Bom ? tr("Delete UTF-8 BOM on Save")
+                                                : tr("Add UTF-8 BOM on Save"));
+            menu->addSeparator();
+            menu->addAction(a);
+        }
+    }
 }
 
 

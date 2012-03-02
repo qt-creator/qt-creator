@@ -260,6 +260,7 @@ public slots:
     virtual void selectAll();
 
     void circularPaste();
+    void switchUtf8bom();
 
     void zoomIn(int range = 1);
     void zoomOut(int range = 1);
