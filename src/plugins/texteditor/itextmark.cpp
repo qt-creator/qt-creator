@@ -84,3 +84,11 @@ double ITextMark::widthFactor() const
 {
     return 1.0;
 }
+
+bool ITextMark::clickable() const
+{
+    return false;
+}
+
+void ITextMark::clicked()
+{}

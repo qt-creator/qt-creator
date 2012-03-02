@@ -128,7 +128,7 @@ private slots:
     void updateProgress(int progress);
 
 signals:
-    void finished(bool success = true);
+    void s60DeploymentFinished(bool success = true);
     void finishNow(bool success = true);
 
     void allFilesSent();

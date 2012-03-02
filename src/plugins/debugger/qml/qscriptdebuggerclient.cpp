@@ -119,12 +119,13 @@ class QScriptDebuggerClientPrivate
 {
 public:
     explicit QScriptDebuggerClientPrivate(QScriptDebuggerClient *) :
-        ping(0), engine(0)
+        ping(0), sessionStarted(false), engine(0)
     {
 
     }
 
     int ping;
+    bool sessionStarted;
     QmlEngine *engine;
     JSAgentBreakpoints breakpoints;
 
@@ -225,10 +226,12 @@ void QScriptDebuggerClient::startSession()
         QTC_CHECK(handler->state(id) == BreakpointInsertProceeding);
         handler->notifyBreakpointInsertOk(id);
     }
+    d->sessionStarted = true;
 }
 
 void QScriptDebuggerClient::endSession()
 {
+    d->sessionStarted = false;
 }
 
 void QScriptDebuggerClient::activateFrame(int index)
@@ -242,14 +245,22 @@ void QScriptDebuggerClient::activateFrame(int index)
     sendMessage(reply);
 }
 
-void QScriptDebuggerClient::insertBreakpoint(const BreakpointModelId &id)
+void QScriptDebuggerClient::insertBreakpoint(const BreakpointModelId &id,
+                                             int adjustedLine,
+                                             int /*adjustedColumn*/)
 {
     BreakHandler *handler = d->engine->breakHandler();
     JSAgentBreakpointData bp;
     bp.fileUrl = QUrl::fromLocalFile(handler->fileName(id)).toString().toUtf8();
-    bp.lineNumber = handler->lineNumber(id);
+    bp.lineNumber = adjustedLine;
     bp.functionName = handler->functionName(id).toUtf8();
     d->breakpoints.insert(bp);
+
+    BreakpointResponse br = handler->response(id);
+    br.lineNumber = adjustedLine;
+    handler->setResponse(id, br);
+    if (d->sessionStarted && handler->state(id) == BreakpointInsertProceeding)
+        handler->notifyBreakpointInsertOk(id);
 }
 
 void QScriptDebuggerClient::removeBreakpoint(const BreakpointModelId &id)
@@ -266,7 +277,8 @@ void QScriptDebuggerClient::changeBreakpoint(const BreakpointModelId &id)
 {
     BreakHandler *handler = d->engine->breakHandler();
     if (handler->isEnabled(id)) {
-        insertBreakpoint(id);
+        BreakpointResponse br = handler->response(id);
+        insertBreakpoint(id, br.lineNumber);
     } else {
         removeBreakpoint(id);
     }
@@ -461,33 +473,12 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
                       .arg(QLatin1String(stackFrames.value(0).fileUrl), Qt::escape(error));
             showMessageBox(QMessageBox::Information, tr("Uncaught Exception"), msg);
         } else {
-            //
-            // Make breakpoint non-pending
-            //
             QString file;
-            QString function;
             int line = -1;
 
             if (!ideStackFrames.isEmpty()) {
                 file = ideStackFrames.at(0).file;
                 line = ideStackFrames.at(0).line;
-                function = ideStackFrames.at(0).function;
-            }
-
-            BreakHandler *handler = d->engine->breakHandler();
-            foreach (BreakpointModelId id, handler->engineBreakpointIds(d->engine)) {
-                QString processedFilename = handler->fileName(id);
-
-                if (processedFilename == file && handler->lineNumber(id) == line) {
-                    if (handler->state(id) == BreakpointInsertProceeding)
-                        handler->notifyBreakpointInsertOk(id);
-                    QTC_CHECK(handler->state(id) == BreakpointInserted);
-                    BreakpointResponse br = handler->response(id);
-                    br.fileName = file;
-                    br.lineNumber = line;
-                    br.functionName = function;
-                    handler->setResponse(id, br);
-                }
             }
 
             QList<JSAgentBreakpointData> breakpoints(d->breakpoints.toList());

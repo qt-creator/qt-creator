@@ -49,12 +49,12 @@
 
                 If you have not used \QC before, and want to become familiar
                 with the parts of the user interface, go to \l{User Interface}.
-            \o  \bold {\l{Building and Running an Example Application}}
+            \o  \bold {\l{Building and Running an Example}}
 
                 To check that \l{glossary-development-target}{targets} were
                 successfully installed as part of the \QSDK installation, open
                 an example application and run it. If you have not done so
-                before, go to \l{Building and Running an Example Application}.
+                before, go to \l{Building and Running an Example}.
             \o  \bold {\l{Tutorials}}
 
                 Now you are ready to start developing your own applications.

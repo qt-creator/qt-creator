@@ -3682,7 +3682,7 @@ int BaseTextEditorWidget::extraAreaWidth(int *markWidthPtr) const
     int markWidth = 0;
 
     if (d->m_marksVisible) {
-        markWidth += documentLayout->maxMarkWidthFactor * fm.lineSpacing();
+        markWidth += documentLayout->maxMarkWidthFactor * fm.lineSpacing() + 2;
 
 //     if (documentLayout->doubleMarkCount)
 //         markWidth += fm.lineSpacing() / 3;
@@ -3797,7 +3797,23 @@ void BaseTextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
             if (TextBlockUserData *userData = static_cast<TextBlockUserData*>(block.userData())) {
                 if (d->m_marksVisible) {
                     int xoffset = 0;
-                    foreach (ITextMark *mark, userData->marks()) {
+                    TextMarks marks = userData->marks();
+                    TextMarks::const_iterator it = marks.constBegin();
+                    if (marks.size() > 3) {
+                        // We want the 3 with the highest priority so iterate from the back
+                        int count = 0;
+                        it = marks.constEnd() - 1;
+                        while (it != marks.constBegin()) {
+                            if ((*it)->visible())
+                                ++count;
+                            if (count == 3)
+                                break;
+                            --it;
+                        }
+                    }
+                    TextMarks::const_iterator end = marks.constEnd();
+                    for ( ; it != end; ++it) {
+                        ITextMark *mark = *it;
                         if (!mark->visible())
                             continue;
                         const int height = fmLineSpacing - 1;
@@ -4273,11 +4289,13 @@ void BaseTextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
 
 void BaseTextEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    QTextCursor cursor = textCursor();
-    const int position = cursor.position();
-    if (TextBlockUserData::findPreviousOpenParenthesis(&cursor, false, true)) {
-        if (position - cursor.position() == 1 && selectBlockUp())
-            return;
+    if (e->button() == Qt::LeftButton) {
+        QTextCursor cursor = textCursor();
+        const int position = cursor.position();
+        if (TextBlockUserData::findPreviousOpenParenthesis(&cursor, false, true)) {
+            if (position - cursor.position() == 1 && selectBlockUp())
+                return;
+        }
     }
 
     QPlainTextEdit::mouseDoubleClickEvent(e);
@@ -4427,12 +4445,22 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
             int n = d->extraAreaToggleMarkBlockNumber;
             d->extraAreaToggleMarkBlockNumber = -1;
             if (cursor.blockNumber() == n) {
+                if (TextBlockUserData *data = static_cast<TextBlockUserData *>(cursor.block().userData())) {
+                    foreach (ITextMark *mark, data->marks()) {
+                        if (mark->clickable()) {
+                            mark->clicked();
+                            return;
+                        }
+                    }
+                }
+
                 int line = n + 1;
                 ITextEditor::MarkRequestKind kind;
                 if (QApplication::keyboardModifiers() & Qt::ShiftModifier)
                     kind = ITextEditor::BookmarkRequest;
                 else
                     kind = ITextEditor::BreakpointRequest;
+
                 emit editor()->markRequested(editor(), line, kind);
             }
         }

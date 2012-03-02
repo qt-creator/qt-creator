@@ -69,7 +69,8 @@ public:
     virtual void activateFrame(int index) = 0;
 
     virtual bool acceptsBreakpoint(const BreakpointModelId &id);
-    virtual void insertBreakpoint(const BreakpointModelId &id) = 0;
+    virtual void insertBreakpoint(const BreakpointModelId &id, int adjustedLine,
+                                  int adjustedColumn = -1) = 0;
     virtual void removeBreakpoint(const BreakpointModelId &id) = 0;
     virtual void changeBreakpoint(const BreakpointModelId &id) = 0;
     virtual void synchronizeBreakpoints() = 0;

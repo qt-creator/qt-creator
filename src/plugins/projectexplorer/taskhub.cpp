@@ -45,6 +45,9 @@ public:
         : BaseTextMark(fileName, lineNumber), m_id(id), m_visible(visible)
     {}
 
+    bool clickable() const;
+    void clicked();
+
     void updateLineNumber(int lineNumber);
     void removedFromEditor();
     bool visible() const;
@@ -67,6 +70,16 @@ void TaskMark::removedFromEditor()
 bool TaskMark::visible() const
 {
     return m_visible;
+}
+
+bool TaskMark::clickable() const
+{
+    return true;
+}
+
+void TaskMark::clicked()
+{
+    ProjectExplorerPlugin::instance()->taskHub()->taskMarkClicked(m_id);
 }
 
 TaskHub::TaskHub()
@@ -93,7 +106,7 @@ void TaskHub::addTask(Task task)
         bool visible = (task.type == Task::Warning || task.type == Task::Error);
         TaskMark *mark = new TaskMark(task.taskId, task.file.toString(), task.line, visible);
         mark->setIcon(taskTypeIcon(task.type));
-        mark->setPriority(TextEditor::ITextMark::HighPriority);
+        mark->setPriority(TextEditor::ITextMark::LowPriority);
         task.addMark(mark);
     }
     emit taskAdded(task);
@@ -112,6 +125,11 @@ void TaskHub::removeTask(const Task &task)
 void TaskHub::updateTaskLineNumber(unsigned int id, int line)
 {
     emit taskLineNumberUpdated(id, line);
+}
+
+void TaskHub::taskMarkClicked(unsigned int id)
+{
+    emit showTask(id);
 }
 
 void TaskHub::setCategoryVisibility(const Core::Id &categoryId, bool visible)

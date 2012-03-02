@@ -48,7 +48,7 @@
                 \list
                     \o  \l{IDE Overview}
                     \o  \l{User Interface}
-                    \o  \l{Building and Running an Example Application}
+                    \o  \l{Building and Running an Example}
                     \o  \l{Tutorials}
                 \endlist
             \o  \bold {\l{Managing Projects}}
@@ -132,7 +132,7 @@
         \list
             \o  \l{IDE Overview}
             \o  \l{User Interface}
-            \o  \l{Building and Running an Example Application}
+            \o  \l{Building and Running an Example}
             \o  \l{Tutorials}
             \list
                 \o  \l{Creating a Qt Quick Application}

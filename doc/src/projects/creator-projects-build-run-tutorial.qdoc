@@ -31,43 +31,48 @@
     \page creator-build-example-application.html
     \nextpage creator-tutorials.html
 
-    \title Building and Running an Example Application
+    \title Building and Running an Example
 
     You can test that your installation is successful by opening an existing
     example application project.
 
     \list 1
 
-        \o  On the \gui Welcome page, select \gui {Demos and Examples},
-            and then search for \gui {Toys: Clocks Example} in the
-            list of examples.
+        \o  On the \gui Welcome page, select \gui Examples (1).
 
             \image qtcreator-gs-build-example-open.png "Selecting an example"
 
-        \o  Select \l{glossary-development-target}{targets} for the project.
-            Select at least \QS
-            and one of the mobile targets, Symbian Device, Maemo 5, or
-            MeeGo Harmattan, depending on the device you develop for.
-
-            \image qtcreator-gs-build-example-targets.png "Selecting targets"
-
-            \note If you have only one target installed, this dialog is
-            skipped. You can add installed targets later in the \gui Projects
-            mode.
+        \o  Search for \gui {Toys: Clocks Example} (2) in the list of examples
+            and select it (3).
 
             \note The project opens in the \gui Edit mode, and the documentation
             for the example hides these instructions. To return to these
             instructions, select \gui {Previous Page} on the toolbar or
             press \key {Alt+Left}.
 
+        \o  Select \gui Projects to configure the project:
+
+            \image qtcreator-gs-build-example-targets.png "Selecting targets"
+
+            \list 1
+
+                \o  Select at least \QS and one of the mobile
+                    \l{glossary-development-target}{targets} (1), Symbian
+                    Device, Maemo 5, or MeeGo Harmattan, depending on the device
+                    you develop for.
+
+                \o  Select \gui {Configure Project} (2).
+
+            \endlist
+
         \o  To test the application in \QS, click the \gui {Target
             Selector} and select \gui {\QS}.
 
-            \image {qtcreator-gs-build-example-select-qs.png} "Selecting Qt Simulator as target"
+            \image qtcreator-gs-build-example-select-qs.png "Selecting Qt Simulator as target"
 
         \o  Click
-            \inlineimage{qtcreator-run.png}
-            to build the application and run it in \QS.
+            \inlineimage qtcreator-run.png
+            (\gui Run) to build the application and run it in \QS.
 
         \o  To see the compilation progress, press \key{Alt+4} to open the
             \gui {Compile Output} pane.
@@ -76,7 +81,7 @@
             project is successfully built. The application opens in
             \QS.
 
-            \image {qt-simulator.png} "Qt Simulator"
+            \image qt-simulator.png "Qt Simulator"
 
         \o  Change the settings in the \gui Model view. For example, rotate the
             device by clicking the \gui {Orientation} buttons or choose from the

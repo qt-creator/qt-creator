@@ -58,6 +58,8 @@
 #include <projectexplorer/applicationlauncher.h>
 #include <qmljsdebugclient/qdeclarativeoutputparser.h>
 #include <qmljseditor/qmljseditorconstants.h>
+#include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
@@ -95,6 +97,8 @@
 # define XSDEBUG(s) qDebug() << s
 
 using namespace ProjectExplorer;
+using namespace QmlJS;
+using namespace AST;
 
 namespace Debugger {
 namespace Internal {
@@ -114,6 +118,7 @@ private:
     QHash<QString, QWeakPointer<TextEditor::ITextEditor> > m_sourceEditors;
     InteractiveInterpreter m_interpreter;
     bool m_validContext;
+    QHash<QString,BreakpointModelId> pendingBreakpoints;
 };
 
 QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q)
@@ -121,6 +126,163 @@ QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q)
       m_validContext(false)
 {}
 
+class ASTWalker: public Visitor
+{
+public:
+    void operator()(Node *ast, quint32 *l, quint32 *c)
+    {
+        done = false;
+        line = l;
+        column = c;
+        Node::accept(ast, this);
+    }
+
+    bool preVisit(Node *ast)
+    {
+        return ast->lastSourceLocation().startLine >= *line && !done;
+    }
+
+    //Case 1: Breakpoint is between sourceStart(exclusive) and
+    //        sourceEnd(inclusive) --> End tree walk.
+    //Case 2: Breakpoint is on sourceStart --> Check for the start
+    //        of the first executable code. Set the line number and
+    //        column number. End tree walk.
+    //Case 3: Breakpoint is on "unbreakable" code --> Find the next "breakable"
+    //        code and check for Case 2. End tree walk.
+
+    //Add more types when suitable.
+
+    bool visit(UiScriptBinding *ast)
+    {
+        quint32 sourceStartLine = ast->firstSourceLocation().startLine;
+        quint32 statementStartLine;
+        quint32 statementColumn;
+
+        if (ast->statement->kind == Node::Kind_ExpressionStatement) {
+            statementStartLine = ast->statement->firstSourceLocation().
+                    startLine;
+            statementColumn = ast->statement->firstSourceLocation().startColumn;
+
+        } else if (ast->statement->kind == Node::Kind_Block) {
+            Block *block = static_cast<Block *>(ast->statement);
+            statementStartLine = block->statements->firstSourceLocation().
+                    startLine;
+            statementColumn = block->statements->firstSourceLocation().
+                    startColumn;
+
+        } else {
+            return true;
+        }
+
+
+        //Case 1
+        //Check for possible relocation within the binding statement
+
+        //Rewritten to (function <token>() { { }})
+        //The offset 16 is position of inner lbrace without token length.
+        const int offset = 16;
+
+        //Case 2
+        if (statementStartLine == *line) {
+            if (sourceStartLine == *line)
+                *column = offset + ast->qualifiedId->identifierToken.length;
+            done = true;
+        }
+
+        //Case 3
+        if (statementStartLine > *line) {
+            *line = statementStartLine;
+            if (sourceStartLine == *line)
+                *column = offset + ast->qualifiedId->identifierToken.length;
+            else
+                *column = statementColumn;
+            done = true;
+        }
+        return true;
+    }
+
+    bool visit(FunctionDeclaration *ast) {
+        quint32 sourceStartLine = ast->firstSourceLocation().startLine;
+        quint32 sourceStartColumn = ast->firstSourceLocation().startColumn;
+        quint32 statementStartLine = ast->body->firstSourceLocation().startLine;
+        quint32 statementColumn = ast->body->firstSourceLocation().startColumn;
+
+        //Case 1
+        //Check for possible relocation within the function declaration
+
+        //Case 2
+        if (statementStartLine == *line) {
+            if (sourceStartLine == *line)
+                *column = statementColumn - sourceStartColumn + 1;
+            done = true;
+        }
+
+        //Case 3
+        if (statementStartLine > *line) {
+            *line = statementStartLine;
+            if (sourceStartLine == *line)
+                *column = statementColumn - sourceStartColumn + 1;
+            else
+                *column = statementColumn;
+            done = true;
+        }
+        return true;
+    }
+
+    bool visit(EmptyStatement *ast)
+    {
+        *line = ast->lastSourceLocation().startLine + 1;
+        return true;
+    }
+
+    bool visit(VariableStatement *ast) { test(ast); return true; }
+    bool visit(VariableDeclarationList *ast) { test(ast); return true; }
+    bool visit(VariableDeclaration *ast) { test(ast); return true; }
+    bool visit(ExpressionStatement *ast) { test(ast); return true; }
+    bool visit(IfStatement *ast) { test(ast); return true; }
+    bool visit(DoWhileStatement *ast) { test(ast); return true; }
+    bool visit(WhileStatement *ast) { test(ast); return true; }
+    bool visit(ForStatement *ast) { test(ast); return true; }
+    bool visit(LocalForStatement *ast) { test(ast); return true; }
+    bool visit(ForEachStatement *ast) { test(ast); return true; }
+    bool visit(LocalForEachStatement *ast) { test(ast); return true; }
+    bool visit(ContinueStatement *ast) { test(ast); return true; }
+    bool visit(BreakStatement *ast) { test(ast); return true; }
+    bool visit(ReturnStatement *ast) { test(ast); return true; }
+    bool visit(WithStatement *ast) { test(ast); return true; }
+    bool visit(SwitchStatement *ast) { test(ast); return true; }
+    bool visit(CaseBlock *ast) { test(ast); return true; }
+    bool visit(CaseClauses *ast) { test(ast); return true; }
+    bool visit(CaseClause *ast) { test(ast); return true; }
+    bool visit(DefaultClause *ast) { test(ast); return true; }
+    bool visit(LabelledStatement *ast) { test(ast); return true; }
+    bool visit(ThrowStatement *ast) { test(ast); return true; }
+    bool visit(TryStatement *ast) { test(ast); return true; }
+    bool visit(Catch *ast) { test(ast); return true; }
+    bool visit(Finally *ast) { test(ast); return true; }
+    bool visit(FunctionExpression *ast) { test(ast); return true; }
+    bool visit(DebuggerStatement *ast) { test(ast); return true; }
+
+    void test(Node *ast)
+    {
+        quint32 statementStartLine = ast->firstSourceLocation().startLine;
+        //Case 1/2
+        if (statementStartLine <= *line &&
+                *line <= ast->lastSourceLocation().startLine)
+            done = true;
+
+        //Case 3
+        if (statementStartLine > *line) {
+            *line = statementStartLine;
+            *column = ast->firstSourceLocation().startColumn;
+            done = true;
+        }
+    }
+
+    bool done;
+    quint32 *line;
+    quint32 *column;
+};
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -188,6 +350,11 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
     connect(&d->m_noDebugOutputTimer, SIGNAL(timeout()), this, SLOT(beginConnection()));
 
     qtMessageLogHandler()->setHasEditableRow(true);
+
+    connect(ModelManagerInterface::instance(),
+            SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
+            this,
+            SLOT(documentUpdated(QmlJS::Document::Ptr)));
 }
 
 QmlEngine::~QmlEngine()
@@ -560,8 +727,14 @@ void QmlEngine::executeRunToLine(const ContextData &data)
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     showStatusMessage(tr("Run to line  %1 (%2) requested...").arg(data.lineNumber).arg(data.fileName), 5000);
     resetLocation();
+    ContextData modifiedData = data;
+    quint32 line = data.lineNumber;
+    quint32 column;
+    bool valid;
+    if (adjustBreakpointLineAndColumn(data.fileName, &line, &column, &valid))
+        modifiedData.lineNumber = line;
     if (d->m_adapter.activeDebuggerClient())
-        d->m_adapter.activeDebuggerClient()->executeRunToLine(data);
+        d->m_adapter.activeDebuggerClient()->executeRunToLine(modifiedData);
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
 }
@@ -601,11 +774,25 @@ void QmlEngine::insertBreakpoint(BreakpointModelId id)
     QTC_ASSERT(state == BreakpointInsertRequested, qDebug() << id << this << state);
     handler->notifyBreakpointInsertProceeding(id);
 
+    const BreakpointParameters &params = handler->breakpointData(id);
+    quint32 line = params.lineNumber;
+    quint32 column = 0;
+    if (params.type == BreakpointByFileAndLine) {
+        bool valid = false;
+        if (!adjustBreakpointLineAndColumn(params.fileName, &line, &column,
+                                           &valid)) {
+            d->pendingBreakpoints.insertMulti(params.fileName, id);
+            return;
+        }
+        if (!valid)
+            return;
+    }
+
     if (d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->insertBreakpoint(id);
+        d->m_adapter.activeDebuggerClient()->insertBreakpoint(id, line, column);
     } else {
         foreach (QmlDebuggerClient *client, d->m_adapter.debuggerClients()) {
-            client->insertBreakpoint(id);
+            client->insertBreakpoint(id, line, column);
         }
     }
 }
@@ -613,6 +800,21 @@ void QmlEngine::insertBreakpoint(BreakpointModelId id)
 void QmlEngine::removeBreakpoint(BreakpointModelId id)
 {
     BreakHandler *handler = breakHandler();
+
+    const BreakpointParameters &params = handler->breakpointData(id);
+    if (params.type == BreakpointByFileAndLine &&
+            d->pendingBreakpoints.contains(params.fileName)) {
+        QHash<QString, BreakpointModelId>::iterator i =
+                d->pendingBreakpoints.find(params.fileName);
+        while (i != d->pendingBreakpoints.end() && i.key() == params.fileName) {
+            if (i.value() == id) {
+                d->pendingBreakpoints.erase(i);
+                return;
+            }
+            ++i;
+        }
+    }
+
     BreakpointState state = handler->state(id);
     QTC_ASSERT(state == BreakpointRemoveRequested, qDebug() << id << this << state);
     handler->notifyBreakpointRemoveProceeding(id);
@@ -852,6 +1054,17 @@ void QmlEngine::disconnected()
     notifyInferiorExited();
 }
 
+void QmlEngine::documentUpdated(QmlJS::Document::Ptr doc)
+{
+    QString fileName = doc->fileName();
+    if (d->pendingBreakpoints.contains(fileName)) {
+        QList<BreakpointModelId> ids = d->pendingBreakpoints.values(fileName);
+        d->pendingBreakpoints.remove(fileName);
+        foreach (const BreakpointModelId &id, ids)
+            insertBreakpoint(id);
+    }
+}
+
 void QmlEngine::updateCurrentContext()
 {
     const QString context = state() == InferiorStopOk ?
@@ -1083,6 +1296,27 @@ QtMessageLogItem *QmlEngine::constructLogItemTree(
     }
 
     return item;
+}
+
+bool QmlEngine::adjustBreakpointLineAndColumn(
+        const QString &filePath, quint32 *line, quint32 *column, bool *valid)
+{
+    bool success = true;
+    //check if file is in the latest snapshot
+    //ignoring documentChangedOnDisk
+    //TODO:: update breakpoints if document is changed.
+    Document::Ptr doc = ModelManagerInterface::instance()->newestSnapshot().
+            document(filePath);
+    if (doc.isNull()) {
+        ModelManagerInterface::instance()->updateSourceFiles(
+                    QStringList() << filePath, false);
+        success = false;
+    } else {
+        ASTWalker walker;
+        walker(doc->ast(), line, column);
+        *valid = walker.done;
+    }
+    return success;
 }
 
 QmlAdapter *QmlEngine::adapter() const
