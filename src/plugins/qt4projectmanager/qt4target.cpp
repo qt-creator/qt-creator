@@ -107,7 +107,8 @@ Qt4TargetSetupWidget *Qt4BaseTargetFactory::createTargetSetupWidget(const QStrin
     const bool supportsShadowBuilds
             = targetFeatures(id).contains(QLatin1String(Constants::SHADOWBUILD_TARGETFEATURE_ID));
     Qt4DefaultTargetSetupWidget *widget
-            = new Qt4DefaultTargetSetupWidget(this, id, proFilePath, infos, minimumQtVersion, maximumQtVersion,
+            = new Qt4DefaultTargetSetupWidget(this, id, proFilePath, infos,
+                                              minimumQtVersion, maximumQtVersion, requiredFeatures,
                                               importEnabled && supportsShadowBuilds, importInfos,
                                               (supportsShadowBuilds
                                                ? Qt4DefaultTargetSetupWidget::ENABLE
@@ -490,6 +491,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
                                                          const QList<BuildConfigurationInfo> &infos,
                                                          const QtSupport::QtVersionNumber &minimumQtVersion,
                                                          const QtSupport::QtVersionNumber &maximumQtVersion,
+                                                         const Core::FeatureSet &requiredFeatures,
                                                          bool importEnabled,
                                                          const QList<BuildConfigurationInfo> &importInfos,
                                                          ShadowBuildOption shadowBuild)
@@ -499,6 +501,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
       m_proFilePath(proFilePath),
       m_minimumQtVersion(minimumQtVersion),
       m_maximumQtVersion(maximumQtVersion),
+      m_requiredFeatures(requiredFeatures),
       m_importInfos(importInfos),
       m_directoriesEnabled(true),
       m_hasInSourceBuild(false),
@@ -726,7 +729,7 @@ void Qt4DefaultTargetSetupWidget::setProFilePath(const QString &proFilePath)
                                                                        proFilePath,
                                                                        m_minimumQtVersion,
                                                                        m_maximumQtVersion,
-                                                                       Core::FeatureSet()),
+                                                                       m_requiredFeatures),
                                                                        false);
 }
 

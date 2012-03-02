@@ -68,9 +68,9 @@ Rectangle {
             width: 1
             height: line.height
             color: "#c4c4c4"
-            anchors.left: recentSessions.right
+            anchors.left: sessions.right
             anchors.leftMargin: -1
-            anchors.top: recentSessions.top
+            anchors.top: sessions.top
 
         }
 
@@ -81,9 +81,9 @@ Rectangle {
             height: 432
             id: recentProjects
 
-            anchors.left: recentlyUsedProjects.left
+            anchors.left: recentProjectsTitle.left
 
-            anchors.top: recentlyUsedProjects.bottom
+            anchors.top: recentProjectsTitle.bottom
             anchors.topMargin: 20
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 40
@@ -104,26 +104,26 @@ Rectangle {
         }
 
         Text {
-            id: recentlyUsedSessions
+            id: sessionsTitle
 
             x: pageCaption.x + pageCaption.textOffset
             y: 105
 
             color: "#535353"
-            text: qsTr("Recently used sessions")
+            text: qsTr("Sessions")
             font.pixelSize: 16
             font.family: "Helvetica"
             font.bold: true
         }
 
         Text {
-            id: recentlyUsedProjects
+            id: recentProjectsTitle
             x: 406
 
             y: 105
             color: "#535353"
-            text: qsTr("Recently used Projects")
-            anchors.left: recentlyUsedSessions.right
+            text: qsTr("Recent Projects")
+            anchors.left: sessionsTitle.right
             anchors.leftMargin: 160
             font.bold: true
             font.family: "Helvetica"
@@ -139,7 +139,7 @@ Rectangle {
             height: 70
 
             anchors.topMargin: 42
-            anchors.top: recentSessions.bottom
+            anchors.top: sessions.bottom
 
             LinkedText {
                 id: openProject
@@ -169,17 +169,17 @@ Rectangle {
             }
         }
 
-        RecentSessions {
-            id: recentSessions
+        Sessions {
+            id: sessions
 
             x: 87
             y: 144
             width: 274
 
-            anchors.left: recentlyUsedSessions.left
-            anchors.right: recentlyUsedProjects.left
+            anchors.left: sessionsTitle.left
+            anchors.right: recentProjectsTitle.left
             anchors.rightMargin: 40
-            anchors.top: recentlyUsedSessions.bottom
+            anchors.top: sessionsTitle.bottom
             anchors.topMargin: 20
 
             model: sessionList

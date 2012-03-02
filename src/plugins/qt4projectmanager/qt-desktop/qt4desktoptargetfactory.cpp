@@ -138,6 +138,7 @@ Qt4TargetSetupWidget *Qt4DesktopTargetFactory::createTargetSetupWidget(const QSt
         return 0;
     Qt4DefaultTargetSetupWidget *widget = new Qt4DefaultTargetSetupWidget(this, id, proFilePath,  infos,
                                                                           minimumQtVersion, maximumQtVersion,
+                                                                          requiredFeatures,
                                                                           importEnabled, importInfos,
                                                                           Qt4DefaultTargetSetupWidget::USER);
     widget->setBuildConfiguraionComboBoxVisible(true);

@@ -459,34 +459,24 @@ void QmlCppEngine::runEngine()
 void QmlCppEngine::shutdownInferior()
 {
     EDEBUG("\nMASTER SHUTDOWN INFERIOR");
-    d->m_cppEngine->quitDebugger();
-    d->m_qmlEngine->quitDebugger();
+    d->m_cppEngine->shutdownInferior();
 }
 
 void QmlCppEngine::shutdownEngine()
 {
     EDEBUG("\nMASTER SHUTDOWN ENGINE");
-    d->m_qmlEngine->shutdownSlaveEngine();
     d->m_cppEngine->shutdownSlaveEngine();
 }
 
 void QmlCppEngine::quitDebugger()
 {
-    // we might get called multiple times
-    if (targetState() == DebuggerFinished)
-        return;
-
     EDEBUG("\nMASTER QUIT DEBUGGER");
-    setTargetState(DebuggerFinished);
-    d->m_qmlEngine->quitDebugger();
     d->m_cppEngine->quitDebugger();
 }
 
 void QmlCppEngine::abortDebugger()
 {
     EDEBUG("\nMASTER ABORT DEBUGGER");
-    setTargetState(DebuggerFinished);
-    d->m_qmlEngine->abortDebugger();
     d->m_cppEngine->abortDebugger();
 }
 
@@ -668,9 +658,8 @@ void QmlCppEngine::slaveEngineStateChanged
             break;
         }
         case InferiorExitOk: {
-            // State can be reached by different states ...
-            qmlEngine()->quitDebugger();
-            notifyInferiorExited();
+            // InferiorExitOk will be called through notifyInferiorExited
+            // when InferiorShutDownOk is reached
             break;
         }
         case InferiorShutdownRequested: {
@@ -687,11 +676,12 @@ void QmlCppEngine::slaveEngineStateChanged
             break;
         }
         case InferiorShutdownOk: {
-            QTC_ASSERT(state() == InferiorShutdownRequested
-                       || state() == EngineRunFailed
-                       || state() == InferiorSetupFailed, qDebug() << state());
             if (state() == InferiorShutdownRequested)
                 notifyInferiorShutdownOk();
+            else {
+                // we got InferiorExitOk before, but ignored it ...
+                notifyInferiorExited();
+            }
             break;
         }
         case EngineShutdownRequested: {
@@ -750,7 +740,8 @@ void QmlCppEngine::slaveEngineStateChanged
                 notifyInferiorRunOk();
             }
         } else if (newState == EngineRunFailed) {
-            d->m_cppEngine->quitDebugger();
+            if (d->m_cppEngine->targetState() != DebuggerFinished)
+                d->m_cppEngine->quitDebugger();
         }
     }
 }

@@ -620,9 +620,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(mfile->menu(), SIGNAL(aboutToShow()),
         this, SLOT(updateRecentProjectMenu()));
 
-    // recent session menu
+    // session menu
     Core::ActionContainer *msession = am->createMenu(Constants::M_SESSION);
-    msession->menu()->setTitle(tr("Recent Sessions"));
+    msession->menu()->setTitle(tr("Sessions"));
     msession->setOnAllDisabledBehavior(Core::ActionContainer::Show);
     mfile->addMenu(msession, Core::Constants::G_FILE_OPEN);
     d->m_sessionMenu = msession->menu();
