@@ -35,7 +35,7 @@
 #include "linuxdeviceconfiguration.h"
 #include "remotelinux_export.h"
 
-#include <QAbstractListModel>
+#include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QString)
 
@@ -45,7 +45,7 @@ class LinuxDeviceConfigurationsPrivate;
 class LinuxDeviceConfigurationsSettingsWidget;
 } // namespace Internal
 
-class REMOTELINUX_EXPORT LinuxDeviceConfigurations : public QAbstractListModel
+class REMOTELINUX_EXPORT LinuxDeviceConfigurations : public QObject
 {
     Q_OBJECT
     friend class Internal::LinuxDeviceConfigurationsSettingsWidget;
@@ -54,6 +54,7 @@ public:
 
     static LinuxDeviceConfigurations *instance(QObject *parent = 0);
 
+    int deviceCount() const;
     LinuxDeviceConfiguration::ConstPtr deviceAt(int index) const;
     LinuxDeviceConfiguration::ConstPtr find(LinuxDeviceConfiguration::Id id) const;
     LinuxDeviceConfiguration::ConstPtr defaultDeviceConfig(const QString &osType) const;
@@ -68,15 +69,16 @@ public:
     void setConfigurationName(int i, const QString &name);
     void setDefaultDevice(int index);
 
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex &index,
-        int role = Qt::DisplayRole) const;
-
 public slots:
     void setDefaultSshKeyFilePath(const QString &path);
 
 signals:
-    void updated();
+    void deviceAdded(const QSharedPointer<const LinuxDeviceConfiguration> &device);
+    void deviceRemoved(int index);
+    void displayNameChanged(int index);
+    void defaultStatusChanged(int index);
+    void deviceListChanged();
+    void updated(); // Emitted for all of the above.
 
 private:
     LinuxDeviceConfigurations(QObject *parent);

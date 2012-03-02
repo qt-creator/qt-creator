@@ -32,6 +32,7 @@
 
 #include "ui_linuxdeviceconfigurationssettingswidget.h"
 
+#include "devicemanagermodel.h"
 #include "linuxdeviceconfigurations.h"
 #include "linuxdevicefactoryselectiondialog.h"
 #include "remotelinuxutils.h"
@@ -137,7 +138,8 @@ QString LinuxDeviceConfigurationsSettingsWidget::searchKeywords() const
 void LinuxDeviceConfigurationsSettingsWidget::initGui()
 {
     m_ui->setupUi(this);
-    m_ui->configurationComboBox->setModel(m_devConfigs);
+    DeviceManagerModel * const model = new DeviceManagerModel(m_devConfigs, this);
+    m_ui->configurationComboBox->setModel(model);
     m_ui->nameLineEdit->setValidator(m_nameValidator);
 
     int lastIndex = Core::ICore::settings()
@@ -177,7 +179,7 @@ void LinuxDeviceConfigurationsSettingsWidget::addConfig()
 void LinuxDeviceConfigurationsSettingsWidget::deleteConfig()
 {
     m_devConfigs->removeConfiguration(currentIndex());
-    if (m_devConfigs->rowCount() == 0)
+    if (m_devConfigs->deviceCount() == 0)
         currentConfigChanged(-1);
 }
 

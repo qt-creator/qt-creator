@@ -42,7 +42,6 @@ TypeSpecificDeviceConfigurationListModel::TypeSpecificDeviceConfigurationListMod
 {
     const LinuxDeviceConfigurations * const devConfs
         = LinuxDeviceConfigurations::instance();
-    connect(devConfs, SIGNAL(modelReset()), this, SIGNAL(modelReset()));
     connect(devConfs, SIGNAL(updated()), this, SIGNAL(updated()));
 }
 
@@ -57,7 +56,7 @@ int TypeSpecificDeviceConfigurationListModel::rowCount(const QModelIndex &parent
     int count = 0;
     const LinuxDeviceConfigurations * const devConfs
         = LinuxDeviceConfigurations::instance();
-    const int devConfsCount = devConfs->rowCount();
+    const int devConfsCount = devConfs->deviceCount();
     if (m_targetOsType == QLatin1String(Constants::GenericLinuxOsType))
         return devConfsCount;
     for (int i = 0; i < devConfsCount; ++i) {
@@ -89,7 +88,7 @@ LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::dev
         = LinuxDeviceConfigurations::instance();
     if (m_targetOsType == QLatin1String(Constants::GenericLinuxOsType))
         return devConfs->deviceAt(idx);
-    const int devConfsCount = devConfs->rowCount();
+    const int devConfsCount = devConfs->deviceCount();
     for (int i = 0; i < devConfsCount; ++i) {
         if (devConfs->deviceAt(i)->osType() == m_targetOsType) {
             if (++currentRow == idx)

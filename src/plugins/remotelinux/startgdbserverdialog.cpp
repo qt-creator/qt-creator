@@ -32,6 +32,7 @@
 
 #include "startgdbserverdialog.h"
 
+#include "devicemanagermodel.h"
 #include "remotelinuxprocesslist.h"
 #include "linuxdeviceconfiguration.h"
 #include "linuxdeviceconfigurations.h"
@@ -174,14 +175,15 @@ StartGdbServerDialog::StartGdbServerDialog(QWidget *parent) :
     setWindowTitle(tr("List of Remote Processes"));
 
     LinuxDeviceConfigurations *devices = LinuxDeviceConfigurations::instance();
+    DeviceManagerModel * const model = new DeviceManagerModel(devices, this);
 
     QObject::connect(d->closeButton, SIGNAL(clicked()), this, SLOT(reject()));
 
-    d->deviceComboBox->setModel(devices);
+    d->deviceComboBox->setModel(model);
     d->deviceComboBox->setCurrentIndex(d->settings->value(LastDevice).toInt());
     connect(&d->gatherer, SIGNAL(error(QString)), SLOT(portGathererError(QString)));
     connect(&d->gatherer, SIGNAL(portListReady()), SLOT(portListReady()));
-    if (devices->rowCount() == 0) {
+    if (devices->deviceCount() == 0) {
         d->tableView->setEnabled(false);
     } else {
         d->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);

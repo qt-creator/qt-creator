@@ -62,7 +62,8 @@ HEADERS += \
     remotelinuxcustomcommanddeployservice.h \
     remotelinuxcustomcommanddeploymentstep.h \
     abstractembeddedlinuxtarget.h \
-    genericlinuxdeviceconfigurationwidget.h
+    genericlinuxdeviceconfigurationwidget.h \
+    devicemanagermodel.h
 
 SOURCES += \
     genericembeddedlinuxtarget.cpp \
@@ -118,7 +119,8 @@ SOURCES += \
     remotelinuxcustomcommanddeployservice.cpp \
     remotelinuxcustomcommanddeploymentstep.cpp \
     abstractembeddedlinuxtarget.cpp \
-    genericlinuxdeviceconfigurationwidget.cpp
+    genericlinuxdeviceconfigurationwidget.cpp \
+    devicemanagermodel.cpp
 
 FORMS += \
     linuxdevicefactoryselectiondialog.ui \

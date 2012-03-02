@@ -95,15 +95,19 @@ LinuxDeviceConfigurations *LinuxDeviceConfigurations::instance(QObject *parent)
     return LinuxDeviceConfigurationsPrivate::instance;
 }
 
+int LinuxDeviceConfigurations::deviceCount() const
+{
+    return d->devConfigs.count();
+}
+
 void LinuxDeviceConfigurations::replaceInstance()
 {
-    Q_ASSERT(LinuxDeviceConfigurationsPrivate::instance);
+    QTC_ASSERT(LinuxDeviceConfigurationsPrivate::instance, return);
 
-    LinuxDeviceConfigurationsPrivate::instance->beginResetModel();
     copy(LinuxDeviceConfigurationsPrivate::clonedInstance,
         LinuxDeviceConfigurationsPrivate::instance, false);
     LinuxDeviceConfigurationsPrivate::instance->save();
-    LinuxDeviceConfigurationsPrivate::instance->endResetModel();
+    emit LinuxDeviceConfigurationsPrivate::instance->deviceListChanged();
     emit LinuxDeviceConfigurationsPrivate::instance->updated();
 }
 
@@ -181,40 +185,38 @@ void LinuxDeviceConfigurations::addConfiguration(const LinuxDeviceConfiguration:
     }
     devConfig->setDisplayName(name);
 
-    if (this == LinuxDeviceConfigurations::instance())
-        devConfig->setInternalId(d->nextId++);
+    devConfig->setInternalId(d->nextId++);
 
-    beginInsertRows(QModelIndex(), rowCount(), rowCount());
     if (!defaultDeviceConfig(devConfig->osType()))
         d->defaultConfigs.insert(devConfig->osType(), devConfig->internalId());
     d->devConfigs << devConfig;
-    endInsertRows();
     if (this == d->instance && d->clonedInstance) {
         d->clonedInstance->addConfiguration(
             LinuxDeviceConfiguration::Ptr(new LinuxDeviceConfiguration(devConfig)));
     }
+    emit deviceAdded(devConfig);
     emit updated();
 }
 
 void LinuxDeviceConfigurations::removeConfiguration(int idx)
 {
-    QTC_ASSERT(idx >= 0 && idx < rowCount(), return);
+    QTC_ASSERT(idx >= 0 && idx < deviceCount(), return);
     const LinuxDeviceConfiguration::ConstPtr deviceConfig = deviceAt(idx);
     QTC_ASSERT(this != LinuxDeviceConfigurationsPrivate::instance
         || deviceConfig->isAutoDetected(), return);
 
-    beginRemoveRows(QModelIndex(), idx, idx);
     const bool wasDefault
         = d->defaultConfigs.value(deviceConfig->osType()) == deviceConfig->internalId();
     const QString osType = deviceConfig->osType();
     d->devConfigs.removeAt(idx);
-    endRemoveRows();
+
+    emit deviceRemoved(idx);
+
     if (wasDefault) {
         for (int i = 0; i < d->devConfigs.count(); ++i) {
             if (deviceAt(i)->osType() == osType) {
                 d->defaultConfigs.insert(deviceAt(i)->osType(), deviceAt(i)->internalId());
-                const QModelIndex changedIndex = index(i, 0);
-                emit dataChanged(changedIndex, changedIndex);
+                emit defaultStatusChanged(i);
                 break;
             }
         }
@@ -223,6 +225,7 @@ void LinuxDeviceConfigurations::removeConfiguration(int idx)
         d->clonedInstance->removeConfiguration(d->clonedInstance->
             indexForInternalId(deviceConfig->internalId()));
     }
+
     emit updated();
 }
 
@@ -241,46 +244,42 @@ QString LinuxDeviceConfigurations::defaultSshKeyFilePath() const
 void LinuxDeviceConfigurations::setConfigurationName(int i, const QString &name)
 {
     QTC_ASSERT(this != LinuxDeviceConfigurationsPrivate::instance, return);
-    Q_ASSERT(i >= 0 && i < rowCount());
+    QTC_ASSERT(i >= 0 && i < deviceCount(), return);
 
     d->devConfigs.at(i)->setDisplayName(name);
-    const QModelIndex changedIndex = index(i, 0);
-    emit dataChanged(changedIndex, changedIndex);
+    emit displayNameChanged(i);
 }
 
 void LinuxDeviceConfigurations::setDefaultDevice(int idx)
 {
     QTC_ASSERT(this != LinuxDeviceConfigurationsPrivate::instance, return);
-    Q_ASSERT(idx >= 0 && idx < rowCount());
+    QTC_ASSERT(idx >= 0 && idx < deviceCount(), return);
 
     const LinuxDeviceConfiguration::ConstPtr &devConf = d->devConfigs.at(idx);
     const LinuxDeviceConfiguration::ConstPtr &oldDefaultDevConf
         = defaultDeviceConfig(devConf->osType());
     if (defaultDeviceConfig(devConf->osType()) == devConf)
         return;
-    QModelIndex oldDefaultIndex;
+    d->defaultConfigs.insert(devConf->osType(), devConf->internalId());
+    emit defaultStatusChanged(idx);
     for (int i = 0; i < d->devConfigs.count(); ++i) {
         if (d->devConfigs.at(i) == oldDefaultDevConf) {
-            oldDefaultIndex = index(i, 0);
+            emit defaultStatusChanged(i);
             break;
         }
     }
 
-    QTC_CHECK(oldDefaultIndex.isValid());
-    d->defaultConfigs.insert(devConf->osType(), devConf->internalId());
-    emit dataChanged(oldDefaultIndex, oldDefaultIndex);
-    const QModelIndex newDefaultIndex = index(idx, 0);
-    emit dataChanged(newDefaultIndex, newDefaultIndex);
+    emit updated();
 }
 
 LinuxDeviceConfigurations::LinuxDeviceConfigurations(QObject *parent)
-    : QAbstractListModel(parent), d(new LinuxDeviceConfigurationsPrivate)
+    : QObject(parent), d(new LinuxDeviceConfigurationsPrivate)
 {
 }
 
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfigurations::mutableDeviceAt(int idx) const
 {
-    Q_ASSERT(idx >= 0 && idx < rowCount());
+    QTC_ASSERT(idx >= 0 && idx < deviceCount(), return LinuxDeviceConfiguration::Ptr());
     return d->devConfigs.at(idx);
 }
 
@@ -315,7 +314,7 @@ void LinuxDeviceConfigurations::load()
 
 LinuxDeviceConfiguration::ConstPtr LinuxDeviceConfigurations::deviceAt(int idx) const
 {
-    Q_ASSERT(idx >= 0 && idx < rowCount());
+    QTC_ASSERT(idx >= 0 && idx < deviceCount(), return LinuxDeviceConfiguration::ConstPtr());
     return d->devConfigs.at(idx);
 }
 
@@ -362,25 +361,6 @@ void LinuxDeviceConfigurations::ensureOneDefaultConfigurationPerOsType()
         if (!defaultDeviceConfig(devConf->osType()))
             d->defaultConfigs.insert(devConf->osType(), devConf->internalId());
     }
-}
-
-int LinuxDeviceConfigurations::rowCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent);
-    return d->devConfigs.count();
-}
-
-QVariant LinuxDeviceConfigurations::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid() || index.row() >= rowCount() || role != Qt::DisplayRole)
-        return QVariant();
-    const LinuxDeviceConfiguration::ConstPtr devConf = deviceAt(index.row());
-    QString name = devConf->displayName();
-    if (defaultDeviceConfig(devConf->osType()) == devConf) {
-        name += QLatin1Char(' ') + tr("(default for %1)")
-            .arg(RemoteLinuxUtils::osTypeToString(devConf->osType()));
-    }
-    return name;
 }
 
 } // namespace RemoteLinux

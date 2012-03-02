@@ -141,6 +141,8 @@ QtcPlugin {
         "remotelinuxruncontrolfactory.h",
         "tarpackagecreationstep.cpp",
         "uploadandinstalltarpackagestep.cpp",
+        "devicemanagermodel.h",
+        "devicemanagermodel.cpp",
         "images/embeddedtarget.png"
     ]
 
