@@ -658,9 +658,8 @@ void QmlCppEngine::slaveEngineStateChanged
             break;
         }
         case InferiorExitOk: {
-            // State can be reached by different states ...
-            qmlEngine()->quitDebugger();
-            notifyInferiorExited();
+            // InferiorExitOk will be called through notifyInferiorExited
+            // when InferiorShutDownOk is reached
             break;
         }
         case InferiorShutdownRequested: {
@@ -677,11 +676,12 @@ void QmlCppEngine::slaveEngineStateChanged
             break;
         }
         case InferiorShutdownOk: {
-            QTC_ASSERT(state() == InferiorShutdownRequested
-                       || state() == EngineRunFailed
-                       || state() == InferiorSetupFailed, qDebug() << state());
             if (state() == InferiorShutdownRequested)
                 notifyInferiorShutdownOk();
+            else {
+                // we got InferiorExitOk before, but ignored it ...
+                notifyInferiorExited();
+            }
             break;
         }
         case EngineShutdownRequested: {
@@ -740,7 +740,8 @@ void QmlCppEngine::slaveEngineStateChanged
                 notifyInferiorRunOk();
             }
         } else if (newState == EngineRunFailed) {
-            d->m_cppEngine->quitDebugger();
+            if (d->m_cppEngine->targetState() != DebuggerFinished)
+                d->m_cppEngine->quitDebugger();
         }
     }
 }
