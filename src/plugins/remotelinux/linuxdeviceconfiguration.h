@@ -97,13 +97,13 @@ private:
     LinuxDeviceConfiguration(const QString &name, const QString &osType, DeviceType deviceType,
         const Utils::PortList &freePorts, const Utils::SshConnectionParameters &sshParams,
         const QVariantHash &attributes, Origin origin);
-    LinuxDeviceConfiguration(const QSettings &settings, Id &nextId);
+    LinuxDeviceConfiguration(const QSettings &settings);
     LinuxDeviceConfiguration(const ConstPtr &other);
 
     LinuxDeviceConfiguration(const LinuxDeviceConfiguration &);
     LinuxDeviceConfiguration &operator=(const LinuxDeviceConfiguration &);
 
-    static Ptr create(const QSettings &settings, Id &nextId);
+    static Ptr create(const QSettings &settings);
     static Ptr create(const ConstPtr &other);
 
     void setDisplayName(const QString &name);

@@ -94,10 +94,9 @@ LinuxDeviceConfiguration::~LinuxDeviceConfiguration()
     delete d;
 }
 
-LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const QSettings &settings,
-    Id &nextId)
+LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const QSettings &settings)
 {
-    return Ptr(new LinuxDeviceConfiguration(settings, nextId));
+    return Ptr(new LinuxDeviceConfiguration(settings));
 }
 
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const ConstPtr &other)
@@ -126,18 +125,14 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name, const QS
     d->attributes = attributes;
 }
 
-LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QSettings &settings, Id &nextId)
+LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QSettings &settings)
     : d(new LinuxDeviceConfigurationPrivate(SshConnectionParameters::NoProxy))
 {
     d->origin = ManuallyAdded;
     d->displayName = settings.value(NameKey).toString();
     d->osType = settings.value(OsTypeKey).toString();
     d->deviceType = static_cast<DeviceType>(settings.value(TypeKey, DefaultDeviceType).toInt());
-    d->internalId = settings.value(InternalIdKey, nextId).toULongLong();
-
-    if (d->internalId == nextId)
-        ++nextId;
-
+    d->internalId = settings.value(InternalIdKey, InvalidId).toULongLong();
     d->attributes = settings.value(AttributesKey).toHash();
 
     // Convert from version < 2.3.

@@ -93,6 +93,7 @@ private:
     static void copy(const LinuxDeviceConfigurations *source,
         LinuxDeviceConfigurations *target, bool deep);
     void ensureOneDefaultConfigurationPerOsType();
+    LinuxDeviceConfiguration::Id unusedId() const;
 
     Internal::LinuxDeviceConfigurationsPrivate * const d;
 };

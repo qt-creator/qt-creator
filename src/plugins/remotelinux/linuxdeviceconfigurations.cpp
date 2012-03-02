@@ -43,13 +43,13 @@
 #include <QVariantHash>
 
 #include <algorithm>
+#include <limits>
 
 namespace RemoteLinux {
 namespace Internal {
 
 namespace {
 const QLatin1String SettingsGroup("MaemoDeviceConfigs");
-const QLatin1String IdCounterKey("IdCounter");
 const QLatin1String ConfigListKey("ConfigList");
 const QLatin1String DefaultKeyFilePathKey("DefaultKeyFile");
 const char DefaultConfigsKey[] = "DefaultConfigs";
@@ -73,7 +73,6 @@ class LinuxDeviceConfigurationsPrivate
 public:
     static LinuxDeviceConfigurations *instance;
     static LinuxDeviceConfigurations *clonedInstance;
-    LinuxDeviceConfiguration::Id nextId;
     QList<LinuxDeviceConfiguration::Ptr> devConfigs;
     QHash<QString, LinuxDeviceConfiguration::Id> defaultConfigs;
     QString defaultSshKeyFilePath;
@@ -138,7 +137,6 @@ void LinuxDeviceConfigurations::copy(const LinuxDeviceConfigurations *source,
         target->d->devConfigs = source->d->devConfigs;
     }
     target->d->defaultSshKeyFilePath = source->d->defaultSshKeyFilePath;
-    target->d->nextId = source->d->nextId;
     target->d->defaultConfigs = source->d->defaultConfigs;
 }
 
@@ -146,7 +144,6 @@ void LinuxDeviceConfigurations::save()
 {
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
-    settings->setValue(IdCounterKey, d->nextId);
     settings->setValue(DefaultKeyFilePathKey, d->defaultSshKeyFilePath);
     QVariantHash defaultDevsHash;
     for (QHash<QString, LinuxDeviceConfiguration::Id>::ConstIterator it = d->defaultConfigs.constBegin();
@@ -184,9 +181,7 @@ void LinuxDeviceConfigurations::addConfiguration(const LinuxDeviceConfiguration:
         while (hasConfig(name));
     }
     devConfig->setDisplayName(name);
-
-    devConfig->setInternalId(d->nextId++);
-
+    devConfig->setInternalId(unusedId());
     if (!defaultDeviceConfig(devConfig->osType()))
         d->defaultConfigs.insert(devConfig->osType(), devConfig->internalId());
     d->devConfigs << devConfig;
@@ -292,7 +287,6 @@ void LinuxDeviceConfigurations::load()
 {
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
-    d->nextId = settings->value(IdCounterKey, 1).toULongLong();
     d->defaultSshKeyFilePath = settings->value(DefaultKeyFilePathKey,
         LinuxDeviceConfiguration::defaultPrivateKeyFilePath()).toString();
     const QVariantHash defaultDevsHash = settings->value(QLatin1String(DefaultConfigsKey)).toHash();
@@ -303,8 +297,9 @@ void LinuxDeviceConfigurations::load()
     int count = settings->beginReadArray(ConfigListKey);
     for (int i = 0; i < count; ++i) {
         settings->setArrayIndex(i);
-        LinuxDeviceConfiguration::Ptr devConf
-            = LinuxDeviceConfiguration::create(*settings, d->nextId);
+        LinuxDeviceConfiguration::Ptr devConf = LinuxDeviceConfiguration::create(*settings);
+        if (devConf->internalId() == LinuxDeviceConfiguration::InvalidId)
+            devConf->setInternalId(unusedId());
         d->devConfigs << devConf;
     }
     settings->endArray();
@@ -361,6 +356,17 @@ void LinuxDeviceConfigurations::ensureOneDefaultConfigurationPerOsType()
         if (!defaultDeviceConfig(devConf->osType()))
             d->defaultConfigs.insert(devConf->osType(), devConf->internalId());
     }
+}
+
+LinuxDeviceConfiguration::Id LinuxDeviceConfigurations::unusedId() const
+{
+    typedef LinuxDeviceConfiguration::Id IdType;
+    for (IdType id = 0; id <= std::numeric_limits<IdType>::max(); ++id) {
+        if (!find(id))
+            return id;
+    }
+    QTC_CHECK(false);
+    return LinuxDeviceConfiguration::InvalidId;
 }
 
 } // namespace RemoteLinux
