@@ -337,7 +337,7 @@ Product {
             "qtcreator/welcomescreen/widgets/PageCaption.qml",
             "qtcreator/welcomescreen/widgets/SessionItem.qml",
             "qtcreator/welcomescreen/widgets/Delegate.qml",
-            "qtcreator/welcomescreen/widgets/RecentSessions.qml",
+            "qtcreator/welcomescreen/widgets/Sessions.qml",
             "qtcreator/welcomescreen/widgets/GettingStartedItem.qml",
         ]
     }
