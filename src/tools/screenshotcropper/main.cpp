@@ -30,7 +30,10 @@
 **
 **************************************************************************/
 
-#include <QtWidgets>
+#include <QApplication>
+#include <QFileDialog>
+#include <QSettings>
+
 #include "screenshotcropperwindow.h"
 
 using namespace QtSupport::Internal;
