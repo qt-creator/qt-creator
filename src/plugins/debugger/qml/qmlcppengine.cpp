@@ -459,34 +459,24 @@ void QmlCppEngine::runEngine()
 void QmlCppEngine::shutdownInferior()
 {
     EDEBUG("\nMASTER SHUTDOWN INFERIOR");
-    d->m_cppEngine->quitDebugger();
-    d->m_qmlEngine->quitDebugger();
+    d->m_cppEngine->shutdownInferior();
 }
 
 void QmlCppEngine::shutdownEngine()
 {
     EDEBUG("\nMASTER SHUTDOWN ENGINE");
-    d->m_qmlEngine->shutdownSlaveEngine();
     d->m_cppEngine->shutdownSlaveEngine();
 }
 
 void QmlCppEngine::quitDebugger()
 {
-    // we might get called multiple times
-    if (targetState() == DebuggerFinished)
-        return;
-
     EDEBUG("\nMASTER QUIT DEBUGGER");
-    setTargetState(DebuggerFinished);
-    d->m_qmlEngine->quitDebugger();
     d->m_cppEngine->quitDebugger();
 }
 
 void QmlCppEngine::abortDebugger()
 {
     EDEBUG("\nMASTER ABORT DEBUGGER");
-    setTargetState(DebuggerFinished);
-    d->m_qmlEngine->abortDebugger();
     d->m_cppEngine->abortDebugger();
 }
 
