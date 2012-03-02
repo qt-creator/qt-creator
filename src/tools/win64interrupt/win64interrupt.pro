@@ -7,10 +7,14 @@ include(../../../qtcreator.pri)
 # global state of the CRT, reconsider if other DLLs are required!
 # TODO: No effect, currently?
 
-QMAKE_CXXFLAGS_RELEASE    -= -MD
-QMAKE_CXXFLAGS_DEBUG      -= -MDd
-QMAKE_CXXFLAGS_RELEASE    += -MT
-QMAKE_CXXFLAGS_DEBUG      += -MT
+win32-msvc* {
+    QMAKE_CXXFLAGS_RELEASE    -= -MD
+    QMAKE_CXXFLAGS_DEBUG      -= -MDd
+    QMAKE_CXXFLAGS_RELEASE    += -MT
+    QMAKE_CXXFLAGS_DEBUG      += -MT
+} else {
+    QMAKE_CXXFLAGS            += -static
+}
 
 SOURCES = win64interrupt.c
 
