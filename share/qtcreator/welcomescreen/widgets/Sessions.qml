@@ -35,58 +35,27 @@ import qtcomponents 1.0
 
 Item {
     property alias model: root.model
-    height: Math.min(root.count * root.delegateHeight, 276)
-
+    property int topMargin: 6
+    height: Math.min(root.contentHeight + topMargin, parent.height - 260)
 
     ListView {
         id: root
 
         anchors.fill: parent
+        anchors.topMargin: topMargin
 
         snapMode: ListView.SnapToItem
         property int delegateHeight: currentItem.height + spacing
+        //property int delegateHeight: 22
 
-        clip: true
         interactive: false
 
         spacing: 4
+        cacheBuffer: 800 //We need a big cache to avoid artefacts caused by delegate recreation
+        clip: true
 
-        property bool delayedHide: false
-
-        Behavior on delayedHide {
-            PropertyAnimation { duration: 200; }
-        }
-
-        onDelayedHideChanged: {
-            panel.opacity = 0;
-        }
 
         delegate: SessionItem {
-            id: item
-
-            property bool activate: hovered
-
-            Behavior on activate {
-                PropertyAnimation { duration: 50 }
-            }
-
-            onActivateChanged: {
-                if (activate) {
-                    panel.y = item.y + 20 - root.contentY;
-                    panel.opacity = 1;
-                    panel.projectsPathList = projectsPath;
-                    panel.projectsDisplayList = projectsName
-                    panel.currentSession = sessionName;
-                } else {
-                    if (!panel.hovered)
-                        panel.opacity = 0
-                }
-            }
-
-            onClicked: {
-                root.delayedHide = !root.delayedHide
-            }
-
             function fullSessionName()
             {
                 var newSessionName = sessionName
@@ -120,219 +89,12 @@ Item {
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             singleStep: root.delegateHeight
-            anchors.topMargin: styleitem.style == "mac" ? 1 : 0
+            anchors.topMargin: styleitem.style === "mac" ? 1 : 0
             onValueChanged: root.contentY =  Math.round(value / root.delegateHeight) * root.delegateHeight
             anchors.rightMargin: styleitem.frameoffset
             anchors.bottomMargin: styleitem.frameoffset
+            value: root.contentY
         }
     }
 
-    Rectangle {
-
-        CustomFonts {
-            id: fonts
-        }
-
-        id: panel
-
-        border.width: 1
-        smooth: true
-        opacity: 0
-
-        property int margin: 12
-
-        width: panelColumn.width + margin * 2
-        height: panelColumn.height + margin * 2
-
-        property bool hovered: false
-
-        property variant projectsPathList
-        property variant projectsDisplayList
-
-        property string currentSession
-
-        onHoveredChanged: {
-            if (panel.hovered)
-                panel.opacity = 1;
-            else
-                panel.opacity = 0;
-        }
-
-        MouseArea {
-            anchors.topMargin: 0
-            anchors.fill: parent
-            id: panelMouseArea
-            hoverEnabled: true
-            onEntered: {
-                panel.hovered = true
-            }
-            onExited: {
-                panel.hovered = false
-            }
-        }
-
-        Column {
-            x: panel.margin
-            y: panel.margin
-            id: panelColumn
-            spacing: 8
-
-            Repeater {
-                model: panel.projectsPathList
-                delegate: Row {
-                    spacing: 6
-                    Text {
-                        text: panel.projectsDisplayList[index]
-                        font: fonts.boldDescription
-                    }
-                    Text {
-                        text: modelData
-                        font: fonts.linkFont
-                    }
-                }
-            }
-
-            Row {
-                x: -2
-                spacing: 2
-                id: add
-
-                Item {
-                    //place hold for an icon
-                    width: 16
-                    height: 16
-
-                    MouseArea {
-                        id: exitMouseArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onEntered: {
-                            panel.hovered = true
-                        }
-                        onExited: {
-                            panel.hovered = false
-                        }
-                        onClicked: {
-                            //Will be uncommented once we have an icon
-                            //model.cloneSession(panel.currentSession);
-                        }
-                    }
-                }
-                LinkedText {
-                    text: qsTr("Clone this session")
-                    onEntered: {
-                        panel.hovered = true
-                    }
-                    onExited: {
-                        panel.hovered = false
-                    }
-                    onClicked: {
-                        panel.opacity = 0;
-                        model.cloneSession(panel.currentSession);
-                    }
-                }
-            }
-            Row {
-                x: -2
-                spacing: 2
-                id: clear
-
-                Item {
-                    //place holder for an icon
-                    width: 16
-                    height: 16
-
-
-                    MouseArea {
-                        id: clearMouseArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onEntered: {
-                            panel.hovered = true
-                        }
-                        onExited: {
-                            panel.hovered = false
-                        }
-                        onClicked: {
-                            //Will be uncommented once we have an icon
-                            //model.deleteSession(panel.currentSession);
-                        }
-                    }
-                }
-                LinkedText {
-                    text: qsTr("Delete this session")
-                    onEntered: {
-                        panel.hovered = true
-                    }
-                    onExited: {
-                        panel.hovered = false
-                    }
-                    onClicked: {
-                        panel.opacity = 0;
-                        model.deleteSession(panel.currentSession);
-                    }
-                }
-            }
-            Row {
-                x: -2
-                spacing: 2
-                id: rename
-
-                Item {
-                    //place holder for an icon
-                    opacity: clearMouseArea.containsMouse ? 0.8 : 1
-                    Behavior on opacity {
-                        PropertyAnimation { duration: visible ? 0 : 50; }
-                    }
-
-                    width: 16
-                    height: 16
-
-                    MouseArea {
-                        id: renameMouseArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onEntered: {
-                            panel.hovered = true
-                        }
-                        onExited: {
-                            panel.hovered = false
-                        }
-                        onClicked: {
-                            //Will be uncommented once we have an icon
-                            //model.renameSession(panel.currentSession);
-                        }
-                    }
-                }
-                LinkedText {
-                    text: qsTr("Rename this session")
-                    onEntered: {
-                        panel.hovered = true
-                    }
-                    onExited: {
-                        panel.hovered = false
-                    }
-                    onClicked: {
-                        panel.opacity = 0;
-                        model.renameSession(panel.currentSession);
-                    }
-                }
-            }
-        }
-
-        Behavior on opacity {
-            PropertyAnimation { duration: visible ? 50 : 100; }
-        }
-        radius: 2
-        gradient: Gradient {
-            GradientStop {
-                position: 0.00;
-                color: "#ffffff";
-            }
-            GradientStop {
-                position: 1.00;
-                color: "#e4e5f0";
-            }
-        }
-    }
 }

@@ -62,12 +62,29 @@ Item {
     Text {
         id: pathText
         y: 18
-        color: "#8b8b8b"
+        color: "#6b6b6b"
         anchors.right: parent.right
         anchors.rightMargin: 12
         anchors.left: parent.left
         anchors.leftMargin: 8
-        font: fonts.italicDescription
+        font: fonts.smallPath
         elide: Text.ElideRight
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            onEntered: {
+                toolTip.show();
+            }
+            onExited: {
+                toolTip.hide()
+            }
+
+        }
+        ToolTip {
+            x: 10
+            y: 20
+            id: toolTip
+            text: pathText.text
+        }
     }
 }

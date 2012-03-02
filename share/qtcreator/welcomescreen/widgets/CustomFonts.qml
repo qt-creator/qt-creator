@@ -38,8 +38,17 @@ QtObject {
     property alias standstandardDescription: standardDescriptionText.font
     property alias italicDescription: italicDescriptionText.font
     property alias boldDescription: boldText.font
+    property alias smallPath: smallPathText.font
 
     property list<Item> texts: [
+
+        Text {
+            id: smallPathText
+
+            visible: false
+            font.pixelSize: 12
+            font.family: "Helvetica"
+        },
 
         Text {
             id: linkText
