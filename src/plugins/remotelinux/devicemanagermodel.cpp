@@ -56,6 +56,7 @@ DeviceManagerModel::DeviceManagerModel(const LinuxDeviceConfigurations *deviceMa
         SLOT(handleDeviceAdded(QSharedPointer<const LinuxDeviceConfiguration>)));
     connect(deviceManager, SIGNAL(deviceRemoved(int)), SLOT(handleDeviceRemoved(int)));
     connect(deviceManager, SIGNAL(displayNameChanged(int)), SLOT(handleDataChanged(int)));
+    connect(deviceManager, SIGNAL(defaultStatusChanged(int)), SLOT(handleDataChanged(int)));
     connect(deviceManager, SIGNAL(deviceListChanged()), SLOT(handleDeviceListChanged()));
 }
 

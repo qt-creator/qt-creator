@@ -362,7 +362,7 @@ LinuxDeviceConfiguration::Id LinuxDeviceConfigurations::unusedId() const
 {
     typedef LinuxDeviceConfiguration::Id IdType;
     for (IdType id = 0; id <= std::numeric_limits<IdType>::max(); ++id) {
-        if (!find(id))
+        if (id != LinuxDeviceConfiguration::InvalidId && !find(id))
             return id;
     }
     QTC_CHECK(false);
