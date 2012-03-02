@@ -1795,16 +1795,19 @@ def qdump__std__map(d, value):
     if d.isExpanded():
         keyType = templateArgument(value.type, 0)
         valueType = templateArgument(value.type, 1)
-        # Does not work on gcc 4.4, the allocator type (fourth template
-        # argument) seems not to be available.
-        #   pairType = templateArgument(templateArgument(value.type, 3), 0)
-        # So use this as workaround:
-        pairType = templateArgument(impl.type, 1)
+        try:
+            # Does not work on gcc 4.4, the allocator type (fourth template
+            # argument) seems not to be available.
+            pairType = templateArgument(templateArgument(value.type, 3), 0)
+            pairPointer = pairType.pointer()
+        except:
+            # So use this as workaround:
+            pairType = templateArgument(impl.type, 1)
+            pairPointer = pairType.pointer()
         isCompact = mapCompact(d.currentItemFormat(), keyType, valueType)
         innerType = pairType
         if isCompact:
             innerType = valueType
-        pairPointer = pairType.pointer()
         node = impl["_M_header"]["_M_left"]
         childType = innerType
         if size == 0:
