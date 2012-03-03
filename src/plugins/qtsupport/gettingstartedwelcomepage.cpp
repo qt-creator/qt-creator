@@ -42,6 +42,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreplugin.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/modemanager.h>
@@ -339,8 +340,8 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
     txt->setBuddy(chooser);
     chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     QSettings *settings = Core::ICore::settings();
-    chooser->setPath(settings->value(
-                         QString::fromLatin1(C_FALLBACK_ROOT), QDir::homePath()).toString());
+    chooser->setPath(settings->value(QString::fromLatin1(C_FALLBACK_ROOT),
+                                     Core::DocumentManager::projectsDirectory()).toString());
     lay->addWidget(txt, 1, 0);
     lay->addWidget(chooser, 1, 1);
     QDialogButtonBox *bb = new QDialogButtonBox;
