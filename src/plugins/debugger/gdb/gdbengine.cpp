@@ -1801,6 +1801,9 @@ void GdbEngine::handleExecuteContinue(const GdbResponse &response)
         // FIXME: Fix translation in master.
         showStatusMessage(QString::fromLocal8Bit(msg), 5000);
         gotoLocation(stackHandler()->currentFrame());
+    } else if (msg.startsWith("Cannot execute this command while the selected thread is running.")) {
+        showExecutionError(QString::fromLocal8Bit(msg));
+        notifyInferiorRunFailed() ;
     } else {
         showExecutionError(QString::fromLocal8Bit(msg));
         notifyInferiorIll();
