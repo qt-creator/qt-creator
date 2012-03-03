@@ -24,13 +24,13 @@
   <style name="LineNumber" foreground="#8b8bcd" background="#2e2e2e"/>
   <style name="Link" foreground="#409090"/>
   <style name="Local"/>
-  <style name="Number" foreground="#506bbd"/>
+  <style name="Number" foreground="#f0ad6d"/>
   <style name="Occurrences" foreground="#000000" background="#616161"/>
   <style name="Occurrences.Rename" foreground="#000000" background="#ff6464"/>
   <style name="Occurrences.Unused" foreground="#808000"/>
-  <style name="Operator" foreground="#409040"/>
-  <style name="Parentheses" foreground="#ffff00"/>
-  <style name="Preprocessor" foreground="#409040"/>
+  <style name="Operator" foreground="#cfbfad"/>
+  <style name="Parentheses" foreground="#ffff00"  background="#4e4e8f"/>
+  <style name="Preprocessor" foreground="#409090"/>
   <style name="RemovedLine" foreground="#ff0000"/>
   <style name="SearchResult" foreground="#000000" background="#ffef0b"/>
   <style name="SearchScope" foreground="#000000" background="#f8fafc"/>
@@ -53,3 +53,4 @@
   <style name="JsImportVar" foreground="#8888ff" italic="true"/>
   <style name="JsGlobalVar" foreground="#8888ff" italic="true"/>
 </style-scheme>
+
