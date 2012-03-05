@@ -5,7 +5,7 @@
 # string 'Copyright'.
 #
 # Sample usage:
-# find . -type f -name \*.cpp -o -name \*.h | xargs ~/bin/hasCopyright.sh
+# find . -type f -name \*.cpp -o -name \*.h | xargs ./scripts/hasCopyright.sh
 
 for i in "$@" ; do
     if test -f "$i" && test -s "$i" ; then
