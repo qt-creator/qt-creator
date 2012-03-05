@@ -4299,7 +4299,7 @@ namespace basic {
 
     void testChar()
     {
-        char s[5];
+        char s[6];
         s[0] = 0;
         BREAK_HERE;
         // Expand s.
