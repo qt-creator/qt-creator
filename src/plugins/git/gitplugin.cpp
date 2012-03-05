@@ -793,14 +793,14 @@ void GitPlugin::fetch()
 void GitPlugin::pull()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
 
     switch (m_gitClient->ensureStash(state.topLevel())) {
-        case GitClient::StashUnchanged:
-        case GitClient::Stashed:
-        case GitClient::NotStashed:
-            m_gitClient->synchronousPull(state.topLevel());
-        default:
+    case GitClient::StashUnchanged:
+    case GitClient::Stashed:
+    case GitClient::NotStashed:
+        m_gitClient->synchronousPull(state.topLevel());
+    default:
         break;
     }
 }
