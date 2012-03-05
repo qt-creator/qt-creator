@@ -77,18 +77,36 @@ void PasteBinDotCaProtocol::fetch(const QString &id)
     m_fetchId = id;
 }
 
+static QByteArray toTypeId(Protocol::ContentType ct)
+{
+    if (ct == Protocol::C)
+        return QByteArray(1, '3');
+    if (ct == Protocol::Cpp)
+        return QByteArray(1, '4');
+    if (ct == Protocol::JavaScript)
+        return QByteArray("27");
+    if (ct == Protocol::Diff)
+        return QByteArray( "34");
+    if (ct == Protocol::Xml)
+        return QByteArray("15");
+    return QByteArray(1, '1');
+}
+
 void PasteBinDotCaProtocol::paste(const QString &text,
-                                  ContentType /* ct */,
+                                  ContentType ct,
                                   const QString &username,
                                   const QString & /* comment */,
                                   const QString &description)
 {
-    QTC_ASSERT(!m_pasteReply, return)
-    QByteArray data = "content=";
+    QTC_ASSERT(!m_pasteReply, return);
+    QByteArray data = "api=+xKvWG+1UFXkr2Kn3Td4AnpYtCIjA4qt&";
+    data += "content=";
     data += QUrl::toPercentEncoding(fixNewLines(text));
+    data += "&type=";
+    data += toTypeId(ct);
     data += "&description=";
     data += QUrl::toPercentEncoding(description);
-    data += "&type=1&expiry=1%20day&name=";
+    data += "expiry=1%20day&name=";
     data += QUrl::toPercentEncoding(username);
     // fire request
     const QString link = QLatin1String(urlC) + QLatin1String("quiet-paste.php");
