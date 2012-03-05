@@ -126,8 +126,8 @@ void AbstractProcessStep::setOutputParser(ProjectExplorer::IOutputParser *parser
     m_outputParserChain = parser;
 
     if (m_outputParserChain) {
-        connect(parser, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat)),
-                this, SLOT(outputAdded(QString, ProjectExplorer::BuildStep::OutputFormat)));
+        connect(parser, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
+                this, SLOT(outputAdded(QString,ProjectExplorer::BuildStep::OutputFormat)));
         connect(parser, SIGNAL(addTask(ProjectExplorer::Task)),
                 this, SLOT(taskAdded(ProjectExplorer::Task)));
     }
@@ -204,8 +204,8 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
             this, SLOT(processReadyReadStdError()),
             Qt::DirectConnection);
 
-    connect(m_process, SIGNAL(finished(int, QProcess::ExitStatus)),
-            this, SLOT(slotProcessFinished(int, QProcess::ExitStatus)),
+    connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
+            this, SLOT(slotProcessFinished(int,QProcess::ExitStatus)),
             Qt::DirectConnection);
 
     m_process->setCommand(m_param.effectiveCommand(), m_param.effectiveArguments());

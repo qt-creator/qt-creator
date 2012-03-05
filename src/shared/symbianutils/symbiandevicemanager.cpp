@@ -722,7 +722,7 @@ OstChannel::OstChannel(const CodaDevicePtr &codaPtr, uchar channelId)
     d->m_codaPtr = codaPtr;
     d->m_channelId = channelId;
     d->m_hasReceivedData = false;
-    connect(codaPtr.data(), SIGNAL(unknownEvent(uchar, QByteArray)), this, SLOT(ostDataReceived(uchar,QByteArray)));
+    connect(codaPtr.data(), SIGNAL(unknownEvent(uchar,QByteArray)), this, SLOT(ostDataReceived(uchar,QByteArray)));
     connect(codaPtr->device().data(), SIGNAL(aboutToClose()), this, SLOT(deviceAboutToClose()));
     QIODevice::open(ReadWrite|Unbuffered);
 }

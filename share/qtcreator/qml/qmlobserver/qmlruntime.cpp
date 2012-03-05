@@ -934,7 +934,7 @@ void QDeclarativeViewer::showProxySettings()
 {
     ProxySettings settingsDlg (this);
 
-    connect (&settingsDlg, SIGNAL (accepted()), this, SLOT (proxySettingsChanged ()));
+    connect(&settingsDlg, SIGNAL(accepted()), this, SLOT(proxySettingsChanged()));
 
     settingsDlg.exec();
 }

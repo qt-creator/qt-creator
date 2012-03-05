@@ -1556,11 +1556,11 @@ namespace qobject {
 
             Q_PROPERTY(QString myProp1 READ myProp1 WRITE setMyProp1)
             QString myProp1() const { return m_myProp1; }
-            Q_SLOT void setMyProp1(const QString &mt) { m_myProp1 = mt; }
+            Q_SLOT void setMyProp1(const QString&mt) { m_myProp1 = mt; }
 
             Q_PROPERTY(QString myProp2 READ myProp2 WRITE setMyProp2)
             QString myProp2() const { return m_myProp2; }
-            Q_SLOT void setMyProp2(const QString &mt) { m_myProp2 = mt; }
+            Q_SLOT void setMyProp2(const QString&mt) { m_myProp2 = mt; }
 
         public:
             Ui *m_ui;

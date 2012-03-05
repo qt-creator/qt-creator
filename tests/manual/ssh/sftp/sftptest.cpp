@@ -87,11 +87,11 @@ void SftpTest::handleConnected()
            SLOT(handleChannelInitialized()));
         connect(m_channel.data(), SIGNAL(initializationFailed(QString)), this,
             SLOT(handleChannelInitializationFailure(QString)));
-        connect(m_channel.data(), SIGNAL(finished(Utils::SftpJobId, QString)),
-            this, SLOT(handleJobFinished(Utils::SftpJobId, QString)));
+        connect(m_channel.data(), SIGNAL(finished(Utils::SftpJobId,QString)),
+            this, SLOT(handleJobFinished(Utils::SftpJobId,QString)));
         connect(m_channel.data(),
-            SIGNAL(fileInfoAvailable(Utils::SftpJobId, QList<Utils::SftpFileInfo>)),
-            SLOT(handleFileInfo(Utils::SftpJobId, QList<Utils::SftpFileInfo>)));
+            SIGNAL(fileInfoAvailable(Utils::SftpJobId,QList<Utils::SftpFileInfo>)),
+            SLOT(handleFileInfo(Utils::SftpJobId,QList<Utils::SftpFileInfo>)));
         connect(m_channel.data(), SIGNAL(closed()), this,
             SLOT(handleChannelClosed()));
         m_state = InitializingChannel;

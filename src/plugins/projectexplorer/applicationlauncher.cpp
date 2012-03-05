@@ -105,8 +105,8 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
         this, SLOT(readStandardOutput()));
     connect(&d->m_guiProcess, SIGNAL(error(QProcess::ProcessError)),
         this, SLOT(guiProcessError()));
-    connect(&d->m_guiProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
-            this, SLOT(processDone(int, QProcess::ExitStatus)));
+    connect(&d->m_guiProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
+            this, SLOT(processDone(int,QProcess::ExitStatus)));
     connect(&d->m_guiProcess, SIGNAL(started()),
             this, SLOT(bringToForeground()));
 

@@ -62,7 +62,7 @@ ConsoleProcess::ConsoleProcess(QObject *parent)  :
     connect(&d->m_stubServer, SIGNAL(newConnection()), SLOT(stubConnectionAvailable()));
 
     d->m_process.setProcessChannelMode(QProcess::ForwardedChannels);
-    connect(&d->m_process, SIGNAL(finished(int, QProcess::ExitStatus)),
+    connect(&d->m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
             SLOT(stubExited()));
 }
 

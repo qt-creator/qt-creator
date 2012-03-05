@@ -110,7 +110,7 @@ void ResetWidget::addPropertyItem(const QString &name, int row)
     ResetWidgetPushButton *b = new  ResetWidgetPushButton(m_tableWidget);
     b->setName(name);
     b->setText("reset");
-    connect(b, SIGNAL(pressed(const QString &)), this, SLOT(buttonPressed(const QString &)));
+    connect(b, SIGNAL(pressed(QString)), this, SLOT(buttonPressed(QString)));
     b->setMaximumHeight(15);
     b->setMinimumHeight(10);
     m_tableWidget->setCellWidget(row, 2, b);

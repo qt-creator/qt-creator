@@ -157,7 +157,7 @@ void CustomDragAndDropIcon::paintEvent(QPaintEvent *event)
 
 void CustomDragAndDropIcon::enter()
 {
-    connect(&m_timeLine, SIGNAL( frameChanged (int)), this, SLOT(animateDrag(int)));
+    connect(&m_timeLine, SIGNAL(frameChanged(int)), this, SLOT(animateDrag(int)));
     m_timeLine.setFrameRange(0, 10);
     m_timeLine.setDuration(10);
     m_timeLine.setLoopCount(1);
@@ -170,7 +170,7 @@ void CustomDragAndDropIcon::enter()
 
 void CustomDragAndDropIcon::leave()
 {
-    connect(&m_timeLine, SIGNAL( frameChanged (int)), this, SLOT(animateDrag(int)));
+    connect(&m_timeLine, SIGNAL(frameChanged(int)), this, SLOT(animateDrag(int)));
     m_timeLine.setFrameRange(0, 10);
     m_timeLine.setDuration(250);
     m_timeLine.setLoopCount(1);

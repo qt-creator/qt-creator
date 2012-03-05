@@ -148,8 +148,8 @@ EditorManagerPlaceHolder::EditorManagerPlaceHolder(Core::IMode *mode, QWidget *p
 {
     setLayout(new QVBoxLayout);
     layout()->setMargin(0);
-    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode *)),
-            this, SLOT(currentModeChanged(Core::IMode *)));
+    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
+            this, SLOT(currentModeChanged(Core::IMode*)));
 
     currentModeChanged(ModeManager::currentMode());
 }
@@ -289,8 +289,8 @@ EditorManager::EditorManager(QWidget *parent) :
 {
     m_instance = this;
 
-    connect(ICore::instance(), SIGNAL(contextAboutToChange(Core::IContext *)),
-            this, SLOT(handleContextChange(Core::IContext *)));
+    connect(ICore::instance(), SIGNAL(contextAboutToChange(Core::IContext*)),
+            this, SLOT(handleContextChange(Core::IContext*)));
 
     const Context editManagerContext(Constants::C_EDITORMANAGER);
     // combined context for edit & design modes

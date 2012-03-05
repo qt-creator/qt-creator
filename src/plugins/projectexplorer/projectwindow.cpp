@@ -250,7 +250,7 @@ ProjectWindow::ProjectWindow(QWidget *parent)
             this, SLOT(deregisterProject(ProjectExplorer::Project*)));
 
     connect(session, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
-            this, SLOT(startupProjectChanged(ProjectExplorer::Project *)));
+            this, SLOT(startupProjectChanged(ProjectExplorer::Project*)));
 
     // Update properties to empty project for now:
     showProperties(-1, -1);
@@ -269,8 +269,8 @@ void ProjectWindow::extensionsInitialized()
     QList<IProjectPanelFactory *> list = ExtensionSystem::PluginManager::instance()->getObjects<IProjectPanelFactory>();
     qSort(list.begin(), list.end(), &IPanelFactory::prioritySort);
     foreach (IProjectPanelFactory *fac, list)
-        connect (fac, SIGNAL(projectUpdated(ProjectExplorer::Project *)),
-                 this, SLOT(projectUpdated(ProjectExplorer::Project *)));
+        connect (fac, SIGNAL(projectUpdated(ProjectExplorer::Project*)),
+                 this, SLOT(projectUpdated(ProjectExplorer::Project*)));
 
 }
 

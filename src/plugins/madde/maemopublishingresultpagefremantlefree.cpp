@@ -57,8 +57,8 @@ void MaemoPublishingResultPageFremantleFree::initializePage()
     connect(cancelButton(), SIGNAL(clicked()), SLOT(handleCancelRequest()));
     connect(m_publisher, SIGNAL(finished()), SLOT(handleFinished()));
     connect(m_publisher,
-        SIGNAL(progressReport(QString, MaemoPublisherFremantleFree::OutputType)),
-        SLOT(handleProgress(QString, MaemoPublisherFremantleFree::OutputType)));
+        SIGNAL(progressReport(QString,MaemoPublisherFremantleFree::OutputType)),
+        SLOT(handleProgress(QString,MaemoPublisherFremantleFree::OutputType)));
     m_publisher->publish();
 }
 

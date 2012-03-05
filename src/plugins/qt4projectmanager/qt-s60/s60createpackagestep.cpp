@@ -407,8 +407,8 @@ bool S60CreatePackageStep::createOnePackage()
             this, SLOT(processReadyReadStdError()),
             Qt::DirectConnection);
 
-    connect(m_process, SIGNAL(finished(int, QProcess::ExitStatus)),
-            this, SLOT(packageDone(int, QProcess::ExitStatus)),
+    connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
+            this, SLOT(packageDone(int,QProcess::ExitStatus)),
             Qt::DirectConnection);
 
     m_process->setWorkingDirectory(wd.absolutePath());

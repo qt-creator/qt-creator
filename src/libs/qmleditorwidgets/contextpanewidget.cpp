@@ -445,7 +445,7 @@ QWidget* ContextPaneWidget::createFontWidget()
     m_textWidget = new ContextPaneTextWidget(this);
     connect(m_textWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
     connect(m_textWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
-    connect(m_textWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)));
+    connect(m_textWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)));
 
     return m_textWidget;
 }
@@ -456,7 +456,7 @@ QWidget* ContextPaneWidget::createEasingWidget()
 
     connect(m_easingWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
     connect(m_easingWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
-    connect(m_easingWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)));
+    connect(m_easingWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)));
 
     return m_easingWidget;
 }
@@ -466,7 +466,7 @@ QWidget *ContextPaneWidget::createImageWidget()
     m_imageWidget = new ContextPaneWidgetImage(this);
     connect(m_imageWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
     connect(m_imageWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
-    connect(m_imageWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)));
+    connect(m_imageWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)));
 
     return m_imageWidget;
 }
@@ -476,7 +476,7 @@ QWidget *ContextPaneWidget::createBorderImageWidget()
     m_borderImageWidget = new ContextPaneWidgetImage(this, true);
     connect(m_borderImageWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
     connect(m_borderImageWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
-    connect(m_borderImageWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)));
+    connect(m_borderImageWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)));
 
     return m_borderImageWidget;
 
@@ -487,7 +487,7 @@ QWidget *ContextPaneWidget::createRectangleWidget()
     m_rectangleWidget = new ContextPaneWidgetRectangle(this);
     connect(m_rectangleWidget, SIGNAL(propertyChanged(QString,QVariant)), this, SIGNAL(propertyChanged(QString,QVariant)));
     connect(m_rectangleWidget, SIGNAL(removeProperty(QString)), this, SIGNAL(removeProperty(QString)));
-    connect(m_rectangleWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)));
+    connect(m_rectangleWidget, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)), this, SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)));
 
     return m_rectangleWidget;
 }

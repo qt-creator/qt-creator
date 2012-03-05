@@ -355,8 +355,8 @@ S60EmulatorRunControl::S60EmulatorRunControl(S60EmulatorRunConfiguration *runCon
     m_executable = runConfiguration->executable();
     connect(&m_applicationLauncher, SIGNAL(applicationError(QString)),
             this, SLOT(slotError(QString)));
-    connect(&m_applicationLauncher, SIGNAL(appendMessage(QString, Utils::OutputFormat)),
-            this, SLOT(slotAppendMessage(QString, Utils::OutputFormat)));
+    connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
+            this, SLOT(slotAppendMessage(QString,Utils::OutputFormat)));
     connect(&m_applicationLauncher, SIGNAL(processExited(int)),
             this, SLOT(processExited(int)));
     connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(quint64)),

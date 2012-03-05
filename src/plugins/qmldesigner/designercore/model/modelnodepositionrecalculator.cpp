@@ -40,7 +40,7 @@ void ModelNodePositionRecalculator::connectTo(TextModifier *textModifier)
 {
     Q_ASSERT(textModifier);
 
-    connect(textModifier, SIGNAL(moved(const TextModifier::MoveInfo &)), this, SLOT(moved(const TextModifier::MoveInfo &)));
+    connect(textModifier, SIGNAL(moved(TextModifier::MoveInfo)), this, SLOT(moved(TextModifier::MoveInfo)));
     connect(textModifier, SIGNAL(replaced(int,int,int)), this, SLOT(replaced(int,int,int)));
 }
 

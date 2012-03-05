@@ -288,10 +288,10 @@ void SftpFileSystemModel::handleSshConnectionFailure()
 void SftpFileSystemModel::handleSftpChannelInitialized()
 {
     connect(d->sftpChannel.data(),
-        SIGNAL(fileInfoAvailable(Utils::SftpJobId, QList<Utils::SftpFileInfo>)),
-        SLOT(handleFileInfo(Utils::SftpJobId, QList<Utils::SftpFileInfo>)));
-    connect(d->sftpChannel.data(), SIGNAL(finished(Utils::SftpJobId, QString)),
-        SLOT(handleSftpJobFinished(Utils::SftpJobId, QString)));
+        SIGNAL(fileInfoAvailable(Utils::SftpJobId,QList<Utils::SftpFileInfo>)),
+        SLOT(handleFileInfo(Utils::SftpJobId,QList<Utils::SftpFileInfo>)));
+    connect(d->sftpChannel.data(), SIGNAL(finished(Utils::SftpJobId,QString)),
+        SLOT(handleSftpJobFinished(Utils::SftpJobId,QString)));
     statRootDirectory();
 }
 

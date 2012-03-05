@@ -457,7 +457,7 @@ private:
         m_keyDeployer->deployPublicKey(sshParams, m_wizardData.publicKeyFilePath);
     }
 
-    Q_SLOT void handleKeyDeploymentError(const QString &errorMsg)
+    Q_SLOT void handleKeyDeploymentError(const QString&errorMsg)
     {
         QMessageBox::critical(this, tr("Key Deployment Failure"), errorMsg);
         enableInput();

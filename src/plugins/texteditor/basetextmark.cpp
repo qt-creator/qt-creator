@@ -45,8 +45,8 @@ BaseTextMarkRegistry::BaseTextMarkRegistry(QObject *parent)
     : QObject(parent)
 {
     Core::EditorManager *em = Core::EditorManager::instance();
-    connect(em, SIGNAL(editorOpened(Core::IEditor *)),
-        SLOT(editorOpened(Core::IEditor *)));
+    connect(em, SIGNAL(editorOpened(Core::IEditor*)),
+        SLOT(editorOpened(Core::IEditor*)));
 }
 
 void BaseTextMarkRegistry::add(BaseTextMark *mark)

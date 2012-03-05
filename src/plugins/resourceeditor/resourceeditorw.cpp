@@ -96,8 +96,8 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
             Qt::QueuedConnection);
 
     connect(m_resourceEditor, SIGNAL(dirtyChanged(bool)), this, SLOT(dirtyChanged(bool)));
-    connect(m_resourceEditor, SIGNAL(undoStackChanged(bool, bool)),
-            this, SLOT(onUndoStackChanged(bool, bool)));
+    connect(m_resourceEditor, SIGNAL(undoStackChanged(bool,bool)),
+            this, SLOT(onUndoStackChanged(bool,bool)));
     connect(m_resourceEditor, SIGNAL(showContextMenu(QPoint,QString)),
             this, SLOT(showContextMenu(QPoint,QString)));
     connect(m_resourceEditor->commandHistory(), SIGNAL(indexChanged(int)),

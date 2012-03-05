@@ -360,15 +360,15 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
     loadSettings();
     loadSnippetGroup(m_ui.groupCombo->currentIndex());
 
-    connect(m_model, SIGNAL(rowsInserted(QModelIndex, int, int)),
+    connect(m_model, SIGNAL(rowsInserted(QModelIndex,int,int)),
             this, SLOT(selectSnippet(QModelIndex,int)));
-    connect(m_model, SIGNAL(rowsInserted(QModelIndex, int, int)),
+    connect(m_model, SIGNAL(rowsInserted(QModelIndex,int,int)),
             this, SLOT(markSnippetsCollection()));
-    connect(m_model, SIGNAL(rowsRemoved(QModelIndex, int, int)),
+    connect(m_model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
             this, SLOT(markSnippetsCollection()));
-    connect(m_model, SIGNAL(rowsMoved(QModelIndex, int, int, QModelIndex, int)),
+    connect(m_model, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
             this, SLOT(selectMovedSnippet(QModelIndex,int,int,QModelIndex,int)));
-    connect(m_model, SIGNAL(rowsMoved(QModelIndex, int, int, QModelIndex, int)),
+    connect(m_model, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
             this, SLOT(markSnippetsCollection()));
     connect(m_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             this, SLOT(markSnippetsCollection()));

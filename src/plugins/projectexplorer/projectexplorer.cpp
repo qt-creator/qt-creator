@@ -343,17 +343,17 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     d->m_session = new SessionManager(this);
 
-    connect(d->m_session, SIGNAL(projectAdded(ProjectExplorer::Project *)),
+    connect(d->m_session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
             this, SIGNAL(fileListChanged()));
-    connect(d->m_session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project *)),
-            this, SLOT(invalidateProject(ProjectExplorer::Project *)));
-    connect(d->m_session, SIGNAL(projectRemoved(ProjectExplorer::Project *)),
+    connect(d->m_session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
+            this, SLOT(invalidateProject(ProjectExplorer::Project*)));
+    connect(d->m_session, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SIGNAL(fileListChanged()));
     connect(d->m_session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
             this, SLOT(projectAdded(ProjectExplorer::Project*)));
     connect(d->m_session, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SLOT(projectRemoved(ProjectExplorer::Project*)));
-    connect(d->m_session, SIGNAL(startupProjectChanged(ProjectExplorer::Project *)),
+    connect(d->m_session, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(startupProjectChanged()));
     connect(d->m_session, SIGNAL(dependencyChanged(ProjectExplorer::Project*,ProjectExplorer::Project*)),
             this, SLOT(updateActions()));
@@ -377,8 +377,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new VcsAnnotateTaskHandler);
 
     d->m_buildManager = new BuildManager(this);
-    connect(d->m_buildManager, SIGNAL(buildStateChanged(ProjectExplorer::Project *)),
-            this, SLOT(buildStateChanged(ProjectExplorer::Project *)));
+    connect(d->m_buildManager, SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
+            this, SLOT(buildStateChanged(ProjectExplorer::Project*)));
     connect(d->m_buildManager, SIGNAL(buildQueueFinished(bool)),
             this, SLOT(buildQueueFinished(bool)));
 
@@ -386,7 +386,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     d->m_outputPane = new AppOutputPane;
     addAutoReleasedObject(d->m_outputPane);
-    connect(d->m_session, SIGNAL(projectRemoved(ProjectExplorer::Project *)),
+    connect(d->m_session, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             d->m_outputPane, SLOT(projectRemoved()));
 
     connect(d->m_outputPane, SIGNAL(runControlStarted(ProjectExplorer::RunControl*)),
@@ -517,7 +517,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_openWithMenu = openWith->menu();
     d->m_openWithMenu->setTitle(tr("Open With"));
 
-    connect(d->m_openWithMenu, SIGNAL(triggered(QAction *)),
+    connect(d->m_openWithMenu, SIGNAL(triggered(QAction*)),
             Core::DocumentManager::instance(), SLOT(slotExecuteOpenWithMenuAction(QAction*)));
 
     //
@@ -1468,8 +1468,8 @@ void ProjectExplorerPlugin::restoreSession()
 
     // update welcome page
     connect(Core::ModeManager::instance(),
-            SIGNAL(currentModeChanged(Core::IMode*, Core::IMode*)),
-            SLOT(currentModeChanged(Core::IMode*, Core::IMode*)));
+            SIGNAL(currentModeChanged(Core::IMode*,Core::IMode*)),
+            SLOT(currentModeChanged(Core::IMode*,Core::IMode*)));
     connect(d->m_welcomePage, SIGNAL(requestSession(QString)), this, SLOT(loadSession(QString)));
     connect(d->m_welcomePage, SIGNAL(requestProject(QString)), this, SLOT(openProjectWelcomePage(QString)));
 
@@ -2831,7 +2831,7 @@ void ProjectExplorerPlugin::updateSessionMenu()
 {
     d->m_sessionMenu->clear();
     QActionGroup *ag = new QActionGroup(d->m_sessionMenu);
-    connect(ag, SIGNAL(triggered(QAction *)), this, SLOT(setSession(QAction *)));
+    connect(ag, SIGNAL(triggered(QAction*)), this, SLOT(setSession(QAction*)));
     const QString &activeSession = d->m_session->activeSession();
     foreach (const QString &session, d->m_session->sessions()) {
         QAction *act = ag->addAction(session);

@@ -831,7 +831,7 @@ public:
      QComboBoxDeclarativeUI(QObject *parent = 0) : QObject(parent), m_itemsSet(false)
      {
          cb = qobject_cast<QComboBox*>(parent);
-         connect(cb, SIGNAL(currentIndexChanged(const QString &)), this, SLOT(setCurrentText(const QString &)));
+         connect(cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(setCurrentText(QString)));
      }
 
      QString currentText() const

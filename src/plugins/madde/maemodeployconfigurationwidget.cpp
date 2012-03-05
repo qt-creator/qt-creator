@@ -72,8 +72,8 @@ MaemoDeployConfigurationWidget::MaemoDeployConfigurationWidget(QWidget *parent)
     mainLayout->addStretch(1);
 
     connect(m_remoteLinuxWidget,
-        SIGNAL(currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *)),
-        SLOT(handleCurrentModelChanged(const RemoteLinux::DeployableFilesPerProFile *)));
+        SIGNAL(currentModelChanged(const RemoteLinux::DeployableFilesPerProFile*)),
+        SLOT(handleCurrentModelChanged(const RemoteLinux::DeployableFilesPerProFile*)));
     handleCurrentModelChanged(m_remoteLinuxWidget->currentModel());
 }
 

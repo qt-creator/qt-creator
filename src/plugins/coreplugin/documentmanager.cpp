@@ -293,7 +293,7 @@ void DocumentManager::addDocuments(const QList<IDocument *> &documents, bool add
 
         foreach (IDocument *document, documents) {
             if (document && !d->m_documentsWithoutWatch.contains(document)) {
-                connect(document, SIGNAL(destroyed(QObject *)), m_instance, SLOT(documentDestroyed(QObject *)));
+                connect(document, SIGNAL(destroyed(QObject*)), m_instance, SLOT(documentDestroyed(QObject*)));
                 d->m_documentsWithoutWatch.append(document);
             }
         }
@@ -303,7 +303,7 @@ void DocumentManager::addDocuments(const QList<IDocument *> &documents, bool add
     foreach (IDocument *document, documents) {
         if (document && !d->m_documentsWithWatch.contains(document)) {
             connect(document, SIGNAL(changed()), m_instance, SLOT(checkForNewFileName()));
-            connect(document, SIGNAL(destroyed(QObject *)), m_instance, SLOT(documentDestroyed(QObject *)));
+            connect(document, SIGNAL(destroyed(QObject*)), m_instance, SLOT(documentDestroyed(QObject*)));
             addFileInfo(document);
         }
     }
@@ -437,7 +437,7 @@ bool DocumentManager::removeDocument(IDocument *document)
         removeFileInfo(document);
         disconnect(document, SIGNAL(changed()), m_instance, SLOT(checkForNewFileName()));
     }
-    disconnect(document, SIGNAL(destroyed(QObject *)), m_instance, SLOT(documentDestroyed(QObject *)));
+    disconnect(document, SIGNAL(destroyed(QObject*)), m_instance, SLOT(documentDestroyed(QObject*)));
     return addWatcher;
 }
 

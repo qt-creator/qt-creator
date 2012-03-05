@@ -122,14 +122,14 @@ MaemoQemuManager::MaemoQemuManager(QObject *parent)
 
     connect(m_qemuProcess, SIGNAL(error(QProcess::ProcessError)), this,
         SLOT(qemuProcessError(QProcess::ProcessError)));
-    connect(m_qemuProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this,
+    connect(m_qemuProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this,
         SLOT(qemuProcessFinished()));
     connect(m_qemuProcess, SIGNAL(readyReadStandardOutput()), this,
         SLOT(qemuOutput()));
     connect(m_qemuProcess, SIGNAL(readyReadStandardError()), this,
         SLOT(qemuOutput()));
-    connect(this, SIGNAL(qemuProcessStatus(QemuStatus, QString)),
-        this, SLOT(qemuStatusChanged(QemuStatus, QString)));
+    connect(this, SIGNAL(qemuProcessStatus(QemuStatus,QString)),
+        this, SLOT(qemuStatusChanged(QemuStatus,QString)));
 }
 
 Utils::FileSystemWatcher *MaemoQemuManager::runtimeRootWatcher()

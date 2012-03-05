@@ -713,8 +713,8 @@ CppModelManager::CppModelManager(QObject *parent)
     connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
             this, SLOT(onProjectAdded(ProjectExplorer::Project*)));
 
-    connect(session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project *)),
-            this, SLOT(onAboutToRemoveProject(ProjectExplorer::Project *)));
+    connect(session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
+            this, SLOT(onAboutToRemoveProject(ProjectExplorer::Project*)));
 
     connect(session, SIGNAL(aboutToUnloadSession(QString)),
             this, SLOT(onAboutToUnloadSession()));
@@ -728,11 +728,11 @@ CppModelManager::CppModelManager(QObject *parent)
             this, SLOT(onExtraDiagnosticsUpdated(QString)));
 
     // Listen for editor closed and opened events so that we can keep track of changing files
-    connect(Core::ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
-        this, SLOT(editorOpened(Core::IEditor *)));
+    connect(Core::ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor*)),
+        this, SLOT(editorOpened(Core::IEditor*)));
 
-    connect(Core::ICore::editorManager(), SIGNAL(editorAboutToClose(Core::IEditor *)),
-        this, SLOT(editorAboutToClose(Core::IEditor *)));
+    connect(Core::ICore::editorManager(), SIGNAL(editorAboutToClose(Core::IEditor*)),
+        this, SLOT(editorAboutToClose(Core::IEditor*)));
 
     m_completionFallback = new InternalCompletionAssistProvider;
     m_completionAssistProvider = m_completionFallback;

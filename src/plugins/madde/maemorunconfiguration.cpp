@@ -71,11 +71,11 @@ MaemoRunConfiguration::MaemoRunConfiguration(AbstractQt4MaemoTarget *parent,
 void MaemoRunConfiguration::init()
 {
     m_remoteMounts = new MaemoRemoteMountsModel(this);
-    connect(m_remoteMounts, SIGNAL(rowsInserted(QModelIndex, int, int)), this,
+    connect(m_remoteMounts, SIGNAL(rowsInserted(QModelIndex,int,int)), this,
         SLOT(handleRemoteMountsChanged()));
-    connect(m_remoteMounts, SIGNAL(rowsRemoved(QModelIndex, int, int)), this,
+    connect(m_remoteMounts, SIGNAL(rowsRemoved(QModelIndex,int,int)), this,
         SLOT(handleRemoteMountsChanged()));
-    connect(m_remoteMounts, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this,
+    connect(m_remoteMounts, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this,
         SLOT(handleRemoteMountsChanged()));
     connect(m_remoteMounts, SIGNAL(modelReset()), SLOT(handleRemoteMountsChanged()));
 

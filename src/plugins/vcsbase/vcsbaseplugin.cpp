@@ -547,7 +547,7 @@ void VcsBasePlugin::initializeVcs(Core::IVersionControl *vc)
     if (!VcsBasePluginPrivate::m_listener)
         VcsBasePluginPrivate::m_listener = new Internal::StateListener(plugin);
     connect(VcsBasePluginPrivate::m_listener,
-            SIGNAL(stateChanged(VcsBase::Internal::State, Core::IVersionControl*)),
+            SIGNAL(stateChanged(VcsBase::Internal::State,Core::IVersionControl*)),
             this,
             SLOT(slotStateChanged(VcsBase::Internal::State,Core::IVersionControl*)));
 }

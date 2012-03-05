@@ -51,8 +51,8 @@ using namespace Core;
 BaseHoverHandler::BaseHoverHandler(QObject *parent) : QObject(parent), m_diagnosticTooltip(false)
 {
     // Listen for editor opened events in order to connect to tooltip/helpid requests
-    connect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
-            this, SLOT(editorOpened(Core::IEditor *)));
+    connect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor*)),
+            this, SLOT(editorOpened(Core::IEditor*)));
 }
 
 BaseHoverHandler::~BaseHoverHandler()
@@ -63,11 +63,11 @@ void BaseHoverHandler::editorOpened(Core::IEditor *editor)
     if (acceptEditor(editor)) {
         BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(editor);
         if (textEditor) {
-            connect(textEditor, SIGNAL(tooltipRequested(TextEditor::ITextEditor*, QPoint, int)),
-                    this, SLOT(showToolTip(TextEditor::ITextEditor*, QPoint, int)));
+            connect(textEditor, SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
+                    this, SLOT(showToolTip(TextEditor::ITextEditor*,QPoint,int)));
 
-            connect(textEditor, SIGNAL(contextHelpIdRequested(TextEditor::ITextEditor*, int)),
-                    this, SLOT(updateContextHelpId(TextEditor::ITextEditor*, int)));
+            connect(textEditor, SIGNAL(contextHelpIdRequested(TextEditor::ITextEditor*,int)),
+                    this, SLOT(updateContextHelpId(TextEditor::ITextEditor*,int)));
         }
     }
 }

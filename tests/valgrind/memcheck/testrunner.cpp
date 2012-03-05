@@ -124,7 +124,7 @@ void TestRunner::init()
     m_runner->setProcessChannelMode(QProcess::ForwardedChannels);
     connect(m_runner, SIGNAL(logMessageReceived(QByteArray)),
             this, SLOT(logMessageReceived(QByteArray)));
-    connect(m_runner, SIGNAL(processErrorReceived(QString, QProcess::ProcessError)),
+    connect(m_runner, SIGNAL(processErrorReceived(QString,QProcess::ProcessError)),
             this, SLOT(internalError(QString)));
     Q_ASSERT(!m_parser);
     m_parser = new ThreadedParser;

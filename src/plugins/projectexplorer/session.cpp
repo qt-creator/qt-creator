@@ -100,9 +100,9 @@ SessionManager::SessionManager(QObject *parent)
 
     EditorManager *em = ICore::editorManager();
 
-    connect(em, SIGNAL(editorCreated(Core::IEditor *, QString)),
-            this, SLOT(configureEditor(Core::IEditor *, QString)));
-    connect(ProjectExplorerPlugin::instance(), SIGNAL(currentProjectChanged(ProjectExplorer::Project *)),
+    connect(em, SIGNAL(editorCreated(Core::IEditor*,QString)),
+            this, SLOT(configureEditor(Core::IEditor*,QString)));
+    connect(ProjectExplorerPlugin::instance(), SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(updateWindowTitle()));
     connect(em, SIGNAL(editorOpened(Core::IEditor*)),
             this, SLOT(markSessionFileDirty()));
@@ -772,11 +772,11 @@ void SessionManager::restoreEditors(const Utils::PersistentSettingsReader &reade
 {
     const QVariant &editorsettings = reader.restoreValue(QLatin1String("EditorSettings"));
     if (editorsettings.isValid()) {
-        connect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
+        connect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor*)),
                 this, SLOT(sessionLoadingProgress()));
         ICore::editorManager()->restoreState(
             QByteArray::fromBase64(editorsettings.toByteArray()));
-        disconnect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
+        disconnect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor*)),
                    this, SLOT(sessionLoadingProgress()));
     }
 }

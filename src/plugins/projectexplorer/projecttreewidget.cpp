@@ -110,10 +110,10 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
     NodesWatcher *watcher = new NodesWatcher(this);
     m_explorer->session()->sessionNode()->registerWatcher(watcher);
 
-    connect(watcher, SIGNAL(foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*> &)),
-            this, SLOT(foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*> &)));
-    connect(watcher, SIGNAL(filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &)),
-            this, SLOT(filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &)));
+    connect(watcher, SIGNAL(foldersAboutToBeRemoved(FolderNode*,QList<FolderNode*>)),
+            this, SLOT(foldersAboutToBeRemoved(FolderNode*,QList<FolderNode*>)));
+    connect(watcher, SIGNAL(filesAboutToBeRemoved(FolderNode*,QList<FileNode*>)),
+            this, SLOT(filesAboutToBeRemoved(FolderNode*,QList<FileNode*>)));
 
     m_view = new ProjectTreeView;
     m_view->setModel(m_model);
@@ -138,16 +138,16 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
     // connections
     connect(m_model, SIGNAL(modelReset()),
             this, SLOT(initView()));
-    connect(m_view, SIGNAL(activated(const QModelIndex&)),
-            this, SLOT(openItem(const QModelIndex&)));
-    connect(m_view->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
-            this, SLOT(handleCurrentItemChange(const QModelIndex&)));
-    connect(m_view, SIGNAL(customContextMenuRequested(const QPoint&)),
-            this, SLOT(showContextMenu(const QPoint&)));
-    connect(m_explorer->session(), SIGNAL(singleProjectAdded(ProjectExplorer::Project *)),
-            this, SLOT(handleProjectAdded(ProjectExplorer::Project *)));
-    connect(m_explorer->session(), SIGNAL(startupProjectChanged(ProjectExplorer::Project *)),
-            this, SLOT(startupProjectChanged(ProjectExplorer::Project *)));
+    connect(m_view, SIGNAL(activated(QModelIndex)),
+            this, SLOT(openItem(QModelIndex)));
+    connect(m_view->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this, SLOT(handleCurrentItemChange(QModelIndex)));
+    connect(m_view, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(showContextMenu(QPoint)));
+    connect(m_explorer->session(), SIGNAL(singleProjectAdded(ProjectExplorer::Project*)),
+            this, SLOT(handleProjectAdded(ProjectExplorer::Project*)));
+    connect(m_explorer->session(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+            this, SLOT(startupProjectChanged(ProjectExplorer::Project*)));
 
     connect(m_explorer->session(), SIGNAL(aboutToLoadSession(QString)),
             this, SLOT(disableAutoExpand()));
@@ -260,13 +260,13 @@ void ProjectTreeWidget::setAutoSynchronization(bool sync, bool syncNow)
     if (debug)
         qDebug() << (m_autoSync ? "Enabling auto synchronization" : "Disabling auto synchronization");
     if (m_autoSync) {
-        connect(m_explorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*, ProjectExplorer::Project*)),
-                this, SLOT(setCurrentItem(ProjectExplorer::Node*, ProjectExplorer::Project*)));
+        connect(m_explorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),
+                this, SLOT(setCurrentItem(ProjectExplorer::Node*,ProjectExplorer::Project*)));
         if (syncNow)
             setCurrentItem(m_explorer->currentNode(), ProjectExplorerPlugin::currentProject());
     } else {
-        disconnect(m_explorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*, ProjectExplorer::Project*)),
-                this, SLOT(setCurrentItem(ProjectExplorer::Node*, ProjectExplorer::Project*)));
+        disconnect(m_explorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),
+                this, SLOT(setCurrentItem(ProjectExplorer::Node*,ProjectExplorer::Project*)));
     }
 }
 

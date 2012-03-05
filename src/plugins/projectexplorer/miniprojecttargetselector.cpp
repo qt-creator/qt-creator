@@ -534,13 +534,13 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
             this, SLOT(projectRemoved(ProjectExplorer::Project*)));
 
     connect(m_listWidgets[TARGET], SIGNAL(changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration*)),
-            this, SLOT(setActiveTarget(ProjectExplorer::ProjectConfiguration *)));
+            this, SLOT(setActiveTarget(ProjectExplorer::ProjectConfiguration*)));
     connect(m_listWidgets[BUILD], SIGNAL(changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration*)),
-            this, SLOT(setActiveBuildConfiguration(ProjectExplorer::ProjectConfiguration *)));
+            this, SLOT(setActiveBuildConfiguration(ProjectExplorer::ProjectConfiguration*)));
     connect(m_listWidgets[DEPLOY], SIGNAL(changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration*)),
-            this, SLOT(setActiveDeployConfiguration(ProjectExplorer::ProjectConfiguration *)));
+            this, SLOT(setActiveDeployConfiguration(ProjectExplorer::ProjectConfiguration*)));
     connect(m_listWidgets[RUN], SIGNAL(changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration*)),
-            this, SLOT(setActiveRunConfiguration(ProjectExplorer::ProjectConfiguration *)));
+            this, SLOT(setActiveRunConfiguration(ProjectExplorer::ProjectConfiguration*)));
 }
 
 void MiniProjectTargetSelector::setActiveTarget(ProjectExplorer::ProjectConfiguration *pc)

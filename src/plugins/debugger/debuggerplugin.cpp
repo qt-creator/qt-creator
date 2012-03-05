@@ -792,7 +792,7 @@ public slots:
     void attachToQmlPort();
     void startRemoteEngine();
     void attachExternalApplication();
-    Q_SLOT void attachExternalApplication(ProjectExplorer::RunControl *rc);
+    Q_SLOT void attachExternalApplication(ProjectExplorer::RunControl*rc);
     void runScheduled();
     void attachCore();
     void attachToRemoteServer(const QString &spec);
@@ -1842,8 +1842,8 @@ void DebuggerPluginPrivate::editorOpened(IEditor *editor)
     if (!textEditor)
         return;
     connect(textEditor,
-        SIGNAL(markRequested(TextEditor::ITextEditor*,int, TextEditor::ITextEditor::MarkRequestKind)),
-        SLOT(requestMark(TextEditor::ITextEditor*,int, TextEditor::ITextEditor::MarkRequestKind)));
+        SIGNAL(markRequested(TextEditor::ITextEditor*,int,TextEditor::ITextEditor::MarkRequestKind)),
+        SLOT(requestMark(TextEditor::ITextEditor*,int,TextEditor::ITextEditor::MarkRequestKind)));
     connect(textEditor,
         SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
         SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));

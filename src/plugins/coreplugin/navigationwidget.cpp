@@ -71,8 +71,8 @@ NavigationWidgetPlaceHolder::NavigationWidgetPlaceHolder(Core::IMode *mode, QWid
 {
     setLayout(new QVBoxLayout);
     layout()->setMargin(0);
-    connect(Core::ModeManager::instance(), SIGNAL(currentModeAboutToChange(Core::IMode *)),
-            this, SLOT(currentModeAboutToChange(Core::IMode *)));
+    connect(Core::ModeManager::instance(), SIGNAL(currentModeAboutToChange(Core::IMode*)),
+            this, SLOT(currentModeAboutToChange(Core::IMode*)));
 }
 
 NavigationWidgetPlaceHolder::~NavigationWidgetPlaceHolder()

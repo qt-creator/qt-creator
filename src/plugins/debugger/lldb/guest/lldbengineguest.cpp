@@ -95,8 +95,8 @@ LldbEngineGuest::LldbEngineGuest()
     qRegisterMetaType<lldb::SBEvent *>("lldb::SBEvent *");
 
     m_worker->moveToThread(&m_wThread);
-    connect(m_worker, SIGNAL(lldbEvent(lldb::SBEvent *)), this,
-            SLOT(lldbEvent(lldb::SBEvent *)), Qt::BlockingQueuedConnection);
+    connect(m_worker, SIGNAL(lldbEvent(lldb::SBEvent*)), this,
+            SLOT(lldbEvent(lldb::SBEvent*)), Qt::BlockingQueuedConnection);
     m_wThread.start();
     setObjectName(QLatin1String("LLDBEngineGuest"));
 }

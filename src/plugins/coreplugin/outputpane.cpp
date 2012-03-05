@@ -70,8 +70,8 @@ OutputPanePlaceHolder::OutputPanePlaceHolder(Core::IMode *mode, QSplitter* paren
     sp.setHorizontalStretch(0);
     setSizePolicy(sp);
     layout()->setMargin(0);
-    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode *)),
-            this, SLOT(currentModeChanged(Core::IMode *)));
+    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
+            this, SLOT(currentModeChanged(Core::IMode*)));
 }
 
 OutputPanePlaceHolder::~OutputPanePlaceHolder()

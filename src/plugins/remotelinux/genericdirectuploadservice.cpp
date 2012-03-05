@@ -131,7 +131,7 @@ void GenericDirectUploadService::handleSftpInitialized()
     }
 
     Q_ASSERT(!d->filesToUpload.isEmpty());
-    connect(d->uploader.data(), SIGNAL(finished(Utils::SftpJobId, QString)),
+    connect(d->uploader.data(), SIGNAL(finished(Utils::SftpJobId,QString)),
         SLOT(handleUploadFinished(Utils::SftpJobId,QString)));
     d->state = Uploading;
     uploadNextFile();

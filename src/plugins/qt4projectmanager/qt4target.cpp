@@ -436,8 +436,8 @@ void Qt4BaseTarget::onAddedBuildConfiguration(ProjectExplorer::BuildConfiguratio
     Q_ASSERT(qt4bc);
     connect(qt4bc, SIGNAL(buildDirectoryInitialized()),
             this, SIGNAL(buildDirectoryInitialized()));
-    connect(qt4bc, SIGNAL(proFileEvaluateNeeded(Qt4ProjectManager::Qt4BuildConfiguration *)),
-            this, SLOT(onProFileEvaluateNeeded(Qt4ProjectManager::Qt4BuildConfiguration *)));
+    connect(qt4bc, SIGNAL(proFileEvaluateNeeded(Qt4ProjectManager::Qt4BuildConfiguration*)),
+            this, SLOT(onProFileEvaluateNeeded(Qt4ProjectManager::Qt4BuildConfiguration*)));
 }
 
 void Qt4BaseTarget::onProFileEvaluateNeeded(Qt4ProjectManager::Qt4BuildConfiguration *bc)

@@ -224,11 +224,11 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     connect(m_cleanSubProjectContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(cleanSubDirContextMenu()));
 
     connect(m_projectExplorer,
-            SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*, ProjectExplorer::Node*)),
-            this, SLOT(updateContextMenu(ProjectExplorer::Project*, ProjectExplorer::Node*)));
+            SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)),
+            this, SLOT(updateContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)));
 
-    connect(m_projectExplorer->buildManager(), SIGNAL(buildStateChanged(ProjectExplorer::Project *)),
-            this, SLOT(buildStateChanged(ProjectExplorer::Project *)));
+    connect(m_projectExplorer->buildManager(), SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
+            this, SLOT(buildStateChanged(ProjectExplorer::Project*)));
     connect(m_projectExplorer->session(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(startupProjectChanged()));
     connect(m_projectExplorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),

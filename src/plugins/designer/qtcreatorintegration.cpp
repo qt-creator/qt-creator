@@ -111,8 +111,8 @@ QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, F
     setResourceEditingEnabled(false);
     setSlotNavigationEnabled(true);
 #endif
-    connect(this, SIGNAL(navigateToSlot(QString, QString, QStringList)),
-            this, SLOT(slotNavigateToSlot(QString, QString, QStringList)));
+    connect(this, SIGNAL(navigateToSlot(QString,QString,QStringList)),
+            this, SLOT(slotNavigateToSlot(QString,QString,QStringList)));
     connect(this, SIGNAL(helpRequested(QString,QString)),
             this, SLOT(slotDesignerHelpRequested(QString,QString)));
     slotSyncSettingsToDesigner();

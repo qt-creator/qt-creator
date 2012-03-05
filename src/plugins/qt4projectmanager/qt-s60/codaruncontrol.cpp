@@ -130,7 +130,7 @@ bool CodaRunControl::setupLauncher()
             appendMessage(tr("Could not open serial device: %1\n").arg(m_codaDevice->device()->errorString()), Utils::ErrorMessageFormat);
             return false;
         }
-        connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(const SymbianUtils::SymbianDevice)),
+        connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(SymbianUtils::SymbianDevice)),
                 this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
         m_state = StateConnecting;
         m_codaDevice->sendSerialPing(false);

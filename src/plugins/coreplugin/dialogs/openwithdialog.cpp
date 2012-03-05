@@ -51,7 +51,7 @@ OpenWithDialog::OpenWithDialog(const QString &fileName, QWidget *parent)
             this, SLOT(accept()));
     connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()),
             this, SLOT(reject()));
-    connect(editorListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem *)),
+    connect(editorListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
         this, SLOT(accept()));
     connect(editorListWidget, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
             this, SLOT(currentItemChanged(QListWidgetItem*,QListWidgetItem*)));

@@ -122,8 +122,8 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
 
     connect(m_executableChooser, SIGNAL(changed(QString)),
             this, SLOT(executableEdited()));
-    connect(m_commandLineArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
-            this, SLOT(argumentsEdited(const QString&)));
+    connect(m_commandLineArgumentsLineEdit, SIGNAL(textEdited(QString)),
+            this, SLOT(argumentsEdited(QString)));
     connect(m_workingDirectory, SIGNAL(changed(QString)),
             this, SLOT(workingDirectoryEdited()));
     connect(m_useTerminalCheck, SIGNAL(toggled(bool)),

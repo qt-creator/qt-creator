@@ -147,7 +147,7 @@ void MemoryAgent::connectBinEditorWidget(QWidget *w)
         SIGNAL(startOfFileRequested(Core::IEditor*)),
         SLOT(handleStartOfFileRequested(Core::IEditor*)));
     connect(w,
-        SIGNAL(endOfFileRequested(Core::IEditor *)),
+        SIGNAL(endOfFileRequested(Core::IEditor*)),
         SLOT(handleEndOfFileRequested(Core::IEditor*)));
     connect(w,
         SIGNAL(dataChanged(Core::IEditor*,quint64,QByteArray)),

@@ -4627,8 +4627,8 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
 
     connect(gdbProc(), SIGNAL(error(QProcess::ProcessError)),
         SLOT(handleGdbError(QProcess::ProcessError)));
-    connect(gdbProc(), SIGNAL(finished(int, QProcess::ExitStatus)),
-        SLOT(handleGdbFinished(int, QProcess::ExitStatus)));
+    connect(gdbProc(), SIGNAL(finished(int,QProcess::ExitStatus)),
+        SLOT(handleGdbFinished(int,QProcess::ExitStatus)));
     connect(gdbProc(), SIGNAL(readyReadStandardOutput()),
         SLOT(readGdbStandardOutput()));
     connect(gdbProc(), SIGNAL(readyReadStandardError()),

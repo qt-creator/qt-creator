@@ -132,11 +132,11 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
             this, SLOT(progressChanged()));
     connect(&d->m_watcher, SIGNAL(progressTextChanged(QString)),
             this, SLOT(progressTextChanged()));
-    connect(&d->m_watcher, SIGNAL(progressRangeChanged(int, int)),
+    connect(&d->m_watcher, SIGNAL(progressRangeChanged(int,int)),
             this, SLOT(progressChanged()));
 
-    connect(parent->session(), SIGNAL(aboutToRemoveProject(ProjectExplorer::Project *)),
-            this, SLOT(aboutToRemoveProject(ProjectExplorer::Project *)));
+    connect(parent->session(), SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
+            this, SLOT(aboutToRemoveProject(ProjectExplorer::Project*)));
 
     d->m_outputWindow = new Internal::CompileOutputWindow(this);
     pm->addObject(d->m_outputWindow);
@@ -499,8 +499,8 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps, QStringList names)
         BuildStep *bs = steps.at(i);
         connect(bs, SIGNAL(addTask(ProjectExplorer::Task)),
                 this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
-        connect(bs, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat, ProjectExplorer::BuildStep::OutputNewlineSetting)),
-                this, SLOT(addToOutputWindow(QString, ProjectExplorer::BuildStep::OutputFormat, ProjectExplorer::BuildStep::OutputNewlineSetting)));
+        connect(bs, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat,ProjectExplorer::BuildStep::OutputNewlineSetting)),
+                this, SLOT(addToOutputWindow(QString,ProjectExplorer::BuildStep::OutputFormat,ProjectExplorer::BuildStep::OutputNewlineSetting)));
         if (bs->enabled()) {
             init = bs->init();
             if (!init)

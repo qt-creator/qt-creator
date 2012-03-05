@@ -139,7 +139,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
 
     vbox->addWidget(d->m_detailsContainer);
 
-    connect(d->m_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
+    connect(d->m_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             this, SLOT(updateButtons()));
 
     connect(d->m_editButton, SIGNAL(clicked(bool)),

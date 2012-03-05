@@ -68,8 +68,8 @@ void PackageUploader::uploadPackage(const SshConnection::Ptr &connection,
         SLOT(handleSftpChannelInitialized()));
     connect(m_uploader.data(), SIGNAL(initializationFailed(QString)), this,
         SLOT(handleSftpChannelInitializationFailed(QString)));
-    connect(m_uploader.data(), SIGNAL(finished(Utils::SftpJobId, QString)),
-        this, SLOT(handleSftpJobFinished(Utils::SftpJobId, QString)));
+    connect(m_uploader.data(), SIGNAL(finished(Utils::SftpJobId,QString)),
+        this, SLOT(handleSftpJobFinished(Utils::SftpJobId,QString)));
     m_uploader->initialize();
 }
 

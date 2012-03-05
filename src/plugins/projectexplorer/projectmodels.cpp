@@ -168,23 +168,23 @@ FlatModel::FlatModel(SessionNode *rootNode, QObject *parent)
     connect(watcher, SIGNAL(hasBuildTargetsChanged(ProjectExplorer::ProjectNode*)),
             this, SLOT(hasBuildTargetsChanged(ProjectExplorer::ProjectNode*)));
 
-    connect(watcher, SIGNAL(foldersAboutToBeAdded(FolderNode *, const QList<FolderNode*> &)),
-            this, SLOT(foldersAboutToBeAdded(FolderNode *, const QList<FolderNode*> &)));
+    connect(watcher, SIGNAL(foldersAboutToBeAdded(FolderNode*,QList<FolderNode*>)),
+            this, SLOT(foldersAboutToBeAdded(FolderNode*,QList<FolderNode*>)));
     connect(watcher, SIGNAL(foldersAdded()),
             this, SLOT(foldersAdded()));
 
-    connect(watcher, SIGNAL(foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*> &)),
-            this, SLOT(foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*> &)));
+    connect(watcher, SIGNAL(foldersAboutToBeRemoved(FolderNode*,QList<FolderNode*>)),
+            this, SLOT(foldersAboutToBeRemoved(FolderNode*,QList<FolderNode*>)));
     connect(watcher, SIGNAL(foldersRemoved()),
             this, SLOT(foldersRemoved()));
 
-    connect(watcher, SIGNAL(filesAboutToBeAdded(FolderNode *,const QList<FileNode*> &)),
-            this, SLOT(filesAboutToBeAdded(FolderNode *, const QList<FileNode *> &)));
+    connect(watcher, SIGNAL(filesAboutToBeAdded(FolderNode*,QList<FileNode*>)),
+            this, SLOT(filesAboutToBeAdded(FolderNode*,QList<FileNode*>)));
     connect(watcher, SIGNAL(filesAdded()),
             this, SLOT(filesAdded()));
 
-    connect(watcher, SIGNAL(filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &)),
-            this, SLOT(filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &)));
+    connect(watcher, SIGNAL(filesAboutToBeRemoved(FolderNode*,QList<FileNode*>)),
+            this, SLOT(filesAboutToBeRemoved(FolderNode*,QList<FileNode*>)));
     connect(watcher, SIGNAL(filesRemoved()),
             this, SLOT(filesRemoved()));
 }

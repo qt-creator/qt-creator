@@ -338,7 +338,7 @@ LocatorWidget::LocatorWidget(LocatorPlugin *qop) :
 
     connect(m_refreshAction, SIGNAL(triggered()), m_locatorPlugin, SLOT(refresh()));
     connect(m_configureAction, SIGNAL(triggered()), this, SLOT(showConfigureDialog()));
-    connect(m_fileLineEdit, SIGNAL(textChanged(const QString&)),
+    connect(m_fileLineEdit, SIGNAL(textChanged(QString)),
         this, SLOT(showPopup()));
     connect(m_completionList, SIGNAL(activated(QModelIndex)),
             this, SLOT(scheduleAcceptCurrentEntry()));

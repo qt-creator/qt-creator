@@ -212,8 +212,8 @@ BookmarkView::BookmarkView(QWidget *parent)  :
 {
     setWindowTitle(tr("Bookmarks"));
 
-    connect(this, SIGNAL(clicked(const QModelIndex &)),
-            this, SLOT(gotoBookmark(const QModelIndex &)));
+    connect(this, SIGNAL(clicked(QModelIndex)),
+            this, SLOT(gotoBookmark(QModelIndex)));
 
     ICore::addContextObject(m_bookmarkContext);
 

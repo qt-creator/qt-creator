@@ -109,8 +109,8 @@ void QmlProject::parseProject(RefreshOptions options)
                 if (component->isReady()
                     && qobject_cast<QmlProjectItem*>(component->create())) {
                     m_projectItem = qobject_cast<QmlProjectItem*>(component->create());
-                    connect(m_projectItem.data(), SIGNAL(qmlFilesChanged(QSet<QString>, QSet<QString>)),
-                            this, SLOT(refreshFiles(QSet<QString>, QSet<QString>)));
+                    connect(m_projectItem.data(), SIGNAL(qmlFilesChanged(QSet<QString>,QSet<QString>)),
+                            this, SLOT(refreshFiles(QSet<QString>,QSet<QString>)));
                 } else {
                     messageManager->printToOutputPane(tr("Error while loading project file %1.").arg(m_fileName));
                     messageManager->printToOutputPane(component->errorString(), true);

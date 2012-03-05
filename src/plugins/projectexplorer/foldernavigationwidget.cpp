@@ -164,8 +164,8 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
     setLayout(layout);
 
     // connections
-    connect(m_listView, SIGNAL(activated(const QModelIndex&)),
-            this, SLOT(slotOpenItem(const QModelIndex&)));
+    connect(m_listView, SIGNAL(activated(QModelIndex)),
+            this, SLOT(slotOpenItem(QModelIndex)));
 
     setAutoSynchronization(true);
 }

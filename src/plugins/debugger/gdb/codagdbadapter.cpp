@@ -157,7 +157,7 @@ void CodaGdbAdapter::setupDeviceSignals()
         this, SLOT(codaLogMessage(QString)));
     connect(m_codaDevice.data(), SIGNAL(codaEvent(Coda::CodaEvent)),
         this, SLOT(codaEvent(Coda::CodaEvent)));
-    connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(const SymbianUtils::SymbianDevice)),
+    connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(SymbianUtils::SymbianDevice)),
             this, SLOT(codaDeviceRemoved(SymbianUtils::SymbianDevice)));
 }
 

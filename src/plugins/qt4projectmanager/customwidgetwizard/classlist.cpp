@@ -100,7 +100,7 @@ ClassList::ClassList(QWidget *parent) :
     m_model(new ClassModel)
 {
     setModel(m_model);
-    connect(itemDelegate(), SIGNAL(closeEditor(QWidget *, QAbstractItemDelegate::EndEditHint)), SLOT(classEdited()));
+    connect(itemDelegate(), SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)), SLOT(classEdited()));
     connect(selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
             this, SLOT(slotCurrentRowChanged(QModelIndex,QModelIndex)));
 }

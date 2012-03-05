@@ -132,7 +132,7 @@ private:
     void cancelInstallation();
     void handleInstallationSuccess();
 
-    Q_SLOT void handleFileCopied(const RemoteLinux::DeployableFile &deployable);
+    Q_SLOT void handleFileCopied(const RemoteLinux::DeployableFile&deployable);
 
     MaemoRemoteCopyFacility * const m_copyFacility;
     mutable QList<DeployableFile> m_filesToCopy;

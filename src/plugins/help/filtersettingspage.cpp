@@ -80,10 +80,10 @@ QWidget *FilterSettingsPage::createPage(QWidget *parent)
 
     updateFilterPage();
 
-    connect(m_ui.attributeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
+    connect(m_ui.attributeWidget, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
         this, SLOT(updateFilterMap()));
     connect(m_ui.filterWidget,
-        SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this,
+        SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this,
         SLOT(updateAttributes(QListWidgetItem*)));
     connect(m_ui.filterAddButton, SIGNAL(clicked()), this, SLOT(addFilter()));
     connect(m_ui.filterRemoveButton, SIGNAL(clicked()), this,
