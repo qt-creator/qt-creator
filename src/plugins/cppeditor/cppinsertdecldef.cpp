@@ -533,6 +533,7 @@ QPair<QString, QString> assembleDeclarationData(const QString &specifiers,
                                                 const CppRefactoringFilePtr &file,
                                                 const Overview &printer)
 {
+    QTC_ASSERT(decltr, return (QPair<QString, QString>()));
     if (decltr->core_declarator
             && decltr->core_declarator->asDeclaratorId()
             && decltr->core_declarator->asDeclaratorId()->name) {
@@ -788,14 +789,16 @@ QList<CppQuickFixOperation::Ptr> ExtractFunction::match(
                  it;
                  it = it->next) {
                 ParameterDeclarationAST *paramDecl = it->value->asParameterDeclaration();
-                const QString &specifiers =
-                       file->textOf(file->startOf(paramDecl),
-                                    file->endOf(paramDecl->type_specifier_list->lastValue()));
-                const QPair<QString, QString> &p =
-                        assembleDeclarationData(specifiers, paramDecl->declarator, file, printer);
-                if (!p.first.isEmpty()) {
-                    analyser.m_knownDecls.insert(p.first, p.second);
-                    refFuncParams.insert(p.first);
+                if (paramDecl->declarator) {
+                    const QString &specifiers =
+                            file->textOf(file->startOf(paramDecl),
+                                         file->endOf(paramDecl->type_specifier_list->lastValue()));
+                    const QPair<QString, QString> &p =
+                            assembleDeclarationData(specifiers, paramDecl->declarator, file, printer);
+                    if (!p.first.isEmpty()) {
+                        analyser.m_knownDecls.insert(p.first, p.second);
+                        refFuncParams.insert(p.first);
+                    }
                 }
             }
         }
