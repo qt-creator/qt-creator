@@ -99,7 +99,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     QWidget *baseEnvironmentWidget = new QWidget;
     QHBoxLayout *baseEnvironmentLayout = new QHBoxLayout(baseEnvironmentWidget);
     baseEnvironmentLayout->setMargin(0);
-    QLabel *label = new QLabel(tr("Base environment for this runconfiguration:"), this);
+    QLabel *label = new QLabel(tr("Base environment for this run configuration:"), this);
     baseEnvironmentLayout->addWidget(label);
     m_baseEnvironmentComboBox = new QComboBox(this);
     m_baseEnvironmentComboBox->addItems(QStringList()
