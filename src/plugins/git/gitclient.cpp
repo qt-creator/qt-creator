@@ -1732,7 +1732,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         }
         commitData->files = filteredFiles;
 
-        if (commitData->files.isEmpty()) {
+        if (commitData->files.isEmpty() && !amend) {
             *errorMessage = msgNoChangedFiles();
             return false;
         }
