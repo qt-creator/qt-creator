@@ -54,7 +54,7 @@
 #include <coreplugin/messagemanager.h>
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/itexteditor.h>
 
 #include <QtPlugin>
 #include <QDebug>
@@ -206,12 +206,12 @@ void CodepasterPlugin::postEditor()
 {
     QString data;
     QString mimeType;
-    if (const IEditor* editor = EditorManager::instance()->currentEditor()) {
-        if (const BaseTextEditor *textEditor = qobject_cast<const BaseTextEditor *>(editor)) {
+    if (IEditor* editor = EditorManager::instance()->currentEditor()) {
+        if (ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor)) {
             data = textEditor->selectedText();
             if (data.isEmpty())
                 data = textEditor->contents();
-            mimeType = textEditor->editorWidget()->mimeType();
+            mimeType = textEditor->document()->mimeType();
         }
     }
     post(data, mimeType);
