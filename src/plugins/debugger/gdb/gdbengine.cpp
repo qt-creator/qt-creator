@@ -1023,6 +1023,9 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 QTC_CHECK(state() == InferiorRunOk);
                 notifyInferiorSpontaneousStop();
                 notifyEngineIll();
+            } else if (msg == _("Remote connection closed")) {
+                // Can happen when the target exits (gdbserver)
+                notifyInferiorExited();
             } else {
                 // Windows: Some DLL or some function not found. Report
                 // the exception now in a box.
