@@ -55,7 +55,7 @@ class Protocol : public QObject
 
 public:
     enum ContentType {
-        Text, C, JavaScript, Diff, Xml
+        Text, C, Cpp, JavaScript, Diff, Xml
     };
 
     enum Capabilities  {

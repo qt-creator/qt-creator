@@ -89,6 +89,7 @@ static inline QByteArray pasteLanguage(Protocol::ContentType ct)
     case Protocol::Text:
         break;
     case Protocol::C:
+    case Protocol::Cpp:
         return "paste_lang=c++";
         break;
     case Protocol::JavaScript:

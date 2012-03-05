@@ -102,6 +102,7 @@ static inline QByteArray format(Protocol::ContentType ct)
     case Protocol::Text:
         break;
     case Protocol::C:
+    case Protocol::Cpp:
         return "paste_format=cpp";
         break;
     case Protocol::JavaScript:
