@@ -213,8 +213,14 @@ def qdump__QDateTime(d, value):
 
 
 def qdump__QDir(d, value):
-    d.putStringValue(value["d_ptr"]["d"].dereference()["path"])
     d.putNumChild(1)
+    data = value["d_ptr"]["d"].dereference()
+    try:
+        # Up to Qt 4.7
+        d.putStringValue(data["path"])
+    except:
+        # Qt 4.8 and later.
+        d.putStringValue(data["dirEntry"]["m_filePath"])
     if d.isExpanded():
         with Children(d):
             d.putCallItem("absolutePath", value, "absolutePath")

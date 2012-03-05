@@ -688,6 +688,23 @@ namespace qdatetime {
 } // namespace qdatetime
 
 
+namespace qdir {
+
+    void testQDir()
+    {
+        QDir dir("/tmp");
+        dir.absolutePath();
+        BREAK_HERE;
+        // Check dir "/tmp" QDir.
+        // Check dir.absolutePath "/tmp" QString.
+        // Check dir.canonicalPath "/tmp" QString.
+        // Continue.
+        dummyStatement(&dir);
+    }
+
+} // namespace qdir
+
+
 namespace qfileinfo {
 
     void testQFileInfo()
@@ -6095,6 +6112,7 @@ int main(int argc, char *argv[])
 
     qbytearray::testQByteArray();
     qdatetime::testDateTime();
+    qdir::testQDir();
     qfileinfo::testQFileInfo();
     qhash::testQHash();
     qlinkedlist::testQLinkedList();
