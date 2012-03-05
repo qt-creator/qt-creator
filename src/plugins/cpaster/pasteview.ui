@@ -90,8 +90,14 @@ p, li { white-space: pre-wrap; }
    </item>
    <item>
     <widget class="QStackedWidget" name="stackedWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
      <widget class="QWidget" name="diffChunkPage">
       <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="margin">
+        <number>0</number>
+       </property>
        <item>
         <widget class="QGroupBox" name="groupBox">
          <property name="sizePolicy">
@@ -161,6 +167,9 @@ p, li { white-space: pre-wrap; }
      </widget>
      <widget class="QWidget" name="plainTextPage">
       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="margin">
+        <number>0</number>
+       </property>
        <item>
         <widget class="QPlainTextEdit" name="plainTextEdit"/>
        </item>
