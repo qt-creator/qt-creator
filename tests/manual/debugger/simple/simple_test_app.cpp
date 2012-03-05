@@ -4297,7 +4297,7 @@ namespace basic {
 
     void testChar()
     {
-        char s[5];
+        char s[6];
         s[0] = 0;
         BREAK_HERE;
         // Expand s.
@@ -5977,7 +5977,7 @@ namespace gdb10586 {
         // Check v.a 2 int.
         // Check s.x 1 int.
         // Continue.
-        dummyStatement(&v, &n, &s);
+        dummyStatement(&v, &n);
     }
 
     void test10586()
