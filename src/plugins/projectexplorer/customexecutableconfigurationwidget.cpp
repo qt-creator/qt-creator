@@ -74,7 +74,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     m_workingDirectory->setEnvironment(rc->environment());
     layout->addRow(tr("Working directory:"), m_workingDirectory);
 
-    m_useTerminalCheck = new QCheckBox(tr("Run in &Terminal"), this);
+    m_useTerminalCheck = new QCheckBox(tr("Run in &terminal"), this);
     layout->addRow(QString(), m_useTerminalCheck);
 
     QVBoxLayout *vbox = new QVBoxLayout(this);

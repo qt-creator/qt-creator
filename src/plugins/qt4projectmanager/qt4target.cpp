@@ -567,7 +567,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     m_importLineButton->setVisible(m_showImport);
 
     m_buildConfigurationLabel = new QLabel;
-    m_buildConfigurationLabel->setText(tr("Create Build Configurations:"));
+    m_buildConfigurationLabel->setText(tr("Create build configurations:"));
     m_buildConfigurationLabel->setVisible(false);
 
     m_buildConfigurationComboBox = new QComboBox;
@@ -597,7 +597,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     m_shadowBuildEnabled->setVisible(m_shadowBuildCheckBoxVisible);
 
     m_versionLabel = new QLabel;
-    m_versionLabel->setText(tr("Qt Version:"));
+    m_versionLabel->setText(tr("Qt version:"));
     m_versionLabel->setVisible(false);
     m_versionComboBox = new QComboBox;
     m_versionComboBox->setVisible(false);
@@ -827,7 +827,7 @@ void Qt4DefaultTargetSetupWidget::addImportClicked()
     QList<BuildConfigurationInfo> infos = BuildConfigurationInfo::checkForBuild(m_importLinePath->path(), m_proFilePath);
     if (infos.isEmpty()) {
         QMessageBox::critical(this,
-                              tr("No build found"),
+                              tr("No Build Found"),
                               tr("No build found in %1 matching project %2.").arg(m_importLinePath->path()).arg(m_proFilePath));
         return;
     }
@@ -844,8 +844,8 @@ void Qt4DefaultTargetSetupWidget::addImportClicked()
     if (filtered) {
         if (filterdInfos.isEmpty()) {
             QMessageBox::critical(this,
-                                  tr("Incompatible build found"),
-                                  tr("The build found in %1 is incompatible with this target").arg(m_importLinePath->path()));
+                                  tr("Incompatible Build Found"),
+                                  tr("The build found in %1 is incompatible with this target.").arg(m_importLinePath->path()));
             return;
         }
         // show something if we found incompatible builds?
@@ -868,8 +868,8 @@ void Qt4DefaultTargetSetupWidget::addImportClicked()
 
     if (filterdInfos.isEmpty() && !infos.isEmpty()) {
         QMessageBox::critical(this,
-                              tr("Already imported build"),
-                              tr("The build found in %1 is already imported").arg(m_importLinePath->path()));
+                              tr("Already Imported Build"),
+                              tr("The build found in %1 is already imported.").arg(m_importLinePath->path()));
         return;
     }
 
@@ -1079,7 +1079,7 @@ void Qt4DefaultTargetSetupWidget::setupImportWidgets()
 void Qt4DefaultTargetSetupWidget::createImportWidget(const BuildConfigurationInfo &info, int pos)
 {
     QCheckBox *checkBox = new QCheckBox;
-    checkBox->setText(tr("Import build from %1").arg(QDir::toNativeSeparators(info.directory)));
+    checkBox->setText(tr("Import build from %1.").arg(QDir::toNativeSeparators(info.directory)));
     checkBox->setChecked(m_importEnabled.at(pos));
     if (info.version())
         checkBox->setToolTip(info.version()->toHtml(false));
