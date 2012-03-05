@@ -12,6 +12,8 @@ DynamicLibrary {
     ]
     cpp.defines: [
         "SYMBIANUTILS_BUILD_LIB",
+        "JSON_BUILD_LIB",
+        "JSON_INCLUDE_PRI",
         "HAS_SERIALPORT"
     ]
     cpp.optimization: "fast"
