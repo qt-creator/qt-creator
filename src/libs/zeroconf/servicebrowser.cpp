@@ -146,9 +146,10 @@ ZeroConfLib::ZeroConfLib(): m_lock(QMutex::Recursive),
                  ZConfLib::createDnsSdLib(QLatin1String("dns_sd"),
                  ZConfLib::createEmbeddedLib(QLatin1String("mdnssd")))))
 {
-    qRegisterMetaType<Service::ConstPtr>("ZeroConf::Service::ConstPtr");
-    qRegisterMetaType<ErrorMessage::SeverityLevel>("ZeroConf::ErrorMessage::SeverityLevel");
-    qRegisterMetaType<ErrorMessage>("ZeroConf::ErrorMessage");
+    qRegisterMetaType<ZeroConf::Service::ConstPtr>("ZeroConf::Service::ConstPtr");
+    qRegisterMetaType<ZeroConf::ErrorMessage::SeverityLevel>("ZeroConf::ErrorMessage::SeverityLevel");
+    qRegisterMetaType<ZeroConf::ErrorMessage>("ZeroConf::ErrorMessage");
+    qRegisterMetaType<QList<ZeroConf::ErrorMessage> >("QList<ZeroConf::ErrorMessage>");
 }
 
 ZConfLib::Ptr ZeroConfLib::defaultLib(){
