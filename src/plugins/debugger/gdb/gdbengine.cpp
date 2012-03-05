@@ -2097,6 +2097,9 @@ void GdbEngine::handleExecuteStep(const GdbResponse &response)
         if (!m_commandsToRunOnTemporaryBreak.isEmpty())
             flushQueuedCommands();
         executeStepI(); // Fall back to instruction-wise stepping.
+    } else if (msg.startsWith("Cannot execute this command while the selected thread is running.")) {
+        showExecutionError(QString::fromLocal8Bit(msg));
+        notifyInferiorRunFailed();
     } else {
         showExecutionError(QString::fromLocal8Bit(msg));
         notifyInferiorIll();
@@ -2165,6 +2168,9 @@ void GdbEngine::handleExecuteNext(const GdbResponse &response)
         notifyInferiorRunFailed();
         if (!isDying())
             executeNextI(); // Fall back to instruction-wise stepping.
+    } else if (msg.startsWith("Cannot execute this command while the selected thread is running.")) {
+        showExecutionError(QString::fromLocal8Bit(msg));
+        notifyInferiorRunFailed();
     } else {
         showMessageBox(QMessageBox::Critical, tr("Execution Error"),
            tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
