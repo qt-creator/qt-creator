@@ -22,7 +22,7 @@ def main():
     test.compare("Projects", str(projects.data()))
     comboBox = waitForObject("{name='comboBox' type='QComboBox' visible='1' "
                              "window=':New_Core::Internal::NewDialog'}")
-    test.compare(comboBox.currentText, "All templates")
+    test.compare(comboBox.currentText, "All Templates")
     for row in range(catModel.rowCount(projects)):
         index = catModel.index(row, 0, projects)
         category = str(index.data()).replace(".", "\\.")
