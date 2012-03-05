@@ -590,7 +590,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     layout->addLayout(hbox);
 
     m_shadowBuildEnabled = new QCheckBox;
-    m_shadowBuildEnabled->setText(tr("Use Shadow Building"));
+    m_shadowBuildEnabled->setText(tr("Shadow build"));
     m_shadowBuildCheckBoxVisible = shadowBuild == USER;
 
     layout->addWidget(m_shadowBuildEnabled);
