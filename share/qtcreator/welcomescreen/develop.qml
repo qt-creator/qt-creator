@@ -124,7 +124,7 @@ Rectangle {
             color: "#535353"
             text: qsTr("Recent Projects")
             anchors.left: sessionsTitle.right
-            anchors.leftMargin: 160
+            anchors.leftMargin: 280
             font.bold: true
             font.family: "Helvetica"
             font.pixelSize: 16

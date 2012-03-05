@@ -4494,7 +4494,7 @@ namespace basic {
     {
         // This tests the display of uninitialized data.
 
-        BREAK_HERE;
+        BREAK_UNINITIALIZED_HERE;
         // Check hii <not accessible> QHash<int, int>.
         // Check hss <not accessible> QHash<QString, QString>.
         // Check li <not accessible> QList<int>.

@@ -37,7 +37,6 @@
 #include <QProcess> // makes kill visible on Windows.
 #include <QFile>
 #include <QDir>
-
 using namespace Debugger::Internal;
 
 static inline QString msgCannotInterrupt(int pid, const QString &why)
@@ -99,23 +98,38 @@ bool Debugger::Internal::interruptProcess(int pID, int engineType, QString *erro
         // Try DebugBreakProcess if either Qt Creator is compiled 64 bit or
         // both Qt Creator and application are 32 bit.
 #ifdef Q_OS_WIN64
-        Q_UNUSED(engineType)
-        // Qt-Creator compiled 64 bit: Always use DebugBreakProcess.
-        const bool useDebugBreakApi = true;
+        // Qt-Creator compiled 64 bit
+        // Windows must be 64 bit
+        // CDB 64 bit: use DebugBreakProcess for 32 an 64 bit processes.
+        // CDB 32 bit: untested
+        // GDB: not supported
+        const bool useDebugBreakApi= true;
+
 #else
         // Qt-Creator compiled 32 bit:
-        // CDB: If Qt-Creator is a WOW64 process (meaning a 32bit process
-        //    running in emulation), always use win64interrupt.exe for native
-        //    64 bit processes and WOW64 processes. While DebugBreakProcess()
-        //    works in theory for other WOW64 processes, the break appears
-        //    as a WOW64 breakpoint, which CDB is configured to ignore since
-        //    it also triggers on module loading.
-        // GDB: Use win64interrupt for native 64bit processes only (it fails
-        //    for WOW64 processes.
-        static const bool hostIsWow64Process = isWow64Process(GetCurrentProcess());
-        const bool useDebugBreakApi = engineType == CdbEngineType ?
-                                      !hostIsWow64Process :
-                                      !isWow64Process(inferior);
+
+        bool useDebugBreakApi;
+        if (isWow64Process(GetCurrentProcess())) {
+            // Windows is 64 bit
+            if (engineType == CdbEngineType) {
+                // CDB 64 bit: If Qt-Creator is a WOW64 process (meaning a 32bit process
+                //    running in emulation), always use win64interrupt.exe for native
+                //    64 bit processes and WOW64 processes. While DebugBreakProcess()
+                //    works in theory for other WOW64 processes, the break appears
+                //    as a WOW64 breakpoint, which CDB is configured to ignore since
+                //    it also triggers on module loading.
+                // CDB 32 bit: untested
+                useDebugBreakApi = false;
+            } else {
+                // GDB: Use win64interrupt for native 64bit processes only (it fails
+                //    for WOW64 processes.
+                useDebugBreakApi = isWow64Process(inferior);
+            }
+        } else {
+            // Windows is 32 bit
+            // All processes are 32 bit, so DebugBreakProcess can be used in all cases.
+            useDebugBreakApi = true;
+        }
 #endif
         if (useDebugBreakApi) {
             ok = DebugBreakProcess(inferior);
