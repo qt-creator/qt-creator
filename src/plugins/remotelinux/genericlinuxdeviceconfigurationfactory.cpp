@@ -65,14 +65,14 @@ ILinuxDeviceConfigurationWidget *GenericLinuxDeviceConfigurationFactory::createW
     return new GenericLinuxDeviceConfigurationWidget(deviceConfig, parent);
 }
 
-bool GenericLinuxDeviceConfigurationFactory::supportsOsType(const QString &osType) const
+bool GenericLinuxDeviceConfigurationFactory::supportsDeviceType(const QString &deviceType) const
 {
-    return osType == QLatin1String(Constants::GenericLinuxOsType);
+    return deviceType == QLatin1String(Constants::GenericLinuxOsType);
 }
 
-QString GenericLinuxDeviceConfigurationFactory::displayNameForOsType(const QString &osType) const
+QString GenericLinuxDeviceConfigurationFactory::displayType(const QString &deviceType) const
 {
-    QTC_ASSERT(supportsOsType(osType), return QString());
+    QTC_ASSERT(supportsDeviceType(deviceType), return QString());
     return tr("Generic Linux");
 }
 

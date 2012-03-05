@@ -42,12 +42,13 @@ using namespace Qt4ProjectManager;
 namespace RemoteLinux {
 
 AbstractEmbeddedLinuxTarget::AbstractEmbeddedLinuxTarget(Qt4Project *parent, const QString &id,
-        const QString &supportedOsType) :
+        const QString &supportedDeviceType) :
     Qt4BaseTarget(parent, id),
     m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this)),
-    m_supportedOsType(supportedOsType),
+    m_supportedDeviceType(supportedDeviceType),
     m_deploymentInfo(new DeploymentInfo(this)),
-    m_deviceConfigModel(new Internal::TypeSpecificDeviceConfigurationListModel(supportedOsType, this))
+    m_deviceConfigModel(new Internal::TypeSpecificDeviceConfigurationListModel(supportedDeviceType,
+        this))
 {
 }
 

@@ -159,6 +159,10 @@ void GenericLinuxDeviceConfigurationWidget::updatePortsWarningLabel()
 
 void GenericLinuxDeviceConfigurationWidget::initGui()
 {
+    if (deviceConfiguration()->machineType() == LinuxDeviceConfiguration::Hardware)
+        m_ui->machineTypeValueLabel->setText(tr("Physical Device"));
+    else
+        m_ui->machineTypeValueLabel->setText(tr("Emulator"));
     m_ui->portsWarningLabel->setPixmap(QPixmap(":/projectexplorer/images/compile_error.png"));
     m_ui->portsWarningLabel->setToolTip(QLatin1String("<font color=\"red\">")
         + tr("You will need at least one port.") + QLatin1String("</font>"));

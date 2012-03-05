@@ -67,7 +67,7 @@ public:
 
     typedef quint64 Id;
 
-    enum DeviceType { Hardware, Emulator };
+    enum MachineType { Hardware, Emulator };
     enum Origin { ManuallyAdded, AutoDetected };
 
     ~LinuxDeviceConfiguration();
@@ -75,8 +75,8 @@ public:
     Utils::PortList freePorts() const;
     Utils::SshConnectionParameters sshParameters() const;
     QString displayName() const;
-    QString osType() const;
-    DeviceType deviceType() const;
+    QString type() const;
+    MachineType machineType() const;
     Id internalId() const;
     bool isAutoDetected() const;
     QVariantHash attributes() const;
@@ -92,22 +92,18 @@ public:
     static const Id InvalidId;
 
     static Ptr create();
-    static Ptr create(const QString &name, const QString &osType, DeviceType deviceType,
-        const Utils::PortList &freePorts, const Utils::SshConnectionParameters &sshParams,
-        const QVariantHash &attributes = QVariantHash(), Origin origin = ManuallyAdded);
+    static Ptr create(const QString &name, const QString &type, MachineType machineType,
+        Origin origin = ManuallyAdded);
 private:
     LinuxDeviceConfiguration();
-    LinuxDeviceConfiguration(const QString &name, const QString &osType, DeviceType deviceType,
-        const Utils::PortList &freePorts, const Utils::SshConnectionParameters &sshParams,
-        const QVariantHash &attributes, Origin origin);
+    LinuxDeviceConfiguration(const QString &name, const QString &type, MachineType machineType,
+        Origin origin);
     LinuxDeviceConfiguration(const QSettings &settings);
-    LinuxDeviceConfiguration(const ConstPtr &other);
 
-    LinuxDeviceConfiguration(const LinuxDeviceConfiguration &);
+    LinuxDeviceConfiguration(const LinuxDeviceConfiguration &other);
     LinuxDeviceConfiguration &operator=(const LinuxDeviceConfiguration &);
 
     static Ptr create(const QSettings &settings);
-    static Ptr create(const ConstPtr &other);
 
     void setDisplayName(const QString &name);
     void setInternalId(Id id);
@@ -115,6 +111,8 @@ private:
 
     void fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
+
+    Ptr clone() const;
 
     Internal::LinuxDeviceConfigurationPrivate *d;
 };
@@ -205,12 +203,12 @@ public:
     /*!
       Returns true iff this factory supports the given device type.
     */
-    virtual bool supportsOsType(const QString &osType) const = 0;
+    virtual bool supportsDeviceType(const QString &type) const = 0;
 
     /*!
       Returns a human-readable string for the given OS type, if this factory supports that type.
     */
-    virtual QString displayNameForOsType(const QString &osType) const = 0;
+    virtual QString displayType(const QString &type) const = 0;
 
     /*!
       Returns a list of ids representing actions that can be run on device configurations

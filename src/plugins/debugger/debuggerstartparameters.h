@@ -65,7 +65,6 @@ public:
         qmlServerAddress(QLatin1String("127.0.0.1")),
         qmlServerPort(ProjectExplorer::Constants::QML_DEFAULT_DEBUG_SERVER_PORT),
         useServerStartScript(false),
-        connParams(Utils::SshConnectionParameters::NoProxy),
         requestRemoteSetup(false),
         startMode(NoStartMode),
         executableUid(0),

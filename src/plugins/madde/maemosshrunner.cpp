@@ -73,7 +73,7 @@ bool MaemoSshRunner::canRun(QString &whyNot) const
     if (!AbstractRemoteLinuxApplicationRunner::canRun(whyNot))
         return false;
 
-    if (devConfig()->deviceType() == LinuxDeviceConfiguration::Emulator
+    if (devConfig()->machineType() == LinuxDeviceConfiguration::Emulator
             && !MaemoQemuManager::instance().qemuIsRunning()) {
         MaemoQemuRuntime rt;
         if (MaemoQemuManager::instance().runtimeForQtVersion(m_qtId, &rt)) {

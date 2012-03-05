@@ -57,7 +57,7 @@ public:
     int deviceCount() const;
     LinuxDeviceConfiguration::ConstPtr deviceAt(int index) const;
     LinuxDeviceConfiguration::ConstPtr find(LinuxDeviceConfiguration::Id id) const;
-    LinuxDeviceConfiguration::ConstPtr defaultDeviceConfig(const QString &osType) const;
+    LinuxDeviceConfiguration::ConstPtr defaultDeviceConfig(const QString &deviceType) const;
     bool hasConfig(const QString &name) const;
     int indexForInternalId(LinuxDeviceConfiguration::Id internalId) const;
     LinuxDeviceConfiguration::Id internalId(LinuxDeviceConfiguration::ConstPtr devConf) const;
@@ -97,7 +97,7 @@ private:
     static void removeClonedInstance();
     static void copy(const LinuxDeviceConfigurations *source,
         LinuxDeviceConfigurations *target, bool deep);
-    void ensureOneDefaultConfigurationPerOsType();
+    void ensureOneDefaultConfigurationPerDeviceType();
     LinuxDeviceConfiguration::Id unusedId() const;
 
     Internal::LinuxDeviceConfigurationsPrivate * const d;

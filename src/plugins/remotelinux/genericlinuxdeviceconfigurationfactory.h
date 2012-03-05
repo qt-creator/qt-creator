@@ -50,8 +50,8 @@ public:
     ILinuxDeviceConfigurationWidget *createWidget(
             const LinuxDeviceConfiguration::Ptr &deviceConfig,
             QWidget *parent = 0) const;
-    bool supportsOsType(const QString &osType) const;
-    QString displayNameForOsType(const QString &osType) const;
+    bool supportsDeviceType(const QString &deviceType) const;
+    QString displayType(const QString &deviceType) const;
     QStringList supportedDeviceActionIds() const;
     QString displayNameForActionId(const QString &actionId) const;
     QDialog *createDeviceAction(const QString &actionId,

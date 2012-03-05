@@ -122,8 +122,8 @@ bool adaptTagValue(QByteArray &document, const QByteArray &fieldName,
 
 
 AbstractQt4MaemoTarget::AbstractQt4MaemoTarget(Qt4Project *parent, const QString &id,
-        const QString &supportedOsType, const QString &qmakeScope) :
-    AbstractEmbeddedLinuxTarget(parent, id, supportedOsType),
+        const QString &supportedDeviceType, const QString &qmakeScope) :
+    AbstractEmbeddedLinuxTarget(parent, id, supportedDeviceType),
     m_filesWatcher(new Utils::FileSystemWatcher(this)),
     m_deploymentSettingsAssistant(new DeploymentSettingsAssistant(qmakeScope,
         QLatin1String("/opt"), deploymentInfo())),
@@ -375,8 +375,8 @@ void AbstractQt4MaemoTarget::raiseError(const QString &reason)
 }
 
 AbstractDebBasedQt4MaemoTarget::AbstractDebBasedQt4MaemoTarget(Qt4Project *parent,
-        const QString &id, const QString &supportedOsType, const QString &qmakeScope)
-    : AbstractQt4MaemoTarget(parent, id, supportedOsType, qmakeScope)
+        const QString &id, const QString &supportedDeviceType, const QString &qmakeScope)
+    : AbstractQt4MaemoTarget(parent, id, supportedDeviceType, qmakeScope)
 {
 }
 
@@ -958,8 +958,8 @@ QString AbstractDebBasedQt4MaemoTarget::shortDayOfWeekName(const QDateTime &dt) 
 
 
 AbstractRpmBasedQt4MaemoTarget::AbstractRpmBasedQt4MaemoTarget(Qt4Project *parent,
-        const QString &id, const QString &supportedOsType, const QString &qmakeScope)
-    : AbstractQt4MaemoTarget(parent, id, supportedOsType, qmakeScope)
+        const QString &id, const QString &supportedDeviceType, const QString &qmakeScope)
+    : AbstractQt4MaemoTarget(parent, id, supportedDeviceType, qmakeScope)
 {
 }
 

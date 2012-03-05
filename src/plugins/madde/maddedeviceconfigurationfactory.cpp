@@ -74,18 +74,18 @@ ILinuxDeviceConfigurationWidget *MaddeDeviceConfigurationFactory::createWidget(
     return new GenericLinuxDeviceConfigurationWidget(deviceConfig, parent);
 }
 
-bool MaddeDeviceConfigurationFactory::supportsOsType(const QString &osType) const
+bool MaddeDeviceConfigurationFactory::supportsDeviceType(const QString &type) const
 {
-    return osType == QLatin1String(Maemo5OsType) || osType == QLatin1String(HarmattanOsType)
-        || osType == QLatin1String(MeeGoOsType);
+    return type == QLatin1String(Maemo5OsType) || type == QLatin1String(HarmattanOsType)
+        || type == QLatin1String(MeeGoOsType);
 }
 
-QString MaddeDeviceConfigurationFactory::displayNameForOsType(const QString &osType) const
+QString MaddeDeviceConfigurationFactory::displayType(const QString &deviceType) const
 {
-    QTC_ASSERT(supportsOsType(osType), return QString());
-    if (osType == QLatin1String(Maemo5OsType))
+    QTC_ASSERT(supportsDeviceType(deviceType), return QString());
+    if (deviceType == QLatin1String(Maemo5OsType))
         return tr("Maemo5/Fremantle");
-    if (osType == QLatin1String(HarmattanOsType))
+    if (deviceType == QLatin1String(HarmattanOsType))
         return tr("MeeGo 1.2 Harmattan");
     return tr("Other MeeGo OS");
 }

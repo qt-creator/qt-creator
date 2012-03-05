@@ -43,13 +43,13 @@ using namespace ExtensionSystem;
 
 namespace RemoteLinux {
 
-QString RemoteLinuxUtils::osTypeToString(const QString &osType)
+QString RemoteLinuxUtils::displayType(const QString &deviceType)
 {
     const QList<ILinuxDeviceConfigurationFactory *> &factories
         = PluginManager::instance()->getObjects<ILinuxDeviceConfigurationFactory>();
     foreach (const ILinuxDeviceConfigurationFactory * const factory, factories) {
-        if (factory->supportsOsType(osType))
-            return factory->displayNameForOsType(osType);
+        if (factory->supportsDeviceType(deviceType))
+            return factory->displayType(deviceType);
     }
     return QCoreApplication::translate("RemoteLinux", "Unknown OS");
 }

@@ -49,8 +49,8 @@ namespace Internal {
 namespace {
 const QLatin1String NameKey("Name");
 const QLatin1String OldOsVersionKey("OsVersion"); // Outdated, only use for upgrading.
-const QLatin1String OsTypeKey("OsType");
-const QLatin1String TypeKey("Type");
+const QLatin1String TypeKey("OsType");
+const QLatin1String MachineTypeKey("Type");
 const QLatin1String HostKey("Host");
 const QLatin1String SshPortKey("SshPort");
 const QLatin1String PortsSpecKey("FreePortsSpec");
@@ -64,21 +64,16 @@ const QLatin1String AttributesKey("Attributes");
 
 const AuthType DefaultAuthType(SshConnectionParameters::AuthenticationByKey);
 const int DefaultTimeout(10);
-const LinuxDeviceConfiguration::DeviceType DefaultDeviceType(LinuxDeviceConfiguration::Hardware);
+const LinuxDeviceConfiguration::MachineType DefaultMachineType(LinuxDeviceConfiguration::Hardware);
 } // anonymous namespace
 
 class LinuxDeviceConfigurationPrivate
 {
 public:
-    LinuxDeviceConfigurationPrivate(const SshConnectionParameters &sshParameters)
-        : sshParameters(sshParameters)
-    {
-    }
-
     SshConnectionParameters sshParameters;
     QString displayName;
-    QString osType;
-    LinuxDeviceConfiguration::DeviceType deviceType;
+    QString type;
+    LinuxDeviceConfiguration::MachineType machineType;
     PortList freePorts;
     LinuxDeviceConfiguration::Origin origin;
     LinuxDeviceConfiguration::Id internalId;
@@ -100,56 +95,45 @@ LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const QSettings &
     return Ptr(new LinuxDeviceConfiguration(settings));
 }
 
-LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const ConstPtr &other)
-{
-    return Ptr(new LinuxDeviceConfiguration(other));
-}
-
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const QString &name,
-    const QString &osType, DeviceType deviceType, const PortList &freePorts,
-    const SshConnectionParameters &sshParams, const QVariantHash &attributes, Origin origin)
+    const QString &type, MachineType machineType, Origin origin)
 {
-    return Ptr(new LinuxDeviceConfiguration(name, osType, deviceType, freePorts, sshParams,
-                                            attributes, origin));
+    return Ptr(new LinuxDeviceConfiguration(name, type, machineType, origin));
 }
 
-LinuxDeviceConfiguration::LinuxDeviceConfiguration()
-    : d(new LinuxDeviceConfigurationPrivate(SshConnectionParameters(SshConnectionParameters::NoProxy)))
+LinuxDeviceConfiguration::LinuxDeviceConfiguration() : d(new LinuxDeviceConfigurationPrivate)
 {
 }
 
-LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name, const QString &osType,
-        DeviceType deviceType, const PortList &freePorts, const SshConnectionParameters &sshParams,
-        const QVariantHash &attributes, Origin origin)
-    : d(new LinuxDeviceConfigurationPrivate(sshParams))
+LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name, const QString &type,
+        MachineType machineType, Origin origin)
+    : d(new LinuxDeviceConfigurationPrivate)
 {
     d->displayName = name;
-    d->osType = osType;
-    d->deviceType = deviceType;
-    d->freePorts = freePorts;
+    d->type = type;
+    d->machineType = machineType;
     d->origin = origin;
-    d->attributes = attributes;
 }
 
 // TODO: For pre-2.6 versions. Remove in 2.8.
 LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QSettings &settings)
-    : d(new LinuxDeviceConfigurationPrivate(SshConnectionParameters::NoProxy))
+    : d(new LinuxDeviceConfigurationPrivate)
 {
     d->origin = ManuallyAdded;
     d->displayName = settings.value(NameKey).toString();
-    d->osType = settings.value(OsTypeKey).toString();
-    d->deviceType = static_cast<DeviceType>(settings.value(TypeKey, DefaultDeviceType).toInt());
+    d->type = settings.value(TypeKey).toString();
+    d->machineType = static_cast<MachineType>(settings.value(MachineTypeKey, DefaultMachineType).toInt());
     d->internalId = settings.value(InternalIdKey, InvalidId).toULongLong();
     d->attributes = settings.value(AttributesKey).toHash();
 
     // Convert from version < 2.3.
-    if (d->osType.isEmpty()) {
+    if (d->type.isEmpty()) {
         const int oldOsType = settings.value(OldOsVersionKey, -1).toInt();
         switch (oldOsType) {
-        case 0: d->osType = QLatin1String("Maemo5OsType"); break;
-        case 1: d->osType = QLatin1String("HarmattanOsType"); break;
-        case 2: d->osType = QLatin1String("MeeGoOsType"); break;
-        default: d->osType = QLatin1String(Constants::GenericLinuxOsType);
+        case 0: d->type = QLatin1String("Maemo5OsType"); break;
+        case 1: d->type = QLatin1String("HarmattanOsType"); break;
+        case 2: d->type = QLatin1String("MeeGoOsType"); break;
+        default: d->type = QLatin1String(Constants::GenericLinuxOsType);
         }
     }
 
@@ -165,16 +149,17 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QSettings &settings)
     d->sshParameters.timeout = settings.value(TimeoutKey, DefaultTimeout).toInt();
 }
 
-LinuxDeviceConfiguration::LinuxDeviceConfiguration(const LinuxDeviceConfiguration::ConstPtr &other)
-    : d(new LinuxDeviceConfigurationPrivate(other->d->sshParameters))
+LinuxDeviceConfiguration::LinuxDeviceConfiguration(const LinuxDeviceConfiguration &other)
+    : d(new LinuxDeviceConfigurationPrivate)
 {
-    d->displayName = other->d->displayName;
-    d->osType = other->d->osType;
-    d->deviceType = other->deviceType();
-    d->freePorts = other->freePorts();
-    d->origin = other->d->origin;
-    d->internalId = other->d->internalId;
-    d->attributes = other->d->attributes;
+    d->displayName = other.d->displayName;
+    d->type = other.d->type;
+    d->machineType = other.machineType();
+    d->freePorts = other.freePorts();
+    d->origin = other.d->origin;
+    d->internalId = other.d->internalId;
+    d->attributes = other.d->attributes;
+    d->sshParameters = other.d->sshParameters;
 }
 
 QString LinuxDeviceConfiguration::defaultPrivateKeyFilePath()
@@ -197,8 +182,8 @@ void LinuxDeviceConfiguration::fromMap(const QVariantMap &map)
 {
     d->origin = ManuallyAdded;
     d->displayName = map.value(NameKey).toString();
-    d->osType = map.value(OsTypeKey).toString();
-    d->deviceType = static_cast<DeviceType>(map.value(TypeKey, DefaultDeviceType).toInt());
+    d->type = map.value(TypeKey).toString();
+    d->machineType = static_cast<MachineType>(map.value(MachineTypeKey, DefaultMachineType).toInt());
     d->internalId = map.value(InternalIdKey, InvalidId).toULongLong();
     const QVariantMap attrMap = map.value(AttributesKey).toMap();
     for (QVariantMap::ConstIterator it = attrMap.constBegin(); it != attrMap.constEnd(); ++it)
@@ -220,8 +205,8 @@ QVariantMap LinuxDeviceConfiguration::toMap() const
 {
     QVariantMap map;
     map.insert(NameKey, d->displayName);
-    map.insert(OsTypeKey, d->osType);
-    map.insert(TypeKey, d->deviceType);
+    map.insert(TypeKey, d->type);
+    map.insert(MachineTypeKey, d->machineType);
     map.insert(HostKey, d->sshParameters.host);
     map.insert(SshPortKey, d->sshParameters.port);
     map.insert(PortsSpecKey, d->freePorts.toString());
@@ -240,15 +225,20 @@ QVariantMap LinuxDeviceConfiguration::toMap() const
     return map;
 }
 
+LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::clone() const
+{
+    return Ptr(new LinuxDeviceConfiguration(*this));
+}
+
 SshConnectionParameters LinuxDeviceConfiguration::sshParameters() const
 {
     return d->sshParameters;
 }
 
-LinuxDeviceConfiguration::DeviceType LinuxDeviceConfiguration::deviceType() const
+LinuxDeviceConfiguration::MachineType LinuxDeviceConfiguration::machineType() const
 
 {
-    return d->deviceType;
+    return d->machineType;
 }
 
 LinuxDeviceConfiguration::Id LinuxDeviceConfiguration::internalId() const
@@ -288,7 +278,7 @@ QVariant LinuxDeviceConfiguration::attribute(const QString &name) const
 
 PortList LinuxDeviceConfiguration::freePorts() const { return d->freePorts; }
 QString LinuxDeviceConfiguration::displayName() const { return d->displayName; }
-QString LinuxDeviceConfiguration::osType() const { return d->osType; }
+QString LinuxDeviceConfiguration::type() const { return d->type; }
 
 void LinuxDeviceConfiguration::setDisplayName(const QString &name) { d->displayName = name; }
 void LinuxDeviceConfiguration::setInternalId(Id id) { d->internalId = id; }

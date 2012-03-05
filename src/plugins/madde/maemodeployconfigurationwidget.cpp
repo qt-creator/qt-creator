@@ -147,7 +147,7 @@ void MaemoDeployConfigurationWidget::addIcon()
 {
     DeployableFilesPerProFile * const proFileInfo = m_remoteLinuxWidget->currentModel();
     const int iconDim
-        = MaemoGlobal::applicationIconSize(deployConfiguration()->target()->supportedOsType());
+        = MaemoGlobal::applicationIconSize(deployConfiguration()->target()->supportedDeviceType());
     const QString origFilePath = QFileDialog::getOpenFileName(this,
         tr("Choose Icon (will be scaled to %1x%1 pixels, if necessary)").arg(iconDim),
         proFileInfo->projectDir(), QLatin1String("(*.png)"));
@@ -212,7 +212,7 @@ QString MaemoDeployConfigurationWidget::remoteIconFilePath(const DeployableFiles
 QString MaemoDeployConfigurationWidget::remoteIconDir() const
 {
     return QString::fromLatin1("/usr/share/icons/hicolor/%1x%1/apps")
-        .arg(MaemoGlobal::applicationIconSize(deployConfiguration()->target()->supportedOsType()));
+        .arg(MaemoGlobal::applicationIconSize(deployConfiguration()->target()->supportedDeviceType()));
 }
 
 } // namespace Internal

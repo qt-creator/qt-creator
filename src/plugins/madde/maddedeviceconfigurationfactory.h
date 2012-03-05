@@ -48,8 +48,8 @@ public:
     RemoteLinux::ILinuxDeviceConfigurationWidget *createWidget(
             const RemoteLinux::LinuxDeviceConfiguration::Ptr &deviceConfig,
             QWidget *parent = 0) const;
-    bool supportsOsType(const QString &osType) const;
-    QString displayNameForOsType(const QString &osType) const;
+    bool supportsDeviceType(const QString &type) const;
+    QString displayType(const QString &deviceType) const;
     QStringList supportedDeviceActionIds() const;
     QString displayNameForActionId(const QString &actionId) const;
     QDialog *createDeviceAction(const QString &actionId,

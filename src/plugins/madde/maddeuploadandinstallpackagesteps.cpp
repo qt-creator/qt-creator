@@ -61,7 +61,7 @@ protected:
 
     void doDeviceSetup()
     {
-        if (deviceConfiguration()->deviceType() == LinuxDeviceConfiguration::Hardware) {
+        if (deviceConfiguration()->machineType() == LinuxDeviceConfiguration::Hardware) {
             handleDeviceSetupDone(true);
             return;
         }

@@ -84,8 +84,8 @@ namespace {
 } // anonymous namespace
 
 
-SshConnectionParameters::SshConnectionParameters(ProxyType proxyType) :
-    timeout(0),  authenticationType(AuthenticationByKey), port(0), proxyType(proxyType)
+SshConnectionParameters::SshConnectionParameters() :
+    timeout(0),  authenticationType(AuthenticationByKey), port(0), proxyType(NoProxy)
 {
 }
 

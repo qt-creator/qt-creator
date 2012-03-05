@@ -51,7 +51,6 @@ class ANALYZER_EXPORT AnalyzerStartParameters
 {
 public:
     AnalyzerStartParameters()
-        : connParams(Utils::SshConnectionParameters::NoProxy)
     {}
 
     StartMode startMode;

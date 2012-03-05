@@ -69,7 +69,6 @@ MaemoPublisherFremantleFree::MaemoPublisherFremantleFree(const ProjectExplorer::
     QObject(parent),
     m_project(project),
     m_state(Inactive),
-    m_sshParams(SshConnectionParameters::DefaultProxy),
     m_uploader(0)
 {
     m_sshParams.authenticationType = SshConnectionParameters::AuthenticationByKey;

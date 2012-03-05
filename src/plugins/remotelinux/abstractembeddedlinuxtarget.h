@@ -50,11 +50,11 @@ class REMOTELINUX_EXPORT AbstractEmbeddedLinuxTarget : public Qt4ProjectManager:
     Q_OBJECT
 public:
     AbstractEmbeddedLinuxTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id,
-        const QString &supportedOsType);
+        const QString &supportedDeviceType);
 
     ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 
-    QString supportedOsType() const { return m_supportedOsType; }
+    QString supportedDeviceType() const { return m_supportedDeviceType; }
     DeploymentInfo *deploymentInfo() const { return m_deploymentInfo; }
     Internal::TypeSpecificDeviceConfigurationListModel *deviceConfigModel() const {
         return m_deviceConfigModel;
@@ -62,7 +62,7 @@ public:
 
 private:
     Qt4ProjectManager::Qt4BuildConfigurationFactory * const m_buildConfigurationFactory;
-    const QString m_supportedOsType;
+    const QString m_supportedDeviceType;
     DeploymentInfo * const m_deploymentInfo;
     Internal::TypeSpecificDeviceConfigurationListModel * const m_deviceConfigModel;
 };

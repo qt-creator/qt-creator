@@ -139,7 +139,7 @@ void LinuxDeviceConfigurations::copy(const LinuxDeviceConfigurations *source,
 {
     if (deep) {
         foreach (const LinuxDeviceConfiguration::ConstPtr &devConf, source->d->devConfigs)
-            target->d->devConfigs << LinuxDeviceConfiguration::create(devConf);
+            target->d->devConfigs << devConf->clone();
     } else {
         target->d->devConfigs = source->d->devConfigs;
     }
@@ -167,7 +167,7 @@ void LinuxDeviceConfigurations::load()
     } else {
         loadPre2_6();
     }
-    ensureOneDefaultConfigurationPerOsType();
+    ensureOneDefaultConfigurationPerDeviceType();
 }
 
 void LinuxDeviceConfigurations::loadPre2_6()
@@ -252,12 +252,12 @@ void LinuxDeviceConfigurations::addConfiguration(const LinuxDeviceConfiguration:
     }
     devConfig->setDisplayName(name);
     devConfig->setInternalId(unusedId());
-    if (!defaultDeviceConfig(devConfig->osType()))
-        d->defaultConfigs.insert(devConfig->osType(), devConfig->internalId());
+    if (!defaultDeviceConfig(devConfig->type()))
+        d->defaultConfigs.insert(devConfig->type(), devConfig->internalId());
     d->devConfigs << devConfig;
     if (this == d->instance && d->clonedInstance) {
         d->clonedInstance->addConfiguration(
-            LinuxDeviceConfiguration::Ptr(new LinuxDeviceConfiguration(devConfig)));
+            LinuxDeviceConfiguration::Ptr(new LinuxDeviceConfiguration(*devConfig)));
     }
     emit deviceAdded(devConfig);
     emit updated();
@@ -271,16 +271,16 @@ void LinuxDeviceConfigurations::removeConfiguration(int idx)
         || deviceConfig->isAutoDetected(), return);
 
     const bool wasDefault
-        = d->defaultConfigs.value(deviceConfig->osType()) == deviceConfig->internalId();
-    const QString osType = deviceConfig->osType();
+        = d->defaultConfigs.value(deviceConfig->type()) == deviceConfig->internalId();
+    const QString deviceType = deviceConfig->type();
     d->devConfigs.removeAt(idx);
 
     emit deviceRemoved(idx);
 
     if (wasDefault) {
         for (int i = 0; i < d->devConfigs.count(); ++i) {
-            if (deviceAt(i)->osType() == osType) {
-                d->defaultConfigs.insert(deviceAt(i)->osType(), deviceAt(i)->internalId());
+            if (deviceAt(i)->type() == deviceType) {
+                d->defaultConfigs.insert(deviceAt(i)->type(), deviceAt(i)->internalId());
                 emit defaultStatusChanged(i);
                 break;
             }
@@ -322,10 +322,10 @@ void LinuxDeviceConfigurations::setDefaultDevice(int idx)
 
     const LinuxDeviceConfiguration::ConstPtr &devConf = d->devConfigs.at(idx);
     const LinuxDeviceConfiguration::ConstPtr &oldDefaultDevConf
-        = defaultDeviceConfig(devConf->osType());
+        = defaultDeviceConfig(devConf->type());
     if (devConf == oldDefaultDevConf)
         return;
-    d->defaultConfigs.insert(devConf->osType(), devConf->internalId());
+    d->defaultConfigs.insert(devConf->type(), devConf->internalId());
     emit defaultStatusChanged(idx);
     for (int i = 0; i < d->devConfigs.count(); ++i) {
         if (d->devConfigs.at(i) == oldDefaultDevConf) {
@@ -373,9 +373,9 @@ LinuxDeviceConfiguration::ConstPtr LinuxDeviceConfigurations::find(LinuxDeviceCo
     return index == -1 ? LinuxDeviceConfiguration::ConstPtr() : deviceAt(index);
 }
 
-LinuxDeviceConfiguration::ConstPtr LinuxDeviceConfigurations::defaultDeviceConfig(const QString &osType) const
+LinuxDeviceConfiguration::ConstPtr LinuxDeviceConfigurations::defaultDeviceConfig(const QString &deviceType) const
 {
-    const LinuxDeviceConfiguration::Id id = d->defaultConfigs.value(osType,
+    const LinuxDeviceConfiguration::Id id = d->defaultConfigs.value(deviceType,
         LinuxDeviceConfiguration::InvalidId);
     if (id == LinuxDeviceConfiguration::InvalidId)
         return LinuxDeviceConfiguration::ConstPtr();
@@ -396,11 +396,11 @@ LinuxDeviceConfiguration::Id LinuxDeviceConfigurations::internalId(LinuxDeviceCo
     return devConf ? devConf->internalId() : LinuxDeviceConfiguration::InvalidId;
 }
 
-void LinuxDeviceConfigurations::ensureOneDefaultConfigurationPerOsType()
+void LinuxDeviceConfigurations::ensureOneDefaultConfigurationPerDeviceType()
 {
     foreach (const LinuxDeviceConfiguration::Ptr &devConf, d->devConfigs) {
-        if (!defaultDeviceConfig(devConf->osType()))
-            d->defaultConfigs.insert(devConf->osType(), devConf->internalId());
+        if (!defaultDeviceConfig(devConf->type()))
+            d->defaultConfigs.insert(devConf->type(), devConf->internalId());
     }
 }
 

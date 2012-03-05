@@ -57,7 +57,7 @@ class AbstractQt4MaemoTarget : public RemoteLinux::AbstractEmbeddedLinuxTarget
     Q_OBJECT
 public:
     explicit AbstractQt4MaemoTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id,
-        const QString &supportedOsType, const QString &qmakeScope);
+        const QString &supportedDeviceType, const QString &qmakeScope);
     virtual ~AbstractQt4MaemoTarget();
 
     void createApplicationProFiles(bool reparse);
@@ -120,7 +120,7 @@ class AbstractDebBasedQt4MaemoTarget : public AbstractQt4MaemoTarget
     Q_OBJECT
 public:
     AbstractDebBasedQt4MaemoTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id,
-        const QString &supportedOsType, const QString &qmakeScope);
+        const QString &supportedDeviceType, const QString &qmakeScope);
     ~AbstractDebBasedQt4MaemoTarget();
 
     QString debianDirPath() const;
@@ -193,7 +193,7 @@ class AbstractRpmBasedQt4MaemoTarget : public AbstractQt4MaemoTarget
     Q_OBJECT
 public:
     AbstractRpmBasedQt4MaemoTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id,
-        const QString &supportedOsType, const QString &qmakeScope);
+        const QString &supportedDeviceType, const QString &qmakeScope);
     ~AbstractRpmBasedQt4MaemoTarget();
 
     virtual bool allowsRemoteMounts() const { return false; }

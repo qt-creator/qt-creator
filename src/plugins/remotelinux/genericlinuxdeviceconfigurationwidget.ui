@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>393</width>
-    <height>170</height>
+    <height>185</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,14 +20,14 @@
    <property name="margin">
     <number>0</number>
    </property>
-   <item row="0" column="0">
+   <item row="1" column="0">
     <widget class="QLabel" name="authTypeLabel">
      <property name="text">
       <string>Authentication type:</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
+   <item row="1" column="1">
     <widget class="QWidget" name="authTypeButtonsWidget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <property name="margin">
@@ -63,7 +63,7 @@
      </layout>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QLabel" name="hostNameLabel">
      <property name="text">
       <string>&amp;Host name:</string>
@@ -73,7 +73,7 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
+   <item row="2" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
       <widget class="QLineEdit" name="hostLineEdit">
@@ -107,7 +107,7 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="0">
+   <item row="3" column="0">
     <widget class="QLabel" name="freePortsLabel">
      <property name="text">
       <string>Free ports:</string>
@@ -117,7 +117,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
+   <item row="3" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_7">
      <item>
       <widget class="QLineEdit" name="portsLineEdit">
@@ -161,7 +161,7 @@
      </item>
     </layout>
    </item>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <widget class="QLabel" name="userNameLabel">
      <property name="text">
       <string>&amp;Username:</string>
@@ -171,10 +171,10 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="4" column="1">
     <widget class="QLineEdit" name="userLineEdit"/>
    </item>
-   <item row="4" column="0">
+   <item row="5" column="0">
     <widget class="QLabel" name="passwordLabel">
      <property name="text">
       <string>&amp;Password:</string>
@@ -184,7 +184,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
+   <item row="5" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_6">
      <item>
       <widget class="QLineEdit" name="pwdLineEdit">
@@ -202,14 +202,14 @@
      </item>
     </layout>
    </item>
-   <item row="5" column="0">
+   <item row="6" column="0">
     <widget class="QLabel" name="keyLabel">
      <property name="text">
       <string>Private key file:</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
+   <item row="6" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_8">
      <item>
       <widget class="Utils::PathChooser" name="keyFileLineEdit" native="true"/>
@@ -223,6 +223,16 @@
      </item>
     </layout>
    </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="machineTypeLabel">
+     <property name="text">
+      <string>Machine type:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="machineTypeValueLabel"/>
+   </item>
   </layout>
   <zorder>passwordLabel</zorder>
   <zorder>authTypeButtonsWidget</zorder>
@@ -232,6 +242,8 @@
   <zorder>userLineEdit</zorder>
   <zorder>authTypeLabel</zorder>
   <zorder>keyLabel</zorder>
+  <zorder>machineTypeLabel</zorder>
+  <zorder>machineTypeValueLabel</zorder>
  </widget>
  <customwidgets>
   <customwidget>

@@ -126,8 +126,6 @@ QString LinuxDeviceConfigurationsSettingsWidget::searchKeywords() const
 {
     QString rc;
     QTextStream(&rc) << m_ui->configurationLabel->text()
-        << ' ' << m_ui->deviceTypeLabel->text()
-        << ' ' << m_ui->deviceTypeValueLabel->text()
         << ' ' << m_ui->deviceNameLabel->text()
         << ' ' << m_ui->nameLineEdit->text();
     if (m_configWidget)
@@ -187,13 +185,9 @@ void LinuxDeviceConfigurationsSettingsWidget::displayCurrent()
 {
     const LinuxDeviceConfiguration::ConstPtr &current = currentConfig();
     m_ui->defaultDeviceButton->setEnabled(
-        m_devConfigs->defaultDeviceConfig(current->osType()) != current);
-    m_ui->osTypeValueLabel->setText(RemoteLinuxUtils::osTypeToString(current->osType()));
+        m_devConfigs->defaultDeviceConfig(current->type()) != current);
+    m_ui->osTypeValueLabel->setText(RemoteLinuxUtils::displayType(current->type()));
 
-    if (current->deviceType() == LinuxDeviceConfiguration::Hardware)
-        m_ui->deviceTypeValueLabel->setText(tr("Physical Device"));
-    else
-        m_ui->deviceTypeValueLabel->setText(tr("Emulator"));
     m_nameValidator->setDisplayName(current->displayName());
     m_ui->removeConfigButton->setEnabled(!current->isAutoDetected());
     fillInValues();
@@ -292,7 +286,6 @@ void LinuxDeviceConfigurationsSettingsWidget::clearDetails()
 {
     m_ui->nameLineEdit->clear();
     m_ui->osTypeValueLabel->clear();
-    m_ui->deviceTypeValueLabel->clear();
 }
 
 const ILinuxDeviceConfigurationFactory *LinuxDeviceConfigurationsSettingsWidget::factoryForCurrentConfig() const
@@ -301,7 +294,7 @@ const ILinuxDeviceConfigurationFactory *LinuxDeviceConfigurationsSettingsWidget:
     const QList<ILinuxDeviceConfigurationFactory *> &factories
         = ExtensionSystem::PluginManager::instance()->getObjects<ILinuxDeviceConfigurationFactory>();
     foreach (const ILinuxDeviceConfigurationFactory * const factory, factories) {
-        if (factory->supportsOsType(currentConfig()->osType()))
+        if (factory->supportsDeviceType(currentConfig()->type()))
             return factory;
     }
     return 0;

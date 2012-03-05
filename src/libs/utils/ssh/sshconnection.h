@@ -56,7 +56,7 @@ class QTCREATOR_UTILS_EXPORT SshConnectionParameters
 public:
     enum ProxyType { DefaultProxy, NoProxy };
     enum AuthenticationType { AuthenticationByPassword, AuthenticationByKey };
-    SshConnectionParameters(ProxyType proxyType);
+    SshConnectionParameters();
 
     QString host;
     QString userName;

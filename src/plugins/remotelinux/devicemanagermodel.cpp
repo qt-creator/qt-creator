@@ -106,9 +106,9 @@ QVariant DeviceManagerModel::data(const QModelIndex &index, int role) const
         return QVariant();
     const LinuxDeviceConfiguration::ConstPtr devConf = d->devices.at(index.row());
     QString name = devConf->displayName();
-    if (d->deviceManager->defaultDeviceConfig(devConf->osType()) == devConf) {
+    if (d->deviceManager->defaultDeviceConfig(devConf->type()) == devConf) {
         name += QLatin1Char(' ') + tr("(default for %1)")
-            .arg(RemoteLinuxUtils::osTypeToString(devConf->osType()));
+            .arg(RemoteLinuxUtils::displayType(devConf->type()));
     }
     return name;
 }

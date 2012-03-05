@@ -53,8 +53,7 @@ public:
           process(0),
           channelMode(QProcess::SeparateChannels),
           finished(false),
-          startMode(Analyzer::StartLocal),
-          connParams(Utils::SshConnectionParameters::DefaultProxy)
+          startMode(Analyzer::StartLocal)
     {
     }
 
