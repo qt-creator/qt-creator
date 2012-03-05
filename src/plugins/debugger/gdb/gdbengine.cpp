@@ -1023,7 +1023,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 QTC_CHECK(state() == InferiorRunOk);
                 notifyInferiorSpontaneousStop();
                 notifyEngineIll();
-            } else if (msg == _("Remote connection closed")) {
+            } else if (msg.startsWith("Remote connection closed")) {
                 // Can happen when the target exits (gdbserver)
                 notifyInferiorExited();
             } else {
