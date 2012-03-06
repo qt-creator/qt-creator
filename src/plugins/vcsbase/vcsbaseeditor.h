@@ -102,7 +102,7 @@ protected:
     // Initialization requires calling init() (which in turns calls
     // virtual functions).
     explicit VcsBaseEditorWidget(const VcsBaseEditorParameters *type,
-                           QWidget *parent);
+                                 QWidget *parent);
 public:
     void init();
 
