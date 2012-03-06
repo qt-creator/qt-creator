@@ -160,6 +160,8 @@ class JIRA:
                     test.fatal("FATAL: Cannot get resolution of bugreport %s" % bug,
                                "Looks like JIRA has changed.... Please verify!")
                     self._resolution = None
+            if None in (self._status, self._resolution):
+                self.__cropAndLog__(data)
             self._fetchResults_.update({bug:[self._resolution, self._status]})
 
         # simple helper function - used as fallback if python has no ssl support
@@ -179,6 +181,24 @@ class JIRA:
                         test.warning("Missing environment variable https_proxy for using wget with proxy!")
                     return getOutputFromCmdline('"%s" %s %s/%s-%d' % (prog, cmdAndArgs[call], JIRA_URL, self._bugType, self._number))
             return None
+
+        # this function crops multiple whitespaces from fetched and searches for expected
+        # ids without using regex
+        def __cropAndLog__(self, fetched):
+            fetched = " ".join(fetched.split())
+            resoInd = fetched.find('resolution-val')
+            statInd = fetched.find('status-val')
+            if resoInd == statInd == -1:
+                test.log("Neither resolution nor status found inside fetched data.",
+                         "%s[...]" % fetched[:200])
+            else:
+                if resoInd == -1:
+                    test.log("Fetched and cropped data: [...]%s[...]" % fetched[statInd-20:statInd+800])
+                elif statInd == -1:
+                    test.log("Fetched and cropped data: [...]%s[...]" % fetched[resoInd-720:resoInd+100])
+                else:
+                    test.log("Fetched and cropped data (status): [...]%s[...]" % fetched[statInd-20:statInd+300],
+                             "Fetched and cropped data (resolution): [...]%s[...]" % fetched[resoInd-20:resoInd+100])
 
         # this function initializes the bug dict for localOnly usage and
         # for later lookup which function to call for which bug
