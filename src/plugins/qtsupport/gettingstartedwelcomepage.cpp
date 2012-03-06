@@ -35,6 +35,8 @@
 #include "exampleslistmodel.h"
 #include "screenshotcropper.h"
 
+#include "qtsupportconstants.h"
+
 #include <utils/pathchooser.h>
 #include <utils/fileutils.h>
 
@@ -210,12 +212,17 @@ QString GettingStartedWelcomePage::title() const
 
 int GettingStartedWelcomePage::priority() const
 {
-    return 0;
+    return 4;
 }
 
 void GettingStartedWelcomePage::facilitateQml(QDeclarativeEngine *engine)
 {
     m_engine = engine;
+}
+
+GettingStartedWelcomePage::Id GettingStartedWelcomePage::id() const
+{
+    return GettingStarted;
 }
 
 ExamplesWelcomePage::ExamplesWelcomePage()
@@ -279,6 +286,11 @@ void ExamplesWelcomePage::facilitateQml(QDeclarativeEngine *engine)
         rootContenxt->setContextProperty(QLatin1String("tutorialsModel"), proxy);
     }
     rootContenxt->setContextProperty(QLatin1String("gettingStarted"), this);
+}
+
+ExamplesWelcomePage::Id ExamplesWelcomePage::id() const
+{
+    return m_showExamples ? Examples : Tutorials;
 }
 
 void ExamplesWelcomePage::openSplitHelp(const QUrl &help)

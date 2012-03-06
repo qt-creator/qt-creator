@@ -58,6 +58,7 @@ public:
     QString title() const;
     int priority() const;
     void facilitateQml(QDeclarativeEngine *);
+    Id id() const;
 
 private:
     QDeclarativeEngine *m_engine;
@@ -76,6 +77,7 @@ public:
     int priority() const;
     bool hasSearchBar() const;
     void facilitateQml(QDeclarativeEngine *);
+    Id id() const;
     Q_INVOKABLE QStringList tagList() const;
     Q_INVOKABLE void openUrl(const QUrl &url);
 

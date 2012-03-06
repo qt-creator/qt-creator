@@ -54,6 +54,14 @@ class QTCREATOR_UTILS_EXPORT IWelcomePage : public QObject
     Q_PROPERTY(bool hasSearchBar READ hasSearchBar CONSTANT)
 
 public:
+    enum Id {
+        GettingStarted = 0,
+        Develop = 1,
+        Examples = 2,
+        Tutorials = 3,
+        UserDefined = 32
+    };
+
     IWelcomePage();
     virtual ~IWelcomePage();
 
@@ -62,6 +70,7 @@ public:
     virtual int priority() const { return 0; }
     virtual void facilitateQml(QDeclarativeEngine *) {}
     virtual bool hasSearchBar() const { return false; }
+    virtual Id id() const = 0;
 
 private:
     // not used atm

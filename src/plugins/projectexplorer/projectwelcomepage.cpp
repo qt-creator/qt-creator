@@ -32,6 +32,8 @@
 
 #include "projectwelcomepage.h"
 
+#include "projectexplorerconstants.h"
+
 #include <utils/stringutils.h>
 
 #include <QDeclarativeEngine>
@@ -214,6 +216,11 @@ void ProjectWelcomePage::facilitateQml(QDeclarativeEngine *engine)
     ctx->setContextProperty(QLatin1String("sessionList"), m_sessionModel);
     ctx->setContextProperty(QLatin1String("projectList"), m_projectModel);
     ctx->setContextProperty(QLatin1String("projectWelcomePage"), this);
+}
+
+ProjectWelcomePage::Id ProjectWelcomePage::id() const
+{
+    return Develop;
 }
 
 void ProjectWelcomePage::reloadWelcomeScreenData()
