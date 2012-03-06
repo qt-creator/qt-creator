@@ -1106,28 +1106,9 @@ bool BaseQtVersion::queryQMakeVariables(const Utils::FileName &binary, QHash<QSt
     *qmakeIsExecutable = qmake.exists() && qmake.isExecutable() && !qmake.isDir();
     if (!*qmakeIsExecutable)
         return false;
-    static const char * const variables[] = {
-             "QT_VERSION",
-             "QT_INSTALL_DATA",
-             "QT_INSTALL_LIBS",
-             "QT_INSTALL_HEADERS",
-             "QT_INSTALL_DEMOS",
-             "QT_INSTALL_EXAMPLES",
-             "QT_INSTALL_CONFIGURATION",
-             "QT_INSTALL_TRANSLATIONS",
-             "QT_INSTALL_PLUGINS",
-             "QT_INSTALL_BINS",
-             "QT_INSTALL_DOCS",
-             "QT_INSTALL_PREFIX",
-             "QT_INSTALL_IMPORTS",
-             "QMAKEFEATURES"
-        };
-    const QString queryArg = QLatin1String("-query");
-    QStringList args;
-    for (uint i = 0; i < sizeof variables / sizeof variables[0]; ++i)
-        args << queryArg << QLatin1String(variables[i]);
+
     QProcess process;
-    process.start(qmake.absoluteFilePath(), args, QIODevice::ReadOnly);
+    process.start(qmake.absoluteFilePath(), QStringList(QLatin1String("-query")), QIODevice::ReadOnly);
     if (!process.waitForStarted()) {
         *qmakeIsExecutable = false;
         qWarning("Cannot start '%s': %s", qPrintable(binary.toUserOutput()), qPrintable(process.errorString()));
