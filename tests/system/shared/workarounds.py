@@ -116,12 +116,17 @@ class JIRA:
                 self._status = result[1]
                 return
             data = None
+            proxy = os.getenv("SYSTEST_PROXY", None)
             if not self._localOnly:
                 try:
+                    if proxy:
+                        proxy = urllib2.ProxyHandler({'https': proxy})
+                        opener = urllib2.build_opener(proxy)
+                        urllib2.install_opener(opener)
                     bugReport = urllib2.urlopen('%s/%s' % (JIRA_URL, bug))
                     data = bugReport.read()
                 except:
-                    data = self.__tryExternalTools__()
+                    data = self.__tryExternalTools__(proxy)
                     if data == None:
                         test.warning("Sorry, ssl module missing - cannot fetch data via HTTPS",
                                      "Try to install the ssl module by yourself, or set the python "
@@ -160,12 +165,18 @@ class JIRA:
         # simple helper function - used as fallback if python has no ssl support
         # tries to find curl or wget in PATH and fetches data with it instead of
         # using urllib2
-        def __tryExternalTools__(self):
+        def __tryExternalTools__(self, proxy=None):
             global JIRA_URL
-            cmdAndArgs = { 'curl':'-k', 'wget':'-qO-' }
+            if proxy:
+                cmdAndArgs = { 'curl':'-k --proxy %s' % proxy,
+                               'wget':'-qO-'}
+            else:
+                cmdAndArgs = { 'curl':'-k', 'wget':'-qO-' }
             for call in cmdAndArgs:
                 prog = which(call)
                 if prog:
+                    if call == 'wget' and proxy and os.getenv("https_proxy", None) == None:
+                        test.warning("Missing environment variable https_proxy for using wget with proxy!")
                     return getOutputFromCmdline('"%s" %s %s/%s-%d' % (prog, cmdAndArgs[call], JIRA_URL, self._bugType, self._number))
             return None
 
