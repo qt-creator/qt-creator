@@ -38,8 +38,6 @@ QtcPlugin {
         "pastebindotcaprotocol.h",
         "pastebindotcomprotocol.cpp",
         "pastebindotcomprotocol.h",
-        "pastebindotcomsettings.cpp",
-        "pastebindotcomsettings.h",
         "pastebindotcomsettings.ui",
         "pasteselect.ui",
         "pasteselectdialog.cpp",
