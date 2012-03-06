@@ -140,6 +140,8 @@ public:
 
     bool needsConfiguration() const;
 
+    void configureAsExampleProject(const QStringList &platforms);
+
 signals:
     void proParsingDone();
     void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool, bool);

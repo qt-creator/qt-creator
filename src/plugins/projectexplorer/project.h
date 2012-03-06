@@ -118,6 +118,7 @@ public:
     void setNamedSettings(const QString &name, QVariant &value);
 
     virtual bool needsConfiguration() const;
+    virtual void configureAsExampleProject(const QStringList &platforms);
 
 signals:
     void fileListChanged();

@@ -1869,6 +1869,11 @@ void ProjectExplorerPlugin::buildProject(ProjectExplorer::Project *p)
           QStringList(QLatin1String(Constants::BUILDSTEPS_BUILD)));
 }
 
+void ProjectExplorerPlugin::requestProjectModeUpdate(Project *p)
+{
+    d->m_proWindow->projectUpdated(p);
+}
+
 void ProjectExplorerPlugin::buildProject()
 {
     queue(d->m_session->projectOrder(session()->startupProject()),

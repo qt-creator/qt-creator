@@ -87,8 +87,6 @@ class PROJECTEXPLORER_EXPORT IProjectPanelFactory : public IPanelFactory
 public:
     virtual bool supports(Project *project) = 0;
     virtual PropertiesPanel *createPanel(Project *project) = 0;
-signals:
-    void projectUpdated(ProjectExplorer::Project *project);
 };
 
 class PROJECTEXPLORER_EXPORT ITargetPanelFactory : public IPanelFactory

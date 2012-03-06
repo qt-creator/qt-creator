@@ -65,8 +65,6 @@ public:
 protected:
     void keyReleaseEvent(QKeyEvent *event);
     void keyPressEvent(QKeyEvent *event);
-signals:
-    void projectUpdated(ProjectExplorer::Project *project);
 private slots:
     void done();
     void noteTextLinkActivated();

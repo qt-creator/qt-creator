@@ -43,7 +43,7 @@ namespace Internal {
 
 enum ExampleRoles { Name=Qt::UserRole, ProjectPath, Description, ImageUrl,
                     DocUrl,  FilesToOpen, Tags, Difficulty, HasSourceCode,
-                    Type, Dependencies, IsVideo, VideoUrl, VideoLength };
+                    Type, Dependencies, IsVideo, VideoUrl, VideoLength, Platforms };
 
 enum InstructionalType { Example=0, Demo, Tutorial };
 
@@ -63,6 +63,7 @@ struct ExampleItem {
     bool isVideo;
     QString videoUrl;
     QString videoLength;
+    QStringList platforms;
 };
 
 class ExamplesListModel : public QAbstractListModel {

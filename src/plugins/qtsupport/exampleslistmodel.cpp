@@ -73,6 +73,7 @@ ExamplesListModel::ExamplesListModel(QObject *parent) :
     roleNames[IsVideo] = "isVideo";
     roleNames[VideoUrl] = "videoUrl";
     roleNames[VideoLength] = "videoLength";
+    roleNames[Platforms] = "platforms";
     setRoleNames(roleNames);
 
     connect(Core::HelpManager::instance(), SIGNAL(setupFinished()),
@@ -89,6 +90,15 @@ static inline QString fixStringForTags(const QString &string)
     returnString.remove(QLatin1String("<tt>"));
     returnString.remove(QLatin1String("</tt>"));
     return returnString;
+}
+
+static inline QStringList trimStringList(const QStringList &stringlist)
+{
+    QStringList returnList;
+    foreach (const QString &string, stringlist)
+        returnList << string.trimmed();
+
+    return returnList;
 }
 
 QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader* reader, const QString& projectsOffset)
@@ -117,9 +127,11 @@ QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader* reader, co
             } else if (reader->name() == QLatin1String("dependency")) {
                 item.dependencies.append(projectsOffset + slash + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("tags")) {
-                item.tags = reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement).split(QLatin1Char(','));
+                item.tags = trimStringList(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement).split(QLatin1Char(','), QString::SkipEmptyParts));
                 m_tags.append(item.tags);
-            }
+            } else if (reader->name() == QLatin1String("platforms")) {
+                item.platforms = trimStringList(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement).split(QLatin1Char(','), QString::SkipEmptyParts));
+        }
             break;
         case QXmlStreamReader::EndElement:
             if (reader->name() == QLatin1String("example"))
@@ -429,6 +441,8 @@ QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
         return item.videoUrl;
     case VideoLength:
         return item.videoLength;
+    case Platforms:
+        return item.platforms;
     default:
         qDebug() << Q_FUNC_INFO << "role type not supported";
         return QVariant();

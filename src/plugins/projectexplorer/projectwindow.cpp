@@ -268,10 +268,6 @@ void ProjectWindow::extensionsInitialized()
 
     QList<IProjectPanelFactory *> list = ExtensionSystem::PluginManager::instance()->getObjects<IProjectPanelFactory>();
     qSort(list.begin(), list.end(), &IPanelFactory::prioritySort);
-    foreach (IProjectPanelFactory *fac, list)
-        connect (fac, SIGNAL(projectUpdated(ProjectExplorer::Project*)),
-                 this, SLOT(projectUpdated(ProjectExplorer::Project*)));
-
 }
 
 void ProjectWindow::aboutToShutdown()

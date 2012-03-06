@@ -41,6 +41,8 @@
 #include "qt4projectmanagerconstants.h"
 #include "qt4buildconfiguration.h"
 #include "findqt4profiles.h"
+#include "qt4basetargetfactory.h"
+#include "buildconfigurationinfo.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -1332,6 +1334,36 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
 bool Qt4Project::needsConfiguration() const
 {
     return targets().isEmpty();
+}
+
+void Qt4Project::configureAsExampleProject(const QStringList &platforms)
+{
+    QList<Qt4BaseTargetFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
+    foreach (Qt4BaseTargetFactory *factory, factories) {
+        foreach (const QString &id, factory->supportedTargetIds()) {
+            QList<BuildConfigurationInfo> infos
+                    = factory->availableBuildConfigurations(id, rootProjectNode()->path(),
+                                                            QtSupport::QtVersionNumber(),
+                                                            QtSupport::QtVersionNumber(INT_MAX, INT_MAX, INT_MAX),
+                                                            Core::FeatureSet());
+            if (!platforms.isEmpty()) {
+                QList<BuildConfigurationInfo> filtered;
+                foreach (const BuildConfigurationInfo &info, infos) {
+                    foreach (const QString &platform, platforms) {
+                        if (info.version()->supportsPlatform(platform)) {
+                            filtered << info;
+                            break;
+                        }
+                    }
+                }
+                infos = filtered;
+            }
+
+            if (!infos.isEmpty())
+                addTarget(factory->create(this, id, infos));
+        }
+    }
+    ProjectExplorer::ProjectExplorerPlugin::instance()->requestProjectModeUpdate(this);
 }
 
 /*!

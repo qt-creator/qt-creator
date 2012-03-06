@@ -82,6 +82,7 @@ public:
 
     void aboutToShutdown();
     void extensionsInitialized();
+    void projectUpdated(ProjectExplorer::Project *p);
 private slots:
     void targetFactoriesChanged();
     void showProperties(int index, int subIndex);
@@ -90,7 +91,6 @@ private slots:
     void registerProject(ProjectExplorer::Project*);
     void deregisterProject(ProjectExplorer::Project*);
     void startupProjectChanged(ProjectExplorer::Project *);
-    void projectUpdated(ProjectExplorer::Project *p);
 
 private:
     bool useTargetPage(ProjectExplorer::Project *project);

@@ -127,6 +127,9 @@ public:
     void addExistingFiles(const QStringList &filePaths);
 
     void buildProject(ProjectExplorer::Project *p);
+    /// Normally there's no need to call this function.
+    /// This function needs to be called, only if the pages that support a project changed.
+    void requestProjectModeUpdate(ProjectExplorer::Project *p);
 
     QList<RunControl *> runControls() const;
 
