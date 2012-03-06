@@ -141,13 +141,13 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
                                         "both QML and C++ code and includes a QDeclarativeView.\n\n");
 
     Core::FeatureSet basicFeatures;
-    basicFeatures = Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1_1);
+    basicFeatures = Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1);
 
     parameter = base;
     parameter.setDisplayName(tr("Qt Quick Application (Built-in elements)"));
     parameter.setDescription(basicDescription + tr("The built-in elements in the QtQuick namespace allow "
                                                    "you to write cross-platform applications with "
-                                                   "a custom look and feel.\n\nRequires <b>Qt 4.7.4</b> or newer."));
+                                                   "a custom look and feel.\n\nRequires <b>Qt 4.7.0</b> or newer."));
     parameter.setRequiredFeatures(basicFeatures);
     list << parameter;
 
@@ -158,7 +158,8 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
                                                     "native appearance for the Symbian platform.\n\nRequires "
                                                     "<b>Qt 4.7.4</b> or newer, and the component set installed for "
                                                     "your Qt version."));
-    parameter.setRequiredFeatures(basicFeatures | Core::Feature(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_SYMBIAN));
+    parameter.setRequiredFeatures(basicFeatures | Core::Feature(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_SYMBIAN)
+                                  | QtSupport::Constants::FEATURE_QT_QUICK_1_1);
     list << parameter;
 
     parameter = base;
@@ -168,7 +169,8 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
                                                     "with specific native appearance for the MeeGo/Harmattan "
                                                     "platform.\n\nRequires <b>Qt 4.7.4</b> or newer, and the "
                                                     "component set installed for your Qt version."));
-    parameter.setRequiredFeatures(basicFeatures | Core::Feature(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_MEEGO));
+    parameter.setRequiredFeatures(basicFeatures | Core::Feature(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_MEEGO)
+                                  | QtSupport::Constants::FEATURE_QT_QUICK_1_1);
     list << parameter;
 
     parameter = base;
