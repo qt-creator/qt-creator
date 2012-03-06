@@ -219,7 +219,10 @@ DynamicLibrary {
         "ssh/sshconnection.cpp",
         "ssh/sshincomingpacket.cpp",
         "ssh/sshkeygenerator.cpp",
-        "ssh/sshkeygenerator.h"
+        "ssh/sshkeygenerator.h",
+        "ssh/sshkeycreationdialog.cpp",
+        "ssh/sshkeycreationdialog.h",
+        "ssh/sshkeycreationdialog.ui"
     ]
 
     Group {

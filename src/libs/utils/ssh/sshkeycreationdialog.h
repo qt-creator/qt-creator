@@ -29,51 +29,41 @@
 **
 **************************************************************************/
 
-#ifndef REMOTELINUX_GENERICLINUXDEVICECONFIGURATIONWIDGET_H
-#define REMOTELINUX_GENERICLINUXDEVICECONFIGURATIONWIDGET_H
+#ifndef SSHKEYCREATIONDIALOG_H
+#define SSHKEYCREATIONDIALOG_H
 
-#include <projectexplorer/devicesupport/idevicewidget.h>
+#include <utils/utils_global.h>
 
-#include "linuxdeviceconfiguration.h"
-#include "remotelinux_export.h"
+#include <QDialog>
 
-namespace RemoteLinux {
+namespace Utils {
+class SshKeyGenerator;
 
-namespace Ui {
-class GenericLinuxDeviceConfigurationWidget;
-}
+namespace Ui { class SshKeyCreationDialog; }
 
-class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWidget
-        : public ProjectExplorer::IDeviceWidget
+class QTCREATOR_UTILS_EXPORT SshKeyCreationDialog : public QDialog
 {
     Q_OBJECT
-
 public:
-    explicit GenericLinuxDeviceConfigurationWidget(
-        const LinuxDeviceConfiguration::Ptr &deviceConfig, QWidget *parent = 0);
-    ~GenericLinuxDeviceConfigurationWidget();
+    SshKeyCreationDialog(QWidget *parent = 0);
+    ~SshKeyCreationDialog();
+
+    QString privateKeyFilePath() const;
+    QString publicKeyFilePath() const;
 
 private slots:
-    void authenticationTypeChanged();
-    void hostNameEditingFinished();
-    void sshPortEditingFinished();
-    void timeoutEditingFinished();
-    void userNameEditingFinished();
-    void passwordEditingFinished();
-    void keyFileEditingFinished();
-    void showPassword(bool showClearText);
-    void handleFreePortsChanged();
-    void setPrivateKey(const QString &path);
-    void createNewKey();
+    void keyTypeChanged();
+    void generateKeys();
+    void filePathChanged();
 
 private:
-    void updatePortsWarningLabel();
-    void initGui();
-    LinuxDeviceConfiguration::Ptr deviceConfiguration() const;
+    void saveKeys();
 
-    Ui::GenericLinuxDeviceConfigurationWidget *m_ui;
+private:
+    SshKeyGenerator *m_keyGenerator;
+    Ui::SshKeyCreationDialog *m_ui;
 };
 
-} // namespace RemoteLinux
+} // namespace Utils
 
-#endif // REMOTELINUX_GENERICLINUXDEVICECONFIGURATIONWIDGET_H
+#endif  // SSHKEYCREATIONDIALOG_H

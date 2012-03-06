@@ -185,6 +185,10 @@ const char PROJECTEXPLORER_SETTINGS_CATEGORY_ICON[]  = ":/core/images/category_b
 const char PROJECTEXPLORER_SETTINGS_ID[] = "A.ProjectExplorer.ProjectExplorer";
 const char TOOLCHAIN_SETTINGS_PAGE_ID[] = "M.ProjectExplorer.ToolChainOptions";
 
+// Device settings page
+const char DEVICE_SETTINGS_CATEGORY[] = "X.Devices";
+const char DEVICE_SETTINGS_PAGE_ID[] = "AA.Device Settings";
+
 // Task categories
 const char TASK_CATEGORY_COMPILE[] = "Task.Category.Compile";
 const char TASK_CATEGORY_BUILDSYSTEM[] = "Task.Category.Buildsystem";

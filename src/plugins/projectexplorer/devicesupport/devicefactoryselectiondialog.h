@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -29,51 +30,35 @@
 **
 **************************************************************************/
 
-#ifndef REMOTELINUX_GENERICLINUXDEVICECONFIGURATIONWIDGET_H
-#define REMOTELINUX_GENERICLINUXDEVICECONFIGURATIONWIDGET_H
+#ifndef DEVICEFACTORYSELECTIONDIALOG_H
+#define DEVICEFACTORYSELECTIONDIALOG_H
 
-#include <projectexplorer/devicesupport/idevicewidget.h>
+#include <QList>
+#include <QDialog>
 
-#include "linuxdeviceconfiguration.h"
-#include "remotelinux_export.h"
+namespace ProjectExplorer {
+class IDeviceFactory;
 
-namespace RemoteLinux {
+namespace Internal {
+namespace Ui { class DeviceFactorySelectionDialog; }
 
-namespace Ui {
-class GenericLinuxDeviceConfigurationWidget;
-}
-
-class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWidget
-        : public ProjectExplorer::IDeviceWidget
+class DeviceFactorySelectionDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit GenericLinuxDeviceConfigurationWidget(
-        const LinuxDeviceConfiguration::Ptr &deviceConfig, QWidget *parent = 0);
-    ~GenericLinuxDeviceConfigurationWidget();
-
-private slots:
-    void authenticationTypeChanged();
-    void hostNameEditingFinished();
-    void sshPortEditingFinished();
-    void timeoutEditingFinished();
-    void userNameEditingFinished();
-    void passwordEditingFinished();
-    void keyFileEditingFinished();
-    void showPassword(bool showClearText);
-    void handleFreePortsChanged();
-    void setPrivateKey(const QString &path);
-    void createNewKey();
+    explicit DeviceFactorySelectionDialog(QWidget *parent = 0);
+    ~DeviceFactorySelectionDialog();
+    const IDeviceFactory *selectedFactory() const;
 
 private:
-    void updatePortsWarningLabel();
-    void initGui();
-    LinuxDeviceConfiguration::Ptr deviceConfiguration() const;
+    Q_SLOT void handleItemSelectionChanged();
 
-    Ui::GenericLinuxDeviceConfigurationWidget *m_ui;
+    Ui::DeviceFactorySelectionDialog *ui;
+    QList<const IDeviceFactory *> m_factories;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace ProjectExplorer
 
-#endif // REMOTELINUX_GENERICLINUXDEVICECONFIGURATIONWIDGET_H
+#endif // DEVICEFACTORYSELECTIONDIALOG_H

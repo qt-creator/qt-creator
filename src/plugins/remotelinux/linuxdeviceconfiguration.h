@@ -34,17 +34,7 @@
 
 #include "remotelinux_export.h"
 
-#include <QSharedPointer>
-#include <QString>
-#include <QStringList>
-#include <QVariantHash>
-#include <QVariantMap>
-#include <QWizard>
-
-QT_BEGIN_NAMESPACE
-class QDialog;
-class QSettings;
-QT_END_NAMESPACE
+#include <projectexplorer/devicesupport/idevice.h>
 
 namespace Utils {
 class SshConnectionParameters;
@@ -52,194 +42,47 @@ class PortList;
 }
 
 namespace RemoteLinux {
-class LinuxDeviceConfigurations;
-
 namespace Internal {
 class LinuxDeviceConfigurationPrivate;
 } // namespace Internal
 
-class REMOTELINUX_EXPORT LinuxDeviceConfiguration
+class REMOTELINUX_EXPORT LinuxDeviceConfiguration : public ProjectExplorer::IDevice
 {
-    friend class LinuxDeviceConfigurations;
 public:
     typedef QSharedPointer<LinuxDeviceConfiguration> Ptr;
     typedef QSharedPointer<const LinuxDeviceConfiguration> ConstPtr;
 
-    typedef quint64 Id;
-
     enum MachineType { Hardware, Emulator };
-    enum Origin { ManuallyAdded, AutoDetected };
 
     ~LinuxDeviceConfiguration();
 
     Utils::PortList freePorts() const;
     Utils::SshConnectionParameters sshParameters() const;
-    QString displayName() const;
-    QString type() const;
     MachineType machineType() const;
-    Id internalId() const;
-    bool isAutoDetected() const;
-    QVariantHash attributes() const;
-    QVariant attribute(const QString &name) const;
 
     void setSshParameters(const Utils::SshConnectionParameters &sshParameters);
     void setFreePorts(const Utils::PortList &freePorts);
-    void setAttribute(const QString &name, const QVariant &value);
 
     static QString defaultPrivateKeyFilePath();
     static QString defaultPublicKeyFilePath();
 
-    static const Id InvalidId;
-
     static Ptr create();
     static Ptr create(const QString &name, const QString &type, MachineType machineType,
         Origin origin = ManuallyAdded);
+
+    void fromMap(const QVariantMap &map);
+    ProjectExplorer::IDevice::Ptr clone() const;
 private:
     LinuxDeviceConfiguration();
     LinuxDeviceConfiguration(const QString &name, const QString &type, MachineType machineType,
         Origin origin);
-    LinuxDeviceConfiguration(const QSettings &settings);
 
     LinuxDeviceConfiguration(const LinuxDeviceConfiguration &other);
     LinuxDeviceConfiguration &operator=(const LinuxDeviceConfiguration &);
 
-    static Ptr create(const QSettings &settings);
-
-    void setDisplayName(const QString &name);
-    void setInternalId(Id id);
-    void setDefault(bool isDefault);
-
-    void fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
 
-    Ptr clone() const;
-
     Internal::LinuxDeviceConfigurationPrivate *d;
-};
-
-
-/*!
-  \class RemoteLinux::ILinuxDeviceConfigurationWizard
-
-  \brief Provides an interface for wizards creating a LinuxDeviceConfiguration
-
-  A class implementing this interface is a wizard whose final result is
-  a LinuxDeviceConfiguration object. The wizard will be started when the user chooses the
-  "Add..." action from the "Linux devices" options page.
-*/
-class REMOTELINUX_EXPORT ILinuxDeviceConfigurationWizard : public QWizard
-{
-    Q_OBJECT
-
-public:
-    virtual LinuxDeviceConfiguration::Ptr deviceConfiguration() = 0;
-
-protected:
-    ILinuxDeviceConfigurationWizard(QWidget *parent) : QWizard(parent) {}
-};
-
-
-/*!
- \class RemoteLinux::LinuxDeviceConfigurationWidget : public QWidget
-
- \brief Provides an interface for the widget configuring a LinuxDeviceConfiguration
-
- A class implementing this interface will display a widget in the configuration
- options page "Linux Device", in the "Device configuration" tab.
- It's used to configure a particular device, the default widget is empty.
-*/
-class REMOTELINUX_EXPORT ILinuxDeviceConfigurationWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    ILinuxDeviceConfigurationWidget(const LinuxDeviceConfiguration::Ptr &deviceConfig,
-                                    QWidget *parent = 0);
-
-signals:
-    void defaultSshKeyFilePathChanged(const QString &path);
-
-protected:
-    LinuxDeviceConfiguration::Ptr deviceConfiguration() const;
-
-private:
-    LinuxDeviceConfiguration::Ptr m_deviceConfiguration;
-};
-
-
-/*!
-  \class RemoteLinux::ILinuxDeviceConfiguration factory.
-
-  \brief Provides an interface for classes providing services related to certain type of Linux devices.
-
-  The main service is a wizard providing the device configuration itself.
-
-  The factory objects have to be added to the global object pool via
-  \c ExtensionSystem::PluginManager::addObject().
-  \sa ExtensionSystem::PluginManager::addObject()
-*/
-class REMOTELINUX_EXPORT ILinuxDeviceConfigurationFactory : public QObject
-{
-    Q_OBJECT
-
-public:
-    /*!
-      A short, one-line description of what kind of device this factory supports.
-    */
-    virtual QString displayName() const = 0;
-
-    /*!
-      A wizard that can create the types of device configuration this factory supports.
-    */
-    virtual ILinuxDeviceConfigurationWizard *createWizard(QWidget *parent = 0) const = 0;
-
-    /*!
-      A widget that can configure the device this factory supports.
-    */
-    virtual ILinuxDeviceConfigurationWidget *createWidget(
-            const LinuxDeviceConfiguration::Ptr &deviceConfig,
-            QWidget *parent = 0) const = 0;
-
-    /*!
-      Returns true iff this factory supports the given device type.
-    */
-    virtual bool supportsDeviceType(const QString &type) const = 0;
-
-    /*!
-      Returns a human-readable string for the given OS type, if this factory supports that type.
-    */
-    virtual QString displayType(const QString &type) const = 0;
-
-    /*!
-      Returns a list of ids representing actions that can be run on device configurations
-      that this factory supports. These actions will be available in the "Devices"
-      options page.
-    */
-    virtual QStringList supportedDeviceActionIds() const = 0;
-
-    /*!
-      A human-readable string for the given id. Will be displayed on a button which, when clicked,
-      will start the respective action.
-    */
-    virtual QString displayNameForActionId(const QString &actionId) const = 0;
-
-    /*!
-      True iff the user should be allowed to edit the device configurations created by this
-      factory. Returns true by default. Override if your factory creates fixed configurations
-      for which later editing makes no sense.
-    */
-    bool isUserEditable() const { return true; }
-
-    /*!
-      Produces a dialog implementing the respective action. The dialog is supposed to be
-      modal, so implementers must make sure to make it interruptible as to not needlessly
-      block the UI.
-    */
-    virtual QDialog *createDeviceAction(const QString &actionId,
-        const LinuxDeviceConfiguration::ConstPtr &deviceConfig, QWidget *parent = 0) const = 0;
-
-protected:
-    ILinuxDeviceConfigurationFactory(QObject *parent) : QObject(parent) {}
 };
 
 } // namespace RemoteLinux

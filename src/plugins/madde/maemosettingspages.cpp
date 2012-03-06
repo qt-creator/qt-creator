@@ -34,7 +34,7 @@
 #include "maemoqemusettingswidget.h"
 
 #include <coreplugin/icore.h>
-#include <remotelinux/remotelinux_constants.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QCoreApplication>
 #include <QDialog>
@@ -169,7 +169,7 @@ QString MaemoQemuSettingsPage::pageId()
 
 QString MaemoQemuSettingsPage::pageCategory()
 {
-    return QLatin1String(RemoteLinux::Constants::RemoteLinuxSettingsCategory);
+    return QLatin1String(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
 }
 
 } // namespace Internal

@@ -32,26 +32,25 @@
 #ifndef DEVICEMANAGERMODEL_H
 #define DEVICEMANAGERMODEL_H
 
-#include "remotelinux_export.h"
+#include <projectexplorer/projectexplorer_export.h>
 
 #include <QAbstractListModel>
 #include <QSharedPointer>
 
-namespace RemoteLinux {
+namespace ProjectExplorer {
 namespace Internal { class DeviceManagerModelPrivate; }
-class LinuxDeviceConfiguration;
-class LinuxDeviceConfigurations;
+class IDevice;
+class DeviceManager;
 
-class REMOTELINUX_EXPORT DeviceManagerModel : public QAbstractListModel
+class PROJECTEXPLORER_EXPORT DeviceManagerModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    explicit DeviceManagerModel(const LinuxDeviceConfigurations *deviceManager,
-        QObject *parent = 0);
+    explicit DeviceManagerModel(const DeviceManager *deviceManager, QObject *parent = 0);
     ~DeviceManagerModel();
 
 private slots:
-    void handleDeviceAdded(const QSharedPointer<const LinuxDeviceConfiguration> &device);
+    void handleDeviceAdded(const QSharedPointer<const IDevice> &device);
     void handleDeviceRemoved(int idx);
     void handleDataChanged(int idx);
     void handleDeviceListChanged();
@@ -63,6 +62,6 @@ private:
     Internal::DeviceManagerModelPrivate * const d;
 };
 
-} // namespace RemoteLinux
+} // namespace ProjectExplorer
 
 #endif // DEVICEMANAGERMODEL_H

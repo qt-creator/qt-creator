@@ -37,9 +37,6 @@ namespace Constants {
 
 const char GenericLinuxOsType[] = "GenericLinuxOsType";
 
-const char RemoteLinuxSettingsCategory[] = "X.RemoteLinux";
-const char RemoteLinuxSettingsPageId[] = "AA.Remote Linux Device Configurations";
-
 const char GenericTestDeviceActionId[] = "RemoteLinux.GenericTestDeviceAction";
 const char GenericDeployKeyToDeviceActionId[] = "RemoteLinux.GenericDeployKeyToDeviceAction";
 const char GenericRemoteProcessesActionId[] = "RemoteLinux.GenericRemoteProcessesAction";

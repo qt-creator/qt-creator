@@ -42,7 +42,6 @@ class LinuxDeviceConfiguration;
 class REMOTELINUX_EXPORT RemoteLinuxUtils
 {
 public:
-    static QString displayType(const QString &deviceType);
     static QString deviceConfigurationName(const QSharedPointer<const LinuxDeviceConfiguration> &devConf);
 };
 

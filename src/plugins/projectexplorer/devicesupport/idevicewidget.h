@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -28,41 +29,40 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXSETTINGSPAGES_H
-#define REMOTELINUXSETTINGSPAGES_H
+#ifndef IDEVICEWIDGET_H
+#define IDEVICEWIDGET_H
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include "idevice.h"
+#include <projectexplorer/projectexplorer_export.h>
 
-namespace RemoteLinux {
-namespace Internal {
-class LinuxDeviceConfigurationsSettingsWidget;
+#include <QWidget>
 
-class LinuxDeviceConfigurationsSettingsPage : public Core::IOptionsPage
+namespace ProjectExplorer {
+
+/*!
+ \class ProjectExplorer::IDeviceWidget
+
+ \brief Provides an interface for the widget configuring an IDevice.
+
+ A class implementing this interface will display a widget in the configuration
+ options page "Devices".
+ It is used to let the user configure a particular device.
+*/
+
+class PROJECTEXPLORER_EXPORT IDeviceWidget : public QWidget
 {
     Q_OBJECT
-public:
-    LinuxDeviceConfigurationsSettingsPage(QObject *parent = 0);
-    ~LinuxDeviceConfigurationsSettingsPage();
 
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QString category() const;
-    virtual QString displayCategory() const;
-    virtual QIcon categoryIcon() const;
-    virtual bool matches(const QString &searchKeyWord) const;
-    virtual QWidget *createPage(QWidget *parent);
-    virtual void apply();
-    virtual void finish();
+protected:
+    IDeviceWidget(const IDevice::Ptr &device, QWidget *parent = 0)
+        : QWidget(parent), m_device(device) {}
 
-    static QString pageId();
-    static QString pageCategory();
+    IDevice::Ptr device() const { return m_device; }
 
 private:
-    QString m_keywords;
-    LinuxDeviceConfigurationsSettingsWidget *m_widget;
+    IDevice::Ptr m_device;
 };
 
-} // namespace Internal
-} // namespace RemoteLinux
+} // namespace ProjectExplorer
 
-#endif // REMOTELINUXSETTINGSPAGES_H
+#endif // IDEVICEWIDGET_H

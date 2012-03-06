@@ -271,7 +271,24 @@ QtcPlugin {
         "publishing/publishingwizardselectiondialog.ui",
         "publishing/ipublishingwizardfactory.h",
         "publishing/publishingwizardselectiondialog.cpp",
-        "publishing/publishingwizardselectiondialog.h"
+        "publishing/publishingwizardselectiondialog.h",
+        "devicesupport/idevice.h",
+        "devicesupport/idevice.cpp",
+        "devicesupport/devicemanager.h",
+        "devicesupport/devicemanager.cpp",
+        "devicesupport/devicemanagermodel.h",
+        "devicesupport/devicemanagermodel.cpp",
+        "devicesupport/devicesettingspage.h",
+        "devicesupport/devicesettingspage.cpp",
+        "devicesupport/devicefactoryselectiondialog.cpp",
+        "devicesupport/devicefactoryselectiondialog.h",
+        "devicesupport/devicefactoryselectiondialog.ui",
+        "devicesupport/devicesettingswidget.cpp",
+        "devicesupport/devicesettingswidget.h",
+        "devicesupport/devicesettingswidget.ui",
+        "devicesupport/idevicewizard.h",
+        "devicesupport/idevicewidget.h",
+        "devicesupport/idevicefactory.h"
     ]
 
     Group {

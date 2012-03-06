@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -28,52 +29,36 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
+#ifndef IDEVICEWIZARD_H
+#define IDEVICEWIZARD_H
 
-#ifndef REMOTELINUX_GENERICLINUXDEVICECONFIGURATIONWIDGET_H
-#define REMOTELINUX_GENERICLINUXDEVICECONFIGURATIONWIDGET_H
+#include "idevice.h"
+#include <projectexplorer/projectexplorer_export.h>
 
-#include <projectexplorer/devicesupport/idevicewidget.h>
+#include <QWizard>
 
-#include "linuxdeviceconfiguration.h"
-#include "remotelinux_export.h"
+namespace ProjectExplorer {
 
-namespace RemoteLinux {
+/*!
+  \class ProjectExplorer::IDeviceWizard
 
-namespace Ui {
-class GenericLinuxDeviceConfigurationWidget;
-}
+  \brief Provides an interface for wizards creating an IDevice subclass.
 
-class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWidget
-        : public ProjectExplorer::IDeviceWidget
+  A class implementing this interface is a wizard whose final result is
+  an \c IDevice object. The wizard will be started when the user chooses the
+  "Add..." action from the "Devices" options page.
+*/
+class PROJECTEXPLORER_EXPORT IDeviceWizard : public QWizard
 {
     Q_OBJECT
 
 public:
-    explicit GenericLinuxDeviceConfigurationWidget(
-        const LinuxDeviceConfiguration::Ptr &deviceConfig, QWidget *parent = 0);
-    ~GenericLinuxDeviceConfigurationWidget();
+    virtual IDevice::Ptr device() = 0;
 
-private slots:
-    void authenticationTypeChanged();
-    void hostNameEditingFinished();
-    void sshPortEditingFinished();
-    void timeoutEditingFinished();
-    void userNameEditingFinished();
-    void passwordEditingFinished();
-    void keyFileEditingFinished();
-    void showPassword(bool showClearText);
-    void handleFreePortsChanged();
-    void setPrivateKey(const QString &path);
-    void createNewKey();
-
-private:
-    void updatePortsWarningLabel();
-    void initGui();
-    LinuxDeviceConfiguration::Ptr deviceConfiguration() const;
-
-    Ui::GenericLinuxDeviceConfigurationWidget *m_ui;
+protected:
+    IDeviceWizard(QWidget *parent) : QWizard(parent) { }
 };
 
-} // namespace RemoteLinux
+} // namespace ProjectExplorer
 
-#endif // REMOTELINUX_GENERICLINUXDEVICECONFIGURATIONWIDGET_H
+#endif // IDEVICEWIZARD_H

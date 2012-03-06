@@ -29,28 +29,29 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
-#include "linuxdevicefactoryselectiondialog.h"
-#include "ui_linuxdevicefactoryselectiondialog.h"
+#include "devicefactoryselectiondialog.h"
+#include "ui_devicefactoryselectiondialog.h"
 
-#include "linuxdeviceconfiguration.h"
+#include "idevice.h"
+#include "idevicefactory.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QPushButton>
 
-namespace RemoteLinux {
+namespace ProjectExplorer {
 namespace Internal {
 
-LinuxDeviceFactorySelectionDialog::LinuxDeviceFactorySelectionDialog(QWidget *parent) :
-    QDialog(parent), ui(new Ui::LinuxDeviceFactorySelectionDialog)
+DeviceFactorySelectionDialog::DeviceFactorySelectionDialog(QWidget *parent) :
+    QDialog(parent), ui(new Ui::DeviceFactorySelectionDialog)
 {
     ui->setupUi(this);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Start Wizard"));
 
-    const QList<ILinuxDeviceConfigurationFactory *> &factories
-        = ExtensionSystem::PluginManager::instance()->getObjects<ILinuxDeviceConfigurationFactory>();
-    foreach (const ILinuxDeviceConfigurationFactory * const factory, factories) {
+    const QList<IDeviceFactory *> &factories
+        = ExtensionSystem::PluginManager::instance()->getObjects<IDeviceFactory>();
+    foreach (const IDeviceFactory * const factory, factories) {
         m_factories << factory;
         ui->listWidget->addItem(factory->displayName());
     }
@@ -59,21 +60,21 @@ LinuxDeviceFactorySelectionDialog::LinuxDeviceFactorySelectionDialog(QWidget *pa
     handleItemSelectionChanged();
 }
 
-LinuxDeviceFactorySelectionDialog::~LinuxDeviceFactorySelectionDialog()
+DeviceFactorySelectionDialog::~DeviceFactorySelectionDialog()
 {
     delete ui;
 }
 
-void LinuxDeviceFactorySelectionDialog::handleItemSelectionChanged()
+void DeviceFactorySelectionDialog::handleItemSelectionChanged()
 {
     ui->buttonBox->button(QDialogButtonBox::Ok)
         ->setEnabled(!ui->listWidget->selectedItems().isEmpty());
 }
 
-const ILinuxDeviceConfigurationFactory *LinuxDeviceFactorySelectionDialog::selectedFactory() const
+const IDeviceFactory *DeviceFactorySelectionDialog::selectedFactory() const
 {
     return m_factories.at(ui->listWidget->row(ui->listWidget->selectedItems().first()));
 }
 
 } // namespace Internal
-} // namespace RemoteLinux
+} // namespace ProjectExplorer

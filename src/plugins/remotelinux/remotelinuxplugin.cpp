@@ -37,12 +37,10 @@
 #include "deployablefile.h"
 #include "genericlinuxdeviceconfigurationfactory.h"
 #include "genericremotelinuxdeploystepfactory.h"
-#include "linuxdeviceconfigurations.h"
 #include "qt4projectmanager/qt4projectmanagerconstants.h"
 #include "remotelinuxdeployconfigurationfactory.h"
 #include "remotelinuxrunconfigurationfactory.h"
 #include "remotelinuxruncontrolfactory.h"
-#include "remotelinuxsettingspages.h"
 #include "startgdbserverdialog.h"
 
 #include <coreplugin/icore.h>
@@ -71,10 +69,7 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    LinuxDeviceConfigurations::instance(this);
-
     addObject(this);
-    addAutoReleasedObject(new LinuxDeviceConfigurationsSettingsPage);
     addAutoReleasedObject(new GenericLinuxDeviceConfigurationFactory);
     addAutoReleasedObject(new RemoteLinuxRunConfigurationFactory);
     addAutoReleasedObject(new RemoteLinuxRunControlFactory);

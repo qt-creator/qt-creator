@@ -34,13 +34,13 @@
 #include "abstractembeddedlinuxtarget.h"
 #include "deployablefilesperprofile.h"
 #include "deploymentinfo.h"
-#include "linuxdeviceconfigurations.h"
 #include "remotelinuxdeployconfiguration.h"
-#include "remotelinuxsettingspages.h"
 #include "typespecificdeviceconfigurationlistmodel.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QTreeView>
@@ -182,8 +182,7 @@ void RemoteLinuxDeployConfigurationWidget::handleDeviceConfigurationListChanged(
 {
     const LinuxDeviceConfiguration::ConstPtr &devConf
         = d->deployConfiguration->deviceConfiguration();
-    const LinuxDeviceConfiguration::Id internalId
-        = LinuxDeviceConfigurations::instance()->internalId(devConf);
+    const IDevice::Id internalId = DeviceManager::instance()->internalId(devConf);
     const int newIndex
         = d->deployConfiguration->target()->deviceConfigModel()->indexForInternalId(internalId);
     d->ui.deviceConfigsComboBox->setCurrentIndex(newIndex);
@@ -191,8 +190,9 @@ void RemoteLinuxDeployConfigurationWidget::handleDeviceConfigurationListChanged(
 
 void RemoteLinuxDeployConfigurationWidget::showDeviceConfigurations()
 {
-    Core::ICore::showOptionsDialog(LinuxDeviceConfigurationsSettingsPage::pageCategory(),
-                                               LinuxDeviceConfigurationsSettingsPage::pageId());
+    Core::ICore::showOptionsDialog(
+        QLatin1String(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY),
+        QLatin1String(ProjectExplorer::Constants::DEVICE_SETTINGS_PAGE_ID));
 }
 
 void RemoteLinuxDeployConfigurationWidget::openProjectFile()

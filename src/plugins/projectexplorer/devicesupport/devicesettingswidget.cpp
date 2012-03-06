@@ -28,20 +28,20 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
-#include "linuxdeviceconfigurationssettingswidget.h"
+#include "devicesettingswidget.h"
+#include "ui_devicesettingswidget.h"
 
-#include "ui_linuxdeviceconfigurationssettingswidget.h"
-
+#include "devicefactoryselectiondialog.h"
+#include "devicemanager.h"
 #include "devicemanagermodel.h"
-#include "linuxdeviceconfigurations.h"
-#include "linuxdevicefactoryselectiondialog.h"
-#include "remotelinuxutils.h"
-#include "sshkeycreationdialog.h"
+#include "idevice.h"
+#include "idevicefactory.h"
+#include "idevicewidget.h"
+#include "idevicewizard.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/portlist.h>
-#include <utils/ssh/sshremoteprocessrunner.h>
 
 #include <QFileInfo>
 #include <QRegExp>
@@ -58,19 +58,15 @@
 using namespace Core;
 using namespace Utils;
 
-namespace RemoteLinux {
+namespace ProjectExplorer {
 namespace Internal {
-namespace {
-const QLatin1String LastDeviceConfigIndexKey("LastDisplayedMaemoDeviceConfig");
-} // anonymous namespace
-
+const char LastDeviceIndexKey[] = "LastDisplayedMaemoDeviceConfig";
 
 class NameValidator : public QValidator
 {
 public:
-    NameValidator(const LinuxDeviceConfigurations *devConfigs,
-            QWidget *parent = 0)
-        : QValidator(parent), m_devConfigs(devConfigs)
+    NameValidator(const DeviceManager *deviceManager, QWidget *parent = 0)
+        : QValidator(parent), m_deviceManager(deviceManager)
     {
     }
 
@@ -79,7 +75,7 @@ public:
     virtual State validate(QString &input, int & /* pos */) const
     {
         if (input.trimmed().isEmpty()
-                || (input != m_oldName && m_devConfigs->hasConfig(input)))
+                || (input != m_oldName && m_deviceManager->hasDevice(input)))
             return Intermediate;
         return Acceptable;
     }
@@ -93,15 +89,15 @@ public:
 
 private:
     QString m_oldName;
-    const LinuxDeviceConfigurations * const m_devConfigs;
+    const DeviceManager * const m_deviceManager;
 };
 
 
-LinuxDeviceConfigurationsSettingsWidget::LinuxDeviceConfigurationsSettingsWidget(QWidget *parent)
+DeviceSettingsWidget::DeviceSettingsWidget(QWidget *parent)
     : QWidget(parent),
-      m_ui(new Ui::LinuxDeviceConfigurationsSettingsWidget),
-      m_devConfigs(LinuxDeviceConfigurations::cloneInstance()),
-      m_nameValidator(new NameValidator(m_devConfigs, this)),
+      m_ui(new Ui::DeviceSettingsWidget),
+      m_deviceManager(DeviceManager::cloneInstance()),
+      m_nameValidator(new NameValidator(m_deviceManager, this)),
       m_saveSettingsRequested(false),
       m_additionalActionsMapper(new QSignalMapper(this)),
       m_configWidget(0)
@@ -111,18 +107,18 @@ LinuxDeviceConfigurationsSettingsWidget::LinuxDeviceConfigurationsSettingsWidget
         SLOT(handleAdditionalActionRequest(QString)));
 }
 
-LinuxDeviceConfigurationsSettingsWidget::~LinuxDeviceConfigurationsSettingsWidget()
+DeviceSettingsWidget::~DeviceSettingsWidget()
 {
     if (m_saveSettingsRequested) {
-        Core::ICore::settings()->setValue(LastDeviceConfigIndexKey,
+        Core::ICore::settings()->setValue(QLatin1String(LastDeviceIndexKey),
             currentIndex());
-        LinuxDeviceConfigurations::replaceInstance();
+        DeviceManager::replaceInstance();
     }
-    LinuxDeviceConfigurations::removeClonedInstance();
+    DeviceManager::removeClonedInstance();
     delete m_ui;
 }
 
-QString LinuxDeviceConfigurationsSettingsWidget::searchKeywords() const
+QString DeviceSettingsWidget::searchKeywords() const
 {
     QString rc;
     QTextStream(&rc) << m_ui->configurationLabel->text()
@@ -133,112 +129,106 @@ QString LinuxDeviceConfigurationsSettingsWidget::searchKeywords() const
     return rc;
 }
 
-void LinuxDeviceConfigurationsSettingsWidget::initGui()
+void DeviceSettingsWidget::initGui()
 {
     m_ui->setupUi(this);
-    DeviceManagerModel * const model = new DeviceManagerModel(m_devConfigs, this);
+    DeviceManagerModel * const model = new DeviceManagerModel(m_deviceManager, this);
     m_ui->configurationComboBox->setModel(model);
     m_ui->nameLineEdit->setValidator(m_nameValidator);
 
     int lastIndex = Core::ICore::settings()
-        ->value(LastDeviceConfigIndexKey, 0).toInt();
+        ->value(QLatin1String(LastDeviceIndexKey), 0).toInt();
     if (lastIndex == -1)
         lastIndex = 0;
     if (lastIndex < m_ui->configurationComboBox->count())
         m_ui->configurationComboBox->setCurrentIndex(lastIndex);
     connect(m_ui->configurationComboBox, SIGNAL(currentIndexChanged(int)),
-        SLOT(currentConfigChanged(int)));
-    currentConfigChanged(currentIndex());
+        SLOT(currentDeviceChanged(int)));
+    currentDeviceChanged(currentIndex());
     connect(m_ui->defaultDeviceButton, SIGNAL(clicked()),
         SLOT(setDefaultDevice()));
 }
 
-void LinuxDeviceConfigurationsSettingsWidget::addConfig()
+void DeviceSettingsWidget::addDevice()
 {
-    const QList<ILinuxDeviceConfigurationFactory *> &factories
-        = ExtensionSystem::PluginManager::instance()->getObjects<ILinuxDeviceConfigurationFactory>();
+    const QList<IDeviceFactory *> &factories
+        = ExtensionSystem::PluginManager::instance()->getObjects<IDeviceFactory>();
 
     if (factories.isEmpty()) // Can't happen, because this plugin provides the generic one.
         return;
 
-    LinuxDeviceFactorySelectionDialog d;
+    DeviceFactorySelectionDialog d;
     if (d.exec() != QDialog::Accepted)
         return;
 
-    const QScopedPointer<ILinuxDeviceConfigurationWizard> wizard(d.selectedFactory()->createWizard(this));
+    const QScopedPointer<IDeviceWizard> wizard(d.selectedFactory()->createWizard(this));
     if (wizard->exec() != QDialog::Accepted)
         return;
 
-    m_devConfigs->addConfiguration(wizard->deviceConfiguration());
+    m_deviceManager->addDevice(wizard->device());
     m_ui->removeConfigButton->setEnabled(true);
     m_ui->configurationComboBox->setCurrentIndex(m_ui->configurationComboBox->count()-1);
 }
 
-void LinuxDeviceConfigurationsSettingsWidget::deleteConfig()
+void DeviceSettingsWidget::removeDevice()
 {
-    m_devConfigs->removeConfiguration(currentIndex());
-    if (m_devConfigs->deviceCount() == 0)
-        currentConfigChanged(-1);
+    m_deviceManager->removeDevice(currentIndex());
+    if (m_deviceManager->deviceCount() == 0)
+        currentDeviceChanged(-1);
 }
 
-void LinuxDeviceConfigurationsSettingsWidget::displayCurrent()
+void DeviceSettingsWidget::displayCurrent()
 {
-    const LinuxDeviceConfiguration::ConstPtr &current = currentConfig();
+    const IDevice::ConstPtr &current = currentDevice();
     m_ui->defaultDeviceButton->setEnabled(
-        m_devConfigs->defaultDeviceConfig(current->type()) != current);
-    m_ui->osTypeValueLabel->setText(RemoteLinuxUtils::displayType(current->type()));
+        m_deviceManager->defaultDevice(current->type()) != current);
+    m_ui->osTypeValueLabel->setText(DeviceManager::displayNameForDeviceType(current->type()));
 
     m_nameValidator->setDisplayName(current->displayName());
     m_ui->removeConfigButton->setEnabled(!current->isAutoDetected());
     fillInValues();
 }
 
-void LinuxDeviceConfigurationsSettingsWidget::fillInValues()
+void DeviceSettingsWidget::fillInValues()
 {
-    const LinuxDeviceConfiguration::ConstPtr &current = currentConfig();
+    const IDevice::ConstPtr &current = currentDevice();
     m_ui->nameLineEdit->setText(current->displayName());
 }
 
-void LinuxDeviceConfigurationsSettingsWidget::saveSettings()
+void DeviceSettingsWidget::saveSettings()
 {
     // We must defer this step because of a stupid bug on MacOS. See QTCREATORBUG-1675.
     m_saveSettingsRequested = true;
 }
 
-int LinuxDeviceConfigurationsSettingsWidget::currentIndex() const
+int DeviceSettingsWidget::currentIndex() const
 {
     return m_ui->configurationComboBox->currentIndex();
 }
 
-LinuxDeviceConfiguration::ConstPtr LinuxDeviceConfigurationsSettingsWidget::currentConfig() const
+QSharedPointer<const IDevice> DeviceSettingsWidget::currentDevice() const
 {
     Q_ASSERT(currentIndex() != -1);
-    return m_devConfigs->deviceAt(currentIndex());
+    return m_deviceManager->deviceAt(currentIndex());
 }
 
-void LinuxDeviceConfigurationsSettingsWidget::configNameEditingFinished()
+void DeviceSettingsWidget::deviceNameEditingFinished()
 {
     if (m_ui->configurationComboBox->count() == 0)
         return;
 
     const QString &newName = m_ui->nameLineEdit->text();
-    m_devConfigs->setConfigurationName(currentIndex(), newName);
+    m_deviceManager->setDeviceDisplayName(currentIndex(), newName);
     m_nameValidator->setDisplayName(newName);
 }
 
-void LinuxDeviceConfigurationsSettingsWidget::setDefaultDevice()
+void DeviceSettingsWidget::setDefaultDevice()
 {
-    m_devConfigs->setDefaultDevice(currentIndex());
+    m_deviceManager->setDefaultDevice(currentIndex());
     m_ui->defaultDeviceButton->setEnabled(false);
 }
 
-void LinuxDeviceConfigurationsSettingsWidget::showGenerateSshKeyDialog()
-{
-    SshKeyCreationDialog dialog(this);
-    dialog.exec();
-}
-
-void LinuxDeviceConfigurationsSettingsWidget::currentConfigChanged(int index)
+void DeviceSettingsWidget::currentDeviceChanged(int index)
 {
     qDeleteAll(m_additionalActionButtons);
     delete m_configWidget;
@@ -248,13 +238,11 @@ void LinuxDeviceConfigurationsSettingsWidget::currentConfigChanged(int index)
     m_ui->osSpecificGroupBox->setEnabled(false);
     if (index == -1) {
         m_ui->removeConfigButton->setEnabled(false);
-        m_ui->generateKeyButton->setEnabled(false);
         clearDetails();
         m_ui->defaultDeviceButton->setEnabled(false);
     } else {
         m_ui->removeConfigButton->setEnabled(true);
-        m_ui->generateKeyButton->setEnabled(true);
-        const ILinuxDeviceConfigurationFactory * const factory = factoryForCurrentConfig();
+        const IDeviceFactory * const factory = factoryForCurrentDevice();
         if (factory) {
             const QStringList &actionIds = factory->supportedDeviceActionIds();
             foreach (const QString &actionId, actionIds) {
@@ -267,11 +255,9 @@ void LinuxDeviceConfigurationsSettingsWidget::currentConfigChanged(int index)
             }
             if (!m_ui->osSpecificGroupBox->layout())
                 new QVBoxLayout(m_ui->osSpecificGroupBox);
-            m_configWidget = factory->createWidget(m_devConfigs->mutableDeviceAt(currentIndex()),
+            m_configWidget = factory->createWidget(m_deviceManager->mutableDeviceAt(currentIndex()),
                                                    m_ui->osSpecificGroupBox);
             if (m_configWidget) {
-                connect(m_configWidget, SIGNAL(defaultSshKeyFilePathChanged(QString)),
-                        m_devConfigs, SLOT(setDefaultSshKeyFilePath(QString)));
                 m_ui->osSpecificGroupBox->layout()->addWidget(m_configWidget);
                 m_ui->osSpecificGroupBox->setEnabled(factory->isUserEditable());
             }
@@ -282,33 +268,27 @@ void LinuxDeviceConfigurationsSettingsWidget::currentConfigChanged(int index)
     }
 }
 
-void LinuxDeviceConfigurationsSettingsWidget::clearDetails()
+void DeviceSettingsWidget::clearDetails()
 {
     m_ui->nameLineEdit->clear();
     m_ui->osTypeValueLabel->clear();
 }
 
-const ILinuxDeviceConfigurationFactory *LinuxDeviceConfigurationsSettingsWidget::factoryForCurrentConfig() const
+const IDeviceFactory *DeviceSettingsWidget::factoryForCurrentDevice() const
 {
-    Q_ASSERT(currentConfig());
-    const QList<ILinuxDeviceConfigurationFactory *> &factories
-        = ExtensionSystem::PluginManager::instance()->getObjects<ILinuxDeviceConfigurationFactory>();
-    foreach (const ILinuxDeviceConfigurationFactory * const factory, factories) {
-        if (factory->supportsDeviceType(currentConfig()->type()))
-            return factory;
-    }
-    return 0;
+    Q_ASSERT(currentDevice());
+    return DeviceManager::factoryForDeviceType(currentDevice()->type());
 }
 
-void LinuxDeviceConfigurationsSettingsWidget::handleAdditionalActionRequest(const QString &actionId)
+void DeviceSettingsWidget::handleAdditionalActionRequest(const QString &actionId)
 {
-    const ILinuxDeviceConfigurationFactory * const factory = factoryForCurrentConfig();
+    const IDeviceFactory * const factory = factoryForCurrentDevice();
     Q_ASSERT(factory);
-    QDialog * const action = factory->createDeviceAction(actionId, currentConfig(), this);
+    QDialog * const action = factory->createDeviceAction(actionId, currentDevice(), this);
     if (action)
         action->exec();
     delete action;
 }
 
 } // namespace Internal
-} // namespace RemoteLinux
+} // namespace ProjectExplorer

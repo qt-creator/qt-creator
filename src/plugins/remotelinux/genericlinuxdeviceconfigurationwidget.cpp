@@ -32,10 +32,9 @@
 #include "genericlinuxdeviceconfigurationwidget.h"
 #include "ui_genericlinuxdeviceconfigurationwidget.h"
 
-#include <remotelinux/linuxdeviceconfigurations.h>
-
 #include <utils/portlist.h>
 #include <utils/ssh/sshconnection.h>
+#include <utils/ssh/sshkeycreationdialog.h>
 
 #include <QTextStream>
 
@@ -45,7 +44,7 @@ using namespace Utils;
 GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
         const LinuxDeviceConfiguration::Ptr &deviceConfig,
         QWidget *parent) :
-    ILinuxDeviceConfigurationWidget(deviceConfig, parent),
+    ProjectExplorer::IDeviceWidget(deviceConfig, parent),
     m_ui(new Ui::GenericLinuxDeviceConfigurationWidget)
 {
     m_ui->setupUi(this);
@@ -62,7 +61,7 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
     connect(m_ui->sshPortSpinBox, SIGNAL(valueChanged(int)), this, SLOT(sshPortEditingFinished()));
     connect(m_ui->showPasswordCheckBox, SIGNAL(toggled(bool)), this, SLOT(showPassword(bool)));
     connect(m_ui->portsLineEdit, SIGNAL(editingFinished()), this, SLOT(handleFreePortsChanged()));
-    connect(m_ui->makeKeyFileDefaultButton, SIGNAL(clicked()), SLOT(setDefaultKeyFilePath()));
+    connect(m_ui->createKeyButton, SIGNAL(clicked()), SLOT(createNewKey()));
 
     initGui();
 }
@@ -84,7 +83,6 @@ void GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged()
     m_ui->passwordLabel->setEnabled(usePassword);
     m_ui->keyFileLineEdit->setEnabled(!usePassword);
     m_ui->keyLabel->setEnabled(!usePassword);
-    m_ui->makeKeyFileDefaultButton->setEnabled(!usePassword);
 }
 
 void GenericLinuxDeviceConfigurationWidget::hostNameEditingFinished()
@@ -141,15 +139,17 @@ void GenericLinuxDeviceConfigurationWidget::showPassword(bool showClearText)
         ? QLineEdit::Normal : QLineEdit::Password);
 }
 
-void GenericLinuxDeviceConfigurationWidget::setDefaultKeyFilePath()
-{
-    emit defaultSshKeyFilePathChanged(m_ui->keyFileLineEdit->path());
-}
-
 void GenericLinuxDeviceConfigurationWidget::setPrivateKey(const QString &path)
 {
     m_ui->keyFileLineEdit->setPath(path);
     keyFileEditingFinished();
+}
+
+void GenericLinuxDeviceConfigurationWidget::createNewKey()
+{
+    SshKeyCreationDialog dialog(this);
+    if (dialog.exec() == QDialog::Accepted)
+        setPrivateKey(dialog.privateKeyFilePath());
 }
 
 void GenericLinuxDeviceConfigurationWidget::updatePortsWarningLabel()
@@ -191,4 +191,9 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
     m_ui->keyFileLineEdit->setPath(sshParams.privateKeyFile);
     m_ui->showPasswordCheckBox->setChecked(false);
     updatePortsWarningLabel();
+}
+
+LinuxDeviceConfiguration::Ptr GenericLinuxDeviceConfigurationWidget::deviceConfiguration() const
+{
+    return device().staticCast<LinuxDeviceConfiguration>();
 }

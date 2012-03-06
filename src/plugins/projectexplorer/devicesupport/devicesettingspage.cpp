@@ -28,83 +28,84 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
-#include "remotelinuxsettingspages.h"
+#include "devicesettingspage.h"
 
-#include "linuxdeviceconfigurationssettingswidget.h"
-#include "remotelinux_constants.h"
+#include "devicesettingswidget.h"
+
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QCoreApplication>
 #include <QString>
 #include <QIcon>
 
-namespace RemoteLinux {
+namespace ProjectExplorer {
 namespace Internal {
 
-LinuxDeviceConfigurationsSettingsPage::LinuxDeviceConfigurationsSettingsPage(QObject *parent)
+DeviceSettingsPage::DeviceSettingsPage(QObject *parent)
     : Core::IOptionsPage(parent)
 {
 }
 
-LinuxDeviceConfigurationsSettingsPage::~LinuxDeviceConfigurationsSettingsPage()
+DeviceSettingsPage::~DeviceSettingsPage()
 {
 }
 
-QString LinuxDeviceConfigurationsSettingsPage::id() const
+QString DeviceSettingsPage::id() const
 {
     return pageId();
 }
 
-QString LinuxDeviceConfigurationsSettingsPage::displayName() const
+QString DeviceSettingsPage::displayName() const
 {
-    return tr("Device Configurations");
+    return tr("Devices");
 }
 
-QString LinuxDeviceConfigurationsSettingsPage::category() const
+QString DeviceSettingsPage::category() const
 {
     return pageCategory();
 }
 
-QString LinuxDeviceConfigurationsSettingsPage::displayCategory() const
+QString DeviceSettingsPage::displayCategory() const
 {
-    return QCoreApplication::translate("RemoteLinux", "Devices");
+    return QCoreApplication::translate("ProjectExplorer", "Devices");
 }
 
-QIcon LinuxDeviceConfigurationsSettingsPage::categoryIcon() const
+QIcon DeviceSettingsPage::categoryIcon() const
 {
     return QIcon(QLatin1String(":/projectexplorer/images/MaemoDevice.png"));
 }
 
-bool LinuxDeviceConfigurationsSettingsPage::matches(const QString &searchKeyWord) const
+bool DeviceSettingsPage::matches(const QString &searchKeyWord) const
 {
     return m_keywords.contains(searchKeyWord, Qt::CaseInsensitive);
 }
 
-QWidget *LinuxDeviceConfigurationsSettingsPage::createPage(QWidget *parent)
+QWidget *DeviceSettingsPage::createPage(QWidget *parent)
 {
-    m_widget = new LinuxDeviceConfigurationsSettingsWidget(parent);
+    m_widget = new DeviceSettingsWidget(parent);
     if (m_keywords.isEmpty())
         m_keywords = m_widget->searchKeywords();
     return m_widget;
 }
 
-void LinuxDeviceConfigurationsSettingsPage::apply()
+void DeviceSettingsPage::apply()
 {
     m_widget->saveSettings();
 }
 
-void LinuxDeviceConfigurationsSettingsPage::finish()
+void DeviceSettingsPage::finish()
 {
 }
 
-QString LinuxDeviceConfigurationsSettingsPage::pageId()
+QString DeviceSettingsPage::pageId()
 {
-    return QLatin1String(Constants::RemoteLinuxSettingsPageId);
+    return QLatin1String(Constants::DEVICE_SETTINGS_PAGE_ID);
 }
 
-QString LinuxDeviceConfigurationsSettingsPage::pageCategory()
+QString DeviceSettingsPage::pageCategory()
 {
-    return QLatin1String(Constants::RemoteLinuxSettingsCategory);
+    return QLatin1String(Constants::DEVICE_SETTINGS_CATEGORY);
 }
 
 } // namespace Internal
-} // namespace RemoteLinux
+} // namespace ProjectExplorer

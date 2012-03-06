@@ -40,9 +40,10 @@
 #include "maemoconstants.h"
 #include "maemoglobal.h"
 
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
+#include <remotelinux/linuxdeviceconfiguration.h>
 #include <remotelinux/linuxdevicetestdialog.h>
-#include <remotelinux/remotelinuxutils.h>
 #include <remotelinux/sshkeydeployer.h>
 #include <utils/fileutils.h>
 #include <utils/ssh/sshkeygenerator.h>
@@ -54,6 +55,7 @@
 #include <QMessageBox>
 #include <QWizardPage>
 
+using namespace ProjectExplorer;
 using namespace RemoteLinux;
 using namespace Utils;
 
@@ -104,11 +106,11 @@ public:
         setTitle(tr("General Information"));
         setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
 
-        m_ui->osTypeComboBox->addItem(RemoteLinuxUtils::displayType(QLatin1String(Maemo5OsType)),
+        m_ui->osTypeComboBox->addItem(DeviceManager::displayNameForDeviceType(QLatin1String(Maemo5OsType)),
             QLatin1String(Maemo5OsType));
-        m_ui->osTypeComboBox->addItem(RemoteLinuxUtils::displayType(QLatin1String(HarmattanOsType)),
+        m_ui->osTypeComboBox->addItem(DeviceManager::displayNameForDeviceType(QLatin1String(HarmattanOsType)),
             QLatin1String(HarmattanOsType));
-        m_ui->osTypeComboBox->addItem(RemoteLinuxUtils::displayType(QLatin1String(MeeGoOsType)),
+        m_ui->osTypeComboBox->addItem(DeviceManager::displayNameForDeviceType(QLatin1String(MeeGoOsType)),
             QLatin1String(MeeGoOsType));
 
         QButtonGroup *buttonGroup = new QButtonGroup(this);
@@ -538,7 +540,7 @@ struct MaemoDeviceConfigWizardPrivate
 
 
 MaemoDeviceConfigWizard::MaemoDeviceConfigWizard(QWidget *parent)
-    : ILinuxDeviceConfigurationWizard(parent), d(new MaemoDeviceConfigWizardPrivate(this))
+    : IDeviceWizard(parent), d(new MaemoDeviceConfigWizardPrivate(this))
 {
     setWindowTitle(tr("New Device Configuration Setup"));
     setPage(StartPageId, &d->startPage);
@@ -555,7 +557,7 @@ MaemoDeviceConfigWizard::~MaemoDeviceConfigWizard()
     delete d;
 }
 
-LinuxDeviceConfiguration::Ptr MaemoDeviceConfigWizard::deviceConfiguration()
+IDevice::Ptr MaemoDeviceConfigWizard::device()
 {
     bool doTest;
     QString freePortsSpec;

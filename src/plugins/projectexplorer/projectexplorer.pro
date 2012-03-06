@@ -3,6 +3,7 @@ TARGET = ProjectExplorer
 QT += xml \
     script \
     declarative
+
 include(../../qtcreatorplugin.pri)
 include(projectexplorer_dependencies.pri)
 include(../../libs/utils/utils.pri)
@@ -102,7 +103,16 @@ HEADERS += projectexplorer.h \
     appoutputpane.h \
     codestylesettingspropertiespage.h \
     settingsaccessor.h \
-    environmentitemswidget.h
+    environmentitemswidget.h \
+    devicesupport/idevice.h \
+    devicesupport/idevicewizard.h \
+    devicesupport/idevicewidget.h \
+    devicesupport/idevicefactory.h \
+    devicesupport/devicemanager.h \
+    devicesupport/devicemanagermodel.h \
+    devicesupport/devicefactoryselectiondialog.h \
+    devicesupport/devicesettingswidget.h \
+    devicesupport/devicesettingspage.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -188,7 +198,13 @@ SOURCES += projectexplorer.cpp \
     appoutputpane.cpp \
     codestylesettingspropertiespage.cpp \
     settingsaccessor.cpp \
-    environmentitemswidget.cpp
+    environmentitemswidget.cpp \
+    devicesupport/idevice.cpp \
+    devicesupport/devicemanager.cpp \
+    devicesupport/devicemanagermodel.cpp \
+    devicesupport/devicefactoryselectiondialog.cpp \
+    devicesupport/devicesettingswidget.cpp \
+    devicesupport/devicesettingspage.cpp
 
 FORMS += processstep.ui \
     toolchainoptionspage.ui \
@@ -200,7 +216,9 @@ FORMS += processstep.ui \
     targetsettingswidget.ui \
     doubletabwidget.ui \
     publishing/publishingwizardselectiondialog.ui \
-    codestylesettingspropertiespage.ui
+    codestylesettingspropertiespage.ui \
+    devicesupport/devicefactoryselectiondialog.ui \
+    devicesupport/devicesettingswidget.ui
 
 WINSOURCES += \
     windebuginterface.cpp \

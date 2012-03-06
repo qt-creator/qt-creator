@@ -31,29 +31,27 @@
 **************************************************************************/
 #include "devicemanagermodel.h"
 
-#include "linuxdeviceconfigurations.h"
-#include "remotelinuxutils.h"
+#include "devicemanager.h"
 
 #include <QString>
 
-namespace RemoteLinux {
+namespace ProjectExplorer {
 namespace Internal {
 class DeviceManagerModelPrivate
 {
 public:
-    const LinuxDeviceConfigurations *deviceManager;
-    QList<LinuxDeviceConfiguration::ConstPtr> devices;
+    const DeviceManager *deviceManager;
+    QList<IDevice::ConstPtr> devices;
 };
 } // namespace Internal
 
-DeviceManagerModel::DeviceManagerModel(const LinuxDeviceConfigurations *deviceManager,
-        QObject *parent) :
+DeviceManagerModel::DeviceManagerModel(const DeviceManager *deviceManager, QObject *parent) :
     QAbstractListModel(parent), d(new Internal::DeviceManagerModelPrivate)
 {
     d->deviceManager = deviceManager;
     handleDeviceListChanged();
-    connect(deviceManager, SIGNAL(deviceAdded(QSharedPointer<const LinuxDeviceConfiguration>)),
-        SLOT(handleDeviceAdded(QSharedPointer<const LinuxDeviceConfiguration>)));
+    connect(deviceManager, SIGNAL(deviceAdded(QSharedPointer<const IDevice>)),
+        SLOT(handleDeviceAdded(QSharedPointer<const IDevice>)));
     connect(deviceManager, SIGNAL(deviceRemoved(int)), SLOT(handleDeviceRemoved(int)));
     connect(deviceManager, SIGNAL(displayNameChanged(int)), SLOT(handleDataChanged(int)));
     connect(deviceManager, SIGNAL(defaultStatusChanged(int)), SLOT(handleDataChanged(int)));
@@ -65,7 +63,7 @@ DeviceManagerModel::~DeviceManagerModel()
     delete d;
 }
 
-void DeviceManagerModel::handleDeviceAdded(const LinuxDeviceConfiguration::ConstPtr &device)
+void DeviceManagerModel::handleDeviceAdded(const IDevice::ConstPtr &device)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     d->devices << device;
@@ -104,13 +102,13 @@ QVariant DeviceManagerModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= rowCount() || role != Qt::DisplayRole)
         return QVariant();
-    const LinuxDeviceConfiguration::ConstPtr devConf = d->devices.at(index.row());
-    QString name = devConf->displayName();
-    if (d->deviceManager->defaultDeviceConfig(devConf->type()) == devConf) {
-        name += QLatin1Char(' ') + tr("(default for %1)")
-            .arg(RemoteLinuxUtils::displayType(devConf->type()));
+    const IDevice::ConstPtr device = d->devices.at(index.row());
+    QString name = device->displayName();
+    if (d->deviceManager->defaultDevice(device->type()) == device) {
+        name = tr("%1 (default for %2)").arg(name,
+            d->deviceManager->displayNameForDeviceType(device->type()));
     }
     return name;
 }
 
-} // namespace RemoteLinux
+} // namespace ProjectExplorer

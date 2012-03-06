@@ -34,12 +34,12 @@
 #include "linuxdeviceconfiguration.h"
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxenvironmentreader.h"
-#include "remotelinuxsettingspages.h"
 #include "remotelinuxutils.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/environmentwidget.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4target.h>
 #include <utils/detailswidget.h>
@@ -289,8 +289,9 @@ void RemoteLinuxRunConfigurationWidget::handleWorkingDirectoryChanged()
 void RemoteLinuxRunConfigurationWidget::showDeviceConfigurationsDialog(const QString &link)
 {
     if (link == QLatin1String("deviceconfig")) {
-        Core::ICore::showOptionsDialog(LinuxDeviceConfigurationsSettingsPage::pageCategory(),
-            LinuxDeviceConfigurationsSettingsPage::pageId());
+        Core::ICore::showOptionsDialog(
+            QLatin1String(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY),
+            QLatin1String(ProjectExplorer::Constants::DEVICE_SETTINGS_PAGE_ID));
     } else if (link == QLatin1String("debugger")) {
         Core::ICore::showOptionsDialog(QLatin1String("O.Debugger"),
             QLatin1String("M.Gdb"));

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>393</width>
-    <height>185</height>
+    <height>206</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -215,9 +215,9 @@
       <widget class="Utils::PathChooser" name="keyFileLineEdit" native="true"/>
      </item>
      <item>
-      <widget class="QPushButton" name="makeKeyFileDefaultButton">
+      <widget class="QPushButton" name="createKeyButton">
        <property name="text">
-        <string>Set as Default</string>
+        <string>Create New...</string>
        </property>
       </widget>
      </item>

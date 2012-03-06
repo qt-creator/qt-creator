@@ -31,9 +31,8 @@
 #include "sshkeycreationdialog.h"
 #include "ui_sshkeycreationdialog.h"
 
-#include "linuxdeviceconfiguration.h"
+#include "sshkeygenerator.h"
 
-#include <utils/ssh/sshkeygenerator.h>
 #include <utils/fileutils.h>
 
 #include <QDir>
@@ -43,8 +42,7 @@
 #include <QDesktopServices>
 #include <QMessageBox>
 
-using namespace Utils;
-using namespace RemoteLinux::Internal;
+namespace Utils {
 
 SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
     : QDialog(parent), m_keyGenerator(0), m_ui(new Ui::SshKeyCreationDialog)
@@ -115,7 +113,7 @@ void SshKeyCreationDialog::saveKeys()
         return;
     QFile::setPermissions(privateKeyFilePath(), QFile::ReadOwner | QFile::WriteOwner);
 
-    FileSaver pubSaver(m_ui->publicKeyFileLabel->text());
+    FileSaver pubSaver(publicKeyFilePath());
     pubSaver.write(m_keyGenerator->publicKey());
     if (pubSaver.finalize(this))
         accept();
@@ -125,3 +123,10 @@ QString SshKeyCreationDialog::privateKeyFilePath() const
 {
     return m_ui->privateKeyFilePathChooser->path();
 }
+
+QString SshKeyCreationDialog::publicKeyFilePath() const
+{
+    return m_ui->publicKeyFileLabel->text();
+}
+
+} // namespace Utils

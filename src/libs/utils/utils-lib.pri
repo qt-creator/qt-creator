@@ -88,6 +88,7 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/ssh/sshconnectionmanager.cpp \
     $$PWD/ssh/sshkeypasswordretriever.cpp \
     $$PWD/ssh/sftpfilesystemmodel.cpp \
+    $$PWD/ssh/sshkeycreationdialog.cpp \
     $$PWD/outputformatter.cpp \
     $$PWD/flowlayout.cpp \
     $$PWD/networkaccessmanager.cpp \
@@ -196,6 +197,7 @@ HEADERS += \
     $$PWD/ssh/sshpseudoterminal.h \
     $$PWD/ssh/sshkeypasswordretriever_p.h \
     $$PWD/ssh/sftpfilesystemmodel.h \
+    $$PWD/ssh/sshkeycreationdialog.h \
     $$PWD/statuslabel.h \
     $$PWD/outputformatter.h \
     $$PWD/outputformat.h \
@@ -212,6 +214,7 @@ HEADERS += \
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
     $$PWD/newclasswidget.ui \
-    $$PWD/submiteditorwidget.ui
+    $$PWD/submiteditorwidget.ui \
+    $$PWD/ssh/sshkeycreationdialog.ui
 
 RESOURCES += $$PWD/utils.qrc

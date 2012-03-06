@@ -31,7 +31,9 @@
 #ifndef GENERICLINUXDEVICECONFIGURATIONWIZARD_H
 #define GENERICLINUXDEVICECONFIGURATIONWIZARD_H
 
-#include "linuxdeviceconfiguration.h"
+#include "remotelinux_export.h"
+
+#include <projectexplorer/devicesupport/idevicewizard.h>
 
 namespace RemoteLinux {
 namespace Internal {
@@ -39,7 +41,7 @@ class GenericLinuxDeviceConfigurationWizardPrivate;
 } // namespace Internal
 
 class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizard
-        : public ILinuxDeviceConfigurationWizard
+    : public ProjectExplorer::IDeviceWizard
 {
     Q_OBJECT
 
@@ -47,7 +49,7 @@ public:
     GenericLinuxDeviceConfigurationWizard(QWidget *parent = 0);
     ~GenericLinuxDeviceConfigurationWizard();
 
-    LinuxDeviceConfiguration::Ptr deviceConfiguration();
+    ProjectExplorer::IDevice::Ptr device();
 
 private:
     Internal::GenericLinuxDeviceConfigurationWizardPrivate * const d;

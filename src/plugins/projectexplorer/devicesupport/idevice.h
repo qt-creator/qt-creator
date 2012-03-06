@@ -29,36 +29,60 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
+#ifndef IDEVICE_H
+#define IDEVICE_H
 
-#ifndef LINUXDEVICEFACTORYSELECTIONDIALOG_H
-#define LINUXDEVICEFACTORYSELECTIONDIALOG_H
+#include <projectexplorer/projectexplorer_export.h>
 
-#include <QList>
-#include <QDialog>
+#include <QSharedPointer>
+#include <QVariantMap>
 
-namespace RemoteLinux {
-class ILinuxDeviceConfigurationFactory;
+namespace ProjectExplorer {
+namespace Internal { class IDevicePrivate; }
 
-namespace Internal {
-namespace Ui { class LinuxDeviceFactorySelectionDialog; }
-
-class LinuxDeviceFactorySelectionDialog : public QDialog
+// See cpp file for documentation.
+class PROJECTEXPLORER_EXPORT IDevice
 {
-    Q_OBJECT
-
+    friend class DeviceManager;
 public:
-    explicit LinuxDeviceFactorySelectionDialog(QWidget *parent = 0);
-    ~LinuxDeviceFactorySelectionDialog();
-    const ILinuxDeviceConfigurationFactory *selectedFactory() const;
+    typedef QSharedPointer<IDevice> Ptr;
+    typedef QSharedPointer<const IDevice> ConstPtr;
+
+    typedef quint64 Id;
+
+    enum Origin { ManuallyAdded, AutoDetected };
+
+    virtual ~IDevice();
+
+    QString displayName() const;
+    void setDisplayName(const QString &name);
+
+    QString type() const;
+    bool isAutoDetected() const;
+    Id internalId() const;
+
+    virtual void fromMap(const QVariantMap &map);
+    virtual Ptr clone() const = 0;
+
+    static Id invalidId();
+
+    static QString typeFromMap(const QVariantMap &map);
+
+protected:
+    IDevice();
+    IDevice(const QString &type, Origin origin);
+    IDevice(const IDevice &other);
+
+    virtual QVariantMap toMap() const;
 
 private:
-    Q_SLOT void handleItemSelectionChanged();
+    void setInternalId(Id id);
 
-    Ui::LinuxDeviceFactorySelectionDialog *ui;
-    QList<const ILinuxDeviceConfigurationFactory *> m_factories;
+    IDevice &operator=(const IDevice &);
+
+    Internal::IDevicePrivate *d;
 };
 
-} // namespace Internal
-} // namespace RemoteLinux
+} // namespace ProjectExplorer
 
-#endif // LINUXDEVICEFACTORYSELECTIONDIALOG_H
+#endif // IDEVICE_H

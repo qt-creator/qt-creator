@@ -32,16 +32,14 @@
 
 #include "startgdbserverdialog.h"
 
-#include "devicemanagermodel.h"
 #include "remotelinuxprocesslist.h"
 #include "linuxdeviceconfiguration.h"
-#include "linuxdeviceconfigurations.h"
 #include "remotelinuxusedportsgatherer.h"
 
 #include <coreplugin/icore.h>
-
 #include <extensionsystem/pluginmanager.h>
-
+#include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/devicemanagermodel.h>
 #include <utils/pathchooser.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -71,6 +69,7 @@
 #include <QVBoxLayout>
 
 using namespace Core;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 const char LastSysroot[] = "RemoteLinux/LastSysroot";
@@ -88,8 +87,9 @@ public:
 
     LinuxDeviceConfiguration::ConstPtr currentDevice() const
     {
-        LinuxDeviceConfigurations *devices = LinuxDeviceConfigurations::instance();
-        return devices->deviceAt(deviceComboBox->currentIndex());
+        DeviceManager *devices = DeviceManager::instance();
+        return devices->deviceAt(deviceComboBox->currentIndex())
+            .dynamicCast<const LinuxDeviceConfiguration>();
     }
 
     StartGdbServerDialog *q;
@@ -174,7 +174,7 @@ StartGdbServerDialog::StartGdbServerDialog(QWidget *parent) :
 {
     setWindowTitle(tr("List of Remote Processes"));
 
-    LinuxDeviceConfigurations *devices = LinuxDeviceConfigurations::instance();
+    DeviceManager *devices = DeviceManager::instance();
     DeviceManagerModel * const model = new DeviceManagerModel(devices, this);
 
     QObject::connect(d->closeButton, SIGNAL(clicked()), this, SLOT(reject()));
@@ -218,9 +218,13 @@ StartGdbServerDialog::~StartGdbServerDialog()
 
 void StartGdbServerDialog::attachToDevice(int index)
 {
-    LinuxDeviceConfigurations *devices = LinuxDeviceConfigurations::instance();
+    DeviceManager *devices = DeviceManager::instance();
+    LinuxDeviceConfiguration::ConstPtr device
+        = devices->deviceAt(index).dynamicCast<const LinuxDeviceConfiguration>();
+    if (!device)
+        return;
     delete d->processList;
-    d->processList = new GenericRemoteLinuxProcessList(devices->deviceAt(index));
+    d->processList = new GenericRemoteLinuxProcessList(device);
     d->proxyModel.setSourceModel(d->processList);
     connect(d->processList, SIGNAL(error(QString)),
         SLOT(handleRemoteError(QString)));
@@ -261,6 +265,8 @@ void StartGdbServerDialog::attachToProcess()
     d->attachProcessButton->setEnabled(false);
 
     LinuxDeviceConfiguration::ConstPtr device = d->currentDevice();
+    if (!device)
+        return;
     PortList ports = device->freePorts();
     const int port = d->gatherer.getNextFreePort(&ports);
     const int row = d->proxyModel.mapToSource(indexes.first()).row();

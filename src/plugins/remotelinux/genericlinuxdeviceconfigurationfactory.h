@@ -32,13 +32,14 @@
 #ifndef GENERICLINUXDEVICECONFIGURATIONFACTORY_H
 #define GENERICLINUXDEVICECONFIGURATIONFACTORY_H
 
-#include "linuxdeviceconfiguration.h"
 #include "remotelinux_export.h"
+
+#include <projectexplorer/devicesupport/idevicefactory.h>
 
 namespace RemoteLinux {
 
 class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationFactory
-    : public ILinuxDeviceConfigurationFactory
+    : public ProjectExplorer::IDeviceFactory
 {
     Q_OBJECT
 
@@ -46,16 +47,16 @@ public:
     GenericLinuxDeviceConfigurationFactory(QObject *parent = 0);
 
     QString displayName() const;
-    ILinuxDeviceConfigurationWizard *createWizard(QWidget *parent) const;
-    ILinuxDeviceConfigurationWidget *createWidget(
-            const LinuxDeviceConfiguration::Ptr &deviceConfig,
-            QWidget *parent = 0) const;
+    ProjectExplorer::IDeviceWizard *createWizard(QWidget *parent) const;
+    ProjectExplorer::IDeviceWidget *createWidget(const ProjectExplorer::IDevice::Ptr &device,
+        QWidget *parent = 0) const;
+    ProjectExplorer::IDevice::Ptr loadDevice(const QVariantMap &map) const;
     bool supportsDeviceType(const QString &deviceType) const;
-    QString displayType(const QString &deviceType) const;
+    QString displayNameForDeviceType(const QString &deviceType) const;
     QStringList supportedDeviceActionIds() const;
     QString displayNameForActionId(const QString &actionId) const;
     QDialog *createDeviceAction(const QString &actionId,
-        const LinuxDeviceConfiguration::ConstPtr &deviceConfig, QWidget *parent) const;
+        const ProjectExplorer::IDevice::ConstPtr &device, QWidget *parent) const;
 };
 
 } // namespace RemoteLinux

@@ -32,28 +32,28 @@
 #ifndef MADDEDEVICECONFIGURATIONFACTORY_H
 #define MADDEDEVICECONFIGURATIONFACTORY_H
 
-#include <remotelinux/linuxdeviceconfiguration.h>
+#include <projectexplorer/devicesupport/idevicefactory.h>
 
 namespace Madde {
 namespace Internal {
 
-class MaddeDeviceConfigurationFactory : public RemoteLinux::ILinuxDeviceConfigurationFactory
+class MaddeDeviceConfigurationFactory : public ProjectExplorer::IDeviceFactory
 {
     Q_OBJECT
 public:
     MaddeDeviceConfigurationFactory(QObject *parent = 0);
 
     QString displayName() const;
-    RemoteLinux::ILinuxDeviceConfigurationWizard *createWizard(QWidget *parent) const;
-    RemoteLinux::ILinuxDeviceConfigurationWidget *createWidget(
-            const RemoteLinux::LinuxDeviceConfiguration::Ptr &deviceConfig,
-            QWidget *parent = 0) const;
+    ProjectExplorer::IDeviceWizard *createWizard(QWidget *parent) const;
+    ProjectExplorer::IDeviceWidget *createWidget(
+        const ProjectExplorer::IDevice::Ptr &device, QWidget *parent = 0) const;
+    ProjectExplorer::IDevice::Ptr loadDevice(const QVariantMap &map) const;
     bool supportsDeviceType(const QString &type) const;
-    QString displayType(const QString &deviceType) const;
+    QString displayNameForDeviceType(const QString &deviceType) const;
     QStringList supportedDeviceActionIds() const;
     QString displayNameForActionId(const QString &actionId) const;
     QDialog *createDeviceAction(const QString &actionId,
-        const RemoteLinux::LinuxDeviceConfiguration::ConstPtr &deviceConfig, QWidget *parent) const;
+        const ProjectExplorer::IDevice::ConstPtr &device, QWidget *parent) const;
 };
 
 } // namespace Internal

@@ -28,44 +28,41 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
+#ifndef DEVICESETTINGSPAGE_H
+#define DEVICESETTINGSPAGE_H
 
-#ifndef SSHKEYCREATIONDIALOG_H
-#define SSHKEYCREATIONDIALOG_H
+#include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QDialog>
-
-namespace Utils {
-class SshKeyGenerator;
-}
-
-namespace RemoteLinux {
+namespace ProjectExplorer {
 namespace Internal {
-namespace Ui {
-class SshKeyCreationDialog;
-}
+class DeviceSettingsWidget;
 
-class SshKeyCreationDialog : public QDialog
+class DeviceSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 public:
-    SshKeyCreationDialog(QWidget *parent = 0);
-    ~SshKeyCreationDialog();
+    DeviceSettingsPage(QObject *parent = 0);
+    ~DeviceSettingsPage();
 
-private slots:
-    void keyTypeChanged();
-    void generateKeys();
-    void filePathChanged();
+    virtual QString id() const;
+    virtual QString displayName() const;
+    virtual QString category() const;
+    virtual QString displayCategory() const;
+    virtual QIcon categoryIcon() const;
+    virtual bool matches(const QString &searchKeyWord) const;
+    virtual QWidget *createPage(QWidget *parent);
+    virtual void apply();
+    virtual void finish();
+
+    static QString pageId();
+    static QString pageCategory();
 
 private:
-    void saveKeys();
-    QString privateKeyFilePath() const;
-
-private:
-    Utils::SshKeyGenerator *m_keyGenerator;
-    Ui::SshKeyCreationDialog *m_ui;
+    QString m_keywords;
+    DeviceSettingsWidget *m_widget;
 };
 
 } // namespace Internal
-} // namespace RemoteLinux
+} // namespace ProjectExplorer
 
-#endif  // SSHKEYCREATIONDIALOG_H
+#endif // DEVICESETTINGSPAGE_H

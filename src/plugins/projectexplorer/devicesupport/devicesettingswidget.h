@@ -29,8 +29,8 @@
 **
 **************************************************************************/
 
-#ifndef LINUXDEVICECONFIGURATIONSSETTINGSWIDGET_H
-#define LINUXDEVICECONFIGURATIONSSETTINGSWIDGET_H
+#ifndef DEVICESETTINGSWIDGET_H
+#define DEVICESETTINGSWIDGET_H
 
 #include <QList>
 #include <QString>
@@ -38,61 +38,57 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QLineEdit;
 class QSignalMapper;
 QT_END_NAMESPACE
 
-namespace RemoteLinux {
-class ILinuxDeviceConfigurationFactory;
-class LinuxDeviceConfiguration;
-class LinuxDeviceConfigurations;
-class ILinuxDeviceConfigurationWidget;
+namespace ProjectExplorer {
+class IDevice;
+class DeviceManager;
+class IDeviceFactory;
+class IDeviceWidget;
 
 namespace Internal {
-namespace Ui { class LinuxDeviceConfigurationsSettingsWidget; }
+namespace Ui { class DeviceSettingsWidget; }
 class NameValidator;
 
-class LinuxDeviceConfigurationsSettingsWidget : public QWidget
+class DeviceSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    LinuxDeviceConfigurationsSettingsWidget(QWidget *parent);
-    ~LinuxDeviceConfigurationsSettingsWidget();
+    DeviceSettingsWidget(QWidget *parent);
+    ~DeviceSettingsWidget();
 
     void saveSettings();
     QString searchKeywords() const;
 
 private slots:
-    void currentConfigChanged(int index);
-    void addConfig();
-    void deleteConfig();
-    void configNameEditingFinished();
+    void currentDeviceChanged(int index);
+    void addDevice();
+    void removeDevice();
+    void deviceNameEditingFinished();
     void setDefaultDevice();
-
-    void showGenerateSshKeyDialog();
-
     void handleAdditionalActionRequest(const QString &actionId);
 
 private:
     void initGui();
     void displayCurrent();
-    QSharedPointer<const LinuxDeviceConfiguration> currentConfig() const;
+    QSharedPointer<const IDevice> currentDevice() const;
     int currentIndex() const;
     void clearDetails();
     QString parseTestOutput();
     void fillInValues();
-    const ILinuxDeviceConfigurationFactory *factoryForCurrentConfig() const;
+    const IDeviceFactory *factoryForCurrentDevice() const;
 
-    Ui::LinuxDeviceConfigurationsSettingsWidget *m_ui;
-    LinuxDeviceConfigurations * const m_devConfigs;
+    Ui::DeviceSettingsWidget *m_ui;
+    DeviceManager * const m_deviceManager;
     NameValidator * const m_nameValidator;
     bool m_saveSettingsRequested;
     QList<QPushButton *> m_additionalActionButtons;
     QSignalMapper * const m_additionalActionsMapper;
-    ILinuxDeviceConfigurationWidget *m_configWidget;
+    IDeviceWidget *m_configWidget;
 };
 
 } // namespace Internal
-} // namespace RemoteLinux
+} // namespace ProjectExplorer
 
-#endif // LINUXDEVICECONFIGURATIONSSETTINGSWIDGET_H
+#endif // DEVICESETTINGSWIDGET_H

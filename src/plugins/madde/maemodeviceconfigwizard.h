@@ -32,14 +32,15 @@
 #ifndef MAEMODEVICECONFIGWIZARD_H
 #define MAEMODEVICECONFIGWIZARD_H
 
-#include <remotelinux/linuxdeviceconfiguration.h>
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicewizard.h>
 
 namespace Madde {
 namespace Internal {
 
 struct MaemoDeviceConfigWizardPrivate;
 
-class MaemoDeviceConfigWizard : public RemoteLinux::ILinuxDeviceConfigurationWizard
+class MaemoDeviceConfigWizard : public ProjectExplorer::IDeviceWizard
 {
     Q_OBJECT
 
@@ -47,7 +48,7 @@ public:
     explicit MaemoDeviceConfigWizard(QWidget *parent = 0);
     ~MaemoDeviceConfigWizard();
 
-    RemoteLinux::LinuxDeviceConfiguration::Ptr deviceConfiguration();
+    ProjectExplorer::IDevice::Ptr device();
 
     virtual int nextId() const;
 

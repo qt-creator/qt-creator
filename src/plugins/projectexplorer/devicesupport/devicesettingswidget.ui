@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</class>
- <widget class="QWidget" name="RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget">
+ <class>ProjectExplorer::Internal::DeviceSettingsWidget</class>
+ <widget class="QWidget" name="ProjectExplorer::Internal::DeviceSettingsWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -24,7 +24,7 @@
        <item row="0" column="0">
         <widget class="QLabel" name="configurationLabel">
          <property name="text">
-          <string>&amp;Configuration:</string>
+          <string>&amp;Device:</string>
          </property>
          <property name="buddy">
           <cstring>configurationComboBox</cstring>
@@ -156,22 +156,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="generateKeyButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="focusPolicy">
-        <enum>Qt::StrongFocus</enum>
-       </property>
-       <property name="toolTip">
-        <string>Click here if you do not have an SSH key yet.</string>
-       </property>
-       <property name="text">
-        <string>&amp;Generate SSH Key...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="Line" name="line">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -200,12 +184,12 @@
   <connection>
    <sender>addConfigButton</sender>
    <signal>clicked()</signal>
-   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
-   <slot>addConfig()</slot>
+   <receiver>ProjectExplorer::Internal::DeviceSettingsWidget</receiver>
+   <slot>addDevice()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>697</x>
-     <y>33</y>
+     <x>818</x>
+     <y>35</y>
     </hint>
     <hint type="destinationlabel">
      <x>516</x>
@@ -216,8 +200,8 @@
   <connection>
    <sender>nameLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
-   <slot>configNameEditingFinished()</slot>
+   <receiver>ProjectExplorer::Internal::DeviceSettingsWidget</receiver>
+   <slot>deviceNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>204</x>
@@ -230,30 +214,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>generateKeyButton</sender>
-   <signal>clicked()</signal>
-   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
-   <slot>showGenerateSshKeyDialog()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>697</x>
-     <y>131</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>358</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>removeConfigButton</sender>
    <signal>clicked()</signal>
-   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
-   <slot>deleteConfig()</slot>
+   <receiver>ProjectExplorer::Internal::DeviceSettingsWidget</receiver>
+   <slot>removeDevice()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>697</x>
-     <y>63</y>
+     <x>818</x>
+     <y>67</y>
     </hint>
     <hint type="destinationlabel">
      <x>351</x>
@@ -263,16 +231,16 @@
   </connection>
  </connections>
  <slots>
-  <slot>configNameEditingFinished()</slot>
+  <slot>deviceNameEditingFinished()</slot>
   <slot>deviceTypeChanged()</slot>
   <slot>hostNameEditingFinished()</slot>
   <slot>sshPortEditingFinished()</slot>
   <slot>timeoutEditingFinished()</slot>
   <slot>userNameEditingFinished()</slot>
   <slot>passwordEditingFinished()</slot>
-  <slot>addConfig()</slot>
+  <slot>addDevice()</slot>
   <slot>selectionChanged()</slot>
-  <slot>deleteConfig()</slot>
+  <slot>removeDevice()</slot>
   <slot>authenticationTypeChanged()</slot>
   <slot>keyFileEditingFinished()</slot>
   <slot>testConfig()</slot>
