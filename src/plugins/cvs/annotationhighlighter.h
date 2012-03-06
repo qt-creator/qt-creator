@@ -44,7 +44,7 @@ class CvsAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
     Q_OBJECT
 
 public:
-    explicit CvsAnnotationHighlighter(const ChangeNumbers &changeNumbers,
+    explicit CvsAnnotationHighlighter(const ChangeNumbers &changeNumbers, const QColor &bg,
                                       QTextDocument *document = 0);
 
 private:
