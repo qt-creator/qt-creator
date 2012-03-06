@@ -178,7 +178,7 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
                                                     "reside in the same directory as the main QML file "
                                                     "are deployed. You can modify the contents of the "
                                                     "directory any time before deploying.\n\nRequires <b>Qt 4.7.0</b> or newer."));
-    parameter.setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK));
+    parameter.setRequiredFeatures(basicFeatures);
     list << parameter;
 
     QList<QtQuickAppWizard*> wizardList = Core::createMultipleBaseFileWizardInstances<QtQuickAppWizard>(list, plugin);
