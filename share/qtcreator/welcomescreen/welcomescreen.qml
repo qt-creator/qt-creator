@@ -85,7 +85,7 @@ Rectangle {
         Rectangle {
             visible: root.width > 1042
             width: 2
-            color: "#919191"
+            color: "#cdcdcd"
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.bottom: parent.bottom
@@ -94,7 +94,7 @@ Rectangle {
         Rectangle {
             visible: root.width > 1042
             width: 2
-            color: "#919191"
+            color: "#cdcdcd"
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.bottom: parent.bottom
