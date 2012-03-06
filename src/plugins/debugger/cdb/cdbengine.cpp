@@ -1553,7 +1553,7 @@ void CdbEngine::selectThread(int index)
     const int newThreadId = threadsHandler()->threads().at(index).id;
     threadsHandler()->setCurrentThread(index);
 
-    const QByteArray cmd = "~" + QByteArray::number(newThreadId) + " s";
+    const QByteArray cmd = '~' + QByteArray::number(newThreadId) + " s";
     postBuiltinCommand(cmd, 0, &CdbEngine::dummyHandler, CommandListStack);
 }
 

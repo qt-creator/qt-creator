@@ -364,7 +364,7 @@ QString DesignDocumentController::simplfiedDisplayName() const
         return d->componentNode.id();
     }
 
-    QStringList list = displayName().split("/");
+    QStringList list = displayName().split(QLatin1Char('/'));
     return list.last();
 }
 

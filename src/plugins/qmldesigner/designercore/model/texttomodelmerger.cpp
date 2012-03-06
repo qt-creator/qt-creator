@@ -359,9 +359,9 @@ public:
             QString fullTypeName;
             for (UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
                 if (!iter->name.isEmpty())
-                    fullTypeName += iter->name.toString() + ".";
+                    fullTypeName += iter->name.toString() + QLatin1Char('.');
 
-            if (fullTypeName.endsWith("."))
+            if (fullTypeName.endsWith(QLatin1Char('.')))
                 fullTypeName.chop(1);
 
             majorVersion = ComponentVersion::NoVersion;
@@ -373,14 +373,14 @@ public:
                 QString name = importInfo.name();
                 majorVersion = importInfo.version().majorVersion();
                 minorVersion = importInfo.version().minorVersion();
-                typeName.prepend(name + ".");
+                typeName.prepend(name + QLatin1Char('.'));
             } else if (importInfo.isValid() && importInfo.type() == ImportInfo::DirectoryImport) {
                 QString path = importInfo.path();
                 QDir dir(m_doc->path());
                 QString relativeDir = dir.relativeFilePath(path);
-                QString name = relativeDir.replace("/", ".");               
+                QString name = relativeDir.replace(QLatin1Char('/'), QLatin1Char('.'));
                 if (!name.isEmpty())
-                    typeName.prepend(name + ".");
+                    typeName.prepend(name + QLatin1Char('.'));
             }
         }
     }

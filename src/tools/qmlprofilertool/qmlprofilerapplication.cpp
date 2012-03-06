@@ -193,7 +193,7 @@ void QmlProfilerApplication::printCommands()
 
 QString QmlProfilerApplication::traceFileName() const
 {
-    QString fileName = m_tracePrefix + "_" +
+    QString fileName = m_tracePrefix + QLatin1Char('_') +
             QDateTime::currentDateTime().toString(QLatin1String("yyMMdd_hhmmss")) + TraceFileExtension;
     if (QFileInfo(fileName).exists()) {
         QString baseName;

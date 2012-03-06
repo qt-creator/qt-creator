@@ -484,7 +484,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 const int pos1 = ba.indexOf(",original-location");
                 const int pos2 = ba.indexOf("\":", pos1 + 2);
                 const int pos3 = ba.indexOf('"', pos2 + 2);
-                ba.replace(pos1, pos3 - pos1 + 1, "");
+                ba.remove(pos1, pos3 - pos1 + 1);
                 result = GdbMi();
                 result.fromString(ba);
                 BreakHandler *handler = breakHandler();

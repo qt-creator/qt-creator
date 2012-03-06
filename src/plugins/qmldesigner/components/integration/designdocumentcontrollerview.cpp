@@ -200,7 +200,7 @@ void DesignDocumentControllerView::fromText(QString text)
     QPlainTextEdit textEdit;
     QString imports;
     foreach (const Import &import, model()->imports())
-        imports += import.toString(true, true) + "\n";
+        imports += import.toString(true, true) + QLatin1Char('\n');
 
     textEdit.setPlainText(imports + text);
     NotIndentingTextEditModifier modifier(&textEdit);
