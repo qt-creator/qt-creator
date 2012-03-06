@@ -688,6 +688,8 @@ void VcsBaseEditorWidget::init()
         break;
     }
     TextEditor::TextEditorSettings::instance()->initializeEditor(this);
+    // override revisions display (green or red bar on the left, marking changes):
+    setRevisionsVisible(false);
 }
 
 VcsBaseEditorWidget::~VcsBaseEditorWidget()
