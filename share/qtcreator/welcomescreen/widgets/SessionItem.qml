@@ -128,11 +128,30 @@ Item {
                             font: fonts.boldDescription
                         }
                         Text {
-                            text: modelData
+                            x: 4
+                            function multiLinePath(path) {
+                                if (path.length < 42)
+                                    return path;
+                                var index = 0;
+                                var oldIndex = 0;
+                                while (index != -1 && index < 40) {
+                                    oldIndex = index;
+                                    index = path.indexOf("/", index + 1);
+                                    if (index == -1)
+                                        index = path.indexOf("\\", index + 1);
+                                }
+                                var newPath = path.substr(0, oldIndex + 1) + "\n"
+                                        + path.substr(oldIndex + 1, path.length - oldIndex - 1);
+                                return newPath;
+                            }
+                            text: multiLinePath(modelData)
                             font: fonts.smallPath
-                            elide: Text.ElideMiddle
+                            wrapMode: Text.WrapAnywhere
+                            maximumLineCount: 2
+                            elide: Text.ElideRight
+                            height: font.pixelSize * 2 + 4
                             color: "#6b6b6b"
-                            width: delegate.ListView.view.width - 40
+                            width: delegate.ListView.view.width - 48
                             MouseArea {
                                 anchors.fill: parent
                                 hoverEnabled: true
