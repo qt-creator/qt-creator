@@ -40,256 +40,157 @@
 namespace QmlJsDebugClient {
 
 class QDeclarativeDebugConnection;
-class QDeclarativeDebugWatch;
-class QDeclarativeDebugPropertyWatch;
-class QDeclarativeDebugObjectExpressionWatch;
-class QDeclarativeDebugEnginesQuery;
-class QDeclarativeDebugRootContextQuery;
-class QDeclarativeDebugObjectQuery;
-class QDeclarativeDebugExpressionQuery;
-class QDeclarativeDebugPropertyReference;
-class QDeclarativeDebugContextReference;
-class QDeclarativeDebugObjectReference;
-class QDeclarativeDebugFileReference;
-class QDeclarativeDebugEngineReference;
-class QmlEngineDebugClientPrivate;
+class QmlDebugPropertyReference;
+class QmlDebugContextReference;
+class QmlDebugObjectReference;
+class QmlDebugFileReference;
+class QmlDebugEngineReference;
 
 class QMLJSDEBUGCLIENT_EXPORT QmlEngineDebugClient : public QDeclarativeDebugClient
 {
     Q_OBJECT
 public:
-    explicit QmlEngineDebugClient(QDeclarativeDebugConnection *);
-    ~QmlEngineDebugClient();
+    QmlEngineDebugClient(QDeclarativeDebugConnection *conn);
 
-    QDeclarativeDebugPropertyWatch *addWatch(const QDeclarativeDebugPropertyReference &,
-                                             QObject *parent = 0);
-    QDeclarativeDebugWatch *addWatch(const QDeclarativeDebugContextReference &, const QString &,
-                                     QObject *parent = 0);
-    QDeclarativeDebugObjectExpressionWatch *addWatch(const QDeclarativeDebugObjectReference &, const QString &,
-                                                     QObject *parent = 0);
-    QDeclarativeDebugWatch *addWatch(const QDeclarativeDebugObjectReference &,
-                                     QObject *parent = 0);
-    QDeclarativeDebugWatch *addWatch(const QDeclarativeDebugFileReference &,
-                                     QObject *parent = 0);
+    quint32 addWatch(const QmlDebugPropertyReference &property);
+    quint32 addWatch(const QmlDebugContextReference &context, const QString &id);
+    quint32 addWatch(const QmlDebugObjectReference &object, const QString &expr);
+    quint32 addWatch(const QmlDebugObjectReference &object);
+    quint32 addWatch(const QmlDebugFileReference &file);
 
-    void removeWatch(QDeclarativeDebugWatch *watch);
+    void removeWatch(quint32 watch);
 
-    QDeclarativeDebugEnginesQuery *queryAvailableEngines(QObject *parent = 0);
-    QDeclarativeDebugRootContextQuery *queryRootContexts(const QDeclarativeDebugEngineReference &,
-                                                         QObject *parent = 0);
-    QDeclarativeDebugObjectQuery *queryObject(const QDeclarativeDebugObjectReference &,
-                                              QObject *parent = 0);
-    QDeclarativeDebugObjectQuery *queryObjectRecursive(const QDeclarativeDebugObjectReference &,
-                                                       QObject *parent = 0);
-    QDeclarativeDebugExpressionQuery *queryExpressionResult(int objectDebugId,
-                                                            const QString &expr,
-                                                            QObject *parent = 0);
-    bool setBindingForObject(int objectDebugId, const QString &propertyName,
-                             const QVariant &bindingExpression, bool isLiteralValue,
-                             QString source = QString(), int line = -1);
-    bool resetBindingForObject(int objectDebugId, const QString &propertyName);
-    bool setMethodBody(int objectDebugId, const QString &methodName, const QString &methodBody);
+    quint32 queryAvailableEngines();
+    quint32 queryRootContexts(const QmlDebugEngineReference &context);
+    quint32 queryObject(const QmlDebugObjectReference &object);
+    quint32 queryObjectRecursive(const QmlDebugObjectReference &object);
+    quint32 queryExpressionResult(int objectDebugId,
+                                  const QString &expr);
+    quint32 setBindingForObject(int objectDebugId, const QString &propertyName,
+                                const QVariant &bindingExpression,
+                                bool isLiteralValue,
+                                QString source, int line);
+    quint32 resetBindingForObject(int objectDebugId,
+                                  const QString &propertyName);
+    quint32 setMethodBody(int objectDebugId, const QString &methodName,
+                          const QString &methodBody);
 
-    QmlEngineDebugClientPrivate *priv() const { return d; }
-Q_SIGNALS:
-    void newObjects();
+signals:
     void newStatus(QDeclarativeDebugClient::Status status);
+    void newObjects();
+    void valueChanged(int debugId, const QByteArray &name,
+                      const QVariant &value);
+    void result(quint32 queryId, const QVariant &result);
 
 protected:
     virtual void statusChanged(Status status);
     virtual void messageReceived(const QByteArray &);
 
 private:
-    friend class QmlEngineDebugClientPrivate;
-    QmlEngineDebugClientPrivate *d;
+    quint32 getId() { return m_nextId++; }
+
+    void decode(QDataStream &d, QmlDebugContextReference &context);
+    void decode(QDataStream &d, QmlDebugObjectReference &object, bool simple);
+
+private:
+    quint32 m_nextId;
 };
 
-class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugWatch : public QObject
+class QmlDebugFileReference
 {
-    Q_OBJECT
 public:
-    enum State { Waiting, Active, Inactive, Dead };
+    QmlDebugFileReference() : m_lineNumber(-1), m_columnNumber(-1) {}
 
-    QDeclarativeDebugWatch(QObject *);
-    ~QDeclarativeDebugWatch();
-
-    int queryId() const;
-    int objectDebugId() const;
-    State state() const;
-
-Q_SIGNALS:
-    void stateChanged(QDeclarativeDebugWatch::State);
-    //void objectChanged(int, const QDeclarativeDebugObjectReference &);
-    //void valueChanged(int, const QVariant &);
-
-    // Server sends value as string if it is a user-type variant
-    void valueChanged(const QByteArray &name, const QVariant &value);
+    QUrl url() const { return m_url; }
+    int lineNumber() const { return m_lineNumber; }
+    int columnNumber() const { return m_columnNumber; }
 
 private:
     friend class QmlEngineDebugClient;
-    friend class QmlEngineDebugClientPrivate;
-    void setState(State);
-    State m_state;
-    int m_queryId;
-    QmlEngineDebugClient *m_client;
-    int m_objectDebugId;
-};
-
-class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugPropertyWatch : public QDeclarativeDebugWatch
-{
-    Q_OBJECT
-public:
-    QDeclarativeDebugPropertyWatch(QObject *parent);
-
-    QString name() const;
-
-private:
-    friend class QmlEngineDebugClient;
-    QString m_name;
-};
-
-class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugObjectExpressionWatch : public QDeclarativeDebugWatch
-{
-    Q_OBJECT
-public:
-    QDeclarativeDebugObjectExpressionWatch(QObject *parent);
-
-    QString expression() const;
-
-private:
-    friend class QmlEngineDebugClient;
-    QString m_expr;
-    int m_debugId;
-};
-
-class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugQuery : public QObject
-{
-    Q_OBJECT
-public:
-    enum State { Waiting, Error, Completed };
-
-    State state() const;
-    bool isWaiting() const;
-
-Q_SIGNALS:
-    void stateChanged(QmlJsDebugClient::QDeclarativeDebugQuery::State);
-
-protected:
-    QDeclarativeDebugQuery(QObject *);
-
-private:
-    friend class QmlEngineDebugClient;
-    friend class QmlEngineDebugClientPrivate;
-    void setState(State);
-    State m_state;
-};
-
-class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugFileReference
-{
-public:
-    QDeclarativeDebugFileReference();
-    QDeclarativeDebugFileReference(const QDeclarativeDebugFileReference &);
-    QDeclarativeDebugFileReference &operator=(const QDeclarativeDebugFileReference &);
-
-    QUrl url() const;
-    void setUrl(const QUrl &);
-    int lineNumber() const;
-    void setLineNumber(int);
-    int columnNumber() const;
-    void setColumnNumber(int);
-
-private:
-    friend class QmlEngineDebugClientPrivate;
     QUrl m_url;
     int m_lineNumber;
     int m_columnNumber;
 };
 
-class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugEngineReference
+class QmlDebugEngineReference
 {
 public:
-    QDeclarativeDebugEngineReference();
-    QDeclarativeDebugEngineReference(int);
-    QDeclarativeDebugEngineReference(const QDeclarativeDebugEngineReference &);
-    QDeclarativeDebugEngineReference &operator=(const QDeclarativeDebugEngineReference &);
+    QmlDebugEngineReference() : m_debugId(-1) {}
+    QmlDebugEngineReference(int id) : m_debugId(id) {}
 
-    int debugId() const;
-    QString name() const;
+    int debugId() const { return m_debugId; }
+    QString name() const { return m_name; }
 
 private:
-    friend class QmlEngineDebugClientPrivate;
+    friend class QmlEngineDebugClient;
     int m_debugId;
     QString m_name;
 };
 
-class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugObjectReference
+typedef QList<QmlDebugEngineReference> QmlDebugEngineReferenceList;
+
+class QmlDebugObjectReference
 {
 public:
-    QDeclarativeDebugObjectReference();
-    QDeclarativeDebugObjectReference(int);
-    QDeclarativeDebugObjectReference(const QDeclarativeDebugObjectReference &);
-    QDeclarativeDebugObjectReference &operator=(const QDeclarativeDebugObjectReference &);
+    QmlDebugObjectReference() : m_debugId(-1), m_contextDebugId(-1) {}
+    QmlDebugObjectReference(int id) : m_debugId(id), m_contextDebugId(-1) {}
 
-    int debugId() const;
-    QString className() const;
-    QString idString() const;
-    QString name() const;
+    int debugId() const { return m_debugId; }
+    QString className() const { return m_className; }
+    QString idString() const { return m_idString; }
+    QString name() const { return m_name; }
 
-    QDeclarativeDebugFileReference source() const;
-    int contextDebugId() const;
+    QmlDebugFileReference source() const { return m_source; }
+    int contextDebugId() const { return m_contextDebugId; }
 
-    QList<QDeclarativeDebugPropertyReference> properties() const;
-    QList<QDeclarativeDebugObjectReference> children() const;
+    QList<QmlDebugPropertyReference> properties() const { return m_properties; }
+    QList<QmlDebugObjectReference> children() const { return m_children; }
 
 private:
-    friend class QmlEngineDebugClientPrivate;
+    friend class QmlEngineDebugClient;
     int m_debugId;
-    QString m_class;
+    QString m_className;
     QString m_idString;
     QString m_name;
-    QDeclarativeDebugFileReference m_source;
+    QmlDebugFileReference m_source;
     int m_contextDebugId;
-    QList<QDeclarativeDebugPropertyReference> m_properties;
-    QList<QDeclarativeDebugObjectReference> m_children;
+    QList<QmlDebugPropertyReference> m_properties;
+    QList<QmlDebugObjectReference> m_children;
 };
 
-class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugContextReference
+class QmlDebugContextReference
 {
 public:
-    QDeclarativeDebugContextReference();
-    QDeclarativeDebugContextReference(const QDeclarativeDebugContextReference &);
-    QDeclarativeDebugContextReference &operator=(const QDeclarativeDebugContextReference &);
+    QmlDebugContextReference() : m_debugId(-1) {}
 
-    int debugId() const;
-    QString name() const;
+    int debugId() const { return m_debugId; }
+    QString name() const { return m_name; }
 
-    QList<QDeclarativeDebugObjectReference> objects() const;
-    QList<QDeclarativeDebugContextReference> contexts() const;
+    QList<QmlDebugObjectReference> objects() const { return m_objects; }
+    QList<QmlDebugContextReference> contexts() const { return m_contexts; }
 
 private:
-    friend class QmlEngineDebugClientPrivate;
+    friend class QmlEngineDebugClient;
     int m_debugId;
     QString m_name;
-    QList<QDeclarativeDebugObjectReference> m_objects;
-    QList<QDeclarativeDebugContextReference> m_contexts;
+    QList<QmlDebugObjectReference> m_objects;
+    QList<QmlDebugContextReference> m_contexts;
 };
 
-class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugPropertyReference
+class QmlDebugPropertyReference
 {
 public:
-    QDeclarativeDebugPropertyReference();
-    QDeclarativeDebugPropertyReference(const QDeclarativeDebugPropertyReference &);
-    QDeclarativeDebugPropertyReference &operator=(const QDeclarativeDebugPropertyReference &);
+    QmlDebugPropertyReference() : m_objectDebugId(-1), m_hasNotifySignal(false) {}
 
-    int objectDebugId() const;
-    QString name() const;
-    QVariant value() const;
-    QString valueTypeName() const;
-    QString binding() const;
-    bool hasNotifySignal() const;
+    int debugId() const { return m_objectDebugId; }
+    QString name() const { return m_name; }
+    QVariant value() const { return m_value; }
+    QString valueTypeName() const { return m_valueTypeName; }
+    QString binding() const { return m_binding; }
+    bool hasNotifySignal() const { return m_hasNotifySignal; }
 
 private:
-    friend class QmlEngineDebugClientPrivate;
+    friend class QmlEngineDebugClient;
     int m_objectDebugId;
     QString m_name;
     QVariant m_value;
@@ -298,75 +199,11 @@ private:
     bool m_hasNotifySignal;
 };
 
-
-class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugEnginesQuery : public QDeclarativeDebugQuery
-{
-    Q_OBJECT
-public:
-    virtual ~QDeclarativeDebugEnginesQuery();
-    QList<QDeclarativeDebugEngineReference> engines() const;
-private:
-    friend class QmlEngineDebugClient;
-    friend class QmlEngineDebugClientPrivate;
-    QDeclarativeDebugEnginesQuery(QObject *);
-    QmlEngineDebugClient *m_client;
-    int m_queryId;
-    QList<QDeclarativeDebugEngineReference> m_engines;
-};
-
-class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugRootContextQuery : public QDeclarativeDebugQuery
-{
-    Q_OBJECT
-public:
-    virtual ~QDeclarativeDebugRootContextQuery();
-    QDeclarativeDebugContextReference rootContext() const;
-private:
-    friend class QmlEngineDebugClient;
-    friend class QmlEngineDebugClientPrivate;
-    QDeclarativeDebugRootContextQuery(QObject *);
-    QmlEngineDebugClient *m_client;
-    int m_queryId;
-    QDeclarativeDebugContextReference m_context;
-};
-
-class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugObjectQuery : public QDeclarativeDebugQuery
-{
-    Q_OBJECT
-public:
-    virtual ~QDeclarativeDebugObjectQuery();
-    QDeclarativeDebugObjectReference object() const;
-private:
-    friend class QmlEngineDebugClient;
-    friend class QmlEngineDebugClientPrivate;
-    QDeclarativeDebugObjectQuery(QObject *);
-    QmlEngineDebugClient *m_client;
-    int m_queryId;
-    QDeclarativeDebugObjectReference m_object;
-
-};
-
-class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugExpressionQuery : public QDeclarativeDebugQuery
-{
-    Q_OBJECT
-public:
-    virtual ~QDeclarativeDebugExpressionQuery();
-    QVariant expression() const;
-    QVariant result() const;
-private:
-    friend class QmlEngineDebugClient;
-    friend class QmlEngineDebugClientPrivate;
-    QDeclarativeDebugExpressionQuery(QObject *);
-    QmlEngineDebugClient *m_client;
-    int m_queryId;
-    QVariant m_expr;
-    QVariant m_result;
-};
-
 } // namespace QmlJsDebugClient
 
-Q_DECLARE_METATYPE(QmlJsDebugClient::QDeclarativeDebugEngineReference)
-Q_DECLARE_METATYPE(QmlJsDebugClient::QDeclarativeDebugObjectReference)
-Q_DECLARE_METATYPE(QmlJsDebugClient::QDeclarativeDebugContextReference)
-Q_DECLARE_METATYPE(QmlJsDebugClient::QDeclarativeDebugPropertyReference)
+Q_DECLARE_METATYPE(QmlJsDebugClient::QmlDebugObjectReference)
+Q_DECLARE_METATYPE(QmlJsDebugClient::QmlDebugEngineReference)
+Q_DECLARE_METATYPE(QmlJsDebugClient::QmlDebugEngineReferenceList)
+Q_DECLARE_METATYPE(QmlJsDebugClient::QmlDebugContextReference)
 
 #endif // QMLENGINEDEBUGCLIENT_H

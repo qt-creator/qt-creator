@@ -57,6 +57,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/applicationlauncher.h>
 #include <qmljsdebugclient/qdeclarativeoutputparser.h>
+#include <qmljsdebugclient/qmlenginedebugclient.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -120,6 +121,7 @@ private:
     bool m_validContext;
     QHash<QString,BreakpointModelId> pendingBreakpoints;
     bool m_retryOnConnectFail;
+    QList<quint32> queryIds;
 };
 
 QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q)
@@ -1038,21 +1040,14 @@ void QmlEngine::synchronizeWatchers()
     }
 }
 
-void QmlEngine::onDebugQueryStateChanged(
-        QmlJsDebugClient::QDeclarativeDebugQuery::State state)
+void QmlEngine::expressionEvaluated(quint32 queryId, const QVariant &result)
 {
-    QmlJsDebugClient::QDeclarativeDebugExpressionQuery *query =
-            qobject_cast<QmlJsDebugClient::QDeclarativeDebugExpressionQuery *>(
-                sender());
-    if (query && state != QmlJsDebugClient::QDeclarativeDebugQuery::Error) {
-        QtMessageLogItem *item = constructLogItemTree(query->result());
+    if (d->queryIds.contains(queryId)) {
+        d->queryIds.removeOne(queryId);
+        QtMessageLogItem *item = constructLogItemTree(result);
         if (item)
             qtMessageLogHandler()->appendItem(item);
-    } else
-        qtMessageLogHandler()->
-                appendItem(new QtMessageLogItem(QtMessageLogHandler::ErrorType,
-                                             _("Error evaluating expression.")));
-    delete query;
+    }
 }
 
 bool QmlEngine::hasCapability(unsigned cap) const
@@ -1154,16 +1149,19 @@ bool QmlEngine::evaluateScriptExpression(const QString& expression)
 
                     int id = d->m_adapter.currentSelectedDebugId();
                     if (engineDebug && id != -1) {
-                        QDeclarativeDebugExpressionQuery *query =
-                                engineDebug->queryExpressionResult(id, expression);
-                        connect(query,
-                                SIGNAL(stateChanged(
-                                           QmlJsDebugClient::QDeclarativeDebugQuery
-                                           ::State)),
-                                this,
-                                SLOT(onDebugQueryStateChanged(
-                                         QmlJsDebugClient::QDeclarativeDebugQuery
-                                         ::State)));
+                        quint32 queryId =
+                                engineDebug->queryExpressionResult(
+                                    id, expression);
+                        if (queryId) {
+                            d->queryIds << queryId;
+                        } else {
+                            didEvaluate = false;
+                            qtMessageLogHandler()->
+                                    appendItem(
+                                        new QtMessageLogItem(
+                                            QtMessageLogHandler::ErrorType,
+                                            _("Error evaluating expression.")));
+                        }
                     }
                 } else {
                     executeDebuggerCommand(expression);

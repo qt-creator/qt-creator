@@ -224,7 +224,7 @@ void InspectorUi::showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextE
         if (!qmlNode)
             return;
 
-        QDeclarativeDebugObjectReference ref;
+        QmlDebugObjectReference ref;
         if (QmlJS::AST::Node *node
                 = qmlEditor->semanticInfo().declaringMemberNoProperties(cursorPos)) {
             if (QmlJS::AST::UiObjectMember *objMember = node->uiObjectMemberCast()) {
@@ -249,7 +249,7 @@ void InspectorUi::showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextE
                 if ((qmlNode->kind == QmlJS::AST::Node::Kind_IdentifierExpression) &&
                         (m_clientProxy->objectReferenceForId(refToLook).debugId() == -1)) {
                     query = doubleQuote + QString("local: ") + refToLook + doubleQuote;
-                    foreach (const QDeclarativeDebugPropertyReference &property, ref.properties()) {
+                    foreach (const QmlDebugPropertyReference &property, ref.properties()) {
                         if (property.name() == wordAtCursor
                                 && !property.valueTypeName().isEmpty()) {
                             query = doubleQuote + property.name() + QLatin1Char(':')
@@ -263,7 +263,7 @@ void InspectorUi::showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextE
                             + QLatin1Char('+') + refToLook;
             } else {
                 // show properties
-                foreach (const QDeclarativeDebugPropertyReference &property, ref.properties()) {
+                foreach (const QmlDebugPropertyReference &property, ref.properties()) {
                     if (property.name() == wordAtCursor && !property.valueTypeName().isEmpty()) {
                         query = doubleQuote + property.name() + QLatin1Char(':')
                                 + doubleQuote + QLatin1Char('+') + property.name();
@@ -275,25 +275,19 @@ void InspectorUi::showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextE
 
         if (!query.isEmpty()) {
             m_debugQuery = m_clientProxy->queryExpressionResult(ref.debugId(), query);
-            connect(m_debugQuery, SIGNAL(stateChanged(QmlJsDebugClient::QDeclarativeDebugQuery::State)),
-                    this, SLOT(debugQueryUpdated(QmlJsDebugClient::QDeclarativeDebugQuery::State)));
         }
     }
 }
 
-void InspectorUi::debugQueryUpdated(QmlJsDebugClient::QDeclarativeDebugQuery::State newState)
+void InspectorUi::onResult(quint32 queryId, const QVariant &result)
 {
-    if (newState != QDeclarativeDebugExpressionQuery::Completed)
-        return;
-    if (!m_debugQuery)
+    if (m_debugQuery != queryId)
         return;
 
-    QString text = m_debugQuery->result().toString();
+    m_debugQuery = 0;
+    QString text = result.toString();
     if (!text.isEmpty())
         QToolTip::showText(QCursor::pos(), text);
-
-    disconnect(m_debugQuery, SIGNAL(stateChanged(QmlJsDebugClient::QDeclarativeDebugQuery::State)),
-               this, SLOT(debugQueryUpdated(QmlJsDebugClient::QDeclarativeDebugQuery::State)));
 }
 
 bool InspectorUi::isConnected() const
@@ -303,7 +297,13 @@ bool InspectorUi::isConnected() const
 
 void InspectorUi::connected(ClientProxy *clientProxy)
 {
+    if (m_clientProxy)
+        disconnect(m_clientProxy, SIGNAL(result(quint32,QVariant)),
+                   this, SLOT(onResult(quint32,QVariant)));
     m_clientProxy = clientProxy;
+    if (m_clientProxy)
+        connect(m_clientProxy, SIGNAL(result(quint32,QVariant)),
+                   SLOT(onResult(quint32,QVariant)));
 
     QmlJS::Snapshot snapshot = modelManager()->snapshot();
     for (QHash<QString, QmlJSLiveTextPreview *>::const_iterator it = m_textPreviews.constBegin();
@@ -365,19 +365,19 @@ void InspectorUi::objectTreeReady()
 
 void InspectorUi::updateEngineList()
 {
-    QList<QDeclarativeDebugEngineReference> engines = m_clientProxy->engines();
+    QList<QmlDebugEngineReference> engines = m_clientProxy->engines();
 
 //#warning update the QML engines combo
 
     if (engines.isEmpty())
         qWarning("qmldebugger: no engines found!");
     else {
-        const QDeclarativeDebugEngineReference engine = engines.first();
+        const QmlDebugEngineReference engine = engines.first();
         m_clientProxy->queryEngineContext(engine.debugId());
     }
 }
 
-void InspectorUi::changeSelectedItems(const QList<QDeclarativeDebugObjectReference> &objects)
+void InspectorUi::changeSelectedItems(const QList<QmlDebugObjectReference> &objects)
 {
     if (m_selectionCallbackExpected) {
         m_selectionCallbackExpected = false;
@@ -386,9 +386,9 @@ void InspectorUi::changeSelectedItems(const QList<QDeclarativeDebugObjectReferen
     m_cursorPositionChangedExternally = true;
 
     // QmlJSLiveTextPreview doesn't provide valid references, only correct debugIds. We need to remap them
-    QList <QDeclarativeDebugObjectReference> realList;
-    foreach (const QDeclarativeDebugObjectReference &obj, objects) {
-        QDeclarativeDebugObjectReference clientRef = m_clientProxy->objectReferenceForId(obj.debugId());
+    QList <QmlDebugObjectReference> realList;
+    foreach (const QmlDebugObjectReference &obj, objects) {
+        QmlDebugObjectReference clientRef = m_clientProxy->objectReferenceForId(obj.debugId());
         realList <<  clientRef;
     }
 
@@ -476,8 +476,8 @@ QmlJSLiveTextPreview *InspectorUi::createPreviewForEditor(Core::IEditor *newEdit
         } else {
             preview = new QmlJSLiveTextPreview(doc, initdoc, m_clientProxy, this);
             connect(preview,
-                    SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
-                    SLOT(changeSelectedItems(QList<QDeclarativeDebugObjectReference>)));
+                    SIGNAL(selectedItemsChanged(QList<QmlDebugObjectReference>)),
+                    SLOT(changeSelectedItems(QList<QmlDebugObjectReference>)));
             connect(preview, SIGNAL(reloadQmlViewerRequested()),
                     m_clientProxy, SLOT(reloadQmlViewer()));
             connect(preview, SIGNAL(disableLivePreviewRequested()), SLOT(disableLivePreview()));
@@ -503,36 +503,36 @@ void InspectorUi::reloadQmlViewer()
         m_clientProxy->reloadQmlViewer();
 }
 
-inline QDeclarativeDebugObjectReference findParentRecursive( int goalDebugId,
-                                                            const QList< QDeclarativeDebugObjectReference > &objectsToSearch)
+inline QmlDebugObjectReference findParentRecursive( int goalDebugId,
+                                                            const QList<QmlDebugObjectReference > &objectsToSearch)
 {
     if (goalDebugId == -1)
-        return QDeclarativeDebugObjectReference();
+        return QmlDebugObjectReference();
 
-    foreach (const QDeclarativeDebugObjectReference &possibleParent, objectsToSearch) {
+    foreach (const QmlDebugObjectReference &possibleParent, objectsToSearch) {
         // Am I a root object? No parent
         if ( possibleParent.debugId() == goalDebugId )
-            return QDeclarativeDebugObjectReference();
+            return QmlDebugObjectReference();
 
         // Is the goal one of my children?
-        foreach (const QDeclarativeDebugObjectReference &child, possibleParent.children())
+        foreach (const QmlDebugObjectReference &child, possibleParent.children())
             if ( child.debugId() == goalDebugId )
                 return possibleParent;
 
         // no luck? pass this on
-        QDeclarativeDebugObjectReference candidate = findParentRecursive(goalDebugId, possibleParent.children());
+        QmlDebugObjectReference candidate = findParentRecursive(goalDebugId, possibleParent.children());
         if (candidate.debugId() != -1)
             return candidate;
     }
 
-    return QDeclarativeDebugObjectReference();
+    return QmlDebugObjectReference();
 }
 
-inline QString displayName(const QDeclarativeDebugObjectReference &obj)
+inline QString displayName(const QmlDebugObjectReference &obj)
 {
     // special! state names
     if (obj.className() == "State") {
-        foreach (const QDeclarativeDebugPropertyReference &prop, obj.properties()) {
+        foreach (const QmlDebugPropertyReference &prop, obj.properties()) {
             if (prop.name() == "name")
                 return prop.value().toString();
         }
@@ -551,16 +551,16 @@ inline QString displayName(const QDeclarativeDebugObjectReference &obj)
     return QString("<%1>").arg(objTypeName);
 }
 
-void InspectorUi::selectItems(const QList<QDeclarativeDebugObjectReference> &objectReferences)
+void InspectorUi::selectItems(const QList<QmlDebugObjectReference> &objectReferences)
 {
-    foreach (const QDeclarativeDebugObjectReference &objref, objectReferences) {
+    foreach (const QmlDebugObjectReference &objref, objectReferences) {
         int debugId = objref.debugId();
         if (debugId != -1) {
             // select only the first valid element of the list
 
             m_clientProxy->removeAllObjectWatches();
             m_clientProxy->addObjectWatch(debugId);
-            QList <QDeclarativeDebugObjectReference> selectionList;
+            QList <QmlDebugObjectReference> selectionList;
             selectionList << objref;
             m_propertyInspector->setCurrentObjects(selectionList);
             populateCrumblePath(objref);
@@ -574,21 +574,21 @@ void InspectorUi::selectItems(const QList<QDeclarativeDebugObjectReference> &obj
     }
 }
 
-bool InspectorUi::isRoot(const QDeclarativeDebugObjectReference &obj) const
+bool InspectorUi::isRoot(const QmlDebugObjectReference &obj) const
 {
-    foreach (const QDeclarativeDebugObjectReference &rootObj, m_clientProxy->rootObjectReference())
+    foreach (const QmlDebugObjectReference &rootObj, m_clientProxy->rootObjectReference())
         if (obj.debugId() == rootObj.debugId())
             return true;
     return false;
 }
 
-void InspectorUi::populateCrumblePath(const QDeclarativeDebugObjectReference &objRef)
+void InspectorUi::populateCrumblePath(const QmlDebugObjectReference &objRef)
 {
     QStringList crumbleStrings;
     QList <int> crumbleData;
 
     // first find path by climbing the hierarchy
-    QDeclarativeDebugObjectReference ref = objRef;
+    QmlDebugObjectReference ref = objRef;
     crumbleData << objRef.debugId();
     crumbleStrings << displayName(objRef);
 
@@ -603,7 +603,7 @@ void InspectorUi::populateCrumblePath(const QDeclarativeDebugObjectReference &ob
     crumbleData.clear();
 
     // now append the children
-    foreach (const QDeclarativeDebugObjectReference &child, objRef.children()) {
+    foreach (const QmlDebugObjectReference &child, objRef.children()) {
         crumbleData.push_back(child.debugId());
         crumbleStrings.push_back( displayName(child) );
     }
@@ -613,10 +613,10 @@ void InspectorUi::populateCrumblePath(const QDeclarativeDebugObjectReference &ob
 
 void InspectorUi::selectItems(const QList<int> &objectIds)
 {
-    QList<QDeclarativeDebugObjectReference> objectReferences;
+    QList<QmlDebugObjectReference> objectReferences;
     foreach (int objectId, objectIds)
     {
-        QDeclarativeDebugObjectReference ref = m_clientProxy->objectReferenceForId(objectId);
+        QmlDebugObjectReference ref = m_clientProxy->objectReferenceForId(objectId);
         if (ref.debugId() == objectId)
             objectReferences.append(ref);
     }
@@ -646,7 +646,7 @@ void InspectorUi::disable()
     m_filterExp->setEnabled(false);
 }
 
-QDeclarativeDebugObjectReference InspectorUi::objectReferenceForLocation(const QString &fileName, int cursorPosition) const
+QmlDebugObjectReference InspectorUi::objectReferenceForLocation(const QString &fileName, int cursorPosition) const
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     Core::IEditor *editor = editorManager->openEditor(fileName);
@@ -667,17 +667,17 @@ QDeclarativeDebugObjectReference InspectorUi::objectReferenceForLocation(const Q
             }
         }
     }
-    return QDeclarativeDebugObjectReference();
+    return QmlDebugObjectReference();
 }
 
-void InspectorUi::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectReference &obj)
+void InspectorUi::gotoObjectReferenceDefinition(const QmlDebugObjectReference &obj)
 {
     if (m_cursorPositionChangedExternally) {
         m_cursorPositionChangedExternally = false;
         return;
     }
 
-    QDeclarativeDebugFileReference source = obj.source();
+    QmlDebugFileReference source = obj.source();
 
     const QString fileName = m_projectFinder.findFile(source.url());
 
@@ -690,7 +690,7 @@ void InspectorUi::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectRef
             m_selectionCallbackExpected = true;
 
     if (textEditor) {
-        QDeclarativeDebugObjectReference ref = objectReferenceForLocation(fileName);
+        QmlDebugObjectReference ref = objectReferenceForLocation(fileName);
         if (ref.debugId() != obj.debugId()) {
             m_selectionCallbackExpected = true;
             editorManager->addCurrentPositionToNavigationHistory();
@@ -843,8 +843,8 @@ void InspectorUi::connectSignals()
     connect(m_clientProxy, SIGNAL(propertyChanged(int,QByteArray,QVariant)),
             m_propertyInspector, SLOT(propertyValueChanged(int,QByteArray,QVariant)));
 
-    connect(m_clientProxy, SIGNAL(selectedItemsChanged(QList<QDeclarativeDebugObjectReference>)),
-            this, SLOT(selectItems(QList<QDeclarativeDebugObjectReference>)));
+    connect(m_clientProxy, SIGNAL(selectedItemsChanged(QList<QmlDebugObjectReference>)),
+            this, SLOT(selectItems(QList<QmlDebugObjectReference>)));
     connect(m_clientProxy, SIGNAL(enginesChanged()),
             this, SLOT(updateEngineList()));
     connect(m_clientProxy, SIGNAL(serverReloaded()),

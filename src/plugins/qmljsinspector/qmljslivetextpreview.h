@@ -72,8 +72,8 @@ public:
 
     void associateEditor(Core::IEditor *editor);
     void unassociateEditor(Core::IEditor *editor);
-    void setActiveObject(const QDeclarativeDebugObjectReference &object);
-    void mapObjectToQml(const QDeclarativeDebugObjectReference &object);
+    void setActiveObject(const QmlDebugObjectReference &object);
+    void mapObjectToQml(const QmlDebugObjectReference &object);
     void resetInitialDoc(const QmlJS::Document::Ptr &doc);
 
     void setClientProxy(ClientProxy *clientProxy);
@@ -85,7 +85,7 @@ public:
     };
 
 signals:
-    void selectedItemsChanged(const QList<QDeclarativeDebugObjectReference> &objects);
+    void selectedItemsChanged(const QList<QmlDebugObjectReference> &objects);
     void reloadQmlViewerRequested();
     void disableLivePreviewRequested();
 

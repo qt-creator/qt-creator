@@ -220,7 +220,7 @@ void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QStr
     if (m_editors.isEmpty() || !m_previousDoc || !m_clientProxy)
         return;
 
-    QDeclarativeDebugObjectReference objectRefUnderCursor;
+    QmlDebugObjectReference objectRefUnderCursor;
     objectRefUnderCursor = m_clientProxy.data()->objectReferenceForId(wordAtCursor);
 
     QList<int> selectedReferences;
@@ -252,20 +252,20 @@ void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QStr
     }
 
     if (!selectedReferences.isEmpty()) {
-        QList<QDeclarativeDebugObjectReference> refs;
+        QList<QmlDebugObjectReference> refs;
         foreach(int i, selectedReferences)
-            refs << QDeclarativeDebugObjectReference(i);
+            refs << QmlDebugObjectReference(i);
         emit selectedItemsChanged(refs);
     }
 }
 
-static QList<int> findRootObjectRecursive(const QDeclarativeDebugObjectReference &object, const Document::Ptr &doc)
+static QList<int> findRootObjectRecursive(const QmlDebugObjectReference &object, const Document::Ptr &doc)
 {
     QList<int> result;
     if (object.className() == doc->componentName())
         result += object.debugId();
 
-    foreach (const QDeclarativeDebugObjectReference &it, object.children()) {
+    foreach (const QmlDebugObjectReference &it, object.children()) {
         result += findRootObjectRecursive(it, doc);
     }
     return result;
@@ -305,7 +305,7 @@ void QmlJSLiveTextPreview::updateDebugIds()
     if(doc->qmlProgram()->members &&  doc->qmlProgram()->members->member) {
         UiObjectMember* root = doc->qmlProgram()->members->member;
         QList<int> r;
-        foreach(const QDeclarativeDebugObjectReference& it, clientProxy->rootObjectReference())
+        foreach (const QmlDebugObjectReference& it, clientProxy->rootObjectReference())
             r += findRootObjectRecursive(it, doc);
         if (!r.isEmpty())
             m_debugIds[root] += r;
@@ -464,7 +464,10 @@ protected:
         if (isLiteral)
             expr = castToLiteral(scriptCode, scriptBinding);
         appliedChangesToViewer = true;
-        m_clientProxy->setBindingForObject(debugId, propertyName, expr, isLiteral, document()->fileName(), scriptBinding->firstSourceLocation().startLine);
+        m_clientProxy->setBindingForObject(
+                    debugId, propertyName, expr,
+                    isLiteral, document()->fileName(),
+                    scriptBinding->firstSourceLocation().startLine);
     }
 
     virtual void resetBindingForObject(int debugId, const QString &propertyName)

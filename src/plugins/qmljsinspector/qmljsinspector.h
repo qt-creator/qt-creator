@@ -112,14 +112,15 @@ public slots:
     void reloadQmlViewer();
     void serverReloaded();
     void setApplyChangesToQmlInspector(bool applyChanges);
+    void onResult(quint32 queryId, const QVariant &result);
 
 private slots:
     void enable();
     void disable();
-    void gotoObjectReferenceDefinition(const QDeclarativeDebugObjectReference &obj);
-    void selectItems(const QList<QDeclarativeDebugObjectReference> &objectReferences);
+    void gotoObjectReferenceDefinition(const QmlDebugObjectReference &obj);
+    void selectItems(const QList<QmlDebugObjectReference> &objectReferences);
     void selectItems(const QList<int> &objectIds);
-    void changeSelectedItems(const QList<QDeclarativeDebugObjectReference> &objects);
+    void changeSelectedItems(const QList<QmlDebugObjectReference> &objects);
     void changePropertyValue(int debugId,const QString &propertyName, const QString &valueExpression);
     void objectTreeReady();
 
@@ -133,7 +134,6 @@ private slots:
 
     void updatePendingPreviewDocuments(QmlJS::Document::Ptr doc);
     void showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
-    void debugQueryUpdated(QmlJsDebugClient::QDeclarativeDebugQuery::State);
 
 private:
     bool addQuotesForData(const QVariant &value) const;
@@ -143,9 +143,9 @@ private:
     void applyChangesToQmlInspectorHelper(bool applyChanges);
     void setupDockWidgets();
     QString filenameForShadowBuildFile(const QString &filename) const;
-    void populateCrumblePath(const QDeclarativeDebugObjectReference &objRef);
-    bool isRoot(const QDeclarativeDebugObjectReference &obj) const;
-    QDeclarativeDebugObjectReference objectReferenceForLocation(const QString &fileName, int cursorPosition=-1) const;
+    void populateCrumblePath(const QmlDebugObjectReference &objRef);
+    bool isRoot(const QmlDebugObjectReference &obj) const;
+    QmlDebugObjectReference objectReferenceForLocation(const QString &fileName, int cursorPosition=-1) const;
 
     void connectSignals();
     void disconnectSignals();
@@ -160,7 +160,7 @@ private:
     InspectorSettings *m_settings;
     ClientProxy *m_clientProxy;
     QObject *m_qmlEngine;
-    QDeclarativeDebugExpressionQuery *m_debugQuery;
+    quint32 m_debugQuery;
 
     // Qml/JS integration
     QHash<QString, QmlJSLiveTextPreview *> m_textPreviews;

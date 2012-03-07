@@ -33,120 +33,7 @@
 
 namespace QmlJsDebugClient {
 
-class QmlEngineDebugClientPrivate
-{
-public:
-    QmlEngineDebugClientPrivate(QmlEngineDebugClient *);
-    ~QmlEngineDebugClientPrivate();
-
-    void statusChanged(QDeclarativeDebugClient::Status status);
-    void message(const QByteArray &);
-
-    QmlEngineDebugClient *q;
-    int nextId;
-    int getId();
-
-    void decode(QDataStream &, QDeclarativeDebugContextReference &);
-    void decode(QDataStream &, QDeclarativeDebugObjectReference &, bool simple);
-
-    static void remove(QmlEngineDebugClient *, QDeclarativeDebugEnginesQuery *);
-    static void remove(QmlEngineDebugClient *, QDeclarativeDebugRootContextQuery *);
-    static void remove(QmlEngineDebugClient *, QDeclarativeDebugObjectQuery *);
-    static void remove(QmlEngineDebugClient *, QDeclarativeDebugExpressionQuery *);
-    static void remove(QmlEngineDebugClient *, QDeclarativeDebugWatch *);
-
-    QHash<int, QDeclarativeDebugEnginesQuery *> enginesQuery;
-    QHash<int, QDeclarativeDebugRootContextQuery *> rootContextQuery;
-    QHash<int, QDeclarativeDebugObjectQuery *> objectQuery;
-    QHash<int, QDeclarativeDebugExpressionQuery *> expressionQuery;
-
-    QHash<int, QDeclarativeDebugWatch *> watched;
-};
-
-void QmlEngineDebugClient::statusChanged(Status status)
-{
-    emit newStatus(status);
-}
-
-void QmlEngineDebugClient::messageReceived(const QByteArray &data)
-{
-    d->message(data);
-}
-
-QmlEngineDebugClientPrivate::QmlEngineDebugClientPrivate(QmlEngineDebugClient *q)
-    : q(q), nextId(0)
-{
-}
-
-QmlEngineDebugClientPrivate::~QmlEngineDebugClientPrivate()
-{
-    QHash<int, QDeclarativeDebugEnginesQuery*>::iterator enginesIter = enginesQuery.begin();
-    for (; enginesIter != enginesQuery.end(); ++enginesIter) {
-        enginesIter.value()->m_client = 0;
-        if (enginesIter.value()->state() == QDeclarativeDebugQuery::Waiting)
-            enginesIter.value()->setState(QDeclarativeDebugQuery::Error);
-    }
-
-    QHash<int, QDeclarativeDebugRootContextQuery*>::iterator rootContextIter = rootContextQuery.begin();
-    for (; rootContextIter != rootContextQuery.end(); ++rootContextIter) {
-        rootContextIter.value()->m_client = 0;
-        if (rootContextIter.value()->state() == QDeclarativeDebugQuery::Waiting)
-            rootContextIter.value()->setState(QDeclarativeDebugQuery::Error);
-    }
-
-    QHash<int, QDeclarativeDebugObjectQuery*>::iterator objectIter = objectQuery.begin();
-    for (; objectIter != objectQuery.end(); ++objectIter) {
-        objectIter.value()->m_client = 0;
-        if (objectIter.value()->state() == QDeclarativeDebugQuery::Waiting)
-            objectIter.value()->setState(QDeclarativeDebugQuery::Error);
-    }
-
-    QHash<int, QDeclarativeDebugExpressionQuery*>::iterator exprIter = expressionQuery.begin();
-    for (; exprIter != expressionQuery.end(); ++exprIter) {
-        exprIter.value()->m_client = 0;
-        if (exprIter.value()->state() == QDeclarativeDebugQuery::Waiting)
-            exprIter.value()->setState(QDeclarativeDebugQuery::Error);
-    }
-
-    QHash<int, QDeclarativeDebugWatch*>::iterator watchIter = watched.begin();
-    for (; watchIter != watched.end(); ++watchIter) {
-        watchIter.value()->m_client = 0;
-        watchIter.value()->setState(QDeclarativeDebugWatch::Dead);
-    }
-}
-
-int QmlEngineDebugClientPrivate::getId()
-{
-    return nextId++;
-}
-
-void QmlEngineDebugClientPrivate::remove(QmlEngineDebugClient *c, QDeclarativeDebugEnginesQuery *q)
-{
-    if (c && q) {
-        QmlEngineDebugClientPrivate *p = c->priv();
-        p->enginesQuery.remove(q->m_queryId);
-    }
-}
-
-void QmlEngineDebugClientPrivate::remove(QmlEngineDebugClient *c,
-                                            QDeclarativeDebugRootContextQuery *q)
-{
-    if (c && q) {
-        QmlEngineDebugClientPrivate *p = c->priv();
-        p->rootContextQuery.remove(q->m_queryId);
-    }
-}
-
-void QmlEngineDebugClientPrivate::remove(QmlEngineDebugClient *c, QDeclarativeDebugWatch *w)
-{
-    if (c && w) {
-        QmlEngineDebugClientPrivate *p = c->priv();
-        p->watched.remove(w->m_queryId);
-    }
-}
-
-// from qdeclarativeenginedebug_p.h
-struct QDeclarativeObjectData {
+struct QmlObjectData {
     QUrl url;
     int lineNumber;
     int columnNumber;
@@ -157,14 +44,14 @@ struct QDeclarativeObjectData {
     int contextId;
 };
 
-QDataStream &operator>>(QDataStream &ds, QDeclarativeObjectData &data)
+QDataStream &operator>>(QDataStream &ds, QmlObjectData &data)
 {
     ds >> data.url >> data.lineNumber >> data.columnNumber >> data.idString
        >> data.objectName >> data.objectType >> data.objectId >> data.contextId;
     return ds;
 }
 
-struct QDeclarativeObjectProperty {
+struct QmlObjectProperty {
     enum Type { Unknown, Basic, Object, List, SignalProperty };
     Type type;
     QString name;
@@ -174,38 +61,23 @@ struct QDeclarativeObjectProperty {
     bool hasNotifySignal;
 };
 
-QDataStream &operator>>(QDataStream &ds, QDeclarativeObjectProperty &data)
+QDataStream &operator>>(QDataStream &ds, QmlObjectProperty &data)
 {
     int type;
     ds >> type >> data.name >> data.value >> data.valueTypeName
        >> data.binding >> data.hasNotifySignal;
-    data.type = (QDeclarativeObjectProperty::Type)type;
+    data.type = (QmlObjectProperty::Type)type;
     return ds;
 }
 
-void QmlEngineDebugClientPrivate::remove(QmlEngineDebugClient *c, QDeclarativeDebugObjectQuery *q)
+void QmlEngineDebugClient::decode(QDataStream &ds,
+                                   QmlDebugObjectReference &o,
+                                   bool simple)
 {
-    if (c && q) {
-        QmlEngineDebugClientPrivate *p = c->priv();
-        p->objectQuery.remove(q->m_queryId);
-    }
-}
-
-void QmlEngineDebugClientPrivate::remove(QmlEngineDebugClient *c, QDeclarativeDebugExpressionQuery *q)
-{
-    if (c && q) {
-        QmlEngineDebugClientPrivate *p = c->priv();
-        p->expressionQuery.remove(q->m_queryId);
-    }
-}
-
-void QmlEngineDebugClientPrivate::decode(QDataStream &ds, QDeclarativeDebugObjectReference &o,
-                                            bool simple)
-{
-    QDeclarativeObjectData data;
+    QmlObjectData data;
     ds >> data;
     o.m_debugId = data.objectId;
-    o.m_class = data.objectType;
+    o.m_className = data.objectType;
     o.m_idString = data.idString;
     o.m_name = data.objectName;
     o.m_source.m_url = data.url;
@@ -221,7 +93,7 @@ void QmlEngineDebugClientPrivate::decode(QDataStream &ds, QDeclarativeDebugObjec
     ds >> childCount >> recur;
 
     for (int ii = 0; ii < childCount; ++ii) {
-        o.m_children.append(QDeclarativeDebugObjectReference());
+        o.m_children.append(QmlDebugObjectReference());
         decode(ds, o.m_children.last(), !recur);
     }
 
@@ -229,37 +101,38 @@ void QmlEngineDebugClientPrivate::decode(QDataStream &ds, QDeclarativeDebugObjec
     ds >> propCount;
 
     for (int ii = 0; ii < propCount; ++ii) {
-        QDeclarativeObjectProperty data;
+        QmlObjectProperty data;
         ds >> data;
-        QDeclarativeDebugPropertyReference prop;
+        QmlDebugPropertyReference prop;
         prop.m_objectDebugId = o.m_debugId;
         prop.m_name = data.name;
         prop.m_binding = data.binding;
         prop.m_hasNotifySignal = data.hasNotifySignal;
         prop.m_valueTypeName = data.valueTypeName;
         switch (data.type) {
-        case QDeclarativeObjectProperty::Basic:
-        case QDeclarativeObjectProperty::List:
-        case QDeclarativeObjectProperty::SignalProperty:
+        case QmlObjectProperty::Basic:
+        case QmlObjectProperty::List:
+        case QmlObjectProperty::SignalProperty:
         {
             prop.m_value = data.value;
             break;
         }
-        case QDeclarativeObjectProperty::Object:
+        case QmlObjectProperty::Object:
         {
-            QDeclarativeDebugObjectReference obj;
+            QmlDebugObjectReference obj;
             obj.m_debugId = prop.m_value.toInt();
             prop.m_value = qVariantFromValue(obj);
             break;
         }
-        case QDeclarativeObjectProperty::Unknown:
+        case QmlObjectProperty::Unknown:
             break;
         }
         o.m_properties << prop;
     }
 }
 
-void QmlEngineDebugClientPrivate::decode(QDataStream &ds, QDeclarativeDebugContextReference &c)
+void QmlEngineDebugClient::decode(QDataStream &ds,
+                                   QmlDebugContextReference &c)
 {
     ds >> c.m_name >> c.m_debugId;
 
@@ -267,7 +140,7 @@ void QmlEngineDebugClientPrivate::decode(QDataStream &ds, QDeclarativeDebugConte
     ds >> contextCount;
 
     for (int ii = 0; ii < contextCount; ++ii) {
-        c.m_contexts.append(QDeclarativeDebugContextReference());
+        c.m_contexts.append(QmlDebugContextReference());
         decode(ds, c.m_contexts.last());
     }
 
@@ -275,764 +148,259 @@ void QmlEngineDebugClientPrivate::decode(QDataStream &ds, QDeclarativeDebugConte
     ds >> objectCount;
 
     for (int ii = 0; ii < objectCount; ++ii) {
-        QDeclarativeDebugObjectReference obj;
+        QmlDebugObjectReference obj;
         decode(ds, obj, true);
-
         obj.m_contextDebugId = c.m_debugId;
         c.m_objects << obj;
     }
 }
 
-void QmlEngineDebugClientPrivate::statusChanged(QDeclarativeDebugClient::Status status)
+void QmlEngineDebugClient::statusChanged(Status status)
 {
-    emit q->statusChanged(status);
+    emit newStatus(status);
 }
 
-void QmlEngineDebugClientPrivate::message(const QByteArray &data)
+void QmlEngineDebugClient::messageReceived(const QByteArray &data)
 {
     QDataStream ds(data);
-
+    int queryId;
     QByteArray type;
     ds >> type;
 
-    //qDebug() << "QDeclarativeEngineDebugPrivate::message()" << type;
+    if (type == "OBJECT_CREATED") {
+        emit newObjects();
+        return;
+    }
+
+    ds >> queryId;
 
     if (type == "LIST_ENGINES_R") {
-        int queryId;
-        ds >> queryId;
-
-        QDeclarativeDebugEnginesQuery *query = enginesQuery.value(queryId);
-        if (!query)
-            return;
-        enginesQuery.remove(queryId);
-
         int count;
         ds >> count;
-
+        QmlDebugEngineReferenceList engines;
         for (int ii = 0; ii < count; ++ii) {
-            QDeclarativeDebugEngineReference ref;
-            ds >> ref.m_name;
-            ds >> ref.m_debugId;
-            query->m_engines << ref;
+            QmlDebugEngineReference eng;
+            ds >> eng.m_name;
+            ds >> eng.m_debugId;
+            engines << eng;
         }
-
-        query->m_client = 0;
-        query->setState(QDeclarativeDebugQuery::Completed);
+        emit result(queryId, QVariant::fromValue(engines));
     } else if (type == "LIST_OBJECTS_R") {
-        int queryId;
-        ds >> queryId;
-
-        QDeclarativeDebugRootContextQuery *query = rootContextQuery.value(queryId);
-        if (!query)
-            return;
-        rootContextQuery.remove(queryId);
-
+        QmlDebugContextReference rootContext;
         if (!ds.atEnd())
-            decode(ds, query->m_context);
-
-        query->m_client = 0;
-        query->setState(QDeclarativeDebugQuery::Completed);
+            decode(ds, rootContext);
+        emit result(queryId, QVariant::fromValue(rootContext));
     } else if (type == "FETCH_OBJECT_R") {
-        int queryId;
-        ds >> queryId;
-
-        QDeclarativeDebugObjectQuery *query = objectQuery.value(queryId);
-        if (!query)
-            return;
-        objectQuery.remove(queryId);
-
+        QmlDebugObjectReference object;
         if (!ds.atEnd())
-            decode(ds, query->m_object, false);
-
-        query->m_client = 0;
-        query->setState(QDeclarativeDebugQuery::Completed);
-    } else if (type == "EVAL_EXPRESSION_R") {
-        int queryId;
-        QVariant result;
-        ds >> queryId >> result;
-
-        QDeclarativeDebugExpressionQuery *query = expressionQuery.value(queryId);
-        if (!query)
-            return;
-        expressionQuery.remove(queryId);
-
-        query->m_result = result;
-        query->m_client = 0;
-        query->setState(QDeclarativeDebugQuery::Completed);
-    } else if (type == "WATCH_PROPERTY_R") {
-        int queryId;
-        bool ok;
-        ds >> queryId >> ok;
-
-        QDeclarativeDebugWatch *watch = watched.value(queryId);
-        if (!watch)
-            return;
-
-        watch->setState(ok ? QDeclarativeDebugWatch::Active : QDeclarativeDebugWatch::Inactive);
-    } else if (type == "WATCH_OBJECT_R") {
-        int queryId;
-        bool ok;
-        ds >> queryId >> ok;
-
-        QDeclarativeDebugWatch *watch = watched.value(queryId);
-        if (!watch)
-            return;
-
-        watch->setState(ok ? QDeclarativeDebugWatch::Active : QDeclarativeDebugWatch::Inactive);
-    } else if (type == "WATCH_EXPR_OBJECT_R") {
-        int queryId;
-        bool ok;
-        ds >> queryId >> ok;
-
-        QDeclarativeDebugWatch *watch = watched.value(queryId);
-        if (!watch)
-            return;
-
-        watch->setState(ok ? QDeclarativeDebugWatch::Active : QDeclarativeDebugWatch::Inactive);
+            decode(ds, object, false);
+        emit result(queryId, QVariant::fromValue(object));
+    } else if (type == "EVAL_EXPRESSION_R") {;
+        QVariant exprResult;
+        ds >> exprResult;
+        emit result(queryId, exprResult);
+    } else if (type == "WATCH_PROPERTY_R" ||
+               type == "WATCH_OBJECT_R" ||
+               type == "WATCH_EXPR_OBJECT_R") {
+        bool valid;
+        ds >> valid;
+        emit result(queryId, valid);
     } else if (type == "UPDATE_WATCH") {
-        int queryId;
         int debugId;
         QByteArray name;
         QVariant value;
-        ds >> queryId >> debugId >> name >> value;
-
-        QDeclarativeDebugWatch *watch = watched.value(queryId, 0);
-        if (!watch)
-            return;
-        emit watch->valueChanged(name, value);
-    } else if (type == "OBJECT_CREATED") {
-        emit q->newObjects();
+        ds >> debugId >> name >> value;
+        emit valueChanged(debugId, name, value);
     }
 }
 
-QmlEngineDebugClient::QmlEngineDebugClient(QDeclarativeDebugConnection *client)
-    : QDeclarativeDebugClient(QLatin1String("QDeclarativeEngine"), client),
-      d(new QmlEngineDebugClientPrivate(this))
+QmlEngineDebugClient::QmlEngineDebugClient(
+        QDeclarativeDebugConnection *connection)
+    : QDeclarativeDebugClient(QLatin1String("QDeclarativeEngine"), connection),
+      m_nextId(1)
 {
 }
 
-QmlEngineDebugClient::~QmlEngineDebugClient()
+quint32 QmlEngineDebugClient::addWatch(const QmlDebugPropertyReference &property)
 {
-    delete d;
-}
-
-QDeclarativeDebugPropertyWatch *QmlEngineDebugClient::addWatch(const QDeclarativeDebugPropertyReference &property, QObject *parent)
-{
-    QDeclarativeDebugPropertyWatch *watch = new QDeclarativeDebugPropertyWatch(parent);
+    quint32 id;
     if (status() == QDeclarativeDebugClient::Enabled) {
-        int queryId = d->getId();
-        watch->m_queryId = queryId;
-        watch->m_client = this;
-        watch->m_objectDebugId = property.objectDebugId();
-        watch->m_name = property.name();
-        d->watched.insert(queryId, watch);
-
+        id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("WATCH_PROPERTY") << queryId << property.objectDebugId() << property.name().toUtf8();
+        ds << QByteArray("WATCH_PROPERTY") << id << property.m_objectDebugId
+           << property.m_name.toUtf8();
         sendMessage(message);
-    } else {
-        watch->m_state = QDeclarativeDebugWatch::Dead;
     }
-
-    return watch;
+    return id;
 }
 
-QDeclarativeDebugWatch *QmlEngineDebugClient::addWatch(const QDeclarativeDebugContextReference &, const QString &, QObject *)
+quint32 QmlEngineDebugClient::addWatch(const QmlDebugContextReference &/*context*/,
+                                       const QString &/*id*/)
 {
-    qWarning("QDeclarativeEngineDebug::addWatch(): Not implemented");
+    qWarning("QmlEngineDebugClient::addWatch(): Not implemented");
     return 0;
 }
 
-QDeclarativeDebugObjectExpressionWatch *QmlEngineDebugClient::addWatch(const QDeclarativeDebugObjectReference &object, const QString &expr, QObject *parent)
+quint32 QmlEngineDebugClient::addWatch(const QmlDebugObjectReference &object,
+                                       const QString &expr)
 {
-    QDeclarativeDebugObjectExpressionWatch *watch = new QDeclarativeDebugObjectExpressionWatch(parent);
+    quint32 id = 0;
     if (status() == QDeclarativeDebugClient::Enabled) {
-        int queryId = d->getId();
-        watch->m_queryId = queryId;
-        watch->m_client = this;
-        watch->m_objectDebugId = object.debugId();
-        watch->m_expr = expr;
-        d->watched.insert(queryId, watch);
-
+        id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("WATCH_EXPR_OBJECT") << queryId << object.debugId() << expr;
+        ds << QByteArray("WATCH_EXPR_OBJECT") << id << object.m_debugId << expr;
         sendMessage(message);
-    } else {
-        watch->m_state = QDeclarativeDebugWatch::Dead;
     }
-    return watch;
+    return id;
 }
 
-QDeclarativeDebugWatch *QmlEngineDebugClient::addWatch(const QDeclarativeDebugObjectReference &object, QObject *parent)
+quint32 QmlEngineDebugClient::addWatch(const QmlDebugObjectReference &object)
 {
-    QDeclarativeDebugWatch *watch = new QDeclarativeDebugWatch(parent);
+    quint32 id = 0;
     if (status() == QDeclarativeDebugClient::Enabled) {
-        int queryId = d->getId();
-        watch->m_queryId = queryId;
-        watch->m_client = this;
-        watch->m_objectDebugId = object.debugId();
-        d->watched.insert(queryId, watch);
-
+        id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("WATCH_OBJECT") << queryId << object.debugId();
+        ds << QByteArray("WATCH_OBJECT") << id << object.m_debugId;
         sendMessage(message);
-    } else {
-        watch->m_state = QDeclarativeDebugWatch::Dead;
     }
-
-    return watch;
+    return id;
 }
 
-QDeclarativeDebugWatch *QmlEngineDebugClient::addWatch(const QDeclarativeDebugFileReference &, QObject *)
+quint32 QmlEngineDebugClient::addWatch(const QmlDebugFileReference &/*file*/)
 {
-    qWarning("QDeclarativeEngineDebug::addWatch(): Not implemented");
+    qWarning("QmlEngineDebugClient::addWatch(): Not implemented");
     return 0;
 }
 
-void QmlEngineDebugClient::removeWatch(QDeclarativeDebugWatch *watch)
+void QmlEngineDebugClient::removeWatch(quint32 id)
 {
-    if (!watch || !watch->m_client)
-        return;
-
-    watch->m_client = 0;
-    watch->setState(QDeclarativeDebugWatch::Inactive);
-    
-    d->watched.remove(watch->queryId());
-
     if (status() == QDeclarativeDebugClient::Enabled) {
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("NO_WATCH") << watch->queryId();
+        ds << QByteArray("NO_WATCH") << id;
         sendMessage(message);
     }
 }
 
-QDeclarativeDebugEnginesQuery *QmlEngineDebugClient::queryAvailableEngines(QObject *parent)
+quint32 QmlEngineDebugClient::queryAvailableEngines()
 {
-    QDeclarativeDebugEnginesQuery *query = new QDeclarativeDebugEnginesQuery(parent);
+    quint32 id = 0;
     if (status() == QDeclarativeDebugClient::Enabled) {
-        query->m_client = this;
-        int queryId = d->getId();
-        query->m_queryId = queryId;
-        d->enginesQuery.insert(queryId, query);
-
+        id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("LIST_ENGINES") << queryId;
+        ds << QByteArray("LIST_ENGINES") << id;
         sendMessage(message);
-    } else {
-        query->m_state = QDeclarativeDebugQuery::Error;
     }
-
-    return query;
+    return id;
 }
 
-QDeclarativeDebugRootContextQuery *QmlEngineDebugClient::queryRootContexts(const QDeclarativeDebugEngineReference &engine, QObject *parent)
+quint32 QmlEngineDebugClient::queryRootContexts(const QmlDebugEngineReference &engine)
 {
-    QDeclarativeDebugRootContextQuery *query = new QDeclarativeDebugRootContextQuery(parent);
-    if (status() == QDeclarativeDebugClient::Enabled && engine.debugId() != -1) {
-        query->m_client = this;
-        int queryId = d->getId();
-        query->m_queryId = queryId;
-        d->rootContextQuery.insert(queryId, query);
-
+    quint32 id = 0;
+    if (status() == QDeclarativeDebugClient::Enabled && engine.m_debugId != -1) {
+        id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("LIST_OBJECTS") << queryId << engine.debugId();
+        ds << QByteArray("LIST_OBJECTS") << id << engine.m_debugId;
         sendMessage(message);
-    } else {
-        query->m_state = QDeclarativeDebugQuery::Error;
     }
-
-    return query;
+    return id;
 }
 
-QDeclarativeDebugObjectQuery *QmlEngineDebugClient::queryObject(const QDeclarativeDebugObjectReference &object, QObject *parent)
+quint32 QmlEngineDebugClient::queryObject(const QmlDebugObjectReference &object)
 {
-    QDeclarativeDebugObjectQuery *query = new QDeclarativeDebugObjectQuery(parent);
-    if (status() == QDeclarativeDebugClient::Enabled && object.debugId() != -1) {
-        query->m_client = this;
-        int queryId = d->getId();
-        query->m_queryId = queryId;
-        d->objectQuery.insert(queryId, query);
-
+    quint32 id = 0;
+    if (status() == QDeclarativeDebugClient::Enabled && object.m_debugId != -1) {
+        id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("FETCH_OBJECT") << queryId << object.debugId()
-           << false << true;
+        ds << QByteArray("FETCH_OBJECT") << id << object.m_debugId << false <<
+              true;
         sendMessage(message);
-    } else {
-        query->m_state = QDeclarativeDebugQuery::Error;
     }
-
-    return query;
+    return id;
 }
 
-QDeclarativeDebugObjectQuery *QmlEngineDebugClient::queryObjectRecursive(const QDeclarativeDebugObjectReference &object, QObject *parent)
+quint32 QmlEngineDebugClient::queryObjectRecursive(const QmlDebugObjectReference &object)
 {
-    QDeclarativeDebugObjectQuery *query = new QDeclarativeDebugObjectQuery(parent);
-    if (status() == QDeclarativeDebugClient::Enabled && object.debugId() != -1) {
-        query->m_client = this;
-        int queryId = d->getId();
-        query->m_queryId = queryId;
-        d->objectQuery.insert(queryId, query);
-
+    quint32 id = 0;
+    if (status() == QDeclarativeDebugClient::Enabled && object.m_debugId != -1) {
+        id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("FETCH_OBJECT") << queryId << object.debugId()
-           << true << true;
+        ds << QByteArray("FETCH_OBJECT") << id << object.m_debugId << true <<
+              true;
         sendMessage(message);
-    } else {
-        query->m_state = QDeclarativeDebugQuery::Error;
     }
-
-    return query;
+    return id;
 }
 
-QDeclarativeDebugExpressionQuery *QmlEngineDebugClient::queryExpressionResult(int objectDebugId, const QString &expr, QObject *parent)
+quint32 QmlEngineDebugClient::queryExpressionResult(int objectDebugId,
+                                                    const QString &expr)
 {
-    QDeclarativeDebugExpressionQuery *query = new QDeclarativeDebugExpressionQuery(parent);
+    quint32 id = 0;
     if (status() == QDeclarativeDebugClient::Enabled && objectDebugId != -1) {
-        query->m_client = this;
-        query->m_expr = expr;
-        int queryId = d->getId();
-        query->m_queryId = queryId;
-        d->expressionQuery.insert(queryId, query);
-
+        id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("EVAL_EXPRESSION") << queryId << objectDebugId << expr;
+        ds << QByteArray("EVAL_EXPRESSION") << id << objectDebugId << expr;
         sendMessage(message);
-    } else {
-        query->m_state = QDeclarativeDebugQuery::Error;
     }
-
-    return query;
+    return id;
 }
 
-bool QmlEngineDebugClient::setBindingForObject(int objectDebugId, const QString &propertyName,
-                                                  const QVariant &bindingExpression,
-                                                  bool isLiteralValue,
-                                                  QString source, int line)
+quint32 QmlEngineDebugClient::setBindingForObject(
+        int objectDebugId,
+        const QString &propertyName,
+        const QVariant &bindingExpression,
+        bool isLiteralValue,
+        QString source, int line)
 {
+    quint32 id = 0;
     if (status() == QDeclarativeDebugClient::Enabled && objectDebugId != -1) {
+        id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("SET_BINDING") << objectDebugId << propertyName << bindingExpression << isLiteralValue << source << line;
+        ds << QByteArray("SET_BINDING") << objectDebugId << propertyName
+           << bindingExpression << isLiteralValue << source << line;
         sendMessage(message);
-        return true;
-    } else {
-        return false;
     }
+    return id;
 }
 
-bool QmlEngineDebugClient::resetBindingForObject(int objectDebugId, const QString &propertyName)
+quint32 QmlEngineDebugClient::resetBindingForObject(
+        int objectDebugId,
+        const QString &propertyName)
 {
+    quint32 id = 0;
     if (status() == QDeclarativeDebugClient::Enabled && objectDebugId != -1) {
+        id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
         ds << QByteArray("RESET_BINDING") << objectDebugId << propertyName;
         sendMessage(message);
-        return true;
-    } else {
-        return false;
     }
+    return id;
 }
 
-bool QmlEngineDebugClient::setMethodBody(int objectDebugId, const QString &methodName,
-                                            const QString &methodBody)
+quint32 QmlEngineDebugClient::setMethodBody(
+        int objectDebugId, const QString &methodName,
+        const QString &methodBody)
 {
+    quint32 id = 0;
     if (status() == QDeclarativeDebugClient::Enabled && objectDebugId != -1) {
+        id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("SET_METHOD_BODY") << objectDebugId << methodName << methodBody;
+        ds << QByteArray("SET_METHOD_BODY") << objectDebugId
+           << methodName << methodBody;
         sendMessage(message);
-        return true;
-    } else {
-        return false;
     }
-}
-
-QDeclarativeDebugWatch::QDeclarativeDebugWatch(QObject *parent)
-    : QObject(parent), m_state(Waiting), m_queryId(-1), m_client(0), m_objectDebugId(-1)
-{
-}
-
-QDeclarativeDebugWatch::~QDeclarativeDebugWatch()
-{
-    if (m_client && m_queryId != -1)
-        QmlEngineDebugClientPrivate::remove(m_client, this);
-}
-
-int QDeclarativeDebugWatch::queryId() const
-{
-    return m_queryId;
-}
-
-int QDeclarativeDebugWatch::objectDebugId() const
-{
-    return m_objectDebugId;
-}
-
-QDeclarativeDebugWatch::State QDeclarativeDebugWatch::state() const
-{
-    return m_state;
-}
-
-void QDeclarativeDebugWatch::setState(State s)
-{
-    if (m_state == s)
-        return;
-    m_state = s;
-    emit stateChanged(m_state);
-}
-
-QDeclarativeDebugPropertyWatch::QDeclarativeDebugPropertyWatch(QObject *parent)
-    : QDeclarativeDebugWatch(parent)
-{
-}
-
-QString QDeclarativeDebugPropertyWatch::name() const
-{
-    return m_name;
-}
-
-
-QDeclarativeDebugObjectExpressionWatch::QDeclarativeDebugObjectExpressionWatch(QObject *parent)
-    : QDeclarativeDebugWatch(parent)
-{
-}
-
-QString QDeclarativeDebugObjectExpressionWatch::expression() const
-{
-    return m_expr;
-}
-
-
-QDeclarativeDebugQuery::QDeclarativeDebugQuery(QObject *parent)
-    : QObject(parent), m_state(Waiting)
-{
-}
-
-QDeclarativeDebugQuery::State QDeclarativeDebugQuery::state() const
-{
-    return m_state;
-}
-
-bool QDeclarativeDebugQuery::isWaiting() const
-{
-    return m_state == Waiting;
-}
-
-void QDeclarativeDebugQuery::setState(State s)
-{
-    if (m_state == s)
-        return;
-    m_state = s;
-    emit stateChanged(m_state);
-}
-
-QDeclarativeDebugEnginesQuery::QDeclarativeDebugEnginesQuery(QObject *parent)
-    : QDeclarativeDebugQuery(parent), m_client(0), m_queryId(-1)
-{
-}
-
-QDeclarativeDebugEnginesQuery::~QDeclarativeDebugEnginesQuery()
-{
-    if (m_client && m_queryId != -1)
-        QmlEngineDebugClientPrivate::remove(m_client, this);
-}
-
-QList<QDeclarativeDebugEngineReference> QDeclarativeDebugEnginesQuery::engines() const
-{
-    return m_engines;
-}
-
-QDeclarativeDebugRootContextQuery::QDeclarativeDebugRootContextQuery(QObject *parent)
-    : QDeclarativeDebugQuery(parent), m_client(0), m_queryId(-1)
-{
-}
-
-QDeclarativeDebugRootContextQuery::~QDeclarativeDebugRootContextQuery()
-{
-    if (m_client && m_queryId != -1)
-        QmlEngineDebugClientPrivate::remove(m_client, this);
-}
-
-QDeclarativeDebugContextReference QDeclarativeDebugRootContextQuery::rootContext() const
-{
-    return m_context;
-}
-
-QDeclarativeDebugObjectQuery::QDeclarativeDebugObjectQuery(QObject *parent)
-    : QDeclarativeDebugQuery(parent), m_client(0), m_queryId(-1)
-{
-}
-
-QDeclarativeDebugObjectQuery::~QDeclarativeDebugObjectQuery()
-{
-    if (m_client && m_queryId != -1)
-        QmlEngineDebugClientPrivate::remove(m_client, this);
-}
-
-QDeclarativeDebugObjectReference QDeclarativeDebugObjectQuery::object() const
-{
-    return m_object;
-}
-
-QDeclarativeDebugExpressionQuery::QDeclarativeDebugExpressionQuery(QObject *parent)
-    : QDeclarativeDebugQuery(parent), m_client(0), m_queryId(-1)
-{
-}
-
-QDeclarativeDebugExpressionQuery::~QDeclarativeDebugExpressionQuery()
-{
-    if (m_client && m_queryId != -1)
-        QmlEngineDebugClientPrivate::remove(m_client, this);
-}
-
-QVariant QDeclarativeDebugExpressionQuery::expression() const
-{
-    return m_expr;
-}
-
-QVariant QDeclarativeDebugExpressionQuery::result() const
-{
-    return m_result;
-}
-
-QDeclarativeDebugEngineReference::QDeclarativeDebugEngineReference()
-    : m_debugId(-1)
-{
-}
-
-QDeclarativeDebugEngineReference::QDeclarativeDebugEngineReference(int debugId)
-    : m_debugId(debugId)
-{
-}
-
-QDeclarativeDebugEngineReference::QDeclarativeDebugEngineReference(const QDeclarativeDebugEngineReference &o)
-    : m_debugId(o.m_debugId), m_name(o.m_name)
-{
-}
-
-QDeclarativeDebugEngineReference &
-QDeclarativeDebugEngineReference::operator=(const QDeclarativeDebugEngineReference &o)
-{
-    m_debugId = o.m_debugId; m_name = o.m_name;
-    return *this;
-}
-
-int QDeclarativeDebugEngineReference::debugId() const
-{
-    return m_debugId;
-}
-
-QString QDeclarativeDebugEngineReference::name() const
-{
-    return m_name;
-}
-
-QDeclarativeDebugObjectReference::QDeclarativeDebugObjectReference()
-    : m_debugId(-1), m_contextDebugId(-1)
-{
-}
-
-QDeclarativeDebugObjectReference::QDeclarativeDebugObjectReference(int debugId)
-    : m_debugId(debugId), m_contextDebugId(-1)
-{
-}
-
-QDeclarativeDebugObjectReference::QDeclarativeDebugObjectReference(const QDeclarativeDebugObjectReference &o)
-    : m_debugId(o.m_debugId), m_class(o.m_class), m_idString(o.m_idString),
-      m_name(o.m_name), m_source(o.m_source), m_contextDebugId(o.m_contextDebugId),
-      m_properties(o.m_properties), m_children(o.m_children)
-{
-}
-
-QDeclarativeDebugObjectReference &
-QDeclarativeDebugObjectReference::operator=(const QDeclarativeDebugObjectReference &o)
-{
-    m_debugId = o.m_debugId; m_class = o.m_class; m_idString = o.m_idString;
-    m_name = o.m_name; m_source = o.m_source; m_contextDebugId = o.m_contextDebugId;
-    m_properties = o.m_properties; m_children = o.m_children;
-    return *this;
-}
-
-int QDeclarativeDebugObjectReference::debugId() const
-{
-    return m_debugId;
-}
-
-QString QDeclarativeDebugObjectReference::className() const
-{
-    return m_class;
-}
-
-QString QDeclarativeDebugObjectReference::idString() const
-{
-    return m_idString;
-}
-
-QString QDeclarativeDebugObjectReference::name() const
-{
-    return m_name;
-}
-
-QDeclarativeDebugFileReference QDeclarativeDebugObjectReference::source() const
-{
-    return m_source;
-}
-
-int QDeclarativeDebugObjectReference::contextDebugId() const
-{
-    return m_contextDebugId;
-}
-
-QList<QDeclarativeDebugPropertyReference> QDeclarativeDebugObjectReference::properties() const
-{
-    return m_properties;
-}
-
-QList<QDeclarativeDebugObjectReference> QDeclarativeDebugObjectReference::children() const
-{
-    return m_children;
-}
-
-QDeclarativeDebugContextReference::QDeclarativeDebugContextReference()
-    : m_debugId(-1)
-{
-}
-
-QDeclarativeDebugContextReference::QDeclarativeDebugContextReference(const QDeclarativeDebugContextReference &o)
-    : m_debugId(o.m_debugId), m_name(o.m_name), m_objects(o.m_objects), m_contexts(o.m_contexts)
-{
-}
-
-QDeclarativeDebugContextReference &QDeclarativeDebugContextReference::operator=(const QDeclarativeDebugContextReference &o)
-{
-    m_debugId = o.m_debugId; m_name = o.m_name; m_objects = o.m_objects;
-    m_contexts = o.m_contexts;
-    return *this;
-}
-
-int QDeclarativeDebugContextReference::debugId() const
-{
-    return m_debugId;
-}
-
-QString QDeclarativeDebugContextReference::name() const
-{
-    return m_name;
-}
-
-QList<QDeclarativeDebugObjectReference> QDeclarativeDebugContextReference::objects() const
-{
-    return m_objects;
-}
-
-QList<QDeclarativeDebugContextReference> QDeclarativeDebugContextReference::contexts() const
-{
-    return m_contexts;
-}
-
-QDeclarativeDebugFileReference::QDeclarativeDebugFileReference()
-    : m_lineNumber(-1), m_columnNumber(-1)
-{
-}
-
-QDeclarativeDebugFileReference::QDeclarativeDebugFileReference(const QDeclarativeDebugFileReference &o)
-    : m_url(o.m_url), m_lineNumber(o.m_lineNumber), m_columnNumber(o.m_columnNumber)
-{
-}
-
-QDeclarativeDebugFileReference &QDeclarativeDebugFileReference::operator=(const QDeclarativeDebugFileReference &o)
-{
-    m_url = o.m_url; m_lineNumber = o.m_lineNumber; m_columnNumber = o.m_columnNumber;
-    return *this;
-}
-
-QUrl QDeclarativeDebugFileReference::url() const
-{
-    return m_url;
-}
-
-void QDeclarativeDebugFileReference::setUrl(const QUrl &u)
-{
-    m_url = u;
-}
-
-int QDeclarativeDebugFileReference::lineNumber() const
-{
-    return m_lineNumber;
-}
-
-void QDeclarativeDebugFileReference::setLineNumber(int l)
-{
-    m_lineNumber = l;
-}
-
-int QDeclarativeDebugFileReference::columnNumber() const
-{
-    return m_columnNumber;
-}
-
-void QDeclarativeDebugFileReference::setColumnNumber(int c)
-{
-    m_columnNumber = c;
-}
-
-QDeclarativeDebugPropertyReference::QDeclarativeDebugPropertyReference()
-    : m_objectDebugId(-1), m_hasNotifySignal(false)
-{
-}
-
-QDeclarativeDebugPropertyReference::QDeclarativeDebugPropertyReference(const QDeclarativeDebugPropertyReference &o)
-    : m_objectDebugId(o.m_objectDebugId), m_name(o.m_name), m_value(o.m_value),
-      m_valueTypeName(o.m_valueTypeName), m_binding(o.m_binding),
-      m_hasNotifySignal(o.m_hasNotifySignal)
-{
-}
-
-QDeclarativeDebugPropertyReference &QDeclarativeDebugPropertyReference::operator=(const QDeclarativeDebugPropertyReference &o)
-{
-    m_objectDebugId = o.m_objectDebugId; m_name = o.m_name; m_value = o.m_value;
-    m_valueTypeName = o.m_valueTypeName; m_binding = o.m_binding;
-    m_hasNotifySignal = o.m_hasNotifySignal;
-    return *this;
-}
-
-int QDeclarativeDebugPropertyReference::objectDebugId() const
-{
-    return m_objectDebugId;
-}
-
-QString QDeclarativeDebugPropertyReference::name() const
-{
-    return m_name;
-}
-
-QString QDeclarativeDebugPropertyReference::valueTypeName() const
-{
-    return m_valueTypeName;
-}
-
-QVariant QDeclarativeDebugPropertyReference::value() const
-{
-    return m_value;
-}
-
-QString QDeclarativeDebugPropertyReference::binding() const
-{
-    return m_binding;
-}
-
-bool QDeclarativeDebugPropertyReference::hasNotifySignal() const
-{
-    return m_hasNotifySignal;
+    return id;
 }
 
 } // namespace QmlJsDebugClient

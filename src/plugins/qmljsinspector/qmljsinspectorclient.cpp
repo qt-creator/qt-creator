@@ -182,15 +182,15 @@ void QmlJSInspectorClient::setCurrentObjects(const QList<int> &debugIds)
     sendMessage(message);
 }
 
-void recurseObjectIdList(const QDeclarativeDebugObjectReference &ref, QList<int> &debugIds, QList<QString> &objectIds)
+void recurseObjectIdList(const QmlDebugObjectReference &ref, QList<int> &debugIds, QList<QString> &objectIds)
 {
     debugIds << ref.debugId();
     objectIds << ref.idString();
-    foreach (const QDeclarativeDebugObjectReference &child, ref.children())
+    foreach (const QmlDebugObjectReference &child, ref.children())
         recurseObjectIdList(child, debugIds, objectIds);
 }
 
-void QmlJSInspectorClient::setObjectIdList(const QList<QDeclarativeDebugObjectReference> &objectRoots)
+void QmlJSInspectorClient::setObjectIdList(const QList<QmlDebugObjectReference> &objectRoots)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
@@ -198,7 +198,7 @@ void QmlJSInspectorClient::setObjectIdList(const QList<QDeclarativeDebugObjectRe
     QList<int> debugIds;
     QList<QString> objectIds;
 
-    foreach (const QDeclarativeDebugObjectReference &ref, objectRoots)
+    foreach (const QmlDebugObjectReference &ref, objectRoots)
         recurseObjectIdList(ref, debugIds, objectIds);
 
     InspectorProtocol::Message cmd = InspectorProtocol::ObjectIdList;

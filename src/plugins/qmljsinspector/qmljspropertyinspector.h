@@ -129,7 +129,7 @@ signals:
     void customContextMenuRequested(const QPoint &pos);
 
 public slots:
-    void setCurrentObjects(const QList<QDeclarativeDebugObjectReference> &);
+    void setCurrentObjects(const QList<QmlDebugObjectReference> &);
     void propertyValueEdited(const int objectId,const QString &propertyName, const QString &propertyValue);
     void propertyValueChanged(int debugId, const QByteArray &propertyName, const QVariant &propertyValue);
     void filterBy(const QString &expression);
@@ -139,7 +139,7 @@ public slots:
 
 private:
     friend class PropertyEditDelegate;
-    void buildPropertyTree(const QDeclarativeDebugObjectReference &);
+    void buildPropertyTree(const QmlDebugObjectReference &);
     void addRow(const QString &name, const QString &value, const QString &type,
                 const int debugId = -1, bool editable = true);
     void setColorIcon(int row);

@@ -295,14 +295,14 @@ void QmlJSPropertyInspector::clear()
     m_currentObjects.clear();
 }
 
-void QmlJSPropertyInspector::setCurrentObjects(const QList<QDeclarativeDebugObjectReference> &objectList)
+void QmlJSPropertyInspector::setCurrentObjects(const QList<QmlDebugObjectReference> &objectList)
 {
     if (objectList.isEmpty())
         return;
 
     clear();
 
-    foreach (const QDeclarativeDebugObjectReference &obj, objectList) {
+    foreach (const QmlDebugObjectReference &obj, objectList) {
         m_currentObjects << obj.debugId();
         buildPropertyTree(obj);
     }
@@ -350,7 +350,7 @@ void QmlJSPropertyInspector::propertyValueEdited(const int objectId,const QStrin
     emit changePropertyValue(objectId, propertyName, propertyValue);
 }
 
-void QmlJSPropertyInspector::buildPropertyTree(const QDeclarativeDebugObjectReference &obj)
+void QmlJSPropertyInspector::buildPropertyTree(const QmlDebugObjectReference &obj)
 {
     // Strip off the misleading metadata
     QString objTypeName = obj.className();
@@ -375,7 +375,7 @@ void QmlJSPropertyInspector::buildPropertyTree(const QDeclarativeDebugObjectRefe
                false);
     }
 
-    foreach (const QDeclarativeDebugPropertyReference &prop, obj.properties()) {
+    foreach (const QmlDebugPropertyReference &prop, obj.properties()) {
         QString propertyName = prop.name();
         QString propertyValue = prop.value().toString();
 

@@ -34,7 +34,6 @@
 #define DEBUGGER_QMLENGINE_H
 
 #include "debuggerengine.h"
-#include <qmljsdebugclient/qmlenginedebugclient.h>
 #include <qmljsdebugclient/qdebugmessageclient.h>
 #include <utils/outputformat.h>
 #include <qmljs/qmljsdocument.h>
@@ -96,6 +95,7 @@ public:
 public slots:
     void disconnected();
     void documentUpdated(QmlJS::Document::Ptr doc);
+    void expressionEvaluated(quint32 queryId, const QVariant &result);
 
 private slots:
     void errorMessageBoxFinished(int result);
@@ -171,8 +171,6 @@ private slots:
     void appendMessage(const QString &msg, Utils::OutputFormat);
 
     void synchronizeWatchers();
-    void onDebugQueryStateChanged(
-            QmlJsDebugClient::QDeclarativeDebugQuery::State state);
 
 private:
     void closeConnection();
