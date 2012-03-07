@@ -867,6 +867,7 @@ void DebuggerEngine::notifyInferiorSetupFailed()
 {
     showMessage(_("NOTE: INFERIOR SETUP FAILED"));
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << this << state());
+    showStatusMessage(tr("Setup failed."));
     setState(InferiorSetupFailed);
     if (isMasterEngine())
         d->queueShutdownEngine();
@@ -902,6 +903,7 @@ void DebuggerEngine::notifyInferiorUnrunnable()
     d->m_progress.setProgressValue(1000);
     d->m_progress.reportFinished();
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << this << state());
+    showStatusMessage(tr("Loading finished."));
     setState(InferiorUnrunnable);
 }
 
@@ -912,6 +914,7 @@ void DebuggerEngine::notifyEngineRunFailed()
     d->m_progress.setProgressValue(900);
     d->m_progress.reportCanceled();
     d->m_progress.reportFinished();
+    showStatusMessage(tr("Run failed."));
     setState(EngineRunFailed);
     if (isMasterEngine())
         d->queueShutdownEngine();
@@ -963,6 +966,7 @@ void DebuggerEngine::notifyEngineRunAndInferiorRunOk()
     d->m_progress.setProgressValue(1000);
     d->m_progress.reportFinished();
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << this << state());
+    showStatusMessage(tr("Running."));
     setState(InferiorRunOk);
 }
 
@@ -972,6 +976,7 @@ void DebuggerEngine::notifyEngineRunAndInferiorStopOk()
     d->m_progress.setProgressValue(1000);
     d->m_progress.reportFinished();
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << this << state());
+    showStatusMessage(tr("Stopped."));
     setState(InferiorStopOk);
 }
 
@@ -979,12 +984,14 @@ void DebuggerEngine::notifyInferiorRunRequested()
 {
     showMessage(_("NOTE: INFERIOR RUN REQUESTED"));
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << this << state());
+    showStatusMessage(tr("Run requested..."));
     setState(InferiorRunRequested);
 }
 
 void DebuggerEngine::notifyInferiorRunOk()
 {
     showMessage(_("NOTE: INFERIOR RUN OK"));
+    showStatusMessage(tr("Running."));
     // Transition from StopRequested can happen sin remotegdbadapter.
     QTC_ASSERT(state() == InferiorRunRequested
         || state() == InferiorStopRequested, qDebug() << this << state());
@@ -1021,6 +1028,7 @@ void DebuggerEngine::notifyInferiorStopOk()
         return;
     }
     QTC_ASSERT(state() == InferiorStopRequested, qDebug() << this << state());
+    showStatusMessage(tr("Stopped."));
     setState(InferiorStopOk);
 }
 
@@ -1028,6 +1036,7 @@ void DebuggerEngine::notifyInferiorSpontaneousStop()
 {
     showMessage(_("NOTE: INFERIOR SPONTANEOUS STOP"));
     QTC_ASSERT(state() == InferiorRunOk, qDebug() << this << state());
+    showStatusMessage(tr("Stopped."));
     setState(InferiorStopOk);
 }
 
@@ -1046,6 +1055,7 @@ void DebuggerEnginePrivate::doInterruptInferior()
     QTC_ASSERT(state() == InferiorRunOk, qDebug() << m_engine << state());
     m_engine->setState(InferiorStopRequested);
     m_engine->showMessage(_("CALL: INTERRUPT INFERIOR"));
+    m_engine->showStatusMessage(tr("Attempting to interrupt."));
     m_engine->interruptInferior();
 }
 

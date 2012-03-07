@@ -2721,10 +2721,10 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
 void DebuggerPluginPrivate::runControlStarted(DebuggerEngine *engine)
 {
     activateDebugMode();
-    const QString message = tr("Starting debugger '%1' for ABI '%2'...")
+    const QString message = tr("Starting debugger \"%1\" for ABI \"%2\"...")
             .arg(engine->objectName())
             .arg(engine->startParameters().toolChainAbi.toString());
-    showMessage(message, StatusBar);
+    showStatusMessage(message);
     showMessage(formatStartParameters(engine->startParameters()), LogDebug);
     showMessage(m_debuggerSettings->dump(), LogDebug);
     m_snapshotHandler->appendSnapshot(engine);
