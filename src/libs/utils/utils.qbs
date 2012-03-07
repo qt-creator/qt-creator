@@ -4,7 +4,7 @@ DynamicLibrary {
     name: "utils"
     destination: "lib"
 
-    cpp.defines: base.concat(["QTCREATOR_UTILS_LIB"])
+    cpp.defines: ["QTCREATOR_UTILS_LIB"]
     cpp.includePaths: [ ".", "..",
         "../..",
         "../3rdparty/botan/build",
