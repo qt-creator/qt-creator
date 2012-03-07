@@ -195,7 +195,7 @@ void AbstractMaemoInstallPackageToSysrootStep::run(QFutureInterface<bool> &fi)
     connect(m_installerProcess, SIGNAL(readyReadStandardError()),
         SLOT(handleInstallerStderr()));
 
-    emit addOutput(tr("Installing package to sysroot ..."), MessageOutput);
+    emit addOutput(tr("Installing package to sysroot..."), MessageOutput);
     const int packageFileSize = QFileInfo(m_packageFilePath).size() / (1024*1024);
     const QStringList args = madArguments() << m_packageFilePath;
     MaemoGlobal::callMadAdmin(*m_installerProcess, args, m_qmakeCommand, true);
@@ -340,7 +340,7 @@ bool MaemoCopyToSysrootStep::init()
 
 void MaemoCopyToSysrootStep::run(QFutureInterface<bool> &fi)
 {
-    emit addOutput(tr("Copying files to sysroot ..."), MessageOutput);
+    emit addOutput(tr("Copying files to sysroot..."), MessageOutput);
     QDir sysrootDir(m_systemRoot);
 
     const QChar sep = QLatin1Char('/');

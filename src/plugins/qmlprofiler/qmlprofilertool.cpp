@@ -549,10 +549,10 @@ void QmlProfilerTool::connectToClient()
         return;
 
     if (d->m_connectMode == QmlProfilerToolPrivate::TcpConnection) {
-        logStatus(QString("QML Profiler: Connecting to %1:%2 ...").arg(d->m_tcpHost, QString::number(d->m_tcpPort)));
+        logStatus(QString("QML Profiler: Connecting to %1:%2...").arg(d->m_tcpHost, QString::number(d->m_tcpPort)));
         d->m_client->connectToHost(d->m_tcpHost, d->m_tcpPort);
     } else {
-        logStatus(QString("QML Profiler: Connecting to %1 ...").arg(d->m_tcpHost));
+        logStatus(QString("QML Profiler: Connecting to %1...").arg(d->m_tcpHost));
         d->m_client->connectToOst(d->m_ostDevice);
     }
 }

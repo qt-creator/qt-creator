@@ -90,7 +90,7 @@ void AbstractRemoteLinuxRunControl::handleSshError(const QString &error)
 
 void AbstractRemoteLinuxRunControl::startExecution()
 {
-    appendMessage(tr("Starting remote process ...\n"), Utils::NormalMessageFormat);
+    appendMessage(tr("Starting remote process...\n"), Utils::NormalMessageFormat);
     runner()->startExecution(QString::fromLatin1("%1 %2 %3")
         .arg(runner()->commandPrefix())
         .arg(runner()->remoteExecutable())

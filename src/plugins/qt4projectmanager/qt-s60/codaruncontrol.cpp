@@ -183,7 +183,7 @@ void CodaRunControl::slotError(const QString &error)
 void CodaRunControl::slotCodaLogMessage(const QString &log)
 {
     if (debug > 1)
-        qDebug("CODA log: %s", qPrintable(log.size()>200?log.left(200).append(QLatin1String(" ...")): log));
+        qDebug("CODA log: %s", qPrintable(log.size()>200?log.left(200).append(QLatin1String("...")): log));
 }
 
 void CodaRunControl::slotCodaEvent(const CodaEvent &event)

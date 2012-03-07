@@ -121,7 +121,7 @@ void AbstractMaemoPackageCreationStep::run(QFutureInterface<bool> &fi)
         SLOT(handleBuildOutput()));
     connect(buildProc, SIGNAL(readyReadStandardError()), this,
         SLOT(handleBuildOutput()));
-    emit addOutput(tr("Creating package file ..."), MessageOutput);
+    emit addOutput(tr("Creating package file..."), MessageOutput);
     const bool success = createPackage(buildProc, fi);
     disconnect(buildProc, 0, this, 0);
     buildProc->deleteLater();

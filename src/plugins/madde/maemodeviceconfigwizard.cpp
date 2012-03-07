@@ -345,7 +345,7 @@ private:
 
         m_ui->keyDirPathChooser->setEnabled(false);
         m_ui->createKeysButton->setEnabled(false);
-        m_ui->statusLabel->setText(tr("Creating keys ... "));
+        m_ui->statusLabel->setText(tr("Creating keys... "));
         SshKeyGenerator keyGenerator;
         if (!keyGenerator.generateKeys(SshKeyGenerator::Rsa,
              SshKeyGenerator::Mixed, 1024)) {

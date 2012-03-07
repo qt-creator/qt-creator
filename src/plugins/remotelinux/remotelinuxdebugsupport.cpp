@@ -162,7 +162,7 @@ void AbstractRemoteLinuxDebugSupport::handleAdapterSetupRequested()
     QTC_ASSERT(d->state == Inactive, return);
 
     d->state = StartingRunner;
-    showMessage(tr("Preparing remote side ...\n"), AppStuff);
+    showMessage(tr("Preparing remote side...\n"), AppStuff);
     disconnect(runner(), 0, this, 0);
     connect(runner(), SIGNAL(error(QString)), this, SLOT(handleSshError(QString)));
     connect(runner(), SIGNAL(readyForExecution()), this, SLOT(startExecution()));
