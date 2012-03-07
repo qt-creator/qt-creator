@@ -76,7 +76,7 @@ Item {
 
     function hide() {
         toolTip.opacity = 0;
-        oldClip = originalParent.clip
+        var oldClip = originalParent.clip
         originalParent.clip = false
         toolTip.parent = originalParent
         originalParent.clip = true
