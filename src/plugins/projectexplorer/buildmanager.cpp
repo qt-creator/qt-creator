@@ -141,7 +141,7 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
     d->m_outputWindow = new Internal::CompileOutputWindow(this);
     pm->addObject(d->m_outputWindow);
 
-    d->m_taskHub = pm->getObject<TaskHub>();
+    d->m_taskHub = ProjectExplorerPlugin::instance()->taskHub();
     d->m_taskWindow = new Internal::TaskWindow(d->m_taskHub);
     pm->addObject(d->m_taskWindow);
 

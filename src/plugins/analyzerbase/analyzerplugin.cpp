@@ -43,7 +43,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
 
@@ -83,10 +83,9 @@ bool AnalyzerPlugin::initialize(const QStringList &arguments, QString *errorStri
     addAutoReleasedObject(new AnalyzerRunControlFactory());
 
     // Task integration.
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    ProjectExplorer::TaskHub *hub = pm->getObject<ProjectExplorer::TaskHub>();
     //: Category under which Analyzer tasks are listed in Issues view
-    hub->addCategory(Core::Id(Constants::ANALYZERTASK_ID), tr("Analyzer"));
+    ProjectExplorer::ProjectExplorerPlugin::instance()->taskHub()
+            ->addCategory(Core::Id(Constants::ANALYZERTASK_ID), tr("Analyzer"));
 
     return true;
 }

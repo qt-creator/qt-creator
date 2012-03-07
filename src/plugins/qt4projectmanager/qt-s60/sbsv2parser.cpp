@@ -32,7 +32,7 @@
 
 #include "sbsv2parser.h"
 
-#include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
 
@@ -55,8 +55,7 @@ SbsV2Parser::SbsV2Parser() :
     m_hub(0)
 {
     setObjectName(QLatin1String("SbsV2Parser"));
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    m_hub = pm->getObject<TaskHub>();
+    m_hub = ProjectExplorerPlugin::instance()->taskHub();
 }
 
 void SbsV2Parser::stdOutput(const QString &line)

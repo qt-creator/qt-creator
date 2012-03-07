@@ -34,7 +34,7 @@
 #include "qmljseditorconstants.h"
 
 #include <coreplugin/idocument.h>
-#include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/taskhub.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljscontext.h>
@@ -57,7 +57,7 @@ QmlTaskManager::QmlTaskManager(QObject *parent) :
     m_taskHub(0),
     m_updatingSemantic(false)
 {
-    m_taskHub = ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::TaskHub>();
+    m_taskHub = ProjectExplorer::ProjectExplorerPlugin::instance()->taskHub();
 
     // displaying results incrementally leads to flickering
 //    connect(&m_messageCollector, SIGNAL(resultsReadyAt(int,int)),

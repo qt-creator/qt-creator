@@ -61,8 +61,8 @@
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetextmark.h>
 
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/taskhub.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>
@@ -1953,8 +1953,7 @@ void DebuggerEnginePrivate::reportTestError(const QString &msg, int line)
     m_foundError = true;
 
     if (!m_taskHub) {
-        ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-        m_taskHub = pm->getObject<TaskHub>();
+        m_taskHub = ProjectExplorerPlugin::instance()->taskHub();
         m_taskHub->addCategory(Core::Id("DebuggerTest"), tr("Debugger Test"));
     }
 

@@ -39,8 +39,8 @@
 #include "analyzermanager.h"
 #include "analyzerstartparameters.h"
 
-#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/applicationrunconfiguration.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
@@ -115,10 +115,9 @@ void AnalyzerRunControl::start()
 
     AnalyzerManager::handleToolStarted();
 
-    // clear about-to-be-outdated tasks
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    TaskHub *hub = pm->getObject<TaskHub>();
-    hub->clearTasks(Core::Id(Constants::ANALYZERTASK_ID));
+    // Clear about-to-be-outdated tasks.
+    ProjectExplorerPlugin::instance()->taskHub()
+        ->clearTasks(Core::Id(Constants::ANALYZERTASK_ID));
 
     if (d->m_engine->start()) {
         d->m_isRunning = true;
@@ -177,8 +176,7 @@ void AnalyzerRunControl::receiveOutput(const QString &text, Utils::OutputFormat 
 void AnalyzerRunControl::addTask(Task::TaskType type, const QString &description,
                                  const QString &file, int line)
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    TaskHub *hub = pm->getObject<TaskHub>();
+    TaskHub *hub = ProjectExplorerPlugin::instance()->taskHub();
     hub->addTask(Task(type, description, Utils::FileName::fromUserInput(file), line,
                       Core::Id(Constants::ANALYZERTASK_ID)));
     hub->popup(false);

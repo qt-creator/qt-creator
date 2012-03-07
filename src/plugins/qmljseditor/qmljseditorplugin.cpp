@@ -64,7 +64,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/taskhub.h>
-#include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/projectexplorer.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textfilewizard.h>
@@ -84,6 +84,7 @@
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 using namespace QmlJSEditor::Constants;
+using namespace ProjectExplorer;
 
 enum {
     QUICKFIX_INTERVAL = 20
@@ -266,8 +267,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
 void QmlJSEditorPlugin::extensionsInitialized()
 {
-    ProjectExplorer::TaskHub *taskHub =
-        ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::TaskHub>();
+    TaskHub *taskHub = ProjectExplorerPlugin::instance()->taskHub();
     taskHub->addCategory(Constants::TASK_CATEGORY_QML, tr("QML"));
     taskHub->addCategory(Constants::TASK_CATEGORY_QML_ANALYSIS, tr("QML Analysis"), false);
 }
@@ -380,7 +380,7 @@ void QmlJSEditorPlugin::currentEditorChanged(Core::IEditor *editor)
 void QmlJSEditorPlugin::runSemanticScan()
 {
     m_qmlTaskManager->updateSemanticMessagesNow();
-    ProjectExplorer::TaskHub *hub = ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::TaskHub>();
+    TaskHub *hub = ProjectExplorerPlugin::instance()->taskHub();
     hub->setCategoryVisibility(Constants::TASK_CATEGORY_QML_ANALYSIS, true);
     hub->popup(false);
 }
