@@ -525,10 +525,12 @@ void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool)
             switch (toolMode) {
                 case IAnalyzerTool::DebugMode:
                     toolModeString = tr("Debug");
+                    break;
                 case IAnalyzerTool::ReleaseMode:
                     toolModeString = tr("Release");
-                case IAnalyzerTool::AnyMode:
                     break;
+                default:
+                    QTC_CHECK(false);
             }
             const QString title = tr("Run %1 in %2 Mode?").arg(toolName).arg(currentMode);
             const QString message = tr("<html><head/><body><p>You are trying "
