@@ -954,7 +954,7 @@ Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
             if (idx.column() == 1 && data.valueEditable)
                 return editable; // Watcher values are sometimes editable.
         }
-    } else {
+    } else if (data.isLocal()) {
         if (idx.column() == 1 && data.valueEditable)
             return editable; // Locals values are sometimes editable.
     }

@@ -905,6 +905,7 @@ DebuggerToolTipTreeView::DebuggerToolTipTreeView(QWidget *parent) :
     QTreeView(parent)
 {
     setHeaderHidden(true);
+    setEditTriggers(NoEditTriggers);
 
     setUniformRowHeights(true);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
