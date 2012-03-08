@@ -1667,7 +1667,7 @@ void GdbEngine::handleStop2()
     if (supportsThreads()) {
         if (m_gdbAdapter->isCodaAdapter()) {
             m_gdbAdapter->codaReloadThreads();
-        } else if (m_isMacGdb) {
+        } else if (m_isMacGdb || m_gdbVersion < 70100) {
             postCommand("-thread-list-ids", Discardable, CB(handleThreadListIds));
         } else {
             // This is only available in gdb 7.1+.
