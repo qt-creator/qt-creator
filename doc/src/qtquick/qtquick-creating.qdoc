@@ -44,9 +44,13 @@
         \o  \gui {Qt Quick Application} creates a Qt Quick application project
             that can contain both QML and C++ code. The project includes a
             QDeclarativeView. You can build the application and deploy it on
-            desktop and mobile target platforms. For example, you
-            can create signed Symbian Installation System (SIS) packages for
-            this type of projects.
+            desktop and mobile target platforms.
+
+            You can select a template that uses either the built-in QML elements
+            or Qt Quick components for a particular platform. The built-in QML
+            elements enable you to create cross-platform applications with a
+            custom look and feel, whereas the components provide the look and
+            feel for a particular platform.
 
         \o  \gui {Qt Quick UI} creates a Qt Quick UI project with a single QML
             file that contains the main view. You can review Qt Quick UI
@@ -54,15 +58,17 @@
             need to have the development environment installed on your
             computer to create and run this type of projects.
 
-        \o  \gui {Custom QML Extension Plugin} creates a C++ plugin that makes
+        \o  \gui {Qt Quick Application (from Existing QML File)} converts
+            existing QML applications to Qt Quick application projects. This
+            enables you to run them from \QC and to deploy them to mobile
+            devices.
+
+        \o  \gui {Custom QML Extension Plugin} (in the \gui Libraries category)
+            creates a C++ plugin that makes
             it possible to offer extensions that can be loaded dynamically into
             applications by using the QDeclarativeEngine class.
 
     \endlist
-
-    If you have existing QML applications that you want to run in \QC or deploy
-    to mobile devices, use the \gui {Qt Quick Application} wizard to convert
-    them to Qt Quick applications.
 
     \if defined(qcmanual)
     \note Qt 4.7.3 supports Qt Quick 1.0 and Qt 4.7.4 supports Qt Quick 1.1. The
@@ -78,7 +84,7 @@
 
     \list 1
 
-        \o  Select \gui {File > New File or Project > Qt Quick Project >
+        \o  Select \gui {File > New File or Project > Applications >
             Qt Quick UI > Choose}.
 
             The \gui{Introduction and Project Location} dialog opens.
@@ -128,8 +134,14 @@
 
     \list 1
 
-        \o  Select \gui {File > New File or Project > Qt Quick Project >
-            Qt Quick Application > Choose}.
+        \o  Select \gui {File > New File or Project > Applications >
+            Qt Quick Application (Built-in Elements) > Choose}.
+
+            \note We recommend that you use the \gui {Qt Quick Application for
+            MeeGo Harmattan} template when you develop for MeeGo Harmattan
+            devices and the \gui {Qt Quick Application for Symbian} template
+            when you develop for Symbian devices that support Qt 4.7.4, or
+            later.
 
             The \gui{Introduction and Project Location} dialog opens.
 
@@ -143,23 +155,6 @@
         \o  In the \gui {Create in} field, enter the path for the project files.
             For example, \c {C:\Qt\examples}. To select the path from a
             directory tree, click \gui Browse.
-
-        \o  Click \gui{Next}.
-
-            The \gui {Application Type} dialog opens.
-
-            \image qmldesigner-new-project-qml-sources.png "Application Type dialog"
-
-        \o  Select the Qt Quick Component Set to use in your application. The
-            built-in elements allow you to write cross-platform applications
-            with custom look and feel. The components for a mobile platform
-            allow you to create applications with a native look and feel for
-            that platform.
-
-            \note We recommend that you use \gui {Qt Quick Components for
-            MeeGo Harmattan} when you develop for MeeGo Harmattan devices.
-
-            You can also import an existing QML file in this dialog.
 
         \o  Click \gui{Next}.
 
@@ -203,9 +198,9 @@
 
         \o  Click \gui Next.
 
-            The \gui {Maemo Specific} dialog opens.
+            The \gui {Harmattan Specific} dialog opens.
 
-            \image qmldesigner-new-project-maemo-options.png "Maemo Specific dialog"
+            \image qmldesigner-new-project-harmattan-options.png "Harmattan Specific dialog"
 
         \o  In the \gui {Application icon} field, select the application
             icon to use on Maemo or Harmattan targets, or use the default icon.
@@ -230,38 +225,13 @@
     \section1 Importing QML Applications
 
     If you have existing QML applications that you want to run in \QC or deploy
-    to mobile devices, use the \gui {Qt Quick Application} wizard and select the
-    main .qml file in your project. All the other files in the project are
-    automatically added to the application project.
+    to mobile devices, select the \gui {Qt Quick Application (from Existing QML
+    File)} template to import the main .qml file in your project.
 
-    To import QML applications:
+    \image qmldesigner-import-project.png "Select Existing QML File dialog"
 
-    \list 1
-
-        \o  Select \gui {File > New File or Project > Qt Quick Project >
-            Qt Quick Application > Choose}.
-
-        \o  Name the project and set its path, and then click \gui Next.
-
-        \o  In the \gui {Application Type} dialog, select the \gui {Use an
-            existing .qml file} option and specify the main .qml file of the
-            project you want to import.
-
-            \image qmldesigner-import-project.png "Application Type dialog"
-
-        \o  Click \gui Next.
-
-        \o  Select the Qt versions to use as build targets for your project,
-            and click \gui{Next}.
-
-        \o  Specify options for deploying the application to mobile device
-            targets, and click \gui{Next}.
-
-        \o  Review the project settings, and click \gui{Finish} to create the
-            project.
-
-    \endlist
-
+    All the other files in the project are automatically added to the
+    application project.
     \QC adds references to the QML files to a project and creates the additional
     files necessary for deploying applications to mobile devices.
 
