@@ -4318,18 +4318,18 @@ namespace basic {
         s[0] = 0;
         BREAK_HERE;
         // Expand s.
-        // CheckType s char [5].
+        // CheckType s char [6].
         // Check s.0 0 '\0' char.
         // Continue.
 
         // Manual: Open pinnable tooltip.
         // Manual: Step over.
         // Manual: Check that display and tooltip look sane.
-        strcat(s,"\"");
-        strcat(s,"\"");
-        strcat(s,"a");
-        strcat(s,"b");
-        strcat(s,"\"");
+        strcat(s, "\"");
+        strcat(s, "\"");
+        strcat(s, "a");
+        strcat(s, "b");
+        strcat(s, "\"");
         // Manual: Close tooltip.
         dummyStatement(&s);
     }
