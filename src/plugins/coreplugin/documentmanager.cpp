@@ -667,7 +667,8 @@ bool DocumentManager::saveDocument(IDocument *document, const QString &fileName,
             }
             *isReadOnly = false;
         }
-        QMessageBox::critical(d->m_mainWindow, tr("File Error"), errorString);
+        QMessageBox::critical(d->m_mainWindow, tr("File Error"),
+                              tr("Error while saving file: %1").arg(errorString));
       out:
         ret = false;
     }
@@ -992,7 +993,10 @@ void DocumentManager::checkForReload()
             // check if IDocument wants us to ask
             if (document->reloadBehavior(trigger, type) == IDocument::BehaviorSilent) {
                 // content change or removed, IDocument wants silent handling
-                success = document->reload(&errorString, IDocument::FlagReload, type);
+                if (type == IDocument::TypeRemoved)
+                    editorsToClose << EditorManager::instance()->editorsForDocument(document);
+                else
+                    success = document->reload(&errorString, IDocument::FlagReload, type);
             // IDocument wants us to ask
             } else if (type == IDocument::TypeContents) {
                 // content change, IDocument wants to ask user
