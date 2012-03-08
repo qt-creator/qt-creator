@@ -64,8 +64,8 @@ public:
 private:
     BookmarkManager *m_manager;
     const QString m_fileName;
-    const QString m_onlyFile;
-    const QString m_path;
+    QString m_onlyFile;
+    QString m_path;
     QString m_lineText;
 };
 
