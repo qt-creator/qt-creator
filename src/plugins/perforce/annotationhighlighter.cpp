@@ -36,8 +36,9 @@ namespace Perforce {
 namespace Internal {
 
 PerforceAnnotationHighlighter::PerforceAnnotationHighlighter(const ChangeNumbers &changeNumbers,
+                                                             const QColor &bg,
                                                              QTextDocument *document) :
-    VcsBase::BaseAnnotationHighlighter(changeNumbers, document),
+    VcsBase::BaseAnnotationHighlighter(changeNumbers, bg, document),
     m_colon(QLatin1Char(':'))
 {
 }

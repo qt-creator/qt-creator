@@ -794,12 +794,17 @@ void GitPlugin::pull()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
+    const bool rebase = m_gitClient->settings()->boolValue(GitSettings::pullRebaseKey);
 
     switch (m_gitClient->ensureStash(state.topLevel())) {
     case GitClient::StashUnchanged:
     case GitClient::Stashed:
+        m_gitClient->synchronousPull(state.topLevel(), rebase);
+        break;
     case GitClient::NotStashed:
-        m_gitClient->synchronousPull(state.topLevel());
+        if (!rebase)
+            m_gitClient->synchronousPull(state.topLevel(), false);
+        break;
     default:
         break;
     }

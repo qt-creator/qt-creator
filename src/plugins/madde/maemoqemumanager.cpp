@@ -108,8 +108,8 @@ MaemoQemuManager::MaemoQemuManager(QObject *parent)
     m_qemuAction->setVisible(false);
 
     // listen to qt version changes to update the start button
-    connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>)),
-        this, SLOT(qtVersionsChanged(QList<int>)));
+    connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
+        this, SLOT(qtVersionsChanged(QList<int>,QList<int>,QList<int>)));
 
     // listen to project add, remove and startup changes to udate start button
     SessionManager *session = ProjectExplorerPlugin::instance()->session();
@@ -122,14 +122,14 @@ MaemoQemuManager::MaemoQemuManager(QObject *parent)
 
     connect(m_qemuProcess, SIGNAL(error(QProcess::ProcessError)), this,
         SLOT(qemuProcessError(QProcess::ProcessError)));
-    connect(m_qemuProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this,
+    connect(m_qemuProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this,
         SLOT(qemuProcessFinished()));
     connect(m_qemuProcess, SIGNAL(readyReadStandardOutput()), this,
         SLOT(qemuOutput()));
     connect(m_qemuProcess, SIGNAL(readyReadStandardError()), this,
         SLOT(qemuOutput()));
-    connect(this, SIGNAL(qemuProcessStatus(QemuStatus, QString)),
-        this, SLOT(qemuStatusChanged(QemuStatus, QString)));
+    connect(this, SIGNAL(qemuProcessStatus(QemuStatus,QString)),
+        this, SLOT(qemuStatusChanged(QemuStatus,QString)));
 }
 
 Utils::FileSystemWatcher *MaemoQemuManager::runtimeRootWatcher()
@@ -178,8 +178,10 @@ bool MaemoQemuManager::qemuIsRunning() const
     return m_runningQtId != INT_MIN;
 }
 
-void MaemoQemuManager::qtVersionsChanged(const QList<int> &uniqueIds)
+void MaemoQemuManager::qtVersionsChanged(const QList<int> &added, const QList<int> &removed, const QList<int> &changed)
 {
+    QList<int> uniqueIds;
+    uniqueIds << added << removed << changed;
     QtSupport::QtVersionManager *manager = QtSupport::QtVersionManager::instance();
     foreach (int uniqueId, uniqueIds) {
         if (manager->isValidId(uniqueId)) {
@@ -539,7 +541,7 @@ void MaemoQemuManager::toggleStarterButton(Target *target)
     }
 
     if (uniqueId >= 0 && (m_runtimes.isEmpty() || !m_runtimes.contains(uniqueId)))
-        qtVersionsChanged(QList<int>() << uniqueId);
+        qtVersionsChanged(QList<int>(), QList<int>(), QList<int>() << uniqueId);
 
     bool isRunning = m_qemuProcess->state() != QProcess::NotRunning;
     if (m_runningQtId == uniqueId)
@@ -596,7 +598,7 @@ bool MaemoQemuManager::targetUsesMatchingRuntimeConfig(Target *target,
 
 void MaemoQemuManager::notify(const QList<int> uniqueIds)
 {
-    qtVersionsChanged(uniqueIds);
+    qtVersionsChanged(QList<int>(), QList<int>(), uniqueIds);
     environmentChanged();   // to toggle the start button
 }
 

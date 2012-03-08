@@ -360,7 +360,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
     QDesktopServices::setUrlHandler("qthelp", this, "handleHelpRequest");
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*,
-        Core::IMode*)), this, SLOT(modeChanged(Core::IMode*, Core::IMode*)));
+        Core::IMode*)), this, SLOT(modeChanged(Core::IMode*,Core::IMode*)));
 
     m_externalWindow = new ExternalHelpWindow;
     m_mode = new HelpMode;
@@ -426,8 +426,8 @@ void HelpPlugin::setupUi()
 
     connect(indexWindow, SIGNAL(linkActivated(QUrl)), m_centralWidget,
         SLOT(setSource(QUrl)));
-    connect(indexWindow, SIGNAL(linksActivated(QMap<QString, QUrl>, QString)),
-        m_centralWidget, SLOT(showTopicChooser(QMap<QString, QUrl>, QString)));
+    connect(indexWindow, SIGNAL(linksActivated(QMap<QString,QUrl>,QString)),
+        m_centralWidget, SLOT(showTopicChooser(QMap<QString,QUrl>,QString)));
 
     QMap<QString, Core::Command*> shortcutMap;
     QShortcut *shortcut = new QShortcut(m_splitter);

@@ -145,7 +145,7 @@ WebTouchNavigation::WebTouchNavigation(QObject *parent, QWebPage *webPage)
     m_physics->setParent(this);
     m_scroller = new WebTouchScroller(this);
 
-    connect(m_physics, SIGNAL(positionChanged(QPointF, QPoint)), m_scroller, SLOT(scroll(QPointF, QPoint)));
+    connect(m_physics, SIGNAL(positionChanged(QPointF,QPoint)), m_scroller, SLOT(scroll(QPointF,QPoint)));
     connect(m_scroller, SIGNAL(rangeChanged(QRectF)), m_physics, SLOT(setRange(QRectF)));
 }
 

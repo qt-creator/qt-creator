@@ -56,8 +56,8 @@ ValgrindProcess::ValgrindProcess(QObject *parent)
 LocalValgrindProcess::LocalValgrindProcess(QObject *parent)
 : ValgrindProcess(parent)
 {
-    connect(&m_process, SIGNAL(finished(int, QProcess::ExitStatus)),
-            this, SIGNAL(finished(int, QProcess::ExitStatus)));
+    connect(&m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
+            this, SIGNAL(finished(int,QProcess::ExitStatus)));
     connect(&m_process, SIGNAL(started()),
             this, SIGNAL(started()));
     connect(&m_process, SIGNAL(error(QProcess::ProcessError)),

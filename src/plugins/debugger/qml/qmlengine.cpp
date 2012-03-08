@@ -326,8 +326,8 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
         SIGNAL(processExited(int)),
         SLOT(disconnected()));
     connect(&d->m_applicationLauncher,
-        SIGNAL(appendMessage(QString, Utils::OutputFormat)),
-        SLOT(appendMessage(QString, Utils::OutputFormat)));
+        SIGNAL(appendMessage(QString,Utils::OutputFormat)),
+        SLOT(appendMessage(QString,Utils::OutputFormat)));
     connect(&d->m_applicationLauncher,
             SIGNAL(processStarted()),
             &d->m_noDebugOutputTimer,

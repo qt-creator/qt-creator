@@ -41,8 +41,8 @@ ComponentTextModifier::ComponentTextModifier(TextModifier *originalModifier, int
 {
     connect(m_originalModifier, SIGNAL(textChanged()), this, SIGNAL(textChanged()));
 
-    connect(m_originalModifier, SIGNAL(replaced(int, int, int)), this, SIGNAL(replaced(int, int, int)));
-    connect(m_originalModifier, SIGNAL(moved(const TextModifier::MoveInfo &)), this, SIGNAL(moved(const TextModifier::MoveInfo &)));
+    connect(m_originalModifier, SIGNAL(replaced(int,int,int)), this, SIGNAL(replaced(int,int,int)));
+    connect(m_originalModifier, SIGNAL(moved(TextModifier::MoveInfo)), this, SIGNAL(moved(TextModifier::MoveInfo)));
 }
 
 ComponentTextModifier::~ComponentTextModifier()

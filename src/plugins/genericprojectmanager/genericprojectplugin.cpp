@@ -105,8 +105,8 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
     connect(m_editFilesAction, SIGNAL(triggered()), this, SLOT(editFiles()));
 
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
-            SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*, ProjectExplorer::Node*)),
-            this, SLOT(updateContextMenu(ProjectExplorer::Project*, ProjectExplorer::Node*)));
+            SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)),
+            this, SLOT(updateContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)));
 
     return true;
 }

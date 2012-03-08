@@ -140,20 +140,20 @@ LinearProgressWidget::LinearProgressWidget(WizardProgress *progress, QWidget *pa
     m_dotsItemWidget->setVisible(false);
     m_dotsItemWidget->setEnabled(false);
 
-    connect(m_wizardProgress, SIGNAL(itemAdded(WizardProgressItem *)),
-            this, SLOT(slotItemAdded(WizardProgressItem *)));
-    connect(m_wizardProgress, SIGNAL(itemRemoved(WizardProgressItem *)),
-            this, SLOT(slotItemRemoved(WizardProgressItem *)));
-    connect(m_wizardProgress, SIGNAL(itemChanged(WizardProgressItem *)),
-            this, SLOT(slotItemChanged(WizardProgressItem *)));
-    connect(m_wizardProgress, SIGNAL(nextItemsChanged(WizardProgressItem *, const QList<WizardProgressItem *> &)),
-            this, SLOT(slotNextItemsChanged(WizardProgressItem *, const QList<WizardProgressItem *> &)));
-    connect(m_wizardProgress, SIGNAL(nextShownItemChanged(WizardProgressItem *, WizardProgressItem *)),
-            this, SLOT(slotNextShownItemChanged(WizardProgressItem *, WizardProgressItem *)));
-    connect(m_wizardProgress, SIGNAL(startItemChanged(WizardProgressItem *)),
-            this, SLOT(slotStartItemChanged(WizardProgressItem *)));
-    connect(m_wizardProgress, SIGNAL(currentItemChanged(WizardProgressItem *)),
-            this, SLOT(slotCurrentItemChanged(WizardProgressItem *)));
+    connect(m_wizardProgress, SIGNAL(itemAdded(WizardProgressItem*)),
+            this, SLOT(slotItemAdded(WizardProgressItem*)));
+    connect(m_wizardProgress, SIGNAL(itemRemoved(WizardProgressItem*)),
+            this, SLOT(slotItemRemoved(WizardProgressItem*)));
+    connect(m_wizardProgress, SIGNAL(itemChanged(WizardProgressItem*)),
+            this, SLOT(slotItemChanged(WizardProgressItem*)));
+    connect(m_wizardProgress, SIGNAL(nextItemsChanged(WizardProgressItem*,QList<WizardProgressItem*>)),
+            this, SLOT(slotNextItemsChanged(WizardProgressItem*,QList<WizardProgressItem*>)));
+    connect(m_wizardProgress, SIGNAL(nextShownItemChanged(WizardProgressItem*,WizardProgressItem*)),
+            this, SLOT(slotNextShownItemChanged(WizardProgressItem*,WizardProgressItem*)));
+    connect(m_wizardProgress, SIGNAL(startItemChanged(WizardProgressItem*)),
+            this, SLOT(slotStartItemChanged(WizardProgressItem*)));
+    connect(m_wizardProgress, SIGNAL(currentItemChanged(WizardProgressItem*)),
+            this, SLOT(slotCurrentItemChanged(WizardProgressItem*)));
 
     QList<WizardProgressItem *> items = m_wizardProgress->items();
     for (int i = 0; i < items.count(); i++)

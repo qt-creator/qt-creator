@@ -114,12 +114,12 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
        applicationPath = QCoreApplication::applicationDirPath() + QLatin1String("/../../../../../bin");
    } else {
        applicationPath = macOSBundlePath(applicationPath);
-       applicationPath += "/" + qmlPuppetApplicationName();
+       applicationPath += QLatin1Char('/') + qmlPuppetApplicationName();
        if (!QFileInfo(applicationPath).exists()) { //No qmlpuppet in Qt
            //We have to find out how to give not too intrusive feedback
            applicationPath =  QCoreApplication::applicationDirPath();
            applicationPath = macOSBundlePath(applicationPath);
-           applicationPath += "/" + qmlPuppetApplicationName();
+           applicationPath += QLatin1Char('/') + qmlPuppetApplicationName();
        }
    }
 

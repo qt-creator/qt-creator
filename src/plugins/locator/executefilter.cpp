@@ -49,8 +49,8 @@ ExecuteFilter::ExecuteFilter()
 
     m_process = new Utils::QtcProcess(this);
     m_process->setEnvironment(Utils::Environment::systemEnvironment());
-    connect(m_process, SIGNAL(finished(int, QProcess::ExitStatus)), this,
-            SLOT(finished(int, QProcess::ExitStatus)));
+    connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this,
+            SLOT(finished(int,QProcess::ExitStatus)));
     connect(m_process, SIGNAL(readyReadStandardOutput()), this, SLOT(readStandardOutput()));
     connect(m_process, SIGNAL(readyReadStandardError()), this, SLOT(readStandardError()));
 

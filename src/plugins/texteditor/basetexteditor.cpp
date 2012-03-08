@@ -247,7 +247,7 @@ BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)
     connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(slotUpdateExtraAreaWidth()));
     connect(this, SIGNAL(modificationChanged(bool)), this, SLOT(slotModificationChanged(bool)));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(slotCursorPositionChanged()));
-    connect(this, SIGNAL(updateRequest(QRect, int)), this, SLOT(slotUpdateRequest(QRect, int)));
+    connect(this, SIGNAL(updateRequest(QRect,int)), this, SLOT(slotUpdateRequest(QRect,int)));
     connect(this, SIGNAL(selectionChanged()), this, SLOT(slotSelectionChanged()));
 
 //     (void) new QShortcut(tr("CTRL+L"), this, SLOT(centerCursor()), 0, Qt::WidgetShortcut);
@@ -2544,7 +2544,7 @@ void BaseTextEditorWidgetPrivate::setupDocumentSignals(BaseTextDocument *documen
     QObject::connect(doc, SIGNAL(contentsChange(int,int,int)), q,
         SLOT(editorContentsChange(int,int,int)), Qt::DirectConnection);
     QObject::connect(document, SIGNAL(changed()), q, SIGNAL(changed()));
-    QObject::connect(document, SIGNAL(titleChanged(QString)), q, SLOT(setDisplayName(const QString &)));
+    QObject::connect(document, SIGNAL(titleChanged(QString)), q, SLOT(setDisplayName(QString)));
     QObject::connect(document, SIGNAL(aboutToReload()), q, SLOT(documentAboutToBeReloaded()));
     QObject::connect(document, SIGNAL(reloaded()), q, SLOT(documentReloaded()));
     q->slotUpdateExtraAreaWidth();

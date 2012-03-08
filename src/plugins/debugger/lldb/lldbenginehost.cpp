@@ -70,10 +70,10 @@ SshIODevice::SshIODevice(Utils::SshRemoteProcessRunner *r)
 {
     setOpenMode(QIODevice::ReadWrite | QIODevice::Unbuffered);
     connect (runner, SIGNAL(processStarted()), this, SLOT(processStarted()));
-    connect(runner, SIGNAL(processOutputAvailable(const QByteArray &)),
-            this, SLOT(outputAvailable(const QByteArray &)));
-    connect(runner, SIGNAL(processErrorOutputAvailable(const QByteArray &)),
-            this, SLOT(errorOutputAvailable(const QByteArray &)));
+    connect(runner, SIGNAL(processOutputAvailable(QByteArray)),
+            this, SLOT(outputAvailable(QByteArray)));
+    connect(runner, SIGNAL(processErrorOutputAvailable(QByteArray)),
+            this, SLOT(errorOutputAvailable(QByteArray)));
 }
 
 SshIODevice::~SshIODevice()
@@ -158,8 +158,8 @@ LldbEngineHost::LldbEngineHost(const DebuggerStartParameters &startParameters)
     } else  {
         m_guestProcess = new QProcess(this);
 
-        connect(m_guestProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
-                this, SLOT(finished(int, QProcess::ExitStatus)));
+        connect(m_guestProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
+                this, SLOT(finished(int,QProcess::ExitStatus)));
 
         connect(m_guestProcess, SIGNAL(readyReadStandardError()), this,
                 SLOT(stderrReady()));
@@ -189,8 +189,8 @@ LldbEngineHost::~LldbEngineHost()
     showMessage(QLatin1String("tear down qtcreator-lldb"));
 
     if (m_guestProcess) {
-        disconnect(m_guestProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
-                this, SLOT(finished (int, QProcess::ExitStatus)));
+        disconnect(m_guestProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
+                this, SLOT(finished(int,QProcess::ExitStatus)));
 
 
         m_guestProcess->terminate();

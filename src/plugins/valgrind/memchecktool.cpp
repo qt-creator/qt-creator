@@ -257,7 +257,7 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     m_settings = settings;
     QTC_ASSERT(m_settings, return);
 
-    connect(m_settings, SIGNAL(destroyed(QObject *)), SLOT(settingsDestroyed(QObject *)));
+    connect(m_settings, SIGNAL(destroyed(QObject*)), SLOT(settingsDestroyed(QObject*)));
 
     ValgrindBaseSettings *memcheckSettings = m_settings->subConfig<ValgrindBaseSettings>();
     QTC_ASSERT(memcheckSettings, return);
@@ -443,7 +443,7 @@ QWidget *MemcheckTool::createWidgets()
     m_filterMenu->addSeparator();
     m_filterMenu->addAction(m_filterProjectAction);
     m_filterMenu->addAction(m_suppressionSeparator);
-    connect(m_filterMenu, SIGNAL(triggered(QAction *)), SLOT(updateErrorFilter()));
+    connect(m_filterMenu, SIGNAL(triggered(QAction*)), SLOT(updateErrorFilter()));
     filterButton->setMenu(m_filterMenu);
     layout->addWidget(filterButton);
 

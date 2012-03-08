@@ -119,11 +119,11 @@ void ThreadedParser::parse(QIODevice *device)
     connect(parser, SIGNAL(internalError(QString)),
             SLOT(slotInternalError(QString)),
             Qt::QueuedConnection);
-    connect(parser, SIGNAL(errorCount(qint64, qint64)),
-            SIGNAL(errorCount(qint64, qint64)),
+    connect(parser, SIGNAL(errorCount(qint64,qint64)),
+            SIGNAL(errorCount(qint64,qint64)),
             Qt::QueuedConnection);
-    connect(parser, SIGNAL(suppressionCount(QString, qint64)),
-            SIGNAL(suppressionCount(QString, qint64)),
+    connect(parser, SIGNAL(suppressionCount(QString,qint64)),
+            SIGNAL(suppressionCount(QString,qint64)),
             Qt::QueuedConnection);
     connect(parser, SIGNAL(finished()), SIGNAL(finished()),
             Qt::QueuedConnection);

@@ -42,11 +42,9 @@
 
 #include <QNetworkReply>
 
-enum { debug =  0 };
+enum { debug = 0 };
 
-static const char hostNameC[]= "paste.kde.org";
 static const char hostUrlC[]= "http://paste.kde.org/";
-static const char formatC[]= "xml";
 static const char showPhpScriptpC[] = "show.php";
 
 enum { expirySeconds = 86400 };
@@ -77,7 +75,7 @@ bool KdePasteProtocol::checkConfiguration(QString *errorMessage)
 {
     if (m_hostChecked)  // Check the host once.
         return true;
-    const bool ok = httpStatus(QLatin1String(hostNameC), errorMessage);
+    const bool ok = httpStatus(QLatin1String(hostUrlC), errorMessage);
     if (ok)
         m_hostChecked = true;
     return ok;
@@ -89,15 +87,15 @@ static inline QByteArray pasteLanguage(Protocol::ContentType ct)
     case Protocol::Text:
         break;
     case Protocol::C:
-        return "paste_lang=c++";
-        break;
+        return "paste_lang=c";
+    case Protocol::Cpp:
+        return "paste_lang=cpp-qt";
     case Protocol::JavaScript:
-        return "paste_lang=Javascript";
-        break;
+        return "paste_lang=javascript";
     case Protocol::Diff:
-        return "paste_lang=Diff";
+        return "paste_lang=diff";
     case Protocol::Xml:
-        return "paste_lang=XML";
+        return "paste_lang=xml";
     }
     return QByteArray("paste_lang=text");
 }
@@ -105,14 +103,15 @@ static inline QByteArray pasteLanguage(Protocol::ContentType ct)
 void KdePasteProtocol::paste(const QString &text,
                                    ContentType ct,
                                    const QString &username,
-                                   const QString & /* comment */,
-                                   const QString & /* description */)
+                                   const QString &comment,
+                                   const QString &description)
 {
+    Q_UNUSED(comment);
+    Q_UNUSED(description);
     QTC_ASSERT(!m_pasteReply, return;)
 
     // Format body
-    QByteArray pasteData = "api_submit=true&mode=";
-    pasteData += formatC;
+    QByteArray pasteData = "api_submit=true&mode=xml";
     if (!username.isEmpty()) {
         pasteData += "&paste_user=";
         pasteData += QUrl::toPercentEncoding(username);
@@ -170,9 +169,8 @@ void KdePasteProtocol::fetch(const QString &id)
     const int lastSlashPos = m_fetchId.lastIndexOf(QLatin1Char('/'));
     if (lastSlashPos != -1)
         m_fetchId.remove(0, lastSlashPos + 1);
-    QString url;
-    QTextStream(&url) << hostUrlC << showPhpScriptpC
-                << "?format=" << formatC << "&id=" << m_fetchId;
+    QString url = QLatin1String(hostUrlC) + QLatin1String(showPhpScriptpC)
+            + QLatin1String("?format=xml&id=") + m_fetchId;
     if (debug)
         qDebug() << "fetch: sending " << url;
 
@@ -203,10 +201,9 @@ void KdePasteProtocol::fetchFinished()
 
 void KdePasteProtocol::list()
 {
-    QTC_ASSERT(!m_listReply, return;)
+    QTC_ASSERT(!m_listReply, return);
 
-    QString url;
-    QTextStream(&url) << hostUrlC << "api/" << formatC << "/all?format=" << formatC;
+    QString url = QLatin1String(hostUrlC) + QLatin1String("api/xml/all");
     m_listReply = httpGet(url);
     connect(m_listReply, SIGNAL(finished()), this, SLOT(listFinished()));
     if (debug)

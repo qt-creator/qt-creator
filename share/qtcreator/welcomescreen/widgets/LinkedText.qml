@@ -53,6 +53,8 @@ Text {
             mouseArea.state = ""
     }
 
+    property bool enlargeMouseArea: true
+
     CustomFonts {
         id: fonts
     }
@@ -87,7 +89,7 @@ Text {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        anchors.margins: -8
+        anchors.margins: enlargeMouseArea ? -8 : 0
         hoverEnabled: true
 
         QStyleItem { cursor: "pointinghandcursor"; anchors.fill: parent }

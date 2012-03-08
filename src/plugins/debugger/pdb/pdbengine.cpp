@@ -161,8 +161,8 @@ void PdbEngine::setupEngine()
 
     connect(&m_pdbProc, SIGNAL(error(QProcess::ProcessError)),
         SLOT(handlePdbError(QProcess::ProcessError)));
-    connect(&m_pdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
-        SLOT(handlePdbFinished(int, QProcess::ExitStatus)));
+    connect(&m_pdbProc, SIGNAL(finished(int,QProcess::ExitStatus)),
+        SLOT(handlePdbFinished(int,QProcess::ExitStatus)));
     connect(&m_pdbProc, SIGNAL(readyReadStandardOutput()),
         SLOT(readPdbStandardOutput()));
     connect(&m_pdbProc, SIGNAL(readyReadStandardError()),

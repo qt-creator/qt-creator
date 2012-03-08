@@ -308,7 +308,7 @@ void AbstractQt4MaemoTarget::handleTargetToBeRemoved(ProjectExplorer::Target *ta
         return;
 
     const int answer = QMessageBox::warning(Core::ICore::mainWindow(),
-        tr("Qt Creator"), tr("Do you want to remove the packaging file(s) "
+        tr("Qt Creator"), tr("Do you want to remove the packaging files "
            "associated with the target '%1'?").arg(displayName()),
         QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     if (answer == QMessageBox::No)
@@ -765,12 +765,12 @@ AbstractQt4MaemoTarget::ActionStatus AbstractDebBasedQt4MaemoTarget::createSpeci
             + AbstractMaemoPackageCreationStep::DefaultVersionNumber);
     QtSupport::BaseQtVersion *lqt = activeQt4BuildConfiguration()->qtVersion();
     if (!lqt) {
-        raiseError(tr("Unable to create Debian templates: No Qt version set"));
+        raiseError(tr("Unable to create Debian templates: No Qt version set."));
         return ActionFailed;
     }
     if (!MaemoGlobal::callMad(dh_makeProc, dh_makeArgs, lqt->qmakeCommand().toString(), true)
             || !dh_makeProc.waitForStarted()) {
-        raiseError(tr("Unable to create Debian templates: dh_make failed (%1)")
+        raiseError(tr("Unable to create Debian templates: dh_make failed (%1).")
             .arg(dh_makeProc.errorString()));
         return ActionFailed;
     }
@@ -778,7 +778,7 @@ AbstractQt4MaemoTarget::ActionStatus AbstractDebBasedQt4MaemoTarget::createSpeci
     dh_makeProc.waitForFinished(-1);
     if (dh_makeProc.error() != QProcess::UnknownError
         || dh_makeProc.exitCode() != 0) {
-        raiseError(tr("Unable to create debian templates: dh_make failed (%1)")
+        raiseError(tr("Unable to create debian templates: dh_make failed (%1).")
             .arg(dh_makeProc.errorString()));
         return ActionFailed;
     }

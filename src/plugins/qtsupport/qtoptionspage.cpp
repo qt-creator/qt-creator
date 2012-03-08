@@ -182,7 +182,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *>
     }
     m_ui->qtdirList->expandAll();
 
-    connect(m_versionUi->nameEdit, SIGNAL(textEdited(const QString &)),
+    connect(m_versionUi->nameEdit, SIGNAL(textEdited(QString)),
             this, SLOT(updateCurrentQtName()));
 
     connect(m_versionUi->editPathPushButton, SIGNAL(clicked()),
@@ -193,8 +193,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *>
     connect(m_ui->delButton, SIGNAL(clicked()),
             this, SLOT(removeQtDir()));
 
-    connect(m_ui->qtdirList, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
-            this, SLOT(versionChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+    connect(m_ui->qtdirList, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
+            this, SLOT(versionChanged(QTreeWidgetItem*,QTreeWidgetItem*)));
 
     connect(m_debuggingHelperUi->rebuildButton, SIGNAL(clicked()),
             this, SLOT(buildDebuggingHelper()));

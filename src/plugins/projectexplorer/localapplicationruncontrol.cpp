@@ -82,7 +82,7 @@ RunConfigWidget *LocalApplicationRunControlFactory::createConfigurationWidget(Ru
 // ApplicationRunControl
 
 LocalApplicationRunControl::LocalApplicationRunControl(LocalApplicationRunConfiguration *rc, RunMode mode)
-    : RunControl(rc, mode)
+    : RunControl(rc, mode), m_running(false)
 {
     Utils::Environment env = rc->environment();
     QString dir = rc->workingDirectory();
@@ -114,6 +114,7 @@ void LocalApplicationRunControl::start()
         appendMessage(tr("No executable specified.\n"), Utils::ErrorMessageFormat);
         emit finished();
     }  else {
+        m_running = true;
         m_applicationLauncher.start(m_runMode, m_executable, m_commandLineArguments);
         setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
         QString msg = tr("Starting %1...\n").arg(QDir::toNativeSeparators(m_executable));
@@ -129,7 +130,7 @@ LocalApplicationRunControl::StopResult LocalApplicationRunControl::stop()
 
 bool LocalApplicationRunControl::isRunning() const
 {
-    return m_applicationLauncher.isRunning();
+    return m_running;
 }
 
 QIcon LocalApplicationRunControl::icon() const
@@ -151,6 +152,7 @@ void LocalApplicationRunControl::processStarted()
 
 void LocalApplicationRunControl::processExited(int exitCode)
 {
+    m_running = false;
     setApplicationProcessHandle(ProcessHandle());
     QString msg = tr("%1 exited with code %2\n")
         .arg(QDir::toNativeSeparators(m_executable)).arg(exitCode);

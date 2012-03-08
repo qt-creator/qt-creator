@@ -102,7 +102,7 @@ protected:
     // Initialization requires calling init() (which in turns calls
     // virtual functions).
     explicit VcsBaseEditorWidget(const VcsBaseEditorParameters *type,
-                           QWidget *parent);
+                                 QWidget *parent);
 public:
     void init();
 
@@ -249,7 +249,8 @@ private:
     virtual QString changeUnderCursor(const QTextCursor &) const = 0;
     // Factory functions for highlighters
     virtual DiffHighlighter *createDiffHighlighter() const = 0;
-    virtual BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const = 0;
+    virtual BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes,
+                                                                   const QColor &bg) const = 0;
     // Implement to return a local file name from the diff file specification
     // (text cursor at position above change hunk)
     virtual QString fileNameFromDiffSpecification(const QTextBlock &diffFileSpec) const = 0;

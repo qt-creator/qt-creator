@@ -112,8 +112,8 @@ bool ValgrindEngine::start()
 
     connect(runner(), SIGNAL(processOutputReceived(QByteArray,Utils::OutputFormat)),
             SLOT(receiveProcessOutput(QByteArray,Utils::OutputFormat)));
-    connect(runner(), SIGNAL(processErrorReceived(QString, QProcess::ProcessError)),
-            SLOT(receiveProcessError(QString, QProcess::ProcessError)));
+    connect(runner(), SIGNAL(processErrorReceived(QString,QProcess::ProcessError)),
+            SLOT(receiveProcessError(QString,QProcess::ProcessError)));
     connect(runner(), SIGNAL(finished()),
             SLOT(runnerFinished()));
 

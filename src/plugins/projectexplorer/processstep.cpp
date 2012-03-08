@@ -263,7 +263,7 @@ ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step)
     connect(m_ui.workingDirectory, SIGNAL(changed(QString)),
             this, SLOT(workingDirectoryLineEditTextEdited()));
 
-    connect(m_ui.commandArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
+    connect(m_ui.commandArgumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(commandArgumentsLineEditTextEdited()));
 }
 

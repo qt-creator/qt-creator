@@ -74,7 +74,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     m_workingDirectory->setEnvironment(rc->environment());
     layout->addRow(tr("Working directory:"), m_workingDirectory);
 
-    m_useTerminalCheck = new QCheckBox(tr("Run in &Terminal"), this);
+    m_useTerminalCheck = new QCheckBox(tr("Run in &terminal"), this);
     layout->addRow(QString(), m_useTerminalCheck);
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
@@ -99,7 +99,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     QWidget *baseEnvironmentWidget = new QWidget;
     QHBoxLayout *baseEnvironmentLayout = new QHBoxLayout(baseEnvironmentWidget);
     baseEnvironmentLayout->setMargin(0);
-    QLabel *label = new QLabel(tr("Base environment for this runconfiguration:"), this);
+    QLabel *label = new QLabel(tr("Base environment for this run configuration:"), this);
     baseEnvironmentLayout->addWidget(label);
     m_baseEnvironmentComboBox = new QComboBox(this);
     m_baseEnvironmentComboBox->addItems(QStringList()
@@ -122,8 +122,8 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
 
     connect(m_executableChooser, SIGNAL(changed(QString)),
             this, SLOT(executableEdited()));
-    connect(m_commandLineArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
-            this, SLOT(argumentsEdited(const QString&)));
+    connect(m_commandLineArgumentsLineEdit, SIGNAL(textEdited(QString)),
+            this, SLOT(argumentsEdited(QString)));
     connect(m_workingDirectory, SIGNAL(changed(QString)),
             this, SLOT(workingDirectoryEdited()));
     connect(m_useTerminalCheck, SIGNAL(toggled(bool)),

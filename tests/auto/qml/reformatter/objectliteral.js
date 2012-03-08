@@ -4,8 +4,8 @@ var x = {
         x: 12,
         y: "abc",
         z: function (x) {
-               return a
-           },
+            return a
+        },
         abc: 15
     },
     z: 12

@@ -446,7 +446,7 @@ void BookmarkWidget::setup(bool showButtons)
     vlayout->addWidget(toolbar);
 
     searchField->installEventFilter(this);
-    connect(searchField, SIGNAL(textChanged(const QString &)), this,
+    connect(searchField, SIGNAL(textChanged(QString)), this,
         SLOT(filterChanged()));
 
     treeView = new TreeView(this);

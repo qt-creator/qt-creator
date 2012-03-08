@@ -139,8 +139,8 @@ ProjectExplorer::Target *EmbeddedLinuxTargetFactory::create(ProjectExplorer::Pro
     QtSupport::BaseQtVersion::QmakeBuildConfigs config = qtVersion->defaultBuildConfig();
 
     QList<Qt4ProjectManager::BuildConfigurationInfo> infos;
-    infos.append(Qt4ProjectManager::BuildConfigurationInfo(qtVersion, config, QString(), QString()));
-    infos.append(Qt4ProjectManager::BuildConfigurationInfo(qtVersion,
+    infos.append(Qt4ProjectManager::BuildConfigurationInfo(qtVersion->uniqueId(), config, QString(), QString()));
+    infos.append(Qt4ProjectManager::BuildConfigurationInfo(qtVersion->uniqueId(),
                                                            config ^ QtSupport::BaseQtVersion::DebugBuild,
                                                            QString(), QString()));
 
@@ -158,7 +158,7 @@ ProjectExplorer::Target *EmbeddedLinuxTargetFactory::create(ProjectExplorer::Pro
 
     foreach (const Qt4ProjectManager::BuildConfigurationInfo &info, infos)
         t->addQt4BuildConfiguration(msgBuildConfigurationName(info), QString(),
-                                    info.version, info.buildConfig,
+                                    info.version(), info.buildConfig,
                                     info.additionalArguments, info.directory, info.importing);
 
     t->addDeployConfiguration(

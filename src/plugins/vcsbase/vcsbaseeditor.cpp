@@ -507,7 +507,7 @@ void UrlTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType type) 
 {
     Q_UNUSED(type);
     menu->addSeparator();
-    menu->addAction(createOpenUrlAction(tr("Open URL in browser ...")));
+    menu->addAction(createOpenUrlAction(tr("Open URL in browser...")));
     menu->addAction(createCopyUrlAction(tr("Copy URL location")));
 }
 
@@ -572,7 +572,7 @@ void EmailTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType type
 {
     Q_UNUSED(type);
     menu->addSeparator();
-    menu->addAction(createOpenUrlAction(tr("Send email to ...")));
+    menu->addAction(createOpenUrlAction(tr("Send email to...")));
     menu->addAction(createCopyUrlAction(tr("Copy email address")));
 }
 
@@ -605,6 +605,8 @@ public:
     bool m_revertChunkEnabled;
     bool m_mouseDragging;
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
+
+    QColor m_backgroundColor;
 };
 
 VcsBaseEditorWidgetPrivate::VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget *editorWidget,
@@ -686,6 +688,8 @@ void VcsBaseEditorWidget::init()
         break;
     }
     TextEditor::TextEditorSettings::instance()->initializeEditor(this);
+    // override revisions display (green or red bar on the left, marking changes):
+    setRevisionsVisible(false);
 }
 
 VcsBaseEditorWidget::~VcsBaseEditorWidget()
@@ -1017,7 +1021,7 @@ void VcsBaseEditorWidget::slotActivateAnnotation()
         ah->setChangeNumbers(changes);
         ah->rehighlight();
     } else {
-        baseTextDocument()->setSyntaxHighlighter(createAnnotationHighlighter(changes));
+        baseTextDocument()->setSyntaxHighlighter(createAnnotationHighlighter(changes, d->m_backgroundColor));
     }
 }
 
@@ -1149,6 +1153,9 @@ void VcsBaseEditorWidget::setPlainTextData(const QByteArray &data)
 void VcsBaseEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
 {
     TextEditor::BaseTextEditorWidget::setFontSettings(fs);
+    d->m_backgroundColor = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_TEXT))
+            .brushProperty(QTextFormat::BackgroundBrush).color();
+
     if (d->m_parameters->type == DiffOutput) {
         if (DiffHighlighter *highlighter = qobject_cast<DiffHighlighter*>(baseTextDocument()->syntaxHighlighter())) {
             static QVector<QString> categories;
@@ -1160,6 +1167,11 @@ void VcsBaseEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
                            << QLatin1String(TextEditor::Constants::C_DIFF_LOCATION);
             }
             highlighter->setFormats(fs.toTextCharFormats(categories));
+            highlighter->rehighlight();
+        }
+    } else if (d->m_parameters->type == AnnotateOutput) {
+        if (BaseAnnotationHighlighter *highlighter = qobject_cast<BaseAnnotationHighlighter *>(baseTextDocument()->syntaxHighlighter())) {
+            highlighter->setBackgroundColor(d->m_backgroundColor);
             highlighter->rehighlight();
         }
     }

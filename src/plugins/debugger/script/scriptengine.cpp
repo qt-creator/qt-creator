@@ -545,12 +545,12 @@ bool ScriptEngine::setToolTipExpression(const QPoint &mousePos,
     }
 
     if (!hasLetterOrNumber(exp)) {
-        QToolTip::showText(m_toolTipPos, tr("'%1' contains no identifier").arg(exp));
+        QToolTip::showText(m_toolTipPos, tr("'%1' contains no identifier.").arg(exp));
         return false;
     }
 
     if (exp.startsWith(QLatin1Char('"')) && exp.endsWith(QLatin1Char('"'))) {
-        QToolTip::showText(m_toolTipPos, tr("String literal %1").arg(exp));
+        QToolTip::showText(m_toolTipPos, tr("String literal %1.").arg(exp));
         return false;
     }
 
@@ -566,7 +566,7 @@ bool ScriptEngine::setToolTipExpression(const QPoint &mousePos,
     if (hasSideEffects(exp)) {
         QToolTip::showText(m_toolTipPos,
             tr("Cowardly refusing to evaluate expression '%1' "
-               "with potential side effects").arg(exp));
+               "with potential side effects.").arg(exp));
         return false;
     }
 

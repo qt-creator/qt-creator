@@ -93,8 +93,8 @@ QWidget *CommandMappings::createPage(QWidget *parent)
 
     connect(m_page->filterEdit, SIGNAL(textChanged(QString)),
         this, SLOT(filterChanged(QString)));
-    connect(m_page->commandList, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
-        this, SLOT(commandChanged(QTreeWidgetItem *)));
+    connect(m_page->commandList, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
+        this, SLOT(commandChanged(QTreeWidgetItem*)));
     connect(m_page->targetEdit, SIGNAL(textChanged(QString)),
         this, SLOT(targetIdentifierChanged()));
 

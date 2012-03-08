@@ -58,7 +58,7 @@ FileWidget::FileWidget(QWidget *parent) : QWidget(parent), m_filter("(*.*)"), m_
     m_pushButton->setText("...");
     connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(lineEditChanged()));
     connect(m_pushButton, SIGNAL(pressed()), this, SLOT(buttonPressed()));
-    connect(m_comboBox, SIGNAL(editTextChanged(const QString &)), this, SLOT(comboBoxChanged()));
+    connect(m_comboBox, SIGNAL(editTextChanged(QString)), this, SLOT(comboBoxChanged()));
     m_currentPath = QDir::currentPath();
 }
 

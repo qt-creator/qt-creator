@@ -405,6 +405,7 @@ protected:
         DebuggerState state);
 
     virtual void handleAutoTests();
+    virtual bool isAutoTestRunning() const;
 
 private:
     // Wrapper engine needs access to state of its subengines.

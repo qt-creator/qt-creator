@@ -140,7 +140,7 @@
      <item>
       <widget class="QLabel" name="toolChainLabel">
        <property name="text">
-        <string>Tool Chain:</string>
+        <string>Tool chain:</string>
        </property>
       </widget>
      </item>

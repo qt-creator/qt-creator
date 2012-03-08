@@ -523,7 +523,7 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     updateEffectiveQMakeCall();
     updateQmlDebuggingOption();
 
-    connect(m_ui->qmakeAdditonalArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
+    connect(m_ui->qmakeAdditonalArgumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(qmakeArgumentsLineEdited()));
     connect(m_ui->buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(buildConfigurationSelected()));

@@ -139,7 +139,7 @@ QList<BuildConfigurationInfo> Qt4BaseTargetFactory::availableBuildConfigurations
         if (!version->isValid() || !version->toolChainAvailable(id))
             continue;
         QtSupport::BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
-        BuildConfigurationInfo info = BuildConfigurationInfo(version, config, QString(), QString(), false, false);
+        BuildConfigurationInfo info = BuildConfigurationInfo(version->uniqueId(), config, QString(), QString(), false);
         info.directory = shadowBuildDirectory(proFilePath, id, msgBuildConfigurationName(info));
         infoList.append(info);
 
@@ -220,7 +220,7 @@ QList<Qt4BaseTargetFactory *> Qt4BaseTargetFactory::qt4BaseTargetFactoriesForIds
 // Return name of a build configuration.
 QString Qt4BaseTargetFactory::msgBuildConfigurationName(const BuildConfigurationInfo &info)
 {
-    const QString qtVersionName = info.version->displayName();
+    const QString qtVersionName = info.version()->displayName();
     return (info.buildConfig & QtSupport::BaseQtVersion::DebugBuild) ?
         //: Name of a debug build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.
         tr("%1 Debug").arg(qtVersionName) :
@@ -436,8 +436,8 @@ void Qt4BaseTarget::onAddedBuildConfiguration(ProjectExplorer::BuildConfiguratio
     Q_ASSERT(qt4bc);
     connect(qt4bc, SIGNAL(buildDirectoryInitialized()),
             this, SIGNAL(buildDirectoryInitialized()));
-    connect(qt4bc, SIGNAL(proFileEvaluateNeeded(Qt4ProjectManager::Qt4BuildConfiguration *)),
-            this, SLOT(onProFileEvaluateNeeded(Qt4ProjectManager::Qt4BuildConfiguration *)));
+    connect(qt4bc, SIGNAL(proFileEvaluateNeeded(Qt4ProjectManager::Qt4BuildConfiguration*)),
+            this, SLOT(onProFileEvaluateNeeded(Qt4ProjectManager::Qt4BuildConfiguration*)));
 }
 
 void Qt4BaseTarget::onProFileEvaluateNeeded(Qt4ProjectManager::Qt4BuildConfiguration *bc)
@@ -560,6 +560,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     m_importLineLayout->addWidget(m_importLineButton);
     m_importLineStretch = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed);
     m_importLineLayout->addSpacerItem(m_importLineStretch);
+    m_importLinePath->installEventFilter(this);
     layout->addWidget(w);
 
     m_importLineLabel->setVisible(false);
@@ -567,7 +568,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     m_importLineButton->setVisible(m_showImport);
 
     m_buildConfigurationLabel = new QLabel;
-    m_buildConfigurationLabel->setText(tr("Create Build Configurations:"));
+    m_buildConfigurationLabel->setText(tr("Create build configurations:"));
     m_buildConfigurationLabel->setVisible(false);
 
     m_buildConfigurationComboBox = new QComboBox;
@@ -590,14 +591,14 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     layout->addLayout(hbox);
 
     m_shadowBuildEnabled = new QCheckBox;
-    m_shadowBuildEnabled->setText(tr("Use Shadow Building"));
+    m_shadowBuildEnabled->setText(tr("Shadow build"));
     m_shadowBuildCheckBoxVisible = shadowBuild == USER;
 
     layout->addWidget(m_shadowBuildEnabled);
     m_shadowBuildEnabled->setVisible(m_shadowBuildCheckBoxVisible);
 
     m_versionLabel = new QLabel;
-    m_versionLabel->setText(tr("Qt Version:"));
+    m_versionLabel->setText(tr("Qt version:"));
     m_versionLabel->setVisible(false);
     m_versionComboBox = new QComboBox;
     m_versionComboBox->setVisible(false);
@@ -640,13 +641,13 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
 
     setupImportWidgets();
 
-    setBuildConfigurationInfos(infos);
+    setBuildConfigurationInfos(infos, false);
 
     int qtVersionId = s->value(QLatin1String("Qt4ProjectManager.TargetSetupPage.QtVersionId"), -1).toInt();
     int index = m_versionComboBox->findData(qtVersionId);
     if (index != -1)
         m_versionComboBox->setCurrentIndex(index);
-    qtVersionChanged();
+    updateOneQtVisible();
 
     if (!m_importInfos.isEmpty())
         m_detailsWidget->setState(Utils::DetailsWidget::Expanded);
@@ -661,7 +662,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     connect(m_buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(buildConfigurationComboBoxChanged()));
     connect(m_versionComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(qtVersionChanged()));
+            this, SLOT(updateOneQtVisible()));
 }
 
 Qt4DefaultTargetSetupWidget::~Qt4DefaultTargetSetupWidget()
@@ -691,6 +692,11 @@ void Qt4DefaultTargetSetupWidget::setTargetSelected(bool b)
         m_detailsWidget->setState(Utils::DetailsWidget::Expanded);
 }
 
+void Qt4DefaultTargetSetupWidget::updateBuildConfigurationInfos(const QList<BuildConfigurationInfo> &infos)
+{
+    setBuildConfigurationInfos(infos, false);
+}
+
 void Qt4DefaultTargetSetupWidget::targetCheckBoxToggled(bool b)
 {
     if (m_ignoreChange)
@@ -718,7 +724,7 @@ QString Qt4DefaultTargetSetupWidget::displayNameFrom(const BuildConfigurationInf
             //: release build
             buildType = tr("release");
     }
-    return info.version->displayName() + QLatin1Char(' ') + buildType;
+    return info.version()->displayName() + QLatin1Char(' ') + buildType;
 }
 
 void Qt4DefaultTargetSetupWidget::setProFilePath(const QString &proFilePath)
@@ -730,7 +736,7 @@ void Qt4DefaultTargetSetupWidget::setProFilePath(const QString &proFilePath)
                                                                        m_minimumQtVersion,
                                                                        m_maximumQtVersion,
                                                                        m_requiredFeatures),
-                                                                       false);
+                                                                       true);
 }
 
 void Qt4DefaultTargetSetupWidget::setBuildConfiguraionComboBoxVisible(bool b)
@@ -779,6 +785,21 @@ void Qt4DefaultTargetSetupWidget::storeSettings() const
         s->setValue(QLatin1String("Qt4ProjectManager.TargetSetupPage.BuildTemplate"), m_buildConfigurationComboBox->currentIndex());
 }
 
+bool Qt4DefaultTargetSetupWidget::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == m_importLinePath) {
+        if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
+            QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+            if (ke->key() == Qt::Key_Return || ke->key() == Qt::Key_Enter) {
+                if (event->type() == QEvent::KeyPress)
+                    addImportClicked();
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 QList<BuildConfigurationInfo> Qt4DefaultTargetSetupWidget::buildConfigurationInfos() const
 {
     QList<BuildConfigurationInfo> infos;
@@ -798,7 +819,7 @@ QList<BuildConfigurationInfo> Qt4DefaultTargetSetupWidget::buildConfigurationInf
     QString sourceDir = QFileInfo(m_proFilePath).absolutePath();
     int size = m_infos.size();
     for (int i=0; i < size; ++i) {
-        if (state == PERQT || (m_enabled.at(i)  && (state == MANUALLY || (state == ONEQT && m_infos.at(i).version->uniqueId() == qtVersionId)))) {
+        if (state == PERQT || (m_enabled.at(i)  && (state == MANUALLY || (state == ONEQT && m_infos.at(i).version()->uniqueId() == qtVersionId)))) {
             BuildConfigurationInfo info = m_infos.at(i);
             if (!m_shadowBuildEnabled->isChecked())
                 info.directory = sourceDir;
@@ -822,7 +843,7 @@ void Qt4DefaultTargetSetupWidget::addImportClicked()
     QList<BuildConfigurationInfo> infos = BuildConfigurationInfo::checkForBuild(m_importLinePath->path(), m_proFilePath);
     if (infos.isEmpty()) {
         QMessageBox::critical(this,
-                              tr("No build found"),
+                              tr("No Build Found"),
                               tr("No build found in %1 matching project %2.").arg(m_importLinePath->path()).arg(m_proFilePath));
         return;
     }
@@ -830,7 +851,7 @@ void Qt4DefaultTargetSetupWidget::addImportClicked()
     QList<BuildConfigurationInfo> filterdInfos;
     bool filtered = false;
     foreach (const BuildConfigurationInfo &info, infos) {
-        if (info.version->supportsTargetId(m_id))
+        if (info.version()->supportsTargetId(m_id))
             filterdInfos << info;
         else
             filtered = true;
@@ -839,8 +860,8 @@ void Qt4DefaultTargetSetupWidget::addImportClicked()
     if (filtered) {
         if (filterdInfos.isEmpty()) {
             QMessageBox::critical(this,
-                                  tr("Incompatible build found"),
-                                  tr("The build found in %1 is incompatible with this target").arg(m_importLinePath->path()));
+                                  tr("Incompatible Build Found"),
+                                  tr("The build found in %1 is incompatible with this target.").arg(m_importLinePath->path()));
             return;
         }
         // show something if we found incompatible builds?
@@ -863,8 +884,8 @@ void Qt4DefaultTargetSetupWidget::addImportClicked()
 
     if (filterdInfos.isEmpty() && !infos.isEmpty()) {
         QMessageBox::critical(this,
-                              tr("Already imported build"),
-                              tr("The build found in %1 is already imported").arg(m_importLinePath->path()));
+                              tr("Already Imported Build"),
+                              tr("The build found in %1 is already imported.").arg(m_importLinePath->path()));
         return;
     }
 
@@ -884,61 +905,164 @@ void Qt4DefaultTargetSetupWidget::addImportClicked()
     emit selectedToggled();
 }
 
-QList<BuildConfigurationInfo> Qt4DefaultTargetSetupWidget::usedImportInfos()
+QList<QtSupport::BaseQtVersion *> Qt4DefaultTargetSetupWidget::usedTemporaryQtVersions()
 {
-    QList<BuildConfigurationInfo> infos;
+    QList<QtSupport::BaseQtVersion *> versions;
     for (int i = 0; i < m_importInfos.size(); ++i) {
-        if (m_importEnabled.at(i))
-            infos << m_importInfos.at(i);
+        if (m_importEnabled.at(i) && m_importInfos.at(i).temporaryQtVersion)
+            versions << m_importInfos.at(i).temporaryQtVersion;
     }
-    return infos;
+    return versions;
 }
 
-void Qt4DefaultTargetSetupWidget::setBuildConfigurationInfos(const QList<BuildConfigurationInfo> &infos, bool resetEnabled)
+void Qt4DefaultTargetSetupWidget::replaceQtVersionWithQtVersion(int oldId, int newId)
 {
-    m_infos = infos;
-    if (resetEnabled || m_infos.size() != m_enabled.size()) {
-        m_enabled.clear();
-        m_selected = 0;
-        QStringList existingBuilds;
-        for (int i = 0; i < m_importInfos.size(); ++i) {
-            const BuildConfigurationInfo &info = m_importInfos.at(i);
-            existingBuilds << info.directory;
-            if (m_importEnabled.at(i))
-                ++m_selected;
+    QList<BuildConfigurationInfo>::iterator it, end;
+    it = m_importInfos.begin();
+    end = m_importInfos.end();
+    for ( ; it != end; ++it) {
+        BuildConfigurationInfo &info = *it;
+        if (info.qtVersionId == oldId) {
+            info.qtVersionId = newId;
         }
+    }
+}
 
-        // Default to importing existing builds and disable
-        // builds that would overwrite imports
-        for (int i=0; i < m_infos.size(); ++i) {
-            if (existingBuilds.contains(m_infos.at(i).directory) || m_hasInSourceBuild) {
-                m_enabled << false;
+void Qt4DefaultTargetSetupWidget::replaceTemporaryQtVersionWithQtVersion(QtSupport::BaseQtVersion *version, int id)
+{
+    QList<BuildConfigurationInfo>::iterator it, end;
+    it = m_importInfos.begin();
+    end = m_importInfos.end();
+    for ( ; it != end; ++it) {
+        BuildConfigurationInfo &info = *it;
+        if (info.temporaryQtVersion == version) {
+            info.temporaryQtVersion = 0;
+            info.qtVersionId = id;
+        }
+    }
+}
+
+void Qt4DefaultTargetSetupWidget::replaceQtVersionWithTemporaryQtVersion(int id, QtSupport::BaseQtVersion *version)
+{
+    QList<BuildConfigurationInfo>::iterator it, end;
+    it = m_importInfos.begin();
+    end = m_importInfos.end();
+    for ( ; it != end; ++it) {
+        BuildConfigurationInfo &info = *it;
+        if (info.qtVersionId == id) {
+            info.temporaryQtVersion = version;
+            info.qtVersionId = -1;
+        }
+    }
+}
+
+namespace {
+bool equal(const BuildConfigurationInfo &a, const BuildConfigurationInfo &b)
+{
+    return a.qtVersionId == b.qtVersionId
+            && a.buildConfig == b.buildConfig
+            && a.additionalArguments == b.additionalArguments;
+}
+
+bool less(const BuildConfigurationInfo &a, const BuildConfigurationInfo &b)
+{
+    if (a.qtVersionId < b.qtVersionId)
+        return true;
+    if (a.qtVersionId > b.qtVersionId)
+        return false;
+    if (a.buildConfig < b.buildConfig)
+        return true;
+    if (a.buildConfig > b.buildConfig)
+        return false;
+    if (a.additionalArguments < b.additionalArguments)
+        return true;
+    if (a.additionalArguments > b.additionalArguments)
+        return false;
+    // Other cases can't happen!
+    qDebug() << "could not order buildconfiguration infos";
+    return false;
+}
+}
+
+void Qt4DefaultTargetSetupWidget::setBuildConfigurationInfos(QList<BuildConfigurationInfo> infos, bool resetDirectories)
+{
+    // This is somewhat ugly in that we used to sort the buildconfigurations in the order
+    // that the default for that qt version is first
+    qSort(infos.begin(), infos.end(), less);
+
+    // Existing builds, to figure out which newly added
+    // buildconfigurations should be en/disabled
+    QStringList existingBuilds;
+    for (int i = 0; i < m_importInfos.size(); ++i) {
+        const BuildConfigurationInfo &info = m_importInfos.at(i);
+        existingBuilds << info.directory;
+    }
+
+    // Iterate over old/new infos to get the correct
+    // m_selected and m_enabled state
+    QList<BuildConfigurationInfo>::const_iterator oldit, oend;
+    oldit = m_infos.constBegin();
+    oend = m_infos.constEnd();
+
+    QList<BuildConfigurationInfo>::iterator newit, nend;
+    newit = infos.begin();
+    nend = infos.end();
+
+    QList<bool>::const_iterator enabledIt = m_enabled.constBegin();
+    QList<bool> enabled;
+    while (oldit != oend && newit != nend) {
+        if (equal(*oldit, *newit)) {
+            if (!resetDirectories)
+                newit->directory = oldit->directory;
+            enabled << *enabledIt;
+
+            ++oldit;
+            ++enabledIt;
+            ++newit;
+        } else if (less(*oldit, *newit)) {
+            // Deleted qt version
+            if (*enabledIt)
+                --m_selected;
+            ++oldit;
+            ++enabledIt;
+        } else {
+            // new info, check if we have a import build for that directory already
+            // then disable this build
+            if (existingBuilds.contains(newit->directory) || m_hasInSourceBuild) {
+                enabled << false;
             } else {
-                m_enabled << true;
+                enabled << true;
                 ++m_selected;
             }
-        }
 
-        clearWidgets();
-        setupWidgets();
-    } else {
-        bool foundIssues = false;
-        m_ignoreChange = true;
-        QString sourceDir = QFileInfo(m_proFilePath).absolutePath();
-        for (int i=0; i < m_checkboxes.size(); ++i) {
-            const BuildConfigurationInfo &info = m_infos.at(i);
-
-            m_checkboxes[i]->setText(displayNameFrom(info));
-            if (m_shadowBuildEnabled->isChecked())
-                m_pathChoosers[i]->setPath(info.directory);
-            else
-                m_pathChoosers[i]->setPath(sourceDir);
-            foundIssues |= reportIssues(i);
+            ++newit;
         }
-        m_ignoreChange = false;
-        if (foundIssues && isTargetSelected())
-            m_detailsWidget->setState(Utils::DetailsWidget::Expanded);
     }
+
+    while (oldit != oend) {
+        if (*enabledIt)
+            --m_selected;
+        ++oldit;
+        ++enabledIt;
+    }
+
+    while (newit != nend) {
+        if (existingBuilds.contains(newit->directory) || m_hasInSourceBuild) {
+            enabled << false;
+        } else {
+            enabled << true;
+            ++m_selected;
+        }
+
+        ++newit;
+    }
+
+    m_infos = infos;
+    m_enabled = enabled;
+
+    // Recreate widgets
+    clearWidgets();
+    setupWidgets();
 
     // update version combobox
     int oldQtVersionId = -1;
@@ -946,8 +1070,8 @@ void Qt4DefaultTargetSetupWidget::setBuildConfigurationInfos(const QList<BuildCo
         oldQtVersionId = m_versionComboBox->itemData(m_versionComboBox->currentIndex()).toInt();
     QList<QtSupport::BaseQtVersion *> list;
     foreach (const BuildConfigurationInfo &info, m_infos) {
-        if (!list.contains(info.version))
-            list << info.version;
+        if (!list.contains(info.version()))
+            list << info.version();
     }
     m_ignoreChange = true;
     m_versionComboBox->clear();
@@ -958,6 +1082,8 @@ void Qt4DefaultTargetSetupWidget::setBuildConfigurationInfos(const QList<BuildCo
     }
     m_ignoreChange = false;
     updateWidgetVisibility();
+
+    emit selectedToggled();
 }
 
 void Qt4DefaultTargetSetupWidget::setupImportWidgets()
@@ -969,10 +1095,10 @@ void Qt4DefaultTargetSetupWidget::setupImportWidgets()
 void Qt4DefaultTargetSetupWidget::createImportWidget(const BuildConfigurationInfo &info, int pos)
 {
     QCheckBox *checkBox = new QCheckBox;
-    checkBox->setText(tr("Import build from %1").arg(QDir::toNativeSeparators(info.directory)));
+    checkBox->setText(tr("Import build from %1.").arg(QDir::toNativeSeparators(info.directory)));
     checkBox->setChecked(m_importEnabled.at(pos));
-    if (info.version)
-        checkBox->setToolTip(info.version->toHtml(false));
+    if (info.version())
+        checkBox->setToolTip(info.version()->toHtml(false));
     m_importLayout->addWidget(checkBox, pos, 0, 1, 2);
 
     connect(checkBox, SIGNAL(toggled(bool)),
@@ -992,8 +1118,8 @@ void Qt4DefaultTargetSetupWidget::setupWidgets()
         checkbox->setText(displayNameFrom(info));
         checkbox->setChecked(m_enabled.at(i));
         checkbox->setAttribute(Qt::WA_LayoutUsesWidgetRect);
-        if (info.version)
-            checkbox->setToolTip(info.version->toHtml(false));
+        if (info.version())
+            checkbox->setToolTip(info.version()->toHtml(false));
         m_newBuildsLayout->addWidget(checkbox, i * 2, 0);
 
         Utils::PathChooser *pathChooser = new Utils::PathChooser();
@@ -1133,13 +1259,13 @@ void Qt4DefaultTargetSetupWidget::updateWidgetVisibility()
     } else if (state == ONEQT) {
         m_versionLabel->setVisible(true);
         m_versionComboBox->setVisible(true);
-        qtVersionChanged();
+        updateOneQtVisible();
     }
     m_shadowBuildEnabled->setVisible(m_shadowBuildCheckBoxVisible && (state != NONE));
     emit selectedToggled();
 }
 
-void Qt4DefaultTargetSetupWidget::qtVersionChanged()
+void Qt4DefaultTargetSetupWidget::updateOneQtVisible()
 {
     if (m_ignoreChange)
         return;
@@ -1149,7 +1275,7 @@ void Qt4DefaultTargetSetupWidget::qtVersionChanged()
     if (buildConfigurationTemplate() != ONEQT)
         return;
     for (int i = 0; i < m_infos.size(); ++i) {
-        bool visible = m_infos.at(i).version->uniqueId() == id;
+        bool visible = m_infos.at(i).version()->uniqueId() == id;
         m_checkboxes.at(i)->setVisible(visible);
         m_pathChoosers.at(i)->setVisible(visible);
         m_reportIssuesLabels.at(i)->setVisible(m_issues.at(i));
@@ -1175,7 +1301,7 @@ QPair<ProjectExplorer::Task::TaskType, QString> Qt4DefaultTargetSetupWidget::fin
     QString buildDir = info.directory;
     if (!m_shadowBuildEnabled->isChecked())
         buildDir = QFileInfo(m_proFilePath).absolutePath();
-    QtSupport::BaseQtVersion *version = info.version;
+    QtSupport::BaseQtVersion *version = info.version();
 
     QList<ProjectExplorer::Task> issues = version->reportIssues(m_proFilePath, buildDir);
 
@@ -1209,7 +1335,7 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::filterBuildConfigurationIn
 {
     QList<BuildConfigurationInfo> result;
     foreach (const BuildConfigurationInfo &info, infos)
-        if (info.version->supportsTargetId(id))
+        if (info.version()->supportsTargetId(id))
             result.append(info);
     return result;
 }
@@ -1221,7 +1347,7 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::filterBuildConfigurationIn
         return infos;
     QList<BuildConfigurationInfo> result;
     foreach (const BuildConfigurationInfo &info, infos)
-        if (info.version->supportsPlatform(platform))
+        if (info.version()->supportsPlatform(platform))
             result.append(info);
     return result;
 }
@@ -1230,9 +1356,17 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::filterBuildConfigurationIn
 {
     QList<BuildConfigurationInfo> result;
     foreach (const BuildConfigurationInfo &info, infos)
-        if (info.version->availableFeatures().contains(features))
+        if (info.version()->availableFeatures().contains(features))
             result.append(info);
     return result;
+}
+
+QtSupport::BaseQtVersion *BuildConfigurationInfo::version() const
+{
+    if (temporaryQtVersion)
+        return temporaryQtVersion;
+    QtSupport::QtVersionManager *manager = QtSupport::QtVersionManager::instance();
+    return manager->version(qtVersionId);
 }
 
 QList<BuildConfigurationInfo> BuildConfigurationInfo::importBuildConfigurations(const QString &proFilePath)
@@ -1306,12 +1440,13 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::checkForBuild(const QStrin
         }
         Utils::QtcProcess::addArgs(&specArgument, additionalArguments);
 
-        BuildConfigurationInfo info = BuildConfigurationInfo(version,
+        BuildConfigurationInfo info = BuildConfigurationInfo(version->uniqueId(),
                                                              makefileBuildConfig.first,
                                                              specArgument,
                                                              directory,
                                                              true,
-                                                             temporaryQtVersion);
+                                                             temporaryQtVersion ? version : 0,
+                                                             file);
         infos.append(info);
     }
     return infos;

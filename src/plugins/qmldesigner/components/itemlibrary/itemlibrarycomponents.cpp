@@ -95,7 +95,7 @@ ItemLibraryTreeView::ItemLibraryTreeView(QWidget *parent) :
     setDragEnabled(true);
     setDragDropMode(QAbstractItemView::DragOnly);
     setUniformRowHeights(true);
-    connect(this, SIGNAL(clicked(const QModelIndex &)), this, SLOT(activateItem(const QModelIndex &)));
+    connect(this, SIGNAL(clicked(QModelIndex)), this, SLOT(activateItem(QModelIndex)));
     setHeaderHidden(true);
     setIndentation(20);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);

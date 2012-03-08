@@ -95,6 +95,8 @@ private slots:
     void slotEncodingBoxChanged(int index);
 
 private:
+    void updateConstrainTooltipsBoxTooltip() const;
+
     BehaviorSettingsWidgetPrivate *d;
 };
 

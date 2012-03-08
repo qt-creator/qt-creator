@@ -40,35 +40,44 @@
 namespace Qt4ProjectManager {
 struct QT4PROJECTMANAGER_EXPORT BuildConfigurationInfo {
     explicit BuildConfigurationInfo()
-        : version(0), buildConfig(QtSupport::BaseQtVersion::QmakeBuildConfig(0)), importing(false), temporaryQtVersion(false)
+        : qtVersionId(-1), buildConfig(QtSupport::BaseQtVersion::QmakeBuildConfig(0)), importing(false), temporaryQtVersion(0)
     {}
 
-    explicit BuildConfigurationInfo(QtSupport::BaseQtVersion *v, QtSupport::BaseQtVersion::QmakeBuildConfigs bc,
-                                    const QString &aa, const QString &d, bool importing_ = false, bool temporaryQtVersion_ = false) :
-        version(v), buildConfig(bc), additionalArguments(aa), directory(d), importing(importing_), temporaryQtVersion(temporaryQtVersion_)
+    explicit BuildConfigurationInfo(int v, QtSupport::BaseQtVersion::QmakeBuildConfigs bc,
+                                    const QString &aa, const QString &d,
+                                    bool importing_ = false,
+                                    QtSupport::BaseQtVersion *temporaryQtVersion_ = 0,
+                                    const QString &makefile_ = QString())
+        : qtVersionId(v), buildConfig(bc),
+          additionalArguments(aa), directory(d),
+          importing(importing_), temporaryQtVersion(temporaryQtVersion_),
+          makefile(makefile_)
     { }
 
     bool isValid() const
     {
-        return version != 0;
+        return version() != 0;
     }
 
     bool operator ==(const BuildConfigurationInfo &other) const
     {
-        return version == other.version
+        return qtVersionId == other.qtVersionId
                 && buildConfig == other.buildConfig
                 && additionalArguments == other.additionalArguments
                 && directory == other.directory
                 && importing == other.importing
-                && temporaryQtVersion == other.temporaryQtVersion;
+                && temporaryQtVersion == other.temporaryQtVersion
+                && makefile == other.makefile;
     }
+    QtSupport::BaseQtVersion *version() const;
 
-    QtSupport::BaseQtVersion *version;
+    int qtVersionId;
     QtSupport::BaseQtVersion::QmakeBuildConfigs buildConfig;
     QString additionalArguments;
     QString directory;
     bool importing;
-    bool temporaryQtVersion;
+    QtSupport::BaseQtVersion *temporaryQtVersion;
+    QString makefile;
 
     static QList<BuildConfigurationInfo> importBuildConfigurations(const QString &proFilePath);
     static QList<BuildConfigurationInfo> checkForBuild(const QString &directory, const QString &proFilePath);

@@ -34,7 +34,10 @@
 #include <utils/networkaccessmanager.h>
 
 #include <cpptools/cpptoolsconstants.h>
+#include <designer/designerconstants.h>
+#include <glsleditor/glsleditorconstants.h>
 #include <qmljstools/qmljstoolsconstants.h>
+#include <resourceeditor/resourceeditorconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -83,19 +86,29 @@ void Protocol::list()
 
 Protocol::ContentType Protocol::contentType(const QString &mt)
 {
-    if (mt  == QLatin1String(CppTools::Constants::C_SOURCE_MIMETYPE)
+    if (mt == QLatin1String(CppTools::Constants::C_SOURCE_MIMETYPE)
         || mt == QLatin1String(CppTools::Constants::C_HEADER_MIMETYPE)
-        || mt == QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)
-        || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
-        || mt == QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE))
+        || mt == QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE)
+        || mt == QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_VERT)
+        || mt == QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG)
+        || mt == QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_VERT_ES)
+        || mt == QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG_ES))
         return C;
+    if (mt == QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)
+        || mt == QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)
+        || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
+        || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE))
+        return Cpp;
     if (mt == QLatin1String(QmlJSTools::Constants::QML_MIMETYPE)
         || mt == QLatin1String(QmlJSTools::Constants::JS_MIMETYPE)
         || mt == QLatin1String(QmlJSTools::Constants::JSON_MIMETYPE))
         return JavaScript;
     if (mt == QLatin1String("text/x-patch"))
         return Diff;
-    if (mt == QLatin1String("text/xml") || mt == QLatin1String("application/xml"))
+    if (mt == QLatin1String("text/xml")
+        || mt == QLatin1String("application/xml")
+        || mt == QLatin1String(ResourceEditor::Constants::C_RESOURCE_MIMETYPE)
+        || mt == QLatin1String(Designer::Constants::FORM_MIMETYPE))
         return Xml;
     return Text;
 }

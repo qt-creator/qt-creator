@@ -484,7 +484,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 const int pos1 = ba.indexOf(",original-location");
                 const int pos2 = ba.indexOf("\":", pos1 + 2);
                 const int pos3 = ba.indexOf('"', pos2 + 2);
-                ba.replace(pos1, pos3 - pos1 + 1, "");
+                ba.remove(pos1, pos3 - pos1 + 1);
                 result = GdbMi();
                 result.fromString(ba);
                 BreakHandler *handler = breakHandler();
@@ -1023,6 +1023,10 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 QTC_CHECK(state() == InferiorRunOk);
                 notifyInferiorSpontaneousStop();
                 notifyEngineIll();
+            } else if (msg.startsWith("Remote connection closed")
+                       || msg.startsWith("Quit")) {
+                // Can happen when the target exits (gdbserver)
+                notifyInferiorExited();
             } else {
                 // Windows: Some DLL or some function not found. Report
                 // the exception now in a box.
@@ -2094,6 +2098,9 @@ void GdbEngine::handleExecuteStep(const GdbResponse &response)
         if (!m_commandsToRunOnTemporaryBreak.isEmpty())
             flushQueuedCommands();
         executeStepI(); // Fall back to instruction-wise stepping.
+    } else if (msg.startsWith("Cannot execute this command while the selected thread is running.")) {
+        showExecutionError(QString::fromLocal8Bit(msg));
+        notifyInferiorRunFailed();
     } else {
         showExecutionError(QString::fromLocal8Bit(msg));
         notifyInferiorIll();
@@ -2162,6 +2169,9 @@ void GdbEngine::handleExecuteNext(const GdbResponse &response)
         notifyInferiorRunFailed();
         if (!isDying())
             executeNextI(); // Fall back to instruction-wise stepping.
+    } else if (msg.startsWith("Cannot execute this command while the selected thread is running.")) {
+        showExecutionError(QString::fromLocal8Bit(msg));
+        notifyInferiorRunFailed();
     } else {
         showMessageBox(QMessageBox::Critical, tr("Execution Error"),
            tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
@@ -4618,8 +4628,8 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
 
     connect(gdbProc(), SIGNAL(error(QProcess::ProcessError)),
         SLOT(handleGdbError(QProcess::ProcessError)));
-    connect(gdbProc(), SIGNAL(finished(int, QProcess::ExitStatus)),
-        SLOT(handleGdbFinished(int, QProcess::ExitStatus)));
+    connect(gdbProc(), SIGNAL(finished(int,QProcess::ExitStatus)),
+        SLOT(handleGdbFinished(int,QProcess::ExitStatus)));
     connect(gdbProc(), SIGNAL(readyReadStandardOutput()),
         SLOT(readGdbStandardOutput()));
     connect(gdbProc(), SIGNAL(readyReadStandardError()),

@@ -117,9 +117,10 @@ VcsBase::DiffHighlighter *SubversionEditor::createDiffHighlighter() const
     return new VcsBase::DiffHighlighter(filePattern);
 }
 
-VcsBase::BaseAnnotationHighlighter *SubversionEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighter *SubversionEditor::createAnnotationHighlighter(const QSet<QString> &changes,
+                                                                                  const QColor &bg) const
 {
-    return new SubversionAnnotationHighlighter(changes);
+    return new SubversionAnnotationHighlighter(changes, bg);
 }
 
 QString SubversionEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) const

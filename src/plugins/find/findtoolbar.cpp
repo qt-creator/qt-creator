@@ -116,7 +116,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     m_ui.findEdit->setPlaceholderText(QString());
     m_ui.replaceEdit->setPlaceholderText(QString());
 
-    connect(m_ui.findEdit, SIGNAL(textChanged(const QString&)), this, SLOT(invokeFindIncremental()));
+    connect(m_ui.findEdit, SIGNAL(textChanged(QString)), this, SLOT(invokeFindIncremental()));
     connect(m_ui.findEdit, SIGNAL(returnPressed()), this, SLOT(invokeFindEnter()));
     connect(m_ui.replaceEdit, SIGNAL(returnPressed()), this, SLOT(invokeReplaceEnter()));
 
@@ -414,12 +414,12 @@ QString FindToolBar::getReplaceText()
 
 void FindToolBar::setFindText(const QString &text)
 {
-    disconnect(m_ui.findEdit, SIGNAL(textChanged(const QString&)), this, SLOT(invokeFindIncremental()));
+    disconnect(m_ui.findEdit, SIGNAL(textChanged(QString)), this, SLOT(invokeFindIncremental()));
     if (hasFindFlag(Find::FindRegularExpression))
         m_ui.findEdit->setText(QRegExp::escape(text));
     else
         m_ui.findEdit->setText(text);
-    connect(m_ui.findEdit, SIGNAL(textChanged(const QString&)), this, SLOT(invokeFindIncremental()));
+    connect(m_ui.findEdit, SIGNAL(textChanged(QString)), this, SLOT(invokeFindIncremental()));
 }
 
 void FindToolBar::selectFindText()

@@ -344,7 +344,7 @@ private:
 
         m_ui->keyDirPathChooser->setEnabled(false);
         m_ui->createKeysButton->setEnabled(false);
-        m_ui->statusLabel->setText(tr("Creating keys ... "));
+        m_ui->statusLabel->setText(tr("Creating keys... "));
         SshKeyGenerator keyGenerator;
         if (!keyGenerator.generateKeys(SshKeyGenerator::Rsa,
              SshKeyGenerator::Mixed, 1024)) {
@@ -456,7 +456,7 @@ private:
         m_keyDeployer->deployPublicKey(sshParams, m_wizardData.publicKeyFilePath);
     }
 
-    Q_SLOT void handleKeyDeploymentError(const QString &errorMsg)
+    Q_SLOT void handleKeyDeploymentError(const QString&errorMsg)
     {
         QMessageBox::critical(this, tr("Key Deployment Failure"), errorMsg);
         enableInput();

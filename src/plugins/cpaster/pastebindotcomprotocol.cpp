@@ -31,13 +31,13 @@
 **************************************************************************/
 
 #include "pastebindotcomprotocol.h"
-#include "pastebindotcomsettings.h"
 
 #include <coreplugin/icore.h>
 
 #include <utils/qtcassert.h>
 
 #include <QDebug>
+#include <QStringList>
 #include <QTextStream>
 #include <QXmlStreamReader>
 #include <QXmlStreamAttributes>
@@ -47,13 +47,16 @@
 
 enum { debug = 0 };
 
-static const char pastePhpScriptpC[] = "api_public.php";
-static const char fetchPhpScriptpC[] = "raw.php";
+static const char PASTEBIN_BASE[]="http://pastebin.com/";
+static const char PASTEBIN_API[]="api/api_post.php";
+static const char PASTEBIN_RAW[]="raw.php";
+static const char PASTEBIN_ARCHIVE[]="archive";
+
+static const char API_KEY[]="api_dev_key=516686fc461fb7f9341fd7cf2af6f829&"; // user: qtcreator_apikey
 
 namespace CodePaster {
 PasteBinDotComProtocol::PasteBinDotComProtocol(const NetworkAccessManagerProxyPtr &nw) :
     NetworkProtocol(nw),
-    m_settings(new PasteBinDotComSettings),
     m_fetchReply(0),
     m_pasteReply(0),
     m_listReply(0),
@@ -73,82 +76,59 @@ unsigned PasteBinDotComProtocol::capabilities() const
     return ListCapability;
 }
 
-bool PasteBinDotComProtocol::checkConfiguration(QString *errorMessage)
-{
-    if (m_hostChecked)  // Check the host once.
-        return true;
-    const bool ok = httpStatus(hostName(false), errorMessage);
-    if (ok)
-        m_hostChecked = true;
-    return ok;
-}
-
-QString PasteBinDotComProtocol::hostName(bool withSubDomain) const
-{
-
-    QString rc;
-    if (withSubDomain) {
-        rc = m_settings->hostPrefix();
-        if (!rc.isEmpty())
-            rc.append(QLatin1Char('.'));
-    }
-    rc.append(QLatin1String("pastebin.com"));
-    return rc;
-}
-
 static inline QByteArray format(Protocol::ContentType ct)
 {
+    QByteArray format = "api_paste_format=";
     switch (ct) {
-    case Protocol::Text:
-        break;
     case Protocol::C:
-        return "paste_format=cpp";
+        format += 'c';
         break;
+    case Protocol::Cpp:
+        format += "cpp-qt";
     case Protocol::JavaScript:
-        return "paste_format=javascript";
+        format += "javascript";
         break;
     case Protocol::Diff:
-        return "paste_format=diff"; // v3.X 'dff' -> 'diff'
+        format += "diff";
         break;
     case Protocol::Xml:
-        return "paste_format=xml";
+        format += "xml";
         break;
+    case Protocol::Text:
+        // fallthrough!
+    default:
+        format += "text";
     }
-    return QByteArray();
+    format += '&';
+    return format;
 }
 
 void PasteBinDotComProtocol::paste(const QString &text,
                                    ContentType ct,
                                    const QString &username,
-                                   const QString & /* comment */,
-                                   const QString & /* description */)
+                                   const QString &comment,
+                                   const QString &description)
 {
-    QTC_ASSERT(!m_pasteReply, return;)
+    Q_UNUSED(comment);
+    Q_UNUSED(description);
+    QTC_ASSERT(!m_pasteReply, return);
 
     // Format body
-    QByteArray pasteData = format(ct);
-    if (!pasteData.isEmpty())
-        pasteData.append('&');
-    pasteData += "paste_name=";
+    QByteArray pasteData = API_KEY;
+    pasteData += "api_option=paste&";
+    pasteData += "api_paste_expire_date=1M&";
+    pasteData += format(ct);
+    pasteData += "api_paste_name=";
     pasteData += QUrl::toPercentEncoding(username);
 
-    const QString subDomain = m_settings->hostPrefix();
-    if (!subDomain.isEmpty()) {
-        pasteData += "&paste_subdomain=";
-        pasteData += QUrl::toPercentEncoding(subDomain);
-    }
-
-    pasteData += "&paste_code=";
+    pasteData += "&api_paste_code=";
     pasteData += QUrl::toPercentEncoding(fixNewLines(text));
 
     // fire request
-    QString link;
-    QTextStream(&link) << "http://" << hostName(false) << '/' << pastePhpScriptpC;
-
-    m_pasteReply = httpPost(link, pasteData);
+    m_pasteReply = httpPost(QLatin1String(PASTEBIN_BASE) + QLatin1String(PASTEBIN_API), pasteData);
     connect(m_pasteReply, SIGNAL(finished()), this, SLOT(pasteFinished()));
     if (debug)
-        qDebug() << "paste: sending " << m_pasteReply << link << pasteData;
+        qDebug() << "paste: sending " << m_pasteReply << pasteData;
 }
 
 void PasteBinDotComProtocol::pasteFinished()
@@ -165,21 +145,14 @@ void PasteBinDotComProtocol::pasteFinished()
 
 void PasteBinDotComProtocol::fetch(const QString &id)
 {
-    const QString httpProtocolPrefix = QLatin1String("http://");
-
-    QTC_ASSERT(!m_fetchReply, return;)
-
     // Did we get a complete URL or just an id. Insert a call to the php-script
-    QString link;
-    if (id.startsWith(httpProtocolPrefix)) {
-        // Change "http://host/id" -> "http://host/script?i=id".
-        const int lastSlashPos = id.lastIndexOf(QLatin1Char('/'));
-        link = id.mid(0, lastSlashPos);
-        QTextStream(&link) << '/' << fetchPhpScriptpC<< "?i=" << id.mid(lastSlashPos + 1);
-    } else {
-        // format "http://host/script?i=id".
-        QTextStream(&link) << "http://" << hostName(true) << '/' << fetchPhpScriptpC<< "?i=" << id;
-    }
+    QString link = QLatin1String(PASTEBIN_BASE) + QLatin1String(PASTEBIN_RAW);
+    link.append(QLatin1String("?i="));
+
+    if (id.startsWith(QLatin1String("http://")))
+        link.append(id.mid(id.lastIndexOf(QLatin1Char('/')) + 1));
+    else
+        link.append(id);
 
     if (debug)
         qDebug() << "fetch: sending " << link;
@@ -226,10 +199,9 @@ void PasteBinDotComProtocol::fetchFinished()
 
 void PasteBinDotComProtocol::list()
 {
-    QTC_ASSERT(!m_listReply, return;)
+    QTC_ASSERT(!m_listReply, return);
 
-    // fire request
-    const QString url = QLatin1String("http://") + hostName(true) + QLatin1String("/archive");
+    const QString url = QLatin1String(PASTEBIN_BASE) + QLatin1String(PASTEBIN_ARCHIVE);
     m_listReply = httpGet(url);
     connect(m_listReply, SIGNAL(finished()), this, SLOT(listFinished()));
     if (debug)
@@ -244,27 +216,20 @@ static inline void padString(QString *s, int len)
 }
 
 /* Quick & dirty: Parse out the 'archive' table as of 16.3.2011:
-\code
- <table class="maintable" cellspacing="0">
-   <tr class="top">
-    <th scope="col" align="left">Name / Title</th>
-    <th scope="col" align="left">Posted</th>
-    <th scope="col" align="left">Expires</th>
-    <th scope="col" align="left">Size</th>
-    <th scope="col" align="left">Syntax</th>
-    <th scope="col" align="left">User</th>
-   </tr>
-   <tr class="g">
-    <td class="icon"><a href="/8ZRqkcaP">Untitled</a></td>
-    <td>2 sec ago</td>
-    <td>Never</td>
-    <td>9.41 KB</td>
-    <td><a href="/archive/text">None</a></td>
-    <td>a guest</td>
-   </tr>
-   <tr>
-\endcode */
-
+ \code
+<table class="maintable" cellspacing="0">
+    <tr class="top">
+        <th scope="col" align="left">Name / Title</th>
+        <th scope="col" align="left">Posted</th>
+        <th scope="col" align="right">Syntax</th>
+    </tr>
+    <tr>
+        <td><img src="/i/t.gif"  class="i_p0" alt="" border="0" /><a href="/cvWciF4S">Vector 1</a></td>
+        <td>2 sec ago</td>
+        <td align="right"><a href="/archive/cpp">C++</a></td>
+    </tr>
+    ...
+-\endcode */
 enum ParseState
 {
     OutSideTable, WithinTable, WithinTableRow, WithinTableHeaderElement,
@@ -281,7 +246,7 @@ QDebug operator<<(QDebug d, const QXmlStreamAttributes &al)
 
 static inline ParseState nextOpeningState(ParseState current, const QXmlStreamReader &reader)
 {
-    const QStringRef element = reader.name();
+    const QStringRef &element = reader.name();
     switch (current) {
     case OutSideTable:
         // Trigger on main table only.
@@ -300,6 +265,8 @@ static inline ParseState nextOpeningState(ParseState current, const QXmlStreamRe
             return WithinTableHeaderElement;
         break;
     case WithinTableElement:
+        if (element == QLatin1String("img"))
+            return WithinTableElement;
         if (element == QLatin1String("a"))
             return WithinTableElementAnchor;
         break;
@@ -327,6 +294,8 @@ static inline ParseState nextClosingState(ParseState current, const QStringRef &
     case WithinTableElement:
         if (element == QLatin1String("td"))
             return WithinTableRow;
+        if (element == QLatin1String("img"))
+            return WithinTableElement;
         break;
     case WithinTableHeaderElement:
         if (element == QLatin1String("th"))
@@ -336,10 +305,10 @@ static inline ParseState nextClosingState(ParseState current, const QStringRef &
         if (element == QLatin1String("a"))
             return WithinTableElement;
         break;
-    case ParseError:
+   case ParseError:
         break;
-    }
-    return ParseError;
+   }
+   return ParseError;
 }
 
 static inline QStringList parseLists(QIODevice *io)
@@ -354,10 +323,9 @@ static inline QStringList parseLists(QIODevice *io)
 
     const QString hrefAttribute = QLatin1String("href");
     //: Unknown user of paste.
-    const QString unknownUser = PasteBinDotComProtocol::tr("<Unknown>");
     QString link;
-    QString user;
-    QString description;
+    QString title;
+    QString age;
 
     while (!reader.atEnd()) {
         switch(reader.readNext()) {
@@ -392,20 +360,21 @@ static inline QStringList parseLists(QIODevice *io)
                 break;
             case WithinTable:
                 // User can occasionally be empty.
-                if (tableRow && !link.isEmpty() && !description.isEmpty()) {
+                if (tableRow && !link.isEmpty() && !title.isEmpty() && !age.isEmpty()) {
                     QString entry = link;
                     entry += QLatin1Char(' ');
-                    entry += user.isEmpty() ? unknownUser : user;
-                    entry += QLatin1Char(' ');
-                    entry += description;
+                    entry += title;
+                    entry += QLatin1String(" (");
+                    entry += age;
+                    entry += QLatin1Char(')');
                     rc.push_back(entry);
                     if (rc.size() >= maxEntries)
                         return rc;
                 }
                 tableRow++;
-                user.clear();
+                age.clear();
                 link.clear();
-                description.clear();
+                title.clear();
                 break;
             case WithinTableRow:
                 tableColumn++;
@@ -420,14 +389,13 @@ static inline QStringList parseLists(QIODevice *io)
             break;
         case QXmlStreamReader::Characters:
             switch (state) {
-                break;
             case WithinTableElement:
-                if (tableColumn == 5)
-                    user = reader.text().toString();
+                if (tableColumn == 1)
+                    age = reader.text().toString();
                 break;
             case WithinTableElementAnchor:
                 if (tableColumn == 0)
-                    description = reader.text().toString();
+                    title = reader.text().toString();
                 break;
             default:
                 break;
@@ -456,8 +424,4 @@ void PasteBinDotComProtocol::listFinished()
     m_listReply = 0;
 }
 
-Core::IOptionsPage *PasteBinDotComProtocol::settingsPage() const
-{
-    return m_settings;
-}
 } // namespace CodePaster

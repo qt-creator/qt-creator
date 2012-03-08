@@ -111,6 +111,14 @@ private slots:
     void emitProFileEvaluateNeeded();
 };
 
+// TODO handle the user deleting/creating qt versions correctly
+// Update list of buildconfigurations on adding/removing
+// Do advanced magic for importing cases:
+// - If the qt version that would be imported was created in the mean time
+//   delete the temporary qt version and set the versionId to the newly created version
+// - If the qt version that a import configuration uses was deleted from the qt versions
+//   create a new temporary qt version and use that
+// For greatness!
 class Qt4DefaultTargetSetupWidget : public Qt4TargetSetupWidget
 {
     Q_OBJECT
@@ -129,7 +137,12 @@ public:
     ~Qt4DefaultTargetSetupWidget();
     bool isTargetSelected() const;
     void setTargetSelected(bool b);
-    QList<BuildConfigurationInfo> usedImportInfos();
+
+    void updateBuildConfigurationInfos(const QList<BuildConfigurationInfo> &infos);
+    QList<QtSupport::BaseQtVersion *> usedTemporaryQtVersions();
+    void replaceQtVersionWithQtVersion(int oldId, int newId);
+    void replaceTemporaryQtVersionWithQtVersion(QtSupport::BaseQtVersion *version, int id);
+    void replaceQtVersionWithTemporaryQtVersion(int id, QtSupport::BaseQtVersion *version);
 
     QList<BuildConfigurationInfo> buildConfigurationInfos() const;
     void setProFilePath(const QString &proFilePath);
@@ -144,6 +157,8 @@ public:
     void setBuildConfigurationTemplate(BuildConfigurationTemplate value);
 
     void storeSettings() const;
+protected:
+    bool eventFilter(QObject *, QEvent *);
 private slots:
     void addImportClicked();
     void checkBoxToggled(bool b);
@@ -151,12 +166,12 @@ private slots:
     void pathChanged();
     void shadowBuildingToggled();
     void buildConfigurationComboBoxChanged();
-    void qtVersionChanged();
+    void updateOneQtVisible();
     void targetCheckBoxToggled(bool b);
 
 private:
     void updateWidgetVisibility();
-    void setBuildConfigurationInfos(const QList<BuildConfigurationInfo> &list, bool resetEnabled = true);
+    void setBuildConfigurationInfos(QList<BuildConfigurationInfo> list, bool resetDirectories);
     bool reportIssues(int index);
     QPair<ProjectExplorer::Task::TaskType, QString> findIssues(const BuildConfigurationInfo &info);
     void createImportWidget(const BuildConfigurationInfo &info, int pos);

@@ -131,9 +131,10 @@ VcsBase::DiffHighlighter *CvsEditor::createDiffHighlighter() const
     return new VcsBase::DiffHighlighter(filePattern);
 }
 
-VcsBase::BaseAnnotationHighlighter *CvsEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighter *CvsEditor::createAnnotationHighlighter(const QSet<QString> &changes,
+                                                                           const QColor &bg) const
 {
-    return new CvsAnnotationHighlighter(changes);
+    return new CvsAnnotationHighlighter(changes, bg);
 }
 
 QString CvsEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) const

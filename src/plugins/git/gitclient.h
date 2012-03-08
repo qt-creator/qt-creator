@@ -170,6 +170,7 @@ public:
     QString vcsGetRepositoryURL(const QString &directory);
     bool synchronousFetch(const QString &workingDirectory, const QString &remote);
     bool synchronousPull(const QString &workingDirectory);
+    bool synchronousPull(const QString &workingDirectory, bool rebase);
     bool synchronousPush(const QString &workingDirectory, const QString &remote = QString());
 
     // git svn support (asynchronous).
@@ -282,7 +283,6 @@ private:
                          QString *errorMessage,
                          bool revertStaging);
     void connectRepositoryChanged(const QString & repository, VcsBase::Command *cmd);
-    bool synchronousPull(const QString &workingDirectory, bool rebase);
     void syncAbortPullRebase(const QString &workingDir);
     bool tryLauchingGitK(const QProcessEnvironment &env,
                          const QString &workingDirectory,

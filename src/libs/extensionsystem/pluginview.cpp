@@ -136,7 +136,7 @@ PluginSpec *PluginView::currentPlugin() const
 void PluginView::updateList()
 {
     connect(m_ui->categoryWidget, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
-            this, SLOT(updatePluginSettings(QTreeWidgetItem*, int)));
+            this, SLOT(updatePluginSettings(QTreeWidgetItem*,int)));
 
     PluginCollection *defaultCollection = 0;
     foreach(PluginCollection *collection, p->manager->pluginCollections()) {

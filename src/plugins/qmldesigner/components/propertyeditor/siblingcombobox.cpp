@@ -70,7 +70,7 @@ void SiblingComboBox::changeSelection(int i)
 
 void SiblingComboBox::setup()
 {
-    connect(this, SIGNAL(currentIndexChanged (int)), this, SLOT(changeSelection(int)));
+    connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(changeSelection(int)));
     if (!m_itemNode.isValid())
         return;
 
@@ -83,7 +83,7 @@ void SiblingComboBox::setup()
         if (node.isValid() && (node.instanceParent().modelNode() != m_itemNode.instanceParent().modelNode()))
             m_itemList.removeAll(node);
 
-    disconnect(this, SIGNAL(currentIndexChanged (int)), this, SLOT(changeSelection(int)));
+    disconnect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(changeSelection(int)));
     clear();
 
     foreach (const QmlItemNode &itemNode, m_itemList) {
@@ -109,7 +109,7 @@ void SiblingComboBox::setup()
         insertItem(0, parentString);
     }
     setCurrentIndex(m_itemList.indexOf(m_selectedItemNode));
-    connect(this, SIGNAL(currentIndexChanged (int)), this, SLOT(changeSelection(int)));
+    connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(changeSelection(int)));
 }
 
 

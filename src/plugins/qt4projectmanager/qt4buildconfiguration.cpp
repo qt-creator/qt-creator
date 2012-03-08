@@ -185,8 +185,8 @@ void Qt4BuildConfiguration::ctor()
             this, SLOT(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
 
     QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
-    connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
-            this, SLOT(qtVersionsChanged(QList<int>)));
+    connect(vm, SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
+            this, SLOT(qtVersionsChanged(QList<int>,QList<int>,QList<int>)));
 }
 
 void Qt4BuildConfiguration::emitBuildDirectoryChanged()
@@ -458,11 +458,11 @@ MakeStep *Qt4BuildConfiguration::makeStep() const
     return 0;
 }
 
-void Qt4BuildConfiguration::qtVersionsChanged(const QList<int> &changedVersions)
+void Qt4BuildConfiguration::qtVersionsChanged(const QList<int> &addedVersions, const QList<int> &removedVersions, const QList<int> &changedVersions)
 {
-    if (!changedVersions.contains(m_qtVersionId))
-        return;
-    emit environmentChanged(); // Our qt version changed, that might have changed the environment
+    Q_UNUSED(addedVersions);
+    if (removedVersions.contains(m_qtVersionId) || changedVersions.contains(m_qtVersionId))
+        emit environmentChanged(); // Our qt version changed, that might have changed the environment
 }
 
 // returns true if both are equal
@@ -663,7 +663,7 @@ Qt4BuildConfigurationFactory::Qt4BuildConfigurationFactory(QObject *parent) :
     update();
 
     QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
-    connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
+    connect(vm, SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
             this, SLOT(update()));
 }
 

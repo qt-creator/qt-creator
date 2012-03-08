@@ -96,9 +96,10 @@ VcsBase::DiffHighlighter *MercurialEditor::createDiffHighlighter() const
     return new VcsBase::DiffHighlighter(diffIdentifier);
 }
 
-VcsBase::BaseAnnotationHighlighter *MercurialEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighter *MercurialEditor::createAnnotationHighlighter(const QSet<QString> &changes,
+                                                                                 const QColor &bg) const
 {
-    return new MercurialAnnotationHighlighter(changes);
+    return new MercurialAnnotationHighlighter(changes, bg);
 }
 
 QString MercurialEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) const

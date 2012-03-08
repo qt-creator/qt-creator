@@ -79,7 +79,7 @@ OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
     layout->setMargin(0);
     layout->addWidget(m_editorList);
 
-    connect(m_editorList, SIGNAL(itemClicked(QTreeWidgetItem*, int)),
+    connect(m_editorList, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
             this, SLOT(editorClicked(QTreeWidgetItem*)));
 }
 

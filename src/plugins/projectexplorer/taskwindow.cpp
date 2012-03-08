@@ -817,7 +817,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
         QFont f = painter->font();
         f.setItalic(true);
         painter->setFont(f);
-        lineText = "(" + QString::number(line) + ")";
+        lineText = QLatin1Char('(') + QString::number(line) + QLatin1Char(')');
     }  else if (movedLine != line) {
         // The line was moved
         QFont f = painter->font();

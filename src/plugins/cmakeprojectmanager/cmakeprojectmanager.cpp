@@ -64,8 +64,8 @@ CMakeManager::CMakeManager(CMakeSettingsPage *cmakeSettingsPage)
     : m_settingsPage(cmakeSettingsPage)
 {
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
-    connect(projectExplorer, SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*, ProjectExplorer::Node*)),
-            this, SLOT(updateContextMenu(ProjectExplorer::Project*, ProjectExplorer::Node*)));
+    connect(projectExplorer, SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)),
+            this, SLOT(updateContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)));
 
     Core::ActionManager *am = Core::ICore::actionManager();
 

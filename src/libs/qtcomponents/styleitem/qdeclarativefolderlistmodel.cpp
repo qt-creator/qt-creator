@@ -154,12 +154,12 @@ QDeclarativeFolderListModel::QDeclarativeFolderListModel(QObject *parent)
 
     d = new QDeclarativeFolderListModelPrivate;
     d->model.setFilter(QDir::AllDirs | QDir::Files | QDir::Drives | QDir::NoDotAndDotDot);
-    connect(&d->model, SIGNAL(rowsInserted(const QModelIndex&,int,int))
-            , this, SLOT(inserted(const QModelIndex&,int,int)));
-    connect(&d->model, SIGNAL(rowsRemoved(const QModelIndex&,int,int))
-            , this, SLOT(removed(const QModelIndex&,int,int)));
-    connect(&d->model, SIGNAL(dataChanged(const QModelIndex&,const QModelIndex&))
-            , this, SLOT(handleDataChanged(const QModelIndex&,const QModelIndex&)));
+    connect(&d->model, SIGNAL(rowsInserted(QModelIndex,int,int))
+            , this, SLOT(inserted(QModelIndex,int,int)));
+    connect(&d->model, SIGNAL(rowsRemoved(QModelIndex,int,int))
+            , this, SLOT(removed(QModelIndex,int,int)));
+    connect(&d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex))
+            , this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
     connect(&d->model, SIGNAL(modelReset()), this, SLOT(refresh()));
     connect(&d->model, SIGNAL(layoutChanged()), this, SLOT(refresh()));
 }

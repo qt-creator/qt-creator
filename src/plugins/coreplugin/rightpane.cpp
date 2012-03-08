@@ -57,8 +57,8 @@ RightPanePlaceHolder::RightPanePlaceHolder(Core::IMode *mode, QWidget *parent)
 {
     setLayout(new QVBoxLayout);
     layout()->setMargin(0);
-    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode *)),
-            this, SLOT(currentModeChanged(Core::IMode *)));
+    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
+            this, SLOT(currentModeChanged(Core::IMode*)));
 }
 
 RightPanePlaceHolder::~RightPanePlaceHolder()

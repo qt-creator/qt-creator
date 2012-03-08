@@ -112,9 +112,10 @@ VcsBase::DiffHighlighter *PerforceEditor::createDiffHighlighter() const
     return new VcsBase::DiffHighlighter(filePattern);
 }
 
-VcsBase::BaseAnnotationHighlighter *PerforceEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighter *PerforceEditor::createAnnotationHighlighter(const QSet<QString> &changes,
+                                                                                const QColor &bg) const
 {
-    return new PerforceAnnotationHighlighter(changes);
+    return new PerforceAnnotationHighlighter(changes, bg);
 }
 
 QString PerforceEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) const

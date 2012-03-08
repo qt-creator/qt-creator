@@ -12,7 +12,6 @@ HEADERS += cpasterplugin.h \
     cpasterconstants.h \
     codepastersettings.h \
     pastebindotcomprotocol.h \
-    pastebindotcomsettings.h \
     pastebindotcaprotocol.h \
     settings.h \
     pasteselectdialog.h \
@@ -28,7 +27,6 @@ SOURCES += cpasterplugin.cpp \
     pasteview.cpp \
     codepastersettings.cpp \
     pastebindotcomprotocol.cpp \
-    pastebindotcomsettings.cpp \
     pastebindotcaprotocol.cpp \
     settings.cpp \
     pasteselectdialog.cpp \

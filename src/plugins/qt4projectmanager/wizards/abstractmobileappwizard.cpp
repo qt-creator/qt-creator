@@ -241,8 +241,8 @@ QWizard *AbstractMobileAppWizard::createWizardDialog(QWidget *parent,
     wdlg->m_maemoOptionsPage->setPngIcon(app()->pngIcon64());
     wdlg->m_harmattanOptionsPage->setPngIcon(app()->pngIcon80());
     wdlg->m_harmattanOptionsPage->setBoosterOptionEnabled(app()->canSupportMeegoBooster());
-    connect(wdlg, SIGNAL(projectParametersChanged(QString, QString)),
-        SLOT(useProjectPath(QString, QString)));
+    connect(wdlg, SIGNAL(projectParametersChanged(QString,QString)),
+        SLOT(useProjectPath(QString,QString)));
     wdlg->addExtensionPages(wizardDialogParameters.extensionPages());
 
     return wdlg;

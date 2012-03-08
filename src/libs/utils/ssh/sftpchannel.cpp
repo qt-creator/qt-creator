@@ -93,10 +93,10 @@ SftpChannel::SftpChannel(quint32 channelId,
         Qt::QueuedConnection);
     connect(d, SIGNAL(initializationFailed(QString)), this,
         SIGNAL(initializationFailed(QString)), Qt::QueuedConnection);
-    connect(d, SIGNAL(dataAvailable(Utils::SftpJobId, QString)), this,
-        SIGNAL(dataAvailable(Utils::SftpJobId, QString)), Qt::QueuedConnection);
-    connect(d, SIGNAL(fileInfoAvailable(Utils::SftpJobId, QList<Utils::SftpFileInfo>)), this,
-        SIGNAL(fileInfoAvailable(Utils::SftpJobId, QList<Utils::SftpFileInfo>)),
+    connect(d, SIGNAL(dataAvailable(Utils::SftpJobId,QString)), this,
+        SIGNAL(dataAvailable(Utils::SftpJobId,QString)), Qt::QueuedConnection);
+    connect(d, SIGNAL(fileInfoAvailable(Utils::SftpJobId,QList<Utils::SftpFileInfo>)), this,
+        SIGNAL(fileInfoAvailable(Utils::SftpJobId,QList<Utils::SftpFileInfo>)),
         Qt::QueuedConnection);
     connect(d, SIGNAL(finished(Utils::SftpJobId,QString)), this,
         SIGNAL(finished(Utils::SftpJobId,QString)), Qt::QueuedConnection);

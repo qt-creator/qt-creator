@@ -364,7 +364,7 @@ QString DesignDocumentController::simplfiedDisplayName() const
         return d->componentNode.id();
     }
 
-    QStringList list = displayName().split("/");
+    QStringList list = displayName().split(QLatin1Char('/'));
     return list.last();
 }
 
@@ -424,8 +424,8 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
 
     d->rewriterView = new RewriterView(RewriterView::Amend, d->masterModel.data());
     d->rewriterView->setTextModifier( d->textModifier);
-    connect(d->rewriterView.data(), SIGNAL(errorsChanged(const QList<RewriterView::Error> &)),
-            this, SIGNAL(qmlErrorsChanged(const QList<RewriterView::Error> &)));
+    connect(d->rewriterView.data(), SIGNAL(errorsChanged(QList<RewriterView::Error>)),
+            this, SIGNAL(qmlErrorsChanged(QList<RewriterView::Error>)));
 
     d->masterModel->attachView(d->rewriterView.data());
     d->model = d->masterModel;

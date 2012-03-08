@@ -130,7 +130,7 @@ bool CodaRunControl::setupLauncher()
             appendMessage(tr("Could not open serial device: %1\n").arg(m_codaDevice->device()->errorString()), Utils::ErrorMessageFormat);
             return false;
         }
-        connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(const SymbianUtils::SymbianDevice)),
+        connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(SymbianUtils::SymbianDevice)),
                 this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
         m_state = StateConnecting;
         m_codaDevice->sendSerialPing(false);
@@ -183,7 +183,7 @@ void CodaRunControl::slotError(const QString &error)
 void CodaRunControl::slotCodaLogMessage(const QString &log)
 {
     if (debug > 1)
-        qDebug("CODA log: %s", qPrintable(log.size()>200?log.left(200).append(QLatin1String(" ...")): log));
+        qDebug("CODA log: %s", qPrintable(log.size()>200?log.left(200).append(QLatin1String("...")): log));
 }
 
 void CodaRunControl::slotCodaEvent(const CodaEvent &event)

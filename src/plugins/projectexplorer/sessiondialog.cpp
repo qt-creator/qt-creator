@@ -140,10 +140,10 @@ SessionDialog::SessionDialog(SessionManager *sessionManager, QWidget *parent)
     connect(m_ui.btSwitch, SIGNAL(clicked()), this, SLOT(switchToSession()));
     connect(m_ui.btRename, SIGNAL(clicked()), this, SLOT(rename()));
 
-    connect(m_ui.sessionList, SIGNAL(itemDoubleClicked (QListWidgetItem *)),
+    connect(m_ui.sessionList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
             this, SLOT(switchToSession()));
 
-    connect(m_ui.sessionList, SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)),
+    connect(m_ui.sessionList, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
             this, SLOT(updateActions()));
 
     m_ui.whatsASessionLabel->setOpenExternalLinks(true);

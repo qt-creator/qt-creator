@@ -62,15 +62,18 @@ class BaseAnnotationHighlighterPrivate
 {
 public:
     ChangeNumberFormatMap m_changeNumberMap;
+    QColor m_background;
 };
 
 } // namespace Internal
 
 BaseAnnotationHighlighter::BaseAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                             QTextDocument *document) :
+                                                     const QColor &bg,
+                                                     QTextDocument *document) :
     TextEditor::SyntaxHighlighter(document),
     d(new Internal::BaseAnnotationHighlighterPrivate)
 {
+    d->m_background = bg;
     setChangeNumbers(changeNumbers);
 }
 
@@ -81,6 +84,7 @@ BaseAnnotationHighlighter::~BaseAnnotationHighlighter()
 
 void BaseAnnotationHighlighter::setChangeNumbers(const ChangeNumbers &changeNumbers)
 {
+    QColor bg = d->m_background;
     d->m_changeNumberMap.clear();
     if (!changeNumbers.isEmpty()) {
         // Assign a color gradient to annotation change numbers. Give
@@ -89,10 +93,16 @@ void BaseAnnotationHighlighter::setChangeNumbers(const ChangeNumbers &changeNumb
         const int step = qRound(ceil(pow(double(changeNumbers.count()), oneThird)));
         QList<QColor> colors;
         const int factor = 255 / step;
-        for (int i=0; i<step; ++i)
-            for (int j=0; j<step; ++j)
-                for (int k=0; k<step; ++k)
-                    colors.append(QColor(i*factor, j*factor, k*factor));
+        int half = factor / 2;
+        for (int i=0; i<=step; ++i)
+            for (int j=0; j<=step; ++j)
+                for (int k=0; k<=step; ++k) {
+                    QColor c(i*factor, j*factor, k*factor);
+                    if ((bg.red() - half > c.red() ||bg.red() + half <= c.red())
+                            && (bg.green() - half > c.green() || bg.green() + half <= c.green())
+                            && (bg.blue() - half > c.blue() || bg.blue() + half <= c.blue()))
+                        colors.prepend(c);
+                }
 
         int m = 0;
         const int cstep = colors.count() / changeNumbers.count();
@@ -114,6 +124,12 @@ void BaseAnnotationHighlighter::highlightBlock(const QString &text)
     const ChangeNumberFormatMap::const_iterator it = d->m_changeNumberMap.constFind(change);
     if (it != d->m_changeNumberMap.constEnd())
         setFormat(0, text.length(), it.value());
+}
+
+void BaseAnnotationHighlighter::setBackgroundColor(const QColor &color)
+{
+    d->m_background = color;
+    setChangeNumbers(d->m_changeNumberMap.keys().toSet());
 }
 
 } // namespace VcsBase

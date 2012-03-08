@@ -59,6 +59,7 @@ private Q_SLOTS:
     void functionExpression3();
     void functionExpression4();
     void functionExpression5();
+    void functionExpression6();
     void propertyDeclarations();
     void signalDeclarations();
     void ifBinding1();
@@ -398,12 +399,12 @@ void tst_QMLCodeFormatter::functionExpression2()
     data << Line("Rectangle {")
          << Line("    function foo(a, b, c) {")
          << Line("        foo(1, 123456, function() {")
-         << Line("                           b;")
-         << Line("                       })")
+         << Line("            b;")
+         << Line("        })")
          << Line("        foo(1, 123456, function()")
-         << Line("                       {")
-         << Line("                           b;")
-         << Line("                       })")
+         << Line("        {")
+         << Line("            b;")
+         << Line("        })")
          << Line("        foobar(1, 123456,")
          << Line("               function () {")
          << Line("                   b;")
@@ -482,6 +483,30 @@ void tst_QMLCodeFormatter::functionExpression5()
          << Line("    property var foo: function()")
          << Line("    {")
          << Line("        bar = 2")
+         << Line("    }")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::functionExpression6()
+{
+    QList<Line> data;
+    data << Line("Rectangle {")
+         << Line("    property var foo: {")
+         << Line("        functioncall(1, 2, function() {")
+         << Line("            a()")
+         << Line("        }, function() {")
+         << Line("            a()")
+         << Line("        }, 6,")
+         << Line("        7)")
+         << Line("        functioncall(1, 2,")
+         << Line("                     function() {")
+         << Line("                         a()")
+         << Line("                     }, 3, function() {")
+         << Line("                         a()")
+         << Line("                     }, 6,")
+         << Line("                     7)")
          << Line("    }")
          << Line("}")
          ;

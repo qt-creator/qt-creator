@@ -77,7 +77,7 @@ ExamplesListModel::ExamplesListModel(QObject *parent) :
 
     connect(Core::HelpManager::instance(), SIGNAL(setupFinished()),
             SLOT(helpInitialized()));
-    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>)),
+    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
             this, SLOT(handleQtVersionsChanged()));
 }
 

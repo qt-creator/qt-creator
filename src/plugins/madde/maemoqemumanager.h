@@ -82,7 +82,7 @@ signals:
     void qemuProcessStatus(QemuStatus, const QString &error = QString());
 
 private slots:
-    void qtVersionsChanged(const QList<int> &uniqueIds);
+    void qtVersionsChanged(const QList<int> &addedIds, const QList<int> &removedIds, const QList<int> &changed);
 
     void projectAdded(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);

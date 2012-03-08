@@ -577,8 +577,8 @@ IAnalyzerEngine *CallgrindToolPrivate::createEngine(const AnalyzerStartParameter
 {
     CallgrindEngine *engine = new CallgrindEngine(q, sp, runConfiguration);
 
-    connect(engine, SIGNAL(parserDataReady(CallgrindEngine *)),
-            SLOT(takeParserData(CallgrindEngine *)));
+    connect(engine, SIGNAL(parserDataReady(CallgrindEngine*)),
+            SLOT(takeParserData(CallgrindEngine*)));
     connect(engine, SIGNAL(starting(const Analyzer::IAnalyzerEngine*)),
             SLOT(engineStarting(const Analyzer::IAnalyzerEngine*)));
     connect(engine, SIGNAL(finished()),

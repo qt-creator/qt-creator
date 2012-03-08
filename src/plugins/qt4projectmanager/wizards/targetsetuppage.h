@@ -111,10 +111,14 @@ signals:
 
 private slots:
     void newImportBuildConfiguration(const BuildConfigurationInfo &info);
+    void qtVersionsChanged(const QList<int> &added, const QList<int> &removed, const QList<int> &changed);
 
 private:
     void setupImportInfos();
     void cleanupImportInfos();
+    void replaceQtVersionWithQtVersion(int oldId, int newId);
+    void replaceTemporaryQtVersion(QtSupport::BaseQtVersion *version, int id);
+    void replaceQtVersionWithTemporaryQtVersion(int id, QtSupport::BaseQtVersion *version);
     void setupWidgets();
     void deleteWidgets();
 
@@ -132,8 +136,9 @@ private:
     QHash<Qt4TargetSetupWidget *, Qt4BaseTargetFactory *> m_factories;
 
     QSpacerItem *m_spacer;
+    bool m_ignoreQtVersionChange;
     Internal::Ui::TargetSetupPage *m_ui;
-    QList<BuildConfigurationInfo> m_importInfos;
+    QList<BuildConfigurationInfo> m_importInfos; // This owns the temporary qt versions
 };
 
 } // namespace Qt4ProjectManager

@@ -92,7 +92,7 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
 
     toolChain->addToEnvironment(m_environment);
 
-    log(QCoreApplication::translate("QtVersion", "Building helper(s) with toolchain '%1' ...\n"
+    log(QCoreApplication::translate("QtVersion", "Building helper(s) with toolchain '%1'...\n"
                                     ).arg(toolChain->displayName()), QString());
 
     if (toolChain->targetAbi().os() == Abi::LinuxOS

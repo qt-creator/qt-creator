@@ -297,9 +297,9 @@ QString HelpExtractor::resolveDocUrl(const QString &name)
     QString fileName = info[name]["filename"];
 
     if (category == "demos")
-        return helpRootUrl + "demos-" + fileName.replace("/", "-") + ".html";
+        return helpRootUrl + "demos-" + fileName.replace(QLatin1Char('/'), QLatin1Char('-')) + ".html";
     else
-        return helpRootUrl + dirName.replace("/", "-") + "-" + fileName + ".html";
+        return helpRootUrl + dirName.replace(QLatin1Char('/'), QLatin1Char('-')) + QLatin1Char('-') + fileName + ".html";
 }
 
 

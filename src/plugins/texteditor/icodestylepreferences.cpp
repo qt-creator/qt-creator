@@ -192,8 +192,8 @@ void ICodeStylePreferences::setCurrentDelegate(ICodeStylePreferences *delegate)
                    this, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)));
         disconnect(d->m_currentDelegate, SIGNAL(currentValueChanged(QVariant)),
                    this, SIGNAL(currentValueChanged(QVariant)));
-        disconnect(d->m_currentDelegate, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences *)),
-                   this, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences *)));
+        disconnect(d->m_currentDelegate, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences*)),
+                   this, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences*)));
     }
     d->m_currentDelegate = delegate;
     if (d->m_currentDelegate) {
@@ -201,8 +201,8 @@ void ICodeStylePreferences::setCurrentDelegate(ICodeStylePreferences *delegate)
                    this, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)));
         connect(d->m_currentDelegate, SIGNAL(currentValueChanged(QVariant)),
                 this, SIGNAL(currentValueChanged(QVariant)));
-        connect(d->m_currentDelegate, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences *)),
-                   this, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences *)));
+        connect(d->m_currentDelegate, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences*)),
+                   this, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences*)));
     }
     emit currentDelegateChanged(d->m_currentDelegate);
     emit currentPreferencesChanged(currentPreferences());

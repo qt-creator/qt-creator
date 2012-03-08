@@ -107,10 +107,10 @@ QDeclarativeViewInspector::QDeclarativeViewInspector(QDeclarativeView *view, QOb
             SIGNAL(objectCreationRequested(QString,QObject*,QStringList,QString,int)),
             data.data(), SLOT(_q_createQmlObject(QString,QObject*,QStringList,QString,int)));
     connect(data->debugService,
-            SIGNAL(objectDeletionRequested(QObject *)), data.data(), SLOT(_q_deleteQmlObject(QObject *)));
+            SIGNAL(objectDeletionRequested(QObject*)), data.data(), SLOT(_q_deleteQmlObject(QObject*)));
     connect(data->debugService,
-            SIGNAL(objectReparentRequested(QObject *, QObject *)),
-            data.data(), SLOT(_q_reparentQmlObject(QObject *, QObject *)));
+            SIGNAL(objectReparentRequested(QObject*,QObject*)),
+            data.data(), SLOT(_q_reparentQmlObject(QObject*,QObject*)));
     connect(data->debugService, SIGNAL(clearComponentCacheRequested()),
             data.data(), SLOT(_q_clearComponentCache()));
     connect(data->view, SIGNAL(statusChanged(QDeclarativeView::Status)),

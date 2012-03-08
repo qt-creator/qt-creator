@@ -396,7 +396,7 @@ ContextPaneWidget* QmlContextPane::contextWidget()
         m_widget = new ContextPaneWidget;
         connect(m_widget.data(), SIGNAL(propertyChanged(QString,QVariant)), this, SLOT(onPropertyChanged(QString,QVariant)));
         connect(m_widget.data(), SIGNAL(removeProperty(QString)), this, SLOT(onPropertyRemoved(QString)));
-        connect(m_widget.data(), SIGNAL(removeAndChangeProperty(QString,QString,QVariant, bool)), this, SLOT(onPropertyRemovedAndChange(QString,QString,QVariant, bool)));
+        connect(m_widget.data(), SIGNAL(removeAndChangeProperty(QString,QString,QVariant,bool)), this, SLOT(onPropertyRemovedAndChange(QString,QString,QVariant,bool)));
         connect(m_widget.data(), SIGNAL(enabledChanged(bool)), this, SLOT(onEnabledChanged(bool)));
         connect(m_widget.data(), SIGNAL(pinnedChanged(bool)), this, SLOT(onPinnedChanged(bool)));
     }

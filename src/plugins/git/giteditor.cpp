@@ -116,9 +116,10 @@ VcsBase::DiffHighlighter *GitEditor::createDiffHighlighter() const
     return new VcsBase::DiffHighlighter(filePattern);
 }
 
-VcsBase::BaseAnnotationHighlighter *GitEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighter *GitEditor::createAnnotationHighlighter(const QSet<QString> &changes,
+                                                                           const QColor &bg) const
 {
-    return new GitAnnotationHighlighter(changes);
+    return new GitAnnotationHighlighter(changes, bg);
 }
 
 QString GitEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) const

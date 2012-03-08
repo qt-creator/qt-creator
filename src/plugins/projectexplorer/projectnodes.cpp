@@ -300,8 +300,8 @@ void ProjectNode::registerWatcher(NodesWatcher *watcher)
 {
     if (!watcher)
         return;
-    connect(watcher, SIGNAL(destroyed(QObject *)),
-            this, SLOT(watcherDestroyed(QObject *)));
+    connect(watcher, SIGNAL(destroyed(QObject*)),
+            this, SLOT(watcherDestroyed(QObject*)));
     m_watchers.append(watcher);
     foreach (ProjectNode *subProject, m_subProjectNodes)
         subProject->registerWatcher(watcher);

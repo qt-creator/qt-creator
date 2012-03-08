@@ -127,7 +127,7 @@ void MaemoPublisherFremantleFree::createPackage()
     m_tmpProjectDir = tmpDirContainer() + QLatin1Char('/')
         + m_project->displayName();
     if (QFileInfo(tmpDirContainer()).exists()) {
-        emit progressReport(tr("Removing left-over temporary directory ..."));
+        emit progressReport(tr("Removing left-over temporary directory..."));
         QString error;
         if (!Utils::FileUtils::removeRecursively(tmpDirContainer(), &error)) {
             finishWithFailure(tr("Error removing temporary directory: %1").arg(error),
@@ -136,7 +136,7 @@ void MaemoPublisherFremantleFree::createPackage()
         }
     }
 
-    emit progressReport(tr("Setting up temporary directory ..."));
+    emit progressReport(tr("Setting up temporary directory..."));
     if (!QDir::temp().mkdir(QFileInfo(tmpDirContainer()).fileName())) {
         finishWithFailure(tr("Error: Could not create temporary directory."),
             tr("Publishing failed: Could not create source package."));
@@ -160,7 +160,7 @@ void MaemoPublisherFremantleFree::createPackage()
         return;
     }
 
-    emit progressReport(tr("Cleaning up temporary directory ..."));
+    emit progressReport(tr("Cleaning up temporary directory..."));
     AbstractMaemoPackageCreationStep::preparePackagingProcess(m_process,
             m_buildConfig, m_tmpProjectDir);
     setState(RunningQmake);
@@ -398,7 +398,7 @@ void MaemoPublisherFremantleFree::uploadPackage()
     connect(m_uploader, SIGNAL(processClosed(int)), SLOT(handleUploadJobFinished(int)));
     connect(m_uploader, SIGNAL(processOutputAvailable(QByteArray)),
         SLOT(handleScpStdOut(QByteArray)));
-    emit progressReport(tr("Starting scp ..."));
+    emit progressReport(tr("Starting scp..."));
     setState(StartingScp);
     m_uploader->run("scp -td " + m_remoteDir.toUtf8(), m_sshParams);
 }
@@ -450,7 +450,7 @@ void MaemoPublisherFremantleFree::prepareToSendFile()
 
     setState(PreparingToUploadFile);
     const QString &nextFilePath = m_filesToUpload.first();
-    emit progressReport(tr("Uploading file %1 ...")
+    emit progressReport(tr("Uploading file %1...")
         .arg(QDir::toNativeSeparators(nextFilePath)));
     QFileInfo info(nextFilePath);
     m_uploader->writeDataToProcess("C0644 " + QByteArray::number(info.size())

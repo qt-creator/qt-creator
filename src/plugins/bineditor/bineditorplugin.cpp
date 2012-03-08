@@ -194,7 +194,7 @@ public:
     {
         m_editor = parent;
         connect(m_editor, SIGNAL(dataRequested(Core::IEditor*,quint64)),
-            this, SLOT(provideData(Core::IEditor *, quint64)));
+            this, SLOT(provideData(Core::IEditor*,quint64)));
         connect(m_editor, SIGNAL(newRangeRequested(Core::IEditor*,quint64)),
             this, SLOT(provideNewRange(Core::IEditor*,quint64)));
         connect(m_editor, SIGNAL(startOfFileRequested(Core::IEditor*)), this,
@@ -535,8 +535,8 @@ bool BinEditorPlugin::initialize(const QStringList &arguments, QString *errorMes
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    connect(Core::ICore::instance(), SIGNAL(contextAboutToChange(Core::IContext *)),
-        this, SLOT(updateCurrentEditor(Core::IContext *)));
+    connect(Core::ICore::instance(), SIGNAL(contextAboutToChange(Core::IContext*)),
+        this, SLOT(updateCurrentEditor(Core::IContext*)));
 
     addAutoReleasedObject(new BinEditorFactory(this));
     addAutoReleasedObject(new BinEditorWidgetFactory);

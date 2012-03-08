@@ -1974,18 +1974,18 @@ void tst_Dumpers::dumpQObjectSignal()
     // Case 3: QAbstractItemModel with connections to itself and to another
     //         object, using different connection types.
     qRegisterMetaType<QModelIndex>("QModelIndex");
-    connect(&m, SIGNAL(columnsAboutToBeInserted(const QModelIndex &, int, int)),
+    connect(&m, SIGNAL(columnsAboutToBeInserted(QModelIndex,int,int)),
             &o, SLOT(deleteLater()), Qt::DirectConnection);
-    connect(&m, SIGNAL(columnsAboutToBeRemoved(const QModelIndex &, int, int)),
+    connect(&m, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
             &m, SLOT(revert()), Qt::QueuedConnection);
-    connect(&m, SIGNAL(columnsAboutToBeRemoved(const QModelIndex &, int, int)),
+    connect(&m, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
             &m, SLOT(submit()), Qt::QueuedConnection);
-    connect(&m, SIGNAL(columnsInserted(const QModelIndex &, int, int)),
+    connect(&m, SIGNAL(columnsInserted(QModelIndex,int,int)),
             &m, SLOT(submit()), Qt::BlockingQueuedConnection);
-    connect(&m, SIGNAL(columnsRemoved(const QModelIndex &, int, int)),
+    connect(&m, SIGNAL(columnsRemoved(QModelIndex,int,int)),
             &m, SLOT(deleteLater()), Qt::AutoConnection);
 #if QT_VERSION >= 0x040600
-    connect(&m, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
+    connect(&m, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             &m, SLOT(revert()), Qt::UniqueConnection);
 #endif
     for (int signalIndex = 0; signalIndex < 17; ++signalIndex)
@@ -2059,15 +2059,15 @@ void tst_Dumpers::dumpQObjectSignalList()
     // Case 3: QAbstractItemModel with connections to itself and to another
     //         object, using different connection types.
     qRegisterMetaType<QModelIndex>("QModelIndex");
-    connect(&m, SIGNAL(columnsAboutToBeInserted(QModelIndex, int, int)),
+    connect(&m, SIGNAL(columnsAboutToBeInserted(QModelIndex,int,int)),
             &o, SLOT(deleteLater()), Qt::DirectConnection);
-    connect(&m, SIGNAL(columnsAboutToBeRemoved(QModelIndex, int, int)),
+    connect(&m, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
             &m, SLOT(revert()), Qt::QueuedConnection);
-    connect(&m, SIGNAL(columnsAboutToBeRemoved(QModelIndex, int, int)),
+    connect(&m, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
             &m, SLOT(submit()), Qt::QueuedConnection);
-    connect(&m, SIGNAL(columnsInserted(QModelIndex, int, int)),
+    connect(&m, SIGNAL(columnsInserted(QModelIndex,int,int)),
             &m, SLOT(submit()), Qt::BlockingQueuedConnection);
-    connect(&m, SIGNAL(columnsRemoved(QModelIndex, int, int)),
+    connect(&m, SIGNAL(columnsRemoved(QModelIndex,int,int)),
             &m, SLOT(deleteLater()), Qt::AutoConnection);
 
     testDumper(expected << "1" << "1" << "2" << "1" << "0" << "0",
@@ -2125,18 +2125,18 @@ void tst_Dumpers::dumpQObjectSlot()
     // Case 3: QAbstractItemModel with connections to itself and to another
     //         o, using different connection types.
     qRegisterMetaType<QModelIndex>("QModelIndex");
-    connect(&m, SIGNAL(columnsAboutToBeInserted(QModelIndex, int, int)),
+    connect(&m, SIGNAL(columnsAboutToBeInserted(QModelIndex,int,int)),
             &o, SLOT(deleteLater()), Qt::DirectConnection);
-    connect(&o, SIGNAL(destroyed(QObject *)),
+    connect(&o, SIGNAL(destroyed(QObject*)),
             &m, SLOT(revert()), Qt::QueuedConnection);
-    connect(&m, SIGNAL(columnsAboutToBeRemoved(QModelIndex, int, int)),
+    connect(&m, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
             &m, SLOT(submit()), Qt::QueuedConnection);
-    connect(&m, SIGNAL(columnsInserted(QModelIndex, int, int)),
+    connect(&m, SIGNAL(columnsInserted(QModelIndex,int,int)),
             &m, SLOT(submit()), Qt::BlockingQueuedConnection);
-    connect(&m, SIGNAL(columnsRemoved(QModelIndex, int, int)),
+    connect(&m, SIGNAL(columnsRemoved(QModelIndex,int,int)),
             &m, SLOT(deleteLater()), Qt::AutoConnection);
 #if QT_VERSION >= 0x040600
-    connect(&m, SIGNAL(dataChanged(QModelIndex, QModelIndex)),
+    connect(&m, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             &m, SLOT(revert()), Qt::UniqueConnection);
 #endif
     expected = QByteArray("addr='$A',numchild='1',type='$T',"
@@ -2175,17 +2175,17 @@ void tst_Dumpers::dumpQObjectSlotList()
     // Case 3: QAbstractItemModel with connections to itself and to another
     //         object, using different connection types.
     qRegisterMetaType<QModelIndex>("QModelIndex");
-    connect(&m, SIGNAL(columnsAboutToBeInserted(QModelIndex, int, int)),
+    connect(&m, SIGNAL(columnsAboutToBeInserted(QModelIndex,int,int)),
             &o, SLOT(deleteLater()), Qt::DirectConnection);
-    connect(&m, SIGNAL(columnsAboutToBeRemoved(QModelIndex, int, int)),
+    connect(&m, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
             &m, SLOT(revert()), Qt::QueuedConnection);
-    connect(&m, SIGNAL(columnsAboutToBeRemoved(QModelIndex, int, int)),
+    connect(&m, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
             &m, SLOT(submit()), Qt::QueuedConnection);
-    connect(&m, SIGNAL(columnsInserted(QModelIndex, int, int)),
+    connect(&m, SIGNAL(columnsInserted(QModelIndex,int,int)),
             &m, SLOT(submit()), Qt::BlockingQueuedConnection);
-    connect(&m, SIGNAL(columnsRemoved(QModelIndex, int, int)),
+    connect(&m, SIGNAL(columnsRemoved(QModelIndex,int,int)),
             &m, SLOT(deleteLater()), Qt::AutoConnection);
-    connect(&o, SIGNAL(destroyed(QObject *)), &m, SLOT(submit()));
+    connect(&o, SIGNAL(destroyed(QObject*)), &m, SLOT(submit()));
     testDumper("numchild='4',value='<4 items>',type='$T',"
         "children=[{name='2',value='deleteLater()',numchild='0',"
             "addr='$A',type='" NS "QObjectSlot'},"

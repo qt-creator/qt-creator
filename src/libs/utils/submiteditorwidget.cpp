@@ -420,7 +420,7 @@ void SubmitEditorWidget::setFileModel(QAbstractItemModel *model)
             this, SLOT(updateSubmitAction()));
     connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
             this, SLOT(updateSubmitAction()));
-    connect(d->m_ui.fileView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
+    connect(d->m_ui.fileView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(updateDiffAction()));
     updateActions();
 }

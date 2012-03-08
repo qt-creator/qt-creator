@@ -36,7 +36,6 @@
 #include "protocol.h"
 
 namespace CodePaster {
-class PasteBinDotComSettings;
 
 class PasteBinDotComProtocol : public NetworkProtocol
 {
@@ -48,8 +47,6 @@ public:
     QString name() const { return protocolName(); }
 
     virtual unsigned capabilities() const;
-    bool hasSettings() const { return true; }
-    Core::IOptionsPage *settingsPage() const;
 
     virtual void fetch(const QString &id);
     virtual void paste(const QString &text,
@@ -64,13 +61,7 @@ public slots:
     void pasteFinished();
     void listFinished();
 
-protected:
-    virtual bool checkConfiguration(QString *errorMessage = 0);
-
 private:
-    QString hostName(bool withSubDomain) const;
-
-    PasteBinDotComSettings *m_settings;
     QNetworkReply *m_fetchReply;
     QNetworkReply *m_pasteReply;
     QNetworkReply *m_listReply;

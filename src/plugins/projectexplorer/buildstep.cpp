@@ -136,6 +136,7 @@ BuildStep::BuildStep(BuildStepList *bsl, BuildStep *bs) :
     ProjectConfiguration(bsl, bs), m_enabled(bs->m_enabled)
 {
     Q_ASSERT(bsl);
+    setDisplayName(bs->displayName());
 }
 
 BuildStep::~BuildStep()

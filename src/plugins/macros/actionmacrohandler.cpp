@@ -61,8 +61,8 @@ static quint8 ACTIONNAME = 0;
 ActionMacroHandler::ActionMacroHandler():
     m_mapper(new QSignalMapper(this))
 {
-    connect(m_mapper, SIGNAL(mapped(const QString &)),
-            this, SLOT(addActionEvent(const QString &)));
+    connect(m_mapper, SIGNAL(mapped(QString)),
+            this, SLOT(addActionEvent(QString)));
 
     const Core::ActionManager *am = Core::ICore::actionManager();
     connect(am, SIGNAL(commandAdded(QString)),

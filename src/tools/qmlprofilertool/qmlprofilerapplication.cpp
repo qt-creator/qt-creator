@@ -111,11 +111,11 @@ QmlProfilerApplication::~QmlProfilerApplication()
 {
     if (!m_process)
         return;
-    logStatus("Terminating process ...");
+    logStatus("Terminating process...");
     m_process->disconnect();
     m_process->terminate();
     if (!m_process->waitForFinished(1000)) {
-        logStatus("Killing process ...");
+        logStatus("Killing process...");
         m_process->kill();
     }
     delete m_process;
@@ -193,7 +193,7 @@ void QmlProfilerApplication::printCommands()
 
 QString QmlProfilerApplication::traceFileName() const
 {
-    QString fileName = m_tracePrefix + "_" +
+    QString fileName = m_tracePrefix + QLatin1Char('_') +
             QDateTime::currentDateTime().toString(QLatin1String("yyMMdd_hhmmss")) + TraceFileExtension;
     if (QFileInfo(fileName).exists()) {
         QString baseName;
@@ -247,7 +247,7 @@ void QmlProfilerApplication::run()
         m_process->setProcessChannelMode(QProcess::MergedChannels);
         connect(m_process, SIGNAL(readyRead()), this, SLOT(processHasOutput()));
         connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished()));
-        logStatus(QString("Starting '%1 %2' ...").arg(m_programPath, arguments.join(" ")));
+        logStatus(QString("Starting '%1 %2'...").arg(m_programPath, arguments.join(" ")));
         m_process->start(m_programPath, arguments);
         if (!m_process->waitForStarted()) {
             logError(QString("Could not run '%1': %2").arg(m_programPath, m_process->errorString()));
@@ -265,12 +265,12 @@ void QmlProfilerApplication::tryToConnect()
 
     if (!m_verbose && !(m_connectionAttempts % 5)) {// print every 5 seconds
         if (!m_verbose)
-            logError(QString("Could not connect to %1:%2 for %3 seconds ...").arg(
+            logError(QString("Could not connect to %1:%2 for %3 seconds...").arg(
                          m_hostName, QString::number(m_port), QString::number(m_connectionAttempts)));
     }
 
     if (m_connection.state() == QAbstractSocket::UnconnectedState) {
-        logStatus(QString("Connecting to %1:%2 ...").arg(m_hostName, QString::number(m_port)));
+        logStatus(QString("Connecting to %1:%2...").arg(m_hostName, QString::number(m_port)));
         m_connection.connectToHost(m_hostName, m_port);
     }
 }
@@ -321,7 +321,7 @@ void QmlProfilerApplication::processFinished()
             exit(0);
         }
     } else {
-        logError("Process crashed! Exiting ...");
+        logError("Process crashed! Exiting...");
         exit(3);
     }
 }

@@ -129,12 +129,12 @@ int HistoryListModel::rowCount(const QModelIndex &parent) const
         if (qobject_cast<QLineEdit *>(lastSeenWidget))
             // this will result in spamming the history with garbage in some corner cases.
             // not my idea.
-            disconnect(lastSeenWidget, SIGNAL(editingFinished ()), completer, SLOT(saveHistory()));
+            disconnect(lastSeenWidget, SIGNAL(editingFinished()), completer, SLOT(saveHistory()));
         HistoryListModel *that = const_cast<HistoryListModel *>(this);
         that->lastSeenWidget = completer->widget();
         that->fetchHistory();
         if (qobject_cast<QLineEdit *>(lastSeenWidget))
-            connect(lastSeenWidget, SIGNAL(editingFinished ()), completer, SLOT(saveHistory()));
+            connect(lastSeenWidget, SIGNAL(editingFinished()), completer, SLOT(saveHistory()));
     }
     if (parent.isValid())
         return 0;

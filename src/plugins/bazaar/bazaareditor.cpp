@@ -101,9 +101,10 @@ VcsBase::DiffHighlighter *BazaarEditor::createDiffHighlighter() const
     return new VcsBase::DiffHighlighter(m_diffFileId);
 }
 
-VcsBase::BaseAnnotationHighlighter *BazaarEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighter *BazaarEditor::createAnnotationHighlighter(const QSet<QString> &changes,
+                                                                              const QColor &bg) const
 {
-    return new BazaarAnnotationHighlighter(changes);
+    return new BazaarAnnotationHighlighter(changes, bg);
 }
 
 QString BazaarEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) const

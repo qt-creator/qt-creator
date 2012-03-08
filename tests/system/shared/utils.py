@@ -100,24 +100,35 @@ def which(program):
     def is_exe(fpath):
         return os.path.exists(fpath) and os.access(fpath, os.X_OK)
 
+    def callableFile(path):
+        if is_exe(path):
+            return path
+        if platform.system() in ('Windows', 'Microsoft'):
+            for suffix in suffixes.split(os.pathsep):
+                if is_exe(path + suffix):
+                    return path + suffix
+        return None
+
+    if platform.system() in ('Windows', 'Microsoft'):
+        suffixes = os.getenv("PATHEXT")
+        if not suffixes:
+            test.fatal("Can't read environment variable PATHEXT. Please check your installation.")
+            suffixes = ""
+
     fpath, fname = os.path.split(program)
     if fpath:
-        if is_exe(program):
-            return program
-        if platform.system() in ('Windows', 'Microsoft'):
-            if is_exe(program + ".exe"):
-                return program  + ".exe"
-
+        return callableFile(program)
     else:
+        if platform.system() in ('Windows', 'Microsoft'):
+            cf = callableFile(os.getcwd() + os.sep + program)
+            if cf:
+                return cf
         for path in os.environ["PATH"].split(os.pathsep):
             exe_file = os.path.join(path, program)
-            if is_exe(exe_file):
-                return exe_file
-            if platform.system() in ('Windows', 'Microsoft'):
-                if is_exe(exe_file + ".exe"):
-                    return exe_file  + ".exe"
-
-    return None
+            cf = callableFile(exe_file)
+            if cf:
+                return cf
+        return None
 
 signalObjects = {}
 

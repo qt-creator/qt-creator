@@ -186,7 +186,7 @@ void SymbolsFindFilter::startSearch(Find::SearchResult *search)
     connect(watcher, SIGNAL(finished()),
             this, SLOT(finish()));
     connect(watcher, SIGNAL(resultsReadyAt(int,int)),
-            this, SLOT(addResults(int, int)));
+            this, SLOT(addResults(int,int)));
     watcher->setFuture(QtConcurrent::run<Find::SearchResultItem, SymbolsFindParameters,
                        CPlusPlus::Snapshot, QSet<QString> >(runSearch, parameters,
                                                     m_manager->snapshot(), projectFileNames));

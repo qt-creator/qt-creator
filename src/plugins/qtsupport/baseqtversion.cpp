@@ -552,7 +552,7 @@ QString BaseQtVersion::findQtBinary(Binaries binary) const
         ensureMkSpecParsed();
         switch (binary) {
         case QmlViewer:
-            baseDir = m_mkspecValues.value(QLatin1String("QT.declarative.bins"));
+            baseDir = m_mkspecValues.value(QLatin1String("QT.qml.bins"));
             break;
         case Designer:
         case Linguist:
@@ -712,7 +712,7 @@ void BaseQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
             m_defaultConfigIsDebugAndRelease = true;
     }
     const QString designerBins = QLatin1String("QT.designer.bins");
-    const QString declarativeBins = QLatin1String("QT.declarative.bins");
+    const QString declarativeBins = QLatin1String("QT.qml.bins");
     m_mkspecValues.insert(designerBins, evaluator->value(designerBins));
     m_mkspecValues.insert(declarativeBins, evaluator->value(declarativeBins));
 }

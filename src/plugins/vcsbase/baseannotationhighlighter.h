@@ -48,13 +48,15 @@ class VCSBASE_EXPORT BaseAnnotationHighlighter : public TextEditor::SyntaxHighli
 public:
     typedef  QSet<QString> ChangeNumbers;
 
-    explicit BaseAnnotationHighlighter(const ChangeNumbers &changeNumbers,
+    explicit BaseAnnotationHighlighter(const ChangeNumbers &changeNumbers, const QColor &bg,
                                        QTextDocument *document = 0);
     virtual ~BaseAnnotationHighlighter();
 
     void setChangeNumbers(const ChangeNumbers &changeNumbers);
 
     virtual void highlightBlock(const QString &text);
+
+    void setBackgroundColor(const QColor &color);
 
 private:
     // Implement this to return the change number of a line

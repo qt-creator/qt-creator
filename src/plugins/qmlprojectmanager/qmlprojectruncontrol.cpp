@@ -69,7 +69,7 @@ QmlProjectRunControl::QmlProjectRunControl(QmlProjectRunConfiguration *runConfig
     m_mainQmlFile = runConfiguration->mainScript();
 
     connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
-            this, SLOT(slotAppendMessage(QString, Utils::OutputFormat)));
+            this, SLOT(slotAppendMessage(QString,Utils::OutputFormat)));
     connect(&m_applicationLauncher, SIGNAL(processExited(int)),
             this, SLOT(processExited(int)));
     connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),

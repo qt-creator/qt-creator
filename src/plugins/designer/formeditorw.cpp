@@ -202,10 +202,10 @@ FormEditorW::FormEditorW() :
         m_settingsPages.append(settingsPage);
     }
 
-    connect(Core::ICore::editorManager(), SIGNAL(currentEditorChanged(Core::IEditor *)),
-            this, SLOT(currentEditorChanged(Core::IEditor *)));
-    connect(m_shortcutMapper, SIGNAL(mapped(QObject *)),
-            this, SLOT(updateShortcut(QObject *)));
+    connect(Core::ICore::editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+            this, SLOT(currentEditorChanged(Core::IEditor*)));
+    connect(m_shortcutMapper, SIGNAL(mapped(QObject*)),
+            this, SLOT(updateShortcut(QObject*)));
 }
 
 FormEditorW::~FormEditorW()
@@ -606,7 +606,7 @@ void FormEditorW::setupActions()
     m_actionAboutPlugins->setEnabled(false);
 
     // FWM
-    connect(m_fwm, SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface *)), this, SLOT(activeFormWindowChanged(QDesignerFormWindowInterface *)));
+    connect(m_fwm, SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)), this, SLOT(activeFormWindowChanged(QDesignerFormWindowInterface*)));
 }
 
 QToolBar *FormEditorW::createEditorToolBar() const

@@ -108,7 +108,7 @@ void QmlProjectRunConfiguration::ctor()
             this, SLOT(changeCurrentFile(Core::IEditor*)));
 
     QtVersionManager *qtVersions = QtVersionManager::instance();
-    connect(qtVersions, SIGNAL(qtVersionsChanged(QList<int>)), this, SLOT(updateQtVersions()));
+    connect(qtVersions, SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)), this, SLOT(updateQtVersions()));
 
     setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
 }
