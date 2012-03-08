@@ -187,8 +187,8 @@ QString SshKeyGenerator::getPassword() const
     d.setWindowTitle(tr("Password for Private Key"));
     d.setLabelText(tr("It is recommended that you secure your private key\n"
         "with a password, which you can enter below."));
-    d.setOkButtonText(tr("Encrypt key file"));
-    d.setCancelButtonText(tr("Do not encrypt key file"));
+    d.setOkButtonText(tr("Encrypt Key File"));
+    d.setCancelButtonText(tr("Do Not Encrypt Key File"));
     int result = QDialog::Accepted;
     QString password;
     while (result == QDialog::Accepted && password.isEmpty()) {
