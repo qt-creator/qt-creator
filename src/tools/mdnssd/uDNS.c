@@ -101,7 +101,7 @@ mDNSlocal void SetRecordRetry(mDNS *const m, AuthRecord *rr, mDNSu32 random)
 #pragma mark - Name Server List Management
 #endif
 
-mDNSexport DNSServer *mDNS_AddDNSServer(mDNS *const m, const domainname *d, const mDNSInterfaceID interface, const mDNSAddr *addr, const mDNSIPPort port, mDNSBool scoped, mDNSu32 timeout, mDNSBool cellIntf)
+mDNSexport DNSServer *mDNS_AddDNSServer(mDNS *const m, const domainname *d, const mDNSInterfaceID interface1, const mDNSAddr *addr, const mDNSIPPort port, mDNSBool scoped, mDNSu32 timeout, mDNSBool cellIntf)
 	{
 	DNSServer **p = &m->DNSServers;
 	DNSServer *tmp = mDNSNULL;
@@ -114,16 +114,16 @@ mDNSexport DNSServer *mDNS_AddDNSServer(mDNS *const m, const domainname *d, cons
 
 	if (!d) d = (const domainname *)"";
 
-	LogInfo("mDNS_AddDNSServer: Adding %#a for %##s, InterfaceID %p, scoped %d", addr, d->c, interface, scoped);
+    LogInfo("mDNS_AddDNSServer: Adding %#a for %##s, InterfaceID %p, scoped %d", addr, d->c, interface1, scoped);
 	if (m->mDNS_busy != m->mDNS_reentrancy+1)
 		LogMsg("mDNS_AddDNSServer: Lock not held! mDNS_busy (%ld) mDNS_reentrancy (%ld)", m->mDNS_busy, m->mDNS_reentrancy);
 
 	while (*p)	// Check if we already have this {interface,address,port,domain} tuple registered
 		{
-		if ((*p)->scoped == scoped && (*p)->interface == interface && (*p)->teststate != DNSServer_Disabled &&
+        if ((*p)->scoped == scoped && (*p)->interface1 == interface1 && (*p)->teststate != DNSServer_Disabled &&
 			mDNSSameAddress(&(*p)->addr, addr) && mDNSSameIPPort((*p)->port, port) && SameDomainName(&(*p)->domain, d))
 			{
-			if (!((*p)->flags & DNSServer_FlagDelete)) debugf("Note: DNS Server %#a:%d for domain %##s (%p) registered more than once", addr, mDNSVal16(port), d->c, interface);
+            if (!((*p)->flags & DNSServer_FlagDelete)) debugf("Note: DNS Server %#a:%d for domain %##s (%p) registered more than once", addr, mDNSVal16(port), d->c, interface1);
 			(*p)->flags &= ~DNSServer_FlagDelete;
 			tmp = *p;
 			*p = tmp->next;
@@ -143,7 +143,7 @@ mDNSexport DNSServer *mDNS_AddDNSServer(mDNS *const m, const domainname *d, cons
 			{
 			NumUnicastDNSServers++;
 			(*p)->scoped	= scoped;
-			(*p)->interface = interface;
+            (*p)->interface1 = interface1;
 			(*p)->addr      = *addr;
 			(*p)->port      = port;
 			(*p)->flags     = DNSServer_FlagNew;
@@ -4215,7 +4215,7 @@ mDNSexport void uDNS_CheckCurrentQuestion(mDNS *const m)
 				    	q->qDNSServer ? &q->qDNSServer->addr : mDNSNULL, mDNSVal16(q->qDNSServer ? q->qDNSServer->port : zeroIPPort), q->unansweredQueries);
 					if (!q->LocalSocket) q->LocalSocket = mDNSPlatformUDPSocket(m, zeroIPPort);
 					if (!q->LocalSocket) err = mStatus_NoMemoryErr;	// If failed to make socket (should be very rare), we'll try again next time
-					else err = mDNSSendDNSMessage(m, &m->omsg, end, q->qDNSServer->interface, q->LocalSocket, &q->qDNSServer->addr, q->qDNSServer->port, mDNSNULL, mDNSNULL);
+                    else err = mDNSSendDNSMessage(m, &m->omsg, end, q->qDNSServer->interface1, q->LocalSocket, &q->qDNSServer->addr, q->qDNSServer->port, mDNSNULL, mDNSNULL);
 					}
 				}
 

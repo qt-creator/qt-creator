@@ -1884,7 +1884,7 @@ mDNSlocal mDNSu16 CheckSum(const void *const data, mDNSs32 length, mDNSu32 sum)
 	while (length > 0) { length -= 2; sum += *ptr++; }
 	sum = (sum & 0xFFFF) + (sum >> 16);
 	sum = (sum & 0xFFFF) + (sum >> 16);
-	return(sum != 0xFFFF ? sum : 0);
+    return (mDNSu16)(sum != 0xFFFF ? sum : 0);
 	}
 
 mDNSlocal mDNSu16 IPv6CheckSum(const mDNSv6Addr *const src, const mDNSv6Addr *const dst, const mDNSu8 protocol, const void *const data, const mDNSu32 length)
@@ -1892,10 +1892,10 @@ mDNSlocal mDNSu16 IPv6CheckSum(const mDNSv6Addr *const src, const mDNSv6Addr *co
 	IPv6PseudoHeader ph;
 	ph.src = *src;
 	ph.dst = *dst;
-	ph.len.b[0] = length >> 24;
-	ph.len.b[1] = length >> 16;
-	ph.len.b[2] = length >> 8;
-	ph.len.b[3] = length;
+    ph.len.b[0] = (0xFF & (length >> 24));
+    ph.len.b[1] = (0xFF & (length >> 16));
+    ph.len.b[2] = (0xFF & (length >> 8));
+    ph.len.b[3] = (0xFF & length);
 	ph.pro.b[0] = 0;
 	ph.pro.b[1] = 0;
 	ph.pro.b[2] = 0;
@@ -7706,23 +7706,23 @@ mDNSlocal void UpdateQuestionDuplicates(mDNS *const m, DNSQuestion *const questi
 			}
 	}
 
-mDNSexport McastResolver *mDNS_AddMcastResolver(mDNS *const m, const domainname *d, const mDNSInterfaceID interface, mDNSu32 timeout)
+mDNSexport McastResolver *mDNS_AddMcastResolver(mDNS *const m, const domainname *d, const mDNSInterfaceID interface1, mDNSu32 timeout)
 	{
 	McastResolver **p = &m->McastResolvers;
 	McastResolver *tmp = mDNSNULL;
 	
 	if (!d) d = (const domainname *)"";
 
-	LogInfo("mDNS_AddMcastResolver: Adding %##s, InterfaceID %p, timeout %u", d->c, interface, timeout);
+    LogInfo("mDNS_AddMcastResolver: Adding %##s, InterfaceID %p, timeout %u", d->c, interface1, timeout);
 
 	if (m->mDNS_busy != m->mDNS_reentrancy+1)
 		LogMsg("mDNS_AddMcastResolver: Lock not held! mDNS_busy (%ld) mDNS_reentrancy (%ld)", m->mDNS_busy, m->mDNS_reentrancy);
 
 	while (*p)	// Check if we already have this {interface, domain} tuple registered
 		{
-		if ((*p)->interface == interface && SameDomainName(&(*p)->domain, d))
+        if ((*p)->interface1 == interface1 && SameDomainName(&(*p)->domain, d))
 			{
-			if (!((*p)->flags & DNSServer_FlagDelete)) LogMsg("Note: Mcast Resolver domain %##s (%p) registered more than once", d->c, interface);
+            if (!((*p)->flags & DNSServer_FlagDelete)) LogMsg("Note: Mcast Resolver domain %##s (%p) registered more than once", d->c, interface1);
 			(*p)->flags &= ~DNSServer_FlagDelete;
 			tmp = *p;
 			*p = tmp->next;
@@ -7740,7 +7740,7 @@ mDNSexport McastResolver *mDNS_AddMcastResolver(mDNS *const m, const domainname 
 		if (!*p) LogMsg("mDNS_AddMcastResolver: ERROR!! - malloc");
 		else
 			{
-			(*p)->interface = interface;
+            (*p)->interface1 = interface1;
 			(*p)->flags     = DNSServer_FlagNew;
 			(*p)->timeout   = timeout;
 			AssignDomainName(&(*p)->domain, d);
@@ -7905,13 +7905,13 @@ mDNSexport mDNSu32 SetValidDNSServers(mDNS *m, DNSQuestion *question)
 		//
 		// Note: DNS configuration change will help pick the new dns servers but currently it does not affect the timeout
 
-		if (curr->scoped && curr->interface == mDNSInterface_Any)
+        if (curr->scoped && curr->interface1 == mDNSInterface_Any)
 			{ debugf("SetValidDNSServers: Scoped DNS server %#a (Domain %##s) with Interface Any", &curr->addr, curr->domain.c); continue; }
 
 		currcount = CountLabels(&curr->domain);
 		if ((!DEQuery || !curr->cellIntf) &&
 			((!curr->scoped && (!question->InterfaceID || (question->InterfaceID == mDNSInterface_Unicast))) ||
-			(curr->interface == question->InterfaceID)))
+            (curr->interface1 == question->InterfaceID)))
 			{
 			bettermatch = BetterMatchForName(&question->qname, namecount, &curr->domain, currcount, bestmatchlen);
 
@@ -7926,7 +7926,7 @@ mDNSexport mDNSu32 SetValidDNSServers(mDNS *m, DNSQuestion *question)
 				if (bettermatch) { debugf("SetValidDNSServers: Resetting all the bits"); question->validDNSServers = zeroOpaque64; timeout = 0; }
 				debugf("SetValidDNSServers: question %##s Setting the bit for DNS server Address %#a (Domain %##s), Scoped:%d index %d,"
 					" Timeout %d, interface %p", question->qname.c, &curr->addr, curr->domain.c, curr->scoped, index, curr->timeout,
-					curr->interface);
+                    curr->interface1);
 				timeout += curr->timeout;
 				if (DEQuery) debugf("DomainEnumQuery: Question %##s, DNSServer %#a, cell %d", question->qname.c, &curr->addr, curr->cellIntf);
 				bit_set_opaque64(question->validDNSServers, index);
@@ -7993,7 +7993,7 @@ mDNSlocal DNSServer *GetBestServer(mDNS *m, const domainname *name, mDNSInterfac
 		// is the new way of specifying an InterfaceID option for DNSServer. These will be considered
 		// only when the question has non-zero interfaceID.
 
-		if ((!curr->scoped && !InterfaceID) || (curr->interface == InterfaceID))
+        if ((!curr->scoped && !InterfaceID) || (curr->interface1 == InterfaceID))
 			{
 
 			// If we know that all the names are already equally good matches, then skip calling BetterMatchForName.
@@ -9065,7 +9065,7 @@ mDNSexport mStatus mDNS_StartResolveService(mDNS *const m,
 	query->ServiceInfoQueryContext  = Context;
 
 //	info->name      = Must already be set up by client
-//	info->interface = Must already be set up by client
+//	info->interface1 = Must already be set up by client
 	info->ip        = zeroAddr;
 	info->port      = zeroIPPort;
 	info->TXTlen    = 0;
@@ -9713,9 +9713,9 @@ mDNSexport void mDNS_DeregisterInterface(mDNS *const m, NetworkInterfaceInfo *se
 
 			// 3. Any DNS servers specific to this interface are now unusable
 			for (s = m->DNSServers; s; s = s->next)
-				if (s->interface == set->InterfaceID)
+                if (s->interface1 == set->InterfaceID)
 					{
-					s->interface = mDNSInterface_Any;
+                    s->interface1 = mDNSInterface_Any;
 					s->teststate = DNSServer_Disabled;
 					}
 			}

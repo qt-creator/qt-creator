@@ -1054,7 +1054,7 @@ enum
 typedef struct McastResolver
 	{
 	struct McastResolver *next;
-	mDNSInterfaceID interface;
+    mDNSInterfaceID interface1;
 	mDNSu32         flags;		// Set when we're planning to delete this from the list
 	domainname      domain;
 	mDNSu32         timeout;	// timeout value for questions
@@ -1063,7 +1063,7 @@ typedef struct McastResolver
 typedef struct DNSServer
 	{
 	struct DNSServer *next;
-	mDNSInterfaceID interface;	// For specialized uses; we can have DNS servers reachable over specific interfaces
+    mDNSInterfaceID interface1;	// For specialized uses; we can have DNS servers reachable over specific interfaces
 	mDNSAddr        addr;
 	mDNSIPPort      port;
 	mDNSOpaque16    testid;
@@ -2469,11 +2469,11 @@ extern void RecreateNATMappings(mDNS *const m);
 extern void mDNS_AddDynDNSHostName(mDNS *m, const domainname *fqdn, mDNSRecordCallback *StatusCallback, const void *StatusContext);
 extern void mDNS_RemoveDynDNSHostName(mDNS *m, const domainname *fqdn);
 extern void mDNS_SetPrimaryInterfaceInfo(mDNS *m, const mDNSAddr *v4addr,  const mDNSAddr *v6addr, const mDNSAddr *router);
-extern DNSServer *mDNS_AddDNSServer(mDNS *const m, const domainname *d, const mDNSInterfaceID interface, const mDNSAddr *addr, const mDNSIPPort port, mDNSBool scoped, mDNSu32 timeout, mDNSBool cellIntf);
+extern DNSServer *mDNS_AddDNSServer(mDNS *const m, const domainname *d, const mDNSInterfaceID interface1, const mDNSAddr *addr, const mDNSIPPort port, mDNSBool scoped, mDNSu32 timeout, mDNSBool cellIntf);
 extern void PenalizeDNSServer(mDNS *const m, DNSQuestion *q);
 extern void mDNS_AddSearchDomain(const domainname *const domain, mDNSInterfaceID InterfaceID);
 
-extern McastResolver *mDNS_AddMcastResolver(mDNS *const m, const domainname *d, const mDNSInterfaceID interface, mDNSu32 timeout);
+extern McastResolver *mDNS_AddMcastResolver(mDNS *const m, const domainname *d, const mDNSInterfaceID interface1, mDNSu32 timeout);
 
 // We use ((void *)0) here instead of mDNSNULL to avoid compile warnings on gcc 4.2
 #define mDNS_AddSearchDomain_CString(X, I) \
