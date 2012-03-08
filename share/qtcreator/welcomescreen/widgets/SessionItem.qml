@@ -136,9 +136,9 @@ Item {
                                 var oldIndex = 0;
                                 while (index != -1 && index < 40) {
                                     oldIndex = index;
-                                    index = path.indexOf("/", index + 1);
+                                    index = path.indexOf("/", oldIndex + 1);
                                     if (index == -1)
-                                        index = path.indexOf("\\", index + 1);
+                                        index = path.indexOf("\\", oldIndex + 1);
                                 }
                                 var newPath = path.substr(0, oldIndex + 1) + "\n"
                                         + path.substr(oldIndex + 1, path.length - oldIndex - 1);
