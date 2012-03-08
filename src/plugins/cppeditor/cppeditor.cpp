@@ -707,11 +707,14 @@ const Macro *CPPEditorWidget::findCanonicalMacro(const QTextCursor &cursor, Docu
     int line, col;
     convertPosition(cursor.position(), &line, &col);
 
-    if (const Macro *macro = doc->findMacroDefinitionAt(line))
-        return macro;
-
-    if (const Document::MacroUse *use = doc->findMacroUseAt(cursor.position()))
+    if (const Macro *macro = doc->findMacroDefinitionAt(line)) {
+        QTextCursor macroCursor = cursor;
+        const QByteArray name = identifierUnderCursor(&macroCursor).toLatin1();
+        if (macro->name() == name)
+            return macro;
+    } else if (const Document::MacroUse *use = doc->findMacroUseAt(cursor.position())) {
         return &use->macro();
+    }
 
     return 0;
 }
@@ -722,12 +725,13 @@ void CPPEditorWidget::findUsages()
     info.snapshot = CppModelManagerInterface::instance()->snapshot();
     info.snapshot.insert(info.doc);
 
-    CanonicalSymbol cs(this, info);
-    Symbol *canonicalSymbol = cs(textCursor());
-    if (canonicalSymbol) {
-        m_modelManager->findUsages(canonicalSymbol, cs.context());
-    } else if (const Macro *macro = findCanonicalMacro(textCursor(), info.doc)) {
+    if (const Macro *macro = findCanonicalMacro(textCursor(), info.doc)) {
         m_modelManager->findMacroUsages(*macro);
+    } else {
+        CanonicalSymbol cs(this, info);
+        Symbol *canonicalSymbol = cs(textCursor());
+        if (canonicalSymbol)
+            m_modelManager->findUsages(canonicalSymbol, cs.context());
     }
 }
 
@@ -1379,6 +1383,25 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
             return link;
 
         tc.setPosition(endOfToken);
+    }
+
+    // Handle macro uses
+    const Macro *macro = doc->findMacroDefinitionAt(line);
+    if (macro) {
+        QTextCursor macroCursor = cursor;
+        const QByteArray name = identifierUnderCursor(&macroCursor).toLatin1();
+        if (macro->name() == name)
+            return link;    //already on definition!
+    } else {
+        const Document::MacroUse *use = doc->findMacroUseAt(endOfToken - 1);
+        if (use && use->macro().fileName() != QLatin1String("<configuration>")) {
+            const Macro &macro = use->macro();
+            link.fileName = macro.fileName();
+            link.line = macro.line();
+            link.begin = use->begin();
+            link.end = use->end();
+            return link;
+        }
     }
 
     // Find the last symbol up to the cursor position

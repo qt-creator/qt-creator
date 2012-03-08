@@ -473,7 +473,7 @@ const Macro *Document::findMacroDefinitionAt(unsigned line) const
 const Document::MacroUse *Document::findMacroUseAt(unsigned offset) const
 {
     foreach (const Document::MacroUse &use, _macroUses) {
-        if (use.contains(offset))
+        if (use.contains(offset) && (offset < use.begin() + use.macro().name().length()))
             return &use;
     }
     return 0;
@@ -482,7 +482,7 @@ const Document::MacroUse *Document::findMacroUseAt(unsigned offset) const
 const Document::UndefinedMacroUse *Document::findUndefinedMacroUseAt(unsigned offset) const
 {
     foreach (const Document::UndefinedMacroUse &use, _undefinedMacroUses) {
-        if (use.contains(offset))
+        if (use.contains(offset) && (offset < use.begin() + use.name().length()))
             return &use;
     }
     return 0;
