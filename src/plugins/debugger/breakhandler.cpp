@@ -744,8 +744,7 @@ void BreakHandler::setEnabled(BreakpointModelId id, bool on)
     if (it->data.enabled == on)
         return;
     it->data.enabled = on;
-    it->destroyMarker();
-    it->updateMarker(id);
+    it->updateMarkerIcon();
     if (it->engine) {
         it->state = BreakpointChangeRequested;
         scheduleSynchronization();
@@ -780,8 +779,7 @@ void BreakHandler::setTracepoint(BreakpointModelId id, bool on)
     if (it->data.tracepoint == on)
         return;
     it->data.tracepoint = on;
-    it->destroyMarker();
-    it->updateMarker(id);
+    it->updateMarkerIcon();
 
     if (it->engine) {
         it->state = BreakpointChangeRequested;
@@ -1412,6 +1410,12 @@ bool BreakHandler::BreakpointItem::isLocatedAt
     return lineNumber == line
         && (fileNameMatch(fileName, response.fileName)
             || fileNameMatch(fileName, markerFileName()));
+}
+
+void BreakHandler::BreakpointItem::updateMarkerIcon()
+{
+    marker->setIcon(icon());
+    marker->updateMarker();
 }
 
 void BreakHandler::BreakpointItem::updateMarker(BreakpointModelId id)
