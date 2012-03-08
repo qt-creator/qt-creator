@@ -70,6 +70,8 @@ private slots:
     void updateSaveButton();
 
 private:
+    void adjustButtonWidths();
+
     Ui::SaveItemsDialog m_ui;
     QList<Core::IDocument*> m_itemsToSave;
 };

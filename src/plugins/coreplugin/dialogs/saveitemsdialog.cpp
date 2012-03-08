@@ -34,6 +34,7 @@
 #include "mainwindow.h"
 #include "vcsmanager.h"
 
+#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/idocument.h>
 
 #include <QDir>
@@ -42,6 +43,7 @@
 #include <QTreeWidget>
 #include <QHeaderView>
 #include <QCheckBox>
+#include <QtDebug>
 
 Q_DECLARE_METATYPE(Core::IDocument*)
 
@@ -54,10 +56,15 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
 {
     m_ui.setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    QPushButton *discardButton = m_ui.buttonBox->addButton(tr("Do not Save"), QDialogButtonBox::DestructiveRole);
+#ifdef Q_OS_MAC
+    // QDialogButtonBox's behavior for "destructive" is wrong, the "do not save" should be left-aligned
+    QDialogButtonBox::ButtonRole discardButtonRole = QDialogButtonBox::ResetRole;
+#else
+    QDialogButtonBox::ButtonRole discardButtonRole = QDialogButtonBox::DestructiveRole;
+#endif
+    QPushButton *discardButton = m_ui.buttonBox->addButton(tr("Do not Save"), discardButtonRole);
     m_ui.buttonBox->button(QDialogButtonBox::Save)->setDefault(true);
-    m_ui.buttonBox->button(QDialogButtonBox::Save)->setFocus(Qt::TabFocusReason);
-    m_ui.buttonBox->button(QDialogButtonBox::Save)->setMinimumWidth(130); // bad magic number to avoid resizing of button
+    m_ui.treeWidget->setFocus();
 
     m_ui.saveBeforeBuildCheckBox->setVisible(false);
 
@@ -74,11 +81,17 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
         }
         QTreeWidgetItem *item = new QTreeWidgetItem(m_ui.treeWidget, QStringList()
                                                     << visibleName << QDir::toNativeSeparators(directory));
+        if (!fileName.isEmpty())
+            item->setIcon(0, FileIconProvider::instance()->icon(QFileInfo(fileName)));
         item->setData(0, Qt::UserRole, qVariantFromValue(document));
     }
 
     m_ui.treeWidget->resizeColumnToContents(0);
     m_ui.treeWidget->selectAll();
+#ifdef Q_OS_MAC
+    m_ui.treeWidget->setAlternatingRowColors(true);
+#endif
+    adjustButtonWidths();
     updateSaveButton();
 
     connect(m_ui.buttonBox->button(QDialogButtonBox::Save), SIGNAL(clicked()),
@@ -106,6 +119,32 @@ void SaveItemsDialog::updateSaveButton()
         button->setEnabled(true);
         button->setText(tr("Save Selected"));
     }
+}
+
+void SaveItemsDialog::adjustButtonWidths()
+{
+    // give save button a size that all texts fit in, so it doesn't get resized
+    // Mac: make cancel + save button same size (work around dialog button box issue)
+    QStringList possibleTexts;
+    possibleTexts << tr("Save") << tr("Save All");
+    if (m_ui.treeWidget->topLevelItemCount() > 1)
+        possibleTexts << tr("Save Selected");
+    int maxTextWidth = 0;
+    QPushButton *saveButton = m_ui.buttonBox->button(QDialogButtonBox::Save);
+    foreach (const QString &text, possibleTexts) {
+        saveButton->setText(text);
+        int hint = saveButton->sizeHint().width();
+        if (hint > maxTextWidth)
+            maxTextWidth = hint;
+    }
+#ifdef Q_OS_MAC
+    QPushButton *cancelButton = m_ui.buttonBox->button(QDialogButtonBox::Cancel);
+    int cancelButtonWidth = cancelButton->sizeHint().width();
+    if (cancelButtonWidth > maxTextWidth)
+        maxTextWidth = cancelButtonWidth;
+    cancelButton->setMinimumWidth(maxTextWidth);
+#endif
+    saveButton->setMinimumWidth(maxTextWidth);
 }
 
 void SaveItemsDialog::collectItemsToSave()
