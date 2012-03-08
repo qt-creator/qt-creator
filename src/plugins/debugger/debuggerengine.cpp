@@ -1934,11 +1934,16 @@ void DebuggerEnginePrivate::handleAutoTestLine(int line)
         }
         handleAutoTestLine(line + 1);
     } else if (cmd == QLatin1String("Continue")) {
-        m_engine->showMessage(_("Continue in line %1 processed.").arg(line));
-        if (!m_breakOnError || !m_foundError)
-            m_engine->continueInferior();
-        else
-            m_foundError = false;
+        if (state() == InferiorStopOk) {
+            m_engine->showMessage(_("Continue in line %1 processed.").arg(line));
+            if (!m_breakOnError || !m_foundError)
+                m_engine->continueInferior();
+            else
+                m_foundError = false;
+        } else {
+            m_engine->showMessage(_("Auto-run aborted in line %1. State is %2.")
+                .arg(line).arg(state()));
+        }
     }
 }
 
