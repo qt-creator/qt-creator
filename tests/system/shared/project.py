@@ -204,10 +204,6 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
         available = __createProjectSelectType__("  Applications", "Qt Quick Application (from existing \.qml file)")
     else:
         available = __createProjectSelectType__("  Applications", "Qt Quick Application (Built-in elements)")
-    # This needs Qt 4.7.4 - a version we don't have for Maemo
-    # it's a hack to keep the test passing, proper version checking would be better
-    if not templateFile and QtQuickConstants.Targets.MAEMO5 in available:
-        available.remove(QtQuickConstants.Targets.MAEMO5)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
     if templateFile:
         baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
