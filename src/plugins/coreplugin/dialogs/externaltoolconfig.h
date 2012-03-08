@@ -73,7 +73,7 @@ public:
     QMap<QString, QList<ExternalTool *> > tools() const;
 
     ExternalTool *toolForIndex(const QModelIndex &modelIndex) const;
-    QString categoryForIndex(const QModelIndex &modelIndex) const;
+    QString categoryForIndex(const QModelIndex &modelIndex, bool *found) const;
     void revertTool(const QModelIndex &modelIndex);
     QModelIndex addCategory();
     QModelIndex addTool(const QModelIndex &atIndex);

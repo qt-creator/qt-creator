@@ -76,7 +76,9 @@ Qt::DropActions ExternalToolModel::supportedDropActions() const
 
 int ExternalToolModel::columnCount(const QModelIndex &parent) const
 {
-    if (!parent.isValid() || toolForIndex(parent) || !categoryForIndex(parent).isNull())
+    bool categoryFound;
+    categoryForIndex(parent, &categoryFound);
+    if (!parent.isValid() || toolForIndex(parent) || categoryFound)
         return 1;
     return 0;
 }
@@ -85,8 +87,9 @@ QVariant ExternalToolModel::data(const QModelIndex &index, int role) const
 {
     if (ExternalTool *tool = toolForIndex(index))
         return data(tool, role);
-    QString category = categoryForIndex(index);
-    if (!category.isNull())
+    bool found;
+    QString category = categoryForIndex(index, &found);
+    if (found)
         return data(category, role);
     return QVariant();
 }
@@ -124,8 +127,9 @@ QMimeData *ExternalToolModel::mimeData(const QModelIndexList &indexes) const
     QModelIndex modelIndex = indexes.first();
     ExternalTool *tool = toolForIndex(modelIndex);
     QTC_ASSERT(tool, return 0);
-    QString category = categoryForIndex(modelIndex.parent());
-    QTC_ASSERT(!category.isNull(), return 0);
+    bool found;
+    QString category = categoryForIndex(modelIndex.parent(), &found);
+    QTC_ASSERT(found, return 0);
     QMimeData *md = new QMimeData();
     QByteArray ba;
     QDataStream stream(&ba, QIODevice::WriteOnly);
@@ -143,8 +147,9 @@ bool ExternalToolModel::dropMimeData(const QMimeData *data,
     Q_UNUSED(column)
     if (action != Qt::MoveAction || !data)
         return false;
-    QString toCategory = categoryForIndex(parent);
-    QTC_ASSERT(!toCategory.isNull(), return false);
+    bool found;
+    QString toCategory = categoryForIndex(parent, &found);
+    QTC_ASSERT(found, return false);
     QByteArray ba = data->data(QLatin1String("application/qtcreator-externaltool-config"));
     if (ba.isEmpty())
         return false;
@@ -153,7 +158,6 @@ bool ExternalToolModel::dropMimeData(const QMimeData *data,
     int pos = -1;
     stream >> category;
     stream >> pos;
-    QTC_ASSERT(!category.isNull(), return false);
     QList<ExternalTool *> &items = m_tools[category];
     QTC_ASSERT(pos >= 0 && pos < items.count(), return false);
     beginRemoveRows(index(m_tools.keys().indexOf(category), 0), pos, pos);
@@ -175,8 +179,9 @@ QStringList ExternalToolModel::mimeTypes() const
 QModelIndex ExternalToolModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (column == 0 && parent.isValid()) {
-        QString category = categoryForIndex(parent);
-        if (!category.isNull()) {
+        bool found;
+        QString category = categoryForIndex(parent, &found);
+        if (found) {
             QList<ExternalTool *> items = m_tools.value(category);
             if (row < items.count()) {
                 return createIndex(row, 0, items.at(row));
@@ -210,8 +215,9 @@ int ExternalToolModel::rowCount(const QModelIndex &parent) const
     if (toolForIndex(parent)) {
         return 0;
     }
-    QString category = categoryForIndex(parent);
-    if (!category.isNull()) {
+    bool found;
+    QString category = categoryForIndex(parent, &found);
+    if (found) {
         return m_tools.value(category).count();
     }
 
@@ -222,8 +228,9 @@ Qt::ItemFlags ExternalToolModel::flags(const QModelIndex &index) const
 {
     if (toolForIndex(index))
         return TOOL_ITEM_FLAGS;
-    QString category = categoryForIndex(index);
-    if (!category.isNull()) {
+    bool found;
+    QString category = categoryForIndex(index, &found);
+    if (found) {
         if (category.isEmpty())
             return TOOLSMENU_ITEM_FLAGS;
         return CATEGORY_ITEM_FLAGS;
@@ -244,8 +251,9 @@ bool ExternalToolModel::setData(const QModelIndex &modelIndex, const QVariant &v
         emit dataChanged(modelIndex, modelIndex);
         return true;
     } else {
-        QString category = categoryForIndex(modelIndex);
-        if (!category.isNull()) {
+        bool found;
+        QString category = categoryForIndex(modelIndex, &found);
+        if (found) {
             if (string.isEmpty() || m_tools.contains(string))
                 return false;
             // rename category
@@ -287,13 +295,16 @@ ExternalTool *ExternalToolModel::toolForIndex(const QModelIndex &index) const
     return static_cast<ExternalTool *>(index.internalPointer());
 }
 
-QString ExternalToolModel::categoryForIndex(const QModelIndex &index) const
+QString ExternalToolModel::categoryForIndex(const QModelIndex &index, bool *found) const
 {
     if (index.isValid() && !index.parent().isValid() && index.column() == 0 && index.row() >= 0) {
         const QList<QString> &keys = m_tools.keys();
-        if (index.row() < keys.count())
+        if (index.row() < keys.count()) {
+            if (found) *found = true;
             return keys.at(index.row());
+        }
     }
+    if (found) *found = false;
     return QString();
 }
 
@@ -331,9 +342,10 @@ QModelIndex ExternalToolModel::addCategory()
 
 QModelIndex ExternalToolModel::addTool(const QModelIndex &atIndex)
 {
-    QString category = categoryForIndex(atIndex);
-    if (category.isNull())
-        category = categoryForIndex(atIndex.parent());
+    bool found;
+    QString category = categoryForIndex(atIndex, &found);
+    if (!found)
+        category = categoryForIndex(atIndex.parent(), &found);
 
     ExternalTool *tool = new ExternalTool;
     tool->setDisplayCategory(category);
