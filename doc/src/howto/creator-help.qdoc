@@ -40,8 +40,13 @@
 
         \o  To view documentation, switch to \gui Help mode.
 
-        \o  To obtain context sensitive help, move the text cursor to a Qt class
-            or function and press \key F1. The documentation is displayed in a
+        \o  To view context sensitive help on a Qt class or function as a
+            tooltip, move the mouse cursor over the class or function. If help
+            is not available, the tooltip displays type information for the
+            symbol.
+
+        \o  To display the full help on a Qt class or function, press \key F1.
+            The documentation is displayed in a
             pane next to the code editor, or, if there is not enough vertical
             space, in the fullscreen \gui Help mode.
 
@@ -58,6 +63,15 @@
     mode.
 
     \image qtcreator-context-sensitive-help.png
+
+    \section1 Viewing Function Tooltips
+
+    To hide function tooltips by default, select \gui {Tools > Options >
+    Text Editor > Show help tooltips > On Shift+Mouseover}. You can still view
+    the tooltips by pressing and holding down the \key Shift key.
+
+    To use a keyboard shortcut for viewing help tooltips, select
+    \gui {Using keyboard shortcut (Alt)}.
 
     \section1 Finding Information in Qt Documentation
 

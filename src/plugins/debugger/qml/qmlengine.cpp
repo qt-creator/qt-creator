@@ -628,14 +628,13 @@ void QmlEngine::shutdownInferior()
         resetLocation();
     }
     stopApplicationLauncher();
+    closeConnection();
 
     notifyInferiorShutdownOk();
 }
 
 void QmlEngine::shutdownEngine()
 {
-    closeConnection();
-
     // double check (ill engine?):
     stopApplicationLauncher();
 

@@ -24,7 +24,7 @@
 :Options_Core::Internal::SettingsDialog	{type='Core::Internal::SettingsDialog' unnamed='1' visible='1' windowTitle~='(Options|Preferences)'}
 :Options_QListView	{type='QListView' unnamed='1' visible='1' window=':Options_Core::Internal::SettingsDialog'}
 :Qt Creator.Create Build Configurations:_QComboBox	{leftWidget=':Qt Creator.Create Build Configurations:_QLabel' type='QComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator.Create Build Configurations:_QLabel	{text='Create Build Configurations:' type='QLabel' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.Create Build Configurations:_QLabel	{text='Create build configurations:' type='QLabel' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.DebugModeWidget_QSplitter	{name='DebugModeWidget' type='QSplitter' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.QtCreator.MenuBar_QMenuBar	{name='QtCreator.MenuBar' type='QMenuBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.ReRun_QToolButton	{toolTip='Re-run this run-configuration' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -56,14 +56,14 @@
 :projects_QModelIndex	{column='0' container=':Qt Creator_Utils::NavigationTreeView' text='projects' type='QModelIndex'}
 :qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='QtSupport__Internal__QtVersionManager' type='QtSupport::Internal::QtOptionsPageWidget' visible='1'}
 :scrollArea.Create Build Configurations:_QComboBox_2	{container=':Qt Gui Application.scrollArea_QScrollArea' leftWidget=':scrollArea.Create Build Configurations:_QLabel_2' type='QComboBox' unnamed='1' visible='1'}
-:scrollArea.Create Build Configurations:_QLabel_2	{container=':Qt Gui Application.scrollArea_QScrollArea' text='Create Build Configurations:' type='QLabel' unnamed='1' visible='1'}
+:scrollArea.Create Build Configurations:_QLabel_2	{container=':Qt Gui Application.scrollArea_QScrollArea' text='Create build configurations:' type='QLabel' unnamed='1' visible='1'}
 :scrollArea.Edit build configuration:_QComboBox	{container=':Qt Creator.scrollArea_QScrollArea' leftWidget=':scrollArea.Edit build configuration:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :scrollArea.Edit build configuration:_QLabel	{container=':Qt Creator.scrollArea_QScrollArea' text='Edit build configuration:' type='QLabel' unnamed='1' visible='1'}
 :scrollArea.Qt 4 for Desktop - (Qt SDK) debug_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' text?='*Qt 4.* for *(Qt SDK) debug' type='QCheckBox' unnamed='1' visible='1'}
 :scrollArea.Qt 4 for Desktop - (Qt SDK) release_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' text?='*Qt 4.* for *(Qt SDK) release' type='QCheckBox' unnamed='1' visible='1'}
 :scrollArea.Qt Version:_QComboBox	{aboveWidget=':scrollArea.Use Shadow Building_QCheckBox' container=':Qt Gui Application.scrollArea_QScrollArea' leftWidget=':scrollArea.Qt Version:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :scrollArea.Qt Version:_QLabel	{container=':Qt Gui Application.scrollArea_QScrollArea' text='Qt Version:' type='QLabel' unnamed='1' visible='1'}
-:scrollArea.Use Shadow Building_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' text='Use Shadow Building' type='QCheckBox' unnamed='1' visible='1'}
+:scrollArea.Use Shadow Building_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' text='Shadow build' type='QCheckBox' unnamed='1' visible='1'}
 :scrollArea.qtVersionComboBox_QComboBox	{container=':Qt Creator.scrollArea_QScrollArea' name='qtVersionComboBox' type='QComboBox' visible='1'}
 :scrollArea_QTableView	{container=':Qt Creator.scrollArea_QScrollArea' type='QTableView' unnamed='1' visible='1'}
 :sourceFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Source file:_QLabel' name='sourceFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
