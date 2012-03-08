@@ -201,9 +201,9 @@ def createProject_Qt_Console(path, projectName, qtVersion = None, checks = True)
 
 def createNewQtQuickApplication(workingDir, projectName = None, templateFile = None, targets = QtQuickConstants.Targets.DESKTOP):
     if templateFile:
-        available = __createProjectSelectType__("  Applications", "Qt Quick Application (from existing \.qml file)")
+        available = __createProjectSelectType__("  Applications", "Qt Quick Application (from Existing QML File)")
     else:
-        available = __createProjectSelectType__("  Applications", "Qt Quick Application (Built-in elements)")
+        available = __createProjectSelectType__("  Applications", "Qt Quick Application (Built-in Elements)")
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
     if templateFile:
         baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
