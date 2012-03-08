@@ -174,8 +174,10 @@ Item {
                 }
 
                 Row {
-                    x: 16
-                    spacing: 24
+                    x: 6
+                    spacing: 4
+
+                    Image { source: "images/icons/clone.png" }
                     LinkedText {
                         text: qsTr("Clone")
                         onClicked: {
@@ -183,18 +185,24 @@ Item {
                         }
                     }
 
-                    LinkedText {
-                        text: qsTr("Delete")
-                        onClicked: {
-                            root.model.deleteSession(sessionName);
-                        }
-                    }
+                    Text { width: 16; text: " "; }
+                    Image { source: "images/icons/rename.png" }
                     LinkedText {
                         text: qsTr("Rename")
                         onClicked: {
                             root.model.renameSession(sessionName);
                         }
                     }
+
+                    Text { width: 16; text: " "; }
+                    Image { source: "images/icons/delete.png" }
+                    LinkedText {
+                        text: qsTr("Delete")
+                        onClicked: {
+                            root.model.deleteSession(sessionName);
+                        }
+                    }
+
                 }
             }
             Rectangle {
