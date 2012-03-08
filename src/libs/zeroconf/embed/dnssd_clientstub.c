@@ -40,17 +40,16 @@ namespace ZeroConf { namespace embeddedLib {
 static int gDaemonErr = kDNSServiceErr_NoError;
         }}
 
-extern "C" {
 #if defined(_WIN32)
 
         #define _SSIZE_T
-        #include <CommonServices.h>
-        #include <DebugServices.h>
+        #include "embed/CommonServices.h"
+        #include "embed/DebugServices.h"
         #include <winsock2.h>
         #include <ws2tcpip.h>
         #include <windows.h>
         #include <stdarg.h>
-    #include <stdio.h>
+        #include <stdio.h>
 
         #define sockaddr_mdns sockaddr_in
         #define AF_MDNS AF_INET
@@ -61,7 +60,7 @@ extern "C" {
         // Disable warning: "nonstandard extension, function/data pointer conversion in expression"
         #pragma warning(disable:4152)
 
-        extern BOOL IsSystemServiceDisabled();
+        //extern BOOL IsSystemServiceDisabled();
 
         #define sleep(X) Sleep((X) * 1000)
         #define NOT_HAVE_SA_LEN
@@ -83,6 +82,7 @@ namespace ZeroConf { namespace embeddedLib {
                 if ( buffer ) { vsprintf( buffer, message, args ); OutputDebugStringA( buffer ); free( buffer ); }
                 WSASetLastError( err );
                 }
+}}
 #else
 
         #include <sys/fcntl.h>        // For O_RDWR etc.
@@ -112,6 +112,7 @@ namespace ZeroConf { namespace embeddedLib {
 #define CTL_PATH_PREFIX "/var/tmp/dnssd_result_socket."
 #endif
 
+extern "C" {
 typedef struct
         {
         ipc_msg_hdr         ipc_hdr;
@@ -427,6 +428,7 @@ static void FreeDNSServiceOp(DNSServiceOp *x)
 // Return a connected service ref (deallocate with DNSServiceRefDeallocate)
 static DNSServiceErrorType ConnectToServer(DNSServiceRef *ref, DNSServiceFlags flags, uint32_t op, ProcessReplyFn ProcessReply, void *AppCallback, void *AppContext)
         {
+        static int quickCheck = 1;
         #if APPLE_OSX_mDNSResponder
         int NumTries = DNSSD_CLIENT_MAXTRIES;
         #else
@@ -462,7 +464,7 @@ static DNSServiceErrorType ConnectToServer(DNSServiceRef *ref, DNSServiceFlags f
                 if (WSAStartup(MAKEWORD(2,2), &wsaData) != 0) { *ref = NULL; return kDNSServiceErr_ServiceNotRunning; }
                 }
         // <rdar://problem/4096913> If the system service is disabled, we only want to try to connect once
-        if (IsSystemServiceDisabled()) NumTries = DNSSD_CLIENT_MAXTRIES;
+        //if (IsSystemServiceDisabled()) NumTries = DNSSD_CLIENT_MAXTRIES;
         #endif
 
         sdr = static_cast<DNSServiceOp*>(malloc(sizeof(DNSServiceOp)));
@@ -543,8 +545,10 @@ static DNSServiceErrorType ConnectToServer(DNSServiceRef *ref, DNSServiceFlags f
                         // daemon is still coming up. Rather than fail here, we'll wait a bit and try again.
                         // If, after four seconds, we still can't connect to the daemon,
                         // then we give up and return a failure code.
-                        if (++NumTries < DNSSD_CLIENT_MAXTRIES) sleep(1); // Sleep a bit, then try again
-                        else { dnssd_close(sdr->sockfd); FreeDNSServiceOp(sdr); return kDNSServiceErr_ServiceNotRunning; }
+                        if (++NumTries < DNSSD_CLIENT_MAXTRIES && !quickCheck) sleep(1); // Sleep a bit, then try again
+                        else {
+                            quickCheck = 0;
+                            dnssd_close(sdr->sockfd); FreeDNSServiceOp(sdr); return kDNSServiceErr_ServiceNotRunning; }
                         }
                 //printf("ConnectToServer opened socket %d\n", sdr->sockfd);
                 }

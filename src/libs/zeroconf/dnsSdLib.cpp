@@ -138,6 +138,10 @@ public:
         m_createConnection = reinterpret_cast<CreateConnectionPtr>(&DNSServiceCreateConnection);
         m_refSockFD = reinterpret_cast<RefSockFDPtr>(&DNSServiceRefSockFD);
 #endif
+        if (m_isOk && m_getAddrInfo == 0) {
+            m_isOk = false;
+            m_errorMsg = tr("*WARNING* DnsSdZConfLib detected an obsolete version of Apple Bonjour, either disable/uninstall it or upgrade it. Otherwise zeroconf will fail.");
+        }
         if (DEBUG_ZEROCONF){
             if (m_refDeallocate == 0) qDebug() << QLatin1String("DnsSdZConfLib.m_refDeallocate == 0");
             if (m_resolve == 0) qDebug() << QLatin1String("DnsSdZConfLib.m_resolve == 0");
@@ -284,7 +288,7 @@ public:
         return ProcessedOk;
     }
 
-    DNSServiceErrorType createConnection(ConnectionRef *sdRef)
+    DNSServiceErrorType createConnection(MainConnection *, ConnectionRef *sdRef)
     {
         if (m_createConnection == 0) return kDNSServiceErr_Unsupported;
         return m_createConnection(reinterpret_cast<DNSServiceRef *>(sdRef));
@@ -299,7 +303,6 @@ public:
 
 ZConfLib::Ptr ZConfLib::createDnsSdLib(const QString &libName, ZConfLib::Ptr fallback) {
     return ZConfLib::Ptr(new DnsSdZConfLib(libName, fallback));
-    return fallback;
 }
 } // namespace Internal
 } // namespace ZeroConf

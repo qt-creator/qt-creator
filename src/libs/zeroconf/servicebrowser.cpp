@@ -135,16 +135,26 @@ public:
                        const QString &dnsSdDaemonPath);
 
 private:
+    static const char *defaultmDnsSdLibName;
+    static const char *defaultmDNSDaemonName;
     QMutex m_lock;
     ZConfLib::Ptr m_defaultLib;
 };
 
 Q_GLOBAL_STATIC(ZeroConfLib, zeroConfLibInstance)
 
+#ifdef Q_OS_WIN
+    const char *ZeroConfLib::defaultmDnsSdLibName  = "dnssd";
+    const char *ZeroConfLib::defaultmDNSDaemonName = "mdnssd.exe";
+#else
+    const char *ZeroConfLib::defaultmDnsSdLibName  = "dns_sd";
+    const char *ZeroConfLib::defaultmDNSDaemonName = "mdnssd";
+#endif
+
 ZeroConfLib::ZeroConfLib(): m_lock(QMutex::Recursive),
     m_defaultLib(ZConfLib::createAvahiLib(QLatin1String("avahi-client"),
-                 ZConfLib::createDnsSdLib(QLatin1String("dns_sd"),
-                 ZConfLib::createEmbeddedLib(QLatin1String("mdnssd")))))
+                 ZConfLib::createDnsSdLib(QLatin1String(defaultmDnsSdLibName),
+                 ZConfLib::createEmbeddedLib(QLatin1String(defaultmDNSDaemonName)))))
 {
     qRegisterMetaType<ZeroConf::Service::ConstPtr>("ZeroConf::Service::ConstPtr");
     qRegisterMetaType<ZeroConf::ErrorMessage::SeverityLevel>("ZeroConf::ErrorMessage::SeverityLevel");
@@ -259,7 +269,24 @@ Service::~Service()
     delete m_host;
 }
 
-ZEROCONFSHARED_EXPORT QDebug operator<<(QDebug dbg, const Service &service)
+bool Service::operator==(const Service &o) const {
+    bool eq = m_fullName == o.m_fullName
+            && m_name == o.m_name && m_type == o.m_type
+            && m_domain == o.m_domain && m_port == o.m_port
+            && m_txtRecord == o.m_txtRecord && m_interfaceNr == o.m_interfaceNr
+            && m_outdated == m_outdated;
+    if (eq) {
+        if (m_host != o.m_host) {
+            if (m_host == 0 || o.m_host == 0)
+                return false;
+            return m_host->hostName() == o.m_host->hostName()
+                    && m_host->addresses() == o.m_host->addresses();
+        }
+    }
+    return eq;
+}
+
+QDebug operator<<(QDebug dbg, const Service &service)
 {
     dbg.maybeSpace() << "Service{ name:" << service.name() << ", "
                      << "type:" << service.type() << ", domain:" << service.domain() << ", "
@@ -293,6 +320,16 @@ ZEROCONFSHARED_EXPORT QDebug operator<<(QDebug dbg, const Service &service)
     dbg << " interfaceNr:" << service.interfaceNr() << ", outdated:" << service.outdated() << " }";
     return dbg.space();
 }
+
+QDebug operator<<(QDebug dbg, const Service::ConstPtr &service){
+    if (service.data() == 0){
+        dbg << "Service{*NULL*}";
+    } else {
+        dbg << *service.data();
+    }
+    return dbg;
+}
+
 // inline methods
 /*!
   \fn bool Service::outdated() const
@@ -369,16 +406,17 @@ void ServiceBrowser::startBrowsing(qint32 interfaceIndex)
 /// create a new brower for the given service type
 ServiceBrowser::ServiceBrowser(const QString &serviceType, const QString &domain,
         AddressesSetting addressesSetting, QObject *parent)
-    : QObject(parent),
+    : QObject(parent), timer(0),
       d(new ServiceBrowserPrivate(serviceType, domain, addressesSetting == RequireAddresses,
           MainConnectionPtr()))
 {
+    connect(this,SIGNAL(activateAutoRefresh()),this,SLOT(autoRefresh()));
     d->q = this;
 }
 
 ServiceBrowser::ServiceBrowser(const MainConnectionPtr &mainConnection, const QString &serviceType,
         const QString &domain, AddressesSetting addressesSetting, QObject *parent)
-    : QObject(parent),
+    : QObject(parent), timer(0),
       d(new ServiceBrowserPrivate(serviceType, domain, addressesSetting == RequireAddresses,
           mainConnection))
 {
@@ -399,6 +437,11 @@ MainConnectionPtr ServiceBrowser::mainConnection() const
 /// stops browsing, but does not delete all services found
 void ServiceBrowser::stopBrowsing()
 {
+    if (timer) {
+        timer->stop();
+        delete timer;
+        timer = 0;
+    }
     d->stopBrowsing();
 }
 
@@ -452,6 +495,16 @@ void ServiceBrowser::reconfirmService(Service::ConstPtr service)
     d->reconfirmService(service);
 }
 
+void ServiceBrowser::autoRefresh()
+{
+    QMutexLocker l(d->mainConnection->lock());
+    if (!timer) {
+        timer = new QTimer(this);
+        connect(timer,SIGNAL(timeout()),this,SLOT(triggerRefresh()));
+        timer->start(5000);
+    }
+}
+
 // signals
 /*!
   \fn void ServiceBrowser::serviceChanged(
@@ -484,6 +537,24 @@ void ServiceBrowser::reconfirmService(Service::ConstPtr service)
   It might collect several serviceChanged signals together, if you use the list returned by
   services(), use this signal, not serviceChanged(), serviceAdded() or serviceRemoved() to know
   about changes to the list.
+*/
+/*!
+  \fn void errorMessage(ZeroConf::ErrorMessage::SeverityLevel severity, const QString &msg, ZeroConf::ServiceBrowser *browser)
+
+  This signal is called every time a warning or error is emitted (for example when a library 
+  cannot be used and another one has to be used). Zeroconf will still work if severity < FailureLevel.
+*/
+/*!
+  \fn void hadFailure(const QList<ZeroConf::ErrorMessage> &messages, ZeroConf::ServiceBrowser *browser)
+
+  This signal is emitted only when a full failure has happened, and all the previous errors/attempts to set up zeroconf
+  are passed in messages.
+*/
+/*!
+  \fn void startedBrowsing(ZeroConf::ServiceBrowser *browser)
+
+  This signal is emitted when browsing has actually started.
+  One can rely on either startedBrowsing or hadFailure to be emitted.
 */
 
 // ----------------- library initialization impl -----------------
@@ -631,25 +702,32 @@ QString ServiceGatherer::fullName(){
     return currentService->fullName();
 }
 
-void ServiceGatherer::enactServiceChange()
+bool ServiceGatherer::enactServiceChange()
 {
     if (DEBUG_ZEROCONF)
         qDebug() << "ServiceGatherer::enactServiceChange() for service "
                  << currentService->fullName();
     if (currentServiceCanBePublished()) {
+        if ((publishedService.data() == 0 && currentService == 0)
+                || (publishedService.data() != 0 && currentService != 0
+                    && *publishedService == *currentService))
+            return false;
         Service::Ptr nService = Service::Ptr(currentService);
-        serviceBrowser->serviceChanged(publishedService, nService, serviceBrowser->q);
         if (publishedService) {
+            publishedService->invalidate();
             serviceBrowser->nextActiveServices.removeOne(publishedService);
             serviceBrowser->serviceRemoved(publishedService, serviceBrowser->q);
         }
+        serviceBrowser->serviceChanged(publishedService, nService, serviceBrowser->q);
         publishedService = nService;
         if (nService) {
             serviceBrowser->nextActiveServices.append(nService);
             serviceBrowser->serviceAdded(nService, serviceBrowser->q);
             currentService = new Service(*currentService);
         }
+        return true;
     }
+    return false;
 }
 
 void ServiceGatherer::retireService()
@@ -660,8 +738,9 @@ void ServiceGatherer::retireService()
                      << currentService->fullName();
         Service::Ptr nService;
         serviceBrowser->nextActiveServices.removeOne(publishedService);
-        serviceBrowser->serviceChanged(publishedService, nService, serviceBrowser->q);
+        publishedService->invalidate();
         serviceBrowser->serviceRemoved(publishedService, serviceBrowser->q);
+        serviceBrowser->serviceChanged(publishedService, nService, serviceBrowser->q);
         publishedService = nService;
     } else if (DEBUG_ZEROCONF){
         qDebug() << "ServiceGatherer::retireService() for non published service "
@@ -897,7 +976,6 @@ void ServiceGatherer::serviceResolveReply(DNSServiceFlags                     fl
         }
         return;
     }
-    if (publishedService) publishedService->invalidate(); // delay this to enactServiceChange?
     serviceBrowser->updateFlowStatusForFlags(flags);
     uint16_t nKeys = txtRecordGetCount(txtLen, rawTxtRecord);
     for (uint16_t i = 0; i < nKeys; ++i){
@@ -1041,7 +1119,7 @@ void ServiceGatherer::addrReply(DNSServiceFlags                  flags,
                                 const struct sockaddr            *address,
                                 uint32_t                         /*ttl*/) // should we use this???
 {
-    if (errorCode != kDNSServiceErr_NoError){
+    if (errorCode != kDNSServiceErr_NoError) {
         if (errorCode == kDNSServiceErr_Timeout){
             if ((status & AddrConnectionSuccess) == 0){
                 qDebug() << "ServiceBrowser " << serviceBrowser->serviceType
@@ -1088,8 +1166,12 @@ void ServiceGatherer::addrReply(DNSServiceFlags                  flags,
     } else {
         if (!addrNow.contains(newAddr)){
             switch (newAddr.protocol()){
-            case QAbstractSocket::IPv6Protocol:
-                addrNow.insert(0, newAddr); // prefers IPv6 addresses
+#ifdef Q_OS_WIN
+            case QAbstractSocket::IPv4Protocol: // prefers IPv4 addresses
+#else
+            case QAbstractSocket::IPv6Protocol: // prefers IPv6 addresses
+#endif
+                addrNow.insert(0, newAddr);
                 break;
             default:
                 addrNow.append(newAddr);
@@ -1239,6 +1321,7 @@ void ServiceBrowserPrivate::maybeUpdateLists()
         qint64 now = QDateTime::currentMSecsSinceEpoch();
         QList<QString>::iterator i = knownServices.begin(), endi = knownServices.end();
         QMap<QString, ServiceGatherer::Ptr>::iterator j = gatherers.begin();
+        bool hasServicesChanges = false;
         while (i != endi && j != gatherers.end()) {
             const QString vi = *i;
             QString vj = j.value()->fullName();
@@ -1253,6 +1336,7 @@ void ServiceBrowserPrivate::maybeUpdateLists()
                 pendingGatherers.removeAll(j.value());
                 j.value()->retireService();
                 j = gatherers.erase(j);
+                hasServicesChanges = true;
             } else {
                 ++j;
             }
@@ -1266,17 +1350,20 @@ void ServiceBrowserPrivate::maybeUpdateLists()
                 pendingGatherers.removeAll(j.value());
                 j.value()->retireService();
                 j = gatherers.erase(j);
+                hasServicesChanges = true;
             } else {
                 ++j;
             }
         }
         foreach (const ServiceGatherer::Ptr &g, pendingGatherers)
-            g->enactServiceChange();
-        {
-            QMutexLocker l(mainConnection->lock());
-            activeServices = nextActiveServices;
+            hasServicesChanges = hasServicesChanges || g->enactServiceChange();
+        if (hasServicesChanges) {
+            {
+                QMutexLocker l(mainConnection->lock());
+                activeServices = nextActiveServices;
+            }
+            emit q->servicesUpdated(q);
         }
-        emit q->servicesUpdated(q);
     }
     if (shouldRefresh)
         refresh();
@@ -1333,6 +1420,11 @@ void ServiceBrowserPrivate::browseReply(DNSServiceFlags                     flag
     maybeUpdateLists(); // avoid?
 }
 
+void ServiceBrowserPrivate::activateAutoRefresh()
+{
+    emit q->activateAutoRefresh();
+}
+
 void ServiceBrowserPrivate::startBrowsing(quint32 interfaceIndex)
 {
     this->interfaceIndex = interfaceIndex;
@@ -1364,11 +1456,18 @@ bool ServiceBrowserPrivate::internalStartBrowsing()
 
 void ServiceBrowserPrivate::triggerRefresh()
 {
-    QMutexLocker l(mainConnection->lock());
-    const qint64 msecDelay = 5100;
-    delayDeletesUntil = QDateTime::currentMSecsSinceEpoch() + msecDelay;
-    stopBrowsing();
-    shouldRefresh = true;
+    {
+        QMutexLocker l(mainConnection->lock());
+        const qint64 msecDelay = 5100;
+        delayDeletesUntil = QDateTime::currentMSecsSinceEpoch() + msecDelay;
+        stopBrowsing();
+        shouldRefresh = true;
+    }
+    {
+        QMutexLocker l(mainConnection->mainThreadLock());
+        if (!browsing)
+            refresh();
+    }
 }
 
 void ServiceBrowserPrivate::refresh()
@@ -1444,6 +1543,11 @@ void ServiceBrowserPrivate::hadFailure(const QList<ErrorMessage> &messages)
     emit q->hadFailure(messages, q);
 }
 
+void ServiceBrowserPrivate::startedBrowsing()
+{
+    emit q->startedBrowsing(q);
+}
+
 // ----------------- MainConnection impl -----------------
 
 void MainConnection::stop(bool wait)
@@ -1463,8 +1567,8 @@ void MainConnection::stop(bool wait)
 }
 
 MainConnection::MainConnection():
-    lib(zeroConfLibInstance()->defaultLib()), m_lock(QMutex::Recursive), m_mainRef(0),
-    m_failed(false), m_status(Starting), m_nErrs(0)
+    lib(zeroConfLibInstance()->defaultLib()), m_lock(QMutex::Recursive),
+    m_mainThreadLock(QMutex::Recursive), m_mainRef(0), m_failed(false), m_status(Starting), m_nErrs(0)
 {
     if (lib.isNull()){
         qDebug() << "could not load a valid library for ZeroConf::MainConnection, failing";
@@ -1505,6 +1609,11 @@ QMutex *MainConnection::lock()
     return &m_lock;
 }
 
+QMutex *MainConnection::mainThreadLock()
+{
+    return &m_mainThreadLock;
+}
+
 void MainConnection::waitStartup()
 {
     int sAtt;
@@ -1537,9 +1646,8 @@ void MainConnection::addBrowser(ServiceBrowserPrivate *browser)
         m_browsers.append(browser);
         errs = m_errors;
     }
-    if (actualStatus == Running) {
-        browser->internalStartBrowsing();
-    }
+    if (actualStatus == Running && browser->internalStartBrowsing())
+        browser->startedBrowsing();
     bool didFail = false;
     foreach (const ErrorMessage &msg, errs) {
         browser->errorMessage(msg.severity, msg.msg);
@@ -1620,7 +1728,7 @@ void MainConnection::createConnection()
         uint32_t size = (uint32_t)sizeof(uint32_t);
         DNSServiceErrorType err = lib->getProperty(kDNSServiceProperty_DaemonVersion, &version, &size);
         if (err == kDNSServiceErr_NoError){
-            DNSServiceErrorType error = lib->createConnection(&m_mainRef);
+            DNSServiceErrorType error = lib->createConnection(this, &m_mainRef);
             if (error != kDNSServiceErr_NoError){
                 appendError(ErrorMessage::WarningLevel, tr("MainConnection using lib %1 failed the initialization of mainRef with error %2")
                                         .arg(lib->name()).arg(error));
@@ -1636,8 +1744,9 @@ void MainConnection::createConnection()
                 }
                 for (int i = waitingBrowsers.count(); i-- != 0; ){
                     ServiceBrowserPrivate *actualBrowser = waitingBrowsers[i];
-                    if (actualBrowser && !actualBrowser->browsing)
-                        actualBrowser->internalStartBrowsing();
+                    if (actualBrowser && !actualBrowser->browsing
+                            && actualBrowser->internalStartBrowsing())
+                        actualBrowser->startedBrowsing();
                 }
                 break;
             }
@@ -1672,11 +1781,11 @@ ZConfLib::RunLoopStatus MainConnection::handleEvent()
             nextEvent = bAtt->delayDeletesUntil;
     }
     if (nextEvent <= now)
-        nextEvent = 5000;
+        nextEvent = -1;
     else
         nextEvent -= now;
     maybeUpdateLists();
-    ZConfLib::RunLoopStatus err = lib->processOneEvent(m_mainRef, nextEvent);
+    ZConfLib::RunLoopStatus err = lib->processOneEvent(this, m_mainRef, nextEvent);
     if (err != ZConfLib::ProcessedOk && err != ZConfLib::ProcessedIdle) {
         qDebug() << "processOneEvent returned " << err;
         ++m_nErrs;
@@ -1715,6 +1824,7 @@ void  MainConnection::handleEvents()
 #else
     while (m_status < Stopping) {
 #endif
+        QMutexLocker l(mainThreadLock());
         if (m_nErrs > 10)
             increaseStatusTo(Stopping);
         switch (handleEvent()) {
@@ -1821,45 +1931,50 @@ void ZConfLib::setError(bool failure, const QString &eMsg)
     m_isOk = !failure;
 }
 
-ZConfLib::RunLoopStatus ZConfLib::processOneEvent(ConnectionRef cRef, qint64 maxMsBlock)
+ZConfLib::RunLoopStatus ZConfLib::processOneEvent(MainConnection *mainConnection,
+                                                  ConnectionRef cRef, qint64 maxMsBlock)
 {
     if (maxMsBlock < 0) { // just block
-        return processOneEventBlock(cRef);
-    } else {
-        // some stuff could be extracted for maximal performance
-        int dns_sd_fd  = (cRef ? refSockFD(cRef) : -1);
-        int nfds = dns_sd_fd + 1;
-        fd_set readfds;
-        struct timeval tv;
-        int result;
-        dns_sd_fd  = (cRef ? refSockFD(cRef) : -1);
-        if (dns_sd_fd < 0)
-            return ProcessedError;
-        nfds = dns_sd_fd + 1;
-        FD_ZERO(&readfds);
-        FD_SET(dns_sd_fd, &readfds);
-
-        if (maxMsBlock > MAX_SEC_FOR_READ * static_cast<qint64>(1000)) {
-            tv.tv_sec = MAX_SEC_FOR_READ;
-            tv.tv_usec = 0;
-        } else {
-            tv.tv_sec = static_cast<time_t>(maxMsBlock / 1000);
-            tv.tv_usec = static_cast<suseconds_t>((maxMsBlock % 1000) * 1000);
-        }
-        result = select(nfds, &readfds, (fd_set *)NULL, (fd_set *)NULL, &tv);
-        if (result > 0) {
-            if (FD_ISSET(dns_sd_fd, &readfds))
-                return processOneEventBlock(cRef);
-        } else if (result == 0) {
-            return ProcessedIdle;
-        } else if (errno != EINTR) {
-            if (DEBUG_ZEROCONF)
-                qDebug() << "select() returned " << result << " errno " << errno
-                         << strerror(errno);
-            return ProcessedError;
-        }
-        return ProcessedIdle; // change? should never happen anyway
+        maxMsBlock = MAX_SEC_FOR_READ * static_cast<qint64>(1000);
     }
+    // some stuff could be extracted for maximal performance
+    int dns_sd_fd  = (cRef ? refSockFD(cRef) : -1);
+    int nfds = dns_sd_fd + 1;
+    fd_set readfds;
+    struct timeval tv;
+    int result;
+    dns_sd_fd  = (cRef ? refSockFD(cRef) : -1);
+    if (dns_sd_fd < 0)
+        return ProcessedError;
+    nfds = dns_sd_fd + 1;
+    FD_ZERO(&readfds);
+    FD_SET(dns_sd_fd, &readfds);
+
+    if (maxMsBlock > MAX_SEC_FOR_READ * static_cast<qint64>(1000)) {
+        tv.tv_sec = MAX_SEC_FOR_READ;
+        tv.tv_usec = 0;
+    } else {
+        tv.tv_sec = static_cast<time_t>(maxMsBlock / 1000);
+        tv.tv_usec = static_cast<suseconds_t>((maxMsBlock % 1000) * 1000);
+    }
+    QMutex *lock = (mainConnection ? mainConnection->mainThreadLock() : 0);
+    if (lock)
+        lock->unlock();
+    result = select(nfds, &readfds, (fd_set *)NULL, (fd_set *)NULL, &tv);
+    if (lock)
+        lock->lock();
+    if (result > 0) {
+        if (FD_ISSET(dns_sd_fd, &readfds))
+            return processOneEventBlock(cRef);
+    } else if (result == 0) {
+        return ProcessedIdle;
+    } else if (errno != EINTR) {
+        if (DEBUG_ZEROCONF)
+            qDebug() << "select() returned " << result << " errno " << errno
+                     << strerror(errno);
+        return ProcessedError;
+    }
+    return ProcessedIdle; // change? should never happen anyway
 }
 
 } // namespace Internal

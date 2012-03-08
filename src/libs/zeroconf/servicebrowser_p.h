@@ -109,8 +109,10 @@ public:
                                        ServiceBrowserPrivate *browser) = 0;
     virtual DNSServiceErrorType getProperty(const char *property, void *result, uint32_t *size) = 0;
     virtual RunLoopStatus processOneEventBlock(ConnectionRef sdRef) = 0;
-    virtual RunLoopStatus processOneEvent(ConnectionRef sdRef, qint64 maxMsBlock);
-    virtual DNSServiceErrorType createConnection(ConnectionRef *sdRef) = 0;
+    virtual RunLoopStatus processOneEvent(MainConnection *mainConnection,
+                                          ConnectionRef sdRef, qint64 maxMsBlock);
+    virtual DNSServiceErrorType createConnection(MainConnection *mainConnection,
+                                                 ConnectionRef *sdRef) = 0;
     virtual void stopConnection(ConnectionRef cRef) = 0;
     virtual void destroyConnection(ConnectionRef *sdRef) = 0;
     virtual int refSockFD(ConnectionRef sdRef) = 0;
@@ -154,7 +156,7 @@ public:
     };
 
     QString fullName();
-    void enactServiceChange();
+    bool enactServiceChange();
     void retireService();
     Ptr gatherer();
 
@@ -232,6 +234,7 @@ public:
     MainConnection();
     ~MainConnection();
     QMutex *lock();
+    QMutex *mainThreadLock();
     void waitStartup();
     void stop(bool wait = true);
     void addBrowser(ServiceBrowserPrivate *browser);
@@ -253,7 +256,7 @@ public:
 private:
     void appendError(ErrorMessage::SeverityLevel severity, const QString &msg);
 
-    mutable QMutex m_lock;
+    mutable QMutex m_lock, m_mainThreadLock;
     QList<ServiceBrowserPrivate *> m_browsers;
     ZConfLib::ConnectionRef m_mainRef;
     bool m_failed;
@@ -309,6 +312,7 @@ public:
                      uint32_t interfaceIndex, ZK_IP_Protocol proto, DNSServiceErrorType errorCode,
                      const char *serviceName, const char *regtype, const char *replyDomain);
 
+    void activateAutoRefresh();
     void serviceChanged(const Service::ConstPtr &oldService, const Service::ConstPtr &newService,
                         ServiceBrowser *browser);
     void serviceAdded(const Service::ConstPtr &service, ServiceBrowser *browser);
@@ -316,6 +320,7 @@ public:
     void servicesUpdated(ServiceBrowser *browser);
     void errorMessage(ErrorMessage::SeverityLevel severity, const QString &msg);
     void hadFailure(const QList<ErrorMessage> &msgs);
+    void startedBrowsing();
 };
 
 class ConnectionThread: public QThread {

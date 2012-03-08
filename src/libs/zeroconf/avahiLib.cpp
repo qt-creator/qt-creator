@@ -52,6 +52,7 @@
 #include <avahi-common/error.h>
 
 #include <netinet/in.h>
+#include <sys/poll.h>
 
 namespace ZeroConf {
 namespace Internal {
@@ -70,6 +71,7 @@ extern "C" void cAvahiBrowseReply(
         AvahiServiceBrowser * /*b*/, AvahiIfIndex interface, AvahiProtocol /*protocol*/,
         AvahiBrowserEvent event, const char *name, const char *type, const char *domain,
         AvahiLookupResultFlags /*flags*/, void* context);
+extern "C" int cAvahiPollFunction(struct pollfd *ufds, unsigned int nfds, int timeout, void *userdata);
 
 extern "C" {
 typedef const AvahiPoll* (*AvahiSimplePollGet)(AvahiSimplePoll *s);
@@ -77,6 +79,7 @@ typedef AvahiSimplePoll *(*AvahiSimplePollNewPtr)(void);
 typedef int (*AvahiSimplePollIteratePtr)(AvahiSimplePoll *s, int sleep_time);
 typedef void (*AvahiSimplePollQuitPtr)(AvahiSimplePoll *s);
 typedef void (*AvahiSimplePollFreePtr)(AvahiSimplePoll *s);
+typedef void (*AvahiSimplePollSetFuncPtr)(AvahiSimplePoll *s, AvahiPollFunc func, void *userdata);
 typedef AvahiClient* (*AvahiClientNewPtr)(
         const AvahiPoll *poll_api, AvahiClientFlags flags, AvahiClientCallback callback,
         void *userdata, int *error);
@@ -113,6 +116,7 @@ private:
     AvahiSimplePollIteratePtr m_simplePollIterate;
     AvahiSimplePollQuitPtr m_simplePollQuit;
     AvahiSimplePollFreePtr m_simplePollFree;
+    AvahiSimplePollSetFuncPtr m_simplePollSetFunc;
     AvahiClientNewPtr m_clientNew;
     AvahiClientFreePtr m_clientFree;
     AvahiServiceBrowserNewPtr m_serviceBrowserNew;
@@ -137,6 +141,7 @@ public:
         m_simplePollIterate = reinterpret_cast<AvahiSimplePollIteratePtr>(nativeLib.resolve("avahi_simple_poll_iterate"));
         m_simplePollQuit = reinterpret_cast<AvahiSimplePollQuitPtr>(nativeLib.resolve("avahi_simple_poll_quit"));
         m_simplePollFree = reinterpret_cast<AvahiSimplePollFreePtr>(nativeLib.resolve("avahi_simple_poll_free"));
+        m_simplePollSetFunc = reinterpret_cast<AvahiSimplePollSetFuncPtr>(nativeLib.resolve("avahi_simple_poll_set_func"));
         m_clientNew = reinterpret_cast<AvahiClientNewPtr>(nativeLib.resolve("avahi_client_new"));
         m_clientFree = reinterpret_cast<AvahiClientFreePtr>(nativeLib.resolve("avahi_client_free"));
         m_serviceBrowserNew = reinterpret_cast<AvahiServiceBrowserNewPtr>(nativeLib.resolve("avahi_service_browser_new"));
@@ -149,6 +154,7 @@ public:
         m_simplePollIterate = reinterpret_cast<AvahiSimplePollIteratePtr>(&avahi_simple_poll_iterate);
         m_simplePollQuit = reinterpret_cast<AvahiSimplePollQuitPtr>(&avahi_simple_poll_quit);
         m_simplePollFree = reinterpret_cast<AvahiSimplePollFreePtr>(&avahi_simple_poll_free);
+        m_simplePollSetFunc = reinterpret_cast<AvahiSimplePollSetFuncPtr>(&avahi_simple_poll_set_func);
         m_clientNew = reinterpret_cast<AvahiClientNewPtr>(&avahi_client_new);
         m_clientFree = reinterpret_cast<AvahiClientFreePtr>(&avahi_client_free);
         m_serviceBrowserNew = reinterpret_cast<AvahiServiceBrowserNewPtr>(&avahi_service_browser_new);
@@ -162,6 +168,7 @@ public:
             if (!m_simplePollIterate) qDebug() << name() << " has null m_simplePollIterate";
             if (!m_simplePollQuit) qDebug() << name() << " has null m_simplePollQuit";
             if (!m_simplePollFree) qDebug() << name() << " has null m_simplePollFree";
+            if (!m_simplePollSetFunc) qDebug() << name() << " has null m_simplePollSetFunc";
             if (!m_clientNew) qDebug() << name() << " has null m_clientNew";
             if (!m_clientFree) qDebug() << name() << " has null m_clientFree";
             if (!m_serviceBrowserNew) qDebug() << name() << " has null m_serviceBrowserNew";
@@ -286,6 +293,7 @@ public:
             return kDNSServiceErr_Unknown;
             //avahi_strerror(avahi_client_errno(client));
         }
+        browser->activateAutoRefresh();
         return kDNSServiceErr_NoError;
     }
 
@@ -297,7 +305,7 @@ public:
         return 0;
     }
 
-    RunLoopStatus processOneEvent(ConnectionRef cRef, qint64 maxLockMs) {
+    RunLoopStatus processOneEvent(MainConnection *, ConnectionRef cRef, qint64 maxLockMs) {
         if (!m_simplePollIterate)
             return ProcessedFailure;
         MyAvahiConnection *connection = reinterpret_cast<MyAvahiConnection *>(cRef);
@@ -309,11 +317,11 @@ public:
     }
 
     RunLoopStatus processOneEventBlock(ConnectionRef cRef) {
-        return processOneEvent(cRef,-1);
+        return processOneEvent(NULL,cRef,-1);
     }
 
-    DNSServiceErrorType createConnection(ConnectionRef *sdRef) {
-        if (!m_simplePollNew || !m_clientNew)
+    DNSServiceErrorType createConnection(MainConnection *mainConnection, ConnectionRef *sdRef) {
+        if (!m_simplePollNew || !m_clientNew || !m_simplePollSetFunc)
             return kDNSServiceErr_Unknown;
         MyAvahiConnection *connection = new MyAvahiConnection;
         connection->lib = this;
@@ -327,6 +335,8 @@ public:
             delete connection;
             return kDNSServiceErr_Unknown;
         }
+        typedef void (*AvahiSimplePollSetFuncPtr)(AvahiSimplePoll *s, AvahiPollFunc func, void *userdata);
+        m_simplePollSetFunc(connection->simple_poll, &cAvahiPollFunction, mainConnection);
         /* Allocate a new client */
         int error;
         connection->client = m_clientNew(m_simplePollGet(connection->simple_poll),
@@ -523,6 +533,20 @@ extern "C" void cAvahiBrowseReply(
                                                        "Error: unexpected state %1 in cAvahiBrowseReply, ignoring it")
                                                    .arg(event));
     }
+}
+
+extern "C" int cAvahiPollFunction(struct pollfd *ufds, unsigned int nfds, int timeout, void *userdata)
+{
+    MainConnection *mainConnection = static_cast<MainConnection *>(userdata);
+    QMutex *lock = 0;
+    if (mainConnection)
+        lock = mainConnection->mainThreadLock();
+    if (lock)
+        lock->unlock();
+    int res=poll(ufds,nfds,timeout);
+    if (lock)
+        lock->lock();
+    return res;
 }
 
 } // namespace Internal

@@ -44,6 +44,10 @@
 #define EMBEDDED_LIB
 #endif
 
+#ifdef Q_OS_WIN32
+#define EMBEDDED_LIB
+#endif
+
 #ifdef EMBEDDED_LIB
 #include "embed/dnssd_ipc.c"
 #include "embed/dnssd_clientlib.c"
@@ -204,7 +208,7 @@ public:
         return ProcessedOk;
     }
 
-    DNSServiceErrorType createConnection(ConnectionRef *sdRef)
+    DNSServiceErrorType createConnection(MainConnection *, ConnectionRef *sdRef)
     {
         return embeddedLib::DNSServiceCreateConnection(reinterpret_cast<DNSServiceRef*>(sdRef));
     }

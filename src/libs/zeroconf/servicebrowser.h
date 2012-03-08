@@ -39,6 +39,7 @@
 #include <QObject>
 #include <QSharedPointer>
 #include <QStringList>
+#include <QTimer>
 
 QT_FORWARD_DECLARE_CLASS(QHostInfo)
 
@@ -99,6 +100,7 @@ public:
     const ServiceTxtRecord &txtRecord() const { return m_txtRecord; }
     const QHostInfo *host() const { return m_host; }
     int interfaceNr() const { return m_interfaceNr; }
+    bool operator==(const Service &o) const;
 
     bool invalidate() { bool res = m_outdated; m_outdated = true; return res; }
 private:
@@ -114,6 +116,7 @@ private:
 };
 
 ZEROCONFSHARED_EXPORT QDebug operator<<(QDebug dbg, const Service &service);
+ZEROCONFSHARED_EXPORT QDebug operator<<(QDebug dbg, const Service::ConstPtr &service);
 
 class ZEROCONFSHARED_EXPORT ServiceBrowser : public QObject
 {
@@ -133,7 +136,6 @@ public:
 
     void startBrowsing(qint32 interfaceIndex = 0);
     void stopBrowsing();
-    void triggerRefresh();
     bool isBrowsing() const;
     bool didFail() const;
 
@@ -145,7 +147,11 @@ public:
 
     QList<Service::ConstPtr> services() const;
     void reconfirmService(Service::ConstPtr service);
+public slots:
+    void triggerRefresh();
+    void autoRefresh();
 signals:
+    void activateAutoRefresh();
     void serviceChanged(const ZeroConf::Service::ConstPtr &oldService,
         const ZeroConf::Service::ConstPtr &newService, ZeroConf::ServiceBrowser *browser);
     void serviceAdded(const ZeroConf::Service::ConstPtr &service,
@@ -155,7 +161,9 @@ signals:
     void servicesUpdated(ZeroConf::ServiceBrowser *browser);
     void errorMessage(ZeroConf::ErrorMessage::SeverityLevel severity, const QString &msg, ZeroConf::ServiceBrowser *browser);
     void hadFailure(const QList<ZeroConf::ErrorMessage> &messages, ZeroConf::ServiceBrowser *browser);
+    void startedBrowsing(ZeroConf::ServiceBrowser *browser);
 private:
+    QTimer *timer;
     Internal::ServiceBrowserPrivate *d;
 };
 
