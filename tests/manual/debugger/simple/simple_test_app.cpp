@@ -2016,20 +2016,22 @@ namespace final {
 
     void testNullPointerDeref()
     {
+        int a = 'a';
+        int b = 'b';
         BREAK_HERE;
         // Continue.
 
         return; // Uncomment.
-        *(int *)0 = 0;
+        *(int *)0 = a + b;
     }
 
-    void testEndlessRecursion()
+    void testEndlessRecursion(int i = 0)
     {
         BREAK_HERE;
         // Continue.
 
         return; // Uncomment.
-        testEndlessRecursion();
+        testEndlessRecursion(i + 1);
     }
 
     void testEndlessLoop()
