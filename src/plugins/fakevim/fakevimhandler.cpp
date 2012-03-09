@@ -418,7 +418,7 @@ public:
 
     bool isReturn() const
     {
-        return m_key == Key_Return;
+        return m_key == Key_Return || m_key == Key_Enter;
     }
 
     bool isEscape() const
