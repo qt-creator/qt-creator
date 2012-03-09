@@ -1634,7 +1634,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
             } else {
                 showMessage(_("HANDLING SIGNAL " + name));
                 if (debuggerCore()->boolSetting(UseMessageBoxForSignals)
-                        && !isStopperThread)
+                        && !isStopperThread && !isAutoTestRunning())
                     showStoppedBySignalMessageBox(_(meaning), _(name));
                 if (!name.isEmpty() && !meaning.isEmpty())
                     reasontr = msgStoppedBySignal(_(meaning), _(name));
