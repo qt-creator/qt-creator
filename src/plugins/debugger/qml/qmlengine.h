@@ -91,6 +91,8 @@ public:
 
     QmlAdapter *adapter() const;
 
+    void insertBreakpoint(BreakpointModelId id);
+
 public slots:
     void disconnected();
     void documentUpdated(QmlJS::Document::Ptr doc);
@@ -130,7 +132,6 @@ private:
     void selectThread(int index);
 
     void attemptBreakpointSynchronization();
-    void insertBreakpoint(BreakpointModelId id);
     void removeBreakpoint(BreakpointModelId id);
     void changeBreakpoint(BreakpointModelId id);
     bool acceptsBreakpoint(BreakpointModelId id) const;

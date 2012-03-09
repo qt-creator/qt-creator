@@ -1131,23 +1131,21 @@ void QmlV8DebuggerClient::changeBreakpoint(const BreakpointModelId &id)
     BreakHandler *handler = d->engine->breakHandler();
     const BreakpointParameters &params = handler->breakpointData(id);
 
+    BreakpointResponse br = handler->response(id);
     if (params.type == BreakpointAtJavaScriptThrow) {
         d->setExceptionBreak(AllExceptions, params.enabled);
-
+        br.enabled = params.enabled;
+        handler->setResponse(id, br);
     } else if (params.type == BreakpointOnQmlSignalHandler) {
         d->setBreakpoint(QString(_(EVENT)), params.functionName, params.enabled);
-
+        br.enabled = params.enabled;
+        handler->setResponse(id, br);
     } else {
-        int breakpoint = d->breakpoints.value(id);
-        d->changeBreakpoint(breakpoint, params.enabled, QLatin1String(params.condition),
-                            params.ignoreCount);
+        //V8 supports only minimalistic changes in breakpoint
+        //Remove the breakpoint and add again
+        removeBreakpoint(id);
+        d->engine->insertBreakpoint(id);
     }
-
-    BreakpointResponse br = handler->response(id);
-    br.enabled = params.enabled;
-    br.condition = params.condition;
-    br.ignoreCount = params.ignoreCount;
-    handler->setResponse(id, br);
 }
 
 void QmlV8DebuggerClient::synchronizeBreakpoints()
