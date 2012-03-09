@@ -169,7 +169,13 @@ def createProject_Qt_GUI(path, projectName, qtVersion = None, checks = True):
         if platform.system() in ('Windows', 'Microsoft'):
             path = os.path.abspath(path)
         path = os.path.join(path, projectName)
-        expectedFiles = [path, cpp_file, h_file, ui_file, pro_file]
+        expectedFiles = [path]
+        tmpList = ["main.cpp", cpp_file, h_file, ui_file, pro_file]
+        if platform.system() in ('Windows', 'Microsoft'):
+            tmpList.sort(key=str.lower)
+        else:
+            tmpList.sort()
+        expectedFiles.extend(tmpList)
     __createProjectHandleLastPage__(expectedFiles)
 
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 20000)
