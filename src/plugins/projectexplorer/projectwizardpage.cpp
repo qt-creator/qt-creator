@@ -34,6 +34,7 @@
 #include "ui_projectwizardpage.h"
 
 #include <coreplugin/icore.h>
+#include <utils/fileutils.h>
 #include <vcsbase/vcsbaseconstants.h>
 
 #include <QDir>
@@ -142,7 +143,7 @@ static bool generatedFilePathLessThan(const QString &filePath1, const QString &f
     const bool filePath2HasDir = filePath2.contains(QLatin1Char('/'));
 
     if (filePath1HasDir == filePath2HasDir)
-        return filePath1 < filePath2;
+        return Utils::FileName::fromString(filePath1) < Utils::FileName::fromString(filePath2);
     else
         return filePath1HasDir;
 }
