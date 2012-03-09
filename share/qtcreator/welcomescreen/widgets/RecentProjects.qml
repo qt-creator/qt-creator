@@ -49,7 +49,7 @@ ScrollArea {
 
     Column {
         id: column
-        spacing: 2
+        spacing: 6
 
         Repeater {
             id: repeater
