@@ -43,6 +43,28 @@
 #include <iphlpapi.h>
 #endif
 
+#if defined(Q_OS_WIN) && defined(Q_CC_MINGW)
+
+// Missing declarations for MinGW. This requires MinGW with gcc 4.6.
+typedef enum { } MIB_TCP_STATE;
+
+typedef struct _MIB_TCP6ROW {
+    MIB_TCP_STATE State;
+    IN6_ADDR LocalAddr;
+    DWORD dwLocalScopeId;
+    DWORD dwLocalPort;
+    IN6_ADDR RemoteAddr;
+    DWORD dwRemoteScopeId;
+    DWORD dwRemotePort;
+} MIB_TCP6ROW, *PMIB_TCP6ROW;
+
+typedef struct _MIB_TCP6TABLE {
+    DWORD dwNumEntries;
+    MIB_TCP6ROW table[ANY_SIZE];
+} MIB_TCP6TABLE, *PMIB_TCP6TABLE;
+
+#endif // defined(Q_OS_WIN) && defined(Q_CC_MINGW)
+
 namespace Utils {
 namespace Internal {
 
