@@ -5018,6 +5018,7 @@ namespace io {
         std::cin >> i;
         int j;
         std::cin >> j;
+        std::cout << "Values are " << i << " and " << j << "." << std::endl;
     }
 
     void testIO()
