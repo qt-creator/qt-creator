@@ -37,6 +37,7 @@
 #include <QProcess>
 
 #ifdef Q_OS_WIN
+#include <QLibrary>
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
@@ -60,8 +61,8 @@ public:
 };
 
 #ifdef Q_OS_WIN
-template <typename Table, ULONG (__stdcall *Func)(Table*, PULONG, BOOL) >
-QSet<int> usedTcpPorts()
+template <typename Table >
+QSet<int> usedTcpPorts(ULONG (__stdcall *Func)(Table*, PULONG, BOOL))
 {
     Table *table = static_cast<Table*>(malloc(sizeof(Table)));
     DWORD dwSize = sizeof(Table);
@@ -97,9 +98,19 @@ void TcpPortsGathererPrivate::updateWin(TcpPortsGatherer::ProtocolFlags protocol
     QSet<int> ports;
 
     if (protocolFlags & TcpPortsGatherer::IPv4Protocol)
-        ports.unite(usedTcpPorts<MIB_TCPTABLE, GetTcpTable>());
-    if (protocolFlags & TcpPortsGatherer::IPv6Protocol)
-        ports.unite(usedTcpPorts<MIB_TCP6TABLE, GetTcp6Table>());
+        ports.unite(usedTcpPorts<MIB_TCPTABLE>(GetTcpTable));
+
+    //Dynamically load symbol for GetTcp6Table for systems that dont have support for IPV6,
+    //eg Windows XP
+    typedef ULONG (__stdcall *GetTcp6TablePtr)(PMIB_TCP6TABLE, PULONG, BOOL);
+    static GetTcp6TablePtr getTcp6TablePtr = 0;
+
+    if (!getTcp6TablePtr)
+        getTcp6TablePtr = (GetTcp6TablePtr)QLibrary::resolve(QLatin1String("Iphlpapi.dll"),
+                                                             "GetTcp6Table");
+
+    if (getTcp6TablePtr && (protocolFlags & TcpPortsGatherer::IPv6Protocol))
+        ports.unite(usedTcpPorts<MIB_TCP6TABLE>(getTcp6TablePtr));
 
     foreach (int port, ports) {
         if (!usedPorts.contains(port))
