@@ -134,6 +134,7 @@ public:
     BreakpointState state(BreakpointModelId id) const;
     bool isEnabled(BreakpointModelId id) const;
     void setEnabled(BreakpointModelId id, bool on);
+    void updateFileNameFromMarker(BreakpointModelId id, const QString &fileName);
     void updateLineNumberFromMarker(BreakpointModelId id, int lineNumber);
     void setMarkerFileAndLine(BreakpointModelId id,
         const QString &fileName, int lineNumber);

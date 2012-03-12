@@ -40,6 +40,7 @@
 
 #include <QWeakPointer>
 #include <QHash>
+#include <QSet>
 
 QT_BEGIN_NAMESPACE
 class QTextBlock;
@@ -61,6 +62,9 @@ public:
     BaseTextMark(const QString &fileName, int lineNumber);
     virtual ~BaseTextMark();
 
+    /// called if the filename of the document changed
+    virtual void updateFileName(const QString &fileName);
+
     // access to internal data
     QString fileName() const { return m_fileName; }
 
@@ -79,8 +83,10 @@ public:
     void remove(BaseTextMark *mark);
 private slots:
     void editorOpened(Core::IEditor *editor);
+    void documentRenamed(Core::IDocument *document, const QString &oldName, const QString &newName);
+    void allDocumentsRenamed(const QString &oldName, const QString &newName);
 private:
-    QHash<Utils::FileName, QList<BaseTextMark *> > m_marks;
+    QHash<Utils::FileName, QSet<BaseTextMark *> > m_marks;
 };
 }
 

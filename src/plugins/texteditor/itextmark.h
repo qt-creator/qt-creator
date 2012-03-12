@@ -103,6 +103,7 @@ class TEXTEDITOR_EXPORT ITextMarkable : public QObject
 public:
     ITextMarkable(QObject *parent = 0) : QObject(parent) {}
 
+    virtual TextMarks marks() const = 0;
     virtual bool addMark(ITextMark *mark) = 0;
     virtual TextMarks marksAt(int line) const = 0;
     virtual void removeMark(ITextMark *mark) = 0;

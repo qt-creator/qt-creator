@@ -36,6 +36,7 @@
 #include "texteditorplugin.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/documentmanager.h>
 #include <extensionsystem/pluginmanager.h>
 
 using namespace TextEditor;
@@ -47,11 +48,17 @@ BaseTextMarkRegistry::BaseTextMarkRegistry(QObject *parent)
     Core::EditorManager *em = Core::EditorManager::instance();
     connect(em, SIGNAL(editorOpened(Core::IEditor*)),
         SLOT(editorOpened(Core::IEditor*)));
+
+    Core::DocumentManager *dm = Core::DocumentManager::instance();
+    connect(dm, SIGNAL(allDocumentsRenamed(QString,QString)),
+            this, SLOT(allDocumentsRenamed(QString,QString)));
+    connect(dm, SIGNAL(documentRenamed(Core::IDocument*,QString,QString)),
+            this, SLOT(documentRenamed(Core::IDocument*,QString,QString)));
 }
 
 void BaseTextMarkRegistry::add(BaseTextMark *mark)
 {
-    m_marks[Utils::FileName::fromString(mark->fileName())].append(mark);
+    m_marks[Utils::FileName::fromString(mark->fileName())].insert(mark);
     Core::EditorManager *em = Core::EditorManager::instance();
     foreach (Core::IEditor *editor, em->editorsForFileName(mark->fileName())) {
         if (ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor)) {
@@ -65,7 +72,7 @@ void BaseTextMarkRegistry::add(BaseTextMark *mark)
 
 void BaseTextMarkRegistry::remove(BaseTextMark *mark)
 {
-    m_marks[Utils::FileName::fromString(mark->fileName())].removeOne(mark);
+    m_marks[Utils::FileName::fromString(mark->fileName())].remove(mark);
 }
 
 void BaseTextMarkRegistry::editorOpened(Core::IEditor *editor)
@@ -82,6 +89,46 @@ void BaseTextMarkRegistry::editorOpened(Core::IEditor *editor)
     }
 }
 
+void BaseTextMarkRegistry::documentRenamed(Core::IDocument *document, const
+                                           QString &oldName, const QString &newName)
+{
+    TextEditor::BaseTextDocument *baseTextDocument
+            = qobject_cast<TextEditor::BaseTextDocument *>(document);
+    if (!document)
+        return;
+    Utils::FileName oldFileName = Utils::FileName::fromString(oldName);
+    Utils::FileName newFileName = Utils::FileName::fromString(newName);
+    if (!m_marks.contains(oldFileName))
+        return;
+
+    QSet<BaseTextMark *> toBeMoved;
+    foreach (ITextMark *mark, baseTextDocument->documentMarker()->marks())
+        if (BaseTextMark *baseTextMark = dynamic_cast<BaseTextMark *>(mark))
+            toBeMoved.insert(baseTextMark);
+
+    m_marks[oldFileName].subtract(toBeMoved);
+    m_marks[newFileName].unite(toBeMoved);
+
+    foreach (BaseTextMark *mark, toBeMoved)
+        mark->updateFileName(newName);
+}
+
+void BaseTextMarkRegistry::allDocumentsRenamed(const QString &oldName, const QString &newName)
+{
+    Utils::FileName oldFileName = Utils::FileName::fromString(oldName);
+    Utils::FileName newFileName = Utils::FileName::fromString(newName);
+    if (!m_marks.contains(oldFileName))
+        return;
+
+    QSet<BaseTextMark *> oldFileNameMarks = m_marks.value(oldFileName);
+
+    m_marks[newFileName].unite(oldFileNameMarks);
+    m_marks[oldFileName].clear();
+
+    foreach (BaseTextMark *mark, oldFileNameMarks)
+        mark->updateFileName(newName);
+}
+
 BaseTextMark::BaseTextMark(const QString &fileName, int lineNumber)
     : ITextMark(lineNumber), m_fileName(fileName)
 {
@@ -92,4 +139,9 @@ BaseTextMark::~BaseTextMark()
 {
     // oha we are deleted
     Internal::TextEditorPlugin::instance()->baseTextMarkRegistry()->remove(this);
+}
+
+void BaseTextMark::updateFileName(const QString &fileName)
+{
+    m_fileName = fileName;
 }

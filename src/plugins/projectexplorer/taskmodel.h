@@ -62,6 +62,7 @@ public:
     void addTask(const Task &task);
     void removeTask(const Task &task);
     void clearTasks(const Core::Id &categoryId = Core::Id());
+    void updateTaskFileName(unsigned int id, const QString &fileName);
     void updateTaskLineNumber(unsigned int id, int line);
 
     int sizeOfFile(const QFont &font);

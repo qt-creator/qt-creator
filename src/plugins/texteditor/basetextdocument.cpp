@@ -268,9 +268,10 @@ bool BaseTextDocument::save(QString *errorString, const QString &fileName, bool 
         return true;
 
     const QFileInfo fi(fName);
+    const QString oldFileName = d->m_fileName;
     d->m_fileName = QDir::cleanPath(fi.absoluteFilePath());
-
     d->m_document->setModified(false);
+    emit fileNameChanged(oldFileName, d->m_fileName);
     emit titleChanged(fi.fileName());
     emit changed();
     return true;
@@ -284,7 +285,9 @@ bool BaseTextDocument::shouldAutoSave() const
 void BaseTextDocument::rename(const QString &newName)
 {
     const QFileInfo fi(newName);
+    const QString oldFileName = d->m_fileName;
     d->m_fileName = QDir::cleanPath(fi.absoluteFilePath());
+    emit fileNameChanged(oldFileName, d->m_fileName);
     emit titleChanged(fi.fileName());
     emit changed();
 }

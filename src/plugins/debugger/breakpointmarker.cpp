@@ -71,6 +71,12 @@ void BreakpointMarker::updateLineNumber(int lineNumber)
     breakHandler()->updateLineNumberFromMarker(m_id, lineNumber);
 }
 
+void BreakpointMarker::updateFileName(const QString &fileName)
+{
+    BaseTextMark::updateFileName(fileName);
+    breakHandler()->updateFileNameFromMarker(m_id, fileName);
+}
+
 } // namespace Internal
 } // namespace Debugger
 

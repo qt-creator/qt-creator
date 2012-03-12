@@ -70,6 +70,16 @@ void Bookmark::updateBlock(const QTextBlock &block)
     }
 }
 
+void Bookmark::updateFileName(const QString &fileName)
+{
+    m_fileName = fileName;
+    QFileInfo fi(fileName);
+    m_onlyFile = fi.fileName();
+    m_path = fi.path();
+    m_manager->updateBookmark(this);
+    BaseTextMark::updateFileName(fileName);
+}
+
 QString Bookmark::lineText() const
 {
     return m_lineText;

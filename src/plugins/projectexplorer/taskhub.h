@@ -52,6 +52,7 @@ public:
     void addTask(Task task);
     void clearTasks(const Core::Id &categoryId = Core::Id());
     void removeTask(const Task &task);
+    void updateTaskFileName(unsigned int id, const QString &fileName);
     void updateTaskLineNumber(unsigned int id, int line);
     void taskMarkClicked(unsigned int id);
     void setCategoryVisibility(const Core::Id &categoryId, bool visible);
@@ -65,6 +66,7 @@ signals:
     void taskAdded(const ProjectExplorer::Task &task);
     void taskRemoved(const ProjectExplorer::Task &task);
     void tasksCleared(const Core::Id &categoryId);
+    void taskFileNameUpdated(unsigned int id, const QString &fileName);
     void taskLineNumberUpdated(unsigned int id, int line);
     void categoryVisibilityChanged(const Core::Id &categoryId, bool visible);
     void popupRequested(bool withFocus);

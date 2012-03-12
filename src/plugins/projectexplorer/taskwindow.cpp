@@ -299,6 +299,8 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
             this, SLOT(removeTask(ProjectExplorer::Task)));
     connect(d->m_taskHub, SIGNAL(taskLineNumberUpdated(uint,int)),
             this, SLOT(updatedTaskLineNumber(uint,int)));
+    connect(d->m_taskHub, SIGNAL(taskFileNameUpdated(uint,QString)),
+            this, SLOT(updatedTaskFileName(uint,QString)));
     connect(d->m_taskHub, SIGNAL(tasksCleared(Core::Id)),
             this, SLOT(clearTasks(Core::Id)));
     connect(d->m_taskHub, SIGNAL(categoryVisibilityChanged(Core::Id,bool)),
@@ -383,6 +385,12 @@ void TaskWindow::removeTask(const Task &task)
 
     emit tasksChanged();
     navigateStateChanged();
+}
+
+void TaskWindow::updatedTaskFileName(unsigned int id, const QString &fileName)
+{
+    d->m_model->updateTaskFileName(id, fileName);
+    emit tasksChanged();
 }
 
 void TaskWindow::updatedTaskLineNumber(unsigned int id, int line)

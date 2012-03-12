@@ -148,9 +148,14 @@ signals:
     /* Used to notify e.g. the code model to update the given files. Does *not*
        lead to any editors to reload or any other editor manager actions. */
     void filesChangedInternally(const QStringList &files);
+    /// emitted if all documents changed their name e.g. due to the file changing on disk
+    void allDocumentsRenamed(const QString &from, const QString &to);
+    /// emitted if one document changed its name e.g. due to save as
+    void documentRenamed(Core::IDocument *document, const QString &from, const QString &to);
 
 private slots:
     void documentDestroyed(QObject *obj);
+    void fileNameChanged(const QString &oldName, const QString &newName);
     void checkForNewFileName();
     void checkForReload();
     void changedFile(const QString &file);

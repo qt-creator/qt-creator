@@ -156,6 +156,16 @@ int TaskModel::rowForId(unsigned int id)
     return it - m_tasks.constBegin();
 }
 
+void TaskModel::updateTaskFileName(unsigned int id, const QString &fileName)
+{
+    int i = rowForId(id);
+    QTC_ASSERT(i != -1, return)
+    if (m_tasks.at(i).taskId == id) {
+        m_tasks[i].file = Utils::FileName::fromString(fileName);
+        emit dataChanged(index(i, 0), index(i, 0));
+    }
+}
+
 void TaskModel::updateTaskLineNumber(unsigned int id, int line)
 {
     int i = rowForId(id);
