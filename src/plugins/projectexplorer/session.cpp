@@ -49,6 +49,7 @@
 
 #include <utils/listutils.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 
 #include <QDebug>
 #include <QDir>
@@ -315,6 +316,15 @@ bool SessionManager::save()
     // save the startup project
     if (m_startupProject)
         data.insert(QLatin1String("StartupProject"), m_startupProject->document()->fileName());
+
+    QColor c = Utils::StyleHelper::requestedBaseColor();
+    if (c.isValid()) {
+        QString tmp = QString::fromLatin1("#%1%2%3")
+                .arg(c.red(), 2, 16, QLatin1Char('0'))
+                .arg(c.green(), 2, 16, QLatin1Char('0'))
+                .arg(c.blue(), 2, 16, QLatin1Char('0'));
+        writer.saveValue(QLatin1String("Color"), tmp);
+    }
 
     QStringList projectFiles;
     foreach (Project *pro, m_projects)
@@ -860,6 +870,10 @@ bool SessionManager::loadSession(const QString &session)
 
         restoreValues(reader);
         emit aboutToLoadSession(session);
+
+        QColor c = QColor(reader.restoreValue(QLatin1String("Color")).toString());
+        if (c.isValid())
+            Utils::StyleHelper::setBaseColor(c);
 
         QStringList fileList =
             reader.restoreValue(QLatin1String("ProjectList")).toStringList();
