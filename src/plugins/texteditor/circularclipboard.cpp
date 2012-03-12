@@ -53,6 +53,16 @@ CircularClipboard *CircularClipboard::instance()
 
 void CircularClipboard::collect(const QMimeData *mimeData)
 {
+    //Avoid duplicates
+    const QString text = mimeData->text();
+    for (QList<const QMimeData *>::iterator i = m_items.begin(); i != m_items.end(); ++i) {
+        if (mimeData == *i || text == (*i)->text()) {
+            if (mimeData != *i)
+                delete *i;
+            m_items.erase(i);
+            break;
+        }
+    }
     if (m_items.size() > kMaxSize) {
         delete m_items.last();
         m_items.removeLast();
