@@ -197,6 +197,7 @@ private:
         bool isLocatedAt(const QString &fileName, int lineNumber,
             bool useMarkerPosition) const;
         void updateMarker(BreakpointModelId id);
+        void updateMarkerIcon();
         QString toToolTip() const;
         QString markerFileName() const;
         int markerLineNumber() const;

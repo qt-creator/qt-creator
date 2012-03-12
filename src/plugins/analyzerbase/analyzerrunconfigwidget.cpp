@@ -85,7 +85,8 @@ AnalyzerRunConfigWidget::AnalyzerRunConfigWidget()
     globalSettingLayout->addStretch(2);
 
     m_subConfigWidget = new QWidget(this);
-    new QVBoxLayout(m_subConfigWidget);
+    QVBoxLayout *subConfigLayout = new QVBoxLayout(m_subConfigWidget);
+    subConfigLayout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_subConfigWidget);
 }
 

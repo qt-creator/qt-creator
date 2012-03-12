@@ -69,7 +69,7 @@ public:
 
 QString CodeStylePoolPrivate::generateUniqueId(const QString &id) const
 {
-    if (!m_idToCodeStyle.contains(id))
+    if (!id.isEmpty() && !m_idToCodeStyle.contains(id))
         return id;
 
     int idx = id.size();
@@ -80,7 +80,7 @@ QString CodeStylePoolPrivate::generateUniqueId(const QString &id) const
     }
 
     const QString baseName = id.left(idx);
-    QString newName = baseName;
+    QString newName = baseName.isEmpty() ? QLatin1String("codestyle") : baseName;
     int i = 2;
     while (m_idToCodeStyle.contains(newName))
         newName = baseName + QString::number(i++);

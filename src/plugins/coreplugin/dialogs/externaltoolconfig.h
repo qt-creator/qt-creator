@@ -73,14 +73,12 @@ public:
     QMap<QString, QList<ExternalTool *> > tools() const;
 
     ExternalTool *toolForIndex(const QModelIndex &modelIndex) const;
-    QString categoryForIndex(const QModelIndex &modelIndex) const;
-    int rowForCategory(const QString &category) const;
+    QString categoryForIndex(const QModelIndex &modelIndex, bool *found) const;
     void revertTool(const QModelIndex &modelIndex);
     QModelIndex addCategory();
     QModelIndex addTool(const QModelIndex &atIndex);
     void removeTool(const QModelIndex &modelIndex);
     Qt::DropActions supportedDropActions() const;
-    QString uncategorizedDisplayName() const;
 private:
     QVariant data(ExternalTool *tool, int role = Qt::DisplayRole) const;
     QVariant data(const QString &category, int role = Qt::DisplayRole) const;

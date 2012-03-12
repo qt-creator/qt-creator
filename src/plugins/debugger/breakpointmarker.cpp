@@ -67,8 +67,8 @@ void BreakpointMarker::removedFromEditor()
 
 void BreakpointMarker::updateLineNumber(int lineNumber)
 {
-    breakHandler()->updateLineNumberFromMarker(m_id, lineNumber);
     BaseTextMark::updateLineNumber(lineNumber);
+    breakHandler()->updateLineNumberFromMarker(m_id, lineNumber);
 }
 
 } // namespace Internal

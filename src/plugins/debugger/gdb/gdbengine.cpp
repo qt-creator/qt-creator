@@ -715,7 +715,7 @@ void GdbEngine::interruptInferior()
     QTC_ASSERT(state() == InferiorStopRequested,
         qDebug() << "INTERRUPT INFERIOR: " << state(); return);
 
-    if (0 && debuggerCore()->boolSetting(TargetAsync)) {
+    if (usesExecInterrupt()) {
         postCommand("-exec-interrupt");
     } else {
         showStatusMessage(tr("Stop requested..."), 5000);
@@ -1634,7 +1634,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
             } else {
                 showMessage(_("HANDLING SIGNAL " + name));
                 if (debuggerCore()->boolSetting(UseMessageBoxForSignals)
-                        && !isStopperThread)
+                        && !isStopperThread && !isAutoTestRunning())
                     showStoppedBySignalMessageBox(_(meaning), _(name));
                 if (!name.isEmpty() && !meaning.isEmpty())
                     reasontr = msgStoppedBySignal(_(meaning), _(name));
@@ -1667,7 +1667,7 @@ void GdbEngine::handleStop2()
     if (supportsThreads()) {
         if (m_gdbAdapter->isCodaAdapter()) {
             m_gdbAdapter->codaReloadThreads();
-        } else if (m_isMacGdb) {
+        } else if (m_isMacGdb || m_gdbVersion < 70100) {
             postCommand("-thread-list-ids", Discardable, CB(handleThreadListIds));
         } else {
             // This is only available in gdb 7.1+.
@@ -1715,6 +1715,11 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
 
         if (m_gdbVersion > 70300)
             m_hasBreakpointNotifications = true;
+
+        if (usesExecInterrupt())
+            postCommand("set target-async on", ConsoleCommand);
+        else
+            postCommand("set target-async off", ConsoleCommand);
     }
 }
 
@@ -4707,11 +4712,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
     postCommand("set trust-readonly-sections on", ConsoleCommand);
     postCommand("set auto-solib-add on", ConsoleCommand);
     postCommand("set remotecache on", ConsoleCommand);
-
-    if (0 && debuggerCore()->boolSetting(TargetAsync)) {
-        postCommand("set target-async on", ConsoleCommand);
-        postCommand("set non-stop on", ConsoleCommand);
-    }
+    //postCommand("set non-stop on", ConsoleCommand);
 
     // Work around https://bugreports.qt-project.org/browse/QTCREATORBUG-2004
     postCommand("maintenance set internal-warning quit no", ConsoleCommand);
@@ -5128,6 +5129,17 @@ bool GdbEngine::isQFatalBreakpoint(const BreakpointResponseId &id) const
 bool GdbEngine::isHiddenBreakpoint(const BreakpointResponseId &id) const
 {
     return isQFatalBreakpoint(id) || isQmlStepBreakpoint(id);
+}
+
+bool GdbEngine::usesExecInterrupt() const
+{
+    if (m_gdbVersion < 70000)
+        return false;
+
+    // debuggerCore()->boolSetting(TargetAsync)
+    DebuggerStartMode mode = startParameters().startMode;
+    return mode == AttachToRemoteServer
+        || mode == AttachToRemoteProcess;
 }
 
 void GdbEngine::scheduleTestResponse(int testCase, const QByteArray &response)

@@ -596,7 +596,9 @@ void QtOptionsPageWidget::addQtDir()
                 QFileDialog::getOpenFileName(this,
                                              tr("Select a qmake executable"),
                                              QString(),
-                                             filterForQmakeFileDialog()));
+                                             filterForQmakeFileDialog(),
+                                             0,
+                                             QFileDialog::DontResolveSymlinks));
     if (qtVersion.isNull())
         return;
     if (QtVersionManager::instance()->qtVersionForQMakeBinary(qtVersion)) {
@@ -642,7 +644,10 @@ void QtOptionsPageWidget::editPath()
     Utils::FileName qtVersion = Utils::FileName::fromString(
                 QFileDialog::getOpenFileName(this,
                                              tr("Select a qmake executable"),
-                                             dir, filterForQmakeFileDialog()));
+                                             dir,
+                                             filterForQmakeFileDialog(),
+                                             0,
+                                             QFileDialog::DontResolveSymlinks));
     if (qtVersion.isNull())
         return;
     BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion);

@@ -154,6 +154,9 @@ public:
 
     bool visit(UiScriptBinding *ast)
     {
+        if (!ast->statement)
+            return true;
+
         quint32 sourceStartLine = ast->firstSourceLocation().startLine;
         quint32 statementStartLine;
         quint32 statementColumn;
@@ -165,6 +168,8 @@ public:
 
         } else if (ast->statement->kind == Node::Kind_Block) {
             Block *block = static_cast<Block *>(ast->statement);
+            if (!block || !block->statements)
+                return true;
             statementStartLine = block->statements->firstSourceLocation().
                     startLine;
             statementColumn = block->statements->firstSourceLocation().

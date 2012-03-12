@@ -35,7 +35,7 @@
 
     \note To complete this tutorial, you must have Qt 4.7 or later installed.
 
-    This tutorial uses basic elements and illustrates basic concepts of
+    This tutorial uses built-in QML elements and illustrates basic concepts of
     \l {http://doc.qt.nokia.com/4.7/qtquick.html}{Qt Quick}.
 
     This tutorial describes how to use the \QC to implement the
@@ -53,8 +53,8 @@
 
     \list 1
 
-        \o  Select \gui{File > New File or Project > Qt Quick Project > Qt Quick
-            Application > Choose}.
+        \o  Select \gui{File > New File or Project > Applications >
+            Qt Quick Application (Built-in Elements) > Choose}.
 
         \o  In the \gui{Name} field, type \bold {Transitions}.
 
@@ -150,7 +150,7 @@
 
             \o  In the \gui Colors group, \gui Rectangle field, click the
                 \inlineimage qmldesigner-transparent-button.png
-                button to make the rectangle transparent.
+                (\gui Transparent) button to make the rectangle transparent.
 
             \o  In the \gui Border field, set the border color to #808080.
 
@@ -161,7 +161,7 @@
                 border color, try setting the border color to solid by clicking
                 the
                 \inlineimage qmldesigner-solid-color-button.png
-                button.
+                (\gui {Solid Color}) button.
 
             \o  In the \gui Radius field, select 6 to create rounded corners for
                 the rectangle.
@@ -187,7 +187,8 @@
 
             \o  Click \gui {Layout}, and then click the
                 \inlineimage qmldesigner-anchor-fill-screen.png
-                button to anchor the mouse area to the rectangle.
+                (\gui {Fill to Parent}) button to anchor the mouse area to the
+                rectangle.
 
             \o  In the code editor, edit the pointer to the clicked expression
                 in the mouse area element, as illustrated by the following code

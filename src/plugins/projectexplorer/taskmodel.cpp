@@ -163,7 +163,6 @@ void TaskModel::updateTaskLineNumber(unsigned int id, int line)
     if (m_tasks.at(i).taskId == id) {
         m_tasks[i].movedLine = line;
         emit dataChanged(index(i, 0), index(i, 0));
-        return;
     }
 }
 

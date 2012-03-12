@@ -482,7 +482,8 @@ UnConfiguredSettings Qt4Manager::unconfiguredSettings() const
                 }
             }
             m_unConfiguredVersionId = version->uniqueId();
-            m_unconfiguredToolChainId = toolChain->id();
+            if (toolChain)
+                m_unconfiguredToolChainId = toolChain->id();
         }
         UnConfiguredSettings us;
         us.version = version;

@@ -37,6 +37,12 @@ Item {
     width: 480
     height: 32
 
+    Rectangle {
+        anchors.fill: parent
+        color: "#f9f9f9"
+        opacity: projectNameText.hovered ? 1 : 0
+    }
+
     property alias projectName: projectNameText.text
     property alias projectPath: pathText.text
 

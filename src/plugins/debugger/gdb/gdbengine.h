@@ -732,6 +732,8 @@ private: ////////// View & Data Stuff //////////
     BreakpointResponseId m_qFatalBreakpointResponseId;
     bool m_actingOnExpectedStop;
 
+    bool usesExecInterrupt() const;
+
     QHash<int, QByteArray> m_scheduledTestResponses;
     QSet<int> m_testCases;
 };
