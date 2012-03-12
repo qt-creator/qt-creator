@@ -1208,7 +1208,9 @@ void Qt4HarmattanTarget::handleTargetAddedSpecial()
 
 void Qt4HarmattanTarget::addAdditionalControlFileFields(QByteArray &controlContents)
 {
-    Q_UNUSED(controlContents);
+    adaptControlFileField(controlContents, "XB-Maemo-Flags", "visible");
+    adaptControlFileField(controlContents, "XB-MeeGo-Desktop-Entry-Filename", QString::fromLatin1("%1_harmattan").arg(project()->displayName()).toUtf8());
+    adaptControlFileField(controlContents, "XB-MeeGo-Desktop-Entry", QString::fromLatin1("\n [Desktop Entry]\n Type=Application\n Name=%1\n Icon=/usr/share/icons/hicolor/80x80/apps/%1%2.png").arg(project()->displayName()).arg(80).toUtf8());
 }
 
 QString Qt4HarmattanTarget::debianDirName() const
