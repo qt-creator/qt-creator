@@ -1285,7 +1285,7 @@ CppQmlTypesLoader::BuiltinObjects CppQmlTypesLoader::loadQmlTypes(const QFileInf
         if (!warning.isEmpty()) {
             warnings->append(TypeDescriptionReader::tr(
                                  "Warnings while loading qmltypes from %1:\n%2").arg(
-                                 qmlTypeFile.absoluteFilePath(), error));
+                                 qmlTypeFile.absoluteFilePath(), warning));
         }
     }
 
