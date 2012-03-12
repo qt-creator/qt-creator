@@ -250,6 +250,7 @@ public:
 
     virtual IAssistInterface *createAssistInterface(AssistKind assistKind,
                                                     AssistReason assistReason) const;
+    QMimeData *duplicateMimeData(const QMimeData *source) const;
 
 public slots:
     void setDisplayName(const QString &title);
@@ -347,7 +348,6 @@ protected:
     QMimeData *createMimeDataFromSelection() const;
     bool canInsertFromMimeData(const QMimeData *source) const;
     void insertFromMimeData(const QMimeData *source);
-    QMimeData *duplicateMimeData(const QMimeData *source) const;
 
     static QString msgTextTooLarge(quint64 size);
 

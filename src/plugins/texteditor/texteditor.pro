@@ -115,6 +115,7 @@ SOURCES += texteditorplugin.cpp \
     codestylepool.cpp \
     codestyleeditor.cpp \
     circularclipboard.cpp \
+    circularclipboardassist.cpp \
     itextmark.cpp
 
 HEADERS += texteditorplugin.h \
@@ -233,6 +234,7 @@ HEADERS += texteditorplugin.h \
     codestyleeditor.h \
     basefilefind_p.h \
     circularclipboard.h \
+    circularclipboardassist.h \
     itextmark.h
 
 FORMS += \

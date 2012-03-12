@@ -55,6 +55,7 @@
 #include "texteditorsettings.h"
 #include "texteditoroverlay.h"
 #include "circularclipboard.h"
+#include "circularclipboardassist.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -201,14 +202,6 @@ static void convertToPlainText(QString &txt)
             ;
         }
     }
-}
-
-static bool isModifierKey(int key)
-{
-    return key == Qt::Key_Shift
-            || key == Qt::Key_Control
-            || key == Qt::Key_Alt
-            || key == Qt::Key_Meta;
 }
 
 static const char kTextBlockMimeType[] = "application/vnd.nokia.qtcreator.blocktext";
@@ -1554,11 +1547,6 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
     d->m_moveLineUndoHack = false;
     d->clearVisibleFoldedBlock();
 
-    if (d->m_isCirculatingClipboard
-            && !isModifierKey(e->key())) {
-        d->m_isCirculatingClipboard = false;
-    }
-
     if (e->key() == Qt::Key_Alt
             && d->m_behaviorSettings.m_keyboardTooltips) {
         d->m_maybeFakeTooltipEvent = true;
@@ -2496,7 +2484,6 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate()
     m_requestMarkEnabled(true),
     m_lineSeparatorsAllowed(false),
     m_maybeFakeTooltipEvent(false),
-    m_isCirculatingClipboard(false),
     m_visibleWrapColumn(0),
     m_linkPressed(false),
     m_delayedUpdateTimer(0),
@@ -2511,7 +2498,8 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate()
     m_assistRelevantContentAdded(false),
     m_cursorBlockNumber(-1),
     m_autoCompleter(new AutoCompleter),
-    m_indenter(new Indenter)
+    m_indenter(new Indenter),
+    m_clipboardAssistProvider(new Internal::ClipboardAssistProvider)
 {
 }
 
@@ -5821,26 +5809,19 @@ void BaseTextEditorWidget::paste()
 
 void BaseTextEditorWidget::circularPaste()
 {
-    const QMimeData *mimeData = CircularClipboard::instance()->next();
-    if (!mimeData)
-        return;
-
-    QTextCursor cursor = textCursor();
-    if (!d->m_isCirculatingClipboard) {
-        cursor.beginEditBlock();
-        d->m_isCirculatingClipboard = true;
-    } else {
-        cursor.joinPreviousEditBlock();
+    CircularClipboard *circularClipBoard = CircularClipboard::instance();
+    if (const QMimeData *clipboardData = QApplication::clipboard()->mimeData()) {
+        circularClipBoard->collect(duplicateMimeData(clipboardData));
+        circularClipBoard->toLastCollect();
     }
-    const int selectionStart = qMin(cursor.position(), cursor.anchor());
-    insertFromMimeData(mimeData);
-    cursor.setPosition(selectionStart, QTextCursor::KeepAnchor);
-    cursor.endEditBlock();
 
-    setTextCursor(flippedCursor(cursor));
+    if (circularClipBoard->size() > 1)
+        return invokeAssist(QuickFix, d->m_clipboardAssistProvider.data());
 
-    // We want to latest pasted content to replace the system's current clipboard.
-    QPlainTextEdit::copy();
+    if (const QMimeData *mimeData = circularClipBoard->next().data()) {
+        QApplication::clipboard()->setMimeData(duplicateMimeData(mimeData));
+        paste();
+    }
 }
 
 void BaseTextEditorWidget::switchUtf8bom()

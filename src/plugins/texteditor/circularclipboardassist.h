@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,41 +26,26 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 
-#ifndef CIRCULARCLIPBOARD_H
-#define CIRCULARCLIPBOARD_H
+#ifndef CIRCULARCLIPBOARDASSIST_H
+#define CIRCULARCLIPBOARDASSIST_H
 
-#include <QList>
-#include <QMimeData>
-#include <QSharedPointer>
+#include "codeassist/iassistprovider.h"
 
 namespace TextEditor {
 namespace Internal {
 
-class CircularClipboard
+class ClipboardAssistProvider: public IAssistProvider
 {
 public:
-    static CircularClipboard *instance();
-
-    void collect(const QMimeData *mimeData);
-    void collect(const QSharedPointer<const QMimeData> &mimeData);
-    QSharedPointer<const QMimeData> next() const;
-    void toLastCollect();
-    int size() const;
-
-private:
-    CircularClipboard();
-    ~CircularClipboard();
-    CircularClipboard &operator=(const CircularClipboard &);
-
-    mutable int m_current;
-    QList< QSharedPointer<const QMimeData> > m_items;
+    virtual bool supportsEditor(const Core::Id &editorId) const;
+    virtual IAssistProcessor *createProcessor() const;
 };
 
 } // namespace Internal
 } // namespace TextEditor
 
-#endif // CIRCULARCLIPBOARD_H
+#endif // CIRCULARCLIPBOARDASSIST_H

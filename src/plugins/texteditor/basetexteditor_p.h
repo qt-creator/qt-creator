@@ -54,6 +54,7 @@ class CodeAssistant;
 
 namespace Internal {
 class TextEditorOverlay;
+class ClipboardAssistProvider;
 
 class TEXTEDITOR_EXPORT BaseTextBlockSelection
 {
@@ -244,7 +245,6 @@ public:
     uint autoParenthesisOverwriteBackup : 1;
     uint surroundWithEnabledOverwriteBackup : 1;
     uint m_maybeFakeTooltipEvent : 1;
-    uint m_isCirculatingClipboard: 1;
     int m_visibleWrapColumn;
 
     QTextCharFormat m_linkFormat;
@@ -298,6 +298,8 @@ public:
 
     QScopedPointer<AutoCompleter> m_autoCompleter;
     QScopedPointer<Indenter> m_indenter;
+
+    QScopedPointer<Internal::ClipboardAssistProvider> m_clipboardAssistProvider;
 };
 
 } // namespace Internal

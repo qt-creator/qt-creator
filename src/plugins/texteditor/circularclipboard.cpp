@@ -42,7 +42,6 @@ CircularClipboard::CircularClipboard()
 
 CircularClipboard::~CircularClipboard()
 {
-    qDeleteAll(m_items);
 }
 
 CircularClipboard *CircularClipboard::instance()
@@ -53,27 +52,28 @@ CircularClipboard *CircularClipboard::instance()
 
 void CircularClipboard::collect(const QMimeData *mimeData)
 {
+    collect(QSharedPointer<const QMimeData>(mimeData));
+}
+
+void CircularClipboard::collect(const QSharedPointer<const QMimeData> &mimeData)
+{
     //Avoid duplicates
     const QString text = mimeData->text();
-    for (QList<const QMimeData *>::iterator i = m_items.begin(); i != m_items.end(); ++i) {
+    for (QList< QSharedPointer<const QMimeData> >::iterator i = m_items.begin(); i != m_items.end(); ++i) {
         if (mimeData == *i || text == (*i)->text()) {
-            if (mimeData != *i)
-                delete *i;
             m_items.erase(i);
             break;
         }
     }
-    if (m_items.size() > kMaxSize) {
-        delete m_items.last();
+    if (m_items.size() >= kMaxSize)
         m_items.removeLast();
-    }
     m_items.prepend(mimeData);
 }
 
-const QMimeData *CircularClipboard::next() const
+QSharedPointer<const QMimeData> CircularClipboard::next() const
 {
     if (m_items.isEmpty())
-        return 0;
+        return QSharedPointer<const QMimeData>();
 
     if (m_current == m_items.length() - 1)
         m_current = 0;
@@ -86,4 +86,9 @@ const QMimeData *CircularClipboard::next() const
 void CircularClipboard::toLastCollect()
 {
     m_current = -1;
+}
+
+int CircularClipboard::size() const
+{
+    return m_items.size();
 }

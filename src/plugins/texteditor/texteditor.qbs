@@ -50,6 +50,8 @@ QtcPlugin {
         "behaviorsettingswidget.ui",
         "circularclipboard.cpp",
         "circularclipboard.h",
+        "circularclipboardassist.cpp",
+        "circularclipboardassist.h",
         "codecselector.cpp",
         "codecselector.h",
         "codestyleeditor.cpp",
