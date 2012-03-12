@@ -390,7 +390,7 @@ bool Project::needsConfiguration() const
 
 void Project::configureAsExampleProject(const QStringList &platforms)
 {
-
+    Q_UNUSED(platforms);
 }
 
 } // namespace ProjectExplorer
