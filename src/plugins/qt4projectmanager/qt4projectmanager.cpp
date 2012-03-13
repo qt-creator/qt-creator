@@ -201,7 +201,7 @@ void Qt4Manager::updateVariable(const QByteArray &variable)
             return;
         }
         QString value;
-        QtSupport::BaseQtVersion *qtv;
+        const QtSupport::BaseQtVersion *qtv = 0;
         if (Qt4BaseTarget *t = qt4pro->activeTarget()) {
             if (Qt4BuildConfiguration *bc = t->activeQt4BuildConfiguration())
                 qtv = bc->qtVersion();
