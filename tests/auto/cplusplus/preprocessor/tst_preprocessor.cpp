@@ -125,14 +125,17 @@ void tst_Preprocessor::tstst()
                            "namespace std _GLIBCXX_VISIBILITY(default) {\n"
                            "}\n"
                            ));
+    const QByteArray result =
+            "namespace std \n"
+            "#gen true\n"
+            "# 3 \"<stdin>\"\n"
+            "              __attribute__ ((__visibility__ (\"default\")))\n"
+            "#gen false\n"
+            "# 3 \"<stdin>\"\n"
+            "                                           {\n"
+            "}";
 
-    qDebug() << preprocessed;
-
-    /*
-# define _GLIBCXX_VISIBILITY(V) __attribute__ ((__visibility__ (#V)))
-namespace std _GLIBCXX_VISIBILITY(default)
-
-     */
+    QVERIFY(preprocessed.contains(result));
 }
 
 QTEST_APPLESS_MAIN(tst_Preprocessor)
