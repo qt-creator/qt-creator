@@ -1089,8 +1089,9 @@ void WatchModel::insertData(const WatchData &data)
     if (WatchItem *oldItem = findItem(data.iname, parent)) {
         bool hadChildren = oldItem->hasChildren;
         // Overwrite old entry.
+        bool hasChanged = oldItem->hasChanged(data);
         oldItem->setData(data);
-        oldItem->changed = data.hasChanged(*oldItem);
+        oldItem->changed = hasChanged;
         oldItem->generation = m_generationCounter;
         QModelIndex idx = watchIndex(oldItem);
         emit dataChanged(idx, idx.sibling(idx.row(), 2));
