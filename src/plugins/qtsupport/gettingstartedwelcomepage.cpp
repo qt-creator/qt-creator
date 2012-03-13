@@ -70,7 +70,6 @@
 #include <QDeclarativeImageProvider>
 #include <QDeclarativeEngine>
 #include <QDeclarativeContext>
-#include <QtDeclarative>
 #include <QDesktopServices>
 
 namespace QtSupport {
