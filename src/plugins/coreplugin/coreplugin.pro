@@ -75,7 +75,6 @@ SOURCES += mainwindow.cpp \
     dialogs/ioptionspage.cpp \
     dialogs/iwizard.cpp \
     settingsdatabase.cpp \
-    eventfilteringmainwindow.cpp \
     imode.cpp \
     editormanager/systemeditor.cpp \
     designmode.cpp \
@@ -170,7 +169,6 @@ HEADERS += mainwindow.h \
     fileiconprovider.h \
     mimedatabase.h \
     settingsdatabase.h \
-    eventfilteringmainwindow.h \
     editormanager/systemeditor.h \
     designmode.h \
     editortoolbar.h \

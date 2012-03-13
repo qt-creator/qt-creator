@@ -126,7 +126,7 @@ using namespace Core::Internal;
 enum { debugMainWindow = 0 };
 
 MainWindow::MainWindow() :
-    EventFilteringMainWindow(),
+    Utils::AppMainWindow(),
     m_coreImpl(new ICore(this)),
     m_additionalContexts(Constants::C_GLOBAL),
     m_settings(ExtensionSystem::PluginManager::instance()->settings()),

@@ -33,9 +33,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "eventfilteringmainwindow.h"
 #include "icontext.h"
 #include "icore.h"
+
+#include <utils/appmainwindow.h>
 
 #include <QMap>
 #include <QColor>
@@ -80,7 +81,7 @@ class StatusBarManager;
 class VersionDialog;
 class SystemEditor;
 
-class MainWindow : public EventFilteringMainWindow
+class MainWindow : public Utils::AppMainWindow
 {
     Q_OBJECT
 

@@ -46,8 +46,6 @@ QtcPlugin {
         "editmode.h",
         "editortoolbar.cpp",
         "editortoolbar.h",
-        "eventfilteringmainwindow.cpp",
-        "eventfilteringmainwindow.h",
         "externaltool.cpp",
         "externaltool.h",
         "externaltoolmanager.h",

@@ -30,43 +30,54 @@
 **
 **************************************************************************/
 
-#ifndef EVENTFILTERINGMAINWINDOW_H
-#define EVENTFILTERINGMAINWINDOW_H
-
-#include <QMainWindow>
-
-QT_BEGIN_NAMESPACE
-
-QT_END_NAMESPACE
-
-namespace Core {
-namespace Internal {
-
-/*!
- * This class only exists because we can't include windows.h in mainwindow.cpp
- * because windows defines an IContext...
- */
-
-class EventFilteringMainWindow : public QMainWindow
-{
-    Q_OBJECT
-public:
-    EventFilteringMainWindow();
-
-signals:
-    void deviceChange();
+#include "appmainwindow.h"
 
 #ifdef Q_OS_WIN
-protected:
-    virtual bool winEvent(MSG *message, long *result);
-    virtual bool event(QEvent *event);
+#include <windows.h>
 #endif
 
-private:
-    const int m_deviceEventId;
+#include <QtDebug>
+#include <QEvent>
+#include <QCoreApplication>
+
+namespace Utils {
+
+/* The notification signal is delayed by using a custom event
+ * as otherwise device removal is not detected properly
+ * (devices are still present in the registry. */
+
+class DeviceNotifyEvent : public QEvent {
+public:
+    explicit DeviceNotifyEvent(int id) : QEvent(static_cast<QEvent::Type>(id)) {}
 };
 
-} // Internal
-} // Core
+AppMainWindow::AppMainWindow() :
+        m_deviceEventId(QEvent::registerEventType(QEvent::User + 2))
+{
+}
 
-#endif // EVENTFILTERINGMAINWINDOW_H
+#ifdef Q_OS_WIN
+bool AppMainWindow::event(QEvent *event)
+{
+    if (event->type() == m_deviceEventId) {
+        event->accept();
+        emit deviceChange();
+        return true;
+    }
+    return QMainWindow::event(event);
+}
+
+bool AppMainWindow::winEvent(MSG *msg, long *result)
+{
+    if (msg->message == WM_DEVICECHANGE) {
+        if (msg->wParam & 0x7 /* DBT_DEVNODES_CHANGED */) {
+            *result = TRUE;
+            QCoreApplication::postEvent(this, new DeviceNotifyEvent(m_deviceEventId));
+        }
+    }
+    return false;
+}
+#endif
+
+} // namespace Utils
+

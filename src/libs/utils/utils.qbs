@@ -57,6 +57,8 @@ DynamicLibrary {
         "fancylineedit.h",
         "fancymainwindow.cpp",
         "fancymainwindow.h",
+        "appmainwindow.h",
+        "appmainwindow.cpp",
         "fileinprojectfinder.cpp",
         "fileinprojectfinder.h",
         "filenamevalidatinglineedit.h",
