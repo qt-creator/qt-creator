@@ -10,6 +10,8 @@ git log --cherry-pick --pretty=oneline v2.4.0...origin/2.5
 General
    * Add a keyboard shortcut (Alt) to the locator to display the full path to
      a located file (QTCREATORBUG-3805)
+   * Add "Search Again" to recent searches (QTCREATORBUG-621)
+   * Allow multiple parallel searches (QTCREATORBUG-6101)
 
 Editing
    * Use the QML/JS editor for opening json files (QTCREATORBUG-4639)
@@ -28,6 +30,9 @@ Editing
    * Fix layout update when folding/unfolding regions (QTCREATORBUG-6666)
    * Fix position of code-assist popup when cursor is outside viewport
      (QTCREATORBUG-6843)
+   * Add experimental plugin for showing "TODO"s in files
+     [by Dmitry Savchenko]
+   * Add "Open with" context menu in resource editor (QTCREATORBUG-4224)
 
 Managing Projects
 
@@ -103,6 +108,7 @@ Platform Specific
 
 Mac
    * Pass architecture and bit width from the tool chain build setting to Qmake (QTCREATORBUG-6088)
+   * Fix adding Qt version on Mac OS X Lion (QTCREATORBUG-6222)
 
 Linux (GNOME and KDE)
 
