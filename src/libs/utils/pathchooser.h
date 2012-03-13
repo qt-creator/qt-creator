@@ -62,6 +62,7 @@ class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly DESIGNABLE true)
     // Designer does not know this type, so force designable to false:
     Q_PROPERTY(Utils::FileName fileName READ fileName WRITE setFileName DESIGNABLE false)
+    Q_PROPERTY(Utils::FileName baseFileName READ baseFileName WRITE setBaseFileName DESIGNABLE false)
 
 public:
     static const char * const browseButtonLabel;
@@ -99,6 +100,8 @@ public:
 
     QString baseDirectory() const;
     void setBaseDirectory(const QString &directory);
+    Utils::FileName baseFileName() const;
+    void setBaseFileName(const Utils::FileName &base);
 
     void setEnvironment(const Utils::Environment &env);
 

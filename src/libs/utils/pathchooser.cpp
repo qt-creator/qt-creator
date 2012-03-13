@@ -291,6 +291,16 @@ void PathChooser::setBaseDirectory(const QString &directory)
     d->m_baseDirectory = directory;
 }
 
+FileName PathChooser::baseFileName() const
+{
+    return Utils::FileName::fromString(d->m_baseDirectory);
+}
+
+void PathChooser::setBaseFileName(const FileName &base)
+{
+    d->m_baseDirectory = base.toString();
+}
+
 void PathChooser::setEnvironment(const Utils::Environment &env)
 {
     QString oldExpand = path();
