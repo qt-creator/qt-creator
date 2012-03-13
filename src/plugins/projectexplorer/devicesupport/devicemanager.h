@@ -64,6 +64,8 @@ public:
     bool hasDevice(const QString &name) const;
     IDevice::Id internalId(const IDevice::ConstPtr &device) const;
 
+    int indexOf(const IDevice *device) const;
+
     void addDevice(const IDevice::Ptr &device);
     void removeDevice(int index);
 

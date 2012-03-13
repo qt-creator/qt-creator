@@ -405,6 +405,11 @@ IDevice::Id DeviceManager::internalId(const IDevice::ConstPtr &device) const
     return device ? device->internalId() : IDevice::invalidId();
 }
 
+int DeviceManager::indexOf(const IDevice *device) const
+{
+    return indexForInternalId(device->internalId());
+}
+
 void DeviceManager::ensureOneDefaultDevicePerType()
 {
     foreach (const IDevice::Ptr &device, d->devices) {
