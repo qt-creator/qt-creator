@@ -80,10 +80,10 @@ void CallgrindTextMark::paint(QPainter *painter, const QRect &paintRect) const
 
     // decrease font size if paint rect is too small (very unlikely, but may happen)
     QFont font = painter->font();
-    QFontMetrics fm = font;
+    QFontMetrics fm = QFontMetrics(font);
     while (fm.boundingRect(text).width() > paintRect.width()) {
         font.setPointSize(font.pointSize() - 1);
-        fm = font;
+        fm = QFontMetrics(font);
     }
     painter->setFont(font);
 
