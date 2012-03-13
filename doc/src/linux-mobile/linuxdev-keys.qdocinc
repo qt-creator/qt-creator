@@ -10,16 +10,15 @@
         \o  Select \gui {Tools > Options > Linux Devices > Device
             Configurations > Generate SSH Key}.
 
-        \o  Click \gui {Generate SSH Key}.
-
             \image qtcreator-ssh-key-configuration.png "SSH Key Configuration dialog"
 
-        \o  Click \gui {Save Public Key} to select the location to save the
-            public key.
+        \o  In the \gui {Private key file} field, select the location to save
+            the private key.
 
-        \o  Click \gui {Save Private Key} to specify the location to save the
-            private key.
+            The \gui {Public key file} field displays the location to save the
+            corresponding public key.
 
-        \o  Click \gui Close to close the dialog.
+        \o  Select \gui {Generate And Save Key Pair} to generate and save the
+            keys at the specified locations.
 
     \endlist
