@@ -258,11 +258,11 @@ private slots:
             int blockSize = m_editor->dataBlockSize();
             file.seek(block * blockSize);
             QByteArray data = file.read(blockSize);
+            file.close();
             const int dataSize = data.size();
             if (dataSize != blockSize)
                 data += QByteArray(blockSize - dataSize, 0);
             m_editor->addData(block, data);
-            file.close();
         } else {
             QMessageBox::critical(Core::ICore::mainWindow(), tr("File Error"),
                                   tr("Cannot open %1: %2").arg(
