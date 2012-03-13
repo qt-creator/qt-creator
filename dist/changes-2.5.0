@@ -33,6 +33,7 @@ Editing
    * Add experimental plugin for showing "TODO"s in files
      [by Dmitry Savchenko]
    * Add "Open with" context menu in resource editor (QTCREATORBUG-4224)
+   * Add task indicators in the left margin of a line
 
 Managing Projects
 
