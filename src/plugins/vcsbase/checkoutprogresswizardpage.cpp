@@ -69,6 +69,11 @@ CheckoutProgressWizardPage::~CheckoutProgressWizardPage()
 
 void CheckoutProgressWizardPage::start(const QSharedPointer<AbstractCheckoutJob> &job)
 {
+    if (job.isNull()) {
+        ui->logPlainTextEdit->setPlainText(tr("No job running, please abort."));
+        return;
+    }
+
     QTC_ASSERT(m_state != Running, return)
     m_job = job;
     connect(job.data(), SIGNAL(output(QString)), ui->logPlainTextEdit, SLOT(appendPlainText(QString)));

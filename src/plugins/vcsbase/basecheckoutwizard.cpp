@@ -219,8 +219,7 @@ QString BaseCheckoutWizard::openProject(const QString &path, QString *errorMessa
 void BaseCheckoutWizard::slotProgressPageShown()
 {
     const QSharedPointer<AbstractCheckoutJob> job = createJob(d->parameterPages, &(d->checkoutPath));
-    if (!job.isNull())
-        d->dialog->start(job);
+    d->dialog->start(job);
 }
 
 } // namespace VcsBase
