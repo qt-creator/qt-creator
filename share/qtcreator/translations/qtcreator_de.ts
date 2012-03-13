@@ -21220,7 +21220,7 @@ Fehler: %2</translation>
     </message>
     <message>
         <source>Import build from %1.</source>
-        <translation>Build aus %1. importieren.</translation>
+        <translation>Build aus %1 importieren.</translation>
     </message>
     <message>
         <source>Already imported build</source>
