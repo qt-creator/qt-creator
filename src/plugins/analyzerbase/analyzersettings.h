@@ -157,7 +157,7 @@ private:
  * To access your custom configuration use:
  * @code
  * ProjectExplorer::RunConfiguration *rc = ...;
- * rc->extraAspect<AnalyzerProjectSettings>()->subConfig<YourProjectConfig>()->...
+ * rc->extraAspect<AnalyzerRunConfigurationAspect>()->subConfig<YourProjectConfig>()->...
  * @endcode
  */
 class ANALYZER_EXPORT AnalyzerRunConfigurationAspect
