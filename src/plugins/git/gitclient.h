@@ -212,7 +212,7 @@ public:
     StatusResult gitStatus(const QString &workingDirectory,
                            bool untracked = false,
                            QString *output = 0,
-                           QString *errorMessage = 0, bool *onBranch = 0);
+                           QString *errorMessage = 0);
 
     void launchGitK(const QString &workingDirectory);
     void launchRepositoryBrowser(const QString &workingDirectory);
