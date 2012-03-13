@@ -58,7 +58,7 @@ linux-* {
 
 include(../../qtcreator.pri)
 
-contains(QT_CONFIG, declarative) {
+contains(QT_CONFIG, declarative)|contains(QT_CONFIG, quick1) {
     SUBDIRS += \
             plugin_qmlprojectmanager \
             plugin_qmljsinspector

@@ -2,7 +2,12 @@ TEMPLATE = lib
 TARGET = QmlJSInspector
 INCLUDEPATH += .
 DEPENDPATH += .
-QT += declarative network
+QT += network
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += quick1
+} else {
+    QT += declarative
+}
 
 DEFINES += QMLJSINSPECTOR_LIBRARY
 

@@ -3,7 +3,12 @@ TARGET = QmlProfiler
 
 DEFINES += PROFILER_LIBRARY
 
-QT += network script declarative
+QT += network script
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += quick1
+} else {
+    QT += declarative
+}
 
 include(../../qtcreatorplugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)

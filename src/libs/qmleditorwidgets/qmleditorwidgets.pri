@@ -1,5 +1,9 @@
 INCLUDEPATH += $$PWD $$PWD/easingpane
-QT += declarative
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += quick1
+} else {
+    QT += declarative
+}
 
 LIBS *= -l$$qtLibraryName(QmlEditorWidgets)
 
