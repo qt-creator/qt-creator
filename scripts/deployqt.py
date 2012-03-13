@@ -37,10 +37,10 @@ import shutil
 from glob import glob
 
 ignoreErrors = False
-is_debug_build = False
+debug_build = False
 
 def usage():
-    print "Usage: %s <creator_install_dir> [qmake_path]" %  os.path.basename(sys.argv[0])
+    print "Usage: %s <creator_install_dir> [qmake_path]" % os.path.basename(sys.argv[0])
 
 def which(program):
     def is_exe(fpath):
@@ -64,15 +64,15 @@ def which(program):
 
     return None
 
-def check_debug(fpath):
+def is_debug(fpath):
     # bootstrap exception
     if fpath.endswith('QtCore4d.dll'):
         return True
     output = subprocess.check_output(['dumpbin', '/imports', fpath])
     return output.find('QtCored4.dll') != -1
 
-def check_debug_build(install_dir):
-    return check_debug(os.path.join(install_dir, 'bin', 'qtcreator.exe'))
+def is_debug_build(install_dir):
+    return is_debug(os.path.join(install_dir, 'bin', 'qtcreator.exe'))
 
 def op_failed(details = None):
     if details != None:
@@ -117,24 +117,23 @@ def fix_rpaths(chrpath_bin, install_dir):
         filenames = [filename for filename in filenames if check_unix_library_helper(dirpath, filename)]
         fix_rpaths_helper(chrpath_bin, install_dir, dirpath, filenames)
 
-def ignore_pattern_helper(filename):
-    ignore_patterns = ['.lib', '.pdb', '.exp', '.ilk', '.dll']
+def windows_debug_files_filter(filename):
+    ignore_patterns = ['.lib', '.pdb', '.exp', '.ilk']
     for ip in ignore_patterns:
         if filename.endswith(ip):
-            return False
-    return True
+            return True
+    return False
 
 def copy_ignore_patterns_helper(dir, filenames):
     if not sys.platform.startswith('win'):
         return filenames
 
-    useful =  filter(ignore_pattern_helper, filenames)
-    if is_debug_build:
-        dlls = filter(lambda filename: filename.endswith('.dll') and check_debug(os.path.join(dir, filename)), filenames)
+    if debug_build:
+        wrong_dlls = filter(lambda filename: filename.endswith('.dll') and not is_debug(os.path.join(dir, filename)), filenames)
     else:
-        dlls = filter(lambda filename:  filename.endswith('.dll') and not check_debug(os.path.join(dir, filename)), filenames)
+        wrong_dlls = filter(lambda filename: filename.endswith('.dll') and is_debug(os.path.join(dir, filename)), filenames)
 
-    filenames = useful + dlls
+    filenames = wrong_dlls + filter(windows_debug_files_filter, filenames)
     return filenames
 
 def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, plugins, imports):
@@ -151,10 +150,10 @@ def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, plugins
         dest = os.path.join(install_dir, 'lib', 'qtcreator')
 
     if sys.platform.startswith('win'):
-        if is_debug_build:
-            libraries = filter(lambda library: check_debug(library), libraries)
+        if debug_build:
+            libraries = filter(lambda library: is_debug(library), libraries)
         else:
-            libraries = filter(lambda library: not check_debug(library), libraries)
+            libraries = filter(lambda library: not is_debug(library), libraries)
 
     for library in libraries:
         print library, '->', dest
@@ -186,7 +185,7 @@ def copy_qt_libs(install_dir, qt_libs_dir, qt_plugin_dir, qt_import_dir, plugins
         shutil.copytree(os.path.join(qt_import_dir, qtimport), target, ignore=copy_ignore_func, symlinks=True)
 
 def copy_translations(install_dir, qt_tr_dir, tr_catalogs):
-    langs=[]
+    langs = []
     tr_dir = os.path.join(install_dir, 'share', 'qtcreator', 'translations')
     p = re.compile(r'_(.*).qm')
     for dirpath, dirnames, filenames in os.walk(tr_dir):
@@ -210,11 +209,9 @@ def readQmakeVar(qmake_bin, var):
     return pipe.read().rstrip('\n')
 
 def main():
-    generateMode = False
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:], 'hi', ['help', 'ignore-errors'])
     except:
-        print str(err)
         usage()
         sys.exit(2)
     for o, a in opts:
@@ -227,10 +224,10 @@ def main():
             print "Note: Ignoring all errors"
 
     if len(args) < 1:
-            usage()
-            sys.exit(2)
+        usage()
+        sys.exit(2)
 
-    install_dir=args[0]
+    install_dir = args[0]
 
     qmake_bin = 'qmake'
     if len(args) > 1:
@@ -238,8 +235,8 @@ def main():
     qmake_bin = which(qmake_bin)
 
     if qmake_bin == None:
-            print "Cannot find required binary 'qmake'."
-            sys.exit(2)
+        print "Cannot find required binary 'qmake'."
+        sys.exit(2)
 
     if not sys.platform.startswith('win'):
         chrpath_bin = which('chrpath')
@@ -257,14 +254,14 @@ def main():
     tr_catalogs = ['assistant', 'designer', 'qt', 'qt_help']
 
     if sys.platform.startswith('win'):
-        global is_debug_build
-        is_debug_build = check_debug_build(install_dir)
+        global debug_build
+        debug_build = is_debug_build(install_dir)
 
     copy_qt_libs(install_dir, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, plugins, imports)
     copy_translations(install_dir, QT_INSTALL_TRANSLATIONS, tr_catalogs)
 
     if not sys.platform.startswith('win'):
-        fix_rpaths(chrpath_bin ,install_dir)
+        fix_rpaths(chrpath_bin, install_dir)
 
 if __name__ == "__main__":
     if sys.platform == 'darwin':
