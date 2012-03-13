@@ -79,9 +79,9 @@ LinuxDeviceConfiguration::~LinuxDeviceConfiguration()
 }
 
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const QString &name,
-   const QString &type, MachineType machineType, Origin origin)
+   const QString &type, MachineType machineType, Origin origin, const QString &fingerprint)
 {
-    return Ptr(new LinuxDeviceConfiguration(name, type, machineType, origin));
+    return Ptr(new LinuxDeviceConfiguration(name, type, machineType, origin, fingerprint));
 }
 
 LinuxDeviceConfiguration::LinuxDeviceConfiguration() : d(new LinuxDeviceConfigurationPrivate)
@@ -89,8 +89,8 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration() : d(new LinuxDeviceConfigur
 }
 
 LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name, const QString &type,
-        MachineType machineType, Origin origin)
-    : IDevice(type, origin), d(new LinuxDeviceConfigurationPrivate)
+        MachineType machineType, Origin origin, const QString &fingerprint)
+    : IDevice(type, origin, fingerprint), d(new LinuxDeviceConfigurationPrivate)
 {
     setDisplayName(name);
     d->machineType = machineType;

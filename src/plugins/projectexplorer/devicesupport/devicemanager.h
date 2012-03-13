@@ -40,6 +40,7 @@
 
 namespace ProjectExplorer {
 class IDeviceFactory;
+
 namespace Internal {
 class DeviceManagerPrivate;
 class DeviceSettingsWidget;
@@ -58,6 +59,8 @@ public:
     int deviceCount() const;
     IDevice::ConstPtr deviceAt(int index) const;
     IDevice::ConstPtr find(IDevice::Id id) const;
+    IDevice::ConstPtr findInactiveAutoDetectedDevice(const QString &type,
+        const QString &fingerprint);
     IDevice::ConstPtr defaultDevice(const QString &deviceType) const;
     bool hasDevice(const QString &name) const;
     IDevice::Id internalId(const IDevice::ConstPtr &device) const;

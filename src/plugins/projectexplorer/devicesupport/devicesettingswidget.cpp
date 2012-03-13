@@ -183,8 +183,8 @@ void DeviceSettingsWidget::displayCurrent()
     m_ui->defaultDeviceButton->setEnabled(
         m_deviceManager->defaultDevice(current->type()) != current);
     m_ui->osTypeValueLabel->setText(DeviceManager::displayNameForDeviceType(current->type()));
-    m_ui->autoDetectionValueLabel->setText(current->isAutoDetected() ? tr("Yes") : tr("No"));
-
+    m_ui->autoDetectionValueLabel->setText(current->isAutoDetected()
+        ? tr("Yes (fingerprint is '%1')").arg(current->fingerprint()) : tr("No"));
     m_nameValidator->setDisplayName(current->displayName());
     m_ui->removeConfigButton->setEnabled(!current->isAutoDetected());
     fillInValues();

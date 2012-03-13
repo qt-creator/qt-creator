@@ -52,6 +52,18 @@
 namespace ProjectExplorer {
 namespace Internal {
 
+static IDevice::Ptr findAutoDetectedDevice(const QList<IDevice::Ptr> &deviceList,
+        const QString &type, const QString &fingerprint)
+{
+    foreach (const IDevice::Ptr &device, deviceList) {
+        if (device->isAutoDetected() && device->type() == type
+                && device->fingerprint() == fingerprint) {
+            return device;
+        }
+    }
+    return IDevice::Ptr();
+}
+
 const char DeviceManagerKey[] = "DeviceManager";
 const char DeviceListKey[] = "DeviceList";
 const char DefaultDevicesKey[] = "DefaultDevices";
@@ -62,6 +74,7 @@ public:
     static DeviceManager *instance;
     static DeviceManager *clonedInstance;
     QList<IDevice::Ptr> devices;
+    QList<IDevice::Ptr> inactiveAutoDetectedDevices;
     QHash<QString, IDevice::Id> defaultDevices;
 };
 DeviceManager *DeviceManagerPrivate::instance = 0;
@@ -192,7 +205,10 @@ void DeviceManager::fromMap(const QVariantMap &map)
         QTC_ASSERT(device, continue);
         if (device->internalId() == IDevice::invalidId())
             device->setInternalId(unusedId());
-        d->devices << device;
+        if (device->isAutoDetected())
+            d->inactiveAutoDetectedDevices << device;
+        else
+            d->devices << device;
     }
 }
 
@@ -207,10 +223,10 @@ QVariantMap DeviceManager::toMap() const
     }
     map.insert(QLatin1String(DefaultDevicesKey), defaultDeviceMap);
     QVariantList deviceList;
-    foreach (const IDevice::ConstPtr &device, d->devices) {
-        if (!device->isAutoDetected())
-            deviceList << device->toMap();
-    }
+    foreach (const IDevice::ConstPtr &device, d->devices)
+        deviceList << device->toMap();
+    foreach (const IDevice::ConstPtr &device, d->inactiveAutoDetectedDevices)
+        deviceList << device->toMap();
     map.insert(QLatin1String(DeviceListKey), deviceList);
     return map;
 }
@@ -224,6 +240,8 @@ QString DeviceManager::settingsFilePath()
 void DeviceManager::addDevice(const IDevice::Ptr &device)
 {
     QTC_ASSERT(this != DeviceManagerPrivate::instance || (device->isAutoDetected()), return);
+    QTC_ASSERT(!device->isAutoDetected() || !findAutoDetectedDevice(d->devices, device->type(),
+            device->fingerprint()), return);
 
     // Ensure uniqueness of name.
     QString name = device->displayName();
@@ -241,13 +259,25 @@ void DeviceManager::addDevice(const IDevice::Ptr &device)
     d->devices << device;
     if (this == d->instance && d->clonedInstance)
         d->clonedInstance->addDevice(device->clone());
+    if (this == d->instance) {
+        QList<IDevice::Ptr>::Iterator it = d->inactiveAutoDetectedDevices.begin();
+        while (it != d->inactiveAutoDetectedDevices.end()) {
+            if (it->data()->type() == device->type()
+                    && it->data()->fingerprint() == device->fingerprint()) {
+                d->inactiveAutoDetectedDevices.erase(it);
+                break;
+            }
+            ++it;
+        }
+    }
+
     emit deviceAdded(device);
     emit updated();
 }
 
 void DeviceManager::removeDevice(int idx)
 {
-    const IDevice::ConstPtr device = deviceAt(idx);
+    const IDevice::Ptr device = mutableDeviceAt(idx);
     QTC_ASSERT(device, return);
     QTC_ASSERT(this != DeviceManagerPrivate::instance || device->isAutoDetected(), return);
 
@@ -269,6 +299,8 @@ void DeviceManager::removeDevice(int idx)
         d->clonedInstance->removeDevice(d->clonedInstance->
             indexForInternalId(device->internalId()));
     }
+    if (this == d->instance && device->isAutoDetected())
+        d->inactiveAutoDetectedDevices << device;
 
     emit updated();
 }
@@ -355,6 +387,12 @@ IDevice::ConstPtr DeviceManager::find(IDevice::Id id) const
 {
     const int index = indexForInternalId(id);
     return index == -1 ? IDevice::ConstPtr() : deviceAt(index);
+}
+
+IDevice::ConstPtr DeviceManager::findInactiveAutoDetectedDevice(const QString &type,
+        const QString &fingerprint)
+{
+    return findAutoDetectedDevice(d->inactiveAutoDetectedDevices, type, fingerprint);
 }
 
 IDevice::ConstPtr DeviceManager::defaultDevice(const QString &deviceType) const

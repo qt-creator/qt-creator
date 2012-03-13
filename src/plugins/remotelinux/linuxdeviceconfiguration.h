@@ -68,14 +68,14 @@ public:
 
     static Ptr create();
     static Ptr create(const QString &name, const QString &type, MachineType machineType,
-        Origin origin = ManuallyAdded);
+        Origin origin = ManuallyAdded, const QString &fingerprint = QString());
 
     void fromMap(const QVariantMap &map);
     ProjectExplorer::IDevice::Ptr clone() const;
 private:
     LinuxDeviceConfiguration();
     LinuxDeviceConfiguration(const QString &name, const QString &type, MachineType machineType,
-        Origin origin);
+        Origin origin, const QString &fingerprint);
 
     LinuxDeviceConfiguration(const LinuxDeviceConfiguration &other);
     LinuxDeviceConfiguration &operator=(const LinuxDeviceConfiguration &);

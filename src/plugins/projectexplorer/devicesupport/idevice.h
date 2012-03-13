@@ -59,6 +59,7 @@ public:
 
     QString type() const;
     bool isAutoDetected() const;
+    QString fingerprint() const;
     Id internalId() const;
 
     virtual void fromMap(const QVariantMap &map);
@@ -70,7 +71,7 @@ public:
 
 protected:
     IDevice();
-    IDevice(const QString &type, Origin origin);
+    IDevice(const QString &type, Origin origin, const QString fingerprint = QString());
     IDevice(const IDevice &other);
 
     virtual QVariantMap toMap() const;

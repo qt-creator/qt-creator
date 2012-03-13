@@ -31,6 +31,8 @@
 **************************************************************************/
 #include "idevice.h"
 
+#include <utils/qtcassert.h>
+
 #include <QString>
 
 /*!
@@ -75,6 +77,15 @@
  */
 
 /*!
+ * \fn QString ProjectExplorer::IDevice::fingerprint() const
+ * \brief Uniquely identifies an auto-detected device.
+ * The fingerprint can later be used to retrieve changes the user has done to the settings
+ * of an auto-detected device so they are not lost when the device goes away, e.g. because
+ * it has been disconnected.
+ * \sa ProjectExplorer::DeviceManager::findInactiveAutoDetectedDevice()
+ */
+
+/*!
  * \fn ProjectExplorer::IDevice::Id ProjectExplorer::IDevice::invalidId()
  * \brief A value that no device can ever have as its internal id.
  */
@@ -103,6 +114,8 @@ namespace ProjectExplorer {
 const char DisplayNameKey[] = "Name";
 const char TypeKey[] = "OsType";
 const char InternalIdKey[] = "InternalId";
+const char OriginKey[] = "Origin";
+const char FingerprintKey[] = "FingerPrint";
 
 namespace Internal {
 class IDevicePrivate
@@ -112,6 +125,7 @@ public:
     QString type;
     IDevice::Origin origin;
     IDevice::Id internalId;
+    QString fingerprint;
 };
 } // namespace Internal
 
@@ -119,10 +133,13 @@ IDevice::IDevice() : d(new Internal::IDevicePrivate)
 {
 }
 
-IDevice::IDevice(const QString &type, Origin origin) : d(new Internal::IDevicePrivate)
+IDevice::IDevice(const QString &type, Origin origin, const QString fingerprint)
+    : d(new Internal::IDevicePrivate)
 {
     d->type = type;
     d->origin = origin;
+    d->fingerprint = fingerprint;
+    QTC_CHECK(d->origin == ManuallyAdded || !d->fingerprint.isEmpty());
 }
 
 IDevice::IDevice(const IDevice &other) : d(new Internal::IDevicePrivate)
@@ -155,6 +172,11 @@ bool IDevice::isAutoDetected() const
     return d->origin == AutoDetected;
 }
 
+QString IDevice::fingerprint() const
+{
+    return d->fingerprint;
+}
+
 IDevice::Id IDevice::internalId() const
 {
     return d->internalId;
@@ -178,9 +200,11 @@ QString IDevice::typeFromMap(const QVariantMap &map)
 void IDevice::fromMap(const QVariantMap &map)
 {
     d->type = typeFromMap(map);
-    d->origin = ManuallyAdded;
     d->displayName = map.value(QLatin1String(DisplayNameKey)).toString();
     d->internalId = map.value(QLatin1String(InternalIdKey), invalidId()).toULongLong();
+    d->origin = static_cast<Origin>(map.value(QLatin1String(OriginKey), ManuallyAdded).toInt());
+    d->fingerprint = map.value(QLatin1String(FingerprintKey)).toString();
+    QTC_CHECK(d->origin == ManuallyAdded || !d->fingerprint.isEmpty());
 }
 
 QVariantMap IDevice::toMap() const
@@ -189,6 +213,8 @@ QVariantMap IDevice::toMap() const
     map.insert(QLatin1String(DisplayNameKey), d->displayName);
     map.insert(QLatin1String(TypeKey), d->type);
     map.insert(QLatin1String(InternalIdKey), d->internalId);
+    map.insert(QLatin1String(OriginKey), d->origin);
+    map.insert(QLatin1String(FingerprintKey), d->fingerprint);
     return map;
 }
 
