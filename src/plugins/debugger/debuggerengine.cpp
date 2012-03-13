@@ -1038,6 +1038,8 @@ void DebuggerEngine::notifyInferiorSpontaneousStop()
     QTC_ASSERT(state() == InferiorRunOk, qDebug() << this << state());
     showStatusMessage(tr("Stopped."));
     setState(InferiorStopOk);
+    if (debuggerCore()->boolSetting(RaiseOnInterrupt))
+        emit raiseWindow();
 }
 
 void DebuggerEngine::notifyInferiorStopFailed()

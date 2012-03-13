@@ -398,6 +398,12 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     insertItem(SwitchModeOnExit, item);
 
     item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("RaiseOnInterrupt"));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    insertItem(RaiseOnInterrupt, item);
+
+    item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("AutoQuit"));
     item->setText(tr("Automatically Quit Debugger"));
     item->setCheckable(true);

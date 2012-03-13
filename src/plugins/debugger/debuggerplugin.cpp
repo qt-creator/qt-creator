@@ -2100,6 +2100,7 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
     engine->watchHandler()->rebuildModel();
 
     mainWindow()->setEngineDebugLanguages(engine->languages());
+    mainWindow()->setCurrentEngine(engine);
 }
 
 static void changeFontSize(QWidget *widget, qreal size)

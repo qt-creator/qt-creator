@@ -45,6 +45,8 @@ class IMode;
 
 namespace Debugger {
 
+class DebuggerEngine;
+
 namespace Internal {
 class DebuggerMainWindowPrivate;
 }
@@ -56,6 +58,8 @@ class DEBUGGER_EXPORT DebuggerMainWindow : public Utils::FancyMainWindow
 public:
     DebuggerMainWindow();
     ~DebuggerMainWindow();
+
+    void setCurrentEngine(DebuggerEngine *engine);
 
     // Debugger toolbars are registered with this function.
     void setToolBar(DebuggerLanguage language, QWidget *widget);
@@ -80,6 +84,9 @@ public:
 
     void readSettings();
     void writeSettings() const;
+
+private slots:
+    void raiseDebuggerWindow();
 
 signals:
     void activeDebugLanguagesChanged(Debugger::DebuggerLanguages);

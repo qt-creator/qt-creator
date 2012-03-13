@@ -38,16 +38,13 @@
 
 namespace Utils {
 
-/*!
- * This class only exists because we can't include windows.h in mainwindow.cpp
- * because windows defines an IContext...
- */
-
 class QTCREATOR_UTILS_EXPORT AppMainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
     AppMainWindow();
+
+    void raiseWindow();
 
 signals:
     void deviceChange();

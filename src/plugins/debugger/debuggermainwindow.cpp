@@ -32,7 +32,9 @@
 
 #include "debuggermainwindow.h"
 #include "debuggercore.h"
+#include "debuggerengine.h"
 
+#include <utils/appmainwindow.h>
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
@@ -141,6 +143,8 @@ public:
     Project *m_previousProject;
     Target *m_previousTarget;
     RunConfiguration *m_previousRunConfiguration;
+
+    DebuggerEngine *m_engine;
 };
 
 DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *mw)
@@ -157,6 +161,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *mw)
     , m_previousProject(0)
     , m_previousTarget(0)
     , m_previousRunConfiguration(0)
+    , m_engine(0)
 {
     createViewsMenuItems();
     addLanguage(CppLanguage, Context(C_CPPDEBUGGER));
@@ -269,6 +274,15 @@ DebuggerMainWindow::DebuggerMainWindow()
 DebuggerMainWindow::~DebuggerMainWindow()
 {
     delete d;
+}
+
+void DebuggerMainWindow::setCurrentEngine(DebuggerEngine *engine)
+{
+    if (d->m_engine)
+        disconnect(d->m_engine, SIGNAL(raiseWindow()), this, SLOT(raiseDebuggerWindow()));
+    d->m_engine = engine;
+    if (d->m_engine)
+        connect(d->m_engine, SIGNAL(raiseWindow()), this, SLOT(raiseDebuggerWindow()));
 }
 
 DebuggerLanguages DebuggerMainWindow::activeDebugLanguages() const
@@ -557,6 +571,14 @@ void DebuggerMainWindow::writeSettings() const
         settings->setValue(it.key(), it.value());
     }
     settings->endGroup();
+}
+
+void DebuggerMainWindow::raiseDebuggerWindow()
+{
+    Core::ICore *core = Core::ICore::instance();
+    Utils::AppMainWindow *appMainWindow = qobject_cast<Utils::AppMainWindow*>(core->mainWindow());
+    QTC_ASSERT(appMainWindow, return)
+    appMainWindow->raiseWindow();
 }
 
 void DebuggerMainWindow::readSettings()

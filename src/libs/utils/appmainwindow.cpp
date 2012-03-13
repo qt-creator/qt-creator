@@ -36,9 +36,12 @@
 #include <windows.h>
 #endif
 
-#include <QtDebug>
 #include <QEvent>
 #include <QCoreApplication>
+
+#ifdef Q_WS_X11
+#include <QX11Info>
+#endif
 
 namespace Utils {
 
@@ -54,6 +57,18 @@ public:
 AppMainWindow::AppMainWindow() :
         m_deviceEventId(QEvent::registerEventType(QEvent::User + 2))
 {
+}
+
+void AppMainWindow::raiseWindow()
+{
+    setWindowState(windowState() & ~Qt::WindowMinimized);
+
+    raise();
+#ifdef Q_WS_X11
+    // work around QTBUG-24932
+    QX11Info::setAppUserTime(0);
+#endif
+    activateWindow();
 }
 
 #ifdef Q_OS_WIN

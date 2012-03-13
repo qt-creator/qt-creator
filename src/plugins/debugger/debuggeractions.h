@@ -100,6 +100,7 @@ enum DebuggerActionCode
     OperateByInstruction,
     CloseBuffersOnExit,
     SwitchModeOnExit,
+    RaiseOnInterrupt,
 
     UseDebuggingHelpers,
 

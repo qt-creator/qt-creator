@@ -72,6 +72,8 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
         m_ui.checkBoxCloseBuffersOnExit);
     m_group->insert(dc->action(SwitchModeOnExit),
         m_ui.checkBoxSwitchModeOnExit);
+    m_group->insert(dc->action(RaiseOnInterrupt),
+        m_ui.checkBoxBringToForegroundOnInterrrupt);
     m_group->insert(dc->action(FontSizeFollowsEditor),
         m_ui.checkBoxFontSizeFollowsEditor);
     m_group->insert(dc->action(AutoDerefPointers), 0);
@@ -120,6 +122,7 @@ QString CommonOptionsPageWidget::searchKeyWords() const
             << sep << m_ui.checkBoxCloseBuffersOnExit->text()
             << sep << m_ui.checkBoxSwitchModeOnExit->text()
             << sep << m_ui.labelMaximalStackDepth->text()
+            << sep << m_ui.checkBoxBringToForegroundOnInterrrupt->text()
                ;
     rc.remove(QLatin1Char('&'));
     return rc;

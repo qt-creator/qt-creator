@@ -302,6 +302,7 @@ signals:
      * a server start script should be used, but none is given.
      */
     void requestRemoteSetup();
+    void raiseWindow();
 
 protected:
     // The base notify*() function implementation should be sufficient
