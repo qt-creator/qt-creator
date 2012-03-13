@@ -386,28 +386,40 @@ bool BinEditor::save(QString *errorString, const QString &oldFileName, const QSt
 
 void BinEditor::setSizes(quint64 startAddr, int range, int blockSize)
 {
-    m_blockSize = blockSize;
+    int newBlockSize = blockSize;
     QTC_ASSERT((blockSize/m_bytesPerLine) * m_bytesPerLine == blockSize,
                blockSize = (blockSize/m_bytesPerLine + 1) * m_bytesPerLine);
+    // Users can edit data in the range
+    // [startAddr - range/2, startAddr + range/2].
+    quint64 newBaseAddr = quint64(range/2) > startAddr ? 0 : startAddr - range/2;
+    newBaseAddr = (newBaseAddr / blockSize) * blockSize;
+
+    const quint64 maxRange = Q_UINT64_C(0xffffffffffffffff) - newBaseAddr + 1;
+    int newSize = newBaseAddr != 0 && quint64(range) >= maxRange
+              ? maxRange : range;
+    int newAddressBytes = (newBaseAddr + newSize < quint64(1) << 32
+                   && newBaseAddr + newSize >= newBaseAddr) ? 4 : 8;
+
+
+
+    if (newBlockSize == m_blockSize
+            && newBaseAddr == m_baseAddr
+            && newSize == m_size
+            && newAddressBytes == m_addressBytes)
+        return;
+
+    m_blockSize = blockSize;
     m_emptyBlock = QByteArray(blockSize, '\0');
     m_modifiedData.clear();
     m_requests.clear();
 
-    // Users can edit data in the range
-    // [startAddr - range/2, startAddr + range/2].
-    m_baseAddr = quint64(range/2) > startAddr ? 0 : startAddr - range/2;
-    m_baseAddr = (m_baseAddr / blockSize) * blockSize;
-
-    const quint64 maxRange = Q_UINT64_C(0xffffffffffffffff) - m_baseAddr + 1;
-    m_size = m_baseAddr != 0 && quint64(range) >= maxRange
-              ? maxRange : range;
-    m_addressBytes = (m_baseAddr + m_size < quint64(1) << 32
-                   && m_baseAddr + m_size >= m_baseAddr) ? 4 : 8;
+    m_baseAddr = newBaseAddr;
+    m_size = newSize;
+    m_addressBytes = newAddressBytes;
 
     m_unmodifiedState = 0;
     m_undoStack.clear();
     m_redoStack.clear();
-
     init();
 
     setCursorPosition(startAddr - m_baseAddr);

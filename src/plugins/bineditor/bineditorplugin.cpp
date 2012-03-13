@@ -234,10 +234,10 @@ public:
         if (offset >= static_cast<quint64>(file.size()))
             return false;
         if (file.open(QIODevice::ReadOnly)) {
+            file.close();
             m_fileName = fileName;
             m_editor->setSizes(offset, file.size());
             m_editor->editor()->setDisplayName(QFileInfo(fileName).fileName());
-            file.close();
             return true;
         }
         QString errStr = tr("Cannot open %1: %2").arg(
