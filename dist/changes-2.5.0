@@ -81,6 +81,11 @@ C++ Support
    * Add "rearrange parameter list" refactoring action [by Bojan Petrovic]
    * Add indent/unindent actions shortcut [by Adam Treat]
    * Improve sorting of completion items (QTCREATORBUG-6404)
+   * Improve C++11 lambda support, including formatting
+   * Fix "go to definition" of macros (QTCREATORBUG-2240, QTCREATORBUG-6175,
+     QTCREATORBUG-6848, QTCREATORBUG-7008, QTCREATORBUG-7009)
+   * Fix completion by not adding parentheses when completing dereferenced
+     function
 
 QML/JS Support
    * Add correct scoping for signal handlers; enables completion of signal
