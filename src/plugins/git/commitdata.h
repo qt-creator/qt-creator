@@ -62,6 +62,7 @@ struct GitSubmitEditorPanelData
 
     QString author;
     QString email;
+    bool bypassHooks;
 };
 
 QDebug operator<<(QDebug d, const GitSubmitEditorPanelData &);

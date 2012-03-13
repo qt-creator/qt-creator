@@ -1874,6 +1874,8 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
     const QString &authorString =  data.authorString();
     if (!authorString.isEmpty())
          args << QLatin1String("--author") << authorString;
+    if (data.bypassHooks)
+        args << QLatin1String("--no-verify");
 
     QByteArray outputText;
     QByteArray errorText;

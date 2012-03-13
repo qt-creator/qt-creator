@@ -58,6 +58,7 @@ void GitSubmitEditorPanelData::clear()
 {
     author.clear();
     email.clear();
+    bypassHooks = false;
 }
 
 QString GitSubmitEditorPanelData::authorString() const
@@ -76,7 +77,8 @@ QString GitSubmitEditorPanelData::authorString() const
 
 QDebug operator<<(QDebug d, const GitSubmitEditorPanelData &data)
 {
-    d.nospace() << " author:" << data.author << " email: " << data.email;
+    d.nospace() << " author:" << data.author << " email: " << data.email
+                << " bypass hooks: " << data.bypassHooks;
     return d;
 }
 
