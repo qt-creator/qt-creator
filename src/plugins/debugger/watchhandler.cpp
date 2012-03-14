@@ -734,8 +734,10 @@ QString WatchModel::display(const WatchItem *item, int col) const
     QString result;
     switch (col) {
         case 0:
-            if (item->name.isEmpty())
+            if (m_type == WatchersWatch && item->name.isEmpty())
                 result = tr("<Edit>");
+            else if (m_type == ReturnWatch && item->iname.count('.') == 1)
+                result = tr("returned value");
             else if (item->name == QLatin1String("*") && item->parent)
                 result = QLatin1Char('*') + item->parent->name;
             else
