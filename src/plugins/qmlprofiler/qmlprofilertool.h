@@ -36,7 +36,9 @@
 #include <analyzerbase/ianalyzertool.h>
 #include <analyzerbase/ianalyzerengine.h>
 
+QT_BEGIN_NAMESPACE
 class QMessageBox;
+QT_END_NAMESPACE
 
 namespace QmlProfiler {
 namespace Internal {
