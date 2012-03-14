@@ -283,6 +283,7 @@ QmlProfilerEventsMainView::~QmlProfilerEventsMainView()
 {
     clear();
     delete d->m_model;
+    delete d;
 }
 
 void QmlProfilerEventsMainView::setEventStatisticsModel( QmlProfilerEventList *model )

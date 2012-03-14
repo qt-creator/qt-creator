@@ -329,6 +329,7 @@ QmlProfilerEventList::QmlProfilerEventList(QObject *parent) :
 QmlProfilerEventList::~QmlProfilerEventList()
 {
     clear();
+    delete d;
 }
 
 void QmlProfilerEventList::clear()
