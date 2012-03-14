@@ -346,7 +346,7 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
     connect(&d->m_outputParser, SIGNAL(noOutputMessage()),
             this, SLOT(beginConnection()));
     connect(&d->m_outputParser, SIGNAL(errorMessage(QString)),
-            this, SLOT(connectionStartupFailed(QString)));
+            this, SLOT(appStartupFailed(QString)));
 
     // Only wait 8 seconds for the 'Waiting for connection' on application ouput, then just try to connect
     // (application output might be redirected / blocked)
@@ -434,7 +434,7 @@ void QmlEngine::beginConnection(quint16 port)
     }
 }
 
-void QmlEngine::connectionStartupFailed(const QString &errorMessage)
+void QmlEngine::connectionStartupFailed()
 {
     if (isSlaveEngine()) {
         if (masterEngine()->state() != InferiorRunOk) {
@@ -447,25 +447,33 @@ void QmlEngine::connectionStartupFailed(const QString &errorMessage)
     QMessageBox *infoBox = new QMessageBox(Core::ICore::mainWindow());
     infoBox->setIcon(QMessageBox::Critical);
     infoBox->setWindowTitle(tr("Qt Creator"));
-    if (qobject_cast<QmlAdapter *>(sender())) {
-        infoBox->setText(tr("Could not connect to the in-process QML debugger."
-                            "\nDo you want to retry?"));
-        infoBox->setStandardButtons(QMessageBox::Retry | QMessageBox::Cancel |
-                                    QMessageBox::Help);
-        infoBox->setDefaultButton(QMessageBox::Retry);
-    }
-    if (qobject_cast<QmlJsDebugClient::QDeclarativeOutputParser *>(sender())) {
-        infoBox->setText(tr("Could not connect to the in-process QML debugger."
-                            "\n%1").arg(errorMessage));
-        infoBox->setStandardButtons(QMessageBox::Ok | QMessageBox::Help);
-        infoBox->setDefaultButton(QMessageBox::Ok);
-    }
+    infoBox->setText(tr("Could not connect to the in-process QML debugger."
+                        "\nDo you want to retry?"));
+    infoBox->setStandardButtons(QMessageBox::Retry | QMessageBox::Cancel |
+                                QMessageBox::Help);
+    infoBox->setDefaultButton(QMessageBox::Retry);
     infoBox->setModal(true);
 
     connect(infoBox, SIGNAL(finished(int)),
             this, SLOT(errorMessageBoxFinished(int)));
 
     infoBox->show();
+}
+
+void QmlEngine::appStartupFailed(const QString &errorMessage)
+{
+    QMessageBox *infoBox = new QMessageBox(Core::ICore::mainWindow());
+    infoBox->setIcon(QMessageBox::Critical);
+    infoBox->setWindowTitle(tr("Qt Creator"));
+    infoBox->setText(tr("Could not connect to the in-process QML debugger."
+                        "\n%1").arg(errorMessage));
+    infoBox->setStandardButtons(QMessageBox::Ok | QMessageBox::Help);
+    infoBox->setDefaultButton(QMessageBox::Ok);
+    connect(infoBox, SIGNAL(finished(int)),
+            this, SLOT(errorMessageBoxFinished(int)));
+    infoBox->show();
+
+    notifyEngineRunFailed();
 }
 
 void QmlEngine::errorMessageBoxFinished(int result)
@@ -484,7 +492,7 @@ void QmlEngine::errorMessageBoxFinished(int result)
         if (state() == InferiorRunOk) {
             notifyInferiorSpontaneousStop();
             notifyInferiorIll();
-        } else {
+        } else if (state() == EngineRunRequested) {
             notifyEngineRunFailed();
         }
         break;
