@@ -84,7 +84,7 @@ bool DocumentMarker::addMark(TextEditor::ITextMark *mark)
         userData->addMark(mark);
         m_marksCache.append(mark);
         mark->updateLineNumber(blockNumber + 1);
-        QTC_CHECK(mark->lineNumber() == blockNumber + 1);
+        QTC_CHECK(mark->lineNumber() == blockNumber + 1); // Checks that the base class is called
         mark->updateBlock(block);
         documentLayout->hasMarks = true;
         documentLayout->maxMarkWidthFactor = qMax(mark->widthFactor(),
@@ -716,14 +716,14 @@ void BaseTextDocumentLayout::documentClosing()
 
 void BaseTextDocumentLayout::updateMarksLineNumber()
 {
+    // Note: the breakpointmanger deletes breakpoint marks and readds them
+    // if it doesn't agree with our updating
     QTextBlock block = document()->begin();
     int blockNumber = 0;
     while (block.isValid()) {
         if (const TextBlockUserData *userData = testUserData(block))
-            foreach (ITextMark *mrk, userData->marks()) {
+            foreach (ITextMark *mrk, userData->marks())
                 mrk->updateLineNumber(blockNumber + 1);
-                QTC_CHECK(mrk->lineNumber() == blockNumber +1);
-            }
         block = block.next();
         ++blockNumber;
     }

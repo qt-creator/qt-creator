@@ -218,7 +218,7 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
                 fmo->setAttachedTypeName(readStringBinding(script));
             } else {
                 addWarning(script->firstSourceLocation(),
-                           "Expected only name, prototype, defaultProperty, attachedType, exports"
+                           "Expected only name, prototype, defaultProperty, attachedType, exports "
                            "and exportMetaObjectRevisions script bindings");
             }
         } else {

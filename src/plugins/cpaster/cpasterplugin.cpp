@@ -253,7 +253,7 @@ void CodepasterPlugin::post(QString data, const QString &mimeType)
 
     const QString username = m_settings->username;
 
-    PasteView view(m_protocols, mimeType, 0);
+    PasteView view(m_protocols, mimeType, ICore::mainWindow());
     view.setProtocol(m_settings->protocol);
 
     const FileDataList diffChunks = splitDiffToFiles(data);

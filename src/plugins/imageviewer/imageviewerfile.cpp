@@ -89,6 +89,8 @@ bool ImageViewerFile::save(QString *errorString, const QString &fileName, bool a
 void ImageViewerFile::rename(const QString &newName)
 {
     d->fileName = newName;
+    d->editor->setDisplayName(QFileInfo(d->fileName).fileName());
+    emit changed();
 }
 
 QString ImageViewerFile::fileName() const

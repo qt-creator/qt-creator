@@ -631,8 +631,6 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         mi0.data(LocalsTypeFormatRole).toInt();
     const int individualFormat =
         mi0.data(LocalsIndividualFormatRole).toInt();
-    const int effectiveIndividualFormat =
-        individualFormat == -1 ? typeFormat : individualFormat;
     const int unprintableBase = handler->unprintableBase();
 
     QMenu formatMenu;
@@ -667,16 +665,18 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         QAction *dummy = formatMenu.addAction(
             tr("Change Display for Object Named \"%1\":").arg(mi0.data().toString()));
         dummy->setEnabled(false);
-        clearIndividualFormatAction
-            = formatMenu.addAction(spacer + tr("Use Display Format Based on Type"));
-        //clearIndividualFormatAction->setEnabled(individualFormat != -1);
+        QString msg = (individualFormat == -1 && typeFormat != -1)
+            ? tr("Use Format for Type (Currently %1)")
+                .arg(alternativeFormats.at(typeFormat))
+            : tr("Use Display Format Based on Type ");
+        clearIndividualFormatAction = formatMenu.addAction(spacer + msg);
         clearIndividualFormatAction->setCheckable(true);
-        clearIndividualFormatAction->setChecked(effectiveIndividualFormat == -1);
+        clearIndividualFormatAction->setChecked(individualFormat == -1);
         for (int i = 0; i != alternativeFormats.size(); ++i) {
             const QString format = spacer + alternativeFormats.at(i);
             QAction *act = new QAction(format, &formatMenu);
             act->setCheckable(true);
-            if (i == effectiveIndividualFormat)
+            if (i == individualFormat)
                 act->setChecked(true);
             formatMenu.addAction(act);
             individualFormatActions.append(act);

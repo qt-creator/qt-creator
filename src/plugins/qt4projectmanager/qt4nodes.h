@@ -129,6 +129,7 @@ class QT4PROJECTMANAGER_EXPORT Qt4PriFileNode : public ProjectExplorer::ProjectN
 
 public:
     Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNode, const QString &filePath);
+    ~Qt4PriFileNode();
 
     void update(ProFile *includeFileExact, QtSupport::ProFileReader *readerExact, ProFile *includeFileCumlative, QtSupport::ProFileReader *readerCumalative);
 

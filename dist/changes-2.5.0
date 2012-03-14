@@ -10,6 +10,8 @@ git log --cherry-pick --pretty=oneline v2.4.0...origin/2.5
 General
    * Add a keyboard shortcut (Alt) to the locator to display the full path to
      a located file (QTCREATORBUG-3805)
+   * Add "Search Again" to recent searches (QTCREATORBUG-621)
+   * Allow multiple parallel searches (QTCREATORBUG-6101)
 
 Editing
    * Use the QML/JS editor for opening json files (QTCREATORBUG-4639)
@@ -28,10 +30,36 @@ Editing
    * Fix layout update when folding/unfolding regions (QTCREATORBUG-6666)
    * Fix position of code-assist popup when cursor is outside viewport
      (QTCREATORBUG-6843)
+   * Add experimental plugin for showing "TODO"s in files
+     [by Dmitry Savchenko]
+   * Add "Open with" context menu in resource editor (QTCREATORBUG-4224)
+   * Add task indicators in the left margin of a line
 
 Managing Projects
+   * Add facility to change multiple environment variables in the
+     build and run settings at the same time
 
 Debugging
+   * Improve display of vtables and dynamic types (QTCREATORBUG-6933 et al)
+   * Adjust QDir and QFileInfo gdb pretty printer after Qt 4.8 changes
+     and various others for Qt 5.0
+   * Adjust std::map dumper for gcc 4.6
+   * Adjust to new *stopped output notifications of gdb 7.4
+   * Add pretty printers for std::shared_ptr, std::unique_ptr, std::array,
+     std::complex, boost::posix_time::{ptime,time_duration},
+     boost::gregorian::date
+   * Improve remote debugging facilities including new convenience
+     dialogs like "Attach to Running Remote Process"
+   * Improve per-type and per-variable selection of display formats
+   * Add display variants for map-like types (std::map, QMap, QHash etc)
+   * Make "gdb startup script" directly editable
+   * Improve expansion behaviour of pinned tooltips (QTCREATORBUG-6554)
+   * Prevent automatic loading of incompatible dumpers
+   * Make Shift-F5 exit when debugging a core file (QTCREATORBUG-6111)
+   * Make popping up the output pane optional (QTCREATORBUG-6764)
+   * Make entering commands in the log view more convenient
+   * Re-enable debugging of Python scripts
+   * Add pretty-printing for D arrays and strings
 
 Debugging QML/JS
    * Relocate breakpoints to next executable code
@@ -39,6 +67,8 @@ Debugging QML/JS
    * Spruce up the script console for evaluating QML/JS expressions
 
 Analyzing Code
+   * Fix message for "incompatible" builds (QTCREATORBUG-7011)
+   * Fix suppression dialog (QTCREATORBUG-6500)
 
 C++ Support
    * Fix completion and the dot-to-arrow conversion not triggering reliably
@@ -76,6 +106,11 @@ C++ Support
    * Add "rearrange parameter list" refactoring action [by Bojan Petrovic]
    * Add indent/unindent actions shortcut [by Adam Treat]
    * Improve sorting of completion items (QTCREATORBUG-6404)
+   * Improve C++11 lambda support, including formatting
+   * Fix "go to definition" of macros (QTCREATORBUG-2240, QTCREATORBUG-6175,
+     QTCREATORBUG-6848, QTCREATORBUG-7008, QTCREATORBUG-7009)
+   * Fix completion by not adding parentheses when completing dereferenced
+     function
 
 QML/JS Support
    * Add correct scoping for signal handlers; enables completion of signal
@@ -102,7 +137,9 @@ Help
 Platform Specific
 
 Mac
-   * Pass architecture and bit width from the tool chain build setting to Qmake (QTCREATORBUG-6088)
+   * Fix adding Qt version on Mac OS X Lion (QTCREATORBUG-6222)
+   * Pass architecture and bit width from the tool chain build setting
+     to qmake (QTCREATORBUG-6088)
 
 Linux (GNOME and KDE)
 
@@ -115,8 +152,17 @@ Remote Linux Support
 Qt Designer
 
 FakeVim
+   * Implement Ctrl-a, Ctrl-x, &, gm, `., '., :<x>%, ciw.
+   * Add handling of number key block
+   * Fix cursor column after up/down in replace mode
+   * Fix case sensitivity of parsing of codes like "<Esc>" in mappings
+   * Overhaul register handling
+   * Add old-style settings of for 'bs' (QTCREATORBUG-6640)
+   * Fix off-by-one error when creating a single line range (QTCREATORBUG-6630)
 
 Version control plugins
+   * Rename the ScmGit plugin to Git
+   * Rename the VCSBase plugin to VcsBase
 
 
 Additional credits go to:

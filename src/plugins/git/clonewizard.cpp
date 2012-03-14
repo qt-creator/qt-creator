@@ -83,8 +83,14 @@ QSharedPointer<VcsBase::AbstractCheckoutJob> CloneWizard::createJob(const QList<
                                                                     QString *checkoutPath)
 {
     // Collect parameters for the clone command.
-    const CloneWizardPage *cwp = qobject_cast<const CloneWizardPage *>(parameterPages.front());
-    QTC_ASSERT(cwp, return QSharedPointer<VcsBase::AbstractCheckoutJob>())
+    const CloneWizardPage *cwp = 0;
+    foreach (QWizardPage *wp, parameterPages) {
+        cwp = qobject_cast<const CloneWizardPage *>(wp);
+        if (cwp)
+            break;
+    }
+
+    QTC_ASSERT(cwp, return QSharedPointer<VcsBase::AbstractCheckoutJob>());
     return cwp->createCheckoutJob(checkoutPath);
 }
 

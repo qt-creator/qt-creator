@@ -257,6 +257,11 @@ Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNo
     setIcon(qt4NodeStaticData()->projectIcon);
 }
 
+Qt4PriFileNode::~Qt4PriFileNode()
+{
+    watchFolders(QSet<QString>());
+}
+
 void Qt4PriFileNode::scheduleUpdate()
 {
     QtSupport::ProFileCacheManager::instance()->discardFile(m_projectFilePath);

@@ -378,8 +378,9 @@ static QString reformatCharacter(int code, int format)
     const QString codeS = reformatInteger(code, format);
     if (code < 0) // Append unsigned value.
         return codeS + QLatin1String(" / ") + reformatInteger(256 + code, format);
-    if (code >= 32 && code < 128)
-        return codeS + QLatin1String(" '") + QChar(code) + QLatin1Char('\'');
+    const QChar c = QLatin1Char(code);
+    if (c.isPrint())
+        return codeS + QLatin1String(" '") + c + QLatin1Char('\'');
     switch (code) {
     case 0:
         return codeS + QLatin1String(" '\\0'");
@@ -402,7 +403,7 @@ static QString quoteUnprintable(const QString &str)
     if (WatchHandler::unprintableBase() == -1) {
         foreach (const QChar c, str) {
             int u = c.unicode();
-            if (u >= 32 && u < 127)
+            if (c.isPrint())
                 encoded += c;
             else if (u == '\r')
                 encoded += QLatin1String("\\r");
@@ -473,9 +474,6 @@ QString WatchModel::formattedValue(const WatchData &data) const
         return value;
     }
 
-    const QByteArray qtNamespace = engine()->qtNamespace();
-    int format = itemFormat(data);
-
     if (isIntType(data.type)) {
         if (value.isEmpty())
             return value;
@@ -483,7 +481,9 @@ QString WatchModel::formattedValue(const WatchData &data) const
         const QChar firstChar = value.at(0);
         if (!firstChar.isDigit() && firstChar != QLatin1Char('-'))
             return value;
+
         // Append quoted, printable character also for decimal.
+        const int format = itemFormat(data);
         if (data.type.endsWith("char")) {
             bool ok;
             const int code = value.toInt(&ok);
@@ -504,8 +504,10 @@ QString WatchModel::formattedValue(const WatchData &data) const
     if (!isPointerType(data.type) && !data.isVTablePointer()) {
         bool ok = false;
         qulonglong integer = value.toULongLong(&ok, 0);
-        if (ok)
-           return reformatInteger(integer, format);
+        if (ok) {
+            const int format = itemFormat(data);
+            return reformatInteger(integer, format);
+        }
     }
 
     return translate(value);
@@ -1087,8 +1089,9 @@ void WatchModel::insertData(const WatchData &data)
     if (WatchItem *oldItem = findItem(data.iname, parent)) {
         bool hadChildren = oldItem->hasChildren;
         // Overwrite old entry.
+        bool hasChanged = oldItem->hasChanged(data);
         oldItem->setData(data);
-        oldItem->changed = data.hasChanged(*oldItem);
+        oldItem->changed = hasChanged;
         oldItem->generation = m_generationCounter;
         QModelIndex idx = watchIndex(oldItem);
         emit dataChanged(idx, idx.sibling(idx.row(), 2));

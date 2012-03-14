@@ -234,10 +234,10 @@ public:
         if (offset >= static_cast<quint64>(file.size()))
             return false;
         if (file.open(QIODevice::ReadOnly)) {
+            file.close();
             m_fileName = fileName;
             m_editor->setSizes(offset, file.size());
             m_editor->editor()->setDisplayName(QFileInfo(fileName).fileName());
-            file.close();
             return true;
         }
         QString errStr = tr("Cannot open %1: %2").arg(
@@ -258,11 +258,11 @@ private slots:
             int blockSize = m_editor->dataBlockSize();
             file.seek(block * blockSize);
             QByteArray data = file.read(blockSize);
+            file.close();
             const int dataSize = data.size();
             if (dataSize != blockSize)
                 data += QByteArray(blockSize - dataSize, 0);
             m_editor->addData(block, data);
-            file.close();
         } else {
             QMessageBox::critical(Core::ICore::mainWindow(), tr("File Error"),
                                   tr("Cannot open %1: %2").arg(

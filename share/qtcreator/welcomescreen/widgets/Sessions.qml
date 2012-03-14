@@ -38,6 +38,8 @@ Item {
     property int topMargin: 6
     height: Math.min(root.contentHeight + topMargin, parent.height - 260)
 
+    property alias scrollBarVisible: vscrollbar.visible
+
     ListView {
         id: root
 

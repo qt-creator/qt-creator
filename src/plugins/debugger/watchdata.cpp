@@ -83,10 +83,11 @@ bool isIntType(const QByteArray &type)
         case 'c':
             return type == "char";
         case 'i':
-            return type == "int" || type == "int64";
+            return type == "int";
         case 'l':
             return type == "long"
-                || type.startsWith("long ");
+                || type == "long int"
+                || type == "long unsigned int";
         case 'p':
             return type == "ptrdiff_t";
         case 'q':
@@ -100,10 +101,24 @@ bool isIntType(const QByteArray &type)
                 || type == "size_t"
                 || type == "std::size_t"
                 || type == "std::ptrdiff_t"
-                || type.startsWith("signed ");
+                || (type.startsWith("signed") &&
+                    (  type == "signed char"
+                    || type == "signed short"
+                    || type == "signed short int"
+                    || type == "signed long"
+                    || type == "signed long int"
+                    || type == "signed long long"
+                    || type == "signed long long int"));
         case 'u':
             return type == "unsigned"
-                || type.startsWith("unsigned ");
+                || (type.startsWith("unsigned") &&
+                    (  type == "unsigned char"
+                    || type == "unsigned short"
+                    || type == "unsigned short int"
+                    || type == "unsigned long"
+                    || type == "unsigned long int"
+                    || type == "unsigned long long"
+                    || type == "unsigned long long int"));
         default:
             return false;
     }

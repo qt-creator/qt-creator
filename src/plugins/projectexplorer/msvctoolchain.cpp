@@ -546,21 +546,24 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
             if (folder.isEmpty())
                 continue;
 
-            const QString sdkVcVarsBat = folder + QLatin1String("bin\\SetEnv.cmd");
-            if (!QFileInfo(sdkVcVarsBat).exists())
+            QDir dir(folder);
+            if (!dir.cd(QLatin1String("bin")))
                 continue;
-            QList<ToolChain *> tmp;
+            QFileInfo fi(dir, QLatin1String("SetEnv.cmd"));
+            if (!fi.exists())
+                continue;
 
+            QList<ToolChain *> tmp;
             tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::s32),
                                          findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::s32, version),
-                                         sdkVcVarsBat, QLatin1String("/x86"), true));
+                                         fi.absoluteFilePath(), QLatin1String("/x86"), true));
             // Add all platforms
             tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::s64),
                                          findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::s64, version),
-                                         sdkVcVarsBat, QLatin1String("/x64"), true));
+                                         fi.absoluteFilePath(), QLatin1String("/x64"), true));
             tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::ia64),
                                          findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::ia64, version),
-                                         sdkVcVarsBat, QLatin1String("/ia64"), true));
+                                         fi.absoluteFilePath(), QLatin1String("/ia64"), true));
             // Make sure the default is front.
             if (folder == defaultSdkPath)
                 results = tmp + results;

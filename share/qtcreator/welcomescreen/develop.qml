@@ -66,12 +66,13 @@ Rectangle {
 
         Rectangle {
             width: 1
-            height: line.height
+            height: Math.max(Math.min(recentProjects.contentHeight + 120, recentProjects.height), sessions.height)
             color: "#c4c4c4"
             anchors.left: sessions.right
             anchors.leftMargin: -1
             anchors.top: sessions.top
-
+            visible: !sessions.scrollBarVisible
+            id: sessionLine
         }
 
         RecentProjects {
@@ -96,11 +97,12 @@ Rectangle {
         Rectangle {
             id: line
             width: 1
-            height: Math.min(recentProjects.contentHeight + 120, recentProjects.height)
+            height: sessionLine.height
             color: "#c4c4c4"
             anchors.left: recentProjects.right
             anchors.leftMargin: -1
             anchors.top: recentProjects.top
+            visible: !recentProjects.scrollBarVisible
         }
 
         Text {
