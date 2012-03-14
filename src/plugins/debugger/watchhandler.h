@@ -179,8 +179,7 @@ public:
     QSet<QByteArray> expandedINames() const
         { return m_expandedINames; }
     static QStringList watchedExpressions();
-    static QHash<QByteArray, int> watcherNames()
-        { return m_watcherNames; }
+    static QHash<QByteArray, int> watcherNames();
 
     QByteArray expansionRequests() const;
     QByteArray typeFormatRequests() const;
@@ -222,9 +221,6 @@ private:
     typedef QMap<QByteArray, QPointer<QObject> > EditHandlers;
     EditHandlers m_editHandlers;
 
-    static QHash<QByteArray, int> m_watcherNames;
-    static QHash<QByteArray, int> m_typeFormats;
-    QHash<QByteArray, int> m_individualFormats; // Indexed by iname.
     TypeFormats m_reportedTypeFormats;
 
     // Items expanded in the Locals & Watchers view.
