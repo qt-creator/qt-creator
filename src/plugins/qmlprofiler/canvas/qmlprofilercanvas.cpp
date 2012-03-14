@@ -42,6 +42,7 @@ namespace Internal {
 
 QmlProfilerCanvas::QmlProfilerCanvas()
     : m_context2d(new Context2D(this))
+    , m_dirty(true)
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
     setAcceptedMouseButtons(Qt::LeftButton);
