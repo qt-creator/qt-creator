@@ -33,6 +33,7 @@
 #include "filesselectionwizardpage.h"
 
 #include "genericprojectwizard.h"
+#include "genericprojectconstants.h"
 #include "selectablefilesmodel.h"
 
 #include <coreplugin/mimedatabase.h>
@@ -56,7 +57,9 @@ FilesSelectionWizardPage::FilesSelectionWizardPage(GenericProjectWizardDialog *g
     hbox->addWidget(m_filterLabel);
     m_filterLineEdit = new QLineEdit;
 
-    m_filterLineEdit->setText("Makefile*; *.o; *.obj; *~; *.files; *.config; *.creator; *.user; *.includes");
+    const QString filter = Core::ICore::settings()->value(Constants::FILEFILTER_SETTING,
+                                                          Constants::FILEFILTER_DEFAULT).toString();
+    m_filterLineEdit->setText(filter);
     m_filterLineEdit->hide();
     hbox->addWidget(m_filterLineEdit);
     m_applyFilterButton = new QPushButton(tr("Apply Filter"), this);
@@ -140,5 +143,7 @@ QStringList FilesSelectionWizardPage::selectedFiles() const
 
 void FilesSelectionWizardPage::applyFilter()
 {
-    m_model->applyFilter(m_filterLineEdit->text());
+    const QString filter = m_filterLineEdit->text();
+    Core::ICore::settings()->setValue(Constants::FILEFILTER_SETTING, filter);
+    m_model->applyFilter(filter);
 }

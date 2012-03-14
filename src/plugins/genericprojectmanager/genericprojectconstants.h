@@ -56,6 +56,9 @@ const char *const GENERICPROJECT_ID  = "GenericProjectManager.GenericProject";
 
 const char *const EDITFILESACTION = "GenericProjectManager.EditFiles";
 
+const char *const FILEFILTER_SETTING = "GenericProject/FileFilter";
+const char *const FILEFILTER_DEFAULT = "Makefile*; *.o; *.obj; *~; *.files; *.config; *.creator; *.user; *.includes";
+
 } // namespace Constants
 } // namespace GenericProjectManager
 
