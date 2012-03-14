@@ -40,7 +40,7 @@
 #include <QAbstractSocket>
 
 namespace QmlJsDebugClient {
-class QDeclarativeEngineDebug;
+class QmlEngineDebugClient;
 class QDeclarativeDebugConnection;
 class QDebugMessageClient;
 }
@@ -76,8 +76,8 @@ public:
     Internal::QmlDebuggerClient *activeDebuggerClient();
     QHash<QString, Internal::QmlDebuggerClient*> debuggerClients();
 
-    QmlJsDebugClient::QDeclarativeEngineDebug *engineDebugClient() const;
-    void setEngineDebugClient(QmlJsDebugClient::QDeclarativeEngineDebug *client);
+    QmlJsDebugClient::QmlEngineDebugClient *engineDebugClient() const;
+    void setEngineDebugClient(QmlJsDebugClient::QmlEngineDebugClient *client);
 
     QDebugMessageClient *messageClient() const;
 

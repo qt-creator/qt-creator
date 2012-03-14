@@ -1149,7 +1149,7 @@ bool QmlEngine::evaluateScriptExpression(const QString& expression)
                 //is sent to V8DebugService. In all other cases, the
                 //expression is evaluated by QDeclarativeEngine.
                 if (state() != InferiorStopOk) {
-                    QDeclarativeEngineDebug *engineDebug =
+                    QmlEngineDebugClient *engineDebug =
                             d->m_adapter.engineDebugClient();
 
                     int id = d->m_adapter.currentSelectedDebugId();

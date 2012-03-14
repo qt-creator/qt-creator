@@ -34,7 +34,7 @@
 #define DEBUGGER_QMLENGINE_H
 
 #include "debuggerengine.h"
-#include <qmljsdebugclient/qdeclarativeenginedebug.h>
+#include <qmljsdebugclient/qmlenginedebugclient.h>
 #include <qmljsdebugclient/qdebugmessageclient.h>
 #include <utils/outputformat.h>
 #include <qmljs/qmljsdocument.h>

@@ -71,7 +71,7 @@ ClientProxy::~ClientProxy()
 
 void ClientProxy::connectToServer()
 {
-    m_engineClient = new QDeclarativeEngineDebug(m_adapter.data()->connection(), this);
+    m_engineClient = new QmlEngineDebugClient(m_adapter.data()->connection());
 
     connect(m_engineClient, SIGNAL(newObjects()), this, SLOT(newObjects()));
     connect(m_engineClient, SIGNAL(statusChanged(QDeclarativeDebugClient::Status)),
@@ -127,7 +127,7 @@ void ClientProxy::clientStatusChanged(QDeclarativeDebugClient::Status status)
 void ClientProxy::engineClientStatusChanged(QDeclarativeDebugClient::Status status)
 {
     if (status == QDeclarativeDebugClient::Enabled) {
-        m_adapter.data()->setEngineDebugClient(qobject_cast<QDeclarativeEngineDebug *>(sender()));
+        m_adapter.data()->setEngineDebugClient(qobject_cast<QmlEngineDebugClient *>(sender()));
     }
 }
 

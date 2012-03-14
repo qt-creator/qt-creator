@@ -167,7 +167,7 @@ private:
     void buildDebugIdHashRecursive(const QDeclarativeDebugObjectReference &ref);
 
     QWeakPointer<Debugger::QmlAdapter> m_adapter;
-    QDeclarativeEngineDebug *m_engineClient;
+    QmlEngineDebugClient *m_engineClient;
     QmlJSInspectorClient *m_inspectorClient;
 
     QDeclarativeDebugEnginesQuery *m_engineQuery;

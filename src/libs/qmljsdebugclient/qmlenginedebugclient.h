@@ -29,12 +29,11 @@
 **
 **************************************************************************/
 
-#ifndef QDECLARATIVEENGINEDEBUG_H
-#define QDECLARATIVEENGINEDEBUG_H
+#ifndef QMLENGINEDEBUGCLIENT_H
+#define QMLENGINEDEBUGCLIENT_H
 
 #include "qmljsdebugclient_global.h"
 #include "qdeclarativedebugclient.h"
-#include <qobject.h>
 #include <qurl.h>
 #include <qvariant.h>
 
@@ -53,16 +52,14 @@ class QDeclarativeDebugContextReference;
 class QDeclarativeDebugObjectReference;
 class QDeclarativeDebugFileReference;
 class QDeclarativeDebugEngineReference;
-class QDeclarativeEngineDebugPrivate;
+class QmlEngineDebugClientPrivate;
 
-class QMLJSDEBUGCLIENT_EXPORT QDeclarativeEngineDebug : public QObject
+class QMLJSDEBUGCLIENT_EXPORT QmlEngineDebugClient : public QDeclarativeDebugClient
 {
     Q_OBJECT
 public:
-    explicit QDeclarativeEngineDebug(QDeclarativeDebugConnection *, QObject * = 0);
-    ~QDeclarativeEngineDebug();
-
-    QDeclarativeDebugClient::Status status() const;
+    explicit QmlEngineDebugClient(QDeclarativeDebugConnection *);
+    ~QmlEngineDebugClient();
 
     QDeclarativeDebugPropertyWatch *addWatch(const QDeclarativeDebugPropertyReference &,
                                              QObject *parent = 0);
@@ -93,13 +90,18 @@ public:
     bool resetBindingForObject(int objectDebugId, const QString &propertyName);
     bool setMethodBody(int objectDebugId, const QString &methodName, const QString &methodBody);
 
+    QmlEngineDebugClientPrivate *priv() const { return d; }
 Q_SIGNALS:
     void newObjects();
-    void statusChanged(QDeclarativeDebugClient::Status status);
+    void newStatus(QDeclarativeDebugClient::Status status);
+
+protected:
+    virtual void statusChanged(Status status);
+    virtual void messageReceived(const QByteArray &);
 
 private:
-    Q_DECLARE_PRIVATE(QDeclarativeEngineDebug)
-    QScopedPointer<QDeclarativeEngineDebugPrivate> d_ptr;
+    friend class QmlEngineDebugClientPrivate;
+    QmlEngineDebugClientPrivate *d;
 };
 
 class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugWatch : public QObject
@@ -124,12 +126,12 @@ Q_SIGNALS:
     void valueChanged(const QByteArray &name, const QVariant &value);
 
 private:
-    friend class QDeclarativeEngineDebug;
-    friend class QDeclarativeEngineDebugPrivate;
+    friend class QmlEngineDebugClient;
+    friend class QmlEngineDebugClientPrivate;
     void setState(State);
     State m_state;
     int m_queryId;
-    QDeclarativeEngineDebug *m_client;
+    QmlEngineDebugClient *m_client;
     int m_objectDebugId;
 };
 
@@ -142,7 +144,7 @@ public:
     QString name() const;
 
 private:
-    friend class QDeclarativeEngineDebug;
+    friend class QmlEngineDebugClient;
     QString m_name;
 };
 
@@ -155,7 +157,7 @@ public:
     QString expression() const;
 
 private:
-    friend class QDeclarativeEngineDebug;
+    friend class QmlEngineDebugClient;
     QString m_expr;
     int m_debugId;
 };
@@ -176,8 +178,8 @@ protected:
     QDeclarativeDebugQuery(QObject *);
 
 private:
-    friend class QDeclarativeEngineDebug;
-    friend class QDeclarativeEngineDebugPrivate;
+    friend class QmlEngineDebugClient;
+    friend class QmlEngineDebugClientPrivate;
     void setState(State);
     State m_state;
 };
@@ -197,7 +199,7 @@ public:
     void setColumnNumber(int);
 
 private:
-    friend class QDeclarativeEngineDebugPrivate;
+    friend class QmlEngineDebugClientPrivate;
     QUrl m_url;
     int m_lineNumber;
     int m_columnNumber;
@@ -215,7 +217,7 @@ public:
     QString name() const;
 
 private:
-    friend class QDeclarativeEngineDebugPrivate;
+    friend class QmlEngineDebugClientPrivate;
     int m_debugId;
     QString m_name;
 };
@@ -240,7 +242,7 @@ public:
     QList<QDeclarativeDebugObjectReference> children() const;
 
 private:
-    friend class QDeclarativeEngineDebugPrivate;
+    friend class QmlEngineDebugClientPrivate;
     int m_debugId;
     QString m_class;
     QString m_idString;
@@ -265,7 +267,7 @@ public:
     QList<QDeclarativeDebugContextReference> contexts() const;
 
 private:
-    friend class QDeclarativeEngineDebugPrivate;
+    friend class QmlEngineDebugClientPrivate;
     int m_debugId;
     QString m_name;
     QList<QDeclarativeDebugObjectReference> m_objects;
@@ -287,7 +289,7 @@ public:
     bool hasNotifySignal() const;
 
 private:
-    friend class QDeclarativeEngineDebugPrivate;
+    friend class QmlEngineDebugClientPrivate;
     int m_objectDebugId;
     QString m_name;
     QVariant m_value;
@@ -304,10 +306,10 @@ public:
     virtual ~QDeclarativeDebugEnginesQuery();
     QList<QDeclarativeDebugEngineReference> engines() const;
 private:
-    friend class QDeclarativeEngineDebug;
-    friend class QDeclarativeEngineDebugPrivate;
+    friend class QmlEngineDebugClient;
+    friend class QmlEngineDebugClientPrivate;
     QDeclarativeDebugEnginesQuery(QObject *);
-    QDeclarativeEngineDebug *m_client;
+    QmlEngineDebugClient *m_client;
     int m_queryId;
     QList<QDeclarativeDebugEngineReference> m_engines;
 };
@@ -319,10 +321,10 @@ public:
     virtual ~QDeclarativeDebugRootContextQuery();
     QDeclarativeDebugContextReference rootContext() const;
 private:
-    friend class QDeclarativeEngineDebug;
-    friend class QDeclarativeEngineDebugPrivate;
+    friend class QmlEngineDebugClient;
+    friend class QmlEngineDebugClientPrivate;
     QDeclarativeDebugRootContextQuery(QObject *);
-    QDeclarativeEngineDebug *m_client;
+    QmlEngineDebugClient *m_client;
     int m_queryId;
     QDeclarativeDebugContextReference m_context;
 };
@@ -334,10 +336,10 @@ public:
     virtual ~QDeclarativeDebugObjectQuery();
     QDeclarativeDebugObjectReference object() const;
 private:
-    friend class QDeclarativeEngineDebug;
-    friend class QDeclarativeEngineDebugPrivate;
+    friend class QmlEngineDebugClient;
+    friend class QmlEngineDebugClientPrivate;
     QDeclarativeDebugObjectQuery(QObject *);
-    QDeclarativeEngineDebug *m_client;
+    QmlEngineDebugClient *m_client;
     int m_queryId;
     QDeclarativeDebugObjectReference m_object;
 
@@ -351,10 +353,10 @@ public:
     QVariant expression() const;
     QVariant result() const;
 private:
-    friend class QDeclarativeEngineDebug;
-    friend class QDeclarativeEngineDebugPrivate;
+    friend class QmlEngineDebugClient;
+    friend class QmlEngineDebugClientPrivate;
     QDeclarativeDebugExpressionQuery(QObject *);
-    QDeclarativeEngineDebug *m_client;
+    QmlEngineDebugClient *m_client;
     int m_queryId;
     QVariant m_expr;
     QVariant m_result;
@@ -367,4 +369,4 @@ Q_DECLARE_METATYPE(QmlJsDebugClient::QDeclarativeDebugObjectReference)
 Q_DECLARE_METATYPE(QmlJsDebugClient::QDeclarativeDebugContextReference)
 Q_DECLARE_METATYPE(QmlJsDebugClient::QDeclarativeDebugPropertyReference)
 
-#endif // QDECLARATIVEENGINEDEBUG_H
+#endif // QMLENGINEDEBUGCLIENT_H

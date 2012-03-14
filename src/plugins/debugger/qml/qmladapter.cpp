@@ -67,7 +67,7 @@ public:
 
     QWeakPointer<DebuggerEngine> m_engine;
     QmlDebuggerClient *m_qmlClient;
-    QmlJsDebugClient::QDeclarativeEngineDebug *m_engineDebugClient;
+    QmlJsDebugClient::QmlEngineDebugClient *m_engineDebugClient;
     QTimer m_connectionTimer;
     QDeclarativeDebugConnection *m_conn;
     QHash<QString, QmlDebuggerClient*> debugClients;
@@ -304,12 +304,12 @@ QHash<QString, Internal::QmlDebuggerClient*> QmlAdapter::debuggerClients()
     return d->debugClients;
 }
 
-QmlJsDebugClient::QDeclarativeEngineDebug *QmlAdapter::engineDebugClient() const
+QmlJsDebugClient::QmlEngineDebugClient *QmlAdapter::engineDebugClient() const
 {
     return d->m_engineDebugClient;
 }
 
-void QmlAdapter::setEngineDebugClient(QmlJsDebugClient::QDeclarativeEngineDebug *client)
+void QmlAdapter::setEngineDebugClient(QmlJsDebugClient::QmlEngineDebugClient *client)
 {
     d->m_engineDebugClient = client;
 }

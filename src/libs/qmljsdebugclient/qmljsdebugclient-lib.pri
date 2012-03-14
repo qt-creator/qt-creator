@@ -9,7 +9,7 @@ INCLUDEPATH += $$PWD/..
 HEADERS += \
     $$PWD/qmlprofilereventlocation.h \
     $$PWD/qdeclarativedebugclient.h \
-    $$PWD/qdeclarativeenginedebug.h \
+    $$PWD/qmlenginedebugclient.h \
     $$PWD/qdeclarativeoutputparser.h \
     $$PWD/qmljsdebugclient_global.h \
     $$PWD/qmlprofilereventtypes.h \
@@ -21,7 +21,7 @@ HEADERS += \
 
 SOURCES += \
     $$PWD/qdeclarativedebugclient.cpp \
-    $$PWD/qdeclarativeenginedebug.cpp \
+    $$PWD/qmlenginedebugclient.cpp \
     $$PWD/qdeclarativeoutputparser.cpp \
     $$PWD/qmlprofilertraceclient.cpp \
     $$PWD/qpacketprotocol.cpp \
