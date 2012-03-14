@@ -170,6 +170,7 @@ private:
     QWidget *createZoomToolbar();
     void connectClientSignals();
     void disconnectClientSignals();
+    void initializeQmlViews();
 
 protected:
     virtual void resizeEvent(QResizeEvent *event);

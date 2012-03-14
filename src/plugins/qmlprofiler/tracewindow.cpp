@@ -154,6 +154,8 @@ TraceWindow::TraceWindow(QWidget *parent)
     setMinimumHeight(170);
     m_currentZoomLevel = 0;
     m_profiledTime = 0;
+
+    initializeQmlViews();
 }
 
 TraceWindow::~TraceWindow()
@@ -276,6 +278,14 @@ void TraceWindow::reset(QDeclarativeDebugConnection *conn)
 
     connectClientSignals();
 
+    m_v8DataReady = false;
+    m_qmlDataReady = false;
+
+    m_mainView->rootContext()->setContextProperty("connection", m_plugin.data());
+}
+
+void TraceWindow::initializeQmlViews()
+{
     m_mainView->rootContext()->setContextProperty("connection", m_plugin.data());
     m_mainView->rootContext()->setContextProperty("zoomControl", m_zoomControl.data());
     m_timebar->rootContext()->setContextProperty("zoomControl", m_zoomControl.data());
@@ -307,9 +317,6 @@ void TraceWindow::reset(QDeclarativeDebugConnection *conn)
 
     connect(this, SIGNAL(internalClearDisplay()), m_mainView->rootObject(), SLOT(clearAll()));
     connect(this,SIGNAL(internalClearDisplay()), m_overview->rootObject(), SLOT(clearDisplay()));
-
-    m_v8DataReady = false;
-    m_qmlDataReady = false;
 }
 
 void TraceWindow::connectClientSignals()
@@ -476,6 +483,11 @@ void TraceWindow::qmlComplete()
     m_qmlDataReady = true;
     if (!m_v8plugin || m_v8plugin.data()->status() != QDeclarativeDebugClient::Enabled || m_v8DataReady) {
         m_eventList->complete();
+
+        // if no data was received, still notify completion
+        if (m_eventList->currentState() == QmlProfilerEventList::Empty)
+            emit viewUpdated();
+
         // once complete is sent, reset the flags
         m_qmlDataReady = false;
         m_v8DataReady = false;
@@ -487,6 +499,11 @@ void TraceWindow::v8Complete()
     m_v8DataReady = true;
     if (!m_plugin || m_plugin.data()->status() != QDeclarativeDebugClient::Enabled || m_qmlDataReady) {
         m_eventList->complete();
+
+        // if no data was received, still notify completion
+        if (m_eventList->currentState() == QmlProfilerEventList::Empty)
+            emit viewUpdated();
+
         // once complete is sent, reset the flags
         m_v8DataReady = false;
         m_qmlDataReady = false;

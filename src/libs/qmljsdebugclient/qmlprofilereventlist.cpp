@@ -644,9 +644,14 @@ void QmlProfilerEventList::setTraceStartTime( qint64 time )
 
 void QmlProfilerEventList::complete()
 {
-    setState(ProcessingData);
-    d->collectV8Statistics();
-    postProcess();
+    if (currentState() == AcquiringData) {
+        setState(ProcessingData);
+        d->collectV8Statistics();
+        postProcess();
+    } else {
+        setState(Empty);
+    }
+
 }
 
 void QmlProfilerEventList::QmlProfilerEventListPrivate::clearQmlRootEvent()

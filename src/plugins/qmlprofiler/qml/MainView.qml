@@ -321,7 +321,7 @@ Rectangle {
         id: elapsedTimer
         property date startDate
         property bool reset: true
-        running: connection.recording && connection.enabled
+        running: connection ? (connection.recording && connection.enabled) : false
         repeat: true
         onRunningChanged: {
             if (running) reset = true;

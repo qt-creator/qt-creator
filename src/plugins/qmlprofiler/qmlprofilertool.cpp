@@ -533,7 +533,8 @@ QWidget *QmlProfilerTool::createWidgets()
 
 void QmlProfilerTool::connectClient(int port)
 {
-    QTC_ASSERT(!d->m_client, return;)
+    if (d->m_client)
+        delete d->m_client;
     d->m_client = new QDeclarativeDebugConnection;
     d->m_traceWindow->reset(d->m_client);
     connect(d->m_client, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
