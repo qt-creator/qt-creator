@@ -31,7 +31,7 @@ Editing
    * Fix position of code-assist popup when cursor is outside viewport
      (QTCREATORBUG-6843)
    * Add experimental plugin for showing "TODO"s in files
-     [by Dmitry Savchenko]
+     [by Dmitry Savchenko, initial version by Vasiliy Sorokin]
    * Add "Open with" context menu in resource editor (QTCREATORBUG-4224)
    * Add task indicators in the left margin of a line
 
