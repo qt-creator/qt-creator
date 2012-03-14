@@ -83,7 +83,7 @@ public:
     virtual IDeviceWidget *createWidget(const IDevice::Ptr &device, QWidget *parent = 0) const = 0;
 
     /*!
-      Returns true if this factory supports the given device type.
+      Returns true iff this factory supports the given device type.
     */
     virtual bool supportsDeviceType(const QString &type) const = 0;
 
@@ -106,7 +106,7 @@ public:
     virtual QString displayNameForActionId(const QString &actionId) const = 0;
 
     /*!
-      True if the user should be allowed to edit the devices created by this
+      True iff the user should be allowed to edit the devices created by this
       factory. Returns true by default. Override if your factory creates fixed configurations
       for which later editing makes no sense.
     */
