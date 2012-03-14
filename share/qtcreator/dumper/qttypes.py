@@ -1644,23 +1644,29 @@ def qedit__QVector(expr, value):
 
 
 def qdump__QVector(d, value):
-    d_ptr = value["d"]
-    p_ptr = value["p"]
-    alloc = d_ptr["alloc"]
-    size = d_ptr["size"]
+    private = value["d"]
+    checkRef(private["ref"])
+    alloc = private["alloc"]
+    size = private["size"]
+    innerType = templateArgument(value.type, 0)
+    charPointerType = lookupType("char *")
+    try:
+        # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
+        offset = private["offset"]
+        data = private.cast(charPointerType) + offset
+    except:
+        # Qt 4.
+        data = value["p"]["array"]
+
+    p = data.cast(innerType.pointer())
 
     check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
-    checkRef(d_ptr["ref"])
-
-    innerType = templateArgument(value.type, 0)
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
-        p = gdb.Value(p_ptr["array"]).cast(innerType.pointer())
-        charPtr = lookupType("char").pointer()
         d.putField("size", size)
         with Children(d, size, maxNumChild=2000, childType=innerType, addrBase=p,
-                addrStep=(p+1).cast(charPtr) - p.cast(charPtr)):
+                addrStep=(p+1).cast(charPointerType) - p.cast(charPointerType)):
             for i in d.childRange():
                 d.putSubItem(i, p.dereference())
                 p += 1

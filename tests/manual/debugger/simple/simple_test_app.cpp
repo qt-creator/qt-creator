@@ -582,11 +582,24 @@ namespace qbytearray {
         dummyStatement(&buf1, &buf2, &buf3);
     }
 
+    void testQByteArray4()
+    {
+        char data[] = { 'H', 'e', 'l', 'l', 'o' };
+        QByteArray ba1 = QByteArray::fromRawData(data, 4);
+        QByteArray ba2 = QByteArray::fromRawData(data + 1, 4);
+        BREAK_HERE;
+        // Check ba1 "Hell" QByteArray.
+        // Check ba2 "ello" QByteArray.
+        // Continue.
+        dummyStatement(&ba1, &ba2, &data);
+    }
+
     void testQByteArray()
     {
         testQByteArray1();
         testQByteArray2();
         testQByteArray3();
+        testQByteArray4();
     }
 
 } // namespace qbytearray
@@ -3370,12 +3383,24 @@ namespace qstring  {
         str += QLatin1Char(0);
         str += QLatin1Char(1);
         str += " fat ";
-        str += " World ";
-        str += " World ";
+        str += " World";
+        str.prepend("Prefix: ");
         BREAK_HERE;
-        // Check str "Hello  big, \t\r\n\000\001 fat  World  World " QString.
+        // Check str "Prefix: Hello  big, \t\r\n\000\001 fat  World" QString.
         // Continue.
         dummyStatement(&str);
+    }
+
+    void testQString2()
+    {
+        QChar data[] = { 'H', 'e', 'l', 'l', 'o' };
+        QString str1 = QString::fromRawData(data, 4);
+        QString str2 = QString::fromRawData(data + 1, 4);
+        BREAK_HERE;
+        // Check str1 "Hell" QString.
+        // Check str2 "ello" QString.
+        // Continue.
+        dummyStatement(&str1, &str2, &data);
     }
 
     void stringRefTest(const QString &refstring)
@@ -3408,6 +3433,7 @@ namespace qstring  {
     void testQString()
     {
         testQString1();
+        testQString2();
         testQString3();
         testQStringQuotes();
     }
