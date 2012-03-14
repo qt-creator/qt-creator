@@ -36,6 +36,7 @@
 #include "CppDocument.h"
 #include "ModelManagerInterface.h"
 #include "Overview.h"
+#include "cpptools_global.h"
 
 #include <QList>
 #include <QStringList>
@@ -43,7 +44,7 @@
 
 namespace CPlusPlus {
 
-class CPLUSPLUS_EXPORT TypeHierarchy
+class CPPTOOLS_EXPORT TypeHierarchy
 {
     friend class TypeHierarchyBuilder;
 
@@ -59,7 +60,7 @@ private:
     QList<TypeHierarchy> _hierarchy;
 };
 
-class CPLUSPLUS_EXPORT TypeHierarchyBuilder
+class CPPTOOLS_EXPORT TypeHierarchyBuilder
 {
 public:
     TypeHierarchyBuilder(Symbol *symbol, const Snapshot &snapshot);

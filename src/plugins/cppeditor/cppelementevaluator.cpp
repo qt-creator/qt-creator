@@ -42,8 +42,8 @@
 #include <Scope.h>
 #include <Symbol.h>
 #include <Symbols.h>
-#include <TypeHierarchyBuilder.h>
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/TypeHierarchyBuilder.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>

@@ -35,7 +35,7 @@
 
 #include "cpptools_global.h"
 #include "cpptoolsconstants.h"
-#include <cplusplus/ModelManagerInterface.h>
+#include "ModelManagerInterface.h"
 #ifndef ICHECK_BUILD
 #  include <projectexplorer/project.h>
 #endif

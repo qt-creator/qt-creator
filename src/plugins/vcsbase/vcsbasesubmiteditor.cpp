@@ -43,7 +43,7 @@
 #include <cplusplus/CoreTypes.h>
 #include <cplusplus/FullySpecifiedType.h>
 #include <cplusplus/Literals.h>
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/Symbol.h>
 #include <cplusplus/Symbols.h>
 #include <cplusplus/TranslationUnit.h>

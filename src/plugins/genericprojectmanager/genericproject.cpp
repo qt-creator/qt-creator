@@ -42,7 +42,7 @@
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>

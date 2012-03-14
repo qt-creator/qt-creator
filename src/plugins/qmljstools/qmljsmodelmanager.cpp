@@ -40,7 +40,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/messagemanager.h>
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/CppDocument.h>
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsbind.h>

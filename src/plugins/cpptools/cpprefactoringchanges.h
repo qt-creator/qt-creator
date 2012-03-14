@@ -34,7 +34,7 @@
 #define CPPREFACTORINGCHANGES_H
 
 #include <ASTfwd.h>
-#include <cplusplus/ModelManagerInterface.h>
+#include "ModelManagerInterface.h"
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/LookupContext.h>
 

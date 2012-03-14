@@ -37,7 +37,7 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/ExpressionUnderCursor.h>
-#include <cplusplus/ModelManagerInterface.h>
+#include "ModelManagerInterface.h"
 #include <CoreTypes.h>
 #include <Names.h>
 #include <Symbols.h>

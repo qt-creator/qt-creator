@@ -55,7 +55,7 @@
 #include <Names.h>
 #include <Scope.h>
 
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/FindUsages.h>

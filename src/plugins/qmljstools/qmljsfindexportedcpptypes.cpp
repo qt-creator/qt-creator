@@ -45,7 +45,7 @@
 #include <cplusplus/CoreTypes.h>
 #include <cplusplus/Symbols.h>
 #include <cplusplus/SimpleLexer.h>
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>

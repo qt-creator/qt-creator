@@ -35,7 +35,7 @@
 #include "cmaketarget.h"
 #include "cmakebuildconfiguration.h"
 
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 
 #include <QProcess>
 

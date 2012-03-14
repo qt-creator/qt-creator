@@ -47,7 +47,7 @@
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/abstracteditorsupport.h>
 
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Overview.h>
 #include <Symbols.h>

@@ -38,7 +38,7 @@
 #include "classviewparsertreeitem.h"
 
 #include <CPlusPlusForwardDeclarations.h>
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/CppDocument.h>
 
 // might be changed to forward declaration - is not done to be less dependent

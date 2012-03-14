@@ -41,7 +41,7 @@
 #include <utils/qtcassert.h>
 
 #include <cplusplus/ExpressionUnderCursor.h>
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/LookupItem.h>
 #include <cplusplus/TypeOfExpression.h>
 

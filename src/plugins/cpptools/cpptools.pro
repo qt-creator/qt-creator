@@ -45,7 +45,9 @@ HEADERS += completionsettingspage.h \
     cppchecksymbols.h \
     cpplocalsymbols.h \
     cppsemanticinfo.h \
-    cppcompletionassistprovider.h
+    cppcompletionassistprovider.h \
+    ModelManagerInterface.h \
+    TypeHierarchyBuilder.h
 
 SOURCES += completionsettingspage.cpp \
     cppclassesfilter.cpp \
@@ -82,7 +84,9 @@ SOURCES += completionsettingspage.cpp \
     cppchecksymbols.cpp \
     cpplocalsymbols.cpp \
     cppsemanticinfo.cpp \
-    cppcompletionassistprovider.cpp
+    cppcompletionassistprovider.cpp \
+    ModelManagerInterface.cpp \
+    TypeHierarchyBuilder.cpp
 
 FORMS += completionsettingspage.ui \
     cppfilesettingspage.ui \

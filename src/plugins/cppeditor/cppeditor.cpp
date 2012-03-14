@@ -49,7 +49,7 @@
 #include <SymbolVisitor.h>
 #include <TranslationUnit.h>
 #include <cplusplus/ASTPath.h>
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <cplusplus/Overview.h>

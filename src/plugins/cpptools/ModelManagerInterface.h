@@ -35,8 +35,7 @@
 
 #include <cplusplus/CppDocument.h>
 #include <languageutils/fakemetaobject.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/toolchain.h>
+#include "cpptools_global.h"
 
 #include <QObject>
 #include <QHash>
@@ -66,18 +65,20 @@ namespace CppTools {
 
 namespace CPlusPlus {
 
-class CPLUSPLUS_EXPORT CppModelManagerInterface : public QObject
+class CPPTOOLS_EXPORT CppModelManagerInterface : public QObject
 {
     Q_OBJECT
 
 public:
     enum Language { CXX, OBJC };
 
-    class CPLUSPLUS_EXPORT ProjectPart
+    class CPPTOOLS_EXPORT ProjectPart
     {
     public:
         ProjectPart()
-            : qtVersion(UnknownQt)
+            : language(CXX)
+            , cxx11Enabled(false)
+            , qtVersion(UnknownQt)
         {}
 
     public: //attributes
@@ -87,7 +88,7 @@ public:
         QStringList frameworkPaths;
         QStringList precompiledHeaders;
         Language language;
-        ProjectExplorer::ToolChain::CompilerFlags flags;
+        bool cxx11Enabled;
         enum QtVersion {
             UnknownQt = -1,
             NoQt = 0,
@@ -96,16 +97,13 @@ public:
         };
         QtVersion qtVersion;
 
-        bool cpp0xEnabled() const
-        { return flags == ProjectExplorer::ToolChain::STD_CXX11; }
-
         bool objcEnabled() const
         { return language == CppModelManagerInterface::OBJC; }
 
         typedef QSharedPointer<ProjectPart> Ptr;
     };
 
-    class CPLUSPLUS_EXPORT ProjectInfo
+    class CPPTOOLS_EXPORT ProjectInfo
     {
     public:
         ProjectInfo()
@@ -155,7 +153,7 @@ public:
         QByteArray m_defines;
     };
 
-    class CPLUSPLUS_EXPORT WorkingCopy
+    class CPPTOOLS_EXPORT WorkingCopy
     {
     public:
         void insert(const QString &fileName, const QString &source, unsigned revision = 0)

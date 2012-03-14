@@ -56,7 +56,7 @@
 #include <cplusplus/DependencyTable.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/CppRewriter.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpprefactoringchanges.h>

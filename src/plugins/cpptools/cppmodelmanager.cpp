@@ -96,7 +96,7 @@
 namespace CPlusPlus {
 uint qHash(const CppModelManagerInterface::ProjectPart &p)
 {
-    uint h = qHash(p.defines) ^ p.language ^ p.flags;
+    uint h = qHash(p.defines) ^ p.language ^ ((int) p.cxx11Enabled);
 
     foreach (const QString &i, p.includePaths)
         h ^= qHash(i);
@@ -113,7 +113,7 @@ bool operator==(const CppModelManagerInterface::ProjectPart &p1,
         return false;
     if (p1.language != p2.language)
         return false;
-    if (p1.flags != p2.flags)
+    if (p1.cxx11Enabled != p2.cxx11Enabled)
         return false;
     if (p1.includePaths != p2.includePaths)
         return false;

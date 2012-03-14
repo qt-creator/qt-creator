@@ -33,7 +33,7 @@
 #ifndef CMAKEUICODEMODELSUPPORT_H
 #define CMAKEUICODEMODELSUPPORT_H
 
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <cpptools/uicodecompletionsupport.h>
 
 #include <QDateTime>

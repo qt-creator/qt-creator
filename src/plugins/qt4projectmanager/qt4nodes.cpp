@@ -50,7 +50,7 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/CppDocument.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>

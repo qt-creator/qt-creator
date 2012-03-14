@@ -75,7 +75,7 @@
 
 #include <cplusplus/findcdbbreakpoint.h>
 #include <cplusplus/CppDocument.h>
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 
 #include <QCoreApplication>
 #include <QFileInfo>

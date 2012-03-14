@@ -32,7 +32,7 @@
 
 #include "codemodelhelpers.h"
 
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/Symbols.h>
 #include <cplusplus/CoreTypes.h>
 #include <cplusplus/Name.h>

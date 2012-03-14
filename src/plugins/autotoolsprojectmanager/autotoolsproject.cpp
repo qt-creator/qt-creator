@@ -48,7 +48,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <extensionsystem/pluginmanager.h>
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 

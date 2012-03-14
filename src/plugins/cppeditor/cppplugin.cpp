@@ -57,7 +57,7 @@
 #include <texteditor/texteditorplugin.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/texteditorconstants.h>
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpptoolssettings.h>
 

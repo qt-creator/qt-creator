@@ -43,7 +43,7 @@
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/insertionpointlocator.h>
 #include <cpptools/symbolfinder.h>
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/Symbols.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/CoreTypes.h>

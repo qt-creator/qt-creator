@@ -84,7 +84,7 @@
 #include <coreplugin/modemanager.h>
 
 #include <cppeditor/cppeditorconstants.h>
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/invoker.h>

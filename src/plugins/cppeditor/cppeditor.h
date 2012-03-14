@@ -36,7 +36,7 @@
 #include "cppeditorenums.h"
 #include "cppfunctiondecldeflink.h"
 
-#include <cplusplus/ModelManagerInterface.h>
+#include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/LookupContext.h>
 #include <texteditor/basetexteditor.h>
