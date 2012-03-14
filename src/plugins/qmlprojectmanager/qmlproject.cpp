@@ -272,11 +272,6 @@ ProjectExplorer::IProjectManager *QmlProject::projectManager() const
     return m_manager;
 }
 
-QList<ProjectExplorer::Project *> QmlProject::dependsOn()
-{
-    return QList<Project *>();
-}
-
 QList<ProjectExplorer::BuildConfigWidget*> QmlProject::subConfigWidgets()
 {
     return QList<ProjectExplorer::BuildConfigWidget*>();

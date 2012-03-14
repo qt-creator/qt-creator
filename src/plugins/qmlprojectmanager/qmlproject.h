@@ -74,8 +74,6 @@ public:
     ProjectExplorer::IProjectManager *projectManager() const;
     Internal::QmlProjectTarget *activeTarget() const;
 
-    QList<ProjectExplorer::Project *> dependsOn();
-
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
     ProjectExplorer::ProjectNode *rootProjectNode() const;

@@ -74,8 +74,6 @@ public:
     virtual Core::IDocument *document() const = 0;
     virtual IProjectManager *projectManager() const = 0;
 
-    virtual QList<Project *> dependsOn() = 0; //NBS TODO implement dependsOn
-
     bool hasActiveBuildSettings() const;
 
     // EditorConfiguration:

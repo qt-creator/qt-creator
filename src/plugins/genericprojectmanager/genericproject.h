@@ -86,8 +86,6 @@ public:
     ProjectExplorer::IProjectManager *projectManager() const;
     GenericTarget *activeTarget() const;
 
-    QList<ProjectExplorer::Project *> dependsOn();
-
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
     GenericProjectNode *rootProjectNode() const;

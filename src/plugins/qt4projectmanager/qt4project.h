@@ -95,9 +95,6 @@ public:
 
     Qt4BaseTarget *activeTarget() const;
 
-    QList<Core::IDocument *> dependencies();     //NBS remove
-    QList<ProjectExplorer::Project *>dependsOn();
-
     ProjectExplorer::ProjectNode *rootProjectNode() const;
     Qt4ProFileNode *rootQt4ProjectNode() const;
     bool validParse(const QString &proFilePath) const;

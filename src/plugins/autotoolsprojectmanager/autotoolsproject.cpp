@@ -148,11 +148,6 @@ AutotoolsTarget *AutotoolsProject::activeTarget() const
     return static_cast<AutotoolsTarget *>(Project::activeTarget());
 }
 
-QList<Project *> AutotoolsProject::dependsOn()
-{
-    return QList<Project *>();
-}
-
 QString AutotoolsProject::defaultBuildDirectory() const
 {
     return projectDirectory();

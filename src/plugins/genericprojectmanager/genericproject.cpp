@@ -430,11 +430,6 @@ IProjectManager *GenericProject::projectManager() const
     return m_manager;
 }
 
-QList<Project *> GenericProject::dependsOn()
-{
-    return QList<Project *>();
-}
-
 QList<BuildConfigWidget*> GenericProject::subConfigWidgets()
 {
     QList<BuildConfigWidget*> list;

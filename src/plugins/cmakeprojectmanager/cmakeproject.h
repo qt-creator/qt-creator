@@ -86,8 +86,6 @@ public:
 
     CMakeTarget *activeTarget() const;
 
-    QList<ProjectExplorer::Project *> dependsOn(); //NBS TODO implement dependsOn
-
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
     ProjectExplorer::ProjectNode *rootProjectNode() const;

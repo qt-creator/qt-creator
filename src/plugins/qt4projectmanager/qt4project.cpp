@@ -911,12 +911,6 @@ QString Qt4Project::generatedUiHeader(const QString &formFile) const
     return QString();
 }
 
-QList<ProjectExplorer::Project*> Qt4Project::dependsOn()
-{
-    // NBS implement dependsOn
-    return QList<Project *>();
-}
-
 void Qt4Project::proFileParseError(const QString &errorMessage)
 {
     Core::ICore::messageManager()->printToOutputPanePopup(errorMessage);

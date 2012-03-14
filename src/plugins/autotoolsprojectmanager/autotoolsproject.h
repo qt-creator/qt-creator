@@ -84,7 +84,6 @@ public:
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
     ProjectExplorer::ProjectNode *rootProjectNode() const;
     QStringList files(FilesMode fileMode) const;
-    QList<ProjectExplorer::Project *> dependsOn();
     QString defaultBuildDirectory() const;
     QStringList buildTargets() const;
     ProjectExplorer::ToolChain *toolChain() const;

@@ -496,11 +496,6 @@ CMakeTarget *CMakeProject::activeTarget() const
     return static_cast<CMakeTarget *>(Project::activeTarget());
 }
 
-QList<ProjectExplorer::Project *> CMakeProject::dependsOn()
-{
-    return QList<Project *>();
-}
-
 QList<ProjectExplorer::BuildConfigWidget*> CMakeProject::subConfigWidgets()
 {
     QList<ProjectExplorer::BuildConfigWidget*> list;
