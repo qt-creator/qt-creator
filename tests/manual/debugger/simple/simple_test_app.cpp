@@ -5866,6 +5866,8 @@ namespace bug6863 {
 
     void test6863()
     {
+        QFile file("/tmp/tt");
+        setProp(&file);
         MyObject obj;
         setProp(&obj);
     }
