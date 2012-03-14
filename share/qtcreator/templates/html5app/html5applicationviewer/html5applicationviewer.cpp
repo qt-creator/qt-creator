@@ -99,7 +99,7 @@ QString Html5ApplicationViewerPrivate::adjustPath(const QString &path)
     }
 #endif
 #endif
-    return path;
+    return QFileInfo(path).absoluteFilePath();
 }
 
 void Html5ApplicationViewerPrivate::quit()
@@ -130,7 +130,7 @@ Html5ApplicationViewer::~Html5ApplicationViewer()
 
 void Html5ApplicationViewer::loadFile(const QString &fileName)
 {
-    m_d->m_webView->setUrl(QUrl(Html5ApplicationViewerPrivate::adjustPath(fileName)));
+    m_d->m_webView->setUrl(QUrl::fromLocalFile(Html5ApplicationViewerPrivate::adjustPath(fileName)));
 }
 
 void Html5ApplicationViewer::loadUrl(const QUrl &url)
