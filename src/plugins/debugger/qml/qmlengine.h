@@ -161,6 +161,7 @@ signals:
         TextEditor::ITextEditor *editor, int cursorPos);
 
 private slots:
+    void tryToConnect(quint16 port = 0);
     void beginConnection(quint16 port = 0);
     void connectionEstablished();
     void connectionStartupFailed();

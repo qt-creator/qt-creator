@@ -119,11 +119,13 @@ private:
     InteractiveInterpreter m_interpreter;
     bool m_validContext;
     QHash<QString,BreakpointModelId> pendingBreakpoints;
+    bool m_retryOnConnectFail;
 };
 
 QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q)
     : m_adapter(q),
-      m_validContext(false)
+      m_validContext(false),
+      m_retryOnConnectFail(false)
 {}
 
 class ASTWalker: public Visitor
@@ -344,7 +346,7 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
     connect(&d->m_outputParser, SIGNAL(waitingForConnectionViaOst()),
             this, SLOT(beginConnection()));
     connect(&d->m_outputParser, SIGNAL(noOutputMessage()),
-            this, SLOT(beginConnection()));
+            this, SLOT(tryToConnect()));
     connect(&d->m_outputParser, SIGNAL(errorMessage(QString)),
             this, SLOT(appStartupFailed(QString)));
 
@@ -352,7 +354,7 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
     // (application output might be redirected / blocked)
     d->m_noDebugOutputTimer.setSingleShot(true);
     d->m_noDebugOutputTimer.setInterval(8000);
-    connect(&d->m_noDebugOutputTimer, SIGNAL(timeout()), this, SLOT(beginConnection()));
+    connect(&d->m_noDebugOutputTimer, SIGNAL(timeout()), this, SLOT(tryToConnect()));
 
     qtMessageLogHandler()->setHasEditableRow(true);
 
@@ -360,6 +362,9 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
             SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
             this,
             SLOT(documentUpdated(QmlJS::Document::Ptr)));
+
+    // we won't get any debug output
+    d->m_retryOnConnectFail = startParameters.useTerminal;
 }
 
 QmlEngine::~QmlEngine()
@@ -409,6 +414,12 @@ void QmlEngine::connectionEstablished()
         notifyEngineRunAndInferiorRunOk();
 }
 
+void QmlEngine::tryToConnect(quint16 port)
+{
+    d->m_retryOnConnectFail = true;
+    beginConnection(port);
+}
+
 void QmlEngine::beginConnection(quint16 port)
 {
     d->m_noDebugOutputTimer.stop();
@@ -442,6 +453,10 @@ void QmlEngine::connectionStartupFailed()
             beginConnection();
             return;
         }
+    }
+    if (d->m_retryOnConnectFail) {
+        beginConnection();
+        return;
     }
 
     QMessageBox *infoBox = new QMessageBox(Core::ICore::mainWindow());
@@ -584,6 +599,8 @@ void QmlEngine::runEngine()
             beginConnection();
         else
             startApplicationLauncher();
+    } else {
+        d->m_noDebugOutputTimer.start();
     }
 }
 
