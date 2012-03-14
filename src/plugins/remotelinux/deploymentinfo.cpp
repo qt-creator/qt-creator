@@ -53,17 +53,17 @@ public:
 
     QList<DeployableFilesPerProFile *> listModels;
     const AbstractEmbeddedLinuxTarget * const target;
+    QString installPrefix;
 };
 } // namespace Internal
 
 using namespace Internal;
 
-DeploymentInfo::DeploymentInfo(AbstractEmbeddedLinuxTarget *target) :
-    QAbstractListModel(target),
-    d(new DeploymentInfoPrivate(target))
+DeploymentInfo::DeploymentInfo(AbstractEmbeddedLinuxTarget *target, const QString &installPrefix)
+    : QAbstractListModel(target), d(new DeploymentInfoPrivate(target))
 {
     connect (d->target->qt4Project(), SIGNAL(proParsingDone()), SLOT(createModels()));
-    createModels();
+    setInstallPrefix(installPrefix);
 }
 
 DeploymentInfo::~DeploymentInfo()
@@ -102,7 +102,7 @@ void DeploymentInfo::createModels(const Qt4ProFileNode *proFileNode)
     case ApplicationTemplate:
     case LibraryTemplate:
     case AuxTemplate:
-        d->listModels << new DeployableFilesPerProFile(proFileNode, this);
+        d->listModels << new DeployableFilesPerProFile(proFileNode, d->installPrefix, this);
         break;
     case SubDirsTemplate: {
         const QList<Qt4PriFileNode *> &subProjects = proFileNode->subProjectNodesExact();
@@ -131,6 +131,12 @@ bool DeploymentInfo::isModified() const
             return true;
     }
     return false;
+}
+
+void DeploymentInfo::setInstallPrefix(const QString &installPrefix)
+{
+    d->installPrefix = installPrefix;
+    createModels();
 }
 
 int DeploymentInfo::deployableCount() const

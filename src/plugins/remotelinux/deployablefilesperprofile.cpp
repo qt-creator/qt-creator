@@ -74,7 +74,7 @@ public:
 using namespace Internal;
 
 DeployableFilesPerProFile::DeployableFilesPerProFile(const Qt4ProFileNode *proFileNode,
-        QObject *parent)
+        const QString &installPrefix, QObject *parent)
     : QAbstractTableModel(parent), d(new DeployableFilesPerProFilePrivate(proFileNode))
 {
     if (d->projectType == ApplicationTemplate) {
@@ -89,6 +89,12 @@ DeployableFilesPerProFile::DeployableFilesPerProFile(const Qt4ProFileNode *proFi
     foreach (const InstallsItem &elem, d->installsList.items) {
         foreach (const QString &file, elem.files)
             d->deployables << DeployableFile(file, elem.path);
+    }
+
+    for (int i = 0; i < d->deployables.count(); ++i) {
+        QString &remoteDir = d->deployables[i].remoteDir;
+        if (QFileInfo(remoteDir).isRelative())
+            remoteDir.prepend(installPrefix + QLatin1Char('/'));
     }
 }
 
@@ -133,7 +139,7 @@ QVariant DeployableFilesPerProFile::data(const QModelIndex &index, int role) con
     if (index.column() == 0 && role == Qt::DisplayRole)
         return QDir::toNativeSeparators(d.localFilePath);
     if (role == Qt::DisplayRole || role == Qt::EditRole)
-        return d.remoteDir;
+        return QDir::cleanPath(d.remoteDir);
     return QVariant();
 }
 

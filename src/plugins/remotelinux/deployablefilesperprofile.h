@@ -53,7 +53,7 @@ class REMOTELINUX_EXPORT DeployableFilesPerProFile : public QAbstractTableModel
     Q_OBJECT
 public:
     DeployableFilesPerProFile(const Qt4ProjectManager::Qt4ProFileNode *proFileNode,
-        QObject *parent);
+        const QString &installPrefix, QObject *parent);
     ~DeployableFilesPerProFile();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;

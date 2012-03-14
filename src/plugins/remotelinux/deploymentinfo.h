@@ -51,11 +51,12 @@ class REMOTELINUX_EXPORT DeploymentInfo : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    DeploymentInfo(AbstractEmbeddedLinuxTarget *target);
+    DeploymentInfo(AbstractEmbeddedLinuxTarget *target, const QString &installPrefix = QString());
     ~DeploymentInfo();
 
     void setUnmodified();
     bool isModified() const;
+    void setInstallPrefix(const QString &installPrefix);
     int deployableCount() const;
     DeployableFile deployableAt(int i) const;
     QString remoteExecutableFilePath(const QString &localExecutableFilePath) const;
