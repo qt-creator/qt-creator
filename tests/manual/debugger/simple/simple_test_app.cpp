@@ -5844,6 +5844,35 @@ namespace bug6858 {
     }
 }
 
+
+namespace bug6863 {
+
+    class MyObject : public QObject
+    {
+        Q_OBJECT
+    public:
+        MyObject() {}
+    };
+
+    void setProp(QObject *obj)
+    {
+        obj->setProperty("foo", "bar");
+        BREAK_HERE;
+        // Expand obj.
+        // Check obj.[QObject].properties <2 items>.
+        // Continue.
+        dummyStatement(&obj);
+    }
+
+    void test6863()
+    {
+        MyObject obj;
+        setProp(&obj);
+    }
+
+}
+
+
 namespace bug6933 {
 
     class Base
@@ -6161,6 +6190,7 @@ int main(int argc, char *argv[])
     bug6465::test6465();
     bug6857::test6857();
     bug6858::test6858();
+    bug6863::test6863();
     bug6933::test6933();
     gdb13393::test13393();
     gdb10586::test10586();
