@@ -212,7 +212,7 @@ QModelIndex DataModel::indexForObject(const Function *function) const
 static QString noWrap(const QString &str)
 {
     QString escapedStr = str;
-    return escapedStr.replace("-", "&#8209;");
+    return escapedStr.replace(QLatin1Char('-'), "&#8209;");
 }
 
 QVariant DataModel::data(const QModelIndex &index, int role) const
