@@ -1153,11 +1153,12 @@ void QmlV8DebuggerClient::synchronizeBreakpoints()
     //NOT USED
 }
 
-void QmlV8DebuggerClient::assignValueInDebugger(const QByteArray /*expr*/, const quint64 &/*id*/,
-                                                const QString &property, const QString &value)
+void QmlV8DebuggerClient::assignValueInDebugger(const WatchData * /*data*/,
+                                                const QString &expr,
+                                                const QVariant &valueV)
 {
     StackHandler *stackHandler = d->engine->stackHandler();
-    QString expression = QString(_("%1 = %2;")).arg(property).arg(value);
+    QString expression = QString(_("%1 = %2;")).arg(expr).arg(valueV.toString());
     if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {
         d->evaluate(expression, false, false, stackHandler->currentIndex());
     } else {

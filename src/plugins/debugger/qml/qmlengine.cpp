@@ -973,9 +973,10 @@ bool QmlEngine::setToolTipExpression(const QPoint &mousePos,
 void QmlEngine::assignValueInDebugger(const WatchData *data,
     const QString &expression, const QVariant &valueV)
 {
-    quint64 objectId =  data->id;
-    if (objectId > 0 && !expression.isEmpty() && d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->assignValueInDebugger(expression.toUtf8(), objectId, expression, valueV.toString());
+    if (!expression.isEmpty() && d->m_adapter.activeDebuggerClient()) {
+        d->m_adapter.activeDebuggerClient()->assignValueInDebugger(data,
+                                                                   expression,
+                                                                   valueV);
     }
 }
 
