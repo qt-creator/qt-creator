@@ -102,7 +102,7 @@
 
     \list 1
 
-        \o  Choose \gui {File > New File or Project > Other Projects >
+        \o  Choose \gui {File > New File or Project > Libraries >
             C++ Library} to create the library.
 
             The \gui {Introduction and Product Location} dialog opens.
