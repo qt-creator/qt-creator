@@ -17609,7 +17609,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Open compiler output pane when building</source>
-        <translation>编译是打开编译输出窗口</translation>
+        <translation>编译时打开编译输出窗口</translation>
     </message>
     <message>
         <source>Open application output pane when running</source>
@@ -33363,7 +33363,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Show in Pane</source>
-        <translation>显示在窗格种</translation>
+        <translation>显示在窗格中</translation>
     </message>
     <message>
         <source>Replace Selection</source>
