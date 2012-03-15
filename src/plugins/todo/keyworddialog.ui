@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Todo::Internal::AddKeywordDialog</class>
- <widget class="QDialog" name="Todo::Internal::AddKeywordDialog">
+ <class>Todo::Internal::KeywordDialog</class>
+ <widget class="QDialog" name="Todo::Internal::KeywordDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -80,6 +80,16 @@
     </layout>
    </item>
    <item>
+    <widget class="QLabel" name="errorLabel">
+     <property name="styleSheet">
+      <string notr="true">color: red;</string>
+     </property>
+     <property name="text">
+      <string>errorLabel</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -102,24 +112,8 @@
  <connections>
   <connection>
    <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>Todo::Internal::AddKeywordDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Todo::Internal::AddKeywordDialog</receiver>
+   <receiver>Todo::Internal::KeywordDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

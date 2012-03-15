@@ -71,6 +71,17 @@ void OptionsDialog::addToKeywordsList(const Keyword &keyword)
     ui->keywordsList->addItem(item);
 }
 
+QSet<QString> OptionsDialog::keywordNames()
+{
+    KeywordList keywords = settingsFromUi().keywords;
+
+    QSet<QString> result;
+    foreach (const Keyword &keyword, keywords)
+        result << keyword.name;
+
+    return result;
+}
+
 Settings OptionsDialog::settings()
 {
     return settingsFromUi();
@@ -79,9 +90,9 @@ Settings OptionsDialog::settings()
 void OptionsDialog::addButtonClicked()
 {
     Keyword keyword;
-    KeywordDialog *addKeywordDialog = new KeywordDialog(keyword, this);
-    if (addKeywordDialog->exec() == QDialog::Accepted) {
-        keyword = addKeywordDialog->keyword();
+    KeywordDialog *keywordDialog = new KeywordDialog(keyword, keywordNames(), this);
+    if (keywordDialog->exec() == QDialog::Accepted) {
+        keyword = keywordDialog->keyword();
         addToKeywordsList(keyword);
     }
 }
@@ -95,9 +106,12 @@ void OptionsDialog::editButtonClicked()
     keyword.iconResource = item->data(Qt::UserRole).toString();
     keyword.color = item->backgroundColor();
 
-    KeywordDialog *addKeywordDialog = new KeywordDialog(keyword, this);
-    if (addKeywordDialog->exec() == QDialog::Accepted) {
-        keyword = addKeywordDialog->keyword();
+    QSet<QString> keywordNamesButThis = keywordNames();
+    keywordNamesButThis.remove(keyword.name);
+
+    KeywordDialog *keywordDialog = new KeywordDialog(keyword, keywordNamesButThis, this);
+    if (keywordDialog->exec() == QDialog::Accepted) {
+        keyword = keywordDialog->keyword();
         item->setIcon(QIcon(keyword.iconResource));
         item->setText(keyword.name);
         item->setData(Qt::UserRole, keyword.iconResource);

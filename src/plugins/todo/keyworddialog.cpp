@@ -41,14 +41,20 @@
 namespace Todo {
 namespace Internal {
 
-KeywordDialog::KeywordDialog(const Keyword &keyword, QWidget *parent) :
+KeywordDialog::KeywordDialog(const Keyword &keyword, const QSet<QString> &alreadyUsedKeywordNames,
+                             QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::AddKeywordDialog)
+    ui(new Ui::KeywordDialog),
+    m_alreadyUsedKeywordNames(alreadyUsedKeywordNames)
 {
     ui->setupUi(this);
     setupListWidget(keyword.iconResource);
     setupColorWidgets(keyword.color);
     ui->keywordNameEdit->setText(keyword.name);
+    ui->errorLabel->hide();
+
+    connect(ui->buttonBox, SIGNAL(accepted()), SLOT(acceptButtonClicked()));
+    connect(ui->keywordNameEdit, SIGNAL(textChanged(QString)), ui->errorLabel, SLOT(hide()));
 }
 
 KeywordDialog::~KeywordDialog()
@@ -59,7 +65,7 @@ KeywordDialog::~KeywordDialog()
 Keyword KeywordDialog::keyword()
 {
     Keyword result;
-    result.name = ui->keywordNameEdit->text();
+    result.name = keywordName();
     result.iconResource = ui->listWidget->currentItem()->data(Qt::UserRole).toString();
     result.color = ui->colorEdit->text();
 
@@ -69,6 +75,12 @@ Keyword KeywordDialog::keyword()
 void KeywordDialog::colorSelected(const QColor &color)
 {
     ui->colorEdit->setText(color.name());
+}
+
+void KeywordDialog::acceptButtonClicked()
+{
+    if (canAccept())
+        accept();
 }
 
 void KeywordDialog::setupListWidget(const QString &selectedIcon)
@@ -107,6 +119,53 @@ void KeywordDialog::setupColorWidgets(const QColor &color)
     ui->colorButton->setColor(color);
     ui->colorEdit->setText(color.name());
     connect(ui->colorButton, SIGNAL(colorChanged(QColor)), SLOT(colorSelected(QColor)));
+}
+
+bool KeywordDialog::canAccept()
+{
+    if (!isKeywordNameCorrect()) {
+        showError(tr("Keyword cannot be empty, contain spaces or colons."));
+        return false;
+    }
+
+    if (isKeywordNameAlreadyUsed()) {
+        showError(tr("There is already a keyword with this name."));
+        return false;
+    }
+
+    return true;
+}
+
+bool KeywordDialog::isKeywordNameCorrect()
+{
+    // Make sure keyword is not empty and contains no spaces or colons
+
+    QString name = keywordName();
+
+    if (name.isEmpty())
+        return false;
+
+    for (int i = 0; i < name.size(); ++i)
+        if (name.at(i).isSpace() || name.at(i) == QLatin1Char(':'))
+            return false;
+
+    return true;
+}
+
+bool KeywordDialog::isKeywordNameAlreadyUsed()
+{
+    return m_alreadyUsedKeywordNames.contains(keywordName());
+}
+
+void KeywordDialog::showError(const QString &text)
+{
+    ui->errorLabel->setText(text);
+    ui->errorLabel->show();
+}
+
+QString KeywordDialog::keywordName()
+{
+    return ui->keywordNameEdit->text().trimmed();
 }
 
 } // namespace Internal

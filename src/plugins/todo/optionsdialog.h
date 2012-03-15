@@ -67,6 +67,7 @@ private:
     void uiFromSettings(const Settings &settings);
     Settings settingsFromUi();
     void addToKeywordsList(const Keyword &keyword);
+    QSet<QString> keywordNames();
 
     Ui::OptionsDialog *ui;
 };

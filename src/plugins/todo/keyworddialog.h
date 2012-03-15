@@ -31,16 +31,17 @@
 **
 **************************************************************************/
 
-#ifndef ADDKEYWORDDIALOG_H
-#define ADDKEYWORDDIALOG_H
+#ifndef KEYWORDDIALOG_H
+#define KEYWORDDIALOG_H
 
 #include <QDialog>
+#include <QSet>
 
 namespace Todo {
 namespace Internal {
 
 namespace Ui {
-    class AddKeywordDialog;
+    class KeywordDialog;
 }
 
 class Keyword;
@@ -49,21 +50,30 @@ class KeywordDialog : public QDialog
 {
     Q_OBJECT
 public:
-    KeywordDialog(const Keyword &keyword, QWidget *parent = 0);
+    KeywordDialog(const Keyword &keyword, const QSet<QString> &alreadyUsedKeywordNames,
+                  QWidget *parent = 0);
     ~KeywordDialog();
 
     Keyword keyword();
 
 private slots:
     void colorSelected(const QColor &color);
+    void acceptButtonClicked();
 
 private:
     void setupListWidget(const QString &selectedIcon);
     void setupColorWidgets(const QColor &color);
-    Ui::AddKeywordDialog *ui;
+    bool canAccept();
+    bool isKeywordNameCorrect();
+    bool isKeywordNameAlreadyUsed();
+    void showError(const QString &text);
+    QString keywordName();
+
+    Ui::KeywordDialog *ui;
+    QSet<QString> m_alreadyUsedKeywordNames;
 };
 
 } // namespace Internal
 } // namespace Todo
 
-#endif // ADDKEYWORDDIALOG_H
+#endif // KEYWORDDIALOG_H
