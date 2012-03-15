@@ -211,7 +211,10 @@ win32 {
     LIBS += -lole32
 }
 else:macx {
-    OBJECTIVE_SOURCES += progressmanager/progressmanager_mac.mm
+    HEADERS += macfullscreen.h
+    OBJECTIVE_SOURCES += \
+        progressmanager/progressmanager_mac.mm \
+        macfullscreen.mm
     LIBS += -framework AppKit
 }
 else:unix {
@@ -226,4 +229,3 @@ else:unix {
     }
 }
 OTHER_FILES += editormanager/BinFiles.mimetypes.xml
-

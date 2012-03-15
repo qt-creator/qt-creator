@@ -58,7 +58,6 @@
 #include "shortcutsettings.h"
 #include "vcsmanager.h"
 #include "variablechooser.h"
-
 #include "scriptmanager_p.h"
 #include "settingsdialog.h"
 #include "variablemanager.h"
@@ -74,6 +73,10 @@
 #include "ioutputpane.h"
 #include "externaltoolmanager.h"
 #include "editormanager/systemeditor.h"
+
+#if defined(Q_OS_MAC)
+#include "macfullscreen.h"
+#endif
 
 #include <app/app_version.h>
 #include <coreplugin/findplaceholder.h>
@@ -227,6 +230,10 @@ MainWindow::MainWindow() :
 
     statusBar()->setProperty("p_styled", true);
     setAcceptDrops(true);
+
+#if defined(Q_OS_MAC)
+    MacFullScreen::addFullScreen(this);
+#endif
 }
 
 void MainWindow::setSidebarVisible(bool visible)
@@ -261,6 +268,16 @@ void MainWindow::setPresentationModeEnabled(bool enabled)
 {
     m_actionManager->setPresentationModeEnabled(enabled);
 }
+
+#ifdef Q_OS_MAC
+void MainWindow::setIsFullScreen(bool fullScreen)
+{
+    if (fullScreen)
+        m_toggleFullScreenAction->setText(tr("Exit Full Screen"));
+    else
+        m_toggleFullScreenAction->setText(tr("Enter Full Screen"));
+}
+#endif
 
 MainWindow::~MainWindow()
 {
@@ -772,14 +789,26 @@ void MainWindow::registerDefaultActions()
     mwindow->addAction(cmd, Constants::G_WINDOW_VIEWS);
     m_toggleSideBarAction->setEnabled(false);
 
-#ifndef Q_OS_MAC
+#if defined(Q_OS_MAC)
+    bool fullScreenCheckable = false;
+    QKeySequence fullScreenKeySequence(tr("Ctrl+Meta+F"));
+    const QString fullScreenActionText(tr("Enter Full Screen"));
+    if (MacFullScreen::supportsFullScreen()) {
+#else
+    bool fullScreenCheckable = true;
+    QKeySequence fullScreenKeySequence(tr("Ctrl+Shift+F11"));
+    const QString fullScreenActionText(tr("Full Screen"));
+#endif
     // Full Screen Action
-    m_toggleFullScreenAction = new QAction(tr("Full Screen"), this);
-    m_toggleFullScreenAction->setCheckable(true);
+    m_toggleFullScreenAction = new QAction(fullScreenActionText, this);
+    m_toggleFullScreenAction->setCheckable(fullScreenCheckable);
     cmd = am->registerAction(m_toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN, globalContext);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F11")));
+    cmd->setDefaultKeySequence(fullScreenKeySequence);
+    cmd->setAttribute(Command::CA_UpdateText); /* for Mac */
     mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
     connect(m_toggleFullScreenAction, SIGNAL(triggered(bool)), this, SLOT(setFullScreen(bool)));
+#ifdef Q_OS_MAC
+    }
 #endif
 
     // Window->Views
@@ -1351,6 +1380,10 @@ QPrinter *MainWindow::printer() const
 
 void MainWindow::setFullScreen(bool on)
 {
+#if defined(Q_OS_MAC)
+    Q_UNUSED(on)
+    MacFullScreen::toggleFullScreen(this);
+#else
     if (bool(windowState() & Qt::WindowFullScreen) == on)
         return;
 
@@ -1363,6 +1396,7 @@ void MainWindow::setFullScreen(bool on)
         //menuBar()->show();
         //statusBar()->show();
     }
+#endif
 }
 
 // Display a warning with an additional button to open

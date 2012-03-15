@@ -127,6 +127,9 @@ public:
     bool isPresentationModeEnabled();
     void setPresentationModeEnabled(bool);
 
+#ifdef Q_OS_MAC
+    void setIsFullScreen(bool fullScreen);
+#endif
 signals:
     void windowActivated();
 
