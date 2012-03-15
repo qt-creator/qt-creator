@@ -214,11 +214,12 @@ void QmlEngineDebugClient::messageReceived(const QByteArray &data)
     }
 }
 
-QmlEngineDebugClient::QmlEngineDebugClient(
-        QDeclarativeDebugConnection *connection)
-    : QDeclarativeDebugClient(QLatin1String("QDeclarativeEngine"), connection),
+QmlEngineDebugClient::QmlEngineDebugClient(const QString &clientName,
+                     QDeclarativeDebugConnection *conn)
+    : QDeclarativeDebugClient(clientName, conn),
       m_nextId(1)
 {
+    setObjectName(clientName);
 }
 
 quint32 QmlEngineDebugClient::addWatch(const QmlDebugPropertyReference &property)

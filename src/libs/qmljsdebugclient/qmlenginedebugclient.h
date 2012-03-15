@@ -50,7 +50,8 @@ class QMLJSDEBUGCLIENT_EXPORT QmlEngineDebugClient : public QDeclarativeDebugCli
 {
     Q_OBJECT
 public:
-    QmlEngineDebugClient(QDeclarativeDebugConnection *conn);
+    QmlEngineDebugClient(const QString &clientName,
+                         QDeclarativeDebugConnection *conn);
 
     quint32 addWatch(const QmlDebugPropertyReference &property);
     quint32 addWatch(const QmlDebugContextReference &context, const QString &id);
@@ -66,13 +67,13 @@ public:
     quint32 queryObjectRecursive(const QmlDebugObjectReference &object);
     quint32 queryExpressionResult(int objectDebugId,
                                   const QString &expr);
-    quint32 setBindingForObject(int objectDebugId, const QString &propertyName,
+    virtual quint32 setBindingForObject(int objectDebugId, const QString &propertyName,
                                 const QVariant &bindingExpression,
                                 bool isLiteralValue,
                                 QString source, int line);
-    quint32 resetBindingForObject(int objectDebugId,
+    virtual quint32 resetBindingForObject(int objectDebugId,
                                   const QString &propertyName);
-    quint32 setMethodBody(int objectDebugId, const QString &methodName,
+    virtual quint32 setMethodBody(int objectDebugId, const QString &methodName,
                           const QString &methodBody);
 
 signals:
@@ -86,7 +87,6 @@ protected:
     virtual void statusChanged(Status status);
     virtual void messageReceived(const QByteArray &);
 
-private:
     quint32 getId() { return m_nextId++; }
 
     void decode(QDataStream &d, QmlDebugContextReference &context);

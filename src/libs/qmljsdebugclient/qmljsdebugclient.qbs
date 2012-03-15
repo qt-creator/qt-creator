@@ -36,7 +36,10 @@ DynamicLibrary {
         "qmlprofilertraceclient.h",
         "qpacketprotocol.h",
         "qdebugmessageclient.cpp",
-        "qdebugmessageclient.h"
+        "qdebugmessageclient.h",
+        "qdeclarativeengineclient.h",
+        "qmldebuggerclient.h",
+        "qmldebuggerclient.cpp"
     ]
 
     ProductModule {

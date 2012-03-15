@@ -6,7 +6,6 @@
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
-**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -29,14 +28,26 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
-#ifndef QMLJSPRIVATEAPI_H
-#define QMLJSPRIVATEAPI_H
 
-#include <qmljsdebugclient/qmlenginedebugclient.h>
-#include <qmljsdebugclient/qdeclarativedebugclient.h>
-#include <qmljsdebugclient/qdeclarativeengineclient.h>
-#include <qmljsdebugclient/qmldebuggerclient.h>
+#ifndef QDECLARATIVEENGINECLIENT_H
+#define QDECLARATIVEENGINECLIENT_H
 
-using namespace QmlJsDebugClient;
+#include "qmlenginedebugclient.h"
 
-#endif // QMLJSPRIVATEAPI_H
+namespace QmlJsDebugClient {
+
+class QDeclarativeDebugConnection;
+
+class QMLJSDEBUGCLIENT_EXPORT QDeclarativeEngineClient : public QmlEngineDebugClient
+{
+    Q_OBJECT
+public:
+    QDeclarativeEngineClient(QDeclarativeDebugConnection *conn)
+        : QmlEngineDebugClient(QLatin1String("QDeclarativeEngine"), conn)
+    {
+    }
+};
+
+} // namespace QmlJsDebugClient
+
+#endif // QDECLARATIVEENGINECLIENT_H

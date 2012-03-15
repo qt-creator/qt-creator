@@ -34,6 +34,8 @@
 
 #include <qmljsdebugclient/qmlenginedebugclient.h>
 #include <qmljsdebugclient/qdeclarativedebugclient.h>
+#include <qmljsdebugclient/qdeclarativeengineclient.h>
+#include <qmljsdebugclient/qmldebuggerclient.h>
 
 using namespace QmlJsDebugClient;
 

@@ -6,7 +6,6 @@
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
-**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -29,14 +28,31 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
-#ifndef QMLJSPRIVATEAPI_H
-#define QMLJSPRIVATEAPI_H
 
-#include <qmljsdebugclient/qmlenginedebugclient.h>
-#include <qmljsdebugclient/qdeclarativedebugclient.h>
-#include <qmljsdebugclient/qdeclarativeengineclient.h>
-#include <qmljsdebugclient/qmldebuggerclient.h>
+#ifndef QMLDEBUGGERCLIENT_H
+#define QMLDEBUGGERCLIENT_H
 
-using namespace QmlJsDebugClient;
+#include "qmlenginedebugclient.h"
 
-#endif // QMLJSPRIVATEAPI_H
+namespace QmlJsDebugClient {
+
+class QDeclarativeDebugConnection;
+
+class QMLJSDEBUGCLIENT_EXPORT QmlDebuggerClient : public QmlEngineDebugClient
+{
+    Q_OBJECT
+public:
+    explicit QmlDebuggerClient(QDeclarativeDebugConnection *conn);
+
+    quint32 setBindingForObject(int objectDebugId, const QString &propertyName,
+                                const QVariant &bindingExpression,
+                                bool isLiteralValue,
+                                QString source, int line);
+    quint32 resetBindingForObject(int objectDebugId, const QString &propertyName);
+    quint32 setMethodBody(int objectDebugId, const QString &methodName,
+                          const QString &methodBody);
+};
+
+} // namespace QmlJsDebugClient
+
+#endif // QMLDEBUGGERCLIENT_H

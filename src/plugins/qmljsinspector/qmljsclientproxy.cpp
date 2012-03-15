@@ -72,18 +72,20 @@ ClientProxy::~ClientProxy()
 
 void ClientProxy::connectToServer()
 {
-    m_engineClient = new QmlEngineDebugClient(m_adapter.data()->connection());
+    QmlEngineDebugClient *client1 = new QDeclarativeEngineClient(
+                m_adapter.data()->connection());
+    QmlEngineDebugClient *client2 = new QmlDebuggerClient(
+                m_adapter.data()->connection());
 
-    connect(m_engineClient, SIGNAL(newObjects()), this, SLOT(newObjects()));
-    connect(m_engineClient, SIGNAL(newStatus(QDeclarativeDebugClient::Status)),
+    connect(client1, SIGNAL(newStatus(QDeclarativeDebugClient::Status)),
             SLOT(clientStatusChanged(QDeclarativeDebugClient::Status)));
-    connect(m_engineClient, SIGNAL(newStatus(QDeclarativeDebugClient::Status)),
+    connect(client1, SIGNAL(newStatus(QDeclarativeDebugClient::Status)),
             SLOT(engineClientStatusChanged(QDeclarativeDebugClient::Status)));
-    connect(m_engineClient, SIGNAL(result(quint32,QVariant)),
-            SLOT(onResult(quint32,QVariant)));
-    connect(m_engineClient, SIGNAL(valueChanged(int,QByteArray,QVariant)),
-            SLOT(objectWatchTriggered(int,QByteArray,QVariant)));
 
+    connect(client2, SIGNAL(newStatus(QDeclarativeDebugClient::Status)),
+            SLOT(clientStatusChanged(QDeclarativeDebugClient::Status)));
+    connect(client2, SIGNAL(newStatus(QDeclarativeDebugClient::Status)),
+            SLOT(engineClientStatusChanged(QDeclarativeDebugClient::Status)));
 
     m_inspectorClient =
             new QmlJSInspectorClient(m_adapter.data()->connection(), this);
@@ -135,8 +137,14 @@ void ClientProxy::clientStatusChanged(QDeclarativeDebugClient::Status status)
 void ClientProxy::engineClientStatusChanged(QDeclarativeDebugClient::Status status)
 {
     if (status == QDeclarativeDebugClient::Enabled) {
-        m_adapter.data()->setEngineDebugClient(
-                    qobject_cast<QmlEngineDebugClient *>(sender()));
+        m_engineClient = qobject_cast<QmlEngineDebugClient *>(sender());
+        connect(m_engineClient, SIGNAL(newObjects()), this, SLOT(newObjects()));
+        connect(m_engineClient, SIGNAL(result(quint32,QVariant)),
+                SLOT(onResult(quint32,QVariant)));
+        connect(m_engineClient, SIGNAL(valueChanged(int,QByteArray,QVariant)),
+                SLOT(objectWatchTriggered(int,QByteArray,QVariant)));
+        m_adapter.data()->setEngineDebugClient(m_engineClient);
+        updateConnected();
     }
 }
 
