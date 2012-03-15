@@ -304,9 +304,9 @@ BuildStepConfigWidget *TarPackageCreationStep::createConfigWidget()
     return new CreateTarStepWidget(this);
 }
 
-QString TarPackageCreationStep::stepId()
+Core::Id TarPackageCreationStep::stepId()
 {
-    return QLatin1String("MaemoTarPackageCreationStep");
+    return Core::Id("MaemoTarPackageCreationStep");
 }
 
 QString TarPackageCreationStep::displayName()

@@ -112,8 +112,9 @@ QList<DeployConfigurationFactory *> TargetPrivate::deployFactories() const
 }
 
 
-Target::Target(Project *project, const QString &id) :
-    ProjectConfiguration(project, id), d(new TargetPrivate)
+Target::Target(Project *project, const Core::Id id) :
+    ProjectConfiguration(project, id),
+    d(new TargetPrivate)
 {
     connect(DeviceManager::instance(), SIGNAL(deviceUpdated(Core::Id)),
             this, SLOT(updateDeviceState(Core::Id)));
@@ -328,15 +329,15 @@ void Target::setActiveDeployConfiguration(DeployConfiguration *dc)
     updateDeviceState();
 }
 
-QStringList Target::availableDeployConfigurationIds()
+QList<Core::Id> Target::availableDeployConfigurationIds()
 {
-    QStringList ids;
+    QList<Core::Id> ids;
     foreach (const DeployConfigurationFactory * const factory, d->deployFactories())
         ids << factory->availableCreationIds(this);
     return ids;
 }
 
-QString Target::displayNameForDeployConfigurationId(const QString &id)
+QString Target::displayNameForDeployConfigurationId(Core::Id &id)
 {
     foreach (const DeployConfigurationFactory * const factory, d->deployFactories()) {
         if (factory->availableCreationIds(this).contains(id))
@@ -345,7 +346,7 @@ QString Target::displayNameForDeployConfigurationId(const QString &id)
     return QString();
 }
 
-DeployConfiguration *Target::createDeployConfiguration(const QString &id)
+DeployConfiguration *Target::createDeployConfiguration(Core::Id id)
 {
     foreach (DeployConfigurationFactory * const factory, d->deployFactories()) {
         if (factory->canCreate(this, id))
@@ -459,7 +460,7 @@ QList<ToolChain *> Target::possibleToolChains(BuildConfiguration *) const
     QList<ToolChain *> tcList = ToolChainManager::instance()->toolChains();
     QList<ToolChain *> result;
     foreach (ToolChain *tc, tcList) {
-        QStringList restricted = tc->restrictedToTargets();
+        QList<Core::Id> restricted = tc->restrictedToTargets();
         if (restricted.isEmpty() || restricted.contains(id()))
             result.append(tc);
     }

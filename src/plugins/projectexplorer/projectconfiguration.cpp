@@ -38,12 +38,10 @@ const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
 const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayName";
 const char DEFAULT_DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
 
-ProjectConfiguration::ProjectConfiguration(QObject *parent, const QString &id) :
+ProjectConfiguration::ProjectConfiguration(QObject *parent, const Core::Id &id) :
     QObject(parent),
     m_id(id)
-{
-    Q_ASSERT(!m_id.isEmpty());
-}
+{ }
 
 ProjectConfiguration::ProjectConfiguration(QObject *parent, const ProjectConfiguration *source) :
     QObject(parent),
@@ -57,7 +55,7 @@ ProjectConfiguration::ProjectConfiguration(QObject *parent, const ProjectConfigu
 ProjectConfiguration::~ProjectConfiguration()
 { }
 
-QString ProjectConfiguration::id() const
+Core::Id ProjectConfiguration::id() const
 {
     return m_id;
 }
@@ -99,7 +97,7 @@ bool ProjectConfiguration::usesDefaultDisplayName() const
 QVariantMap ProjectConfiguration::toMap() const
 {
     QVariantMap map;
-    map.insert(QLatin1String(CONFIGURATION_ID_KEY), m_id);
+    map.insert(QLatin1String(CONFIGURATION_ID_KEY), m_id.name());
     map.insert(QLatin1String(DISPLAY_NAME_KEY), m_displayName);
     map.insert(QLatin1String(DEFAULT_DISPLAY_NAME_KEY), m_defaultDisplayName);
     return map;
@@ -107,17 +105,17 @@ QVariantMap ProjectConfiguration::toMap() const
 
 bool ProjectConfiguration::fromMap(const QVariantMap &map)
 {
-    m_id = map.value(QLatin1String(CONFIGURATION_ID_KEY), QString()).toString();
+    m_id = Core::Id(map.value(QLatin1String(CONFIGURATION_ID_KEY), QByteArray()).toByteArray().constData());
     m_displayName = map.value(QLatin1String(DISPLAY_NAME_KEY), QString()).toString();
     m_defaultDisplayName = map.value(QLatin1String(DEFAULT_DISPLAY_NAME_KEY),
                                      m_defaultDisplayName.isEmpty() ?
                                          m_displayName : m_defaultDisplayName).toString();
-    return !m_id.isEmpty();
+    return m_id.isValid();
 }
 
-QString ProjectExplorer::idFromMap(const QVariantMap &map)
+Core::Id ProjectExplorer::idFromMap(const QVariantMap &map)
 {
-    return map.value(QLatin1String(CONFIGURATION_ID_KEY), QString()).toString();
+    return Core::Id(map.value(QLatin1String(CONFIGURATION_ID_KEY), QString()).toString());
 }
 
 QString ProjectExplorer::displayNameFromMap(const QVariantMap &map)

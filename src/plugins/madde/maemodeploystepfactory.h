@@ -43,24 +43,23 @@ class MaemoDeployStepFactory : public ProjectExplorer::IBuildStepFactory
 public:
     MaemoDeployStepFactory(QObject *parent = 0);
 
-    virtual QStringList availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
-    virtual QString displayNameForId(const QString &id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
+    QString displayNameForId(const Core::Id id) const;
 
-    virtual bool canCreate(ProjectExplorer::BuildStepList *parent,
-                           const QString &id) const;
-    virtual ProjectExplorer::BuildStep *
-            create(ProjectExplorer::BuildStepList *parent, const QString &id);
+    bool canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const;
+    ProjectExplorer::BuildStep *
+    create(ProjectExplorer::BuildStepList *parent, const Core::Id id);
 
-    virtual bool canRestore(ProjectExplorer::BuildStepList *parent,
-                            const QVariantMap &map) const;
-    virtual ProjectExplorer::BuildStep *
-            restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
+    bool canRestore(ProjectExplorer::BuildStepList *parent,
+                    const QVariantMap &map) const;
+    ProjectExplorer::BuildStep *
+    restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
 
-    virtual bool canClone(ProjectExplorer::BuildStepList *parent,
-                          ProjectExplorer::BuildStep *product) const;
-    virtual ProjectExplorer::BuildStep *
-            clone(ProjectExplorer::BuildStepList *parent,
-                  ProjectExplorer::BuildStep *product);
+    bool canClone(ProjectExplorer::BuildStepList *parent,
+                  ProjectExplorer::BuildStep *product) const;
+    ProjectExplorer::BuildStep *
+    clone(ProjectExplorer::BuildStepList *parent,
+          ProjectExplorer::BuildStep *product);
 };
 
 } // namespace Internal

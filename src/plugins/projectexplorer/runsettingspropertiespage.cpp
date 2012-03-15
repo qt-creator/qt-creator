@@ -67,7 +67,7 @@ namespace Internal {
 struct FactoryAndId
 {
     ProjectExplorer::IRunConfigurationFactory *factory;
-    QString id;
+    Core::Id id;
 };
 
 
@@ -268,8 +268,8 @@ void RunSettingsWidget::aboutToShowAddMenu()
     QList<IRunConfigurationFactory *> factories =
         ExtensionSystem::PluginManager::instance()->getObjects<IRunConfigurationFactory>();
     foreach (IRunConfigurationFactory *factory, factories) {
-        QStringList ids = factory->availableCreationIds(m_target);
-        foreach (const QString &id, ids) {
+        QList<Core::Id> ids = factory->availableCreationIds(m_target);
+        foreach (Core::Id id, ids) {
             QAction *action = m_addRunMenu->addAction(factory->displayNameForId(id));;
             FactoryAndId fai;
             fai.factory = factory;
@@ -370,10 +370,10 @@ void RunSettingsWidget::currentDeployConfigurationChanged(int index)
 void RunSettingsWidget::aboutToShowDeployMenu()
 {
     m_addDeployMenu->clear();
-    QStringList ids = m_target->availableDeployConfigurationIds();
-    foreach (const QString &id, ids) {
+    QList<Core::Id> ids = m_target->availableDeployConfigurationIds();
+    foreach (Core::Id id, ids) {
         QAction *action = m_addDeployMenu->addAction(m_target->displayNameForDeployConfigurationId(id));
-        action->setData(QVariant(id));
+        action->setData(QVariant::fromValue(id));
         connect(action, SIGNAL(triggered()),
                 this, SLOT(addDeployConfiguration()));
     }
@@ -384,7 +384,7 @@ void RunSettingsWidget::addDeployConfiguration()
     QAction *act = qobject_cast<QAction *>(sender());
     if (!act)
         return;
-    QString id = act->data().toString();
+    Core::Id id = act->data().value<Core::Id>();
     DeployConfiguration *newDc = m_target->createDeployConfiguration(id);
     if (!newDc)
         return;

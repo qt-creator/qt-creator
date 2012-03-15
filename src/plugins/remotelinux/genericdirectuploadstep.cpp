@@ -87,7 +87,7 @@ public:
 
 } // namespace Internal
 
-GenericDirectUploadStep::GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, const QString &id)
+GenericDirectUploadStep::GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, const Core::Id id)
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
     ctor();
@@ -157,9 +157,9 @@ bool GenericDirectUploadStep::incrementalDeployment() const
     return d->incremental;
 }
 
-QString GenericDirectUploadStep::stepId()
+Core::Id GenericDirectUploadStep::stepId()
 {
-    return QLatin1String("RemoteLinux.DirectUploadStep");
+    return Core::Id("RemoteLinux.DirectUploadStep");
 }
 
 QString GenericDirectUploadStep::displayName()

@@ -50,7 +50,7 @@ private:
         AndroidPackageInstallationStep *other);
 
 private:
-    static const QLatin1String Id;
+    static const Core::Id Id;
 };
 
 } // namespace Internal

@@ -36,6 +36,7 @@
 #include "projectexplorer_export.h"
 #include "headerpath.h"
 
+#include <coreplugin/id.h>
 #include <utils/fileutils.h>
 
 #include <QObject>
@@ -81,7 +82,7 @@ public:
 
     virtual bool isValid() const = 0;
 
-    virtual QStringList restrictedToTargets() const;
+    virtual QList<Core::Id> restrictedToTargets() const;
 
     virtual QByteArray predefinedMacros(const QStringList &cxxflags) const = 0;
 

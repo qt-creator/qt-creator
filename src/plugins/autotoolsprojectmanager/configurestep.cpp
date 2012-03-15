@@ -65,32 +65,32 @@ ConfigureStepFactory::ConfigureStepFactory(QObject *parent) :
 {
 }
 
-QStringList ConfigureStepFactory::availableCreationIds(BuildStepList *parent) const
+QList<Core::Id> ConfigureStepFactory::availableCreationIds(BuildStepList *parent) const
 {
-    if (parent->target()->project()->id() == QLatin1String(Constants::AUTOTOOLS_PROJECT_ID))
-        return QStringList() << QLatin1String(CONFIGURE_STEP_ID);
-    return QStringList();
+    if (parent->target()->project()->id() == Core::Id(Constants::AUTOTOOLS_PROJECT_ID))
+        return QList<Core::Id>() << Core::Id(CONFIGURE_STEP_ID);
+    return QList<Core::Id>();
 }
 
-QString ConfigureStepFactory::displayNameForId(const QString &id) const
+QString ConfigureStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(CONFIGURE_STEP_ID))
+    if (id == Core::Id(CONFIGURE_STEP_ID))
         return tr("Configure", "Display name for AutotoolsProjectManager::ConfigureStep id.");
     return QString();
 }
 
-bool ConfigureStepFactory::canCreate(BuildStepList *parent, const QString &id) const
+bool ConfigureStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
-    if (parent->target()->project()->id() != QLatin1String(Constants::AUTOTOOLS_PROJECT_ID))
+    if (parent->target()->project()->id() != Core::Id(Constants::AUTOTOOLS_PROJECT_ID))
         return false;
 
-    if (parent->id() != QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD))
+    if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD))
         return false;
 
-    return QLatin1String(CONFIGURE_STEP_ID) == id;
+    return Core::Id(CONFIGURE_STEP_ID) == id;
 }
 
-BuildStep *ConfigureStepFactory::create(BuildStepList *parent, const QString &id)
+BuildStep *ConfigureStepFactory::create(BuildStepList *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -111,8 +111,7 @@ BuildStep *ConfigureStepFactory::clone(BuildStepList *parent, BuildStep *source)
 
 bool ConfigureStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
 {
-    QString id(idFromMap(map));
-    return canCreate(parent, id);
+    return canCreate(parent, idFromMap(map));
 }
 
 BuildStep *ConfigureStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
@@ -130,13 +129,13 @@ BuildStep *ConfigureStepFactory::restore(BuildStepList *parent, const QVariantMa
 // ConfigureStep class
 ////////////////////////
 ConfigureStep::ConfigureStep(BuildStepList* bsl) :
-    AbstractProcessStep(bsl, QLatin1String(CONFIGURE_STEP_ID)),
+    AbstractProcessStep(bsl, Core::Id(CONFIGURE_STEP_ID)),
     m_runConfigure(false)
 {
     ctor();
 }
 
-ConfigureStep::ConfigureStep(BuildStepList *bsl, const QString &id) :
+ConfigureStep::ConfigureStep(BuildStepList *bsl, const Core::Id id) :
     AbstractProcessStep(bsl, id)
 {
     ctor();

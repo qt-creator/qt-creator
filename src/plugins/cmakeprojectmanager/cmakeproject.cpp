@@ -477,9 +477,9 @@ QString CMakeProject::displayName() const
     return m_projectName;
 }
 
-QString CMakeProject::id() const
+Core::Id CMakeProject::id() const
 {
-    return QLatin1String(Constants::CMAKEPROJECT_ID);
+    return Core::Id(Constants::CMAKEPROJECT_ID);
 }
 
 Core::IDocument *CMakeProject::document() const
@@ -525,7 +525,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
     if (!hasUserFile) {
         CMakeTargetFactory *factory =
                 ExtensionSystem::PluginManager::instance()->getObject<CMakeTargetFactory>();
-        CMakeTarget *t = factory->create(this, QLatin1String(DEFAULT_CMAKE_TARGET_ID));
+        CMakeTarget *t = factory->create(this, Core::Id(DEFAULT_CMAKE_TARGET_ID));
 
         Q_ASSERT(t);
         Q_ASSERT(t->activeBuildConfiguration());

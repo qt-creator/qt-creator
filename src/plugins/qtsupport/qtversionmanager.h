@@ -82,14 +82,14 @@ public:
     void removeVersion(BaseQtVersion *version);
 
     // Target Support:
-    bool supportsTargetId(const QString &id) const;
+    bool supportsTargetId(Core::Id id) const;
     // This returns a list of versions that support the target with the given id.
     // @return A list of QtVersions that supports a target. This list may be empty!
 
-    QList<BaseQtVersion *> versionsForTargetId(const QString &id,
+    QList<BaseQtVersion *> versionsForTargetId(Core::Id id,
                                                const QtVersionNumber &minimumQtVersion = QtVersionNumber(),
                                                const QtVersionNumber &maximumQtVersion = QtVersionNumber(INT_MAX, INT_MAX, INT_MAX)) const;
-    QSet<QString> supportedTargetIds() const;
+    QSet<Core::Id> supportedTargetIds() const;
 
     // Static Methods
     enum MakefileCompatible { CouldNotParse, DifferentProject, SameProject };

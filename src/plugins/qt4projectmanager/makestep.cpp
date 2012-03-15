@@ -63,7 +63,7 @@ const char * const CLEAN_KEY("Qt4ProjectManager.MakeStep.Clean");
 }
 
 MakeStep::MakeStep(ProjectExplorer::BuildStepList *bsl) :
-    AbstractProcessStep(bsl, QLatin1String(MAKESTEP_BS_ID)),
+    AbstractProcessStep(bsl, Core::Id(MAKESTEP_BS_ID)),
     m_clean(false)
 {
     ctor();
@@ -78,7 +78,7 @@ MakeStep::MakeStep(ProjectExplorer::BuildStepList *bsl, MakeStep *bs) :
     ctor();
 }
 
-MakeStep::MakeStep(ProjectExplorer::BuildStepList *bsl, const QString &id) :
+MakeStep::MakeStep(ProjectExplorer::BuildStepList *bsl, const Core::Id id) :
     AbstractProcessStep(bsl, id),
     m_clean(false)
 {
@@ -497,19 +497,19 @@ MakeStepFactory::~MakeStepFactory()
 {
 }
 
-bool MakeStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const QString &id) const
+bool MakeStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
 {
-    if (parent->target()->project()->id() != QLatin1String(Constants::QT4PROJECT_ID))
+    if (parent->target()->project()->id() != Core::Id(Constants::QT4PROJECT_ID))
         return false;
-    return (id == QLatin1String(MAKESTEP_BS_ID));
+    return (id == Core::Id(MAKESTEP_BS_ID));
 }
 
-ProjectExplorer::BuildStep *MakeStepFactory::create(ProjectExplorer::BuildStepList *parent, const QString &id)
+ProjectExplorer::BuildStep *MakeStepFactory::create(ProjectExplorer::BuildStepList *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
     MakeStep *step = new MakeStep(parent);
-    if (parent->id() == QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)) {
+    if (parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)) {
         step->setClean(true);
         step->setUserArguments(QLatin1String("clean"));
     }
@@ -530,8 +530,7 @@ ProjectExplorer::BuildStep *MakeStepFactory::clone(ProjectExplorer::BuildStepLis
 
 bool MakeStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
 {
-    QString id(ProjectExplorer::idFromMap(map));
-    return canCreate(parent, id);
+    return canCreate(parent, ProjectExplorer::idFromMap(map));
 }
 
 ProjectExplorer::BuildStep *MakeStepFactory::restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map)
@@ -545,16 +544,16 @@ ProjectExplorer::BuildStep *MakeStepFactory::restore(ProjectExplorer::BuildStepL
     return 0;
 }
 
-QStringList MakeStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
+QList<Core::Id> MakeStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
-    if (parent->target()->project()->id() == QLatin1String(Constants::QT4PROJECT_ID))
-        return QStringList() << QLatin1String(MAKESTEP_BS_ID);
-    return QStringList();
+    if (parent->target()->project()->id() == Core::Id(Constants::QT4PROJECT_ID))
+        return QList<Core::Id>() << Core::Id(MAKESTEP_BS_ID);
+    return QList<Core::Id>();
 }
 
-QString MakeStepFactory::displayNameForId(const QString &id) const
+QString MakeStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(MAKESTEP_BS_ID))
+    if (id == Core::Id(MAKESTEP_BS_ID))
         return tr("Make");
     return QString();
 }

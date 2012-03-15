@@ -188,9 +188,9 @@ bool MaemoUploadAndInstallPackageStep::initInternal(QString *error)
     return deployService()->isDeploymentPossible(error);
 }
 
-QString MaemoUploadAndInstallPackageStep::stepId()
+Core::Id MaemoUploadAndInstallPackageStep::stepId()
 {
-    return QLatin1String("MaemoUploadAndInstallDpkgPackageStep");
+    return Core::Id("MaemoUploadAndInstallDpkgPackageStep");
 }
 
 QString MaemoUploadAndInstallPackageStep::displayName()
@@ -235,9 +235,9 @@ bool MeegoUploadAndInstallPackageStep::initInternal(QString *error)
     return deployService()->isDeploymentPossible(error);
 }
 
-QString MeegoUploadAndInstallPackageStep::stepId()
+Core::Id MeegoUploadAndInstallPackageStep::stepId()
 {
-    return QLatin1String("MaemoUploadAndInstallRpmPackageStep");
+    return Core::Id("MaemoUploadAndInstallRpmPackageStep");
 }
 
 QString MeegoUploadAndInstallPackageStep::displayName()

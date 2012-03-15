@@ -55,12 +55,12 @@ const char PROCESS_ARGUMENTS_KEY[] = "ProjectExplorer.ProcessStep.Arguments";
 }
 
 ProcessStep::ProcessStep(BuildStepList *bsl) :
-    AbstractProcessStep(bsl, QLatin1String(PROCESS_STEP_ID))
+    AbstractProcessStep(bsl, Core::Id(PROCESS_STEP_ID))
 {
     ctor();
 }
 
-ProcessStep::ProcessStep(BuildStepList *bsl, const QString &id) :
+ProcessStep::ProcessStep(BuildStepList *bsl, const Core::Id id) :
     AbstractProcessStep(bsl, id)
 {
     ctor();
@@ -179,13 +179,13 @@ ProcessStepFactory::~ProcessStepFactory()
 {
 }
 
-bool ProcessStepFactory::canCreate(BuildStepList *parent, const QString &id) const
+bool ProcessStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
     Q_UNUSED(parent);
-    return id == QLatin1String(PROCESS_STEP_ID);
+    return id == Core::Id(PROCESS_STEP_ID);
 }
 
-BuildStep *ProcessStepFactory::create(BuildStepList *parent, const QString &id)
+BuildStep *ProcessStepFactory::create(BuildStepList *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -206,7 +206,7 @@ BuildStep *ProcessStepFactory::clone(BuildStepList *parent, BuildStep *bs)
 
 bool ProcessStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
 {
-    QString id(ProjectExplorer::idFromMap(map));
+    Core::Id id = ProjectExplorer::idFromMap(map);
     return canCreate(parent, id);
 }
 
@@ -222,14 +222,14 @@ BuildStep *ProcessStepFactory::restore(BuildStepList *parent, const QVariantMap 
     return 0;
 }
 
-QStringList ProcessStepFactory::availableCreationIds(BuildStepList *parent) const
+QList<Core::Id> ProcessStepFactory::availableCreationIds(BuildStepList *parent) const
 {
     Q_UNUSED(parent);
-    return QStringList() << QLatin1String(PROCESS_STEP_ID);
+    return QList<Core::Id>() << Core::Id(PROCESS_STEP_ID);
 }
-QString ProcessStepFactory::displayNameForId(const QString &id) const
+QString ProcessStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(PROCESS_STEP_ID))
+    if (id == Core::Id(PROCESS_STEP_ID))
         return ProcessStep::tr("Custom Process Step", "item in combobox");
     return QString();
 }

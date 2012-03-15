@@ -35,6 +35,8 @@
 
 #include "projectexplorer_export.h"
 
+#include <coreplugin/id.h>
+
 #include <QObject>
 #include <QSet>
 #include <QFileSystemModel>
@@ -70,7 +72,7 @@ public:
     virtual ~Project();
 
     virtual QString displayName() const = 0;
-    virtual QString id() const = 0;
+    virtual Core::Id id() const = 0;
     virtual Core::IDocument *document() const = 0;
     virtual IProjectManager *projectManager() const = 0;
 
@@ -87,7 +89,7 @@ public:
     // Note: activeTarget can be 0 (if no targets are defined).
     Target *activeTarget() const;
     void setActiveTarget(Target *target);
-    Target *target(const QString &id) const;
+    Target *target(Core::Id id) const;
 
     void saveSettings();
     bool restoreSettings();

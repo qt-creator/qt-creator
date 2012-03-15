@@ -61,7 +61,7 @@ namespace QmlProjectManager {
 const char * const M_CURRENT_FILE = "CurrentFile";
 
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(QmlProjectTarget *parent) :
-    ProjectExplorer::RunConfiguration(parent, QLatin1String(Constants::QML_RC_ID)),
+    ProjectExplorer::RunConfiguration(parent, Core::Id(Constants::QML_RC_ID)),
     m_qtVersionId(-1),
     m_scriptFile(M_CURRENT_FILE),
     m_projectTarget(parent),

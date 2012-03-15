@@ -417,8 +417,8 @@ void Qt4Manager::handleSubDirContexMenu(Qt4Manager::Action action)
             bc->setSubNodeBuild(profile);
 
     if (projectExplorer()->saveModifiedFiles()) {
-        const QString buildStep = QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-        const QString cleanStep = QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+        const Core::Id buildStep = Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+        const Core::Id cleanStep = Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
         if (action == BUILD) {
             const QString name = ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(buildStep);
             projectExplorer()->buildManager()->buildList(bc->stepList(buildStep), name);

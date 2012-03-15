@@ -44,16 +44,16 @@ class RemoteLinuxDeployConfigurationFactory : public ProjectExplorer::DeployConf
 public:
     explicit RemoteLinuxDeployConfigurationFactory(QObject *parent = 0);
 
-    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
-    QString displayNameForId(const QString &id) const;
-    bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
-    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QString displayNameForId(Core::Id id) const;
+    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const;
+    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, Core::Id id);
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
     ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
     ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent,
                                                 ProjectExplorer::DeployConfiguration *product);
 
-    static QString genericDeployConfigurationId();
+    static Core::Id genericDeployConfigurationId();
 };
 
 } // namespace Internal

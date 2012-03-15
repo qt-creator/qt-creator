@@ -47,15 +47,14 @@ class Qt4DesktopTarget : public Qt4BaseTarget
     friend class Qt4DesktopTargetFactory;
     Q_OBJECT
 public:
-    explicit Qt4DesktopTarget(Qt4Project *parent, const QString &id);
-    virtual ~Qt4DesktopTarget();
+    Qt4DesktopTarget(Qt4Project *parent, const Core::Id id);
+    ~Qt4DesktopTarget();
 
+    static QString defaultDisplayName();
     ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 
     void createApplicationProFiles(bool reparse);
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
-
-    static QString defaultDisplayName();
 
 private:
     Qt4BuildConfigurationFactory *m_buildConfigurationFactory;

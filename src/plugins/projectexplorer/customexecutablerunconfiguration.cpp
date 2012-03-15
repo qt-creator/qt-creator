@@ -82,7 +82,7 @@ void CustomExecutableRunConfiguration::ctor()
 }
 
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *parent) :
-    LocalApplicationRunConfiguration(parent, QLatin1String(CUSTOM_EXECUTABLE_ID)),
+    LocalApplicationRunConfiguration(parent, Core::Id(CUSTOM_EXECUTABLE_ID)),
     m_workingDirectory(QLatin1String(ProjectExplorer::Constants::DEFAULT_WORKING_DIR)),
     m_runMode(Gui),
     m_baseEnvironmentBase(CustomExecutableRunConfiguration::BuildEnvironmentBase)
@@ -359,13 +359,13 @@ CustomExecutableRunConfigurationFactory::~CustomExecutableRunConfigurationFactor
 
 }
 
-bool CustomExecutableRunConfigurationFactory::canCreate(Target *parent, const QString &id) const
+bool CustomExecutableRunConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
 {
     Q_UNUSED(parent);
-    return id == QLatin1String(CUSTOM_EXECUTABLE_ID);
+    return id == Core::Id(CUSTOM_EXECUTABLE_ID);
 }
 
-RunConfiguration *CustomExecutableRunConfigurationFactory::create(Target *parent, const QString &id)
+RunConfiguration *CustomExecutableRunConfigurationFactory::create(Target *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -376,7 +376,7 @@ RunConfiguration *CustomExecutableRunConfigurationFactory::create(Target *parent
 
 bool CustomExecutableRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
-    QString id(idFromMap(map));
+    Core::Id id(idFromMap(map));
     return canCreate(parent, id);
 }
 
@@ -403,15 +403,15 @@ RunConfiguration *CustomExecutableRunConfigurationFactory::clone(Target *parent,
     return new CustomExecutableRunConfiguration(parent, static_cast<CustomExecutableRunConfiguration*>(source));
 }
 
-QStringList CustomExecutableRunConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> CustomExecutableRunConfigurationFactory::availableCreationIds(Target *parent) const
 {
     Q_UNUSED(parent)
-    return QStringList() << QLatin1String(CUSTOM_EXECUTABLE_ID);
+    return QList<Core::Id>() << Core::Id(CUSTOM_EXECUTABLE_ID);
 }
 
-QString CustomExecutableRunConfigurationFactory::displayNameForId(const QString &id) const
+QString CustomExecutableRunConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(CUSTOM_EXECUTABLE_ID))
+    if (id == Core::Id(CUSTOM_EXECUTABLE_ID))
         return tr("Custom Executable");
     return QString();
 }

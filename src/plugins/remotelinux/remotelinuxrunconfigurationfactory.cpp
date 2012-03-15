@@ -50,11 +50,12 @@ namespace RemoteLinux {
 namespace Internal {
 
 namespace {
-QString pathFromId(const QString &id)
+QString pathFromId(Core::Id id)
 {
-    if (!id.startsWith(RemoteLinuxRunConfiguration::Id))
+    QString idStr = QString::fromUtf8(id.name());
+    if (!idStr.startsWith(RemoteLinuxRunConfiguration::Id))
         return QString();
-    return id.mid(RemoteLinuxRunConfiguration::Id.size());
+    return idStr.mid(RemoteLinuxRunConfiguration::Id.size());
 }
 
 } // namespace
@@ -69,9 +70,9 @@ RemoteLinuxRunConfigurationFactory::~RemoteLinuxRunConfigurationFactory()
 }
 
 bool RemoteLinuxRunConfigurationFactory::canCreate(Target *parent,
-    const QString &id) const
+    const Core::Id id) const
 {
-    if (!id.startsWith(RemoteLinuxRunConfiguration::Id))
+    if (!QString::fromUtf8(id.name()).startsWith(RemoteLinuxRunConfiguration::Id))
         return false;
     return qobject_cast<Qt4BaseTarget *>(parent)->qt4Project()
         ->hasApplicationProFile(pathFromId(id));
@@ -80,39 +81,43 @@ bool RemoteLinuxRunConfigurationFactory::canCreate(Target *parent,
 bool RemoteLinuxRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
     Q_UNUSED(parent);
-    return ProjectExplorer::idFromMap(map).startsWith(RemoteLinuxRunConfiguration::Id);
+    return QString::fromLatin1(ProjectExplorer::idFromMap(map).name()).startsWith(RemoteLinuxRunConfiguration::Id);
 }
 
 bool RemoteLinuxRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
 {
     const RemoteLinuxRunConfiguration * const rlrc
             = qobject_cast<RemoteLinuxRunConfiguration *>(source);
-    return rlrc && canCreate(parent, source->id() + QLatin1Char('.') + rlrc->proFilePath());
+    const QString idStr = QString::fromLatin1(source->id().name()) + QLatin1Char('.') + rlrc->proFilePath();
+    return rlrc && canCreate(parent, Core::Id(idStr.toUtf8().constData()));
 }
 
-QStringList RemoteLinuxRunConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> RemoteLinuxRunConfigurationFactory::availableCreationIds(Target *parent) const
 {
+    QList<Core::Id> result;
     const QList<DeployConfiguration *> &depConfs = parent->deployConfigurations();
     foreach (const DeployConfiguration * const dc, depConfs) {
         if (dc->id() == RemoteLinuxDeployConfigurationFactory::genericDeployConfigurationId()) {
-            return qobject_cast<Qt4BaseTarget *>(parent)->qt4Project()
-                ->applicationProFilePathes(RemoteLinuxRunConfiguration::Id);
+            QStringList proFiles = qobject_cast<Qt4BaseTarget *>(parent)->qt4Project()
+                    ->applicationProFilePathes(RemoteLinuxRunConfiguration::Id);
+            foreach (const QString &pf, proFiles)
+                result << Core::Id(pf);
+            return result;
+        }
     }
-    }
-    return QStringList();
+    return result;
 }
 
-QString RemoteLinuxRunConfigurationFactory::displayNameForId(const QString &id) const
+QString RemoteLinuxRunConfigurationFactory::displayNameForId(const Core::Id id) const
 {
     return QFileInfo(pathFromId(id)).completeBaseName()
         + tr(" (on Remote Generic Linux Host)");
 }
 
-RunConfiguration *RemoteLinuxRunConfigurationFactory::create(Target *parent, const QString &id)
+RunConfiguration *RemoteLinuxRunConfigurationFactory::create(Target *parent, const Core::Id id)
 {
     QTC_ASSERT(canCreate(parent, id), return 0);
-    return new RemoteLinuxRunConfiguration(qobject_cast<Qt4BaseTarget *>(parent), id,
-        pathFromId(id));
+    return new RemoteLinuxRunConfiguration(qobject_cast<Qt4BaseTarget *>(parent), id, pathFromId(id));
 }
 
 RunConfiguration *RemoteLinuxRunConfigurationFactory::restore(Target *parent,
@@ -120,7 +125,7 @@ RunConfiguration *RemoteLinuxRunConfigurationFactory::restore(Target *parent,
 {
     QTC_ASSERT(canRestore(parent, map), return 0);
     RemoteLinuxRunConfiguration *rc = new RemoteLinuxRunConfiguration(qobject_cast<Qt4BaseTarget *>(parent),
-        RemoteLinuxRunConfiguration::Id, QString());
+        Core::Id(RemoteLinuxRunConfiguration::Id), QString());
     if (rc->fromMap(map))
         return rc;
 

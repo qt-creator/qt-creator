@@ -48,7 +48,8 @@ namespace RemoteLinux {
 namespace Internal {
 
 GenericEmbeddedLinuxTarget::GenericEmbeddedLinuxTarget(Qt4ProjectManager::Qt4Project *parent,
-        const QString &id) : AbstractEmbeddedLinuxTarget(parent, id)
+                                                       const Core::Id id) :
+    AbstractEmbeddedLinuxTarget(parent, id)
 {
     setDisplayName(tr("Embedded Linux"));
 }
@@ -95,7 +96,7 @@ void GenericEmbeddedLinuxTarget::createApplicationProFiles(bool reparse)
     // Only add new runconfigurations if there are none.
     foreach (const QString &path, pathes) {
         RemoteLinuxRunConfiguration *qt4rc =
-            new RemoteLinuxRunConfiguration(this, RemoteLinuxRunConfiguration::Id, path);
+            new RemoteLinuxRunConfiguration(this, Core::Id(RemoteLinuxRunConfiguration::Id), path);
         addRunConfiguration(qt4rc);
     }
 

@@ -62,12 +62,12 @@ public:
     ~S60CreatePackageStepFactory();
 
     // used to show the list of possible additons to a target, returns a list of types
-    QStringList availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
     // used to translate the types to names to display to the user
-    QString displayNameForId(const QString &id) const;
+    QString displayNameForId(const Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::BuildStepList *parent, const QString &id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const QString &id);
+    bool canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id);
     // used to recreate the runConfigurations when restoring settings
     bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
     ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
@@ -119,7 +119,7 @@ signals:
 
 protected:
     S60CreatePackageStep(ProjectExplorer::BuildStepList *bsl, S60CreatePackageStep *bs);
-    S60CreatePackageStep(ProjectExplorer::BuildStepList *bsl, const QString &id);
+    S60CreatePackageStep(ProjectExplorer::BuildStepList *bsl, const Core::Id id);
     bool fromMap(const QVariantMap &map);
 
     Qt4BuildConfiguration *qt4BuildConfiguration() const;

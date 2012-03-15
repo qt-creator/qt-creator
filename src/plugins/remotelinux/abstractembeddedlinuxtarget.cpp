@@ -41,7 +41,7 @@ using namespace Qt4ProjectManager;
 
 namespace RemoteLinux {
 
-AbstractEmbeddedLinuxTarget::AbstractEmbeddedLinuxTarget(Qt4Project *parent, const QString &id) :
+AbstractEmbeddedLinuxTarget::AbstractEmbeddedLinuxTarget(Qt4Project *parent, const Core::Id id) :
     Qt4BaseTarget(parent, id),
     m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this)),
     m_deploymentInfo(new DeploymentInfo(this)),

@@ -64,38 +64,38 @@ Qt4DesktopTargetFactory::~Qt4DesktopTargetFactory()
 {
 }
 
-bool Qt4DesktopTargetFactory::supportsTargetId(const QString &id) const
+bool Qt4DesktopTargetFactory::supportsTargetId(const Core::Id id) const
 {
-    return id == QLatin1String(Constants::DESKTOP_TARGET_ID);
+    return id == Core::Id(Constants::DESKTOP_TARGET_ID);
 }
 
-QStringList Qt4DesktopTargetFactory::supportedTargetIds() const
+QList<Core::Id> Qt4DesktopTargetFactory::supportedTargetIds() const
 {
-    return QStringList(QLatin1String(Constants::DESKTOP_TARGET_ID));
+    return QList<Core::Id>() << Core::Id(Constants::DESKTOP_TARGET_ID);
 }
 
-QString Qt4DesktopTargetFactory::displayNameForId(const QString &id) const
+QString Qt4DesktopTargetFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(Constants::DESKTOP_TARGET_ID))
+    if (id == Core::Id(Constants::DESKTOP_TARGET_ID))
         return Qt4DesktopTarget::defaultDisplayName();
     return QString();
 }
 
-QString Qt4DesktopTargetFactory::buildNameForId(const QString &id) const
+QString Qt4DesktopTargetFactory::buildNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(Constants::DESKTOP_TARGET_ID))
+    if (id == Core::Id(Constants::DESKTOP_TARGET_ID))
         return QLatin1String("desktop");
     return QString();
 }
 
-QIcon Qt4DesktopTargetFactory::iconForId(const QString &id) const
+QIcon Qt4DesktopTargetFactory::iconForId(const Core::Id id) const
 {
-    if (id == QLatin1String(Constants::DESKTOP_TARGET_ID))
+    if (id == Core::Id(Constants::DESKTOP_TARGET_ID))
         return qApp->style()->standardIcon(QStyle::SP_ComputerIcon);
     return QIcon();
 }
 
-bool Qt4DesktopTargetFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
+bool Qt4DesktopTargetFactory::canCreate(ProjectExplorer::Project *parent, const Core::Id id) const
 {
     if (!qobject_cast<Qt4Project *>(parent))
         return false;
@@ -115,7 +115,7 @@ ProjectExplorer::Target  *Qt4DesktopTargetFactory::restore(ProjectExplorer::Proj
         return 0;
 
     Qt4Project *qt4project = static_cast<Qt4Project *>(parent);
-    Qt4DesktopTarget *target = new Qt4DesktopTarget(qt4project, QLatin1String("transient ID"));
+    Qt4DesktopTarget *target = new Qt4DesktopTarget(qt4project, idFromMap(map));
 
     if (target->fromMap(map))
         return target;
@@ -123,7 +123,7 @@ ProjectExplorer::Target  *Qt4DesktopTargetFactory::restore(ProjectExplorer::Proj
     return 0;
 }
 
-Qt4TargetSetupWidget *Qt4DesktopTargetFactory::createTargetSetupWidget(const QString &id, const QString &proFilePath,
+Qt4TargetSetupWidget *Qt4DesktopTargetFactory::createTargetSetupWidget(const Core::Id id, const QString &proFilePath,
                                                                        const QtSupport::QtVersionNumber &minimumQtVersion,
                                                                        const QtSupport::QtVersionNumber &maximumQtVersion,
                                                                        const Core::FeatureSet &requiredFeatures,
@@ -145,7 +145,7 @@ Qt4TargetSetupWidget *Qt4DesktopTargetFactory::createTargetSetupWidget(const QSt
     return widget;
 }
 
-ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
+ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Project *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -164,8 +164,9 @@ ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Projec
     return create(parent, id, infos);
 }
 
-QSet<QString> Qt4DesktopTargetFactory::targetFeatures(const QString & /*id*/) const
+QSet<QString> Qt4DesktopTargetFactory::targetFeatures(const Core::Id id) const
 {
+    Q_UNUSED(id);
     QSet<QString> features;
     features << QLatin1String(Constants::DESKTOP_TARGETFEATURE_ID);
     features << QLatin1String(Constants::SHADOWBUILD_TARGETFEATURE_ID);
@@ -173,7 +174,7 @@ QSet<QString> Qt4DesktopTargetFactory::targetFeatures(const QString & /*id*/) co
     return features;
 }
 
-ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos)
+ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Project *parent, const Core::Id id, const QList<BuildConfigurationInfo> &infos)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -186,7 +187,7 @@ ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Projec
                                     info.version(), info.buildConfig,
                                     info.additionalArguments, info.directory, info.importing);
 
-    t->addDeployConfiguration(t->createDeployConfiguration(QLatin1String(ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID)));
+    t->addDeployConfiguration(t->createDeployConfiguration(Core::Id(ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID)));
 
     t->createApplicationProFiles(false);
 

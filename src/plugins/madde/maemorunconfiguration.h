@@ -59,7 +59,7 @@ public:
     QString localDirToMountForRemoteGdb() const;
     QString remoteProjectSourcesMountPoint() const;
 
-    static const QString Id;
+    static const Core::Id Id;
 
 signals:
     void remoteMountsChanged();

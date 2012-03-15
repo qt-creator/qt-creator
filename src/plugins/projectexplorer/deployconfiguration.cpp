@@ -50,12 +50,12 @@ const char * const BUILD_STEP_LIST_PREFIX("ProjectExplorer.BuildConfiguration.Bu
 
 } // namespace
 
-DeployConfiguration::DeployConfiguration(Target *target, const QString &id) :
+DeployConfiguration::DeployConfiguration(Target *target, const Core::Id id) :
     ProjectConfiguration(target, id),
     m_stepList(0)
 {
     Q_ASSERT(target);
-    m_stepList = new BuildStepList(this, QLatin1String(Constants::BUILDSTEPS_DEPLOY));
+    m_stepList = new BuildStepList(this, Core::Id(Constants::BUILDSTEPS_DEPLOY));
     //: Display name of the deploy build step list. Used as part of the labels in the project window.
     m_stepList->setDefaultDisplayName(tr("Deploy"));
     //: Default DeployConfiguration display name
@@ -128,7 +128,7 @@ bool DeployConfiguration::fromMap(const QVariantMap &map)
     }
 
     // TODO: We assume that we hold the deploy list
-    Q_ASSERT(m_stepList && m_stepList->id() == QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY));
+    Q_ASSERT(m_stepList && m_stepList->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY));
 
     return true;
 }
@@ -158,27 +158,27 @@ DeployConfigurationFactory::DeployConfigurationFactory(QObject *parent) :
 DeployConfigurationFactory::~DeployConfigurationFactory()
 { }
 
-QStringList DeployConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> DeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
     Q_UNUSED(parent);
-    return QStringList() << QLatin1String(Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
+    return QList<Core::Id>() << Core::Id(Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
 }
 
-QString DeployConfigurationFactory::displayNameForId(const QString &id) const
+QString DeployConfigurationFactory::displayNameForId(Core::Id id) const
 {
-    if (id == QLatin1String(Constants::DEFAULT_DEPLOYCONFIGURATION_ID))
+    if (id == Core::Id(Constants::DEFAULT_DEPLOYCONFIGURATION_ID))
         //: Display name of the default deploy configuration
         return tr("Deploy Configuration");
     return QString();
 }
 
-bool DeployConfigurationFactory::canCreate(Target *parent, const QString &id) const
+bool DeployConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     Q_UNUSED(parent);
-    return id == QLatin1String(Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
+    return id == Core::Id(Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
 }
 
-DeployConfiguration *DeployConfigurationFactory::create(Target *parent, const QString &id)
+DeployConfiguration *DeployConfigurationFactory::create(Target *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;

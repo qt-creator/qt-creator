@@ -141,22 +141,22 @@ QList<ProjectExplorer::Abi> MaemoQtVersion::detectQtAbis() const
     return result;
 }
 
-bool MaemoQtVersion::supportsTargetId(const QString &id) const
+bool MaemoQtVersion::supportsTargetId(Core::Id id) const
 {
     return supportedTargetIds().contains(id);
 }
 
-QSet<QString> MaemoQtVersion::supportedTargetIds() const
+QSet<Core::Id> MaemoQtVersion::supportedTargetIds() const
 {
-    QSet<QString> result;
+    QSet<Core::Id> result;
     if (!isValid())
         return result;
     if (m_deviceType == QLatin1String(Maemo5OsType)) {
-        result.insert(QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID));
+        result.insert(Core::Id(Constants::MAEMO5_DEVICE_TARGET_ID));
     } else if (m_deviceType == QLatin1String(HarmattanOsType)) {
-        result.insert(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID));
+        result.insert(Core::Id(Constants::HARMATTAN_DEVICE_TARGET_ID));
     } else if (m_deviceType == QLatin1String(MeeGoOsType)) {
-        result.insert(QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID));
+        result.insert(Core::Id(Constants::MEEGO_DEVICE_TARGET_ID));
     }
     return result;
 }

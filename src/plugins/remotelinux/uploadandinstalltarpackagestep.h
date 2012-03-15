@@ -70,7 +70,7 @@ public:
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
 
-    static QString stepId();
+    static Core::Id stepId();
     static QString displayName();
 
 private:

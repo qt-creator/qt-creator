@@ -65,7 +65,7 @@ public:
 
 protected:
     GenericBuildConfiguration(GenericTarget *parent, GenericBuildConfiguration *source);
-    GenericBuildConfiguration(GenericTarget *parent, const QString &id);
+    GenericBuildConfiguration(GenericTarget *parent, const Core::Id id);
     virtual bool fromMap(const QVariantMap &map);
 
 private:
@@ -78,13 +78,13 @@ class GenericBuildConfigurationFactory : public ProjectExplorer::IBuildConfigura
 
 public:
     explicit GenericBuildConfigurationFactory(QObject *parent = 0);
-    virtual ~GenericBuildConfigurationFactory();
+    ~GenericBuildConfigurationFactory();
 
-    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
-    QString displayNameForId(const QString &id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QString displayNameForId(const Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
-    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
+    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
+    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
     bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
     ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source);
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;

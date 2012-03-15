@@ -487,7 +487,7 @@ void QtVersionManager::removeVersion(BaseQtVersion *version)
     delete version;
 }
 
-bool QtVersionManager::supportsTargetId(const QString &id) const
+bool QtVersionManager::supportsTargetId(Core::Id id) const
 {
     QList<BaseQtVersion *> versions = QtVersionManager::instance()->versionsForTargetId(id);
     foreach (BaseQtVersion *v, versions)
@@ -496,7 +496,7 @@ bool QtVersionManager::supportsTargetId(const QString &id) const
     return false;
 }
 
-QList<BaseQtVersion *> QtVersionManager::versionsForTargetId(const QString &id,
+QList<BaseQtVersion *> QtVersionManager::versionsForTargetId(Core::Id id,
                                                              const QtVersionNumber &minimumQtVersion,
                                                              const QtVersionNumber &maximumQtVersion) const
 {
@@ -510,9 +510,9 @@ QList<BaseQtVersion *> QtVersionManager::versionsForTargetId(const QString &id,
     return targetVersions;
 }
 
-QSet<QString> QtVersionManager::supportedTargetIds() const
+QSet<Core::Id> QtVersionManager::supportedTargetIds() const
 {
-    QSet<QString> results;
+    QSet<Core::Id> results;
     foreach (BaseQtVersion *version, m_versions)
         results.unite(version->supportedTargetIds());
     return results;

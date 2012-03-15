@@ -53,8 +53,8 @@ public:
     QList<ProjectExplorer::Abi> detectQtAbis() const;
     void addToEnvironment(Utils::Environment &env) const;
 
-    bool supportsTargetId(const QString &id) const;
-    QSet<QString> supportedTargetIds() const;
+    bool supportsTargetId(Core::Id id) const;
+    QSet<Core::Id> supportedTargetIds() const;
 
     QString description() const;
 

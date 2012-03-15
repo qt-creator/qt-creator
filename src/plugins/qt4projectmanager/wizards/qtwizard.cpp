@@ -315,7 +315,7 @@ bool BaseQt4ProjectWizardDialog::setupProject(Qt4Project *project) const
     return m_targetSetupPage->setupProject(project);
 }
 
-bool BaseQt4ProjectWizardDialog::isTargetSelected(const QString &targetid) const
+bool BaseQt4ProjectWizardDialog::isTargetSelected(Core::Id targetid) const
 {
     return m_targetSetupPage->isTargetSelected(targetid);
 }

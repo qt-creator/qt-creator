@@ -43,7 +43,7 @@
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
-Qt4DesktopTarget::Qt4DesktopTarget(Qt4Project *parent, const QString &id) :
+Qt4DesktopTarget::Qt4DesktopTarget(Qt4Project *parent, const Core::Id id) :
     Qt4BaseTarget(parent, id),
     m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this))
 {

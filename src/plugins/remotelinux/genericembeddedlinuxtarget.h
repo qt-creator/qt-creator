@@ -45,7 +45,7 @@ class GenericEmbeddedLinuxTarget : public AbstractEmbeddedLinuxTarget
     Q_OBJECT
 
 public:
-    GenericEmbeddedLinuxTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id);
+    GenericEmbeddedLinuxTarget(Qt4ProjectManager::Qt4Project *parent, const Core::Id id);
 
     void createApplicationProFiles(bool reparse);
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);

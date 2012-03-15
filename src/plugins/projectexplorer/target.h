@@ -82,9 +82,9 @@ public:
     DeployConfiguration *activeDeployConfiguration() const;
     void setActiveDeployConfiguration(DeployConfiguration *configuration);
 
-    QStringList availableDeployConfigurationIds();
-    QString displayNameForDeployConfigurationId(const QString &id);
-    DeployConfiguration *createDeployConfiguration(const QString &id);
+    QList<Core::Id> availableDeployConfigurationIds();
+    QString displayNameForDeployConfigurationId(Core::Id &id);
+    DeployConfiguration *createDeployConfiguration(Core::Id id);
 
     // Running
     QList<RunConfiguration *> runConfigurations() const;
@@ -144,7 +144,7 @@ signals:
     void runConfigurationEnabledChanged();
 
 protected:
-    Target(Project *parent, const QString &id);
+    Target(Project *parent, const Core::Id id);
 
     virtual ProjectExplorer::IDevice::ConstPtr currentDevice() const;
 
@@ -172,14 +172,14 @@ class PROJECTEXPLORER_EXPORT ITargetFactory :
 public:
     explicit ITargetFactory(QObject *parent = 0);
 
-    virtual QStringList supportedTargetIds() const = 0;
-    virtual bool supportsTargetId(const QString &id) const = 0;
+    virtual QList<Core::Id> supportedTargetIds() const = 0;
+    virtual bool supportsTargetId(const Core::Id id) const = 0;
 
     // used to translate the types to names to display to the user
-    virtual QString displayNameForId(const QString &id) const = 0;
+    virtual QString displayNameForId(const Core::Id id) const = 0;
 
-    virtual bool canCreate(Project *parent, const QString &id) const = 0;
-    virtual Target *create(Project *parent, const QString &id) = 0;
+    virtual bool canCreate(Project *parent, const Core::Id id) const = 0;
+    virtual Target *create(Project *parent, const Core::Id id) = 0;
     virtual bool canRestore(Project *parent, const QVariantMap &map) const = 0;
     virtual Target *restore(Project *parent, const QVariantMap &map) = 0;
 

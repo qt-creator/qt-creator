@@ -66,38 +66,38 @@ Qt4MaemoTargetFactory::~Qt4MaemoTargetFactory()
 {
 }
 
-bool Qt4MaemoTargetFactory::supportsTargetId(const QString &id) const
+bool Qt4MaemoTargetFactory::supportsTargetId(const Core::Id id) const
 {
     return MaemoGlobal::isMaemoTargetId(id);
 }
 
-QStringList Qt4MaemoTargetFactory::supportedTargetIds() const
+QList<Core::Id> Qt4MaemoTargetFactory::supportedTargetIds() const
 {
-    QStringList targetIds;
-    targetIds << QLatin1String(MAEMO5_DEVICE_TARGET_ID)
-              << QLatin1String(HARMATTAN_DEVICE_TARGET_ID)
-              << QLatin1String(MEEGO_DEVICE_TARGET_ID);
+    QList<Core::Id> targetIds;
+    targetIds << Core::Id(MAEMO5_DEVICE_TARGET_ID)
+              << Core::Id(HARMATTAN_DEVICE_TARGET_ID)
+              << Core::Id(MEEGO_DEVICE_TARGET_ID);
     return targetIds;
 }
 
-QString Qt4MaemoTargetFactory::displayNameForId(const QString &id) const
+QString Qt4MaemoTargetFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(MAEMO5_DEVICE_TARGET_ID))
+    if (id == Core::Id(MAEMO5_DEVICE_TARGET_ID))
         return Qt4Maemo5Target::defaultDisplayName();
-    else if (id == QLatin1String(HARMATTAN_DEVICE_TARGET_ID))
+    else if (id == Core::Id(HARMATTAN_DEVICE_TARGET_ID))
         return Qt4HarmattanTarget::defaultDisplayName();
-    else if (id == QLatin1String(MEEGO_DEVICE_TARGET_ID))
+    else if (id == Core::Id(MEEGO_DEVICE_TARGET_ID))
         return Qt4MeegoTarget::defaultDisplayName();
     return QString();
 }
 
-QIcon Qt4MaemoTargetFactory::iconForId(const QString &id) const
+QIcon Qt4MaemoTargetFactory::iconForId(const Core::Id id) const
 {
     Q_UNUSED(id)
     return QIcon(":/projectexplorer/images/MaemoDevice.png");
 }
 
-bool Qt4MaemoTargetFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
+bool Qt4MaemoTargetFactory::canCreate(ProjectExplorer::Project *parent, const Core::Id id) const
 {
     if (!qobject_cast<Qt4Project *>(parent))
         return false;
@@ -117,34 +117,34 @@ ProjectExplorer::Target *Qt4MaemoTargetFactory::restore(ProjectExplorer::Project
     if (!canRestore(parent, map))
         return 0;
 
-    const QString id = idFromMap(map);
+    const Core::Id id = idFromMap(map);
     AbstractQt4MaemoTarget *target = 0;
     Qt4Project *qt4project = static_cast<Qt4Project *>(parent);
-    if (id == QLatin1String(MAEMO5_DEVICE_TARGET_ID))
-        target = new Qt4Maemo5Target(qt4project, QLatin1String("transient ID"));
-    else if (id == QLatin1String(HARMATTAN_DEVICE_TARGET_ID))
-        target = new Qt4HarmattanTarget(qt4project, QLatin1String("transient ID"));
-    else if (id == QLatin1String(MEEGO_DEVICE_TARGET_ID))
-        target = new Qt4MeegoTarget(qt4project, QLatin1String("transient ID"));
+    if (id == Core::Id(MAEMO5_DEVICE_TARGET_ID))
+        target = new Qt4Maemo5Target(qt4project, id);
+    else if (id == Core::Id(HARMATTAN_DEVICE_TARGET_ID))
+        target = new Qt4HarmattanTarget(qt4project, id);
+    else if (id == Core::Id(MEEGO_DEVICE_TARGET_ID))
+        target = new Qt4MeegoTarget(qt4project, id);
     if (target->fromMap(map))
         return target;
     delete target;
     return 0;
 }
 
-QString Qt4MaemoTargetFactory::buildNameForId(const QString &id) const
+QString Qt4MaemoTargetFactory::buildNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(MAEMO5_DEVICE_TARGET_ID))
+    if (id == Core::Id(MAEMO5_DEVICE_TARGET_ID))
         return QLatin1String("maemo");
-    else if (id == QLatin1String(HARMATTAN_DEVICE_TARGET_ID))
+    else if (id == Core::Id(HARMATTAN_DEVICE_TARGET_ID))
         return QLatin1String("harmattan");
-    else if (id == QLatin1String(MEEGO_DEVICE_TARGET_ID))
+    else if (id == Core::Id(MEEGO_DEVICE_TARGET_ID))
         return QLatin1String("meego");
     else
         return QString();
 }
 
-QString Qt4MaemoTargetFactory::shadowBuildDirectory(const QString &profilePath, const QString &id, const QString &suffix)
+QString Qt4MaemoTargetFactory::shadowBuildDirectory(const QString &profilePath, const Core::Id id, const QString &suffix)
 {
 #if defined(Q_OS_WIN)
     // No shadowbuilding for windows!
@@ -156,8 +156,9 @@ QString Qt4MaemoTargetFactory::shadowBuildDirectory(const QString &profilePath, 
 #endif
 }
 
-QSet<QString> Qt4MaemoTargetFactory::targetFeatures(const QString & /*id*/) const
+QSet<QString> Qt4MaemoTargetFactory::targetFeatures(const Core::Id id) const
 {
+    Q_UNUSED(id);
     QSet<QString> features;
     features << Qt4ProjectManager::Constants::MOBILE_TARGETFEATURE_ID;
 #ifndef Q_OS_WIN
@@ -166,7 +167,7 @@ QSet<QString> Qt4MaemoTargetFactory::targetFeatures(const QString & /*id*/) cons
     return features;
 }
 
-ProjectExplorer::Target *Qt4MaemoTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
+ProjectExplorer::Target *Qt4MaemoTargetFactory::create(ProjectExplorer::Project *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -186,21 +187,21 @@ ProjectExplorer::Target *Qt4MaemoTargetFactory::create(ProjectExplorer::Project 
 }
 
 ProjectExplorer::Target *Qt4MaemoTargetFactory::create(ProjectExplorer::Project *parent,
-    const QString &id, const QList<BuildConfigurationInfo> &infos)
+    const Core::Id id, const QList<BuildConfigurationInfo> &infos)
 {
     if (!canCreate(parent, id))
         return 0;
 
     AbstractQt4MaemoTarget *target = 0;
-    QStringList deployConfigIds;
-    if (id == QLatin1String(MAEMO5_DEVICE_TARGET_ID)) {
+    QList<Core::Id> deployConfigIds;
+    if (id == Core::Id(MAEMO5_DEVICE_TARGET_ID)) {
         target = new Qt4Maemo5Target(static_cast<Qt4Project *>(parent), id);
         deployConfigIds << Qt4MaemoDeployConfiguration::fremantleWithPackagingId()
             << Qt4MaemoDeployConfiguration::fremantleWithoutPackagingId();
-    } else if (id == QLatin1String(HARMATTAN_DEVICE_TARGET_ID)) {
+    } else if (id == Core::Id(HARMATTAN_DEVICE_TARGET_ID)) {
         target = new Qt4HarmattanTarget(static_cast<Qt4Project *>(parent), id);
         deployConfigIds << Qt4MaemoDeployConfiguration::harmattanId();
-    } else if (id == QLatin1String(MEEGO_DEVICE_TARGET_ID)) {
+    } else if (id == Core::Id(MEEGO_DEVICE_TARGET_ID)) {
         target = new Qt4MeegoTarget(static_cast<Qt4Project *>(parent), id);
         deployConfigIds << Qt4MaemoDeployConfiguration::meegoId();
     }
@@ -211,7 +212,7 @@ ProjectExplorer::Target *Qt4MaemoTargetFactory::create(ProjectExplorer::Project 
                                          info.version(), info.buildConfig,
                                          info.additionalArguments, info.directory, info.importing);
 
-    foreach (const QString &deployConfigId, deployConfigIds) {
+    foreach (const Core::Id &deployConfigId, deployConfigIds) {
         target->addDeployConfiguration(target->createDeployConfiguration(deployConfigId));
     }
     target->createApplicationProFiles(false);

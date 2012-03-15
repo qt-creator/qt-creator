@@ -90,7 +90,7 @@ Qt4BaseTargetFactory::~Qt4BaseTargetFactory()
 
 }
 
-Qt4TargetSetupWidget *Qt4BaseTargetFactory::createTargetSetupWidget(const QString &id,
+Qt4TargetSetupWidget *Qt4BaseTargetFactory::createTargetSetupWidget(const Core::Id id,
                                                                     const QString &proFilePath,
                                                                     const QtSupport::QtVersionNumber &minimumQtVersion,
                                                                     const QtSupport::QtVersionNumber &maximumQtVersion,
@@ -117,7 +117,7 @@ Qt4TargetSetupWidget *Qt4BaseTargetFactory::createTargetSetupWidget(const QStrin
     return widget;
 }
 
-ProjectExplorer::Target *Qt4BaseTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, Qt4TargetSetupWidget *widget)
+ProjectExplorer::Target *Qt4BaseTargetFactory::create(ProjectExplorer::Project *parent, const Core::Id id, Qt4TargetSetupWidget *widget)
 {
     if (!widget->isTargetSelected())
         return 0;
@@ -127,7 +127,7 @@ ProjectExplorer::Target *Qt4BaseTargetFactory::create(ProjectExplorer::Project *
     return create(parent, id, w->buildConfigurationInfos());
 }
 
-QList<BuildConfigurationInfo> Qt4BaseTargetFactory::availableBuildConfigurations(const QString &id, const QString &proFilePath,
+QList<BuildConfigurationInfo> Qt4BaseTargetFactory::availableBuildConfigurations(const Core::Id id, const QString &proFilePath,
                                                                                  const QtSupport::QtVersionNumber &minimumQtVersion,
                                                                                  const QtSupport::QtVersionNumber &maximumQtVersion,
                                                                                  const Core::FeatureSet &requiredFeatures)
@@ -180,7 +180,7 @@ QString projectDirectory(const QString &proFile)
     return info.absoluteDir().path();
 }
 
-QString Qt4BaseTargetFactory::shadowBuildDirectory(const QString &profilePath, const QString &id, const QString &suffix)
+QString Qt4BaseTargetFactory::shadowBuildDirectory(const QString &profilePath, const Core::Id id, const QString &suffix)
 {
     if (profilePath.isEmpty())
         return QString();
@@ -190,13 +190,13 @@ QString Qt4BaseTargetFactory::shadowBuildDirectory(const QString &profilePath, c
     return base + buildNameForId(id) + QLatin1String("-") + sanitize(suffix);
 }
 
-QString Qt4BaseTargetFactory::buildNameForId(const QString &id) const
+QString Qt4BaseTargetFactory::buildNameForId(Core::Id id) const
 {
     Q_UNUSED(id);
     return QString();
 }
 
-Qt4BaseTargetFactory *Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(const QString &id)
+Qt4BaseTargetFactory *Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(const Core::Id id)
 {
     QList<Qt4BaseTargetFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
     foreach (Qt4BaseTargetFactory *fac, factories) {
@@ -206,10 +206,10 @@ Qt4BaseTargetFactory *Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(const QStr
     return 0;
 }
 
-QList<Qt4BaseTargetFactory *> Qt4BaseTargetFactory::qt4BaseTargetFactoriesForIds(const QStringList &ids)
+QList<Qt4BaseTargetFactory *> Qt4BaseTargetFactory::qt4BaseTargetFactoriesForIds(const QList<Core::Id> &ids)
 {
     QList<Qt4BaseTargetFactory *> factories;
-    foreach (const QString &id, ids)
+    foreach (Core::Id id, ids)
         if (Qt4BaseTargetFactory *factory = qt4BaseTargetFactoryForId(id))
             factories << factory;
 
@@ -235,7 +235,7 @@ QList<ProjectExplorer::Task> Qt4BaseTargetFactory::reportIssues(const QString &p
     return QList<ProjectExplorer::Task>();
 }
 
-bool Qt4BaseTargetFactory::selectByDefault(const QString &id) const
+bool Qt4BaseTargetFactory::selectByDefault(const Core::Id id) const
 {
     Q_UNUSED(id);
     return true;
@@ -245,7 +245,7 @@ bool Qt4BaseTargetFactory::selectByDefault(const QString &id) const
 // Qt4BaseTarget
 // -------------------------------------------------------------------------
 
-Qt4BaseTarget::Qt4BaseTarget(Qt4Project *parent, const QString &id) :
+Qt4BaseTarget::Qt4BaseTarget(Qt4Project *parent, const Core::Id id) :
     ProjectExplorer::Target(parent, id)
 {
     connect(this, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
@@ -373,9 +373,9 @@ Qt4BuildConfiguration *Qt4BaseTarget::addQt4BuildConfiguration(QString defaultDi
     bc->setDisplayName(displayName);
 
     ProjectExplorer::BuildStepList *buildSteps =
-        bc->stepList(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
+        bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
     ProjectExplorer::BuildStepList *cleanSteps =
-        bc->stepList(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
+        bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
     Q_ASSERT(buildSteps);
     Q_ASSERT(cleanSteps);
 
@@ -487,7 +487,7 @@ QString issuesListToString(const QList<ProjectExplorer::Task> &issues)
 }
 
 Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *factory,
-                                                         const QString &id,
+                                                         Core::Id id,
                                                          const QString &proFilePath,
                                                          const QList<BuildConfigurationInfo> &infos,
                                                          const QtSupport::QtVersionNumber &minimumQtVersion,
@@ -1371,7 +1371,7 @@ QPair<ProjectExplorer::Task::TaskType, QString> Qt4DefaultTargetSetupWidget::fin
 // BuildConfigurationInfo
 // -----------------------
 
-QList<BuildConfigurationInfo> BuildConfigurationInfo::filterBuildConfigurationInfos(const QList<BuildConfigurationInfo> &infos, const QString &id)
+QList<BuildConfigurationInfo> BuildConfigurationInfo::filterBuildConfigurationInfos(const QList<BuildConfigurationInfo> &infos, Core::Id id)
 {
     QList<BuildConfigurationInfo> result;
     foreach (const BuildConfigurationInfo &info, infos)
@@ -1427,7 +1427,7 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::importBuildConfigurations(
     QList<Qt4BaseTargetFactory *> factories =
             ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
     foreach (Qt4BaseTargetFactory *factory, factories) {
-        foreach (const QString &id, factory->supportedTargetIds()) {
+        foreach (const Core::Id id, factory->supportedTargetIds()) {
             QString expectedBuildprefix = factory->shadowBuildDirectory(proFilePath, id, QString());
             QString baseDir = QFileInfo(expectedBuildprefix).absolutePath();
             foreach (const QString &dir, QDir(baseDir).entryList()) {

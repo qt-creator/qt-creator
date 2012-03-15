@@ -415,9 +415,9 @@ QString GenericProject::displayName() const
     return m_projectName;
 }
 
-QString GenericProject::id() const
+Core::Id GenericProject::id() const
 {
-    return QLatin1String(Constants::GENERICPROJECT_ID);
+    return Core::Id(Constants::GENERICPROJECT_ID);
 }
 
 Core::IDocument *GenericProject::document() const
@@ -484,7 +484,7 @@ bool GenericProject::fromMap(const QVariantMap &map)
     if (targets().isEmpty()) {
         GenericTargetFactory *factory =
                 ExtensionSystem::PluginManager::instance()->getObject<GenericTargetFactory>();
-        addTarget(factory->create(this, QLatin1String(GENERIC_DESKTOP_TARGET_ID)));
+        addTarget(factory->create(this, Core::Id(GENERIC_DESKTOP_TARGET_ID)));
     }
 
     QString id = map.value(QLatin1String(TOOLCHAIN_KEY)).toString();

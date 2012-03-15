@@ -57,25 +57,25 @@ namespace {
 static const QLatin1String binQmake("/bin/qmake" EXEC_SUFFIX);
 }
 
-bool MaemoGlobal::isMaemoTargetId(const QString &id)
+bool MaemoGlobal::isMaemoTargetId(const Core::Id id)
 {
     return isFremantleTargetId(id) || isHarmattanTargetId(id)
         || isMeegoTargetId(id);
 }
 
-bool MaemoGlobal::isFremantleTargetId(const QString &id)
+bool MaemoGlobal::isFremantleTargetId(const Core::Id id)
 {
-    return id == QLatin1String(MAEMO5_DEVICE_TARGET_ID);
+    return id == Core::Id(MAEMO5_DEVICE_TARGET_ID);
 }
 
-bool MaemoGlobal::isHarmattanTargetId(const QString &id)
+bool MaemoGlobal::isHarmattanTargetId(const Core::Id id)
 {
-    return id == QLatin1String(HARMATTAN_DEVICE_TARGET_ID);
+    return id == Core::Id(HARMATTAN_DEVICE_TARGET_ID);
 }
 
-bool MaemoGlobal::isMeegoTargetId(const QString &id)
+bool MaemoGlobal::isMeegoTargetId(const Core::Id id)
 {
-    return id == QLatin1String(MEEGO_DEVICE_TARGET_ID);
+    return id == Core::Id(MEEGO_DEVICE_TARGET_ID);
 }
 
 bool MaemoGlobal::isValidMaemo5QtVersion(const QString &qmakePath)

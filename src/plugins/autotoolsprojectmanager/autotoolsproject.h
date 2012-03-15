@@ -77,7 +77,7 @@ public:
     ~AutotoolsProject();
 
     QString displayName() const;
-    QString id() const;
+    Core::Id id() const;
     Core::IDocument *document() const;
     ProjectExplorer::IProjectManager *projectManager() const;
     AutotoolsTarget *activeTarget() const;

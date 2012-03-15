@@ -56,8 +56,8 @@ class AbstractQt4MaemoTarget : public RemoteLinux::AbstractEmbeddedLinuxTarget
     friend class Qt4MaemoTargetFactory;
     Q_OBJECT
 public:
-    explicit AbstractQt4MaemoTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id,
-        const QString &qmakeScope);
+    AbstractQt4MaemoTarget(Qt4ProjectManager::Qt4Project *parent, const Core::Id id,
+                           const QString &qmakeScope);
     virtual ~AbstractQt4MaemoTarget();
 
     void createApplicationProFiles(bool reparse);
@@ -119,8 +119,8 @@ class AbstractDebBasedQt4MaemoTarget : public AbstractQt4MaemoTarget
 {
     Q_OBJECT
 public:
-    AbstractDebBasedQt4MaemoTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id,
-        const QString &qmakeScope);
+    AbstractDebBasedQt4MaemoTarget(Qt4ProjectManager::Qt4Project *parent, const Core::Id id,
+                                   const QString &qmakeScope);
     ~AbstractDebBasedQt4MaemoTarget();
 
     QString debianDirPath() const;
@@ -192,8 +192,8 @@ class AbstractRpmBasedQt4MaemoTarget : public AbstractQt4MaemoTarget
 {
     Q_OBJECT
 public:
-    AbstractRpmBasedQt4MaemoTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id,
-        const QString &qmakeScope);
+    AbstractRpmBasedQt4MaemoTarget(Qt4ProjectManager::Qt4Project *parent, const Core::Id id,
+                                   const QString &qmakeScope);
     ~AbstractRpmBasedQt4MaemoTarget();
 
     virtual bool allowsRemoteMounts() const { return false; }
@@ -236,8 +236,7 @@ class Qt4Maemo5Target : public AbstractDebBasedQt4MaemoTarget
 {
     Q_OBJECT
 public:
-    explicit Qt4Maemo5Target(Qt4ProjectManager::Qt4Project *parent,
-        const QString &id);
+    Qt4Maemo5Target(Qt4ProjectManager::Qt4Project *parent, const Core::Id id);
     virtual ~Qt4Maemo5Target();
 
     virtual bool supportsDevice(const QSharedPointer<const ProjectExplorer::IDevice> &device) const;
@@ -262,8 +261,7 @@ class Qt4HarmattanTarget : public AbstractDebBasedQt4MaemoTarget
 {
     Q_OBJECT
 public:
-    explicit Qt4HarmattanTarget(Qt4ProjectManager::Qt4Project *parent,
-        const QString &id);
+    Qt4HarmattanTarget(Qt4ProjectManager::Qt4Project *parent, const Core::Id id);
     virtual ~Qt4HarmattanTarget();
 
     virtual bool supportsDevice(const QSharedPointer<const ProjectExplorer::IDevice> &device) const;
@@ -290,8 +288,7 @@ class Qt4MeegoTarget : public AbstractRpmBasedQt4MaemoTarget
 {
     Q_OBJECT
 public:
-    explicit Qt4MeegoTarget(Qt4ProjectManager::Qt4Project *parent,
-        const QString &id);
+    Qt4MeegoTarget(Qt4ProjectManager::Qt4Project *parent, const Core::Id id);
     virtual ~Qt4MeegoTarget();
     virtual bool supportsDevice(const QSharedPointer<const ProjectExplorer::IDevice> &device) const;
     static QString defaultDisplayName();

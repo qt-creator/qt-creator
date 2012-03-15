@@ -58,7 +58,7 @@ using namespace Qt4ProjectManager;
 namespace Android {
 namespace Internal {
 
-const QLatin1String AndroidDeployStep::Id("Qt4ProjectManager.AndroidDeployStep");
+const Core::Id AndroidDeployStep::Id("Qt4ProjectManager.AndroidDeployStep");
 
 AndroidDeployStep::AndroidDeployStep(ProjectExplorer::BuildStepList *parent)
     : BuildStep(parent, Id)

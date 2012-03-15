@@ -229,9 +229,9 @@ void BuildSettingsWidget::updateAddButtonMenu()
         }
         IBuildConfigurationFactory *factory = m_target->buildConfigurationFactory();
         if (factory) {
-            foreach (const QString &id, factory->availableCreationIds(m_target)) {
+            foreach (Core::Id id, factory->availableCreationIds(m_target)) {
                 QAction *action = m_addButtonMenu->addAction(factory->displayNameForId(id), this, SLOT(createConfiguration()));
-                action->setData(id);
+                action->setData(QVariant::fromValue(id));
             }
         }
     }
@@ -248,8 +248,8 @@ void BuildSettingsWidget::updateBuildSettings()
     BuildConfigWidget *generalConfigWidget = m_target->createConfigWidget();
     addSubWidget(generalConfigWidget);
 
-    addSubWidget(new BuildStepsPage(m_target, QLatin1String(Constants::BUILDSTEPS_BUILD)));
-    addSubWidget(new BuildStepsPage(m_target, QLatin1String(Constants::BUILDSTEPS_CLEAN)));
+    addSubWidget(new BuildStepsPage(m_target, Core::Id(Constants::BUILDSTEPS_BUILD)));
+    addSubWidget(new BuildStepsPage(m_target, Core::Id(Constants::BUILDSTEPS_CLEAN)));
 
     QList<BuildConfigWidget *> subConfigWidgets = m_target->project()->subConfigWidgets();
     foreach (BuildConfigWidget *subConfigWidget, subConfigWidgets)
@@ -289,7 +289,7 @@ void BuildSettingsWidget::createConfiguration()
         return;
 
     QAction *action = qobject_cast<QAction *>(sender());
-    const QString &id = action->data().toString();
+    Core::Id id = action->data().value<Core::Id>();
     BuildConfiguration *bc = m_target->buildConfigurationFactory()->create(m_target, id);
     if (bc) {
         m_target->setActiveBuildConfiguration(bc);

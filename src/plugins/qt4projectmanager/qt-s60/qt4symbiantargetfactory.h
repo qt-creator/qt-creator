@@ -44,28 +44,30 @@ public:
     Qt4SymbianTargetFactory(QObject *parent = 0);
     ~Qt4SymbianTargetFactory();
 
-    QStringList supportedTargetIds() const;
-    bool supportsTargetId(const QString &id) const;
-    QString displayNameForId(const QString &id) const;
-    QIcon iconForId(const QString &id) const;
+    QList<Core::Id> supportedTargetIds() const;
+    bool supportsTargetId(const Core::Id id) const;
+    QString displayNameForId(const Core::Id id) const;
+    QIcon iconForId(const Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
+    bool canCreate(ProjectExplorer::Project *parent, const Core::Id id) const;
     bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
     virtual ProjectExplorer::Target *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
 
-    virtual ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id);
-    virtual ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos);
-    virtual ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id, Qt4TargetSetupWidget *widget);
+    virtual ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const Core::Id id);
+    virtual ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const Core::Id id,
+                                            const QList<BuildConfigurationInfo> &infos);
+    virtual ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const Core::Id id,
+                                            Qt4TargetSetupWidget *widget);
 
-    QString shadowBuildDirectory(const QString &profilePath, const QString &id, const QString &suffix);
+    QString shadowBuildDirectory(const QString &profilePath, const Core::Id id, const QString &suffix);
     QList<ProjectExplorer::Task> reportIssues(const QString &proFile);
-    QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath,
+    QList<BuildConfigurationInfo> availableBuildConfigurations(const Core::Id id, const QString &proFilePath,
                                                                const QtSupport::QtVersionNumber &minimumQtVersion,
                                                                const QtSupport::QtVersionNumber &maximumQtVersion,
                                                                const Core::FeatureSet &requiredFeatures);
 
-    bool selectByDefault(const QString &id) const;
-    QSet<QString> targetFeatures(const QString &id) const;
+    bool selectByDefault(const Core::Id id) const;
+    QSet<QString> targetFeatures(const Core::Id id) const;
 };
 
 } // namespace Internal

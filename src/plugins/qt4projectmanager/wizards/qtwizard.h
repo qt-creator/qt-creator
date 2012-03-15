@@ -142,7 +142,7 @@ public:
 
     bool writeUserFile(const QString &proFileName) const;
     bool setupProject(Qt4Project *project) const;
-    bool isTargetSelected(const QString &targetid) const;
+    bool isTargetSelected(Core::Id targetid) const;
 
     void addExtensionPages(const QList<QWizardPage *> &wizardPageList);
 

@@ -48,7 +48,7 @@ using namespace Qt4ProjectManager::Internal;
 // Qt4Target
 // -------------------------------------------------------------------------
 
-Qt4SimulatorTarget::Qt4SimulatorTarget(Qt4Project *parent, const QString &id) :
+Qt4SimulatorTarget::Qt4SimulatorTarget(Qt4Project *parent, const Core::Id id) :
     Qt4BaseTarget(parent, id),
     m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this))
 {

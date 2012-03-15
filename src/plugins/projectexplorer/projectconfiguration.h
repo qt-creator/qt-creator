@@ -35,6 +35,8 @@
 
 #include "projectexplorer_export.h"
 
+#include <coreplugin/id.h>
+
 #include <QObject>
 #include <QString>
 #include <QVariantMap>
@@ -51,7 +53,7 @@ public:
     // ctors are protected
     virtual ~ProjectConfiguration();
 
-    QString id() const;
+    Core::Id id() const;
     QString displayName() const;
 
     bool usesDefaultDisplayName() const;
@@ -68,17 +70,17 @@ signals:
     void displayNameChanged();
 
 protected:
-    ProjectConfiguration(QObject *parent, const QString &id);
+    ProjectConfiguration(QObject *parent, const Core::Id &id);
     ProjectConfiguration(QObject *parent, const ProjectConfiguration *source);
 
 private:
-    QString m_id;
+    Core::Id m_id;
     QString m_displayName;
     QString m_defaultDisplayName;
 };
 
 // helper functions:
-PROJECTEXPLORER_EXPORT QString idFromMap(const QVariantMap &map);
+PROJECTEXPLORER_EXPORT Core::Id idFromMap(const QVariantMap &map);
 PROJECTEXPLORER_EXPORT QString displayNameFromMap(const QVariantMap &map);
 
 } // namespace ProjectExplorer

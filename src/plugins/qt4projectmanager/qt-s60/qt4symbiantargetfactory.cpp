@@ -67,31 +67,31 @@ Qt4SymbianTargetFactory::~Qt4SymbianTargetFactory()
 {
 }
 
-bool Qt4SymbianTargetFactory::supportsTargetId(const QString &id) const
+bool Qt4SymbianTargetFactory::supportsTargetId(const Core::Id id) const
 {
-    return id == QLatin1String(Constants::S60_DEVICE_TARGET_ID);
+    return id == Core::Id(Constants::S60_DEVICE_TARGET_ID);
 }
 
-QStringList Qt4SymbianTargetFactory::supportedTargetIds() const
+QList<Core::Id> Qt4SymbianTargetFactory::supportedTargetIds() const
 {
-    QStringList ids;
-    ids << QLatin1String(Constants::S60_DEVICE_TARGET_ID);
+    QList<Core::Id> ids;
+    ids << Core::Id(Constants::S60_DEVICE_TARGET_ID);
     return ids;
 }
 
-QString Qt4SymbianTargetFactory::displayNameForId(const QString &id) const
+QString Qt4SymbianTargetFactory::displayNameForId(const Core::Id id) const
 {
     return Qt4SymbianTarget::defaultDisplayName(id);
 }
 
-QIcon Qt4SymbianTargetFactory::iconForId(const QString &id) const
+QIcon Qt4SymbianTargetFactory::iconForId(const Core::Id id) const
 {
-    if (id == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
+    if (id == Core::Id(Constants::S60_DEVICE_TARGET_ID))
         return QIcon(QLatin1String(":/projectexplorer/images/SymbianDevice.png"));
     return QIcon();
 }
 
-bool Qt4SymbianTargetFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
+bool Qt4SymbianTargetFactory::canCreate(ProjectExplorer::Project *parent, const Core::Id id) const
 {
     if (!qobject_cast<Qt4Project *>(parent))
         return false;
@@ -119,7 +119,7 @@ ProjectExplorer::Target *Qt4SymbianTargetFactory::restore(ProjectExplorer::Proje
     return 0;
 }
 
-QString Qt4SymbianTargetFactory::shadowBuildDirectory(const QString &profilePath, const QString &id, const QString &suffix)
+QString Qt4SymbianTargetFactory::shadowBuildDirectory(const QString &profilePath, const Core::Id id, const QString &suffix)
 {
     Q_UNUSED(id);
     Q_UNUSED(suffix);
@@ -154,7 +154,7 @@ QList<ProjectExplorer::Task> Qt4SymbianTargetFactory::reportIssues(const QString
     return results;
 }
 
-QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurations(const QString &id, const QString &proFilePath,
+QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurations(const Core::Id id, const QString &proFilePath,
                                                                                     const QtSupport::QtVersionNumber &minimumQtVersion,
                                                                                     const QtSupport::QtVersionNumber &maximumQtVersion,
                                                                                     const Core::FeatureSet &requiredFeatures)
@@ -162,13 +162,13 @@ QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurati
     return Qt4BaseTargetFactory::availableBuildConfigurations(id, proFilePath, minimumQtVersion, maximumQtVersion, requiredFeatures);
 }
 
-bool Qt4SymbianTargetFactory::selectByDefault(const QString &id) const
+bool Qt4SymbianTargetFactory::selectByDefault(const Core::Id id) const
 {
     Q_UNUSED(id);
     return true;
 }
 
-QSet<QString> Qt4SymbianTargetFactory::targetFeatures(const QString & /*id*/) const
+QSet<QString> Qt4SymbianTargetFactory::targetFeatures(const Core::Id /*id*/) const
 {
     QSet<QString> features;
     features << QLatin1String(Constants::MOBILE_TARGETFEATURE_ID);
@@ -176,7 +176,7 @@ QSet<QString> Qt4SymbianTargetFactory::targetFeatures(const QString & /*id*/) co
     return features;
 }
 
-ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
+ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Project *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -195,7 +195,7 @@ ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Projec
     return create(parent, id, infos);
 }
 
-ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos)
+ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Project *parent, const Core::Id id, const QList<BuildConfigurationInfo> &infos)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -205,7 +205,7 @@ ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Projec
                                     info.version(), info.buildConfig,
                                     info.additionalArguments, info.directory, info.importing);
 
-    t->addDeployConfiguration(t->createDeployConfiguration(QLatin1String(S60_DEPLOYCONFIGURATION_ID)));
+    t->addDeployConfiguration(t->createDeployConfiguration(Core::Id(S60_DEPLOYCONFIGURATION_ID)));
 
     t->createApplicationProFiles(false);
 
@@ -214,7 +214,7 @@ ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Projec
     return t;
 }
 
-ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, Qt4TargetSetupWidget *widget)
+ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Project *parent, const Core::Id id, Qt4TargetSetupWidget *widget)
 {
     if (!widget->isTargetSelected())
         return 0;

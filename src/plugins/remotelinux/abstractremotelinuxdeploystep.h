@@ -63,7 +63,7 @@ public:
     virtual AbstractRemoteLinuxDeployService *deployService() const = 0;
 
 protected:
-    AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl, const QString &id);
+    AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl, const Core::Id id);
     AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl,
         AbstractRemoteLinuxDeployStep *other);
 

@@ -59,7 +59,7 @@ public:
     BuildType buildType() const;
 
 protected:
-    AutotoolsBuildConfiguration(AutotoolsTarget *parent, const QString &id);
+    AutotoolsBuildConfiguration(AutotoolsTarget *parent, const Core::Id id);
     AutotoolsBuildConfiguration(AutotoolsTarget *parent, AutotoolsBuildConfiguration *source);
 
     bool fromMap(const QVariantMap &map);
@@ -75,11 +75,11 @@ class AutotoolsBuildConfigurationFactory : public ProjectExplorer::IBuildConfigu
 public:
     explicit AutotoolsBuildConfigurationFactory(QObject *parent = 0);
 
-    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
-    QString displayNameForId(const QString &id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QString displayNameForId(const Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
-    AutotoolsBuildConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
+    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
+    AutotoolsBuildConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
     AutotoolsBuildConfiguration *createDefaultConfiguration(AutotoolsTarget *target) const;
     bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
     AutotoolsBuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source);

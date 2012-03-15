@@ -68,7 +68,7 @@ const char * const STEPS_PREFIX("ProjectExplorer.BuildStepList.Step.");
 
 } // namespace
 
-BuildStepList::BuildStepList(QObject *parent, const QString &id) :
+BuildStepList::BuildStepList(QObject *parent, const Core::Id id) :
     ProjectConfiguration(parent, id),
     m_isNull(false)
 {
@@ -87,7 +87,7 @@ BuildStepList::BuildStepList(QObject *parent, BuildStepList *source) :
 }
 
 BuildStepList::BuildStepList(QObject *parent, const QVariantMap &data) :
-    ProjectConfiguration(parent, QLatin1String("UNKNOWN ID"))
+    ProjectConfiguration(parent, Core::Id())
 {
     Q_ASSERT(parent);
     m_isNull = !fromMap(data);
@@ -124,7 +124,7 @@ bool BuildStepList::isEmpty() const
     return m_steps.isEmpty();
 }
 
-bool BuildStepList::contains(const QString &id) const
+bool BuildStepList::contains(const Core::Id id) const
 {
     foreach (BuildStep *bs, steps()) {
         if (bs->id() == id)

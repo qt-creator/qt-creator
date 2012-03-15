@@ -106,9 +106,9 @@ BuildStepConfigWidget *UploadAndInstallTarPackageStep::createConfigWidget()
     return new SimpleBuildStepConfigWidget(this);
 }
 
-QString UploadAndInstallTarPackageStep::stepId()
+Core::Id UploadAndInstallTarPackageStep::stepId()
 {
-    return QLatin1String("MaemoUploadAndInstallTarPackageStep");
+    return Core::Id("MaemoUploadAndInstallTarPackageStep");
 }
 
 QString UploadAndInstallTarPackageStep::displayName()

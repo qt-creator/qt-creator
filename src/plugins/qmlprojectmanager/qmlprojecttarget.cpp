@@ -44,7 +44,7 @@ namespace QmlProjectManager {
 namespace Internal {
 
 QmlProjectTarget::QmlProjectTarget(QmlProject *parent) :
-    ProjectExplorer::Target(parent, QLatin1String(Constants::QML_VIEWER_TARGET_ID))
+    ProjectExplorer::Target(parent, Core::Id(Constants::QML_VIEWER_TARGET_ID))
 {
     setDisplayName(QApplication::translate("QmlProjectManager::QmlTarget",
                                            Constants::QML_VIEWER_TARGET_DISPLAY_NAME,
@@ -97,33 +97,33 @@ QmlProjectTargetFactory::~QmlProjectTargetFactory()
 {
 }
 
-bool QmlProjectTargetFactory::supportsTargetId(const QString &id) const
+bool QmlProjectTargetFactory::supportsTargetId(const Core::Id id) const
 {
-    return id == QLatin1String(Constants::QML_VIEWER_TARGET_ID);
+    return id == Core::Id(Constants::QML_VIEWER_TARGET_ID);
 }
 
-QStringList QmlProjectTargetFactory::supportedTargetIds() const
+QList<Core::Id> QmlProjectTargetFactory::supportedTargetIds() const
 {
-    return QStringList() << QLatin1String(Constants::QML_VIEWER_TARGET_ID);
+    return QList<Core::Id>() << Core::Id(Constants::QML_VIEWER_TARGET_ID);
 }
 
-QString QmlProjectTargetFactory::displayNameForId(const QString &id) const
+QString QmlProjectTargetFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(Constants::QML_VIEWER_TARGET_ID))
+    if (id == Core::Id(Constants::QML_VIEWER_TARGET_ID))
         return QCoreApplication::translate("QmlProjectManager::QmlTarget",
                                            Constants::QML_VIEWER_TARGET_DISPLAY_NAME,
                                            "QML Viewer target display name");
     return QString();
 }
 
-bool QmlProjectTargetFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
+bool QmlProjectTargetFactory::canCreate(ProjectExplorer::Project *parent, const Core::Id id) const
 {
     if (!qobject_cast<QmlProject *>(parent))
         return false;
-    return id == QLatin1String(Constants::QML_VIEWER_TARGET_ID);
+    return id == Core::Id(Constants::QML_VIEWER_TARGET_ID);
 }
 
-QmlProjectTarget *QmlProjectTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
+QmlProjectTarget *QmlProjectTargetFactory::create(ProjectExplorer::Project *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;

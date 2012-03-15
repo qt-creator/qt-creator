@@ -90,14 +90,14 @@ QList<ProjectExplorer::Abi> AndroidQtVersion::detectQtAbis() const
                                                                  32);
 }
 
-bool AndroidQtVersion::supportsTargetId(const QString &id) const
+bool AndroidQtVersion::supportsTargetId(const Core::Id id) const
 {
-    return id == QLatin1String(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID);
+    return id == Core::Id(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID);
 }
 
-QSet<QString> AndroidQtVersion::supportedTargetIds() const
+QSet<Core::Id> AndroidQtVersion::supportedTargetIds() const
 {
-    return QSet<QString>() << QLatin1String(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID);
+    return QSet<Core::Id>() << Core::Id(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID);
 }
 
 QString AndroidQtVersion::description() const

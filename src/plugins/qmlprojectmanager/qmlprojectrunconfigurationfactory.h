@@ -46,11 +46,11 @@ public:
     explicit QmlProjectRunConfigurationFactory(QObject *parent = 0);
     ~QmlProjectRunConfigurationFactory();
 
-    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
-    QString displayNameForId(const QString &id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QString displayNameForId(const Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
-    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
+    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
+    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
     ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
     bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const;

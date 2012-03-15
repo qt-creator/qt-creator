@@ -49,7 +49,7 @@ class PROJECTEXPLORER_EXPORT BuildStepList : public ProjectConfiguration
     Q_OBJECT
 
 public:
-    BuildStepList(QObject *parent, const QString &id);
+    BuildStepList(QObject *parent, const Core::Id id);
     BuildStepList(QObject *parent, BuildStepList *source);
     BuildStepList(QObject *parent, const QVariantMap &data);
     virtual ~BuildStepList();
@@ -58,7 +58,7 @@ public:
     bool isNull() const;
     int count() const;
     bool isEmpty() const;
-    bool contains(const QString &id) const;
+    bool contains(const Core::Id id) const;
 
     void insertStep(int position, BuildStep *step);
     bool removeStep(int position);

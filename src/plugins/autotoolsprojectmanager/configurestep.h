@@ -63,11 +63,11 @@ class ConfigureStepFactory : public ProjectExplorer::IBuildStepFactory
 public:
     ConfigureStepFactory(QObject *parent = 0);
 
-    QStringList availableCreationIds(ProjectExplorer::BuildStepList *bc) const;
-    QString displayNameForId(const QString &id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *bc) const;
+    QString displayNameForId(const Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::BuildStepList *parent, const QString &id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const QString &id);
+    bool canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id);
     bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source) const;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source);
     bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
@@ -112,7 +112,7 @@ signals:
 
 protected:
     ConfigureStep(ProjectExplorer::BuildStepList *bsl, ConfigureStep *bs);
-    ConfigureStep(ProjectExplorer::BuildStepList *bsl, const QString &id);
+    ConfigureStep(ProjectExplorer::BuildStepList *bsl, const Core::Id id);
 
     bool fromMap(const QVariantMap &map);
 

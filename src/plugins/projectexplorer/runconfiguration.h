@@ -181,7 +181,7 @@ signals:
     void enabledChanged();
 
 protected:
-    RunConfiguration(Target *parent, const QString &id);
+    RunConfiguration(Target *parent, const Core::Id id);
     RunConfiguration(Target *parent, RunConfiguration *source);
 
     /// convenience method to get current build configuration.
@@ -202,17 +202,17 @@ public:
     explicit IRunConfigurationFactory(QObject *parent = 0);
     virtual ~IRunConfigurationFactory();
 
-    virtual QStringList availableCreationIds(Target *parent) const = 0;
-    virtual QString displayNameForId(const QString &id) const = 0;
+    virtual QList<Core::Id> availableCreationIds(Target *parent) const = 0;
+    virtual QString displayNameForId(const Core::Id id) const = 0;
 
-    virtual bool canCreate(Target *parent, const QString &id) const = 0;
-    virtual RunConfiguration *create(Target *parent, const QString &id) = 0;
+    virtual bool canCreate(Target *parent, const Core::Id id) const = 0;
+    virtual RunConfiguration *create(Target *parent, const Core::Id id) = 0;
     virtual bool canRestore(Target *parent, const QVariantMap &map) const = 0;
     virtual RunConfiguration *restore(Target *parent, const QVariantMap &map) = 0;
     virtual bool canClone(Target *parent, RunConfiguration *product) const = 0;
     virtual RunConfiguration *clone(Target *parent, RunConfiguration *product) = 0;
 
-    static IRunConfigurationFactory *createFactory(Target *parent, const QString &id);
+    static IRunConfigurationFactory *createFactory(Target *parent, const Core::Id id);
     static IRunConfigurationFactory *cloneFactory(Target *parent, RunConfiguration *source);
     static IRunConfigurationFactory *restoreFactory(Target *parent, const QVariantMap &map);
 

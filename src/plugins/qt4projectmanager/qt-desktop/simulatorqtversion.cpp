@@ -85,14 +85,14 @@ QList<ProjectExplorer::Abi> SimulatorQtVersion::detectQtAbis() const
     return qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
 }
 
-bool SimulatorQtVersion::supportsTargetId(const QString &id) const
+bool SimulatorQtVersion::supportsTargetId(Core::Id id) const
 {
-    return id == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID);
+    return id == Core::Id(Constants::QT_SIMULATOR_TARGET_ID);
 }
 
-QSet<QString> SimulatorQtVersion::supportedTargetIds() const
+QSet<Core::Id> SimulatorQtVersion::supportedTargetIds() const
 {
-    return QSet<QString>() << QLatin1String(Constants::QT_SIMULATOR_TARGET_ID);
+    return QSet<Core::Id>() << Core::Id(Constants::QT_SIMULATOR_TARGET_ID);
 }
 
 QString SimulatorQtVersion::description() const

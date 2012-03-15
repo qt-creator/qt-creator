@@ -49,8 +49,8 @@ const char MeeGoOsType[] = "MeeGoOsType";
 #define EXEC_SUFFIX ""
 #endif
 
-static const QLatin1String MAEMO_RC_ID(PREFIX);
-static const QLatin1String MAEMO_RC_ID_PREFIX(PREFIX ".");
+static const char MAEMO_RC_ID[] = PREFIX;
+static const char MAEMO_RC_ID_PREFIX[] = PREFIX ".";
 
 static const QLatin1String LastDeployedHostsKey(PREFIX ".LastDeployedHosts");
 static const QLatin1String LastDeployedFilesKey(PREFIX ".LastDeployedFiles");

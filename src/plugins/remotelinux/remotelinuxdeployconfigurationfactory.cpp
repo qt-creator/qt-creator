@@ -51,28 +51,28 @@ RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory(QOb
     : DeployConfigurationFactory(parent)
 { }
 
-QStringList RemoteLinuxDeployConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> RemoteLinuxDeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
-    QStringList ids;
+    QList<Core::Id> ids;
     if (qobject_cast<GenericEmbeddedLinuxTarget *>(parent))
         ids << genericDeployConfigurationId();
     return ids;
 }
 
-QString RemoteLinuxDeployConfigurationFactory::displayNameForId(const QString &id) const
+QString RemoteLinuxDeployConfigurationFactory::displayNameForId(Core::Id id) const
 {
     if (id == genericDeployConfigurationId())
         return genericLinuxDisplayName();
     return QString();
 }
 
-bool RemoteLinuxDeployConfigurationFactory::canCreate(Target *parent, const QString &id) const
+bool RemoteLinuxDeployConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
 
 DeployConfiguration *RemoteLinuxDeployConfigurationFactory::create(Target *parent,
-    const QString &id)
+    Core::Id id)
 {
     Q_ASSERT(canCreate(parent, id));
 
@@ -93,7 +93,7 @@ DeployConfiguration *RemoteLinuxDeployConfigurationFactory::restore(Target *pare
 {
     if (!canRestore(parent, map))
         return 0;
-    QString id = idFromMap(map);
+    Core::Id id = idFromMap(map);
     RemoteLinuxDeployConfiguration * const dc = new RemoteLinuxDeployConfiguration(parent, id,
         genericLinuxDisplayName());
     if (!dc->fromMap(map)) {
@@ -112,9 +112,9 @@ DeployConfiguration *RemoteLinuxDeployConfigurationFactory::clone(Target *parent
         qobject_cast<RemoteLinuxDeployConfiguration *>(product));
 }
 
-QString RemoteLinuxDeployConfigurationFactory::genericDeployConfigurationId()
+Core::Id RemoteLinuxDeployConfigurationFactory::genericDeployConfigurationId()
 {
-    return QLatin1String("DeployToGenericLinux");
+    return Core::Id("DeployToGenericLinux");
 }
 
 } // namespace Internal

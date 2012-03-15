@@ -33,6 +33,7 @@
 #ifndef MAEMOGLOBAL_H
 #define MAEMOGLOBAL_H
 
+#include <coreplugin/id.h>
 #include <coreplugin/idocument.h>
 #include <utils/portlist.h>
 #include <utils/environment.h>
@@ -83,10 +84,10 @@ class MaemoGlobal
 public:
     enum PackagingSystem { Dpkg, Rpm, Tar };
 
-    static bool isMaemoTargetId(const QString &id);
-    static bool isFremantleTargetId(const QString &id);
-    static bool isHarmattanTargetId(const QString &id);
-    static bool isMeegoTargetId(const QString &id);
+    static bool isMaemoTargetId(const Core::Id id);
+    static bool isFremantleTargetId(const Core::Id id);
+    static bool isHarmattanTargetId(const Core::Id id);
+    static bool isMeegoTargetId(const Core::Id id);
     static bool isValidMaemo5QtVersion(const QString &qmakePath);
     static bool isValidHarmattanQtVersion(const QString &qmakePath);
     static bool isValidMeegoQtVersion(const QString &qmakePath);

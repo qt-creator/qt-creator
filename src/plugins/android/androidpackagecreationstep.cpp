@@ -583,7 +583,7 @@ void AndroidPackageCreationStep::raiseError(const QString &shortMsg,
                       TASK_CATEGORY_BUILDSYSTEM));
 }
 
-const QLatin1String AndroidPackageCreationStep::CreatePackageId("Qt4ProjectManager.AndroidPackageCreationStep");
+const Core::Id AndroidPackageCreationStep::CreatePackageId("Qt4ProjectManager.AndroidPackageCreationStep");
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

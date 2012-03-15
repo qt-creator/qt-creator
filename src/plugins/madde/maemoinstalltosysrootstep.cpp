@@ -142,7 +142,7 @@ private:
 
 
 AbstractMaemoInstallPackageToSysrootStep::AbstractMaemoInstallPackageToSysrootStep(BuildStepList *bsl,
-    const QString &id)
+    Core::Id id)
         : BuildStep(bsl, id)
 {
 }
@@ -259,8 +259,8 @@ QStringList MaemoInstallDebianPackageToSysrootStep::madArguments() const
     return args;
 }
 
-const QString MaemoInstallDebianPackageToSysrootStep::Id
-    = QLatin1String("MaemoInstallDebianPackageToSysrootStep");
+const Core::Id MaemoInstallDebianPackageToSysrootStep::Id
+    = Core::Id("MaemoInstallDebianPackageToSysrootStep");
 
 QString MaemoInstallDebianPackageToSysrootStep::displayName()
 {
@@ -290,8 +290,8 @@ QStringList MaemoInstallRpmPackageToSysrootStep::madArguments() const
     return QStringList() << QLatin1String("xrpm") << QLatin1String("-i");
 }
 
-const QString MaemoInstallRpmPackageToSysrootStep::Id
-    = QLatin1String("MaemoInstallRpmPackageToSysrootStep");
+const Core::Id MaemoInstallRpmPackageToSysrootStep::Id
+    = Core::Id("MaemoInstallRpmPackageToSysrootStep");
 
 QString MaemoInstallRpmPackageToSysrootStep::displayName()
 {
@@ -369,8 +369,8 @@ BuildStepConfigWidget *MaemoCopyToSysrootStep::createConfigWidget()
     return new MaemoCopyFilesToSysrootWidget(this);
 }
 
-const QString MaemoCopyToSysrootStep::Id
-    = QLatin1String("MaemoCopyToSysrootStep");
+const Core::Id MaemoCopyToSysrootStep::Id
+    = Core::Id("MaemoCopyToSysrootStep");
 QString MaemoCopyToSysrootStep::displayName()
 {
     return tr("Copy files to sysroot");
@@ -424,8 +424,8 @@ BuildStepConfigWidget *MaemoMakeInstallToSysrootStep::createConfigWidget()
     return new MaemoCopyFilesToSysrootWidget(this);
 }
 
-const QString MaemoMakeInstallToSysrootStep::Id
-    = QLatin1String("MaemoMakeInstallToSysrootStep");
+const Core::Id MaemoMakeInstallToSysrootStep::Id
+    = Core::Id("MaemoMakeInstallToSysrootStep");
 QString MaemoMakeInstallToSysrootStep::displayName()
 {
     return tr("Copy files to sysroot");

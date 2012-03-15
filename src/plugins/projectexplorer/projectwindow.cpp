@@ -313,7 +313,7 @@ bool ProjectWindow::useTargetPage(ProjectExplorer::Project *project)
         return true;
     int count = 0;
     foreach (ITargetFactory *fac, ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>()) {
-        foreach (const QString &targetId, fac->supportedTargetIds()) {
+        foreach (Core::Id targetId, fac->supportedTargetIds()) {
             if (fac->canCreate(project, targetId))
                 ++count;
             if (count > 1)

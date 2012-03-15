@@ -79,14 +79,14 @@ QList<ProjectExplorer::Abi> WinCeQtVersion::detectQtAbis() const
                                     false);
 }
 
-bool WinCeQtVersion::supportsTargetId(const QString &id) const
+bool WinCeQtVersion::supportsTargetId(Core::Id id) const
 {
-    return id == QLatin1String(Constants::DESKTOP_TARGET_ID);
+    return id == Core::Id(Constants::DESKTOP_TARGET_ID);
 }
 
-QSet<QString> WinCeQtVersion::supportedTargetIds() const
+QSet<Core::Id> WinCeQtVersion::supportedTargetIds() const
 {
-    return QSet<QString>() << QLatin1String(Constants::DESKTOP_TARGET_ID);
+    return QSet<Core::Id>() << Core::Id(Constants::DESKTOP_TARGET_ID);
 }
 
 QString WinCeQtVersion::description() const

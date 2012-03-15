@@ -54,7 +54,7 @@ class PROJECTEXPLORER_EXPORT BuildStep : public ProjectConfiguration
     Q_OBJECT
 
 protected:
-    BuildStep(BuildStepList *bsl, const QString &id);
+    BuildStep(BuildStepList *bsl, const Core::Id id);
     BuildStep(BuildStepList *bsl, BuildStep *bs);
 
 public:
@@ -108,12 +108,12 @@ public:
     virtual ~IBuildStepFactory();
 
     // used to show the list of possible additons to a target, returns a list of types
-    virtual QStringList availableCreationIds(BuildStepList *parent) const = 0;
+    virtual QList<Core::Id> availableCreationIds(BuildStepList *parent) const = 0;
     // used to translate the types to names to display to the user
-    virtual QString displayNameForId(const QString &id) const = 0;
+    virtual QString displayNameForId(const Core::Id id) const = 0;
 
-    virtual bool canCreate(BuildStepList *parent, const QString &id) const = 0;
-    virtual BuildStep *create(BuildStepList *parent, const QString &id) = 0;
+    virtual bool canCreate(BuildStepList *parent, const Core::Id id) const = 0;
+    virtual BuildStep *create(BuildStepList *parent, const Core::Id id) = 0;
     // used to recreate the runConfigurations when restoring settings
     virtual bool canRestore(BuildStepList *parent, const QVariantMap &map) const = 0;
     virtual BuildStep *restore(BuildStepList *parent, const QVariantMap &map) = 0;

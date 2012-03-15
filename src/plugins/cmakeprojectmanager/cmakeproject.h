@@ -83,7 +83,7 @@ public:
     ~CMakeProject();
 
     QString displayName() const;
-    QString id() const;
+    Core::Id id() const;
     Core::IDocument *document() const;
     CMakeManager *projectManager() const;
 

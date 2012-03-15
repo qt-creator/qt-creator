@@ -50,15 +50,15 @@ class Qt4MaemoDeployConfigurationFactory : public ProjectExplorer::DeployConfigu
 public:
     explicit Qt4MaemoDeployConfigurationFactory(QObject *parent = 0);
 
-    virtual QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
-    virtual QString displayNameForId(const QString &id) const;
-    virtual bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
-    virtual ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
-    virtual bool canRestore(ProjectExplorer::Target *parent,
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QString displayNameForId(Core::Id id) const;
+    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const;
+    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, Core::Id id);
+    bool canRestore(ProjectExplorer::Target *parent,
         const QVariantMap &map) const;
-    virtual ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent,
+    ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent,
         const QVariantMap &map);
-    virtual ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent,
+    ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent,
         ProjectExplorer::DeployConfiguration *product);
 };
 
@@ -73,15 +73,15 @@ public:
 
     QString localDesktopFilePath(const RemoteLinux::DeployableFilesPerProFile *proFileInfo) const;
 
-    static QString fremantleWithPackagingId();
-    static QString fremantleWithoutPackagingId();
-    static QString harmattanId();
-    static QString meegoId();
+    static Core::Id fremantleWithPackagingId();
+    static Core::Id fremantleWithoutPackagingId();
+    static Core::Id harmattanId();
+    static Core::Id meegoId();
 
 private:
     friend class Internal::Qt4MaemoDeployConfigurationFactory;
 
-    Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target, const QString &id,
+    Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target, const Core::Id id,
         const QString &displayName);
     Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target,
         Qt4MaemoDeployConfiguration *source);

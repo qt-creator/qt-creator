@@ -52,16 +52,16 @@ AndroidPackageCreationFactory::AndroidPackageCreationFactory(QObject *parent)
 {
 }
 
-QStringList AndroidPackageCreationFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
+QList<Core::Id> AndroidPackageCreationFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
-    if (parent->id() == QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-        && parent->target()->id() == QLatin1String(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID)
+    if (parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
+        && parent->target()->id() == Core::Id(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID)
         && !parent->contains(AndroidPackageCreationStep::CreatePackageId))
-        return QStringList() << AndroidPackageCreationStep::CreatePackageId;
-    return QStringList();
+        return QList<Core::Id>() << AndroidPackageCreationStep::CreatePackageId;
+    return QList<Core::Id>();
 }
 
-QString AndroidPackageCreationFactory::displayNameForId(const QString &id) const
+QString AndroidPackageCreationFactory::displayNameForId(const Core::Id id) const
 {
     if (id == AndroidPackageCreationStep::CreatePackageId)
         return QCoreApplication::translate("Qt4ProjectManager::Internal::AndroidPackageCreationFactory",
@@ -69,15 +69,15 @@ QString AndroidPackageCreationFactory::displayNameForId(const QString &id) const
     return QString();
 }
 
-bool AndroidPackageCreationFactory::canCreate(ProjectExplorer::BuildStepList *parent, const QString &id) const
+bool AndroidPackageCreationFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
 {
-    return parent->id() == QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-        && id == QLatin1String(AndroidPackageCreationStep::CreatePackageId)
-        && parent->target()->id() == QLatin1String(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID)
+    return parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
+        && id == Core::Id(AndroidPackageCreationStep::CreatePackageId)
+        && parent->target()->id() == Core::Id(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID)
         && !parent->contains(AndroidPackageCreationStep::CreatePackageId);
 }
 
-BuildStep *AndroidPackageCreationFactory::create(ProjectExplorer::BuildStepList *parent, const QString &id)
+BuildStep *AndroidPackageCreationFactory::create(ProjectExplorer::BuildStepList *parent, const Core::Id id)
 {
     Q_ASSERT(canCreate(parent, id));
     return new AndroidPackageCreationStep(parent);

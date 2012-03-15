@@ -59,7 +59,7 @@ public:
     explicit Qt4BaseTargetFactory(QObject *parent);
     virtual ~Qt4BaseTargetFactory();
 
-    virtual Qt4TargetSetupWidget *createTargetSetupWidget(const QString &id,
+    virtual Qt4TargetSetupWidget *createTargetSetupWidget(const Core::Id id,
                                                           const QString &proFilePath,
                                                           const QtSupport::QtVersionNumber &minimumQtVersion,
                                                           const QtSupport::QtVersionNumber &maximumQtVersion,
@@ -68,32 +68,34 @@ public:
                                                           QList<BuildConfigurationInfo> importInfos);
 
     /// suffix should be unique
-    virtual QString shadowBuildDirectory(const QString &profilePath, const QString &id, const QString &suffix);
+    virtual QString shadowBuildDirectory(const QString &profilePath, const Core::Id id, const QString &suffix);
     /// used by the default implementation of shadowBuildDirectory
-    virtual QString buildNameForId(const QString &id) const;
+    virtual QString buildNameForId(Core::Id id) const;
 
     /// used by the default implementation of createTargetSetupWidget
     /// not needed otherwise
     /// by default creates one debug + one release buildconfiguration per qtversion
-    virtual QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath,
+    virtual QList<BuildConfigurationInfo> availableBuildConfigurations(const Core::Id id, const QString &proFilePath,
                                                                        const QtSupport::QtVersionNumber &minimumQtVersion,
                                                                        const QtSupport::QtVersionNumber &maximumQtVersion,
                                                                        const Core::FeatureSet &requiredFeatures);
 
     virtual QList<ProjectExplorer::Task> reportIssues(const QString &proFile);
     /// only used in the TargetSetupPage
-    virtual QIcon iconForId(const QString &id) const = 0;
+    virtual QIcon iconForId(const Core::Id id) const = 0;
 
-    virtual QSet<QString> targetFeatures(const QString &id) const = 0;
-    virtual bool selectByDefault(const QString &id) const;
+    virtual QSet<QString> targetFeatures(const Core::Id id) const = 0;
+    virtual bool selectByDefault(const Core::Id id) const;
 
-    virtual ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id) = 0;
-    virtual ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos) = 0;
-    virtual ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id, Qt4TargetSetupWidget *widget);
+    virtual ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const Core::Id id) = 0;
+    virtual ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const Core::Id id,
+                                            const QList<BuildConfigurationInfo> &infos) = 0;
+    virtual ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const Core::Id id,
+                                            Qt4TargetSetupWidget *widget);
 
-    static Qt4BaseTargetFactory *qt4BaseTargetFactoryForId(const QString &id);
+    static Qt4BaseTargetFactory *qt4BaseTargetFactoryForId(const Core::Id id);
 
-    static QList<Qt4BaseTargetFactory *> qt4BaseTargetFactoriesForIds(const QStringList &ids);
+    static QList<Qt4BaseTargetFactory *> qt4BaseTargetFactoriesForIds(const QList<Core::Id> &ids);
 
 protected:
     static QString msgBuildConfigurationName(const BuildConfigurationInfo &info);

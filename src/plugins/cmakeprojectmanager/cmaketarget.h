@@ -83,13 +83,13 @@ public:
     CMakeTargetFactory(QObject *parent = 0);
     ~CMakeTargetFactory();
 
-    bool supportsTargetId(const QString &id) const;
+    bool supportsTargetId(const Core::Id id) const;
 
-    QStringList supportedTargetIds() const;
-    QString displayNameForId(const QString &id) const;
+    QList<Core::Id> supportedTargetIds() const;
+    QString displayNameForId(const Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
-    CMakeTarget *create(ProjectExplorer::Project *parent, const QString &id);
+    bool canCreate(ProjectExplorer::Project *parent, const Core::Id id) const;
+    CMakeTarget *create(ProjectExplorer::Project *parent, const Core::Id id);
     bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
     CMakeTarget *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
 };

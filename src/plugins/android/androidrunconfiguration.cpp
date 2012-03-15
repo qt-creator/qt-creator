@@ -52,7 +52,7 @@ using namespace ProjectExplorer;
 
 AndroidRunConfiguration::AndroidRunConfiguration(AndroidTarget *parent,
                                                  const QString &proFilePath)
-    : RunConfiguration(parent, QLatin1String(ANDROID_RC_ID))
+    : RunConfiguration(parent, Core::Id(ANDROID_RC_ID))
     , m_proFilePath(proFilePath)
 {
     init();

@@ -64,32 +64,32 @@ AutoreconfStepFactory::AutoreconfStepFactory(QObject *parent) :
 {
 }
 
-QStringList AutoreconfStepFactory::availableCreationIds(BuildStepList *parent) const
+QList<Core::Id> AutoreconfStepFactory::availableCreationIds(BuildStepList *parent) const
 {
-    if (parent->target()->project()->id() == QLatin1String(Constants::AUTOTOOLS_PROJECT_ID))
-        return QStringList() << QLatin1String(AUTORECONF_STEP_ID);
-    return QStringList();
+    if (parent->target()->project()->id() == Core::Id(Constants::AUTOTOOLS_PROJECT_ID))
+        return QList<Core::Id>() << Core::Id(AUTORECONF_STEP_ID);
+    return QList<Core::Id>();
 }
 
-QString AutoreconfStepFactory::displayNameForId(const QString &id) const
+QString AutoreconfStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(AUTORECONF_STEP_ID))
+    if (id == Core::Id(AUTORECONF_STEP_ID))
         return tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id.");
     return QString();
 }
 
-bool AutoreconfStepFactory::canCreate(BuildStepList *parent, const QString &id) const
+bool AutoreconfStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
-    if (parent->target()->project()->id() != QLatin1String(Constants::AUTOTOOLS_PROJECT_ID))
+    if (parent->target()->project()->id() != Core::Id(Constants::AUTOTOOLS_PROJECT_ID))
         return false;
 
-    if (parent->id() != QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD))
+    if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD))
         return false;
 
-    return QLatin1String(AUTORECONF_STEP_ID) == id;
+    return Core::Id(AUTORECONF_STEP_ID) == id;
 }
 
-BuildStep *AutoreconfStepFactory::create(BuildStepList *parent, const QString &id)
+BuildStep *AutoreconfStepFactory::create(BuildStepList *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -110,8 +110,7 @@ BuildStep *AutoreconfStepFactory::clone(BuildStepList *parent, BuildStep *source
 
 bool AutoreconfStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
 {
-    QString id = idFromMap(map);
-    return canCreate(parent, id);
+    return canCreate(parent, idFromMap(map));
 }
 
 BuildStep *AutoreconfStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
@@ -129,13 +128,13 @@ BuildStep *AutoreconfStepFactory::restore(BuildStepList *parent, const QVariantM
 // AutoreconfStep class
 /////////////////////////
 AutoreconfStep::AutoreconfStep(BuildStepList *bsl) :
-    AbstractProcessStep(bsl, QLatin1String(AUTORECONF_STEP_ID)),
+    AbstractProcessStep(bsl, Core::Id(AUTORECONF_STEP_ID)),
     m_runAutoreconf(false)
 {
     ctor();
 }
 
-AutoreconfStep::AutoreconfStep(BuildStepList *bsl, const QString &id) :
+AutoreconfStep::AutoreconfStep(BuildStepList *bsl, const Core::Id id) :
     AbstractProcessStep(bsl, id)
 {
     ctor();

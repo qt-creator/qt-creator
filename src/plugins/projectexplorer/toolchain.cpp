@@ -156,9 +156,9 @@ QString ToolChain::id() const
     An empty list is shows that the toolchain is compatible with all targets.
 */
 
-QStringList ToolChain::restrictedToTargets() const
+QList<Core::Id> ToolChain::restrictedToTargets() const
 {
-    return QStringList();
+    return QList<Core::Id>();
 }
 
 QList<Utils::FileName> ToolChain::mkspecList() const

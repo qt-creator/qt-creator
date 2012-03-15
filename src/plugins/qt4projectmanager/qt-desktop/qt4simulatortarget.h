@@ -47,8 +47,8 @@ class Qt4SimulatorTarget : public Qt4BaseTarget
     friend class Qt4SimulatorTargetFactory;
     Q_OBJECT
 public:
-    explicit Qt4SimulatorTarget(Qt4Project *parent, const QString &id);
-    virtual ~Qt4SimulatorTarget();
+    Qt4SimulatorTarget(Qt4Project *parent, const Core::Id id);
+    ~Qt4SimulatorTarget();
 
     ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 

@@ -73,7 +73,7 @@ public:
     void appendOutputParser(ProjectExplorer::IOutputParser *parser);
     ProjectExplorer::IOutputParser *outputParser() const;
 protected:
-    AbstractProcessStep(BuildStepList *bsl, const QString &id);
+    AbstractProcessStep(BuildStepList *bsl, const Core::Id id);
     AbstractProcessStep(BuildStepList *bsl, AbstractProcessStep *bs);
 
     virtual void processStarted();

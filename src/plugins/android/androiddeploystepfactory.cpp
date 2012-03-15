@@ -51,16 +51,16 @@ AndroidDeployStepFactory::AndroidDeployStepFactory(QObject *parent)
 {
 }
 
-QStringList AndroidDeployStepFactory::availableCreationIds(BuildStepList *parent) const
+QList<Core::Id> AndroidDeployStepFactory::availableCreationIds(BuildStepList *parent) const
 {
-    if (parent->id() == QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-            && parent->target()->id() == QLatin1String(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID)
+    if (parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
+            && parent->target()->id() == Core::Id(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID)
             && !parent->contains(AndroidDeployStep::Id))
-        return QStringList() << AndroidDeployStep::Id;
-    return QStringList();
+        return QList<Core::Id>() << AndroidDeployStep::Id;
+    return QList<Core::Id>();
 }
 
-QString AndroidDeployStepFactory::displayNameForId(const QString &id) const
+QString AndroidDeployStepFactory::displayNameForId(const Core::Id id) const
 {
     if (id == AndroidDeployStep::Id)
         return QCoreApplication::translate("Qt4ProjectManager::Internal::AndroidDeployStepFactory",
@@ -68,15 +68,15 @@ QString AndroidDeployStepFactory::displayNameForId(const QString &id) const
     return QString();
 }
 
-bool AndroidDeployStepFactory::canCreate(BuildStepList *parent, const QString &id) const
+bool AndroidDeployStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
-    return parent->id() == QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-            && id == QLatin1String(AndroidDeployStep::Id)
-            && parent->target()->id() == QLatin1String(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID)
+    return parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
+            && id == Core::Id(AndroidDeployStep::Id)
+            && parent->target()->id() == Core::Id(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID)
             && !parent->contains(AndroidDeployStep::Id);
 }
 
-BuildStep *AndroidDeployStepFactory::create(BuildStepList *parent, const QString &id)
+BuildStep *AndroidDeployStepFactory::create(BuildStepList *parent, const Core::Id id)
 {
     Q_ASSERT(canCreate(parent, id));
     return new AndroidDeployStep(parent);

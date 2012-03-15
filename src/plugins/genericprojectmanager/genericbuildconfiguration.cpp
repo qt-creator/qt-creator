@@ -54,11 +54,11 @@ const char * const BUILD_DIRECTORY_KEY("GenericProjectManager.GenericBuildConfig
 }
 
 GenericBuildConfiguration::GenericBuildConfiguration(GenericTarget *parent)
-    : BuildConfiguration(parent, QLatin1String(GENERIC_BC_ID))
+    : BuildConfiguration(parent, Core::Id(GENERIC_BC_ID))
 {
 }
 
-GenericBuildConfiguration::GenericBuildConfiguration(GenericTarget *parent, const QString &id)
+GenericBuildConfiguration::GenericBuildConfiguration(GenericTarget *parent, const Core::Id id)
     : BuildConfiguration(parent, id)
 {
 }
@@ -139,30 +139,30 @@ GenericBuildConfigurationFactory::~GenericBuildConfigurationFactory()
 {
 }
 
-QStringList GenericBuildConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
+QList<Core::Id> GenericBuildConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
 {
     if (!qobject_cast<GenericTarget *>(parent))
-        return QStringList();
-    return QStringList() << QLatin1String(GENERIC_BC_ID);
+        return QList<Core::Id>();
+    return QList<Core::Id>() << Core::Id(GENERIC_BC_ID);
 }
 
-QString GenericBuildConfigurationFactory::displayNameForId(const QString &id) const
+QString GenericBuildConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(GENERIC_BC_ID))
+    if (id == Core::Id(GENERIC_BC_ID))
         return tr("Build");
     return QString();
 }
 
-bool GenericBuildConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const QString &id) const
+bool GenericBuildConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const Core::Id id) const
 {
     if (!qobject_cast<GenericTarget *>(parent))
         return false;
-    if (id == QLatin1String(GENERIC_BC_ID))
+    if (id == Core::Id(GENERIC_BC_ID))
         return true;
     return false;
 }
 
-BuildConfiguration *GenericBuildConfigurationFactory::create(ProjectExplorer::Target *parent, const QString &id)
+BuildConfiguration *GenericBuildConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -215,8 +215,7 @@ BuildConfiguration *GenericBuildConfigurationFactory::clone(ProjectExplorer::Tar
 
 bool GenericBuildConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const
 {
-    QString id(ProjectExplorer::idFromMap(map));
-    return canCreate(parent, id);
+    return canCreate(parent, ProjectExplorer::idFromMap(map));
 }
 
 BuildConfiguration *GenericBuildConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)

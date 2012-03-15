@@ -73,7 +73,7 @@ public:
 
     enum DebuggingType { DebugCppOnly, DebugQmlOnly, DebugCppAndQml };
 
-    RemoteLinuxRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent, const QString &id,
+    RemoteLinuxRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent, const Core::Id id,
         const QString &proFilePath);
     virtual ~RemoteLinuxRunConfiguration();
 

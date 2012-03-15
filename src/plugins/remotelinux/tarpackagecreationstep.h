@@ -49,7 +49,7 @@ public:
     TarPackageCreationStep(ProjectExplorer::BuildStepList *bsl);
     TarPackageCreationStep(ProjectExplorer::BuildStepList *bsl, TarPackageCreationStep *other);
 
-    static QString stepId();
+    static Core::Id stepId();
     static QString displayName();
 
     bool init();

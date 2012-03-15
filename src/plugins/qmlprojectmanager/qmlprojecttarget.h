@@ -73,12 +73,12 @@ public:
     explicit QmlProjectTargetFactory(QObject *parent = 0);
     ~QmlProjectTargetFactory();
 
-    bool supportsTargetId(const QString &id) const;
-    QStringList supportedTargetIds() const;
-    QString displayNameForId(const QString &id) const;
+    bool supportsTargetId(const Core::Id id) const;
+    QList<Core::Id> supportedTargetIds() const;
+    QString displayNameForId(const Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
-    QmlProjectTarget *create(ProjectExplorer::Project *parent, const QString &id);
+    bool canCreate(ProjectExplorer::Project *parent, const Core::Id id) const;
+    QmlProjectTarget *create(ProjectExplorer::Project *parent, const Core::Id id);
     bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
     QmlProjectTarget *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
 };

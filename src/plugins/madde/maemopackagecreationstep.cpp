@@ -64,7 +64,7 @@ namespace Internal {
 const QLatin1String AbstractMaemoPackageCreationStep::DefaultVersionNumber("0.0.1");
 
 AbstractMaemoPackageCreationStep::AbstractMaemoPackageCreationStep(BuildStepList *bsl,
-    const QString &id) : AbstractPackagingStep(bsl, id)
+    const Core::Id id) : AbstractPackagingStep(bsl, id)
 {
 }
 
@@ -273,8 +273,8 @@ MaemoDebianPackageCreationStep::MaemoDebianPackageCreationStep(BuildStepList *bs
     ctor();
 }
 
-const QString MaemoDebianPackageCreationStep::CreatePackageId
-    = QLatin1String("MaemoDebianPackageCreationStep");
+const Core::Id MaemoDebianPackageCreationStep::CreatePackageId
+    = Core::Id("MaemoDebianPackageCreationStep");
 
 MaemoDebianPackageCreationStep::MaemoDebianPackageCreationStep(BuildStepList *buildConfig,
     MaemoDebianPackageCreationStep *other)
@@ -555,8 +555,8 @@ QString MaemoRpmPackageCreationStep::rpmBuildDir() const
     return cachedPackageDirectory() + QLatin1String("/rrpmbuild");
 }
 
-const QString MaemoRpmPackageCreationStep::CreatePackageId
-    = QLatin1String("MaemoRpmPackageCreationStep");
+const Core::Id MaemoRpmPackageCreationStep::CreatePackageId
+    = Core::Id("MaemoRpmPackageCreationStep");
 
 } // namespace Internal
 } // namespace Madde

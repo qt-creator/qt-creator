@@ -369,7 +369,7 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     QList<Target *>ts = targets();
     foreach (Target *t, ts) {
         if (t->buildConfigurations().isEmpty()) {
-            qWarning() << "Removing" << t->id() << "since it has no buildconfigurations!";
+            qWarning() << "Removing" << t->id().name() << "since it has no buildconfigurations!";
             removeTarget(t);
             delete t;
         }
@@ -860,9 +860,9 @@ QString Qt4Project::displayName() const
     return QFileInfo(document()->fileName()).completeBaseName();
 }
 
-QString Qt4Project::id() const
+Core::Id Qt4Project::id() const
 {
-    return QLatin1String(Constants::QT4PROJECT_ID);
+    return Core::Id(Constants::QT4PROJECT_ID);
 }
 
 Core::IDocument *Qt4Project::document() const
@@ -1336,7 +1336,7 @@ void Qt4Project::configureAsExampleProject(const QStringList &platforms)
 {
     QList<Qt4BaseTargetFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
     foreach (Qt4BaseTargetFactory *factory, factories) {
-        foreach (const QString &id, factory->supportedTargetIds()) {
+        foreach (const Core::Id id, factory->supportedTargetIds()) {
             QList<BuildConfigurationInfo> infos
                     = factory->availableBuildConfigurations(id, rootProjectNode()->path(),
                                                             QtSupport::QtVersionNumber(),

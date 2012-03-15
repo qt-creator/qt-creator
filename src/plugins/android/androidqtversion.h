@@ -45,19 +45,19 @@ public:
     ~AndroidQtVersion ();
     AndroidQtVersion *clone() const;
 
-    virtual QString type() const;
+    QString type() const;
 
-    virtual bool isValid() const;
-    virtual QString invalidReason() const;
+    bool isValid() const;
+    QString invalidReason() const;
 
-    virtual QList<ProjectExplorer::Abi> detectQtAbis() const;
+    QList<ProjectExplorer::Abi> detectQtAbis() const;
 
-    virtual bool supportsTargetId(const QString &id) const;
-    virtual QSet<QString> supportedTargetIds() const;
+    bool supportsTargetId(const Core::Id id) const;
+    QSet<Core::Id> supportedTargetIds() const;
 
-    virtual Core::FeatureSet availableFeatures() const;
-    virtual QString platformName() const;
-    virtual QString platformDisplayName() const;
+    Core::FeatureSet availableFeatures() const;
+    QString platformName() const;
+    QString platformDisplayName() const;
 
     QString description() const;
 };

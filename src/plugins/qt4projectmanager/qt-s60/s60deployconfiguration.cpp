@@ -66,19 +66,21 @@ const char S60_DC_PREFIX[] = "Qt4ProjectManager.S60DeployConfiguration.";
 const char INSTALLATION_DRIVE_LETTER_KEY[] = "Qt4ProjectManager.S60DeployConfiguration.InstallationDriveLetter";
 const char SILENT_INSTALL_KEY[] = "Qt4ProjectManager.S60DeployConfiguration.SilentInstall";
 
-QString pathFromId(const QString &id)
+QString pathFromId(Core::Id id)
 {
-    if (!id.startsWith(QLatin1String(S60_DC_PREFIX)))
+    QString idstr = QString::fromUtf8(id.name());
+    const QString prefix = QLatin1String(S60_DC_PREFIX);
+    if (!idstr.startsWith(prefix))
         return QString();
-    return id.mid(QString::fromLatin1(S60_DC_PREFIX).size());
+    return idstr.mid(prefix.size());
 }
 
-}
+} // namespace
 
 // ======== S60DeployConfiguration
 
 S60DeployConfiguration::S60DeployConfiguration(Target *parent) :
-    DeployConfiguration(parent,  QLatin1String(S60_DEPLOYCONFIGURATION_ID)),
+    DeployConfiguration(parent,  Core::Id(S60_DEPLOYCONFIGURATION_ID)),
     m_activeBuildConfiguration(0),
     m_installationDrive('C'),
     m_silentInstall(true)
@@ -377,24 +379,27 @@ S60DeployConfigurationFactory::~S60DeployConfigurationFactory()
 {
 }
 
-QStringList S60DeployConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> S60DeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
+    QList<Core::Id> result;
     Qt4SymbianTarget *target = qobject_cast<Qt4SymbianTarget *>(parent);
-    if (!target ||
-        target->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID))
-        return QStringList();
+    if (!target || target->id() != Core::Id(Constants::S60_DEVICE_TARGET_ID))
+        return result;
 
-    return target->qt4Project()->applicationProFilePathes(QLatin1String(S60_DC_PREFIX));
+    QStringList proFiles = target->qt4Project()->applicationProFilePathes(QLatin1String(S60_DC_PREFIX));
+    foreach (const QString &pf, proFiles)
+        result << Core::Id(pf.toUtf8().constData());
+    return result;
 }
 
-QString S60DeployConfigurationFactory::displayNameForId(const QString &id) const
+QString S60DeployConfigurationFactory::displayNameForId(Core::Id id) const
 {
     if (!pathFromId(id).isEmpty())
         return tr("%1 on Symbian Device").arg(QFileInfo(pathFromId(id)).completeBaseName());
     return QString();
 }
 
-DeployConfiguration *S60DeployConfigurationFactory::create(Target *parent, const QString &id)
+DeployConfiguration *S60DeployConfigurationFactory::create(Target *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -408,11 +413,11 @@ DeployConfiguration *S60DeployConfigurationFactory::create(Target *parent, const
     return dc;
 }
 
-bool S60DeployConfigurationFactory::canCreate(Target *parent, const QString& id) const
+bool S60DeployConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     Qt4SymbianTarget * t = qobject_cast<Qt4SymbianTarget *>(parent);
-    if (!t || t->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID)
-            || !id.startsWith(QLatin1String(S60_DEPLOYCONFIGURATION_ID)))
+    if (!t || t->id() != Core::Id(Constants::S60_DEVICE_TARGET_ID)
+            || !QString::fromUtf8(id.name()).startsWith(QLatin1String(S60_DEPLOYCONFIGURATION_ID)))
         return false;
     return true;
 }
@@ -439,7 +444,7 @@ bool S60DeployConfigurationFactory::canClone(Target *parent, DeployConfiguration
 {
     if (!qobject_cast<Qt4SymbianTarget *>(parent))
         return false;
-    return source->id() == QLatin1String(S60_DEPLOYCONFIGURATION_ID);
+    return source->id() == Core::Id(S60_DEPLOYCONFIGURATION_ID);
 }
 
 DeployConfiguration *S60DeployConfigurationFactory::clone(Target *parent, DeployConfiguration *source)

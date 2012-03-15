@@ -54,7 +54,7 @@ const char BUILD_DIRECTORY_KEY[] = "CMakeProjectManager.CMakeBuildConfiguration.
 } // namespace
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeTarget *parent) :
-    BuildConfiguration(parent, QLatin1String(CMAKE_BC_ID))
+    BuildConfiguration(parent, Core::Id(CMAKE_BC_ID))
 {
     m_buildDirectory = cmakeTarget()->defaultBuildDirectory();
 }
@@ -165,30 +165,30 @@ CMakeBuildConfigurationFactory::~CMakeBuildConfigurationFactory()
 {
 }
 
-QStringList CMakeBuildConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
+QList<Core::Id> CMakeBuildConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
 {
     if (!qobject_cast<CMakeTarget *>(parent))
-        return QStringList();
-    return QStringList() << QLatin1String(CMAKE_BC_ID);
+        return QList<Core::Id>();
+    return QList<Core::Id>() << Core::Id(CMAKE_BC_ID);
 }
 
-QString CMakeBuildConfigurationFactory::displayNameForId(const QString &id) const
+QString CMakeBuildConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(CMAKE_BC_ID))
+    if (id == Core::Id(CMAKE_BC_ID))
         return tr("Build");
     return QString();
 }
 
-bool CMakeBuildConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const QString &id) const
+bool CMakeBuildConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const Core::Id id) const
 {
     if (!qobject_cast<CMakeTarget *>(parent))
         return false;
-    if (id == QLatin1String(CMAKE_BC_ID))
+    if (id == Core::Id(CMAKE_BC_ID))
         return true;
     return false;
 }
 
-CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer::Target *parent, const QString &id)
+CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -257,8 +257,7 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::clone(ProjectExplorer::
 
 bool CMakeBuildConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const
 {
-    QString id(ProjectExplorer::idFromMap(map));
-    return canCreate(parent, id);
+    return canCreate(parent, ProjectExplorer::idFromMap(map));
 }
 
 CMakeBuildConfiguration *CMakeBuildConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)

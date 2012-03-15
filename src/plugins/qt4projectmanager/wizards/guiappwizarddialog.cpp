@@ -115,13 +115,13 @@ GuiAppParameters GuiAppWizardDialog::parameters() const
     rc.formFileName = m_filesPage->formFileName();
     rc.designerForm =  m_filesPage->formInputChecked();
     rc.isMobileApplication = true;
-    if (isTargetSelected(QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID))
-            || isTargetSelected(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
-            || isTargetSelected(QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID))
-            || isTargetSelected(QLatin1String(Constants::ANDROID_DEVICE_TARGET_ID))) {
+    if (isTargetSelected(Core::Id(Constants::MAEMO5_DEVICE_TARGET_ID))
+            || isTargetSelected(Core::Id(Constants::HARMATTAN_DEVICE_TARGET_ID))
+            || isTargetSelected(Core::Id(Constants::MEEGO_DEVICE_TARGET_ID))
+            || isTargetSelected(Core::Id(Constants::ANDROID_DEVICE_TARGET_ID))) {
         rc.widgetWidth = 800;
         rc.widgetHeight = 480;
-    } else if (isTargetSelected(QLatin1String(Constants::S60_DEVICE_TARGET_ID))) {
+    } else if (isTargetSelected(Core::Id(Constants::S60_DEVICE_TARGET_ID))) {
         rc.widgetWidth = 360;
         rc.widgetHeight = 640;
     } else {

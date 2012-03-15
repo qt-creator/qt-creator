@@ -56,7 +56,7 @@ S60PublishingBuildSettingsPageOvi::S60PublishingBuildSettingsPageOvi(S60Publishe
 
     QList<Qt4BuildConfiguration *> list;
     foreach (const ProjectExplorer::Target *const target, project->targets()) {
-        if (target->id() != QLatin1String(Qt4ProjectManager::Constants::S60_DEVICE_TARGET_ID))
+        if (target->id() != Core::Id(Qt4ProjectManager::Constants::S60_DEVICE_TARGET_ID))
             continue;
         foreach (ProjectExplorer::BuildConfiguration * const bc, target->buildConfigurations()) {
             Qt4BuildConfiguration * const qt4bc

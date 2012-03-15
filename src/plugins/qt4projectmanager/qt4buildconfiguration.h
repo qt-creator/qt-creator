@@ -150,7 +150,7 @@ private slots:
 
 protected:
     Qt4BuildConfiguration(Qt4BaseTarget *target, Qt4BuildConfiguration *source);
-    Qt4BuildConfiguration(Qt4BaseTarget *target, const QString &id);
+    Qt4BuildConfiguration(Qt4BaseTarget *target, const Core::Id id);
     virtual bool fromMap(const QVariantMap &map);
 
 private:
@@ -176,11 +176,11 @@ public:
     explicit Qt4BuildConfigurationFactory(QObject *parent = 0);
     ~Qt4BuildConfigurationFactory();
 
-    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
-    QString displayNameForId(const QString &id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QString displayNameForId(const Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
-    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
+    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
+    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
     bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
     ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source);
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;

@@ -82,13 +82,13 @@ class AutotoolsTargetFactory : public ProjectExplorer::ITargetFactory
 public:
     explicit AutotoolsTargetFactory(QObject *parent = 0);
 
-    bool supportsTargetId(const QString &id) const;
+    bool supportsTargetId(const Core::Id id) const;
 
-    QStringList supportedTargetIds() const;
-    QString displayNameForId(const QString &id) const;
+    QList<Core::Id> supportedTargetIds() const;
+    QString displayNameForId(const Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
-    AutotoolsTarget *create(ProjectExplorer::Project *parent, const QString &id);
+    bool canCreate(ProjectExplorer::Project *parent, const Core::Id id) const;
+    AutotoolsTarget *create(ProjectExplorer::Project *parent, const Core::Id id);
     bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
     AutotoolsTarget *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
 };

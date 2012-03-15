@@ -60,7 +60,7 @@ const QString OldDeployConfigId = QLatin1String("2.2MaemoDeployConfig");
 } // namespace
 
 Qt4MaemoDeployConfiguration::Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target,
-        const QString &id, const QString &displayName)
+        const Core::Id id, const QString &displayName)
     : RemoteLinuxDeployConfiguration(target, id, displayName)
 {
 }
@@ -91,34 +91,33 @@ DeployConfigurationWidget *Qt4MaemoDeployConfiguration::configurationWidget() co
 
 Qt4MaemoDeployConfiguration::~Qt4MaemoDeployConfiguration() {}
 
-QString Qt4MaemoDeployConfiguration::fremantleWithPackagingId()
+Core::Id Qt4MaemoDeployConfiguration::fremantleWithPackagingId()
 {
-    return QLatin1String("DeployToFremantleWithPackaging");
+    return Core::Id("DeployToFremantleWithPackaging");
 }
 
-QString Qt4MaemoDeployConfiguration::fremantleWithoutPackagingId()
+Core::Id Qt4MaemoDeployConfiguration::fremantleWithoutPackagingId()
 {
-    return QLatin1String("DeployToFremantleWithoutPackaging");
+    return Core::Id("DeployToFremantleWithoutPackaging");
 }
 
-QString Qt4MaemoDeployConfiguration::harmattanId()
+Core::Id Qt4MaemoDeployConfiguration::harmattanId()
 {
-    return QLatin1String("DeployToHarmattan");
+    return Core::Id("DeployToHarmattan");
 }
 
-QString Qt4MaemoDeployConfiguration::meegoId()
+Core::Id Qt4MaemoDeployConfiguration::meegoId()
 {
-    return QLatin1String("DeployToMeego");
+    return Core::Id("DeployToMeego");
 }
-
 
 Qt4MaemoDeployConfigurationFactory::Qt4MaemoDeployConfigurationFactory(QObject *parent)
     : DeployConfigurationFactory(parent)
 { }
 
-QStringList Qt4MaemoDeployConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> Qt4MaemoDeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
-    QStringList ids;
+    QList<Core::Id> ids;
     if (qobject_cast<Qt4Maemo5Target *>(parent)) {
         ids << Qt4MaemoDeployConfiguration::fremantleWithPackagingId()
             << Qt4MaemoDeployConfiguration::fremantleWithoutPackagingId();
@@ -131,7 +130,7 @@ QStringList Qt4MaemoDeployConfigurationFactory::availableCreationIds(Target *par
     return ids;
 }
 
-QString Qt4MaemoDeployConfigurationFactory::displayNameForId(const QString &id) const
+QString Qt4MaemoDeployConfigurationFactory::displayNameForId(Core::Id id) const
 {
     if (id == Qt4MaemoDeployConfiguration::fremantleWithoutPackagingId())
         return tr("Copy Files to Maemo5 Device");
@@ -145,13 +144,13 @@ QString Qt4MaemoDeployConfigurationFactory::displayNameForId(const QString &id) 
 }
 
 bool Qt4MaemoDeployConfigurationFactory::canCreate(Target *parent,
-    const QString &id) const
+    Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
 
 DeployConfiguration *Qt4MaemoDeployConfigurationFactory::create(Target *parent,
-    const QString &id)
+    Core::Id id)
 {
     Q_ASSERT(canCreate(parent, id));
 
@@ -180,7 +179,7 @@ bool Qt4MaemoDeployConfigurationFactory::canRestore(Target *parent,
     const QVariantMap &map) const
 {
     return canCreate(parent, idFromMap(map))
-        || (idFromMap(map) == OldDeployConfigId
+        || (idFromMap(map) == Core::Id(OldDeployConfigId)
             && qobject_cast<AbstractQt4MaemoTarget *>(parent));
 }
 
@@ -189,8 +188,8 @@ DeployConfiguration *Qt4MaemoDeployConfigurationFactory::restore(Target *parent,
 {
     if (!canRestore(parent, map))
         return 0;
-    QString id = idFromMap(map);
-    if (id == OldDeployConfigId) {
+    Core::Id id = idFromMap(map);
+    if (id == Core::Id(OldDeployConfigId)) {
         if (qobject_cast<Qt4Maemo5Target *>(parent))
             id = Qt4MaemoDeployConfiguration::fremantleWithPackagingId();
         else if (qobject_cast<Qt4HarmattanTarget *>(parent))

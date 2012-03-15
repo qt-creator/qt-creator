@@ -51,7 +51,7 @@ public:
 
     bool initInternal(QString *error = 0);
 
-    static QString stepId();
+    static Core::Id stepId();
     static QString displayName();
 
 private:
@@ -72,7 +72,7 @@ public:
 
     bool initInternal(QString *error);
 
-    static QString stepId();
+    static Core::Id stepId();
     static QString displayName();
 
 private:

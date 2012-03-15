@@ -57,22 +57,23 @@ EmbeddedLinuxTargetFactory::EmbeddedLinuxTargetFactory(QObject *parent) :
 EmbeddedLinuxTargetFactory::~EmbeddedLinuxTargetFactory()
 { }
 
-QIcon EmbeddedLinuxTargetFactory::iconForId(const QString &id) const
+QIcon EmbeddedLinuxTargetFactory::iconForId(const Core::Id id) const
 {
-    if (id == QLatin1String(Constants::EMBEDDED_LINUX_TARGET_ID))
+    if (id == Core::Id(Constants::EMBEDDED_LINUX_TARGET_ID))
         return QIcon(":/remotelinux/images/embeddedtarget.png");
     return QIcon();
 }
 
-QString EmbeddedLinuxTargetFactory::buildNameForId(const QString &id) const
+QString EmbeddedLinuxTargetFactory::buildNameForId(const Core::Id id) const
 {
     if (supportsTargetId(id))
         return tr("embedded");
     return QString();
 }
 
-QSet<QString> EmbeddedLinuxTargetFactory::targetFeatures(const QString & /*id*/) const
+QSet<QString> EmbeddedLinuxTargetFactory::targetFeatures(const Core::Id id) const
 {
+    Q_UNUSED(id);
     QSet<QString> features;
     features << Qt4ProjectManager::Constants::MOBILE_TARGETFEATURE_ID;
     features << Qt4ProjectManager::Constants::SHADOWBUILD_TARGETFEATURE_ID;
@@ -80,19 +81,19 @@ QSet<QString> EmbeddedLinuxTargetFactory::targetFeatures(const QString & /*id*/)
     return features;
 }
 
-QStringList EmbeddedLinuxTargetFactory::supportedTargetIds() const
+QList<Core::Id> EmbeddedLinuxTargetFactory::supportedTargetIds() const
 {
-    return QStringList() << QLatin1String(RemoteLinux::Constants::EMBEDDED_LINUX_TARGET_ID);
+    return QList<Core::Id>() << Core::Id(RemoteLinux::Constants::EMBEDDED_LINUX_TARGET_ID);
 }
 
-bool EmbeddedLinuxTargetFactory::supportsTargetId(const QString &id) const
+bool EmbeddedLinuxTargetFactory::supportsTargetId(const Core::Id id) const
 {
-    return id == RemoteLinux::Constants::EMBEDDED_LINUX_TARGET_ID;
+    return id == Core::Id(RemoteLinux::Constants::EMBEDDED_LINUX_TARGET_ID);
 }
 
-QString EmbeddedLinuxTargetFactory::displayNameForId(const QString &id) const
+QString EmbeddedLinuxTargetFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == RemoteLinux::Constants::EMBEDDED_LINUX_TARGET_ID)
+    if (id == Core::Id(RemoteLinux::Constants::EMBEDDED_LINUX_TARGET_ID))
         return tr("Embedded Linux");
     return QString();
 }
@@ -106,8 +107,8 @@ ProjectExplorer::Target *EmbeddedLinuxTargetFactory::restore(ProjectExplorer::Pr
 {
     Q_ASSERT(canRestore(parent, map));
 
-    GenericEmbeddedLinuxTarget *t = new GenericEmbeddedLinuxTarget(static_cast<Qt4ProjectManager::Qt4Project *>(parent),
-                                                     Constants::EMBEDDED_LINUX_TARGET_ID);
+    GenericEmbeddedLinuxTarget *t =
+            new GenericEmbeddedLinuxTarget(static_cast<Qt4ProjectManager::Qt4Project *>(parent), Core::Id());
     if (t->fromMap(map))
         return t;
 
@@ -115,7 +116,7 @@ ProjectExplorer::Target *EmbeddedLinuxTargetFactory::restore(ProjectExplorer::Pr
     return 0;
 }
 
-bool EmbeddedLinuxTargetFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
+bool EmbeddedLinuxTargetFactory::canCreate(ProjectExplorer::Project *parent, const Core::Id id) const
 {
     Qt4ProjectManager::Qt4Project *project = qobject_cast<Qt4ProjectManager::Qt4Project *>(parent);
     if (!project)
@@ -128,7 +129,7 @@ bool EmbeddedLinuxTargetFactory::canCreate(ProjectExplorer::Project *parent, con
 }
 
 ProjectExplorer::Target *EmbeddedLinuxTargetFactory::create(ProjectExplorer::Project *parent,
-                                                            const QString &id)
+                                                            const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -148,7 +149,7 @@ ProjectExplorer::Target *EmbeddedLinuxTargetFactory::create(ProjectExplorer::Pro
 }
 
 ProjectExplorer::Target *EmbeddedLinuxTargetFactory::create(ProjectExplorer::Project *parent,
-                                                            const QString &id,
+                                                            const Core::Id id,
                                                             const QList<Qt4ProjectManager::BuildConfigurationInfo> &infos)
 {
     if (!canCreate(parent, id) || infos.isEmpty())

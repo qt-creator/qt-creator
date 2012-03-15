@@ -123,7 +123,7 @@ private:
     QString m_runQASIPackagePath;
     AndroidDeployAction m_runDeployAction;
 
-    static const QLatin1String Id;
+    static const Core::Id Id;
 };
 
 } // namespace Internal

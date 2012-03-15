@@ -750,7 +750,7 @@ void Qt4PriFileNode::folderChanged(const QString &folder)
     // Other platforms do not have a explicit list of files to package, but package
     // directories
     foreach (ProjectExplorer::Target *target, m_project->targets()) {
-        if (target->id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID)) {
+        if (target->id() == Core::Id(Constants::S60_DEVICE_TARGET_ID)) {
             foreach (ProjectExplorer::BuildConfiguration *bc, target->buildConfigurations()) {
                 Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(bc);
                 if (qt4bc) {

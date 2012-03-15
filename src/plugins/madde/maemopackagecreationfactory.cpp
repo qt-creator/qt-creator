@@ -49,7 +49,7 @@ using ProjectExplorer::BuildStep;
 namespace Madde {
 namespace Internal {
 namespace {
-const QString OldCreatePackageId("Qt4ProjectManager.MaemoPackageCreationStep");
+const char OldCreatePackageId[] = "Qt4ProjectManager.MaemoPackageCreationStep";
 } // anonymous namespace
 
 MaemoPackageCreationFactory::MaemoPackageCreationFactory(QObject *parent)
@@ -57,9 +57,9 @@ MaemoPackageCreationFactory::MaemoPackageCreationFactory(QObject *parent)
 {
 }
 
-QStringList MaemoPackageCreationFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
+QList<Core::Id> MaemoPackageCreationFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
-    QStringList ids;
+    QList<Core::Id> ids;
     if (!qobject_cast<Qt4MaemoDeployConfiguration *>(parent->parent()))
         return ids;
     if (qobject_cast<AbstractDebBasedQt4MaemoTarget *>(parent->target())
@@ -72,7 +72,7 @@ QStringList MaemoPackageCreationFactory::availableCreationIds(ProjectExplorer::B
     return ids;
 }
 
-QString MaemoPackageCreationFactory::displayNameForId(const QString &id) const
+QString MaemoPackageCreationFactory::displayNameForId(const Core::Id id) const
 {
     if (id == MaemoDebianPackageCreationStep::CreatePackageId) {
         return QCoreApplication::translate("RemoteLinux::Internal::MaemoPackageCreationFactory",
@@ -84,12 +84,12 @@ QString MaemoPackageCreationFactory::displayNameForId(const QString &id) const
     return QString();
 }
 
-bool MaemoPackageCreationFactory::canCreate(ProjectExplorer::BuildStepList *parent, const QString &id) const
+bool MaemoPackageCreationFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
 
-BuildStep *MaemoPackageCreationFactory::create(ProjectExplorer::BuildStepList *parent, const QString &id)
+BuildStep *MaemoPackageCreationFactory::create(ProjectExplorer::BuildStepList *parent, const Core::Id id)
 {
     Q_ASSERT(canCreate(parent, id));
     if (id == MaemoDebianPackageCreationStep::CreatePackageId)
@@ -102,8 +102,8 @@ BuildStep *MaemoPackageCreationFactory::create(ProjectExplorer::BuildStepList *p
 bool MaemoPackageCreationFactory::canRestore(ProjectExplorer::BuildStepList *parent,
                                              const QVariantMap &map) const
 {
-    const QString id = ProjectExplorer::idFromMap(map);
-    return canCreate(parent, id) || id == OldCreatePackageId;
+    const Core::Id id = ProjectExplorer::idFromMap(map);
+    return canCreate(parent, id) || id == Core::Id(OldCreatePackageId);
 }
 
 BuildStep *MaemoPackageCreationFactory::restore(ProjectExplorer::BuildStepList *parent,
@@ -111,13 +111,13 @@ BuildStep *MaemoPackageCreationFactory::restore(ProjectExplorer::BuildStepList *
 {
     Q_ASSERT(canRestore(parent, map));
     BuildStep * step = 0;
-    const QString id = ProjectExplorer::idFromMap(map);
+    const Core::Id id = ProjectExplorer::idFromMap(map);
     if (id == MaemoDebianPackageCreationStep::CreatePackageId
-            || (id == OldCreatePackageId
+            || (id == Core::Id(OldCreatePackageId)
                 && qobject_cast<AbstractDebBasedQt4MaemoTarget *>(parent->target()))) {
         step = new MaemoDebianPackageCreationStep(parent);
     } else if (id == MaemoRpmPackageCreationStep::CreatePackageId
-               || (id == OldCreatePackageId
+               || (id == Core::Id(OldCreatePackageId)
                    && qobject_cast<AbstractRpmBasedQt4MaemoTarget *>(parent->target()))) {
         step = new MaemoRpmPackageCreationStep(parent);
     }

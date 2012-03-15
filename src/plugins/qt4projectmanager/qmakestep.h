@@ -60,14 +60,14 @@ class QMakeStepFactory : public ProjectExplorer::IBuildStepFactory
 public:
     explicit QMakeStepFactory(QObject *parent = 0);
     virtual ~QMakeStepFactory();
-    bool canCreate(ProjectExplorer::BuildStepList *parent, const QString & id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const QString &id);
+    bool canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id);
     bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *bs) const;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *bs);
     bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
     ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
-    QStringList availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
-    QString displayNameForId(const QString &id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
+    QString displayNameForId(const Core::Id id) const;
 };
 
 } // namespace Internal
@@ -116,7 +116,7 @@ signals:
 
 protected:
     QMakeStep(ProjectExplorer::BuildStepList *parent, QMakeStep *source);
-    QMakeStep(ProjectExplorer::BuildStepList *parent, const QString &id);
+    QMakeStep(ProjectExplorer::BuildStepList *parent, const Core::Id id);
     virtual bool fromMap(const QVariantMap &map);
 
     virtual void processStartupFailed();

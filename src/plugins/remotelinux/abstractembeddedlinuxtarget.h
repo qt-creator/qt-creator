@@ -53,7 +53,7 @@ class REMOTELINUX_EXPORT AbstractEmbeddedLinuxTarget : public Qt4ProjectManager:
 {
     Q_OBJECT
 public:
-    AbstractEmbeddedLinuxTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id);
+    AbstractEmbeddedLinuxTarget(Qt4ProjectManager::Qt4Project *parent, const Core::Id id);
 
     ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 

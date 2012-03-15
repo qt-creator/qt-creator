@@ -433,9 +433,9 @@ bool MaemoInstallPackageViaMountStep::initInternal(QString *error)
     return deployService()->isDeploymentPossible(error);
 }
 
-QString MaemoInstallPackageViaMountStep::stepId()
+Core::Id MaemoInstallPackageViaMountStep::stepId()
 {
-    return QLatin1String("MaemoMountAndInstallDeployStep");
+    return Core::Id("MaemoMountAndInstallDeployStep");
 }
 
 QString MaemoInstallPackageViaMountStep::displayName()
@@ -479,9 +479,9 @@ bool MaemoCopyFilesViaMountStep::initInternal(QString *error)
     return deployService()->isDeploymentPossible(error);
 }
 
-QString MaemoCopyFilesViaMountStep::stepId()
+Core::Id MaemoCopyFilesViaMountStep::stepId()
 {
-    return QLatin1String("MaemoMountAndCopyDeployStep");
+    return Core::Id("MaemoMountAndCopyDeployStep");
 }
 
 QString MaemoCopyFilesViaMountStep::displayName()

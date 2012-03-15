@@ -339,14 +339,13 @@ void BuildStepListWidget::init(BuildStepList *bsl)
 
 void BuildStepListWidget::updateAddBuildStepMenu()
 {
-    QMap<QString, QPair<QString, IBuildStepFactory *> > map;
+    QMap<QString, QPair<Core::Id, IBuildStepFactory *> > map;
     //Build up a list of possible steps and save map the display names to the (internal) name and factories.
     QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
     foreach (IBuildStepFactory *factory, factories) {
-        QStringList ids = factory->availableCreationIds(m_buildStepList);
-        foreach (const QString &id, ids) {
-            map.insert(factory->displayNameForId(id), QPair<QString, IBuildStepFactory *>(id, factory));
-        }
+        QList<Core::Id> ids = factory->availableCreationIds(m_buildStepList);
+        foreach (Core::Id id, ids)
+            map.insert(factory->displayNameForId(id), QPair<Core::Id, IBuildStepFactory *>(id, factory));
     }
 
     // Ask the user which one to add
@@ -354,7 +353,7 @@ void BuildStepListWidget::updateAddBuildStepMenu()
     m_addBuildStepHash.clear();
     menu->clear();
     if (!map.isEmpty()) {
-        QMap<QString, QPair<QString, IBuildStepFactory *> >::const_iterator it, end;
+        QMap<QString, QPair<Core::Id, IBuildStepFactory *> >::const_iterator it, end;
         end = map.constEnd();
         for (it = map.constBegin(); it != end; ++it) {
             QAction *action = menu->addAction(it.key());
@@ -394,7 +393,7 @@ void BuildStepListWidget::addBuildStepWidget(int pos, BuildStep *step)
 void BuildStepListWidget::triggerAddBuildStep()
 {
     if (QAction *action = qobject_cast<QAction *>(sender())) {
-        QPair<QString, IBuildStepFactory *> pair = m_addBuildStepHash.value(action);
+        QPair<Core::Id, IBuildStepFactory *> pair = m_addBuildStepHash.value(action);
         BuildStep *newStep = pair.second->create(m_buildStepList, pair.first);
         int pos = m_buildStepList->count();
         m_buildStepList->insertStep(pos, newStep);
@@ -533,7 +532,7 @@ void BuildStepListWidget::updateBuildStepButtonsState()
     }
 }
 
-BuildStepsPage::BuildStepsPage(Target *target, const QString &id) :
+BuildStepsPage::BuildStepsPage(Target *target, Core::Id id) :
     BuildConfigWidget(),
     m_id(id),
     m_widget(new BuildStepListWidget(this))
@@ -550,9 +549,9 @@ BuildStepsPage::~BuildStepsPage()
 
 QString BuildStepsPage::displayName() const
 {
-    if (m_id == QLatin1String(Constants::BUILDSTEPS_BUILD))
+    if (m_id == Core::Id(Constants::BUILDSTEPS_BUILD))
         return tr("Build Steps");
-    if (m_id == QLatin1String(Constants::BUILDSTEPS_CLEAN))
+    if (m_id == Core::Id(Constants::BUILDSTEPS_CLEAN))
         return tr("Clean Steps");
     return QString();
 }

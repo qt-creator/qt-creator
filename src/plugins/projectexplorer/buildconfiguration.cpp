@@ -80,18 +80,18 @@ bool BuildConfigMacroExpander::resolveMacro(const QString &name, QString *ret)
 }
 } // namespace Internal
 
-BuildConfiguration::BuildConfiguration(Target *target, const QString &id) :
+BuildConfiguration::BuildConfiguration(Target *target, const Core::Id id) :
     ProjectConfiguration(target, id),
     m_clearSystemEnvironment(false),
     m_toolChain(0),
     m_macroExpander(0)
 {
     Q_ASSERT(target);
-    BuildStepList *bsl = new BuildStepList(this, QLatin1String(Constants::BUILDSTEPS_BUILD));
+    BuildStepList *bsl = new BuildStepList(this, Core::Id(Constants::BUILDSTEPS_BUILD));
     //: Display name of the build build step list. Used as part of the labels in the project window.
     bsl->setDefaultDisplayName(tr("Build"));
     m_stepLists.append(bsl);
-    bsl = new BuildStepList(this, QLatin1String(Constants::BUILDSTEPS_CLEAN));
+    bsl = new BuildStepList(this, Core::Id(Constants::BUILDSTEPS_CLEAN));
     //: Display name of the clean build step list. Used as part of the labels in the project window.
     bsl->setDefaultDisplayName(tr("Clean"));
     m_stepLists.append(bsl);
@@ -136,15 +136,15 @@ Utils::AbstractMacroExpander *BuildConfiguration::macroExpander()
     return m_macroExpander;
 }
 
-QStringList BuildConfiguration::knownStepLists() const
+QList<Core::Id> BuildConfiguration::knownStepLists() const
 {
-    QStringList result;
+    QList<Core::Id> result;
     foreach (BuildStepList *list, m_stepLists)
         result.append(list->id());
     return result;
 }
 
-BuildStepList *BuildConfiguration::stepList(const QString &id) const
+BuildStepList *BuildConfiguration::stepList(Core::Id id) const
 {
     foreach (BuildStepList *list, m_stepLists)
         if (id == list->id())
@@ -188,9 +188,9 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
             delete list;
             return false;
         }
-        if (list->id() == QLatin1String(Constants::BUILDSTEPS_BUILD))
+        if (list->id() == Core::Id(Constants::BUILDSTEPS_BUILD))
             list->setDefaultDisplayName(tr("Build"));
-        else if (list->id() == QLatin1String(Constants::BUILDSTEPS_CLEAN))
+        else if (list->id() == Core::Id(Constants::BUILDSTEPS_CLEAN))
             list->setDefaultDisplayName(tr("Clean"));
         m_stepLists.append(list);
     }
@@ -200,8 +200,8 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
                                                                    // the BC is not completely set up yet!
 
     // TODO: We currently assume there to be at least a clean and build list!
-    QTC_CHECK(knownStepLists().contains(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
-    QTC_CHECK(knownStepLists().contains(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)));
+    QTC_CHECK(knownStepLists().contains(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
+    QTC_CHECK(knownStepLists().contains(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)));
 
     return ProjectConfiguration::fromMap(map);
 }

@@ -50,28 +50,28 @@ QmlProjectRunConfigurationFactory::~QmlProjectRunConfigurationFactory()
 {
 }
 
-QStringList QmlProjectRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
+QList<Core::Id> QmlProjectRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
 {
     if (!qobject_cast<QmlProjectTarget *>(parent))
-        return QStringList();
-    return QStringList() << QLatin1String(Constants::QML_RC_ID);
+        return QList<Core::Id>();
+    return QList<Core::Id>() << Core::Id(Constants::QML_RC_ID);
 }
 
-QString QmlProjectRunConfigurationFactory::displayNameForId(const QString &id) const
+QString QmlProjectRunConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(Constants::QML_RC_ID))
+    if (id == Core::Id(Constants::QML_RC_ID))
         return tr("Run QML Script");
     return QString();
 }
 
-bool QmlProjectRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const QString &id) const
+bool QmlProjectRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const Core::Id id) const
 {
     if (!qobject_cast<QmlProjectTarget *>(parent))
         return false;
-    return id == QLatin1String(Constants::QML_RC_ID);
+    return id == Core::Id(Constants::QML_RC_ID);
 }
 
-ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::create(ProjectExplorer::Target *parent, const QString &id)
+ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -81,8 +81,7 @@ ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::create(Pro
 
 bool QmlProjectRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const
 {
-    QString id = ProjectExplorer::idFromMap(map);
-    return canCreate(parent, id);
+    return canCreate(parent, ProjectExplorer::idFromMap(map));
 }
 
 ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)

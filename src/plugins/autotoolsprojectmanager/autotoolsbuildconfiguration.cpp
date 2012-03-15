@@ -59,12 +59,12 @@ using namespace ProjectExplorer::Constants;
 // AutotoolsBuildConfiguration class
 //////////////////////////////////////
 AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(AutotoolsTarget *parent)
-    : BuildConfiguration(parent, QLatin1String(AUTOTOOLS_BC_ID))
+    : BuildConfiguration(parent, Core::Id(AUTOTOOLS_BC_ID))
 {
     m_buildDirectory = autotoolsTarget()->defaultBuildDirectory();
 }
 
-AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(AutotoolsTarget *parent, const QString &id)
+AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(AutotoolsTarget *parent, const Core::Id id)
     : BuildConfiguration(parent, id)
 {
 }
@@ -126,30 +126,30 @@ AutotoolsBuildConfigurationFactory::AutotoolsBuildConfigurationFactory(QObject *
 {
 }
 
-QStringList AutotoolsBuildConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> AutotoolsBuildConfigurationFactory::availableCreationIds(Target *parent) const
 {
     if (!qobject_cast<AutotoolsTarget *>(parent))
-        return QStringList();
-    return QStringList() << QLatin1String(AUTOTOOLS_BC_ID);
+        return QList<Core::Id>();
+    return QList<Core::Id>() << Core::Id(AUTOTOOLS_BC_ID);
 }
 
-QString AutotoolsBuildConfigurationFactory::displayNameForId(const QString &id) const
+QString AutotoolsBuildConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(AUTOTOOLS_BC_ID))
+    if (id == Core::Id(AUTOTOOLS_BC_ID))
         return tr("Build");
     return QString();
 }
 
-bool AutotoolsBuildConfigurationFactory::canCreate(Target *parent, const QString &id) const
+bool AutotoolsBuildConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
 {
     if (!qobject_cast<AutotoolsTarget *>(parent))
         return false;
-    if (id == QLatin1String(AUTOTOOLS_BC_ID))
+    if (id == Core::Id(AUTOTOOLS_BC_ID))
         return true;
     return false;
 }
 
-AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::create(Target *parent, const QString &id)
+AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::create(Target *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -170,7 +170,7 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::create(Target *
     bc->setDisplayName(buildConfigurationName);
 
     t->addBuildConfiguration(bc);
-    t->addDeployConfiguration(t->createDeployConfiguration(QLatin1String(DEFAULT_DEPLOYCONFIGURATION_ID)));
+    t->addDeployConfiguration(t->createDeployConfiguration(Core::Id(DEFAULT_DEPLOYCONFIGURATION_ID)));
     // User needs to choose where the executable file is.
     // TODO: Parse the file in *Anjuta style* to be able to add custom RunConfigurations.
     t->addRunConfiguration(new CustomExecutableRunConfiguration(t));
@@ -181,7 +181,7 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::create(Target *
 AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::createDefaultConfiguration(AutotoolsTarget *target) const
 {
     AutotoolsBuildConfiguration *bc = new AutotoolsBuildConfiguration(target);
-    BuildStepList *buildSteps = bc->stepList(QLatin1String(BUILDSTEPS_BUILD));
+    BuildStepList *buildSteps = bc->stepList(Core::Id(BUILDSTEPS_BUILD));
 
     // ### Build Steps Build ###
     // autogen.sh or autoreconf
@@ -205,7 +205,7 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::createDefaultCo
     makeStep->setBuildTarget(QLatin1String("all"),  /*on =*/ true);
 
     // ### Build Steps Clean ###
-    BuildStepList *cleanSteps = bc->stepList(QLatin1String(BUILDSTEPS_CLEAN));
+    BuildStepList *cleanSteps = bc->stepList(Core::Id(BUILDSTEPS_CLEAN));
     MakeStep *cleanMakeStep = new MakeStep(cleanSteps);
     cleanMakeStep->setAdditionalArguments(QLatin1String("clean"));
     cleanMakeStep->setClean(true);
@@ -231,8 +231,7 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::clone(Target *p
 
 bool AutotoolsBuildConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
-    QString id = idFromMap(map);
-    return canCreate(parent, id);
+    return canCreate(parent, idFromMap(map));
 }
 
 AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)

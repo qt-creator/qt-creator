@@ -213,15 +213,15 @@ public:
     explicit Qt4RunConfigurationFactory(QObject *parent = 0);
     virtual ~Qt4RunConfigurationFactory();
 
-    virtual bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
-    virtual ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
+    virtual bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
+    virtual ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
     virtual bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
     virtual ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
     virtual bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const;
     virtual ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source);
 
-    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
-    QString displayNameForId(const QString &id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QString displayNameForId(const Core::Id id) const;
 };
 
 } // namespace Internal

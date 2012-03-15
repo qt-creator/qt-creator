@@ -53,11 +53,13 @@ using namespace Qt4ProjectManager;
 
 namespace {
 
-QString pathFromId(const QString &id)
+QString pathFromId(const Core::Id id)
 {
-    if (!id.startsWith(ANDROID_RC_ID_PREFIX))
+    QString pathStr = QString::fromUtf8(id.name());
+    const QString prefix = QLatin1String(ANDROID_RC_ID_PREFIX);
+    if (!pathStr.startsWith(prefix))
         return QString();
-    return id.mid(QString(ANDROID_RC_ID_PREFIX).size());
+    return pathStr.mid(prefix.size());
 }
 
 } // namespace
@@ -72,11 +74,11 @@ AndroidRunConfigurationFactory::~AndroidRunConfigurationFactory()
 }
 
 bool AndroidRunConfigurationFactory::canCreate(Target *parent,
-    const QString &/*id*/) const
+    const Core::Id/*id*/) const
 {
     AndroidTarget *target = qobject_cast<AndroidTarget *>(parent);
     if (!target
-            || target->id() != QLatin1String(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID)) {
+            || target->id() != Core::Id(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID)) {
         return false;
     }
     return true;
@@ -89,8 +91,8 @@ bool AndroidRunConfigurationFactory::canRestore(Target *parent,
     Q_UNUSED(map)
     if (!qobject_cast<AndroidTarget *>(parent))
         return false;
-    return ProjectExplorer::idFromMap(map)
-            .startsWith(QLatin1String(ANDROID_RC_ID));
+    QString id = QString::fromUtf8(ProjectExplorer::idFromMap(map).name());
+    return id.startsWith(QLatin1String(ANDROID_RC_ID));
 }
 
 bool AndroidRunConfigurationFactory::canClone(Target *parent,
@@ -99,27 +101,27 @@ bool AndroidRunConfigurationFactory::canClone(Target *parent,
     return canCreate(parent, source->id());
 }
 
-QStringList AndroidRunConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> AndroidRunConfigurationFactory::availableCreationIds(Target *parent) const
 {
-    QStringList ids;
+    QList<Core::Id> ids;
     if (AndroidTarget *t = qobject_cast<AndroidTarget *>(parent)) {
-        if (t->id() == QLatin1String(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID)) {
+        if (t->id() == Core::Id(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID)) {
             QList<Qt4ProFileNode *> nodes = t->qt4Project()->allProFiles();
             foreach (Qt4ProFileNode *node, nodes)
                 if (node->projectType() == ApplicationTemplate || node->projectType() == LibraryTemplate)
-                    ids << node->targetInformation().target;
+                    ids << Core::Id(node->targetInformation().target);
         }
     }
     return ids;
 }
 
-QString AndroidRunConfigurationFactory::displayNameForId(const QString &id) const
+QString AndroidRunConfigurationFactory::displayNameForId(const Core::Id id) const
 {
     return QFileInfo(pathFromId(id)).completeBaseName();
 }
 
 RunConfiguration *AndroidRunConfigurationFactory::create(Target *parent,
-    const QString &id)
+    const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;

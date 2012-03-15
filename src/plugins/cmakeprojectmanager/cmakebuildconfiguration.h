@@ -86,11 +86,11 @@ public:
     CMakeBuildConfigurationFactory(QObject *parent = 0);
     ~CMakeBuildConfigurationFactory();
 
-    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
-    QString displayNameForId(const QString &id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QString displayNameForId(const Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
-    CMakeBuildConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
+    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
+    CMakeBuildConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
     bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
     CMakeBuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source);
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;

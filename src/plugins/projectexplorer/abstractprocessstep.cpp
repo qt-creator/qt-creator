@@ -90,7 +90,7 @@ using namespace ProjectExplorer;
      Should be used in init()
 */
 
-AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, const QString &id) :
+AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, const Core::Id id) :
     BuildStep(bsl, id), m_timer(0), m_futureInterface(0),
     m_ignoreReturnValue(false), m_process(0),
     m_eventLoop(0), m_outputParserChain(0)

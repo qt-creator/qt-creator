@@ -69,7 +69,7 @@ public:
     QString filesFileName() const;
 
     QString displayName() const;
-    QString id() const;
+    Core::Id id() const;
     Core::IDocument *document() const;
     ProjectExplorer::IProjectManager *projectManager() const;
     Internal::QmlProjectTarget *activeTarget() const;

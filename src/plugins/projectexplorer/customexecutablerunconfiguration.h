@@ -137,11 +137,11 @@ public:
     explicit CustomExecutableRunConfigurationFactory(QObject *parent = 0);
     ~CustomExecutableRunConfigurationFactory();
 
-    QStringList availableCreationIds(Target *parent) const;
-    QString displayNameForId(const QString &id) const;
+    QList<Core::Id> availableCreationIds(Target *parent) const;
+    QString displayNameForId(const Core::Id id) const;
 
-    bool canCreate(Target *parent, const QString &id) const;
-    RunConfiguration *create(Target *parent, const QString &id);
+    bool canCreate(Target *parent, const Core::Id id) const;
+    RunConfiguration *create(Target *parent, const Core::Id id);
     bool canRestore(Target *parent, const QVariantMap &map) const;
     RunConfiguration *restore(Target *parent, const QVariantMap &map);
     bool canClone(Target *parent, RunConfiguration *product) const;

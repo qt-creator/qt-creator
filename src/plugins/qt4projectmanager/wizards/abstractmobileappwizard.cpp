@@ -204,22 +204,22 @@ Utils::WizardProgressItem *AbstractMobileAppWizardDialog::itemOfNextGenericPage(
 
 bool AbstractMobileAppWizardDialog::isSymbianTargetSelected() const
 {
-    return m_targetsPage->isTargetSelected(QLatin1String(Constants::S60_DEVICE_TARGET_ID));
+    return m_targetsPage->isTargetSelected(Core::Id(Constants::S60_DEVICE_TARGET_ID));
 }
 
 bool AbstractMobileAppWizardDialog::isFremantleTargetSelected() const
 {
-    return m_targetsPage->isTargetSelected(QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID));
+    return m_targetsPage->isTargetSelected(Core::Id(Constants::MAEMO5_DEVICE_TARGET_ID));
 }
 
 bool AbstractMobileAppWizardDialog::isHarmattanTargetSelected() const
 {
-    return m_targetsPage->isTargetSelected(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID));
+    return m_targetsPage->isTargetSelected(Core::Id(Constants::HARMATTAN_DEVICE_TARGET_ID));
 }
 
 bool AbstractMobileAppWizardDialog::isMeegoTargetSelected() const
 {
-    return m_targetsPage->isTargetSelected(QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID));
+    return m_targetsPage->isTargetSelected(Core::Id(Constants::MEEGO_DEVICE_TARGET_ID));
 }
 
 

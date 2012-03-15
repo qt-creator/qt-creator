@@ -144,7 +144,7 @@ private:
     void addBuildStepWidget(int pos, BuildStep *step);
 
     BuildStepList *m_buildStepList;
-    QHash<QAction *, QPair<QString, ProjectExplorer::IBuildStepFactory *> > m_addBuildStepHash;
+    QHash<QAction *, QPair<Core::Id, ProjectExplorer::IBuildStepFactory *> > m_addBuildStepHash;
 
     QList<Internal::BuildStepsWidgetData *> m_buildStepsData;
 
@@ -170,14 +170,14 @@ class BuildStepsPage : public BuildConfigWidget
     Q_OBJECT
 
 public:
-    BuildStepsPage(Target *target, const QString &id);
+    BuildStepsPage(Target *target, Core::Id id);
     virtual ~BuildStepsPage();
 
     QString displayName() const;
     void init(BuildConfiguration *bc);
 
 private:
-    QString m_id;
+    Core::Id m_id;
     BuildStepListWidget *m_widget;
 };
 

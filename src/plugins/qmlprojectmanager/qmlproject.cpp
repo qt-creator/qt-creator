@@ -258,9 +258,9 @@ QString QmlProject::displayName() const
     return m_projectName;
 }
 
-QString QmlProject::id() const
+Core::Id QmlProject::id() const
 {
-    return QLatin1String("QmlProjectManager.QmlProject");
+    return Core::Id("QmlProjectManager.QmlProject");
 }
 
 Core::IDocument *QmlProject::document() const
@@ -301,7 +301,7 @@ bool QmlProject::fromMap(const QVariantMap &map)
     if (targets().isEmpty()) {
         Internal::QmlProjectTargetFactory *factory
                 = ExtensionSystem::PluginManager::instance()->getObject<Internal::QmlProjectTargetFactory>();
-        Internal::QmlProjectTarget *target = factory->create(this, QLatin1String(Constants::QML_VIEWER_TARGET_ID));
+        Internal::QmlProjectTarget *target = factory->create(this, Core::Id(Constants::QML_VIEWER_TARGET_ID));
         addTarget(target);
     }
 

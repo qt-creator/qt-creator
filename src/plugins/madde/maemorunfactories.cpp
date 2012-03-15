@@ -55,11 +55,13 @@ namespace Internal {
 
 namespace {
 
-QString pathFromId(const QString &id)
+QString pathFromId(Core::Id id)
 {
-    if (!id.startsWith(MAEMO_RC_ID_PREFIX))
+    QString idStr = QString::fromUtf8(id.name());
+    const QString prefix = QLatin1String(MAEMO_RC_ID_PREFIX);
+    if (!idStr.startsWith(prefix))
         return QString();
-    return id.mid(QString(MAEMO_RC_ID_PREFIX).size());
+    return idStr.mid(prefix.size());
 }
 
 } // namespace
@@ -73,8 +75,7 @@ MaemoRunConfigurationFactory::~MaemoRunConfigurationFactory()
 {
 }
 
-bool MaemoRunConfigurationFactory::canCreate(Target *parent,
-    const QString &id) const
+bool MaemoRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     return qobject_cast<Qt4BaseTarget *>(parent)->qt4Project()
         ->hasApplicationProFile(pathFromId(id));
@@ -85,7 +86,7 @@ bool MaemoRunConfigurationFactory::canRestore(Target *parent,
 {
     Q_UNUSED(parent);
     return qobject_cast<AbstractQt4MaemoTarget *>(parent)
-        && ProjectExplorer::idFromMap(map).startsWith(QLatin1String(MAEMO_RC_ID));
+        && QString::fromUtf8(ProjectExplorer::idFromMap(map).name()).startsWith(QLatin1String(MAEMO_RC_ID));
 }
 
 bool MaemoRunConfigurationFactory::canClone(Target *parent,
@@ -93,24 +94,28 @@ bool MaemoRunConfigurationFactory::canClone(Target *parent,
 {
     const RemoteLinuxRunConfiguration * const rlrc
             = qobject_cast<RemoteLinuxRunConfiguration *>(source);
-    return rlrc && canCreate(parent, source->id() + QLatin1Char('.') + rlrc->proFilePath());
+    QString idStr = QString::fromLatin1(source->id().name()) + QLatin1Char('.') + rlrc->proFilePath();
+    return rlrc && canCreate(parent, Core::Id(idStr.toUtf8().constData()));
 }
 
-QStringList MaemoRunConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> MaemoRunConfigurationFactory::availableCreationIds(Target *parent) const
 {
-    if (AbstractQt4MaemoTarget *t = qobject_cast<AbstractQt4MaemoTarget *>(parent))
-        return t->qt4Project()->applicationProFilePathes(QLatin1String(MAEMO_RC_ID_PREFIX));
-    return QStringList();
+    QList<Core::Id> result;
+    if (AbstractQt4MaemoTarget *t = qobject_cast<AbstractQt4MaemoTarget *>(parent)) {
+        QStringList proFiles = t->qt4Project()->applicationProFilePathes(QLatin1String(MAEMO_RC_ID_PREFIX));
+        foreach (const QString &pf, proFiles)
+            result << Core::Id(pf.toUtf8().constData());
+    }
+    return result;
 }
 
-QString MaemoRunConfigurationFactory::displayNameForId(const QString &id) const
+QString MaemoRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
     return QFileInfo(pathFromId(id)).completeBaseName()
         + QLatin1String(" (on remote Maemo device)");
 }
 
-RunConfiguration *MaemoRunConfigurationFactory::create(Target *parent,
-    const QString &id)
+RunConfiguration *MaemoRunConfigurationFactory::create(Target *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -132,8 +137,7 @@ RunConfiguration *MaemoRunConfigurationFactory::restore(Target *parent,
     return 0;
 }
 
-RunConfiguration *MaemoRunConfigurationFactory::clone(Target *parent,
-    RunConfiguration *source)
+RunConfiguration *MaemoRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
 {
     if (!canClone(parent, source))
         return 0;

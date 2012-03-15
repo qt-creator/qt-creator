@@ -101,7 +101,7 @@ public:
 
     bool isComplete() const;
     bool setupProject(Qt4ProjectManager::Qt4Project *project);
-    bool isTargetSelected(const QString &id) const;
+    bool isTargetSelected(Core::Id id) const;
     void setProFilePath(const QString &dir);
 
     /// Overrides the summary text of the targetsetuppage
@@ -132,7 +132,7 @@ private:
     QtSupport::QtVersionNumber m_maximumQtVersionNumber;
     QString m_proFilePath;
     QString m_defaultShadowBuildLocation;
-    QMap<QString, Qt4TargetSetupWidget *> m_widgets;
+    QMap<Core::Id, Qt4TargetSetupWidget *> m_widgets;
     QHash<Qt4TargetSetupWidget *, Qt4BaseTargetFactory *> m_factories;
 
     QSpacerItem *m_spacer;

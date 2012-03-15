@@ -71,8 +71,8 @@ public:
     bool useSystemEnvironment() const;
     void setUseSystemEnvironment(bool b);
 
-    QStringList knownStepLists() const;
-    BuildStepList *stepList(const QString &id) const;
+    QList<Core::Id> knownStepLists() const;
+    BuildStepList *stepList(Core::Id id) const;
 
     virtual QVariantMap toMap() const;
 
@@ -107,7 +107,7 @@ signals:
     void toolChainChanged();
 
 protected:
-    BuildConfiguration(Target *target, const QString &id);
+    BuildConfiguration(Target *target, const Core::Id id);
     BuildConfiguration(Target *target, BuildConfiguration *source);
 
     void cloneSteps(BuildConfiguration *source);
@@ -137,12 +137,12 @@ public:
     virtual ~IBuildConfigurationFactory();
 
     // used to show the list of possible additons to a target, returns a list of types
-    virtual QStringList availableCreationIds(Target *parent) const = 0;
+    virtual QList<Core::Id> availableCreationIds(Target *parent) const = 0;
     // used to translate the types to names to display to the user
-    virtual QString displayNameForId(const QString &id) const = 0;
+    virtual QString displayNameForId(const Core::Id id) const = 0;
 
-    virtual bool canCreate(Target *parent, const QString &id) const = 0;
-    virtual BuildConfiguration *create(Target *parent, const QString &id) = 0;
+    virtual bool canCreate(Target *parent, const Core::Id id) const = 0;
+    virtual BuildConfiguration *create(Target *parent, const Core::Id id) = 0;
     // used to recreate the runConfigurations when restoring settings
     virtual bool canRestore(Target *parent, const QVariantMap &map) const = 0;
     virtual BuildConfiguration *restore(Target *parent, const QVariantMap &map) = 0;

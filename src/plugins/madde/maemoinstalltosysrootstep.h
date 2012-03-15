@@ -59,7 +59,7 @@ public:
 
 protected:
     AbstractMaemoInstallPackageToSysrootStep(ProjectExplorer::BuildStepList *bsl,
-        const QString &id);
+        Core::Id id);
     AbstractMaemoInstallPackageToSysrootStep(ProjectExplorer::BuildStepList *bsl,
         AbstractMaemoInstallPackageToSysrootStep *other);
 
@@ -85,7 +85,7 @@ public:
 
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
 
-    static const QString Id;
+    static const Core::Id Id;
     static QString displayName();
 private:
     virtual QStringList madArguments() const;
@@ -101,7 +101,7 @@ public:
 
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
 
-    static const QString Id;
+    static const Core::Id Id;
     static QString displayName();
 private:
     virtual QStringList madArguments() const;
@@ -119,7 +119,7 @@ public:
     virtual void run(QFutureInterface<bool> &fi);
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
 
-    static const QString Id;
+    static const Core::Id Id;
     static QString displayName();
 private:
     QString m_systemRoot;
@@ -138,7 +138,7 @@ public:
     virtual bool init();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
 
-    static const QString Id;
+    static const Core::Id Id;
     static QString displayName();
 };
 

@@ -68,32 +68,32 @@ MakeStepFactory::MakeStepFactory(QObject *parent) :
 {
 }
 
-QStringList MakeStepFactory::availableCreationIds(BuildStepList *parent) const
+QList<Core::Id> MakeStepFactory::availableCreationIds(BuildStepList *parent) const
 {
-    if (parent->target()->project()->id() == QLatin1String(AUTOTOOLS_PROJECT_ID))
-        return QStringList() << QLatin1String(MAKE_STEP_ID);
-    return QStringList();
+    if (parent->target()->project()->id() == Core::Id(AUTOTOOLS_PROJECT_ID))
+        return QList<Core::Id>() << Core::Id(MAKE_STEP_ID);
+    return QList<Core::Id>();
 }
 
-QString MakeStepFactory::displayNameForId(const QString &id) const
+QString MakeStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(MAKE_STEP_ID))
+    if (id == Core::Id(MAKE_STEP_ID))
         return tr("Make", "Display name for AutotoolsProjectManager::MakeStep id.");
     return QString();
 }
 
-bool MakeStepFactory::canCreate(BuildStepList *parent, const QString &id) const
+bool MakeStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
-    if (parent->target()->project()->id() != QLatin1String(AUTOTOOLS_PROJECT_ID))
+    if (parent->target()->project()->id() != Core::Id(AUTOTOOLS_PROJECT_ID))
         return false;
 
-    if (parent->id() != QLatin1String(BUILDSTEPS_BUILD))
+    if (parent->id() != Core::Id(BUILDSTEPS_BUILD))
         return false;
 
-    return QLatin1String(MAKE_STEP_ID) == id;
+    return Core::Id(MAKE_STEP_ID) == id;
 }
 
-BuildStep *MakeStepFactory::create(BuildStepList *parent, const QString &id)
+BuildStep *MakeStepFactory::create(BuildStepList *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -114,8 +114,7 @@ BuildStep *MakeStepFactory::clone(BuildStepList *parent, BuildStep *source)
 
 bool MakeStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
 {
-    QString id = idFromMap(map);
-    return canCreate(parent, id);
+    return canCreate(parent, idFromMap(map));
 }
 
 BuildStep *MakeStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
@@ -133,13 +132,13 @@ BuildStep *MakeStepFactory::restore(BuildStepList *parent, const QVariantMap &ma
 // MakeStep class
 /////////////////////
 MakeStep::MakeStep(BuildStepList* bsl) :
-    AbstractProcessStep(bsl, QLatin1String(MAKE_STEP_ID)),
+    AbstractProcessStep(bsl, Core::Id(MAKE_STEP_ID)),
     m_clean(false)
 {
     ctor();
 }
 
-MakeStep::MakeStep(BuildStepList *bsl, const QString &id) :
+MakeStep::MakeStep(BuildStepList *bsl, const Core::Id id) :
     AbstractProcessStep(bsl, id),
     m_clean(false)
 {

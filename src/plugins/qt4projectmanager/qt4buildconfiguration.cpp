@@ -71,7 +71,7 @@ enum { debug = 0 };
 }
 
 Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BaseTarget *target) :
-    BuildConfiguration(target, QLatin1String(QT4_BC_ID)),
+    BuildConfiguration(target, Core::Id(QT4_BC_ID)),
     m_shadowBuild(true),
     m_isEnabled(false),
     m_qtVersionId(-1),
@@ -81,7 +81,7 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BaseTarget *target) :
     ctor();
 }
 
-Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BaseTarget *target, const QString &id) :
+Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BaseTarget *target, const Core::Id id) :
     BuildConfiguration(target, id),
     m_shadowBuild(true),
     m_isEnabled(false),
@@ -165,10 +165,10 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
         if (version && version->isValid()) {
             qWarning("Warning: No tool chain available for '%s' from %s used in '%s'.",
                     qPrintable(version->displayName()), qPrintable(version->qmakeCommand().toUserOutput()),
-                    qPrintable(target()->id()));
+                    qPrintable(target()->id().name()));
         } else {
             qWarning("Warning: No tool chain available for invalid Qt version used in '%s'.",
-                     qPrintable(target()->id()));
+                     qPrintable(target()->id().name()));
         }
     }
 
@@ -323,7 +323,7 @@ static inline QString symbianMakeTarget(QtSupport::BaseQtVersion::QmakeBuildConf
 QString Qt4BuildConfiguration::defaultMakeTarget() const
 {
     ToolChain *tc = toolChain();
-    if (!tc || target()->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID))
+    if (!tc || target()->id() != Core::Id(Constants::S60_DEVICE_TARGET_ID))
         return QString();
     const QtSupport::BaseQtVersion::QmakeBuildConfigs buildConfig = qmakeBuildConfiguration();
 
@@ -439,7 +439,7 @@ QStringList Qt4BuildConfiguration::configCommandLineArguments() const
 QMakeStep *Qt4BuildConfiguration::qmakeStep() const
 {
     QMakeStep *qs = 0;
-    BuildStepList *bsl = stepList(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
+    BuildStepList *bsl = stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
     Q_ASSERT(bsl);
     for (int i = 0; i < bsl->count(); ++i)
         if ((qs = qobject_cast<QMakeStep *>(bsl->at(i))) != 0)
@@ -450,7 +450,7 @@ QMakeStep *Qt4BuildConfiguration::qmakeStep() const
 MakeStep *Qt4BuildConfiguration::makeStep() const
 {
     MakeStep *ms = 0;
-    BuildStepList *bsl = stepList(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
+    BuildStepList *bsl = stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
     Q_ASSERT(bsl);
     for (int i = 0; i < bsl->count(); ++i)
         if ((ms = qobject_cast<MakeStep *>(bsl->at(i))) != 0)
@@ -677,26 +677,26 @@ void Qt4BuildConfigurationFactory::update()
     emit availableCreationIdsChanged();
 }
 
-QStringList Qt4BuildConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
+QList<Core::Id> Qt4BuildConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
 {
+    QList<Core::Id> results;
     if (!qobject_cast<Qt4BaseTarget *>(parent))
-        return QStringList();
+        return results;
 
-    QStringList results;
     QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
     QList<QtSupport::BaseQtVersion *> versions = vm->versionsForTargetId(parent->id());
     foreach (QtSupport::BaseQtVersion *v, versions) {
         if (v->toolChainAvailable(parent->id()))
-            results << QLatin1String(QT4_BC_ID_PREFIX) + QString::number(v->uniqueId());
+            results << Core::Id(QLatin1String(QT4_BC_ID_PREFIX) + QString::number(v->uniqueId()));
     }
 
 
     return results;
 }
 
-int idToUniqueId(const QString &id)
+int idToUniqueId(const Core::Id id)
 {
-    QString rest = id.mid(QString(QT4_BC_ID_PREFIX).length());
+    QString rest = id.name().mid(QString(QT4_BC_ID_PREFIX).length());
     bool ok;
     int unqieuid = rest.toInt(&ok);
     if (!ok)
@@ -704,9 +704,9 @@ int idToUniqueId(const QString &id)
     return unqieuid;
 }
 
-QString Qt4BuildConfigurationFactory::displayNameForId(const QString &id) const
+QString Qt4BuildConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (!id.startsWith(QT4_BC_ID_PREFIX))
+    if (!id.name().startsWith(QT4_BC_ID_PREFIX))
         return QString();
 
     QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
@@ -716,11 +716,12 @@ QString Qt4BuildConfigurationFactory::displayNameForId(const QString &id) const
     return tr("Using Qt Version \"%1\"").arg(v->displayName());
 }
 
-bool Qt4BuildConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const QString &id) const
+bool Qt4BuildConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const Core::Id id) const
 {
+    const QString idStr = QString::fromLatin1(id.name());
     if (!qobject_cast<Qt4BaseTarget *>(parent))
         return false;
-    if (!id.startsWith(QT4_BC_ID_PREFIX))
+    if (!id.name().startsWith(QT4_BC_ID_PREFIX))
         return false;
 
     QtSupport::BaseQtVersion *version = QtSupport::QtVersionManager::instance()->version(idToUniqueId(id));
@@ -730,7 +731,7 @@ bool Qt4BuildConfigurationFactory::canCreate(ProjectExplorer::Target *parent, co
     return true;
 }
 
-BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target *parent, const QString &id)
+BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -806,7 +807,7 @@ BuildConfiguration *Qt4BuildConfigurationFactory::clone(Target *parent, BuildCon
 
 bool Qt4BuildConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
-    QString id = ProjectExplorer::idFromMap(map);
+    QString id = QString::fromLatin1(ProjectExplorer::idFromMap(map).name()); // unicode save
     if (!qobject_cast<Qt4BaseTarget *>(parent))
         return false;
     return id.startsWith(QLatin1String(QT4_BC_ID_PREFIX)) ||

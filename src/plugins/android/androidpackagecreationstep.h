@@ -107,7 +107,7 @@ private:
     void raiseError(const QString &shortMsg,
                     const QString &detailedMsg = QString());
 
-    static const QLatin1String CreatePackageId;
+    static const Core::Id CreatePackageId;
 
 private:
     QString m_keystorePath;

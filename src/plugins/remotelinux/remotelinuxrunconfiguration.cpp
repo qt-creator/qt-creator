@@ -109,7 +109,7 @@ public:
 
 using namespace Internal;
 
-RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Qt4BaseTarget *parent, const QString &id,
+RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Qt4BaseTarget *parent, const Core::Id id,
         const QString &proFilePath)
     : RunConfiguration(parent, id),
       d(new RemoteLinuxRunConfigurationPrivate(proFilePath, parent))

@@ -192,7 +192,7 @@ const AbstractQt4MaemoTarget *MaemoRunConfiguration::maemoTarget() const
     return maemoTarget;
 }
 
-const QString MaemoRunConfiguration::Id = QLatin1String(MAEMO_RC_ID);
+const Core::Id MaemoRunConfiguration::Id = Core::Id(MAEMO_RC_ID);
 
 } // namespace Internal
 } // namespace Madde

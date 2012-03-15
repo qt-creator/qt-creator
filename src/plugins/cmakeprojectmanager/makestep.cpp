@@ -66,13 +66,13 @@ const char * const ADDITIONAL_ARGUMENTS_KEY("CMakeProjectManager.MakeStep.Additi
 // TODO: Move progress information into an IOutputParser!
 
 MakeStep::MakeStep(BuildStepList *bsl) :
-    AbstractProcessStep(bsl, QLatin1String(MS_ID)), m_clean(false),
+    AbstractProcessStep(bsl, Core::Id(MS_ID)), m_clean(false),
     m_futureInterface(0)
 {
     ctor();
 }
 
-MakeStep::MakeStep(BuildStepList *bsl, const QString &id) :
+MakeStep::MakeStep(BuildStepList *bsl, const Core::Id id) :
     AbstractProcessStep(bsl, id), m_clean(false),
     m_futureInterface(0)
 {
@@ -339,19 +339,19 @@ MakeStepFactory::~MakeStepFactory()
 {
 }
 
-bool MakeStepFactory::canCreate(BuildStepList *parent, const QString &id) const
+bool MakeStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
-    if (parent->target()->project()->id() != QLatin1String(Constants::CMAKEPROJECT_ID))
+    if (parent->target()->project()->id() != Core::Id(Constants::CMAKEPROJECT_ID))
         return false;
-    return QLatin1String(MS_ID) == id;
+    return Core::Id(MS_ID) == id;
 }
 
-BuildStep *MakeStepFactory::create(BuildStepList *parent, const QString &id)
+BuildStep *MakeStepFactory::create(BuildStepList *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
     MakeStep *step = new MakeStep(parent);
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
+    if (parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)) {
         step->setClean(true);
         step->setAdditionalArguments("clean");
     }
@@ -372,8 +372,7 @@ BuildStep *MakeStepFactory::clone(BuildStepList *parent, BuildStep *source)
 
 bool MakeStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
 {
-    QString id(ProjectExplorer::idFromMap(map));
-    return canCreate(parent, id);
+    return canCreate(parent, idFromMap(map));
 }
 
 BuildStep *MakeStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
@@ -387,16 +386,16 @@ BuildStep *MakeStepFactory::restore(BuildStepList *parent, const QVariantMap &ma
     return 0;
 }
 
-QStringList MakeStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
+QList<Core::Id> MakeStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
-    if (parent->target()->project()->id() == QLatin1String(Constants::CMAKEPROJECT_ID))
-        return QStringList() << QLatin1String(MS_ID);
-    return QStringList();
+    if (parent->target()->project()->id() == Core::Id(Constants::CMAKEPROJECT_ID))
+        return QList<Core::Id>() << Core::Id(MS_ID);
+    return QList<Core::Id>();
 }
 
-QString MakeStepFactory::displayNameForId(const QString &id) const
+QString MakeStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(MS_ID))
+    if (id == Core::Id(MS_ID))
         return tr("Make", "Display name for CMakeProjectManager::MakeStep id.");
     return QString();
 }

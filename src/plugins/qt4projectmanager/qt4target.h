@@ -69,7 +69,7 @@ class QT4PROJECTMANAGER_EXPORT Qt4BaseTarget : public ProjectExplorer::Target
 {
     Q_OBJECT
 public:
-    Qt4BaseTarget(Qt4Project *parent, const QString &id);
+    Qt4BaseTarget(Qt4Project *parent, const Core::Id id);
     virtual ~Qt4BaseTarget();
 
     ProjectExplorer::BuildConfigWidget *createConfigWidget();
@@ -125,7 +125,7 @@ class Qt4DefaultTargetSetupWidget : public Qt4TargetSetupWidget
 public:
     enum ShadowBuildOption { DISABLE, ENABLE, USER };
     Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *factory,
-                                const QString &id,
+                                Core::Id id,
                                 const QString &proFilePath,
                                 const QList<BuildConfigurationInfo> &info,
                                 const QtSupport::QtVersionNumber &minimumQtVersion,
@@ -176,7 +176,7 @@ private:
     QPair<ProjectExplorer::Task::TaskType, QString> findIssues(const BuildConfigurationInfo &info);
     void createImportWidget(const BuildConfigurationInfo &info, int pos);
 
-    QString m_id;
+    Core::Id m_id;
     Qt4BaseTargetFactory *m_factory;
     QString m_proFilePath;
     QtSupport::QtVersionNumber m_minimumQtVersion;

@@ -46,22 +46,22 @@ public:
     explicit EmbeddedLinuxTargetFactory(QObject *parent = 0);
     ~EmbeddedLinuxTargetFactory();
 
-    QIcon iconForId(const QString &id) const;
-    QString buildNameForId(const QString &id) const;
+    QIcon iconForId(const Core::Id id) const;
+    QString buildNameForId(const Core::Id id) const;
 
-    QSet<QString> targetFeatures(const QString &id) const;
+    QSet<QString> targetFeatures(const Core::Id id) const;
 
-    QStringList supportedTargetIds() const;
-    bool supportsTargetId(const QString &id) const;
+    QList<Core::Id> supportedTargetIds() const;
+    bool supportsTargetId(const Core::Id id) const;
 
-    QString displayNameForId(const QString &id) const;
+    QString displayNameForId(const Core::Id id) const;
 
     bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
     ProjectExplorer::Target *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
 
-    bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
-    ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id);
-    ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id,
+    bool canCreate(ProjectExplorer::Project *parent, const Core::Id id) const;
+    ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const Core::Id id);
+    ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const Core::Id id,
                                     const QList<Qt4ProjectManager::BuildConfigurationInfo> &infos);
 };
 

@@ -115,16 +115,16 @@ public:
     explicit S60DeviceRunConfigurationFactory(QObject *parent = 0);
     ~S60DeviceRunConfigurationFactory();
 
-    bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
-    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
+    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
+    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
     ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
     bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const;
     ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source);
 
-    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
     // used to translate the ids to names to display to the user
-    QString displayNameForId(const QString &id) const;
+    QString displayNameForId(const Core::Id id) const;
 };
 
 } // namespace Qt4ProjectManager

@@ -45,24 +45,24 @@ public:
     Qt4MaemoTargetFactory(QObject *parent = 0);
     ~Qt4MaemoTargetFactory();
 
-    QStringList supportedTargetIds() const;
-    QString displayNameForId(const QString &id) const;
-    QIcon iconForId(const QString &id) const;
+    QList<Core::Id> supportedTargetIds() const;
+    QString displayNameForId(const Core::Id id) const;
+    QIcon iconForId(const Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
+    bool canCreate(ProjectExplorer::Project *parent, const Core::Id id) const;
     bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
     ProjectExplorer::Target *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
 
-    QString shadowBuildDirectory(const QString &profilePath, const QString &id, const QString &suffix);
-    QString buildNameForId(const QString &id) const;
+    QString shadowBuildDirectory(const QString &profilePath, const Core::Id id, const QString &suffix);
+    QString buildNameForId(const Core::Id id) const;
 
-    bool supportsTargetId(const QString &id) const;
+    bool supportsTargetId(const Core::Id id) const;
 
-    ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id);
-    ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id,
+    ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const Core::Id id);
+    ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const Core::Id id,
         const QList<Qt4ProjectManager::BuildConfigurationInfo> &infos);
 
-    QSet<QString> targetFeatures(const QString &id) const;
+    QSet<QString> targetFeatures(const Core::Id id) const;
 };
 
 } // namespace Internal

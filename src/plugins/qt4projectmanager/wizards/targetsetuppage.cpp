@@ -95,7 +95,7 @@ TargetSetupPage::~TargetSetupPage()
     cleanupImportInfos();
 }
 
-bool TargetSetupPage::isTargetSelected(const QString &id) const
+bool TargetSetupPage::isTargetSelected(Core::Id id) const
 {
     Qt4TargetSetupWidget *widget = m_widgets.value(id);
     return widget && widget->isTargetSelected();
@@ -156,8 +156,8 @@ void TargetSetupPage::setupWidgets()
     QList<Qt4BaseTargetFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
     bool atLeastOneTargetSelected = false;
     foreach (Qt4BaseTargetFactory *factory, factories) {
-        QStringList ids = factory->supportedTargetIds();
-        foreach (const QString &id, ids) {
+        QList<Core::Id> ids = factory->supportedTargetIds();
+        foreach (Core::Id id, ids) {
             if (!factory->targetFeatures(id).contains(m_requiredTargetFeatures))
                 continue;
 
@@ -203,7 +203,7 @@ void TargetSetupPage::setupWidgets()
         }
     }
     if (!atLeastOneTargetSelected) {
-        Qt4TargetSetupWidget *widget = m_widgets.value(QLatin1String(Constants::DESKTOP_TARGET_ID));
+        Qt4TargetSetupWidget *widget = m_widgets.value(Core::Id(Constants::DESKTOP_TARGET_ID));
         if (widget)
             widget->setTargetSelected(true);
     }
@@ -290,7 +290,7 @@ void TargetSetupPage::qtVersionsChanged(const QList<int> &added, const QList<int
     Q_UNUSED(added)
     if (m_ignoreQtVersionChange)
         return;
-    QMap<QString, Qt4TargetSetupWidget *>::iterator it, end;
+    QMap<Core::Id, Qt4TargetSetupWidget *>::iterator it, end;
     end = m_widgets.end();
     it = m_widgets.begin();
     for ( ; it != end; ++it) {
@@ -335,7 +335,7 @@ void TargetSetupPage::replaceQtVersionWithQtVersion(int oldId, int newId)
             m_importInfos[i].qtVersionId = newId;
         }
     }
-    QMap<QString, Qt4TargetSetupWidget *>::const_iterator it, end;
+    QMap<Core::Id, Qt4TargetSetupWidget *>::const_iterator it, end;
     it = m_widgets.constBegin();
     end = m_widgets.constEnd();
     for ( ; it != end; ++it)
@@ -350,7 +350,7 @@ void TargetSetupPage::replaceQtVersionWithTemporaryQtVersion(int id, QtSupport::
             m_importInfos[i].qtVersionId = -1;
         }
     }
-    QMap<QString, Qt4TargetSetupWidget *>::const_iterator it, end;
+    QMap<Core::Id, Qt4TargetSetupWidget *>::const_iterator it, end;
     it = m_widgets.constBegin();
     end = m_widgets.constEnd();
     for ( ; it != end; ++it)
@@ -365,7 +365,7 @@ void TargetSetupPage::replaceTemporaryQtVersion(QtSupport::BaseQtVersion *versio
             m_importInfos[i].qtVersionId = id;
         }
     }
-    QMap<QString, Qt4TargetSetupWidget *>::const_iterator it, end;
+    QMap<Core::Id, Qt4TargetSetupWidget *>::const_iterator it, end;
     it = m_widgets.constBegin();
     end = m_widgets.constEnd();
     for ( ; it != end; ++it)
@@ -376,7 +376,7 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
 {
     m_ignoreQtVersionChange = true;
     QtSupport::QtVersionManager *mgr = QtSupport::QtVersionManager::instance();
-    QMap<QString, Qt4TargetSetupWidget *>::const_iterator it, end;
+    QMap<Core::Id, Qt4TargetSetupWidget *>::const_iterator it, end;
     end = m_widgets.constEnd();
     it = m_widgets.constBegin();
 
@@ -412,9 +412,9 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
     ProjectExplorer::Target *activeTarget = 0;
     QList<ProjectExplorer::Target *> targets = project->targets();
     foreach (ProjectExplorer::Target *t, targets) {
-        if (t->id() == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
+        if (t->id() == Core::Id(Constants::QT_SIMULATOR_TARGET_ID))
             activeTarget = t;
-        else if (!activeTarget && t->id() == QLatin1String(Constants::DESKTOP_TARGET_ID))
+        else if (!activeTarget && t->id() == Core::Id(Constants::DESKTOP_TARGET_ID))
             activeTarget = t;
     }
     if (!activeTarget && !targets.isEmpty())

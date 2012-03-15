@@ -41,7 +41,7 @@ namespace ProjectExplorer {
 
 /// LocalApplicationRunConfiguration
 
-LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *target, const QString &id) :
+LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *target, const Core::Id id) :
     RunConfiguration(target, id)
 {
 }

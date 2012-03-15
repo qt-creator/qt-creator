@@ -56,7 +56,7 @@ class REMOTELINUX_EXPORT RemoteLinuxDeployConfiguration
     Q_OBJECT
     Q_DISABLE_COPY(RemoteLinuxDeployConfiguration)
 public:
-    RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target, const QString &id,
+    RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target, const Core::Id id,
         const QString &defaultDisplayName);
     RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target,
         RemoteLinuxDeployConfiguration *source);

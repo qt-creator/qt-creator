@@ -56,8 +56,7 @@ public:
     QString commandLine() const;
 
 protected:
-    AbstractRemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl,
-        const QString &id);
+    AbstractRemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl, const Core::Id id);
     AbstractRemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl,
         AbstractRemoteLinuxCustomCommandDeploymentStep *other);
 
@@ -83,7 +82,7 @@ public:
         GenericRemoteLinuxCustomCommandDeploymentStep *other);
     ~GenericRemoteLinuxCustomCommandDeploymentStep();
 
-    static QString stepId();
+    static Core::Id stepId();
     static QString stepDisplayName();
 
 private:

@@ -54,7 +54,7 @@ using namespace GenericProjectManager::Internal;
 ////////////////////////////////////////////////////////////////////////////////////
 
 GenericTarget::GenericTarget(GenericProject *parent) :
-    ProjectExplorer::Target(parent, QLatin1String(GENERIC_DESKTOP_TARGET_ID)),
+    ProjectExplorer::Target(parent, Core::Id(GENERIC_DESKTOP_TARGET_ID)),
     m_buildConfigurationFactory(new GenericBuildConfigurationFactory(this))
 {
     setDefaultDisplayName(QApplication::translate("GenericProjectManager::GenericTarget",
@@ -96,33 +96,33 @@ GenericTargetFactory::GenericTargetFactory(QObject *parent) :
 {
 }
 
-bool GenericTargetFactory::supportsTargetId(const QString &id) const
+bool GenericTargetFactory::supportsTargetId(const Core::Id id) const
 {
-    return id == QLatin1String(GENERIC_DESKTOP_TARGET_ID);
+    return id == Core::Id(GENERIC_DESKTOP_TARGET_ID);
 }
 
-QStringList GenericTargetFactory::supportedTargetIds() const
+QList<Core::Id> GenericTargetFactory::supportedTargetIds() const
 {
-    return QStringList() << QLatin1String(GENERIC_DESKTOP_TARGET_ID);
+    return QList<Core::Id>() << Core::Id(GENERIC_DESKTOP_TARGET_ID);
 }
 
-QString GenericTargetFactory::displayNameForId(const QString &id) const
+QString GenericTargetFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(GENERIC_DESKTOP_TARGET_ID))
+    if (id == Core::Id(GENERIC_DESKTOP_TARGET_ID))
         return QCoreApplication::translate("GenericProjectManager::GenericTarget",
                                            GENERIC_DESKTOP_TARGET_DISPLAY_NAME,
                                            "Generic desktop target display name");
     return QString();
 }
 
-bool GenericTargetFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
+bool GenericTargetFactory::canCreate(ProjectExplorer::Project *parent, const Core::Id id) const
 {
     if (!qobject_cast<GenericProject *>(parent))
         return false;
-    return id == QLatin1String(GENERIC_DESKTOP_TARGET_ID);
+    return id == Core::Id(GENERIC_DESKTOP_TARGET_ID);
 }
 
-GenericTarget *GenericTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
+GenericTarget *GenericTargetFactory::create(ProjectExplorer::Project *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;

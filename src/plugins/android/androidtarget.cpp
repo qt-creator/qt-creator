@@ -78,7 +78,7 @@ namespace {
 namespace Android {
 namespace Internal {
 
-AndroidTarget::AndroidTarget(Qt4Project *parent, const QString &id) :
+AndroidTarget::AndroidTarget(Qt4Project *parent, const Core::Id id) :
     Qt4BaseTarget(parent, id)
   , m_androidFilesWatcher(new QFileSystemWatcher(this))
   , m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this))

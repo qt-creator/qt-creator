@@ -75,8 +75,7 @@ public:
 
 
 protected:
-    AbstractMaemoPackageCreationStep(ProjectExplorer::BuildStepList *bsl,
-        const QString &id);
+    AbstractMaemoPackageCreationStep(ProjectExplorer::BuildStepList *bsl, const Core::Id id);
     AbstractMaemoPackageCreationStep(ProjectExplorer::BuildStepList *buildConfig,
                              AbstractMaemoPackageCreationStep *other);
 
@@ -136,7 +135,7 @@ private:
     QString m_templatesDirPath;
     bool m_debugBuild;
 
-    static const QString CreatePackageId;
+    static const Core::Id CreatePackageId;
 };
 
 class MaemoRpmPackageCreationStep : public AbstractMaemoPackageCreationStep
@@ -160,7 +159,7 @@ private:
     QString m_specFile;
     QString m_packageFileName;
 
-    static const QString CreatePackageId;
+    static const Core::Id CreatePackageId;
 };
 
 } // namespace Internal

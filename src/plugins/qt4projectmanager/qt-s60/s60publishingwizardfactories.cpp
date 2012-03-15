@@ -71,7 +71,7 @@ bool S60PublishingWizardFactoryOvi::canCreateWizard(const Project *project) cons
     if (!qobject_cast<const Qt4Project *>(project))
         return false;
     foreach (const Target *const target, project->targets()) {
-        if (target->id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
+        if (target->id() == Core::Id(Constants::S60_DEVICE_TARGET_ID))
             return true;
     }
     return false;

@@ -62,7 +62,7 @@ public:
     virtual QStringList dumperLibraryLocations() const = 0;
 
 protected:
-    explicit LocalApplicationRunConfiguration(Target *target, const QString &id);
+    explicit LocalApplicationRunConfiguration(Target *target, const Core::Id id);
     explicit LocalApplicationRunConfiguration(Target *target, LocalApplicationRunConfiguration *rc);
 
     Utils::AbstractMacroExpander *macroExpander() const;

@@ -216,7 +216,7 @@ void Project::setActiveTarget(Target *target)
     }
 }
 
-Target *Project::target(const QString &id) const
+Target *Project::target(Core::Id id) const
 {
     foreach (Target * target, d->m_targets) {
         if (target->id() == id)
@@ -319,10 +319,10 @@ bool Project::fromMap(const QVariantMap &map)
 
         Target *t = 0;
 
-        const QString id = idFromMap(targetMap);
+        Core::Id id = idFromMap(targetMap);
         if (target(id)) {
             qWarning("Warning: Duplicated target id found, not restoring second target with id '%s'. Continuing.",
-                     qPrintable(id));
+                     qPrintable(id.name()));
         } else {
             foreach (ITargetFactory *factory, factories) {
                 if (factory->canRestore(this, targetMap)) {
@@ -332,7 +332,7 @@ bool Project::fromMap(const QVariantMap &map)
             }
 
             if (!t) {
-                qWarning("Warning: Unable to restore target '%s'. Continuing.", qPrintable(id));
+                qWarning("Warning: Unable to restore target '%s'. Continuing.", qPrintable(id.name()));
                 continue;
             }
             addTarget(t);

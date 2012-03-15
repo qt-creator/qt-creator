@@ -45,11 +45,11 @@ public:
     explicit RemoteLinuxRunConfigurationFactory(QObject *parent = 0);
     ~RemoteLinuxRunConfigurationFactory();
 
-    QString displayNameForId(const QString &id) const;
-    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
+    QString displayNameForId(const Core::Id id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
 
-    bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
-    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
+    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
+    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
 
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
     ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Target *parent,

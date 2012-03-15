@@ -89,7 +89,7 @@ public:
         ReleaseBuildSigned
     };
 
-    explicit AndroidTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id);
+    explicit AndroidTarget(Qt4ProjectManager::Qt4Project *parent, const Core::Id id);
     virtual ~AndroidTarget();
 
     Qt4ProjectManager::Qt4BuildConfigurationFactory *buildConfigurationFactory() const;

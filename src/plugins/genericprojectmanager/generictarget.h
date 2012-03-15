@@ -83,13 +83,13 @@ class GenericTargetFactory : public ProjectExplorer::ITargetFactory
 public:
     explicit GenericTargetFactory(QObject *parent = 0);
 
-    bool supportsTargetId(const QString &id) const;
+    bool supportsTargetId(const Core::Id id) const;
 
-    QStringList supportedTargetIds() const;
-    QString displayNameForId(const QString &id) const;
+    QList<Core::Id> supportedTargetIds() const;
+    QString displayNameForId(const Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
-    GenericTarget *create(ProjectExplorer::Project *parent, const QString &id);
+    bool canCreate(ProjectExplorer::Project *parent, const Core::Id id) const;
+    GenericTarget *create(ProjectExplorer::Project *parent, const Core::Id id);
     bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
     GenericTarget *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
 };

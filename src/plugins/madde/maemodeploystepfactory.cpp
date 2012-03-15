@@ -61,9 +61,9 @@ MaemoDeployStepFactory::MaemoDeployStepFactory(QObject *parent)
 {
 }
 
-QStringList MaemoDeployStepFactory::availableCreationIds(BuildStepList *parent) const
+QList<Core::Id> MaemoDeployStepFactory::availableCreationIds(BuildStepList *parent) const
 {
-    QStringList ids;
+    QList<Core::Id> ids;
     if (!qobject_cast<Qt4MaemoDeployConfiguration *>(parent->parent()))
         return ids;
 
@@ -81,12 +81,13 @@ QStringList MaemoDeployStepFactory::availableCreationIds(BuildStepList *parent) 
     if (qobject_cast<Qt4HarmattanTarget *>(parent->target()))
         ids << GenericDirectUploadStep::stepId();
     if (qobject_cast<Qt4Maemo5Target *>(parent->target()))
-        ids << MaemoInstallPackageViaMountStep::stepId() << MaemoCopyFilesViaMountStep::stepId();
+        ids << MaemoInstallPackageViaMountStep::stepId()
+            << MaemoCopyFilesViaMountStep::stepId();
 
     return ids;
 }
 
-QString MaemoDeployStepFactory::displayNameForId(const QString &id) const
+QString MaemoDeployStepFactory::displayNameForId(const Core::Id id) const
 {
     if (id == MaemoInstallPackageViaMountStep::stepId())
         return MaemoInstallPackageViaMountStep::displayName();
@@ -109,12 +110,12 @@ QString MaemoDeployStepFactory::displayNameForId(const QString &id) const
     return QString();
 }
 
-bool MaemoDeployStepFactory::canCreate(BuildStepList *parent, const QString &id) const
+bool MaemoDeployStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
     return availableCreationIds(parent).contains(id) && !parent->contains(id);
 }
 
-BuildStep *MaemoDeployStepFactory::create(BuildStepList *parent, const QString &id)
+BuildStep *MaemoDeployStepFactory::create(BuildStepList *parent, const Core::Id id)
 {
     const Target * const t = parent->target();
 
@@ -127,15 +128,15 @@ BuildStep *MaemoDeployStepFactory::create(BuildStepList *parent, const QString &
     } else if (id == MaemoMakeInstallToSysrootStep::Id) {
         return new MaemoMakeInstallToSysrootStep(parent);
     } else if (id == MaemoInstallPackageViaMountStep::stepId()
-        || (id == OldMaemoDeployStepId && qobject_cast< const Qt4Maemo5Target *>(t))) {
+        || (id == Core::Id(OldMaemoDeployStepId) && qobject_cast< const Qt4Maemo5Target *>(t))) {
         return new MaemoInstallPackageViaMountStep(parent);
     } else if (id == MaemoCopyFilesViaMountStep::stepId()) {
         return new MaemoCopyFilesViaMountStep(parent);
     } else if (id == MaemoUploadAndInstallPackageStep::stepId()
-        || (id == OldMaemoDeployStepId && (qobject_cast<const Qt4HarmattanTarget *>(t)))) {
+        || (id == Core::Id(OldMaemoDeployStepId) && (qobject_cast<const Qt4HarmattanTarget *>(t)))) {
         return new MaemoUploadAndInstallPackageStep(parent);
     } else if (id == MeegoUploadAndInstallPackageStep::stepId()
-        || (id == OldMaemoDeployStepId && (qobject_cast<const Qt4MeegoTarget *>(t)))) {
+        || (id == Core::Id(OldMaemoDeployStepId) && (qobject_cast<const Qt4MeegoTarget *>(t)))) {
         return new MeegoUploadAndInstallPackageStep(parent);
     } else if (id == GenericDirectUploadStep::stepId()) {
         return new GenericDirectUploadStep(parent, id);
@@ -147,7 +148,7 @@ BuildStep *MaemoDeployStepFactory::create(BuildStepList *parent, const QString &
 bool MaemoDeployStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
 {
     return canCreate(parent, idFromMap(map))
-        || idFromMap(map) == OldMaemoDeployStepId;
+        || idFromMap(map) == Core::Id(OldMaemoDeployStepId);
 }
 
 BuildStep *MaemoDeployStepFactory::restore(BuildStepList *parent, const QVariantMap &map)

@@ -65,38 +65,39 @@ AndroidTargetFactory::~AndroidTargetFactory()
 {
 }
 
-bool AndroidTargetFactory::supportsTargetId(const QString &id) const
+bool AndroidTargetFactory::supportsTargetId(const Core::Id id) const
 {
-    return id == QLatin1String(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID);
+    return id == Core::Id(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID);
 }
 
-QSet<QString> AndroidTargetFactory::targetFeatures(const QString &/*id*/) const
+QSet<QString> AndroidTargetFactory::targetFeatures(const Core::Id id) const
 {
+    Q_UNUSED(id);
     QSet<QString> features;
     features << QLatin1String(Qt4ProjectManager::Constants::MOBILE_TARGETFEATURE_ID);
     features << QLatin1String(Qt4ProjectManager::Constants::SHADOWBUILD_TARGETFEATURE_ID);
     return features;
 }
 
-QStringList AndroidTargetFactory::supportedTargetIds() const
+QList<Core::Id> AndroidTargetFactory::supportedTargetIds() const
 {
-    return QStringList() << QLatin1String(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID);
+    return QList<Core::Id>() << Core::Id(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID);
 }
 
-QString AndroidTargetFactory::displayNameForId(const QString &id) const
+QString AndroidTargetFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID))
+    if (id == Core::Id(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID))
         return AndroidTarget::defaultDisplayName();
     return QString();
 }
 
-QIcon AndroidTargetFactory::iconForId(const QString &id) const
+QIcon AndroidTargetFactory::iconForId(const Core::Id id) const
 {
     Q_UNUSED(id)
     return QIcon(QLatin1String(Constants::ANDROID_SETTINGS_CATEGORY_ICON));
 }
 
-bool AndroidTargetFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
+bool AndroidTargetFactory::canCreate(ProjectExplorer::Project *parent, const Core::Id id) const
 {
     if (!qobject_cast<Qt4Project *>(parent))
             return false;
@@ -115,18 +116,18 @@ Qt4BaseTarget *AndroidTargetFactory::restore(ProjectExplorer::Project *parent, c
     if (!canRestore(parent, map))
         return 0;
 
-    const QString id = idFromMap(map);
+    const Core::Id id = idFromMap(map);
     AndroidTarget *target = 0;
     Qt4Project *qt4project = static_cast<Qt4Project *>(parent);
-    if (id == QLatin1String(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID))
-        target = new AndroidTarget(qt4project, QLatin1String("transient ID"));
+    if (id == Core::Id(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID))
+        target = new AndroidTarget(qt4project, id);
     if (target && target->fromMap(map))
         return target;
     delete target;
     return 0;
 }
 
-Qt4BaseTarget *AndroidTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
+Qt4BaseTarget *AndroidTargetFactory::create(ProjectExplorer::Project *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -146,14 +147,14 @@ Qt4BaseTarget *AndroidTargetFactory::create(ProjectExplorer::Project *parent, co
     return create(parent, id, infos);
 }
 
-Qt4BaseTarget *AndroidTargetFactory::create(ProjectExplorer::Project *parent,
-    const QString &id, const QList<Qt4ProjectManager::BuildConfigurationInfo> &infos)
+Qt4BaseTarget *AndroidTargetFactory::create(ProjectExplorer::Project *parent, const Core::Id id,
+                                            const QList<Qt4ProjectManager::BuildConfigurationInfo> &infos)
 {
     if (!canCreate(parent, id))
         return 0;
 
     AndroidTarget *target = 0;
-    if (id == QLatin1String(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID))
+    if (id == Core::Id(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID))
         target = new AndroidTarget(static_cast<Qt4Project *>(parent), id);
     Q_ASSERT(target);
 
@@ -168,7 +169,7 @@ Qt4BaseTarget *AndroidTargetFactory::create(ProjectExplorer::Project *parent,
                                     info.importing);
     }
 
-    target->addDeployConfiguration(target->createDeployConfiguration(QLatin1String(ANDROID_DEPLOYCONFIGURATION_ID)));
+    target->addDeployConfiguration(target->createDeployConfiguration(Core::Id(ANDROID_DEPLOYCONFIGURATION_ID)));
 
     target->createApplicationProFiles(false);
     if (target->runConfigurations().isEmpty())
@@ -176,9 +177,9 @@ Qt4BaseTarget *AndroidTargetFactory::create(ProjectExplorer::Project *parent,
     return target;
 }
 
-QString AndroidTargetFactory::buildNameForId(const QString &id) const
+QString AndroidTargetFactory::buildNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID))
+    if (id == Core::Id(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID))
         return QLatin1String("android");
     return QString();
 }

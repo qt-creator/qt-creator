@@ -36,6 +36,7 @@
 #include "projectexplorer_export.h"
 #include "projectexplorerconstants.h"
 
+#include <coreplugin/id.h>
 #include <extensionsystem/iplugin.h>
 
 #include <QPair>
@@ -133,7 +134,7 @@ public:
 
     QList<RunControl *> runControls() const;
 
-    static QString displayNameForStepId(const QString &stepId);
+    static QString displayNameForStepId(Core::Id stepId);
 
 signals:
     void runControlStarted(ProjectExplorer::RunControl *rc);
@@ -267,7 +268,7 @@ private:
     QString directoryFor(Node *node);
     QString pathFor(Node *node);
     void deploy(QList<Project *>);
-    int queue(QList<Project *>, QStringList stepIds);
+    int queue(QList<Project *>, QList<Core::Id> stepIds);
     void updateContextMenuActions();
     bool parseArguments(const QStringList &arguments, QString *error);
     void executeRunConfiguration(RunConfiguration *, RunMode mode);

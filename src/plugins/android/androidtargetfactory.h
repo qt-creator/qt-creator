@@ -46,22 +46,22 @@ public:
     AndroidTargetFactory(QObject *parent = 0);
     ~AndroidTargetFactory();
 
-    QStringList supportedTargetIds() const;
-    QString displayNameForId(const QString &id) const;
-    QIcon iconForId(const QString &id) const;
+    QList<Core::Id> supportedTargetIds() const;
+    QString displayNameForId(const Core::Id id) const;
+    QIcon iconForId(const Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
+    bool canCreate(ProjectExplorer::Project *parent, const Core::Id id) const;
     bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
     Qt4ProjectManager::Qt4BaseTarget *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
 
-    bool supportsTargetId(const QString &id) const;
-    virtual QSet<QString> targetFeatures(const QString &id) const;
+    bool supportsTargetId(const Core::Id id) const;
+    virtual QSet<QString> targetFeatures(const Core::Id id) const;
 
-    Qt4ProjectManager::Qt4BaseTarget *create(ProjectExplorer::Project *parent, const QString &id);
-    Qt4ProjectManager::Qt4BaseTarget *create(ProjectExplorer::Project *parent, const QString &id,
+    Qt4ProjectManager::Qt4BaseTarget *create(ProjectExplorer::Project *parent, const Core::Id id);
+    Qt4ProjectManager::Qt4BaseTarget *create(ProjectExplorer::Project *parent, const Core::Id id,
                                              const QList<Qt4ProjectManager::BuildConfigurationInfo> &infos);
 
-    QString buildNameForId(const QString &id) const;
+    QString buildNameForId(const Core::Id id) const;
 };
 
 } // namespace Internal

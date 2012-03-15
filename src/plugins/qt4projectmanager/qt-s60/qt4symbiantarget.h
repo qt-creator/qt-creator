@@ -48,16 +48,16 @@ class Qt4SymbianTarget : public Qt4BaseTarget
     friend class Qt4SymbianTargetFactory; // for from Map
     Q_OBJECT
 public:
-    explicit Qt4SymbianTarget(Qt4Project *parent, const QString &id);
-    virtual ~Qt4SymbianTarget();
+    Qt4SymbianTarget(Qt4Project *parent, const Core::Id id);
+    ~Qt4SymbianTarget();
 
     ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 
     void createApplicationProFiles(bool reparse);
     virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
 
-    static QString defaultDisplayName(const QString &id);
-    static QIcon iconForId(const QString &id);
+    static QString defaultDisplayName(const Core::Id id);
+    static QIcon iconForId(Core::Id id);
 
 protected:
     ProjectExplorer::IDevice::ConstPtr currentDevice() const;

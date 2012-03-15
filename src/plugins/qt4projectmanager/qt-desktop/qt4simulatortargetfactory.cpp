@@ -64,38 +64,38 @@ Qt4SimulatorTargetFactory::~Qt4SimulatorTargetFactory()
 {
 }
 
-bool Qt4SimulatorTargetFactory::supportsTargetId(const QString &id) const
+bool Qt4SimulatorTargetFactory::supportsTargetId(const Core::Id id) const
 {
-    return id == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID);
+    return id == Core::Id(Constants::QT_SIMULATOR_TARGET_ID);
 }
 
-QStringList Qt4SimulatorTargetFactory::supportedTargetIds() const
+QList<Core::Id> Qt4SimulatorTargetFactory::supportedTargetIds() const
 {
-    return QStringList() << QLatin1String(Constants::QT_SIMULATOR_TARGET_ID);
+    return QList<Core::Id>() << Core::Id(Constants::QT_SIMULATOR_TARGET_ID);
 }
 
-QString Qt4SimulatorTargetFactory::displayNameForId(const QString &id) const
+QString Qt4SimulatorTargetFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
+    if (id == Core::Id(Constants::QT_SIMULATOR_TARGET_ID))
         return Qt4SimulatorTarget::defaultDisplayName();
     return QString();
 }
 
-QIcon Qt4SimulatorTargetFactory::iconForId(const QString &id) const
+QIcon Qt4SimulatorTargetFactory::iconForId(const Core::Id id) const
 {
-    if (id == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
+    if (id == Core::Id(Constants::QT_SIMULATOR_TARGET_ID))
         return QIcon(QLatin1String(":/projectexplorer/images/SymbianEmulator.png"));
     return QIcon();
 }
 
-QString Qt4SimulatorTargetFactory::buildNameForId(const QString &id) const
+QString Qt4SimulatorTargetFactory::buildNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
+    if (id == Core::Id(Constants::QT_SIMULATOR_TARGET_ID))
         return QLatin1String("simulator");
     return QString();
 }
 
-bool Qt4SimulatorTargetFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
+bool Qt4SimulatorTargetFactory::canCreate(ProjectExplorer::Project *parent, const Core::Id id) const
 {
     if (!qobject_cast<Qt4Project *>(parent))
         return false;
@@ -115,14 +115,14 @@ ProjectExplorer::Target *Qt4SimulatorTargetFactory::restore(ProjectExplorer::Pro
         return 0;
 
     Qt4Project *qt4project = static_cast<Qt4Project *>(parent);
-    Qt4SimulatorTarget *target = new Qt4SimulatorTarget(qt4project, QLatin1String("transient ID"));
+    Qt4SimulatorTarget *target = new Qt4SimulatorTarget(qt4project, idFromMap(map));
     if (target->fromMap(map))
         return target;
     delete target;
     return 0;
 }
 
-QSet<QString> Qt4SimulatorTargetFactory::targetFeatures(const QString & /*id*/) const
+QSet<QString> Qt4SimulatorTargetFactory::targetFeatures(const Core::Id /*id*/) const
 {
     QSet<QString> features;
 
@@ -132,7 +132,7 @@ QSet<QString> Qt4SimulatorTargetFactory::targetFeatures(const QString & /*id*/) 
     return features;
 }
 
-ProjectExplorer::Target *Qt4SimulatorTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
+ProjectExplorer::Target *Qt4SimulatorTargetFactory::create(ProjectExplorer::Project *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -150,7 +150,8 @@ ProjectExplorer::Target *Qt4SimulatorTargetFactory::create(ProjectExplorer::Proj
     return create(parent, id, infos);
 }
 
-ProjectExplorer::Target *Qt4SimulatorTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos)
+ProjectExplorer::Target *Qt4SimulatorTargetFactory::create(ProjectExplorer::Project *parent, const Core::Id id,
+                                                           const QList<BuildConfigurationInfo> &infos)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -162,7 +163,7 @@ ProjectExplorer::Target *Qt4SimulatorTargetFactory::create(ProjectExplorer::Proj
         t->addQt4BuildConfiguration(msgBuildConfigurationName(info), QString(), info.version(), info.buildConfig,
                                     info.additionalArguments, info.directory, info.importing);
 
-    t->addDeployConfiguration(t->createDeployConfiguration(QLatin1String(ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID)));
+    t->addDeployConfiguration(t->createDeployConfiguration(Core::Id(ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID)));
 
     t->createApplicationProFiles(false);
 

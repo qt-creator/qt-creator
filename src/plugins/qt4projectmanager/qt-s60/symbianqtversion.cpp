@@ -155,14 +155,14 @@ QList<ProjectExplorer::Abi> SymbianQtVersion::detectQtAbis() const
                                     32);
 }
 
-bool SymbianQtVersion::supportsTargetId(const QString &id) const
+bool SymbianQtVersion::supportsTargetId(Core::Id id) const
 {
     return supportedTargetIds().contains(id);
 }
 
-QSet<QString> SymbianQtVersion::supportedTargetIds() const
+QSet<Core::Id> SymbianQtVersion::supportedTargetIds() const
 {
-    return QSet<QString>() << QLatin1String(Constants::S60_DEVICE_TARGET_ID);
+    return QSet<Core::Id>() << Core::Id(Constants::S60_DEVICE_TARGET_ID);
 }
 
 QString SymbianQtVersion::description() const

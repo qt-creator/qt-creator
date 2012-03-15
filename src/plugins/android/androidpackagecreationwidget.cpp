@@ -328,9 +328,9 @@ void AndroidPackageCreationWidget::setTargetSDK(const QString &target)
 
     qs->setForced(true);
 
-    bm->buildList(bc->stepList(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)),
-                  ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)));
-    bm->appendStep(qs, ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)));
+    bm->buildList(bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)),
+                  ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)));
+    bm->appendStep(qs, ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)));
     bc->setSubNodeBuild(0);
     // Make the buildconfiguration emit a evironmentChanged() signal
     // TODO find a better way

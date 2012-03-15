@@ -39,7 +39,7 @@
 
 using namespace Android::Internal;
 
-const QLatin1String AndroidPackageInstallationStep::Id("Qt4ProjectManager.AndroidPackageInstallationStep");
+const Core::Id AndroidPackageInstallationStep::Id("Qt4ProjectManager.AndroidPackageInstallationStep");
 
 AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bsl) : MakeStep(bsl, Id)
 {

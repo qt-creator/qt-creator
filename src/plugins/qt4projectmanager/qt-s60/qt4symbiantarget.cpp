@@ -50,7 +50,7 @@
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
-Qt4SymbianTarget::Qt4SymbianTarget(Qt4Project *parent, const QString &id) :
+Qt4SymbianTarget::Qt4SymbianTarget(Qt4Project *parent, const Core::Id id) :
     Qt4BaseTarget(parent, id),
     m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this))
 {
@@ -61,16 +61,16 @@ Qt4SymbianTarget::Qt4SymbianTarget(Qt4Project *parent, const QString &id) :
 Qt4SymbianTarget::~Qt4SymbianTarget()
 { }
 
-QString Qt4SymbianTarget::defaultDisplayName(const QString &id)
+QString Qt4SymbianTarget::defaultDisplayName(const Core::Id id)
 {
-    if (id == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
+    if (id == Core::Id(Constants::S60_DEVICE_TARGET_ID))
         return QApplication::translate("Qt4ProjectManager::Qt4Target", "Symbian Device", "Qt4 Symbian Device target display name");
     return QString();
 }
 
-QIcon Qt4SymbianTarget::iconForId(const QString &id)
+QIcon Qt4SymbianTarget::iconForId(Core::Id id)
 {
-    if (id == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
+    if (id == Core::Id(Constants::S60_DEVICE_TARGET_ID))
         return QIcon(QLatin1String(":/projectexplorer/images/SymbianDevice.png"));
     return QIcon();
 }
@@ -91,7 +91,7 @@ void Qt4SymbianTarget::createApplicationProFiles(bool reparse)
     foreach (Qt4ProFileNode *pro, profiles)
         paths << pro->path();
 
-    if (id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID)) {
+    if (id() == Core::Id(Constants::S60_DEVICE_TARGET_ID)) {
         foreach (ProjectExplorer::RunConfiguration *rc, runConfigurations())
             if (S60DeviceRunConfiguration *qt4rc = qobject_cast<S60DeviceRunConfiguration *>(rc))
                 paths.remove(qt4rc->proFilePath());
@@ -111,7 +111,7 @@ QList<ProjectExplorer::RunConfiguration *> Qt4SymbianTarget::runConfigurationsFo
 {
     QList<ProjectExplorer::RunConfiguration *> result;
     foreach (ProjectExplorer::RunConfiguration *rc, runConfigurations()) {
-        if (id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID)) {
+        if (id() == Core::Id(Constants::S60_DEVICE_TARGET_ID)) {
             if (S60DeviceRunConfiguration *s60rc = qobject_cast<S60DeviceRunConfiguration *>(rc))
                 if (s60rc->proFilePath() == n->path())
                     result << rc;

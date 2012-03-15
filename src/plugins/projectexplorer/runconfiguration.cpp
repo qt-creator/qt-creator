@@ -90,7 +90,7 @@ private:
 class CreateMatcher : public RunConfigurationFactoryMatcher
 {
 public:
-    CreateMatcher(Target *target, const QString &id) :
+    CreateMatcher(Target *target, Core::Id id) :
         RunConfigurationFactoryMatcher(target),
         m_id(id)
     { }
@@ -101,7 +101,7 @@ public:
     }
 
 private:
-    QString m_id;
+    Core::Id m_id;
 };
 
 class CloneMatcher : public RunConfigurationFactoryMatcher
@@ -362,7 +362,7 @@ void DebuggerRunConfigurationAspect::fromMap(const QVariantMap &map)
     for a target, but still be runnable via the output tab.
 */
 
-RunConfiguration::RunConfiguration(Target *target, const QString &id) :
+RunConfiguration::RunConfiguration(Target *target, const Core::Id id) :
     ProjectConfiguration(target, id),
     m_debuggerAspect(new DebuggerRunConfigurationAspect(this))
 {
@@ -518,7 +518,7 @@ IRunConfigurationFactory::~IRunConfigurationFactory()
 {
 }
 
-IRunConfigurationFactory *IRunConfigurationFactory::createFactory(Target *parent, const QString &id)
+IRunConfigurationFactory *IRunConfigurationFactory::createFactory(Target *parent, const Core::Id id)
 {
     CreateMatcher matcher(parent, id);
     return findRunConfigurationFactory(matcher);

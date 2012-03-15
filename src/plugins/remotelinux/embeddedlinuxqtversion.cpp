@@ -74,14 +74,14 @@ QList<ProjectExplorer::Abi> EmbeddedLinuxQtVersion::detectQtAbis() const
     return qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
 }
 
-bool EmbeddedLinuxQtVersion::supportsTargetId(const QString &id) const
+bool EmbeddedLinuxQtVersion::supportsTargetId(Core::Id id) const
 {
-    return id == QLatin1String(Constants::EMBEDDED_LINUX_TARGET_ID);
+    return id == Core::Id(Constants::EMBEDDED_LINUX_TARGET_ID);
 }
 
-QSet<QString> EmbeddedLinuxQtVersion::supportedTargetIds() const
+QSet<Core::Id> EmbeddedLinuxQtVersion::supportedTargetIds() const
 {
-    return QSet<QString>() << QLatin1String(Constants::EMBEDDED_LINUX_TARGET_ID);
+    return QSet<Core::Id>() << Core::Id(Constants::EMBEDDED_LINUX_TARGET_ID);
 }
 
 QString EmbeddedLinuxQtVersion::description() const

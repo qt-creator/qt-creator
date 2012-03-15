@@ -60,7 +60,7 @@ public:
 using namespace Internal;
 
 RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target,
-        const QString &id, const QString &defaultDisplayName)
+        const Core::Id id, const QString &defaultDisplayName)
     : DeployConfiguration(target, id), d(new RemoteLinuxDeployConfigurationPrivate)
 {
     setDefaultDisplayName(defaultDisplayName);

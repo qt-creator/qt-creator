@@ -128,9 +128,9 @@ QString AutotoolsProject::displayName() const
     return m_projectName;
 }
 
-QString AutotoolsProject::id() const
+Core::Id AutotoolsProject::id() const
 {
-    return QLatin1String(Constants::AUTOTOOLS_PROJECT_ID);
+    return Core::Id(Constants::AUTOTOOLS_PROJECT_ID);
 }
 
 Core::IDocument *AutotoolsProject::document() const
@@ -189,7 +189,7 @@ bool AutotoolsProject::fromMap(const QVariantMap &map)
     if (!hasUserFile) {
         AutotoolsTargetFactory *factory =
                 ExtensionSystem::PluginManager::instance()->getObject<AutotoolsTargetFactory>();
-        AutotoolsTarget *t = factory->create(this, QLatin1String(Constants::DEFAULT_AUTOTOOLS_TARGET_ID));
+        AutotoolsTarget *t = factory->create(this, Core::Id(Constants::DEFAULT_AUTOTOOLS_TARGET_ID));
 
         QTC_ASSERT(t, return false);
         QTC_ASSERT(t->activeBuildConfiguration(), return false);

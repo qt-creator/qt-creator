@@ -72,7 +72,7 @@ signals:
     void enabledChanged();
 
 protected:
-    DeployConfiguration(Target *target, const QString &id);
+    DeployConfiguration(Target *target, const Core::Id id);
     DeployConfiguration(Target *target, DeployConfiguration *source);
 
     void cloneSteps(DeployConfiguration *source);
@@ -95,12 +95,12 @@ public:
     virtual ~DeployConfigurationFactory();
 
     // used to show the list of possible additons to a target, returns a list of types
-    virtual QStringList availableCreationIds(Target *parent) const;
+    virtual QList<Core::Id> availableCreationIds(Target *parent) const;
     // used to translate the types to names to display to the user
-    virtual QString displayNameForId(const QString &id) const;
+    virtual QString displayNameForId(Core::Id id) const;
 
-    virtual bool canCreate(Target *parent, const QString &id) const;
-    virtual DeployConfiguration *create(Target *parent, const QString &id);
+    virtual bool canCreate(Target *parent, Core::Id id) const;
+    virtual DeployConfiguration *create(Target *parent, Core::Id id);
     // used to recreate the runConfigurations when restoring settings
     virtual bool canRestore(Target *parent, const QVariantMap &map) const;
     virtual DeployConfiguration *restore(Target *parent, const QVariantMap &map);

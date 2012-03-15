@@ -1804,31 +1804,33 @@ bool ProjectExplorerPlugin::saveModifiedFiles()
 
 void ProjectExplorerPlugin::deploy(QList<Project *> projects)
 {
-    QStringList steps;
+    QList<Core::Id> steps;
     if (d->m_projectExplorerSettings.buildBeforeDeploy)
-        steps << QLatin1String(Constants::BUILDSTEPS_BUILD);
-    steps << QLatin1String(Constants::BUILDSTEPS_DEPLOY);
+        steps << Core::Id(Constants::BUILDSTEPS_BUILD);
+    steps << Core::Id(Constants::BUILDSTEPS_DEPLOY);
     queue(projects, steps);
 }
 
-QString ProjectExplorerPlugin::displayNameForStepId(const QString &stepId)
+QString ProjectExplorerPlugin::displayNameForStepId(Core::Id stepId)
 {
-    if (stepId == QLatin1String(Constants::BUILDSTEPS_CLEAN))
+    if (stepId == Core::Id(Constants::BUILDSTEPS_CLEAN))
         return tr("Clean");
-    else if (stepId == QLatin1String(Constants::BUILDSTEPS_BUILD))
+    else if (stepId == Core::Id(Constants::BUILDSTEPS_BUILD))
         return tr("Build");
-    else if (stepId == QLatin1String(Constants::BUILDSTEPS_DEPLOY))
+    else if (stepId == Core::Id(Constants::BUILDSTEPS_DEPLOY))
         return tr("Deploy");
     return tr("Build");
 }
 
-int ProjectExplorerPlugin::queue(QList<Project *> projects, QStringList stepIds)
+int ProjectExplorerPlugin::queue(QList<Project *> projects, QList<Core::Id> stepIds)
 {
     if (debug) {
-        QStringList projectNames;
+        QStringList projectNames, stepNames;
         foreach (const Project *p, projects)
             projectNames << p->displayName();
-        qDebug() << "Building" << stepIds << "for projects" << projectNames;
+        foreach (const Core::Id id, stepIds)
+            stepNames << id.name();
+        qDebug() << "Building" << stepNames << "for projects" << projectNames;
     }
 
     if (!saveModifiedFiles())
@@ -1842,12 +1844,12 @@ int ProjectExplorerPlugin::queue(QList<Project *> projects, QStringList stepIds)
         if (pro && pro->needsConfiguration())
             preambleMessage.append(tr("The project %1 is not configured, skipping it.\n")
                                    .arg(pro->displayName()));
-    foreach (const QString id, stepIds) {
+    foreach (Core::Id id, stepIds) {
         foreach (Project *pro, projects) {
             if (!pro || !pro->activeTarget())
                 continue;
             BuildStepList *bsl = 0;
-            if (id == Core::Id(Constants::BUILDSTEPS_DEPLOY).toString()
+            if (id == Core::Id(Constants::BUILDSTEPS_DEPLOY)
                 && pro->activeTarget()->activeDeployConfiguration())
                 bsl = pro->activeTarget()->activeDeployConfiguration()->stepList();
             else if (pro->activeTarget()->activeBuildConfiguration())
@@ -1870,13 +1872,13 @@ int ProjectExplorerPlugin::queue(QList<Project *> projects, QStringList stepIds)
 
 void ProjectExplorerPlugin::buildProjectOnly()
 {
-    queue(QList<Project *>() << session()->startupProject(), QStringList(QLatin1String(Constants::BUILDSTEPS_BUILD)));
+    queue(QList<Project *>() << session()->startupProject(), QList<Core::Id>() << Core::Id(Constants::BUILDSTEPS_BUILD));
 }
 
 void ProjectExplorerPlugin::buildProject(ProjectExplorer::Project *p)
 {
     queue(d->m_session->projectOrder(p),
-          QStringList(QLatin1String(Constants::BUILDSTEPS_BUILD)));
+          QList<Core::Id>() << Core::Id(Constants::BUILDSTEPS_BUILD));
 }
 
 void ProjectExplorerPlugin::requestProjectModeUpdate(Project *p)
@@ -1887,43 +1889,43 @@ void ProjectExplorerPlugin::requestProjectModeUpdate(Project *p)
 void ProjectExplorerPlugin::buildProject()
 {
     queue(d->m_session->projectOrder(session()->startupProject()),
-          QStringList(QLatin1String(Constants::BUILDSTEPS_BUILD)));
+          QList<Core::Id>() << Core::Id(Constants::BUILDSTEPS_BUILD));
 }
 
 void ProjectExplorerPlugin::buildProjectContextMenu()
 {
     queue(QList<Project *>() <<  d->m_currentProject,
-          QStringList(QLatin1String(Constants::BUILDSTEPS_BUILD)));
+          QList<Core::Id>() << Core::Id(Constants::BUILDSTEPS_BUILD));
 }
 
 void ProjectExplorerPlugin::buildSession()
 {
     queue(d->m_session->projectOrder(),
-          QStringList(QLatin1String(Constants::BUILDSTEPS_BUILD)));
+          QList<Core::Id>() << Core::Id(Constants::BUILDSTEPS_BUILD));
 }
 
 void ProjectExplorerPlugin::rebuildProjectOnly()
 {
     queue(QList<Project *>() << session()->startupProject(),
-          QStringList() << QLatin1String(Constants::BUILDSTEPS_CLEAN) << QLatin1String(Constants::BUILDSTEPS_BUILD));
+          QList<Core::Id>() << Core::Id(Constants::BUILDSTEPS_CLEAN) << Core::Id(Constants::BUILDSTEPS_BUILD));
 }
 
 void ProjectExplorerPlugin::rebuildProject()
 {
     queue(d->m_session->projectOrder(session()->startupProject()),
-          QStringList() << QLatin1String(Constants::BUILDSTEPS_CLEAN) << QLatin1String(Constants::BUILDSTEPS_BUILD));
+          QList<Core::Id>() << Core::Id(Constants::BUILDSTEPS_CLEAN) << Core::Id(Constants::BUILDSTEPS_BUILD));
 }
 
 void ProjectExplorerPlugin::rebuildProjectContextMenu()
 {
     queue(QList<Project *>() <<  d->m_currentProject,
-          QStringList() << QLatin1String(Constants::BUILDSTEPS_CLEAN) << QLatin1String(Constants::BUILDSTEPS_BUILD));
+          QList<Core::Id>() << Core::Id(Constants::BUILDSTEPS_CLEAN) << Core::Id(Constants::BUILDSTEPS_BUILD));
 }
 
 void ProjectExplorerPlugin::rebuildSession()
 {
     queue(d->m_session->projectOrder(),
-          QStringList() << QLatin1String(Constants::BUILDSTEPS_CLEAN) << QLatin1String(Constants::BUILDSTEPS_BUILD));
+          QList<Core::Id>() << Core::Id(Constants::BUILDSTEPS_CLEAN) << Core::Id(Constants::BUILDSTEPS_BUILD));
 }
 
 void ProjectExplorerPlugin::deployProjectOnly()
@@ -1949,25 +1951,25 @@ void ProjectExplorerPlugin::deploySession()
 void ProjectExplorerPlugin::cleanProjectOnly()
 {
     queue(QList<Project *>() << session()->startupProject(),
-          QStringList(QLatin1String(Constants::BUILDSTEPS_CLEAN)));
+          QList<Core::Id>() << Core::Id(Constants::BUILDSTEPS_CLEAN));
 }
 
 void ProjectExplorerPlugin::cleanProject()
 {
     queue(d->m_session->projectOrder(session()->startupProject()),
-          QStringList(QLatin1String(Constants::BUILDSTEPS_CLEAN)));
+          QList<Core::Id>() << Core::Id(Constants::BUILDSTEPS_CLEAN));
 }
 
 void ProjectExplorerPlugin::cleanProjectContextMenu()
 {
     queue(QList<Project *>() <<  d->m_currentProject,
-          QStringList(QLatin1String(Constants::BUILDSTEPS_CLEAN)));
+          QList<Core::Id>() << Core::Id(Constants::BUILDSTEPS_CLEAN));
 }
 
 void ProjectExplorerPlugin::cleanSession()
 {
     queue(d->m_session->projectOrder(),
-          QStringList(QLatin1String(Constants::BUILDSTEPS_CLEAN)));
+          QList<Core::Id>() << Core::Id(Constants::BUILDSTEPS_CLEAN));
 }
 
 void ProjectExplorerPlugin::runProject()
@@ -2117,11 +2119,11 @@ void ProjectExplorerPlugin::runRunConfiguration(ProjectExplorer::RunConfiguratio
     if (!rc->isEnabled())
         return;
 
-    QStringList stepIds;
+    QList<Core::Id> stepIds;
     if (!forceSkipDeploy && d->m_projectExplorerSettings.deployBeforeRun) {
         if (d->m_projectExplorerSettings.buildBeforeDeploy)
-            stepIds << QLatin1String(Constants::BUILDSTEPS_BUILD);
-        stepIds << QLatin1String(Constants::BUILDSTEPS_DEPLOY);
+            stepIds << Core::Id(Constants::BUILDSTEPS_BUILD);
+        stepIds << Core::Id(Constants::BUILDSTEPS_DEPLOY);
     }
 
     Project *pro = rc->target()->project();

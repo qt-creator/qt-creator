@@ -77,7 +77,7 @@ const char * const QMAKE_QMLDEBUGLIB_KEY("QtProjectManager.QMakeBuildStep.LinkQm
 }
 
 QMakeStep::QMakeStep(BuildStepList *bsl) :
-    AbstractProcessStep(bsl, QLatin1String(QMAKE_BS_ID)),
+    AbstractProcessStep(bsl, Core::Id(QMAKE_BS_ID)),
     m_forced(false),
     m_needToRunQMake(false),
     m_linkQmlDebuggingLibrary(DebugLink)
@@ -85,7 +85,7 @@ QMakeStep::QMakeStep(BuildStepList *bsl) :
     ctor();
 }
 
-QMakeStep::QMakeStep(BuildStepList *bsl, const QString &id) :
+QMakeStep::QMakeStep(BuildStepList *bsl, const Core::Id id) :
     AbstractProcessStep(bsl, id),
     m_forced(false),
     m_linkQmlDebuggingLibrary(DebugLink)
@@ -741,8 +741,8 @@ void QMakeStepConfigWidget::recompileMessageBoxFinished(int button)
             return;
 
         QList<ProjectExplorer::BuildStepList *> stepLists;
-        const QString clean = QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-        const QString build = QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+        const Core::Id clean = Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+        const Core::Id build = Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
         stepLists << bc->stepList(clean) << bc->stepList(build);
         ProjectExplorer::BuildManager *bm = ProjectExplorerPlugin::instance()->buildManager();
         bm->buildLists(stepLists, QStringList() << ProjectExplorerPlugin::displayNameForStepId(clean)
@@ -779,16 +779,16 @@ QMakeStepFactory::~QMakeStepFactory()
 {
 }
 
-bool QMakeStepFactory::canCreate(BuildStepList *parent, const QString &id) const
+bool QMakeStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
-    if (parent->id() != QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD))
+    if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD))
         return false;
     if (!qobject_cast<Qt4BuildConfiguration *>(parent->parent()))
         return false;
-    return (id == QLatin1String(QMAKE_BS_ID));
+    return (id == Core::Id(QMAKE_BS_ID));
 }
 
-ProjectExplorer::BuildStep *QMakeStepFactory::create(BuildStepList *parent, const QString &id)
+ProjectExplorer::BuildStep *QMakeStepFactory::create(BuildStepList *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -809,8 +809,7 @@ ProjectExplorer::BuildStep *QMakeStepFactory::clone(BuildStepList *parent, Proje
 
 bool QMakeStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
 {
-    QString id(ProjectExplorer::idFromMap(map));
-    return canCreate(parent, id);
+    return canCreate(parent, ProjectExplorer::idFromMap(map));
 }
 
 ProjectExplorer::BuildStep *QMakeStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
@@ -824,18 +823,18 @@ ProjectExplorer::BuildStep *QMakeStepFactory::restore(BuildStepList *parent, con
     return 0;
 }
 
-QStringList QMakeStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
+QList<Core::Id> QMakeStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
-    if (parent->id() == QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD))
+    if (parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD))
         if (Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(parent->parent()))
             if (!bc->qmakeStep())
-                return QStringList() << QLatin1String(QMAKE_BS_ID);
-    return QStringList();
+                return QList<Core::Id>() << Core::Id(QMAKE_BS_ID);
+    return QList<Core::Id>();
 }
 
-QString QMakeStepFactory::displayNameForId(const QString &id) const
+QString QMakeStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == QLatin1String(QMAKE_BS_ID))
+    if (id == Core::Id(QMAKE_BS_ID))
         return tr("qmake");
     return QString();
 }

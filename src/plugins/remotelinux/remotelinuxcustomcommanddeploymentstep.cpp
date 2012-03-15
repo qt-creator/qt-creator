@@ -96,7 +96,7 @@ using namespace Internal;
 
 
 AbstractRemoteLinuxCustomCommandDeploymentStep::AbstractRemoteLinuxCustomCommandDeploymentStep(BuildStepList *bsl,
-        const QString &id)
+        const Core::Id id)
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
     ctor();
@@ -185,9 +185,9 @@ RemoteLinuxCustomCommandDeployService *GenericRemoteLinuxCustomCommandDeployment
     return &d->service;
 }
 
-QString GenericRemoteLinuxCustomCommandDeploymentStep::stepId()
+Core::Id GenericRemoteLinuxCustomCommandDeploymentStep::stepId()
 {
-    return QLatin1String("RemoteLinux.GenericRemoteLinuxCustomCommandDeploymentStep");
+    return Core::Id("RemoteLinux.GenericRemoteLinuxCustomCommandDeploymentStep");
 }
 
 QString GenericRemoteLinuxCustomCommandDeploymentStep::stepDisplayName()
