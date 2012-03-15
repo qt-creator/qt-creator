@@ -31,7 +31,7 @@
 **************************************************************************/
 
 import QtQuick 1.0
-import "widgets"
+import widgets 1.0
 
 Rectangle {
     id: rectangle1

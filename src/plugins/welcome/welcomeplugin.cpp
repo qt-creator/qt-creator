@@ -234,6 +234,9 @@ void WelcomeMode::initPlugins()
 
 
     QDeclarativeEngine *engine = m_welcomePage->engine();
+    QStringList importPathList = engine->importPathList();
+    importPathList << Core::ICore::resourcePath() + QLatin1String("/welcomescreen");
+    engine->setImportPathList(importPathList);
     if (!debug)
         engine->setOutputWarningsToStandardError(false);
     engine->setNetworkAccessManagerFactory(new NetworkAccessManagerFactory);
