@@ -5900,6 +5900,7 @@ namespace bug6933 {
         BREAK_HERE;
         // Expand b b.bug6933::Base
         // Check b.[bug6933::Base].[vptr]
+        // Continue.
         dummyStatement(&d, b);
     }
 }
