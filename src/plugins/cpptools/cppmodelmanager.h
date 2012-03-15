@@ -225,8 +225,11 @@ private:
 
     struct Editor {
         Editor()
-                : revision(-1) {}
+            : revision(-1)
+            , updateSelections(true)
+        {}
         int revision;
+        bool updateSelections;
         QPointer<TextEditor::ITextEditor> textEditor;
         QList<QTextEdit::ExtraSelection> selections;
         QList<TextEditor::BaseTextEditorWidget::BlockRange> ifdefedOutBlocks;

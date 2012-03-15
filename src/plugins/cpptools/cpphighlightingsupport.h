@@ -72,6 +72,8 @@ public:
     virtual ~CppHighlightingSupportFactory() = 0;
 
     virtual CppHighlightingSupport *highlightingSupport(TextEditor::ITextEditor *editor) = 0;
+
+    virtual bool hightlighterHandlesDiagnostics() const = 0;
 };
 
 } // namespace CppTools

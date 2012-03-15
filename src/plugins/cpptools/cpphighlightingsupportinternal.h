@@ -62,6 +62,9 @@ public:
     virtual ~CppHighlightingSupportInternalFactory();
 
     virtual CppHighlightingSupport *highlightingSupport(TextEditor::ITextEditor *editor);
+
+    virtual bool hightlighterHandlesDiagnostics() const
+    { return false; }
 };
 
 } // namespace Internal
