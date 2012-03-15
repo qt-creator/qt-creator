@@ -71,13 +71,11 @@ const char DefaultDevicesKey[] = "DefaultDevices";
 class DeviceManagerPrivate
 {
 public:
-    static DeviceManager *instance;
     static DeviceManager *clonedInstance;
     QList<IDevice::Ptr> devices;
     QList<IDevice::Ptr> inactiveAutoDetectedDevices;
     QHash<QString, IDevice::Id> defaultDevices;
 };
-DeviceManager *DeviceManagerPrivate::instance = 0;
 DeviceManager *DeviceManagerPrivate::clonedInstance = 0;
 
 } // namespace Internal
@@ -87,17 +85,8 @@ using namespace Internal;
 
 DeviceManager *DeviceManager::instance()
 {
-    if (DeviceManagerPrivate::instance == 0) {
-        DeviceManagerPrivate::instance = new DeviceManager;
-        DeviceManagerPrivate::instance->load();
-    }
-    return DeviceManagerPrivate::instance;
-}
-
-void DeviceManager::deleteInstance()
-{
-    delete Internal::DeviceManagerPrivate::instance;
-    Internal::DeviceManagerPrivate::instance = 0;
+    static DeviceManager deviceManager(true);
+    return &deviceManager;
 }
 
 int DeviceManager::deviceCount() const
@@ -107,13 +96,10 @@ int DeviceManager::deviceCount() const
 
 void DeviceManager::replaceInstance()
 {
-    QTC_ASSERT(DeviceManagerPrivate::instance, return);
-
-    copy(DeviceManagerPrivate::clonedInstance,
-        DeviceManagerPrivate::instance, false);
-    DeviceManagerPrivate::instance->save();
-    emit DeviceManagerPrivate::instance->deviceListChanged();
-    emit DeviceManagerPrivate::instance->updated();
+    copy(DeviceManagerPrivate::clonedInstance, instance(), false);
+    instance()->save();
+    emit instance()->deviceListChanged();
+    emit instance()->updated();
 }
 
 void DeviceManager::removeClonedInstance()
@@ -239,7 +225,7 @@ QString DeviceManager::settingsFilePath()
 
 void DeviceManager::addDevice(const IDevice::Ptr &device)
 {
-    QTC_ASSERT(this != DeviceManagerPrivate::instance || (device->isAutoDetected()), return);
+    QTC_ASSERT(this != instance() || (device->isAutoDetected()), return);
     QTC_ASSERT(!device->isAutoDetected() || !findAutoDetectedDevice(d->devices, device->type(),
             device->fingerprint()), return);
 
@@ -257,9 +243,9 @@ void DeviceManager::addDevice(const IDevice::Ptr &device)
     if (!defaultDevice(device->type()))
         d->defaultDevices.insert(device->type(), device->internalId());
     d->devices << device;
-    if (this == d->instance && d->clonedInstance)
+    if (this == instance() && d->clonedInstance)
         d->clonedInstance->addDevice(device->clone());
-    if (this == d->instance) {
+    if (this == instance()) {
         QList<IDevice::Ptr>::Iterator it = d->inactiveAutoDetectedDevices.begin();
         while (it != d->inactiveAutoDetectedDevices.end()) {
             if (it->data()->type() == device->type()
@@ -279,7 +265,7 @@ void DeviceManager::removeDevice(int idx)
 {
     const IDevice::Ptr device = mutableDeviceAt(idx);
     QTC_ASSERT(device, return);
-    QTC_ASSERT(this != DeviceManagerPrivate::instance || device->isAutoDetected(), return);
+    QTC_ASSERT(this != instance() || device->isAutoDetected(), return);
 
     const bool wasDefault = d->defaultDevices.value(device->type()) == device->internalId();
     const QString deviceType = device->type();
@@ -295,11 +281,11 @@ void DeviceManager::removeDevice(int idx)
             }
         }
     }
-    if (this == d->instance && d->clonedInstance) {
+    if (this == instance() && d->clonedInstance) {
         d->clonedInstance->removeDevice(d->clonedInstance->
             indexForInternalId(device->internalId()));
     }
-    if (this == d->instance && device->isAutoDetected())
+    if (this == instance() && device->isAutoDetected())
         d->inactiveAutoDetectedDevices << device;
 
     emit updated();
@@ -307,7 +293,7 @@ void DeviceManager::removeDevice(int idx)
 
 void DeviceManager::setDeviceDisplayName(int i, const QString &name)
 {
-    QTC_ASSERT(this != DeviceManagerPrivate::instance, return);
+    QTC_ASSERT(this != instance(), return);
     QTC_ASSERT(i >= 0 && i < deviceCount(), return);
 
     d->devices.at(i)->setDisplayName(name);
@@ -316,7 +302,7 @@ void DeviceManager::setDeviceDisplayName(int i, const QString &name)
 
 void DeviceManager::setDefaultDevice(int idx)
 {
-    QTC_ASSERT(this != DeviceManagerPrivate::instance, return);
+    QTC_ASSERT(this != instance(), return);
     QTC_ASSERT(idx >= 0 && idx < deviceCount(), return);
 
     const IDevice::ConstPtr &device = d->devices.at(idx);
@@ -353,8 +339,10 @@ QString DeviceManager::displayNameForDeviceType(const QString &type)
     return tr("Unknown OS");
 }
 
-DeviceManager::DeviceManager() : d(new DeviceManagerPrivate)
+DeviceManager::DeviceManager(bool doLoad) : d(new DeviceManagerPrivate)
 {
+    if (doLoad)
+        load();
 }
 
 DeviceManager::~DeviceManager()

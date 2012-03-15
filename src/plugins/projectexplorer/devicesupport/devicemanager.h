@@ -50,7 +50,6 @@ class PROJECTEXPLORER_EXPORT DeviceManager : public QObject
 {
     Q_OBJECT
     friend class Internal::DeviceSettingsWidget;
-    friend class ProjectExplorerPlugin;
 public:
     ~DeviceManager();
 
@@ -80,7 +79,7 @@ signals:
     void updated(); // Emitted for all of the above.
 
 private:
-    DeviceManager();
+    DeviceManager(bool doLoad = false);
 
     void load();
     void save();
@@ -101,8 +100,6 @@ private:
 
     static QString settingsFilePath();
     static void copy(const DeviceManager *source, DeviceManager *target, bool deep);
-
-    static void deleteInstance(); // For ProjectExplorerPlugin.
 
     Internal::DeviceManagerPrivate * const d;
 };

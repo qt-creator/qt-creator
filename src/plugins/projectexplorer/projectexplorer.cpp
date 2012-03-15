@@ -79,7 +79,6 @@
 #include "buildconfiguration.h"
 #include "miniprojecttargetselector.h"
 #include "taskhub.h"
-#include "devicesupport/devicemanager.h"
 #include "devicesupport/devicesettingspage.h"
 #include "publishing/ipublishingwizardfactory.h"
 #include "publishing/publishingwizardselectiondialog.h"
@@ -287,7 +286,6 @@ ProjectExplorerPlugin::ProjectExplorerPlugin()
 
 ProjectExplorerPlugin::~ProjectExplorerPlugin()
 {
-    DeviceManager::deleteInstance();
     removeObject(d->m_welcomePage);
     delete d->m_welcomePage;
     removeObject(this);
