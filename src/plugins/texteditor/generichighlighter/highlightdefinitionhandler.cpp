@@ -449,7 +449,7 @@ void HighlightDefinitionHandler::processIncludeRules(const QSharedPointer<Contex
 
             const QSharedPointer<HighlightDefinition> &externalDefinition =
                 Manager::instance()->definition(id);
-            if (externalDefinition.isNull())
+            if (externalDefinition.isNull() || !externalDefinition->isValid())
                 continue;
 
             sourceContext = externalDefinition->initialContext();

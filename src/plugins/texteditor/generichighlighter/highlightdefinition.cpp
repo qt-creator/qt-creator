@@ -55,6 +55,11 @@ HighlightDefinition::HighlightDefinition() :
 HighlightDefinition::~HighlightDefinition()
 {}
 
+bool HighlightDefinition::isValid() const
+{
+    return !m_initialContext.isEmpty();
+}
+
 template <class Element, class Container>
 QSharedPointer<Element> HighlightDefinition::
 GenericHelper::create(const QString &name, Container &container)

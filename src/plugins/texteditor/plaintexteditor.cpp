@@ -180,7 +180,7 @@ void PlainTextEditorWidget::configure(const Core::MimeType &mimeType)
             m_isMissingSyntaxDefinition = false;
             const QSharedPointer<HighlightDefinition> &definition =
                 Manager::instance()->definition(definitionId);
-            if (!definition.isNull()) {
+            if (!definition.isNull() && definition->isValid()) {
                 highlighter->setDefaultContext(definition->initialContext());
 
                 m_commentDefinition.setAfterWhiteSpaces(definition->isCommentAfterWhiteSpaces());
