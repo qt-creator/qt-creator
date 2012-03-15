@@ -59,12 +59,10 @@ Core::GeneratedFiles QmlFileWizard::generateFilesFromPath(const QString &path,
     return Core::GeneratedFiles() << file;
 }
 
-QString QmlFileWizard::fileContents(const QString &fileName) const
+QString QmlFileWizard::fileContents(const QString &) const
 {
-    const QString baseName = QFileInfo(fileName).completeBaseName();
     QString contents;
     QTextStream str(&contents);
-//    str << CppTools::AbstractEditorSupport::licenseTemplate();
 
     // 100:62 is the 'golden ratio'
     str << QLatin1String("// import QtQuick 1.0 // to target S60 5th Edition or Maemo 5\n")
