@@ -555,7 +555,7 @@ namespace qbytearray {
         QString s(10000, 'x');
         std::string ss(10000, 'c');
         BREAK_HERE;
-        // Check ba "\377\376\375\374\373\372\371\370\367\366\365\364\363\362\361\360\357\356\355\354\353\352\351\350\347\346\345\344\343\342\341\340\337\336\335\334\333\332\331\330\327\326\325\324\323\322\321\320\317\316\315\314\313\312\311\310\307\306\305\304\303\302\301\300\277\276\275\274\273\272\271\270\267\266\265\264\263\262\261\260\257\256\255\254\253\252\251\250\247\246\245\244\243\242\241\240\237\236\235\234\233\232\231\230\227\226\225\224\223\222\221\220\217\216\215\214\213\212\211\210\207\206\205\204\203\202\201\20..." QByteArray.
+        // CheckType ba QByteArray.
         // Check s "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..." QString.
         // Check ss "ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc..." std::string.
         // Continue.
@@ -571,8 +571,11 @@ namespace qbytearray {
         QByteArray buf2(str2);
         QByteArray buf3(str3);
         BREAK_HERE;
-        // Check buf1 "\356" QByteArray.
-        // Check buf2 "\356" QByteArray.
+        // Check buf1 "î" QByteArray.
+        // Check buf2 "î" QByteArray.
+        // Check buf3 "\ee" QByteArray.
+        // Check buf1 "î" QByteArray.
+        // Check buf2 "î" QByteArray.
         // Check buf3 "\ee" QByteArray.
         // CheckType str1 char *.
         // Continue.
@@ -1152,8 +1155,8 @@ namespace qlist {
         BREAK_HERE;
         // Expand l.
         // Check l <3 items> QList<unsigned long long>.
-        // CheckType l.0 101 unsigned long long.
-        // CheckType l.2 102 unsigned long long.
+        // CheckType l.0 unsigned long long.
+        // CheckType l.2 unsigned long long.
         // Continue.
         dummyStatement(&l);
     }
@@ -3445,7 +3448,7 @@ namespace formats {
         else
             u = QString::fromUtf16((ushort *)w);
         BREAK_HERE;
-        // Check u "a\366a" QString.
+        // Check u "aöa" QString.
         // CheckType w wchar_t *.
         // Continue.
 
@@ -4318,7 +4321,7 @@ namespace basic {
         s[0] = 0;
         BREAK_HERE;
         // Expand s.
-        // CheckType s char [5].
+        // CheckType s char [6].
         // Check s.0 0 '\0' char.
         // Continue.
 
