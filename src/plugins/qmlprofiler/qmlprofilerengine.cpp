@@ -275,6 +275,7 @@ void QmlProfilerEngine::finishProcess()
     if (d->m_running) {
         d->m_running = false;
         d->m_runningTimer.stop();
+        d->m_noDebugOutputTimer.stop();
         if (d->m_runner)
             d->m_runner->stop();
         emit finished();
@@ -305,11 +306,7 @@ void QmlProfilerEngine::wrongSetupMessageBox(const QString &errorMessage)
 
     infoBox->show();
 
-    d->m_running = false;
-    d->m_runningTimer.stop();
-    AnalyzerManager::stopTool();
-    emit finished();
-    emit recordingChanged(d->m_fetchDataFromStart);
+    finishProcess();
 }
 
 void QmlProfilerEngine::wrongSetupMessageBoxFinished(int button)
