@@ -560,7 +560,7 @@ public:
                 unsigned lineStart;
                 const QString &lineSource = matchingLine(use.begin(), source, &lineStart);
                 usages.append(Usage(fileName, lineSource, use.beginLine(),
-                                    use.begin() - lineStart, use.length()));
+                                    use.begin() - lineStart, useMacro.name().length()));
             }
         }
 
@@ -644,8 +644,9 @@ void CppFindReferences::findMacroUses(const Macro &macro)
     {
         // ### FIXME: Encoding?
         const QByteArray &source = getSource(macro.fileName(), workingCopy).toLatin1();
-        search->addResult(macro.fileName(), macro.line(),
-                          source.mid(macro.offset(), macro.length()), 0, macro.length());
+        const QByteArray line = source.mid(macro.offset(), macro.length());
+        search->addResult(macro.fileName(), macro.line(), line,
+                          line.indexOf(macro.name()), macro.name().length());
     }
 
     QFuture<Usage> result;
