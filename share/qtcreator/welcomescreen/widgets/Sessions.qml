@@ -76,8 +76,7 @@ Item {
             anchors.fill: parent
             verticalMinimumValue: vscrollbar.minimumValue
             verticalMaximumValue: vscrollbar.maximumValue
-
-            onVerticalValueChanged: root.contentY =  Math.round(verticalValue / root.delegateHeight) * root.delegateHeight
+            onVerticalValueChanged: root.contentY =  verticalValue
         }
 
         ScrollBar {
@@ -92,7 +91,7 @@ Item {
             anchors.bottom: parent.bottom
             singleStep: root.delegateHeight
             anchors.topMargin: styleitem.style === "mac" ? 1 : 0
-            onValueChanged: root.contentY =  Math.round(value / root.delegateHeight) * root.delegateHeight
+            onValueChanged: root.contentY = value
             anchors.rightMargin: styleitem.frameoffset
             anchors.bottomMargin: styleitem.frameoffset
             value: root.contentY
