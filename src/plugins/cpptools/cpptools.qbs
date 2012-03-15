@@ -100,7 +100,11 @@ QtcPlugin {
         "uicodecompletionsupport.h",
         "cppcompletionassistprovider.cpp",
         "cppcompletionassistprovider.h",
-        "cppcodestylepreferencesfactory.h"
+        "cppcodestylepreferencesfactory.h",
+        "ModelManagerInterface.cpp",
+        "ModelManagerInterface.h",
+        "TypeHierarchyBuilder.cpp",
+        "TypeHierarchyBuilder.h"
     ]
 }
 

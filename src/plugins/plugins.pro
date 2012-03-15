@@ -120,6 +120,7 @@ plugin_vcsbase.depends = plugin_find
 plugin_vcsbase.depends += plugin_texteditor
 plugin_vcsbase.depends += plugin_coreplugin
 plugin_vcsbase.depends += plugin_projectexplorer
+plugin_vcsbase.depends += plugin_cpptools
 
 plugin_perforce.subdir = perforce
 plugin_perforce.depends = plugin_vcsbase
@@ -253,6 +254,7 @@ plugin_qmldesigner.depends += plugin_qmljseditor
 plugin_qmldesigner.depends += plugin_projectexplorer
 plugin_qmldesigner.depends += plugin_qt4projectmanager
 plugin_qmldesigner.depends += plugin_qmlprojectmanager
+plugin_qmldesigner.depends += plugin_cpptools
 
 plugin_qmljsinspector.subdir = qmljsinspector
 plugin_qmljsinspector.depends += plugin_projectexplorer
@@ -283,6 +285,7 @@ plugin_analyzerbase.subdir = analyzerbase
 plugin_analyzerbase.depends = plugin_coreplugin
 plugin_analyzerbase.depends += plugin_projectexplorer
 plugin_analyzerbase.depends += plugin_remotelinux
+plugin_analyzerbase.depends += plugin_cpptools
 
 plugin_valgrind.subdir = valgrind
 plugin_valgrind.depends = plugin_coreplugin
@@ -300,6 +303,7 @@ plugin_qmljstools.depends = plugin_projectexplorer
 plugin_qmljstools.depends += plugin_coreplugin
 plugin_qmljstools.depends += plugin_texteditor
 plugin_qmljstools.depends += plugin_qtsupport
+plugin_qmljstools.depends += plugin_cpptools
 
 plugin_macros.subdir = macros
 plugin_macros.depends = plugin_texteditor

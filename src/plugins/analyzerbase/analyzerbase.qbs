@@ -7,7 +7,7 @@ QtcPlugin {
 
     Depends { name: "qt"; submodules: ['gui'] }
     Depends { name: "Core" }
-    Depends { name: "CPlusPlus" }
+    Depends { name: "CppTools" }
     Depends { name: "RemoteLinux" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
