@@ -115,6 +115,7 @@ Item {
             }
 
             Column {
+                y: -4
                 x: parent.margin + 8
                 //y: parent.margin
                 id: innerColumn
@@ -149,7 +150,7 @@ Item {
                             wrapMode: Text.WrapAnywhere
                             maximumLineCount: 2
                             elide: Text.ElideRight
-                            height: font.pixelSize * 2 + 4
+                            height: lineCount == 2 ? font.pixelSize * 2 + 4 : font.pixelSize + 2
                             color: "#6b6b6b"
                             width: delegate.ListView.view.width - 48
                             MouseArea {
@@ -220,7 +221,6 @@ Item {
     }
 
     Item {
-
         x: delegate.ListView.view.width - 65
         width: 38
         height: 20

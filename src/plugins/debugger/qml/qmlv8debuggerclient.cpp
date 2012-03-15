@@ -1153,11 +1153,12 @@ void QmlV8DebuggerClient::synchronizeBreakpoints()
     //NOT USED
 }
 
-void QmlV8DebuggerClient::assignValueInDebugger(const QByteArray /*expr*/, const quint64 &/*id*/,
-                                                const QString &property, const QString &value)
+void QmlV8DebuggerClient::assignValueInDebugger(const WatchData * /*data*/,
+                                                const QString &expr,
+                                                const QVariant &valueV)
 {
     StackHandler *stackHandler = d->engine->stackHandler();
-    QString expression = QString(_("%1 = %2;")).arg(property).arg(value);
+    QString expression = QString(_("%1 = %2;")).arg(expr).arg(valueV.toString());
     if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {
         d->evaluate(expression, false, false, stackHandler->currentIndex());
     } else {
@@ -1309,13 +1310,22 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                         BreakpointModelId id = d->breakpointsSync.take(seq);
                         d->breakpoints.insert(id, index);
 
-                        BreakHandler *handler = d->engine->breakHandler();
-                        if (handler->state(id) != BreakpointInserted) {
-                            BreakpointResponse br = handler->response(id);
-                            br.lineNumber = breakpointData.value(_("line")
-                                                                 ).toInt() + 1;
-                            handler->setResponse(id, br);
-                            handler->notifyBreakpointInsertOk(id);
+                        //Is actual position info present? Then breakpoint was
+                        //accepted
+                        const QVariantList actualLocations =
+                                breakpointData.value(
+                                    _("actual_locations")).toList();
+                        if (actualLocations.count()) {
+                            //The breakpoint requested line should be same as
+                            //actual line
+                            BreakHandler *handler = d->engine->breakHandler();
+                            if (handler->state(id) != BreakpointInserted) {
+                                BreakpointResponse br = handler->response(id);
+                                br.lineNumber = breakpointData.value(_("line")
+                                                                     ).toInt() + 1;
+                                handler->setResponse(id, br);
+                                handler->notifyBreakpointInsertOk(id);
+                            }
                         }
 
 
@@ -1479,6 +1489,12 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                                     if (br.functionName.isEmpty()) {
                                         br.functionName = invocationText;
                                         handler->setResponse(id, br);
+                                    }
+                                    if (handler->state(id) != BreakpointInserted) {
+                                        br.lineNumber = breakData.value(
+                                                    _("sourceLine")).toInt() + 1;
+                                        handler->setResponse(id, br);
+                                        handler->notifyBreakpointInsertOk(id);
                                     }
                                 }
                             }

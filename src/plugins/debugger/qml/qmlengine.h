@@ -161,9 +161,11 @@ signals:
         TextEditor::ITextEditor *editor, int cursorPos);
 
 private slots:
+    void tryToConnect(quint16 port = 0);
     void beginConnection(quint16 port = 0);
     void connectionEstablished();
-    void connectionStartupFailed(const QString &errorMessage = QString());
+    void connectionStartupFailed();
+    void appStartupFailed(const QString &errorMessage);
     void connectionError(QAbstractSocket::SocketError error);
     void serviceConnectionError(const QString &service);
     void appendMessage(const QString &msg, Utils::OutputFormat);

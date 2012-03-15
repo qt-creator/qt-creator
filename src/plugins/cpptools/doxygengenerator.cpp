@@ -56,7 +56,6 @@ DoxygenGenerator::DoxygenGenerator()
     , m_generateBrief(true)
     , m_startComment(true)
     , m_style(QtStyle)
-    , m_commentOffset(0)
 {}
 
 void DoxygenGenerator::setStyle(DocumentationStyle style)
@@ -308,16 +307,11 @@ void DoxygenGenerator::assignCommentOffset(QTextCursor cursor)
             cursor.setPosition(cursor.anchor());
     }
 
-    m_commentOffset = cursor.positionInBlock();
+    cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
+    m_commentOffset = cursor.selectedText();
 }
 
 QString DoxygenGenerator::offsetString() const
 {
-    // Note: Currently we don't indent comments, but simply preserve them in the original
-    // relative positions. What we do here is just to make sure that such positions are correct,
-    // although they might still be wrong from an indentation point of view (for instance,
-    // using spaces instead of tabs). Therefore, the content generated should still have
-    // the indentation strings fixed.
-
-    return QString(m_commentOffset, QLatin1Char(' '));
+    return m_commentOffset;
 }

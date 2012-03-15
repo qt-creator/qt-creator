@@ -64,6 +64,7 @@ public:
 
         ProjectInfo(QPointer<ProjectExplorer::Project> project)
             : project(project)
+            , tryQmlDump(false)
         { }
 
         operator bool() const

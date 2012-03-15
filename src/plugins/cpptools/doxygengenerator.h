@@ -95,7 +95,7 @@ private:
     bool m_startComment;
     DocumentationStyle m_style;
     CPlusPlus::Overview m_printer;
-    int m_commentOffset;
+    QString m_commentOffset;
 };
 
 } // CppTools

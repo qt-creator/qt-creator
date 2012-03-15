@@ -31,8 +31,10 @@
 **************************************************************************/
 
 #include "selectablefilesmodel.h"
+#include "genericprojectconstants.h"
 
 #include <coreplugin/fileiconprovider.h>
+#include <coreplugin/icore.h>
 
 #include <utils/QtConcurrentTools>
 #include <QHBoxLayout>
@@ -118,6 +120,8 @@ void SelectableFilesModel::cancel()
 bool SelectableFilesModel::filter(Tree *t)
 {
     if (t->isDir)
+        return false;
+    if (m_files.contains(t->fullPath))
         return false;
     foreach (const Glob &g, m_filter) {
         if (g.mode == Glob::EXACT) {
@@ -521,7 +525,9 @@ SelectableFilesDialog::SelectableFilesDialog(const QString &path, const QStringL
     hbox->addWidget(m_filterLabel);
     m_filterLineEdit = new QLineEdit(this);
 
-    m_filterLineEdit->setText("Makefile*; *.o; *.obj; *~; *.files; *.config; *.creator; *.user; *.includes");
+    const QString filter = Core::ICore::settings()->value(Constants::FILEFILTER_SETTING,
+                                                          Constants::FILEFILTER_DEFAULT).toString();
+    m_filterLineEdit->setText(filter);
     m_filterLineEdit->hide();
     hbox->addWidget(m_filterLineEdit);
     m_applyFilterButton = new QPushButton(tr("Apply Filter"), this);
@@ -611,5 +617,7 @@ QStringList SelectableFilesDialog::selectedFiles() const
 
 void SelectableFilesDialog::applyFilter()
 {
-    m_selectableFilesModel->applyFilter(m_filterLineEdit->text());
+    const QString filter = m_filterLineEdit->text();
+    Core::ICore::settings()->setValue(Constants::FILEFILTER_SETTING, filter);
+    m_selectableFilesModel->applyFilter(filter);
 }

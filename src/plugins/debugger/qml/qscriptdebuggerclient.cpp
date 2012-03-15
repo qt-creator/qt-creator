@@ -222,7 +222,9 @@ void QScriptDebuggerClient::startSession()
 
     //Set all breakpoints
     BreakHandler *handler = d->engine->breakHandler();
-    foreach (BreakpointModelId id, handler->engineBreakpointIds(d->engine)) {
+    DebuggerEngine * engine = d->engine->isSlaveEngine() ?
+                d->engine->masterEngine() : d->engine;
+    foreach (BreakpointModelId id, handler->engineBreakpointIds(engine)) {
         QTC_CHECK(handler->state(id) == BreakpointInsertProceeding);
         handler->notifyBreakpointInsertOk(id);
     }
@@ -313,17 +315,19 @@ void QScriptDebuggerClient::synchronizeBreakpoints()
     sendMessage(reply);
 }
 
-void QScriptDebuggerClient::assignValueInDebugger(const QByteArray expr, const quint64 &id,
-                                                  const QString &property, const QString &value)
+void QScriptDebuggerClient::assignValueInDebugger(const WatchData *data,
+                                                  const QString &expr,
+                                                  const QVariant &valueV)
 {
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
-    QByteArray cmd = "SET_PROPERTY";
+    QByteArray cmd = "EXEC";
     rs << cmd;
-    rs << expr << id << property << value;
-    d->logSendMessage(QString::fromLatin1("%1 %2 %3 %4 %5").
-                      arg(QLatin1String(cmd), QLatin1String(expr),
-                          QString::number(id), property, value));
+    QString expression = QString(_("%1 = %2;")).arg(expr).arg(valueV.toString());
+    rs << data->iname << expression;
+    d->logSendMessage(QString::fromLatin1("%1 %2 %3 %4").
+                      arg(QLatin1String(cmd), QLatin1String(data->iname), expr,
+                          valueV.toString()));
     sendMessage(reply);
 }
 
@@ -365,6 +369,10 @@ void QScriptDebuggerClient::synchronizeWatchers(const QStringList &watchers)
 
 void QScriptDebuggerClient::expandObject(const QByteArray &iname, quint64 objectId)
 {
+    //Check if id is valid
+    if (qint64(objectId) == -1)
+        return;
+
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "EXPAND";
@@ -431,7 +439,8 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
             data.iname = d->engine->watchHandler()->watcherName(data.exp);
             d->engine->watchHandler()->insertData(data);
 
-            if (d->engine->watchHandler()->expandedINames().contains(data.iname)) {
+            if (d->engine->watchHandler()->expandedINames().contains(data.iname) &&
+                    qint64(data.id) != -1) {
                 needPing = true;
                 expandObject(data.iname,data.id);
             }
@@ -441,7 +450,8 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
             data.iname = "local." + data.exp;
             d->engine->watchHandler()->insertData(data);
 
-            if (d->engine->watchHandler()->expandedINames().contains(data.iname)) {
+            if (d->engine->watchHandler()->expandedINames().contains(data.iname) &&
+                    qint64(data.id) != -1) {
                 needPing = true;
                 expandObject(data.iname,data.id);
             }
@@ -511,6 +521,9 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
             d->engine->watchHandler()->insertData(data);
         } else if (iname == "console") {
             d->engine->showMessage(data.value, QtMessageLogOutput);
+        } else if (iname.startsWith("local.")) {
+            data.name = data.name.left(data.name.indexOf(QLatin1Char(' ')));
+            d->engine->watchHandler()->insertData(data);
         } else {
             qWarning() << "QmlEngine: Unexcpected result: " << iname << data.value;
         }
@@ -527,7 +540,8 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
             data.iname = iname + '.' + data.exp;
             d->engine->watchHandler()->insertData(data);
 
-            if (d->engine->watchHandler()->expandedINames().contains(data.iname)) {
+            if (d->engine->watchHandler()->expandedINames().contains(data.iname) &&
+                    qint64(data.id) != -1) {
                 needPing = true;
                 expandObject(data.iname, data.id);
             }
@@ -552,7 +566,8 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
             data.iname = d->engine->watchHandler()->watcherName(data.exp);
             d->engine->watchHandler()->insertData(data);
 
-            if (d->engine->watchHandler()->expandedINames().contains(data.iname)) {
+            if (d->engine->watchHandler()->expandedINames().contains(data.iname) &&
+                    qint64(data.id) != -1) {
                 needPing = true;
                 expandObject(data.iname, data.id);
             }
@@ -561,7 +576,8 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
         foreach (WatchData data, locals) {
             data.iname = "local." + data.exp;
             d->engine->watchHandler()->insertData(data);
-            if (d->engine->watchHandler()->expandedINames().contains(data.iname)) {
+            if (d->engine->watchHandler()->expandedINames().contains(data.iname) &&
+                    qint64(data.id) != -1) {
                 needPing = true;
                 expandObject(data.iname, data.id);
             }

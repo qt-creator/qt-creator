@@ -2381,7 +2381,10 @@ bool CPPEditorWidget::handleDocumentationComment(QKeyEvent *e)
             if (followinPos == text.length()
                     || text.at(followinPos) != QLatin1Char('*')) {
                 QString newLine(QLatin1Char('\n'));
-                newLine.append(QString(offset, QLatin1Char(' ')));
+                QTextCursor c(cursor);
+                c.movePosition(QTextCursor::StartOfBlock);
+                c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, offset);
+                newLine.append(c.selectedText());
                 if (text.at(offset) == QLatin1Char('/')) {
                     newLine.append(QLatin1String(" *"));
                 } else {

@@ -33,7 +33,7 @@
 #ifndef DEBUGGER_SOURCE_AGENT_H
 #define DEBUGGER_SOURCE_AGENT_H
 
-#include <QObject>
+#include <QString>
 
 namespace Debugger {
 
@@ -42,7 +42,7 @@ class DebuggerEngine;
 namespace Internal {
 
 class SourceAgentPrivate;
-class SourceAgent : public QObject
+class SourceAgent
 {
 public:
     explicit SourceAgent(Debugger::DebuggerEngine *engine);

@@ -72,8 +72,8 @@ public:
     void changeBreakpoint(const BreakpointModelId &id);
     void synchronizeBreakpoints();
 
-    void assignValueInDebugger(const QByteArray expr, const quint64 &id,
-                                       const QString &property, const QString &value);
+    void assignValueInDebugger(const WatchData *data, const QString &expression,
+                                       const QVariant &valueV);
 
     void updateWatchData(const WatchData &data);
     void executeDebuggerCommand(const QString &command);

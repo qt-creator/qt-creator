@@ -82,9 +82,8 @@
 
     \list 1
 
-        \o  In the \gui Projects pane, open the project file (.pro).
-
-        \o  Right-click in the code editor to open the context menu and select
+        \o  In the \gui Projects pane, right-click the project name to open the
+            context menu and select
             \gui {Add Library}.
 
         \o  Follow the instructions of the wizard.
@@ -102,7 +101,7 @@
 
     \list 1
 
-        \o  Choose \gui {File > New File or Project > Other Projects >
+        \o  Choose \gui {File > New File or Project > Libraries >
             C++ Library} to create the library.
 
             The \gui {Introduction and Product Location} dialog opens.
@@ -118,10 +117,8 @@
             \gui {Project Management} dialog. In the \gui {Add to project}
             list, select a project. For example, \bold myapp.
 
-        \o  In the \gui Projects pane, open the project file (.pro).
-            For example, \bold myapp.pro.
-
-        \o  Right-click in the code editor to open the context menu and select
+        \o  In the \gui Projects pane, right-click the project name to open the
+            context menu and select
             \gui {Add Library > Internal Library > Next}.
 
         \o  In the \gui Library field, select \bold mylib and click \gui Next.

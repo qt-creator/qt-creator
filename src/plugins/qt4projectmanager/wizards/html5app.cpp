@@ -315,7 +315,7 @@ QList<DeploymentFolder> Html5App::deploymentFolders() const
     return result;
 }
 
-const int Html5App::StubVersion = 10;
+const int Html5App::StubVersion = 11;
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

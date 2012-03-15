@@ -245,6 +245,7 @@ def main():
             sys.exit(2)
 
     QT_INSTALL_LIBS = readQmakeVar(qmake_bin, 'QT_INSTALL_LIBS')
+    QT_INSTALL_BINS = readQmakeVar(qmake_bin, 'QT_INSTALL_BINS')
     QT_INSTALL_PLUGINS = readQmakeVar(qmake_bin, 'QT_INSTALL_PLUGINS')
     QT_INSTALL_IMPORTS = readQmakeVar(qmake_bin, 'QT_INSTALL_IMPORTS')
     QT_INSTALL_TRANSLATIONS = readQmakeVar(qmake_bin, 'QT_INSTALL_TRANSLATIONS')
@@ -257,7 +258,10 @@ def main():
         global debug_build
         debug_build = is_debug_build(install_dir)
 
-    copy_qt_libs(install_dir, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, plugins, imports)
+    if sys.platform.startswith('win'):
+      copy_qt_libs(install_dir, QT_INSTALL_BINS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, plugins, imports)
+    else:
+      copy_qt_libs(install_dir, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, plugins, imports)
     copy_translations(install_dir, QT_INSTALL_TRANSLATIONS, tr_catalogs)
 
     if not sys.platform.startswith('win'):

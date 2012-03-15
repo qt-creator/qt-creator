@@ -31,7 +31,7 @@
     \page creator-qml-components-example.html
     \nextpage creator-writing-program.html
 
-    \title Creating a Qt Quick Application Using Qt Quick Components
+    \title Using Qt Quick Components
 
     \note To complete this tutorial, you must install the Qt Quick Components
     for Symbian and the Symbian Anna target as part of the \QSDK. In addition,
@@ -50,16 +50,13 @@
 
     \list 1
 
-        \o  Select \gui{File > New File or Project > Qt Quick Project > Qt Quick
-            Application > Choose}.
+        \o  Select \gui{File > New File or Project > Applications > Qt Quick
+            Application for Symbian > Choose}.
 
         \o  In the \gui{Name} field, type \bold {BatteryStatus}.
 
         \o  In the \gui {Create in} field, enter the path for the project files.
             For example, \c {C:\Qt\examples}, and then click \gui{Next}.
-
-        \o  In the \gui {Application Type} dialog, select \gui {Qt Quick
-            Components for Symbian}, and then click \gui{Next}.
 
         \o  Select \gui {Symbian Device} and \gui {\QS} targets, and
             then click \gui{Next}.

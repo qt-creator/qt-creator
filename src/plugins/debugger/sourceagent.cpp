@@ -107,7 +107,7 @@ SourceAgentPrivate::~SourceAgentPrivate()
 }
 
 SourceAgent::SourceAgent(DebuggerEngine *engine)
-    : QObject(0), d(new SourceAgentPrivate)
+    : d(new SourceAgentPrivate)
 {
     d->engine = engine;
 }
