@@ -333,7 +333,9 @@ Core::IWizard *NewDialog::showDialog()
     const int retVal = exec();
 
     idx = m_ui->templateCategoryView->currentIndex();
-    lastCategory = m_model->itemFromIndex(m_twoLevelProxyModel->mapToSource(idx))->data(Qt::UserRole).toString();
+    QStandardItem *currentItem = m_model->itemFromIndex(m_twoLevelProxyModel->mapToSource(idx));
+    if (currentItem)
+        lastCategory = currentItem->data(Qt::UserRole).toString();
 
     if (retVal != Accepted)
         return 0;
