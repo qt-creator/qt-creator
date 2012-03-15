@@ -38,7 +38,7 @@
 #include	"Firewall.h"
 #include	"RegNames.h"
 #include	"Secret.h"
-#include	<dns_sd.h>
+#include	"dns_sd.h"
 
 #include	<Iphlpapi.h>
 #include	<mswsock.h>
