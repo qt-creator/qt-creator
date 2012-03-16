@@ -281,6 +281,7 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
     d->m_categoriesButton = new QToolButton;
     d->m_categoriesButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
     d->m_categoriesButton->setToolTip(tr("Filter by categories"));
+    d->m_categoriesButton->setProperty("noArrow", true);
     d->m_categoriesButton->setAutoRaise(true);
     d->m_categoriesButton->setPopupMode(QToolButton::InstantPopup);
 
