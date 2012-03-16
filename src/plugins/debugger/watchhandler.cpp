@@ -1833,6 +1833,8 @@ void WatchHandler::showInEditorHelper(QString *contents, WatchItem *item, int de
     contents->append(item->name);
     contents->append(tab);
     contents->append(item->value);
+    contents->append(tab);
+    contents->append(item->type);
     contents->append(nl);
     foreach (WatchItem *child, item->children)
        showInEditorHelper(contents, child, depth + 1);
