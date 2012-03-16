@@ -174,8 +174,8 @@ void SearchWidget::search() const
             if (word.contains(regExp)) {
                 foreach (const QString &charToEscape, charsToEscapeList)
                     word.replace(charToEscape, escapeChar + charToEscape);
-                escapedQuery.wordList.append(word);
             }
+            escapedQuery.wordList.append(word);
         }
         escapedQueries.append(escapedQuery);
     }
