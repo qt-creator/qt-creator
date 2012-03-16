@@ -49,6 +49,9 @@
 class QHostInfo;
 
 namespace ZeroConf {
+
+class ServiceBrowser;
+
 namespace Internal {
 
 class ServiceGatherer;
@@ -267,7 +270,6 @@ private:
 };
 
 class ServiceBrowserPrivate {
-    friend class ServiceBrowser;
 public:
     ServiceBrowser *q;
     QString         serviceType;
