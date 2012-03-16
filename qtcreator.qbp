@@ -73,7 +73,6 @@ Project {
         "src/plugins/valgrind/valgrind.qbs",
         "src/plugins/vcsbase/vcsbase.qbs",
         "src/plugins/welcome/welcome.qbs",
-        "src/tools/mdnssd/mdnssd.qbs",
         "src/tools/qtcdebugger/qtcdebugger.qbs",
         "src/tools/qtpromaker/qtpromaker.qbs"
     ]
