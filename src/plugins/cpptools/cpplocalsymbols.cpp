@@ -109,6 +109,8 @@ protected:
     bool checkLocalUse(NameAST *nameAst, unsigned firstToken)
     {
         if (SimpleNameAST *simpleName = nameAst->asSimpleName()) {
+            if (tokenAt(simpleName->identifier_token).generated())
+                return false;
             const Identifier *id = identifier(simpleName->identifier_token);
             for (int i = _scopeStack.size() - 1; i != -1; --i) {
                 if (Symbol *member = _scopeStack.at(i)->find(id)) {
