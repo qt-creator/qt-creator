@@ -3140,10 +3140,10 @@ void GdbEngine::removeBreakpoint(BreakpointModelId id)
 //
 //////////////////////////////////////////////////////////////////////
 
-void GdbEngine::loadSymbols(const QString &moduleName)
+void GdbEngine::loadSymbols(const QString &modulePath)
 {
     // FIXME: gdb does not understand quoted names here (tested with 6.8)
-    postCommand("sharedlibrary " + dotEscape(moduleName.toLocal8Bit()));
+    postCommand("sharedlibrary " + dotEscape(modulePath.toLocal8Bit()));
     reloadModulesInternal();
     reloadBreakListInternal();
     reloadStack(true);
@@ -3170,7 +3170,7 @@ void GdbEngine::loadSymbolsForStack()
                 if (module.startAddress <= frame.address
                         && frame.address < module.endAddress) {
                     postCommand("sharedlibrary "
-                        + dotEscape(module.moduleName.toLocal8Bit()));
+                        + dotEscape(module.modulePath.toLocal8Bit()));
                     needUpdate = true;
                 }
             }
@@ -3184,7 +3184,7 @@ void GdbEngine::loadSymbolsForStack()
     }
 }
 
-void GdbEngine::requestModuleSymbols(const QString &moduleName)
+void GdbEngine::requestModuleSymbols(const QString &modulePath)
 {
     QTemporaryFile tf(QDir::tempPath() + _("/gdbsymbols"));
     if (!tf.open())
@@ -3192,15 +3192,15 @@ void GdbEngine::requestModuleSymbols(const QString &moduleName)
     QString fileName = tf.fileName();
     tf.close();
     postCommand("maint print msymbols " + fileName.toLocal8Bit()
-            + ' ' + moduleName.toLocal8Bit(),
+            + ' ' + modulePath.toLocal8Bit(),
         NeedsStop, CB(handleShowModuleSymbols),
-        QVariant(moduleName + QLatin1Char('@') +  fileName));
+        QVariant(modulePath + QLatin1Char('@') +  fileName));
 }
 
 void GdbEngine::handleShowModuleSymbols(const GdbResponse &response)
 {
     const QString cookie = response.cookie.toString();
-    const QString moduleName = cookie.section(QLatin1Char('@'), 0, 0);
+    const QString modulePath = cookie.section(QLatin1Char('@'), 0, 0);
     const QString fileName = cookie.section(QLatin1Char('@'), 1, 1);
     if (response.resultClass == GdbResultDone) {
         Symbols rc;
@@ -3251,7 +3251,7 @@ void GdbEngine::handleShowModuleSymbols(const GdbResponse &response)
         }
         file.close();
         file.remove();
-        debuggerCore()->showModuleSymbols(moduleName, rc);
+        debuggerCore()->showModuleSymbols(modulePath, rc);
     } else {
         showMessageBox(QMessageBox::Critical, tr("Cannot Read Symbols"),
             tr("Cannot read symbols for module \"%1\".").arg(fileName));
@@ -3270,6 +3270,11 @@ void GdbEngine::reloadModulesInternal()
     postCommand("info shared", NeedsStop, CB(handleModulesList));
 }
 
+static QString nameFromPath(const QString &path)
+{
+    return QFileInfo(path).baseName();
+}
+
 void GdbEngine::handleModulesList(const GdbResponse &response)
 {
     Modules modules;
@@ -3285,7 +3290,8 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
             QTextStream ts(&line, QIODevice::ReadOnly);
             if (line.startsWith(QLatin1String("0x"))) {
                 ts >> module.startAddress >> module.endAddress >> symbolsRead;
-                module.moduleName = ts.readLine().trimmed();
+                module.modulePath = ts.readLine().trimmed();
+                module.moduleName = nameFromPath(module.modulePath);
                 module.symbolsRead =
                     (symbolsRead == QLatin1String("Yes") ? Module::ReadOk : Module::ReadFailed);
                 modules.append(module);
@@ -3295,7 +3301,8 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
                 QTC_ASSERT(symbolsRead == QLatin1String("No"), continue);
                 module.startAddress = 0;
                 module.endAddress = 0;
-                module.moduleName = ts.readLine().trimmed();
+                module.modulePath = ts.readLine().trimmed();
+                module.moduleName = nameFromPath(module.modulePath);
                 modules.append(module);
             }
         }
@@ -3307,8 +3314,9 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
             // shlib-info={...}...
             foreach (const GdbMi &item, response.data.children()) {
                 Module module;
-                module.moduleName =
+                module.modulePath =
                     QString::fromLocal8Bit(item.findChild("path").data());
+                module.moduleName = nameFromPath(module.modulePath);
                 module.symbolsRead = (item.findChild("state").data() == "Y")
                         ? Module::ReadOk : Module::ReadFailed;
                 module.startAddress =
@@ -3327,8 +3335,8 @@ void GdbEngine::examineModules()
     foreach (Module module, modulesHandler()->modules()) {
         if (module.symbolsType == Module::UnknownType) {
             QProcess proc;
-            qDebug() << _("objdump -h \"%1\"").arg(module.moduleName);
-            proc.start(_("objdump -h \"%1\"").arg(module.moduleName));
+            qDebug() << _("objdump -h \"%1\"").arg(module.modulePath);
+            proc.start(_("objdump -h \"%1\"").arg(module.modulePath));
             if (!proc.waitForStarted())
                 continue;
             if (!proc.waitForFinished())
@@ -3338,7 +3346,7 @@ void GdbEngine::examineModules()
                 module.symbolsType = Module::FastSymbols;
             else
                 module.symbolsType = Module::PlainSymbols;
-            modulesHandler()->updateModule(module.moduleName, module);
+            modulesHandler()->updateModule(module.modulePath, module);
         }
     }
 }
