@@ -587,7 +587,7 @@ Preprocessor::State Preprocessor::createStateFromSource(const QByteArray &source
     return state;
 }
 
-void Preprocessor::processNewline(bool force)
+void Preprocessor::processNewline(bool force, int extraLines)
 {
     if (_dot != _tokens.constBegin()) {
         TokenIterator prevTok = _dot - 1;
@@ -605,23 +605,25 @@ void Preprocessor::processNewline(bool force)
         }
     }
 
-    if (! force && env->currentLine == _dot->lineno)
+    unsigned lineno = _dot->lineno + extraLines;
+
+    if (! force && env->currentLine == lineno)
         return;
 
-    if (force || env->currentLine > _dot->lineno) {
+    if (force || env->currentLine > lineno) {
         out("\n# ");
-        out(QByteArray::number(_dot->lineno));
+        out(QByteArray::number(lineno));
         out(' ');
         out('"');
         out(env->currentFile.toUtf8());
         out('"');
         out('\n');
     } else {
-        for (unsigned i = env->currentLine; i < _dot->lineno; ++i)
+        for (unsigned i = env->currentLine; i < lineno; ++i)
             out('\n');
     }
 
-    env->currentLine = _dot->lineno;
+    env->currentLine = lineno;
 }
 
 void Preprocessor::processSkippingBlocks(bool skippingBlocks,
@@ -652,26 +654,31 @@ bool Preprocessor::markGeneratedTokens(bool markGeneratedTokens,
                                        TokenIterator dot)
 {
     bool previous = _markGeneratedTokens;
+    if (previous != markGeneratedTokens) {
+        if (! dot)
+            dot = _dot;
+        const int pos = markGeneratedTokens ? dot->begin() : (dot - 1)->end();
+        this->markGeneratedTokens(markGeneratedTokens, pos, dot->lineno - _dot->lineno, dot->f.newline);
+    }
+    return previous;
+}
+
+bool Preprocessor::markGeneratedTokens(bool markGeneratedTokens, int position, int extraLines, bool newline)
+{
+    bool previous = _markGeneratedTokens;
     _markGeneratedTokens = markGeneratedTokens;
 
     if (previous != _markGeneratedTokens) {
-        if (! dot)
-            dot = _dot;
 
         if (_markGeneratedTokens)
             out("\n#gen true");
         else
             out("\n#gen false");
 
-        processNewline(/*force = */ true);
+        processNewline(/*force = */ true, extraLines);
 
         const char *begin = _source.constBegin();
-        const char *end   = begin;
-
-        if (markGeneratedTokens)
-            end += dot->begin();
-        else
-            end += (dot - 1)->end();
+        const char *end   = begin + position;
 
         const char *it = end - 1;
         for (; it != begin - 1; --it) {
@@ -688,7 +695,7 @@ bool Preprocessor::markGeneratedTokens(bool markGeneratedTokens,
                 out(*it);
         }
 
-        if (! markGeneratedTokens && dot->f.newline)
+        if (!markGeneratedTokens && newline)
             processNewline(/*force = */ true);
     }
 

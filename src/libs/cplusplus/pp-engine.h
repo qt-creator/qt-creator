@@ -110,6 +110,7 @@ private:
     };
 
     bool markGeneratedTokens(bool markGeneratedTokens, TokenIterator dot = 0);
+    bool markGeneratedTokens(bool markGeneratedTokens, int position, int extraLines=0, bool newline=false);
 
     QByteArray expand(const QByteArray &source);
     void expand(const QByteArray &source, QByteArray *result);
@@ -143,7 +144,7 @@ private:
     void collectActualArguments(QVector<MacroArgumentReference> *actuals);
     MacroArgumentReference collectOneActualArgument();
 
-    void processNewline(bool force = false);
+    void processNewline(bool force = false, int extraLines = 0);
 
     void processSkippingBlocks(bool skippingBlocks,
                                TokenIterator dot, TokenIterator lastToken);

@@ -45,6 +45,7 @@ private Q_SLOTS:
     void named_va_args();
     void first_empty_macro_arg();
     void param_expanding_as_multiple_params();
+    void macro_definition_lineno();
     void unfinished_function_like_macro_call();
     void nasty_macro_expansion();
     void tstst();
@@ -112,6 +113,40 @@ void tst_Preprocessor::param_expanding_as_multiple_params()
                                                     "\n#define ARGS(t)  t a,t b"
                                                     "\nfoo(ARGS(int))"));
     QVERIFY(preprocessed.contains("int f(int a,int b);"));
+}
+
+void tst_Preprocessor::macro_definition_lineno()
+{
+    Client *client = 0; // no client.
+    Environment env;
+    Preprocessor preprocess(client, &env);
+    QByteArray preprocessed = preprocess(QLatin1String("<stdin>"),
+                                         QByteArray("#define foo(ARGS) int f(ARGS)\n"
+                                                    "foo(int a);\n"));
+    QVERIFY(preprocessed.contains("#gen true\n# 2 "));
+
+    preprocessed = preprocess(QLatin1String("<stdin>"),
+                              QByteArray("#define foo(ARGS) int f(ARGS)\n"
+                                         "foo(int a)\n"
+                                         ";\n"));
+    QVERIFY(preprocessed.contains("#gen true\n# 2 "));
+
+    preprocessed = preprocess(QLatin1String("<stdin>"),
+                              QByteArray("#define foo(ARGS) int f(ARGS)\n"
+                                         "foo(int  \n"
+                                         "    a);\n"));
+    QVERIFY(preprocessed.contains("#gen true\n# 2 "));
+
+    preprocessed = preprocess(QLatin1String("<stdin>"),
+                              QByteArray("#define foo int f\n"
+                                         "foo;\n"));
+    QVERIFY(preprocessed.contains("#gen true\n# 2 "));
+
+    preprocessed = preprocess(QLatin1String("<stdin>"),
+                              QByteArray("#define foo int f\n"
+                                         "foo\n"
+                                         ";\n"));
+    QVERIFY(preprocessed.contains("#gen true\n# 2 "));
 }
 
 void tst_Preprocessor::unfinished_function_like_macro_call()
