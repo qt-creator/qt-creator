@@ -133,59 +133,22 @@ Rectangle {
 
             rows: gettingStartedRoot.height > 640 ? 3 : 1
 
-            Row {
-                id: userGuide
-                spacing: 4
-                Image {
-                    y: 10
-                    source: "widgets/images/icons/userguideIcon.png"
-                }
-
-                LinkedText {
-                    x: 19
-                    y: 5
-                    height: 38
-                    text: qsTr("User Guide")
-                    verticalAlignment: Text.AlignBottom
-                    onClicked: gettingStarted.openHelp("qthelp://com.nokia.qtcreator/doc/index.html")
-                }
+            IconAndLink {
+                iconName: "userguideIcon"
+                linkText: qsTr("User Guide")
+                onClicked: gettingStarted.openHelp("qthelp://com.nokia.qtcreator/doc/index.html")
             }
 
-            Row {
-                id: onlineCommunity
-                spacing: 4
-                Image {
-                    y: 10
-                    source: "widgets/images/icons/communityIcon.png"
-                }
-
-                LinkedText {
-                    x: 19
-                    y: 5
-                    height: 38
-                    text: qsTr("Online Community")
-                    verticalAlignment: Text.AlignBottom
-                    onClicked: gettingStarted.openUrl("http://developer.qt.nokia.com/forums")
-                }
+            IconAndLink {
+                iconName: "communityIcon"
+                linkText: qsTr("Online Community")
+                onClicked: gettingStarted.openHelp("http://developer.qt.nokia.com/forums")
             }
 
-            Row {
-                id: labs
-                spacing: 4
-                Image {
-                    y: 10
-                    source: "widgets/images/icons/labsIcon.png"
-                }
-
-                LinkedText {
-                    x: 19
-                    y: 5
-                    height: 38
-                    text: qsTr("Labs")
-                    verticalAlignment: Text.AlignBottom
-                    onClicked: gettingStarted.openUrl("http://labs.qt.nokia.com")
-                }
-
+            IconAndLink {
+                iconName: "labsIcon"
+                linkText: qsTr("Labs")
+                onClicked: gettingStarted.openHelp("http://labs.qt.nokia.com")
             }
         }
 
