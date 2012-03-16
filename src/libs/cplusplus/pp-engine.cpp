@@ -1178,18 +1178,22 @@ void Preprocessor::processDefine(TokenIterator firstToken, TokenIterator lastTok
     macro.setLength(endOfToken(lastToken[- 1]) - startOfToken(*firstToken));
     ++tk; // skip T_IDENTIFIER
 
+    bool hasIdentifier = false;
     if (tk->is(T_LPAREN) && ! tk->f.whitespace) {
         // a function-like macro definition
         macro.setFunctionLike(true);
 
         ++tk; // skip T_LPAREN
         if (tk->is(T_IDENTIFIER)) {
+            hasIdentifier = true;
             macro.addFormal(tokenText(*tk));
             ++tk; // skip T_IDENTIFIER
             while (tk->is(T_COMMA)) {
                 ++tk;// skip T_COMMA
-                if (tk->isNot(T_IDENTIFIER))
+                if (tk->isNot(T_IDENTIFIER)) {
+                    hasIdentifier = false;
                     break;
+                }
                 macro.addFormal(tokenText(*tk));
                 ++tk; // skip T_IDENTIFIER
             }
@@ -1197,6 +1201,8 @@ void Preprocessor::processDefine(TokenIterator firstToken, TokenIterator lastTok
 
         if (tk->is(T_DOT_DOT_DOT)) {
             macro.setVariadic(true);
+            if (!hasIdentifier)
+                macro.addFormal("__VA_ARGS__");
             ++tk; // skip T_DOT_DOT_DOT
         }
 

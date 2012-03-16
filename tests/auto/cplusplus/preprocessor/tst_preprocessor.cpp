@@ -41,10 +41,46 @@ class tst_Preprocessor: public QObject
 Q_OBJECT
 
 private Q_SLOTS:
+    void va_args();
+    void named_va_args();
     void unfinished_function_like_macro_call();
     void nasty_macro_expansion();
     void tstst();
 };
+
+void tst_Preprocessor::va_args()
+{
+    Client *client = 0; // no client.
+    Environment env;
+
+    Preprocessor preprocess(client, &env);
+    QByteArray preprocessed = preprocess(QLatin1String("<stdin>"),
+                                         QByteArray("\n#define foo(...) int f(__VA_ARGS__);"
+                                                    "\nfoo(  )\n"
+                                                    "\nfoo(int a)\n"
+                                                    "\nfoo(int a,int b)\n"));
+
+    QVERIFY(preprocessed.contains("int f();"));
+    QVERIFY(preprocessed.contains("int f(int a);"));
+    QVERIFY(preprocessed.contains("int f(int a,int b);"));
+}
+
+void tst_Preprocessor::named_va_args()
+{
+    Client *client = 0; // no client.
+    Environment env;
+
+    Preprocessor preprocess(client, &env);
+    QByteArray preprocessed = preprocess(QLatin1String("<stdin>"),
+                                         QByteArray("\n#define foo(ARGS...) int f(ARGS);"
+                                                    "\nfoo(  )\n"
+                                                    "\nfoo(int a)\n"
+                                                    "\nfoo(int a,int b)\n"));
+
+    QVERIFY(preprocessed.contains("int f();"));
+    QVERIFY(preprocessed.contains("int f(int a);"));
+    QVERIFY(preprocessed.contains("int f(int a,int b);"));
+}
 
 void tst_Preprocessor::unfinished_function_like_macro_call()
 {

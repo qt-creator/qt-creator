@@ -78,7 +78,8 @@ QString Macro::decoratedName() const
                 text += QLatin1String(", ");
             else
                 first = false;
-            text += QString::fromUtf8(formal.constData(), formal.size());
+            if (formal != "__VA_ARGS__")
+                text += QString::fromUtf8(formal.constData(), formal.size());
         }
         if (f._variadic)
             text += QLatin1String("...");
