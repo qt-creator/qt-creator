@@ -151,10 +151,18 @@ int containerSize(KnownType kt, const SymbolGroupValue &v)
         break;
     case KT_QLinkedList:
     case KT_QHash:
-    case KT_QMap:
-    case KT_QVector:
         if (const SymbolGroupValue sizeV = v["d"]["size"])
             return sizeV.intValue();
+        break;
+    case KT_QMap:
+    case KT_QVector: {
+        // Inheritance from QVectorTypedData, QMapData<> in Qt 5.
+        const SymbolGroupValue sizeV =
+            QtInfo::get(v.context()).version >= 5 ?
+            v["d"][unsigned(0)]["size"] : v["d"]["size"];
+        if (sizeV)
+            return sizeV.intValue();
+    }
         break;
     case KT_QMultiHash:
         if (const SymbolGroupValue qHash = v[unsigned(0)])
@@ -646,16 +654,33 @@ static inline AbstractSymbolGroupNodePtrVector
 static inline AbstractSymbolGroupNodePtrVector
     qVectorChildList(SymbolGroupNode *n, int count, const SymbolGroupValueContext &ctx)
 {
-    if (count) {
-        // QVector<T>: p/array is declared as array of T. Dereference first
+    if (!count)
+        return AbstractSymbolGroupNodePtrVector();
+    const SymbolGroupValue vec(n, ctx);
+    const int qtVersion = QtInfo::get(vec.context()).version;
+    if (qtVersion < 5) {
+        // Qt 4: QVector<T>: p/array is declared as array of T. Dereference first
         // element to obtain address.
-        const SymbolGroupValue vec(n, ctx);
         if (const SymbolGroupValue firstElementV = vec["p"]["array"][unsigned(0)]) {
             if (const ULONG64 arrayAddress = firstElementV.address()) {
                 const std::string fixedInnerType = fixInnerType(firstElementV.type(), vec);
                 return arrayChildList(n->symbolGroup(), arrayAddress, n->module(), fixedInnerType, count);
             }
         }
+        return AbstractSymbolGroupNodePtrVector();
+    }
+    // Qt 5: Data are located in a pool behind 'd' (similar to QString,
+    // QByteArray).
+    const SymbolGroupValue dV = vec["d"][unsigned(0)];
+    const SymbolGroupValue offsetV = dV["offset"];
+    if (!dV || !offsetV)
+        return AbstractSymbolGroupNodePtrVector();
+    const ULONG64 arrayAddress = dV.address() + offsetV.intValue();
+    std::vector<std::string> innerTypes = SymbolGroupValue::innerTypesOf(vec.type());
+    if (arrayAddress && !innerTypes.empty()) {
+        return arrayChildList(n->symbolGroup(), arrayAddress, n->module(),
+                              fixInnerType(innerTypes.front(), vec),
+                              count);
     }
     return AbstractSymbolGroupNodePtrVector();
 }
@@ -938,6 +963,8 @@ static inline AbstractSymbolGroupNodePtrVector
         DebugPrint() << v.type() << "," << count;
 
     if (!count)
+        return AbstractSymbolGroupNodePtrVector();
+    if (QtInfo::get(v.context()).version >= 5) // ### fixme: Qt 5 map is a rb tree.
         return AbstractSymbolGroupNodePtrVector();
     // Get node type: 'class namespace::QMap<K,T>'
     // ->'QtCored4!namespace::QMapNode<K,T>'

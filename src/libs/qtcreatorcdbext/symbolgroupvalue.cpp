@@ -1414,7 +1414,8 @@ struct QtStringAddressData
 /* Helper to determine the location and size of the data of
  * QStrings/QByteArrays for versions 4,5. In Qt 4, 'd' has a 'data'
  * pointer. In Qt 5, the d-elements and the data are in a storage pool
- * and the data are at an offset behind the d-structures. */
+ * and the data are at an offset behind the d-structures (QString,
+ * QByteArray, QVector). */
 QtStringAddressData readQtStringAddressData(const SymbolGroupValue &dV,
                                            int qtMajorVersion)
 {
@@ -1431,15 +1432,13 @@ QtStringAddressData readQtStringAddressData(const SymbolGroupValue &dV,
     } else {
         // Qt 5: Memory pool after the data element.
         const SymbolGroupValue offsetV = dV["offset"];
-        const SymbolGroupValue arrayV = dV["d"];
-        if (!offsetV || !arrayV)
+        if (!offsetV)
             return QtStringAddressData();
-        int offset = offsetV.intValue();
-        if (arrayV.type().find("short") != std::string::npos)
-            offset /= sizeof(short); // QString: offset is in short[].
-        result.address = arrayV.address()
-                + SymbolGroupValue::pointerDiffSize()
-                + offset;
+        // Take the address for QTypeArrayData of QByteArray, else
+        // pointer value of D-pointer.
+        const ULONG64 baseAddress = SymbolGroupValue::isPointerType(dV.type()) ?
+                                    dV.pointerValue() : dV.address();
+        result.address = baseAddress + offsetV.intValue();
     }
     return result;
 }
@@ -1578,7 +1577,10 @@ static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str)
     char *memory;
     unsigned fullSize;
     unsigned size;
-    if (!readQt5StringData(dV, qtInfo.version, false, 10240, &fullSize, &size, &memory))
+    const SymbolGroupValue typeArrayV = dV[unsigned(0)];
+    if (!typeArrayV)
+        return false;
+    if (!readQt5StringData(typeArrayV, qtInfo.version, false, 10240, &fullSize, &size, &memory))
         return false;
     if (size) {
         // Emulate CDB's behavior of replacing unprintable characters
