@@ -44,6 +44,7 @@ private Q_SLOTS:
     void va_args();
     void named_va_args();
     void first_empty_macro_arg();
+    void param_expanding_as_multiple_params();
     void unfinished_function_like_macro_call();
     void nasty_macro_expansion();
     void tstst();
@@ -98,6 +99,19 @@ void tst_Preprocessor::first_empty_macro_arg()
     QVERIFY(preprocessed.contains("const int cVal;"));
     QVERIFY(preprocessed.contains("int Val;"));
     QVERIFY(preprocessed.contains("int Val2;"));
+}
+
+void tst_Preprocessor::param_expanding_as_multiple_params()
+{
+    Client *client = 0; // no client.
+    Environment env;
+
+    Preprocessor preprocess(client, &env);
+    QByteArray preprocessed = preprocess(QLatin1String("<stdin>"),
+                                         QByteArray("\n#define foo(a,b) int f(a,b);"
+                                                    "\n#define ARGS(t)  t a,t b"
+                                                    "\nfoo(ARGS(int))"));
+    QVERIFY(preprocessed.contains("int f(int a,int b);"));
 }
 
 void tst_Preprocessor::unfinished_function_like_macro_call()
