@@ -224,7 +224,6 @@ void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QS
         m_contextObject->setSpecificsUrl(qmlSpecificsFile);
         
         m_contextObject->setStateName(stateName);
-        QApplication::processEvents();
         if (!fxObjectNode.isValid())
             return;
         ctxt->setContextProperty("propertyCount", QVariant(fxObjectNode.modelNode().properties().count()));
