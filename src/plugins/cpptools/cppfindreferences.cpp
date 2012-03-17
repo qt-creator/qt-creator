@@ -646,11 +646,22 @@ static void findMacroUses_helper(QFutureInterface<Usage> &future,
 
 void CppFindReferences::findMacroUses(const Macro &macro)
 {
+    findMacroUses(macro, QString(), false);
+}
+
+void CppFindReferences::findMacroUses(const Macro &macro, const QString &replacement, bool replace)
+{
     Find::SearchResult *search = Find::SearchResultWindow::instance()->startNewSearch(
                 tr("C++ Macro Usages:"),
                 QString(),
                 macro.name(),
-                Find::SearchResultWindow::SearchOnly);
+                replace ? Find::SearchResultWindow::SearchAndReplace
+                        : Find::SearchResultWindow::SearchOnly,
+                QLatin1String("CppEditor"));
+
+    search->setTextToReplace(replacement);
+    connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
+            SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
 
     Find::SearchResultWindow::instance()->popup(true);
 
@@ -683,6 +694,12 @@ void CppFindReferences::findMacroUses(const Macro &macro)
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching"),
                                                               CppTools::Constants::TASK_SEARCH);
     connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
+}
+
+void CppFindReferences::renameMacroUses(const Macro &macro, const QString &replacement)
+{
+    const QString textToReplace = replacement.isEmpty() ? macro.name() : replacement;
+    findMacroUses(macro, textToReplace, true);
 }
 
 DependencyTable CppFindReferences::updateDependencyTable(CPlusPlus::Snapshot snapshot)

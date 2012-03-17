@@ -870,6 +870,11 @@ void CppModelManager::findMacroUsages(const CPlusPlus::Macro &macro)
     m_findReferences->findMacroUses(macro);
 }
 
+void CppModelManager::renameMacroUsages(const CPlusPlus::Macro &macro, const QString &replacement)
+{
+    m_findReferences->renameMacroUses(macro, replacement);
+}
+
 CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
 {
     WorkingCopy workingCopy;

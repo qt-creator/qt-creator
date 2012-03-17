@@ -209,6 +209,7 @@ public:
                               const QString &replacement = QString()) = 0;
     virtual void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context) = 0;
 
+    virtual void renameMacroUsages(const CPlusPlus::Macro &macro, const QString &replacement = QString()) = 0;
     virtual void findMacroUsages(const CPlusPlus::Macro &macro) = 0;
 
     virtual void setExtraDiagnostics(const QString &fileName, int key,

@@ -129,6 +129,7 @@ public:
     virtual void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
     virtual void findMacroUsages(const CPlusPlus::Macro &macro);
+    virtual void renameMacroUsages(const CPlusPlus::Macro &macro, const QString &replacement);
 
     virtual void setExtraDiagnostics(const QString &fileName, int key,
                                      const QList<CPlusPlus::Document::DiagnosticMessage> &diagnostics);

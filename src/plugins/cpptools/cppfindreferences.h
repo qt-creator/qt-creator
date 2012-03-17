@@ -82,6 +82,7 @@ public:
                       const QString &replacement = QString());
 
     void findMacroUses(const CPlusPlus::Macro &macro);
+    void renameMacroUses(const CPlusPlus::Macro &macro, const QString &replacement = QString());
 
     CPlusPlus::DependencyTable updateDependencyTable(CPlusPlus::Snapshot snapshot);
 
@@ -97,6 +98,8 @@ private Q_SLOTS:
 private:
     void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
                     const QString &replacement, bool replace);
+    void findMacroUses(const CPlusPlus::Macro &macro, const QString &replacement,
+                       bool replace);
     void findAll_helper(Find::SearchResult *search);
     CPlusPlus::DependencyTable dependencyTable() const;
     void setDependencyTable(const CPlusPlus::DependencyTable &newTable);

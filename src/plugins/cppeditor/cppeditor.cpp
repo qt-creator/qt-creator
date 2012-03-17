@@ -742,10 +742,14 @@ void CPPEditorWidget::renameUsagesNow(const QString &replacement)
     info.snapshot = CppModelManagerInterface::instance()->snapshot();
     info.snapshot.insert(info.doc);
 
-    CanonicalSymbol cs(this, info);
-    if (Symbol *canonicalSymbol = cs(textCursor()))
-        if (canonicalSymbol->identifier() != 0)
-            m_modelManager->renameUsages(canonicalSymbol, cs.context(), replacement);
+    if (const Macro *macro = findCanonicalMacro(textCursor(), info.doc)) {
+        m_modelManager->renameMacroUsages(*macro, replacement);
+    } else {
+        CanonicalSymbol cs(this, info);
+        if (Symbol *canonicalSymbol = cs(textCursor()))
+            if (canonicalSymbol->identifier() != 0)
+                m_modelManager->renameUsages(canonicalSymbol, cs.context(), replacement);
+    }
 }
 
 void CPPEditorWidget::renameUsages()
