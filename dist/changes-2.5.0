@@ -12,6 +12,8 @@ General
      a located file (QTCREATORBUG-3805)
    * Add "Search Again" to recent searches (QTCREATORBUG-621)
    * Allow multiple parallel searches (QTCREATORBUG-6101)
+   * Add Execute filter to the locator, for executing external commands [by
+     Yuchen Deng]
 
 Editing
    * Use the QML/JS editor for opening json files (QTCREATORBUG-4639)
@@ -60,6 +62,7 @@ Debugging
    * Make entering commands in the log view more convenient
    * Re-enable debugging of Python scripts
    * Add pretty-printing for D arrays and strings
+   * Add "Break on raise()" option for GDB/Windows
 
 Debugging QML/JS
    * Relocate breakpoints to next executable code
