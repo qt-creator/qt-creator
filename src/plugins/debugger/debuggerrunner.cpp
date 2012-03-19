@@ -747,6 +747,7 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
     QList<DebuggerEngineType> unavailableTypes;
     foreach (DebuggerEngineType et, requiredTypes) {
         if (canUseEngine(et, sp, cmdLineEnabledEngines, &result)) {
+            result.errorDetails.clear();
             usableType = et;
             break;
         } else {
