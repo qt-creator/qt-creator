@@ -604,10 +604,15 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                         //|| data.type == BreakpointAtVFork
                         || data.type == BreakpointAtSysCall)
                     return typeToString(data.type);
-                if (data.type == WatchpointAtAddress)
-                    return tr("Data at 0x%1").arg(data.address, 0, 16);
-                if (data.type == WatchpointAtExpression)
-                    return tr("Data at %1").arg(data.expression);
+                if (data.type == WatchpointAtAddress) {
+                    quint64 address = response.address ? response.address : data.address;
+                    return tr("Data at 0x%1").arg(address, 0, 16);
+                }
+                if (data.type == WatchpointAtExpression) {
+                    QString expression = !response.expression.isEmpty()
+                            ? response.expression : data.expression;
+                    return tr("Data at %1").arg(expression);
+                }
                 return empty;
             }
             break;
@@ -1052,11 +1057,14 @@ void BreakHandler::appendBreakpoint(const BreakpointParameters &data)
     scheduleSynchronization();
 }
 
-void BreakHandler::handleAlienBreakpoint(BreakpointModelId id,
-    const BreakpointResponse &response, DebuggerEngine *engine)
+void BreakHandler::handleAlienBreakpoint(const BreakpointResponse &response, DebuggerEngine *engine)
 {
-    if (response.id.isMinor()) {
-        insertSubBreakpoint(id, response);
+    BreakpointModelId id = findSimilarBreakpoint(response);
+    if (id.isValid()) {
+        if (response.id.isMinor())
+            insertSubBreakpoint(id, response);
+        else
+            setResponse(id, response);
     } else {
         BreakpointModelId id(++currentId);
         const int row = m_storage.size();
@@ -1066,10 +1074,6 @@ void BreakHandler::handleAlienBreakpoint(BreakpointModelId id,
         endInsertRows();
 
         it->data = response;
-        it->data.type = BreakpointByFileAndLine;
-        it->data.functionName.clear();
-        it->data.address = 0;
-
         it->response = response;
         it->state = BreakpointInserted;
         it->engine = engine;

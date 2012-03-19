@@ -518,13 +518,15 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             } else if (asyncClass == "breakpoint-created") {
                 // "{bkpt={number="1",type="breakpoint",disp="del",enabled="y",
                 //  addr="<PENDING>",pending="main",times="0",
-                //original-location="main"}}"
+                //  original-location="main"}}" -- or --
+                // {bkpt={number="2",type="hw watchpoint",disp="keep",enabled="y",
+                //  what="*0xbfffed48",times="0",original-location="*0xbfffed48"
                 BreakHandler *handler = breakHandler();
                 foreach (const GdbMi &bkpt, result.children()) {
                     BreakpointResponse br;
+                    br.type = BreakpointByFileAndLine;
                     updateResponse(br, bkpt);
-                    BreakpointModelId id = handler->findBreakpointByResponseId(br.id);
-                    handler->handleAlienBreakpoint(id, br, this);
+                    handler->handleAlienBreakpoint(br, this);
                 }
             } else if (asyncClass == "breakpoint-deleted") {
                 // "breakpoint-deleted" "{id="1"}"
@@ -2380,11 +2382,21 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
         } else if (child.hasName("thread")) {
             response.threadSpec = child.data().toInt();
         } else if (child.hasName("type")) {
-            // "breakpoint", "hw breakpoint", "tracepoint"
-            if (child.data().contains("tracepoint"))
+            // "breakpoint", "hw breakpoint", "tracepoint", "hw watchpoint"
+            // {bkpt={number="2",type="hw watchpoint",disp="keep",enabled="y",
+            //  what="*0xbfffed48",times="0",original-location="*0xbfffed48"
+            if (child.data().contains("tracepoint")) {
                 response.tracepoint = true;
-            else if (!child.data().contains("reakpoint"))
-                response.type = WatchpointAtAddress;
+            } else if (child.data() == "hw watchpoint" || child.data() == "watchpoint") {
+                QByteArray what = bkpt.findChild("what").data();
+                if (what.startsWith("*0x")) {
+                    response.type = WatchpointAtAddress;
+                    response.address = what.mid(1).toULongLong(0, 0);
+                } else {
+                    response.type = WatchpointAtExpression;
+                    response.expression = QString::fromLocal8Bit(what);
+                }
+            }
         } else if (child.hasName("original-location")) {
             originalLocation = child.data();
         }
