@@ -36,9 +36,13 @@
 
 #include <qt4projectmanager/qt4target.h>
 
+#include <QSharedPointer>
 #include <QString>
 
-namespace ProjectExplorer { class IBuildConfigurationFactory; }
+namespace ProjectExplorer {
+class IBuildConfigurationFactory;
+class IDevice;
+}
 namespace Qt4ProjectManager { class Qt4BuildConfigurationFactory; }
 
 namespace RemoteLinux {
@@ -49,20 +53,21 @@ class REMOTELINUX_EXPORT AbstractEmbeddedLinuxTarget : public Qt4ProjectManager:
 {
     Q_OBJECT
 public:
-    AbstractEmbeddedLinuxTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id,
-        const QString &supportedDeviceType);
+    AbstractEmbeddedLinuxTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id);
 
     ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 
-    QString supportedDeviceType() const { return m_supportedDeviceType; }
     DeploymentInfo *deploymentInfo() const { return m_deploymentInfo; }
     Internal::TypeSpecificDeviceConfigurationListModel *deviceConfigModel() const {
         return m_deviceConfigModel;
     }
+    virtual bool supportsDevice(const QSharedPointer<const ProjectExplorer::IDevice> &device) const = 0;
+
+signals:
+    void supportedDevicesChanged();
 
 private:
     Qt4ProjectManager::Qt4BuildConfigurationFactory * const m_buildConfigurationFactory;
-    const QString m_supportedDeviceType;
     DeploymentInfo * const m_deploymentInfo;
     Internal::TypeSpecificDeviceConfigurationListModel * const m_deviceConfigModel;
 };

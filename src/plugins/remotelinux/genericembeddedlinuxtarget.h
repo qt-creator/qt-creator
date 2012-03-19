@@ -50,6 +50,7 @@ public:
     void createApplicationProFiles(bool reparse);
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
     Utils::FileName mkspec(const Qt4ProjectManager::Qt4BuildConfiguration *bc) const;
+    bool supportsDevice(const QSharedPointer<const ProjectExplorer::IDevice> &device) const;
 
 private:
     friend class EmbeddedLinuxTargetFactory;

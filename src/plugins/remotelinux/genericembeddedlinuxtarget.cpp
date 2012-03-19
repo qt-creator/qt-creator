@@ -36,6 +36,7 @@
 #include "remotelinuxrunconfiguration.h"
 
 #include <projectexplorer/customexecutablerunconfiguration.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4nodes.h>
 #include <qt4projectmanager/qt4project.h>
@@ -47,8 +48,7 @@ namespace RemoteLinux {
 namespace Internal {
 
 GenericEmbeddedLinuxTarget::GenericEmbeddedLinuxTarget(Qt4ProjectManager::Qt4Project *parent,
-        const QString &id) :
-    AbstractEmbeddedLinuxTarget(parent, id, QLatin1String(Constants::GenericLinuxOsType))
+        const QString &id) : AbstractEmbeddedLinuxTarget(parent, id)
 {
     setDisplayName(tr("Embedded Linux"));
 }
@@ -69,6 +69,11 @@ Utils::FileName GenericEmbeddedLinuxTarget::mkspec(const Qt4ProjectManager::Qt4B
    if (!version)
        return Utils::FileName();
    return version->mkspec();
+}
+
+bool GenericEmbeddedLinuxTarget::supportsDevice(const ProjectExplorer::IDevice::ConstPtr &device) const
+{
+    return device->type() == QLatin1String(Constants::GenericLinuxOsType);
 }
 
 void GenericEmbeddedLinuxTarget::createApplicationProFiles(bool reparse)

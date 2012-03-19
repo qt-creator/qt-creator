@@ -31,20 +31,22 @@
 **************************************************************************/
 #include "typespecificdeviceconfigurationlistmodel.h"
 
-#include "remotelinux_constants.h"
+#include "abstractembeddedlinuxtarget.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 namespace Internal {
 
-TypeSpecificDeviceConfigurationListModel::TypeSpecificDeviceConfigurationListModel(const QString &deviceType,
-    QObject *parent) : QAbstractListModel(parent), m_targetDeviceType(deviceType)
+TypeSpecificDeviceConfigurationListModel::TypeSpecificDeviceConfigurationListModel(AbstractEmbeddedLinuxTarget *target)
+    : QAbstractListModel(target)
 {
     const DeviceManager * const devConfs = DeviceManager::instance();
-    connect(devConfs, SIGNAL(updated()), this, SIGNAL(updated()));
+    connect(devConfs, SIGNAL(updated()), this, SIGNAL(modelReset()));
+    connect(target, SIGNAL(supportedDevicesChanged()), this, SIGNAL(modelReset()));
 }
 
 TypeSpecificDeviceConfigurationListModel::~TypeSpecificDeviceConfigurationListModel()
@@ -58,10 +60,8 @@ int TypeSpecificDeviceConfigurationListModel::rowCount(const QModelIndex &parent
     int count = 0;
     const DeviceManager * const devConfs = DeviceManager::instance();
     const int devConfsCount = devConfs->deviceCount();
-    if (m_targetDeviceType == QLatin1String(Constants::GenericLinuxOsType))
-        return devConfsCount;
     for (int i = 0; i < devConfsCount; ++i) {
-        if (devConfs->deviceAt(i)->type() == m_targetDeviceType)
+        if (target()->supportsDevice(devConfs->deviceAt(i)))
             ++count;
     }
     return count;
@@ -75,7 +75,7 @@ QVariant TypeSpecificDeviceConfigurationListModel::data(const QModelIndex &index
     const LinuxDeviceConfiguration::ConstPtr &devConf = deviceAt(index.row());
     Q_ASSERT(devConf);
     QString displayedName = devConf->displayName();
-    if (devConf->type() == m_targetDeviceType && DeviceManager::instance()
+    if (target()->supportsDevice(devConf) && DeviceManager::instance()
             ->defaultDevice(devConf->type()) == devConf) {
         displayedName = tr("%1 (default)").arg(displayedName);
     }
@@ -86,34 +86,34 @@ LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::dev
 {
     int currentRow = -1;
     const DeviceManager * const devConfs = DeviceManager::instance();
-    if (m_targetDeviceType == QLatin1String(Constants::GenericLinuxOsType))
-        return devConfs->deviceAt(idx).staticCast<const LinuxDeviceConfiguration>();
     const int devConfsCount = devConfs->deviceCount();
     for (int i = 0; i < devConfsCount; ++i) {
         const IDevice::ConstPtr device = devConfs->deviceAt(i);
-        if (device->type() == m_targetDeviceType
-                || m_targetDeviceType == QLatin1String(Constants::GenericLinuxOsType)) {
-            if (++currentRow == idx)
-                return devConfs->deviceAt(i).staticCast<const LinuxDeviceConfiguration>();
-        }
+        if (target()->supportsDevice(device) && ++currentRow == idx)
+            return device.staticCast<const LinuxDeviceConfiguration>();
     }
-    Q_ASSERT(false);
-    return LinuxDeviceConfiguration::ConstPtr();
+    QTC_ASSERT(false, return LinuxDeviceConfiguration::ConstPtr());
 }
 
 LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::defaultDeviceConfig() const
 {
-    return DeviceManager::instance()->defaultDevice(m_targetDeviceType)
-        .staticCast<const LinuxDeviceConfiguration>();
+    const DeviceManager * const deviceManager = DeviceManager::instance();
+    const int deviceCount = deviceManager->deviceCount();
+    for (int i = 0; i < deviceCount; ++i) {
+        const IDevice::ConstPtr device = deviceManager->deviceAt(i);
+        if (target()->supportsDevice(device)
+                && deviceManager->defaultDevice(device->type()) == device) {
+            return device.staticCast<const LinuxDeviceConfiguration>();
+        }
+    }
+    return LinuxDeviceConfiguration::ConstPtr();
 }
 
 LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::find(LinuxDeviceConfiguration::Id id) const
 {
     const IDevice::ConstPtr &devConf = DeviceManager::instance()->find(id);
-    if (devConf && (devConf->type() == m_targetDeviceType
-            || m_targetDeviceType == QLatin1String(Constants::GenericLinuxOsType))) {
+    if (devConf && target()->supportsDevice(devConf))
         return devConf.staticCast<const LinuxDeviceConfiguration>();
-    }
     return defaultDeviceConfig();
 }
 
@@ -125,6 +125,11 @@ int TypeSpecificDeviceConfigurationListModel::indexForInternalId(LinuxDeviceConf
             return i;
     }
     return -1;
+}
+
+AbstractEmbeddedLinuxTarget *TypeSpecificDeviceConfigurationListModel::target() const
+{
+    return qobject_cast<AbstractEmbeddedLinuxTarget *>(QObject::parent());
 }
 
 } // namespace Internal

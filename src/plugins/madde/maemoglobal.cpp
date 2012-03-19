@@ -33,6 +33,7 @@
 
 #include "maemoconstants.h"
 #include "maemoqemumanager.h"
+#include "qt4maemotarget.h"
 
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/baseqtversion.h>
@@ -127,9 +128,9 @@ QString MaemoGlobal::devrootshPath()
     return QLatin1String("/usr/lib/mad-developer/devrootsh");
 }
 
-int MaemoGlobal::applicationIconSize(const QString &deviceType)
+int MaemoGlobal::applicationIconSize(const ProjectExplorer::Target *target)
 {
-    return deviceType == QLatin1String(HarmattanOsType) ? 80 : 64;
+    return qobject_cast<const Qt4HarmattanTarget *>(target) ? 80 : 64;
 }
 
 QString MaemoGlobal::remoteSudo(const QString &deviceType, const QString &uname)

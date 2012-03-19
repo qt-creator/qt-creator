@@ -82,7 +82,7 @@ RemoteLinuxDeployConfiguration::~RemoteLinuxDeployConfiguration()
 void RemoteLinuxDeployConfiguration::initialize()
 {
     d->deviceConfiguration = target()->deviceConfigModel()->defaultDeviceConfig();
-    connect(target()->deviceConfigModel(), SIGNAL(updated()),
+    connect(target()->deviceConfigModel(), SIGNAL(modelReset()),
         SLOT(handleDeviceConfigurationListUpdated()));
 }
 

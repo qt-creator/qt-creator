@@ -45,13 +45,9 @@ class QProcess;
 class QString;
 QT_END_NAMESPACE
 
-namespace QtSupport {
-class BaseQtVersion;
-}
-
-namespace RemoteLinux {
-class LinuxDeviceConfiguration;
-}
+namespace QtSupport { class BaseQtVersion; }
+namespace RemoteLinux { class LinuxDeviceConfiguration; }
+namespace ProjectExplorer { class Target; }
 
 namespace Madde {
 namespace Internal {
@@ -97,7 +93,7 @@ public:
 
     static QString homeDirOnDevice(const QString &uname);
     static QString devrootshPath();
-    static int applicationIconSize(const QString &deviceType);
+    static int applicationIconSize(const ProjectExplorer::Target *target);
     static QString remoteSudo(const QString &deviceType, const QString &uname);
     static QString remoteSourceProfilesCommand();
     static Utils::PortList freePorts(const QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> &devConf,

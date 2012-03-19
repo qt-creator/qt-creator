@@ -38,14 +38,14 @@
 #include <QSharedPointer>
 
 namespace RemoteLinux {
+class AbstractEmbeddedLinuxTarget;
 namespace Internal {
 
 class TypeSpecificDeviceConfigurationListModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    explicit TypeSpecificDeviceConfigurationListModel(const QString &deviceType,
-        QObject *parent = 0);
+    explicit TypeSpecificDeviceConfigurationListModel(AbstractEmbeddedLinuxTarget *target);
     ~TypeSpecificDeviceConfigurationListModel();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -57,11 +57,8 @@ public:
     QSharedPointer<const LinuxDeviceConfiguration> find(LinuxDeviceConfiguration::Id id) const;
     int indexForInternalId(LinuxDeviceConfiguration::Id id) const;
 
-signals:
-    void updated();
-
 private:
-    const QString m_targetDeviceType;
+    AbstractEmbeddedLinuxTarget * target() const;
 };
 
 } // namespace Internal

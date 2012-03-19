@@ -122,8 +122,8 @@ bool adaptTagValue(QByteArray &document, const QByteArray &fieldName,
 
 
 AbstractQt4MaemoTarget::AbstractQt4MaemoTarget(Qt4Project *parent, const QString &id,
-        const QString &supportedDeviceType, const QString &qmakeScope) :
-    AbstractEmbeddedLinuxTarget(parent, id, supportedDeviceType),
+        const QString &qmakeScope) :
+    AbstractEmbeddedLinuxTarget(parent, id),
     m_filesWatcher(new Utils::FileSystemWatcher(this)),
     m_deploymentSettingsAssistant(new DeploymentSettingsAssistant(qmakeScope,
         QLatin1String("/opt"), deploymentInfo())),
@@ -375,8 +375,8 @@ void AbstractQt4MaemoTarget::raiseError(const QString &reason)
 }
 
 AbstractDebBasedQt4MaemoTarget::AbstractDebBasedQt4MaemoTarget(Qt4Project *parent,
-        const QString &id, const QString &supportedDeviceType, const QString &qmakeScope)
-    : AbstractQt4MaemoTarget(parent, id, supportedDeviceType, qmakeScope)
+        const QString &id, const QString &qmakeScope)
+    : AbstractQt4MaemoTarget(parent, id, qmakeScope)
 {
 }
 
@@ -958,8 +958,8 @@ QString AbstractDebBasedQt4MaemoTarget::shortDayOfWeekName(const QDateTime &dt) 
 
 
 AbstractRpmBasedQt4MaemoTarget::AbstractRpmBasedQt4MaemoTarget(Qt4Project *parent,
-        const QString &id, const QString &supportedDeviceType, const QString &qmakeScope)
-    : AbstractQt4MaemoTarget(parent, id, supportedDeviceType, qmakeScope)
+        const QString &id, const QString &qmakeScope)
+    : AbstractQt4MaemoTarget(parent, id, qmakeScope)
 {
 }
 
@@ -1124,13 +1124,17 @@ bool AbstractRpmBasedQt4MaemoTarget::setValueForTag(const QByteArray &tag,
 }
 
 Qt4Maemo5Target::Qt4Maemo5Target(Qt4Project *parent, const QString &id)
-    : AbstractDebBasedQt4MaemoTarget(parent, id, QLatin1String(Maemo5OsType),
-          QLatin1String("maemo5"))
+    : AbstractDebBasedQt4MaemoTarget(parent, id, QLatin1String("maemo5"))
 {
     setDisplayName(defaultDisplayName());
 }
 
 Qt4Maemo5Target::~Qt4Maemo5Target() {}
+
+bool Qt4Maemo5Target::supportsDevice(const ProjectExplorer::IDevice::ConstPtr &device) const
+{
+    return device->type() == QLatin1String(Maemo5OsType);
+}
 
 QString Qt4Maemo5Target::defaultDisplayName()
 {
@@ -1164,13 +1168,17 @@ QByteArray Qt4Maemo5Target::defaultSection() const
 }
 
 Qt4HarmattanTarget::Qt4HarmattanTarget(Qt4Project *parent, const QString &id)
-    : AbstractDebBasedQt4MaemoTarget(parent, id, QLatin1String(HarmattanOsType),
-          QLatin1String("contains(MEEGO_EDITION,harmattan)"))
+    : AbstractDebBasedQt4MaemoTarget(parent, id, QLatin1String("contains(MEEGO_EDITION,harmattan)"))
 {
     setDisplayName(defaultDisplayName());
 }
 
 Qt4HarmattanTarget::~Qt4HarmattanTarget() {}
+
+bool Qt4HarmattanTarget::supportsDevice(const ProjectExplorer::IDevice::ConstPtr &device) const
+{
+    return device->type() == QLatin1String(HarmattanOsType);
+}
 
 QString Qt4HarmattanTarget::defaultDisplayName()
 {
@@ -1235,13 +1243,18 @@ QByteArray Qt4HarmattanTarget::defaultSection() const
 
 
 Qt4MeegoTarget::Qt4MeegoTarget(Qt4Project *parent, const QString &id)
-    : AbstractRpmBasedQt4MaemoTarget(parent, id, QLatin1String(MeeGoOsType),
+    : AbstractRpmBasedQt4MaemoTarget(parent, id,
           QLatin1String("!isEmpty(MEEGO_VERSION_MAJOR):!contains(MEEGO_EDITION,harmattan)"))
 {
     setDisplayName(defaultDisplayName());
 }
 
 Qt4MeegoTarget::~Qt4MeegoTarget() {}
+
+bool Qt4MeegoTarget::supportsDevice(const ProjectExplorer::IDevice::ConstPtr &device) const
+{
+    return device->type() == QLatin1String(MeeGoOsType);
+}
 
 QString Qt4MeegoTarget::defaultDisplayName()
 {
