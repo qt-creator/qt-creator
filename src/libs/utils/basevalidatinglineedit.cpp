@@ -167,6 +167,9 @@ void BaseValidatingLineEdit::slotChanged(const QString &t)
             emit validChanged();
         }
     }
+    bool block = blockSignals(true);
+    setText(fixInputString(t));
+    blockSignals(block);
 }
 
 void BaseValidatingLineEdit::slotReturnPressed()
@@ -178,6 +181,11 @@ void BaseValidatingLineEdit::slotReturnPressed()
 void BaseValidatingLineEdit::triggerChanged()
 {
     slotChanged(text());
+}
+
+QString BaseValidatingLineEdit::fixInputString(const QString &string)
+{
+    return string;
 }
 
 } // namespace Utils

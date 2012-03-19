@@ -75,6 +75,16 @@ QString FileWizardDialog::path() const
     return m_filePage->path();
 }
 
+bool FileWizardDialog::forceFirstCapitalLetterForFileName() const
+{
+    return m_filePage->forceFirstCapitalLetterForFileName();
+}
+
+void FileWizardDialog::setForceFirstCapitalLetterForFileName(bool b)
+{
+    m_filePage->setForceFirstCapitalLetterForFileName(b);
+}
+
 void FileWizardDialog::setPath(const QString &path)
 {
     m_filePage->setPath(path);

@@ -42,6 +42,7 @@ class QTCREATOR_UTILS_EXPORT FileNameValidatingLineEdit : public BaseValidatingL
     Q_OBJECT
     Q_PROPERTY(bool allowDirectories READ allowDirectories WRITE setAllowDirectories)
     Q_PROPERTY(QStringList requiredExtensions READ requiredExtensions WRITE setRequiredExtensions)
+    Q_PROPERTY(bool forceFirstCapitalLetter READ forceFirstCapitalLetter WRITE setForceFirstCapitalLetter)
 
 public:
     explicit FileNameValidatingLineEdit(QWidget *parent = 0);
@@ -62,6 +63,13 @@ public:
     void setAllowDirectories(bool v);
 
     /**
+     * Sets whether the first letter is forced to be a capital letter
+     * Default is off.
+     */
+    bool forceFirstCapitalLetter() const;
+    void setForceFirstCapitalLetter(bool b);
+
+    /**
      * Sets a requred extension. If the extension is empty no extension is required.
      * Default is empty.
      */
@@ -70,10 +78,12 @@ public:
 
 protected:
     virtual bool validate(const QString &value, QString *errorMessage) const;
+    virtual QString fixInputString(const QString &string);
 
 private:
     bool m_allowDirectories;
     QStringList m_requiredExtensionList;
+    bool m_forceFirstCapitalLetter;
 };
 
 } // namespace Utils

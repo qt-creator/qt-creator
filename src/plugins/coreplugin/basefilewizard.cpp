@@ -464,10 +464,17 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QStri
     // Create dialog and run it. Ensure that the dialog is deleted when
     // leaving the func, but not before the IFileWizardExtension::process
     // has been called
+
+    WizardDialogParameters::DialogParameterFlags dialogParameterFlags;
+
+    if (flags().testFlag(ForceCapitalLetterForFileName))
+        dialogParameterFlags |= WizardDialogParameters::ForceCapitalLetterForFileName;
+
     const QScopedPointer<QWizard> wizard(createWizardDialog(parent, WizardDialogParameters(path,
                                                                                            allExtensionPages,
                                                                                            platform,
-                                                                                           requiredFeatures())));
+                                                                                           requiredFeatures(),
+                                                                                           dialogParameterFlags)));
     QTC_ASSERT(!wizard.isNull(), return);
 
     GeneratedFiles files;
@@ -811,6 +818,8 @@ QWizard *StandardFileWizard::createWizardDialog(QWidget *parent,
                                                 const WizardDialogParameters &wizardDialogParameters) const
 {
     Utils::FileWizardDialog *standardWizardDialog = new Utils::FileWizardDialog(parent);
+    if (wizardDialogParameters.flags().testFlag(WizardDialogParameters::ForceCapitalLetterForFileName))
+        standardWizardDialog->setForceFirstCapitalLetterForFileName(true);
     standardWizardDialog->setWindowTitle(tr("New %1").arg(displayName()));
     setupWizard(standardWizardDialog);
     standardWizardDialog->setPath(wizardDialogParameters.defaultPath());

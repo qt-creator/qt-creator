@@ -113,12 +113,19 @@ class CORE_EXPORT WizardDialogParameters
 public:
     typedef QList<QWizardPage *> WizardPageList;
 
+    enum DialogParameterEnum {
+        ForceCapitalLetterForFileName = 0x01
+    };
+    Q_DECLARE_FLAGS(DialogParameterFlags, DialogParameterEnum)
+
     explicit WizardDialogParameters(const QString &defaultPath, const WizardPageList &extensionPages,
-                                    const QString &platform, const Core::FeatureSet &requiredFeatures)
+                                    const QString &platform, const Core::FeatureSet &requiredFeatures,
+                                    DialogParameterFlags flags)
         : m_defaultPath(defaultPath),
           m_extensionPages(extensionPages),
           m_selectedPlatform(platform),
-          m_requiredFeatures(requiredFeatures) {}
+          m_requiredFeatures(requiredFeatures),
+          m_parameterFlags(flags) {}
 
     QString defaultPath() const
     { return m_defaultPath; }
@@ -132,11 +139,15 @@ public:
     Core::FeatureSet requiredFeatures() const
     { return m_requiredFeatures; }
 
+    DialogParameterFlags flags() const
+    { return m_parameterFlags; }
+
 private:
     QString m_defaultPath;
     WizardPageList m_extensionPages;
     QString m_selectedPlatform;
     Core::FeatureSet m_requiredFeatures;
+    DialogParameterFlags m_parameterFlags;
 };
 
 class CORE_EXPORT BaseFileWizard : public IWizard
@@ -221,5 +232,6 @@ QList<WizardClass*> createMultipleBaseFileWizardInstances(const QList<BaseFileWi
 } // namespace Core
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::GeneratedFile::Attributes)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Core::WizardDialogParameters::DialogParameterFlags)
 
 #endif // BASEFILEWIZARD_H

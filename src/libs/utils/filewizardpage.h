@@ -59,6 +59,9 @@ public:
     void setFileNameLabel(const QString &label);
     void setPathLabel(const QString &label);
 
+    bool forceFirstCapitalLetterForFileName() const;
+    void setForceFirstCapitalLetterForFileName(bool b);
+
     // Validate a base name entry field (potentially containing extension)
     static bool validateBaseName(const QString &name, QString *errorMessage = 0);
 

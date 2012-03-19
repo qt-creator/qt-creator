@@ -56,7 +56,8 @@ public:
     };
     Q_DECLARE_FLAGS(WizardKinds, WizardKind)
     enum WizardFlag {
-        PlatformIndependent = 0x01
+        PlatformIndependent = 0x01,
+        ForceCapitalLetterForFileName = 0x02
     };
     Q_DECLARE_FLAGS(WizardFlags, WizardFlag)
 

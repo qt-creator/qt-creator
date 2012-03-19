@@ -77,6 +77,7 @@ signals:
 
 protected:
     virtual bool validate(const QString &value, QString *errorMessage) const = 0;
+    virtual QString fixInputString(const QString &string);
 
 protected slots:
     // Custom behaviour can be added here. The base implementation must

@@ -50,6 +50,7 @@ struct FileWizardPagePrivate
     FileWizardPagePrivate();
     Ui::WizardPage m_ui;
     bool m_complete;
+    bool m_forceFirstCapitalLetter;
 };
 
 FileWizardPagePrivate::FileWizardPagePrivate() :
@@ -119,6 +120,16 @@ void FileWizardPage::setFileNameLabel(const QString &label)
 void FileWizardPage::setPathLabel(const QString &label)
 {
     d->m_ui.pathLabel->setText(label);
+}
+
+bool FileWizardPage::forceFirstCapitalLetterForFileName() const
+{
+    return d->m_ui.nameLineEdit->forceFirstCapitalLetter();
+}
+
+void FileWizardPage::setForceFirstCapitalLetterForFileName(bool b)
+{
+    d->m_ui.nameLineEdit->setForceFirstCapitalLetter(b);
 }
 
 void FileWizardPage::slotValidChanged()

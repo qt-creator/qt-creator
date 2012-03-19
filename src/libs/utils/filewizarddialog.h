@@ -49,6 +49,9 @@ public:
     QString fileName() const;
     QString path() const;
 
+    bool forceFirstCapitalLetterForFileName() const;
+    void setForceFirstCapitalLetterForFileName(bool b);
+
 public slots:
     void setPath(const QString &path);
     void setFileName(const QString &name);
