@@ -392,6 +392,19 @@ bool QmlProfilerTool::canRun(RunConfiguration *runConfiguration, RunMode mode) c
     return false;
 }
 
+static QString sysroot(RunConfiguration *runConfig)
+{
+    QTC_ASSERT(runConfig, return QString())
+    if (Qt4ProjectManager::Qt4BuildConfiguration *buildConfig =
+            qobject_cast<Qt4ProjectManager::Qt4BuildConfiguration*>(
+                runConfig->target()->activeBuildConfiguration())) {
+        if (QtSupport::BaseQtVersion *qtVersion = buildConfig->qtVersion())
+            return qtVersion->systemRoot();
+    }
+
+    return QString();
+}
+
 AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration *runConfiguration, RunMode mode) const
 {
     Q_UNUSED(mode);
@@ -426,6 +439,7 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
         sp.connParams = rc3->deviceConfig()->sshParameters();
         sp.analyzerCmdPrefix = rc3->commandPrefix();
         sp.displayName = rc3->displayName();
+        sp.sysroot = sysroot(rc3);
     } else if (Qt4ProjectManager::S60DeviceRunConfiguration *rc4 =
         qobject_cast<Qt4ProjectManager::S60DeviceRunConfiguration *>(runConfiguration)) {
         Qt4ProjectManager::S60DeployConfiguration *deployConf =
@@ -435,6 +449,7 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
         sp.displayName = rc4->displayName();
         sp.connParams.host = deployConf->deviceAddress();
         sp.connParams.port = rc4->debuggerAspect()->qmlDebugServerPort();
+        sp.sysroot = sysroot(rc4);
     } else {
         // What could that be?
         QTC_ASSERT(false, return sp);
