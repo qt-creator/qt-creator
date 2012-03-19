@@ -2,8 +2,6 @@ TEMPLATE = lib
 TARGET = CppEditor
 DEFINES += CPPEDITOR_LIBRARY
 include(../../qtcreatorplugin.pri)
-include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
-include($$IDE_SOURCE_TREE/src/libs/cplusplus/cplusplus.pri)
 include(cppeditor_dependencies.pri)
 HEADERS += cppplugin.h \
     cppeditor.h \
