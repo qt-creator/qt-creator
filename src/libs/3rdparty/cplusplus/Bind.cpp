@@ -1099,7 +1099,12 @@ void Bind::lambdaDeclarator(LambdaDeclaratorAST *ast)
         return;
 
 
-    Function *fun = 0; // ### implement me
+    Function *fun = control()->newFunction(0, 0);
+    fun->setStartOffset(tokenAt(ast->firstToken()).begin());
+    fun->setEndOffset(tokenAt(ast->lastToken() - 1).end());
+    if (ast->trailing_return_type)
+        _type = this->trailingReturnType(ast->trailing_return_type, _type);
+    fun->setReturnType(_type);
 
     // unsigned lparen_token = ast->lparen_token;
     FullySpecifiedType type;
@@ -1110,7 +1115,6 @@ void Bind::lambdaDeclarator(LambdaDeclaratorAST *ast)
     }
     // unsigned mutable_token = ast->mutable_token;
     type = this->exceptionSpecification(ast->exception_specification, type);
-    type = this->trailingReturnType(ast->trailing_return_type, type);
 }
 
 bool Bind::visit(TrailingReturnTypeAST *ast)
