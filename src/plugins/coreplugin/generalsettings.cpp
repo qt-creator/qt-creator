@@ -220,19 +220,19 @@ void GeneralSettings::resetInterfaceColor()
     m_page->colorButton->setColor(StyleHelper::DEFAULT_BASE_COLOR);
 }
 
-#ifdef Q_OS_UNIX
 void GeneralSettings::resetTerminal()
 {
+#if defined(Q_OS_UNIX)
     m_page->terminalEdit->setText(ConsoleProcess::defaultTerminalEmulator() + QLatin1String(" -e"));
+#endif
 }
 
-#ifndef Q_OS_MAC
 void GeneralSettings::resetFileBrowser()
 {
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
     m_page->externalFileBrowserEdit->setText(UnixUtils::defaultFileBrowser());
+#endif
 }
-#endif
-#endif
 
 
 void GeneralSettings::variableHelpDialogCreator(const QString &helpText)
@@ -257,12 +257,12 @@ void GeneralSettings::variableHelpDialogCreator(const QString &helpText)
 }
 
 
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
 void GeneralSettings::showHelpForFileBrowser()
 {
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
     variableHelpDialogCreator(UnixUtils::fileBrowserHelpText());
-}
 #endif
+}
 
 void GeneralSettings::resetLanguage()
 {

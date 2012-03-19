@@ -67,13 +67,9 @@ public:
 private slots:
     void resetInterfaceColor();
     void resetLanguage();
-#ifdef Q_OS_UNIX
-#  ifndef Q_OS_MAC
     void showHelpForFileBrowser();
     void resetFileBrowser();
-#  endif
     void resetTerminal();
-#endif
 
 private:
     void variableHelpDialogCreator(const QString &helpText);
