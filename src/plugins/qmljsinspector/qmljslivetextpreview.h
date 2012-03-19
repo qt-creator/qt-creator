@@ -101,7 +101,7 @@ private slots:
 
 private:
     static QmlJS::ModelManagerInterface *modelManager();
-    QList<int> objectReferencesForOffset(quint32 offset) const;
+    QList<int> objectReferencesForOffset(quint32 offset);
     QVariant castToLiteral(const QString &expression, QmlJS::AST::UiScriptBinding *scriptBinding);
     void showSyncWarning(UnsyncronizableChangeType unsyncronizableChangeType, const QString &elementName,
                          unsigned line, unsigned column);
@@ -120,6 +120,9 @@ private:
     bool m_applyChangesToQmlInspector;
     QmlJS::Document::Ptr m_docWithUnappliedChanges;
     QWeakPointer<ClientProxy> m_clientProxy;
+    QList<int> m_lastOffsets;
+    QmlJS::AST::UiObjectMember *m_nodeForOffset;
+    bool m_updateNodeForOffset;
 
 };
 

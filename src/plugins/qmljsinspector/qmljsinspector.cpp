@@ -157,6 +157,7 @@ InspectorUi::InspectorUi(QObject *parent)
     , m_debugQuery(0)
     , m_selectionCallbackExpected(false)
     , m_cursorPositionChangedExternally(false)
+    , m_onCrumblePathClicked(false)
 {
     m_instance = this;
     m_toolBar = new QmlJsInspectorToolBar(this);
@@ -281,6 +282,17 @@ void InspectorUi::showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextE
 
 void InspectorUi::onResult(quint32 queryId, const QVariant &result)
 {
+    if (m_showObjectQueryId == queryId) {
+        m_showObjectQueryId = 0;
+        QmlDebugObjectReference obj = qvariant_cast<QmlDebugObjectReference>(result);
+        m_clientProxy->addObjectToTree(obj);
+        if (m_onCrumblePathClicked) {
+            m_onCrumblePathClicked = false;
+            showObject(obj);
+        }
+        return;
+    }
+
     if (m_debugQuery != queryId)
         return;
 
@@ -559,19 +571,27 @@ void InspectorUi::selectItems(const QList<QmlDebugObjectReference> &objectRefere
             // select only the first valid element of the list
 
             m_clientProxy->removeAllObjectWatches();
-            m_clientProxy->addObjectWatch(debugId);
-            QList <QmlDebugObjectReference> selectionList;
-            selectionList << objref;
-            m_propertyInspector->setCurrentObjects(selectionList);
-            populateCrumblePath(objref);
-            gotoObjectReferenceDefinition(objref);
-            Debugger::QmlAdapter *qmlAdapter = m_clientProxy->qmlAdapter();
-            if (qmlAdapter) {
-                qmlAdapter->setCurrentSelectedDebugInfo(debugId, displayName(objref));
-            }
+            //Check if the object is complete
+            if (objref.needsMoreData())
+                m_showObjectQueryId = m_clientProxy->fetchContextObject(objref);
+            else
+                showObject(objref);
             break;
         }
     }
+}
+
+void InspectorUi::showObject(const QmlDebugObjectReference &obj)
+{
+    m_clientProxy->addObjectWatch(obj.debugId());
+    QList <QmlDebugObjectReference> selectionList;
+    selectionList << obj;
+    m_propertyInspector->setCurrentObjects(selectionList);
+    populateCrumblePath(obj);
+    gotoObjectReferenceDefinition(obj);
+    Debugger::QmlAdapter *qmlAdapter = m_clientProxy->qmlAdapter();
+    if (qmlAdapter)
+        qmlAdapter->setCurrentSelectedDebugInfo(obj.debugId(), displayName(obj));
 }
 
 bool InspectorUi::isRoot(const QmlDebugObjectReference &obj) const
@@ -768,6 +788,7 @@ void InspectorUi::crumblePathElementClicked(const QVariant &data)
     QList<int> debugIds;
     debugIds << debugId;
 
+    m_onCrumblePathClicked = true;
     selectItems(debugIds);
     m_clientProxy->setSelectedItemsByDebugId(debugIds);
 }

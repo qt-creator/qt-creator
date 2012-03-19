@@ -150,6 +150,8 @@ private:
     void connectSignals();
     void disconnectSignals();
 
+    void showObject(const QmlDebugObjectReference &obj);
+
 private:
     bool m_listeningToEditorManager;
     QmlJsInspectorToolBar *m_toolBar;
@@ -161,6 +163,7 @@ private:
     ClientProxy *m_clientProxy;
     QObject *m_qmlEngine;
     quint32 m_debugQuery;
+    quint32 m_showObjectQueryId;
 
     // Qml/JS integration
     QHash<QString, QmlJSLiveTextPreview *> m_textPreviews;
@@ -172,6 +175,7 @@ private:
     static InspectorUi *m_instance;
     bool m_selectionCallbackExpected;
     bool m_cursorPositionChangedExternally;
+    bool m_onCrumblePathClicked;
 };
 
 } // Internal

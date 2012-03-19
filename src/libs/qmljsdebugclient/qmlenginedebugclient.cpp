@@ -84,6 +84,7 @@ void QmlEngineDebugClient::decode(QDataStream &ds,
     o.m_source.m_lineNumber = data.lineNumber;
     o.m_source.m_columnNumber = data.columnNumber;
     o.m_contextDebugId = data.contextId;
+    o.m_needsMoreData = simple;
 
     if (simple)
         return;

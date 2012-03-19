@@ -202,6 +202,18 @@ void ClientProxy::setSelectedItemsByObjectId(
     }
 }
 
+void ClientProxy::addObjectToTree(const QmlDebugObjectReference &obj)
+{
+    int count = m_rootObjects.count();
+    for (int i = 0; i < count; i++) {
+        if (m_rootObjects[i].insertObjectInTree(obj)) {
+            buildDebugIdHashRecursive(obj);
+            emit objectTreeUpdated();
+            break;
+        }
+    }
+}
+
 QmlDebugObjectReference ClientProxy::objectReferenceForId(int debugId) const
 {
     foreach (const QmlDebugObjectReference& it, m_rootObjects) {
@@ -482,6 +494,13 @@ void ClientProxy::contextChanged(const QVariant &value)
     }
 }
 
+quint32 ClientProxy::fetchContextObject(const QmlDebugObjectReference& obj)
+{
+    log(LogSend, QString("FETCH_OBJECT %1").arg(obj.idString()));
+
+    return m_engineClient->queryObject(obj);
+}
+
 void ClientProxy::fetchContextObjectRecursive(
         const QmlDebugContextReference& context)
 {
@@ -492,7 +511,7 @@ void ClientProxy::fetchContextObjectRecursive(
 
         log(LogSend, QString("FETCH_OBJECT %1").arg(obj.idString()));
 
-        quint32 queryId = m_engineClient->queryObjectRecursive(obj);
+        quint32 queryId = fetchContextObject(obj);
         if (queryId)
             m_objectTreeQueryIds << queryId;
     }

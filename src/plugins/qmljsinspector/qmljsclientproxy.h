@@ -93,6 +93,9 @@ public:
 
     Debugger::QmlAdapter *qmlAdapter() const;
 
+    quint32 fetchContextObject(const QmlDebugObjectReference& obj);
+    void addObjectToTree(const QmlDebugObjectReference &obj);
+
 signals:
     void objectTreeUpdated();
     void connectionStatusMessage(const QString &text);

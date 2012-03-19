@@ -132,8 +132,8 @@ typedef QList<QmlDebugEngineReference> QmlDebugEngineReferenceList;
 class QmlDebugObjectReference
 {
 public:
-    QmlDebugObjectReference() : m_debugId(-1), m_contextDebugId(-1) {}
-    QmlDebugObjectReference(int id) : m_debugId(id), m_contextDebugId(-1) {}
+    QmlDebugObjectReference() : m_debugId(-1), m_contextDebugId(-1), m_needsMoreData(false) {}
+    QmlDebugObjectReference(int id) : m_debugId(id), m_contextDebugId(-1), m_needsMoreData(false) {}
 
     int debugId() const { return m_debugId; }
     QString className() const { return m_className; }
@@ -142,9 +142,24 @@ public:
 
     QmlDebugFileReference source() const { return m_source; }
     int contextDebugId() const { return m_contextDebugId; }
+    bool needsMoreData() const { return m_needsMoreData; }
 
     QList<QmlDebugPropertyReference> properties() const { return m_properties; }
     QList<QmlDebugObjectReference> children() const { return m_children; }
+
+    bool insertObjectInTree(const QmlDebugObjectReference &obj)
+    {
+        for (int i = 0; i < m_children.count(); i++) {
+            if (m_children[i].debugId() == obj.debugId()) {
+                m_children.replace(i, obj);
+                return true;
+            } else {
+                if (m_children[i].insertObjectInTree(obj))
+                    return true;
+            }
+        }
+        return false;
+    }
 
 private:
     friend class QmlEngineDebugClient;
@@ -154,6 +169,7 @@ private:
     QString m_name;
     QmlDebugFileReference m_source;
     int m_contextDebugId;
+    bool m_needsMoreData;
     QList<QmlDebugPropertyReference> m_properties;
     QList<QmlDebugObjectReference> m_children;
 };
