@@ -1919,7 +1919,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
         // Handle non-existing breakpoint.
         const QString text = args.address
             ? tr("Set Breakpoint at 0x%1").arg(args.address, 0, 16)
-            : tr("Set Breakpoint at line %1").arg(lineNumber);
+            : tr("Set Breakpoint at Line %1").arg(lineNumber);
         QAction *act = new QAction(text, menu);
         act->setData(QVariant::fromValue(args));
         act->setEnabled(contextUsable);
@@ -1930,7 +1930,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
         args.mode = BreakpointMenuContextData::MessageTracePoint;
         const QString tracePointText = args.address
             ? tr("Set Message Tracepoint at 0x%1...").arg(args.address, 0, 16)
-            : tr("Set Message Tracepoint at line %1...").arg(lineNumber);
+            : tr("Set Message Tracepoint at Line %1...").arg(lineNumber);
         act = new QAction(tracePointText, menu);
         act->setData(QVariant::fromValue(args));
         act->setEnabled(contextUsable);
@@ -1966,7 +1966,8 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
             frame.function = cppFunctionAt(fileName, lineNumber);
             frame.line = 42; // trick gdb into mixed mode.
             if (!frame.function.isEmpty()) {
-                const QString text = tr("Disassemble '%1()'").arg(frame.function);
+                const QString text = tr("Disassemble Function \"%1\"")
+                    .arg(frame.function);
                 QAction *disassembleAction = new QAction(text, menu);
                 disassembleAction->setData(QVariant::fromValue(frame));
                 connect(disassembleAction, SIGNAL(triggered()), SLOT(slotDisassembleFunction()));
