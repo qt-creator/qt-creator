@@ -1,4 +1,10 @@
-QT += declarative script
+QT += script
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += quick1
+} else {
+    QT += declarative
+}
+
 INCLUDEPATH += $$PWD
 
 contains(CONFIG, dll) {
