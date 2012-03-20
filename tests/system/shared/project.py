@@ -12,8 +12,15 @@ def __handleProcessExited__(object, exitCode):
     processExited = True
 
 def openQmakeProject(projectPath, targets=QtQuickConstants.Targets.DESKTOP):
+    cleanUpUserFiles(projectPath)
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(projectPath)
+    try:
+        # handle update generated files dialog
+        waitForObject("{type='QMessageBox' unnamed='1' visible='1' windowTitle='Update of Generated Files'}", 3000)
+        clickButton(waitForObject("{text='Yes' type='QPushButton' unnamed='1' visible='1'}"))
+    except:
+        pass
     selectFromCombo(waitForObject(":Qt Creator.Create Build Configurations:_QComboBox", 180000),
                     "For Each Qt Version One Debug And One Release")
     __chooseTargets__(targets)
