@@ -14,7 +14,7 @@ DynamicLibrary {
     }
     Properties {
         condition: qbs.targetOS == "linux"
-        cpp.defines: [ "_GNU_SOURCE HAVE_IPV6", "USES_NETLINK", "HAVE_LINUX", "TARGET_OS_LINUX" ]
+        cpp.defines: [ "_GNU_SOURCE", "HAVE_IPV6", "USES_NETLINK", "HAVE_LINUX", "TARGET_OS_LINUX" ]
     }
 
     files: [

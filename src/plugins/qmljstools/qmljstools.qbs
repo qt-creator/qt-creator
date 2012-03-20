@@ -58,7 +58,7 @@ QtcPlugin {
     ]
 
     ProductModule {
-        Depends { name: "CPlusPlus" }
+        Depends { name: "CppTools" }
         Depends { name: "QmlJSDebugClient" }
     }
 }

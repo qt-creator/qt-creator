@@ -106,5 +106,9 @@ QtcPlugin {
         "TypeHierarchyBuilder.cpp",
         "TypeHierarchyBuilder.h"
     ]
+
+    ProductModule {
+        Depends { name: "CPlusPlus" }
+    }
 }
 
