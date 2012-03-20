@@ -512,7 +512,7 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
 {
     if (e->type() == QEvent::FocusOut) {
         abort();
-#if defined(Q_OS_DARWIN) && ! defined(QT_MAC_USE_COCOA)
+#if (QT_VERSION < 0x050000) && defined(Q_OS_DARWIN) && ! defined(QT_MAC_USE_COCOA)
         QFocusEvent *fe = static_cast<QFocusEvent *>(e);
         if (fe->reason() == Qt::OtherFocusReason) {
             // Qt/carbon workaround
@@ -559,7 +559,7 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
 
         case Qt::Key_Tab:
         case Qt::Key_Return:
-#if defined(QT_MAC_USE_COCOA) || !defined(Q_OS_DARWIN)
+#if (QT_VERSION >= 0x050000) || (defined(QT_MAC_USE_COCOA) || !defined(Q_OS_DARWIN))
             abort();
             if (d->m_completionListView->currentIndex().isValid())
                 emit proposalItemActivated(d->m_model->proposalItem(
