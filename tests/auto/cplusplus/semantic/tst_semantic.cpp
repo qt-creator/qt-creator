@@ -52,6 +52,9 @@
 #include <Names.h>
 
 //TESTED_COMPONENT=src/libs/cplusplus
+
+#define NO_PARSER_OR_SEMANTIC_ERROR_MESSAGES
+
 using namespace CPlusPlus;
 
 class tst_Semantic: public QObject
@@ -68,13 +71,15 @@ public:
     TranslationUnit *parse(const QByteArray &source,
                            TranslationUnit::ParseMode mode,
                            bool enableObjc,
-                           bool qtMocRun)
+                           bool qtMocRun,
+                           bool enableCxx11)
     {
         const StringLiteral *fileId = control->stringLiteral("<stdin>");
         TranslationUnit *unit = new TranslationUnit(control.data(), fileId);
         unit->setSource(source.constData(), source.length());
         unit->setObjCEnabled(enableObjc);
         unit->setQtMocRunEnabled(qtMocRun);
+        unit->setCxxOxEnabled(enableCxx11);
         unit->parse(mode);
         return unit;
     }
@@ -84,7 +89,9 @@ public:
 
     public:
         Document(TranslationUnit *unit)
-            : unit(unit), globals(unit->control()->newNamespace(0, 0)), errorCount(0)
+            : unit(unit)
+            , globals(unit->control()->newNamespace(0, 0))
+            , errorCount(0)
         { }
 
         ~Document()
@@ -114,23 +121,31 @@ public:
         { }
 
         virtual void report(int /*level*/,
-                            const StringLiteral * /*fileName*/,
-                            unsigned /*line*/, unsigned /*column*/,
-                            const char * /*format*/, va_list /*ap*/)
+                            const StringLiteral *fileName,
+                            unsigned line, unsigned column,
+                            const char *format, va_list ap)
         {
             ++errorCount;
 
-//            qDebug() << fileName->chars()<<':'<<line<<':'<<column<<' '<<QString().vsprintf(format, ap);
+#ifndef NO_PARSER_OR_SEMANTIC_ERROR_MESSAGES
+            qDebug() << fileName->chars()<<':'<<line<<':'<<column<<' '<<QString().vsprintf(format, ap);
+#else
+            Q_UNUSED(fileName);
+            Q_UNUSED(line);
+            Q_UNUSED(column);
+            Q_UNUSED(format);
+            Q_UNUSED(ap);
+#endif
         }
     };
 
     Diagnostic diag;
 
 
-    QSharedPointer<Document> document(const QByteArray &source, bool enableObjc = false, bool qtMocRun = false)
+    QSharedPointer<Document> document(const QByteArray &source, bool enableObjc = false, bool qtMocRun = false, bool enableCxx11 = false)
     {
         diag.errorCount = 0; // reset the error count.
-        TranslationUnit *unit = parse(source, TranslationUnit::ParseTranlationUnit, enableObjc, qtMocRun);
+        TranslationUnit *unit = parse(source, TranslationUnit::ParseTranlationUnit, enableObjc, qtMocRun, enableCxx11);
         QSharedPointer<Document> doc(new Document(unit));
         doc->check();
         doc->errorCount = diag.errorCount;
@@ -163,6 +178,8 @@ private slots:
     void objcSelector_2();
 
     void q_enum_1();
+
+    void lambda_1();
 
     void diagnostic_error();
 };
@@ -695,6 +712,17 @@ void tst_Semantic::q_enum_1()
     QVERIFY(e);
     QCOMPARE(doc->unit->spell(e->identifier_token), "e");
     QCOMPARE(e->name->identifier()->chars(), "e");
+}
+
+void tst_Semantic::lambda_1()
+{
+    QSharedPointer<Document> doc = document("\n"
+                                            "void f() {\n"
+                                            "  auto func = [](int a, int b) {return a + b;};\n"
+                                            "}\n", false, false, true);
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->memberCount(), 1U);
 }
 
 void tst_Semantic::diagnostic_error()
