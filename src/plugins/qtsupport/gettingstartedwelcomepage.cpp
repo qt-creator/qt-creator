@@ -326,6 +326,10 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
     QLabel *descrLbl = new QLabel;
     d.setWindowTitle(tr("Copy Project to writable Location?"));
     descrLbl->setTextFormat(Qt::RichText);
+    descrLbl->setWordWrap(false);
+    const QString nativeProjectDir = QDir::toNativeSeparators(projectDir);
+    descrLbl->setText(QString::fromLatin1("<blockquote>%1</blockquote>").arg(nativeProjectDir));
+    descrLbl->setMinimumWidth(descrLbl->sizeHint().width());
     descrLbl->setWordWrap(true);
     descrLbl->setText(tr("<p>The project you are about to open is located in the "
                          "write-protected location:</p><blockquote>%1</blockquote>"
@@ -333,7 +337,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
                          "to open a modifiable copy of the project or click \"Keep Project and Open\" "
                          "to open the project in location.</p><p><b>Note:</b> You will not "
                          "be able to alter or compile your project in the current location.</p>")
-                      .arg(QDir::toNativeSeparators(projectDir)));
+                      .arg(nativeProjectDir));
     lay->addWidget(descrLbl, 0, 0, 1, 2);
     QLabel *txt = new QLabel(tr("&Location:"));
     Utils::PathChooser *chooser = new Utils::PathChooser;
