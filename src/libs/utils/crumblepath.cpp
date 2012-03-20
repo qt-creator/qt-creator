@@ -173,34 +173,34 @@ void CrumblePathButton::tintImages()
 
 void CrumblePathButton::leaveEvent(QEvent *e)
 {
-    QPushButton::leaveEvent(e);
     m_isHovering = false;
     update();
+    QPushButton::leaveEvent(e);
 }
 
 void CrumblePathButton::mouseMoveEvent(QMouseEvent *e)
 {
     if (!isEnabled())
         return;
-    QPushButton::mouseMoveEvent(e);
     m_isHovering = true;
     update();
+    QPushButton::mouseMoveEvent(e);
 }
 
 void CrumblePathButton::mousePressEvent(QMouseEvent *e)
 {
     if (!isEnabled())
         return;
-    QPushButton::mousePressEvent(e);
     m_isPressed = true;
     update();
+    QPushButton::mousePressEvent(e);
 }
 
 void CrumblePathButton::mouseReleaseEvent(QMouseEvent *e)
 {
-    QPushButton::mouseReleaseEvent(e);
     m_isPressed = false;
     update();
+    QPushButton::mouseReleaseEvent(e);
 }
 
 void CrumblePathButton::changeEvent(QEvent *e)
