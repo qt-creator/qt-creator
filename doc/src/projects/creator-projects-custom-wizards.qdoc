@@ -52,7 +52,9 @@
     \c {\share\qtcreator\templates\wizards\listmodel\helloworld} and
     \c {\share\qtcreator\templates\wizards\listmodel\listmodels} folders. After
     you restart \QC, the \gui {Custom Classes}
-    and \gui {Custom Projects} categories appear in the \gui New dialog.
+    and \gui {Custom Projects} categories (1) appear in the \gui New dialog. For
+    each category, an icon (2), a display name (3), and a description (4) are
+    displayed.
 
     \image qtcreator-custom-project-wizards.png "The New dialog with custom projects and classes"
 
@@ -163,14 +165,14 @@
 
         \list
 
+            \o  \c displayCategory appears in the \gui New dialog, under
+                \gui Projects.
 
-            \o  \c icon appears next to the \c displayName.
+            \o  \c icon appears next to the \c displayName in the middle panel
+                when \c displayCategory is selected.
 
-            \o  \c description appears at the bottom of the \gui New dialog when
-                you select the display name.
-
-            \o  \c displayName appears in the \gui New dialog, under the
-                \c displayCategory.
+            \o  \c description appears in the right-most panel when
+                \c displayCategory is selected.
 
                 You can add translations as values for the text elements. Specify the target
                 language as an attribute for the element. Use locale names (QLocale).
