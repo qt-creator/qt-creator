@@ -1115,6 +1115,7 @@ public slots:
     void maybeEnrichParameters(DebuggerStartParameters *sp);
 
     void gdbServerStarted(const QString &channel, const QString &sysroot, const QString &localExecutable);
+    void attachedToProcess(const QString &channel, const QString &sysroot, const QString &localExecutable);
 
 public:
     DebuggerMainWindow *m_mainWindow;
@@ -1672,11 +1673,6 @@ void DebuggerPluginPrivate::attachToRemoteServer()
     }
 }
 
-void DebuggerPluginPrivate::attachToRemoteProcess()
-{
-    startRemoteServer();
-}
-
 void DebuggerPluginPrivate::startRemoteServer()
 {
     PluginManager *pm = PluginManager::instance();
@@ -1688,6 +1684,24 @@ void DebuggerPluginPrivate::startRemoteServer()
 }
 
 void DebuggerPluginPrivate::gdbServerStarted(const QString &channel,
+    const QString &sysroot, const QString &remoteCommandLine)
+{
+    Q_UNUSED(remoteCommandLine);
+    Q_UNUSED(sysroot);
+    showStatusMessage(tr("gdbserver is now listening at %1").arg(channel));
+}
+
+void DebuggerPluginPrivate::attachToRemoteProcess()
+{
+    PluginManager *pm = PluginManager::instance();
+    QTC_ASSERT(pm, return);
+    QObject *rl = pm->getObjectByName(_("RemoteLinuxPlugin"));
+    QTC_ASSERT(rl, return);
+    QMetaObject::invokeMethod(rl, "attachToRemoteProcess", Qt::QueuedConnection);
+    // This will call back attachedtToProcess() below.
+}
+
+void DebuggerPluginPrivate::attachedToProcess(const QString &channel,
     const QString &sysroot, const QString &remoteCommandLine)
 {
     QString binary = remoteCommandLine.section(QLatin1Char(' '), 0, 0);
@@ -3074,7 +3088,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     connect(act, SIGNAL(triggered()), SLOT(attachToRemoteServer()));
 
     act = m_startRemoteServerAction = new QAction(this);
-    act->setText(tr("Start Remote Debug Server..."));
+    act->setText(tr("Start Remote Debug Server Attached to Process..."));
     connect(act, SIGNAL(triggered()), SLOT(startRemoteServer()));
 
     act = m_attachToRemoteProcessAction = new QAction(this);

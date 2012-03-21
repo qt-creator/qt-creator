@@ -51,6 +51,7 @@ public:
 
 private slots:
     void startGdbServer();
+    void attachToRemoteProcess();
 };
 
 } // namespace Internal

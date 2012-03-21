@@ -92,6 +92,7 @@ public:
     }
 
     StartGdbServerDialog *q;
+    bool startServerOnly;
     AbstractRemoteLinuxProcessList *processList;
     QSortFilterProxyModel proxyModel;
 
@@ -110,7 +111,7 @@ public:
 };
 
 StartGdbServerDialogPrivate::StartGdbServerDialogPrivate(StartGdbServerDialog *q)
-    : q(q), processList(0)
+    : q(q), startServerOnly(true), processList(0)
 {
     settings = ICore::settings();
 
@@ -313,13 +314,20 @@ void StartGdbServerDialog::portListReady()
 
 void StartGdbServerDialog::startGdbServer()
 {
+    d->startServerOnly = true;
+    if (exec() == QDialog::Rejected)
+        return;
     LinuxDeviceConfiguration::ConstPtr device = d->currentDevice();
     d->gatherer.start(SshConnection::create(device->sshParameters()), device);
 }
 
 void StartGdbServerDialog::attachToRemoteProcess()
 {
-    startGdbServer();
+    d->startServerOnly = false;
+    if (exec() == QDialog::Rejected)
+        return;
+    LinuxDeviceConfiguration::ConstPtr device = d->currentDevice();
+    d->gatherer.start(SshConnection::create(device->sshParameters()), device);
 }
 
 void StartGdbServerDialog::handleConnectionError()
@@ -343,21 +351,17 @@ void StartGdbServerDialog::handleProcessErrorOutput(const QByteArray &ba)
     logMessage(QString::fromUtf8(ba.trimmed()));
     // "Attached; pid = 16740"
     // "Listening on port 10000"
-    int pos = ba.indexOf("Listening on port");
-    if (pos == -1)
-        return;
-    const int port = ba.mid(pos + 18).trimmed().toInt();
-    logMessage(tr("Port %1 is now accessible.").arg(port));
-    reportOpenPort(port);
+    foreach (const QByteArray &line, ba.split('\n')) {
+        if (line.startsWith("Listening on port")) {
+            const int port = line.mid(18).trimmed().toInt();
+            reportOpenPort(port);
+        }
+    }
 }
 
 void StartGdbServerDialog::reportOpenPort(int port)
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    QObject *ob = pm->getObjectByName("DebuggerCore");
-    if (!ob)
-        return;
-
+    logMessage(tr("Port %1 is now accessible.").arg(port));
     LinuxDeviceConfiguration::ConstPtr device = d->currentDevice();
     QString host = device->sshParameters().host;
     QString channel;
@@ -367,10 +371,16 @@ void StartGdbServerDialog::reportOpenPort(int port)
         channel = QString::fromLatin1("%1:%2").arg(host).arg(port);
     logMessage(tr("Server started on %1").arg(channel));
 
-    QMetaObject::invokeMethod(ob, "gdbServerStarted", Qt::QueuedConnection,
-        Q_ARG(QString, channel),
-        Q_ARG(QString, d->sysrootPathChooser->path()),
-        Q_ARG(QString, d->remoteCommandLine));
+    const char *member = d->startServerOnly ? "gdbServerStarted" : "attachedToProcess";
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    QObject *ob = pm->getObjectByName("DebuggerCore");
+    if (ob) {
+        QMetaObject::invokeMethod(ob, member, Qt::QueuedConnection,
+            Q_ARG(QString, channel),
+            Q_ARG(QString, d->sysrootPathChooser->path()),
+            Q_ARG(QString, d->remoteCommandLine));
+    }
+    close();
 }
 
 void StartGdbServerDialog::handleProcessClosed(int status)
