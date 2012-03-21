@@ -65,6 +65,15 @@ ImageViewerFile::~ImageViewerFile()
     delete d;
 }
 
+Core::IDocument::ReloadBehavior ImageViewerFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
+{
+    if (type == TypeRemoved || type == TypePermissions)
+        return BehaviorSilent;
+    if (type == TypeContents && state == TriggerInternal && !isModified())
+        return BehaviorSilent;
+    return BehaviorAsk;
+}
+
 bool ImageViewerFile::reload(QString *errorString,
                              Core::IDocument::ReloadFlag flag,
                              Core::IDocument::ChangeType type)

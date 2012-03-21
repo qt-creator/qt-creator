@@ -613,7 +613,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
     LookupContext targetContext(targetFile->cppDocument(), snapshot);
 
     // sync return type
-    {
+    do {
         // set up for rewriting return type
         SubstitutionEnvironment env;
         env.setContext(sourceContext);
@@ -637,6 +637,9 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
             declarator = def->declarator;
             firstReplaceableSpecifier = findFirstReplaceableSpecifier(
                         targetTranslationUnit, def->decl_specifier_list);
+        } else {
+            // no proper AST to synchronize the return type
+            break;
         }
 
         int returnTypeStart = 0;
@@ -653,7 +656,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
                             targetFile->startOf(targetFunctionDeclarator->lparen_token),
                             replacement);
         }
-    }
+    } while (false);
 
     // sync parameters
     {

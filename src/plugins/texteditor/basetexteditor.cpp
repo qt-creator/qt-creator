@@ -6489,10 +6489,11 @@ void BaseTextEditorWidget::inSnippetMode(bool *active)
 
 void BaseTextEditorWidget::invokeAssist(AssistKind kind, IAssistProvider *provider)
 {
-    if (overwriteMode())
-        return;
+    bool previousMode = overwriteMode();
+    setOverwriteMode(false);
     ensureCursorVisible();
     d->m_codeAssistant->invoke(kind, provider);
+    setOverwriteMode(previousMode);
 }
 
 IAssistInterface *BaseTextEditorWidget::createAssistInterface(AssistKind kind,

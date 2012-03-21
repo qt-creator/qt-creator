@@ -51,6 +51,7 @@ public:
 
     void setModel(QAbstractItemModel *model);
     virtual void rowActivated(const QModelIndex &) {}
+    void mousePressEvent(QMouseEvent *ev);
 
 public slots:
     void resizeColumnsToContents();
@@ -59,6 +60,7 @@ public slots:
 private slots:
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
     void rowActivatedHelper(const QModelIndex &index) { rowActivated(index); }
+    void headerSectionClicked(int logicalIndex);
     void reset();
 
 private:

@@ -130,7 +130,7 @@ void QmlProject::parseProject(RefreshOptions options)
                     messageManager->printToOutputPane(
                                 tr("Warning while loading project file %1.").arg(m_fileName));
                     messageManager->printToOutputPane(
-                                tr("File '%' does not exist or is not readable.").arg(mainFilePath), true);
+                                tr("File '%1' does not exist or is not readable.").arg(mainFilePath), true);
                 }
             }
         }

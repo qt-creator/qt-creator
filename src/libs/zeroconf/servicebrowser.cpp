@@ -1283,7 +1283,7 @@ ServiceBrowserPrivate::ServiceBrowserPrivate(const QString &serviceType, const Q
                                              bool requireAddresses, MainConnectionPtr mconn):
     q(0), serviceType(serviceType), domain(domain), mainConnection(mconn), serviceConnection(0), flags(0), interfaceIndex(0),
     delayDeletesUntil(std::numeric_limits<qint64>::min()), failed(false), browsing(false),
-    autoResolveAddresses(requireAddresses), requireAddresses(requireAddresses)
+    autoResolveAddresses(requireAddresses), requireAddresses(requireAddresses), shouldRefresh(false)
 {
 }
 
@@ -1567,6 +1567,7 @@ void MainConnection::stop(bool wait)
 }
 
 MainConnection::MainConnection():
+    flowStatus(NormalRFS),
     lib(zeroConfLibInstance()->defaultLib()), m_lock(QMutex::Recursive),
     m_mainThreadLock(QMutex::Recursive), m_mainRef(0), m_failed(false), m_status(Starting), m_nErrs(0)
 {

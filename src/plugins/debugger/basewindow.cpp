@@ -59,11 +59,14 @@ BaseWindow::BaseWindow(QWidget *parent)
     setUniformRowHeights(true);
 
     header()->setDefaultAlignment(Qt::AlignLeft);
+    header()->setClickable(true);
 
     connect(act, SIGNAL(toggled(bool)),
         SLOT(setAlternatingRowColorsHelper(bool)));
     connect(this, SIGNAL(activated(QModelIndex)),
         SLOT(rowActivatedHelper(QModelIndex)));
+    connect(header(), SIGNAL(sectionClicked(int)),
+        SLOT(headerSectionClicked(int)));
 
     m_adjustColumnsAction = new QAction(tr("Adjust Column Widths to Contents"), 0);
     m_alwaysAdjustColumnsAction = 0;
@@ -110,6 +113,13 @@ void BaseWindow::setModel(QAbstractItemModel *model)
         setAlwaysResizeColumnsToContents(m_alwaysAdjustColumnsAction->isChecked());
 }
 
+void BaseWindow::mousePressEvent(QMouseEvent *ev)
+{
+    QTreeView::mousePressEvent(ev);
+    if (!indexAt(ev->pos()).isValid())
+        resizeColumnsToContents();
+}
+
 void BaseWindow::resizeColumnsToContents()
 {
     const int columnCount = model()->columnCount();
@@ -122,6 +132,11 @@ void BaseWindow::setAlwaysResizeColumnsToContents(bool on)
     QHeaderView::ResizeMode mode = on
         ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
     header()->setResizeMode(0, mode);
+}
+
+void BaseWindow::headerSectionClicked(int logicalIndex)
+{
+    resizeColumnToContents(logicalIndex);
 }
 
 void BaseWindow::reset()

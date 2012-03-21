@@ -1785,7 +1785,7 @@ class Dumper:
                 if field.name.startswith("_vptr."):
                     with SubItem(self, "[vptr]"):
                         # int (**)(void)
-                        n = 20
+                        n = 100
                         self.putType(" ")
                         self.putValue(value[field.name])
                         self.putNumChild(n)

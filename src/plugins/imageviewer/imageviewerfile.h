@@ -61,6 +61,7 @@ public:
     bool isModified() const;
     bool isSaveAsAllowed() const;
 
+    virtual ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
 
     void setMimetype(const QString &mimetype);

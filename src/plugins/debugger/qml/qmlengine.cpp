@@ -364,7 +364,10 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
             SLOT(documentUpdated(QmlJS::Document::Ptr)));
 
     // we won't get any debug output
-    d->m_retryOnConnectFail = startParameters.useTerminal;
+    if (startParameters.useTerminal) {
+        d->m_noDebugOutputTimer.setInterval(0);
+        d->m_retryOnConnectFail = true;
+    }
 }
 
 QmlEngine::~QmlEngine()
@@ -416,6 +419,7 @@ void QmlEngine::connectionEstablished()
 
 void QmlEngine::tryToConnect(quint16 port)
 {
+    showMessage(QLatin1String("QML Debugger: No application output received in time, trying to connect ..."), LogStatus);
     d->m_retryOnConnectFail = true;
     beginConnection(port);
 }
@@ -447,15 +451,9 @@ void QmlEngine::beginConnection(quint16 port)
 
 void QmlEngine::connectionStartupFailed()
 {
-    if (isSlaveEngine()) {
-        if (masterEngine()->state() != InferiorRunOk) {
-            // we're right now debugging C++, just try longer ...
-            beginConnection();
-            return;
-        }
-    }
     if (d->m_retryOnConnectFail) {
-        beginConnection();
+        // retry after 3 seconds ...
+        QTimer::singleShot(3000, this, SLOT(beginConnection()));
         return;
     }
 

@@ -153,8 +153,33 @@ void SearchWidget::showEvent(QShowEvent *event)
 
 void SearchWidget::search() const
 {
-    QList<QHelpSearchQuery> query = searchEngine->queryWidget()->query();
-    searchEngine->search(query);
+    static QStringList charsToEscapeList;
+    if (charsToEscapeList.isEmpty()) {
+        charsToEscapeList << QLatin1String("\\") << QLatin1String("+")
+            << QLatin1String("-") << QLatin1String("!") << QLatin1String("(")
+            << QLatin1String(")") << QLatin1String(":") << QLatin1String("^")
+            << QLatin1String("[") << QLatin1String("]") << QLatin1String("{")
+            << QLatin1String("}") << QLatin1String("~");
+    }
+
+    static QString escapeChar(QLatin1String("\\"));
+    static QRegExp regExp(QLatin1String("[\\+\\-\\!\\(\\)\\^\\[\\]\\{\\}~:]"));
+
+    QList<QHelpSearchQuery> escapedQueries;
+    const QList<QHelpSearchQuery> queries = searchEngine->queryWidget()->query();
+    foreach (const QHelpSearchQuery &query, queries) {
+        QHelpSearchQuery escapedQuery;
+        escapedQuery.fieldName = query.fieldName;
+        foreach (QString word, query.wordList) {
+            if (word.contains(regExp)) {
+                foreach (const QString &charToEscape, charsToEscapeList)
+                    word.replace(charToEscape, escapeChar + charToEscape);
+            }
+            escapedQuery.wordList.append(word);
+        }
+        escapedQueries.append(escapedQuery);
+    }
+    searchEngine->search(escapedQueries);
 }
 
 void SearchWidget::searchingStarted()

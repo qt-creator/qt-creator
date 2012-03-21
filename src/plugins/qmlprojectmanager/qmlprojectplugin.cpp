@@ -101,18 +101,18 @@ void QmlProjectPlugin::extensionsInitialized()
 void QmlProjectPlugin::showQmlObserverToolWarning()
 {
     QMessageBox dialog(QApplication::activeWindow());
-    QPushButton *qtPref = dialog.addButton(tr("Open Qt4 Options"),
+    QPushButton *qtPref = dialog.addButton(tr("Open Qt Versions"),
                                            QMessageBox::ActionRole);
     dialog.addButton(QMessageBox::Cancel);
     dialog.setDefaultButton(qtPref);
     dialog.setWindowTitle(tr("QML Observer Missing"));
-    dialog.setText(tr("QML Observer could not be found."));
+    dialog.setText(tr("QML Observer could not be found for this Qt version."));
     dialog.setInformativeText(tr(
                                   "QML Observer is used to offer debugging features for "
-                                  "QML applications, such as interactive debugging and inspection tools. "
-                                  "It must be compiled for each used Qt version separately. "
-                                  "On the Qt4 options page, select the current Qt installation "
-                                  "and click Rebuild."));
+                                  "Qt Quick UI projects in the Qt 4.7 series.\n\n"
+                                  "To compile QML Observer, go to the Qt Versions page, "
+                                  "select the current Qt version, "
+                                  "and click Build in the Helpers section."));
     dialog.exec();
     if (dialog.clickedButton() == qtPref) {
         Core::ICore::showOptionsDialog(
