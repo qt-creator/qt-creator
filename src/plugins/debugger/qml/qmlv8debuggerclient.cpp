@@ -995,7 +995,7 @@ QtMessageLogItem *QmlV8DebuggerClientPrivate::constructLogItemTree(
         QtMessageLogItem *child = constructLogItemTree(
                     item, extractData(property, refsVal), refsVal);
         if (child)
-            item->insertChild(item->childCount(), child);
+            item->insertChildSorted(child);
     }
 
     return item;

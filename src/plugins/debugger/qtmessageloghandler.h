@@ -126,6 +126,7 @@ public:
     QtMessageLogItem *child(int number);
     int childCount() const;
     bool insertChildren(int position, int count);
+    void insertChildSorted(QtMessageLogItem *item);
     bool insertChild(int position, QtMessageLogItem *item);
     QtMessageLogItem *parent();
     bool removeChildren(int position, int count);

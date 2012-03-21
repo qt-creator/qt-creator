@@ -94,6 +94,17 @@ bool QtMessageLogItem::insertChildren(int position, int count)
     return true;
 }
 
+void QtMessageLogItem::insertChildSorted(QtMessageLogItem *item)
+{
+    int i = 0;
+    for (; i < m_childItems.count(); i++) {
+        if (item->text < m_childItems[i]->text) {
+            break;
+        }
+    }
+    m_childItems.insert(i, item);
+}
+
 bool QtMessageLogItem::insertChild(int position, QtMessageLogItem *item)
 {
     if (position < 0 || position > m_childItems.size())

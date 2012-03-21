@@ -1309,7 +1309,7 @@ QtMessageLogItem *QmlEngine::constructLogItemTree(
             QtMessageLogItem *child = constructLogItemTree(item,
                                                            i.value(), i.key());
             if (child)
-                item->insertChild(item->childCount(), child);
+                item->insertChildSorted(child);
         }
     } else if (result.type() == QVariant::List) {
         if (key.isEmpty())
@@ -1321,7 +1321,7 @@ QtMessageLogItem *QmlEngine::constructLogItemTree(
             QtMessageLogItem *child = constructLogItemTree(item, resultList.at(i),
                                                           QString::number(i));
             if (child)
-                item->insertChild(item->childCount(), child);
+                item->insertChildSorted(child);
         }
     } else if (result.canConvert(QVariant::String)) {
         item->text = result.toString();
