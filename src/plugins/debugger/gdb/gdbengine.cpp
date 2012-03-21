@@ -607,6 +607,12 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             // version and/or OS version used.
             if (data.startsWith("warning:"))
                 showMessage(_(data.mid(9)), AppStuff); // Cut "warning: "
+
+            // Messages when the target exits (gdbserver)
+            if (data.trimmed() == "Remote connection closed"
+                    || data.trimmed() == "Quit") {
+                notifyInferiorExited();
+            }
             break;
         }
 
@@ -1025,10 +1031,6 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 QTC_CHECK(state() == InferiorRunOk);
                 notifyInferiorSpontaneousStop();
                 notifyEngineIll();
-            } else if (msg.startsWith("Remote connection closed")
-                       || msg.startsWith("Quit")) {
-                // Can happen when the target exits (gdbserver)
-                notifyInferiorExited();
             } else {
                 // Windows: Some DLL or some function not found. Report
                 // the exception now in a box.
