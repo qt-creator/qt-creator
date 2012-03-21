@@ -8,50 +8,55 @@ Product {
         qbs.installDir: "lib/qtcreator/qtcomponents/"
         fileTags: ["install"]
         files: [
-            "Menu.qml",
-            "ScrollBar.qml",
-            "ContextMenu.qml",
-            "TextArea.qml",
-            "Switch.qml",
-            "Tab.qml",
-            "Slider.qml",
-            "TabFrame.qml",
-            "TextField.qml",
-            "TabBar.qml",
-            "MenuItem.qml",
-            "Dial.qml",
+            "Button.qml",
             "ButtonRow.qml",
-            "ToolBar.qml",
-            "qmldir",
+            "CheckBox.qml",
+            "ChoiceList.qml",
+            "ContextMenu.qml",
+            "Dial.qml",
+            "Frame.qml",
+            "GroupBox.qml",
+            "Menu.qml",
+            "MenuItem.qml",
             "ProgressBar.qml",
             "RadioButton.qml",
-            "TableColumn.qml",
-            "GroupBox.qml",
-            "Button.qml",
-            "TableView.qml",
-            "Frame.qml",
-            "ToolButton.qml",
             "ScrollArea.qml",
-            "SplitterRow.qml",
-            "ChoiceList.qml",
-            "CheckBox.qml",
+            "ScrollBar.qml",
+            "Slider.qml",
             "SpinBox.qml",
+            "SplitterRow.qml",
+            "Switch.qml",
+            "Tab.qml",
+            "TabBar.qml",
+            "TabFrame.qml",
+            "TableColumn.qml",
+            "TableView.qml",
+            "TextArea.qml",
+            "TextField.qml",
+            "ToolBar.qml",
+            "ToolButton.qml",
+            "qmldir",
         ]
     }
 
     Group {
-        qbs.installDir: "lib/qtcreator/qtcomponents/images"
+        qbs.installDir: "lib/qtcreator/qtcomponents/custom"
         fileTags: ["install"]
         files: [
-            "images/folder_new.png",
-        ]
-    }
-
-    Group {
-        qbs.installDir: "lib/qtcreator/qtcomponents/custom/private"
-        fileTags: ["install"]
-        files: [
-            "custom/private/ChoiceListPopup.qml",
+            "custom/BasicButton.qml",
+            "custom/Button.qml",
+            "custom/ButtonColumn.qml",
+            "custom/ButtonGroup.js",
+            "custom/ButtonRow.qml",
+            "custom/CheckBox.qml",
+            "custom/ChoiceList.qml",
+            "custom/GroupBox.qml",
+            "custom/ProgressBar.qml",
+            "custom/Slider.qml",
+            "custom/SpinBox.qml",
+            "custom/SplitterRow.qml",
+            "custom/TextField.qml",
+            "custom/qmldir",
         ]
     }
 
@@ -65,23 +70,18 @@ Product {
     }
 
     Group {
-        qbs.installDir: "lib/qtcreator/qtcomponents/custom"
+        qbs.installDir: "lib/qtcreator/qtcomponents/custom/private"
         fileTags: ["install"]
         files: [
-            "custom/ButtonGroup.js",
-            "custom/Slider.qml",
-            "custom/TextField.qml",
-            "custom/ButtonRow.qml",
-            "custom/qmldir",
-            "custom/BasicButton.qml",
-            "custom/ProgressBar.qml",
-            "custom/GroupBox.qml",
-            "custom/Button.qml",
-            "custom/ButtonColumn.qml",
-            "custom/SplitterRow.qml",
-            "custom/ChoiceList.qml",
-            "custom/CheckBox.qml",
-            "custom/SpinBox.qml",
+            "custom/private/ChoiceListPopup.qml",
+        ]
+    }
+
+    Group {
+        qbs.installDir: "lib/qtcreator/qtcomponents/images"
+        fileTags: ["install"]
+        files: [
+            "images/folder_new.png",
         ]
     }
 }
