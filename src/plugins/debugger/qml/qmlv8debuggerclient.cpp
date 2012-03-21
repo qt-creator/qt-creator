@@ -151,6 +151,7 @@ public:
     QHash<int, QString> evaluatingExpression;
     QHash<int, QByteArray> localsAndWatchers;
     QList<int> updateLocalsAndWatchers;
+    QList<int> debuggerCommands;
 
     //Cache
     QStringList watchedExpressions;
@@ -878,6 +879,8 @@ void QmlV8DebuggerClientPrivate::clearCache()
 {
     watchedExpressions.clear();
     currentFrameScopes.clear();
+    evaluatingExpression.clear();
+    updateLocalsAndWatchers.clear();
 }
 
 QByteArray QmlV8DebuggerClientPrivate::packMessage(const QByteArray &type, const QByteArray &message)
@@ -1181,6 +1184,7 @@ void QmlV8DebuggerClient::executeDebuggerCommand(const QString &command)
     StackHandler *stackHandler = d->engine->stackHandler();
     if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {
         d->evaluate(command, false, false, stackHandler->currentIndex());
+        d->debuggerCommands.append(d->sequence);
     } else {
         //Currently cannot evaluate if not in a javascript break
         d->engine->showMessage(QString(_("Cannot evaluate %1"
@@ -1206,6 +1210,18 @@ void QmlV8DebuggerClient::synchronizeWatchers(const QStringList &watchers)
 
 void QmlV8DebuggerClient::expandObject(const QByteArray &iname, quint64 objectId)
 {
+    if (objectId == 0) {
+        //We may have got the global object
+        const WatchData *watch = d->engine->watchHandler()->findItem(iname);
+        if (watch->value == QLatin1String("global")) {
+            StackHandler *stackHandler = d->engine->stackHandler();
+            if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {
+                d->evaluate(watch->name, false, false, stackHandler->currentIndex());
+                d->evaluatingExpression.insert(d->sequence, QLatin1String(iname));
+            }
+            return;
+        }
+    }
     d->localsAndWatchers.insertMulti(objectId, iname);
     d->lookup(QList<int>() << objectId);
 }
@@ -1704,6 +1720,12 @@ void QmlV8DebuggerClient::setCurrentFrameDetails(const QVariant &bodyVal, const 
         data.type = objectData.type;
         data.value = objectData.value.toString();
         data.setHasChildren(objectData.properties.count());
+        //Incase of global object, we do not get children
+        //Set children nevertheless and query later
+        if (data.value == QLatin1String("global")) {
+            data.setHasChildren(true);
+            data.id = 0;
+        }
         d->engine->watchHandler()->beginCycle();
         d->engine->watchHandler()->insertData(data);
         d->engine->watchHandler()->endCycle();
@@ -1776,7 +1798,7 @@ void QmlV8DebuggerClient::updateScope(const QVariant &bodyVal, const QVariant &r
             locals << data;
         } else {
             handlesToLookup << handle;
-            d->localsAndWatchers.insert(handle, data.exp);
+            d->localsAndWatchers.insertMulti(handle, data.exp);
         }
     }
 
@@ -1806,40 +1828,54 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success, con
         //Update the locals
         foreach (int index, d->currentFrameScopes)
             d->scope(index);
+        //Also update "this"
+        QByteArray iname("local.this");
+        const WatchData *parent = d->engine->watchHandler()->findItem(iname);
+        d->localsAndWatchers.insertMulti(parent->id, iname);
+        d->lookup(QList<int>() << parent->id);
+
+    } else if (d->debuggerCommands.contains(sequence)) {
+        d->updateLocalsAndWatchers.removeOne(sequence);
+        QmlV8ObjectData body = d->extractData(bodyVal, refsVal);
+        QtMessageLogItem *item = d->constructLogItemTree(body, refsVal);
+        if (item)
+            d->engine->qtMessageLogHandler()->appendItem(item);
+        //Update the locals
+        foreach (int index, d->currentFrameScopes)
+            d->scope(index);
 
     } else {
         QmlV8ObjectData body = d->extractData(bodyVal, refsVal);
         if (d->evaluatingExpression.contains(sequence)) {
             QString exp =  d->evaluatingExpression.take(sequence);
-            QByteArray iname = d->engine->watchHandler()->watcherName(exp.toLatin1());
-            SDEBUG(QString(iname));
-            WatchData data;
-            data.exp = exp.toLatin1();
-            data.name = exp;
-            data.iname = iname;
-            data.id = body.handle;
-            if (success) {
-                data.type = body.type;
-                data.value = body.value.toString();
-                data.hasChildren = body.properties.count();
-            } else {
-                //Do not set type since it is unknown
-                data.setError(body.value.toString());
-            }
             QList<WatchData> watchDataList;
-            watchDataList << data << createWatchDataList(&data, body.properties, refsVal);
+            WatchData data;
+            //Do we have request to evaluate a local?
+            if (exp.startsWith("local.")) {
+                const WatchData *watch = d->engine->watchHandler()->findItem(exp.toLatin1());
+                watchDataList << createWatchDataList(watch, body.properties, refsVal);
+            } else {
+                QByteArray iname = d->engine->watchHandler()->watcherName(exp.toLatin1());
+                SDEBUG(QString(iname));
+
+                data.exp = exp.toLatin1();
+                data.name = exp;
+                data.iname = iname;
+                data.id = body.handle;
+                if (success) {
+                    data.type = body.type;
+                    data.value = body.value.toString();
+                    data.hasChildren = body.properties.count();
+                } else {
+                    //Do not set type since it is unknown
+                    data.setError(body.value.toString());
+                }
+                watchDataList << data << createWatchDataList(&data, body.properties, refsVal);
+            }
             //Insert the newly evaluated expression to the Watchers Window
             d->engine->watchHandler()->beginCycle(false);
             d->engine->watchHandler()->insertBulkData(watchDataList);
             d->engine->watchHandler()->endCycle();
-
-        } else {
-            QtMessageLogItem *item = d->constructLogItemTree(body, refsVal);
-            if (item)
-                d->engine->qtMessageLogHandler()->appendItem(item);
-            //Update the locals
-            foreach (int index, d->currentFrameScopes)
-                d->scope(index);
         }
     }
 }
