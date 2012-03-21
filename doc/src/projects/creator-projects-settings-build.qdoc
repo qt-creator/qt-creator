@@ -42,9 +42,6 @@
     the final installation file.
 
     You specify build settings in the \gui Projects mode.
-
-    \image qtcreator-projectpane.png
-
     To add a new build configuration, click \gui Add and select the type of
     configuration you would like to add. You can add as many build
     configurations as you need.
@@ -52,6 +49,8 @@
     To delete the build configuration currently selected, click \gui Remove.
 
     \section1 Editing Build Configurations
+
+    \image qtcreator-projectpane.png
 
     To edit a build configuration:
 
@@ -150,7 +149,7 @@
 
     \image qtcreator-build-steps.png "Build steps"
 
-    To override the shell command that \QC constructs by default, remove
+    To override the shell command that \QC constructs by default, disable or remove
     the build step and add a custom build step that specifies another shell
     command.
 
@@ -159,8 +158,9 @@
     To add custom steps to the build settings, select \gui {Add Build Step >
     Custom Process Step}.
 
-    By default, custom steps are disabled. To activate a custom step, select
-    the \gui{Enable custom process step} check-box.
+    By default, custom steps are enabled. To disable a custom step, select
+    the \inlineimage qtcreator-disable-steps.png
+    (\gui Disable) button.
 
     \image qtcreator-build-steps-custom.png "Custom Process Step"
 
@@ -179,14 +179,14 @@
         \o  To add a clean step using make or a custom process, click
             \gui{Add Clean Step} and select the type of step you want to add.
 
-            By default, custom steps are disabled. To activate a custom step,
-            select the \gui{Enable custom process step} check-box.
+            By default, custom steps are enabled. To disable a custom step,
+            select the \gui Disable button.
 
         \o  To remove a clean step, click \gui{Remove Item}.
 
         \o  To change the order of steps, click
             \inlineimage qtcreator-movestep.png
-            .
+            (\gui {Move Up} and \gui {Move Down}).
     \endlist
 
     \section1 Build Environment
@@ -213,5 +213,14 @@
     populates a clean system environment with the environment variables that the
     compilers and tools need. Therefore, the environment is never totally empty,
     even after you clear it.
+
+    \section1 Related Topics
+
+    \list
+
+        \o  \l{Adding Qt Versions}
+        \o  \l{Adding Tool Chains}
+
+    \endlist
 
 */
