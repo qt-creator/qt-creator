@@ -14,7 +14,7 @@ DynamicLibrary {
 
     Properties {
         condition: qbs.targetOS == "windows"
-        cpp.dynamicLibraries: ["User32.lib"]
+        cpp.dynamicLibraries: ["user32"]
     }
 
     Depends { name: "cpp" }

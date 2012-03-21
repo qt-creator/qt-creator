@@ -295,6 +295,15 @@ QtcPlugin {
         ]
     }
 
+    Properties {
+        condition: qbs.targetOS == "windows"
+        cpp.dynamicLibraries: [
+            "advapi32",
+            "ole32",
+            "shell32"
+        ]
+    }
+
     ProductModule {
         cpp.includePaths: ["."]
     }

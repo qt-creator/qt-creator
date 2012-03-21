@@ -8,28 +8,33 @@ DynamicLibrary {
     Depends { name: "qt"; submodules: 'core' }
 
     cpp.includePaths: ["build", "src"]
-    cpp.staticLibraries: {
-        if (qbs.targetOS == 'windows') {
-            return [
-                "advapi32.lib",
-                "user32.lib"
-            ]
-        }
-    }
     cpp.dynamicLibraries: {
         if (qbs.targetOS == 'linux' || qbs.targetOS == 'freebsd') {
             return ['rt']
+        }
+        else if (qbs.targetOS == 'windows') {
+            return [
+                "advapi32",
+                "user32"
+            ]
         }
     }
 
     cpp.defines: {
         var result = []
-        if (qbs.toolchain == 'msvc2005' || qbs.toolchain == 'msvc2005' || qbs.toolchain == 'msvc2008' || qbs.toolchain == 'msvc2010')
+        if (qbs.toolchain == 'msvc2005' || qbs.toolchain == 'msvc2008' || qbs.toolchain == 'msvc2010')
             result.push('BOTAN_DLL=__declspec(dllexport)')
         return result
     }
 
-    // TODO: add those flags to mingw's compiler: -fpermissive -finline-functions -Wno-long-long
+    Properties {
+        condition: qbs.toolchain === 'mingw'
+        cpp.cxxFlags: [
+            '-fpermissive',
+            '-finline-functions',
+            '-Wno-long-long'
+        ]
+    }
 
     files: [
         "src/algo_factory/algo_cache.h",
@@ -535,5 +540,13 @@ DynamicLibrary {
         files: [
             "src/timer/posix_rt/tm_posix.cpp"
         ]
+    }
+
+    ProductModule {
+        cpp.linkerFlags: {
+            if (qbs.toolchain === 'mingw') {
+                return ['--enable-auto-import']
+            }
+        }
     }
 }

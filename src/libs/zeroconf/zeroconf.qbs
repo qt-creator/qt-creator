@@ -8,13 +8,19 @@ DynamicLibrary {
     Depends { name: "Qt.network" }
 
     cpp.includePaths: "."
+    cpp.defines: ["ZEROCONF_LIBRARY"]
     Properties {
         condition: qbs.targetOS == "windows"
         cpp.dynamicLibraries:  "ws2_32"
     }
     Properties {
         condition: qbs.targetOS == "linux"
-        cpp.defines: [ "_GNU_SOURCE HAVE_IPV6", "USES_NETLINK", "HAVE_LINUX", "TARGET_OS_LINUX" ]
+        cpp.defines: outer.concat([
+            "_GNU_SOURCE HAVE_IPV6",
+            "USES_NETLINK",
+            "HAVE_LINUX",
+            "TARGET_OS_LINUX"
+        ])
     }
 
     files: [
