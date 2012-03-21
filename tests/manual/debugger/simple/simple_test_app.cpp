@@ -5095,7 +5095,6 @@ namespace qscript {
         s.setProperty("a", QScriptValue());
         QScriptValue d = s.data();
         BREAK_HERE;
-        // Check s <native> QScriptValue (JSCoreValue).
         // Check d (invalid) QScriptValue.
         // Check v 43 QVariant (int).
         // Check x 33 int.
