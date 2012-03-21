@@ -38,9 +38,11 @@
 #include <utils/pathchooser.h>
 #include <utils/fileutils.h>
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/coreplugin.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
+#include <coreplugin/modemanager.h>
 #include <projectexplorer/projectexplorer.h>
 
 #include <QMutex>
@@ -393,6 +395,7 @@ void ExamplesWelcomePage::openProject(const QString &projectFile, const QStringL
     QString errorMessage;
     if (!proFile.isEmpty() && ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFile, &errorMessage)) {
         Core::ICore::openFiles(filesToOpen);
+        Core::ModeManager::activateModeType(QLatin1String(Core::Constants::MODE_EDIT_TYPE));
         Core::ICore::helpManager()->handleHelpRequest(help.toString()+QLatin1String("?view=split"));
     }
     if (!errorMessage.isEmpty())
