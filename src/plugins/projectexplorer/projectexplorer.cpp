@@ -1281,7 +1281,7 @@ void ProjectExplorerPlugin::openProjectWelcomePage(const QString &fileName)
         QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to open project"), errorMessage);
 }
 
-bool ProjectExplorerPlugin::openProject(const QString &fileName, QString *errorString)
+Project *ProjectExplorerPlugin::openProject(const QString &fileName, QString *errorString)
 {
     if (debug)
         qDebug() << "ProjectExplorerPlugin::openProject";
@@ -1290,9 +1290,9 @@ bool ProjectExplorerPlugin::openProject(const QString &fileName, QString *errorS
     if (!list.isEmpty()) {
         addToRecentProjects(fileName, list.first()->displayName());
         d->m_session->setStartupProject(list.first());
-        return true;
+        return list.first();
     }
-    return false;
+    return 0;
 }
 
 static inline QList<IProjectManager*> allProjectManagers()

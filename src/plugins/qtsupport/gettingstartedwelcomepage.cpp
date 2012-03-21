@@ -40,9 +40,11 @@
 #include <utils/pathchooser.h>
 #include <utils/fileutils.h>
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/coreplugin.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
+#include <coreplugin/modemanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
@@ -406,23 +408,17 @@ void ExamplesWelcomePage::openProject(const QString &projectFile, const QStringL
     // don't try to load help and files if loading the help request is being cancelled
     QString errorMessage;
     ProjectExplorer::ProjectExplorerPlugin *peplugin = ProjectExplorer::ProjectExplorerPlugin::instance();
-    if (!proFile.isEmpty() && peplugin->openProject(proFile, &errorMessage)) {
+    if (proFile.isEmpty())
+        return;
+    if (ProjectExplorer::Project *project = peplugin->openProject(proFile, &errorMessage)) {
         Core::ICore::openFiles(filesToOpen);
+        if (project->needsConfiguration())
+            project->configureAsExampleProject(platforms);
+        Core::ModeManager::activateModeType(QLatin1String(Core::Constants::MODE_EDIT_TYPE));
         Core::ICore::helpManager()->handleHelpRequest(help.toString()+QLatin1String("?view=split"));
     }
     if (!errorMessage.isEmpty())
         QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to open project"), errorMessage);
-    // Configure project for building
-    ProjectExplorer::Project *project = 0;
-    foreach (ProjectExplorer::Project *pro, peplugin->session()->projects()) {
-        if (pro->rootProjectNode()->path() == proFile) {
-            project = pro;
-            break;
-        }
-    }
-    if (project && project->needsConfiguration())
-        project->configureAsExampleProject(platforms);
-
 }
 
 void ExamplesWelcomePage::updateTagsModel()
