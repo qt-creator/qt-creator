@@ -54,8 +54,9 @@
 
     \list 1
 
-        \o  Select \gui Projects, and then select the \gui QML check box in the
-            \gui {Run Settings}, to enable QML debugging.
+        \o  In \gui Projects mode \gui {Run Settings}, select the
+            \gui {Enable QML} check box in the \gui {Debugger Settings} to
+            enable QML debugging.
 
         \o  For Qt 4.7, compile the QML Inspector debugging helper. For more information,
             see \l{Debugging Helpers for QML}.
@@ -82,7 +83,8 @@
             functions. Therefore, you must make sure that the port is properly
             protected by a firewall.
 
-        \o  In the \gui {Run Settings}, select the \gui QML check box to enable
+        \o  In the \gui {Run Settings}, \gui {Debugger Settings} section, select
+            the \gui {Enable QML} check box to enable
             QML debugging.
 
         \o  Select \gui {Build > Rebuild Project} to clean and rebuild the
@@ -98,7 +100,9 @@
     \section1 Mixed C++/QML Debugging
 
     To debug both the C++ and QML parts of your application at the same time,
-    select the checkboxes for both languages in the \gui{Run Settings}.
+    select the \gui {Enable C++} and \gui {Enable QML} checkboxes for both
+    languages in the \gui {Debugger Settings} section in the project
+    \gui{Run Settings}.
 
     \image qtquick-debugging-settings.png
 

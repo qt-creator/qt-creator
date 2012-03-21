@@ -1,0 +1,19 @@
+    \section2 Specifying Debugger Settings
+
+    \image qtquick-debugging-settings.png "Debugger Settings"
+
+    To select the languages to debug, select the \gui {Enable C++} and
+    \gui {Enable QML} check boxes. The \gui {Debug port} is the port to
+    communicate with the debugger. You can use any free port in the registered
+    or dynamic port range.
+
+    \note Opening a socket at a well-known port presents a security risk. Anyone
+    on the Internet could connect to the application that you are debugging and
+    execute any JavaScript functions. Therefore, you must make sure that the
+    port is properly protected by a firewall.
+
+    If you debug more than one application at a time, you might receive an error
+    message stating that the port is already in use. Specify a free port number
+    in \gui {Debug port} and try again.
+
+    For more information about debugging, see \l{Debugging}.
