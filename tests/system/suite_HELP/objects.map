@@ -1,0 +1,55 @@
+:About Qt Creator.Close_QPushButton	{text='Close' type='QPushButton' unnamed='1' visible='1' window=':About Qt Creator_Core::Internal::VersionDialog'}
+:About Qt Creator.Label	{text?='*Qt Creator*' type='QLabel' unnamed='1' visible='1' window=':About Qt Creator_Core::Internal::VersionDialog'}
+:About Qt Creator_Core::Internal::VersionDialog	{type='Core::Internal::VersionDialog' unnamed='1' visible='1' windowTitle='About Qt Creator'}
+:Add Bookmark.+_QToolButton	{name='toolButton' text='+' type='QToolButton' visible='1' window=':Add Bookmark_BookmarkDialog'}
+:Add Bookmark.New Folder_QPushButton	{name='newFolderButton' text='New Folder' type='QPushButton' visible='1' window=':Add Bookmark_BookmarkDialog'}
+:Add Bookmark.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Add Bookmark_BookmarkDialog'}
+:Add Bookmark.line_QFrame	{name='line' type='QFrame' visible='1' window=':Add Bookmark_BookmarkDialog'}
+:Add Bookmark.line_QMenu	{aboveWidget=':Add Bookmark.line_QFrame' type='QMenu' unnamed='1' visible='1' window=':Add Bookmark_BookmarkDialog'}
+:Add Bookmark.treeView_QTreeView	{name='treeView' type='QTreeView' visible='1' window=':Add Bookmark_BookmarkDialog'}
+:Add Bookmark_BookmarkDialog	{name='BookmarkDialog' type='BookmarkDialog' visible='1' windowTitle='Add Bookmark'}
+:Folder 1.Folder 2_QModelIndex	{column='0' container=':Sample.Folder 1_QModelIndex' text='Folder 2' type='QModelIndex'}
+:Folder 2.Qt Creator : Building and Running an Example_QModelIndex	{column='0' container=':Folder 1.Folder 2_QModelIndex' text?='Qt Creator : Building and Running an Example*' type='QModelIndex'}
+:Getting Started.Building and Running an Example_QModelIndex	{column='0' container=':Qt Creator Manual*.Getting Started_QModelIndex' text='Building and Running an Example' type='QModelIndex'}
+:Hits_QCLuceneResultWidget	{aboveWidget=':Hits_QLabel' type='QCLuceneResultWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Hits_QLabel	{text~='\\\\d+ - \\\\d+ of \\\\d+ Hits' type='QLabel' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:New Folder.Qt Creator : Qt Creator Manual_QModelIndex	{column='0' container=':Sample.New Folder_QModelIndex' text='Qt Creator : Qt Creator Manual' type='QModelIndex'}
+:Next_QPushButton	{text~='(Next.*|Continue)' type='QPushButton' visible='1'}
+:Options.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Options_Core::Internal::SettingsDialog'}
+:Options.qt_tabwidget_tabbar_QTabBar	{name='qt_tabwidget_tabbar' type='QTabBar' visible='1' window=':Options_Core::Internal::SettingsDialog'}
+:Options_Core::Internal::SettingsDialog	{type='Core::Internal::SettingsDialog' unnamed='1' visible='1' windowTitle~='Options|Preferences'}
+:Options_QListView	{type='QListView' unnamed='1' visible='1' window=':Options_Core::Internal::SettingsDialog'}
+:Qt Creator Manual QModelIndex	{column='0' container=':Qt Creator_QHelpContentWidget' text='Qt Creator Manual 2.5.1' type='QModelIndex'}
+:Qt Creator Manual*.Getting Started_QModelIndex	{column='0' container=':Qt Creator Manual QModelIndex' text='Getting Started' type='QModelIndex'}
+:Qt Creator.+_QToolButton	{text='+' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.Add Bookmark_QToolButton	{text='Add Bookmark' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.QtCreator.MenuBar_QMenuBar	{name='QtCreator.MenuBar' type='QMenuBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.Search for:_QLabel	{text='Search for:' type='QLabel' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.Search for:_QLineEdit	{leftWidget=':Qt Creator.Search for:_QLabel' type='QLineEdit' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.Search_QPushButton	{text='Search' type='QPushButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.with all of the words:_QLabel	{text='with <B>all</B> of the words:' type='QLabel' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.with all of the words:_QLineEdit	{leftWidget=':Qt Creator.with all of the words:_QLabel' type='QLineEdit' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.with at least one of the words:_QLabel	{text='with <B>at least one</B> of the words:' type='QLabel' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.with at least one of the words:_QLineEdit	{leftWidget=':Qt Creator.with at least one of the words:_QLabel' type='QLineEdit' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.with exact phrase:_QLabel	{text='with <B>exact phrase</B>:' type='QLabel' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.with exact phrase:_QLineEdit	{leftWidget=':Qt Creator.with exact phrase:_QLabel' type='QLineEdit' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.without the words:_QLabel	{text='<B>without</B> the words:' type='QLabel' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.without the words:_QLineEdit	{leftWidget=':Qt Creator.without the words:_QLabel' type='QLineEdit' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.words similar to:_QLabel	{text='words <B>similar</B> to:' type='QLabel' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.words similar to:_QLineEdit	{leftWidget=':Qt Creator.words similar to:_QLabel' type='QLineEdit' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_Core::Internal::CommandComboBox	{occurrence='2' type='Core::Internal::CommandComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_Core::Internal::CommandComboBox_2	{type='Core::Internal::CommandComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_Core::Internal::MainWindow	{type='Core::Internal::MainWindow' unnamed='1' visible='1' windowTitle?='*Qt Creator'}
+:Qt Creator_Help::Internal::HelpViewer	{type='Help::Internal::HelpViewer' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_QHelpContentWidget	{type='QHelpContentWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_QHelpSearchQueryWidget	{type='QHelpSearchQueryWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_QmlJSEditor::QmlJSTextEditorWidget	{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_TreeView	{type='TreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Reference Documentation_QModelIndex	{column='0' container=':Qt Creator_QHelpContentWidget' text='Qt Reference Documentation' type='QModelIndex'}
+:Sample.Folder 1_QModelIndex	{column='0' container=':Sample_QModelIndex' text='Folder 1' type='QModelIndex'}
+:Sample.New Folder_QModelIndex	{column='0' container=':Sample_QModelIndex' text?='New Folder*' type='QModelIndex'}
+:Sample_QModelIndex	{column='0' container=':Qt Creator_TreeView' text='Sample' type='QModelIndex'}
+:addToVersionControlComboBox_QComboBox	{name='addToVersionControlComboBox' type='QComboBox' visible='1'}
+:treeView.Sample_QModelIndex	{column='0' container=':Add Bookmark.treeView_QTreeView' text='Sample' type='QModelIndex'}
+:treeView.Yes_QPushButton	{container=':Add Bookmark.treeView_QTreeView' text='Yes' type='QPushButton' unnamed='1' visible='1'}
+:treeView_QExpandingLineEdit	{container=':Add Bookmark.treeView_QTreeView' type='QExpandingLineEdit' unnamed='1' visible='1'}
