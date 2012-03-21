@@ -128,8 +128,8 @@ public:
     //TODO:: remove this method
     void reformatRequest(QByteArray &request);
 
-    QtMessageLogItem *constructLogItemTree(const QmlV8ObjectData &objectData,
-                                                       const QVariant &refsVal);
+    QtMessageLogItem *constructLogItemTree(QtMessageLogItem *parent,
+                                           const QmlV8ObjectData &objectData, const QVariant &refsVal);
 private:
     QByteArray packMessage(const QByteArray &type, const QByteArray &message = QByteArray());
     QScriptValue initObject();
@@ -974,6 +974,7 @@ void QmlV8DebuggerClientPrivate::reformatRequest(QByteArray &request)
 }
 
 QtMessageLogItem *QmlV8DebuggerClientPrivate::constructLogItemTree(
+        QtMessageLogItem *parent,
         const QmlV8ObjectData &objectData,
         const QVariant &refsVal)
 {
@@ -987,12 +988,12 @@ QtMessageLogItem *QmlV8DebuggerClientPrivate::constructLogItemTree(
         text = QString(_("%1: %2")).arg(QString::fromAscii(objectData.name))
                 .arg(objectData.value.toString());
 
-    QtMessageLogItem *item = new QtMessageLogItem(
-                QtMessageLogHandler::UndefinedType, text);
+    QtMessageLogItem *item = new QtMessageLogItem(parent,
+                                                  QtMessageLogHandler::UndefinedType, text);
 
     foreach (const QVariant &property, objectData.properties) {
         QtMessageLogItem *child = constructLogItemTree(
-                    extractData(property, refsVal), refsVal);
+                    item, extractData(property, refsVal), refsVal);
         if (child)
             item->insertChild(item->childCount(), child);
     }
@@ -1837,7 +1838,8 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success, con
     } else if (d->debuggerCommands.contains(sequence)) {
         d->updateLocalsAndWatchers.removeOne(sequence);
         QmlV8ObjectData body = d->extractData(bodyVal, refsVal);
-        QtMessageLogItem *item = d->constructLogItemTree(body, refsVal);
+        QtMessageLogItem *item = d->constructLogItemTree(d->engine->qtMessageLogHandler()->root(),
+                                                         body, refsVal);
         if (item)
             d->engine->qtMessageLogHandler()->appendItem(item);
         //Update the locals

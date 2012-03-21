@@ -1045,13 +1045,15 @@ void QmlEngine::onDebugQueryStateChanged(
             qobject_cast<QmlJsDebugClient::QDeclarativeDebugExpressionQuery *>(
                 sender());
     if (query && state != QmlJsDebugClient::QDeclarativeDebugQuery::Error) {
-        QtMessageLogItem *item = constructLogItemTree(query->result());
+        QtMessageLogItem *item = constructLogItemTree(qtMessageLogHandler()->root(),
+                                                      query->result());
         if (item)
             qtMessageLogHandler()->appendItem(item);
     } else
         qtMessageLogHandler()->
-                appendItem(new QtMessageLogItem(QtMessageLogHandler::ErrorType,
-                                             _("Error evaluating expression.")));
+                appendItem(new QtMessageLogItem(qtMessageLogHandler()->root(),
+                                                QtMessageLogHandler::ErrorType,
+                                                _("Error evaluating expression.")));
     delete query;
 }
 
@@ -1122,7 +1124,8 @@ void QmlEngine::appendDebugOutput(QtMsgType type, const QString &message,
         //This case is not possible
         return;
     }
-    QtMessageLogItem *item = new QtMessageLogItem(itemType, message);
+    QtMessageLogItem *item = new QtMessageLogItem(qtMessageLogHandler()->root(),
+                                                  itemType, message);
     item->file = info.file;
     item->line = info.line;
     qtMessageLogHandler()->appendItem(item);
@@ -1175,8 +1178,9 @@ bool QmlEngine::evaluateScriptExpression(const QString& expression)
             //Incase of invalid context, show Error message
             qtMessageLogHandler()->
                             appendItem(new QtMessageLogItem(
+                                           qtMessageLogHandler()->root(),
                                            QtMessageLogHandler::ErrorType,
-                                           _("Cannot evaluate without"
+                                           _("Cannot evaluate without "
                                              "a valid QML/JS Context.")),
                                        qtMessageLogHandler()->rowCount());
         }
@@ -1287,12 +1291,12 @@ bool QmlEngine::canEvaluateScript(const QString &script)
 }
 
 QtMessageLogItem *QmlEngine::constructLogItemTree(
-        const QVariant &result, const QString &key)
+        QtMessageLogItem *parent, const QVariant &result, const QString &key)
 {
     if (!result.isValid())
         return 0;
 
-    QtMessageLogItem *item = new QtMessageLogItem();
+    QtMessageLogItem *item = new QtMessageLogItem(parent);
     if (result.type() == QVariant::Map) {
         if (key.isEmpty())
             item->text = _("Object");
@@ -1302,7 +1306,8 @@ QtMessageLogItem *QmlEngine::constructLogItemTree(
         QMapIterator<QString, QVariant> i(result.toMap());
         while (i.hasNext()) {
             i.next();
-            QtMessageLogItem *child = constructLogItemTree(i.value(), i.key());
+            QtMessageLogItem *child = constructLogItemTree(item,
+                                                           i.value(), i.key());
             if (child)
                 item->insertChild(item->childCount(), child);
         }
@@ -1313,7 +1318,7 @@ QtMessageLogItem *QmlEngine::constructLogItemTree(
             item->text = QString(_("[%1] : List")).arg(key);
         QVariantList resultList = result.toList();
         for (int i = 0; i < resultList.count(); i++) {
-            QtMessageLogItem *child = constructLogItemTree(resultList.at(i),
+            QtMessageLogItem *child = constructLogItemTree(item, resultList.at(i),
                                                           QString::number(i));
             if (child)
                 item->insertChild(item->childCount(), child);

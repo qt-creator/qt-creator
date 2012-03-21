@@ -45,8 +45,8 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-QtMessageLogItem::QtMessageLogItem(QtMessageLogHandler::ItemType itemType,
-                             const QString &text, QtMessageLogItem *parent)
+QtMessageLogItem::QtMessageLogItem(QtMessageLogItem *parent,
+                             QtMessageLogHandler::ItemType itemType, const QString &text)
     : m_parentItem(parent),
       text(text),
       itemType(itemType),
@@ -86,8 +86,8 @@ bool QtMessageLogItem::insertChildren(int position, int count)
 
     for (int row = 0; row < count; ++row) {
         QtMessageLogItem *item = new
-                QtMessageLogItem(QtMessageLogHandler::UndefinedType, QString(),
-                                 this);
+                QtMessageLogItem(this , QtMessageLogHandler::UndefinedType,
+                                 QString());
         m_childItems.insert(position, item);
     }
 
@@ -99,10 +99,6 @@ bool QtMessageLogItem::insertChild(int position, QtMessageLogItem *item)
     if (position < 0 || position > m_childItems.size())
         return false;
 
-    if (item->parent())
-        item->parent()->detachChild(item->childNumber());
-
-    item->m_parentItem = this;
     m_childItems.insert(position, item);
 
     return true;
@@ -143,7 +139,7 @@ bool QtMessageLogItem::detachChild(int position)
 QtMessageLogHandler::QtMessageLogHandler(QObject *parent) :
     QAbstractItemModel(parent),
     m_hasEditableRow(false),
-    m_rootItem(new QtMessageLogItem()),
+    m_rootItem(new QtMessageLogItem(0)),
     m_maxSizeOfFileName(0)
 {
 }
@@ -157,8 +153,8 @@ void QtMessageLogHandler::clear()
 {
     beginResetModel();
     reset();
-    delete m_rootItem;
-    m_rootItem = new QtMessageLogItem();
+    qDeleteAll(m_rootItem->m_childItems);
+    m_rootItem->m_childItems.clear();
     endResetModel();
 
     if (m_hasEditableRow)
@@ -180,7 +176,7 @@ bool QtMessageLogHandler::appendItem(QtMessageLogItem *item, int position)
 bool QtMessageLogHandler::appendMessage(QtMessageLogHandler::ItemType itemType,
                    const QString &message, int position)
 {
-    return appendItem(new QtMessageLogItem(itemType, message), position);
+    return appendItem(new QtMessageLogItem(m_rootItem, itemType, message), position);
 }
 
 void QtMessageLogHandler::setHasEditableRow(bool hasEditableRow)
@@ -202,7 +198,7 @@ bool QtMessageLogHandler::hasEditableRow() const
 void QtMessageLogHandler::appendEditableRow()
 {
     int position = m_rootItem->childCount();
-    if (appendItem(new QtMessageLogItem(QtMessageLogHandler::InputType), position))
+    if (appendItem(new QtMessageLogItem(m_rootItem, QtMessageLogHandler::InputType), position))
         emit selectEditableRow(index(position, 0),
                                  QItemSelectionModel::ClearAndSelect);
 }
@@ -289,7 +285,8 @@ QModelIndex QtMessageLogHandler::parent(const QModelIndex &index) const
         return QModelIndex();
 
     //can parentItem be 0?
-    QTC_ASSERT(parentItem, qDebug("Parent is Null!!"));
+    if (!parentItem)
+        return QModelIndex();
     return createIndex(parentItem->childNumber(), 0, parentItem);
 }
 
