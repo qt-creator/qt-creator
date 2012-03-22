@@ -120,14 +120,16 @@ private:
     InteractiveInterpreter m_interpreter;
     bool m_validContext;
     QHash<QString,BreakpointModelId> pendingBreakpoints;
-    bool m_retryOnConnectFail;
     QList<quint32> queryIds;
+    bool m_retryOnConnectFail;
+    bool m_automaticConnect;
 };
 
 QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q)
     : m_adapter(q),
       m_validContext(false),
-      m_retryOnConnectFail(false)
+      m_retryOnConnectFail(false),
+      m_automaticConnect(false)
 {}
 
 class ASTWalker: public Visitor
@@ -369,6 +371,7 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
     if (startParameters.useTerminal) {
         d->m_noDebugOutputTimer.setInterval(0);
         d->m_retryOnConnectFail = true;
+        d->m_automaticConnect = true;
     }
 }
 
@@ -399,6 +402,9 @@ void QmlEngine::setupInferior()
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
     notifyInferiorSetupOk();
+
+    if (d->m_automaticConnect)
+        beginConnection();
 }
 
 void QmlEngine::appendMessage(const QString &msg, Utils::OutputFormat /* format */)
@@ -423,12 +429,22 @@ void QmlEngine::tryToConnect(quint16 port)
 {
     showMessage(QLatin1String("QML Debugger: No application output received in time, trying to connect ..."), LogStatus);
     d->m_retryOnConnectFail = true;
-    beginConnection(port);
+    if (state() == EngineRunRequested
+            && !d->m_automaticConnect)
+        beginConnection(port);
+    else
+        d->m_automaticConnect = true;
 }
 
 void QmlEngine::beginConnection(quint16 port)
 {
     d->m_noDebugOutputTimer.stop();
+
+    if (state() != EngineRunRequested && d->m_retryOnConnectFail)
+        return;
+
+    QTC_ASSERT(state() == EngineRunRequested, return)
+
     if (port > 0) {
         QTC_CHECK(startParameters().communicationChannel
                   == DebuggerStartParameters::CommunicationChannelTcpIp);
