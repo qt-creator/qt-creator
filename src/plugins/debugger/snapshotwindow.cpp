@@ -71,22 +71,19 @@ void SnapshotWindow::rowActivated(const QModelIndex &index)
 void SnapshotWindow::keyPressEvent(QKeyEvent *ev)
 {
     if (ev->key() == Qt::Key_Delete) {
-        QItemSelectionModel *sm = selectionModel();
-        QTC_ASSERT(sm, return);
-        QModelIndexList si = sm->selectedIndexes();
-        if (si.isEmpty())
-            si.append(currentIndex().sibling(currentIndex().row(), 0));
-
+        QModelIndexList si = selectedIndices();
         foreach (const QModelIndex &idx, si)
             if (idx.column() == 0)
                 removeSnapshot(idx.row());
     }
-    QTreeView::keyPressEvent(ev);
+    BaseWindow::keyPressEvent(ev);
 }
 
 void SnapshotWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
-    QModelIndex idx = indexAt(ev->pos());
+    QModelIndexList si = selectedIndices(ev);
+    QTC_ASSERT(si.size() == 1, return);
+    QModelIndex idx = si.at(0);
 
     QMenu menu;
 

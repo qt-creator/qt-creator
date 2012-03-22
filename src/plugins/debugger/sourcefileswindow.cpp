@@ -60,7 +60,7 @@ SourceFilesWindow::SourceFilesWindow(QWidget *parent)
     : BaseWindow(parent)
 {
     setWindowTitle(tr("Source Files"));
-    setSortingEnabled(true);
+    treeView()->setSortingEnabled(true);
 }
 
 void SourceFilesWindow::rowActivated(const QModelIndex &index)
@@ -74,7 +74,7 @@ void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     DebuggerEngine *engine = debuggerCore()->currentEngine();
     QTC_ASSERT(engine, return);
-    QModelIndex index = indexAt(ev->pos());
+    QModelIndex index = treeView()->indexAt(ev->pos());
     index = index.sibling(index.row(), 0);
     QString name = index.data().toString();
     bool engineActionsEnabled = engine->debuggerActionsEnabled();

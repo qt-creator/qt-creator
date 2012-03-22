@@ -61,10 +61,10 @@ ModulesWindow::ModulesWindow(QWidget *parent)
   : BaseWindow(parent)
 {
     setWindowTitle(tr("Modules"));
-    setSortingEnabled(true);
+    treeView()->setSortingEnabled(true);
     setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustModulesColumnWidths));
 
-    connect(this, SIGNAL(activated(QModelIndex)),
+    connect(treeView(), SIGNAL(activated(QModelIndex)),
         SLOT(moduleActivated(QModelIndex)));
 }
 
@@ -80,7 +80,7 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     QString name;
     QString fileName;
-    QModelIndex index = indexAt(ev->pos());
+    QModelIndex index = treeView()->indexAt(ev->pos());
     if (index.isValid())
         index = index.sibling(index.row(), 0);
     if (index.isValid()) {

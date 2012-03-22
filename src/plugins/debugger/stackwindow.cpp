@@ -76,7 +76,7 @@ StackWindow::StackWindow(QWidget *parent)
 
 void StackWindow::showAddressColumn(bool on)
 {
-    setColumnHidden(4, !on);
+    treeView()->setColumnHidden(4, !on);
 }
 
 void StackWindow::rowActivated(const QModelIndex &index)
@@ -121,9 +121,11 @@ static inline StackFrame inputFunctionForDisassembly()
 
 void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
+    QModelIndexList si = selectedIndices(ev);
+    QTC_ASSERT(si.size() == 1, return);
     DebuggerEngine *engine = currentEngine();
     StackHandler *handler = engine->stackHandler();
-    const QModelIndex index = indexAt(ev->pos());
+    const QModelIndex index = si.at(0);
     const int row = index.row();
     StackFrame frame;
     if (row >= 0 && row < handler->stackSize())

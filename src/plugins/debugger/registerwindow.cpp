@@ -168,7 +168,7 @@ RegisterWindow::RegisterWindow(QWidget *parent)
 {
     setWindowTitle(tr("Registers"));
     setAlwaysAdjustColumnsAction(debuggerCore()->action(UseAlternatingRowColors));
-    setItemDelegate(new RegisterDelegate(this));
+    treeView()->setItemDelegate(new RegisterDelegate(this));
     setObjectName(QLatin1String("RegisterWindow"));
 }
 

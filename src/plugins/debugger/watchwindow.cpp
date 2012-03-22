@@ -485,17 +485,17 @@ WatchWindow::WatchWindow(Type type, QWidget *parent)
     setObjectName(QLatin1String("WatchWindow"));
     m_grabbing = false;
     setWindowTitle(tr("Locals and Expressions"));
-    setIndentation(indentation() * 9/10);
-    setUniformRowHeights(true);
-    setItemDelegate(new WatchDelegate(this));
-    setDragEnabled(true);
-    setAcceptDrops(true);
-    setDropIndicatorShown(true);
+    treeView()->setIndentation(treeView()->indentation() * 9/10);
+    treeView()->setUniformRowHeights(true);
+    treeView()->setItemDelegate(new WatchDelegate(this));
+    treeView()->setDragEnabled(true);
+    treeView()->setAcceptDrops(true);
+    treeView()->setDropIndicatorShown(true);
     setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustLocalsColumnWidths));
 
-    connect(this, SIGNAL(expanded(QModelIndex)),
+    connect(treeView(), SIGNAL(expanded(QModelIndex)),
         SLOT(expandNode(QModelIndex)));
-    connect(this, SIGNAL(collapsed(QModelIndex)),
+    connect(treeView(), SIGNAL(collapsed(QModelIndex)),
         SLOT(collapseNode(QModelIndex)));
 }
 
@@ -512,9 +512,10 @@ void WatchWindow::collapseNode(const QModelIndex &idx)
 void WatchWindow::keyPressEvent(QKeyEvent *ev)
 {
     if (ev->key() == Qt::Key_Delete && m_type == WatchersType) {
-        QModelIndexList indices = selectionModel()->selectedRows();
-        if (indices.isEmpty() && selectionModel()->currentIndex().isValid())
-            indices.append(selectionModel()->currentIndex());
+        QItemSelectionModel *sm = treeView()->selectionModel();
+        QModelIndexList indices = sm->selectedRows();
+        if (indices.isEmpty() && sm->currentIndex().isValid())
+            indices.append(sm->currentIndex());
         QStringList exps;
         foreach (const QModelIndex &idx, indices) {
             QModelIndex idx1 = idx.sibling(idx.row(), 0);
@@ -525,12 +526,12 @@ void WatchWindow::keyPressEvent(QKeyEvent *ev)
     } else if (ev->key() == Qt::Key_Return
             && ev->modifiers() == Qt::ControlModifier
             && m_type == LocalsType) {
-        QModelIndex idx = currentIndex();
+        QModelIndex idx = treeView()->currentIndex();
         QModelIndex idx1 = idx.sibling(idx.row(), 0);
         QString exp = model()->data(idx1).toString();
         watchExpression(exp);
     }
-    QTreeView::keyPressEvent(ev);
+    BaseWindow::keyPressEvent(ev);
 }
 
 void WatchWindow::dragEnterEvent(QDragEnterEvent *ev)
@@ -570,7 +571,7 @@ void WatchWindow::mouseDoubleClickEvent(QMouseEvent *ev)
         watchExpression(QString());
         return;
     }
-    QTreeView::mouseDoubleClickEvent(ev);
+    BaseWindow::mouseDoubleClickEvent(ev);
 }
 
 // Text for add watch action with truncated expression.
@@ -978,7 +979,7 @@ bool WatchWindow::event(QEvent *ev)
         releaseMouse();
         currentEngine()->watchPoint(mapToGlobal(mev->pos()));
     }
-    return QTreeView::event(ev);
+    return BaseWindow::event(ev);
 }
 
 void WatchWindow::editItem(const QModelIndex &idx)
@@ -989,7 +990,7 @@ void WatchWindow::editItem(const QModelIndex &idx)
 void WatchWindow::setModel(QAbstractItemModel *model)
 {
     BaseWindow::setModel(model);
-    setRootIsDecorated(true);
+    treeView()->setRootIsDecorated(true);
     if (header()) {
         header()->setDefaultAlignment(Qt::AlignLeft);
         if (m_type != LocalsType)
@@ -1008,8 +1009,8 @@ void WatchWindow::resetHelper(const QModelIndex &idx)
 {
     if (idx.data(LocalsExpandedRole).toBool()) {
         //qDebug() << "EXPANDING " << model()->data(idx, INameRole);
-        if (!isExpanded(idx)) {
-            expand(idx);
+        if (!treeView()->isExpanded(idx)) {
+            treeView()->expand(idx);
             for (int i = 0, n = model()->rowCount(idx); i != n; ++i) {
                 QModelIndex idx1 = model()->index(i, 0, idx);
                 resetHelper(idx1);
@@ -1017,8 +1018,8 @@ void WatchWindow::resetHelper(const QModelIndex &idx)
         }
     } else {
         //qDebug() << "COLLAPSING " << model()->data(idx, INameRole);
-        if (isExpanded(idx))
-            collapse(idx);
+        if (treeView()->isExpanded(idx))
+            treeView()->collapse(idx);
     }
 }
 

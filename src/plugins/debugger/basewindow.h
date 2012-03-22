@@ -38,32 +38,40 @@
 namespace Debugger {
 namespace Internal {
 
-class BaseWindow : public QTreeView
+class BaseWindow : public QWidget
 {
     Q_OBJECT
 
 public:
     BaseWindow(QWidget *parent = 0);
+    virtual void setModel(QAbstractItemModel *model);
+    QHeaderView *header() const { return m_treeView->header(); }
+    QAbstractItemModel *model() const { return m_treeView->model(); }
 
-    void setAlwaysAdjustColumnsAction(QAction *action);
-    void addBaseContextActions(QMenu *menu);
-    bool handleBaseContextAction(QAction *action);
-
-    void setModel(QAbstractItemModel *model);
-    virtual void rowActivated(const QModelIndex &) {}
-    void mousePressEvent(QMouseEvent *ev);
-
-public slots:
+protected slots:
     void resizeColumnsToContents();
     void setAlwaysResizeColumnsToContents(bool on);
 
 private slots:
-    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
-    void rowActivatedHelper(const QModelIndex &index) { rowActivated(index); }
+    void setAlternatingRowColorsHelper(bool on);
+    void rowActivatedHelper(const QModelIndex &index);
     void headerSectionClicked(int logicalIndex);
     void reset();
 
+protected:
+    void setAlwaysAdjustColumnsAction(QAction *action);
+    void addBaseContextActions(QMenu *menu);
+    bool handleBaseContextAction(QAction *action);
+
+    QTreeView *treeView() const { return m_treeView; }
+    QModelIndex indexAt(const QPoint &p) const { return m_treeView->indexAt(p); }
+    void resizeColumnToContents(int col) { m_treeView->resizeColumnToContents(col); }
+    void mousePressEvent(QMouseEvent *ev);
+    virtual void rowActivated(const QModelIndex &) {}
+    QModelIndexList selectedIndices(QContextMenuEvent *ev = 0);
+
 private:
+    QTreeView *m_treeView;
     QAction *m_alwaysAdjustColumnsAction;
     QAction *m_adjustColumnsAction;
 };

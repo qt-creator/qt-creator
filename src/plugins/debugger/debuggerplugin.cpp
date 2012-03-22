@@ -1171,15 +1171,15 @@ public:
     BreakWindow *m_breakWindow;
     BreakHandler *m_breakHandler;
     QtMessageLogWindow *m_qtMessageLogWindow;
-    QTreeView *m_returnWindow;
-    QTreeView *m_localsWindow;
-    QTreeView *m_watchersWindow;
-    QAbstractItemView *m_registerWindow;
-    QAbstractItemView *m_modulesWindow;
-    QAbstractItemView *m_snapshotWindow;
+    BaseWindow *m_returnWindow;
+    BaseWindow *m_localsWindow;
+    BaseWindow *m_watchersWindow;
+    BaseWindow *m_registerWindow;
+    BaseWindow *m_modulesWindow;
+    BaseWindow *m_snapshotWindow;
     SourceFilesWindow *m_sourceFilesWindow;
-    QAbstractItemView *m_stackWindow;
-    QAbstractItemView *m_threadsWindow;
+    BaseWindow *m_stackWindow;
+    BaseWindow *m_threadsWindow;
     LogWindow *m_logWindow;
 
     bool m_busy;

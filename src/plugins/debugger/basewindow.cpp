@@ -35,38 +35,54 @@
 #include "debuggeractions.h"
 #include "debuggercore.h"
 
+#include <aggregation/aggregate.h>
+#include <coreplugin/findplaceholder.h>
+#include <find/treeviewfind.h>
+#include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
-#include <QDebug>
 #include <QContextMenuEvent>
+#include <QDebug>
 #include <QHeaderView>
 #include <QMenu>
+#include <QVBoxLayout>
 
 namespace Debugger {
 namespace Internal {
 
 BaseWindow::BaseWindow(QWidget *parent)
-    : QTreeView(parent)
+    : QWidget(parent)
 {
     QAction *act = debuggerCore()->action(UseAlternatingRowColors);
 
-    setAttribute(Qt::WA_MacShowFocusRect, false);
-    setFrameStyle(QFrame::NoFrame);
-    setAlternatingRowColors(act->isChecked());
-    setRootIsDecorated(false);
-    setIconSize(QSize(10, 10));
-    setSelectionMode(QAbstractItemView::ExtendedSelection);
-    setUniformRowHeights(true);
+    m_treeView = new QTreeView(this);
+    m_treeView->setAttribute(Qt::WA_MacShowFocusRect, false);
+    m_treeView->setFrameStyle(QFrame::NoFrame);
+    m_treeView->setAlternatingRowColors(act->isChecked());
+    m_treeView->setRootIsDecorated(false);
+    m_treeView->setIconSize(QSize(10, 10));
+    m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    m_treeView->setUniformRowHeights(true);
 
-    header()->setDefaultAlignment(Qt::AlignLeft);
-    header()->setClickable(true);
+    m_treeView->header()->setDefaultAlignment(Qt::AlignLeft);
+    m_treeView->header()->setClickable(true);
 
     connect(act, SIGNAL(toggled(bool)),
         SLOT(setAlternatingRowColorsHelper(bool)));
-    connect(this, SIGNAL(activated(QModelIndex)),
+    connect(m_treeView, SIGNAL(activated(QModelIndex)),
         SLOT(rowActivatedHelper(QModelIndex)));
-    connect(header(), SIGNAL(sectionClicked(int)),
+    connect(m_treeView->header(), SIGNAL(sectionClicked(int)),
         SLOT(headerSectionClicked(int)));
+
+    QVBoxLayout *vbox = new QVBoxLayout(this);
+    vbox->setMargin(0);
+    vbox->setSpacing(0);
+    vbox->addWidget(m_treeView);
+    vbox->addWidget(new Core::FindToolBarPlaceHolder(this));
+
+    Aggregation::Aggregate *agg = new Aggregation::Aggregate;
+    agg->add(m_treeView);
+    agg->add(new Find::TreeViewFind(m_treeView));
 
     m_adjustColumnsAction = new QAction(tr("Adjust Column Widths to Contents"), 0);
     m_alwaysAdjustColumnsAction = 0;
@@ -108,15 +124,15 @@ bool BaseWindow::handleBaseContextAction(QAction *act)
 
 void BaseWindow::setModel(QAbstractItemModel *model)
 {
-    QTreeView::setModel(model);
-    if (header() && m_alwaysAdjustColumnsAction)
+    m_treeView->setModel(model);
+    if (m_treeView->header() && m_alwaysAdjustColumnsAction)
         setAlwaysResizeColumnsToContents(m_alwaysAdjustColumnsAction->isChecked());
 }
 
 void BaseWindow::mousePressEvent(QMouseEvent *ev)
 {
-    QTreeView::mousePressEvent(ev);
-    if (!indexAt(ev->pos()).isValid())
+    QWidget::mousePressEvent(ev);
+    if (!m_treeView->indexAt(ev->pos()).isValid())
         resizeColumnsToContents();
 }
 
@@ -131,7 +147,17 @@ void BaseWindow::setAlwaysResizeColumnsToContents(bool on)
 {
     QHeaderView::ResizeMode mode = on
         ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
-    header()->setResizeMode(0, mode);
+    m_treeView->header()->setResizeMode(0, mode);
+}
+
+void BaseWindow::setAlternatingRowColorsHelper(bool on)
+{
+    m_treeView->setAlternatingRowColors(on);
+}
+
+void BaseWindow::rowActivatedHelper(const QModelIndex &index)
+{
+    rowActivated(index);
 }
 
 void BaseWindow::headerSectionClicked(int logicalIndex)
@@ -141,10 +167,23 @@ void BaseWindow::headerSectionClicked(int logicalIndex)
 
 void BaseWindow::reset()
 {
-    QTreeView::reset();
-    if (header() && m_alwaysAdjustColumnsAction
+    m_treeView->reset();
+    if (m_treeView->header() && m_alwaysAdjustColumnsAction
             && m_alwaysAdjustColumnsAction->isChecked())
         resizeColumnsToContents();
+}
+
+QModelIndexList BaseWindow::selectedIndices(QContextMenuEvent *ev)
+{
+    QItemSelectionModel *sm = treeView()->selectionModel();
+    QTC_ASSERT(sm, return QModelIndexList());
+    QModelIndexList si = sm->selectedIndexes();
+    if (ev) {
+        QModelIndex indexUnderMouse = m_treeView->indexAt(ev->pos());
+        if (si.isEmpty() && indexUnderMouse.isValid())
+            si.append(indexUnderMouse);
+    }
+    return si;
 }
 
 } // namespace Internal

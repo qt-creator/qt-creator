@@ -52,8 +52,8 @@ private slots:
 private:
     void rowActivated(const QModelIndex &index);
     void setModel(QAbstractItemModel *model);
-    void contextMenuEvent(QContextMenuEvent *ev);
     void copyContentsToClipboard();
+    void contextMenuEvent(QContextMenuEvent *ev);
 };
 
 } // namespace Internal
