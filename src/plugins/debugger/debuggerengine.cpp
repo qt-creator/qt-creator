@@ -1394,6 +1394,8 @@ void DebuggerEngine::quitDebugger()
         break;
     case EngineRunFailed:
     case DebuggerFinished:
+    case InferiorExitOk:
+    case InferiorShutdownOk:
         break;
     case InferiorSetupRequested:
         notifyInferiorSetupFailed();
