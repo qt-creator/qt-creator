@@ -135,7 +135,7 @@ public:
     {
         *sdRef = reinterpret_cast<DNSServiceRef>(cRef);
         return embeddedLib::DNSServiceResolve(sdRef, kDNSServiceFlagsShareConnection
-                                              | kDNSServiceFlagsSuppressUnusable
+                                              // | kDNSServiceFlagsSuppressUnusable
                                               | kDNSServiceFlagsTimeout,
                                               interfaceIndex, name, regtype, domain,
                                               &cServiceResolveReply, gatherer);
@@ -149,7 +149,7 @@ public:
     {
         *sdRef = reinterpret_cast<DNSServiceRef>(cRef);
         return embeddedLib::DNSServiceQueryRecord(sdRef, kDNSServiceFlagsShareConnection
-                                                  | kDNSServiceFlagsSuppressUnusable
+                                                  // | kDNSServiceFlagsSuppressUnusable
                                                   | kDNSServiceFlagsTimeout,
                                                   interfaceIndex, fullname,
                                                   kDNSServiceType_TXT, kDNSServiceClass_IN,
@@ -165,7 +165,7 @@ public:
     {
         *sdRef = reinterpret_cast<DNSServiceRef>(cRef);
         return embeddedLib::DNSServiceGetAddrInfo(sdRef, kDNSServiceFlagsShareConnection
-                                                  | kDNSServiceFlagsSuppressUnusable
+                                                  // | kDNSServiceFlagsSuppressUnusable
                                                   | kDNSServiceFlagsTimeout,
                                                   interfaceIndex, protocol,
                                                   hostname, &cAddrReply, gatherer);
@@ -191,7 +191,7 @@ public:
         DNSServiceRef *sdRef = reinterpret_cast<DNSServiceRef *>(bRef);
         *sdRef = reinterpret_cast<DNSServiceRef>(cRef);
         return embeddedLib::DNSServiceBrowse(sdRef, kDNSServiceFlagsShareConnection
-                                             | kDNSServiceFlagsSuppressUnusable,
+                                             /* | kDNSServiceFlagsSuppressUnusable */,
                                              interfaceIndex, regtype, domain, &cBrowseReply,
                                              browser);
     }

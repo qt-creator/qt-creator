@@ -199,7 +199,7 @@ public:
     {
         if (m_resolve == 0) return kDNSServiceErr_Unsupported;
         *sdRef = reinterpret_cast<DNSServiceRef>(cRef);
-        return m_resolve(sdRef, kDNSServiceFlagsShareConnection | kDNSServiceFlagsSuppressUnusable | kDNSServiceFlagsTimeout,
+        return m_resolve(sdRef, kDNSServiceFlagsShareConnection /* | kDNSServiceFlagsSuppressUnusable*/ | kDNSServiceFlagsTimeout,
                          interfaceIndex, name, regtype, domain, &cServiceResolveReply, gatherer
                          );
     }
@@ -211,7 +211,7 @@ public:
         if (m_queryRecord == 0) return kDNSServiceErr_Unsupported;
         *sdRef = reinterpret_cast<DNSServiceRef>(cRef);
         return m_queryRecord(sdRef, kDNSServiceFlagsShareConnection
-                             | kDNSServiceFlagsSuppressUnusable | kDNSServiceFlagsTimeout,
+                             /* | kDNSServiceFlagsSuppressUnusable*/ | kDNSServiceFlagsTimeout,
                              interfaceIndex, fullname,
                              kDNSServiceType_TXT, kDNSServiceClass_IN, &cTxtRecordReply, gatherer);
     }
@@ -246,7 +246,7 @@ public:
         }
         *sdRef = reinterpret_cast<DNSServiceRef>(cRef);
         return m_getAddrInfo(sdRef, kDNSServiceFlagsShareConnection
-                             | kDNSServiceFlagsSuppressUnusable | kDNSServiceFlagsTimeout,
+                             /*| kDNSServiceFlagsSuppressUnusable */ | kDNSServiceFlagsTimeout,
                              interfaceIndex, protocol, hostname, &cAddrReply, gatherer);
     }
 
@@ -268,7 +268,7 @@ public:
         if (m_browse == 0) return kDNSServiceErr_Unsupported;
         DNSServiceRef *sdRef = reinterpret_cast<DNSServiceRef *>(bRef);
         *sdRef = reinterpret_cast<DNSServiceRef>(cRef);
-        return m_browse(sdRef, kDNSServiceFlagsShareConnection | kDNSServiceFlagsSuppressUnusable,
+        return m_browse(sdRef, kDNSServiceFlagsShareConnection /*| kDNSServiceFlagsSuppressUnusable*/,
                         interfaceIndex, regtype, domain, &cBrowseReply, browser);
     }
 
