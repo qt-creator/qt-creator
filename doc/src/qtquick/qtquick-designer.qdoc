@@ -44,22 +44,22 @@
 
     \list
 
-        \o  \gui {Navigator} pane displays the QML elements in the current QML
+        \o  \gui {Navigator} pane (1) displays the QML elements in the current QML
             file as tree structure.
 
-        \o  \gui {Library} pane displays the building blocks that you can use to
+        \o  \gui {Library} pane (2) displays the building blocks that you can use to
             design applications: predefined QML elements, your own QML
             components, Qt Quick components that you import to the project, and
             other resources.
 
-        \o  \gui Canvas is the working area where you create QML components and
+        \o  \gui Canvas (3) is the working area where you create QML components and
             design applications.
 
-        \o  \gui {Properties} pane organizes the properties of the selected QML
+        \o  \gui {Properties} pane (4) organizes the properties of the selected QML
             element or QML component. You can change the properties also in the
             code editor.
 
-        \o  \gui {State} pane displays the different states of the component.
+        \o  \gui {State} pane (5) displays the different states of the component.
             QML states typically describe user interface configurations, such as
             the UI  elements, their properties and behavior and the available
             actions.
@@ -70,8 +70,8 @@
 
     The \gui Navigator pane displays the
     \l{http://doc.qt.nokia.com/4.7/qdeclarativeelements.html}{QML elements}
-    in the current QML file and their relationships. Elements are listed in a
-    tree structure, below their parent.
+    in the current QML file and their relationships. Elements (1) are listed in a
+    tree structure, below their parent (2).
 
     \image qmldesigner-navigator.png "Navigator pane"
 
@@ -83,7 +83,7 @@
     Typically, child elements are located within the parent element on the
     canvas. However, they do not necessarily have to fit inside the parent
     element. For example, you might want to make a mouse area larger than the
-    rectangle or image beneath it.
+    rectangle or image beneath it (1).
 
     \image qmldesigner-element-size.png "Mouse area for a button"
 
@@ -121,7 +121,7 @@
     To change the stacking order of an item, right-click it on the canvas and
     select \gui {Stack (z)}. You can raise or lower the stack value of an item
     or move the item to the front or back of all its siblings. To remove the
-    \c z property, select \gui Reset.
+    \c z property, select \gui {Reset z Property}.
 
     \section2 Switching Parent Elements
 
@@ -136,7 +136,7 @@
 
     You can change the parent of an element also in the \gui Navigator pane.
     Drag and drop the element to another position in the tree or use the arrow
-    buttons to move the element in the tree.
+    buttons (1) to move the element in the tree.
 
     \image qmldesigner-navigator-arrows.png "Navigator arrow buttons"
 
@@ -154,7 +154,8 @@
     \list
 
         \if defined(qcmanual)
-        \o  \c {import com.nokia.symbian 1.0} for Symbian
+        \o  \c {import com.nokia.symbian 1.0} for Symbian (Qt 4.7)
+        \o  \c {import com.nokia.symbian 1.1} for Symbian (Qt 4.8)
         \endif
 
         \o  \c {import com.nokia.meego 1.0} for MeeGo
@@ -178,7 +179,7 @@
 
     The bottom part of the pane displays properties that are specific to each
     element type. For example, the following image displays the properties you
-    can set for \gui Rectangle and \gui Text elements.
+    can set for \gui Rectangle (1) and \gui Text (2) elements.
 
     \image qmldesigner-element-properties.png
 
@@ -202,12 +203,12 @@
     When editing states, you can easily see which values are explicitly set in
     the current state and which values are derived from the base state.
 
-    The following images illustrate this. In the base state, the \gui Position,
-    \gui Size, and \gui Colors values are explicitly set and highlighted.
+    The following images illustrate this. In the base state, the \gui Size (1)
+    and \gui Colors (2) values are explicitly set and highlighted.
 
     \image qmldesigner-properties-explicit-base.png "Explicitly set properties"
 
-    In \gui State1, only the color is explicitly set and highlighted.
+    In \gui State1, only the color (1) is explicitly set and highlighted.
 
     \image qmldesigner-properties-explicit-state1.png "Explicitly set properties"
 
@@ -265,7 +266,7 @@
     \section2 Marking Text Elements for Translation
 
     To support translators, mark each text element that should be translated.
-    In the \gui Properties pane, \gui Text field, select \gui tr.
+    In the \gui Properties pane, \gui Text field, select \gui tr (1).
 
     \image qmldesigner-text-property-tr.png "Text properties"
 
@@ -360,8 +361,8 @@
     to the opposite side: \c {anchor.left: sibling.right}. This allows you to keep
     sibling elements together.
 
-    In the following image, \gui{Rectangle 2} is anchored to its siblings on its
-    right and left and to the bottom of its parent.
+    In the following image, \gui{Rectangle 2} is anchored to \gui{Rectangle 1}
+    on its left and to the bottom of its parent.
 
     \image qmldesigner-anchors.png "Anchoring sibling elements"
 
@@ -370,8 +371,6 @@
     \qml
     Rectangle {
         id: rectangle2
-        anchors.right: rectangle3.left
-        anchors.rightMargin: 15
         anchors.left: rectangle1.right
         anchors.leftMargin: 15
         anchors.bottom: parent.bottom
@@ -466,7 +465,8 @@
     \inlineimage qmldesigner-snap-to-guides-button.png
     button to have the elements snap to the guides.
 
-    Choose \gui {Tools > Options > Qt Quick} to specify settings for snap to
+    Choose \gui {Tools > Options > Qt Quick > Qt Quick Designer} to specify
+    settings for snap to
     margins. In the \gui {Snap margin} field, specify the position of the guides
     as pixels  from the edge of the canvas. In the \gui {Item spacing} field,
     specify the space in pixels to leave between elements on the screen.
@@ -503,16 +503,17 @@
     bindings.
 
     To experiment with different element sizes, enter values in the
-    \gui Height and \gui Width fields on the canvas toolbar. The changes are
-    displayed in the \gui States pane and on the canvas, but the property
+    \gui Height and \gui Width fields (1) on the canvas toolbar. The changes are
+    displayed in the \gui States pane (2) and on the canvas (3), but the property
     values are not changed permanently in the QML file. You can permanently
-    change the property values in the \gui Properties pane.
+    change the property values in the \gui Properties pane (4).
 
     \image qmldesigner-preview-size.png "Canvas width and height"
 
     \section1 Specifying Canvas Size
 
-    To change the canvas size, select \gui {Tools > Options > Qt Quick} and
+    To change the canvas size, select \gui {Tools > Options > Qt Quick
+    > Qt Quick Designer} and
     specify the canvas width and height in the \gui Canvas group.
 
     \section1 Refreshing the Canvas
