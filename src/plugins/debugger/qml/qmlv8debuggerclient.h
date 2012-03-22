@@ -116,6 +116,9 @@ private:
     void updateBreakpoints(const QVariant &bodyVal);
 
     void expandLocalsAndWatchers(const QVariant &bodyVal, const QVariant &refsVal);
+    QList<WatchData> createWatchDataList(const WatchData *parent,
+                                         const QVariantList &properties,
+                                         const QVariant &refsVal);
 
     void highlightExceptionCode(int lineNumber, const QString &filePath,
                                 const QString &errorMessage);

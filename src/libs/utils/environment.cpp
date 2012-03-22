@@ -249,8 +249,11 @@ QString Environment::searchInPath(const QStringList &executables,
         if (exec.indexOf(slash) != -1)
             continue;
         foreach (const QString &p, path()) {
-            QString fp = p;
-            fp += slash;
+            QString fp = QDir::fromNativeSeparators(p);
+            // Avoid turing / into // on windows which triggers windows to check
+            // for network drives!
+            if (!fp.endsWith(slash))
+                fp += slash;
             fp += exec;
             const QFileInfo fi(fp);
             if (fi.exists() && fi.isExecutable() && !fi.isDir())

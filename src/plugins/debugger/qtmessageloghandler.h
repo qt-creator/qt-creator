@@ -78,6 +78,8 @@ public:
     int sizeOfFile(const QFont &font);
     int sizeOfLineNumber(const QFont &font);
 
+    QtMessageLogItem *root() const { return m_rootItem; }
+
 public slots:
     void clear();
 
@@ -116,14 +118,15 @@ private:
 class QtMessageLogItem
 {
 public:
-    QtMessageLogItem(QtMessageLogHandler::ItemType type = QtMessageLogHandler::UndefinedType,
-                     const QString &data = QString(),
-                     QtMessageLogItem *parent = 0);
+    QtMessageLogItem(QtMessageLogItem *parent,
+                     QtMessageLogHandler::ItemType type = QtMessageLogHandler::UndefinedType,
+                     const QString &data = QString());
     ~QtMessageLogItem();
 
     QtMessageLogItem *child(int number);
     int childCount() const;
     bool insertChildren(int position, int count);
+    void insertChild(QtMessageLogItem *item);
     bool insertChild(int position, QtMessageLogItem *item);
     QtMessageLogItem *parent();
     bool removeChildren(int position, int count);
@@ -139,6 +142,9 @@ public:
     QtMessageLogHandler::ItemType itemType;
     QString file;
     int line;
+
+private:
+    friend class QtMessageLogHandler;
 };
 
 } //Internal
