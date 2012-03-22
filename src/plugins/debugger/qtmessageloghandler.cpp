@@ -31,6 +31,8 @@
 **************************************************************************/
 
 #include "qtmessageloghandler.h"
+#include "debuggercore.h"
+#include "debuggeractions.h"
 
 #include <utils/qtcassert.h>
 
@@ -94,8 +96,13 @@ bool QtMessageLogItem::insertChildren(int position, int count)
     return true;
 }
 
-void QtMessageLogItem::insertChildSorted(QtMessageLogItem *item)
+void QtMessageLogItem::insertChild(QtMessageLogItem *item)
 {
+    if (!debuggerCore()->boolSetting(SortStructMembers)) {
+        m_childItems.insert(m_childItems.count(), item);
+        return;
+    }
+
     int i = 0;
     for (; i < m_childItems.count(); i++) {
         if (item->text < m_childItems[i]->text) {
