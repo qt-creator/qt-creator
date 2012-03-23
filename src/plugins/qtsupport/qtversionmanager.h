@@ -39,6 +39,8 @@
 #include <QSet>
 #include <QStringList>
 
+namespace Utils { class FileSystemWatcher; }
+
 namespace QtSupport {
 namespace Internal {
 class QtOptionsPage;
@@ -113,6 +115,9 @@ signals:
 public slots:
     void updateDumpFor(const Utils::FileName &qmakeCommand);
 
+private slots:
+    void updateFromInstaller();
+
 private:
     // This function is really simplistic...
     static bool equals(BaseQtVersion *a, BaseQtVersion *b);
@@ -127,7 +132,6 @@ private:
     bool restoreQtVersions();
     bool legacyRestore();
     void findSystemQt();
-    void updateFromInstaller();
     void saveQtVersions();
     void updateDocumentation();
     // Used by QtOptionsPage
@@ -147,6 +151,8 @@ private:
     // Compatibility with pre-2.2:
     QStringList m_pendingMwcUpdates;
     QStringList m_pendingGcceUpdates;
+
+    Utils::FileSystemWatcher *m_configFileWatcher;
 };
 
 namespace Internal {

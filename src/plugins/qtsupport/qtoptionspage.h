@@ -64,7 +64,7 @@ class QtOptionsPageWidget : public QWidget
     Q_OBJECT
 
 public:
-    QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *> versions);
+    QtOptionsPageWidget(QWidget *parent);
     ~QtOptionsPageWidget();
     QList<BaseQtVersion *> versions() const;
     void finish();
@@ -97,6 +97,7 @@ private:
     QtConfigWidget *m_configurationWidget;
 
 private slots:
+    void updateQtVersions(const QList<int> &, const QList<int> &, const QList<int> &);
     void qtVersionChanged();
     void versionChanged(QTreeWidgetItem *item, QTreeWidgetItem *old);
     void addQtDir();
@@ -129,6 +130,9 @@ private:
     ValidityInfo validInformation(const BaseQtVersion *version);
     QList<ProjectExplorer::ToolChain*> toolChains(const BaseQtVersion *version);
     QString defaultToolChainId(const BaseQtVersion *verison);
+
+    QTreeWidgetItem *m_autoItem;
+    QTreeWidgetItem *m_manualItem;
 };
 
 class QtOptionsPage : public Core::IOptionsPage

@@ -48,6 +48,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/filesystemwatcher.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
@@ -98,6 +99,13 @@ static T *createToolChain(const QString &id)
     return 0;
 }
 
+static QString globalSettingsFileName()
+{
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    return QFileInfo(pm->globalSettings()->fileName()).absolutePath()
+            + QLatin1String(QTVERSION_FILENAME);
+}
+
 static QString settingsFileName()
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
@@ -139,6 +147,12 @@ void QtVersionManager::extensionsInitialized()
     }
 
     saveQtVersions();
+
+    m_configFileWatcher = new Utils::FileSystemWatcher(this);
+    connect(m_configFileWatcher, SIGNAL(fileChanged(QString)),
+            this, SLOT(updateFromInstaller()));
+
+    m_configFileWatcher->addFile(globalSettingsFileName(), Utils::FileSystemWatcher::WatchModifiedDate);
 }
 
 bool QtVersionManager::delayedInitialize()
@@ -211,11 +225,17 @@ bool QtVersionManager::restoreQtVersions()
 
 void QtVersionManager::updateFromInstaller()
 {
+    // Handle overwritting of data:
+    if (m_configFileWatcher) {
+        const QString path = globalSettingsFileName();
+        m_configFileWatcher->removeFile(path);
+        m_configFileWatcher->addFile(path, Utils::FileSystemWatcher::WatchModifiedDate);
+    }
+
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     QList<QtVersionFactory *> factories = pm->getObjects<QtVersionFactory>();
     Utils::PersistentSettingsReader reader;
-    if (!reader.load(QFileInfo(pm->globalSettings()->fileName()).absolutePath()
-                     + QLatin1String(QTVERSION_FILENAME)))
+    if (!reader.load(globalSettingsFileName()))
         return;
 
     QVariantMap data = reader.restoreValues();
