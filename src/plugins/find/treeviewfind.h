@@ -48,8 +48,7 @@ class FIND_EXPORT TreeViewFind : public Find::IFindSupport
 {
     Q_OBJECT
 public:
-    explicit TreeViewFind(QTreeView *view, int role = Qt::DisplayRole,
-                          int column = 0);
+    explicit TreeViewFind(QTreeView *view, int role = Qt::DisplayRole);
     virtual ~TreeViewFind();
 
     bool supportsReplace() const;
