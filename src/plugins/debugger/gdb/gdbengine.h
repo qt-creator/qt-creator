@@ -584,9 +584,9 @@ private: ////////// View & Data Stuff //////////
     // awful hack to keep track of used files
     QMap<QString, QString> m_shortToFullName;
     QMap<QString, QString> m_fullToShortName;
+    QMultiMap<QString, QString> m_baseNameToFullName;
 
     void invalidateSourcesList();
-    bool m_sourcesListOutdated;
     bool m_sourcesListUpdating;
     bool m_breakListOutdated;
 

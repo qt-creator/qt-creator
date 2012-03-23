@@ -80,6 +80,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
+#include <QDirIterator>
 #include <QFileInfo>
 #include <QMetaObject>
 #include <QTime>
@@ -1173,7 +1174,6 @@ void GdbEngine::updateAll()
 void GdbEngine::handleQuerySources(const GdbResponse &response)
 {
     m_sourcesListUpdating = false;
-    m_sourcesListOutdated = false;
     if (response.resultClass == GdbResultDone) {
         QMap<QString, QString> oldShortToFull = m_shortToFullName;
         m_shortToFullName.clear();
@@ -1182,16 +1182,17 @@ void GdbEngine::handleQuerySources(const GdbResponse &response)
         // fullname="/data5/dev/ide/main/bin/dumper/dumper.cpp"},
         GdbMi files = response.data.findChild("files");
         foreach (const GdbMi &item, files.children()) {
-            GdbMi fullName = item.findChild("fullname");
             GdbMi fileName = item.findChild("file");
+            if (fileName.data().endsWith("<built-in>"))
+                continue;
+            GdbMi fullName = item.findChild("fullname");
             QString file = QString::fromLocal8Bit(fileName.data());
+            QString full;
             if (fullName.isValid()) {
-                QString full = cleanupFullName(QString::fromLocal8Bit(fullName.data()));
-                m_shortToFullName[file] = full;
+                full = cleanupFullName(QString::fromLocal8Bit(fullName.data()));
                 m_fullToShortName[full] = file;
-            } else if (fileName.isValid()) {
-                m_shortToFullName[file] = tr("<unknown>");
             }
+            m_shortToFullName[file] = full;
         }
         if (m_shortToFullName != oldShortToFull)
             sourceFilesHandler()->setSourceFiles(m_shortToFullName);
@@ -1848,6 +1849,43 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
         cleanFilePath.replace(0, startParameters().remoteMountPoint.length(),
             startParameters().localMountDir);
     }
+
+    if (!debuggerCore()->boolSetting(AutoEnrichParameters))
+        return cleanFilePath;
+
+    const QString sysroot = startParameters().sysroot;
+    if (QFileInfo(cleanFilePath).isReadable())
+        return cleanFilePath;
+    if (!sysroot.isEmpty() && fileName.startsWith(QLatin1Char('/'))) {
+        cleanFilePath = sysroot + fileName;
+        if (QFileInfo(cleanFilePath).isReadable())
+            return cleanFilePath;
+    }
+    if (m_baseNameToFullName.isEmpty()) {
+        QString debugSource = sysroot + QLatin1String("/usr/src/debug");
+        if (QFileInfo(debugSource).isDir()) {
+            QDirIterator it(debugSource, QDirIterator::Subdirectories);
+            while (it.hasNext()) {
+                it.next();
+                QString name = it.fileName();
+                if (!name.startsWith(QLatin1Char('.'))) {
+                    QString path = it.filePath();
+                    m_baseNameToFullName.insert(name, path);
+                }
+            }
+        }
+    }
+
+    cleanFilePath.clear();
+    const QString base = QFileInfo(fileName).fileName();
+
+    QMap<QString, QString>::const_iterator jt = m_baseNameToFullName.find(base);
+    while (jt != m_baseNameToFullName.end() && jt.key() == base) {
+        // FIXME: Use some heuristics to find the "best" match.
+        return jt.value();
+        //++jt;
+    }
+
     return cleanFilePath;
 }
 
@@ -3374,7 +3412,6 @@ void GdbEngine::examineModules()
 void GdbEngine::invalidateSourcesList()
 {
     m_modulesListOutdated = true;
-    m_sourcesListOutdated = true;
     m_breakListOutdated = true;
 }
 
