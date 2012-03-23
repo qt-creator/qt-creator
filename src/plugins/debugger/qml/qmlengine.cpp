@@ -1064,11 +1064,6 @@ void QmlEngine::expressionEvaluated(quint32 queryId, const QVariant &result)
                                                       result);
         if (item)
             qtMessageLogHandler()->appendItem(item);
-    } else {
-        qtMessageLogHandler()->
-                appendItem(new QtMessageLogItem(qtMessageLogHandler()->root(),
-                                                QtMessageLogHandler::ErrorType,
-                                                _("Error evaluating expression.")));
     }
 }
 
