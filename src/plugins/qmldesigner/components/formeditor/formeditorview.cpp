@@ -286,7 +286,7 @@ void FormEditorView::nodeIdChanged(const ModelNode& node, const QString& newId, 
     QmlModelView::nodeIdChanged(node, newId, oldId);
     QmlItemNode itemNode(node);
 
-    if (itemNode.isValid()) {
+    if (itemNode.isValid() && node.nodeSourceType() == ModelNode::NodeWithoutSource) {
         FormEditorItem *item = m_scene->itemForQmlItemNode(itemNode);
         item->update();
     }
