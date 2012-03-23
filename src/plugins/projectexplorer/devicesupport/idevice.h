@@ -73,6 +73,10 @@ public:
     virtual QString displayNameForActionId(const QString &actionId) const = 0;
     virtual QDialog *createAction(const QString &actionId, QWidget *parent = 0) const = 0;
 
+    enum AvailabilityState { DeviceAvailable, DeviceUnavailable, DeviceAvailabilityUnknown };
+    AvailabilityState availability() const;
+    void setAvailability(const AvailabilityState as);
+
     virtual void fromMap(const QVariantMap &map);
     virtual QVariantMap toMap() const;
     virtual Ptr clone() const = 0;

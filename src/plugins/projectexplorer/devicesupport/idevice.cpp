@@ -157,6 +157,7 @@ public:
     QString type;
     IDevice::Origin origin;
     Core::Id internalId;
+    IDevice::AvailabilityState availability;
 };
 } // namespace Internal
 
@@ -171,6 +172,7 @@ IDevice::IDevice(const QString &type, Origin origin, const QString &fingerprint)
     d->origin = origin;
     QTC_CHECK(origin == ManuallyAdded || !fingerprint.isEmpty());
     d->internalId = fingerprint.isEmpty() ? newId() : Core::Id(fingerprint);
+    d->availability = DeviceAvailabilityUnknown;
 }
 
 IDevice::IDevice(const IDevice &other) : d(new Internal::IDevicePrivate)
@@ -208,6 +210,18 @@ bool IDevice::isAutoDetected() const
 Core::Id IDevice::internalId() const
 {
     return d->internalId;
+}
+
+IDevice::AvailabilityState IDevice::availability() const
+{
+    return d->availability;
+}
+
+void IDevice::setAvailability(const IDevice::AvailabilityState as)
+{
+    if (d->availability == as)
+        return;
+    d->availability = as;
 }
 
 Core::Id IDevice::invalidId()
