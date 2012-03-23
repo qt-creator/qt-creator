@@ -45,6 +45,7 @@
 #include <utils/qtcassert.h>
 
 #include <QDir>
+#include <QFileInfo>
 #include <QProcess>
 #include <QSettings>
 #include <QUrl>
@@ -646,6 +647,7 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
     return results;
 }
 
+// Detect CDB, return a pair of <32bit, 64bit> executables.
 QPair<Utils::FileName, Utils::FileName> MsvcToolChain::autoDetectCdbDebugger()
 {
     QPair<Utils::FileName, Utils::FileName> result;
@@ -660,6 +662,29 @@ QPair<Utils::FileName, Utils::FileName> MsvcToolChain::autoDetectCdbDebugger()
         if (dirName.isEmpty())
             continue;
         QDir dir(dirName);
+        // Windows SDK's starting from version 8 live in
+        // "ProgramDir\Windows Kits\<version>"
+        const QString windowsKitsFolderName = QLatin1String("Windows Kits");
+        if (dir.exists(windowsKitsFolderName)) {
+            QDir windowKitsFolder = dir;
+            if (windowKitsFolder.cd(windowsKitsFolderName)) {
+                // Check in reverse order (latest first)
+                const QFileInfoList kitFolders =
+                    windowKitsFolder.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot,
+                                                   QDir::Time|QDir::Reversed);
+                foreach (const QFileInfo &kitFolderFi, kitFolders) {
+                    const QString path = kitFolderFi.absoluteFilePath();
+                    const QFileInfo cdb32(path + QLatin1String("/Debuggers/x86/cdb.exe"));
+                    if (cdb32.isExecutable())
+                        cdbs.push_back(Utils::FileName::fromString(cdb32.absoluteFilePath()));
+                    const QFileInfo cdb64(path + QLatin1String("/Debuggers/x64/cdb.exe"));
+                    if (cdb64.isExecutable())
+                        cdbs.push_back(Utils::FileName::fromString(cdb64.absoluteFilePath()));
+                } // for Kits
+            } // can cd to "Windows Kits"
+        } // "Windows Kits" exists
+
+        // Pre Windows SDK 8: Check 'Debugging Tools for Windows'
         foreach (const QFileInfo &fi, dir.entryInfoList(QStringList(QLatin1String("Debugging Tools for Windows*")),
                                                         QDir::Dirs | QDir::NoDotAndDotDot)) {
             Utils::FileName filePath(fi);

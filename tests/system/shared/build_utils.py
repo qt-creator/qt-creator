@@ -122,8 +122,8 @@ def createTasksFile(list):
         # the following is currently a bad work-around
         fData = index.data(Qt.UserRole).toString() # file
         lData = index.data(Qt.UserRole + 1).toString() # line -> linenumber or empty
-        tData = index.data(Qt.UserRole + 4).toString() # type -> 1==error 2==warning
-        dData = index.data(Qt.UserRole + 2).toString() # description
+        tData = index.data(Qt.UserRole + 5).toString() # type -> 1==error 2==warning
+        dData = index.data(Qt.UserRole + 3).toString() # description
         if lData == "":
             lData = "-1"
         if tData == "1":

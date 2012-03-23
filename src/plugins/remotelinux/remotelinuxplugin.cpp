@@ -91,39 +91,18 @@ RemoteLinuxPlugin::~RemoteLinuxPlugin()
 
 void RemoteLinuxPlugin::extensionsInitialized()
 {
-    /*
-    using namespace Core;
-    ICore *core = ICore::instance();
-    ActionManager *am = core->actionManager();
-    ActionContainer *mstart =
-        am->actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
-
-    const Context globalcontext(Core::Constants::C_GLOBAL);
-
-    QAction *act = 0;
-    Command *cmd = 0;
-
-    act = new QAction(tr("Start Remote Debug Server..."), 0);
-    cmd = am->registerAction(act, "StartGdbServer", globalcontext);
-    cmd->setDescription(tr("Start Gdbserver"));
-    mstart->addAction(cmd, Debugger::Constants::G_MANUAL_REMOTE);
-    connect(act, SIGNAL(triggered()), SLOT(startGdbServer()));
-
-    act = new QAction(tr("Attach to Running Remote Process..."), 0);
-    cmd = am->registerAction(act, "AttachRemoteProcess", globalcontext);
-    cmd->setDescription(tr("Attach to Remote Process"));
-    mstart->addAction(cmd, Debugger::Constants::G_AUTOMATIC_REMOTE);
-    connect(act, SIGNAL(triggered()), SLOT(startGdbServer()));
-    */
 }
 
 void RemoteLinuxPlugin::startGdbServer()
 {
     StartGdbServerDialog dlg;
-    int result = dlg.exec();
-    if (result == QDialog::Rejected)
-        return;
     dlg.startGdbServer();
+}
+
+void RemoteLinuxPlugin::attachToRemoteProcess()
+{
+    StartGdbServerDialog dlg;
+    dlg.attachToRemoteProcess();
 }
 
 } // namespace Internal
