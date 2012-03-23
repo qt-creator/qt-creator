@@ -63,6 +63,18 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &name);
 
+    // Provide some information on the device suitable for formated
+    // output, e.g. in tool tips. Get a list of name value pairs.
+    class DeviceInfoItem {
+    public:
+        DeviceInfoItem(const QString &k, const QString &v) : key(k), value(v) { }
+
+        QString key;
+        QString value;
+    };
+    typedef QList<DeviceInfoItem> DeviceInfo;
+    virtual DeviceInfo deviceInformation() const;
+
     QString type() const;
     bool isAutoDetected() const;
     Core::Id id() const;

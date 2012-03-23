@@ -36,6 +36,8 @@
 #include <coreplugin/id.h>
 #include <utils/qtcassert.h>
 
+#include <QCoreApplication>
+
 #include <QString>
 #include <QUuid>
 
@@ -195,6 +197,22 @@ void IDevice::setDisplayName(const QString &name)
     if (d->displayName == name)
         return;
     d->displayName = name;
+}
+
+IDevice::DeviceInfo IDevice::deviceInformation() const
+{
+    DeviceInfo result;
+    if (availability() == DeviceUnavailable)
+        //: Title of the connectivity state information in a tool tip
+        result << IDevice::DeviceInfoItem(QCoreApplication::translate("ProjectExplorer::IDevice", "Device"),
+                                          //: Device is not connected
+                                          QCoreApplication::translate("ProjectExplorer::IDevice", "not connected"));
+    else if (availability() == DeviceAvailable)
+        //: Title of the connectivity state information in a tool tip
+        result << IDevice::DeviceInfoItem(QCoreApplication::translate("ProjectExplorer::IDevice", "Device"),
+                                          //: Device is not connected
+                                          QCoreApplication::translate("ProjectExplorer::IDevice", "connected"));
+    return result;
 }
 
 QString IDevice::type() const
