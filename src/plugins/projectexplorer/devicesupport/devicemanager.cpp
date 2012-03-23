@@ -405,7 +405,7 @@ IDevice::Id DeviceManager::internalId(const IDevice::ConstPtr &device) const
     return device ? device->internalId() : IDevice::invalidId();
 }
 
-int DeviceManager::indexOf(const IDevice *device) const
+int DeviceManager::indexOf(const IDevice::ConstPtr &device) const
 {
     return indexForInternalId(device->internalId());
 }
