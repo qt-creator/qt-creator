@@ -180,7 +180,7 @@ private:
 
 public:
     static const int TASK_ICON_SIZE = 16;
-    static const int ITEM_PADDING = 7;
+    static const int ITEM_PADDING = 8;
     static const int ITEM_SPACING = 4;
 
 };

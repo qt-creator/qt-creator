@@ -67,6 +67,7 @@ QtMessageLogEditor::QtMessageLogEditor(const QModelIndex &index,
     format.setName(_("prompt"));
     format.setHeight(9);
     format.setWidth(9);
+    textCursor().insertText(_(" "));
     textCursor().insertImage(format);
     textCursor().insertText(_("  "));
     m_startOfEditableArea = textCursor().position();
