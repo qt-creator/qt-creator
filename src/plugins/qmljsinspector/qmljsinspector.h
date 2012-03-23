@@ -136,7 +136,6 @@ private slots:
     void showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
 
 private:
-    bool addQuotesForData(const QVariant &value) const;
     void resetViews();
 
     void initializeDocuments();

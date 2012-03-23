@@ -33,7 +33,6 @@
 #include "qmljsinspectortoolbar.h"
 
 #include "qmljsinspectorconstants.h"
-#include "qmljstoolbarcolorbox.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -70,12 +69,10 @@ QmlJsInspectorToolBar::QmlJsInspectorToolBar(QObject *parent) :
     m_playAction(0),
     m_selectAction(0),
     m_zoomAction(0),
-    m_colorPickerAction(0),
     m_showAppOnTopAction(0),
     m_playSpeedMenuActions(0),
     m_playIcon(QIcon(QLatin1String(":/qml/images/play-small.png"))),
     m_pauseIcon(QIcon(QLatin1String(":/qml/images/pause-small.png"))),
-    m_colorBox(0),
     m_emitSignals(true),
     m_paused(false),
     m_animationSpeed(1.0f),
@@ -92,8 +89,6 @@ void QmlJsInspectorToolBar::setEnabled(bool value)
     m_playAction->setEnabled(value);
     m_selectAction->setEnabled(value);
     m_zoomAction->setEnabled(value);
-    m_colorPickerAction->setEnabled(value);
-    m_colorBox->setEnabled(value);
 }
 
 void QmlJsInspectorToolBar::enable()
@@ -113,11 +108,6 @@ void QmlJsInspectorToolBar::disable()
     m_designModeActive = false;
     updateDesignModeActions(NoTool);
     setEnabled(false);
-}
-
-void QmlJsInspectorToolBar::activateColorPicker()
-{
-    updateDesignModeActions(ColorPickerMode);
 }
 
 void QmlJsInspectorToolBar::activateSelectTool()
@@ -191,9 +181,6 @@ void QmlJsInspectorToolBar::createActions()
     m_zoomAction =
             new QAction(QIcon(QLatin1String(":/qml/images/zoom-small.png")),
                         tr("Zoom"), this);
-    m_colorPickerAction =
-            new QAction(QIcon(QLatin1String(":/qml/images/color-picker-small.png")),
-                        tr("Color Picker"), this);
 
     m_fromQmlAction->setCheckable(true);
     m_fromQmlAction->setChecked(true);
@@ -201,13 +188,11 @@ void QmlJsInspectorToolBar::createActions()
     m_showAppOnTopAction->setChecked(false);
     m_selectAction->setCheckable(true);
     m_zoomAction->setCheckable(true);
-    m_colorPickerAction->setCheckable(true);
 
     Core::Command *command = am->registerAction(m_playAction, Constants::PLAY_ACTION, context);
     command->setAttribute(Core::Command::CA_UpdateIcon);
     am->registerAction(m_selectAction, Constants::SELECT_ACTION, context);
     am->registerAction(m_zoomAction, Constants::ZOOM_ACTION, context);
-    am->registerAction(m_colorPickerAction, Constants::COLOR_PICKER_ACTION, context);
     am->registerAction(m_fromQmlAction, Constants::FROM_QML_ACTION, context);
     am->registerAction(m_showAppOnTopAction, Constants::SHOW_APP_ON_TOP_ACTION, context);
 
@@ -271,19 +256,10 @@ void QmlJsInspectorToolBar::createActions()
     toolBarLayout->addWidget(new Utils::StyledSeparator);
     toolBarLayout->addWidget(toolButton(am->command(Constants::SELECT_ACTION)->action()));
     toolBarLayout->addWidget(toolButton(am->command(Constants::ZOOM_ACTION)->action()));
-    toolBarLayout->addWidget(toolButton(am->command(Constants::COLOR_PICKER_ACTION)->action()));
-
-    m_colorBox = new ToolBarColorBox(m_barWidget);
-    m_colorBox->setMinimumSize(20, 20);
-    m_colorBox->setMaximumSize(20, 20);
-    m_colorBox->setInnerBorderColor(QColor(192, 192, 192));
-    m_colorBox->setOuterBorderColor(QColor(58, 58, 58));
-    toolBarLayout->addWidget(m_colorBox);
 
     connect(m_fromQmlAction, SIGNAL(triggered()), SLOT(activateFromQml()));
     connect(m_showAppOnTopAction, SIGNAL(triggered()), SLOT(showAppOnTopClick()));
     connect(m_playAction, SIGNAL(triggered()), SLOT(activatePlayOnClick()));
-    connect(m_colorPickerAction, SIGNAL(triggered(bool)), SLOT(colorPickerTriggered(bool)));
     connect(m_selectAction, SIGNAL(triggered(bool)), SLOT(selectToolTriggered(bool)));
     connect(m_zoomAction, SIGNAL(triggered(bool)), SLOT(zoomToolTriggered(bool)));
 
@@ -320,19 +296,6 @@ void QmlJsInspectorToolBar::updatePlayAction()
     m_playAction->setIcon(m_paused ? m_playIcon : m_pauseIcon);
 }
 
-void QmlJsInspectorToolBar::colorPickerTriggered(bool checked)
-{
-    updateDesignModeActions(ColorPickerMode);
-
-    if (m_designModeActive != checked) {
-        m_designModeActive = checked;
-        emit designModeSelected(checked);
-    }
-
-    if (checked)
-        emit colorPickerSelected();
-}
-
 void QmlJsInspectorToolBar::selectToolTriggered(bool checked)
 {
     updateDesignModeActions(SelectionToolMode);
@@ -365,11 +328,6 @@ void QmlJsInspectorToolBar::showAppOnTopClick()
         emit showAppOnTopSelected(m_showAppOnTopAction->isChecked());
 }
 
-void QmlJsInspectorToolBar::setSelectedColor(const QColor &color)
-{
-    m_colorBox->setColor(color);
-}
-
 void QmlJsInspectorToolBar::activateFromQml()
 {
     if (m_emitSignals)
@@ -386,7 +344,6 @@ void QmlJsInspectorToolBar::updateDesignModeActions(DesignTool activeTool)
     m_activeTool = activeTool;
     m_selectAction->setChecked(m_designModeActive && (m_activeTool == SelectionToolMode));
     m_zoomAction->setChecked(m_designModeActive && (m_activeTool == ZoomMode));
-    m_colorPickerAction->setChecked(m_designModeActive && (m_activeTool == ColorPickerMode));
 }
 
 } // namespace Internal

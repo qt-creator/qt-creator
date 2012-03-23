@@ -20,7 +20,6 @@ qmljsclientproxy.h \
 qmljsinspector.h \
 qmljsinspectortoolbar.h \
 qmljslivetextpreview.h \
-qmljstoolbarcolorbox.h \
 qmljsinspectorclient.h \
 qmljscontextcrumblepath.h \
 qmljsinspectorsettings.h \
@@ -32,7 +31,6 @@ qmljsclientproxy.cpp \
 qmljsinspector.cpp \
 qmljsinspectortoolbar.cpp \
 qmljslivetextpreview.cpp \
-qmljstoolbarcolorbox.cpp \
 qmljsinspectorclient.cpp \
 qmljscontextcrumblepath.cpp \
 qmljsinspectorsettings.cpp \

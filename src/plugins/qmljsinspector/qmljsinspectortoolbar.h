@@ -41,7 +41,6 @@
 QT_BEGIN_NAMESPACE
 class QAction;
 class QActionGroup;
-class QColor;
 class QToolButton;
 QT_END_NAMESPACE
 
@@ -50,8 +49,6 @@ class StyledBar;
 }
 
 namespace QmlJSInspector {
-
-class ToolBarColorBox;
 
 namespace Internal {
 
@@ -66,7 +63,6 @@ public:
         MarqueeSelectionToolMode = 2,
         MoveToolMode = 3,
         ResizeToolMode = 4,
-        ColorPickerMode = 5,
         ZoomMode = 6
     };
 
@@ -79,7 +75,6 @@ public slots:
     void enable();
     void disable();
 
-    void activateColorPicker();
     void activateSelectTool();
     void activateZoomTool();
 
@@ -88,14 +83,12 @@ public slots:
 
     void setDesignModeBehavior(bool inDesignMode);
     void setShowAppOnTop(bool showAppOnTop);
-    void setSelectedColor(const QColor &color);
 
 signals:
     void applyChangesFromQmlFileTriggered(bool isChecked);
 
     void designModeSelected(bool);
     void reloadSelected();
-    void colorPickerSelected();
     void selectToolSelected();
     void zoomToolSelected();
 
@@ -106,7 +99,6 @@ signals:
 
 private slots:
     void activatePlayOnClick();
-    void colorPickerTriggered(bool checked);
     void selectToolTriggered(bool checked);
     void zoomToolTriggered(bool checked);
 
@@ -129,7 +121,6 @@ private:
     QAction *m_playAction;
     QAction *m_selectAction;
     QAction *m_zoomAction;
-    QAction *m_colorPickerAction;
 
     QAction *m_showAppOnTopAction;
 
@@ -138,8 +129,6 @@ private:
     QToolButton *m_playButton;
     QIcon m_playIcon;
     QIcon m_pauseIcon;
-
-    ToolBarColorBox *m_colorBox;
 
     bool m_emitSignals;
     bool m_paused;

@@ -51,7 +51,6 @@ public:
     void setDesignModeBehavior(bool inDesignMode);
     void setAnimationSpeed(qreal slowDownFactor);
     void setAnimationPaused(bool paused);
-    void changeToColorPickerTool();
     void changeToSelectTool();
     void changeToSelectMarqueeTool();
     void changeToZoomTool();
@@ -76,8 +75,6 @@ signals:
     void connectedStatusChanged(QDeclarativeDebugClient::Status status);
 
     void currentObjectsChanged(const QList<int> &debugIds);
-    void selectedColorChanged(const QColor &color);
-    void colorPickerActivated();
     void selectToolActivated();
     void selectMarqueeToolActivated();
     void zoomToolActivated();

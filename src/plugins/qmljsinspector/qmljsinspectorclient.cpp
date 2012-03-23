@@ -33,8 +33,6 @@
 #include "qmljsclientproxy.h"
 #include "qmljsinspectorconstants.h"
 
-#include <QColor>
-
 using namespace QmlJSDebugger;
 
 namespace QmlJSInspector {
@@ -85,9 +83,7 @@ void QmlJSInspectorClient::messageReceived(const QByteArray &message)
 
         log(LogReceive, type, QString::number(toolId));
 
-        if (toolId == Constants::ColorPickerMode) {
-            emit colorPickerActivated();
-        } else if (toolId == Constants::ZoomMode) {
+        if (toolId == Constants::ZoomMode) {
             emit zoomToolActivated();
         } else if (toolId == Constants::SelectionToolMode) {
             emit selectToolActivated();
@@ -137,17 +133,8 @@ void QmlJSInspectorClient::messageReceived(const QByteArray &message)
         emit reloaded();
         break;
     }
-    case InspectorProtocol::ColorChanged: {
-        QColor col;
-        ds >> col;
-
-        log(LogReceive, type, col.name());
-
-        emit selectedColorChanged(col);
-        break;
-    }
     default:
-        qWarning() << "Warning: Not handling message:" << type;
+        log(LogReceive, type, QLatin1String("Warning: Not handling message"));
     }
 }
 
@@ -296,24 +283,6 @@ void QmlJSInspectorClient::setAnimationPaused(bool paused)
        << paused;
 
     log(LogSend, cmd, paused ? QLatin1String("true") : QLatin1String("false"));
-
-    sendMessage(message);
-}
-
-void QmlJSInspectorClient::changeToColorPickerTool()
-{
-    if (!m_connection || !m_connection->isConnected())
-        return;
-
-    QByteArray message;
-    QDataStream ds(&message, QIODevice::WriteOnly);
-
-    InspectorProtocol::Message cmd = InspectorProtocol::ChangeTool;
-    InspectorProtocol::Tool tool = InspectorProtocol::ColorPickerTool;
-    ds << cmd
-       << tool;
-
-    log(LogSend, cmd, InspectorProtocol::toString(tool));
 
     sendMessage(message);
 }

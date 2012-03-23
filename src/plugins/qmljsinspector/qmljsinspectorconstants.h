@@ -42,7 +42,6 @@ const char INFO_OUT_OF_SYNC[] = "QmlInspector.OutOfSyncWarning";
 const char PLAY_ACTION[] = "QmlInspector.Play";
 const char SELECT_ACTION[] = "QmlInspector.Select";
 const char ZOOM_ACTION[] = "QmlInspector.Zoom";
-const char COLOR_PICKER_ACTION[] = "QmlInspector.ColorPicker";
 const char FROM_QML_ACTION[] = "QmlInspector.FromQml";
 const char SHOW_APP_ON_TOP_ACTION[] = "QmlInspector.ShowAppOnTop";
 
@@ -56,7 +55,6 @@ enum DesignTool {
     MarqueeSelectionToolMode = 2,
     MoveToolMode = 3,
     ResizeToolMode = 4,
-    ColorPickerMode = 5,
     ZoomMode = 6
 };
 

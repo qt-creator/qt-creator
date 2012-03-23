@@ -720,20 +720,6 @@ void InspectorUi::gotoObjectReferenceDefinition(const QmlDebugObjectReference &o
     }
 }
 
-bool InspectorUi::addQuotesForData(const QVariant &value) const
-{
-    switch (value.type()) {
-    case QVariant::String:
-    case QVariant::Color:
-    case QVariant::Date:
-        return true;
-    default:
-        break;
-    }
-
-    return false;
-}
-
 void InspectorUi::setupDockWidgets()
 {
     Debugger::DebuggerMainWindow *mw = Debugger::DebuggerPlugin::mainWindow();
@@ -877,8 +863,6 @@ void InspectorUi::connectSignals()
     connect(m_clientProxy, SIGNAL(disconnected()),
             this, SLOT(disable()));
 
-    connect(m_clientProxy, SIGNAL(colorPickerActivated()),
-            m_toolBar, SLOT(activateColorPicker()));
     connect(m_clientProxy, SIGNAL(selectToolActivated()),
             m_toolBar, SLOT(activateSelectTool()));
     connect(m_clientProxy, SIGNAL(zoomToolActivated()),
@@ -887,8 +871,6 @@ void InspectorUi::connectSignals()
             m_toolBar, SLOT(setDesignModeBehavior(bool)));
     connect(m_clientProxy, SIGNAL(showAppOnTopChanged(bool)),
             m_toolBar, SLOT(setShowAppOnTop(bool)));
-    connect(m_clientProxy, SIGNAL(selectedColorChanged(QColor)),
-            m_toolBar, SLOT(setSelectedColor(QColor)));
     connect(m_clientProxy, SIGNAL(animationSpeedChanged(qreal)),
             m_toolBar, SLOT(setAnimationSpeed(qreal)));
     connect(m_clientProxy, SIGNAL(animationPausedChanged(bool)),
@@ -905,8 +887,6 @@ void InspectorUi::connectSignals()
             m_clientProxy, SLOT(setAnimationSpeed(qreal)));
     connect(m_toolBar, SIGNAL(animationPausedChanged(bool)),
             m_clientProxy, SLOT(setAnimationPaused(bool)));
-    connect(m_toolBar, SIGNAL(colorPickerSelected()),
-            m_clientProxy, SLOT(changeToColorPickerTool()));
     connect(m_toolBar, SIGNAL(zoomToolSelected()),
             m_clientProxy, SLOT(changeToZoomTool()));
     connect(m_toolBar, SIGNAL(selectToolSelected()),

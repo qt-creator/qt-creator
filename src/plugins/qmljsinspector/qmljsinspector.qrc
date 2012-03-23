@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/qml">
-        <file>images/color-picker.png</file>
         <file>images/from-qml.png</file>
         <file>images/pause.png</file>
         <file>images/reload.png</file>
@@ -9,7 +8,6 @@
         <file>images/to-qml.png</file>
         <file>images/select-marquee.png</file>
         <file>images/zoom.png</file>
-        <file>images/color-picker-small.png</file>
         <file>images/select-small.png</file>
         <file>images/play-small.png</file>
         <file>images/to-qml-small.png</file>
@@ -17,7 +15,6 @@
         <file>images/from-qml-small.png</file>
         <file>images/zoom-small.png</file>
         <file>images/select-marquee-small.png</file>
-        <file>images/color-picker-small-hicontrast.png</file>
         <file>images/app-on-top.png</file>
     </qresource>
 </RCC>

@@ -95,8 +95,6 @@ void ClientProxy::connectToServer()
             this, SLOT(clientStatusChanged(QDeclarativeDebugClient::Status)));
     connect(m_inspectorClient, SIGNAL(currentObjectsChanged(QList<int>)),
         SLOT(onCurrentObjectsChanged(QList<int>)));
-    connect(m_inspectorClient, SIGNAL(colorPickerActivated()),
-        SIGNAL(colorPickerActivated()));
     connect(m_inspectorClient, SIGNAL(zoomToolActivated()),
         SIGNAL(zoomToolActivated()));
     connect(m_inspectorClient, SIGNAL(selectToolActivated()),
@@ -113,8 +111,6 @@ void ClientProxy::connectToServer()
         SIGNAL(showAppOnTopChanged(bool)));
     connect(m_inspectorClient, SIGNAL(reloaded()), this,
         SIGNAL(serverReloaded()));
-    connect(m_inspectorClient, SIGNAL(selectedColorChanged(QColor)),
-        SIGNAL(selectedColorChanged(QColor)));
     connect(m_inspectorClient, SIGNAL(logActivity(QString,QString)),
             m_adapter.data(), SLOT(logServiceActivity(QString,QString)));
 
@@ -607,12 +603,6 @@ void ClientProxy::setAnimationPaused(bool paused)
 {
     if (isConnected())
         m_inspectorClient->setAnimationPaused(paused);
-}
-
-void ClientProxy::changeToColorPickerTool()
-{
-    if (isConnected())
-        m_inspectorClient->changeToColorPickerTool();
 }
 
 void ClientProxy::changeToZoomTool()

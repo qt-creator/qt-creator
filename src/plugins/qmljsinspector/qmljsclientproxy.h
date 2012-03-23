@@ -108,7 +108,6 @@ signals:
     void connected();
     void disconnected();
 
-    void colorPickerActivated();
     void selectToolActivated();
     void selectMarqueeToolActivated();
     void zoomToolActivated();
@@ -117,7 +116,6 @@ signals:
     void designModeBehaviorChanged(bool inDesignMode);
     void showAppOnTopChanged(bool showAppOnTop);
     void serverReloaded();
-    void selectedColorChanged(const QColor &color);
     void propertyChanged(int debugId, const QByteArray &propertyName, const QVariant &propertyValue);
 
     void result(quint32 queryId, const QVariant &result);
@@ -130,7 +128,6 @@ public slots:
     void setDesignModeBehavior(bool inDesignMode);
     void setAnimationSpeed(qreal slowDownFactor);
     void setAnimationPaused(bool paused);
-    void changeToColorPickerTool();
     void changeToZoomTool();
     void changeToSelectTool();
     void changeToSelectMarqueeTool();
