@@ -503,7 +503,7 @@ void CppPreprocessor::passedMacroDefinitionCheck(unsigned offset, const Macro &m
         return;
 
     m_currentDoc->addMacroUse(macro, offset, macro.name().length(), env.currentLine,
-                              QVector<MacroArgumentReference>(), true);
+                              QVector<MacroArgumentReference>());
 }
 
 void CppPreprocessor::failedMacroDefinitionCheck(unsigned offset, const QByteArray &name)
@@ -517,7 +517,6 @@ void CppPreprocessor::failedMacroDefinitionCheck(unsigned offset, const QByteArr
 void CppPreprocessor::startExpandingMacro(unsigned offset,
                                           const Macro &macro,
                                           const QByteArray &originalText,
-                                          bool inCondition,
                                           const QVector<MacroArgumentReference> &actuals)
 {
     if (! m_currentDoc)
@@ -525,7 +524,7 @@ void CppPreprocessor::startExpandingMacro(unsigned offset,
 
     //qDebug() << "start expanding:" << macro.name() << "text:" << originalText;
     m_currentDoc->addMacroUse(macro, offset, originalText.length(), env.currentLine,
-                              actuals, inCondition);
+                              actuals);
 }
 
 void CppPreprocessor::stopExpandingMacro(unsigned, const Macro &)
@@ -600,7 +599,9 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type, unsigned
         }
     }
 
-    //qDebug() << "parse file:" << fileName << "contents:" << contents.size();
+//    qDebug() << "parse file:" << fileName
+//             << "contents:" << contents.size()
+//                ;
 
     Document::Ptr doc = snapshot.document(fileName);
     if (doc) {
@@ -619,6 +620,8 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type, unsigned
     Document::Ptr previousDoc = switchDocument(doc);
 
     const QByteArray preprocessedCode = preprocess(fileName, contents);
+
+//    { QByteArray b(preprocessedCode); b.replace("\n", "<<<\n"); qDebug("Preprocessed code for \"%s\": [[%s]]", fileName.toUtf8().constData(), b.constData()); }
 
     doc->setUtf8Source(preprocessedCode);
     doc->keepSourceAndAST();

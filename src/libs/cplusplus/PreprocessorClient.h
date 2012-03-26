@@ -75,7 +75,7 @@ public:
 
 public:
   Client();
-  virtual ~Client();
+  virtual ~Client() = 0;
 
   virtual void macroAdded(const Macro &macro) = 0;
 
@@ -85,13 +85,13 @@ public:
   virtual void startExpandingMacro(unsigned offset,
                                    const Macro &macro,
                                    const QByteArray &originalText,
-                                   bool inCondition = false,
                                    const QVector<MacroArgumentReference> &actuals
                                             = QVector<MacroArgumentReference>()) = 0;
 
   virtual void stopExpandingMacro(unsigned offset,
                                   const Macro &macro) = 0;
 
+  /// Start skipping from the given offset.
   virtual void startSkippingBlocks(unsigned offset) = 0;
   virtual void stopSkippingBlocks(unsigned offset) = 0;
 

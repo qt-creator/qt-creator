@@ -77,8 +77,7 @@ public:
 
     void appendMacro(const Macro &macro);
     void addMacroUse(const Macro &macro, unsigned offset, unsigned length,
-                     unsigned beginLine, const QVector<MacroArgumentReference> &range,
-                     bool inCondition);
+                     unsigned beginLine, const QVector<MacroArgumentReference> &range);
     void addUndefinedMacroUse(const QByteArray &name, unsigned offset);
 
     Control *control() const;
@@ -247,7 +246,6 @@ public:
     class MacroUse: public Block {
         Macro _macro;
         QVector<Block> _arguments;
-        bool _inCondition;
         unsigned _beginLine;
 
     public:
@@ -255,7 +253,6 @@ public:
                         unsigned begin, unsigned end, unsigned beginLine)
             : Block(begin, end),
               _macro(macro),
-              _inCondition(false),
               _beginLine(beginLine)
         { }
 
@@ -268,9 +265,6 @@ public:
         QVector<Block> arguments() const
         { return _arguments; }
 
-        bool isInCondition() const
-        { return _inCondition; }
-
         unsigned beginLine() const
         { return _beginLine; }
 
@@ -280,9 +274,6 @@ public:
 
         void addArgument(const Block &block)
         { _arguments.append(block); }
-
-        void setInCondition(bool set)
-        { _inCondition = set; }
 
         friend class Document;
     };

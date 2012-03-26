@@ -103,7 +103,7 @@ public:
 class Operation: public CppQuickFixOperation
 {
 public:
-    Operation(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface,
+    Operation(const QSharedPointer<const CppEditor::Internal::CppQuickFixAssistInterface> &interface,
               int priority,
               CompoundStatementAST *compoundStatement,
               const QStringList &values)
@@ -156,7 +156,7 @@ static Enum *findEnum(const QList<LookupItem> &results,
     return 0;
 }
 
-static Enum *conditionEnum(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface,
+static Enum *conditionEnum(const QSharedPointer<const CppEditor::Internal::CppQuickFixAssistInterface> &interface,
                            SwitchStatementAST *statement)
 {
     Block *block = statement->symbol;

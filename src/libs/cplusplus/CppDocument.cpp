@@ -198,6 +198,8 @@ protected:
 };
 
 
+#define DO_NOT_DUMP_ALL_PARSER_ERRORS
+
 class DocumentDiagnosticClient : public DiagnosticClient
 {
     enum { MAX_MESSAGE_COUNT = 10 };
@@ -217,8 +219,10 @@ public:
         if (level == Error) {
             ++errorCount;
 
+#ifdef DO_NOT_DUMP_ALL_PARSER_ERRORS
             if (errorCount >= MAX_MESSAGE_COUNT)
                 return; // ignore the error
+#endif // DO_NOT_DUMP_ALL_PARSER_ERRORS
         }
 
         const QString fileName = QString::fromUtf8(fileId->chars(), fileId->size());
@@ -228,6 +232,16 @@ public:
 
         QString message;
         message.vsprintf(format, ap);
+
+#ifndef DO_NOT_DUMP_ALL_PARSER_ERRORS
+        {
+            const char *levelStr = "Unknown level";
+            if (level == Document::DiagnosticMessage::Warning) levelStr = "Warning";
+            if (level == Document::DiagnosticMessage::Error) levelStr = "Error";
+            if (level == Document::DiagnosticMessage::Fatal) levelStr = "Fatal";
+            qDebug("%s:%u:%u: %s: %s", fileId->chars(), line, column, levelStr, message.toUtf8().constData());
+        }
+#endif // DO_NOT_DUMP_ALL_PARSER_ERRORS
 
         Document::DiagnosticMessage m(convertLevel(level), doc->fileName(),
                                       line, column, message);
@@ -341,10 +355,9 @@ void Document::appendMacro(const Macro &macro)
 
 void Document::addMacroUse(const Macro &macro, unsigned offset, unsigned length,
                            unsigned beginLine,
-                           const QVector<MacroArgumentReference> &actuals, bool inCondition)
+                           const QVector<MacroArgumentReference> &actuals)
 {
     MacroUse use(macro, offset, offset + length, beginLine);
-    use.setInCondition(inCondition);
 
     foreach (const MacroArgumentReference &actual, actuals) {
         const Block arg(actual.position(), actual.position() + actual.length());

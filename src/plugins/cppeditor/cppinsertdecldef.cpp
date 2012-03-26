@@ -64,7 +64,7 @@ namespace {
 class InsertDeclOperation: public CppQuickFixOperation
 {
 public:
-    InsertDeclOperation(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface,
+    InsertDeclOperation(const QSharedPointer<const CppEditor::Internal::CppQuickFixAssistInterface> &interface,
                         const QString &targetFileName, const Class *targetSymbol,
                         InsertionPointLocator::AccessSpec xsSpec,
                         const QString &decl)
@@ -229,7 +229,7 @@ namespace {
 class InsertDefOperation: public CppQuickFixOperation
 {
 public:
-    InsertDefOperation(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface,
+    InsertDefOperation(const QSharedPointer<const CppEditor::Internal::CppQuickFixAssistInterface> &interface,
                        Declaration *decl, const InsertionLocation &loc)
         : CppQuickFixOperation(interface, 0)
         , m_decl(decl)

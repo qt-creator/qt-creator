@@ -51,9 +51,9 @@ HEADERS += \
     $$PWD/pp.h \
     $$PWD/pp-cctype.h \
     $$PWD/pp-engine.h \
-    $$PWD/pp-macro-expander.h \
     $$PWD/pp-scanner.h \
-    $$PWD/findcdbbreakpoint.h
+    $$PWD/findcdbbreakpoint.h \
+    $$PWD/PPToken.h
 
 SOURCES += \
     $$PWD/SimpleLexer.cpp \
@@ -78,8 +78,8 @@ SOURCES += \
     $$PWD/FastPreprocessor.cpp \
     $$PWD/Macro.cpp \
     $$PWD/pp-engine.cpp \
-    $$PWD/pp-macro-expander.cpp \
     $$PWD/pp-scanner.cpp \
-    $$PWD/findcdbbreakpoint.cpp
+    $$PWD/findcdbbreakpoint.cpp \
+    $$PWD/PPToken.cpp
 
 RESOURCES += $$PWD/cplusplus.qrc

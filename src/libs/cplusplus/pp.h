@@ -56,7 +56,6 @@
 #include "PreprocessorClient.h"
 #include "PreprocessorEnvironment.h"
 #include "pp-scanner.h"
-#include "pp-macro-expander.h"
 #include "pp-engine.h"
 
 #endif // CPLUSPLUS_PREPROCESSOR_H

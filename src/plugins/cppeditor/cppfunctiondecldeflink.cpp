@@ -993,7 +993,7 @@ class ApplyDeclDefLinkOperation : public CppQuickFixOperation
 {
 public:
     explicit ApplyDeclDefLinkOperation(
-            const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface,
+            const QSharedPointer<const CppEditor::Internal::CppQuickFixAssistInterface> &interface,
             const QSharedPointer<FunctionDeclDefLink> &link)
         : CppQuickFixOperation(interface, 10)
         , m_link(link)

@@ -52,29 +52,39 @@
 #ifndef CPLUSPLUS_PP_ENGINE_H
 #define CPLUSPLUS_PP_ENGINE_H
 
+#include "PPToken.h"
 #include "PreprocessorClient.h"
-#include "pp-macro-expander.h"
 
+#include <Lexer.h>
 #include <Token.h>
 #include <QVector>
 #include <QBitArray>
+#include <QByteArray>
 
 namespace CPlusPlus {
 
-struct Value;
 class Environment;
+
+namespace Internal {
+class PPToken;
+struct TokenBuffer;
+struct Value;
+}
 
 class CPLUSPLUS_EXPORT Preprocessor
 {
+    typedef Internal::PPToken PPToken;
+    typedef Internal::Value Value;
+
 public:
     Preprocessor(Client *client, Environment *env);
 
     QByteArray operator()(const QString &filename, const QString &source);
-    QByteArray operator()(const QString &filename, const QByteArray &source);
+    QByteArray operator()(const QString &filename, const QByteArray &source, bool noLines = false, bool markGeneratedTokens = true);
 
     void preprocess(const QString &filename,
                     const QByteArray &source,
-                    QByteArray *result);
+                    QByteArray *result, bool noLines, bool markGeneratedTokens, bool inCondition);
 
     bool expandMacros() const;
     void setExpandMacros(bool expandMacros);
@@ -85,126 +95,101 @@ public:
 private:
     enum { MAX_LEVEL = 512 };
 
-    enum PP_DIRECTIVE_TYPE
-    {
-        PP_UNKNOWN_DIRECTIVE,
-        PP_DEFINE,
-        PP_IMPORT,
-        PP_INCLUDE,
-        PP_INCLUDE_NEXT,
-        PP_ELIF,
-        PP_ELSE,
-        PP_ENDIF,
-        PP_IF,
-        PP_IFDEF,
-        PP_IFNDEF,
-        PP_UNDEF
-    };
-
-    typedef const CPlusPlus::Token *TokenIterator;
-
     struct State {
-        QByteArray source;
-        QVector<CPlusPlus::Token> tokens;
-        TokenIterator dot;
+        State();
+
+        QString m_currentFileName;
+
+        QByteArray m_source;
+        Lexer *m_lexer;
+        QBitArray m_skipping;
+        QBitArray m_trueTest;
+        int m_ifLevel;
+        Internal::TokenBuffer *m_tokenBuffer;
+        bool m_inPreprocessorDirective;
+
+        QByteArray *m_result;
+        bool m_markGeneratedTokens;
+
+        bool m_noLines;
+        bool m_inCondition;
+        bool m_inDefine;
     };
 
-    bool markGeneratedTokens(bool markGeneratedTokens, TokenIterator dot = 0);
-    bool markGeneratedTokens(bool markGeneratedTokens, int position, int extraLines=0, bool newline=false);
+    void handleDefined(PPToken *tk);
+    void pushToken(PPToken *tk);
+    void lex(PPToken *tk);
+    void skipPreprocesorDirective(PPToken *tk);
+    bool handleIdentifier(PPToken *tk);
+    bool handleFunctionLikeMacro(PPToken *tk, const Macro *macro, QVector<PPToken> &body, bool addWhitespaceMarker);
 
-    QByteArray expand(const QByteArray &source);
-    void expand(const QByteArray &source, QByteArray *result);
-    void expand(const char *first, const char *last, QByteArray *result);
-    void expandBuiltinMacro(TokenIterator identifierToken,
-                            const QByteArray &spell);
-    void expandObjectLikeMacro(TokenIterator identifierToken,
-                               const QByteArray &spell,
-                               Macro *m, QByteArray *result);
-    void expandFunctionLikeMacro(TokenIterator identifierToken, Macro *m,
-                                 const QVector<MacroArgumentReference> &actuals);
-
-    void resetIfLevel();
-    bool testIfLevel();
-    int skipping() const;
-
-    PP_DIRECTIVE_TYPE classifyDirective(const QByteArray &directive) const;
-
-    Value evalExpression(TokenIterator firstToken,
-                         TokenIterator lastToken,
-                         const QByteArray &source) const;
+    bool skipping() const
+    { return m_state.m_skipping[m_state.m_ifLevel]; }
 
     QVector<CPlusPlus::Token> tokenize(const QByteArray &text) const;
 
-    const char *startOfToken(const CPlusPlus::Token &token) const;
-    const char *endOfToken(const CPlusPlus::Token &token) const;
+    bool collectActualArguments(PPToken *tk, QVector<QVector<PPToken> > *actuals);
+    void scanActualArgument(PPToken *tk, QVector<PPToken> *tokens);
 
-    QByteArray tokenSpell(const CPlusPlus::Token &token) const;
-    QByteArray tokenText(const CPlusPlus::Token &token) const; // does a deep copy
+    void handlePreprocessorDirective(PPToken *tk);
+    void handleIncludeDirective(PPToken *tk);
+    void handleDefineDirective(PPToken *tk);
+    QByteArray expand(PPToken *tk, PPToken *lastConditionToken = 0);
+    const Internal::PPToken evalExpression(PPToken *tk, Value &result);
+    void handleIfDirective(PPToken *tk);
+    void handleElifDirective(PPToken *tk, const PPToken &poundToken);
+    void handleElseDirective(PPToken *tk, const PPToken &poundToken);
+    void handleEndIfDirective(PPToken *tk, const PPToken &poundToken);
+    void handleIfDefDirective(bool checkUndefined, PPToken *tk);
+    void handleUndefDirective(PPToken *tk);
 
-    void collectActualArguments(QVector<MacroArgumentReference> *actuals);
-    MacroArgumentReference collectOneActualArgument();
+    static bool isQtReservedWord(const Internal::ByteArrayRef &name);
 
-    void processNewline(bool force = false, int extraLines = 0);
-
-    void processSkippingBlocks(bool skippingBlocks,
-                               TokenIterator dot, TokenIterator lastToken);
-
-    Macro *processObjectLikeMacro(TokenIterator identifierToken,
-                                  const QByteArray &spell,
-                                  Macro *m);
-
-    void processDirective(TokenIterator dot, TokenIterator lastToken);
-    void processInclude(bool skipCurrentPath,
-                        TokenIterator dot, TokenIterator lastToken,
-                        bool acceptMacros = true);
-    void processDefine(TokenIterator dot, TokenIterator lastToken);
-    void processIf(TokenIterator dot, TokenIterator lastToken);
-    void processElse(TokenIterator dot, TokenIterator lastToken);
-    void processElif(TokenIterator dot, TokenIterator lastToken);
-    void processEndif(TokenIterator dot, TokenIterator lastToken);
-    void processIfdef(bool checkUndefined,
-                      TokenIterator dot, TokenIterator lastToken);
-    void processUndef(TokenIterator dot, TokenIterator lastToken);
-
-    bool isQtReservedWord(const QByteArray &name) const;
-
-    State state() const;
-    void pushState(const State &state);
+    void pushState(const State &newState);
     void popState();
 
-    State createStateFromSource(const QByteArray &source) const;
+    State createStateFromSource(const QString &fileName, const QByteArray &source, QByteArray *result, bool noLines, bool markGeneratedTokens, bool inCondition) const;
 
-    void out(const QByteArray &text);
-    void out(char ch);
-    void out(const char *s);
+    inline bool atStartOfOutputLine() const
+    { return (m_state.m_result && !m_state.m_result->isEmpty()) ? m_state.m_result->end()[-1] == '\n' : true; }
+
+    inline void startNewOutputLine() const
+    {
+        if (m_state.m_result && !m_state.m_result->isEmpty() && m_state.m_result->end()[-1] != '\n')
+            out('\n');
+    }
+
+    inline void out(const QByteArray &text) const
+    { if (m_state.m_result) m_state.m_result->append(text); }
+
+    inline void out(char ch) const
+    { if (m_state.m_result) m_state.m_result->append(ch); }
+
+    inline void out(const char *s) const
+    { if (m_state.m_result) m_state.m_result->append(s); }
+
+    inline void out(const Internal::ByteArrayRef &ref) const
+    { if (m_state.m_result) m_state.m_result->append(ref.start(), ref.length()); }
 
     QString string(const char *first, int len) const;
-    bool maybeAfterComment() const;
 
-    bool maybeMultilineToken(TokenIterator tok);
-    void skipToNextLine();
+    PPToken generateToken(enum Kind kind, const Internal::ByteArrayRef &content, unsigned lineno, bool addQuotes);
+    PPToken generateConcatenated(const PPToken &leftTk, const PPToken &rightTk);
+
+    void startSkippingBlocks(const PPToken &tk) const;
 
 private:
-    Client *client;
-    Environment *env;
-    MacroExpander _expand;
+    Client *m_client;
+    Environment *m_env;
+    QByteArray m_scratchBuffer;
 
-    QBitArray _skipping; // ### move in state
-    QBitArray _trueTest; // ### move in state
-    int iflevel; // ### move in state
+    QList<State> m_savedStates;
 
-    QList<State> _savedStates;
+    QString m_originalSource;
+    bool m_expandMacros;
+    bool m_keepComments;
 
-    QByteArray _source;
-    QVector<CPlusPlus::Token> _tokens;
-    TokenIterator _dot;
-
-    QByteArray *_result;
-    bool _markGeneratedTokens;
-
-    QString _originalSource;
-    bool _expandMacros;
-    bool _keepComments;
+    State m_state;
 };
 
 } // namespace CPlusPlus

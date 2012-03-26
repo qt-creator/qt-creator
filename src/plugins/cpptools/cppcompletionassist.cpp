@@ -79,7 +79,7 @@
 using namespace CPlusPlus;
 using namespace CppEditor;
 using namespace CppTools;
-using namespace Internal;
+using namespace CppTools::Internal;
 using namespace TextEditor;
 
 namespace CppTools {

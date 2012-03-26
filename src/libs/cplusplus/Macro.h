@@ -52,6 +52,8 @@
 #ifndef CPLUSPLUS_PP_MACRO_H
 #define CPLUSPLUS_PP_MACRO_H
 
+#include "PPToken.h"
+
 #include <CPlusPlusForwardDeclarations.h>
 
 #include <QByteArray>
@@ -60,8 +62,12 @@
 
 namespace CPlusPlus {
 
+class Environment;
+
 class CPLUSPLUS_EXPORT Macro
 {
+    typedef Internal::PPToken PPToken;
+
 public:
     Macro();
 
@@ -71,13 +77,16 @@ public:
     void setName(const QByteArray &name)
     { _name = name; }
 
-    QByteArray definition() const
-    { return _definition; }
+    const QByteArray definitionText() const
+    { return _definitionText; }
 
-    void setDefinition(const QByteArray &definition)
-    { _definition = definition; }
+    const QVector<PPToken> &definitionTokens() const
+    { return _definitionTokens; }
 
-    QVector<QByteArray> formals() const
+    void setDefinition(const QByteArray &definitionText, const QVector<PPToken> &definitionTokens)
+    { _definitionText = definitionText; _definitionTokens = definitionTokens; }
+
+    const QVector<QByteArray> &formals() const
     { return _formals; }
 
     void addFormal(const QByteArray &formal)
@@ -125,16 +134,11 @@ public:
     void setVariadic(bool isVariadic)
     { f._variadic = isVariadic; }
 
-    void setLineBreaks(const QList<unsigned> &breaks)
-    { _lineBreaks = breaks; }
-
-    const QList<unsigned> &lineBreaks() const
-    { return _lineBreaks; }
-
     QString toString() const;
     QString toStringWithLineBreaks() const;
 
-// ### private
+private:
+    friend class Environment;
     Macro *_next;
     unsigned _hashcode;
 
@@ -149,10 +153,10 @@ private:
     };
 
     QByteArray _name;
-    QByteArray _definition;
+    QByteArray _definitionText;
+    QVector<PPToken> _definitionTokens;
     QVector<QByteArray> _formals;
     QString _fileName;
-    QList<unsigned> _lineBreaks;
     unsigned _line;
     unsigned _offset;
     unsigned _length;

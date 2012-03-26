@@ -303,7 +303,6 @@ protected:
     virtual void startExpandingMacro(unsigned offset,
                                      const CPlusPlus::Macro &macro,
                                      const QByteArray &originalText,
-                                     bool inCondition,
                                      const QVector<CPlusPlus::MacroArgumentReference> &actuals);
     virtual void stopExpandingMacro(unsigned offset, const CPlusPlus::Macro &macro);
     virtual void startSkippingBlocks(unsigned offset);
