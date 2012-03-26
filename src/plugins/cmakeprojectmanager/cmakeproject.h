@@ -48,9 +48,12 @@
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <QXmlStreamReader>
-#include <QFileSystemWatcher>
 #include <QPushButton>
 #include <QLineEdit>
+
+QT_BEGIN_NAMESPACE
+class QFileSystemWatcher;
+QT_END_NAMESPACE
 
 namespace CMakeProjectManager {
 namespace Internal {

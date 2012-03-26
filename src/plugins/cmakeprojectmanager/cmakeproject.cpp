@@ -62,6 +62,7 @@
 #include <QFormLayout>
 #include <QMainWindow>
 #include <QInputDialog>
+#include <QFileSystemWatcher>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
