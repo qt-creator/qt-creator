@@ -83,14 +83,13 @@ QtMessageLogWindow::QtMessageLogWindow(QWidget *parent)
     statusbarContainer->setFixedHeight(statusBarHeight);
     QHBoxLayout *hbox = new QHBoxLayout(statusbarContainer);
     hbox->setMargin(0);
+    hbox->setSpacing(5);
+    hbox->addSpacing(5);
 
-    const int spacing = 7;
     //Status Label
     m_statusLabel = new Utils::StatusLabel;
-    hbox->addSpacing(spacing);
     hbox->addWidget(m_statusLabel);
     hbox->addWidget(new Utils::StyledSeparator);
-    hbox->addSpacing(spacing);
 
     const int buttonWidth = 25;
     //Filters
@@ -105,7 +104,6 @@ QtMessageLogWindow::QtMessageLogWindow(QWidget *parent)
     m_showLogAction->setIcon(QIcon(_(":/debugger/images/log.png")));
     button->setDefaultAction(m_showLogAction);
     hbox->addWidget(button);
-    hbox->addSpacing(spacing);
 
     button = new QToolButton(this);
     button->setAutoRaise(true);
@@ -118,7 +116,6 @@ QtMessageLogWindow::QtMessageLogWindow(QWidget *parent)
     m_showWarningAction->setIcon(QIcon(_(":/debugger/images/warning.png")));
     button->setDefaultAction(m_showWarningAction);
     hbox->addWidget(button);
-    hbox->addSpacing(spacing);
 
     button = new QToolButton(this);
     button->setAutoRaise(true);
@@ -131,7 +128,7 @@ QtMessageLogWindow::QtMessageLogWindow(QWidget *parent)
     m_showErrorAction->setIcon(QIcon(_(":/debugger/images/error.png")));
     button->setDefaultAction(m_showErrorAction);
     hbox->addWidget(button);
-    hbox->addSpacing(spacing);
+    hbox->addWidget(new Utils::StyledSeparator);
 
     //Clear Button
     button = new QToolButton;
@@ -141,7 +138,7 @@ QtMessageLogWindow::QtMessageLogWindow(QWidget *parent)
     m_clearAction->setIcon(QIcon(_(Core::Constants::ICON_CLEAN_PANE)));
     button->setDefaultAction(m_clearAction);
     hbox->addWidget(button);
-    hbox->addSpacing(spacing);
+    hbox->addWidget(new Utils::StyledSeparator);
 
     m_treeView = new QtMessageLogView(this);
     m_treeView->setSizePolicy(QSizePolicy::MinimumExpanding,
