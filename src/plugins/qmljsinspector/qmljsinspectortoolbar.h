@@ -113,12 +113,8 @@ private slots:
 
     void updatePlayAction();
 
-    void activeDebugLanguagesChanged(Debugger::DebuggerLanguages languages);
-
 private:
     void updateDesignModeActions(DesignTool activeTool);
-
-    QToolButton *m_operateByInstructionButton;
 
     Utils::SavedAction *m_fromQmlAction;
     QAction *m_playAction;
@@ -140,7 +136,7 @@ private:
     bool m_designModeActive;
     DesignTool m_activeTool;
 
-    Utils::StyledBar *m_barWidget;
+    QWidget *m_barWidget;
 };
 
 } // namespace Internal

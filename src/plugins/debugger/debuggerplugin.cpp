@@ -2341,6 +2341,8 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_attachToRemoteServerAction->setEnabled(true);
     m_attachToRemoteProcessAction->setEnabled(true);
 
+    m_threadBox->setEnabled(state == InferiorStopOk);
+
     const bool isCore = engine->startParameters().startMode == AttachCore;
     const bool stopped = state == InferiorStopOk;
     const bool detachable = stopped && !isCore;
@@ -3455,9 +3457,9 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     hbox->addWidget(m_threadBox);
     hbox->addSpacerItem(new QSpacerItem(4, 0));
-    hbox->addWidget(m_statusLabel, 10);
 
     m_mainWindow->setToolBar(CppLanguage, toolbarContainer);
+    m_mainWindow->setToolBar(AnyLanguage, m_statusLabel);
 
     connect(action(EnableReverseDebugging),
         SIGNAL(valueChanged(QVariant)),

@@ -202,9 +202,7 @@ void QmlJsInspectorToolBar::createActions()
     am->registerAction(m_fromQmlAction, Constants::FROM_QML_ACTION, context);
     am->registerAction(m_showAppOnTopAction, Constants::SHOW_APP_ON_TOP_ACTION, context);
 
-    m_barWidget = new Utils::StyledBar;
-    m_barWidget->setSingleRow(true);
-    m_barWidget->setProperty("topBorder", true);
+    m_barWidget = new QWidget;
 
     QMenu *playSpeedMenu = new QMenu(m_barWidget);
     m_playSpeedMenuActions = new QActionGroup(this);
@@ -239,19 +237,7 @@ void QmlJsInspectorToolBar::createActions()
     toolBarLayout->setMargin(0);
     toolBarLayout->setSpacing(5);
 
-    m_operateByInstructionButton = toolButton(am->command(Debugger::Constants::OPERATE_BY_INSTRUCTION)->action());
-
-    // Add generic debugging controls
-    toolBarLayout->addWidget(toolButton(Debugger::DebuggerPlugin::visibleDebugAction()));
-    toolBarLayout->addWidget(toolButton(am->command(Debugger::Constants::STOP)->action()));
-    toolBarLayout->addWidget(toolButton(am->command(Debugger::Constants::NEXT)->action()));
-    toolBarLayout->addWidget(toolButton(am->command(Debugger::Constants::STEP)->action()));
-    toolBarLayout->addWidget(toolButton(am->command(Debugger::Constants::STEPOUT)->action()));
-    toolBarLayout->addWidget(m_operateByInstructionButton);
-    toolBarLayout->addStretch(1);
-
     // QML Helpers
-    toolBarLayout->addWidget(new Utils::StyledSeparator);
     toolBarLayout->addWidget(toolButton(am->command(Constants::FROM_QML_ACTION)->action()));
     toolBarLayout->addWidget(toolButton(am->command(Constants::SHOW_APP_ON_TOP_ACTION)->action()));
     m_playButton = toolButton(am->command(Constants::PLAY_ACTION)->action());
@@ -262,17 +248,13 @@ void QmlJsInspectorToolBar::createActions()
     toolBarLayout->addWidget(new Utils::StyledSeparator);
     toolBarLayout->addWidget(toolButton(am->command(Constants::SELECT_ACTION)->action()));
     toolBarLayout->addWidget(toolButton(am->command(Constants::ZOOM_ACTION)->action()));
+    toolBarLayout->addWidget(new Utils::StyledSeparator);
 
     connect(m_fromQmlAction, SIGNAL(triggered()), SLOT(activateFromQml()));
     connect(m_showAppOnTopAction, SIGNAL(triggered()), SLOT(showAppOnTopClick()));
     connect(m_playAction, SIGNAL(triggered()), SLOT(activatePlayOnClick()));
     connect(m_selectAction, SIGNAL(triggered(bool)), SLOT(selectToolTriggered(bool)));
     connect(m_zoomAction, SIGNAL(triggered(bool)), SLOT(zoomToolTriggered(bool)));
-
-    Debugger::DebuggerMainWindow *mw = Debugger::DebuggerPlugin::mainWindow();
-    activeDebugLanguagesChanged(mw->activeDebugLanguages());
-    connect(mw, SIGNAL(activeDebugLanguagesChanged(Debugger::DebuggerLanguages)),
-            this, SLOT(activeDebugLanguagesChanged(Debugger::DebuggerLanguages)));
 
     readSettings();
     connect(Core::ICore::instance(),
@@ -356,11 +338,6 @@ void QmlJsInspectorToolBar::activateFromQml()
 {
     if (m_emitSignals)
         emit applyChangesFromQmlFileTriggered(m_fromQmlAction->isChecked());
-}
-
-void QmlJsInspectorToolBar::activeDebugLanguagesChanged(Debugger::DebuggerLanguages languages)
-{
-    m_operateByInstructionButton->setVisible(languages & Debugger::CppLanguage);
 }
 
 void QmlJsInspectorToolBar::updateDesignModeActions(DesignTool activeTool)
