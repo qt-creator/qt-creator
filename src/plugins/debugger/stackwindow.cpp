@@ -121,11 +121,9 @@ static inline StackFrame inputFunctionForDisassembly()
 
 void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
-    QModelIndexList si = selectedIndices(ev);
-    QTC_ASSERT(si.size() == 1, return);
     DebuggerEngine *engine = currentEngine();
     StackHandler *handler = engine->stackHandler();
-    const QModelIndex index = si.at(0);
+    const QModelIndex index = indexAt(ev->pos());
     const int row = index.row();
     StackFrame frame;
     if (row >= 0 && row < handler->stackSize())
