@@ -476,6 +476,7 @@ void QmlProfilerTool::updateTimeDisplay()
 void QmlProfilerTool::clearData()
 {
     d->m_profilerDataModel->clear();
+    d->m_profilerConnections->discardPendingData();
 }
 
 void QmlProfilerTool::clearDisplay()

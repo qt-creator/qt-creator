@@ -123,6 +123,13 @@ void QmlProfilerClientManager::clearBufferedData()
         d->v8clientplugin.data()->clearData();
 }
 
+void QmlProfilerClientManager::discardPendingData()
+{
+    if (d->connection)
+        d->connection->flush();
+    clearBufferedData();
+}
+
 ////////////////////////////////////////////////////////////////
 // Internal
 void QmlProfilerClientManager::connectClient(quint16 port)

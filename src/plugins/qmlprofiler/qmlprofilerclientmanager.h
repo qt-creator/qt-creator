@@ -55,6 +55,7 @@ public:
     void setOstConnection(QString ostDevice);
 
     void clearBufferedData();
+    void discardPendingData();
 
 signals:
     void connectionFailed();
