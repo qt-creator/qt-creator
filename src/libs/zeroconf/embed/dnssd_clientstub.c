@@ -36,15 +36,15 @@
 #include "dnssd_ipc.h"
 
 namespace ZeroConf { namespace embeddedLib {
-#include "dns_sd_funct.h"
+#include "../dns_sd_funct.h"
 static int gDaemonErr = kDNSServiceErr_NoError;
         }}
 
 #if defined(_WIN32)
 
         #define _SSIZE_T
-        #include "embed/CommonServices.h"
-        #include "embed/DebugServices.h"
+        #include "CommonServices.h"
+        #include "DebugServices.h"
         #include <winsock2.h>
         #include <ws2tcpip.h>
         #include <windows.h>

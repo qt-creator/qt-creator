@@ -766,7 +766,7 @@
 	typedef uint32_t					uint_fast32_t;
 	typedef uint64_t					uint_fast64_t;
 
-	#if( !defined( _MSC_VER ) || TARGET_OS_WINDOWS_CE )
+	#if (( !defined( _MSC_VER ) || TARGET_OS_WINDOWS_CE ) && !defined( _WIN32 ) )
 		typedef long int				intptr_t;
 		typedef unsigned long int		uintptr_t;
 	#endif

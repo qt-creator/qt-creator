@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "dns_sd_types.h"
+#include "../dns_sd_types.h"
 
 #if MDNS_BUILDINGSHAREDLIBRARY || MDNS_BUILDINGSTUBLIBRARY
 //#pragma export on
@@ -49,7 +49,7 @@
  *********************************************************************************************/
 namespace ZeroConf { namespace embeddedLib {
 
-#include "dns_sd_funct.h"
+#include "../dns_sd_funct.h"
 
 #define mDNSIsDigit(X)     ((X) >= '0' && (X) <= '9')
 

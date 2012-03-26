@@ -29,7 +29,7 @@
 #ifndef DNSSD_IPC_H
 #define DNSSD_IPC_H
 
-#include "dns_sd_types.h"
+#include "../dns_sd_types.h"
 
 //
 // Common cross platform services
