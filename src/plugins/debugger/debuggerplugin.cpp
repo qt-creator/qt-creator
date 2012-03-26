@@ -1339,6 +1339,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         qulonglong pid = it->toULongLong();
         if (pid) {
             sp.startMode = AttachExternal;
+            sp.closeMode = DetachAtClose;
             sp.attachPID = pid;
             sp.displayName = tr("Process %1").arg(sp.attachPID);
             sp.startMessage = tr("Attaching to local process %1.").arg(sp.attachPID);
@@ -1560,6 +1561,7 @@ void DebuggerPluginPrivate::attachExternalApplication()
     sp.displayName = tr("Process %1").arg(dlg.attachPID());
     sp.executable = dlg.executable();
     sp.startMode = AttachExternal;
+    sp.closeMode = DetachAtClose;
     sp.toolChainAbi = dlg.abi();
     sp.debuggerCommand = dlg.debuggerCommand();
     if (DebuggerRunControl *rc = createDebugger(sp))
@@ -1572,6 +1574,7 @@ void DebuggerPluginPrivate::attachExternalApplication(RunControl *rc)
     sp.attachPID = rc->applicationProcessHandle().pid();
     sp.displayName = tr("Debugger attached to %1").arg(rc->displayName());
     sp.startMode = AttachExternal;
+    sp.closeMode = DetachAtClose;
     sp.toolChainAbi = rc->abi();
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
@@ -1617,6 +1620,7 @@ void DebuggerPluginPrivate::attachToRemoteServer(const QString &spec)
     sp.remoteArchitecture = spec.section(QLatin1Char('@'), 2, 2);
     sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
     sp.startMode = AttachToRemoteServer;
+    sp.closeMode = KillAtClose;
     sp.toolChainAbi = anyAbiOfBinary(sp.executable);
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
@@ -1630,6 +1634,7 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
     sp.toolChainAbi = Abi(hostAbi.architecture(), Abi::WindowsOS,
         Abi::WindowsMsvc2010Flavor, Abi::PEFormat, hostAbi.wordWidth());
     sp.startMode = AttachToRemoteServer;
+    sp.closeMode = KillAtClose;
     StartRemoteCdbDialog dlg(mainWindow());
     QString previousConnection = configValue(connectionKey).toString();
     if (previousConnection.isEmpty())
@@ -1666,6 +1671,7 @@ void DebuggerPluginPrivate::attachToRemoteServer()
     DebuggerStartParameters sp;
     if (StartRemoteDialog::run(mainWindow(), m_coreSettings, false, &sp)) {
         sp.startMode = AttachToRemoteServer;
+        sp.closeMode = KillAtClose;
         sp.useServerStartScript = false;
         sp.serverStartScript.clear();
         if (RunControl *rc = createDebugger(sp))
@@ -1742,6 +1748,7 @@ void DebuggerPluginPrivate::attachedToProcess(const QString &channel,
     sp.sysroot = sysroot;
     sp.executable = localExecutable;
     sp.startMode = AttachToRemoteServer;
+    sp.closeMode = KillAtClose;
     sp.overrideStartScript.clear();
     sp.useServerStartScript = false;
     sp.serverStartScript.clear();
@@ -1785,6 +1792,7 @@ void DebuggerPluginPrivate::attachToQmlPort()
     sp.sysroot = dlg.sysroot();
 
     sp.startMode = AttachToRemoteServer;
+    sp.closeMode = KillAtClose;
     sp.languages = QmlLanguage;
 
     //

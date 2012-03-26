@@ -67,6 +67,7 @@ public:
         useServerStartScript(false),
         requestRemoteSetup(false),
         startMode(NoStartMode),
+        closeMode(KillAtClose),
         executableUid(0),
         communicationChannel(CommunicationChannelTcpIp),
         serverPort(0),
@@ -125,6 +126,7 @@ public:
     QString dumperLibrary;
     QStringList dumperLibraryLocations;
     DebuggerStartMode startMode;
+    DebuggerCloseMode closeMode;
 
     // For Symbian debugging.
     quint32 executableUid;

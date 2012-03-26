@@ -75,7 +75,6 @@ public:
     virtual void setupInferior() = 0;
     virtual void runEngine() = 0;
     virtual void interruptInferior() = 0;
-    virtual void shutdownInferior() = 0;
     virtual void shutdownAdapter() = 0;
     virtual AbstractGdbProcess *gdbProc() = 0;
 

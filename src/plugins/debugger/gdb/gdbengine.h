@@ -264,7 +264,6 @@ private: ////////// Gdb Process Management //////////
     void handleNamespaceExtraction(const GdbResponse &response);
 
     void handleAdapterStarted();
-    void defaultInferiorShutdown(const char *cmd);
     void loadInitScript();
     void loadPythonDumpers();
     void pythonDumpersFailed();

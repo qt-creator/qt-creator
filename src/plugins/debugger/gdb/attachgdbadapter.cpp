@@ -116,11 +116,6 @@ void AttachGdbAdapter::interruptInferior()
     interruptLocalInferior(startParameters().attachPID);
 }
 
-void AttachGdbAdapter::shutdownInferior()
-{
-    m_engine->defaultInferiorShutdown("detach");
-}
-
 void AttachGdbAdapter::shutdownAdapter()
 {
     m_engine->notifyAdapterShutdownOk();

@@ -114,7 +114,6 @@ private:
     void setupInferior();
     void runEngine();
     void interruptInferior();
-    void shutdownInferior();
     void shutdownAdapter();
     void sendRunControlTerminateCommand();
     void handleRunControlTerminate(const Coda::CodaCommandResult &);

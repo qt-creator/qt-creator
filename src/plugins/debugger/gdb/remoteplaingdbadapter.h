@@ -55,7 +55,6 @@ private:
     void startAdapter();
     void setupInferior();
     void interruptInferior();
-    void shutdownInferior();
     void shutdownAdapter();
     void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
     void handleRemoteSetupFailed(const QString &reason);

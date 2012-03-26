@@ -58,7 +58,6 @@ private:
     void setupInferior();
     void runEngine();
     void interruptInferior();
-    void shutdownInferior();
     void shutdownAdapter();
 
     DumperHandling dumperHandling() const;

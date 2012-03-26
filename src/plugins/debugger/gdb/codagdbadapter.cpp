@@ -1237,11 +1237,6 @@ void CodaGdbAdapter::cleanup()
     }
 }
 
-void CodaGdbAdapter::shutdownInferior()
-{
-    m_engine->defaultInferiorShutdown("kill");
-}
-
 void CodaGdbAdapter::shutdownAdapter()
 {
     if (m_gdbProc.state() == QProcess::Running) {

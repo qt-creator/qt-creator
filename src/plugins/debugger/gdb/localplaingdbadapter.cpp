@@ -114,11 +114,6 @@ void LocalPlainGdbAdapter::runEngine()
     AbstractPlainGdbAdapter::runEngine();
 }
 
-void LocalPlainGdbAdapter::shutdownInferior()
-{
-    m_engine->defaultInferiorShutdown("kill");
-}
-
 void LocalPlainGdbAdapter::shutdownAdapter()
 {
     showMessage(_("PLAIN ADAPTER SHUTDOWN %1").arg(state()));

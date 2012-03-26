@@ -365,14 +365,6 @@ void RemoteGdbServerAdapter::handleInterruptInferior(const GdbResponse &response
     }
 }
 
-void RemoteGdbServerAdapter::shutdownInferior()
-{
-    if (m_engine->startParameters().startMode == AttachToRemoteServer)
-        m_engine->defaultInferiorShutdown("detach");
-    else
-        m_engine->defaultInferiorShutdown("kill");
-}
-
 void RemoteGdbServerAdapter::shutdownAdapter()
 {
     m_engine->notifyAdapterShutdownOk();

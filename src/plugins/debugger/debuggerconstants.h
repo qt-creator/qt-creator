@@ -134,6 +134,12 @@ enum DebuggerStartMode
     StartRemoteEngine      // Start ipc guest engine on other machine
 };
 
+enum DebuggerCloseMode
+{
+    KillAtClose,
+    DetachAtClose
+};
+
 enum DebuggerCapabilities
 {
     ReverseSteppingCapability = 0x1,

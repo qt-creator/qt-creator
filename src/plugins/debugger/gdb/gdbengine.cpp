@@ -1893,13 +1893,15 @@ void GdbEngine::shutdownInferior()
 {
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
     m_commandsToRunOnTemporaryBreak.clear();
-    m_gdbAdapter->shutdownInferior();
-}
-
-void GdbEngine::defaultInferiorShutdown(const char *cmd)
-{
-    QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
-    postCommand(cmd, NeedsStop | LosesChild, CB(handleInferiorShutdown));
+    switch (startParameters().closeMode) {
+        case KillAtClose:
+            postCommand("kill", NeedsStop | LosesChild, CB(handleInferiorShutdown));
+            break;
+        case DetachAtClose:
+            postCommand("detach", NeedsStop | LosesChild, CB(handleInferiorShutdown));
+            break;
+    }
+    QTC_ASSERT(false, notifyInferiorShutdownFailed());
 }
 
 void GdbEngine::handleInferiorShutdown(const GdbResponse &response)

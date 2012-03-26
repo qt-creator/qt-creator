@@ -210,11 +210,6 @@ void TermGdbAdapter::stubExited()
     m_engine->notifyEngineIll();
 }
 
-void TermGdbAdapter::shutdownInferior()
-{
-    m_engine->defaultInferiorShutdown("kill");
-}
-
 void TermGdbAdapter::shutdownAdapter()
 {
     m_engine->notifyAdapterShutdownOk();

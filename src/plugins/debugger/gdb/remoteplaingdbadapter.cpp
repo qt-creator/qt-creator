@@ -98,11 +98,6 @@ void RemotePlainGdbAdapter::handleApplicationOutput(const QByteArray &output)
     showMessage(QString::fromUtf8(output), AppOutput);
 }
 
-void RemotePlainGdbAdapter::shutdownInferior()
-{
-    m_engine->defaultInferiorShutdown("kill");
-}
-
 void RemotePlainGdbAdapter::shutdownAdapter()
 {
     m_engine->notifyAdapterShutdownOk();
