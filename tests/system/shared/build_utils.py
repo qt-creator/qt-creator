@@ -163,3 +163,25 @@ def selectBuildConfig(targetCount, currentTarget, configName):
         waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}",
                       "sourceFilesRefreshed(QStringList)")
     switchViewTo(ViewConstants.EDIT)
+
+def verifyBuildConfig(targetCount, currentTarget, shouldBeDebug=False, enableShadowBuild=False):
+    switchViewTo(ViewConstants.PROJECTS)
+    switchToBuildOrRunSettingsFor(targetCount, currentTarget, ProjectSettings.BUILD)
+    detailsButton = waitForObject(":scrollArea.Details_Utils::DetailsButton")
+    ensureChecked(detailsButton)
+    ensureChecked("{name='shadowBuildCheckBox' type='QCheckBox' visible='1'}", enableShadowBuild)
+    buildCfCombo = waitForObject("{type='QComboBox' name='buildConfigurationComboBox' visible='1' "
+                                 "container=':Qt Creator.scrollArea_QScrollArea'}")
+    if shouldBeDebug:
+        test.compare(buildCfCombo.currentText, 'Debug', "Verifying whether it's a debug build")
+    else:
+        test.compare(buildCfCombo.currentText, 'Release', "Verifying whether it's a release build")
+    try:
+        problemFound = waitForObject("{container=':Qt Creator.scrollArea_QScrollArea' type='QLabel' "
+                                     "name='problemLabel' visible='1'}", 1000)
+        if problemFound:
+            test.warning('%s' % problemFound.text)
+    except:
+        pass
+    clickButton(detailsButton)
+    switchViewTo(ViewConstants.EDIT)

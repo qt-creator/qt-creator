@@ -1,0 +1,62 @@
+source("../../shared/qtcreator.py")
+
+workingDir = None
+
+def main():
+    global workingDir
+    startApplication("qtcreator" + SettingsPath)
+    if not checkDebuggingLibrary("4.8.0", [QtQuickConstants.Targets.DESKTOP]):
+        test.fatal("Error while checking debugging libraries - leaving this test.")
+        invokeMenuItem("File", "Exit")
+        return
+    # using a temporary directory won't mess up a potentially existing
+    workingDir = tempDir()
+    projectName = createNewQtQuickApplication(workingDir, targets = QtQuickConstants.Targets.DESKTOP)
+    # wait for parsing to complete
+    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}",
+                  "sourceFilesRefreshed(QStringList)")
+    editor = waitForObject("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' "
+                           "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
+    if placeCursorToLine(editor, "MouseArea.*", True):
+        type(editor, '<Up>')
+        type(editor, '<Return>')
+        type(editor, 'Component.onCompleted: console.log("Break here")')
+        invokeMenuItem("File", "Save All")
+        filesAndLines = {
+                         "%s.QML.qml/%s.main\\.qml" % (projectName,projectName) : 'Component.onCompleted.*',
+                         "%s.Sources.main\\.cpp" % projectName : "viewer.setOrientation\\(.+\\);"
+                         }
+        test.log("Setting breakpoints")
+        result = setBreakpointsForCurrentProject(filesAndLines)
+        if result:
+            expectedBreakpointsOrder = [{"main.cpp":9}, {"main.qml":11}]
+            availableConfigs = iterateBuildConfigs(1, 0, ".*4\.8(\.\d+)?.*$(?<![Rr]elease)")
+            if not availableConfigs:
+                test.fatal("Haven't found a suitable Qt version (need Qt >= 4.8) - leaving without debugging.")
+            for config in availableConfigs:
+                test.log("Selecting '%s' as build config" % config)
+                selectBuildConfig(1, 0, config)
+                verifyBuildConfig(1, 0, True)
+                # explicitly build before start debugging for adding the executable as allowed program to WinFW
+                invokeMenuItem("Build", "Rebuild All")
+                waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}",
+                              "buildQueueFinished(bool)", 300000)
+                if not checkCompile():
+                    test.fatal("Compile had errors... Skipping current build config")
+                    continue
+                allowAppThroughWinFW(workingDir, projectName, False)
+                if not doSimpleDebugging(config, 2, expectedBreakpointsOrder):
+                    try:
+                        stopB = findObject(':Qt Creator.Stop_QToolButton')
+                        if stopB.enabled:
+                            clickButton(stopB)
+                    except:
+                        pass
+                deleteAppFromWinFW(workingDir, projectName, False)
+                # close application output window of current run to avoid mixing older output on the next run
+                ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
+                clickButton(waitForObject("{type='CloseButton' unnamed='1' visible='1' "
+                                          "window=':Qt Creator_Core::Internal::MainWindow'}"))
+        else:
+            test.fatal("Setting breakpoints failed - leaving without testing.")
+    invokeMenuItem("File", "Exit")
