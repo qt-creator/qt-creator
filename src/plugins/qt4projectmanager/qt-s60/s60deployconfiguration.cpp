@@ -41,14 +41,18 @@
 #include "qt4symbiantarget.h"
 #include "s60createpackagestep.h"
 #include "s60deploystep.h"
+#include "symbianidevice.h"
+#include "symbianidevicefactory.h"
 
 #include <utils/qtcassert.h>
 #include <symbianutils/symbiandevicemanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 
 #include <QFileInfo>
 
@@ -59,14 +63,8 @@ using namespace Qt4ProjectManager::Internal;
 namespace {
 const char S60_DC_PREFIX[] = "Qt4ProjectManager.S60DeployConfiguration.";
 
-const char SERIAL_PORT_NAME_KEY[] = "Qt4ProjectManager.S60DeployConfiguration.SerialPortName";
 const char INSTALLATION_DRIVE_LETTER_KEY[] = "Qt4ProjectManager.S60DeployConfiguration.InstallationDriveLetter";
 const char SILENT_INSTALL_KEY[] = "Qt4ProjectManager.S60DeployConfiguration.SilentInstall";
-const char DEVICE_ADDRESS_KEY[] = "Qt4ProjectManager.S60DeployConfiguration.DeviceAddress";
-const char DEVICE_PORT_KEY[] = "Qt4ProjectManager.S60DeployConfiguration.DevicePort";
-const char COMMUNICATION_CHANNEL_KEY[] = "Qt4ProjectManager.S60DeployConfiguration.CommunicationChannel";
-
-const char DEFAULT_CODA_TCP_PORT[] = "65029";
 
 QString pathFromId(const QString &id)
 {
@@ -82,15 +80,8 @@ QString pathFromId(const QString &id)
 S60DeployConfiguration::S60DeployConfiguration(Target *parent) :
     DeployConfiguration(parent,  QLatin1String(S60_DEPLOYCONFIGURATION_ID)),
     m_activeBuildConfiguration(0),
-#ifdef Q_OS_WIN
-    m_serialPortName(QLatin1String("COM5")),
-#else
-    m_serialPortName(QLatin1String(SymbianUtils::SymbianDeviceManager::linuxBlueToothDeviceRootC) + QLatin1Char('0')),
-#endif
     m_installationDrive('C'),
-    m_silentInstall(true),
-    m_devicePort(QLatin1String(DEFAULT_CODA_TCP_PORT)),
-    m_communicationChannel(CommunicationCodaSerialConnection)
+    m_silentInstall(true)
 {
     ctor();
 }
@@ -98,18 +89,18 @@ S60DeployConfiguration::S60DeployConfiguration(Target *parent) :
 S60DeployConfiguration::S60DeployConfiguration(Target *target, S60DeployConfiguration *source) :
     DeployConfiguration(target, source),
     m_activeBuildConfiguration(0),
-    m_serialPortName(source->m_serialPortName),
+    m_deviceId(source->m_deviceId),
     m_installationDrive(source->m_installationDrive),
-    m_silentInstall(source->m_silentInstall),
-    m_deviceAddress(source->m_deviceAddress),
-    m_devicePort(source->m_devicePort),
-    m_communicationChannel(source->m_communicationChannel)
+    m_silentInstall(source->m_silentInstall)
 {
     ctor();
 }
 
 void S60DeployConfiguration::ctor()
 {
+    ProjectExplorer::DeviceManager *dm = ProjectExplorer::DeviceManager::instance();
+    m_deviceId = dm->defaultDevice(Internal::SymbianIDeviceFactory::deviceType())->id();
+
     setDefaultDisplayName(defaultDisplayName());
     // TODO disable S60 Deploy Configuration while parsing
     // requires keeping track of the parsing state of the project
@@ -123,8 +114,7 @@ void S60DeployConfiguration::ctor()
 }
 
 S60DeployConfiguration::~S60DeployConfiguration()
-{
-}
+{ }
 
 ProjectExplorer::DeployConfigurationWidget *S60DeployConfiguration::configurationWidget() const
 {
@@ -179,6 +169,11 @@ QString S60DeployConfiguration::createPackageName(const QString &baseName) const
     name += isSigned() ? QLatin1String("") : QLatin1String("_unsigned");
     name += QLatin1String(".sis");
     return name;
+}
+
+SymbianIDevice *S60DeployConfiguration::device() const
+{
+    return dynamic_cast<SymbianIDevice *>(const_cast<ProjectExplorer::IDevice *>(ProjectExplorer::DeviceManager::instance()->find(m_deviceId).data()));
 }
 
 QStringList S60DeployConfiguration::packageFileNamesWithTargetInfo() const
@@ -303,12 +298,8 @@ void S60DeployConfiguration::updateActiveRunConfiguration(ProjectExplorer::RunCo
 QVariantMap S60DeployConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::DeployConfiguration::toMap());
-    map.insert(QLatin1String(SERIAL_PORT_NAME_KEY), m_serialPortName);
     map.insert(QLatin1String(INSTALLATION_DRIVE_LETTER_KEY), QChar(QLatin1Char(m_installationDrive)));
     map.insert(QLatin1String(SILENT_INSTALL_KEY), QVariant(m_silentInstall));
-    map.insert(QLatin1String(DEVICE_ADDRESS_KEY), QVariant(m_deviceAddress));
-    map.insert(QLatin1String(DEVICE_PORT_KEY), m_devicePort);
-    map.insert(QLatin1String(COMMUNICATION_CHANNEL_KEY), QVariant(m_communicationChannel));
 
     return map;
 }
@@ -328,14 +319,9 @@ bool S60DeployConfiguration::fromMap(const QVariantMap &map)
 {
     if (!DeployConfiguration::fromMap(map))
         return false;
-    m_serialPortName = map.value(QLatin1String(SERIAL_PORT_NAME_KEY)).toString().trimmed();
     m_installationDrive = map.value(QLatin1String(INSTALLATION_DRIVE_LETTER_KEY), QChar(QLatin1Char('C')))
                           .toChar().toAscii();
     m_silentInstall = map.value(QLatin1String(SILENT_INSTALL_KEY), QVariant(true)).toBool();
-    m_deviceAddress = map.value(QLatin1String(DEVICE_ADDRESS_KEY)).toString();
-    m_devicePort = map.value(QLatin1String(DEVICE_PORT_KEY), QString(QLatin1String(DEFAULT_CODA_TCP_PORT))).toString();
-    m_communicationChannel = static_cast<CommunicationChannel>(map.value(QLatin1String(COMMUNICATION_CHANNEL_KEY),
-                                                                         QVariant(CommunicationCodaSerialConnection)).toInt());
 
     setDefaultDisplayName(defaultDisplayName());
     return true;
@@ -344,20 +330,6 @@ bool S60DeployConfiguration::fromMap(const QVariantMap &map)
 Qt4SymbianTarget *S60DeployConfiguration::qt4Target() const
 {
     return static_cast<Qt4SymbianTarget *>(target());
-}
-
-QString S60DeployConfiguration::serialPortName() const
-{
-    return m_serialPortName;
-}
-
-void S60DeployConfiguration::setSerialPortName(const QString &name)
-{
-    const QString &candidate = name.trimmed();
-    if (m_serialPortName == candidate)
-        return;
-    m_serialPortName = candidate;
-    emit serialPortNameChanged();
 }
 
 char S60DeployConfiguration::installationDrive() const
@@ -381,48 +353,6 @@ bool S60DeployConfiguration::silentInstall() const
 void S60DeployConfiguration::setSilentInstall(bool silent)
 {
     m_silentInstall = silent;
-}
-
-QString S60DeployConfiguration::deviceAddress() const
-{
-    return m_deviceAddress;
-}
-
-void S60DeployConfiguration::setDeviceAddress(const QString &address)
-{
-    if (m_deviceAddress != address) {
-        m_deviceAddress = address;
-        emit deviceAddressChanged();
-    }
-}
-
-QString S60DeployConfiguration::devicePort() const
-{
-    return m_devicePort;
-}
-
-void S60DeployConfiguration::setDevicePort(const QString &port)
-{
-    if (m_devicePort != port) {
-        if (port.isEmpty()) //setup the default CODA's port
-            m_devicePort = QLatin1String(DEFAULT_CODA_TCP_PORT);
-        else
-            m_devicePort = port;
-        emit devicePortChanged();
-    }
-}
-
-S60DeployConfiguration::CommunicationChannel S60DeployConfiguration::communicationChannel() const
-{
-    return m_communicationChannel;
-}
-
-void S60DeployConfiguration::setCommunicationChannel(CommunicationChannel channel)
-{
-    if (m_communicationChannel != channel) {
-        m_communicationChannel = channel;
-        emit communicationChannelChanged();
-    }
 }
 
 void S60DeployConfiguration::setAvailableDeviceDrives(QList<DeviceDrive> drives)

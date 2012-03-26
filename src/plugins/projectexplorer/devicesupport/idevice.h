@@ -34,6 +34,8 @@
 
 #include <projectexplorer/projectexplorer_export.h>
 
+#include <coreplugin/id.h>
+
 #include <QSharedPointer>
 #include <QStringList>
 #include <QVariantMap>
@@ -42,8 +44,6 @@ QT_BEGIN_NAMESPACE
 class QDialog;
 class QWidget;
 QT_END_NAMESPACE
-
-namespace Core { class Id; }
 
 namespace ProjectExplorer {
 namespace Internal { class IDevicePrivate; }

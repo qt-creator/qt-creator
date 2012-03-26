@@ -75,6 +75,7 @@
 #include <qt4projectmanager/qt-s60/s60devicedebugruncontrol.h>
 #include <qt4projectmanager/qt-s60/s60devicerunconfiguration.h>
 #include <qt4projectmanager/qt-s60/s60deployconfiguration.h>
+#include <qt4projectmanager/qt-s60/symbianidevice.h>
 
 #include <QApplication>
 #include <QHBoxLayout>
@@ -253,9 +254,9 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
         if (Qt4ProjectManager::S60DeployConfiguration *deployConfig
                 = qobject_cast<Qt4ProjectManager::S60DeployConfiguration*>(
                     runConfiguration->target()->activeDeployConfiguration())) {
-            if (deployConfig->communicationChannel()
-                    == Qt4ProjectManager::S60DeployConfiguration::CommunicationCodaSerialConnection) {
-                d->m_profilerConnections->setOstConnection(deployConfig->serialPortName());
+            if (deployConfig->device()->communicationChannel()
+                    == Qt4ProjectManager::SymbianIDevice::CommunicationCodaSerialConnection) {
+                d->m_profilerConnections->setOstConnection(deployConfig->device()->serialPortName());
                 isTcpConnection = false;
             }
         }
@@ -352,7 +353,7 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
 
         sp.debuggeeArgs = rc4->commandLineArguments();
         sp.displayName = rc4->displayName();
-        sp.connParams.host = deployConf->deviceAddress();
+        sp.connParams.host = deployConf->device()->address();
         sp.connParams.port = rc4->debuggerAspect()->qmlDebugServerPort();
     } else {
         // What could that be?

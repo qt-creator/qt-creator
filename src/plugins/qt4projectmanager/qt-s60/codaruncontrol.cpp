@@ -34,6 +34,7 @@
 
 #include "s60deployconfiguration.h"
 #include "s60devicerunconfiguration.h"
+#include "symbianidevice.h"
 
 #include "codadevice.h"
 #include "codamessage.h"
@@ -75,13 +76,14 @@ CodaRunControl::CodaRunControl(RunConfiguration *runConfiguration, RunMode mode)
     QTC_ASSERT(s60runConfig, return);
     const S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(s60runConfig->target()->activeDeployConfiguration());
     QTC_ASSERT(activeDeployConf, return);
+    QTC_ASSERT(activeDeployConf->device(), return);
 
-    S60DeployConfiguration::CommunicationChannel channel = activeDeployConf->communicationChannel();
-    if (channel == S60DeployConfiguration::CommunicationCodaTcpConnection) {
-        m_address = activeDeployConf->deviceAddress();
-        m_port = activeDeployConf->devicePort().toInt();
-    } else if (channel == S60DeployConfiguration::CommunicationCodaSerialConnection) {
-        m_serialPort = activeDeployConf->serialPortName();
+    SymbianIDevice::CommunicationChannel channel = activeDeployConf->device()->communicationChannel();
+    if (channel == SymbianIDevice::CommunicationCodaTcpConnection) {
+        m_address = activeDeployConf->device()->address();
+        m_port = activeDeployConf->device()->port().toInt();
+    } else if (channel == SymbianIDevice::CommunicationCodaSerialConnection) {
+        m_serialPort = activeDeployConf->device()->serialPortName();
     } else {
         QTC_ASSERT(false, return);
     }

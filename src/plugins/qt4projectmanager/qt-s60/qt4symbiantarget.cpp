@@ -35,19 +35,17 @@
 #include "qt4project.h"
 #include "qt4nodes.h"
 #include "qt4buildconfiguration.h"
+#include "symbianidevice.h"
 
 #include "qt-s60/s60deployconfiguration.h"
 #include "qt-s60/s60emulatorrunconfiguration.h"
 #include "qt-s60/s60devicerunconfiguration.h"
 
-#include <coreplugin/coreconstants.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
-#include <symbianutils/symbiandevicemanager.h>
 #include <extensionsystem/pluginmanager.h>
-#include <QPainter>
 #include <QApplication>
 
 using namespace Qt4ProjectManager;
@@ -55,22 +53,14 @@ using namespace Qt4ProjectManager::Internal;
 
 Qt4SymbianTarget::Qt4SymbianTarget(Qt4Project *parent, const QString &id) :
     Qt4BaseTarget(parent, id),
-    m_connectedPixmap(QLatin1String(":/projectexplorer/images/ConnectionOn.png")),
-    m_disconnectedPixmap(QLatin1String(":/projectexplorer/images/ConnectionOff.png")),
     m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this))
 {
     setDisplayName(defaultDisplayName(id));
     setIcon(iconForId(id));
-    connect(this, SIGNAL(addedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
-            this, SLOT(onAddedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
-    connect(this, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
-            this, SLOT(updateToolTipAndIcon()));
 }
 
 Qt4SymbianTarget::~Qt4SymbianTarget()
-{
-
-}
+{ }
 
 QString Qt4SymbianTarget::defaultDisplayName(const QString &id)
 {
@@ -167,91 +157,8 @@ QList<ProjectExplorer::RunConfiguration *> Qt4SymbianTarget::runConfigurationsFo
     return result;
 }
 
-bool Qt4SymbianTarget::isSymbianConnectionAvailable(QString &tooltipText)
+ProjectExplorer::IDevice::ConstPtr Qt4SymbianTarget::currentDevice() const
 {
-    const S60DeployConfiguration *s60DeployConf = qobject_cast<S60DeployConfiguration *>(activeDeployConfiguration());
-    if (!s60DeployConf)
-        return false;
-    switch (s60DeployConf->communicationChannel()) {
-    case S60DeployConfiguration::CommunicationCodaSerialConnection: {
-        const SymbianUtils::SymbianDeviceManager *sdm = SymbianUtils::SymbianDeviceManager::instance();
-        const int deviceIndex = sdm->findByPortName(s60DeployConf->serialPortName());
-        if (deviceIndex == -1) {
-            tooltipText = tr("<b>Device:</b> Not connected");
-            return false;
-        } else {
-            // device connected
-            const SymbianUtils::SymbianDevice device = sdm->devices().at(deviceIndex);
-            tooltipText = device.additionalInformation().isEmpty() ?
-                                    tr("<b>Device:</b> %1").arg(device.friendlyName()) :
-                                    tr("<b>Device:</b> %1, %2").arg(device.friendlyName(), device.additionalInformation());
-            return true;
-        }
-    }
-    break;
-    case S60DeployConfiguration::CommunicationCodaTcpConnection: {
-        if (!s60DeployConf->deviceAddress().isEmpty() && !s60DeployConf->devicePort().isEmpty()) {
-            tooltipText = tr("<b>IP address:</b> %1:%2").arg(s60DeployConf->deviceAddress(), s60DeployConf->devicePort());
-            return true;
-        }
-        return false;
-    }
-    break;
-    default:
-        break;
-    }
-    return false;
-}
-
-void Qt4SymbianTarget::onAddedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc)
-{
-    Q_ASSERT(dc);
-    S60DeployConfiguration *deployConf(qobject_cast<S60DeployConfiguration *>(dc));
-    if (!deployConf)
-        return;
-    connect(deployConf, SIGNAL(serialPortNameChanged()),
-            this, SLOT(slotUpdateDeviceInformation()));
-    connect(deployConf, SIGNAL(communicationChannelChanged()),
-            this, SLOT(slotUpdateDeviceInformation()));
-    connect(deployConf, SIGNAL(deviceAddressChanged()),
-            this, SLOT(slotUpdateDeviceInformation()));
-    connect(deployConf, SIGNAL(devicePortChanged()),
-            this, SLOT(slotUpdateDeviceInformation()));
-}
-
-void Qt4SymbianTarget::slotUpdateDeviceInformation()
-{
-    S60DeployConfiguration *dc(qobject_cast<S60DeployConfiguration *>(sender()));
-    if (dc && dc == activeDeployConfiguration()) {
-        updateToolTipAndIcon();
-    }
-}
-
-void Qt4SymbianTarget::updateToolTipAndIcon()
-{
-    static const int TARGET_OVERLAY_ORIGINAL_SIZE = 32;
-
-    if (qobject_cast<S60DeployConfiguration *>(activeDeployConfiguration()))  {
-        QPixmap overlay;
-        QString tooltip;
-        if (isSymbianConnectionAvailable(tooltip))
-            overlay = m_connectedPixmap;
-        else
-            overlay = m_disconnectedPixmap;
-        setToolTip(tooltip);
-
-        double factor = Core::Constants::TARGET_ICON_SIZE / (double)TARGET_OVERLAY_ORIGINAL_SIZE;
-        QSize overlaySize(overlay.size().width()*factor, overlay.size().height()*factor);
-        QPixmap pixmap(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE);
-        pixmap.fill(Qt::transparent);
-        QPainter painter(&pixmap);
-        painter.drawPixmap(Core::Constants::TARGET_ICON_SIZE - overlaySize.width(),
-                           Core::Constants::TARGET_ICON_SIZE - overlaySize.height(),
-                           overlay.scaled(overlaySize));
-
-        setOverlayIcon(QIcon(pixmap));
-    } else {
-        setToolTip(QString());
-        setOverlayIcon(QIcon());
-    }
+    S60DeployConfiguration *dc = dynamic_cast<S60DeployConfiguration *>(activeDeployConfiguration());
+    return ProjectExplorer::IDevice::ConstPtr(dc ? dc->device() : 0);
 }

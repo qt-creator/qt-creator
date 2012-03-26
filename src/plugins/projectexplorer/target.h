@@ -33,14 +33,13 @@
 #ifndef TARGET_H
 #define TARGET_H
 
+#include "devicesupport/idevice.h"
 #include "projectconfiguration.h"
 #include "projectexplorer_export.h"
 
 QT_FORWARD_DECLARE_CLASS(QIcon)
 
-namespace Utils {
-class Environment;
-}
+namespace Utils { class Environment; }
 
 namespace ProjectExplorer {
 class RunConfiguration;
@@ -147,11 +146,15 @@ signals:
 protected:
     Target(Project *parent, const QString &id);
 
+    virtual ProjectExplorer::IDevice::ConstPtr currentDevice() const;
+
     void setEnabled(bool);
 
     virtual bool fromMap(const QVariantMap &map);
 
 private slots:
+    void updateDeviceState();
+    void updateDeviceState(Core::Id devId);
     void changeEnvironment();
     void changeBuildConfigurationEnabled();
     void changeDeployConfigurationEnabled();

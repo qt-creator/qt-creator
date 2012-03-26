@@ -30,10 +30,10 @@
 **
 **************************************************************************/
 
-#ifndef S60DEPLOYCONFIGURATIONWIDGET_H
-#define S60DEPLOYCONFIGURATIONWIDGET_H
+#ifndef SYMBIANIDEVICECONFIGURATIONWIDGET_H
+#define SYMBIANIDEVICECONFIGURATIONWIDGET_H
 
-#include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/idevicewidget.h>
 
 #include <QWidget>
 #include <QPointer>
@@ -64,40 +64,66 @@ namespace Coda {
 
 namespace Qt4ProjectManager {
 
-class S60DeployConfiguration;
+class SymbianIDevice;
 
 namespace Internal {
 
-/* Configuration widget for S60 devices on serial ports that are
- * provided by the SerialDeviceLister class. Has an info/test
- * button connecting to the device and showing info. */
-class S60DeployConfigurationWidget : public ProjectExplorer::DeployConfigurationWidget
+class SymbianIDeviceConfigurationWidget : public ProjectExplorer::IDeviceWidget
 {
     Q_OBJECT
-public:
-    explicit S60DeployConfigurationWidget(QWidget *parent = 0);
-    ~S60DeployConfigurationWidget();
 
-    void init(ProjectExplorer::DeployConfiguration *dc);
+public:
+    explicit SymbianIDeviceConfigurationWidget(const ProjectExplorer::IDevice::Ptr &rawDevice, QWidget *parent = 0);
+    ~SymbianIDeviceConfigurationWidget();
+
+signals:
+    void infoCollected();
+    void codaConnected();
 
 private slots:
-    void updateTargetInformation();
-    void updateInstallationDrives();
-    void setInstallationDrive(int index);
-    void silentInstallChanged(int);
+    void updateSerialDevices();
+    void setSerialPort(int index);
+    void updateDeviceInfo();
+    void clearDeviceInfo();
+    void updateCommunicationChannel();
+    void updateCommunicationChannelUi();
+    void updateWlanAddress(const QString &address);
+    void cleanWlanAddress();
+    void codaEvent(const Coda::CodaEvent &event);
+    void collectingInfoFinished();
+    void codaTimeout();
+    void codaCanceled();
+    void codaIncreaseProgress();
 
 private:
+    SymbianIDevice *symbianDevice() const;
+
+    inline SymbianUtils::SymbianDevice rawDevice(int i) const;
+    inline SymbianUtils::SymbianDevice currentRawDevice() const;
+
     void setDeviceInfoLabel(const QString &message, bool isError = false);
 
-    S60DeployConfiguration *m_deployConfiguration;
+    QWidget * createCommunicationChannel();
+
+    void getQtVersionCommandResult(const Coda::CodaCommandResult &result);
+    void getRomInfoResult(const Coda::CodaCommandResult &result);
+    void getInstalledPackagesResult(const Coda::CodaCommandResult &result);
+    void getHalResult(const Coda::CodaCommandResult &result);
+
     Utils::DetailsWidget *m_detailsWidget;
-    QLabel *m_sisFileLabel;
+    QComboBox *m_serialPortsCombo;
     QToolButton *m_deviceInfoButton;
-    QComboBox *m_installationDriveCombo;
-    QCheckBox *m_silentInstallCheckBox;
+    QLabel *m_deviceInfoDescriptionLabel;
+    QLabel *m_deviceInfoLabel;
+    QRadioButton *m_serialRadioButton;
+    QRadioButton *m_wlanRadioButton;
+    Utils::IpAddressLineEdit *m_ipAddress;
+    QSharedPointer<Coda::CodaDevice> m_codaInfoDevice;
+    QString m_deviceInfo;
+    QTimer *m_codaTimeout;
 };
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // S60DEPLOYCONFIGURATIONWIDGET_H
+#endif // SYMBIANIDEVICECONFIGURATIONWIDGET_H

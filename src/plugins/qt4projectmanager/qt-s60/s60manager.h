@@ -33,11 +33,12 @@
 #ifndef S60MANAGER_H
 #define S60MANAGER_H
 
+#include <projectexplorer/devicesupport/idevice.h>
+#include <symbianutils/symbiandevicemanager.h>
+
 #include <QObject>
 
-namespace ProjectExplorer {
-class ToolChain;
-}
+namespace ProjectExplorer { class ToolChain; }
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -52,7 +53,14 @@ public:
 
     static QString platform(const ProjectExplorer::ToolChain *tc);
 
+private slots:
+    void symbianDeviceRemoved(const SymbianUtils::SymbianDevice &d);
+    void symbianDeviceAdded(const SymbianUtils::SymbianDevice &d);
+
 private:
+    void handleSymbianDeviceStateChange(const SymbianUtils::SymbianDevice &d,
+                                        ProjectExplorer::IDevice::AvailabilityState s);
+
     void addAutoReleasedObject(QObject *p);
 
     static S60Manager *m_instance;

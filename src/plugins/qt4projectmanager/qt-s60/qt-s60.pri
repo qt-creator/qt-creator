@@ -1,4 +1,7 @@
 SOURCES += $$PWD/s60manager.cpp \
+    $$PWD/symbianidevice.cpp \
+    $$PWD/symbianideviceconfigwidget.cpp \
+    $$PWD/symbianidevicefactory.cpp \
     $$PWD/sbsv2parser.cpp \
     $$PWD/winscwtoolchain.cpp \
     $$PWD/gccetoolchain.cpp \
@@ -35,6 +38,9 @@ SOURCES += $$PWD/s60manager.cpp \
     $$PWD/s60devicedebugruncontrol.cpp
 
 HEADERS += $$PWD/s60manager.h \
+    $$PWD/symbianidevice.h \
+    $$PWD/symbianideviceconfigwidget.h \
+    $$PWD/symbianidevicefactory.h \
     $$PWD/sbsv2parser.h \
     $$PWD/winscwtoolchain.h \
     $$PWD/gccetoolchain.h \

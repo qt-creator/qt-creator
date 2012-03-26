@@ -41,6 +41,7 @@
 #include "s60deployconfiguration.h"
 #include "s60devicerunconfigurationwidget.h"
 #include "s60manager.h"
+#include "symbianidevice.h"
 #include "symbianqtversion.h"
 
 #include <utils/qtcassert.h>
@@ -291,7 +292,7 @@ QString S60DeviceRunConfiguration::qmlCommandLineArguments() const
             qobject_cast<S60DeployConfiguration *>(qt4Target()->activeDeployConfiguration());
         QTC_ASSERT(activeDeployConf, return args);
 
-        if (activeDeployConf->communicationChannel() == S60DeployConfiguration::CommunicationCodaTcpConnection)
+        if (activeDeployConf->device()->communicationChannel() == SymbianIDevice::CommunicationCodaTcpConnection)
             args = QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(debuggerAspect()->qmlDebugServerPort());
         else
             args = QLatin1String("-qmljsdebugger=ost");

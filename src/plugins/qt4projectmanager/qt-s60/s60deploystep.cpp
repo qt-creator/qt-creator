@@ -35,6 +35,7 @@
 #include "qt4buildconfiguration.h"
 #include "s60deployconfiguration.h"
 #include "s60devicerunconfiguration.h"
+#include "symbianidevice.h"
 #include "codadevice.h"
 #include "codaruncontrol.h"
 
@@ -60,7 +61,6 @@
 #include <QTcpSocket>
 
 using namespace ProjectExplorer;
-using namespace SymbianUtils;
 using namespace Qt4ProjectManager::Internal;
 
 enum { debug = 0 };
@@ -125,7 +125,7 @@ S60DeployStep::S60DeployStep(ProjectExplorer::BuildStepList *bc):
     m_putLastChunkSize(0),
     m_putChunkSize(DEFAULT_CHUNK_SIZE),
     m_currentFileIndex(0),
-    m_channel(S60DeployConfiguration::CommunicationCodaSerialConnection),
+    m_channel(SymbianIDevice::CommunicationCodaSerialConnection),
     m_deployCanceled(false),
     m_copyProgress(0)
 {
@@ -154,22 +154,22 @@ bool S60DeployStep::init()
     S60DeployConfiguration *deployConfiguration = static_cast<S60DeployConfiguration *>(bc->target()->activeDeployConfiguration());
     if (!deployConfiguration)
         return false;
-    m_serialPortName = deployConfiguration->serialPortName();
-    m_serialPortFriendlyName = SymbianDeviceManager::instance()->friendlyNameForPort(m_serialPortName);
+    m_serialPortName = deployConfiguration->device()->serialPortName();
+    m_serialPortFriendlyName = SymbianUtils::SymbianDeviceManager::instance()->friendlyNameForPort(m_serialPortName);
     m_packageFileNamesWithTarget = deployConfiguration->packageFileNamesWithTargetInfo();
     m_signedPackages = deployConfiguration->signedPackages();
     m_installationDrive = deployConfiguration->installationDrive();
     m_silentInstall = deployConfiguration->silentInstall();
-    m_channel = deployConfiguration->communicationChannel();
+    m_channel = deployConfiguration->device()->communicationChannel();
 
     if (m_signedPackages.isEmpty()) {
         appendMessage(tr("No package has been found. Specify at least one installation package."), true);
         return false;
     }
 
-    if (m_channel == S60DeployConfiguration::CommunicationCodaTcpConnection) {
-        m_address = deployConfiguration->deviceAddress();
-        m_port = deployConfiguration->devicePort().toInt();
+    if (m_channel == SymbianIDevice::CommunicationCodaTcpConnection) {
+        m_address = deployConfiguration->device()->address();
+        m_port = deployConfiguration->device()->port().toInt();
     }
     return true;
 }
@@ -235,7 +235,7 @@ void S60DeployStep::start()
 {
     QString errorMessage;
 
-    bool serialConnection = m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection;
+    bool serialConnection = m_channel == SymbianIDevice::CommunicationCodaSerialConnection;
 
     if (serialConnection && m_serialPortName.isEmpty()) {
         errorMessage = tr("No device is connected. Connect a device and try again.");
@@ -270,7 +270,7 @@ void S60DeployStep::stop()
             break; //should also stop the package installation, but CODA does not support it yet
         }
         disconnect(m_codaDevice.data(), 0, this, 0);
-        SymbianDeviceManager::instance()->releaseCodaDevice(m_codaDevice);
+        SymbianUtils::SymbianDeviceManager::instance()->releaseCodaDevice(m_codaDevice);
     }
     setState(StateUninit);
     emit s60DeploymentFinished(false);
@@ -278,8 +278,9 @@ void S60DeployStep::stop()
 
 void S60DeployStep::setupConnections()
 {
-    if (m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection)
-        connect(SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(SymbianUtils::SymbianDevice)), this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
+    if (m_channel == SymbianIDevice::CommunicationCodaSerialConnection)
+        connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(SymbianUtils::SymbianDevice)),
+                this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
 
     connect(m_codaDevice.data(), SIGNAL(error(QString)), this, SLOT(slotError(QString)));
     connect(m_codaDevice.data(), SIGNAL(logMessage(QString)), this, SLOT(slotCodaLogMessage(QString)));
@@ -295,9 +296,9 @@ void S60DeployStep::startDeployment()
     // We need to defer setupConnections() in the case of CommunicationCodaSerialConnection
     //setupConnections();
 
-    if (m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection) {
+    if (m_channel == SymbianIDevice::CommunicationCodaSerialConnection) {
         appendMessage(tr("Deploying application to '%1'...").arg(m_serialPortFriendlyName), false);
-        m_codaDevice = SymbianDeviceManager::instance()->getCodaDevice(m_serialPortName);
+        m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()->getCodaDevice(m_serialPortName);
         bool ok = m_codaDevice && m_codaDevice->device()->isOpen();
         if (!ok) {
             QString deviceError = tr("No such port");
@@ -349,7 +350,7 @@ void S60DeployStep::run(QFutureInterface<bool> &fi)
 
     if (m_codaDevice) {
         disconnect(m_codaDevice.data(), 0, this, 0);
-        SymbianDeviceManager::instance()->releaseCodaDevice(m_codaDevice);
+        SymbianUtils::SymbianDeviceManager::instance()->releaseCodaDevice(m_codaDevice);
     }
 
     delete m_eventLoop;
@@ -619,7 +620,7 @@ void S60DeployStep::deploymentFinished(bool success)
         m_eventLoop->exit();
 }
 
-void S60DeployStep::deviceRemoved(const SymbianDevice &device)
+void S60DeployStep::deviceRemoved(const SymbianUtils::SymbianDevice &device)
 {
     if (device.portName() == m_serialPortName)
         reportError(tr("The device '%1' has been disconnected").arg(device.friendlyName()));

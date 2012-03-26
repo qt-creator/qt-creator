@@ -30,43 +30,50 @@
 **
 **************************************************************************/
 
-#ifndef QT4SYMBIANTARGET_H
-#define QT4SYMBIANTARGET_H
+#include "symbianidevicefactory.h"
 
-#include "qt4target.h"
+#include "symbianidevice.h"
 
-#include <QPixmap>
+#include <utils/qtcassert.h>
 
 namespace Qt4ProjectManager {
-class Qt4Project;
-class Qt4BuildConfigurationFactory;
 namespace Internal {
 
+SymbianIDeviceFactory::SymbianIDeviceFactory(QObject *parent) : IDeviceFactory(parent)
+{ }
 
-class Qt4SymbianTarget : public Qt4BaseTarget
+QString SymbianIDeviceFactory::displayName() const
 {
-    friend class Qt4SymbianTargetFactory; // for from Map
-    Q_OBJECT
-public:
-    explicit Qt4SymbianTarget(Qt4Project *parent, const QString &id);
-    virtual ~Qt4SymbianTarget();
+    return tr("Symbian Device");
+}
 
-    ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
+bool SymbianIDeviceFactory::canCreate() const
+{
+    return false;
+}
 
-    QList<ProjectExplorer::ToolChain *> possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const;
+ProjectExplorer::IDevice::Ptr SymbianIDeviceFactory::create() const
+{
+    return ProjectExplorer::IDevice::Ptr();
+}
 
-    void createApplicationProFiles(bool reparse);
-    virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
+ProjectExplorer::IDevice::Ptr SymbianIDeviceFactory::loadDevice(const QVariantMap &map) const
+{
+    QTC_ASSERT(supportsDeviceType(ProjectExplorer::IDevice::typeFromMap(map)),
+               return ProjectExplorer::IDevice::Ptr());
+    SymbianIDevice *dev = new SymbianIDevice(map);
+    return ProjectExplorer::IDevice::Ptr(dev);
+}
 
-    static QString defaultDisplayName(const QString &id);
-    static QIcon iconForId(const QString &id);
+bool SymbianIDeviceFactory::supportsDeviceType(const QString &type) const
+{
+    return type == deviceType();
+}
 
-protected:
-    ProjectExplorer::IDevice::ConstPtr currentDevice() const;
+QString SymbianIDeviceFactory::deviceType()
+{
+    return QLatin1String("Qt4ProjectManager.SymbianDevice");
+}
 
-private:
-    Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
-};
-} // namespace Internal
-} // namespace Qt4ProjectManager
-#endif // QT4SYMBIANTARGET_H
+} // namespace internal
+} // namespace qt4projectmanager

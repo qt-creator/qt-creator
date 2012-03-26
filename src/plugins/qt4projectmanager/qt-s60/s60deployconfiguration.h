@@ -33,6 +33,8 @@
 #ifndef S60DEPLOYCONFIGURATION_H
 #define S60DEPLOYCONFIGURATION_H
 
+#include <projectexplorer/devicesupport/idevice.h>
+
 #include <projectexplorer/deployconfiguration.h>
 #include <qt4projectmanager/qt4projectmanager_global.h>
 
@@ -49,6 +51,7 @@ class BaseQtVersion;
 namespace Qt4ProjectManager {
 class Qt4ProFileNode;
 class S60DeployConfigurationFactory;
+class SymbianIDevice;
 
 namespace Internal {
 class Qt4SymbianTarget;
@@ -62,11 +65,6 @@ class QT4PROJECTMANAGER_EXPORT S60DeployConfiguration : public ProjectExplorer::
     friend class S60DeployConfigurationFactory;
 
 public:
-    enum CommunicationChannel {
-        CommunicationCodaSerialConnection,
-        CommunicationCodaTcpConnection
-    };
-
     typedef QPair<char, int> DeviceDrive;
 
     explicit S60DeployConfiguration(ProjectExplorer::Target *parent);
@@ -77,23 +75,11 @@ public:
     const QtSupport::BaseQtVersion *qtVersion() const;
     ProjectExplorer::ToolChain *toolChain() const;
 
-    QString serialPortName() const;
-    void setSerialPortName(const QString &name);
-
     char installationDrive() const;
     void setInstallationDrive(char drive);
 
     bool silentInstall() const;
     void setSilentInstall(bool silent);
-
-    QString deviceAddress() const;
-    void setDeviceAddress(const QString &address);
-
-    void setDevicePort(const QString &port);
-    QString devicePort() const;
-
-    void setCommunicationChannel(CommunicationChannel channel);
-    S60DeployConfiguration::CommunicationChannel communicationChannel() const;
 
     void setAvailableDeviceDrives(QList<DeviceDrive> drives);
     const QList<DeviceDrive> &availableDeviceDrives() const;
@@ -104,15 +90,13 @@ public:
     QStringList appPackageTemplateFileNames() const;
 
     bool runSmartInstaller() const;
+    SymbianIDevice *device() const;
 
     QVariantMap toMap() const;
 
 signals:
+    void deviceChanged();
     void targetInformationChanged();
-    void serialPortNameChanged();
-    void communicationChannelChanged();
-    void deviceAddressChanged();
-    void devicePortChanged();
     void availableDeviceDrivesChanged();
     void installationDriveChanged();
 
@@ -139,14 +123,10 @@ private:
 
 private:
     ProjectExplorer::BuildConfiguration *m_activeBuildConfiguration;
-    QString m_serialPortName;
+    Core::Id m_deviceId;
 
     char m_installationDrive;
     bool m_silentInstall;
-    QString m_deviceAddress;
-    QString m_devicePort;
-    CommunicationChannel m_communicationChannel;
-
     QList<DeviceDrive> m_availableDeviceDrives;
 };
 

@@ -41,12 +41,16 @@
 #include "toolchainmanager.h"
 
 #include <limits>
-#include <extensionsystem/pluginmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/idevice.h>
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <utils/qtcassert.h>
 
 #include <QIcon>
+#include <QPainter>
 
 namespace {
 const char ACTIVE_BC_KEY[] = "ProjectExplorer.Target.ActiveBuildConfiguration";
@@ -87,13 +91,18 @@ public:
     DeployConfiguration *m_activeDeployConfiguration;
     QList<RunConfiguration *> m_runConfigurations;
     RunConfiguration* m_activeRunConfiguration;
+
+    QPixmap m_connectedPixmap;
+    QPixmap m_disconnectedPixmap;
 };
 
 TargetPrivate::TargetPrivate() :
     m_isEnabled(true),
     m_activeBuildConfiguration(0),
     m_activeDeployConfiguration(0),
-    m_activeRunConfiguration(0)
+    m_activeRunConfiguration(0),
+    m_connectedPixmap(QLatin1String(":/projectexplorer/images/ConnectionOn.png")),
+    m_disconnectedPixmap(QLatin1String(":/projectexplorer/images/ConnectionOff.png"))
 {
 }
 
@@ -106,6 +115,11 @@ QList<DeployConfigurationFactory *> TargetPrivate::deployFactories() const
 Target::Target(Project *project, const QString &id) :
     ProjectConfiguration(project, id), d(new TargetPrivate)
 {
+    connect(DeviceManager::instance(), SIGNAL(deviceUpdated(ProjectExplorer::IDevice::Id)),
+            this, SLOT(updateDeviceState(ProjectExplorer::IDevice::Id)));
+    // everything changed...
+    connect(DeviceManager::instance(), SIGNAL(deviceListChanged()),
+            this, SLOT(updateDeviceState()));
 }
 
 Target::~Target()
@@ -311,6 +325,7 @@ void Target::setActiveDeployConfiguration(DeployConfiguration *dc)
         emit activeDeployConfigurationChanged(d->m_activeDeployConfiguration);
         emit deployConfigurationEnabledChanged();
     }
+    updateDeviceState();
 }
 
 QStringList Target::availableDeployConfigurationIds()
@@ -398,6 +413,7 @@ void Target::setActiveRunConfiguration(RunConfiguration* configuration)
         emit activeRunConfigurationChanged(d->m_activeRunConfiguration);
         emit runConfigurationEnabledChanged();
     }
+    updateDeviceState();
 }
 
 bool Target::isEnabled() const
@@ -481,6 +497,59 @@ QVariantMap Target::toMap() const
         map.insert(QString::fromLatin1(RC_KEY_PREFIX) + QString::number(i), rcs.at(i)->toMap());
 
     return map;
+}
+
+static QString formatToolTip(const IDevice::DeviceInfo &input)
+{
+    QStringList lines;
+    foreach (const IDevice::DeviceInfoItem &item, input)
+        lines << QString::fromLatin1("<b>%1:</b> %2").arg(item.key, item.value);
+    return lines.join(QLatin1String("<br>"));
+}
+
+void Target::updateDeviceState()
+{
+    updateDeviceState(currentDevice()->id());
+}
+
+void Target::updateDeviceState(Core::Id devId)
+{
+    IDevice::ConstPtr dev = DeviceManager::instance()->find(devId);
+    QTC_ASSERT(!dev.isNull(), return);
+
+    IDevice::ConstPtr current = currentDevice();
+    if (current.isNull()
+            || devId != current->id()
+            || dev->availability() == IDevice::DeviceAvailabilityUnknown) {
+        setOverlayIcon(QIcon());
+        setToolTip(QString());
+        return;
+    }
+
+    static const int TARGET_OVERLAY_ORIGINAL_SIZE = 32;
+
+    QPixmap overlay;
+    if (dev->availability() == IDevice::DeviceAvailable)
+        overlay = d->m_connectedPixmap;
+    else
+        overlay = d->m_disconnectedPixmap;
+
+    double factor = Core::Constants::TARGET_ICON_SIZE / (double)TARGET_OVERLAY_ORIGINAL_SIZE;
+    QSize overlaySize(overlay.size().width()*factor, overlay.size().height()*factor);
+    QPixmap pixmap(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE);
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
+    painter.drawPixmap(Core::Constants::TARGET_ICON_SIZE - overlaySize.width(),
+                       Core::Constants::TARGET_ICON_SIZE - overlaySize.height(),
+                       overlay.scaled(overlaySize));
+
+    setOverlayIcon(QIcon(pixmap));
+    setToolTip(formatToolTip(dev->deviceInformation()));
+}
+
+ProjectExplorer::IDevice::ConstPtr Target::currentDevice() const
+{
+    return IDevice::ConstPtr(0);
 }
 
 void Target::setEnabled(bool enabled)
@@ -579,7 +648,6 @@ bool Target::fromMap(const QVariantMap &map)
 
     return true;
 }
-
 
 // -------------------------------------------------------------------------
 // ITargetFactory

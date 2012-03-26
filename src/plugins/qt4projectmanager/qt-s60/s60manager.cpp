@@ -41,6 +41,8 @@
 #include "s60deploystep.h"
 #include "s60runcontrolfactory.h"
 #include "s60devicedebugruncontrol.h"
+#include "symbianidevice.h"
+#include "symbianidevicefactory.h"
 
 #include "qt4symbiantargetfactory.h"
 #include "s60publishingwizardfactories.h"
@@ -54,6 +56,7 @@
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <debugger/debuggerconstants.h>
 #include <utils/qtcassert.h>
@@ -131,8 +134,19 @@ S60Manager::S60Manager(QObject *parent) : QObject(parent)
     addAutoReleasedObject(new S60PublishingWizardFactoryOvi);
     addAutoReleasedObject(new SymbianQtVersionFactory);
 
+    addAutoReleasedObject(new Internal::SymbianIDeviceFactory);
+
+    ProjectExplorer::IDevice::Ptr dev(new SymbianIDevice);
+    ProjectExplorer::DeviceManager::instance()->addDevice(dev);
+
     connect(Core::ICore::mainWindow(), SIGNAL(deviceChange()),
             SymbianUtils::SymbianDeviceManager::instance(), SLOT(update()));
+
+    SymbianUtils::SymbianDeviceManager *dm = SymbianUtils::SymbianDeviceManager::instance();
+    connect(dm, SIGNAL(deviceAdded(SymbianUtils::SymbianDevice)),
+            this, SLOT(symbianDeviceAdded(SymbianUtils::SymbianDevice)));
+    connect(dm, SIGNAL(deviceRemoved(SymbianUtils::SymbianDevice)),
+            this, SLOT(symbianDeviceRemoved(SymbianUtils::SymbianDevice)));
 }
 
 S60Manager::~S60Manager()
@@ -150,6 +164,34 @@ QString S60Manager::platform(const ProjectExplorer::ToolChain *tc)
         return QString();
     QString target = tc->defaultMakeTarget();
     return target.right(target.lastIndexOf(QLatin1Char('-')));
+}
+
+void S60Manager::symbianDeviceRemoved(const SymbianUtils::SymbianDevice &d)
+{
+    handleSymbianDeviceStateChange(d, ProjectExplorer::IDevice::DeviceUnavailable);
+}
+
+void S60Manager::symbianDeviceAdded(const SymbianUtils::SymbianDevice &d)
+{
+    handleSymbianDeviceStateChange(d, ProjectExplorer::IDevice::DeviceAvailable);
+}
+
+void S60Manager::handleSymbianDeviceStateChange(const SymbianUtils::SymbianDevice &d, ProjectExplorer::IDevice::AvailabilityState s)
+{
+    ProjectExplorer::DeviceManager *dm = ProjectExplorer::DeviceManager::instance();
+    for (int i = 0; i < dm->deviceCount(); ++i) {
+        ProjectExplorer::IDevice::ConstPtr dev = dm->deviceAt(i);
+        const SymbianIDevice *sdev = dynamic_cast<const SymbianIDevice *>(dev.data());
+        if (!sdev || sdev->communicationChannel() != SymbianIDevice::CommunicationCodaSerialConnection)
+            continue;
+        if (sdev->serialPortName() != d.portName())
+            continue;
+
+        SymbianIDevice *newDev = new SymbianIDevice(*sdev); // Get a new device to replace the current one
+        newDev->setAvailability(s);
+        dm->addDevice(ProjectExplorer::IDevice::Ptr(newDev));
+        break;
+    }
 }
 
 void S60Manager::addAutoReleasedObject(QObject *o)

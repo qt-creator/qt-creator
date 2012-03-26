@@ -30,43 +30,31 @@
 **
 **************************************************************************/
 
-#ifndef QT4SYMBIANTARGET_H
-#define QT4SYMBIANTARGET_H
+#ifndef SYMBIANIDEVICEFACTORY_H
+#define SYMBIANIDEVICEFACTORY_H
 
-#include "qt4target.h"
-
-#include <QPixmap>
+#include <projectexplorer/devicesupport/idevicefactory.h>
 
 namespace Qt4ProjectManager {
-class Qt4Project;
-class Qt4BuildConfigurationFactory;
 namespace Internal {
 
-
-class Qt4SymbianTarget : public Qt4BaseTarget
+class SymbianIDeviceFactory : public ProjectExplorer::IDeviceFactory
 {
-    friend class Qt4SymbianTargetFactory; // for from Map
     Q_OBJECT
+
 public:
-    explicit Qt4SymbianTarget(Qt4Project *parent, const QString &id);
-    virtual ~Qt4SymbianTarget();
+    SymbianIDeviceFactory(QObject *parent = 0);
 
-    ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
+    QString displayName() const;
+    bool canCreate() const;
+    ProjectExplorer::IDevice::Ptr create() const;
+    ProjectExplorer::IDevice::Ptr loadDevice(const QVariantMap &map) const;
+    bool supportsDeviceType(const QString &type) const;
 
-    QList<ProjectExplorer::ToolChain *> possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const;
-
-    void createApplicationProFiles(bool reparse);
-    virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
-
-    static QString defaultDisplayName(const QString &id);
-    static QIcon iconForId(const QString &id);
-
-protected:
-    ProjectExplorer::IDevice::ConstPtr currentDevice() const;
-
-private:
-    Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
+    static QString deviceType();
 };
+
 } // namespace Internal
 } // namespace Qt4ProjectManager
-#endif // QT4SYMBIANTARGET_H
+
+#endif // SYMBIANIDEVICEFACTORY_H
