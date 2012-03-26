@@ -122,24 +122,6 @@ enum {
     ConnectionAttemptSimultaneousInterval = 500
 };
 
-/**
- * A widget that has the base color.
- */
-class StyledBackground : public QWidget
-{
-public:
-    explicit StyledBackground(QWidget *parent = 0)
-        : QWidget(parent)
-    {}
-
-protected:
-    void paintEvent(QPaintEvent *e)
-    {
-        QPainter p(this);
-        p.fillRect(e->rect(), Utils::StyleHelper::baseColor());
-    }
-};
-
 InspectorUi *InspectorUi::m_instance = 0;
 
 QmlJS::ModelManagerInterface *modelManager()
@@ -739,7 +721,7 @@ void InspectorUi::setupDockWidgets()
     inspectorWidget->setWindowTitle(tr("QML Inspector"));
     inspectorWidget->setObjectName(Debugger::Constants::DOCKWIDGET_QML_INSPECTOR);
 
-    QWidget *pathAndFilterWidget = new StyledBackground;
+    QWidget *pathAndFilterWidget = new Utils::StyledBar();
     pathAndFilterWidget->setMaximumHeight(m_crumblePath->height());
 
     QHBoxLayout *pathAndFilterLayout = new QHBoxLayout(pathAndFilterWidget);

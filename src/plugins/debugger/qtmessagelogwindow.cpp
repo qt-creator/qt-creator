@@ -79,7 +79,7 @@ QtMessageLogWindow::QtMessageLogWindow(QWidget *parent)
     vbox->setMargin(0);
     vbox->setSpacing(0);
 
-    QWidget *statusbarContainer = new QWidget();
+    QWidget *statusbarContainer = new Utils::StyledBar();
     statusbarContainer->setFixedHeight(statusBarHeight);
     QHBoxLayout *hbox = new QHBoxLayout(statusbarContainer);
     hbox->setMargin(0);
