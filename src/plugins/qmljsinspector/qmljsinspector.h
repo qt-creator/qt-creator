@@ -44,8 +44,6 @@
 #include <QAction>
 #include <QObject>
 
-QT_FORWARD_DECLARE_CLASS(QLineEdit)
-
 namespace ProjectExplorer {
 class Project;
 class Environment;
@@ -155,7 +153,6 @@ private:
     bool m_listeningToEditorManager;
     QmlJsInspectorToolBar *m_toolBar;
     ContextCrumblePath *m_crumblePath;
-    QLineEdit *m_filterExp;
     QmlJSPropertyInspector *m_propertyInspector;
 
     InspectorSettings *m_settings;

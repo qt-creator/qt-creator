@@ -240,20 +240,6 @@ void ColorChooserDialog::acceptColor(const QColor &color)
 }
 
 // *************************************************************************
-//  FILTER
-// *************************************************************************
-bool PropertiesFilter::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
-{
-    QModelIndex index0 = sourceModel()->index(sourceRow, 0, sourceParent);
-    QModelIndex index1 = sourceModel()->index(sourceRow, 1, sourceParent);
-    QModelIndex index2 = sourceModel()->index(sourceRow, 2, sourceParent);
-
-    return (sourceModel()->data(index0).toString().contains(filterRegExp())
-                    || sourceModel()->data(index1).toString().contains(filterRegExp())
-                    || sourceModel()->data(index2).toString().contains(filterRegExp()));
-}
-
-// *************************************************************************
 //  QmlJSObjectTree
 // *************************************************************************
 inline QString cleanPropertyValue(QString propertyValue)
@@ -278,15 +264,7 @@ QmlJSPropertyInspector::QmlJSPropertyInspector(QWidget *parent)
 
     setItemDelegateForColumn(1, new PropertyEditDelegate(this));
 
-    m_filter = new PropertiesFilter(this);
-    m_filter->setSourceModel(&m_model);
-    setModel(m_filter);
-}
-
-void QmlJSPropertyInspector::filterBy(const QString &expression)
-{
-    m_filter->setFilterWildcard(expression);
-    m_filter->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    setModel(&m_model);
 }
 
 void QmlJSPropertyInspector::clear()
@@ -310,12 +288,12 @@ void QmlJSPropertyInspector::setCurrentObjects(const QList<QmlDebugObjectReferen
 
 QVariant QmlJSPropertyInspector::getData(int row, int column, int role) const
 {
-    return m_filter->data(m_filter->index(row, column), role);
+    return m_model.data(m_model.index(row, column), role);
 }
 
 QmlJSPropertyInspector::PropertyType QmlJSPropertyInspector::getTypeFor(int row) const
 {
-    return static_cast<QmlJSPropertyInspector::PropertyType>(m_filter->data(m_filter->index(row,2),Qt::UserRole).toInt());
+    return static_cast<QmlJSPropertyInspector::PropertyType>(m_model.data(m_model.index(row,2), Qt::UserRole).toInt());
 }
 
 void QmlJSPropertyInspector::propertyValueChanged(int debugId, const QByteArray &propertyName, const QVariant &propertyValue)
@@ -435,7 +413,7 @@ void QmlJSPropertyInspector::addRow(const QString &name,const QString &value, co
 
 void QmlJSPropertyInspector::setColorIcon(int row)
 {
-    QStandardItem *item = m_model.itemFromIndex(m_model.index(row, 1));
+    QStandardItem *item = m_model.item(row, 1);
     QColor color = colorFromExtendedName(item->data(Qt::DisplayRole).toString());
 
     int recomendedLength = viewOptions().decorationSize.height() - 2;
@@ -457,7 +435,7 @@ void QmlJSPropertyInspector::contextMenuEvent(QContextMenuEvent *ev)
     bool isEditable = false;
     bool isColor = false;
     if (itemIndex.isValid()) {
-        isEditable = m_model.itemFromIndex(m_filter->mapToSource(m_filter->index(itemIndex.row(), 1)))->isEditable();
+        isEditable = m_model.item(itemIndex.row(), 1)->isEditable();
         isColor = (getTypeFor(itemIndex.row()) == QmlJSPropertyInspector::ColorType);
     }
 

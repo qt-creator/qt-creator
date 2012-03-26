@@ -35,7 +35,6 @@
 #include <qmljsprivateapi.h>
 #include <QTreeView>
 #include <QStandardItemModel>
-#include <QSortFilterProxyModel>
 
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -50,21 +49,6 @@ namespace QmlJSInspector {
 namespace Internal {
 
 class PropertyEditDelegate;
-
-class PropertiesFilter : public QSortFilterProxyModel
-{
-    Q_OBJECT
-public:
-    explicit PropertiesFilter(QObject *parent = 0)
-        : QSortFilterProxyModel(parent)
-    {
-        setDynamicSortFilter(true);
-    }
-
-    ~PropertiesFilter() { }
-
-    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
-};
 
 class ExpressionEdit : public QDialog
 {
@@ -132,7 +116,6 @@ public slots:
     void setCurrentObjects(const QList<QmlDebugObjectReference> &);
     void propertyValueEdited(const int objectId,const QString &propertyName, const QString &propertyValue);
     void propertyValueChanged(int debugId, const QByteArray &propertyName, const QVariant &propertyValue);
-    void filterBy(const QString &expression);
 
     void openExpressionEditor(const QModelIndex &itemIndex);
     void openColorSelector(const QModelIndex &itemIndex);
@@ -150,7 +133,6 @@ private:
     void contextMenuEvent(QContextMenuEvent *ev);
 
     QStandardItemModel m_model;
-    PropertiesFilter *m_filter;
     QList<int> m_currentObjects;
 };
 

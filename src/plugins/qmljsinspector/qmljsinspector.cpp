@@ -86,6 +86,9 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <aggregation/aggregate.h>
+#include <find/treeviewfind.h>
+
 #include <QDebug>
 #include <QStringList>
 #include <QTimer>
@@ -149,7 +152,6 @@ InspectorUi::InspectorUi(QObject *parent)
     , m_listeningToEditorManager(false)
     , m_toolBar(0)
     , m_crumblePath(0)
-    , m_filterExp(0)
     , m_propertyInspector(0)
     , m_settings(new InspectorSettings(this))
     , m_clientProxy(0)
@@ -655,7 +657,6 @@ void InspectorUi::enable()
     m_toolBar->enable();
     m_crumblePath->setEnabled(true);
     m_propertyInspector->setEnabled(true);
-    m_filterExp->setEnabled(true);
 }
 
 void InspectorUi::disable()
@@ -663,7 +664,6 @@ void InspectorUi::disable()
     m_toolBar->disable();
     m_crumblePath->setEnabled(false);
     m_propertyInspector->setEnabled(false);
-    m_filterExp->setEnabled(false);
 }
 
 QmlDebugObjectReference InspectorUi::objectReferenceForLocation(const QString &fileName, int cursorPosition) const
@@ -742,15 +742,10 @@ void InspectorUi::setupDockWidgets()
     QWidget *pathAndFilterWidget = new StyledBackground;
     pathAndFilterWidget->setMaximumHeight(m_crumblePath->height());
 
-    m_filterExp = new Utils::FilterLineEdit;
-    m_filterExp->setPlaceholderText(tr("Filter properties"));
-    m_filterExp->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-
     QHBoxLayout *pathAndFilterLayout = new QHBoxLayout(pathAndFilterWidget);
     pathAndFilterLayout->setMargin(0);
     pathAndFilterLayout->setSpacing(0);
     pathAndFilterLayout->addWidget(m_crumblePath);
-    pathAndFilterLayout->addWidget(m_filterExp);
 
     QVBoxLayout *wlay = new QVBoxLayout(inspectorWidget);
     wlay->setMargin(0);
@@ -758,10 +753,15 @@ void InspectorUi::setupDockWidgets()
     inspectorWidget->setLayout(wlay);
     wlay->addWidget(pathAndFilterWidget);
     wlay->addWidget(m_propertyInspector);
+    wlay->addWidget(new Core::FindToolBarPlaceHolder(inspectorWidget));
 
     QDockWidget *dock = mw->createDockWidget(Debugger::QmlLanguage, inspectorWidget);
     dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
     dock->setTitleBarWidget(new QWidget(dock));
+
+    Aggregation::Aggregate *aggregate = new Aggregation::Aggregate();
+    aggregate->add(m_propertyInspector);
+    aggregate->add(new Find::TreeViewFind(m_propertyInspector));
 }
 
 void InspectorUi::crumblePathElementClicked(const QVariant &data)
@@ -893,9 +893,6 @@ void InspectorUi::connectSignals()
             m_clientProxy, SLOT(changeToSelectTool()));
     connect(m_toolBar, SIGNAL(showAppOnTopSelected(bool)),
             m_clientProxy, SLOT(showAppOnTop(bool)));
-
-    connect(m_filterExp, SIGNAL(textChanged(QString)),
-            m_propertyInspector, SLOT(filterBy(QString)));
 }
 
 void InspectorUi::disconnectSignals()
