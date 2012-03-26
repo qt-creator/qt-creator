@@ -52,6 +52,8 @@ DeviceFactorySelectionDialog::DeviceFactorySelectionDialog(QWidget *parent) :
     const QList<IDeviceFactory *> &factories
         = ExtensionSystem::PluginManager::instance()->getObjects<IDeviceFactory>();
     foreach (const IDeviceFactory * const factory, factories) {
+        if (!factory->canCreate())
+            continue;
         m_factories << factory;
         ui->listWidget->addItem(factory->displayName());
     }

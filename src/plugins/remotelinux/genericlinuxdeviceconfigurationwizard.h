@@ -33,15 +33,16 @@
 
 #include "remotelinux_export.h"
 
-#include <projectexplorer/devicesupport/idevicewizard.h>
+#include <projectexplorer/devicesupport/idevice.h>
+
+#include <QWizard>
 
 namespace RemoteLinux {
 namespace Internal {
 class GenericLinuxDeviceConfigurationWizardPrivate;
 } // namespace Internal
 
-class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizard
-    : public ProjectExplorer::IDeviceWizard
+class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizard : public QWizard
 {
     Q_OBJECT
 

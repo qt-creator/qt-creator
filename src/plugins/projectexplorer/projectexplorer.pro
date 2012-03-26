@@ -108,7 +108,6 @@ HEADERS += projectexplorer.h \
     settingsaccessor.h \
     environmentitemswidget.h \
     devicesupport/idevice.h \
-    devicesupport/idevicewizard.h \
     devicesupport/idevicewidget.h \
     devicesupport/idevicefactory.h \
     devicesupport/devicemanager.h \

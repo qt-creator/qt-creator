@@ -53,9 +53,17 @@ QString MaddeDeviceConfigurationFactory::displayName() const
     return tr("Device with MADDE support (Fremantle, Harmattan, MeeGo)");
 }
 
-IDeviceWizard *MaddeDeviceConfigurationFactory::createWizard(QWidget *parent) const
+bool MaddeDeviceConfigurationFactory::canCreate() const
 {
-    return new MaemoDeviceConfigWizard(parent);
+    return true;
+}
+
+IDevice::Ptr MaddeDeviceConfigurationFactory::create() const
+{
+    MaemoDeviceConfigWizard *wizard = new MaemoDeviceConfigWizard;
+    if (wizard->exec() != QDialog::Accepted)
+        return IDevice::Ptr();
+    return wizard->device();
 }
 
 IDevice::Ptr MaddeDeviceConfigurationFactory::loadDevice(const QVariantMap &map) const

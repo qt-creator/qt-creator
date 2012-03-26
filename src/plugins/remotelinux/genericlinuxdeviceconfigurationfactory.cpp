@@ -51,9 +51,17 @@ QString GenericLinuxDeviceConfigurationFactory::displayName() const
     return tr("Generic Linux Device");
 }
 
-IDeviceWizard *GenericLinuxDeviceConfigurationFactory::createWizard(QWidget *parent) const
+bool GenericLinuxDeviceConfigurationFactory::canCreate() const
 {
-    return new GenericLinuxDeviceConfigurationWizard(parent);
+    return true;
+}
+
+IDevice::Ptr GenericLinuxDeviceConfigurationFactory::create() const
+{
+    GenericLinuxDeviceConfigurationWizard *wizard = new GenericLinuxDeviceConfigurationWizard;
+    if (wizard->exec() != QDialog::Accepted)
+        return IDevice::Ptr();
+    return wizard->device();
 }
 
 IDevice::Ptr GenericLinuxDeviceConfigurationFactory::loadDevice(const QVariantMap &map) const

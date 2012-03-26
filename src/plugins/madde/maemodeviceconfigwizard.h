@@ -33,14 +33,15 @@
 #define MAEMODEVICECONFIGWIZARD_H
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/devicesupport/idevicewizard.h>
+
+#include <QWizard>
 
 namespace Madde {
 namespace Internal {
 
 struct MaemoDeviceConfigWizardPrivate;
 
-class MaemoDeviceConfigWizard : public ProjectExplorer::IDeviceWizard
+class MaemoDeviceConfigWizard : public QWizard
 {
     Q_OBJECT
 

@@ -539,7 +539,7 @@ struct MaemoDeviceConfigWizardPrivate
 
 
 MaemoDeviceConfigWizard::MaemoDeviceConfigWizard(QWidget *parent)
-    : IDeviceWizard(parent), d(new MaemoDeviceConfigWizardPrivate(this))
+    : QWizard(parent), d(new MaemoDeviceConfigWizardPrivate(this))
 {
     setWindowTitle(tr("New Device Configuration Setup"));
     setPage(StartPageId, &d->startPage);

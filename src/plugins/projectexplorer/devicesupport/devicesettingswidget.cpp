@@ -37,7 +37,6 @@
 #include "idevice.h"
 #include "idevicefactory.h"
 #include "idevicewidget.h"
-#include "idevicewizard.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -137,6 +136,17 @@ void DeviceSettingsWidget::initGui()
     m_ui->configurationComboBox->setModel(model);
     m_ui->nameLineEdit->setValidator(m_nameValidator);
 
+    bool hasDeviceFactories = false;
+    const QList<IDeviceFactory *> &factories
+        = ExtensionSystem::PluginManager::instance()->getObjects<IDeviceFactory>();
+    foreach (const IDeviceFactory *f, factories) {
+        if (f->canCreate()) {
+            hasDeviceFactories = true;
+            break;
+        }
+    }
+    m_ui->addConfigButton->setEnabled(hasDeviceFactories);
+
     int lastIndex = Core::ICore::settings()
         ->value(QLatin1String(LastDeviceIndexKey), 0).toInt();
     if (lastIndex == -1)
@@ -152,21 +162,15 @@ void DeviceSettingsWidget::initGui()
 
 void DeviceSettingsWidget::addDevice()
 {
-    const QList<IDeviceFactory *> &factories
-        = ExtensionSystem::PluginManager::instance()->getObjects<IDeviceFactory>();
-
-    if (factories.isEmpty()) // Can't happen, because this plugin provides the generic one.
-        return;
-
     DeviceFactorySelectionDialog d;
     if (d.exec() != QDialog::Accepted)
         return;
 
-    const QScopedPointer<IDeviceWizard> wizard(d.selectedFactory()->createWizard(this));
-    if (wizard->exec() != QDialog::Accepted)
+    IDevice::Ptr device = d.selectedFactory()->create();
+    if (device.isNull())
         return;
 
-    m_deviceManager->addDevice(wizard->device());
+    m_deviceManager->addDevice(device);
     m_ui->removeConfigButton->setEnabled(true);
     m_ui->configurationComboBox->setCurrentIndex(m_ui->configurationComboBox->count()-1);
 }

@@ -39,6 +39,7 @@
 #include <QObject>
 
 namespace ProjectExplorer {
+class IDevice;
 class IDeviceFactory;
 
 namespace Internal {
@@ -51,6 +52,7 @@ class PROJECTEXPLORER_EXPORT DeviceManager : public QObject
     Q_OBJECT
     friend class Internal::DeviceSettingsWidget;
     friend class IDevice;
+
 public:
     ~DeviceManager();
 

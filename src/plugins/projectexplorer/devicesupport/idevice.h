@@ -74,6 +74,7 @@ public:
     virtual QStringList actionIds() const = 0;
     virtual QString displayNameForActionId(const QString &actionId) const = 0;
     virtual QDialog *createAction(const QString &actionId, QWidget *parent = 0) const = 0;
+
     virtual void fromMap(const QVariantMap &map);
     virtual Ptr clone() const = 0;
 
@@ -83,7 +84,7 @@ public:
 
 protected:
     IDevice();
-    IDevice(const QString &type, Origin origin, const QString fingerprint = QString());
+    IDevice(const QString &type, Origin origin, const QString &fingerprint = QString());
     IDevice(const IDevice &other);
 
     Ptr sharedFromThis();

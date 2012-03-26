@@ -47,7 +47,8 @@ public:
     GenericLinuxDeviceConfigurationFactory(QObject *parent = 0);
 
     QString displayName() const;
-    ProjectExplorer::IDeviceWizard *createWizard(QWidget *parent) const;
+    bool canCreate() const;
+    ProjectExplorer::IDevice::Ptr create() const;
     ProjectExplorer::IDevice::Ptr loadDevice(const QVariantMap &map) const;
     bool supportsDeviceType(const QString &deviceType) const;
 };

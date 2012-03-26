@@ -167,7 +167,7 @@ IDevice::IDevice() : d(new Internal::IDevicePrivate)
 {
 }
 
-IDevice::IDevice(const QString &type, Origin origin, const QString fingerprint)
+IDevice::IDevice(const QString &type, Origin origin, const QString &fingerprint)
     : d(new Internal::IDevicePrivate)
 {
     d->type = type;
@@ -193,6 +193,8 @@ QString IDevice::displayName() const
 
 void IDevice::setDisplayName(const QString &name)
 {
+    if (d->displayName == name)
+        return;
     d->displayName = name;
 }
 

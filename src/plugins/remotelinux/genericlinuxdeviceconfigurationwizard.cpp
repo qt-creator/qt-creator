@@ -60,7 +60,7 @@ public:
 } // namespace Internal
 
 GenericLinuxDeviceConfigurationWizard::GenericLinuxDeviceConfigurationWizard(QWidget *parent)
-    : IDeviceWizard(parent),
+    : QWizard(parent),
       d(new Internal::GenericLinuxDeviceConfigurationWizardPrivate(this))
 {
     setWindowTitle(tr("New Generic Linux Device Configuration Setup"));

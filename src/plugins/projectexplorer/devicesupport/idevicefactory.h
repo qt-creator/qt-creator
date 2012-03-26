@@ -43,7 +43,7 @@ class QWidget;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-class IDeviceWizard;
+class IDeviceWidget;
 
 /*!
   \class ProjectExplorer::IDeviceFactory
@@ -65,9 +65,15 @@ public:
     virtual QString displayName() const = 0;
 
     /*!
-      A wizard that can create the types of device this factory supports.
-    */
-    virtual IDeviceWizard *createWizard(QWidget *parent = 0) const = 0;
+      Check whether this factory can create new devices. This is used to hide
+      auto-detect-only factories from the listing of possible devices to create.
+     */
+    virtual bool canCreate() const = 0;
+
+    /*!
+      Create a new device. This may or may not open a wizard.
+     */
+    virtual IDevice::Ptr create() const = 0;
 
     /*!
       Loads a device from a serialized state. The device must be of a matching type.
