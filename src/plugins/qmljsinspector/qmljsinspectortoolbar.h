@@ -46,6 +46,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
 class StyledBar;
+class SavedAction;
 }
 
 namespace QmlJSInspector {
@@ -69,8 +70,10 @@ public:
     explicit QmlJsInspectorToolBar(QObject *parent = 0);
     void createActions();
     QWidget *widget() const;
+    void readSettings();
 
 public slots:
+    void writeSettings() const;
     void setEnabled(bool value);
     void enable();
     void disable();
@@ -117,12 +120,12 @@ private:
 
     QToolButton *m_operateByInstructionButton;
 
-    QAction *m_fromQmlAction;
+    Utils::SavedAction *m_fromQmlAction;
     QAction *m_playAction;
     QAction *m_selectAction;
     QAction *m_zoomAction;
 
-    QAction *m_showAppOnTopAction;
+    Utils::SavedAction *m_showAppOnTopAction;
 
     QActionGroup *m_playSpeedMenuActions;
 

@@ -45,6 +45,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/styledbar.h>
+#include <utils/savedaction.h>
 
 #include <QAction>
 #include <QActionGroup>
@@ -95,7 +96,6 @@ void QmlJsInspectorToolBar::enable()
 {
     setEnabled(true);
     m_emitSignals = false;
-    m_showAppOnTopAction->setChecked(false);
     setAnimationSpeed(1.0f);
     m_designModeActive = false;
     updateDesignModeActions(NoTool);
@@ -167,12 +167,22 @@ void QmlJsInspectorToolBar::createActions()
     Core::Context context(Debugger::Constants::C_QMLDEBUGGER);
     Core::ActionManager *am = Core::ICore::actionManager();
 
-    m_fromQmlAction =
-            new QAction(QIcon(QLatin1String(":/qml/images/from-qml-small.png")),
-                        tr("Apply Changes on Save"), this);
-    m_showAppOnTopAction =
-            new QAction(QIcon(QLatin1String(":/qml/images/app-on-top.png")),
-                        tr("Show application on top"), this);
+    m_fromQmlAction = new Utils::SavedAction(this);
+    m_fromQmlAction->setDefaultValue(true);
+    m_fromQmlAction->setSettingsKey(QLatin1String(Constants::S_QML_INSPECTOR),
+                                    QLatin1String(Constants::FROM_QML_ACTION));
+    m_fromQmlAction->setText(tr("Apply Changes on Save"));
+    m_fromQmlAction->setCheckable(true);
+    m_fromQmlAction->setIcon(QIcon(QLatin1String(":/qml/images/from-qml-small.png")));
+
+    m_showAppOnTopAction = new Utils::SavedAction(this);
+    m_showAppOnTopAction->setDefaultValue(false);
+    m_showAppOnTopAction->setSettingsKey(QLatin1String(Constants::S_QML_INSPECTOR),
+                                         QLatin1String(Constants::SHOW_APP_ON_TOP_ACTION));
+    m_showAppOnTopAction->setText(tr("Show application on top"));
+    m_showAppOnTopAction->setCheckable(true);
+    m_showAppOnTopAction->setIcon(QIcon(QLatin1String(":/qml/images/app-on-top.png")));
+
     m_playAction =
             new QAction(m_pauseIcon, tr("Play/Pause Animations"), this);
     m_selectAction =
@@ -182,10 +192,6 @@ void QmlJsInspectorToolBar::createActions()
             new QAction(QIcon(QLatin1String(":/qml/images/zoom-small.png")),
                         tr("Zoom"), this);
 
-    m_fromQmlAction->setCheckable(true);
-    m_fromQmlAction->setChecked(true);
-    m_showAppOnTopAction->setCheckable(true);
-    m_showAppOnTopAction->setChecked(false);
     m_selectAction->setCheckable(true);
     m_zoomAction->setCheckable(true);
 
@@ -267,6 +273,24 @@ void QmlJsInspectorToolBar::createActions()
     activeDebugLanguagesChanged(mw->activeDebugLanguages());
     connect(mw, SIGNAL(activeDebugLanguagesChanged(Debugger::DebuggerLanguages)),
             this, SLOT(activeDebugLanguagesChanged(Debugger::DebuggerLanguages)));
+
+    readSettings();
+    connect(Core::ICore::instance(),
+            SIGNAL(saveSettingsRequested()), SLOT(writeSettings()));
+}
+
+void QmlJsInspectorToolBar::readSettings()
+{
+    QSettings *settings = Core::ICore::settings();
+    m_fromQmlAction->readSettings(settings);
+    m_showAppOnTopAction->readSettings(settings);
+}
+
+void QmlJsInspectorToolBar::writeSettings() const
+{
+    QSettings *settings = Core::ICore::settings();
+    m_fromQmlAction->writeSettings(settings);
+    m_showAppOnTopAction->writeSettings(settings);
 }
 
 QWidget *QmlJsInspectorToolBar::widget() const
