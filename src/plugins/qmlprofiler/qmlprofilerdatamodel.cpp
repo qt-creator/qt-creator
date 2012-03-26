@@ -127,6 +127,8 @@ struct QmlRangeEventStartInstance {
     qint64 nestingDepth;
     QmlRangeEventData *statsInfo;
 
+    int baseEventIndex;
+
     // animation-related data
     int frameRate;
     int animationCount;
@@ -359,6 +361,7 @@ void QmlProfilerDataModel::addRangedEvent(int type, qint64 startTime, qint64 len
     startTimeData.endTimeIndex = d->endInstanceList.count();
     startTimeData.animationCount = -1;
     startTimeData.frameRate = 1e9/length;
+    startTimeData.baseEventIndex = d->startInstanceList.count(); // point to itself by default
 
     d->endInstanceList << endTimeData;
     d->startInstanceList << startTimeData;
@@ -416,6 +419,7 @@ void QmlProfilerDataModel::addFrameEvent(qint64 time, int framerate, int animati
     startTimeData.endTimeIndex = d->endInstanceList.count();
     startTimeData.animationCount = animationcount;
     startTimeData.frameRate = framerate;
+    startTimeData.baseEventIndex = d->startInstanceList.count(); // point to itself by default
 
     d->endInstanceList << endTimeData;
     d->startInstanceList << startTimeData;
@@ -537,13 +541,8 @@ int QmlProfilerDataModel::findFirstIndex(qint64 startTime) const
         candidate = toIndex;
     }
 
-    int ndx = d->endInstanceList[candidate].startTimeIndex;
-
-    // and then go to the parent
-    while (ndx > 0 && d->startInstanceList[ndx].level > d->startInstanceList[ndx-1].level )
-        ndx--;
-
-    return ndx;
+    int eventIndex = d->endInstanceList[candidate].startTimeIndex;
+    return d->startInstanceList[eventIndex].baseEventIndex;
 }
 
 int QmlProfilerDataModel::findFirstIndexNoParents(qint64 startTime) const
@@ -969,6 +968,8 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::computeNestingLevels()
     QList< QHash<int, qint64> > endtimesPerNestingLevel;
     int level = Constants::QML_MIN_LEVEL;
     endtimesPerLevel[Constants::QML_MIN_LEVEL] = 0;
+    int lastBaseEventIndex = 0;
+    qint64 lastBaseEventEndTime = traceStartTime;
 
     for (int i = 0; i < QmlJsDebugClient::MaximumQmlEventType; i++) {
         nestingLevels << Constants::QML_MIN_LEVEL;
@@ -986,6 +987,11 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::computeNestingLevels()
             // but are not considered parents of other events for statistical purposes
             startInstanceList[i].level = Constants::QML_MIN_LEVEL - 1;
             startInstanceList[i].nestingLevel = Constants::QML_MIN_LEVEL;
+            if (lastBaseEventEndTime < startInstanceList[i].startTime) {
+                lastBaseEventIndex = i;
+                lastBaseEventEndTime = startInstanceList[i].startTime + startInstanceList[i].duration;
+            }
+            startInstanceList[i].baseEventIndex = lastBaseEventIndex;
             continue;
         }
 
@@ -1014,7 +1020,12 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::computeNestingLevels()
 
         if (level == Constants::QML_MIN_LEVEL) {
             qmlMeasuredTime += startInstanceList[i].duration;
+            if (lastBaseEventEndTime < startInstanceList[i].startTime) {
+                lastBaseEventIndex = i;
+                lastBaseEventEndTime = startInstanceList[i].startTime + startInstanceList[i].duration;
+            }
         }
+        startInstanceList[i].baseEventIndex = lastBaseEventIndex;
     }
 }
 
@@ -1207,6 +1218,10 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::findBindingLoops(qint64 
         QmlRangeEventData *currentEvent = startInstanceList[i].statsInfo;
         QmlRangeEventStartInstance *inTimeEvent = &startInstanceList[i];
         inTimeEvent->bindingLoopHead = -1;
+
+        // special: skip animation events (but not old paint events)
+        if (inTimeEvent->statsInfo->eventType == Painting && inTimeEvent->animationCount >= 0)
+            continue;
 
         // managing call stack
         for (int j = stack.count() - 1; j >= 0; j--) {
