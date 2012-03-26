@@ -234,10 +234,6 @@ int main(int argc, char **argv)
     QtSystemExceptionHandler systemExceptionHandler;
 #endif
 
-    QTranslator translator;
-    QTranslator qtTranslator;
-    QString locale = QLocale::system().name();
-
     // Manually determine -settingspath command line option
     // We can't use the regular way of the plugin manager, because that needs to parse pluginspecs
     // but the settings path can influence which plugins are enabled
@@ -273,19 +269,37 @@ int main(int argc, char **argv)
     pluginManager.setGlobalSettings(globalSettings);
     pluginManager.setSettings(settings);
 
-    locale = settings->value("General/OverrideLanguage", locale).toString();
+    QTranslator translator;
+    QTranslator qtTranslator;
+    QStringList uiLanguages;
+#if QT_VERSION >= 0x040800
+    uiLanguages = QLocale::system().uiLanguages();
+#else
+    uiLanguages << QLocale::system().name();
+#endif
+    QString overrideLanguage = settings->value("General/OverrideLanguage").toString();
+    if (!overrideLanguage.isEmpty())
+        uiLanguages.prepend(overrideLanguage);
     const QString &creatorTrPath = QCoreApplication::applicationDirPath()
             + QLatin1String(SHARE_PATH "/translations");
-    if (translator.load(QLatin1String("qtcreator_") + locale, creatorTrPath)) {
-        const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
-        const QString &qtTrFile = QLatin1String("qt_") + locale;
-        // Binary installer puts Qt tr files into creatorTrPath
-        if (qtTranslator.load(qtTrFile, qtTrPath) || qtTranslator.load(qtTrFile, creatorTrPath)) {
-            app.installTranslator(&translator);
-            app.installTranslator(&qtTranslator);
-            app.setProperty("qtc_locale", locale);
-        } else {
+    foreach (const QString &locale, uiLanguages) {
+        if (translator.load(QLatin1String("qtcreator_") + locale, creatorTrPath)) {
+            const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+            const QString &qtTrFile = QLatin1String("qt_") + locale;
+            // Binary installer puts Qt tr files into creatorTrPath
+            if (qtTranslator.load(qtTrFile, qtTrPath) || qtTranslator.load(qtTrFile, creatorTrPath)) {
+                app.installTranslator(&translator);
+                app.installTranslator(&qtTranslator);
+                app.setProperty("qtc_locale", locale);
+                break;
+            }
             translator.load(QString()); // unload()
+        } else if (locale == QLatin1String("C") /* overrideLanguage == "English" */) {
+            // use built-in
+            break;
+        } else if (locale.startsWith(QLatin1String("en")) /* "English" is built-in */) {
+            // use built-in
+            break;
         }
     }
 
