@@ -177,6 +177,7 @@ Item {
                 Row {
                     x: 6
                     spacing: 4
+                    visible: !defaultSession
 
                     Image { source: "images/icons/clone.png" }
                     LinkedText {
