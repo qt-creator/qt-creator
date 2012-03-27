@@ -401,6 +401,9 @@ void ExamplesWelcomePage::openProject(const QString &projectFile, const QStringL
 
     QStringList filesToOpen = additionalFilesToOpen;
     QFileInfo proFileInfo(proFile);
+    if (!proFileInfo.exists())
+        return;
+
     // If the Qt is a distro Qt on Linux, it will not be writable, hence compilation will fail
     if (!proFileInfo.isWritable())
         proFile = copyToAlternativeLocation(proFileInfo, filesToOpen, dependencies);
