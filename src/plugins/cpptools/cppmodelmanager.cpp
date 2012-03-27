@@ -812,12 +812,21 @@ QStringList CppModelManager::internalFrameworkPaths() const
 QByteArray CppModelManager::internalDefinedMacros() const
 {
     QByteArray macros;
+    QSet<QByteArray> alreadyIn;
     QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projects);
     while (it.hasNext()) {
         it.next();
         ProjectInfo pinfo = it.value();
-        foreach (const ProjectPart::Ptr &part, pinfo.projectParts())
-            macros += part->defines;
+        foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
+            const QList<QByteArray> defs = part->defines.split('\n');
+            foreach (const QByteArray &def, defs) {
+                if (!alreadyIn.contains(def)) {
+                    macros += def;
+                    macros.append('\n');
+                    alreadyIn.insert(def);
+                }
+            }
+        }
     }
     return macros;
 }
