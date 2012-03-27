@@ -142,13 +142,13 @@ Rectangle {
             IconAndLink {
                 iconName: "communityIcon"
                 linkText: qsTr("Online Community")
-                onClicked: gettingStarted.openHelp("http://developer.qt.nokia.com/forums")
+                onClicked: gettingStarted.openUrl("http://developer.qt.nokia.com/forums")
             }
 
             IconAndLink {
                 iconName: "labsIcon"
                 linkText: qsTr("Labs")
-                onClicked: gettingStarted.openHelp("http://labs.qt.nokia.com")
+                onClicked: gettingStarted.openUrl("http://labs.qt.nokia.com")
             }
         }
 
