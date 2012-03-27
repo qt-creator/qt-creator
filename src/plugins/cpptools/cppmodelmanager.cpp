@@ -908,11 +908,12 @@ void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 #if 0
     // Tons of debug output...
     qDebug()<<"========= CppModelManager::updateProjectInfo ======";
-    qDebug()<<" for project:"<< pinfo.project.data()->file()->fileName();
-    foreach (const ProjectPart::Ptr &part, pinfo.projectParts) {
+    qDebug()<<" for project:"<< pinfo.project().data()->document()->fileName();
+    foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
         qDebug() << "=== part ===";
         qDebug() << "language:" << (part->language == CXX ? "C++" : "ObjC++");
-        qDebug() << "compilerflags:" << part->flags;
+        qDebug() << "C++11:" << part->cxx11Enabled;
+        qDebug() << "Qt version:" << part->qtVersion;
         qDebug() << "precompiled header:" << part->precompiledHeaders;
         qDebug() << "defines:" << part->defines;
         qDebug() << "includes:" << part->includePaths;
