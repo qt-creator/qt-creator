@@ -62,7 +62,7 @@ namespace Utils {
 bool FileUtils::removeRecursively(const QString &filePath, QString *error)
 {
     QFileInfo fileInfo(filePath);
-    if (!fileInfo.exists())
+    if (!fileInfo.exists() && !fileInfo.isSymLink())
         return true;
     QFile::setPermissions(filePath, fileInfo.permissions() | QFile::WriteUser);
     if (fileInfo.isDir()) {
