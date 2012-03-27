@@ -88,7 +88,6 @@ protected:
 
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
-    void jumpToFile();
 
 private:
     ProFileEditorFactory *m_factory;

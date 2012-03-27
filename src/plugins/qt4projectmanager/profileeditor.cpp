@@ -233,11 +233,6 @@ void ProFileEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
     highlighter->rehighlight();
 }
 
-void ProFileEditorWidget::jumpToFile()
-{
-    openLink(findLinkAt(textCursor()));
-}
-
 //
 // ProFileDocument
 //

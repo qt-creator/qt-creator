@@ -48,7 +48,6 @@ const char SEPARATOR[] = "CppEditor.Separator";
 const char SEPARATOR2[] = "CppEditor.Separator2";
 const char SEPARATOR3[] = "CppEditor.Separator3";
 const char SEPARATOR4[] = "CppEditor.Separator4";
-const char JUMP_TO_DEFINITION[] = "CppEditor.JumpToDefinition";
 const char UPDATE_CODEMODEL[] = "CppEditor.UpdateCodeModel";
 
 const int TYPE_HIERARCHY_PRIORITY = 700;

@@ -1387,11 +1387,6 @@ TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const Q
     return Link();
 }
 
-void QmlJSTextEditorWidget::followSymbolUnderCursor()
-{
-    openLink(findLinkAt(textCursor()));
-}
-
 void QmlJSTextEditorWidget::findUsages()
 {
     m_findReferences->findUsages(editorDocument()->fileName(), textCursor().position());

@@ -51,7 +51,6 @@ const char TASK_SEARCH[] = "QmlJSEditor.TaskSearch";
 const char SETTINGS_CATEGORY_QML[] = "J.QtQuick";
 const char SETTINGS_TR_CATEGORY_QML[] = QT_TRANSLATE_NOOP("QmlJSEditor", "Qt Quick");
 
-const char FOLLOW_SYMBOL_UNDER_CURSOR[] = "QmlJSEditor.FollowSymbolUnderCursor";
 const char FIND_USAGES[] = "QmlJSEditor.FindUsages";
 const char RENAME_USAGES[] = "QmlJSEditor.RenameUsages";
 const char RUN_SEMANTIC_SCAN[] = "QmlJSEditor.RunSemanticScan";

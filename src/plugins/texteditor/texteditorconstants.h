@@ -105,6 +105,8 @@ const char CIRCULAR_PASTE[]        = "TextEditor.CircularPaste";
 const char SWITCH_UTF8BOM[]        = "TextEditor.SwitchUtf8bom";
 const char INDENT[]        = "TextEditor.Indent";
 const char UNINDENT[]        = "TextEditor.Unindent";
+const char FOLLOW_SYMBOL_UNDER_CURSOR[] = "TextEditor.FollowSymbolUnderCursor";
+const char JUMP_TO_FILE_UNDER_CURSOR[] = "TextEditor.JumpToFileUnderCursor";
 
 // Text color and style categories
 const char C_TEXT[]                = "Text";

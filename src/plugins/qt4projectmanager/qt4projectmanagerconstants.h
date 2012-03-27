@@ -63,7 +63,6 @@ const char BUILDSUBDIR[] = "Qt4Builder.BuildSubDir";
 const char REBUILDSUBDIR[] = "Qt4Builder.RebuildSubDir";
 const char CLEANSUBDIR[] = "Qt4Builder.CleanSubDir";
 const char ADDLIBRARY[] = "Qt4.AddLibrary";
-const char JUMP_TO_FILE[] = "Qt4.JumpToFile";
 const char SEPARATOR[] = "Qt4.Separator";
 
 // Tasks

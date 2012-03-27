@@ -180,11 +180,6 @@ void CMakeEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
     highlighter->rehighlight();
 }
 
-void CMakeEditorWidget::jumpToFile()
-{
-    openLink(findLinkAt(textCursor()));
-}
-
 static bool isValidFileNameChar(const QChar &c)
 {
     if (c.isLetterOrNumber()

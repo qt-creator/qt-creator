@@ -174,7 +174,8 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     m_actionHandler = new TextEditor::TextEditorActionHandler(QmlJSEditor::Constants::C_QMLJSEDITOR_ID,
           TextEditor::TextEditorActionHandler::Format
         | TextEditor::TextEditorActionHandler::UnCommentSelection
-        | TextEditor::TextEditorActionHandler::UnCollapseAll);
+        | TextEditor::TextEditorActionHandler::UnCollapseAll
+        | TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor);
     m_actionHandler->initializeActions();
 
     Core::ActionManager *am = Core::ICore::actionManager();
@@ -185,10 +186,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     qmlToolsMenu->addAction(createSeparator(am, this, globalContext, QmlJSEditor::Constants::SEPARATOR3));
 
     Core::Command *cmd;
-    QAction *followSymbolUnderCursorAction = new QAction(tr("Follow Symbol Under Cursor"), this);
-    cmd = am->registerAction(followSymbolUnderCursorAction, Constants::FOLLOW_SYMBOL_UNDER_CURSOR, context);
-    cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
-    connect(followSymbolUnderCursorAction, SIGNAL(triggered()), this, SLOT(followSymbolUnderCursor()));
+    cmd = am->command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
@@ -292,14 +290,6 @@ void QmlJSEditorPlugin::initializeEditor(QmlJSEditor::QmlJSTextEditorWidget *edi
 Utils::JsonSchemaManager *QmlJSEditorPlugin::jsonManager() const
 {
     return m_jsonManager.data();
-}
-
-void QmlJSEditorPlugin::followSymbolUnderCursor()
-{
-    Core::EditorManager *em = Core::EditorManager::instance();
-
-    if (QmlJSTextEditorWidget *editor = qobject_cast<QmlJSTextEditorWidget*>(em->currentEditor()->widget()))
-        editor->followSymbolUnderCursor();
 }
 
 void QmlJSEditorPlugin::findUsages()

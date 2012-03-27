@@ -100,7 +100,6 @@ public:
     Utils::JsonSchemaManager *jsonManager() const;
 
 public Q_SLOTS:
-    void followSymbolUnderCursor();
     void findUsages();
     void renameUsages();
     void reformatFile();

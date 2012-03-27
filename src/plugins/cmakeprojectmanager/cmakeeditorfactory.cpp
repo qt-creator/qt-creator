@@ -54,7 +54,8 @@ CMakeEditorFactory::CMakeEditorFactory(CMakeManager *manager)
 
     m_actionHandler =
             new TextEditorActionHandler(Constants::C_CMAKEEDITOR,
-            TextEditorActionHandler::UnCommentSelection);
+            TextEditorActionHandler::UnCommentSelection
+            | TextEditorActionHandler::JumpToFileUnderCursor);
 
     ICore *core = ICore::instance();
     ActionManager *am = core->actionManager();
@@ -62,11 +63,7 @@ CMakeEditorFactory::CMakeEditorFactory(CMakeManager *manager)
     Command *cmd;
     Context cmakeEditorContext = Context(Constants::C_CMAKEEDITOR);
 
-    QAction *jumpToFile = new QAction(tr("Jump to File Under Cursor"), this);
-    cmd = am->registerAction(jumpToFile,
-        Constants::JUMP_TO_FILE, cmakeEditorContext);
-    cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
-    connect(jumpToFile, SIGNAL(triggered()), this, SLOT(jumpToFile()));
+    cmd = am->command(TextEditor::Constants::JUMP_TO_FILE_UNDER_CURSOR);
     contextMenu->addAction(cmd);
 
     QAction *separator = new QAction(this);
@@ -99,14 +96,6 @@ Core::IEditor *CMakeEditorFactory::createEditor(QWidget *parent)
     CMakeEditorWidget *rc = new CMakeEditorWidget(parent, this, m_actionHandler);
     TextEditor::TextEditorSettings::instance()->initializeEditor(rc);
     return rc->editor();
-}
-
-void CMakeEditorFactory::jumpToFile()
-{
-    Core::EditorManager *em = Core::EditorManager::instance();
-    CMakeEditorWidget *editor = qobject_cast<CMakeEditorWidget*>(em->currentEditor()->widget());
-    if (editor)
-        editor->jumpToFile();
 }
 
 QStringList CMakeEditorFactory::mimeTypes() const

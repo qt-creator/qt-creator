@@ -1485,11 +1485,6 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
     return Link();
 }
 
-void CPPEditorWidget::jumpToDefinition()
-{
-    openLink(findLinkAt(textCursor()));
-}
-
 Symbol *CPPEditorWidget::findDefinition(Symbol *symbol, const Snapshot &snapshot) const
 {
     if (symbol->isFunction())

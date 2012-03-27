@@ -83,8 +83,6 @@ public:
     CMakeEditorFactory *factory() { return m_factory; }
     TextEditor::TextEditorActionHandler *actionHandler() const { return m_ah; }
 
-    void jumpToFile();
-
     Link findLinkAt(const QTextCursor &cursor,
                                      bool resolveTarget = true);
 

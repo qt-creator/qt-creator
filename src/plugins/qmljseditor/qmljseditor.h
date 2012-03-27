@@ -176,7 +176,6 @@ public slots:
     void reparseDocumentNow();
     void updateSemanticInfo();
     void updateSemanticInfoNow();
-    void followSymbolUnderCursor();
     void findUsages();
     void renameUsages();
     void showContextPane();

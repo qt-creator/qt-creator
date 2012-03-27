@@ -63,7 +63,9 @@ public:
         None = 0,
         Format = 1,
         UnCommentSelection = 2,
-        UnCollapseAll = 4
+        UnCollapseAll = 4,
+        FollowSymbolUnderCursor = 8,
+        JumpToFileUnderCursor = 16
     };
 
     explicit TextEditorActionHandler(const char *context, uint optionalActions = None);
@@ -141,6 +143,7 @@ private slots:
     void updateCurrentEditor(Core::IEditor *editor);
     void indent();
     void unindent();
+    void openLinkUnderCursor();
 
     void gotoLineStart();
     void gotoLineStartWithSelection();
@@ -212,6 +215,8 @@ private:
     QAction *m_lowerCaseSelectionAction;
     QAction *m_indentAction;
     QAction *m_unindentAction;
+    QAction *m_followSymbolAction;
+    QAction *m_jumpToFileAction;
     QList<QAction *> m_modifyingActions;
 
     uint m_optionalActions;

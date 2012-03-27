@@ -78,8 +78,6 @@
 #include <utils/treewidgetcolumnstretcher.h>
 #include <utils/stylehelper.h>
 
-#include <cppeditor/cppeditorconstants.h>
-
 #include <cpptools/cpptoolsconstants.h>
 
 #include <QAbstractTableModel>
@@ -895,7 +893,7 @@ FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
         QRegExp("^(cN(ext)?|cp(revious)?)!?( (.*))?$");
     defaultExCommandMap()["Coreplugin.OutputPane.nextitem"] =
         QRegExp("^cn(ext)?!?( (.*))?$");
-    defaultExCommandMap()[CppEditor::Constants::JUMP_TO_DEFINITION] =
+    defaultExCommandMap()[TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR] =
         QRegExp("^tag?$");
     defaultExCommandMap()[Core::Constants::GO_BACK] =
         QRegExp("^pop?$");

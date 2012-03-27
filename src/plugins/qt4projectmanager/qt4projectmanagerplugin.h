@@ -75,7 +75,6 @@ private slots:
     void updateRunQMakeAction();
     void currentNodeChanged(ProjectExplorer::Node *node);
     void buildStateChanged(ProjectExplorer::Project *pro);
-    void jumpToFile();
 
 #ifdef WITH_TESTS
     void testAbldOutputParsers_data();

@@ -1074,6 +1074,11 @@ void BaseTextEditorWidget::unindent()
     indentOrUnindent(false);
 }
 
+void BaseTextEditorWidget::openLinkUnderCursor()
+{
+    openLink(findLinkAt(textCursor()));
+}
+
 void BaseTextEditorWidget::moveLineUpDown(bool up)
 {
     QTextCursor cursor = textCursor();

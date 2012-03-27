@@ -242,12 +242,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     cmd = am->command(Core::Id(CppTools::Constants::SWITCH_HEADER_SOURCE));
     contextMenu->addAction(cmd);
 
-    QAction *jumpToDefinition = new QAction(tr("Follow Symbol Under Cursor"), this);
-    cmd = am->registerAction(jumpToDefinition,
-        Constants::JUMP_TO_DEFINITION, context, true);
-    cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
-    connect(jumpToDefinition, SIGNAL(triggered()),
-            this, SLOT(jumpToDefinition()));
+    cmd = am->command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
@@ -304,7 +299,8 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     m_actionHandler = new TextEditor::TextEditorActionHandler(CppEditor::Constants::C_CPPEDITOR,
         TextEditor::TextEditorActionHandler::Format
         | TextEditor::TextEditorActionHandler::UnCommentSelection
-        | TextEditor::TextEditorActionHandler::UnCollapseAll);
+        | TextEditor::TextEditorActionHandler::UnCollapseAll
+        | TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor);
 
     m_actionHandler->initializeActions();
 
@@ -353,14 +349,6 @@ void CppPlugin::switchDeclarationDefinition()
     CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(em->currentEditor()->widget());
     if (editor)
         editor->switchDeclarationDefinition();
-}
-
-void CppPlugin::jumpToDefinition()
-{
-    Core::EditorManager *em = Core::EditorManager::instance();
-    CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(em->currentEditor()->widget());
-    if (editor)
-        editor->jumpToDefinition();
 }
 
 void CppPlugin::renameSymbolUnderCursor()

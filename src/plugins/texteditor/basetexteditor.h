@@ -326,6 +326,8 @@ public slots:
     void indent();
     void unindent();
 
+    void openLinkUnderCursor();
+
 signals:
     void changed();
 

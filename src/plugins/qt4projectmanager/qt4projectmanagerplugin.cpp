@@ -129,7 +129,8 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     TextEditor::TextEditorActionHandler *editorHandler
             = new TextEditor::TextEditorActionHandler(Constants::C_PROFILEEDITOR,
-                  TextEditor::TextEditorActionHandler::UnCommentSelection);
+                  TextEditor::TextEditorActionHandler::UnCommentSelection
+                  | TextEditor::TextEditorActionHandler::JumpToFileUnderCursor);
 
     m_proFileEditorFactory = new ProFileEditorFactory(m_qt4ProjectManager, editorHandler);
     addObject(m_proFileEditorFactory);
@@ -238,12 +239,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     Core::Context proFileEditorContext = Core::Context(Qt4ProjectManager::Constants::C_PROFILEEDITOR);
 
-    QAction *jumpToFile = new QAction(tr("Jump to File Under Cursor"), this);
-    command = am->registerAction(jumpToFile,
-        Constants::JUMP_TO_FILE, proFileEditorContext);
-    command->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
-    connect(jumpToFile, SIGNAL(triggered()),
-            this, SLOT(jumpToFile()));
+    command = am->command(TextEditor::Constants::JUMP_TO_FILE_UNDER_CURSOR);
     contextMenu->addAction(command);
 
     m_addLibraryAction = new QAction(tr("Add Library..."), this);
@@ -367,14 +363,6 @@ void Qt4ProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *pro)
     ProjectExplorer::Project *currentProject = m_projectExplorer->currentProject();
     if (pro == currentProject)
         updateRunQMakeAction();
-}
-
-void Qt4ProjectManagerPlugin::jumpToFile()
-{
-    Core::EditorManager *em = Core::EditorManager::instance();
-    ProFileEditorWidget *editor = qobject_cast<ProFileEditorWidget*>(em->currentEditor()->widget());
-    if (editor)
-        editor->jumpToFile();
 }
 
 Q_EXPORT_PLUGIN(Qt4ProjectManagerPlugin)

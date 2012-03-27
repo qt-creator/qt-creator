@@ -60,9 +60,6 @@ public:
     Core::IDocument *open(const QString &fileName);
     Core::IEditor *createEditor(QWidget *parent);
 
-public slots:
-    void jumpToFile();
-
 private:
     const QStringList m_mimeTypes;
     CMakeManager *m_manager;
