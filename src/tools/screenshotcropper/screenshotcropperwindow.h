@@ -58,7 +58,7 @@ public slots:
     void saveData();
 
 private:
-    AreasOfInterest m_areasOfInterest;
+    QMap<QString, QRect> m_areasOfInterest;
     QString m_areasOfInterestFile;
     QString m_imagesFolder;
     Ui::ScreenShotCropperWindow *ui;

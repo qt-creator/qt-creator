@@ -43,13 +43,20 @@
 namespace QtSupport {
 namespace Internal {
 
+class AreasOfInterest {
+public:
+    AreasOfInterest();
+    QMap<QString, QRect> areas;
+};
+
+AreasOfInterest::AreasOfInterest()
+{
 #ifdef QT_CREATOR
-Q_GLOBAL_STATIC_WITH_INITIALIZER(AreasOfInterest, areasOfInterest, {
-    *x = ScreenshotCropper::loadAreasOfInterest(Core::ICore::resourcePath() + QLatin1String("/welcomescreen/images_areaofinterest.xml"));
-})
-#else
-Q_GLOBAL_STATIC(AreasOfInterest, areasOfInterest)
+    areas = ScreenshotCropper::loadAreasOfInterest(Core::ICore::resourcePath() + QLatin1String("/welcomescreen/images_areaofinterest.xml"));
 #endif // QT_CREATOR
+}
+
+Q_GLOBAL_STATIC(AreasOfInterest, welcomeScreenAreas)
 
 static inline QString fileNameForPath(const QString &path)
 {
@@ -81,7 +88,7 @@ static QRect cropRectForAreaOfInterest(const QSize &imageSize, const QSize &crop
 
 QImage ScreenshotCropper::croppedImage(const QImage &sourceImage, const QString &filePath, const QSize &cropSize)
 {
-    const QRect areaOfInterest = areasOfInterest()->value(fileNameForPath(filePath));
+    const QRect areaOfInterest = welcomeScreenAreas()->areas.value(fileNameForPath(filePath));
 
     if (areaOfInterest.isValid()) {
         const QRect cropRect = cropRectForAreaOfInterest(sourceImage.size(), cropSize, areaOfInterest);
@@ -113,9 +120,9 @@ static const QString xmlAttributeY = QLatin1String("y");
 static const QString xmlAttributeWidth = QLatin1String("width");
 static const QString xmlAttributeHeight = QLatin1String("height");
 
-AreasOfInterest ScreenshotCropper::loadAreasOfInterest(const QString &areasXmlFile)
+QMap<QString, QRect> ScreenshotCropper::loadAreasOfInterest(const QString &areasXmlFile)
 {
-    AreasOfInterest areasOfInterest;
+    QMap<QString, QRect> areasOfInterest;
     QFile xmlFile(areasXmlFile);
     if (!xmlFile.open(QIODevice::ReadOnly)) {
         qWarning() << Q_FUNC_INFO << "Could not open file" << areasXmlFile;
@@ -144,7 +151,7 @@ AreasOfInterest ScreenshotCropper::loadAreasOfInterest(const QString &areasXmlFi
     return areasOfInterest;
 }
 
-bool ScreenshotCropper::saveAreasOfInterest(const QString &areasXmlFile, AreasOfInterest &areas)
+bool ScreenshotCropper::saveAreasOfInterest(const QString &areasXmlFile, QMap<QString, QRect> &areas)
 {
     QFile file(areasXmlFile);
     if (!file.open(QIODevice::WriteOnly))

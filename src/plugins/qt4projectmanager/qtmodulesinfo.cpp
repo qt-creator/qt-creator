@@ -47,10 +47,7 @@ struct item
     bool isDefault;
 };
 
-typedef QVector<const item*> itemVectorType;
-typedef QHash<QString, const item*> itemHashType;
-
-const itemVectorType itemVector()
+static inline QVector<const item*> itemVector()
 {
     static const struct item items[] = {
         {"core",
@@ -119,37 +116,37 @@ const itemVectorType itemVector()
             false}
     };
     const int itemsCount = sizeof items / sizeof items[0];
-    itemVectorType result;
+    QVector<const item*> result;
     result.reserve(itemsCount);
     for (int i = 0; i < itemsCount; i++)
         result.append(items + i);
     return result;
 }
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(itemVectorType, staticItemVector, {
-    *x = itemVector();
-})
+class StaticQtModuleInfo
+{
+public:
+    StaticQtModuleInfo() : items(itemVector()) {}
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(QStringList, staticModulesList, {
-    const itemVectorType * const itemVector = staticItemVector();
-    for (int i = 0; i < itemVector->count(); i++)
-        x->append(QString::fromLatin1(itemVector->at(i)->config));
-})
+    const QVector<const item*> items;
+};
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(itemHashType, staticItemHash, {
-    const itemVectorType * const itemVector = staticItemVector();
-    for (int i = 0; i < itemVector->count(); i++)
-        x->insert(QString::fromLatin1(itemVector->at(i)->config), itemVector->at(i));
-})
+Q_GLOBAL_STATIC(StaticQtModuleInfo, staticQtModuleInfo)
 
 QStringList QtModulesInfo::modules()
 {
-    return *staticModulesList();
+    QStringList result;
+    foreach (const item *i, staticQtModuleInfo()->items)
+        result.push_back(i->config);
+    return result;
 }
 
 static inline const item *itemForModule(const QString &module)
 {
-    return staticItemHash()->value(module);
+    foreach (const item *i, staticQtModuleInfo()->items)
+        if (i->config == module)
+            return i;
+    return 0;
 }
 
 QString QtModulesInfo::moduleName(const QString &module)

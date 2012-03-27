@@ -107,8 +107,10 @@ static const FileTypeDataStorage fileTypeDataStorage[] = {
       ":/qt4projectmanager/images/unknown.png" }
 };
 
-struct Qt4NodeStaticData {
-    struct FileTypeData {
+class Qt4NodeStaticData {
+public:
+    class FileTypeData {
+    public:
         FileTypeData(ProjectExplorer::FileType t = ProjectExplorer::UnknownFileType,
                      const QString &tN = QString(),
                      const QIcon &i = QIcon()) :
@@ -119,16 +121,19 @@ struct Qt4NodeStaticData {
         QIcon icon;
     };
 
+    Qt4NodeStaticData();
+
     QVector<FileTypeData> fileTypeData;
     QIcon projectIcon;
 };
 
 static void clearQt4NodeStaticData();
 
-Q_GLOBAL_STATIC_WITH_INITIALIZER(Qt4NodeStaticData, qt4NodeStaticData, {
+Qt4NodeStaticData::Qt4NodeStaticData()
+{
     // File type data
     const unsigned count = sizeof(fileTypeDataStorage)/sizeof(FileTypeDataStorage);
-    x->fileTypeData.reserve(count);
+    fileTypeData.reserve(count);
 
     // Overlay the SP_DirIcon with the custom icons
     const QSize desiredSize = QSize(16, 16);
@@ -141,18 +146,20 @@ Q_GLOBAL_STATIC_WITH_INITIALIZER(Qt4NodeStaticData, qt4NodeStaticData, {
         QIcon folderIcon;
         folderIcon.addPixmap(folderPixmap);
         const QString desc = Qt4ProjectManager::Qt4PriFileNode::tr(fileTypeDataStorage[i].typeName);
-        x->fileTypeData.push_back(Qt4NodeStaticData::FileTypeData(fileTypeDataStorage[i].type,
-                                                                  desc, folderIcon));
+        fileTypeData.push_back(Qt4NodeStaticData::FileTypeData(fileTypeDataStorage[i].type,
+                                                               desc, folderIcon));
     }
     // Project icon
     const QIcon projectBaseIcon(QLatin1String(":/qt4projectmanager/images/qt_project.png"));
     const QPixmap projectPixmap = Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
                                                                       projectBaseIcon,
                                                                       desiredSize);
-    x->projectIcon.addPixmap(projectPixmap);
+    projectIcon.addPixmap(projectPixmap);
 
     qAddPostRoutine(clearQt4NodeStaticData);
-})
+}
+
+Q_GLOBAL_STATIC(Qt4NodeStaticData, qt4NodeStaticData)
 
 static void clearQt4NodeStaticData()
 {
