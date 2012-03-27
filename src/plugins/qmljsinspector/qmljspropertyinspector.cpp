@@ -262,13 +262,21 @@ QmlJSPropertyInspector::QmlJSPropertyInspector(QWidget *parent)
     setFrameStyle(QFrame::NoFrame);
     setExpandsOnDoubleClick(true);
 
-    header()->setResizeMode(QHeaderView::ResizeToContents);
-    header()->setMinimumSectionSize(150);
+    header()->setDefaultAlignment(Qt::AlignLeft);
+    header()->setClickable(true);
     setRootIsDecorated(false);
 
     setItemDelegateForColumn(PROPERTY_VALUE_COLUMN, new PropertyEditDelegate(this));
 
     setModel(&m_model);
+
+    connect(header(), SIGNAL(sectionClicked(int)),
+        SLOT(headerSectionClicked(int)));
+}
+
+void QmlJSPropertyInspector::headerSectionClicked(int logicalIndex)
+{
+    resizeColumnToContents(logicalIndex);
 }
 
 void QmlJSPropertyInspector::clear()

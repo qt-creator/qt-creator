@@ -120,6 +120,9 @@ public slots:
     void openExpressionEditor(const QModelIndex &itemIndex);
     void openColorSelector(const QModelIndex &itemIndex);
 
+private slots:
+    void headerSectionClicked(int logicalIndex);
+
 private:
     friend class PropertyEditDelegate;
     void buildPropertyTree(const QmlDebugObjectReference &);
