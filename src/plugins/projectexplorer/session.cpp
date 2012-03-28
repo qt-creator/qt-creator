@@ -285,11 +285,6 @@ void SessionManager::addProjects(const QList<Project*> &projects)
 
     if (clearedList.count() == 1)
         emit singleProjectAdded(clearedList.first());
-
-    // maybe we have a new startup project?
-    if (!startupProject())
-        if (!m_projects.isEmpty())
-            setStartupProject(m_projects.first());
 }
 
 void SessionManager::removeProject(Project *project)
