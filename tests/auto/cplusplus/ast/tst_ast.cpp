@@ -101,6 +101,7 @@ private slots:
     void gcc_attributes_1();
     void gcc_attributes_2();
     void gcc_attributes_3();
+    void crash_test_1();
 
     // expressions
     void simple_name_1();
@@ -210,6 +211,13 @@ void tst_AST::gcc_attributes_3()
     QCOMPARE(unit->tokenKind(link->lbrace_token), (int) T_LBRACE);
     QVERIFY(!link->declaration_list);
     QCOMPARE(unit->tokenKind(link->rbrace_token), (int) T_RBRACE);
+}
+
+void tst_AST::crash_test_1()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("decltype auto\n"));
+    AST *ast = unit->ast();
+    QVERIFY(ast);
 }
 
 void tst_AST::simple_declaration_1()
