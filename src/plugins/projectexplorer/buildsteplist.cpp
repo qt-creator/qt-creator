@@ -79,6 +79,7 @@ BuildStepList::BuildStepList(QObject *parent, BuildStepList *source) :
     ProjectConfiguration(parent, source),
     m_isNull(source->m_isNull)
 {
+    setDisplayName(source->displayName());
     Q_ASSERT(parent);
     // do not clone the steps here:
     // The BC is not fully set up yet and thus some of the buildstepfactories
