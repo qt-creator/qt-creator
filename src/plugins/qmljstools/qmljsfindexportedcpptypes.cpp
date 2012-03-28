@@ -143,7 +143,12 @@ protected:
         if (!templateIdentifier)
             return false;
         const QString callName = QString::fromUtf8(templateIdentifier->chars());
-        if (callName != QLatin1String("qmlRegisterType"))
+        int argCount = 0;
+        if (callName == QLatin1String("qmlRegisterType"))
+            argCount = 4;
+        else if (callName == QLatin1String("qmlRegisterUncreatableType"))
+            argCount = 5;
+        else
             return false;
 
         // must have a single typeid template argument
@@ -154,16 +159,21 @@ protected:
         if (!typeId)
             return false;
 
-        // must have four arguments
+        // must have four arguments for qmlRegisterType and five for qmlRegisterUncreatableType
         if (!ast->expression_list
                 || !ast->expression_list->value || !ast->expression_list->next
                 || !ast->expression_list->next->value || !ast->expression_list->next->next
                 || !ast->expression_list->next->next->value || !ast->expression_list->next->next->next
-                || !ast->expression_list->next->next->next->value
-                || ast->expression_list->next->next->next->next)
+                || !ast->expression_list->next->next->next->value)
+            return false;
+        if (argCount == 4 && ast->expression_list->next->next->next->next)
+            return false;
+        if (argCount == 5 && (!ast->expression_list->next->next->next->next
+                              || !ast->expression_list->next->next->next->next->value
+                              || ast->expression_list->next->next->next->next->next))
             return false;
 
-        // last argument must be a string literal
+        // 4th argument must be a string literal
         const StringLiteral *nameLit = 0;
         if (StringLiteralAST *nameAst = skipStringCall(ast->expression_list->next->next->next->value)->asStringLiteral())
             nameLit = translationUnit()->stringLiteral(nameAst->literal_token);
@@ -748,9 +758,14 @@ bool FindExportedCppTypes::maybeExportsTypes(const Document::Ptr &document)
     if (!document->control())
         return false;
     const QByteArray qmlRegisterTypeToken("qmlRegisterType");
+    const QByteArray qmlRegisterUncreatableTypeToken("qmlRegisterUncreatableType");
     const QByteArray setContextPropertyToken("setContextProperty");
     if (document->control()->findIdentifier(
                 qmlRegisterTypeToken.constData(), qmlRegisterTypeToken.size())) {
+        return true;
+    }
+    if (document->control()->findIdentifier(
+                qmlRegisterUncreatableTypeToken.constData(), qmlRegisterUncreatableTypeToken.size())) {
         return true;
     }
     if (document->control()->findIdentifier(
