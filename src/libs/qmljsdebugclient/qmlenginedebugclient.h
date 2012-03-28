@@ -132,10 +132,11 @@ typedef QList<QmlDebugEngineReference> QmlDebugEngineReferenceList;
 class QmlDebugObjectReference
 {
 public:
-    QmlDebugObjectReference() : m_debugId(-1), m_contextDebugId(-1), m_needsMoreData(false) {}
-    QmlDebugObjectReference(int id) : m_debugId(id), m_contextDebugId(-1), m_needsMoreData(false) {}
+    QmlDebugObjectReference() : m_debugId(-1), m_parentId(-1), m_contextDebugId(-1), m_needsMoreData(false) {}
+    QmlDebugObjectReference(int id) : m_debugId(id), m_parentId(-1), m_contextDebugId(-1), m_needsMoreData(false) {}
 
     int debugId() const { return m_debugId; }
+    int parentId() const { return m_parentId; }
     QString className() const { return m_className; }
     QString idString() const { return m_idString; }
     QString name() const { return m_name; }
@@ -161,9 +162,15 @@ public:
         return false;
     }
 
+    bool operator ==(const QmlDebugObjectReference &obj)
+    {
+        return m_debugId == obj.debugId();
+    }
+
 private:
     friend class QmlEngineDebugClient;
     int m_debugId;
+    int m_parentId;
     QString m_className;
     QString m_idString;
     QString m_name;

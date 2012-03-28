@@ -510,6 +510,19 @@ void ClientProxy::fetchContextObjectRecursive(
     }
 }
 
+void ClientProxy::insertObjectInTreeIfNeeded(const QmlDebugObjectReference &object)
+{
+    if (!m_rootObjects.contains(object))
+        return;
+    int count = m_rootObjects.count();
+    for (int i = 0; i < count; i++) {
+        if (m_rootObjects[i].parentId() < 0 && m_rootObjects[i].insertObjectInTree(object)) {
+            m_rootObjects.removeOne(object);
+            break;
+        }
+    }
+}
+
 void ClientProxy::onResult(quint32 queryId, const QVariant &value, const QByteArray &type)
 {
     if (type == "FETCH_OBJECT_R") {

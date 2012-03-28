@@ -135,6 +135,7 @@ private slots:
     void showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
 
 private:
+    void showRoot();
     void resetViews();
 
     void initializeDocuments();
@@ -150,6 +151,8 @@ private:
 
     void showObject(const QmlDebugObjectReference &obj);
 
+    QmlDebugObjectReference findParentRecursive(
+            int goalDebugId, const QList<QmlDebugObjectReference > &objectsToSearch);
 private:
     bool m_listeningToEditorManager;
     QmlJsInspectorToolBar *m_toolBar;

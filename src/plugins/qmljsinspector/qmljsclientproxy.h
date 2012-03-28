@@ -97,6 +97,7 @@ public:
     quint32 fetchContextObject(const QmlDebugObjectReference& obj);
     void addObjectToTree(const QmlDebugObjectReference &obj);
     void fetchContextObjectRecursive(const QmlDebugContextReference &context, bool clear);
+    void insertObjectInTreeIfNeeded(const QmlDebugObjectReference &object);
 
 signals:
     void objectTreeUpdated();

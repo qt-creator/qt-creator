@@ -31,6 +31,8 @@
 
 #include "qmlenginedebugclient.h"
 
+const float CURRENT_SUPPORTED_VERSION = 2.0;
+
 namespace QmlJsDebugClient {
 
 struct QmlObjectData {
@@ -76,6 +78,10 @@ void QmlEngineDebugClient::decode(QDataStream &ds,
 {
     QmlObjectData data;
     ds >> data;
+    int parentId = -1;
+    if (objectName() == QLatin1String("QmlDebugger") &&
+            serviceVersion() >= CURRENT_SUPPORTED_VERSION )
+        ds >> parentId;
     o.m_debugId = data.objectId;
     o.m_className = data.objectType;
     o.m_idString = data.idString;
@@ -85,6 +91,7 @@ void QmlEngineDebugClient::decode(QDataStream &ds,
     o.m_source.m_columnNumber = data.columnNumber;
     o.m_contextDebugId = data.contextId;
     o.m_needsMoreData = simple;
+    o.m_parentId = parentId;
 
     if (simple)
         return;

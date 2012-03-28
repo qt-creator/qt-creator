@@ -378,8 +378,8 @@ void InspectorUi::objectTreeReady()
         selectItems(QList<QmlDebugObjectReference>() <<
                     m_clientProxy->objectReferenceForId(
                         m_crumblePath->dataForLastIndex().toInt()));
-    } else if (!m_clientProxy->rootObjectReference().isEmpty()) {
-        selectItems(m_clientProxy->rootObjectReference());
+    } else {
+        showRoot();
     }
 }
 
@@ -523,24 +523,27 @@ void InspectorUi::reloadQmlViewer()
         m_clientProxy->reloadQmlViewer();
 }
 
-inline QmlDebugObjectReference findParentRecursive( int goalDebugId,
-                                                            const QList<QmlDebugObjectReference > &objectsToSearch)
+QmlDebugObjectReference InspectorUi::findParentRecursive(
+        int goalDebugId, const QList<QmlDebugObjectReference > &objectsToSearch)
 {
     if (goalDebugId == -1)
         return QmlDebugObjectReference();
 
     foreach (const QmlDebugObjectReference &possibleParent, objectsToSearch) {
         // Am I a root object? No parent
-        if ( possibleParent.debugId() == goalDebugId )
+        if ( possibleParent.debugId() == goalDebugId && possibleParent.parentId() < 0)
             return QmlDebugObjectReference();
 
         // Is the goal one of my children?
         foreach (const QmlDebugObjectReference &child, possibleParent.children())
-            if ( child.debugId() == goalDebugId )
+            if ( child.debugId() == goalDebugId ) {
+                m_clientProxy->insertObjectInTreeIfNeeded(child);
                 return possibleParent;
+            }
 
         // no luck? pass this on
-        QmlDebugObjectReference candidate = findParentRecursive(goalDebugId, possibleParent.children());
+        QmlDebugObjectReference candidate = findParentRecursive(
+                    goalDebugId, possibleParent.children());
         if (candidate.debugId() != -1)
             return candidate;
     }
@@ -605,7 +608,7 @@ void InspectorUi::showObject(const QmlDebugObjectReference &obj)
 bool InspectorUi::isRoot(const QmlDebugObjectReference &obj) const
 {
     foreach (const QmlDebugObjectReference &rootObj, m_clientProxy->rootObjectReference())
-        if (obj.debugId() == rootObj.debugId())
+        if (obj.debugId() == rootObj.debugId() && obj.parentId() < 0)
             return true;
     return false;
 }
@@ -625,6 +628,9 @@ void InspectorUi::populateCrumblePath(const QmlDebugObjectReference &objRef)
         crumbleData.push_front( ref.debugId() );
         crumbleStrings.push_front( displayName(ref) );
     }
+    //Prepend Root
+    crumbleData.push_front(-1);
+    crumbleStrings.push_front(QLatin1String("/"));
 
     m_crumblePath->updateContextPath(crumbleStrings, crumbleData);
     crumbleStrings.clear();
@@ -637,6 +643,33 @@ void InspectorUi::populateCrumblePath(const QmlDebugObjectReference &objRef)
     }
 
     m_crumblePath->addChildren(crumbleStrings, crumbleData);
+}
+
+void InspectorUi::showRoot()
+{
+    QStringList crumbleStrings;
+    QList <int> crumbleData;
+
+    crumbleData << -1;
+    crumbleStrings << QLatin1String("/");
+
+    m_crumblePath->updateContextPath(crumbleStrings, crumbleData);
+    crumbleStrings.clear();
+    crumbleData.clear();
+
+    // now append the children
+    foreach (const QmlDebugObjectReference &child, m_clientProxy->rootObjectReference()) {
+        if (child.parentId() != -1)
+            continue;
+        crumbleData.push_back(child.debugId());
+        crumbleStrings.push_back( displayName(child) );
+    }
+
+    m_crumblePath->addChildren(crumbleStrings, crumbleData);
+    m_propertyInspector->clear();
+    Debugger::QmlAdapter *qmlAdapter = m_clientProxy->qmlAdapter();
+    if (qmlAdapter)
+        qmlAdapter->setCurrentSelectedDebugInfo(-1, QLatin1String("/"));
 }
 
 void InspectorUi::selectItems(const QList<int> &objectIds)
@@ -776,8 +809,11 @@ void InspectorUi::crumblePathElementClicked(const QVariant &data)
 {
     bool ok;
     const int debugId = data.toInt(&ok);
-    if (!ok || debugId == -1)
+    if (!ok || debugId == -2)
         return;
+
+    if (debugId == -1)
+        return showRoot();
 
     QList<int> debugIds;
     debugIds << debugId;
