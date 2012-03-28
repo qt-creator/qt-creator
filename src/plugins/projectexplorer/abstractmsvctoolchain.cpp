@@ -203,7 +203,7 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
     Utils::TempFileSaver saver(QDir::tempPath() + QLatin1String("/XXXXXX.bat"));
 
     QByteArray call = "call ";
-    call += Utils::QtcProcess::quoteArg(batchFile).toLocal8Bit() + "\r\n";
+    call += Utils::QtcProcess::quoteArg(batchFile).toLocal8Bit();
     if (!batchArgs.isEmpty()) {
         call += ' ';
         call += batchArgs.toLocal8Bit();

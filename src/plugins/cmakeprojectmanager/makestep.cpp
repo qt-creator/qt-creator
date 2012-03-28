@@ -249,7 +249,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     // TODO update this list also on rescans of the CMakeLists.txt
     // TODO shouldn't be accessing project
-    CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeTarget()->cmakeProject();
+    CMakeProject *pro = static_cast<CMakeProject *>(m_makeStep->target()->project());
     foreach (const QString& buildTarget, pro->buildTargetTitles()) {
         QListWidgetItem *item = new QListWidgetItem(buildTarget, m_buildTargetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
@@ -288,7 +288,7 @@ void MakeStepConfigWidget::buildTargetsChanged()
 {
     disconnect(m_buildTargetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
     m_buildTargetsList->clear();
-    CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeTarget()->cmakeProject();
+    CMakeProject *pro = static_cast<CMakeProject *>(m_makeStep->target()->project());
     foreach (const QString& buildTarget, pro->buildTargetTitles()) {
         QListWidgetItem *item = new QListWidgetItem(buildTarget, m_buildTargetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
@@ -301,6 +301,8 @@ void MakeStepConfigWidget::buildTargetsChanged()
 void MakeStepConfigWidget::updateDetails()
 {
     CMakeBuildConfiguration *bc = m_makeStep->cmakeBuildConfiguration();
+    if (!bc)
+        bc = static_cast<CMakeBuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
     ProjectExplorer::ToolChain *tc = bc->toolChain();
     if (tc) {
         QString arguments = Utils::QtcProcess::joinArgs(m_makeStep->m_buildTargets);

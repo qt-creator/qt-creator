@@ -2,11 +2,14 @@ import re;
 
 # this function switches the MainWindow of creator to the specified view
 def switchViewTo(view):
+    # make sure that no tooltip is shown, so move the mouse away and wait until all disappear
+    mouseMove(waitForObject(':Qt Creator_Core::Internal::MainWindow'), -20, -20)
+    waitFor("not QToolTip.isVisible()", 15000)
     if view < ViewConstants.WELCOME or view > ViewConstants.LAST_AVAILABLE:
         return
     tabBar = waitForObject("{type='Core::Internal::FancyTabBar' unnamed='1' visible='1' "
                            "window=':Qt Creator_Core::Internal::MainWindow'}")
-    mouseMove(tabBar, 10, 10 + 52 * view)
+    mouseMove(tabBar, 20, 20 + 52 * view)
     if waitFor("QToolTip.isVisible()", 10000):
         text = str(QToolTip.text())
     else:
@@ -18,7 +21,7 @@ def switchViewTo(view):
     else:
         test.warning("ToolTip does not match", "Expected pattern: %s\nGot: %s" % (pattern, text))
     mouseClick(waitForObject("{type='Core::Internal::FancyTabBar' unnamed='1' visible='1' "
-                             "window=':Qt Creator_Core::Internal::MainWindow'}"), 5, 5 + 52 * view, 0, Qt.LeftButton)
+                             "window=':Qt Creator_Core::Internal::MainWindow'}"), 20, 20 + 52 * view, 0, Qt.LeftButton)
 
 # this function is used to make sure that simple building prerequisites are met
 # param targetCount specifies how many build targets had been selected (it's important that this one is correct)

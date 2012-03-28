@@ -11,11 +11,12 @@ def __handleProcessExited__(object, exitCode):
     global processExited
     processExited = True
 
-def openQmakeProject(projectPath):
+def openQmakeProject(projectPath, targets=QtQuickConstants.Targets.DESKTOP):
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(projectPath)
     selectFromCombo(waitForObject(":Qt Creator.Create Build Configurations:_QComboBox", 180000),
                     "For Each Qt Version One Debug And One Release")
+    __chooseTargets__(targets)
     configureButton = waitForObject("{text='Configure Project' type='QPushButton' unnamed='1' visible='1'"
                                     "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
     clickButton(configureButton)
@@ -271,6 +272,7 @@ def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP, availableTargets
                      QtQuickConstants.Targets.SIMULATOR, QtQuickConstants.Targets.HARMATTAN]
         if platform.system() in ('Windows', 'Microsoft'):
             available += [QtQuickConstants.Targets.SYMBIAN]
+            available.remove(QtQuickConstants.Targets.EMBEDDED_LINUX)
     for current in available:
         mustCheck = targets & current == current
         try:

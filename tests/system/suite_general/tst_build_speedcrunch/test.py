@@ -1,4 +1,5 @@
 source("../../shared/qtcreator.py")
+import re
 
 SpeedCrunchPath = ""
 
@@ -25,7 +26,17 @@ def main():
 
     fancyToolButton = waitForObject(":*Qt Creator_Core::Internal::FancyToolButton")
 
+    qtVerPattern = re.compile("\d\.\d(\.\d+)?")
     for config in iterateBuildConfigs(1, 0, "(Desktop )?Qt.*Release"):
+        qtVersion = qtVerPattern.search(config)
+        if qtVersion:
+            qtVersion = qtVersion.group()
+            if qtVersion >= "4.8":
+                test.log("Skipping config %s - this project needs Qt <= 4.7.x (got %s)" % (config, qtVersion))
+                continue
+        else:
+            test.warning("Could not determine Qt version for config '%s' - skipping..." % config)
+            continue
         selectBuildConfig(1, 0, config)
         buildConfig = buildConfigFromFancyToolButton(fancyToolButton)
         if buildConfig != config:

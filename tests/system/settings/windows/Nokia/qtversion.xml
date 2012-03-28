@@ -108,8 +108,38 @@
   </valuemap>
  </data>
  <data>
+  <variable>QtVersion.9</variable>
+  <valuemap type="QVariantMap">
+   <value type="int" key="Id">1</value>
+   <value type="QString" key="Name">Qt 4.8 for Desktop - MSVC2008 (Qt SDK)</value>
+   <value type="QString" key="QMakePath">C:/QtSDK/Desktop/Qt/4.8.0/msvc2008/bin/qmake.exe</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
+   <value type="bool" key="isAutodetected">false</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>QtVersion.10</variable>
+  <valuemap type="QVariantMap">
+   <value type="int" key="Id">2</value>
+   <value type="QString" key="Name">Qt 4.8 for Desktop - MSVC2010 (Qt SDK)</value>
+   <value type="QString" key="QMakePath">C:/QtSDK/Desktop/Qt/4.8.0/msvc2010/bin/qmake.exe</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
+   <value type="bool" key="isAutodetected">false</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>QtVersion.10</variable>
+  <valuemap type="QVariantMap">
+   <value type="int" key="Id">3</value>
+   <value type="QString" key="Name">Qt 4.8 for Desktop - MinGW (Qt SDK)</value>
+   <value type="QString" key="QMakePath">C:/QtSDK/Desktop/Qt/4.8.0/mingw/bin/qmake.exe</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
+   <value type="bool" key="isAutodetected">false</value>
+  </valuemap>
+ </data>
+ <data>
   <variable>QtVersion.Count</variable>
-  <value type="int">9</value>
+  <value type="int">12</value>
  </data>
  <data>
   <variable>Version</variable>

@@ -54,8 +54,18 @@
   </valuemap>
  </data>
  <data>
+  <variable>QtVersion.5</variable>
+  <valuemap type="QVariantMap">
+   <value type="int" key="Id">2</value>
+   <value type="QString" key="Name">Desktop Qt 4.8 for GCC (Qt SDK)</value>
+   <value type="QString" key="QMakePath">~/QtSDK/Desktop/Qt/4.8.0/gcc/bin/qmake</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
+   <value type="bool" key="isAutodetected">false</value>
+  </valuemap>
+ </data>
+ <data>
   <variable>QtVersion.Count</variable>
-  <value type="int">5</value>
+  <value type="int">6</value>
  </data>
  <data>
   <variable>Version</variable>
