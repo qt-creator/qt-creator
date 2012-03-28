@@ -1318,7 +1318,7 @@ void DebuggerPluginPrivate::maybeEnrichParameters(DebuggerStartParameters *sp)
         sp->debugSourceLocation.append(base + QLatin1String("qt5base/src/gui"));
         sp->debugSourceLocation.append(base + QLatin1String("qt5base/src/network"));
         sp->debugSourceLocation.append(base + QLatin1String("qt5base/src/v8"));
-        sp->debugSourceLocation.append(base + QLatin1String("qt5declarative/src/declarative/qml"));
+        sp->debugSourceLocation.append(base + QLatin1String("qt5declarative/src/qml"));
     }
 }
 
