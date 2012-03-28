@@ -110,6 +110,8 @@ GenericBuildConfiguration *GenericMakeStep::genericBuildConfiguration() const
 bool GenericMakeStep::init()
 {
     GenericBuildConfiguration *bc = genericBuildConfiguration();
+    if (!bc)
+        bc = static_cast<GenericBuildConfiguration *>(target()->activeBuildConfiguration());
 
     ProjectExplorer::ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
@@ -173,7 +175,7 @@ QString GenericMakeStep::makeCommand() const
 {
     QString command = m_makeCommand;
     if (command.isEmpty()) {
-        GenericProject *pro = genericBuildConfiguration()->genericTarget()->genericProject();
+        GenericProject *pro = static_cast<GenericProject *>(target()->project());
         if (ProjectExplorer::ToolChain *toolChain = pro->toolChain())
             command = toolChain->makeCommand();
         else
@@ -224,7 +226,7 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
     m_ui->setupUi(this);
 
     // TODO update this list also on rescans of the GenericLists.txt
-    GenericProject *pro = m_makeStep->genericBuildConfiguration()->genericTarget()->genericProject();
+    GenericProject *pro = static_cast<GenericProject *>(m_makeStep->target()->project());
     foreach (const QString &target, pro->buildTargets()) {
         QListWidgetItem *item = new QListWidgetItem(target, m_ui->targetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
@@ -263,6 +265,8 @@ void GenericMakeStepConfigWidget::updateMakeOverrrideLabel()
 void GenericMakeStepConfigWidget::updateDetails()
 {
     GenericBuildConfiguration *bc = m_makeStep->genericBuildConfiguration();
+    if (!bc)
+        bc = static_cast<GenericBuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
 
     ProjectExplorer::ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
