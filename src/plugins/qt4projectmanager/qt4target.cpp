@@ -970,10 +970,33 @@ bool less(const BuildConfigurationInfo &a, const BuildConfigurationInfo &b)
         return true;
     if (a.qtVersionId > b.qtVersionId)
         return false;
-    if (a.buildConfig < b.buildConfig)
-        return true;
-    if (a.buildConfig > b.buildConfig)
-        return false;
+
+    if (a.buildConfig != b.buildConfig) {
+        QtSupport::BaseQtVersion *version = a.version();
+        QtSupport::BaseQtVersion::QmakeBuildConfigs defaultBuildConfigs = QtSupport::BaseQtVersion::DebugBuild;
+        if (version)
+            defaultBuildConfigs = version->defaultBuildConfig();
+
+        bool adebug = a.buildConfig & QtSupport::BaseQtVersion::DebugBuild;
+        bool bdebug = b.buildConfig & QtSupport::BaseQtVersion::DebugBuild;
+        bool defaultdebug = defaultBuildConfigs & QtSupport::BaseQtVersion::DebugBuild;
+
+        if (adebug != bdebug)
+            return (adebug == defaultdebug);
+
+        bool abuildall = a.buildConfig & QtSupport::BaseQtVersion::BuildAll;
+        bool bbuildall = b.buildConfig & QtSupport::BaseQtVersion::BuildAll;
+        bool defaultbuildall = defaultBuildConfigs & QtSupport::BaseQtVersion::BuildAll;
+
+        if (abuildall != bbuildall)
+            return (abuildall == defaultbuildall);
+
+        // Those cases can't happen
+        if (a.buildConfig < b.buildConfig)
+            return true;
+        if (a.buildConfig > b.buildConfig)
+            return false;
+    }
     if (a.additionalArguments < b.additionalArguments)
         return true;
     if (a.additionalArguments > b.additionalArguments)
@@ -986,8 +1009,6 @@ bool less(const BuildConfigurationInfo &a, const BuildConfigurationInfo &b)
 
 void Qt4DefaultTargetSetupWidget::setBuildConfigurationInfos(QList<BuildConfigurationInfo> infos, bool resetDirectories)
 {
-    // This is somewhat ugly in that we used to sort the buildconfigurations in the order
-    // that the default for that qt version is first
     qSort(infos.begin(), infos.end(), less);
 
     // Existing builds, to figure out which newly added
