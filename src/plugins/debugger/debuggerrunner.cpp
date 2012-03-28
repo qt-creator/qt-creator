@@ -167,9 +167,10 @@ public:
     QString displayName() const { return tr("Debugger Settings"); }
 
 private slots:
-    void useCppDebuggerToggled(bool toggled);
-    void useQmlDebuggerToggled(bool toggled);
+    void useCppDebuggerToggled(bool on);
+    void useQmlDebuggerToggled(bool on);
     void qmlDebugServerPortChanged(int port);
+    void useMultiProcessToggled(bool on);
 
 public:
     DebuggerRunConfigurationAspect *m_aspect; // not owned
@@ -179,6 +180,7 @@ public:
     QSpinBox *m_debugServerPort;
     QLabel *m_debugServerPortLabel;
     QLabel *m_qmlDebuggerInfoLabel;
+    QCheckBox *m_useMultiProcess;
 };
 
 DebuggerRunConfigWidget::DebuggerRunConfigWidget(RunConfiguration *runConfiguration)
@@ -204,6 +206,12 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(RunConfiguration *runConfigurat
 
     m_debugServerPort->setValue(m_aspect->qmlDebugServerPort());
 
+    static const QByteArray env = qgetenv("QTC_DEBUGGER_MULTIPROCESS");
+    m_useMultiProcess =
+        new QCheckBox(tr("Enable Debugging of Subprocesses"), this);
+    m_useMultiProcess->setChecked(m_aspect->useMultiProcess());
+    m_useMultiProcess->setVisible(env.toInt());
+
     connect(m_qmlDebuggerInfoLabel, SIGNAL(linkActivated(QString)),
             Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
     connect(m_useQmlDebugger, SIGNAL(toggled(bool)),
@@ -212,6 +220,8 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(RunConfiguration *runConfigurat
             SLOT(useCppDebuggerToggled(bool)));
     connect(m_debugServerPort, SIGNAL(valueChanged(int)),
             SLOT(qmlDebugServerPortChanged(int)));
+    connect(m_useMultiProcess, SIGNAL(toggled(bool)),
+            SLOT(useMultiProcessToggled(bool)));
 
     if (m_aspect->isDisplaySuppressed())
         hide();
@@ -242,6 +252,7 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(RunConfiguration *runConfigurat
     layout->setMargin(0);
     layout->addWidget(m_useCppDebugger);
     layout->addLayout(qmlLayout);
+    layout->addWidget(m_useMultiProcess);
     setLayout(layout);
 }
 
@@ -250,23 +261,28 @@ void DebuggerRunConfigWidget::qmlDebugServerPortChanged(int port)
     m_aspect->m_qmlDebugServerPort = port;
 }
 
-void DebuggerRunConfigWidget::useCppDebuggerToggled(bool toggled)
+void DebuggerRunConfigWidget::useCppDebuggerToggled(bool on)
 {
-    m_aspect->m_useCppDebugger = toggled;
-    if (!toggled && !m_useQmlDebugger->isChecked())
+    m_aspect->m_useCppDebugger = on;
+    if (!on && !m_useQmlDebugger->isChecked())
         m_useQmlDebugger->setChecked(true);
 }
 
-void DebuggerRunConfigWidget::useQmlDebuggerToggled(bool toggled)
+void DebuggerRunConfigWidget::useQmlDebuggerToggled(bool on)
 {
-    m_debugServerPort->setEnabled(toggled);
-    m_debugServerPortLabel->setEnabled(toggled);
+    m_debugServerPort->setEnabled(on);
+    m_debugServerPortLabel->setEnabled(on);
 
-    m_aspect->m_useQmlDebugger = toggled
+    m_aspect->m_useQmlDebugger = on
             ? DebuggerRunConfigurationAspect::EnableQmlDebugger
             : DebuggerRunConfigurationAspect::DisableQmlDebugger;
-    if (!toggled && !m_useCppDebugger->isChecked())
+    if (!on && !m_useCppDebugger->isChecked())
         m_useCppDebugger->setChecked(true);
+}
+
+void DebuggerRunConfigWidget::useMultiProcessToggled(bool on)
+{
+    m_aspect->m_useMultiProcess = on;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -900,12 +916,15 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
         }
     }
 
-    if (runConfiguration->debuggerAspect()->useCppDebugger())
+    DebuggerRunConfigurationAspect *aspect = runConfiguration->debuggerAspect();
+    sp.multiProcess = aspect->useMultiProcess();
+
+    if (aspect->useCppDebugger())
         sp.languages |= CppLanguage;
 
-    if (runConfiguration->debuggerAspect()->useQmlDebugger()) {
+    if (aspect->useQmlDebugger()) {
         sp.qmlServerAddress = _("127.0.0.1");
-        sp.qmlServerPort = runConfiguration->debuggerAspect()->qmlDebugServerPort();
+        sp.qmlServerPort = aspect->qmlDebugServerPort();
         sp.languages |= QmlLanguage;
 
         // Makes sure that all bindings go through the JavaScript engine, so that

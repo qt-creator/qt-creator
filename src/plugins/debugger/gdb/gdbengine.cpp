@@ -423,6 +423,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 }
                 if (pid)
                     notifyInferiorPid(pid);
+                handleThreadGroupCreated(result);
             } else if (asyncClass == "thread-created") {
                 //"{id="1",group-id="28902"}"
                 QByteArray id = result.findChild("id").data();
@@ -431,6 +432,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // Archer has "{id="28902"}"
                 QByteArray id = result.findChild("id").data();
                 showStatusMessage(tr("Thread group %1 exited").arg(_(id)), 1000);
+                handleThreadGroupExited(result);
             } else if (asyncClass == "thread-exited") {
                 //"{id="1",group-id="28902"}"
                 QByteArray id = result.findChild("id").data();
@@ -1725,6 +1727,9 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
             postCommand("set target-async on", ConsoleCommand);
         else
             postCommand("set target-async off", ConsoleCommand);
+
+        if (startParameters().multiProcess)
+            postCommand("set detach-on-fork off", ConsoleCommand);
     }
 }
 
@@ -1986,6 +1991,18 @@ void GdbEngine::handleDetach(const GdbResponse &response)
     Q_UNUSED(response);
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     notifyInferiorExited();
+}
+
+void GdbEngine::handleThreadGroupCreated(const GdbMi &result)
+{
+    QByteArray id = result.findChild("id").data();
+    QByteArray pid = result.findChild("pid").data();
+    Q_UNUSED(pid);
+}
+
+void GdbEngine::handleThreadGroupExited(const GdbMi &result)
+{
+    QByteArray id = result.findChild("id").data();
 }
 
 int GdbEngine::currentFrame() const

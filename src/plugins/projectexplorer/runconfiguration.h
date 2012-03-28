@@ -106,12 +106,14 @@ public:
 
     QString displayName() const;
 
-    void setUseQmlDebugger(bool value);
-    void setUseCppDebugger(bool value);
     bool useCppDebugger() const;
+    void setUseCppDebugger(bool value);
     bool useQmlDebugger() const;
+    void setUseQmlDebugger(bool value);
     uint qmlDebugServerPort() const;
     void setQmllDebugServerPort(uint port);
+    bool useMultiProcess() const;
+    void setUseMultiProcess(bool on);
     void suppressDisplay();
     void suppressQmlDebuggingOptions();
     void suppressCppDebuggingOptions();
@@ -130,6 +132,8 @@ public:
     bool m_useCppDebugger;
     QmlDebuggerStatus m_useQmlDebugger;
     uint m_qmlDebugServerPort;
+    bool m_useMultiProcess;
+
     bool m_suppressDisplay;
     bool m_suppressQmlDebuggingOptions;
     bool m_suppressCppDebuggingOptions;

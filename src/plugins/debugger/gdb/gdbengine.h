@@ -655,6 +655,9 @@ private: ////////// View & Data Stuff //////////
     void handleDebuggingHelperVersionCheckClassic(const GdbResponse &response);
     void handleDetach(const GdbResponse &response);
 
+    void handleThreadGroupCreated(const GdbMi &result);
+    void handleThreadGroupExited(const GdbMi &result);
+
     Q_SLOT void createFullBacktrace();
     void handleCreateFullBacktrace(const GdbResponse &response);
 

@@ -64,6 +64,7 @@ const char USE_CPP_DEBUGGER_KEY[] = "RunConfiguration.UseCppDebugger";
 const char USE_QML_DEBUGGER_KEY[] = "RunConfiguration.UseQmlDebugger";
 const char USE_QML_DEBUGGER_AUTO_KEY[] = "RunConfiguration.UseQmlDebuggerAuto";
 const char QML_DEBUG_SERVER_PORT_KEY[] = "RunConfiguration.QmlDebugServerPort";
+const char USE_MULTIPROCESS_KEY[] = "RunConfiguration.UseMultiProcess";
 
 // Function objects:
 
@@ -203,6 +204,7 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(RunConfiguration 
     m_useCppDebugger(true),
     m_useQmlDebugger(AutoEnableQmlDebugger),
     m_qmlDebugServerPort(Constants::QML_DEFAULT_DEBUG_SERVER_PORT),
+    m_useMultiProcess(false),
     m_suppressDisplay(false),
     m_suppressQmlDebuggingOptions(false),
     m_suppressCppDebuggingOptions(false),
@@ -214,6 +216,7 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(DebuggerRunConfig
     m_useCppDebugger(other->m_useCppDebugger),
     m_useQmlDebugger(other->m_useQmlDebugger),
     m_qmlDebugServerPort(other->m_qmlDebugServerPort),
+    m_useMultiProcess(other->m_useMultiProcess),
     m_suppressDisplay(other->m_suppressDisplay),
     m_suppressQmlDebuggingOptions(other->m_suppressQmlDebuggingOptions),
     m_suppressCppDebuggingOptions(other->m_suppressCppDebuggingOptions),
@@ -264,6 +267,16 @@ uint DebuggerRunConfigurationAspect::qmlDebugServerPort() const
 void DebuggerRunConfigurationAspect::setQmllDebugServerPort(uint port)
 {
     m_qmlDebugServerPort = port;
+}
+
+bool DebuggerRunConfigurationAspect::useMultiProcess() const
+{
+    return m_useMultiProcess;
+}
+
+void DebuggerRunConfigurationAspect::setUseMultiProcess(bool value)
+{
+    m_useMultiProcess = value;
 }
 
 void DebuggerRunConfigurationAspect::suppressDisplay()
@@ -318,6 +331,7 @@ QVariantMap DebuggerRunConfigurationAspect::toMap() const
     map.insert(QLatin1String(USE_QML_DEBUGGER_KEY), m_useQmlDebugger == EnableQmlDebugger);
     map.insert(QLatin1String(USE_QML_DEBUGGER_AUTO_KEY), m_useQmlDebugger == AutoEnableQmlDebugger);
     map.insert(QLatin1String(QML_DEBUG_SERVER_PORT_KEY), m_qmlDebugServerPort);
+    map.insert(QLatin1String(USE_MULTIPROCESS_KEY), m_useMultiProcess);
     return map;
 }
 
@@ -330,6 +344,7 @@ void DebuggerRunConfigurationAspect::fromMap(const QVariantMap &map)
         bool useQml = map.value(QLatin1String(USE_QML_DEBUGGER_KEY), false).toBool();
         m_useQmlDebugger = useQml ? EnableQmlDebugger : DisableQmlDebugger;
     }
+    m_useMultiProcess = map.value(QLatin1String(USE_MULTIPROCESS_KEY), false).toBool();
 }
 
 
