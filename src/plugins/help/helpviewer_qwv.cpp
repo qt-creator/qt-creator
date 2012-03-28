@@ -91,6 +91,7 @@ HelpNetworkReply::HelpNetworkReply(const QNetworkRequest &request,
     setHeader(QNetworkRequest::ContentLengthHeader, QByteArray::number(dataLength));
     QTimer::singleShot(0, this, SIGNAL(metaDataChanged()));
     QTimer::singleShot(0, this, SIGNAL(readyRead()));
+    QTimer::singleShot(0, this, SIGNAL(finished()));
 }
 
 qint64 HelpNetworkReply::readData(char *buffer, qint64 maxlen)
@@ -100,8 +101,6 @@ qint64 HelpNetworkReply::readData(char *buffer, qint64 maxlen)
         qMemCopy(buffer, data.constData(), len);
         data.remove(0, len);
     }
-    if (!data.length())
-        QTimer::singleShot(0, this, SIGNAL(finished()));
     return len;
 }
 
