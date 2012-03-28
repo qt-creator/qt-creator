@@ -121,6 +121,7 @@ private slots:
     void changeSelectedItems(const QList<QmlDebugObjectReference> &objects);
     void changePropertyValue(int debugId,const QString &propertyName, const QString &valueExpression);
     void objectTreeReady();
+    void onRootContext(const QVariant &value);
 
     void updateEngineList();
 
@@ -160,6 +161,7 @@ private:
     QObject *m_qmlEngine;
     quint32 m_debugQuery;
     quint32 m_showObjectQueryId;
+    QList<quint32> m_updateObjectQueryIds;
 
     // Qml/JS integration
     QHash<QString, QmlJSLiveTextPreview *> m_textPreviews;

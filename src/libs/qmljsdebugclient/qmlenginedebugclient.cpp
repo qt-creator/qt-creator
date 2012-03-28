@@ -185,27 +185,27 @@ void QmlEngineDebugClient::messageReceived(const QByteArray &data)
             ds >> eng.m_debugId;
             engines << eng;
         }
-        emit result(queryId, QVariant::fromValue(engines));
+        emit result(queryId, QVariant::fromValue(engines), type);
     } else if (type == "LIST_OBJECTS_R") {
         QmlDebugContextReference rootContext;
         if (!ds.atEnd())
             decode(ds, rootContext);
-        emit result(queryId, QVariant::fromValue(rootContext));
+        emit result(queryId, QVariant::fromValue(rootContext), type);
     } else if (type == "FETCH_OBJECT_R") {
         QmlDebugObjectReference object;
         if (!ds.atEnd())
             decode(ds, object, false);
-        emit result(queryId, QVariant::fromValue(object));
+        emit result(queryId, QVariant::fromValue(object), type);
     } else if (type == "EVAL_EXPRESSION_R") {;
         QVariant exprResult;
         ds >> exprResult;
-        emit result(queryId, exprResult);
+        emit result(queryId, exprResult, type);
     } else if (type == "WATCH_PROPERTY_R" ||
                type == "WATCH_OBJECT_R" ||
                type == "WATCH_EXPR_OBJECT_R") {
         bool valid;
         ds >> valid;
-        emit result(queryId, valid);
+        emit result(queryId, valid, type);
     } else if (type == "UPDATE_WATCH") {
         int debugId;
         QByteArray name;

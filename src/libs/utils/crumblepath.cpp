@@ -284,6 +284,11 @@ QVariant CrumblePath::dataForLastIndex() const
     return d->m_buttons.last()->data();
 }
 
+int CrumblePath::length() const
+{
+    return d->m_buttons.length();
+}
+
 void CrumblePath::pushElement(const QString &title, const QVariant &data)
 {
     CrumblePathButton *newButton = new CrumblePathButton(title, this);

@@ -81,7 +81,7 @@ signals:
     void newObjects();
     void valueChanged(int debugId, const QByteArray &name,
                       const QVariant &value);
-    void result(quint32 queryId, const QVariant &result);
+    void result(quint32 queryId, const QVariant &result, const QByteArray &type);
 
 protected:
     virtual void statusChanged(Status status);

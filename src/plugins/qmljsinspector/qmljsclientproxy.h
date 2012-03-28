@@ -73,6 +73,7 @@ public:
     void clearComponentCache();
 
     bool addObjectWatch(int objectDebugId);
+    bool isObjectBeingWatched(int objectDebugId);
     bool removeObjectWatch(int objectDebugId);
     void removeAllObjectWatches();
 
@@ -95,6 +96,7 @@ public:
 
     quint32 fetchContextObject(const QmlDebugObjectReference& obj);
     void addObjectToTree(const QmlDebugObjectReference &obj);
+    void fetchContextObjectRecursive(const QmlDebugContextReference &context, bool clear);
 
 signals:
     void objectTreeUpdated();
@@ -119,6 +121,7 @@ signals:
     void propertyChanged(int debugId, const QByteArray &propertyName, const QVariant &propertyValue);
 
     void result(quint32 queryId, const QVariant &result);
+    void rootContext(const QVariant &context);
 
 public slots:
     void refreshObjectTree();
@@ -143,10 +146,9 @@ private slots:
     void engineClientStatusChanged(QDeclarativeDebugClient::Status status);
 
     void onCurrentObjectsChanged(const QList<int> &debugIds, bool requestIfNeeded = true);
-    void fetchContextObjectRecursive(const QmlDebugContextReference &context);
     void newObjects();
     void objectWatchTriggered(int debugId, const QByteArray &propertyName, const QVariant &propertyValue);
-    void onResult(quint32 queryId, const QVariant &result);
+    void onResult(quint32 queryId, const QVariant &value, const QByteArray &type);
 
 private:
     void contextChanged(const QVariant &value);
@@ -178,7 +180,6 @@ private:
 
     QList<QmlDebugObjectReference> m_rootObjects;
     QmlDebugEngineReferenceList m_engines;
-    QTimer m_requestObjectsTimer;
     DebugIdHash m_debugIdHash;
 
     QList<int> m_objectWatches;

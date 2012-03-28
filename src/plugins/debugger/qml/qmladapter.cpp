@@ -314,12 +314,12 @@ void QmlAdapter::setEngineDebugClient(QmlJsDebugClient::QmlEngineDebugClient *cl
     Internal::QmlEngine *engine =
             qobject_cast<Internal::QmlEngine *>(d->m_engine.data());
     if (engine && d->m_engineDebugClient)
-        disconnect(d->m_engineDebugClient, SIGNAL(result(quint32,QVariant)),
+        disconnect(d->m_engineDebugClient, SIGNAL(result(quint32,QVariant,QByteArray)),
                 engine,
                 SLOT(expressionEvaluated(quint32,QVariant)));
     d->m_engineDebugClient = client;
     if (engine && d->m_engineDebugClient)
-        connect(d->m_engineDebugClient, SIGNAL(result(quint32,QVariant)),
+        connect(d->m_engineDebugClient, SIGNAL(result(quint32,QVariant,QByteArray)),
                 engine,
                 SLOT(expressionEvaluated(quint32,QVariant)));
 }

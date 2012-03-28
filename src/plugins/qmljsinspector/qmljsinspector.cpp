@@ -277,6 +277,15 @@ void InspectorUi::onResult(quint32 queryId, const QVariant &result)
         return;
     }
 
+    if (m_updateObjectQueryIds.contains(queryId)) {
+        m_updateObjectQueryIds.removeOne(queryId);
+        QmlDebugObjectReference obj = qvariant_cast<QmlDebugObjectReference>(result);
+        m_clientProxy->addObjectToTree(obj);
+        if (m_updateObjectQueryIds.empty())
+            showObject(obj);
+        return;
+    }
+
     if (m_debugQuery != queryId)
         return;
 
@@ -349,13 +358,28 @@ void InspectorUi::disconnected()
     setDebuggerEngine(0);
 }
 
+void InspectorUi::onRootContext(const QVariant &value)
+{
+    if (m_crumblePath->dataForLastIndex().toInt() < 0) {
+        m_clientProxy->fetchContextObjectRecursive(
+                    qvariant_cast<QmlDebugContextReference>(
+                        value), true);
+     } else {
+        for (int i = 1; i < m_crumblePath->length(); i++) {
+            m_updateObjectQueryIds << m_clientProxy->fetchContextObject(
+                                          m_crumblePath->dataForIndex(i).toInt());
+        }
+    }
+}
+
 void InspectorUi::objectTreeReady()
 {
-    // Should only run once, after debugger startup
-    if (!m_clientProxy->rootObjectReference().isEmpty()) {
+    if (m_crumblePath->dataForLastIndex().toInt() >= 0) {
+        selectItems(QList<QmlDebugObjectReference>() <<
+                    m_clientProxy->objectReferenceForId(
+                        m_crumblePath->dataForLastIndex().toInt()));
+    } else if (!m_clientProxy->rootObjectReference().isEmpty()) {
         selectItems(m_clientProxy->rootObjectReference());
-        disconnect(m_clientProxy, SIGNAL(objectTreeUpdated()),
-                   this, SLOT(objectTreeReady()));
     }
 }
 
@@ -553,8 +577,8 @@ void InspectorUi::selectItems(const QList<QmlDebugObjectReference> &objectRefere
         int debugId = objref.debugId();
         if (debugId != -1) {
             // select only the first valid element of the list
-
-            m_clientProxy->removeAllObjectWatches();
+            if (!m_clientProxy->isObjectBeingWatched(debugId))
+                m_clientProxy->removeAllObjectWatches();
             //Check if the object is complete
             if (objref.needsMoreData())
                 m_showObjectQueryId = m_clientProxy->fetchContextObject(objref);
@@ -842,6 +866,8 @@ void InspectorUi::connectSignals()
             this, SLOT(serverReloaded()));
     connect(m_clientProxy, SIGNAL(objectTreeUpdated()),
             this, SLOT(objectTreeReady()));
+    connect(m_clientProxy, SIGNAL(rootContext(QVariant)),
+            this, SLOT(onRootContext(QVariant)));
     connect(m_clientProxy, SIGNAL(connected()),
             this, SLOT(enable()));
     connect(m_clientProxy, SIGNAL(disconnected()),
