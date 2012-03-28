@@ -759,7 +759,7 @@ void SessionManager::restoreStartupProject(const Utils::PersistentSettingsReader
         const QString startupProjectPath = startupProject;
         foreach (Project *pro, m_projects) {
             if (QDir::cleanPath(pro->document()->fileName()) == startupProjectPath) {
-                setStartupProject(m_startupProject);
+                setStartupProject(pro);
                 break;
             }
         }
