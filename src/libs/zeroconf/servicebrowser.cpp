@@ -752,13 +752,17 @@ void ServiceGatherer::stopResolve(ZK_IP_Protocol protocol)
 {
     if ((protocol == ZK_PROTO_IPv4_OR_IPv6 || protocol == ZK_PROTO_IPv4)
             && (status & ResolveConnectionActive) != 0) {
-        lib()->refDeallocate(resolveConnection);
+        QMutexLocker l(serviceBrowser->mainConnection->lock());
+        if (serviceBrowser->mainConnection->status() < MainConnection::Stopping)
+            lib()->refDeallocate(resolveConnection);
         status &= ~ResolveConnectionActive;
         serviceBrowser->updateFlowStatusForCancel();
     }
     if ((protocol == ZK_PROTO_IPv4_OR_IPv6 || protocol == ZK_PROTO_IPv6)
             && (status & ResolveConnectionV6Active) != 0) {
-        lib()->refDeallocate(resolveConnectionV6);
+        QMutexLocker l(serviceBrowser->mainConnection->lock());
+        if (serviceBrowser->mainConnection->status() < MainConnection::Stopping)
+            lib()->refDeallocate(resolveConnectionV6);
         status &= ~ResolveConnectionV6Active;
         serviceBrowser->updateFlowStatusForCancel();
     }
@@ -837,7 +841,9 @@ void ServiceGatherer::restartResolve(ZK_IP_Protocol protocol)
 void ServiceGatherer::stopTxt()
 {
     if ((status & TxtConnectionActive) == 0) return;
-    lib()->refDeallocate(txtConnection);
+    QMutexLocker l(serviceBrowser->mainConnection->lock());
+    if (serviceBrowser->mainConnection->status() < MainConnection::Stopping)
+        lib()->refDeallocate(txtConnection);
     status &= ~TxtConnectionActive;
     serviceBrowser->updateFlowStatusForCancel();
 }
@@ -863,7 +869,9 @@ void ServiceGatherer::restartTxt()
 void ServiceGatherer::stopHostResolution()
 {
     if ((status & AddrConnectionActive) == 0) return;
-    lib()->refDeallocate(addrConnection);
+    QMutexLocker l(serviceBrowser->mainConnection->lock());
+    if (serviceBrowser->mainConnection->status() < MainConnection::Stopping)
+        lib()->refDeallocate(addrConnection);
     status &= ~AddrConnectionActive;
     serviceBrowser->updateFlowStatusForCancel();
 }
@@ -1552,14 +1560,21 @@ void ServiceBrowserPrivate::startedBrowsing()
 
 void MainConnection::stop(bool wait)
 {
-#if QT_VERSION >= 0x050000
-    if (m_status.load() < Stopping)
-#else
-    if (m_status < Stopping)
-#endif
+    {
+        if (QThread::currentThread() == m_thread)
+            qCritical() << "ERROR ZerocConf::MainConnection::stop called from m_thread";
+        // This will most likely lock if called from the connection thread (as mainThreadLock is non recusive)
+        // Making it recursive would open a hole during the startup of the thread.
+        // As of now this should always be called during the destruction of a browser,
+        // so from another thread.
         increaseStatusTo(Stopping);
-    if (m_mainRef)
+        QMutexLocker l(mainThreadLock());
+        QMutexLocker l2(lock());
+    }
+    if (m_mainRef) {
         lib->stopConnection(m_mainRef);
+        m_mainRef = 0;
+    }
     if (!m_thread)
         increaseStatusTo(Stopped);
     else if (wait && QThread::currentThread() != m_thread)
@@ -1569,38 +1584,30 @@ void MainConnection::stop(bool wait)
 MainConnection::MainConnection():
     flowStatus(NormalRFS),
     lib(zeroConfLibInstance()->defaultLib()), m_lock(QMutex::Recursive),
-    m_mainThreadLock(QMutex::Recursive), m_mainRef(0), m_failed(false), m_status(Starting), m_nErrs(0)
+    m_mainThreadLock(QMutex::NonRecursive), m_mainRef(0), m_failed(false), m_status(Starting), m_nErrs(0)
 {
     if (lib.isNull()){
         qDebug() << "could not load a valid library for ZeroConf::MainConnection, failing";
     } else {
         m_thread = new ConnectionThread(*this);
+        m_mainThreadLock.lock();
         m_thread->start(); // delay startup??
     }
 }
 
 MainConnection::~MainConnection()
 {
-    stop();
+    stop(true);
     delete m_thread;
-    // to do
 }
 
 bool MainConnection::increaseStatusTo(int s)
 {
-#if QT_VERSION >= 0x050000
-    int sAtt = m_status.load();
-#else
-    int sAtt = m_status;
-#endif
+    int sAtt = status();
     while (sAtt < s){
         if (m_status.testAndSetRelaxed(sAtt, s))
             return true;
-#if QT_VERSION >= 0x050000
-        sAtt = m_status.load();
-#else
-        sAtt = m_status;
-#endif
+        sAtt = status();
     }
     return false;
 }
@@ -1621,11 +1628,7 @@ void MainConnection::waitStartup()
     while (true){
         {
             QMutexLocker l(lock());
-#if QT_VERSION >= 0x050000
-            sAtt = m_status.load();
-#else
-            sAtt = m_status;
-#endif
+            sAtt = status();
             if (sAtt >= Running)
                 return;
         }
@@ -1639,11 +1642,7 @@ void MainConnection::addBrowser(ServiceBrowserPrivate *browser)
     QList<ErrorMessage> errs;
     {
         QMutexLocker l(lock());
-#if QT_VERSION >= 0x050000
-        actualStatus = m_status.load();
-#else
-        actualStatus = m_status;
-#endif
+        actualStatus = status();
         m_browsers.append(browser);
         errs = m_errors;
     }
@@ -1716,11 +1715,7 @@ void MainConnection::abortLib(){
 void MainConnection::createConnection()
 {
     gotoValidLib();
-#if QT_VERSION >= 0x050000
-    while (m_status.load() <= Running) {
-#else
-    while (m_status <= Running) {
-#endif
+    while (status() <= Running) {
         if (!lib) {
             increaseStatusTo(Stopped);
             break;
@@ -1812,19 +1807,21 @@ void MainConnection::destroyConnection()
 
 void  MainConnection::handleEvents()
 {
-    if (!m_status.testAndSetAcquire(Starting, Started)){
-        appendError(ErrorMessage::WarningLevel, tr("MainConnection::handleEvents called with m_status != Starting, aborting"));
-        increaseStatusTo(Stopped);
-        return;
+    try {
+        if (!m_status.testAndSetAcquire(Starting, Started)){
+            appendError(ErrorMessage::WarningLevel, tr("MainConnection::handleEvents called with m_status != Starting, aborting"));
+            increaseStatusTo(Stopped);
+            return;
+        }
+        m_nErrs = 0;
+        createConnection();
+    } catch(...) {
+        mainThreadLock()->unlock();
+        throw;
     }
-    m_nErrs = 0;
-    createConnection();
+    mainThreadLock()->unlock();
     increaseStatusTo(Running);
-#if QT_VERSION >= 0x050000
-    while (m_status.load() < Stopping) {
-#else
-    while (m_status < Stopping) {
-#endif
+    while (status() < Stopping) {
         QMutexLocker l(mainThreadLock());
         if (m_nErrs > 10)
             increaseStatusTo(Stopping);
@@ -1861,14 +1858,20 @@ void  MainConnection::handleEvents()
 
 ZConfLib::ConnectionRef MainConnection::mainRef()
 {
-#if QT_VERSION >= 0x050000
-    while (m_status.load() < Running){
-#else
-    while (m_status < Running){
-#endif
+    while (status() < Running){
         QThread::yieldCurrentThread();
     }
     return m_mainRef;
+}
+
+MainConnection::Status MainConnection::status()
+{
+#if QT_VERSION >= 0x050000
+    return static_cast<MainConnection::Status>(m_status.load());
+#else
+    int val = m_status;
+    return static_cast<MainConnection::Status>(val);
+#endif
 }
 
 QList<ErrorMessage> MainConnection::errors()

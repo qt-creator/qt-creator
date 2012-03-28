@@ -253,6 +253,7 @@ public:
     bool increaseStatusTo(int s);
     void handleEvents();
     ZConfLib::ConnectionRef mainRef();
+    Status status();
 
     QList<ErrorMessage> errors();
     bool isOk();

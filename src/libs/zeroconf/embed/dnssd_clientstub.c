@@ -215,10 +215,29 @@ static int read_all(dnssd_sock_t sd, char *buf, int len)
         {
         // Don't use "MSG_WAITALL"; it returns "Invalid argument" on some Linux versions; use an explicit while () loop instead.
         //if (recv(sd, buf, len, MSG_WAITALL) != len) return -1;
+        int nErr = 0;
 
         while (len)
                 {
-                ssize_t num_read = recv(sd, buf, len, 0);
+                timeval timeout;
+                timeout.tv_sec = 0;
+                timeout.tv_usec = 100000;
+                fd_set readFds, writeFds, exceptFds;
+                memset(&readFds,0,sizeof(readFds));
+                memset(&writeFds,0,sizeof(writeFds));
+                memset(&exceptFds,0,sizeof(exceptFds));
+                FD_SET(sd, &readFds);
+                FD_SET(sd, &writeFds);
+                FD_SET(sd, &exceptFds);
+                ssize_t num_read = 0;
+                int nVal=select(sd+1, &readFds, &writeFds, &exceptFds, &timeout);
+                if (nVal < 1 || !FD_ISSET(sd, &readFds)) {
+                    ++nErr;
+                    if (nErr < 5) // wait max 0.5s without reading
+                        continue;
+                } else {
+                    num_read = recv(sd, buf, len, 0);
+                }
                 // It is valid to get an interrupted system call error e.g., somebody attaching
                 // in a debugger, retry without failing
                 if ((num_read < 0) && (errno == EINTR)) { syslog(LOG_INFO, "dnssd_clientstub read_all: EINTR continue"); continue; }
