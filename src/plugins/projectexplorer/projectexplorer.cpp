@@ -376,13 +376,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new CopyTaskHandler);
     addAutoReleasedObject(new ShowInEditorTaskHandler);
     addAutoReleasedObject(new VcsAnnotateTaskHandler);
-
-    d->m_buildManager = new BuildManager(this);
-    connect(d->m_buildManager, SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
-            this, SLOT(buildStateChanged(ProjectExplorer::Project*)));
-    connect(d->m_buildManager, SIGNAL(buildQueueFinished(bool)),
-            this, SLOT(buildQueueFinished(bool)));
-
     addAutoReleasedObject(new CoreListener);
 
     d->m_outputPane = new AppOutputPane;
@@ -798,7 +791,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
 
     // cancel build action
-    d->m_cancelBuildAction = new QAction(tr("Cancel Build"), this);
+    QIcon stopIcon = QIcon(QLatin1String(Constants::ICON_STOP));
+    stopIcon.addFile(QLatin1String(Constants::ICON_STOP_SMALL));
+    d->m_cancelBuildAction = new QAction(stopIcon, tr("Cancel Build"), this);
     cmd = am->registerAction(d->m_cancelBuildAction, Constants::CANCELBUILD, globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_CANCEL);
 
@@ -1002,6 +997,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     connect(this, SIGNAL(updateRunActions()), this, SLOT(slotUpdateRunActions()));
     connect(this, SIGNAL(settingsChanged()), this, SLOT(updateRunWithoutDeployMenu()));
+
+    d->m_buildManager = new BuildManager(this, d->m_cancelBuildAction);
+    connect(d->m_buildManager, SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
+            this, SLOT(buildStateChanged(ProjectExplorer::Project*)));
+    connect(d->m_buildManager, SIGNAL(buildQueueFinished(bool)),
+            this, SLOT(buildQueueFinished(bool)));
 
     updateActions();
 

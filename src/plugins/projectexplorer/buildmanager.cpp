@@ -119,7 +119,7 @@ BuildManagerPrivate::BuildManagerPrivate() :
 {
 }
 
-BuildManager::BuildManager(ProjectExplorerPlugin *parent)
+BuildManager::BuildManager(ProjectExplorerPlugin *parent, QAction *cancelBuildAction)
     : QObject(parent), d(new BuildManagerPrivate)
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
@@ -138,7 +138,7 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
     connect(parent->session(), SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
             this, SLOT(aboutToRemoveProject(ProjectExplorer::Project*)));
 
-    d->m_outputWindow = new Internal::CompileOutputWindow(this);
+    d->m_outputWindow = new Internal::CompileOutputWindow(this, cancelBuildAction);
     pm->addObject(d->m_outputWindow);
 
     d->m_taskHub = ProjectExplorerPlugin::instance()->taskHub();

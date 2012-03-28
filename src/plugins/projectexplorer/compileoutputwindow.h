@@ -42,6 +42,7 @@
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
 class QTextCharFormat;
+class QToolButton;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -59,11 +60,11 @@ class CompileOutputWindow : public Core::IOutputPane
     Q_OBJECT
 
 public:
-    CompileOutputWindow(BuildManager *bm);
+    CompileOutputWindow(BuildManager *bm, QAction *cancelBuildAction);
     ~CompileOutputWindow();
 
     QWidget *outputWidget(QWidget *);
-    QList<QWidget *> toolBarWidgets() const { return QList<QWidget *>(); }
+    QList<QWidget *> toolBarWidgets() const;
     QString displayName() const { return tr("Compile Output"); }
     int priorityInStatusBar() const;
     void clearContents();
@@ -90,6 +91,7 @@ private:
     CompileOutputTextEdit *m_outputWindow;
     QHash<unsigned int, int> m_taskPositions;
     ShowOutputTaskHandler * m_handler;
+    QToolButton *m_cancelBuildButton;
 };
 
 } // namespace Internal

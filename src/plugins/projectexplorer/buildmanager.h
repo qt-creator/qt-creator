@@ -51,7 +51,7 @@ class PROJECTEXPLORER_EXPORT BuildManager : public QObject
     Q_OBJECT
 
 public:
-    explicit BuildManager(ProjectExplorerPlugin *parent);
+    explicit BuildManager(ProjectExplorerPlugin *parent, QAction *cancelBuildAction);
     virtual ~BuildManager();
 
     void extensionsInitialized();

@@ -52,6 +52,7 @@
 #include <QTextEdit>
 #include <QScrollBar>
 #include <QPlainTextEdit>
+#include <QToolButton>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -100,7 +101,8 @@ private:
 } // namespace Internal
 } // namespace ProjectExplorer
 
-CompileOutputWindow::CompileOutputWindow(BuildManager * /*bm*/)
+CompileOutputWindow::CompileOutputWindow(BuildManager * /*bm*/, QAction *cancelBuildAction) :
+    m_cancelBuildButton(new QToolButton)
 {
     Core::Context context(Constants::C_COMPILE_OUTPUT);
     m_outputWindow = new CompileOutputTextEdit(context);
@@ -109,6 +111,8 @@ CompileOutputWindow::CompileOutputWindow(BuildManager * /*bm*/)
     m_outputWindow->setReadOnly(true);
     m_outputWindow->setUndoRedoEnabled(false);
     m_outputWindow->setMaxLineCount(MAX_LINECOUNT);
+
+    m_cancelBuildButton->setDefaultAction(cancelBuildAction);
 
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(m_outputWindow);
@@ -127,6 +131,7 @@ CompileOutputWindow::~CompileOutputWindow()
 {
     ExtensionSystem::PluginManager::instance()->removeObject(m_handler);
     delete m_handler;
+    delete m_cancelBuildButton;
 }
 
 void CompileOutputWindow::updateWordWrapMode()
@@ -152,6 +157,11 @@ void CompileOutputWindow::setFocus()
 QWidget *CompileOutputWindow::outputWidget(QWidget *)
 {
     return m_outputWindow;
+}
+
+QList<QWidget *> CompileOutputWindow::toolBarWidgets() const
+{
+     return QList<QWidget *>() << m_cancelBuildButton;
 }
 
 static QColor mix_colors(QColor a, QColor b)
