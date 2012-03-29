@@ -385,6 +385,10 @@ void GenericListWidget::rowChanged(int index)
 void GenericListWidget::displayNameChanged()
 {
     m_ignoreIndexChange = true;
+    ProjectConfiguration *activeProjectConfiguration = 0;
+    if (currentItem())
+        activeProjectConfiguration = currentItem()->data(Qt::UserRole).value<ProjectConfiguration *>();
+
     ProjectConfiguration *pc = qobject_cast<ProjectConfiguration *>(sender());
     int index = -1;
     int i = 0;
@@ -408,6 +412,8 @@ void GenericListWidget::displayNameChanged()
         }
     }
     insertItem(pos, lwi);
+    if (activeProjectConfiguration)
+        setCurrentItem(itemForProjectConfiguration(activeProjectConfiguration));
     m_ignoreIndexChange = false;
 }
 
