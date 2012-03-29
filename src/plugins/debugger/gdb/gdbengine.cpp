@@ -613,6 +613,8 @@ void GdbEngine::handleResponse(const QByteArray &buff)
 
             // Messages when the target exits (gdbserver)
             if (data.trimmed() == "Remote connection closed"
+                    || data.trimmed() == "Remote communication error.  "
+                                         "Target disconnected.: No error."
                     || data.trimmed() == "Quit") {
                 notifyInferiorExited();
             }
