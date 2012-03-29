@@ -637,15 +637,15 @@ void InspectorUi::changePropertyValue(int debugId,const QString &propertyName, c
 void InspectorUi::enable()
 {
     m_toolBar->enable();
-    m_crumblePath->setEnabled(true);
-    m_propertyInspector->setEnabled(true);
+    m_crumblePath->clear();
+    m_propertyInspector->clear();
 }
 
 void InspectorUi::disable()
 {
     m_toolBar->disable();
-    m_crumblePath->setEnabled(false);
-    m_propertyInspector->setEnabled(false);
+    m_crumblePath->clear();
+    m_propertyInspector->clear();
 }
 
 QmlDebugObjectReference InspectorUi::objectReferenceForLocation(const QString &fileName, int cursorPosition) const
