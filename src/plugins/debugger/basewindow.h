@@ -38,42 +38,46 @@
 namespace Debugger {
 namespace Internal {
 
-class BaseWindow : public QWidget
+class BaseTreeView : public QTreeView
 {
     Q_OBJECT
 
 public:
-    BaseWindow(QWidget *parent = 0);
-    virtual void setModel(QAbstractItemModel *model);
-    QHeaderView *header() const { return m_treeView->header(); }
-    QAbstractItemModel *model() const { return m_treeView->model(); }
+    BaseTreeView(QWidget *parent = 0);
 
-protected slots:
-    void resizeColumnsToContents();
-    void setAlwaysResizeColumnsToContents(bool on);
-
-private slots:
-    void setAlternatingRowColorsHelper(bool on);
-    void rowActivatedHelper(const QModelIndex &index);
-    void headerSectionClicked(int logicalIndex);
-    void reset();
-
-protected:
     void setAlwaysAdjustColumnsAction(QAction *action);
     void addBaseContextActions(QMenu *menu);
     bool handleBaseContextAction(QAction *action);
 
-    QTreeView *treeView() const { return m_treeView; }
-    QModelIndex indexAt(const QPoint &p) const { return m_treeView->indexAt(p); }
-    void resizeColumnToContents(int col) { m_treeView->resizeColumnToContents(col); }
-    void mousePressEvent(QMouseEvent *ev);
+    void setModel(QAbstractItemModel *model);
     virtual void rowActivated(const QModelIndex &) {}
-    QModelIndexList selectedIndices(QContextMenuEvent *ev = 0);
+    void mousePressEvent(QMouseEvent *ev);
+
+public slots:
+    void resizeColumnsToContents();
+    void setAlwaysResizeColumnsToContents(bool on);
+
+private slots:
+    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
+    void rowActivatedHelper(const QModelIndex &index) { rowActivated(index); }
+    void headerSectionClicked(int logicalIndex);
+    void reset();
+
+private:
+    QAction *m_alwaysAdjustColumnsAction;
+    QAction *m_adjustColumnsAction;
+};
+
+class BaseWindow : public QWidget
+{
+public:
+    explicit BaseWindow(QTreeView *treeView, QWidget *parent = 0);
+    void setModel(QAbstractItemModel *model) { m_treeView->setModel(model); }
+    QHeaderView *header() const { return m_treeView->header(); }
+    QAbstractItemModel *model() const { return m_treeView->model(); }
 
 private:
     QTreeView *m_treeView;
-    QAction *m_alwaysAdjustColumnsAction;
-    QAction *m_adjustColumnsAction;
 };
 
 } // namespace Internal

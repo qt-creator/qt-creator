@@ -56,25 +56,24 @@
 namespace Debugger {
 namespace Internal {
 
-SourceFilesWindow::SourceFilesWindow(QWidget *parent)
-    : BaseWindow(parent)
+SourceFilesTreeView::SourceFilesTreeView(QWidget *parent)
+    : BaseTreeView(parent)
 {
-    setWindowTitle(tr("Source Files"));
-    treeView()->setSortingEnabled(true);
+    setSortingEnabled(true);
 }
 
-void SourceFilesWindow::rowActivated(const QModelIndex &index)
+void SourceFilesTreeView::rowActivated(const QModelIndex &index)
 {
     DebuggerEngine *engine = debuggerCore()->currentEngine();
     QTC_ASSERT(engine, return);
     engine->gotoLocation(index.data().toString());
 }
 
-void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
+void SourceFilesTreeView::contextMenuEvent(QContextMenuEvent *ev)
 {
     DebuggerEngine *engine = debuggerCore()->currentEngine();
     QTC_ASSERT(engine, return);
-    QModelIndex index = treeView()->indexAt(ev->pos());
+    QModelIndex index = indexAt(ev->pos());
     index = index.sibling(index.row(), 0);
     QString name = index.data().toString();
     bool engineActionsEnabled = engine->debuggerActionsEnabled();
@@ -105,6 +104,12 @@ void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
         engine->gotoLocation(name);
     else
         handleBaseContextAction(act);
+}
+
+SourceFilesWindow::SourceFilesWindow()
+    : BaseWindow(new SourceFilesTreeView)
+{
+    setWindowTitle(tr("Source Files"));
 }
 
 } // namespace Internal

@@ -44,15 +44,16 @@ namespace Internal {
 //
 /////////////////////////////////////////////////////////////////////
 
-class WatchWindow : public BaseWindow
+class WatchTreeView : public BaseTreeView
 {
     Q_OBJECT
 
 public:
     enum Type { ReturnType, LocalsType, TooltipType, WatchersType };
 
-    explicit WatchWindow(Type type, QWidget *parent = 0);
+    explicit WatchTreeView(Type type, QWidget *parent = 0);
     Type type() const { return m_type; }
+    void setModel(QAbstractItemModel *model);
 
 public slots:
     void watchExpression(const QString &exp);
@@ -63,7 +64,6 @@ private:
     Q_SLOT void expandNode(const QModelIndex &idx);
     Q_SLOT void collapseNode(const QModelIndex &idx);
 
-    void setModel(QAbstractItemModel *model);
     void keyPressEvent(QKeyEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
     void dragEnterEvent(QDragEnterEvent *ev);
@@ -84,6 +84,13 @@ private:
     bool m_grabbing;
 };
 
+class WatchWindow : public BaseWindow
+{
+public:
+    explicit WatchWindow(WatchTreeView::Type type)
+        : BaseWindow(new WatchTreeView(type))
+    {}
+};
 
 } // namespace Internal
 } // namespace Debugger

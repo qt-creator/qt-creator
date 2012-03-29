@@ -56,34 +56,37 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-SnapshotWindow::SnapshotWindow(SnapshotHandler *handler)
+SnapshotTreeView::SnapshotTreeView(SnapshotHandler *handler)
 {
     m_snapshotHandler = handler;
     setWindowTitle(tr("Snapshots"));
     setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustSnapshotsColumnWidths));
 }
 
-void SnapshotWindow::rowActivated(const QModelIndex &index)
+void SnapshotTreeView::rowActivated(const QModelIndex &index)
 {
     m_snapshotHandler->activateSnapshot(index.row());
 }
 
-void SnapshotWindow::keyPressEvent(QKeyEvent *ev)
+void SnapshotTreeView::keyPressEvent(QKeyEvent *ev)
 {
     if (ev->key() == Qt::Key_Delete) {
-        QModelIndexList si = selectedIndices();
+        QItemSelectionModel *sm = selectionModel();
+        QTC_ASSERT(sm, return);
+        QModelIndexList si = sm->selectedIndexes();
+        if (si.isEmpty())
+            si.append(currentIndex().sibling(currentIndex().row(), 0));
+
         foreach (const QModelIndex &idx, si)
             if (idx.column() == 0)
                 removeSnapshot(idx.row());
     }
-    BaseWindow::keyPressEvent(ev);
+    QTreeView::keyPressEvent(ev);
 }
 
-void SnapshotWindow::contextMenuEvent(QContextMenuEvent *ev)
+void SnapshotTreeView::contextMenuEvent(QContextMenuEvent *ev)
 {
-    QModelIndexList si = selectedIndices(ev);
-    QTC_ASSERT(si.size() == 1, return);
-    QModelIndex idx = si.at(0);
+    QModelIndex idx = indexAt(ev->pos());
 
     QMenu menu;
 
@@ -106,7 +109,7 @@ void SnapshotWindow::contextMenuEvent(QContextMenuEvent *ev)
         handleBaseContextAction(act);
 }
 
-void SnapshotWindow::removeSnapshot(int i)
+void SnapshotTreeView::removeSnapshot(int i)
 {
     m_snapshotHandler->at(i)->quitDebugger();
 }

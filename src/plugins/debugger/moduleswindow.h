@@ -38,18 +38,24 @@
 namespace Debugger {
 namespace Internal {
 
-class ModulesWindow : public BaseWindow
+class ModulesTreeView : public BaseTreeView
 {
     Q_OBJECT
 
 public:
-    explicit ModulesWindow(QWidget *parent = 0);
+    explicit ModulesTreeView(QWidget *parent = 0);
 
 private slots:
     void moduleActivated(const QModelIndex &index);
 
 private:
     void contextMenuEvent(QContextMenuEvent *ev);
+};
+
+class ModulesWindow : public BaseWindow
+{
+public:
+    ModulesWindow();
 };
 
 } // namespace Internal

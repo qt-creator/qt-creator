@@ -38,12 +38,12 @@
 namespace Debugger {
 namespace Internal {
 
-class StackWindow : public BaseWindow
+class StackTreeView : public BaseTreeView
 {
     Q_OBJECT
 
 public:
-    explicit StackWindow(QWidget *parent = 0);
+    explicit StackTreeView(QWidget *parent = 0);
 
 private slots:
     void showAddressColumn(bool on);
@@ -52,8 +52,14 @@ private slots:
 private:
     void rowActivated(const QModelIndex &index);
     void setModel(QAbstractItemModel *model);
-    void copyContentsToClipboard();
     void contextMenuEvent(QContextMenuEvent *ev);
+    void copyContentsToClipboard();
+};
+
+class StackWindow : public BaseWindow
+{
+public:
+    StackWindow() : BaseWindow(new StackTreeView) {}
 };
 
 } // namespace Internal

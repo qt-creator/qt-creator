@@ -57,18 +57,17 @@
 namespace Debugger {
 namespace Internal {
 
-ModulesWindow::ModulesWindow(QWidget *parent)
-  : BaseWindow(parent)
+ModulesTreeView::ModulesTreeView(QWidget *parent)
+  : BaseTreeView(parent)
 {
-    setWindowTitle(tr("Modules"));
-    treeView()->setSortingEnabled(true);
+    setSortingEnabled(true);
     setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustModulesColumnWidths));
 
-    connect(treeView(), SIGNAL(activated(QModelIndex)),
+    connect(this, SIGNAL(activated(QModelIndex)),
         SLOT(moduleActivated(QModelIndex)));
 }
 
-void ModulesWindow::moduleActivated(const QModelIndex &index)
+void ModulesTreeView::moduleActivated(const QModelIndex &index)
 {
     DebuggerEngine *engine = debuggerCore()->currentEngine();
     QTC_ASSERT(engine, return);
@@ -76,11 +75,11 @@ void ModulesWindow::moduleActivated(const QModelIndex &index)
         engine->gotoLocation(index.sibling(index.row(), 1).data().toString());
 }
 
-void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
+void ModulesTreeView::contextMenuEvent(QContextMenuEvent *ev)
 {
     QString name;
     QString fileName;
-    QModelIndex index = treeView()->indexAt(ev->pos());
+    QModelIndex index = indexAt(ev->pos());
     if (index.isValid())
         index = index.sibling(index.row(), 0);
     if (index.isValid()) {
@@ -172,6 +171,12 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
         QProcess::startDetached(QLatin1String("depends"), QStringList(fileName));
     else
         handleBaseContextAction(act);
+}
+
+ModulesWindow::ModulesWindow()
+    : BaseWindow(new ModulesTreeView)
+{
+    setWindowTitle(tr("Modules"));
 }
 
 } // namespace Internal

@@ -48,23 +48,20 @@
 namespace Debugger {
 namespace Internal {
 
-ThreadsWindow::ThreadsWindow(QWidget *parent)
-    : BaseWindow(parent)
+ThreadsTreeView::ThreadsTreeView()
 {
-    setWindowTitle(tr("Thread"));
-    treeView()->setSortingEnabled(true);
+    setSortingEnabled(true);
     setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustThreadsColumnWidths));
-    setObjectName(QLatin1String("ThreadsWindow"));
 }
 
-void ThreadsWindow::rowActivated(const QModelIndex &index)
+void ThreadsTreeView::rowActivated(const QModelIndex &index)
 {
     debuggerCore()->currentEngine()->selectThread(index.row());
 }
 
-void ThreadsWindow::setModel(QAbstractItemModel *model)
+void ThreadsTreeView::setModel(QAbstractItemModel *model)
 {
-    BaseWindow::setModel(model);
+    BaseTreeView::setModel(model);
     resizeColumnToContents(ThreadData::IdColumn);
     resizeColumnToContents(ThreadData::LineColumn);
     resizeColumnToContents(ThreadData::NameColumn);
@@ -72,12 +69,19 @@ void ThreadsWindow::setModel(QAbstractItemModel *model)
     resizeColumnToContents(ThreadData::TargetIdColumn);
 }
 
-void ThreadsWindow::contextMenuEvent(QContextMenuEvent *ev)
+void ThreadsTreeView::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
     addBaseContextActions(&menu);
     QAction *act = menu.exec(ev->globalPos());
     handleBaseContextAction(act);
+}
+
+ThreadsWindow::ThreadsWindow()
+    : BaseWindow(new ThreadsTreeView)
+{
+    setWindowTitle(tr("Threads"));
+    setObjectName(QLatin1String("ThreadsWindow"));
 }
 
 } // namespace Internal

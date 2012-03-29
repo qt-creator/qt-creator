@@ -163,16 +163,14 @@ public:
 //
 ///////////////////////////////////////////////////////////////////////
 
-RegisterWindow::RegisterWindow(QWidget *parent)
-    : BaseWindow(parent)
+RegisterTreeView::RegisterTreeView(QWidget *parent)
+    : BaseTreeView(parent)
 {
-    setWindowTitle(tr("Registers"));
     setAlwaysAdjustColumnsAction(debuggerCore()->action(UseAlternatingRowColors));
-    treeView()->setItemDelegate(new RegisterDelegate(this));
-    setObjectName(QLatin1String("RegisterWindow"));
+    setItemDelegate(new RegisterDelegate(this));
 }
 
-void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
+void RegisterTreeView::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
 
@@ -271,10 +269,16 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
         handleBaseContextAction(act);
 }
 
-void RegisterWindow::reloadRegisters()
+void RegisterTreeView::reloadRegisters()
 {
     // FIXME: Only trigger when becoming visible?
     currentEngine()->reloadRegisters();
+}
+
+RegisterWindow::RegisterWindow()
+    : BaseWindow(new RegisterTreeView)
+{
+    setWindowTitle(tr("Registers"));
 }
 
 } // namespace Internal

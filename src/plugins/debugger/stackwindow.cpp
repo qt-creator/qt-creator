@@ -59,8 +59,8 @@ static DebuggerEngine *currentEngine()
     return debuggerCore()->currentEngine();
 }
 
-StackWindow::StackWindow(QWidget *parent)
-    : BaseWindow(parent)
+StackTreeView::StackTreeView(QWidget *parent)
+    : BaseTreeView(parent)
 {
     setWindowTitle(tr("Stack"));
     setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustStackColumnWidths));
@@ -74,19 +74,19 @@ StackWindow::StackWindow(QWidget *parent)
     showAddressColumn(false);
 }
 
-void StackWindow::showAddressColumn(bool on)
+void StackTreeView::showAddressColumn(bool on)
 {
-    treeView()->setColumnHidden(4, !on);
+    setColumnHidden(4, !on);
 }
 
-void StackWindow::rowActivated(const QModelIndex &index)
+void StackTreeView::rowActivated(const QModelIndex &index)
 {
     currentEngine()->activateFrame(index.row());
 }
 
-void StackWindow::setModel(QAbstractItemModel *model)
+void StackTreeView::setModel(QAbstractItemModel *model)
 {
-    BaseWindow::setModel(model);
+    BaseTreeView::setModel(model);
     resizeColumnToContents(0);
     resizeColumnToContents(3);
     showAddressColumn(debuggerCore()->action(UseAddressInStackView)->isChecked());
@@ -100,8 +100,8 @@ static inline StackFrame inputFunctionForDisassembly()
     StackFrame frame;
     QInputDialog dialog;
     dialog.setInputMode(QInputDialog::TextInput);
-    dialog.setLabelText(StackWindow::tr("Function:"));
-    dialog.setWindowTitle(StackWindow::tr("Disassemble Function"));
+    dialog.setLabelText(StackTreeView::tr("Function:"));
+    dialog.setWindowTitle(StackTreeView::tr("Disassemble Function"));
     dialog.setWindowFlags(dialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
     if (dialog.exec() != QDialog::Accepted)
         return frame;
@@ -119,7 +119,7 @@ static inline StackFrame inputFunctionForDisassembly()
     return frame;
 }
 
-void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
+void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
 {
     DebuggerEngine *engine = currentEngine();
     StackHandler *handler = engine->stackHandler();
@@ -213,7 +213,7 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
         handleBaseContextAction(act);
 }
 
-void StackWindow::copyContentsToClipboard()
+void StackTreeView::copyContentsToClipboard()
 {
     QString str;
     int n = model()->rowCount();
@@ -233,7 +233,7 @@ void StackWindow::copyContentsToClipboard()
     clipboard->setText(str, QClipboard::Clipboard);
 }
 
-void StackWindow::reloadFullStack()
+void StackTreeView::reloadFullStack()
 {
     currentEngine()->reloadFullStack();
 }

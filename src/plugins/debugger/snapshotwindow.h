@@ -40,12 +40,12 @@ namespace Internal {
 
 class SnapshotHandler;
 
-class SnapshotWindow : public BaseWindow
+class SnapshotTreeView : public BaseTreeView
 {
     Q_OBJECT
 
 public:
-    explicit SnapshotWindow(SnapshotHandler *handler);
+    explicit SnapshotTreeView(SnapshotHandler *handler);
 
 private:
     void rowActivated(const QModelIndex &index);
@@ -54,6 +54,14 @@ private:
     void contextMenuEvent(QContextMenuEvent *ev);
 
     SnapshotHandler *m_snapshotHandler;
+};
+
+class SnapshotWindow : public BaseWindow
+{
+public:
+    explicit SnapshotWindow(SnapshotHandler *handler)
+        : BaseWindow(new SnapshotTreeView(handler))
+    {}
 };
 
 } // namespace Internal

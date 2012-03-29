@@ -38,17 +38,23 @@
 namespace Debugger {
 namespace Internal {
 
-class ThreadsWindow : public BaseWindow
+class ThreadsTreeView : public BaseTreeView
 {
     Q_OBJECT
 
 public:
-    ThreadsWindow(QWidget *parent = 0);
+    ThreadsTreeView();
 
 private:
     void rowActivated(const QModelIndex &index);
     void setModel(QAbstractItemModel *model);
     void contextMenuEvent(QContextMenuEvent *ev);
+};
+
+class ThreadsWindow : public BaseWindow
+{
+public:
+    ThreadsWindow();
 };
 
 } // namespace Internal

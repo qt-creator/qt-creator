@@ -38,18 +38,24 @@
 namespace Debugger {
 namespace Internal {
 
-class RegisterWindow : public BaseWindow
+class RegisterTreeView : public BaseTreeView
 {
     Q_OBJECT
 
 public:
-    explicit RegisterWindow(QWidget *parent = 0);
+    explicit RegisterTreeView(QWidget *parent = 0);
 
 public slots:
     void reloadRegisters();
 
 private:
     void contextMenuEvent(QContextMenuEvent *ev);
+};
+
+class RegisterWindow : public BaseWindow
+{
+public:
+    RegisterWindow();
 };
 
 } // namespace Internal

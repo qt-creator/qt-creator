@@ -1001,7 +1001,7 @@ public slots:
         QTC_ASSERT(act, return);
         const BreakpointModelId id = act->data().value<BreakpointModelId>();
         QTC_ASSERT(id > 0, return);
-        BreakWindow::editBreakpoint(id, mainWindow());
+        BreakTreeView::editBreakpoint(id, mainWindow());
     }
 
     void slotRunToLine()
@@ -1169,16 +1169,16 @@ public:
     Utils::StatusLabel *m_statusLabel;
     QComboBox *m_threadBox;
 
-    BreakWindow *m_breakWindow;
+    BaseWindow *m_breakWindow;
     BreakHandler *m_breakHandler;
     QtMessageLogWindow *m_qtMessageLogWindow;
-    BaseWindow *m_returnWindow;
-    BaseWindow *m_localsWindow;
-    BaseWindow *m_watchersWindow;
+    WatchWindow *m_returnWindow;
+    WatchWindow *m_localsWindow;
+    WatchWindow *m_watchersWindow;
     BaseWindow *m_registerWindow;
     BaseWindow *m_modulesWindow;
     BaseWindow *m_snapshotWindow;
-    SourceFilesWindow *m_sourceFilesWindow;
+    BaseWindow *m_sourceFilesWindow;
     BaseWindow *m_stackWindow;
     BaseWindow *m_threadsWindow;
     LogWindow *m_logWindow;
@@ -2908,11 +2908,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_sourceFilesWindow->setObjectName(QLatin1String(DOCKWIDGET_SOURCE_FILES));
     m_threadsWindow = new ThreadsWindow;
     m_threadsWindow->setObjectName(QLatin1String(DOCKWIDGET_THREADS));
-    m_returnWindow = new WatchWindow(WatchWindow::ReturnType);
+    m_returnWindow = new WatchWindow(WatchTreeView::ReturnType);
     m_returnWindow->setObjectName(QLatin1String("CppDebugReturn"));
-    m_localsWindow = new WatchWindow(WatchWindow::LocalsType);
+    m_localsWindow = new WatchWindow(WatchTreeView::LocalsType);
     m_localsWindow->setObjectName(QLatin1String("CppDebugLocals"));
-    m_watchersWindow = new WatchWindow(WatchWindow::WatchersType);
+    m_watchersWindow = new WatchWindow(WatchTreeView::WatchersType);
     m_watchersWindow->setObjectName(QLatin1String("CppDebugWatchers"));
 
     // Snapshot

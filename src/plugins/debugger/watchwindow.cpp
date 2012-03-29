@@ -83,7 +83,7 @@ static DebuggerEngine *currentEngine()
 class WatchDelegate : public QItemDelegate
 {
 public:
-    explicit WatchDelegate(WatchWindow *parent)
+    explicit WatchDelegate(WatchTreeView *parent)
         : QItemDelegate(parent), m_watchWindow(parent)
     {}
 
@@ -142,7 +142,7 @@ public:
     }
 
 private:
-    WatchWindow *m_watchWindow;
+    WatchTreeView *m_watchWindow;
 };
 
 // Watch model query helpers.
@@ -199,10 +199,10 @@ static QString variableToolTip(const QString &name, const QString &type,
 {
     return offset ?
            //: HTML tooltip of a variable in the memory editor
-           WatchWindow::tr("<i>%1</i> %2 at #%3").
+           WatchTreeView::tr("<i>%1</i> %2 at #%3").
                arg(type, name).arg(offset) :
            //: HTML tooltip of a variable in the memory editor
-           WatchWindow::tr("<i>%1</i> %2").arg(type, name);
+           WatchTreeView::tr("<i>%1</i> %2").arg(type, name);
 }
 
 static int memberVariableRecursion(const QAbstractItemModel *model,
@@ -318,7 +318,7 @@ static MemoryMarkupList
             const quint64 offset = it.key() - address;
             if (offset < size) {
                 ranges[offset] = ColorNumberToolTip(registerColorNumber,
-                           WatchWindow::tr("Register <i>%1</i>").arg(it.value()));
+                           WatchTreeView::tr("Register <i>%1</i>").arg(it.value()));
             } else {
                 break; // Sorted.
             }
@@ -406,9 +406,9 @@ static void addVariableMemoryView(DebuggerEngine *engine, bool separateView,
     const unsigned flags = separateView
         ? DebuggerEngine::MemoryView|DebuggerEngine::MemoryReadOnly : 0;
     const QString title = deferencePointer
-        ?  WatchWindow::tr("Memory Referenced by Pointer \"%1\" (0x%2)")
+        ?  WatchTreeView::tr("Memory Referenced by Pointer \"%1\" (0x%2)")
                 .arg(nameOf(m)).arg(address, 0, 16)
-        : WatchWindow::tr("Memory at Variable \"%1\" (0x%2)")
+        : WatchTreeView::tr("Memory at Variable \"%1\" (0x%2)")
                 .arg(nameOf(m)).arg(address, 0, 16);
     engine->openMemoryView(address, flags, markup, p, title, parent);
 }
@@ -443,8 +443,8 @@ static void addStackLayoutMemoryView(DebuggerEngine *engine, bool separateView,
     // Anything found and everything in a sensible range (static data in-between)?
     if (end <= start || end - start > 100 * 1024) {
         QMessageBox::information(parent,
-            WatchWindow::tr("Cannot Display Stack Layout"),
-            WatchWindow::tr("Could not determine a suitable address range."));
+            WatchTreeView::tr("Cannot Display Stack Layout"),
+            WatchTreeView::tr("Could not determine a suitable address range."));
         return;
     }
     // Take a look at the register values. Extend the range a bit if suitable
@@ -468,7 +468,7 @@ static void addStackLayoutMemoryView(DebuggerEngine *engine, bool separateView,
     const unsigned flags = separateView
         ? (DebuggerEngine::MemoryView|DebuggerEngine::MemoryReadOnly) : 0;
     const QString title =
-        WatchWindow::tr("Memory Layout of Local Variables at 0x%1").arg(start, 0, 16);
+        WatchTreeView::tr("Memory Layout of Local Variables at 0x%1").arg(start, 0, 16);
     engine->openMemoryView(start, flags, markup, p, title, parent);
 }
 
@@ -478,44 +478,43 @@ static void addStackLayoutMemoryView(DebuggerEngine *engine, bool separateView,
 //
 /////////////////////////////////////////////////////////////////////
 
-WatchWindow::WatchWindow(Type type, QWidget *parent)
-  : BaseWindow(parent),
+WatchTreeView::WatchTreeView(Type type, QWidget *parent)
+  : BaseTreeView(parent),
     m_type(type)
 {
     setObjectName(QLatin1String("WatchWindow"));
     m_grabbing = false;
     setWindowTitle(tr("Locals and Expressions"));
-    treeView()->setIndentation(treeView()->indentation() * 9/10);
-    treeView()->setUniformRowHeights(true);
-    treeView()->setItemDelegate(new WatchDelegate(this));
-    treeView()->setDragEnabled(true);
-    treeView()->setAcceptDrops(true);
-    treeView()->setDropIndicatorShown(true);
+    setIndentation(indentation() * 9/10);
+    setUniformRowHeights(true);
+    setItemDelegate(new WatchDelegate(this));
+    setDragEnabled(true);
+    setAcceptDrops(true);
+    setDropIndicatorShown(true);
     setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustLocalsColumnWidths));
 
-    connect(treeView(), SIGNAL(expanded(QModelIndex)),
+    connect(this, SIGNAL(expanded(QModelIndex)),
         SLOT(expandNode(QModelIndex)));
-    connect(treeView(), SIGNAL(collapsed(QModelIndex)),
+    connect(this, SIGNAL(collapsed(QModelIndex)),
         SLOT(collapseNode(QModelIndex)));
 }
 
-void WatchWindow::expandNode(const QModelIndex &idx)
+void WatchTreeView::expandNode(const QModelIndex &idx)
 {
     setModelData(LocalsExpandedRole, true, idx);
 }
 
-void WatchWindow::collapseNode(const QModelIndex &idx)
+void WatchTreeView::collapseNode(const QModelIndex &idx)
 {
     setModelData(LocalsExpandedRole, false, idx);
 }
 
-void WatchWindow::keyPressEvent(QKeyEvent *ev)
+void WatchTreeView::keyPressEvent(QKeyEvent *ev)
 {
     if (ev->key() == Qt::Key_Delete && m_type == WatchersType) {
-        QItemSelectionModel *sm = treeView()->selectionModel();
-        QModelIndexList indices = sm->selectedRows();
-        if (indices.isEmpty() && sm->currentIndex().isValid())
-            indices.append(sm->currentIndex());
+        QModelIndexList indices = selectionModel()->selectedRows();
+        if (indices.isEmpty() && selectionModel()->currentIndex().isValid())
+            indices.append(selectionModel()->currentIndex());
         QStringList exps;
         foreach (const QModelIndex &idx, indices) {
             QModelIndex idx1 = idx.sibling(idx.row(), 0);
@@ -526,15 +525,15 @@ void WatchWindow::keyPressEvent(QKeyEvent *ev)
     } else if (ev->key() == Qt::Key_Return
             && ev->modifiers() == Qt::ControlModifier
             && m_type == LocalsType) {
-        QModelIndex idx = treeView()->currentIndex();
+        QModelIndex idx = currentIndex();
         QModelIndex idx1 = idx.sibling(idx.row(), 0);
         QString exp = model()->data(idx1).toString();
         watchExpression(exp);
     }
-    BaseWindow::keyPressEvent(ev);
+    QTreeView::keyPressEvent(ev);
 }
 
-void WatchWindow::dragEnterEvent(QDragEnterEvent *ev)
+void WatchTreeView::dragEnterEvent(QDragEnterEvent *ev)
 {
     //QTreeView::dragEnterEvent(ev);
     if (ev->mimeData()->hasText()) {
@@ -543,7 +542,7 @@ void WatchWindow::dragEnterEvent(QDragEnterEvent *ev)
     }
 }
 
-void WatchWindow::dragMoveEvent(QDragMoveEvent *ev)
+void WatchTreeView::dragMoveEvent(QDragMoveEvent *ev)
 {
     //QTreeView::dragMoveEvent(ev);
     if (ev->mimeData()->hasText()) {
@@ -552,7 +551,7 @@ void WatchWindow::dragMoveEvent(QDragMoveEvent *ev)
     }
 }
 
-void WatchWindow::dropEvent(QDropEvent *ev)
+void WatchTreeView::dropEvent(QDropEvent *ev)
 {
     if (ev->mimeData()->hasText()) {
         watchExpression(ev->mimeData()->text());
@@ -563,7 +562,7 @@ void WatchWindow::dropEvent(QDropEvent *ev)
     //QTreeView::dropEvent(ev);
 }
 
-void WatchWindow::mouseDoubleClickEvent(QMouseEvent *ev)
+void WatchTreeView::mouseDoubleClickEvent(QMouseEvent *ev)
 {
     const QModelIndex idx = indexAt(ev->pos());
     if (!idx.isValid()) {
@@ -571,31 +570,31 @@ void WatchWindow::mouseDoubleClickEvent(QMouseEvent *ev)
         watchExpression(QString());
         return;
     }
-    BaseWindow::mouseDoubleClickEvent(ev);
+    QTreeView::mouseDoubleClickEvent(ev);
 }
 
 // Text for add watch action with truncated expression.
 static QString addWatchActionText(QString exp)
 {
     if (exp.isEmpty())
-        return WatchWindow::tr("Evaluate Expression");
+        return WatchTreeView::tr("Evaluate Expression");
     if (exp.size() > 30) {
         exp.truncate(30);
         exp.append(QLatin1String("..."));
     }
-    return WatchWindow::tr("Evaluate Expression \"%1\"").arg(exp);
+    return WatchTreeView::tr("Evaluate Expression \"%1\"").arg(exp);
 }
 
 // Text for add watch action with truncated expression.
 static QString removeWatchActionText(QString exp)
 {
     if (exp.isEmpty())
-        return WatchWindow::tr("Remove Evaluated Expression");
+        return WatchTreeView::tr("Remove Evaluated Expression");
     if (exp.size() > 30) {
         exp.truncate(30);
         exp.append(QLatin1String("..."));
     }
-    return WatchWindow::tr("Remove Evaluated Expression \"%1\"").arg(exp);
+    return WatchTreeView::tr("Remove Evaluated Expression \"%1\"").arg(exp);
 }
 
 static void copyToClipboard(const QString &clipboardText)
@@ -607,7 +606,7 @@ static void copyToClipboard(const QString &clipboardText)
     clipboard->setText(clipboardText, QClipboard::Clipboard);
 }
 
-void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
+void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
 {
     DebuggerEngine *engine = currentEngine();
     WatchHandler *handler = engine->watchHandler();
@@ -971,7 +970,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     }
 }
 
-bool WatchWindow::event(QEvent *ev)
+bool WatchTreeView::event(QEvent *ev)
 {
     if (m_grabbing && ev->type() == QEvent::MouseButtonPress) {
         QMouseEvent *mev = static_cast<QMouseEvent *>(ev);
@@ -979,18 +978,18 @@ bool WatchWindow::event(QEvent *ev)
         releaseMouse();
         currentEngine()->watchPoint(mapToGlobal(mev->pos()));
     }
-    return BaseWindow::event(ev);
+    return QTreeView::event(ev);
 }
 
-void WatchWindow::editItem(const QModelIndex &idx)
+void WatchTreeView::editItem(const QModelIndex &idx)
 {
     Q_UNUSED(idx) // FIXME
 }
 
-void WatchWindow::setModel(QAbstractItemModel *model)
+void WatchTreeView::setModel(QAbstractItemModel *model)
 {
-    BaseWindow::setModel(model);
-    treeView()->setRootIsDecorated(true);
+    BaseTreeView::setModel(model);
+    setRootIsDecorated(true);
     if (header()) {
         header()->setDefaultAlignment(Qt::AlignLeft);
         if (m_type != LocalsType)
@@ -1000,17 +999,17 @@ void WatchWindow::setModel(QAbstractItemModel *model)
     connect(model, SIGNAL(layoutChanged()), SLOT(resetHelper()));
 }
 
-void WatchWindow::resetHelper()
+void WatchTreeView::resetHelper()
 {
     resetHelper(model()->index(0, 0));
 }
 
-void WatchWindow::resetHelper(const QModelIndex &idx)
+void WatchTreeView::resetHelper(const QModelIndex &idx)
 {
     if (idx.data(LocalsExpandedRole).toBool()) {
         //qDebug() << "EXPANDING " << model()->data(idx, INameRole);
-        if (!treeView()->isExpanded(idx)) {
-            treeView()->expand(idx);
+        if (!isExpanded(idx)) {
+            expand(idx);
             for (int i = 0, n = model()->rowCount(idx); i != n; ++i) {
                 QModelIndex idx1 = model()->index(i, 0, idx);
                 resetHelper(idx1);
@@ -1018,29 +1017,29 @@ void WatchWindow::resetHelper(const QModelIndex &idx)
         }
     } else {
         //qDebug() << "COLLAPSING " << model()->data(idx, INameRole);
-        if (treeView()->isExpanded(idx))
-            treeView()->collapse(idx);
+        if (isExpanded(idx))
+            collapse(idx);
     }
 }
 
-void WatchWindow::watchExpression(const QString &exp)
+void WatchTreeView::watchExpression(const QString &exp)
 {
     currentEngine()->watchHandler()->watchExpression(exp);
 }
 
-void WatchWindow::removeWatchExpression(const QString &exp)
+void WatchTreeView::removeWatchExpression(const QString &exp)
 {
     currentEngine()->watchHandler()->removeWatchExpression(exp);
 }
 
-void WatchWindow::setModelData
+void WatchTreeView::setModelData
     (int role, const QVariant &value, const QModelIndex &index)
 {
     QTC_ASSERT(model(), return);
     model()->setData(index, value, role);
 }
 
-void WatchWindow::setWatchpointAtAddress(quint64 address, unsigned size)
+void WatchTreeView::setWatchpointAtAddress(quint64 address, unsigned size)
 {
     BreakpointParameters data(WatchpointAtAddress);
     data.address = address;
@@ -1054,7 +1053,7 @@ void WatchWindow::setWatchpointAtAddress(quint64 address, unsigned size)
     breakHandler()->appendBreakpoint(data);
 }
 
-void WatchWindow::setWatchpointAtExpression(const QString &exp)
+void WatchTreeView::setWatchpointAtExpression(const QString &exp)
 {
     BreakpointParameters data(WatchpointAtExpression);
     data.expression = exp;
@@ -1066,6 +1065,7 @@ void WatchWindow::setWatchpointAtExpression(const QString &exp)
     }
     breakHandler()->appendBreakpoint(data);
 }
+
 
 } // namespace Internal
 } // namespace Debugger

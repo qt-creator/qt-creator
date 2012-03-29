@@ -38,16 +38,22 @@
 namespace Debugger {
 namespace Internal {
 
-class SourceFilesWindow : public BaseWindow
+class SourceFilesTreeView : public BaseTreeView
 {
     Q_OBJECT
 
 public:
-    SourceFilesWindow(QWidget *parent = 0);
+    SourceFilesTreeView(QWidget *parent = 0);
 
 private:
     void rowActivated(const QModelIndex &index);
     void contextMenuEvent(QContextMenuEvent *ev);
+};
+
+class SourceFilesWindow : public BaseWindow
+{
+public:
+    SourceFilesWindow();
 };
 
 } // namespace Internal

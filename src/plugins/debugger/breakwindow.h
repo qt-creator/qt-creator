@@ -39,12 +39,12 @@
 namespace Debugger {
 namespace Internal {
 
-class BreakWindow : public BaseWindow
+class BreakTreeView : public BaseTreeView
 {
     Q_OBJECT
 
 public:
-    explicit BreakWindow(QWidget *parent = 0);
+    explicit BreakTreeView(QWidget *parent = 0);
 
     static void editBreakpoint(BreakpointModelId id, QWidget *parent);
     void setModel(QAbstractItemModel *model);
@@ -63,6 +63,12 @@ private:
     void editBreakpoints(const BreakpointModelIds &ids);
     void associateBreakpoint(const BreakpointModelIds &ids, int thread);
     void setBreakpointsEnabled(const BreakpointModelIds &ids, bool enabled);
+};
+
+class BreakWindow : public BaseWindow
+{
+public:
+    BreakWindow();
 };
 
 } // namespace Internal
