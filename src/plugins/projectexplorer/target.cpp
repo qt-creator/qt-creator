@@ -129,6 +129,20 @@ void Target::changeBuildConfigurationEnabled()
         emit buildConfigurationEnabledChanged();
 }
 
+void Target::changeDeployConfigurationEnabled()
+{
+    DeployConfiguration *dc = qobject_cast<DeployConfiguration *>(sender());
+    if (dc == activeDeployConfiguration())
+        emit deployConfigurationEnabledChanged();
+}
+
+void Target::changeRunConfigurationEnabled()
+{
+    RunConfiguration *rc = qobject_cast<RunConfiguration *>(sender());
+    if (rc == activeRunConfiguration())
+        emit runConfigurationEnabledChanged();
+}
+
 Project *Target::project() const
 {
     return static_cast<Project *>(parent());
@@ -243,6 +257,8 @@ void Target::addDeployConfiguration(DeployConfiguration *dc)
     // add it
     d->m_deployConfigurations.push_back(dc);
 
+    connect(dc, SIGNAL(enabledChanged()), this, SLOT(changeDeployConfigurationEnabled()));
+
     emit addedDeployConfiguration(dc);
 
     if (!d->m_activeDeployConfiguration)
@@ -293,6 +309,7 @@ void Target::setActiveDeployConfiguration(DeployConfiguration *dc)
          dc != d->m_activeDeployConfiguration)) {
         d->m_activeDeployConfiguration = dc;
         emit activeDeployConfigurationChanged(d->m_activeDeployConfiguration);
+        emit deployConfigurationEnabledChanged();
     }
 }
 
@@ -341,6 +358,9 @@ void Target::addRunConfiguration(RunConfiguration* runConfiguration)
     runConfiguration->setDisplayName(configurationDisplayName);
 
     d->m_runConfigurations.push_back(runConfiguration);
+
+    connect(runConfiguration, SIGNAL(enabledChanged()), this, SLOT(changeRunConfigurationEnabled()));
+
     emit addedRunConfiguration(runConfiguration);
 
     if (!activeRunConfiguration())
@@ -376,6 +396,7 @@ void Target::setActiveRunConfiguration(RunConfiguration* configuration)
          configuration != d->m_activeRunConfiguration)) {
         d->m_activeRunConfiguration = configuration;
         emit activeRunConfigurationChanged(d->m_activeRunConfiguration);
+        emit runConfigurationEnabledChanged();
     }
 }
 

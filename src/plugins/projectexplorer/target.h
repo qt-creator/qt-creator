@@ -112,7 +112,6 @@ public:
     virtual QList<ToolChain *> possibleToolChains(BuildConfiguration *) const;
     virtual ToolChain *preferredToolChain(BuildConfiguration *) const;
 
-
     virtual QVariantMap toMap() const;
 
 signals:
@@ -123,8 +122,6 @@ signals:
 
     // TODO clean up signal names
     // might be better to also have aboutToRemove signals
-    void runConfigurationsEnabledStateChanged();
-
     void removedRunConfiguration(ProjectExplorer::RunConfiguration *);
     void addedRunConfiguration(ProjectExplorer::RunConfiguration *);
     void activeRunConfigurationChanged(ProjectExplorer::RunConfiguration *);
@@ -141,9 +138,11 @@ signals:
     /// environmentChanged() or if the active build configuration changes
     void environmentChanged();
 
-    /// convenience signal, emitted if either the active buildconfiguration emits
+    /// convenience signal, emitted if either the active configuration emits
     /// enabledChanged() or if the active build configuration changes
     void buildConfigurationEnabledChanged();
+    void deployConfigurationEnabledChanged();
+    void runConfigurationEnabledChanged();
 
 protected:
     Target(Project *parent, const QString &id);
@@ -155,6 +154,8 @@ protected:
 private slots:
     void changeEnvironment();
     void changeBuildConfigurationEnabled();
+    void changeDeployConfigurationEnabled();
+    void changeRunConfigurationEnabled();
 
 private:
     TargetPrivate *d;

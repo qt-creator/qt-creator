@@ -94,6 +94,16 @@ DeployConfigurationWidget *DeployConfiguration::configurationWidget() const
     return 0;
 }
 
+bool DeployConfiguration::isEnabled() const
+{
+    return false;
+}
+
+QString DeployConfiguration::disabledReason() const
+{
+    return QString();
+}
+
 bool DeployConfiguration::fromMap(const QVariantMap &map)
 {
     if (!ProjectConfiguration::fromMap(map))

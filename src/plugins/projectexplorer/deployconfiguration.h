@@ -63,7 +63,13 @@ public:
 
     virtual DeployConfigurationWidget *configurationWidget() const;
 
+    virtual bool isEnabled() const;
+    virtual QString disabledReason() const;
+
     Target *target() const;
+
+signals:
+    void enabledChanged();
 
 protected:
     DeployConfiguration(Target *target, const QString &id);
