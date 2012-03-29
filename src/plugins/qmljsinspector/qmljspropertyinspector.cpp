@@ -269,6 +269,18 @@ Qt::ItemFlags QmlJSPropertyInspectorModel::flags(const QModelIndex &index) const
     return m_contentsValid ? QStandardItemModel::flags(index) : Qt::ItemFlags();
 }
 
+QVariant QmlJSPropertyInspectorModel::headerData(int section, Qt::Orientation orient, int role) const
+{
+    if (orient == Qt::Horizontal && role == Qt::DisplayRole) {
+        switch (section) {
+            case PROPERTY_NAME_COLUMN: return tr("Name");
+            case PROPERTY_VALUE_COLUMN: return tr("Value");
+            case PROPERTY_TYPE_COLUMN: return tr("Type");
+        };
+    }
+    return QStandardItemModel::headerData(section, orient, role);
+}
+
 void QmlJSPropertyInspectorModel::setContentsValid(bool contentsValid)
 {
     m_contentsValid = contentsValid;
@@ -293,7 +305,8 @@ QmlJSPropertyInspector::QmlJSPropertyInspector(QWidget *parent)
     setItemDelegateForColumn(PROPERTY_VALUE_COLUMN, new PropertyEditDelegate(this));
 
     setModel(&m_model);
-
+    //Add an empty Row to make the headers visible!
+    addRow(QString(), QString(), QString(), -1, false);
     connect(header(), SIGNAL(sectionClicked(int)),
         SLOT(headerSectionClicked(int)));
 }
@@ -305,7 +318,7 @@ void QmlJSPropertyInspector::headerSectionClicked(int logicalIndex)
 
 void QmlJSPropertyInspector::clear()
 {
-    m_model.clear();
+    m_model.removeRows(0, m_model.rowCount());
     m_currentObjects.clear();
 }
 
@@ -478,6 +491,8 @@ void QmlJSPropertyInspector::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
     QModelIndex itemIndex = indexAt(ev->pos());
+    if (!itemIndex.isValid())
+        return;
     bool isEditable = false;
     bool isColor = false;
     if (itemIndex.isValid()) {
