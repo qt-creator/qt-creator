@@ -173,7 +173,7 @@ static Enum *conditionEnum(const QSharedPointer<const CppEditor::Internal::CppQu
 } // end of anonymous namespace
 
 QList<CppQuickFixOperation::Ptr> CompleteSwitchCaseStatement::match(
-    const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface)
+    const QSharedPointer<const CppEditor::Internal::CppQuickFixAssistInterface> &interface)
 {
     const QList<AST *> &path = interface->path();
 

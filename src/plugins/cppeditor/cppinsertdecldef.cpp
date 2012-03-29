@@ -151,7 +151,7 @@ Class *isMemberFunction(const LookupContext &context, Function *function)
 } // anonymous namespace
 
 QList<CppQuickFixOperation::Ptr> DeclFromDef::match(
-    const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface)
+    const QSharedPointer<const CppEditor::Internal::CppQuickFixAssistInterface> &interface)
 {
     const QList<AST *> &path = interface->path();
     CppRefactoringFilePtr file = interface->currentFile();
@@ -297,7 +297,7 @@ private:
 } // anonymous namespace
 
 QList<CppQuickFixOperation::Ptr> DefFromDecl::match(
-    const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface)
+    const QSharedPointer<const CppEditor::Internal::CppQuickFixAssistInterface> &interface)
 {
     const QList<AST *> &path = interface->path();
 
