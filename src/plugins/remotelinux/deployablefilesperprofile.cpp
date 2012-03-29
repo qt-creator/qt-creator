@@ -91,8 +91,10 @@ DeployableFilesPerProFile::DeployableFilesPerProFile(const Qt4ProFileNode *proFi
             d->deployables << DeployableFile(file, elem.path);
     }
 
-    for (int i = 0; i < d->deployables.count(); ++i)
-        d->deployables[i].remoteDir.prepend(installPrefix + QLatin1Char('/'));
+    if (!installPrefix.isEmpty()) {
+        for (int i = 0; i < d->deployables.count(); ++i)
+            d->deployables[i].remoteDir.prepend(installPrefix + QLatin1Char('/'));
+    }
 }
 
 DeployableFilesPerProFile::~DeployableFilesPerProFile()
