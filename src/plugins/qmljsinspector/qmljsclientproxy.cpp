@@ -152,23 +152,40 @@ void ClientProxy::onCurrentObjectsChanged(const QList<int> &debugIds,
                                           bool requestIfNeeded)
 {
     QList<QmlDebugObjectReference> selectedItems;
-
+    m_fetchCurrentObjects.clear();
+    m_fetchCurrentObjectsQueryIds.clear();
     foreach (int debugId, debugIds) {
         QmlDebugObjectReference ref = objectReferenceForId(debugId);
-        if (ref.debugId() != -1) {
+        if (ref.debugId() != -1 && !ref.needsMoreData()) {
             selectedItems << ref;
         } else if (requestIfNeeded) {
-            // ### FIXME right now, there's no way in the protocol to
-            // a) get some item and know its parent (although that's possible
-            //    by adding it to a separate plugin)
-            // b) add children to part of an existing tree.
-            // So the only choice that remains is to update the complete
-            // tree when we have an unknown debug id.
-            // break;
+            m_fetchCurrentObjectsQueryIds << fetchContextObject(
+                                                 QmlDebugObjectReference(debugId));
+
         }
     }
 
     emit selectedItemsChanged(selectedItems);
+}
+
+void ClientProxy::onCurrentObjectsFetched(quint32 queryId, const QVariant &result)
+{
+    m_fetchCurrentObjectsQueryIds.removeOne(queryId);
+    QmlDebugObjectReference obj = qvariant_cast<QmlDebugObjectReference>(result);
+    m_fetchCurrentObjects.push_front(obj);
+
+    //If this is not a root object, check if we have the parent
+    QmlDebugObjectReference parent = objectReferenceForId(obj.parentId());
+    if (obj.parentId() != -1 && (parent.debugId() == -1 || parent.needsMoreData())) {
+        m_fetchCurrentObjectsQueryIds << fetchContextObject(
+                                             QmlDebugObjectReference(obj.parentId()));
+        return;
+    }
+
+    foreach (const QmlDebugObjectReference &o, m_fetchCurrentObjects)
+        addObjectToTree(o);
+    emit selectedItemsChanged(QList<QmlDebugObjectReference>() <<
+                              m_fetchCurrentObjects.last());
 }
 
 void ClientProxy::setSelectedItemsByDebugId(const QList<int> &debugIds)
@@ -538,6 +555,8 @@ void ClientProxy::onResult(quint32 queryId, const QVariant &value, const QByteAr
         updateEngineList(value);
     else if (queryId == m_contextQueryId)
         contextChanged(value);
+    else if (m_fetchCurrentObjectsQueryIds.contains(queryId))
+        onCurrentObjectsFetched(queryId, value);
     else
         emit result(queryId, value);
 }

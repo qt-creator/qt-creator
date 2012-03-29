@@ -150,6 +150,7 @@ private slots:
     void newObjects();
     void objectWatchTriggered(int debugId, const QByteArray &propertyName, const QVariant &propertyValue);
     void onResult(quint32 queryId, const QVariant &value, const QByteArray &type);
+    void onCurrentObjectsFetched(quint32 queryId, const QVariant &result);
 
 private:
     void contextChanged(const QVariant &value);
@@ -178,8 +179,10 @@ private:
     quint32 m_engineQueryId;
     quint32 m_contextQueryId;
     QList<quint32> m_objectTreeQueryIds;
+    QList<quint32> m_fetchCurrentObjectsQueryIds;
 
     QList<QmlDebugObjectReference> m_rootObjects;
+    QList<QmlDebugObjectReference> m_fetchCurrentObjects;
     QmlDebugEngineReferenceList m_engines;
     DebugIdHash m_debugIdHash;
 
