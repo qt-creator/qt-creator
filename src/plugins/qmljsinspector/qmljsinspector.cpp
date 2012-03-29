@@ -741,6 +741,8 @@ void InspectorUi::setupDockWidgets()
     dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
     dock->setTitleBarWidget(new QWidget(dock));
 
+    mw->addStagedMenuEntries();
+
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate();
     aggregate->add(m_propertyInspector);
     aggregate->add(new Find::TreeViewFind(m_propertyInspector));
