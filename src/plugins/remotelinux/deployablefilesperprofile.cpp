@@ -91,11 +91,8 @@ DeployableFilesPerProFile::DeployableFilesPerProFile(const Qt4ProFileNode *proFi
             d->deployables << DeployableFile(file, elem.path);
     }
 
-    for (int i = 0; i < d->deployables.count(); ++i) {
-        QString &remoteDir = d->deployables[i].remoteDir;
-        if (QFileInfo(remoteDir).isRelative())
-            remoteDir.prepend(installPrefix + QLatin1Char('/'));
-    }
+    for (int i = 0; i < d->deployables.count(); ++i)
+        d->deployables[i].remoteDir.prepend(installPrefix + QLatin1Char('/'));
 }
 
 DeployableFilesPerProFile::~DeployableFilesPerProFile()
