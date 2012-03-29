@@ -116,7 +116,7 @@ void S60EmulatorRunConfiguration::proFileUpdate(Qt4ProjectManager::Qt4ProFileNod
     m_validParse = success;
     m_parseInProgress = parseInProgress;
     if (enabled != isEnabled()) {
-        emit isEnabledChanged(!enabled);
+        emit enabledChanged();
     }
     if (parseInProgress)
         emit targetInformationChanged();
@@ -244,10 +244,10 @@ S60EmulatorRunConfigurationWidget::S60EmulatorRunConfigurationWidget(S60Emulator
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()),
             this, SLOT(updateTargetInformation()));
 
-    connect(m_runConfiguration, SIGNAL(isEnabledChanged(bool)),
-            this, SLOT(runConfigurationEnabledChange(bool)));
+    connect(m_runConfiguration, SIGNAL(enabledChanged()),
+            this, SLOT(runConfigurationEnabledChange()));
 
-    runConfigurationEnabledChange(m_runConfiguration->isEnabled());
+    runConfigurationEnabledChange();
 }
 
 void S60EmulatorRunConfigurationWidget::updateTargetInformation()
@@ -255,8 +255,9 @@ void S60EmulatorRunConfigurationWidget::updateTargetInformation()
     m_executableLabel->setText(m_runConfiguration->executable());
 }
 
-void S60EmulatorRunConfigurationWidget::runConfigurationEnabledChange(bool enabled)
+void S60EmulatorRunConfigurationWidget::runConfigurationEnabledChange()
 {
+    bool enabled = m_runConfiguration->isEnabled();
     m_detailsWidget->setEnabled(enabled);
     m_disabledIcon->setVisible(!enabled);
     m_disabledReason->setVisible(!enabled);

@@ -178,7 +178,7 @@ public:
     virtual ProjectExplorer::Abi abi() const;
 
 signals:
-    void isEnabledChanged(bool value);
+    void enabledChanged();
 
 protected:
     RunConfiguration(Target *parent, const QString &id);

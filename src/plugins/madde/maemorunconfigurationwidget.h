@@ -66,7 +66,7 @@ private slots:
     void enableOrDisableRemoveMountSpecButton();
     void handleRemoteMountsChanged();
     void updateMountWarning();
-    void runConfigurationEnabledChange(bool enabled);
+    void runConfigurationEnabledChange();
 
 private:
     void addMountWidgets(QVBoxLayout *mainLayout);

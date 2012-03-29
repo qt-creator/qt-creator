@@ -93,13 +93,14 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
         = qobject_cast<AbstractQt4MaemoTarget *>(runConfiguration->target());
     m_mountDetailsContainer->setVisible(maemoTarget->allowsRemoteMounts());
 
-    connect(m_runConfiguration, SIGNAL(isEnabledChanged(bool)),
-            this, SLOT(runConfigurationEnabledChange(bool)));
-    runConfigurationEnabledChange(m_runConfiguration->isEnabled());
+    connect(m_runConfiguration, SIGNAL(enabledChanged()),
+            this, SLOT(runConfigurationEnabledChange()));
+    runConfigurationEnabledChange();
 }
 
-void MaemoRunConfigurationWidget::runConfigurationEnabledChange(bool enabled)
+void MaemoRunConfigurationWidget::runConfigurationEnabledChange()
 {
+    bool enabled = m_runConfiguration->isEnabled();
     m_subWidget->setEnabled(enabled);
 }
 

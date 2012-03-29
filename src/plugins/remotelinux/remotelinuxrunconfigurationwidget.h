@@ -60,7 +60,7 @@ public:
     void addFormLayoutRow(QWidget *label, QWidget *field);
 
     void addDisabledLabel(QVBoxLayout *topLayout);
-    Q_SLOT void runConfigurationEnabledChange(bool enabled);
+    Q_SLOT void runConfigurationEnabledChange();
 
 private slots:
     void argumentsEdited(const QString &args);

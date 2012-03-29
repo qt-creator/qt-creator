@@ -113,7 +113,7 @@ void S60DeviceRunConfiguration::proFileUpdate(Qt4ProjectManager::Qt4ProFileNode 
     m_validParse = success;
     m_parseInProgress = parseInProgress;
     if (enabled != isEnabled())
-        emit isEnabledChanged(!enabled);
+        emit enabledChanged();
     if (!parseInProgress)
         emit targetInformationChanged();
 }

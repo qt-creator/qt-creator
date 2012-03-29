@@ -56,7 +56,7 @@ public:
                                              QWidget *parent = 0);
 private slots:
     void argumentsEdited(const QString &text);
-    void runConfigurationEnabledChange(bool enabled);
+    void runConfigurationEnabledChange();
 
 private:
     S60DeviceRunConfiguration *m_runConfiguration;

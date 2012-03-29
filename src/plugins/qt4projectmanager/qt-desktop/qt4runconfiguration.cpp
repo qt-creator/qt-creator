@@ -165,7 +165,7 @@ void Qt4RunConfiguration::proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro,
     m_parseSuccess = success;
     m_parseInProgress = parseInProgress;
     if (enabled != isEnabled())
-        emit isEnabledChanged(!enabled);
+        emit enabledChanged();
 
     if (!parseInProgress) {
         emit effectiveTargetInformationChanged();
@@ -287,7 +287,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_environmentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     vboxTopLayout->addWidget(m_environmentWidget);
 
-    runConfigurationEnabledChange(m_qt4RunConfiguration->isEnabled());
+    runConfigurationEnabledChange();
 
     connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),
             this, SLOT(workDirectoryEdited()));
@@ -321,8 +321,8 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     connect(qt4RunConfiguration, SIGNAL(baseEnvironmentChanged()),
             this, SLOT(baseEnvironmentChanged()));
 
-    connect(qt4RunConfiguration, SIGNAL(isEnabledChanged(bool)),
-            this, SLOT(runConfigurationEnabledChange(bool)));
+    connect(qt4RunConfiguration, SIGNAL(enabledChanged()),
+            this, SLOT(runConfigurationEnabledChange()));
 }
 
 Qt4RunConfigurationWidget::~Qt4RunConfigurationWidget()
@@ -363,8 +363,9 @@ void Qt4RunConfigurationWidget::userChangesEdited()
     m_ignoreChange = false;
 }
 
-void Qt4RunConfigurationWidget::runConfigurationEnabledChange(bool enabled)
+void Qt4RunConfigurationWidget::runConfigurationEnabledChange()
 {
+    bool enabled = m_qt4RunConfiguration->isEnabled();
     m_detailsContainer->setEnabled(enabled);
     m_environmentWidget->setEnabled(enabled);
     m_disabledIcon->setVisible(!enabled);

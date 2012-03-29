@@ -169,7 +169,7 @@ protected:
     void hideEvent(QHideEvent *event);
 
 private slots:
-    void runConfigurationEnabledChange(bool);
+    void runConfigurationEnabledChange();
     void workDirectoryEdited();
     void workingDirectoryReseted();
     void argumentsEdited(const QString &arguments);

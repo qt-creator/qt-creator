@@ -316,7 +316,7 @@ void CMakeRunConfiguration::setEnabled(bool b)
     if (m_enabled == b)
         return;
     m_enabled = b;
-    emit isEnabledChanged(isEnabled());
+    emit enabledChanged();
     setDefaultDisplayName(defaultDisplayName());
 }
 

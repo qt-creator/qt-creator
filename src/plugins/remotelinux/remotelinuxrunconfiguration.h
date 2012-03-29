@@ -134,7 +134,9 @@ protected:
     QString defaultDisplayName();
     void setDisabledReason(const QString &reason) const;
     QString userEnvironmentChangesAsString() const;
-    Q_SLOT void updateEnabledState() { emit isEnabledChanged(isEnabled()); }
+
+protected slots:
+    void updateEnabledState() { emit enabledChanged(); }
 
 private slots:
     void proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress);

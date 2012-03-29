@@ -108,7 +108,7 @@ public:
 
 private slots:
     void updateTargetInformation();
-    void runConfigurationEnabledChange(bool enabled);
+    void runConfigurationEnabledChange();
 
 private:
     S60EmulatorRunConfiguration *m_runConfiguration;

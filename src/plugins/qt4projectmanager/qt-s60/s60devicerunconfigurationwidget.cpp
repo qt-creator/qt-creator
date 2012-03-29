@@ -86,10 +86,10 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     connect(m_argumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(argumentsEdited(QString)));
 
-    connect(m_runConfiguration, SIGNAL(isEnabledChanged(bool)),
-            this, SLOT(runConfigurationEnabledChange(bool)));
+    connect(m_runConfiguration, SIGNAL(enabledChanged()),
+            this, SLOT(runConfigurationEnabledChange()));
 
-    runConfigurationEnabledChange(m_runConfiguration->isEnabled());
+    runConfigurationEnabledChange();
 }
 
 void S60DeviceRunConfigurationWidget::argumentsEdited(const QString &text)
@@ -97,8 +97,9 @@ void S60DeviceRunConfigurationWidget::argumentsEdited(const QString &text)
     m_runConfiguration->setCommandLineArguments(text.trimmed());
 }
 
-void S60DeviceRunConfigurationWidget::runConfigurationEnabledChange(bool enabled)
+void S60DeviceRunConfigurationWidget::runConfigurationEnabledChange()
 {
+    bool enabled = m_runConfiguration->isEnabled();
     m_detailsWidget->setEnabled(enabled);
     m_disabledIcon->setVisible(!enabled);
     m_disabledReason->setVisible(!enabled);

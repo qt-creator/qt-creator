@@ -364,7 +364,7 @@ void QmlProjectRunConfiguration::updateEnabled()
 
     // Always emit change signal to force reevaluation of run/debug buttons
     m_isEnabled = newValue;
-    emit isEnabledChanged(m_isEnabled);
+    emit enabledChanged();
 }
 
 void QmlProjectRunConfiguration::updateQtVersions()

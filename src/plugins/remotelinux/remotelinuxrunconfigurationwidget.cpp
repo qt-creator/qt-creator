@@ -114,9 +114,9 @@ RemoteLinuxRunConfigurationWidget::RemoteLinuxRunConfigurationWidget(RemoteLinux
     connect(d->runConfiguration, SIGNAL(deviceConfigurationChanged(ProjectExplorer::Target*)),
         SLOT(handleCurrentDeviceConfigChanged()));
     handleCurrentDeviceConfigChanged();
-    connect(d->runConfiguration, SIGNAL(isEnabledChanged(bool)),
-        SLOT(runConfigurationEnabledChange(bool)));
-    runConfigurationEnabledChange(d->runConfiguration->isEnabled());
+    connect(d->runConfiguration, SIGNAL(enabledChanged()),
+        SLOT(runConfigurationEnabledChange()));
+    runConfigurationEnabledChange();
 }
 
 RemoteLinuxRunConfigurationWidget::~RemoteLinuxRunConfigurationWidget()
@@ -141,8 +141,9 @@ void RemoteLinuxRunConfigurationWidget::addDisabledLabel(QVBoxLayout *topLayout)
     topLayout->addLayout(hl);
 }
 
-void RemoteLinuxRunConfigurationWidget::runConfigurationEnabledChange(bool enabled)
+void RemoteLinuxRunConfigurationWidget::runConfigurationEnabledChange()
 {
+    bool enabled = d->runConfiguration->isEnabled();
     d->topWidget.setEnabled(enabled);
     d->disabledIcon.setVisible(!enabled);
     d->disabledReason.setVisible(!enabled);
