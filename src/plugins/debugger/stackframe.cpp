@@ -106,7 +106,26 @@ QString StackFrame::toToolTip() const
         str << "<tr><td>" << tr("From:") << "</td><td>" << from << "</td></tr>";
     if (!to.isEmpty())
         str << "<tr><td>" << tr("To:") << "</td><td>" << to << "</td></tr>";
-    str << "</table></body></html>";
+    str << "</table>";
+
+    str <<"<br> <br><i>" << tr("Note:") << " </i> ";
+    if (isUsable()) {
+        str << tr("Sources for this frame are available.<br>Double-click on "
+            "the file name to open an editor.");
+    } else if (line <= 0) {
+        str << tr("Binary debug information is not accessible for this "
+            "frame. This either means the core was not compiled "
+            "with debug information, or the debug information is not "
+            "accessible. Note that most distributions ship debug information "
+            "in separate packages.");
+    } else {
+        str << tr("Binary debug information is accessible for this "
+            "frame. However, matching sources have not been found. "
+            "Note that some distributions ship debug sources in "
+            "in separate packages.");
+    }
+
+    str << "</body></html>";
     return res;
 }
 
