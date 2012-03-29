@@ -78,6 +78,7 @@ private:
     QRegExp m_qmlError;
     QRegExp m_qtError;
     QRegExp m_qtAssert;
+    QRegExp m_qtAssertX;
     QRegExp m_qtTestFail;
     QWeakPointer<ProjectExplorer::Project> m_project;
     QString m_lastLine;
