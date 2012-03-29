@@ -216,9 +216,14 @@ bool QmlCppEngine::hasCapability(unsigned cap) const
     // ### this could also be an OR of both engines' capabilities
     bool hasCap = d->m_cppEngine->hasCapability(cap);
     if (d->m_activeEngine != d->m_cppEngine) {
+        //Some capabilities cannot be handled by QML Engine
+        //Expand this list as and when required
         if (cap == AddWatcherWhileRunningCapability)
             hasCap = hasCap || d->m_qmlEngine->hasCapability(cap);
-        if (cap == WatchWidgetsCapability)
+        if (cap == WatchWidgetsCapability ||
+                cap == DisassemblerCapability ||
+                cap == OperateByInstructionCapability ||
+                cap == ReverseSteppingCapability)
             hasCap = hasCap && d->m_qmlEngine->hasCapability(cap);
     }
     return hasCap;
