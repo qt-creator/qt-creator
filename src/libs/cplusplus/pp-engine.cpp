@@ -1113,16 +1113,16 @@ void Preprocessor::handleIncludeDirective(PPToken *tk)
     m_state.m_lexer->setScanAngleStringLiteralTokens(true);
     lex(tk); // consume "include" token
     m_state.m_lexer->setScanAngleStringLiteralTokens(false);
+    const unsigned line = tk->lineno;
     QByteArray included;
 
     if (tk->is(T_STRING_LITERAL) || tk->is(T_ANGLE_STRING_LITERAL)) {
         included = tk->asByteArrayRef().toByteArray();
+        lex(tk); // consume string token
     } else {
         included = expand(tk);
     }
     included = included.trimmed();
-    const unsigned line = tk->lineno;
-    lex(tk); // consume string token
 
 //    qDebug("include [[%s]]", included.toUtf8().constData());
     Client::IncludeType mode;
@@ -1249,7 +1249,8 @@ QByteArray Preprocessor::expand(PPToken *tk, PPToken *lastConditionToken)
         const ByteArrayRef s = tk->asByteArrayRef();
         condition.append(s.start(), s.length());
         condition += ' ';
-        *lastConditionToken = *tk;
+        if (lastConditionToken)
+            *lastConditionToken = *tk;
         lex(tk);
     }
 //    qDebug("*** Condition before: [%s]", condition.constData());

@@ -65,6 +65,24 @@ void saveData(const QByteArray &data, const QString &fileName)
     inf.close();
 }
 
+struct Include
+{
+    Include(const QString &fileName, Client::IncludeType type, unsigned line)
+        : fileName(fileName), type(type), line(line)
+    {}
+
+    QString fileName;
+    Client::IncludeType type;
+    unsigned line;
+};
+QDebug &operator<<(QDebug& d, const Include &i) {
+    d << '[' << i.fileName
+      << ',' << (i.type == Client::IncludeGlobal ? "Global" : (i.type == Client::IncludeLocal ? "Local" : "Unknown"))
+      << ',' << i.line
+      << ']';
+    return d;
+}
+
 class MockClient: public Client
 {
 public:
@@ -107,8 +125,13 @@ public:
     { m_skippedBlocks.last().end = offset; }
 
     virtual void sourceNeeded(QString &includedFileName, IncludeType mode,
-                              unsigned /*line*/)
+                              unsigned line)
     {
+#if 1
+        m_recordedIncludes.append(Include(includedFileName, mode, line));
+#else
+        Q_UNUSED(line);
+
         QString resolvedFileName;
         if (mode == IncludeLocal)
             resolvedFileName = resolveLocally(m_env->currentFile, includedFileName);
@@ -128,6 +151,7 @@ public:
         //    qDebug("%5d %s %s", m_includeDepth, QByteArray(m_includeDepth, '+').constData(), resolvedFileName.toUtf8().constData());
         sourceNeeded(resolvedFileName);
         --m_includeDepth;
+#endif
     }
 
     QString resolveLocally(const QString &currentFileName,
@@ -179,6 +203,9 @@ public:
     QList<Block> skippedBlocks() const
     { return m_skippedBlocks; }
 
+    QList<Include> recordedIncludes() const
+    { return m_recordedIncludes; }
+
 private:
     Environment *m_env;
     QByteArray *m_output;
@@ -186,6 +213,7 @@ private:
     QList<QDir> m_includePaths;
     unsigned m_includeDepth;
     QList<Block> m_skippedBlocks;
+    QList<Include> m_recordedIncludes;
 };
 
 QDebug &operator<<(QDebug& d, const MockClient::Block &b) { d << '[' << b.start << ',' << b.end << ']'; return d; }
@@ -218,6 +246,7 @@ private slots:
     void test_file_builtin();
 
     void blockSkipping();
+    void includes_1();
 
     void comparisons_data();
     void comparisons();
@@ -521,6 +550,41 @@ void tst_Preprocessor::blockSkipping()
     MockClient::Block b = blocks.at(0);
     QCOMPARE(b.start, 6U);
     QCOMPARE(b.end, 34U);
+}
+
+void tst_Preprocessor::includes_1()
+{
+    QByteArray output;
+    Environment env;
+    MockClient client(&env, &output);
+    Preprocessor pp(&client, &env);
+    /*QByteArray preprocessed =*/ pp(
+                QLatin1String("<stdin>"),
+                QByteArray("#define FOO <foo.h>\n"
+                           "#define BAR \"bar.h\"\n"
+                           "\n"
+                           "#include FOO\n"
+                           "#include BAR\n"
+                           "\n"
+                           "#include <zoo.h>\n"
+                           "#include \"mooze.h\"\n"
+                           ));
+
+    QList<Include> incs = client.recordedIncludes();
+//    qDebug()<<incs;
+    QCOMPARE(incs.size(), 4);
+    QCOMPARE(incs.at(0).fileName, QLatin1String("foo.h"));
+    QCOMPARE(incs.at(0).type, Client::IncludeGlobal);
+    QCOMPARE(incs.at(0).line, 4U);
+    QCOMPARE(incs.at(1).fileName, QLatin1String("bar.h"));
+    QCOMPARE(incs.at(1).type, Client::IncludeLocal);
+    QCOMPARE(incs.at(1).line, 5U);
+    QCOMPARE(incs.at(2).fileName, QLatin1String("zoo.h"));
+    QCOMPARE(incs.at(2).type, Client::IncludeGlobal);
+    QCOMPARE(incs.at(2).line, 7U);
+    QCOMPARE(incs.at(3).fileName, QLatin1String("mooze.h"));
+    QCOMPARE(incs.at(3).type, Client::IncludeLocal);
+    QCOMPARE(incs.at(3).line, 8U);
 }
 
 QTEST_APPLESS_MAIN(tst_Preprocessor)
