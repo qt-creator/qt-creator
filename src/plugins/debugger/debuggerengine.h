@@ -292,7 +292,6 @@ signals:
     void stateChanged(const Debugger::DebuggerState &state);
     // A new stack frame is on display including locals.
     void stackFrameCompleted();
-    void updateViewsRequested();
     /*
      * For "external" clients of a debugger run control that needs to do
      * further setup before the debugger is started (e.g. Maemo).
