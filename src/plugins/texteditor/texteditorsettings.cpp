@@ -145,7 +145,6 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescriptions.append(FormatDescription(QLatin1String(C_FIELD), tr("Field"), Qt::darkRed));
     formatDescriptions.append(FormatDescription(QLatin1String(C_STATIC), tr("Static"), Qt::darkMagenta));
 
-    formatDescriptions.append(FormatDescription(QLatin1String(C_FUNCTION), tr("Function")));
     FormatDescription virtualMethodFormatDescriptor(QLatin1String(C_VIRTUAL_METHOD), tr("Virtual Method"));
     virtualMethodFormatDescriptor.format().setItalic(true);
     formatDescriptions.append(virtualMethodFormatDescriptor);

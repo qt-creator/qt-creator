@@ -129,7 +129,6 @@ const char C_TYPE[]                = "Type";
 const char C_LOCAL[]               = "Local";
 const char C_FIELD[]               = "Field";
 const char C_STATIC[]              = "Static";
-const char C_FUNCTION[]            = "Function";
 const char C_VIRTUAL_METHOD[]      = "VirtualMethod";
 const char C_KEYWORD[]             = "Keyword";
 const char C_OPERATOR[]            = "Operator";

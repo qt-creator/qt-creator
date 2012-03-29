@@ -107,7 +107,6 @@ protected:
     bool maybeType(const Name *name) const;
     bool maybeMember(const Name *name) const;
     bool maybeStatic(const Name *name) const;
-    bool maybeFunction(const Name *name) const;
     bool maybeVirtualMethod(const Name *name) const;
 
     void checkName(NameAST *ast, Scope *scope = 0);
@@ -143,7 +142,6 @@ protected:
 
     virtual bool visit(SimpleNameAST *ast);
     virtual bool visit(DestructorNameAST *ast);
-    virtual bool visit(ParameterDeclarationAST *ast);
     virtual bool visit(QualifiedNameAST *ast);
     virtual bool visit(TemplateIdAST *ast);
 
@@ -171,7 +169,6 @@ private:
     QList<Document::DiagnosticMessage> _diagnosticMessages;
     QSet<QByteArray> _potentialTypes;
     QSet<QByteArray> _potentialMembers;
-    QSet<QByteArray> _potentialFunctions;
     QSet<QByteArray> _potentialVirtualMethods;
     QSet<QByteArray> _potentialStatics;
     QList<AST *> _astStack;
