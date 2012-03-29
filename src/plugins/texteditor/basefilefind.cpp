@@ -292,8 +292,8 @@ void BaseFileFind::openEditor(const Find::SearchResultItem &item)
                                                                       Core::Id(),
                                                                       Core::EditorManager::ModeSwitch);
     } else {
-        openedEditor = Core::EditorManager::instance()->openEditor(item.text, Core::Id(),
-                                                                   Core::EditorManager::ModeSwitch);
+        openedEditor = Core::EditorManager::instance()->openEditor(QDir::fromNativeSeparators(item.text),
+                                                                   Core::Id(), Core::EditorManager::ModeSwitch);
     }
     if (m_currentFindSupport)
         m_currentFindSupport->clearResults();

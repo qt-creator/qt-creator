@@ -24,9 +24,9 @@ QtcPlugin {
          buildDirectory
     ]
 
-    cpp.staticLibraries: {
+    cpp.dynamicLibraries: {
         if (qbs.targetOS == 'windows') return [
-            "ole32.lib"
+            "ole32"
         ]
     }
 

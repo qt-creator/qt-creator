@@ -971,11 +971,12 @@ void FindReferences::cancel()
 void FindReferences::openEditor(const Find::SearchResultItem &item)
 {
     if (item.path.size() > 0) {
-        TextEditor::BaseTextEditorWidget::openEditorAt(item.path.first(), item.lineNumber, item.textMarkPos,
-                                                 Core::Id(),
-                                                 Core::EditorManager::ModeSwitch);
+        TextEditor::BaseTextEditorWidget::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
+                                                       item.lineNumber, item.textMarkPos, Core::Id(),
+                                                       Core::EditorManager::ModeSwitch);
     } else {
-        Core::EditorManager::instance()->openEditor(item.text, Core::Id(), Core::EditorManager::ModeSwitch);
+        Core::EditorManager::instance()->openEditor(QDir::fromNativeSeparators(item.text),
+                                                    Core::Id(), Core::EditorManager::ModeSwitch);
     }
 }
 
