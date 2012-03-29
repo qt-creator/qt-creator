@@ -368,7 +368,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     Core::Context projecTreeContext(Constants::C_PROJECT_TREE);
 
     d->m_projectsMode = new ProjectsMode(d->m_proWindow);
-    d->m_projectsMode->setEnabled(session()->startupProject());
+    d->m_projectsMode->setEnabled(false);
     addAutoReleasedObject(d->m_projectsMode);
     d->m_proWindow->layout()->addWidget(new Core::FindToolBarPlaceHolder(d->m_proWindow));
 
@@ -2129,6 +2129,8 @@ void ProjectExplorerPlugin::runControlFinished()
 
 void ProjectExplorerPlugin::projectAdded(ProjectExplorer::Project *pro)
 {
+    if (d->m_projectsMode)
+        d->m_projectsMode->setEnabled(true);
     // more specific action en and disabling ?
     connect(pro, SIGNAL(buildConfigurationEnabledChanged()),
             this, SLOT(updateActions()));
@@ -2136,6 +2138,8 @@ void ProjectExplorerPlugin::projectAdded(ProjectExplorer::Project *pro)
 
 void ProjectExplorerPlugin::projectRemoved(ProjectExplorer::Project * pro)
 {
+    if (d->m_projectsMode)
+        d->m_projectsMode->setEnabled(!session()->projects().isEmpty());
     // more specific action en and disabling ?
     disconnect(pro, SIGNAL(buildConfigurationEnabledChanged()),
                this, SLOT(updateActions()));
@@ -2147,9 +2151,6 @@ void ProjectExplorerPlugin::startupProjectChanged()
     Project *project = startupProject();
     if (project == previousStartupProject)
         return;
-
-    if (d->m_projectsMode)
-        d->m_projectsMode->setEnabled(project);
 
     if (previousStartupProject) {
         disconnect(previousStartupProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
