@@ -56,7 +56,7 @@ public:
 private slots:
     void remoteSetupRequested();
     void codaConnected();
-    void qmlEngineStateChanged(const Debugger::DebuggerState &state);
+    void qmlEngineStateChanged(Debugger::DebuggerState state);
     void codaFinished();
     void handleDebuggingFinished();
     void handleMessageFromCoda(ProjectExplorer::RunControl *aCodaRunControl, const QString &msg, Utils::OutputFormat format);

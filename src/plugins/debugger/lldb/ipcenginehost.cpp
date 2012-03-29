@@ -591,7 +591,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
     }
 }
 
-void IPCEngineHost::m_stateChanged(const Debugger::DebuggerState &state)
+void IPCEngineHost::m_stateChanged(Debugger::DebuggerState state)
 {
     QByteArray p;
     {

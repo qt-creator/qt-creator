@@ -289,7 +289,7 @@ public:
     QString toFileInProject(const QUrl &fileUrl);
 
 signals:
-    void stateChanged(const Debugger::DebuggerState &state);
+    void stateChanged(Debugger::DebuggerState state);
     // A new stack frame is on display including locals.
     void stackFrameCompleted();
     /*

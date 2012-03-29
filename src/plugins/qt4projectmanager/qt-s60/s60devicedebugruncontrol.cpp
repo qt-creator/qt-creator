@@ -193,7 +193,7 @@ void S60DeviceDebugRunControl::codaConnected()
     engine()->handleRemoteSetupDone(-1, -1); // calls notifyInferiorSetupOk()
 }
 
-void S60DeviceDebugRunControl::qmlEngineStateChanged(const Debugger::DebuggerState &state)
+void S60DeviceDebugRunControl::qmlEngineStateChanged(Debugger::DebuggerState state)
 {
     if (state == Debugger::EngineRunRequested)
         m_codaRunControl->run();
