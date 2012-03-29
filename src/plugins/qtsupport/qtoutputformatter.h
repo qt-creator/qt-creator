@@ -82,7 +82,6 @@ private:
     QRegExp m_qtTestFail;
     QWeakPointer<ProjectExplorer::Project> m_project;
     QString m_lastLine;
-    QString m_deferedText;
     Utils::FileInProjectFinder m_projectFinder;
 };
 

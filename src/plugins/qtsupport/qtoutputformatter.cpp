@@ -102,9 +102,6 @@ void QtOutputFormatter::appendMessage(const QString &txt, Utils::OutputFormat fo
     cursor.movePosition(QTextCursor::End);
     cursor.beginEditBlock();
 
-    QString text = txt;
-    text.remove(QLatin1Char('\r'));
-
     QString deferedText;
 
     int start = 0;
