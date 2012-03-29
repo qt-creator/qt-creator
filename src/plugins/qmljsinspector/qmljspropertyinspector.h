@@ -92,6 +92,21 @@ private:
     QmlEditorWidgets::CustomColorDialog *m_mainFrame;
 };
 
+class QmlJSPropertyInspectorModel : public QStandardItemModel
+{
+    Q_OBJECT
+public:
+    QmlJSPropertyInspectorModel();
+    void setContentsValid(bool contentsValid);
+    bool contentsValid() const;
+
+protected:
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+
+private:
+    bool m_contentsValid;
+};
+
 class QmlJSPropertyInspector : public QTreeView
 {
     Q_OBJECT
@@ -107,6 +122,8 @@ public:
 
     explicit QmlJSPropertyInspector(QWidget *parent = 0);
     void clear();
+    void setContentsValid(bool contentsValid);
+    bool contentsValid() const;
 
 signals:
     void changePropertyValue(int debugId, QString propertyName, QString valueExpression);
@@ -135,7 +152,7 @@ private:
 
     void contextMenuEvent(QContextMenuEvent *ev);
 
-    QStandardItemModel m_model;
+    QmlJSPropertyInspectorModel m_model;
     QList<int> m_currentObjects;
 };
 

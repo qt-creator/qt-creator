@@ -130,6 +130,7 @@ QmlCppEngine::~QmlCppEngine()
 bool QmlCppEngine::setToolTipExpression(const QPoint & mousePos,
         TextEditor::ITextEditor *editor, const DebuggerToolTipContext &ctx)
 {
+    //FIXIT:: This is broken!!
     return d->m_activeEngine->setToolTipExpression(mousePos, editor, ctx);
 }
 

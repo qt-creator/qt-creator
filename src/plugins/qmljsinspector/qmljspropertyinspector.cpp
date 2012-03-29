@@ -255,6 +255,30 @@ inline QString cleanPropertyValue(QString propertyValue)
     return propertyValue;
 }
 
+// *************************************************************************
+//  QmlJSPropertyInspectorModel
+// *************************************************************************
+QmlJSPropertyInspectorModel::QmlJSPropertyInspectorModel()
+    : QStandardItemModel()
+    , m_contentsValid(false)
+{
+}
+
+Qt::ItemFlags QmlJSPropertyInspectorModel::flags(const QModelIndex &index) const
+{
+    return m_contentsValid ? QStandardItemModel::flags(index) : Qt::ItemFlags();
+}
+
+void QmlJSPropertyInspectorModel::setContentsValid(bool contentsValid)
+{
+    m_contentsValid = contentsValid;
+}
+
+bool QmlJSPropertyInspectorModel::contentsValid() const
+{
+    return m_contentsValid;
+}
+
 QmlJSPropertyInspector::QmlJSPropertyInspector(QWidget *parent)
     : QTreeView(parent)
 {
@@ -283,6 +307,16 @@ void QmlJSPropertyInspector::clear()
 {
     m_model.clear();
     m_currentObjects.clear();
+}
+
+void QmlJSPropertyInspector::setContentsValid(bool contentsValid)
+{
+    m_model.setContentsValid(contentsValid);
+}
+
+bool QmlJSPropertyInspector::contentsValid() const
+{
+    return m_model.contentsValid();
 }
 
 void QmlJSPropertyInspector::setCurrentObjects(const QList<QmlDebugObjectReference> &objectList)

@@ -45,10 +45,9 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljseditor/qmljseditor.h>
-#include <debugger/debuggerconstants.h>
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerplugin.h>
-#include <debugger/debuggerengine.h>
+#include <debugger/qml/qmlengine.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/qml/qmladapter.h>
 
@@ -137,7 +136,6 @@ InspectorUi::InspectorUi(QObject *parent)
     , m_propertyInspector(0)
     , m_settings(new InspectorSettings(this))
     , m_clientProxy(0)
-    , m_qmlEngine(0)
     , m_debugQuery(0)
     , m_selectionCallbackExpected(false)
     , m_cursorPositionChangedExternally(false)
@@ -169,23 +167,31 @@ void InspectorUi::restoreSettings()
     m_settings->restoreSettings(Core::ICore::settings());
 }
 
-void InspectorUi::setDebuggerEngine(QObject *qmlEngine)
+void InspectorUi::setDebuggerEngine(QObject *engine)
 {
-    if (m_qmlEngine && !qmlEngine) {
-        disconnect(m_qmlEngine, SIGNAL(tooltipRequested(QPoint,TextEditor::ITextEditor*,int)),
-                   this, SLOT(showDebuggerTooltip(QPoint,TextEditor::ITextEditor*,int)));
-    }
+    Debugger::Internal::QmlEngine *qmlEngine =
+            qobject_cast<Debugger::Internal::QmlEngine *>(engine);
+    QTC_ASSERT(qmlEngine, return);
+    Debugger::DebuggerEngine *masterEngine = qmlEngine;
+    if (qmlEngine->isSlaveEngine())
+        masterEngine = qmlEngine->masterEngine();
 
-    m_qmlEngine = qmlEngine;
-    if (m_qmlEngine) {
-        connect(m_qmlEngine, SIGNAL(tooltipRequested(QPoint,TextEditor::ITextEditor*,int)),
-                this, SLOT(showDebuggerTooltip(QPoint,TextEditor::ITextEditor*,int)));
-    }
+    connect(qmlEngine, SIGNAL(tooltipRequested(QPoint,TextEditor::ITextEditor*,int)),
+            this, SLOT(showDebuggerTooltip(QPoint,TextEditor::ITextEditor*,int)));
+    connect(masterEngine, SIGNAL(stateChanged(Debugger::DebuggerState)),
+            this, SLOT(onEngineStateChanged(Debugger::DebuggerState)));
 }
 
-QObject *InspectorUi::debuggerEngine() const
+void InspectorUi::onEngineStateChanged(Debugger::DebuggerState state)
 {
-    return m_qmlEngine;
+    bool enable = state == Debugger::InferiorRunOk;
+    if (enable)
+        m_toolBar->enable();
+    else
+        m_toolBar->disable();
+    m_crumblePath->setEnabled(enable);
+    m_propertyInspector->setContentsValid(enable);
+    m_propertyInspector->reset();
 }
 
 void InspectorUi::showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextEditor *editor,
@@ -342,7 +348,6 @@ void InspectorUi::disconnected()
     disconnectSignals();
     disable();
 
-    m_qmlEngine = 0;
     resetViews();
 
     applyChangesToQmlInspectorHelper(false);
@@ -355,7 +360,6 @@ void InspectorUi::disconnected()
     m_clientProxy = 0;
     m_propertyInspector->clear();
     m_pendingPreviewDocumentNames.clear();
-    setDebuggerEngine(0);
 }
 
 void InspectorUi::onRootContext(const QVariant &value)
@@ -399,6 +403,8 @@ void InspectorUi::updateEngineList()
 
 void InspectorUi::changeSelectedItems(const QList<QmlDebugObjectReference> &objects)
 {
+    if (!m_propertyInspector->contentsValid())
+        return;
     if (m_selectionCallbackExpected) {
         m_selectionCallbackExpected = false;
         return;

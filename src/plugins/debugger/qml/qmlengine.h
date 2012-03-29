@@ -57,7 +57,7 @@ namespace Internal {
 class QtMessageLogItem;
 class QmlEnginePrivate;
 
-class QmlEngine : public DebuggerEngine
+class DEBUGGER_EXPORT QmlEngine : public DebuggerEngine
 {
     Q_OBJECT
 

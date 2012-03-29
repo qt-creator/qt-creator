@@ -41,6 +41,8 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 
+#include <debugger/debuggerconstants.h>
+
 #include <QAction>
 #include <QObject>
 
@@ -100,7 +102,6 @@ public:
     void connected(ClientProxy *clientProxy);
     void disconnected();
     void setDebuggerEngine(QObject *qmlEngine);
-    QObject *debuggerEngine() const;
 
 signals:
     void statusMessage(const QString &text);
@@ -133,6 +134,7 @@ private slots:
 
     void updatePendingPreviewDocuments(QmlJS::Document::Ptr doc);
     void showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
+    void onEngineStateChanged(Debugger::DebuggerState state);
 
 private:
     void showRoot();
@@ -161,7 +163,6 @@ private:
 
     InspectorSettings *m_settings;
     ClientProxy *m_clientProxy;
-    QObject *m_qmlEngine;
     quint32 m_debugQuery;
     quint32 m_showObjectQueryId;
     QList<quint32> m_updateObjectQueryIds;
