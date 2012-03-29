@@ -157,7 +157,7 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     if (engine->hasCapability(DisassemblerCapability)) {
         actShowDisassemblerAt = menu.addAction(QString());
-        actShowDisassemblerAtAddress = menu.addAction(tr("Open Disassembler at address..."));
+        actShowDisassemblerAtAddress = menu.addAction(tr("Open Disassembler at Address..."));
         actShowDisassemblerAtFunction = menu.addAction(tr("Disassemble Function..."));
         if (address == 0) {
             actShowDisassemblerAt->setText(tr("Open Disassembler"));
