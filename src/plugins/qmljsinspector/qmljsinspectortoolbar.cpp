@@ -168,7 +168,7 @@ void QmlJsInspectorToolBar::createActions()
     Core::ActionManager *am = Core::ICore::actionManager();
 
     m_fromQmlAction = new Utils::SavedAction(this);
-    m_fromQmlAction->setDefaultValue(true);
+    m_fromQmlAction->setDefaultValue(false);
     m_fromQmlAction->setSettingsKey(QLatin1String(Constants::S_QML_INSPECTOR),
                                     QLatin1String(Constants::FROM_QML_ACTION));
     m_fromQmlAction->setText(tr("Apply Changes on Save"));
