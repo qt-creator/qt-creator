@@ -1130,6 +1130,11 @@ void Preprocessor::handleIncludeDirective(PPToken *tk)
     }
     included = included.trimmed();
 
+    if (included.isEmpty()) {
+        //### TODO: error message
+        return;
+    }
+
 //    qDebug("include [[%s]]", included.toUtf8().constData());
     Client::IncludeType mode;
     if (included.at(0) == '"')
