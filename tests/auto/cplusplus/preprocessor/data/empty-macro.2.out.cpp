@@ -1,3 +1,4 @@
+# 1 "data/empty-macro.2.cpp"
 # 6 "data/empty-macro.2.cpp"
 class Test {
 private:

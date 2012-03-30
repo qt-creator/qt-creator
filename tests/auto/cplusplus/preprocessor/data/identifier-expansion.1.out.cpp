@@ -1,3 +1,4 @@
+# 1 "data/identifier-expansion.1.cpp"
 #gen true
 # 1 "data/identifier-expansion.1.cpp"
 test test

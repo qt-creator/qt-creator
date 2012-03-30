@@ -1,3 +1,4 @@
+# 1 "data/macro-test.cpp"
 # 7 "data/macro-test.cpp"
 void thisFunctionIsEnabled();
 # 21 "data/macro-test.cpp"

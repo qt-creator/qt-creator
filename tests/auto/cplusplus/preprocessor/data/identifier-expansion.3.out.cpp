@@ -1,3 +1,4 @@
+# 1 "data/identifier-expansion.3.cpp"
 # 8 "data/identifier-expansion.3.cpp"
 enum op_code {
 #gen true

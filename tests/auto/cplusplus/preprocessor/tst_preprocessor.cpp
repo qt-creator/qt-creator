@@ -192,12 +192,12 @@ public:
         }
     }
 
-    void sourceNeeded(const QString &fileName)
+    void sourceNeeded(const QString &fileName, bool nolines)
     {
         QByteArray src = loadSource(fileName);
         QVERIFY(!src.isEmpty());
 
-        m_pp.preprocess(fileName, src, m_output, false, true, false);
+        m_pp.preprocess(fileName, src, m_output, nolines, true, false);
     }
 
     QList<Block> skippedBlocks() const
@@ -223,12 +223,12 @@ class tst_Preprocessor: public QObject
     Q_OBJECT
 
 protected:
-    QByteArray preprocess(const QString &fileName, QByteArray * /*errors*/) {
+    QByteArray preprocess(const QString &fileName, QByteArray * /*errors*/, bool nolines) {
         //### TODO: hook up errors
         QByteArray output;
         Environment env;
         MockClient client(&env, &output);
-        client.sourceNeeded("data/" + fileName);
+        client.sourceNeeded("data/" + fileName, nolines);
         return output;
     }
 
@@ -371,7 +371,8 @@ void tst_Preprocessor::unfinished_function_like_macro_call()
     QByteArray preprocessed = preprocess(QLatin1String("<stdin>"),
                                          QByteArray("\n#define foo(a,b) a + b"
                                          "\nfoo(1, 2\n"));
-    QByteArray expected__("\n\n    1\n#gen true\n# 2 \"<stdin>\"\n+\n#gen false\n# 3 \"<stdin>\"\n       2\n");
+    QByteArray expected__("# 1 \"<stdin>\"\n\n\n    1\n#gen true\n# 2 \"<stdin>\"\n+\n#gen false\n# 3 \"<stdin>\"\n       2\n");
+//    DUMP_OUTPUT(preprocessed);
     QCOMPARE(preprocessed, expected__);
 }
 
@@ -441,7 +442,7 @@ void tst_Preprocessor::tstst()
                            "namespace std _GLIBCXX_VISIBILITY(default) {\n"
                            "}\n"
                            ));
-    const QByteArray result____ ="\n\n"
+    const QByteArray result____ ="# 1 \"<stdin>\"\n\n\n"
             "namespace std\n"
             "#gen true\n"
             "# 2 \"<stdin>\"\n"
@@ -454,6 +455,7 @@ void tst_Preprocessor::tstst()
             "                                           {\n"
             "}\n";
 
+//    DUMP_OUTPUT(preprocessed);
     QCOMPARE(preprocessed, result____);
 }
 
@@ -468,6 +470,7 @@ void tst_Preprocessor::test_file_builtin()
                 QByteArray("const char *f = __FILE__\n"
                            ));
     const QByteArray result____ =
+            "# 1 \"some-file.c\"\n"
             "const char *f =\n"
             "#gen true\n"
             "# 1 \"some-file.c\"\n"
@@ -506,7 +509,7 @@ void tst_Preprocessor::comparisons()
     QFETCH(QString, errorfile);
 
     QByteArray errors;
-    QByteArray preprocessed = preprocess(infile, &errors);
+    QByteArray preprocessed = preprocess(infile, &errors, infile == outfile);
 
 //    DUMP_OUTPUT(preprocessed);
 

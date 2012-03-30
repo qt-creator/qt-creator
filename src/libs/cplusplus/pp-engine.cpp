@@ -624,6 +624,16 @@ Preprocessor::State Preprocessor::createStateFromSource(const QString &fileName,
     return state;
 }
 
+void Preprocessor::genLine(unsigned lineno, const QByteArray &fileName) const
+{
+    startNewOutputLine();
+    out("# ");
+    out(QByteArray::number(lineno));
+    out(" \"");
+    out(fileName);
+    out("\"\n");
+}
+
 void Preprocessor::handleDefined(PPToken *tk)
 {
     unsigned lineno = tk->lineno;
@@ -678,8 +688,8 @@ _Lagain:
         m_state.m_lexer->scan(tk);
     }
 
-    if (tk->isValid() && !tk->generated() && !tk->is(T_EOF_SYMBOL))
-        m_env->currentLine = tk->lineno;
+//    if (tk->isValid() && !tk->generated() && !tk->is(T_EOF_SYMBOL))
+//        m_env->currentLine = tk->lineno;
 
 _Lclassify:
     if (! m_state.m_inPreprocessorDirective) {
@@ -906,12 +916,13 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
     m_env->currentFile = fileName;
 
     const unsigned previousCurrentLine = m_env->currentLine;
-    m_env->currentLine = 0;
+    m_env->currentLine = 1;
 
     const QByteArray fn = fileName.toUtf8();
+    if (!m_state.m_noLines)
+        genLine(1, fn);
 
     PPToken tk(m_state.m_source), prevTk;
-    unsigned lineno = 1;
     do {
 _Lrestart:
         bool forceLine = false;
@@ -927,30 +938,25 @@ _Lrestart:
         if (m_state.m_markGeneratedTokens && tk.generated() && !prevTk.generated()) {
             startNewOutputLine();
             out("#gen true\n");
-            ++lineno;
+            ++m_env->currentLine;
             forceLine = true;
         } else if (m_state.m_markGeneratedTokens && !tk.generated() && prevTk.generated()) {
             startNewOutputLine();
             out("#gen false\n");
-            ++lineno;
+            ++m_env->currentLine;
             forceLine = true;
         }
 
-        if (forceLine || lineno != tk.lineno) {
-            if (forceLine || lineno > tk.lineno || tk.lineno - lineno > 3) {
+        if (forceLine || m_env->currentLine != tk.lineno) {
+            if (forceLine || m_env->currentLine > tk.lineno || tk.lineno - m_env->currentLine > 3) {
                 if (m_state.m_noLines) {
                     if (!m_state.m_markGeneratedTokens)
                         out(' ');
                 } else {
-                    startNewOutputLine();
-                    out("# ");
-                    out(QByteArray::number(tk.lineno));
-                    out(" \"");
-                    out(fn);
-                    out("\"\n");
+                    genLine(tk.lineno, fn);
                 }
             } else {
-                for (unsigned i = lineno; i < tk.lineno; ++i)
+                for (unsigned i = m_env->currentLine; i < tk.lineno; ++i)
                     out('\n');
             }
         } else {
@@ -961,7 +967,7 @@ _Lrestart:
         if (tk.whitespace() || prevTk.generated() != tk.generated() || !prevTk.isValid()) {
             if (prevTk.generated() && tk.generated()) {
                 out(' ');
-            } else if (tk.isValid() && !prevTk.isValid() && tk.lineno == lineno) {
+            } else if (tk.isValid() && !prevTk.isValid() && tk.lineno == m_env->currentLine) {
                 out(QByteArray(prevTk.length() + (tk.whitespace() ? 1 : 0), ' '));
             } else if (prevTk.generated() != tk.generated() || !prevTk.isValid()) {
                 const char *begin = tk.source().constBegin();
@@ -988,9 +994,9 @@ _Lrestart:
 
         const ByteArrayRef tkBytes = tk.asByteArrayRef();
         out(tkBytes);
-        lineno = tk.lineno;
+        m_env->currentLine = tk.lineno;
         if (tk.is(T_COMMENT) || tk.is(T_DOXY_COMMENT))
-            lineno += tkBytes.count('\n');
+            m_env->currentLine += tkBytes.count('\n');
         prevTk = tk;
     } while (tk.isNot(T_EOF_SYMBOL));
 

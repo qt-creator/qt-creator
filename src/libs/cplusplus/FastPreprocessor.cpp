@@ -56,6 +56,7 @@ QByteArray FastPreprocessor::run(QString fileName, const QString &source)
     }
 
     const QByteArray preprocessed = _preproc(fileName, source);
+//    qDebug("FastPreprocessor::run for %s produced [[%s]]", fileName.toUtf8().constData(), preprocessed.constData());
     return preprocessed;
 }
 

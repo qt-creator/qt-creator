@@ -159,6 +159,8 @@ private:
             out('\n');
     }
 
+    void genLine(unsigned lineno, const QByteArray &fileName) const;
+
     inline void out(const QByteArray &text) const
     { if (m_state.m_result) m_state.m_result->append(text); }
 
