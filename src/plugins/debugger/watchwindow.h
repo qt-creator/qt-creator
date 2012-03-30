@@ -89,7 +89,9 @@ class WatchWindow : public BaseWindow
 public:
     explicit WatchWindow(WatchTreeView::Type type)
         : BaseWindow(new WatchTreeView(type))
-    {}
+    {
+        setWindowTitle(tr("Locals and Expressions"));
+    }
 };
 
 } // namespace Internal

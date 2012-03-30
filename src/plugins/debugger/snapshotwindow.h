@@ -61,7 +61,9 @@ class SnapshotWindow : public BaseWindow
 public:
     explicit SnapshotWindow(SnapshotHandler *handler)
         : BaseWindow(new SnapshotTreeView(handler))
-    {}
+    {
+        setWindowTitle(tr("Snapshots"));
+    }
 };
 
 } // namespace Internal
