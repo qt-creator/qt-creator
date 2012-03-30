@@ -225,3 +225,37 @@ def verifyProperties(properties, expectedProps):
         else:
             result[key] = None
     return result
+
+def getEditorForFileSuffix(curFile):
+    cppEditorSuffixes = ["cpp", "cc", "CC", "h", "H", "cp", "cxx", "C", "c++", "inl", "moc", "qdoc",
+                         "tcc", "tpp", "t++", "c", "cu", "m", "mm", "hh", "hxx", "h++", "hpp", "hp"]
+    qmlEditorSuffixes = ["qml", "qmlproject", "js", "qs", "qtt"]
+    proEditorSuffixes = ["pro", "pri", "prf"]
+    suffix = __getFileSuffix__(curFile)
+    if suffix in cppEditorSuffixes:
+        editor = waitForObject("{type='CppEditor::Internal::CPPEditorWidget' unnamed='1' "
+                               "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
+    elif suffix in qmlEditorSuffixes:
+        editor = waitForObject("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' "
+                               "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
+    elif suffix in proEditorSuffixes:
+        editor = waitForObject("{type='Qt4ProjectManager::Internal::ProFileEditorWidget' unnamed='1' "
+                               "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
+    else:
+        test.log("Trying PlainTextEditor (file suffix: %s)" % suffix)
+        try:
+            editor = waitForObject("{type='TextEditor::PlainTextEditorWidget' unnamed='1' "
+                                   "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 3000)
+        except:
+            test.fatal("Unsupported file suffix for file '%s'" % curFile)
+            editor = None
+    return editor
+
+# helper that determines the file suffix of the given fileName
+# (doesn't matter if fileName contains the path as well)
+def __getFileSuffix__(fileName):
+    suffix = os.path.basename(fileName).rsplit(".", 1)
+    if len(suffix) == 1:
+        return None
+    else:
+        return suffix[1]
