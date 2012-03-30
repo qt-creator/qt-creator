@@ -59,7 +59,10 @@ private:
 class StackWindow : public BaseWindow
 {
 public:
-    StackWindow() : BaseWindow(new StackTreeView) {}
+    StackWindow() : BaseWindow(new StackTreeView)
+    {
+    setWindowTitle(tr("Stack"));
+    }
 };
 
 } // namespace Internal
