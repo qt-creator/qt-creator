@@ -150,6 +150,7 @@ Project {
         Group {
             files: "bin/qtcreator.sh"
             fileTags: "install"
+            qbs.installDir: "bin"
         }
 
         Group {
