@@ -81,7 +81,6 @@ QString DesktopQtVersion::warningReason() const
 
 QList<ProjectExplorer::Abi> DesktopQtVersion::detectQtAbis() const
 {
-    ensureMkSpecParsed();
     return qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
 }
 
