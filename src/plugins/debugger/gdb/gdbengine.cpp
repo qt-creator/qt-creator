@@ -1901,10 +1901,10 @@ void GdbEngine::shutdownInferior()
     switch (startParameters().closeMode) {
         case KillAtClose:
             postCommand("kill", NeedsStop | LosesChild, CB(handleInferiorShutdown));
-            break;
+            return;
         case DetachAtClose:
             postCommand("detach", NeedsStop | LosesChild, CB(handleInferiorShutdown));
-            break;
+            return;
     }
     QTC_ASSERT(false, notifyInferiorShutdownFailed());
 }
