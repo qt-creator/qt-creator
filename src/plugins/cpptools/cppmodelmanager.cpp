@@ -201,9 +201,10 @@ static const char pp_configuration[] =
     "#define __forceinline inline\n";
 
 #ifndef ICHECK_BUILD
-CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager)
+CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager, bool dumpFileNameWhileParsing)
     : snapshot(modelManager->snapshot()),
       m_modelManager(modelManager),
+      m_dumpFileNameWhileParsing(dumpFileNameWhileParsing),
       preprocess(this, &env),
       m_revision(0)
 {
@@ -214,6 +215,7 @@ CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager)
 
 CppPreprocessor::CppPreprocessor(QPointer<CPlusPlus::ParseManager> modelManager)
     : preprocess(this, &env),
+      m_dumpFileNameWhileParsing(false),
       m_revision(0)
 {
 }
@@ -599,9 +601,11 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type, unsigned
         }
     }
 
-//    qDebug() << "parse file:" << fileName
+    if (m_dumpFileNameWhileParsing) {
+        qDebug() << "Parsing file:" << fileName
 //             << "contents:" << contents.size()
-//                ;
+                    ;
+    }
 
     Document::Ptr doc = snapshot.document(fileName);
     if (doc) {
@@ -695,6 +699,7 @@ CppModelManager::CppModelManager(QObject *parent)
 {
     m_findReferences = new CppFindReferences(this);
     m_indexerEnabled = qgetenv("QTCREATOR_NO_CODE_INDEXER").isNull();
+    m_dumpFileNameWhileParsing = !qgetenv("QTCREATOR_DUMP_FILENAME_WHILE_PARSING").isNull();
 
     m_revision = 0;
     m_synchronizer.setCancelOnWait(true);
@@ -984,7 +989,7 @@ QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles
     if (! sourceFiles.isEmpty() && m_indexerEnabled) {
         const WorkingCopy workingCopy = buildWorkingCopyList();
 
-        CppPreprocessor *preproc = new CppPreprocessor(this);
+        CppPreprocessor *preproc = new CppPreprocessor(this, m_dumpFileNameWhileParsing);
         preproc->setRevision(++m_revision);
         preproc->setProjectFiles(projectFiles());
         preproc->setIncludePaths(includePaths());
