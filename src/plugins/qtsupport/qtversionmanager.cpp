@@ -125,7 +125,8 @@ bool qtVersionNumberCompare(BaseQtVersion *a, BaseQtVersion *b)
 // --------------------------------------------------------------------------
 QtVersionManager *QtVersionManager::m_self = 0;
 
-QtVersionManager::QtVersionManager()
+QtVersionManager::QtVersionManager() :
+    m_configFileWatcher(0)
 {
     m_self = this;
     m_idcount = 1;
