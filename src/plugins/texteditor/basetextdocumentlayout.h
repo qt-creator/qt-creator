@@ -81,7 +81,13 @@ public:
     void addMark(ITextMark *mark);
     inline bool removeMark(ITextMark *mark) { return m_marks.removeAll(mark); }
 
-    inline void documentClosing() { m_marks.clear(); }
+    inline TextMarks documentClosing() {
+        TextMarks marks = m_marks;
+        foreach (ITextMark *mrk, m_marks)
+            mrk->setMarkableInterface(0);
+        m_marks.clear();
+        return marks;
+    }
 
     inline void setFolded(bool b) { m_folded = b; }
     inline bool folded() const { return m_folded; }
@@ -214,7 +220,8 @@ public:
 
     QSizeF documentSize() const;
 
-    void documentClosing();
+    TextMarks documentClosing();
+    void documentReloaded(TextMarks marks);
     void updateMarksLineNumber();
     void updateMarksBlock(const QTextBlock &block);
 };

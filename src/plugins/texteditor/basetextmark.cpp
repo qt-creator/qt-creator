@@ -55,15 +55,9 @@ void BaseTextMarkRegistry::add(BaseTextMark *mark)
     Core::EditorManager *em = Core::EditorManager::instance();
     foreach (Core::IEditor *editor, em->editorsForFileName(mark->fileName())) {
         if (ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor)) {
-            if (mark->m_markableInterface == 0) { // We aren't added to something
-                ITextMarkable *markableInterface = textEditor->markableInterface();
-                if (markableInterface->addMark(mark)) {
-                    mark->m_markableInterface = markableInterface;
-                    // Handle reload of text documents, readding the mark as necessary
-                    connect(textEditor->document(), SIGNAL(reloaded()),
-                            this, SLOT(documentReloaded()), Qt::UniqueConnection);
-                    break;
-                }
+            ITextMarkable *markableInterface = textEditor->markableInterface();
+            if (markableInterface->addMark(mark)) {
+                break;
             }
         }
     }
@@ -82,34 +76,9 @@ void BaseTextMarkRegistry::editorOpened(Core::IEditor *editor)
     if (!m_marks.contains(Utils::FileName::fromString(editor->document()->fileName())))
         return;
 
-    // Handle reload of text documents, readding the mark as necessary
-    connect(textEditor->document(), SIGNAL(reloaded()),
-            this, SLOT(documentReloaded()), Qt::UniqueConnection);
-
     foreach (BaseTextMark *mark, m_marks.value(Utils::FileName::fromString(editor->document()->fileName()))) {
-        if (mark->m_markableInterface == 0) { // We aren't added to something
-            ITextMarkable *markableInterface = textEditor->markableInterface();
-            if (markableInterface->addMark(mark))
-                mark->m_markableInterface = markableInterface;
-        }
-    }
-}
-
-void BaseTextMarkRegistry::documentReloaded()
-{
-    BaseTextDocument *doc = qobject_cast<BaseTextDocument*>(sender());
-    if (!doc)
-        return;
-
-    if (!m_marks.contains(Utils::FileName::fromString(doc->fileName())))
-        return;
-
-    foreach (BaseTextMark *mark, m_marks.value(Utils::FileName::fromString(doc->fileName()))) {
-        if (mark->m_markableInterface)
-            return;
-        ITextMarkable *markableInterface = doc->documentMarker();
-        if (markableInterface->addMark(mark))
-            mark->m_markableInterface = markableInterface;
+        ITextMarkable *markableInterface = textEditor->markableInterface();
+        markableInterface->addMark(mark);
     }
 }
 
@@ -122,14 +91,5 @@ BaseTextMark::BaseTextMark(const QString &fileName, int lineNumber)
 BaseTextMark::~BaseTextMark()
 {
     // oha we are deleted
-    if (m_markableInterface)
-        m_markableInterface.data()->removeMark(this);
-    m_markableInterface.clear();
     Internal::TextEditorPlugin::instance()->baseTextMarkRegistry()->remove(this);
-}
-
-void BaseTextMark::updateMarker()
-{
-    if (m_markableInterface)
-        m_markableInterface.data()->updateMark(this);
 }

@@ -61,14 +61,10 @@ public:
     BaseTextMark(const QString &fileName, int lineNumber);
     virtual ~BaseTextMark();
 
-    // call this if the icon has changed.
-    void updateMarker();
-
     // access to internal data
     QString fileName() const { return m_fileName; }
 
 private:
-    QWeakPointer<ITextMarkable> m_markableInterface;
     QString m_fileName;
 };
 
@@ -83,7 +79,6 @@ public:
     void remove(BaseTextMark *mark);
 private slots:
     void editorOpened(Core::IEditor *editor);
-    void documentReloaded();
 private:
     QHash<Utils::FileName, QList<BaseTextMark *> > m_marks;
 };
