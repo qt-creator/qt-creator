@@ -57,6 +57,8 @@ namespace Internal {
 
 class AbstractGdbAdapter;
 class AbstractGdbProcess;
+class DebugInfoTask;
+class DebugInfoTaskHandler;
 class GdbResponse;
 class GdbMi;
 class GdbToolTipContext;
@@ -731,6 +733,7 @@ private: ////////// View & Data Stuff //////////
     // HACK:
     QByteArray m_currentThread;
     QString m_lastWinException;
+    QString m_lastMissingDebugInfo;
     BreakpointResponseId m_qFatalBreakpointResponseId;
     bool m_actingOnExpectedStop;
 
@@ -738,6 +741,11 @@ private: ////////// View & Data Stuff //////////
 
     QHash<int, QByteArray> m_scheduledTestResponses;
     QSet<int> m_testCases;
+
+    // Debug information
+    friend class DebugInfoTaskHandler;
+    void requestDebugInformation(const DebugInfoTask &task);
+    DebugInfoTaskHandler *m_debugInfoTaskHandler;
 };
 
 } // namespace Internal

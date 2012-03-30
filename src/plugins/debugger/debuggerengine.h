@@ -47,13 +47,9 @@ class QMessageBox;
 class QAbstractItemModel;
 QT_END_NAMESPACE
 
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace Core {
-class IOptionsPage;
-}
+namespace TextEditor { class ITextEditor; }
+namespace Core { class IOptionsPage; }
+namespace ProjectExplorer { class TaskHub; }
 
 namespace Debugger {
 
@@ -201,6 +197,7 @@ public:
 
     virtual void createSnapshot();
     virtual void updateAll();
+    ProjectExplorer::TaskHub *taskHub();
 
     typedef Internal::BreakpointModelId BreakpointModelId;
     virtual bool stateAcceptsBreakpointChanges() const { return true; }

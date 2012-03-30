@@ -72,8 +72,11 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/taskhub.h>
+#include <projectexplorer/itaskhandler.h>
 #include <texteditor/itexteditor.h>
 #include <utils/qtcassert.h>
 
@@ -181,6 +184,52 @@ static QByteArray parsePlainConsoleStream(const GdbResponse &response)
 
 ///////////////////////////////////////////////////////////////////////
 //
+// Debuginfo Taskhandler
+//
+///////////////////////////////////////////////////////////////////////
+
+class DebugInfoTask
+{
+public:
+    QString command;
+};
+
+class DebugInfoTaskHandler : public  ProjectExplorer::ITaskHandler
+{
+public:
+    DebugInfoTaskHandler(GdbEngine *engine)
+        : ITaskHandler(_("Debuginfo")), m_engine(engine)
+    {}
+
+    bool canHandle(const Task &task)
+    {
+        return m_debugInfoTasks.contains(task.taskId);
+    }
+
+    void handle(const Task &task)
+    {
+        m_engine->requestDebugInformation(m_debugInfoTasks.value(task.taskId));
+    }
+
+    void addTask(unsigned id, const DebugInfoTask &task)
+    {
+        m_debugInfoTasks[id] = task;
+    }
+
+    QAction *createAction(QObject *parent = 0)
+    {
+        QAction *action = new QAction(tr("Install &Debug Information"), parent);
+        action->setToolTip(tr("This tries to install missing debug information."));
+        return action;
+    }
+
+private:
+    GdbEngine *m_engine;
+    QHash<unsigned, DebugInfoTask> m_debugInfoTasks;
+};
+
+///////////////////////////////////////////////////////////////////////
+//
 // GdbEngine
 //
 ///////////////////////////////////////////////////////////////////////
@@ -218,6 +267,9 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters,
 
     m_gdbAdapter = createAdapter();
 
+    m_debugInfoTaskHandler = new DebugInfoTaskHandler(this);
+    ExtensionSystem::PluginManager::instance()->addObject(m_debugInfoTaskHandler);
+
     m_commandTimer.setSingleShot(true);
     connect(&m_commandTimer, SIGNAL(timeout()), SLOT(commandTimeout()));
 
@@ -239,6 +291,10 @@ AbstractGdbProcess *GdbEngine::gdbProc() const
 
 GdbEngine::~GdbEngine()
 {
+    ExtensionSystem::PluginManager::instance()->removeObject(m_debugInfoTaskHandler);
+    delete m_debugInfoTaskHandler;
+    m_debugInfoTaskHandler = 0;
+
     // Prevent sending error messages afterwards.
     if (m_gdbAdapter)
         disconnect(gdbProc(), 0, this, 0);
@@ -618,6 +674,26 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     || data.trimmed() == "Quit") {
                 notifyInferiorExited();
             }
+
+            // From SuSE's gdb: >&"Missing separate debuginfo for ...\n"
+            // ">&"Try: zypper install -C \"debuginfo(build-id)=c084ee5876ed1ac12730181c9f07c3e027d8e943\"\n"
+            if (data.startsWith("Missing separate debuginfo for ")) {
+                m_lastMissingDebugInfo = QString::fromLocal8Bit(data.mid(32));
+            } else if (data.startsWith("Try: zypper")) {
+                QString cmd = QString::fromLocal8Bit(data.mid(4));
+
+                Task task(Task::Warning,
+                    tr("Missing debug information for %1\nTry: %2")
+                        .arg(m_lastMissingDebugInfo).arg(cmd),
+                    Utils::FileName(), 0, Core::Id("Debuginfo"));
+
+                taskHub()->addTask(task);
+
+                DebugInfoTask dit;
+                dit.command = cmd;
+                m_debugInfoTaskHandler->addTask(task.taskId, dit);
+            }
+
             break;
         }
 
@@ -1732,6 +1808,8 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
 
         if (startParameters().multiProcess)
             postCommand("set detach-on-fork off", ConsoleCommand);
+
+        postCommand("set build-id-verbose 2", ConsoleCommand);
     }
 }
 
@@ -5231,6 +5309,11 @@ void GdbEngine::scheduleTestResponse(int testCase, const QByteArray &response)
     showMessage(_("SCHEDULING TEST RESPONSE (CASE: %1, TOKEN: %2, RESPONSE: '%3')")
         .arg(testCase).arg(token).arg(_(response)));
     m_scheduledTestResponses[token] = response;
+}
+
+void GdbEngine::requestDebugInformation(const DebugInfoTask &task)
+{
+    QProcess::startDetached(task.command);
 }
 
 //
