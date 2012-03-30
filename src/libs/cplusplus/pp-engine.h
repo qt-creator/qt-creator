@@ -98,6 +98,9 @@ private:
     struct State {
         State();
 
+        void pushTokenBuffer(const PPToken *start, const PPToken *end, const Macro *macro);
+        void popTokenBuffer();
+
         QString m_currentFileName;
 
         QByteArray m_source;
@@ -106,6 +109,7 @@ private:
         QBitArray m_trueTest;
         int m_ifLevel;
         Internal::TokenBuffer *m_tokenBuffer;
+        unsigned m_tokenBufferDepth;
         bool m_inPreprocessorDirective;
 
         QByteArray *m_result;

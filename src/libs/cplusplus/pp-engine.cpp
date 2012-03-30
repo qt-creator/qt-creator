@@ -73,7 +73,8 @@
 namespace {
 enum {
     eagerExpansion = 1,
-    MAX_TOKEN_EXPANSION_COUNT = 5000
+    MAX_TOKEN_EXPANSION_COUNT = 5000,
+    MAX_TOKEN_BUFFER_DEPTH = 16000, // for when macros are using some kind of right-folding, this is the list of "delayed" buffers waiting to be expanded after the current one.
 };
 }
 
@@ -109,22 +110,20 @@ struct TokenBuffer
     std::list<PPToken> tokens;
     const Macro *macro;
     TokenBuffer *next;
-    QVector<QByteArray> blockedMacros;
 
-    template <typename _Iterator>
-    TokenBuffer(_Iterator firstToken, _Iterator lastToken, const Macro *macro, TokenBuffer *next)
-        : tokens(firstToken, lastToken), macro(macro), next(next)
+    TokenBuffer(const PPToken *start, const PPToken *end, const Macro *macro, TokenBuffer *next)
+        : tokens(start, end), macro(macro), next(next)
     {}
 
-    bool isBlocked(const QByteArray &macroName) const {
+    bool isBlocked(const Macro *macro) const {
+        if (!macro)
+            return false;
+
         for (const TokenBuffer *it = this; it; it = it->next)
-            if (it->blockedMacros.contains(macroName))
+            if (it->macro == macro && it->macro->name() == macro->name())
                 return true;
         return false;
     }
-
-    void blockMacro(const QByteArray &macroName)
-    { blockedMacros.append(macroName); }
 };
 
 struct Value
@@ -527,6 +526,7 @@ Preprocessor::State::State()
     , m_trueTest(MAX_LEVEL)
     , m_ifLevel(0)
     , m_tokenBuffer(0)
+    , m_tokenBufferDepth(0)
     , m_inPreprocessorDirective(false)
     , m_result(0)
     , m_markGeneratedTokens(true)
@@ -538,6 +538,37 @@ Preprocessor::State::State()
     m_trueTest[m_ifLevel] = false;
 }
 
+void Preprocessor::State::pushTokenBuffer(const PPToken *start, const PPToken *end, const Macro *macro)
+{
+    if (m_tokenBufferDepth <= MAX_TOKEN_BUFFER_DEPTH) {
+#ifdef COMPRESS_TOKEN_BUFFER
+        // This does not work correctly for boost's preprocessor library, or that library exposes a bug in the code.
+        if (macro || !m_tokenBuffer) {
+            m_tokenBuffer = new TokenBuffer(start, end, macro, m_tokenBuffer);
+            ++m_tokenBufferDepth;
+        } else {
+            m_tokenBuffer->tokens.insert(m_tokenBuffer->tokens.begin(), start, end);
+        }
+//        qDebug()<<"New depth:" << m_tokenBufferDepth << "with buffer size:" << m_tokenBuffer->tokens.size();
+#else
+        m_tokenBuffer = new TokenBuffer(start, end, macro, m_tokenBuffer);
+        ++m_tokenBufferDepth;
+#endif
+    } else {
+        //### Should we tell the user that his source is insane?
+//        qDebug() << "Macro insanity level reached in" << m_currentFileName;
+    }
+}
+
+void Preprocessor::State::popTokenBuffer()
+{
+    TokenBuffer *r = m_tokenBuffer;
+    m_tokenBuffer = m_tokenBuffer->next;
+    delete r;
+
+    if (m_tokenBufferDepth)
+        --m_tokenBufferDepth;
+}
 
 Preprocessor::Preprocessor(Client *client, Environment *env)
     : m_client(client)
@@ -665,10 +696,7 @@ void Preprocessor::handleDefined(PPToken *tk)
 void Preprocessor::pushToken(Preprocessor::PPToken *tk)
 {
     const PPToken currentTokenBuffer[] = { *tk };
-    m_state.m_tokenBuffer = new TokenBuffer(currentTokenBuffer,
-                                            currentTokenBuffer + 1,
-                                            /*macro */ 0,
-                                            m_state.m_tokenBuffer);
+    m_state.pushTokenBuffer(currentTokenBuffer, currentTokenBuffer + 1, 0);
 }
 
 void Preprocessor::lex(PPToken *tk)
@@ -676,9 +704,7 @@ void Preprocessor::lex(PPToken *tk)
 _Lagain:
     if (m_state.m_tokenBuffer) {
         if (m_state.m_tokenBuffer->tokens.empty()) {
-            TokenBuffer *r = m_state.m_tokenBuffer;
-            m_state.m_tokenBuffer = m_state.m_tokenBuffer->next;
-            delete r;
+            m_state.popTokenBuffer();
             goto _Lagain;
         }
         *tk = m_state.m_tokenBuffer->tokens.front();
@@ -767,11 +793,10 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
     }
 
     const QByteArray macroName = macroNameRef.toByteArray();
-    if (tk->generated() && m_state.m_tokenBuffer && m_state.m_tokenBuffer->isBlocked(macroName))
-        return false;
-
     Macro *macro = m_env->resolve(macroName);
     if (!macro)
+        return false;
+    if (tk->generated() && m_state.m_tokenBuffer && m_state.m_tokenBuffer->isBlocked(macro))
         return false;
 //    qDebug() << "expanding" << macro->name() << "on line" << tk->lineno;
 
@@ -802,9 +827,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
         firstNewTk.f.whitespace = true; // the macro call is removed, so space the first token correctly.
     }
 
-    m_state.m_tokenBuffer = new TokenBuffer(body.begin(), body.end(),
-                                           macro, m_state.m_tokenBuffer);
-    m_state.m_tokenBuffer->blockMacro(macroName);
+    m_state.pushTokenBuffer(body.begin(), body.end(), macro);
 
     if (m_client)
         m_client->stopExpandingMacro(tk->offset, *macro);
