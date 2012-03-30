@@ -50,6 +50,7 @@ public:
                           QString *errorMessage);
     ~QmlCppEngine();
 
+    bool canDisplayTooltip() const;
     bool setToolTipExpression(const QPoint &mousePos,
         TextEditor::ITextEditor * editor, const DebuggerToolTipContext &);
     void updateWatchData(const WatchData &data,
