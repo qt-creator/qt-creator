@@ -48,7 +48,7 @@ public:
     Test()
     {
         m_timeoutTimer.setSingleShot(true);
-        m_connection = SshConnection::create(SshConnectionParameters(SshConnectionParameters::DefaultProxy));
+        m_connection = SshConnection::create(SshConnectionParameters());
         if (m_connection->state() != SshConnection::Unconnected) {
             qDebug("Error: Newly created SSH connection has state %d.",
                 m_connection->state());
@@ -59,13 +59,13 @@ public:
         if (m_connection->createSftpChannel())
             qDebug("Error: Unconnected SSH connection creates SFTP channel.");
 
-        SshConnectionParameters noHost = SshConnectionParameters(SshConnectionParameters::DefaultProxy);
+        SshConnectionParameters noHost;
         noHost.host = QLatin1String("hgdfxgfhgxfhxgfchxgcf");
         noHost.port = 12345;
         noHost.timeout = 10;
         noHost.authenticationType = SshConnectionParameters::AuthenticationByPassword;
 
-        SshConnectionParameters noUser = SshConnectionParameters(SshConnectionParameters::DefaultProxy);
+        SshConnectionParameters noUser;
         noUser.host = QLatin1String("localhost");
         noUser.port = 22;
         noUser.timeout = 30;
@@ -73,7 +73,7 @@ public:
         noUser.userName = QLatin1String("dumdidumpuffpuff");
         noUser.password = QLatin1String("whatever");
 
-        SshConnectionParameters wrongPwd = SshConnectionParameters(SshConnectionParameters::DefaultProxy);
+        SshConnectionParameters wrongPwd;
         wrongPwd.host = QLatin1String("localhost");
         wrongPwd.port = 22;
         wrongPwd.timeout = 30;
@@ -81,7 +81,7 @@ public:
         wrongPwd.userName = QLatin1String("root");
         noUser.password = QLatin1String("thiscantpossiblybeapasswordcanit");
 
-        SshConnectionParameters invalidKeyFile = SshConnectionParameters(SshConnectionParameters::DefaultProxy);
+        SshConnectionParameters invalidKeyFile;
         invalidKeyFile.host = QLatin1String("localhost");
         invalidKeyFile.port = 22;
         invalidKeyFile.timeout = 30;

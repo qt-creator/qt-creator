@@ -67,6 +67,8 @@ private:
     };
 
     QString testString() const;
+    void handleSuccessfulCrashTest();
+    void handleSuccessfulIoTest();
 
     const Utils::SshConnectionParameters m_sshParams;
     QTimer * const m_timeoutTimer;

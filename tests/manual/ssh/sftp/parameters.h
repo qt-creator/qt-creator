@@ -36,8 +36,6 @@
 #include <utils/ssh/sshconnection.h>
 
 struct Parameters {
-    Parameters() : sshParams(Utils::SshConnectionParameters::DefaultProxy) {}
-
     Utils::SshConnectionParameters sshParams;
     int smallFileCount;
     int bigFileSize;

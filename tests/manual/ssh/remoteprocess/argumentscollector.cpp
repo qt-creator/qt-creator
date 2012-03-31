@@ -46,7 +46,7 @@ ArgumentsCollector::ArgumentsCollector(const QStringList &args)
 
 Utils::SshConnectionParameters ArgumentsCollector::collect(bool &success) const
 {
-    SshConnectionParameters parameters(Utils::SshConnectionParameters::NoProxy);
+    SshConnectionParameters parameters;
     try {
         bool authTypeGiven = false;
         bool portGiven = false;

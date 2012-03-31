@@ -62,7 +62,7 @@ SftpFsWindow::~SftpFsWindow()
 void SftpFsWindow::connectToHost()
 {
     m_ui->connectButton->setEnabled(false);
-    SshConnectionParameters sshParams(SshConnectionParameters::NoProxy);
+    SshConnectionParameters sshParams;
     sshParams.host = m_ui->hostLineEdit->text();
     sshParams.userName = m_ui->userLineEdit->text();
     sshParams.authenticationType = SshConnectionParameters::AuthenticationByPassword;

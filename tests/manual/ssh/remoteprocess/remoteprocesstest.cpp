@@ -185,13 +185,18 @@ void RemoteProcessTest::handleProcessClosed(int exitStatus)
             m_state = TestingCrash;
             m_started = false;
             m_timeoutTimer->start();
-            m_remoteRunner->run("sleep 100", m_sshParams);
+            m_remoteRunner->run("/bin/sleep 100", m_sshParams);
             break;
         }
         case TestingCrash:
-            std::cerr << "Error: Successful exit from process that was "
-                "supposed to crash." << std::endl;
-            qApp->quit();
+            if (m_remoteRunner->processExitCode() == 0) {
+                std::cerr << "Error: Successful exit from process that was "
+                    "supposed to crash." << std::endl;
+                qApp->quit();
+            } else {
+                // Some shells (e.g. mksh) don't report "killed", but just a non-zero exit code.
+                handleSuccessfulCrashTest();
+            }
             break;
         case TestingTerminal: {
             const int exitCode = m_remoteRunner->processExitCode();
@@ -218,9 +223,13 @@ void RemoteProcessTest::handleProcessClosed(int exitStatus)
             break;
         }
         case TestingIoDevice:
-            std::cerr << "Error: Successful exit from process that was supposed to crash."
-                << std::endl;
-            qApp->exit(EXIT_FAILURE);
+            if (m_catProcess->exitCode() == 0) {
+                std::cerr << "Error: Successful exit from process that was supposed to crash."
+                    << std::endl;
+                qApp->exit(EXIT_FAILURE);
+            } else {
+                handleSuccessfulIoTest();
+            }
             break;
         case TestingProcessChannels:
             if (m_remoteStderr.isEmpty()) {
@@ -253,26 +262,10 @@ void RemoteProcessTest::handleProcessClosed(int exitStatus)
     case SshRemoteProcess::KilledBySignal:
         switch (m_state) {
         case TestingCrash:
-            std::cout << "Ok.\nTesting remote process with terminal... " << std::flush;
-            m_state = TestingTerminal;
-            m_started = false;
-            m_timeoutTimer->start();
-            m_remoteRunner->runInTerminal("top -n 1", SshPseudoTerminal(), m_sshParams);
+            handleSuccessfulCrashTest();
             break;
         case TestingIoDevice:
-            std::cout << "Ok\nTesting process channels... " << std::flush;
-            m_state = TestingProcessChannels;
-            m_started = false;
-            m_remoteStderr.clear();
-            m_echoProcess = m_sshConnection->createRemoteProcess("printf " + StderrOutput + " >&2");
-            m_echoProcess->setReadChannel(QProcess::StandardError);
-            connect(m_echoProcess.data(), SIGNAL(started()), SLOT(handleProcessStarted()));
-            connect(m_echoProcess.data(), SIGNAL(closed(int)), SLOT(handleProcessClosed(int)));
-            connect(m_echoProcess.data(), SIGNAL(readyRead()), SLOT(handleReadyRead()));
-            connect(m_echoProcess.data(), SIGNAL(readyReadStandardError()),
-                SLOT(handleReadyReadStderr()));
-            m_echoProcess->start();
-            m_timeoutTimer->start();
+            handleSuccessfulIoTest();
             break;
         default:
             std::cerr << "Error: Unexpected crash." << std::endl;
@@ -292,7 +285,7 @@ void RemoteProcessTest::handleConnected()
 {
     Q_ASSERT(m_state == TestingIoDevice);
 
-    m_catProcess = m_sshConnection->createRemoteProcess(QString::fromLocal8Bit("cat").toUtf8());
+    m_catProcess = m_sshConnection->createRemoteProcess(QString::fromLocal8Bit("/bin/cat").toUtf8());
     connect(m_catProcess.data(), SIGNAL(started()), SLOT(handleProcessStarted()));
     connect(m_catProcess.data(), SIGNAL(closed(int)), SLOT(handleProcessClosed(int)));
     m_started = false;
@@ -302,7 +295,7 @@ void RemoteProcessTest::handleConnected()
 
 QString RemoteProcessTest::testString() const
 {
-    return QLatin1String("x");
+    return QLatin1String("x\r\n");
 }
 
 void RemoteProcessTest::handleReadyRead()
@@ -341,4 +334,30 @@ void RemoteProcessTest::handleReadyReadStderr()
     Q_ASSERT(m_state == TestingProcessChannels);
 
     m_remoteStderr = "dummy";
+}
+
+void RemoteProcessTest::handleSuccessfulCrashTest()
+{
+    std::cout << "Ok.\nTesting remote process with terminal... " << std::flush;
+    m_state = TestingTerminal;
+    m_started = false;
+    m_timeoutTimer->start();
+    m_remoteRunner->runInTerminal("top -n 1", SshPseudoTerminal(), m_sshParams);
+}
+
+void RemoteProcessTest::handleSuccessfulIoTest()
+{
+    std::cout << "Ok\nTesting process channels... " << std::flush;
+    m_state = TestingProcessChannels;
+    m_started = false;
+    m_remoteStderr.clear();
+    m_echoProcess = m_sshConnection->createRemoteProcess("printf " + StderrOutput + " >&2");
+    m_echoProcess->setReadChannel(QProcess::StandardError);
+    connect(m_echoProcess.data(), SIGNAL(started()), SLOT(handleProcessStarted()));
+    connect(m_echoProcess.data(), SIGNAL(closed(int)), SLOT(handleProcessClosed(int)));
+    connect(m_echoProcess.data(), SIGNAL(readyRead()), SLOT(handleReadyRead()));
+    connect(m_echoProcess.data(), SIGNAL(readyReadStandardError()),
+            SLOT(handleReadyReadStderr()));
+    m_echoProcess->start();
+    m_timeoutTimer->start();
 }
