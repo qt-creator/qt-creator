@@ -1,8 +1,8 @@
 import qbs.base 1.0
+import "../QtcLibrary.qbs" as QtcLibrary
 
-DynamicLibrary {
-    name: "utils"
-    destination: "lib"
+QtcLibrary {
+    name: "Utils"
 
     cpp.defines: [ "QTCREATOR_UTILS_LIB" ]
     cpp.includePaths: [ ".", "..",
@@ -19,7 +19,7 @@ DynamicLibrary {
 
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ['gui', 'network', 'script'] }
-    Depends { name: "botan" }
+    Depends { name: "Botan" }
     Depends { name: "app_version_header" }
 
     files: [

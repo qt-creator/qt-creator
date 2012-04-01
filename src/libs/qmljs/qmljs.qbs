@@ -1,8 +1,8 @@
 import qbs.base 1.0
+import "../QtcLibrary.qbs" as QtcLibrary
 
-DynamicLibrary {
+QtcLibrary {
     name: "QmlJS"
-    destination: "lib"
 
     cpp.includePaths: [
         ".",
@@ -15,8 +15,8 @@ DynamicLibrary {
     ]
     cpp.optimization: "fast"
 
-    Depends { name: "utils" }
-    Depends { name: "languageutils" }
+    Depends { name: "Utils" }
+    Depends { name: "LanguageUtils" }
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ['gui', 'script'] }
 

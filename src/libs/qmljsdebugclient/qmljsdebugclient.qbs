@@ -1,8 +1,8 @@
 import qbs.base 1.0
+import "../QtcLibrary.qbs" as QtcLibrary
 
-DynamicLibrary {
+QtcLibrary {
     name: "QmlJSDebugClient"
-    destination: "lib"
 
     cpp.includePaths: [
         ".",
