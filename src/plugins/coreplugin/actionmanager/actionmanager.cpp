@@ -121,7 +121,7 @@ namespace {
     To do this, you register your action via the
     registerAction methods, get the action container for a specific ID (like specified in
     the Core::Constants namespace) with a call of
-    actionContainer(const QString&) and add your command to this container.
+    actionContainer(const Id&) and add your command to this container.
 
     Following the example adding "My Action" to the "Tools" menu would be done by
     \code
@@ -171,7 +171,7 @@ namespace {
     \brief Makes an \a action known to the system under the specified string \a id.
 
     Returns a command object that represents the action in the application and is
-    owned by the ActionManager. You can registered several actions with the
+    owned by the ActionManager. You can register several actions with the
     same \a id as long as the \a context is different. In this case
     a trigger of the actual action is forwarded to the registered QAction
     for the currently active context.
@@ -180,7 +180,7 @@ namespace {
 */
 
 /*!
-    \fn Command *ActionManager::registerShortcut(QShortcut *shortcut, const QString &id, const Context &context, bool scriptable)
+    \fn Command *ActionManager::registerShortcut(QShortcut *shortcut, const Id &id, const Context &context, bool scriptable)
     \brief Makes a \a shortcut known to the system under the specified string \a id.
 
     Returns a command object that represents the shortcut in the application and is
