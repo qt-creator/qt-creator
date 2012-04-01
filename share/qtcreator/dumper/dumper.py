@@ -1673,26 +1673,22 @@ class Dumper:
 
 
         if self.useDynamicType and tryDynamic:
-            dtypeName = dynamicTypeName(value.cast(type))
-        else:
-            dtypeName = typeName
+            self.putItem(expensiveUpcast(value), False)
+            return
 
         format = self.formats.get(self.currentIName)
         if format is None:
-            format = self.typeformats.get(stripForFormat(dtypeName))
+            format = self.typeformats.get(stripForFormat(typeName))
 
         if self.useFancy and (format is None or format >= 1):
             self.putAddress(value.address)
-            self.putType(dtypeName)
+            self.putType(typeName)
 
-            if dtypeName in qqDumpers:
-                if tryDynamic:
-                    qqDumpers[dtypeName](self, expensiveUpcast(value))
-                else:
-                    qqDumpers[dtypeName](self, value)
+            if typeName in qqDumpers:
+                qqDumpers[typeName](self, value)
                 return
 
-            nsStrippedType = self.stripNamespaceFromType(dtypeName)\
+            nsStrippedType = self.stripNamespaceFromType(typeName)\
                 .replace("::", "__")
 
             # The following block is only needed for D.
@@ -1727,7 +1723,7 @@ class Dumper:
         fields = extractFields(type)
         #fields = type.fields()
 
-        self.putType(dtypeName)
+        self.putType(typeName)
         self.putAddress(value.address)
         self.putValue("{...}")
 
