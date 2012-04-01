@@ -1524,6 +1524,7 @@ void DebuggerEngine::updateAll()
 
 void DebuggerEngine::attemptBreakpointSynchronization()
 {
+    showMessage(_("ATTEMPT BREAKPOINT SYNCHRONIZATION"));
     if (!stateAcceptsBreakpointChanges()) {
         showMessage(_("BREAKPOINT SYNCHRONIZATION NOT POSSIBLE IN CURRENT STATE"));
         return;
@@ -1533,8 +1534,14 @@ void DebuggerEngine::attemptBreakpointSynchronization()
 
     foreach (BreakpointModelId id, handler->unclaimedBreakpointIds()) {
         // Take ownership of the breakpoint. Requests insertion.
-        if (acceptsBreakpoint(id))
+        if (acceptsBreakpoint(id)) {
+            showMessage(_("TAKING OWNERSHIP OF BREAKPOINT %1 IN STATE %2")
+                .arg(id.toString()).arg(handler->state(id)));
             handler->setEngine(id, this);
+        } else {
+            showMessage(_("BREAKPOINT %1 IN STATE %2 IS NOT ACCEPTABLE")
+                .arg(id.toString()).arg(handler->state(id)));
+        }
     }
 
     bool done = true;
@@ -1574,8 +1581,12 @@ void DebuggerEngine::attemptBreakpointSynchronization()
         QTC_ASSERT(false, qDebug() << "UNKNOWN STATE"  << id << state());
     }
 
-    if (done)
+    if (done) {
+        showMessage(_("BREAKPOINTS ARE SYNCHRONIZED"));
         d->m_disassemblerAgent.updateBreakpointMarkers();
+    } else {
+        showMessage(_("BREAKPOINTS ARE NOT FULLY SYNCHRONIZED"));
+    }
 }
 
 void DebuggerEngine::insertBreakpoint(BreakpointModelId id)
