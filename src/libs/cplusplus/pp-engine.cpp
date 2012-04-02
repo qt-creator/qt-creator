@@ -800,14 +800,17 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
         return false;
 //    qDebug() << "expanding" << macro->name() << "on line" << tk->lineno;
 
-    if (m_client)
+    if (m_client && !tk->generated())
         m_client->startExpandingMacro(tk->offset, *macro, macroName);
     QVector<PPToken> body = macro->definitionTokens();
 
     if (macro->isFunctionLike()) {
-        if (!expandMacros() || !handleFunctionLikeMacro(tk, macro, body, !m_state.m_inDefine))
+        if (!expandMacros() || !handleFunctionLikeMacro(tk, macro, body, !m_state.m_inDefine)) {
             // the call is not function like or expandMacros() returns false, so stop
+            if (m_client && !tk->generated())
+                m_client->stopExpandingMacro(tk->offset, *macro);
             return false;
+        }
 
     }
 
@@ -829,7 +832,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
 
     m_state.pushTokenBuffer(body.begin(), body.end(), macro);
 
-    if (m_client)
+    if (m_client && !tk->generated())
         m_client->stopExpandingMacro(tk->offset, *macro);
 
     return true;
