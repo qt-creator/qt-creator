@@ -220,8 +220,8 @@ static int read_all(dnssd_sock_t sd, char *buf, int len)
         while (len)
                 {
                 timeval timeout;
-                timeout.tv_sec = 0;
-                timeout.tv_usec = 100000;
+                timeout.tv_sec = 1;
+                timeout.tv_usec = 0;
                 fd_set readFds, writeFds, exceptFds;
                 memset(&readFds,0,sizeof(readFds));
                 memset(&writeFds,0,sizeof(writeFds));
@@ -233,7 +233,7 @@ static int read_all(dnssd_sock_t sd, char *buf, int len)
                 int nVal=select(sd+1, &readFds, &writeFds, &exceptFds, &timeout);
                 if (nVal < 1 || !FD_ISSET(sd, &readFds)) {
                     ++nErr;
-                    if (nErr < 5) // wait max 0.5s without reading
+                    if (nErr < 6) // wait max 6s without reading
                         continue;
                 } else {
                     num_read = recv(sd, buf, len, 0);
