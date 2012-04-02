@@ -83,9 +83,15 @@ bool SubdirsProjectWizard::postGenerateFiles(const QWizard *w, const Core::Gener
 {
     const SubdirsProjectWizardDialog *wizard = qobject_cast< const SubdirsProjectWizardDialog *>(w);
     if (QtWizard::qt4ProjectPostGenerateFiles(wizard, files, errorMessage)) {
+        const QtProjectParameters params = wizard->parameters();
+        const QString projectPath = params.projectPath();
+        const QString profileName = Core::BaseFileWizard::buildFileName(projectPath, params.fileName, profileSuffix());
+        QVariantMap map;
+        map.insert(QLatin1String(ProjectExplorer::Constants::PREFERED_PROJECT_NODE), profileName);
         Core::ICore::showNewItemDialog(tr("New Subproject", "Title of dialog"),
                               Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard),
-                              wizard->parameters().projectPath());
+                              wizard->parameters().projectPath(),
+                              map);
     } else {
         return false;
     }

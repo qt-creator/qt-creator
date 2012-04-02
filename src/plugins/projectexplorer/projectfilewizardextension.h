@@ -54,7 +54,7 @@ public:
     void applyCodeStyle(Core::GeneratedFile *file) const;
 
 public slots:
-    void firstExtensionPageShown(const QList<Core::GeneratedFile> &files);
+    void firstExtensionPageShown(const QList<Core::GeneratedFile> &files, const QVariantMap &extraValues);
     void initializeVersionControlChoices();
 
 private:

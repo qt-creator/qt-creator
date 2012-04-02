@@ -2569,10 +2569,12 @@ void ProjectExplorerPlugin::addNewFile()
     QTC_ASSERT(d->m_currentNode, return)
     QString location = directoryFor(d->m_currentNode);
 
+    QVariantMap map;
+    map.insert(QLatin1String(Constants::PREFERED_PROJECT_NODE), d->m_currentNode->projectNode()->path());
     Core::ICore::showNewItemDialog(tr("New File", "Title of dialog"),
                                Core::IWizard::wizardsOfKind(Core::IWizard::FileWizard)
                                + Core::IWizard::wizardsOfKind(Core::IWizard::ClassWizard),
-                               location);
+                               location, map);
 }
 
 void ProjectExplorerPlugin::addNewSubproject()
@@ -2583,9 +2585,11 @@ void ProjectExplorerPlugin::addNewSubproject()
     if (d->m_currentNode->nodeType() == ProjectNodeType
             && d->m_currentNode->projectNode()->supportedActions(
                 d->m_currentNode->projectNode()).contains(ProjectNode::AddSubProject)) {
+        QVariantMap map;
+        map.insert(QLatin1String(Constants::PREFERED_PROJECT_NODE), d->m_currentNode->projectNode()->path());
         Core::ICore::showNewItemDialog(tr("New Subproject", "Title of dialog"),
                               Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard),
-                              location);
+                              location, map);
     }
 }
 

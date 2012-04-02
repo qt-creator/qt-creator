@@ -129,8 +129,9 @@ void BaseCheckoutWizard::setId(const QString &id)
     d->id = id;
 }
 
-void BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent, const QString & /*platform*/)
+void BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent, const QString & /*platform*/, const QVariantMap &extraValues)
 {
+    Q_UNUSED(extraValues)
     // Create dialog and launch
     d->parameterPages = createParameterPages(path);
     Internal::CheckoutWizardDialog dialog(d->parameterPages, parent);

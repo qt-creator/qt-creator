@@ -37,6 +37,7 @@
 
 #include <QObject>
 #include <QList>
+#include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
 class QWizardPage;
@@ -71,8 +72,9 @@ public:
 
 public slots:
     /* Notification about the first extension page being shown. */
-    virtual void firstExtensionPageShown(const QList<GeneratedFile> &files) {
+    virtual void firstExtensionPageShown(const QList<GeneratedFile> &files, const QVariantMap &extraValues) {
         Q_UNUSED(files)
+        Q_UNUSED(extraValues)
         }
 };
 
