@@ -33,7 +33,7 @@
 #define PROPERTYINSPECTOR_H
 
 #include <qmljsprivateapi.h>
-#include <QTreeView>
+#include <utils/basetreeview.h>
 #include <QStandardItemModel>
 
 #include <QDialog>
@@ -108,7 +108,7 @@ private:
     bool m_contentsValid;
 };
 
-class QmlJSPropertyInspector : public QTreeView
+class QmlJSPropertyInspector : public Utils::BaseTreeView
 {
     Q_OBJECT
 public:
@@ -137,9 +137,6 @@ public slots:
 
     void openExpressionEditor(const QModelIndex &itemIndex);
     void openColorSelector(const QModelIndex &itemIndex);
-
-private slots:
-    void headerSectionClicked(int logicalIndex);
 
 private:
     friend class PropertyEditDelegate;

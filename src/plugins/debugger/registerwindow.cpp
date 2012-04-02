@@ -166,7 +166,6 @@ public:
 RegisterTreeView::RegisterTreeView(QWidget *parent)
     : BaseTreeView(parent)
 {
-    setAlwaysAdjustColumnsAction(debuggerCore()->action(UseAlternatingRowColors));
     setItemDelegate(new RegisterDelegate(this));
 }
 

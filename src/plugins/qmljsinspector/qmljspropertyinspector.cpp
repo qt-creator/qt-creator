@@ -292,28 +292,13 @@ bool QmlJSPropertyInspectorModel::contentsValid() const
 }
 
 QmlJSPropertyInspector::QmlJSPropertyInspector(QWidget *parent)
-    : QTreeView(parent)
+    : Utils::BaseTreeView(parent)
 {
-    setAttribute(Qt::WA_MacShowFocusRect, false);
-    setFrameStyle(QFrame::NoFrame);
-    setExpandsOnDoubleClick(true);
-
-    header()->setDefaultAlignment(Qt::AlignLeft);
-    header()->setClickable(true);
-    setRootIsDecorated(false);
-
     setItemDelegateForColumn(PROPERTY_VALUE_COLUMN, new PropertyEditDelegate(this));
 
     setModel(&m_model);
     //Add an empty Row to make the headers visible!
     addRow(QString(), QString(), QString(), -1, false);
-    connect(header(), SIGNAL(sectionClicked(int)),
-        SLOT(headerSectionClicked(int)));
-}
-
-void QmlJSPropertyInspector::headerSectionClicked(int logicalIndex)
-{
-    resizeColumnToContents(logicalIndex);
 }
 
 void QmlJSPropertyInspector::clear()
@@ -491,8 +476,6 @@ void QmlJSPropertyInspector::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
     QModelIndex itemIndex = indexAt(ev->pos());
-    if (!itemIndex.isValid())
-        return;
     bool isEditable = false;
     bool isColor = false;
     if (itemIndex.isValid()) {
@@ -507,6 +490,7 @@ void QmlJSPropertyInspector::contextMenuEvent(QContextMenuEvent *ev)
     QAction colorAction(tr("Choose color"), this);
     if (isColor)
         menu.addAction(&colorAction);
+    addBaseContextActions(&menu);
 
     QAction *action = menu.exec(ev->globalPos());
     if (action == 0)
@@ -516,6 +500,7 @@ void QmlJSPropertyInspector::contextMenuEvent(QContextMenuEvent *ev)
         openExpressionEditor(itemIndex);
     if (action == &colorAction)
         openColorSelector(itemIndex);
+    handleBaseContextAction(action);
 }
 
 void QmlJSPropertyInspector::openExpressionEditor(const QModelIndex &itemIndex)
