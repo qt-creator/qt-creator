@@ -44,6 +44,9 @@ const char STR_IGNORING_DEBUGGER[] = "Ignoring \"-qmljsdebugger=";
 const char STR_IGNORING_DEBUGGER2[] = "Ignoring\"-qmljsdebugger="; // There is (was?) a bug in one of the error strings - safest to handle both
 const char STR_CONNECTION_ESTABLISHED[] = "Connection established";
 
+const char QML_DEBUGGER[] = "QmlDebugger";
+const float CURRENT_SUPPORTED_VERSION = 2.0;
+
 } // namespace Constants
 } // namespace QmlJsDebugClient
 

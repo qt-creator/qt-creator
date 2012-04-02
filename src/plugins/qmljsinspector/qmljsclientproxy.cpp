@@ -127,6 +127,11 @@ void ClientProxy::clientStatusChanged(QDeclarativeDebugClient::Status status)
     updateConnected();
 }
 
+QDeclarativeDebugClient *ClientProxy::qmlDebugger() const
+{
+    return m_engineClient;
+}
+
 void ClientProxy::engineClientStatusChanged(QDeclarativeDebugClient::Status status)
 {
     if (status == QDeclarativeDebugClient::Enabled) {

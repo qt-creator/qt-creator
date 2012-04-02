@@ -30,12 +30,13 @@
 **************************************************************************/
 
 #include "qmldebuggerclient.h"
+#include "qmljsdebugclientconstants.h"
 
 namespace QmlJsDebugClient {
 
 QmlDebuggerClient::QmlDebuggerClient(
         QDeclarativeDebugConnection *connection)
-    : QmlEngineDebugClient(QLatin1String("QmlDebugger"), connection)
+    : QmlEngineDebugClient(QLatin1String(Constants::QML_DEBUGGER), connection)
 {
 }
 

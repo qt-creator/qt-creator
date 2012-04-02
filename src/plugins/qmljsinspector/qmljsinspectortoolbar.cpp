@@ -79,7 +79,8 @@ QmlJsInspectorToolBar::QmlJsInspectorToolBar(QObject *parent) :
     m_animationSpeed(1.0f),
     m_designModeActive(false),
     m_activeTool(NoTool),
-    m_barWidget(0)
+    m_barWidget(0),
+    m_zoomActionEnable(true)
 {
 }
 
@@ -89,7 +90,7 @@ void QmlJsInspectorToolBar::setEnabled(bool value)
     m_showAppOnTopAction->setEnabled(value);
     m_playAction->setEnabled(value);
     m_selectAction->setEnabled(value);
-    m_zoomAction->setEnabled(value);
+    m_zoomAction->setEnabled(value && m_zoomActionEnable);
 }
 
 void QmlJsInspectorToolBar::enable()
@@ -160,6 +161,12 @@ void QmlJsInspectorToolBar::setShowAppOnTop(bool showAppOnTop)
     m_emitSignals = false;
     m_showAppOnTopAction->setChecked(showAppOnTop);
     m_emitSignals = true;
+}
+
+void QmlJsInspectorToolBar::setZoomToolEnabled(bool enable)
+{
+    m_zoomActionEnable = enable;
+    m_zoomAction->setEnabled(m_zoomActionEnable);
 }
 
 void QmlJsInspectorToolBar::createActions()

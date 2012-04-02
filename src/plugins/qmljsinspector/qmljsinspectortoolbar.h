@@ -71,6 +71,7 @@ public:
     void createActions();
     QWidget *widget() const;
     void readSettings();
+    void setZoomToolEnabled(bool enable);
 
 public slots:
     void writeSettings() const;
@@ -137,6 +138,7 @@ private:
     DesignTool m_activeTool;
 
     QWidget *m_barWidget;
+    bool m_zoomActionEnable;
 };
 
 } // namespace Internal

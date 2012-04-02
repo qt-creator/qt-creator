@@ -99,6 +99,8 @@ public:
     void fetchContextObjectRecursive(const QmlDebugContextReference &context, bool clear);
     void insertObjectInTreeIfNeeded(const QmlDebugObjectReference &object);
 
+    QDeclarativeDebugClient *qmlDebugger() const;
+
 signals:
     void objectTreeUpdated();
     void connectionStatusMessage(const QString &text);

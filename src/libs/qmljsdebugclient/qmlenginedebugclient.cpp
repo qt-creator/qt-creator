@@ -30,8 +30,7 @@
 **************************************************************************/
 
 #include "qmlenginedebugclient.h"
-
-const float CURRENT_SUPPORTED_VERSION = 2.0;
+#include "qmljsdebugclientconstants.h"
 
 namespace QmlJsDebugClient {
 
@@ -80,7 +79,7 @@ void QmlEngineDebugClient::decode(QDataStream &ds,
     ds >> data;
     int parentId = -1;
     if (objectName() == QLatin1String("QmlDebugger") &&
-            serviceVersion() >= CURRENT_SUPPORTED_VERSION )
+            serviceVersion() >= Constants::CURRENT_SUPPORTED_VERSION )
         ds >> parentId;
     o.m_debugId = data.objectId;
     o.m_className = data.objectType;

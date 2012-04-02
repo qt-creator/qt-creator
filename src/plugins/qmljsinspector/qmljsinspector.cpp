@@ -50,6 +50,7 @@
 #include <debugger/qml/qmlengine.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/qml/qmladapter.h>
+#include <qmljsdebugclient/qmljsdebugclientconstants.h>
 
 #include <utils/filterlineedit.h>
 #include <utils/qtcassert.h>
@@ -315,7 +316,12 @@ void InspectorUi::connected(ClientProxy *clientProxy)
     if (m_clientProxy)
         connect(m_clientProxy, SIGNAL(result(quint32,QVariant)),
                    SLOT(onResult(quint32,QVariant)));
-
+    using namespace QmlJsDebugClient::Constants;
+    if (m_clientProxy->qmlDebugger()->objectName() == QML_DEBUGGER &&
+            m_clientProxy->qmlDebugger()->serviceVersion() >= CURRENT_SUPPORTED_VERSION)
+        m_toolBar->setZoomToolEnabled(false);
+    else
+        m_toolBar->setZoomToolEnabled(true);
     QmlJS::Snapshot snapshot = modelManager()->snapshot();
     for (QHash<QString, QmlJSLiveTextPreview *>::const_iterator it = m_textPreviews.constBegin();
          it != m_textPreviews.constEnd(); ++it) {
