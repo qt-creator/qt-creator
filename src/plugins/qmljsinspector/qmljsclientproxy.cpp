@@ -521,8 +521,10 @@ void ClientProxy::contextChanged(const QVariant &value)
 
 quint32 ClientProxy::fetchContextObject(const QmlDebugObjectReference& obj)
 {
-    log(LogSend, QString("FETCH_OBJECT %1").arg(obj.idString()));
+    if (!isConnected())
+        return 0;
 
+    log(LogSend, QString("FETCH_OBJECT %1").arg(obj.idString()));
     return m_engineClient->queryObject(obj);
 }
 
