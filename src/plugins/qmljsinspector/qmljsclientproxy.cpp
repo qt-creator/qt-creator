@@ -35,6 +35,7 @@
 #include "qmljsinspectorclient.h"
 #include "qmljsinspector.h"
 
+#include <qmljsdebugclient/qmljsdebugclientconstants.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
 #include <debugger/qml/qmlengine.h>
@@ -174,18 +175,30 @@ void ClientProxy::onCurrentObjectsFetched(quint32 queryId, const QVariant &resul
     QmlDebugObjectReference obj = qvariant_cast<QmlDebugObjectReference>(result);
     m_fetchCurrentObjects.push_front(obj);
 
-    //If this is not a root object, check if we have the parent
-    QmlDebugObjectReference parent = objectReferenceForId(obj.parentId());
-    if (obj.parentId() != -1 && (parent.debugId() == -1 || parent.needsMoreData())) {
-        m_fetchCurrentObjectsQueryIds << fetchContextObject(
-                                             QmlDebugObjectReference(obj.parentId()));
+    if (!getObjectHierarchy(obj))
         return;
-    }
 
     foreach (const QmlDebugObjectReference &o, m_fetchCurrentObjects)
         addObjectToTree(o);
     emit selectedItemsChanged(QList<QmlDebugObjectReference>() <<
                               m_fetchCurrentObjects.last());
+}
+
+bool ClientProxy::getObjectHierarchy(const QmlDebugObjectReference &obj)
+{
+    QmlDebugObjectReference parent = objectReferenceForId(obj.parentId());
+    //for root object
+    if (obj.parentId() == -1)
+        return true;
+
+    //for other objects
+    if (parent.debugId() == -1 || parent.needsMoreData()) {
+        m_fetchCurrentObjectsQueryIds << fetchContextObject(
+                                             QmlDebugObjectReference(obj.parentId()));
+    } else {
+        return getObjectHierarchy(parent);
+    }
+    return false;
 }
 
 void ClientProxy::setSelectedItemsByDebugId(const QList<int> &debugIds)
@@ -518,7 +531,14 @@ void ClientProxy::fetchContextObjectRecursive(
         m_objectTreeQueryIds.clear();
     }
     foreach (const QmlDebugObjectReference & obj, context.objects()) {
-        quint32 queryId = fetchContextObject(obj);
+        quint32 queryId = 0;
+        using namespace QmlJsDebugClient::Constants;
+        if (m_engineClient->objectName() == QML_DEBUGGER &&
+                m_engineClient->serviceVersion() >= CURRENT_SUPPORTED_VERSION)
+            queryId = fetchContextObject(obj);
+        else
+            queryId = m_engineClient->queryObjectRecursive(obj);
+
         if (queryId)
             m_objectTreeQueryIds << queryId;
     }

@@ -158,6 +158,7 @@ private:
     void objectTreeFetched(quint32 queryId, const QVariant &result);
     void updateConnected();
     void reloadEngines();
+    bool getObjectHierarchy(const QmlDebugObjectReference &obj);
 
     QList<QmlDebugObjectReference> objectReferences(const QmlDebugObjectReference &objectRef) const;
     QmlDebugObjectReference objectReferenceForId(int debugId, const QmlDebugObjectReference &ref) const;
