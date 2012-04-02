@@ -5887,12 +5887,16 @@ namespace bug6933 {
     class Base
     {
     public:
+        Base() : a(21) {}
         virtual ~Base() {}
         int a;
     };
 
     class Derived : public Base
     {
+    public:
+        Derived() : b(42) {}
+        int b;
     };
 
     void test6933()
@@ -5902,6 +5906,7 @@ namespace bug6933 {
         BREAK_HERE;
         // Expand b b.bug6933::Base
         // Check b.[bug6933::Base].[vptr]
+        // Check b.b 42 int.
         // Continue.
         dummyStatement(&d, b);
     }
