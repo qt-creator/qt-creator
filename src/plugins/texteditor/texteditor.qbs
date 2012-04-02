@@ -257,5 +257,9 @@ QtcPlugin {
         "tooltip/tooltip.cpp",
         "tooltip/tooltip.h"
     ]
+    ProductModule {
+        Depends { name: "Find" }
+        Depends { name: "Locator" }
+    }
 }
 
