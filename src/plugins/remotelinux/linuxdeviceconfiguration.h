@@ -72,15 +72,17 @@ public:
 
     void fromMap(const QVariantMap &map);
     ProjectExplorer::IDevice::Ptr clone() const;
-private:
+
+protected:
     LinuxDeviceConfiguration();
     LinuxDeviceConfiguration(const QString &name, const QString &type, MachineType machineType,
         Origin origin, const QString &fingerprint);
-
     LinuxDeviceConfiguration(const LinuxDeviceConfiguration &other);
-    LinuxDeviceConfiguration &operator=(const LinuxDeviceConfiguration &);
 
     QVariantMap toMap() const;
+
+private:
+    LinuxDeviceConfiguration &operator=(const LinuxDeviceConfiguration &);
 
     Internal::LinuxDeviceConfigurationPrivate *d;
 };
