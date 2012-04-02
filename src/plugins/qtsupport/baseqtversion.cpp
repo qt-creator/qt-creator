@@ -803,9 +803,6 @@ void BaseQtVersion::updateVersionInfo() const
         const QString qtInstallData = m_versionInfo.value(installDataKey);
         const QString qtInstallBins = m_versionInfo.value(installBinsKey);
         const QString qtHeaderData = m_versionInfo.value(installHeadersKey);
-        m_versionInfo.insert(QLatin1String("QMAKE_MKSPECS"),
-                             QDir::cleanPath(qtInstallData + QLatin1String("/mkspecs")));
-
         if (!qtInstallData.isEmpty()) {
             m_hasDebuggingHelper = !ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
             m_hasQmlDump
