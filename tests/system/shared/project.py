@@ -293,6 +293,7 @@ def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP, availableTargets
 def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None, sType=None, userDefinedType=None):
     global processStarted, processExited
     processStarted = processExited = False
+    overrideInstallLazySignalHandler()
     installLazySignalHandler("{type='ProjectExplorer::ApplicationLaucher'}", "processStarted()", "__handleProcessStarted__")
     installLazySignalHandler("{type='ProjectExplorer::ApplicationLaucher'}", "processExited(int)", "__handleProcessExited__")
     runButton = waitForObject("{type='Core::Internal::FancyToolButton' text='Run' visible='1'}", 20000)
@@ -309,7 +310,7 @@ def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None
         test.fatal("Couldn't start application - leaving test")
         invokeMenuItem("File", "Exit")
         return False
-    if os.getenv("SYSTEST_QMLVIEWER_NO_HOOK_INTO", "0") == "1":
+    if sType == SubprocessType.QT_QUICK_UI and os.getenv("SYSTEST_QMLVIEWER_NO_HOOK_INTO", "0") == "1":
         withHookInto = False
     if withHookInto and not validType(sType, userDefinedType):
         if function != None:
