@@ -1189,7 +1189,7 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
 
     Macro macro;
     macro.setFileName(m_env->currentFile);
-    macro.setLine(m_env->currentLine);
+    macro.setLine(tk->lineno);
     QByteArray macroName = tk->asByteArrayRef().toByteArray();
     macro.setName(macroName);
     macro.setOffset(tk->offset);

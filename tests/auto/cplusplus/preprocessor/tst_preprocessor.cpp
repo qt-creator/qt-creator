@@ -104,7 +104,11 @@ public:
 
     virtual ~MockClient() {}
 
-    virtual void macroAdded(const Macro &/*macro*/) {}
+    virtual void macroAdded(const Macro & macro)
+    {
+        m_definedMacros.append(macro.name());
+        m_definedMacrosLine.append(macro.line());
+    }
 
     virtual void passedMacroDefinitionCheck(unsigned /*offset*/, const Macro &/*macro*/) {}
     virtual void failedMacroDefinitionCheck(unsigned /*offset*/, const QByteArray &/*name*/) {}
@@ -216,6 +220,12 @@ public:
     QList<unsigned> expandedMacrosOffset() const
     { return m_expandedMacrosOffset; }
 
+    QList<QByteArray> definedMacros() const
+    { return m_definedMacros; }
+
+    QList<unsigned> definedMacrosLine() const
+    { return m_definedMacrosLine; }
+
 private:
     Environment *m_env;
     QByteArray *m_output;
@@ -226,6 +236,8 @@ private:
     QList<Include> m_recordedIncludes;
     QList<QByteArray> m_expandedMacros;
     QList<unsigned> m_expandedMacrosOffset;
+    QList<QByteArray> m_definedMacros;
+    QList<unsigned> m_definedMacrosLine;
 };
 
 namespace QTest {
@@ -436,6 +448,8 @@ void tst_Preprocessor::macro_uses()
     QCOMPARE(simplified(preprocessed), QString("void test(){int x=8;int y=9;}"));
     QCOMPARE(client.expandedMacros(), QList<QByteArray>() << QByteArray("FOO") << QByteArray("BAR"));
     QCOMPARE(client.expandedMacrosOffset(), QList<unsigned>() << buffer.indexOf("FOO;") << buffer.indexOf("BAR;"));
+    QCOMPARE(client.definedMacros(), QList<QByteArray>() << QByteArray("FOO") << QByteArray("BAR"));
+    QCOMPARE(client.definedMacrosLine(), QList<unsigned>() << 2 << 3);
 }
 
 void tst_Preprocessor::macro_definition_lineno()
