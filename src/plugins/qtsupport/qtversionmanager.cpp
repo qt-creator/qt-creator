@@ -149,11 +149,14 @@ void QtVersionManager::extensionsInitialized()
 
     saveQtVersions();
 
-    m_configFileWatcher = new Utils::FileSystemWatcher(this);
-    connect(m_configFileWatcher, SIGNAL(fileChanged(QString)),
-            this, SLOT(updateFromInstaller()));
-
-    m_configFileWatcher->addFile(globalSettingsFileName(), Utils::FileSystemWatcher::WatchModifiedDate);
+    const QString configFileName = globalSettingsFileName();
+    if (QFileInfo(configFileName).exists()) {
+        m_configFileWatcher = new Utils::FileSystemWatcher(this);
+        connect(m_configFileWatcher, SIGNAL(fileChanged(QString)),
+                this, SLOT(updateFromInstaller()));
+        m_configFileWatcher->addFile(configFileName,
+                                     Utils::FileSystemWatcher::WatchModifiedDate);
+    } // exists
 }
 
 bool QtVersionManager::delayedInitialize()
