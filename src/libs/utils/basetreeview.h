@@ -30,36 +30,47 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_BASEWINDOW_H
-#define DEBUGGER_BASEWINDOW_H
+#ifndef BASETREEVIEW_H
+#define BASETREEVIEW_H
 
-#include <utils/basetreeview.h>
+#include "utils_global.h"
 
-namespace Debugger {
-namespace Internal {
+#include <QTreeView>
 
-class BaseTreeView : public Utils::BaseTreeView
+namespace Utils {
+
+class QTCREATOR_UTILS_EXPORT BaseTreeView : public QTreeView
 {
     Q_OBJECT
 
 public:
-    explicit BaseTreeView(QWidget *parent = 0);
-    void addBaseContextActions(QMenu *menu);
-};
+    BaseTreeView(QWidget *parent = 0);
 
-class BaseWindow : public QWidget
-{
-public:
-    explicit BaseWindow(QTreeView *treeView, QWidget *parent = 0);
-    void setModel(QAbstractItemModel *model) { m_treeView->setModel(model); }
-    QHeaderView *header() const { return m_treeView->header(); }
-    QAbstractItemModel *model() const { return m_treeView->model(); }
+    void setAlwaysAdjustColumnsAction(QAction *action);
+    virtual void addBaseContextActions(QMenu *menu);
+    bool handleBaseContextAction(QAction *action);
+
+    void setModel(QAbstractItemModel *model);
+    virtual void rowActivated(const QModelIndex &) {}
+    void mousePressEvent(QMouseEvent *ev);
+
+public slots:
+    void resizeColumnsToContents();
+    void setAlwaysResizeColumnsToContents(bool on);
+    void reset();
+
+protected slots:
+    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
+
+private slots:
+    void rowActivatedHelper(const QModelIndex &index) { rowActivated(index); }
+    void headerSectionClicked(int logicalIndex);
 
 private:
-    QTreeView *m_treeView;
+    QAction *m_alwaysAdjustColumnsAction;
+    QAction *m_adjustColumnsAction;
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // namespace Utils
 
-#endif // DEBUGGER_BASEWINDOW_H
+#endif // BASETREEVIEW_H

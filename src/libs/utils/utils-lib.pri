@@ -97,7 +97,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/json.cpp \
     $$PWD/portlist.cpp \
     $$PWD/tcpportsgatherer.cpp \
-    $$PWD/appmainwindow.cpp
+    $$PWD/appmainwindow.cpp \
+    $$PWD/basetreeview.cpp
 
 win32 {
     SOURCES += \
@@ -211,7 +212,8 @@ HEADERS += \
     $$PWD/runextensions.h \
     $$PWD/portlist.h \
     $$PWD/tcpportsgatherer.h \
-    $$PWD/appmainwindow.h
+    $$PWD/appmainwindow.h \
+    $$PWD/basetreeview.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

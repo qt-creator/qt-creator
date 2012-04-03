@@ -1441,6 +1441,12 @@ mDNSexport void mDNSPosixGetFDSet(mDNS *m, int *nfds, fd_set *readfds, struct ti
 	if (timeout->tv_sec > interval.tv_sec ||
 		(timeout->tv_sec == interval.tv_sec && timeout->tv_usec > interval.tv_usec))
 		*timeout = interval;
+	// cope well with vey large changes in time (for example after sleep)
+	if (timeout->tv_sec > 1000) timeout->tv_sec = 1000;
+	if (timeout->tv_usec > 999999) timeout->tv_usec = 999999;
+	// should not happen, but let's be paranoid...
+	if (timeout->tv_sec < 0) timeout->tv_sec = 0;
+	if (timeout->tv_usec < 0) timeout->tv_usec = 1000;
 	}
 
 mDNSexport void mDNSPosixProcessFDSet(mDNS *const m, fd_set *readfds)
