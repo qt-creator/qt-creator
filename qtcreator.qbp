@@ -149,7 +149,6 @@ Project {
         ]
 
         Group {
-            qbs.installDir: 'bin'
             files: "bin/qtcreator.sh"
             fileTags: "install"
             qbs.installDir: "bin"
