@@ -60,6 +60,7 @@
 
 #include <QtDebug>
 #include <algorithm>
+#include <list>
 #include <QList>
 #include <QDate>
 #include <QTime>
