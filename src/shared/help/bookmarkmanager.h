@@ -119,6 +119,7 @@ public:
 signals:
     void addBookmark();
     void linkActivated(const QUrl &url);
+    void createPage(const QUrl &url, bool fromSearch);
 
 private slots:
     void removeClicked();

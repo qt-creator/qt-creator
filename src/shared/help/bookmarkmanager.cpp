@@ -32,9 +32,7 @@
 
 #include "bookmarkmanager.h"
 
-#include "centralwidget.h"
 #include "localhelpmanager.h"
-#include "openpagesmanager.h"
 
 #include <utils/filterlineedit.h>
 #include <utils/styledbar.h>
@@ -406,7 +404,7 @@ void BookmarkWidget::customContextMenuRequested(const QPoint &point)
         emit linkActivated(data);
     }
     else if (pickedAction == showItemNewTab) {
-        OpenPagesManager::instance().createPage(data);
+        emit createPage(QUrl(data), false);
     }
     else if (pickedAction == removeItem) {
         bookmarkManager->removeBookmarkItem(treeView,
@@ -569,7 +567,7 @@ bool BookmarkWidget::eventFilter(QObject *object, QEvent *e)
                     || (me->button() == Qt::MidButton)) {
                         QString data = index.data(Qt::UserRole + 10).toString();
                         if (!data.isEmpty() && data != QLatin1String("Folder"))
-                            OpenPagesManager::instance().createPage(data);
+                            emit createPage(QUrl(data), false);
                 }
             }
         }

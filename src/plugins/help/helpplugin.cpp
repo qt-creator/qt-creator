@@ -472,6 +472,8 @@ void HelpPlugin::setupUi()
     m_bookmarkItem = new Core::SideBarItem(bookmarkWidget, QLatin1String(SB_BOOKMARKS));
     connect(bookmarkWidget, SIGNAL(linkActivated(QUrl)), m_centralWidget,
         SLOT(setSource(QUrl)));
+    connect(bookmarkWidget, SIGNAL(createPage(QUrl,bool)), &OpenPagesManager::instance(),
+            SLOT(createPage(QUrl,bool)));
 
      shortcut = new QShortcut(m_splitter);
      shortcut->setWhatsThis(tr("Activate Bookmarks in Help mode"));
