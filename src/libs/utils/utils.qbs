@@ -29,6 +29,8 @@ DynamicLibrary {
         "utils.qrc",
         "annotateditemdelegate.cpp",
         "annotateditemdelegate.h",
+        "basetreeview.cpp",
+        "basetreeview.h",
         "basevalidatinglineedit.cpp",
         "basevalidatinglineedit.h",
         "buildablehelperlibrary.h",
