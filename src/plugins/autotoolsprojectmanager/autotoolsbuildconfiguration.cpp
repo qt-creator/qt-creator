@@ -170,7 +170,7 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::create(Target *
     bc->setDisplayName(buildConfigurationName);
 
     t->addBuildConfiguration(bc);
-    t->addDeployConfiguration(t->createDeployConfiguration(DEFAULT_DEPLOYCONFIGURATION_ID));
+    t->addDeployConfiguration(t->createDeployConfiguration(QLatin1String(DEFAULT_DEPLOYCONFIGURATION_ID)));
     // User needs to choose where the executable file is.
     // TODO: Parse the file in *Anjuta style* to be able to add custom RunConfigurations.
     t->addRunConfiguration(new CustomExecutableRunConfiguration(t));
@@ -181,7 +181,7 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::create(Target *
 AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::createDefaultConfiguration(AutotoolsTarget *target) const
 {
     AutotoolsBuildConfiguration *bc = new AutotoolsBuildConfiguration(target);
-    BuildStepList *buildSteps = bc->stepList(BUILDSTEPS_BUILD);
+    BuildStepList *buildSteps = bc->stepList(QLatin1String(BUILDSTEPS_BUILD));
 
     // ### Build Steps Build ###
     // autogen.sh or autoreconf
@@ -205,7 +205,7 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::createDefaultCo
     makeStep->setBuildTarget(QLatin1String("all"),  /*on =*/ true);
 
     // ### Build Steps Clean ###
-    BuildStepList *cleanSteps = bc->stepList(BUILDSTEPS_CLEAN);
+    BuildStepList *cleanSteps = bc->stepList(QLatin1String(BUILDSTEPS_CLEAN));
     MakeStep *cleanMakeStep = new MakeStep(cleanSteps);
     cleanMakeStep->setAdditionalArguments(QLatin1String("clean"));
     cleanMakeStep->setClean(true);

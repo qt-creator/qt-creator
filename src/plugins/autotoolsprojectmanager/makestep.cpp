@@ -87,7 +87,7 @@ bool MakeStepFactory::canCreate(BuildStepList *parent, const QString &id) const
     if (parent->target()->project()->id() != QLatin1String(AUTOTOOLS_PROJECT_ID))
         return false;
 
-    if (parent->id() != BUILDSTEPS_BUILD)
+    if (parent->id() != QLatin1String(BUILDSTEPS_BUILD))
         return false;
 
     return QLatin1String(MAKE_STEP_ID) == id;

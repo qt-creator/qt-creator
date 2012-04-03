@@ -146,10 +146,10 @@ AutotoolsTarget *AutotoolsTargetFactory::create(Project *parent, const QString &
     // Add default build configuration:
     AutotoolsBuildConfigurationFactory *bcf = t->buildConfigurationFactory();
     AutotoolsBuildConfiguration *bc = bcf->createDefaultConfiguration(t);
-    bc->setDisplayName("Default Build");
+    bc->setDisplayName(tr("Default Build"));
 
     t->addBuildConfiguration(bc);
-    t->addDeployConfiguration(t->createDeployConfiguration(ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
+    t->addDeployConfiguration(t->createDeployConfiguration(QLatin1String(ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID)));
     // User needs to choose where the executable file is.
     // TODO: Parse the file in *Anjuta style* to be able to add custom RunConfigurations.
     t->addRunConfiguration(new CustomExecutableRunConfiguration(t));

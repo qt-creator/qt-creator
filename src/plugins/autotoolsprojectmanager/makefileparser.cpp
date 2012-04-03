@@ -134,7 +134,7 @@ MakefileParser::TopTarget MakefileParser::topTarget() const
     TopTarget topTarget = Undefined;
 
     const QString line = m_line.simplified();
-    if (!line.isEmpty() && !line.startsWith(QChar('#'))) {
+    if (!line.isEmpty() && !line.startsWith(QLatin1Char('#'))) {
         // TODO: Check how many fixed strings like AM_DEFAULT_SOURCE_EXT will
         // be needed vs. variable strings like _SOURCES. Dependent on this a
         // more clever way than this (expensive) if-cascading might be done.
@@ -236,7 +236,7 @@ void MakefileParser::parseSubDirs()
     QStringList::iterator it = subDirs.begin();
     while (it != subDirs.end()) {
         // Erase all entries that represent a '.'
-        if ((*it) == QChar('.')) {
+        if ((*it) == QLatin1String(".")) {
             hasDotSubDir = true;
             it = subDirs.erase(it);
         } else {
@@ -256,7 +256,7 @@ void MakefileParser::parseSubDirs()
     // Delegate the parsing of all sub directories to a local
     // makefile parser and merge the results
     foreach (const QString& subDir, subDirs) {
-        const QChar slash('/');
+        const QChar slash = QLatin1Char('/');
         const QString subDirMakefile = path + slash + subDir
                                        + slash + makefileName;
 
@@ -317,7 +317,7 @@ QStringList MakefileParser::directorySources(const QString &directory,
                                                                extensions);
             const QString dirPath = info.fileName();
             foreach (const QString& subDirSource, subDirSources)
-                list.append(dirPath + QChar('/') + subDirSource);
+                list.append(dirPath + QLatin1Char('/') + subDirSource);
         } else {
             // Check whether the file matches to an extension
             foreach (const QString& extension, extensions) {
@@ -339,7 +339,7 @@ QStringList MakefileParser::targetValues(bool *hasVariables)
     if (hasVariables != 0)
         *hasVariables = false;
 
-    const int index = m_line.indexOf(QChar('='));
+    const int index = m_line.indexOf(QLatin1Char('='));
     if (index < 0) {
         m_success = false;
         return QStringList();
@@ -354,7 +354,7 @@ QStringList MakefileParser::targetValues(bool *hasVariables)
         // Get all values of a line separated by spaces.
         // Values representing a variable like $(value) get
         // removed currently.
-        QStringList lineValues = m_line.split(QChar(' '));
+        QStringList lineValues = m_line.split(QLatin1Char(' '));
         QStringList::iterator it = lineValues.begin();
         while (it != lineValues.end()) {
             if ((*it).startsWith(QLatin1String("$("))) {
@@ -368,7 +368,7 @@ QStringList MakefileParser::targetValues(bool *hasVariables)
 
         endReached = lineValues.isEmpty();
         if (!endReached) {
-            const QChar backSlash('\\');
+            const QChar backSlash = QLatin1Char('\\');
             QString last = lineValues.last();
             if (last.endsWith(backSlash)) {
                 // The last value contains a backslash. Remove the

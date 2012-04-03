@@ -84,7 +84,7 @@ bool AutogenStepFactory::canCreate(BuildStepList *parent, const QString &id) con
     if (parent->target()->project()->id() != QLatin1String(Constants::AUTOTOOLS_PROJECT_ID))
         return false;
 
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
+    if (parent->id() != QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD))
         return false;
 
     return QLatin1String(AUTOGEN_STEP_ID) == id;
@@ -282,7 +282,7 @@ void AutogenStepConfigWidget::updateDetails()
     param.setMacroExpander(bc->macroExpander());
     param.setEnvironment(bc->environment());
     param.setWorkingDirectory(bc->buildDirectory());
-    param.setCommand("autogen.sh");
+    param.setCommand(QLatin1String("autogen.sh"));
     param.setArguments(m_autogenStep->additionalArguments());
     m_summaryText = param.summary(displayName());
     emit updateSummary();

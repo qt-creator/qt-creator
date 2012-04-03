@@ -84,7 +84,7 @@ bool ConfigureStepFactory::canCreate(BuildStepList *parent, const QString &id) c
     if (parent->target()->project()->id() != QLatin1String(Constants::AUTOTOOLS_PROJECT_ID))
         return false;
 
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
+    if (parent->id() != QLatin1String(ProjectExplorer::Constants::BUILDSTEPS_BUILD))
         return false;
 
     return QLatin1String(CONFIGURE_STEP_ID) == id;
@@ -167,7 +167,7 @@ bool ConfigureStep::init()
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
     pp->setWorkingDirectory(bc->buildDirectory());
-    pp->setCommand("configure");
+    pp->setCommand(QLatin1String("configure"));
     pp->setArguments(additionalArguments());
 
     return AbstractProcessStep::init();
@@ -280,7 +280,7 @@ void ConfigureStepConfigWidget::updateDetails()
     param.setMacroExpander(bc->macroExpander());
     param.setEnvironment(bc->environment());
     param.setWorkingDirectory(bc->buildDirectory());
-    param.setCommand("configure");
+    param.setCommand(QLatin1String("configure"));
     param.setArguments(m_configureStep->additionalArguments());
     m_summaryText = param.summary(displayName());
     emit updateSummary();

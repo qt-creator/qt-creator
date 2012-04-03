@@ -312,7 +312,7 @@ void AutotoolsProject::makefileParsingFinished()
 
     // Add configure.ac file to project and watch for changes.
     const QLatin1String configureAc(QLatin1String("configure.ac"));
-    const QFile configureAcFile(fileInfo.absolutePath() + QChar('/') + configureAc);
+    const QFile configureAcFile(fileInfo.absolutePath() + QLatin1Char('/') + configureAc);
     if (configureAcFile.exists()) {
         files.append(configureAc);
         const QString configureAcFilePath = dir.absoluteFilePath(configureAc);
@@ -363,13 +363,10 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
         if (file.contains(QLatin1String(".moc")))
             continue;
 
-        QString subDir = baseDir + QChar('/') + file;
-        for (int i = subDir.length() - 1; i >= 0; --i) {
-            if (subDir.at(i) == QChar('/')) {
-                subDir = subDir.left(i);
-                break;
-            }
-        }
+        QString subDir = baseDir + QLatin1Char('/') + file;
+        const int lastSlashPos = subDir.lastIndexOf(QLatin1Char('/'));
+        if (lastSlashPos != -1)
+            subDir.truncate(lastSlashPos);
 
         // Add folder nodes, that are not already available
         oldParentFolder = parentFolder;
