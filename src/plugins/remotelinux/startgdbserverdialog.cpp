@@ -325,8 +325,7 @@ void StartGdbServerDialog::startGdbServer()
     d->startServerOnly = true;
     if (exec() == QDialog::Rejected)
         return;
-    LinuxDeviceConfiguration::ConstPtr device = d->currentDevice();
-    d->gatherer.start(SshConnection::create(device->sshParameters()), device);
+    d->gatherer.start(d->currentDevice());
 }
 
 void StartGdbServerDialog::attachToRemoteProcess()
@@ -334,8 +333,7 @@ void StartGdbServerDialog::attachToRemoteProcess()
     d->startServerOnly = false;
     if (exec() == QDialog::Rejected)
         return;
-    LinuxDeviceConfiguration::ConstPtr device = d->currentDevice();
-    d->gatherer.start(SshConnection::create(device->sshParameters()), device);
+    d->gatherer.start(d->currentDevice());
 }
 
 void StartGdbServerDialog::handleConnectionError()

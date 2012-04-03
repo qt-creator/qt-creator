@@ -422,7 +422,7 @@ void AbstractRemoteLinuxApplicationRunner::handleInitialCleanupDone(bool success
     }
 
     d->state = GatheringPorts;
-    d->portsGatherer.start(d->connection, d->devConfig);
+    d->portsGatherer.start(d->devConfig);
 }
 
 void AbstractRemoteLinuxApplicationRunner::handleInitializationsDone(bool success)

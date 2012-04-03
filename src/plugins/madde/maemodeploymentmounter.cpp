@@ -142,7 +142,7 @@ void MaemoDeploymentMounter::handleUnmounted()
         break;
     case UnmountingCurrentDirs:
         setState(GatheringPorts);
-        m_portsGatherer->start(m_connection, m_devConf);
+        m_portsGatherer->start(m_devConf);
         break;
     case UnmountingCurrentMounts:
         setState(Inactive);

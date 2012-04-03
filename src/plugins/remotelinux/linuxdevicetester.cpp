@@ -159,7 +159,7 @@ void GenericLinuxDeviceTester::handleProcessFinished(int exitStatus)
 
     emit progressMessage(tr("Checking if specified ports are available..."));
     d->state = TestingPorts;
-    d->portsGatherer.start(d->connection, d->deviceConfiguration);
+    d->portsGatherer.start(d->deviceConfiguration);
 }
 
 void GenericLinuxDeviceTester::handlePortsGatheringError(const QString &message)
