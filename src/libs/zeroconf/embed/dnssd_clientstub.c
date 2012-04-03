@@ -217,7 +217,6 @@ static int read_all(dnssd_sock_t sd, char *buf, int len)
         {
         // Don't use "MSG_WAITALL"; it returns "Invalid argument" on some Linux versions; use an explicit while () loop instead.
         //if (recv(sd, buf, len, MSG_WAITALL) != len) return -1;
-        int nErr = 0;
 
         while (len)
                 {
@@ -233,9 +232,8 @@ static int read_all(dnssd_sock_t sd, char *buf, int len)
                 FD_SET(sd, &exceptFds);
                 ssize_t num_read = 0;
                 int nVal=select(sd+1, &readFds, &writeFds, &exceptFds, &timeout);
-                if (nVal < 1 || !FD_ISSET(sd, &readFds)) {
-                    ++nErr;
-                    if (nErr < 100 && ! ZeroConf::gQuickStop) // wait max 100s without reading
+                if (nVal < 1 || !(FD_ISSET(sd, &readFds) || FD_ISSET(sd, &exceptFds))) {
+                    if (! ZeroConf::gQuickStop)
                         continue;
                 } else {
                     num_read = recv(sd, buf, len, 0);
@@ -566,13 +564,14 @@ static DNSServiceErrorType ConnectToServer(DNSServiceRef *ref, DNSServiceFlags f
                         // daemon is still coming up. Rather than fail here, we'll wait a bit and try again.
                         // If, after four seconds, we still can't connect to the daemon,
                         // then we give up and return a failure code.
-                        if (++NumTries < DNSSD_CLIENT_MAXTRIES && !quickCheck) sleep(1); // Sleep a bit, then try again
+                        if (++NumTries < DNSSD_CLIENT_MAXTRIES && !(quickCheck && NumTries > 1)) sleep(1); // Sleep a bit, then try again
                         else {
                             quickCheck = 0;
                             dnssd_close(sdr->sockfd); FreeDNSServiceOp(sdr); return kDNSServiceErr_ServiceNotRunning; }
                         }
                 //printf("ConnectToServer opened socket %d\n", sdr->sockfd);
                 }
+        quickCheck = 0;
 
         *ref = sdr;
         return kDNSServiceErr_NoError;
