@@ -120,8 +120,10 @@ void SftpFileSystemModel::setSshConnection(const SshConnectionParameters &sshPar
     d->sshConnection = SshConnectionManager::instance().acquireConnection(sshParams);
     connect(d->sshConnection.data(), SIGNAL(error(Utils::SshError)),
         SLOT(handleSshConnectionFailure()));
-    if (d->sshConnection->state() == SshConnection::Connected)
+    if (d->sshConnection->state() == SshConnection::Connected) {
         handleSshConnectionEstablished();
+        return;
+    }
     connect(d->sshConnection.data(), SIGNAL(connected()), SLOT(handleSshConnectionEstablished()));
     if (d->sshConnection->state() == SshConnection::Unconnected)
         d->sshConnection->connectToHost();
