@@ -399,6 +399,7 @@ void TaskWindow::showTask(unsigned int id)
     QModelIndex sourceIdx = d->m_model->index(sourceRow, 0);
     QModelIndex filterIdx = d->m_filter->mapFromSource(sourceIdx);
     d->m_listview->setCurrentIndex(filterIdx);
+    popup(false);
 }
 
 void TaskWindow::openTask(unsigned int id)

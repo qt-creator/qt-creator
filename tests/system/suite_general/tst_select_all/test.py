@@ -10,21 +10,23 @@ def charactersInFile(filename):
     return len(content)
 
 def main():
-    filesAndEditors = {srcPath + "/creator/README" : "TextEditor::PlainTextEditorWidget",
-                       srcPath + "/creator/qtcreator.pri" : "Qt4ProjectManager::Internal::ProFileEditorWidget",
-                       srcPath + "/creator/doc/snippets/qml/list-of-transitions.qml" : "QmlJSEditor::QmlJSTextEditorWidget"}
-    for currentFile in filesAndEditors:
+    files = [srcPath + "/creator/README", srcPath + "/creator/qtcreator.pri",
+             srcPath + "/creator/doc/snippets/qml/list-of-transitions.qml"]
+    for currentFile in files:
         if not neededFilePresent(currentFile):
             return
 
     startApplication("qtcreator" + SettingsPath)
-    for currentFile in filesAndEditors:
+    for currentFile in files:
         test.log("Opening file %s" % currentFile)
         size = charactersInFile(currentFile)
         invokeMenuItem("File", "Open File or Project...")
         selectFromFileDialog(currentFile)
-        editor = waitForObject("{type='%s' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}"
-                               % filesAndEditors[currentFile], 20000)
+        editor = getEditorForFileSuffix(currentFile)
+        if editor == None:
+            test.fatal("Could not get the editor for '%s'" % currentFile,
+                       "Skipping this file for now.")
+            continue
         JIRA.performWorkaroundIfStillOpen(6918, JIRA.Bug.CREATOR, editor)
         for key in ["<Up>", "<Down>", "<Left>", "<Right>"]:
             test.log("Selecting everything")

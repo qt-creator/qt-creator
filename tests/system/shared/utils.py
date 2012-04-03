@@ -181,9 +181,10 @@ def cleanUpUserFiles(pathsToProFiles=None):
 
 def invokeMenuItem(menu, item, subItem = None):
     menuObject = waitForObjectItem(":Qt Creator.QtCreator.MenuBar_QMenuBar", menu)
+    waitFor("menuObject.visible", 1000)
     activateItem(menuObject)
     itemObject = waitForObjectItem(objectMap.realName(menuObject), item)
-    waitFor("menuObject.visible", 1000)
+    waitFor("itemObject.enabled", 2000)
     activateItem(itemObject)
     if subItem != None:
         sub = itemObject.menu()
@@ -194,8 +195,11 @@ def logApplicationOutput():
     # make sure application output is shown
     ensureChecked("{type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' "
                   "window=':Qt Creator_Core::Internal::MainWindow' occurrence='3'}")
-    output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}", 20000)
-    test.log("Application Output:\n%s" % output.plainText)
+    try:
+        output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}", 20000)
+        test.log("Application Output:\n%s" % output.plainText)
+    except:
+        test.fail("Could not find any Application Output - did the project run?")
 
 # get the output from a given cmdline call
 def getOutputFromCmdline(cmdline):
