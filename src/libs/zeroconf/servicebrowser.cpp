@@ -197,6 +197,8 @@ void ZeroConfLib::setDefaultLib(LibUsage usage, const QString &avahiLibName,
 
 namespace ZeroConf {
 
+int gQuickStop = 0;
+
 // ----------------- ErrorMessage impl -----------------
 /*!
   \class ZeroConf::ErrorMessage
@@ -1597,7 +1599,9 @@ MainConnection::MainConnection():
 
 MainConnection::~MainConnection()
 {
+    gQuickStop = 1;
     stop(true);
+    gQuickStop = 0;
     delete m_thread;
 }
 

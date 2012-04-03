@@ -35,7 +35,9 @@
 
 #include "dnssd_ipc.h"
 
-namespace ZeroConf { namespace embeddedLib {
+namespace ZeroConf {
+extern int gQuickStop;
+namespace embeddedLib {
 #include "../dns_sd_funct.h"
 static int gDaemonErr = kDNSServiceErr_NoError;
         }}
@@ -233,7 +235,7 @@ static int read_all(dnssd_sock_t sd, char *buf, int len)
                 int nVal=select(sd+1, &readFds, &writeFds, &exceptFds, &timeout);
                 if (nVal < 1 || !FD_ISSET(sd, &readFds)) {
                     ++nErr;
-                    if (nErr < 6) // wait max 6s without reading
+                    if (nErr < 100 && ! ZeroConf::gQuickStop) // wait max 100s without reading
                         continue;
                 } else {
                     num_read = recv(sd, buf, len, 0);
