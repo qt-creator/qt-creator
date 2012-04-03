@@ -646,14 +646,13 @@ void CppFindReferences::findMacroUses(const Macro &macro)
     {
         // ### FIXME: Encoding?
         const QByteArray &source = getSource(macro.fileName(), workingCopy).toLatin1();
-        QByteArray line = source.mid(macro.offset(), macro.length());
-        const int macroNameOffset = line.indexOf(macro.name());
-        const int macroNameLength = macro.name().length();
-        const int possibleNewLine = line.indexOf('\n', macroNameOffset + macroNameLength);
-        if (possibleNewLine != -1)
-            line.truncate(possibleNewLine); // truncate line at first '\n' after macro name
+        int lineBegin = source.lastIndexOf('\n', macro.offset()) + 1;
+        int lineEnd = source.indexOf('\n', macro.offset());
+        if (lineEnd == -1)
+            lineEnd = source.length();
+        const QByteArray line = source.mid(lineBegin, lineEnd - lineBegin);
         search->addResult(macro.fileName(), macro.line(), line,
-                          macroNameOffset, macroNameLength);
+                          line.indexOf(macro.name()), macro.name().length());
     }
 
     QFuture<Usage> result;
