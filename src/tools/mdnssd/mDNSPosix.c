@@ -98,6 +98,8 @@ static int num_registered_interfaces = 0;
 static int num_pkts_accepted = 0;
 static int num_pkts_rejected = 0;
 
+// number of accumulated select errors (to decide if a reset is required).
+static int nSelectErrors = 0;
 // ***************************************************************************
 // Functions
 
@@ -1444,9 +1446,6 @@ mDNSexport void mDNSPosixGetFDSet(mDNS *m, int *nfds, fd_set *readfds, struct ti
 	// cope well with vey large changes in time (for example after sleep)
 	if (timeout->tv_sec > 1000) timeout->tv_sec = 1000;
 	if (timeout->tv_usec > 999999) timeout->tv_usec = 999999;
-	// should not happen, but let's be paranoid...
-	if (timeout->tv_sec < 0) timeout->tv_sec = 0;
-	if (timeout->tv_usec < 0) timeout->tv_usec = 1000;
 	}
 
 mDNSexport void mDNSPosixProcessFDSet(mDNS *const m, fd_set *readfds)
@@ -1588,9 +1587,28 @@ mStatus mDNSPosixRunEventLoopOnce(mDNS *m, const struct timeval *pTimeout,
 									sigset_t *pSignalsReceived, mDNSBool *pDataDispatched)
 	{
 	fd_set			listenFDs = gEventFDs;
-	int				fdMax = 0, numReady;
+	int				fdMax = 0, numReady, hadError = 0;
 	struct timeval	timeout = *pTimeout;
-	
+
+    if (nSelectErrors > 20)
+        {
+        LogMsg("ERROR: accumulated too many consecutive select errors, trying to to a sleep/wake cycle");
+        mDNSCoreMachineSleep(m, mDNStrue);
+        mDNSCoreMachineSleep(m, mDNSfalse);
+        nSelectErrors = 0;
+        }
+    if (timeout.tv_sec < 0)
+        {
+        LogMsg("ERROR: negative timeout: tv_sec %ld %d\n", (long)timeout.tv_sec, (int)mDNSPlatformOneSecond);
+        timeout.tv_sec = 1;
+        hadError = ++nSelectErrors;
+        }
+    if (timeout.tv_usec < 0)
+        {
+        LogMsg("ERROR: negative timeout: tv_usec %ld %d\n", (long)timeout.tv_usec, (int)mDNSPlatformOneSecond);
+        timeout.tv_usec = 1000;
+        hadError = ++nSelectErrors;
+        }
 	// Include the sockets that are listening to the wire in our select() set
 	mDNSPosixGetFDSet(m, &fdMax, &listenFDs, &timeout);	// timeout may get modified
 	if (fdMax < gMaxFD)
@@ -1613,10 +1631,17 @@ mStatus mDNSPosixRunEventLoopOnce(mDNS *m, const struct timeval *pTimeout,
 				break;	// in case callback removed elements from gEventSources
 				}
 			}
+        nSelectErrors = hadError;
 		*pDataDispatched = mDNStrue;
 		}
 	else
+        {
+        if (numReady < 0 && errno != EINTR)
+            ++nSelectErrors;
+        else if (numReady == 0)
+            nSelectErrors = hadError; // timout reached
 		*pDataDispatched = mDNSfalse;
+        }
 
 	(void) sigprocmask(SIG_BLOCK, &gEventSignalSet, (sigset_t*) NULL);
 	*pSignalsReceived = gEventSignals;
