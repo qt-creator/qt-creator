@@ -615,6 +615,7 @@ void InspectorUi::showObject(const QmlDebugObjectReference &obj)
     Debugger::QmlAdapter *qmlAdapter = m_clientProxy->qmlAdapter();
     if (qmlAdapter)
         qmlAdapter->setCurrentSelectedDebugInfo(obj.debugId(), displayName(obj));
+    m_clientProxy->setSelectedItemsByDebugId(QList<int>() << obj.debugId());
 }
 
 bool InspectorUi::isRoot(const QmlDebugObjectReference &obj) const
@@ -832,7 +833,6 @@ void InspectorUi::crumblePathElementClicked(const QVariant &data)
 
     m_onCrumblePathClicked = true;
     selectItems(debugIds);
-    m_clientProxy->setSelectedItemsByDebugId(debugIds);
 }
 
 bool InspectorUi::showExperimentalWarning()
