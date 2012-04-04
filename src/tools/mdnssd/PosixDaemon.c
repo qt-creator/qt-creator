@@ -37,6 +37,8 @@
 #include <fcntl.h>
 #include <pwd.h>
 #include <sys/types.h>
+#include <unistd.h>
+#include <dirent.h>
 
 #if __APPLE__
 #undef daemon
@@ -168,9 +170,131 @@ mDNSlocal mStatus MainLoop(mDNS *m) // Loop until we quit.
 	return EINTR;
 	}
 
+
+static int kill_other()
+	{
+	// tries to kill other mdnssd instances
+	enum { maxPath = 1024 };
+	mStatus res = 0;
+	const char * dirPath = "/proc";
+	DIR *dirp;
+	struct dirent *next;
+	char filePath[maxPath];
+	char *baseN = filePath;
+	size_t maxName = maxPath;
+	const char *dAtt = dirPath;
+	pid_t myPid = getpid();
+	char refPath[128];
+	char refLine[128];
+	char line[128];
+
+	snprintf(refPath, sizeof(refPath), "/proc/%lu/status",(unsigned long)myPid);
+	FILE *f = fopen(refPath, "r");
+	if (!f)
+		{
+		LogMsg("mdnssd kill_other failed to get ref line");
+		return 1;
+		}
+	if (!fgets(refLine,sizeof(refLine),f)) {
+		LogMsg("mdnssd kill_other got empty ref line");
+		return 2;
+	}
+    if (strncmp("Name:", refLine, 5)) {
+        LogMsg("mdnssd unexpected format of first line of /proc/*/status");
+        return 4;
+    }
+	fclose(f);
+	for (; maxName != 0; --maxName)
+		{
+		if ((*dAtt) == 0)
+			break;
+		*baseN++ = *dAtt++;
+		}
+	if (maxName>0)
+		{
+		--maxName;
+		*baseN++ = '/';
+		}
+	const char *statusFile = "/status";
+	size_t lenStatusFile = strlen(statusFile);
+	maxName -= lenStatusFile;
+
+	dirp = opendir (dirPath);
+	if (!dirp)
+		{
+		LogMsg("cannot open directory %s", dirPath);
+		return 3;
+		}
+	while (1)
+		{
+		size_t lenF;
+		errno = 0;
+		next = readdir (dirp);
+		if (!next)
+			{
+			if (errno == EOVERFLOW)
+				{
+				continue;
+				}
+			else
+				{
+				if (errno != 0)
+					{
+					char errStr[128];
+					LogMsg("Error reading /proc directory, %s",strerror_r(errno, errStr, sizeof(errStr)));
+					res=3;
+					}
+				break;
+				}
+			}
+		switch (next->d_type)
+			{
+		case DT_LNK:
+		case DT_DIR:
+			lenF=strlen(next->d_name);
+			if (lenF < maxName)
+				{
+				char *endP = 0;
+				unsigned long pidV = strtoul(next->d_name, &endP , 10);
+				if ((size_t)(endP - next->d_name) == lenF)
+					{
+					pid_t pidAtt = (pid_t)pidV;
+					if (pidAtt != myPid)
+						{
+						size_t i;
+						for (i = 0; i < lenF; ++ i)
+							baseN[i] = next->d_name[i];
+						for (i = 0; i <= lenStatusFile; ++i)
+							baseN[i + lenF] = statusFile[i];
+						f = fopen(filePath,"r");
+						if (f)
+							{
+							if (fgets(line,sizeof(line),f) && strcmp(refLine, line) == 0)
+								{
+								LogMsg("killing old mdnssd process with pid %d\n", pidAtt);
+								kill(pidAtt, 9);
+								}
+							fclose(f);
+							}
+						}
+					}
+				}
+			break;
+		default:
+			break;
+			}
+		}
+
+	if (closedir (dirp) != 0)
+		LogMsg("error closing directory %s", dirPath);
+	return res;
+	}
+
 int main(int argc, char **argv)
 	{
 	mStatus					err;
+
+	kill_other();
 
 	ParseCmdLinArgs(argc, argv);
 
