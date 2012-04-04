@@ -1,8 +1,8 @@
 import qbs.base 1.0
+import "../QtcLibrary.qbs" as QtcLibrary
 
-DynamicLibrary {
-    name: "aggregation"
-    destination: "lib"
+QtcLibrary {
+    name: "Aggregation"
 
     cpp.includePaths: [
         ".",

@@ -81,7 +81,8 @@ public:
 
     static void showNewItemDialog(const QString &title,
                                   const QList<IWizard *> &wizards,
-                                  const QString &defaultLocation = QString());
+                                  const QString &defaultLocation = QString(),
+                                  const QVariantMap &extraVariables = QVariantMap());
 
     static bool showOptionsDialog(const QString &group = QString(),
                                   const QString &page = QString(),

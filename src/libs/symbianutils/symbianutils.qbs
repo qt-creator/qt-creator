@@ -1,8 +1,8 @@
 import qbs.base 1.0
+import "../QtcLibrary.qbs" as QtcLibrary
 
-DynamicLibrary {
+QtcLibrary {
     name: "symbianutils"
-    destination: "lib"
 
     cpp.includePaths: [
         ".",
@@ -21,7 +21,7 @@ DynamicLibrary {
 
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["network"]}
-    Depends { name: "utils" }
+    Depends { name: "Utils" }
 
     Group {
         condition: qbs.targetOS == "linux" || qbs.targetOS == "mac"

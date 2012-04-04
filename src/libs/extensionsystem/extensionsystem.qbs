@@ -1,8 +1,8 @@
 import qbs.base 1.0
+import "../QtcLibrary.qbs" as QtcLibrary
 
-DynamicLibrary {
-    name: "extensionsystem"
-    destination: "lib"
+QtcLibrary {
+    name: "ExtensionSystem"
 
     cpp.includePaths: [
         ".",
@@ -15,7 +15,7 @@ DynamicLibrary {
 
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["core", "gui"] }
-    Depends { name: "aggregation" }
+    Depends { name: "Aggregation" }
 
     files: [
         "plugindetailsview.ui",

@@ -10,7 +10,7 @@ def main():
         selectBuildConfig(1, 0, config)
         test.log("Testing build configuration: " + config)
         runAndCloseApp()
-    sendEvent("QCloseEvent", waitForObject(":Qt Creator_Core::Internal::MainWindow"))
+    invokeMenuItem("File", "Exit")
     waitForCleanShutdown()
 
 def init():

@@ -141,7 +141,8 @@ public slots:
 
     void showNewItemDialog(const QString &title,
                            const QList<IWizard *> &wizards,
-                           const QString &defaultLocation = QString());
+                           const QString &defaultLocation = QString(),
+                           const QVariantMap &extraVariables = QVariantMap());
 
     bool showOptionsDialog(const QString &category = QString(),
                            const QString &page = QString(),

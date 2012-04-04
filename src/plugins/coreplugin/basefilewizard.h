@@ -169,7 +169,7 @@ public:
 
     virtual QString descriptionImage() const;
 
-    virtual void runWizard(const QString &path, QWidget *parent, const QString &platform);
+    virtual void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues);
     virtual Core::FeatureSet requiredFeatures() const;
     virtual WizardFlags flags() const;
 

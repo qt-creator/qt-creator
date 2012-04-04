@@ -966,7 +966,8 @@ void MainWindow::setFocusToEditor()
 
 void MainWindow::showNewItemDialog(const QString &title,
                                           const QList<IWizard *> &wizards,
-                                          const QString &defaultLocation)
+                                          const QString &defaultLocation,
+                                          const QVariantMap &extraVariables)
 {
     // Scan for wizards matching the filter and pick one. Don't show
     // dialog if there is only one.
@@ -1007,7 +1008,7 @@ void MainWindow::showNewItemDialog(const QString &title,
             break;
         }
     }
-    wizard->runWizard(path, this, selectedPlatform);
+    wizard->runWizard(path, this, selectedPlatform, extraVariables);
 }
 
 bool MainWindow::showOptionsDialog(const QString &category,

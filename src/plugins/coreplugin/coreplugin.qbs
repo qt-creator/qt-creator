@@ -5,10 +5,9 @@ QtcPlugin {
     name: "Core"
 
     Depends { name: "qt"; submodules: ['core', 'gui', 'xml', 'network', 'script', 'sql', 'help'] }
-    Depends { name: "utils" }
-    Depends { name: "extensionsystem" }
-    Depends { name: "aggregation" }
-    Depends { name: "pluginspec" }
+    Depends { name: "Utils" }
+    Depends { name: "ExtensionSystem" }
+    Depends { name: "Aggregation" }
 
     cpp.includePaths: [
         ".",
@@ -240,9 +239,9 @@ QtcPlugin {
     }
 
     ProductModule {
-        Depends { name: "aggregation" }
-        Depends { name: "extensionsystem" }
-        Depends { name: "utils" }
+        Depends { name: "Aggregation" }
+        Depends { name: "ExtensionSystem" }
+        Depends { name: "Utils" }
         cpp.includePaths: [
             "../..",
             "../../libs",

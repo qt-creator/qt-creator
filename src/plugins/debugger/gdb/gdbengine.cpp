@@ -805,7 +805,7 @@ void GdbEngine::interruptInferior()
         qDebug() << "INTERRUPT INFERIOR: " << state(); return);
 
     if (usesExecInterrupt()) {
-        postCommand("-exec-interrupt");
+        postCommand("-exec-interrupt", Immediate);
     } else {
         showStatusMessage(tr("Stop requested..."), 5000);
         showMessage(_("TRYING TO INTERRUPT INFERIOR"));

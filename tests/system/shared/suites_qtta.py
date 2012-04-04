@@ -34,3 +34,9 @@ def checkSyntaxError(issuesView, expectedTextsArray, warnIfMoreIssues = True):
                     return True
     return False
 
+# copy example project (sourceExample is path to project) to <temp>/template dir
+def prepareTemplate(sourceExample):
+    templateDir = os.path.abspath(tempDir() + "/template")
+    shutil.copytree(sourceExample, templateDir)
+    return templateDir
+

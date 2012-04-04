@@ -1,8 +1,8 @@
 import qbs.base 1.0
+import "../../QtcLibrary.qbs" as QtcLibrary
 
-DynamicLibrary {
-    name: "botan"
-    destination: "lib"
+QtcLibrary {
+    name: "Botan"
 
     Depends { name: "cpp" }
     Depends { name: "qt"; submodules: 'core' }

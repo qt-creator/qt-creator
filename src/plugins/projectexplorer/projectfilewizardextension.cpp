@@ -231,15 +231,23 @@ static QList<ProjectEntry> findDeployProject(const QList<ProjectEntry> &projects
 // the longest matching path (list containing"/project/subproject1" matching
 // common path "/project/subproject1/newuserpath").
 static int findMatchingProject(const QList<ProjectEntry> &projects,
-                               const QString &commonPath)
+                               const QString &commonPath,
+                               const QString &preferedProjectNode)
 {
     if (projects.isEmpty() || commonPath.isEmpty())
         return -1;
 
+    const int count = projects.size();
+    if (!preferedProjectNode.isEmpty()) {
+        for (int p = 0; p < count; ++p) {
+            if (projects.at(p).node->path() == preferedProjectNode)
+                return p;
+        }
+    }
+
     int bestMatch = -1;
     int bestMatchLength = 0;
     bool bestMatchIsProFile = false;
-    const int count = projects.size();
     for (int p = 0; p < count; p++) {
         // Direct match or better match? (note that the wizards' files are native).
         const ProjectEntry &entry = projects.at(p);
@@ -268,7 +276,8 @@ static QString generatedProjectFilePath(const QList<Core::GeneratedFile> &files)
 }
 
 void ProjectFileWizardExtension::firstExtensionPageShown(
-        const QList<Core::GeneratedFile> &files)
+        const QList<Core::GeneratedFile> &files,
+        const QVariantMap &extraValues)
 {
     initProjectChoices(generatedProjectFilePath(files));
 
@@ -302,7 +311,8 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
         m_context->page->setAdditionalInfo(text);
         bestProjectIndex = -1;
     } else {
-        bestProjectIndex = findMatchingProject(m_context->projects, m_context->commonDirectory);
+        bestProjectIndex = findMatchingProject(m_context->projects, m_context->commonDirectory,
+                                               extraValues.value(QLatin1String(Constants::PREFERED_PROJECT_NODE)).toString());
         m_context->page->setNoneLabel(tr("<None>"));
     }
 

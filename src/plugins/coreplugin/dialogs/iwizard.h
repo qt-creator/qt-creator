@@ -37,6 +37,7 @@
 #include <coreplugin/featureprovider.h>
 
 #include <QObject>
+#include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
 class QIcon;
@@ -78,7 +79,7 @@ public:
     virtual FeatureSet requiredFeatures() const = 0;
     virtual WizardFlags flags() const = 0;
 
-    virtual void runWizard(const QString &path, QWidget *parent, const QString &platform) = 0;
+    virtual void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &variables) = 0;
 
     bool isAvailable(const QString &platformName) const;
     QStringList supportedPlatforms() const;

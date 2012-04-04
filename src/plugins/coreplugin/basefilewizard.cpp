@@ -434,7 +434,7 @@ QString BaseFileWizard::descriptionImage() const
        return d->m_parameters.descriptionImage();
 }
 
-void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QString &platform)
+void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues)
 {
     QTC_ASSERT(!path.isEmpty(), return);
 
@@ -500,7 +500,7 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QStri
         }
         if (firstExtensionPageHit)
             foreach (IFileWizardExtension *ex, extensions)
-                ex->firstExtensionPageShown(files);
+                ex->firstExtensionPageShown(files, extraValues);
         if (accepted)
             break;
     }
