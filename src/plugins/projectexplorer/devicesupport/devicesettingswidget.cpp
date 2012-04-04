@@ -273,6 +273,7 @@ void DeviceSettingsWidget::clearDetails()
 {
     m_ui->nameLineEdit->clear();
     m_ui->osTypeValueLabel->clear();
+    m_ui->autoDetectionValueLabel->clear();
 }
 
 const IDeviceFactory *DeviceSettingsWidget::factoryForCurrentDevice() const
