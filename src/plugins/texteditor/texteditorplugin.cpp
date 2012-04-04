@@ -131,11 +131,12 @@ public:
     virtual WizardFlags flags() const
         { return Core::IWizard::PlatformIndependent; }
 
-    virtual void runWizard(const QString &path, QWidget *parent, const QString &platform);
+    virtual void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues);
 };
 
-void ScratchFileWizard::runWizard(const QString &, QWidget *, const QString &)
+void ScratchFileWizard::runWizard(const QString &, QWidget *, const QString &, const QVariantMap &extraValues)
 {
+    Q_UNUSED(extraValues)
     QString tempPattern = QDir::tempPath();
     if (!tempPattern.endsWith(QLatin1Char('/')))
         tempPattern += QLatin1Char('/');
