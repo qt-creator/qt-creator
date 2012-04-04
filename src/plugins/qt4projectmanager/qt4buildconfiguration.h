@@ -188,20 +188,6 @@ public:
 
 private slots:
     void update();
-
-private:
-    struct VersionInfo {
-        VersionInfo()
-            : versionId(-1)
-            {}
-        VersionInfo(const QString &d, int v)
-            : displayName(d), versionId(v)
-            {}
-        QString displayName;
-        int versionId;
-    };
-
-    QMap<QString, VersionInfo> m_versions;
 };
 
 } // namespace Qt4ProjectManager

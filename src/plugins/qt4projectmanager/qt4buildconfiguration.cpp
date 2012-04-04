@@ -673,14 +673,6 @@ Qt4BuildConfigurationFactory::~Qt4BuildConfigurationFactory()
 
 void Qt4BuildConfigurationFactory::update()
 {
-    m_versions.clear();
-    QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
-    foreach (QtSupport::BaseQtVersion *version, vm->validVersions()) {
-        QString key = QString::fromLatin1(QT4_BC_ID_PREFIX)
-                + QString::fromLatin1("Qt%1").arg(version->uniqueId());
-        VersionInfo info(tr("Using Qt Version \"%1\"").arg(version->displayName()), version->uniqueId());
-        m_versions.insert(key, info);
-    }
     emit availableCreationIdsChanged();
 }
 
@@ -691,30 +683,46 @@ QStringList Qt4BuildConfigurationFactory::availableCreationIds(ProjectExplorer::
 
     QStringList results;
     QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
-    for (QMap<QString, VersionInfo>::const_iterator i = m_versions.constBegin();
-         i != m_versions.constEnd(); ++i) {
-        if (vm->version(i.value().versionId)->supportsTargetId(parent->id())
-                && vm->version(i.value().versionId)->toolChainAvailable(parent->id()))
-            results.append(i.key());
+    QList<QtSupport::BaseQtVersion *> versions = vm->versionsForTargetId(parent->id());
+    foreach (QtSupport::BaseQtVersion *v, versions) {
+        if (v->toolChainAvailable(parent->id()))
+            results << QLatin1String(QT4_BC_ID_PREFIX) + QString::number(v->uniqueId());
     }
+
+
     return results;
+}
+
+int idToUniqueId(const QString &id)
+{
+    QString rest = id.mid(QString(QT4_BC_ID_PREFIX).length());
+    bool ok;
+    int unqieuid = rest.toInt(&ok);
+    if (!ok)
+        return -1;
+    return unqieuid;
 }
 
 QString Qt4BuildConfigurationFactory::displayNameForId(const QString &id) const
 {
-    if (!m_versions.contains(id))
+    if (!id.startsWith(QT4_BC_ID_PREFIX))
         return QString();
-    return m_versions.value(id).displayName;
+
+    QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
+    QtSupport::BaseQtVersion *v = vm->version(idToUniqueId(id));
+    if (!v)
+        return QString();
+    return tr("Using Qt Version \"%1\"").arg(v->displayName());
 }
 
 bool Qt4BuildConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const QString &id) const
 {
     if (!qobject_cast<Qt4BaseTarget *>(parent))
         return false;
-    if (!m_versions.contains(id))
+    if (!id.startsWith(QT4_BC_ID_PREFIX))
         return false;
-    const VersionInfo &info = m_versions.value(id);
-    QtSupport::BaseQtVersion *version = QtSupport::QtVersionManager::instance()->version(info.versionId);
+
+    QtSupport::BaseQtVersion *version = QtSupport::QtVersionManager::instance()->version(idToUniqueId(id));
     if (!version ||
         !version->supportsTargetId(parent->id()))
         return false;
@@ -726,8 +734,7 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target
     if (!canCreate(parent, id))
         return 0;
 
-    const VersionInfo &info = m_versions.value(id);
-    QtSupport::BaseQtVersion *version = QtSupport::QtVersionManager::instance()->version(info.versionId);
+    QtSupport::BaseQtVersion *version = QtSupport::QtVersionManager::instance()->version(idToUniqueId(id));
     Q_ASSERT(version);
 
     Qt4BaseTarget *qt4Target = static_cast<Qt4BaseTarget *>(parent);
