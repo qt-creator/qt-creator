@@ -46,8 +46,6 @@
 #include <QStringList>
 #include <QThread>
 
-class QHostInfo;
-
 namespace ZeroConf {
 
 class ServiceBrowser;

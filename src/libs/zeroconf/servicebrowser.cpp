@@ -52,6 +52,7 @@
 #include <QGlobalStatic>
 #include <QMetaType>
 #include <QMutexLocker>
+#include <QNetworkInterface>
 #include <QString>
 #include <QStringList>
 #include <QtEndian>
@@ -269,6 +270,16 @@ Service::Service() : m_host(0), m_interfaceNr(0), m_outdated(false)
 Service::~Service()
 {
     delete m_host;
+}
+
+/*!
+  \fn QString Service::interface()
+
+  Returns the interface on which the service is reachable.
+ */
+QNetworkInterface Service::interface() const
+{
+    return QNetworkInterface::interfaceFromIndex(m_interfaceNr);
 }
 
 bool Service::operator==(const Service &o) const {
