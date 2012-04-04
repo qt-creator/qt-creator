@@ -146,10 +146,12 @@ static QByteArray gccPredefinedMacros(const Utils::FileName &gcc, const QStringL
     return predefinedMacros;
 }
 
-static QList<HeaderPath> gccHeaderPathes(const Utils::FileName &gcc, const QStringList &env)
+QList<HeaderPath> GccToolChain::gccHeaderPaths(const Utils::FileName &gcc, const QStringList &env, const QString &sysrootPath)
 {
     QList<HeaderPath> systemHeaderPaths;
     QStringList arguments;
+    if (!sysrootPath.isEmpty())
+        arguments.append(QString::fromLatin1("--sysroot=%1").arg(sysrootPath));
     arguments << QLatin1String("-xc++")
               << QLatin1String("-E")
               << QLatin1String("-v")
@@ -326,7 +328,7 @@ GccToolChain::GccToolChain(const GccToolChain &tc) :
     m_debuggerCommand(tc.debuggerCommand()),
     m_targetAbi(tc.m_targetAbi),
     m_supportedAbis(tc.m_supportedAbis),
-    m_headerPathes(tc.m_headerPathes),
+    m_headerPaths(tc.m_headerPaths),
     m_version(tc.m_version)
 { }
 
@@ -409,13 +411,13 @@ ProjectExplorer::ToolChain::CompilerFlags GccToolChain::compilerFlags(const QStr
 
 QList<HeaderPath> GccToolChain::systemHeaderPaths() const
 {
-    if (m_headerPathes.isEmpty()) {
+    if (m_headerPaths.isEmpty()) {
         // Using a clean environment breaks ccache/distcc/etc.
         Utils::Environment env = Utils::Environment::systemEnvironment();
         addToEnvironment(env);
-        m_headerPathes = gccHeaderPathes(m_compilerCommand, env.toStringList());
+        m_headerPaths = gccHeaderPaths(m_compilerCommand, env.toStringList());
     }
-    return m_headerPathes;
+    return m_headerPaths;
 }
 
 void GccToolChain::addToEnvironment(Utils::Environment &env) const

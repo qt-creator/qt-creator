@@ -97,6 +97,8 @@ protected:
     virtual QList<Abi> detectSupportedAbis() const;
     virtual QString detectVersion() const;
 
+    static QList<HeaderPath> gccHeaderPaths(const Utils::FileName &gcc, const QStringList &env, const QString &sysrootPath = QString());
+
     mutable QByteArray m_predefinedMacros;
 
 private:
@@ -109,7 +111,7 @@ private:
 
     Abi m_targetAbi;
     mutable QList<Abi> m_supportedAbis;
-    mutable QList<HeaderPath> m_headerPathes;
+    mutable QList<HeaderPath> m_headerPaths;
     mutable QString m_version;
 
     friend class Internal::GccToolChainFactory;
