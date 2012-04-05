@@ -1307,10 +1307,10 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     const GdbMi frame = data.findChild("frame");
 
     const int lineNumber = frame.findChild("line").data().toInt();
-    QString fullName = QString::fromUtf8(frame.findChild("fullname").data());
+    QString fullName = cleanupFullName(QString::fromLocal8Bit(frame.findChild("fullname").data()));
 
     if (fullName.isEmpty())
-        fullName = QString::fromUtf8(frame.findChild("file").data());
+        fullName = QString::fromLocal8Bit(frame.findChild("file").data());
 
     if (rid.isValid() && frame.isValid()
             && !isQmlStepBreakpoint(rid)
