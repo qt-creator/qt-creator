@@ -1375,8 +1375,11 @@ void ServiceBrowserPrivate::maybeUpdateLists()
             emit q->servicesUpdated(q);
         }
     }
-    if (shouldRefresh)
-        refresh();
+    {
+        QMutexLocker l(mainConnection->lock());
+        if (shouldRefresh)
+            refresh();
+    }
 }
 
 /// callback announcing
