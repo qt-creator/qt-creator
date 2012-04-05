@@ -123,7 +123,7 @@ public:
 
     static Ptr createEmbeddedLib(const QString &daemonPath, Ptr fallback = Ptr(0));
     static Ptr createDnsSdLib(const QString &libName, Ptr fallback = Ptr(0));
-    static Ptr createAvahiLib(const QString &libName, Ptr fallback = Ptr(0));
+    static Ptr createAvahiLib(const QString &libName, const QString &version, Ptr fallback = Ptr(0));
 protected:
     bool m_isOk;
     QString m_errorMsg;

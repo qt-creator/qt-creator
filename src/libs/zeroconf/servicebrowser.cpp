@@ -132,8 +132,8 @@ class ZeroConfLib
 public:
     ZeroConfLib();
     ZConfLib::Ptr defaultLib();
-    void setDefaultLib(LibUsage usage, const QString &avahiLibName, const QString &dnsSdLibName,
-                       const QString &dnsSdDaemonPath);
+    void setDefaultLib(LibUsage usage, const QString &avahiLibName, const QString &avahiVersion,
+                       const QString &dnsSdLibName, const QString &dnsSdDaemonPath);
 
 private:
     static const char *defaultmDnsSdLibName;
@@ -153,7 +153,7 @@ Q_GLOBAL_STATIC(ZeroConfLib, zeroConfLibInstance)
 #endif
 
 ZeroConfLib::ZeroConfLib(): m_lock(QMutex::Recursive),
-    m_defaultLib(ZConfLib::createAvahiLib(QLatin1String("avahi-client"),
+    m_defaultLib(ZConfLib::createAvahiLib(QLatin1String("avahi-client"),QLatin1String("3"),
                  ZConfLib::createDnsSdLib(QLatin1String(defaultmDnsSdLibName),
                  ZConfLib::createEmbeddedLib(QLatin1String(defaultmDNSDaemonName)))))
 {
@@ -169,7 +169,8 @@ ZConfLib::Ptr ZeroConfLib::defaultLib(){
 }
 
 void ZeroConfLib::setDefaultLib(LibUsage usage, const QString &avahiLibName,
-                                const QString &dnsSdLibName, const QString &dnsSdDaemonPath){
+                                const QString &avahiVersion, const QString &dnsSdLibName,
+                                const QString &dnsSdDaemonPath){
     QMutexLocker l(&m_lock);
     switch (usage){
     case (UseDnsSdOnly):
@@ -179,15 +180,16 @@ void ZeroConfLib::setDefaultLib(LibUsage usage, const QString &avahiLibName,
         m_defaultLib = ZConfLib::createEmbeddedLib(dnsSdDaemonPath);
         break;
     case (UseAvahiOnly):
-        m_defaultLib = ZConfLib::createAvahiLib(avahiLibName);
+        m_defaultLib = ZConfLib::createAvahiLib(avahiLibName, avahiVersion);
         break;
     case (UseAvahiOrDnsSd):
-        m_defaultLib = ZConfLib::createAvahiLib(avahiLibName, ZConfLib::createDnsSdLib(dnsSdLibName));
+        m_defaultLib = ZConfLib::createAvahiLib(avahiLibName, avahiVersion,
+                       ZConfLib::createDnsSdLib(dnsSdLibName));
         break;
     case (UseAvahiOrDnsSdOrEmbedded):
-        m_defaultLib = ZConfLib::createAvahiLib(
-                    avahiLibName, ZConfLib::createDnsSdLib(dnsSdLibName,
-                                                           ZConfLib::createEmbeddedLib(dnsSdDaemonPath)));
+        m_defaultLib = ZConfLib::createAvahiLib(avahiLibName, avahiVersion,
+                       ZConfLib::createDnsSdLib(dnsSdLibName,
+                       ZConfLib::createEmbeddedLib(dnsSdDaemonPath)));
         break;
     default:
         qDebug() << "invalid usage " << usage;
@@ -583,10 +585,10 @@ void ServiceBrowser::autoRefresh()
 
   \threadsafe
 */
-void setDefaultZConfLib(LibUsage usage, const QString &avahiLibName, const QString &dnsSdLibName,
-                        const QString &dnsSdDaemonPath)
+void setDefaultZConfLib(LibUsage usage, const QString &avahiLibName, const QString &version,
+                        const QString &dnsSdLibName,const QString &dnsSdDaemonPath)
 {
-    zeroConfLibInstance()->setDefaultLib(usage, avahiLibName, dnsSdLibName, dnsSdDaemonPath);
+    zeroConfLibInstance()->setDefaultLib(usage, avahiLibName, version, dnsSdLibName, dnsSdDaemonPath);
 }
 
 namespace Internal {
@@ -1786,6 +1788,10 @@ void MainConnection::createConnection()
             abortLib();
         }
     }
+    if (status() < Stopping)
+        appendError(ErrorMessage::NoteLevel,
+                    tr("MainConncetion could sucessfully create a connection using lib %1")
+                    .arg(lib->name()));
 }
 
 ZConfLib::RunLoopStatus MainConnection::handleEvent()

@@ -33,6 +33,7 @@
 #include "servicebrowser.h"
 #include "servicebrowser_p.h"
 
+#include <QtGlobal>
 #include <QDebug>
 #include <QLibrary>
 #include <QString>
@@ -126,9 +127,10 @@ private:
     QLibrary nativeLib;
 public:
 
-    AvahiZConfLib(QString libName = QLatin1String("avahi"),
+    AvahiZConfLib(QString libName = QLatin1String("avahi-client"),
+                  QString version = QLatin1String("3"),
                   ZConfLib::Ptr fallBack = ZConfLib::Ptr(0)) :
-        ZConfLib(fallBack), nativeLib(libName)
+        ZConfLib(fallBack), nativeLib(libName, version)
     {
 #ifndef ZCONF_AVAHI_STATIC_LINKING
         // dynamic linking
@@ -370,8 +372,10 @@ public:
     }
 };
 
-ZConfLib::Ptr ZConfLib::createAvahiLib(const QString &libName, ZConfLib::Ptr fallback) {
-    return ZConfLib::Ptr(new AvahiZConfLib(libName, fallback));
+ZConfLib::Ptr ZConfLib::createAvahiLib(const QString &libName, const QString &version,
+                                       ZConfLib::Ptr fallback)
+{
+    return ZConfLib::Ptr(new AvahiZConfLib(libName, version, fallback));
 }
 
 extern "C" void cAvahiResolveReply(
@@ -557,7 +561,9 @@ extern "C" int cAvahiPollFunction(struct pollfd *ufds, unsigned int nfds, int ti
 namespace ZeroConf {
 namespace Internal {
 
-ZConfLib::Ptr ZConfLib::createAvahiLib(const QString &/*extraPaths*/, ZConfLib::Ptr fallback) {
+ZConfLib::Ptr ZConfLib::createAvahiLib(const QString &/*lib*/, const QString &version,
+                                       ZConfLib::Ptr fallback)
+{
     return fallback;
 }
 
