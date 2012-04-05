@@ -5,7 +5,7 @@ project = "SquishProject"
 
 def main():
     startApplication("qtcreator" + SettingsPath)
-    createProject_Qt_GUI(projectsPath, project)
+    createProject_Qt_Console(projectsPath, project)
     for config in iterateBuildConfigs(1, 0):
         selectBuildConfig(1, 0, config)
         test.log("Testing build configuration: " + config)
