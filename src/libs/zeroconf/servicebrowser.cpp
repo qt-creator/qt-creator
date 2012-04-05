@@ -514,8 +514,9 @@ void ServiceBrowser::autoRefresh()
     if (!timer) {
         timer = new QTimer(this);
         connect(timer,SIGNAL(timeout()),this,SLOT(triggerRefresh()));
-        timer->start(5000);
+        timer->setSingleShot(true);
     }
+    timer->start(5000);
 }
 
 // signals
