@@ -1465,6 +1465,7 @@ void ServiceBrowserPrivate::startBrowsing(quint32 interfaceIndex)
 
 bool ServiceBrowserPrivate::internalStartBrowsing()
 {
+    mainConnection->updateFlowStatusForFlags(0);
     if (failed || browsing)
         return false;
     DNSServiceErrorType err;
@@ -1813,7 +1814,6 @@ ZConfLib::RunLoopStatus MainConnection::handleEvent()
         ++m_nErrs;
     } else {
         m_nErrs = 0;
-        maybeUpdateLists();
     }
     return err;
 }
