@@ -153,6 +153,8 @@ namespace Internal {
 class IDevicePrivate
 {
 public:
+    IDevicePrivate() : internalId(IDevice::invalidId()) { }
+
     QString displayName;
     QString type;
     IDevice::Origin origin;

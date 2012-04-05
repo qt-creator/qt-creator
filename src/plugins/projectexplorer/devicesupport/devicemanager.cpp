@@ -226,8 +226,10 @@ QString DeviceManager::settingsFilePath()
 void DeviceManager::addDevice(const IDevice::Ptr &device)
 {
     QTC_ASSERT(this != instance() || (device->isAutoDetected()), return);
-    QTC_ASSERT(!device->isAutoDetected() || !findAutoDetectedDevice(d->devices, device->type(),
-            device->fingerprint()), return);
+
+    const int pos = indexForInternalId(device->internalId());
+    if (pos >= 0)
+        removeDevice(pos);
 
     // Ensure uniqueness of name.
     QString name = device->displayName();
@@ -239,7 +241,8 @@ void DeviceManager::addDevice(const IDevice::Ptr &device)
         while (hasDevice(name));
     }
     device->setDisplayName(name);
-    device->setInternalId(unusedId());
+    if (pos < 0)
+        device->setInternalId(unusedId());
     if (!defaultDevice(device->type()))
         d->defaultDevices.insert(device->type(), device->internalId());
     d->devices << device;
@@ -258,6 +261,9 @@ void DeviceManager::addDevice(const IDevice::Ptr &device)
     }
 
     emit deviceAdded(device);
+    if (pos >= 0)
+        emit deviceUpdated(device->internalId());
+
     emit updated();
 }
 

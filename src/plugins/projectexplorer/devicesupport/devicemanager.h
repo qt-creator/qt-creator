@@ -73,6 +73,8 @@ public:
     static const IDeviceFactory *factoryForDeviceType(const QString &type);
 
 signals:
+    void deviceUpdated(ProjectExplorer::IDevice::Id id);
+
     void deviceAdded(const QSharedPointer<const IDevice> &device);
     void deviceRemoved(int index);
     void displayNameChanged(int index);
