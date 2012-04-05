@@ -178,12 +178,7 @@ def createProject_Qt_GUI(path, projectName, qtVersion = None, checks = True):
             path = os.path.abspath(path)
         path = os.path.join(path, projectName)
         expectedFiles = [path]
-        tmpList = ["main.cpp", cpp_file, h_file, ui_file, pro_file]
-        if platform.system() in ('Windows', 'Microsoft'):
-            tmpList.sort(key=str.lower)
-        else:
-            tmpList.sort()
-        expectedFiles.extend(tmpList)
+        expectedFiles.extend(__sortFilenamesOSDependent__(["main.cpp", cpp_file, h_file, ui_file, pro_file]))
     __createProjectHandleLastPage__(expectedFiles)
 
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 20000)
@@ -207,7 +202,8 @@ def createProject_Qt_Console(path, projectName, qtVersion = None, checks = True)
         path = os.path.join(path, projectName)
         cpp_file = "main.cpp"
         pro_file = projectName + ".pro"
-        expectedFiles = [path, cpp_file, pro_file]
+        expectedFiles = [path]
+        expectedFiles.extend(__sortFilenamesOSDependent__([cpp_file, pro_file]))
     __createProjectHandleLastPage__(expectedFiles)
 
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 10000)
@@ -461,3 +457,10 @@ def prepareTemplate(sourceExample):
     templateDir = os.path.abspath(tempDir() + "/template")
     shutil.copytree(sourceExample, templateDir)
     return templateDir
+
+def __sortFilenamesOSDependent__(filenames):
+    if platform.system() in ('Windows', 'Microsoft'):
+        filenames.sort(key=str.lower)
+    else:
+        filenames.sort()
+    return filenames
