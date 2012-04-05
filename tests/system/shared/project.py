@@ -343,7 +343,10 @@ def validType(sType, userDef):
 
 def __closeSubprocessByPushingStop__(sType):
     ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
-    waitForObject(":Qt Creator.Stop_QToolButton", 5000)
+    try:
+        waitForObject(":Qt Creator.Stop_QToolButton", 5000)
+    except:
+        pass
     playButton = verifyEnabled(":Qt Creator.ReRun_QToolButton", False)
     stopButton = verifyEnabled(":Qt Creator.Stop_QToolButton")
     if stopButton.enabled:
