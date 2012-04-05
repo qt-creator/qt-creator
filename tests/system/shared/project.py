@@ -449,3 +449,9 @@ def __getSupportedPlatforms__(text, getAsStrings=False):
     if getAsStrings:
         result = QtQuickConstants.getTargetsAsStrings(result)
     return result, version
+
+# copy example project (sourceExample is path to project) to temporary directory inside repository
+def prepareTemplate(sourceExample):
+    templateDir = os.path.abspath(tempDir() + "/template")
+    shutil.copytree(sourceExample, templateDir)
+    return templateDir

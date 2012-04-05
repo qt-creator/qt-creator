@@ -14,7 +14,7 @@ def main():
     addHelpDocumentationFromSDK()
     # using a temporary directory won't mess up an eventually exisiting
     workingDir = tempDir()
-    prepareTemplate(sourceExample)
+    templateDir = prepareTemplate(sourceExample)
     prepareForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     installLazySignalHandler("{type='Core::FutureProgress' unnamed='1''}", "finished()", "__handleFutureProgress__")
     createNewQtQuickApplication(workingDir, "untitled", templateDir + "/qml/focus.qml")
@@ -25,12 +25,6 @@ def main():
     testHovering()
     test.log("Test finished")
     invokeMenuItem("File", "Exit")
-
-def prepareTemplate(sourceExample):
-    global templateDir
-    templateDir = tempDir()
-    templateDir = os.path.abspath(templateDir + "/template")
-    shutil.copytree(sourceExample, templateDir)
 
 def testRenameId():
     global searchFinished

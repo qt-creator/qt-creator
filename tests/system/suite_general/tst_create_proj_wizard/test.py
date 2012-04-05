@@ -7,7 +7,7 @@ def main():
     sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/text/textselection")
     if not neededFilePresent(sourceExample):
         return
-    prepareTemplate(sourceExample)
+    templateDir = prepareTemplate(sourceExample)
     startApplication("qtcreator" + SettingsPath)
     overrideInstallLazySignalHandler()
     installLazySignalHandler(":frame.templateDescription_QTextBrowser",
@@ -101,12 +101,6 @@ def main():
             test.fail("Found unexpected additional target(s) %s on 'Target setup' page." % str(availableCheckboxes))
         clickButton(waitForObject("{text='Cancel' type='QPushButton' unnamed='1' visible='1'}", 20000))
     invokeMenuItem("File", "Exit")
-
-def prepareTemplate(sourceExample):
-    global templateDir
-    templateDir = tempDir()
-    templateDir = os.path.abspath(templateDir + "/template")
-    shutil.copytree(sourceExample, templateDir)
 
 def cleanup():
     global templateDir
