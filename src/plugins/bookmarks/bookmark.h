@@ -54,6 +54,7 @@ public:
 
     void updateLineNumber(int lineNumber);
     void updateBlock(const QTextBlock &block);
+    void updateFileName(const QString &fileName);
     void removedFromEditor();
 
     QString filePath() const;
@@ -63,7 +64,7 @@ public:
 
 private:
     BookmarkManager *m_manager;
-    const QString m_fileName;
+    QString m_fileName;
     QString m_onlyFile;
     QString m_path;
     QString m_lineText;

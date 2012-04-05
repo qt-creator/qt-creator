@@ -1223,6 +1223,14 @@ void BreakHandler::gotoLocation(BreakpointModelId id) const
     }
 }
 
+void BreakHandler::updateFileNameFromMarker(BreakpointModelId id, const QString &fileName)
+{
+    Iterator it = m_storage.find(id);
+    BREAK_ASSERT(it != m_storage.end(), return);
+    it->data.fileName = fileName;
+    emit layoutChanged();
+}
+
 void BreakHandler::updateLineNumberFromMarker(BreakpointModelId id, int lineNumber)
 {
     Iterator it = m_storage.find(id);

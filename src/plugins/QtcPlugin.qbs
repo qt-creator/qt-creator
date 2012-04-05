@@ -3,7 +3,8 @@ import qbs.fileinfo 1.0 as FileInfo
 
 Product {
     type: ["dynamiclibrary", "pluginSpec"]
-    destination: "lib/qtcreator/plugins/Nokia"
+    property string provider: 'Nokia'
+    destination: "lib/qtcreator/plugins/" + provider
     targetName: {
         // see PluginSpecPrivate::loadLibrary()
         if (qbs.debugInformation) {

@@ -50,11 +50,16 @@ QT_END_NAMESPACE
 namespace TextEditor {
 
 class ITextEditor;
+class ITextMarkable;
 
 class TEXTEDITOR_EXPORT ITextMark
 {
 public:
-    ITextMark(int line) : m_lineNumber(line), m_priority(NormalPriority) {}
+    ITextMark(int line)
+        : m_markableInterface(0),
+          m_lineNumber(line),
+          m_priority(NormalPriority)
+    {}
     virtual ~ITextMark();
 
     // determine order on markers on the same line.
@@ -71,6 +76,8 @@ public:
     virtual void updateBlock(const QTextBlock &block);
     virtual void removedFromEditor();
     void setIcon(const QIcon &icon);
+    // call this if the icon has changed.
+    void updateMarker();
     Priority priority() const;
     void setPriority(Priority prioriy);
     virtual bool visible() const;
@@ -78,7 +85,10 @@ public:
     virtual bool clickable() const;
     virtual void clicked();
 
+    ITextMarkable *markableInterface() const;
+    void setMarkableInterface(ITextMarkable *markableInterface);
 private:
+    ITextMarkable *m_markableInterface;
     int m_lineNumber;
     QIcon m_icon;
     Priority m_priority;
@@ -93,6 +103,7 @@ class TEXTEDITOR_EXPORT ITextMarkable : public QObject
 public:
     ITextMarkable(QObject *parent = 0) : QObject(parent) {}
 
+    virtual TextMarks marks() const = 0;
     virtual bool addMark(ITextMark *mark) = 0;
     virtual TextMarks marksAt(int line) const = 0;
     virtual void removeMark(ITextMark *mark) = 0;

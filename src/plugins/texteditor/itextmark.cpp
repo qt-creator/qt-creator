@@ -36,7 +36,9 @@ using namespace TextEditor;
 
 ITextMark::~ITextMark()
 {
-
+    if (m_markableInterface)
+        m_markableInterface->removeMark(this);
+    m_markableInterface = 0;
 }
 
 int ITextMark::lineNumber() const
@@ -63,6 +65,12 @@ void ITextMark::removedFromEditor()
 void ITextMark::setIcon(const QIcon &icon)
 {
     m_icon = icon;
+}
+
+void ITextMark::updateMarker()
+{
+    if (m_markableInterface)
+        m_markableInterface->updateMark(this);
 }
 
 void ITextMark::setPriority(Priority priority)
@@ -92,3 +100,14 @@ bool ITextMark::clickable() const
 
 void ITextMark::clicked()
 {}
+
+ITextMarkable *ITextMark::markableInterface() const
+{
+    return m_markableInterface;
+}
+
+void ITextMark::setMarkableInterface(ITextMarkable *markableInterface)
+{
+    m_markableInterface = markableInterface;
+}
+

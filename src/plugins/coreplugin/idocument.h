@@ -116,6 +116,7 @@ signals:
 
     void aboutToReload();
     void reloaded();
+    void fileNameChanged(const QString &oldName, const QString &newName);
 
 private:
     QString m_autoSaveName;

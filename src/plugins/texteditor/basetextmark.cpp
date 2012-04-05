@@ -36,6 +36,7 @@
 #include "texteditorplugin.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/documentmanager.h>
 #include <extensionsystem/pluginmanager.h>
 
 using namespace TextEditor;
@@ -47,23 +48,23 @@ BaseTextMarkRegistry::BaseTextMarkRegistry(QObject *parent)
     Core::EditorManager *em = Core::EditorManager::instance();
     connect(em, SIGNAL(editorOpened(Core::IEditor*)),
         SLOT(editorOpened(Core::IEditor*)));
+
+    Core::DocumentManager *dm = Core::DocumentManager::instance();
+    connect(dm, SIGNAL(allDocumentsRenamed(QString,QString)),
+            this, SLOT(allDocumentsRenamed(QString,QString)));
+    connect(dm, SIGNAL(documentRenamed(Core::IDocument*,QString,QString)),
+            this, SLOT(documentRenamed(Core::IDocument*,QString,QString)));
 }
 
 void BaseTextMarkRegistry::add(BaseTextMark *mark)
 {
-    m_marks[Utils::FileName::fromString(mark->fileName())].append(mark);
+    m_marks[Utils::FileName::fromString(mark->fileName())].insert(mark);
     Core::EditorManager *em = Core::EditorManager::instance();
     foreach (Core::IEditor *editor, em->editorsForFileName(mark->fileName())) {
         if (ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor)) {
-            if (mark->m_markableInterface == 0) { // We aren't added to something
-                ITextMarkable *markableInterface = textEditor->markableInterface();
-                if (markableInterface->addMark(mark)) {
-                    mark->m_markableInterface = markableInterface;
-                    // Handle reload of text documents, readding the mark as necessary
-                    connect(textEditor->document(), SIGNAL(reloaded()),
-                            this, SLOT(documentReloaded()), Qt::UniqueConnection);
-                    break;
-                }
+            ITextMarkable *markableInterface = textEditor->markableInterface();
+            if (markableInterface->addMark(mark)) {
+                break;
             }
         }
     }
@@ -71,7 +72,7 @@ void BaseTextMarkRegistry::add(BaseTextMark *mark)
 
 void BaseTextMarkRegistry::remove(BaseTextMark *mark)
 {
-    m_marks[Utils::FileName::fromString(mark->fileName())].removeOne(mark);
+    m_marks[Utils::FileName::fromString(mark->fileName())].remove(mark);
 }
 
 void BaseTextMarkRegistry::editorOpened(Core::IEditor *editor)
@@ -82,35 +83,50 @@ void BaseTextMarkRegistry::editorOpened(Core::IEditor *editor)
     if (!m_marks.contains(Utils::FileName::fromString(editor->document()->fileName())))
         return;
 
-    // Handle reload of text documents, readding the mark as necessary
-    connect(textEditor->document(), SIGNAL(reloaded()),
-            this, SLOT(documentReloaded()), Qt::UniqueConnection);
-
     foreach (BaseTextMark *mark, m_marks.value(Utils::FileName::fromString(editor->document()->fileName()))) {
-        if (mark->m_markableInterface == 0) { // We aren't added to something
-            ITextMarkable *markableInterface = textEditor->markableInterface();
-            if (markableInterface->addMark(mark))
-                mark->m_markableInterface = markableInterface;
-        }
+        ITextMarkable *markableInterface = textEditor->markableInterface();
+        markableInterface->addMark(mark);
     }
 }
 
-void BaseTextMarkRegistry::documentReloaded()
+void BaseTextMarkRegistry::documentRenamed(Core::IDocument *document, const
+                                           QString &oldName, const QString &newName)
 {
-    BaseTextDocument *doc = qobject_cast<BaseTextDocument*>(sender());
-    if (!doc)
+    TextEditor::BaseTextDocument *baseTextDocument
+            = qobject_cast<TextEditor::BaseTextDocument *>(document);
+    if (!document)
+        return;
+    Utils::FileName oldFileName = Utils::FileName::fromString(oldName);
+    Utils::FileName newFileName = Utils::FileName::fromString(newName);
+    if (!m_marks.contains(oldFileName))
         return;
 
-    if (!m_marks.contains(Utils::FileName::fromString(doc->fileName())))
+    QSet<BaseTextMark *> toBeMoved;
+    foreach (ITextMark *mark, baseTextDocument->documentMarker()->marks())
+        if (BaseTextMark *baseTextMark = dynamic_cast<BaseTextMark *>(mark))
+            toBeMoved.insert(baseTextMark);
+
+    m_marks[oldFileName].subtract(toBeMoved);
+    m_marks[newFileName].unite(toBeMoved);
+
+    foreach (BaseTextMark *mark, toBeMoved)
+        mark->updateFileName(newName);
+}
+
+void BaseTextMarkRegistry::allDocumentsRenamed(const QString &oldName, const QString &newName)
+{
+    Utils::FileName oldFileName = Utils::FileName::fromString(oldName);
+    Utils::FileName newFileName = Utils::FileName::fromString(newName);
+    if (!m_marks.contains(oldFileName))
         return;
 
-    foreach (BaseTextMark *mark, m_marks.value(Utils::FileName::fromString(doc->fileName()))) {
-        if (mark->m_markableInterface)
-            return;
-        ITextMarkable *markableInterface = doc->documentMarker();
-        if (markableInterface->addMark(mark))
-            mark->m_markableInterface = markableInterface;
-    }
+    QSet<BaseTextMark *> oldFileNameMarks = m_marks.value(oldFileName);
+
+    m_marks[newFileName].unite(oldFileNameMarks);
+    m_marks[oldFileName].clear();
+
+    foreach (BaseTextMark *mark, oldFileNameMarks)
+        mark->updateFileName(newName);
 }
 
 BaseTextMark::BaseTextMark(const QString &fileName, int lineNumber)
@@ -122,14 +138,10 @@ BaseTextMark::BaseTextMark(const QString &fileName, int lineNumber)
 BaseTextMark::~BaseTextMark()
 {
     // oha we are deleted
-    if (m_markableInterface)
-        m_markableInterface.data()->removeMark(this);
-    m_markableInterface.clear();
     Internal::TextEditorPlugin::instance()->baseTextMarkRegistry()->remove(this);
 }
 
-void BaseTextMark::updateMarker()
+void BaseTextMark::updateFileName(const QString &fileName)
 {
-    if (m_markableInterface)
-        m_markableInterface.data()->updateMark(this);
+    m_fileName = fileName;
 }

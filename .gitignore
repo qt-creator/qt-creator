@@ -67,6 +67,7 @@ share/qtcreator/translations/qtcreator_untranslated.ts
 # Directories to ignore
 # ---------------------
 
+build
 debug
 lib/*
 lib64/*
@@ -103,7 +104,8 @@ src/tools/valgrindfake/valgrind-fake
 tests/manual/cplusplus-frontend/cplusplus0
 tests/manual/cplusplus-dump/cplusplus0
 tests/manual/qml-ast2dot/qml-ast2dot
-tests/manual/gdbdebugger/simple/libsimple_gdbtest_plugin.*dylib
+tests/manual/debugger/simple/libsimple_test_plugin.*dylib
+tests/manual/debugger/simple/simple_test_app
 tests/manual/plain-cplusplus/plain-c++
 tests/manual/preprocessor/pp
 tests/auto/cplusplus/codegen/tst_codegen

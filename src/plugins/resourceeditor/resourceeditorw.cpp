@@ -194,7 +194,9 @@ bool ResourceEditorDocument::save(QString *errorString, const QString &name, boo
 
 void ResourceEditorDocument::rename(const QString &newName)
 {
+    const QString oldName = m_parent->m_resourceEditor->fileName();
     m_parent->m_resourceEditor->setFileName(newName);
+    emit fileNameChanged(oldName, newName); // TODO Are there other cases where the ressource file name changes?
     emit changed();
 }
 

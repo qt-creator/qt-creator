@@ -294,6 +294,7 @@ void DocumentManager::addDocuments(const QList<IDocument *> &documents, bool add
         foreach (IDocument *document, documents) {
             if (document && !d->m_documentsWithoutWatch.contains(document)) {
                 connect(document, SIGNAL(destroyed(QObject*)), m_instance, SLOT(documentDestroyed(QObject*)));
+                connect(document, SIGNAL(fileNameChanged(QString,QString)), m_instance, SLOT(fileNameChanged(QString, QString)));
                 d->m_documentsWithoutWatch.append(document);
             }
         }
@@ -304,6 +305,7 @@ void DocumentManager::addDocuments(const QList<IDocument *> &documents, bool add
         if (document && !d->m_documentsWithWatch.contains(document)) {
             connect(document, SIGNAL(changed()), m_instance, SLOT(checkForNewFileName()));
             connect(document, SIGNAL(destroyed(QObject*)), m_instance, SLOT(documentDestroyed(QObject*)));
+            connect(document, SIGNAL(fileNameChanged(QString,QString)), m_instance, SLOT(fileNameChanged(QString, QString)));
             addFileInfo(document);
         }
     }
@@ -398,7 +400,18 @@ void DocumentManager::renamedFile(const QString &from, const QString &to)
         addFileInfo(document);
         d->m_blockedIDocument = 0;
     }
+    emit m_instance->allDocumentsRenamed(from, to);
 }
+
+void DocumentManager::fileNameChanged(const QString &oldName, const QString &newName)
+{
+    IDocument *doc = qobject_cast<IDocument *>(sender());
+    QTC_ASSERT(doc, return);
+    if (doc == d->m_blockedIDocument)
+        return;
+    emit m_instance->documentRenamed(doc, oldName, newName);
+}
+
 /*!
     \fn bool DocumentManager::addFile(IDocument *document, bool addWatcher)
 

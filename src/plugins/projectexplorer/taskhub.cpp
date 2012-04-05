@@ -48,6 +48,7 @@ public:
     bool clickable() const;
     void clicked();
 
+    void updateFileName(const QString &fileName);
     void updateLineNumber(int lineNumber);
     void removedFromEditor();
     bool visible() const;
@@ -60,6 +61,12 @@ void TaskMark::updateLineNumber(int lineNumber)
 {
     ProjectExplorerPlugin::instance()->taskHub()->updateTaskLineNumber(m_id, lineNumber);
     BaseTextMark::updateLineNumber(lineNumber);
+}
+
+void TaskMark::updateFileName(const QString &fileName)
+{
+    ProjectExplorerPlugin::instance()->taskHub()->updateTaskFileName(m_id, fileName);
+    BaseTextMark::updateFileName(fileName);
 }
 
 void TaskMark::removedFromEditor()
@@ -120,6 +127,11 @@ void TaskHub::clearTasks(const Core::Id &categoryId)
 void TaskHub::removeTask(const Task &task)
 {
     emit taskRemoved(task);
+}
+
+void TaskHub::updateTaskFileName(unsigned int id, const QString &fileName)
+{
+    emit taskFileNameUpdated(id, fileName);
 }
 
 void TaskHub::updateTaskLineNumber(unsigned int id, int line)

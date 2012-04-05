@@ -48,6 +48,7 @@ public:
     ~BreakpointMarker();
     void removedFromEditor();
     void updateLineNumber(int lineNumber);
+    void updateFileName(const QString &fileName);
 
 private:
     BreakpointModelId m_id;

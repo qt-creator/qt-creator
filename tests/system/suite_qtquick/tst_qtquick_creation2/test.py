@@ -11,7 +11,7 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     # using a temporary directory won't mess up an eventually exisiting
     workingDir = tempDir()
-    prepareTemplate(sourceExample)
+    templateDir = prepareTemplate(sourceExample)
     projectName = createNewQtQuickApplication(workingDir, None, templateDir + "/qml/textselection.qml")
     # wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
@@ -49,12 +49,6 @@ def subprocessFunction():
     typeLines(textEdit, "This text is entered by Squish...")
     test.log("Closing QmlApplicationViewer")
     sendEvent("QCloseEvent", "{type='QmlApplicationViewer' unnamed='1' visible='1'}")
-
-def prepareTemplate(sourceExample):
-    global templateDir
-    templateDir = tempDir()
-    templateDir = os.path.abspath(templateDir + "/template")
-    shutil.copytree(sourceExample, templateDir)
 
 def cleanup():
     global workingDir,templateDir

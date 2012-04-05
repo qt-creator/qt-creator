@@ -51,6 +51,8 @@ public:
     HighlightDefinition();
     ~HighlightDefinition();
 
+    bool isValid() const;
+
     QSharedPointer<KeywordList> createKeywordList(const QString &list);
     QSharedPointer<KeywordList> keywordList(const QString &list);
 

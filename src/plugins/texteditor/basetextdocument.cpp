@@ -268,9 +268,10 @@ bool BaseTextDocument::save(QString *errorString, const QString &fileName, bool 
         return true;
 
     const QFileInfo fi(fName);
+    const QString oldFileName = d->m_fileName;
     d->m_fileName = QDir::cleanPath(fi.absoluteFilePath());
-
     d->m_document->setModified(false);
+    emit fileNameChanged(oldFileName, d->m_fileName);
     emit titleChanged(fi.fileName());
     emit changed();
     return true;
@@ -284,7 +285,9 @@ bool BaseTextDocument::shouldAutoSave() const
 void BaseTextDocument::rename(const QString &newName)
 {
     const QFileInfo fi(newName);
+    const QString oldFileName = d->m_fileName;
     d->m_fileName = QDir::cleanPath(fi.absoluteFilePath());
+    emit fileNameChanged(oldFileName, d->m_fileName);
     emit titleChanged(fi.fileName());
     emit changed();
 }
@@ -378,13 +381,17 @@ bool BaseTextDocument::reload(QString *errorString)
     emit aboutToReload();
     BaseTextDocumentLayout *documentLayout =
         qobject_cast<BaseTextDocumentLayout*>(d->m_document->documentLayout());
+    TextMarks marks;
     if (documentLayout)
-        documentLayout->documentClosing(); // removes text marks non-permanently
+        marks = documentLayout->documentClosing(); // removes text marks non-permanently
 
-    if (!open(errorString, d->m_fileName, d->m_fileName))
-        return false;
-    emit reloaded();
-    return true;
+    bool success = open(errorString, d->m_fileName, d->m_fileName);
+
+    if (documentLayout)
+        documentLayout->documentReloaded(marks); // readds text marks
+    if (success)
+        emit reloaded();
+    return success;
 }
 
 bool BaseTextDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
