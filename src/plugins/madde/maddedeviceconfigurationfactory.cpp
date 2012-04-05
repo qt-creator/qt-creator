@@ -31,6 +31,7 @@
 **************************************************************************/
 #include "maddedeviceconfigurationfactory.h"
 
+#include "maddedevice.h"
 #include "maddedevicetester.h"
 #include "maemoconstants.h"
 #include "maemodeviceconfigwizard.h"
@@ -77,9 +78,8 @@ IDeviceWidget *MaddeDeviceConfigurationFactory::createWidget(const IDevice::Ptr 
 
 IDevice::Ptr MaddeDeviceConfigurationFactory::loadDevice(const QVariantMap &map) const
 {
-    QTC_ASSERT(supportsDeviceType(IDevice::typeFromMap(map)),
-        return LinuxDeviceConfiguration::Ptr());
-    LinuxDeviceConfiguration::Ptr device = LinuxDeviceConfiguration::create();
+    QTC_ASSERT(supportsDeviceType(IDevice::typeFromMap(map)), return MaddeDevice::Ptr());
+    MaddeDevice::Ptr device = MaddeDevice::create();
     device->fromMap(map);
     return device;
 }

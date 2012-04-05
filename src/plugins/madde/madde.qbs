@@ -125,6 +125,8 @@ QtcPlugin {
         "qt4maemotarget.h",
         "qt4maemotargetfactory.cpp",
         "qt4maemotargetfactory.h",
+        "maddedevice.cpp",
+        "maddedevice.h"
     ]
 }
 

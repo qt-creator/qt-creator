@@ -53,6 +53,7 @@ HEADERS += \
     maemodeploybymountsteps.h \
     maddedevicetester.h \
     maddedeviceconfigurationfactory.h \
+    maddedevice.h
 
 SOURCES += \
     maddeplugin.cpp \
@@ -98,7 +99,8 @@ SOURCES += \
     maddeuploadandinstallpackagesteps.cpp \
     maemodeploybymountsteps.cpp \
     maddedevicetester.cpp \
-    maemorunconfiguration.cpp
+    maemorunconfiguration.cpp \
+    maddedevice.cpp
 
 FORMS += \
     maemopackagecreationwidget.ui \

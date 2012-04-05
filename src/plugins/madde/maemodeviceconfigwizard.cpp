@@ -36,13 +36,13 @@
 #include "ui_maemodeviceconfigwizardreusekeyscheckpage.h"
 #include "ui_maemodeviceconfigwizardstartpage.h"
 
+#include "maddedevice.h"
 #include "maddedevicetester.h"
 #include "maemoconstants.h"
 #include "maemoglobal.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
-#include <remotelinux/linuxdeviceconfiguration.h>
 #include <remotelinux/linuxdevicetestdialog.h>
 #include <remotelinux/sshkeydeployer.h>
 #include <utils/fileutils.h>
@@ -579,7 +579,7 @@ IDevice::Ptr MaemoDeviceConfigWizard::device()
         freePortsSpec = QLatin1String("10000-10100");
         doTest = true;
     }
-    const LinuxDeviceConfiguration::Ptr devConf = LinuxDeviceConfiguration::create(d->wizardData.configName,
+    const MaddeDevice::Ptr devConf = MaddeDevice::create(d->wizardData.configName,
         d->wizardData.deviceType, d->wizardData.machineType);
     devConf->setFreePorts(PortList::fromString(freePortsSpec));
     devConf->setSshParameters(sshParams);
