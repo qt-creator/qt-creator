@@ -272,7 +272,8 @@ int main(int argc, char **argv)
     QTranslator translator;
     QTranslator qtTranslator;
     QStringList uiLanguages;
-#if QT_VERSION >= 0x040800
+// uiLanguages crashes on Windows with 4.8.0 release builds
+#if (QT_VERSION >= 0x040801) || (QT_VERSION >= 0x040800 && !defined(Q_OS_WIN))
     uiLanguages = QLocale::system().uiLanguages();
 #else
     uiLanguages << QLocale::system().name();
