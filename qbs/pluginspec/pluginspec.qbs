@@ -7,7 +7,7 @@ Module {
     property int ide_version_minor: project.ide_version_minor
     property int ide_version_release: project.ide_version_release
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.' + ide_version_release
-    property string destdir: "lib/qtcreator/plugins/Nokia/"
+    property string destdir: product.destination
 
     FileTagger {
         pattern: "*.in"
