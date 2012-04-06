@@ -120,6 +120,13 @@ const char VALUE[] = "value";
 const char OBJECT[] = "{}";
 const char ARRAY[] = "[]";
 
+const char INTERNAL_FUNCTION[] = "(function(method) { "\
+        "return (function(object, data, qmlglobal) { "\
+            "return (function() { "\
+                "return method(object, data, qmlglobal, arguments.length, arguments); "\
+            "});"\
+        "});"\
+    "})";
 } //Internal
 } //Debugger
 #endif // QMLV8DEBUGGERCLIENTCONSTANTS_H

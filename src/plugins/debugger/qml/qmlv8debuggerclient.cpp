@@ -82,7 +82,8 @@ public:
     explicit QmlV8DebuggerClientPrivate(QmlV8DebuggerClient *q) :
         q(q),
         sequence(-1),
-        engine(0)
+        engine(0),
+        previousStepAction(QmlV8DebuggerClient::Continue)
     {
         parser = m_scriptEngine.evaluate(_("JSON.parse"));
         stringifier = m_scriptEngine.evaluate(_("JSON.stringify"));
@@ -156,7 +157,9 @@ public:
     //Cache
     QStringList watchedExpressions;
     QList<int> currentFrameScopes;
+    QHash<int, int> stackIndexLookup;
 
+    QmlV8DebuggerClient::StepAction previousStepAction;
 private:
     QScriptEngine m_scriptEngine;
 };
@@ -229,6 +232,7 @@ void QmlV8DebuggerClientPrivate::continueDebugging(QmlV8DebuggerClient::StepActi
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
     logSendMessage(QString(_("%1 %2 %3")).arg(_(V8DEBUG), _(V8REQUEST), jsonMessage.toString()));
     q->sendMessage(packMessage(V8REQUEST, jsonMessage.toString().toUtf8()));
+    previousStepAction = action;
 }
 
 void QmlV8DebuggerClientPrivate::evaluate(const QString expr, bool global,
@@ -1080,7 +1084,7 @@ void QmlV8DebuggerClient::interruptInferior()
 void QmlV8DebuggerClient::activateFrame(int index)
 {
     if (index != d->engine->stackHandler()->currentIndex())
-        d->frame(index);
+        d->frame(d->stackIndexLookup.value(index));
     d->engine->stackHandler()->setCurrentIndex(index);
 }
 
@@ -1498,6 +1502,12 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                         inferiorStop = false;
                     }
 
+                    //Skip debug break if this is an internal function
+                    if (sourceLineText == _(INTERNAL_FUNCTION)) {
+                        d->continueDebugging(d->previousStepAction);
+                        inferiorStop = false;
+                    }
+
                     if (inferiorStop) {
                         //Update breakpoint data
                         BreakHandler *handler = d->engine->breakHandler();
@@ -1604,8 +1614,16 @@ void QmlV8DebuggerClient::updateStack(const QVariant &bodyVal, const QVariant &r
 
     StackHandler *stackHandler = d->engine->stackHandler();
     StackFrames stackFrames;
+    int i = 0;
+    d->stackIndexLookup.clear();
     foreach (const QVariant &frame, frames) {
-        stackFrames << insertStackFrame(frame, refsVal);
+        StackFrame stackFrame = extractStackFrame(frame, refsVal);
+        if (stackFrame.level < 0)
+            continue;
+        d->stackIndexLookup.insert(i, stackFrame.level);
+        stackFrame.level = i;
+        stackFrames << stackFrame;
+        i++;
     }
     stackHandler->setFrames(stackFrames);
 
@@ -1616,7 +1634,7 @@ void QmlV8DebuggerClient::updateStack(const QVariant &bodyVal, const QVariant &r
     setCurrentFrameDetails(frames.value(0), refsVal);
 }
 
-StackFrame QmlV8DebuggerClient::insertStackFrame(const QVariant &bodyVal, const QVariant &refsVal)
+StackFrame QmlV8DebuggerClient::extractStackFrame(const QVariant &bodyVal, const QVariant &refsVal)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -1653,6 +1671,11 @@ StackFrame QmlV8DebuggerClient::insertStackFrame(const QVariant &bodyVal, const 
 
     StackFrame stackFrame;
     stackFrame.level = body.value(_("index")).toInt();
+    //Do not insert the frame corresponding to the internal function
+    if (body.value("sourceLineText").toByteArray() == INTERNAL_FUNCTION) {
+        stackFrame.level = -1;
+        return stackFrame;
+    }
 
     QmlV8ObjectData objectData = d->extractData(body.value(_("func")), refsVal);
     QString functionName = objectData.value.toString();

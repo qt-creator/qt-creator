@@ -107,7 +107,7 @@ protected:
 
 private:
     void updateStack(const QVariant &bodyVal, const QVariant &refsVal);
-    StackFrame insertStackFrame(const QVariant &bodyVal, const QVariant &refsVal);
+    StackFrame extractStackFrame(const QVariant &bodyVal, const QVariant &refsVal);
     void setCurrentFrameDetails(const QVariant &bodyVal, const QVariant &refsVal);
     void updateScope(const QVariant &bodyVal, const QVariant &refsVal);
 
