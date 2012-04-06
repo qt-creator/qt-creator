@@ -104,10 +104,8 @@ QVariant DeviceManagerModel::data(const QModelIndex &index, int role) const
         return QVariant();
     const IDevice::ConstPtr device = d->devices.at(index.row());
     QString name = device->displayName();
-    if (d->deviceManager->defaultDevice(device->type()) == device) {
-        name = tr("%1 (default for %2)").arg(name,
-            d->deviceManager->displayNameForDeviceType(device->type()));
-    }
+    if (d->deviceManager->defaultDevice(device->type()) == device)
+        name = tr("%1 (default for %2)").arg(name, device->displayType());
     return name;
 }
 

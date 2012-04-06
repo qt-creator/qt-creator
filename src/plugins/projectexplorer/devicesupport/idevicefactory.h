@@ -36,16 +36,13 @@
 #include <projectexplorer/projectexplorer_export.h>
 
 #include <QObject>
-#include <QStringList>
 #include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
-class QDialog;
 class QWidget;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-class IDeviceWidget;
 class IDeviceWizard;
 
 /*!
@@ -78,47 +75,9 @@ public:
     virtual IDevice::Ptr loadDevice(const QVariantMap &map) const = 0;
 
     /*!
-      A widget that can configure the device this factory supports.
-    */
-    virtual IDeviceWidget *createWidget(const IDevice::Ptr &device, QWidget *parent = 0) const = 0;
-
-    /*!
       Returns true iff this factory supports the given device type.
     */
     virtual bool supportsDeviceType(const QString &type) const = 0;
-
-    /*!
-      Returns a human-readable string for the given device type, if this factory supports that type.
-    */
-    virtual QString displayNameForDeviceType(const QString &type) const = 0;
-
-    /*!
-      Returns a list of ids representing actions that can be run on devices
-      that this factory supports. These actions will be available in the "Devices"
-      options page.
-    */
-    virtual QStringList supportedDeviceActionIds() const = 0;
-
-    /*!
-      A human-readable string for the given id. Will be displayed on a button which, when clicked,
-      starts the respective action.
-    */
-    virtual QString displayNameForActionId(const QString &actionId) const = 0;
-
-    /*!
-      True iff the user should be allowed to edit the devices created by this
-      factory. Returns true by default. Override if your factory creates fixed configurations
-      for which later editing makes no sense.
-    */
-    virtual bool isUserEditable() const { return true; }
-
-    /*!
-      Produces a dialog implementing the respective action. The dialog is supposed to be
-      modal, so implementers must make sure to make it interruptible as to not needlessly
-      block the UI.
-    */
-    virtual QDialog *createDeviceAction(const QString &actionId, const IDevice::ConstPtr &device,
-        QWidget *parent = 0) const = 0;
 
 protected:
     IDeviceFactory(QObject *parent) : QObject(parent) { }

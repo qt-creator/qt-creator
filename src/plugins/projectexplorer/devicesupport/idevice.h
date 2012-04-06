@@ -35,10 +35,17 @@
 #include <projectexplorer/projectexplorer_export.h>
 
 #include <QSharedPointer>
+#include <QStringList>
 #include <QVariantMap>
+
+QT_BEGIN_NAMESPACE
+class QDialog;
+class QWidget;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 namespace Internal { class IDevicePrivate; }
+class IDeviceWidget;
 
 // See cpp file for documentation.
 class PROJECTEXPLORER_EXPORT IDevice
@@ -62,6 +69,11 @@ public:
     QString fingerprint() const;
     Id internalId() const;
 
+    virtual QString displayType() const = 0;
+    virtual IDeviceWidget *createWidget() = 0;
+    virtual QStringList actionIds() const = 0;
+    virtual QString displayNameForActionId(const QString &actionId) const = 0;
+    virtual QDialog *createAction(const QString &actionId, QWidget *parent = 0) const = 0;
     virtual void fromMap(const QVariantMap &map);
     virtual Ptr clone() const = 0;
 
@@ -73,6 +85,9 @@ protected:
     IDevice();
     IDevice(const QString &type, Origin origin, const QString fingerprint = QString());
     IDevice(const IDevice &other);
+
+    Ptr sharedFromThis();
+    ConstPtr sharedFromThis() const;
 
     virtual QVariantMap toMap() const;
 

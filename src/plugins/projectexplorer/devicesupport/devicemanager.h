@@ -50,6 +50,7 @@ class PROJECTEXPLORER_EXPORT DeviceManager : public QObject
 {
     Q_OBJECT
     friend class Internal::DeviceSettingsWidget;
+    friend class IDevice;
 public:
     ~DeviceManager();
 
@@ -70,7 +71,6 @@ public:
     void removeDevice(int index);
 
     static const IDeviceFactory *factoryForDeviceType(const QString &type);
-    static QString displayNameForDeviceType(const QString &type);
 
 signals:
     void deviceAdded(const QSharedPointer<const IDevice> &device);
@@ -99,6 +99,10 @@ private:
     static DeviceManager *cloneInstance();
     static void replaceInstance();
     static void removeClonedInstance();
+
+    // For IDevice.
+    IDevice::Ptr fromRawPointer(IDevice *device) const;
+    IDevice::ConstPtr fromRawPointer(const IDevice *device) const;
 
     static QString settingsFilePath();
     static void copy(const DeviceManager *source, DeviceManager *target, bool deep);

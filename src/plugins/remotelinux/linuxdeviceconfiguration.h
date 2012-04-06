@@ -36,6 +36,8 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 
+#include <QCoreApplication>
+
 namespace Utils {
 class SshConnectionParameters;
 class PortList;
@@ -48,6 +50,7 @@ class LinuxDeviceConfigurationPrivate;
 
 class REMOTELINUX_EXPORT LinuxDeviceConfiguration : public ProjectExplorer::IDevice
 {
+    Q_DECLARE_TR_FUNCTIONS(LinuxDeviceConfiguration)
 public:
     typedef QSharedPointer<LinuxDeviceConfiguration> Ptr;
     typedef QSharedPointer<const LinuxDeviceConfiguration> ConstPtr;
@@ -70,6 +73,11 @@ public:
     static Ptr create(const QString &name, const QString &type, MachineType machineType,
         Origin origin = ManuallyAdded, const QString &fingerprint = QString());
 
+    QString displayType() const;
+    ProjectExplorer::IDeviceWidget *createWidget();
+    QStringList actionIds() const;
+    QString displayNameForActionId(const QString &actionId) const;
+    QDialog *createAction(const QString &actionId, QWidget *parent) const;
     void fromMap(const QVariantMap &map);
     ProjectExplorer::IDevice::Ptr clone() const;
 

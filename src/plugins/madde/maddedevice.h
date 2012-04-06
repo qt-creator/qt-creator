@@ -34,11 +34,14 @@
 
 #include <remotelinux/linuxdeviceconfiguration.h>
 
+#include <QCoreApplication>
+
 namespace Madde {
 namespace Internal {
 
 class MaddeDevice : public RemoteLinux::LinuxDeviceConfiguration
 {
+    Q_DECLARE_TR_FUNCTIONS(MaddeDevice)
 public:
     typedef QSharedPointer<MaddeDevice> Ptr;
     typedef QSharedPointer<const MaddeDevice> ConstPtr;
@@ -47,7 +50,12 @@ public:
     static Ptr create(const QString &name, const QString &type, MachineType machineType,
         Origin origin = ManuallyAdded, const QString &fingerprint = QString());
 
+    QString displayType() const;
+    QStringList actionIds() const;
+    QString displayNameForActionId(const QString &actionId) const;
+    QDialog *createAction(const QString &actionId, QWidget *parent) const;
     ProjectExplorer::IDevice::Ptr clone() const;
+    static QString maddeDisplayType(const QString &type);
 
 private:
     MaddeDevice();

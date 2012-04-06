@@ -41,7 +41,6 @@
 #include "maemoconstants.h"
 #include "maemoglobal.h"
 
-#include <projectexplorer/devicesupport/devicemanager.h>
 #include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
 #include <remotelinux/linuxdevicetestdialog.h>
 #include <remotelinux/sshkeydeployer.h>
@@ -106,11 +105,11 @@ public:
         setTitle(tr("General Information"));
         setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
 
-        m_ui->osTypeComboBox->addItem(DeviceManager::displayNameForDeviceType(QLatin1String(Maemo5OsType)),
+        m_ui->osTypeComboBox->addItem(MaddeDevice::maddeDisplayType(QLatin1String(Maemo5OsType)),
             QLatin1String(Maemo5OsType));
-        m_ui->osTypeComboBox->addItem(DeviceManager::displayNameForDeviceType(QLatin1String(HarmattanOsType)),
+        m_ui->osTypeComboBox->addItem(MaddeDevice::maddeDisplayType(QLatin1String(HarmattanOsType)),
             QLatin1String(HarmattanOsType));
-        m_ui->osTypeComboBox->addItem(DeviceManager::displayNameForDeviceType(QLatin1String(MeeGoOsType)),
+        m_ui->osTypeComboBox->addItem(MaddeDevice::maddeDisplayType(QLatin1String(MeeGoOsType)),
             QLatin1String(MeeGoOsType));
 
         QButtonGroup *buttonGroup = new QButtonGroup(this);

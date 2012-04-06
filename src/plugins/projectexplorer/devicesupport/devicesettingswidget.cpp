@@ -42,6 +42,7 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/portlist.h>
+#include <utils/qtcassert.h>
 
 #include <QFileInfo>
 #include <QRegExp>
@@ -115,6 +116,7 @@ DeviceSettingsWidget::~DeviceSettingsWidget()
         DeviceManager::replaceInstance();
     }
     DeviceManager::removeClonedInstance();
+    delete m_configWidget;
     delete m_ui;
 }
 
@@ -181,7 +183,7 @@ void DeviceSettingsWidget::displayCurrent()
     const IDevice::ConstPtr &current = currentDevice();
     m_ui->defaultDeviceButton->setEnabled(
         m_deviceManager->defaultDevice(current->type()) != current);
-    m_ui->osTypeValueLabel->setText(DeviceManager::displayNameForDeviceType(current->type()));
+    m_ui->osTypeValueLabel->setText(current->displayType());
     m_ui->autoDetectionValueLabel->setText(current->isAutoDetected()
         ? tr("Yes (fingerprint is '%1')").arg(current->fingerprint()) : tr("No"));
     m_nameValidator->setDisplayName(current->displayName());
@@ -234,36 +236,26 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
     delete m_configWidget;
     m_configWidget = 0;
     m_additionalActionButtons.clear();
-    m_ui->generalGroupBox->setEnabled(false);
-    m_ui->osSpecificGroupBox->setEnabled(false);
+    QTC_ASSERT(index >= -1 && index < m_deviceManager->deviceCount(), return);
     if (index == -1) {
         m_ui->removeConfigButton->setEnabled(false);
         clearDetails();
         m_ui->defaultDeviceButton->setEnabled(false);
     } else {
         m_ui->removeConfigButton->setEnabled(true);
-        const IDeviceFactory * const factory = factoryForCurrentDevice();
-        if (factory) {
-            const QStringList &actionIds = factory->supportedDeviceActionIds();
-            foreach (const QString &actionId, actionIds) {
-                QPushButton * const button = new QPushButton(
-                            factory->displayNameForActionId(actionId));
-                m_additionalActionButtons << button;
-                connect(button, SIGNAL(clicked()), m_additionalActionsMapper, SLOT(map()));
-                m_additionalActionsMapper->setMapping(button, actionId);
-                m_ui->buttonsLayout->insertWidget(m_ui->buttonsLayout->count() - 1, button);
-            }
-            if (!m_ui->osSpecificGroupBox->layout())
-                new QVBoxLayout(m_ui->osSpecificGroupBox);
-            m_configWidget = factory->createWidget(m_deviceManager->mutableDeviceAt(currentIndex()),
-                                                   m_ui->osSpecificGroupBox);
-            if (m_configWidget) {
-                m_ui->osSpecificGroupBox->layout()->addWidget(m_configWidget);
-                m_ui->osSpecificGroupBox->setEnabled(factory->isUserEditable());
-            }
-            m_ui->generalGroupBox->setEnabled(factory->isUserEditable());
+        const IDevice::ConstPtr device = m_deviceManager->deviceAt(index);
+        foreach (const QString &actionId, device->actionIds()) {
+            QPushButton * const button = new QPushButton(device->displayNameForActionId(actionId));
+            m_additionalActionButtons << button;
+            connect(button, SIGNAL(clicked()), m_additionalActionsMapper, SLOT(map()));
+            m_additionalActionsMapper->setMapping(button, actionId);
+            m_ui->buttonsLayout->insertWidget(m_ui->buttonsLayout->count() - 1, button);
         }
-        m_ui->configurationComboBox->setCurrentIndex(index);
+        if (!m_ui->osSpecificGroupBox->layout())
+            new QVBoxLayout(m_ui->osSpecificGroupBox);
+        m_configWidget = m_deviceManager->mutableDeviceAt(index)->createWidget();
+        if (m_configWidget)
+            m_ui->osSpecificGroupBox->layout()->addWidget(m_configWidget);
         displayCurrent();
     }
 }
@@ -275,17 +267,11 @@ void DeviceSettingsWidget::clearDetails()
     m_ui->autoDetectionValueLabel->clear();
 }
 
-const IDeviceFactory *DeviceSettingsWidget::factoryForCurrentDevice() const
-{
-    Q_ASSERT(currentDevice());
-    return DeviceManager::factoryForDeviceType(currentDevice()->type());
-}
-
 void DeviceSettingsWidget::handleAdditionalActionRequest(const QString &actionId)
 {
-    const IDeviceFactory * const factory = factoryForCurrentDevice();
-    Q_ASSERT(factory);
-    QDialog * const action = factory->createDeviceAction(actionId, currentDevice(), this);
+    const IDevice::ConstPtr &device = currentDevice();
+    QTC_ASSERT(device, return);
+    QDialog * const action = device->createAction(actionId, this);
     if (action)
         action->exec();
     delete action;

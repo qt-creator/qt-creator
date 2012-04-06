@@ -332,13 +332,6 @@ const IDeviceFactory *DeviceManager::factoryForDeviceType(const QString &type)
     return 0;
 }
 
-QString DeviceManager::displayNameForDeviceType(const QString &type)
-{
-    if (const IDeviceFactory * const factory = factoryForDeviceType(type))
-        return factory->displayNameForDeviceType(type);
-    return tr("Unknown OS");
-}
-
 DeviceManager::DeviceManager(bool doLoad) : d(new DeviceManagerPrivate)
 {
     if (doLoad)
@@ -427,5 +420,26 @@ IDevice::Id DeviceManager::unusedId() const
     QTC_CHECK(false);
     return IDevice::invalidId();
 }
+
+IDevice::Ptr DeviceManager::fromRawPointer(IDevice *device) const
+{
+    foreach (const IDevice::Ptr &devPtr, d->devices) {
+        if (devPtr == device)
+            return devPtr;
+    }
+
+    if (this == instance() && d->clonedInstance)
+        return d->clonedInstance->fromRawPointer(device);
+
+    qWarning("%s: Device not found.", Q_FUNC_INFO);
+    return IDevice::Ptr();
+}
+
+IDevice::ConstPtr DeviceManager::fromRawPointer(const IDevice *device) const
+{
+    // The const_cast is safe, because we convert the Ptr back to a ConstPtr before returning it.
+    return fromRawPointer(const_cast<IDevice *>(device));
+}
+
 
 } // namespace ProjectExplorer

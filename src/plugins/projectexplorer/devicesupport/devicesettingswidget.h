@@ -44,7 +44,6 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 class IDevice;
 class DeviceManager;
-class IDeviceFactory;
 class IDeviceWidget;
 
 namespace Internal {
@@ -77,7 +76,6 @@ private:
     void clearDetails();
     QString parseTestOutput();
     void fillInValues();
-    const IDeviceFactory *factoryForCurrentDevice() const;
 
     Ui::DeviceSettingsWidget *m_ui;
     DeviceManager * const m_deviceManager;

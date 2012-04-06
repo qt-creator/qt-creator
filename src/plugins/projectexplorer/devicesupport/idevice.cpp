@@ -31,6 +31,8 @@
 **************************************************************************/
 #include "idevice.h"
 
+#include "devicemanager.h"
+
 #include <utils/qtcassert.h>
 
 #include <QString>
@@ -91,7 +93,37 @@
  */
 
 /*!
- * \fn ProjectExplorer::IDevice::Ptr ProjectExploer::IDevice::clone() const
+ * \fn QString ProjectExplorer::IDevice::displayType() const
+ * \brief Prints a representation of the device's type suitable for displaying to a user.
+ */
+
+/*!
+ * \fn ProjectExplorer::IDeviceWidget *ProjectExplorer::IDevice::createWidget() const
+ * \brief Creates a widget that displays device information not part of the IDevice base class.
+ *        The widget can also be used to let the user change these attributes.
+ */
+
+/*!
+ * \fn QStringList ProjectExplorer::IDevice::actionIds() const
+ * \brief Returns a list of ids representing actions that can be run on this device.
+ *        These actions will be available in the "Devices" options page.
+ */
+
+/*!
+ * \fn QString ProjectExplorer::IDevice::displayNameForActionId(const QString &actionId) const
+ * \brief A human-readable string for the given id. Will be displayed on a button which,
+ *        when clicked, starts the respective action.
+ */
+
+/*!
+ * \fn QDialog *ProjectExplorer::IDevice::createAction(const QString &actionId) const
+ * \brief Produces a dialog implementing the respective action. The dialog is supposed to be
+ *        modal, so implementers must make sure to make whatever it does interruptible as
+ *        to not needlessly block the UI.
+ */
+
+/*!
+ * \fn ProjectExplorer::IDevice::Ptr ProjectExplorer::IDevice::clone() const
  * \brief Creates an identical copy of a device object.
  */
 
@@ -216,6 +248,16 @@ QVariantMap IDevice::toMap() const
     map.insert(QLatin1String(OriginKey), d->origin);
     map.insert(QLatin1String(FingerprintKey), d->fingerprint);
     return map;
+}
+
+IDevice::Ptr IDevice::sharedFromThis()
+{
+    return DeviceManager::instance()->fromRawPointer(this);
+}
+
+IDevice::ConstPtr IDevice::sharedFromThis() const
+{
+    return DeviceManager::instance()->fromRawPointer(this);
 }
 
 } // namespace ProjectExplorer

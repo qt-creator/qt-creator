@@ -31,6 +31,11 @@
 **************************************************************************/
 #include "linuxdeviceconfiguration.h"
 
+#include "genericlinuxdeviceconfigurationwidget.h"
+#include "linuxdevicetestdialog.h"
+#include "publickeydeploymentdialog.h"
+#include "remotelinuxprocessesdialog.h"
+#include "remotelinuxprocesslist.h"
 #include "remotelinux_constants.h"
 
 #include <utils/portlist.h>
@@ -82,6 +87,52 @@ LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const QString &na
    const QString &type, MachineType machineType, Origin origin, const QString &fingerprint)
 {
     return Ptr(new LinuxDeviceConfiguration(name, type, machineType, origin, fingerprint));
+}
+
+QString LinuxDeviceConfiguration::displayType() const
+{
+    return tr("Generic Linux");
+}
+
+ProjectExplorer::IDeviceWidget *LinuxDeviceConfiguration::createWidget()
+{
+    return new GenericLinuxDeviceConfigurationWidget(sharedFromThis()
+            .staticCast<LinuxDeviceConfiguration>());
+}
+
+QStringList LinuxDeviceConfiguration::actionIds() const
+{
+    return QStringList() << QLatin1String(Constants::GenericTestDeviceActionId)
+        << QLatin1String(Constants::GenericDeployKeyToDeviceActionId)
+        << QLatin1String(Constants::GenericRemoteProcessesActionId);
+}
+
+QString LinuxDeviceConfiguration::displayNameForActionId(const QString &actionId) const
+{
+    QTC_ASSERT(actionIds().contains(actionId), return QString());
+
+    if (actionId == QLatin1String(Constants::GenericTestDeviceActionId))
+        return tr("Test");
+    if (actionId == QLatin1String(Constants::GenericRemoteProcessesActionId))
+        return tr("Remote Processes...");
+    if (actionId == QLatin1String(Constants::GenericDeployKeyToDeviceActionId))
+        return tr("Deploy Public Key...");
+    return QString(); // Can't happen.
+}
+
+QDialog *LinuxDeviceConfiguration::createAction(const QString &actionId, QWidget *parent) const
+{
+    QTC_ASSERT(actionIds().contains(actionId), return 0);
+
+    const LinuxDeviceConfiguration::ConstPtr device
+            = sharedFromThis().staticCast<const LinuxDeviceConfiguration>();
+    if (actionId == QLatin1String(Constants::GenericTestDeviceActionId))
+        return new LinuxDeviceTestDialog(device, new GenericLinuxDeviceTester, parent);
+    if (actionId == QLatin1String(Constants::GenericRemoteProcessesActionId))
+        return new RemoteLinuxProcessesDialog(new GenericRemoteLinuxProcessList(device, parent));
+    if (actionId == QLatin1String(Constants::GenericDeployKeyToDeviceActionId))
+        return PublicKeyDeploymentDialog::createDialog(device, parent);
+    return 0; // Can't happen.
 }
 
 LinuxDeviceConfiguration::LinuxDeviceConfiguration() : d(new LinuxDeviceConfigurationPrivate)
