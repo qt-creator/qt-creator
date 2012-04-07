@@ -123,10 +123,9 @@ QString DeviceSettingsWidget::searchKeywords() const
     QString rc;
     QTextStream(&rc) << m_ui->configurationLabel->text()
         << ' ' << m_ui->deviceNameLabel->text()
-        << ' ' << m_ui->nameLineEdit->text();
-    if (m_configWidget)
-    rc.remove(QLatin1Char('&'));
-    return rc;
+        << ' ' << m_ui->nameLineEdit->text()
+        << ' ' << m_ui->autoDetectionKeyLabel->text();
+    return rc.remove(QLatin1Char('&'));
 }
 
 void DeviceSettingsWidget::initGui()
