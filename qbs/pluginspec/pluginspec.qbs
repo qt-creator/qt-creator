@@ -2,7 +2,9 @@ import qbs.base 1.0
 import qbs.fileinfo 1.0 as FileInfo
 
 Module {
-    additionalProductFileTags: ["pluginSpec"]
+    Depends { id: qtcore; name: "qt.core" }
+
+    additionalProductFileTags: qtcore.versionMajor < 5 ? ["pluginSpec"] : ["pluginJSON"]
     property int ide_version_major: project.ide_version_major
     property int ide_version_minor: project.ide_version_minor
     property int ide_version_release: project.ide_version_release
@@ -55,6 +57,32 @@ Module {
                 file.write(all);
                 file.close();
             }
+            return cmd;
+        }
+    }
+
+    Rule {
+        inputs: ["pluginSpec"]
+
+        Artifact {
+            fileTags: ["pluginJSON"]
+            fileName: {
+                var destdir = FileInfo.joinPaths(product.modules["qt/core"].generatedFilesDir,
+                                                 input.fileName);
+                return destdir.replace(/\.[^\.]*$/, '.json');
+            }
+        }
+
+        prepare: {
+            var xslFile = project.path + "/src/pluginjsonmetadata.xsl";
+            var xmlPatternsPath = product.modules["qt/core"].binPath + "/xmlpatterns";
+            var args = [
+                "-no-format", "-output", output.fileName,
+                xslFile, input.fileName
+            ];
+            var cmd = new Command(xmlPatternsPath, args);
+            cmd.description = "generating " + FileInfo.fileName(output.fileName);
+            cmd.highlight = "codegen";
             return cmd;
         }
     }
