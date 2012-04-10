@@ -86,7 +86,7 @@ public:
     void setCurrentSelectedDebugInfo(int debugId, const QString &displayName = QString());
 
 public slots:
-    void logServiceStatusChange(const QString &service, QDeclarativeDebugClient::Status newStatus);    
+    void logServiceStatusChange(const QString &service, float version, QDeclarativeDebugClient::Status newStatus);
     void logServiceActivity(const QString &service, const QString &logMessage);
 
 signals:

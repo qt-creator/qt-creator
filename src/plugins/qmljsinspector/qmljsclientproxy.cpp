@@ -117,12 +117,14 @@ void ClientProxy::connectToServer()
 void ClientProxy::clientStatusChanged(QDeclarativeDebugClient::Status status)
 {
     QString serviceName;
-    if (sender()) {
-        serviceName = sender()->objectName();
+    float version = 0;
+    if (QDeclarativeDebugClient *client = qobject_cast<QDeclarativeDebugClient*>(sender())) {
+        serviceName = client->name();
+        version = client->serviceVersion();
     }
 
     if (m_adapter)
-        m_adapter.data()->logServiceStatusChange(serviceName, status);
+        m_adapter.data()->logServiceStatusChange(serviceName, version, status);
 
     updateConnected();
 }

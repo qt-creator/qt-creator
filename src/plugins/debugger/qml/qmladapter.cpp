@@ -163,10 +163,13 @@ void QmlAdapter::connectionErrorOccurred(QAbstractSocket::SocketError socketErro
 void QmlAdapter::clientStatusChanged(QDeclarativeDebugClient::Status status)
 {
     QString serviceName;
-    if (QDeclarativeDebugClient *client = qobject_cast<QDeclarativeDebugClient*>(sender()))
+    float version = 0;
+    if (QDeclarativeDebugClient *client = qobject_cast<QDeclarativeDebugClient*>(sender())) {
         serviceName = client->name();
+        version = client->serviceVersion();
+    }
 
-    logServiceStatusChange(serviceName, status);
+    logServiceStatusChange(serviceName, version, status);
 }
 
 void QmlAdapter::debugClientStatusChanged(QDeclarativeDebugClient::Status status)
@@ -346,21 +349,24 @@ void QmlAdapter::setCurrentSelectedDebugInfo(int currentDebugId, const QString &
     emit selectionChanged();
 }
 
-void QmlAdapter::logServiceStatusChange(const QString &service,
+void QmlAdapter::logServiceStatusChange(const QString &service, float version,
                                         QDeclarativeDebugClient::Status newStatus)
 {
     switch (newStatus) {
     case QDeclarativeDebugClient::Unavailable: {
-        showConnectionStatusMessage(tr("Status of '%1' changed to 'unavailable'.").arg(service));
+        showConnectionStatusMessage(tr("Status of '%1' Version: %2 changed to 'unavailable'.").
+                                    arg(service).arg(QString::number(version)));
         break;
     }
     case QDeclarativeDebugClient::Enabled: {
-        showConnectionStatusMessage(tr("Status of '%1' changed to 'enabled'.").arg(service));
+        showConnectionStatusMessage(tr("Status of '%1' Version: %2 changed to 'enabled'.").
+                                    arg(service).arg(QString::number(version)));
         break;
     }
 
     case QDeclarativeDebugClient::NotConnected: {
-        showConnectionStatusMessage(tr("Status of '%1' changed to 'not connected'.").arg(service));
+        showConnectionStatusMessage(tr("Status of '%1' Version: %2 changed to 'not connected'.").
+                                    arg(service).arg(QString::number(version)));
         break;
     }
     }
