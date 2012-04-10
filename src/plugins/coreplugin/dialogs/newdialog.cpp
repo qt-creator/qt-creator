@@ -301,6 +301,8 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
             addItem(kindItem, wizard);
         }
     }
+    if (projectKindItem->columnCount() == 0)
+        parentItem->removeRow(0);
 }
 
 Core::IWizard *NewDialog::showDialog()
