@@ -684,6 +684,7 @@ void QmlCppEngine::slaveEngineStateChanged
                        || state() == InferiorStopOk, qDebug() << state());
             if (state() == InferiorStopOk)
                 setState(InferiorShutdownRequested);
+            qmlEngine()->quitDebugger();
             break;
         }
         case InferiorShutdownFailed: {
@@ -703,7 +704,6 @@ void QmlCppEngine::slaveEngineStateChanged
         case EngineShutdownRequested: {
             // set by queueShutdownEngine()
             QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
-            qmlEngine()->quitDebugger();
             break;
         }
         case EngineShutdownFailed: {
@@ -741,11 +741,12 @@ void QmlCppEngine::slaveEngineStateChanged
                 }
 
                 QTC_ASSERT(state() == InferiorRunOk
-                           || state() == InferiorStopRequested, qDebug() << state());
+                           || state() == InferiorStopRequested
+                           || state() == InferiorShutdownRequested, qDebug() << state());
 
                 if (state() == InferiorRunOk)
                     notifyInferiorSpontaneousStop();
-                else
+                else if (state() == InferiorStopRequested)
                     notifyInferiorStopOk();
             }
 
