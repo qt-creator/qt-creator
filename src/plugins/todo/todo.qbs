@@ -5,7 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "Todo"
 
-    Depends { name: "qt"; submodules: ['gui'] }
+    Depends { name: "qt"; submodules: ['widgets'] }
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }

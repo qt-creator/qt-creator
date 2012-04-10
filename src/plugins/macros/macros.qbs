@@ -5,7 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "Macros"
 
-    Depends { name: "qt"; submodules: ['gui'] }
+    Depends { name: "qt"; submodules: ['widgets'] }
     Depends { name: "Core" }
     Depends { name: "Locator" }
     Depends { name: "Find" }

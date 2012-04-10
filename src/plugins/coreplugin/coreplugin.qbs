@@ -4,7 +4,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "Core"
 
-    Depends { name: "qt"; submodules: ['core', 'gui', 'xml', 'network', 'script', 'sql', 'help'] }
+    Depends { name: "qt"; submodules: ['core', 'widgets', 'xml', 'network', 'script', 'sql', 'help'] }
     Depends { name: "Utils" }
     Depends { name: "ExtensionSystem" }
     Depends { name: "Aggregation" }

@@ -14,7 +14,7 @@ QtcLibrary {
     ]
 
     Depends { name: "cpp" }
-    Depends { name: "Qt"; submodules: ["core", "gui"] }
+    Depends { name: "Qt"; submodules: ["core", "widgets"] }
     Depends { name: "Aggregation" }
 
     files: [

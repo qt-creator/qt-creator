@@ -135,7 +135,7 @@ Project {
 
         Depends { name: "app_version_header" }
         Depends { name: "cpp" }
-        Depends { name: "Qt"; submodules: ["gui", "network"] }
+        Depends { name: "Qt"; submodules: ["widgets", "network"] }
         Depends { name: "Utils" }
         Depends { name: "ExtensionSystem" }
 

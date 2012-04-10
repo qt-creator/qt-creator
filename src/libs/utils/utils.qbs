@@ -18,7 +18,7 @@ QtcLibrary {
     }
 
     Depends { name: "cpp" }
-    Depends { name: "Qt"; submodules: ['gui', 'network', 'script'] }
+    Depends { name: "Qt"; submodules: ['widgets', 'network', 'script'] }
     Depends { name: "Botan" }
     Depends { name: "app_version_header" }
 

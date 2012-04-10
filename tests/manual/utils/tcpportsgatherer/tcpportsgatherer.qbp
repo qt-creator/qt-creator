@@ -20,5 +20,5 @@ Application {
     }
 
     Depends { name: "cpp" }
-    Depends { name: "Qt"; submodules: ["gui"] }
+    Depends { name: "Qt"; submodules: ["widgets"] }
 }

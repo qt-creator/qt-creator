@@ -9,7 +9,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "Find" }
     Depends { name: "cpp" }
-    Depends { name: "qt"; submodules: ['gui'] }
+    Depends { name: "qt"; submodules: ['widgets'] }
 
     cpp.includePaths: [
         "..",
