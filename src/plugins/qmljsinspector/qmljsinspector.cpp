@@ -371,7 +371,7 @@ void InspectorUi::disconnected()
 void InspectorUi::onRootContext(const QVariant &value)
 {
     if (m_crumblePath->dataForLastIndex().toInt() < 0) {
-        m_clientProxy->fetchContextObjectRecursive(
+        m_clientProxy->fetchRootObjects(
                     qvariant_cast<QmlDebugContextReference>(
                         value), true);
      } else {

@@ -528,7 +528,7 @@ quint32 ClientProxy::fetchContextObject(const QmlDebugObjectReference& obj)
     return m_engineClient->queryObject(obj);
 }
 
-void ClientProxy::fetchContextObjectRecursive(
+void ClientProxy::fetchRootObjects(
         const QmlDebugContextReference& context, bool clear)
 {
     if (!isConnected())
@@ -541,16 +541,19 @@ void ClientProxy::fetchContextObjectRecursive(
         quint32 queryId = 0;
         using namespace QmlJsDebugClient::Constants;
         if (m_engineClient->objectName() == QML_DEBUGGER &&
-                m_engineClient->serviceVersion() >= CURRENT_SUPPORTED_VERSION)
-            queryId = fetchContextObject(obj);
-        else
+                m_engineClient->serviceVersion() >= CURRENT_SUPPORTED_VERSION) {
+            //Fetch only root objects
+            if (obj.parentId() == -1)
+                queryId = fetchContextObject(obj);
+        } else {
             queryId = m_engineClient->queryObjectRecursive(obj);
+        }
 
         if (queryId)
             m_objectTreeQueryIds << queryId;
     }
     foreach (const QmlDebugContextReference& child, context.contexts()) {
-        fetchContextObjectRecursive(child, false);
+        fetchRootObjects(child, false);
     }
 }
 
