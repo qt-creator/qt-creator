@@ -185,6 +185,9 @@ class JIRA:
         # this function crops multiple whitespaces from fetched and searches for expected
         # ids without using regex
         def __cropAndLog__(self, fetched):
+            if fetched == None:
+                test.log("None passed to __cropAndLog__()")
+                return
             fetched = " ".join(fetched.split())
             resoInd = fetched.find('resolution-val')
             statInd = fetched.find('status-val')
