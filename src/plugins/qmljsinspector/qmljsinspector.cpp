@@ -700,8 +700,9 @@ void InspectorUi::selectItems(const QList<int> &objectIds)
 
 void InspectorUi::changePropertyValue(int debugId,const QString &propertyName, const QString &valueExpression)
 {
-    QString query = propertyName + '=' + valueExpression;
-    m_clientProxy->queryExpressionResult(debugId, query);
+    QmlDebugObjectReference obj = m_clientProxy->objectReferenceForId(debugId);
+    m_clientProxy->setBindingForObject(debugId, propertyName, valueExpression, false,
+                                       obj.source().url().toString(), obj.source().lineNumber());
 }
 
 void InspectorUi::enable()
