@@ -197,13 +197,16 @@ QStringList QMakeStep::moreArguments()
         }
     }
 
-    if (linkQmlDebuggingLibrary() && bc->qtVersion()) {
-        if (!bc->qtVersion()->needsQmlDebuggingLibrary()) {
+    const QtSupport::BaseQtVersion *qtVersion  = bc->qtVersion();
+    if (linkQmlDebuggingLibrary() && qtVersion) {
+        if (!qtVersion->needsQmlDebuggingLibrary()) {
             // This Qt version has the QML debugging services built in, however
             // they still need to be enabled at compile time
-            arguments << QLatin1String(Constants::QMAKEVAR_DECLARATIVE_DEBUG);
+            arguments << (qtVersion->qtVersion().majorVersion >= 5 ?
+                          QLatin1String(Constants::QMAKEVAR_DECLARATIVE_DEBUG5) :
+                          QLatin1String(Constants::QMAKEVAR_DECLARATIVE_DEBUG4));
         } else {
-            QString qmlDebuggingHelperLibrary = bc->qtVersion()->qmlDebuggingHelperLibrary(true);
+            const QString qmlDebuggingHelperLibrary = qtVersion->qmlDebuggingHelperLibrary(true);
             if (!qmlDebuggingHelperLibrary.isEmpty()) {
                 // Do not turn debugger path into native path separators: Qmake does not like that!
                 const QString debuggingHelperPath

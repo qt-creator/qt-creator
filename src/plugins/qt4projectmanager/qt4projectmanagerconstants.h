@@ -98,7 +98,8 @@ const char ICON_HTML5_APP[] = ":/wizards/images/html5app.png";
 
 // Env variables
 const char QMAKEVAR_QMLJSDEBUGGER_PATH[] = "QMLJSDEBUGGER_PATH";
-const char QMAKEVAR_DECLARATIVE_DEBUG[] = "CONFIG+=declarative_debug";
+const char QMAKEVAR_DECLARATIVE_DEBUG4[] = "CONFIG+=declarative_debug";
+const char QMAKEVAR_DECLARATIVE_DEBUG5[] = "CONFIG+=qml_debug";
 
 // Unconfigured Settings page
 const char UNCONFIGURED_SETTINGS_PAGE_ID[] = "R.UnconfiguredSettings";
