@@ -5,6 +5,8 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "QmlDesigner"
 
+    condition: qtcore.versionMajor === 4
+    Depends { id: qtcore; name: "qt.core" }
     Depends { name: "qt"; submodules: ['widgets', 'quick1'] }
     Depends { name: "Core" }
     Depends { name: "QmlJS" }

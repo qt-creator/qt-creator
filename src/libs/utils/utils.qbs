@@ -18,7 +18,7 @@ QtcLibrary {
     }
 
     Depends { name: "cpp" }
-    Depends { name: "Qt"; submodules: ['widgets', 'network', 'script'] }
+    Depends { name: "Qt"; submodules: ['widgets', 'network', 'script', 'concurrent'] }
     Depends { name: "Botan" }
     Depends { name: "app_version_header" }
 
@@ -252,6 +252,10 @@ QtcLibrary {
             "unixutils.h",
             "unixutils.cpp"
         ]
+    }
+
+    ProductModule {
+        Depends { name: "Qt"; submodules: ["concurrent"] }
     }
 }
 
