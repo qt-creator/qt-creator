@@ -289,6 +289,32 @@ int CrumblePath::length() const
     return d->m_buttons.length();
 }
 
+bool lessThan(const QAction *a1, const QAction *a2)
+{
+    return a1->text() < a2->text();
+}
+
+bool greaterThan(const QAction *a1, const QAction *a2)
+{
+    return a1->text() > a2->text();
+}
+
+void CrumblePath::sortChildren(Qt::SortOrder order)
+{
+    QPushButton *lastButton = d->m_buttons.last();
+
+    QMenu *childList = lastButton->menu();
+    QList<QAction *> actions = childList->actions();
+
+    if (order == Qt::AscendingOrder)
+        qStableSort(actions.begin(), actions.end(), lessThan);
+    else
+        qStableSort(actions.begin(), actions.end(), greaterThan);
+
+    childList->clear();
+    childList->addActions(actions);
+}
+
 void CrumblePath::pushElement(const QString &title, const QVariant &data)
 {
     CrumblePathButton *newButton = new CrumblePathButton(title, this);

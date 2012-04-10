@@ -54,6 +54,7 @@ public:
     QVariant dataForIndex(int index) const;
     QVariant dataForLastIndex() const;
     int length() const;
+    void sortChildren(Qt::SortOrder order = Qt::AscendingOrder);
 
 public slots:
     void pushElement(const QString &title, const QVariant &data = QVariant());

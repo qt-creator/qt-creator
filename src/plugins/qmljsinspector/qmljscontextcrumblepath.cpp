@@ -64,6 +64,9 @@ void ContextCrumblePath::addChildren(const QStringList &childrenNames, const QLi
     Q_ASSERT(childrenNames.count() == childrenDebugIds.count());
     for (int i = 0; i < childrenNames.count(); i++)
         addChild(childrenNames[i], childrenDebugIds[i]);
+
+    //Sort them alphabetically
+    sortChildren();
 }
 
 void ContextCrumblePath::clear()
