@@ -95,7 +95,7 @@ private:
 
     void assignValueInDebugger(const WatchData *w,
         const QString &expr, const QVariant &value);
-    void executeDebuggerCommand(const QString &command);
+    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
 
     void loadSymbols(const QString &moduleName);
     void loadAllSymbols();

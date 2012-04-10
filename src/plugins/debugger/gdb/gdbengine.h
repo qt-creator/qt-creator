@@ -242,7 +242,7 @@ private: ////////// General Interface //////////
     virtual void abortDebugger();
 
     virtual bool acceptsDebuggerCommands() const;
-    virtual void executeDebuggerCommand(const QString &command);
+    virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
     virtual QByteArray qtNamespace() const { return m_dumperHelper.qtNamespace(); }
     virtual void setQtNamespace(const QByteArray &ns)
         { return m_dumperHelper.setQtNamespace(ns); }

@@ -1234,8 +1234,10 @@ bool GdbEngine::acceptsDebuggerCommands() const
         || state() == InferiorUnrunnable;
 }
 
-void GdbEngine::executeDebuggerCommand(const QString &command)
+void GdbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
 {
+    if (!(languages & CppLanguage))
+        return;
     QTC_CHECK(acceptsDebuggerCommands());
     GdbCommand cmd;
     cmd.command = command.toLatin1();

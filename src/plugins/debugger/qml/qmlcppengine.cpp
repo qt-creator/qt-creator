@@ -409,13 +409,10 @@ void QmlCppEngine::executeJumpToLine(const ContextData &data)
     d->m_activeEngine->executeJumpToLine(data);
 }
 
-void QmlCppEngine::executeDebuggerCommand(const QString &command)
+void QmlCppEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
 {
-    if (d->m_qmlEngine->state() == InferiorStopOk) {
-        d->m_qmlEngine->executeDebuggerCommand(command);
-    } else {
-        d->m_cppEngine->executeDebuggerCommand(command);
-    }
+    d->m_qmlEngine->executeDebuggerCommand(command, languages);
+    d->m_cppEngine->executeDebuggerCommand(command, languages);
 }
 
 bool QmlCppEngine::evaluateScriptExpression(const QString &expression)

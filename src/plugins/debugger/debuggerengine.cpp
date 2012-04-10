@@ -1674,7 +1674,7 @@ void DebuggerEngine::executeJumpToLine(const ContextData &)
 {
 }
 
-void DebuggerEngine::executeDebuggerCommand(const QString &)
+void DebuggerEngine::executeDebuggerCommand(const QString &, DebuggerLanguages)
 {
     showStatusMessage(tr("This debugger cannot handle user input."));
 }

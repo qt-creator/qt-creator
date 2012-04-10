@@ -846,7 +846,7 @@ public slots:
     void aboutToUnloadSession();
     void aboutToSaveSession();
 
-    void executeDebuggerCommand(const QString &command);
+    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
     bool evaluateScriptExpression(const QString &expression);
     void coreShutdown();
 
@@ -2526,10 +2526,10 @@ void DebuggerPluginPrivate::aboutToSaveSession()
     m_breakHandler->saveSessionData();
 }
 
-void DebuggerPluginPrivate::executeDebuggerCommand(const QString &command)
+void DebuggerPluginPrivate::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
 {
     if (currentEngine()->acceptsDebuggerCommands())
-        currentEngine()->executeDebuggerCommand(command);
+        currentEngine()->executeDebuggerCommand(command, languages);
     else
         showStatusMessage(tr("User commands are not accepted in the current state."));
 }

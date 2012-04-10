@@ -1357,9 +1357,10 @@ void CdbEngine::handleThreads(const CdbExtensionCommandPtr &reply)
     }
 }
 
-void CdbEngine::executeDebuggerCommand(const QString &command)
+void CdbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
 {
-    postCommand(command.toLocal8Bit(), QuietCommand);
+    if (languages & CppLanguage)
+        postCommand(command.toLocal8Bit(), QuietCommand);
 }
 
 // Post command without callback

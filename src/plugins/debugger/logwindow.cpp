@@ -389,12 +389,13 @@ LogWindow::LogWindow(QWidget *parent)
 void LogWindow::executeLine()
 {
     m_ignoreNextInputEcho = true;
-    debuggerCore()->executeDebuggerCommand(m_inputText->textCursor().block().text());
+    debuggerCore()->executeDebuggerCommand(m_inputText->textCursor().block().text(),
+                                           CppLanguage);
 }
 
 void LogWindow::sendCommand()
 {
-    debuggerCore()->executeDebuggerCommand(m_commandEdit->text());
+    debuggerCore()->executeDebuggerCommand(m_commandEdit->text(), CppLanguage);
 }
 
 void LogWindow::showOutput(int channel, const QString &output)

@@ -116,7 +116,7 @@ protected:
     void executeRunToLine(const ContextData &data);
     void executeRunToFunction(const QString &functionName);
     void executeJumpToLine(const ContextData &data);
-    void executeDebuggerCommand(const QString &command);
+    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
     bool evaluateScriptExpression(const QString &expression);
 
     void setupEngine();

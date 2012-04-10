@@ -98,8 +98,10 @@ PdbEngine::PdbEngine(const DebuggerStartParameters &startParameters)
 PdbEngine::~PdbEngine()
 {}
 
-void PdbEngine::executeDebuggerCommand(const QString &command)
+void PdbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
 {
+    if (!(languages & CppLanguage))
+        return;
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     //XSDEBUG("PdbEngine::executeDebuggerCommand:" << command);
     if (state() == DebuggerNotReady) {

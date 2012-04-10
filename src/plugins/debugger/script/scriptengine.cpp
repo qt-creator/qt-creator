@@ -214,9 +214,10 @@ ScriptEngine::~ScriptEngine()
 {
 }
 
-void ScriptEngine::executeDebuggerCommand(const QString &command)
+void ScriptEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
 {
     Q_UNUSED(command)
+    Q_UNUSED(languages)
     XSDEBUG("FIXME:  ScriptEngine::executeDebuggerCommand()");
 }
 

@@ -362,7 +362,7 @@ protected:
     virtual void executeRunToLine(const Internal::ContextData &data);
     virtual void executeRunToFunction(const QString &functionName);
     virtual void executeJumpToLine(const Internal::ContextData &data);
-    virtual void executeDebuggerCommand(const QString &command);
+    virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
     virtual bool evaluateScriptExpression(const QString &expression);
 
     virtual void frameUp();

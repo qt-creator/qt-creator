@@ -1141,9 +1141,9 @@ void QmlEngine::appendDebugOutput(QtMsgType type, const QString &message,
     qtMessageLogHandler()->appendItem(item);
 }
 
-void QmlEngine::executeDebuggerCommand(const QString& command)
+void QmlEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
 {
-    if (d->m_adapter.activeDebuggerClient()) {
+    if ((languages & QmlLanguage) && d->m_adapter.activeDebuggerClient()) {
         d->m_adapter.activeDebuggerClient()->executeDebuggerCommand(command);
     }
 }
@@ -1183,7 +1183,7 @@ bool QmlEngine::evaluateScriptExpression(const QString& expression)
                         }
                     }
                 } else {
-                    executeDebuggerCommand(expression);
+                    executeDebuggerCommand(expression, QmlLanguage);
                 }
             } else {
                 didEvaluate = false;

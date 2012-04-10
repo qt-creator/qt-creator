@@ -115,7 +115,7 @@ public:
     virtual void executeRunToFunction(const QString &functionName);
     virtual void executeJumpToLine(const ContextData &data);
     virtual void assignValueInDebugger(const WatchData *w, const QString &expr, const QVariant &value);
-    virtual void executeDebuggerCommand(const QString &command);
+    virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
 
     virtual void activateFrame(int index);
     virtual void selectThread(int index);
