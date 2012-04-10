@@ -762,18 +762,16 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target
                                         (version->defaultBuildConfig() | QtSupport::BaseQtVersion::DebugBuild),
                                         QString(), QString(), false);
 
-    if (qt4Target->id() != QLatin1String(Constants::S60_EMULATOR_TARGET_ID)) {
-        //: Release build configuration. We recommend not translating it.
-        QString defaultReleaseName = tr("%1 Release").arg(version->displayName());
-        QString customReleaseName;
-        if (buildConfigurationName != version->displayName())
-            customReleaseName = tr("%1 Release").arg(buildConfigurationName);
+    //: Release build configuration. We recommend not translating it.
+    QString defaultReleaseName = tr("%1 Release").arg(version->displayName());
+    QString customReleaseName;
+    if (buildConfigurationName != version->displayName())
+        customReleaseName = tr("%1 Release").arg(buildConfigurationName);
 
-        bc = qt4Target->addQt4BuildConfiguration(defaultReleaseName, customReleaseName,
-                                                 version,
-                                                 (version->defaultBuildConfig() & ~QtSupport::BaseQtVersion::DebugBuild),
-                                                 QString(), QString(), false);
-    }
+    bc = qt4Target->addQt4BuildConfiguration(defaultReleaseName, customReleaseName,
+                                             version,
+                                             (version->defaultBuildConfig() & ~QtSupport::BaseQtVersion::DebugBuild),
+                                             QString(), QString(), false);
     return bc;
 }
 

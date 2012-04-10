@@ -76,7 +76,6 @@ const char QT4PROJECT_ID[] = "Qt4ProjectManager.Qt4Project";
 
 // Targets
 const char DESKTOP_TARGET_ID[] = "Qt4ProjectManager.Target.DesktopTarget";
-const char S60_EMULATOR_TARGET_ID[] = "Qt4ProjectManager.Target.S60EmulatorTarget";
 const char S60_DEVICE_TARGET_ID[] = "Qt4ProjectManager.Target.S60DeviceTarget";
 const char MAEMO5_DEVICE_TARGET_ID[] = "Qt4ProjectManager.Target.MaemoDeviceTarget";
 const char HARMATTAN_DEVICE_TARGET_ID[] = "Qt4ProjectManager.Target.HarmattanDeviceTarget";
@@ -92,7 +91,6 @@ const char SHADOWBUILD_TARGETFEATURE_ID[] = "Qt4ProjectManager.TargetFeature.Sha
 const char GCCE_TOOLCHAIN_ID[] = "Qt4ProjectManager.ToolChain.GCCE";
 const char MAEMO_TOOLCHAIN_ID[] = "Qt4ProjectManager.ToolChain.Maemo";
 const char RVCT_TOOLCHAIN_ID[] = "Qt4ProjectManager.ToolChain.RVCT";
-const char WINSCW_TOOLCHAIN_ID[] = "Qt4ProjectManager.ToolChain.WINSCW";
 
 // ICONS
 const char ICON_QT_PROJECT[] = ":/qt4projectmanager/images/qt_project.png";

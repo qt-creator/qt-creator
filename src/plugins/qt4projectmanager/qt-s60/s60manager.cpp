@@ -34,7 +34,6 @@
 //#include "qtversionmanager.h"
 
 //#include "s60devicespreferencepane.h"
-#include "s60emulatorrunconfiguration.h"
 #include "s60devicerunconfiguration.h"
 #include "s60createpackagestep.h"
 #include "s60deployconfiguration.h"
@@ -49,7 +48,6 @@
 
 #include "gccetoolchain.h"
 #include "rvcttoolchain.h"
-#include "winscwtoolchain.h"
 #include "symbianqtversionfactory.h"
 
 #include <symbianutils/symbiandevicemanager.h>
@@ -116,11 +114,7 @@ S60Manager::S60Manager(QObject *parent) : QObject(parent)
 
     addAutoReleasedObject(new GcceToolChainFactory);
     addAutoReleasedObject(new RvctToolChainFactory);
-    addAutoReleasedObject(new WinscwToolChainFactory);
 
-    addAutoReleasedObject(new S60EmulatorRunConfigurationFactory);
-    addAutoReleasedObject(new RunControlFactory<S60EmulatorRunControl, S60EmulatorRunConfiguration>
-                          (ProjectExplorer::NormalRunMode, tr("Run in Emulator"), parent));
     addAutoReleasedObject(new S60DeviceRunConfigurationFactory);
     addAutoReleasedObject(new S60RunControlFactory(ProjectExplorer::NormalRunMode,
                                                  tr("Run on Device"), parent));

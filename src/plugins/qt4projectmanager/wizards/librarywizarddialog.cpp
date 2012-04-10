@@ -235,8 +235,7 @@ int LibraryWizardDialog::nextId() const
 
             int next = m_modulesPageId;
 
-            const bool symbianTargetEnabled = isTargetSelected(QLatin1String(Constants::S60_DEVICE_TARGET_ID))
-                    || isTargetSelected(QLatin1String(Constants::S60_EMULATOR_TARGET_ID));
+            const bool symbianTargetEnabled = isTargetSelected(QLatin1String(Constants::S60_DEVICE_TARGET_ID));
 
             // If there was no Symbian target defined we omit "Symbian specific" step
             // We also omit this step if the library type is not dll

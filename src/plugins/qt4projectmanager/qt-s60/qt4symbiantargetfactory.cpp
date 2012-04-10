@@ -37,7 +37,6 @@
 
 #include "qt-s60/s60deployconfiguration.h"
 #include "qt-s60/s60devicerunconfiguration.h"
-#include "qt-s60/s60emulatorrunconfiguration.h"
 #include "qt-s60/s60createpackagestep.h"
 #include "qt-s60/s60deploystep.h"
 #include "qt-s60/qt4symbiantarget.h"
@@ -70,15 +69,13 @@ Qt4SymbianTargetFactory::~Qt4SymbianTargetFactory()
 
 bool Qt4SymbianTargetFactory::supportsTargetId(const QString &id) const
 {
-    return id == QLatin1String(Constants::S60_DEVICE_TARGET_ID)
-            || id == QLatin1String(Constants::S60_EMULATOR_TARGET_ID);
+    return id == QLatin1String(Constants::S60_DEVICE_TARGET_ID);
 }
 
 QStringList Qt4SymbianTargetFactory::supportedTargetIds() const
 {
     QStringList ids;
-    ids << QLatin1String(Constants::S60_DEVICE_TARGET_ID)
-        << QLatin1String(Constants::S60_EMULATOR_TARGET_ID);
+    ids << QLatin1String(Constants::S60_DEVICE_TARGET_ID);
     return ids;
 }
 
@@ -89,8 +86,6 @@ QString Qt4SymbianTargetFactory::displayNameForId(const QString &id) const
 
 QIcon Qt4SymbianTargetFactory::iconForId(const QString &id) const
 {
-    if (id == QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
-        return QIcon(QLatin1String(":/projectexplorer/images/SymbianEmulator.png"));
     if (id == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return QIcon(QLatin1String(":/projectexplorer/images/SymbianDevice.png"));
     return QIcon();
@@ -164,21 +159,12 @@ QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurati
                                                                                     const QtSupport::QtVersionNumber &maximumQtVersion,
                                                                                     const Core::FeatureSet &requiredFeatures)
 {
-    QList<BuildConfigurationInfo> infos
-            = Qt4BaseTargetFactory::availableBuildConfigurations(id, proFilePath, minimumQtVersion, maximumQtVersion, requiredFeatures);
-    if (id != QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
-        return infos;
-    // For emulator filter out all non debug builds
-    QList<BuildConfigurationInfo> tmp;
-    foreach (const BuildConfigurationInfo &info, infos)
-        if (info.buildConfig & QtSupport::BaseQtVersion::DebugBuild)
-            tmp << info;
-    return tmp;
+    return Qt4BaseTargetFactory::availableBuildConfigurations(id, proFilePath, minimumQtVersion, maximumQtVersion, requiredFeatures);
 }
 
 bool Qt4SymbianTargetFactory::selectByDefault(const QString &id) const
 {
-    return id != QLatin1String(Constants::S60_EMULATOR_TARGET_ID);
+    return true;
 }
 
 QSet<QString> Qt4SymbianTargetFactory::targetFeatures(const QString & /*id*/) const
@@ -202,15 +188,8 @@ ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Projec
     QtSupport::BaseQtVersion::QmakeBuildConfigs config = qtVersion->defaultBuildConfig();
 
     QList<BuildConfigurationInfo> infos;
-    if (id != QLatin1String(Constants::S60_EMULATOR_TARGET_ID)) {
-        infos.append(BuildConfigurationInfo(qtVersion->uniqueId(), config, QString(), QString()));
-        infos.append(BuildConfigurationInfo(qtVersion->uniqueId(), config ^ QtSupport::BaseQtVersion::DebugBuild, QString(), QString()));
-    } else {
-        if (config & QtSupport::BaseQtVersion::DebugBuild)
-            infos.append(BuildConfigurationInfo(qtVersion->uniqueId(), config, QString(), QString()));
-        else
-            infos.append(BuildConfigurationInfo(qtVersion->uniqueId(), config ^ QtSupport::BaseQtVersion::DebugBuild, QString(), QString()));
-    }
+    infos.append(BuildConfigurationInfo(qtVersion->uniqueId(), config, QString(), QString()));
+    infos.append(BuildConfigurationInfo(qtVersion->uniqueId(), config ^ QtSupport::BaseQtVersion::DebugBuild, QString(), QString()));
 
     return create(parent, id, infos);
 }

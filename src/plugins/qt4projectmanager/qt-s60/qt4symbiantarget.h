@@ -53,8 +53,6 @@ public:
 
     ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 
-    QList<ProjectExplorer::ToolChain *> possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const;
-
     void createApplicationProFiles(bool reparse);
     virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
 

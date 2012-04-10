@@ -38,7 +38,6 @@
 #include "symbianidevice.h"
 
 #include "qt-s60/s60deployconfiguration.h"
-#include "qt-s60/s60emulatorrunconfiguration.h"
 #include "qt-s60/s60devicerunconfiguration.h"
 
 #include <projectexplorer/customexecutablerunconfiguration.h>
@@ -64,8 +63,6 @@ Qt4SymbianTarget::~Qt4SymbianTarget()
 
 QString Qt4SymbianTarget::defaultDisplayName(const QString &id)
 {
-    if (id == QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
-        return QApplication::translate("Qt4ProjectManager::Qt4Target", "Symbian Emulator", "Qt4 Symbian Emulator target display name");
     if (id == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return QApplication::translate("Qt4ProjectManager::Qt4Target", "Symbian Device", "Qt4 Symbian Device target display name");
     return QString();
@@ -73,8 +70,6 @@ QString Qt4SymbianTarget::defaultDisplayName(const QString &id)
 
 QIcon Qt4SymbianTarget::iconForId(const QString &id)
 {
-    if (id == QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
-        return QIcon(QLatin1String(":/projectexplorer/images/SymbianEmulator.png"));
     if (id == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return QIcon(QLatin1String(":/projectexplorer/images/SymbianDevice.png"));
     return QIcon();
@@ -83,26 +78,6 @@ QIcon Qt4SymbianTarget::iconForId(const QString &id)
 ProjectExplorer::IBuildConfigurationFactory *Qt4SymbianTarget::buildConfigurationFactory() const
 {
     return m_buildConfigurationFactory;
-}
-
-QList<ProjectExplorer::ToolChain *> Qt4SymbianTarget::possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const
-{
-    QList<ProjectExplorer::ToolChain *> candidates = Qt4BaseTarget::possibleToolChains(bc);
-
-    QList<ProjectExplorer::ToolChain *> tmp;
-    if (id() == QLatin1String(Constants::S60_EMULATOR_TARGET_ID)) {
-        foreach (ProjectExplorer::ToolChain *tc, candidates) {
-            if (tc->id().startsWith(QLatin1String(Constants::WINSCW_TOOLCHAIN_ID)))
-                tmp.append(tc);
-        }
-    } else if (id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID)) {
-        foreach (ProjectExplorer::ToolChain *tc, candidates) {
-            if (!tc->id().startsWith(QLatin1String(Qt4ProjectManager::Constants::WINSCW_TOOLCHAIN_ID)))
-                tmp.append(tc);
-        }
-    }
-
-    return tmp;
 }
 
 void Qt4SymbianTarget::createApplicationProFiles(bool reparse)
@@ -116,15 +91,7 @@ void Qt4SymbianTarget::createApplicationProFiles(bool reparse)
     foreach (Qt4ProFileNode *pro, profiles)
         paths << pro->path();
 
-    if (id() == QLatin1String(Constants::S60_EMULATOR_TARGET_ID)) {
-        foreach (ProjectExplorer::RunConfiguration *rc, runConfigurations())
-            if (S60EmulatorRunConfiguration *qt4rc = qobject_cast<S60EmulatorRunConfiguration *>(rc))
-                paths.remove(qt4rc->proFilePath());
-
-        // Only add new runconfigurations if there are none.
-        foreach (const QString &path, paths)
-            addRunConfiguration(new S60EmulatorRunConfiguration(this, path));
-    } else if (id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID)) {
+    if (id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID)) {
         foreach (ProjectExplorer::RunConfiguration *rc, runConfigurations())
             if (S60DeviceRunConfiguration *qt4rc = qobject_cast<S60DeviceRunConfiguration *>(rc))
                 paths.remove(qt4rc->proFilePath());
@@ -144,11 +111,7 @@ QList<ProjectExplorer::RunConfiguration *> Qt4SymbianTarget::runConfigurationsFo
 {
     QList<ProjectExplorer::RunConfiguration *> result;
     foreach (ProjectExplorer::RunConfiguration *rc, runConfigurations()) {
-        if (id() == QLatin1String(Constants::S60_EMULATOR_TARGET_ID)) {
-            if (S60EmulatorRunConfiguration * s60rc = qobject_cast<S60EmulatorRunConfiguration *>(rc))
-                if (s60rc->proFilePath() == n->path())
-                    result << rc;
-        } else if (id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID)) {
+        if (id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID)) {
             if (S60DeviceRunConfiguration *s60rc = qobject_cast<S60DeviceRunConfiguration *>(rc))
                 if (s60rc->proFilePath() == n->path())
                     result << rc;

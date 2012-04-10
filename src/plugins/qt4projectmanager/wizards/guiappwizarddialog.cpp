@@ -120,8 +120,7 @@ GuiAppParameters GuiAppWizardDialog::parameters() const
             || isTargetSelected(QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID))) {
         rc.widgetWidth = 800;
         rc.widgetHeight = 480;
-    } else if (isTargetSelected(QLatin1String(Constants::S60_DEVICE_TARGET_ID)) ||
-               isTargetSelected(QLatin1String(Constants::S60_EMULATOR_TARGET_ID))) {
+    } else if (isTargetSelected(QLatin1String(Constants::S60_DEVICE_TARGET_ID))) {
         rc.widgetWidth = 360;
         rc.widgetHeight = 640;
     } else {

@@ -204,8 +204,7 @@ Utils::WizardProgressItem *AbstractMobileAppWizardDialog::itemOfNextGenericPage(
 
 bool AbstractMobileAppWizardDialog::isSymbianTargetSelected() const
 {
-    return m_targetsPage->isTargetSelected(QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
-        || m_targetsPage->isTargetSelected(QLatin1String(Constants::S60_DEVICE_TARGET_ID));
+    return m_targetsPage->isTargetSelected(QLatin1String(Constants::S60_DEVICE_TARGET_ID));
 }
 
 bool AbstractMobileAppWizardDialog::isFremantleTargetSelected() const
