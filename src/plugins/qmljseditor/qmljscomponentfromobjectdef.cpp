@@ -34,7 +34,10 @@
 #include "qmljscomponentnamedialog.h"
 #include "qmljsquickfixassist.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/iversioncontrol.h>
+#include <coreplugin/vcsmanager.h>
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsdocument.h>
@@ -104,6 +107,10 @@ public:
         // stop if we can't create the new file
         if (!refactoring.createFile(newFileName, txt))
             return;
+
+        Core::IVersionControl *versionControl = Core::ICore::vcsManager()->findVersionControlForDirectory(path);
+        if (versionControl)
+            versionControl->vcsAdd(newFileName);
 
         QString replacement = componentName + QLatin1String(" {\n");
         if (!m_idName.isEmpty())
