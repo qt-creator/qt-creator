@@ -45,17 +45,17 @@
     \image qtcreator-editortoolbar-symbols.png
 
     Use the toolbar to navigate between open files and symbols in use.
-    To browse forward or backward through your location history, click
+    To browse backward or forward through your location history, click
     \inlineimage qtcreator-back.png
-    and \inlineimage qtcreator-forward.png
-    .
+    (\gui {Go Back}) and \inlineimage qtcreator-forward.png
+    (\gui {Go Forward}).
 
-    To go to any open file, select it from the \gui{Open files} drop-down menu.
+    To go to any open file, select it from the \gui{Open files} drop-down menu (1).
     Right-click the menu title and select \gui {Copy Full Path to Clipboard} to
     copy the path and name of the current file to the clipboard.
 
     To jump to any symbol used in the current file, select it from the
-    \gui Symbols drop-down menu. By default, the symbols are displayed in the
+    \gui Symbols drop-down menu (2). By default, the symbols are displayed in the
     order in which they appear in the file. Right-click the menu title and
     select \gui {Sort Alphabetically} to arrange the symbols in alphabetic
     order.
@@ -72,12 +72,15 @@
     \list
 
         \o  To split the editor view into a top and bottom view, select
-            \gui Window > \gui Split or press \key{Ctrl+E, 2}.
+            \gui Window > \gui Split, press \key{Ctrl+E, 2}, or select the
+            \inlineimage qtcreator-split-button.png
+            (\gui Split) button and then select \gui Split.
 
             Split command creates views below the currently active editor view.
 
         \o  To split the editor view into adjacent views, select
-            \gui Window > \gui{Split Side by Side} or press \key{Ctrl+E, 3}.
+            \gui Window > \gui{Split Side by Side}, press \key{Ctrl+E, 3}, or
+            select \gui {Split > Split Side by Side}.
 
            Side by side split command creates views to the right of the
            currently active editor view.
@@ -88,8 +91,11 @@
     press \key{Ctrl+E, O}.
 
     To remove a split view, place the cursor within the view you want to
-    remove and select \gui Window > \gui{Remove Current Split} or press
-    \key{Ctrl+E, 0}. To remove all but the currently selected split view,
+    remove and select \gui Window > \gui{Remove Current Split}, press
+    \key{Ctrl+E, 0}, or select the
+    \inlineimage qtcreator-remove-split-button.png
+    (\gui {Remove Split}) button. To remove all but the currently selected split
+    view,
     select \gui Window > \gui{Remove All Splits} or press \key{Ctrl+E, 1}.
 
     \section1 Using Bookmarks
