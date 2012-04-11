@@ -166,6 +166,7 @@ void QmlProject::refresh(RefreshOptions options)
             QtSupport::QmlDumpTool::pathAndEnvironment(this, version, tcList.first(), false, &pinfo.qmlDumpPath, &pinfo.qmlDumpEnvironment);
     }
     if (version) {
+        pinfo.tryQmlDump = true;
         pinfo.qtImportsPath = version->versionInfo().value("QT_INSTALL_IMPORTS");
         pinfo.qtVersionString = version->qtVersionString();
     }
