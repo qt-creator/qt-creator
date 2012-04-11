@@ -57,6 +57,11 @@ MakefileParser::MakefileParser(const QString &makefile) :
 {
 }
 
+MakefileParser::~MakefileParser()
+{
+    delete m_textStream.device();
+}
+
 bool MakefileParser::parse()
 {
     m_mutex.lock();
@@ -261,11 +266,11 @@ void MakefileParser::parseSubDirs()
                                        + slash + makefileName;
 
         // Parse sub directory
-        QFile *file = new QFile(subDirMakefile);
+        QFile file(subDirMakefile);
 
         // Don't try to parse a file, that might not exist (e. g.
         // if SUBDIRS specifies a 'po' directory).
-        if (!file->exists())
+        if (!file.exists())
             continue;
 
         MakefileParser parser(subDirMakefile);
@@ -422,15 +427,15 @@ void MakefileParser::parseIncludePaths()
     QFileInfo info(m_makefile);
     const QString dirName = info.absolutePath();
 
-    QFile *file = new QFile(dirName + QLatin1String("/Makefile"));
-    if (!file->open(QIODevice::ReadOnly | QIODevice::Text))
+    QFile file(dirName + QLatin1String("/Makefile"));
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
     // TODO: The parsing is done very poor. Comments are ignored and targets
     // are ignored too. Whether it is worth to improve this, depends on whether
     // we want to parse the generated Makefile at all or whether we want to
     // improve the Makefile.am parsing to be aware of variables.
-    QTextStream textStream(file);
+    QTextStream textStream(&file);
     QString line;
     do {
         line = textStream.readLine();
