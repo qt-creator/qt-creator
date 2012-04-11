@@ -35,6 +35,7 @@
 
 #include <QFileInfo>
 #include <QFileDialog>
+#include <QPushButton>
 
 using namespace QmlJSEditor::Internal;
 
@@ -44,9 +45,7 @@ ComponentNameDialog::ComponentNameDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->choosePathButton, SIGNAL(clicked()),
-            this, SLOT(choosePath()));
-    connect(ui->pathEdit, SIGNAL(textChanged(QString)),
+    connect(ui->pathEdit, SIGNAL(changed(QString)),
             this, SLOT(validate()));
     connect(ui->componentNameEdit, SIGNAL(textChanged(QString)),
             this, SLOT(validate()));
@@ -65,38 +64,44 @@ void ComponentNameDialog::go(QString *proposedName,
     Q_ASSERT(proposedPath);
 
     ComponentNameDialog d(parent);
+    d.ui->componentNameEdit->setNamespacesEnabled(false);
+    d.ui->componentNameEdit->setLowerCaseFileName(false);
+    d.ui->componentNameEdit->setClassNameMustBeCapital(true);
     d.ui->componentNameEdit->setText(*proposedName);
-    d.ui->pathEdit->setText(*proposedPath);
+    d.ui->pathEdit->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    d.ui->pathEdit->setPath(*proposedPath);
 
     if (QDialog::Accepted == d.exec()) {
         *proposedName = d.ui->componentNameEdit->text();
-        *proposedPath = d.ui->pathEdit->text();
+        *proposedPath = d.ui->pathEdit->path();
     }
 }
 
 void ComponentNameDialog::choosePath()
 {
     QString dir = QFileDialog::getExistingDirectory(this, tr("Choose a path"),
-                                                    ui->pathEdit->text());
+                                                    ui->pathEdit->path());
     if (!dir.isEmpty())
-        ui->pathEdit->setText(dir);
+        ui->pathEdit->setPath(dir);
 }
 
 void ComponentNameDialog::validate()
 {
-    const QString msg = isValid();
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(msg.isEmpty());
-    ui->messageLabel->setText(msg);
+    const QString message = isValid();
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(message.isEmpty());
+    ui->messageLabel->setText(message);
 }
 
 QString ComponentNameDialog::isValid() const
 {
+    if (!ui->componentNameEdit->isValid())
+        return ui->componentNameEdit->errorMessage();
+
     QString compName = ui->componentNameEdit->text();
     if (compName.isEmpty() || !compName[0].isUpper())
         return tr("Invalid component name");
 
-    QString path = ui->pathEdit->text();
-    if (path.isEmpty() || !QFileInfo(path).isDir())
+    if (!ui->pathEdit->isValid())
         return tr("Invalid path");
 
     return QString();

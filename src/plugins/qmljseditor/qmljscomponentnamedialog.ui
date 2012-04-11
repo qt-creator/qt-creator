@@ -25,15 +25,15 @@
      <property name="verticalSpacing">
       <number>10</number>
      </property>
-     <item row="0" column="0">
-      <widget class="QLabel" name="componentNameLabel">
+     <item row="2" column="1" colspan="2">
+      <widget class="QLabel" name="messageLabel">
        <property name="text">
-        <string>Component name:</string>
+        <string/>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="componentNameEdit"/>
+      <widget class="Utils::ClassNameValidatingLineEdit" name="componentNameEdit"/>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="choosePathLabel">
@@ -42,22 +42,15 @@
        </property>
       </widget>
      </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="componentNameLabel">
+       <property name="text">
+        <string>Component name:</string>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="pathEdit"/>
-     </item>
-     <item row="1" column="2">
-      <widget class="QPushButton" name="choosePathButton">
-       <property name="text">
-        <string>Choose...</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1" colspan="2">
-      <widget class="QLabel" name="messageLabel">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
+      <widget class="Utils::PathChooser" name="pathEdit" native="true"/>
      </item>
     </layout>
    </item>
@@ -86,6 +79,19 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::ClassNameValidatingLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">utils/classnamevalidatinglineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
