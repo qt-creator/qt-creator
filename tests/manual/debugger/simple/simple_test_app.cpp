@@ -6117,6 +6117,10 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
+    QChar c(0x1E9E);
+    bool b = c.isPrint();
+    qDebug() << c << b;
+
     // Notify Creator about auto run intention.
     if (USE_AUTORUN)
         qWarning("Creator: Switch on magic autorun.");
