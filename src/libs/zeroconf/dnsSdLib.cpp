@@ -301,7 +301,7 @@ public:
     }
 };
 
-ZConfLib::Ptr ZConfLib::createDnsSdLib(const QString &libName, ZConfLib::Ptr fallback) {
+ZConfLib::Ptr ZConfLib::createDnsSdLib(const QString &libName, const ZConfLib::Ptr &fallback) {
     return ZConfLib::Ptr(new DnsSdZConfLib(libName, fallback));
 }
 } // namespace Internal
@@ -312,7 +312,7 @@ ZConfLib::Ptr ZConfLib::createDnsSdLib(const QString &libName, ZConfLib::Ptr fal
 namespace ZeroConf {
 namespace Internal {
 
-ZConfLib::Ptr ZConfLib::createDnsSdLib(const QString &/*extraPaths*/, ZConfLib::Ptr fallback) {
+ZConfLib::Ptr ZConfLib::createDnsSdLib(const QString &/*extraPaths*/, const ZConfLib::Ptr &fallback) {
     return fallback;
 }
 

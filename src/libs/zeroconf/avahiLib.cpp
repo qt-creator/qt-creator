@@ -127,9 +127,9 @@ private:
     QLibrary nativeLib;
 public:
 
-    AvahiZConfLib(QString libName = QLatin1String("avahi-client"),
-                  QString version = QLatin1String("3"),
-                  ZConfLib::Ptr fallBack = ZConfLib::Ptr(0)) :
+    AvahiZConfLib(const QString &libName = QLatin1String("avahi-client"),
+                  const QString &version = QLatin1String("3"),
+                  const ZConfLib::Ptr &fallBack = ZConfLib::Ptr(0)) :
         ZConfLib(fallBack), nativeLib(libName, version)
     {
 #ifndef ZCONF_AVAHI_STATIC_LINKING
@@ -373,7 +373,7 @@ public:
 };
 
 ZConfLib::Ptr ZConfLib::createAvahiLib(const QString &libName, const QString &version,
-                                       ZConfLib::Ptr fallback)
+                                       const ZConfLib::Ptr &fallback)
 {
     return ZConfLib::Ptr(new AvahiZConfLib(libName, version, fallback));
 }
@@ -562,7 +562,7 @@ namespace ZeroConf {
 namespace Internal {
 
 ZConfLib::Ptr ZConfLib::createAvahiLib(const QString &/*lib*/, const QString &version,
-                                       ZConfLib::Ptr fallback)
+                                       const ZConfLib::Ptr &fallback)
 {
     return fallback;
 }

@@ -121,9 +121,9 @@ public:
     QString errorMsg();
     void setError(bool failure, const QString &eMsg);
 
-    static Ptr createEmbeddedLib(const QString &daemonPath, Ptr fallback = Ptr(0));
-    static Ptr createDnsSdLib(const QString &libName, Ptr fallback = Ptr(0));
-    static Ptr createAvahiLib(const QString &libName, const QString &version, Ptr fallback = Ptr(0));
+    static Ptr createEmbeddedLib(const QString &daemonPath, const Ptr &fallback = Ptr(0));
+    static Ptr createDnsSdLib(const QString &libName, const Ptr &fallback = Ptr(0));
+    static Ptr createAvahiLib(const QString &libName, const QString &version, const Ptr &fallback = Ptr(0));
 protected:
     bool m_isOk;
     QString m_errorMsg;

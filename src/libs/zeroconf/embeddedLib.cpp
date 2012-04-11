@@ -219,7 +219,7 @@ public:
     }
 };
 
-ZConfLib::Ptr ZConfLib::createEmbeddedLib(const QString &daemonPath, ZConfLib::Ptr fallback)
+ZConfLib::Ptr ZConfLib::createEmbeddedLib(const QString &daemonPath, const ZConfLib::Ptr &fallback)
 {
     return ZConfLib::Ptr(new EmbeddedZConfLib(daemonPath, fallback));
 }
@@ -231,7 +231,7 @@ ZConfLib::Ptr ZConfLib::createEmbeddedLib(const QString &daemonPath, ZConfLib::P
 namespace ZeroConf {
 namespace Internal {
 
-ZConfLib::Ptr ZConfLib::createEmbeddedLib(const QString &, ZConfLib::Ptr fallback)
+ZConfLib::Ptr ZConfLib::createEmbeddedLib(const QString &, const ZConfLib::Ptr &fallback)
 {
     return fallback;
 }
