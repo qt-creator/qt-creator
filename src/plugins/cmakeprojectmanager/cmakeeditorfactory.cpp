@@ -57,8 +57,7 @@ CMakeEditorFactory::CMakeEditorFactory(CMakeManager *manager)
             TextEditorActionHandler::UnCommentSelection
             | TextEditorActionHandler::JumpToFileUnderCursor);
 
-    ICore *core = ICore::instance();
-    ActionManager *am = core->actionManager();
+    ActionManager *am = ICore::actionManager();
     ActionContainer *contextMenu = am->createMenu(Constants::M_CONTEXT);
     Command *cmd;
     Context cmakeEditorContext = Context(Constants::C_CMAKEEDITOR);
