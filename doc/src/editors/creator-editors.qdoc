@@ -167,7 +167,7 @@
 
         \o  Semantic errors and warnings are underlined in olive.
 
-            In the following figure, the type is unknown.
+            In the following figure, the variable is not used.
 
             \image qtcreator-semanticerror.png
 
