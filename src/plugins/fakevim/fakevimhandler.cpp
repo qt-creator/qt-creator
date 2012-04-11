@@ -2209,7 +2209,7 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
         if (isNoVisualMode()) {
             m_submode = ShiftLeftSubMode;
         } else {
-            shiftRegionLeft(1);
+            shiftRegionLeft(count());
             leaveVisualMode();
         }
     } else if (input.is('>')) {
@@ -2217,7 +2217,7 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
         if (isNoVisualMode()) {
             m_submode = ShiftRightSubMode;
         } else {
-            shiftRegionRight(1);
+            shiftRegionRight(count());
             leaveVisualMode();
         }
     } else if (input.is('=')) {
