@@ -590,8 +590,7 @@ void DebuggerMainWindow::writeSettings() const
 
 void DebuggerMainWindow::raiseDebuggerWindow()
 {
-    Core::ICore *core = Core::ICore::instance();
-    Utils::AppMainWindow *appMainWindow = qobject_cast<Utils::AppMainWindow*>(core->mainWindow());
+    Utils::AppMainWindow *appMainWindow = qobject_cast<Utils::AppMainWindow*>(ICore::mainWindow());
     QTC_ASSERT(appMainWindow, return)
     appMainWindow->raiseWindow();
 }
