@@ -30,6 +30,11 @@
 **
 **************************************************************************/
 #include "qmljspropertyinspector.h"
+#include "qmljsinspectorconstants.h"
+
+#include <debugger/debuggerconstants.h>
+#include <extensionsystem/pluginmanager.h>
+#include <coreplugin/icore.h>
 
 #include <QHeaderView>
 #include <QItemDelegate>
@@ -46,6 +51,7 @@
 #include <QMenu>
 
 #include <utils/qtcassert.h>
+#include <utils/savedaction.h>
 
 const int PROPERTY_NAME_COLUMN = 0;
 const int PROPERTY_TYPE_COLUMN = 1;
@@ -305,6 +311,56 @@ QmlJSPropertyInspector::QmlJSPropertyInspector(QWidget *parent)
     setModel(&m_model);
     //Add an empty Row to make the headers visible!
     addRow(QString(), QString(), QString(), -1, false);
+
+    m_adjustColumnsAction = new Utils::SavedAction(this);
+    m_adjustColumnsAction->setText(tr("Always Adjust Column Widths to Contents"));
+    m_adjustColumnsAction->setCheckable(true);
+    m_adjustColumnsAction->setValue(false);
+    m_adjustColumnsAction->setDefaultValue(false);
+    m_adjustColumnsAction->setSettingsKey(QLatin1String(Constants::S_QML_INSPECTOR),
+        QLatin1String(Constants::ALWAYS_ADJUST_COLUMNS_WIDTHS));
+    readSettings();
+    connect(Core::ICore::instance(),
+            SIGNAL(saveSettingsRequested()), SLOT(writeSettings()));
+
+    setAlwaysAdjustColumnsAction(m_adjustColumnsAction);
+
+    QAction *act = qobject_cast<QAction *>(
+                ExtensionSystem::PluginManager::instance()->getObjectByName(
+                QLatin1String(Debugger::Constants::USE_ALTERNATING_ROW_COLORS)));
+    if (act) {
+        setAlternatingRowColors(act->isChecked());
+        connect(act, SIGNAL(toggled(bool)),
+                SLOT(setAlternatingRowColorsHelper(bool)));
+    }
+}
+
+void QmlJSPropertyInspector::readSettings()
+{
+    QSettings *settings = Core::ICore::settings();
+    m_adjustColumnsAction->readSettings(settings);
+}
+
+void QmlJSPropertyInspector::writeSettings() const
+{
+    QSettings *settings = Core::ICore::settings();
+    m_adjustColumnsAction->writeSettings(settings);
+}
+
+void QmlJSPropertyInspector::addBaseContextActions(QMenu *menu)
+{
+    QAction *act = qobject_cast<QAction *>(
+                ExtensionSystem::PluginManager::instance()->getObjectByName(
+                QLatin1String(Debugger::Constants::SORT_STRUCT_MEMBERS)));
+    if (act)
+        menu->addAction(act);
+    Utils::BaseTreeView::addBaseContextActions(menu);
+
+    act = qobject_cast<QAction *>(
+                    ExtensionSystem::PluginManager::instance()->getObjectByName(
+                    QLatin1String(Debugger::Constants::SETTINGS_DIALOG)));
+    if (act)
+        menu->addAction(act);
 }
 
 void QmlJSPropertyInspector::clear()
@@ -436,6 +492,11 @@ void QmlJSPropertyInspector::buildPropertyTree(const QmlDebugObjectReference &ob
     m_model.setHeaderData(PROPERTY_VALUE_COLUMN, Qt::Horizontal,QVariant("value"));
     m_model.setHeaderData(PROPERTY_TYPE_COLUMN, Qt::Horizontal,QVariant("type"));
 
+    QAction *act = qobject_cast<QAction *>(
+                ExtensionSystem::PluginManager::instance()->getObjectByName(
+                QLatin1String(Debugger::Constants::SORT_STRUCT_MEMBERS)));
+    if (act && act->isChecked())
+        m_model.sort(PROPERTY_NAME_COLUMN);
 }
 
 void QmlJSPropertyInspector::addRow(const QString &name,const QString &value,

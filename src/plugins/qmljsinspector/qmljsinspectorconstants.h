@@ -49,6 +49,8 @@ const char SHOW_APP_ON_TOP_ACTION[] = "QmlInspector.ShowAppOnTop";
 const char S_QML_INSPECTOR   [] = "QML.Inspector";
 const char S_LIVE_PREVIEW_WARNING_KEY[] = "ShowLivePreview";
 
+const char ALWAYS_ADJUST_COLUMNS_WIDTHS[] = "AlwaysAdjustColumnWidths";
+
 enum DesignTool {
     NoTool = 0,
     SelectionToolMode = 1,

@@ -45,6 +45,10 @@ QT_BEGIN_NAMESPACE
 
 QT_END_NAMESPACE
 
+namespace Utils {
+class SavedAction;
+}
+
 namespace QmlJSInspector {
 namespace Internal {
 
@@ -125,6 +129,8 @@ public:
     };
 
     explicit QmlJSPropertyInspector(QWidget *parent = 0);
+    void readSettings();
+    void addBaseContextActions(QMenu *menu);
     void clear();
     void setContentsValid(bool contentsValid);
     bool contentsValid() const;
@@ -135,6 +141,7 @@ signals:
     void customContextMenuRequested(const QPoint &pos);
 
 public slots:
+    void writeSettings() const;
     void setCurrentObjects(const QList<QmlDebugObjectReference> &);
     void propertyValueEdited(const int objectId,const QString &propertyName,
                              const QString &propertyValue, bool isLiteral = false);
@@ -158,6 +165,7 @@ private:
 
     QmlJSPropertyInspectorModel m_model;
     QList<int> m_currentObjects;
+    Utils::SavedAction *m_adjustColumnsAction;
 };
 
 } // Internal
