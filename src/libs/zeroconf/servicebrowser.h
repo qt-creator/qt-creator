@@ -103,7 +103,7 @@ public:
     const ServiceTxtRecord &txtRecord() const { return m_txtRecord; }
     const QHostInfo *host() const { return m_host; }
     int interfaceNr() const { return m_interfaceNr; }
-    QNetworkInterface interface() const;
+    QNetworkInterface networkInterface() const;
     bool operator==(const Service &o) const;
 
     bool invalidate() { bool res = m_outdated; m_outdated = true; return res; }
