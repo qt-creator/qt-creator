@@ -783,13 +783,22 @@
 
         \o  \gui{Pastebin.Ca}
 
+        \o  \gui{Paste.KDE.Org}
+
+        \o  \gui{Shared network drives}
+
     \endlist
 
     To configure the server, select \gui{Tools} > \gui{Options} >
-    \gui{Code Pasting}.
+    \gui{Code Pasting}. In \gui CodePaster, specify the host name of the
+    CodePaster service. In \gui Fileshare, specify the path to a shared
+    network drive. The code snippets are copied to the drive as simple files.
+    You have to delete obsolete files from the drive manually.
 
     To paste a snippet of code onto the server, select \gui{Tools} >
     \gui{Code Pasting} > \gui{Paste Snippet} or press \key{Alt+C,Alt+P}.
+    By default, \QC copies the URL of the snippet to the clipboard and displays
+    the URL in the \gui Output pane.
 
     To fetch a snippet of code from the server, select \gui{Tools} >
     \gui{Code Pasting} > \gui{Fetch Snippet} or press \key{Alt+C,Alt+F}.
