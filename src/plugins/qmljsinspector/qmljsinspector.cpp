@@ -782,6 +782,7 @@ void InspectorUi::setupDockWidgets()
     mw->setToolBar(Debugger::QmlLanguage, m_toolBar->widget());
 
     m_crumblePath = new ContextCrumblePath;
+    m_crumblePath->setStyleSheet(QLatin1String("background: #9B9B9B"));
     m_crumblePath->setObjectName("QmlContextPath");
     m_crumblePath->setWindowTitle(tr("Context Path"));
     connect(m_crumblePath, SIGNAL(elementClicked(QVariant)), SLOT(crumblePathElementClicked(QVariant)));
@@ -793,6 +794,7 @@ void InspectorUi::setupDockWidgets()
     inspectorWidget->setObjectName(Debugger::Constants::DOCKWIDGET_QML_INSPECTOR);
 
     QWidget *pathAndFilterWidget = new Utils::StyledBar();
+    pathAndFilterWidget->setStyleSheet(QLatin1String("background: #9B9B9B"));
     pathAndFilterWidget->setMaximumHeight(m_crumblePath->height());
 
     QHBoxLayout *pathAndFilterLayout = new QHBoxLayout(pathAndFilterWidget);

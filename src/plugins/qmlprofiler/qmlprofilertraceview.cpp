@@ -237,6 +237,7 @@ void QmlProfilerTraceView::reset()
 QWidget *QmlProfilerTraceView::createToolbar()
 {
     Utils::StyledBar *bar = new Utils::StyledBar(this);
+    bar->setStyleSheet(QLatin1String("background: #9B9B9B"));
     bar->setSingleRow(true);
     bar->setFixedWidth(150);
     bar->setFixedHeight(24);
@@ -298,6 +299,7 @@ QWidget *QmlProfilerTraceView::createToolbar()
 QWidget *QmlProfilerTraceView::createZoomToolbar()
 {
     Utils::StyledBar *bar = new Utils::StyledBar(this);
+    bar->setStyleSheet(QLatin1String("background: #9B9B9B"));
     bar->setSingleRow(true);
     bar->setFixedWidth(150);
     bar->setFixedHeight(24);
