@@ -41,10 +41,7 @@ include(../../../share/qtcreator/qml/qmljsdebugger/protocol/protocol.pri)
 RESOURCES += qmljsinspector.qrc
 
 include(../../qtcreatorplugin.pri)
-include(../../plugins/projectexplorer/projectexplorer.pri)
-include(../../plugins/qmlprojectmanager/qmlprojectmanager.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
-include(../../plugins/texteditor/texteditor.pri)
-include(../../plugins/debugger/debugger.pri)
-include(../../libs/utils/utils.pri)
 include(../../libs/qmljsdebugclient/qmljsdebugclient.pri)
+
+include(../../plugins/debugger/debugger.pri)
+include(../../plugins/qmljseditor/qmljseditor.pri)

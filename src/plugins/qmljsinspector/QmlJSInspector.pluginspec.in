@@ -20,10 +20,6 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <description>Debugger for QML files</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name=\"QmlProjectManager\" version=\"$$QTCREATOR_VERSION\"/>
-        <dependency name=\"ProjectExplorer\" version=\"$$QTCREATOR_VERSION\"/>
-        <dependency name=\"CppTools\" version=\"$$QTCREATOR_VERSION\"/>
-        <dependency name=\"CppEditor\" version=\"$$QTCREATOR_VERSION\"/>
         <dependency name=\"Debugger\" version=\"$$QTCREATOR_VERSION\"/>
         <dependency name=\"QmlJSEditor\" version=\"$$QTCREATOR_VERSION\"/>
     </dependencyList>

@@ -45,8 +45,6 @@
 #include <debugger/debuggerconstants.h>
 #include <debugger/qml/qmladapter.h>
 #include <extensionsystem/pluginmanager.h>
-#include <qmljseditor/qmljseditorconstants.h>
-#include <qmlprojectmanager/qmlproject.h>
 #include <utils/qtcassert.h>
 
 #include <QStringList>

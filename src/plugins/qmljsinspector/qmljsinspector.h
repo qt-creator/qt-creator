@@ -35,7 +35,7 @@
 
 #include "qmljsprivateapi.h"
 
-#include <qmlprojectmanager/qmlprojectrunconfiguration.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <utils/fileinprojectfinder.h>
 
 #include <qmljs/qmljsdocument.h>

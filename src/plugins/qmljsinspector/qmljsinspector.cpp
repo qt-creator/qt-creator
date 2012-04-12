@@ -81,8 +81,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/applicationrunconfiguration.h>
-#include <qmlprojectmanager/qmlprojectconstants.h>
-#include <qmlprojectmanager/qmlprojectrunconfiguration.h>
 
 #include <extensionsystem/pluginmanager.h>
 

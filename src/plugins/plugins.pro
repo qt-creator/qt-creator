@@ -257,9 +257,8 @@ plugin_qmldesigner.depends += plugin_qmlprojectmanager
 plugin_qmldesigner.depends += plugin_cpptools
 
 plugin_qmljsinspector.subdir = qmljsinspector
-plugin_qmljsinspector.depends += plugin_projectexplorer
-plugin_qmljsinspector.depends += plugin_qmlprojectmanager
 plugin_qmljsinspector.depends += plugin_debugger
+plugin_qmljsinspector.depends += plugin_qmljseditor
 
 plugin_mercurial.subdir = mercurial
 plugin_mercurial.depends = plugin_vcsbase
