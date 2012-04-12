@@ -3576,8 +3576,12 @@ at debugger startup.</source>
         <translation>Speicher-Editor an 0x%1 öffnen</translation>
     </message>
     <message>
+        <source>Open Disassembler at Address...</source>
+        <translation>Disassembler an Adresse öffnen...</translation>
+    </message>
+    <message>
         <source>Open Disassembler at 0x%1</source>
-        <translation>Disassembler bei %1 öffnen</translation>
+        <translation>Disassembler bei 0x%1 öffnen</translation>
     </message>
     <message>
         <source>Memory at Frame #%1 (%2) 0x%3</source>
@@ -3590,10 +3594,6 @@ at debugger startup.</source>
     <message>
         <source>Open Disassembler</source>
         <translation>Disassembler öffnen</translation>
-    </message>
-    <message>
-        <source>Open Disassembler at address...</source>
-        <translation>Disassembler an Adresse öffnen...</translation>
     </message>
     <message>
         <source>Disassemble Function...</source>
@@ -13516,7 +13516,7 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <translation>Warnung beim Laden der Projektdatei %1.</translation>
     </message>
     <message>
-        <source>File &apos;%&apos; does not exist or is not readable.</source>
+        <source>File &apos;%1&apos; does not exist or is not readable.</source>
         <translation>Die Datei &apos;%1&apos; existiert nicht oder ist nicht lesbar.</translation>
     </message>
 </context>
@@ -18154,9 +18154,25 @@ Hinweis: Unter Umständen wird die lokale Datei gelöscht.</translation>
         <translation>Debugger an %1 angehangen</translation>
     </message>
     <message>
+        <source>gdbserver is now listening at %1</source>
+        <translation>gdbserver an %1</translation>
+    </message>
+    <message>
         <source>Cannot find local executable for remote process &quot;%1&quot;.</source>
         <translation>Die lokale ausführbare Datei für den entfernten Prozess &quot;%1&quot; konnte nicht gefunden werden.
 </translation>
+    </message>
+    <message>
+        <source>Set Breakpoint at Line %1</source>
+        <translation>Haltepunkt bei Zeile %1 setzen</translation>
+    </message>
+    <message>
+        <source>Set Message Tracepoint at Line %1...</source>
+        <translation>Tracepoint mit Meldung bei Zeile %1 hinzufügen...</translation>
+    </message>
+    <message>
+        <source>Disassemble Function &quot;%1&quot;</source>
+        <translation>Funktion &quot;%1&quot; disassemblieren</translation>
     </message>
     <message>
         <source>Open Qt Options</source>
@@ -18222,20 +18238,8 @@ Hinweis: Unter Umständen wird die lokale Datei gelöscht.</translation>
         <translation>Haltepunkt bei 0x%1 setzen</translation>
     </message>
     <message>
-        <source>Set Breakpoint at line %1</source>
-        <translation>Haltepunkt bei Zeile %1 setzen</translation>
-    </message>
-    <message>
         <source>Set Message Tracepoint at 0x%1...</source>
         <translation>Tracepoint mit Meldung bei 0x%1 hinzufügen...</translation>
-    </message>
-    <message>
-        <source>Set Message Tracepoint at line %1...</source>
-        <translation>Tracepoint mit Meldung bei Zeile %1 hinzufügen...</translation>
-    </message>
-    <message>
-        <source>Disassemble &apos;%1()&apos;</source>
-        <translation>Disassembliere &apos;%1()&apos;</translation>
     </message>
     <message>
         <source>Start &apos;%1&apos; and break at function &apos;main()&apos;</source>
@@ -18374,8 +18378,8 @@ Hinweis: Unter Umständen wird die lokale Datei gelöscht.</translation>
         <translation>Verbinde zu Debug-Server...</translation>
     </message>
     <message>
-        <source>Start Remote Debug Server...</source>
-        <translation>Starte Debug-Server...</translation>
+        <source>Start Remote Debug Server Attached to Process...</source>
+        <translation>Starte Debug-Server an Prozess...</translation>
     </message>
     <message>
         <source>Attach to Running Remote Process...</source>
@@ -30371,6 +30375,10 @@ Die C++- beziehungsweise QML-Codemodelle benötigen eine Qt-Version und eine Too
     <message>
         <source>File Error</source>
         <translation>Dateifehler</translation>
+    </message>
+    <message>
+        <source>Error while saving file: %1</source>
+        <translation>Fehler beim Speichern der Datei: %1</translation>
     </message>
     <message>
         <source>Overwrite?</source>
