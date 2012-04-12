@@ -54,8 +54,8 @@ public:
 
     QSharedPointer<const LinuxDeviceConfiguration> deviceAt(int idx) const;
     QSharedPointer<const LinuxDeviceConfiguration> defaultDeviceConfig() const;
-    QSharedPointer<const LinuxDeviceConfiguration> find(LinuxDeviceConfiguration::Id id) const;
-    int indexForInternalId(LinuxDeviceConfiguration::Id id) const;
+    QSharedPointer<const LinuxDeviceConfiguration> find(const Core::Id &id) const;
+    int indexForInternalId(const Core::Id &id) const;
 
 private:
     AbstractEmbeddedLinuxTarget * target() const;

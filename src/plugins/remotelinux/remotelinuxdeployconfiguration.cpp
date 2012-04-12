@@ -36,6 +36,7 @@
 #include "remotelinuxdeployconfigurationwidget.h"
 #include "typespecificdeviceconfigurationlistmodel.h"
 
+#include <coreplugin/id.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <qt4projectmanager/qt4target.h>
 
@@ -91,7 +92,7 @@ void RemoteLinuxDeployConfiguration::handleDeviceConfigurationListUpdated()
     setDeviceConfig(DeviceManager::instance()->internalId(d->deviceConfiguration));
 }
 
-void RemoteLinuxDeployConfiguration::setDeviceConfig(LinuxDeviceConfiguration::Id internalId)
+void RemoteLinuxDeployConfiguration::setDeviceConfig(const Core::Id &internalId)
 {
     d->deviceConfiguration = target()->deviceConfigModel()->find(internalId);
     emit deviceConfigurationListChanged();
@@ -102,7 +103,8 @@ bool RemoteLinuxDeployConfiguration::fromMap(const QVariantMap &map)
 {
     if (!DeployConfiguration::fromMap(map))
         return false;
-    setDeviceConfig(map.value(QLatin1String(DeviceIdKey), IDevice::invalidId()).toULongLong());
+    setDeviceConfig(Core::Id(map.value(QLatin1String(DeviceIdKey),
+            IDevice::invalidId().toString()).toString()));
     return true;
 }
 
@@ -110,7 +112,7 @@ QVariantMap RemoteLinuxDeployConfiguration::toMap() const
 {
     QVariantMap map = DeployConfiguration::toMap();
     map.insert(QLatin1String(DeviceIdKey),
-        DeviceManager::instance()->internalId(d->deviceConfiguration));
+        DeviceManager::instance()->internalId(d->deviceConfiguration).toString());
     return map;
 }
 

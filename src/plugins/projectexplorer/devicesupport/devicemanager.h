@@ -60,12 +60,12 @@ public:
 
     int deviceCount() const;
     IDevice::ConstPtr deviceAt(int index) const;
-    IDevice::ConstPtr find(IDevice::Id id) const;
+    IDevice::ConstPtr find(const Core::Id &id) const;
     IDevice::ConstPtr findInactiveAutoDetectedDevice(const QString &type,
         const QString &fingerprint);
     IDevice::ConstPtr defaultDevice(const QString &deviceType) const;
     bool hasDevice(const QString &name) const;
-    IDevice::Id internalId(const IDevice::ConstPtr &device) const;
+    Core::Id internalId(const IDevice::ConstPtr &device) const;
 
     int indexOf(const IDevice::ConstPtr &device) const;
 
@@ -75,7 +75,7 @@ public:
     static const IDeviceFactory *factoryForDeviceType(const QString &type);
 
 signals:
-    void deviceUpdated(ProjectExplorer::IDevice::Id id);
+    void deviceUpdated(const Core::Id &id);
 
     void deviceAdded(const QSharedPointer<const IDevice> &device);
     void deviceRemoved(int index);
@@ -93,8 +93,7 @@ private:
     void fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
     void ensureOneDefaultDevicePerType();
-    IDevice::Id unusedId() const;
-    int indexForInternalId(IDevice::Id internalId) const;
+    int indexForInternalId(const Core::Id &internalId) const;
 
     // For SettingsWidget.
     IDevice::Ptr mutableDeviceAt(int index) const;

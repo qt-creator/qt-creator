@@ -93,7 +93,7 @@ signals:
 private:
 
     void initialize();
-    void setDeviceConfig(LinuxDeviceConfiguration::Id internalId);
+    void setDeviceConfig(const Core::Id &internalId);
     Q_SLOT void handleDeviceConfigurationListUpdated();
 
     Internal::RemoteLinuxDeployConfigurationPrivate * const d;

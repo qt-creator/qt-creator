@@ -34,6 +34,7 @@
 #include "idevicefactory.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/id.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
@@ -55,11 +56,10 @@ namespace Internal {
 static IDevice::Ptr findAutoDetectedDevice(const QList<IDevice::Ptr> &deviceList,
         const QString &type, const QString &fingerprint)
 {
+    const Core::Id id(fingerprint);
     foreach (const IDevice::Ptr &device, deviceList) {
-        if (device->isAutoDetected() && device->type() == type
-                && device->fingerprint() == fingerprint) {
+        if (device->isAutoDetected() && device->type() == type && device->internalId() == id)
             return device;
-        }
     }
     return IDevice::Ptr();
 }
@@ -74,7 +74,7 @@ public:
     static DeviceManager *clonedInstance;
     QList<IDevice::Ptr> devices;
     QList<IDevice::Ptr> inactiveAutoDetectedDevices;
-    QHash<QString, IDevice::Id> defaultDevices;
+    QHash<QString, Core::Id> defaultDevices;
 };
 DeviceManager *DeviceManagerPrivate::clonedInstance = 0;
 
@@ -153,7 +153,7 @@ void DeviceManager::loadPre2_6()
     const QVariantHash defaultDevsHash = settings->value(QLatin1String("DefaultConfigs")).toHash();
     for (QVariantHash::ConstIterator it = defaultDevsHash.constBegin();
             it != defaultDevsHash.constEnd(); ++it) {
-        d->defaultDevices.insert(it.key(), it.value().toULongLong());
+        d->defaultDevices.insert(it.key(), Core::Id(it.value().toString()));
     }
     int count = settings->beginReadArray(QLatin1String("ConfigList"));
     for (int i = 0; i < count; ++i) {
@@ -166,8 +166,6 @@ void DeviceManager::loadPre2_6()
             continue;
         IDevice::Ptr device = factory->loadDevice(map);
         QTC_ASSERT(device, continue);
-        if (device->internalId() == IDevice::invalidId())
-            device->setInternalId(unusedId());
         d->devices << device;
     }
     settings->endArray();
@@ -179,7 +177,7 @@ void DeviceManager::fromMap(const QVariantMap &map)
     const QVariantMap defaultDevsMap = map.value(QLatin1String(DefaultDevicesKey)).toMap();
     for (QVariantMap::ConstIterator it = defaultDevsMap.constBegin();
          it != defaultDevsMap.constEnd(); ++it) {
-        d->defaultDevices.insert(it.key(), it.value().toULongLong());
+        d->defaultDevices.insert(it.key(), Core::Id(it.value().toString()));
     }
     const QVariantList deviceList = map.value(QLatin1String(DeviceListKey)).toList();
     foreach (const QVariant &v, deviceList) {
@@ -189,8 +187,6 @@ void DeviceManager::fromMap(const QVariantMap &map)
             continue;
         IDevice::Ptr device = factory->loadDevice(map);
         QTC_ASSERT(device, continue);
-        if (device->internalId() == IDevice::invalidId())
-            device->setInternalId(unusedId());
         if (device->isAutoDetected())
             d->inactiveAutoDetectedDevices << device;
         else
@@ -202,10 +198,10 @@ QVariantMap DeviceManager::toMap() const
 {
     QVariantMap map;
     QVariantMap defaultDeviceMap;
-    typedef QHash<QString, IDevice::Id> TypeIdHash;
+    typedef QHash<QString, Core::Id> TypeIdHash;
     for (TypeIdHash::ConstIterator it = d->defaultDevices.constBegin();
              it != d->defaultDevices.constEnd(); ++it) {
-        defaultDeviceMap.insert(it.key(), it.value());
+        defaultDeviceMap.insert(it.key(), it.value().toString());
     }
     map.insert(QLatin1String(DefaultDevicesKey), defaultDeviceMap);
     QVariantList deviceList;
@@ -241,8 +237,6 @@ void DeviceManager::addDevice(const IDevice::Ptr &device)
         while (hasDevice(name));
     }
     device->setDisplayName(name);
-    if (pos < 0)
-        device->setInternalId(unusedId());
     if (!defaultDevice(device->type()))
         d->defaultDevices.insert(device->type(), device->internalId());
     d->devices << device;
@@ -251,8 +245,7 @@ void DeviceManager::addDevice(const IDevice::Ptr &device)
     if (this == instance()) {
         QList<IDevice::Ptr>::Iterator it = d->inactiveAutoDetectedDevices.begin();
         while (it != d->inactiveAutoDetectedDevices.end()) {
-            if (it->data()->type() == device->type()
-                    && it->data()->fingerprint() == device->fingerprint()) {
+            if (it->data()->internalId() == device->internalId()) {
                 d->inactiveAutoDetectedDevices.erase(it);
                 break;
             }
@@ -370,7 +363,7 @@ bool DeviceManager::hasDevice(const QString &name) const
     return false;
 }
 
-IDevice::ConstPtr DeviceManager::find(IDevice::Id id) const
+IDevice::ConstPtr DeviceManager::find(const Core::Id &id) const
 {
     const int index = indexForInternalId(id);
     return index == -1 ? IDevice::ConstPtr() : deviceAt(index);
@@ -384,13 +377,13 @@ IDevice::ConstPtr DeviceManager::findInactiveAutoDetectedDevice(const QString &t
 
 IDevice::ConstPtr DeviceManager::defaultDevice(const QString &deviceType) const
 {
-    const IDevice::Id id = d->defaultDevices.value(deviceType, IDevice::invalidId());
+    const Core::Id id = d->defaultDevices.value(deviceType, IDevice::invalidId());
     if (id == IDevice::invalidId())
         return IDevice::ConstPtr();
     return find(id);
 }
 
-int DeviceManager::indexForInternalId(IDevice::Id internalId) const
+int DeviceManager::indexForInternalId(const Core::Id &internalId) const
 {
     for (int i = 0; i < d->devices.count(); ++i) {
         if (deviceAt(i)->internalId() == internalId)
@@ -399,7 +392,7 @@ int DeviceManager::indexForInternalId(IDevice::Id internalId) const
     return -1;
 }
 
-IDevice::Id DeviceManager::internalId(const IDevice::ConstPtr &device) const
+Core::Id DeviceManager::internalId(const IDevice::ConstPtr &device) const
 {
     return device ? device->internalId() : IDevice::invalidId();
 }
@@ -415,16 +408,6 @@ void DeviceManager::ensureOneDefaultDevicePerType()
         if (!defaultDevice(device->type()))
             d->defaultDevices.insert(device->type(), device->internalId());
     }
-}
-
-IDevice::Id DeviceManager::unusedId() const
-{
-    for (IDevice::Id id = 0; id <= std::numeric_limits<IDevice::Id>::max(); ++id) {
-        if (id != IDevice::invalidId() && !find(id))
-            return id;
-    }
-    QTC_CHECK(false);
-    return IDevice::invalidId();
 }
 
 IDevice::Ptr DeviceManager::fromRawPointer(IDevice *device) const

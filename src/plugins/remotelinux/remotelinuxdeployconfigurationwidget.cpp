@@ -39,6 +39,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/id.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
@@ -182,7 +183,7 @@ void RemoteLinuxDeployConfigurationWidget::handleDeviceConfigurationListChanged(
 {
     const LinuxDeviceConfiguration::ConstPtr &devConf
         = d->deployConfiguration->deviceConfiguration();
-    const IDevice::Id internalId = DeviceManager::instance()->internalId(devConf);
+    const Core::Id &internalId = DeviceManager::instance()->internalId(devConf);
     const int newIndex
         = d->deployConfiguration->target()->deviceConfigModel()->indexForInternalId(internalId);
     d->ui.deviceConfigsComboBox->setCurrentIndex(newIndex);

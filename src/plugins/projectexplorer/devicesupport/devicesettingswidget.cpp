@@ -39,6 +39,7 @@
 #include "idevicewidget.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/id.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -189,7 +190,7 @@ void DeviceSettingsWidget::displayCurrent()
         m_deviceManager->defaultDevice(current->type()) != current);
     m_ui->osTypeValueLabel->setText(current->displayType());
     m_ui->autoDetectionValueLabel->setText(current->isAutoDetected()
-        ? tr("Yes (fingerprint is '%1')").arg(current->fingerprint()) : tr("No"));
+        ? tr("Yes (fingerprint is '%1')").arg(current->internalId().toString()) : tr("No"));
     m_nameValidator->setDisplayName(current->displayName());
     m_ui->removeConfigButton->setEnabled(!current->isAutoDetected());
     fillInValues();

@@ -43,6 +43,8 @@ class QDialog;
 class QWidget;
 QT_END_NAMESPACE
 
+namespace Core { class Id; }
+
 namespace ProjectExplorer {
 namespace Internal { class IDevicePrivate; }
 class IDeviceWidget;
@@ -50,12 +52,9 @@ class IDeviceWidget;
 // See cpp file for documentation.
 class PROJECTEXPLORER_EXPORT IDevice
 {
-    friend class DeviceManager;
 public:
     typedef QSharedPointer<IDevice> Ptr;
     typedef QSharedPointer<const IDevice> ConstPtr;
-
-    typedef quint64 Id;
 
     enum Origin { ManuallyAdded, AutoDetected };
 
@@ -66,8 +65,7 @@ public:
 
     QString type() const;
     bool isAutoDetected() const;
-    QString fingerprint() const;
-    Id internalId() const;
+    Core::Id internalId() const;
 
     virtual QString displayType() const = 0;
     virtual IDeviceWidget *createWidget() = 0;
@@ -76,9 +74,10 @@ public:
     virtual QDialog *createAction(const QString &actionId, QWidget *parent = 0) const = 0;
 
     virtual void fromMap(const QVariantMap &map);
+    virtual QVariantMap toMap() const;
     virtual Ptr clone() const = 0;
 
-    static Id invalidId();
+    static Core::Id invalidId();
 
     static QString typeFromMap(const QVariantMap &map);
 
@@ -90,11 +89,7 @@ protected:
     Ptr sharedFromThis();
     ConstPtr sharedFromThis() const;
 
-    virtual QVariantMap toMap() const;
-
 private:
-    void setInternalId(Id id);
-
     IDevice &operator=(const IDevice &);
 
     Internal::IDevicePrivate *d;
