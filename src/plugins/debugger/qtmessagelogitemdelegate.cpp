@@ -188,8 +188,11 @@ void QtMessageLogItemDelegate::paint(QPainter *painter, const QStyleOptionViewIt
     painter->setPen(textColor);
     // Paint TextArea:
     // Layout the description
-    QTextLayout tl(index.data(Qt::DisplayRole).toString(), opt.font);
-    layoutText(tl, positions.textAreaWidth());
+    QString str = index.data(Qt::DisplayRole).toString();
+    formatTextForWidth(str);
+    QTextLayout tl(str, opt.font);
+    bool showFileLineInfo = true;
+    layoutText(tl, positions.textAreaWidth(), &showFileLineInfo);
     tl.draw(painter, QPoint(positions.textAreaLeft(), positions.adjustedTop()));
 
     //skip if area is editable
@@ -209,37 +212,38 @@ void QtMessageLogItemDelegate::paint(QPainter *painter, const QStyleOptionViewIt
                                 positions.expandCollapseIconHeight()));
     }
 
-    //Check for file info
-    QString file = index.data(QtMessageLogHandler::FileRole).toString();
-    if (!file.isEmpty()) {
-        QFontMetrics fm(option.font);
-        // Paint FileArea
-        const int pos = file.lastIndexOf(QLatin1Char('/'));
-        if (pos != -1)
-            file = file.mid(pos +1);
-        const int realFileWidth = fm.width(file);
-        painter->setClipRect(positions.fileArea());
-        painter->drawText(qMin(positions.fileAreaLeft(),
-                               positions.fileAreaRight() - realFileWidth),
-                          positions.adjustedTop() + fm.ascent(), file);
-        if (realFileWidth > positions.fileAreaWidth()) {
-            // draw a gradient to mask the text
-            int gradientStart = positions.fileAreaLeft() - 1;
-            QLinearGradient lg(gradientStart +
-                               ELLIPSIS_GRADIENT_WIDTH, 0, gradientStart, 0);
-            lg.setColorAt(0, Qt::transparent);
-            lg.setColorAt(1, backgroundColor);
-            painter->fillRect(gradientStart, positions.adjustedTop(),
-                              ELLIPSIS_GRADIENT_WIDTH, positions.lineHeight(),
-                              lg);
-        }
+    if (showFileLineInfo) {
+        //Check for file info
+        QString file = index.data(QtMessageLogHandler::FileRole).toString();
+        if (!file.isEmpty()) {
+            QFontMetrics fm(option.font);
+            // Paint FileArea
+            const int pos = file.lastIndexOf(QLatin1Char('/'));
+            if (pos != -1)
+                file = file.mid(pos +1);
+            const int realFileWidth = fm.width(file);
+            painter->setClipRect(positions.fileArea());
+            painter->drawText(positions.fileAreaLeft(),
+                              positions.adjustedTop() + fm.ascent(), file);
+            if (realFileWidth > positions.fileAreaWidth()) {
+                // draw a gradient to mask the text
+                int gradientStart = positions.fileAreaLeft() - 1;
+                QLinearGradient lg(gradientStart +
+                                   ELLIPSIS_GRADIENT_WIDTH, 0, gradientStart, 0);
+                lg.setColorAt(0, Qt::transparent);
+                lg.setColorAt(1, backgroundColor);
+                painter->fillRect(gradientStart, positions.adjustedTop(),
+                                  ELLIPSIS_GRADIENT_WIDTH, positions.lineHeight(),
+                                  lg);
+            }
 
-        // Paint LineArea
-        QString lineText  = index.data(QtMessageLogHandler::LineRole).toString();
-        painter->setClipRect(positions.lineArea());
-        const int realLineWidth = fm.width(lineText);
-        painter->drawText(positions.lineAreaRight() - realLineWidth,
-                          positions.adjustedTop() + fm.ascent(), lineText);
+            // Paint LineArea
+            QString lineText  = index.data(QtMessageLogHandler::LineRole).toString();
+            painter->setClipRect(positions.lineArea());
+            const int realLineWidth = fm.width(lineText);
+            painter->drawText(positions.lineAreaRight() - realLineWidth,
+                              positions.adjustedTop() + fm.ascent(), lineText);
+        }
     }
     painter->setClipRect(opt.rect);
     painter->restore();
@@ -272,7 +276,10 @@ QSize QtMessageLogItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     ConsoleItemPositions positions(rect, opt.font,
                         showTypeIcon, showExpandableIcon, m_itemModel);
 
-    QTextLayout tl(index.data(Qt::DisplayRole).toString(), option.font);
+    QFontMetrics fm(option.font);
+    QString str = index.data(Qt::DisplayRole).toString();
+    formatTextForWidth(str);
+    QTextLayout tl(str, option.font);
     qreal height = layoutText(tl, positions.textAreaWidth());
     height += 2 * ConsoleItemPositions::ITEM_PADDING;
     if (height < positions.minimumHeight())
@@ -331,7 +338,8 @@ void QtMessageLogItemDelegate::commitAndCloseEditor()
     emit closeEditor(editor);
 }
 
-qreal QtMessageLogItemDelegate::layoutText(QTextLayout &tl, int width) const
+qreal QtMessageLogItemDelegate::layoutText(QTextLayout &tl, int width,
+                                           bool *showFileLineInfo) const
 {
     qreal height = 0;
     tl.beginLayout();
@@ -342,6 +350,8 @@ qreal QtMessageLogItemDelegate::layoutText(QTextLayout &tl, int width) const
             break;
         line.setLeadingIncluded(true);
         line.setLineWidth(width);
+        if (width < line.naturalTextWidth() && showFileLineInfo)
+            *showFileLineInfo = false;
         line.setPosition(QPoint(0, height));
         height += line.height();
     }
@@ -349,6 +359,13 @@ qreal QtMessageLogItemDelegate::layoutText(QTextLayout &tl, int width) const
     return height;
 }
 
+void QtMessageLogItemDelegate::formatTextForWidth(QString &text) const
+{
+    for (int i = 0; i < text.length(); i++) {
+        if (text.at(i).isPunct())
+            text.insert(i, QChar(0x200b)); // ZERO WIDTH SPACE
+    }
+}
 void QtMessageLogItemDelegate::setItemModel(QtMessageLogHandler *model)
 {
     m_itemModel = model;

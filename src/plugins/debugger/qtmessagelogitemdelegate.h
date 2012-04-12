@@ -75,7 +75,8 @@ private slots:
     void commitAndCloseEditor();
 
 private:
-    qreal layoutText(QTextLayout &tl, int width) const;
+    qreal layoutText(QTextLayout &tl, int width, bool *success = 0) const;
+    void formatTextForWidth(QString &text) const;
 
 private:
     const QIcon m_logIcon;
