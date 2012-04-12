@@ -101,6 +101,7 @@ QtMessageLogWindow::QtMessageLogWindow(QWidget *parent)
     m_showLogAction->setDefaultValue(true);
     m_showLogAction->setSettingsKey(_(CONSOLE), _(SHOW_LOG));
     m_showLogAction->setText(tr("Log"));
+    m_showLogAction->setToolTip(tr("Show debug, log, and info messages."));
     m_showLogAction->setCheckable(true);
     m_showLogAction->setIcon(QIcon(_(":/debugger/images/log.png")));
     button->setDefaultAction(m_showLogAction);
@@ -113,6 +114,7 @@ QtMessageLogWindow::QtMessageLogWindow(QWidget *parent)
     m_showWarningAction->setDefaultValue(true);
     m_showWarningAction->setSettingsKey(_(CONSOLE), _(SHOW_WARNING));
     m_showWarningAction->setText(tr("Warning"));
+    m_showWarningAction->setToolTip(tr("Show warning messages."));
     m_showWarningAction->setCheckable(true);
     m_showWarningAction->setIcon(QIcon(_(":/debugger/images/warning.png")));
     button->setDefaultAction(m_showWarningAction);
@@ -125,6 +127,7 @@ QtMessageLogWindow::QtMessageLogWindow(QWidget *parent)
     m_showErrorAction->setDefaultValue(true);
     m_showErrorAction->setSettingsKey(_(CONSOLE), _(SHOW_ERROR));
     m_showErrorAction->setText(tr("Error"));
+    m_showErrorAction->setToolTip(tr("Show error and fatal messages."));
     m_showErrorAction->setCheckable(true);
     m_showErrorAction->setIcon(QIcon(_(":/debugger/images/error.png")));
     button->setDefaultAction(m_showErrorAction);
