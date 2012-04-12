@@ -62,6 +62,9 @@ const char RUNQMAKECONTEXTMENU[] = "Qt4Builder.RunQMakeContextMenu";
 const char BUILDSUBDIR[] = "Qt4Builder.BuildSubDir";
 const char REBUILDSUBDIR[] = "Qt4Builder.RebuildSubDir";
 const char CLEANSUBDIR[] = "Qt4Builder.CleanSubDir";
+const char BUILDSUBDIRCONTEXTMENU[] = "Qt4Builder.BuildSubDirContextMenu";
+const char REBUILDSUBDIRCONTEXTMENU[] = "Qt4Builder.RebuildSubDirContextMenu";
+const char CLEANSUBDIRCONTEXTMENU[] = "Qt4Builder.CleanSubDirContextMenu";
 const char ADDLIBRARY[] = "Qt4.AddLibrary";
 const char SEPARATOR[] = "Qt4.Separator";
 

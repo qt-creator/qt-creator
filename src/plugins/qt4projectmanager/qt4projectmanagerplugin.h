@@ -45,6 +45,8 @@ namespace ProjectExplorer {
     class Node;
     class ProjectExplorerPlugin;
 }
+namespace Utils { class ParameterAction; }
+
 namespace Qt4ProjectManager {
 
 class Qt4Manager;
@@ -73,7 +75,7 @@ private slots:
     void startupProjectChanged();
     void activeTargetChanged();
     void updateRunQMakeAction();
-    void currentNodeChanged(ProjectExplorer::Node *node);
+    void currentNodeChanged(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
     void buildStateChanged(ProjectExplorer::Project *pro);
 
 #ifdef WITH_TESTS
@@ -99,6 +101,9 @@ private:
     QAction *m_buildSubProjectContextMenu;
     QAction *m_rebuildSubProjectContextMenu;
     QAction *m_cleanSubProjectContextMenu;
+    Utils::ParameterAction *m_buildSubProjectAction;
+    Utils::ParameterAction *m_rebuildSubProjectAction;
+    Utils::ParameterAction *m_cleanSubProjectAction;
     QAction *m_addLibraryAction;
     QAction *m_addLibraryActionContextMenu;
     Core::Context m_projectContext;
