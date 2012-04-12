@@ -242,7 +242,7 @@ void QmlJsInspectorToolBar::createActions()
 
     QHBoxLayout *toolBarLayout = new QHBoxLayout(m_barWidget);
     toolBarLayout->setMargin(0);
-    toolBarLayout->setSpacing(5);
+    toolBarLayout->setSpacing(0);
 
     // QML Helpers
     toolBarLayout->addWidget(toolButton(am->command(Constants::FROM_QML_ACTION)->action()));

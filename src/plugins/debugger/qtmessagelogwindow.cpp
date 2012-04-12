@@ -84,7 +84,8 @@ QtMessageLogWindow::QtMessageLogWindow(QWidget *parent)
     statusbarContainer->setFixedHeight(statusBarHeight);
     QHBoxLayout *hbox = new QHBoxLayout(statusbarContainer);
     hbox->setMargin(0);
-    hbox->setSpacing(5);
+    hbox->setSpacing(0);
+
     hbox->addSpacing(5);
 
     //Status Label
