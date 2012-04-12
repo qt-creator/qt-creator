@@ -89,7 +89,7 @@ void RemoteLinuxDeployConfiguration::initialize()
 
 void RemoteLinuxDeployConfiguration::handleDeviceConfigurationListUpdated()
 {
-    setDeviceConfig(DeviceManager::instance()->internalId(d->deviceConfiguration));
+    setDeviceConfig(DeviceManager::instance()->deviceId(d->deviceConfiguration));
 }
 
 void RemoteLinuxDeployConfiguration::setDeviceConfig(const Core::Id &internalId)
@@ -112,7 +112,7 @@ QVariantMap RemoteLinuxDeployConfiguration::toMap() const
 {
     QVariantMap map = DeployConfiguration::toMap();
     map.insert(QLatin1String(DeviceIdKey),
-        DeviceManager::instance()->internalId(d->deviceConfiguration).toString());
+        DeviceManager::instance()->deviceId(d->deviceConfiguration).toString());
     return map;
 }
 

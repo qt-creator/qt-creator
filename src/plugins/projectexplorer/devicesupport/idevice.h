@@ -65,7 +65,7 @@ public:
 
     QString type() const;
     bool isAutoDetected() const;
-    Core::Id internalId() const;
+    Core::Id id() const;
 
     virtual QString displayType() const = 0;
     virtual IDeviceWidget *createWidget() = 0;

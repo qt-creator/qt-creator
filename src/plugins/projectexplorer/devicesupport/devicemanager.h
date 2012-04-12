@@ -65,7 +65,7 @@ public:
         const QString &fingerprint);
     IDevice::ConstPtr defaultDevice(const QString &deviceType) const;
     bool hasDevice(const QString &name) const;
-    Core::Id internalId(const IDevice::ConstPtr &device) const;
+    Core::Id deviceId(const IDevice::ConstPtr &device) const;
 
     int indexOf(const IDevice::ConstPtr &device) const;
 
@@ -93,7 +93,7 @@ private:
     void fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
     void ensureOneDefaultDevicePerType();
-    int indexForInternalId(const Core::Id &internalId) const;
+    int indexForId(const Core::Id &id) const;
 
     // For SettingsWidget.
     IDevice::Ptr mutableDeviceAt(int index) const;

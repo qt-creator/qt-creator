@@ -183,7 +183,7 @@ void RemoteLinuxDeployConfigurationWidget::handleDeviceConfigurationListChanged(
 {
     const LinuxDeviceConfiguration::ConstPtr &devConf
         = d->deployConfiguration->deviceConfiguration();
-    const Core::Id &internalId = DeviceManager::instance()->internalId(devConf);
+    const Core::Id &internalId = DeviceManager::instance()->deviceId(devConf);
     const int newIndex
         = d->deployConfiguration->target()->deviceConfigModel()->indexForInternalId(internalId);
     d->ui.deviceConfigsComboBox->setCurrentIndex(newIndex);

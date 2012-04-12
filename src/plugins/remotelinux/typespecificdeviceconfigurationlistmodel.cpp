@@ -121,7 +121,7 @@ int TypeSpecificDeviceConfigurationListModel::indexForInternalId(const Core::Id 
 {
     const int count = rowCount();
     for (int i = 0; i < count; ++i) {
-        if (deviceAt(i)->internalId() == id)
+        if (deviceAt(i)->id() == id)
             return i;
     }
     return -1;

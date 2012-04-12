@@ -58,7 +58,7 @@ static IDevice::Ptr findAutoDetectedDevice(const QList<IDevice::Ptr> &deviceList
 {
     const Core::Id id(fingerprint);
     foreach (const IDevice::Ptr &device, deviceList) {
-        if (device->isAutoDetected() && device->type() == type && device->internalId() == id)
+        if (device->isAutoDetected() && device->type() == type && device->id() == id)
             return device;
     }
     return IDevice::Ptr();
@@ -223,7 +223,7 @@ void DeviceManager::addDevice(const IDevice::Ptr &device)
 {
     QTC_ASSERT(this != instance() || (device->isAutoDetected()), return);
 
-    const int pos = indexForInternalId(device->internalId());
+    const int pos = indexForId(device->id());
     if (pos >= 0)
         removeDevice(pos);
 
@@ -238,14 +238,14 @@ void DeviceManager::addDevice(const IDevice::Ptr &device)
     }
     device->setDisplayName(name);
     if (!defaultDevice(device->type()))
-        d->defaultDevices.insert(device->type(), device->internalId());
+        d->defaultDevices.insert(device->type(), device->id());
     d->devices << device;
     if (this == instance() && d->clonedInstance)
         d->clonedInstance->addDevice(device->clone());
     if (this == instance()) {
         QList<IDevice::Ptr>::Iterator it = d->inactiveAutoDetectedDevices.begin();
         while (it != d->inactiveAutoDetectedDevices.end()) {
-            if (it->data()->internalId() == device->internalId()) {
+            if (it->data()->id() == device->id()) {
                 d->inactiveAutoDetectedDevices.erase(it);
                 break;
             }
@@ -255,7 +255,7 @@ void DeviceManager::addDevice(const IDevice::Ptr &device)
 
     emit deviceAdded(device);
     if (pos >= 0)
-        emit deviceUpdated(device->internalId());
+        emit deviceUpdated(device->id());
 
     emit updated();
 }
@@ -266,7 +266,7 @@ void DeviceManager::removeDevice(int idx)
     QTC_ASSERT(device, return);
     QTC_ASSERT(this != instance() || device->isAutoDetected(), return);
 
-    const bool wasDefault = d->defaultDevices.value(device->type()) == device->internalId();
+    const bool wasDefault = d->defaultDevices.value(device->type()) == device->id();
     const QString deviceType = device->type();
     d->devices.removeAt(idx);
     emit deviceRemoved(idx);
@@ -274,7 +274,7 @@ void DeviceManager::removeDevice(int idx)
     if (wasDefault) {
         for (int i = 0; i < d->devices.count(); ++i) {
             if (deviceAt(i)->type() == deviceType) {
-                d->defaultDevices.insert(deviceAt(i)->type(), deviceAt(i)->internalId());
+                d->defaultDevices.insert(deviceAt(i)->type(), deviceAt(i)->id());
                 emit defaultStatusChanged(i);
                 break;
             }
@@ -282,7 +282,7 @@ void DeviceManager::removeDevice(int idx)
     }
     if (this == instance() && d->clonedInstance) {
         d->clonedInstance->removeDevice(d->clonedInstance->
-            indexForInternalId(device->internalId()));
+            indexForId(device->id()));
     }
     if (this == instance() && device->isAutoDetected())
         d->inactiveAutoDetectedDevices << device;
@@ -308,7 +308,7 @@ void DeviceManager::setDefaultDevice(int idx)
     const IDevice::ConstPtr &oldDefaultDevice = defaultDevice(device->type());
     if (device == oldDefaultDevice)
         return;
-    d->defaultDevices.insert(device->type(), device->internalId());
+    d->defaultDevices.insert(device->type(), device->id());
     emit defaultStatusChanged(idx);
     for (int i = 0; i < d->devices.count(); ++i) {
         if (d->devices.at(i) == oldDefaultDevice) {
@@ -365,7 +365,7 @@ bool DeviceManager::hasDevice(const QString &name) const
 
 IDevice::ConstPtr DeviceManager::find(const Core::Id &id) const
 {
-    const int index = indexForInternalId(id);
+    const int index = indexForId(id);
     return index == -1 ? IDevice::ConstPtr() : deviceAt(index);
 }
 
@@ -383,30 +383,30 @@ IDevice::ConstPtr DeviceManager::defaultDevice(const QString &deviceType) const
     return find(id);
 }
 
-int DeviceManager::indexForInternalId(const Core::Id &internalId) const
+int DeviceManager::indexForId(const Core::Id &id) const
 {
     for (int i = 0; i < d->devices.count(); ++i) {
-        if (deviceAt(i)->internalId() == internalId)
+        if (deviceAt(i)->id() == id)
             return i;
     }
     return -1;
 }
 
-Core::Id DeviceManager::internalId(const IDevice::ConstPtr &device) const
+Core::Id DeviceManager::deviceId(const IDevice::ConstPtr &device) const
 {
-    return device ? device->internalId() : IDevice::invalidId();
+    return device ? device->id() : IDevice::invalidId();
 }
 
 int DeviceManager::indexOf(const IDevice::ConstPtr &device) const
 {
-    return indexForInternalId(device->internalId());
+    return indexForId(device->id());
 }
 
 void DeviceManager::ensureOneDefaultDevicePerType()
 {
     foreach (const IDevice::Ptr &device, d->devices) {
         if (!defaultDevice(device->type()))
-            d->defaultDevices.insert(device->type(), device->internalId());
+            d->defaultDevices.insert(device->type(), device->id());
     }
 }
 

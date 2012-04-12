@@ -207,7 +207,7 @@ bool IDevice::isAutoDetected() const
     return d->origin == AutoDetected;
 }
 
-Core::Id IDevice::internalId() const
+Core::Id IDevice::id() const
 {
     return d->internalId;
 }
