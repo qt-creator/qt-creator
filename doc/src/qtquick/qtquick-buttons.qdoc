@@ -37,7 +37,7 @@
 
     \list 1
 
-        \o  Select \gui {File > New File or Project > QML > QML File > Choose}
+        \o  Select \gui {File > New File or Project > Qt > QML File > Choose}
             to create a QML file called Button.qml (for example).
 
             \note Components are listed in the \gui Library pane only if the
@@ -73,7 +73,8 @@
 
             \o  In the \gui Text field, type \bold Button.
 
-                You can select the text color, font, size, and style in the
+                You can select the text color in the \gui Color section and the
+                font, size, and style in the
                 \gui Font section.
 
             \o  In the \gui Alignment field, select the center buttons to align
@@ -81,7 +82,8 @@
 
             \o  Click \gui {Layout}, and then click the
                 \inlineimage qmldesigner-anchor-fill-screen.png
-                button to anchor the text to the whole button area.
+                (\gui {Fill to Parent}) button to anchor the text to the whole
+                button area.
 
         \endlist
 
@@ -90,9 +92,6 @@
             \image qmldesigner-button.png "Button component"
 
     \endlist
-
-    \note To view the button, you must add it to a Qt Quick Application or
-    Qt Quick UI project.
 
     To create a graphical button that scales beautifully without using vector
     graphics, use the \l{http://doc.qt.nokia.com/4.7/qml-borderimage.html}
@@ -120,7 +119,7 @@
     is visible by default. You can specify that it is hidden and the other one
     becomes visible when the mouse is clicked.
 
-    Add a MouseArea that covers the whole area and emits the clicked signal
+    Add a Mouse Area that covers the whole area and emits the clicked signal
     (\c {parent.clicked()}) when it detects a mouse click.
 
     You can add text to the button and set it up as a property. The text can
@@ -135,7 +134,7 @@
 
     \list 1
 
-        \o  Select \gui {File > New File or Project > QML > QML File > Choose}
+        \o  Select \gui {File > New File or Project > Qt > QML File > Choose}
             to create a QML file called Button.qml (for example).
 
         \o  Double-click the file to open it in the code editor.
@@ -158,12 +157,12 @@
 
         \o  Click \gui {Design} to edit the file in the visual editor.
 
-        \o  Drag and drop two \gui BorderImage items from the \gui Library pane
+        \o  Drag and drop two \gui {Border Image} items from the \gui Library pane
             to the scene.
 
         \o  Drag and drop a \gui Text item to the scene.
 
-        \o  Drag and drop a \gui MouseArea to the screen.
+        \o  Drag and drop a \gui {Mouse Area} to the screen.
 
         \o  In the \gui Navigator pane, select \gui border_image1 to specify
             settings for it in the \gui Properties pane:
@@ -182,7 +181,8 @@
 
             \o   Click \gui {Layout}, and then click the
                 \inlineimage qmldesigner-anchor-fill-screen.png
-                button to anchor the border image to the \gui Item.
+                (\gui {Fill to Parent}) button to anchor the border image to the
+                \gui Item.
 
         \endlist
 
@@ -198,7 +198,7 @@
                 when it is clicked, for example button_down.png.
 
             \o  Click \gui {Layout}, and then click the
-                \inlineimage qmldesigner-anchor-fill-screen.png
+                \gui {Fill to Parent}
                 button to anchor the border image to the \gui Item.
 
         \endlist
@@ -215,7 +215,7 @@
                 enter a pointer to the \c {text} property that you specified
                 earlier: \c {parent.txt}.
 
-            \o  Select the \gui Aliasing check box to enable smooth text
+            \o  Select the \gui Smooth check box to enable smooth text
                 rendering.
 
             \o  In the \gui Size field, select \gui {Pixels} to specify the font
@@ -227,6 +227,7 @@
 
             \o  Click \gui {Layout}, and then click the
                 \inlineimage qmldesigner-center-in.png "Anchor buttons"
+                (\gui {Set Vertical Anchor} and \gui {Set Horizontal Anchor})
                 buttons to inherit the vertical and horizontal centering from
                 the parent.
 
@@ -247,8 +248,8 @@
 
     \endlist
 
-    \note To view the button, you must add it to a Qt Quick Application or Qt
-    Quick UI project.
+    \note To test the button, add it to a Qt Quick Application or Qt
+    Quick UI project and run the application.
 
 */
 
