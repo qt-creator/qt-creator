@@ -93,7 +93,7 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     QmlJS::Document::Ptr document() const;
-    void update(const SemanticInfo &semanticInfo);
+    void update(const QmlJSTools::SemanticInfo &semanticInfo);
 
     QmlJS::AST::Node *nodeForIndex(const QModelIndex &index) const;
     QmlJS::AST::SourceLocation sourceLocation(const QModelIndex &index) const;
@@ -151,7 +151,7 @@ private:
     QHash<QString,QString> getScriptBindings(QmlJS::AST::UiObjectInitializer *objInitializer);
 
 
-    SemanticInfo m_semanticInfo;
+    QmlJSTools::SemanticInfo m_semanticInfo;
     QList<int> m_treePos;
     QStandardItem *m_currentItem;
     QmlJS::Icons *m_icons;

@@ -56,13 +56,14 @@ public:
     void reupdate(const QmlJS::Snapshot &snapshot);
 
 Q_SIGNALS:
-    void updated(const QmlJSEditor::SemanticInfo &semanticInfo);
+    void updated(const QmlJSTools::SemanticInfo &semanticInfo);
 
 protected:
     virtual void run();
 
 private:
-    SemanticInfo makeNewSemanticInfo(const QmlJS::Document::Ptr &doc, const QmlJS::Snapshot &snapshot);
+    QmlJSTools::SemanticInfo makeNewSemanticInfo(const QmlJS::Document::Ptr &doc,
+                                                 const QmlJS::Snapshot &snapshot);
 
 private:
     QMutex m_mutex;
@@ -70,7 +71,7 @@ private:
     bool m_wasCancelled;
     QmlJS::Document::Ptr m_sourceDocument;
     QmlJS::Snapshot m_sourceSnapshot;
-    SemanticInfo m_lastSemanticInfo;
+    QmlJSTools::SemanticInfo m_lastSemanticInfo;
 };
 
 } // namespace Internal

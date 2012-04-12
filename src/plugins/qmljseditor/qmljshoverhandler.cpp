@@ -118,7 +118,7 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
     if (matchDiagnosticMessage(qmlEditor, pos))
         return;
 
-    const QmlJSEditor::SemanticInfo &semanticInfo = qmlEditor->semanticInfo();
+    const QmlJSTools::SemanticInfo &semanticInfo = qmlEditor->semanticInfo();
     if (! semanticInfo.isValid() || qmlEditor->isSemanticInfoOutdated())
         return;
 

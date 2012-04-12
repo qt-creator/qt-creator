@@ -102,7 +102,7 @@ void SemanticInfoUpdater::run()
         if (done)
             break;
 
-        const SemanticInfo info = makeNewSemanticInfo(doc, snapshot);
+        const QmlJSTools::SemanticInfo info = makeNewSemanticInfo(doc, snapshot);
 
         m_mutex.lock();
         const bool cancelledOrNewData = m_wasCancelled || m_sourceDocument;
@@ -115,11 +115,11 @@ void SemanticInfoUpdater::run()
     }
 }
 
-SemanticInfo SemanticInfoUpdater::makeNewSemanticInfo(const QmlJS::Document::Ptr &doc, const QmlJS::Snapshot &snapshot)
+QmlJSTools::SemanticInfo SemanticInfoUpdater::makeNewSemanticInfo(const QmlJS::Document::Ptr &doc, const QmlJS::Snapshot &snapshot)
 {
     using namespace QmlJS;
 
-    SemanticInfo semanticInfo;
+    QmlJSTools::SemanticInfo semanticInfo;
     semanticInfo.document = doc;
     semanticInfo.snapshot = snapshot;
 
@@ -129,7 +129,7 @@ SemanticInfo SemanticInfoUpdater::makeNewSemanticInfo(const QmlJS::Document::Ptr
     semanticInfo.context = link(doc, &semanticInfo.semanticMessages);
 
     ScopeChain *scopeChain = new ScopeChain(doc, semanticInfo.context);
-    semanticInfo.m_rootScopeChain = QSharedPointer<const ScopeChain>(scopeChain);
+    semanticInfo.setRootScopeChain(QSharedPointer<const ScopeChain>(scopeChain));
 
     if (doc->language() == Document::JsonLanguage) {
         Utils::JsonSchema *schema =

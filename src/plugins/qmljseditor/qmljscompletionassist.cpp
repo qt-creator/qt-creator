@@ -67,6 +67,7 @@
 
 using namespace QmlJS;
 using namespace QmlJSEditor;
+using namespace QmlJSTools;
 using namespace Internal;
 using namespace TextEditor;
 

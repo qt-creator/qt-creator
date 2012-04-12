@@ -35,10 +35,8 @@
 
 #include "qmljseditor_global.h"
 
-#include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsscanner.h>
-#include <qmljs/qmljsscopechain.h>
-#include <qmljs/qmljsstaticanalysismessage.h>
+#include <qmljstools/qmljssemanticinfo.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/quickfix.h>
 
@@ -90,61 +88,6 @@ struct QMLJSEDITOR_EXPORT Declaration
     { }
 };
 
-class QMLJSEDITOR_EXPORT Range
-{
-public:
-    Range(): ast(0) {}
-
-public: // attributes
-    QmlJS::AST::Node *ast;
-    QTextCursor begin;
-    QTextCursor end;
-};
-
-class QMLJSEDITOR_EXPORT SemanticInfo
-{
-public:
-    SemanticInfo() {}
-
-    bool isValid() const;
-    int revision() const;
-
-    // Returns the AST path
-    QList<QmlJS::AST::Node *> astPath(int cursorPosition) const;
-
-    // Returns the AST node at the offset (the last member of the astPath)
-    QmlJS::AST::Node *astNodeAt(int cursorPosition) const;
-
-    // Returns the list of declaration-type nodes that enclose the given position.
-    // It is more robust than astPath because it tracks ranges with text cursors
-    // and will thus be correct even if the document was changed and not yet
-    // reparsed. It does not return the full path of AST nodes.
-    QList<QmlJS::AST::Node *> rangePath(int cursorPosition) const;
-
-    // Returns the declaring member
-    QmlJS::AST::Node *rangeAt(int cursorPosition) const;
-    QmlJS::AST::Node *declaringMemberNoProperties(int cursorPosition) const;
-
-    // Returns a scopeChain for the given path
-    QmlJS::ScopeChain scopeChain(const QList<QmlJS::AST::Node *> &path = QList<QmlJS::AST::Node *>()) const;
-
-public: // attributes
-    QmlJS::Document::Ptr document;
-    QmlJS::Snapshot snapshot;
-    QmlJS::ContextPtr context;
-    QList<Range> ranges;
-    QHash<QString, QList<QmlJS::AST::SourceLocation> > idLocations;
-
-    // these are in addition to the parser messages in the document
-    QList<QmlJS::DiagnosticMessage> semanticMessages;
-    QList<QmlJS::StaticAnalysis::Message> staticAnalysisMessages;
-
-private:
-    QSharedPointer<const QmlJS::ScopeChain> m_rootScopeChain;
-
-    friend class Internal::SemanticInfoUpdater;
-};
-
 class QMLJSEDITOR_EXPORT QmlJSTextEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_OBJECT
@@ -155,7 +98,7 @@ public:
 
     virtual void unCommentSelection();
 
-    SemanticInfo semanticInfo() const;
+    QmlJSTools::SemanticInfo semanticInfo() const;
     bool isSemanticInfoOutdated() const;
     int editorRevision() const;
 
@@ -200,7 +143,7 @@ private slots:
     void updateUses();
     void updateUsesNow();
 
-    void acceptNewSemanticInfo(const QmlJSEditor::SemanticInfo &semanticInfo);
+    void acceptNewSemanticInfo(const QmlJSTools::SemanticInfo &semanticInfo);
     void onCursorPositionChanged();
     void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker);
 
@@ -243,7 +186,7 @@ private:
     QTextCharFormat m_occurrenceRenameFormat;
 
     Internal::SemanticInfoUpdater *m_semanticInfoUpdater;
-    SemanticInfo m_semanticInfo;
+    QmlJSTools::SemanticInfo m_semanticInfo;
     int m_futureSemanticInfoRevision;
 
     QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;

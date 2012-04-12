@@ -54,7 +54,9 @@ QtcPlugin {
         "qmljstoolssettings.cpp",
         "qmljstoolssettings.h",
         "qmljscodestylepreferencesfactory.cpp",
-        "qmljscodestylepreferencesfactory.h"
+        "qmljscodestylepreferencesfactory.h",
+        "qmljssemanticinfo.cpp",
+        "qmljssemanticinfo.h"
     ]
 
     ProductModule {
