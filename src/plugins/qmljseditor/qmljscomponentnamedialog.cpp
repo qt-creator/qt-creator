@@ -66,7 +66,7 @@ void ComponentNameDialog::go(QString *proposedName,
     ComponentNameDialog d(parent);
     d.ui->componentNameEdit->setNamespacesEnabled(false);
     d.ui->componentNameEdit->setLowerCaseFileName(false);
-    d.ui->componentNameEdit->setClassNameMustBeCapital(true);
+    d.ui->componentNameEdit->setForceFirstCapitalLetter(true);
     d.ui->componentNameEdit->setText(*proposedName);
     d.ui->pathEdit->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     d.ui->pathEdit->setPath(*proposedPath);

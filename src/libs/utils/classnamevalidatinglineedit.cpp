@@ -53,16 +53,16 @@ struct ClassNameValidatingLineEditPrivate {
     const QString m_namespaceDelimiter;
     bool m_namespacesEnabled;
     bool m_lowerCaseFileName;
+    bool m_forceFirstCapitalLetter;
 };
 
 // Match something like "Namespace1::Namespace2::ClassName".
 ClassNameValidatingLineEditPrivate:: ClassNameValidatingLineEditPrivate() :
-    m_nameRegexp(QLatin1String("[a-zA-Z_][a-zA-Z0-9_]*(::[a-zA-Z_][a-zA-Z0-9_]*)*")),
     m_namespaceDelimiter(QLatin1String("::")),
     m_namespacesEnabled(false),
-    m_lowerCaseFileName(true)
+    m_lowerCaseFileName(true),
+    m_forceFirstCapitalLetter(false)
 {
-    QTC_ASSERT(m_nameRegexp.isValid(), return);
 }
 
 // --------------------- ClassNameValidatingLineEdit
@@ -89,6 +89,8 @@ void ClassNameValidatingLineEdit::setNamespacesEnabled(bool b)
 
 bool ClassNameValidatingLineEdit::validate(const QString &value, QString *errorMessage) const
 {
+    static QRegExp nameRegexp(QLatin1String("[a-zA-Z_][a-zA-Z0-9_]*(::[a-zA-Z_][a-zA-Z0-9_]*)*"));
+    QTC_ASSERT(nameRegexp.isValid(), return false);
     if (!d->m_namespacesEnabled && value.contains(QLatin1Char(':'))) {
         if (errorMessage)
             *errorMessage = tr("The class name must not contain namespace delimiters.");
@@ -97,7 +99,7 @@ bool ClassNameValidatingLineEdit::validate(const QString &value, QString *errorM
         if (errorMessage)
             *errorMessage = tr("Please enter a class name.");
         return false;
-    } else if (!d->m_nameRegexp.exactMatch(value)) {
+    } else if (!nameRegexp.exactMatch(value)) {
         if (errorMessage)
             *errorMessage = tr("The class name contains invalid characters.");
         return false;
@@ -118,6 +120,18 @@ void ClassNameValidatingLineEdit::slotChanged(const QString &t)
         }
         emit updateFileName(fileName);
     }
+}
+
+QString ClassNameValidatingLineEdit::fixInputString(const QString &string)
+{
+    if (!forceFirstCapitalLetter())
+        return string;
+
+    QString fixedString = string;
+    if (!string.isEmpty() && string.at(0).isLower())
+        fixedString[0] = string.at(0).toUpper();
+
+    return fixedString;
 }
 
 QString ClassNameValidatingLineEdit::createClassName(const QString &name)
@@ -154,6 +168,16 @@ bool ClassNameValidatingLineEdit::lowerCaseFileName() const
 void ClassNameValidatingLineEdit::setLowerCaseFileName(bool v)
 {
     d->m_lowerCaseFileName = v;
+}
+
+bool ClassNameValidatingLineEdit::forceFirstCapitalLetter() const
+{
+    return d->m_forceFirstCapitalLetter;
+}
+
+void ClassNameValidatingLineEdit::setForceFirstCapitalLetter(bool b)
+{
+    d->m_forceFirstCapitalLetter = b;
 }
 
 } // namespace Utils

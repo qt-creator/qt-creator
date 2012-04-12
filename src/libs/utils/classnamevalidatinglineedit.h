@@ -57,6 +57,9 @@ public:
     bool lowerCaseFileName() const;
     void setLowerCaseFileName(bool v);
 
+    bool forceFirstCapitalLetter() const;
+    void setForceFirstCapitalLetter(bool b);
+
     // Clean an input string to get a valid class name.
     static QString createClassName(const QString &name);
 
@@ -68,6 +71,7 @@ signals:
 protected:
     virtual bool validate(const QString &value, QString *errorMessage) const;
     virtual void slotChanged(const QString &t);
+    virtual QString fixInputString(const QString &string);
 
 private:
     ClassNameValidatingLineEditPrivate *d;
