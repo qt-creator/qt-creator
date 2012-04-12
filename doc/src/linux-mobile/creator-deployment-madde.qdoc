@@ -31,15 +31,16 @@
     \page creator-deployment-maemo.html
     \nextpage creator-connecting-mobile.html
 
-    \title Deploying Applications to Maemo or MeeGo Harmattan Devices
+    \title Deploying Applications to Linux-Based Devices
 
-    You can specify settings for deploying applications to Maemo 5 and MeeGo
-    Harmattan devices in the project .pro file. You can view the settings in the
+    You can specify settings for deploying applications to Linux-based devices
+    (Embedded Linux, MeeGo Harmattan, and Maemo 5) in the project .pro file.
+    You can view the settings in the
     \gui {Run Settings}.
 
     \image qtcreator-maemo-deployment.png "Deploy to device"
 
-    The files to be installed are listed in the \gui {Deploy to Device} step,
+    The files to be installed are listed in the \gui {Deployment} step,
     the \gui {Files to install for subproject} field. The \gui {Local File Path}
     field displays the location of the file on the development PC. The
     \gui {Remote Directory} field displays the folder where the file is
@@ -47,6 +48,36 @@
     missing. Edit the qmake
     \l{http://doc.qt.nokia.com/4.8/qmake-variable-reference.html#installs}
     {INSTALLS variable} in the project .pro file to add the missing files.
+
+    When you run the application, \QC copies the necessary files to the device
+    and starts the application on it.
+
+    \section1 Deploying on Embedded Linux
+
+    \image qtcreator-embedded-linux-deployment.png "Deploy to embedded Linux"
+
+    When you run the application on the \gui {Embedded Linux} target, \QC
+    deploys the application as specified by the deploy steps. By default,
+    \QC copies the application files to the device by using the SSH file
+    transfer protocol (SFTP), as specified by the \gui {Upload files via SFTP}
+    step.
+
+    If you have a lot of data to copy, select \gui Details in the
+    \gui {Upload Files via SFTP} step, and then select the
+    \gui {Incremental deployment} check box. \QC takes note of the deployment
+    time and only copies files that have changed since the last deployment.
+    However, when you make major changes on the device, such as removing files
+    from the device manually or flashing a new disk image, or when you use
+    another device with the same IP address, deselect the check box once, to
+    have \QC deploy all files again.
+
+    To only create a tarball and not copy the files to the device, select
+    \gui {Add Deploy Step > Create tarball}. Then remove all other deploy steps.
+
+    The \gui {Deploy tarball via SFTP upload} step specifies that \QC
+    uploads the tarball to the device and extracts it.
+
+    \section1 Deploying on MeeGo Harmattan and Maemo 5
 
     You can use desktop files to display icons on the home screen of the
     device. To add desktop files to the project file, select \gui {Add Desktop
