@@ -576,9 +576,6 @@ namespace qbytearray {
         // Check buf1 "î" QByteArray.
         // Check buf2 "î" QByteArray.
         // Check buf3 "\ee" QByteArray.
-        // Check buf1 "î" QByteArray.
-        // Check buf2 "î" QByteArray.
-        // Check buf3 "\ee" QByteArray.
         // CheckType str1 char *.
         // Continue.
         dummyStatement(&buf1, &buf2, &buf3);
