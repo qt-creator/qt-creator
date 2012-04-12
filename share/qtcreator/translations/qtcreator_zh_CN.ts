@@ -658,7 +658,7 @@
     </message>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
-        <translation>请进入你想构建项目的目录. Qt Creator 建议你不要使用源文件夹构建. 这能确保源文件夹的干净并且可以使用不同设定多次构建.</translation>
+        <translation>请进入你想构建项目的目录. Qt Creator 建议你不要使用源文件夹构建. 这能确保源文件夹干净，并且可以针对不同设定多次构建.</translation>
     </message>
     <message>
         <source>Build directory:</source>
@@ -942,7 +942,7 @@
     </message>
     <message>
         <source>Use Creator for post-mortem debugging</source>
-        <translation type="obsolete">使用Creator进行运行后调试</translation>
+        <translation type="obsolete">使用Creator进行崩溃后调试</translation>
     </message>
     <message>
         <source>GUI Behavior</source>
@@ -3953,7 +3953,7 @@ Qt Creator 无法附属到进程.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use CDB&apos;s native console instead of Qt Creator&apos;s console for console applications. The native console does not prompt on application exit. It is suitable for diagnosing cases in which the application does not start up properly in Qt Creator&apos;s console and the subsequent attach fails.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;使用 CDB的原生控制台来代替Qt Creator的. 原生控制台不提示程序退出. 他适合在Qt Creator没有正确运行的和子进程注入失败的情况.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;使用 CDB的原生控制台来代替Qt Creator的. 原生控制台不提示程序退出. 适用于调试Qt Creator没有正确运行的和子进程注入失败的情况.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Use CDB &amp;console</source>
@@ -7424,6 +7424,10 @@ Reason: %3</source>
         <translation type="obsolete">退出FakeVim </translation>
     </message>
     <message>
+        <source>Execute User Action #%1</source>
+        <translation>执行用户操作 #%1</translation>
+    </message>
+    <message>
         <source>File not saved</source>
         <translation>文件未保存</translation>
     </message>
@@ -9628,7 +9632,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Report Bug...</source>
-        <translation>汇报错误...</translation>
+        <translation>报告错误...</translation>
     </message>
     <message>
         <source>Previous</source>
@@ -9660,7 +9664,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Report Bug</source>
-        <translation type="obsolete">错误汇报</translation>
+        <translation type="obsolete">报告错误</translation>
     </message>
     <message>
         <source>Activate Index in Help mode</source>
@@ -14211,7 +14215,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Link QML debugging library:</source>
-        <translation>连接QML 调试库:</translation>
+        <translation type="obsolete">连接QML 调试库:</translation>
     </message>
     <message>
         <source>Might make your application vulnerable. Only use in a safe environment.</source>
@@ -17605,7 +17609,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Open compiler output pane when building</source>
-        <translation>编译是打开编译输出窗口</translation>
+        <translation>编译时打开编译输出窗口</translation>
     </message>
     <message>
         <source>Open application output pane when running</source>
@@ -27625,6 +27629,14 @@ We will try to work around that, but you may experience problems.</source>
         <translation>仅选择有内容的项目 (S)</translation>
     </message>
     <message>
+        <source>width</source>
+        <translation>宽度</translation>
+    </message>
+    <message>
+        <source>height</source>
+        <translation>高度</translation>
+    </message>
+    <message>
         <source>Reset view (R)</source>
         <translation>重置窗口(R)</translation>
     </message>
@@ -27827,11 +27839,11 @@ Id必须以小写字母开头.</translation>
     </message>
     <message>
         <source>Width</source>
-        <translation>长度</translation>
+        <translation>宽度</translation>
     </message>
     <message>
         <source>Height</source>
-        <translation>宽度</translation>
+        <translation>高度</translation>
     </message>
     <message>
         <source>Lock aspect ratio</source>
@@ -33351,7 +33363,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Show in Pane</source>
-        <translation>显示在窗格种</translation>
+        <translation>显示在窗格中</translation>
     </message>
     <message>
         <source>Replace Selection</source>
@@ -34993,7 +35005,7 @@ Specifies how backspace interacts with indentation.
     </message>
     <message>
         <source>Private key error: %1</source>
-        <translation>私钥错误: %1</translation>
+        <translation type="obsolete">私钥错误: %1</translation>
     </message>
     <message>
         <source>Password expired.</source>
@@ -35022,6 +35034,14 @@ Specifies how backspace interacts with indentation.
     <message>
         <source>Timeout waiting for reply from server.</source>
         <translation>等待Server响应超时.</translation>
+    </message>
+    <message>
+        <source>No private key file given.</source>
+        <translation>未给出私钥文件。</translation>
+    </message>
+    <message>
+        <source>Private key file error: %1</source>
+        <translation>私钥文件错误: %1</translation>
     </message>
 </context>
 <context>
@@ -40410,19 +40430,19 @@ With cache simulation, further event counters are enabled:
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; is still running. You have to quit the Analyzer before being able to run another instance.&lt;center/&gt;&lt;center&gt;Force it to quit?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; 仍然在运行. 在运气其他实例前你必须先退出分析器.&lt;center/&gt;&lt;center&gt;强行关闭?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; 仍然在运行. 在运行其他实例前你必须先退出分析器.&lt;center/&gt;&lt;center&gt;强行关闭?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Analyzer Still Running</source>
-        <translation>分析器仍然在运行</translation>
+        <translation type="obsolete">分析器仍然在运行</translation>
     </message>
     <message>
         <source>Stop Active Run</source>
-        <translation>停止运行中的</translation>
+        <translation type="obsolete">停止运行中的</translation>
     </message>
     <message>
         <source>Keep Running</source>
-        <translation>保持运行</translation>
+        <translation type="obsolete">保持运行</translation>
     </message>
     <message>
         <source>Debug</source>
@@ -41014,6 +41034,10 @@ These files are preserved.</source>
     <message>
         <source>Qt</source>
         <translation>Qt</translation>
+    </message>
+    <message>
+        <source>Old Creator</source>
+        <translation>旧的 Creator</translation>
     </message>
 </context>
 <context>
@@ -47631,7 +47655,7 @@ Filter: %2
     </message>
     <message>
         <source>Start Updater</source>
-        <translation>启动</translation>
+        <translation>启动更新工具</translation>
     </message>
     <message>
         <source>Update</source>
