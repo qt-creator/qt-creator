@@ -391,13 +391,18 @@ QList<QWizardPage *> ProjectFileWizardExtension::extensionPages(const Core::IWiz
     return QList<QWizardPage *>() << m_context->page;
 }
 
-void ProjectFileWizardExtension::initProjectChoices(const QString &generatedProjectFilePath)
+
+static inline void getProjectChoicesAndToolTips(QStringList *projectChoicesParam,
+                                                QStringList *projectToolTipsParam,
+                                                ProjectNode::ProjectAction *projectActionParam,
+                                                const QString &generatedProjectFilePath,
+                                                ProjectWizardContext *context)
 {
     // Set up project list which remains the same over duration of wizard execution
     // As tooltip, set the directory for disambiguation (should someone have
     // duplicate base names in differing directories).
     //: No project selected
-    QStringList projectChoices(tr("<None>"));
+    QStringList projectChoices(ProjectFileWizardExtension::tr("<None>"));
     QStringList projectToolTips((QString()));
 
     typedef QMap<ProjectEntry, bool> ProjectEntryMap;
@@ -406,24 +411,37 @@ void ProjectFileWizardExtension::initProjectChoices(const QString &generatedProj
     ProjectEntryMap entryMap;
 
     ProjectNode::ProjectAction projectAction =
-            m_context->wizard->kind() == Core::IWizard::ProjectWizard
+           context->wizard->kind() == Core::IWizard::ProjectWizard
             ? ProjectNode::AddSubProject : ProjectNode::AddNewFile;
     foreach(ProjectNode *n, AllProjectNodesVisitor::allProjects(projectAction)) {
         if (projectAction == ProjectNode::AddNewFile
                 || (projectAction == ProjectNode::AddSubProject
-                && n->canAddSubProject(generatedProjectFilePath)))
+                && (generatedProjectFilePath.isEmpty() ? true : n->canAddSubProject(generatedProjectFilePath))))
             entryMap.insert(ProjectEntry(n), true);
     }
 
-    m_context->projects.clear();
+    context->projects.clear();
 
     // Collect names
     const ProjectEntryMap::const_iterator cend = entryMap.constEnd();
     for (ProjectEntryMap::const_iterator it = entryMap.constBegin(); it != cend; ++it) {
-        m_context->projects.push_back(it.key());
+        context->projects.push_back(it.key());
         projectChoices.push_back(it.key().fileName);
         projectToolTips.push_back(QDir::toNativeSeparators(it.key().directory));
     }
+    *projectChoicesParam  = projectChoices;
+    *projectToolTipsParam = projectToolTips;
+    *projectActionParam = projectAction;
+}
+
+void ProjectFileWizardExtension::initProjectChoices(const QString &generatedProjectFilePath)
+{
+    QStringList projectChoices;
+    QStringList projectToolTips;
+    ProjectNode::ProjectAction projectAction;
+
+    getProjectChoicesAndToolTips(&projectChoices, &projectToolTips, &projectAction,
+                                 generatedProjectFilePath, m_context);
 
     m_context->page->setProjects(projectChoices);
     m_context->page->setProjectToolTips(projectToolTips);
@@ -558,6 +576,40 @@ void ProjectFileWizardExtension::applyCodeStyle(Core::GeneratedFile *file) const
     indenter->indent(&doc, cursor, QChar::Null, codeStylePrefs->currentTabSettings());
     file->setContents(doc.toPlainText());
     delete indenter;
+}
+
+QStringList ProjectFileWizardExtension::getProjectChoices() const
+{
+    QStringList projectChoices;
+    QStringList projectToolTips;
+    ProjectNode::ProjectAction projectAction;
+
+    getProjectChoicesAndToolTips(&projectChoices, &projectToolTips, &projectAction,
+                                 QString(), m_context);
+
+    return projectChoices;
+}
+
+QStringList ProjectFileWizardExtension::getProjectToolTips() const
+{
+    QStringList projectChoices;
+    QStringList projectToolTips;
+    ProjectNode::ProjectAction projectAction;
+
+    getProjectChoicesAndToolTips(&projectChoices, &projectToolTips, &projectAction,
+                                 QString(), m_context);
+
+    return projectToolTips;
+}
+
+void ProjectFileWizardExtension::hideProjectComboBox()
+{
+    m_context->page->setProjectComoBoxVisible(false);
+}
+
+void ProjectFileWizardExtension::setProjectIndex(int i)
+{
+    m_context->page->setCurrentProjectIndex(i);
 }
 
 } // namespace Internal

@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>Utils::ProjectIntroPage</class>
  <widget class="QWizardPage" name="Utils::ProjectIntroPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>355</width>
+    <height>289</height>
+   </rect>
+  </property>
   <property name="title">
    <string>Introduction and Project Location</string>
   </property>
@@ -51,17 +59,17 @@
       <item row="0" column="1">
        <widget class="Utils::ProjectNameValidatingLineEdit" name="nameLineEdit"/>
       </item>
-      <item row="2" column="0">
+      <item row="6" column="0">
        <widget class="QLabel" name="pathLabel">
         <property name="text">
          <string>Create in:</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="Utils::PathChooser" name="pathChooser"/>
+      <item row="6" column="1">
+       <widget class="Utils::PathChooser" name="pathChooser" native="true"/>
       </item>
-      <item row="1" column="0">
+      <item row="4" column="0">
        <spacer name="directorySeparatorLabel">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -77,12 +85,22 @@
         </property>
        </spacer>
       </item>
-      <item row="3" column="0" colspan="2">
+      <item row="7" column="0" colspan="2">
        <widget class="QCheckBox" name="projectsDirectoryCheckBox">
         <property name="text">
          <string>Use as default project location</string>
         </property>
        </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="projectLabel">
+        <property name="text">
+         <string>Project:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QComboBox" name="projectComboBox"/>
       </item>
      </layout>
     </widget>

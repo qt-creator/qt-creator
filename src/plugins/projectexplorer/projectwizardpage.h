@@ -69,6 +69,9 @@ public:
     void setFilesDisplay(const QString &commonPath, const QStringList &files);
 
     void setAddingSubProject(bool addingSubProject);
+
+    void setProjectComoBoxVisible(bool visible);
+
 protected:
     virtual void changeEvent(QEvent *e);
 

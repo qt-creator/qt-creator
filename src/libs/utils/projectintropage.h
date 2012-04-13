@@ -48,6 +48,8 @@ class QTCREATOR_UTILS_EXPORT ProjectIntroPage : public QWizardPage
     Q_PROPERTY(QString path READ path WRITE setPath DESIGNABLE true)
     Q_PROPERTY(QString projectName READ projectName WRITE setProjectName DESIGNABLE true)
     Q_PROPERTY(bool useAsDefaultPath READ useAsDefaultPath WRITE setUseAsDefaultPath DESIGNABLE true)
+    Q_PROPERTY(bool forceSubProject READ forceSubProject WRITE setForceSubProject DESIGNABLE true)
+
 public:
     explicit ProjectIntroPage(QWidget *parent = 0);
     virtual ~ProjectIntroPage();
@@ -64,6 +66,12 @@ public:
 
     // Validate a project directory name entry field
     static bool validateProjectDirectory(const QString &name, QString *errorMessage);
+
+    bool forceSubProject() const;
+    void setForceSubProject(bool force);
+    void setProjectList(const QStringList &projectList);
+    void setProjectDirectories(const QStringList &directoryList);
+    int projectIndex() const;
 
 signals:
     void activated();

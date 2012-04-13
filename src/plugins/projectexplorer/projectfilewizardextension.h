@@ -33,6 +33,8 @@
 #ifndef PROJECTFILEWIZARDEXTENSION2_H
 #define PROJECTFILEWIZARDEXTENSION2_H
 
+#include "projectexplorer_export.h"
+
 #include <coreplugin/ifilewizardextension.h>
 
 namespace ProjectExplorer {
@@ -41,7 +43,7 @@ namespace Internal {
 
 struct ProjectWizardContext;
 
-class ProjectFileWizardExtension : public Core::IFileWizardExtension
+class PROJECTEXPLORER_EXPORT ProjectFileWizardExtension : public Core::IFileWizardExtension
 {
     Q_OBJECT
 public:
@@ -52,6 +54,13 @@ public:
     bool processFiles(const QList<Core::GeneratedFile> &files,
                  bool *removeOpenProjectAttribute, QString *errorMessage);
     void applyCodeStyle(Core::GeneratedFile *file) const;
+
+    QStringList getProjectChoices() const;
+    QStringList getProjectToolTips() const;
+
+    void hideProjectComboBox();
+
+    void setProjectIndex(int i);
 
 public slots:
     void firstExtensionPageShown(const QList<Core::GeneratedFile> &files, const QVariantMap &extraValues);

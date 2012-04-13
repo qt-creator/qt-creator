@@ -71,13 +71,16 @@ struct ProjectIntroPagePrivate
     const QString m_errorStyleSheet;
     const QString m_warningStyleSheet;
     const QString m_hintStyleSheet;
+    bool m_forceSubProject;
+    QStringList m_projectDirectories;
 };
 
 ProjectIntroPagePrivate::  ProjectIntroPagePrivate() :
     m_complete(false),
     m_errorStyleSheet(QLatin1String("background : red;")),
     m_warningStyleSheet(QLatin1String("background : yellow;")),
-    m_hintStyleSheet()
+    m_hintStyleSheet(),
+    m_forceSubProject(false)
 {
 }
 
@@ -89,11 +92,16 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     hideStatusLabel();
     d->m_ui.nameLineEdit->setInitialText(tr("<Enter_Name>"));
     d->m_ui.nameLineEdit->setFocus();
+    d->m_ui.projectLabel->setVisible(d->m_forceSubProject);
+    d->m_ui.projectComboBox->setVisible(d->m_forceSubProject);
+    d->m_ui.pathChooser->setDisabled(d->m_forceSubProject);
+    d->m_ui.projectsDirectoryCheckBox->setDisabled(d->m_forceSubProject);
     connect(d->m_ui.pathChooser, SIGNAL(changed(QString)), this, SLOT(slotChanged()));
     connect(d->m_ui.nameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotChanged()));
     connect(d->m_ui.pathChooser, SIGNAL(validChanged()), this, SLOT(slotChanged()));
     connect(d->m_ui.pathChooser, SIGNAL(returnPressed()), this, SLOT(slotActivated()));
     connect(d->m_ui.nameLineEdit, SIGNAL(validReturnPressed()), this, SLOT(slotActivated()));
+    connect(d->m_ui.projectComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotChanged()));
 }
 
 void ProjectIntroPage::insertControl(int row, QWidget *label, QWidget *control)
@@ -156,6 +164,12 @@ bool ProjectIntroPage::isComplete() const
 
 bool ProjectIntroPage::validate()
 {
+    if (d->m_forceSubProject) {
+        int index = d->m_ui.projectComboBox->currentIndex();
+        if (index == 0)
+            return false;
+        d->m_ui.pathChooser->setPath(d->m_projectDirectories.at(index));
+    }
     // Validate and display status
     if (!d->m_ui.pathChooser->isValid()) {
         displayStatusMessage(Error, d->m_ui.pathChooser->errorMessage());
@@ -212,6 +226,36 @@ void ProjectIntroPage::slotActivated()
 bool ProjectIntroPage::validateProjectDirectory(const QString &name, QString *errorMessage)
 {
     return ProjectNameValidatingLineEdit::validateProjectName(name, errorMessage);
+}
+
+bool ProjectIntroPage::forceSubProject() const
+{
+    return d->m_forceSubProject;
+}
+
+void ProjectIntroPage::setForceSubProject(bool force)
+{
+    d->m_forceSubProject = force;
+    d->m_ui.projectLabel->setVisible(d->m_forceSubProject);
+    d->m_ui.projectComboBox->setVisible(d->m_forceSubProject);
+    d->m_ui.pathChooser->setDisabled(d->m_forceSubProject);
+    d->m_ui.projectsDirectoryCheckBox->setDisabled(d->m_forceSubProject);
+}
+
+void ProjectIntroPage::setProjectList(const QStringList &projectList)
+{
+    d->m_ui.projectComboBox->clear();
+    d->m_ui.projectComboBox->addItems(projectList);
+}
+
+void ProjectIntroPage::setProjectDirectories(const QStringList &directoryList)
+{
+    d->m_projectDirectories = directoryList;
+}
+
+int ProjectIntroPage::projectIndex() const
+{
+    return d->m_ui.projectComboBox->currentIndex();
 }
 
 void ProjectIntroPage::displayStatusMessage(StatusLabelMode m, const QString &s)

@@ -74,6 +74,9 @@ public slots:
     void setIntroDescription(const QString &d);
     void setPath(const QString &path);
     void setProjectName(const QString &name);
+    void setProjectList(const QStringList &projectList);
+    void setProjectDirectories(const QStringList &directories);
+    void setForceSubProject(bool force);
 
 signals:
     void projectParametersChanged(const QString &projectName, const QString &path);

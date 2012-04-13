@@ -135,6 +135,21 @@ void BaseProjectWizardDialog::setProjectName(const QString &name)
     d->introPage->setProjectName(name);
 }
 
+void BaseProjectWizardDialog::setProjectList(const QStringList &projectList)
+{
+    d->introPage->setProjectList(projectList);
+}
+
+void BaseProjectWizardDialog::setProjectDirectories(const QStringList &directories)
+{
+    d->introPage->setProjectDirectories(directories);
+}
+
+void BaseProjectWizardDialog::setForceSubProject(bool force)
+{
+    introPage()->setForceSubProject(force);
+}
+
 void BaseProjectWizardDialog::slotAccepted()
 {
     if (d->introPage->useAsDefaultPath()) {
