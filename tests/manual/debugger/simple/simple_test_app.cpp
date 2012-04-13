@@ -5982,13 +5982,13 @@ namespace gdb13393 {
         // Check ptrConst.b 2 int.
         // CheckType ptrToPtr gdb13393::Derived.
         // CheckType ptrToPtr.[vptr] .
-        // Check ptrToPtr.a 1 int.
+        // Check ptrToPtr.@1.a 1 int.
         // CheckType ref gdb13393::Derived.
         // CheckType ref.[vptr] .
-        // Check ref.a 1 int.
+        // Check ref.@1.a 1 int.
         // CheckType refConst gdb13393::Derived.
         // CheckType refConst.[vptr] .
-        // Check refConst.a 1 int.
+        // Check refConst.@1.a 1 int.
         // CheckType s gdb13393::S.
         // CheckType s.ptr gdb13393::Derived.
         // CheckType s.ptrConst gdb13393::Derived.
