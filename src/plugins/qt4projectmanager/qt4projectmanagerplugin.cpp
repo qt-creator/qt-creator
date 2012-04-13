@@ -385,7 +385,7 @@ void Qt4ProjectManagerPlugin::currentNodeChanged(ProjectExplorer::Node *node, Pr
     m_qt4ProjectManager->setContextNode(node ? node->projectNode() : 0);
     m_qt4ProjectManager->setContextProject(project);
 
-    bool subProjectActionsVisible = node && (node->projectNode() != project->rootProjectNode());
+    bool subProjectActionsVisible = node && project && node->projectNode() && (node->projectNode() != project->rootProjectNode());
 
     QString subProjectName;
     if (subProjectActionsVisible)
