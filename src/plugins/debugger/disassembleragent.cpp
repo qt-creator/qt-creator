@@ -202,7 +202,8 @@ void DisassemblerAgent::resetLocation()
         return;
     if (d->resetLocationScheduled) {
         d->resetLocationScheduled = false;
-        d->editor->markableInterface()->removeMark(d->locationMark);
+        if (d->locationMark)
+            d->editor->markableInterface()->removeMark(d->locationMark);
     }
 }
 
