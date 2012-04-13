@@ -138,6 +138,7 @@ private:
     void slaveEngineStateChanged(DebuggerEngine *slaveEngine, DebuggerState state);
 
     void readyToExecuteQmlStep();
+    void setActiveEngine(DebuggerEngine *engine);
 
 private:
     QmlCppEnginePrivate *d;
