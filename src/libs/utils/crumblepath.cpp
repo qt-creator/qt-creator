@@ -304,6 +304,7 @@ void CrumblePath::sortChildren(Qt::SortOrder order)
     QPushButton *lastButton = d->m_buttons.last();
 
     QMenu *childList = lastButton->menu();
+    QTC_ASSERT(childList, return);
     QList<QAction *> actions = childList->actions();
 
     if (order == Qt::AscendingOrder)
