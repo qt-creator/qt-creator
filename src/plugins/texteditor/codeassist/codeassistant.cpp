@@ -400,12 +400,15 @@ void CodeAssistantPrivate::notifyChange()
     stopAutomaticProposalTimer();
 
     if (isDisplayingProposal()) {
-        if (m_textEditor->position() < m_proposal->basePosition())
+        if (m_textEditor->position() < m_proposal->basePosition()) {
             destroyContext();
-        else
+        } else {
             m_proposalWidget->updateProposal(
                 m_textEditor->textAt(m_proposal->basePosition(),
                                      m_textEditor->position() - m_proposal->basePosition()));
+            if (m_proposal->isFragile())
+                startAutomaticProposalTimer();
+        }
     }
 }
 
