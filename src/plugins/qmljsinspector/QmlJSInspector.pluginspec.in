@@ -21,6 +21,6 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <url>http://qt.nokia.com</url>
     <dependencyList>
         <dependency name=\"Debugger\" version=\"$$QTCREATOR_VERSION\"/>
-        <dependency name=\"QmlJSEditor\" version=\"$$QTCREATOR_VERSION\"/>
+        <dependency name=\"QmlJSTools\" version=\"$$QTCREATOR_VERSION\"/>
     </dependencyList>
 </plugin>

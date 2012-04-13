@@ -34,6 +34,7 @@
 #include "qmljstoolsconstants.h"
 #include "qmljsplugindumper.h"
 #include "qmljsfindexportedcpptypes.h"
+#include "qmljssemanticinfo.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -130,6 +131,7 @@ ModelManager::ModelManager(QObject *parent):
 
     qRegisterMetaType<QmlJS::Document::Ptr>("QmlJS::Document::Ptr");
     qRegisterMetaType<QmlJS::LibraryInfo>("QmlJS::LibraryInfo");
+    qRegisterMetaType<QmlJSTools::SemanticInfo>("QmlJSTools::SemanticInfo");
 
     loadQmlTypeDescriptions();
 

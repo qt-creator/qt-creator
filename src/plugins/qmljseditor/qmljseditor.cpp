@@ -457,12 +457,9 @@ QmlJSTextEditorWidget::QmlJSTextEditorWidget(QWidget *parent) :
     m_modelManager(0),
     m_futureSemanticInfoRevision(0),
     m_contextPane(0),
-    m_updateSelectedElements(false),
     m_findReferences(new FindReferences(this)),
     m_semanticHighlighter(new SemanticHighlighter(this))
 {
-    qRegisterMetaType<QmlJSTools::SemanticInfo>("QmlJSTools::SemanticInfo");
-
     m_semanticInfoUpdater = new SemanticInfoUpdater(this);
     m_semanticInfoUpdater->start();
 
@@ -850,15 +847,6 @@ void QmlJSTextEditorWidget::updateUses()
     m_updateUsesTimer->start();
 }
 
-bool QmlJSTextEditorWidget::updateSelectedElements() const
-{
-    return m_updateSelectedElements;
-}
-
-void QmlJSTextEditorWidget::setUpdateSelectedElements(bool value)
-{
-    m_updateSelectedElements = value;
-}
 
 void QmlJSTextEditorWidget::updateUsesNow()
 {
@@ -977,7 +965,7 @@ protected:
 
 void QmlJSTextEditorWidget::setSelectedElements()
 {
-    if (!m_updateSelectedElements)
+    if (!receivers(SIGNAL(selectedElementsChanged(QList<int>,QString))))
         return;
 
     QTextCursor tc = textCursor();

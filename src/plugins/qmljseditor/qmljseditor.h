@@ -92,6 +92,9 @@ class QMLJSEDITOR_EXPORT QmlJSTextEditorWidget : public TextEditor::BaseTextEdit
 {
     Q_OBJECT
 
+    // used e.g. in qmljsprofiler
+    Q_PROPERTY(QmlJSTools::SemanticInfo semanticInfo READ semanticInfo)
+
 public:
     QmlJSTextEditorWidget(QWidget *parent = 0);
     ~QmlJSTextEditorWidget();
@@ -104,9 +107,6 @@ public:
 
     Internal::QmlOutlineModel *outlineModel() const;
     QModelIndex outlineModelIndex();
-
-    bool updateSelectedElements() const;
-    void setUpdateSelectedElements(bool value);
 
     static QVector<QString> highlighterFormatCategories();
 
@@ -193,7 +193,6 @@ private:
 
     QmlJS::IContextPane *m_contextPane;
     int m_oldCursorPosition;
-    bool m_updateSelectedElements;
 
     FindReferences *m_findReferences;
     Internal::SemanticHighlighter *m_semanticHighlighter;

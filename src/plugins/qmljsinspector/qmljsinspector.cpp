@@ -193,15 +193,33 @@ void InspectorUi::onEngineStateChanged(Debugger::DebuggerState state)
     m_propertyInspector->reset();
 }
 
+// Get semantic info from QmlJSTextEditorWidget
+// (we use the meta object system here to avoid having to link
+// against qmljseditor)
+QmlJSTools::SemanticInfo getSemanticInfo(QPlainTextEdit *qmlJSTextEdit)
+{
+    QmlJSTools::SemanticInfo info;
+    QTC_ASSERT(QLatin1String(qmlJSTextEdit->metaObject()->className())
+               == QLatin1String("QmlJSEditor::QmlJSTextEditorWidget"),
+               return info);
+    QTC_ASSERT(qmlJSTextEdit->metaObject()->indexOfProperty("semanticInfo") != -1, return info);
+
+    info = qmlJSTextEdit->property("semanticInfo").value<QmlJSTools::SemanticInfo>();
+    return info;
+}
+
 void InspectorUi::showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextEditor *editor,
                                       int cursorPos)
 {
     Q_UNUSED(mousePos);
     if (m_clientProxy && editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
-        QmlJSEditor::QmlJSTextEditorWidget *qmlEditor =
-                static_cast<QmlJSEditor::QmlJSTextEditorWidget*>(editor->widget());
+        TextEditor::BaseTextEditor *baseTextEditor =
+                static_cast<TextEditor::BaseTextEditor*>(editor);
+        QPlainTextEdit *editWidget = qobject_cast<QPlainTextEdit*>(baseTextEditor->widget());
 
-        QTextCursor tc(qmlEditor->document());
+        QmlJSTools::SemanticInfo semanticInfo = getSemanticInfo(editWidget);
+
+        QTextCursor tc(editWidget->document());
         tc.setPosition(cursorPos);
         tc.movePosition(QTextCursor::StartOfWord);
         tc.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
@@ -210,13 +228,13 @@ void InspectorUi::showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextE
         QString query;
         QLatin1Char doubleQuote('"');
 
-        QmlJS::AST::Node *qmlNode = qmlEditor->semanticInfo().astNodeAt(cursorPos);
+        QmlJS::AST::Node *qmlNode = semanticInfo.astNodeAt(cursorPos);
         if (!qmlNode)
             return;
 
         QmlDebugObjectReference ref;
         if (QmlJS::AST::Node *node
-                = qmlEditor->semanticInfo().declaringMemberNoProperties(cursorPos)) {
+                = semanticInfo.declaringMemberNoProperties(cursorPos)) {
             if (QmlJS::AST::UiObjectMember *objMember = node->uiObjectMemberCast()) {
                 ref = m_clientProxy->objectReferenceForLocation(
                             objMember->firstSourceLocation().startLine,
@@ -727,11 +745,14 @@ QmlDebugObjectReference InspectorUi::objectReferenceForLocation(const QString &f
     if (textEditor && m_clientProxy && textEditor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
         if (cursorPosition == -1)
             cursorPosition = textEditor->position();
-        QmlJSEditor::QmlJSTextEditorWidget *qmlEditor =
-                static_cast<QmlJSEditor::QmlJSTextEditorWidget*>(textEditor->widget());
+        TextEditor::BaseTextEditor *baseTextEditor =
+                static_cast<TextEditor::BaseTextEditor*>(editor);
+        QPlainTextEdit *editWidget = qobject_cast<QPlainTextEdit*>(baseTextEditor->widget());
+
+        QmlJSTools::SemanticInfo semanticInfo = getSemanticInfo(editWidget);
 
         if (QmlJS::AST::Node *node
-                = qmlEditor->semanticInfo().declaringMemberNoProperties(cursorPosition)) {
+                = semanticInfo.declaringMemberNoProperties(cursorPosition)) {
             if (QmlJS::AST::UiObjectMember *objMember = node->uiObjectMemberCast()) {
                 return m_clientProxy->objectReferenceForLocation(
                             objMember->firstSourceLocation().startLine,

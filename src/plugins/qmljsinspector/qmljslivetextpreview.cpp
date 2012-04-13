@@ -39,7 +39,6 @@
 
 #include "qmljsinspectorconstants.h"
 #include <qmljseditor/qmljseditorconstants.h>
-#include <qmljseditor/qmljseditor.h>
 #include <qmljs/qmljsdelta.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <extensionsystem/pluginmanager.h>
@@ -53,6 +52,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <debugger/debuggerconstants.h>
+
+#include <utils/qtcassert.h>
 
 #include <QDebug>
 
@@ -142,29 +143,34 @@ QmlJS::ModelManagerInterface *QmlJSLiveTextPreview::modelManager()
 
 void QmlJSLiveTextPreview::associateEditor(Core::IEditor *editor)
 {
+    using namespace TextEditor;
     if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
-        QmlJSEditor::QmlJSTextEditorWidget* qmljsEditor = qobject_cast<QmlJSEditor::QmlJSTextEditorWidget*>(editor->widget());
-        if (qmljsEditor && !m_editors.contains(qmljsEditor)) {
-            qmljsEditor->setUpdateSelectedElements(true);
-            m_editors << qmljsEditor;
-            connect(qmljsEditor,
-                    SIGNAL(selectedElementsChanged(QList<int>,QString)),
-                    SLOT(changeSelectedElements(QList<int>,QString)));
+        QTC_ASSERT(QLatin1String(editor->widget()->metaObject()->className()) ==
+                   QLatin1String("QmlJSEditor::QmlJSTextEditorWidget"),
+                   return);
+
+        BaseTextEditorWidget *editWidget = qobject_cast<BaseTextEditorWidget*>(editor->widget());
+        QTC_ASSERT(editWidget, return);
+
+        if (!m_editors.contains(editWidget)) {
+            m_editors << editWidget;
+            if (m_clientProxy.data())
+                connect(editWidget, SIGNAL(selectedElementsChanged(QList<int>,QString)),
+                        SLOT(changeSelectedElements(QList<int>,QString)));
         }
     }
 }
 
 void QmlJSLiveTextPreview::unassociateEditor(Core::IEditor *oldEditor)
 {
+    using namespace TextEditor;
     if (oldEditor && oldEditor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
-        QmlJSEditor::QmlJSTextEditorWidget* qmljsEditor = qobject_cast<QmlJSEditor::QmlJSTextEditorWidget*>(oldEditor->widget());
-        if (qmljsEditor && m_editors.contains(qmljsEditor)) {
-            m_editors.removeOne(qmljsEditor);
-            qmljsEditor->setUpdateSelectedElements(false);
-            disconnect(qmljsEditor,
-                       SIGNAL(selectedElementsChanged(QList<int>,QString)),
-                       this,
-                       SLOT(changeSelectedElements(QList<int>,QString)));
+        BaseTextEditorWidget *editWidget = qobject_cast<BaseTextEditorWidget*>(oldEditor->widget());
+        QTC_ASSERT(editWidget, return);
+
+        if (m_editors.contains(editWidget)) {
+            m_editors.removeOne(editWidget);
+            disconnect(editWidget, 0, this, 0);
         }
     }
 }
@@ -593,7 +599,7 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
 
 void QmlJSLiveTextPreview::showExperimentalWarning()
 {
-    foreach (QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> editor, m_editors)
+    foreach (QWeakPointer<TextEditor::BaseTextEditorWidget> editor, m_editors)
         if (editor) {
             Core::InfoBarEntry info(
                     Constants::INFO_EXPERIMENTAL,
@@ -624,7 +630,7 @@ void QmlJSLiveTextPreview::showSyncWarning(UnsyncronizableChangeType unsyncroniz
 
     errorMessage.append(tr("You can continue debugging, but behavior can be unexpected."));
 
-    foreach (QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> editor, m_editors)
+    foreach (QWeakPointer<TextEditor::BaseTextEditorWidget> editor, m_editors)
         if (editor)
             editor.data()->editorDocument()->infoBar()->addInfo(Core::InfoBarEntry(
                     QLatin1String(Constants::INFO_OUT_OF_SYNC), errorMessage));
@@ -632,7 +638,7 @@ void QmlJSLiveTextPreview::showSyncWarning(UnsyncronizableChangeType unsyncroniz
 
 void QmlJSLiveTextPreview::reloadQmlViewer()
 {
-    foreach (QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> editor, m_editors)
+    foreach (QWeakPointer<TextEditor::BaseTextEditorWidget> editor, m_editors)
         if (editor)
             editor.data()->editorDocument()->infoBar()->removeInfo(Constants::INFO_OUT_OF_SYNC);
     emit reloadQmlViewerRequested();
@@ -640,7 +646,7 @@ void QmlJSLiveTextPreview::reloadQmlViewer()
 
 void QmlJSLiveTextPreview::disableLivePreview()
 {
-    foreach (QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> editor, m_editors)
+    foreach (QWeakPointer<TextEditor::BaseTextEditorWidget> editor, m_editors)
         if (editor)
             editor.data()->editorDocument()->infoBar()->removeInfo(Constants::INFO_OUT_OF_SYNC);
     emit disableLivePreviewRequested();
@@ -671,15 +677,15 @@ void QmlJSLiveTextPreview::setClientProxy(ClientProxy *clientProxy)
         connect(m_clientProxy.data(), SIGNAL(objectTreeUpdated()),
                    SLOT(updateDebugIds()));
 
-        foreach (const QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> &qmlEditor, m_editors) {
-            if (qmlEditor)
-                qmlEditor.data()->setUpdateSelectedElements(true);
-        }
+        foreach (QWeakPointer<TextEditor::BaseTextEditorWidget> editWidget, m_editors)
+            if (editWidget)
+                connect(editWidget.data(), SIGNAL(selectedElementsChanged(QList<int>,QString)),
+                        this, SLOT(changeSelectedElements(QList<int>,QString)));
     } else {
-        foreach (const QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> &qmlEditor, m_editors) {
-            if (qmlEditor)
-                qmlEditor.data()->setUpdateSelectedElements(false);
-        }
+        foreach (QWeakPointer<TextEditor::BaseTextEditorWidget> editWidget, m_editors)
+            if (editWidget)
+                disconnect(editWidget.data(), SIGNAL(selectedElementsChanged(QList<int>,QString)),
+                           this, SLOT(changeSelectedElements(QList<int>,QString)));
     }
 }
 

@@ -7,14 +7,11 @@ QtcPlugin {
 
     Depends { name: "qt"; submodules: ['widgets'] }
     Depends { name: "Core" }
-    Depends { name: "ProjectExplorer" }
-    Depends { name: "QmlProjectManager" }
-    Depends { name: "TextEditor" }
     Depends { name: "Debugger" }
-    Depends { name: "QmlJS" }
-    Depends { name: "QmlJSEditor" }
-    Depends { name: "symbianutils" }
     Depends { name: "LanguageUtils" }
+    Depends { name: "TextEditor" }
+    Depends { name: "QmlJS" }
+    Depends { name: "QmlJSTools" }
     Depends { name: "QmlEditorWidgets" }
     Depends { name: "QmlJSDebugClient" }
 

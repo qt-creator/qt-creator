@@ -101,4 +101,6 @@ private:
 
 } // namespace QmlJSTools
 
+Q_DECLARE_METATYPE(QmlJSTools::SemanticInfo)
+
 #endif // QMLJSSEMANTICINFO_H

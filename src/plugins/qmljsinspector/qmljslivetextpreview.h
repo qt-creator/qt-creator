@@ -35,6 +35,7 @@
 
 #include <QObject>
 #include <QWeakPointer>
+#include <texteditor/basetexteditor.h>
 
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsdocument.h>
@@ -48,10 +49,6 @@ namespace Core {
 
 namespace QmlJS {
     class ModelManagerInterface;
-}
-
-namespace QmlJSEditor {
-    class QmlJSTextEditorWidget;
 }
 
 namespace QmlJSInspector {
@@ -115,7 +112,7 @@ private:
     QmlJS::Document::Ptr m_initialDoc; //the document that was loaded by the server
     QString m_filename;
 
-    QList<QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> > m_editors;
+    QList<QWeakPointer<TextEditor::BaseTextEditorWidget> > m_editors;
 
     bool m_applyChangesToQmlInspector;
     QmlJS::Document::Ptr m_docWithUnappliedChanges;
