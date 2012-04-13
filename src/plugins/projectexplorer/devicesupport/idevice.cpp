@@ -78,10 +78,10 @@
  */
 
 /*!
- * \fn Core::Id ProjectExplorer::IDevice::internalId() const
- * \brief Identify the device internally.
- * If a fingerprint is given when constructing the device, the id will be derived from it, and
- * the fingerprint can later be retrieved from the id.
+ * \fn Core::Id ProjectExplorer::IDevice::id() const
+ * \brief Identify the device.
+ * If an id is given when constructing a device then this id is used. Otherwise a UUID is
+ * generated and used to identity the device.
  * \sa ProjectExplorer::DeviceManager::findInactiveAutoDetectedDevice()
  */
 
@@ -148,7 +148,7 @@ namespace ProjectExplorer {
 
 const char DisplayNameKey[] = "Name";
 const char TypeKey[] = "OsType";
-const char InternalIdKey[] = "InternalId";
+const char IdKey[] = "InternalId";
 const char OriginKey[] = "Origin";
 
 namespace Internal {
@@ -158,7 +158,7 @@ public:
     QString displayName;
     QString type;
     IDevice::Origin origin;
-    Core::Id internalId;
+    Core::Id id;
     IDevice::AvailabilityState availability;
 };
 } // namespace Internal
@@ -167,13 +167,13 @@ IDevice::IDevice() : d(new Internal::IDevicePrivate)
 {
 }
 
-IDevice::IDevice(const QString &type, Origin origin, const QString &fingerprint)
+IDevice::IDevice(const QString &type, Origin origin, const Core::Id &id)
     : d(new Internal::IDevicePrivate)
 {
     d->type = type;
     d->origin = origin;
-    QTC_CHECK(origin == ManuallyAdded || !fingerprint.isEmpty());
-    d->internalId = fingerprint.isEmpty() ? newId() : Core::Id(fingerprint);
+    QTC_CHECK(origin == ManuallyAdded || id.isValid());
+    d->id = id.isValid() ? id : newId();
     d->availability = DeviceAvailabilityUnknown;
 }
 
@@ -227,7 +227,7 @@ bool IDevice::isAutoDetected() const
 
 Core::Id IDevice::id() const
 {
-    return d->internalId;
+    return d->id;
 }
 
 IDevice::AvailabilityState IDevice::availability() const
@@ -256,7 +256,7 @@ void IDevice::fromMap(const QVariantMap &map)
 {
     d->type = typeFromMap(map);
     d->displayName = map.value(QLatin1String(DisplayNameKey)).toString();
-    d->internalId = Core::Id(map.value(QLatin1String(InternalIdKey), newId().toString()).toString());
+    d->id = Core::Id(map.value(QLatin1String(IdKey), newId().name()).toByteArray().constData());
     d->origin = static_cast<Origin>(map.value(QLatin1String(OriginKey), ManuallyAdded).toInt());
 }
 
@@ -265,7 +265,7 @@ QVariantMap IDevice::toMap() const
     QVariantMap map;
     map.insert(QLatin1String(DisplayNameKey), d->displayName);
     map.insert(QLatin1String(TypeKey), d->type);
-    map.insert(QLatin1String(InternalIdKey), d->internalId.toString());
+    map.insert(QLatin1String(IdKey), d->id.name());
     map.insert(QLatin1String(OriginKey), d->origin);
     return map;
 }

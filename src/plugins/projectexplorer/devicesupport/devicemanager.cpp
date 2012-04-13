@@ -54,9 +54,8 @@ namespace ProjectExplorer {
 namespace Internal {
 
 static IDevice::Ptr findAutoDetectedDevice(const QList<IDevice::Ptr> &deviceList,
-        const QString &type, const QString &fingerprint)
+        const QString &type, const Core::Id id)
 {
-    const Core::Id id(fingerprint);
     foreach (const IDevice::Ptr &device, deviceList) {
         if (device->isAutoDetected() && device->type() == type && device->id() == id)
             return device;
@@ -372,9 +371,9 @@ IDevice::ConstPtr DeviceManager::find(const Core::Id &id) const
 }
 
 IDevice::ConstPtr DeviceManager::findInactiveAutoDetectedDevice(const QString &type,
-        const QString &fingerprint)
+                                                                const Core::Id id)
 {
-    return findAutoDetectedDevice(d->inactiveAutoDetectedDevices, type, fingerprint);
+    return findAutoDetectedDevice(d->inactiveAutoDetectedDevices, type, id);
 }
 
 IDevice::ConstPtr DeviceManager::defaultDevice(const QString &deviceType) const

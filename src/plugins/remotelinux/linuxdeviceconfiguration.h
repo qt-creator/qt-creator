@@ -71,7 +71,7 @@ public:
 
     static Ptr create();
     static Ptr create(const QString &name, const QString &type, MachineType machineType,
-        Origin origin = ManuallyAdded, const QString &fingerprint = QString());
+                      Origin origin = ManuallyAdded, const Core::Id &id = Core::Id());
 
     QString displayType() const;
     ProjectExplorer::IDeviceWidget *createWidget();
@@ -84,7 +84,7 @@ public:
 protected:
     LinuxDeviceConfiguration();
     LinuxDeviceConfiguration(const QString &name, const QString &type, MachineType machineType,
-        Origin origin, const QString &fingerprint);
+                             Origin origin, const Core::Id &id);
     LinuxDeviceConfiguration(const LinuxDeviceConfiguration &other);
 
     QVariantMap toMap() const;

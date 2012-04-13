@@ -53,7 +53,7 @@ namespace Qt4ProjectManager {
 SymbianIDevice::SymbianIDevice() :
     ProjectExplorer::IDevice(Internal::SymbianIDeviceFactory::deviceType(),
                              ProjectExplorer::IDevice::AutoDetected,
-                             QLatin1String("Symbian Device")),
+                             Core::Id("Symbian Device")),
     m_port(QLatin1String(DEFAULT_CODA_TCP_PORT)),
     m_communicationChannel(CommunicationCodaSerialConnection)
 {

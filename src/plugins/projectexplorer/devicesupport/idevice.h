@@ -32,7 +32,9 @@
 #ifndef IDEVICE_H
 #define IDEVICE_H
 
-#include <projectexplorer/projectexplorer_export.h>
+#include "../projectexplorer_export.h"
+
+#include <coreplugin/id.h>
 
 #include <coreplugin/id.h>
 
@@ -99,7 +101,7 @@ public:
 
 protected:
     IDevice();
-    IDevice(const QString &type, Origin origin, const QString &fingerprint = QString());
+    IDevice(const QString &type, Origin origin, const Core::Id &id = Core::Id());
     IDevice(const IDevice &other);
 
     Ptr sharedFromThis();

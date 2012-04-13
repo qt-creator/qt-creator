@@ -61,8 +61,7 @@ public:
     int deviceCount() const;
     IDevice::ConstPtr deviceAt(int index) const;
     IDevice::ConstPtr find(const Core::Id &id) const;
-    IDevice::ConstPtr findInactiveAutoDetectedDevice(const QString &type,
-        const QString &fingerprint);
+    IDevice::ConstPtr findInactiveAutoDetectedDevice(const QString &type, const Core::Id id);
     IDevice::ConstPtr defaultDevice(const QString &deviceType) const;
     bool hasDevice(const QString &name) const;
     Core::Id deviceId(const IDevice::ConstPtr &device) const;
