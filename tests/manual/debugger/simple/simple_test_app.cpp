@@ -674,9 +674,10 @@ namespace qdatetime {
         // Check date.toUTC  QDateTime.
         // Continue.
 
+        // Step, check display
         date = QDateTime::currentDateTime();
-        date = date.addSecs(5);
-        date = date.addSecs(5);
+        date = date.addDays(5);
+        date = date.addDays(5);
         dummyStatement(&date);
     }
 
