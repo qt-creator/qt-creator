@@ -89,6 +89,7 @@ private:
                             const QmlJS::ContextPtr &context);
 
     TextEditor::HelpItem qmlHelpItem(const QmlJS::ScopeChain &lookupContext,
+                                     const QmlJS::Document::Ptr &qmlDocument,
                                      QmlJS::AST::Node *node) const;
 
     QmlJS::ModelManagerInterface *m_modelManager;

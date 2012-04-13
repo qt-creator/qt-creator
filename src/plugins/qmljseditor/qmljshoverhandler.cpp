@@ -52,6 +52,7 @@
 #include <texteditor/tooltip/tooltip.h>
 #include <texteditor/tooltip/tipcontents.h>
 
+#include <QDir>
 #include <QList>
 
 using namespace Core;
@@ -148,7 +149,7 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
 
     handleOrdinaryMatch(scopeChain, node);
 
-    TextEditor::HelpItem helpItem = qmlHelpItem(scopeChain, node);
+    TextEditor::HelpItem helpItem = qmlHelpItem(scopeChain, qmlDocument, node);
     if (!helpItem.helpId().isEmpty())
         setLastHelpItemIdentified(helpItem);
 }
@@ -350,16 +351,61 @@ static const ObjectValue *isMember(const ScopeChain &scopeChain,
     return owningObject;
 }
 
+static inline QString getModuleName(const ScopeChain &scopeChain, const Document::Ptr &qmlDocument, const ObjectValue *value)
+{
+    if (!value)
+        return QString();
+
+    const CppComponentValue *qmlValue = value_cast<CppComponentValue>(value);
+    if (qmlValue) {
+        const QString moduleName = qmlValue->moduleName();
+        const Imports *imports = scopeChain.context()->imports(qmlDocument.data());
+        const ImportInfo importInfo = imports->info(qmlValue->className(), scopeChain.context().data());
+        if (importInfo.isValid() && importInfo.type() == ImportInfo::LibraryImport) {
+            const int majorVersion = importInfo.version().majorVersion();
+            const int minorVersion = importInfo.version().minorVersion();
+            return moduleName + QString::number(majorVersion) + QLatin1Char('.') + QString::number(minorVersion) ;
+        }
+        return QString();
+    } else {
+        QString typeName = value->className();
+
+        const Imports *imports = scopeChain.context()->imports(qmlDocument.data());
+        const ImportInfo importInfo = imports->info(typeName, scopeChain.context().data());
+        if (importInfo.isValid() && importInfo.type() == ImportInfo::LibraryImport) {
+            const QString moduleName = importInfo.name();
+            const int majorVersion = importInfo.version().majorVersion();
+            const int minorVersion = importInfo.version().minorVersion();
+            return moduleName + QString::number(majorVersion) + QLatin1Char('.') + QString::number(minorVersion) ;
+        } else if (importInfo.isValid() && importInfo.type() == ImportInfo::DirectoryImport) {
+            const QString path = importInfo.path();
+            const QDir dir(qmlDocument->path());
+            QString relativeDir = dir.relativeFilePath(path);
+            const QString name = relativeDir.replace(QLatin1Char('/'), QLatin1Char('.'));
+            return name;
+        }
+    }
+    return QString();
+}
+
 TextEditor::HelpItem HoverHandler::qmlHelpItem(const ScopeChain &scopeChain,
+                                               const Document::Ptr &qmlDocument,
                                                AST::Node *node) const
 {
     QString name;
+    QString moduleName;
     if (const ObjectValue *scope = isMember(scopeChain, node, &name)) {
         // maybe it's a type?
         if (!name.isEmpty() && name.at(0).isUpper()) {
-            const QString maybeHelpId(QLatin1String("QML.") + name);
-            if (!Core::HelpManager::instance()->linksForIdentifier(maybeHelpId).isEmpty())
-                return TextEditor::HelpItem(maybeHelpId, name, TextEditor::HelpItem::QmlComponent);
+            AST::UiQualifiedId *qualifiedId = AST::cast<AST::UiQualifiedId *>(node);
+            const ObjectValue *value = scopeChain.context()->lookupType(qmlDocument.data(), qualifiedId);
+            moduleName = getModuleName(scopeChain, qmlDocument, value);
+            const QString maybeHelpId1(QLatin1String("QML.") + moduleName + QLatin1Char('.') + name);
+            if (!Core::HelpManager::instance()->linksForIdentifier(maybeHelpId1).isEmpty())
+                return TextEditor::HelpItem(maybeHelpId1, name, TextEditor::HelpItem::QmlComponent);
+            const QString maybeHelpId2(QLatin1String("QML.") + name);
+            if (!Core::HelpManager::instance()->linksForIdentifier(maybeHelpId2).isEmpty())
+                return TextEditor::HelpItem(maybeHelpId2, name, TextEditor::HelpItem::QmlComponent);
         }
 
         // otherwise, it's probably a property
@@ -371,9 +417,16 @@ TextEditor::HelpItem HoverHandler::qmlHelpItem(const ScopeChain &scopeChain,
 
             const QString className = cur->className();
             if (!className.isEmpty()) {
-                const QString maybeHelpId(className + QLatin1String("::") + name);
-                if (!Core::HelpManager::instance()->linksForIdentifier(maybeHelpId).isEmpty())
-                    return TextEditor::HelpItem(maybeHelpId, name, TextEditor::HelpItem::QmlProperty);
+                moduleName = getModuleName(scopeChain, qmlDocument, cur);
+                const QString maybeHelpId1(QLatin1String("QML.") + moduleName + QLatin1Char('.') + className + QLatin1String("::") + name);
+                if (!Core::HelpManager::instance()->linksForIdentifier(maybeHelpId1).isEmpty())
+                    return TextEditor::HelpItem(maybeHelpId1, name, TextEditor::HelpItem::QmlProperty);
+                const QString maybeHelpId2(QLatin1String("QML.") + className + QLatin1String("::") + name);
+                if (!Core::HelpManager::instance()->linksForIdentifier(maybeHelpId2).isEmpty())
+                    return TextEditor::HelpItem(maybeHelpId2, name, TextEditor::HelpItem::QmlProperty);
+                const QString maybeHelpId3(className + QLatin1String("::") + name);
+                if (!Core::HelpManager::instance()->linksForIdentifier(maybeHelpId3).isEmpty())
+                    return TextEditor::HelpItem(maybeHelpId3, name, TextEditor::HelpItem::QmlProperty);
             }
 
             if (cur == lastScope)
