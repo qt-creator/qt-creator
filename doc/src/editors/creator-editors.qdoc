@@ -1117,9 +1117,10 @@
             If the text is found, all occurrences are highlighted as you type.
 
         \o  To go to the next occurrence, click \inlineimage qtcreator-next.png
-            , or press \key F3. To go to the previous occurrence click
+            (\gui {Find Next}), or press \key F3. To go to the previous
+            occurrence click
             \inlineimage qtcreator-previous.png
-            , or press \key Shift+F3.
+            (\gui {Find Previous}), or press \key Shift+F3.
 
     \endlist
 
@@ -1129,16 +1130,13 @@
     \list
 
         \o  To make your search case sensitive, select
-            \inlineimage qtcreator-editor-casesensitive.png
-            .
+            \gui {Case Sensitive}.
 
         \o  To search only whole words, select
-            \inlineimage qtcreator-editor-wholewords.png
-            .
+            \gui {Whole Words Only}.
 
         \o  To search using regular expressions, select
-            \inlineimage qtcreator-editor-regularexpressions.png
-            .
+            \gui {Regular Expressions}.
             Regular expressions used in \QC are modeled on Perl regular
             expressions. For more information on using regular expressions, see
             \l {http://doc.qt.nokia.com/4.7/qregexp.html#details}
@@ -1146,7 +1144,7 @@
 
     \endlist
 
-    \note If you have selected text before selecting \gui Find/Replace, the
+    \note If you have selected text before selecting \gui {Find/Replace}, the
     search is conducted within the selection.
 
     To replace occurrences of the existing text, enter the new text in the
@@ -1155,11 +1153,11 @@
     \list
 
         \o  To replace the selected occurrence and move to the next one,
-            click \inlineimage qtcreator-next.png
+            click \gui {Find Next}
             or press \key Ctrl+=.
 
         \o  To replace the selected occurrence and move to the previous one,
-            click \inlineimage qtcreator-previous.png
+            click \gui {Find Previous}
             .
 
         \o  To replace all occurrences in the file, click \gui{Replace All}.
@@ -1213,11 +1211,14 @@
 
                 \o  To go to an occurrence, double-click it.
 
+                \o  To repeat the search after you have made changes to the
+                    listed files, for example, select \gui {Search Again}.
+
             \endlist
 
     \endlist
 
-    The search results are stored in the search history (1) from which you can
+    The search results are stored in the search history from which you can
     select earlier searches.
 
     \note You can use \gui{Advanced Find} also to search for symbols. For more
@@ -1894,7 +1895,8 @@
     \list 1
 
         \o  In the locator, click \inlineimage qtcreator-locator-magnify.png
-            and select \gui Configure to open the \gui Locator options.
+            (\gui {Options}) and select \gui Configure to open the \gui Locator
+            options.
 
         \o  Select a filter, and then select \gui Edit.
 
@@ -1948,8 +1950,8 @@
 
     \list 1
 
-        \o  In the locator, click \inlineimage qtcreator-locator-magnify.png
-            and select \gui Configure to open the \gui Locator options.
+        \o  In the locator, select \gui {Options > Configure} to open the
+            \gui Locator options.
 
             \image qtcreator-locator-customize.png
 
@@ -1987,9 +1989,8 @@
     all default filters is updated as you write your code. By default,
     \QC updates the filters created by you once an hour.
 
-    To update the cached information manually, click
-    \inlineimage qtcreator-locator-magnify.png
-    and select \gui Refresh.
+    To update the cached information manually, select \gui {Options > Refresh}
+    in the locator.
 
     To set a new cache update time:
 
