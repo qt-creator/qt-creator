@@ -165,7 +165,8 @@
 
     \list 1
 
-        \o  In the base state, add all elements you will need in the application.
+        \o  In the base state, add all elements you will need in the
+            application (1).
             While you work on one screen, you can click the
             \inlineimage qmldesigner-show-hide-icon.png
             icon to hide elements on the canvas that are not part of a screen.
@@ -173,7 +174,7 @@
         \o  In the \gui States pane, click the empty slot to create a new state
             and give it a name. For example, \c Normal.
 
-        \o  In the \gui Properties pane, deselect the \gui Visibility check box
+        \o  In the \gui Properties pane (2), deselect the \gui Visibility check box
             or set \gui Opacity to 0 for each element that is not needed in this
             view. If you specify the setting for the parent element, all child
             elements inherit it and are also hidden.
