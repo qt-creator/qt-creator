@@ -266,8 +266,7 @@ struct SomeType
 
 namespace multibp {
 
-    // This tests multiple breakpoints. When a
-    // the b
+    // This tests multiple breakpoints.
     template <typename T> class Vector
     {
     public:
@@ -277,7 +276,8 @@ namespace multibp {
             BREAK_HERE;
             // Check size 10 int.
             // Continue.
-            // Check there are multiple entries in the Breakpoint vie.
+            // Manual: Add a breakpoint in the constructor
+            // Manual: Check there are multiple entries in the Breakpoint view.
             dummyStatement(this);
         }
         ~Vector() { delete [] m_data; }
