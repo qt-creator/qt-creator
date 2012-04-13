@@ -3105,7 +3105,7 @@ namespace stdvector {
         // Expand v v.0 v.0.x.
         // Check v <4 items> std::vector<Foo>.
         // CheckType v.0 Foo.
-        // Check v.[1].a 1 int.
+        // Check v.1.a 2 int.
         // CheckType v.3 Foo.
         // Continue.
         dummyStatement(&v);
