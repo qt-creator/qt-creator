@@ -58,10 +58,10 @@ bool GenericLinuxDeviceConfigurationFactory::canCreate() const
 
 IDevice::Ptr GenericLinuxDeviceConfigurationFactory::create() const
 {
-    GenericLinuxDeviceConfigurationWizard *wizard = new GenericLinuxDeviceConfigurationWizard;
-    if (wizard->exec() != QDialog::Accepted)
+    GenericLinuxDeviceConfigurationWizard wizard;
+    if (wizard.exec() != QDialog::Accepted)
         return IDevice::Ptr();
-    return wizard->device();
+    return wizard.device();
 }
 
 IDevice::Ptr GenericLinuxDeviceConfigurationFactory::loadDevice(const QVariantMap &map) const

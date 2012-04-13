@@ -60,10 +60,10 @@ bool MaddeDeviceConfigurationFactory::canCreate() const
 
 IDevice::Ptr MaddeDeviceConfigurationFactory::create() const
 {
-    MaemoDeviceConfigWizard *wizard = new MaemoDeviceConfigWizard;
-    if (wizard->exec() != QDialog::Accepted)
+    MaemoDeviceConfigWizard wizard;
+    if (wizard.exec() != QDialog::Accepted)
         return IDevice::Ptr();
-    return wizard->device();
+    return wizard.device();
 }
 
 IDevice::Ptr MaddeDeviceConfigurationFactory::loadDevice(const QVariantMap &map) const
