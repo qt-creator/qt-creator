@@ -394,8 +394,6 @@ namespace peekandpoke {
     void testComplexWatchers()
     {
         struct S { int a; double b; } s[10];
-        for (int i = 0; i != 10; ++i)
-            s[i].a = i;
         BREAK_HERE;
         // Expand s and s[0].
         // CheckType s peekandpoke::S [10].
@@ -405,6 +403,9 @@ namespace peekandpoke {
         // Manual: Type    ['s[%d].a' % i for i in range(5)]
         // Manual: Expand it, continue stepping. This should result in a list
         // Manual: of five items containing the .a fields of s[0]..s[4].
+        for (int i = 0; i != 10; ++i)
+            s[i].a = i;
+
         dummyStatement(&s);
     }
 
