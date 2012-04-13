@@ -696,10 +696,11 @@ void InspectorUi::selectItems(const QList<int> &objectIds)
         selectItems(objectReferences);
 }
 
-void InspectorUi::changePropertyValue(int debugId,const QString &propertyName, const QString &valueExpression)
+void InspectorUi::changePropertyValue(int debugId, const QString &propertyName,
+                                      const QString &valueExpression, bool isLiteral)
 {
     QmlDebugObjectReference obj = m_clientProxy->objectReferenceForId(debugId);
-    m_clientProxy->setBindingForObject(debugId, propertyName, valueExpression, false,
+    m_clientProxy->setBindingForObject(debugId, propertyName, valueExpression, isLiteral,
                                        obj.source().url().toString(), obj.source().lineNumber());
 }
 
@@ -901,8 +902,8 @@ void InspectorUi::disableLivePreview()
 
 void InspectorUi::connectSignals()
 {
-    connect(m_propertyInspector, SIGNAL(changePropertyValue(int,QString,QString)),
-            this, SLOT(changePropertyValue(int,QString,QString)));
+    connect(m_propertyInspector, SIGNAL(changePropertyValue(int,QString,QString,bool)),
+            this, SLOT(changePropertyValue(int,QString,QString,bool)));
 
     connect(m_clientProxy, SIGNAL(propertyChanged(int,QByteArray,QVariant)),
             m_propertyInspector, SLOT(propertyValueChanged(int,QByteArray,QVariant)));

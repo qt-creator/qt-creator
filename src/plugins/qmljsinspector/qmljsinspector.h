@@ -120,7 +120,8 @@ private slots:
     void selectItems(const QList<QmlDebugObjectReference> &objectReferences);
     void selectItems(const QList<int> &objectIds);
     void changeSelectedItems(const QList<QmlDebugObjectReference> &objects);
-    void changePropertyValue(int debugId,const QString &propertyName, const QString &valueExpression);
+    void changePropertyValue(int debugId,const QString &propertyName,
+                             const QString &valueExpression, bool isLiteral);
     void objectTreeReady();
     void onRootContext(const QVariant &value);
 

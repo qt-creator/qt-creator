@@ -127,12 +127,14 @@ public:
     bool contentsValid() const;
 
 signals:
-    void changePropertyValue(int debugId, QString propertyName, QString valueExpression);
+    void changePropertyValue(int debugId, QString propertyName, QString valueExpression,
+                             bool isLiteral);
     void customContextMenuRequested(const QPoint &pos);
 
 public slots:
     void setCurrentObjects(const QList<QmlDebugObjectReference> &);
-    void propertyValueEdited(const int objectId,const QString &propertyName, const QString &propertyValue);
+    void propertyValueEdited(const int objectId,const QString &propertyName, const QString &propertyValue,
+                             bool isLiteral = false);
     void propertyValueChanged(int debugId, const QByteArray &propertyName, const QVariant &propertyValue);
 
     void openExpressionEditor(const QModelIndex &itemIndex);

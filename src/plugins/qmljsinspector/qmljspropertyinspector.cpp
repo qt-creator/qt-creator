@@ -79,7 +79,7 @@ class PropertyEditDelegate : public QItemDelegate
                 int objectId = m_treeWidget->getData(index.row(), PROPERTY_NAME_COLUMN, Qt::UserRole).toInt();
                 QString propertyName = m_treeWidget->getData(index.row(), PROPERTY_NAME_COLUMN, Qt::DisplayRole).toString();
                 bool propertyValue = m_treeWidget->getData(index.row(), PROPERTY_VALUE_COLUMN, Qt::DisplayRole).toBool();
-                m_treeWidget->propertyValueEdited(objectId, propertyName, !propertyValue?"true":"false");
+                m_treeWidget->propertyValueEdited(objectId, propertyName, !propertyValue?"true":"false", true);
                 return 0;
             }
 
@@ -113,25 +113,9 @@ class PropertyEditDelegate : public QItemDelegate
             return;
 
         QString propertyName = m_treeWidget->getData(index.row(), PROPERTY_NAME_COLUMN, Qt::DisplayRole).toString();
-
         QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
         QString propertyValue = lineEdit->text();
-
-        // add quotes if it's a string
-        QmlJSPropertyInspector::PropertyType propertyType = m_treeWidget->getTypeFor(index.row());
-        const QChar quote(QLatin1Char('\"'));
-
-        if (propertyType == QmlJSPropertyInspector::StringType) {
-            const QChar backslash(QLatin1Char('\\'));
-            propertyValue = propertyValue.replace(quote, QString(backslash) + quote);
-        }
-
-        if (propertyType == QmlJSPropertyInspector::StringType || propertyType == QmlJSPropertyInspector::ColorType) {
-            propertyValue = quote + propertyValue + quote;
-        }
-
-        m_treeWidget->propertyValueEdited(objectId, propertyName, propertyValue);
-
+        m_treeWidget->propertyValueEdited(objectId, propertyName, propertyValue, true);
         lineEdit->clearFocus();
     }
 
@@ -367,9 +351,12 @@ void QmlJSPropertyInspector::propertyValueChanged(int debugId, const QByteArray 
     }
 }
 
-void QmlJSPropertyInspector::propertyValueEdited(const int objectId,const QString& propertyName, const QString& propertyValue)
+void QmlJSPropertyInspector::propertyValueEdited(const int objectId,
+                                                 const QString& propertyName,
+                                                 const QString& propertyValue,
+                                                 bool isLiteral)
 {
-    emit changePropertyValue(objectId, propertyName, propertyValue);
+    emit changePropertyValue(objectId, propertyName, propertyValue, isLiteral);
 }
 
 void QmlJSPropertyInspector::buildPropertyTree(const QmlDebugObjectReference &obj)
