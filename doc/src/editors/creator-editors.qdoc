@@ -871,14 +871,25 @@
     \QC core, select \gui{Tools} > \gui{Options} > \gui{FakeVim} >
     \gui{Ex Command Mapping}.
 
+    To map \e {user commands} to keyboard shortcuts, select \gui{Tools > Options
+    > FakeVim > User Command Mapping}. The user command mapped to the shortcut
+    is executed by FakeVim as if you were typing it (as when replaying a macro).
+
     To make changes to the Vim-style settings, select \gui{Tools} >
     \gui{Options} > \gui FakeVim > \gui{General}.
+
+    \image qtcreator-fakevim-options.png "FakeVim options"
+
+    To preselect the indentation settings specified for the text editor, select
+    \gui {Copy Text Editor Settings}. To preselect the Qt coding style, select
+    \gui {Set Qt Style}. To preselect a simple indentation style, select
+    \gui {Set Plain Style}. You can then change any of the preselected settings.
 
     To use a Vim-style color scheme, select \gui {Tools > Options >
     Text Editor > Fonts & Color}. In the \gui {Color Scheme} list, select
     \gui {Vim (dark)}.
 
-    To quit the FakeVim mode, unselect \gui{Tools} > \gui(Options} >
+    To quit the FakeVim mode, unselect \gui{Tools} > \gui{Options} >
     \gui{FakeVim} > \gui {Use FakeVim} or press \key{Alt+V,Alt+V}.
 
     You can temporarily escape FakeVim mode to access the normal \QC
