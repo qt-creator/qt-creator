@@ -2108,6 +2108,9 @@ void GdbEngine::handleExecuteStep(const GdbResponse &response)
     } else if (msg.startsWith("Cannot execute this command while the selected thread is running.")) {
         showExecutionError(QString::fromLocal8Bit(msg));
         notifyInferiorRunFailed();
+    } else if (msg.startsWith("warning: SuspendThread failed")) {
+        // On Win: would lead to "PC register is not available" or "\312"
+        continueInferiorInternal();
     } else {
         showExecutionError(QString::fromLocal8Bit(msg));
         notifyInferiorIll();
