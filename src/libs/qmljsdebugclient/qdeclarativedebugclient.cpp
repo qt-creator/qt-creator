@@ -409,7 +409,7 @@ QString QDeclarativeDebugClient::name() const
 float QDeclarativeDebugClient::serviceVersion() const
 {
     Q_D(const QDeclarativeDebugClient);
-    if (d->connection->d->serverPlugins.contains(d->name))
+    if (d->connection && d->connection->d->serverPlugins.contains(d->name))
         return d->connection->d->serverPlugins.value(d->name);
     return -1;
 }
