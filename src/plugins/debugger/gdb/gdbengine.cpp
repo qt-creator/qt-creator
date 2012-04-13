@@ -4397,7 +4397,7 @@ void GdbEngine::fetchDisassemblerByCliPointMixed(const DisassemblerAgentCookie &
 {
     DisassemblerAgentCookie ac = ac0;
     QTC_ASSERT(ac.agent, return);
-    postCommand(disassemblerCommand(ac.agent->location(), true), Discardable,
+    postCommand(disassemblerCommand(ac.agent->location(), true), Discardable|ConsoleCommand,
         CB(handleFetchDisassemblerByCliPointMixed),
         QVariant::fromValue(ac));
 }
@@ -4420,8 +4420,8 @@ void GdbEngine::fetchDisassemblerByCliRangeMixed(const DisassemblerAgentCookie &
     QByteArray end = QByteArray::number(address + 100, 16);
     const char sep = m_disassembleUsesComma ? ',' : ' ';
     QByteArray cmd = "disassemble /m 0x" + start + sep + "0x" + end;
-    postCommand(cmd, Discardable, CB(handleFetchDisassemblerByCliRangeMixed),
-        QVariant::fromValue(ac));
+    postCommand(cmd, Discardable|ConsoleCommand,
+        CB(handleFetchDisassemblerByCliRangeMixed), QVariant::fromValue(ac));
 }
 
 void GdbEngine::fetchDisassemblerByCliRangePlain(const DisassemblerAgentCookie &ac0)
@@ -4433,8 +4433,8 @@ void GdbEngine::fetchDisassemblerByCliRangePlain(const DisassemblerAgentCookie &
     QByteArray end = QByteArray::number(address + 100, 16);
     const char sep = m_disassembleUsesComma ? ',' : ' ';
     QByteArray cmd = "disassemble 0x" + start + sep + "0x" + end;
-    postCommand(cmd, Discardable, CB(handleFetchDisassemblerByCliRangePlain),
-        QVariant::fromValue(ac));
+    postCommand(cmd, Discardable,
+        CB(handleFetchDisassemblerByCliRangePlain), QVariant::fromValue(ac));
 }
 
 static DisassemblerLine parseLine(const GdbMi &line)
