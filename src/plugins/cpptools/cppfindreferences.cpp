@@ -65,6 +65,7 @@
 #include <QDir>
 #include <QApplication>
 #include <utils/runextensions.h>
+#include <utils/textfileformat.h>
 
 #include <functional>
 
@@ -77,11 +78,16 @@ static QString getSource(const QString &fileName,
     if (workingCopy.contains(fileName)) {
         return workingCopy.source(fileName);
     } else {
-        Utils::FileReader reader;
-        if (!reader.fetch(fileName, QFile::Text)) // ### FIXME error reporting
-            return QString();
+        QString fileContents;
+        Utils::TextFileFormat format;
+        QString error;
+        QTextCodec *defaultCodec = Core::EditorManager::instance()->defaultTextCodec();
+        Utils::TextFileFormat::ReadResult result = Utils::TextFileFormat::readFile(
+                    fileName, defaultCodec, &fileContents, &format, &error);
+        if (result != Utils::TextFileFormat::ReadSuccess)
+            qWarning() << "Could not read " << fileName << ". Error: " << error;
 
-        return QString::fromLocal8Bit(reader.data()); // ### FIXME encoding
+        return fileContents;
     }
 }
 
