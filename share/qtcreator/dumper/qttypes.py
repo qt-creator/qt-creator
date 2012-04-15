@@ -238,8 +238,9 @@ def qdump__QFile(d, value):
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
+            base = value.type.fields()[0].type
+            d.putSubItem("[%s]" % str(base), value.cast(base), False)
             d.putCallItem("exists", value, "exists")
-            d.putSubItem("device", value.cast(lookupType(d.ns + "QIODevice")))
 
 
 def qdump__QFileInfo(d, value):
