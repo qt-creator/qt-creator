@@ -684,7 +684,7 @@ void QtcProcess::start()
     prepareCommand(m_command, m_arguments, &command, &arguments, &env, &workDir);
     setNativeArguments(arguments);
     if (m_useCtrlCStub) {
-        argList << command;
+        argList << QDir::toNativeSeparators(command);
         command = QCoreApplication::applicationDirPath() + QLatin1String("/qtcreator_ctrlc_stub.exe");
     }
     QProcess::start(command, argList);
