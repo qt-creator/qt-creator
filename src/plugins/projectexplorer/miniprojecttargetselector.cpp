@@ -237,12 +237,14 @@ void ProjectListWidget::addProject(Project *project)
     m_ignoreIndexChange = true;
 
     QString sortName = fullName(project);
-    int pos = 0;
+    int pos = count();
     for (int i=0; i < count(); ++i) {
         Project *p = item(i)->data(Qt::UserRole).value<Project*>();
         QString itemSortName = fullName(p);
-        if (itemSortName > sortName)
+        if (itemSortName > sortName) {
             pos = i;
+            break;
+        }
     }
 
     bool useFullName = false;
