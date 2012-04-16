@@ -61,11 +61,11 @@ public:
     ~ClientProxy();
 
     quint32 setBindingForObject(int objectDebugId,
-                             const QString &propertyName,
-                             const QVariant &value,
-                             bool isLiteralValue,
-                             QString source,
-                             int line);
+                                const QString &propertyName,
+                                const QVariant &value,
+                                bool isLiteralValue,
+                                QString source,
+                                int line);
 
     quint32 setMethodBodyForObject(int objectDebugId, const QString &methodName, const QString &methodBody);
     quint32 resetBindingForObject(int objectDebugId, const QString &propertyName);

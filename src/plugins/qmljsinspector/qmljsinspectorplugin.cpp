@@ -145,7 +145,7 @@ void InspectorPlugin::modeAboutToChange(Core::IMode *newMode)
 
         // Make sure we're not called again.
         QObject::disconnect(Core::ModeManager::instance(), SIGNAL(currentModeAboutToChange(Core::IMode*)),
-                   this, SLOT(modeAboutToChange(Core::IMode*)));
+                            this, SLOT(modeAboutToChange(Core::IMode*)));
     }
 }
 

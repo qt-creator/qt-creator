@@ -60,7 +60,7 @@ namespace Internal {
 
 class PropertyEditDelegate : public QItemDelegate
 {
-    public:
+public:
     explicit PropertyEditDelegate(QObject *parent=0) : QItemDelegate(parent),
         m_treeWidget(dynamic_cast<QmlJSPropertyInspector *>(parent)) {}
 
@@ -74,24 +74,24 @@ class PropertyEditDelegate : public QItemDelegate
 
         switch (m_treeWidget->getTypeFor(index.row())) {
 
-            case QmlJSPropertyInspector::BooleanType: {
-                // invert the bool, skip editor
-                int objectId = m_treeWidget->getData(index.row(), PROPERTY_NAME_COLUMN, Qt::UserRole).toInt();
-                QString propertyName = m_treeWidget->getData(index.row(), PROPERTY_NAME_COLUMN, Qt::DisplayRole).toString();
-                bool propertyValue = m_treeWidget->getData(index.row(), PROPERTY_VALUE_COLUMN, Qt::DisplayRole).toBool();
-                m_treeWidget->propertyValueEdited(objectId, propertyName, !propertyValue?"true":"false", true);
-                return 0;
-            }
+        case QmlJSPropertyInspector::BooleanType: {
+            // invert the bool, skip editor
+            int objectId = m_treeWidget->getData(index.row(), PROPERTY_NAME_COLUMN, Qt::UserRole).toInt();
+            QString propertyName = m_treeWidget->getData(index.row(), PROPERTY_NAME_COLUMN, Qt::DisplayRole).toString();
+            bool propertyValue = m_treeWidget->getData(index.row(), PROPERTY_VALUE_COLUMN, Qt::DisplayRole).toBool();
+            m_treeWidget->propertyValueEdited(objectId, propertyName, !propertyValue?"true":"false", true);
+            return 0;
+        }
 
-            case QmlJSPropertyInspector::NumberType: {
-                QLineEdit *editor = new QLineEdit(parent);
-                editor->setValidator(new QDoubleValidator(editor));
-                return editor;
-            }
+        case QmlJSPropertyInspector::NumberType: {
+            QLineEdit *editor = new QLineEdit(parent);
+            editor->setValidator(new QDoubleValidator(editor));
+            return editor;
+        }
 
         default: {
-                return new QLineEdit(parent);
-            }
+            return new QLineEdit(parent);
+        }
         }
 
         return 0;
@@ -257,9 +257,9 @@ QVariant QmlJSPropertyInspectorModel::headerData(int section, Qt::Orientation or
 {
     if (orient == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
-            case PROPERTY_NAME_COLUMN: return tr("Name");
-            case PROPERTY_VALUE_COLUMN: return tr("Value");
-            case PROPERTY_TYPE_COLUMN: return tr("Type");
+        case PROPERTY_NAME_COLUMN: return tr("Name");
+        case PROPERTY_VALUE_COLUMN: return tr("Value");
+        case PROPERTY_TYPE_COLUMN: return tr("Type");
         };
     }
     return QStandardItemModel::headerData(section, orient, role);
@@ -405,7 +405,7 @@ void QmlJSPropertyInspector::buildPropertyTree(const QmlDebugObjectReference &ob
 }
 
 void QmlJSPropertyInspector::addRow(const QString &name,const QString &value, const QString &type,
-                             const int debugId, bool editable)
+                                    const int debugId, bool editable)
 {
     QStandardItem *nameColumn = new QStandardItem(name);
     nameColumn->setToolTip(name);

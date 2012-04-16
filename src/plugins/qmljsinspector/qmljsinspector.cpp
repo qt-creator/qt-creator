@@ -331,7 +331,7 @@ void InspectorUi::connected(ClientProxy *clientProxy)
     m_clientProxy = clientProxy;
     if (m_clientProxy)
         connect(m_clientProxy, SIGNAL(result(quint32,QVariant)),
-                   SLOT(onResult(quint32,QVariant)));
+                SLOT(onResult(quint32,QVariant)));
     using namespace QmlJsDebugClient::Constants;
     if (m_clientProxy->qmlDebugger()->objectName() == QML_DEBUGGER &&
             m_clientProxy->qmlDebugger()->serviceVersion() >= CURRENT_SUPPORTED_VERSION)
@@ -390,7 +390,7 @@ void InspectorUi::onRootContext(const QVariant &value)
         m_clientProxy->fetchRootObjects(
                     qvariant_cast<QmlDebugContextReference>(
                         value), true);
-     } else {
+    } else {
         for (int i = 1; i < m_crumblePath->length(); i++) {
             m_updateObjectQueryIds << m_clientProxy->fetchContextObject(
                                           m_crumblePath->dataForIndex(i).toInt());
@@ -413,7 +413,7 @@ void InspectorUi::updateEngineList()
 {
     QList<QmlDebugEngineReference> engines = m_clientProxy->engines();
 
-//#warning update the QML engines combo
+    //#warning update the QML engines combo
 
     if (engines.isEmpty())
         qWarning("qmldebugger: no engines found!");
@@ -780,7 +780,7 @@ void InspectorUi::gotoObjectReferenceDefinition(const QmlDebugObjectReference &o
     TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
 
     if (currentEditor != editor)
-            m_selectionCallbackExpected = true;
+        m_selectionCallbackExpected = true;
 
     if (textEditor) {
         QmlDebugObjectReference ref = objectReferenceForLocation(fileName);

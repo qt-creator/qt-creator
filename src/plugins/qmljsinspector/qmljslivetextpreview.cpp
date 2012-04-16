@@ -68,24 +68,24 @@ namespace Internal {
  */
 class MapObjectWithDebugReference : public Visitor
 {
-    public:
-        typedef QList<int> DebugIdList;
-        MapObjectWithDebugReference() : activated(0) {}
-        virtual void endVisit(UiObjectDefinition *ast) ;
-        virtual void endVisit(UiObjectBinding *ast) ;
-        virtual bool visit(UiObjectDefinition *ast) ;
-        virtual bool visit(UiObjectBinding *ast) ;
+public:
+    typedef QList<int> DebugIdList;
+    MapObjectWithDebugReference() : activated(0) {}
+    virtual void endVisit(UiObjectDefinition *ast) ;
+    virtual void endVisit(UiObjectBinding *ast) ;
+    virtual bool visit(UiObjectDefinition *ast) ;
+    virtual bool visit(UiObjectBinding *ast) ;
 
-        QHash<QPair<int, int>, DebugIdList> ids;
-        QString filename;
-        QHash<UiObjectMember *, DebugIdList> result;
-        QSet<UiObjectMember *> lookupObjects;
+    QHash<QPair<int, int>, DebugIdList> ids;
+    QString filename;
+    QHash<UiObjectMember *, DebugIdList> result;
+    QSet<UiObjectMember *> lookupObjects;
 
-    private:
-        void process(UiObjectMember *ast);
-        void process(UiObjectBinding *ast);
-    private:
-        int activated;
+private:
+    void process(UiObjectMember *ast);
+    void process(UiObjectBinding *ast);
+private:
+    int activated;
 };
 
 bool MapObjectWithDebugReference::visit(UiObjectDefinition* ast)
@@ -270,8 +270,8 @@ void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QStr
 
     // fallback: use ref under cursor if nothing else is found
     if (selectedReferences.isEmpty()
-        && !containsReferenceUnderCursor
-        && objectRefUnderCursor.debugId() != -1)
+            && !containsReferenceUnderCursor
+            && objectRefUnderCursor.debugId() != -1)
     {
         selectedReferences << objectRefUnderCursor.debugId();
     }
@@ -343,7 +343,7 @@ void QmlJSLiveTextPreview::updateDebugIds()
         const QmlJS::Document::Ptr &doc = it.key();
 
         DebugIdHash::const_iterator id_it = clientProxy->debugIdHash().constFind(
-            qMakePair<QString, int>(doc->fileName(), doc->editorRevision()));
+                    qMakePair<QString, int>(doc->fileName(), doc->editorRevision()));
         if (id_it == clientProxy->debugIdHash().constEnd())
             continue;
 
@@ -442,21 +442,21 @@ private:
         ExpressionStatement *expStatement = cast<ExpressionStatement*>(scriptBinding->statement);
 
         switch(expStatement->expression->kind) {
-            case Node::Kind_NumericLiteral:
-            case Node::Kind_UnaryPlusExpression:
-            case Node::Kind_UnaryMinusExpression:
-                castedExpression = QVariant(cleanedValue).toReal();
-                break;
-            case Node::Kind_StringLiteral:
-                castedExpression = QVariant(cleanedValue).toString();
-                break;
-            case Node::Kind_TrueLiteral:
-            case Node::Kind_FalseLiteral:
-                castedExpression = QVariant(cleanedValue).toBool();
-                break;
-            default:
-                castedExpression = cleanedValue;
-                break;
+        case Node::Kind_NumericLiteral:
+        case Node::Kind_UnaryPlusExpression:
+        case Node::Kind_UnaryMinusExpression:
+            castedExpression = QVariant(cleanedValue).toReal();
+            break;
+        case Node::Kind_StringLiteral:
+            castedExpression = QVariant(cleanedValue).toString();
+            break;
+        case Node::Kind_TrueLiteral:
+        case Node::Kind_FalseLiteral:
+            castedExpression = QVariant(cleanedValue).toBool();
+            break;
+        default:
+            castedExpression = cleanedValue;
+            break;
         }
 
         return castedExpression;
@@ -510,7 +510,7 @@ protected:
     }
 
     virtual void createObject(const QString& qmlText, DebugId ref,
-                         const QStringList& importList, const QString& filename, int order)
+                              const QStringList& importList, const QString& filename, int order)
     {
         appliedChangesToViewer = true;
         referenceRefreshRequired = true;
@@ -528,7 +528,7 @@ protected:
         if (unsyncronizableChanges == QmlJSLiveTextPreview::NoUnsyncronizableChanges) {
             UiObjectDefinition *parentDefinition = cast<UiObjectDefinition *>(parent);
             if (parentDefinition && parentDefinition->qualifiedTypeNameId
-                       && !parentDefinition->qualifiedTypeNameId->name.isEmpty())
+                    && !parentDefinition->qualifiedTypeNameId->name.isEmpty())
             {
                 unsyncronizableElementName = parentDefinition->qualifiedTypeNameId->name.toString();
                 unsyncronizableChanges = QmlJSLiveTextPreview::ElementChangeWarning;
@@ -568,7 +568,7 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
         m_docWithUnappliedChanges.clear();
 
         if (doc && m_previousDoc && doc->fileName() == m_previousDoc->fileName()
-            && doc->qmlProgram() && m_previousDoc->qmlProgram())
+                && doc->qmlProgram() && m_previousDoc->qmlProgram())
         {
             UpdateInspector delta(m_clientProxy.data());
             m_debugIds = delta(m_previousDoc, doc, m_debugIds);
@@ -602,9 +602,9 @@ void QmlJSLiveTextPreview::showExperimentalWarning()
     foreach (QWeakPointer<TextEditor::BaseTextEditorWidget> editor, m_editors)
         if (editor) {
             Core::InfoBarEntry info(
-                    Constants::INFO_EXPERIMENTAL,
-                    tr("You changed a QML file in Live Preview mode, which modifies the running QML application. "
-                       "In case of unexpected behavior, please reload the QML application."));
+                        Constants::INFO_EXPERIMENTAL,
+                        tr("You changed a QML file in Live Preview mode, which modifies the running QML application. "
+                           "In case of unexpected behavior, please reload the QML application."));
             info.setCustomButtonInfo(tr("Disable Live Preview"), this, SLOT(disableLivePreview()));
             editor.data()->editorDocument()->infoBar()->addInfo(info);
         }
@@ -615,17 +615,17 @@ void QmlJSLiveTextPreview::showSyncWarning(UnsyncronizableChangeType unsyncroniz
 {
     QString errorMessage;
     switch (unsyncronizableChangeType) {
-        case AttributeChangeWarning:
-           errorMessage = tr("The %1 attribute at line %2, column %3 cannot be changed without reloading the QML application. ")
-                          .arg(elementName, QString::number(line), QString::number(column));
-            break;
-        case ElementChangeWarning:
-            errorMessage = tr("The %1 element at line %2, column %3 cannot be changed without reloading the QML application. ")
-                           .arg(elementName, QString::number(line), QString::number(column));
-            break;
-        case QmlJSLiveTextPreview::NoUnsyncronizableChanges:
-        default:
-            return;
+    case AttributeChangeWarning:
+        errorMessage = tr("The %1 attribute at line %2, column %3 cannot be changed without reloading the QML application. ")
+                .arg(elementName, QString::number(line), QString::number(column));
+        break;
+    case ElementChangeWarning:
+        errorMessage = tr("The %1 element at line %2, column %3 cannot be changed without reloading the QML application. ")
+                .arg(elementName, QString::number(line), QString::number(column));
+        break;
+    case QmlJSLiveTextPreview::NoUnsyncronizableChanges:
+    default:
+        return;
     }
 
     errorMessage.append(tr("You can continue debugging, but behavior can be unexpected."));
@@ -633,7 +633,7 @@ void QmlJSLiveTextPreview::showSyncWarning(UnsyncronizableChangeType unsyncroniz
     foreach (QWeakPointer<TextEditor::BaseTextEditorWidget> editor, m_editors)
         if (editor)
             editor.data()->editorDocument()->infoBar()->addInfo(Core::InfoBarEntry(
-                    QLatin1String(Constants::INFO_OUT_OF_SYNC), errorMessage));
+                                                                    QLatin1String(Constants::INFO_OUT_OF_SYNC), errorMessage));
 }
 
 void QmlJSLiveTextPreview::reloadQmlViewer()
@@ -675,7 +675,7 @@ void QmlJSLiveTextPreview::setClientProxy(ClientProxy *clientProxy)
 
     if (m_clientProxy.data()) {
         connect(m_clientProxy.data(), SIGNAL(objectTreeUpdated()),
-                   SLOT(updateDebugIds()));
+                SLOT(updateDebugIds()));
 
         foreach (QWeakPointer<TextEditor::BaseTextEditorWidget> editWidget, m_editors)
             if (editWidget)

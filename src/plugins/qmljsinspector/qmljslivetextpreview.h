@@ -44,11 +44,11 @@
 QT_FORWARD_DECLARE_CLASS(QTextDocument)
 
 namespace Core {
-    class IEditor;
+class IEditor;
 }
 
 namespace QmlJS {
-    class ModelManagerInterface;
+class ModelManagerInterface;
 }
 
 namespace QmlJSInspector {

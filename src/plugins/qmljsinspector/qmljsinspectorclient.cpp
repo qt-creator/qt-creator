@@ -39,9 +39,9 @@ namespace QmlJSInspector {
 namespace Internal {
 
 QmlJSInspectorClient::QmlJSInspectorClient(QDeclarativeDebugConnection *client,
-                                         QObject * /*parent*/)
+                                           QObject * /*parent*/)
     : QDeclarativeDebugClient(QLatin1String("QDeclarativeObserverMode"), client) ,
-    m_connection(client)
+      m_connection(client)
 {
     setObjectName(name());
 }
@@ -358,7 +358,7 @@ void QmlJSInspectorClient::showAppOnTop(bool showOnTop)
 }
 
 void QmlJSInspectorClient::createQmlObject(const QString &qmlText, int parentDebugId,
-                                             const QStringList &imports, const QString &filename, int order)
+                                           const QStringList &imports, const QString &filename, int order)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -431,7 +431,7 @@ void QmlJSInspectorClient::applyChangesFromQmlFile()
 }
 
 void QmlJSInspectorClient::log(LogDirection direction, InspectorProtocol::Message message,
-                              const QString &extra)
+                               const QString &extra)
 {
     QString msg;
     if (direction == LogSend)

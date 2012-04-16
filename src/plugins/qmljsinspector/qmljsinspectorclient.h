@@ -44,7 +44,7 @@ class QmlJSInspectorClient : public QDeclarativeDebugClient
     Q_OBJECT
 public:
     explicit QmlJSInspectorClient(QDeclarativeDebugConnection *client,
-                                    QObject *parent = 0);
+                                  QObject *parent = 0);
 
     void setCurrentObjects(const QList<int> &debugIds);
     void reloadViewer();

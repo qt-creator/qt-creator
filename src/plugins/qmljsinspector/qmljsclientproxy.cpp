@@ -91,23 +91,23 @@ void ClientProxy::connectToServer()
             SIGNAL(connectedStatusChanged(QDeclarativeDebugClient::Status)),
             this, SLOT(clientStatusChanged(QDeclarativeDebugClient::Status)));
     connect(m_inspectorClient, SIGNAL(currentObjectsChanged(QList<int>)),
-        SLOT(onCurrentObjectsChanged(QList<int>)));
+            SLOT(onCurrentObjectsChanged(QList<int>)));
     connect(m_inspectorClient, SIGNAL(zoomToolActivated()),
-        SIGNAL(zoomToolActivated()));
+            SIGNAL(zoomToolActivated()));
     connect(m_inspectorClient, SIGNAL(selectToolActivated()),
-        SIGNAL(selectToolActivated()));
+            SIGNAL(selectToolActivated()));
     connect(m_inspectorClient, SIGNAL(selectMarqueeToolActivated()),
-        SIGNAL(selectMarqueeToolActivated()));
+            SIGNAL(selectMarqueeToolActivated()));
     connect(m_inspectorClient, SIGNAL(animationSpeedChanged(qreal)),
-        SIGNAL(animationSpeedChanged(qreal)));
+            SIGNAL(animationSpeedChanged(qreal)));
     connect(m_inspectorClient, SIGNAL(animationPausedChanged(bool)),
-        SIGNAL(animationPausedChanged(bool)));
+            SIGNAL(animationPausedChanged(bool)));
     connect(m_inspectorClient, SIGNAL(designModeBehaviorChanged(bool)),
-        SIGNAL(designModeBehaviorChanged(bool)));
+            SIGNAL(designModeBehaviorChanged(bool)));
     connect(m_inspectorClient, SIGNAL(showAppOnTopChanged(bool)),
-        SIGNAL(showAppOnTopChanged(bool)));
+            SIGNAL(showAppOnTopChanged(bool)));
     connect(m_inspectorClient, SIGNAL(reloaded()), this,
-        SIGNAL(serverReloaded()));
+            SIGNAL(serverReloaded()));
     connect(m_inspectorClient, SIGNAL(logActivity(QString,QString)),
             m_adapter.data(), SLOT(logServiceActivity(QString,QString)));
 
@@ -337,11 +337,11 @@ ClientProxy::objectReferences(const QmlDebugObjectReference &objectRef) const
 }
 
 quint32 ClientProxy::setBindingForObject(int objectDebugId,
-                                      const QString &propertyName,
-                                      const QVariant &value,
-                                      bool isLiteralValue,
-                                      QString source,
-                                      int line)
+                                         const QString &propertyName,
+                                         const QVariant &value,
+                                         bool isLiteralValue,
+                                         QString source,
+                                         int line)
 {
     if (objectDebugId == -1)
         return false;
