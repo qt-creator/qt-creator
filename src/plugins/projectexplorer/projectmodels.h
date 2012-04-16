@@ -122,6 +122,8 @@ private:
     friend class FlatModelManager;
 };
 
+int caseFriendlyCompare(const QString &a, const QString &b);
+
 } // namespace Internal
 } // namespace ProjectExplorer
 

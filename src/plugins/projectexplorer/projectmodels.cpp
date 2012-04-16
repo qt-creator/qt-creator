@@ -54,14 +54,6 @@ namespace {
 
 // sorting helper function
 
-int fileNameCompare(const QString &a, const QString &b)
-{
-    int result = a.compare(b, Qt::CaseInsensitive);
-    if (result != 0)
-        return result;
-    return a.compare(b, Qt::CaseSensitive);
-}
-
 bool sortNodes(Node *n1, Node *n2)
 {
     // Ordering is: project files, project, folder, file
@@ -77,7 +69,7 @@ bool sortNodes(Node *n1, Node *n2)
             const QString fileName1 = QFileInfo(file1->path()).fileName();
             const QString fileName2 = QFileInfo(file2->path()).fileName();
 
-            int result = fileNameCompare(fileName1, fileName2);
+            int result = caseFriendlyCompare(fileName1, fileName2);
             if (result != 0)
                 return result < 0;
             else
@@ -97,7 +89,7 @@ bool sortNodes(Node *n1, Node *n2)
             ProjectNode *project1 = static_cast<ProjectNode*>(n1);
             ProjectNode *project2 = static_cast<ProjectNode*>(n2);
 
-            int result = fileNameCompare(project1->displayName(), project2->displayName());
+            int result = caseFriendlyCompare(project1->displayName(), project2->displayName());
             if (result != 0)
                 return result < 0;
             else
@@ -114,7 +106,7 @@ bool sortNodes(Node *n1, Node *n2)
             FolderNode *folder1 = static_cast<FolderNode*>(n1);
             FolderNode *folder2 = static_cast<FolderNode*>(n2);
 
-            int result = fileNameCompare(folder1->path(), folder2->path());
+            int result = caseFriendlyCompare(folder1->path(), folder2->path());
             if (result != 0)
                 return result < 0;
             else
@@ -134,11 +126,11 @@ bool sortNodes(Node *n1, Node *n2)
         const QString fileName1 = QFileInfo(filePath1).fileName();
         const QString fileName2 = QFileInfo(filePath2).fileName();
 
-        int result = fileNameCompare(fileName1, fileName2);
+        int result = caseFriendlyCompare(fileName1, fileName2);
         if (result != 0) {
             return result < 0; // sort by filename
         } else {
-            result = fileNameCompare(filePath1, filePath2);
+            result = caseFriendlyCompare(filePath1, filePath2);
             if (result != 0) {
                 return result < 0; // sort by filepath
             } else {
@@ -825,3 +817,18 @@ void FlatModel::filesRemoved()
 {
     // Do nothing
 }
+
+namespace ProjectExplorer {
+namespace Internal {
+
+int caseFriendlyCompare(const QString &a, const QString &b)
+{
+    int result = a.compare(b, Qt::CaseInsensitive);
+    if (result != 0)
+        return result;
+    return a.compare(b, Qt::CaseSensitive);
+}
+
+}
+}
+

@@ -47,6 +47,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/projectmodels.h>
 #include <projectexplorer/runconfiguration.h>
 
 #include <QTimer>
@@ -81,6 +82,15 @@ static QIcon createCenteredIcon(const QIcon &icon, const QIcon &overlay)
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
+
+static bool projectLesserThan(Project *p1, Project *p2)
+{
+    int result = caseFriendlyCompare(p1->displayName(), p2->displayName());
+    if (result != 0)
+        return result < 0;
+    else
+        return p1 < p2;
+}
 
 ////////
 // TargetSelectorDelegate
@@ -242,9 +252,10 @@ void ProjectListWidget::addProject(Project *project)
     int pos = 0;
     for (int i=0; i < count(); ++i) {
         Project *p = item(i)->data(Qt::UserRole).value<Project*>();
-        QString itemSortName = fullName(p);
-        if (itemSortName > sortName)
+        if (projectLesserThan(project, p)) {
             pos = i;
+            break;
+        }
     }
 
     bool useFullName = false;
@@ -319,8 +330,7 @@ void ProjectListWidget::projectDisplayNameChanged(Project *project)
     int pos = count();
     for (int i = 0; i < count(); ++i) {
         Project *p = item(i)->data(Qt::UserRole).value<Project*>();
-        QString itemSortName = fullName(p);
-        if (itemSortName > sortName) {
+        if (projectLesserThan(project, p)) {
             pos = i;
             break;
         }
