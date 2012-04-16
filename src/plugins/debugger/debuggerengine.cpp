@@ -615,7 +615,8 @@ void DebuggerEngine::gotoLocation(const Location &loc)
 {
      d->resetLocation();
 
-    if (debuggerCore()->boolSetting(OperateByInstruction) || !loc.hasDebugInfo()) {
+    if ((hasCapability(OperateByInstructionCapability) &&
+            debuggerCore()->boolSetting(OperateByInstruction)) || !loc.hasDebugInfo()) {
         d->m_disassemblerAgent.setLocation(loc);
         return;
     }
