@@ -213,6 +213,8 @@ ProjectListWidget::ProjectListWidget(SessionManager *sessionManager, QWidget *pa
             this, SLOT(removeProject(ProjectExplorer::Project*)));
     connect(m_sessionManager, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(changeStartupProject(ProjectExplorer::Project*)));
+    connect(m_sessionManager, SIGNAL(projectDisplayNameChanged(ProjectExplorer::Project*)),
+            this, SLOT(projectDisplayNameChanged(ProjectExplorer::Project*)));
     connect(this, SIGNAL(currentRowChanged(int)),
             this, SLOT(setProject(int)));
 }
@@ -292,6 +294,45 @@ void ProjectListWidget::removeProject(Project *project)
 
     m_ignoreIndexChange = false;
 
+}
+
+void ProjectListWidget::projectDisplayNameChanged(Project *project)
+{
+    m_ignoreIndexChange = true;
+
+    int oldPos = 0;
+    bool useFullName = false;
+    for (int i = 0; i < count(); ++i) {
+        Project *p = item(i)->data(Qt::UserRole).value<Project*>();
+        if (p == project) {
+            oldPos = i;
+        } else if (p->displayName() == project->displayName()) {
+            useFullName = true;
+            item(i)->setText(fullName(p));
+        }
+    }
+
+    bool isCurrentItem = (oldPos == currentRow());
+    QListWidgetItem *projectItem = takeItem(oldPos);
+
+    QString sortName = fullName(project);
+    int pos = count();
+    for (int i = 0; i < count(); ++i) {
+        Project *p = item(i)->data(Qt::UserRole).value<Project*>();
+        QString itemSortName = fullName(p);
+        if (itemSortName > sortName) {
+            pos = i;
+            break;
+        }
+    }
+
+    QString displayName = useFullName ? fullName(project) : project->displayName();
+    projectItem->setText(displayName);
+    insertItem(pos, projectItem);
+    if (isCurrentItem)
+        setCurrentRow(pos);
+
+    m_ignoreIndexChange = false;
 }
 
 void ProjectListWidget::setProject(int index)
@@ -538,6 +579,8 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
             this, SLOT(projectAdded(ProjectExplorer::Project*)));
     connect(m_sessionManager, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SLOT(projectRemoved(ProjectExplorer::Project*)));
+    connect(m_sessionManager, SIGNAL(projectDisplayNameChanged(ProjectExplorer::Project*)),
+            this, SLOT(updateActionAndSummary()));
 
     connect(m_listWidgets[TARGET], SIGNAL(changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration*)),
             this, SLOT(setActiveTarget(ProjectExplorer::ProjectConfiguration*)));

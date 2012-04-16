@@ -274,6 +274,9 @@ void SessionManager::addProjects(const QList<Project*> &projects)
             connect(pro, SIGNAL(fileListChanged()),
                     this, SLOT(clearProjectFileCache()));
 
+            connect(pro, SIGNAL(displayNameChanged()),
+                    this, SLOT(projectDisplayNameChanged()));
+
             if (debug)
                 qDebug() << "SessionManager - adding project " << pro->displayName();
         }
@@ -908,6 +911,27 @@ void SessionManager::sessionLoadingProgress()
 {
     m_future.setProgressValue(m_future.progressValue() + 1);
     QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+}
+
+void SessionManager::projectDisplayNameChanged()
+{
+    Project *pro = qobject_cast<Project*>(sender());
+    if (pro) {
+        Node *currentNode = 0;
+        if (ProjectExplorerPlugin::currentProject() == pro)
+            currentNode = ProjectExplorerPlugin::instance()->currentNode();
+
+        // Fix node sorting
+        QList<ProjectNode *> nodes;
+        nodes << pro->rootProjectNode();
+        m_sessionNode->removeProjectNodes(nodes);
+        m_sessionNode->addProjectNodes(nodes);
+
+        if (currentNode)
+            ProjectExplorerPlugin::instance()->setCurrentNode(currentNode);
+
+        emit projectDisplayNameChanged(pro);
+    }
 }
 
 QStringList ProjectExplorer::SessionManager::projectsForSessionName(const QString &session) const

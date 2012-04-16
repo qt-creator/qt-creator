@@ -356,6 +356,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             this, SLOT(projectRemoved(ProjectExplorer::Project*)));
     connect(d->m_session, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(startupProjectChanged()));
+    connect(d->m_session, SIGNAL(projectDisplayNameChanged(ProjectExplorer::Project*)),
+            this, SLOT(projectDisplayNameChanged(ProjectExplorer::Project*)));
     connect(d->m_session, SIGNAL(dependencyChanged(ProjectExplorer::Project*,ProjectExplorer::Project*)),
             this, SLOT(updateActions()));
     connect(d->m_session, SIGNAL(sessionLoaded(QString)),
@@ -2151,6 +2153,12 @@ void ProjectExplorerPlugin::projectRemoved(ProjectExplorer::Project * pro)
     // more specific action en and disabling ?
     disconnect(pro, SIGNAL(buildConfigurationEnabledChanged()),
                this, SLOT(updateActions()));
+}
+
+void ProjectExplorerPlugin::projectDisplayNameChanged(Project *pro)
+{
+    addToRecentProjects(pro->document()->fileName(), pro->displayName());
+    updateActions();
 }
 
 void ProjectExplorerPlugin::startupProjectChanged()

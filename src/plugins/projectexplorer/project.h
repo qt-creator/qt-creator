@@ -119,6 +119,7 @@ public:
     virtual void configureAsExampleProject(const QStringList &platforms);
 
 signals:
+    void displayNameChanged();
     void fileListChanged();
 
     // Note: activeTarget can be 0 (if no targets are defined).

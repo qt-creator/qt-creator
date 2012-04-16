@@ -82,7 +82,10 @@ public:
 
     void aboutToShutdown();
     void extensionsInitialized();
+
+public slots:
     void projectUpdated(ProjectExplorer::Project *p);
+
 private slots:
     void targetFactoriesChanged();
     void showProperties(int index, int subIndex);

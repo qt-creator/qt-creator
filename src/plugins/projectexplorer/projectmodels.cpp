@@ -652,7 +652,6 @@ void FlatModel::removed(FolderNode* parentNode, const QList<Node*> &newNodeList)
     QList<Node *>::const_iterator oldIter = oldNodeList.constBegin();
     QList<Node *>::const_iterator newIter = newNodeList.constBegin();
 
-    Q_ASSERT(isSorted(oldNodeList));
     Q_ASSERT(isSorted(newNodeList));
 
     QSet<Node *> emptyDifference;

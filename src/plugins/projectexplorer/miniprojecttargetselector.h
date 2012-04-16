@@ -75,6 +75,7 @@ public:
 private slots:
     void addProject(ProjectExplorer::Project *project);
     void removeProject(ProjectExplorer::Project *project);
+    void projectDisplayNameChanged(ProjectExplorer::Project *project);
     void changeStartupProject(ProjectExplorer::Project *project);
     void setProject(int index);
 private:

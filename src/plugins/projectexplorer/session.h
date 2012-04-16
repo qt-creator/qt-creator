@@ -127,7 +127,7 @@ signals:
     void projectAdded(ProjectExplorer::Project *project);
     void singleProjectAdded(ProjectExplorer::Project *project);
     void aboutToRemoveProject(ProjectExplorer::Project *project);
-
+    void projectDisplayNameChanged(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);
 
     void startupProjectChanged(ProjectExplorer::Project *project);
@@ -146,6 +146,8 @@ private slots:
 
     void markSessionFileDirty(bool makeDefaultVirginDirty = true);
     void sessionLoadingProgress();
+
+    void projectDisplayNameChanged();
 
 private:
     bool projectContainsFile(Project *p, const QString &fileName) const;

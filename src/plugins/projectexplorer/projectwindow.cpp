@@ -252,6 +252,9 @@ ProjectWindow::ProjectWindow(QWidget *parent)
     connect(session, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(startupProjectChanged(ProjectExplorer::Project*)));
 
+    connect(session, SIGNAL(projectDisplayNameChanged(ProjectExplorer::Project*)),
+            this, SLOT(projectUpdated(ProjectExplorer::Project*)));
+
     // Update properties to empty project for now:
     showProperties(-1, -1);
 }

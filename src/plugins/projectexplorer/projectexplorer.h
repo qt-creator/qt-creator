@@ -220,6 +220,7 @@ private slots:
 
     void projectAdded(ProjectExplorer::Project *pro);
     void projectRemoved(ProjectExplorer::Project *pro);
+    void projectDisplayNameChanged(ProjectExplorer::Project *pro);
     void startupProjectChanged(); // Calls updateRunAction
     void activeTargetChanged();
     void activeRunConfigurationChanged();
