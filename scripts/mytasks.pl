@@ -64,7 +64,7 @@ my $pos = 0;
 sub getDiffOrigin {
    my $currentBranch = `git branch | grep "^* "`;
    chop $currentBranch;
-   $currentBranch =~ s/^* //;
+   $currentBranch =~ s/^\s*\* //;
 
    my $remoteRepo = `git config --local --get branch.$currentBranch.remote`;
    chop $remoteRepo;
@@ -73,7 +73,7 @@ sub getDiffOrigin {
 
    my $remoteBranch = `git config --local --get branch.$currentBranch.merge`;
    chop $remoteBranch;
-   $remoteBranch =~ s!^refts/heads/!!;
+   $remoteBranch =~ s!^refs/heads/!!;
 
    return "HEAD" if (!$remoteBranch);
 
