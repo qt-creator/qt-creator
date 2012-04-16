@@ -29,7 +29,7 @@
     \contentspage index.html
     \previouspage creator-debugging-helpers.html
     \page creator-debugging-qml.html
-    \nextpage creator-troubleshooting-debugging.html
+    \nextpage creator-debugging-example.html
 
     \title Debugging Qt Quick Projects
 

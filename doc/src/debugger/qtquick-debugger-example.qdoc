@@ -29,7 +29,7 @@
     \contentspage index.html
     \previouspage creator-debugging-example.html
     \page creator-qml-debugging-example.html
-    \nextpage creator-debugger-operating-modes.html
+    \nextpage creator-troubleshooting-debugging.html
 
     \title Debugging a Qt Quick Example Application
 

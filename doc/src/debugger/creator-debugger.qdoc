@@ -29,7 +29,7 @@
     \contentspage index.html
     \previouspage creator-testing.html
     \page creator-debugging.html
-    \nextpage creator-debugging-example.html
+    \nextpage creator-debugger-engines.html
 
     \title Debugging
 
@@ -100,7 +100,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-qml-debugging-example.html
+    \previouspage creator-debugger-engines.html
     \page creator-debugger-operating-modes.html
     \nextpage creator-debug-mode.html
 
@@ -362,9 +362,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-debug-mode.html
+    \previouspage creator-debugging.html
     \page creator-debugger-engines.html
-    \nextpage creator-debugging-helpers.html
+    \nextpage creator-debugger-operating-modes.html
 
     \title Setting Up Debugger
 
@@ -695,7 +695,7 @@
     \contentspage index.html
     \previouspage creator-debugger-operating-modes.html
     \page creator-debug-mode.html
-    \nextpage creator-debugger-engines.html
+    \nextpage creator-debugging-helpers.html
 
     \title Interacting with the Debugger
 
@@ -1092,7 +1092,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-debugger-engines.html
+    \previouspage creator-debug-mode.html
     \page creator-debugging-helpers.html
     \nextpage creator-debugging-qml.html
 
@@ -1439,7 +1439,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-debugging-qml.html
+    \previouspage creator-qml-debugging-example.html
     \page creator-troubleshooting-debugging.html
     \nextpage creator-analyze-mode.html
 
