@@ -73,7 +73,7 @@ inline bool operator!=(const QByteArray &other, const ByteArrayRef &ref)
 class CPLUSPLUS_EXPORT PPToken: public Token
 {
 public:
-    PPToken();
+    PPToken() {}
 
     PPToken(const QByteArray &src)
         : m_src(src)

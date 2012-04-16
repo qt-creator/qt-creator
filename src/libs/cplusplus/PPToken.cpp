@@ -32,9 +32,6 @@ int ByteArrayRef::count(char ch) const
     return num;
 }
 
-PPToken::PPToken()
-{}
-
 void PPToken::squeeze()
 {
     if (isValid()) {
