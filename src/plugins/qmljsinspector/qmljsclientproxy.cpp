@@ -186,7 +186,7 @@ void ClientProxy::onCurrentObjectsFetched(quint32 queryId, const QVariant &resul
         return;
 
     foreach (const QmlDebugObjectReference &o, m_fetchCurrentObjects)
-        addObjectToTree(o);
+        addObjectToTree(o, false);
     emit selectedItemsChanged(QList<QmlDebugObjectReference>() <<
                               m_fetchCurrentObjects.last());
 }
@@ -230,13 +230,14 @@ void ClientProxy::setSelectedItemsByObjectId(
     }
 }
 
-void ClientProxy::addObjectToTree(const QmlDebugObjectReference &obj)
+void ClientProxy::addObjectToTree(const QmlDebugObjectReference &obj, bool notify)
 {
     int count = m_rootObjects.count();
     for (int i = 0; i < count; i++) {
         if (m_rootObjects[i].insertObjectInTree(obj)) {
             buildDebugIdHashRecursive(obj);
-            emit objectTreeUpdated();
+            if (notify)
+                emit objectTreeUpdated();
             break;
         }
     }

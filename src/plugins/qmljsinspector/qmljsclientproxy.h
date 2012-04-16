@@ -95,7 +95,7 @@ public:
     Debugger::QmlAdapter *qmlAdapter() const;
 
     quint32 fetchContextObject(const QmlDebugObjectReference& obj);
-    void addObjectToTree(const QmlDebugObjectReference &obj);
+    void addObjectToTree(const QmlDebugObjectReference &obj, bool notify = true);
     void fetchRootObjects(const QmlDebugContextReference &context, bool clear);
     void insertObjectInTreeIfNeeded(const QmlDebugObjectReference &object);
 
