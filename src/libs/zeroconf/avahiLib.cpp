@@ -561,7 +561,7 @@ extern "C" int cAvahiPollFunction(struct pollfd *ufds, unsigned int nfds, int ti
 namespace ZeroConf {
 namespace Internal {
 
-ZConfLib::Ptr ZConfLib::createAvahiLib(const QString &/*lib*/, const QString &version,
+ZConfLib::Ptr ZConfLib::createAvahiLib(const QString &/*lib*/, const QString &/*version*/,
                                        const ZConfLib::Ptr &fallback)
 {
     return fallback;
