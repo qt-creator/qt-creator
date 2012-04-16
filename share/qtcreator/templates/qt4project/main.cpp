@@ -1,5 +1,5 @@
-#include <%QAPP_INCLUDE%>
 #include "%INCLUDE%"
+#include <%QAPP_INCLUDE%>
 
 int main(int argc, char *argv[])
 {
