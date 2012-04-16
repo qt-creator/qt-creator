@@ -36,7 +36,7 @@ makestagingdir:
 	test -e ${staging} || mkdir ${staging}
 
 checkwget:
-	wget -V || mingw-get install msys-wget-bin
+	wget -V &> /dev/null || mingw-get install msys-wget-bin
 
 ${source}/gdb-${version}.tar.bz2: | makesourcedir checkwget
 	cd ${source} && \
