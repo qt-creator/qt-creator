@@ -41,20 +41,28 @@ sub checkLine {
     if ($file =~ /(.cpp|.c|.cxx|.h)$/ && $line =~ /^ *\t */) {
         print "$file\t$row\tWARNING\tTabs used to indent.\n";
     }
-    if ($file =~ /(.cpp|.c|.cxx|.h)$/ && $line =~ /^\s*{$/) {
+    if ($file =~ /(.cpp|.c|.cxx|.h)$/ && $line =~ /^\s+{$/) {
         print "$file\t$row\tWARNING\tOpening bracket found all alone on a line.\n";
     }
     if ($file =~ /(.cpp|.c|.cxx|.h)$/ && $line =~ /{.*[^\s].*$/) {
-        if ($line !~ /{\s+\/\*/)
+        if ($line !~ /\{\s+\/\*/ && $line !~ /^\s*\{ \}$/ && $line !~ /^namespace .* \}$/)
         { print "$file\t$row\tWARNING\tText found after opening bracket.\n"; }
     }
-    if ($file =~ /(.cpp|.c|.cxx|.h)$/ && $line =~ /[a-zA-Z0-9_]([*&])[^\/]/) {
-        print "$file\t$row\tWARNING\tUse \"TYPE ${1}NAME\" (currently the space between TYPE and $1 is missing).\n";
+    if ($file =~ /(.cpp|.c|.cxx|.h)$/ && $line =~ /[a-zA-Z0-9_]\*[^\/]/) {
+        next if $line =~ /SIGNAL\(/;
+        next if $line =~ /SLOT\(/;
+        print "$file\t$row\tWARNING\tUse \"TYPE *NAME\" (currently the space between TYPE and * is missing).\n";
     }
-    if ($file =~ /(.cpp|.c|.cxx|.h)$/ && $line =~ /[*&]\s+/) {
-        next if ($line =~ /^\s*\*\s+/);
+    if ($file =~ /(.cpp|.c|.cxx|.h)$/ && $line =~ /[a-zA-Z0-9_]&[^&]/) {
+        print "$file\t$row\tWARNING\tUse \"TYPE &NAME\" (currently the space between TYPE and & is missing).\n";
+    }
+    if ($file =~ /(.cpp|.c|.cxx|.h)$/ && $line =~ /\*\s+/) {
+        next if ($line =~ /^\s*\*\*?\s+/);
         next if ($line =~ /\/\*/);
-        print "$file\t$row\tWARNING\tUse \"TYPE ${1}NAME\" (currently there is a space between $1 and NAME).\n";
+        print "$file\t$row\tWARNING\tUse \"TYPE *NAME\" (currently there is a space between * and NAME).\n";
+    }
+    if ($file =~ /(.cpp|.c|.cxx|.h)$/ && $line =~ /[^&]&\s+/) {
+        print "$file\t$row\tWARNING\tUse \"TYPE &NAME\" (currently there is a space between & and NAME).\n";
     }
 }
 
