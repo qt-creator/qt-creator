@@ -240,6 +240,7 @@ private:
     QList<unsigned> m_definedMacrosLine;
 };
 
+QT_BEGIN_NAMESPACE
 namespace QTest {
     template<> char *toString(const QList<unsigned> &list)
     {
@@ -264,6 +265,7 @@ namespace QTest {
         return qstrdup(ba.data());
     }
 }
+QT_END_NAMESPACE
 
 QDebug &operator<<(QDebug& d, const MockClient::Block &b) { d << '[' << b.start << ',' << b.end << ']'; return d; }
 
