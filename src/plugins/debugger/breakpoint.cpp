@@ -236,7 +236,7 @@ bool BreakpointParameters::isValid() const
     case Debugger::Internal::BreakpointAtFork:
     case Debugger::Internal::BreakpointAtExec:
     case Debugger::Internal::BreakpointAtSysCall:
-    case Debugger::Internal::BreakpointOnQmlSignalHandler:
+    case Debugger::Internal::BreakpointOnQmlSignalEmit:
     case Debugger::Internal::BreakpointAtJavaScriptThrow:
         break;
     case Debugger::Internal::WatchpointAtExpression:
@@ -280,7 +280,7 @@ bool BreakpointParameters::isCppBreakpoint() const
 {
     // Qml specific breakpoint types.
     if (type == BreakpointAtJavaScriptThrow
-            || type == BreakpointOnQmlSignalHandler)
+            || type == BreakpointOnQmlSignalEmit)
         return false;
 
     // Qml is currently only file.
@@ -302,7 +302,7 @@ QString BreakpointParameters::toString() const
            << " PathUsage: " << pathUsage;
         break;
     case BreakpointByFunction:
-    case BreakpointOnQmlSignalHandler:
+    case BreakpointOnQmlSignalEmit:
         ts << " FunctionName: " << functionName;
         break;
     case BreakpointByAddress:

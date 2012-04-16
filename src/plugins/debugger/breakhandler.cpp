@@ -122,8 +122,8 @@ static QString typeToString(BreakpointType type)
             return BreakHandler::tr("Watchpoint at Address");
         case WatchpointAtExpression:
             return BreakHandler::tr("Watchpoint at Expression");
-        case BreakpointOnQmlSignalHandler:
-            return BreakHandler::tr("Breakpoint on QML Signal Handler");
+        case BreakpointOnQmlSignalEmit:
+            return BreakHandler::tr("Breakpoint on QML Signal Emit");
         case BreakpointAtJavaScriptThrow:
             return BreakHandler::tr("Breakpoint at JavaScript throw");
         case UnknownType:

@@ -2604,7 +2604,7 @@ bool CdbEngine::acceptsBreakpoint(BreakpointModelId id) const
     case BreakpointAtFork:
     case WatchpointAtExpression:
     case BreakpointAtSysCall:
-    case BreakpointOnQmlSignalHandler:
+    case BreakpointOnQmlSignalEmit:
     case BreakpointAtJavaScriptThrow:
         return false;
     case WatchpointAtAddress:

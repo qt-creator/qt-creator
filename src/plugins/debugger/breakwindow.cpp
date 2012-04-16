@@ -122,7 +122,7 @@ BreakpointDialog::BreakpointDialog(BreakpointModelId id, QWidget *parent)
           << tr("Break when a system call is executed")
           << tr("Break on data access at fixed address")
           << tr("Break on data access at address given by expression")
-          << tr("Break on QML signal handler")
+          << tr("Break on QML signal emit")
           << tr("Break when JavaScript exception is thrown");
 
     QTC_ASSERT(types.size() == BreakpointAtJavaScriptThrow, return);
@@ -374,7 +374,7 @@ void BreakpointDialog::typeChanged(int)
     case WatchpointAtExpression:
         getParts(ExpressionPart|AllConditionParts|TracePointPart, &m_savedParameters);
         break;
-    case BreakpointOnQmlSignalHandler:
+    case BreakpointOnQmlSignalEmit:
         getParts(FunctionPart, &m_savedParameters);
     }
 
@@ -421,7 +421,7 @@ void BreakpointDialog::typeChanged(int)
         setPartsEnabled(ExpressionPart|AllConditionParts|TracePointPart|TracePointPart);
         clearOtherParts(ExpressionPart|AllConditionParts|TracePointPart);
         break;
-    case BreakpointOnQmlSignalHandler:
+    case BreakpointOnQmlSignalEmit:
         setParts(FunctionPart, m_savedParameters);
         setPartsEnabled(FunctionPart);
         clearOtherParts(FunctionPart);

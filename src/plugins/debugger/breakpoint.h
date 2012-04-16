@@ -140,7 +140,7 @@ enum BreakpointType
     BreakpointAtSysCall,
     WatchpointAtAddress,
     WatchpointAtExpression,
-    BreakpointOnQmlSignalHandler,
+    BreakpointOnQmlSignalEmit,
     BreakpointAtJavaScriptThrow
 };
 

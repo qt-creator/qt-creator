@@ -538,8 +538,8 @@ void QmlV8DebuggerClientPrivate::setBreakpoint(const QString type, const QString
         QByteArray params;
         QDataStream rs(&params, QIODevice::WriteOnly);
         rs <<  target.toUtf8() << enabled;
-        logSendMessage(QString(_("%1 %2 %3 %4")).arg(_(V8DEBUG), _(SIGNALHANDLER), target, enabled?_("enabled"):_("disabled")));
-        q->sendMessage(packMessage(SIGNALHANDLER, params));
+        logSendMessage(QString(_("%1 %2 %3 %4")).arg(_(V8DEBUG), _(BREAKONSIGNAL), target, enabled?_("enabled"):_("disabled")));
+        q->sendMessage(packMessage(BREAKONSIGNAL, params));
 
     } else {
         QScriptValue jsonVal = initObject();
@@ -966,7 +966,7 @@ void QmlV8DebuggerClientPrivate::reformatRequest(QByteArray &request)
             }
             q->sendMessage(packMessage(QByteArray(), data));
 
-        } else if (command == SIGNALHANDLER) {
+        } else if (command == BREAKONSIGNAL) {
             QDataStream rs(data);
             QByteArray signalHandler;
             bool enabled;
@@ -1091,7 +1091,7 @@ void QmlV8DebuggerClient::activateFrame(int index)
 bool QmlV8DebuggerClient::acceptsBreakpoint(const BreakpointModelId &id)
 {
     BreakpointType type = d->engine->breakHandler()->breakpointData(id).type;
-    return (type == BreakpointOnQmlSignalHandler
+    return (type == BreakpointOnQmlSignalEmit
             || type == BreakpointByFileAndLine
             || type == BreakpointAtJavaScriptThrow);
 }
@@ -1112,7 +1112,7 @@ void QmlV8DebuggerClient::insertBreakpoint(const BreakpointModelId &id,
                          params.enabled, adjustedLine, adjustedColumn,
                          QLatin1String(params.condition), params.ignoreCount);
 
-    } else if (params.type == BreakpointOnQmlSignalHandler) {
+    } else if (params.type == BreakpointOnQmlSignalEmit) {
         d->setBreakpoint(QString(_(EVENT)), params.functionName, params.enabled);
         d->engine->breakHandler()->notifyBreakpointInsertOk(id);
     }
@@ -1130,7 +1130,7 @@ void QmlV8DebuggerClient::removeBreakpoint(const BreakpointModelId &id)
 
     if (params.type == BreakpointAtJavaScriptThrow)
         d->setExceptionBreak(AllExceptions);
-    else if (params.type == BreakpointOnQmlSignalHandler)
+    else if (params.type == BreakpointOnQmlSignalEmit)
         d->setBreakpoint(QString(_(EVENT)), params.functionName, false);
     else
         d->clearBreakpoint(breakpoint);
@@ -1146,7 +1146,7 @@ void QmlV8DebuggerClient::changeBreakpoint(const BreakpointModelId &id)
         d->setExceptionBreak(AllExceptions, params.enabled);
         br.enabled = params.enabled;
         handler->setResponse(id, br);
-    } else if (params.type == BreakpointOnQmlSignalHandler) {
+    } else if (params.type == BreakpointOnQmlSignalEmit) {
         d->setBreakpoint(QString(_(EVENT)), params.functionName, params.enabled);
         br.enabled = params.enabled;
         handler->setResponse(id, br);
@@ -1259,7 +1259,7 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
         } else if (type == INTERRUPT) {
             //debug break requested
 
-        } else if (type == SIGNALHANDLER) {
+        } else if (type == BREAKONSIGNAL) {
             //break on signal handler requested
 
         } else if (type == V8MESSAGE) {
