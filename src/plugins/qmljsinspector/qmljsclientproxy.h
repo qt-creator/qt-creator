@@ -81,7 +81,7 @@ public:
     QList<QmlDebugObjectReference> objectReferences() const;
     QmlDebugObjectReference objectReferenceForId(int debugId) const;
     QmlDebugObjectReference objectReferenceForId(const QString &objectId) const;
-    QmlDebugObjectReference objectReferenceForLocation(const int line, const int column) const;
+    QmlDebugObjectReference objectReferenceForLocation(int line, int column) const;
     QList<QmlDebugObjectReference> rootObjectReference() const;
     DebugIdHash debugIdHash() const { return m_debugIdHash; }
 

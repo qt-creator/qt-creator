@@ -303,7 +303,7 @@ QmlDebugObjectReference ClientProxy::objectReferenceForId(
 }
 
 QmlDebugObjectReference ClientProxy::objectReferenceForLocation(
-        const int line, const int column) const
+        int line, int column) const
 {
     const QList<QmlDebugObjectReference> refs = objectReferences();
     foreach (const QmlDebugObjectReference &ref, refs) {
