@@ -4,11 +4,7 @@
 
 using namespace CPlusPlus::Internal;
 
-ByteArrayRef::ByteArrayRef()
-    : m_ref(0)
-    , m_offset(0)
-    , m_length(0)
-{}
+const QByteArray ByteArrayRef::m_emptyByteArray;
 
 bool ByteArrayRef::startsWith(const char *s) const
 {
@@ -20,9 +16,6 @@ bool ByteArrayRef::startsWith(const char *s) const
 
 int ByteArrayRef::count(char ch) const
 {
-    if (!m_ref)
-        return 0;
-
     int num = 0;
     const char *b = start();
     const char *i = b + m_length;

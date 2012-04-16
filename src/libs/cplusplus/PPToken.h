@@ -12,7 +12,11 @@ namespace Internal {
 class CPLUSPLUS_EXPORT ByteArrayRef
 {
 public:
-    ByteArrayRef();
+    ByteArrayRef()
+        : m_ref(&m_emptyByteArray)
+        , m_offset(0)
+        , m_length(0)
+    {}
 
     ByteArrayRef(const QByteArray *ref)
         : m_ref(ref)
@@ -32,7 +36,7 @@ public:
     }
 
     inline const char *start() const
-    { return m_ref ? m_ref->constData() + m_offset : 0; }
+    { return m_ref->constData() + m_offset; }
 
     inline int length() const
     { return m_length; }
@@ -41,16 +45,16 @@ public:
     { return length(); }
 
     inline char at(int pos) const
-    { return m_ref && pos >= 0 && pos < m_length ? m_ref->at(m_offset + pos) : '\0'; }
+    { return pos >= 0 && pos < m_length ? m_ref->at(m_offset + pos) : '\0'; }
 
     inline char operator[](int pos) const
     { return at(pos); }
 
     QByteArray toByteArray() const
-    { return m_ref ? QByteArray(m_ref->constData() + m_offset, m_length) : QByteArray(); }
+    { return QByteArray(m_ref->constData() + m_offset, m_length); }
 
     bool operator==(const QByteArray &other) const
-    { return m_ref ? (m_length == other.length() && !qstrncmp(m_ref->constData() + m_offset, other.constData(), m_length)) : false; }
+    { return m_length == other.length() && !qstrncmp(m_ref->constData() + m_offset, other.constData(), m_length); }
     bool operator!=(const QByteArray &other) const
     { return !this->operator==(other); }
 
@@ -59,9 +63,10 @@ public:
     int count(char c) const;
 
 private:
-    const QByteArray *m_ref;
-    int m_offset;
-    int m_length;
+    const static QByteArray m_emptyByteArray;
+    const QByteArray * const m_ref;
+    const int m_offset;
+    const int m_length;
 };
 
 inline bool operator==(const QByteArray &other, const ByteArrayRef &ref)
