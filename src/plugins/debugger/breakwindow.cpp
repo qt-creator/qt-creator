@@ -101,13 +101,15 @@ BreakpointDialog::BreakpointDialog(BreakpointModelId id, QWidget *parent)
 {
     m_ui.setupUi(this);
     m_ui.comboBoxType->setMaxVisibleItems(20);
-    if (DebuggerEngine *engine = breakHandler()->engine(id)) {
-        if (!engine->hasCapability(BreakConditionCapability))
-            m_enabledParts &= ~ConditionPart;
-        if (!engine->hasCapability(BreakModuleCapability))
-            m_enabledParts &= ~ModulePart;
-        if (!engine->hasCapability(TracePointCapability))
-            m_enabledParts &= ~TracePointPart;
+    if (id.isValid()) {
+        if (DebuggerEngine *engine = breakHandler()->engine(id)) {
+            if (!engine->hasCapability(BreakConditionCapability))
+                m_enabledParts &= ~ConditionPart;
+            if (!engine->hasCapability(BreakModuleCapability))
+                m_enabledParts &= ~ModulePart;
+            if (!engine->hasCapability(TracePointCapability))
+                m_enabledParts &= ~TracePointPart;
+        }
     }
     // Match BreakpointType (omitting unknown type).
     QStringList types;
