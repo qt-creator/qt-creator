@@ -1393,9 +1393,9 @@ class Dumper:
             format = self.typeformats.get(stripForFormat(str(self.currentType)))
         return format
 
-    def putSubItem(self, component, value):
+    def putSubItem(self, component, value, tryDynamic=True):
         with SubItem(self, component):
-            self.putItem(value)
+            self.putItem(value, tryDynamic)
 
     def putNamedSubItem(self, component, value, name):
         with SubItem(self, component):

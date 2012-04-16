@@ -39,38 +39,24 @@
 
     \list
 
-        \o  \l{Debugging a C++ Example Application}
+        \o  \l{Setting Up Debugger}
 
-            Illustrates how to debug Qt C++ applications in the \gui Debug
-            mode.
-
-        \o  \l{Debugging a Qt Quick Example Application}
-
-            Illustrates how to debug Qt Quick applications in the \gui Debug
-            mode.
+            The debugger plugin automatically selects a suitable
+            native debugger for your projects from the ones found
+            on your system. Manual overriding of this choice is possible.
 
         \o  \l{Launching the Debugger}
 
-            To start a program under the control of the debugger, press
-            \key{F5}. \QC checks whether the compiled program is up-to-date,
-            and rebuilds it if necessary. The debugger then takes over and
-            starts the program. The debugger is launched in the appropriate
-            operating mode (plain, terminal, or on-device), based on the
-            build and run settings for the active project. You can also launch
-            the debugger in other mode.
+            To start an application from an open project under the control
+            of a debugger, press the Debug button in the lower left corner
+            of the main view, or press \key{F5}. Other, less common start
+            options are available in the \gui{Debug} > \gui{Start Debugging}
+            menu.
 
         \o  \l{Interacting with the Debugger}
 
-            You can use the \QC \gui Debug mode to inspect the state of your
-            application while debugging.
-
-        \o  \l{Setting Up Debugger}
-
-            The debugger plugin tries to automatically pick up a suitable
-            native debugger. You only need to set it up if the automatic setup
-            fails, because the native debugger is missing (as is usually the
-            case for the CDB debugger on Windows, which you always must install
-            yourself) or because the installed version is not supported.
+            You can use the tool views in the \gui Debug mode to inspect the
+            state of your application while debugging.
 
         \o  \l{Using Debugging Helpers}
 
@@ -78,12 +64,13 @@
             user-extensible manner. For this purpose, it takes advantage of
             two technologies, collectively referred to as \e {debugging
             helpers}. Using the debugging helpers is not essential for
-            debugging with \QC, but they help you to quickly examine complex
-            data.
+            debugging with \QC, but they provide you with a powerful
+            tool to quickly examine complex data.
 
         \o  \l{Debugging Qt Quick Projects}
 
-            In the \gui Debug mode, you can inspect the state of the
+            When debugging a Qt Quick application, you can inspect the state
+            of the
             application while debugging JavaScript functions. You can set
             breakpoints, view call stack trace, and examine locals and
             expressions. When the application is interrupted by a breakpoint,
@@ -93,6 +80,14 @@
             While the application is running, you can use the QML Inspector
             view to explore the object structure, debug animations, and
             inspect colors.
+
+        \o  \l{Debugging a C++ Example Application}
+
+            Illustrates how to debug C++ applications in \QC.
+
+        \o  \l{Debugging a Qt Quick Example Application}
+
+            Illustrates how to debug Qt Quick applications in \QC.
 
         \o  \l{Troubleshooting Debugger}
 
@@ -111,83 +106,129 @@
 
     \title Launching the Debugger
 
-    To start a program under the control of the debugger, select \gui{Debug} >
-    \gui{Start Debugging} > \gui{Start Debugging}, or press \key{F5}.
-    \QC checks whether the compiled program is up-to-date, and rebuilds
-    it if necessary. The debugger then takes over and starts the program.
+    To start an application from an open project under the control
+    of a debugger, press the \gui Debug button in the lower left corner
+    of the main view, or press \key{F5}.
 
-    \note Starting a program in the debugger can take a long
+    \QC checks whether the compiled program is up-to-date, and rebuilds
+    and deploys it if the \gui{Always build project before deploying it} and
+    \gui{Always deploy before running} options are selected in the
+    \gui{Build and Run} options.
+
+    The debugger then takes over and starts the program with suitable
+    parameters.
+
+    \note Starting a C++ program in the debugger can take a long
     time, typically in the range of several seconds to minutes if complex
     features (like QtWebKit) are used.
 
-    The debugger is launched in the appropriate operating mode (plain, terminal,
-    or on-device), based on the build and run settings for the active project.
-    Select \gui Debug menu options to launch the debugger in other modes.
-
-    \note Debugging QML and JavaScript is supported only in plain mode.
 
     \section1 Launching the Debugger in Different Modes
 
-    The debugger plugin runs in different operating modes depending on where and
-    how the process is started and run. Some of the modes are only available for
-    a particular operating system or platform.
+    The debugger plugin can run the native debuggers in various operating
+    modes depending on where and how the process is started and run. Some
+    of the modes are only available for a particular operating system or
+    platform.
 
-    You can launch the debugger in the following modes:
+    In general, the \key{F5} and the \gui{Debug} button are set up in a way
+    to start operating mode that is commonly used the a given context.
+    So if the current project is set up as a C++ application using
+    the MinGW toolchain targeting desktop Windows, the GDB engine will
+    be started in Start Local mode. If the current project is a
+    QML application using C++ plugins targeting Meego
+    a "mixed" QML/C++ engine will be started, with the C++ parts
+    being handled by GDB and GDB server remote debugging.
+
+    To select other modes of operation, change the run run configuration
+    parameters (such as \gui{Run in Terminal}) in the run settings of the
+    project, or select options from the \gui{Debug} > \gui{Start Debugging}
+    menu.
+
+    The debugger can run in the following modes:
 
     \list
 
-       \o  \bold Plain to debug locally started applications, such as a
+       \o  \bold{Start Local} to debug locally started applications, such as a
             Qt based GUI application.
 
-       \o  \bold Terminal to debug locally started processes that need a
+       \o  \bold{Terminal} to debug locally started processes that need a
             console, typically without a GUI.
 
-       \o  \bold Attach to debug local processes started outside \QC.
+       \o  \bold{Attach Local} to debug local processes started outside \QC.
 
-       \o  \bold Remote to debug a process running on a different machine.
+       \o  \bold{Start Remote} to start and debug processes running
+            on a different machine.
 
-       \o  \bold Core to debug crashed processes on Unix.
+       \o  \bold{Attach Remote} to attach to a process running on a different
+            machine.
 
-       \o  \bold Post-mortem to debug crashed processes on Windows.
+       \o  \bold{Core} to debug crashed processes on Unix.
 
-       \o  \bold On-device to debug processes running on a mobile device.
+       \o  \bold{Post-mortem} to debug crashed processes on Windows.
 
     \endlist
 
-    \note Debugging QML and JavaScript is supported only in plain mode.
+    \section2 Launching in Start Local Mode
 
-    \section2 Launching in Plain Mode
+    Start Local mode is the default start mode for most projects, including
+    all projects using a desktop Qt version and plain C++ projects.
 
-    To launch the debugger in the plain mode, click the \gui {Start Debugging}
-    button for the active project, or choose
-    \gui {Debug > Start Debugging > Start and Debug External Application}
-    and specify an executable.
+    To launch the debugger in Start Local mode, click the
+    \gui {Start Debugging} button for the active project.
+
+    To lauch Start Local mode to run any executable already present in the
+    system without using a project, select \gui{Debug > Start Debugging
+    > Start and Debug External Application}.
+
 
     \section2 Launching in Terminal Mode
 
-    To launch the debugger in the terminal mode, select \gui {Projects > Run
-    Settings} and select the \gui {Run in terminal} check box. Then click the
-    \gui {Start Debugging} button for the active project.
+    Terminal mode is a variation of Start Local and creates an additional
+    console window to enable user-terminal interaction. This is mainly
+    useful for non-GUI applications using the stdin and stdout channels
+    for communication. To launch the debugger in the terminal mode,
+    go to \gui {Projects > Run
+    Settings} and select the \gui {Run in terminal} check box.
+    Then click the \gui {Start Debugging} button for the active project.
 
-    \section2 Launching in Attach Mode
+    \section2 Launching in Attach Local Mode
 
-    To launch the debugger in the attach mode, select
-    \gui {Debug > Start Debugging >  Attach to Running External Application},
+    To attach the debugger to an already running process, select
+    \gui {Debug > Start Debugging >  Attach to Running Local Application},
     and then select a process by its name or process ID to attach to.
 
-    You can load the source project in advance and set breakpoints in it before
-    attaching to an already running process. For more information, see
-    \l{Setting Breakpoints}.
+    While this mode does not strictly require a project to be opened in \QC,
+    it is beneficial to have open one, as it makes setting breakpoints
+    and stepping throught the code easier.
 
-    \section2 Launching in Remote Mode
+    For more information, see \l{Setting Breakpoints}.
 
-    The remote mode allows you to debug processes that run on remote machines.
+    \section2 Launching Remote Modes
+
+    The Remote modes allow you to debug processes that run on remote
+    machines.
+
+    In general, the setup consist of a probe running on the remote
+    machine and a counterpart running on the host side.
+    The probe is either integrated into the running process (e.g. for QML
+    debugging) or runs a separate process (e.g. when using GDB server
+    on embedded Linux, or TRK/CODA on Symbian). The host side typically
+    consists of \QC itself, often with help of external process such
+    as CDB or GDB.
+
+    While this setup might look daunting, it is mostly invisible to
+    the user. With a properly loaded and configured project, pressing
+    \key{F5} starts up all necessary helper processes and debugging on
+    the selected target.
+
+    Special use cases, such as attaching to a running process on the
+    target, might still require manual setup.
 
     \section3 Using GDB
 
-    In remote mode, the local GDB process talks to a GDB server
-    process running on the remote machine that controls the process to be
-    debugged.
+    When debugging on a target supported by GDB server, a local GDB process
+    talks to a GDB server running on the remote machine that controls the
+    process to be debugged.
 
     The GDB server process is started on the remote machines by passing a port
     number and the executable:
@@ -206,8 +247,8 @@
 
     \list 1
 
-        \o  Select \gui {Debug > Start Debugging > Start and Attach to Remote
-            Application}.
+        \o  Select \gui {Debug > Start Debugging > Attach to Remote
+            Debug Server}.
 
         \o  In the \gui {Host and port} field, enter the name of the remote
             machine and the port number to use.
@@ -284,8 +325,9 @@
 
     \section2 Launching in Core Mode
 
-    The core mode it used to debug \e {core} files (crash dumps) that are
-    generated from crashed processes if the system is set up to allow this.
+    The Core mode is used to inspect \e {core} files (crash dumps) that are
+    generated from crashed processes on Linux and Unix systems if the system
+    is set up to allow this.
 
     To enable the dumping of core files on a Unix system enter the following
     command in the shell from which the application will be launched:
@@ -294,8 +336,12 @@
     ulimit -c unlimited
     \endcode
 
-    To launch the debugger in the core mode, select \gui{Debug > Start Debugging
-    >  Attach to Core}.
+    To launch the debugger in the core mode, select \gui{Debug > Start
+    Debugging >  Attach to Core}.
+
+    Also in this mode, using a properly configured project containing
+    the sources of the crashed program is not strictly necessary, but
+    helpful.
 
     \section2 Launching in Post-Mortem Mode
 
@@ -311,17 +357,6 @@
     crashes on Windows. Click the \gui {Debug in \QC} button in the error
     message that is displayed by the Windows operating system.
 
-    \section2 Launching in On-device Mode
-
-    The on-device mode is a special mode available for run configurations
-    targeting mobile devices. It debugs processes running on mobile
-    devices using on-device debugging agents, such as CODA on Symbian and
-    gdbserver on Linux-based devices.
-
-    To launch the debugger in the on-device mode, open the project, select a
-    run configuration that targets a mobile device, and click the
-    \gui {Start Debugging} button.
-
 */
 
 
@@ -333,38 +368,77 @@
 
     \title Setting Up Debugger
 
-    \note The information in this section applies only to debugging the C++
-    language.
+    The main debugger settings are associated with the tool chains used
+    to build your project.
 
-    Typically, the interaction between \QC and the native debugger is set up
-    automatically and you do not need to do anything. However, you might have an
-    unsupported GDB version installed, your Linux environment might not have GDB
-    installed at all, or you might want to use the debugging tools for Windows.
+    To configure tool chains, select \gui{Tools > Options > Build and Run >
+    Tool Chains}. The view lists the tool chains that \QC detected automatically.
+    You can add tool chains.
 
-    \note To use the debugging tools for Windows, you must install them and add
-    the Symbol Server provided by Microsoft to the symbol search path of the
-    debugger. For more information, see \l{Setting the Symbol Server in Windows}.
+    You need to set up the debugger only if the automatic setup
+    fails, because the native debugger is missing (as is usually the
+    case for the CDB debugger on Windows, which you always must install
+    yourself) or because the installed version is not supported (e.g.
+    when your system contains no, or an outdated version of GDB and you
+    want to use a locally installed replacement instead).
 
-    \note To use the Free Software Foundation (FSF) GDB on Mac OS, you must
-    sign it and add it to \QC as a tool chain.
+    \note If you need to change parameters of an automatically detected
+    toolchain, you can \gui{Clone} the tool chain and change the
+    parameters in the clone. Make sure to select the cloned tool chain
+    in the build settings of your project.
 
-    This section explains the options you have for debugging C++ code and
-    provides installation notes for the supported native debuggers.
+    \note To use the debugging tools for Windows, you must install them
+    and add the Symbol Server provided by Microsoft to the symbol search
+    path of the debugger. For more information, see \l{Setting the Symbol
+    Server in Windows}.
+
+    \note To use the Free Software Foundation (FSF) version of GDB on
+    Mac OS, you must sign it and modify your tool chain settings.
+
+
+    This section explains the options you have for debugging C++ code
+    and provides installation notes for the supported native debuggers.
+    It also applies for code in other compiled languages such as C,
+    FORTRAN, Ada.
 
     \section1 Supported Native Debugger Versions
 
-    The debugger plugin supports different builds of the GDB debugger, both
-    with and without the ability to use Python scripting. Use a Python enabled
-    version if one is available.
-    On Windows, Symbian, Maemo, and MeeGo Harmattan, only the Python version is
-    supported.
+    Qt Creator supports essentially two native debuggers when working with
+    compiled code. On most supported platforms, the GNU Symbolic Debugger
+    GDB can be used. On Microsoft Windows, when using the Microsoft tool chain
+    the Microsoft Console Debugger CDB, is needed. There is also an
+    incomplete experimental interface to LLDB on Mac OS and Linux available
+    when building \QC from source.
 
-    The non-Python versions use the compiled version of the debugging helpers,
-    that you must enable separately. For more information, see
+    \section2 Supported GDB Versions
+
+    GDB comes in two varieties with common roots. One is used on
+    Mac OS X and does not support Python as scripting language; the
+    other one is the version maintained by the Free Software Foundation
+    that can use Python as scripting language since version 7.0
+
+    The Python enabled versions are very convenient to interface,
+    and much of \QC's advanced data display options depend on the
+    availability of Python scripting. Since Python enabled versions
+    of GDB are bundled with all recent Linux versions, active
+    support for non-Python builds has been dropped for platforms
+    other than Mac OS X.
+
+    The non-Python versions use the compiled version of the debugging
+    helpers, that you must enable separately. For more information, see
     \l{Debugging Helpers Based on C++}.
 
     The Python version uses a script version of the debugging helpers
     that does not need any special setup.
+
+    FSF GDB can also be compiled for Mac OS, but the build is currently
+    unstable, and thererefore, this is not recommended.
+
+    The minimal supported version is 7.2. Using GDB version 7.4
+    is highly recommended with \QC 2.5. For \QC 2.6 the minimal
+    supported version will be raised to GDB 7.4.
+
+    \section2 Supported CDB Versions
 
     The CDB native debugger has similar funtionality to the non-Python GDB
     debugger engine. Specifically, it also uses compiled C++ code for the
@@ -377,62 +451,34 @@
             \o Platform
             \o Compiler
             \o Native Debugger
-            \o Python
-            \o Debugger Modes
         \row
             \o Linux
-            \o GCC
+            \o GCC, ICC
             \o GDB
-            \o Yes
-            \o Plain, Terminal, Attach, Remote, Core
         \row
             \o Unix
-            \o GCC
+            \o GCC, ICC
             \o GDB
-            \o Yes
-            \o Plain, Terminal, Attach, Remote, Core
         \row
-            \o Mac OS/GDB
+            \o Mac OS X
             \o GCC
-            \o GDB
-            \o No
-            \o Plain, Terminal, Attach, Core
-        \row
-            \o Mac OS/FSF GDB (experimental)
-            \o GCC
-            \o FSF GDB
-            \o Yes
-            \o Plain, Terminal, Attach, Core
+            \o Apple GDB, FSF GDB (experimental)
         \row
             \o Windows/MinGW
             \o GCC
             \o GDB
-            \o Yes
-            \o Plain, Terminal, Attach, Remote, Core
         \row
             \o Windows/MSVC
             \o Microsoft Visual C++ Compiler
             \o Debugging Tools for Windows/CDB
-            \o Not applicable
-            \o Plain, Terminal, Attach, Post-Mortem
         \row
             \o Symbian
             \o GCC
             \o GDB
-            \o Yes
-            \o On-device
         \row
-            \o Maemo
+            \o Maemo, MeeGo
             \o GCC
             \o GDB
-            \o Yes
-            \o On-device
-        \row
-            \o MeeGo Harmattan
-            \o GCC
-            \o GDB
-            \o Yes
-            \o On-device
     \endtable
 
     For more information on the debugger modes, see
@@ -462,7 +508,7 @@
 
         \o  CoreGdbAdapter debugs core files generated from crashes.
 
-        \o  RemoteGdbAdapter interacts with the gdbserver running on Linux.
+        \o  RemoteGdbAdapter interacts with the GDB server running on Linux.
 
         \o  CodaGdbAdapter interacts with Symbian devices. The GDB protocol and
             the GDB serial protocol are used between GDB and the adapter. The
@@ -667,13 +713,14 @@
 
         \o  Examine the contents of the call stack.
 
+        \o  Examine and modify contents of local and global variables.
+
         \o  Examine and modify registers and memory contents of
             the debugged program.
 
-        \o  Examine and modify registers and memory contents of
-            local and global variables.
-
         \o  Examine the list of loaded shared libraries.
+
+        \o  Disassemble sections of code.
 
         \o  Create snapshots of the current state of the debugged program
             and re-examine them later.

@@ -39,7 +39,7 @@
     . Select the icon to open the toolbar.
 
     To open toolbars immediately when you select a component, select
-    \gui{Tools > Options > Qt Quick > Qt Quick Toolbar > Always show Quick
+    \gui{Tools > Options > Qt Quick > Qt Quick Toolbar > Always show Qt Quick
     Toolbar}.
 
     Drag the toolbar to pin it to another location. Select

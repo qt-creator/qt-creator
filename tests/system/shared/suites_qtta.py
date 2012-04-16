@@ -33,3 +33,8 @@ def checkSyntaxError(issuesView, expectedTextsArray, warnIfMoreIssues = True):
                 else:
                     return True
     return False
+
+# wait and verify if object exists/not exists
+def checkIfObjectExists(name, shouldExist = True, timeout = 3000):
+    return waitFor("object.exists(name) == shouldExist", timeout)
+

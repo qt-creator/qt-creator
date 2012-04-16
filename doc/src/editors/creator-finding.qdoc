@@ -40,8 +40,10 @@
             The incremental search highlights the matching strings in the
             window while typing and the advanced search enables you to
             search from currently open projects or files on the file system.
+            You can conduct incremental and advanced searches in parallel.
+
             In addition, you can search for symbols when you want to
-            refactor code. You can also search from the search results.
+            refactor code.
 
         \o  \l{Searching with the Locator}
 

@@ -461,7 +461,7 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
                         rtok = tok;
                         while ((c & 0xFF00) || c == '.' || c == '_' ||
                                (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
-                               (c >= '0' && c <= '9')) {
+                               (c >= '0' && c <= '9') || (c == '/' && term)) {
                             *ptr++ = c;
                             if (++cur == end) {
                                 c = 0;

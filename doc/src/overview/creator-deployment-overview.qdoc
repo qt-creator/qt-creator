@@ -47,12 +47,14 @@
             in the project folder and copies it to the connected device. You can
             sign the SIS file and wrap it in a Nokia Smart Installer for Symbian
             package. You can test and debug the application on the device.
-        \o  \l{Deploying Applications to Maemo or MeeGo Harmattan Devices}
+        \o  \l{Deploying Applications to Linux-Based Devices}
 
-            When you deploy the application on the \gui{Maemo5} or
-            \gui Harmattan target, \QC generates a Debian installation package
-            in the build directory and copies it to the connected device. You
+            When you deploy the application on a Linux-based device target, such
+            as \gui {Embedded Linux}, \gui Harmattan, or \gui{Maemo5}, \QC
+            copies the application files to the connected device. You
             can test and debug the application on the device.
+            You can create Debian installation packages for MeeGo Harmattan and
+            Maemo 5 devices.
     \endlist
 
     \section1 Related Topics

@@ -17,7 +17,9 @@ def openQmakeProject(projectPath, targets=QtQuickConstants.Targets.DESKTOP):
     selectFromFileDialog(projectPath)
     try:
         # handle update generated files dialog
-        waitForObject("{type='QMessageBox' unnamed='1' visible='1' windowTitle='Update of Generated Files'}", 3000)
+        waitForObject("{type='QLabel' name='qt_msgbox_label' visible='1' "
+                      "text?='The following files are either outdated or have been modified*' "
+                      "window={type='QMessageBox' unnamed='1' visible='1'}}", 3000)
         clickButton(waitForObject("{text='Yes' type='QPushButton' unnamed='1' visible='1'}"))
     except:
         pass
@@ -345,7 +347,10 @@ def validType(sType, userDef):
 
 def __closeSubprocessByPushingStop__(sType):
     ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
-    waitForObject(":Qt Creator.Stop_QToolButton", 5000)
+    try:
+        waitForObject(":Qt Creator.Stop_QToolButton", 5000)
+    except:
+        pass
     playButton = verifyEnabled(":Qt Creator.ReRun_QToolButton", False)
     stopButton = verifyEnabled(":Qt Creator.Stop_QToolButton")
     if stopButton.enabled:

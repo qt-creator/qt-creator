@@ -1119,9 +1119,19 @@ bool BaseQtVersion::queryQMakeVariables(const Utils::FileName &binary, QHash<QSt
         const QString line = stream.readLine();
         const int index = line.indexOf(QLatin1Char(':'));
         if (index != -1) {
+            const QString name = line.left(index);
             const QString value = QDir::fromNativeSeparators(line.mid(index+1));
-            if (value != QLatin1String("**Unknown**"))
-                versionInfo->insert(line.left(index), value);
+            if (value != QLatin1String("**Unknown**")) {
+                versionInfo->insert(name, value);
+                if (name.startsWith(QLatin1String("QT_")) && !name.contains(QLatin1Char('/'))) {
+                    if (name.startsWith(QLatin1String("QT_INSTALL_"))) {
+                        versionInfo->insert(name + QLatin1String("/raw"), value);
+                        versionInfo->insert(name + QLatin1String("/get"), value);
+                    } else if (name.startsWith(QLatin1String("QT_HOST_"))) {
+                        versionInfo->insert(name + QLatin1String("/get"), value);
+                    }
+                }
+            }
         }
     }
     return true;

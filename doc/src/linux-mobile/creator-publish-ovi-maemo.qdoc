@@ -59,7 +59,7 @@
 
     You set the application name and installation folder in the
     \gui {Run Settings} for the project. For more information, see
-    \l{Deploying Applications to Maemo or MeeGo Harmattan Devices}. \QC
+    \l{Deploying Applications to Linux-Based Devices}. \QC
     specifies the correct category settings by default when it creates the
     Debian directory and the necessary files.
 

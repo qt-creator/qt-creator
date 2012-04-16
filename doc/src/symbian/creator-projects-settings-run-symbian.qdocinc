@@ -20,8 +20,8 @@
     When you deploy the application for the \gui{Symbian Device} target, \QC
     generates a Symbian installation system (SIS) file in the project folder
     and copies it to the device that is connected to the development PC. If no
-    device is connected, you must remove the \gui {Deploy SIS Package} step,
-    to create the package. Click \gui {Remove Item} to skip the step.
+    device is connected, you must remove the \gui {Deploy SIS Package} step
+    to create the package. Click \gui {Remove Item} (1) to skip the step.
 
     \image qtcreator-remove-deploy-step.png "Removing deploy steps"
 

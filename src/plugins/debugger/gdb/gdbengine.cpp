@@ -1392,10 +1392,10 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     const GdbMi frame = data.findChild("frame");
 
     const int lineNumber = frame.findChild("line").data().toInt();
-    QString fullName = QString::fromUtf8(frame.findChild("fullname").data());
+    QString fullName = cleanupFullName(QString::fromLocal8Bit(frame.findChild("fullname").data()));
 
     if (fullName.isEmpty())
-        fullName = QString::fromUtf8(frame.findChild("file").data());
+        fullName = QString::fromLocal8Bit(frame.findChild("file").data());
 
     if (rid.isValid() && frame.isValid()
             && !isQmlStepBreakpoint(rid)
@@ -2249,6 +2249,9 @@ void GdbEngine::handleExecuteStep(const GdbResponse &response)
     } else if (msg.startsWith("Cannot execute this command while the selected thread is running.")) {
         showExecutionError(QString::fromLocal8Bit(msg));
         notifyInferiorRunFailed();
+    } else if (msg.startsWith("warning: SuspendThread failed")) {
+        // On Win: would lead to "PC register is not available" or "\312"
+        continueInferiorInternal();
     } else {
         showExecutionError(QString::fromLocal8Bit(msg));
         notifyInferiorIll();
@@ -4537,7 +4540,7 @@ void GdbEngine::fetchDisassemblerByCliPointMixed(const DisassemblerAgentCookie &
 {
     DisassemblerAgentCookie ac = ac0;
     QTC_ASSERT(ac.agent, return);
-    postCommand(disassemblerCommand(ac.agent->location(), true), Discardable,
+    postCommand(disassemblerCommand(ac.agent->location(), true), Discardable|ConsoleCommand,
         CB(handleFetchDisassemblerByCliPointMixed),
         QVariant::fromValue(ac));
 }
@@ -4560,8 +4563,8 @@ void GdbEngine::fetchDisassemblerByCliRangeMixed(const DisassemblerAgentCookie &
     QByteArray end = QByteArray::number(address + 100, 16);
     const char sep = m_disassembleUsesComma ? ',' : ' ';
     QByteArray cmd = "disassemble /m 0x" + start + sep + "0x" + end;
-    postCommand(cmd, Discardable, CB(handleFetchDisassemblerByCliRangeMixed),
-        QVariant::fromValue(ac));
+    postCommand(cmd, Discardable|ConsoleCommand,
+        CB(handleFetchDisassemblerByCliRangeMixed), QVariant::fromValue(ac));
 }
 
 void GdbEngine::fetchDisassemblerByCliRangePlain(const DisassemblerAgentCookie &ac0)
@@ -4573,8 +4576,8 @@ void GdbEngine::fetchDisassemblerByCliRangePlain(const DisassemblerAgentCookie &
     QByteArray end = QByteArray::number(address + 100, 16);
     const char sep = m_disassembleUsesComma ? ',' : ' ';
     QByteArray cmd = "disassemble 0x" + start + sep + "0x" + end;
-    postCommand(cmd, Discardable, CB(handleFetchDisassemblerByCliRangePlain),
-        QVariant::fromValue(ac));
+    postCommand(cmd, Discardable,
+        CB(handleFetchDisassemblerByCliRangePlain), QVariant::fromValue(ac));
 }
 
 static DisassemblerLine parseLine(const GdbMi &line)

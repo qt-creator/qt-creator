@@ -65,6 +65,8 @@ public:
      */
     MakefileParser(const QString &makefile);
 
+    ~MakefileParser();
+
     /**
      * Parses the makefile. Must be invoked at least once, otherwise
      * the getter methods of MakefileParser will return empty values.
