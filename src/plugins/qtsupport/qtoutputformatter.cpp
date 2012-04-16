@@ -239,24 +239,7 @@ void QtOutputFormatter::handleLink(const QString &href)
         }
 
         if (!fileName.isEmpty()) {
-            QFileInfo fi(fileName);
-            if (fi.isRelative()) {
-                // Yeah fileName is relative, no surprise
-                ProjectExplorer::Project *pro = m_project.data();
-                if (pro) {
-                    QString baseName = fi.fileName();
-                    foreach (const QString &file, pro->files(Project::AllFiles)) {
-                        if (file.endsWith(baseName)) {
-                            // pick the first one...
-                            fileName = file;
-                            break;
-                        }
-                    }
-                }
-            } else if (!fi.exists()) {
-                // map possible on-device path to source path
-                fileName = m_projectFinder.findFile(QUrl::fromLocalFile(fileName));
-            }
+            fileName = m_projectFinder.findFile(QUrl::fromLocalFile(fileName));
             TextEditor::BaseTextEditorWidget::openEditorAt(fileName, line, 0);
             return;
         }
