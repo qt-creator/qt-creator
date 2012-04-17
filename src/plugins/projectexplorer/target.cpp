@@ -509,7 +509,10 @@ static QString formatToolTip(const IDevice::DeviceInfo &input)
 
 void Target::updateDeviceState()
 {
-    updateDeviceState(currentDevice()->id());
+    IDevice::ConstPtr dev = currentDevice();
+    if (dev.isNull())
+        return;
+    updateDeviceState(dev->id());
 }
 
 void Target::updateDeviceState(Core::Id devId)
