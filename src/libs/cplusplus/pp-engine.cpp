@@ -1171,10 +1171,10 @@ void Preprocessor::handleIncludeDirective(PPToken *tk)
     else
         return; //### TODO: add error message?
 
-    included = included.mid(1, included.size() - 2);
-    QString inc = QString::fromUtf8(included.constData());
-    if (m_client)
+    if (m_client) {
+        QString inc = QString::fromUtf8(included.constData() + 1, included.size() - 2);
         m_client->sourceNeeded(inc, mode, line);
+    }
 }
 
 void Preprocessor::handleDefineDirective(PPToken *tk)
