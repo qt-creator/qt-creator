@@ -2048,7 +2048,7 @@ namespace final {
         // Continue.
 
         // Jump over next line.
-        //return;
+        return;
         while (a > 0)
             ++a;
         dummyStatement(&a);
