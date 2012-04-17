@@ -110,7 +110,7 @@ QMap<QString, QKeySequence> CommandsFile::importCommands() const
             if (name == ctx.shortCutElement) {
                 currentId = r.attributes().value(ctx.idAttribute).toString();
             } else if (name == ctx.keyElement) {
-                QTC_ASSERT(!currentId.isEmpty(), return result; )
+                QTC_ASSERT(!currentId.isEmpty(), return result);
                 const QXmlStreamAttributes attributes = r.attributes();
                 if (attributes.hasAttribute(ctx.valueAttribute)) {
                     const QString keyString = attributes.value(ctx.valueAttribute).toString();

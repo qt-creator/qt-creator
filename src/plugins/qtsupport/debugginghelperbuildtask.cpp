@@ -129,7 +129,7 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
 
 DebuggingHelperBuildTask::Tools DebuggingHelperBuildTask::availableTools(const BaseQtVersion *version)
 {
-    QTC_ASSERT(version, return 0; )
+    QTC_ASSERT(version, return 0);
     // Check the build requirements of the tools
     DebuggingHelperBuildTask::Tools tools = 0;
     // Gdb helpers are needed on Mac/gdb only.

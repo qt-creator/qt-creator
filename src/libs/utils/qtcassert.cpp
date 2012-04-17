@@ -30,31 +30,13 @@
 **
 **************************************************************************/
 
-#include "tipfactory.h"
-#include "tipcontents.h"
-#include "tips.h"
-#include <utils/qtcassert.h>
+#include "qtcassert.h"
 
-#include <QVBoxLayout>
+namespace Utils {
 
-using namespace TextEditor;
-using namespace Internal;
-
-TipFactory::TipFactory()
-{}
-
-TipFactory::~TipFactory()
-{}
-
-Internal::QTipLabel *TipFactory::createTip(const TipContent &content, QWidget *w)
+void writeAssertLocation(const char *msg)
 {
-    if (content.typeId() == TextContent::TEXT_CONTENT_ID)
-        return new TextTip(w);
-    if (content.typeId() == ColorContent::COLOR_CONTENT_ID)
-        return new ColorTip(w);
-    if (content.typeId() == WidgetContent::WIDGET_CONTENT_ID)
-        return new WidgetTip(w);
-
-    QTC_CHECK(false);
-    return 0;
+    qDebug("SOFT ASSERT: %s", msg);
 }
+
+} // namespace Utils

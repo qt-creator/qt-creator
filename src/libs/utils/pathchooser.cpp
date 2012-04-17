@@ -131,7 +131,7 @@ bool BinaryVersionToolTipEventFilter::eventFilter(QObject *o, QEvent *e)
     if (e->type() != QEvent::ToolTip)
         return false;
     QLineEdit *le = qobject_cast<QLineEdit *>(o);
-    QTC_ASSERT(le, return false; )
+    QTC_ASSERT(le, return false);
 
     const QString binary = le->text();
     if (!binary.isEmpty()) {

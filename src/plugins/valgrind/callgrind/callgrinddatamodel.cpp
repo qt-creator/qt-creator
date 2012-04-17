@@ -146,7 +146,7 @@ void DataModel::setCostEvent(int event)
     if (!d->m_data)
         return;
 
-    QTC_ASSERT(event >= 0 && d->m_data->events().size() > event, return)
+    QTC_ASSERT(event >= 0 && d->m_data->events().size() > event, return);
     beginResetModel();
     d->m_event = event;
     d->updateFunctions();

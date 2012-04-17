@@ -251,7 +251,7 @@ void FormEditorW::setupViewActions()
     // Populate "View" menu of form editor menu
     Core::ActionManager *am = Core::ICore::actionManager();
     Core::ActionContainer *viewMenu = am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
-    QTC_ASSERT(viewMenu, return)
+    QTC_ASSERT(viewMenu, return);
 
     addDockViewAction(am, viewMenu, WidgetBoxSubWindow, m_contexts,
                       tr("Widget box"), Core::Id("FormEditor.WidgetBox"));
@@ -787,7 +787,7 @@ void FormEditorW::currentEditorChanged(Core::IEditor *editor)
         QTC_ASSERT(xmlEditor, return);
         ensureInitStage(FullyInitialized);
         SharedTools::WidgetHost *fw = m_editorWidget->formWindowEditorForXmlEditor(xmlEditor);
-        QTC_ASSERT(fw, return)
+        QTC_ASSERT(fw, return);
         m_editorWidget->setVisibleEditor(xmlEditor);
         m_fwm->setActiveFormWindow(fw->formWindow());
     }

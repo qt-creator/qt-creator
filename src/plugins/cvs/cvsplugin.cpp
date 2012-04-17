@@ -620,7 +620,7 @@ void CvsPlugin::cvsDiff(const CvsDiffParameters &p)
     VcsBaseEditorWidget::tagEditor(editor, tag);
     setDiffBaseDirectory(editor, p.workingDir);
     CvsEditor *diffEditorWidget = qobject_cast<CvsEditor*>(editor->widget());
-    QTC_ASSERT(diffEditorWidget, return ; )
+    QTC_ASSERT(diffEditorWidget, return);
 
     // Wire up the parameter widget to trigger a re-run on
     // parameter change and 'revert' from inside the diff editor.
@@ -684,14 +684,14 @@ void CvsPlugin::updateActions(VcsBasePlugin::ActionState as)
 void CvsPlugin::addCurrentFile()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     vcsAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void CvsPlugin::revertAll()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     const QString title = tr("Revert repository");
     if (!messageBoxQuestion(title, tr("Revert all pending changes to the repository?")))
         return;
@@ -710,7 +710,7 @@ void CvsPlugin::revertAll()
 void CvsPlugin::revertCurrentFile()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     QStringList args;
     args << QLatin1String("diff") << state.relativeCurrentFile();
     const CvsResponse diffResponse =
@@ -746,28 +746,28 @@ void CvsPlugin::revertCurrentFile()
 void CvsPlugin::diffProject()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasProject(), return)
+    QTC_ASSERT(state.hasProject(), return);
     cvsDiff(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
 void CvsPlugin::diffCurrentFile()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     cvsDiff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void CvsPlugin::startCommitCurrentFile()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     startCommit(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void CvsPlugin::startCommitAll()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     startCommit(state.topLevel());
 }
 
@@ -843,21 +843,21 @@ bool CvsPlugin::commit(const QString &messageFile,
 void CvsPlugin::filelogCurrentFile()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     filelog(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), true);
 }
 
 void CvsPlugin::logProject()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasProject(), return)
+    QTC_ASSERT(state.hasProject(), return);
     filelog(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
 void CvsPlugin::logRepository()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     filelog(state.topLevel());
 }
 
@@ -896,7 +896,7 @@ void CvsPlugin::filelog(const QString &workingDir,
 void CvsPlugin::updateProject()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasProject(), return)
+    QTC_ASSERT(state.hasProject(), return);
     update(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
@@ -917,28 +917,28 @@ bool CvsPlugin::update(const QString &topLevel, const QStringList &files)
 void CvsPlugin::editCurrentFile()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     edit(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void CvsPlugin::uneditCurrentFile()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     unedit(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void CvsPlugin::uneditCurrentRepository()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     unedit(state.topLevel(), QStringList());
 }
 
 void CvsPlugin::annotateCurrentFile()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
@@ -1050,35 +1050,35 @@ bool CvsPlugin::status(const QString &topLevel, const QStringList &files, const 
 void CvsPlugin::projectStatus()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasProject(), return)
+    QTC_ASSERT(state.hasProject(), return);
     status(state.currentProjectTopLevel(), state.relativeCurrentProject(), tr("Project status"));
 }
 
 void CvsPlugin::commitProject()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasProject(), return)
+    QTC_ASSERT(state.hasProject(), return);
     startCommit(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
 void CvsPlugin::diffRepository()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     cvsDiff(state.topLevel(), QStringList());
 }
 
 void CvsPlugin::statusRepository()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     status(state.topLevel(), QStringList(), tr("Repository status"));
 }
 
 void CvsPlugin::updateRepository()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     update(state.topLevel(), QStringList());
 
 }

@@ -37,6 +37,7 @@
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
 
+#include <QDebug>
 #include <QSettings>
 #include <QStringList>
 #include <QCoreApplication>
@@ -238,7 +239,7 @@ void PerforceSettings::clearTopLevel()
 
 QString PerforceSettings::relativeToTopLevel(const QString &dir) const
 {
-    QTC_ASSERT(!m_topLevelDir.isNull(), return QLatin1String("../") + dir)
+    QTC_ASSERT(!m_topLevelDir.isNull(), return QLatin1String("../") + dir);
     return m_topLevelDir->relativeFilePath(dir);
 }
 

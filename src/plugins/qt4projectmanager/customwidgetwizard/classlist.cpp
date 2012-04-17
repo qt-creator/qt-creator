@@ -71,7 +71,7 @@ ClassModel::ClassModel(QObject *parent) :
     m_validator(QLatin1String("^[a-zA-Z][a-zA-Z0-9_]*$")),
     m_newClassPlaceHolder(ClassList::tr("<New class>"))
 {
-    QTC_ASSERT(m_validator.isValid(), return)
+    QTC_ASSERT(m_validator.isValid(), return);
     appendPlaceHolder();
 }
 
@@ -123,7 +123,7 @@ QString ClassList::className(int row) const
 void ClassList::classEdited()
 {
     const QModelIndex index = currentIndex();
-    QTC_ASSERT(index.isValid(), return)
+    QTC_ASSERT(index.isValid(), return);
 
     const QString name = className(index.row());
     if (index == m_model->placeHolderIndex()) {

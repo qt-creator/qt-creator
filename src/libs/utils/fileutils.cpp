@@ -36,6 +36,7 @@
 #include "qtcassert.h"
 
 #include <QDir>
+#include <QDebug>
 #include <QFileInfo>
 #include <QTemporaryFile>
 #include <QDateTime>
@@ -208,19 +209,18 @@ QString FileUtils::resolveSymlinks(const QString &path)
     return f.filePath();
 }
 
-
 QByteArray FileReader::fetchQrc(const QString &fileName)
 {
-    QTC_ASSERT(fileName.startsWith(QLatin1Char(':')), return QByteArray())
+    QTC_ASSERT(fileName.startsWith(QLatin1Char(':')), return QByteArray());
     QFile file(fileName);
     bool ok = file.open(QIODevice::ReadOnly);
-    QTC_ASSERT(ok, qWarning() << fileName << "not there!"; return QByteArray())
+    QTC_ASSERT(ok, qWarning() << fileName << "not there!"; return QByteArray());
     return file.readAll();
 }
 
 bool FileReader::fetch(const QString &fileName, QIODevice::OpenMode mode)
 {
-    QTC_ASSERT(!(mode & ~(QIODevice::ReadOnly | QIODevice::Text)), return false)
+    QTC_ASSERT(!(mode & ~(QIODevice::ReadOnly | QIODevice::Text)), return false);
 
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | mode)) {

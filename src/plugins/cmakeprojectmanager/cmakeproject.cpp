@@ -87,7 +87,7 @@ static inline bool isFormWindowEditor(const QObject *o)
 static inline QString formWindowEditorContents(const QObject *editor)
 {
     const QVariant contentV = editor->property("contents");
-    QTC_ASSERT(contentV.isValid(), return QString(); )
+    QTC_ASSERT(contentV.isValid(), return QString());
     return contentV.toString();
 }
 

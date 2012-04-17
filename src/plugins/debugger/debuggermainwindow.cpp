@@ -327,7 +327,7 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
     ActionManager *am = ICore::actionManager();
     Context debugcontext(Constants::C_DEBUGMODE);
     m_viewsMenu = am->actionContainer(Id(Core::Constants::M_WINDOW_VIEWS));
-    QTC_ASSERT(m_viewsMenu, return)
+    QTC_ASSERT(m_viewsMenu, return);
 
     QAction *openMemoryEditorAction = new QAction(this);
     openMemoryEditorAction->setText(tr("Memory..."));
@@ -492,7 +492,7 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
         d, SLOT(updateUiForProject(ProjectExplorer::Project*)));
 
     d->m_viewsMenu = am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
-    QTC_ASSERT(d->m_viewsMenu, return 0)
+    QTC_ASSERT(d->m_viewsMenu, return 0);
 
     //d->m_mainWindow = new Internal::DebuggerMainWindow(this);
     setDocumentMode(true);
@@ -591,7 +591,7 @@ void DebuggerMainWindow::writeSettings() const
 void DebuggerMainWindow::raiseDebuggerWindow()
 {
     Utils::AppMainWindow *appMainWindow = qobject_cast<Utils::AppMainWindow*>(ICore::mainWindow());
-    QTC_ASSERT(appMainWindow, return)
+    QTC_ASSERT(appMainWindow, return);
     appMainWindow->raiseWindow();
 }
 

@@ -726,7 +726,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         bool ok = false;
         const uint registerNumber = cmd.mid(1).toUInt(&ok, 16);
         const int threadIndex = m_snapshot.indexOfThread(m_session.tid);
-        QTC_ASSERT(threadIndex != -1, return)
+        QTC_ASSERT(threadIndex != -1, return);
         const Symbian::Thread &thread =  m_snapshot.threadInfo.at(threadIndex);
         if (thread.registerValid) {
             sendGdbServerMessage(thread.gdbReportSingleRegister(registerNumber),
@@ -1277,7 +1277,7 @@ void CodaGdbAdapter::handleWriteRegister(const CodaCommandResult &result)
 void CodaGdbAdapter::sendRegistersGetMCommand()
 {
     // Send off a register command, which requires the names to be present.
-    QTC_ASSERT(!m_codaDevice->registerNames().isEmpty(), return )
+    QTC_ASSERT(!m_codaDevice->registerNames().isEmpty(), return);
 
     m_codaDevice->sendRegistersGetMRangeCommand(
                 CodaCallback(this, &CodaGdbAdapter::handleAndReportReadRegisters),
@@ -1359,7 +1359,7 @@ void CodaGdbAdapter::handleReadRegisters(const CodaCommandResult &result)
     // TODO: When reading 8-byte floating-point registers is supported, thread
     // registers won't be an array of uints.
     uint *registers = m_snapshot.registers(m_session.tid);
-    QTC_ASSERT(registers, return;)
+    QTC_ASSERT(registers, return);
 
     QByteArray bigEndianRaw = QByteArray::fromBase64(result.values.front().data());
     // TODO: When reading 8-byte floating-point registers is supported, will

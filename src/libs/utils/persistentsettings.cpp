@@ -130,7 +130,7 @@ struct ParseValueStackEntry
 ParseValueStackEntry::ParseValueStackEntry(const QVariant &aSimpleValue, const QString &k) :
     type(aSimpleValue.type()), key(k), simpleValue(aSimpleValue)
 {
-    QTC_ASSERT(simpleValue.isValid(), return ; )
+    QTC_ASSERT(simpleValue.isValid(), return);
 }
 
 QVariant ParseValueStackEntry::value() const
@@ -250,10 +250,10 @@ bool ParseContext::handleEndElement(const QStringRef &name)
 {
     const Element e = element(name);
     if (ParseContext::isValueElement(e)) {
-        QTC_ASSERT(!m_valueStack.isEmpty(), return true; )
+        QTC_ASSERT(!m_valueStack.isEmpty(), return true);
         const ParseValueStackEntry top = m_valueStack.pop();
         if (m_valueStack.isEmpty()) { // Last element? -> Done with that variable.
-            QTC_ASSERT(!m_currentVariableName.isEmpty(), return true; )
+            QTC_ASSERT(!m_currentVariableName.isEmpty(), return true);
             m_result.insert(m_currentVariableName, top.value());
             m_currentVariableName.clear();
             return false;
@@ -286,7 +286,7 @@ QVariant ParseContext::readSimpleValue(QXmlStreamReader &r, const QXmlStreamAttr
     const QString type = attributes.value(typeAttribute).toString();
     const QString text = r.readElementText();
     if (type == QLatin1String("QChar")) { // Workaround: QTBUG-12345
-        QTC_ASSERT(text.size() == 1, return QVariant(); )
+        QTC_ASSERT(text.size() == 1, return QVariant());
         return QVariant(QChar(text.at(0)));
     }
     QVariant value;

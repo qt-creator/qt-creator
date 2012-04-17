@@ -553,7 +553,7 @@ bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeOutMS,
         return false;
     }
 
-    QTC_ASSERT(p.readChannel() == QProcess::StandardOutput, return false)
+    QTC_ASSERT(p.readChannel() == QProcess::StandardOutput, return false);
 
     // Keep the process running until it has no longer has data
     bool finished = false;

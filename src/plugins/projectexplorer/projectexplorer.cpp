@@ -2582,7 +2582,7 @@ QString ProjectExplorerPlugin::directoryFor(Node *node)
 
 void ProjectExplorerPlugin::addNewFile()
 {
-    QTC_ASSERT(d->m_currentNode, return)
+    QTC_ASSERT(d->m_currentNode, return);
     QString location = directoryFor(d->m_currentNode);
 
     QVariantMap map;
@@ -2595,7 +2595,7 @@ void ProjectExplorerPlugin::addNewFile()
 
 void ProjectExplorerPlugin::addNewSubproject()
 {
-    QTC_ASSERT(d->m_currentNode, return)
+    QTC_ASSERT(d->m_currentNode, return);
     QString location = directoryFor(d->m_currentNode);
 
     if (d->m_currentNode->nodeType() == ProjectNodeType
@@ -2611,7 +2611,7 @@ void ProjectExplorerPlugin::addNewSubproject()
 
 void ProjectExplorerPlugin::addExistingFiles()
 {
-    QTC_ASSERT(d->m_currentNode, return)
+    QTC_ASSERT(d->m_currentNode, return);
 
     QStringList fileNames = QFileDialog::getOpenFileNames(Core::ICore::mainWindow(),
         tr("Add Existing Files"), directoryFor(d->m_currentNode));
@@ -2687,33 +2687,33 @@ void ProjectExplorerPlugin::removeProject()
 
 void ProjectExplorerPlugin::openFile()
 {
-    QTC_ASSERT(d->m_currentNode, return)
+    QTC_ASSERT(d->m_currentNode, return);
     Core::EditorManager *em = Core::EditorManager::instance();
     em->openEditor(d->m_currentNode->path(), Core::Id(), Core::EditorManager::ModeSwitch);
 }
 
 void ProjectExplorerPlugin::searchOnFileSystem()
 {
-    QTC_ASSERT(d->m_currentNode, return)
+    QTC_ASSERT(d->m_currentNode, return);
     FolderNavigationWidget::findOnFileSystem(pathFor(d->m_currentNode));
 }
 
 void ProjectExplorerPlugin::showInGraphicalShell()
 {
-    QTC_ASSERT(d->m_currentNode, return)
+    QTC_ASSERT(d->m_currentNode, return);
     Core::FileUtils::showInGraphicalShell(Core::ICore::mainWindow(),
                                                     pathFor(d->m_currentNode));
 }
 
 void ProjectExplorerPlugin::openTerminalHere()
 {
-    QTC_ASSERT(d->m_currentNode, return)
+    QTC_ASSERT(d->m_currentNode, return);
     Core::FileUtils::openTerminal(directoryFor(d->m_currentNode));
 }
 
 void ProjectExplorerPlugin::removeFile()
 {
-    QTC_ASSERT(d->m_currentNode && d->m_currentNode->nodeType() == FileNodeType, return)
+    QTC_ASSERT(d->m_currentNode && d->m_currentNode->nodeType() == FileNodeType, return);
 
     FileNode *fileNode = qobject_cast<FileNode*>(d->m_currentNode);
 
@@ -2752,7 +2752,7 @@ void ProjectExplorerPlugin::removeFile()
 
 void ProjectExplorerPlugin::deleteFile()
 {
-    QTC_ASSERT(d->m_currentNode && d->m_currentNode->nodeType() == FileNodeType, return)
+    QTC_ASSERT(d->m_currentNode && d->m_currentNode->nodeType() == FileNodeType, return);
 
     FileNode *fileNode = qobject_cast<FileNode*>(d->m_currentNode);
 
@@ -2766,7 +2766,7 @@ void ProjectExplorerPlugin::deleteFile()
         return;
 
     ProjectNode *projectNode = fileNode->projectNode();
-    Q_ASSERT(projectNode);
+    QTC_ASSERT(projectNode, return);
 
     projectNode->deleteFiles(fileNode->fileType(), QStringList(filePath));
 

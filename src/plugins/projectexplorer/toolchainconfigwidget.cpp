@@ -190,19 +190,19 @@ void ToolChainConfigWidget::ensureDebuggerPathChooser(const QStringList &version
 
 void ToolChainConfigWidget::addDebuggerAutoDetection(QObject *receiver, const char *autoDetectSlot)
 {
-    QTC_ASSERT(d->m_debuggerPathChooser, return; )
+    QTC_ASSERT(d->m_debuggerPathChooser, return);
     d->m_debuggerPathChooser->addButton(tr("Autodetect"), receiver, autoDetectSlot);
 }
 
 Utils::FileName ToolChainConfigWidget::debuggerCommand() const
 {
-    QTC_ASSERT(d->m_debuggerPathChooser, return Utils::FileName(); )
+    QTC_ASSERT(d->m_debuggerPathChooser, return Utils::FileName());
     return d->m_debuggerPathChooser->fileName();
 }
 
 void ToolChainConfigWidget::setDebuggerCommand(const Utils::FileName &debugger)
 {
-    QTC_ASSERT(d->m_debuggerPathChooser, return; )
+    QTC_ASSERT(d->m_debuggerPathChooser, return);
     d->m_debuggerPathChooser->setFileName(debugger);
 }
 
@@ -281,7 +281,7 @@ void ToolChainConfigWidget::addErrorLabel(QGridLayout *lt, int row, int column, 
 
 void ToolChainConfigWidget::setErrorMessage(const QString &m)
 {
-    QTC_ASSERT(d->m_errorLabel, return; )
+    QTC_ASSERT(d->m_errorLabel, return);
     if (m.isEmpty()) {
         clearErrorMessage();
     } else {
@@ -293,7 +293,7 @@ void ToolChainConfigWidget::setErrorMessage(const QString &m)
 
 void ToolChainConfigWidget::clearErrorMessage()
 {
-    QTC_ASSERT(d->m_errorLabel, return; )
+    QTC_ASSERT(d->m_errorLabel, return);
     d->m_errorLabel->clear();
     d->m_errorLabel->setStyleSheet(QString());
     d->m_errorLabel->setVisible(false);

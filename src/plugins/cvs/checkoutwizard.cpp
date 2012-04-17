@@ -84,7 +84,7 @@ QSharedPointer<VcsBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QLi
     // Collect parameters for the checkout command.
     // CVS does not allow for checking out into a different directory.
     const CheckoutWizardPage *cwp = qobject_cast<const CheckoutWizardPage *>(parameterPages.front());
-    QTC_ASSERT(cwp, return QSharedPointer<VcsBase::AbstractCheckoutJob>())
+    QTC_ASSERT(cwp, return QSharedPointer<VcsBase::AbstractCheckoutJob>());
     const CvsSettings settings = CvsPlugin::instance()->settings();
     const QString binary = settings.cvsCommand;
     QStringList args;

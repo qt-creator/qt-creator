@@ -306,7 +306,7 @@ QString VcsManager::repositoryUrl(const QString &directory)
 
 bool VcsManager::promptToDelete(IVersionControl *vc, const QString &fileName)
 {
-    QTC_ASSERT(vc, return true)
+    QTC_ASSERT(vc, return true);
     if (!vc->supportsOperation(IVersionControl::DeleteOperation))
         return true;
     const QString title = tr("Version Control");

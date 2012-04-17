@@ -154,7 +154,7 @@ Core::GeneratedFiles TestWizard::generateFiles(const QWizard *w, QString *errorM
     Q_UNUSED(errorMessage)
 
     const TestWizardDialog *wizardDialog = qobject_cast<const TestWizardDialog *>(w);
-    QTC_ASSERT(wizardDialog, return Core::GeneratedFiles())
+    QTC_ASSERT(wizardDialog, return Core::GeneratedFiles());
 
     const QtProjectParameters projectParams = wizardDialog->projectParameters();
     const TestWizardParameters testParams = wizardDialog->testParameters();

@@ -58,7 +58,7 @@ unsigned PasteBinDotCaProtocol::capabilities() const
 
 void PasteBinDotCaProtocol::fetch(const QString &id)
 {
-    QTC_ASSERT(!m_fetchReply, return)
+    QTC_ASSERT(!m_fetchReply, return);
     const QString url = QLatin1String(urlC);
     const QString rawPostFix = QLatin1String("raw/");
     // Create link as ""http://pastebin.ca/raw/[id]"

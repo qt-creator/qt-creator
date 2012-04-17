@@ -124,7 +124,7 @@ void DocumentMarker::removeMarkFromMarksCache(TextEditor::ITextMark *mark)
 {
     BaseTextDocumentLayout *documentLayout =
         qobject_cast<BaseTextDocumentLayout*>(document->documentLayout());
-    QTC_ASSERT(documentLayout, return)
+    QTC_ASSERT(documentLayout, return);
     bool needUpdate = m_marksCache.removeOne(mark);
     if (m_marksCache.isEmpty()) {
         documentLayout->hasMarks = false;
@@ -141,7 +141,7 @@ void DocumentMarker::removeMark(TextEditor::ITextMark *mark)
 {
     BaseTextDocumentLayout *documentLayout =
         qobject_cast<BaseTextDocumentLayout*>(document->documentLayout());
-    QTC_ASSERT(documentLayout, return)
+    QTC_ASSERT(documentLayout, return);
 
     QTextBlock block = document->begin();
     while (block.isValid()) {

@@ -181,14 +181,14 @@ void SourcePathMappingModel::addRawMapping(const QString &source, const QString 
 void SourcePathMappingModel::setSource(int row, const QString &s)
 {
     QStandardItem *sourceItem = item(row, SourceColumn);
-    QTC_ASSERT(sourceItem, return; )
+    QTC_ASSERT(sourceItem, return);
     sourceItem->setText(s.isEmpty() ? m_newSourcePlaceHolder : QDir::toNativeSeparators(s));
 }
 
 void SourcePathMappingModel::setTarget(int row, const QString &t)
 {
     QStandardItem *targetItem = item(row, TargetColumn);
-    QTC_ASSERT(targetItem, return; )
+    QTC_ASSERT(targetItem, return);
     targetItem->setText(t.isEmpty() ? m_newTargetPlaceHolder : QDir::toNativeSeparators(t));
 }
 

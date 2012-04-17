@@ -181,7 +181,7 @@ QIcon CommonOptionsPage::categoryIcon() const
 
 void CommonOptionsPage::apply()
 {
-    QTC_ASSERT(!m_widget.isNull() && !m_group.isNull(), return; )
+    QTC_ASSERT(!m_widget.isNull() && !m_group.isNull(), return);
 
     QSettings *settings = ICore::settings();
     m_group->apply(settings);

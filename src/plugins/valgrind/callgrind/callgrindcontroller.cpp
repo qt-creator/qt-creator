@@ -94,14 +94,13 @@ QString toOptionString(CallgrindController::Option option)
     }
 }
 
-
 void CallgrindController::run(Option option)
 {
     if (m_process) {
         emit statusMessage(tr("Previous command has not yet finished."));
         return;
     }
-    QTC_ASSERT(m_valgrindProc, return)
+    QTC_ASSERT(m_valgrindProc, return);
 
     if (RemoteValgrindProcess *remote = qobject_cast<RemoteValgrindProcess *>(m_valgrindProc))
         m_process = new RemoteValgrindProcess(remote->connection(), this);
@@ -150,7 +149,7 @@ void CallgrindController::run(Option option)
 
 void CallgrindController::processError(QProcess::ProcessError)
 {
-    QTC_ASSERT(m_process, return)
+    QTC_ASSERT(m_process, return);
     const QString error = m_process->errorString();
     emit statusMessage(QString("An error occurred while trying to run %1: %2").arg(CALLGRIND_CONTROL_BINARY).arg(error));
 

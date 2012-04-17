@@ -695,7 +695,7 @@ CustomWizardParameters::ParseResult
                 }
                     break;
                 case ParseWithinValidationRuleMessage:
-                    QTC_ASSERT(!rules.isEmpty(), return ParseFailed; )
+                    QTC_ASSERT(!rules.isEmpty(), return ParseFailed);
                     // This reads away the end tag, set state here.
                     assignLanguageElementText(reader, language, &(rules.back().message));
                     state = ParseWithinValidationRule;
@@ -955,7 +955,7 @@ TemporaryFileTransform::TemporaryFileTransform(TemporaryFilePtrList *f) :
 QString TemporaryFileTransform::operator()(const QString &value) const
 {
     TemporaryFilePtr temporaryFile(new QTemporaryFile(m_pattern));
-    QTC_ASSERT(temporaryFile->open(), return QString(); )
+    QTC_ASSERT(temporaryFile->open(), return QString());
 
     temporaryFile->write(value.toLocal8Bit());
     const QString name = temporaryFile->fileName();

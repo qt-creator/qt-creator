@@ -742,7 +742,7 @@ BaseFileWizard::OverwriteResult BaseFileWizard::promptOverwrite(GeneratedFiles *
     // Set 'keep' attribute in files
     foreach (const QString &keepFile, existingFilesToKeep) {
         const int i = indexOfFile(*files, keepFile);
-        QTC_ASSERT(i != -1, return OverwriteCanceled; )
+        QTC_ASSERT(i != -1, return OverwriteCanceled);
         GeneratedFile &file = (*files)[i];
         file.setAttributes(file.attributes() | GeneratedFile::KeepExistingFileAttribute);
     }

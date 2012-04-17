@@ -191,7 +191,7 @@ bool MemoryAgent::doCreateBinEditor(quint64 addr, unsigned flags,
         return true;
     }
     // Editor: Register tracking not supported.
-    QTC_ASSERT(!(flags & DebuggerEngine::MemoryTrackRegister), return false; )
+    QTC_ASSERT(!(flags & DebuggerEngine::MemoryTrackRegister), return false);
     EditorManager *editorManager = EditorManager::instance();
     if (!title.endsWith(QLatin1Char('$')))
         title.append(QLatin1String(" $"));
@@ -237,14 +237,14 @@ void MemoryAgent::addLazyData(QObject *editorToken, quint64 addr,
                                   const QByteArray &ba)
 {
     QWidget *w = qobject_cast<QWidget *>(editorToken);
-    QTC_ASSERT(w, return ;)
+    QTC_ASSERT(w, return);
     MemoryView::binEditorAddData(w, addr, ba);
 }
 
 void MemoryAgent::provideNewRange(IEditor *, quint64 address)
 {
     QWidget *w = qobject_cast<QWidget *>(sender());
-    QTC_ASSERT(w, return ;)
+    QTC_ASSERT(w, return);
     MemoryView::setBinEditorRange(w, address, DataRange, BinBlockSize);
 }
 
@@ -254,14 +254,14 @@ void MemoryAgent::provideNewRange(IEditor *, quint64 address)
 void MemoryAgent::handleStartOfFileRequested(IEditor *)
 {
     QWidget *w = qobject_cast<QWidget *>(sender());
-    QTC_ASSERT(w, return ;)
+    QTC_ASSERT(w, return);
     MemoryView::binEditorSetCursorPosition(w, 0);
 }
 
 void MemoryAgent::handleEndOfFileRequested(IEditor *)
 {
     QWidget *w = qobject_cast<QWidget *>(sender());
-    QTC_ASSERT(w, return ;)
+    QTC_ASSERT(w, return);
     MemoryView::binEditorSetCursorPosition(w, DataRange - 1);
 }
 

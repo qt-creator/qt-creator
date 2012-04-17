@@ -195,7 +195,7 @@ QTCREATOR_UTILS_EXPORT bool winIs64BitSystem()
 
 QTCREATOR_UTILS_EXPORT bool winIs64BitBinary(const QString &binaryIn)
 {
-       QTC_ASSERT(!binaryIn.isEmpty(), return false; )
+       QTC_ASSERT(!binaryIn.isEmpty(), return false);
 #ifdef Q_OS_WIN32
 #  ifdef __GNUC__   // MinGW lacking some definitions/winbase.h
 #    define SCS_64BIT_BINARY 6

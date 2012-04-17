@@ -35,6 +35,7 @@
 #include <utils/qtcassert.h>
 
 #include <QByteArray>
+#include <QDebug>
 #include <QRegExp>
 #include <QTextStream>
 

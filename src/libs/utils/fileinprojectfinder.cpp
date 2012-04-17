@@ -33,6 +33,7 @@
 #include "fileinprojectfinder.h"
 #include <utils/qtcassert.h>
 
+#include <QDebug>
 #include <QFileInfo>
 #include <QUrl>
 

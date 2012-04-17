@@ -196,7 +196,7 @@ ITextMarkable *BaseTextDocument::documentMarker() const
 {
     BaseTextDocumentLayout *documentLayout =
         qobject_cast<BaseTextDocumentLayout *>(d->m_document->documentLayout());
-    QTC_ASSERT(documentLayout, return 0)
+    QTC_ASSERT(documentLayout, return 0);
     return documentLayout->markableInterface();
 }
 

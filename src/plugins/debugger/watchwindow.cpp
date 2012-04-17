@@ -419,7 +419,7 @@ static void addStackLayoutMemoryView(DebuggerEngine *engine, bool separateView,
     const QAbstractItemModel *m, const QPoint &p, QWidget *parent)
 {
     typedef QPair<quint64, QString> RegisterValueNamePair;
-    QTC_ASSERT(engine && m, return ;)
+    QTC_ASSERT(engine && m, return);
 
     // Determine suitable address range from locals.
     quint64 start = Q_UINT64_C(0xFFFFFFFFFFFFFFFF);

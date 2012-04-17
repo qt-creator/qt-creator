@@ -88,19 +88,19 @@ CodePasterService::CodePasterService(QObject *parent) :
 
 void CodePasterService::postText(const QString &text, const QString &mimeType)
 {
-    QTC_ASSERT(CodepasterPlugin::instance(), return; )
+    QTC_ASSERT(CodepasterPlugin::instance(), return);
     CodepasterPlugin::instance()->post(text, mimeType);
 }
 
 void CodePasterService::postCurrentEditor()
 {
-    QTC_ASSERT(CodepasterPlugin::instance(), return; )
+    QTC_ASSERT(CodepasterPlugin::instance(), return);
     CodepasterPlugin::instance()->postEditor();
 }
 
 void CodePasterService::postClipboard()
 {
-    QTC_ASSERT(CodepasterPlugin::instance(), return; )
+    QTC_ASSERT(CodepasterPlugin::instance(), return);
     CodepasterPlugin::instance()->postClipboard();
 }
 
@@ -366,7 +366,7 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     m_fetchedSnippets.push_back(fileName);
     // Open editor with title.
     Core::IEditor* editor = EditorManager::instance()->openEditor(fileName, Core::Id(), EditorManager::ModeSwitch);
-    QTC_ASSERT(editor, return)
+    QTC_ASSERT(editor, return);
     editor->setDisplayName(titleDescription);
 }
 

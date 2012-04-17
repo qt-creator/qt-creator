@@ -45,8 +45,9 @@
 #include <utils/qtcprocess.h>
 #include <utils/persistentsettings.h>
 
-#include <QFile>
 #include <QApplication>
+#include <QDebug>
+#include <QFile>
 #include <QMainWindow>
 #include <QMessageBox>
 

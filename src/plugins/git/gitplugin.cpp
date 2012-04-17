@@ -582,35 +582,35 @@ void GitPlugin::submitEditorDiff(const QStringList &unstaged, const QStringList 
 void GitPlugin::diffCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     m_gitClient->diff(state.currentFileTopLevel(), QStringList(), state.relativeCurrentFile());
 }
 
 void GitPlugin::diffCurrentProject()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasProject(), return)
+    QTC_ASSERT(state.hasProject(), return);
     m_gitClient->diff(state.currentProjectTopLevel(), QStringList(), state.relativeCurrentProject());
 }
 
 void GitPlugin::diffRepository()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     m_gitClient->diff(state.topLevel(), QStringList(), QStringList());
 }
 
 void GitPlugin::logFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     m_gitClient->log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), true);
 }
 
 void GitPlugin::blameFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     const int lineNumber = VcsBase::VcsBaseEditorWidget::lineNumberOfCurrentEditor(state.currentFile());
     m_gitClient->blame(state.currentFileTopLevel(), QStringList(), state.relativeCurrentFile(), QString(), lineNumber);
 }
@@ -618,14 +618,14 @@ void GitPlugin::blameFile()
 void GitPlugin::logProject()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasProject(), return)
+    QTC_ASSERT(state.hasProject(), return);
     m_gitClient->log(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
 void GitPlugin::undoFileChanges(bool revertStaging)
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     Core::FileChangeBlocker fcb(state.currentFile());
     m_gitClient->revert(QStringList(state.currentFile()), revertStaging);
 }
@@ -638,7 +638,7 @@ void GitPlugin::undoUnstagedFileChanges()
 void GitPlugin::undoRepositoryChanges()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     const QString msg = tr("Undo all pending changes to the repository\n%1?").arg(QDir::toNativeSeparators(state.topLevel()));
     const QMessageBox::StandardButton answer
             = QMessageBox::question(Core::ICore::mainWindow(),
@@ -653,14 +653,14 @@ void GitPlugin::undoRepositoryChanges()
 void GitPlugin::stageFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     m_gitClient->addFile(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void GitPlugin::unstageFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     m_gitClient->synchronousReset(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
@@ -684,7 +684,7 @@ void GitPlugin::startCommit(bool amend)
     }
 
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
 
     QString errorMessage, commitTemplate;
     CommitData data;
@@ -818,7 +818,7 @@ void GitPlugin::pull()
 void GitPlugin::push()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     m_gitClient->synchronousPush(state.topLevel());
 }
 
@@ -838,7 +838,7 @@ static inline GitClientMemberFunc memberFunctionFromAction(const QObject *o)
 void GitPlugin::gitClientMemberFuncRepositoryAction()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     // Retrieve member function and invoke on repository
     GitClientMemberFunc func = memberFunctionFromAction(sender());
     QTC_ASSERT(func, return);
@@ -848,7 +848,7 @@ void GitPlugin::gitClientMemberFuncRepositoryAction()
 void GitPlugin::cleanProject()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasProject(), return)
+    QTC_ASSERT(state.hasProject(), return);
     cleanRepository(state.currentProjectPath());
 }
 
@@ -963,7 +963,7 @@ void GitPlugin::stash()
 {
     // Simple stash without prompt, reset repo.
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     const QString id = m_gitClient->synchronousStash(state.topLevel(), QString(), 0);
     if (!id.isEmpty() && m_stashDialog)
         m_stashDialog->refresh(state.topLevel(), true);
@@ -973,7 +973,7 @@ void GitPlugin::stashSnapshot()
 {
     // Prompt for description, restore immediately and keep on working.
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     const QString id = m_gitClient->synchronousStash(state.topLevel(), QString(), GitClient::StashImmediateRestore|GitClient::StashPromptDescription);
     if (!id.isEmpty() && m_stashDialog)
         m_stashDialog->refresh(state.topLevel(), true);

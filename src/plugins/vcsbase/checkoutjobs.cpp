@@ -179,7 +179,7 @@ void ProcessCheckoutJob::slotFinished (int exitCode, QProcess::ExitStatus exitSt
 
 void ProcessCheckoutJob::start()
 {
-    QTC_ASSERT(!d->stepQueue.empty(), return)
+    QTC_ASSERT(!d->stepQueue.empty(), return);
     slotNext();
 }
 

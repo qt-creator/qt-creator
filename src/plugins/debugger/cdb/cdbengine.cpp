@@ -500,7 +500,7 @@ void CdbEngine::init()
                                                              QDir::toNativeSeparators(it.value())));
         }
     }
-    QTC_ASSERT(m_process.state() != QProcess::Running, Utils::SynchronousProcess::stopProcess(m_process); )
+    QTC_ASSERT(m_process.state() != QProcess::Running, Utils::SynchronousProcess::stopProcess(m_process));
 }
 
 CdbEngine::~CdbEngine()
@@ -521,7 +521,7 @@ void CdbEngine::syncOperateByInstruction(bool operateByInstruction)
         qDebug("syncOperateByInstruction current: %d new %d", m_operateByInstruction, operateByInstruction);
     if (m_operateByInstruction == operateByInstruction)
         return;
-    QTC_ASSERT(m_accessible, return; )
+    QTC_ASSERT(m_accessible, return);
     m_operateByInstruction = operateByInstruction;
     postCommand(m_operateByInstruction ? QByteArray("l-t") : QByteArray("l+t"), 0);
     postCommand(m_operateByInstruction ? QByteArray("l-s") : QByteArray("l+s"), 0);
@@ -1225,7 +1225,7 @@ void CdbEngine::executeRunToFunction(const QString &functionName)
 void CdbEngine::setRegisterValue(int regnr, const QString &value)
 {
     const Registers registers = registerHandler()->registers();
-    QTC_ASSERT(regnr < registers.size(), return)
+    QTC_ASSERT(regnr < registers.size(), return);
     // Value is decimal or 0x-hex-prefixed
     QByteArray cmd;
     ByteArrayInputStream str(cmd);
@@ -1455,7 +1455,7 @@ void CdbEngine::activateFrame(int index)
     if (index < 0)
         return;
     const StackFrames &frames = stackHandler()->frames();
-    QTC_ASSERT(index < frames.size(), return; )
+    QTC_ASSERT(index < frames.size(), return);
 
     const StackFrame frame = frames.at(index);
     if (debug || debugLocals)
@@ -1571,7 +1571,7 @@ enum { DisassemblerRange = 512 };
 
 void CdbEngine::fetchDisassembler(DisassemblerAgent *agent)
 {
-    QTC_ASSERT(m_accessible, return;)
+    QTC_ASSERT(m_accessible, return);
     const QVariant cookie = qVariantFromValue<DisassemblerAgent*>(agent);
     const Location location = agent->location();
     if (debug)
@@ -1753,7 +1753,7 @@ void CdbEngine::handleResolveSymbol(const QList<quint64> &addresses, const QVari
 // Parse: "00000000`77606060 cc              int     3"
 void CdbEngine::handleDisassembler(const CdbBuiltinCommandPtr &command)
 {
-    QTC_ASSERT(qVariantCanConvert<DisassemblerAgent*>(command->cookie), return;)
+    QTC_ASSERT(qVariantCanConvert<DisassemblerAgent*>(command->cookie), return);
     DisassemblerAgent *agent = qvariant_cast<DisassemblerAgent*>(command->cookie);
     agent->setContents(parseCdbDisassembler(command->reply));
 }
@@ -1781,7 +1781,7 @@ void CdbEngine::postFetchMemory(const MemoryViewCookie &cookie)
 
 void CdbEngine::changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, const QByteArray &data)
 {
-    QTC_ASSERT(!data.isEmpty(), return; )
+    QTC_ASSERT(!data.isEmpty(), return);
     if (!m_accessible) {
         const MemoryChangeCookie cookie(addr, data);
         doInterruptInferiorCustomSpecialStop(qVariantFromValue(cookie));
@@ -1792,7 +1792,7 @@ void CdbEngine::changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, c
 
 void CdbEngine::handleMemory(const CdbExtensionCommandPtr &command)
 {
-    QTC_ASSERT(qVariantCanConvert<MemoryViewCookie>(command->cookie), return;)
+    QTC_ASSERT(qVariantCanConvert<MemoryViewCookie>(command->cookie), return);
     const MemoryViewCookie memViewCookie = qvariant_cast<MemoryViewCookie>(command->cookie);
     if (command->success) {
         const QByteArray data = QByteArray::fromBase64(command->reply);
@@ -1928,7 +1928,7 @@ void CdbEngine::handleLocals(const CdbExtensionCommandPtr &reply)
         QList<WatchData> watchData;
         GdbMi root;
         root.fromString(reply->reply);
-        QTC_ASSERT(root.isList(), return ; )
+        QTC_ASSERT(root.isList(), return);
         if (debugLocals) {
             qDebug() << root.toString(true, 4);
         }
@@ -2474,17 +2474,17 @@ void CdbEngine::parseOutputLine(QByteArray line)
         // integer token
         const int tokenPos = m_creatorExtPrefix.size() + 2;
         const int tokenEndPos = line.indexOf('|', tokenPos);
-        QTC_ASSERT(tokenEndPos != -1, return)
+        QTC_ASSERT(tokenEndPos != -1, return);
         const int token = line.mid(tokenPos, tokenEndPos - tokenPos).toInt();
         // remainingChunks
         const int remainingChunksPos = tokenEndPos + 1;
         const int remainingChunksEndPos = line.indexOf('|', remainingChunksPos);
-        QTC_ASSERT(remainingChunksEndPos != -1, return)
+        QTC_ASSERT(remainingChunksEndPos != -1, return);
         const int remainingChunks = line.mid(remainingChunksPos, remainingChunksEndPos - remainingChunksPos).toInt();
         // const char 'serviceName'
         const int whatPos = remainingChunksEndPos + 1;
         const int whatEndPos = line.indexOf('|', whatPos);
-        QTC_ASSERT(whatEndPos != -1, return)
+        QTC_ASSERT(whatEndPos != -1, return);
         const QByteArray what = line.mid(whatPos, whatEndPos - whatPos);
         // Build up buffer, call handler once last chunk was encountered
         m_extensionMessageBuffer += line.mid(whatEndPos + 1);
@@ -2962,7 +2962,7 @@ void CdbEngine::postCommandSequence(unsigned mask)
         return;
     }
     if (mask & CommandListRegisters) {
-        QTC_ASSERT(threadsHandler()->currentThread() >= 0,  return; )
+        QTC_ASSERT(threadsHandler()->currentThread() >= 0,  return);
         postExtensionCommand("registers", QByteArray(), 0, &CdbEngine::handleRegisters, mask & ~CommandListRegisters);
         return;
     }
@@ -3062,7 +3062,7 @@ void CdbEngine::handleBreakPoints(const GdbMi &value)
                 qPrintable(reportedResponse.toString()));
         if (reportedResponse.id.isValid() && !reportedResponse.pending) {
             const BreakpointModelId mid = handler->findBreakpointByResponseId(reportedResponse.id);
-            QTC_ASSERT(mid.isValid(), continue; )
+            QTC_ASSERT(mid.isValid(), continue);
             const PendingBreakPointMap::iterator it = m_pendingBreakpointMap.find(mid);
             if (it != m_pendingBreakpointMap.end()) {
                 // Complete the response and set on handler.

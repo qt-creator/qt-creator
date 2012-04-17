@@ -96,7 +96,7 @@ void TextFieldComboBox::slotCurrentIndexChanged(int i)
 void TextFieldComboBox::setItems(const QStringList &displayTexts,
                                  const QStringList &values)
 {
-    QTC_ASSERT(displayTexts.size() == values.size(), return)
+    QTC_ASSERT(displayTexts.size() == values.size(), return);
     clear();
     addItems(displayTexts);
     const int count = values.count();

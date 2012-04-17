@@ -115,9 +115,9 @@ void CommandLocator::accept(Locator::FilterEntry entry) const
 {
     // Retrieve action via index.
     const int index = entry.internalData.toInt();
-    QTC_ASSERT(index >= 0 && index < d->commands.size(), return)
+    QTC_ASSERT(index >= 0 && index < d->commands.size(), return);
     QAction *action = d->commands.at(index)->action();
-    QTC_ASSERT(action->isEnabled(), return)
+    QTC_ASSERT(action->isEnabled(), return);
     action->trigger();
 }
 

@@ -84,12 +84,11 @@ QWizard *WebPageWizard::createWizardDialog(QWidget *parent,
 }
 
 Core::GeneratedFiles
-    WebPageWizard::generateFiles(const QWizard *w,
-                                     QString *) const
+    WebPageWizard::generateFiles(const QWizard *w, QString *) const
 {
     Core::GeneratedFiles files;
     const WebContentWizardDialog *dialog = qobject_cast<const WebContentWizardDialog*>(w);
-    QTC_ASSERT(dialog, return files; )
+    QTC_ASSERT(dialog, return files);
 
     const QString fileName = Core::BaseFileWizard::buildFileName(dialog->path(), dialog->fileName(), QLatin1String("html"));
 

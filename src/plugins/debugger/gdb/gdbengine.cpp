@@ -956,7 +956,7 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
         return;
     }
 
-    QTC_ASSERT(gdbProc()->state() == QProcess::Running, return;)
+    QTC_ASSERT(gdbProc()->state() == QProcess::Running, return);
 
     const int token = ++currentToken();
 
@@ -1425,7 +1425,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         gotoLocation(Location(fullName, lineNumber));
 
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
-        QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state())
+        QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
         m_actingOnExpectedStop = true;
         notifyInferiorStopOk();
         flushQueuedCommands();
@@ -1433,7 +1433,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             QTC_CHECK(m_commandsDoneCallback == 0);
             m_commandsDoneCallback = &GdbEngine::autoContinueInferior;
         } else {
-            QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state())
+            QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
         }
         return;
     }
@@ -1915,8 +1915,8 @@ QString GdbEngine::fullName(const QString &fileName)
 {
     if (fileName.isEmpty())
         return QString();
-    //QTC_ASSERT(!m_sourcesListOutdated, /* */)
-    QTC_ASSERT(!m_sourcesListUpdating, /* */)
+    //QTC_ASSERT(!m_sourcesListOutdated, /* */);
+    QTC_ASSERT(!m_sourcesListUpdating, /* */);
     return m_shortToFullName.value(fileName, QString());
 }
 
@@ -1927,7 +1927,7 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
     // Gdb running on windows often delivers "fullnames" which
     // (a) have no drive letter and (b) are not normalized.
     if (Abi::hostAbi().os() == Abi::WindowsOS) {
-        QTC_ASSERT(!fileName.isEmpty(), return QString())
+        QTC_ASSERT(!fileName.isEmpty(), return QString());
         QFileInfo fi(fileName);
         if (fi.isReadable())
             cleanFilePath = QDir::cleanPath(fi.absoluteFilePath());
@@ -2570,7 +2570,7 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
 
 QString GdbEngine::breakLocation(const QString &file) const
 {
-    //QTC_ASSERT(!m_breakListOutdated, /* */)
+    //QTC_CHECK(!m_breakListOutdated);
     QString where = m_fullToShortName.value(file);
     if (where.isEmpty())
         return QFileInfo(file).fileName();
@@ -2855,7 +2855,7 @@ void GdbEngine::handleBreakList(const GdbMi &table)
 
 void GdbEngine::handleBreakListMultiple(const GdbResponse &response)
 {
-    QTC_CHECK(response.resultClass == GdbResultDone)
+    QTC_CHECK(response.resultClass == GdbResultDone);
     const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     const QString str = QString::fromLocal8Bit(response.consoleStreamOutput);
     extractDataFromInfoBreak(str, id);
@@ -2863,7 +2863,7 @@ void GdbEngine::handleBreakListMultiple(const GdbResponse &response)
 
 void GdbEngine::handleBreakDisable(const GdbResponse &response)
 {
-    QTC_CHECK(response.resultClass == GdbResultDone)
+    QTC_CHECK(response.resultClass == GdbResultDone);
     const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     BreakHandler *handler = breakHandler();
     // This should only be the requested state.
@@ -2876,7 +2876,7 @@ void GdbEngine::handleBreakDisable(const GdbResponse &response)
 
 void GdbEngine::handleBreakEnable(const GdbResponse &response)
 {
-    QTC_CHECK(response.resultClass == GdbResultDone)
+    QTC_CHECK(response.resultClass == GdbResultDone);
     const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     BreakHandler *handler = breakHandler();
     // This should only be the requested state.
@@ -2889,7 +2889,7 @@ void GdbEngine::handleBreakEnable(const GdbResponse &response)
 
 void GdbEngine::handleBreakThreadSpec(const GdbResponse &response)
 {
-    QTC_CHECK(response.resultClass == GdbResultDone)
+    QTC_CHECK(response.resultClass == GdbResultDone);
     const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     BreakHandler *handler = breakHandler();
     BreakpointResponse br = handler->response(id);
@@ -2901,7 +2901,7 @@ void GdbEngine::handleBreakThreadSpec(const GdbResponse &response)
 
 void GdbEngine::handleBreakLineNumber(const GdbResponse &response)
 {
-    QTC_CHECK(response.resultClass == GdbResultDone)
+    QTC_CHECK(response.resultClass == GdbResultDone);
     const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     BreakHandler *handler = breakHandler();
     BreakpointResponse br = handler->response(id);
@@ -2923,7 +2923,7 @@ void GdbEngine::handleBreakIgnore(const GdbResponse &response)
     // 29^done
     //
     // gdb 6.3 does not produce any console output
-    QTC_CHECK(response.resultClass == GdbResultDone)
+    QTC_CHECK(response.resultClass == GdbResultDone);
     //QString msg = _(response.consoleStreamOutput);
     BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     BreakHandler *handler = breakHandler();

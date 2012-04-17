@@ -454,7 +454,7 @@ static QString translate(const QString &str)
             const int len = str.indexOf(QLatin1Char(' ')) - numberPos;
             const int size = str.mid(numberPos, len).toInt(&ok);
             QTC_ASSERT(ok, qWarning("WatchHandler: Invalid item count '%s'",
-                qPrintable(str)))
+                qPrintable(str)));
             return moreThan ?
                      WatchHandler::tr("<more than %n items>", 0, size) :
                      WatchHandler::tr("<%n items>", 0, size);

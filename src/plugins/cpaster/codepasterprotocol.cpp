@@ -99,7 +99,7 @@ bool CodePasterProtocol::checkConfiguration(QString *errorMessage)
 
 void CodePasterProtocol::fetch(const QString &id)
 {
-    QTC_ASSERT(!m_fetchReply, return; )
+    QTC_ASSERT(!m_fetchReply, return);
 
     QString hostName = m_page->hostName();
     const QString httpPrefix = QLatin1String("http://");
@@ -124,7 +124,7 @@ void CodePasterProtocol::fetch(const QString &id)
 
 void CodePasterProtocol::list()
 {
-    QTC_ASSERT(!m_listReply, return; )
+    QTC_ASSERT(!m_listReply, return);
 
     QString hostName = m_page->hostName();
     QString link = QLatin1String("http://");
@@ -140,7 +140,7 @@ void CodePasterProtocol::paste(const QString &text,
                                const QString &comment,
                                const QString &description)
 {
-    QTC_ASSERT(!m_pasteReply, return; )
+    QTC_ASSERT(!m_pasteReply, return);
     const QString hostName = m_page->hostName();
 
     QByteArray data = "command=processcreate&submit=submit&highlight_type=0&description=";

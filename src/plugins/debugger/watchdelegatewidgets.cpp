@@ -164,7 +164,7 @@ int IntegerWatchLineEdit::base() const
 
 void IntegerWatchLineEdit::setBase(int b)
 {
-    QTC_ASSERT(b, return; )
+    QTC_ASSERT(b, return);
     m_validator->setBase(b);
 }
 

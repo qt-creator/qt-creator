@@ -620,7 +620,7 @@ void SubversionPlugin::svnDiff(const Subversion::Internal::SubversionDiffParamet
     setDiffBaseDirectory(editor, p.workingDir);
     VcsBase::VcsBaseEditorWidget::tagEditor(editor, tag);
     SubversionEditor *diffEditorWidget = qobject_cast<SubversionEditor *>(editor->widget());
-    QTC_ASSERT(diffEditorWidget, return ; )
+    QTC_ASSERT(diffEditorWidget, return);
 
     // Wire up the parameter widget to trigger a re-run on
     // parameter change and 'revert' from inside the diff editor.
@@ -685,14 +685,14 @@ void SubversionPlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)
 void SubversionPlugin::addCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     vcsAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void SubversionPlugin::revertAll()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     const QString title = tr("Revert repository");
     if (QMessageBox::warning(0, title, tr("Revert all pending changes to the repository?"),
                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
@@ -713,7 +713,7 @@ void SubversionPlugin::revertAll()
 void SubversionPlugin::revertCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
 
     QStringList args(QLatin1String("diff"));
     args.push_back(state.relativeCurrentFile());
@@ -748,21 +748,21 @@ void SubversionPlugin::revertCurrentFile()
 void SubversionPlugin::diffProject()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasProject(), return)
+    QTC_ASSERT(state.hasProject(), return);
     svnDiff(state.currentProjectTopLevel(), state.relativeCurrentProject(), state.currentProjectName());
 }
 
 void SubversionPlugin::diffCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     svnDiff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void SubversionPlugin::startCommitCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     startCommit(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
@@ -844,49 +844,49 @@ bool SubversionPlugin::commit(const QString &messageFile,
 void SubversionPlugin::filelogCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
-   filelog(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), true);
+    QTC_ASSERT(state.hasFile(), return);
+    filelog(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), true);
 }
 
 void SubversionPlugin::logProject()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasProject(), return)
+    QTC_ASSERT(state.hasProject(), return);
     filelog(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
 void SubversionPlugin::logRepository()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     filelog(state.topLevel());
 }
 
 void SubversionPlugin::diffRepository()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     svnDiff(state.topLevel(), QStringList());
 }
 
 void SubversionPlugin::statusRepository()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     svnStatus(state.topLevel());
 }
 
 void SubversionPlugin::updateRepository()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     svnUpdate(state.topLevel());
 }
 
 void SubversionPlugin::svnStatus(const QString &workingDir, const QStringList &relativePaths)
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     QStringList args(QLatin1String("status"));
     if (!relativePaths.isEmpty())
         args.append(relativePaths);

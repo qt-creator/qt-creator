@@ -177,7 +177,7 @@ QString ParseData::prettyStringForEvent(const QString &event)
         Indirect branches executed (Bi) and indirect branches mispredicted (Bim)
     */
 
-    QTC_ASSERT(event.size() >= 2, return event) // should not happen
+    QTC_ASSERT(event.size() >= 2, return event); // should not happen
 
     const bool isMiss = event.contains(QLatin1Char('m')); // else hit
     const bool isRead = event.contains(QLatin1Char('r')); // else write

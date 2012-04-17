@@ -135,7 +135,7 @@ void ResourceHandler::updateResources()
     ensureInitialized();
 
     const QString fileName = m_form->fileName();
-    QTC_ASSERT(!fileName.isEmpty(), return)
+    QTC_ASSERT(!fileName.isEmpty(), return);
 
     if (Designer::Constants::Internal::debug)
         qDebug() << "ResourceHandler::updateResources()" << fileName;

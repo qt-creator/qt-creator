@@ -107,6 +107,7 @@ QtcLibrary {
         "projectnamevalidatinglineedit.h",
         "proxyaction.h",
         "qtcassert.h",
+        "qtcassert.cpp",
         "qtcolorbutton.cpp",
         "qtcolorbutton.h",
         "qtcprocess.h",

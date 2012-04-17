@@ -366,7 +366,7 @@ QString VcsBasePluginState::currentFileDirectory() const
 
 QString VcsBasePluginState::relativeCurrentFile() const
 {
-    QTC_ASSERT(hasFile(), return QString())
+    QTC_ASSERT(hasFile(), return QString());
     return QDir(data->m_state.currentFileTopLevel).relativeFilePath(data->m_state.currentFile);
 }
 
@@ -398,7 +398,7 @@ QString VcsBasePluginState::currentProjectTopLevel() const
 QStringList VcsBasePluginState::relativeCurrentProject() const
 {
     QStringList rc;
-    QTC_ASSERT(hasProject(), return rc)
+    QTC_ASSERT(hasProject(), return rc);
     if (data->m_state.currentProjectTopLevel != data->m_state.currentProjectPath)
         rc.append(QDir(data->m_state.currentProjectTopLevel).relativeFilePath(data->m_state.currentProjectPath));
     return rc;
@@ -621,7 +621,7 @@ bool VcsBasePlugin::enableMenuAction(ActionState as, QAction *menuAction) const
 void VcsBasePlugin::promptToDeleteCurrentFile()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     const bool rc = Core::ICore::vcsManager()->promptToDelete(versionControl(), state.currentFile());
     if (!rc)
         QMessageBox::warning(0, tr("Version Control"),
@@ -694,7 +694,7 @@ QList<QAction*> VcsBasePlugin::createSnapShotTestActions()
 
 void VcsBasePlugin::slotTestSnapshot()
 {
-    QTC_ASSERT(currentState().hasTopLevel(), return)
+    QTC_ASSERT(currentState().hasTopLevel(), return);
     d->m_testLastSnapshot = versionControl()->vcsCreateSnapshot(currentState().topLevel());
     qDebug() << "Snapshot " << d->m_testLastSnapshot;
     VcsBaseOutputWindow::instance()->append(QLatin1String("Snapshot: ") + d->m_testLastSnapshot);
@@ -704,7 +704,7 @@ void VcsBasePlugin::slotTestSnapshot()
 
 void VcsBasePlugin::slotTestListSnapshots()
 {
-    QTC_ASSERT(currentState().hasTopLevel(), return)
+    QTC_ASSERT(currentState().hasTopLevel(), return);
     const QStringList snapshots = versionControl()->vcsSnapshots(currentState().topLevel());
     qDebug() << "Snapshots " << snapshots;
     VcsBaseOutputWindow::instance()->append(QLatin1String("Snapshots: ") + snapshots.join(QLatin1String(", ")));
@@ -712,7 +712,7 @@ void VcsBasePlugin::slotTestListSnapshots()
 
 void VcsBasePlugin::slotTestRestoreSnapshot()
 {
-    QTC_ASSERT(currentState().hasTopLevel() && !d->m_testLastSnapshot.isEmpty(), return)
+    QTC_ASSERT(currentState().hasTopLevel() && !d->m_testLastSnapshot.isEmpty(), return);
     const bool ok = versionControl()->vcsRestoreSnapshot(currentState().topLevel(), d->m_testLastSnapshot);
     const QString msg = d->m_testLastSnapshot+ (ok ? QLatin1String(" restored") : QLatin1String(" failed"));
     qDebug() << msg;
@@ -721,7 +721,7 @@ void VcsBasePlugin::slotTestRestoreSnapshot()
 
 void VcsBasePlugin::slotTestRemoveSnapshot()
 {
-    QTC_ASSERT(currentState().hasTopLevel() && !d->m_testLastSnapshot.isEmpty(), return)
+    QTC_ASSERT(currentState().hasTopLevel() && !d->m_testLastSnapshot.isEmpty(), return);
     const bool ok = versionControl()->vcsRemoveSnapshot(currentState().topLevel(), d->m_testLastSnapshot);
     const QString msg = d->m_testLastSnapshot+ (ok ? QLatin1String(" removed") : QLatin1String(" failed"));
     qDebug() << msg;

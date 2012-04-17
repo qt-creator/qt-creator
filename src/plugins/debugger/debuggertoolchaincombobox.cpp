@@ -75,7 +75,7 @@ void DebuggerToolChainComboBox::init(bool hostAbiOnly)
 
 void DebuggerToolChainComboBox::setAbi(const ProjectExplorer::Abi &abi)
 {
-    QTC_ASSERT(abi.isValid(), return; )
+    QTC_ASSERT(abi.isValid(), return);
     const int c = count();
     for (int i = 0; i < c; i++) {
         if (abiAt(i) == abi) {

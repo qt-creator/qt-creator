@@ -219,7 +219,7 @@ void QmlProjectRunConfigurationWidget::setMainScript(int index)
 void QmlProjectRunConfigurationWidget::onQtVersionSelectionChanged()
 {
     QVariant data = m_qtVersionComboBox->itemData(m_qtVersionComboBox->currentIndex());
-    QTC_ASSERT(data.isValid() && data.canConvert(QVariant::Int), return)
+    QTC_ASSERT(data.isValid() && data.canConvert(QVariant::Int), return);
     m_runConfiguration->setQtVersionId(data.toInt());
     m_runConfiguration->updateEnabled();
     m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());

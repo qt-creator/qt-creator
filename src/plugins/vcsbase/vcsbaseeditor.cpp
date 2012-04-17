@@ -871,7 +871,7 @@ void VcsBaseEditorWidget::slotDiffCursorPositionChanged()
 {
     // Adapt diff file browse combo to new position
     // if the cursor goes across a file line.
-    QTC_ASSERT(d->m_parameters->type == DiffOutput, return)
+    QTC_ASSERT(d->m_parameters->type == DiffOutput, return);
     const int newCursorLine = textCursor().blockNumber();
     if (newCursorLine == d->m_cursorLine)
         return;
@@ -1104,8 +1104,8 @@ void VcsBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
 // cut out chunk and determine file name.
 DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
 {
-    QTC_ASSERT(d->m_parameters->type == DiffOutput, return DiffChunk(); )
     DiffChunk rc;
+    QTC_ASSERT(d->m_parameters->type == DiffOutput, return rc);
     // Search back for start of chunk.
     QTextBlock block = cursor.block();
     if (block.isValid() && TextEditor::BaseTextDocumentLayout::foldingIndent(block) <= 1)
@@ -1441,7 +1441,7 @@ bool VcsBaseEditorWidget::applyDiffChunk(const DiffChunk &dc, bool revert) const
 void VcsBaseEditorWidget::slotApplyDiffChunk()
 {
     const QAction *a = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(a, return ; )
+    QTC_ASSERT(a, return);
     const Internal::DiffChunkAction chunkAction = qvariant_cast<Internal::DiffChunkAction>(a->data());
     const QString title = chunkAction.revert ? tr("Revert Chunk") : tr("Apply Chunk");
     const QString question = chunkAction.revert ?

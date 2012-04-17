@@ -211,7 +211,7 @@ void StashDialog::deleteAll()
 void StashDialog::deleteSelection()
 {
     const QList<int> rows = selectedRows();
-    QTC_ASSERT(!rows.isEmpty(), return)
+    QTC_ASSERT(!rows.isEmpty(), return);
     const QString title = tr("Delete Stashes");
     if (!ask(title, tr("Do you want to delete %n stash(es)?", 0, rows.size())))
         return;
@@ -229,7 +229,7 @@ void StashDialog::deleteSelection()
 void StashDialog::showCurrent()
 {
     const int index = currentRow();
-    QTC_ASSERT(index >= 0, return)
+    QTC_ASSERT(index >= 0, return);
     gitClient()->show(m_repository, m_model->at(index).name);
 }
 
@@ -302,7 +302,7 @@ bool StashDialog::promptForRestore(QString *stash,
                 if (gitClient()->synchronousStash(m_repository, QString(), GitClient::StashPromptDescription).isEmpty())
                     return false;
                 *stash = nextStash(*stash); // Our stash id to be restored changed
-                QTC_ASSERT(!stash->isEmpty(), return false)
+                QTC_ASSERT(!stash->isEmpty(), return false);
                 break;
             case ModifiedRepositoryDiscard:
                 if (!gitClient()->synchronousReset(m_repository))
@@ -336,7 +336,7 @@ static inline QString msgRestoreFailedTitle(const QString &stash)
 void StashDialog::restoreCurrent()
 {
     const int index = currentRow();
-    QTC_ASSERT(index >= 0, return)
+    QTC_ASSERT(index >= 0, return);
     QString errorMessage;
     QString name = m_model->at(index).name;
     // Make sure repository is not modified, restore. The command will
@@ -354,8 +354,8 @@ void StashDialog::restoreCurrent()
 void StashDialog::restoreCurrentInBranch()
 {
     const int index = currentRow();
-    QTC_ASSERT(index >= 0, return)
-            QString errorMessage;
+    QTC_ASSERT(index >= 0, return);
+    QString errorMessage;
     QString branch;
     QString name = m_model->at(index).name;
     const bool success = promptForRestore(&name, &branch, &errorMessage)

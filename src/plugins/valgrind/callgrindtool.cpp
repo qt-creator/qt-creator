@@ -399,7 +399,7 @@ void CallgrindToolPrivate::updateCostFormat()
 void CallgrindToolPrivate::handleFilterProjectCosts()
 {
     ProjectExplorer::Project *pro = ProjectExplorer::ProjectExplorerPlugin::currentProject();
-    QTC_ASSERT(pro, return)
+    QTC_ASSERT(pro, return);
 
     if (m_filterProjectCosts->isChecked()) {
         const QString projectDir = pro->projectDirectory();
@@ -472,7 +472,7 @@ void CallgrindToolPrivate::setParseData(ParseData *data)
 
 void CallgrindToolPrivate::updateEventCombo()
 {
-    QTC_ASSERT(m_eventCombo, return)
+    QTC_ASSERT(m_eventCombo, return);
 
     m_eventCombo->clear();
 
@@ -920,10 +920,10 @@ void CallgrindToolPrivate::requestContextMenu(TextEditor::ITextEditor *editor, i
 void CallgrindToolPrivate::handleShowCostsAction()
 {
     const QAction *action = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(action, return)
+    QTC_ASSERT(action, return);
 
     const Function *func = action->data().value<const Function *>();
-    QTC_ASSERT(func, return)
+    QTC_ASSERT(func, return);
 
     selectFunction(func);
 }
@@ -972,7 +972,7 @@ void CallgrindToolPrivate::takeParserData(CallgrindEngine *engine)
 void CallgrindToolPrivate::createTextMarks()
 {
     DataModel *model = m_dataModel;
-    QTC_ASSERT(model, return)
+    QTC_ASSERT(model, return);
 
     QList<QString> locations;
     for (int row = 0; row < model->rowCount(); ++row) {

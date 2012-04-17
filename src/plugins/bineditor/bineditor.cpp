@@ -1586,7 +1586,7 @@ void BinEditor::asFloat(int offset, float &value, bool old) const
 {
     value = 0;
     const QByteArray data = dataMid(offset, sizeof(float), old);
-    QTC_ASSERT(data.size() ==  sizeof(float), return )
+    QTC_ASSERT(data.size() ==  sizeof(float), return);
     const float *f = reinterpret_cast<const float *>(data.constData());
     value = *f;
 }
@@ -1595,7 +1595,7 @@ void BinEditor::asDouble(int offset, double &value, bool old) const
 {
     value = 0;
     const QByteArray data = dataMid(offset, sizeof(double), old);
-    QTC_ASSERT(data.size() ==  sizeof(double), return )
+    QTC_ASSERT(data.size() ==  sizeof(double), return);
     const double *f = reinterpret_cast<const double *>(data.constData());
     value = *f;
 }

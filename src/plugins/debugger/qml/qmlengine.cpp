@@ -443,7 +443,7 @@ void QmlEngine::beginConnection(quint16 port)
     if (state() != EngineRunRequested && d->m_retryOnConnectFail)
         return;
 
-    QTC_ASSERT(state() == EngineRunRequested, return)
+    QTC_ASSERT(state() == EngineRunRequested, return);
 
     if (port > 0) {
         QTC_CHECK(startParameters().communicationChannel
@@ -451,7 +451,7 @@ void QmlEngine::beginConnection(quint16 port)
         QTC_ASSERT(startParameters().connParams.port == 0
                    || startParameters().connParams.port == port,
                    qWarning() << "Port " << port << "from application output does not match"
-                   << startParameters().connParams.port << "from start parameters.")
+                   << startParameters().connParams.port << "from start parameters.");
         d->m_adapter.beginConnectionTcp(startParameters().qmlServerAddress, port);
         return;
     }

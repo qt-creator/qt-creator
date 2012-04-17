@@ -268,7 +268,7 @@ void Parser::Private::parse(QIODevice *device)
             }
         }
 #endif
-        QTC_ASSERT(calledFunction, continue)
+        QTC_ASSERT(calledFunction, continue);
         callData.call->setCallee(calledFunction);
         calledFunction->addIncomingCall(callData.call);
 

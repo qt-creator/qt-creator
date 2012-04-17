@@ -208,7 +208,7 @@ void OpenEditorsWindow::setEditors(EditorView *mainView, EditorView *view, OpenE
         if (hi.document.isNull() || documentsDone.contains(hi.document))
             continue;
         QString title = model->displayNameForDocument(hi.document);
-        QTC_ASSERT(!title.isEmpty(), continue;)
+        QTC_ASSERT(!title.isEmpty(), continue);
         documentsDone.insert(hi.document.data());
         QTreeWidgetItem *item = new QTreeWidgetItem();
         if (hi.document->isModified())

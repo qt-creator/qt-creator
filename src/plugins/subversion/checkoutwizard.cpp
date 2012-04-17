@@ -83,7 +83,7 @@ QSharedPointer<VcsBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QLi
 {
     // Collect parameters for the checkout command.
     const CheckoutWizardPage *cwp = qobject_cast<const CheckoutWizardPage *>(parameterPages.front());
-    QTC_ASSERT(cwp, return QSharedPointer<VcsBase::AbstractCheckoutJob>())
+    QTC_ASSERT(cwp, return QSharedPointer<VcsBase::AbstractCheckoutJob>());
     const SubversionSettings settings = SubversionPlugin::instance()->settings();
     const QString binary = settings.svnCommand;
     const QString directory = cwp->directory();

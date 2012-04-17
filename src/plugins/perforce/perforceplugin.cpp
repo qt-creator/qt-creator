@@ -120,7 +120,7 @@ static inline QStringList perforceRelativeFileArguments(const QStringList &args)
 {
     if (args.isEmpty())
         return QStringList(QLatin1String("..."));
-    QTC_ASSERT(args.size() == 1, return QStringList())
+    QTC_ASSERT(args.size() == 1, return QStringList());
     QStringList p4Args = args;
     p4Args.front() += QLatin1String("/...");
     return p4Args;
@@ -463,21 +463,21 @@ void PerforcePlugin::extensionsInitialized()
 void PerforcePlugin::openCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     vcsOpen(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void PerforcePlugin::addCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     vcsAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void PerforcePlugin::revertCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
 
     QTextCodec *codec = VcsBase::VcsBaseEditorWidget::getCodec(state.currentFile());
     QStringList args;
@@ -512,14 +512,14 @@ void PerforcePlugin::revertCurrentFile()
 void PerforcePlugin::diffCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     p4Diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void PerforcePlugin::diffCurrentProject()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasProject(), return)
+    QTC_ASSERT(state.hasProject(), return);
     p4Diff(state.currentProjectTopLevel(), perforceRelativeProjectDirectory(state));
 }
 
@@ -531,7 +531,7 @@ void PerforcePlugin::diffAllOpened()
 void PerforcePlugin::updateCurrentProject()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasProject(), return)
+    QTC_ASSERT(state.hasProject(), return);
     updateCheckout(state.currentProjectTopLevel(), perforceRelativeProjectDirectory(state));
 }
 
@@ -543,7 +543,7 @@ void PerforcePlugin::updateAll()
 void PerforcePlugin::revertCurrentProject()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasProject(), return)
+    QTC_ASSERT(state.hasProject(), return);
 
     const QString msg = tr("Do you want to revert all changes to the project \"%1\"?").arg(state.currentProjectName());
     if (QMessageBox::warning(0, tr("p4 revert"), msg, QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
@@ -555,7 +555,7 @@ void PerforcePlugin::revertUnchangedCurrentProject()
 {
     // revert -a.
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasProject(), return)
+    QTC_ASSERT(state.hasProject(), return);
     revertProject(state.currentProjectTopLevel(), perforceRelativeProjectDirectory(state), true);
 }
 
@@ -625,7 +625,7 @@ void PerforcePlugin::startSubmitProject()
     }
 
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasProject(), return)
+    QTC_ASSERT(state.hasProject(), return);
 
     // Revert all unchanged files.
     if (!revertProject(state.currentProjectTopLevel(), perforceRelativeProjectDirectory(state), true))
@@ -713,7 +713,7 @@ void PerforcePlugin::describeChange()
 void PerforcePlugin::annotateCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
@@ -765,7 +765,7 @@ void PerforcePlugin::annotate(const QString &workingDir,
 void PerforcePlugin::filelogCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     filelog(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), true);
 }
 
@@ -781,14 +781,14 @@ void PerforcePlugin::filelog()
 void PerforcePlugin::logProject()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasProject(), return)
+    QTC_ASSERT(state.hasProject(), return);
     filelog(state.currentProjectTopLevel(), perforceRelativeFileArguments(state.relativeCurrentProject()));
 }
 
 void PerforcePlugin::logRepository()
 {
     const VcsBase::VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     filelog(state.topLevel(), perforceRelativeFileArguments(QStringList()));
 }
 
@@ -1006,7 +1006,7 @@ PerforceResponse PerforcePlugin::synchronousProcess(const QString &workingDir,
                                                     const QByteArray &stdInput,
                                                     QTextCodec *outputCodec) const
 {
-    QTC_ASSERT(stdInput.isEmpty(), return PerforceResponse()) // Not supported here
+    QTC_ASSERT(stdInput.isEmpty(), return PerforceResponse()); // Not supported here
 
     VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
     // Run, connect stderr to the output window
@@ -1404,7 +1404,7 @@ bool PerforcePlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *subm
 
 QString PerforcePlugin::clientFilePath(const QString &serverFilePath)
 {
-    QTC_ASSERT(m_settings.isValid(), return QString())
+    QTC_ASSERT(m_settings.isValid(), return QString());
 
     QStringList args;
     args << QLatin1String("fstat") << serverFilePath;
@@ -1423,7 +1423,7 @@ QString PerforcePlugin::clientFilePath(const QString &serverFilePath)
 
 QString PerforcePlugin::pendingChangesData()
 {
-    QTC_ASSERT(m_settings.isValid(), return QString())
+    QTC_ASSERT(m_settings.isValid(), return QString());
 
     QStringList args = QStringList(QLatin1String("info"));
     const PerforceResponse userResponse = runP4Cmd(m_settings.topLevelSymLinkTarget(), args,
@@ -1432,7 +1432,7 @@ QString PerforcePlugin::pendingChangesData()
         return QString();
 
     QRegExp r(QLatin1String("User\\sname:\\s(\\S+)\\s*\n"));
-    QTC_ASSERT(r.isValid(), return QString())
+    QTC_ASSERT(r.isValid(), return QString());
     r.setMinimal(true);
     const QString user = r.indexIn(userResponse.stdOut) != -1 ? r.cap(1).trimmed() : QString();
     if (user.isEmpty())

@@ -1757,7 +1757,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
             return false;
         }
         const int separatorPos = sp.stdOut.indexOf(QLatin1Char('@'));
-        QTC_ASSERT(separatorPos != -1, return false)
+        QTC_ASSERT(separatorPos != -1, return false);
         commitData->amendSHA1= sp.stdOut.left(separatorPos);
         *commitTemplate = sp.stdOut.mid(separatorPos + 1);
     } else {

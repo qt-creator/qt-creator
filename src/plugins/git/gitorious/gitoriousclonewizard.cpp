@@ -116,7 +116,7 @@ QSharedPointer<VcsBase::AbstractCheckoutJob> GitoriousCloneWizard::createJob(con
                                                                     QString *checkoutPath)
 {
     const Git::CloneWizardPage *cwp = qobject_cast<const Git::CloneWizardPage *>(parameterPages.back());
-    QTC_ASSERT(cwp, return QSharedPointer<VcsBase::AbstractCheckoutJob>())
+    QTC_ASSERT(cwp, return QSharedPointer<VcsBase::AbstractCheckoutJob>());
     return cwp->createCheckoutJob(checkoutPath);
 }
 

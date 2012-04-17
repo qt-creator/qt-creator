@@ -257,7 +257,7 @@ void FileFilterBaseItem::updateFileListNow()
     const QSet<QString> watchDirs = dirsToBeWatched - oldDirs;
 
     if (!unwatchDirs.isEmpty()) {
-        QTC_ASSERT(m_dirWatcher, return ; )
+        QTC_ASSERT(m_dirWatcher, return);
         m_dirWatcher->removeDirectories(unwatchDirs.toList());
     }
     if (!watchDirs.isEmpty())

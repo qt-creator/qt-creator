@@ -653,7 +653,7 @@ void PdbEngine::handleOutput2(const QByteArray &data)
     PdbResponse response;
     response.data = data;
     showMessage(_(data));
-    QTC_ASSERT(!m_commands.isEmpty(), qDebug() << "RESPONSE: " << data; return)
+    QTC_ASSERT(!m_commands.isEmpty(), qDebug() << "RESPONSE: " << data; return);
     PdbCommand cmd = m_commands.dequeue();
     response.cookie = cmd.cookie;
     qDebug() << "DEQUE: " << cmd.command << cmd.callbackName;

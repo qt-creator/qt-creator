@@ -1122,7 +1122,7 @@ bool BaseMimeTypeParser::parse(QIODevice *dev, const QString &fileName, QString 
             }
                 break;
             case ParseMagicMatchRule:
-                QTC_ASSERT(!ruleMatcher.isNull(), return false)
+                QTC_ASSERT(!ruleMatcher.isNull(), return false);
                 if (!addMagicMatchRule(atts, ruleMatcher, errorMessage))
                     return false;
                 break;
@@ -1142,7 +1142,7 @@ bool BaseMimeTypeParser::parse(QIODevice *dev, const QString &fileName, QString 
             } else {
                 // Finished a match sequence
                 if (reader.name() == QLatin1String(magicTagC)) {
-                    QTC_ASSERT(!ruleMatcher.isNull(), return false)
+                    QTC_ASSERT(!ruleMatcher.isNull(), return false);
                     data.magicMatchers.push_back(ruleMatcher);
                     ruleMatcher = MagicRuleMatcherPtr();
                 }

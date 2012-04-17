@@ -99,7 +99,7 @@ CPlusPlus::Symbol *AnalyzerUtils::findSymbolUnderCursor()
 
     const CPlusPlus::Snapshot &snapshot = CPlusPlus::CppModelManagerInterface::instance()->snapshot();
     CPlusPlus::Document::Ptr doc = snapshot.document(editor->document()->fileName());
-    QTC_ASSERT(doc, return 0)
+    QTC_ASSERT(doc, return 0);
 
     // fetch the expression's code
     CPlusPlus::ExpressionUnderCursor expressionUnderCursor;

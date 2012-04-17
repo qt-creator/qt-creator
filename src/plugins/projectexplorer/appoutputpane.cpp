@@ -378,7 +378,7 @@ void AppOutputPane::showTabFor(RunControl *rc)
 void AppOutputPane::reRunRunControl()
 {
     const int index = currentIndex();
-    QTC_ASSERT(index != -1 && !m_runControlTabs.at(index).runControl->isRunning(), return;)
+    QTC_ASSERT(index != -1 && !m_runControlTabs.at(index).runControl->isRunning(), return);
 
     RunControlTab &tab = m_runControlTabs[index];
 
@@ -399,7 +399,7 @@ void AppOutputPane::attachToRunControl()
 void AppOutputPane::stopRunControl()
 {
     const int index = currentIndex();
-    QTC_ASSERT(index != -1 && m_runControlTabs.at(index).runControl->isRunning(), return;)
+    QTC_ASSERT(index != -1 && m_runControlTabs.at(index).runControl->isRunning(), return);
 
     RunControl *rc = m_runControlTabs.at(index).runControl;
     if (rc->isRunning() && optionallyPromptToStop(rc))
@@ -428,7 +428,7 @@ bool AppOutputPane::closeTab(int index)
 bool AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
 {
     int index = indexOf(m_tabWidget->widget(tabIndex));
-    QTC_ASSERT(index != -1, return true;)
+    QTC_ASSERT(index != -1, return true);
 
     RunControlTab &tab = m_runControlTabs[index];
 
@@ -566,7 +566,7 @@ void AppOutputPane::slotRunControlFinished2(RunControl *sender)
 {
     const int senderIndex = indexOf(sender);
 
-    QTC_ASSERT(senderIndex != -1, return; )
+    QTC_ASSERT(senderIndex != -1, return);
 
     // Enable buttons for current
     RunControl *current = currentRunControl();

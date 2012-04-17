@@ -151,9 +151,9 @@ bool DataProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_
 
     // check minimum inclusive costs
     DataModel *model = dataModel();
-    QTC_ASSERT(model, return false) // as always: this should never happen
+    QTC_ASSERT(model, return false); // as always: this should never happen
     const ParseData *data = model->parseData();
-    QTC_ASSERT(data, return false)
+    QTC_ASSERT(data, return false);
     if (m_minimumInclusiveCostRatio != 0.0) {
         const quint64 totalCost = data->totalCost(0);
         const quint64 inclusiveCost = func->inclusiveCost(0);

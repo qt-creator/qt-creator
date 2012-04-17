@@ -150,7 +150,7 @@ bool decodeTextFileContent(const QByteArray &dataBA,
                            Target *target,
                            void (Target::*appendFunction)(const QString &))
 {
-    QTC_ASSERT(format.codec, return  false; )
+    QTC_ASSERT(format.codec, return false);
 
     QTextCodec::ConverterState state;
     bool hasDecodingError = false;
@@ -283,7 +283,7 @@ TextFileFormat::ReadResult
 
 bool TextFileFormat::writeFile(const QString &fileName, QString plainText, QString *errorString) const
 {
-    QTC_ASSERT(codec, return false;)
+    QTC_ASSERT(codec, return false);
 
     // Does the user want CRLF? If that is native,
     // let QFile do the work, else manually add.

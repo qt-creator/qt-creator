@@ -98,7 +98,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/portlist.cpp \
     $$PWD/tcpportsgatherer.cpp \
     $$PWD/appmainwindow.cpp \
-    $$PWD/basetreeview.cpp
+    $$PWD/basetreeview.cpp \
+    $$PWD/qtcassert.cpp
 
 win32 {
     SOURCES += \

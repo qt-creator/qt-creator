@@ -182,7 +182,7 @@ bool WidgetContent::equals(const TipContent &tipContent) const
 
 bool WidgetContent::pinToolTip(QWidget *w)
 {
-    QTC_ASSERT(w, return false; )
+    QTC_ASSERT(w, return false);
     // Find the parent WidgetTip, tell it to pin/release the
     // widget and close.
     for (QWidget *p = w->parentWidget(); p ; p = p->parentWidget()) {

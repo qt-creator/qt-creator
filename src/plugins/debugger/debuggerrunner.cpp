@@ -453,7 +453,7 @@ void DebuggerRunControl::showMessage(const QString &msg, int channel)
 
 bool DebuggerRunControl::promptToStop(bool *optionalPrompt) const
 {
-    QTC_ASSERT(isRunning(), return true;)
+    QTC_ASSERT(isRunning(), return true);
 
     if (optionalPrompt && !*optionalPrompt)
         return true;

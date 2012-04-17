@@ -74,7 +74,7 @@ void CheckoutProgressWizardPage::start(const QSharedPointer<AbstractCheckoutJob>
         return;
     }
 
-    QTC_ASSERT(m_state != Running, return)
+    QTC_ASSERT(m_state != Running, return);
     m_job = job;
     connect(job.data(), SIGNAL(output(QString)), ui->logPlainTextEdit, SLOT(appendPlainText(QString)));
     connect(job.data(), SIGNAL(failed(QString)), this, SLOT(slotFailed(QString)));

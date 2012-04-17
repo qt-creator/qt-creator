@@ -176,7 +176,7 @@ void FileIconProvider::registerIconOverlayForSuffix(const QIcon &icon,
     if (debug)
         qDebug() << "FileIconProvider::registerIconOverlayForSuffix" << suffix;
 
-    QTC_ASSERT(!icon.isNull() && !suffix.isEmpty(), return)
+    QTC_ASSERT(!icon.isNull() && !suffix.isEmpty(), return);
 
     const QPixmap fileIconPixmap = overlayIcon(QStyle::SP_FileIcon, icon, QSize(16, 16));
     // replace old icon, if it exists

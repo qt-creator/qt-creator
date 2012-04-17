@@ -236,7 +236,7 @@ void WidgetTip::configure(const QPoint &pos, QWidget *)
     const WidgetContent &anyContent = static_cast<const WidgetContent &>(content());
     QWidget *widget = anyContent.widget();
 
-    QTC_ASSERT(widget && m_layout->count() == 0, return; )
+    QTC_ASSERT(widget && m_layout->count() == 0, return);
 
     move(pos);
     m_layout->addWidget(widget);
@@ -246,13 +246,13 @@ void WidgetTip::configure(const QPoint &pos, QWidget *)
 
 void WidgetTip::pinToolTipWidget()
 {
-    QTC_ASSERT(m_layout->count(), return; )
+    QTC_ASSERT(m_layout->count(), return);
 
     // Pin the content widget: Rip the widget out of the layout
     // and re-show as a tooltip, with delete on close.
     const QPoint screenPos = mapToGlobal(QPoint(0, 0));
     QWidget *widget = takeWidget(Qt::ToolTip);
-    QTC_ASSERT(widget, return; )
+    QTC_ASSERT(widget, return);
 
     widget->move(screenPos);
     widget->show();

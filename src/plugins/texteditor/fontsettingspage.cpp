@@ -531,10 +531,10 @@ void FontSettingsPage::confirmDeleteColorScheme()
 void FontSettingsPage::deleteColorScheme()
 {
     const int index = d_ptr->m_ui->schemeComboBox->currentIndex();
-    QTC_ASSERT(index != -1, return)
+    QTC_ASSERT(index != -1, return);
 
     const ColorSchemeEntry &entry = d_ptr->m_schemeListModel->colorSchemeAt(index);
-    QTC_ASSERT(!entry.readOnly, return)
+    QTC_ASSERT(!entry.readOnly, return);
 
     if (QFile::remove(entry.fileName))
         d_ptr->m_schemeListModel->removeColorScheme(index);

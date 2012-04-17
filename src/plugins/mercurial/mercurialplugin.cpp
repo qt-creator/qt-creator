@@ -281,28 +281,28 @@ void MercurialPlugin::createFileActions(const Core::Context &context)
 void MercurialPlugin::addCurrentFile()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     m_client->synchronousAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void MercurialPlugin::annotateCurrentFile()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     m_client->annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void MercurialPlugin::diffCurrentFile()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     m_client->diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void MercurialPlugin::logCurrentFile()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     m_client->log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()),
                   QStringList(), true);
 }
@@ -310,7 +310,7 @@ void MercurialPlugin::logCurrentFile()
 void MercurialPlugin::revertCurrentFile()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
 
     RevertDialog reverter;
     if (reverter.exec() != QDialog::Accepted)
@@ -321,7 +321,7 @@ void MercurialPlugin::revertCurrentFile()
 void MercurialPlugin::statusCurrentFile()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
+    QTC_ASSERT(state.hasFile(), return);
     m_client->status(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
@@ -359,25 +359,24 @@ void MercurialPlugin::createDirectoryActions(const Core::Context &context)
     m_commandLocator->appendCommand(command);
 }
 
-
 void MercurialPlugin::diffRepository()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     m_client->diff(state.topLevel());
 }
 
 void MercurialPlugin::logRepository()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     m_client->log(state.topLevel());
 }
 
 void MercurialPlugin::revertMulti()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
 
     RevertDialog reverter;
     if (reverter.exec() != QDialog::Accepted)
@@ -388,7 +387,7 @@ void MercurialPlugin::revertMulti()
 void MercurialPlugin::statusMulti()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
 
     m_client->status(state.topLevel());
 }
@@ -454,7 +453,7 @@ void MercurialPlugin::createRepositoryActions(const Core::Context &context)
 void MercurialPlugin::pull()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
 
     SrcDestDialog dialog;
     dialog.setWindowTitle(tr("Pull Source"));
@@ -466,7 +465,7 @@ void MercurialPlugin::pull()
 void MercurialPlugin::push()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
 
     SrcDestDialog dialog;
     dialog.setWindowTitle(tr("Push Destination"));
@@ -478,7 +477,7 @@ void MercurialPlugin::push()
 void MercurialPlugin::update()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
 
     RevertDialog updateDialog;
     updateDialog.setWindowTitle(tr("Update"));
@@ -490,7 +489,7 @@ void MercurialPlugin::update()
 void MercurialPlugin::import()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
 
     QFileDialog importDialog;
     importDialog.setFileMode(QFileDialog::ExistingFiles);
@@ -506,7 +505,7 @@ void MercurialPlugin::import()
 void MercurialPlugin::incoming()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
 
     SrcDestDialog dialog;
     dialog.setWindowTitle(tr("Incoming Source"));
@@ -518,7 +517,7 @@ void MercurialPlugin::incoming()
 void MercurialPlugin::outgoing()
 {
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
     m_client->outgoing(state.topLevel());
 }
 
@@ -548,7 +547,7 @@ void MercurialPlugin::commit()
         return;
 
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
+    QTC_ASSERT(state.hasTopLevel(), return);
 
     m_submitRepository = state.topLevel();
 
@@ -591,7 +590,7 @@ void MercurialPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &s
         return;
     }
 
-    QTC_ASSERT(qobject_cast<CommitEditor *>(editor), return)
+    QTC_ASSERT(qobject_cast<CommitEditor *>(editor), return);
     CommitEditor *commitEditor = static_cast<CommitEditor *>(editor);
 
     commitEditor->registerActions(editorUndo, editorRedo, editorCommit, editorDiff);

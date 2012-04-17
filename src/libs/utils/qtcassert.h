@@ -33,19 +33,20 @@
 #ifndef QTC_ASSERT_H
 #define QTC_ASSERT_H
 
-#include <QDebug>
+#include "utils_global.h"
 
-#define QTC_ASSERT_STRINGIFY_INTERNAL(x) #x
-#define QTC_ASSERT_STRINGIFY(x) QTC_ASSERT_STRINGIFY_INTERNAL(x)
+namespace Utils { QTCREATOR_UTILS_EXPORT void writeAssertLocation(const char *msg); }
 
-// we do not use the  'do {...} while (0)' idiom here to be able to use
-// 'break' and 'continue' as 'actions'.
+#define QTC_ASSERT_STRINGIFY_HELPER(x) #x
+#define QTC_ASSERT_STRINGIFY(x) QTC_ASSERT_STRINGIFY_HELPER(x)
+#define QTC_ASSERT_STRING(cond) ::Utils::writeAssertLocation(\
+    "\"" cond"\" in file " __FILE__ ", line " QTC_ASSERT_STRINGIFY(__LINE__))
 
-#define QTC_ASSERT(cond, action) \
-    if(cond){}else{qDebug()<<"SOFT ASSERT: \""#cond"\" in file " __FILE__ ", line " QTC_ASSERT_STRINGIFY(__LINE__);action;}
+// The 'do {...} while (0)' idiom is not used for the main block here to be
+// able to use 'break' and 'continue' as 'actions'.
 
-#define QTC_CHECK(cond) \
-    if(cond){}else{qDebug()<<"SOFT ASSERT: \""#cond"\" in file " __FILE__ ", line " QTC_ASSERT_STRINGIFY(__LINE__);}
+#define QTC_ASSERT(cond, action) if (cond) {} else { QTC_ASSERT_STRING(#cond); action; } do {} while (0)
+#define QTC_CHECK(cond) if (cond) {} else { QTC_ASSERT_STRING(#cond); } do {} while (0)
 
 #endif // QTC_ASSERT_H
 

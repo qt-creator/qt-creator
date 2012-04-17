@@ -32,9 +32,11 @@
 
 #include "tcpportsgatherer.h"
 #include "qtcassert.h"
+
+#include <QDebug>
 #include <QFile>
-#include <QStringList>
 #include <QProcess>
+#include <QStringList>
 
 #ifdef Q_OS_WIN
 #include <QLibrary>

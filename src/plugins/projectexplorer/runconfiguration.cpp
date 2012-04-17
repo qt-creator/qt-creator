@@ -647,7 +647,7 @@ void RunControl::setApplicationProcessHandle(const ProcessHandle &handle)
 
 bool RunControl::promptToStop(bool *optionalPrompt) const
 {
-    QTC_ASSERT(isRunning(), return true;)
+    QTC_ASSERT(isRunning(), return true);
 
     if (optionalPrompt && !*optionalPrompt)
         return true;
@@ -669,7 +669,7 @@ bool RunControl::showPromptToStopDialog(const QString &title,
                                         const QString &cancelButtonText,
                                         bool *prompt) const
 {
-    QTC_ASSERT(isRunning(), return true;)
+    QTC_ASSERT(isRunning(), return true);
     // Show a question message box where user can uncheck this
     // question for this class.
     Utils::CheckableMessageBox messageBox(Core::ICore::mainWindow());

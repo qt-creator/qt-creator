@@ -108,7 +108,7 @@ void KdePasteProtocol::paste(const QString &text,
 {
     Q_UNUSED(comment);
     Q_UNUSED(description);
-    QTC_ASSERT(!m_pasteReply, return;)
+    QTC_ASSERT(!m_pasteReply, return);
 
     // Format body
     QByteArray pasteData = "api_submit=true&mode=xml";
@@ -162,7 +162,7 @@ void KdePasteProtocol::pasteFinished()
 
 void KdePasteProtocol::fetch(const QString &id)
 {
-    QTC_ASSERT(!m_fetchReply, return;)
+    QTC_ASSERT(!m_fetchReply, return);
 
     // Did we get a complete URL or just an id?
     m_fetchId = id;

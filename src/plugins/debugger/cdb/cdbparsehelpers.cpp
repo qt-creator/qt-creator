@@ -166,7 +166,7 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
     case BreakpointAtMain:
     case BreakpointOnQmlSignalEmit:
     case BreakpointAtJavaScriptThrow:
-        QTC_ASSERT(false, return QByteArray(); )
+        QTC_ASSERT(false, return QByteArray());
         break;
     case BreakpointByAddress:
         str << hex << hexPrefixOn << bp.address << hexPrefixOff << dec;
@@ -232,7 +232,7 @@ QVariant cdbIntegerValue(const QByteArray &t)
     const QVariant converted = base == 16 ?
                                fixed.toULongLong(&ok, base) :
                                fixed.toLongLong(&ok, base);
-    QTC_ASSERT(ok, return QVariant(); )
+    QTC_ASSERT(ok, return QVariant());
     return converted;
 }
 

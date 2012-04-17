@@ -234,7 +234,7 @@ Core::GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString 
 {
     // Look for the Custom field page to find the path
     const Internal::CustomWizardPage *cwp = findWizardPage<Internal::CustomWizardPage>(dialog);
-    QTC_ASSERT(cwp, return Core::GeneratedFiles())
+    QTC_ASSERT(cwp, return Core::GeneratedFiles());
 
     CustomWizardContextPtr ctx = context();
     ctx->path = ctx->targetPath = cwp->path();
@@ -300,7 +300,7 @@ Core::GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) co
     Core::GeneratedFiles rc;
     const CustomWizardContextPtr ctx = context();
 
-    QTC_ASSERT(!ctx->targetPath.isEmpty(),  return rc)
+    QTC_ASSERT(!ctx->targetPath.isEmpty(), return rc);
 
     if (CustomWizardPrivate::verbose)
         qDebug() << "CustomWizard::generateWizardFiles: in "
@@ -565,7 +565,7 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
 Core::GeneratedFiles CustomProjectWizard::generateFiles(const QWizard *w, QString *errorMessage) const
 {
     const BaseProjectWizardDialog *dialog = qobject_cast<const BaseProjectWizardDialog *>(w);
-    QTC_ASSERT(dialog, return Core::GeneratedFiles())
+    QTC_ASSERT(dialog, return Core::GeneratedFiles());
     // Add project name as macro. Path is here under project directory
     CustomWizardContextPtr ctx = context();
     ctx->path = dialog->path();
