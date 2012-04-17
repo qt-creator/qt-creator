@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Filter configuration</string>
+   <string>Edit Filter Configuration</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>

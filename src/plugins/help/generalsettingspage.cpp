@@ -75,7 +75,7 @@ QString GeneralSettingsPage::id() const
 
 QString GeneralSettingsPage::displayName() const
 {
-    return tr("General Settings");
+    return tr("General");
 }
 
 QString GeneralSettingsPage::category() const

@@ -43,7 +43,7 @@ MimeTypeMagicDialog::MimeTypeMagicDialog(QWidget *parent) :
     QDialog(parent)
 {
     ui.setupUi(this);
-    setWindowTitle(tr("Magic Header"));
+    setWindowTitle(tr("Add Magic Header"));
     connect(ui.useRecommendedGroupBox, SIGNAL(clicked(bool)),
             this, SLOT(applyRecommended(bool)));
     connect(ui.buttonBox, SIGNAL(accepted()), this, SLOT(validateAccept()));

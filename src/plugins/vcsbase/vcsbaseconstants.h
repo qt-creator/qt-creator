@@ -42,7 +42,7 @@ const char VCS_SETTINGS_CATEGORY[] = "V.Version Control";
 const char VCS_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("VcsBase", "Version Control");
 const char SETTINGS_CATEGORY_VCS_ICON[] = ":/core/images/category_vcs.png";
 const char VCS_COMMON_SETTINGS_ID[] = "A.Common";
-const char VCS_COMMON_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("VcsBase", "Common");
+const char VCS_COMMON_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("VcsBase", "General");
 
 // Ids for sort order (wizards and preferences)
 const char VCS_ID_BAZAAR[] = "B.Bazaar";
