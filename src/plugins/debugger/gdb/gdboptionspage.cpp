@@ -73,6 +73,7 @@ public:
     QCheckBox *checkBoxBreakOnFatal;
     QCheckBox *checkBoxBreakOnRaise;
     QCheckBox *checkBoxEnableReverseDebugging;
+    QCheckBox *checkBoxAttemptQuickStart;
 
     QGroupBox *groupBoxStartupCommands;
     QTextEdit *textEditStartupCommands;
@@ -176,6 +177,13 @@ public:
             "It exhibits unpredictable behavior when going backwards over system "
             "calls and is very likely to destroy your debugging session.</p><body></html>"));
 
+        checkBoxAttemptQuickStart = new QCheckBox(groupBoxGeneral);
+        checkBoxAttemptQuickStart->setText(GdbOptionsPage::tr("Attempt quick start"));
+        checkBoxAttemptQuickStart->setToolTip(GdbOptionsPage::tr("Checking this option "
+            "will postpone reading debug information as long as possible. This can result "
+            "in faster startup times at the price of not being able to set breakpoints "
+            "by file and number."));
+
         groupBoxStartupCommands = new QGroupBox(q);
         groupBoxStartupCommands->setTitle(GdbOptionsPage::tr("Additional Startup Commands"));
 
@@ -223,6 +231,7 @@ public:
         formLayout->addRow(checkBoxBreakOnFatal);
         formLayout->addRow(checkBoxBreakOnRaise);
         formLayout->addRow(checkBoxEnableReverseDebugging);
+        formLayout->addRow(checkBoxAttemptQuickStart);
 
         QGridLayout *startLayout = new QGridLayout(groupBoxStartupCommands);
         startLayout->addWidget(textEditStartupCommands, 0, 0, 1, 1);
@@ -302,6 +311,8 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
         m_ui->checkBoxBreakOnRaise);
     m_group.insert(debuggerCore()->action(GdbWatchdogTimeout),
         m_ui->spinBoxGdbWatchdogTimeout);
+    m_group.insert(debuggerCore()->action(AttemptQuickStart),
+        m_ui->checkBoxAttemptQuickStart);
 
     m_group.insert(debuggerCore()->action(UseMessageBoxForSignals),
         m_ui->checkBoxUseMessageBoxForSignals);
@@ -330,6 +341,7 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
                 << sep << m_ui->checkBoxSkipKnownFrames->text()
                 << sep << m_ui->checkBoxUseMessageBoxForSignals->text()
                 << sep << m_ui->checkBoxAdjustBreakpointLocations->text()
+                << sep << m_ui->checkBoxAttemptQuickStart->text()
         //        << sep << m_ui->groupBoxPluginDebugging->title()
         //        << sep << m_ui->radioButtonAllPluginBreakpoints->text()
         //        << sep << m_ui->radioButtonSelectedPluginBreakpoints->text()

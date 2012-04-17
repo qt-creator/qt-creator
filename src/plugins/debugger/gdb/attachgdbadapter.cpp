@@ -86,7 +86,7 @@ void AttachGdbAdapter::runEngine()
         .arg(m_engine->inferiorPid()));
     m_engine->notifyEngineRunAndInferiorStopOk();
     GdbMi data;
-    m_engine->handleStop0(data);
+    m_engine->handleStop1(data);
 }
 
 void AttachGdbAdapter::handleAttach(const GdbResponse &response)

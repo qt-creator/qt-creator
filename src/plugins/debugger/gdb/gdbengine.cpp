@@ -262,6 +262,7 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters,
     m_preparedForQmlBreak = false;
     m_disassembleUsesComma = false;
     m_actingOnExpectedStop = false;
+    m_fullStartDone = false;
 
     invalidateSourcesList();
 
@@ -1290,7 +1291,7 @@ void GdbEngine::handleExecuteJumpToLine(const GdbResponse &response)
         // This happens on old gdb. Trigger the effect of a '*stopped'.
         showStatusMessage(tr("Jumped. Stopped"));
         notifyInferiorSpontaneousStop();
-        handleStop1(response);
+        handleStop2(response);
     }
 }
 
@@ -1388,6 +1389,15 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         return;
     }
 
+    bool gotoHandleStop1 = true;
+    if (!m_fullStartDone) {
+        m_fullStartDone = true;
+        postCommand("sharedlibrary .*");
+        loadPythonDumpers();
+        postCommand("p 3", CB(handleStop1));
+        gotoHandleStop1 = false;
+    }
+
     BreakpointResponseId rid(data.findChild("bkptno").data());
     const GdbMi frame = data.findChild("frame");
 
@@ -1467,7 +1477,8 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     if (isQmlStepBreakpoint1(rid))
         return;
 
-    handleStop0(data);
+    if (gotoHandleStop1)
+        handleStop1(data);
 }
 
 static QByteArray stopSignal(Abi abi)
@@ -1475,37 +1486,13 @@ static QByteArray stopSignal(Abi abi)
     return (abi.os() == Abi::WindowsOS) ? QByteArray("SIGTRAP") : QByteArray("SIGINT");
 }
 
-void GdbEngine::handleStop0(const GdbMi &data)
+void GdbEngine::handleStop1(const GdbResponse &response)
 {
-#if 0 // See http://vladimir_prus.blogspot.com/2007/12/debugger-stories-pending-breakpoints.html
-    // Due to LD_PRELOADing the dumpers, these events can occur even before
-    // reaching the entry point. So handle it before the entry point hacks below.
-    if (reason.isEmpty() && m_gdbVersion < 70000 && !m_isMacGdb) {
-        // On Linux it reports "Stopped due to shared library event\n", but
-        // on Windows it simply forgets about it. Thus, we identify the response
-        // based on it having no frame information.
-        if (!data.findChild("frame").isValid()) {
-            invalidateSourcesList();
-            // Each stop causes a roundtrip and button flicker, so prevent
-            // a flood of useless stops. Will be automatically re-enabled.
-            postCommand("set stop-on-solib-events 0");
-#if 0
-            // The related code (handleAqcuiredInferior()) is disabled as well.
-            if (debuggerCore()->boolSetting(SelectedPluginBreakpoints)) {
-                QString dataStr = _(data.toString());
-                showMessage(_("SHARED LIBRARY EVENT: ") + dataStr);
-                QString pat = theDebuggerStringSetting(SelectedPluginBreakpointsPattern);
-                showMessage(_("PATTERN: ") + pat);
-                postCommand("sharedlibrary " + pat.toLocal8Bit());
-                showStatusMessage(tr("Loading %1...").arg(dataStr));
-            }
-#endif
-            continueInferiorInternal();
-            return;
-        }
-    }
-#endif
+    handleStop1(response.cookie.value<GdbMi>());
+}
 
+void GdbEngine::handleStop1(const GdbMi &data)
+{
     const GdbMi frame = data.findChild("frame");
     const QByteArray reason = data.findChild("reason").data();
 
@@ -1580,20 +1567,20 @@ void GdbEngine::handleStop0(const GdbMi &data)
     if (initHelpers) {
         tryLoadDebuggingHelpersClassic();
         QVariant var = QVariant::fromValue<GdbMi>(data);
-        postCommand("p 4", CB(handleStop1), var);  // dummy
+        postCommand("p 4", CB(handleStop2), var);  // dummy
     } else {
-        handleStop1(data);
+        handleStop2(data);
     }
     // Dumper loading is sequenced, as otherwise the display functions
     // will start requesting data without knowing that dumpers are available.
 }
 
-void GdbEngine::handleStop1(const GdbResponse &response)
+void GdbEngine::handleStop2(const GdbResponse &response)
 {
-    handleStop1(response.cookie.value<GdbMi>());
+    handleStop2(response.cookie.value<GdbMi>());
 }
 
-void GdbEngine::handleStop1(const GdbMi &data)
+void GdbEngine::handleStop2(const GdbMi &data)
 {
     if (isDying()) {
         qDebug() << "HANDLING STOP WHILE DYING";
@@ -2592,7 +2579,7 @@ QByteArray GdbEngine::breakpointLocation(BreakpointModelId id)
         return (abi.os() == Abi::WindowsOS) ? "qMain" : "main";
     }
     if (data.type == BreakpointByFunction)
-        return data.functionName.toUtf8();
+        return '"' + data.functionName.toUtf8() + '"';
     if (data.type == BreakpointByAddress)
         return addressSpec(data.address);
 
@@ -4814,7 +4801,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
 
     showMessage(_("GDB STARTED, INITIALIZING IT"));
     postCommand("show version", CB(handleShowVersion));
-    postCommand("-list-features", CB(handleListFeatures));
+    //postCommand("-list-features", CB(handleListFeatures));
 
     //postCommand("-enable-timings");
     //postCommand("set print static-members off"); // Seemingly doesn't work.
@@ -4837,6 +4824,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
 
     postCommand("set breakpoint pending on");
     postCommand("set print elements 10000");
+
     // Produces a few messages during symtab loading
     //postCommand("set verbose on");
 
@@ -4873,7 +4861,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
     // displaced-stepping does not work in Thumb mode.
     //postCommand("set displaced-stepping on");
     postCommand("set trust-readonly-sections on", ConsoleCommand);
-    postCommand("set auto-solib-add on", ConsoleCommand);
+
     postCommand("set remotecache on", ConsoleCommand);
     //postCommand("set non-stop on", ConsoleCommand);
 
@@ -4889,7 +4877,13 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
         postCommand(cmd);
     }
 
-    loadPythonDumpers();
+    if (attemptQuickStart()) {
+        postCommand("set auto-solib-add off", ConsoleCommand);
+    } else {
+        m_fullStartDone = true;
+        postCommand("set auto-solib-add on", ConsoleCommand);
+        loadPythonDumpers();
+    }
 
     return true;
 }
@@ -4929,8 +4923,7 @@ void GdbEngine::loadPythonDumpers()
 
     loadInitScript();
 
-    postCommand("bbsetup",
-        ConsoleCommand, CB(handleHasPython));
+    postCommand("bbsetup", ConsoleCommand, CB(handleHasPython));
 }
 
 void GdbEngine::handleGdbError(QProcess::ProcessError error)
@@ -5319,6 +5312,22 @@ void GdbEngine::scheduleTestResponse(int testCase, const QByteArray &response)
 void GdbEngine::requestDebugInformation(const DebugInfoTask &task)
 {
     QProcess::startDetached(task.command);
+}
+
+bool GdbEngine::attemptQuickStart() const
+{
+    // Don't try if the user does not ask for it.
+    if (!debuggerCore()->boolSetting(AttemptQuickStart))
+        return false;
+
+    // Don't try if there are breakpoints we might be able to handle.
+    BreakHandler *handler = breakHandler();
+    foreach (BreakpointModelId id, handler->unclaimedBreakpointIds()) {
+        if (acceptsBreakpoint(id))
+            return false;
+    }
+
+    return true;
 }
 
 //
