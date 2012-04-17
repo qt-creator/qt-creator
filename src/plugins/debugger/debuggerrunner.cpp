@@ -505,7 +505,7 @@ static QList<DebuggerEngineType> enginesForToolChain(const Abi &toolChain,
             result.push_back(CdbEngineType);
         } else {
             result.push_back(CdbEngineType);
-            result.push_back(GdbEngineType);
+            //result.push_back(GdbEngineType);
         }
         if (languages & QmlLanguage)
             result.push_back(QmlEngineType);
