@@ -115,8 +115,8 @@ QList<DeployConfigurationFactory *> TargetPrivate::deployFactories() const
 Target::Target(Project *project, const QString &id) :
     ProjectConfiguration(project, id), d(new TargetPrivate)
 {
-    connect(DeviceManager::instance(), SIGNAL(deviceUpdated(ProjectExplorer::IDevice::Id)),
-            this, SLOT(updateDeviceState(ProjectExplorer::IDevice::Id)));
+    connect(DeviceManager::instance(), SIGNAL(deviceUpdated(Core::Id)),
+            this, SLOT(updateDeviceState(Core::Id)));
     // everything changed...
     connect(DeviceManager::instance(), SIGNAL(deviceListChanged()),
             this, SLOT(updateDeviceState()));
