@@ -49,6 +49,9 @@
 #endif
 
 #ifdef EMBEDDED_LIB
+#define PID_FILE "/tmp/mdnsd.pid"
+#define MDNS_UDS_SERVERPATH "/tmp/mdnsd"
+
 #include "embed/dnssd_ipc.c"
 #include "embed/dnssd_clientlib.c"
 #include "embed/dnssd_clientstub.c"

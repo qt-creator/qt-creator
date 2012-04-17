@@ -9,7 +9,7 @@ TEMPLATE = app
 
 DESTDIR = $$IDE_BIN_PATH
 
-DEFINES += PID_FILE=\\\"/var/run/mdnsd.pid\\\" MDNS_UDS_SERVERPATH=\\\"/var/run/mdnsd\\\" MDNS_DEBUGMSGS=0
+DEFINES += PID_FILE=\\\"/tmp/mdnsd.pid\\\" MDNS_UDS_SERVERPATH=\\\"/tmp/mdnsd\\\" MDNS_DEBUGMSGS=0
 
 SOURCES += \
     uds_daemon.c \
