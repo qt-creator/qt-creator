@@ -134,7 +134,8 @@ private slots:
     void crumblePathElementClicked(const QVariant &data);
 
     void updatePendingPreviewDocuments(QmlJS::Document::Ptr doc);
-    void showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
+    void showDebuggerTooltip(const QPoint &mousePos,
+                             TextEditor::ITextEditor *editor, int cursorPos);
     void onEngineStateChanged(Debugger::DebuggerState state);
 
 private:
@@ -147,7 +148,8 @@ private:
     QString filenameForShadowBuildFile(const QString &filename) const;
     void populateCrumblePath(const QmlDebugObjectReference &objRef);
     bool isRoot(const QmlDebugObjectReference &obj) const;
-    QmlDebugObjectReference objectReferenceForLocation(const QString &fileName, int cursorPosition=-1) const;
+    QmlDebugObjectReference objectReferenceForLocation(
+            const QString &fileName, int cursorPosition = -1) const;
 
     void connectSignals();
     void disconnectSignals();
@@ -155,7 +157,8 @@ private:
     void showObject(const QmlDebugObjectReference &obj);
 
     QmlDebugObjectReference findParentRecursive(
-            int goalDebugId, const QList<QmlDebugObjectReference > &objectsToSearch);
+            int goalDebugId,
+            const QList<QmlDebugObjectReference > &objectsToSearch);
 private:
     bool m_listeningToEditorManager;
     QmlJsInspectorToolBar *m_toolBar;

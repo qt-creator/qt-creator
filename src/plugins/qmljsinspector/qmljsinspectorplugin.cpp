@@ -72,7 +72,9 @@ InspectorPlugin::~InspectorPlugin()
 
 QmlJS::ModelManagerInterface *InspectorPlugin::modelManager() const
 {
-    return ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>();
+    ExtensionSystem::PluginManager *pluginManager
+            = ExtensionSystem::PluginManager::instance();
+    return pluginManager->getObject<QmlJS::ModelManagerInterface>();
 }
 
 InspectorUi *InspectorPlugin::inspector() const
@@ -86,7 +88,8 @@ ExtensionSystem::IPlugin::ShutdownFlag InspectorPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
-bool InspectorPlugin::initialize(const QStringList &arguments, QString *errorString)
+bool InspectorPlugin::initialize(const QStringList &arguments,
+                                 QString *errorString)
 {
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
@@ -96,10 +99,13 @@ bool InspectorPlugin::initialize(const QStringList &arguments, QString *errorStr
 
 void InspectorPlugin::extensionsInitialized()
 {
-    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+    ExtensionSystem::PluginManager *pluginManager
+            = ExtensionSystem::PluginManager::instance();
 
-    connect(pluginManager, SIGNAL(objectAdded(QObject*)), SLOT(objectAdded(QObject*)));
-    connect(Core::ModeManager::instance(), SIGNAL(currentModeAboutToChange(Core::IMode*)),
+    connect(pluginManager, SIGNAL(objectAdded(QObject*)),
+            SLOT(objectAdded(QObject*)));
+    connect(Core::ModeManager::instance(),
+            SIGNAL(currentModeAboutToChange(Core::IMode*)),
             this, SLOT(modeAboutToChange(Core::IMode*)));
 }
 
@@ -113,7 +119,8 @@ void InspectorPlugin::objectAdded(QObject *object)
         if (m_clientProxy->isConnected()) {
             clientProxyConnected();
         } else {
-            connect(m_clientProxy, SIGNAL(connected()), this, SLOT(clientProxyConnected()));
+            connect(m_clientProxy, SIGNAL(connected()),
+                    this, SLOT(clientProxyConnected()));
         }
         return;
     }
@@ -144,7 +151,8 @@ void InspectorPlugin::modeAboutToChange(Core::IMode *newMode)
         m_inspectorUi->setupUi();
 
         // Make sure we're not called again.
-        QObject::disconnect(Core::ModeManager::instance(), SIGNAL(currentModeAboutToChange(Core::IMode*)),
+        QObject::disconnect(Core::ModeManager::instance(),
+                            SIGNAL(currentModeAboutToChange(Core::IMode*)),
                             this, SLOT(modeAboutToChange(Core::IMode*)));
     }
 }

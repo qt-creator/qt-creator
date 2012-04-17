@@ -99,8 +99,10 @@ private slots:
 private:
     static QmlJS::ModelManagerInterface *modelManager();
     QList<int> objectReferencesForOffset(quint32 offset);
-    QVariant castToLiteral(const QString &expression, QmlJS::AST::UiScriptBinding *scriptBinding);
-    void showSyncWarning(UnsyncronizableChangeType unsyncronizableChangeType, const QString &elementName,
+    QVariant castToLiteral(const QString &expression,
+                           QmlJS::AST::UiScriptBinding *scriptBinding);
+    void showSyncWarning(UnsyncronizableChangeType unsyncronizableChangeType,
+                         const QString &elementName,
                          unsigned line, unsigned column);
     void showExperimentalWarning();
 

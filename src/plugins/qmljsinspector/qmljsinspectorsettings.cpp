@@ -37,6 +37,8 @@
 namespace QmlJSInspector {
 namespace Internal {
 
+using namespace QmlJSInspector::Constants;
+
 InspectorSettings::InspectorSettings(QObject *parent)
     : QObject(parent),
       m_showLivePreviewWarning(true)
@@ -45,15 +47,18 @@ InspectorSettings::InspectorSettings(QObject *parent)
 
 void InspectorSettings::restoreSettings(QSettings *settings)
 {
-    settings->beginGroup(QLatin1String(QmlJSInspector::Constants::S_QML_INSPECTOR));
-    m_showLivePreviewWarning = settings->value(QLatin1String(QmlJSInspector::Constants::S_LIVE_PREVIEW_WARNING_KEY), true).toBool();
+    settings->beginGroup(QLatin1String(S_QML_INSPECTOR));
+    m_showLivePreviewWarning
+            = settings->value(QLatin1String(S_LIVE_PREVIEW_WARNING_KEY),
+                              true).toBool();
     settings->endGroup();
 }
 
 void InspectorSettings::saveSettings(QSettings *settings) const
 {
-    settings->beginGroup(QLatin1String(QmlJSInspector::Constants::S_QML_INSPECTOR));
-    settings->setValue(QLatin1String(QmlJSInspector::Constants::S_LIVE_PREVIEW_WARNING_KEY), m_showLivePreviewWarning);
+    settings->beginGroup(QLatin1String(S_QML_INSPECTOR));
+    settings->setValue(QLatin1String(S_LIVE_PREVIEW_WARNING_KEY),
+                       m_showLivePreviewWarning);
     settings->endGroup();
 }
 

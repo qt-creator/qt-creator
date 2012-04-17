@@ -171,21 +171,23 @@ void QmlJsInspectorToolBar::setZoomToolEnabled(bool enable)
 
 void QmlJsInspectorToolBar::createActions()
 {
+    using namespace Constants;
+
     Core::Context context(Debugger::Constants::C_QMLDEBUGGER);
     Core::ActionManager *am = Core::ICore::actionManager();
 
     m_fromQmlAction = new Utils::SavedAction(this);
     m_fromQmlAction->setDefaultValue(false);
-    m_fromQmlAction->setSettingsKey(QLatin1String(Constants::S_QML_INSPECTOR),
-                                    QLatin1String(Constants::FROM_QML_ACTION));
+    m_fromQmlAction->setSettingsKey(QLatin1String(S_QML_INSPECTOR),
+                                    QLatin1String(FROM_QML_ACTION));
     m_fromQmlAction->setText(tr("Apply Changes on Save"));
     m_fromQmlAction->setCheckable(true);
     m_fromQmlAction->setIcon(QIcon(QLatin1String(":/qml/images/from-qml-small.png")));
 
     m_showAppOnTopAction = new Utils::SavedAction(this);
     m_showAppOnTopAction->setDefaultValue(false);
-    m_showAppOnTopAction->setSettingsKey(QLatin1String(Constants::S_QML_INSPECTOR),
-                                         QLatin1String(Constants::SHOW_APP_ON_TOP_ACTION));
+    m_showAppOnTopAction->setSettingsKey(QLatin1String(S_QML_INSPECTOR),
+                                         QLatin1String(SHOW_APP_ON_TOP_ACTION));
     m_showAppOnTopAction->setText(tr("Show application on top"));
     m_showAppOnTopAction->setCheckable(true);
     m_showAppOnTopAction->setIcon(QIcon(QLatin1String(":/qml/images/app-on-top.png")));
@@ -202,40 +204,46 @@ void QmlJsInspectorToolBar::createActions()
     m_selectAction->setCheckable(true);
     m_zoomAction->setCheckable(true);
 
-    Core::Command *command = am->registerAction(m_playAction, Constants::PLAY_ACTION, context);
+    Core::Command *command
+            = am->registerAction(m_playAction, PLAY_ACTION, context);
     command->setAttribute(Core::Command::CA_UpdateIcon);
-    am->registerAction(m_selectAction, Constants::SELECT_ACTION, context);
-    am->registerAction(m_zoomAction, Constants::ZOOM_ACTION, context);
-    am->registerAction(m_fromQmlAction, Constants::FROM_QML_ACTION, context);
-    am->registerAction(m_showAppOnTopAction, Constants::SHOW_APP_ON_TOP_ACTION, context);
+    am->registerAction(m_selectAction, SELECT_ACTION, context);
+    am->registerAction(m_zoomAction, ZOOM_ACTION, context);
+    am->registerAction(m_fromQmlAction, FROM_QML_ACTION, context);
+    am->registerAction(m_showAppOnTopAction, SHOW_APP_ON_TOP_ACTION, context);
 
     m_barWidget = new QWidget;
 
     QMenu *playSpeedMenu = new QMenu(m_barWidget);
     m_playSpeedMenuActions = new QActionGroup(this);
     m_playSpeedMenuActions->setExclusive(true);
-    QAction *speedAction = playSpeedMenu->addAction(tr("1x"), this, SLOT(changeAnimationSpeed()));
+    QAction *speedAction = playSpeedMenu->addAction(tr("1x"),
+                                       this, SLOT(changeAnimationSpeed()));
     speedAction->setCheckable(true);
     speedAction->setChecked(true);
     speedAction->setData(1.0f);
     m_playSpeedMenuActions->addAction(speedAction);
 
-    speedAction = playSpeedMenu->addAction(tr("0.5x"), this, SLOT(changeAnimationSpeed()));
+    speedAction = playSpeedMenu->addAction(tr("0.5x"),
+                                           this, SLOT(changeAnimationSpeed()));
     speedAction->setCheckable(true);
     speedAction->setData(2.0f);
     m_playSpeedMenuActions->addAction(speedAction);
 
-    speedAction = playSpeedMenu->addAction(tr("0.25x"), this, SLOT(changeAnimationSpeed()));
+    speedAction = playSpeedMenu->addAction(tr("0.25x"),
+                                           this, SLOT(changeAnimationSpeed()));
     speedAction->setCheckable(true);
     speedAction->setData(4.0f);
     m_playSpeedMenuActions->addAction(speedAction);
 
-    speedAction = playSpeedMenu->addAction(tr("0.125x"), this, SLOT(changeAnimationSpeed()));
+    speedAction = playSpeedMenu->addAction(tr("0.125x"),
+                                           this, SLOT(changeAnimationSpeed()));
     speedAction->setCheckable(true);
     speedAction->setData(8.0f);
     m_playSpeedMenuActions->addAction(speedAction);
 
-    speedAction = playSpeedMenu->addAction(tr("0.1x"), this, SLOT(changeAnimationSpeed()));
+    speedAction = playSpeedMenu->addAction(tr("0.1x"),
+                                           this, SLOT(changeAnimationSpeed()));
     speedAction->setCheckable(true);
     speedAction->setData(10.0f);
     m_playSpeedMenuActions->addAction(speedAction);
@@ -245,23 +253,29 @@ void QmlJsInspectorToolBar::createActions()
     toolBarLayout->setSpacing(0);
 
     // QML Helpers
-    toolBarLayout->addWidget(toolButton(am->command(Constants::FROM_QML_ACTION)->action()));
-    toolBarLayout->addWidget(toolButton(am->command(Constants::SHOW_APP_ON_TOP_ACTION)->action()));
-    m_playButton = toolButton(am->command(Constants::PLAY_ACTION)->action());
+    toolBarLayout->addWidget(toolButton(am->command(FROM_QML_ACTION)->action()));
+    toolBarLayout->addWidget(
+                toolButton(am->command(SHOW_APP_ON_TOP_ACTION)->action()));
+    m_playButton = toolButton(am->command(PLAY_ACTION)->action());
     m_playButton->setMenu(playSpeedMenu);
     toolBarLayout->addWidget(m_playButton);
 
     // Inspector
     toolBarLayout->addWidget(new Utils::StyledSeparator);
-    toolBarLayout->addWidget(toolButton(am->command(Constants::SELECT_ACTION)->action()));
-    toolBarLayout->addWidget(toolButton(am->command(Constants::ZOOM_ACTION)->action()));
+    toolBarLayout->addWidget(toolButton(am->command(SELECT_ACTION)->action()));
+    toolBarLayout->addWidget(toolButton(am->command(ZOOM_ACTION)->action()));
     toolBarLayout->addWidget(new Utils::StyledSeparator);
 
-    connect(m_fromQmlAction, SIGNAL(triggered()), SLOT(activateFromQml()));
-    connect(m_showAppOnTopAction, SIGNAL(triggered()), SLOT(showAppOnTopClick()));
-    connect(m_playAction, SIGNAL(triggered()), SLOT(activatePlayOnClick()));
-    connect(m_selectAction, SIGNAL(triggered(bool)), SLOT(selectToolTriggered(bool)));
-    connect(m_zoomAction, SIGNAL(triggered(bool)), SLOT(zoomToolTriggered(bool)));
+    connect(m_fromQmlAction, SIGNAL(triggered()),
+            SLOT(activateFromQml()));
+    connect(m_showAppOnTopAction, SIGNAL(triggered()),
+            SLOT(showAppOnTopClick()));
+    connect(m_playAction, SIGNAL(triggered()),
+            SLOT(activatePlayOnClick()));
+    connect(m_selectAction, SIGNAL(triggered(bool)),
+            SLOT(selectToolTriggered(bool)));
+    connect(m_zoomAction, SIGNAL(triggered(bool)),
+            SLOT(zoomToolTriggered(bool)));
 
     readSettings();
     connect(Core::ICore::instance(),
@@ -350,8 +364,10 @@ void QmlJsInspectorToolBar::activateFromQml()
 void QmlJsInspectorToolBar::updateDesignModeActions(DesignTool activeTool)
 {
     m_activeTool = activeTool;
-    m_selectAction->setChecked(m_designModeActive && (m_activeTool == SelectionToolMode));
-    m_zoomAction->setChecked(m_designModeActive && (m_activeTool == ZoomMode));
+    m_selectAction->setChecked(m_designModeActive
+                               && (m_activeTool == SelectionToolMode));
+    m_zoomAction->setChecked(m_designModeActive
+                             && (m_activeTool == ZoomMode));
 }
 
 } // namespace Internal

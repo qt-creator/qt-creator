@@ -62,7 +62,8 @@ public:
     virtual void accept();
 
 signals:
-    void dataChanged(int debugId, const QString &paramName, const QString &newExpression);
+    void dataChanged(int debugId, const QString &paramName,
+                     const QString &newExpression);
 
 private:
     QDialogButtonBox *m_buttonBox;
@@ -77,13 +78,15 @@ class ColorChooserDialog : public QDialog
 public:
     explicit ColorChooserDialog(const QString &title, QDialog *parent = 0);
 
-    void setItemData(int objectId,const QString &propertyName, const QString &colorName);
+    void setItemData(int objectId,const QString &propertyName,
+                     const QString &colorName);
 
 public slots:
     void acceptColor(const QColor &color);
 
 signals:
-    void dataChanged(int debugId, const QString &paramName, const QString &newExpression);
+    void dataChanged(int debugId, const QString &paramName,
+                     const QString &newExpression);
 
 
 private:
@@ -127,15 +130,16 @@ public:
     bool contentsValid() const;
 
 signals:
-    void changePropertyValue(int debugId, QString propertyName, QString valueExpression,
-                             bool isLiteral);
+    void changePropertyValue(int debugId, QString propertyName,
+                             QString valueExpression, bool isLiteral);
     void customContextMenuRequested(const QPoint &pos);
 
 public slots:
     void setCurrentObjects(const QList<QmlDebugObjectReference> &);
-    void propertyValueEdited(const int objectId,const QString &propertyName, const QString &propertyValue,
-                             bool isLiteral = false);
-    void propertyValueChanged(int debugId, const QByteArray &propertyName, const QVariant &propertyValue);
+    void propertyValueEdited(const int objectId,const QString &propertyName,
+                             const QString &propertyValue, bool isLiteral = false);
+    void propertyValueChanged(int debugId, const QByteArray &propertyName,
+                              const QVariant &propertyValue);
 
     void openExpressionEditor(const QModelIndex &itemIndex);
     void openColorSelector(const QModelIndex &itemIndex);

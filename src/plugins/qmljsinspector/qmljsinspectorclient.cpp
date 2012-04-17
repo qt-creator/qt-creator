@@ -40,7 +40,7 @@ namespace Internal {
 
 QmlJSInspectorClient::QmlJSInspectorClient(QDeclarativeDebugConnection *client,
                                            QObject * /*parent*/)
-    : QDeclarativeDebugClient(QLatin1String("QDeclarativeObserverMode"), client) ,
+    : QDeclarativeDebugClient(QLatin1String("QDeclarativeObserverMode"), client),
       m_connection(client)
 {
     setObjectName(name());
@@ -105,7 +105,8 @@ void QmlJSInspectorClient::messageReceived(const QByteArray &message)
         bool paused;
         ds >> paused;
 
-        log(LogReceive, type, paused ? QLatin1String("true") : QLatin1String("false"));
+        log(LogReceive, type, paused ? QLatin1String("true")
+                                     : QLatin1String("false"));
 
         emit animationPausedChanged(paused);
         break;
@@ -169,7 +170,8 @@ void QmlJSInspectorClient::setCurrentObjects(const QList<int> &debugIds)
     sendMessage(message);
 }
 
-void recurseObjectIdList(const QmlDebugObjectReference &ref, QList<int> &debugIds, QList<QString> &objectIds)
+void recurseObjectIdList(const QmlDebugObjectReference &ref,
+                         QList<int> &debugIds, QList<QString> &objectIds)
 {
     debugIds << ref.debugId();
     objectIds << ref.idString();
@@ -177,7 +179,8 @@ void recurseObjectIdList(const QmlDebugObjectReference &ref, QList<int> &debugId
         recurseObjectIdList(child, debugIds, objectIds);
 }
 
-void QmlJSInspectorClient::setObjectIdList(const QList<QmlDebugObjectReference> &objectRoots)
+void QmlJSInspectorClient::setObjectIdList(
+        const QList<QmlDebugObjectReference> &objectRoots)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
@@ -198,7 +201,8 @@ void QmlJSInspectorClient::setObjectIdList(const QList<QmlDebugObjectReference> 
         ds << debugIds[i] << objectIds[i];
     }
 
-    log(LogSend, cmd, QString("%1 %2 [list of debug / object ids]").arg(debugIds.length()));
+    log(LogSend, cmd,
+        QString("%1 %2 [list of debug / object ids]").arg(debugIds.length()));
 
     sendMessage(message);
 }
@@ -357,8 +361,10 @@ void QmlJSInspectorClient::showAppOnTop(bool showOnTop)
     sendMessage(message);
 }
 
-void QmlJSInspectorClient::createQmlObject(const QString &qmlText, int parentDebugId,
-                                           const QStringList &imports, const QString &filename, int order)
+void QmlJSInspectorClient::createQmlObject(const QString &qmlText,
+                                           int parentDebugId,
+                                           const QStringList &imports,
+                                           const QString &filename, int order)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -374,7 +380,8 @@ void QmlJSInspectorClient::createQmlObject(const QString &qmlText, int parentDeb
        << filename
        << order;
 
-    log(LogSend, cmd, QString("%1 %2 [%3] %4").arg(qmlText, QString::number(parentDebugId),
+    log(LogSend, cmd, QString("%1 %2 [%3] %4").arg(qmlText,
+                                                   QString::number(parentDebugId),
                                                    imports.join(","), filename));
 
     sendMessage(message);
@@ -430,7 +437,8 @@ void QmlJSInspectorClient::applyChangesFromQmlFile()
     // TODO
 }
 
-void QmlJSInspectorClient::log(LogDirection direction, InspectorProtocol::Message message,
+void QmlJSInspectorClient::log(LogDirection direction,
+                               InspectorProtocol::Message message,
                                const QString &extra)
 {
     QString msg;

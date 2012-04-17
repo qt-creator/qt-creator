@@ -88,49 +88,51 @@ private:
     int activated;
 };
 
-bool MapObjectWithDebugReference::visit(UiObjectDefinition* ast)
+bool MapObjectWithDebugReference::visit(UiObjectDefinition *ast)
 {
     if (lookupObjects.contains(ast))
         activated++;
     return true;
 }
 
-bool MapObjectWithDebugReference::visit(UiObjectBinding* ast)
+bool MapObjectWithDebugReference::visit(UiObjectBinding *ast)
 {
     if (lookupObjects.contains(ast))
         activated++;
     return true;
 }
 
-void MapObjectWithDebugReference::endVisit(UiObjectDefinition* ast)
+void MapObjectWithDebugReference::endVisit(UiObjectDefinition *ast)
 {
     process(ast);
     if (lookupObjects.contains(ast))
         activated--;
 }
 
-void MapObjectWithDebugReference::endVisit(UiObjectBinding* ast)
+void MapObjectWithDebugReference::endVisit(UiObjectBinding *ast)
 {
     process(ast);
     if (lookupObjects.contains(ast))
         activated--;
 }
 
-void MapObjectWithDebugReference::process(UiObjectMember* ast)
+void MapObjectWithDebugReference::process(UiObjectMember *ast)
 {
     if (lookupObjects.isEmpty() || activated) {
         SourceLocation loc = ast->firstSourceLocation();
-        QHash<QPair<int, int>, DebugIdList>::const_iterator it = ids.constFind(qMakePair<int, int>(loc.startLine, loc.startColumn));
+        QHash<QPair<int, int>, DebugIdList>::const_iterator it
+                = ids.constFind(qMakePair<int, int>(loc.startLine, loc.startColumn));
         if (it != ids.constEnd())
             result[ast].append(*it);
     }
 }
 
-void MapObjectWithDebugReference::process(UiObjectBinding* ast)
+void MapObjectWithDebugReference::process(UiObjectBinding *ast)
 {
     if (lookupObjects.isEmpty() || activated) {
         SourceLocation loc = ast->qualifiedTypeNameId->identifierToken;
-        QHash<QPair<int, int>, DebugIdList>::const_iterator it = ids.constFind(qMakePair<int, int>(loc.startLine, loc.startColumn));
+        QHash<QPair<int, int>, DebugIdList>::const_iterator it
+                = ids.constFind(qMakePair<int, int>(loc.startLine, loc.startColumn));
         if (it != ids.constEnd())
             result[ast].append(*it);
     }
@@ -138,7 +140,9 @@ void MapObjectWithDebugReference::process(UiObjectBinding* ast)
 
 QmlJS::ModelManagerInterface *QmlJSLiveTextPreview::modelManager()
 {
-    return ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>();
+    ExtensionSystem::PluginManager *pm
+            = ExtensionSystem::PluginManager::instance();
+    return pm->getObject<QmlJS::ModelManagerInterface>();
 }
 
 void QmlJSLiveTextPreview::associateEditor(Core::IEditor *editor)
@@ -149,13 +153,15 @@ void QmlJSLiveTextPreview::associateEditor(Core::IEditor *editor)
                    QLatin1String("QmlJSEditor::QmlJSTextEditorWidget"),
                    return);
 
-        BaseTextEditorWidget *editWidget = qobject_cast<BaseTextEditorWidget*>(editor->widget());
+        BaseTextEditorWidget *editWidget
+                = qobject_cast<BaseTextEditorWidget*>(editor->widget());
         QTC_ASSERT(editWidget, return);
 
         if (!m_editors.contains(editWidget)) {
             m_editors << editWidget;
             if (m_clientProxy.data())
-                connect(editWidget, SIGNAL(selectedElementsChanged(QList<int>,QString)),
+                connect(editWidget,
+                        SIGNAL(selectedElementsChanged(QList<int>,QString)),
                         SLOT(changeSelectedElements(QList<int>,QString)));
         }
     }
@@ -164,8 +170,10 @@ void QmlJSLiveTextPreview::associateEditor(Core::IEditor *editor)
 void QmlJSLiveTextPreview::unassociateEditor(Core::IEditor *oldEditor)
 {
     using namespace TextEditor;
-    if (oldEditor && oldEditor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
-        BaseTextEditorWidget *editWidget = qobject_cast<BaseTextEditorWidget*>(oldEditor->widget());
+    if (oldEditor && oldEditor->id()
+            == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
+        BaseTextEditorWidget *editWidget
+                = qobject_cast<BaseTextEditorWidget*>(oldEditor->widget());
         QTC_ASSERT(editWidget, return);
 
         if (m_editors.contains(editWidget)) {
@@ -178,7 +186,7 @@ void QmlJSLiveTextPreview::unassociateEditor(Core::IEditor *oldEditor)
 QmlJSLiveTextPreview::QmlJSLiveTextPreview(const QmlJS::Document::Ptr &doc,
                                            const QmlJS::Document::Ptr &initDoc,
                                            ClientProxy *clientProxy,
-                                           QObject* parent)
+                                           QObject *parent)
     : QObject(parent)
     , m_previousDoc(doc)
     , m_initialDoc(initDoc)
@@ -194,7 +202,8 @@ QmlJSLiveTextPreview::QmlJSLiveTextPreview(const QmlJS::Document::Ptr &doc,
             SLOT(documentChanged(QmlJS::Document::Ptr)));
 
     if (m_clientProxy.data()) {
-        connect(m_clientProxy.data(), SIGNAL(objectTreeUpdated()), SLOT(updateDebugIds()));
+        connect(m_clientProxy.data(), SIGNAL(objectTreeUpdated()),
+                SLOT(updateDebugIds()));
     }
 }
 
@@ -238,7 +247,8 @@ QList<int> QmlJSLiveTextPreview::objectReferencesForOffset(quint32 offset)
     return result;
 }
 
-void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QString &wordAtCursor)
+void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets,
+                                                  const QString &wordAtCursor)
 {
     if (m_editors.isEmpty() || !m_previousDoc || !m_clientProxy)
         return;
@@ -246,7 +256,8 @@ void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QStr
     m_updateNodeForOffset = false;
     m_lastOffsets = offsets;
     QmlDebugObjectReference objectRefUnderCursor;
-    objectRefUnderCursor = m_clientProxy.data()->objectReferenceForId(wordAtCursor);
+    objectRefUnderCursor
+            = m_clientProxy.data()->objectReferenceForId(wordAtCursor);
 
     QList<int> selectedReferences;
     bool containsReferenceUnderCursor = false;
@@ -255,7 +266,8 @@ void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QStr
         if (offset >= 0) {
             QList<int> list = objectReferencesForOffset(offset);
 
-            if (!containsReferenceUnderCursor && objectRefUnderCursor.debugId() != -1) {
+            if (!containsReferenceUnderCursor
+                    && objectRefUnderCursor.debugId() != -1) {
                 foreach(int id, list) {
                     if (id == objectRefUnderCursor.debugId()) {
                         containsReferenceUnderCursor = true;
@@ -284,7 +296,8 @@ void QmlJSLiveTextPreview::changeSelectedElements(QList<int> offsets, const QStr
     }
 }
 
-static QList<int> findRootObjectRecursive(const QmlDebugObjectReference &object, const Document::Ptr &doc)
+static QList<int> findRootObjectRecursive(const QmlDebugObjectReference &object,
+                                          const Document::Ptr &doc)
 {
     QList<int> result;
     if (object.className() == doc->componentName())
@@ -301,13 +314,16 @@ void QmlJSLiveTextPreview::updateDebugIds()
     if (!m_initialDoc->qmlProgram())
         return;
 
-    ClientProxy* clientProxy = m_clientProxy.data();
+    ClientProxy *clientProxy = m_clientProxy.data();
     if (!clientProxy)
         return;
 
-    DebugIdHash::const_iterator it = clientProxy->debugIdHash().constFind(qMakePair<QString, int>(m_initialDoc->fileName(), 0));
+    DebugIdHash::const_iterator it
+            = clientProxy->debugIdHash().constFind(
+                qMakePair<QString, int>(m_initialDoc->fileName(), 0));
     if (it != clientProxy->debugIdHash().constEnd()) {
-        // Map all the object that comes from the document as it has been loaded by the server.
+        // Map all the object that comes from the document as it has been loaded
+        // by the server.
         const QmlJS::Document::Ptr &doc = m_initialDoc;
 
         MapObjectWithDebugReference visitor;
@@ -328,16 +344,19 @@ void QmlJSLiveTextPreview::updateDebugIds()
 
     // Map the root nodes of the document.
     if(doc->qmlProgram()->members &&  doc->qmlProgram()->members->member) {
-        UiObjectMember* root = doc->qmlProgram()->members->member;
+        UiObjectMember *root = doc->qmlProgram()->members->member;
         QList<int> r;
-        foreach (const QmlDebugObjectReference& it, clientProxy->rootObjectReference())
+        foreach (const QmlDebugObjectReference& it,
+                 clientProxy->rootObjectReference()) {
             r += findRootObjectRecursive(it, doc);
+        }
         if (!r.isEmpty())
             m_debugIds[root] += r;
     }
 
     // Map the node of the later created objects.
-    for(QHash<Document::Ptr,QSet<UiObjectMember*> >::const_iterator it = m_createdObjects.constBegin();
+    for (QHash<Document::Ptr,QSet<UiObjectMember*> >::const_iterator it
+        = m_createdObjects.constBegin();
         it != m_createdObjects.constEnd(); ++it) {
 
         const QmlJS::Document::Ptr &doc = it.key();
@@ -373,7 +392,8 @@ private:
     static inline QString stripQuotes(const QString &str)
     {
         if ((str.startsWith(QLatin1Char('"')) && str.endsWith(QLatin1Char('"')))
-                || (str.startsWith(QLatin1Char('\'')) && str.endsWith(QLatin1Char('\''))))
+                || (str.startsWith(QLatin1Char('\''))
+                    && str.endsWith(QLatin1Char('\''))))
             return str.mid(1, str.length() - 2);
 
         return str;
@@ -392,11 +412,13 @@ private:
         return result;
     }
 
-    static QString cleanExpression(const QString &expression, UiScriptBinding *scriptBinding)
+    static QString cleanExpression(const QString &expression,
+                                   UiScriptBinding *scriptBinding)
     {
         QString trimmedExpression = expression.trimmed();
 
-        if (ExpressionStatement *expStatement = cast<ExpressionStatement*>(scriptBinding->statement)) {
+        if (ExpressionStatement *expStatement
+                = cast<ExpressionStatement*>(scriptBinding->statement)) {
             if (expStatement->semicolonToken.isValid())
                 trimmedExpression.chop(1);
         }
@@ -410,9 +432,11 @@ private:
             return true;
         else if (cast<StringLiteral*>(expr))
             return true;
-        else if (UnaryPlusExpression *plusExpr = cast<UnaryPlusExpression*>(expr))
+        else if (UnaryPlusExpression *plusExpr
+                 = cast<UnaryPlusExpression*>(expr))
             return isLiteralValue(plusExpr->expression);
-        else if (UnaryMinusExpression *minusExpr = cast<UnaryMinusExpression*>(expr))
+        else if (UnaryMinusExpression *minusExpr
+                 = cast<UnaryMinusExpression*>(expr))
             return isLiteralValue(minusExpr->expression);
         else if (cast<TrueLiteral*>(expr))
             return true;
@@ -427,19 +451,22 @@ private:
         if (!script || !script->statement)
             return false;
 
-        ExpressionStatement *exprStmt = cast<ExpressionStatement *>(script->statement);
+        ExpressionStatement *exprStmt
+                = cast<ExpressionStatement *>(script->statement);
         if (exprStmt)
             return isLiteralValue(exprStmt->expression);
         else
             return false;
     }
 
-    static QVariant castToLiteral(const QString &expression, UiScriptBinding *scriptBinding)
+    static QVariant castToLiteral(const QString &expression,
+                                  UiScriptBinding *scriptBinding)
     {
         const QString cleanedValue = cleanExpression(expression, scriptBinding);
         QVariant castedExpression;
 
-        ExpressionStatement *expStatement = cast<ExpressionStatement*>(scriptBinding->statement);
+        ExpressionStatement *expStatement
+                = cast<ExpressionStatement*>(scriptBinding->statement);
 
         switch(expStatement->expression->kind) {
         case Node::Kind_NumericLiteral:
@@ -464,8 +491,10 @@ private:
 
 protected:
     virtual void updateMethodBody(DebugId debugId,
-                                  UiObjectMember *parentDefinition, UiScriptBinding* scriptBinding,
-                                  const QString& methodName, const QString& methodBody)
+                                  UiObjectMember *parentDefinition,
+                                  UiScriptBinding *scriptBinding,
+                                  const QString &methodName,
+                                  const QString &methodBody)
     {
         Q_UNUSED(scriptBinding);
         Q_UNUSED(parentDefinition);
@@ -474,15 +503,21 @@ protected:
     }
 
     virtual void updateScriptBinding(DebugId debugId,
-                                     UiObjectMember *parentDefinition, UiScriptBinding* scriptBinding,
-                                     const QString& propertyName, const QString& scriptCode)
+                                     UiObjectMember *parentDefinition,
+                                     UiScriptBinding *scriptBinding,
+                                     const QString &propertyName,
+                                     const QString &scriptCode)
     {
-        if (unsyncronizableChanges == QmlJSLiveTextPreview::NoUnsyncronizableChanges) {
+        if (unsyncronizableChanges
+                == QmlJSLiveTextPreview::NoUnsyncronizableChanges) {
             if (propertyName  == QLatin1String("id")) {
                 unsyncronizableElementName = propertyName;
-                unsyncronizableChanges = QmlJSLiveTextPreview::AttributeChangeWarning;
-                unsyncronizableChangeLine = parentDefinition->firstSourceLocation().startLine;
-                unsyncronizableChangeColumn = parentDefinition->firstSourceLocation().startColumn;
+                unsyncronizableChanges
+                        = QmlJSLiveTextPreview::AttributeChangeWarning;
+                unsyncronizableChangeLine
+                        = parentDefinition->firstSourceLocation().startLine;
+                unsyncronizableChangeColumn
+                        = parentDefinition->firstSourceLocation().startColumn;
             }
         }
 
@@ -509,8 +544,10 @@ protected:
         m_clientProxy->destroyQmlObject(debugId);
     }
 
-    virtual void createObject(const QString& qmlText, DebugId ref,
-                              const QStringList& importList, const QString& filename, int order)
+    virtual void createObject(const QString &qmlText, DebugId ref,
+                              const QStringList &importList,
+                              const QString &filename,
+                              int order)
     {
         appliedChangesToViewer = true;
         referenceRefreshRequired = true;
@@ -530,10 +567,14 @@ protected:
             if (parentDefinition && parentDefinition->qualifiedTypeNameId
                     && !parentDefinition->qualifiedTypeNameId->name.isEmpty())
             {
-                unsyncronizableElementName = parentDefinition->qualifiedTypeNameId->name.toString();
-                unsyncronizableChanges = QmlJSLiveTextPreview::ElementChangeWarning;
-                unsyncronizableChangeLine = parentDefinition->firstSourceLocation().startLine;
-                unsyncronizableChangeColumn = parentDefinition->firstSourceLocation().startColumn;
+                unsyncronizableElementName
+                        = parentDefinition->qualifiedTypeNameId->name.toString();
+                unsyncronizableChanges
+                        = QmlJSLiveTextPreview::ElementChangeWarning;
+                unsyncronizableChangeLine
+                        = parentDefinition->firstSourceLocation().startLine;
+                unsyncronizableChangeColumn
+                        = parentDefinition->firstSourceLocation().startColumn;
             }
         }
     }
@@ -576,15 +617,19 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
             if (delta.referenceRefreshRequired)
                 m_clientProxy.data()->refreshObjectTree();
 
-            if (InspectorUi::instance()->showExperimentalWarning() && delta.appliedChangesToViewer) {
+            if (InspectorUi::instance()->showExperimentalWarning()
+                    && delta.appliedChangesToViewer) {
                 showExperimentalWarning();
                 experimentalWarningShown = true;
                 InspectorUi::instance()->setShowExperimentalWarning(false);
             }
 
-            if (delta.unsyncronizableChanges != NoUnsyncronizableChanges && !experimentalWarningShown)
-                showSyncWarning(delta.unsyncronizableChanges, delta.unsyncronizableElementName,
-                                delta.unsyncronizableChangeLine, delta.unsyncronizableChangeColumn);
+            if (delta.unsyncronizableChanges != NoUnsyncronizableChanges
+                    && !experimentalWarningShown)
+                showSyncWarning(delta.unsyncronizableChanges,
+                                delta.unsyncronizableElementName,
+                                delta.unsyncronizableChangeLine,
+                                delta.unsyncronizableChangeColumn);
 
             m_previousDoc = doc;
             if (!delta.newObjects.isEmpty())
@@ -603,24 +648,30 @@ void QmlJSLiveTextPreview::showExperimentalWarning()
         if (editor) {
             Core::InfoBarEntry info(
                         Constants::INFO_EXPERIMENTAL,
-                        tr("You changed a QML file in Live Preview mode, which modifies the running QML application. "
-                           "In case of unexpected behavior, please reload the QML application."));
-            info.setCustomButtonInfo(tr("Disable Live Preview"), this, SLOT(disableLivePreview()));
+                        tr("You changed a QML file in Live Preview mode, which "
+                           "modifies the running QML application. In case of "
+                           "unexpected behavior, please reload the QML "
+                           "application."));
+            info.setCustomButtonInfo(tr("Disable Live Preview"), this,
+                                     SLOT(disableLivePreview()));
             editor.data()->editorDocument()->infoBar()->addInfo(info);
         }
 }
 
-void QmlJSLiveTextPreview::showSyncWarning(UnsyncronizableChangeType unsyncronizableChangeType,
-                                           const QString &elementName, unsigned line, unsigned column)
+void QmlJSLiveTextPreview::showSyncWarning(
+        UnsyncronizableChangeType unsyncronizableChangeType,
+        const QString &elementName, unsigned line, unsigned column)
 {
     QString errorMessage;
     switch (unsyncronizableChangeType) {
     case AttributeChangeWarning:
-        errorMessage = tr("The %1 attribute at line %2, column %3 cannot be changed without reloading the QML application. ")
+        errorMessage = tr("The %1 attribute at line %2, column %3 cannot be "
+                          "changed without reloading the QML application. ")
                 .arg(elementName, QString::number(line), QString::number(column));
         break;
     case ElementChangeWarning:
-        errorMessage = tr("The %1 element at line %2, column %3 cannot be changed without reloading the QML application. ")
+        errorMessage = tr("The %1 element at line %2, column %3 cannot be "
+                          "changed without reloading the QML application. ")
                 .arg(elementName, QString::number(line), QString::number(column));
         break;
     case QmlJSLiveTextPreview::NoUnsyncronizableChanges:
@@ -630,25 +681,35 @@ void QmlJSLiveTextPreview::showSyncWarning(UnsyncronizableChangeType unsyncroniz
 
     errorMessage.append(tr("You can continue debugging, but behavior can be unexpected."));
 
-    foreach (QWeakPointer<TextEditor::BaseTextEditorWidget> editor, m_editors)
-        if (editor)
-            editor.data()->editorDocument()->infoBar()->addInfo(Core::InfoBarEntry(
-                                                                    QLatin1String(Constants::INFO_OUT_OF_SYNC), errorMessage));
+    foreach (QWeakPointer<TextEditor::BaseTextEditorWidget> editor, m_editors) {
+        if (editor) {
+            Core::InfoBar *infoBar = editor.data()->editorDocument()->infoBar();
+            infoBar->addInfo(Core::InfoBarEntry(
+                                 QLatin1String(Constants::INFO_OUT_OF_SYNC),
+                                 errorMessage));
+        }
+    }
 }
 
 void QmlJSLiveTextPreview::reloadQmlViewer()
 {
-    foreach (QWeakPointer<TextEditor::BaseTextEditorWidget> editor, m_editors)
-        if (editor)
-            editor.data()->editorDocument()->infoBar()->removeInfo(Constants::INFO_OUT_OF_SYNC);
+    foreach (QWeakPointer<TextEditor::BaseTextEditorWidget> editor, m_editors) {
+        if (editor) {
+            Core::InfoBar *infoBar = editor.data()->editorDocument()->infoBar();
+            infoBar->removeInfo(Constants::INFO_OUT_OF_SYNC);
+        }
+    }
     emit reloadQmlViewerRequested();
 }
 
 void QmlJSLiveTextPreview::disableLivePreview()
 {
-    foreach (QWeakPointer<TextEditor::BaseTextEditorWidget> editor, m_editors)
-        if (editor)
-            editor.data()->editorDocument()->infoBar()->removeInfo(Constants::INFO_OUT_OF_SYNC);
+    foreach (QWeakPointer<TextEditor::BaseTextEditorWidget> editor, m_editors) {
+        if (editor) {
+            Core::InfoBar *infoBar = editor.data()->editorDocument()->infoBar();
+            infoBar->removeInfo(Constants::INFO_OUT_OF_SYNC);
+        }
+    }
     emit disableLivePreviewRequested();
 }
 
@@ -677,15 +738,21 @@ void QmlJSLiveTextPreview::setClientProxy(ClientProxy *clientProxy)
         connect(m_clientProxy.data(), SIGNAL(objectTreeUpdated()),
                 SLOT(updateDebugIds()));
 
-        foreach (QWeakPointer<TextEditor::BaseTextEditorWidget> editWidget, m_editors)
+        foreach (QWeakPointer<TextEditor::BaseTextEditorWidget> editWidget,
+                 m_editors)
             if (editWidget)
-                connect(editWidget.data(), SIGNAL(selectedElementsChanged(QList<int>,QString)),
-                        this, SLOT(changeSelectedElements(QList<int>,QString)));
+                connect(editWidget.data(),
+                        SIGNAL(selectedElementsChanged(QList<int>,QString)),
+                        this,
+                        SLOT(changeSelectedElements(QList<int>,QString)));
     } else {
-        foreach (QWeakPointer<TextEditor::BaseTextEditorWidget> editWidget, m_editors)
+        foreach (QWeakPointer<TextEditor::BaseTextEditorWidget> editWidget,
+                 m_editors)
             if (editWidget)
-                disconnect(editWidget.data(), SIGNAL(selectedElementsChanged(QList<int>,QString)),
-                           this, SLOT(changeSelectedElements(QList<int>,QString)));
+                disconnect(editWidget.data(),
+                           SIGNAL(selectedElementsChanged(QList<int>,QString)),
+                           this,
+                           SLOT(changeSelectedElements(QList<int>,QString)));
     }
 }
 
