@@ -164,6 +164,7 @@ QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurati
 
 bool Qt4SymbianTargetFactory::selectByDefault(const QString &id) const
 {
+    Q_UNUSED(id);
     return true;
 }
 
