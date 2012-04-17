@@ -12,7 +12,7 @@
 #include <QTimer>
 #include "webtouchphysicsinterface.h"
 
-static const int KCumlativeDistanceThreshold = 40;
+static const int KCumulativeDistanceThreshold = 40;
 static const int KDecelerationCount = 4;
 static const int KDecelerationTimerSpeed = 10;
 static const int KFlickScrollThreshold = 400;
@@ -52,7 +52,7 @@ private:
     QPointF m_decelerationSpeed;
     QList<QPointF> m_decelerationPoints;
     QTimer m_decelerationTimer;
-    QPointF m_cumlativeDistance;
+    QPointF m_cumulativeDistance;
     const QWebFrame* m_frame;
     bool m_inMotion;
 };

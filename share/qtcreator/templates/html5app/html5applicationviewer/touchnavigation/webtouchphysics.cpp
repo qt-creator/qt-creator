@@ -34,7 +34,7 @@ bool WebTouchPhysics::inMotion()
 void WebTouchPhysics::stop()
 {
     m_decelerationTimer.stop();
-    m_cumlativeDistance = QPoint();
+    m_cumulativeDistance = QPoint();
     m_previousPoint = QPoint();
     m_startPressPoint = QPoint();
     m_decelerationPoints.clear();
@@ -67,7 +67,7 @@ bool WebTouchPhysics::move(const QPointF &pressPoint)
 bool WebTouchPhysics::release(const QPointF &pressPoint)
 {
     // use the cumulative distance in this case because it seems like a positive user experience
-    if (m_cumlativeDistance.manhattanLength() > KCumlativeDistanceThreshold) {
+    if (m_cumulativeDistance.manhattanLength() > KCumulativeDistanceThreshold) {
         m_decelerationSpeed = (m_decelerationPoints.back() - pressPoint) / (m_decelerationPoints.count() + 1);
         m_decelerationTimer.start();
         return true;
@@ -83,7 +83,7 @@ void WebTouchPhysics::changePosition(const QPointF &point)
     QPointF diff = m_previousPoint - point;
     emit positionChanged(diff, m_startPressPoint);
 
-    m_cumlativeDistance += (point - m_previousPoint);
+    m_cumulativeDistance += (point - m_previousPoint);
     m_previousPoint = point;
     m_decelerationPoints.push_front(point);
     if (m_decelerationPoints.count() > KDecelerationCount)
