@@ -166,8 +166,12 @@ void CoreGdbAdapter::setupInferior()
     QFileInfo fi(m_executable);
     const QByteArray sysroot = startParameters().sysroot.toLocal8Bit();
     QByteArray path = fi.absoluteFilePath().toLocal8Bit();
-    if (!sysroot.isEmpty())
+    if (!sysroot.isEmpty()) {
         m_engine->postCommand("set sysroot " + sysroot);
+        // sysroot is not enough to correctly locate the sources, so explicitly
+        // relocate the most likely place for the debug source
+        m_engine->postCommand("set substitute-path /usr/src " + sysroot + "/usr/src");
+    }
     m_engine->postCommand("-file-exec-and-symbols \"" + path + '"',
          CB(handleFileExecAndSymbols));
 }

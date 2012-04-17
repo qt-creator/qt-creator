@@ -180,8 +180,12 @@ void RemoteGdbServerAdapter::setupInferior()
         m_engine->postCommand("set architecture " + remoteArch);
     if (!gnuTarget.isEmpty())
         m_engine->postCommand("set gnutarget " + gnuTarget);
-    if (!sysroot.isEmpty())
+    if (!sysroot.isEmpty()) {
         m_engine->postCommand("set sysroot " + sysroot);
+        // sysroot is not enough to correctly locate the sources, so explicitly
+        // relocate the most likely place for the debug source
+        m_engine->postCommand("set substitute-path /usr/src " + sysroot + "/usr/src");
+    }
     if (!searchPath.isEmpty())
         m_engine->postCommand("set solib-search-path " + searchPath);
     if (!args.isEmpty())
