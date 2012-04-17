@@ -70,6 +70,7 @@
 #include <QVBoxLayout>
 
 #include <algorithm>
+#include <set>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -957,59 +958,76 @@ void Qt4DefaultTargetSetupWidget::replaceQtVersionWithTemporaryQtVersion(int id,
 }
 
 namespace {
-bool equal(const BuildConfigurationInfo &a, const BuildConfigurationInfo &b)
+class BuildConfigurationInfoCompare
 {
-    return a.qtVersionId == b.qtVersionId
-            && a.buildConfig == b.buildConfig
-            && a.additionalArguments == b.additionalArguments;
-}
-
-bool less(const BuildConfigurationInfo &a, const BuildConfigurationInfo &b)
-{
-    if (a.qtVersionId < b.qtVersionId)
-        return true;
-    if (a.qtVersionId > b.qtVersionId)
-        return false;
-
-    if (a.buildConfig != b.buildConfig) {
-        QtSupport::BaseQtVersion *version = a.version();
-        QtSupport::BaseQtVersion::QmakeBuildConfigs defaultBuildConfigs = QtSupport::BaseQtVersion::DebugBuild;
-        if (version)
-            defaultBuildConfigs = version->defaultBuildConfig();
-
-        bool adebug = a.buildConfig & QtSupport::BaseQtVersion::DebugBuild;
-        bool bdebug = b.buildConfig & QtSupport::BaseQtVersion::DebugBuild;
-        bool defaultdebug = defaultBuildConfigs & QtSupport::BaseQtVersion::DebugBuild;
-
-        if (adebug != bdebug)
-            return (adebug == defaultdebug);
-
-        bool abuildall = a.buildConfig & QtSupport::BaseQtVersion::BuildAll;
-        bool bbuildall = b.buildConfig & QtSupport::BaseQtVersion::BuildAll;
-        bool defaultbuildall = defaultBuildConfigs & QtSupport::BaseQtVersion::BuildAll;
-
-        if (abuildall != bbuildall)
-            return (abuildall == defaultbuildall);
-
-        // Those cases can't happen
-        if (a.buildConfig < b.buildConfig)
+public:
+    bool operator()(const BuildConfigurationInfo &a, const BuildConfigurationInfo &b)
+    {
+        if (a.qtVersionId < b.qtVersionId)
             return true;
-        if (a.buildConfig > b.buildConfig)
+        if (a.qtVersionId > b.qtVersionId)
             return false;
-    }
-    if (a.additionalArguments < b.additionalArguments)
-        return true;
-    if (a.additionalArguments > b.additionalArguments)
+
+        if (a.buildConfig != b.buildConfig) {
+            QtSupport::BaseQtVersion *version = a.version();
+            QtSupport::BaseQtVersion::QmakeBuildConfigs defaultBuildConfigs = QtSupport::BaseQtVersion::DebugBuild;
+            if (version)
+                defaultBuildConfigs = version->defaultBuildConfig();
+
+            bool adebug = a.buildConfig & QtSupport::BaseQtVersion::DebugBuild;
+            bool bdebug = b.buildConfig & QtSupport::BaseQtVersion::DebugBuild;
+            bool defaultdebug = defaultBuildConfigs & QtSupport::BaseQtVersion::DebugBuild;
+
+            if (adebug != bdebug)
+                return (adebug == defaultdebug);
+
+            bool abuildall = a.buildConfig & QtSupport::BaseQtVersion::BuildAll;
+            bool bbuildall = b.buildConfig & QtSupport::BaseQtVersion::BuildAll;
+            bool defaultbuildall = defaultBuildConfigs & QtSupport::BaseQtVersion::BuildAll;
+
+            if (abuildall != bbuildall)
+                return (abuildall == defaultbuildall);
+
+            // Those cases can't happen
+            if (a.buildConfig < b.buildConfig)
+                return true;
+            if (a.buildConfig > b.buildConfig)
+                return false;
+        }
+        if (a.additionalArguments < b.additionalArguments)
+            return true;
+        if (a.additionalArguments > b.additionalArguments)
+            return false;
+        // Equal
         return false;
-    // Other cases can't happen!
-    qDebug() << "could not order buildconfiguration infos";
-    return false;
-}
+    }
+};
+
 }
 
 void Qt4DefaultTargetSetupWidget::setBuildConfigurationInfos(QList<BuildConfigurationInfo> infos, bool resetDirectories)
 {
-    qSort(infos.begin(), infos.end(), less);
+    // We need to preserve the ordering of infos, so we jump through some hops
+    // to figure out which infos are newly added and which are deleted
+    std::set<BuildConfigurationInfo, BuildConfigurationInfoCompare> added;
+    std::set<BuildConfigurationInfo, BuildConfigurationInfoCompare> removed;
+    { // Figure out differences
+        std::set<BuildConfigurationInfo, BuildConfigurationInfoCompare> oldInfos;
+        std::set<BuildConfigurationInfo, BuildConfigurationInfoCompare> newInfos;
+
+        oldInfos.insert(m_infos.constBegin(), m_infos.constEnd());
+        newInfos.insert(infos.constBegin(), infos.constEnd());
+
+        BuildConfigurationInfoCompare comp;
+        std::set_difference(newInfos.begin(), newInfos.end(),
+                            oldInfos.begin(), oldInfos.end(),
+                            std::inserter(added, added.begin()),
+                            comp);
+        std::set_difference(oldInfos.begin(), oldInfos.end(),
+                            newInfos.begin(), newInfos.end(),
+                            std::inserter(removed, removed.begin()),
+                            comp);
+    }
 
     // Existing builds, to figure out which newly added
     // buildconfigurations should be en/disabled
@@ -1032,21 +1050,13 @@ void Qt4DefaultTargetSetupWidget::setBuildConfigurationInfos(QList<BuildConfigur
     QList<bool>::const_iterator enabledIt = m_enabled.constBegin();
     QList<bool> enabled;
     while (oldit != oend && newit != nend) {
-        if (equal(*oldit, *newit)) {
-            if (!resetDirectories)
-                newit->directory = oldit->directory;
-            enabled << *enabledIt;
-
-            ++oldit;
-            ++enabledIt;
-            ++newit;
-        } else if (less(*oldit, *newit)) {
+        if (removed.find(*oldit) != removed.end()) {
             // Deleted qt version
             if (*enabledIt)
                 --m_selected;
             ++oldit;
             ++enabledIt;
-        } else {
+        } else if (added.find(*newit) != added.end()) {
             // new info, check if we have a import build for that directory already
             // then disable this build
             if (existingBuilds.contains(newit->directory) || m_hasInSourceBuild) {
@@ -1056,6 +1066,15 @@ void Qt4DefaultTargetSetupWidget::setBuildConfigurationInfos(QList<BuildConfigur
                 ++m_selected;
             }
 
+            ++newit;
+        } else {
+            // updated
+            if (!resetDirectories)
+                newit->directory = oldit->directory;
+            enabled << *enabledIt;
+
+            ++oldit;
+            ++enabledIt;
             ++newit;
         }
     }
