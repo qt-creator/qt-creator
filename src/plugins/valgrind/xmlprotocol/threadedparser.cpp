@@ -40,6 +40,7 @@
 #include "suppression.h"
 #include <utils/qtcassert.h>
 
+#include <QIODevice>
 #include <QMetaType>
 #include <QThread>
 #include <QSharedPointer>
