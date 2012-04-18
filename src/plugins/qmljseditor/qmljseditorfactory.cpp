@@ -77,17 +77,6 @@ QString QmlJSEditorFactory::displayName() const
     return tr(C_QMLJSEDITOR_DISPLAY_NAME);
 }
 
-
-Core::IDocument *QmlJSEditorFactory::open(const QString &fileName)
-{
-    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
-    if (!iface) {
-        qWarning() << "QmlEditorFactory::open: openEditor failed for " << fileName;
-        return 0;
-    }
-    return iface->document();
-}
-
 Core::IEditor *QmlJSEditorFactory::createEditor(QWidget *parent)
 {
     QmlJSEditor::QmlJSTextEditorWidget *rc = new QmlJSEditor::QmlJSTextEditorWidget(parent);

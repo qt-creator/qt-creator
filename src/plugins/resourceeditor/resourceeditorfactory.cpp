@@ -64,16 +64,6 @@ QString ResourceEditorFactory::displayName() const
     return tr(C_RESOURCEEDITOR_DISPLAY_NAME);
 }
 
-Core::IDocument *ResourceEditorFactory::open(const QString &fileName)
-{
-    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
-    if (!iface) {
-        qWarning() << "ResourceEditorFactory::open: openEditor failed for " << fileName;
-        return 0;
-    }
-    return iface->document();
-}
-
 Core::IEditor *ResourceEditorFactory::createEditor(QWidget *parent)
 {
     Core::Context context(ResourceEditor::Constants::C_RESOURCEEDITOR);

@@ -30,37 +30,13 @@
 **
 **************************************************************************/
 
-#ifndef GLSLEDITORFACTORY_H
-#define GLSLEDITORFACTORY_H
+#include "ieditorfactory.h"
 
-#include <coreplugin/editormanager/ieditorfactory.h>
+#include "ieditor.h"
+#include "editormanager.h"
 
-#include <QStringList>
-
-namespace GLSLEditor {
-namespace Internal {
-
-class GLSLEditorFactory : public Core::IEditorFactory
+Core::IDocument *Core::IEditorFactory::open(const QString &fileName)
 {
-    Q_OBJECT
-
-public:
-    GLSLEditorFactory(QObject *parent);
-
-    // IEditorFactory
-    QStringList mimeTypes() const;
-    Core::Id id() const;
-    QString displayName() const;
-    Core::IEditor *createEditor(QWidget *parent);
-
-private slots:
-    void updateEditorInfoBar(Core::IEditor *editor);
-
-private:
-    QStringList m_mimeTypes;
-};
-
-} // namespace Internal
-} // namespace GLSLEditor
-
-#endif // GLSLEDITORFACTORY_H
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
+    return iface ? iface->document() : 0;
+}

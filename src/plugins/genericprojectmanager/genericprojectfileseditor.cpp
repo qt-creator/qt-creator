@@ -79,16 +79,6 @@ QString ProjectFilesFactory::displayName() const
     return tr(Constants::FILES_EDITOR_DISPLAY_NAME);
 }
 
-Core::IDocument *ProjectFilesFactory::open(const QString &fileName)
-{
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-
-    if (Core::IEditor *editor = editorManager->openEditor(fileName, id()))
-        return editor->document();
-
-    return 0;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////
 // ProjectFilesEditable
 ////////////////////////////////////////////////////////////////////////////////////////

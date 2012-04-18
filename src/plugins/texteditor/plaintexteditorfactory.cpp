@@ -75,12 +75,6 @@ QString PlainTextEditorFactory::displayName() const
     return tr(Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME);
 }
 
-Core::IDocument *PlainTextEditorFactory::open(const QString &fileName)
-{
-    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
-    return iface ? iface->document() : 0;
-}
-
 Core::IEditor *PlainTextEditorFactory::createEditor(QWidget *parent)
 {
     PlainTextEditorWidget *rc = new PlainTextEditorWidget(parent);

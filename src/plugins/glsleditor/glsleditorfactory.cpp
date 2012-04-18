@@ -75,16 +75,6 @@ QString GLSLEditorFactory::displayName() const
     return tr(C_GLSLEDITOR_DISPLAY_NAME);
 }
 
-Core::IDocument *GLSLEditorFactory::open(const QString &fileName)
-{
-    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
-    if (!iface) {
-        qWarning() << "QmlEditorFactory::open: openEditor failed for " << fileName;
-        return 0;
-    }
-    return iface->document();
-}
-
 Core::IEditor *GLSLEditorFactory::createEditor(QWidget *parent)
 {
     GLSLEditor::GLSLTextEditorWidget *rc = new GLSLEditor::GLSLTextEditorWidget(parent);

@@ -94,7 +94,8 @@ SOURCES += mainwindow.cpp \
     featureprovider.cpp \
     idocument.cpp \
     textdocument.cpp \
-    documentmanager.cpp
+    documentmanager.cpp \
+    ieditorfactory.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \

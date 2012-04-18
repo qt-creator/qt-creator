@@ -91,11 +91,4 @@ QStringList BaseVcsSubmitEditorFactory::mimeTypes() const
     return d->m_mimeTypes;
 }
 
-Core::IDocument *BaseVcsSubmitEditorFactory::open(const QString &fileName)
-{
-    if (Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id()))
-        return iface->document();
-    return 0;
-}
-
 } // namespace VcsBase

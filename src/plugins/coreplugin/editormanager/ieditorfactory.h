@@ -47,6 +47,7 @@ public:
     IEditorFactory(QObject *parent = 0) : IDocumentFactory(parent) {}
 
     virtual IEditor *createEditor(QWidget *parent) = 0;
+    virtual IDocument *open(const QString &fileName);
 };
 
 } // namespace Core

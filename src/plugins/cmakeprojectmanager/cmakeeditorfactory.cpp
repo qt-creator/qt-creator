@@ -84,12 +84,6 @@ QString CMakeEditorFactory::displayName() const
     return tr(CMakeProjectManager::Constants::CMAKE_EDITOR_DISPLAY_NAME);
 }
 
-Core::IDocument *CMakeEditorFactory::open(const QString &fileName)
-{
-    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
-    return iface ? iface->document() : 0;
-}
-
 Core::IEditor *CMakeEditorFactory::createEditor(QWidget *parent)
 {
     CMakeEditorWidget *rc = new CMakeEditorWidget(parent, this, m_actionHandler);

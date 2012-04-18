@@ -59,7 +59,6 @@ public:
     QStringList mimeTypes() const;
     Core::Id id() const;
     QString displayName() const;
-    Core::IDocument *open(const QString &fileName);
     Core::IEditor *createEditor(QWidget *parent);
 
     Qt4Manager *qt4ProjectManager() const { return m_manager; }

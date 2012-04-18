@@ -54,8 +54,6 @@ public:
     //Core::IEditorFactory
     Core::Id id() const;
     QString displayName() const;
-
-    Core::IDocument *open(const QString &fileName);
     Core::IEditor *createEditor(QWidget *parent);
 
     TextEditor::TextEditorActionHandler *actionHandler() const { return m_actionHandler; }

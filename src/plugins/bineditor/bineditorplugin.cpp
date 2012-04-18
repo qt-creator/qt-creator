@@ -426,13 +426,6 @@ QString BinEditorFactory::displayName() const
     return tr(Constants::C_BINEDITOR_DISPLAY_NAME);
 }
 
-Core::IDocument *BinEditorFactory::open(const QString &fileName)
-{
-    Core::EditorManager *em = Core::EditorManager::instance();
-    Core::IEditor *iface = em->openEditor(fileName, id());
-    return iface ? iface->document() : 0;
-}
-
 Core::IEditor *BinEditorFactory::createEditor(QWidget *parent)
 {
     BinEditor *editor = new BinEditor(parent);

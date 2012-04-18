@@ -78,12 +78,6 @@ QString ProFileEditorFactory::displayName() const
     return tr(Qt4ProjectManager::Constants::PROFILE_EDITOR_DISPLAY_NAME);
 }
 
-Core::IDocument *ProFileEditorFactory::open(const QString &fileName)
-{
-    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
-    return iface ? iface->document() : 0;
-}
-
 Core::IEditor *ProFileEditorFactory::createEditor(QWidget *parent)
 {
     ProFileEditorWidget *editor = new ProFileEditorWidget(parent, this, m_actionHandler);
