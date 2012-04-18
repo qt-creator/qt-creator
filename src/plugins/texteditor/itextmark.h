@@ -88,6 +88,7 @@ public:
     ITextMarkable *markableInterface() const;
     void setMarkableInterface(ITextMarkable *markableInterface);
 private:
+    Q_DISABLE_COPY(ITextMark)
     ITextMarkable *m_markableInterface;
     int m_lineNumber;
     QIcon m_icon;
