@@ -64,18 +64,17 @@ IDevice::Ptr GenericLinuxDeviceConfigurationFactory::create() const
     return wizard.device();
 }
 
-IDevice::Ptr GenericLinuxDeviceConfigurationFactory::loadDevice(const QVariantMap &map) const
+bool GenericLinuxDeviceConfigurationFactory::canRestore(const QVariantMap &map) const
 {
-    QTC_ASSERT(supportsDeviceType(IDevice::typeFromMap(map)),
-        return LinuxDeviceConfiguration::Ptr());
-    LinuxDeviceConfiguration::Ptr device = LinuxDeviceConfiguration::create();
-    device->fromMap(map);
-    return device;
+    return IDevice::typeFromMap(map) == QLatin1String(Constants::GenericLinuxOsType);
 }
 
-bool GenericLinuxDeviceConfigurationFactory::supportsDeviceType(const QString &deviceType) const
+IDevice::Ptr GenericLinuxDeviceConfigurationFactory::restore(const QVariantMap &map) const
 {
-    return deviceType == QLatin1String(Constants::GenericLinuxOsType);
+    QTC_ASSERT(canRestore(map), return LinuxDeviceConfiguration::Ptr());
+    const LinuxDeviceConfiguration::Ptr device = LinuxDeviceConfiguration::create();
+    device->fromMap(map);
+    return device;
 }
 
 } // namespace RemoteLinux

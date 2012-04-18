@@ -57,17 +57,16 @@ ProjectExplorer::IDevice::Ptr SymbianIDeviceFactory::create() const
     return ProjectExplorer::IDevice::Ptr();
 }
 
-ProjectExplorer::IDevice::Ptr SymbianIDeviceFactory::loadDevice(const QVariantMap &map) const
+bool SymbianIDeviceFactory::canRestore(const QVariantMap &map) const
 {
-    QTC_ASSERT(supportsDeviceType(ProjectExplorer::IDevice::typeFromMap(map)),
-               return ProjectExplorer::IDevice::Ptr());
-    SymbianIDevice *dev = new SymbianIDevice(map);
-    return ProjectExplorer::IDevice::Ptr(dev);
+    return ProjectExplorer::IDevice::typeFromMap(map) == deviceType();
 }
 
-bool SymbianIDeviceFactory::supportsDeviceType(const QString &type) const
+ProjectExplorer::IDevice::Ptr SymbianIDeviceFactory::restore(const QVariantMap &map) const
 {
-    return type == deviceType();
+    QTC_ASSERT(canRestore(map), return ProjectExplorer::IDevice::Ptr());
+    SymbianIDevice *dev = new SymbianIDevice(map);
+    return ProjectExplorer::IDevice::Ptr(dev);
 }
 
 QString SymbianIDeviceFactory::deviceType()

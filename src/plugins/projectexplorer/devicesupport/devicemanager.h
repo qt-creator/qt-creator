@@ -72,8 +72,6 @@ public:
     void addDevice(const IDevice::Ptr &device);
     void removeDevice(int index);
 
-    static const IDeviceFactory *factoryForDeviceType(const QString &type);
-
 signals:
     void deviceUpdated(const Core::Id &id);
 
@@ -90,6 +88,7 @@ private:
     void load();
     void save();
     void loadPre2_6();
+    static const IDeviceFactory *restoreFactory(const QVariantMap &map);
     void fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
     void ensureOneDefaultDevicePerType();

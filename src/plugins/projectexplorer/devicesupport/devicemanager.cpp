@@ -161,10 +161,10 @@ void DeviceManager::loadPre2_6()
         QVariantMap map;
         foreach (const QString &key, settings->childKeys())
             map.insert(key, settings->value(key));
-        const IDeviceFactory *factory = factoryForDeviceType(IDevice::typeFromMap(map));
+        const IDeviceFactory * const factory = restoreFactory(map);
         if (!factory)
             continue;
-        IDevice::Ptr device = factory->loadDevice(map);
+        IDevice::Ptr device = factory->restore(map);
         QTC_ASSERT(device, continue);
         d->devices << device;
     }
@@ -182,10 +182,10 @@ void DeviceManager::fromMap(const QVariantMap &map)
     const QVariantList deviceList = map.value(QLatin1String(DeviceListKey)).toList();
     foreach (const QVariant &v, deviceList) {
         const QVariantMap map = v.toMap();
-        const IDeviceFactory * const factory = factoryForDeviceType(IDevice::typeFromMap(map));
+        const IDeviceFactory * const factory = restoreFactory(map);
         if (!factory)
             continue;
-        IDevice::Ptr device = factory->loadDevice(map);
+        const IDevice::Ptr device = factory->restore(map);
         QTC_ASSERT(device, continue);
         if (device->isAutoDetected())
             d->inactiveAutoDetectedDevices << device;
@@ -320,14 +320,16 @@ void DeviceManager::setDefaultDevice(int idx)
     emit updated();
 }
 
-const IDeviceFactory *DeviceManager::factoryForDeviceType(const QString &type)
+const IDeviceFactory *DeviceManager::restoreFactory(const QVariantMap &map)
 {
     const QList<IDeviceFactory *> &factories
         = ExtensionSystem::PluginManager::instance()->getObjects<IDeviceFactory>();
     foreach (const IDeviceFactory * const factory, factories) {
-        if (factory->supportsDeviceType(type))
+        if (factory->canRestore(map))
             return factory;
     }
+    qWarning("Warning: No factory found for device of type '%s'.",
+        qPrintable(IDevice::typeFromMap(map)));
     return 0;
 }
 

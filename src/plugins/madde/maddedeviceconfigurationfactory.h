@@ -46,8 +46,8 @@ public:
     QString displayName() const;
     bool canCreate() const;
     ProjectExplorer::IDevice::Ptr create() const;
-    ProjectExplorer::IDevice::Ptr loadDevice(const QVariantMap &map) const;
-    bool supportsDeviceType(const QString &type) const;
+    bool canRestore(const QVariantMap &map) const;
+    ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const;
 };
 
 } // namespace Internal

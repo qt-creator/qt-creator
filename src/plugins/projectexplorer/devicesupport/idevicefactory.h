@@ -76,14 +76,15 @@ public:
     virtual IDevice::Ptr create() const = 0;
 
     /*!
-      Loads a device from a serialized state. The device must be of a matching type.
-    */
-    virtual IDevice::Ptr loadDevice(const QVariantMap &map) const = 0;
+      Check whether this factory can restore a device from the given serialized state.
+     */
+    virtual bool canRestore(const QVariantMap &map) const = 0;
 
     /*!
-      Returns true iff this factory supports the given device type.
+      Loads a device from a serialized state. Will only ever be called if canRestore()
+      returns true for the given map.
     */
-    virtual bool supportsDeviceType(const QString &type) const = 0;
+    virtual IDevice::Ptr restore(const QVariantMap &map) const = 0;
 
 protected:
     IDeviceFactory(QObject *parent) : QObject(parent) { }

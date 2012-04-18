@@ -66,18 +66,19 @@ IDevice::Ptr MaddeDeviceConfigurationFactory::create() const
     return wizard.device();
 }
 
-IDevice::Ptr MaddeDeviceConfigurationFactory::loadDevice(const QVariantMap &map) const
+bool MaddeDeviceConfigurationFactory::canRestore(const QVariantMap &map) const
 {
-    QTC_ASSERT(supportsDeviceType(IDevice::typeFromMap(map)), return MaddeDevice::Ptr());
-    MaddeDevice::Ptr device = MaddeDevice::create();
-    device->fromMap(map);
-    return device;
-}
-
-bool MaddeDeviceConfigurationFactory::supportsDeviceType(const QString &type) const
-{
+    const QString type = IDevice::typeFromMap(map);
     return type == QLatin1String(Maemo5OsType) || type == QLatin1String(HarmattanOsType)
         || type == QLatin1String(MeeGoOsType);
+}
+
+IDevice::Ptr MaddeDeviceConfigurationFactory::restore(const QVariantMap &map) const
+{
+    QTC_ASSERT(canRestore(map), return MaddeDevice::Ptr());
+    const MaddeDevice::Ptr device = MaddeDevice::create();
+    device->fromMap(map);
+    return device;
 }
 
 } // namespace Internal
