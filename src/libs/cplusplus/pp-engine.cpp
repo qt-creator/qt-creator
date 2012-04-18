@@ -71,6 +71,8 @@
 #  include <iostream>
 #endif // NO_DEBUG
 
+#include <deque>
+
 namespace {
 enum {
     eagerExpansion = 1,
@@ -108,7 +110,7 @@ namespace CPlusPlus {
 namespace Internal {
 struct TokenBuffer
 {
-    std::list<PPToken> tokens;
+    std::deque<PPToken> tokens;
     const Macro *macro;
     TokenBuffer *next;
 
