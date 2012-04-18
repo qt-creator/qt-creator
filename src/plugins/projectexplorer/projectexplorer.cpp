@@ -644,7 +644,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
 
     // unload session action
-    d->m_closeAllProjects = new QAction(tr("Close All Projects"), this);
+    d->m_closeAllProjects = new QAction(tr("Close All Projects and Editors"), this);
     cmd = am->registerAction(d->m_closeAllProjects, Constants::CLEARSESSION, globalcontext);
     mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
