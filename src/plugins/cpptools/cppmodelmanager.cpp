@@ -518,7 +518,7 @@ void CppPreprocessor::failedMacroDefinitionCheck(unsigned offset, const ByteArra
 
 void CppPreprocessor::startExpandingMacro(unsigned offset,
                                           const Macro &macro,
-                                          const QByteArray &originalText,
+                                          const ByteArrayRef &originalText,
                                           const QVector<MacroArgumentReference> &actuals)
 {
     if (! m_currentDoc)

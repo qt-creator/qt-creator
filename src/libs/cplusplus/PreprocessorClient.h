@@ -85,7 +85,7 @@ public:
 
   virtual void startExpandingMacro(unsigned offset,
                                    const Macro &macro,
-                                   const QByteArray &originalText,
+                                   const ByteArrayRef &originalText,
                                    const QVector<MacroArgumentReference> &actuals
                                             = QVector<MacroArgumentReference>()) = 0;
 

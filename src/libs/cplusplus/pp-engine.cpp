@@ -795,8 +795,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
         }
     }
 
-    const QByteArray macroName = macroNameRef.toByteArray();
-    Macro *macro = m_env->resolve(macroName);
+    Macro *macro = m_env->resolve(macroNameRef);
     if (!macro)
         return false;
     if (tk->generated() && m_state.m_tokenBuffer && m_state.m_tokenBuffer->isBlocked(macro))
@@ -804,7 +803,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
 //    qDebug() << "expanding" << macro->name() << "on line" << tk->lineno;
 
     if (m_client && !tk->generated())
-        m_client->startExpandingMacro(tk->offset, *macro, macroName);
+        m_client->startExpandingMacro(tk->offset, *macro, macroNameRef);
     QVector<PPToken> body = macro->definitionTokens();
 
     if (macro->isFunctionLike()) {
@@ -1470,7 +1469,7 @@ void Preprocessor::handleUndefDirective(PPToken *tk)
     lex(tk); // consume "undef" token
     if (tk->is(T_IDENTIFIER)) {
         const ByteArrayRef macroName = tk->asByteArrayRef();
-        const Macro *macro = m_env->remove(macroName.toByteArray());
+        const Macro *macro = m_env->remove(macroName);
 
         if (m_client && macro)
             m_client->macroAdded(*macro);

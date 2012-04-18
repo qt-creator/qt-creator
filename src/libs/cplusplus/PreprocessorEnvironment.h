@@ -76,9 +76,7 @@ public:
     Macro *macroAt(unsigned index) const;
 
     Macro *bind(const Macro &macro);
-    Macro *remove(const QByteArray &name);
-
-    Macro *resolve(const QByteArray &name) const;
+    Macro *remove(const ByteArrayRef &name);
     Macro *resolve(const ByteArrayRef &name) const;
 
     iterator firstMacro() const;

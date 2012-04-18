@@ -111,15 +111,15 @@ public:
     }
 
     virtual void passedMacroDefinitionCheck(unsigned /*offset*/, const Macro &/*macro*/) {}
-    virtual void failedMacroDefinitionCheck(unsigned /*offset*/, const QByteArray &/*name*/) {}
+    virtual void failedMacroDefinitionCheck(unsigned /*offset*/, const ByteArrayRef &/*name*/) {}
 
     virtual void startExpandingMacro(unsigned offset,
                                      const Macro &/*macro*/,
-                                     const QByteArray &originalText,
+                                     const ByteArrayRef &originalText,
                                      const QVector<MacroArgumentReference> &/*actuals*/
                                               = QVector<MacroArgumentReference>())
     {
-        m_expandedMacros.append(originalText);
+        m_expandedMacros.append(QByteArray(originalText.start(), originalText.length()));
         m_expandedMacrosOffset.append(offset);
     }
 

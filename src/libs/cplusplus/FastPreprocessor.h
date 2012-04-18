@@ -68,7 +68,7 @@ public:
 
     virtual void startExpandingMacro(unsigned,
                                      const Macro &,
-                                     const QByteArray &,
+                                     const ByteArrayRef &,
                                      const QVector<MacroArgumentReference> &) {}
 
     virtual void stopExpandingMacro(unsigned, const Macro &) {}

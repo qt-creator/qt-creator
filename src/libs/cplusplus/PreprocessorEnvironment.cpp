@@ -123,10 +123,10 @@ void Environment::addMacros(const QList<Macro> &macros)
     }
 }
 
-Macro *Environment::remove(const QByteArray &name)
+Macro *Environment::remove(const ByteArrayRef &name)
 {
     Macro macro;
-    macro.setName(name);
+    macro.setName(name.toByteArray());
     macro.setHidden(true);
     macro.setFileName(currentFile);
     macro.setLine(currentLine);
@@ -219,22 +219,6 @@ Environment::iterator Environment::firstMacro() const
 
 Environment::iterator Environment::lastMacro() const
 { return _macros + _macro_count + 1; }
-
-Macro *Environment::resolve(const QByteArray &name) const
-{
-    if (! _macros)
-        return 0;
-
-    Macro *it = _hash[hashCode(name) % _hash_count];
-    for (; it; it = it->_next) {
-        if (it->name() != name)
-            continue;
-        else if (it->isHidden())
-            return 0;
-        else break;
-    }
-    return it;
-}
 
 Macro *Environment::resolve(const ByteArrayRef &name) const
 {
