@@ -263,8 +263,7 @@ enum Kind {
 class CPLUSPLUS_EXPORT Token
 {
 public:
-    Token();
-    ~Token();
+    Token() : flags(0), offset(0), ptr(0) {}
 
     inline bool is(unsigned k) const    { return f.kind == k; }
     inline bool isNot(unsigned k) const { return f.kind != k; }
