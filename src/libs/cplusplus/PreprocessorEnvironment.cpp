@@ -150,7 +150,7 @@ void Environment::reset()
     _hash_count = 401;
 }
 
-bool Environment::isBuiltinMacro(const Internal::ByteArrayRef &s)
+bool Environment::isBuiltinMacro(const ByteArrayRef &s)
 {
     if (s.length() != 8)
         return false;
@@ -236,7 +236,7 @@ Macro *Environment::resolve(const QByteArray &name) const
     return it;
 }
 
-Macro *Environment::resolve(const Internal::ByteArrayRef &name) const
+Macro *Environment::resolve(const ByteArrayRef &name) const
 {
     if (! _macros)
         return 0;
@@ -262,7 +262,7 @@ unsigned Environment::hashCode(const QByteArray &s)
     return hash_value;
 }
 
-unsigned Environment::hashCode(const Internal::ByteArrayRef &s)
+unsigned Environment::hashCode(const ByteArrayRef &s)
 {
     unsigned hash_value = 0;
 

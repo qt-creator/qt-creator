@@ -2,7 +2,7 @@
 
 #include <cstring>
 
-using namespace CPlusPlus::Internal;
+using namespace CPlusPlus;
 
 bool ByteArrayRef::startsWith(const char *s) const
 {
@@ -23,7 +23,7 @@ int ByteArrayRef::count(char ch) const
     return num;
 }
 
-void PPToken::squeeze()
+void Internal::PPToken::squeeze()
 {
     if (isValid()) {
         m_src = m_src.mid(offset, length());

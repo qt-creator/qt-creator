@@ -7,7 +7,6 @@
 #include <QByteArray>
 
 namespace CPlusPlus {
-namespace Internal {
 
 class CPLUSPLUS_EXPORT ByteArrayRef
 {
@@ -79,6 +78,8 @@ inline bool operator==(const QByteArray &other, const ByteArrayRef &ref)
 
 inline bool operator!=(const QByteArray &other, const ByteArrayRef &ref)
 { return ref != other; }
+
+namespace Internal {
 
 class CPLUSPLUS_EXPORT PPToken: public Token
 {

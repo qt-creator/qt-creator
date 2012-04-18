@@ -147,7 +147,7 @@ private:
     void handleIfDefDirective(bool checkUndefined, PPToken *tk);
     void handleUndefDirective(PPToken *tk);
 
-    static bool isQtReservedWord(const Internal::ByteArrayRef &name);
+    static bool isQtReservedWord(const ByteArrayRef &name);
 
     void pushState(const State &newState);
     void popState();
@@ -174,7 +174,7 @@ private:
     inline void out(const char *s) const
     { if (m_state.m_result) m_state.m_result->append(s); }
 
-    inline void out(const Internal::ByteArrayRef &ref) const
+    inline void out(const ByteArrayRef &ref) const
     { if (m_state.m_result) m_state.m_result->append(ref.start(), ref.length()); }
 
     QString string(const char *first, int len) const;

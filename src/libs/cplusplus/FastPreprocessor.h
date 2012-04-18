@@ -64,7 +64,7 @@ public:
     virtual void macroAdded(const Macro &) {}
 
     virtual void passedMacroDefinitionCheck(unsigned, const Macro &) {}
-    virtual void failedMacroDefinitionCheck(unsigned, const Internal::ByteArrayRef &) {}
+    virtual void failedMacroDefinitionCheck(unsigned, const ByteArrayRef &) {}
 
     virtual void startExpandingMacro(unsigned,
                                      const Macro &,

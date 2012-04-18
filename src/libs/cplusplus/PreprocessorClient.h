@@ -43,7 +43,7 @@ QT_END_NAMESPACE
 
 namespace CPlusPlus {
 
-namespace Internal { class ByteArrayRef; }
+class ByteArrayRef;
 class Macro;
 
 class CPLUSPLUS_EXPORT MacroArgumentReference
@@ -81,7 +81,7 @@ public:
   virtual void macroAdded(const Macro &macro) = 0;
 
   virtual void passedMacroDefinitionCheck(unsigned offset, const Macro &macro) = 0;
-  virtual void failedMacroDefinitionCheck(unsigned offset, const Internal::ByteArrayRef &name) = 0;
+  virtual void failedMacroDefinitionCheck(unsigned offset, const ByteArrayRef &name) = 0;
 
   virtual void startExpandingMacro(unsigned offset,
                                    const Macro &macro,

@@ -79,7 +79,7 @@ public:
     Macro *remove(const QByteArray &name);
 
     Macro *resolve(const QByteArray &name) const;
-    Macro *resolve(const Internal::ByteArrayRef &name) const;
+    Macro *resolve(const ByteArrayRef &name) const;
 
     iterator firstMacro() const;
     iterator lastMacro() const;
@@ -87,11 +87,11 @@ public:
     void reset();
     void addMacros(const QList<Macro> &macros);
 
-    static bool isBuiltinMacro(const Internal::ByteArrayRef &name);
+    static bool isBuiltinMacro(const ByteArrayRef &name);
 
 private:
     static unsigned hashCode(const QByteArray &s);
-    static unsigned hashCode(const Internal::ByteArrayRef &s);
+    static unsigned hashCode(const ByteArrayRef &s);
     void rehash();
 
 public:

@@ -508,7 +508,7 @@ void CppPreprocessor::passedMacroDefinitionCheck(unsigned offset, const Macro &m
                               QVector<MacroArgumentReference>());
 }
 
-void CppPreprocessor::failedMacroDefinitionCheck(unsigned offset, const CPlusPlus::Internal::ByteArrayRef &name)
+void CppPreprocessor::failedMacroDefinitionCheck(unsigned offset, const ByteArrayRef &name)
 {
     if (! m_currentDoc)
         return;
