@@ -375,6 +375,8 @@ Abi::Abi(const QString &abiString) :
             m_osFlavor = UnknownFlavor;
         else if (abiParts.at(2) == QLatin1String("generic") && m_os == LinuxOS)
             m_osFlavor = GenericLinuxFlavor;
+        else if (abiParts.at(2) == QLatin1String("android") && m_os == LinuxOS)
+            m_osFlavor = AndroidLinuxFlavor;
         else if (abiParts.at(2) == QLatin1String("freebsd") && m_os == BsdOS)
             m_osFlavor = FreeBsdFlavor;
         else if (abiParts.at(2) == QLatin1String("netbsd") && m_os == BsdOS)
@@ -483,6 +485,8 @@ bool Abi::isCompatibleWith(const Abi &other) const
                   && (binaryFormat() == other.binaryFormat() || other.binaryFormat() == Abi::UnknownFormat)
                   && ((wordWidth() == other.wordWidth() && wordWidth() != 0) || other.wordWidth() == 0))
         isCompat = true;
+    if (osFlavor() == AndroidLinuxFlavor || other.osFlavor() == AndroidLinuxFlavor)
+        isCompat = (osFlavor() == other.osFlavor() && architecture() == other.architecture());
     return isCompat;
 }
 
@@ -551,6 +555,8 @@ QString Abi::toString(const OSFlavor &of)
     switch (of) {
     case ProjectExplorer::Abi::GenericLinuxFlavor:
         return QLatin1String("generic");
+    case ProjectExplorer::Abi::AndroidLinuxFlavor:
+        return QLatin1String("android");
     case ProjectExplorer::Abi::FreeBsdFlavor:
         return QLatin1String("freebsd");
     case ProjectExplorer::Abi::NetBsdFlavor:

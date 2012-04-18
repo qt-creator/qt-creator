@@ -61,7 +61,7 @@ QString QmlApplicationViewerPrivate::adjustPath(const QString &path)
     if (!QDir::isAbsolutePath(path))
         return QString::fromLatin1("%1/../Resources/%2")
                 .arg(QCoreApplication::applicationDirPath(), path);
-#else
+#elif !defined(Q_OS_ANDROID)
     const QString pathInInstallDir =
             QString::fromLatin1("%1/../%2").arg(QCoreApplication::applicationDirPath(), path);
     if (QFileInfo(pathInInstallDir).exists())
@@ -77,6 +77,10 @@ QmlApplicationViewer::QmlApplicationViewer(QWidget *parent)
 {
     connect(engine(), SIGNAL(quit()), SLOT(close()));
     setResizeMode(QDeclarativeView::SizeRootObjectToView);
+
+#ifdef Q_OS_ANDROID
+    engine()->setBaseUrl(QUrl::fromLocalFile(QLatin1String("/")));
+#endif
     // Qt versions prior to 4.8.0 don't have QML/JS debugging services built in
 #if defined(QMLJSDEBUGGER) && QT_VERSION < 0x040800
 #if !defined(NO_JSDEBUGGER)

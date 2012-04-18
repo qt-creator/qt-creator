@@ -164,7 +164,11 @@ void RemoteGdbServerAdapter::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     const DebuggerStartParameters &sp = startParameters();
-
+#ifdef Q_OS_WIN
+    #define PATHSEP ";"
+#else
+    #define PATHSEP ":"
+#endif
     QString fileName;
     if (!sp.executable.isEmpty()) {
         QFileInfo fi(sp.executable);
@@ -175,6 +179,7 @@ void RemoteGdbServerAdapter::setupInferior()
     const QByteArray gnuTarget = sp.gnuTarget.toLatin1();
     const QByteArray searchPath = startParameters().searchPath.toLocal8Bit();
     const QString args = sp.processArgs;
+    const QString solibSearchPath = startParameters().solibSearchPath.join(QLatin1String(PATHSEP));
 
     if (!remoteArch.isEmpty())
         m_engine->postCommand("set architecture " + remoteArch);
@@ -186,8 +191,9 @@ void RemoteGdbServerAdapter::setupInferior()
         // relocate the most likely place for the debug source
         m_engine->postCommand("set substitute-path /usr/src " + sysroot + "/usr/src");
     }
-    if (!searchPath.isEmpty())
-        m_engine->postCommand("set solib-search-path " + searchPath);
+    if (!solibSearchPath.isEmpty())
+        m_engine->postCommand("set solib-search-path " + solibSearchPath.toLocal8Bit());
+
     if (!args.isEmpty())
         m_engine->postCommand("-exec-arguments " + args.toLocal8Bit());
 

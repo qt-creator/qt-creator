@@ -81,6 +81,7 @@ const char MAEMO5_DEVICE_TARGET_ID[] = "Qt4ProjectManager.Target.MaemoDeviceTarg
 const char HARMATTAN_DEVICE_TARGET_ID[] = "Qt4ProjectManager.Target.HarmattanDeviceTarget";
 const char MEEGO_DEVICE_TARGET_ID[] = "Qt4ProjectManager.Target.MeegoDeviceTarget";
 const char QT_SIMULATOR_TARGET_ID[] = "Qt4ProjectManager.Target.QtSimulatorTarget";
+const char ANDROID_DEVICE_TARGET_ID[] = "Qt4ProjectManager.Target.AndroidDeviceTarget";
 
 // Target Features
 const char MOBILE_TARGETFEATURE_ID[] = "Qt4ProjectManager.TargetFeature.Mobile";

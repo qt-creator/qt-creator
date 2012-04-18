@@ -60,7 +60,7 @@ void DebuggerToolChainComboBox::init(bool hostAbiOnly)
     const ProjectExplorer::Abi hostAbi = ProjectExplorer::Abi::hostAbi();
     foreach (const ProjectExplorer::ToolChain *tc, ProjectExplorer::ToolChainManager::instance()->toolChains()) {
         const ProjectExplorer::Abi abi = tc->targetAbi();
-        if (!hostAbiOnly || hostAbi.os() == abi.os()) { // Offer MSVC and Mingw, etc.
+        if (!hostAbiOnly || hostAbi.isCompatibleWith(abi)) {
             const QString debuggerCommand = tc->debuggerCommand().toString();
             if (!debuggerCommand.isEmpty()) {
                 const AbiDebuggerCommandPair data(abi, debuggerCommand);

@@ -1,0 +1,730 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AndroidSettingsWidget</class>
+ <widget class="QWidget" name="AndroidSettingsWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>679</width>
+    <height>441</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Android Configuration</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="SDKLocationLabel">
+       <property name="text">
+        <string>Android SDK location:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="SDKLocationLineEdit"/>
+     </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="SDKLocationPushButton">
+       <property name="text">
+        <string>Browse</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="NDKLocationLabel">
+       <property name="text">
+        <string>Android NDK location:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="NDKLocationLineEdit"/>
+     </item>
+     <item row="1" column="2">
+      <widget class="QPushButton" name="NDKLocationPushButton">
+       <property name="text">
+        <string>Browse</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="NDKToolchainVersionLabel">
+       <property name="text">
+        <string>Android NDK toolchain version:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QComboBox" name="toolchainVersionComboBox"/>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="AntLocationLabel">
+       <property name="text">
+        <string>Ant location:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLineEdit" name="AntLocationLineEdit"/>
+     </item>
+     <item row="3" column="2">
+      <widget class="QPushButton" name="AntLocationPushButton">
+       <property name="text">
+        <string>Browse</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="GdbLocationLabel">
+       <property name="text">
+        <string>arm GDB location:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLineEdit" name="GdbLocationLineEdit"/>
+     </item>
+     <item row="4" column="2">
+      <widget class="QPushButton" name="GdbLocationPushButton">
+       <property name="text">
+        <string>Browse</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="GdbserverLocationLabel">
+       <property name="text">
+        <string>arm GDBserver location:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QLineEdit" name="GdbserverLocationLineEdit"/>
+     </item>
+     <item row="5" column="2">
+      <widget class="QPushButton" name="GdbserverLocationPushButton">
+       <property name="text">
+        <string>Browse</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="GdbLocationLabelx86">
+       <property name="text">
+        <string>x86 GDB location:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QLineEdit" name="GdbLocationLineEditx86"/>
+     </item>
+     <item row="6" column="2">
+      <widget class="QPushButton" name="GdbLocationPushButtonx86">
+       <property name="text">
+        <string>Browse</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="GdbserverLocationLabelx86">
+       <property name="text">
+        <string>x86 GDBserver location:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QLineEdit" name="GdbserverLocationLineEditx86"/>
+     </item>
+     <item row="7" column="2">
+      <widget class="QPushButton" name="GdbserverLocationPushButtonx86">
+       <property name="text">
+        <string>Browse</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="OpenJDKLocationLabel">
+       <property name="text">
+        <string>OpenJDK location:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QLineEdit" name="OpenJDKLocationLineEdit"/>
+     </item>
+     <item row="8" column="2">
+      <widget class="QPushButton" name="OpenJDKLocationPushButton">
+       <property name="text">
+        <string>Browse</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QFrame" name="AVDManagerFrame">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="1" column="0" rowspan="4">
+       <widget class="QTableView" name="AVDTableView">
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SingleSelection</enum>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <property name="textElideMode">
+         <enum>Qt::ElideMiddle</enum>
+        </property>
+        <attribute name="verticalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QPushButton" name="AVDStartPushButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Start</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>129</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="0" colspan="2">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="AVDManagerLabel">
+          <property name="text">
+           <string>AVD Manager</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="DataPartitionSizeLable">
+          <property name="text">
+           <string>System/data partition size:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="DataPartitionSizeSpinBox">
+          <property name="suffix">
+           <string> Mb</string>
+          </property>
+          <property name="maximum">
+           <number>99999</number>
+          </property>
+          <property name="value">
+           <number>1024</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="manageAVDPushButton">
+          <property name="text">
+           <string>Start Android AVD Manager</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="AVDAddPushButton">
+        <property name="text">
+         <string>Add</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QPushButton" name="AVDRemovePushButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Remove</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>NDKLocationLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>ndkLocationEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>420</x>
+     <y>49</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>NDKLocationPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>browseNDKLocation()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>657</x>
+     <y>49</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolchainVersionComboBox</sender>
+   <signal>currentIndexChanged(QString)</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>toolchainVersionIndexChanged(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>420</x>
+     <y>81</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SDKLocationLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>sdkLocationEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>420</x>
+     <y>17</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SDKLocationPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>browseSDKLocation()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>657</x>
+     <y>17</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AntLocationLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>antLocationEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>420</x>
+     <y>113</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AntLocationPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>browseAntLocation()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>657</x>
+     <y>113</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>OpenJDKLocationLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>openJDKLocationEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>420</x>
+     <y>49</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>OpenJDKLocationPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>browseOpenJDKLocation()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>657</x>
+     <y>49</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AVDAddPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>addAVD()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>693</x>
+     <y>199</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AVDRemovePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>removeAVD()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>693</x>
+     <y>230</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AVDStartPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>startAVD()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>693</x>
+     <y>261</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AVDTableView</sender>
+   <signal>activated(QModelIndex)</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>avdActivated(QModelIndex)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>309</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AVDTableView</sender>
+   <signal>clicked(QModelIndex)</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>avdActivated(QModelIndex)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>309</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>DataPartitionSizeSpinBox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>dataPartitionSizeEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>543</x>
+     <y>153</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>GdbLocationLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>gdbLocationEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>409</x>
+     <y>132</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>GdbLocationPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>browseGdbLocation()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>662</x>
+     <y>131</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>GdbserverLocationLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>gdbserverLocationEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>423</x>
+     <y>171</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>222</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>GdbserverLocationPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>browseGdbserverLocation()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>660</x>
+     <y>172</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>222</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>GdbLocationLineEditx86</sender>
+   <signal>editingFinished()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>gdbLocationX86EditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>399</x>
+     <y>184</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>338</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>GdbLocationPushButtonx86</sender>
+   <signal>clicked()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>browseGdbLocationX86()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>637</x>
+     <y>184</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>338</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>GdbserverLocationLineEditx86</sender>
+   <signal>editingFinished()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>gdbserverLocationX86EditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>399</x>
+     <y>212</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>338</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>GdbserverLocationPushButtonx86</sender>
+   <signal>clicked()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>browseGdbserverLocationX86()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>637</x>
+     <y>212</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>338</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>manageAVDPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>manageAVD()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>568</x>
+     <y>268</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>339</x>
+     <y>220</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>sdkLocationEditingFinished()</slot>
+  <slot>ndkLocationEditingFinished()</slot>
+  <slot>browseSDKLocation()</slot>
+  <slot>browseNDKLocation()</slot>
+  <slot>antLocationEditingFinished()</slot>
+  <slot>browseAntLocation()</slot>
+  <slot>toolchainVersionIndexChanged(QString)</slot>
+  <slot>addAVD()</slot>
+  <slot>removeAVD()</slot>
+  <slot>startAVD()</slot>
+  <slot>avdActivated(QModelIndex)</slot>
+  <slot>dataPartitionSizeEditingFinished()</slot>
+  <slot>gdbLocationEditingFinished()</slot>
+  <slot>browseGdbLocation()</slot>
+  <slot>gdbserverLocationEditingFinished()</slot>
+  <slot>browseGdbserverLocation()</slot>
+  <slot>openJDKLocationEditingFinished()</slot>
+  <slot>browseOpenJDKLocation()</slot>
+  <slot>gdbLocationX86EditingFinished()</slot>
+  <slot>browseGdbLocationX86()</slot>
+  <slot>gdbserverLocationX86EditingFinished()</slot>
+  <slot>browseGdbserverLocationX86()</slot>
+  <slot>KeystoreLocationEditingFinished()</slot>
+  <slot>browseKeystoreLocation()</slot>
+  <slot>createKeystore()</slot>
+  <slot>manageAVD()</slot>
+ </slots>
+</ui>

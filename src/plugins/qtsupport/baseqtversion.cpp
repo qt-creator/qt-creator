@@ -1227,6 +1227,7 @@ Utils::FileName BaseQtVersion::qtCorePath(const QHash<QString,QString> &versionI
                         staticLibs.append(info);
                     else if (file.endsWith(QLatin1String(".dll"))
                              || file.endsWith(QString::fromLatin1(".so.") + versionString)
+                             || file.endsWith(QLatin1String(".so"))
                              || file.endsWith(QLatin1Char('.') + versionString + QLatin1String(".dylib")))
                         return Utils::FileName(info);
                 }

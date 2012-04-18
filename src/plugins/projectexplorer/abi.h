@@ -76,6 +76,7 @@ public:
 
         // Linux
         GenericLinuxFlavor,
+        AndroidLinuxFlavor,
         HarmattanLinuxFlavor,
         MaemoLinuxFlavor,
         MeegoLinuxFlavor,
