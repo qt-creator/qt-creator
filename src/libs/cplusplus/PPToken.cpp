@@ -4,8 +4,6 @@
 
 using namespace CPlusPlus::Internal;
 
-const QByteArray ByteArrayRef::m_emptyByteArray;
-
 bool ByteArrayRef::startsWith(const char *s) const
 {
     int l = std::strlen(s);
