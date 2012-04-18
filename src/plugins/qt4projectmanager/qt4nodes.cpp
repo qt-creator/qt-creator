@@ -992,12 +992,14 @@ bool Qt4PriFileNode::renameFile(const FileType fileType, const QString &filePath
     if (newFilePath.isEmpty())
         return false;
 
+    bool changeProFileOptional = deploysFolder(QFileInfo(filePath).absolutePath());
+
     QStringList dummy;
     changeFiles(fileType, QStringList() << filePath, &dummy, RemoveFromProFile);
-    if (!dummy.isEmpty())
+    if (!dummy.isEmpty() && !changeProFileOptional)
         return false;
     changeFiles(fileType, QStringList() << newFilePath, &dummy, AddToProFile);
-    if (!dummy.isEmpty())
+    if (!dummy.isEmpty() && !changeProFileOptional)
         return false;
     return true;
 }

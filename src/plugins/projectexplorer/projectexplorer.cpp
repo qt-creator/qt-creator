@@ -2844,8 +2844,13 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
         Core::DocumentManager::renamedFile(orgFilePath, newFilePath);
         // Tell the project plugin about it
         ProjectNode *projectNode = fileNode->projectNode();
-        projectNode->renameFile(fileNode->fileType(), orgFilePath, newFilePath);
-        // TODO emit a signal?
+        if (!projectNode->renameFile(fileNode->fileType(), orgFilePath, newFilePath)) {
+            QMessageBox::warning(Core::ICore::mainWindow(), tr("Project Editing Failed"),
+                                 tr("The file %1 was renamed to %2, but the project file %3 could not be automatically changed.")
+                                 .arg(orgFilePath)
+                                 .arg(newFilePath)
+                                 .arg(projectNode->displayName()));
+        }
     }
 }
 
