@@ -22,6 +22,11 @@ public:
         , m_length(ref->length())
     {}
 
+    ByteArrayRef(const char *start, int length)
+        : m_start(start)
+        , m_length(length)
+    {}
+
     ByteArrayRef(const QByteArray *ref, int offset, int length)
         : m_start(ref->constData() + offset)
         , m_length(length)

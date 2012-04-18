@@ -300,7 +300,7 @@ protected:
 
     virtual void macroAdded(const CPlusPlus::Macro &macro);
     virtual void passedMacroDefinitionCheck(unsigned offset, const CPlusPlus::Macro &macro);
-    virtual void failedMacroDefinitionCheck(unsigned offset, const QByteArray &name);
+    virtual void failedMacroDefinitionCheck(unsigned offset, const CPlusPlus::Internal::ByteArrayRef &name);
     virtual void startExpandingMacro(unsigned offset,
                                      const CPlusPlus::Macro &macro,
                                      const QByteArray &originalText,

@@ -508,12 +508,12 @@ void CppPreprocessor::passedMacroDefinitionCheck(unsigned offset, const Macro &m
                               QVector<MacroArgumentReference>());
 }
 
-void CppPreprocessor::failedMacroDefinitionCheck(unsigned offset, const QByteArray &name)
+void CppPreprocessor::failedMacroDefinitionCheck(unsigned offset, const CPlusPlus::Internal::ByteArrayRef &name)
 {
     if (! m_currentDoc)
         return;
 
-    m_currentDoc->addUndefinedMacroUse(name, offset);
+    m_currentDoc->addUndefinedMacroUse(QByteArray(name.start(), name.size()), offset);
 }
 
 void CppPreprocessor::startExpandingMacro(unsigned offset,

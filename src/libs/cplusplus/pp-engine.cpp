@@ -210,7 +210,7 @@ inline bool isValidToken(const PPToken &tk)
     return tk.isNot(T_EOF_SYMBOL) && (! tk.newline() || tk.joined());
 }
 
-Macro *macroDefinition(const QByteArray &name, unsigned offset, Environment *env, Client *client)
+Macro *macroDefinition(const ByteArrayRef &name, unsigned offset, Environment *env, Client *client)
 {
     Macro *m = env->resolve(name);
     if (client) {
@@ -306,7 +306,7 @@ protected:
     {
         if ((*_lex)->isNot(T_IDENTIFIER))
             return false;
-        const QByteArray spell = tokenSpell();
+        const ByteArrayRef spell = tokenSpell();
         if (spell.size() != 7)
             return false;
         return spell == "defined";
@@ -322,11 +322,9 @@ protected:
         return (*_lex)->f.length;
     }
 
-    QByteArray tokenSpell() const
+    ByteArrayRef tokenSpell() const
     {
-        const QByteArray text = QByteArray::fromRawData(source.constData() + (*_lex)->offset,
-                                                        (*_lex)->f.length);
-        return text;
+        return ByteArrayRef(tokenPosition(), tokenLength());
     }
 
     inline void process_expression()
@@ -1430,7 +1428,7 @@ void Preprocessor::handleIfDefDirective(bool checkUndefined, PPToken *tk)
     if (tk->is(T_IDENTIFIER)) {
         bool value = false;
         const ByteArrayRef macroName = tk->asByteArrayRef();
-        if (Macro *macro = macroDefinition(macroName.toByteArray(), tk->offset, m_env, m_client)) {
+        if (Macro *macro = macroDefinition(macroName, tk->offset, m_env, m_client)) {
             value = true;
 
             // the macro is a feature constraint(e.g. QT_NO_XXX)
