@@ -5,7 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "QmlJSInspector"
 
-    Depends { name: "qt"; submodules: ['gui'] }
+    Depends { name: "qt"; submodules: ['widgets', 'quick1'] }
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QmlProjectManager" }

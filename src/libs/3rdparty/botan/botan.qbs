@@ -543,6 +543,7 @@ QtcLibrary {
     }
 
     ProductModule {
+        Depends { name: "cpp" }
         cpp.linkerFlags: {
             if (qbs.toolchain === 'mingw') {
                 return ['--enable-auto-import']

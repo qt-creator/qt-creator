@@ -241,13 +241,14 @@ QtcPlugin {
     }
 
     ProductModule {
+        Depends { name: "cpp" }
         Depends { name: "Aggregation" }
         Depends { name: "ExtensionSystem" }
         Depends { name: "Utils" }
         cpp.includePaths: [
             "../..",
             "../../libs",
-            buildDirectory + "/.obj/Core/actionmanager"
+            product.buildDirectory + "/.obj/Core/actionmanager"
         ]
     }
 }

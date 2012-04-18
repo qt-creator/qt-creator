@@ -242,5 +242,9 @@ QtcLibrary {
             "unixutils.cpp"
         ]
     }
+
+    ProductModule {
+        Depends { name: "Qt"; submodules: ["widgets", "network"] }
+    }
 }
 

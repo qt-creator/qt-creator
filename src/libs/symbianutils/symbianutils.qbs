@@ -55,6 +55,7 @@ QtcLibrary {
     ]
 
     ProductModule {
+        Depends { name: "cpp" }
         cpp.includePaths: [
             "../../shared/symbianutils",
             "../../shared/json",
