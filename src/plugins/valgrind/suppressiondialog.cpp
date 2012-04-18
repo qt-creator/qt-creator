@@ -78,7 +78,7 @@ static QString suppressionText(const Error &error)
     // we take the last stack frame and append the suppression kind, e.g.:
     // QDebug::operator<<(bool) [Memcheck:Cond]
     if (!error.stacks().isEmpty() && !error.stacks().first().frames().isEmpty()) {
-        const Frame &frame = error.stacks().first().frames().first();
+        const Frame frame = error.stacks().first().frames().first();
 
         QString newName;
         if (!frame.functionName().isEmpty())
