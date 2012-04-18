@@ -158,11 +158,6 @@ QTextCodec *CodecSelector::selectedCodec() const
     return 0;
 }
 
-CodecSelector::Result CodecSelector::exec()
-{
-    return (Result) QDialog::exec();
-}
-
 void CodecSelector::buttonClicked(QAbstractButton *button)
 {
     Result result =  Cancel;

@@ -55,11 +55,10 @@ public:
 
     QTextCodec *selectedCodec() const;
 
+    // Enumeration returned from QDialog::exec()
     enum Result {
         Cancel, Reload, Save
     };
-
-    Result exec();
 
 private slots:
     void updateButtons();

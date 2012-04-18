@@ -675,9 +675,13 @@ void PluginManager::startTests()
         methods.append("arg0");
         // We only want slots starting with "test"
         for (int i = mo->methodOffset(); i < mo->methodCount(); ++i) {
-            if (QByteArray(mo->method(i).signature()).startsWith("test") &&
-                !QByteArray(mo->method(i).signature()).endsWith("_data()")) {
-                QString method = QString::fromLatin1(mo->method(i).signature());
+#if QT_VERSION >= 0x050000
+            const QByteArray signature = mo->method(i).methodSignature();
+#else
+            const QByteArray signature = mo->method(i).signature();
+#endif
+            if (signature.startsWith("test") && !signature.endsWith("_data()")) {
+                const QString method = QString::fromLatin1(signature);
                 methods.append(method.left(method.size()-2));
             }
         }
