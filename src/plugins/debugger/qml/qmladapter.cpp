@@ -34,13 +34,13 @@
 
 #include "qscriptdebuggerclient.h"
 #include "qmlv8debuggerclient.h"
-#include "qmljsprivateapi.h"
 
 #include "qmlengine.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
+#include <qmldebug/baseenginedebugclient.h>
 #include <qmldebug/qdebugmessageclient.h>
 
 #include <QTimer>
@@ -67,13 +67,13 @@ public:
 
     QWeakPointer<DebuggerEngine> m_engine;
     BaseQmlDebuggerClient *m_qmlClient;
-    QmlDebug::BaseEngineDebugClient *m_engineDebugClient;
+    BaseEngineDebugClient *m_engineDebugClient;
     QTimer m_connectionTimer;
     QmlDebugConnection *m_conn;
     QHash<QString, BaseQmlDebuggerClient*> debugClients;
     int m_currentSelectedDebugId;
     QString m_currentSelectedDebugName;
-    QmlDebug::QDebugMessageClient *m_msgClient;
+    QDebugMessageClient *m_msgClient;
 };
 
 } // namespace Internal
@@ -93,7 +93,7 @@ QmlAdapter::QmlAdapter(DebuggerEngine *engine, QObject *parent)
     pluginManager->addObject(this);
 
     createDebuggerClients();
-    d->m_msgClient = new QmlDebug::QDebugMessageClient(d->m_conn);
+    d->m_msgClient = new QDebugMessageClient(d->m_conn);
     connect(d->m_msgClient, SIGNAL(newStatus(QmlDebugClient::Status)),
             this, SLOT(clientStatusChanged(QmlDebugClient::Status)));
 }
@@ -307,12 +307,12 @@ QHash<QString, Internal::BaseQmlDebuggerClient*> QmlAdapter::debuggerClients()
     return d->debugClients;
 }
 
-QmlDebug::BaseEngineDebugClient *QmlAdapter::engineDebugClient() const
+BaseEngineDebugClient *QmlAdapter::engineDebugClient() const
 {
     return d->m_engineDebugClient;
 }
 
-void QmlAdapter::setEngineDebugClient(QmlDebug::BaseEngineDebugClient *client)
+void QmlAdapter::setEngineDebugClient(BaseEngineDebugClient *client)
 {
     Internal::QmlEngine *engine =
             qobject_cast<Internal::QmlEngine *>(d->m_engine.data());
@@ -327,7 +327,7 @@ void QmlAdapter::setEngineDebugClient(QmlDebug::BaseEngineDebugClient *client)
                 SLOT(expressionEvaluated(quint32,QVariant)));
 }
 
-QmlDebug::QDebugMessageClient *QmlAdapter::messageClient() const
+QDebugMessageClient *QmlAdapter::messageClient() const
 {
     return d->m_msgClient;
 }

@@ -35,7 +35,6 @@
 #include "qmljsinspectortoolbar.h"
 #include "qmljsclientproxy.h"
 #include "qmljslivetextpreview.h"
-#include "qmljsprivateapi.h"
 #include "qmljscontextcrumblepath.h"
 #include "qmljsinspectorsettings.h"
 #include "qmljspropertyinspector.h"

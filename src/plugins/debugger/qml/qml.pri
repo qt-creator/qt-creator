@@ -4,7 +4,6 @@ HEADERS += \
     $$PWD/qmlengine.h \
     $$PWD/qmladapter.h \
     $$PWD/baseqmldebuggerclient.h \
-    $$PWD/qmljsprivateapi.h \
     $$PWD/qmlcppengine.h \
     $$PWD/qscriptdebuggerclient.h \
     $$PWD/qmlv8debuggerclient.h \

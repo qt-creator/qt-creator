@@ -37,9 +37,9 @@
 #include <QWeakPointer>
 #include <texteditor/basetexteditor.h>
 
+#include <qmldebug/baseenginedebugclient.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsdocument.h>
-#include "qmljsprivateapi.h"
 
 QT_FORWARD_DECLARE_CLASS(QTextDocument)
 
@@ -55,6 +55,8 @@ namespace QmlJSInspector {
 namespace Internal {
 
 class ClientProxy;
+
+using namespace QmlDebug;
 
 class QmlJSLiveTextPreview : public QObject
 {

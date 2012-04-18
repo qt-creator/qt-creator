@@ -33,10 +33,10 @@
 #ifndef QMLJSINSPECTOR_H
 #define QMLJSINSPECTOR_H
 
-#include "qmljsprivateapi.h"
-
 #include <coreplugin/editormanager/ieditor.h>
 #include <utils/fileinprojectfinder.h>
+
+#include <qmldebug/baseenginedebugclient.h>
 
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
@@ -72,6 +72,8 @@ class ClientProxy;
 class InspectorSettings;
 class ContextCrumblePath;
 class QmlJSLiveTextPreview;
+
+using namespace QmlDebug;
 
 class InspectorUi : public QObject
 {

@@ -33,7 +33,7 @@
 #define QMLJSCLIENTPROXY_H
 
 #include "qmljsinspectorplugin.h"
-#include "qmljsprivateapi.h"
+#include <qmldebug/baseenginedebugclient.h>
 #include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QUrl)
@@ -52,6 +52,8 @@ namespace Internal {
 
 class InspectorPlugin;
 class QmlToolsClient;
+
+using namespace QmlDebug;
 
 class ClientProxy : public QObject
 {

@@ -12,7 +12,6 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 DEFINES += QMLJSINSPECTOR_LIBRARY
 
 HEADERS += \
-qmljsprivateapi.h \
 qmljsinspector_global.h \
 qmljsinspectorconstants.h \
 qmljsinspectorplugin.h \

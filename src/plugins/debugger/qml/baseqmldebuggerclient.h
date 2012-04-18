@@ -33,8 +33,8 @@
 #ifndef BASEQMLDEBUGGERCLIENT_H
 #define BASEQMLDEBUGGERCLIENT_H
 
-#include "qmljsprivateapi.h"
 #include "debuggerengine.h"
+#include <qmldebug/qmldebugclient.h>
 
 namespace Debugger {
 namespace Internal {
@@ -45,7 +45,7 @@ class BreakpointModelId;
 class QmlEngine;
 class BaseQmlDebuggerClientPrivate;
 
-class BaseQmlDebuggerClient : public QmlDebugClient
+class BaseQmlDebuggerClient : public QmlDebug::QmlDebugClient
 {
     Q_OBJECT
 

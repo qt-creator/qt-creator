@@ -34,10 +34,10 @@
 #define QMLADAPTER_H
 
 #include "debugger_global.h"
-#include "qmljsprivateapi.h"
 
 #include <QObject>
 #include <QAbstractSocket>
+#include <qmldebug/qmldebugclient.h>
 
 namespace QmlDebug {
 class BaseEngineDebugClient;
@@ -54,6 +54,8 @@ class BaseQmlDebuggerClient;
 class QmlAdapterPrivate;
 } // namespace Internal
 
+using namespace QmlDebug;
+
 class DEBUGGER_EXPORT QmlAdapter : public QObject
 {
     Q_OBJECT
@@ -68,7 +70,7 @@ public:
 
     bool isConnected() const;
 
-    QmlDebug::QmlDebugConnection *connection() const;
+    QmlDebugConnection *connection() const;
     DebuggerEngine *debuggerEngine() const;
 
     bool disableJsDebugging(bool block);
@@ -76,17 +78,18 @@ public:
     Internal::BaseQmlDebuggerClient *activeDebuggerClient();
     QHash<QString, Internal::BaseQmlDebuggerClient*> debuggerClients();
 
-    QmlDebug::BaseEngineDebugClient *engineDebugClient() const;
-    void setEngineDebugClient(QmlDebug::BaseEngineDebugClient *client);
+    BaseEngineDebugClient *engineDebugClient() const;
+    void setEngineDebugClient(BaseEngineDebugClient *client);
 
-    QmlDebug::QDebugMessageClient *messageClient() const;
+    QDebugMessageClient *messageClient() const;
 
     int currentSelectedDebugId() const;
     QString currentSelectedDisplayName() const;
     void setCurrentSelectedDebugInfo(int debugId, const QString &displayName = QString());
 
 public slots:
-    void logServiceStatusChange(const QString &service, float version, QmlDebugClient::Status newStatus);
+    void logServiceStatusChange(const QString &service, float version,
+                                QmlDebugClient::Status newStatus);
     void logServiceActivity(const QString &service, const QString &logMessage);
 
 signals:

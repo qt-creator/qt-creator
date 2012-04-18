@@ -231,7 +231,6 @@ QtcPlugin {
         "qml/qmlengine.h",
         "qml/qmladapter.h",
         "qml/baseqmldebuggerclient.h",
-        "qml/qmljsprivateapi.h",
         "qml/qmlcppengine.h",
         "qml/qscriptdebuggerclient.h",
         "qml/qmlv8debuggerclient.h",

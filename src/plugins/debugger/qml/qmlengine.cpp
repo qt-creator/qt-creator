@@ -115,7 +115,7 @@ private:
     QmlAdapter m_adapter;
     ApplicationLauncher m_applicationLauncher;
     QTimer m_noDebugOutputTimer;
-    QmlDebug::QmlOutputParser m_outputParser;
+    QmlOutputParser m_outputParser;
     QHash<QString, QTextDocument*> m_sourceDocuments;
     QHash<QString, QWeakPointer<TextEditor::ITextEditor> > m_sourceEditors;
     InteractiveInterpreter m_interpreter;

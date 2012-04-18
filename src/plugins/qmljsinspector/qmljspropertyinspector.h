@@ -32,7 +32,7 @@
 #ifndef PROPERTYINSPECTOR_H
 #define PROPERTYINSPECTOR_H
 
-#include <qmljsprivateapi.h>
+#include <qmldebug/baseenginedebugclient.h>
 #include <utils/basetreeview.h>
 #include <QStandardItemModel>
 
@@ -41,16 +41,14 @@
 
 #include "customcolordialog.h"
 
-QT_BEGIN_NAMESPACE
-
-QT_END_NAMESPACE
-
 namespace Utils {
 class SavedAction;
 }
 
 namespace QmlJSInspector {
 namespace Internal {
+
+using namespace QmlDebug;
 
 class PropertyEditDelegate;
 

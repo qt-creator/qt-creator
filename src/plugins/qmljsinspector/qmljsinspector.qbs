@@ -28,7 +28,6 @@ QtcPlugin {
     ]
 
     files: [
-        "qmljsprivateapi.h",
         "qmljsinspector_global.h",
         "qmljsinspectorconstants.h",
         "qmljsinspectorplugin.h",

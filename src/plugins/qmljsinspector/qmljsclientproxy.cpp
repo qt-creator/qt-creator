@@ -31,7 +31,6 @@
 **************************************************************************/
 
 #include "qmljsclientproxy.h"
-#include "qmljsprivateapi.h"
 #include "qmltoolsclient.h"
 #include "qmljsinspector.h"
 
@@ -43,6 +42,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 #include <projectexplorer/project.h>
+#include <qmldebug/declarativeenginedebugclient.h>
+#include <qmldebug/qmlenginedebugclient.h>
 
 #include <QUrl>
 #include <QAbstractSocket>

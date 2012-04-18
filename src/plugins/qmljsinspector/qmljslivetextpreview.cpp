@@ -35,7 +35,6 @@
 #include "qmljsinspector.h"
 #include "qmljsclientproxy.h"
 #include "qmljslivetextpreview.h"
-#include "qmljsprivateapi.h"
 
 #include "qmljsinspectorconstants.h"
 #include <qmljseditor/qmljseditorconstants.h>
