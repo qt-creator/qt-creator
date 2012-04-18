@@ -223,11 +223,6 @@ void ProjectIntroPage::slotActivated()
         emit activated();
 }
 
-bool ProjectIntroPage::validateProjectDirectory(const QString &name, QString *errorMessage)
-{
-    return ProjectNameValidatingLineEdit::validateProjectName(name, errorMessage);
-}
-
 bool ProjectIntroPage::forceSubProject() const
 {
     return d->m_forceSubProject;

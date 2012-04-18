@@ -64,9 +64,6 @@ public:
 
     virtual bool isComplete() const;
 
-    // Validate a project directory name entry field
-    static bool validateProjectDirectory(const QString &name, QString *errorMessage);
-
     bool forceSubProject() const;
     void setForceSubProject(bool force);
     void setProjectList(const QStringList &projectList);
