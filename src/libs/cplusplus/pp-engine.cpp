@@ -850,9 +850,10 @@ bool Preprocessor::handleFunctionLikeMacro(PPToken *tk, const Macro *macro, QVec
     }
 
     QVector<PPToken> expanded;
+    expanded.reserve(MAX_TOKEN_EXPANSION_COUNT);
     for (size_t i = 0, bodySize = body.size(); i < bodySize && expanded.size() < MAX_TOKEN_EXPANSION_COUNT; ++i) {
         int expandedSize = expanded.size();
-        const PPToken &token = body[i];
+        const PPToken &token = body.at(i);
 
         if (token.is(T_IDENTIFIER)) {
             const ByteArrayRef id = token.asByteArrayRef();
@@ -866,7 +867,7 @@ bool Preprocessor::handleFunctionLikeMacro(PPToken *tk, const Macro *macro, QVec
                         goto exitNicely;
                     }
 
-                    QVector<PPToken> actualsForThisParam = actuals[j];
+                    QVector<PPToken> actualsForThisParam = actuals.at(j);
                     if (id == "__VA_ARGS__" || (macro->isVariadic() && j + 1 == formals.size())) {
                         unsigned lineno = 0;
                         const char comma = ',';
@@ -894,7 +895,8 @@ bool Preprocessor::handleFunctionLikeMacro(PPToken *tk, const Macro *macro, QVec
                         newText.replace("\"", "\\\"");
                         expanded.push_back(generateToken(T_STRING_LITERAL, newText.constData(), newText.size(), lineno, true));
                     } else  {
-                        expanded += actualsForThisParam;
+                        for (int k = 0, kk = actualsForThisParam.size(); k < kk; ++k)
+                            expanded += actualsForThisParam.at(k);
                     }
                     break;
                 }
@@ -923,6 +925,7 @@ exitNicely:
         expanded.push_front(forceWhitespacingToken);
     }
     body = expanded;
+    body.squeeze();
     return true;
 }
 
