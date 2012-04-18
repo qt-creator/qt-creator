@@ -841,8 +841,6 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
 
 bool Preprocessor::handleFunctionLikeMacro(PPToken *tk, const Macro *macro, QVector<PPToken> &body, bool addWhitespaceMarker)
 {
-    static const QByteArray ppVaArgs("__VA_ARGS__");
-
     QVector<QVector<PPToken> > actuals;
     PPToken idToken = *tk;
     if (!collectActualArguments(tk, &actuals)) {
@@ -869,7 +867,7 @@ bool Preprocessor::handleFunctionLikeMacro(PPToken *tk, const Macro *macro, QVec
                     }
 
                     QVector<PPToken> actualsForThisParam = actuals[j];
-                    if (id == ppVaArgs || (macro->isVariadic() && j + 1 == formals.size())) {
+                    if (id == "__VA_ARGS__" || (macro->isVariadic() && j + 1 == formals.size())) {
                         unsigned lineno = 0;
                         const char comma = ',';
                         for (int k = j + 1; k < actuals.size(); ++k) {

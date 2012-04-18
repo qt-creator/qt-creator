@@ -58,6 +58,11 @@ public:
     bool operator!=(const QByteArray &other) const
     { return !this->operator==(other); }
 
+    bool operator==(const char *other) const
+    { return qstrncmp(m_ref->constData() + m_offset, other, strlen(other)) == 0; }
+    bool operator!=(const char *other) const
+    { return !this->operator==(other); }
+
     bool startsWith(const char *ch) const;
 
     int count(char c) const;
