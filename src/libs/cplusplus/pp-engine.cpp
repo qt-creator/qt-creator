@@ -312,6 +312,16 @@ protected:
         return spell == "defined";
     }
 
+    const char *tokenPosition() const
+    {
+        return source.constData() + (*_lex)->offset;
+    }
+
+    int tokenLength() const
+    {
+        return (*_lex)->f.length;
+    }
+
     QByteArray tokenSpell() const
     {
         const QByteArray text = QByteArray::fromRawData(source.constData() + (*_lex)->offset,
@@ -325,25 +335,19 @@ protected:
     void process_primary()
     {
         if ((*_lex)->is(T_NUMERIC_LITERAL)) {
-            int base = 10;
-            QByteArray spell = tokenSpell();
-            if (spell.at(0) == '0') {
-                if (spell.size() > 1 && (spell.at(1) == 'x' || spell.at(1) == 'X'))
-                    base = 16;
-                else
-                    base = 8;
-            }
+            const char *spell = tokenPosition();
+            int len = tokenLength();
+            while (len) {
+                const char ch = spell[len - 1];
 
-            while (! spell.isEmpty()) {
-                const QChar ch = spell.at(spell.length() - 1);
-
-                if (! (ch == QLatin1Char('u') || ch == QLatin1Char('U') ||
-                       ch == QLatin1Char('l') || ch == QLatin1Char('L')))
+                if (! (ch == 'u' || ch == 'U' || ch == 'l' || ch == 'L'))
                     break;
-                spell.chop(1);
+                --len;
             }
 
-            _value.set_long(spell.toLong(0, base));
+            const char *end = spell + len;
+            char *vend = const_cast<char *>(end);
+            _value.set_long(strtol(spell, &vend, 0));
             ++(*_lex);
         } else if (isTokenDefined()) {
             ++(*_lex);
