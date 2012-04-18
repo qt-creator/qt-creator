@@ -29,30 +29,25 @@
 **
 **************************************************************************/
 
-#ifndef QMLDEBUGGERCLIENT_H
-#define QMLDEBUGGERCLIENT_H
+#ifndef DECLARATIVEENGINEDEBUGCLIENT_H
+#define DECLARATIVEENGINEDEBUGCLIENT_H
 
-#include "qmlenginedebugclient.h"
+#include "baseenginedebugclient.h"
 
-namespace QmlJsDebugClient {
+namespace QmlDebug {
 
-class QDeclarativeDebugConnection;
+class QmlDebugConnection;
 
-class QMLJSDEBUGCLIENT_EXPORT QmlDebuggerClient : public QmlEngineDebugClient
+class QMLDEBUG_EXPORT DeclarativeEngineDebugCLient : public BaseEngineDebugClient
 {
     Q_OBJECT
 public:
-    explicit QmlDebuggerClient(QDeclarativeDebugConnection *conn);
-
-    quint32 setBindingForObject(int objectDebugId, const QString &propertyName,
-                                const QVariant &bindingExpression,
-                                bool isLiteralValue,
-                                QString source, int line);
-    quint32 resetBindingForObject(int objectDebugId, const QString &propertyName);
-    quint32 setMethodBody(int objectDebugId, const QString &methodName,
-                          const QString &methodBody);
+    DeclarativeEngineDebugCLient(QmlDebugConnection *conn)
+        : BaseEngineDebugClient(QLatin1String("QDeclarativeEngine"), conn)
+    {
+    }
 };
 
-} // namespace QmlJsDebugClient
+} // namespace QmlDebug
 
-#endif // QMLDEBUGGERCLIENT_H
+#endif // DECLARATIVEENGINEDEBUGCLIENT_H

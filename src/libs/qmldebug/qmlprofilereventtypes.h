@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -29,37 +30,31 @@
 **
 **************************************************************************/
 
-#ifndef QDECLARATIVEOUTPUTPARSER_H
-#define QDECLARATIVEOUTPUTPARSER_H
+#ifndef QMLPROFILEREVENTTYPES_H
+#define QMLPROFILEREVENTTYPES_H
 
-#include "qmljsdebugclient_global.h"
+namespace QmlDebug {
 
-#include <QObject>
+enum QmlEventType {
+    Painting,
+    Compiling,
+    Creating,
+    Binding,
+    HandlingSignal,
 
-namespace QmlJsDebugClient {
-
-class QMLJSDEBUGCLIENT_EXPORT QDeclarativeOutputParser : public QObject
-{
-    Q_OBJECT
-public:
-    QDeclarativeOutputParser(QObject *parent = 0);
-
-    void setNoOutputText(const QString &text);
-    void processOutput(const QString &output);
-
-signals:
-    void waitingForConnectionOnPort(quint16 port);
-    void waitingForConnectionViaOst();
-    void connectionEstablishedMessage();
-    void errorMessage(const QString &detailedError);
-    void unknownMessage(const QString &unknownMessage);
-    void noOutputMessage();
-
-private:
-    QString m_noOutputText;
-    QString m_buffer;
+    MaximumQmlEventType
 };
 
-} // namespace QmLJsDebugClient
+namespace Constants {
+const char TYPE_PAINTING_STR[] = "Painting";
+const char TYPE_COMPILING_STR[] = "Compiling";
+const char TYPE_CREATING_STR[] = "Creating";
+const char TYPE_BINDING_STR[] = "Binding";
+const char TYPE_HANDLINGSIGNAL_STR[] = "HandlingSignal";
+const char PROFILER_FILE_VERSION[] = "1.02";
+const int QML_MIN_LEVEL = 1;
+}
 
-#endif // QDECLARATIVEOUTPUTPARSER_H
+} // namespace QmlDebug
+
+#endif //QMLPROFILEREVENTTYPES_H

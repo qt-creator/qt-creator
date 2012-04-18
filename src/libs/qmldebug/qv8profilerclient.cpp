@@ -32,7 +32,7 @@
 
 #include "qv8profilerclient.h"
 
-namespace QmlJsDebugClient {
+namespace QmlDebug {
 
 class QV8ProfilerClientPrivate {
 public:
@@ -48,9 +48,9 @@ public:
     bool recording;
 };
 
-} // namespace QmlJsDebugClient
+} // namespace QmlDebug
 
-using namespace QmlJsDebugClient;
+using namespace QmlDebug;
 
 void QV8ProfilerClientPrivate::sendRecordingStatus()
 {
@@ -69,8 +69,8 @@ void QV8ProfilerClientPrivate::sendRecordingStatus()
     q->sendMessage(ba);
 }
 
-QV8ProfilerClient::QV8ProfilerClient(QDeclarativeDebugConnection *client)
-    : QDeclarativeDebugClient(QLatin1String("V8Profiler"), client)
+QV8ProfilerClient::QV8ProfilerClient(QmlDebugConnection *client)
+    : QmlDebugClient(QLatin1String("V8Profiler"), client)
     , d(new QV8ProfilerClientPrivate(this))
 {
 }

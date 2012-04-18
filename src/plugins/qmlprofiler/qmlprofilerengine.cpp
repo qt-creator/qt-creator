@@ -46,7 +46,7 @@
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <qt4projectmanager/qt-s60/s60devicedebugruncontrol.h>
 #include <qt4projectmanager/qt-s60/s60devicerunconfiguration.h>
-#include <qmljsdebugclient/qdeclarativeoutputparser.h>
+#include <qmldebug/qmloutputparser.h>
 
 #include <QMainWindow>
 #include <QMessageBox>
@@ -78,7 +78,7 @@ public:
 
     AbstractQmlProfilerRunner *m_runner;
     QTimer m_noDebugOutputTimer;
-    QmlJsDebugClient::QDeclarativeOutputParser m_outputParser;
+    QmlDebug::QmlOutputParser m_outputParser;
 };
 
 AbstractQmlProfilerRunner *

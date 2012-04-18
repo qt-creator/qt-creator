@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -29,25 +30,24 @@
 **
 **************************************************************************/
 
-#ifndef QDECLARATIVEENGINECLIENT_H
-#define QDECLARATIVEENGINECLIENT_H
+#ifndef QMLDEBUGCONSTANTS_H
+#define QMLDEBUGCONSTANTS_H
 
-#include "qmlenginedebugclient.h"
+namespace QmlDebug {
+namespace Constants {
 
-namespace QmlJsDebugClient {
+const char STR_WAITING_FOR_CONNECTION[] = "Waiting for connection ";
+const char STR_ON_PORT_PATTERN[] = "on port (\\d+)";
+const char STR_VIA_OST[] = "via OST";
+const char STR_UNABLE_TO_LISTEN[] = "Unable to listen ";
+const char STR_IGNORING_DEBUGGER[] = "Ignoring \"-qmljsdebugger=";
+const char STR_IGNORING_DEBUGGER2[] = "Ignoring\"-qmljsdebugger="; // There is (was?) a bug in one of the error strings - safest to handle both
+const char STR_CONNECTION_ESTABLISHED[] = "Connection established";
 
-class QDeclarativeDebugConnection;
+const char QML_DEBUGGER[] = "QmlDebugger";
+const float CURRENT_SUPPORTED_VERSION = 2.0;
 
-class QMLJSDEBUGCLIENT_EXPORT QDeclarativeEngineClient : public QmlEngineDebugClient
-{
-    Q_OBJECT
-public:
-    QDeclarativeEngineClient(QDeclarativeDebugConnection *conn)
-        : QmlEngineDebugClient(QLatin1String("QDeclarativeEngine"), conn)
-    {
-    }
-};
+} // namespace Constants
+} // namespace QmlDebug
 
-} // namespace QmlJsDebugClient
-
-#endif // QDECLARATIVEENGINECLIENT_H
+#endif // QMLDEBUGCONSTANTS_H

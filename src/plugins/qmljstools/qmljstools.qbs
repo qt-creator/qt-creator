@@ -13,7 +13,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "Locator" }
-    Depends { name: "QmlJSDebugClient" }
+    Depends { name: "QmlDebug" }
     Depends { name: "QtSupport" }
 
     Depends { name: "cpp" }
@@ -61,7 +61,7 @@ QtcPlugin {
 
     ProductModule {
         Depends { name: "CppTools" }
-        Depends { name: "QmlJSDebugClient" }
+        Depends { name: "QmlDebug" }
     }
 }
 

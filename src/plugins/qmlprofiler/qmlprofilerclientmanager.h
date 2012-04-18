@@ -37,7 +37,7 @@
 #include <QStringList>
 
 #include "qmlprofilerstatemanager.h"
-#include <qmljsdebugclient/qmlprofilereventlocation.h>
+#include <qmldebug/qmlprofilereventlocation.h>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -61,7 +61,7 @@ signals:
     void connectionFailed();
 
     // data
-    void addRangedEvent(int,qint64,qint64,QStringList,QmlJsDebugClient::QmlEventLocation);
+    void addRangedEvent(int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation);
     void addV8Event(int,QString,QString,int,double,double);
     void addFrameEvent(qint64,int,int);
     void traceStarted(qint64);

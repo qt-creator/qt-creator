@@ -51,7 +51,7 @@ QHash<QPair<QString, int>, QHash<QPair<int, int>, QList<int> > > DebugIdHash;
 namespace Internal {
 
 class InspectorPlugin;
-class QmlJSInspectorClient;
+class QmlToolsClient;
 
 class ClientProxy : public QObject
 {
@@ -104,7 +104,7 @@ public:
     void fetchRootObjects(const QmlDebugContextReference &context, bool clear);
     void insertObjectInTreeIfNeeded(const QmlDebugObjectReference &object);
 
-    QDeclarativeDebugClient *qmlDebugger() const;
+    QmlDebugClient *inspectorClient() const;
 
 signals:
     void objectTreeUpdated();
@@ -153,8 +153,8 @@ public slots:
 
 private slots:
     void connectToServer();
-    void clientStatusChanged(QDeclarativeDebugClient::Status status);
-    void engineClientStatusChanged(QDeclarativeDebugClient::Status status);
+    void clientStatusChanged(QmlDebugClient::Status status);
+    void engineClientStatusChanged(QmlDebugClient::Status status);
 
     void onCurrentObjectsChanged(const QList<int> &debugIds,
                                  bool requestIfNeeded = true);
@@ -190,8 +190,8 @@ private:
     void buildDebugIdHashRecursive(const QmlDebugObjectReference &ref);
 
     QWeakPointer<Debugger::QmlAdapter> m_adapter;
-    QmlEngineDebugClient *m_engineClient;
-    QmlJSInspectorClient *m_inspectorClient;
+    BaseEngineDebugClient *m_engineClient;
+    QmlToolsClient *m_inspectorHelperClient;
 
     quint32 m_engineQueryId;
     quint32 m_contextQueryId;

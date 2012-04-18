@@ -29,7 +29,7 @@
 **
 **************************************************************************/
 
-#include "qdeclarativedebugclient.h"
+#include "qmldebugclient.h"
 
 #include "qpacketprotocol.h"
 
@@ -38,35 +38,35 @@
 #include <qnetworkproxy.h>
 #include <symbiandevicemanager.h>
 
-namespace QmlJsDebugClient {
+namespace QmlDebug {
 
 const int protocolVersion = 1;
 const QString serverId = QLatin1String("QDeclarativeDebugServer");
 const QString clientId = QLatin1String("QDeclarativeDebugClient");
 static const uchar KQmlOstProtocolId = 0x94;
 
-class QDeclarativeDebugClientPrivate
+class QmlDebugClientPrivate
 {
-    //    Q_DECLARE_PUBLIC(QDeclarativeDebugClient)
+    //    Q_DECLARE_PUBLIC(QmlDebugClient)
 public:
-    QDeclarativeDebugClientPrivate();
+    QmlDebugClientPrivate();
 
     QString name;
-    QDeclarativeDebugConnection *connection;
+    QmlDebugConnection *connection;
 };
 
-class QDeclarativeDebugConnectionPrivate : public QObject
+class QmlDebugConnectionPrivate : public QObject
 {
     Q_OBJECT
 public:
-    QDeclarativeDebugConnectionPrivate(QDeclarativeDebugConnection *c);
-    QDeclarativeDebugConnection *q;
+    QmlDebugConnectionPrivate(QmlDebugConnection *c);
+    QmlDebugConnection *q;
     QPacketProtocol *protocol;
     QIODevice *device; // Currently either a QTcpSocket or a SymbianUtils::OstChannel
 
     bool gotHello;
     QHash <QString, float> serverPlugins;
-    QHash<QString, QDeclarativeDebugClient *> plugins;
+    QHash<QString, QmlDebugClient *> plugins;
 
     void advertisePlugins();
     void connectDeviceSignals();
@@ -77,7 +77,7 @@ public Q_SLOTS:
     void deviceAboutToClose();
 };
 
-QDeclarativeDebugConnectionPrivate::QDeclarativeDebugConnectionPrivate(QDeclarativeDebugConnection *c)
+QmlDebugConnectionPrivate::QmlDebugConnectionPrivate(QmlDebugConnection *c)
     : QObject(c), q(c), protocol(0), device(0), gotHello(false)
 {
     protocol = new QPacketProtocol(q, this);
@@ -85,7 +85,7 @@ QDeclarativeDebugConnectionPrivate::QDeclarativeDebugConnectionPrivate(QDeclarat
     QObject::connect(protocol, SIGNAL(readyRead()), this, SLOT(readyRead()));
 }
 
-void QDeclarativeDebugConnectionPrivate::advertisePlugins()
+void QmlDebugConnectionPrivate::advertisePlugins()
 {
     if (!q->isConnected() || !gotHello)
         return;
@@ -96,7 +96,7 @@ void QDeclarativeDebugConnectionPrivate::advertisePlugins()
     q->flush();
 }
 
-void QDeclarativeDebugConnectionPrivate::connected()
+void QmlDebugConnectionPrivate::connected()
 {
     QPacket pack;
     pack << serverId << 0 << protocolVersion << plugins.keys();
@@ -104,7 +104,7 @@ void QDeclarativeDebugConnectionPrivate::connected()
     q->flush();
 }
 
-void QDeclarativeDebugConnectionPrivate::readyRead()
+void QmlDebugConnectionPrivate::readyRead()
 {
     if (!gotHello) {
         QPacket pack = protocol->read();
@@ -141,17 +141,17 @@ void QDeclarativeDebugConnectionPrivate::readyRead()
         }
 
         if (!validHello) {
-            qWarning("QDeclarativeDebugConnection: Invalid hello message");
+            qWarning("QML Debug Client: Invalid hello message");
             QObject::disconnect(protocol, SIGNAL(readyRead()), this, SLOT(readyRead()));
             return;
         }
         gotHello = true;
 
-        QHash<QString, QDeclarativeDebugClient *>::Iterator iter = plugins.begin();
+        QHash<QString, QmlDebugClient *>::Iterator iter = plugins.begin();
         for (; iter != plugins.end(); ++iter) {
-            QDeclarativeDebugClient::Status newStatus = QDeclarativeDebugClient::Unavailable;
+            QmlDebugClient::Status newStatus = QmlDebugClient::Unavailable;
             if (serverPlugins.contains(iter.key()))
-                newStatus = QDeclarativeDebugClient::Enabled;
+                newStatus = QmlDebugClient::Enabled;
             iter.value()->statusChanged(newStatus);
         }
     }
@@ -185,12 +185,12 @@ void QDeclarativeDebugConnectionPrivate::readyRead()
                     serverPlugins.insert(pluginNames.at(i), pluginVersion);
                 }
 
-                QHash<QString, QDeclarativeDebugClient *>::Iterator iter = plugins.begin();
+                QHash<QString, QmlDebugClient *>::Iterator iter = plugins.begin();
                 for (; iter != plugins.end(); ++iter) {
                     const QString pluginName = iter.key();
-                    QDeclarativeDebugClient::Status newStatus = QDeclarativeDebugClient::Unavailable;
+                    QmlDebugClient::Status newStatus = QmlDebugClient::Unavailable;
                     if (serverPlugins.contains(pluginName))
-                        newStatus = QDeclarativeDebugClient::Enabled;
+                        newStatus = QmlDebugClient::Enabled;
 
                     if (oldServerPlugins.contains(pluginName)
                             != serverPlugins.contains(pluginName)) {
@@ -198,16 +198,16 @@ void QDeclarativeDebugConnectionPrivate::readyRead()
                     }
                 }
             } else {
-                qWarning() << "QDeclarativeDebugConnection: Unknown control message id" << op;
+                qWarning() << "QML Debug Client: Unknown control message id" << op;
             }
         } else {
             QByteArray message;
             pack >> message;
 
-            QHash<QString, QDeclarativeDebugClient *>::Iterator iter =
+            QHash<QString, QmlDebugClient *>::Iterator iter =
                     plugins.find(name);
             if (iter == plugins.end()) {
-                qWarning() << "QDeclarativeDebugConnection: Message received for missing plugin" << name;
+                qWarning() << "QML Debug Client: Message received for missing plugin" << name;
             } else {
                 (*iter)->messageReceived(message);
             }
@@ -215,73 +215,73 @@ void QDeclarativeDebugConnectionPrivate::readyRead()
     }
 }
 
-void QDeclarativeDebugConnectionPrivate::deviceAboutToClose()
+void QmlDebugConnectionPrivate::deviceAboutToClose()
 {
     // This is nasty syntax but we want to emit our own aboutToClose signal (by calling QIODevice::close())
     // without calling the underlying device close fn as that would cause an infinite loop
     q->QIODevice::close();
 }
 
-QDeclarativeDebugConnection::QDeclarativeDebugConnection(QObject *parent)
-    : QIODevice(parent), d(new QDeclarativeDebugConnectionPrivate(this))
+QmlDebugConnection::QmlDebugConnection(QObject *parent)
+    : QIODevice(parent), d(new QmlDebugConnectionPrivate(this))
 {
 }
 
-QDeclarativeDebugConnection::~QDeclarativeDebugConnection()
+QmlDebugConnection::~QmlDebugConnection()
 {
-    QHash<QString, QDeclarativeDebugClient*>::iterator iter = d->plugins.begin();
+    QHash<QString, QmlDebugClient*>::iterator iter = d->plugins.begin();
     for (; iter != d->plugins.end(); ++iter) {
         iter.value()->d_func()->connection = 0;
-        iter.value()->statusChanged(QDeclarativeDebugClient::NotConnected);
+        iter.value()->statusChanged(QmlDebugClient::NotConnected);
     }
 }
 
-bool QDeclarativeDebugConnection::isConnected() const
+bool QmlDebugConnection::isConnected() const
 {
     return state() == QAbstractSocket::ConnectedState;
 }
 
-qint64 QDeclarativeDebugConnection::readData(char *data, qint64 maxSize)
+qint64 QmlDebugConnection::readData(char *data, qint64 maxSize)
 {
     return d->device->read(data, maxSize);
 }
 
-qint64 QDeclarativeDebugConnection::writeData(const char *data, qint64 maxSize)
+qint64 QmlDebugConnection::writeData(const char *data, qint64 maxSize)
 {
     return d->device->write(data, maxSize);
 }
 
-void QDeclarativeDebugConnection::internalError(QAbstractSocket::SocketError socketError)
+void QmlDebugConnection::internalError(QAbstractSocket::SocketError socketError)
 {
     setErrorString(d->device->errorString());
     emit error(socketError);
 }
 
-qint64 QDeclarativeDebugConnection::bytesAvailable() const
+qint64 QmlDebugConnection::bytesAvailable() const
 {
     return d->device->bytesAvailable();
 }
 
-bool QDeclarativeDebugConnection::isSequential() const
+bool QmlDebugConnection::isSequential() const
 {
     return true;
 }
 
-void QDeclarativeDebugConnection::close()
+void QmlDebugConnection::close()
 {
     if (isOpen()) {
         QIODevice::close();
         d->device->close();
         emit stateChanged(QAbstractSocket::UnconnectedState);
 
-        QHash<QString, QDeclarativeDebugClient*>::iterator iter = d->plugins.begin();
+        QHash<QString, QmlDebugClient*>::iterator iter = d->plugins.begin();
         for (; iter != d->plugins.end(); ++iter) {
-            iter.value()->statusChanged(QDeclarativeDebugClient::NotConnected);
+            iter.value()->statusChanged(QmlDebugClient::NotConnected);
         }
     }
 }
 
-bool QDeclarativeDebugConnection::waitForConnected(int msecs)
+bool QmlDebugConnection::waitForConnected(int msecs)
 {
     QAbstractSocket *socket = qobject_cast<QAbstractSocket*>(d->device);
     if (socket)
@@ -291,7 +291,7 @@ bool QDeclarativeDebugConnection::waitForConnected(int msecs)
 
 // For ease of refactoring we use QAbstractSocket's states even if we're actually using a OstChannel underneath
 // since serial ports have a subset of the socket states afaics
-QAbstractSocket::SocketState QDeclarativeDebugConnection::state() const
+QAbstractSocket::SocketState QmlDebugConnection::state() const
 {
     QAbstractSocket *socket = qobject_cast<QAbstractSocket*>(d->device);
     if (socket)
@@ -312,7 +312,7 @@ QAbstractSocket::SocketState QDeclarativeDebugConnection::state() const
     return QAbstractSocket::UnconnectedState;
 }
 
-void QDeclarativeDebugConnection::flush()
+void QmlDebugConnection::flush()
 {
     QAbstractSocket *socket = qobject_cast<QAbstractSocket*>(d->device);
     if (socket) {
@@ -327,7 +327,7 @@ void QDeclarativeDebugConnection::flush()
     }
 }
 
-void QDeclarativeDebugConnection::connectToHost(const QString &hostName, quint16 port)
+void QmlDebugConnection::connectToHost(const QString &hostName, quint16 port)
 {
     QTcpSocket *socket = new QTcpSocket(d);
     socket->setProxy(QNetworkProxy::NoProxy);
@@ -341,7 +341,7 @@ void QDeclarativeDebugConnection::connectToHost(const QString &hostName, quint16
     QIODevice::open(ReadWrite | Unbuffered);
 }
 
-void QDeclarativeDebugConnection::connectToOst(const QString &port)
+void QmlDebugConnection::connectToOst(const QString &port)
 {
     SymbianUtils::OstChannel *ost = SymbianUtils::SymbianDeviceManager::instance()->getOstChannel(port, KQmlOstProtocolId);
     if (ost) {
@@ -357,7 +357,7 @@ void QDeclarativeDebugConnection::connectToOst(const QString &port)
     }
 }
 
-void QDeclarativeDebugConnectionPrivate::connectDeviceSignals()
+void QmlDebugConnectionPrivate::connectDeviceSignals()
 {
     connect(device, SIGNAL(bytesWritten(qint64)), q, SIGNAL(bytesWritten(qint64)));
     connect(device, SIGNAL(readyRead()), q, SIGNAL(readyRead()));
@@ -366,16 +366,16 @@ void QDeclarativeDebugConnectionPrivate::connectDeviceSignals()
 
 //
 
-QDeclarativeDebugClientPrivate::QDeclarativeDebugClientPrivate()
+QmlDebugClientPrivate::QmlDebugClientPrivate()
     : connection(0)
 {
 }
 
-QDeclarativeDebugClient::QDeclarativeDebugClient(const QString &name, 
-                                                 QDeclarativeDebugConnection *parent)
-    : QObject(parent), d_ptr(new QDeclarativeDebugClientPrivate())
+QmlDebugClient::QmlDebugClient(const QString &name,
+                                                 QmlDebugConnection *parent)
+    : QObject(parent), d_ptr(new QmlDebugClientPrivate())
 {
-    Q_D(QDeclarativeDebugClient);
+    Q_D(QmlDebugClient);
     d->name = name;
     d->connection = parent;
 
@@ -383,7 +383,7 @@ QDeclarativeDebugClient::QDeclarativeDebugClient(const QString &name,
         return;
 
     if (d->connection->d->plugins.contains(name)) {
-        qWarning() << "QDeclarativeDebugClient: Conflicting plugin name" << name;
+        qWarning() << "QML Debug Client: Conflicting plugin name" << name;
         d->connection = 0;
     } else {
         d->connection->d->plugins.insert(name, this);
@@ -391,32 +391,32 @@ QDeclarativeDebugClient::QDeclarativeDebugClient(const QString &name,
     }
 }
 
-QDeclarativeDebugClient::~QDeclarativeDebugClient()
+QmlDebugClient::~QmlDebugClient()
 {
-    Q_D(const QDeclarativeDebugClient);
+    Q_D(const QmlDebugClient);
     if (d->connection && d->connection->d) {
         d->connection->d->plugins.remove(d->name);
         d->connection->d->advertisePlugins();
     }
 }
 
-QString QDeclarativeDebugClient::name() const
+QString QmlDebugClient::name() const
 {
-    Q_D(const QDeclarativeDebugClient);
+    Q_D(const QmlDebugClient);
     return d->name;
 }
 
-float QDeclarativeDebugClient::serviceVersion() const
+float QmlDebugClient::serviceVersion() const
 {
-    Q_D(const QDeclarativeDebugClient);
+    Q_D(const QmlDebugClient);
     if (d->connection && d->connection->d->serverPlugins.contains(d->name))
         return d->connection->d->serverPlugins.value(d->name);
     return -1;
 }
 
-QDeclarativeDebugClient::Status QDeclarativeDebugClient::status() const
+QmlDebugClient::Status QmlDebugClient::status() const
 {
-    Q_D(const QDeclarativeDebugClient);
+    Q_D(const QmlDebugClient);
     if (!d->connection
             || !d->connection->isConnected()
             || !d->connection->d->gotHello)
@@ -428,9 +428,9 @@ QDeclarativeDebugClient::Status QDeclarativeDebugClient::status() const
     return Unavailable;
 }
 
-void QDeclarativeDebugClient::sendMessage(const QByteArray &message)
+void QmlDebugClient::sendMessage(const QByteArray &message)
 {
-    Q_D(QDeclarativeDebugClient);
+    Q_D(QmlDebugClient);
     if (status() != Enabled)
         return;
 
@@ -440,14 +440,14 @@ void QDeclarativeDebugClient::sendMessage(const QByteArray &message)
     d->connection->flush();
 }
 
-void QDeclarativeDebugClient::statusChanged(Status)
+void QmlDebugClient::statusChanged(Status)
 {
 }
 
-void QDeclarativeDebugClient::messageReceived(const QByteArray &)
+void QmlDebugClient::messageReceived(const QByteArray &)
 {
 }
 
-} // namespace QmlJsDebugClient
+} // namespace QmlDebug
 
-#include <qdeclarativedebugclient.moc>
+#include <qmldebugclient.moc>

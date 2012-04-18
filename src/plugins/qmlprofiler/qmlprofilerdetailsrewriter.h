@@ -35,7 +35,7 @@
 
 #include <QObject>
 
-#include <qmljsdebugclient/qmlprofilereventlocation.h>
+#include <qmldebug/qmlprofilereventlocation.h>
 #include <qmljs/qmljsdocument.h>
 
 namespace QmlProfiler {
@@ -50,13 +50,13 @@ public:
 
 private:
     void rewriteDetailsForLocation(QTextStream &textDoc,QmlJS::Document::Ptr doc, int type,
-                                   const QmlJsDebugClient::QmlEventLocation &location);
+                                   const QmlDebug::QmlEventLocation &location);
 public slots:
-    void requestDetailsForLocation(int type, const QmlJsDebugClient::QmlEventLocation &location);
+    void requestDetailsForLocation(int type, const QmlDebug::QmlEventLocation &location);
     void reloadDocuments();
     void documentReady(QmlJS::Document::Ptr doc);
 signals:
-    void rewriteDetailsString(int type, const QmlJsDebugClient::QmlEventLocation &location,
+    void rewriteDetailsString(int type, const QmlDebug::QmlEventLocation &location,
                               const QString &details);
     void eventDetailsChanged();
 private:

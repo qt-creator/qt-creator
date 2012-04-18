@@ -13,7 +13,7 @@ QtcPlugin {
     Depends { name: "QmlJS" }
     Depends { name: "QmlJSTools" }
     Depends { name: "QmlEditorWidgets" }
-    Depends { name: "QmlJSDebugClient" }
+    Depends { name: "QmlDebug" }
 
 
     Depends { name: "cpp" }
@@ -36,7 +36,7 @@ QtcPlugin {
         "qmljsinspector.h",
         "qmljsinspectortoolbar.h",
         "qmljslivetextpreview.h",
-        "qmljsinspectorclient.h",
+        "qmltoolsclient.h",
         "qmljscontextcrumblepath.h",
         "qmljsinspectorsettings.h",
         "qmljspropertyinspector.h",
@@ -46,7 +46,7 @@ QtcPlugin {
         "qmljsinspector.cpp",
         "qmljsinspectortoolbar.cpp",
         "qmljslivetextpreview.cpp",
-        "qmljsinspectorclient.cpp",
+        "qmltoolsclient.cpp",
         "qmljscontextcrumblepath.cpp",
         "qmljsinspectorsettings.cpp",
         "qmljspropertyinspector.cpp",

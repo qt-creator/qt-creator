@@ -20,7 +20,7 @@ qmljsclientproxy.h \
 qmljsinspector.h \
 qmljsinspectortoolbar.h \
 qmljslivetextpreview.h \
-qmljsinspectorclient.h \
+qmltoolsclient.h \
 qmljscontextcrumblepath.h \
 qmljsinspectorsettings.h \
 qmljspropertyinspector.h
@@ -31,7 +31,7 @@ qmljsclientproxy.cpp \
 qmljsinspector.cpp \
 qmljsinspectortoolbar.cpp \
 qmljslivetextpreview.cpp \
-qmljsinspectorclient.cpp \
+qmltoolsclient.cpp \
 qmljscontextcrumblepath.cpp \
 qmljsinspectorsettings.cpp \
 qmljspropertyinspector.cpp
@@ -41,7 +41,7 @@ include(../../../share/qtcreator/qml/qmljsdebugger/protocol/protocol.pri)
 RESOURCES += qmljsinspector.qrc
 
 include(../../qtcreatorplugin.pri)
-include(../../libs/qmljsdebugclient/qmljsdebugclient.pri)
+include(../../libs/qmldebug/qmldebug.pri)
 include(../../libs/qmleditorwidgets/qmleditorwidgets.pri)
 
 include(../../plugins/debugger/debugger.pri)

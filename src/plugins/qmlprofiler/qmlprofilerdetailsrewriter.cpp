@@ -42,7 +42,7 @@ namespace QmlProfiler {
 namespace Internal {
 
 struct PendingEvent {
-    QmlJsDebugClient::QmlEventLocation location;
+    QmlDebug::QmlEventLocation location;
     QString localFile;
     int eventType;
 };
@@ -123,7 +123,7 @@ QmlProfilerDetailsRewriter::~QmlProfilerDetailsRewriter()
 }
 
 void QmlProfilerDetailsRewriter::requestDetailsForLocation(int type,
-        const QmlJsDebugClient::QmlEventLocation &location)
+        const QmlDebug::QmlEventLocation &location)
 {
     QString localFile = QUrl(location.filename).toLocalFile();
 
@@ -152,7 +152,7 @@ void QmlProfilerDetailsRewriter::reloadDocuments()
 }
 
 void QmlProfilerDetailsRewriter::rewriteDetailsForLocation(QTextStream &textDoc,
-        QmlJS::Document::Ptr doc, int type, const QmlJsDebugClient::QmlEventLocation &location)
+        QmlJS::Document::Ptr doc, int type, const QmlDebug::QmlEventLocation &location)
 {
     PropertyVisitor propertyVisitor;
     QmlJS::AST::Node *node = propertyVisitor(doc->ast(), location.line, location.column);

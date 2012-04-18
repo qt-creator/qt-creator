@@ -32,10 +32,10 @@
 
 #include "qdebugmessageclient.h"
 
-namespace QmlJsDebugClient {
+namespace QmlDebug {
 
-QDebugMessageClient::QDebugMessageClient(QDeclarativeDebugConnection *client)
-    : QDeclarativeDebugClient(QLatin1String("DebugMessages"), client)
+QDebugMessageClient::QDebugMessageClient(QmlDebugConnection *client)
+    : QmlDebugClient(QLatin1String("DebugMessages"), client)
 {
 }
 
@@ -82,4 +82,4 @@ void QDebugMessageClient::messageReceived(const QByteArray &data)
     }
 }
 
-} // namespace QmlJsDebugClient
+} // namespace QmlDebug

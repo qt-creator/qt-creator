@@ -29,22 +29,22 @@
 **
 **************************************************************************/
 
-#ifndef QDECLARATIVEDEBUGCLIENT_H
-#define QDECLARATIVEDEBUGCLIENT_H
+#ifndef QMLDEBUGCLIENT_H
+#define QMLDEBUGCLIENT_H
 
-#include "qmljsdebugclient_global.h"
+#include "qmldebug_global.h"
 #include <qtcpsocket.h>
 
-namespace QmlJsDebugClient {
+namespace QmlDebug {
 
-class QDeclarativeDebugConnectionPrivate;
-class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugConnection : public QIODevice
+class QmlDebugConnectionPrivate;
+class QMLDEBUG_EXPORT QmlDebugConnection : public QIODevice
 {
     Q_OBJECT
-    Q_DISABLE_COPY(QDeclarativeDebugConnection)
+    Q_DISABLE_COPY(QmlDebugConnection)
 public:
-    QDeclarativeDebugConnection(QObject * = 0);
-    ~QDeclarativeDebugConnection();
+    QmlDebugConnection(QObject * = 0);
+    ~QmlDebugConnection();
 
     void connectToHost(const QString &hostName, quint16 port);
     void connectToOst(const QString &port);
@@ -70,23 +70,23 @@ private slots:
     void internalError(QAbstractSocket::SocketError error);
 
 private:
-    QDeclarativeDebugConnectionPrivate *d;
-    friend class QDeclarativeDebugClient;
-    friend class QDeclarativeDebugClientPrivate;
+    QmlDebugConnectionPrivate *d;
+    friend class QmlDebugClient;
+    friend class QmlDebugClientPrivate;
 };
 
-class QDeclarativeDebugClientPrivate;
-class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugClient : public QObject
+class QmlDebugClientPrivate;
+class QMLDEBUG_EXPORT QmlDebugClient : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QDeclarativeDebugClient)
-    Q_DISABLE_COPY(QDeclarativeDebugClient)
+    Q_DECLARE_PRIVATE(QmlDebugClient)
+    Q_DISABLE_COPY(QmlDebugClient)
 
 public:
     enum Status { NotConnected, Unavailable, Enabled };
 
-    QDeclarativeDebugClient(const QString &, QDeclarativeDebugConnection *parent);
-    ~QDeclarativeDebugClient();
+    QmlDebugClient(const QString &, QmlDebugConnection *parent);
+    ~QmlDebugClient();
 
     QString name() const;
     float serviceVersion() const;
@@ -99,11 +99,11 @@ protected:
     virtual void messageReceived(const QByteArray &);
 
 private:
-    friend class QDeclarativeDebugConnection;
-    friend class QDeclarativeDebugConnectionPrivate;
-    QScopedPointer<QDeclarativeDebugClientPrivate> d_ptr;
+    friend class QmlDebugConnection;
+    friend class QmlDebugConnectionPrivate;
+    QScopedPointer<QmlDebugClientPrivate> d_ptr;
 };
 
-} // namespace QmlJsDebugClient
+} // namespace QmlDebug
 
-#endif // QDECLARATIVEDEBUGCLIENT_H
+#endif // QMLDEBUGCLIENT_H

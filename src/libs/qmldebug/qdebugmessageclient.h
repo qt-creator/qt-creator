@@ -30,67 +30,44 @@
 **
 **************************************************************************/
 
-#ifndef QV8PROFILERCLIENT_H
-#define QV8PROFILERCLIENT_H
+#ifndef QDEBUGMESSAGECLIENT_H
+#define QDEBUGMESSAGECLIENT_H
 
-#include "qdeclarativedebugclient.h"
-#include "qmlprofilereventtypes.h"
-#include "qmljsdebugclient_global.h"
+#include "qmldebugclient.h"
+#include "qmldebug_global.h"
 
-#include <QStack>
-#include <QStringList>
+namespace QmlDebug {
 
-namespace QmlJsDebugClient {
-
-class QMLJSDEBUGCLIENT_EXPORT QV8ProfilerClient : public QDeclarativeDebugClient
+class QDebugMessageClientPrivate;
+struct QDebugContextInfo
 {
-    Q_OBJECT
-    Q_PROPERTY(bool enabled READ isEnabled NOTIFY enabledChanged)
-    Q_PROPERTY(bool recording READ isRecording WRITE setRecording NOTIFY recordingChanged)
-
-public:
-    enum Message {
-        V8Entry,
-        V8Complete,
-        V8SnapshotChunk,
-        V8SnapshotComplete,
-        V8ProfilingStarted,
-
-        V8MaximumMessage
-    };
-
-    QV8ProfilerClient(QDeclarativeDebugConnection *client);
-    ~QV8ProfilerClient();
-
-    bool isEnabled() const;
-    bool isRecording() const;
-    void setRecording(bool);
-
-public slots:
-    void clearData();
-    void sendRecordingStatus();
-
-signals:
-    void complete();
-    void v8range(int depth, const QString &function, const QString &filename,
-               int lineNumber, double totalTime, double selfTime);
-
-    void recordingChanged(bool arg);
-
-    void enabledChanged();
-    void cleared();
-
-private:
-    void setRecordingFromServer(bool);
-
-protected:
-    virtual void statusChanged(Status);
-    virtual void messageReceived(const QByteArray &);
-
-private:
-    class QV8ProfilerClientPrivate *d;
+    int line;
+    QString file;
+    QString function;
 };
 
-} // namespace QmlJsDebugClient
+class QMLDEBUG_EXPORT QDebugMessageClient : public QmlDebugClient
+{
+    Q_OBJECT
 
-#endif // QV8PROFILERCLIENT_H
+public:
+    explicit QDebugMessageClient(QmlDebugConnection *client);
+    ~QDebugMessageClient();
+
+protected:
+    virtual void statusChanged(Status status);
+    virtual void messageReceived(const QByteArray &);
+
+signals:
+    void newStatus(QmlDebugClient::Status);
+    void message(QtMsgType, const QString &,
+                 const QmlDebug::QDebugContextInfo &);
+
+private:
+    class QDebugMessageClientPrivate *d;
+    Q_DISABLE_COPY(QDebugMessageClient)
+};
+
+} // namespace QmlDebug
+
+#endif // QDEBUGMESSAGECLIENT_H

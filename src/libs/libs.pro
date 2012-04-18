@@ -12,7 +12,7 @@ SUBDIRS   = \
     symbianutils \
     cplusplus \
     qmljs \
-    qmljsdebugclient \
+    qmldebug \
     glsl \
     qmleditorwidgets \
     qtcomponents/styleitem \

@@ -3,7 +3,7 @@
 
 #include <QStringList>
 
-using namespace QmlJsDebugClient;
+using namespace QmlDebug;
 
 QT_BEGIN_NAMESPACE
 Q_DECLARE_TYPEINFO(QmlProfiler::Internal::QV8EventData, Q_MOVABLE_TYPE);

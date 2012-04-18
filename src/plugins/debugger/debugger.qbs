@@ -14,7 +14,7 @@ QtcPlugin {
     Depends { name: "CPlusPlus" }
     Depends { name: "symbianutils" }
     Depends { name: "QmlJS" }
-    Depends { name: "QmlJSDebugClient" }
+    Depends { name: "QmlDebug" }
 
     Depends { name: "cpp" }
     cpp.defines: ["DEBUGGER_LIBRARY"]
@@ -230,7 +230,7 @@ QtcPlugin {
         "pdb/pdbengine.h",
         "qml/qmlengine.h",
         "qml/qmladapter.h",
-        "qml/qmldebuggerclient.h",
+        "qml/baseqmldebuggerclient.h",
         "qml/qmljsprivateapi.h",
         "qml/qmlcppengine.h",
         "qml/qscriptdebuggerclient.h",
@@ -239,7 +239,7 @@ QtcPlugin {
         "qml/qmlv8debuggerclientconstants.h",
         "qml/qmlengine.cpp",
         "qml/qmladapter.cpp",
-        "qml/qmldebuggerclient.cpp",
+        "qml/baseqmldebuggerclient.cpp",
         "qml/qmlcppengine.cpp",
         "qml/qscriptdebuggerclient.cpp",
         "qml/qmlv8debuggerclient.cpp",

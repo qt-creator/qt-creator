@@ -30,53 +30,37 @@
 **
 **************************************************************************/
 
-#ifndef QMLPROFILERTRACECLIENT_H
-#define QMLPROFILERTRACECLIENT_H
+#ifndef QV8PROFILERCLIENT_H
+#define QV8PROFILERCLIENT_H
 
-#include "qdeclarativedebugclient.h"
+#include "qmldebugclient.h"
 #include "qmlprofilereventtypes.h"
-#include "qmlprofilereventlocation.h"
-#include "qmljsdebugclient_global.h"
+#include "qmldebug_global.h"
 
 #include <QStack>
 #include <QStringList>
 
-namespace QmlJsDebugClient {
+namespace QmlDebug {
 
-class QMLJSDEBUGCLIENT_EXPORT QmlProfilerTraceClient : public QmlJsDebugClient::QDeclarativeDebugClient
+class QMLDEBUG_EXPORT QV8ProfilerClient : public QmlDebugClient
 {
     Q_OBJECT
     Q_PROPERTY(bool enabled READ isEnabled NOTIFY enabledChanged)
     Q_PROPERTY(bool recording READ isRecording WRITE setRecording NOTIFY recordingChanged)
 
-    // don't hide by signal
-    using QObject::event;
-
 public:
-    QmlProfilerTraceClient(QDeclarativeDebugConnection *client);
-    ~QmlProfilerTraceClient();
-
-    enum EventType {
-        FramePaint,
-        Mouse,
-        Key,
-        AnimationFrame,
-        EndTrace,
-        StartTrace,
-
-        MaximumEventType
-    };
-
     enum Message {
-        Event,
-        RangeStart,
-        RangeData,
-        RangeLocation,
-        RangeEnd,
-        Complete,
+        V8Entry,
+        V8Complete,
+        V8SnapshotChunk,
+        V8SnapshotComplete,
+        V8ProfilingStarted,
 
-        MaximumMessage
+        V8MaximumMessage
     };
+
+    QV8ProfilerClient(QmlDebugConnection *client);
+    ~QV8ProfilerClient();
 
     bool isEnabled() const;
     bool isRecording() const;
@@ -88,30 +72,25 @@ public slots:
 
 signals:
     void complete();
-    void gap(qint64 time);
-    void event(int event, qint64 time);
-    void traceFinished( qint64 time );
-    void traceStarted( qint64 time );
-    void range(int type, qint64 startTime, qint64 length,
-               const QStringList &data, const QmlJsDebugClient::QmlEventLocation &location);
-    void frame(qint64 time, int frameRate, int animationCount);
+    void v8range(int depth, const QString &function, const QString &filename,
+               int lineNumber, double totalTime, double selfTime);
 
     void recordingChanged(bool arg);
 
     void enabledChanged();
     void cleared();
 
+private:
+    void setRecordingFromServer(bool);
+
 protected:
     virtual void statusChanged(Status);
     virtual void messageReceived(const QByteArray &);
 
 private:
-    void setRecordingFromServer(bool);
-
-private:
-    class QmlProfilerTraceClientPrivate *d;
+    class QV8ProfilerClientPrivate *d;
 };
 
-} // namespace QmlJsDebugClient
+} // namespace QmlDebug
 
-#endif // QMLPROFILERTRACECLIENT_H
+#endif // QV8PROFILERCLIENT_H

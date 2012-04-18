@@ -33,8 +33,8 @@
 #ifndef QMLPROFILERDATAMODEL_H
 #define QMLPROFILERDATAMODEL_H
 
-#include <qmljsdebugclient/qmlprofilereventtypes.h>
-#include <qmljsdebugclient/qmlprofilereventlocation.h>
+#include <qmldebug/qmlprofilereventtypes.h>
+#include <qmldebug/qmlprofilereventlocation.h>
 #include "qv8profilerdatamodel.h"
 
 #include <QHash>
@@ -55,8 +55,8 @@ struct QmlRangeEventData
     QString displayName;
     QString eventHashStr;
     QString details;
-    QmlJsDebugClient::QmlEventLocation location;
-    QmlJsDebugClient::QmlEventType eventType;
+    QmlDebug::QmlEventLocation location;
+    QmlDebug::QmlEventType eventType;
 
     QHash <QString, QmlRangeEventRelative *> parentHash;
     QHash <QString, QmlRangeEventRelative *> childrenHash;
@@ -102,12 +102,12 @@ public:
     QList<QV8EventData *> getV8Events() const;
     QV8EventData *v8EventDescription(int eventId) const;
 
-    static QString getHashStringForQmlEvent(const QmlJsDebugClient::QmlEventLocation &location, int eventType);
+    static QString getHashStringForQmlEvent(const QmlDebug::QmlEventLocation &location, int eventType);
     static QString getHashStringForV8Event(const QString &displayName, const QString &function);
     static QString rootEventName();
     static QString rootEventDescription();
-    static QString qmlEventTypeAsString(QmlJsDebugClient::QmlEventType typeEnum);
-    static QmlJsDebugClient::QmlEventType qmlEventTypeAsEnum(const QString &typeString);
+    static QString qmlEventTypeAsString(QmlDebug::QmlEventType typeEnum);
+    static QmlDebug::QmlEventType qmlEventTypeAsEnum(const QString &typeString);
 
     int findFirstIndex(qint64 startTime) const;
     int findFirstIndexNoParents(qint64 startTime) const;
@@ -159,7 +159,7 @@ signals:
     void countChanged();
     void error(const QString &error);
 
-    void requestDetailsForLocation(int eventType, const QmlJsDebugClient::QmlEventLocation &location);
+    void requestDetailsForLocation(int eventType, const QmlDebug::QmlEventLocation &location);
     void detailsChanged(int eventId, const QString &newString);
     void reloadDetailLabels();
     void reloadDocumentsForDetails();
@@ -168,7 +168,7 @@ public slots:
     void clear();
 
     void addRangedEvent(int type, qint64 startTime, qint64 length,
-                        const QStringList &data, const QmlJsDebugClient::QmlEventLocation &location);
+                        const QStringList &data, const QmlDebug::QmlEventLocation &location);
     void addV8Event(int depth,const QString &function,const QString &filename, int lineNumber, double totalTime, double selfTime);
     void addFrameEvent(qint64 time, int framerate, int animationcount);
     void setTraceStartTime(qint64 time);
@@ -181,7 +181,7 @@ public slots:
     void setFilename(const QString &filename);
     void load();
 
-    void rewriteDetailsString(int eventType, const QmlJsDebugClient::QmlEventLocation &location, const QString &newString);
+    void rewriteDetailsString(int eventType, const QmlDebug::QmlEventLocation &location, const QString &newString);
     void finishedRewritingDetails();
 
 private:

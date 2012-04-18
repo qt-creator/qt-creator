@@ -30,15 +30,24 @@
 **
 **************************************************************************/
 
-#ifndef QMLJSDEBUGCLIENT_GLOBAL_H
-#define QMLJSDEBUGCLIENT_GLOBAL_H
+#ifndef QMLPROFILEREVENTLOCATION_H
+#define QMLPROFILEREVENTLOCATION_H
 
-#if defined(QMLJSDEBUGCLIENT_LIB)
-#  define QMLJSDEBUGCLIENT_EXPORT Q_DECL_EXPORT
-#elif defined(QMLJSDEBUGCLIENT_STATIC_LIB)
-#  define QMLJSDEBUGCLIENT_EXPORT
-#else
-#  define QMLJSDEBUGCLIENT_EXPORT Q_DECL_IMPORT
-#endif
+#include "qmldebug_global.h"
 
-#endif // QMLJSDEBUGCLIENT_GLOBAL_H
+#include <QString>
+
+namespace QmlDebug {
+
+struct QMLDEBUG_EXPORT QmlEventLocation
+{
+    QmlEventLocation() : line(-1),column(-1) {}
+    QmlEventLocation(const QString &file, int lineNumber, int columnNumber) : filename(file), line(lineNumber), column(columnNumber) {}
+    QString filename;
+    int line;
+    int column;
+};
+
+}
+
+#endif // QMLPROFILEREVENTLOCATION_H

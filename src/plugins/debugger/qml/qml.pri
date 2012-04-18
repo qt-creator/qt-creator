@@ -1,9 +1,9 @@
-include($$PWD/../../../libs/qmljsdebugclient/qmljsdebugclient.pri)
+include($$PWD/../../../libs/qmldebug/qmldebug.pri)
 
 HEADERS += \
     $$PWD/qmlengine.h \
     $$PWD/qmladapter.h \
-    $$PWD/qmldebuggerclient.h \
+    $$PWD/baseqmldebuggerclient.h \
     $$PWD/qmljsprivateapi.h \
     $$PWD/qmlcppengine.h \
     $$PWD/qscriptdebuggerclient.h \
@@ -14,7 +14,7 @@ HEADERS += \
 SOURCES += \
     $$PWD/qmlengine.cpp \
     $$PWD/qmladapter.cpp \
-    $$PWD/qmldebuggerclient.cpp \
+    $$PWD/baseqmldebuggerclient.cpp \
     $$PWD/qmlcppengine.cpp \
     $$PWD/qscriptdebuggerclient.cpp \
     $$PWD/qmlv8debuggerclient.cpp \

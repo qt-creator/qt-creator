@@ -29,23 +29,23 @@
 **
 **************************************************************************/
 
-#include "qdeclarativeoutputparser.h"
-#include "qmljsdebugclientconstants.h"
+#include "qmloutputparser.h"
+#include "qmldebugconstants.h"
 #include <QRegExp>
 
-namespace QmlJsDebugClient {
+namespace QmlDebug {
 
-QDeclarativeOutputParser::QDeclarativeOutputParser(QObject *parent)
+QmlOutputParser::QmlOutputParser(QObject *parent)
     : QObject(parent)
 {
 }
 
-void QDeclarativeOutputParser::setNoOutputText(const QString &text)
+void QmlOutputParser::setNoOutputText(const QString &text)
 {
     m_noOutputText = text;
 }
 
-void QDeclarativeOutputParser::processOutput(const QString &output)
+void QmlOutputParser::processOutput(const QString &output)
 {
     m_buffer.append(output);
 
@@ -117,4 +117,4 @@ void QDeclarativeOutputParser::processOutput(const QString &output)
     }
 }
 
-} // namespace QmLJsDebugClient
+} // namespace QmlDebug

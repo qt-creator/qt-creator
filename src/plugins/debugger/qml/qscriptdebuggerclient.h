@@ -33,7 +33,7 @@
 #ifndef QSCRIPTDEBUGGERCLIENT_H
 #define QSCRIPTDEBUGGERCLIENT_H
 
-#include "qmldebuggerclient.h"
+#include "baseqmldebuggerclient.h"
 #include "stackframe.h"
 #include "watchdata.h"
 #include "qmlengine.h"
@@ -43,12 +43,12 @@ namespace Internal {
 
 class QScriptDebuggerClientPrivate;
 
-class QScriptDebuggerClient : public QmlDebuggerClient
+class QScriptDebuggerClient : public BaseQmlDebuggerClient
 {
     Q_OBJECT
 
 public:
-    QScriptDebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection *client);
+    QScriptDebuggerClient(QmlDebug::QmlDebugConnection *client);
     ~QScriptDebuggerClient();
 
     void startSession();

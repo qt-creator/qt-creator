@@ -6,7 +6,6 @@
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
-**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -30,31 +29,30 @@
 **
 **************************************************************************/
 
-#ifndef QMLPROFILEREVENTTYPES_H
-#define QMLPROFILEREVENTTYPES_H
+#ifndef QMLENGINEDEBUGCLIENT_H
+#define QMLENGINEDEBUGCLIENT_H
 
-namespace QmlJsDebugClient {
+#include "baseenginedebugclient.h"
 
-enum QmlEventType {
-    Painting,
-    Compiling,
-    Creating,
-    Binding,
-    HandlingSignal,
+namespace QmlDebug {
 
-    MaximumQmlEventType
+class QmlDebugConnection;
+
+class QMLDEBUG_EXPORT QmlEngineDebugClient : public BaseEngineDebugClient
+{
+    Q_OBJECT
+public:
+    explicit QmlEngineDebugClient(QmlDebugConnection *conn);
+
+    quint32 setBindingForObject(int objectDebugId, const QString &propertyName,
+                                const QVariant &bindingExpression,
+                                bool isLiteralValue,
+                                QString source, int line);
+    quint32 resetBindingForObject(int objectDebugId, const QString &propertyName);
+    quint32 setMethodBody(int objectDebugId, const QString &methodName,
+                          const QString &methodBody);
 };
 
-namespace Constants {
-const char TYPE_PAINTING_STR[] = "Painting";
-const char TYPE_COMPILING_STR[] = "Compiling";
-const char TYPE_CREATING_STR[] = "Creating";
-const char TYPE_BINDING_STR[] = "Binding";
-const char TYPE_HANDLINGSIGNAL_STR[] = "HandlingSignal";
-const char PROFILER_FILE_VERSION[] = "1.02";
-const int QML_MIN_LEVEL = 1;
-}
+} // namespace QmlDebug
 
-} // namespace QmlJsDebugClient
-
-#endif //QMLPROFILEREVENTTYPES_H
+#endif // QMLENGINEDEBUGCLIENT_H

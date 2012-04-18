@@ -133,8 +133,8 @@ public:
     void logReceiveMessage(const QString &msg) const;
 };
 
-QScriptDebuggerClient::QScriptDebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection* client)
-    : QmlDebuggerClient(client, QLatin1String("JSDebugger")),
+QScriptDebuggerClient::QScriptDebuggerClient(QmlDebug::QmlDebugConnection* client)
+    : BaseQmlDebuggerClient(client, QLatin1String("JSDebugger")),
       d(new QScriptDebuggerClientPrivate(this))
 {
 }

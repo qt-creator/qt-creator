@@ -29,7 +29,7 @@
 **
 **************************************************************************/
 
-#include "qmljsinspectorclient.h"
+#include "qmltoolsclient.h"
 #include "qmljsclientproxy.h"
 #include "qmljsinspectorconstants.h"
 
@@ -38,20 +38,20 @@ using namespace QmlJSDebugger;
 namespace QmlJSInspector {
 namespace Internal {
 
-QmlJSInspectorClient::QmlJSInspectorClient(QDeclarativeDebugConnection *client,
+QmlToolsClient::QmlToolsClient(QmlDebugConnection *client,
                                            QObject * /*parent*/)
-    : QDeclarativeDebugClient(QLatin1String("QDeclarativeObserverMode"), client),
+    : QmlDebugClient(QLatin1String("QDeclarativeObserverMode"), client),
       m_connection(client)
 {
     setObjectName(name());
 }
 
-void QmlJSInspectorClient::statusChanged(Status status)
+void QmlToolsClient::statusChanged(Status status)
 {
     emit connectedStatusChanged(status);
 }
 
-void QmlJSInspectorClient::messageReceived(const QByteArray &message)
+void QmlToolsClient::messageReceived(const QByteArray &message)
 {
     QDataStream ds(message);
 
@@ -139,12 +139,12 @@ void QmlJSInspectorClient::messageReceived(const QByteArray &message)
     }
 }
 
-QList<int> QmlJSInspectorClient::currentObjects() const
+QList<int> QmlToolsClient::currentObjects() const
 {
     return m_currentDebugIds;
 }
 
-void QmlJSInspectorClient::setCurrentObjects(const QList<int> &debugIds)
+void QmlToolsClient::setCurrentObjects(const QList<int> &debugIds)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -179,7 +179,7 @@ void recurseObjectIdList(const QmlDebugObjectReference &ref,
         recurseObjectIdList(child, debugIds, objectIds);
 }
 
-void QmlJSInspectorClient::setObjectIdList(
+void QmlToolsClient::setObjectIdList(
         const QList<QmlDebugObjectReference> &objectRoots)
 {
     QByteArray message;
@@ -207,7 +207,7 @@ void QmlJSInspectorClient::setObjectIdList(
     sendMessage(message);
 }
 
-void QmlJSInspectorClient::clearComponentCache()
+void QmlToolsClient::clearComponentCache()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -223,7 +223,7 @@ void QmlJSInspectorClient::clearComponentCache()
     sendMessage(message);
 }
 
-void QmlJSInspectorClient::reloadViewer()
+void QmlToolsClient::reloadViewer()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -239,7 +239,7 @@ void QmlJSInspectorClient::reloadViewer()
     sendMessage(message);
 }
 
-void QmlJSInspectorClient::setDesignModeBehavior(bool inDesignMode)
+void QmlToolsClient::setDesignModeBehavior(bool inDesignMode)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -256,7 +256,7 @@ void QmlJSInspectorClient::setDesignModeBehavior(bool inDesignMode)
     sendMessage(message);
 }
 
-void QmlJSInspectorClient::setAnimationSpeed(qreal slowDownFactor)
+void QmlToolsClient::setAnimationSpeed(qreal slowDownFactor)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -274,7 +274,7 @@ void QmlJSInspectorClient::setAnimationSpeed(qreal slowDownFactor)
     sendMessage(message);
 }
 
-void QmlJSInspectorClient::setAnimationPaused(bool paused)
+void QmlToolsClient::setAnimationPaused(bool paused)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -291,7 +291,7 @@ void QmlJSInspectorClient::setAnimationPaused(bool paused)
     sendMessage(message);
 }
 
-void QmlJSInspectorClient::changeToSelectTool()
+void QmlToolsClient::changeToSelectTool()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -309,7 +309,7 @@ void QmlJSInspectorClient::changeToSelectTool()
     sendMessage(message);
 }
 
-void QmlJSInspectorClient::changeToSelectMarqueeTool()
+void QmlToolsClient::changeToSelectMarqueeTool()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -327,7 +327,7 @@ void QmlJSInspectorClient::changeToSelectMarqueeTool()
     sendMessage(message);
 }
 
-void QmlJSInspectorClient::changeToZoomTool()
+void QmlToolsClient::changeToZoomTool()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -345,7 +345,7 @@ void QmlJSInspectorClient::changeToZoomTool()
     sendMessage(message);
 }
 
-void QmlJSInspectorClient::showAppOnTop(bool showOnTop)
+void QmlToolsClient::showAppOnTop(bool showOnTop)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -361,7 +361,7 @@ void QmlJSInspectorClient::showAppOnTop(bool showOnTop)
     sendMessage(message);
 }
 
-void QmlJSInspectorClient::createQmlObject(const QString &qmlText,
+void QmlToolsClient::createQmlObject(const QString &qmlText,
                                            int parentDebugId,
                                            const QStringList &imports,
                                            const QString &filename, int order)
@@ -387,7 +387,7 @@ void QmlJSInspectorClient::createQmlObject(const QString &qmlText,
     sendMessage(message);
 }
 
-void QmlJSInspectorClient::destroyQmlObject(int debugId)
+void QmlToolsClient::destroyQmlObject(int debugId)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -402,7 +402,7 @@ void QmlJSInspectorClient::destroyQmlObject(int debugId)
     sendMessage(message);
 }
 
-void QmlJSInspectorClient::reparentQmlObject(int debugId, int newParent)
+void QmlToolsClient::reparentQmlObject(int debugId, int newParent)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -421,7 +421,7 @@ void QmlJSInspectorClient::reparentQmlObject(int debugId, int newParent)
 }
 
 
-void QmlJSInspectorClient::applyChangesToQmlFile()
+void QmlToolsClient::applyChangesToQmlFile()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -429,7 +429,7 @@ void QmlJSInspectorClient::applyChangesToQmlFile()
     // TODO
 }
 
-void QmlJSInspectorClient::applyChangesFromQmlFile()
+void QmlToolsClient::applyChangesFromQmlFile()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -437,7 +437,7 @@ void QmlJSInspectorClient::applyChangesFromQmlFile()
     // TODO
 }
 
-void QmlJSInspectorClient::log(LogDirection direction,
+void QmlToolsClient::log(LogDirection direction,
                                InspectorProtocol::Message message,
                                const QString &extra)
 {

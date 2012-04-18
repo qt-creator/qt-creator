@@ -35,7 +35,7 @@
 
 #include <QTreeView>
 #include <QStandardItemModel>
-#include <qmljsdebugclient/qmlprofilereventtypes.h>
+#include <qmldebug/qmlprofilereventtypes.h>
 #include "qmlprofilerdatamodel.h"
 
 #include <analyzerbase/ianalyzertool.h>

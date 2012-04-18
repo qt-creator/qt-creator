@@ -33,7 +33,7 @@
 #ifndef QMLV8DEBUGGERCLIENT_H
 #define QMLV8DEBUGGERCLIENT_H
 
-#include "qmldebuggerclient.h"
+#include "baseqmldebuggerclient.h"
 #include "stackframe.h"
 #include "watchdata.h"
 
@@ -42,7 +42,7 @@ namespace Internal {
 
 class QmlV8DebuggerClientPrivate;
 
-class QmlV8DebuggerClient : public QmlDebuggerClient
+class QmlV8DebuggerClient : public BaseQmlDebuggerClient
 {
     Q_OBJECT
 
@@ -62,7 +62,7 @@ class QmlV8DebuggerClient : public QmlDebuggerClient
     };
 
 public:
-    explicit QmlV8DebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection *client);
+    explicit QmlV8DebuggerClient(QmlDebug::QmlDebugConnection *client);
     ~QmlV8DebuggerClient();
 
     void startSession();

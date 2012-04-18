@@ -6,7 +6,6 @@
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
-**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -30,44 +29,86 @@
 **
 **************************************************************************/
 
-#ifndef QDEBUGMESSAGECLIENT_H
-#define QDEBUGMESSAGECLIENT_H
+#ifndef QPACKETPROTOCOL_H
+#define QPACKETPROTOCOL_H
 
-#include "qdeclarativedebugclient.h"
-#include "qmljsdebugclient_global.h"
+#include <qobject.h>
+#include <qdatastream.h>
 
-namespace QmlJsDebugClient {
+QT_BEGIN_NAMESPACE
+class QIODevice;
+class QBuffer;
+QT_END_NAMESPACE
 
-class QDebugMessageClientPrivate;
-struct QDebugContextInfo
-{
-    int line;
-    QString file;
-    QString function;
-};
+namespace QmlDebug {
 
-class QMLJSDEBUGCLIENT_EXPORT QDebugMessageClient : public QDeclarativeDebugClient
+class QPacket;
+class QPacketAutoSend;
+
+class QPacketProtocolPrivate;
+
+class QPacketProtocol : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit QDebugMessageClient(QDeclarativeDebugConnection *client);
-    ~QDebugMessageClient();
+    explicit QPacketProtocol(QIODevice *dev, QObject *parent = 0);
+    virtual ~QPacketProtocol();
 
-protected:
-    virtual void statusChanged(Status status);
-    virtual void messageReceived(const QByteArray &);
+    qint32 maximumPacketSize() const;
+    qint32 setMaximumPacketSize(qint32);
 
-signals:
-    void newStatus(QDeclarativeDebugClient::Status);
-    void message(QtMsgType, const QString &,
-                 const QmlJsDebugClient::QDebugContextInfo &);
+    QPacketAutoSend send();
+    void send(const QPacket &);
+
+    qint64 packetsAvailable() const;
+    QPacket read();
+
+    bool waitForReadyRead(int msecs = 3000);
+
+    void clear();
+
+    QIODevice *device();
+
+Q_SIGNALS:
+    void readyRead();
+    void invalidPacket();
+    void packetWritten();
 
 private:
-    class QDebugMessageClientPrivate *d;
-    Q_DISABLE_COPY(QDebugMessageClient)
+    QPacketProtocolPrivate *d;
 };
 
-} // namespace QmlJsDebugClient
 
-#endif // QDEBUGMESSAGECLIENT_H
+class QPacket : public QDataStream
+{
+public:
+    QPacket();
+    QPacket(const QPacket &);
+    virtual ~QPacket();
+
+    void clear();
+    bool isEmpty() const;
+    QByteArray data() const;
+
+protected:
+    friend class QPacketProtocol;
+    QPacket(const QByteArray &ba);
+    QByteArray b;
+    QBuffer *buf;
+};
+
+class QPacketAutoSend : public QPacket
+{
+public:
+    virtual ~QPacketAutoSend();
+
+private:
+    friend class QPacketProtocol;
+    QPacketAutoSend(QPacketProtocol *);
+    QPacketProtocol *p;
+};
+
+} // QmlDebug
+
+#endif

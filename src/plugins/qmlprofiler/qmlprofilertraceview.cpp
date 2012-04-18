@@ -54,7 +54,7 @@
 
 #include <math.h>
 
-using namespace QmlJsDebugClient;
+using namespace QmlDebug;
 
 namespace QmlProfiler {
 namespace Internal {

@@ -34,7 +34,7 @@
 #include <qbuffer.h>
 #include <qelapsedtimer.h>
 
-namespace QmlJsDebugClient {
+namespace QmlDebug {
 
 static const unsigned int MAX_PACKET_SIZE = 0x7FFFFFFF;
 
@@ -537,6 +537,6 @@ QPacketAutoSend::~QPacketAutoSend()
         p->send(*this);
 }
 
-} // namespace QmlJsDebugClient
+} // namespace QmlDebug
 
 #include <qpacketprotocol.moc>

@@ -29,7 +29,8 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
-#include "qmldebuggerclient.h"
+
+#include "baseqmldebuggerclient.h"
 #include "breakpoint.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -38,58 +39,58 @@
 namespace Debugger {
 namespace Internal {
 
-class QmlDebuggerClientPrivate
+class BaseQmlDebuggerClientPrivate
 {
 public:
     QList<QByteArray> sendBuffer;
 };
 
-QmlDebuggerClient::QmlDebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection* client, QLatin1String clientName)
-    : QDeclarativeDebugClient(clientName, client),
-      d(new QmlDebuggerClientPrivate())
+BaseQmlDebuggerClient::BaseQmlDebuggerClient(QmlDebug::QmlDebugConnection* client, QLatin1String clientName)
+    : QmlDebugClient(clientName, client),
+      d(new BaseQmlDebuggerClientPrivate())
 {
 }
 
-QmlDebuggerClient::~QmlDebuggerClient()
+BaseQmlDebuggerClient::~BaseQmlDebuggerClient()
 {
     delete d;
 }
 
-bool QmlDebuggerClient::acceptsBreakpoint(const BreakpointModelId &/*id*/)
+bool BaseQmlDebuggerClient::acceptsBreakpoint(const BreakpointModelId &/*id*/)
 {
     return false;
 }
 
-void QmlDebuggerClient::statusChanged(Status status)
+void BaseQmlDebuggerClient::statusChanged(Status status)
 {
     emit newStatus(status);
 }
 
-void QmlDebuggerClient::sendMessage(const QByteArray &msg)
+void BaseQmlDebuggerClient::sendMessage(const QByteArray &msg)
 {
     if (status() == Enabled) {
-        QDeclarativeDebugClient::sendMessage(msg);
+        QmlDebugClient::sendMessage(msg);
     } else {
         d->sendBuffer.append(msg);
     }
 }
 
-void QmlDebuggerClient::flushSendBuffer()
+void BaseQmlDebuggerClient::flushSendBuffer()
 {
-    QTC_ASSERT(status() == QDeclarativeDebugClient::Enabled, return);
+    QTC_ASSERT(status() == QmlDebugClient::Enabled, return);
     foreach (const QByteArray &msg, d->sendBuffer)
-       QDeclarativeDebugClient::sendMessage(msg);
+       QmlDebugClient::sendMessage(msg);
     d->sendBuffer.clear();
 }
 
 //TODO:: remove this method
-QList<QByteArray> QmlDebuggerClient::cachedMessages()
+QList<QByteArray> BaseQmlDebuggerClient::cachedMessages()
 {
     return d->sendBuffer;
 }
 
 //TODO:: remove this method
-void QmlDebuggerClient::clearCachedMessages()
+void BaseQmlDebuggerClient::clearCachedMessages()
 {
     d->sendBuffer.clear();
 }

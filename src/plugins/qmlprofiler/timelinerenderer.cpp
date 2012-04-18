@@ -53,7 +53,7 @@ TimelineRenderer::TimelineRenderer(QDeclarativeItem *parent) :
     setFlag(QGraphicsItem::ItemHasNoContents, false);
     setAcceptedMouseButtons(Qt::LeftButton);
     setAcceptHoverEvents(true);
-    for (int i=0; i<QmlJsDebugClient::MaximumQmlEventType; i++)
+    for (int i=0; i<QmlDebug::MaximumQmlEventType; i++)
         m_rowsExpanded << false;
 }
 
@@ -85,7 +85,7 @@ void TimelineRenderer::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWid
 
     m_rowWidths.clear();
     // The "1+" is because the reference screenshot features an empty row per type, in order to leave space for the title
-    for (int i=0; i<QmlJsDebugClient::MaximumQmlEventType; i++) {
+    for (int i=0; i<QmlDebug::MaximumQmlEventType; i++) {
         m_rowWidths << 1 + (m_rowsExpanded[i] ? m_profilerDataModel->uniqueEventsOfType(i) :
                                                 m_profilerDataModel->maxNestingForType(i));
     }
@@ -93,7 +93,7 @@ void TimelineRenderer::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWid
     // event rows
     m_rowStarts.clear();
     int pos = 0;
-    for (int i=0; i<QmlJsDebugClient::MaximumQmlEventType; i++) {
+    for (int i=0; i<QmlDebug::MaximumQmlEventType; i++) {
         m_rowStarts << pos;
         pos += DefaultRowHeight * m_rowWidths[i];
     }
@@ -102,7 +102,7 @@ void TimelineRenderer::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWid
 
     // speedup: don't draw overlapping events, just skip them
     m_rowLastX.clear();
-    for (int i=0; i<QmlJsDebugClient::MaximumQmlEventType; i++)
+    for (int i=0; i<QmlDebug::MaximumQmlEventType; i++)
         for (int j=0; j<m_rowWidths[i]; j++)
             m_rowLastX << -m_startTime * m_spacing;
 

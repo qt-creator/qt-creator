@@ -32,7 +32,7 @@
 
 #include "qmlprofilertraceclient.h"
 
-namespace QmlJsDebugClient {
+namespace QmlDebug {
 
 class QmlProfilerTraceClientPrivate {
 public:
@@ -57,9 +57,9 @@ public:
     bool recording;
 };
 
-} // namespace QmlJsDebugClient
+} // namespace QmlDebug
 
-using namespace QmlJsDebugClient;
+using namespace QmlDebug;
 
 static const int GAP_TIME = 150;
 
@@ -71,8 +71,8 @@ void QmlProfilerTraceClientPrivate::sendRecordingStatus()
     q->sendMessage(ba);
 }
 
-QmlProfilerTraceClient::QmlProfilerTraceClient(QDeclarativeDebugConnection *client)
-    : QDeclarativeDebugClient(QLatin1String("CanvasFrameRate"), client)
+QmlProfilerTraceClient::QmlProfilerTraceClient(QmlDebugConnection *client)
+    : QmlDebugClient(QLatin1String("CanvasFrameRate"), client)
     , d(new QmlProfilerTraceClientPrivate(this))
 {
 }

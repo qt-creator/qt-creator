@@ -29,29 +29,29 @@
 **
 **************************************************************************/
 
-#ifndef QMLENGINEDEBUGCLIENT_H
-#define QMLENGINEDEBUGCLIENT_H
+#ifndef BASEENGINEDEBUGCLIENT_H
+#define BASEENGINEDEBUGCLIENT_H
 
-#include "qmljsdebugclient_global.h"
-#include "qdeclarativedebugclient.h"
+#include "qmldebug_global.h"
+#include "qmldebugclient.h"
 #include <qurl.h>
 #include <qvariant.h>
 
-namespace QmlJsDebugClient {
+namespace QmlDebug {
 
-class QDeclarativeDebugConnection;
+class QmlDebugConnection;
 class QmlDebugPropertyReference;
 class QmlDebugContextReference;
 class QmlDebugObjectReference;
 class QmlDebugFileReference;
 class QmlDebugEngineReference;
 
-class QMLJSDEBUGCLIENT_EXPORT QmlEngineDebugClient : public QDeclarativeDebugClient
+class QMLDEBUG_EXPORT BaseEngineDebugClient : public QmlDebugClient
 {
     Q_OBJECT
 public:
-    QmlEngineDebugClient(const QString &clientName,
-                         QDeclarativeDebugConnection *conn);
+    BaseEngineDebugClient(const QString &clientName,
+                         QmlDebugConnection *conn);
 
     quint32 addWatch(const QmlDebugPropertyReference &property);
     quint32 addWatch(const QmlDebugContextReference &context, const QString &id);
@@ -77,7 +77,7 @@ public:
                           const QString &methodBody);
 
 signals:
-    void newStatus(QDeclarativeDebugClient::Status status);
+    void newStatus(QmlDebugClient::Status status);
     void newObjects();
     void valueChanged(int debugId, const QByteArray &name,
                       const QVariant &value);
@@ -106,7 +106,7 @@ public:
     int columnNumber() const { return m_columnNumber; }
 
 private:
-    friend class QmlEngineDebugClient;
+    friend class BaseEngineDebugClient;
     QUrl m_url;
     int m_lineNumber;
     int m_columnNumber;
@@ -122,7 +122,7 @@ public:
     QString name() const { return m_name; }
 
 private:
-    friend class QmlEngineDebugClient;
+    friend class BaseEngineDebugClient;
     int m_debugId;
     QString m_name;
 };
@@ -168,7 +168,7 @@ public:
     }
 
 private:
-    friend class QmlEngineDebugClient;
+    friend class BaseEngineDebugClient;
     int m_debugId;
     int m_parentId;
     QString m_className;
@@ -193,7 +193,7 @@ public:
     QList<QmlDebugContextReference> contexts() const { return m_contexts; }
 
 private:
-    friend class QmlEngineDebugClient;
+    friend class BaseEngineDebugClient;
     int m_debugId;
     QString m_name;
     QList<QmlDebugObjectReference> m_objects;
@@ -213,7 +213,7 @@ public:
     bool hasNotifySignal() const { return m_hasNotifySignal; }
 
 private:
-    friend class QmlEngineDebugClient;
+    friend class BaseEngineDebugClient;
     int m_objectDebugId;
     QString m_name;
     QVariant m_value;
@@ -222,11 +222,11 @@ private:
     bool m_hasNotifySignal;
 };
 
-} // namespace QmlJsDebugClient
+} // namespace QmlDebug
 
-Q_DECLARE_METATYPE(QmlJsDebugClient::QmlDebugObjectReference)
-Q_DECLARE_METATYPE(QmlJsDebugClient::QmlDebugEngineReference)
-Q_DECLARE_METATYPE(QmlJsDebugClient::QmlDebugEngineReferenceList)
-Q_DECLARE_METATYPE(QmlJsDebugClient::QmlDebugContextReference)
+Q_DECLARE_METATYPE(QmlDebug::QmlDebugObjectReference)
+Q_DECLARE_METATYPE(QmlDebug::QmlDebugEngineReference)
+Q_DECLARE_METATYPE(QmlDebug::QmlDebugEngineReferenceList)
+Q_DECLARE_METATYPE(QmlDebug::QmlDebugContextReference)
 
-#endif // QMLENGINEDEBUGCLIENT_H
+#endif // BASEENGINEDEBUGCLIENT_H

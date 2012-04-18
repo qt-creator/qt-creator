@@ -20,7 +20,7 @@ Project {
         "src/libs/languageutils/languageutils.qbs",
         "src/libs/qmleditorwidgets/qmleditorwidgets.qbs",
         "src/libs/qmljs/qmljs.qbs",
-        "src/libs/qmljsdebugclient/qmljsdebugclient.qbs",
+        "src/libs/qmldebug/qmldebug.qbs",
         "src/libs/qtcomponents/styleitem/styleitem.qbs",
         "src/libs/symbianutils/symbianutils.qbs",
         "src/libs/utils/utils.qbs",

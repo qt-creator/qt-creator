@@ -6,7 +6,6 @@
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
-**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -30,24 +29,37 @@
 **
 **************************************************************************/
 
-#ifndef QMLJSDEBUGCLIENTCONSTANTS_H
-#define QMLJSDEBUGCLIENTCONSTANTS_H
+#ifndef QMLOUTPUTPARSER_H
+#define QMLOUTPUTPARSER_H
 
-namespace QmlJsDebugClient {
-namespace Constants {
+#include "qmldebug_global.h"
 
-const char STR_WAITING_FOR_CONNECTION[] = "Waiting for connection ";
-const char STR_ON_PORT_PATTERN[] = "on port (\\d+)";
-const char STR_VIA_OST[] = "via OST";
-const char STR_UNABLE_TO_LISTEN[] = "Unable to listen ";
-const char STR_IGNORING_DEBUGGER[] = "Ignoring \"-qmljsdebugger=";
-const char STR_IGNORING_DEBUGGER2[] = "Ignoring\"-qmljsdebugger="; // There is (was?) a bug in one of the error strings - safest to handle both
-const char STR_CONNECTION_ESTABLISHED[] = "Connection established";
+#include <QObject>
 
-const char QML_DEBUGGER[] = "QmlDebugger";
-const float CURRENT_SUPPORTED_VERSION = 2.0;
+namespace QmlDebug {
 
-} // namespace Constants
-} // namespace QmlJsDebugClient
+class QMLDEBUG_EXPORT QmlOutputParser : public QObject
+{
+    Q_OBJECT
+public:
+    QmlOutputParser(QObject *parent = 0);
 
-#endif // QMLJSDEBUGCLIENTCONSTANTS_H
+    void setNoOutputText(const QString &text);
+    void processOutput(const QString &output);
+
+signals:
+    void waitingForConnectionOnPort(quint16 port);
+    void waitingForConnectionViaOst();
+    void connectionEstablishedMessage();
+    void errorMessage(const QString &detailedError);
+    void unknownMessage(const QString &unknownMessage);
+    void noOutputMessage();
+
+private:
+    QString m_noOutputText;
+    QString m_buffer;
+};
+
+} // namespace QmlDebug
+
+#endif // QMLOUTPUTPARSER_H

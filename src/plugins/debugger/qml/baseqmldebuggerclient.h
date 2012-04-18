@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef QMLDEBUGGERCLIENT_H
-#define QMLDEBUGGERCLIENT_H
+#ifndef BASEQMLDEBUGGERCLIENT_H
+#define BASEQMLDEBUGGERCLIENT_H
 
 #include "qmljsprivateapi.h"
 #include "debuggerengine.h"
@@ -43,15 +43,15 @@ class WatchData;
 class BreakHandler;
 class BreakpointModelId;
 class QmlEngine;
-class QmlDebuggerClientPrivate;
+class BaseQmlDebuggerClientPrivate;
 
-class QmlDebuggerClient : public QDeclarativeDebugClient
+class BaseQmlDebuggerClient : public QmlDebugClient
 {
     Q_OBJECT
 
 public:
-    QmlDebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection* client, QLatin1String clientName);
-    virtual ~QmlDebuggerClient();
+    BaseQmlDebuggerClient(QmlDebug::QmlDebugConnection* client, QLatin1String clientName);
+    virtual ~BaseQmlDebuggerClient();
 
     virtual void startSession() = 0;
     virtual void endSession() = 0;
@@ -93,7 +93,7 @@ public:
     void flushSendBuffer();
 
 signals:
-    void newStatus(QDeclarativeDebugClient::Status status);
+    void newStatus(QmlDebugClient::Status status);
 
 protected:
     virtual void statusChanged(Status status);
@@ -103,11 +103,11 @@ protected:
     void clearCachedMessages();
 
 private:
-    QmlDebuggerClientPrivate *d;
-    friend class QmlDebuggerClientPrivate;
+    BaseQmlDebuggerClientPrivate *d;
+    friend class BaseQmlDebuggerClientPrivate;
 };
 
 } // Internal
 } // Debugger
 
-#endif // QMLDEBUGGERCLIENT_H
+#endif // BASEQMLDEBUGGERCLIENT_H

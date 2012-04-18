@@ -29,18 +29,18 @@
 **
 **************************************************************************/
 
-#include "qmldebuggerclient.h"
-#include "qmljsdebugclientconstants.h"
+#include "qmlenginedebugclient.h"
+#include "qmldebugconstants.h"
 
-namespace QmlJsDebugClient {
+namespace QmlDebug {
 
-QmlDebuggerClient::QmlDebuggerClient(
-        QDeclarativeDebugConnection *connection)
-    : QmlEngineDebugClient(QLatin1String(Constants::QML_DEBUGGER), connection)
+QmlEngineDebugClient::QmlEngineDebugClient(
+        QmlDebugConnection *connection)
+    : BaseEngineDebugClient(QLatin1String(Constants::QML_DEBUGGER), connection)
 {
 }
 
-quint32 QmlDebuggerClient::setBindingForObject(
+quint32 QmlEngineDebugClient::setBindingForObject(
         int objectDebugId,
         const QString &propertyName,
         const QVariant &bindingExpression,
@@ -48,7 +48,7 @@ quint32 QmlDebuggerClient::setBindingForObject(
         QString source, int line)
 {
     quint32 id = 0;
-    if (status() == QDeclarativeDebugClient::Enabled && objectDebugId != -1) {
+    if (status() == QmlDebugClient::Enabled && objectDebugId != -1) {
         id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
@@ -59,12 +59,12 @@ quint32 QmlDebuggerClient::setBindingForObject(
     return id;
 }
 
-quint32 QmlDebuggerClient::resetBindingForObject(
+quint32 QmlEngineDebugClient::resetBindingForObject(
         int objectDebugId,
         const QString &propertyName)
 {
     quint32 id = 0;
-    if (status() == QDeclarativeDebugClient::Enabled && objectDebugId != -1) {
+    if (status() == QmlDebugClient::Enabled && objectDebugId != -1) {
         id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
@@ -74,12 +74,12 @@ quint32 QmlDebuggerClient::resetBindingForObject(
     return id;
 }
 
-quint32 QmlDebuggerClient::setMethodBody(
+quint32 QmlEngineDebugClient::setMethodBody(
         int objectDebugId, const QString &methodName,
         const QString &methodBody)
 {
     quint32 id = 0;
-    if (status() == QDeclarativeDebugClient::Enabled && objectDebugId != -1) {
+    if (status() == QmlDebugClient::Enabled && objectDebugId != -1) {
         id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
@@ -90,4 +90,4 @@ quint32 QmlDebuggerClient::setMethodBody(
     return id;
 }
 
-} // namespace QmlJsDebugClient
+} // namespace QmlDebug

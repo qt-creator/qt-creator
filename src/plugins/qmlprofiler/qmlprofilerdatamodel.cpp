@@ -45,7 +45,7 @@
 #include <QTimer>
 #include <utils/qtcassert.h>
 
-using namespace QmlJsDebugClient;
+using namespace QmlDebug;
 
 namespace QmlProfiler {
 namespace Internal {
@@ -295,11 +295,11 @@ void QmlProfilerDataModel::clear()
 
 void QmlProfilerDataModel::addRangedEvent(int type, qint64 startTime, qint64 length,
                                           const QStringList &data,
-                                          const QmlJsDebugClient::QmlEventLocation &location)
+                                          const QmlDebug::QmlEventLocation &location)
 {
     const QChar colon = QLatin1Char(':');
     QString displayName, eventHashStr, details;
-    QmlJsDebugClient::QmlEventLocation eventLocation = location;
+    QmlDebug::QmlEventLocation eventLocation = location;
 
     setState(AcquiringData);
 
@@ -319,7 +319,7 @@ void QmlProfilerDataModel::addRangedEvent(int type, qint64 startTime, qint64 len
 
     // backwards compatibility: "compiling" events don't have a proper location in older
     // version of the protocol, but the filename is passed in the details string
-    if (type == QmlJsDebugClient::Compiling && eventLocation.filename.isEmpty()) {
+    if (type == QmlDebug::Compiling && eventLocation.filename.isEmpty()) {
         eventLocation.filename = details;
         eventLocation.line = 1;
         eventLocation.column = 1;
@@ -344,7 +344,7 @@ void QmlProfilerDataModel::addRangedEvent(int type, qint64 startTime, qint64 len
         newEvent->displayName = displayName;
         newEvent->location = eventLocation;
         newEvent->eventHashStr = eventHashStr;
-        newEvent->eventType = (QmlJsDebugClient::QmlEventType)type;
+        newEvent->eventType = (QmlDebug::QmlEventType)type;
         newEvent->details = details;
         d->rangeEventDictionary.insert(eventHashStr, newEvent);
     }
@@ -393,7 +393,7 @@ void QmlProfilerDataModel::addFrameEvent(qint64 time, int framerate, int animati
         newEvent = new QmlRangeEventData;
         newEvent->displayName = displayName;
         newEvent->eventHashStr = eventHashStr;
-        newEvent->eventType = QmlJsDebugClient::Painting;
+        newEvent->eventType = QmlDebug::Painting;
         newEvent->details = details;
         d->rangeEventDictionary.insert(eventHashStr, newEvent);
     }
@@ -442,7 +442,7 @@ void QmlProfilerDataModel::setTraceStartTime(qint64 time)
 ////////////////////////////////////////////////////////////////////////////////////
 
 QString QmlProfilerDataModel::getHashStringForQmlEvent(
-        const QmlJsDebugClient::QmlEventLocation &location, int eventType)
+        const QmlDebug::QmlEventLocation &location, int eventType)
 {
     return QString("%1:%2:%3:%4").arg(location.filename,
                                       QString::number(location.line),
@@ -679,7 +679,7 @@ int QmlProfilerDataModel::getColumn(int index) const
 QString QmlProfilerDataModel::getDetails(int index) const
 {
     // special: animations
-    if (d->startInstanceList[index].statsInfo->eventType == QmlJsDebugClient::Painting &&
+    if (d->startInstanceList[index].statsInfo->eventType == QmlDebug::Painting &&
             d->startInstanceList[index].animationCount >= 0)
         return tr("%1 animations at %2 FPS").arg(
                     QString::number(d->startInstanceList[index].animationCount),
@@ -943,7 +943,7 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::findAnimationLimits()
     lastFrameEvent = 0;
 
     for (int i = 0; i < startInstanceList.count(); i++) {
-        if (startInstanceList[i].statsInfo->eventType == QmlJsDebugClient::Painting &&
+        if (startInstanceList[i].statsInfo->eventType == QmlDebug::Painting &&
                 startInstanceList[i].animationCount >= 0) {
             int animationcount = startInstanceList[i].animationCount;
             if (lastFrameEvent) {
@@ -971,7 +971,7 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::computeNestingLevels()
     int lastBaseEventIndex = 0;
     qint64 lastBaseEventEndTime = traceStartTime;
 
-    for (int i = 0; i < QmlJsDebugClient::MaximumQmlEventType; i++) {
+    for (int i = 0; i < QmlDebug::MaximumQmlEventType; i++) {
         nestingLevels << Constants::QML_MIN_LEVEL;
         QHash<int, qint64> dummyHash;
         dummyHash[Constants::QML_MIN_LEVEL] = 0;
@@ -982,7 +982,7 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::computeNestingLevels()
         qint64 st = startInstanceList[i].startTime;
         int type = startInstanceList[i].statsInfo->eventType;
 
-        if (type == QmlJsDebugClient::Painting) {
+        if (type == QmlDebug::Painting) {
             // animation/paint events have level 0 by definition (same as "mainprogram"),
             // but are not considered parents of other events for statistical purposes
             startInstanceList[i].level = Constants::QML_MIN_LEVEL - 1;
@@ -1101,7 +1101,7 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::redoTree(qint64 fromTime
             continue;
         }
 
-        if (eventDescription->eventType == QmlJsDebugClient::Painting) {
+        if (eventDescription->eventType == QmlDebug::Painting) {
             // skip animation/paint events
             continue;
         }
@@ -1265,7 +1265,7 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::clearQmlRootEvent()
     qmlRootEvent.location = QmlEventLocation();
     qmlRootEvent.eventHashStr = rootEventName();
     qmlRootEvent.details = rootEventDescription();
-    qmlRootEvent.eventType = QmlJsDebugClient::Binding;
+    qmlRootEvent.eventType = QmlDebug::Binding;
     qmlRootEvent.duration = 0;
     qmlRootEvent.calls = 0;
     qmlRootEvent.minTime = 0;
@@ -1314,7 +1314,7 @@ void QmlProfilerDataModel::reloadDetails()
 }
 
 void QmlProfilerDataModel::rewriteDetailsString(int eventType,
-                                                const QmlJsDebugClient::QmlEventLocation &location,
+                                                const QmlDebug::QmlEventLocation &location,
                                                 const QString &newString)
 {
     QString eventHashStr = getHashStringForQmlEvent(location, eventType);
@@ -1377,7 +1377,7 @@ bool QmlProfilerDataModel::save(const QString &filename)
         stream.writeAttribute("startTime", QString::number(rangedEvent.startTime));
         stream.writeAttribute("duration", QString::number(rangedEvent.duration));
         stream.writeAttribute("eventIndex", QString::number(d->rangeEventDictionary.keys().indexOf(rangedEvent.statsInfo->eventHashStr)));
-        if (rangedEvent.statsInfo->eventType == QmlJsDebugClient::Painting && rangedEvent.animationCount >= 0) {
+        if (rangedEvent.statsInfo->eventType == QmlDebug::Painting && rangedEvent.animationCount >= 0) {
             // animation frame
             stream.writeAttribute("framerate", QString::number(rangedEvent.frameRate));
             stream.writeAttribute("animationcount", QString::number(rangedEvent.animationCount));

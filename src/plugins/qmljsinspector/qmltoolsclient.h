@@ -29,8 +29,8 @@
 **
 **************************************************************************/
 
-#ifndef QMLJSDESIGNDEBUGCLIENT_H
-#define QMLJSDESIGNDEBUGCLIENT_H
+#ifndef QMLTOOLSCLIENT_H
+#define QMLTOOLSCLIENT_H
 
 #include "qmljsprivateapi.h"
 
@@ -39,11 +39,11 @@
 namespace QmlJSInspector {
 namespace Internal {
 
-class QmlJSInspectorClient : public QDeclarativeDebugClient
+class QmlToolsClient : public QmlDebugClient
 {
     Q_OBJECT
 public:
-    explicit QmlJSInspectorClient(QDeclarativeDebugConnection *client,
+    explicit QmlToolsClient(QmlDebugConnection *client,
                                   QObject *parent = 0);
 
     void setCurrentObjects(const QList<int> &debugIds);
@@ -73,7 +73,7 @@ public:
     void clearComponentCache();
 
 signals:
-    void connectedStatusChanged(QDeclarativeDebugClient::Status status);
+    void connectedStatusChanged(QmlDebugClient::Status status);
 
     void currentObjectsChanged(const QList<int> &debugIds);
     void selectToolActivated();
@@ -102,10 +102,10 @@ private:
              const QString &extra = QString());
 
     QList<int> m_currentDebugIds;
-    QDeclarativeDebugConnection *m_connection;
+    QmlDebugConnection *m_connection;
 };
 
 } // namespace Internal
 } // namespace QmlJSInspector
 
-#endif // QMLJSDESIGNDEBUGCLIENT_H
+#endif // QMLTOOLSCLIENT_H

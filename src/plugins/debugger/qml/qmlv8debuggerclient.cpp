@@ -1011,8 +1011,8 @@ QtMessageLogItem *QmlV8DebuggerClientPrivate::constructLogItemTree(
 //
 ///////////////////////////////////////////////////////////////////////
 
-QmlV8DebuggerClient::QmlV8DebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection *client)
-    : QmlDebuggerClient(client, QLatin1String("V8Debugger")),
+QmlV8DebuggerClient::QmlV8DebuggerClient(QmlDebug::QmlDebugConnection *client)
+    : BaseQmlDebuggerClient(client, QLatin1String("V8Debugger")),
       d(new QmlV8DebuggerClientPrivate(this))
 {
 }

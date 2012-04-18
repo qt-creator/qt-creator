@@ -34,16 +34,16 @@
 #include "qmlprofilertool.h"
 #include "qmlprofilerplugin.h"
 
-#include <qmljsdebugclient/qdeclarativedebugclient.h>
-#include <qmljsdebugclient/qmlprofilertraceclient.h>
-#include <qmljsdebugclient/qv8profilerclient.h>
+#include <qmldebug/qmldebugclient.h>
+#include <qmldebug/qmlprofilertraceclient.h>
+#include <qmldebug/qv8profilerclient.h>
 
 #include <utils/qtcassert.h>
 #include <QWeakPointer>
 #include <QTimer>
 #include <QMessageBox>
 
-using namespace QmlJsDebugClient;
+using namespace QmlDebug;
 using namespace Core;
 
 namespace QmlProfiler {
@@ -55,7 +55,7 @@ public:
 
     QmlProfilerStateManager* profilerState;
 
-    QDeclarativeDebugConnection *connection;
+    QmlDebugConnection *connection;
     QWeakPointer<QmlProfilerTraceClient> qmlclientplugin;
     QWeakPointer<QV8ProfilerClient> v8clientplugin;
 
@@ -136,7 +136,7 @@ void QmlProfilerClientManager::connectClient(quint16 port)
 {
     if (d->connection)
         delete d->connection;
-    d->connection = new QDeclarativeDebugConnection;
+    d->connection = new QmlDebugConnection;
     enableServices();
     connect(d->connection, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
             this, SLOT(connectionStateChanged()));
@@ -164,9 +164,9 @@ void QmlProfilerClientManager::connectClientSignals()
         connect(d->qmlclientplugin.data(), SIGNAL(complete()),
                 this, SLOT(qmlComplete()));
         connect(d->qmlclientplugin.data(),
-                SIGNAL(range(int,qint64,qint64,QStringList,QmlJsDebugClient::QmlEventLocation)),
+                SIGNAL(range(int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)),
                 this,
-                SIGNAL(addRangedEvent(int,qint64,qint64,QStringList,QmlJsDebugClient::QmlEventLocation)));
+                SIGNAL(addRangedEvent(int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)));
         connect(d->qmlclientplugin.data(), SIGNAL(traceFinished(qint64)),
                 this, SIGNAL(traceFinished(qint64)));
         connect(d->qmlclientplugin.data(), SIGNAL(traceStarted(qint64)),
@@ -196,9 +196,9 @@ void QmlProfilerClientManager::disconnectClientSignals()
         disconnect(d->qmlclientplugin.data(), SIGNAL(complete()),
                    this, SLOT(qmlComplete()));
         disconnect(d->qmlclientplugin.data(),
-                   SIGNAL(range(int,qint64,qint64,QStringList,QmlJsDebugClient::QmlEventLocation)),
+                   SIGNAL(range(int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)),
                    this,
-                   SIGNAL(addRangedEvent(int,qint64,qint64,QStringList,QmlJsDebugClient::QmlEventLocation)));
+                   SIGNAL(addRangedEvent(int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(traceFinished(qint64)),
                    this, SIGNAL(traceFinished(qint64)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(traceStarted(qint64)),
@@ -341,7 +341,7 @@ void QmlProfilerClientManager::retryMessageBoxFinished(int result)
 void QmlProfilerClientManager::qmlComplete()
 {
     d->qmlDataReady = true;
-    if (!d->v8clientplugin || d->v8clientplugin.data()->status() != QDeclarativeDebugClient::Enabled || d->v8DataReady) {
+    if (!d->v8clientplugin || d->v8clientplugin.data()->status() != QmlDebugClient::Enabled || d->v8DataReady) {
         emit dataReadyForProcessing();
         // once complete is sent, reset the flags
         d->qmlDataReady = false;
@@ -352,7 +352,7 @@ void QmlProfilerClientManager::qmlComplete()
 void QmlProfilerClientManager::v8Complete()
 {
     d->v8DataReady = true;
-    if (!d->qmlclientplugin || d->qmlclientplugin.data()->status() != QDeclarativeDebugClient::Enabled || d->qmlDataReady) {
+    if (!d->qmlclientplugin || d->qmlclientplugin.data()->status() != QmlDebugClient::Enabled || d->qmlDataReady) {
         emit dataReadyForProcessing();
         // once complete is sent, reset the flags
         d->v8DataReady = false;
