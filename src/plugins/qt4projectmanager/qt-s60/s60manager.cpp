@@ -130,9 +130,6 @@ S60Manager::S60Manager(QObject *parent) : QObject(parent)
 
     addAutoReleasedObject(new Internal::SymbianIDeviceFactory);
 
-    ProjectExplorer::IDevice::Ptr dev(new SymbianIDevice);
-    ProjectExplorer::DeviceManager::instance()->addDevice(dev);
-
     connect(Core::ICore::mainWindow(), SIGNAL(deviceChange()),
             SymbianUtils::SymbianDeviceManager::instance(), SLOT(update()));
 
@@ -158,6 +155,12 @@ QString S60Manager::platform(const ProjectExplorer::ToolChain *tc)
         return QString();
     QString target = tc->defaultMakeTarget();
     return target.right(target.lastIndexOf(QLatin1Char('-')));
+}
+
+void S60Manager::addDevice()
+{
+    ProjectExplorer::IDevice::Ptr dev(new SymbianIDevice);
+    ProjectExplorer::DeviceManager::instance()->addDevice(dev);
 }
 
 void S60Manager::symbianDeviceRemoved(const SymbianUtils::SymbianDevice &d)

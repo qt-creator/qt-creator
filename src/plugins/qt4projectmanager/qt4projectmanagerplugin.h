@@ -67,6 +67,7 @@ public:
     Qt4ProjectManagerPlugin();
     ~Qt4ProjectManagerPlugin();
     bool initialize(const QStringList &arguments, QString *errorMessage);
+    bool delayedInitialize();
     void extensionsInitialized();
 
 private slots:
