@@ -691,7 +691,7 @@ void Preprocessor::handleDefined(PPToken *tk)
     QByteArray result(1, '0');
     if (m_env->resolve(idToken.asByteArrayRef()))
         result[0] = '1';
-    *tk = generateToken(T_NUMERIC_LITERAL, ByteArrayRef(&result), lineno, false);
+    *tk = generateToken(T_NUMERIC_LITERAL, result.constData(), result.size(), lineno, false);
 }
 
 void Preprocessor::pushToken(Preprocessor::PPToken *tk)
@@ -764,25 +764,25 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
         PPToken newTk;
         if (macroNameRef == ppLine) {
             QByteArray txt = QByteArray::number(tk->lineno);
-            newTk = generateToken(T_STRING_LITERAL, &txt, tk->lineno, false);
+            newTk = generateToken(T_STRING_LITERAL, txt.constData(), txt.size(), tk->lineno, false);
         } else if (macroNameRef == ppFile) {
             QByteArray txt;
             txt.append('"');
             txt.append(m_env->currentFile.toUtf8());
             txt.append('"');
-            newTk = generateToken(T_STRING_LITERAL, &txt, tk->lineno, false);
+            newTk = generateToken(T_STRING_LITERAL, txt.constData(), txt.size(), tk->lineno, false);
         } else if (macroNameRef == ppDate) {
             QByteArray txt;
             txt.append('"');
             txt.append(QDate::currentDate().toString().toUtf8());
             txt.append('"');
-            newTk = generateToken(T_STRING_LITERAL, &txt, tk->lineno, false);
+            newTk = generateToken(T_STRING_LITERAL, txt.constData(), txt.size(), tk->lineno, false);
         } else if (macroNameRef == ppTime) {
             QByteArray txt;
             txt.append('"');
             txt.append(QTime::currentTime().toString().toUtf8());
             txt.append('"');
-            newTk = generateToken(T_STRING_LITERAL, &txt, tk->lineno, false);
+            newTk = generateToken(T_STRING_LITERAL, txt.constData(), txt.size(), tk->lineno, false);
         }
 
         if (newTk.isValid()) {
@@ -871,12 +871,11 @@ bool Preprocessor::handleFunctionLikeMacro(PPToken *tk, const Macro *macro, QVec
                     QVector<PPToken> actualsForThisParam = actuals[j];
                     if (id == ppVaArgs || (macro->isVariadic() && j + 1 == formals.size())) {
                         unsigned lineno = 0;
-                        QByteArray comma(",");
-                        ByteArrayRef commaRef(&comma);
+                        const char comma = ',';
                         for (int k = j + 1; k < actuals.size(); ++k) {
                             if (!actualsForThisParam.isEmpty())
                                 lineno = actualsForThisParam.last().lineno;
-                            actualsForThisParam.append(generateToken(T_COMMA, commaRef, lineno, true));
+                            actualsForThisParam.append(generateToken(T_COMMA, &comma, 1, lineno, true));
                             actualsForThisParam += actuals[k];
                         }
                     }
@@ -895,7 +894,7 @@ bool Preprocessor::handleFunctionLikeMacro(PPToken *tk, const Macro *macro, QVec
                         }
                         newText.replace("\\", "\\\\");
                         newText.replace("\"", "\\\"");
-                        expanded.push_back(generateToken(T_STRING_LITERAL, ByteArrayRef(&newText), lineno, true));
+                        expanded.push_back(generateToken(T_STRING_LITERAL, newText.constData(), newText.size(), lineno, true));
                     } else  {
                         expanded += actualsForThisParam;
                     }
@@ -1532,14 +1531,13 @@ QString Preprocessor::string(const char *first, int length) const
     return m_originalSource.mid(position, length);
 }
 
-PPToken Preprocessor::generateToken(enum Kind kind, const ByteArrayRef &content, unsigned lineno, bool addQuotes)
+PPToken Preprocessor::generateToken(enum Kind kind, const char *content, int len, unsigned lineno, bool addQuotes)
 {
-    size_t len = content.size();
     const size_t pos = m_scratchBuffer.size();
 
     if (kind == T_STRING_LITERAL && addQuotes)
         m_scratchBuffer.append('"');
-    m_scratchBuffer.append(content.start(), content.length());
+    m_scratchBuffer.append(content, len);
     if (kind == T_STRING_LITERAL && addQuotes) {
         m_scratchBuffer.append('"');
         len += 2;
@@ -1568,7 +1566,7 @@ PPToken Preprocessor::generateConcatenated(const PPToken &leftTk, const PPToken 
     newText.reserve(leftTk.length() + rightTk.length());
     newText.append(leftTk.start(), leftTk.length());
     newText.append(rightTk.start(), rightTk.length());
-    return generateToken(T_IDENTIFIER, ByteArrayRef(&newText), leftTk.lineno, true);
+    return generateToken(T_IDENTIFIER, newText.constData(), newText.size(), leftTk.lineno, true);
 }
 
 void Preprocessor::startSkippingBlocks(const Preprocessor::PPToken &tk) const

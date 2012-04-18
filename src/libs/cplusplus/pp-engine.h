@@ -179,7 +179,7 @@ private:
 
     QString string(const char *first, int len) const;
 
-    PPToken generateToken(enum Kind kind, const Internal::ByteArrayRef &content, unsigned lineno, bool addQuotes);
+    PPToken generateToken(enum Kind kind, const char *content, int len, unsigned lineno, bool addQuotes);
     PPToken generateConcatenated(const PPToken &leftTk, const PPToken &rightTk);
 
     void startSkippingBlocks(const PPToken &tk) const;
