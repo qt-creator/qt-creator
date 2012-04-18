@@ -72,7 +72,8 @@ HEADERS += \
     qtmessagelogview.h \
     qtmessagelogproxymodel.h \
     qtmessagelogitemdelegate.h \
-    qtmessageloghandler.h
+    qtmessageloghandler.h \
+    localsandwatcherswindow.h
 
 SOURCES += \
     basewindow.cpp \
@@ -123,7 +124,8 @@ SOURCES += \
     qtmessagelogview.cpp \
     qtmessagelogitemdelegate.cpp \
     qtmessageloghandler.cpp \
-    qtmessagelogeditor.cpp
+    qtmessagelogeditor.cpp \
+    localsandwatcherswindow.cpp
 
 FORMS += attachexternaldialog.ui \
     attachcoredialog.ui \

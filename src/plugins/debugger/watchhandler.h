@@ -55,7 +55,8 @@ enum WatchType
     ReturnWatch,
     LocalsWatch,
     WatchersWatch,
-    TooltipsWatch
+    TooltipsWatch,
+    InspectWatch
 };
 
 enum IntegerFormat
@@ -77,6 +78,9 @@ private:
 public:
     virtual int rowCount(const QModelIndex &idx = QModelIndex()) const;
     virtual int columnCount(const QModelIndex &idx) const;
+
+signals:
+    void setCurrentIndex(const QModelIndex &index);
 
 private:
     QVariant data(const QModelIndex &index, int role) const;
@@ -131,6 +135,7 @@ private:
     DebuggerEngine *engine() const;
     QString display(const WatchItem *item, int col) const;
     int itemFormat(const WatchData &data) const;
+    bool contentIsValid() const;
     int m_generationCounter;
 
     WatchHandler *m_handler;
@@ -157,6 +162,10 @@ public:
     void beginCycle(bool fullCycle = true); // Called at begin of updateLocals() cycle
     void updateWatchers(); // Called after locals are fetched
     void endCycle(); // Called after all results have been received
+
+    void beginCycle(WatchType type, bool fullCycle = true);
+    void endCycle(WatchType type);
+
     void showEditValue(const WatchData &data);
 
     void insertData(const WatchData &data);
@@ -204,6 +213,8 @@ public:
     void resetLocation();
     bool isValidToolTip(const QByteArray &iname) const;
 
+    void setCurrentModelIndex(WatchType modelType, const QModelIndex &index);
+
 private:
     friend class WatchModel;
 
@@ -230,6 +241,7 @@ private:
     WatchModel *m_locals;
     WatchModel *m_watchers;
     WatchModel *m_tooltips;
+    WatchModel *m_inspect;
     DebuggerEngine *m_engine;
 
     int m_watcherCounter;

@@ -549,6 +549,30 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     item->setSettingsKey(debugModeGroup, QLatin1String("WatchdogTimeout"));
     item->setDefaultValue(20);
     insertItem(GdbWatchdogTimeout, item);
+
+    //
+    // QML Tools
+    //
+    item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("ShowQmlObjectTree"));
+    item->setDefaultValue(true);
+    insertItem(ShowQmlObjectTree, item);
+
+    item = new SavedAction(this);
+    item->setSettingsKey("QML.Inspector", QLatin1String("QmlInspector.ShowAppOnTop"));
+    item->setText(tr("Show Application On Top"));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    item->setIcon(QIcon(QLatin1String(":/debugger/images/qml/app-on-top.png")));
+    insertItem(ShowAppOnTop, item);
+
+    item = new SavedAction(this);
+    item->setSettingsKey("QML.Inspector", QLatin1String("QmlInspector.FromQml"));
+    item->setText(tr("Apply Changes on Save"));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    item->setIcon(QIcon(QLatin1String(":/debugger/images/qml/apply-on-save.png")));
+    insertItem(QmlUpdateOnSave, item);
 }
 
 DebuggerSettings::~DebuggerSettings()

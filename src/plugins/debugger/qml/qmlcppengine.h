@@ -40,7 +40,7 @@ namespace Internal {
 
 class QmlCppEnginePrivate;
 
-class DEBUGGER_EXPORT QmlCppEngine : public DebuggerEngine
+class QmlCppEngine : public DebuggerEngine
 {
     Q_OBJECT
 

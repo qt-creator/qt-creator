@@ -36,5 +36,9 @@
         <file>images/log.png</file>
         <file>images/prompt.png</file>
         <file>images/warning.png</file>
+        <file>images/qml/zoom.png</file>
+        <file>images/qml/select.png</file>
+        <file>images/qml/app-on-top.png</file>
+        <file>images/qml/apply-on-save.png</file>
     </qresource>
 </RCC>

@@ -6,7 +6,6 @@
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
-**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -30,34 +29,28 @@
 **
 **************************************************************************/
 
-#ifndef INSPECTORSETTINGS_H
-#define INSPECTORSETTINGS_H
+#include "basetoolsclient.h"
 
-#include <QObject>
+namespace QmlDebug {
 
-QT_FORWARD_DECLARE_CLASS(QSettings)
-
-namespace QmlJSInspector {
-namespace Internal {
-
-class InspectorSettings : public QObject
+BaseToolsClient::BaseToolsClient(QmlDebugConnection* client, QLatin1String clientName)
+    : QmlDebugClient(clientName, client)
 {
-    Q_OBJECT
+    setObjectName(clientName);
+}
 
-public:
-    InspectorSettings(QObject *parent = 0);
+void BaseToolsClient::statusChanged(Status status)
+{
+    emit connectedStatusChanged(status);
+}
 
-    void restoreSettings(QSettings *settings);
-    void saveSettings(QSettings *settings) const;
+void BaseToolsClient::recurseObjectIdList(const QmlDebugObjectReference &ref,
+                         QList<int> &debugIds, QList<QString> &objectIds)
+{
+    debugIds << ref.debugId();
+    objectIds << ref.idString();
+    foreach (const QmlDebugObjectReference &child, ref.children())
+        recurseObjectIdList(child, debugIds, objectIds);
+}
 
-    bool showLivePreviewWarning() const;
-    void setShowLivePreviewWarning(bool value);
-
-private:
-    bool m_showLivePreviewWarning;
-};
-
-} // namespace Internal
-} // namespace QmlJSInspector
-
-#endif // INSPECTORSETTINGS_H
+} // namespace QmlDebug

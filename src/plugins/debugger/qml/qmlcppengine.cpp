@@ -37,6 +37,7 @@
 #include "stackhandler.h"
 #include "qmlengine.h"
 #include "qtmessageloghandler.h"
+#include "watchdata.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
@@ -149,6 +150,8 @@ bool QmlCppEngine::setToolTipExpression(const QPoint & mousePos,
 void QmlCppEngine::updateWatchData(const WatchData &data,
     const WatchUpdateFlags &flags)
 {
+    if (data.iname.startsWith("inspect."))
+        d->m_qmlEngine->updateWatchData(data, flags);
     d->m_activeEngine->updateWatchData(data, flags);
 }
 

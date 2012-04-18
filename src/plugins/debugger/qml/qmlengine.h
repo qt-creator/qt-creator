@@ -49,15 +49,13 @@ class IEditor;
 }
 
 namespace Debugger {
-
-class QmlAdapter;
-
 namespace Internal {
 
 class QtMessageLogItem;
+class QmlAdapter;
 class QmlEnginePrivate;
 
-class DEBUGGER_EXPORT QmlEngine : public DebuggerEngine
+class QmlEngine : public DebuggerEngine
 {
     Q_OBJECT
 

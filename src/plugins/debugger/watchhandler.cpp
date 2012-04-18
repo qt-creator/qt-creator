@@ -172,6 +172,10 @@ WatchModel::WatchModel(WatchHandler *handler, WatchType type)
             m_root->iname = "tooltip";
             m_root->name = WatchHandler::tr("Tooltip");
             break;
+        case InspectWatch:
+            m_root->iname = "inspect";
+            m_root->name = WatchHandler::tr("Inspector");
+            break;
     }
 }
 
@@ -576,7 +580,7 @@ bool WatchModel::canFetchMore(const QModelIndex &index) const
 {
     WatchItem *item = watchItem(index);
     QTC_ASSERT(item, return false);
-    return index.isValid() && m_handler->m_contentsValid && !m_fetchTriggered.contains(item->iname);
+    return index.isValid() && contentIsValid() && !m_fetchTriggered.contains(item->iname);
 }
 
 void WatchModel::fetchMore(const QModelIndex &index)
@@ -713,6 +717,14 @@ int WatchModel::itemFormat(const WatchData &data) const
     return theTypeFormats.value(stripForFormat(data.type), -1);
 }
 
+bool WatchModel::contentIsValid() const
+{
+    // inspector doesn't follow normal beginCycle()/endCycle()
+    if (m_type == InspectWatch)
+        return true;
+    return m_handler->m_contentsValid;
+}
+
 static inline QString expression(const WatchItem *item)
 {
     if (!item->exp.isEmpty())
@@ -812,7 +824,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             static const QVariant red(QColor(200, 0, 0));
             static const QVariant gray(QColor(140, 140, 140));
             switch (idx.column()) {
-                case 1: return (!data.valueEnabled || !m_handler->m_contentsValid) ? gray
+                case 1: return (!data.valueEnabled || !contentIsValid()) ? gray
                             : data.changed ? red : QVariant();
             }
             break;
@@ -927,7 +939,7 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
 
 Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
 {
-    if (!m_handler->m_contentsValid)
+    if (!contentIsValid())
         return Qt::ItemFlags();
 
     if (!idx.isValid())
@@ -1276,6 +1288,7 @@ WatchHandler::WatchHandler(DebuggerEngine *engine)
     m_locals = new WatchModel(this, LocalsWatch);
     m_watchers = new WatchModel(this, WatchersWatch);
     m_tooltips = new WatchModel(this, TooltipsWatch);
+    m_inspect = new WatchModel(this, InspectWatch);
 
     m_contentsValid = false;
     m_resetLocationScheduled = false;
@@ -1294,6 +1307,7 @@ void WatchHandler::beginCycle(bool fullCycle)
     m_locals->beginCycle(fullCycle);
     m_watchers->beginCycle(fullCycle);
     m_tooltips->beginCycle(fullCycle);
+    // don't sync m_inspect here: It's updated on it's own
 }
 
 void WatchHandler::endCycle()
@@ -1309,6 +1323,16 @@ void WatchHandler::endCycle()
     updateWatchersWindow();
 }
 
+void WatchHandler::beginCycle(WatchType type, bool fullCycle)
+{
+    model(type)->beginCycle(fullCycle);
+}
+
+void WatchHandler::endCycle(WatchType type)
+{
+    model(type)->endCycle();
+}
+
 void WatchHandler::cleanup()
 {
     m_expandedINames.clear();
@@ -1316,10 +1340,12 @@ void WatchHandler::cleanup()
     m_return->reinitialize();
     m_locals->reinitialize();
     m_tooltips->reinitialize();
+    m_inspect->reinitialize();
     m_return->m_fetchTriggered.clear();
     m_locals->m_fetchTriggered.clear();
     m_watchers->m_fetchTriggered.clear();
     m_tooltips->m_fetchTriggered.clear();
+    m_inspect->m_fetchTriggered.clear();
 #if 1
     for (EditHandlers::ConstIterator it = m_editHandlers.begin();
             it != m_editHandlers.end(); ++it) {
@@ -1336,6 +1362,7 @@ void WatchHandler::emitAllChanged()
     m_locals->emitAllChanged();
     m_watchers->emitAllChanged();
     m_tooltips->emitAllChanged();
+    m_inspect->emitAllChanged();
 }
 
 void WatchHandler::insertData(const WatchData &data)
@@ -1347,9 +1374,10 @@ void WatchHandler::insertData(const WatchData &data)
         return;
     }
 
-    if (data.isSomethingNeeded() && data.iname.contains('.')) {
+    if (data.isSomethingNeeded() && data.iname.contains(".")) {
         MODEL_DEBUG("SOMETHING NEEDED: " << data.toString());
-        if (!m_engine->isSynchronous()) {
+        if (!m_engine->isSynchronous()
+                || data.iname.startsWith("inspect.")) {
             WatchModel *model = modelForIName(data.iname);
             QTC_ASSERT(model, return);
             model->insertData(data);
@@ -1381,6 +1409,7 @@ void WatchHandler::reinsertAllData()
     m_watchers->reinsertAllData();
     m_tooltips->reinsertAllData();
     m_return->reinsertAllData();
+    m_inspect->reinsertAllData();
 }
 
 // Bulk-insertion
@@ -1685,6 +1714,7 @@ WatchModel *WatchHandler::model(WatchType type) const
         case LocalsWatch: return m_locals;
         case WatchersWatch: return m_watchers;
         case TooltipsWatch: return m_tooltips;
+        case InspectWatch: return m_inspect;
     }
     QTC_CHECK(false);
     return 0;
@@ -1700,6 +1730,8 @@ WatchModel *WatchHandler::modelForIName(const QByteArray &iname) const
         return m_tooltips;
     if (iname.startsWith("watch"))
         return m_watchers;
+    if (iname.startsWith("inspect"))
+        return m_inspect;
     QTC_ASSERT(false, qDebug() << "INAME: " << iname);
     return 0;
 }
@@ -1746,6 +1778,7 @@ void WatchHandler::setFormat(const QByteArray &type0, int format)
     m_locals->emitDataChanged(1);
     m_watchers->emitDataChanged(1);
     m_tooltips->emitDataChanged(1);
+    m_inspect->emitDataChanged(1);
 }
 
 int WatchHandler::format(const QByteArray &iname) const
@@ -1905,6 +1938,7 @@ void WatchHandler::resetLocation()
         m_locals->invalidateAll();
         m_watchers->invalidateAll();
         m_tooltips->invalidateAll();
+        m_inspect->invalidateAll();
     }
 }
 
@@ -1912,6 +1946,14 @@ bool WatchHandler::isValidToolTip(const QByteArray &iname) const
 {
     WatchItem *item = m_tooltips->findItem(iname, m_tooltips->m_root);
     return item && !item->type.trimmed().isEmpty();
+}
+
+void WatchHandler::setCurrentModelIndex(WatchType modelType,
+                                        const QModelIndex &index)
+{
+    if (WatchModel *m = model(modelType)) {
+        emit m->setCurrentIndex(index);
+    }
 }
 
 QHash<QByteArray, int> WatchHandler::watcherNames()

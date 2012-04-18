@@ -348,14 +348,16 @@ quint32 BaseEngineDebugClient::queryObjectRecursive(const QmlDebugObjectReferenc
 }
 
 quint32 BaseEngineDebugClient::queryExpressionResult(int objectDebugId,
-                                                    const QString &expr)
+                                                     const QString &expr,
+                                                     int engineId)
 {
     quint32 id = 0;
     if (status() == QmlDebugClient::Enabled && objectDebugId != -1) {
         id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("EVAL_EXPRESSION") << id << objectDebugId << expr;
+        ds << QByteArray("EVAL_EXPRESSION") << id << objectDebugId << expr
+           << engineId;
         sendMessage(message);
     }
     return id;

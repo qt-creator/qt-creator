@@ -30,8 +30,7 @@
 **************************************************************************/
 
 #include "qmltoolsclient.h"
-#include "qmljsclientproxy.h"
-#include "qmljsinspectorconstants.h"
+#include <QStringList>
 
 //INSPECTOR SERVICE PROTOCOL
 // <HEADER><COMMAND><DATA>
@@ -61,11 +60,10 @@ const char DESTROY_OBJECT[] = "destroyObject";
 const char MOVE_OBJECT[] = "moveObject";
 const char CLEAR_CACHE[] = "clearCache";
 
-namespace QmlJSInspector {
-namespace Internal {
+namespace QmlDebug {
 
 QmlToolsClient::QmlToolsClient(QmlDebugConnection *client)
-    : BaseToolsClient(client, QLatin1String(Constants::QML_INSPECTOR)),
+    : BaseToolsClient(client, QLatin1String("QmlInspector")),
       m_connection(client),
       m_requestId(0),
       m_slowDownFactor(1)
@@ -328,5 +326,4 @@ void QmlToolsClient::log(LogDirection direction,
     emit logActivity(name(), msg);
 }
 
-} // namespace Internal
-} // namespace QmlJSInspector
+} // namespace QmlDebug

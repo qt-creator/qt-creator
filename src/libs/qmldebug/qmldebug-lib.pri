@@ -19,7 +19,10 @@ HEADERS += \
     $$PWD/qv8profilerclient.h \
     $$PWD/qmldebugconstants.h \
     $$PWD/qdebugmessageclient.h \
-    $$PWD/qmlenginedebugclient.h
+    $$PWD/qmlenginedebugclient.h \
+    $$PWD/basetoolsclient.h \
+    $$PWD/declarativetoolsclient.h \
+    $$PWD/qmltoolsclient.h
 
 SOURCES += \
     $$PWD/qmldebugclient.cpp \
@@ -29,5 +32,8 @@ SOURCES += \
     $$PWD/qpacketprotocol.cpp \
     $$PWD/qv8profilerclient.cpp \
     $$PWD/qdebugmessageclient.cpp \
-    $$PWD/qmlenginedebugclient.cpp
+    $$PWD/qmlenginedebugclient.cpp \
+    $$PWD/basetoolsclient.cpp \
+    $$PWD/declarativetoolsclient.cpp \
+    $$PWD/qmltoolsclient.cpp
 

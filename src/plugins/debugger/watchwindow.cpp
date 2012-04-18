@@ -994,11 +994,15 @@ void WatchTreeView::setModel(QAbstractItemModel *model)
     setRootIsDecorated(true);
     if (header()) {
         header()->setDefaultAlignment(Qt::AlignLeft);
-        if (m_type != LocalsType)
+        if (m_type != LocalsType && m_type != InspectType)
             header()->hide();
     }
 
     connect(model, SIGNAL(layoutChanged()), SLOT(resetHelper()));
+
+    QTC_ASSERT(qobject_cast<WatchModel*>(model), return);
+    connect(model, SIGNAL(setCurrentIndex(QModelIndex)),
+            SLOT(setCurrentIndex(QModelIndex)));
 }
 
 void WatchTreeView::resetHelper()

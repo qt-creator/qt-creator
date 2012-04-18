@@ -32,17 +32,16 @@
 #ifndef BASETOOLSCLIENT_H
 #define BASETOOLSCLIENT_H
 
-#include <qmldebug/qmldebugclient.h>
-#include <qmldebug/baseenginedebugclient.h>
+#include "qmldebugclient.h"
+#include "baseenginedebugclient.h"
 
-namespace QmlJSInspector {
-namespace Internal {
+namespace QmlDebug {
 
-class BaseToolsClient : public QmlDebug::QmlDebugClient
+class QMLDEBUG_EXPORT BaseToolsClient : public QmlDebugClient
 {
     Q_OBJECT
 public:
-    BaseToolsClient(QmlDebug::QmlDebugConnection* client, QLatin1String clientName);
+    BaseToolsClient(QmlDebugConnection *client, QLatin1String clientName);
 
     virtual void setCurrentObjects(const QList<int> &debugIds) = 0;
     virtual void reloadViewer() = 0;
@@ -67,7 +66,7 @@ public:
 
     // ### Qt 4.8: remove if we can have access to qdeclarativecontextdata or id's
     virtual void setObjectIdList(
-            const QList<QmlDebug::QmlDebugObjectReference> &objectRoots) = 0;
+            const QList<QmlDebugObjectReference> &objectRoots) = 0;
 
     virtual void clearComponentCache() = 0;
 
@@ -89,7 +88,7 @@ signals:
 protected:
     void statusChanged(Status);
 
-    void recurseObjectIdList(const QmlDebug::QmlDebugObjectReference &ref,
+    void recurseObjectIdList(const QmlDebugObjectReference &ref,
                              QList<int> &debugIds, QList<QString> &objectIds);
 protected:
     enum LogDirection {
@@ -98,7 +97,6 @@ protected:
     };
 };
 
-} // namespace Internal
-} // namespace QmlJSInspector
+} // namespace QmlDebug
 
 #endif // BASETOOLSCLIENT_H

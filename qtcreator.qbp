@@ -55,7 +55,6 @@ Project {
         "src/plugins/projectexplorer/projectexplorer.qbs",
         "src/plugins/qmldesigner/qmldesigner.qbs",
         "src/plugins/qmljseditor/qmljseditor.qbs",
-        "src/plugins/qmljsinspector/qmljsinspector.qbs",
         "src/plugins/qmljstools/qmljstools.qbs",
         "src/plugins/qmlprofiler/qmlprofiler.qbs",
         "src/plugins/qmlprojectmanager/qmlprojectmanager.qbs",

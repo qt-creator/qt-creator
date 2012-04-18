@@ -75,6 +75,7 @@ class SourceFilesHandler;
 class ThreadsHandler;
 class WatchHandler;
 class BreakpointParameters;
+class QmlAdapter;
 class QmlCppEngine;
 class DebuggerToolTipContext;
 class MemoryMarkup;
@@ -231,6 +232,7 @@ public:
     virtual QAbstractItemModel *localsModel() const;
     virtual QAbstractItemModel *watchersModel() const;
     virtual QAbstractItemModel *returnModel() const;
+    virtual QAbstractItemModel *inspectorModel() const;
     virtual QAbstractItemModel *toolTipsModel() const;
     virtual QAbstractItemModel *sourceFilesModel() const;
     virtual QAbstractItemModel *qtMessageLogModel() const;
@@ -408,7 +410,7 @@ private:
     // Wrapper engine needs access to state of its subengines.
     friend class Internal::QmlCppEngine;
     friend class Internal::DebuggerPluginPrivate;
-    friend class QmlAdapter;
+    friend class Internal::QmlAdapter;
 
     virtual void setState(DebuggerState state, bool forced = false);
 

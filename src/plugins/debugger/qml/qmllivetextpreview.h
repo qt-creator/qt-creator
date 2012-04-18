@@ -30,20 +30,13 @@
 **
 **************************************************************************/
 
-#ifndef SCRIPTBINDINGREWRITER_H
-#define SCRIPTBINDINGREWRITER_H
+#ifndef QMLLIVETEXTPREVIEW_H
+#define QMLLIVETEXTPREVIEW_H
 
 #include <QObject>
-#include <QWeakPointer>
+
 #include <texteditor/basetexteditor.h>
-
-#include <qmldebug/baseenginedebugclient.h>
-#include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsdocument.h>
-
-QT_FORWARD_DECLARE_CLASS(QTextDocument)
-
-using namespace QmlDebug;
 
 namespace Core {
 class IEditor;
@@ -53,41 +46,28 @@ namespace QmlJS {
 class ModelManagerInterface;
 }
 
-namespace QmlJSInspector {
+namespace Debugger {
 namespace Internal {
 
-class ClientProxy;
+class UpdateInspector;
+class QmlInspectorAdapter;
 
-
-class QmlJSLiveTextPreview : public QObject
+class QmlLiveTextPreview : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit QmlJSLiveTextPreview(const QmlJS::Document::Ptr &doc,
-                                  const QmlJS::Document::Ptr &initDoc,
-                                  ClientProxy *clientProxy,
-                                  QObject *parent = 0);
-    //void updateDocuments();
+    QmlLiveTextPreview(const QmlJS::Document::Ptr &doc,
+                       const QmlJS::Document::Ptr &initDoc,
+                       QmlInspectorAdapter *inspectorAdapter,
+                       QObject *parent = 0);
 
     void associateEditor(Core::IEditor *editor);
     void unassociateEditor(Core::IEditor *editor);
-    void setActiveObject(const QmlDebugObjectReference &object);
-    void mapObjectToQml(const QmlDebugObjectReference &object);
     void resetInitialDoc(const QmlJS::Document::Ptr &doc);
 
-    void setClientProxy(ClientProxy *clientProxy);
-
-    enum UnsyncronizableChangeType {
-        NoUnsyncronizableChanges,
-        AttributeChangeWarning,
-        ElementChangeWarning
-    };
-
 signals:
-    void selectedItemsChanged(const QList<QmlDebugObjectReference> &objects);
-    void reloadQmlViewerRequested();
-    void disableLivePreviewRequested();
+    void selectedItemsChanged(const QList<int> &debugIds);
 
 public slots:
     void setApplyChangesToQmlInspector(bool applyChanges);
@@ -96,17 +76,18 @@ public slots:
 private slots:
     void changeSelectedElements(QList<int> offsets, const QString &wordAtCursor);
     void documentChanged(QmlJS::Document::Ptr doc);
-    void disableLivePreview();
-    void reloadQmlViewer();
 
 private:
+    enum UnsyncronizableChangeType {
+        NoUnsyncronizableChanges,
+        AttributeChangeWarning,
+        ElementChangeWarning
+    };
+
     QList<int> objectReferencesForOffset(quint32 offset);
-    QVariant castToLiteral(const QString &expression,
-                           QmlJS::AST::UiScriptBinding *scriptBinding);
     void showSyncWarning(UnsyncronizableChangeType unsyncronizableChangeType,
                          const QString &elementName,
                          unsigned line, unsigned column);
-    void showExperimentalWarning();
 
 private:
     QHash<QmlJS::AST::UiObjectMember*, QList<int> > m_debugIds;
@@ -114,20 +95,20 @@ private:
 
     QmlJS::Document::Ptr m_previousDoc;
     QmlJS::Document::Ptr m_initialDoc; //the document that was loaded by the server
-    QString m_filename;
 
-    QList<QWeakPointer<TextEditor::BaseTextEditorWidget> > m_editors;
+    QList<QPointer<TextEditor::BaseTextEditorWidget> > m_editors;
 
     bool m_applyChangesToQmlInspector;
     QmlJS::Document::Ptr m_docWithUnappliedChanges;
-    QWeakPointer<ClientProxy> m_clientProxy;
+    QmlInspectorAdapter *m_inspectorAdapter;
     QList<int> m_lastOffsets;
     QmlJS::AST::UiObjectMember *m_nodeForOffset;
     bool m_updateNodeForOffset;
 
+    friend class UpdateInspector;
 };
 
 } // namespace Internal
-} // namespace QmlJSInspector
+} // namespace Debugger
 
-#endif // SCRIPTBINDINGREWRITER_H
+#endif // QMLLIVETEXTPREVIEW_H

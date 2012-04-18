@@ -34,16 +34,13 @@
 
 #include "basetoolsclient.h"
 
-#include <inspectorprotocol.h>
+namespace QmlDebug {
 
-namespace QmlJSInspector {
-namespace Internal {
-
-class DeclarativeToolsClient : public BaseToolsClient
+class QMLDEBUG_EXPORT DeclarativeToolsClient : public BaseToolsClient
 {
     Q_OBJECT
 public:
-    DeclarativeToolsClient(QmlDebug::QmlDebugConnection *client);
+    DeclarativeToolsClient(QmlDebugConnection *client);
 
     void setCurrentObjects(const QList<int> &debugIds);
     void reloadViewer();
@@ -67,7 +64,7 @@ public:
     QList<int> currentObjects() const;
 
     // ### Qt 4.8: remove if we can have access to qdeclarativecontextdata or id's
-    void setObjectIdList(const QList<QmlDebug::QmlDebugObjectReference> &objectRoots);
+    void setObjectIdList(const QList<QmlDebugObjectReference> &objectRoots);
 
     void clearComponentCache();
 
@@ -76,15 +73,14 @@ protected:
 
 private:
     void log(LogDirection direction,
-             QmlJSDebugger::InspectorProtocol::Message message,
+             int message,
              const QString &extra = QString());
 
 private:
     QList<int> m_currentDebugIds;
-    QmlDebug::QmlDebugConnection *m_connection;
+    QmlDebugConnection *m_connection;
 };
 
-} // namespace Internal
-} // namespace QmlJSInspector
+} // namespace QmlDebug
 
 #endif // DECLARATIVETOOLSCLIENT_H

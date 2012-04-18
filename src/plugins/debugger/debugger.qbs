@@ -8,6 +8,7 @@ QtcPlugin {
     Depends { name: "qt"; submodules: ['widgets', 'network', 'script'] }
     Depends { name: "Core" }
     Depends { name: "CppTools" }
+    Depends { name: "QmlJSTools" }
     Depends { name: "Find" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
@@ -75,6 +76,8 @@ QtcPlugin {
         "disassemblerlines.cpp",
         "disassemblerlines.h",
         "dumperoptionpage.ui",
+        "localsandwatcherswindow.cpp",
+        "localsandwatcherswindow.h",
         "logwindow.cpp",
         "logwindow.h",
         "memoryagent.cpp",
@@ -243,6 +246,12 @@ QtcPlugin {
         "qml/qscriptdebuggerclient.cpp",
         "qml/qmlv8debuggerclient.cpp",
         "qml/interactiveinterpreter.cpp",
+        "qml/qmlinspectoradapter.cpp",
+        "qml/qmlinspectoradapter.h",
+        "qml/qmlinspectoragent.cpp",
+        "qml/qmlinspectoragent.h",
+        "qml/qmllivetextpreview.cpp",
+        "qml/qmllivetextpreview.h",
         "script/scriptengine.cpp",
         "script/scriptengine.h",
         "shared/backtrace.cpp",

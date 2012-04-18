@@ -32,8 +32,10 @@
 
 #include "qmlengine.h"
 #include "qmladapter.h"
+#include "qmlinspectoradapter.h"
 #include "interactiveinterpreter.h"
 #include "baseqmldebuggerclient.h"
+#include "qmlinspectoragent.h"
 
 #include "debuggerstartparameters.h"
 #include "debuggeractions.h"
@@ -113,13 +115,13 @@ public:
 private:
     friend class QmlEngine;
     QmlAdapter m_adapter;
+    QmlInspectorAdapter m_inspectorAdapter;
     ApplicationLauncher m_applicationLauncher;
     QTimer m_noDebugOutputTimer;
     QmlOutputParser m_outputParser;
     QHash<QString, QTextDocument*> m_sourceDocuments;
     QHash<QString, QWeakPointer<TextEditor::ITextEditor> > m_sourceEditors;
     InteractiveInterpreter m_interpreter;
-    bool m_validContext;
     QHash<QString,BreakpointModelId> pendingBreakpoints;
     QList<quint32> queryIds;
     bool m_retryOnConnectFail;
@@ -128,10 +130,11 @@ private:
 
 QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q)
     : m_adapter(q),
-      m_validContext(false),
+      m_inspectorAdapter(&m_adapter, q),
       m_retryOnConnectFail(false),
       m_automaticConnect(false)
-{}
+{
+}
 
 class ASTWalker: public Visitor
 {
@@ -326,13 +329,17 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
             SLOT(updateCurrentContext()));
     connect(this->stackHandler(), SIGNAL(currentIndexChanged()),
             SLOT(updateCurrentContext()));
-    connect(&d->m_adapter, SIGNAL(selectionChanged()),
+    connect(&d->m_inspectorAdapter, SIGNAL(selectionChanged()),
             SLOT(updateCurrentContext()));
+    connect(d->m_inspectorAdapter.agent(), SIGNAL(
+                expressionResult(quint32,QVariant)),
+            SLOT(expressionEvaluated(quint32,QVariant)));
     connect(d->m_adapter.messageClient(),
             SIGNAL(message(QtMsgType,QString,
                            QmlDebug::QDebugContextInfo)),
             SLOT(appendDebugOutput(QtMsgType,QString,
                                    QmlDebug::QDebugContextInfo)));
+
 
     connect(&d->m_applicationLauncher,
         SIGNAL(processExited(int)),
@@ -1027,19 +1034,23 @@ void QmlEngine::updateWatchData(const WatchData &data,
 {
 //    qDebug() << "UPDATE WATCH DATA" << data.toString();
     //watchHandler()->rebuildModel();
-    showStatusMessage(tr("Stopped."), 5000);
+    //showStatusMessage(tr("Stopped."), 5000);
 
-    if (!data.name.isEmpty() && d->m_adapter.activeDebuggerClient()) {
-        if (data.isValueNeeded()) {
-            d->m_adapter.activeDebuggerClient()->updateWatchData(data);
+    if (data.iname.startsWith("inspect.")) {
+        d->m_inspectorAdapter.agent()->updateWatchData(data);
+    } else {
+        if (!data.name.isEmpty() && d->m_adapter.activeDebuggerClient()) {
+            if (data.isValueNeeded()) {
+                d->m_adapter.activeDebuggerClient()->updateWatchData(data);
+            }
+            if (data.isChildrenNeeded()
+                    && watchHandler()->isExpandedIName(data.iname)) {
+                d->m_adapter.activeDebuggerClient()->expandObject(data.iname, data.id);
+            }
         }
-        if (data.isChildrenNeeded()
-                && watchHandler()->isExpandedIName(data.iname)) {
-            d->m_adapter.activeDebuggerClient()->expandObject(data.iname, data.id);
-        }
+        synchronizeWatchers();
     }
 
-    synchronizeWatchers();
 
     if (!data.isSomethingNeeded())
         watchHandler()->insertData(data);
@@ -1111,8 +1122,7 @@ void QmlEngine::updateCurrentContext()
 {
     const QString context = state() == InferiorStopOk ?
                 stackHandler()->currentFrame().function :
-                d->m_adapter.currentSelectedDisplayName();
-    d->m_validContext = !context.isEmpty();
+                d->m_inspectorAdapter.currentSelectedDisplayName();
     showMessage(tr("Context: ").append(context), QtMessageLogStatus);
 }
 
@@ -1149,55 +1159,39 @@ void QmlEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages
     }
 }
 
-bool QmlEngine::evaluateScriptExpression(const QString& expression)
+bool QmlEngine::evaluateScriptExpression(const QString &expression)
 {
     bool didEvaluate = true;
     //Check if string is only white spaces
     if (!expression.trimmed().isEmpty()) {
-        //Check for a valid context
-        if (d->m_validContext) {
-            //check if it can be evaluated
-            if (canEvaluateScript(expression)) {
-                //Evaluate expression based on engine state
-                //When engine->state() == InferiorStopOk, the expression
-                //is sent to V8DebugService. In all other cases, the
-                //expression is evaluated by QDeclarativeEngine.
-                if (state() != InferiorStopOk) {
-                    BaseEngineDebugClient *engineDebug =
-                            d->m_adapter.engineDebugClient();
-
-                    int id = d->m_adapter.currentSelectedDebugId();
-                    if (engineDebug && id != -1) {
-                        quint32 queryId =
-                                engineDebug->queryExpressionResult(
-                                    id, expression);
-                        if (queryId) {
-                            d->queryIds << queryId;
-                        } else {
-                            didEvaluate = false;
-                            qtMessageLogHandler()->
-                                    appendItem(
-                                        new QtMessageLogItem(
-                                            qtMessageLogHandler()->root(),
-                                            QtMessageLogHandler::ErrorType,
-                                            _("Error evaluating expression.")));
-                        }
-                    }
+        //check if it can be evaluated
+        if (canEvaluateScript(expression)) {
+            //Evaluate expression based on engine state
+            //When engine->state() == InferiorStopOk, the expression
+            //is sent to V8DebugService. In all other cases, the
+            //expression is evaluated by QDeclarativeEngine.
+            if (state() != InferiorStopOk) {
+                QmlInspectorAgent *agent = d->m_inspectorAdapter.agent();
+                quint32 queryId
+                        = agent->queryExpressionResult(
+                            d->m_inspectorAdapter.currentSelectedDebugId(),
+                            expression);
+                if (queryId) {
+                    d->queryIds << queryId;
                 } else {
-                    executeDebuggerCommand(expression, QmlLanguage);
+                    didEvaluate = false;
+                    qtMessageLogHandler()->
+                            appendItem(
+                                new QtMessageLogItem(
+                                    qtMessageLogHandler()->root(),
+                                    QtMessageLogHandler::ErrorType,
+                                    _("Error evaluating expression.")));
                 }
             } else {
-                didEvaluate = false;
+                executeDebuggerCommand(expression, QmlLanguage);
             }
         } else {
-            //Incase of invalid context, show Error message
-            qtMessageLogHandler()->
-                            appendItem(new QtMessageLogItem(
-                                           qtMessageLogHandler()->root(),
-                                           QtMessageLogHandler::ErrorType,
-                                           _("Cannot evaluate without "
-                                             "a valid QML/JS Context.")),
-                                       qtMessageLogHandler()->rowCount());
+            didEvaluate = false;
         }
     }
     return didEvaluate;

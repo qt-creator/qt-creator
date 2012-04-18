@@ -513,6 +513,14 @@ QAbstractItemModel *DebuggerEngine::returnModel() const
     return model;
 }
 
+QAbstractItemModel *DebuggerEngine::inspectorModel() const
+{
+    QAbstractItemModel *model = watchHandler()->model(InspectWatch);
+    if (model->objectName().isEmpty()) // Make debugging easier.
+        model->setObjectName(objectName() + QLatin1String("InspectorModel"));
+    return model;
+}
+
 QAbstractItemModel *DebuggerEngine::toolTipsModel() const
 {
     QAbstractItemModel *model = watchHandler()->model(TooltipsWatch);

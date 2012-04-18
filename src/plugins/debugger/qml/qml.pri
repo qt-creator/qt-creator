@@ -8,7 +8,10 @@ HEADERS += \
     $$PWD/qscriptdebuggerclient.h \
     $$PWD/qmlv8debuggerclient.h \
     $$PWD/interactiveinterpreter.h \
-    $$PWD/qmlv8debuggerclientconstants.h
+    $$PWD/qmlv8debuggerclientconstants.h \
+    $$PWD/qmlinspectoragent.h \
+    $$PWD/qmllivetextpreview.h \
+    $$PWD/qmlinspectoradapter.h
 
 SOURCES += \
     $$PWD/qmlengine.cpp \
@@ -17,4 +20,7 @@ SOURCES += \
     $$PWD/qmlcppengine.cpp \
     $$PWD/qscriptdebuggerclient.cpp \
     $$PWD/qmlv8debuggerclient.cpp \
-    $$PWD/interactiveinterpreter.cpp
+    $$PWD/interactiveinterpreter.cpp \
+    $$PWD/qmlinspectoragent.cpp \
+    $$PWD/qmllivetextpreview.cpp \
+    $$PWD/qmlinspectoradapter.cpp

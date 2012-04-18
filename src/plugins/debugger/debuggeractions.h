@@ -169,7 +169,12 @@ enum DebuggerActionCode
     AlwaysAdjustThreadsColumnWidths,
 
     // Modules
-    AlwaysAdjustModulesColumnWidths
+    AlwaysAdjustModulesColumnWidths,
+
+    // QML Tools
+    ShowQmlObjectTree,
+    ShowAppOnTop,
+    QmlUpdateOnSave
 };
 
 } // namespace Internal

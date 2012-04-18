@@ -35,17 +35,20 @@
 
 #include "debugger_global.h"
 
-#include <QObject>
-#include <QAbstractSocket>
 #include <qmldebug/qmldebugclient.h>
+
+#include <QAbstractSocket>
+#include <QObject>
+#include <QPointer>
+#include <QTimer>
+
+using namespace QmlDebug;
 
 namespace QmlDebug {
 class BaseEngineDebugClient;
 class QmlDebugConnection;
 class QDebugMessageClient;
 }
-
-using namespace QmlDebug;
 
 namespace Debugger {
 
@@ -54,9 +57,8 @@ class DebuggerEngine;
 namespace Internal {
 class BaseQmlDebuggerClient;
 class QmlAdapterPrivate;
-} // namespace Internal
 
-class DEBUGGER_EXPORT QmlAdapter : public QObject
+class QmlAdapter : public QObject
 {
     Q_OBJECT
 
@@ -79,13 +81,7 @@ public:
     QHash<QString, Internal::BaseQmlDebuggerClient*> debuggerClients();
 
     BaseEngineDebugClient *engineDebugClient() const;
-    void setEngineDebugClient(BaseEngineDebugClient *client);
-
     QDebugMessageClient *messageClient() const;
-
-    int currentSelectedDebugId() const;
-    QString currentSelectedDisplayName() const;
-    void setCurrentSelectedDebugInfo(int debugId, const QString &displayName = QString());
 
 public slots:
     void logServiceStatusChange(const QString &service, float version,
@@ -98,7 +94,6 @@ signals:
     void connectionStartupFailed();
     void connectionError(QAbstractSocket::SocketError socketError);
     void serviceConnectionError(const QString serviceName);
-    void selectionChanged();
 
 private slots:
     void connectionErrorOccurred(QAbstractSocket::SocketError socketError);
@@ -113,9 +108,15 @@ private:
     void showConnectionErrorMessage(const QString &message);
 
 private:
-    Internal::QmlAdapterPrivate *d;
+    QPointer<DebuggerEngine> m_engine;
+    BaseQmlDebuggerClient *m_qmlClient;
+    QTimer m_connectionTimer;
+    QmlDebugConnection *m_conn;
+    QHash<QString, BaseQmlDebuggerClient*> m_debugClients;
+    QDebugMessageClient *m_msgClient;
 };
 
+} // namespace Internal
 } // namespace Debugger
 
 #endif // QMLADAPTER_H

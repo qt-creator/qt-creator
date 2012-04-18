@@ -61,8 +61,7 @@ include(../../qtcreator.pri)
 
 contains(QT_CONFIG, declarative)|contains(QT_CONFIG, quick1) {
     SUBDIRS += \
-            plugin_qmlprojectmanager \
-            plugin_qmljsinspector
+            plugin_qmlprojectmanager
 
     include(../private_headers.pri)
     exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
@@ -193,6 +192,7 @@ plugin_debugger.subdir = debugger
 plugin_debugger.depends = plugin_projectexplorer
 plugin_debugger.depends += plugin_coreplugin
 plugin_debugger.depends += plugin_cpptools
+plugin_debugger.depends += plugin_qmljstools
 
 plugin_fakevim.subdir = fakevim
 plugin_fakevim.depends = plugin_coreplugin
@@ -263,10 +263,6 @@ plugin_qmldesigner.depends += plugin_projectexplorer
 plugin_qmldesigner.depends += plugin_qt4projectmanager
 plugin_qmldesigner.depends += plugin_qmlprojectmanager
 plugin_qmldesigner.depends += plugin_cpptools
-
-plugin_qmljsinspector.subdir = qmljsinspector
-plugin_qmljsinspector.depends += plugin_debugger
-plugin_qmljsinspector.depends += plugin_qmljstools
 
 plugin_mercurial.subdir = mercurial
 plugin_mercurial.depends = plugin_vcsbase

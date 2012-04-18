@@ -66,7 +66,7 @@ public:
     quint32 queryObject(const QmlDebugObjectReference &object);
     quint32 queryObjectRecursive(const QmlDebugObjectReference &object);
     quint32 queryExpressionResult(int objectDebugId,
-                                  const QString &expr);
+                                  const QString &expr, int engineId = -1);
     virtual quint32 setBindingForObject(int objectDebugId, const QString &propertyName,
                                 const QVariant &bindingExpression,
                                 bool isLiteralValue,
@@ -116,7 +116,7 @@ class QmlDebugEngineReference
 {
 public:
     QmlDebugEngineReference() : m_debugId(-1) {}
-    QmlDebugEngineReference(int id) : m_debugId(id) {}
+    explicit QmlDebugEngineReference(int id) : m_debugId(id) {}
 
     int debugId() const { return m_debugId; }
     QString name() const { return m_name; }
@@ -133,7 +133,7 @@ class QmlDebugObjectReference
 {
 public:
     QmlDebugObjectReference() : m_debugId(-1), m_parentId(-1), m_contextDebugId(-1), m_needsMoreData(false) {}
-    QmlDebugObjectReference(int id) : m_debugId(id), m_parentId(-1), m_contextDebugId(-1), m_needsMoreData(false) {}
+    explicit QmlDebugObjectReference(int id) : m_debugId(id), m_parentId(-1), m_contextDebugId(-1), m_needsMoreData(false) {}
 
     int debugId() const { return m_debugId; }
     int parentId() const { return m_parentId; }
@@ -148,18 +148,18 @@ public:
     QList<QmlDebugPropertyReference> properties() const { return m_properties; }
     QList<QmlDebugObjectReference> children() const { return m_children; }
 
-    bool insertObjectInTree(const QmlDebugObjectReference &obj)
+    int insertObjectInTree(const QmlDebugObjectReference &obj)
     {
         for (int i = 0; i < m_children.count(); i++) {
             if (m_children[i].debugId() == obj.debugId()) {
                 m_children.replace(i, obj);
-                return true;
+                return debugId();
             } else {
                 if (m_children[i].insertObjectInTree(obj))
-                    return true;
+                    return debugId();
             }
         }
-        return false;
+        return -1;
     }
 
     bool operator ==(const QmlDebugObjectReference &obj)
@@ -228,5 +228,21 @@ Q_DECLARE_METATYPE(QmlDebug::QmlDebugObjectReference)
 Q_DECLARE_METATYPE(QmlDebug::QmlDebugEngineReference)
 Q_DECLARE_METATYPE(QmlDebug::QmlDebugEngineReferenceList)
 Q_DECLARE_METATYPE(QmlDebug::QmlDebugContextReference)
+
+inline QDebug operator<<(QDebug dbg, const QmlDebug::QmlDebugEngineReference &ref) {
+    dbg.nospace() << "(Engine " << ref.debugId() << "/" << ref.name() <<  ")";
+    return dbg.space();
+}
+
+inline QDebug operator<<(QDebug dbg, const QmlDebug::QmlDebugContextReference &ref) {
+    dbg.nospace() << "(Context " << ref.debugId() << "/" << ref.name() <<  ")";
+    return dbg.space();
+}
+
+inline QDebug operator<<(QDebug dbg, const QmlDebug::QmlDebugObjectReference &ref) {
+    dbg.nospace() << "(Object " << ref.debugId() << "/"
+                  << (ref.idString().isEmpty() ? ref.idString() : ref.className()) <<  ")";
+    return dbg.space();
+}
 
 #endif // BASEENGINEDEBUGCLIENT_H
