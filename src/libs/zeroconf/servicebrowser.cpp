@@ -1381,7 +1381,7 @@ void ServiceBrowserPrivate::maybeUpdateLists()
         }
         foreach (const ServiceGatherer::Ptr &g, pendingGatherers)
             if (delayDeletesUntil <= now || ! g->publishedService)
-                hasServicesChanges = hasServicesChanges || g->enactServiceChange();
+                hasServicesChanges = g->enactServiceChange() || hasServicesChanges;
         if (hasServicesChanges) {
             {
                 QMutexLocker l(mainConnection->lock());
