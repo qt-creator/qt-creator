@@ -585,11 +585,8 @@ Preprocessor::Preprocessor(Client *client, Environment *env)
 
 QByteArray Preprocessor::operator()(const QString &fileName, const QString &source)
 {
-    const QString previousOriginalSource = m_originalSource;
-    m_originalSource = source;
     const QByteArray bytes = source.toLatin1();
     const QByteArray preprocessedCode = operator()(fileName, bytes);
-    m_originalSource = previousOriginalSource;
     return preprocessedCode;
 }
 
