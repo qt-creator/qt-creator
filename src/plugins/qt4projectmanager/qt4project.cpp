@@ -545,6 +545,8 @@ void Qt4Project::updateCppCodeModel()
             part->cxx11Enabled = tc->compilerFlags(pro->variableValue(CppFlagsVar)) == ToolChain::STD_CXX11;
 
         part->sourceFiles = pro->variableValue(CppSourceVar);
+        part->sourceFiles += pro->variableValue(CppHeaderVar);
+        part->sourceFiles.prepend(QLatin1String("<configuration>"));
         pinfo.appendProjectPart(part);
 
         allFiles += part->sourceFiles;

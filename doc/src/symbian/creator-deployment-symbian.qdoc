@@ -223,7 +223,7 @@
 
         \o In the \gui {Create SIS Package} step, select \gui {Self-signed certificate}.
 
-        \o In the \gui {Deploy SIS Package} step, click \gui {Remove Item} to
+        \o In the \gui {Deploy SIS Package} step, click \gui {Remove Item} (1) to
         skip the step of copying the SIS file to a device. The SIS file is created
         in the project folder.
 

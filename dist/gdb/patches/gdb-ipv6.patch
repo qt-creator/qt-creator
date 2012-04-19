@@ -1,0 +1,1100 @@
+diff -rup gdb-7.4-clean/gdb/gdbserver/gdbreplay.c gdb-7.4/gdb/gdbserver/gdbreplay.c
+--- gdb-7.4-clean/gdb/gdbserver/gdbreplay.c	2012-03-30 15:07:01.540553998 +0200
++++ gdb-7.4/gdb/gdbserver/gdbreplay.c	2012-03-30 15:08:39.484553844 +0200
+@@ -188,14 +188,41 @@ remote_close (void)
+ static void
+ remote_open (char *name)
+ {
+-  if (!strchr (name, ':'))
++  char *port_str;
++  char *host_start, *host_end;
++  
++  host_start = name;
++  if (host_start[0] == '[')
+     {
+-      fprintf (stderr, "%s: Must specify tcp connection as host:addr\n", name);
+-      fflush (stderr);
+-      exit (1);
++      ++host_start;
++      host_end = strchr (host_start, ']');
++      if (host_end == NULL)
++        {
++          fprintf (stderr, "Mismatched `[' in hostname.");
++          fflush (stderr);
++          exit (1);
++        }
++      port_str = host_end + 1;
++      if (*port_str != ':')
++        {
++          fprintf (stderr, "Missing port after hostname, specify tcp connection as host:port or [host]:port.");
++          fflush (stderr);
++          exit (1);
++        }
+     }
+   else
+     {
++      port_str = strchr (name, ':');
++      host_end = port_str;
++      if (port_str == NULL)
++        {
++          fprintf (stderr, "Missing port after hostname, specify tcp connection as host:port or [host]:port.");
++          fflush (stderr);
++          exit(1);
++        }
++    }
++  
++    {
+ #ifdef USE_WIN32API
+       static int winsock_initialized;
+ #endif
+diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remote-utils.c
+--- gdb-7.4-clean/gdb/gdbserver/remote-utils.c	2012-03-30 15:07:01.540553998 +0200
++++ gdb-7.4/gdb/gdbserver/remote-utils.c	2012-03-30 15:33:24.252551493 +0200
+@@ -16,6 +16,8 @@
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+ 
++#define _WIN32_WINNT 0x501
++
+ #include "server.h"
+ #include "terminal.h"
+ #include "target.h"
+@@ -62,6 +64,9 @@
+ 
+ #if USE_WIN32API
+ #include <winsock2.h>
++#include <ws2tcpip.h>
++#else
++#include <netinet/in.h>	/* sockaddr_in{} and other Internet defns */
+ #endif
+ 
+ #if __QNX__
+@@ -106,7 +111,7 @@ int remote_debug = 0;
+ struct ui_file *gdb_stdlog;
+ 
+ static gdb_fildes_t remote_desc = INVALID_DESCRIPTOR;
+-static gdb_fildes_t listen_desc = INVALID_DESCRIPTOR;
++gdb_fildes_t *listening_sockets = NULL;
+ 
+ /* FIXME headerize? */
+ extern int using_threads;
+@@ -145,15 +150,17 @@ enable_async_notification (int fd)
+ static int
+ handle_accept_event (int err, gdb_client_data client_data)
+ {
+-  struct sockaddr_in sockaddr;
++  struct sockaddr_storage address;
+   socklen_t tmp;
++  char back_host[64], back_port[16];
++  gdb_fildes_t listen_desc = *(gdb_fildes_t *)client_data;
+ 
+   if (debug_threads)
+     fprintf (stderr, "handling possible accept event\n");
+ 
+-  tmp = sizeof (sockaddr);
+-  remote_desc = accept (listen_desc, (struct sockaddr *) &sockaddr, &tmp);
+-  if (remote_desc == -1)
++  tmp = (socklen_t) sizeof (address);
++  remote_desc = accept (listen_desc, (struct sockaddr *) &address, &tmp);
++  if (remote_desc == INVALID_DESCRIPTOR)
+     perror_with_name ("Accept failed");
+ 
+   /* Enable TCP keep alive process. */
+@@ -167,27 +174,55 @@ handle_accept_event (int err, gdb_client
+   setsockopt (remote_desc, IPPROTO_TCP, TCP_NODELAY,
+ 	      (char *) &tmp, sizeof (tmp));
+ 
++  if (listening_sockets)
++    {
++      /* We assume that all sockets have been registered, and none triggers
++         while doing this. This is true in the current single threaded
++         implementation.  */
++      gdb_fildes_t *l_sock = listening_sockets;
++      for (++l_sock; *l_sock != INVALID_DESCRIPTOR; ++l_sock)
++        {
+ #ifndef USE_WIN32API
+-  signal (SIGPIPE, SIG_IGN);	/* If we don't do this, then gdbserver simply
+-				   exits when the remote side dies.  */
++          signal (SIGPIPE, SIG_IGN);	/* If we don't do this, then gdbserver simply
++                                   exits when the remote side dies.  */
+ #endif
+ 
+-  if (run_once)
+-    {
++          if (run_once)
++            {
+ #ifndef USE_WIN32API
+-      close (listen_desc);		/* No longer need this */
++              close (*l_sock);		/* No longer need this */
+ #else
+-      closesocket (listen_desc);	/* No longer need this */
++              closesocket (*l_sock);	/* No longer need this */
+ #endif
+-    }
++            }
+ 
+-  /* Even if !RUN_ONCE no longer notice new connections.  Still keep the
++          /* Even if !RUN_ONCE no longer notice new connections.  Still keep the
+      descriptor open for add_file_handler to wait for a new connection.  */
+-  delete_file_handler (listen_desc);
++          delete_file_handler (*l_sock);
++        }
++      if (run_once)
++        {
++          free(listening_sockets);
++          listening_sockets = NULL;
++        }
++    }
+ 
+   /* Convert IP address to string.  */
+-  fprintf (stderr, "Remote debugging from host %s\n",
+-	   inet_ntoa (sockaddr.sin_addr));
++  if (getnameinfo ((struct sockaddr *) &address,
++                   (socklen_t) sizeof (address),
++                   back_host, (socklen_t) sizeof (back_host),
++                   back_port, (socklen_t) sizeof (back_port),
++                   NI_NUMERICHOST | NI_NUMERICSERV))
++    {
++      fprintf (stderr, "Error detecting originating address, trying anyway\n");
++    }
++  else
++    {
++      back_host[sizeof (back_host) - 1] = 0;
++      back_port[sizeof (back_port) - 1] = 0;
++      fprintf (stderr, "Remote debugging from host %s port %s\n",
++               back_host, back_port);
++    }
+ 
+   enable_async_notification (remote_desc);
+ 
+@@ -213,12 +248,15 @@ remote_prepare (char *name)
+ {
+   char *port_str;
+ #ifdef USE_WIN32API
+-  static int winsock_initialized;
++  static int winsock_initialized = 0;
+ #endif
+-  int port;
+-  struct sockaddr_in sockaddr;
+-  socklen_t tmp;
+-  char *port_end;
++  char *host_start, *host_end;
++  struct addrinfo hints, *ainfo, *ainfo0;
++  gdb_fildes_t *socktable = NULL;
++  gdb_fildes_t s = INVALID_DESCRIPTOR;
++  int nsock = 0, socktable_size = 0, err, port = 0;
++  char *host_str = NULL;
++  char back_host[128], back_port[32];
+ 
+   port_str = strchr (name, ':');
+   if (port_str == NULL)
+@@ -227,7 +265,23 @@ remote_prepare (char *name)
+       return;
+     }
+ 
+-  port = strtoul (port_str + 1, &port_end, 10);
+-  if (port_str[1] == '\0' || *port_end != '\0')
++  host_start = name;
++  if (host_start[0] == '[')
++    {
++      ++host_start;
++      host_end = strchr (host_start, ']');
++      if (host_end == NULL)
++        fatal ("Mismatched `[' in hostname.");
++      port_str = host_end + 1;
++      if (*port_str != ':')
++        fatal ("Missing port after hostname.");
++    }
++  else
++    {
++      port_str = strchr (name, ':');
++      host_end = port_str;
++    }
++
++  if (port_str[1] == '\0')
+     fatal ("Bad port argument: %s", name);
+ 
+@@ -241,24 +295,181 @@ remote_prepare (char *name)
+     }
+ #endif
+ 
+-  listen_desc = socket (PF_INET, SOCK_STREAM, IPPROTO_TCP);
+-  if (listen_desc == -1)
+-    perror_with_name ("Can't open socket");
++  if (host_start < host_end)
++    {
++      host_str = strdup(host_start);
++	  host_str[host_end - host_start] = 0;
++	}
++  ++port_str;
+ 
+-  /* Allow rapid reuse of this port. */
+-  tmp = 1;
+-  setsockopt (listen_desc, SOL_SOCKET, SO_REUSEADDR, (char *) &tmp,
+-	      sizeof (tmp));
++  memset(&hints, 0, sizeof(hints));
++  hints.ai_family = PF_UNSPEC;
++  hints.ai_socktype = SOCK_STREAM;
++  hints.ai_flags = AI_PASSIVE;
++
++  err = getaddrinfo(host_str, port_str, &hints, &ainfo0);
++  if (err)
++      fatal ("%s for %s", gai_strerror(err), name);
+ 
+-  sockaddr.sin_family = PF_INET;
+-  sockaddr.sin_port = htons (port);
+-  sockaddr.sin_addr.s_addr = INADDR_ANY;
+-
+-  if (bind (listen_desc, (struct sockaddr *) &sockaddr, sizeof (sockaddr))
+-      || listen (listen_desc, 1))
+-    perror_with_name ("Can't bind address");
++  for (ainfo = ainfo0; ainfo; ainfo = ainfo->ai_next)
++    {
++      int current_port, tmp;
++
++      if (getnameinfo ((struct sockaddr *) ainfo->ai_addr,
++                       (socklen_t) ainfo->ai_addrlen,
++                       back_host, (socklen_t) sizeof (back_host),
++                       back_port, (socklen_t) sizeof (back_port),
++                       NI_NUMERICHOST | NI_NUMERICSERV))
++        {
++          back_host[0] = 0;
++          back_port[0] = 0;
++        }
++      else
++        {
++          back_host[sizeof (back_host) - 1] = 0;
++          back_port[sizeof (back_port) - 1] = 0;
++        }
++
++      switch (ainfo->ai_addr->sa_family)
++        {
++        case AF_INET:
++          current_port = ntohs (((struct sockaddr_in *) ainfo->ai_addr)
++                               ->sin_port);
++          break;
++        case AF_INET6:
++          current_port = ntohs (((struct sockaddr_in6 *) ainfo->ai_addr)
++                                 ->sin6_port);
++          break;
++        default:
++          fatal ("Unexpected address family: %d for %s %s",
++                 ainfo->ai_addr->sa_family,back_host,back_port);
++        }
++
++	  if (port != 0 && current_port == 0)
++	    {
++	      /* Use the same port for all protocol/interfaces.  */
++	      switch (ainfo->ai_addr->sa_family)
++		{
++		case AF_INET:
++		  ((struct sockaddr_in *) ainfo->ai_addr)->sin_port =
++		    htons(port);
++		  break;
++		case AF_INET6:
++		  ((struct sockaddr_in6 *) ainfo->ai_addr)->sin6_port =
++		    htons(port);
++		  break;
++		}
++	    }
++      s = socket(ainfo->ai_family, ainfo->ai_socktype, ainfo->ai_protocol);
++      if (s < 0)
++        continue;
++
++      /* Allow rapid reuse of this port.  */
++      tmp = 1;
++      if (setsockopt (s, SOL_SOCKET, SO_REUSEADDR, (char *) &tmp,
++                      (socklen_t) sizeof (tmp)) != 0)
++        {
++          fprintf (stderr, "Trying to bind %s port %s.\n",
++                   back_host, back_port);
++          perror("setsockopt(s, SOL_SOCKET, SO_REUSEADDR,[1],4)");
++        }
++#ifdef IPV6_V6ONLY
++      if (ainfo->ai_addr->sa_family == AF_INET6
++          && setsockopt (s, SOL_IPV6, IPV6_V6ONLY, (char *) &tmp,
++                         (socklen_t) sizeof (tmp)) != 0)
++        {
++          fprintf (stderr, "Trying to bind %s port %s.\n",
++                   back_host, back_port);
++          perror("setsockopt(s, SOL_IPV6, IPV6_V6ONLY,[1],4)");
++        }
++#endif
++
++      if (bind (s, ainfo->ai_addr, ainfo->ai_addrlen) != 0)
++        {
++          fprintf (stderr, "Trying to bind %s port %s.\n",
++                   back_host, back_port);
++          perror ("bind failed");
++          close (s);
++          s = -1;
++          continue;
++        }
++
++      if (listen (s, 1) != 0)
++        {
++          fprintf (stderr, "Trying to bind %s port %s.\n",
++                   back_host, back_port);
++          perror ("Can't listen to a bound socket");
++          close (s);
++          s = -1;
++          continue;
++        }
++
++      {
++        struct sockaddr_storage address;
++        socklen_t alen = (socklen_t) sizeof (address);
++
++        if (getsockname (s, (struct sockaddr *) &address, &alen))
++          fatal ("Failed to get socket address %s, on soket bound to %s port %s.",
++                 strerror (errno), back_host, back_port);
++
++        if (port == 0)
++	    /* Try to recover the port set by the kernel.  */
++          switch (address.ss_family)
++            {
++            case AF_INET:
++              port = ntohs (((struct sockaddr_in *) &address)->sin_port);
++              break;
++            case AF_INET6:
++              port = ntohs (((struct sockaddr_in6 *) &address)->sin6_port);
++              break;
++            default:
++              fatal ("Unexpected address family: %d", address.ss_family);
++            }
++	
++        if (getnameinfo ((struct sockaddr *) &address,
++                         (socklen_t) sizeof (address),
++                         back_host, (socklen_t) sizeof (back_host),
++                         back_port, (socklen_t) sizeof (back_port),
++                         NI_NUMERICHOST | NI_NUMERICSERV))
++          {
++            fprintf (stderr, "Error detecting bound address.\n");
++          }
++        else
++          {
++            back_host[sizeof (back_host) - 1] = 0;
++            back_port[sizeof (back_port) - 1] = 0;
++            fprintf (stderr, "Sucessfully bound %s port %s\n",
++                     back_host, back_port);
++          }
++      }
++
++      if (socktable_size < nsock + 3)
++        {
++          socktable = xrealloc (socktable,
++                                (nsock + 10) * sizeof (gdb_fildes_t));
++          socktable[0] = INVALID_DESCRIPTOR;
++        }
++      socktable[++nsock] = s;
++  }
++
++  freeaddrinfo (ainfo0);
++  free (host_str);
++
++  if (nsock == 0)
++      fatal("Failed to bind any socket.");
++
++  /* Bound socktable from both ends, so an inner pointer can still
++     find the whole array. */
++  socktable[++nsock] = INVALID_DESCRIPTOR;
+ 
+   transport_is_reliable = 1;
++  fprintf (stderr, "Listening on port %d\n", port);
++  fflush (stderr);
++  transport_is_reliable = 1;
++  if (listening_sockets)
++    fatal ("Multiple concurrent remote_open not supported.");
++
++  listening_sockets = socktable;
+ }
+ 
+ /* Open a connection to a remote debugger.
+@@ -268,8 +479,25 @@ void
+ remote_open (char *name)
+ {
+   char *port_str;
++  char *host_start, *host_end;
++
++  host_start = name;
++  if (host_start[0] == '[')
++    {
++      ++host_start;
++      host_end = strchr (host_start, ']');
++      if (host_end == NULL)
++        fatal ("Mismatched `[' in hostname.");
++      port_str = host_end + 1;
++      if (*port_str != ':')
++        fatal ("Missing port after hostname.");
++    }
++  else
++    {
++      port_str = strchr (name, ':');
++      host_end = port_str;
++    }
+ 
+-  port_str = strchr (name, ':');
+   if (port_str == NULL)
+     {
+ #ifdef USE_WIN32API
+@@ -278,21 +506,21 @@ remote_open (char *name)
+       struct stat statbuf;
+ 
+       if (stat (name, &statbuf) == 0
+-	  && (S_ISCHR (statbuf.st_mode) || S_ISFIFO (statbuf.st_mode)))
+-	remote_desc = open (name, O_RDWR);
++          && (S_ISCHR (statbuf.st_mode) || S_ISFIFO (statbuf.st_mode)))
++        remote_desc = open (name, O_RDWR);
+       else
+-	{
+-	  errno = EINVAL;
+-	  remote_desc = -1;
+-	}
++        {
++          errno = EINVAL;
++          remote_desc = -1;
++        }
+ 
+       if (remote_desc < 0)
+-	perror_with_name ("Could not open remote device");
++        perror_with_name ("Could not open remote device");
+ 
+ #ifdef HAVE_TERMIOS
+       {
+-	struct termios termios;
+-	tcgetattr (remote_desc, &termios);
++        struct termios termios;
++        tcgetattr (remote_desc, &termios);
+ 
+ 	termios.c_iflag = 0;
+ 	termios.c_oflag = 0;
+@@ -302,14 +530,14 @@ remote_open (char *name)
+ 	termios.c_cc[VMIN] = 1;
+ 	termios.c_cc[VTIME] = 0;
+ 
+-	tcsetattr (remote_desc, TCSANOW, &termios);
++        tcsetattr (remote_desc, TCSANOW, &termios);
+       }
+ #endif
+ 
+ #ifdef HAVE_TERMIO
+       {
+-	struct termio termio;
+-	ioctl (remote_desc, TCGETA, &termio);
++        struct termio termio;
++        ioctl (remote_desc, TCGETA, &termio);
+ 
+ 	termio.c_iflag = 0;
+ 	termio.c_oflag = 0;
+@@ -319,13 +547,13 @@ remote_open (char *name)
+ 	termio.c_cc[VMIN] = 1;
+ 	termio.c_cc[VTIME] = 0;
+ 
+-	ioctl (remote_desc, TCSETA, &termio);
++        ioctl (remote_desc, TCSETA, &termio);
+       }
+ #endif
+ 
+ #ifdef HAVE_SGTTY
+       {
+-	struct sgttyb sg;
++        struct sgttyb sg;
+ 
+ 	ioctl (remote_desc, TIOCGETP, &sg);
+ 	sg.sg_flags = RAW;
+@@ -343,22 +571,17 @@ remote_open (char *name)
+     }
+   else
+     {
+-      int port;
+-      socklen_t len;
+-      struct sockaddr_in sockaddr;
+-
+-      len = sizeof (sockaddr);
+-      if (getsockname (listen_desc,
+-		       (struct sockaddr *) &sockaddr, &len) < 0
+-	  || len < sizeof (sockaddr))
+-	perror_with_name ("Can't determine port");
+-      port = ntohs (sockaddr.sin_port);
++      int isock;
+ 
+-      fprintf (stderr, "Listening on port %d\n", port);
+-      fflush (stderr);
+-
+-      /* Register the event loop handler.  */
+-      add_file_handler (listen_desc, handle_accept_event, NULL);
++      if (! listening_sockets)
++        fatal ("Listening_sockets not initialized (missing call to remote_prepare).");
++      for (isock = 1; listening_sockets[isock] != INVALID_DESCRIPTOR; ++isock)
++        {
++          /* This assumes the loop ends before any of the handlers is called.
++             This is true in the current non threaded implementation.  */
++          add_file_handler (listening_sockets[isock], handle_accept_event,
++                            listening_sockets + isock);
++        }
+     }
+ }
+ 
+Only in gdb-7.4/gdb/gdbserver: remote-utils.c.orig
+Only in gdb-7.4/gdb/gdbserver: remote-utils.c.rej
+diff -rup gdb-7.4-clean/gdb/ser-tcp.c gdb-7.4/gdb/ser-tcp.c
+--- gdb-7.4-clean/gdb/ser-tcp.c	2012-03-30 15:07:01.540553998 +0200
++++ gdb-7.4/gdb/ser-tcp.c	2012-03-30 15:08:39.484553844 +0200
+@@ -38,7 +38,9 @@
+ #include <sys/time.h>
+ 
+ #ifdef USE_WIN32API
++#define _WIN32_WINNT 0x0501
+ #include <winsock2.h>
++#include <ws2tcpip.h>
+ #ifndef ETIMEDOUT
+ #define ETIMEDOUT WSAETIMEDOUT
+ #endif
+@@ -50,6 +52,7 @@
+ #include <netdb.h>
+ #include <sys/socket.h>
+ #include <netinet/tcp.h>
++#include <netinet/in.h>
+ #endif
+ 
+ #include <signal.h>
+@@ -79,76 +82,49 @@ static int tcp_retry_limit = 15;
+ 
+ #define POLL_INTERVAL 5
+ 
+-/* Helper function to wait a while.  If SCB is non-null, wait on its
+-   file descriptor.  Otherwise just wait on a timeout, updating *POLLS.
+-   Returns -1 on timeout or interrupt, otherwise the value of select.  */
++enum {
++  ADDR_DROP,
++  ADDR_RECONNECT,
++  ADDR_WAIT,
++  ADDR_SUCCESS
++};
+ 
++/* Tries to connect to a socket */
+ static int
+-wait_for_connect (struct serial *scb, int *polls)
++check_sock_err (int fd)
+ {
+-  struct timeval t;
+-  int n;
+-
+-  /* While we wait for the connect to complete, 
+-     poll the UI so it can update or the user can 
+-     interrupt.  */
+-  if (deprecated_ui_loop_hook && deprecated_ui_loop_hook (0))
+-    {
+-      errno = EINTR;
+-      return -1;
+-    }
+-
+-  /* Check for timeout.  */
+-  if (*polls > tcp_retry_limit * POLL_INTERVAL)
+-    {
+-      errno = ETIMEDOUT;
+-      return -1;
+-    }
+-
+-  /* Back off to polling once per second after the first POLL_INTERVAL
+-     polls.  */
+-  if (*polls < POLL_INTERVAL)
+-    {
+-      t.tv_sec = 0;
+-      t.tv_usec = 1000000 / POLL_INTERVAL;
+-    }
+-  else
+-    {
+-      t.tv_sec = 1;
+-      t.tv_usec = 0;
+-    }
++  int res, err;
++  socklen_t len;
+ 
+-  if (scb)
++  len = sizeof (err);
++  /* On Windows, the fourth parameter to getsockopt is a "char *";
++     on UNIX systems it is generally "void *".  The cast to "void *"
++     is OK everywhere, since in C "void *" can be implicitly
++     converted to any pointer type.  */
++  res = getsockopt (fd, SOL_SOCKET, SO_ERROR, (void *) &err, &len);
++  if (res < 0 || err)
+     {
+-      fd_set rset, wset, eset;
+-
+-      FD_ZERO (&rset);
+-      FD_SET (scb->fd, &rset);
+-      wset = rset;
+-      eset = rset;
+-	  
+-      /* POSIX systems return connection success or failure by signalling
+-	 wset.  Windows systems return success in wset and failure in
+-	 eset.
+-     
+-	 We must call select here, rather than gdb_select, because
+-	 the serial structure has not yet been initialized - the
+-	 MinGW select wrapper will not know that this FD refers
+-	 to a socket.  */
+-      n = select (scb->fd + 1, &rset, &wset, &eset, &t);
++      /* Maybe the target still isn't ready to accept the connection.  */
++      if (tcp_auto_retry
++    #ifdef USE_WIN32API
++          && err == WSAECONNREFUSED
++    #else
++          && err == ECONNREFUSED
++    #endif
++          )
++        {
++          close (fd);
++          return ADDR_RECONNECT;
++        }
++      else
++        {
++          if (err)
++            errno = err;
++          close (fd);
++          return ADDR_DROP;
++        }
+     }
+-  else
+-    /* Use gdb_select here, since we have no file descriptors, and on
+-       Windows, plain select doesn't work in that case.  */
+-    n = gdb_select (0, NULL, NULL, NULL, &t);
+-
+-  /* If we didn't time out, only count it as one poll.  */
+-  if (n > 0 || *polls < POLL_INTERVAL)
+-    (*polls)++;
+-  else
+-    (*polls) += POLL_INTERVAL;
+-
+-  return n;
++  return ADDR_SUCCESS;
+ }
+ 
+ /* Open a tcp socket.  */
+@@ -156,18 +132,24 @@ wait_for_connect (struct serial *scb, in
+ int
+ net_open (struct serial *scb, const char *name)
+ {
+-  char *port_str, hostname[100];
+-  int n, port, tmp;
++  char *port_str, hostname[100], *name_end;
++  int n = 0, tmp;
+   int use_udp;
+   struct hostent *hostent;
+-  struct sockaddr_in sockaddr;
++  struct addrinfo hints, *ainfo, *ainfo0, *ainfo_reconnect, *ainfo_old,
++      *ainfo_tmp;
++  struct sockaddr_storage address;
++  int max_w_socks = 0, n_w_socks = 0;
++  int *waiting_socks = NULL;
+ #ifdef USE_WIN32API
+   u_long ioarg;
+ #else
+   int ioarg;
+ #endif
+   int polls = 0;
++  int err, fd = -1;
+ 
++  scb->fd = -1;
+   use_udp = 0;
+   if (strncmp (name, "udp:", 4) == 0)
+     {
+@@ -177,134 +159,286 @@ net_open (struct serial *scb, const char
+   else if (strncmp (name, "tcp:", 4) == 0)
+     name = name + 4;
+ 
+-  port_str = strchr (name, ':');
+-
+-  if (!port_str)
+-    error (_("net_open: No colon in host name!"));  /* Shouldn't ever
++  if (name[0]=='[')
++    {
++      ++name;
++      name_end = strchr(name, ']');
++      if (name_end == NULL)
++        error (_("net_open: Mismatched '['"));
++      port_str = name_end+1;
++    } else {
++      port_str = strchr (name, ':');
++      name_end = port_str;
++    }
++  if (!port_str || port_str[0] !=':')
++    error (_("net_open: No colon after host name!"));  /* Shouldn't ever
+ 						       happen.  */
+ 
+-  tmp = min (port_str - name, (int) sizeof hostname - 1);
+-  strncpy (hostname, name, tmp);	/* Don't want colon.  */
+-  hostname[tmp] = '\000';	/* Tie off host name.  */
+-  port = atoi (port_str + 1);
+-
+-  /* Default hostname is localhost.  */
+-  if (!hostname[0])
+-    strcpy (hostname, "localhost");
+-
+-  hostent = gethostbyname (hostname);
+-  if (!hostent)
++  tmp = min (name_end - name, (int) sizeof hostname - 1);
++  /* Default hostname is localhost. Keeping this but NULL should also work.  */
++  if (!name[0])
+     {
+-      fprintf_unfiltered (gdb_stderr, "%s: unknown host\n", hostname);
+-      errno = ENOENT;
+-      return -1;
++      strcpy (hostname, "localhost");
+     }
+-
+-  sockaddr.sin_family = PF_INET;
+-  sockaddr.sin_port = htons (port);
+-  memcpy (&sockaddr.sin_addr.s_addr, hostent->h_addr,
+-	  sizeof (struct in_addr));
+-
+- retry:
+-
+-  if (use_udp)
+-    scb->fd = socket (PF_INET, SOCK_DGRAM, 0);
+   else
+-    scb->fd = socket (PF_INET, SOCK_STREAM, 0);
+-
+-  if (scb->fd == -1)
+-    return -1;
++    {
++            strncpy (hostname, name, tmp);	/* Don't want colon.  */
++            hostname[tmp] = '\000';	/* Tie off host name.  */
++    }
++  ++port_str;
+   
+-  /* Set socket nonblocking.  */
+-  ioarg = 1;
+-  ioctl (scb->fd, FIONBIO, &ioarg);
++  
++  memset(&hints, 0, sizeof(hints));
++  hints.ai_family = PF_UNSPEC;
++  if (use_udp)
++    hints.ai_socktype = SOCK_DGRAM;
++  else
++    hints.ai_socktype = SOCK_STREAM;
+ 
+-  /* Use Non-blocking connect.  connect() will return 0 if connected
+-     already.  */
+-  n = connect (scb->fd, (struct sockaddr *) &sockaddr, sizeof (sockaddr));
++  err = getaddrinfo(hostname, port_str, &hints, &ainfo0);
++  if (err)
++    {
++      fprintf_unfiltered (gdb_stderr, "%s: connecting to %s on port %s\n",
++                          gai_strerror(err), hostname, port_str);
++      errno = ENOENT;
++      return -1;
++    }
+ 
+-  if (n < 0)
++  do
+     {
+-#ifdef USE_WIN32API
+-      int err = WSAGetLastError();
+-#else
+-      int err = errno;
+-#endif
++      ainfo = ainfo0;
++      ainfo_old = NULL;
++      while (ainfo)
++        {
++          int op_to_do, connect_ret;
++
++          ainfo_old = ainfo;
++          fd = socket (ainfo->ai_family, ainfo->ai_socktype,
++                       ainfo->ai_protocol);
++
++          if (fd == -1)
++            {
++              ainfo = ainfo->ai_next;
++              continue;
++            }
++
++          /* Set socket nonblocking.  */
++          ioarg = 1;
++          ioctl (fd, FIONBIO, &ioarg);
++
++          /* Use Non-blocking connect.  connect() will return 0 if connected
++         already.  */
++          connect_ret = connect (fd, ainfo->ai_addr, ainfo->ai_addrlen);
+ 
+-      /* Maybe we're waiting for the remote target to become ready to
+-	 accept connections.  */
+-      if (tcp_auto_retry
++          if (connect_ret < 0)
++            {
+ #ifdef USE_WIN32API
+-	  && err == WSAECONNREFUSED
++              int err = WSAGetLastError();
+ #else
+-	  && err == ECONNREFUSED
++              int err = errno;
+ #endif
+-	  && wait_for_connect (NULL, &polls) >= 0)
+-	{
+-	  close (scb->fd);
+-	  goto retry;
+-	}
+ 
+-      if (
+-#ifdef USE_WIN32API
+-	  /* Under Windows, calling "connect" with a non-blocking socket
+-	     results in WSAEWOULDBLOCK, not WSAEINPROGRESS.  */
+-	  err != WSAEWOULDBLOCK
+-#else
+-	  err != EINPROGRESS
+-#endif
+-	  )
+-	{
+-	  errno = err;
+-	  net_close (scb);
+-	  return -1;
+-	}
+-
+-      /* Looks like we need to wait for the connect.  */
+-      do 
+-	{
+-	  n = wait_for_connect (scb, &polls);
+-	} 
+-      while (n == 0);
+-      if (n < 0)
+-	{
+-	  net_close (scb);
+-	  return -1;
+-	}
++              /* Maybe we're waiting for the remote target to become ready to
++               accept connections.  */
++              if (tcp_auto_retry
++    #ifdef USE_WIN32API
++                  && err == WSAECONNREFUSED
++    #else
++                  && err == ECONNREFUSED
++    #endif
++                  )
++                {
++                  close (fd);
++                  op_to_do = ADDR_RECONNECT;
++                }
++              else if (
++         #ifdef USE_WIN32API
++                       /* Under Windows, calling "connect" with a non-blocking socket
++                                results in WSAEWOULDBLOCK, not WSAEINPROGRESS.  */
++                       err != WSAEWOULDBLOCK
++         #else
++                       err != EINPROGRESS
++         #endif
++                       )
++                {
++                  close (fd);
++                  op_to_do = ADDR_DROP;
++                }
++              else
++                {
++                  op_to_do = ADDR_WAIT;
++                }
++            }
++          else
++            {
++              op_to_do = check_sock_err(fd);
++            }
++          switch (op_to_do)
++            {
++            case ADDR_DROP:
++              break;
++            case ADDR_RECONNECT:
++              ainfo_tmp = ainfo->ai_next;
++              ainfo->ai_next = ainfo_reconnect;
++              ainfo_reconnect->ai_next = ainfo;
++              ainfo = ainfo_tmp;
++              ainfo_old = NULL;
++              break;
++            case ADDR_WAIT:
++              /* Looks like we need to wait for the connect.  */
++              if (n_w_socks >= max_w_socks)
++                {
++                  max_w_socks += 10;
++                  waiting_socks= xrealloc (waiting_socks, max_w_socks
++                                           * sizeof(*waiting_socks));
++                }
++              waiting_socks[n_w_socks++] = fd;
++              break;
++            case ADDR_SUCCESS:
++              break;
++            default:
++              fatal (_("Unexpected value for try_connect in net_open."));
++            }
++          if (ainfo_old)
++            {
++              ainfo = ainfo_old->ai_next;
++              ainfo_old->ai_next = NULL;
++              freeaddrinfo (ainfo_old);
++            }
++          if (op_to_do == ADDR_SUCCESS)
++            break;
++          fd = -1;
++        }
++      ainfo0 = ainfo_reconnect;
++      ainfo_reconnect = NULL;
++
++      if (fd != -1 || !(ainfo0 != NULL || n_w_socks != 0))
++        break;
++
++      do
++        {
++          struct timeval t;
++          int max_fd;
++          fd_set rset;
++          
++          /* While we wait for the connect to complete,
++               poll the UI so it can update or the user can
++               interrupt.  */
++          if (deprecated_ui_loop_hook && deprecated_ui_loop_hook (0))
++            {
++              errno = EINTR;
++              return -1;
++            }
++
++          /* Check for timeout.  */
++          if (polls > tcp_retry_limit * POLL_INTERVAL)
++            {
++              errno = ETIMEDOUT;
++              return -1;
++            }
++
++          /* Back off to polling once per second after the first POLL_INTERVAL
++               polls.  */
++          if (polls < POLL_INTERVAL)
++            {
++              t.tv_sec = 0;
++              t.tv_usec = 1000000 / POLL_INTERVAL;
++            }
++          else
++            {
++              t.tv_sec = 1;
++              t.tv_usec = 0;
++            }
++
++          max_fd=-1;
++          if (n_w_socks)
++            {
++              int ifd;
++
++              FD_ZERO (&rset);
++              for (ifd = 0; ifd < n_w_socks; ++ifd)
++                {
++                  if (waiting_socks[ifd] != -1)
++                    {
++                      FD_SET (waiting_socks[ifd], &rset);
++                      if (max_fd < waiting_socks[ifd])
++                        max_fd = waiting_socks[ifd];
++                    }
++                }
++            }
++          if (max_fd != -1)
++            {
++              int ifd;
++              fd_set wset, eset;
++              wset = rset;
++              eset = rset;
++
++              /* POSIX systems return connection success or failure by signalling
++                   wset.  Windows systems return success in wset and failure in
++                   eset.
++
++                   We must call select here, rather than gdb_select, because
++                   the serial structure has not yet been initialized - the
++                   MinGW select wrapper will not know that this FD refers
++                   to a socket.  */
++              n = select (max_fd + 1, &rset, &wset, &eset, &t);
++              if (n > 0)
++                for (ifd = 0; ifd < n_w_socks && fd == -1; ++ifd)
++                  if (FD_ISSET(waiting_socks[ifd], &rset)
++                      || FD_ISSET(waiting_socks[ifd], &wset)
++                      || FD_ISSET(waiting_socks[ifd], &eset))
++                    {
++                      int op_to_do;
++
++                      op_to_do = check_sock_err(waiting_socks[ifd]);
++                      switch (op_to_do)
++                        {
++                        case ADDR_RECONNECT:
++                          //waiting_socks[ifd] = -1;
++                          break;
++                        case ADDR_DROP:
++                          //waiting_socks[ifd] = -1;
++                          break;
++                        case ADDR_WAIT:
++                          break;
++                        case ADDR_SUCCESS:
++                          fd = waiting_socks[ifd];
++                          break;
++                        default:
++                          fatal (_("Unexpected value for try_connect in net_open."));
++                        }
++                    }
++            }
++          else
++            /* Use gdb_select here, since we have no file descriptors, and on
++                 Windows, plain select doesn't work in that case.  */
++            n = gdb_select (0, NULL, NULL, NULL, &t);
++
++          /* If we didn't time out, only count it as one poll.  */
++          if (n > 0 || polls < POLL_INTERVAL)
++            polls++;
++          else
++            polls += POLL_INTERVAL;
++        }
++      while (fd == -1 && n == 0 && ainfo0 == NULL);
+     }
++  while (fd == -1 && n >= 0);
+ 
+-  /* Got something.  Is it an error?  */
+-  {
+-    int res, err;
+-    socklen_t len;
+-
+-    len = sizeof (err);
+-    /* On Windows, the fourth parameter to getsockopt is a "char *";
+-       on UNIX systems it is generally "void *".  The cast to "void *"
+-       is OK everywhere, since in C "void *" can be implicitly
+-       converted to any pointer type.  */
+-    res = getsockopt (scb->fd, SOL_SOCKET, SO_ERROR, (void *) &err, &len);
+-    if (res < 0 || err)
+-      {
+-	/* Maybe the target still isn't ready to accept the connection.  */
+-	if (tcp_auto_retry
+-#ifdef USE_WIN32API
+-	    && err == WSAECONNREFUSED
+-#else
+-	    && err == ECONNREFUSED
+-#endif
+-	    && wait_for_connect (NULL, &polls) >= 0)
+-	  {
+-	    close (scb->fd);
+-	    goto retry;
+-	  }
+-	if (err)
+-	  errno = err;
+-	net_close (scb);
+-	return -1;
+-      }
+-  } 
++  freeaddrinfo (ainfo0);
++  if (waiting_socks)
++    {
++      int ifd;
++
++      for (ifd = 0; ifd < n_w_socks && fd == -1; ++ifd)
++        if (waiting_socks[ifd] != fd && waiting_socks[ifd] != -1)
++          close (waiting_socks[ifd]);
++    }
++  free (waiting_socks);
++
++  if (fd == -1)
++    return -1;
+ 
++  scb->fd = fd;
+   /* Turn off nonblocking.  */
+   ioarg = 0;
+   ioctl (scb->fd, FIONBIO, &ioarg);

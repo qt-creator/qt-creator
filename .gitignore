@@ -78,6 +78,9 @@ doc/api/html/*
 doc/pluginhowto/html/*
 .rcc
 .pch
+dist/gdb/qtcreator-*
+dist/gdb/source
+dist/gdb/staging
 
 # Binaries
 # --------

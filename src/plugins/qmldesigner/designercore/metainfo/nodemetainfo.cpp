@@ -269,6 +269,9 @@ QList<PropertyInfo> getObjectTypes(const ObjectValue *ov, const ContextPtr &cont
     if (!local) {
         const ObjectValue* prototype = ov->prototype(context);
 
+        if (prototype == ov)
+            return list;
+
         const CppComponentValue * qmlObjectValue = value_cast<CppComponentValue>(prototype);
 
         if (qmlObjectValue) {

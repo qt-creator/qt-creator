@@ -29,7 +29,7 @@
     \contentspage index.html
     \previouspage creator-debugging-helpers.html
     \page creator-debugging-qml.html
-    \nextpage creator-troubleshooting-debugging.html
+    \nextpage creator-debugging-example.html
 
     \title Debugging Qt Quick Projects
 
@@ -159,10 +159,10 @@
     \section1 Executing JavaScript Expressions
 
     When the application is interrupted by a breakpoint, you can use the
-    \gui {QML Script Console} to execute JavaScript expressions in the current
-    context. To open it, choose \gui {Window > View > QML Script Console}.
+    \gui {Console} to execute JavaScript expressions in the current
+    context. To open it, choose \gui {Window > Views > Console}.
 
-    \image qml-script-console.png "QML Script Console view"
+    \image qml-script-console.png "Console view"
 
     You can type JavaScript expressions and use them to get information about
     the state or your application. You can change property values temporarily,
@@ -174,11 +174,11 @@
 
     If you change property values or add properties in the code editor, the
     debugger can update the properties in the running application when you save
-    the file. This is enabled by default. To disable it, click
+    the file. This is enabled by default. To disable it, click the
     \inlineimage qml-observer-bar-reload.png "Apply Changes on Save button"
-    on the toolbar.
+    (\gui {Apply Changes on Save}) button on the toolbar.
 
-    When you change property values in the \gui {QML Script Console} or
+    When you change property values in the \gui {Console} or
     \gui {QML Inspector}, they are immediately updated in the running
     application, but not in the source code.
 
@@ -249,8 +249,8 @@
     contains zoom controls.
 
     To inspect colors, click the \gui {Color Picker} button. You can also click
-    \inlineimage qml-observer-bar-copy-color.png "Copy Color button"
-    to copy the color definition to the clipboard.
+    \inlineimage qml-observer-bar-copy-color.png "Color Picker button"
+    (\gui {Color Picker}) to copy the color definition to the clipboard.
 
     To switch out of the inspection mode, deselect the \gui Select, \gui Zoom,
     and \gui {Color Picker} button.
@@ -260,14 +260,12 @@
 
     To play and pause animations in the running application, select
     \inlineimage qml-inspector-play.png
-    and
+    (\gui {Play Animations}) and
     \inlineimage qml-inspector-pause.png
-    on the toolbar.
+    (\gui {Pause Animations}) on the toolbar.
 
     To change the speed at which animations are played, click and hold down
-    \inlineimage qml-inspector-play.png
-    or
-    \inlineimage qml-inspector-pause.png
+    \gui {Play/Pause Animations}
     and select a value.
 
 */

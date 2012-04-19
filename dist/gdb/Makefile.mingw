@@ -1,0 +1,101 @@
+broot=${PWD}
+source=${broot}/source
+targets=arm-none-symbianelf arm-none-linux-gnueabi i686-pc-mingw32
+staging=${broot}/staging
+pyversion=2.7
+pydir=${broot}/python
+expatversion=2.0.1
+iconvversion=1.14
+version=7.4
+targetdir=${broot}/qtcreator-gdb-${version}
+gdbtargets=$(addprefix ${targetdir}/gdb-, ${targets})
+packageparts=${targetdir}/lib ${targetdir}/lib ${targetdir}/libiconv-2.dll ${targetdir}/python27.dll ${targetdir}/libexpat-1.dll
+arch=`uname -sm | sed 's/ /-/g' | tr A-Z a-z`
+packagename=qtcreator-gdb-${version}-${arch}.tar.gz
+
+all: package
+
+gdb-7.4: override version=7.4
+
+gdb-7.4:
+	${MAKE} version=${version}
+
+clean:
+	rm -rf  ${broot}/qtcreator-gdb-* ${staging}/gdb-*
+
+distclean:
+	rm -rf ${staging} ${source} ${broot}/qtcreator-gdb-*
+
+makesourcedir:
+	test -e ${source} || mkdir ${source}
+
+maketargetdir:
+	test -e ${targetdir} || mkdir ${targetdir}
+
+makestagingdir:
+	test -e ${staging} || mkdir ${staging}
+
+checkwget:
+	wget -V &> /dev/null || mingw-get install msys-wget-bin
+
+${source}/gdb-${version}.tar.bz2: | makesourcedir checkwget
+	cd ${source} && \
+	wget http://ftp.gnu.org/gnu/gdb/gdb-${version}.tar.bz2 || \
+	wget -O gdb-${version}.tar.bz2 http://ftp.gnu.org/gnu/gdb/gdb-${version}a.tar.bz2 && \
+	touch gdb-${version}.tar.bz2
+
+${source}/libiconv-${iconvversion}.tar.gz: | makesourcedir checkwget
+	cd ${source} && \
+	wget http://ftp.gnu.org/pub/gnu/libiconv/libiconv-${iconvversion}.tar.gz  && \
+	touch ${source}/libiconv-${iconvversion}.tar.gz
+
+${source}/expat-${expatversion}.tar.gz: | makesourcedir checkwget
+	cd ${source} &&\
+	wget http://sourceforge.net/projects/expat/files/expat/${expatversion}/expat-${expatversion}.tar.gz/download && \
+	touch ${source}/expat-${expatversion}.tar.gz
+
+${staging}/gdb-${version}/configure: ${source}/gdb-${version}.tar.bz2 | makestagingdir
+	cd ${staging} && \
+	tar xvf ${source}/gdb-${version}.tar.bz2 && \
+	cd gdb-${version} && \
+	touch configure && \
+	patch -p1 < ${broot}/patches/gdb-ipv6.patch && \
+	patch -p1 < ${broot}/patches/gdb-target-debugging.patch
+
+${staging}/lib/libiconv.a: ${source}/libiconv-${iconvversion}.tar.gz | makestagingdir
+	cd ${staging} && \
+	tar xvf ${source}/libiconv-${iconvversion}.tar.gz && \
+	cd libiconv-${iconvversion} && \
+	./configure -prefix=${staging} --enable-static && \
+	${MAKE} && ${MAKE} install
+
+${staging}/lib/libexpat.a: ${source}/expat-${expatversion}.tar.gz | makestagingdir
+	cd ${staging} && \
+	tar xvf ${source}/expat-${expatversion}.tar.gz && \
+	cd expat-${expatversion} && \
+	./configure -prefix=${staging} --enable-static && \
+	${MAKE} && ${MAKE} install
+
+${gdbtargets}: ${targetdir}/gdb-%: ${staging}/lib/libexpat.a ${staging}/lib/libiconv.a ${staging}/gdb-${version}/configure | maketargetdir
+	test -e ${staging}/gdb-${version}-$* || mkdir ${staging}/gdb-${version}-$*
+	export PYTHONHOME=${pydir} && \
+	LDFLAGS="L${pydir} -lpthread -ldl -lutil -lpython27" && \
+	CFLAGS="-I${pydir}/include" && \
+	cd ${staging}/gdb-${version}-$* && \
+	${staging}/gdb-${version}/configure --target=$* --disable-nls \
+	--with-libiconv-prefix=${staging} \
+	--with-expat --with-libexpat-prefix=${staging} \
+	--with-python=${pydir} &&\
+	${MAKE} MAKEFLAGS+= -j1 &&\
+	strip gdb/gdb.exe && \
+	cp -T gdb/gdb.exe ${targetdir}/gdb-$*.exe
+
+package: ${gdbtargets}
+	cp ${staging}/bin/libiconv* ${targetdir} && \
+	cp ${staging}/bin/libexpat* ${targetdir} && \
+	cp ${pydir}/python*.dll ${targetdir} && \
+	cp -r ${pydir}/lib ${targetdir} && \
+	cp -r ${pydir}/include ${targetdir} && \
+	mv ${targetdir} ${targetdir}-${arch} && \
+	tar cvzf ${packagename} qtcreator-gdb-${version}-${arch} && \
+	mv ${targetdir}-${arch} ${targetdir}

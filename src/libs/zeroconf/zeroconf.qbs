@@ -35,5 +35,8 @@ QtcLibrary {
         "syssocket.h"
     ]
 
-    ProductModule { cpp.includePaths: "." }
+    ProductModule {
+        Depends { name: "cpp" }
+        cpp.includePaths: "."
+    }
 }

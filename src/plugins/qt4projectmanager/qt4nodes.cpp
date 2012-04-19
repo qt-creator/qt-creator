@@ -1863,6 +1863,10 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         newVarValues[DefinesVar] = m_readerExact->values(QLatin1String("DEFINES"));
         newVarValues[IncludePathVar] = includePaths(m_readerExact);
         newVarValues[CppFlagsVar] = m_readerExact->values("QMAKE_CXXFLAGS");
+        newVarValues[CppHeaderVar] = m_readerExact->absoluteFileValues(QLatin1String("HEADERS"),
+                                                                       m_projectDir,
+                                                                       QStringList() << m_projectDir,
+                                                                       0);
         newVarValues[CppSourceVar] = m_readerExact->absoluteFileValues(QLatin1String("SOURCES"),
                                                                        m_projectDir,
                                                                        QStringList() << m_projectDir,

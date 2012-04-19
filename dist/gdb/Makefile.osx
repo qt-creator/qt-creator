@@ -1,0 +1,89 @@
+broot=${PWD}
+source=${broot}/source
+targets=x86_64-unknown-linux-gnu i686-unknown-linux-gnu arm-none-linux-gnueabi arm-none-symbianelf
+staging=${broot}/staging
+pyversion=2.7
+expatversion=2.0.1
+arch=`uname -sm | sed 's/ /-/g' | tr A-Z a-z`
+version=7.4
+targetdir=${broot}/qtcreator-gdb-${version}
+gdbtargets=$(addprefix ${targetdir}/gdb-, ${targets})
+packagename=qtcreator-gdb-${version}-${arch}.tar.gz
+
+all:package
+
+gdb-7.4: override version=7.4
+
+gdb-7.4: ${staging}/lib/libpython${pyversion}.a ${staging}/lib/libexpat.a
+	${MAKE} version=${version}
+
+clean:
+	rm -rf  ${broot}/qtcreator-gdb-* ${staging}/gdb-* qtcreator-gdb-*.tar.gz
+
+makesourcedir:
+	test -e ${source} || mkdir ${source}
+
+maketargetdir:
+	test -e ${targetdir} || mkdir ${targetdir}
+
+makestagingdir:
+	test -e ${staging} || mkdir ${staging}
+
+${source}/expat-${expatversion}.tar.gz: | makesourcedir
+	cd ${source}; curl -LOf http://sourceforge.net/projects/expat/files/expat/${expatversion}/expat-${expatversion}.tar.gz && \
+	touch ${source}/expat-${expatversion}.tar.gz
+
+${source}/Python-${pyversion}.tgz: | makesourcedir
+	cd ${source}; curl -Of http://www.python.org/ftp/python/${pyversion}/Python-${pyversion}.tgz && \
+	touch ${source}/Python-${pyversion}.tgz
+
+${source}/gdb-${version}.tar.bz2: | makesourcedir
+	cd ${source} && \
+	curl -Of http://ftp.gnu.org/gnu/gdb/gdb-${version}.tar.bz2 || \
+	curl -of gdb-${version}.tar.bz2 http://ftp.gnu.org/gnu/gdb/gdb-${version}a.tar.bz2 && \
+	touch gdb-*.tar.bz2
+
+${staging}/lib/libexpat.a: ${source}/expat-${expatversion}.tar.gz | makestagingdir
+	cd ${staging} && tar xvf ${source}/expat-${expatversion}.tar.gz && cd expat-${expatversion} && \
+	./configure --disable-shared -prefix=/ && ${MAKE} && ${MAKE} install
+
+${staging}/lib/libpython${pyversion}.a: ${source}/Python-${pyversion}.tgz | makestagingdir
+	unset PYTHONHOME && cd ${staging} && tar xvf ${source}/Python-${pyversion}.tgz && cd Python-${pyversion} && \
+	./configure --prefix=${staging} && ${MAKE} && ${MAKE} install
+
+${targetdir}/python/include/python${pyversion}/pyconfig.h: ${staging}/lib/libpython${pyversion}.a | maketargetdir
+	mkdir -p ${targetdir}/python/lib && cp -a ${staging}/lib/python${pyversion} ${targetdir}/python/lib/
+	mkdir -p ${targetdir}/python/include/python${pyversion} && cp ${staging}/include/python${pyversion}/pyconfig.h ${targetdir}/python/include/python${pyversion}/
+
+${staging}/gdb-${version}/configure: ${source}/gdb-${version}.tar.bz2 | makestagingdir
+	cd ${staging} && \
+	tar xvf ${source}/gdb-${version}.tar.bz2 && \
+	cd gdb-${version} && \
+	touch configure && \
+	patch -p2 < ${broot}/patches/pythonhome-${version}.patch && \
+	patch -p1 < ${broot}/patches/gdb-ipv6.patch
+
+${gdbtargets}: ${targetdir}/gdb-%: ${staging}/gdb-${version}/configure ${staging}/lib/libpython${pyversion}.a ${staging}/lib/libexpat.a | maketargetdir
+	test -e ${staging}/gdb-${version}-$* || mkdir ${staging}/gdb-${version}-$*
+	export PYTHONHOME=${staging} && \
+	export PATH="${staging}/bin/:$$PATH" && \
+	cd ${staging}/gdb-${version}-$* && \
+	${staging}/gdb-${version}/configure --disable-nls --target=$* --with-python=${staging} --with-libexpat-prefix=${staging} && \
+	${MAKE} MAKEFLAGS+=-j1 && \
+	strip gdb/gdb && \
+	mv gdb/gdb ${targetdir}/gdb-$*
+
+${targetdir}/gdb: ${staging}/gdb-${version}/configure ${staging}/lib/libpython${pyversion}.a ${staging}/lib/libexpat.a | maketargetdir
+	test -e ${staging}/gdb-${version}-${arch} || mkdir ${staging}/gdb-${version}-${arch}
+	export PYTHONHOME=${staging}  && \
+	export PATH="${staging}/bin/:$$PATH" && \
+	cd ${staging}/gdb-${version}-${arch} && \
+	${staging}/gdb-${version}/configure --disable-nls --with-python=${staging} --with-libexpat-prefix=${staging} --disable-werror && \
+	${MAKE} MAKEFLAGS+=-j1 && \
+	strip gdb/gdb && \
+	mv gdb/gdb ${targetdir}/gdb
+
+package: ${gdbtargets} ${targetdir}/gdb ${targetdir}/python/include/python${pyversion}/pyconfig.h
+	mv ${targetdir} ${targetdir}-${arch}
+	tar cvzf ${packagename} qtcreator-gdb-${version}-${arch}
+	mv ${targetdir}-${arch} ${targetdir}

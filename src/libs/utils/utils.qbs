@@ -256,7 +256,7 @@ QtcLibrary {
     }
 
     ProductModule {
-        Depends { name: "Qt"; submodules: ["concurrent"] }
+        Depends { name: "Qt"; submodules: ["concurrent", "widgets", "network"] }
     }
 }
 

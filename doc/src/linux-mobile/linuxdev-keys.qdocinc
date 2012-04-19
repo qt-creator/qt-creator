@@ -1,7 +1,10 @@
     \section2 Generating SSH Keys
 
     If you do not have an SSH public and private key pair, you can generate it
-    in \QC. You can specify key length and the key algorithm, RSA or DSA.
+    in \QC. The connection wizard can create the key pair for you, or you can
+    create it separately.
+
+    You can specify key length and the key algorithm, RSA or DSA.
     If you only use the keys to protect connections to the emulator or
     device, you can use the default values.
 

@@ -42,6 +42,7 @@ QtcLibrary {
     ]
 
     ProductModule {
+        Depends { name: "cpp" }
         Depends { name: "symbianutils" }
         cpp.includePaths: [
             "."

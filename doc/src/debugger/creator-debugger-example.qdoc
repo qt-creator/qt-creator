@@ -27,7 +27,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-debugging.html
+    \previouspage creator-debugging-qml.html
     \page creator-debugging-example.html
     \nextpage creator-qml-debugging-example.html
 
@@ -103,6 +103,13 @@
     If you compile and run the above code, however, the application does not
     work correctly due to a logic error. To locate this logic error, step
     through the code using the following buttons:
+    \inlineimage qtcreator-debug-button-stop.png
+    (\gui Stop),
+    \inlineimage qtcreator-debug-button-step-over.png
+    (\gui {Step Over}),
+    \inlineimage qtcreator-debug-button-step-into.png
+    (\gui {Step Into}), and
+    \inlineimage qtcreator-debug-button-step-out.png
+    (\gui {Step Out}).
 
-    \image qtcreator-debugging-buttons.png
 */

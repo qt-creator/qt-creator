@@ -173,6 +173,7 @@ QtcLibrary {
     ]
 
     ProductModule {
+        Depends { name: "cpp" }
         cpp.includePaths: [
             ".",
             "../3rdparty",

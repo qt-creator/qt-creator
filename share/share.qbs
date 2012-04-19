@@ -93,21 +93,6 @@ Product {
     }
 
     Group {
-        qbs.installDir: "share/qtcreator/patches"
-        fileTags: ["install"]
-        prefix: "qtcreator/patches/"
-        files: [
-            ".gitattributes",
-            "README",
-            "gdb-expand-line-sal-maybe.patch",
-            "gdb-increased-dcache-line-size.patch",
-            "gdb-stepping-for-maemo.patch",
-            "gdb-without-dwarf-name-canonicalization.patch",
-            "gdb-work-around-trk-single-step.patch",
-        ]
-    }
-
-    Group {
         qbs.installDir: "share/qtcreator/qml-type-descriptions"
         fileTags: ["install"]
         prefix: "qtcreator/qml-type-descriptions/"

@@ -83,6 +83,7 @@ enum Qt4Variable {
     DefinesVar = 1,
     IncludePathVar,
     CppFlagsVar,
+    CppHeaderVar,
     CppSourceVar,
     ObjCSourceVar,
     UiDirVar,
@@ -117,7 +118,6 @@ using ProjectExplorer::FileType;
 
 namespace Internal {
 class Qt4UiCodeModelSupport;
-class ProFileReader;
 class Qt4PriFile;
 struct InternalNode;
 }

@@ -501,15 +501,16 @@ def checkSimpleRef(ref):
     check(count < 1000000)
 
 def checkRef(ref):
-    # assume there aren't a million references to any object
-    if qtMajorVersion() >= 5:
-        count = ref["atomic"]["_q_value"]
-        check(count >= -1)
-        check(count < 1000000)
-    else:
-        count = ref["_q_value"]
-        check(count > 0)
-        check(count < 1000000)
+    try:
+        count = ref["atomic"]["_q_value"] # Qt 5.
+        minimum = -1
+    except:
+        count = ref["_q_value"] # Qt 4.
+        minimum = 0
+    # Assume there aren't a million references to any object.
+    check(count >= minimum)
+    check(count < 1000000)
+
 
 #def couldBePointer(p, align):
 #    type = lookupType("unsigned int")
@@ -667,24 +668,6 @@ def qtNamespace():
     except:
         return ""
 
-# --  Determine major Qt version by calling qVersion (cached)
-
-qqMajorVersion = None
-
-def qtMajorVersion():
-    global qqMajorVersion
-    if not qqMajorVersion is None:
-        return qqMajorVersion
-    try:
-        # -- Result is returned as character, need to subtract '0'
-        v = int(parseAndEvaluate("*(char*)qVersion()"))
-        if v >= 51:
-            qqMajorVersion = v - 48
-            return qqMajorVersion
-        return 0
-    except:
-        return 0
-
 def findFirstZero(p, maximum):
     for i in xrange(maximum):
         if p.dereference() == 0:
@@ -762,21 +745,17 @@ def encodeChar4Array(p, maxsize):
     return s
 
 def qByteArrayData(value):
-    if qtMajorVersion() < 5:
-        d_ptr = value['d'].dereference()
-        checkRef(d_ptr["ref"])
-        data = d_ptr['data']
-        size = d_ptr['size']
-        alloc = d_ptr['alloc']
-        return data, size, alloc
-    else: # Qt5: Implement the QByteArrayData::data() accessor.
-        qByteArrayData = value['d'].dereference()
-        size = qByteArrayData['size']
-        alloc = qByteArrayData['alloc']
+    private = value['d']
+    checkRef(private['ref'])
+    try:
+        # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
+        offset = private['offset']
         charPointerType = lookupType('char *')
-        data = qByteArrayData['d'].cast(charPointerType) \
-             + qByteArrayData['offset'] + charPointerType.sizeof
-        return data, size, alloc
+        data = private.cast(charPointerType) + private['offset']
+        return data, int(private['size']), int(private['alloc'])
+    except:
+        # Qt 4:
+        return private['data'], int(private['size']), int(private['alloc'])
 
 def encodeByteArray(value):
     data, size, alloc = qByteArrayData(value)
@@ -787,21 +766,23 @@ def encodeByteArray(value):
     return encodeCharArray(data, 100, size)
 
 def qQStringData(value):
-    if qtMajorVersion() < 5:
-        d_ptr = value['d'].dereference()
-        checkRef(d_ptr['ref'])
-        return d_ptr['data'], int(d_ptr['size']), int(d_ptr['alloc'])
-    else: # Qt5: Implement the QStringArrayData::data() accessor.
-        qStringData = value['d'].dereference()
+    private = value['d']
+    checkRef(private['ref'])
+    try:
+        # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
+        offset = private['offset']
         ushortPointerType = lookupType('ushort *')
-        data = qStringData['d'].cast(ushortPointerType) \
-            + ushortPointerType.sizeof / 2 + qStringData['offset']
-        return data, int(qStringData['size']), int(qStringData['alloc'])
+        data = private.cast(ushortPointerType) + offset / 2
+        return data, int(private['size']), int(private['alloc'])
+    except:
+        # Qt 4.
+        return private['data'], int(private['size']), int(private['alloc'])
 
 def encodeString(value):
     data, size, alloc = qQStringData(value)
 
-    check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
+    if alloc != 0:
+        check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
     if size > 0:
         checkAccess(data, 4)
         checkAccess(data + size) == 0

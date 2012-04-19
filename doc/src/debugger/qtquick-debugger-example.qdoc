@@ -29,7 +29,7 @@
     \contentspage index.html
     \previouspage creator-debugging-example.html
     \page creator-qml-debugging-example.html
-    \nextpage creator-debugger-operating-modes.html
+    \nextpage creator-troubleshooting-debugging.html
 
     \title Debugging a Qt Quick Example Application
 
@@ -49,7 +49,7 @@
         \o  To look at the code that starts a new game, place a breakpoint in
             samegame.qml by clicking between the line number and the window
             border on the line where where the \c startNewGame() function is
-            called.
+            called (1).
 
             \image qtquick-example-setting-breakpoint1.png
 
@@ -70,7 +70,7 @@
             \image qtquick-example-setting-breakpoint2.png
 
         \o  Click the
-            \inlineimage qml-inspector-step-into.png
+            \inlineimage qtcreator-debug-button-step-into.png
             (\gui {Step Into}) button on the toolbar or press \key F11 to step
             into the code in the stack. The samegame.js file opens in the code
             editor at the function that starts a new game.
@@ -88,7 +88,7 @@
             \image qtquick-example-setting-breakpoint3.png
 
         \o  To execute JavaScript commands in the current context, select the
-            \gui {QML Script Console} tab.
+            \gui {Console} tab.
 
         \o  To change the score to 1000, enter \c{gameCanvas.score = 1000}
             in the console.
@@ -111,8 +111,8 @@
         \o  Click
             \inlineimage qml-inspector-select-button.png
             (\gui Select) to activate selection mode and then click the
-            \gui {New Game} button to move into the \gui newGameButton component
-            in the \gui {QML Script Console} and the code editor.
+            \gui {Quit} button to move into the \gui ButtonLabel component
+            in the \gui {Console} and the code editor.
 
             \image qtquick-example-property-values.png
 

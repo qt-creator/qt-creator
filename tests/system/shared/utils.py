@@ -284,6 +284,113 @@ def __checkParentAccess__(filePath):
 # and a list of supported versions as value
 def getCorrectlyConfiguredTargets():
     result = {}
+    for tv in iterateQtVersions():
+        for target,version in tv.iteritems():
+         # Dialog sometimes differs from targets' names
+            if target == "Maemo":
+                target = "Maemo5"
+            elif target == "Symbian":
+                target = "Symbian Device"
+            implicitTargets = [target]
+            if target == "Desktop" and platform.system() in ("Linux", "Darwin"):
+                implicitTargets.append("Embedded Linux")
+            for currentTarget in implicitTargets:
+                if currentTarget in result:
+                    oldV = result[currentTarget]
+                    if version not in oldV:
+                        oldV.append(version)
+                        result.update({currentTarget:oldV})
+                else:
+                    result.update({currentTarget:[version]})
+    test.log("Correctly configured targets: %s" % str(result))
+    return result
+
+def visibleCheckBoxExists(text):
+    try:
+        findObject("{type='QCheckBox' text='%s' visible='1'}" % text)
+        return True
+    except:
+        return False
+
+# this function verifies if the text matches the given
+# regex inside expectedTexts
+# param text must be a single str/unicode
+# param expectedTexts can be str/unicode/list/tuple
+def regexVerify(text, expectedTexts):
+    if isinstance(expectedTexts, (str,unicode)):
+        expectedTexts = [expectedTexts]
+    for curr in expectedTexts:
+        pattern = re.compile(curr)
+        if pattern.match(text):
+            return True
+    return False
+
+def checkDebuggingLibrary(targVersion, targets):
+    # internal function to execute while iterating Qt versions
+    def __checkDebugLibsInternalFunc__(target, version, targVersion, targStrings):
+        built = failed = 0
+        container = ("container=':qt_tabwidget_stackedwidget.QtSupport__Internal__"
+                     "QtVersionManager_QtSupport::Internal::QtOptionsPageWidget'")
+        buildLogWindow = ("window={name='QtSupport__Internal__ShowBuildLog' type='QDialog' "
+                          "visible='1' windowTitle?='Debugging Helper Build Log*'}")
+        if target in targStrings and version == targVersion:
+            detailsButton = waitForObject("{%s type='Utils::DetailsButton' text='Details' "
+                                          "visible='1' unnamed='1'}" % container)
+            ensureChecked(detailsButton)
+            gdbHelperStat = waitForObject("{%s type='QLabel' name='gdbHelperStatus' "
+                                          "visible='1'}" % container)
+            if 'Not yet built.' in str(gdbHelperStat.text):
+                clickButton(waitForObject("{%s type='QPushButton' name='gdbHelperBuildButton' "
+                                          "text='Build' visible='1'}" % container))
+                buildLog = waitForObject("{type='QPlainTextEdit' name='log' visible='1' %s}" % buildLogWindow)
+                if str(buildLog.plainText).endswith('Build succeeded.'):
+                    built += 1
+                else:
+                    failed += 1
+                    test.fail("Building GDB Helper failed",
+                              buildLog.plainText)
+                clickButton(waitForObject("{type='QPushButton' text='Close' unnamed='1' "
+                                          "visible='1' %s}" % buildLogWindow))
+            else:
+                built += 1
+            ensureChecked(detailsButton, False)
+        return (built, failed)
+    # end of internal function
+
+    tv, builtAndFailedList = iterateQtVersions(False, __checkDebugLibsInternalFunc__, targVersion,
+                                               QtQuickConstants.getTargetsAsStrings(targets))
+    built = failed = 0
+    for current in builtAndFailedList:
+        if current[0]:
+            built += current[0]
+        if current[1]:
+            failed += current[1]
+    if failed > 0:
+        test.fail("%d of %d GDB Helper compilations failed." % (failed, failed+built))
+    else:
+        test.passes("%d GDB Helper found compiled or successfully built." % built)
+    return failed == 0
+
+# function that opens Options Dialog and parses the configured Qt versions
+# param keepOptionsOpen set to True if the Options dialog should stay open when
+#       leaving this function
+# param additionalFunction pass a function or name of a defined function to execute
+#       for each item on the list of Qt versions
+#       this function must take at least 2 parameters - the first is the target name
+#       and the second the version of the current selected Qt version item
+# param argsForAdditionalFunc you can specify as much parameters as you want to pass
+#       to additionalFunction from the outside
+# the function returns a list of dict holding target-version mappings if used without
+# additionalFunction
+# WATCH OUT! if you're using the additionalFunction parameter - this function will
+# return the list mentioned above as well as the returned value(s) from
+# additionalFunction. You MUST call this function like
+# result, additionalResult = _iterateQtVersions(...)
+# where additionalResult is the result of all executions of additionalFunction which
+# means it is a list of results.
+def iterateQtVersions(keepOptionsOpen=False, additionalFunction=None, *argsForAdditionalFunc):
+    result = []
+    additionalResult = []
     invokeMenuItem("Tools", "Options...")
     waitForObjectItem(":Options_QListView", "Build & Run")
     clickItem(":Options_QListView", "Build & Run", 14, 15, 0, Qt.LeftButton)
@@ -303,29 +410,21 @@ def getCorrectlyConfiguredTargets():
             if matches:
                 target = matches.group("target").strip()
                 version = matches.group("version").strip()
-                 # Dialog sometimes differs from targets' names
-                if target == "Maemo":
-                    target = "Maemo5"
-                elif target == "Symbian":
-                    target = "Symbian Device"
-                implicitTargets = [target]
-                if target == "Desktop" and platform.system() in ("Linux", "Darwin"):
-                    implicitTargets.append("Embedded Linux")
-                for currentTarget in implicitTargets:
-                    if currentTarget in result:
-                        oldV = result[currentTarget]
-                        if version not in oldV:
-                            oldV.append(version)
-                            result.update({currentTarget:oldV})
+                result.append({target:version})
+            if additionalFunction:
+                try:
+                    if isinstance(additionalFunction, (str, unicode)):
+                        currResult = globals()[additionalFunction](target, version, *argsForAdditionalFunc)
                     else:
-                        result.update({currentTarget:[version]})
-    clickButton(waitForObject(":Options.Cancel_QPushButton"))
-    test.log("Correctly configured targets: %s" % str(result))
-    return result
-
-def visibleCheckBoxExists(text):
-    try:
-        findObject("{type='QCheckBox' text='%s' visible='1'}" % text)
-        return True
-    except:
-        return False
+                        currResult = additionalFunction(target, version, *argsForAdditionalFunc)
+                except:
+                    currResult = None
+                    test.fatal("Function to additionally execute on Options Dialog could not be found or "
+                               "an exception occured while executing it.")
+                additionalResult.append(currResult)
+    if not keepOptionsOpen:
+        clickButton(waitForObject(":Options.Cancel_QPushButton"))
+    if additionalFunction:
+        return result, additionalResult
+    else:
+        return result
