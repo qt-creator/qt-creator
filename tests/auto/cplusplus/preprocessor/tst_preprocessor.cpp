@@ -290,6 +290,9 @@ private /* not corrected yet */:
     void macro_argument_expansion();
 
 private slots:
+    void defined();
+    void defined_data();
+
     void va_args();
     void named_va_args();
     void first_empty_macro_arg();
@@ -749,5 +752,61 @@ void tst_Preprocessor::includes_1()
     QCOMPARE(incs.at(3).line, 8U);
 }
 
+void tst_Preprocessor::defined()
+{
+    QFETCH(bool, xdefined);
+    QFETCH(bool, ydefined);
+    QFETCH(QString, input);
+    QByteArray output;
+    Environment env;
+    MockClient client(&env, &output);
+    Preprocessor pp(&client, &env);
+    pp.run(QLatin1String("<stdin>"), input.toLatin1(), false, true);
+    QList<QByteArray> expected;
+    if (xdefined)
+        expected.append("X");
+    if (ydefined)
+        expected.append("Y");
+    if (client.definedMacros() != expected)
+        qWarning() << "\nSource: " << input.replace('\n', "    ");
+    QCOMPARE(client.definedMacros(), expected);
+}
+
+void tst_Preprocessor::defined_data()
+{
+    QTest::addColumn<bool>("xdefined");
+    QTest::addColumn<bool>("ydefined");
+    QTest::addColumn<QString>("input");
+
+    QTest::newRow("1a") << true << true <<
+        "#define X\n#if defined(X)\n#define Y\n#endif";
+    QTest::newRow("1b") << true << true <<
+        "#define X\n#if defined X \n#define Y\n#endif";
+    QTest::newRow("1c") << true << true <<
+        "#define X\n#ifdef X \n#define Y\n#endif";
+
+    QTest::newRow("2a") << false << false <<
+        "#if defined(X)\n#define Y\n#endif";
+    QTest::newRow("2b") << false << false <<
+        "#if defined X \n#define Y\n#endif";
+    QTest::newRow("2c") << false << false <<
+        "#ifdef X \n#define Y\n#endif";
+
+    QTest::newRow("3a") << true << false <<
+        "#define X\n#if !defined(X)\n#define Y\n#endif";
+    QTest::newRow("3b") << true << false <<
+        "#define X\n#if !defined X \n#define Y\n#endif";
+    QTest::newRow("3c") << true << false <<
+        "#define X\n#ifndef X \n#define Y\n#endif";
+
+    QTest::newRow("4a") << false << true <<
+        "#if !defined(X)\n#define Y\n#endif";
+    QTest::newRow("4b") << false << true <<
+        "#if !defined X \n#define Y\n#endif";
+    QTest::newRow("4c") << false << true <<
+        "#ifndef X \n#define Y\n#endif";
+}
+
 QTEST_APPLESS_MAIN(tst_Preprocessor)
+
 #include "tst_preprocessor.moc"
