@@ -45,7 +45,7 @@ HEADERS +=\
 }
 
 *-g++ {
-    QMAKE_CFLAGS += -Wno-unused-but-set-variable
+    QMAKE_CFLAGS += -Wno-unused-but-set-variable -Wno-strict-aliasing
     QMAKE_CXXFLAGS += -Wno-unused-but-set-variable
 }
 
