@@ -195,6 +195,7 @@ QtcPlugin {
         "editormanager/ieditor.cpp",
         "editormanager/ieditor.h",
         "editormanager/ieditorfactory.h",
+        "editormanager/ieditorfactory.cpp",
         "editormanager/iexternaleditor.cpp",
         "editormanager/iexternaleditor.h",
         "editormanager/openeditorsmodel.cpp",

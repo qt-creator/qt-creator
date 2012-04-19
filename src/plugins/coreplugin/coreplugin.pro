@@ -36,6 +36,7 @@ SOURCES += mainwindow.cpp \
     editormanager/openeditorsmodel.cpp \
     editormanager/openeditorsview.cpp \
     editormanager/openeditorswindow.cpp \
+    editormanager/ieditorfactory.cpp \
     editormanager/iexternaleditor.cpp \
     actionmanager/actionmanager.cpp \
     actionmanager/command.cpp \
@@ -94,8 +95,7 @@ SOURCES += mainwindow.cpp \
     featureprovider.cpp \
     idocument.cpp \
     textdocument.cpp \
-    documentmanager.cpp \
-    ieditorfactory.cpp
+    documentmanager.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
