@@ -88,7 +88,8 @@ sub getDiffOrigin {
    return "$remoteRepo/$remoteBranch";
 }
 
-my $origin = getDiffOrigin;
+my $origin = shift;
+$origin = getDiffOrigin unless $origin;
 print "# running: git diff $origin ...\n";
 
 open(PIPE, "git diff $origin|");
