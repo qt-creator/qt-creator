@@ -177,8 +177,6 @@ private:
     inline void out(const ByteArrayRef &ref) const
     { if (m_state.m_result) m_state.m_result->append(ref.start(), ref.length()); }
 
-    QString string(const char *first, int len) const;
-
     PPToken generateToken(enum Kind kind, const char *content, int len, unsigned lineno, bool addQuotes);
     PPToken generateConcatenated(const PPToken &leftTk, const PPToken &rightTk);
 

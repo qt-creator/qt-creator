@@ -1526,15 +1526,6 @@ bool Preprocessor::isQtReservedWord(const ByteArrayRef &macroId)
     return false;
 }
 
-QString Preprocessor::string(const char *first, int length) const
-{
-    if (m_originalSource.isEmpty())
-        return QString::fromUtf8(first, length);
-
-    const int position = first - m_state.m_source.constData();
-    return m_originalSource.mid(position, length);
-}
-
 PPToken Preprocessor::generateToken(enum Kind kind, const char *content, int len, unsigned lineno, bool addQuotes)
 {
     const size_t pos = m_scratchBuffer.size();
