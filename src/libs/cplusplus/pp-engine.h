@@ -79,8 +79,8 @@ class CPLUSPLUS_EXPORT Preprocessor
 public:
     Preprocessor(Client *client, Environment *env);
 
-    QByteArray operator()(const QString &filename, const QString &source);
-    QByteArray operator()(const QString &filename, const QByteArray &source, bool noLines = false, bool markGeneratedTokens = true);
+    QByteArray run(const QString &filename, const QString &source);
+    QByteArray run(const QString &filename, const QByteArray &source, bool noLines = false, bool markGeneratedTokens = true);
 
     bool expandMacros() const;
     void setExpandMacros(bool expandMacros);

@@ -210,5 +210,5 @@ QByteArray TypeOfExpression::preprocessedExpression(const QByteArray &utf8code) 
     }
 
     Preprocessor preproc(0, m_environment.data());
-    return preproc("<expression>", utf8code);
+    return preproc.run("<expression>", utf8code);
 }

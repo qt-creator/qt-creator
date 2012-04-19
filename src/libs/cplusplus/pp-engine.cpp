@@ -583,17 +583,15 @@ Preprocessor::Preprocessor(Client *client, Environment *env)
 {
 }
 
-QByteArray Preprocessor::operator()(const QString &fileName, const QString &source)
+QByteArray Preprocessor::run(const QString &fileName, const QString &source)
 {
-    const QByteArray bytes = source.toLatin1();
-    const QByteArray preprocessedCode = operator()(fileName, bytes);
-    return preprocessedCode;
+    return run(fileName, source.toLatin1());
 }
 
-QByteArray Preprocessor::operator()(const QString &fileName,
-                                    const QByteArray &source,
-                                    bool noLines,
-                                    bool markGeneratedTokens)
+QByteArray Preprocessor::run(const QString &fileName,
+                             const QByteArray &source,
+                             bool noLines,
+                             bool markGeneratedTokens)
 {
     QByteArray preprocessed;
 //    qDebug()<<"running" << fileName<<"with"<<source.count('\n')<<"lines...";

@@ -55,7 +55,7 @@ QByteArray FastPreprocessor::run(QString fileName, const QString &source)
             mergeEnvironment(i.fileName());
     }
 
-    const QByteArray preprocessed = _preproc(fileName, source);
+    const QByteArray preprocessed = _preproc.run(fileName, source);
 //    qDebug("FastPreprocessor::run for %s produced [[%s]]", fileName.toUtf8().constData(), preprocessed.constData());
     return preprocessed;
 }
