@@ -624,28 +624,6 @@ void Preprocessor::setKeepComments(bool keepComments)
     m_keepComments = keepComments;
 }
 
-Preprocessor::State Preprocessor::createStateFromSource(const QString &fileName,
-                                                        const QByteArray &source,
-                                                        QByteArray *result,
-                                                        bool noLines,
-                                                        bool markGeneratedTokens,
-                                                        bool inCondition) const
-{
-    State state;
-    state.m_currentFileName = fileName;
-    state.m_source = source;
-    state.m_lexer = new Lexer(source.constBegin(), source.constEnd());
-    state.m_lexer->setScanKeywords(false);
-    state.m_lexer->setScanAngleStringLiteralTokens(false);
-    if (m_keepComments)
-        state.m_lexer->setScanCommentTokens(true);
-    state.m_result = result;
-    state.m_noLines = noLines;
-    state.m_markGeneratedTokens = markGeneratedTokens;
-    state.m_inCondition = inCondition;
-    return state;
-}
-
 void Preprocessor::genLine(unsigned lineno, const QByteArray &fileName) const
 {
     startNewOutputLine();
@@ -927,7 +905,19 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
         return;
 
     const State savedState = m_state;
-    m_state = createStateFromSource(fileName, source, result, noLines, markGeneratedTokens, inCondition);
+
+    m_state = State();
+    m_state.m_currentFileName = fileName;
+    m_state.m_source = source;
+    m_state.m_lexer = new Lexer(source.constBegin(), source.constEnd());
+    m_state.m_lexer->setScanKeywords(false);
+    m_state.m_lexer->setScanAngleStringLiteralTokens(false);
+    if (m_keepComments)
+        m_state.m_lexer->setScanCommentTokens(true);
+    m_state.m_result = result;
+    m_state.m_noLines = noLines;
+    m_state.m_markGeneratedTokens = markGeneratedTokens;
+    m_state.m_inCondition = inCondition;
 
     const QString previousFileName = m_env->currentFile;
     m_env->currentFile = fileName;

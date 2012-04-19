@@ -149,8 +149,6 @@ private:
 
     static bool isQtReservedWord(const ByteArrayRef &name);
 
-    State createStateFromSource(const QString &fileName, const QByteArray &source, QByteArray *result, bool noLines, bool markGeneratedTokens, bool inCondition) const;
-
     inline bool atStartOfOutputLine() const
     { return (m_state.m_result && !m_state.m_result->isEmpty()) ? m_state.m_result->end()[-1] == '\n' : true; }
 
