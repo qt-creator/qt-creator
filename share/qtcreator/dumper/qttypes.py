@@ -2373,6 +2373,41 @@ def qdump__Debugger__Internal__GdbMi(d, value):
     d.putByteArrayValue(value["m_data"])
     d.putPlainChildren(value)
 
+def qdump__CPlusPlus__ByteArrayRef(d, value):
+    d.putValue(encodeCharArray(value["m_start"], 100, value["m_length"]),
+        Hex2EncodedLatin1)
+    d.putPlainChildren(value)
+
+def qdump__CPlusPlus__Internal__Value(d, value):
+    d.putValue(value["l"])
+    d.putPlainChildren(value)
+
+def qdump__CPlusPlus__Token(d, value):
+    k = value["f"]["kind"];
+    if long(k) == 6:
+        d.putValue("T_IDENTIFIER. offset: %d, len: %d"
+            % (value["offset"], value["f"]["length"]))
+    elif long(k) == 7:
+        d.putValue("T_NUMERIC_LITERAL. offset: %d, value: %d"
+            % (value["offset"], value["f"]["length"]))
+    elif long(k) == 60:
+        d.putValue("T_RPAREN")
+    else:
+        d.putValue("Type: %s" % k)
+    d.putPlainChildren(value)
+
+def qdump__CPlusPlus__Internal__PPToken(d, value):
+    k = value["f"]["kind"];
+    data, size, alloc = qByteArrayData(value["m_src"])
+    length = long(value["f"]["length"])
+    offset = long(value["offset"])
+    #warn("size: %s, alloc: %s, offset: %s, length: %s, data: %s"
+    #    % (size, alloc, offset, length, data))
+    d.putValue(encodeCharArray(data + offset, 100, length),
+        Hex2EncodedLatin1)
+    d.putPlainChildren(value)
+
+
 #######################################################################
 #
 # Eigen
