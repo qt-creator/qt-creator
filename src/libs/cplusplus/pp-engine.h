@@ -82,10 +82,6 @@ public:
     QByteArray operator()(const QString &filename, const QString &source);
     QByteArray operator()(const QString &filename, const QByteArray &source, bool noLines = false, bool markGeneratedTokens = true);
 
-    void preprocess(const QString &filename,
-                    const QByteArray &source,
-                    QByteArray *result, bool noLines, bool markGeneratedTokens, bool inCondition);
-
     bool expandMacros() const;
     void setExpandMacros(bool expandMacros);
 
@@ -93,6 +89,10 @@ public:
     void setKeepComments(bool keepComments);
 
 private:
+    void preprocess(const QString &filename,
+                    const QByteArray &source,
+                    QByteArray *result, bool noLines, bool markGeneratedTokens, bool inCondition);
+
     enum { MAX_LEVEL = 512 };
 
     struct State {

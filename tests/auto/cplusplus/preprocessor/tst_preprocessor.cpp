@@ -204,8 +204,7 @@ public:
     {
         QByteArray src = loadSource(fileName);
         QVERIFY(!src.isEmpty());
-
-        m_pp.preprocess(fileName, src, m_output, nolines, true, false);
+        *m_output = m_pp(fileName, src, nolines, true);
     }
 
     QList<Block> skippedBlocks() const
