@@ -35,6 +35,18 @@ maketargetdir:
 makestagingdir:
 	test -e ${staging} || mkdir ${staging}
 
+checkunzip:
+	unzip -v &> /dev/null || mingw-get install msys-unzip
+
+${source}/python.zip: | makesourcedir checkwget
+	cd ${source} && \
+	wget http://download.qt.nokia.com/misc/gdb/7.4/build-prerequisits/python.zip && \
+	touch python.zip
+
+${broot}/python/python.exe: ${source}/python.zip | checkunzip
+	cd ${broot} && \
+	unzip ${source}/python.zip
+
 checkwget:
 	wget -V &> /dev/null || mingw-get install msys-wget-bin
 
@@ -76,7 +88,7 @@ ${staging}/lib/libexpat.a: ${source}/expat-${expatversion}.tar.gz | makestagingd
 	./configure -prefix=${staging} --enable-static && \
 	${MAKE} && ${MAKE} install
 
-${gdbtargets}: ${targetdir}/gdb-%: ${staging}/lib/libexpat.a ${staging}/lib/libiconv.a ${staging}/gdb-${version}/configure | maketargetdir
+${gdbtargets}: ${targetdir}/gdb-%: ${staging}/lib/libexpat.a ${staging}/lib/libiconv.a ${staging}/gdb-${version}/configure | maketargetdir ${broot}/python/python.exe
 	test -e ${staging}/gdb-${version}-$* || mkdir ${staging}/gdb-${version}-$*
 	export PYTHONHOME=${pydir} && \
 	LDFLAGS="L${pydir} -lpthread -ldl -lutil -lpython27" && \
@@ -90,12 +102,11 @@ ${gdbtargets}: ${targetdir}/gdb-%: ${staging}/lib/libexpat.a ${staging}/lib/libi
 	strip gdb/gdb.exe && \
 	cp -T gdb/gdb.exe ${targetdir}/gdb-$*.exe
 
-package: ${gdbtargets}
+package: ${gdbtargets} ${broot}/python/python.exe
 	cp ${staging}/bin/libiconv* ${targetdir} && \
 	cp ${staging}/bin/libexpat* ${targetdir} && \
 	cp ${pydir}/python*.dll ${targetdir} && \
 	cp -r ${pydir}/lib ${targetdir} && \
-	cp -r ${pydir}/include ${targetdir} && \
 	mv ${targetdir} ${targetdir}-${arch} && \
 	tar cvzf ${packagename} qtcreator-gdb-${version}-${arch} && \
 	mv ${targetdir}-${arch} ${targetdir}
