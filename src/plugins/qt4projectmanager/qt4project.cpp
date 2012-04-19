@@ -543,6 +543,8 @@ void Qt4Project::updateCppCodeModel()
             part->flags = tc->compilerFlags(pro->variableValue(CppFlagsVar));
 
         part->sourceFiles = pro->variableValue(CppSourceVar);
+        part->sourceFiles += pro->variableValue(CppHeaderVar);
+        part->sourceFiles.prepend(QLatin1String("<configuration>"));
         pinfo.appendProjectPart(part);
 
         allFiles += part->sourceFiles;

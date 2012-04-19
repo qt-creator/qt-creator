@@ -83,6 +83,7 @@ enum Qt4Variable {
     DefinesVar = 1,
     IncludePathVar,
     CppFlagsVar,
+    CppHeaderVar,
     CppSourceVar,
     ObjCSourceVar,
     UiDirVar,
