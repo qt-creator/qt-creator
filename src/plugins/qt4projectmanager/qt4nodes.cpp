@@ -1856,18 +1856,9 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         newVarValues[DefinesVar] = m_readerExact->values(QLatin1String("DEFINES"));
         newVarValues[IncludePathVar] = includePaths(m_readerExact);
         newVarValues[CppFlagsVar] = m_readerExact->values("QMAKE_CXXFLAGS");
-        newVarValues[CppHeaderVar] = m_readerExact->absoluteFileValues(QLatin1String("HEADERS"),
-                                                                       m_projectDir,
-                                                                       QStringList() << m_projectDir,
-                                                                       0);
-        newVarValues[CppSourceVar] = m_readerExact->absoluteFileValues(QLatin1String("SOURCES"),
-                                                                       m_projectDir,
-                                                                       QStringList() << m_projectDir,
-                                                                       0);
-        newVarValues[ObjCSourceVar] = m_readerExact->absoluteFileValues(QLatin1String("OBJECTIVE_SOURCES"),
-                                                                        m_projectDir,
-                                                                        QStringList() << m_projectDir,
-                                                                        0);
+        newVarValues[CppHeaderVar] = fileListForVar(m_readerExact, m_readerCumulative, QLatin1String("HEADERS"), m_projectDir);
+        newVarValues[CppSourceVar] = fileListForVar(m_readerExact, m_readerCumulative, QLatin1String("SOURCES"), m_projectDir);
+        newVarValues[ObjCSourceVar] = fileListForVar(m_readerExact, m_readerCumulative, QLatin1String("OBJECTIVE_SOURCES"), m_projectDir);
         newVarValues[UiDirVar] = QStringList() << uiDirPath(m_readerExact);
         newVarValues[MocDirVar] = QStringList() << mocDirPath(m_readerExact);
         newVarValues[PkgConfigVar] = m_readerExact->values(QLatin1String("PKGCONFIG"));
@@ -1916,6 +1907,23 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
 
     m_readerExact = 0;
     m_readerCumulative = 0;
+}
+
+QStringList Qt4ProFileNode::fileListForVar(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative,
+                                           const QString &varName, const QString &projectDir) const
+{
+    QStringList result;
+    result = readerExact->absoluteFileValues(varName,
+                                             projectDir,
+                                             QStringList() << projectDir,
+                                             0);
+    if (readerCumulative)
+        result += readerCumulative->absoluteFileValues(varName,
+                                                       projectDir,
+                                                       QStringList() << projectDir,
+                                                       0);
+    result.removeDuplicates();
+    return result;
 }
 
 // This function is triggered after a build, and updates the state ui files
