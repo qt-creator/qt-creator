@@ -51,6 +51,7 @@
 
 #include "PreprocessorEnvironment.h"
 #include "Macro.h"
+#include <QDebug>
 #include <cstring>
 
 using namespace CPlusPlus;
@@ -270,5 +271,13 @@ void Environment::rehash()
         const unsigned h = m->_hashcode % _hash_count;
         m->_next = _hash[h];
         _hash[h] = m;
+    }
+}
+
+void Environment::dump() const
+{
+    for (iterator it = firstMacro(); it != lastMacro(); ++it) {
+        Macro *m = *it;
+        qDebug() << m->decoratedName();
     }
 }

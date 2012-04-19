@@ -86,6 +86,7 @@ public:
     void addMacros(const QList<Macro> &macros);
 
     static bool isBuiltinMacro(const ByteArrayRef &name);
+    void dump() const;
 
 private:
     static unsigned hashCode(const QByteArray &s);
