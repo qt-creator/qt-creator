@@ -120,6 +120,7 @@ public:
     bool isOk();
     QString errorMsg();
     void setError(bool failure, const QString &eMsg);
+    int maxErrors() const;
 
     static Ptr createEmbeddedLib(const QString &daemonPath, const Ptr &fallback = Ptr(0));
     static Ptr createDnsSdLib(const QString &libName, const Ptr &fallback = Ptr(0));
@@ -127,6 +128,7 @@ public:
 protected:
     bool m_isOk;
     QString m_errorMsg;
+    int m_maxErrors;
 };
 
 /// class that gathers all needed info on a service, all its methods (creation included) are

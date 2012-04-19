@@ -153,9 +153,10 @@ Q_GLOBAL_STATIC(ZeroConfLib, zeroConfLibInstance)
 #endif
 
 ZeroConfLib::ZeroConfLib(): m_lock(QMutex::Recursive),
-    m_defaultLib(ZConfLib::createAvahiLib(QLatin1String("avahi-client"),QLatin1String("3"),
-                 ZConfLib::createDnsSdLib(QLatin1String(defaultmDnsSdLibName),
-                 ZConfLib::createEmbeddedLib(QLatin1String(defaultmDNSDaemonName)))))
+    m_defaultLib(ZConfLib::createDnsSdLib(QLatin1String(defaultmDnsSdLibName),
+                 ZConfLib::createEmbeddedLib(QString(),
+                 ZConfLib::createAvahiLib(QLatin1String("avahi-client"),QLatin1String("3"),
+                 ZConfLib::createEmbeddedLib(QLatin1String(defaultmDNSDaemonName))))))
 {
     qRegisterMetaType<ZeroConf::Service::ConstPtr>("ZeroConf::Service::ConstPtr");
     qRegisterMetaType<ZeroConf::ErrorMessage::SeverityLevel>("ZeroConf::ErrorMessage::SeverityLevel");
@@ -1752,7 +1753,7 @@ void MainConnection::createConnection()
                 appendError(ErrorMessage::WarningLevel, tr("MainConnection using lib %1 failed the initialization of mainRef with error %2")
                                         .arg(lib->name()).arg(error));
                 ++m_nErrs;
-                if (m_nErrs > 10 || !lib->isOk())
+                if (m_nErrs > lib->maxErrors() || !lib->isOk())
                     abortLib();
             } else {
                 QList<ServiceBrowserPrivate *> waitingBrowsers;
@@ -1772,7 +1773,7 @@ void MainConnection::createConnection()
         } else if (err == kDNSServiceErr_ServiceNotRunning) {
             appendError(ErrorMessage::WarningLevel, tr("MainConnection using lib %1 failed because no daemon is running")
                                     .arg(lib->name()));
-            if (m_nErrs > 5 || !lib->isOk()) {
+            if (m_nErrs > lib->maxErrors()/2 || !lib->isOk()) {
                 abortLib();
             } else if (lib->tryStartDaemon()) {
                 ++m_nErrs;
@@ -1791,7 +1792,7 @@ void MainConnection::createConnection()
     }
     if (status() < Stopping)
         appendError(ErrorMessage::NoteLevel,
-                    tr("MainConncetion could sucessfully create a connection using lib %1")
+                    tr("MainConnection could successfully create a connection using lib %1")
                     .arg(lib->name()));
 }
 
@@ -1940,7 +1941,7 @@ QString ZConfLib::name(){
     return QString::fromLatin1("ZeroConfLib@%1").arg(size_t(this), 0, 16);
 }
 
-ZConfLib::ZConfLib(ZConfLib::Ptr f) : fallbackLib(f), m_isOk(true)
+ZConfLib::ZConfLib(ZConfLib::Ptr f) : fallbackLib(f), m_isOk(true), m_maxErrors(8)
 { }
 
 ZConfLib::~ZConfLib()
@@ -1960,6 +1961,11 @@ void ZConfLib::setError(bool failure, const QString &eMsg)
 {
     m_errorMsg = eMsg;
     m_isOk = !failure;
+}
+
+int ZConfLib::maxErrors() const
+{
+    return m_maxErrors;
 }
 
 ZConfLib::RunLoopStatus ZConfLib::processOneEvent(MainConnection *mainConnection,

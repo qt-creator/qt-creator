@@ -70,6 +70,8 @@ public:
     EmbeddedZConfLib(const QString &daemonPath, ZConfLib::Ptr fallBack) : ZConfLib(fallBack),
         daemonPath(daemonPath)
     {
+        if (daemonPath.isEmpty())
+            m_maxErrors = 0;
         if (!daemonPath.isEmpty() && daemonPath.at(0) != '/' && daemonPath.at(0) != '.')
             this->daemonPath = QCoreApplication::applicationDirPath() + QChar('/') + daemonPath;
     }
