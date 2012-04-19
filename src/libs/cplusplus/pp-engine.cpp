@@ -636,6 +636,7 @@ void Preprocessor::genLine(unsigned lineno, const QByteArray &fileName) const
 
 void Preprocessor::handleDefined(PPToken *tk)
 {
+    ScopedBoolSwap s(m_state.m_inPreprocessorDirective, true);
     unsigned lineno = tk->lineno;
     lex(tk); // consume "defined" token
     bool lparenSeen = tk->is(T_LPAREN);
@@ -698,8 +699,7 @@ _Lclassify:
             } while (isValidToken(*tk));
             goto _Lclassify;
         } else if (tk->is(T_IDENTIFIER) && !isQtReservedWord(tk->asByteArrayRef())) {
-            static const QByteArray ppDefined("defined");
-            if (m_state.m_inCondition && tk->asByteArrayRef() == ppDefined)
+            if (m_state.m_inCondition && tk->asByteArrayRef() == "defined")
                 handleDefined(tk);
             else if (handleIdentifier(tk))
                 goto _Lagain;
