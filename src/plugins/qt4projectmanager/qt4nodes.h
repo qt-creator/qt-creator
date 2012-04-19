@@ -118,7 +118,6 @@ using ProjectExplorer::FileType;
 
 namespace Internal {
 class Qt4UiCodeModelSupport;
-class ProFileReader;
 class Qt4PriFile;
 struct InternalNode;
 }
