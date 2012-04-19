@@ -583,20 +583,6 @@ Preprocessor::Preprocessor(Client *client, Environment *env)
 {
 }
 
-void Preprocessor::pushState(const State &newState)
-{
-    m_savedStates.append(m_state);
-    m_state = newState;
-}
-
-void Preprocessor::popState()
-{
-    const State &s = m_savedStates.last();
-    delete m_state.m_lexer;
-    m_state = s;
-    m_savedStates.removeLast();
-}
-
 QByteArray Preprocessor::operator()(const QString &fileName, const QString &source)
 {
     const QString previousOriginalSource = m_originalSource;
@@ -940,7 +926,8 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
     if (source.isEmpty())
         return;
 
-    pushState(createStateFromSource(fileName, source, result, noLines, markGeneratedTokens, inCondition));
+    const State savedState = m_state;
+    m_state = createStateFromSource(fileName, source, result, noLines, markGeneratedTokens, inCondition);
 
     const QString previousFileName = m_env->currentFile;
     m_env->currentFile = fileName;
@@ -1030,7 +1017,8 @@ _Lrestart:
         prevTk = tk;
     } while (tk.isNot(T_EOF_SYMBOL));
 
-    popState();
+    delete m_state.m_lexer;
+    m_state = savedState;
 
     m_env->currentFile = previousFileName;
     m_env->currentLine = previousCurrentLine;

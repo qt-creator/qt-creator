@@ -149,9 +149,6 @@ private:
 
     static bool isQtReservedWord(const ByteArrayRef &name);
 
-    void pushState(const State &newState);
-    void popState();
-
     State createStateFromSource(const QString &fileName, const QByteArray &source, QByteArray *result, bool noLines, bool markGeneratedTokens, bool inCondition) const;
 
     inline bool atStartOfOutputLine() const
@@ -186,8 +183,6 @@ private:
     Client *m_client;
     Environment *m_env;
     QByteArray m_scratchBuffer;
-
-    QList<State> m_savedStates;
 
     QString m_originalSource;
     bool m_expandMacros;
