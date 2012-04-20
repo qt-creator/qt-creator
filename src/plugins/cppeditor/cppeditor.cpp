@@ -1805,15 +1805,6 @@ bool CPPEditorWidget::openCppEditorAt(const Link &link)
     if (link.fileName.isEmpty())
         return false;
 
-    if (baseTextDocument()->fileName() == link.fileName) {
-        Core::EditorManager *editorManager = Core::EditorManager::instance();
-        editorManager->cutForwardNavigationHistory();
-        editorManager->addCurrentPositionToNavigationHistory();
-        gotoLine(link.line, link.column);
-        setFocus();
-        return true;
-    }
-
     return TextEditor::BaseTextEditorWidget::openEditorAt(link.fileName,
                                                     link.line,
                                                     link.column,
