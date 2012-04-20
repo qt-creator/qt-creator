@@ -29,6 +29,8 @@ extraimages.HTML        = qt-logo.png \
                           bg_r.png \
                           box_bg.png \
                           breadcrumb.png \
+                          btn_next_green.png \
+                          btn_prev_green.png \
                           bullet_gt.png \
                           bullet_dn.png \
                           bullet_sq.png \
