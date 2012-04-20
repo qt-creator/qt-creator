@@ -46,6 +46,8 @@
 #include "stashdialog.h"
 #include "settingspage.h"
 
+#include <gerritplugin.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
@@ -566,7 +568,9 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_redoAction = new QAction(tr("&Redo"), this);
     command = actionManager->registerAction(m_redoAction, Core::Constants::REDO, submitContext);
 
-    return true;
+
+    Gerrit::Internal::GerritPlugin *gp = new Gerrit::Internal::GerritPlugin(this);
+    return gp->initialize(gitContainer);
 }
 
 GitVersionControl *GitPlugin::gitVersionControl() const

@@ -64,5 +64,4 @@ include(gitorious/gitorious.pri)
 RESOURCES += \
     git.qrc
 
-
-
+include(gerrit/gerrit.pri)

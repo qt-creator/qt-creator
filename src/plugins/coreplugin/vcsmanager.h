@@ -68,6 +68,9 @@ public:
     void resetVersionControlForDirectory(const QString &inputDirectory);
     IVersionControl *findVersionControlForDirectory(const QString &directory,
                                                     QString *topLevelDirectory = 0);
+
+    QStringList repositories(const IVersionControl *) const;
+
     IVersionControl *checkout(const QString &versionControlType,
                               const QString &directory,
                               const QByteArray &url);

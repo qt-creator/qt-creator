@@ -17,6 +17,7 @@ QtcPlugin {
     cpp.includePaths: [
         ".",
         "gitorious",
+        "gerrit",
         "..",
         "../../libs",
         buildDirectory
@@ -94,6 +95,21 @@ QtcPlugin {
         "gitorious/gitoriousprojectwizardpage.h",
         "gitorious/gitoriousrepositorywizardpage.cpp",
         "gitorious/gitoriousrepositorywizardpage.h"
+        ]
+    }
+
+    Group {
+        files: [
+        "gerrit/gerritdialog.cpp",
+        "gerrit/gerritdialog.h",
+        "gerrit/gerritmodel.cpp",
+        "gerrit/gerritmodel.h",
+        "gerrit/gerritoptionspage.cpp",
+        "gerrit/gerritoptionspage.h",
+        "gerrit/gerritparameters.cpp",
+        "gerrit/gerritparameters.h",
+        "gerrit/gerritplugin.cpp",
+        "gerrit/gerritplugin.h"
         ]
     }
 }

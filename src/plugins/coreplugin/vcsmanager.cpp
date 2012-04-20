@@ -262,6 +262,15 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     return allThatCanManage.first().second;
 }
 
+QStringList VcsManager::repositories(const IVersionControl *vc) const
+{
+    QStringList result;
+    foreach (const VcsManagerPrivate::VcsInfo *vi, d->m_vcsInfoList)
+        if (vi->versionControl == vc)
+            result.push_back(vi->topLevel);
+    return result;
+}
+
 bool VcsManager::promptToDelete(const QString &fileName)
 {
     if (IVersionControl *vc = findVersionControlForDirectory(QFileInfo(fileName).absolutePath()))
