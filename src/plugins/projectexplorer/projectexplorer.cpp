@@ -119,6 +119,7 @@
 #include <QtPlugin>
 #include <QDateTime>
 #include <QDebug>
+#include <QFileInfo>
 #include <QSettings>
 
 #if QT_VERSION < 0x050000
@@ -944,8 +945,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                 s->value(QLatin1String("ProjectExplorer/Settings/MergeStdErrAndStdOut"), false).toBool();
         d->m_projectExplorerSettings.wrapAppOutput =
                 s->value(QLatin1String("ProjectExplorer/Settings/WrapAppOutput"), true).toBool();
+        QFileInfo jom = QFileInfo(MsvcToolChain::findInstalledJom());
+        if (!jom.exists())
+            jom.setFile(Utils::Environment::systemEnvironment().searchInPath(QLatin1String("jom.exe")));
         d->m_projectExplorerSettings.useJom =
-                s->value(QLatin1String("ProjectExplorer/Settings/UseJom"), true).toBool();
+                s->value(QLatin1String("ProjectExplorer/Settings/UseJom"), jom.exists()).toBool();
         d->m_projectExplorerSettings.autorestoreLastSession =
                 s->value(QLatin1String("ProjectExplorer/Settings/AutoRestoreLastSession"), false).toBool();
         d->m_projectExplorerSettings.prompToStopRunControl =
