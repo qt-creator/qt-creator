@@ -95,8 +95,8 @@ namespace Internal {
 class CppClassLabel : public QLabel
 {
 public:
-    CppClassLabel(CPPEditorWidget *editor, QWidget *parent)
-        : QLabel(parent), m_editor(editor)
+    CppClassLabel(QWidget *parent)
+        : QLabel(parent)
     {}
 
     void setup(CppClass *cppClass)
@@ -108,10 +108,15 @@ public:
 private:
     void mousePressEvent(QMouseEvent *)
     {
-        m_editor->openLink(m_link);
+        if (m_link.fileName.isEmpty())
+            return;
+
+        TextEditor::BaseTextEditorWidget::openEditorAt(m_link.fileName,
+                                                       m_link.line,
+                                                       m_link.column,
+                                                       Constants::CPPEDITOR_ID);
     }
 
-    CPPEditorWidget *m_editor;
     CPPEditorWidget::Link m_link;
 };
 
@@ -133,7 +138,7 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget(Core::IEditor *editor) :
     if (CPPEditor *cppEditor = qobject_cast<CPPEditor *>(editor)) {
         m_cppEditor = static_cast<CPPEditorWidget *>(cppEditor->widget());
 
-        m_inspectedClass = new CppClassLabel(m_cppEditor, this);
+        m_inspectedClass = new CppClassLabel(this);
         m_inspectedClass->setMargin(5);
         layout->addWidget(m_inspectedClass);
         m_model = new QStandardItemModel(this);
