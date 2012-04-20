@@ -88,7 +88,7 @@ void GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged()
 void GenericLinuxDeviceConfigurationWidget::hostNameEditingFinished()
 {
     SshConnectionParameters sshParams = deviceConfiguration()->sshParameters();
-    sshParams.host = m_ui->hostLineEdit->text();
+    sshParams.host = m_ui->hostLineEdit->text().trimmed();
     deviceConfiguration()->setSshParameters(sshParams);
 }
 
