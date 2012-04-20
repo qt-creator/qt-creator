@@ -2086,6 +2086,16 @@ def qdump____gnu_cxx__hash_set(d, value):
 #
 #######################################################################
 
+def qdump__boost__bimaps__bimap(d, value):
+    leftType = templateArgument(value.type, 0)
+    rightType = templateArgument(value.type, 1)
+    size = value["core"]["node_count"]
+    d.putItemCount(size)
+    d.putNumChild(size)
+    #if d.isExpanded():
+    d.putPlainChildren(value)
+
+
 def qdump__boost__optional(d, value):
     if value["m_initialized"] == False:
         d.putValue("<uninitialized>")
@@ -2098,6 +2108,7 @@ def qdump__boost__optional(d, value):
             d.putItem(storage.cast(type.target().pointer()).dereference())
         else:
             d.putItem(storage.cast(type))
+
 
 def qdump__boost__shared_ptr(d, value):
     # s                  boost::shared_ptr<int>

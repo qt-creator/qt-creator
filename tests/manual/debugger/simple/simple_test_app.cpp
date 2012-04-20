@@ -206,6 +206,7 @@ void dummyStatement(...) {}
 #include <boost/date_time.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/bimap.hpp>
 #endif
 
 #if USE_EIGEN
@@ -5275,6 +5276,24 @@ namespace boost {
         dummyStatement(&d1, &d2, &d3);
     }
 
+    void testBoostBimap()
+    {
+        typedef boost::bimap<int, int> B;
+        B b;
+        BREAK_HERE;
+        // Check b <0 items> boost::B.
+        // Continue.
+        b.left.insert(B::left_value_type(1, 2));
+        BREAK_HERE;
+        // Check b <1 items> boost::B.
+        // Continue.
+        B::left_const_iterator it = b.left.begin();
+        int l = it->first;
+        int r = it->second;
+        // Continue.
+        dummyStatement(&b, &l, &r);
+    }
+
     void testBoostPosixTimePtime()
     {
         using namespace boost;
@@ -5303,6 +5322,7 @@ namespace boost {
         testBoostPosixTimeTimeDuration();
         testBoostPosixTimePtime();
         testBoostGregorianDate();
+        testBoostBimap();
     }
 
     #else
