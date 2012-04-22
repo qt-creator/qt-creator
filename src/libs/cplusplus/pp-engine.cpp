@@ -543,6 +543,7 @@ Preprocessor::State::State()
     m_trueTest[m_ifLevel] = false;
 }
 
+//#define COMPRESS_TOKEN_BUFFER
 void Preprocessor::State::pushTokenBuffer(const PPToken *start, const PPToken *end, const Macro *macro)
 {
     if (m_tokenBufferDepth <= MAX_TOKEN_BUFFER_DEPTH) {
@@ -554,14 +555,14 @@ void Preprocessor::State::pushTokenBuffer(const PPToken *start, const PPToken *e
         } else {
             m_tokenBuffer->tokens.insert(m_tokenBuffer->tokens.begin(), start, end);
         }
-//        qDebug()<<"New depth:" << m_tokenBufferDepth << "with buffer size:" << m_tokenBuffer->tokens.size();
+        unsigned tkCount = 0;
+        for (TokenBuffer *it = m_tokenBuffer; it; it = m_tokenBuffer->next)
+            tkCount += it->tokens.size();
+        qDebug()<<"New depth:" << m_tokenBufferDepth << "with total token count:" << tkCount;
 #else
         m_tokenBuffer = new TokenBuffer(start, end, macro, m_tokenBuffer);
         ++m_tokenBufferDepth;
 #endif
-    } else {
-        //### Should we tell the user that his source is insane?
-//        qDebug() << "Macro insanity level reached in" << m_currentFileName;
     }
 }
 
