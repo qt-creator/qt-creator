@@ -96,8 +96,11 @@ public:
     const QByteArray &source() const
     { return m_src; }
 
-    const char *start() const
-    { return m_src.constData() + offset; }
+    const char *bufferStart() const
+    { return m_src.constData(); }
+
+    const char *tokenStart() const
+    { return bufferStart() + offset; }
 
     ByteArrayRef asByteArrayRef() const
     { return ByteArrayRef(&m_src, offset, length()); }

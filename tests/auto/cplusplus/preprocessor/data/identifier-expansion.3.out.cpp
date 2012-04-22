@@ -11,7 +11,7 @@ op_ADD, op_SUB,
 static const char *names[] = {
 #gen true
 # 2 "data/identifier-expansion.3.cpp"
-            "ADD"
+"ADD"
 
 
 ,
