@@ -15,6 +15,13 @@ General
    * Add Execute filter to the locator, for executing external commands [by
      Yuchen Deng]
 
+Experimental Plugins
+   * Show todo items in files [by Dmitry Savchenko initial version by
+     Vasiliy Sorokin]
+   * Support for autotools-based projects [by Patricia Santana Cruz]
+
+   Go to Help->About plugins to enable these!
+
 Editing
    * Use the QML/JS editor for opening json files (QTCREATORBUG-4639)
    * Add basic JSON validation according to the draft at
@@ -32,8 +39,6 @@ Editing
    * Fix layout update when folding/unfolding regions (QTCREATORBUG-6666)
    * Fix position of code-assist popup when cursor is outside viewport
      (QTCREATORBUG-6843)
-   * Add experimental plugin for showing "TODO"s in files
-     [by Dmitry Savchenko, initial version by Vasiliy Sorokin]
    * Add "Open with" context menu in resource editor (QTCREATORBUG-4224)
    * Add task indicators in the left margin of a line
 
@@ -166,7 +171,41 @@ FakeVim
 Version control plugins
    * Rename the ScmGit plugin to Git
    * Rename the VCSBase plugin to VcsBase
+   * URL and email support in log editors [by Hugues Delorme]
+   * Completion of classes, files, methods and namespace in commit message
+     editor [by Hugues Delorme]
+   * Show icons for files in submit editor [by Hugues Delorme]
 
 
 Additional credits go to:
+   Adam Treat (editor improvements)
+   Andre Hartmann (generic project improvements)
+   Axsia (translation)
+   Bai Jing (translation)
+   Bojan Petrovic (C++ quickfix)
+   Campbell Barton (color scheme fix)
+   cnavarro (debugger fix)
+   Denis Mingulov (Qt5 related fix, debugger fixes, editor fix)
+   Dmitry Savchenko (todo plugin)
+   Element9 (C++ quickfix)
+   Felix Geyer (debugger fix)
+   Flex Ferrum (C++0x improvements)
+   Francois Ferrand (Generic Project improvements, C++ improvements)
+   Hugues Delorme (version control system improvements and fixes)
+   Jan Kerekes (unit testing)
+   Joe Hermaszewski (debugging impromevents)
+   Konstantin Tokarev (generic project fix, Mac related fix)
+   Martin Aumüller (fakevim fix)
+   Nicolas Arnaud-Cormos (many fixes, analyzer work)
+   Orgad Shaneh (*many* bug fixes and lots of polish)
+   Patricia Santana Cruz (autotools plugin)
+   Ruben Van Boxem (mingw fixes)
+   Sergey Belyashov (cmake translation fix)
+   Steve King (WinCE support fixed)
+   Tobias Nätterlund (small improment to wizards, QNX work)
+   tomdeblauwe (whitespace fixes)
+   Tommi Asp (C++ fix, Symbian fixes)
+   Vasiliy Sorokin (todo plugin)
+   Victor Ostashevsky (bug fixes and translations)
+   Yuchen Deng (*many* bug fixes, exectute command support for the locator)
 
