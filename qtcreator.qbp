@@ -122,6 +122,7 @@ Project {
         name: "qtcreator"
         type: ["application", "installed_content"]
         destination: "bin"
+        consoleApplication: qbs.debugInformation
 
         cpp.rpaths: ["$ORIGIN/../lib"]
         cpp.defines: project.additionalCppDefines
