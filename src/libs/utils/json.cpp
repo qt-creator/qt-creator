@@ -40,6 +40,8 @@
 #include <QFile>
 #include <QStringBuilder>
 #include <QDebug>
+#include <QVariant>
+#include <QScriptEngine>
 
 using namespace Utils;
 

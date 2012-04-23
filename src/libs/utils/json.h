@@ -37,14 +37,10 @@
 
 #include <QHash>
 #include <QVector>
-#include <QScopedPointer>
-#include <QVariant>
 #include <QStringList>
-#include <QLatin1String>
 #include <QDateTime>
-#include <QScriptEngine>
-#include <QScriptValue>
-#include <QScriptValueIterator>
+
+QT_FORWARD_DECLARE_CLASS(QVariant)
 
 namespace Utils {
 
