@@ -34,11 +34,12 @@
 
 #include "servicebrowser_p.h"
 
+#include <QCoreApplication>
+#include <QDebug>
+#include <QFileInfo>
 #include <QString>
 #include <QStringList>
 #include <QProcess>
-#include <QCoreApplication>
-#include <QDebug>
 
 #ifdef Q_OS_LINUX
 #define EMBEDDED_LIB
@@ -87,6 +88,28 @@ public:
     bool tryStartDaemon()
     {
         if (!daemonPath.isEmpty()) {
+            QFileInfo dPath(daemonPath);
+            QProcess killall;
+            bool killAllFailed = false;
+#ifdef Q_OS_WIN
+            QString cmd = QLating1String("taskill /im ") + dPath.fileName()
+                    + QLatin1String(" /f /t");
+#else
+            QString cmd = QLatin1String("killall ") + dPath.fileName()
+                    + QLatin1String(" 2> /dev/null");
+#endif
+            killall.start(cmd);
+            if (!killall.waitForStarted()) {
+                killAllFailed = true;
+            } else {
+                killall.closeWriteChannel();
+                killall.waitForFinished();
+            }
+            if (killAllFailed) {
+                this->setError(false,ZConfLib::tr("zeroconf failed to kill other daemons with '%1'").arg(cmd));
+                if (DEBUG_ZEROCONF)
+                    qDebug() << name() << " had an error trying to kill other daemons with " << cmd;
+            }
             if (QProcess::startDetached(daemonPath)) {
                 QThread::yieldCurrentThread();
                 // sleep a bit?
