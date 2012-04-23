@@ -114,7 +114,8 @@ void QtOptionsPage::apply()
         return;
     m_widget->finish();
 
-    m_widget->apply();
+    QtVersionManager *vm = QtVersionManager::instance();
+    vm->setNewQtVersions(m_widget->versions());
 }
 
 bool QtOptionsPage::matches(const QString &s) const
@@ -982,18 +983,6 @@ void QtOptionsPageWidget::finish()
 {
     if (QTreeWidgetItem *item = m_ui->qtdirList->currentItem())
         fixQtVersionName(indexForTreeItem(item));
-}
-
-void QtOptionsPageWidget::apply()
-{
-    disconnect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
-            this, SLOT(updateQtVersions(QList<int>,QList<int>,QList<int>)));
-
-    QtVersionManager *vm = QtVersionManager::instance();
-    vm->setNewQtVersions(versions());
-
-    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
-            this, SLOT(updateQtVersions(QList<int>,QList<int>,QList<int>)));
 }
 
 /* Checks that the qt version name is unique
