@@ -140,7 +140,11 @@ public:
 #endif
         if (m_isOk && m_getAddrInfo == 0) {
             m_isOk = false;
+#ifdef Q_OS_LINUX
+            m_errorMsg = tr("DnsSdZConfLib skipping over avahi compatibility lib (or obsolete mdnsd)");
+#else
             m_errorMsg = tr("*WARNING* DnsSdZConfLib detected an obsolete version of Apple Bonjour, either disable/uninstall it or upgrade it. Otherwise zeroconf will fail.");
+#endif
         }
         if (DEBUG_ZEROCONF){
             if (m_refDeallocate == 0) qDebug() << QLatin1String("DnsSdZConfLib.m_refDeallocate == 0");
