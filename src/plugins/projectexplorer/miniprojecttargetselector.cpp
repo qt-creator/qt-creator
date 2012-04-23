@@ -198,7 +198,7 @@ void ListWidget::keyPressEvent(QKeyEvent *event)
 
 void ListWidget::keyReleaseEvent(QKeyEvent *event)
 {
-    if (event->key() != Qt::LeftArrow && event->key() != Qt::RightArrow)
+    if (event->key() != Qt::Key_Left && event->key() != Qt::Key_Right)
         QListWidget::keyReleaseEvent(event);
 }
 
