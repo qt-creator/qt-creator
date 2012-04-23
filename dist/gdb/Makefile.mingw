@@ -82,7 +82,7 @@ ${gdbtargets}: ${targetdir}/gdb-%: ${staging}/lib/libexpat.a ${staging}/lib/libi
 	LDFLAGS="L${pydir} -lpthread -ldl -lutil -lpython27" && \
 	CFLAGS="-I${pydir}/include" && \
 	cd ${staging}/gdb-${version}-$* && \
-	${staging}/gdb-${version}/configure --target=$* --disable-nls \
+	${staging}/gdb-${version}/configure --target=$* --disable-nls --disable-werror\
 	--with-libiconv-prefix=${staging} \
 	--with-expat --with-libexpat-prefix=${staging} \
 	--with-python=${pydir} &&\

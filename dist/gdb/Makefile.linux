@@ -72,7 +72,7 @@ ${gdbtargets}: ${targetdir}/gdb-%: ${staging}/gdb-${version}/configure ${staging
 	export PATH="${staging}/bin/:$$PATH" && \
 	export LDFLAGS="-pthread -lm" && \
 	cd ${staging}/gdb-${version}-$* && \
-	${staging}/gdb-${version}/configure --disable-nls --target=$* --with-python=${staging} --with-libexpat-prefix=${staging} && \
+	${staging}/gdb-${version}/configure --disable-nls --target=$* --disable-werror --with-python=${staging} --with-libexpat-prefix=${staging} && \
 	sleep 3 && \
 	${MAKE} MAKEFLAGS+=-j1 && \
 	strip gdb/gdb && \
@@ -84,7 +84,7 @@ ${targetdir}/gdb: ${staging}/gdb-${version}/configure ${staging}/lib/libpython${
 	export PATH="${staging}/bin/:$$PATH" && \
 	export LDFLAGS="-pthread -lm" && \
 	cd ${staging}/gdb-${version}-${arch} && \
-	${staging}/gdb-${version}/configure --disable-nls --with-python=${staging} --with-libexpat-prefix=${staging} && \
+	${staging}/gdb-${version}/configure --disable-nls --disable-werror --with-python=${staging} --with-libexpat-prefix=${staging} && \
 	${MAKE} MAKEFLAGS+=-j1 && \
 	strip gdb/gdb && \
 	cp -T gdb/gdb ${targetdir}/gdb
