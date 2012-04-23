@@ -50,4 +50,3 @@ def changeAutocompleteToManual():
     selectFromCombo(":Behavior.completionTrigger_QComboBox", "Manually")
     verifyEnabled(":Options.OK_QPushButton")
     clickButton(waitForObject(":Options.OK_QPushButton"))
-
