@@ -1042,6 +1042,15 @@ void MiniProjectTargetSelector::nextOrShow()
     }
 }
 
+void MiniProjectTargetSelector::keyPressEvent(QKeyEvent *ke)
+{
+    if (ke->key() == Qt::Key_Return
+            || ke->key() == Qt::Key_Enter
+            || ke->key() == Qt::Key_Space)
+        hide();
+    QWidget::keyPressEvent(ke);
+}
+
 void MiniProjectTargetSelector::keyReleaseEvent(QKeyEvent *ke)
 {
     if (m_hideOnRelease) {
@@ -1053,6 +1062,10 @@ void MiniProjectTargetSelector::keyReleaseEvent(QKeyEvent *ke)
             m_hideOnRelease = false;
         }
     }
+    if (ke->key() == Qt::Key_Return
+            || ke->key() == Qt::Key_Enter
+            || ke->key() == Qt::Key_Space)
+        return;
     QWidget::keyReleaseEvent(ke);
 }
 

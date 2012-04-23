@@ -113,6 +113,7 @@ public:
     explicit MiniProjectTargetSelector(QAction *projectAction, SessionManager *sessionManager, QWidget *parent = 0);
     void setVisible(bool visible);
 
+    void keyPressEvent(QKeyEvent *ke);
     void keyReleaseEvent(QKeyEvent *ke);
     QSize sizeHint() const;
 public slots:
