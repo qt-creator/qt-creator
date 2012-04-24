@@ -35,7 +35,9 @@
 
 #include <QMainWindow>
 
+QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
+QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow
 {
