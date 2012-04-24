@@ -41,14 +41,14 @@
 
 #include "customcolordialog.h"
 
+using namespace QmlDebug;
+
 namespace Utils {
 class SavedAction;
 }
 
 namespace QmlJSInspector {
 namespace Internal {
-
-using namespace QmlDebug;
 
 class PropertyEditDelegate;
 

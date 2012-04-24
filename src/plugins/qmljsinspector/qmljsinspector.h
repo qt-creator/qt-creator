@@ -46,6 +46,8 @@
 #include <QAction>
 #include <QObject>
 
+using namespace QmlDebug;
+
 namespace ProjectExplorer {
 class Project;
 class Environment;
@@ -72,8 +74,6 @@ class ClientProxy;
 class InspectorSettings;
 class ContextCrumblePath;
 class QmlJSLiveTextPreview;
-
-using namespace QmlDebug;
 
 class InspectorUi : public QObject
 {

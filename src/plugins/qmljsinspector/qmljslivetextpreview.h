@@ -43,6 +43,8 @@
 
 QT_FORWARD_DECLARE_CLASS(QTextDocument)
 
+using namespace QmlDebug;
+
 namespace Core {
 class IEditor;
 }
@@ -56,7 +58,6 @@ namespace Internal {
 
 class ClientProxy;
 
-using namespace QmlDebug;
 
 class QmlJSLiveTextPreview : public QObject
 {

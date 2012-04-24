@@ -45,6 +45,8 @@ class QmlDebugConnection;
 class QDebugMessageClient;
 }
 
+using namespace QmlDebug;
+
 namespace Debugger {
 
 class DebuggerEngine;
@@ -53,8 +55,6 @@ namespace Internal {
 class BaseQmlDebuggerClient;
 class QmlAdapterPrivate;
 } // namespace Internal
-
-using namespace QmlDebug;
 
 class DEBUGGER_EXPORT QmlAdapter : public QObject
 {

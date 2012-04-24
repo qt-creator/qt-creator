@@ -38,6 +38,8 @@
 
 QT_FORWARD_DECLARE_CLASS(QUrl)
 
+using namespace QmlDebug;
+
 namespace Debugger {
 class QmlAdapter;
 }
@@ -53,7 +55,6 @@ namespace Internal {
 class InspectorPlugin;
 class QmlToolsClient;
 
-using namespace QmlDebug;
 
 class ClientProxy : public QObject
 {
