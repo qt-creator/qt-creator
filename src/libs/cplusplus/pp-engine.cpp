@@ -652,7 +652,13 @@ void Preprocessor::handleDefined(PPToken *tk)
         else
             break;
     } while (isValidToken(*tk));
-    pushToken(tk);
+
+    if (lparenSeen) {
+        while (tk->isNot(T_RPAREN))
+            lex(tk);
+    } else {
+        pushToken(tk);
+    }
     QByteArray result(1, '0');
     if (m_env->resolve(idToken.asByteArrayRef()))
         result[0] = '1';

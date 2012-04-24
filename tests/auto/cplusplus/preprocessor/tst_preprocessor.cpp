@@ -819,6 +819,27 @@ void tst_Preprocessor::defined_data()
         "#if !defined X \n#define Y\n#endif";
     QTest::newRow("4c") << false << true <<
         "#ifndef X \n#define Y\n#endif";
+
+    QTest::newRow("5a") << false << false <<
+        "#if !defined(X) && (defined(Y))\n"
+        "#define X\n"
+        "#endif\n";
+    QTest::newRow("5b") << false << false <<
+        "#if !defined(X) && defined(Y)\n"
+        "#define X\n"
+        "#endif\n";
+    QTest::newRow("5c") << false << false <<
+        "#if !defined(X) && 0"
+        "#define X\n"
+        "#endif\n";
+    QTest::newRow("5d") << false << false <<
+        "#if (!defined(X)) && defined(Y)\n"
+        "#define X\n"
+        "#endif\n";
+    QTest::newRow("5d") << false << false <<
+        "#if (define(Y))\n"
+        "#define X\n"
+        "#endif\n";
 }
 
 QTEST_APPLESS_MAIN(tst_Preprocessor)
