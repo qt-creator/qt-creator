@@ -353,12 +353,18 @@ void InspectorUi::connected(ClientProxy *clientProxy)
         connect(m_clientProxy, SIGNAL(result(quint32,QVariant)),
                 SLOT(onResult(quint32,QVariant)));
     using namespace QmlDebug::Constants;
-    if (m_clientProxy->inspectorClient()->objectName() == QML_DEBUGGER
-            && m_clientProxy->inspectorClient()->serviceVersion()
-            >= CURRENT_SUPPORTED_VERSION)
+    //first check for the name of the tools client
+    if (m_clientProxy->toolsClient()->objectName() == Constants::QML_INSPECTOR) {
         m_toolBar->setZoomToolEnabled(false);
-    else
+    } else if (m_clientProxy->engineDebugClient()->objectName() == QML_DEBUGGER
+               && m_clientProxy->engineDebugClient()->serviceVersion()
+               >= CURRENT_SUPPORTED_VERSION) {
+        //fall back for the intermediate case
+        //REMOVE THIS SOON
+        m_toolBar->setZoomToolEnabled(false);
+    } else {
         m_toolBar->setZoomToolEnabled(true);
+    }
     QmlJS::Snapshot snapshot = modelManager()->snapshot();
     for (QHash<QString, QmlJSLiveTextPreview *>::const_iterator it
          = m_textPreviews.constBegin();

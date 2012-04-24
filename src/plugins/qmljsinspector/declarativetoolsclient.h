@@ -29,18 +29,21 @@
 **
 **************************************************************************/
 
-#ifndef QMLTOOLSCLIENT_H
-#define QMLTOOLSCLIENT_H
+#ifndef DECLARATIVETOOLSCLIENT_H
+#define DECLARATIVETOOLSCLIENT_H
 
 #include "basetoolsclient.h"
+
+#include <inspectorprotocol.h>
+
 namespace QmlJSInspector {
 namespace Internal {
 
-class QmlToolsClient : public BaseToolsClient
+class DeclarativeToolsClient : public BaseToolsClient
 {
     Q_OBJECT
 public:
-    explicit QmlToolsClient(QmlDebug::QmlDebugConnection *client);
+    DeclarativeToolsClient(QmlDebug::QmlDebugConnection *client);
 
     void setCurrentObjects(const QList<int> &debugIds);
     void reloadViewer();
@@ -73,17 +76,15 @@ protected:
 
 private:
     void log(LogDirection direction,
-             const QByteArray &message,
+             QmlJSDebugger::InspectorProtocol::Message message,
              const QString &extra = QString());
 
 private:
     QList<int> m_currentDebugIds;
     QmlDebug::QmlDebugConnection *m_connection;
-    int m_requestId;
-    qreal m_slowDownFactor;
 };
 
 } // namespace Internal
 } // namespace QmlJSInspector
 
-#endif // QMLTOOLSCLIENT_H
+#endif // DECLARATIVETOOLSCLIENT_H

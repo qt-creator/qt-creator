@@ -6,7 +6,6 @@
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
-**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -30,40 +29,30 @@
 **
 **************************************************************************/
 
-#ifndef QMLJSINSPECTORCONSTANTS_H
-#define QMLJSINSPECTORCONSTANTS_H
+#include "basetoolsclient.h"
 
 namespace QmlJSInspector {
-namespace Constants {
+namespace Internal {
 
-const char INFO_EXPERIMENTAL[] = "QmlInspector.Experimental";
-const char INFO_OUT_OF_SYNC[] = "QmlInspector.OutOfSyncWarning";
+BaseToolsClient::BaseToolsClient(QmlDebug::QmlDebugConnection* client, QLatin1String clientName)
+    : QmlDebugClient(clientName, client)
+{
+    setObjectName(clientName);
+}
 
-const char PLAY_ACTION[] = "QmlInspector.Play";
-const char SELECT_ACTION[] = "QmlInspector.Select";
-const char ZOOM_ACTION[] = "QmlInspector.Zoom";
-const char FROM_QML_ACTION[] = "QmlInspector.FromQml";
-const char SHOW_APP_ON_TOP_ACTION[] = "QmlInspector.ShowAppOnTop";
+void BaseToolsClient::statusChanged(Status status)
+{
+    emit connectedStatusChanged(status);
+}
 
-// Settings
-const char S_QML_INSPECTOR   [] = "QML.Inspector";
-const char S_LIVE_PREVIEW_WARNING_KEY[] = "ShowLivePreview";
+void BaseToolsClient::recurseObjectIdList(const QmlDebug::QmlDebugObjectReference &ref,
+                         QList<int> &debugIds, QList<QString> &objectIds)
+{
+    debugIds << ref.debugId();
+    objectIds << ref.idString();
+    foreach (const QmlDebug::QmlDebugObjectReference &child, ref.children())
+        recurseObjectIdList(child, debugIds, objectIds);
+}
 
-const char ALWAYS_ADJUST_COLUMNS_WIDTHS[] = "AlwaysAdjustColumnWidths";
-
-const char QML_INSPECTOR[] = "QmlInspector";
-const char QDECLARATIVE_OBSERVER_MODE[] = "QDeclarativeObserverMode";
-
-enum DesignTool {
-    NoTool = 0,
-    SelectionToolMode = 1,
-    MarqueeSelectionToolMode = 2,
-    MoveToolMode = 3,
-    ResizeToolMode = 4,
-    ZoomMode = 6
-};
-
-} // namespace Constants
+} // namespace Internal
 } // namespace QmlJSInspector
-
-#endif // QMLJSINSPECTORCONSTANTS_H

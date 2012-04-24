@@ -19,10 +19,12 @@ qmljsclientproxy.h \
 qmljsinspector.h \
 qmljsinspectortoolbar.h \
 qmljslivetextpreview.h \
-qmltoolsclient.h \
+basetoolsclient.h \
 qmljscontextcrumblepath.h \
 qmljsinspectorsettings.h \
-qmljspropertyinspector.h
+qmljspropertyinspector.h \
+declarativetoolsclient.h \
+qmltoolsclient.h
 
 SOURCES += \
 qmljsinspectorplugin.cpp \
@@ -30,10 +32,12 @@ qmljsclientproxy.cpp \
 qmljsinspector.cpp \
 qmljsinspectortoolbar.cpp \
 qmljslivetextpreview.cpp \
-qmltoolsclient.cpp \
+basetoolsclient.cpp \
 qmljscontextcrumblepath.cpp \
 qmljsinspectorsettings.cpp \
-qmljspropertyinspector.cpp
+qmljspropertyinspector.cpp \
+declarativetoolsclient.cpp \
+qmltoolsclient.cpp
 
 include(../../../share/qtcreator/qml/qmljsdebugger/protocol/protocol.pri)
 

@@ -53,7 +53,7 @@ QHash<QPair<QString, int>, QHash<QPair<int, int>, QList<int> > > DebugIdHash;
 namespace Internal {
 
 class InspectorPlugin;
-class QmlToolsClient;
+class BaseToolsClient;
 
 
 class ClientProxy : public QObject
@@ -107,7 +107,8 @@ public:
     void fetchRootObjects(const QmlDebugContextReference &context, bool clear);
     void insertObjectInTreeIfNeeded(const QmlDebugObjectReference &object);
 
-    QmlDebugClient *inspectorClient() const;
+    QmlDebugClient *engineDebugClient() const;
+    QmlDebugClient *toolsClient() const;
 
 signals:
     void objectTreeUpdated();
@@ -158,6 +159,7 @@ private slots:
     void connectToServer();
     void clientStatusChanged(QmlDebugClient::Status status);
     void engineClientStatusChanged(QmlDebugClient::Status status);
+    void toolsClientStatusChanged(QmlDebugClient::Status status);
 
     void onCurrentObjectsChanged(const QList<int> &debugIds,
                                  bool requestIfNeeded = true);
@@ -194,7 +196,7 @@ private:
 
     QWeakPointer<Debugger::QmlAdapter> m_adapter;
     BaseEngineDebugClient *m_engineClient;
-    QmlToolsClient *m_inspectorHelperClient;
+    BaseToolsClient *m_inspectorHelperClient;
 
     quint32 m_engineQueryId;
     quint32 m_contextQueryId;

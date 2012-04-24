@@ -32,6 +32,7 @@
 
 #include "qmljsclientproxy.h"
 #include "qmltoolsclient.h"
+#include "declarativetoolsclient.h"
 #include "qmljsinspector.h"
 
 #include <qmldebug/qmldebugconstants.h>
@@ -85,32 +86,20 @@ void ClientProxy::connectToServer()
     connect(client2, SIGNAL(newStatus(QmlDebugClient::Status)),
             SLOT(engineClientStatusChanged(QmlDebugClient::Status)));
 
-    m_inspectorHelperClient =
-            new QmlToolsClient(m_adapter.data()->connection(), this);
+    DeclarativeToolsClient *toolsClient1 = new DeclarativeToolsClient(
+                m_adapter.data()->connection());
+    QmlToolsClient *toolsClient2 = new QmlToolsClient(
+                m_adapter.data()->connection());
 
-    connect(m_inspectorHelperClient,
-            SIGNAL(connectedStatusChanged(QmlDebugClient::Status)),
-            this, SLOT(clientStatusChanged(QmlDebugClient::Status)));
-    connect(m_inspectorHelperClient, SIGNAL(currentObjectsChanged(QList<int>)),
-            SLOT(onCurrentObjectsChanged(QList<int>)));
-    connect(m_inspectorHelperClient, SIGNAL(zoomToolActivated()),
-            SIGNAL(zoomToolActivated()));
-    connect(m_inspectorHelperClient, SIGNAL(selectToolActivated()),
-            SIGNAL(selectToolActivated()));
-    connect(m_inspectorHelperClient, SIGNAL(selectMarqueeToolActivated()),
-            SIGNAL(selectMarqueeToolActivated()));
-    connect(m_inspectorHelperClient, SIGNAL(animationSpeedChanged(qreal)),
-            SIGNAL(animationSpeedChanged(qreal)));
-    connect(m_inspectorHelperClient, SIGNAL(animationPausedChanged(bool)),
-            SIGNAL(animationPausedChanged(bool)));
-    connect(m_inspectorHelperClient, SIGNAL(designModeBehaviorChanged(bool)),
-            SIGNAL(designModeBehaviorChanged(bool)));
-    connect(m_inspectorHelperClient, SIGNAL(showAppOnTopChanged(bool)),
-            SIGNAL(showAppOnTopChanged(bool)));
-    connect(m_inspectorHelperClient, SIGNAL(reloaded()), this,
-            SIGNAL(serverReloaded()));
-    connect(m_inspectorHelperClient, SIGNAL(logActivity(QString,QString)),
-            m_adapter.data(), SLOT(logServiceActivity(QString,QString)));
+    connect(toolsClient1, SIGNAL(connectedStatusChanged(QmlDebugClient::Status)),
+            SLOT(clientStatusChanged(QmlDebugClient::Status)));
+    connect(toolsClient1, SIGNAL(connectedStatusChanged(QmlDebugClient::Status)),
+            SLOT(toolsClientStatusChanged(QmlDebugClient::Status)));
+
+    connect(toolsClient2, SIGNAL(connectedStatusChanged(QmlDebugClient::Status)),
+            SLOT(clientStatusChanged(QmlDebugClient::Status)));
+    connect(toolsClient2, SIGNAL(connectedStatusChanged(QmlDebugClient::Status)),
+            SLOT(toolsClientStatusChanged(QmlDebugClient::Status)));
 
     updateConnected();
 }
@@ -131,9 +120,14 @@ void ClientProxy::clientStatusChanged(QmlDebugClient::Status status)
     updateConnected();
 }
 
-QmlDebugClient *ClientProxy::inspectorClient() const
+QmlDebugClient *ClientProxy::engineDebugClient() const
 {
     return m_engineClient;
+}
+
+QmlDebugClient *ClientProxy::toolsClient() const
+{
+    return m_inspectorHelperClient;
 }
 
 void ClientProxy::engineClientStatusChanged(
@@ -147,6 +141,35 @@ void ClientProxy::engineClientStatusChanged(
         connect(m_engineClient, SIGNAL(valueChanged(int,QByteArray,QVariant)),
                 SLOT(objectWatchTriggered(int,QByteArray,QVariant)));
         m_adapter.data()->setEngineDebugClient(m_engineClient);
+        updateConnected();
+    }
+}
+
+void ClientProxy::toolsClientStatusChanged(
+        QmlDebugClient::Status status)
+{
+    if (status == QmlDebugClient::Enabled) {
+        m_inspectorHelperClient = qobject_cast<BaseToolsClient*>(sender());
+        connect(m_inspectorHelperClient, SIGNAL(currentObjectsChanged(QList<int>)),
+                SLOT(onCurrentObjectsChanged(QList<int>)));
+        connect(m_inspectorHelperClient, SIGNAL(zoomToolActivated()),
+                SIGNAL(zoomToolActivated()));
+        connect(m_inspectorHelperClient, SIGNAL(selectToolActivated()),
+                SIGNAL(selectToolActivated()));
+        connect(m_inspectorHelperClient, SIGNAL(selectMarqueeToolActivated()),
+                SIGNAL(selectMarqueeToolActivated()));
+        connect(m_inspectorHelperClient, SIGNAL(animationSpeedChanged(qreal)),
+                SIGNAL(animationSpeedChanged(qreal)));
+        connect(m_inspectorHelperClient, SIGNAL(animationPausedChanged(bool)),
+                SIGNAL(animationPausedChanged(bool)));
+        connect(m_inspectorHelperClient, SIGNAL(designModeBehaviorChanged(bool)),
+                SIGNAL(designModeBehaviorChanged(bool)));
+        connect(m_inspectorHelperClient, SIGNAL(showAppOnTopChanged(bool)),
+                SIGNAL(showAppOnTopChanged(bool)));
+        connect(m_inspectorHelperClient, SIGNAL(reloaded()), this,
+                SIGNAL(serverReloaded()));
+        connect(m_inspectorHelperClient, SIGNAL(logActivity(QString,QString)),
+                m_adapter.data(), SLOT(logServiceActivity(QString,QString)));
         updateConnected();
     }
 }

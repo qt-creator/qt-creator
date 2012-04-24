@@ -28,6 +28,8 @@ QtcPlugin {
     ]
 
     files: [
+        "basetoolsclient.h",
+        "declarativetoolsclient.h",
         "qmljsinspector_global.h",
         "qmljsinspectorconstants.h",
         "qmljsinspectorplugin.h",
@@ -40,6 +42,8 @@ QtcPlugin {
         "qmljsinspectorsettings.h",
         "qmljspropertyinspector.h",
         "../../../share/qtcreator/qml/qmljsdebugger/protocol/inspectorprotocol.h",
+        "basetoolsclient.cpp",
+        "declarativetoolsclient.cpp",
         "qmljsinspectorplugin.cpp",
         "qmljsclientproxy.cpp",
         "qmljsinspector.cpp",
