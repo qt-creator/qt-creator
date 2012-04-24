@@ -155,6 +155,11 @@ namespace Internal {
 class IDevicePrivate
 {
 public:
+    IDevicePrivate() :
+        origin(IDevice::AutoDetected),
+        availability(IDevice::DeviceAvailabilityUnknown)
+    { }
+
     QString displayName;
     QString type;
     IDevice::Origin origin;
@@ -164,8 +169,7 @@ public:
 } // namespace Internal
 
 IDevice::IDevice() : d(new Internal::IDevicePrivate)
-{
-}
+{ }
 
 IDevice::IDevice(const QString &type, Origin origin, Core::Id id) : d(new Internal::IDevicePrivate)
 {
@@ -173,7 +177,6 @@ IDevice::IDevice(const QString &type, Origin origin, Core::Id id) : d(new Intern
     d->origin = origin;
     QTC_CHECK(origin == ManuallyAdded || id.isValid());
     d->id = id.isValid() ? id : newId();
-    d->availability = DeviceAvailabilityUnknown;
 }
 
 IDevice::IDevice(const IDevice &other) : d(new Internal::IDevicePrivate)
