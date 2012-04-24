@@ -141,8 +141,11 @@ static bool getDebugDirectory(IMAGE_NT_HEADERS *ntHeaders, void *fileMemory,
     DWORD debugDirSize;
     *debugDir = 0;
     *count = 0;
+
 #ifdef  __GNUC__ // MinGW does not have complete 64bit definitions.
-    typedef IMAGE_OPTIONAL_HEADER IMAGE_OPTIONAL_HEADER32;
+    IMAGE_OPTIONAL_HEADER *optionalHeader = reinterpret_cast<IMAGE_OPTIONAL_HEADER*>(&(ntHeaders->OptionalHeader));
+    debugDirRva = optionalHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].VirtualAddress;
+    debugDirSize = optionalHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size;
 #else
     // Find the virtual address
     const bool is64Bit = ntHeaders->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC;
@@ -151,13 +154,12 @@ static bool getDebugDirectory(IMAGE_NT_HEADERS *ntHeaders, void *fileMemory,
         debugDirRva = optionalHeader64->DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].VirtualAddress;
         debugDirSize = optionalHeader64->DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size;
     } else {
-#endif
         IMAGE_OPTIONAL_HEADER32 *optionalHeader32 = reinterpret_cast<IMAGE_OPTIONAL_HEADER32*>(&(ntHeaders->OptionalHeader));
         debugDirRva = optionalHeader32->DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].VirtualAddress;
         debugDirSize = optionalHeader32->DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size;
-#ifndef  __GNUC__
     }
 #endif
+
     // Empty. This is the case for MinGW binaries
     if (debugDirSize == 0)
         return true;
