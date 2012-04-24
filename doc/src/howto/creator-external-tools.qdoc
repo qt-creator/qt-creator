@@ -97,7 +97,7 @@
     additional tools in \QC \gui Options.
 
     You can use \QC variables in the fields that you can select from
-    lists of available \QC variables.
+    lists of available \QC variables (1).
 
     \image qtcreator-external-tools.png "External Tools options"
 
