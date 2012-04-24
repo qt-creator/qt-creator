@@ -35,9 +35,10 @@
 
 #include <QDialog>
 
-namespace Ui {
-    class AndroidCreateKeystoreCertificate;
-}
+QT_BEGIN_NAMESPACE
+namespace Ui { class AndroidCreateKeystoreCertificate; }
+QT_END_NAMESPACE
+
 namespace Android {
 namespace Internal {
 class AndroidCreateKeystoreCertificate : public QDialog
