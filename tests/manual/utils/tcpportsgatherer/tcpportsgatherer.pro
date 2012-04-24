@@ -9,6 +9,7 @@ CONFIG -= app_bundle
 
 include(../../../../qtcreator.pri)
 include(../../../../src/rpath.pri)
+include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
 
 
 INCLUDEPATH += ../../../../src/libs

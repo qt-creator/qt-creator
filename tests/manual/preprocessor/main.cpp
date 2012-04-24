@@ -103,12 +103,12 @@ public:
     virtual void passedMacroDefinitionCheck(unsigned, const Macro &)
     { }
 
-    virtual void failedMacroDefinitionCheck(unsigned, const QByteArray &)
+    virtual void failedMacroDefinitionCheck(unsigned, const ByteArrayRef &)
     { }
 
     virtual void startExpandingMacro(unsigned, const Macro &,
-                                     const QByteArray &,
-                                     bool, const QVector<MacroArgumentReference> &)
+                                     const ByteArrayRef &,
+                                     const QVector<MacroArgumentReference> &)
     { }
 
     virtual void stopExpandingMacro(unsigned, const Macro &)
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
 
             Environment env;
             Preprocessor pp(/*client=*/ 0, &env);
-            const QByteArray preprocessedCode = pp(fileName, source);
+            const QByteArray preprocessedCode = pp.run(fileName, source);
             std::cout << preprocessedCode.constData();
         }
     }
@@ -172,7 +172,7 @@ int make_depend(QCoreApplication *app)
             MakeDepend client(&env);
             client.addSystemDir(QString::fromLocal8Bit(qgetenv("QTDIR")) + QLatin1String("/include"));
             Preprocessor preproc(&client, &env);
-            preproc.preprocess(fn, code, /*result = */ 0);
+            preproc.run(fn, code, /*result = */ 0);
             deps = client.includedFiles();
             todo += deps;
         }

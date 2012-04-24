@@ -2,6 +2,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += core-private
 include(../qttest.pri)
 include($$IDE_SOURCE_TREE/src/libs/symbianutils/symbianutils.pri)
 include($$IDE_SOURCE_TREE/src/shared/json/json.pri)
+include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
 DEFINES += JSON_INCLUDE_PRI
 
 DEBUGGERDIR = $$IDE_SOURCE_TREE/src/plugins/debugger
