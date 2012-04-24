@@ -325,8 +325,6 @@ void QmlJsInspectorToolBar::updatePlayAction()
 
 void QmlJsInspectorToolBar::selectToolTriggered(bool checked)
 {
-    updateDesignModeActions(SelectionToolMode);
-
     if (m_designModeActive != checked) {
         m_designModeActive = checked;
         emit designModeSelected(checked);
@@ -334,12 +332,11 @@ void QmlJsInspectorToolBar::selectToolTriggered(bool checked)
 
     if (checked)
         emit selectToolSelected();
+    updateDesignModeActions(SelectionToolMode);
 }
 
 void QmlJsInspectorToolBar::zoomToolTriggered(bool checked)
 {
-    updateDesignModeActions(ZoomMode);
-
     if (m_designModeActive != checked) {
         m_designModeActive = checked;
         emit designModeSelected(checked);
@@ -347,6 +344,8 @@ void QmlJsInspectorToolBar::zoomToolTriggered(bool checked)
 
     if (checked)
         emit zoomToolSelected();
+
+    updateDesignModeActions(ZoomMode);
 }
 
 void QmlJsInspectorToolBar::showAppOnTopClick()
