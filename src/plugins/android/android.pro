@@ -4,6 +4,9 @@ TARGET = Android
 include(../../qtcreatorplugin.pri)
 include(android_dependencies.pri)
 
+isEmpty(ANDROID_ENABLE):ANDROID_EXPERIMENTAL_STR="true"
+else:ANDROID_EXPERIMENTAL_STR="false"
+
 QT += xml network
 
 HEADERS += \
@@ -73,5 +76,3 @@ FORMS += \
 RESOURCES = android.qrc
 DEFINES += QT_NO_CAST_TO_ASCII
 DEFINES += ANDROID_LIBRARY
-
-
