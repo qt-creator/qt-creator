@@ -271,11 +271,11 @@ QString AndroidConfigurations::androidToolPath() const
 #ifdef Q_OS_WIN32
     // I want to switch from using android.bat to using an executable. All it really does is call
     // Java and I've made some progress on it. So if android.exe exists, return that instead.
-    QFileInfo fi(m_config.SDKLocation + QLatin1String("/tools/android"ANDROID_EXE_SUFFIX));
+    QFileInfo fi(m_config.sdkLocation + QLatin1String("/tools/android"ANDROID_EXE_SUFFIX));
     if (fi.exists())
-        return m_config.SDKLocation + QString("/tools/android"ANDROID_EXE_SUFFIX);
+        return m_config.sdkLocation + QString("/tools/android"ANDROID_EXE_SUFFIX);
     else
-        return m_config.SDKLocation + QLatin1String("/tools/android"ANDROID_BAT_SUFFIX);
+        return m_config.sdkLocation + QLatin1String("/tools/android"ANDROID_BAT_SUFFIX);
 #else
     return m_config.sdkLocation + QLatin1String("/tools/android"ANDROID_EXE_SUFFIX);
 #endif
