@@ -961,7 +961,7 @@ namespace {
 class BuildConfigurationInfoCompare
 {
 public:
-    bool operator()(const BuildConfigurationInfo &a, const BuildConfigurationInfo &b)
+    bool operator()(const BuildConfigurationInfo &a, const BuildConfigurationInfo &b) const
     {
         if (a.qtVersionId < b.qtVersionId)
             return true;
