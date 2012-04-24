@@ -69,7 +69,7 @@ ClientProxy::~ClientProxy()
 
 void ClientProxy::connectToServer()
 {
-    DeclarativeEngineDebugCLient *client1 = new DeclarativeEngineDebugCLient(
+    DeclarativeEngineDebugClient *client1 = new DeclarativeEngineDebugClient(
                 m_adapter.data()->connection());
     QmlEngineDebugClient *client2 = new QmlEngineDebugClient(
                 m_adapter.data()->connection());

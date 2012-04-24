@@ -38,11 +38,11 @@ namespace QmlDebug {
 
 class QmlDebugConnection;
 
-class QMLDEBUG_EXPORT DeclarativeEngineDebugCLient : public BaseEngineDebugClient
+class QMLDEBUG_EXPORT DeclarativeEngineDebugClient : public BaseEngineDebugClient
 {
     Q_OBJECT
 public:
-    DeclarativeEngineDebugCLient(QmlDebugConnection *conn)
+    DeclarativeEngineDebugClient(QmlDebugConnection *conn)
         : BaseEngineDebugClient(QLatin1String("QDeclarativeEngine"), conn)
     {
     }
