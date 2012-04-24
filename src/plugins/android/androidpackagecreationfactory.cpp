@@ -84,13 +84,13 @@ BuildStep *AndroidPackageCreationFactory::create(ProjectExplorer::BuildStepList 
 }
 
 bool AndroidPackageCreationFactory::canRestore(ProjectExplorer::BuildStepList *parent,
-                                             const QVariantMap &map) const
+                                               const QVariantMap &map) const
 {
     return canCreate(parent, ProjectExplorer::idFromMap(map));
 }
 
 BuildStep *AndroidPackageCreationFactory::restore(ProjectExplorer::BuildStepList *parent,
-                                                const QVariantMap &map)
+                                                  const QVariantMap &map)
 {
     Q_ASSERT(canRestore(parent, map));
     AndroidPackageCreationStep *const step
@@ -103,13 +103,13 @@ BuildStep *AndroidPackageCreationFactory::restore(ProjectExplorer::BuildStepList
 }
 
 bool AndroidPackageCreationFactory::canClone(ProjectExplorer::BuildStepList *parent,
-                                           ProjectExplorer::BuildStep *product) const
+                                             ProjectExplorer::BuildStep *product) const
 {
     return canCreate(parent, product->id());
 }
 
 BuildStep *AndroidPackageCreationFactory::clone(ProjectExplorer::BuildStepList *parent,
-                                              ProjectExplorer::BuildStep *product)
+                                                ProjectExplorer::BuildStep *product)
 {
     Q_ASSERT(canClone(parent, product));
     return new AndroidPackageCreationStep(parent, static_cast<AndroidPackageCreationStep *>(product));
