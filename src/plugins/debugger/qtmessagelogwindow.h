@@ -54,6 +54,7 @@ class QtMessageLogProxyModel;
 class QtMessageLogWindow : public QWidget
 {
     Q_OBJECT
+
 public:
     QtMessageLogWindow(QWidget *parent = 0);
     ~QtMessageLogWindow();

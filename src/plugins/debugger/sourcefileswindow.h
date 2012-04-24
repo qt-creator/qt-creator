@@ -52,6 +52,8 @@ private:
 
 class SourceFilesWindow : public BaseWindow
 {
+    Q_OBJECT
+
 public:
     SourceFilesWindow();
 };

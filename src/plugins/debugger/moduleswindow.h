@@ -54,6 +54,8 @@ private:
 
 class ModulesWindow : public BaseWindow
 {
+    Q_OBJECT
+
 public:
     ModulesWindow();
 };

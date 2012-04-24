@@ -67,6 +67,8 @@ private:
 
 class BreakWindow : public BaseWindow
 {
+    Q_OBJECT
+
 public:
     BreakWindow();
 };

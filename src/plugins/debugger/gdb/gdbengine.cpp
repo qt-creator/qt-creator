@@ -218,8 +218,8 @@ public:
 
     QAction *createAction(QObject *parent = 0)
     {
-        QAction *action = new QAction(tr("Install &Debug Information"), parent);
-        action->setToolTip(tr("This tries to install missing debug information."));
+        QAction *action = new QAction(DebuggerPlugin::tr("Install &Debug Information"), parent);
+        action->setToolTip(DebuggerPlugin::tr("This tries to install missing debug information."));
         return action;
     }
 

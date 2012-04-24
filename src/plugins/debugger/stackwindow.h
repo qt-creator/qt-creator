@@ -58,6 +58,8 @@ private:
 
 class StackWindow : public BaseWindow
 {
+    Q_OBJECT
+
 public:
     StackWindow() : BaseWindow(new StackTreeView)
     {

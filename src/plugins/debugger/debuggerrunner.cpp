@@ -835,7 +835,7 @@ bool DebuggerRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMo
 
 QString DebuggerRunControlFactory::displayName() const
 {
-    return DebuggerRunControl::tr("Debug");
+    return DebuggerPlugin::tr("Debug");
 }
 
 // Find Qt installation by running qmake
@@ -972,7 +972,7 @@ DebuggerRunControl *DebuggerRunControlFactory::create
 
     if (!check) {
         //appendMessage(errorMessage, true);
-        Core::ICore::showWarningWithOptions(DebuggerRunControl::tr("Debugger"),
+        Core::ICore::showWarningWithOptions(DebuggerPlugin::tr("Debugger"),
             check.errorMessage, check.errorDetailsString(), check.settingsCategory, check.settingsPage);
         return 0;
     }
@@ -1002,7 +1002,7 @@ DebuggerEngine *DebuggerRunControlFactory::createEngine
     default:
         break;
     }
-    *errorMessage = DebuggerRunControl::tr("Unable to create a debugger engine of the type '%1'").
+    *errorMessage = DebuggerPlugin::tr("Unable to create a debugger engine of the type '%1'").
                     arg(_(engineTypeName(et)));
     return 0;
 }

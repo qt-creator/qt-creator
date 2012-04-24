@@ -58,6 +58,7 @@ private:
 
 class SnapshotWindow : public BaseWindow
 {
+    Q_OBJECT
 public:
     explicit SnapshotWindow(SnapshotHandler *handler)
         : BaseWindow(new SnapshotTreeView(handler))

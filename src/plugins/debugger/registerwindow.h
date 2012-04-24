@@ -54,6 +54,8 @@ private:
 
 class RegisterWindow : public BaseWindow
 {
+    Q_OBJECT
+
 public:
     RegisterWindow();
 };

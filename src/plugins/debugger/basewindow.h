@@ -49,6 +49,8 @@ public:
 
 class BaseWindow : public QWidget
 {
+    Q_OBJECT
+
 public:
     explicit BaseWindow(QTreeView *treeView, QWidget *parent = 0);
     void setModel(QAbstractItemModel *model) { m_treeView->setModel(model); }

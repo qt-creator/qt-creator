@@ -53,6 +53,8 @@ private:
 
 class ThreadsWindow : public BaseWindow
 {
+    Q_OBJECT
+
 public:
     ThreadsWindow();
 };

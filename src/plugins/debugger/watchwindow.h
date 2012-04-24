@@ -86,6 +86,8 @@ private:
 
 class WatchWindow : public BaseWindow
 {
+    Q_OBJECT
+
 public:
     explicit WatchWindow(WatchTreeView::Type type)
         : BaseWindow(new WatchTreeView(type))
