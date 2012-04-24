@@ -35,10 +35,7 @@
 #ifndef AUTOTOOLSPROJECT_H
 #define AUTOTOOLSPROJECT_H
 
-#include "autotoolstarget.h"
-
 #include <coreplugin/editormanager/ieditor.h>
-#include <projectexplorer/toolchain.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectnodes.h>
@@ -46,10 +43,6 @@
 
 #include <QPointer>
 #include <QDir>
-
-namespace ProjectExplorer {
-class ToolChain;
-}
 
 namespace AutotoolsProjectManager {
 namespace Internal {
@@ -80,18 +73,11 @@ public:
     Core::Id id() const;
     Core::IDocument *document() const;
     ProjectExplorer::IProjectManager *projectManager() const;
-    AutotoolsTarget *activeTarget() const;
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
     ProjectExplorer::ProjectNode *rootProjectNode() const;
     QStringList files(FilesMode fileMode) const;
     QString defaultBuildDirectory() const;
     QStringList buildTargets() const;
-    ProjectExplorer::ToolChain *toolChain() const;
-    void setToolChain(ProjectExplorer::ToolChain *tc);
-    QVariantMap toMap() const;
-
-signals:
-    void toolChainChanged(ProjectExplorer::ToolChain *tc);
 
 protected:
     bool fromMap(const QVariantMap &map);
@@ -100,7 +86,7 @@ private slots:
     /**
      *  Loads the project tree by parsing the makefiles.
      */
-    void loadProjectTree();
+    void evaluateBuildSystem();
 
     /**
      * Is invoked when the makefile parsing by m_makefileParserThread has
@@ -171,8 +157,6 @@ private:
 
     /// Responsible for parsing the makefiles asynchronously in a thread
     MakefileParserThread *m_makefileParserThread;
-
-    ProjectExplorer::ToolChain *m_toolChain;
 };
 
 } // namespace Internal

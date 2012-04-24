@@ -70,6 +70,7 @@ public:
 
 signals:
     void enabledChanged();
+    void requestBuildSystemEvaluation();
 
 protected:
     DeployConfiguration(Target *target, const Core::Id id);
@@ -77,7 +78,7 @@ protected:
 
     void cloneSteps(DeployConfiguration *source);
 
-    virtual bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map);
 
 private:
     friend class DeployConfigurationFactory;
@@ -107,8 +108,14 @@ public:
     virtual bool canClone(Target *parent, DeployConfiguration *product) const;
     virtual DeployConfiguration *clone(Target *parent, DeployConfiguration *product);
 
+    static DeployConfigurationFactory *find(Target *parent, const QVariantMap &map);
+    static DeployConfigurationFactory *find(Target *parent);
+
 signals:
     void availableCreationIdsChanged();
+
+private:
+    bool canHandle(Target *parent) const;
 };
 
 class PROJECTEXPLORER_EXPORT DeployConfigurationWidget : public NamedWidget

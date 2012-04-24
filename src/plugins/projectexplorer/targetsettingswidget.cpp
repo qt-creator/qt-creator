@@ -78,6 +78,12 @@ void TargetSettingsWidget::insertTarget(int index, const QString &name)
     updateTargetSelector();
 }
 
+void TargetSettingsWidget::renameTarget(int index, const QString &name)
+{
+    m_targetSelector->renameTarget(index, name);
+    // geometry won't change, so no need to updateTargetSelector()
+}
+
 void TargetSettingsWidget::removeTarget(int index)
 {
     m_targetSelector->removeTarget(index);

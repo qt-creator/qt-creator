@@ -41,9 +41,11 @@ class QAction;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-    class Project;
-    class Node;
-    class ProjectExplorerPlugin;
+class Node;
+class Project;
+class ProjectExplorerPlugin;
+class ProfileInformation;
+class Target;
 }
 namespace Utils { class ParameterAction; }
 
@@ -52,7 +54,6 @@ namespace Qt4ProjectManager {
 class Qt4Manager;
 class QtVersionManager;
 class Qt4Project;
-class Qt4BaseTarget;
 
 namespace Internal {
 
@@ -67,7 +68,6 @@ public:
     Qt4ProjectManagerPlugin();
     ~Qt4ProjectManagerPlugin();
     bool initialize(const QStringList &arguments, QString *errorMessage);
-    bool delayedInitialize();
     void extensionsInitialized();
 
 private slots:
@@ -93,7 +93,7 @@ private:
     ProFileEditorFactory *m_proFileEditorFactory;
     Qt4Manager *m_qt4ProjectManager;
     Qt4Project *m_previousStartupProject;
-    Qt4BaseTarget *m_previousTarget;
+    ProjectExplorer::Target *m_previousTarget;
 
     QAction *m_runQMakeAction;
     QAction *m_runQMakeActionContextMenu;

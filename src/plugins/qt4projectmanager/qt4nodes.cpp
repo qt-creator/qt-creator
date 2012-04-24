@@ -32,12 +32,12 @@
 
 #include "qt4nodes.h"
 #include "qt4project.h"
-#include "qt4target.h"
 #include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
 #include "qtuicodemodelsupport.h"
 #include "qmakestep.h"
 #include "qt4buildconfiguration.h"
+#include "qmakerunconfigurationfactory.h"
 
 #include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/runconfiguration.h>
@@ -53,9 +53,12 @@
 #include <cpptools/ModelManagerInterface.h>
 #include <cplusplus/CppDocument.h>
 #include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/target.h>
 #include <qtsupport/profilereader.h>
+#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -801,8 +804,9 @@ void Qt4PriFileNode::folderChanged(const QString &folder)
     // We need to regenerate that list by running qmake
     // Other platforms do not have a explicit list of files to package, but package
     // directories
-    foreach (ProjectExplorer::Target *target, m_project->targets()) {
-        if (target->id() == Core::Id(Constants::S60_DEVICE_TARGET_ID)) {
+    foreach (const ProjectExplorer::Target *target, m_project->targets()) {
+        QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target->profile());
+        if (version && version->type() == QtSupport::Constants::SYMBIANQT) {
             foreach (ProjectExplorer::BuildConfiguration *bc, target->buildConfigurations()) {
                 Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(bc);
                 if (qt4bc) {
@@ -833,9 +837,9 @@ bool Qt4PriFileNode::deploysFolder(const QString &folder) const
 
 QList<ProjectExplorer::RunConfiguration *> Qt4PriFileNode::runConfigurationsFor(Node *node)
 {
-    Qt4BaseTarget *target = m_project->activeTarget();
-    if (target)
-        return target->runConfigurationsForNode(node);
+    QmakeRunConfigurationFactory *factory = QmakeRunConfigurationFactory::find(m_project->activeTarget());
+    if (factory)
+        return factory->runConfigurationsForNode(m_project->activeTarget(), node);
     return QList<ProjectExplorer::RunConfiguration *>();
 }
 
@@ -917,8 +921,9 @@ QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions(Node *node) c
         actions << Rename;
 
 
-    Qt4BaseTarget *target = m_project->activeTarget();
-    if (target && !target->runConfigurationsForNode(node).isEmpty())
+    ProjectExplorer::Target *target = m_project->activeTarget();
+    QmakeRunConfigurationFactory *factory = QmakeRunConfigurationFactory::find(target);
+    if (factory && !factory->runConfigurationsForNode(target, node).isEmpty())
         actions << HasSubProjectRunConfigurations;
 
     return actions;
@@ -2321,8 +2326,9 @@ TargetInformation Qt4ProFileNode::targetInformation(QtSupport::ProFileReader *re
             // Hmm can we find out whether it's debug or release in a saner way?
             // Theoretically it's in CONFIG
             QString qmakeBuildConfig = QLatin1String("release");
-            Qt4BaseTarget *target = m_project->activeTarget();
-            if (!target || target->activeQt4BuildConfiguration()->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild)
+            ProjectExplorer::Target *target = m_project->activeTarget();
+            Qt4BuildConfiguration *bc = target ? qobject_cast<Qt4BuildConfiguration *>(target->activeBuildConfiguration()) : 0;
+            if (!target || !bc || bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild)
                 qmakeBuildConfig = QLatin1String("debug");
             wd += QLatin1Char('/') + qmakeBuildConfig;
         }
@@ -2454,7 +2460,7 @@ QString Qt4ProFileNode::buildDir(Qt4BuildConfiguration *bc) const
     const QDir srcDirRoot = QFileInfo(m_project->rootProjectNode()->path()).absoluteDir();
     const QString relativeDir = srcDirRoot.relativeFilePath(m_projectDir);
     if (!bc && m_project->activeTarget())
-        bc = m_project->activeTarget()->activeQt4BuildConfiguration();
+        bc = qobject_cast<Qt4BuildConfiguration *>(m_project->activeTarget()->activeBuildConfiguration());
     if (!bc)
         return QString();
     return QDir(bc->buildDirectory()).absoluteFilePath(relativeDir);

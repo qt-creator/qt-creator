@@ -33,8 +33,10 @@
 #ifndef S60DEVICERUNCONFIGURATION_H
 #define S60DEVICERUNCONFIGURATION_H
 
+#include "../qmakerunconfigurationfactory.h"
+#include "../qt4projectmanager_global.h"
+
 #include <projectexplorer/runconfiguration.h>
-#include <qt4projectmanager/qt4projectmanager_global.h>
 
 #include <QFutureInterface>
 #include <QStringList>
@@ -43,14 +45,12 @@ QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE
 
+namespace ProjectExplorer { class Node; }
+
 namespace Qt4ProjectManager {
-class Qt4BaseTarget;
 class Qt4ProFileNode;
 
-namespace Internal {
-class SymbianQtVersion;
-class Qt4SymbianTarget;
-}
+namespace Internal { class SymbianQtVersion; }
 
 class S60DeviceRunConfigurationFactory;
 
@@ -60,7 +60,7 @@ class QT4PROJECTMANAGER_EXPORT S60DeviceRunConfiguration : public ProjectExplore
     friend class S60DeviceRunConfigurationFactory;
 
 public:
-    S60DeviceRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent, const QString &proFilePath);
+    S60DeviceRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
     virtual ~S60DeviceRunConfiguration();
 
     bool isEnabled() const;
@@ -89,7 +89,7 @@ signals:
     void targetInformationChanged();
 
 protected:
-    S60DeviceRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent, S60DeviceRunConfiguration *source);
+    S60DeviceRunConfiguration(ProjectExplorer::Target *parent, S60DeviceRunConfiguration *source);
     QString defaultDisplayName() const;
     virtual bool fromMap(const QVariantMap &map);
 
@@ -98,8 +98,6 @@ private slots:
 
 private:
     void ctor();
-    Internal::Qt4SymbianTarget *qt4Target() const;
-    Internal::SymbianQtVersion *qtVersion() const;
 
     QString m_proFilePath;
     QString m_commandLineArguments;
@@ -107,7 +105,7 @@ private:
     bool m_parseInProgress;
 };
 
-class S60DeviceRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
+class S60DeviceRunConfigurationFactory : public QmakeRunConfigurationFactory
 {
     Q_OBJECT
 
@@ -125,6 +123,10 @@ public:
     QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
     // used to translate the ids to names to display to the user
     QString displayNameForId(const Core::Id id) const;
+
+    bool canHandle(ProjectExplorer::Target *t) const;
+    QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
+                                                                        ProjectExplorer::Node *n);
 };
 
 } // namespace Qt4ProjectManager

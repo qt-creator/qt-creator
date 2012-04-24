@@ -43,6 +43,7 @@
 #include "s60certificateinfo.h"
 #include "s60certificatedetailsdialog.h"
 #include "symbianqtversion.h"
+#include "symbianidevicefactory.h"
 
 #include <app/app_version.h>
 
@@ -52,10 +53,13 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/profileinformation.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/task.h>
+
+#include <qtsupport/qtprofileinformation.h>
 
 #include <QDir>
 #include <QTimer>
@@ -182,12 +186,21 @@ Qt4BuildConfiguration *S60CreatePackageStep::qt4BuildConfiguration() const
 bool S60CreatePackageStep::init()
 {
     Qt4Project *pro = qobject_cast<Qt4Project *>(project());
+    ProjectExplorer::ToolChain *tc
+            = ProjectExplorer::ToolChainProfileInformation::toolChain(target()->profile());
 
     QList<Qt4ProFileNode *> nodes = pro->allProFiles();
 
-    SymbianQtVersion *sqv = dynamic_cast<SymbianQtVersion *>(qt4BuildConfiguration()->qtVersion());
-    if (!sqv)
+    SymbianQtVersion *sqv
+            = dynamic_cast<SymbianQtVersion *>(QtSupport::QtProfileInformation::qtVersion(target()->profile()));
+    if (!sqv) {
+        emit addOutput(tr("The selected profile is not configured with a Symbian Qt"), BuildStep::ErrorOutput);
         return false;
+    }
+    if (!tc) {
+        emit addOutput(tr("The selected profile has no toolchain"), BuildStep::ErrorOutput);
+        return false;
+    }
     m_isBuildWithSymbianSbsV2 = sqv->isBuildWithSymbianSbsV2();
 
     m_workingDirectories.clear();
@@ -198,7 +211,7 @@ bool S60CreatePackageStep::init()
     }
     projectCapabilities.removeDuplicates();
 
-    m_makeCmd = qt4BuildConfiguration()->makeCommand();
+    m_makeCmd = tc->makeCommand();
     if (!QFileInfo(m_makeCmd).isAbsolute()) {
         // Try to detect command in environment
         const QString tmp = qt4BuildConfiguration()->environment().searchInPath(m_makeCmd);
@@ -265,7 +278,7 @@ void S60CreatePackageStep::handleWarnAboutPatching()
             changedText = tr("<p>Qt modified some of your packages.</p>");
         }
         const QString text =
-            tr("%1<p><em>These changes were not part of your build system</em> but are required to "
+            tr("%1<p><em>These changes were not part of your build profile</em> but are required to "
                "make sure the <em>self-signed</em> package can be installed successfully on a device.</p>"
                "<p>Check the Issues pane for more details on the modifications made.</p>"
                "<p>Please see the <a href=\"%2\">documentation</a> for other signing options which "
@@ -739,11 +752,7 @@ S60CreatePackageStepFactory::~S60CreatePackageStepFactory()
 
 bool S60CreatePackageStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
 {
-    if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY))
-        return false;
-    if (parent->target()->id() != Core::Id(Constants::S60_DEVICE_TARGET_ID))
-        return false;
-    return (id == Core::Id(SIGN_BS_ID));
+    return canHandle(parent) &&  id == Core::Id(SIGN_BS_ID);
 }
 
 ProjectExplorer::BuildStep *S60CreatePackageStepFactory::create(ProjectExplorer::BuildStepList *parent, const Core::Id id)
@@ -765,6 +774,16 @@ ProjectExplorer::BuildStep *S60CreatePackageStepFactory::clone(ProjectExplorer::
     return new S60CreatePackageStep(parent, static_cast<S60CreatePackageStep *>(source));
 }
 
+bool S60CreatePackageStepFactory::canHandle(ProjectExplorer::BuildStepList *parent) const
+{
+    if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY))
+        return false;
+    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->target()->profile());
+    if (deviceType != SymbianIDeviceFactory::deviceType())
+        return false;
+    return qobject_cast<Qt4Project *>(parent->target()->project());
+}
+
 bool S60CreatePackageStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
 {
     return canCreate(parent, ProjectExplorer::idFromMap(map));
@@ -783,11 +802,10 @@ ProjectExplorer::BuildStep *S60CreatePackageStepFactory::restore(ProjectExplorer
 
 QList<Core::Id> S60CreatePackageStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
-    if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY))
+    if (!canHandle(parent))
         return QList<Core::Id>();
-    if (parent->target()->id() == Core::Id(Constants::S60_DEVICE_TARGET_ID))
-        return QList<Core::Id>() << Core::Id(SIGN_BS_ID);
-    return QList<Core::Id>();
+
+    return QList<Core::Id>() << Core::Id(SIGN_BS_ID);
 }
 
 QString S60CreatePackageStepFactory::displayNameForId(const Core::Id id) const

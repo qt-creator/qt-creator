@@ -139,13 +139,16 @@ void DeviceManager::save()
 {
     Utils::PersistentSettingsWriter writer;
     writer.saveValue(QLatin1String(DeviceManagerKey), toMap());
-    writer.save(settingsFilePath(), QLatin1String("QtCreatorDevices"), Core::ICore::mainWindow());
+    writer.save(settingsFilePath(QLatin1String("/qtcreator/devices.xml")),
+                QLatin1String("QtCreatorDevices"), Core::ICore::mainWindow());
 }
 
 void DeviceManager::load()
 {
     Utils::PersistentSettingsReader reader;
-    if (reader.load(settingsFilePath()))
+    if (reader.load(settingsFilePath(QLatin1String("/qtcreator/devices.xml"))))
+        fromMap(reader.restoreValues().value(QLatin1String(DeviceManagerKey)).toMap());
+    else if (reader.load(settingsFilePath(QLatin1String("/devices.xml"))))
         fromMap(reader.restoreValues().value(QLatin1String(DeviceManagerKey)).toMap());
     else
         loadPre2_6();
@@ -220,9 +223,10 @@ QVariantMap DeviceManager::toMap() const
     return map;
 }
 
-QString DeviceManager::settingsFilePath()
+QString DeviceManager::settingsFilePath(const QString &extension)
 {
-    return QFileInfo(ExtensionSystem::PluginManager::settings()->fileName()).absolutePath() + QLatin1String("/devices.xml");
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    return QFileInfo(pm->settings()->fileName()).absolutePath() + extension;
 }
 
 void DeviceManager::addDevice(const IDevice::Ptr &_device)

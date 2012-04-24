@@ -32,10 +32,10 @@
 
 #include "cmakeuicodemodelsupport.h"
 #include "cmakeproject.h"
-#include "cmaketarget.h"
 #include "cmakebuildconfiguration.h"
 
 #include <cpptools/ModelManagerInterface.h>
+#include <projectexplorer/target.h>
 
 #include <QProcess>
 
@@ -48,14 +48,10 @@ CMakeUiCodeModelSupport::CMakeUiCodeModelSupport(CPlusPlus::CppModelManagerInter
                                              const QString &uiHeaderFile)
     : CppTools::UiCodeModelSupport(modelmanager, source, uiHeaderFile),
       m_project(project)
-{
-
-}
+{ }
 
 CMakeUiCodeModelSupport::~CMakeUiCodeModelSupport()
-{
-
-}
+{ }
 
 QString CMakeUiCodeModelSupport::uicCommand() const
 {
@@ -64,6 +60,7 @@ QString CMakeUiCodeModelSupport::uicCommand() const
 
 QStringList CMakeUiCodeModelSupport::environment() const
 {
-    CMakeBuildConfiguration *bc = m_project->activeTarget()->activeBuildConfiguration();
-    return bc->environment().toStringList();
+    if (!m_project || !m_project->activeTarget() || !m_project->activeTarget()->activeBuildConfiguration())
+        return QStringList();
+    return m_project->activeTarget()->activeBuildConfiguration()->environment().toStringList();
 }

@@ -21,8 +21,6 @@ SOURCES += $$PWD/s60manager.cpp \
     $$PWD/certificatepathchooser.cpp \
     $$PWD/s60symbiancertificate.cpp \
     $$PWD/s60certificatedetailsdialog.cpp \
-    $$PWD/qt4symbiantargetfactory.cpp \
-    $$PWD/qt4symbiantarget.cpp \
     $$PWD/s60runcontrolfactory.cpp \
     $$PWD/codaruncontrol.cpp \
     $$PWD/s60runcontrolbase.cpp \
@@ -57,8 +55,6 @@ HEADERS += $$PWD/s60manager.h \
     $$PWD/certificatepathchooser.h \
     $$PWD/s60symbiancertificate.h \
     $$PWD/s60certificatedetailsdialog.h \
-    $$PWD/qt4symbiantargetfactory.h \
-    $$PWD/qt4symbiantarget.h \
     $$PWD/s60runcontrolfactory.h \
     $$PWD/codaruncontrol.h \
     $$PWD/s60runcontrolbase.h \

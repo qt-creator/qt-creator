@@ -34,9 +34,12 @@
 #include "deployablefile.h"
 #include "deployablefilesperprofile.h"
 #include "profilesupdatedialog.h"
+#include "remotelinuxdeployconfiguration.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4nodes.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -60,14 +63,11 @@ typedef QHash<QString, ProFileUpdateSetting> UpdateSettingsMap;
 class DeploymentSettingsAssistantInternal
 {
 public:
-    DeploymentSettingsAssistantInternal(const QString &qmakeScope, const QString &installPrefix,
-        DeploymentInfo *deploymentInfo)
-        : qmakeScope(qmakeScope), installPrefix(installPrefix), deploymentInfo(deploymentInfo)
+    DeploymentSettingsAssistantInternal(DeploymentInfo *deploymentInfo)
+        : deploymentInfo(deploymentInfo)
     {
     }
 
-    const QString qmakeScope;
-    const QString installPrefix;
     DeploymentInfo * const deploymentInfo;
     UpdateSettingsMap updateSettings;
 };
@@ -76,10 +76,10 @@ public:
 
 using namespace Internal;
 
-DeploymentSettingsAssistant::DeploymentSettingsAssistant(const QString &qmakeScope,
-        const QString &installPrefix, DeploymentInfo *deploymentInfo, QObject *parent)
+DeploymentSettingsAssistant::DeploymentSettingsAssistant(DeploymentInfo *deploymentInfo,
+                                                         ProjectExplorer::Project *parent)
     : QObject(parent),
-      d(new DeploymentSettingsAssistantInternal(qmakeScope, installPrefix, deploymentInfo))
+      d(new DeploymentSettingsAssistantInternal(deploymentInfo))
 {
     connect(d->deploymentInfo, SIGNAL(modelReset()), SLOT(handleDeploymentInfoUpdated()));
 }
@@ -89,23 +89,26 @@ DeploymentSettingsAssistant::~DeploymentSettingsAssistant()
     delete d;
 }
 
-bool DeploymentSettingsAssistant::addDeployableToProFile(const DeployableFilesPerProFile *proFileInfo,
-    const QString &variableName, const DeployableFile &deployable)
+bool DeploymentSettingsAssistant::addDeployableToProFile(const QString &qmakeScope,
+    const DeployableFilesPerProFile *proFileInfo, const QString &variableName,
+    const DeployableFile &deployable)
 {
     const QString filesLine = variableName + QLatin1String(".files = ")
         + QDir(proFileInfo->projectDir()).relativeFilePath(deployable.localFilePath);
     const QString pathLine = variableName + QLatin1String(".path = ") + deployable.remoteDir;
     const QString installsLine = QLatin1String("INSTALLS += ") + variableName;
-    return addLinesToProFile(proFileInfo, QStringList() << filesLine << pathLine << installsLine);
+    return addLinesToProFile(qmakeScope, proFileInfo,
+                             QStringList() << filesLine << pathLine << installsLine);
 }
 
-bool DeploymentSettingsAssistant::addLinesToProFile(const DeployableFilesPerProFile *proFileInfo,
-    const QStringList &lines)
+bool DeploymentSettingsAssistant::addLinesToProFile(const QString &qmakeScope,
+                                                    const DeployableFilesPerProFile *proFileInfo,
+                                                    const QStringList &lines)
 {
     Core::FileChangeBlocker update(proFileInfo->proFilePath());
 
     const QString separator = QLatin1String("\n    ");
-    const QString proFileString = QLatin1Char('\n') + d->qmakeScope + QLatin1String(" {")
+    const QString proFileString = QLatin1Char('\n') + qmakeScope + QLatin1String(" {")
         + separator + lines.join(separator) + QLatin1String("\n}\n");
     Utils::FileSaver saver(proFileInfo->proFilePath(), QIODevice::Append);
     saver.write(proFileString.toLocal8Bit());
@@ -114,6 +117,24 @@ bool DeploymentSettingsAssistant::addLinesToProFile(const DeployableFilesPerProF
 
 void DeploymentSettingsAssistant::handleDeploymentInfoUpdated()
 {
+    ProjectExplorer::Project *project = static_cast<ProjectExplorer::Project *>(parent());
+    QStringList scopes;
+    QStringList pathes;
+    foreach (ProjectExplorer::Target *target, project->targets()) {
+        foreach (ProjectExplorer::DeployConfiguration *dc, target->deployConfigurations()) {
+            RemoteLinuxDeployConfiguration *rldc = qobject_cast<RemoteLinuxDeployConfiguration *>(dc);
+            if (!rldc)
+                continue;
+            const QString scope = rldc->qmakeScope();
+            if (!scopes.contains(scope)) {
+                scopes.append(scope);
+                pathes.append(rldc->installPrefix());
+            }
+        }
+    }
+    if (scopes.isEmpty())
+        return;
+
     QList<DeployableFilesPerProFile *> proFilesToAskAbout;
     QList<DeployableFilesPerProFile *> proFilesToUpdate;
     for (int i = 0; i < d->deploymentInfo->modelCount(); ++i) {
@@ -144,11 +165,13 @@ void DeploymentSettingsAssistant::handleDeploymentInfoUpdated()
     foreach (const DeployableFilesPerProFile * const proFileInfo, proFilesToUpdate) {
         const QString remoteDirSuffix = QLatin1String(proFileInfo->projectType() == LibraryTemplate
                 ? "/lib" : "/bin");
-        const QString remoteDir = QLatin1String("target.path = ") + d->installPrefix
-            + QLatin1Char('/') + proFileInfo->projectName() + remoteDirSuffix;
-        const QStringList deployInfo = QStringList() << remoteDir
-            << QLatin1String("INSTALLS += target");
-        addLinesToProFile(proFileInfo, deployInfo);
+        for (int i = 0; i < scopes.count(); ++i) {
+            const QString remoteDir = QLatin1String("target.path = ") + pathes.at(i)
+                + QLatin1Char('/') + proFileInfo->projectName() + remoteDirSuffix;
+            const QStringList deployInfo = QStringList() << remoteDir
+                << QLatin1String("INSTALLS += target");
+            addLinesToProFile(scopes.at(i), proFileInfo, deployInfo);
+        }
     }
 }
 

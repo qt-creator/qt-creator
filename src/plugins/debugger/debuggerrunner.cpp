@@ -41,6 +41,7 @@
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
 #include "debuggerstartparameters.h"
+#include "debuggerprofileinformation.h"
 #include "lldb/lldbenginehost.h"
 #include "debuggertooltipmanager.h"
 #include "qml/qmlengine.h"
@@ -905,6 +906,12 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
 
     if (const ProjectExplorer::Target *target = runConfiguration->target()) {
         if (QByteArray(target->metaObject()->className()).contains("Qt4")) {
+            // FIXME: Get this from the profile?
+            //        We could query the QtVersion for this information directly, but then we
+            //        will need to add a dependency on QtSupport to the debugger.
+            //
+            //        The profile could also get a method to extract the required information from
+            //        its information to avoid this dependecy (as we do for the environment).
             const Utils::FileName qmake = Utils::BuildableHelperLibrary::findSystemQt(sp.environment);
             if (!qmake.isEmpty())
                 sp.qtInstallPath = findQtInstallPath(qmake);
@@ -913,8 +920,8 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
             sp.projectSourceDirectory = project->projectDirectory();
             if (const ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration()) {
                 sp.projectBuildDirectory = buildConfig->buildDirectory();
-                if (const ProjectExplorer::ToolChain *tc = buildConfig->toolChain())
-                    sp.debuggerCommand = tc->debuggerCommand().toString();
+                const ProjectExplorer::Profile *p = runConfiguration->target()->profile();
+                sp.debuggerCommand = DebuggerProfileInformation::debuggerCommand(p).toString();
             }
             sp.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
         }

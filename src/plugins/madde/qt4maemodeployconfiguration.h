@@ -33,12 +33,14 @@
 #ifndef QT4PROJECTMANAGER_QT4DEPLOYCONFIGURATION_H
 #define QT4PROJECTMANAGER_QT4DEPLOYCONFIGURATION_H
 
+#include <remotelinux/deploymentsettingsassistant.h>
 #include <remotelinux/remotelinuxdeployconfiguration.h>
+#include <utils/fileutils.h>
 
 namespace RemoteLinux {
 class DeployableFilesPerProFile;
 class DeploymentSettingsAssistant;
-}
+} // namespace RemoteLinux
 
 namespace Madde {
 namespace Internal {
@@ -78,7 +80,20 @@ public:
     static Core::Id harmattanId();
     static Core::Id meegoId();
 
+    RemoteLinux::DeploymentSettingsAssistant *deploymentSettingsAssistant();
+
+    QString qmakeScope() const;
+    QString installPrefix() const;
+
+private slots:
+    void debianDirChanged(const Utils::FileName &dir);
+    void setupPackaging();
+
 private:
+    void init();
+    void setupDebianPackaging();
+    void addFilesToProject(const QStringList &files);
+
     friend class Internal::Qt4MaemoDeployConfigurationFactory;
 
     Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target, const Core::Id id,

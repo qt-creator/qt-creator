@@ -34,14 +34,19 @@
 #include "androiddeploystep.h"
 #include "androidglobal.h"
 #include "androidtoolchain.h"
-#include "androidtarget.h"
+#include "androidmanager.h"
 
+#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
+
+#include <qtsupport/qtprofileinformation.h>
 
 #include <utils/qtcassert.h>
 
 #include <qtsupport/qtoutputformatter.h>
+#include <qtsupport/qtprofileinformation.h>
 
 using namespace Qt4ProjectManager;
 
@@ -50,15 +55,14 @@ namespace Internal {
 
 using namespace ProjectExplorer;
 
-AndroidRunConfiguration::AndroidRunConfiguration(AndroidTarget *parent,
-                                                 const QString &proFilePath)
-    : RunConfiguration(parent, Core::Id(ANDROID_RC_ID))
-    , m_proFilePath(proFilePath)
+AndroidRunConfiguration::AndroidRunConfiguration(Target *parent, Core::Id id, const QString &path)
+    : RunConfiguration(parent, id)
+    , m_proFilePath(path)
 {
     init();
 }
 
-AndroidRunConfiguration::AndroidRunConfiguration(AndroidTarget *parent,
+AndroidRunConfiguration::AndroidRunConfiguration(ProjectExplorer::Target *parent,
                                                  AndroidRunConfiguration *source)
     : RunConfiguration(parent, source)
     , m_proFilePath(source->m_proFilePath)
@@ -75,11 +79,6 @@ AndroidRunConfiguration::~AndroidRunConfiguration()
 {
 }
 
-AndroidTarget *AndroidRunConfiguration::androidTarget() const
-{
-    return static_cast<AndroidTarget *>(target());
-}
-
 Qt4BuildConfiguration *AndroidRunConfiguration::activeQt4BuildConfiguration() const
 {
     return static_cast<Qt4BuildConfiguration *>(activeBuildConfiguration());
@@ -92,7 +91,7 @@ QWidget *AndroidRunConfiguration::createConfigurationWidget()
 
 Utils::OutputFormatter *AndroidRunConfiguration::createOutputFormatter() const
 {
-    return new QtSupport::QtOutputFormatter(androidTarget()->qt4Project());
+    return new QtSupport::QtOutputFormatter(target()->project());
 }
 
 QString AndroidRunConfiguration::defaultDisplayName()
@@ -105,9 +104,12 @@ AndroidConfig AndroidRunConfiguration::config() const
     return AndroidConfigurations::instance().config();
 }
 
-const QString AndroidRunConfiguration::gdbCmd() const
+const Utils::FileName AndroidRunConfiguration::gdbCmd() const
 {
-    return AndroidConfigurations::instance().gdbPath(activeQt4BuildConfiguration()->toolChain()->targetAbi().architecture());
+    ToolChain *tc = ToolChainProfileInformation::toolChain(target()->profile());
+    if (!tc)
+        return Utils::FileName();
+    return AndroidConfigurations::instance().gdbPath(tc->targetAbi().architecture());
 }
 
 AndroidDeployStep *AndroidRunConfiguration::deployStep() const
@@ -127,8 +129,10 @@ const QString AndroidRunConfiguration::remoteChannel() const
 
 const QString AndroidRunConfiguration::dumperLib() const
 {
-    Qt4BuildConfiguration *qt4bc(activeQt4BuildConfiguration());
-    return qt4bc->qtVersion()->gdbDebuggingHelperLibrary();
+    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
+    if (!version)
+        return QString();
+    return version->gdbDebuggingHelperLibrary();
 }
 
 QString AndroidRunConfiguration::proFilePath() const

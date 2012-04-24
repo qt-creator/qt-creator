@@ -48,8 +48,6 @@ QtcPlugin {
         "cmakeprojectplugin.h",
         "cmakerunconfiguration.cpp",
         "cmakerunconfiguration.h",
-        "cmaketarget.cpp",
-        "cmaketarget.h",
         "cmakeuicodemodelsupport.cpp",
         "cmakeuicodemodelsupport.h",
         "makestep.cpp",

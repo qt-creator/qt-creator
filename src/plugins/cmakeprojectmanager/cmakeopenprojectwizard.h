@@ -90,8 +90,6 @@ public:
     CMakeManager *cmakeManager() const;
     QString arguments() const;
     void setArguments(const QString &args);
-    ProjectExplorer::ToolChain *toolChain() const;
-    void setToolChain(ProjectExplorer::ToolChain *);
     Utils::Environment environment() const;
     bool existsUpToDateXmlFile() const;
 
@@ -104,7 +102,6 @@ private:
     QString m_arguments;
     bool m_creatingCbpFiles;
     Utils::Environment m_environment;
-    ProjectExplorer::ToolChain *m_toolChain;
 };
 
 class InSourceBuildPage : public QWizardPage

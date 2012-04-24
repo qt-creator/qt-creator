@@ -12,6 +12,7 @@ QT += xml network
 HEADERS += \
     androidconstants.h \
     androidconfigurations.h \
+    androidmanager.h \
     androidrunconfiguration.h \
     androidruncontrol.h \
     androidrunfactories.h \
@@ -32,14 +33,13 @@ HEADERS += \
     androidqtversionfactory.h \
     androidqtversion.h \
     androiddeployconfiguration.h \
-    androidtarget.h \
-    androidtargetfactory.h \
     androidcreatekeystorecertificate.h \
     javaparser.h \
     androidplugin.h
 
 SOURCES += \
     androidconfigurations.cpp \
+    androidmanager.cpp \
     androidrunconfiguration.cpp \
     androidruncontrol.cpp \
     androidrunfactories.cpp \
@@ -59,8 +59,6 @@ SOURCES += \
     androidqtversionfactory.cpp \
     androidqtversion.cpp \
     androiddeployconfiguration.cpp \
-    androidtarget.cpp \
-    androidtargetfactory.cpp \
     androidcreatekeystorecertificate.cpp \
     javaparser.cpp \
     androidplugin.cpp

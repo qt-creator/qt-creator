@@ -32,13 +32,13 @@
 #ifndef MAEMORUNFACTORIES_H
 #define MAEMORUNFACTORIES_H
 
-#include <projectexplorer/runconfiguration.h>
+#include <qt4projectmanager/qmakerunconfigurationfactory.h>
 
 namespace ProjectExplorer {
-    class RunConfiguration;
-    class RunControl;
-    class Target;
-}
+class RunControl;
+class Target;
+} // namespace ProjectExplorer
+
 using ProjectExplorer::IRunConfigurationFactory;
 using ProjectExplorer::IRunControlFactory;
 using ProjectExplorer::RunConfiguration;
@@ -49,7 +49,7 @@ using ProjectExplorer::Target;
 namespace Madde {
 namespace Internal {
 
-class MaemoRunConfigurationFactory : public IRunConfigurationFactory
+class MaemoRunConfigurationFactory : public Qt4ProjectManager::QmakeRunConfigurationFactory
 {
     Q_OBJECT
 
@@ -68,6 +68,10 @@ public:
 
     bool canClone(Target *parent, RunConfiguration *source) const;
     RunConfiguration *clone(Target *parent, RunConfiguration *source);
+
+    bool canHandle(ProjectExplorer::Target *t) const;
+    QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
+                                                                        ProjectExplorer::Node *n);
 };
 
 class MaemoRunControlFactory : public IRunControlFactory

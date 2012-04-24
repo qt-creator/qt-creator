@@ -35,9 +35,13 @@
 #include "buildmanager.h"
 #include "buildsteplist.h"
 #include "buildstepspage.h"
+#include "profileinformation.h"
+#include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "target.h"
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <QStringList>
 
@@ -59,7 +63,7 @@ DeployConfiguration::DeployConfiguration(Target *target, const Core::Id id) :
     //: Display name of the deploy build step list. Used as part of the labels in the project window.
     m_stepList->setDefaultDisplayName(tr("Deploy"));
     //: Default DeployConfiguration display name
-    setDefaultDisplayName(tr("No deployment"));
+    setDefaultDisplayName(tr("Deploy locally"));
 }
 
 DeployConfiguration::DeployConfiguration(Target *target, DeployConfiguration *source) :
@@ -153,14 +157,15 @@ void DeployConfiguration::cloneSteps(DeployConfiguration *source)
 
 DeployConfigurationFactory::DeployConfigurationFactory(QObject *parent) :
     QObject(parent)
-{ }
+{ setObjectName(QLatin1String("DeployConfigurationFactory")); }
 
 DeployConfigurationFactory::~DeployConfigurationFactory()
 { }
 
 QList<Core::Id> DeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
-    Q_UNUSED(parent);
+    if (!canHandle(parent))
+        return QList<Core::Id>();
     return QList<Core::Id>() << Core::Id(Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
 }
 
@@ -174,7 +179,8 @@ QString DeployConfigurationFactory::displayNameForId(const Core::Id id) const
 
 bool DeployConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
 {
-    Q_UNUSED(parent);
+    if (!canHandle(parent))
+        return false;
     return id == Core::Id(Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
 }
 
@@ -212,6 +218,35 @@ DeployConfiguration *DeployConfigurationFactory::clone(Target *parent, DeployCon
     if (!canClone(parent, product))
         return 0;
     return new DeployConfiguration(parent, product);
+}
+
+DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, const QVariantMap &map)
+{
+    QList<DeployConfigurationFactory *> factories
+            = ExtensionSystem::PluginManager::instance()->getObjects<DeployConfigurationFactory>();
+    foreach (DeployConfigurationFactory *factory, factories) {
+        if (factory->canRestore(parent, map))
+            return factory;
+    }
+    return 0;
+}
+
+DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent)
+{
+    QList<DeployConfigurationFactory *> factories
+            = ExtensionSystem::PluginManager::instance()->getObjects<DeployConfigurationFactory>();
+    foreach (DeployConfigurationFactory *factory, factories) {
+        if (!factory->availableCreationIds(parent).isEmpty())
+            return factory;
+    }
+    return 0;
+}
+
+bool DeployConfigurationFactory::canHandle(Target *parent) const
+{
+    if (!parent->project()->supportsProfile(parent->profile()))
+        return false;
+    return DeviceTypeProfileInformation::deviceTypeId(parent->profile()) == Core::Id(Constants::DESKTOP_DEVICE_TYPE);
 }
 
 ///

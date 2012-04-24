@@ -35,7 +35,6 @@
 
 namespace Madde {
 namespace Internal {
-class AbstractQt4MaemoTarget;
 class MaemoRemoteMountsModel;
 
 class MaemoRunConfiguration : public RemoteLinux::RemoteLinuxRunConfiguration
@@ -43,8 +42,8 @@ class MaemoRunConfiguration : public RemoteLinux::RemoteLinuxRunConfiguration
     Q_OBJECT
 
 public:
-    MaemoRunConfiguration(AbstractQt4MaemoTarget *parent, const QString &proFilePath);
-    MaemoRunConfiguration(AbstractQt4MaemoTarget *parent, MaemoRunConfiguration *source);
+    MaemoRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &proFilePath);
+    MaemoRunConfiguration(ProjectExplorer::Target *parent, MaemoRunConfiguration *source);
 
     QVariantMap toMap() const;
     bool fromMap(const QVariantMap &map);
@@ -59,8 +58,6 @@ public:
     QString localDirToMountForRemoteGdb() const;
     QString remoteProjectSourcesMountPoint() const;
 
-    static const Core::Id Id;
-
 signals:
     void remoteMountsChanged();
 
@@ -69,7 +66,6 @@ private slots:
 
 private:
     void init();
-    const AbstractQt4MaemoTarget *maemoTarget() const;
 
     MaemoRemoteMountsModel *m_remoteMounts;
 };

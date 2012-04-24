@@ -33,15 +33,15 @@
 #include "maemoinstalltosysrootstep.h"
 
 #include "maemoglobal.h"
+#include "maemoconstants.h"
 #include "maemopackagecreationstep.h"
 #include "maemoqtversion.h"
-#include "qt4maemotarget.h"
 
 #include <utils/fileutils.h>
-
+#include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qt4projectmanager/qt4target.h>
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtprofileinformation.h>
 #include <remotelinux/deploymentinfo.h>
 #include <remotelinux/remotelinuxdeployconfiguration.h>
 
@@ -160,14 +160,6 @@ RemoteLinuxDeployConfiguration *AbstractMaemoInstallPackageToSysrootStep::deploy
 
 bool AbstractMaemoInstallPackageToSysrootStep::init()
 {
-    const Qt4BuildConfiguration * const bc
-        = qobject_cast<Qt4BaseTarget *>(target())->activeQt4BuildConfiguration();
-    if (!bc) {
-        addOutput(tr("Cannot install to sysroot without build configuration."),
-            ErrorMessageOutput);
-        return false;
-    }
-
     const AbstractMaemoPackageCreationStep * const pStep
         = deployConfiguration()->earlierBuildStep<AbstractMaemoPackageCreationStep>(this);
     if (!pStep) {
@@ -176,13 +168,14 @@ bool AbstractMaemoInstallPackageToSysrootStep::init()
         return false;
     }
 
-    if (!bc->qtVersion()) {
+    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
+    if (!version) {
         addOutput(tr("Cannot install package to sysroot without a Qt version."),
             ErrorMessageOutput);
         return false;
     }
 
-    m_qmakeCommand = bc->qtVersion()->qmakeCommand().toString();
+    m_qmakeCommand = version->qmakeCommand().toString();
     m_packageFilePath = pStep->packageFilePath();
     return true;
 }
@@ -253,7 +246,8 @@ QStringList MaemoInstallDebianPackageToSysrootStep::madArguments() const
 {
     QStringList args;
     args << QLatin1String("xdpkg");
-    if (qobject_cast<Qt4HarmattanTarget *>(target()))
+    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
+    if (deviceType == Core::Id(HarmattanOsType))
         args << QLatin1String("--no-force-downgrade");
     args << QLatin1String("-i");
     return args;
@@ -314,20 +308,21 @@ MaemoCopyToSysrootStep::MaemoCopyToSysrootStep(BuildStepList *bsl,
 bool MaemoCopyToSysrootStep::init()
 {
     const Qt4BuildConfiguration * const bc
-        = qobject_cast<Qt4BaseTarget *>(target())->activeQt4BuildConfiguration();
+        = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
     if (!bc) {
         addOutput(tr("Cannot copy to sysroot without build configuration."),
             ErrorMessageOutput);
         return false;
     }
 
-    const MaemoQtVersion * const qtVersion = dynamic_cast<MaemoQtVersion *>(bc->qtVersion());
+    const MaemoQtVersion *const qtVersion
+            = dynamic_cast<MaemoQtVersion *>(QtSupport::QtProfileInformation::qtVersion(target()->profile()));
     if (!qtVersion) {
         addOutput(tr("Cannot copy to sysroot without valid Qt version."),
             ErrorMessageOutput);
         return false;
     }
-    m_systemRoot = qtVersion->systemRoot();
+    m_systemRoot = ProjectExplorer::SysRootProfileInformation::sysRoot(target()->profile()).toString();
 
     const DeploymentInfo * const deploymentInfo
             = static_cast<RemoteLinuxDeployConfiguration *>(deployConfiguration())->deploymentInfo();
@@ -398,7 +393,8 @@ bool MaemoMakeInstallToSysrootStep::init()
             ErrorMessageOutput);
         return false;
     }
-    const QtSupport::BaseQtVersion * const qtVersion = bc->qtVersion();
+    const QtSupport::BaseQtVersion *const qtVersion
+            = QtSupport::QtProfileInformation::qtVersion(target()->profile());
     if (!qtVersion) {
         addOutput("Cannot deploy: Unusable build configuration.",
             ErrorMessageOutput);
@@ -408,9 +404,12 @@ bool MaemoMakeInstallToSysrootStep::init()
     Utils::Environment env = bc->environment();
     MaemoGlobal::addMaddeEnvironment(env, qtVersion->qmakeCommand().toString());
     QString command = MaemoGlobal::madCommand(qtVersion->qmakeCommand().toString());
+    QString systemRoot;
+    if (ProjectExplorer::SysRootProfileInformation::hasSysRoot(target()->profile()))
+        systemRoot = ProjectExplorer::SysRootProfileInformation::sysRoot(target()->profile()).toString();
     QStringList args = QStringList() << QLatin1String("-t")
         << MaemoGlobal::targetName(qtVersion->qmakeCommand().toString()) << QLatin1String("make")
-        << QLatin1String("install") << (QLatin1String("INSTALL_ROOT=") + qtVersion->systemRoot());
+        << QLatin1String("install") << (QLatin1String("INSTALL_ROOT=") + systemRoot);
     MaemoGlobal::transformMaddeCall(command, args, qtVersion->qmakeCommand().toString());
     processParameters()->setCommand(command);
     processParameters()->setArguments(args.join(QLatin1String(" ")));

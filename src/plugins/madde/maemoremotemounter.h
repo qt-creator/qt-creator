@@ -35,6 +35,8 @@
 
 #include "maemomountspecification.h"
 
+#include <utils/fileutils.h>
+
 #include <QList>
 #include <QObject>
 #include <QProcess>
@@ -111,7 +113,7 @@ private:
     void killUtfsServer(QProcess *proc);
     void killAllUtfsServers();
     QString utfsClientOnDevice() const;
-    QString utfsServer() const;
+    Utils::FileName utfsServer() const;
 
     QTimer * const m_utfsServerTimer;
 
@@ -135,7 +137,7 @@ private:
     Utils::PortList *m_freePorts;
     const RemoteLinux::RemoteLinuxUsedPortsGatherer *m_portsGatherer;
     bool m_remoteMountsAllowed;
-    QString m_maddeRoot;
+    Utils::FileName m_maddeRoot;
 
     State m_state;
 };

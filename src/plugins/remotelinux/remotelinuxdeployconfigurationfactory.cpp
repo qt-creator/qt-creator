@@ -31,10 +31,16 @@
 **************************************************************************/
 #include "remotelinuxdeployconfigurationfactory.h"
 
-#include "genericembeddedlinuxtarget.h"
 #include "genericdirectuploadstep.h"
 #include "remotelinuxcheckforfreediskspacestep.h"
+#include "remotelinux_constants.h"
 #include "remotelinuxdeployconfiguration.h"
+
+#include <projectexplorer/abi.h>
+#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
+#include <qt4projectmanager/qt4project.h>
 
 #include <QCoreApplication>
 
@@ -50,12 +56,23 @@ QString genericLinuxDisplayName() {
 
 RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory(QObject *parent)
     : DeployConfigurationFactory(parent)
-{ }
+{ setObjectName(QLatin1String("RemoteLinuxDeployConfiguration"));}
 
 QList<Core::Id> RemoteLinuxDeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
     QList<Core::Id> ids;
-    if (qobject_cast<GenericEmbeddedLinuxTarget *>(parent))
+    if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project()))
+        return ids;
+    ProjectExplorer::ToolChain *tc
+            = ProjectExplorer::ToolChainProfileInformation::toolChain(parent->profile());
+    if (!tc || tc->targetAbi().os() != ProjectExplorer::Abi::LinuxOS)
+        return ids;
+    if (ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->profile())
+            == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+        return ids;
+
+    ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceProfileInformation::device(parent->profile());
+    if (!dev.isNull() && dev->type() == Core::Id(Constants::GenericLinuxOsType))
         ids << genericDeployConfigurationId();
     return ids;
 }

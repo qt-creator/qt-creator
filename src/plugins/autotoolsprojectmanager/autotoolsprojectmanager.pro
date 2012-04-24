@@ -12,7 +12,6 @@ HEADERS = autotoolsprojectplugin.h\
           autotoolsprojectfile.h\
           autotoolsprojectnode.h\
           autotoolsproject.h\
-          autotoolstarget.h\
           autotoolsbuildsettingswidget.h\
           autotoolsbuildconfiguration.h\
           autotoolsprojectconstants.h\
@@ -28,7 +27,6 @@ SOURCES = autotoolsprojectplugin.cpp\
           autotoolsprojectfile.cpp\
           autotoolsprojectnode.cpp\
           autotoolsproject.cpp\
-          autotoolstarget.cpp\
           autotoolsbuildsettingswidget.cpp\
           autotoolsbuildconfiguration.cpp\
           makestep.cpp\

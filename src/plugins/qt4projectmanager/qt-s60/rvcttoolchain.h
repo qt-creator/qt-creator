@@ -85,8 +85,6 @@ public:
     QString typeDisplayName() const;
     ProjectExplorer::Abi targetAbi() const;
 
-    QString legacyId() const;
-
     bool isValid() const;
 
     QByteArray predefinedMacros(const QStringList &cxxflags) const;
@@ -104,9 +102,6 @@ public:
 
     void setCompilerCommand(const Utils::FileName &path);
     Utils::FileName compilerCommand() const;
-
-    void setDebuggerCommand(const Utils::FileName &d);
-    Utils::FileName debuggerCommand() const;
 
     void setArmVersion(ArmVersion);
     ArmVersion armVersion() const;
@@ -130,7 +125,6 @@ private:
     QList<Utils::EnvironmentItem> m_environmentChanges;
     ArmVersion m_armVersion;
     mutable RvctVersion m_version;
-    Utils::FileName m_debuggerCommand;
 
     friend class RvctToolChainFactory;
 };

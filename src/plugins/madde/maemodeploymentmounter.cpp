@@ -35,7 +35,9 @@
 #include "maemoglobal.h"
 #include "maemoremotemounter.h"
 
+#include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qtsupport/qtprofileinformation.h>
 #include <remotelinux/linuxdeviceconfiguration.h>
 #include <remotelinux/remotelinuxusedportsgatherer.h>
 #include <utils/qtcassert.h>
@@ -173,7 +175,7 @@ void MaemoDeploymentMounter::handlePortListReady()
         return;
 
     setState(Mounting);
-    m_freePorts = MaemoGlobal::freePorts(m_devConf, m_buildConfig->qtVersion());
+    m_freePorts = MaemoGlobal::freePorts(m_devConf, QtSupport::QtProfileInformation::qtVersion(m_buildConfig->target()->profile()));
     m_mounter->mount(&m_freePorts, m_portsGatherer);
 }
 

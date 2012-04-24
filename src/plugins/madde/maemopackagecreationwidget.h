@@ -33,6 +33,7 @@
 #define MAEMOPACKAGECREATIONWIDGET_H
 
 #include <projectexplorer/buildstep.h>
+#include <utils/fileutils.h>
 
 namespace Madde {
 namespace Internal {
@@ -56,10 +57,10 @@ private slots:
     void editSpecFile();
     void versionInfoChanged();
     void initGui();
-    void updateDebianFileList();
+    void updateDebianFileList(const Utils::FileName &debianDir);
     void updateVersionInfo();
-    void handleControlFileUpdate();
-    void handleSpecFileUpdate();
+    void handleControlFileUpdate(const Utils::FileName &debianDir);
+    void handleSpecFileUpdate(const Utils::FileName &spec);
     void setPackageManagerIcon();
     void setPackageManagerName();
     void setPackageName();

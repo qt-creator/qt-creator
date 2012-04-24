@@ -32,7 +32,6 @@
 
 #include "qmlprojectrunconfigurationwidget.h"
 #include "qmlprojectrunconfiguration.h"
-#include "qmlprojecttarget.h"
 #include "qmlproject.h"
 
 #include <coreplugin/helpmanager.h>
@@ -40,11 +39,9 @@
 #include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
-#include <utils/qtcassert.h>
-#include <qtsupport/qtsupportconstants.h>
-#include <qtsupport/qtversionmanager.h>
 
 #include <QLineEdit>
 #include <QComboBox>
@@ -54,14 +51,12 @@
 #include <QStandardItemModel>
 
 using Core::ICore;
-using QtSupport::QtVersionManager;
 
 namespace QmlProjectManager {
 namespace Internal {
 
 QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRunConfiguration *rc) :
     m_runConfiguration(rc),
-    m_qtVersionComboBox(0),
     m_fileListCombo(0),
     m_fileListModel(new QStandardItemModel(this))
 {
@@ -86,36 +81,14 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(fileListChanged()),
             SLOT(updateFileComboBox()));
 
-    m_qtVersionComboBox = new QComboBox;
-    m_qtVersionComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    connect(m_qtVersionComboBox, SIGNAL(activated(int)),
-            this, SLOT(onQtVersionSelectionChanged()));
-
-    QPushButton *pushButton = new QPushButton;
-    pushButton->setText(tr("Manage Qt versions..."));
-    connect(pushButton, SIGNAL(clicked()), this, SLOT(manageQtVersions()));
-
-    QHBoxLayout *qtVersionLayout = new QHBoxLayout;
-    qtVersionLayout->addWidget(m_qtVersionComboBox);
-    qtVersionLayout->addWidget(pushButton);
-
     QLineEdit *qmlViewerArgs = new QLineEdit;
     qmlViewerArgs->setText(rc->m_qmlViewerArgs);
     connect(qmlViewerArgs, SIGNAL(textChanged(QString)), this, SLOT(onViewerArgsChanged()));
 
-    form->addRow(tr("Qt version:"), qtVersionLayout);
     form->addRow(tr("Arguments:"), qmlViewerArgs);
     form->addRow(tr("Main QML file:"), m_fileListCombo);
 
     layout->addWidget(detailsWidget);
-
-    //
-    // Debugging
-    //
-
-    QtVersionManager *qtVersions = QtVersionManager::instance();
-    connect(qtVersions, SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
-            this, SLOT(updateQtVersionComboBox()));
 
     //
     // Environment
@@ -145,7 +118,6 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
     layout->addWidget(m_environmentWidget);
 
     updateFileComboBox();
-    updateQtVersionComboBox();
 }
 
 static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
@@ -155,8 +127,8 @@ static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
 
 void QmlProjectRunConfigurationWidget::updateFileComboBox()
 {
-    QmlProject *project = m_runConfiguration->qmlTarget()->qmlProject();
-    QDir projectDir = project->projectDir();
+    ProjectExplorer::Project *project = m_runConfiguration->target()->project();
+    QDir projectDir(project->projectDirectory());
 
     if (m_runConfiguration->mainScriptSource() == QmlProjectRunConfiguration::FileInProjectFile) {
         const QString mainScriptInFilePath
@@ -172,7 +144,7 @@ void QmlProjectRunConfigurationWidget::updateFileComboBox()
     m_fileListModel->appendRow(new QStandardItem(CURRENT_FILE));
     QModelIndex currentIndex;
 
-    QStringList sortedFiles = project->files();
+    QStringList sortedFiles = project->files(ProjectExplorer::Project::AllFiles);
 
     // make paths relative to project directory
     QStringList relativeFiles;
@@ -216,48 +188,10 @@ void QmlProjectRunConfigurationWidget::setMainScript(int index)
     }
 }
 
-void QmlProjectRunConfigurationWidget::onQtVersionSelectionChanged()
-{
-    QVariant data = m_qtVersionComboBox->itemData(m_qtVersionComboBox->currentIndex());
-    QTC_ASSERT(data.isValid() && data.canConvert(QVariant::Int), return);
-    m_runConfiguration->setQtVersionId(data.toInt());
-    m_runConfiguration->updateEnabled();
-    m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
-}
-
 void QmlProjectRunConfigurationWidget::onViewerArgsChanged()
 {
     if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(sender()))
         m_runConfiguration->m_qmlViewerArgs = lineEdit->text();
-}
-
-void QmlProjectRunConfigurationWidget::manageQtVersions()
-{
-    ICore::showOptionsDialog(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
-                            QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
-}
-
-void QmlProjectRunConfigurationWidget::updateQtVersionComboBox()
-{
-    m_qtVersionComboBox->clear();
-
-    QtVersionManager *qtVersions = QtVersionManager::instance();
-    foreach (QtSupport::BaseQtVersion *version, qtVersions->validVersions()) {
-        if (m_runConfiguration->isValidVersion(version)) {
-            m_qtVersionComboBox->addItem(version->displayName(), version->uniqueId());
-        }
-    }
-
-    if (m_runConfiguration->m_qtVersionId != -1) {
-        int index = m_qtVersionComboBox->findData(m_runConfiguration->m_qtVersionId);
-        QTC_ASSERT(index >= 0, return);
-        m_qtVersionComboBox->setCurrentIndex(index);
-    } else {
-        m_qtVersionComboBox->addItem(tr("Invalid Qt version"), -1);
-        m_qtVersionComboBox->setCurrentIndex(0);
-    }
-    // Might have edited the qt version or changed e.g. the sysroot of a SymbianQtVersion
-    m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
 }
 
 void QmlProjectRunConfigurationWidget::userChangesChanged()
@@ -269,7 +203,6 @@ void QmlProjectRunConfigurationWidget::userEnvironmentChangesChanged()
 {
     m_environmentWidget->setUserChanges(m_runConfiguration->userEnvironmentChanges());
 }
-
 
 } // namespace Internal
 } // namespace QmlProjectManager

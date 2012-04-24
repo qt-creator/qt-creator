@@ -34,6 +34,7 @@
 #include "maemoconstants.h"
 #include "maemoglobal.h"
 
+#include <projectexplorer/profileinformation.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/qtsupportconstants.h>
 
@@ -97,28 +98,6 @@ MaemoQtVersion *MaemoQtVersion::clone() const
     return new MaemoQtVersion(*this);
 }
 
-QString MaemoQtVersion::systemRoot() const
-{
-    if (m_systemRoot.isNull()) {
-        QFile file(QDir::cleanPath(MaemoGlobal::targetRoot(qmakeCommand().toString()))
-                   + QLatin1String("/information"));
-        if (file.exists() && file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QTextStream stream(&file);
-            while (!stream.atEnd()) {
-                const QString &line = stream.readLine().trimmed();
-                const QStringList &list = line.split(QLatin1Char(' '));
-                if (list.count() <= 1)
-                    continue;
-                if (list.at(0) == QLatin1String("sysroot")) {
-                    m_systemRoot = MaemoGlobal::maddeRoot(qmakeCommand().toString())
-                            + QLatin1String("/sysroots/") + list.at(1);
-                }
-            }
-        }
-    }
-    return m_systemRoot;
-}
-
 QList<ProjectExplorer::Abi> MaemoQtVersion::detectQtAbis() const
 {
     QList<ProjectExplorer::Abi> result;
@@ -137,26 +116,6 @@ QList<ProjectExplorer::Abi> MaemoQtVersion::detectQtAbis() const
         result.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::LinuxOS,
                                            ProjectExplorer::Abi::MeegoLinuxFlavor,
                                            ProjectExplorer::Abi::ElfFormat, 32));
-    }
-    return result;
-}
-
-bool MaemoQtVersion::supportsTargetId(const Core::Id id) const
-{
-    return supportedTargetIds().contains(id);
-}
-
-QSet<Core::Id> MaemoQtVersion::supportedTargetIds() const
-{
-    QSet<Core::Id> result;
-    if (!isValid())
-        return result;
-    if (m_deviceType == Core::Id(Maemo5OsType)) {
-        result.insert(Core::Id(Constants::MAEMO5_DEVICE_TARGET_ID));
-    } else if (m_deviceType == Core::Id(HarmattanOsType)) {
-        result.insert(Core::Id(Constants::HARMATTAN_DEVICE_TARGET_ID));
-    } else if (m_deviceType == Core::Id(MeeGoOsType)) {
-        result.insert(Core::Id(Constants::MEEGO_DEVICE_TARGET_ID));
     }
     return result;
 }
@@ -200,20 +159,30 @@ Core::FeatureSet MaemoQtVersion::availableFeatures() const
 
 QString MaemoQtVersion::platformName() const
 {
+    if (m_deviceType == Maemo5OsType)
+        return QLatin1String(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM);
+    if (m_deviceType == MeeGoOsType)
+        return QLatin1String(QtSupport::Constants::MEEGO_PLATFORM);
     return QLatin1String(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM);
 }
 
 QString MaemoQtVersion::platformDisplayName() const
 {
+    if (m_deviceType == Maemo5OsType)
+        return QLatin1String(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM_TR);
+    if (m_deviceType == MeeGoOsType)
+        return QLatin1String(QtSupport::Constants::MEEGO_PLATFORM_TR);
     return QLatin1String(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM_TR);
 }
 
-void MaemoQtVersion::addToEnvironment(Utils::Environment &env) const
+void MaemoQtVersion::addToEnvironment(const ProjectExplorer::Profile *p, Utils::Environment &env) const
 {
+    Q_UNUSED(p);
     const QString maddeRoot = MaemoGlobal::maddeRoot(qmakeCommand().toString());
 
     // Needed to make pkg-config stuff work.
-    env.prependOrSet(QLatin1String("SYSROOT_DIR"), QDir::toNativeSeparators(systemRoot()));
+    Utils::FileName sysRoot = ProjectExplorer::SysRootProfileInformation::sysRoot(p);
+    env.prependOrSet(QLatin1String("SYSROOT_DIR"), sysRoot.toUserOutput());
     env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/madbin")
         .arg(maddeRoot)));
     env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/madlib")
@@ -224,6 +193,14 @@ void MaemoQtVersion::addToEnvironment(Utils::Environment &env) const
     env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin").arg(maddeRoot)));
     env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
         .arg(MaemoGlobal::targetRoot(qmakeCommand().toString()))));
+
+    // Actually this is tool chain related, but since we no longer have a tool chain...
+    const QString manglePathsKey = QLatin1String("GCCWRAPPER_PATHMANGLE");
+    if (!env.hasKey(manglePathsKey)) {
+        const QStringList pathsToMangle = QStringList() << QLatin1String("/lib")
+            << QLatin1String("/opt") << QLatin1String("/usr");
+        env.set(manglePathsKey, pathsToMangle.join(QLatin1String(":")));
+    }
 }
 
 } // namespace Internal

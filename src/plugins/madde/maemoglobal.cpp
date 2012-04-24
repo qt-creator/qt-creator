@@ -33,8 +33,9 @@
 
 #include "maemoconstants.h"
 #include "maemoqemumanager.h"
-#include "qt4maemotarget.h"
 
+#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/baseqtversion.h>
 #include <remotelinux/linuxdeviceconfiguration.h>
@@ -55,27 +56,24 @@ namespace Madde {
 namespace Internal {
 namespace {
 static const QLatin1String binQmake("/bin/qmake" EXEC_SUFFIX);
+} // namespace
+
+bool MaemoGlobal::hasMaemoDevice(const ProjectExplorer::Profile *p)
+{
+    ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceProfileInformation::device(p);
+    if (dev.isNull())
+        return false;
+
+    const Core::Id type = dev->type();
+    return type == Core::Id(Maemo5OsType) || type == Core::Id(HarmattanOsType)
+            || type == Core::Id(MeeGoOsType);
 }
 
-bool MaemoGlobal::isMaemoTargetId(const Core::Id id)
+bool MaemoGlobal::supportsMaemoDevice(const ProjectExplorer::Profile *p)
 {
-    return isFremantleTargetId(id) || isHarmattanTargetId(id)
-        || isMeegoTargetId(id);
-}
-
-bool MaemoGlobal::isFremantleTargetId(const Core::Id id)
-{
-    return id == Core::Id(MAEMO5_DEVICE_TARGET_ID);
-}
-
-bool MaemoGlobal::isHarmattanTargetId(const Core::Id id)
-{
-    return id == Core::Id(HARMATTAN_DEVICE_TARGET_ID);
-}
-
-bool MaemoGlobal::isMeegoTargetId(const Core::Id id)
-{
-    return id == Core::Id(MEEGO_DEVICE_TARGET_ID);
+    const Core::Id type = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(p);
+    return type == Core::Id(Maemo5OsType) || type == Core::Id(HarmattanOsType)
+            || type == Core::Id(MeeGoOsType);
 }
 
 bool MaemoGlobal::isValidMaemo5QtVersion(const QString &qmakePath)
@@ -130,7 +128,8 @@ QString MaemoGlobal::devrootshPath()
 
 int MaemoGlobal::applicationIconSize(const ProjectExplorer::Target *target)
 {
-    return qobject_cast<const Qt4HarmattanTarget *>(target) ? 80 : 64;
+    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target->profile());
+    return deviceType == Core::Id(HarmattanOsType) ? 80 : 64;
 }
 
 QString MaemoGlobal::remoteSudo(Core::Id deviceType, const QString &uname)

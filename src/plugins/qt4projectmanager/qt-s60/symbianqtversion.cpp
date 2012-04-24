@@ -36,6 +36,7 @@
 #include "qt-s60/abldparser.h"
 
 #include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/profileinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -54,14 +55,12 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 SymbianQtVersion::SymbianQtVersion()
-    : BaseQtVersion(),
-      m_validSystemRoot(false)
+    : BaseQtVersion()
 {
 }
 
 SymbianQtVersion::SymbianQtVersion(const Utils::FileName &path, bool isAutodetected, const QString &autodetectionSource)
-    : BaseQtVersion(path, isAutodetected, autodetectionSource),
-      m_validSystemRoot(false)
+    : BaseQtVersion(path, isAutodetected, autodetectionSource)
 {
 
 }
@@ -81,8 +80,7 @@ bool SymbianQtVersion::equals(BaseQtVersion *other)
     if (!BaseQtVersion::equals(other))
         return false;
     SymbianQtVersion *o = static_cast<SymbianQtVersion *>(other);
-    return m_sbsV2Directory == o->m_sbsV2Directory
-            && m_systemRoot == o->m_systemRoot;
+    return m_sbsV2Directory == o->m_sbsV2Directory;
 }
 
 QString SymbianQtVersion::type() const
@@ -94,8 +92,6 @@ bool SymbianQtVersion::isValid() const
 {
     if (!BaseQtVersion::isValid())
         return false;
-    if (!m_validSystemRoot)
-        return false;
     if (isBuildWithSymbianSbsV2() && (m_sbsV2Directory.isEmpty() || !QFileInfo(m_sbsV2Directory + QLatin1String("/sbs")).exists()))
         return false;
     return true;
@@ -104,8 +100,6 @@ bool SymbianQtVersion::isValid() const
 QString SymbianQtVersion::invalidReason() const
 {
     QString tmp = BaseQtVersion::invalidReason();
-    if (tmp.isEmpty() && !m_validSystemRoot)
-        return QCoreApplication::translate("QtVersion", "The \"Open C/C++ plugin\" is not installed in the Symbian SDK or the Symbian SDK path is misconfigured");
     if (isBuildWithSymbianSbsV2()
             && (m_sbsV2Directory.isEmpty() || !QFileInfo(m_sbsV2Directory + QLatin1String("/sbs")).exists()))
         return QCoreApplication::translate("QtVersion", "SBS was not found.");
@@ -113,21 +107,8 @@ QString SymbianQtVersion::invalidReason() const
     return tmp;
 }
 
-bool SymbianQtVersion::toolChainAvailable(const QString &id) const
-{
-    if (!isValid())
-        return false;
-    if (id == QLatin1String(Constants::S60_DEVICE_TARGET_ID)) {
-        QList<ProjectExplorer::ToolChain *> tcList =
-                ProjectExplorer::ToolChainManager::instance()->toolChains();
-        return !tcList.isEmpty();
-    }
-    return false;
-}
-
 void SymbianQtVersion::restoreLegacySettings(QSettings *s)
 {
-    setSystemRoot(QDir::fromNativeSeparators(s->value(QLatin1String("S60SDKDirectory")).toString()));
     setSbsV2Directory(QDir::fromNativeSeparators(s->value(QLatin1String("SBSv2Directory")).toString()));
 }
 
@@ -135,14 +116,12 @@ void SymbianQtVersion::fromMap(const QVariantMap &map)
 {
     BaseQtVersion::fromMap(map);
     setSbsV2Directory(QDir::fromNativeSeparators(map.value(QLatin1String("SBSv2Directory")).toString()));
-    setSystemRoot(QDir::fromNativeSeparators(map.value(QLatin1String("SystemRoot")).toString()));
 }
 
 QVariantMap SymbianQtVersion::toMap() const
 {
     QVariantMap result = BaseQtVersion::toMap();
     result.insert(QLatin1String("SBSv2Directory"), sbsV2Directory());
-    result.insert(QLatin1String("SystemRoot"), systemRoot());
     return result;
 }
 
@@ -153,16 +132,6 @@ QList<ProjectExplorer::Abi> SymbianQtVersion::detectQtAbis() const
                                     ProjectExplorer::Abi::UnknownFlavor,
                                     ProjectExplorer::Abi::ElfFormat,
                                     32);
-}
-
-bool SymbianQtVersion::supportsTargetId(const Core::Id id) const
-{
-    return supportedTargetIds().contains(id);
-}
-
-QSet<Core::Id> SymbianQtVersion::supportedTargetIds() const
-{
-    return QSet<Core::Id>() << Core::Id(Constants::S60_DEVICE_TARGET_ID);
 }
 
 QString SymbianQtVersion::description() const
@@ -198,11 +167,11 @@ static const char *S60_EPOC_HEADERS[] = {
     "epoc32/include/platform/mw/loc/sc"
 };
 
-void SymbianQtVersion::addToEnvironment(Utils::Environment &env) const
+void SymbianQtVersion::addToEnvironment(const ProjectExplorer::Profile *p, Utils::Environment &env) const
 {
-    BaseQtVersion::addToEnvironment(env);
+    BaseQtVersion::addToEnvironment(p, env);
     // Generic Symbian environment:
-    QString epocRootPath = systemRoot();
+    QString epocRootPath = ProjectExplorer::SysRootProfileInformation::sysRoot(p).toString();
     QDir epocDir(epocRootPath);
 
     // Clean up epoc root path for the environment:
@@ -253,10 +222,10 @@ void SymbianQtVersion::addToEnvironment(Utils::Environment &env) const
     }
 }
 
-QList<ProjectExplorer::HeaderPath> SymbianQtVersion::systemHeaderPathes() const
+QList<ProjectExplorer::HeaderPath> SymbianQtVersion::systemHeaderPathes(const ProjectExplorer::Profile *p) const
 {
     QList<ProjectExplorer::HeaderPath> result;
-    QString root = systemRoot() + QLatin1Char('/');
+    QString root = ProjectExplorer::SysRootProfileInformation::sysRoot(p).toString() + QLatin1Char('/');
     const int count = sizeof(S60_EPOC_HEADERS) / sizeof(const char *);
     for (int i = 0; i < count; ++i) {
         const QDir dir(root + QLatin1String(S60_EPOC_HEADERS[i]));
@@ -264,7 +233,7 @@ QList<ProjectExplorer::HeaderPath> SymbianQtVersion::systemHeaderPathes() const
             result.append(ProjectExplorer::HeaderPath(dir.absolutePath(),
                                                       ProjectExplorer::HeaderPath::GlobalHeaderPath));
     }
-    result.append(BaseQtVersion::systemHeaderPathes());
+    result.append(BaseQtVersion::systemHeaderPathes(p));
     return result;
 }
 
@@ -313,39 +282,6 @@ void SymbianQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
     BaseQtVersion::parseMkSpec(evaluator);
 }
 
-QList<ProjectExplorer::Task> SymbianQtVersion::reportIssuesImpl(const QString &proFile, const QString &buildDir)
-{
-    QList<ProjectExplorer::Task> results = BaseQtVersion::reportIssuesImpl(proFile, buildDir);
-    const QString epocRootDir = systemRoot();
-    // Report an error if project- and epoc directory are on different drives:
-    if (!epocRootDir.startsWith(proFile.left(3), Qt::CaseInsensitive)) {
-        // Note: SBSv2 works fine with the EPOCROOT and the sources being on different drives,
-        //       but it fails when Qt is on a different drive than the sources. Since
-        //       the SDK installs Qt and the EPOCROOT on the same drive we just stick with this
-        //       warning.
-        results.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                             QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
-                                                                         "The Symbian SDK and the project sources must reside on the same drive."),
-                                             Utils::FileName(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
-    }
-    return results;
-}
-
-void SymbianQtVersion::setSystemRoot(const QString &root)
-{
-    if (root == m_systemRoot)
-        return;
-    m_systemRoot = root;
-
-    m_validSystemRoot = false;
-    if (!m_systemRoot.isEmpty()) {
-        if (!m_systemRoot.endsWith(QLatin1Char('/')))
-            m_systemRoot.append(QLatin1Char('/'));
-        QFileInfo cppheader(m_systemRoot + QLatin1String("epoc32/include/stdapis/string.h"));
-        m_validSystemRoot = cppheader.exists();
-    }
-}
-
 Core::FeatureSet SymbianQtVersion::availableFeatures() const
 {
     Core::FeatureSet features = QtSupport::BaseQtVersion::availableFeatures();
@@ -366,11 +302,6 @@ QString SymbianQtVersion::platformDisplayName() const
     return QLatin1String(QtSupport::Constants::SYMBIAN_PLATFORM_TR);
 }
 
-QString SymbianQtVersion::systemRoot() const
-{
-    return m_systemRoot;
-}
-
 QtSupport::QtConfigWidget *SymbianQtVersion::createConfigurationWidget() const
 {
     return new SymbianQtConfigWidget(const_cast<SymbianQtVersion *>(this));
@@ -383,16 +314,6 @@ SymbianQtConfigWidget::SymbianQtConfigWidget(SymbianQtVersion *version)
     fl->setMargin(0);
     setLayout(fl);
 
-    Utils::PathChooser *s60sdkPath = new Utils::PathChooser;
-    s60sdkPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
-
-    fl->addRow(tr("S60 SDK:"), s60sdkPath);
-
-    s60sdkPath->setPath(QDir::toNativeSeparators(version->systemRoot()));
-
-    connect(s60sdkPath, SIGNAL(changed(QString)),
-            this, SLOT(updateCurrentS60SDKDirectory(QString)));
-
     if (version->isBuildWithSymbianSbsV2()) {
         Utils::PathChooser *sbsV2Path = new Utils::PathChooser;
         sbsV2Path->setExpectedKind(Utils::PathChooser::ExistingDirectory);
@@ -402,12 +323,6 @@ SymbianQtConfigWidget::SymbianQtConfigWidget(SymbianQtVersion *version)
         connect(sbsV2Path, SIGNAL(changed(QString)),
                 this, SLOT(updateCurrentSbsV2Directory(QString)));
     }
-}
-
-void SymbianQtConfigWidget::updateCurrentS60SDKDirectory(const QString &path)
-{
-    m_version->setSystemRoot(QDir::fromNativeSeparators(path));
-    emit changed();
 }
 
 void SymbianQtConfigWidget::updateCurrentSbsV2Directory(const QString &path)

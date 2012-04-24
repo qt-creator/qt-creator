@@ -41,6 +41,8 @@
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtsupportconstants.h>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
@@ -73,21 +75,10 @@ bool MaemoPublishingWizardFactoryFremantleFree::canCreateWizard(const Project *p
     if (!qobject_cast<const Qt4Project *>(project))
         return false;
     foreach (const Target *const target, project->targets()) {
-        if (target->id() != Core::Id(Constants::MAEMO5_DEVICE_TARGET_ID))
-            continue;
-        foreach (const BuildConfiguration *const bc, target->buildConfigurations()) {
-            const Qt4BuildConfiguration *const qt4Bc
-                = qobject_cast<const Qt4BuildConfiguration *>(bc);
-            if (!qt4Bc)
-                continue;
-
-            QtSupport::BaseQtVersion *qt = qt4Bc->qtVersion();
-            if (!qt)
-                continue;
-            if (MaemoGlobal::deviceType(qt->qmakeCommand().toString()) == Core::Id(Maemo5OsType))
-                return true;
-        }
-        break;
+        QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target->profile());
+        const QString &platform = version ? version->platformName() : QString();
+        if (platform == QLatin1String(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM))
+            return true;
     }
     return false;
 }

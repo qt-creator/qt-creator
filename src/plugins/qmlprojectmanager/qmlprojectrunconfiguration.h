@@ -50,14 +50,11 @@ namespace Utils {
     class EnvironmentItem;
 }
 
-namespace QtSupport {
-    class BaseQtVersion;
-}
+namespace QtSupport { class BaseQtVersion; }
 
 namespace QmlProjectManager {
 
 namespace Internal {
-    class QmlProjectTarget;
     class QmlProjectRunConfigurationFactory;
     class QmlProjectRunConfigurationWidget;
 }
@@ -68,20 +65,14 @@ class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplor
     friend class Internal::QmlProjectRunConfigurationFactory;
     friend class Internal::QmlProjectRunConfigurationWidget;
 
-    // used in qmldumptool.cpp
-    Q_PROPERTY(int qtVersionId READ qtVersionId)
-
 public:
-    QmlProjectRunConfiguration(Internal::QmlProjectTarget *parent);
+    QmlProjectRunConfiguration(ProjectExplorer::Target *parent);
     virtual ~QmlProjectRunConfiguration();
-
-    Internal::QmlProjectTarget *qmlTarget() const;
 
     QString viewerPath() const;
     QString observerPath() const;
     QString viewerArguments() const;
     QString workingDirectory() const;
-    int qtVersionId() const;
     QtSupport::BaseQtVersion *qtVersion() const;
 
     enum MainScriptSource {
@@ -110,10 +101,9 @@ public slots:
 
 private slots:
     void updateEnabled();
-    void updateQtVersions();
 
 protected:
-    QmlProjectRunConfiguration(Internal::QmlProjectTarget *parent,
+    QmlProjectRunConfiguration(ProjectExplorer::Target *parent,
                                QmlProjectRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
     void setEnabled(bool value);
@@ -121,7 +111,6 @@ protected:
 private:
     void ctor();
     static bool isValidVersion(QtSupport::BaseQtVersion *version);
-    void setQtVersionId(int id);
     
     static QString canonicalCapsPath(const QString &filePath);
 
@@ -138,7 +127,6 @@ private:
     QString m_scriptFile;
     QString m_qmlViewerArgs;
 
-    Internal::QmlProjectTarget *m_projectTarget;
     QWeakPointer<Internal::QmlProjectRunConfigurationWidget> m_configurationWidget;
 
     bool m_isEnabled;

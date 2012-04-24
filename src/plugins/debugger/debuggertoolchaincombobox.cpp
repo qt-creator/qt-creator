@@ -32,8 +32,10 @@
 
 #include "debuggertoolchaincombobox.h"
 
-#include <projectexplorer/toolchainmanager.h>
-#include <projectexplorer/toolchain.h>
+#include "debuggerprofileinformation.h"
+
+#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/profilemanager.h>
 #include <projectexplorer/abi.h>
 #include <utils/qtcassert.h>
 
@@ -58,17 +60,25 @@ DebuggerToolChainComboBox::DebuggerToolChainComboBox(QWidget *parent) :
 void DebuggerToolChainComboBox::init(bool hostAbiOnly)
 {
     const ProjectExplorer::Abi hostAbi = ProjectExplorer::Abi::hostAbi();
-    foreach (const ProjectExplorer::ToolChain *tc, ProjectExplorer::ToolChainManager::instance()->toolChains()) {
+    foreach (const ProjectExplorer::Profile *st,
+             ProjectExplorer::ProfileManager::instance()->profiles()) {
+        if (!st->isValid())
+            continue;
+        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(st);
+        if (!tc)
+            continue;
         const ProjectExplorer::Abi abi = tc->targetAbi();
-        if (!hostAbiOnly || hostAbi.isCompatibleWith(abi)) {
-            const QString debuggerCommand = tc->debuggerCommand().toString();
-            if (!debuggerCommand.isEmpty()) {
-                const AbiDebuggerCommandPair data(abi, debuggerCommand);
-                const QString completeBase = QFileInfo(debuggerCommand).completeBaseName();
-                const QString name = tr("%1 (%2)").arg(tc->displayName(), completeBase);
-                addItem(name, qVariantFromValue(data));
-            }
-        }
+        if (hostAbiOnly && hostAbi.os() != abi.os())
+            continue;
+
+        const QString debuggerCommand = DebuggerProfileInformation::debuggerCommand(st).toString();
+        if (debuggerCommand.isEmpty())
+            continue;
+
+        const AbiDebuggerCommandPair data(abi, debuggerCommand);
+        const QString completeBase = QFileInfo(debuggerCommand).completeBaseName();
+        const QString name = tr("%1 (%2)").arg(st->displayName(), completeBase);
+        addItem(name, qVariantFromValue(data));
     }
     setEnabled(count() > 1);
 }

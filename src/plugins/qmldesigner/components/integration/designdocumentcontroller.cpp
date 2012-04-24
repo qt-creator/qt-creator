@@ -37,7 +37,9 @@
 #include "subcomponentmanager.h"
 #include "model/viewlogger.h"
 
+#include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qtsupport/qtprofileinformation.h>
 
 #include <itemlibraryview.h>
 #include <itemlibrarywidget.h>
@@ -89,9 +91,8 @@
 
 #include <projectexplorer/projectexplorer.h>
 #include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4target.h>
 #include <qtsupport/qtversionmanager.h>
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <qtsupport/qtsupportconstants.h>
 #include <qmlprojectmanager/qmlprojectrunconfiguration.h>
 
 enum {
@@ -221,8 +222,8 @@ QString DesignDocumentController::pathToQt() const
 {
     QtSupport::BaseQtVersion *activeQtVersion = QtSupport::QtVersionManager::instance()->version(d->qt_versionId);
     if (activeQtVersion && (activeQtVersion->qtVersion().majorVersion > 3)
-            && (activeQtVersion->supportsTargetId(Qt4ProjectManager::Constants::QT_SIMULATOR_TARGET_ID)
-                || activeQtVersion->supportsTargetId(Qt4ProjectManager::Constants::DESKTOP_TARGET_ID)))
+            && (activeQtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
+                || activeQtVersion->type() == QLatin1String(QtSupport::Constants::SIMULATORQT)))
         return activeQtVersion->versionInfo().value("QT_INSTALL_DATA");
     return QString();
 }
@@ -925,22 +926,8 @@ static inline QtSupport::BaseQtVersion *getActiveQtVersion(DesignDocumentControl
     if (!target)
         return 0;
 
-    ProjectExplorer::RunConfiguration *runConfiguration = target->activeRunConfiguration();
-    QmlProjectManager::QmlProjectRunConfiguration *qmlRunConfiguration = qobject_cast<QmlProjectManager::QmlProjectRunConfiguration* >(runConfiguration);
-
-    if (qmlRunConfiguration) {
-        controller->connect(target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)), controller, SLOT(activeQtVersionChanged()));
-        return qmlRunConfiguration->qtVersion();
-    }
-
-    Qt4ProjectManager::Qt4BuildConfiguration *activeBuildConfiguration = qobject_cast<Qt4ProjectManager::Qt4BuildConfiguration *>(target->activeBuildConfiguration());
-
-    if (activeBuildConfiguration) {
-        controller->connect(target, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)), controller, SLOT(activeQtVersionChanged()));
-        return activeBuildConfiguration->qtVersion();
-    }
-
-    return 0;
+    controller->connect(target, SIGNAL(profileChanged()), controller, SLOT(activeQtVersionChanged()));
+    return QtSupport::QtProfileInformation::qtVersion(target->profile());
 }
 
 void DesignDocumentController::activeQtVersionChanged()

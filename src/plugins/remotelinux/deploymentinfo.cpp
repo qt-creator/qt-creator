@@ -31,13 +31,15 @@
 
 #include "deploymentinfo.h"
 
-#include "abstractembeddedlinuxtarget.h"
 #include "deployablefile.h"
 #include "deployablefilesperprofile.h"
+#include "remotelinuxdeployconfiguration.h"
 
 #include <projectexplorer/buildstep.h>
+#include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
+#include <qtsupport/qtprofileinformation.h>
 
 #include <QList>
 #include <QTimer>
@@ -49,20 +51,20 @@ namespace Internal {
 class DeploymentInfoPrivate
 {
 public:
-    DeploymentInfoPrivate(const AbstractEmbeddedLinuxTarget *target) : target(target) {}
+    DeploymentInfoPrivate(const Qt4ProjectManager::Qt4Project *p) : project(p) {}
 
     QList<DeployableFilesPerProFile *> listModels;
-    const AbstractEmbeddedLinuxTarget * const target;
+    const Qt4ProjectManager::Qt4Project *const project;
     QString installPrefix;
 };
 } // namespace Internal
 
 using namespace Internal;
 
-DeploymentInfo::DeploymentInfo(AbstractEmbeddedLinuxTarget *target, const QString &installPrefix)
-    : QAbstractListModel(target), d(new DeploymentInfoPrivate(target))
+DeploymentInfo::DeploymentInfo(Qt4ProjectManager::Qt4Project *project, const QString &installPrefix)
+    : QAbstractListModel(project), d(new DeploymentInfoPrivate(project))
 {
-    connect (d->target->qt4Project(), SIGNAL(proParsingDone()), SLOT(createModels()));
+    connect(project, SIGNAL(buildSystemEvaluated()), SLOT(createModels()));
     setInstallPrefix(installPrefix);
 }
 
@@ -73,27 +75,30 @@ DeploymentInfo::~DeploymentInfo()
 
 void DeploymentInfo::createModels()
 {
-    if (d->target->project()->activeTarget() != d->target)
+    ProjectExplorer::Target *target = d->project->activeTarget();
+    if (!target
+            || !target->activeDeployConfiguration()
+            || !qobject_cast<RemoteLinuxDeployConfiguration *>(target->activeDeployConfiguration()))
         return;
-    const Qt4BuildConfiguration *bc = d->target->activeQt4BuildConfiguration();
-    if (!bc || !bc->qtVersion() || !bc->qtVersion()->isValid()) {
+
+    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target->profile());
+    if (!version || !version->isValid()) {
         beginResetModel();
         qDeleteAll(d->listModels);
         d->listModels.clear();
         endResetModel();
         return;
     }
-    const Qt4ProFileNode *const rootNode
-        = d->target->qt4Project()->rootQt4ProjectNode();
+    const Qt4ProFileNode *const rootNode = d->project->rootQt4ProjectNode();
     if (!rootNode || rootNode->parseInProgress()) // Can be null right after project creation by wizard.
         return;
-    disconnect(d->target->qt4Project(), SIGNAL(proParsingDone()), this, SLOT(createModels()));
+    disconnect(d->project, SIGNAL(buildSystemEvaluated()), this, SLOT(createModels()));
     beginResetModel();
     qDeleteAll(d->listModels);
     d->listModels.clear();
     createModels(rootNode);
     endResetModel();
-    connect (d->target->qt4Project(), SIGNAL(proParsingDone()), SLOT(createModels()));
+    connect (d->project, SIGNAL(buildSystemEvaluated()), SLOT(createModels()));
 }
 
 void DeploymentInfo::createModels(const Qt4ProFileNode *proFileNode)

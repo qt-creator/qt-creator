@@ -35,8 +35,8 @@
 #include "codaruncontrol.h"
 #include "s60devicerunconfiguration.h"
 #include "s60deployconfiguration.h"
-#include "qt4symbiantarget.h"
 
+#include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;

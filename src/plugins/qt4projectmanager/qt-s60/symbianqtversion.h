@@ -53,28 +53,20 @@ public:
     bool isValid() const;
     QString invalidReason() const;
 
-    bool toolChainAvailable(const QString &id) const;
-
     void restoreLegacySettings(QSettings *s);
     void fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
 
     QList<ProjectExplorer::Abi> detectQtAbis() const;
 
-    bool supportsTargetId(const Core::Id id) const;
-    QSet<Core::Id> supportedTargetIds() const;
-
     QString description() const;
 
     bool supportsShadowBuilds() const;
     bool supportsBinaryDebuggingHelper() const;
-    void addToEnvironment(Utils::Environment &env) const;
-    QList<ProjectExplorer::HeaderPath> systemHeaderPathes() const;
+    void addToEnvironment(const ProjectExplorer::Profile *p, Utils::Environment &env) const;
+    QList<ProjectExplorer::HeaderPath> systemHeaderPathes(const ProjectExplorer::Profile *p) const;
 
     ProjectExplorer::IOutputParser *createOutputParser() const;
-
-    QString systemRoot() const;
-    void setSystemRoot(const QString &);
 
     bool isBuildWithSymbianSbsV2() const;
 
@@ -88,23 +80,22 @@ public:
     QString platformDisplayName() const;
 
 protected:
-    QList<ProjectExplorer::Task> reportIssuesImpl(const QString &proFile, const QString &buildDir);
     void parseMkSpec(ProFileEvaluator *) const;
 private:
     QString m_sbsV2Directory;
-    QString m_systemRoot;
-    mutable bool m_validSystemRoot;
     mutable bool m_isBuildUsingSbsV2;
 };
 
 class SymbianQtConfigWidget : public QtSupport::QtConfigWidget
 {
     Q_OBJECT
+
 public:
     SymbianQtConfigWidget(SymbianQtVersion *version);
+
 public slots:
     void updateCurrentSbsV2Directory(const QString &path);
-    void updateCurrentS60SDKDirectory(const QString &path);
+
 private:
     SymbianQtVersion *m_version;
 };

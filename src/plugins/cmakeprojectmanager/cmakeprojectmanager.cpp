@@ -45,6 +45,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/target.h>
 #include <utils/QtConcurrentTools>
 #include <QtConcurrentRun>
 #include <QCoreApplication>
@@ -114,22 +115,21 @@ void CMakeManager::runCMake(ProjectExplorer::Project *project)
     if (!project)
         return;
     CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(project);
-    if (!cmakeProject)
+    if (!cmakeProject || !cmakeProject->activeTarget() || !cmakeProject->activeTarget()->activeBuildConfiguration())
         return;
 
-    if (!cmakeProject->activeTarget())
+    CMakeBuildConfiguration *bc
+            = qobject_cast<CMakeBuildConfiguration *>(cmakeProject->activeTarget()->activeBuildConfiguration());
+    if (!bc)
         return;
-    if (!cmakeProject->activeTarget()->activeBuildConfiguration())
-        return;
-    CMakeBuildConfiguration *bc = cmakeProject->activeTarget()->activeBuildConfiguration();
+
     CMakeOpenProjectWizard copw(this,
                                 cmakeProject->projectDirectory(),
                                 bc->buildDirectory(),
                                 CMakeOpenProjectWizard::WantToUpdate,
                                 bc->environment());
-    if (copw.exec() == QDialog::Accepted) {
-        cmakeProject->parseCMakeLists();
-    }
+    if (copw.exec() == QDialog::Accepted)
+        cmakeProject->triggerBuildSystemEvaluation();
 }
 
 ProjectExplorer::Project *CMakeManager::openProject(const QString &fileName, QString *errorString)

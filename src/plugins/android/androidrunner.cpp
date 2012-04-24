@@ -36,7 +36,9 @@
 #include "androidconfigurations.h"
 #include "androidglobal.h"
 #include "androidrunconfiguration.h"
-#include "androidtarget.h"
+#include "androidmanager.h"
+
+#include <projectexplorer/target.h>
 
 #include <QTime>
 #include <QtConcurrentRun>
@@ -49,13 +51,13 @@ AndroidRunner::AndroidRunner(QObject *parent,
     : QThread(parent)
 {
     m_remoteChannel = runConfig->remoteChannel();
-    AndroidTarget * at = runConfig->androidTarget();
-    AndroidDeployStep * ds = runConfig->deployStep();
+    ProjectExplorer::Target *target = runConfig->target();
+    AndroidDeployStep *ds = runConfig->deployStep();
     if ((m_useLocalQtLibs = ds->useLocalQtLibs())) {
-        m_localLibs = at->loadLocalLibs(ds->deviceAPILevel());
-        m_localJars = at->loadLocalJars(ds->deviceAPILevel());
+        m_localLibs = AndroidManager::loadLocalLibs(target, ds->deviceAPILevel());
+        m_localJars = AndroidManager::loadLocalJars(target, ds->deviceAPILevel());
     }
-    m_intentName = at->intentName();
+    m_intentName = AndroidManager::intentName(target);
     m_debugingMode = debugging;
     m_packageName = m_intentName.left(m_intentName.indexOf(QLatin1Char('/')));
     m_deviceSerialNumber = ds->deviceSerialNumber();
@@ -74,7 +76,7 @@ AndroidRunner::~AndroidRunner()
 void AndroidRunner::checkPID()
 {
     QProcess psProc;
-    psProc.start(AndroidConfigurations::instance().adbToolPath(),
+    psProc.start(AndroidConfigurations::instance().adbToolPath().toString(),
                  QStringList() << QLatin1String("-s") << m_deviceSerialNumber
                  << QLatin1String("shell") << QLatin1String("ps"));
     if (!psProc.waitForFinished(-1)) {
@@ -148,7 +150,7 @@ void AndroidRunner::asyncStart()
         arguments << QLatin1String("-s") << m_deviceSerialNumber
                   << QLatin1String("forward") << QString::fromLatin1("tcp%1").arg(m_remoteChannel)
                   << QString::fromLatin1("localfilesystem:/data/data/%1/debug-socket").arg(m_packageName);
-        adbStarProc.start(AndroidConfigurations::instance().adbToolPath(), arguments);
+        adbStarProc.start(AndroidConfigurations::instance().adbToolPath().toString(), arguments);
         if (!adbStarProc.waitForStarted()) {
             emit remoteProcessFinished(tr("Failed to forward debugging ports. Reason: $1").arg(adbStarProc.errorString()));
             return;
@@ -176,7 +178,7 @@ void AndroidRunner::asyncStart()
     if (extraParams.length())
         arguments << extraParams.split(QLatin1Char(' '));
 
-    adbStarProc.start(AndroidConfigurations::instance().adbToolPath(), arguments);
+    adbStarProc.start(AndroidConfigurations::instance().adbToolPath().toString(), arguments);
     if (!adbStarProc.waitForStarted()) {
         emit remoteProcessFinished(tr("Failed to start the activity. Reason: $1").arg(adbStarProc.errorString()));
         return;
@@ -209,7 +211,7 @@ void AndroidRunner::asyncStart()
 void AndroidRunner::startLogcat()
 {
     m_checkPIDTimer.start(1000); // check if the application is alive every 1 seconds
-    m_adbLogcatProcess.start(AndroidConfigurations::instance().adbToolPath(),
+    m_adbLogcatProcess.start(AndroidConfigurations::instance().adbToolPath().toString(),
                              QStringList() << QLatin1String("-s") << m_deviceSerialNumber
                              << QLatin1String("logcat"));
     emit remoteProcessStarted(5039);
@@ -267,7 +269,7 @@ void AndroidRunner::adbKill(qint64 pid, const QString &device, int timeout, cons
     arguments << QLatin1String("kill") << QLatin1String("-9");
     arguments << QString::number(pid);
 
-    process.start(AndroidConfigurations::instance().adbToolPath(), arguments);
+    process.start(AndroidConfigurations::instance().adbToolPath().toString(), arguments);
     if (!process.waitForFinished(timeout))
         process.terminate();
 }

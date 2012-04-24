@@ -48,35 +48,27 @@ QT_BEGIN_NAMESPACE
 struct ProFileOption;
 QT_END_NAMESPACE
 
-namespace QtSupport {
-class ProFileReader;
-}
+namespace QtSupport { class ProFileReader; }
 
 namespace Qt4ProjectManager {
-class Qt4ProFileNode;
-class Qt4PriFileNode;
-class Qt4BaseTarget;
+class BuildConfigurationInfo;
+class MakeStep;
+class QMakeStep;
 class Qt4BuildConfiguration;
 class Qt4Manager;
-
-namespace Internal {
-    class DeployHelperRunStep;
-    class FileItem;
-    class GCCPreprocessor;
-    struct Qt4ProjectFiles;
-    class Qt4ProjectConfigWidget;
-    class Qt4ProjectFile;
-    class Qt4NodesWatcher;
-}
-
-class QMakeStep;
-class MakeStep;
-
-class Qt4Project;
+class Qt4PriFileNode;
+class Qt4ProFileNode;
 class Qt4RunStep;
 
 namespace Internal {
 class CentralizedFolderWatcher;
+class DeployHelperRunStep;
+class FileItem;
+class GCCPreprocessor;
+class Qt4ProjectFiles;
+class Qt4ProjectConfigWidget;
+class Qt4ProjectFile;
+class Qt4NodesWatcher;
 }
 
 class  QT4PROJECTMANAGER_EXPORT Qt4Project : public ProjectExplorer::Project
@@ -93,7 +85,7 @@ public:
     ProjectExplorer::IProjectManager *projectManager() const;
     Qt4Manager *qt4ProjectManager() const;
 
-    Qt4BaseTarget *activeTarget() const;
+    bool supportsProfile(ProjectExplorer::Profile *p) const;
 
     ProjectExplorer::ProjectNode *rootProjectNode() const;
     Qt4ProFileNode *rootQt4ProjectNode() const;
@@ -142,28 +134,31 @@ public:
     /// \internal
     QString disabledReasonForRunConfiguration(const QString &proFilePath);
 
+    /// suffix should be unique
+    static QString shadowBuildDirectory(const QString &profilePath, const ProjectExplorer::Profile *p,
+                                 const QString &suffix);
+    /// used by the default implementation of shadowBuildDirectory
+    static QString buildNameFor(const ProjectExplorer::Profile *p);
+
+    ProjectExplorer::Target *createTarget(ProjectExplorer::Profile *p, const QList<BuildConfigurationInfo> &infoList);
+
 signals:
-    void proParsingDone();
     void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool, bool);
-    void buildDirectoryInitialized();
-    void fromMapFinished();
 
 public slots:
     void proFileParseError(const QString &errorMessage);
     void update();
 
 protected:
-    virtual bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map);
 
 private slots:
-    void proFileEvaluateNeeded(Qt4ProjectManager::Qt4BaseTarget *target);
-
     void asyncUpdate();
 
-    void onAddedTarget(ProjectExplorer::Target *t);
     void activeTargetWasChanged();
 
 private:
+    void evaluateBuildSystem();
     void scheduleAsyncUpdate();
 
     void updateCppCodeModel();

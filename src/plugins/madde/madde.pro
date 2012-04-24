@@ -8,12 +8,12 @@ include(madde_dependencies.pri)
 HEADERS += \
     madde_exports.h \
     maddeplugin.h \
+    debianmanager.h \
     maemoconstants.h \
     maemorunconfigurationwidget.h \
     maemoruncontrol.h \
     maemorunfactories.h \
     maemosettingspages.h \
-    maemotoolchain.h \
     maemopackagecreationstep.h \
     maemopackagecreationfactory.h \
     maemopackagecreationwidget.h \
@@ -37,8 +37,6 @@ HEADERS += \
     maemoqemuruntimeparser.h \
     maemoqemusettingswidget.h \
     maemoqemusettings.h \
-    qt4maemotargetfactory.h \
-    qt4maemotarget.h \
     qt4maemodeployconfiguration.h \
     maemodeviceconfigwizard.h \
     maemodeployconfigurationwidget.h \
@@ -53,15 +51,16 @@ HEADERS += \
     maemodeploybymountsteps.h \
     maddedevicetester.h \
     maddedeviceconfigurationfactory.h \
-    maddedevice.h
+    maddedevice.h \
+    rpmmanager.h
 
 SOURCES += \
     maddeplugin.cpp \
+    debianmanager.cpp \
     maemorunconfigurationwidget.cpp \
     maemoruncontrol.cpp \
     maemorunfactories.cpp \
     maemosettingspages.cpp \
-    maemotoolchain.cpp \
     maemopackagecreationstep.cpp \
     maemopackagecreationfactory.cpp \
     maemopackagecreationwidget.cpp \
@@ -84,8 +83,6 @@ SOURCES += \
     maemoqemuruntimeparser.cpp \
     maemoqemusettingswidget.cpp \
     maemoqemusettings.cpp \
-    qt4maemotargetfactory.cpp \
-    qt4maemotarget.cpp \
     qt4maemodeployconfiguration.cpp \
     maemodeviceconfigwizard.cpp \
     maemodeployconfigurationwidget.cpp \
@@ -100,7 +97,8 @@ SOURCES += \
     maemodeploybymountsteps.cpp \
     maddedevicetester.cpp \
     maemorunconfiguration.cpp \
-    maddedevice.cpp
+    maddedevice.cpp \
+    rpmmanager.cpp
 
 FORMS += \
     maemopackagecreationwidget.ui \

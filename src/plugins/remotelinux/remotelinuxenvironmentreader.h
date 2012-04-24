@@ -32,10 +32,11 @@
 #ifndef REMOTELINUXENVIRONMENTREADER_H
 #define REMOTELINUXENVIRONMENTREADER_H
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/environment.h>
 
 #include <QObject>
-#include <QSharedPointer>
+
 
 namespace QSsh {
 class SshRemoteProcessRunner;
@@ -74,7 +75,7 @@ private:
 
     bool m_stop;
     Utils::Environment m_env;
-    QSharedPointer<const LinuxDeviceConfiguration> m_devConfig;
+    ProjectExplorer::IDevice::ConstPtr m_devConfig;
     RemoteLinuxRunConfiguration *m_runConfig;
     QSsh::SshRemoteProcessRunner *m_remoteProcessRunner;
 };

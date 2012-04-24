@@ -147,18 +147,19 @@ class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
     Q_OBJECT
 
 public:
-    virtual ~RunConfiguration();
+    ~RunConfiguration();
 
     virtual bool isEnabled() const;
     virtual QString disabledReason() const;
     virtual QWidget *createConfigurationWidget() = 0;
+    virtual bool isConfigured() const;
 
     Target *target() const;
 
     virtual Utils::OutputFormatter *createOutputFormatter() const;
 
-    virtual bool fromMap(const QVariantMap &map);
-    virtual QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map);
+    QVariantMap toMap() const;
 
     DebuggerRunConfigurationAspect *debuggerAspect() const { return m_debuggerAspect; }
 
@@ -212,9 +213,8 @@ public:
     virtual bool canClone(Target *parent, RunConfiguration *product) const = 0;
     virtual RunConfiguration *clone(Target *parent, RunConfiguration *product) = 0;
 
-    static IRunConfigurationFactory *createFactory(Target *parent, const Core::Id id);
-    static IRunConfigurationFactory *cloneFactory(Target *parent, RunConfiguration *source);
-    static IRunConfigurationFactory *restoreFactory(Target *parent, const QVariantMap &map);
+    static IRunConfigurationFactory *find(Target *parent, const QVariantMap &map);
+    static QList<IRunConfigurationFactory *> find(Target *parent);
 
 signals:
     void availableCreationIdsChanged();

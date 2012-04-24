@@ -32,20 +32,17 @@
 
 #include "s60runcontrolbase.h"
 
+#include "qt4buildconfiguration.h"
 #include "s60deployconfiguration.h"
 #include "s60devicerunconfiguration.h"
 
-#include "qt4buildconfiguration.h"
-#include "qt4symbiantarget.h"
-#include "qt4target.h"
-
-#include <utils/qtcassert.h>
-
-#include <debugger/debuggerconstants.h>
 #include <analyzerbase/analyzerconstants.h>
-
 #include <coreplugin/icore.h>
+#include <debugger/debuggerconstants.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <projectexplorer/target.h>
+#include <qtsupport/qtprofileinformation.h>
+#include <utils/qtcassert.h>
 
 #include <QDateTime>
 #include <QDir>
@@ -96,7 +93,7 @@ S60RunControlBase::S60RunControlBase(RunConfiguration *runConfiguration,
         m_commandLineArguments.prepend(QLatin1Char(' '));
         m_commandLineArguments.prepend(qmlArgs);
     }
-    if (const QtSupport::BaseQtVersion *qtv = activeBuildConf->qtVersion()) {
+    if (const QtSupport::BaseQtVersion *qtv = QtSupport::QtProfileInformation::qtVersion(runConfiguration->target()->profile())) {
         m_qtDir = qtv->versionInfo().value(QLatin1String("QT_INSTALL_DATA"));
         m_qtBinPath = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
     }

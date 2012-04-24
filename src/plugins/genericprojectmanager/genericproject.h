@@ -35,13 +35,11 @@
 
 #include "genericprojectmanager.h"
 #include "genericprojectnodes.h"
-#include "generictarget.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <coreplugin/idocument.h>
 
@@ -51,13 +49,7 @@ QT_BEGIN_NAMESPACE
 class QComboBox;
 QT_END_NAMESPACE
 
-namespace Utils {
-class PathChooser;
-}
-
-namespace ProjectExplorer {
-class ToolChain;
-}
+namespace ProjectExplorer { class ToolChain; }
 
 namespace GenericProjectManager {
 namespace Internal {
@@ -84,7 +76,6 @@ public:
     Core::Id id() const;
     Core::IDocument *document() const;
     ProjectExplorer::IProjectManager *projectManager() const;
-    GenericTarget *activeTarget() const;
 
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
@@ -114,18 +105,12 @@ public:
     QStringList projectIncludePaths() const;
     QStringList files() const;
     QStringList generated() const;
-    ProjectExplorer::ToolChain *toolChain() const;
-    void setToolChain(ProjectExplorer::ToolChain *tc);
-
-    QVariantMap toMap() const;
-
-signals:
-    void toolChainChanged(ProjectExplorer::ToolChain *);
 
 protected:
-    virtual bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map);
 
 private:
+    void evaluateBuildSystem();
     bool saveRawFileList(const QStringList &rawFileList);
     void parseProject(RefreshOptions options);
     QStringList processEntries(const QStringList &paths,
@@ -150,7 +135,6 @@ private:
     QByteArray m_defines;
 
     GenericProjectNode *m_rootNode;
-    ProjectExplorer::ToolChain *m_toolChain;
     QFuture<void> m_codeModelFuture;
 };
 
@@ -180,31 +164,6 @@ private:
     GenericProject *m_project;
     QString m_fileName;
     GenericProject::RefreshOptions m_options;
-};
-
-class GenericBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget
-{
-    Q_OBJECT
-
-public:
-    GenericBuildSettingsWidget(GenericTarget *target);
-    virtual ~GenericBuildSettingsWidget();
-
-    virtual QString displayName() const;
-
-    virtual void init(ProjectExplorer::BuildConfiguration *bc);
-
-private Q_SLOTS:
-    void buildDirectoryChanged();
-    void toolChainSelected(int index);
-    void toolChainChanged(ProjectExplorer::ToolChain *);
-    void updateToolChainList();
-
-private:
-    GenericTarget *m_target;
-    Utils::PathChooser *m_pathChooser;
-    QComboBox *m_toolChainChooser;
-    GenericBuildConfiguration *m_buildConfiguration;
 };
 
 } // namespace Internal

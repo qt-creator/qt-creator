@@ -132,26 +132,12 @@ QString AbstractMsvcToolChain::makeCommand() const
     return QLatin1String("nmake.exe");
 }
 
-void AbstractMsvcToolChain::setDebuggerCommand(const Utils::FileName &d)
-{
-    if (m_debuggerCommand == d)
-        return;
-    m_debuggerCommand = d;
-    toolChainUpdated();
-}
-
 Utils::FileName AbstractMsvcToolChain::compilerCommand() const
 {
     Utils::Environment env;
     addToEnvironment(env);
     return Utils::FileName::fromString(env.searchInPath("cl.exe"));
 }
-
-Utils::FileName AbstractMsvcToolChain::debuggerCommand() const
-{
-    return m_debuggerCommand;
-}
-
 
 IOutputParser *AbstractMsvcToolChain::outputParser() const
 {
@@ -296,7 +282,6 @@ bool AbstractMsvcToolChain::operator ==(const ToolChain &other) const
 
     const AbstractMsvcToolChain *msvcTc = static_cast<const AbstractMsvcToolChain *>(&other);
     return targetAbi() == msvcTc->targetAbi()
-            && m_debuggerCommand == msvcTc->m_debuggerCommand
             && m_vcvarsBat == msvcTc->m_vcvarsBat;
 }
 

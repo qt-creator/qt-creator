@@ -72,6 +72,8 @@ public:
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source);
     bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
     ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
+
+    bool canHandle(ProjectExplorer::BuildStepList *parent) const;
 };
 
 //////////////////////////
@@ -103,6 +105,8 @@ public:
     bool immutable() const;
     QString additionalArguments() const;
     QVariantMap toMap() const;
+
+    bool processSucceeded(int exitCode, QProcess::ExitStatus status);
 
 public slots:
     void setAdditionalArguments(const QString &list);

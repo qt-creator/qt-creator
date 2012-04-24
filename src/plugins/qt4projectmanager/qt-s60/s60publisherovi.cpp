@@ -31,7 +31,6 @@
 **************************************************************************/
 #include "s60publisherovi.h"
 
-#include "qt4symbiantarget.h"
 #include "s60certificateinfo.h"
 #include "s60manager.h"
 
@@ -43,7 +42,9 @@
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildstep.h>
+#include <projectexplorer/target.h>
 #include <qtsupport/qtversionmanager.h>
+#include <qtsupport/qtprofileinformation.h>
 #include <qtsupport/profilereader.h>
 
 #include <utils/qtcassert.h>
@@ -131,6 +132,7 @@ void S60PublisherOvi::cleanUp()
 
 void S60PublisherOvi::completeCreation()
 {
+#if 0 // FIXME: This needs serious reworking!
     // set active target
     m_activeTargetOfProject = qobject_cast<Qt4SymbianTarget *>(m_qt4bc->target());
     QTC_ASSERT(m_activeTargetOfProject, return);
@@ -213,6 +215,7 @@ void S60PublisherOvi::completeCreation()
             }
         }
     }
+#endif
 }
 
 bool S60PublisherOvi::isDynamicLibrary(const Qt4Project &project) const
@@ -292,9 +295,8 @@ bool S60PublisherOvi::isVendorNameValid(const QString &vendorName) const
 
 QString S60PublisherOvi::qtVersion() const
 {
-    if (!m_qt4bc->qtVersion())
-        return QString();
-    return m_qt4bc->qtVersion()->displayName();
+    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(m_qt4bc->target()->profile());
+    return version ? version->displayName() : QString();
 }
 
 QString S60PublisherOvi::uid3() const
@@ -439,7 +441,8 @@ void S60PublisherOvi::publishStepFinished(bool success)
 bool S60PublisherOvi::sisExists(QString &sisFile)
 {
     QString fileNamePostFix = QLatin1String("_installer_unsigned.sis");
-    if (m_qt4bc->qtVersion()->qtVersion() == QtSupport::QtVersionNumber(4,6,3) )
+    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(m_qt4bc->target()->profile());
+    if (version && version->qtVersion() == QtSupport::QtVersionNumber(4,6,3) )
         fileNamePostFix = QLatin1String("_installer.sis");
 
     sisFile = m_qt4bc->buildDirectory() + QLatin1Char('/') + m_qt4project->displayName() + fileNamePostFix;
@@ -451,7 +454,8 @@ bool S60PublisherOvi::sisExists(QString &sisFile)
 QString S60PublisherOvi::createdSisFileContainingFolder()
 {
     QString fileNamePostFix = QLatin1String("_installer_unsigned.sis");
-    if (m_qt4bc->qtVersion()->qtVersion() == QtSupport::QtVersionNumber(4,6,3) )
+    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(m_qt4bc->target()->profile());
+    if (version && version->qtVersion() == QtSupport::QtVersionNumber(4,6,3) )
         fileNamePostFix = QLatin1String("_installer.sis");
 
     QString resultFile = m_qt4bc->buildDirectory() + QLatin1Char('/') + m_qt4project->displayName() + fileNamePostFix;
@@ -463,7 +467,8 @@ QString S60PublisherOvi::createdSisFileContainingFolder()
 QString S60PublisherOvi::createdSisFilePath()
 {
     QString fileNamePostFix = QLatin1String("_installer_unsigned.sis");
-    if (m_qt4bc->qtVersion()->qtVersion() == QtSupport::QtVersionNumber(4,6,3) )
+    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(m_qt4bc->target()->profile());
+    if (version && version->qtVersion() == QtSupport::QtVersionNumber(4,6,3) )
         fileNamePostFix = QLatin1String("_installer.sis");
 
     const QString resultFile = m_qt4bc->buildDirectory() + QLatin1Char('/')

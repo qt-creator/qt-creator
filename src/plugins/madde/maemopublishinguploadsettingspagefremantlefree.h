@@ -51,9 +51,9 @@ public:
     ~MaemoPublishingUploadSettingsPageFremantleFree();
 
 private:
-    virtual void initializePage();
-    virtual bool isComplete() const;
-    virtual bool validatePage();
+    void initializePage();
+    bool isComplete() const;
+    bool validatePage();
 
     QString garageAccountName() const;
     QString privateKeyFilePath() const;

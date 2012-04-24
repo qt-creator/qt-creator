@@ -33,8 +33,10 @@
 #include "maemoremotemounter.h"
 
 #include "maemoglobal.h"
-#include "qt4maemotarget.h"
+#include "maddedevice.h"
 
+#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/target.h>
 #include <ssh/sshconnection.h>
 #include <ssh/sshremoteprocess.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
@@ -79,11 +81,9 @@ void MaemoRemoteMounter::setBuildConfiguration(const Qt4BuildConfiguration *bc)
 {
     QTC_ASSERT(m_state == Inactive, return);
 
-    const QtSupport::BaseQtVersion * const qtVersion = bc->qtVersion();
-    const AbstractQt4MaemoTarget * const maemoTarget
-        = qobject_cast<AbstractQt4MaemoTarget *>(bc->target());
-    m_remoteMountsAllowed = maemoTarget && maemoTarget->allowsRemoteMounts();
-    m_maddeRoot = qtVersion ? MaemoGlobal::maddeRoot(qtVersion->qmakeCommand().toString()) : QString();
+    Core::Id typeId = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(bc->target()->profile());
+    m_remoteMountsAllowed = MaddeDevice::allowsRemoteMounts(typeId);
+    m_maddeRoot = ProjectExplorer::SysRootProfileInformation::sysRoot(bc->target()->profile());
 }
 
 void MaemoRemoteMounter::addMountSpecification(const MaemoMountSpecification &mountSpec,
@@ -297,7 +297,7 @@ void MaemoRemoteMounter::startUtfsServers()
         connect(utfsServerProc.data(), SIGNAL(readyReadStandardError()), this,
             SLOT(handleUtfsServerStderr()));
         m_utfsServers << utfsServerProc;
-        utfsServerProc->start(utfsServer(), utfsServerArgs);
+        utfsServerProc->start(utfsServer().toString(), utfsServerArgs);
     }
 
     setState(UtfsServersStarted);
@@ -342,9 +342,10 @@ QString MaemoRemoteMounter::utfsClientOnDevice() const
     return QLatin1String("/usr/lib/mad-developer/utfs-client");
 }
 
-QString MaemoRemoteMounter::utfsServer() const
+Utils::FileName MaemoRemoteMounter::utfsServer() const
 {
-    return m_maddeRoot + QLatin1String("/madlib/utfs-server");
+    Utils::FileName result = m_maddeRoot;
+    return result.appendPath(QLatin1String("madlib/utfs-server"));
 }
 
 void MaemoRemoteMounter::killAllUtfsServers()

@@ -48,10 +48,10 @@ class MaemoPublishingWizardFactoryFremantleFree
 public:
     explicit MaemoPublishingWizardFactoryFremantleFree(QObject *parent =0);
 private:
-    virtual QString displayName() const;
-    virtual QString description() const;
-    virtual bool canCreateWizard(const ProjectExplorer::Project *project) const;
-    virtual QWizard *createWizard(const ProjectExplorer::Project *project) const;
+    QString displayName() const;
+    QString description() const;
+    bool canCreateWizard(const ProjectExplorer::Project *project) const;
+    QWizard *createWizard(const ProjectExplorer::Project *project) const;
 };
 
 } // namespace Internal

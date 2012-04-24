@@ -34,14 +34,16 @@
 
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
-#include "cmaketarget.h"
 #include "cmakebuildconfiguration.h"
 
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 
 #include <utils/qtcprocess.h>
 
@@ -138,19 +140,20 @@ bool MakeStep::init()
 
     setIgnoreReturnValue(m_clean);
 
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(target()->profile());
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
     pp->setWorkingDirectory(bc->buildDirectory());
-    if (bc->toolChain())
-        pp->setCommand(bc->toolChain()->makeCommand());
+    if (tc)
+        pp->setCommand(tc->makeCommand());
     else
         pp->setCommand(QLatin1String("make"));
     pp->setArguments(arguments);
 
     setOutputParser(new ProjectExplorer::GnuMakeParser());
-    if (bc->toolChain())
-        appendOutputParser(bc->toolChain()->outputParser());
+    if (tc)
+        appendOutputParser(tc->outputParser());
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
     return AbstractProcessStep::init();
@@ -302,7 +305,13 @@ void MakeStepConfigWidget::updateDetails()
     CMakeBuildConfiguration *bc = m_makeStep->cmakeBuildConfiguration();
     if (!bc)
         bc = static_cast<CMakeBuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
-    ProjectExplorer::ToolChain *tc = bc->toolChain();
+    if (!bc) {
+        m_summaryText = tr("<b>No build configuration found on this target.</b>");
+        updateSummary();
+        return;
+    }
+
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(m_makeStep->target()->profile());
     if (tc) {
         QString arguments = Utils::QtcProcess::joinArgs(m_makeStep->buildTargets());
         Utils::QtcProcess::addArgs(&arguments, m_makeStep->additionalArguments());
@@ -315,7 +324,7 @@ void MakeStepConfigWidget::updateDetails()
         param.setArguments(arguments);
         m_summaryText = param.summary(displayName());
     } else {
-        m_summaryText = tr("<b>Unknown tool chain</b>");
+        m_summaryText = tr("<b>No tool chain set for this target</b>");
     }
     emit updateSummary();
 }

@@ -42,7 +42,6 @@ const char GenericDeployKeyToDeviceActionId[] = "RemoteLinux.GenericDeployKeyToD
 const char GenericRemoteProcessesActionId[] = "RemoteLinux.GenericRemoteProcessesAction";
 
 const char EMBEDDED_LINUX_QT[] = "RemoteLinux.EmbeddedLinuxQt";
-const char EMBEDDED_LINUX_TARGET_ID[] = "RemoteLinux.EmbeddedLinuxTarget";
 
 } // Constants
 } // RemoteLinux

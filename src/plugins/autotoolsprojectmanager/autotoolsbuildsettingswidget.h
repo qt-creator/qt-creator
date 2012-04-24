@@ -35,12 +35,10 @@
 #ifndef AUTOTOOLSBUILDSETTINGSWIDGET_H
 #define AUTOTOOLSBUILDSETTINGSWIDGET_H
 
-#include "autotoolstarget.h"
 #include "autotoolsbuildconfiguration.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildstep.h>
 #include <utils/pathchooser.h>
 
@@ -51,7 +49,7 @@ QT_END_NAMESPACE
 namespace AutotoolsProjectManager {
 namespace Internal {
 
-class AutotoolsProject;
+class AutotoolsBuildConfiguration;
 
 /**
  * @brief Implementation of ProjectExplorer::BuildConfigWidget interface.
@@ -63,21 +61,16 @@ class AutotoolsBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget
     Q_OBJECT
 
 public:
-    explicit AutotoolsBuildSettingsWidget(AutotoolsTarget *target);
+    AutotoolsBuildSettingsWidget();
 
     QString displayName() const;
     void init(ProjectExplorer::BuildConfiguration *bc);
 
 private slots:
     void buildDirectoryChanged();
-    void toolChainSelected(int index);
-    void toolChainChanged(ProjectExplorer::ToolChain *tc);
-    void updateToolChainList();
 
 private:
-    AutotoolsTarget *m_target;
     Utils::PathChooser *m_pathChooser;
-    QComboBox *m_toolChainChooser;
     AutotoolsBuildConfiguration *m_buildConfiguration;
 };
 

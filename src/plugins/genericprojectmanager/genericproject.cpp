@@ -34,17 +34,19 @@
 
 #include "genericbuildconfiguration.h"
 #include "genericprojectconstants.h"
-#include "generictarget.h"
+
+#include "genericmakestep.h"
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildenvironmentwidget.h>
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/headerpath.h>
-#include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/profilemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
 #include <cpptools/ModelManagerInterface.h>
 #include <extensionsystem/pluginmanager.h>
-#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 #include <coreplugin/icore.h>
@@ -54,7 +56,6 @@
 #include <QDir>
 #include <QProcessEnvironment>
 
-#include <QFormLayout>
 #include <QMainWindow>
 #include <QComboBox>
 
@@ -62,18 +63,13 @@ using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
 using namespace ProjectExplorer;
 
-namespace {
-const char * const TOOLCHAIN_KEY("GenericProjectManager.GenericProject.Toolchain");
-} // end of anonymous namespace
-
 ////////////////////////////////////////////////////////////////////////////////////
 // GenericProject
 ////////////////////////////////////////////////////////////////////////////////////
 
 GenericProject::GenericProject(Manager *manager, const QString &fileName)
     : m_manager(manager),
-      m_fileName(fileName),
-      m_toolChain(0)
+      m_fileName(fileName)
 {
     setProjectContext(Core::Context(GenericProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguage(Core::Context(ProjectExplorer::Constants::LANG_CXX));
@@ -107,12 +103,6 @@ GenericProject::~GenericProject()
     m_manager->unregisterProject(this);
 
     delete m_rootNode;
-    // do not delete m_toolChain
-}
-
-GenericTarget *GenericProject::activeTarget() const
-{
-    return static_cast<GenericTarget *>(Project::activeTarget());
 }
 
 QString GenericProject::filesFileName() const
@@ -261,11 +251,13 @@ void GenericProject::refresh(RefreshOptions options)
         CPlusPlus::CppModelManagerInterface::ProjectPart::Ptr part(
                     new CPlusPlus::CppModelManagerInterface::ProjectPart);
 
-        if (m_toolChain) {
-            part->defines = m_toolChain->predefinedMacros(QStringList());
+        ToolChain *tc = activeTarget() ?
+                    ProjectExplorer::ToolChainProfileInformation::toolChain(activeTarget()->profile()) : 0;
+        if (tc) {
+            part->defines = tc->predefinedMacros(QStringList());
             part->defines += '\n';
 
-            foreach (const HeaderPath &headerPath, m_toolChain->systemHeaderPaths()) {
+            foreach (const HeaderPath &headerPath, tc->systemHeaderPaths()) {
                 if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
                     part->frameworkPaths.append(headerPath.path());
                 else
@@ -389,27 +381,6 @@ QByteArray GenericProject::defines() const
     return m_defines;
 }
 
-void GenericProject::setToolChain(ToolChain *tc)
-{
-    if (m_toolChain == tc)
-        return;
-
-    m_toolChain = tc;
-    refresh(Configuration);
-
-    foreach (Target *t, targets()) {
-        foreach (BuildConfiguration *bc, t->buildConfigurations())
-            bc->setToolChain(tc);
-    }
-
-    emit toolChainChanged(m_toolChain);
-}
-
-ToolChain *GenericProject::toolChain() const
-{
-    return m_toolChain;
-}
-
 QString GenericProject::displayName() const
 {
     return m_projectName;
@@ -456,17 +427,13 @@ QStringList GenericProject::buildTargets() const
     return targets;
 }
 
-QVariantMap GenericProject::toMap() const
-{
-    QVariantMap map(Project::toMap());
-    map.insert(QLatin1String(TOOLCHAIN_KEY), m_toolChain ? m_toolChain->id() : QString());
-    return map;
-}
-
 bool GenericProject::fromMap(const QVariantMap &map)
 {
     if (!Project::fromMap(map))
         return false;
+
+    if (!activeTarget())
+        addTarget(createTarget(ProfileManager::instance()->defaultProfile()));
 
     // Sanity check: We need both a buildconfiguration and a runconfiguration!
     QList<Target *> targetList = targets();
@@ -480,119 +447,16 @@ bool GenericProject::fromMap(const QVariantMap &map)
             t->addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(t));
     }
 
-    // Add default setup:
-    if (targets().isEmpty()) {
-        GenericTargetFactory *factory =
-                ExtensionSystem::PluginManager::getObject<GenericTargetFactory>();
-        addTarget(factory->create(this, Core::Id(GENERIC_DESKTOP_TARGET_ID)));
-    }
-
-    QString id = map.value(QLatin1String(TOOLCHAIN_KEY)).toString();
-    const ToolChainManager *toolChainManager = ToolChainManager::instance();
-
-    if (!id.isNull()) {
-        setToolChain(toolChainManager->findToolChain(id));
-    } else {
-        ProjectExplorer::Abi abi = ProjectExplorer::Abi::hostAbi();
-        abi = ProjectExplorer::Abi(abi.architecture(), abi.os(),  ProjectExplorer::Abi::UnknownFlavor,
-                                   abi.binaryFormat(), abi.wordWidth() == 32 ? 32 : 0);
-        QList<ToolChain *> tcs = toolChainManager->findToolChains(abi);
-        if (tcs.isEmpty())
-            tcs = toolChainManager->toolChains();
-        if (!tcs.isEmpty())
-            setToolChain(tcs.at(0));
-    }
-
     setIncludePaths(allIncludePaths());
 
-    refresh(Everything);
+    evaluateBuildSystem();
     return true;
 }
 
-////////////////////////////////////////////////////////////////////////////////////
-// GenericBuildSettingsWidget
-////////////////////////////////////////////////////////////////////////////////////
-
-GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericTarget *target)
-    : m_target(target), m_toolChainChooser(0), m_buildConfiguration(0)
+void GenericProject::evaluateBuildSystem()
 {
-    QFormLayout *fl = new QFormLayout(this);
-    fl->setContentsMargins(0, -1, 0, -1);
-    fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-
-    // build directory
-    m_pathChooser = new Utils::PathChooser(this);
-    m_pathChooser->setEnabled(true);
-    m_pathChooser->setBaseDirectory(m_target->genericProject()->projectDirectory());
-    fl->addRow(tr("Build directory:"), m_pathChooser);
-    connect(m_pathChooser, SIGNAL(changed(QString)), this, SLOT(buildDirectoryChanged()));
-
-    // tool chain
-    m_toolChainChooser = new QComboBox;
-    m_toolChainChooser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    updateToolChainList();
-
-    fl->addRow(tr("Tool chain:"), m_toolChainChooser);
-    connect(m_toolChainChooser, SIGNAL(activated(int)), this, SLOT(toolChainSelected(int)));
-    connect(m_target->genericProject(), SIGNAL(toolChainChanged(ProjectExplorer::ToolChain*)),
-            this, SLOT(toolChainChanged(ProjectExplorer::ToolChain*)));
-    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
-            this, SLOT(updateToolChainList()));
-    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
-            this, SLOT(updateToolChainList()));
-}
-
-GenericBuildSettingsWidget::~GenericBuildSettingsWidget()
-{ }
-
-QString GenericBuildSettingsWidget::displayName() const
-{ return tr("Generic Manager"); }
-
-void GenericBuildSettingsWidget::init(BuildConfiguration *bc)
-{
-    m_buildConfiguration = static_cast<GenericBuildConfiguration *>(bc);
-    m_pathChooser->setPath(m_buildConfiguration->rawBuildDirectory());
-}
-
-void GenericBuildSettingsWidget::buildDirectoryChanged()
-{
-    m_buildConfiguration->setBuildDirectory(m_pathChooser->rawPath());
-}
-
-void GenericBuildSettingsWidget::toolChainSelected(int index)
-{
-    using namespace ProjectExplorer;
-
-    ToolChain *tc = static_cast<ToolChain *>(m_toolChainChooser->itemData(index).value<void *>());
-    m_target->genericProject()->setToolChain(tc);
-}
-
-void GenericBuildSettingsWidget::toolChainChanged(ProjectExplorer::ToolChain *tc)
-{
-    for (int i = 0; i < m_toolChainChooser->count(); ++i) {
-        ToolChain * currentTc = static_cast<ToolChain *>(m_toolChainChooser->itemData(i).value<void *>());
-        if (currentTc != tc)
-            continue;
-        m_toolChainChooser->setCurrentIndex(i);
-        return;
-    }
-}
-
-void GenericBuildSettingsWidget::updateToolChainList()
-{
-    m_toolChainChooser->clear();
-
-    QList<ToolChain *> tcs = ToolChainManager::instance()->toolChains();
-    if (!m_target->genericProject()->toolChain()) {
-        m_toolChainChooser->addItem(tr("<Invalid tool chain>"), qVariantFromValue(static_cast<void *>(0)));
-        m_toolChainChooser->setCurrentIndex(0);
-    }
-    foreach (ToolChain *tc, tcs) {
-        m_toolChainChooser->addItem(tc->displayName(), qVariantFromValue(static_cast<void *>(tc)));
-        if (m_target->genericProject()->toolChain()
-                && m_target->genericProject()->toolChain()->id() == tc->id())
-            m_toolChainChooser->setCurrentIndex(m_toolChainChooser->count() - 1);
-    }
+    refresh(Everything);
+    buildSystemEvaluationFinished(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

@@ -49,11 +49,12 @@ class S60Manager : public QObject
 public:
     S60Manager(QObject *parent = 0);
     ~S60Manager();
+
     static S60Manager *instance();
 
     static QString platform(const ProjectExplorer::ToolChain *tc);
 
-    void delayedInitialize();
+    void extensionsInitialize();
 
 private slots:
     void symbianDeviceRemoved(const SymbianUtils::SymbianDevice &d);

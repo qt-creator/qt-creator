@@ -36,7 +36,9 @@
 #include <remotelinux/linuxdeviceconfiguration.h>
 
 #include <projectexplorer/applicationrunconfiguration.h>
+#include <projectexplorer/profileinformation.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/target.h>
 
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
@@ -75,7 +77,7 @@ Analyzer::AnalyzerStartParameters ValgrindTool::createStartParameters(
         sp.startMode = Analyzer::StartRemote;
         sp.debuggee = rc2->remoteExecutableFilePath();
         sp.debuggeeArgs = rc2->arguments();
-        sp.connParams = rc2->deviceConfig()->sshParameters();
+        sp.connParams = ProjectExplorer::DeviceProfileInformation::device(rc2->target()->profile())->sshParameters();
         sp.analyzerCmdPrefix = rc2->commandPrefix();
         sp.displayName = rc2->displayName();
     } else {

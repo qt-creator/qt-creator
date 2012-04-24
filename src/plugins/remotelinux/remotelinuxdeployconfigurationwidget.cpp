@@ -31,7 +31,6 @@
 #include "remotelinuxdeployconfigurationwidget.h"
 #include "ui_remotelinuxdeployconfigurationwidget.h"
 
-#include "abstractembeddedlinuxtarget.h"
 #include "deployablefilesperprofile.h"
 #include "deploymentinfo.h"
 #include "remotelinuxdeployconfiguration.h"
@@ -42,6 +41,7 @@
 #include <coreplugin/id.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 
 #include <QTreeView>
@@ -102,16 +102,7 @@ void RemoteLinuxDeployConfigurationWidget::init(DeployConfiguration *dc)
     d->deployConfiguration = qobject_cast<RemoteLinuxDeployConfiguration *>(dc);
     Q_ASSERT(d->deployConfiguration);
 
-    connect(d->ui.manageDevConfsLabel, SIGNAL(linkActivated(QString)),
-        SLOT(showDeviceConfigurations()));
     connect(&d->treeView, SIGNAL(doubleClicked()), SLOT(openProjectFile()));
-
-    d->ui.deviceConfigsComboBox->setModel(d->deployConfiguration->target()->deviceConfigModel());
-    connect(d->ui.deviceConfigsComboBox, SIGNAL(activated(int)),
-        SLOT(handleSelectedDeviceConfigurationChanged(int)));
-    connect(d->deployConfiguration, SIGNAL(deviceConfigurationListChanged()),
-        SLOT(handleDeviceConfigurationListChanged()));
-    handleDeviceConfigurationListChanged();
 
     d->ui.projectsComboBox->setModel(d->deployConfiguration->deploymentInfo());
     connect(d->deployConfiguration->deploymentInfo(), SIGNAL(modelAboutToBeReset()),
@@ -168,32 +159,6 @@ void RemoteLinuxDeployConfigurationWidget::setModel(int row)
     if (proFileInfo)
         d->treeView.resizeColumnToContents(0);
     emit currentModelChanged(proFileInfo);
-}
-
-void RemoteLinuxDeployConfigurationWidget::handleSelectedDeviceConfigurationChanged(int index)
-{
-    disconnect(d->deployConfiguration, SIGNAL(deviceConfigurationListChanged()), this,
-        SLOT(handleDeviceConfigurationListChanged()));
-    d->deployConfiguration->setDeviceConfiguration(index);
-    connect(d->deployConfiguration, SIGNAL(deviceConfigurationListChanged()),
-        SLOT(handleDeviceConfigurationListChanged()));
-}
-
-void RemoteLinuxDeployConfigurationWidget::handleDeviceConfigurationListChanged()
-{
-    const LinuxDeviceConfiguration::ConstPtr &devConf
-        = d->deployConfiguration->deviceConfiguration();
-    const Core::Id id = DeviceManager::instance()->deviceId(devConf);
-    const int newIndex
-        = d->deployConfiguration->target()->deviceConfigModel()->indexForId(id);
-    d->ui.deviceConfigsComboBox->setCurrentIndex(newIndex);
-}
-
-void RemoteLinuxDeployConfigurationWidget::showDeviceConfigurations()
-{
-    Core::ICore::showOptionsDialog(
-        QLatin1String(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY),
-        QLatin1String(ProjectExplorer::Constants::DEVICE_SETTINGS_PAGE_ID));
 }
 
 void RemoteLinuxDeployConfigurationWidget::openProjectFile()

@@ -54,8 +54,6 @@ class LinuxIccToolChainFactory;
 class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 {
 public:
-    QString legacyId() const;
-
     QString type() const;
     QString typeDisplayName() const;
     Abi targetAbi() const;
@@ -71,8 +69,6 @@ public:
     QList<HeaderPath> systemHeaderPaths() const;
     void addToEnvironment(Utils::Environment &env) const;
     QString makeCommand() const;
-    void setDebuggerCommand(const Utils::FileName &);
-    Utils::FileName debuggerCommand() const;
     QList<Utils::FileName> suggestedMkspecList() const;
     IOutputParser *outputParser() const;
 
@@ -107,7 +103,6 @@ private:
     void updateSupportedAbis() const;
 
     Utils::FileName m_compilerCommand;
-    Utils::FileName m_debuggerCommand;
 
     Abi m_targetAbi;
     mutable QList<Abi> m_supportedAbis;

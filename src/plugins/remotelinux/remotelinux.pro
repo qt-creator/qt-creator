@@ -6,8 +6,6 @@ include(../../qtcreatorplugin.pri)
 include(remotelinux_dependencies.pri)
 
 HEADERS += \
-    genericembeddedlinuxtarget.h \
-    embeddedlinuxtargetfactory.h \
     embeddedlinuxqtversion.h \
     embeddedlinuxqtversionfactory.h \
     remotelinuxplugin.h \
@@ -56,14 +54,11 @@ HEADERS += \
     startgdbserverdialog.h \
     remotelinuxcustomcommanddeployservice.h \
     remotelinuxcustomcommanddeploymentstep.h \
-    abstractembeddedlinuxtarget.h \
     genericlinuxdeviceconfigurationwidget.h \
     remotelinuxcheckforfreediskspaceservice.h \
     remotelinuxcheckforfreediskspacestep.h
 
 SOURCES += \
-    genericembeddedlinuxtarget.cpp \
-    embeddedlinuxtargetfactory.cpp \
     embeddedlinuxqtversion.cpp \
     embeddedlinuxqtversionfactory.cpp \
     remotelinuxplugin.cpp \
@@ -109,7 +104,6 @@ SOURCES += \
     startgdbserverdialog.cpp \
     remotelinuxcustomcommanddeployservice.cpp \
     remotelinuxcustomcommanddeploymentstep.cpp \
-    abstractembeddedlinuxtarget.cpp \
     genericlinuxdeviceconfigurationwidget.cpp \
     remotelinuxcheckforfreediskspaceservice.cpp \
     remotelinuxcheckforfreediskspacestep.cpp

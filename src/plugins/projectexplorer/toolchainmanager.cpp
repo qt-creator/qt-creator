@@ -31,7 +31,9 @@
 **************************************************************************/
 
 #include "toolchainmanager.h"
+
 #include "abi.h"
+#include "profileinformation.h"
 #include "toolchain.h"
 
 #include <coreplugin/icore.h>
@@ -51,15 +53,17 @@ static const char TOOLCHAIN_FILE_VERSION_KEY[] = "Version";
 static const char DEFAULT_DEBUGGER_COUNT_KEY[] = "DefaultDebugger.Count";
 static const char DEFAULT_DEBUGGER_ABI_KEY[] = "DefaultDebugger.Abi.";
 static const char DEFAULT_DEBUGGER_PATH_KEY[] = "DefaultDebugger.Path.";
-static const char TOOLCHAIN_FILENAME[] = "/toolChains.xml";
+static const char TOOLCHAIN_FILENAME[] = "/qtcreator/toolchains.xml";
+static const char LEGACY_TOOLCHAIN_FILENAME[] = "/toolChains.xml";
 
 using Utils::PersistentSettingsWriter;
 using Utils::PersistentSettingsReader;
 
-static QString settingsFileName()
+static QString settingsFileName(const QString &path)
 {
-    QFileInfo settingsLocation(ExtensionSystem::PluginManager::settings()->fileName());
-    return settingsLocation.absolutePath() + QLatin1String(TOOLCHAIN_FILENAME);
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    QFileInfo settingsLocation(pm->settings()->fileName());
+    return settingsLocation.absolutePath() + path;
 }
 
 namespace ProjectExplorer {
@@ -89,8 +93,7 @@ private:
 
 ToolChainManagerPrivate::ToolChainManagerPrivate(ToolChainManager *parent)
     : q(parent), m_initialized(false)
-{
-}
+{ }
 
 QList<ToolChain *> &ToolChainManagerPrivate::toolChains()
 {
@@ -109,7 +112,6 @@ QList<ToolChain *> &ToolChainManagerPrivate::toolChains()
 
 ToolChainManager *ToolChainManager::instance()
 {
-    Q_ASSERT(m_instance);
     return m_instance;
 }
 
@@ -119,6 +121,7 @@ ToolChainManager::ToolChainManager(QObject *parent) :
 {
     Q_ASSERT(!m_instance);
     m_instance = this;
+
     connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
             this, SLOT(saveToolChains()));
     connect(this, SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
@@ -137,7 +140,7 @@ void ToolChainManager::restoreToolChains()
     // read all tool chains from SDK
     QFileInfo systemSettingsFile(Core::ICore::settings(QSettings::SystemScope)->fileName());
     QList<ToolChain *> readTcs =
-            restoreToolChains(systemSettingsFile.absolutePath() + QLatin1String(TOOLCHAIN_FILENAME));
+            restoreToolChains(systemSettingsFile.absolutePath() + QLatin1String(LEGACY_TOOLCHAIN_FILENAME));
     // make sure we mark these as autodetected!
     foreach (ToolChain *tc, readTcs)
         tc->setAutoDetected(true);
@@ -145,8 +148,12 @@ void ToolChainManager::restoreToolChains()
     tcsToRegister = readTcs; // SDK TCs are always considered to be up-to-date, so no need to
                              // recheck them.
 
-    // read all tool chains from user file
-    readTcs = restoreToolChains(settingsFileName());
+    // read all tool chains from user file.
+    // Read legacy settings once and keep them around...
+    QString fileName = settingsFileName(QLatin1String(TOOLCHAIN_FILENAME));
+    if (!QFileInfo(fileName).exists())
+        fileName = settingsFileName(QLatin1String(LEGACY_TOOLCHAIN_FILENAME));
+    readTcs = restoreToolChains(fileName);
 
     foreach (ToolChain *tc, readTcs) {
         if (tc->isAutoDetected())
@@ -214,7 +221,7 @@ void ToolChainManager::saveToolChains()
         }
     }
     writer.saveValue(QLatin1String(TOOLCHAIN_COUNT_KEY), count);
-    writer.save(settingsFileName(), QLatin1String("QtCreatorToolChains"), Core::ICore::mainWindow());
+    writer.save(settingsFileName(QLatin1String(TOOLCHAIN_FILENAME)), QLatin1String("QtCreatorToolChains"), Core::ICore::mainWindow());
 
     // Do not save default debuggers! Those are set by the SDK!
 }
@@ -296,7 +303,7 @@ ToolChain *ToolChainManager::findToolChain(const QString &id) const
         return 0;
 
     foreach (ToolChain *tc, d->toolChains()) {
-        if (tc->id() == id || (!tc->legacyId().isEmpty() && tc->legacyId() == id))
+        if (tc->id() == id)
             return tc;
     }
     return 0;

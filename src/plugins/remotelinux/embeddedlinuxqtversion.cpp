@@ -74,16 +74,6 @@ QList<ProjectExplorer::Abi> EmbeddedLinuxQtVersion::detectQtAbis() const
     return qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
 }
 
-bool EmbeddedLinuxQtVersion::supportsTargetId(const Core::Id id) const
-{
-    return id == Core::Id(Constants::EMBEDDED_LINUX_TARGET_ID);
-}
-
-QSet<Core::Id> EmbeddedLinuxQtVersion::supportedTargetIds() const
-{
-    return QSet<Core::Id>() << Core::Id(Constants::EMBEDDED_LINUX_TARGET_ID);
-}
-
 QString EmbeddedLinuxQtVersion::description() const
 {
     return QCoreApplication::translate("QtVersion", "Embedded Linux", "Qt Version is used for embedded Linux development");

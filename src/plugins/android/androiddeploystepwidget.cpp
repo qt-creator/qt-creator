@@ -110,7 +110,7 @@ void AndroidDeployStepWidget::useLocalQtLibsStateChanged(int state)
 
 void AndroidDeployStepWidget::editRulesFile()
 {
-    Core::ICore::instance()->openFiles(QStringList() << m_step->localLibsRulesFilePath(), Core::ICore::SwitchMode);
+    Core::ICore::instance()->openFiles(QStringList() << m_step->localLibsRulesFilePath().toString(), Core::ICore::SwitchMode);
 }
 
 } // namespace Internal

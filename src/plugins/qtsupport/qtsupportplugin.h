@@ -36,7 +36,6 @@
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/icontext.h>
 
-
 namespace QtSupport {
 namespace Internal {
 

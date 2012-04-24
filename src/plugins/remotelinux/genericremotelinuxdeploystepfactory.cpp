@@ -33,13 +33,15 @@
 
 #include "genericdirectuploadstep.h"
 #include "remotelinuxcheckforfreediskspacestep.h"
+#include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxdeployconfigurationfactory.h"
 #include "remotelinuxcustomcommanddeploymentstep.h"
 #include "tarpackagecreationstep.h"
 #include "uploadandinstalltarpackagestep.h"
 
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/target.h>
 
 using namespace ProjectExplorer;
 
@@ -54,8 +56,7 @@ GenericRemoteLinuxDeployStepFactory::GenericRemoteLinuxDeployStepFactory(QObject
 QList<Core::Id> GenericRemoteLinuxDeployStepFactory::availableCreationIds(BuildStepList *parent) const
 {
     QList<Core::Id> ids;
-    const DeployConfiguration * const dc = qobject_cast<DeployConfiguration *>(parent->parent());
-    if (!dc || dc->id() != RemoteLinuxDeployConfigurationFactory::genericDeployConfigurationId())
+    if (!qobject_cast<RemoteLinuxDeployConfiguration *>(parent->parent()))
         return ids;
     ids << TarPackageCreationStep::stepId() << UploadAndInstallTarPackageStep::stepId()
         << GenericDirectUploadStep::stepId()

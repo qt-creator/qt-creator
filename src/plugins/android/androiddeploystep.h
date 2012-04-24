@@ -70,7 +70,7 @@ public:
 
     QString deviceSerialNumber();
     int deviceAPILevel();
-    QString localLibsRulesFilePath();
+    Utils::FileName localLibsRulesFilePath();
 
     AndroidDeployAction deployAction();
     bool useLocalQtLibs();
@@ -116,7 +116,7 @@ private:
     QString m_packageName;
     QString m_qtVersionSourcePath;
     QtSupport::BaseQtVersion::QmakeBuildConfigs m_qtVersionQMakeBuildConfig;
-    QString m_androidDirPath;
+    Utils::FileName m_androidDirPath;
     QString m_apkPathDebug;
     QString m_apkPathRelease;
     QString m_buildDirectory;

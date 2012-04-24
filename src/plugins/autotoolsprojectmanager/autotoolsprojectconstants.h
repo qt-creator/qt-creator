@@ -46,9 +46,6 @@ namespace Constants {
     const char AUTOTOOLS_BC_ID[] = "AutotoolsProjectManager.AutotoolsBuildConfiguration";
     const char BUILD_DIRECTORY_KEY[] = "AutotoolsProjectManager.AutotoolsBuildConfiguration.BuildDirectory";
 
-//Target
-    const char DEFAULT_AUTOTOOLS_TARGET_ID[] = "AutotoolsProjectManager.DefaultAutotoolsTarget";
-
 //Project
     const char AUTOTOOLS_PROJECT_ID[] = "AutotoolsProjectManager.AutotoolsProject";
     const char PROJECT_CONTEXT[] = "AutotoolsProject.ProjectContext";

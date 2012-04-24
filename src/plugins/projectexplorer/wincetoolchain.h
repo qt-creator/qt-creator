@@ -57,15 +57,12 @@ public:
                    const QString &libPath,
                    bool autodetect = false);
 
-    QString legacyId() const;
     QList<Utils::FileName> suggestedMkspecList() const;
 
     static WinCEToolChain *readFromMap(const QVariantMap &data);
 
     QString type() const;
     QString typeDisplayName() const;
-
-    Utils::FileName mkspecList() const;
 
     QString ceVer() const;
 

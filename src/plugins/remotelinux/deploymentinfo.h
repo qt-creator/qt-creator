@@ -36,10 +36,13 @@
 
 #include <QAbstractListModel>
 
-namespace Qt4ProjectManager { class Qt4ProFileNode; }
+namespace ProjectExplorer { class Target; }
+namespace Qt4ProjectManager {
+class Qt4ProFileNode;
+class Qt4Project;
+} // namespace Qt4ProjectManager
 
 namespace RemoteLinux {
-class AbstractEmbeddedLinuxTarget;
 class DeployableFile;
 class DeployableFilesPerProFile;
 
@@ -51,7 +54,7 @@ class REMOTELINUX_EXPORT DeploymentInfo : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    DeploymentInfo(AbstractEmbeddedLinuxTarget *target, const QString &installPrefix = QString());
+    DeploymentInfo(Qt4ProjectManager::Qt4Project *project, const QString &installPrefix = QString());
     ~DeploymentInfo();
 
     void setUnmodified();

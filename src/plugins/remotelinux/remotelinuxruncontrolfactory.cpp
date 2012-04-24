@@ -39,7 +39,9 @@
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerstartparameters.h>
+#include <projectexplorer/profileinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 #include <utils/portlist.h>
 
 using namespace Debugger;
@@ -63,17 +65,23 @@ bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration, Ru
         return false;
 
     const QString idStr = QString::fromLatin1(runConfiguration->id().name());
-    if (!runConfiguration->isEnabled()
-            || !idStr.startsWith(RemoteLinuxRunConfiguration::Id)) {
+    if (!runConfiguration->isEnabled() || !idStr.startsWith(RemoteLinuxRunConfiguration::Id))
         return false;
-    }
 
     if (mode == NormalRunMode)
         return true;
 
     const RemoteLinuxRunConfiguration * const remoteRunConfig
-        = qobject_cast<RemoteLinuxRunConfiguration *>(runConfiguration);
-    return remoteRunConfig->portsUsedByDebuggers() <= remoteRunConfig->freePorts().count();
+            = qobject_cast<RemoteLinuxRunConfiguration *>(runConfiguration);
+    if (mode == DebugRunMode) {
+        LinuxDeviceConfiguration::ConstPtr dev =
+                ProjectExplorer::DeviceProfileInformation::device(runConfiguration->target()->profile())
+                .dynamicCast<const LinuxDeviceConfiguration>();
+        if (dev.isNull())
+            return false;
+        return remoteRunConfig->portsUsedByDebuggers() <= dev->freePorts().count();
+    }
+    return true;
 }
 
 RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, RunMode mode)

@@ -35,6 +35,8 @@
 #ifndef AUTOTOOLSBUILDCONFIGURATION_H
 #define AUTOTOOLSBUILDCONFIGURATION_H
 
+#include "autotoolsbuildsettingswidget.h"
+
 #include <projectexplorer/buildconfiguration.h>
 
 namespace AutotoolsProjectManager {
@@ -49,18 +51,21 @@ class AutotoolsBuildConfiguration : public ProjectExplorer::BuildConfiguration
     friend class AutotoolsBuildConfigurationFactory;
 
 public:
-    explicit AutotoolsBuildConfiguration(AutotoolsTarget *parent);
+    explicit AutotoolsBuildConfiguration(ProjectExplorer::Target *parent);
 
-    AutotoolsTarget *autotoolsTarget() const;
+    ProjectExplorer::BuildConfigWidget *createConfigWidget();
+
     QString buildDirectory() const;
     void setBuildDirectory(const QString &buildDirectory);
     QVariantMap toMap() const;
     ProjectExplorer::IOutputParser *createOutputParser() const;
     BuildType buildType() const;
 
+    void emitBuildDirectoryInitialized();
+
 protected:
-    AutotoolsBuildConfiguration(AutotoolsTarget *parent, const Core::Id id);
-    AutotoolsBuildConfiguration(AutotoolsTarget *parent, AutotoolsBuildConfiguration *source);
+    AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, const Core::Id id);
+    AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, AutotoolsBuildConfiguration *source);
 
     bool fromMap(const QVariantMap &map);
 
@@ -75,16 +80,20 @@ class AutotoolsBuildConfigurationFactory : public ProjectExplorer::IBuildConfigu
 public:
     explicit AutotoolsBuildConfigurationFactory(QObject *parent = 0);
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QList<Core::Id> availableCreationIds(const ProjectExplorer::Target *parent) const;
     QString displayNameForId(const Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
-    AutotoolsBuildConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
-    AutotoolsBuildConfiguration *createDefaultConfiguration(AutotoolsTarget *target) const;
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
+    bool canCreate(const ProjectExplorer::Target *parent, const Core::Id id) const;
+    AutotoolsBuildConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id, const QString &name = QString());
+    bool canClone(const ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
     AutotoolsBuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source);
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
+    bool canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const;
     AutotoolsBuildConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
+
+    static AutotoolsBuildConfiguration *createDefaultConfiguration(ProjectExplorer::Target *target);
+
+private:
+    bool canHandle(const ProjectExplorer::Target *t) const;
 };
 
 } // namespace Internal

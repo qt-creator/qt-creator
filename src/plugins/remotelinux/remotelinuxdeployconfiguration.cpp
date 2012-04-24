@@ -31,119 +31,67 @@
 **************************************************************************/
 #include "remotelinuxdeployconfiguration.h"
 
-#include "abstractembeddedlinuxtarget.h"
 #include "deploymentinfo.h"
 #include "remotelinuxdeployconfigurationwidget.h"
 #include "typespecificdeviceconfigurationlistmodel.h"
 
 #include <coreplugin/id.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <qt4projectmanager/qt4target.h>
+#include <projectexplorer/target.h>
+#include <qt4projectmanager/qt4project.h>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 
-namespace RemoteLinux {
-namespace Internal {
 namespace {
-const char DeviceIdKey[] = "Qt4ProjectManager.MaemoRunConfiguration.DeviceId";
-} // anonymous namespace
+const char DEPLOYMENT_INFO_SETTING[] = "RemoteLinux.DeploymentInfo";
+} // namespace
 
-class RemoteLinuxDeployConfigurationPrivate
-{
-public:
-    QSharedPointer<const LinuxDeviceConfiguration> deviceConfiguration;
-};
-
-} // namespace Internal
+namespace RemoteLinux {
 
 using namespace Internal;
 
 RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target,
         const Core::Id id, const QString &defaultDisplayName)
-    : DeployConfiguration(target, id), d(new RemoteLinuxDeployConfigurationPrivate)
+    : DeployConfiguration(target, id)
 {
     setDefaultDisplayName(defaultDisplayName);
 
-    initialize();
+    // Make sure we have deploymentInfo, but create it only once:
+    DeploymentInfo *info
+            = qobject_cast<DeploymentInfo *>(target->project()->namedSettings(QLatin1String(DEPLOYMENT_INFO_SETTING)).value<QObject *>());
+    if (!info) {
+        info = new DeploymentInfo(static_cast<Qt4ProjectManager::Qt4Project *>(target->project()));
+        QVariant data = QVariant::fromValue(static_cast<QObject *>(info));
+        target->project()->setNamedSettings(QLatin1String(DEPLOYMENT_INFO_SETTING), data);
+    }
 }
 
 RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target,
         RemoteLinuxDeployConfiguration *source)
-    : DeployConfiguration(target, source), d(new RemoteLinuxDeployConfigurationPrivate)
-{
-    initialize();
-}
-
-RemoteLinuxDeployConfiguration::~RemoteLinuxDeployConfiguration()
-{
-    delete d;
-}
-
-void RemoteLinuxDeployConfiguration::initialize()
-{
-    d->deviceConfiguration = target()->deviceConfigModel()->defaultDeviceConfig();
-    connect(target()->deviceConfigModel(), SIGNAL(modelReset()),
-        SLOT(handleDeviceConfigurationListUpdated()));
-}
-
-void RemoteLinuxDeployConfiguration::handleDeviceConfigurationListUpdated()
-{
-    setDeviceConfig(DeviceManager::instance()->deviceId(d->deviceConfiguration));
-}
-
-void RemoteLinuxDeployConfiguration::setDeviceConfig(Core::Id id)
-{
-    d->deviceConfiguration = target()->deviceConfigModel()->find(id);
-    emit deviceConfigurationListChanged();
-    emit currentDeviceConfigurationChanged();
-}
-
-bool RemoteLinuxDeployConfiguration::fromMap(const QVariantMap &map)
-{
-    if (!DeployConfiguration::fromMap(map))
-        return false;
-    const QString idString = map.value(QLatin1String(DeviceIdKey)).toString();
-    setDeviceConfig(!idString.isEmpty() ? Core::Id(idString) : IDevice::invalidId());
-    return true;
-}
-
-QVariantMap RemoteLinuxDeployConfiguration::toMap() const
-{
-    QVariantMap map = DeployConfiguration::toMap();
-    map.insert(QLatin1String(DeviceIdKey),
-        DeviceManager::instance()->deviceId(d->deviceConfiguration).toString());
-    return map;
-}
-
-void RemoteLinuxDeployConfiguration::setDeviceConfiguration(int index)
-{
-    const LinuxDeviceConfiguration::ConstPtr &newDevConf
-        = target()->deviceConfigModel()->deviceAt(index);
-    if (d->deviceConfiguration != newDevConf) {
-        d->deviceConfiguration = newDevConf;
-        emit currentDeviceConfigurationChanged();
-    }
-}
-
-AbstractEmbeddedLinuxTarget *RemoteLinuxDeployConfiguration::target() const
-{
-    return qobject_cast<AbstractEmbeddedLinuxTarget *>(DeployConfiguration::target());
-}
+    : DeployConfiguration(target, source)
+{ }
 
 DeploymentInfo *RemoteLinuxDeployConfiguration::deploymentInfo() const
 {
-    return target()->deploymentInfo();
+    DeploymentInfo *info
+            = qobject_cast<DeploymentInfo *>(target()->project()->namedSettings(QLatin1String(DEPLOYMENT_INFO_SETTING)).value<QObject *>());
+    return info;
+}
+
+QString RemoteLinuxDeployConfiguration::qmakeScope() const
+{
+    return QLatin1String("unix");
+}
+
+QString RemoteLinuxDeployConfiguration::installPrefix() const
+{
+    return QString();
 }
 
 DeployConfigurationWidget *RemoteLinuxDeployConfiguration::configurationWidget() const
 {
     return new RemoteLinuxDeployConfigurationWidget;
-}
-
-LinuxDeviceConfiguration::ConstPtr RemoteLinuxDeployConfiguration::deviceConfiguration() const
-{
-    return d->deviceConfiguration;
 }
 
 } // namespace RemoteLinux

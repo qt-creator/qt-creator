@@ -31,12 +31,12 @@
 **************************************************************************/
 
 #include "cmakelocatorfilter.h"
-#include "cmaketarget.h"
 #include "cmakeproject.h"
 #include "makestep.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/buildsteplist.h>
 

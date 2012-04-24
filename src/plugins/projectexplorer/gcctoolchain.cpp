@@ -62,7 +62,6 @@ namespace ProjectExplorer {
 static const char compilerCommandKeyC[] = "ProjectExplorer.GccToolChain.Path";
 static const char targetAbiKeyC[] = "ProjectExplorer.GccToolChain.TargetAbi";
 static const char supportedAbisKeyC[] = "ProjectExplorer.GccToolChain.SupportedAbis";
-static const char debuggerCommandKeyC[] = "ProjectExplorer.GccToolChain.Debugger";
 
 static QByteArray runGcc(const Utils::FileName &gcc, const QStringList &arguments, const QStringList &env)
 {
@@ -325,7 +324,6 @@ GccToolChain::GccToolChain(const GccToolChain &tc) :
     ToolChain(tc),
     m_predefinedMacros(tc.predefinedMacros(QStringList())),
     m_compilerCommand(tc.compilerCommand()),
-    m_debuggerCommand(tc.debuggerCommand()),
     m_targetAbi(tc.m_targetAbi),
     m_supportedAbis(tc.m_supportedAbis),
     m_headerPaths(tc.m_headerPaths),
@@ -339,15 +337,6 @@ QString GccToolChain::defaultDisplayName() const
     return QString::fromLatin1("%1 (%2 %3)").arg(typeDisplayName(),
                                                  ProjectExplorer::Abi::toString(m_targetAbi.architecture()),
                                                  ProjectExplorer::Abi::toString(m_targetAbi.wordWidth()));
-}
-
-QString GccToolChain::legacyId() const
-{
-    QString i = id();
-    i = i.left(i.indexOf(QLatin1Char(':')));
-    return QString::fromLatin1("%1:%2.%3.%4")
-               .arg(i).arg(m_compilerCommand.toString())
-               .arg(m_targetAbi.toString()).arg(m_debuggerCommand.toString());
 }
 
 QString GccToolChain::type() const
@@ -426,19 +415,6 @@ void GccToolChain::addToEnvironment(Utils::Environment &env) const
         Utils::FileName path = m_compilerCommand.parentDir();
         env.prependOrSetPath(path.toString());
     }
-}
-
-void GccToolChain::setDebuggerCommand(const Utils::FileName &d)
-{
-    if (m_debuggerCommand == d)
-        return;
-    m_debuggerCommand = d;
-    toolChainUpdated();
-}
-
-Utils::FileName GccToolChain::debuggerCommand() const
-{
-    return m_debuggerCommand;
 }
 
 QList<Utils::FileName> GccToolChain::suggestedMkspecList() const
@@ -531,7 +507,6 @@ QVariantMap GccToolChain::toMap() const
     foreach (const ProjectExplorer::Abi &a, m_supportedAbis)
         abiList.append(a.toString());
     data.insert(QLatin1String(supportedAbisKeyC), abiList);
-    data.insert(QLatin1String(debuggerCommandKeyC), m_debuggerCommand.toString());
     return data;
 }
 
@@ -550,7 +525,6 @@ bool GccToolChain::fromMap(const QVariantMap &data)
             continue;
         m_supportedAbis.append(abi);
     }
-    m_debuggerCommand = Utils::FileName::fromString(data.value(QLatin1String(debuggerCommandKeyC)).toString());
     return true;
 }
 
@@ -560,8 +534,7 @@ bool GccToolChain::operator ==(const ToolChain &other) const
         return false;
 
     const GccToolChain *gccTc = static_cast<const GccToolChain *>(&other);
-    return m_compilerCommand == gccTc->m_compilerCommand && m_targetAbi == gccTc->m_targetAbi
-            && m_debuggerCommand == gccTc->m_debuggerCommand;
+    return m_compilerCommand == gccTc->m_compilerCommand && m_targetAbi == gccTc->m_targetAbi;
 }
 
 ToolChainConfigWidget *GccToolChain::configurationWidget()
@@ -615,16 +588,13 @@ ToolChain *Internal::GccToolChainFactory::create()
 
 QList<ToolChain *> Internal::GccToolChainFactory::autoDetect()
 {
-    QStringList debuggers;
+    QList<ToolChain *> tcs;
 #ifdef Q_OS_MAC
-    // Fixme Prefer lldb once it is implemented: debuggers.push_back(QLatin1String("lldb"));
-#endif
-    debuggers.push_back(QLatin1String("gdb"));
-    QList<ToolChain *> tcs = autoDetectToolchains(QLatin1String("g++"), debuggers, Abi::hostAbi());
-
     // Old mac compilers needed to support macx-gccXY mkspecs:
-    tcs.append(autoDetectToolchains(QLatin1String("g++-4.0"), debuggers, Abi::hostAbi()));
-    tcs.append(autoDetectToolchains(QLatin1String("g++-4.2"), debuggers, Abi::hostAbi()));
+    tcs.append(autoDetectToolchains(QLatin1String("g++-4.0"), Abi::hostAbi()));
+    tcs.append(autoDetectToolchains(QLatin1String("g++-4.2"), Abi::hostAbi()));
+#endif
+    tcs.append(autoDetectToolchains(QLatin1String("g++"), Abi::hostAbi()));
 
     return tcs;
 }
@@ -651,7 +621,6 @@ GccToolChain *Internal::GccToolChainFactory::createToolChain(bool autoDetect)
 }
 
 QList<ToolChain *> Internal::GccToolChainFactory::autoDetectToolchains(const QString &compiler,
-                                                                       const QStringList &debuggers,
                                                                        const Abi &requiredAbi)
 {
     QList<ToolChain *> result;
@@ -669,22 +638,12 @@ QList<ToolChain *> Internal::GccToolChainFactory::autoDetectToolchains(const QSt
             return result;
     }
 
-    Utils::FileName debuggerPath = ToolChainManager::instance()->defaultDebugger(requiredAbi);
-    if (debuggerPath.isEmpty()) {
-        foreach (const QString &debugger, debuggers) {
-            debuggerPath = Utils::FileName::fromString(systemEnvironment.searchInPath(debugger));
-            if (!debuggerPath.isEmpty())
-                break;
-        }
-    }
-
     foreach (const Abi &abi, abiList) {
         QScopedPointer<GccToolChain> tc(createToolChain(true));
         if (tc.isNull())
             return result;
 
         tc->setCompilerCommand(compilerPath);
-        tc->setDebuggerCommand(debuggerPath);
         tc->setTargetAbi(abi);
         tc->setDisplayName(tc->defaultDisplayName()); // reset displayname
 
@@ -715,14 +674,12 @@ Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     layout->addRow(tr("&ABI:"), m_abiWidget);
     m_abiWidget->setEnabled(false);
 
-    addDebuggerCommandControls(layout, gnuVersionArgs);
-    addMkspecControls(layout);
     addErrorLabel(layout);
 
     setFromToolchain();
 
     connect(m_compilerCommand, SIGNAL(changed(QString)), this, SLOT(handleCompilerCommandChange()));
-    connect(m_abiWidget, SIGNAL(abiChanged()), this, SLOT(handleAbiChange()));
+    connect(m_abiWidget, SIGNAL(abiChanged()), this, SIGNAL(dirty()));
 }
 
 void Internal::GccToolChainConfigWidget::apply()
@@ -736,9 +693,6 @@ void Internal::GccToolChainConfigWidget::apply()
     tc->setCompilerCommand(m_compilerCommand->fileName());
     tc->setTargetAbi(m_abiWidget->currentAbi());
     tc->setDisplayName(displayName); // reset display name
-    tc->setDebuggerCommand(debuggerCommand());
-    tc->setMkspecList(mkspecList());
-    m_autoDebuggerCommand = Utils::FileName::fromString(QLatin1String("<manually set>"));
 }
 
 void Internal::GccToolChainConfigWidget::setFromToolchain()
@@ -750,8 +704,6 @@ void Internal::GccToolChainConfigWidget::setFromToolchain()
     m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
     if (!m_isReadOnly && !m_compilerCommand->path().isEmpty())
         m_abiWidget->setEnabled(true);
-    setDebuggerCommand(tc->debuggerCommand());
-    setMkspecList(tc->mkspecList());
     blockSignals(blocked);
 }
 
@@ -760,9 +712,7 @@ bool Internal::GccToolChainConfigWidget::isDirty() const
     GccToolChain *tc = static_cast<GccToolChain *>(toolChain());
     Q_ASSERT(tc);
     return m_compilerCommand->fileName() != tc->compilerCommand()
-            || m_abiWidget->currentAbi() != tc->targetAbi()
-            || debuggerCommand() != tc->debuggerCommand()
-            || mkspecList() != tc->mkspecList();
+            || m_abiWidget->currentAbi() != tc->targetAbi();
 }
 
 void Internal::GccToolChainConfigWidget::makeReadOnly()
@@ -787,16 +737,6 @@ void Internal::GccToolChainConfigWidget::handleCompilerCommandChange()
     m_abiWidget->setEnabled(haveCompiler);
     Abi currentAbi = m_abiWidget->currentAbi();
     m_abiWidget->setAbis(abiList, abiList.contains(currentAbi) ? currentAbi : Abi());
-    handleAbiChange();
-}
-
-void Internal::GccToolChainConfigWidget::handleAbiChange()
-{
-    if (m_autoDebuggerCommand == debuggerCommand()) {
-        ProjectExplorer::Abi abi = m_abiWidget->currentAbi();
-        m_autoDebuggerCommand = ToolChainManager::instance()->defaultDebugger(abi);
-        setDebuggerCommand(m_autoDebuggerCommand);
-    }
     emit dirty();
 }
 
@@ -868,7 +808,7 @@ QString Internal::ClangToolChainFactory::id() const
 QList<ToolChain *> Internal::ClangToolChainFactory::autoDetect()
 {
     Abi ha = Abi::hostAbi();
-    return autoDetectToolchains(QLatin1String("clang++"), QStringList(), ha);
+    return autoDetectToolchains(QLatin1String("clang++"), ha);
 }
 
 bool Internal::ClangToolChainFactory::canCreate()
@@ -967,18 +907,8 @@ QString Internal::MingwToolChainFactory::id() const
 
 QList<ToolChain *> Internal::MingwToolChainFactory::autoDetect()
 {
-    // Compatibility to pre-2.2:
-    // All Mingw toolchains that exist so far are either installed by the SDK itself (in
-    // which case they most likely have debuggers set up) or were created when updating
-    // from a previous Qt version. Add debugger in that case.
-    foreach (ToolChain *tc, ToolChainManager::instance()->toolChains()) {
-        if (tc->debuggerCommand().isEmpty() && tc->id().startsWith(QLatin1String(Constants::MINGW_TOOLCHAIN_ID)))
-            static_cast<MingwToolChain *>(tc)
-                ->setDebuggerCommand(ToolChainManager::instance()->defaultDebugger(tc->targetAbi()));
-    }
-
     Abi ha = Abi::hostAbi();
-    return autoDetectToolchains(QLatin1String("g++"), QStringList(),
+    return autoDetectToolchains(QLatin1String("g++"),
                                 Abi(ha.architecture(), Abi::WindowsOS, Abi::WindowsMSysFlavor, Abi::PEFormat, ha.wordWidth()));
 }
 
@@ -1062,9 +992,7 @@ QString Internal::LinuxIccToolChainFactory::id() const
 
 QList<ToolChain *> Internal::LinuxIccToolChainFactory::autoDetect()
 {
-    return autoDetectToolchains(QLatin1String("icpc"),
-                                QStringList(QLatin1String("gdb")),
-                                Abi::hostAbi());
+    return autoDetectToolchains(QLatin1String("icpc"), Abi::hostAbi());
 }
 
 ToolChain *Internal::LinuxIccToolChainFactory::create()

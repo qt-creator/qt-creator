@@ -50,7 +50,6 @@ class Qt4BuildConfiguration;
 
 namespace Android {
 namespace Internal {
-class AndroidTarget;
 
 class AndroidPackageCreationStep : public ProjectExplorer::BuildStep
 {
@@ -66,14 +65,12 @@ public:
 
     static const QLatin1String DefaultVersionNumber;
 
-    AndroidTarget *androidTarget() const;
-
     void checkRequiredLibraries();
     void initCheckRequiredLibrariesForRun();
     void checkRequiredLibrariesForRun();
 
-    QString keystorePath();
-    void setKeystorePath(const QString &path);
+    Utils::FileName keystorePath();
+    void setKeystorePath(const Utils::FileName &path);
     void setKeystorePassword(const QString &pwd);
     void setCertificateAlias(const QString &alias);
     void setCertificatePassword(const QString &pwd);
@@ -110,7 +107,7 @@ private:
     static const Core::Id CreatePackageId;
 
 private:
-    QString m_keystorePath;
+    Utils::FileName m_keystorePath;
     QString m_keystorePasswd;
     QString m_certificateAlias;
     QString m_certificatePasswd;
@@ -118,19 +115,19 @@ private:
     JavaParser m_outputParser;
 
     // members to pass data from init() to run()
-    QString m_androidDir;
-    QString m_gdbServerSource;
-    QString m_gdbServerDestination;
+    Utils::FileName m_androidDir;
+    Utils::FileName m_gdbServerSource;
+    Utils::FileName m_gdbServerDestination;
     bool m_debugBuild;
-    QString m_antToolPath;
-    QString m_apkPathUnsigned;
-    QString m_apkPathSigned;
-    QString m_keystorePathForRun;
+    Utils::FileName m_antToolPath;
+    Utils::FileName m_apkPathUnsigned;
+    Utils::FileName m_apkPathSigned;
+    Utils::FileName m_keystorePathForRun;
     QString m_certificatePasswdForRun;
-    QString m_jarSigner;
+    Utils::FileName m_jarSigner;
     // more for checkLibraries
-    QString m_appPath;
-    QString m_readElf;
+    Utils::FileName m_appPath;
+    Utils::FileName m_readElf;
     QStringList m_qtLibs;
     QStringList m_availableQtLibs;
     QStringList m_prebundledLibs;

@@ -36,7 +36,6 @@
 #include "cmakeprojectmanager.h"
 #include "cmakeprojectnodes.h"
 #include "cmakebuildconfiguration.h"
-#include "cmaketarget.h"
 #include "makestep.h"
 
 #include <projectexplorer/project.h>
@@ -87,8 +86,6 @@ public:
     Core::IDocument *document() const;
     CMakeManager *projectManager() const;
 
-    CMakeTarget *activeTarget() const;
-
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
     ProjectExplorer::ProjectNode *rootProjectNode() const;
@@ -102,11 +99,11 @@ public:
 
     QString defaultBuildDirectory() const;
 
-    bool parseCMakeLists();
 
     QString uicCommand() const;
 
     bool isProjectFile(const QString &fileName);
+
 
 signals:
     /// emitted after parsing
@@ -128,12 +125,15 @@ private slots:
     void uiEditorContentsChanged();
     void buildStateChanged(ProjectExplorer::Project *project);
 private:
+    void evaluateBuildSystem();
+
     void buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
     void gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list);
     ProjectExplorer::FolderNode *findOrCreateFolder(CMakeProjectNode *rootNode, QString directory);
     void updateCodeModelSupportFromEditor(const QString &uiFileName, const QString &contents);
     void createUiCodeModelSupport();
     QString uiHeaderFile(const QString &uiFile);
+    void updateRunConfigurations(ProjectExplorer::Target *t);
 
     CMakeManager *m_manager;
     QString m_fileName;
@@ -228,16 +228,16 @@ class CMakeBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget
 {
     Q_OBJECT
 public:
-    explicit CMakeBuildSettingsWidget(CMakeTarget *target);
+    CMakeBuildSettingsWidget();
     QString displayName() const;
 
     // This is called to set up the config widget before showing it
-    virtual void init(ProjectExplorer::BuildConfiguration *bc);
+    void init(ProjectExplorer::BuildConfiguration *bc);
+
 private slots:
     void openChangeBuildDirectoryDialog();
     void runCMake();
 private:
-    CMakeTarget *m_target;
     QLineEdit *m_pathLineEdit;
     QPushButton *m_changeButton;
     CMakeBuildConfiguration *m_buildConfiguration;

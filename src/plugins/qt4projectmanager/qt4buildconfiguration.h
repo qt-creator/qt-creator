@@ -35,19 +35,17 @@
 
 #include "qt4projectmanager_global.h"
 
+#include "buildconfigurationinfo.h"
+
 #include <projectexplorer/buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
 
-namespace ProjectExplorer {
-class ToolChain;
-class FileNode;
-}
+namespace ProjectExplorer { class FileNode; }
 
 namespace Qt4ProjectManager {
 
 class QMakeStep;
 class MakeStep;
-class Qt4BaseTarget;
 class Qt4BuildConfigurationFactory;
 class Qt4ProFileNode;
 
@@ -57,14 +55,13 @@ class QT4PROJECTMANAGER_EXPORT Qt4BuildConfiguration : public ProjectExplorer::B
     friend class Qt4BuildConfigurationFactory;
 
 public:
-    explicit Qt4BuildConfiguration(Qt4BaseTarget *target);
-    virtual ~Qt4BuildConfiguration();
+    explicit Qt4BuildConfiguration(ProjectExplorer::Target *target);
+    ~Qt4BuildConfiguration();
 
-    Qt4BaseTarget *qt4Target() const;
+    Utils::Environment baseEnvironment() const;
 
-    virtual Utils::Environment baseEnvironment() const;
-
-    virtual QString buildDirectory() const;
+    ProjectExplorer::BuildConfigWidget *createConfigWidget();
+    QString buildDirectory() const;
     bool shadowBuild() const;
     QString shadowBuildDirectory() const;
     void setShadowBuildAndDirectory(bool shadowBuild, const QString &buildDirectory);
@@ -74,12 +71,6 @@ public:
 
     ProjectExplorer::FileNode *fileNodeBuild() const;
     void setFileNodeBuild(ProjectExplorer::FileNode *node);
-
-    // returns the qtVersion
-    QtSupport::BaseQtVersion *qtVersion() const;
-    void setQtVersion(QtSupport::BaseQtVersion *);
-
-    void setToolChain(ProjectExplorer::ToolChain *tc);
 
     QtSupport::BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration() const;
     void setQMakeBuildConfiguration(QtSupport::BaseQtVersion::QmakeBuildConfigs config);
@@ -106,11 +97,11 @@ public:
     QMakeStep *qmakeStep() const;
     MakeStep *makeStep() const;
 
-    QString makeCommand() const;
     QString defaultMakeTarget() const;
     QString makefile() const;
 
-    bool compareToImportFrom(const QString &makefile);
+    enum MakefileState { MakefileMatches, MakefileForWrongProject, MakefileIncompatible, MakefileMissing };
+    MakefileState compareToImportFrom(const QString &makefile);
     static bool removeQMLInspectorFromArguments(QString *args);
     static Utils::FileName extractSpecFromArguments(QString *arguments,
                                             const QString &directory, const QtSupport::BaseQtVersion *version,
@@ -127,39 +118,37 @@ public:
 
     BuildType buildType() const;
 
+    static Qt4BuildConfiguration *setup(ProjectExplorer::Target *t,
+                                        QString defaultDisplayName,
+                                        QString displayName,
+                                        QtSupport::BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
+                                        QString additionalArguments,
+                                        QString directory,
+                                        bool importing);
+    /// returns whether the qt version in the profile supports shadow building (also true for no qt version)
+    bool supportsShadowBuilds();
+
 public slots:
-    void importFromBuildDirectory();
-    void emitProFileEvaluateNeeded();
+    void emitEvaluateBuildSystem();
 
 signals:
-    /// emitted if the qt version changes (either directly, or because the default qt version changed
-    /// or because the user changed the settings for the qt version
-    void qtVersionChanged();
     /// emitted for setQMakeBuildConfig, not emitted for qt version changes, even
     /// if those change the qmakebuildconfig
     void qmakeBuildConfigurationChanged();
     /// emitted when smart installer property of S60 create package step changes
     void s60CreatesSmartInstallerChanged();
 
-    /// emitted if the build configuration changed in a way that
-    /// should trigger a reevaluation of all .pro files
-    void proFileEvaluateNeeded(Qt4ProjectManager::Qt4BuildConfiguration *);
-
-    void buildDirectoryInitialized();
-
 private slots:
-    void qtVersionsChanged(const QList<int> &addedVersions, const QList<int> &removedVersions, const QList<int> &changedVersions);
+    void profileChanged();
     void emitBuildDirectoryChanged();
-    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *, bool, bool parseInProgress);
 
 protected:
-    Qt4BuildConfiguration(Qt4BaseTarget *target, Qt4BuildConfiguration *source);
-    Qt4BuildConfiguration(Qt4BaseTarget *target, const Core::Id id);
+    Qt4BuildConfiguration(ProjectExplorer::Target *target, Qt4BuildConfiguration *source);
+    Qt4BuildConfiguration(ProjectExplorer::Target *target, const Core::Id id);
     virtual bool fromMap(const QVariantMap &map);
 
 private:
     void ctor();
-    void pickValidQtVersion();
     QString rawBuildDirectory() const;
     QString defaultShadowBuildDirectory() const;
 
@@ -167,7 +156,7 @@ private:
     bool m_isEnabled;
     QString m_buildDirectory;
     QString m_lastEmmitedBuildDirectory;
-    int m_qtVersionId;
+    bool m_qtVersionSupportsShadowBuilds;
     QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
     Qt4ProjectManager::Qt4ProFileNode *m_subNodeBuild;
     ProjectExplorer::FileNode *m_fileNodeBuild;
@@ -181,18 +170,24 @@ public:
     explicit Qt4BuildConfigurationFactory(QObject *parent = 0);
     ~Qt4BuildConfigurationFactory();
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QList<Core::Id> availableCreationIds(const ProjectExplorer::Target *parent) const;
     QString displayNameForId(const Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
-    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
+    bool canCreate(const ProjectExplorer::Target *parent, const Core::Id id) const;
+    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id, const QString &name = QString());
+    bool canClone(const ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
     ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source);
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
+    bool canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const;
     ProjectExplorer::BuildConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
+
+    static QList<BuildConfigurationInfo> availableBuildConfigurations(const ProjectExplorer::Profile *p, const QString &proFilePath);
+    static QString buildConfigurationDisplayName(const BuildConfigurationInfo &info);
 
 private slots:
     void update();
+
+private:
+    bool canHandle(const ProjectExplorer::Target *t) const;
 };
 
 } // namespace Qt4ProjectManager

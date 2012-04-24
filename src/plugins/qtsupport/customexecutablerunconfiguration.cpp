@@ -35,6 +35,7 @@
 #include "debugginghelper.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/abi.h>
@@ -352,18 +353,16 @@ ProjectExplorer::Abi CustomExecutableRunConfiguration::abi() const
 
 CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory(QObject *parent) :
     ProjectExplorer::IRunConfigurationFactory(parent)
-{
-}
+{ setObjectName(QLatin1String("CustomExecutableRunConfigurationFactory")); }
 
 CustomExecutableRunConfigurationFactory::~CustomExecutableRunConfigurationFactory()
-{
-
-}
+{ }
 
 bool CustomExecutableRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent,
                                                         const Core::Id id) const
 {
-    Q_UNUSED(parent);
+    if (!canHandle(parent))
+        return false;
     return id == Core::Id(CUSTOM_EXECUTABLE_ID);
 }
 
@@ -379,6 +378,8 @@ CustomExecutableRunConfigurationFactory::create(ProjectExplorer::Target *parent,
 bool CustomExecutableRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent,
                                                          const QVariantMap &map) const
 {
+    if (!canHandle(parent))
+        return false;
     Core::Id id(ProjectExplorer::idFromMap(map));
     return canCreate(parent, id);
 }
@@ -410,9 +411,15 @@ CustomExecutableRunConfigurationFactory::clone(ProjectExplorer::Target *parent,
     return new CustomExecutableRunConfiguration(parent, static_cast<CustomExecutableRunConfiguration*>(source));
 }
 
+bool CustomExecutableRunConfigurationFactory::canHandle(ProjectExplorer::Target *parent) const
+{
+    return parent->project()->supportsProfile(parent->profile());
+}
+
 QList<Core::Id> CustomExecutableRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
 {
-    Q_UNUSED(parent)
+    if (!canHandle(parent))
+        return QList<Core::Id>();
     return QList<Core::Id>() << Core::Id(CUSTOM_EXECUTABLE_ID);
 }
 

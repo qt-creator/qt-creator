@@ -51,7 +51,8 @@ class MaemoPublishingBuildSettingsPageFremantleFree : public QWizardPage
 
 public:
     explicit MaemoPublishingBuildSettingsPageFremantleFree(const ProjectExplorer::Project *project,
-        MaemoPublisherFremantleFree *publisher, QWidget *parent = 0);
+                                                           MaemoPublisherFremantleFree *publisher,
+                                                           QWidget *parent = 0);
     ~MaemoPublishingBuildSettingsPageFremantleFree();
 
 private:

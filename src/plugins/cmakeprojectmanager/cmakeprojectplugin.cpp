@@ -32,11 +32,11 @@
 
 #include "cmakeprojectplugin.h"
 #include "cmakeprojectmanager.h"
+#include "cmakebuildconfiguration.h"
 #include "cmakerunconfiguration.h"
 #include "cmakeeditorfactory.h"
 #include "makestep.h"
 #include "cmakeprojectconstants.h"
-#include "cmaketarget.h"
 #include "cmakelocatorfilter.h"
 
 #include <coreplugin/icore.h>
@@ -67,9 +67,9 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     addAutoReleasedObject(manager);
     addAutoReleasedObject(new MakeStepFactory);
     addAutoReleasedObject(new CMakeRunConfigurationFactory);
+    addAutoReleasedObject(new CMakeBuildConfigurationFactory);
 
     addAutoReleasedObject(new CMakeEditorFactory(manager));
-    addAutoReleasedObject(new CMakeTargetFactory);
     addAutoReleasedObject(new CMakeLocatorFilter);
 
     return true;

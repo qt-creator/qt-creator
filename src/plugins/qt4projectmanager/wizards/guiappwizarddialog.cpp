@@ -33,9 +33,9 @@
 #include "guiappwizarddialog.h"
 
 #include "filespage.h"
-#include "qt4target.h"
 #include "qtprojectparameters.h"
-#include "qt4projectmanagerconstants.h"
+
+#include <qtsupport/qtsupportconstants.h>
 
 #include <QSet>
 
@@ -66,7 +66,7 @@ GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
          "and includes an empty widget."));
 
     addModulesPage();
-    addTargetSetupPage(QSet<QString>(), isMobile);
+    addTargetSetupPage(isMobile);
 
     m_filesPage->setFormInputCheckable(true);
     m_filesPage->setClassTypeComboVisible(false);
@@ -115,13 +115,13 @@ GuiAppParameters GuiAppWizardDialog::parameters() const
     rc.formFileName = m_filesPage->formFileName();
     rc.designerForm =  m_filesPage->formInputChecked();
     rc.isMobileApplication = true;
-    if (isTargetSelected(Core::Id(Constants::MAEMO5_DEVICE_TARGET_ID))
-            || isTargetSelected(Core::Id(Constants::HARMATTAN_DEVICE_TARGET_ID))
-            || isTargetSelected(Core::Id(Constants::MEEGO_DEVICE_TARGET_ID))
-            || isTargetSelected(Core::Id(Constants::ANDROID_DEVICE_TARGET_ID))) {
+    if (isQtPlatformSelected(QLatin1String(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM))
+            || isQtPlatformSelected(QLatin1String(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM))
+            || isQtPlatformSelected(QLatin1String(QtSupport::Constants::MEEGO_PLATFORM))
+            || isQtPlatformSelected(QLatin1String(QtSupport::Constants::ANDROID_PLATFORM))) {
         rc.widgetWidth = 800;
         rc.widgetHeight = 480;
-    } else if (isTargetSelected(Core::Id(Constants::S60_DEVICE_TARGET_ID))) {
+    } else if (isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM)) {
         rc.widgetWidth = 360;
         rc.widgetHeight = 640;
     } else {

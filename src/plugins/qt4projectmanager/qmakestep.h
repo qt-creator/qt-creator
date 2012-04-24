@@ -151,7 +151,6 @@ public:
 private slots:
     // slots for handling buildconfiguration/step signals
     void qtVersionChanged();
-    void qtVersionsDumpUpdated(const Utils::FileName &qmakeCommand);
     void qmakeBuildConfigChanged();
     void userArgumentsChanged();
     void linkQmlDebuggingLibraryChanged();
@@ -173,7 +172,6 @@ private:
     void updateEffectiveQMakeCall();
 
     void setSummaryText(const QString &);
-    void setAdditionalSummaryText(const QString &);
 
     Internal::Ui::QMakeStep *m_ui;
     QMakeStep *m_step;

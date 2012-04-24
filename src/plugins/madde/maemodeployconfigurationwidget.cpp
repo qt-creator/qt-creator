@@ -33,9 +33,11 @@
 #include "ui_maemodeployconfigurationwidget.h"
 
 #include "maemoglobal.h"
+#include "maemoconstants.h"
 #include "qt4maemodeployconfiguration.h"
-#include "qt4maemotarget.h"
 
+#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4nodes.h>
 #include <remotelinux/deployablefile.h>
 #include <remotelinux/deployablefilesperprofile.h>
@@ -129,13 +131,14 @@ void MaemoDeployConfigurationWidget::addDesktopFile()
 
     DeployableFile d;
     d.remoteDir = QLatin1String("/usr/share/applications");
-    if (qobject_cast<Qt4Maemo5Target *>(deployConfiguration()->target()))
+    Core::Id deviceType
+            = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(deployConfiguration()->target()->profile());
+    if (deviceType == Core::Id(Maemo5OsType))
         d.remoteDir += QLatin1String("/hildon");
     d.localFilePath = desktopFilePath;
-    const AbstractQt4MaemoTarget * const target
-        = qobject_cast<AbstractQt4MaemoTarget *>(deployConfiguration()->target());
-    if (!target->deploymentSettingsAssistant()->addDeployableToProFile(proFileInfo,
-        QLatin1String("desktopfile"), d)) {
+    if (!deployConfiguration()->deploymentSettingsAssistant()
+            ->addDeployableToProFile(deployConfiguration()->qmakeScope(), proFileInfo,
+                                     QLatin1String("desktopfile"), d)) {
         QMessageBox::critical(this, tr("Project File Update Failed"),
             tr("Could not update the project file."));
     } else {
@@ -171,10 +174,9 @@ void MaemoDeployConfigurationWidget::addIcon()
         return;
     }
 
-    const AbstractQt4MaemoTarget * const target
-        = qobject_cast<AbstractQt4MaemoTarget *>(deployConfiguration()->target());
-    if (!target->deploymentSettingsAssistant()->addDeployableToProFile(proFileInfo,
-        QLatin1String("icon"), DeployableFile(newFilePath, remoteIconDir()))) {
+    if (!deployConfiguration()->deploymentSettingsAssistant()
+            ->addDeployableToProFile(deployConfiguration()->qmakeScope(), proFileInfo,
+                                     QLatin1String("icon"), DeployableFile(newFilePath, remoteIconDir()))) {
         QMessageBox::critical(this, tr("Project File Update Failed"),
             tr("Could not update the project file."));
     } else {

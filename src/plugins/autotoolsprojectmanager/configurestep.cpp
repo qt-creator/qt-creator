@@ -34,11 +34,11 @@
 
 #include "configurestep.h"
 #include "autotoolsproject.h"
-#include "autotoolstarget.h"
 #include "autotoolsbuildconfiguration.h"
 #include "autotoolsprojectconstants.h"
 
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/projectexplorer.h>
@@ -67,9 +67,9 @@ ConfigureStepFactory::ConfigureStepFactory(QObject *parent) :
 
 QList<Core::Id> ConfigureStepFactory::availableCreationIds(BuildStepList *parent) const
 {
-    if (parent->target()->project()->id() == Core::Id(Constants::AUTOTOOLS_PROJECT_ID))
-        return QList<Core::Id>() << Core::Id(CONFIGURE_STEP_ID);
-    return QList<Core::Id>();
+    if (!canHandle(parent))
+        return QList<Core::Id>();
+    return QList<Core::Id>() << Core::Id(CONFIGURE_STEP_ID);
 }
 
 QString ConfigureStepFactory::displayNameForId(const Core::Id id) const
@@ -81,13 +81,7 @@ QString ConfigureStepFactory::displayNameForId(const Core::Id id) const
 
 bool ConfigureStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
-    if (parent->target()->project()->id() != Core::Id(Constants::AUTOTOOLS_PROJECT_ID))
-        return false;
-
-    if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD))
-        return false;
-
-    return Core::Id(CONFIGURE_STEP_ID) == id;
+    return canHandle(parent) && Core::Id(CONFIGURE_STEP_ID) == id;
 }
 
 BuildStep *ConfigureStepFactory::create(BuildStepList *parent, const Core::Id id)
@@ -123,6 +117,13 @@ BuildStep *ConfigureStepFactory::restore(BuildStepList *parent, const QVariantMa
         return bs;
     delete bs;
     return 0;
+}
+
+bool ConfigureStepFactory::canHandle(BuildStepList *parent) const
+{
+    if (parent->target()->project()->id() != Core::Id(Constants::AUTOTOOLS_PROJECT_ID))
+        return false;
+    return parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
 }
 
 ////////////////////////
@@ -227,6 +228,19 @@ QVariantMap ConfigureStep::toMap() const
 
     map.insert(QLatin1String(CONFIGURE_ADDITIONAL_ARGUMENTS_KEY), m_additionalArguments);
     return map;
+}
+
+bool ConfigureStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
+{
+    if (exitCode != 0 || status != QProcess::NormalExit)
+        return false;
+    AutotoolsBuildConfiguration *bc = qobject_cast<AutotoolsBuildConfiguration *>(buildConfiguration());
+    if (!bc)
+        bc = qobject_cast<AutotoolsBuildConfiguration *>(target()->activeBuildConfiguration());
+    if (!bc)
+        return true;
+    bc->emitBuildDirectoryInitialized();
+    return true;
 }
 
 bool ConfigureStep::fromMap(const QVariantMap &map)

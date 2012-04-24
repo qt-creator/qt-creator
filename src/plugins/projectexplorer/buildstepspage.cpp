@@ -65,7 +65,7 @@ ToolWidget::ToolWidget(QWidget *parent)
     layout->setMargin(4);
     layout->setSpacing(4);
     setLayout(layout);
-    m_firstWidget = new FadingWidget(this);
+    m_firstWidget = new Utils::FadingWidget(this);
     m_firstWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QHBoxLayout *hbox = new QHBoxLayout();
     hbox->setContentsMargins(0, 0, 0, 0);
@@ -86,7 +86,7 @@ ToolWidget::ToolWidget(QWidget *parent)
     hbox->addWidget(m_disableButton);
     layout->addWidget(m_firstWidget);
 
-    m_secondWidget = new FadingWidget(this);
+    m_secondWidget = new Utils::FadingWidget(this);
     m_secondWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     hbox = new QHBoxLayout();
     hbox->setMargin(0);
@@ -180,39 +180,6 @@ void ToolWidget::setUpVisible(bool b)
 void ToolWidget::setDownVisible(bool b)
 {
     m_downButton->setVisible(b);
-}
-
-FadingWidget::FadingWidget(QWidget *parent) :
-    QWidget(parent),
-    m_opacityEffect(new QGraphicsOpacityEffect)
-{
-    m_opacityEffect->setOpacity(0);
-    setGraphicsEffect(m_opacityEffect);
-
-    // Workaround for issue with QGraphicsEffect. GraphicsEffect
-    // currently clears with Window color. Remove if flickering
-    // no longer occurs on fade-in
-    QPalette pal;
-    pal.setBrush(QPalette::All, QPalette::Window, Qt::transparent);
-    setPalette(pal);
-}
-
-void FadingWidget::setOpacity(qreal value)
-{
-    m_opacityEffect->setOpacity(value);
-}
-
-void FadingWidget::fadeTo(qreal value)
-{
-    QPropertyAnimation *animation = new QPropertyAnimation(m_opacityEffect, "opacity");
-    animation->setDuration(200);
-    animation->setEndValue(value);
-    animation->start(QAbstractAnimation::DeleteWhenStopped);
-}
-
-qreal FadingWidget::opacity()
-{
-    return m_opacityEffect->opacity();
 }
 
 BuildStepsWidgetData::BuildStepsWidgetData(BuildStep *s) :
@@ -395,6 +362,7 @@ void BuildStepListWidget::triggerAddBuildStep()
     if (QAction *action = qobject_cast<QAction *>(sender())) {
         QPair<Core::Id, IBuildStepFactory *> pair = m_addBuildStepHash.value(action);
         BuildStep *newStep = pair.second->create(m_buildStepList, pair.first);
+        QTC_ASSERT(newStep, return);
         int pos = m_buildStepList->count();
         m_buildStepList->insertStep(pos, newStep);
     }

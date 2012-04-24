@@ -33,16 +33,16 @@
 #include "genericmakestep.h"
 #include "genericprojectconstants.h"
 #include "genericproject.h"
-#include "generictarget.h"
 #include "ui_genericmakestep.h"
 #include "genericbuildconfiguration.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/toolchain.h>
 #include <coreplugin/variablemanager.h>
 #include <utils/stringutils.h>
 #include <utils/qtcassert.h>
@@ -126,8 +126,10 @@ bool GenericMakeStep::init()
     setIgnoreReturnValue(m_clean);
 
     setOutputParser(new ProjectExplorer::GnuMakeParser());
-    if (bc->genericTarget()->genericProject()->toolChain())
-        appendOutputParser(bc->genericTarget()->genericProject()->toolChain()->outputParser());
+    ProjectExplorer::ToolChain *tc =
+            ProjectExplorer::ToolChainProfileInformation::toolChain(bc->target()->profile());
+    if (tc)
+        appendOutputParser(tc->outputParser());
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
     return AbstractProcessStep::init();
@@ -175,9 +177,9 @@ QString GenericMakeStep::makeCommand() const
 {
     QString command = m_makeCommand;
     if (command.isEmpty()) {
-        GenericProject *pro = static_cast<GenericProject *>(target()->project());
-        if (ProjectExplorer::ToolChain *toolChain = pro->toolChain())
-            command = toolChain->makeCommand();
+        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(target()->profile());
+        if (tc)
+            command = tc->makeCommand();
         else
             command = QLatin1String("make");
     }
@@ -249,7 +251,7 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateDetails()));
 
-    connect(pro, SIGNAL(toolChainChanged(ProjectExplorer::ToolChain*)),
+    connect(m_makeStep->target(), SIGNAL(profileChanged()),
             this, SLOT(updateMakeOverrrideLabel()));
 }
 

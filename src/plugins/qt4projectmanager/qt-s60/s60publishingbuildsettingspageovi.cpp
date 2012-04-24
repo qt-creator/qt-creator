@@ -54,6 +54,7 @@ S60PublishingBuildSettingsPageOvi::S60PublishingBuildSettingsPageOvi(S60Publishe
 {
     m_ui->setupUi(this);
 
+#if 0 // FIXME: This needs serious work!
     QList<Qt4BuildConfiguration *> list;
     foreach (const ProjectExplorer::Target *const target, project->targets()) {
         if (target->id() != Core::Id(Qt4ProjectManager::Constants::S60_DEVICE_TARGET_ID))
@@ -92,6 +93,9 @@ S60PublishingBuildSettingsPageOvi::S60PublishingBuildSettingsPageOvi(S60Publishe
     m_ui->toolchainInfoIconLabel->setToolTip(tr("No valid tool chain has been detected.<br>"
                                          "Define a correct tool chain in \"Options > Tool Chains\""));
     populateToolchainList(m_bc);
+#else
+    Q_UNUSED(project);
+#endif
 
     //change the build configuration if the user changes it
     connect(m_ui->chooseBuildConfigDropDown, SIGNAL(currentIndexChanged(int)), this, SLOT(buildConfigChosen()));
@@ -106,6 +110,7 @@ bool S60PublishingBuildSettingsPageOvi::isComplete() const
 
 void S60PublishingBuildSettingsPageOvi::populateToolchainList(ProjectExplorer::BuildConfiguration *bc)
 {
+#if 0 // FIXME: Do the right thing here...
     if (!bc)
         return;
 
@@ -134,6 +139,9 @@ void S60PublishingBuildSettingsPageOvi::populateToolchainList(ProjectExplorer::B
         toolchainChosen();
     else
         bc->setToolChain(m_toolchain);
+#else
+    Q_UNUSED(bc);
+#endif
 }
 
 void S60PublishingBuildSettingsPageOvi::buildConfigChosen()
@@ -149,6 +157,7 @@ void S60PublishingBuildSettingsPageOvi::buildConfigChosen()
 
 void S60PublishingBuildSettingsPageOvi::toolchainChosen()
 {
+#if 0 // FIXME: Do the right thing!
     const int currentIndex = m_ui->chooseToolchainDropDown->currentIndex();
     if (currentIndex == -1) {
         m_toolchain = 0;
@@ -160,6 +169,7 @@ void S60PublishingBuildSettingsPageOvi::toolchainChosen()
 
     if (m_bc)
         m_bc->setToolChain(m_toolchain);
+#endif
     emit toolchainConfigurationChosen();
 }
 

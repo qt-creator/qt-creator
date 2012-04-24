@@ -62,12 +62,11 @@ class CMakeRunConfiguration : public ProjectExplorer::LocalApplicationRunConfigu
     friend class CMakeRunConfigurationFactory;
 
 public:
-    CMakeRunConfiguration(CMakeTarget *parent, const QString &target,
+    CMakeRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &target,
                           const QString &workingDirectory, const QString &title);
     ~CMakeRunConfiguration();
 
-    CMakeTarget *cmakeTarget() const;
-    CMakeBuildConfiguration *activeBuildConfiguration() const;
+    ProjectExplorer::BuildConfiguration *activeBuildConfiguration() const;
 
     QString executable() const;
     RunMode runMode() const;
@@ -101,7 +100,7 @@ private slots:
     void setCommandLineArguments(const QString &newText);
 
 protected:
-    CMakeRunConfiguration(CMakeTarget *parent, CMakeRunConfiguration *source);
+    CMakeRunConfiguration(ProjectExplorer::Target *parent, CMakeRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
     QString defaultDisplayName() const;
 
@@ -177,6 +176,8 @@ public:
 
     QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
     QString displayNameForId(const Core::Id id) const;
+
+    bool canHandle(ProjectExplorer::Target *parent) const;
 };
 
 }

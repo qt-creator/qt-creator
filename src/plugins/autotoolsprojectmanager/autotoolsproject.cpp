@@ -33,6 +33,7 @@
 **************************************************************************/
 
 #include "autotoolsproject.h"
+#include "autotoolsbuildconfiguration.h"
 #include "autotoolsprojectconstants.h"
 #include "autotoolsmanager.h"
 #include "autotoolsprojectnode.h"
@@ -43,10 +44,12 @@
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildenvironmentwidget.h>
-#include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/profilemanager.h>
+#include <projectexplorer/profileinformation.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 #include <extensionsystem/pluginmanager.h>
 #include <cpptools/ModelManagerInterface.h>
 #include <coreplugin/icore.h>
@@ -65,8 +68,6 @@ using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
-const char TOOLCHAIN_KEY[] = "AutotoolsProjectManager.AutotoolsProject.Toolchain";
-
 AutotoolsProject::AutotoolsProject(AutotoolsManager *manager, const QString &fileName) :
     m_manager(manager),
     m_fileName(fileName),
@@ -75,8 +76,7 @@ AutotoolsProject::AutotoolsProject(AutotoolsManager *manager, const QString &fil
     m_rootNode(new AutotoolsProjectNode(this, m_file)),
     m_fileWatcher(new Utils::FileSystemWatcher(this)),
     m_watchedFiles(),
-    m_makefileParserThread(0),
-    m_toolChain(0)
+    m_makefileParserThread(0)
 {
     setProjectContext(Core::Context(Constants::PROJECT_CONTEXT));
     setProjectLanguage(Core::Context(ProjectExplorer::Constants::LANG_CXX));
@@ -103,26 +103,6 @@ AutotoolsProject::~AutotoolsProject()
     }
 }
 
-void AutotoolsProject::setToolChain(ToolChain *tc)
-{
-    if (m_toolChain == tc)
-        return;
-
-    m_toolChain = tc;
-
-    foreach (Target *t, targets()) {
-        foreach (BuildConfiguration *bc, t->buildConfigurations())
-            bc->setToolChain(tc);
-    }
-
-    emit toolChainChanged(m_toolChain);
-}
-
-ToolChain *AutotoolsProject::toolChain() const
-{
-    return m_toolChain;
-}
-
 QString AutotoolsProject::displayName() const
 {
     return m_projectName;
@@ -141,11 +121,6 @@ Core::IDocument *AutotoolsProject::document() const
 IProjectManager *AutotoolsProject::projectManager() const
 {
     return m_manager;
-}
-
-AutotoolsTarget *AutotoolsProject::activeTarget() const
-{
-    return static_cast<AutotoolsTarget *>(Project::activeTarget());
 }
 
 QString AutotoolsProject::defaultBuildDirectory() const
@@ -169,13 +144,6 @@ QStringList AutotoolsProject::files(FilesMode fileMode) const
     return m_files;
 }
 
-QVariantMap AutotoolsProject::toMap() const
-{
-    QVariantMap map = Project::toMap();
-    map.insert(QLatin1String(TOOLCHAIN_KEY), m_toolChain ? m_toolChain->id() : QString());
-    return map;
-}
-
 // This function, is called at the very beginning, to
 // restore the settings if there are some stored.
 bool AutotoolsProject::fromMap(const QVariantMap &map)
@@ -183,57 +151,19 @@ bool AutotoolsProject::fromMap(const QVariantMap &map)
     if (!Project::fromMap(map))
         return false;
 
-    // Check if this project was already loaded by checking
-    // if there already exists a .user file.
-    bool hasUserFile = activeTarget();
-    if (!hasUserFile) {
-        AutotoolsTargetFactory *factory =
-                ExtensionSystem::PluginManager::getObject<AutotoolsTargetFactory>();
-        AutotoolsTarget *t = factory->create(this, Core::Id(Constants::DEFAULT_AUTOTOOLS_TARGET_ID));
-
-        QTC_ASSERT(t, return false);
-        QTC_ASSERT(t->activeBuildConfiguration(), return false);
-
-        // Ask the user for where he/she wants to build it.
-        QPointer<AutotoolsOpenProjectWizard> wizard = new AutotoolsOpenProjectWizard(m_manager, projectDirectory());
-        if (!wizard->exec() == QDialog::Accepted)
-            return false;
-
-        AutotoolsBuildConfiguration *bc =
-                static_cast<AutotoolsBuildConfiguration *>(t->buildConfigurations().at(0));
-        if (!wizard->buildDirectory().isEmpty())
-            bc->setBuildDirectory(wizard->buildDirectory());
-
-        addTarget(t);
-    }
-
-    // Toolchain
-    QString id = map.value(QLatin1String(TOOLCHAIN_KEY)).toString();
-    const ToolChainManager *toolChainManager = ToolChainManager::instance();
-
-    if (!id.isNull()) {
-        setToolChain(toolChainManager->findToolChain(id));
-    } else {
-        Abi abi = Abi::hostAbi();
-        abi = Abi(abi.architecture(), abi.os(), Abi::UnknownFlavor,
-                               abi.binaryFormat(), abi.wordWidth() == 32 ? 32 : 0);
-        QList<ToolChain *> tcs = toolChainManager->findToolChains(abi);
-        if (tcs.isEmpty())
-            tcs = toolChainManager->toolChains();
-        if (!tcs.isEmpty())
-            setToolChain(tcs.at(0));
-    }
-
     connect(m_fileWatcher, SIGNAL(fileChanged(QString)),
             this, SLOT(onFileChanged(QString)));
 
     // Load the project tree structure.
-    loadProjectTree();
+    evaluateBuildSystem();
+
+    if (!activeTarget())
+        addTarget(createTarget(ProfileManager::instance()->defaultProfile()));
 
     return true;
 }
 
-void AutotoolsProject::loadProjectTree()
+void AutotoolsProject::evaluateBuildSystem()
 {
     if (m_makefileParserThread != 0) {
         // The thread is still busy parsing a previus configuration.
@@ -325,12 +255,14 @@ void AutotoolsProject::makefileParsingFinished()
 
     m_makefileParserThread->deleteLater();
     m_makefileParserThread = 0;
+
+    buildSystemEvaluationFinished(true);
 }
 
 void AutotoolsProject::onFileChanged(const QString &file)
 {
     Q_UNUSED(file);
-    loadProjectTree();
+    evaluateBuildSystem();
 }
 
 QStringList AutotoolsProject::buildTargets() const
@@ -483,15 +415,20 @@ void AutotoolsProject::updateCppCodeModel()
 
     QStringList allIncludePaths = m_makefileParserThread->includePaths();
     QStringList allFrameworkPaths;
+    QByteArray macros;
 
-    if (m_toolChain) {
-        const QList<HeaderPath> allHeaderPaths = m_toolChain->systemHeaderPaths();
-        foreach (const HeaderPath &headerPath, allHeaderPaths) {
-            if (headerPath.kind() == HeaderPath::FrameworkHeaderPath) {
-                allFrameworkPaths.append(headerPath.path());
-            } else {
-                allIncludePaths.append(headerPath.path());
+    if (activeTarget()) {
+        ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(activeTarget()->profile());
+        if (tc) {
+            const QList<HeaderPath> allHeaderPaths = tc->systemHeaderPaths();
+            foreach (const HeaderPath &headerPath, allHeaderPaths) {
+                if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
+                    allFrameworkPaths.append(headerPath.path());
+                else
+                    allIncludePaths.append(headerPath.path());
             }
+            macros = tc->predefinedMacros(QStringList());
+            macros += '\n';
         }
     }
 
@@ -499,7 +436,7 @@ void AutotoolsProject::updateCppCodeModel()
 
     const bool update = (pinfo.includePaths() != allIncludePaths)
             || (pinfo.sourceFiles() != m_files)
-            || (pinfo.defines() != m_toolChain->predefinedMacros(QStringList()))
+            || (pinfo.defines() != macros)
             || (pinfo.frameworkPaths() != allFrameworkPaths);
     if (update) {
         pinfo.clearProjectParts();
@@ -507,8 +444,7 @@ void AutotoolsProject::updateCppCodeModel()
                     new CPlusPlus::CppModelManagerInterface::ProjectPart);
         part->includePaths = allIncludePaths;
         part->sourceFiles = m_files;
-        if (m_toolChain)
-            part->defines = m_toolChain->predefinedMacros(QStringList());
+        part->defines = macros;
         part->frameworkPaths = allFrameworkPaths;
         part->language = CPlusPlus::CppModelManagerInterface::CXX;
         pinfo.appendProjectPart(part);

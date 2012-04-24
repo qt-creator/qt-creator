@@ -35,7 +35,6 @@
 #include "qmlprojectmanagerconstants.h"
 #include "fileformat/qmlprojectitem.h"
 #include "qmlprojectrunconfiguration.h"
-#include "qmlprojecttarget.h"
 #include "qmlprojectconstants.h"
 #include "qmlprojectnodes.h"
 #include "qmlprojectmanager.h"
@@ -47,9 +46,12 @@
 #include <qtsupport/qmldumptool.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtversionmanager.h>
+#include <qtsupport/qtprofileinformation.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <utils/fileutils.h>
-#include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/profilemanager.h>
+#include <projectexplorer/target.h>
 #include <utils/filesystemwatcher.h>
 
 #include <QTextStream>
@@ -157,13 +159,9 @@ void QmlProject::refresh(RefreshOptions options)
     pinfo.importPaths = importPaths();
     QtSupport::BaseQtVersion *version = 0;
     if (activeTarget()) {
-        if (QmlProjectRunConfiguration *rc = qobject_cast<QmlProjectRunConfiguration *>(activeTarget()->activeRunConfiguration()))
-            version = rc->qtVersion();
-        QList<ProjectExplorer::ToolChain *> tcList;
-        if (version && !version->qtAbis().isEmpty())
-              tcList = ProjectExplorer::ToolChainManager::instance()->findToolChains(version->qtAbis().at(0));
-        if (!tcList.isEmpty())
-            QtSupport::QmlDumpTool::pathAndEnvironment(this, version, tcList.first(), false, &pinfo.qmlDumpPath, &pinfo.qmlDumpEnvironment);
+        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(activeTarget()->profile());
+        version = QtSupport::QtProfileInformation::qtVersion(activeTarget()->profile());
+        QtSupport::QmlDumpTool::pathAndEnvironment(this, version, tc, false, &pinfo.qmlDumpPath, &pinfo.qmlDumpEnvironment);
     }
     if (version) {
         pinfo.tryQmlDump = true;
@@ -273,14 +271,20 @@ ProjectExplorer::IProjectManager *QmlProject::projectManager() const
     return m_manager;
 }
 
+bool QmlProject::supportsProfile(ProjectExplorer::Profile *p) const
+{
+    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(p);
+    if (deviceType != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+        return false;
+
+    // TODO: Limit supported versions?
+    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(p);
+    return version;
+}
+
 QList<ProjectExplorer::BuildConfigWidget*> QmlProject::subConfigWidgets()
 {
     return QList<ProjectExplorer::BuildConfigWidget*>();
-}
-
-Internal::QmlProjectTarget *QmlProject::activeTarget() const
-{
-    return static_cast<Internal::QmlProjectTarget *>(Project::activeTarget());
 }
 
 ProjectExplorer::ProjectNode *QmlProject::rootProjectNode() const
@@ -298,12 +302,8 @@ bool QmlProject::fromMap(const QVariantMap &map)
     if (!Project::fromMap(map))
         return false;
 
-    if (targets().isEmpty()) {
-        Internal::QmlProjectTargetFactory *factory
-                = ExtensionSystem::PluginManager::getObject<Internal::QmlProjectTargetFactory>();
-        Internal::QmlProjectTarget *target = factory->create(this, Core::Id(Constants::QML_VIEWER_TARGET_ID));
-        addTarget(target);
-    }
+    if (!activeTarget())
+        addTarget(createTarget(ProjectExplorer::ProfileManager::instance()->defaultProfile()));
 
     refresh(Everything);
     // FIXME workaround to guarantee that run/debug actions are enabled if a valid file exists

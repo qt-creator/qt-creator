@@ -33,33 +33,26 @@
 #ifndef TARGETSETUPPAGE_H
 #define TARGETSETUPPAGE_H
 
-#include "../qt4target.h"
 #include "../qt4projectmanager_global.h"
-#include <qtsupport/qtversionmanager.h>
+#include "../qt4targetsetupwidget.h"
+
 #include <coreplugin/featureprovider.h>
+#include <projectexplorer/profilemanager.h>
+#include <qtsupport/qtversionmanager.h>
 
 #include <QString>
-#include <QWizard>
-
-
-QT_BEGIN_NAMESPACE
-class QLabel;
-class QMenu;
-class QPushButton;
-class QSpacerItem;
-class QTreeWidget;
-class QTreeWidgetItem;
-class QVBoxLayout;
-QT_END_NAMESPACE
+#include <QWizardPage>
 
 namespace Qt4ProjectManager {
 class Qt4Project;
 
 namespace Internal {
+class ImportWidget;
+
 namespace Ui {
 class TargetSetupPage;
-}
-}
+} // namespace Ui
+} // namespace Internal
 
 /// \internal
 class QT4PROJECTMANAGER_EXPORT TargetSetupPage : public QWizardPage
@@ -73,25 +66,10 @@ public:
     /// Initializes the TargetSetupPage
     /// \note The import information is gathered in initializePage(), make sure that the right proFilePath is set before
     void initializePage();
-    /// Changes the default set of checked targets.
-    /// call this before \sa initializePage()
-    void setPreferredFeatures(const QSet<QString> &featureIds);
-    /// Sets the features a target must support
-    /// call this before \sa initializePage()
-    void setRequiredTargetFeatures(const QSet<QString> &featureIds);
-    /// Sets the features a qt version must support
-    /// call this before \sa initializePage()
-    void setRequiredQtFeatures(const Core::FeatureSet &features);
-    /// Sets the platform that was selected in the wizard
-    void setSelectedPlatform(const QString &platform);
-    /// Sets the minimum qt version
-    /// calls this before \sa initializePage()
-    void setMinimumQtVersion(const QtSupport::QtVersionNumber &number);
-    /// Sets the maximum qt version
-    /// calls this before \sa initializePage()
-    void setMaximumQtVersion(const QtSupport::QtVersionNumber &number);
-    /// Sets whether the TargetSetupPage looks on disk for builds of this project
-    /// call this before \sa initializePage()
+
+    // Call these before initializePage!
+    void setRequiredProfileMatcher(ProjectExplorer::ProfileMatcher *matcher);
+    void setPreferredProfileMatcher(ProjectExplorer::ProfileMatcher *matcher);
     void setImportSearch(bool b);
 
     /// Sets whether the targetsetupage uses a scrollarea
@@ -101,7 +79,9 @@ public:
 
     bool isComplete() const;
     bool setupProject(Qt4ProjectManager::Qt4Project *project);
-    bool isTargetSelected(Core::Id id) const;
+    bool isProfileSelected(Core::Id id) const;
+    void setProfileSelected(Core::Id id, bool selected);
+    bool isQtPlatformSelected(const QString &type) const;
     void setProFilePath(const QString &dir);
 
     /// Overrides the summary text of the targetsetuppage
@@ -110,35 +90,38 @@ signals:
     void noteTextLinkActivated();
 
 private slots:
-    void newImportBuildConfiguration(const BuildConfigurationInfo &info);
-    void qtVersionsChanged(const QList<int> &added, const QList<int> &removed, const QList<int> &changed);
+    void import(const Utils::FileName &path);
+    void handleQtUpdate(const QList<int> &add, const QList<int> &rm, const QList<int> &mod);
+    void handleProfileAddition(ProjectExplorer::Profile *p);
+    void handleProfileRemoval(ProjectExplorer::Profile *p);
+    void handleProfileUpdate(ProjectExplorer::Profile *p);
+    void updateVisibility();
 
 private:
-    void setupImportInfos();
-    void cleanupImportInfos();
-    void replaceQtVersionWithQtVersion(int oldId, int newId);
-    void replaceTemporaryQtVersion(QtSupport::BaseQtVersion *version, int id);
-    void replaceQtVersionWithTemporaryQtVersion(int id, QtSupport::BaseQtVersion *version);
-    void setupWidgets();
-    void deleteWidgets();
+    void selectAtLeastOneTarget();
+    void import(const Utils::FileName &path, const bool silent);
+    void removeWidget(ProjectExplorer::Profile *p);
+    Qt4TargetSetupWidget *addWidget(ProjectExplorer::Profile *p);
 
-    QSet<QString> m_preferredFeatures;
-    QSet<QString> m_requiredTargetFeatures;
-    Core::FeatureSet m_requiredQtFeatures;
-    QString m_selectedPlatform;
+    void setupImports();
+
+    void setupWidgets();
+    void reset();
+
+    ProjectExplorer::ProfileMatcher *m_requiredMatcher;
+    ProjectExplorer::ProfileMatcher *m_preferredMatcher;
+    QLayout *m_baseLayout;
     bool m_importSearch;
     bool m_useScrollArea;
-    QtSupport::QtVersionNumber m_minimumQtVersionNumber;
-    QtSupport::QtVersionNumber m_maximumQtVersionNumber;
     QString m_proFilePath;
     QString m_defaultShadowBuildLocation;
     QMap<Core::Id, Qt4TargetSetupWidget *> m_widgets;
-    QHash<Qt4TargetSetupWidget *, Qt4BaseTargetFactory *> m_factories;
+    Qt4TargetSetupWidget *m_firstWidget;
 
-    QSpacerItem *m_spacer;
-    bool m_ignoreQtVersionChange;
     Internal::Ui::TargetSetupPage *m_ui;
-    QList<BuildConfigurationInfo> m_importInfos; // This owns the temporary qt versions
+
+    Internal::ImportWidget *m_importWidget;
+    QSpacerItem *m_spacer;
 };
 
 } // namespace Qt4ProjectManager

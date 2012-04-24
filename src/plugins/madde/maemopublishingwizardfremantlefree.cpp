@@ -53,13 +53,11 @@ MaemoPublishingWizardFremantleFree::MaemoPublishingWizardFremantleFree(const Pro
     setOption(NoCancelButton, false);
     setWindowTitle(tr("Publishing to Fremantle's \"Extras-devel free\" Repository"));
 
-    m_buildSettingsPage
-        = new MaemoPublishingBuildSettingsPageFremantleFree(project, m_publisher);
+    m_buildSettingsPage = new MaemoPublishingBuildSettingsPageFremantleFree(project, m_publisher);
     m_buildSettingsPage->setTitle(tr("Build Settings"));
     setPage(BuildSettingsPageId, m_buildSettingsPage);
 
-    m_uploadSettingsPage
-        = new MaemoPublishingUploadSettingsPageFremantleFree(m_publisher);
+    m_uploadSettingsPage = new MaemoPublishingUploadSettingsPageFremantleFree(m_publisher);
     m_uploadSettingsPage->setTitle(tr("Upload Settings"));
     m_uploadSettingsPage->setCommitPage(true);
     setPage(UploadSettingsPageId, m_uploadSettingsPage);

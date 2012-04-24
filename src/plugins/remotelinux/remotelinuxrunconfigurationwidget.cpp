@@ -41,7 +41,6 @@
 #include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qt4projectmanager/qt4target.h>
 #include <utils/detailswidget.h>
 
 #include <QCoreApplication>
@@ -111,9 +110,6 @@ RemoteLinuxRunConfigurationWidget::RemoteLinuxRunConfigurationWidget(RemoteLinux
     addGenericWidgets(mainLayout);
     addEnvironmentWidgets(mainLayout);
 
-    connect(d->runConfiguration, SIGNAL(deviceConfigurationChanged(ProjectExplorer::Target*)),
-        SLOT(handleCurrentDeviceConfigChanged()));
-    handleCurrentDeviceConfigChanged();
     connect(d->runConfiguration, SIGNAL(enabledChanged()),
         SLOT(runConfigurationEnabledChange()));
     runConfigurationEnabledChange();
@@ -163,21 +159,6 @@ void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayou
 
     d->genericWidgetsLayout.setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
-    QWidget * const devConfWidget = new QWidget;
-    QHBoxLayout * const devConfLayout = new QHBoxLayout(devConfWidget);
-    devConfLayout->setMargin(0);
-    devConfLayout->addWidget(&d->devConfLabel);
-    QLabel * const addDevConfLabel= new QLabel(tr("<a href=\"%1\">Manage device configurations</a>")
-        .arg(QLatin1String("deviceconfig")));
-    addDevConfLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-    devConfLayout->addWidget(addDevConfLabel);
-
-    QLabel * const debuggerConfLabel = new QLabel(tr("<a href=\"%1\">Set Debugger</a>")
-        .arg(QLatin1String("debugger")));
-    debuggerConfLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-    devConfLayout->addWidget(debuggerConfLabel);
-
-    d->genericWidgetsLayout.addRow(new QLabel(tr("Device configuration:")), devConfWidget);
     d->localExecutableLabel.setText(d->runConfiguration->localExecutableFilePath());
     d->genericWidgetsLayout.addRow(tr("Executable on host:"), &d->localExecutableLabel);
     d->genericWidgetsLayout.addRow(tr("Executable on device:"), &d->remoteExecutableLabel);
@@ -198,10 +179,6 @@ void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayou
     d->workingDirLineEdit.setText(d->runConfiguration->workingDirectory());
     d->genericWidgetsLayout.addRow(tr("Working directory:"), &d->workingDirLineEdit);
 
-    connect(addDevConfLabel, SIGNAL(linkActivated(QString)), this,
-        SLOT(showDeviceConfigurationsDialog(QString)));
-    connect(debuggerConfLabel, SIGNAL(linkActivated(QString)), this,
-        SLOT(showDeviceConfigurationsDialog(QString)));
     connect(&d->argsLineEdit, SIGNAL(textEdited(QString)), SLOT(argumentsEdited(QString)));
     connect(d->runConfiguration, SIGNAL(targetInformationChanged()), this,
         SLOT(updateTargetInformation()));
@@ -285,23 +262,6 @@ void RemoteLinuxRunConfigurationWidget::handleAlternateCommandChanged()
 void RemoteLinuxRunConfigurationWidget::handleWorkingDirectoryChanged()
 {
     d->runConfiguration->setWorkingDirectory(d->workingDirLineEdit.text().trimmed());
-}
-
-void RemoteLinuxRunConfigurationWidget::showDeviceConfigurationsDialog(const QString &link)
-{
-    if (link == QLatin1String("deviceconfig")) {
-        Core::ICore::showOptionsDialog(
-            QLatin1String(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY),
-            QLatin1String(ProjectExplorer::Constants::DEVICE_SETTINGS_PAGE_ID));
-    } else if (link == QLatin1String("debugger")) {
-        Core::ICore::showOptionsDialog(QLatin1String("O.Debugger"),
-            QLatin1String("M.Gdb"));
-    }
-}
-
-void RemoteLinuxRunConfigurationWidget::handleCurrentDeviceConfigChanged()
-{
-    d->devConfLabel.setText(RemoteLinuxUtils::deviceConfigurationName(d->runConfiguration->deviceConfig()));
 }
 
 void RemoteLinuxRunConfigurationWidget::fetchEnvironment()

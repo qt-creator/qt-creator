@@ -129,5 +129,34 @@ QString MaddeDevice::maddeDisplayType(Core::Id type)
     return tr("Other MeeGo OS");
 }
 
+bool MaddeDevice::allowsRemoteMounts(Core::Id type)
+{
+    return type == Core::Id(Maemo5OsType);
+}
+
+bool MaddeDevice::allowsPackagingDisabling(Core::Id type)
+{
+    return type == Core::Id(Maemo5OsType);
+}
+
+bool MaddeDevice::allowsQmlDebugging(Core::Id type)
+{
+    return type == Core::Id(HarmattanOsType);
+}
+
+bool MaddeDevice::isDebianBased(Core::Id type)
+{
+    return type != Core::Id(MeeGoOsType);
+}
+
+QSize MaddeDevice::packageManagerIconSize(Core::Id type)
+{
+    if (type == Core::Id(Maemo5OsType))
+        return QSize(48, 48);
+    if (type == Core::Id(HarmattanOsType))
+        return QSize(64, 64);
+    return QSize();
+}
+
 } // namespace Internal
 } // namespace Madde

@@ -31,16 +31,17 @@
 
 #include "maemorunconfigurationwidget.h"
 
+#include "maddedevice.h"
 #include "maemoglobal.h"
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfiguration.h"
-#include "qt4maemotarget.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/environmentwidget.h>
+#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qt4projectmanager/qt4target.h>
 #include <remotelinux/remotelinuxrunconfigurationwidget.h>
 #include <utils/detailswidget.h>
 
@@ -83,15 +84,13 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     QVBoxLayout *subLayout = new QVBoxLayout(m_subWidget);
     subLayout->setMargin(0);
     addMountWidgets(subLayout);
-    connect(m_runConfiguration, SIGNAL(deviceConfigurationChanged(ProjectExplorer::Target*)),
-        this, SLOT(updateMountWarning()));
+    connect(m_runConfiguration->target(), SIGNAL(profileChanged()), this, SLOT(updateMountWarning()));
     connect(m_runConfiguration->debuggerAspect(), SIGNAL(debuggersChanged()),
             SLOT(updateMountWarning()));
     updateMountWarning();
 
-    const AbstractQt4MaemoTarget * const maemoTarget
-        = qobject_cast<AbstractQt4MaemoTarget *>(runConfiguration->target());
-    m_mountDetailsContainer->setVisible(maemoTarget->allowsRemoteMounts());
+    Core::Id devId = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(runConfiguration->target()->profile());
+    m_mountDetailsContainer->setVisible(MaddeDevice::allowsRemoteMounts(devId));
 
     connect(m_runConfiguration, SIGNAL(enabledChanged()),
             this, SLOT(runConfigurationEnabledChange()));

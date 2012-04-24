@@ -62,7 +62,6 @@ static const char *const RVCT_LICENSE_KEY = "ARMLMD_LICENSE_FILE";
 static const char rvctPathKeyC[] = "Qt4ProjectManager.RvctToolChain.CompilerPath";
 static const char rvctEnvironmentKeyC[] = "Qt4ProjectManager.RvctToolChain.Environment";
 static const char rvctArmVersionKeyC[] = "Qt4ProjectManager.RvctToolChain.ArmVersion";
-static const char debuggerCommandKeyC[] = "Qt4ProjectManager.RvctToolChain.Debugger";
 
 static QString valueOf(const QList<Utils::EnvironmentItem> &items, const QString &suffix)
 {
@@ -104,8 +103,7 @@ RvctToolChain::RvctToolChain(const RvctToolChain &tc) :
     ToolChain(tc),
     m_compilerCommand(tc.m_compilerCommand),
     m_environmentChanges(tc.m_environmentChanges),
-    m_armVersion(tc.m_armVersion),
-    m_debuggerCommand(tc.debuggerCommand())
+    m_armVersion(tc.m_armVersion)
 { }
 
 RvctToolChain::RvctVersion RvctToolChain::version(const Utils::FileName &rvctPath)
@@ -253,8 +251,7 @@ bool RvctToolChain::operator ==(const ToolChain &other) const
     const RvctToolChain *otherPtr = dynamic_cast<const RvctToolChain *>(&other);
     return m_compilerCommand == otherPtr->m_compilerCommand
             && m_environmentChanges == otherPtr->m_environmentChanges
-            && m_armVersion == otherPtr->m_armVersion
-            && m_debuggerCommand == otherPtr->m_debuggerCommand;
+            && m_armVersion == otherPtr->m_armVersion;
 }
 
 void RvctToolChain::setEnvironmentChanges(const QList<Utils::EnvironmentItem> &changes)
@@ -283,19 +280,6 @@ void RvctToolChain::setCompilerCommand(const Utils::FileName &path)
 Utils::FileName RvctToolChain::compilerCommand() const
 {
     return m_compilerCommand;
-}
-
-void RvctToolChain::setDebuggerCommand(const Utils::FileName &d)
-{
-    if (m_debuggerCommand == d)
-        return;
-    m_debuggerCommand = d;
-    toolChainUpdated();
-}
-
-Utils::FileName RvctToolChain::debuggerCommand() const
-{
-    return m_debuggerCommand;
 }
 
 void RvctToolChain::setArmVersion(RvctToolChain::ArmVersion av)
@@ -339,7 +323,6 @@ QVariantMap RvctToolChain::toMap() const
         tmp.insert(i.name, i.value);
     result.insert(QLatin1String(rvctEnvironmentKeyC), tmp);
     result.insert(QLatin1String(rvctArmVersionKeyC), static_cast<int>(m_armVersion));
-    result.insert(QLatin1String(debuggerCommandKeyC), m_debuggerCommand.toString());
     return result;
 }
 
@@ -354,15 +337,7 @@ bool RvctToolChain::fromMap(const QVariantMap &data)
     for (QVariantMap::const_iterator i = tmp.constBegin(); i != tmp.constEnd(); ++i)
         m_environmentChanges.append(Utils::EnvironmentItem(i.key(), i.value().toString()));
     m_armVersion = static_cast<ArmVersion>(data.value(QLatin1String(rvctArmVersionKeyC), 0).toInt());
-    m_debuggerCommand = Utils::FileName::fromString(data.value(QLatin1String(debuggerCommandKeyC)).toString());
     return isValid();
-}
-
-QString RvctToolChain::legacyId() const
-{
-    const QChar dot = QLatin1Char('.');
-    return QLatin1String(Constants::RVCT_TOOLCHAIN_ID) + QLatin1Char(':') + m_compilerCommand.toString() + dot
-            + armVersionString(m_armVersion) + dot + m_debuggerCommand.toString();
 }
 
 QString RvctToolChain::varName(const QString &postFix) const
@@ -381,7 +356,6 @@ RvctToolChainConfigWidget::RvctToolChainConfigWidget(RvctToolChain *tc) :
     m_model(new Utils::EnvironmentModel(this))
 {
     m_ui->setupUi(this);
-    addDebuggerCommandControls(m_ui->formLayout, QStringList(QLatin1String("--version")));
 
     m_ui->environmentView->setModel(m_model);
     m_ui->environmentView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
@@ -400,8 +374,6 @@ RvctToolChainConfigWidget::RvctToolChainConfigWidget(RvctToolChain *tc) :
     m_ui->versionComboBox->setCurrentIndex(static_cast<int>(tc->armVersion()));
     connect(m_ui->versionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(emitDirty()));
 
-    addMkspecControls(m_ui->formLayout);
-
     setFromToolChain();
 }
 
@@ -419,8 +391,6 @@ void RvctToolChainConfigWidget::apply()
     tc->setCompilerCommand(m_ui->compilerPath->fileName());
     tc->setArmVersion(static_cast<RvctToolChain::ArmVersion>(m_ui->versionComboBox->currentIndex()));
     tc->setEnvironmentChanges(changes);
-    tc->setDebuggerCommand(debuggerCommand());
-    tc->setMkspecList(mkspecList());
 
     m_model->setUserChanges(changes);
 }
@@ -434,8 +404,6 @@ void RvctToolChainConfigWidget::setFromToolChain()
 
     m_ui->compilerPath->setFileName(tc->compilerCommand());
     m_ui->versionComboBox->setCurrentIndex(static_cast<int>(tc->armVersion()));
-    setDebuggerCommand(tc->debuggerCommand());
-    setMkspecList(tc->mkspecList());
 }
 
 bool RvctToolChainConfigWidget::isDirty() const
@@ -445,9 +413,7 @@ bool RvctToolChainConfigWidget::isDirty() const
 
     return tc->compilerCommand() != m_ui->compilerPath->fileName()
             || tc->armVersion() != static_cast<RvctToolChain::ArmVersion>(m_ui->versionComboBox->currentIndex())
-            || tc->environmentChanges() != environmentChanges()
-            || tc->debuggerCommand() != debuggerCommand()
-            || tc->mkspecList() != mkspecList();
+            || tc->environmentChanges() != environmentChanges();
 }
 
 void RvctToolChainConfigWidget::makeReadOnly()
@@ -544,7 +510,6 @@ QList<ProjectExplorer::ToolChain *> RvctToolChainFactory::autoDetect()
         tc->setDisplayName(name.arg(armVersionString(tc->armVersion()))
                            .arg(v.majorVersion).arg(v.minorVersion).arg(v.build));
         tc->setVersion(v);
-        tc->setDebuggerCommand(ProjectExplorer::ToolChainManager::instance()->defaultDebugger(tc->targetAbi()));
         result.append(tc);
 
         tc = new RvctToolChain(true);
@@ -554,7 +519,6 @@ QList<ProjectExplorer::ToolChain *> RvctToolChainFactory::autoDetect()
         tc->setDisplayName(name.arg(armVersionString(tc->armVersion()))
                            .arg(v.majorVersion).arg(v.minorVersion).arg(v.build));
         tc->setVersion(v);
-        tc->setDebuggerCommand(ProjectExplorer::ToolChainManager::instance()->defaultDebugger(tc->targetAbi()));
         result.append(tc);
     }
 

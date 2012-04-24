@@ -34,7 +34,8 @@
 #include "cmakeprojectmanager.h"
 
 #include <utils/pathchooser.h>
-#include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/profilemanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/abi.h>
 #include <texteditor/fontsettings.h>
@@ -65,8 +66,7 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_creatingCbpFiles(false),
-      m_environment(env),
-      m_toolChain(0)
+      m_environment(env)
 {
     int startid;
     if (hasInSourceBuild()) {
@@ -98,8 +98,7 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_creatingCbpFiles(true),
-      m_environment(env),
-      m_toolChain(0)
+      m_environment(env)
 {
 
     CMakeRunPage::Mode rmode;
@@ -119,8 +118,7 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_creatingCbpFiles(true),
-      m_environment(env),
-      m_toolChain(0)
+      m_environment(env)
 {
     m_buildDirectory = oldBuildDirectory;
     addPage(new ShadowBuildPage(this, true));
@@ -199,17 +197,6 @@ void CMakeOpenProjectWizard::setArguments(const QString &args)
 {
     m_arguments = args;
 }
-
-ProjectExplorer::ToolChain *CMakeOpenProjectWizard::toolChain() const
-{
-    return m_toolChain;
-}
-
-void CMakeOpenProjectWizard::setToolChain(ProjectExplorer::ToolChain *tc)
-{
-    m_toolChain = tc;
-}
-
 
 Utils::Environment CMakeOpenProjectWizard::environment() const
 {
@@ -414,51 +401,50 @@ void CMakeRunPage::initializePage()
     Q_UNUSED(cmakeCxxCompiler);
     m_generatorComboBox->clear();
     bool hasCodeBlocksGenerator = m_cmakeWizard->cmakeManager()->hasCodeBlocksMsvcGenerator();
-    ProjectExplorer::Abi abi = ProjectExplorer::Abi::hostAbi();
-    abi = ProjectExplorer::Abi(abi.architecture(), abi.os(), ProjectExplorer::Abi::UnknownFlavor,
-                               abi.binaryFormat(), 0);
-    QList<ProjectExplorer::ToolChain *> tcs =
-            ProjectExplorer::ToolChainManager::instance()->findToolChains(abi);
 
-    foreach (ProjectExplorer::ToolChain *tc, tcs) {
+    QList<ProjectExplorer::Profile *> profileList =
+            ProjectExplorer::ProfileManager::instance()->profiles();
+
+    foreach (ProjectExplorer::Profile *p, profileList) {
+        QVariant profileVariant = qVariantFromValue(static_cast<void *>(p));
+
+        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(p);
         ProjectExplorer::Abi targetAbi = tc->targetAbi();
-        QVariant tcVariant = qVariantFromValue(static_cast<void *>(tc));
         if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
             if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2005Flavor
                     || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
                     || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor) {
                 if (hasCodeBlocksGenerator && (cachedGenerator.isEmpty() || cachedGenerator == "NMake Makefiles"))
-                    m_generatorComboBox->addItem(tr("NMake Generator (%1)").arg(tc->displayName()), tcVariant);
+                    m_generatorComboBox->addItem(tr("NMake Generator (%1)").arg(p->displayName()), profileVariant);
              } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
                 if (cachedGenerator.isEmpty() || cachedGenerator == "MinGW Makefiles")
-                    m_generatorComboBox->addItem(tr("MinGW Generator (%1)").arg(tc->displayName()), tcVariant);
+                    m_generatorComboBox->addItem(tr("MinGW Generator (%1)").arg(p->displayName()), profileVariant);
             }
         } else {
             // Non windows
             if (cachedGenerator.isEmpty() || cachedGenerator == "Unix Makefiles")
-                m_generatorComboBox->addItem(tr("Unix Generator (%1)").arg(tc->displayName()), tcVariant);
+                m_generatorComboBox->addItem(tr("Unix Generator (%1)").arg(p->displayName()), profileVariant);
         }
     }
 }
 
 void CMakeRunPage::runCMake()
 {
-    if (m_cmakeExecutable) {
+    if (m_cmakeExecutable)
         // We asked the user for the cmake executable
         m_cmakeWizard->cmakeManager()->setCMakeExecutable(m_cmakeExecutable->path());
-    }
 
     int index = m_generatorComboBox->currentIndex();
 
-    ProjectExplorer::ToolChain *tc = 0;
+    ProjectExplorer::Profile *p = 0;
     if (index >= 0)
-        tc = static_cast<ProjectExplorer::ToolChain *>(m_generatorComboBox->itemData(index).value<void *>());
-    if (!tc) {
+        p = static_cast<ProjectExplorer::Profile *>(m_generatorComboBox->itemData(index).value<void *>());
+    if (!p) {
         m_output->appendPlainText(tr("No generator selected."));
         return;
     }
 
-    m_cmakeWizard->setToolChain(tc);
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(p);
 
     m_runCMake->setEnabled(false);
     m_argumentsLineEdit->setEnabled(false);
@@ -473,11 +459,8 @@ void CMakeRunPage::runCMake()
             generator = QLatin1String("-GCodeBlocks - NMake Makefiles");
     }
 
-
     Utils::Environment env = m_cmakeWizard->environment();
     tc->addToEnvironment(env);
-
-
 
     m_output->clear();
 

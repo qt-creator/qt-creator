@@ -88,7 +88,9 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
     }
 
     m_environment = Utils::Environment::systemEnvironment();
+#if 0 // FIXME: Reenable this!
     version->addToEnvironment(m_environment);
+#endif
 
     toolChain->addToEnvironment(m_environment);
 

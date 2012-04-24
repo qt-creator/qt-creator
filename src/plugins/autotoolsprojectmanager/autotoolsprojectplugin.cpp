@@ -34,7 +34,6 @@
 
 #include "autotoolsprojectplugin.h"
 #include "autotoolsmanager.h"
-#include "autotoolstarget.h"
 #include "autotoolsbuildconfiguration.h"
 #include "makestep.h"
 #include "autogenstep.h"
@@ -66,7 +65,7 @@ bool AutotoolsProjectPlugin::initialize(const QStringList &arguments,
     if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":autotoolsproject/AutotoolsProject.mimetypes.xml"), errorString))
         return false;
 
-    addAutoReleasedObject(new AutotoolsTargetFactory);
+    addAutoReleasedObject(new AutotoolsBuildConfigurationFactory);
     addAutoReleasedObject(new MakeStepFactory);
     addAutoReleasedObject(new AutogenStepFactory);
     addAutoReleasedObject(new ConfigureStepFactory);

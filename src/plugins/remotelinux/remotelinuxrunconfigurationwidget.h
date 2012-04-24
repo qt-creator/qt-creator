@@ -64,9 +64,7 @@ public:
 
 private slots:
     void argumentsEdited(const QString &args);
-    void showDeviceConfigurationsDialog(const QString &link);
     void updateTargetInformation();
-    void handleCurrentDeviceConfigChanged();
     void fetchEnvironment();
     void fetchEnvironmentFinished();
     void fetchEnvironmentError(const QString &error);

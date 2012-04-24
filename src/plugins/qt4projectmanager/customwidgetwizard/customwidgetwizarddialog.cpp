@@ -35,6 +35,32 @@
 #include "customwidgetpluginwizardpage.h"
 #include "customwidgetwizard.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/profilemanager.h>
+#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtsupportconstants.h>
+
+namespace {
+
+class DesktopQtProfileMatcher : public ProjectExplorer::ProfileMatcher
+{
+public:
+    bool matches(const ProjectExplorer::Profile *p) const
+    {
+        ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceProfileInformation::device(p);
+        if (dev.isNull() || dev->id() != Core::Id(ProjectExplorer::Constants::DESKTOP_DEVICE_ID))
+            return false;
+        QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(p);
+        return version && version->type() == QtSupport::Constants::DESKTOPQT;
+    }
+};
+
+} // namespace
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -54,8 +80,7 @@ CustomWidgetWizardDialog::CustomWidgetWizardDialog(const QString &templateName,
 
     setIntroDescription(tr("This wizard generates a Qt4 Designer Custom Widget "
                            "or a Qt4 Designer Custom Widget Collection project."));
-
-    addTargetSetupPage(BaseQt4ProjectWizardDialog::desktopTarget());
+    addTargetSetupPage();
     m_widgetPageId = addPage(m_widgetsPage);
     m_pluginPageId = addPage(m_pluginPage);
     wizardProgress()->item(m_widgetPageId)->setTitle(tr("Custom Widgets"));

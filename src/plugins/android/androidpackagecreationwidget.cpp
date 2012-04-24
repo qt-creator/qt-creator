@@ -34,7 +34,7 @@
 #include "androidpackagecreationstep.h"
 #include "androidconfigurations.h"
 #include "androidcreatekeystorecertificate.h"
-#include "androidtarget.h"
+#include "androidmanager.h"
 #include "ui_androidpackagecreationwidget.h"
 
 #include <projectexplorer/project.h>
@@ -49,6 +49,7 @@
 #include <QTimer>
 
 #include <QFileDialog>
+#include <QFileSystemWatcher>
 #include <QMessageBox>
 
 namespace Android {
@@ -203,7 +204,8 @@ int PermissionsModel::rowCount(const QModelIndex &parent) const
 AndroidPackageCreationWidget::AndroidPackageCreationWidget(AndroidPackageCreationStep *step)
     : ProjectExplorer::BuildStepConfigWidget(),
       m_step(step),
-      m_ui(new Ui::AndroidPackageCreationWidget)
+      m_ui(new Ui::AndroidPackageCreationWidget),
+      m_fileSystemWatcher(new QFileSystemWatcher(this))
 {
     m_qtLibsModel = new CheckModel(this);
     m_prebundledLibs = new CheckModel(this);
@@ -219,10 +221,16 @@ AndroidPackageCreationWidget::AndroidPackageCreationWidget(AndroidPackageCreatio
 void AndroidPackageCreationWidget::initGui()
 {
     updateAndroidProjectInfo();
-    AndroidTarget *target = m_step->androidTarget();
-    connect(target,
-        SIGNAL(androidDirContentsChanged()),
-        this, SLOT(updateAndroidProjectInfo()));
+    ProjectExplorer::Target *target = m_step->target();
+
+    m_fileSystemWatcher->addPath(AndroidManager::dirPath(target).toString());
+    m_fileSystemWatcher->addPath(AndroidManager::manifestPath(target).toString());
+    m_fileSystemWatcher->addPath(AndroidManager::srcPath(target).toString());
+    connect(m_fileSystemWatcher, SIGNAL(directoryChanged(QString)),
+            this, SIGNAL(updateAndroidProjectInfo()));
+    connect(m_fileSystemWatcher, SIGNAL(fileChanged(QString)), this,
+            SIGNAL(updateAndroidProjectInfo()));
+
     m_ui->packageNameLineEdit->setValidator(new QRegExpValidator(QRegExp(packageNameRegExp), this));
     connect(m_ui->packageNameLineEdit, SIGNAL(editingFinished()), SLOT(setPackageName()));
     connect(m_ui->appNameLineEdit, SIGNAL(editingFinished()), SLOT(setApplicationName()));
@@ -251,49 +259,50 @@ void AndroidPackageCreationWidget::initGui()
     m_ui->qtLibsListView->setModel(m_qtLibsModel);
     m_ui->prebundledLibsListView->setModel(m_prebundledLibs);
     m_ui->permissionsListView->setModel(m_permissionsModel);
-    m_ui->KeystoreLocationLineEdit->setText(m_step->keystorePath());
+    m_ui->KeystoreLocationLineEdit->setText(m_step->keystorePath().toUserOutput());
 }
 
 void AndroidPackageCreationWidget::updateAndroidProjectInfo()
 {
-    AndroidTarget *target = m_step->androidTarget();
+    ProjectExplorer::Target *target = m_step->target();
+    const QString packageName = AndroidManager::packageName(target);
     m_ui->targetSDKComboBox->clear();
     QStringList targets = AndroidConfigurations::instance().sdkTargets();
     m_ui->targetSDKComboBox->addItems(targets);
-    m_ui->targetSDKComboBox->setCurrentIndex(targets.indexOf(target->targetSDK()));
-    m_ui->packageNameLineEdit->setText(target->packageName());
-    m_ui->appNameLineEdit->setText(target->applicationName());
+    m_ui->targetSDKComboBox->setCurrentIndex(targets.indexOf(AndroidManager::targetSDK(target)));
+    m_ui->packageNameLineEdit->setText(packageName);
+    m_ui->appNameLineEdit->setText(AndroidManager::applicationName(target));
     if (!m_ui->appNameLineEdit->text().length()) {
         QString applicationName = target->project()->displayName();
-        target->setPackageName(target->packageName() + QLatin1Char('.') + applicationName);
-        m_ui->packageNameLineEdit->setText(target->packageName());
-        if (applicationName.length())
+        AndroidManager::setPackageName(target, packageName + QLatin1Char('.') + applicationName);
+        m_ui->packageNameLineEdit->setText(packageName);
+        if (!applicationName.isEmpty())
             applicationName[0] = applicationName[0].toUpper();
         m_ui->appNameLineEdit->setText(applicationName);
-        target->setApplicationName(applicationName);
+        AndroidManager::setApplicationName(target, applicationName);
     }
-    m_ui->versionCode->setValue(target->versionCode());
-    m_ui->versionNameLinedit->setText(target->versionName());
+    m_ui->versionCode->setValue(AndroidManager::versionCode(target));
+    m_ui->versionNameLinedit->setText(AndroidManager::versionName(target));
 
-    m_qtLibsModel->setAvailableItems(target->availableQtLibs());
-    m_qtLibsModel->setCheckedItems(target->qtLibs());
-    m_prebundledLibs->setAvailableItems(target->availablePrebundledLibs());
-    m_prebundledLibs->setCheckedItems(target->prebundledLibs());
+    m_qtLibsModel->setAvailableItems(AndroidManager::availableQtLibs(target));
+    m_qtLibsModel->setCheckedItems(AndroidManager::qtLibs(target));
+    m_prebundledLibs->setAvailableItems(AndroidManager::availablePrebundledLibs(target));
+    m_prebundledLibs->setCheckedItems(AndroidManager::prebundledLibs(target));
 
-    m_permissionsModel->setPermissions(target->permissions());
+    m_permissionsModel->setPermissions(AndroidManager::permissions(target));
     m_ui->removePermissionButton->setEnabled(m_permissionsModel->permissions().size());
 
-    targets = target->availableTargetApplications();
+    targets = AndroidManager::availableTargetApplications(target);
     m_ui->targetComboBox->clear();
     m_ui->targetComboBox->addItems(targets);
-    m_ui->targetComboBox->setCurrentIndex(targets.indexOf(target->targetApplication()));
+    m_ui->targetComboBox->setCurrentIndex(targets.indexOf(AndroidManager::targetApplication(target)));
     if (m_ui->targetComboBox->currentIndex() == -1 && targets.count()) {
         m_ui->targetComboBox->setCurrentIndex(0);
-        target->setTargetApplication(m_ui->targetComboBox->currentText());
+        AndroidManager::setTargetApplication(target, m_ui->targetComboBox->currentText());
     }
-    m_ui->hIconButton->setIcon(target->highDpiIcon());
-    m_ui->mIconButton->setIcon(target->mediumDpiIcon());
-    m_ui->lIconButton->setIcon(target->lowDpiIcon());
+    m_ui->hIconButton->setIcon(AndroidManager::highDpiIcon(target));
+    m_ui->mIconButton->setIcon(AndroidManager::mediumDpiIcon(target));
+    m_ui->lIconButton->setIcon(AndroidManager::lowDpiIcon(target));
 }
 
 void AndroidPackageCreationWidget::setPackageName()
@@ -308,26 +317,27 @@ void AndroidPackageCreationWidget::setPackageName()
         m_ui->packageNameLineEdit->setFocus();
         return;
     }
-    m_step->androidTarget()->setPackageName(packageName);
+    AndroidManager::setPackageName(m_step->target(), packageName);
 }
 
 void AndroidPackageCreationWidget::setApplicationName()
 {
-    m_step->androidTarget()->setApplicationName(m_ui->appNameLineEdit->text());
+    AndroidManager::setApplicationName(m_step->target(), m_ui->appNameLineEdit->text());
 }
 
-void AndroidPackageCreationWidget::setTargetSDK(const QString &target)
+void AndroidPackageCreationWidget::setTargetSDK(const QString &sdk)
 {
-    m_step->androidTarget()->setTargetSDK(target);
-    Qt4BuildConfiguration *bc = m_step->androidTarget()->activeQt4BuildConfiguration();
-    ProjectExplorer::BuildManager *bm = ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager();
+    AndroidManager::setTargetSDK(m_step->target(), sdk);
+    Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(m_step->target()->activeBuildConfiguration());
+    if (!bc)
+        return;
     QMakeStep *qs = bc->qmakeStep();
-
     if (!qs)
         return;
 
     qs->setForced(true);
 
+    ProjectExplorer::BuildManager *bm = ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager();
     bm->buildList(bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)),
                   ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)));
     bm->appendStep(qs, ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)));
@@ -341,27 +351,27 @@ void AndroidPackageCreationWidget::setTargetSDK(const QString &target)
 
 void AndroidPackageCreationWidget::setVersionCode()
 {
-    m_step->androidTarget()->setVersionCode(m_ui->versionCode->value());
+    AndroidManager::setVersionCode(m_step->target(), m_ui->versionCode->value());
 }
 
 void AndroidPackageCreationWidget::setVersionName()
 {
-    m_step->androidTarget()->setVersionName(m_ui->versionNameLinedit->text());
+    AndroidManager::setVersionName(m_step->target(), m_ui->versionNameLinedit->text());
 }
 
 void AndroidPackageCreationWidget::setTarget(const QString &target)
 {
-    m_step->androidTarget()->setTargetApplication(target);
+    AndroidManager::setTargetApplication(m_step->target(), target);
 }
 
 void AndroidPackageCreationWidget::setQtLibs(QModelIndex, QModelIndex)
 {
-    m_step->androidTarget()->setQtLibs(m_qtLibsModel->checkedItems());
+    AndroidManager::setQtLibs(m_step->target(), m_qtLibsModel->checkedItems());
 }
 
 void AndroidPackageCreationWidget::setPrebundledLibs(QModelIndex, QModelIndex)
 {
-    m_step->androidTarget()->setPrebundledLibs(m_prebundledLibs->checkedItems());
+    AndroidManager::setPrebundledLibs(m_step->target(), m_prebundledLibs->checkedItems());
 }
 
 void AndroidPackageCreationWidget::prebundledLibSelected(const QModelIndex &index)
@@ -395,8 +405,8 @@ void AndroidPackageCreationWidget::setHDPIIcon()
     QString file = QFileDialog::getOpenFileName(this, tr("Choose High DPI Icon"), QDir::homePath(), tr("png images (*.png)"));
     if (!file.length())
         return;
-    m_step->androidTarget()->setHighDpiIcon(file);
-    m_ui->hIconButton->setIcon(m_step->androidTarget()->highDpiIcon());
+    AndroidManager::setHighDpiIcon(m_step->target(), file);
+    m_ui->hIconButton->setIcon(AndroidManager::highDpiIcon(m_step->target()));
 }
 
 void AndroidPackageCreationWidget::setMDPIIcon()
@@ -404,8 +414,8 @@ void AndroidPackageCreationWidget::setMDPIIcon()
     QString file = QFileDialog::getOpenFileName(this, tr("Choose Medium DPI Icon"), QDir::homePath(), tr("png images (*.png)"));
     if (!file.length())
         return;
-    m_step->androidTarget()->setMediumDpiIcon(file);
-    m_ui->mIconButton->setIcon(m_step->androidTarget()->mediumDpiIcon());
+    AndroidManager::setMediumDpiIcon(m_step->target(), file);
+    m_ui->mIconButton->setIcon(AndroidManager::mediumDpiIcon(m_step->target()));
 }
 
 void AndroidPackageCreationWidget::setLDPIIcon()
@@ -413,8 +423,8 @@ void AndroidPackageCreationWidget::setLDPIIcon()
     QString file = QFileDialog::getOpenFileName(this, tr("Choose Low DPI Icon"), QDir::homePath(), tr("png images (*.png)"));
     if (!file.length())
         return;
-    m_step->androidTarget()->setLowDpiIcon(file);
-    m_ui->lIconButton->setIcon(m_step->androidTarget()->lowDpiIcon());
+    AndroidManager::setLowDpiIcon(m_step->target(), file);
+    m_ui->lIconButton->setIcon(AndroidManager::lowDpiIcon(m_step->target()));
 }
 
 void AndroidPackageCreationWidget::permissionActivated(QModelIndex index)
@@ -451,21 +461,21 @@ void AndroidPackageCreationWidget::removePermission()
 void AndroidPackageCreationWidget::savePermissionsButton()
 {
     setEnabledSaveDiscardButtons(false);
-    m_step->androidTarget()->setPermissions(m_permissionsModel->permissions());
+    AndroidManager::setPermissions(m_step->target(), m_permissionsModel->permissions());
 }
 
 void AndroidPackageCreationWidget::discardPermissionsButton()
 {
     setEnabledSaveDiscardButtons(false);
-    m_permissionsModel->setPermissions(m_step->androidTarget()->permissions());
+    m_permissionsModel->setPermissions(AndroidManager::permissions(m_step->target()));
     m_ui->permissionsComboBox->setCurrentIndex(-1);
     m_ui->removePermissionButton->setEnabled(m_permissionsModel->permissions().size());
 }
 
 void AndroidPackageCreationWidget::updateRequiredLibrariesModels()
 {
-    m_qtLibsModel->setCheckedItems(m_step->androidTarget()->qtLibs());
-    m_prebundledLibs->setCheckedItems(m_step->androidTarget()->prebundledLibs());
+    m_qtLibsModel->setCheckedItems(AndroidManager::qtLibs(m_step->target()));
+    m_prebundledLibs->setCheckedItems(AndroidManager::prebundledLibs(m_step->target()));
 }
 
 void AndroidPackageCreationWidget::readElfInfo()
@@ -502,7 +512,7 @@ void AndroidPackageCreationWidget::on_signPackageCheckBox_toggled(bool checked)
 {
     if (!checked)
         return;
-    if (m_step->keystorePath().length())
+    if (!m_step->keystorePath().isEmpty())
         setCertificates();
 }
 
@@ -511,7 +521,7 @@ void AndroidPackageCreationWidget::on_KeystoreCreatePushButton_clicked()
     AndroidCreateKeystoreCertificate d;
     if (d.exec() != QDialog::Accepted)
         return;
-    m_ui->KeystoreLocationLineEdit->setText(d.keystoreFilePath());
+    m_ui->KeystoreLocationLineEdit->setText(d.keystoreFilePath().toUserOutput());
     m_step->setKeystorePath(d.keystoreFilePath());
     m_step->setKeystorePassword(d.keystorePassword());
     m_step->setCertificateAlias(d.certificateAlias());
@@ -521,13 +531,13 @@ void AndroidPackageCreationWidget::on_KeystoreCreatePushButton_clicked()
 
 void AndroidPackageCreationWidget::on_KeystoreLocationPushButton_clicked()
 {
-    QString keystorePath = m_step->keystorePath();
-    if (!keystorePath.length())
-        keystorePath = QDir::homePath();
-    QString file = QFileDialog::getOpenFileName(this, tr("Select Keystore File"), keystorePath, tr("Keystore files (*.keystore *.jks)"));
-    if (!file.length())
+    Utils::FileName keystorePath = m_step->keystorePath();
+    if (keystorePath.isEmpty())
+        keystorePath = Utils::FileName::fromString(QDir::homePath());
+    Utils::FileName file = Utils::FileName::fromString(QFileDialog::getOpenFileName(this, tr("Select keystore file"), keystorePath.toString(), tr("Keystore files (*.keystore *.jks)")));
+    if (file.isEmpty())
         return;
-    m_ui->KeystoreLocationLineEdit->setText(file);
+    m_ui->KeystoreLocationLineEdit->setText(file.toUserOutput());
     m_step->setKeystorePath(file);
     m_ui->signPackageCheckBox->setChecked(false);
 }
@@ -551,6 +561,3 @@ void AndroidPackageCreationWidget::on_openPackageLocationCheckBox_toggled(bool c
 
 } // namespace Internal
 } // namespace Android
-
-
-

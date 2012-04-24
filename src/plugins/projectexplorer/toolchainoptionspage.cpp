@@ -42,13 +42,20 @@
 
 #include <utils/qtcassert.h>
 
-#include <QSignalMapper>
-#include <QTextStream>
 #include <QAction>
+#include <QApplication>
+#include <QHBoxLayout>
+#include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QSignalMapper>
+#include <QSpacerItem>
+#include <QTextStream>
+#include <QTreeView>
+#include <QVBoxLayout>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -92,11 +99,11 @@ public:
 // ToolChainModel
 // --------------------------------------------------------------------------
 
-ToolChainModel::ToolChainModel(QWidget *configWidgetParent, QObject *parent) :
+ToolChainModel::ToolChainModel(QBoxLayout *parentLayout, QObject *parent) :
     QAbstractItemModel(parent),
-    m_configWidgetParent(configWidgetParent)
+    m_parentLayout(parentLayout)
 {
-    Q_ASSERT(m_configWidgetParent);
+    Q_ASSERT(m_parentLayout);
 
     connect(ToolChainManager::instance(), SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
             this, SLOT(addToolChain(ProjectExplorer::ToolChain*)));
@@ -404,9 +411,8 @@ ToolChainNode *ToolChainModel::createNode(ToolChainNode *parent, ToolChain *tc, 
 {
     ToolChainNode *node = new ToolChainNode(parent, tc, changed);
     if (node->widget) {
-        m_configWidgetParent->layout()->addWidget(node->widget);
-        connect(node->widget, SIGNAL(dirty()),
-                this, SLOT(setDirty()));
+        m_parentLayout->addWidget(node->widget);
+        connect(node->widget, SIGNAL(dirty()), this, SLOT(setDirty()));
     }
     return node;
 }
@@ -471,7 +477,8 @@ void ToolChainModel::removeToolChain(ToolChain *tc)
 // --------------------------------------------------------------------------
 
 ToolChainOptionsPage::ToolChainOptionsPage() :
-    m_ui(0), m_model(0), m_selectionModel(0), m_currentTcWidget(0)
+    m_model(0), m_selectionModel(0), m_currentTcWidget(0),
+    m_toolChainView(0), m_addButton(0), m_cloneButton(0), m_delButton(0)
 {
     setId(QLatin1String(Constants::TOOLCHAIN_SETTINGS_PAGE_ID));
     setDisplayName(tr("Tool Chains"));
@@ -488,19 +495,39 @@ QWidget *ToolChainOptionsPage::createPage(QWidget *parent)
 
     m_currentTcWidget = 0;
 
-    m_ui = new Ui::ToolChainOptionsPage;
-    m_ui->setupUi(m_configWidget);
+    m_toolChainView = new QTreeView(m_configWidget);
+    m_toolChainView->setUniformRowHeights(true);
+    m_toolChainView->header()->setStretchLastSection(false);
 
+    m_addButton = new QPushButton(tr("Add"), m_configWidget);
+    m_cloneButton = new QPushButton(tr("Clone"), m_configWidget);
+    m_delButton = new QPushButton(tr("Remove"), m_configWidget);
+
+    QVBoxLayout *buttonLayout = new QVBoxLayout();
+    buttonLayout->setSpacing(6);
+    buttonLayout->setContentsMargins(0, 0, 0, 0);
+    buttonLayout->addWidget(m_addButton);
+    buttonLayout->addWidget(m_cloneButton);
+    buttonLayout->addWidget(m_delButton);
+    buttonLayout->addItem(new QSpacerItem(10, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
+
+    QVBoxLayout *verticalLayout = new QVBoxLayout();
+    verticalLayout->addWidget(m_toolChainView);
+
+    QHBoxLayout *horizontalLayout = new QHBoxLayout(m_configWidget);
+    horizontalLayout->addLayout(verticalLayout);
+    horizontalLayout->addLayout(buttonLayout);
     Q_ASSERT(!m_model);
-    m_model = new ToolChainModel(m_configWidget);
+    m_model = new ToolChainModel(verticalLayout);
+
     connect(m_model, SIGNAL(toolChainStateChanged()), this, SLOT(updateState()));
 
-    m_ui->toolChainView->setModel(m_model);
-    m_ui->toolChainView->header()->setResizeMode(0, QHeaderView::ResizeToContents);
-    m_ui->toolChainView->header()->setResizeMode(1, QHeaderView::Stretch);
-    m_ui->toolChainView->expandAll();
+    m_toolChainView->setModel(m_model);
+    m_toolChainView->header()->setResizeMode(0, QHeaderView::ResizeToContents);
+    m_toolChainView->header()->setResizeMode(1, QHeaderView::Stretch);
+    m_toolChainView->expandAll();
 
-    m_selectionModel = m_ui->toolChainView->selectionModel();
+    m_selectionModel = m_toolChainView->selectionModel();
     connect(m_selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(toolChainSelectionChanged()));
     connect(ToolChainManager::instance(), SIGNAL(toolChainsChanged()),
@@ -510,7 +537,7 @@ QWidget *ToolChainOptionsPage::createPage(QWidget *parent)
     m_factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>();
 
     // Set up add menu:
-    QMenu *addMenu = new QMenu(m_ui->addButton);
+    QMenu *addMenu = new QMenu(m_addButton);
     QSignalMapper *mapper = new QSignalMapper(addMenu);
     connect(mapper, SIGNAL(mapped(QObject*)), this, SLOT(createToolChain(QObject*)));
 
@@ -524,12 +551,12 @@ QWidget *ToolChainOptionsPage::createPage(QWidget *parent)
             addMenu->addAction(action);
         }
     }
-    connect(m_ui->cloneButton, SIGNAL(clicked()), mapper, SLOT(map()));
-    mapper->setMapping(m_ui->cloneButton, static_cast<QObject *>(0));
+    connect(m_cloneButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    mapper->setMapping(m_cloneButton, static_cast<QObject *>(0));
 
-    m_ui->addButton->setMenu(addMenu);
+    m_addButton->setMenu(addMenu);
 
-    connect(m_ui->delButton, SIGNAL(clicked()), this, SLOT(removeToolChain()));
+    connect(m_delButton, SIGNAL(clicked()), this, SLOT(removeToolChain()));
 
     // setup keywords:
     if (m_searchKeywords.isEmpty()) {
@@ -562,8 +589,12 @@ void ToolChainOptionsPage::finish()
 
     m_configWidget = 0; // deleted by settingsdialog
     m_selectionModel = 0; // child of m_configWidget
-    m_ui = 0; // child of m_configWidget
     m_currentTcWidget = 0; // deleted by the model
+    // childs of m_configWidget
+    m_toolChainView = 0;
+    m_addButton = 0;
+    m_cloneButton = 0;
+    m_delButton = 0;
 }
 
 bool ToolChainOptionsPage::matches(const QString &s) const
@@ -619,7 +650,7 @@ void ToolChainOptionsPage::removeToolChain()
 
 void ToolChainOptionsPage::updateState()
 {
-    if (!m_ui)
+    if (!m_cloneButton)
         return;
 
     bool canCopy = false;
@@ -630,8 +661,8 @@ void ToolChainOptionsPage::updateState()
         canDelete = !tc->isAutoDetected();
     }
 
-    m_ui->cloneButton->setEnabled(canCopy);
-    m_ui->delButton->setEnabled(canDelete);
+    m_cloneButton->setEnabled(canCopy);
+    m_delButton->setEnabled(canDelete);
 }
 
 QModelIndex ToolChainOptionsPage::currentIndex() const

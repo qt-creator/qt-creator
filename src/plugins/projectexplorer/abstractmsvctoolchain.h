@@ -57,10 +57,7 @@ public:
     void addToEnvironment(Utils::Environment &env) const;
 
     QString makeCommand() const;
-    void setDebuggerCommand(const Utils::FileName &d);
-
     Utils::FileName compilerCommand() const;
-    Utils::FileName debuggerCommand() const;
     IOutputParser *outputParser() const;
 
     bool canClone() const;

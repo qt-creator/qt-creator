@@ -56,17 +56,7 @@ enum AndroidQemuStatus {
 #define ANDROID_BAT_SUFFIX ""
 #endif
 
-static const char ANDROID_RC_ID[] = ANDROID_PREFIX;
 static const QLatin1String ANDROID_RC_ID_PREFIX(ANDROID_PREFIX ".");
-
-static const QLatin1String AndroidArgumentsKey(ANDROID_PREFIX ".Arguments");
-static const QLatin1String AndroidSimulatorPathKey(ANDROID_PREFIX ".Simulator");
-static const QLatin1String AndroidDeviceIdKey(ANDROID_PREFIX ".DeviceId");
-static const QLatin1String AndroidProFileKey(ANDROID_PREFIX ".ProFile");
-static const QLatin1String AndroidExportedLocalDirsKey(ANDROID_PREFIX ".ExportedLocalDirs");
-static const QLatin1String AndroidBaseEnvironmentBaseKey(ANDROID_PREFIX ".BaseEnvironmentBase");
-static const QLatin1String AndroidUserEnvironmentChangesKey(ANDROID_PREFIX ".UserEnvironmentChanges");
-static const QLatin1String AndroidUseRemoteGdbKey(ANDROID_PREFIX ".UseRemoteGdb");
 
 } // namespace Internal
 
@@ -77,8 +67,6 @@ const char ANDROID_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Android", "Androi
 const char ANDROID_SETTINGS_CATEGORY_ICON[] = ":/android/images/QtAndroid.png";
 const char ANDROID_TOOLCHAIN_ID[] = "Qt4ProjectManager.ToolChain.Android";
 const char ANDROIDQT[] = "Qt4ProjectManager.QtVersion.Android";
-const char ANDROID_PLATFORM[] = "Android";
-const char ANDROID_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Android");
 
 }
 } // namespace Android

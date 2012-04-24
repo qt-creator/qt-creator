@@ -36,10 +36,11 @@
 #include "maemopackageinstaller.h"
 #include "maemoqemumanager.h"
 #include "qt4maemodeployconfiguration.h"
-#include "qt4maemotarget.h"
 
+#include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtprofileinformation.h>
 #include <remotelinux/abstractuploadandinstallpackageservice.h>
 #include <remotelinux/linuxdeviceconfiguration.h>
 #include <ssh/sshconnection.h>
@@ -72,8 +73,8 @@ protected:
         }
 
         MaemoQemuRuntime rt;
-        const int qtId = qt4BuildConfiguration() && qt4BuildConfiguration()->qtVersion()
-            ? qt4BuildConfiguration()->qtVersion()->uniqueId() : -1;
+        const int qtId = qt4BuildConfiguration()
+                ? QtSupport::QtProfileInformation::qtVersionId(qt4BuildConfiguration()->target()->profile()) : -1;
         if (MaemoQemuManager::instance().runtimeForQtVersion(qtId, &rt)) {
             MaemoQemuManager::instance().startRuntime();
             emit errorMessage(tr("Cannot deploy: Qemu was not running. "
@@ -164,7 +165,8 @@ MaemoUploadAndInstallPackageStep::MaemoUploadAndInstallPackageStep(ProjectExplor
 void MaemoUploadAndInstallPackageStep::ctor()
 {
     setDefaultDisplayName(displayName());
-    if (qobject_cast<Qt4HarmattanTarget *>(target()))
+    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
+    if (deviceType == Core::Id(HarmattanOsType))
         m_deployService = new HarmattanUploadAndInstallPackageAction(this);
     else
         m_deployService = new MaemoUploadAndInstallPackageAction(this);

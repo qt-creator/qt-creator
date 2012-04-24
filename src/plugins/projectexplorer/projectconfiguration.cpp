@@ -41,7 +41,7 @@ const char DEFAULT_DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.De
 ProjectConfiguration::ProjectConfiguration(QObject *parent, const Core::Id &id) :
     QObject(parent),
     m_id(id)
-{ }
+{ setObjectName(id.toString()); }
 
 ProjectConfiguration::ProjectConfiguration(QObject *parent, const ProjectConfiguration *source) :
     QObject(parent),

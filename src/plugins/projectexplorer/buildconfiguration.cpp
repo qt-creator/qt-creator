@@ -32,16 +32,16 @@
 
 #include "buildconfiguration.h"
 
-#include "toolchain.h"
 #include "buildmanager.h"
 #include "buildsteplist.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
+#include "profilemanager.h"
 #include "target.h"
-#include "toolchainmanager.h"
 #include "project.h"
 
 #include <coreplugin/variablemanager.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -52,7 +52,6 @@ static const char BUILD_STEP_LIST_COUNT[] = "ProjectExplorer.BuildConfiguration.
 static const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildStepList.";
 static const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "ProjectExplorer.BuildConfiguration.ClearSystemEnvironment";
 static const char USER_ENVIRONMENT_CHANGES_KEY[] = "ProjectExplorer.BuildConfiguration.UserEnvironmentChanges";
-static const char TOOLCHAIN_KEY[] = "ProjectExplorer.BuildCOnfiguration.ToolChain";
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -83,7 +82,6 @@ bool BuildConfigMacroExpander::resolveMacro(const QString &name, QString *ret)
 BuildConfiguration::BuildConfiguration(Target *target, const Core::Id id) :
     ProjectConfiguration(target, id),
     m_clearSystemEnvironment(false),
-    m_toolChain(0),
     m_macroExpander(0)
 {
     Q_ASSERT(target);
@@ -96,19 +94,14 @@ BuildConfiguration::BuildConfiguration(Target *target, const Core::Id id) :
     bsl->setDefaultDisplayName(tr("Clean"));
     m_stepLists.append(bsl);
 
-    connect(ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
-            this, SLOT(handleToolChainRemovals(ProjectExplorer::ToolChain*)));
-    connect(ToolChainManager::instance(), SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
-            this, SLOT(handleToolChainAddition(ProjectExplorer::ToolChain*)));
-    connect(ToolChainManager::instance(), SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain*)),
-            this, SLOT(handleToolChainUpdates(ProjectExplorer::ToolChain*)));
+    connect(ProfileManager::instance(), SIGNAL(profileUpdated(ProjectExplorer::Profile*)),
+            this, SLOT(handleProfileUpdate(ProjectExplorer::Profile*)));
 }
 
 BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *source) :
     ProjectConfiguration(target, source),
     m_clearSystemEnvironment(source->m_clearSystemEnvironment),
     m_userEnvironmentChanges(source->m_userEnvironmentChanges),
-    m_toolChain(source->m_toolChain),
     m_macroExpander(0)
 {
     Q_ASSERT(target);
@@ -116,12 +109,8 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
     // otherwise BuildStepFactories might reject to set up a BuildStep for us
     // since we are not yet the derived class!
 
-    connect(ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
-            this, SLOT(handleToolChainRemovals(ProjectExplorer::ToolChain*)));
-    connect(ToolChainManager::instance(), SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
-            this, SLOT(handleToolChainAddition(ProjectExplorer::ToolChain*)));
-    connect(ToolChainManager::instance(), SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain*)),
-            this, SLOT(handleToolChainUpdates(ProjectExplorer::ToolChain*)));
+    connect(ProfileManager::instance(), SIGNAL(profileUpdated(ProjectExplorer::Profile*)),
+            this, SLOT(handleProfileUpdate(ProjectExplorer::Profile*)));
 }
 
 BuildConfiguration::~BuildConfiguration()
@@ -162,8 +151,6 @@ QVariantMap BuildConfiguration::toMap() const
     for (int i = 0; i < m_stepLists.count(); ++i)
         map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(i), m_stepLists.at(i)->toMap());
 
-    map.insert(QLatin1String(TOOLCHAIN_KEY), m_toolChain ? m_toolChain->id() : QLatin1String("INVALID"));
-
     return map;
 }
 
@@ -195,10 +182,6 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
         m_stepLists.append(list);
     }
 
-    const QString id = map.value(QLatin1String(TOOLCHAIN_KEY)).toString();
-    setToolChain(ToolChainManager::instance()->findToolChain(id)); // Do not validate the tool chain as
-                                                                   // the BC is not completely set up yet!
-
     // We currently assume there to be at least a clean and build list!
     QTC_CHECK(knownStepLists().contains(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
     QTC_CHECK(knownStepLists().contains(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)));
@@ -206,50 +189,16 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
     return ProjectConfiguration::fromMap(map);
 }
 
-void BuildConfiguration::handleToolChainRemovals(ProjectExplorer::ToolChain *tc)
+void BuildConfiguration::handleProfileUpdate(ProjectExplorer::Profile *p)
 {
-    if (m_toolChain != tc)
+    if (p != target()->profile())
         return;
-    setToolChain(target()->preferredToolChain(this));
+    emit environmentChanged();
 }
-
-void BuildConfiguration::handleToolChainAddition(ProjectExplorer::ToolChain *tc)
-{
-    Q_UNUSED(tc);
-    if (m_toolChain != 0)
-        return;
-    setToolChain(target()->preferredToolChain(this));
-}
-
-void BuildConfiguration::handleToolChainUpdates(ProjectExplorer::ToolChain *tc)
-{
-    if (tc != m_toolChain)
-        return;
-    QList<ToolChain *> candidates = target()->possibleToolChains(this);
-    if (!candidates.contains(m_toolChain))
-        setToolChain(target()->preferredToolChain(this));
-    else
-        emit toolChainChanged();
-}
-
 
 Target *BuildConfiguration::target() const
 {
     return static_cast<Target *>(parent());
-}
-
-ProjectExplorer::ToolChain *BuildConfiguration::toolChain() const
-{
-    return m_toolChain;
-}
-
-void BuildConfiguration::setToolChain(ProjectExplorer::ToolChain *tc)
-{
-    if (m_toolChain == tc)
-        return;
-    m_toolChain = tc;
-    emit toolChainChanged();
-    emit environmentChanged();
 }
 
 Utils::Environment BuildConfiguration::baseEnvironment() const
@@ -332,5 +281,27 @@ IBuildConfigurationFactory::IBuildConfigurationFactory(QObject *parent) :
 
 IBuildConfigurationFactory::~IBuildConfigurationFactory()
 { }
+
+IBuildConfigurationFactory *IBuildConfigurationFactory::find(Target *parent, const QVariantMap &map)
+{
+    QList<IBuildConfigurationFactory *> factories
+            = ExtensionSystem::PluginManager::instance()->getObjects<IBuildConfigurationFactory>();
+    foreach (IBuildConfigurationFactory *factory, factories) {
+        if (factory->canRestore(parent, map))
+            return factory;
+    }
+    return 0;
+}
+
+IBuildConfigurationFactory * IBuildConfigurationFactory::find(Target *parent)
+{
+    QList<IBuildConfigurationFactory *> factories
+            = ExtensionSystem::PluginManager::instance()->getObjects<IBuildConfigurationFactory>();
+    foreach (IBuildConfigurationFactory *factory, factories) {
+        if (!factory->availableCreationIds(parent).isEmpty())
+            return factory;
+    }
+    return 0;
+}
 
 } // namespace ProjectExplorer

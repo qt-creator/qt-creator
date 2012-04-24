@@ -32,6 +32,7 @@
 
 #include "maddeplugin.h"
 
+#include "debianmanager.h"
 #include "maddedeviceconfigurationfactory.h"
 #include "maemoconstants.h"
 #include "maemodeploystepfactory.h"
@@ -40,10 +41,9 @@
 #include "maemoqemumanager.h"
 #include "maemorunfactories.h"
 #include "maemosettingspages.h"
-#include "maemotoolchain.h"
 #include "qt4maemodeployconfiguration.h"
+#include "rpmmanager.h"
 #include "maemoqtversionfactory.h"
-#include "qt4maemotargetfactory.h"
 
 #include <QtPlugin>
 
@@ -67,15 +67,16 @@ bool MaddePlugin::initialize(const QStringList &arguments, QString *error_messag
 
     addAutoReleasedObject(new MaemoRunControlFactory);
     addAutoReleasedObject(new MaemoRunConfigurationFactory);
-    addAutoReleasedObject(new MaemoToolChainFactory);
     addAutoReleasedObject(new Qt4MaemoDeployConfigurationFactory);
     addAutoReleasedObject(new MaemoPackageCreationFactory);
     addAutoReleasedObject(new MaemoDeployStepFactory);
     addAutoReleasedObject(new MaemoQemuSettingsPage);
     addAutoReleasedObject(new MaemoPublishingWizardFactoryFremantleFree);
-    addAutoReleasedObject(new Qt4MaemoTargetFactory);
     addAutoReleasedObject(new MaemoQtVersionFactory);
     addAutoReleasedObject(new MaddeDeviceConfigurationFactory);
+
+    new DebianManager(this);
+    new RpmManager(this);
 
     return true;
 }

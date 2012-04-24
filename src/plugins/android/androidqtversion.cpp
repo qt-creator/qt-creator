@@ -90,16 +90,6 @@ QList<ProjectExplorer::Abi> AndroidQtVersion::detectQtAbis() const
                                                                  32);
 }
 
-bool AndroidQtVersion::supportsTargetId(const Core::Id id) const
-{
-    return id == Core::Id(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID);
-}
-
-QSet<Core::Id> AndroidQtVersion::supportedTargetIds() const
-{
-    return QSet<Core::Id>() << Core::Id(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID);
-}
-
 QString AndroidQtVersion::description() const
 {
     return QCoreApplication::translate("QtVersion", "Android", "Qt Version is meant for Android");
@@ -114,10 +104,10 @@ Core::FeatureSet AndroidQtVersion::availableFeatures() const
 
 QString AndroidQtVersion::platformName() const
 {
-    return QLatin1String(Constants::ANDROID_PLATFORM);
+    return QLatin1String(QtSupport::Constants::ANDROID_PLATFORM);
 }
 
 QString AndroidQtVersion::platformDisplayName() const
 {
-    return QLatin1String(Constants::ANDROID_PLATFORM_TR);
+    return QLatin1String(QtSupport::Constants::ANDROID_PLATFORM_TR);
 }

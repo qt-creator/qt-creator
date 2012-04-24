@@ -34,6 +34,7 @@
 
 #include "doubletabwidget.h"
 
+#include "profilemanager.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
@@ -128,7 +129,7 @@ PanelsWidget::PanelsWidget(QWidget *parent) :
     // side of the screen.
     m_root->setFixedWidth(900);
     m_root->setContentsMargins(0, 0, 40, 0);
-    
+
     QPalette pal = m_root->palette();
     QColor background = Utils::StyleHelper::mergedColors(
             palette().window().color(), Qt::white, 85);
@@ -262,9 +263,7 @@ ProjectWindow::~ProjectWindow()
 
 void ProjectWindow::extensionsInitialized()
 {
-    foreach (ITargetFactory *fac, ExtensionSystem::PluginManager::getObjects<ITargetFactory>())
-        connect(fac, SIGNAL(canCreateTargetIdsChanged()),
-                this, SLOT(targetFactoriesChanged()));
+    connect(ProfileManager::instance(), SIGNAL(profilesChanged()), this, SLOT(handleProfilesChanges()));
 
     QList<IProjectPanelFactory *> list = ExtensionSystem::PluginManager::getObjects<IProjectPanelFactory>();
     qSort(list.begin(), list.end(), &IPanelFactory::prioritySort);
@@ -286,7 +285,7 @@ void ProjectWindow::projectUpdated(Project *p)
     m_tabWidget->setCurrentIndex(index);
 }
 
-void ProjectWindow::targetFactoriesChanged()
+void ProjectWindow::handleProfilesChanges()
 {
     bool changed = false;
     int index = m_tabWidget->currentIndex();
@@ -309,13 +308,12 @@ bool ProjectWindow::useTargetPage(ProjectExplorer::Project *project)
     if (project->targets().size() > 1)
         return true;
     int count = 0;
-    foreach (ITargetFactory *fac, ExtensionSystem::PluginManager::getObjects<ITargetFactory>()) {
-        foreach (Core::Id targetId, fac->supportedTargetIds()) {
-            if (fac->canCreate(project, targetId))
-                ++count;
-            if (count > 1)
-                return true;
-        }
+    QList<Profile *> profiles = ProfileManager::instance()->profiles();
+    foreach (Profile *p, profiles) {
+        if (project->supportsProfile(p))
+            ++count;
+        if (count > 1)
+            return true;
     }
     return false;
 }

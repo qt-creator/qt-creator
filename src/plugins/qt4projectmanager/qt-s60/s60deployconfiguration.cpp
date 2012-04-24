@@ -34,11 +34,9 @@
 #include "s60deployconfigurationwidget.h"
 #include "s60manager.h"
 #include "qt4project.h"
-#include "qt4target.h"
 #include "qt4nodes.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4buildconfiguration.h"
-#include "qt4symbiantarget.h"
 #include "s60createpackagestep.h"
 #include "s60deploystep.h"
 #include "symbianidevice.h"
@@ -51,8 +49,12 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
+
+#include <qtsupport/qtprofileinformation.h>
 
 #include <QFileInfo>
 
@@ -107,15 +109,17 @@ S60DeployConfiguration::S60DeployConfiguration(Target *target, S60DeployConfigur
 void S60DeployConfiguration::ctor()
 {
     setDefaultDisplayName(defaultDisplayName());
+
+    Qt4Project *project = static_cast<Qt4Project *>(target()->project());
     // TODO disable S60 Deploy Configuration while parsing
     // requires keeping track of the parsing state of the project
-    connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
+    connect(project, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
             this, SLOT(slotTargetInformationChanged(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
-    connect(qt4Target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+    connect(target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
             this, SLOT(updateActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
-    connect(qt4Target(), SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
+    connect(target(), SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
             this, SLOT(updateActiveRunConfiguration(ProjectExplorer::RunConfiguration*)));
-    updateActiveBuildConfiguration(qt4Target()->activeBuildConfiguration());
+    updateActiveBuildConfiguration(target()->activeBuildConfiguration());
 }
 
 S60DeployConfiguration::~S60DeployConfiguration()
@@ -155,7 +159,7 @@ bool S60DeployConfiguration::hasSisPackage(const Qt4ProFileNode &projectNode) co
 
 QStringList S60DeployConfiguration::signedPackages() const
 {
-    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->allProFiles();
+    QList<Qt4ProFileNode *> list = static_cast<Qt4Project *>(target()->project())->allProFiles();
     QStringList result;
     foreach (Qt4ProFileNode *node, list) {
         if (!hasSisPackage(*node))
@@ -183,7 +187,7 @@ SymbianIDevice::ConstPtr S60DeployConfiguration::device() const
 
 QStringList S60DeployConfiguration::packageFileNamesWithTargetInfo() const
 {
-    QList<Qt4ProFileNode *> leafs = qt4Target()->qt4Project()->allProFiles();
+    QList<Qt4ProFileNode *> leafs = static_cast<Qt4Project *>(target()->project())->allProFiles();
     QStringList result;
     foreach (Qt4ProFileNode *qt4ProFileNode, leafs) {
         if (!hasSisPackage(*qt4ProFileNode))
@@ -192,9 +196,10 @@ QStringList S60DeployConfiguration::packageFileNamesWithTargetInfo() const
         if (!ti.valid)
             continue;
         QString baseFileName = ti.buildDir + QLatin1Char('/') + ti.target;
+        ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(target()->profile());
         baseFileName += QLatin1Char('_')
                 + (isDebug() ? QLatin1String("debug") : QLatin1String("release"))
-                + QLatin1Char('-') + S60Manager::platform(qt4Target()->activeBuildConfiguration()->toolChain()) + QLatin1String(".sis");
+                + QLatin1Char('-') + S60Manager::platform(tc) + QLatin1String(".sis");
         result << baseFileName;
     }
     return result;
@@ -202,7 +207,7 @@ QStringList S60DeployConfiguration::packageFileNamesWithTargetInfo() const
 
 QStringList S60DeployConfiguration::packageTemplateFileNames() const
 {
-    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->allProFiles();
+    QList<Qt4ProFileNode *> list = static_cast<Qt4Project *>(target()->project())->allProFiles();
     QStringList result;
     foreach (Qt4ProFileNode *node, list) {
         if (!hasSisPackage(*node))
@@ -216,7 +221,7 @@ QStringList S60DeployConfiguration::packageTemplateFileNames() const
 
 QStringList S60DeployConfiguration::appPackageTemplateFileNames() const
 {
-    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->allProFiles();
+    QList<Qt4ProFileNode *> list = static_cast<Qt4Project *>(target()->project())->allProFiles();
     QStringList result;
     foreach (Qt4ProFileNode *node, list) {
         if (!hasSisPackage(*node))
@@ -258,29 +263,16 @@ bool S60DeployConfiguration::isSigned() const
     return false;
 }
 
-ProjectExplorer::ToolChain *S60DeployConfiguration::toolChain() const
-{
-    if (Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration()))
-        return bc->toolChain();
-    return 0;
-}
-
 bool S60DeployConfiguration::isDebug() const
 {
-    const Qt4BuildConfiguration *qt4bc = qt4Target()->activeQt4BuildConfiguration();
+    const Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+    QTC_ASSERT(qt4bc, return false);
     return (qt4bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild);
 }
 
 QString S60DeployConfiguration::symbianTarget() const
 {
     return isDebug() ? QLatin1String("udeb") : QLatin1String("urel");
-}
-
-const QtSupport::BaseQtVersion *S60DeployConfiguration::qtVersion() const
-{
-    if (const Qt4BuildConfiguration *qt4bc = qt4Target()->activeQt4BuildConfiguration())
-        return qt4bc->qtVersion();
-    return 0;
 }
 
 void S60DeployConfiguration::updateActiveBuildConfiguration(ProjectExplorer::BuildConfiguration *buildConfiguration)
@@ -311,7 +303,7 @@ QVariantMap S60DeployConfiguration::toMap() const
 
 QString S60DeployConfiguration::defaultDisplayName() const
 {
-    QList<Qt4ProFileNode *> list = qt4Target()->qt4Project()->allProFiles();
+    QList<Qt4ProFileNode *> list = static_cast<Qt4Project *>(target()->project())->allProFiles();
     foreach (Qt4ProFileNode *node, list) {
         TargetInformation ti = node->targetInformation();
         if (ti.valid && !ti.buildDir.isEmpty())
@@ -330,11 +322,6 @@ bool S60DeployConfiguration::fromMap(const QVariantMap &map)
 
     setDefaultDisplayName(defaultDisplayName());
     return true;
-}
-
-Qt4SymbianTarget *S60DeployConfiguration::qt4Target() const
-{
-    return static_cast<Qt4SymbianTarget *>(target());
 }
 
 char S60DeployConfiguration::installationDrive() const
@@ -375,8 +362,7 @@ const QList<S60DeployConfiguration::DeviceDrive> &S60DeployConfiguration::availa
 
 S60DeployConfigurationFactory::S60DeployConfigurationFactory(QObject *parent) :
     DeployConfigurationFactory(parent)
-{
-}
+{ setObjectName(QLatin1String("S60DeployConfiguration")); }
 
 S60DeployConfigurationFactory::~S60DeployConfigurationFactory()
 {
@@ -385,11 +371,16 @@ S60DeployConfigurationFactory::~S60DeployConfigurationFactory()
 QList<Core::Id> S60DeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
     QList<Core::Id> result;
-    Qt4SymbianTarget *target = qobject_cast<Qt4SymbianTarget *>(parent);
-    if (!target || target->id() != Core::Id(Constants::S60_DEVICE_TARGET_ID))
+    Qt4Project *project = qobject_cast<Qt4Project *>(parent->project());
+
+    if (!project)
         return result;
 
-    QStringList proFiles = target->qt4Project()->applicationProFilePathes(QLatin1String(S60_DC_PREFIX));
+    ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceProfileInformation::device(parent->profile());
+    if (dev.isNull() || dev->type() != SymbianIDeviceFactory::deviceType())
+        return result;
+
+    QStringList proFiles = project->applicationProFilePathes(QLatin1String(S60_DC_PREFIX));
     foreach (const QString &pf, proFiles)
         result << Core::Id(pf.toUtf8().constData());
     return result;
@@ -407,8 +398,7 @@ DeployConfiguration *S60DeployConfigurationFactory::create(Target *parent, const
     if (!canCreate(parent, id))
         return 0;
 
-    Qt4SymbianTarget *t = static_cast<Qt4SymbianTarget *>(parent);
-    S60DeployConfiguration *dc = new S60DeployConfiguration(t);
+    S60DeployConfiguration *dc = new S60DeployConfiguration(parent);
 
     dc->setDefaultDisplayName(tr("Deploy to Symbian device"));
     dc->stepList()->insertStep(0, new S60CreatePackageStep(dc->stepList()));
@@ -418,11 +408,13 @@ DeployConfiguration *S60DeployConfigurationFactory::create(Target *parent, const
 
 bool S60DeployConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
 {
-    Qt4SymbianTarget * t = qobject_cast<Qt4SymbianTarget *>(parent);
-    if (!t || t->id() != Core::Id(Constants::S60_DEVICE_TARGET_ID)
-            || !QString::fromUtf8(id.name()).startsWith(QLatin1String(S60_DEPLOYCONFIGURATION_ID)))
+    Qt4Project *project = qobject_cast<Qt4Project *>(parent->project());
+    if (!project)
         return false;
-    return true;
+    ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceProfileInformation::device(parent->profile());
+    if (dev.isNull() || dev->type() != SymbianIDeviceFactory::deviceType())
+        return false;
+    return id == Core::Id(S60_DEPLOYCONFIGURATION_ID);
 }
 
 bool S60DeployConfigurationFactory::canRestore(Target *parent, const QVariantMap& map) const
@@ -434,8 +426,7 @@ DeployConfiguration *S60DeployConfigurationFactory::restore(Target *parent, cons
 {
     if (!canRestore(parent, map))
         return 0;
-    Qt4SymbianTarget *t = static_cast<Qt4SymbianTarget *>(parent);
-    S60DeployConfiguration *dc = new S60DeployConfiguration(t);
+    S60DeployConfiguration *dc = new S60DeployConfiguration(parent);
     if (dc->fromMap(map))
         return dc;
 
@@ -445,7 +436,7 @@ DeployConfiguration *S60DeployConfigurationFactory::restore(Target *parent, cons
 
 bool S60DeployConfigurationFactory::canClone(Target *parent, DeployConfiguration *source) const
 {
-    if (!qobject_cast<Qt4SymbianTarget *>(parent))
+    if (!qobject_cast<Qt4Project *>(parent->project()))
         return false;
     return source->id() == Core::Id(S60_DEPLOYCONFIGURATION_ID);
 }
@@ -454,7 +445,6 @@ DeployConfiguration *S60DeployConfigurationFactory::clone(Target *parent, Deploy
 {
     if (!canClone(parent, source))
         return 0;
-    Qt4SymbianTarget *t = static_cast<Qt4SymbianTarget *>(parent);
-    S60DeployConfiguration * old = static_cast<S60DeployConfiguration *>(source);
-    return new S60DeployConfiguration(t, old);
+    S60DeployConfiguration *old = static_cast<S60DeployConfiguration *>(source);
+    return new S60DeployConfiguration(parent, old);
 }

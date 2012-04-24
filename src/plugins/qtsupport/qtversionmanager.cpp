@@ -32,6 +32,7 @@
 
 #include "qtversionmanager.h"
 
+#include "qtprofileinformation.h"
 #include "qtversionfactory.h"
 
 #include "qtsupportconstants.h"
@@ -77,7 +78,8 @@ static const char OLDQTVERSION_DATA_KEY[] = "QtVersion.Old.";
 static const char OLDQTVERSION_SDKSOURCE[] = "QtVersion.Old.SdkSource";
 static const char OLDQTVERSION_PATH[] = "QtVersion.Old.Path";
 static const char QTVERSION_FILE_VERSION_KEY[] = "Version";
-static const char QTVERSION_FILENAME[] = "/qtversion.xml";
+static const char QTVERSION_FILENAME[] = "/qtcreator/qtversion.xml";
+static const char QTVERSION_SDK_FILENAME[] = "/qtversion.xml";
 
 // legacy settings
 static const char QtVersionsSectionName[] = "QtVersions";
@@ -100,14 +102,16 @@ static T *createToolChain(const QString &id)
 
 static QString globalSettingsFileName()
 {
-    return QFileInfo(ExtensionSystem::PluginManager::globalSettings()->fileName()).absolutePath()
-            + QLatin1String(QTVERSION_FILENAME);
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    return QFileInfo(pm->globalSettings()->fileName()).absolutePath()
+            + QLatin1String(QTVERSION_SDK_FILENAME);
 }
 
-static QString settingsFileName()
+static QString settingsFileName(const QString &path)
 {
-    QFileInfo settingsLocation(ExtensionSystem::PluginManager::settings()->fileName());
-    return settingsLocation.absolutePath() + QLatin1String(QTVERSION_FILENAME);
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    QFileInfo settingsLocation(pm->settings()->fileName());
+    return settingsLocation.absolutePath() + path;
 }
 
 
@@ -183,7 +187,11 @@ bool QtVersionManager::restoreQtVersions()
     QList<QtVersionFactory *> factories = ExtensionSystem::PluginManager::getObjects<QtVersionFactory>();
 
     Utils::PersistentSettingsReader reader;
-    if (!reader.load(settingsFileName()))
+    QString filename = settingsFileName(QLatin1String(QTVERSION_FILENAME));
+    // Read Qt Creator 2.5 qtversions.xml once:
+    if (!QFileInfo(filename).exists())
+        filename = settingsFileName(QLatin1String(QTVERSION_SDK_FILENAME));
+    if (!reader.load(filename))
         return false;
     QVariantMap data = reader.restoreValues();
 
@@ -222,7 +230,7 @@ bool QtVersionManager::restoreQtVersions()
         if (!restored)
             qWarning("Warning: Unable to restore Qt version '%s' stored in %s.",
                      qPrintable(type),
-                     qPrintable(QDir::toNativeSeparators(settingsFileName())));
+                     qPrintable(QDir::toNativeSeparators(filename)));
     }
     ++m_idcount;
     return true;
@@ -402,7 +410,7 @@ void QtVersionManager::saveQtVersions()
 
     }
     writer.saveValue(QLatin1String(QTVERSION_COUNT_KEY), count);
-    writer.save(settingsFileName(), QLatin1String("QtCreatorQtVersions"), Core::ICore::mainWindow());
+    writer.save(settingsFileName(QLatin1String(QTVERSION_FILENAME)), QLatin1String("QtCreatorQtVersions"), Core::ICore::mainWindow());
 }
 
 void QtVersionManager::findSystemQt()
@@ -497,37 +505,6 @@ void QtVersionManager::removeVersion(BaseQtVersion *version)
     emit qtVersionsChanged(QList<int>(), QList<int>() << version->uniqueId(), QList<int>());
     saveQtVersions();
     delete version;
-}
-
-bool QtVersionManager::supportsTargetId(Core::Id id) const
-{
-    QList<BaseQtVersion *> versions = QtVersionManager::instance()->versionsForTargetId(id);
-    foreach (BaseQtVersion *v, versions)
-        if (v->isValid() && v->toolChainAvailable(id))
-            return true;
-    return false;
-}
-
-QList<BaseQtVersion *> QtVersionManager::versionsForTargetId(Core::Id id,
-                                                             const QtVersionNumber &minimumQtVersion,
-                                                             const QtVersionNumber &maximumQtVersion) const
-{
-    QList<BaseQtVersion *> targetVersions;
-    foreach (BaseQtVersion *version, m_versions) {
-        if (version->supportsTargetId(id) && version->qtVersion() >= minimumQtVersion
-                && version->qtVersion() <= maximumQtVersion)
-            targetVersions.append(version);
-    }
-    qSort(targetVersions.begin(), targetVersions.end(), &qtVersionNumberCompare);
-    return targetVersions;
-}
-
-QSet<Core::Id> QtVersionManager::supportedTargetIds() const
-{
-    QSet<Core::Id> results;
-    foreach (BaseQtVersion *version, m_versions)
-        results.unite(version->supportedTargetIds());
-    return results;
 }
 
 void QtVersionManager::updateDocumentation()

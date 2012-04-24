@@ -67,7 +67,7 @@ public:
 
     void setQtVersionId(int);
     int qtVersionId() const;
-    QString legacyId() const;
+
 protected:
     virtual QList<ProjectExplorer::Abi> detectSupportedAbis() const;
 

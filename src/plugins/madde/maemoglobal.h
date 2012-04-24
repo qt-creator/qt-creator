@@ -48,7 +48,10 @@ QT_END_NAMESPACE
 
 namespace QtSupport { class BaseQtVersion; }
 namespace RemoteLinux { class LinuxDeviceConfiguration; }
-namespace ProjectExplorer { class Target; }
+namespace ProjectExplorer {
+class Profile;
+class Target;
+} // namespace ProjectExplorer
 
 namespace Madde {
 namespace Internal {
@@ -84,10 +87,8 @@ class MaemoGlobal
 public:
     enum PackagingSystem { Dpkg, Rpm, Tar };
 
-    static bool isMaemoTargetId(const Core::Id id);
-    static bool isFremantleTargetId(const Core::Id id);
-    static bool isHarmattanTargetId(const Core::Id id);
-    static bool isMeegoTargetId(const Core::Id id);
+    static bool hasMaemoDevice(const ProjectExplorer::Profile *p);
+    static bool supportsMaemoDevice(const ProjectExplorer::Profile *p);
     static bool isValidMaemo5QtVersion(const QString &qmakePath);
     static bool isValidHarmattanQtVersion(const QString &qmakePath);
     static bool isValidMeegoQtVersion(const QString &qmakePath);

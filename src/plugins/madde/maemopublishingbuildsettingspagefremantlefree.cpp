@@ -41,6 +41,8 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtsupportconstants.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -56,11 +58,13 @@ MaemoPublishingBuildSettingsPageFremantleFree::MaemoPublishingBuildSettingsPageF
     ui(new Ui::MaemoPublishingWizardPageFremantleFree)
 {
     ui->setupUi(this);
+
     collectBuildConfigurations(project);
     QTC_ASSERT(!m_buildConfigs.isEmpty(), return);
-    foreach (const Qt4BuildConfiguration * const bc, m_buildConfigs) {
+
+    foreach (const Qt4BuildConfiguration *const bc, m_buildConfigs)
         ui->buildConfigComboBox->addItem(bc->displayName());
-    }
+
     ui->buildConfigComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContentsOnFirstShow);
     ui->buildConfigComboBox->setCurrentIndex(0);
     connect(ui->skipUploadCheckBox, SIGNAL(toggled(bool)),
@@ -74,22 +78,17 @@ MaemoPublishingBuildSettingsPageFremantleFree::~MaemoPublishingBuildSettingsPage
 
 void MaemoPublishingBuildSettingsPageFremantleFree::collectBuildConfigurations(const Project *project)
 {
-    foreach (const Target *const target, project->targets()) {
-        if (target->id() != Core::Id(Constants::MAEMO5_DEVICE_TARGET_ID))
-            continue;
-        foreach (BuildConfiguration * const bc, target->buildConfigurations()) {
-            Qt4BuildConfiguration * const qt4Bc
-                = qobject_cast<Qt4BuildConfiguration *>(bc);
-            if (!qt4Bc)
-                continue;
+    m_buildConfigs.clear();
 
-            QtSupport::BaseQtVersion *lqt = qt4Bc->qtVersion();
-            if (!lqt)
-                continue;
-            if (MaemoGlobal::deviceType(lqt->qmakeCommand().toString()) == Core::Id(Maemo5OsType))
+    foreach (const Target *const target, project->targets()) {
+        QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target->profile());
+        if (!version || version->platformName() != QLatin1String(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM))
+            continue;
+        foreach (BuildConfiguration *const bc, target->buildConfigurations()) {
+            Qt4BuildConfiguration *const qt4Bc = qobject_cast<Qt4BuildConfiguration *>(bc);
+            if (qt4Bc)
                 m_buildConfigs << qt4Bc;
         }
-        break;
     }
 }
 

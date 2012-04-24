@@ -47,9 +47,10 @@ class AbstractMacroExpander;
 namespace ProjectExplorer {
 
 class BuildConfiguration;
+class BuildConfigWidget;
 class BuildStepList;
+class Profile;
 class Target;
-class ToolChain;
 class IOutputParser;
 
 class PROJECTEXPLORER_EXPORT BuildConfiguration : public ProjectConfiguration
@@ -61,6 +62,8 @@ public:
     virtual ~BuildConfiguration();
 
     virtual QString buildDirectory() const = 0;
+
+    virtual BuildConfigWidget *createConfigWidget() = 0;
 
     // Maybe the BuildConfiguration is not the best place for the environment
     virtual Utils::Environment baseEnvironment() const;
@@ -90,9 +93,6 @@ public:
 
     Utils::AbstractMacroExpander *macroExpander();
 
-    virtual ProjectExplorer::ToolChain *toolChain() const;
-    virtual void setToolChain(ProjectExplorer::ToolChain *tc);
-
     enum BuildType {
         Unknown,
         Debug,
@@ -104,7 +104,10 @@ signals:
     void environmentChanged();
     void buildDirectoryChanged();
     void enabledChanged();
-    void toolChainChanged();
+    /// Emitted whenever the build system needs to be (re-) evaluated
+    void requestBuildSystemEvaluation();
+    /// Emitter whenever the build directory was successfully initialized (configured).
+    void buildDirectoryInitialized();
 
 protected:
     BuildConfiguration(Target *target, const Core::Id id);
@@ -115,15 +118,12 @@ protected:
     virtual bool fromMap(const QVariantMap &map);
 
 private slots:
-    void handleToolChainRemovals(ProjectExplorer::ToolChain *tc);
-    void handleToolChainAddition(ProjectExplorer::ToolChain *tc);
-    void handleToolChainUpdates(ProjectExplorer::ToolChain*);
+    void handleProfileUpdate(ProjectExplorer::Profile *p);
 
 private:
     bool m_clearSystemEnvironment;
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
     QList<BuildStepList *> m_stepLists;
-    ToolChain *m_toolChain;
     Utils::AbstractMacroExpander *m_macroExpander;
 };
 
@@ -137,17 +137,20 @@ public:
     virtual ~IBuildConfigurationFactory();
 
     // used to show the list of possible additons to a target, returns a list of types
-    virtual QList<Core::Id> availableCreationIds(Target *parent) const = 0;
+    virtual QList<Core::Id> availableCreationIds(const Target *parent) const = 0;
     // used to translate the types to names to display to the user
     virtual QString displayNameForId(const Core::Id id) const = 0;
 
-    virtual bool canCreate(Target *parent, const Core::Id id) const = 0;
-    virtual BuildConfiguration *create(Target *parent, const Core::Id id) = 0;
+    virtual bool canCreate(const Target *parent, const Core::Id id) const = 0;
+    virtual BuildConfiguration *create(Target *parent, const Core::Id id, const QString &name = QString()) = 0;
     // used to recreate the runConfigurations when restoring settings
-    virtual bool canRestore(Target *parent, const QVariantMap &map) const = 0;
+    virtual bool canRestore(const Target *parent, const QVariantMap &map) const = 0;
     virtual BuildConfiguration *restore(Target *parent, const QVariantMap &map) = 0;
-    virtual bool canClone(Target *parent, BuildConfiguration *product) const = 0;
+    virtual bool canClone(const Target *parent, BuildConfiguration *product) const = 0;
     virtual BuildConfiguration *clone(Target *parent, BuildConfiguration *product) = 0;
+
+    static IBuildConfigurationFactory *find(Target *parent, const QVariantMap &map);
+    static IBuildConfigurationFactory *find(Target *parent);
 
 signals:
     void availableCreationIdsChanged();

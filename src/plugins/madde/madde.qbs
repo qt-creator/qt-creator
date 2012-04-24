@@ -116,17 +116,14 @@ QtcPlugin {
         "maemosettingspages.h",
         "maemosshrunner.cpp",
         "maemosshrunner.h",
-        "maemotoolchain.cpp",
-        "maemotoolchain.h",
         "qt-maemo.qrc",
         "qt4maemodeployconfiguration.cpp",
         "qt4maemodeployconfiguration.h",
-        "qt4maemotarget.cpp",
-        "qt4maemotarget.h",
-        "qt4maemotargetfactory.cpp",
-        "qt4maemotargetfactory.h",
         "maddedevice.cpp",
-        "maddedevice.h"
+        "maddedevice.h",
+        "debianmanager.h",
+        "debianmanager.cpp",
+        "rpmmanager.h",
+        "rpmmanager.cpp"
     ]
 }
-

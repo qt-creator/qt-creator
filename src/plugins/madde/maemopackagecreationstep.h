@@ -34,6 +34,7 @@
 
 #include <remotelinux/abstractpackagingstep.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 
 QT_BEGIN_NAMESPACE
 class QDateTime;
@@ -42,10 +43,7 @@ class QProcess;
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
-
-namespace RemoteLinux {
-class RemoteLinuxDeployConfiguration;
-}
+namespace RemoteLinux { class RemoteLinuxDeployConfiguration; }
 
 namespace Madde {
 namespace Internal {
@@ -67,9 +65,6 @@ public:
         const QString &workingDir);
 
     const Qt4ProjectManager::Qt4BuildConfiguration *qt4BuildConfiguration() const;
-    AbstractQt4MaemoTarget *maemoTarget() const;
-    AbstractDebBasedQt4MaemoTarget *debBasedMaemoTarget() const;
-    AbstractRpmBasedQt4MaemoTarget *rpmBasedMaemoTarget() const;
 
     static const QLatin1String DefaultVersionNumber;
 
@@ -95,7 +90,6 @@ private:
     virtual bool createPackage(QProcess *buildProc, const QFutureInterface<bool> &fi) = 0;
     virtual bool isMetaDataNewerThan(const QDateTime &packageDate) const = 0;
 
-    static QString nativePath(const QFile &file);
     bool isPackagingNeeded() const;
 
     const Qt4ProjectManager::Qt4BuildConfiguration *m_lastBuildConfig;
@@ -156,8 +150,8 @@ private:
     void ctor();
     QString rpmBuildDir() const;
 
-    QString m_specFile;
-    QString m_packageFileName;
+    Utils::FileName m_specFile;
+    Utils::FileName m_packageFileName;
 
     static const Core::Id CreatePackageId;
 };

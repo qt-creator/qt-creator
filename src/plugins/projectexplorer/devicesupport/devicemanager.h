@@ -101,7 +101,7 @@ private:
     IDevice::Ptr fromRawPointer(IDevice *device) const;
     IDevice::ConstPtr fromRawPointer(const IDevice *device) const;
 
-    static QString settingsFilePath();
+    static QString settingsFilePath(const QString &extension);
     static void copy(const DeviceManager *source, DeviceManager *target, bool deep);
 
     Internal::DeviceManagerPrivate * const d;

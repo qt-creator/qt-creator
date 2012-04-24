@@ -31,7 +31,7 @@
 **************************************************************************/
 
 #include "androidpackageinstallationstep.h"
-#include "androidtarget.h"
+#include "androidmanager.h"
 
 #include <QFileInfo>
 #include <QDir>
@@ -54,25 +54,13 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::
 }
 
 AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bc, AndroidPackageInstallationStep *other): MakeStep(bc, other)
-{
-    const QString name = stepDisplayName();
-    setDefaultDisplayName(name);
-    setDisplayName(name);
-}
+{ }
 
 AndroidPackageInstallationStep::~AndroidPackageInstallationStep()
-{
-}
+{ }
 
 bool AndroidPackageInstallationStep::init()
 {
-    AndroidTarget *androidTarget = qobject_cast<AndroidTarget *>(target());
-    if (!androidTarget) {
-        emit addOutput(tr("Current target is not an Android target"), BuildStep::MessageOutput);
-        return false;
-    }
-
-    setUserArguments(QString::fromLatin1("INSTALL_ROOT=\"%1\" install").arg(QDir::toNativeSeparators(androidTarget->androidDirPath())));
-
+    setUserArguments(QString::fromLatin1("INSTALL_ROOT=\"%1\" install").arg(AndroidManager::dirPath(target()).toUserOutput()));
     return MakeStep::init();
 }

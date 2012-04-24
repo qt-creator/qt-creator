@@ -72,6 +72,7 @@ class AndroidSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
+    // Todo: This would be so much simpler if it just used Utils::PathChooser!!!
     AndroidSettingsWidget(QWidget *parent);
     ~AndroidSettingsWidget();
 
@@ -105,8 +106,8 @@ private slots:
 
 private:
     void initGui();
-    bool checkSDK(const QString &location);
-    bool checkNDK(const QString &location);
+    bool checkSDK(const Utils::FileName &location);
+    bool checkNDK(const Utils::FileName &location);
     void fillToolchainVersions();
 
     Ui_AndroidSettingsWidget *m_ui;

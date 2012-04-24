@@ -181,7 +181,6 @@ QList<ProjectExplorer::ToolChain *> GcceToolChainFactory::autoDetect()
             GcceToolChain *tc = new GcceToolChain(false);
             tc->setCompilerCommand(Utils::FileName(fi));
             tc->setDisplayName(tr("GCCE from Qt version"));
-            tc->setDebuggerCommand(ProjectExplorer::ToolChainManager::instance()->defaultDebugger(tc->targetAbi()));
             result.append(tc);
         }
     }
@@ -195,7 +194,6 @@ QList<ProjectExplorer::ToolChain *> GcceToolChainFactory::autoDetect()
         GcceToolChain *tc = new GcceToolChain(true);
         tc->setCompilerCommand(fullPath);
         tc->setDisplayName(tr("GCCE (%1)").arg(version));
-        tc->setDebuggerCommand(ProjectExplorer::ToolChainManager::instance()->defaultDebugger(tc->targetAbi()));
         if (tc->targetAbi() == ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture,
                                                     ProjectExplorer::Abi::SymbianOS,
                                                     ProjectExplorer::Abi::SymbianDeviceFlavor,

@@ -71,6 +71,7 @@ private slots:
     void removedTarget(ProjectExplorer::Target *target);
     void activeTargetChanged(ProjectExplorer::Target *target);
     void updateTargetAddAndRemoveButtons();
+    void renameTarget();
 
 private:
     Target *m_currentTarget;

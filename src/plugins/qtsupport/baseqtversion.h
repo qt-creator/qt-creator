@@ -51,6 +51,8 @@ class Environment;
 
 namespace ProjectExplorer {
 class IOutputParser;
+class Profile;
+class ToolChain;
 } // namespace ProjectExplorer
 
 QT_BEGIN_NAMESPACE
@@ -121,19 +123,17 @@ public:
     virtual QString invalidReason() const;
     virtual QString warningReason() const;
 
-    virtual bool toolChainAvailable(const Core::Id id) const;
+    virtual ProjectExplorer::ToolChain *preferredToolChain(const Utils::FileName &ms) const;
 
     virtual QString description() const = 0;
     virtual QString toHtml(bool verbose) const;
 
-    virtual bool supportsTargetId(const Core::Id id) const = 0;
-    virtual QSet<Core::Id> supportedTargetIds() const = 0;
     QList<ProjectExplorer::Abi> qtAbis() const;
     virtual QList<ProjectExplorer::Abi> detectQtAbis() const = 0;
 
     // Returns the PREFIX, BINPREFIX, DOCPREFIX and similar information
     virtual QHash<QString,QString> versionInfo() const;
-    virtual void addToEnvironment(Utils::Environment &env) const;
+    virtual void addToEnvironment(const ProjectExplorer::Profile *p, Utils::Environment &env) const;
 
     virtual Utils::FileName sourcePath() const;
     // used by QtUiCodeModelSupport
@@ -154,12 +154,11 @@ public:
     bool hasDemos() const;
     QString demosPath() const;
 
-    virtual QList<ProjectExplorer::HeaderPath> systemHeaderPathes() const;
+    virtual QList<ProjectExplorer::HeaderPath> systemHeaderPathes(const ProjectExplorer::Profile *p) const;
     virtual QString frameworkInstallPath() const;
 
     // former local functions
     Utils::FileName qmakeCommand() const;
-    virtual QString systemRoot() const;
 
     /// @returns the name of the mkspec
     Utils::FileName mkspec() const;
@@ -185,7 +184,7 @@ public:
     /// Check a .pro-file/Qt version combination on possible issues
     /// @return a list of tasks, ordered on severity (errors first, then
     ///         warnings and finally info items.
-    QList<ProjectExplorer::Task> reportIssues(const QString &proFile, const QString &buildDir);
+    QList<ProjectExplorer::Task> reportIssues(const QString &proFile, const QString &buildDir) const;
 
     virtual ProjectExplorer::IOutputParser *createOutputParser() const;
 
@@ -221,11 +220,13 @@ public:
     virtual QString platformDisplayName() const;
     virtual bool supportsPlatform(const QString &platformName) const;
 
+    virtual QList<ProjectExplorer::Task> validateProfile(const ProjectExplorer::Profile *p);
+
 protected:
     BaseQtVersion();
     BaseQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
 
-    virtual QList<ProjectExplorer::Task> reportIssuesImpl(const QString &proFile, const QString &buildDir);
+    virtual QList<ProjectExplorer::Task> reportIssuesImpl(const QString &proFile, const QString &buildDir) const;
 
     // helper function for desktop and simulator to figure out the supported abis based on the libraries
     static Utils::FileName qtCorePath(const QHash<QString,QString> &versionInfo, const QString &versionString);

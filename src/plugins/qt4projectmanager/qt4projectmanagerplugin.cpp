@@ -36,7 +36,6 @@
 #include "qt4nodes.h"
 #include "qmakestep.h"
 #include "makestep.h"
-#include "qt4target.h"
 #include "qt4buildconfiguration.h"
 #include "wizards/consoleappwizard.h"
 #include "wizards/guiappwizard.h"
@@ -56,14 +55,12 @@
 #include "externaleditors.h"
 #include "profilecompletionassist.h"
 #include "qt-s60/s60manager.h"
-#include "qt-desktop/qt4desktoptargetfactory.h"
-#include "qt-desktop/qt4simulatortargetfactory.h"
 #include "qt-desktop/qt4runconfiguration.h"
 #include "qt-desktop/desktopqtversionfactory.h"
 #include "qt-desktop/simulatorqtversionfactory.h"
 #include "winceqtversionfactory.h"
 #include "unconfiguredprojectpanel.h"
-#include "unconfiguredsettingsoptionpage.h"
+#include "qmakeprofileinformation.h"
 
 #include <coreplugin/id.h>
 #include <coreplugin/icore.h>
@@ -71,9 +68,11 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/profilemanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/target.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -133,6 +132,9 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
                   | TextEditor::TextEditorActionHandler::JumpToFileUnderCursor);
 
     m_proFileEditorFactory = new ProFileEditorFactory(m_qt4ProjectManager, editorHandler);
+
+    ProjectExplorer::ProfileManager::instance()->registerProfileInformation(new QmakeProfileInformation);
+
     addObject(m_proFileEditorFactory);
 
     addAutoReleasedObject(new EmptyProjectWizard);
@@ -151,8 +153,8 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new QMakeStepFactory);
     addAutoReleasedObject(new MakeStepFactory);
 
+    addAutoReleasedObject(new Qt4BuildConfigurationFactory);
     addAutoReleasedObject(new Qt4RunConfigurationFactory);
-    addAutoReleasedObject(new UnConfiguredSettingsOptionPage);
 
 #ifdef Q_OS_MAC
     addAutoReleasedObject(new MacDesignerExternalEditor);
@@ -162,9 +164,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new LinguistExternalEditor);
 
     addAutoReleasedObject(new S60Manager);
-
-    addAutoReleasedObject(new Qt4DesktopTargetFactory);
-    addAutoReleasedObject(new Qt4SimulatorTargetFactory);
 
     addAutoReleasedObject(new DesktopQtVersionFactory);
     addAutoReleasedObject(new SimulatorQtVersionFactory);
@@ -308,15 +307,10 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     return true;
 }
 
-bool Qt4ProjectManagerPlugin::delayedInitialize()
-{
-    S60Manager::instance()->delayedInitialize();
-    return true;
-}
-
 void Qt4ProjectManagerPlugin::extensionsInitialized()
 {
     m_qt4ProjectManager->init();
+    S60Manager::instance()->extensionsInitialize();
 }
 
 void Qt4ProjectManagerPlugin::startupProjectChanged()
@@ -391,7 +385,7 @@ void Qt4ProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, 
     m_buildFileAction->setParameter(buildFilePossible ? QFileInfo(fileNode->path()).fileName() : QString());
 
     Qt4BuildConfiguration *buildConfiguration = (qt4Project && qt4Project->activeTarget()) ?
-            qt4Project->activeTarget()->activeQt4BuildConfiguration() : 0;
+                qobject_cast<Qt4BuildConfiguration *>(qt4Project->activeTarget()->activeBuildConfiguration()) : 0;
     bool isProjectNode = qt4Project && proFileNode && buildConfiguration;
     bool isBuilding = m_projectExplorer->buildManager()->isBuilding(project);
     bool enabled = subProjectActionsVisible && !isBuilding;

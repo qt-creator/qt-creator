@@ -40,13 +40,12 @@
 #include "codamessage.h"
 
 #include "qt4buildconfiguration.h"
-#include "qt4symbiantarget.h"
-#include "qt4target.h"
 #include "symbiandevicemanager.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 
 #include <symbianutils/symbiandevicemanager.h>
 

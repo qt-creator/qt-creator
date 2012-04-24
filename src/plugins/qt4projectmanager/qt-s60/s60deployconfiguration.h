@@ -71,9 +71,6 @@ public:
 
     ProjectExplorer::DeployConfigurationWidget *configurationWidget() const;
 
-    const QtSupport::BaseQtVersion *qtVersion() const;
-    ProjectExplorer::ToolChain *toolChain() const;
-
     char installationDrive() const;
     void setInstallationDrive(char drive);
 
@@ -118,7 +115,6 @@ private:
     bool isStaticLibrary(const Qt4ProFileNode &projectNode) const;
     bool isApplication(const Qt4ProFileNode &projectNode) const;
     bool hasSisPackage(const Qt4ProFileNode &projectNode) const;
-    Internal::Qt4SymbianTarget *qt4Target() const;
 
 private:
     ProjectExplorer::BuildConfiguration *m_activeBuildConfiguration;

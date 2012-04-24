@@ -59,21 +59,17 @@ public:
     explicit QmlProjectRunConfigurationWidget(QmlProjectRunConfiguration *rc);
 
 public slots:
-    void updateQtVersionComboBox();
     void userEnvironmentChangesChanged();
     void updateFileComboBox();
 
 private slots:
     void setMainScript(int index);
-    void onQtVersionSelectionChanged();
     void onViewerArgsChanged();
     void userChangesChanged();
-    void manageQtVersions();
 
 private:
     QmlProjectRunConfiguration *m_runConfiguration;
 
-    QComboBox *m_qtVersionComboBox;
     QComboBox *m_fileListCombo;
     QStandardItemModel *m_fileListModel;
 

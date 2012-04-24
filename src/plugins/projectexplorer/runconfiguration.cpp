@@ -38,6 +38,7 @@
 #include "abi.h"
 #include "buildconfiguration.h"
 #include "projectexplorerconstants.h"
+#include "profileinformation.h"
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
@@ -65,91 +66,6 @@ const char USE_QML_DEBUGGER_KEY[] = "RunConfiguration.UseQmlDebugger";
 const char USE_QML_DEBUGGER_AUTO_KEY[] = "RunConfiguration.UseQmlDebuggerAuto";
 const char QML_DEBUG_SERVER_PORT_KEY[] = "RunConfiguration.QmlDebugServerPort";
 const char USE_MULTIPROCESS_KEY[] = "RunConfiguration.UseMultiProcess";
-
-// Function objects:
-
-class RunConfigurationFactoryMatcher
-{
-public:
-    RunConfigurationFactoryMatcher(Target * target) : m_target(target)
-    { }
-
-    virtual ~RunConfigurationFactoryMatcher() { }
-
-    virtual bool operator()(IRunConfigurationFactory *) const = 0;
-
-    Target *target() const
-    {
-        return m_target;
-    }
-
-private:
-    Target *m_target;
-};
-
-class CreateMatcher : public RunConfigurationFactoryMatcher
-{
-public:
-    CreateMatcher(Target *target, const Core::Id id) :
-        RunConfigurationFactoryMatcher(target),
-        m_id(id)
-    { }
-
-    bool operator()(IRunConfigurationFactory *factory) const
-    {
-        return factory->canCreate(target(), m_id);
-    }
-
-private:
-    const Core::Id m_id;
-};
-
-class CloneMatcher : public RunConfigurationFactoryMatcher
-{
-public:
-    CloneMatcher(Target *target, RunConfiguration *source) :
-        RunConfigurationFactoryMatcher(target),
-        m_source(source)
-    { }
-
-    bool operator()(IRunConfigurationFactory *factory) const
-    {
-        return factory->canClone(target(), m_source);
-    }
-
-private:
-    RunConfiguration *m_source;
-};
-
-class RestoreMatcher : public RunConfigurationFactoryMatcher
-{
-public:
-    RestoreMatcher(Target *target, const QVariantMap &map) :
-        RunConfigurationFactoryMatcher(target),
-        m_map(map)
-    { }
-
-    bool operator()(IRunConfigurationFactory *factory) const
-    {
-        return factory->canRestore(target(), m_map);
-    }
-
-private:
-    QVariantMap m_map;
-};
-
-// Helper methods:
-
-IRunConfigurationFactory *findRunConfigurationFactory(RunConfigurationFactoryMatcher &matcher)
-{
-    QList<IRunConfigurationFactory *> factories
-        = ExtensionSystem::PluginManager::getObjects<IRunConfigurationFactory>();
-    foreach (IRunConfigurationFactory *factory, factories) {
-        if (matcher(factory))
-            return factory;
-    }
-    return 0;
-}
 
 } // namespace
 
@@ -404,6 +320,11 @@ QString RunConfiguration::disabledReason() const
     return QString();
 }
 
+bool RunConfiguration::isConfigured() const
+{
+    return true;
+}
+
 /*!
     \fn virtual QWidget *ProjectExplorer::RunConfiguration::createConfigurationWidget()
 
@@ -439,7 +360,7 @@ ProjectExplorer::Abi RunConfiguration::abi() const
     BuildConfiguration *bc = target()->activeBuildConfiguration();
     if (!bc)
         return Abi::hostAbi();
-    ToolChain *tc = bc->toolChain();
+    ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(target()->profile());
     if (!tc)
         return Abi::hostAbi();
     return tc->targetAbi();
@@ -516,22 +437,27 @@ IRunConfigurationFactory::~IRunConfigurationFactory()
 {
 }
 
-IRunConfigurationFactory *IRunConfigurationFactory::createFactory(Target *parent, const Core::Id id)
+IRunConfigurationFactory *IRunConfigurationFactory::find(Target *parent, const QVariantMap &map)
 {
-    CreateMatcher matcher(parent, id);
-    return findRunConfigurationFactory(matcher);
+    QList<IRunConfigurationFactory *> factories
+            = ExtensionSystem::PluginManager::instance()->getObjects<IRunConfigurationFactory>();
+    foreach (IRunConfigurationFactory *factory, factories) {
+        if (factory->canRestore(parent, map))
+            return factory;
+    }
+    return 0;
 }
 
-IRunConfigurationFactory *IRunConfigurationFactory::cloneFactory(Target *parent, RunConfiguration *source)
+QList<IRunConfigurationFactory *> IRunConfigurationFactory::find(Target *parent)
 {
-    CloneMatcher matcher(parent, source);
-    return findRunConfigurationFactory(matcher);
-}
-
-IRunConfigurationFactory *IRunConfigurationFactory::restoreFactory(Target *parent, const QVariantMap &map)
-{
-    RestoreMatcher matcher(parent, map);
-    return findRunConfigurationFactory(matcher);
+    QList<IRunConfigurationFactory *> factories
+            = ExtensionSystem::PluginManager::instance()->getObjects<IRunConfigurationFactory>();
+    QList<IRunConfigurationFactory *> result;
+    foreach (IRunConfigurationFactory *factory, factories) {
+        if (!factory->availableCreationIds(parent).isEmpty())
+            result << factory;
+    }
+    return result;
 }
 
 /*!

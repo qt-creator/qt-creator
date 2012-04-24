@@ -35,6 +35,9 @@
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxusedportsgatherer.h"
 
+#include <projectexplorer/target.h>
+#include <projectexplorer/profileinformation.h>
+
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <ssh/sshconnection.h>
@@ -63,16 +66,16 @@ class AbstractRemoteLinuxApplicationRunnerPrivate
 {
 public:
     AbstractRemoteLinuxApplicationRunnerPrivate(const RemoteLinuxRunConfiguration *runConfig)
-        : devConfig(runConfig->deviceConfig()),
+        : devConfig(ProjectExplorer::DeviceProfileInformation::device(runConfig->target()->profile())
+                    .dynamicCast<const LinuxDeviceConfiguration>()),
           remoteExecutable(runConfig->remoteExecutableFilePath()),
           appArguments(runConfig->arguments()),
           commandPrefix(runConfig->commandPrefix()),
-          initialFreePorts(runConfig->freePorts()),
+          initialFreePorts(devConfig->freePorts()),
           connection(0),
           stopRequested(false),
           state(Inactive)
-    {
-    }
+    { }
 
     RemoteLinuxUsedPortsGatherer portsGatherer;
     LinuxDeviceConfiguration::ConstPtr devConfig;

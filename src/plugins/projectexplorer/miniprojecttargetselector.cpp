@@ -47,6 +47,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/profilemanager.h>
 #include <projectexplorer/projectmodels.h>
 #include <projectexplorer/runconfiguration.h>
 
@@ -590,6 +591,10 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     connect(m_sessionManager, SIGNAL(projectDisplayNameChanged(ProjectExplorer::Project*)),
             this, SLOT(updateActionAndSummary()));
 
+    // for icon changes:
+    connect(ProjectExplorer::ProfileManager::instance(), SIGNAL(profileUpdated(ProjectExplorer::Profile*)),
+            this, SLOT(profileChanged(ProjectExplorer::Profile*)));
+
     connect(m_listWidgets[TARGET], SIGNAL(changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration*)),
             this, SLOT(setActiveTarget(ProjectExplorer::ProjectConfiguration*)));
     connect(m_listWidgets[BUILD], SIGNAL(changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration*)),
@@ -869,6 +874,8 @@ void MiniProjectTargetSelector::activeTargetChanged(ProjectExplorer::Target *tar
                    this, SLOT(updateActionAndSummary()));
         disconnect(m_target, SIGNAL(toolTipChanged()),
                    this, SLOT(updateActionAndSummary()));
+        disconnect(m_target, SIGNAL(iconChanged()),
+                   this, SLOT(updateActionAndSummary()));
         disconnect(m_target, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
                    this, SLOT(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)));
         disconnect(m_target, SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
@@ -925,6 +932,8 @@ void MiniProjectTargetSelector::activeTargetChanged(ProjectExplorer::Target *tar
                 this, SLOT(updateActionAndSummary()));
         connect(m_target, SIGNAL(toolTipChanged()),
                 this, SLOT(updateActionAndSummary()));
+        connect(m_target, SIGNAL(iconChanged()),
+                this, SLOT(updateActionAndSummary()));
         connect(m_target, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
                 this, SLOT(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)));
         connect(m_target, SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
@@ -940,6 +949,12 @@ void MiniProjectTargetSelector::activeTargetChanged(ProjectExplorer::Target *tar
         m_runConfiguration = 0;
     }
     updateActionAndSummary();
+}
+
+void MiniProjectTargetSelector::profileChanged(Profile *profile)
+{
+    if (m_target && m_target->profile() == profile)
+        updateActionAndSummary();
 }
 
 void MiniProjectTargetSelector::activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration *bc)

@@ -84,29 +84,6 @@ QList<ProjectExplorer::Abi> DesktopQtVersion::detectQtAbis() const
     return qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
 }
 
-bool DesktopQtVersion::supportsTargetId(const Core::Id id) const
-{
-    using namespace ProjectExplorer;
-    if (id == Core::Id(Constants::DESKTOP_TARGET_ID))
-        return true;
-    if (id == Core::Id("RemoteLinux.EmbeddedLinuxTarget")) {
-        foreach (const Abi &abi, qtAbis()) {
-            switch (abi.os()) {
-            case Abi::BsdOS: case Abi::LinuxOS: case Abi::MacOS: case Abi::UnixOS:
-                return true;
-            default:
-                break;
-            }
-        }
-    }
-    return false;
-}
-
-QSet<Core::Id> DesktopQtVersion::supportedTargetIds() const
-{
-    return QSet<Core::Id>() << Core::Id(Constants::DESKTOP_TARGET_ID);
-}
-
 QString DesktopQtVersion::description() const
 {
     return QCoreApplication::translate("QtVersion", "Desktop", "Qt Version is meant for the desktop");

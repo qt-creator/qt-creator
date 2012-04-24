@@ -64,9 +64,6 @@ private slots:
     void handleModelListToBeReset();
     void handleModelListReset();
     void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
     void openProjectFile();
 
 private:

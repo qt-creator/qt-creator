@@ -39,6 +39,10 @@
 
 #include <projectexplorer/target.h>
 
+#include <qtsupport/qtsupportconstants.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtprofileinformation.h>
+
 using namespace ProjectExplorer;
 
 namespace Qt4ProjectManager {
@@ -71,7 +75,8 @@ bool S60PublishingWizardFactoryOvi::canCreateWizard(const Project *project) cons
     if (!qobject_cast<const Qt4Project *>(project))
         return false;
     foreach (const Target *const target, project->targets()) {
-        if (target->id() == Core::Id(Constants::S60_DEVICE_TARGET_ID))
+        QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target->profile());
+        if (version->type() == QLatin1String(QtSupport::Constants::SYMBIANQT))
             return true;
     }
     return false;

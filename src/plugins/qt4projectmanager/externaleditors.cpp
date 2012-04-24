@@ -32,13 +32,14 @@
 
 #include "externaleditors.h"
 #include "qt4project.h"
-#include "qt4target.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4buildconfiguration.h"
 
 #include <utils/synchronousprocess.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
+#include <qtsupport/qtprofileinformation.h>
 #include <qtsupport/qtversionmanager.h>
 #include <designer/designerconstants.h>
 
@@ -142,12 +143,10 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
 {
     // Get the binary either from the current Qt version of the project or Path
     if (const Qt4Project *project = qt4ProjectFor(fileName)) {
-        if (const Qt4BaseTarget *target = project->activeTarget()) {
-            if (const Qt4BuildConfiguration *qt4bc = target->activeQt4BuildConfiguration()) {
-                if (const QtSupport::BaseQtVersion *qtVersion = qt4bc->qtVersion()) {
-                    data->binary = (qtVersion->*commandAccessor)();
-                    data->workingDirectory = project->projectDirectory();
-                }
+        if (const ProjectExplorer::Target *target = project->activeTarget()) {
+            if (const QtSupport::BaseQtVersion *qtVersion = QtSupport::QtProfileInformation::qtVersion(target->profile())) {
+                data->binary = (qtVersion->*commandAccessor)();
+                data->workingDirectory = project->projectDirectory();
             }
         }
     }

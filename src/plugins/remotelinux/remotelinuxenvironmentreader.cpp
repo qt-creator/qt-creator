@@ -34,6 +34,8 @@
 #include "remotelinuxrunconfiguration.h"
 
 #include <ssh/sshremoteprocessrunner.h>
+#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/target.h>
 
 namespace RemoteLinux {
 namespace Internal {
@@ -42,11 +44,11 @@ RemoteLinuxEnvironmentReader::RemoteLinuxEnvironmentReader(RemoteLinuxRunConfigu
         QObject *parent)
     : QObject(parent)
     , m_stop(false)
-    , m_devConfig(config->deviceConfig())
+    , m_devConfig(ProjectExplorer::DeviceProfileInformation::device(config->target()->profile()))
     , m_runConfig(config)
     , m_remoteProcessRunner(0)
 {
-    connect(config, SIGNAL(deviceConfigurationChanged(ProjectExplorer::Target*)),
+    connect(config->target(), SIGNAL(profileChanged()),
         this, SLOT(handleCurrentDeviceConfigChanged()));
 }
 
@@ -87,7 +89,7 @@ void RemoteLinuxEnvironmentReader::handleConnectionFailure()
 
 void RemoteLinuxEnvironmentReader::handleCurrentDeviceConfigChanged()
 {
-    m_devConfig = m_runConfig->deviceConfig();
+    m_devConfig = ProjectExplorer::DeviceProfileInformation::device(m_runConfig->target()->profile());
 
     if (m_remoteProcessRunner)
         disconnect(m_remoteProcessRunner, 0, this, 0);

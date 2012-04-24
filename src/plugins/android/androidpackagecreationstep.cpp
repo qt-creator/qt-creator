@@ -36,15 +36,15 @@
 #include "androiddeploystep.h"
 #include "androidglobal.h"
 #include "androidpackagecreationwidget.h"
-#include "androidtarget.h"
+#include "androidmanager.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4nodes.h>
-#include <qt4projectmanager/qt4target.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/fileutils.h>
@@ -142,35 +142,35 @@ void AndroidPackageCreationStep::ctor()
 
 bool AndroidPackageCreationStep::init()
 {
-    AndroidTarget *target = androidTarget();
-    const Qt4BuildConfiguration *bc = target->activeQt4BuildConfiguration();
-    if (!target) {
-        raiseError(tr("Cannot create android package: current target is not android."));
+    const Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+    if (!bc) {
+        raiseError(tr("Cannot create android package: current build configuration is not Qt4."));
         return false;
     }
-    m_outputParser.setProjectFileList(target->qt4Project()->files(Project::AllFiles));
+    Qt4Project *project = static_cast<Qt4Project *>(target()->project());
+    m_outputParser.setProjectFileList(project->files(Project::AllFiles));
 
     // Copying
-    m_androidDir = target->androidDirPath();
-    QString androidLibPath;
-    if (target->qt4Project()->rootQt4ProjectNode()->variableValue(Qt4ProjectManager::ConfigVar).contains(QLatin1String("x86")))
-        androidLibPath = m_androidDir + QLatin1String("/libs/x86");
-    else if (target->qt4Project()->rootQt4ProjectNode()
+    m_androidDir = AndroidManager::dirPath(target());
+    Utils::FileName androidLibPath;
+    if (project->rootQt4ProjectNode()->variableValue(Qt4ProjectManager::ConfigVar).contains(QLatin1String("x86")))
+        androidLibPath = m_androidDir.appendPath(QLatin1String("libs/x86"));
+    else if (project->rootQt4ProjectNode()
              ->variableValue(Qt4ProjectManager::ConfigVar).contains(QLatin1String("armeabi-v7a")))
-        androidLibPath = m_androidDir + QLatin1String("/libs/armeabi-v7a");
+        androidLibPath = m_androidDir.appendPath(QLatin1String("libs/armeabi-v7a"));
     else
-        androidLibPath = m_androidDir + QLatin1String("/libs/armeabi");
-    m_gdbServerDestination = androidLibPath + QLatin1String("/gdbserver");
-    m_gdbServerSource = AndroidConfigurations::instance().gdbServerPath(target->activeRunConfiguration()->abi().architecture());
+        androidLibPath = m_androidDir.appendPath(QLatin1String("libs/armeabi"));
+    m_gdbServerDestination = androidLibPath.appendPath(QLatin1String("gdbserver"));
+    m_gdbServerSource = AndroidConfigurations::instance().gdbServerPath(target()->activeRunConfiguration()->abi().architecture());
     m_debugBuild = bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild;
 
-    if (!target->createAndroidTemplatesIfNecessary())
+    if (!AndroidManager::createAndroidTemplatesIfNecessary(target()))
         return false;
 
-    target->updateProject(target->targetSDK(), target->applicationName());
+    AndroidManager::updateTarget(target(), AndroidManager::targetSDK(target()), AndroidManager::applicationName(target()));
     m_antToolPath = AndroidConfigurations::instance().antToolPath();
-    m_apkPathUnsigned = target->apkPath(AndroidTarget::ReleaseBuildUnsigned);
-    m_apkPathSigned = target->apkPath(AndroidTarget::ReleaseBuildSigned);
+    m_apkPathUnsigned = AndroidManager::apkPath(target(), AndroidManager::ReleaseBuildUnsigned);
+    m_apkPathSigned = AndroidManager::apkPath(target(), AndroidManager::ReleaseBuildSigned);
     m_keystorePathForRun = m_keystorePath;
     m_certificatePasswdForRun = m_certificatePasswd;
     m_jarSigner = AndroidConfigurations::instance().jarsignerPath();
@@ -188,15 +188,10 @@ BuildStepConfigWidget *AndroidPackageCreationStep::createConfigWidget()
     return new AndroidPackageCreationWidget(this);
 }
 
-AndroidTarget *AndroidPackageCreationStep::androidTarget() const
-{
-    return qobject_cast<AndroidTarget *>(target());
-}
-
 void AndroidPackageCreationStep::checkRequiredLibraries()
 {
     QProcess readelfProc;
-    QString appPath = androidTarget()->targetApplicationPath();
+    QString appPath = AndroidManager::targetApplicationPath(target());
     if (!QFile::exists(appPath)) {
         raiseError(tr("Cannot find read elf information"),
                    tr("Cannot find '%1'.\n"
@@ -204,7 +199,7 @@ void AndroidPackageCreationStep::checkRequiredLibraries()
                       "built successfully and is selected in Application tab ('Run option') ").arg(appPath));
         return;
     }
-    readelfProc.start(AndroidConfigurations::instance().readelfPath(androidTarget()->activeRunConfiguration()->abi().architecture()),
+    readelfProc.start(AndroidConfigurations::instance().readelfPath(target()->activeRunConfiguration()->abi().architecture()).toString(),
                       QStringList() << QLatin1String("-d") << QLatin1String("-W") << appPath);
     if (!readelfProc.waitForFinished(-1)) {
         readelfProc.terminate();
@@ -218,44 +213,44 @@ void AndroidPackageCreationStep::checkRequiredLibraries()
             libs << QString::fromLatin1(line.mid(pos, line.length() - pos - 1));
         }
     }
-    QStringList checkedLibs = androidTarget()->qtLibs();
+    QStringList checkedLibs = AndroidManager::qtLibs(target());
     QStringList requiredLibraries;
-    foreach (const QString &qtLib, androidTarget()->availableQtLibs()) {
+    foreach (const QString &qtLib, AndroidManager::availableQtLibs(target())) {
         if (libs.contains(QLatin1String("lib") + qtLib + QLatin1String(".so")) || checkedLibs.contains(qtLib))
             requiredLibraries << qtLib;
     }
-    androidTarget()->setQtLibs(requiredLibraries);
+    AndroidManager::setQtLibs(target(), requiredLibraries);
 
-    checkedLibs = androidTarget()->prebundledLibs();
+    checkedLibs = AndroidManager::prebundledLibs(target());
     requiredLibraries.clear();
-    foreach (const QString &qtLib, androidTarget()->availableQtLibs()) {
+    foreach (const QString &qtLib, AndroidManager::availableQtLibs(target())) {
         if (libs.contains(qtLib) || checkedLibs.contains(qtLib))
             requiredLibraries << qtLib;
     }
-    androidTarget()->setPrebundledLibs(requiredLibraries);
+    AndroidManager::setPrebundledLibs(target(), requiredLibraries);
     emit updateRequiredLibrariesModels();
 }
 
 void AndroidPackageCreationStep::initCheckRequiredLibrariesForRun()
 {
-    m_appPath = androidTarget()->targetApplicationPath();
-    m_readElf = AndroidConfigurations::instance().readelfPath(androidTarget()->activeRunConfiguration()->abi().architecture());
-    m_qtLibs = androidTarget()->qtLibs();
-    m_availableQtLibs = androidTarget()->availableQtLibs();
-    m_prebundledLibs = androidTarget()->prebundledLibs();
+    m_appPath = Utils::FileName::fromString(AndroidManager::targetApplicationPath(target()));
+    m_readElf = AndroidConfigurations::instance().readelfPath(target()->activeRunConfiguration()->abi().architecture());
+    m_qtLibs = AndroidManager::qtLibs(target());
+    m_availableQtLibs = AndroidManager::availableQtLibs(target());
+    m_prebundledLibs = AndroidManager::prebundledLibs(target());
 }
 
 void AndroidPackageCreationStep::checkRequiredLibrariesForRun()
 {
     QProcess readelfProc;
-    if (!QFile::exists(m_appPath)) {
-        raiseError(tr("Cannot find read elf information"),
+    if (!m_appPath.toFileInfo().exists()) {
+        raiseError(tr("Can't find read elf information"),
                    tr("Can't find '%1'.\n"
                       "Please make sure your application is "
-                      "built successfully and is selected in Application tab ('Run option') ").arg(m_appPath));
+                      "built successfully and is selected in Application tab ('Run option') ").arg(m_appPath.toUserOutput()));
         return;
     }
-    readelfProc.start(m_readElf, QStringList() << QLatin1String("-d") << QLatin1String("-W") << m_appPath);
+    readelfProc.start(m_readElf.toString(), QStringList() << QLatin1String("-d") << QLatin1String("-W") << m_appPath.toUserOutput());
     if (!readelfProc.waitForFinished(-1)) {
         readelfProc.terminate();
         return;
@@ -290,20 +285,20 @@ void AndroidPackageCreationStep::checkRequiredLibrariesForRun()
 
 void AndroidPackageCreationStep::setQtLibs(const QStringList &qtLibs)
 {
-    androidTarget()->setQtLibs(qtLibs);
+    AndroidManager::setQtLibs(target(), qtLibs);
 }
 
 void AndroidPackageCreationStep::setPrebundledLibs(const QStringList &prebundledLibs)
 {
-    androidTarget()->setPrebundledLibs(prebundledLibs);
+    AndroidManager::setPrebundledLibs(target(), prebundledLibs);
 }
 
-QString AndroidPackageCreationStep::keystorePath()
+Utils::FileName AndroidPackageCreationStep::keystorePath()
 {
     return m_keystorePath;
 }
 
-void AndroidPackageCreationStep::setKeystorePath(const QString &path)
+void AndroidPackageCreationStep::setKeystorePath(const Utils::FileName &path)
 {
     m_keystorePath = path;
     m_certificatePasswd.clear();
@@ -336,13 +331,13 @@ QAbstractItemModel *AndroidPackageCreationStep::keystoreCertificates()
     QProcess keytoolProc;
     while (!rawCerts.length() || !m_keystorePasswd.length()) {
         QStringList params;
-        params << QLatin1String("-list") << QLatin1String("-v") << QLatin1String("-keystore") << m_keystorePathForRun << QLatin1String("-storepass");
+        params << QLatin1String("-list") << QLatin1String("-v") << QLatin1String("-keystore") << m_keystorePathForRun.toUserOutput() << QLatin1String("-storepass");
         if (!m_keystorePasswd.length())
             keystorePassword();
         if (!m_keystorePasswd.length())
             return 0;
         params << m_keystorePasswd;
-        keytoolProc.start(AndroidConfigurations::instance().keytoolPath(), params);
+        keytoolProc.start(AndroidConfigurations::instance().keytoolPath().toString(), params);
         if (!keytoolProc.waitForStarted() || !keytoolProc.waitForFinished()) {
             QMessageBox::critical(0, tr("Error"),
                                   tr("Failed to run keytool"));
@@ -363,14 +358,14 @@ bool AndroidPackageCreationStep::fromMap(const QVariantMap &map)
 {
     if (!BuildStep::fromMap(map))
         return false;
-    m_keystorePath = map.value(KeystoreLocationKey).toString();
+    m_keystorePath = Utils::FileName::fromString(map.value(KeystoreLocationKey).toString());
     return true;
 }
 
 QVariantMap AndroidPackageCreationStep::toMap() const
 {
     QVariantMap map(BuildStep::toMap());
-    map.insert(KeystoreLocationKey, m_keystorePath);
+    map.insert(KeystoreLocationKey, m_keystorePath.toString());
     return map;
 }
 
@@ -382,12 +377,12 @@ bool AndroidPackageCreationStep::createPackage()
 
     QStringList build;
     build << QLatin1String("clean");
-    QFile::remove(m_gdbServerDestination);
+    QFile::remove(m_gdbServerDestination.toString());
     if (m_debugBuild || !m_certificateAlias.length()) {
         build << QLatin1String("debug");
-        if (!QFile::copy(m_gdbServerSource, m_gdbServerDestination)) {
-            raiseError(tr("Cannot copy gdbserver from '%1' to '%2'").arg(m_gdbServerSource)
-                       .arg(m_gdbServerDestination));
+        if (!QFile::copy(m_gdbServerSource.toString(), m_gdbServerDestination.toString())) {
+            raiseError(tr("Can't copy gdbserver from '%1' to '%2'").arg(m_gdbServerSource.toUserOutput())
+                       .arg(m_gdbServerDestination.toUserOutput()));
             return false;
         }
     } else {
@@ -403,9 +398,9 @@ bool AndroidPackageCreationStep::createPackage()
     connect(buildProc, SIGNAL(readyReadStandardError()), this,
         SLOT(handleBuildStdErrOutput()));
 
-    buildProc->setWorkingDirectory(m_androidDir);
+    buildProc->setWorkingDirectory(m_androidDir.toString());
 
-    if (!runCommand(buildProc, m_antToolPath, build)) {
+    if (!runCommand(buildProc, m_antToolPath.toString(), build)) {
         disconnect(buildProc, 0, this, 0);
         buildProc->deleteLater();
         return false;
@@ -425,11 +420,11 @@ bool AndroidPackageCreationStep::createPackage()
 
             QByteArray keyPass = m_certificatePasswdForRun.toUtf8();
             build.clear();
-            build << QLatin1String("-verbose") << QLatin1String("-keystore") << m_keystorePathForRun
+            build << QLatin1String("-verbose") << QLatin1String("-keystore") << m_keystorePathForRun.toUserOutput()
                   << QLatin1String("-storepass") << m_keystorePasswd
-                  << m_apkPathUnsigned
+                  << m_apkPathUnsigned.toUserOutput()
                   << m_certificateAlias;
-            buildProc->start(m_jarSigner, build); //TODO
+            buildProc->start(m_jarSigner.toString(), build); //TODO
             if (!buildProc->waitForStarted()) {
                 disconnect(buildProc, 0, this, 0);
                 buildProc->deleteLater();
@@ -446,9 +441,9 @@ bool AndroidPackageCreationStep::createPackage()
             emit addOutput(tr("Failed, try again"), ErrorMessageOutput);
             m_certificatePasswdForRun.clear();
         }
-        if (QFile::rename(m_apkPathUnsigned, m_apkPathSigned)) {
+        if (QFile::rename(m_apkPathUnsigned.toString(), m_apkPathSigned.toString())) {
             emit addOutput(tr("Release signed package created to %1")
-                           .arg(m_apkPathSigned)
+                           .arg(m_apkPathSigned.toUserOutput())
                            , MessageOutput);
 
             if (m_openPackageLocation)
@@ -465,7 +460,8 @@ void AndroidPackageCreationStep::stripAndroidLibs(const QStringList & files, Abi
 {
     QProcess stripProcess;
     foreach (const QString &file, files) {
-        stripProcess.start(AndroidConfigurations::instance().stripPath(architecture), QStringList()<<QLatin1String("--strip-unneeded") << file);
+        stripProcess.start(AndroidConfigurations::instance().stripPath(architecture).toString(),
+                           QStringList()<<QLatin1String("--strip-unneeded") << file);
         stripProcess.waitForStarted();
         if (!stripProcess.waitForFinished())
             stripProcess.terminate();
@@ -573,7 +569,7 @@ void AndroidPackageCreationStep::certificatePassword()
 
 void AndroidPackageCreationStep::showInGraphicalShell()
 {
-    Core::FileUtils::showInGraphicalShell(Core::ICore::instance()->mainWindow(), m_apkPathSigned);
+    Core::FileUtils::showInGraphicalShell(Core::ICore::instance()->mainWindow(), m_apkPathSigned.toString());
 }
 
 void AndroidPackageCreationStep::raiseError(const QString &shortMsg,

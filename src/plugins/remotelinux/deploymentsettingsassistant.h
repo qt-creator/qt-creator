@@ -36,32 +36,32 @@
 #include <QObject>
 #include <QStringList>
 
+namespace ProjectExplorer { class Project; }
+
 namespace RemoteLinux {
 class DeployableFile;
 class DeployableFilesPerProFile;
 class DeploymentInfo;
 
-namespace Internal {
-class DeploymentSettingsAssistantInternal;
-} // namespace Internal
+namespace Internal { class DeploymentSettingsAssistantInternal; }
 
 class REMOTELINUX_EXPORT DeploymentSettingsAssistant : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(DeploymentSettingsAssistant)
+
 public:
-    DeploymentSettingsAssistant(const QString &qmakeScope, const QString &installPrefix,
-        DeploymentInfo *deploymentInfo, QObject *parent = 0);
+    DeploymentSettingsAssistant(DeploymentInfo *deploymentInfo, ProjectExplorer::Project *parent);
     ~DeploymentSettingsAssistant();
 
-    bool addDeployableToProFile(const DeployableFilesPerProFile *proFileInfo,
-        const QString &variableName, const DeployableFile &deployable);
+    bool addDeployableToProFile(const QString &qmakeScope,
+                                const DeployableFilesPerProFile *proFileInfo,
+                                const QString &variableName, const DeployableFile &deployable);
 
 private slots:
     void handleDeploymentInfoUpdated();
 
 private:
-    bool addLinesToProFile(const DeployableFilesPerProFile *proFileInfo, const QStringList &lines);
+    bool addLinesToProFile(const QString &qmakeScope, const DeployableFilesPerProFile *proFileInfo, const QStringList &lines);
 
     Internal::DeploymentSettingsAssistantInternal * const d;
 };

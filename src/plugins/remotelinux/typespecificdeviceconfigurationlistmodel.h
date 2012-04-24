@@ -37,15 +37,16 @@
 #include <QAbstractListModel>
 #include <QSharedPointer>
 
+namespace ProjectExplorer { class Target; }
+
 namespace RemoteLinux {
-class AbstractEmbeddedLinuxTarget;
 namespace Internal {
 
 class TypeSpecificDeviceConfigurationListModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    explicit TypeSpecificDeviceConfigurationListModel(AbstractEmbeddedLinuxTarget *target);
+    explicit TypeSpecificDeviceConfigurationListModel(ProjectExplorer::Target *target);
     ~TypeSpecificDeviceConfigurationListModel();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -58,7 +59,8 @@ public:
     int indexForId(Core::Id id) const;
 
 private:
-    AbstractEmbeddedLinuxTarget * target() const;
+    ProjectExplorer::Target *target() const;
+    bool deviceMatches(ProjectExplorer::IDevice::ConstPtr dev) const;
 };
 
 } // namespace Internal

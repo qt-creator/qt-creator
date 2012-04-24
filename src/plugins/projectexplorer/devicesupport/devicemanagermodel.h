@@ -51,13 +51,15 @@ public:
     explicit DeviceManagerModel(const DeviceManager *deviceManager, QObject *parent = 0);
     ~DeviceManagerModel();
 
-    void updateDevice(Core::Id id);
+    void setFilter(const QList<Core::Id> filter);
 
     IDevice::ConstPtr device(int pos) const;
     Core::Id deviceId(int pos) const;
     int indexOf(IDevice::ConstPtr dev) const;
     int indexForId(Core::Id id) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
+
+    void updateDevice(Core::Id id);
 
 private slots:
     void handleDeviceAdded(Core::Id id);

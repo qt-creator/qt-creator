@@ -292,6 +292,7 @@ void RunSettingsWidget::addRunConfiguration()
     RunConfiguration *newRC = fai.factory->create(m_target, fai.id);
     if (!newRC)
         return;
+    QTC_CHECK(newRC->id() == fai.id);
     m_target->addRunConfiguration(newRC);
     m_target->setActiveRunConfiguration(newRC);
     m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
@@ -370,9 +371,12 @@ void RunSettingsWidget::currentDeployConfigurationChanged(int index)
 void RunSettingsWidget::aboutToShowDeployMenu()
 {
     m_addDeployMenu->clear();
-    QList<Core::Id> ids = m_target->availableDeployConfigurationIds();
+    DeployConfigurationFactory *factory = DeployConfigurationFactory::find(m_target);
+    if (!factory)
+        return;
+    QList<Core::Id> ids = factory->availableCreationIds(m_target);
     foreach (Core::Id id, ids) {
-        QAction *action = m_addDeployMenu->addAction(m_target->displayNameForDeployConfigurationId(id));
+        QAction *action = m_addDeployMenu->addAction(factory->displayNameForId(id));
         action->setData(QVariant::fromValue(id));
         connect(action, SIGNAL(triggered()),
                 this, SLOT(addDeployConfiguration()));
@@ -385,9 +389,18 @@ void RunSettingsWidget::addDeployConfiguration()
     if (!act)
         return;
     Core::Id id = act->data().value<Core::Id>();
-    DeployConfiguration *newDc = m_target->createDeployConfiguration(id);
+    DeployConfigurationFactory *factory = DeployConfigurationFactory::find(m_target);
+    if (!factory)
+        return;
+    DeployConfiguration *newDc = 0;
+    foreach (Core::Id id, factory->availableCreationIds(m_target)) {
+        if (!factory->canCreate(m_target, id))
+            continue;
+        newDc = factory->create(m_target, id);
+    }
     if (!newDc)
         return;
+    QTC_CHECK(!newDc || newDc->id() == id);
     m_target->addDeployConfiguration(newDc);
     m_target->setActiveDeployConfiguration(newDc);
     m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().size() > 1);

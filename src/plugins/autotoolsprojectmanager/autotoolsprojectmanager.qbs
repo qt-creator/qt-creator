@@ -43,8 +43,6 @@ QtcPlugin {
         "autotoolsprojectnode.h",
         "autotoolsprojectplugin.cpp",
         "autotoolsprojectplugin.h",
-        "autotoolstarget.cpp",
-        "autotoolstarget.h",
         "configurestep.cpp",
         "configurestep.h",
         "makefileparser.cpp",

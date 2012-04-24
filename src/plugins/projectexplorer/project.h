@@ -52,6 +52,7 @@ class BuildConfigWidget;
 class IProjectManager;
 class EditorConfiguration;
 class ProjectNode;
+class Profile;
 class Target;
 class ProjectPrivate;
 
@@ -89,7 +90,12 @@ public:
     // Note: activeTarget can be 0 (if no targets are defined).
     Target *activeTarget() const;
     void setActiveTarget(Target *target);
-    Target *target(Core::Id id) const;
+    Target *target(const Core::Id id) const;
+    Target *target(Profile *p) const;
+    virtual bool supportsProfile(Profile *p) const;
+
+    Target *createTarget(Profile *p);
+    Target *restoreTarget(const QVariantMap &data);
 
     void saveSettings();
     bool restoreSettings();
@@ -120,6 +126,12 @@ public:
     virtual bool needsConfiguration() const;
     virtual void configureAsExampleProject(const QStringList &platforms);
 
+public slots:
+    void triggerBuildSystemEvaluation();
+
+protected slots:
+    void buildSystemEvaluationFinished(bool success);
+
 signals:
     void displayNameChanged();
     void fileListChanged();
@@ -133,6 +145,11 @@ signals:
 
     void environmentChanged();
     void buildConfigurationEnabledChanged();
+    // The build directory of the current target/build configuration was successfully
+    // initialized (or configured).
+    void buildDirectoryInitialized();
+    void buildDirectoryChanged();
+    void buildSystemEvaluated();
 
     void settingsLoaded();
     void aboutToSaveSettings();
@@ -143,9 +160,18 @@ protected:
     virtual void setProjectContext(Core::Context context);
     virtual void setProjectLanguage(Core::Context language);
 
+    // Implement this to (re-)evaluate the build system of the project.
+    //
+    // This method is triggered by one of its active children (active*Configuration
+    // of the activeTarget) whenever some settings that has influence on the build
+    // system parsing is changed.
+    virtual void evaluateBuildSystem();
+
 private slots:
     void changeEnvironment();
     void changeBuildConfigurationEnabled();
+    void onBuildDirectoryInitialized();
+    void onBuildDirectoryChanged();
 
 private:
     ProjectPrivate *d;

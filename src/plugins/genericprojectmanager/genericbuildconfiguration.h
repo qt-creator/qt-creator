@@ -34,6 +34,9 @@
 #define GENERICBUILDCONFIGURATION_H
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildstep.h> // for BuildConfigWidget
+
+namespace Utils { class PathChooser; }
 
 namespace GenericProjectManager {
 namespace Internal {
@@ -47,11 +50,10 @@ class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
     friend class GenericBuildConfigurationFactory;
 
 public:
-    explicit GenericBuildConfiguration(GenericTarget *parent);
+    explicit GenericBuildConfiguration(ProjectExplorer::Target *parent);
     virtual ~GenericBuildConfiguration();
 
-    GenericTarget *genericTarget() const;
-
+    ProjectExplorer::BuildConfigWidget *createConfigWidget();
     virtual QString buildDirectory() const;
 
     QString rawBuildDirectory() const;
@@ -64,8 +66,8 @@ public:
     BuildType buildType() const;
 
 protected:
-    GenericBuildConfiguration(GenericTarget *parent, GenericBuildConfiguration *source);
-    GenericBuildConfiguration(GenericTarget *parent, const Core::Id id);
+    GenericBuildConfiguration(ProjectExplorer::Target *parent, GenericBuildConfiguration *source);
+    GenericBuildConfiguration(ProjectExplorer::Target *parent, const Core::Id id);
     virtual bool fromMap(const QVariantMap &map);
 
 private:
@@ -80,17 +82,39 @@ public:
     explicit GenericBuildConfigurationFactory(QObject *parent = 0);
     ~GenericBuildConfigurationFactory();
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QList<Core::Id> availableCreationIds(const ProjectExplorer::Target *parent) const;
     QString displayNameForId(const Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
-    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
+    bool canCreate(const ProjectExplorer::Target *parent, const Core::Id id) const;
+    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id, const QString &name = QString());
+    bool canClone(const ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
     ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source);
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
+    bool canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const;
     ProjectExplorer::BuildConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
+
+private:
+    bool canHandle(const ProjectExplorer::Target *t) const;
 };
 
-} // namespace GenericProjectManager
+class GenericBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget
+{
+    Q_OBJECT
+
+public:
+    GenericBuildSettingsWidget();
+
+    QString displayName() const;
+
+    void init(ProjectExplorer::BuildConfiguration *bc);
+
+private slots:
+    void buildDirectoryChanged();
+
+private:
+    Utils::PathChooser *m_pathChooser;
+    GenericBuildConfiguration *m_buildConfiguration;
+};
+
 } // namespace Internal
+} // namespace GenericProjectManager
 #endif // GENERICBUILDCONFIGURATION_H

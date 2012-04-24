@@ -35,17 +35,18 @@
 #include "androiddeploystep.h"
 #include "androidglobal.h"
 #include "androidrunner.h"
-#include "androidtarget.h"
+#include "androidmanager.h"
 
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerstartparameters.h>
 
+#include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qt4projectmanager/qt4target.h>
-#include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4nodes.h>
+#include <qt4projectmanager/qt4project.h>
+#include <qtsupport/qtprofileinformation.h>
 
 #include <QDir>
 
@@ -62,6 +63,8 @@ static const char * const qMakeVariables[] = {
          "QT_INSTALL_IMPORTS"
 };
 
+static Qt4Project *project(AndroidRunConfiguration *rc)
+{ return static_cast<Qt4Project *>(rc->target()->project()); }
 
 RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *runConfig)
 {
@@ -69,19 +72,20 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
     params.toolChainAbi = runConfig->abi();
     params.dumperLibrary = runConfig->dumperLib();
     params.startMode = AttachToRemoteServer;
-    params.executable = runConfig->androidTarget()->qt4Project()->rootQt4ProjectNode()->buildDir() + QLatin1String("/app_process");
-    params.debuggerCommand = runConfig->gdbCmd();
+    params.executable = project(runConfig)->rootQt4ProjectNode()->buildDir() + QLatin1String("/app_process");
+    params.debuggerCommand = runConfig->gdbCmd().toString();
     params.remoteChannel = runConfig->remoteChannel();
-    params.displayName = runConfig->androidTarget()->packageName();
+    params.displayName = AndroidManager::packageName(runConfig->target());
 
     params.solibSearchPath.clear();
 
-    QList<Qt4ProFileNode *> nodes = runConfig->androidTarget()->qt4Project()->allProFiles();
+    QList<Qt4ProFileNode *> nodes = project(runConfig)->allProFiles();
     foreach (Qt4ProFileNode *node, nodes)
         if (node->projectType() == ApplicationTemplate)
             params.solibSearchPath.append(node->targetInformation().buildDir);
 
-    params.solibSearchPath.append(qtSoPaths(runConfig->activeQt4BuildConfiguration()->qtVersion()));
+    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(runConfig->target()->profile());
+    params.solibSearchPath.append(qtSoPaths(version));
 
     params.useServerStartScript = true;
     params.remoteSetupNeeded = true;
@@ -148,6 +152,9 @@ void AndroidDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
 
 QStringList AndroidDebugSupport::qtSoPaths(QtSupport::BaseQtVersion *qtVersion)
 {
+    if (!qtVersion)
+        return QStringList();
+
     QSet<QString> paths;
     for (uint i = 0; i < sizeof qMakeVariables / sizeof qMakeVariables[0]; ++i) {
         if (!qtVersion->versionInfo().contains(QLatin1String(qMakeVariables[i])))

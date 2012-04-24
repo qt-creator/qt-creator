@@ -31,12 +31,13 @@
 **************************************************************************/
 
 #include "genericprojectplugin.h"
+
+#include "genericbuildconfiguration.h"
 #include "genericprojectmanager.h"
 #include "genericprojectwizard.h"
 #include "genericprojectconstants.h"
 #include "genericprojectfileseditor.h"
 #include "genericmakestep.h"
-#include "generictarget.h"
 #include "genericproject.h"
 #include "selectablefilesmodel.h"
 
@@ -92,7 +93,7 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
     addAutoReleasedObject(manager);
     addAutoReleasedObject(new GenericMakeStepFactory);
     addAutoReleasedObject(new GenericProjectWizard);
-    addAutoReleasedObject(new GenericTargetFactory);
+    addAutoReleasedObject(new GenericBuildConfigurationFactory);
 
     const Core::Context projectContext(Constants::PROJECTCONTEXT);
     Core::ActionContainer *mproject =

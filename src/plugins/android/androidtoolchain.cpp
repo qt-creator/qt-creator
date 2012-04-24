@@ -33,7 +33,7 @@
 #include "androidtoolchain.h"
 #include "androidconstants.h"
 #include "androidconfigurations.h"
-#include "androidtarget.h"
+#include "androidmanager.h"
 #include "androidqtversion.h"
 
 #include "qt4projectmanager/qt4projectmanagerconstants.h"
@@ -103,21 +103,17 @@ void AndroidToolChain::addToEnvironment(Utils::Environment &env) const
 
     // this env vars are used by qmake mkspecs to generate makefiles (check QTDIR/mkspecs/android-g++/qmake.conf for more info)
     env.set(QLatin1String("ANDROID_NDK_HOST"), ndk_host);
-    env.set(QLatin1String("ANDROID_NDK_ROOT"),
-            QDir::toNativeSeparators(AndroidConfigurations::instance().config().ndkLocation));
+    env.set(QLatin1String("ANDROID_NDK_ROOT"), AndroidConfigurations::instance().config().ndkLocation.toUserOutput());
     env.set(QLatin1String("ANDROID_NDK_TOOLCHAIN_PREFIX"), AndroidConfigurations::toolchainPrefix(targetAbi().architecture()));
     env.set(QLatin1String("ANDROID_NDK_TOOLS_PREFIX"), AndroidConfigurations::toolsPrefix(targetAbi().architecture()));
     env.set(QLatin1String("ANDROID_NDK_TOOLCHAIN_VERSION"), AndroidConfigurations::instance().config().ndkToolchainVersion);
 
     // TODO that is very ugly and likely to be wrong...
     Qt4Project *qt4pro = qobject_cast<Qt4Project *>(ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject());
-    if (!qt4pro)
-        return;
-    AndroidTarget *at = qobject_cast<AndroidTarget *>(qt4pro->activeTarget());
-    if (!at)
+    if (!qt4pro || !qt4pro->activeTarget())
         return;
     env.set(QLatin1String("ANDROID_NDK_PLATFORM"),
-            AndroidConfigurations::instance().bestMatch(at->targetSDK()));
+            AndroidConfigurations::instance().bestMatch(AndroidManager::targetSDK(qt4pro->activeTarget())));
 }
 
 bool AndroidToolChain::operator ==(const ProjectExplorer::ToolChain &tc) const
@@ -202,11 +198,6 @@ QList<ProjectExplorer::Abi> AndroidToolChain::detectSupportedAbis() const
     return aqv->qtAbis();
 }
 
-QString AndroidToolChain::legacyId() const
-{
-    return QString::fromLatin1("%1:%2").arg(QLatin1String(Constants::ANDROID_TOOLCHAIN_ID)).arg(m_qtVersionId);
-}
-
 // --------------------------------------------------------------------------
 // ToolChainConfigWidget
 // --------------------------------------------------------------------------
@@ -218,7 +209,7 @@ AndroidToolChainConfigWidget::AndroidToolChainConfigWidget(AndroidToolChain *tc)
     QLabel *label = new QLabel;
     QtSupport::BaseQtVersion *v = QtSupport::QtVersionManager::instance()->version(tc->qtVersionId());
     Q_ASSERT(v);
-    label->setText(tr("NDK Root: %1").arg(AndroidConfigurations::instance().config().ndkLocation));
+    label->setText(tr("NDK Root: %1").arg(AndroidConfigurations::instance().config().ndkLocation.toUserOutput()));
     layout->addWidget(label);
 }
 
@@ -323,7 +314,7 @@ QList<ProjectExplorer::ToolChain *> AndroidToolChainFactory::createToolChainList
         aTc->setDisplayName(tr("Android GCC (%1-%2)")
                             .arg(ProjectExplorer::Abi::toString(aTc->targetAbi().architecture()))
                             .arg(AndroidConfigurations::instance().config().ndkToolchainVersion));
-        aTc->setCompilerCommand(Utils::FileName::fromString(AndroidConfigurations::instance().gccPath(aTc->targetAbi().architecture())));
+        aTc->setCompilerCommand(AndroidConfigurations::instance().gccPath(aTc->targetAbi().architecture()));
         result.append(aTc);
     }
     return result;

@@ -80,6 +80,12 @@ void TargetSelector::insertTarget(int index, const QString &name)
     update();
 }
 
+void TargetSelector::renameTarget(int index, const QString &name)
+{
+    m_targets[index].name = name;
+    update();
+}
+
 void TargetSelector::removeTarget(int index)
 {
     QTC_ASSERT(index >= 0 && index < m_targets.count(), return);

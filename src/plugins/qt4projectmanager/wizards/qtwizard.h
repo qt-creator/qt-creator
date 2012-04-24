@@ -41,6 +41,8 @@
 
 #include <QSet>
 
+namespace ProjectExplorer { class Profile; }
+
 namespace Qt4ProjectManager {
 
 class Qt4Project;
@@ -130,9 +132,7 @@ public:
     virtual ~BaseQt4ProjectWizardDialog();
 
     int addModulesPage(int id = -1);
-    int addTargetSetupPage(QSet<QString> targets = QSet<QString>(), bool mobile = false, int id = -1);
-
-    static QSet<QString> desktopTarget();
+    int addTargetSetupPage(bool mobile = false, int id = -1);
 
     QStringList selectedModulesList() const;
     void setSelectedModules(const QString &, bool lock = false);
@@ -142,7 +142,7 @@ public:
 
     bool writeUserFile(const QString &proFileName) const;
     bool setupProject(Qt4Project *project) const;
-    bool isTargetSelected(Core::Id targetid) const;
+    bool isQtPlatformSelected(const QString &platform) const;
 
     void addExtensionPages(const QList<QWizardPage *> &wizardPageList);
 
@@ -156,7 +156,6 @@ private:
     TargetSetupPage *m_targetSetupPage;
     QStringList m_selectedModules;
     QStringList m_deselectedModules;
-    QSet<QString> m_targets;
 };
 
 } // namespace Internal

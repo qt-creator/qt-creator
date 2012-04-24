@@ -34,12 +34,14 @@
 #include "qmlobservertool.h"
 #include "qmldumptool.h"
 #include "qmldebugginglibrary.h"
+#include "qtprofileinformation.h"
 
 #include "qtversionmanager.h"
 #include "profilereader.h"
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/profileinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -292,6 +294,28 @@ bool BaseQtVersion::supportsPlatform(const QString &platform) const
     return platform == platformName();
 }
 
+QList<ProjectExplorer::Task> BaseQtVersion::validateProfile(const ProjectExplorer::Profile *p)
+{
+    QList<ProjectExplorer::Task> result;
+
+    BaseQtVersion *version = QtProfileInformation::qtVersion(p);
+    Q_ASSERT(version == this);
+
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(p);
+    if (!tc)
+        result << ProjectExplorer::Task(ProjectExplorer::Task::Error,
+                                        QCoreApplication::translate("BaseQtVersion", "No tool chain set up in profile."),
+                                        Utils::FileName(), -1,
+                                        Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+
+    if (tc && !version->qtAbis().contains(tc->targetAbi()))
+        result << ProjectExplorer::Task(ProjectExplorer::Task::Error,
+                                        QCoreApplication::translate("BaseQtVersion", "Tool chain can not produce code for the Qt version."),
+                                        Utils::FileName(), -1,
+                                        Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+    return result;
+}
+
 void BaseQtVersion::setId(int id)
 {
     m_id = id;
@@ -366,20 +390,24 @@ QString BaseQtVersion::warningReason() const
     return QString();
 }
 
+ProjectExplorer::ToolChain *BaseQtVersion::preferredToolChain(const Utils::FileName &ms) const
+{
+    const Utils::FileName spec = ms.isEmpty() ? mkspec() : ms;
+    QList<ProjectExplorer::ToolChain *> tcList = ProjectExplorer::ToolChainManager::instance()->toolChains();
+    ProjectExplorer::ToolChain *possibleTc = 0;
+    foreach (ProjectExplorer::ToolChain *tc, tcList) {
+        if (!qtAbis().contains(tc->targetAbi()))
+            continue;
+        if (tc->suggestedMkspecList().contains(spec))
+            return tc; // perfect match
+        possibleTc = tc; // possible match
+    }
+    return possibleTc;
+}
+
 Utils::FileName BaseQtVersion::qmakeCommand() const
 {
     return m_qmakeCommand;
-}
-
-bool BaseQtVersion::toolChainAvailable(const Core::Id id) const
-{
-    Q_UNUSED(id)
-    if (!isValid())
-        return false;
-    foreach (const ProjectExplorer::Abi &abi, qtAbis())
-        if (!ProjectExplorer::ToolChainManager::instance()->findToolChains(abi).isEmpty())
-            return true;
-    return false;
 }
 
 QList<ProjectExplorer::Abi> BaseQtVersion::qtAbis() const
@@ -655,11 +683,6 @@ QString BaseQtVersion::uicCommand() const
     return m_uicCommand;
 }
 
-QString BaseQtVersion::systemRoot() const
-{
-    return QString();
-}
-
 void BaseQtVersion::updateMkspec() const
 {
     if (uniqueId() == -1 || m_mkspecUpToDate)
@@ -906,15 +929,17 @@ QString BaseQtVersion::examplesPath() const
     return m_versionInfo.value(QLatin1String("QT_INSTALL_EXAMPLES"));
 }
 
-QList<ProjectExplorer::HeaderPath> BaseQtVersion::systemHeaderPathes() const
+QList<ProjectExplorer::HeaderPath> BaseQtVersion::systemHeaderPathes(const ProjectExplorer::Profile *p) const
 {
+    Q_UNUSED(p);
     QList<ProjectExplorer::HeaderPath> result;
     result.append(ProjectExplorer::HeaderPath(mkspecPath().toString(), ProjectExplorer::HeaderPath::GlobalHeaderPath));
     return result;
 }
 
-void BaseQtVersion::addToEnvironment(Utils::Environment &env) const
+void BaseQtVersion::addToEnvironment(const ProjectExplorer::Profile *p, Utils::Environment &env) const
 {
+    Q_UNUSED(p);
     env.set(QLatin1String("QTDIR"), QDir::toNativeSeparators(versionInfo().value(QLatin1String("QT_INSTALL_DATA"))));
     env.prependOrSetPath(versionInfo().value(QLatin1String("QT_INSTALL_BINS")));
 }
@@ -960,7 +985,9 @@ Utils::Environment BaseQtVersion::qmlToolsEnvironment() const
 {
     // FIXME: This seems broken!
     Utils::Environment environment = Utils::Environment::systemEnvironment();
+#if 0 // FIXME: Fix this!
     addToEnvironment(environment);
+#endif
 
     // add preferred tool chain, as that is how the tools are built, compare QtVersion::buildDebuggingHelperLibrary
     if (!qtAbis().isEmpty()) {
@@ -1032,7 +1059,7 @@ bool BaseQtVersion::supportsShadowBuilds() const
     return true;
 }
 
-QList<ProjectExplorer::Task> BaseQtVersion::reportIssuesImpl(const QString &proFile, const QString &buildDir)
+QList<ProjectExplorer::Task> BaseQtVersion::reportIssuesImpl(const QString &proFile, const QString &buildDir) const
 {
     QList<ProjectExplorer::Task> results;
 
@@ -1078,7 +1105,7 @@ QList<ProjectExplorer::Task> BaseQtVersion::reportIssuesImpl(const QString &proF
 }
 
 QList<ProjectExplorer::Task>
-BaseQtVersion::reportIssues(const QString &proFile, const QString &buildDir)
+BaseQtVersion::reportIssues(const QString &proFile, const QString &buildDir) const
 {
     QList<ProjectExplorer::Task> results = reportIssuesImpl(proFile, buildDir);
     qSort(results);

@@ -36,9 +36,7 @@ namespace QmlProjectManager {
 namespace Constants {
 
 const char QML_RC_ID[] = "QmlProjectManager.QmlRunConfiguration";
-const char QML_VIEWER_QT_KEY[] = "QmlProjectManager.QmlRunConfiguration.QtVersion";
 const char QML_VIEWER_ARGUMENTS_KEY[] = "QmlProjectManager.QmlRunConfiguration.QDeclarativeViewerArguments";
-const char QML_VIEWER_TARGET_ID[] = "QmlProjectManager.QmlTarget";
 const char QML_VIEWER_TARGET_DISPLAY_NAME[] = "QML Viewer";
 const char QML_MAINSCRIPT_KEY[] = "QmlProjectManager.QmlRunConfiguration.MainScript";
 const char USER_ENVIRONMENT_CHANGES_KEY[] = "QmlProjectManager.QmlRunConfiguration.UserEnvironmentChanges";

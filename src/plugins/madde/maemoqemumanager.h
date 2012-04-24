@@ -83,14 +83,7 @@ private slots:
     void targetAdded(ProjectExplorer::Target *target);
     void targetRemoved(ProjectExplorer::Target *target);
     void targetChanged(ProjectExplorer::Target *target);
-
-    void runConfigurationAdded(ProjectExplorer::RunConfiguration *rc);
-    void runConfigurationRemoved(ProjectExplorer::RunConfiguration *rc);
-    void runConfigurationChanged(ProjectExplorer::RunConfiguration *rc);
-
-    void buildConfigurationAdded(ProjectExplorer::BuildConfiguration *bc);
-    void buildConfigurationRemoved(ProjectExplorer::BuildConfiguration *bc);
-    void buildConfigurationChanged(ProjectExplorer::BuildConfiguration *bc);
+    void systemChanged();
 
     void environmentChanged();  // needed to check for qt version
     void deviceConfigurationChanged(ProjectExplorer::Target *target);
@@ -117,7 +110,6 @@ private:
         QtSupport::BaseQtVersion **qtVersion = 0);
 
     void notify(const QList<int> uniqueIds);
-    void toggleDeviceConnections(RemoteLinux::RemoteLinuxRunConfiguration *mrc, bool connect);
     void showOrHideQemuButton();
 
 private:

@@ -34,56 +34,43 @@
 #define BUILDCONFIGURATIONINFO_H
 
 #include "qt4projectmanager_global.h"
+
 #include <coreplugin/featureprovider.h>
 #include <qtsupport/baseqtversion.h>
 
 namespace Qt4ProjectManager {
-struct QT4PROJECTMANAGER_EXPORT BuildConfigurationInfo {
-    explicit BuildConfigurationInfo()
-        : qtVersionId(-1), buildConfig(QtSupport::BaseQtVersion::QmakeBuildConfig(0)), importing(false), temporaryQtVersion(0)
-    {}
 
-    explicit BuildConfigurationInfo(int v, QtSupport::BaseQtVersion::QmakeBuildConfigs bc,
+class QT4PROJECTMANAGER_EXPORT BuildConfigurationInfo
+{
+public:
+    explicit BuildConfigurationInfo()
+        : buildConfig(QtSupport::BaseQtVersion::QmakeBuildConfig(0)), importing(false)
+    { }
+
+    explicit BuildConfigurationInfo(QtSupport::BaseQtVersion::QmakeBuildConfigs bc,
                                     const QString &aa, const QString &d,
                                     bool importing_ = false,
-                                    QtSupport::BaseQtVersion *temporaryQtVersion_ = 0,
                                     const QString &makefile_ = QString())
-        : qtVersionId(v), buildConfig(bc),
+        : buildConfig(bc),
           additionalArguments(aa), directory(d),
-          importing(importing_), temporaryQtVersion(temporaryQtVersion_),
+          importing(importing_),
           makefile(makefile_)
     { }
 
-    bool isValid() const
-    {
-        return version() != 0;
-    }
-
     bool operator ==(const BuildConfigurationInfo &other) const
     {
-        return qtVersionId == other.qtVersionId
-                && buildConfig == other.buildConfig
+        return buildConfig == other.buildConfig
                 && additionalArguments == other.additionalArguments
                 && directory == other.directory
                 && importing == other.importing
-                && temporaryQtVersion == other.temporaryQtVersion
                 && makefile == other.makefile;
     }
-    QtSupport::BaseQtVersion *version() const;
 
-    int qtVersionId;
     QtSupport::BaseQtVersion::QmakeBuildConfigs buildConfig;
     QString additionalArguments;
     QString directory;
     bool importing;
-    QtSupport::BaseQtVersion *temporaryQtVersion;
     QString makefile;
-
-    static QList<BuildConfigurationInfo> importBuildConfigurations(const QString &proFilePath);
-    static QList<BuildConfigurationInfo> checkForBuild(const QString &directory, const QString &proFilePath);
-    static QList<BuildConfigurationInfo> filterBuildConfigurationInfos(const QList<BuildConfigurationInfo> &infos, Core::Id id);
-    static QList<BuildConfigurationInfo> filterBuildConfigurationInfos(const QList<BuildConfigurationInfo> &infos, Core::FeatureSet features);
-    static QList<BuildConfigurationInfo> filterBuildConfigurationInfosByPlatform(const QList<BuildConfigurationInfo> &infos, const QString &platform);
 };
 
 } // namespace Qt4ProjectManager

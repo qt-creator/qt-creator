@@ -43,12 +43,12 @@ namespace Utils { class Environment; }
 
 namespace ProjectExplorer {
 class RunConfiguration;
-class ToolChain;
 class BuildConfiguration;
 class DeployConfiguration;
 class IBuildConfigurationFactory;
 class DeployConfigurationFactory;
 class IRunConfigurationFactory;
+class Profile;
 class Project;
 class BuildConfigWidget;
 
@@ -59,10 +59,13 @@ class PROJECTEXPLORER_EXPORT Target : public ProjectConfiguration
     Q_OBJECT
 
 public:
-    virtual ~Target();
+    Target(Project *parent, Profile *p);
+    ~Target();
 
-    virtual BuildConfigWidget *createConfigWidget() = 0;
     Project *project() const;
+
+    // Profile:
+    Profile *profile() const;
 
     // Build configuration
     void addBuildConfiguration(BuildConfiguration *configuration);
@@ -72,8 +75,6 @@ public:
     BuildConfiguration *activeBuildConfiguration() const;
     void setActiveBuildConfiguration(BuildConfiguration *configuration);
 
-    virtual IBuildConfigurationFactory *buildConfigurationFactory() const = 0;
-
     // DeployConfiguration
     void addDeployConfiguration(DeployConfiguration *dc);
     bool removeDeployConfiguration(DeployConfiguration *dc);
@@ -81,10 +82,6 @@ public:
     QList<DeployConfiguration *> deployConfigurations() const;
     DeployConfiguration *activeDeployConfiguration() const;
     void setActiveDeployConfiguration(DeployConfiguration *configuration);
-
-    QList<Core::Id> availableDeployConfigurationIds();
-    QString displayNameForDeployConfigurationId(Core::Id &id);
-    DeployConfiguration *createDeployConfiguration(Core::Id id);
 
     // Running
     QList<RunConfiguration *> runConfigurations() const;
@@ -108,16 +105,20 @@ public:
     QString toolTip() const;
     void setToolTip(const QString &text);
 
-    virtual QList<ToolChain *> possibleToolChains(BuildConfiguration *) const;
-    virtual ToolChain *preferredToolChain(BuildConfiguration *) const;
+    QVariantMap toMap() const;
 
-    virtual QVariantMap toMap() const;
+    void createDefaultSetup();
+    void updateDefaultBuildConfigurations();
+    void updateDefaultDeployConfigurations();
+    void updateDefaultRunConfigurations();
 
 signals:
     void targetEnabled(bool);
     void iconChanged();
     void overlayIconChanged();
     void toolTipChanged();
+
+    void profileChanged();
 
     // TODO clean up signal names
     // might be better to also have aboutToRemove signals
@@ -143,14 +144,23 @@ signals:
     void deployConfigurationEnabledChanged();
     void runConfigurationEnabledChanged();
 
+    /// Emitted whenever the project should (re-)evaluate the build system
+    void requestBuildSystemEvaluation();
+    /// Emitted whenever the current build configuration has finished to initialize its build directory.
+    void buildDirectoryInitialized();
+    /// Emitted whenever the current build configuartion changed or the build directory of the current
+    /// build configuration was changed.
+    void buildDirectoryChanged();
+
+public slots:
+    void onRequestBuildSystemEvaluation();
+    void onBuildDirectoryInitialized();
+    void onBuildDirectoryChanged();
+
 protected:
-    Target(Project *parent, const Core::Id id);
-
-    virtual ProjectExplorer::IDevice::ConstPtr currentDevice() const;
-
     void setEnabled(bool);
 
-    virtual bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map);
 
 protected slots:
     void updateDeviceState();
@@ -161,31 +171,13 @@ private slots:
     void changeDeployConfigurationEnabled();
     void changeRunConfigurationEnabled();
 
+    void handleProfileUpdates(ProjectExplorer::Profile *p);
+    void handleProfileRemoval(ProjectExplorer::Profile *p);
+
 private:
     TargetPrivate *d;
-};
 
-class PROJECTEXPLORER_EXPORT ITargetFactory :
-    public QObject
-{
-    Q_OBJECT
-
-public:
-    explicit ITargetFactory(QObject *parent = 0);
-
-    virtual QList<Core::Id> supportedTargetIds() const = 0;
-    virtual bool supportsTargetId(const Core::Id id) const = 0;
-
-    // used to translate the types to names to display to the user
-    virtual QString displayNameForId(const Core::Id id) const = 0;
-
-    virtual bool canCreate(Project *parent, const Core::Id id) const = 0;
-    virtual Target *create(Project *parent, const Core::Id id) = 0;
-    virtual bool canRestore(Project *parent, const QVariantMap &map) const = 0;
-    virtual Target *restore(Project *parent, const QVariantMap &map) = 0;
-
-signals:
-    void canCreateTargetIdsChanged();
+    friend class Project;
 };
 
 } // namespace ProjectExplorer

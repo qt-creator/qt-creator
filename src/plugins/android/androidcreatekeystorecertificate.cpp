@@ -56,7 +56,7 @@ AndroidCreateKeystoreCertificate::~AndroidCreateKeystoreCertificate()
     delete ui;
 }
 
-QString AndroidCreateKeystoreCertificate::keystoreFilePath()
+Utils::FileName AndroidCreateKeystoreCertificate::keystoreFilePath()
 {
     return m_keystoreFilePath;
 }
@@ -155,10 +155,10 @@ void AndroidCreateKeystoreCertificate::on_buttonBox_accepted()
     if (!ui->countryLineEdit->text().length())
         ui->countryLineEdit->setFocus();
 
-    m_keystoreFilePath = QFileDialog::getSaveFileName(this, tr("Keystore file name"),
-                                                    QDir::homePath() + QLatin1String("/android_release.keystore"),
-                                                    tr("Keystore files (*.keystore *.jks)"));
-    if (!m_keystoreFilePath.length())
+    m_keystoreFilePath = Utils::FileName::fromString(QFileDialog::getSaveFileName(this, tr("Keystore file name"),
+                                                                                  QDir::homePath() + QLatin1String("/android_release.keystore"),
+                                                                                  tr("Keystore files (*.keystore *.jks)")));
+    if (m_keystoreFilePath.isEmpty())
         return;
     QString distinguishedNames(QString::fromLatin1("CN=%1, O=%2, L=%3, C=%4")
                                .arg(ui->commonNameLineEdit->text().replace(QLatin1Char(','), QLatin1String("\\,")))
@@ -174,7 +174,7 @@ void AndroidCreateKeystoreCertificate::on_buttonBox_accepted()
 
     QStringList params;
     params << QLatin1String("-genkey") << QLatin1String("-keyalg") << QLatin1String("RSA")
-           << QLatin1String("-keystore") << m_keystoreFilePath
+           << QLatin1String("-keystore") << m_keystoreFilePath.toString()
            << QLatin1String("-storepass") << ui->keystorePassLineEdit->text()
            << QLatin1String("-alias") << ui->aliasNameLineEdit->text()
            << QLatin1String("-keysize") << ui->keySizeSpinBox->text()
@@ -183,7 +183,7 @@ void AndroidCreateKeystoreCertificate::on_buttonBox_accepted()
            << QLatin1String("-dname") << distinguishedNames;
 
     QProcess genKeyCertProc;
-    genKeyCertProc.start(AndroidConfigurations::instance().keytoolPath(), params );
+    genKeyCertProc.start(AndroidConfigurations::instance().keytoolPath().toString(), params );
 
     if (!genKeyCertProc.waitForStarted() || !genKeyCertProc.waitForFinished())
         return;

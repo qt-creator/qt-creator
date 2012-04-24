@@ -182,6 +182,9 @@ void RunConfigurationModel::addedRunConfiguration(ProjectExplorer::RunConfigurat
 void RunConfigurationModel::removedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
 {
     int i = m_runConfigurations.indexOf(rc);
+    if (i < 0)
+        return;
+
     beginRemoveRows(QModelIndex(), i, i);
     m_runConfigurations.removeAt(i);
     endRemoveRows();

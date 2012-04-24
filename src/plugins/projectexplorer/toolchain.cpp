@@ -32,6 +32,7 @@
 
 #include "toolchain.h"
 
+#include "abi.h"
 #include "toolchainmanager.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -43,30 +44,6 @@
 static const char ID_KEY[] = "ProjectExplorer.ToolChain.Id";
 static const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ToolChain.DisplayName";
 static const char AUTODETECT_KEY[] = "ProjectExplorer.ToolChain.Autodetect";
-static const char MKSPEC_KEY[] = "ProjectExplorer.ToolChain.MkSpecOverride";
-
-namespace {
-
-QString mkspecListToString(const QList<Utils::FileName> &specList)
-{
-    QStringList result;
-    foreach (const Utils::FileName &spec, specList)
-        result.append(spec.toString());
-    return result.join(QChar::fromLatin1(';'));
-}
-
-QList<Utils::FileName> mkspecListFromString(const QString &string)
-{
-    QList<Utils::FileName> result;
-    QStringList partList;
-    if (!string.isEmpty())
-        partList = string.split(QLatin1Char(';'));
-    foreach (const QString &part, partList)
-        result.append(Utils::FileName::fromString(part));
-    return result;
-}
-
-} // namespace
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -94,7 +71,6 @@ public:
     QString m_id;
     bool m_autodetect;
     mutable QString m_displayName;
-    QList<Utils::FileName> m_mkspecList;
 };
 
 } // namespace Internal
@@ -150,31 +126,9 @@ QString ToolChain::id() const
     return d->m_id;
 }
 
-/*!
-    \brief Returns a list of target ids that this tool chain is restricted to.
-
-    An empty list is shows that the toolchain is compatible with all targets.
-*/
-
-QList<Core::Id> ToolChain::restrictedToTargets() const
+Utils::FileName ToolChain::suggestedDebugger()
 {
-    return QList<Core::Id>();
-}
-
-QList<Utils::FileName> ToolChain::mkspecList() const
-{
-    if (d->m_mkspecList.isEmpty())
-        return suggestedMkspecList();
-    return d->m_mkspecList;
-}
-
-void ToolChain::setMkspecList(const QList<Utils::FileName> &specList)
-{
-    QList<Utils::FileName> oldSpecList = mkspecList();
-    d->m_mkspecList = specList;
-
-    if (oldSpecList != mkspecList())
-        toolChainUpdated();
+    return ToolChainManager::instance()->defaultDebugger(targetAbi());
 }
 
 bool ToolChain::canClone() const
@@ -211,7 +165,6 @@ QVariantMap ToolChain::toMap() const
     result.insert(QLatin1String(ID_KEY), id());
     result.insert(QLatin1String(DISPLAY_NAME_KEY), displayName());
     result.insert(QLatin1String(AUTODETECT_KEY), isAutoDetected());
-    result.insert(QLatin1String(MKSPEC_KEY), mkspecListToString(d->m_mkspecList));
 
     return result;
 }
@@ -241,7 +194,6 @@ bool ToolChain::fromMap(const QVariantMap &data)
     // make sure we have new style ids:
     d->m_id = data.value(QLatin1String(ID_KEY)).toString();
     d->m_autodetect = data.value(QLatin1String(AUTODETECT_KEY), false).toBool();
-    d->m_mkspecList = mkspecListFromString(data.value(QLatin1String(MKSPEC_KEY)).toString());
 
     return true;
 }

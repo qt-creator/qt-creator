@@ -32,10 +32,11 @@
 #include "maemopublisherfremantlefree.h"
 
 #include "maemoglobal.h"
+#include "maemoconstants.h"
+#include "debianmanager.h"
 #include "maemopackagecreationstep.h"
 #include "maemopublishingfileselectiondialog.h"
 #include "qt4maemodeployconfiguration.h"
-#include "qt4maemotarget.h"
 
 #include <coreplugin/idocument.h>
 #include <projectexplorer/project.h>
@@ -43,6 +44,7 @@
 #include <qt4projectmanager/qmakestep.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtprofileinformation.h>
 #include <remotelinux/deployablefilesperprofile.h>
 #include <remotelinux/deploymentinfo.h>
 #include <utils/fileutils.h>
@@ -309,8 +311,12 @@ void MaemoPublisherFremantleFree::handleProcessFinished(bool failedToStart)
             runDpkgBuildPackage();
         } else {
             setState(RunningMakeDistclean);
-            m_process->start(m_buildConfig->makeCommand(),
-                QStringList() << QLatin1String("distclean"));
+            // Toolchain might be null! (yes because this sucks)
+            ProjectExplorer::ToolChain *tc
+                    = ProjectExplorer::ToolChainProfileInformation::toolChain(m_buildConfig->target()->profile());
+            if (!tc)
+                finishWithFailure(QString(), tr("Make distclean failed. No toolchain in profile."));
+            m_process->start(tc->makeCommand(), QStringList() << QLatin1String("distclean"));
         }
         break;
     case RunningMakeDistclean:
@@ -374,7 +380,7 @@ void MaemoPublisherFremantleFree::runDpkgBuildPackage()
         }
     }
 
-    QtSupport::BaseQtVersion *lqt = m_buildConfig->qtVersion();
+    QtSupport::BaseQtVersion *lqt = QtSupport::QtProfileInformation::qtVersion(m_buildConfig->target()->profile());
     if (!lqt)
         finishWithFailure(QString(), tr("No Qt version set."));
 
@@ -541,7 +547,8 @@ bool MaemoPublisherFremantleFree::updateDesktopFiles(QString *error) const
     bool success = true;
     const Qt4MaemoDeployConfiguration * const deployConfig
         = qobject_cast<Qt4MaemoDeployConfiguration *>(m_buildConfig->target()->activeDeployConfiguration());
-    const DeploymentInfo * const deploymentInfo = deployConfig->deploymentInfo();
+    QTC_ASSERT(deployConfig, return false);
+    const DeploymentInfo *const deploymentInfo = deployConfig->deploymentInfo();
     for (int i = 0; i < deploymentInfo->modelCount(); ++i) {
         const DeployableFilesPerProFile * const model = deploymentInfo->modelAt(i);
         QString desktopFilePath = deployConfig->localDesktopFilePath(model);
@@ -597,9 +604,13 @@ bool MaemoPublisherFremantleFree::addOrReplaceDesktopFileValue(QByteArray &fileC
 QStringList MaemoPublisherFremantleFree::findProblems() const
 {
     QStringList problems;
-    const Qt4Maemo5Target * const target
-        = qobject_cast<Qt4Maemo5Target *>(m_buildConfig->target());
-    const QString &description = target->shortDescription();
+    ProjectExplorer::Target *target = m_buildConfig->target();
+    Core::Id deviceType
+            = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target->profile());
+    if (deviceType != Core::Id(Maemo5OsType))
+        return QStringList();
+
+    const QString &description = DebianManager::shortDescription(DebianManager::debianDirectory(target));
     if (description.trimmed().isEmpty()) {
         problems << tr("The package description is empty. You must set one "
             "in Projects -> Run -> Create Package -> Details.");
@@ -608,8 +619,9 @@ QStringList MaemoPublisherFremantleFree::findProblems() const
             "not what you want. Please change it in "
             "Projects -> Run -> Create Package -> Details.").arg(description);
     }
+
     QString dummy;
-    if (target->packageManagerIcon(&dummy).isNull())
+    if (DebianManager::packageManagerIcon(DebianManager::debianDirectory(target), &dummy).isNull())
         problems << tr("You have not set an icon for the package manager. "
             "The icon must be set in Projects -> Run -> Create Package -> Details.");
     return problems;

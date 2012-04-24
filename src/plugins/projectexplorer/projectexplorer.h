@@ -105,7 +105,6 @@ public:
     //PluginInterface
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
-    bool delayedInitialize();
     ShutdownFlag aboutToShutdown();
 
     void setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes);

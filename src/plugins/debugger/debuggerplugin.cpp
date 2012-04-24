@@ -43,6 +43,7 @@
 #include "debuggerrunner.h"
 #include "debuggerruncontrolfactory.h"
 #include "debuggerstringutils.h"
+#include "debuggerprofileinformation.h"
 #include "memoryagent.h"
 #include "breakpoint.h"
 #include "breakhandler.h"
@@ -99,6 +100,8 @@
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/profilemanager.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -2839,18 +2842,27 @@ QString DebuggerPluginPrivate::debuggerForAbi(const Abi &abi, DebuggerEngineType
         qDebug() << "debuggerForAbi" << abi.toString() << searchAbis.size()
                  << searchAbis.front().toString() << et;
 
-    foreach (const Abi &searchAbi, searchAbis) {
-        const QList<ToolChain *> toolchains =
-            ToolChainManager::instance()->findToolChains(searchAbi);
-        // Find manually configured ones first
-        for (int i = toolchains.size() - 1; i >= 0; i--) {
-            const QString debugger = toolchains.at(i)->debuggerCommand().toString();
-            if (debug)
-                qDebug() << i << toolchains.at(i)->displayName() << debugger;
-            if (!debugger.isEmpty())
-                return debugger;
+    QList<Profile *> profileList = ProfileManager::instance()->profiles();
+    // Note: stList is not sorted with autodected first!
+    QStringList debuggerList;
+    foreach (Profile *p, profileList) {
+        if (!p->isValid())
+            continue;
+        ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(p);
+        if (!tc)
+            continue;
+        if (searchAbis.contains(tc->targetAbi())) {
+            const QString debugger = DebuggerProfileInformation::debuggerCommand(p).toString();
+            if (!debugger.isEmpty()) {
+                if (p->isAutoDetected())
+                    debuggerList.append(debugger);
+                else
+                    debuggerList.prepend(debugger);
+            }
         }
     }
+    if (!debuggerList.isEmpty())
+        return debuggerList.at(0);
     return QString();
 }
 
@@ -3620,6 +3632,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     mstart->addSeparator(globalcontext, Constants::G_MANUAL_REMOTE);
     mstart->addSeparator(globalcontext, Constants::G_AUTOMATIC_REMOTE);
 
+    ProfileManager::instance()->registerProfileInformation(new DebuggerProfileInformation);
+
     return theDebuggerCore->initialize(arguments, errorMessage);
 }
 
@@ -3711,35 +3725,23 @@ void DebuggerPluginPrivate::testUnloadProject()
     invoke<void>(pe, "unloadProject");
 }
 
-static Project *currentProject()
-{
-    return ProjectExplorerPlugin::instance()->currentProject();
-}
-
 static Target *activeTarget()
 {
-    Project *project = currentProject();
+    Project *project = ProjectExplorerPlugin::instance()->currentProject();
     return project->activeTarget();
-}
-
-static BuildConfiguration *activeBuildConfiguration()
-{
-    return activeTarget()->activeBuildConfiguration();
-}
-
-static RunConfiguration *activeRunConfiguration()
-{
-    return activeTarget()->activeRunConfiguration();
 }
 
 static ToolChain *currentToolChain()
 {
-    return activeBuildConfiguration()->toolChain();
+    Target *t = activeTarget();
+    if (!t || !t->isEnabled())
+        return 0;
+    return ToolChainProfileInformation::toolChain(activeTarget()->profile());
 }
 
 static LocalApplicationRunConfiguration *activeLocalRunConfiguration()
 {
-    return qobject_cast<LocalApplicationRunConfiguration *>(activeRunConfiguration());
+    return qobject_cast<LocalApplicationRunConfiguration *>(activeTarget()->activeRunConfiguration());
 }
 
 void DebuggerPluginPrivate::testRunProject(const DebuggerStartParameters &sp, const TestCallBack &cb)

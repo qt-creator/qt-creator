@@ -31,9 +31,7 @@
 **************************************************************************/
 
 #include "s60manager.h"
-//#include "qtversionmanager.h"
 
-//#include "s60devicespreferencepane.h"
 #include "s60devicerunconfiguration.h"
 #include "s60createpackagestep.h"
 #include "s60deployconfiguration.h"
@@ -43,7 +41,6 @@
 #include "symbianidevice.h"
 #include "symbianidevicefactory.h"
 
-#include "qt4symbiantargetfactory.h"
 #include "s60publishingwizardfactories.h"
 
 #include "gccetoolchain.h"
@@ -120,7 +117,6 @@ S60Manager::S60Manager(QObject *parent) : QObject(parent)
     addAutoReleasedObject(new S60DeployStepFactory);
 
     addAutoReleasedObject(new S60DeviceDebugRunControlFactory);
-    addAutoReleasedObject(new Qt4SymbianTargetFactory);
     addAutoReleasedObject(new S60DeployConfigurationFactory);
 
     addAutoReleasedObject(new S60PublishingWizardFactoryOvi);
@@ -154,7 +150,7 @@ QString S60Manager::platform(const ProjectExplorer::ToolChain *tc)
     return target.right(target.lastIndexOf(QLatin1Char('-')));
 }
 
-void S60Manager::delayedInitialize()
+void S60Manager::extensionsInitialize()
 {
     handleQtVersionChanges();
     connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),

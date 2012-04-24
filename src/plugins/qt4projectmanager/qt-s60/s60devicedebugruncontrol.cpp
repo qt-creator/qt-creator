@@ -33,7 +33,6 @@
 #include "s60devicedebugruncontrol.h"
 
 #include "codaruncontrol.h"
-#include "qt4symbiantarget.h"
 #include "s60deployconfiguration.h"
 #include "s60devicerunconfiguration.h"
 #include "symbianidevice.h"
@@ -41,8 +40,9 @@
 #include <coreplugin/icore.h>
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerstartparameters.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>

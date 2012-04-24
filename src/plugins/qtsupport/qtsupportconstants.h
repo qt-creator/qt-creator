@@ -37,7 +37,7 @@ namespace QtSupport {
 namespace Constants {
 
 // Qt4 settings pages
-const char QTVERSION_SETTINGS_PAGE_ID[] = "B.Qt Versions";
+const char QTVERSION_SETTINGS_PAGE_ID[] = "H.Qt Versions";
 const char QTVERSION_SETTINGS_PAGE_NAME[] = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt Versions");
 
 // QtVersions
@@ -64,17 +64,22 @@ const char FEATURE_DESKTOP[] = "QtSupport.Wizards.FeatureDesktop";
 
 // Platforms
 const char MEEGO_HARMATTAN_PLATFORM[] = "MeeGo/Harmattan";
+const char MAEMO_FREMANTLE_PLATFORM[] = "Maemo/Fremantle";
+const char MEEGO_PLATFORM[] = "Meego";
 const char SYMBIAN_PLATFORM[] = "Symbian";
 const char DESKTOP_PLATFORM[] = "Desktop";
 const char EMBEDDED_LINUX_PLATFORM[] = "Embedded Linux";
 const char WINDOWS_CE_PLATFORM[] = "Windows CE";
+const char ANDROID_PLATFORM[] = "Android";
 
 const char MEEGO_HARMATTAN_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "MeeGo/Harmattan");
+const char MAEMO_FREMANTLE_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Maemo/Fremantle");
+const char MEEGO_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Meego");
 const char SYMBIAN_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Symbian");
 const char DESKTOP_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Desktop");
 const char EMBEDDED_LINUX_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Embedded Linux");
 const char WINDOWS_CE_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Windows CE");
-
+const char ANDROID_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Android");
 
 // QML wizard icon
 // both the qt4projectmanager and the qmlprojectmanager do have qt quick wizards

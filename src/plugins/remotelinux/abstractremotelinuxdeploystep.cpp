@@ -32,9 +32,12 @@
 #include "abstractremotelinuxdeploystep.h"
 
 #include "abstractremotelinuxdeployservice.h"
+#include "linuxdeviceconfiguration.h"
 #include "remotelinuxdeployconfiguration.h"
 
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/profileinformation.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 
@@ -79,7 +82,8 @@ QVariantMap AbstractRemoteLinuxDeployStep::toMap() const
 bool AbstractRemoteLinuxDeployStep::init()
 {
     QString error;
-    deployService()->setDeviceConfiguration(deployConfiguration()->deviceConfiguration());
+    deployService()->setDeviceConfiguration(ProjectExplorer::DeviceProfileInformation::device(target()->profile())
+                                            .dynamicCast<const LinuxDeviceConfiguration>());
     deployService()->setBuildConfiguration(qobject_cast<Qt4ProjectManager::Qt4BuildConfiguration *>(target()->activeBuildConfiguration()));
     const bool canDeploy = initInternal(&error);
     if (!canDeploy)

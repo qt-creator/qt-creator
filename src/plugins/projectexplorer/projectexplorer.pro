@@ -20,6 +20,14 @@ HEADERS += projectexplorer.h \
     gcctoolchain.h \
     projectexplorer_export.h \
     projectwindow.h \
+    profile.h \
+    profileconfigwidget.h \
+    profileinformation.h \
+    profileinformationconfigwidget.h \
+    profilemanager.h \
+    profilemanagerconfigwidget.h \
+    profilemodel.h \
+    profileoptionspage.h \
     buildmanager.h \
     buildsteplist.h \
     compileoutputwindow.h \
@@ -122,6 +130,13 @@ SOURCES += projectexplorer.cpp \
     clangparser.cpp \
     gcctoolchain.cpp \
     projectwindow.cpp \
+    profile.cpp \
+    profileinformation.cpp \
+    profileinformationconfigwidget.cpp \
+    profilemanager.cpp \
+    profilemanagerconfigwidget.cpp \
+    profilemodel.cpp \
+    profileoptionspage.cpp \
     buildmanager.cpp \
     buildsteplist.cpp \
     compileoutputwindow.cpp \
@@ -209,7 +224,6 @@ SOURCES += projectexplorer.cpp \
     devicesupport/devicesettingspage.cpp
 
 FORMS += processstep.ui \
-    toolchainoptionspage.ui \
     editorsettingspropertiespage.ui \
     sessiondialog.ui \
     projectwizardpage.ui \

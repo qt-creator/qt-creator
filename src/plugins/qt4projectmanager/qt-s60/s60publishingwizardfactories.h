@@ -38,17 +38,16 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class S60PublishingWizardFactoryOvi
-        : public ProjectExplorer::IPublishingWizardFactory
+class S60PublishingWizardFactoryOvi : public ProjectExplorer::IPublishingWizardFactory
 {
     Q_OBJECT
 public:
     explicit S60PublishingWizardFactoryOvi(QObject *parent =0);
 private:
-    virtual QString displayName() const;
-    virtual QString description() const;
-    virtual bool canCreateWizard(const ProjectExplorer::Project *project) const;
-    virtual QWizard *createWizard(const ProjectExplorer::Project *project) const;
+    QString displayName() const;
+    QString description() const;
+    bool canCreateWizard(const ProjectExplorer::Project *project) const;
+    QWizard *createWizard(const ProjectExplorer::Project *project) const;
 };
 } // namespace Internal
 } // namespace Qt4ProjectManager

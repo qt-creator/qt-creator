@@ -57,17 +57,6 @@ class Target;
 class BuildConfiguration;
 
 namespace Internal {
-class FadingWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    FadingWidget(QWidget *parent = 0);
-    void fadeTo(qreal value);
-    qreal opacity();
-    void setOpacity(qreal value);
-protected:
-    QGraphicsOpacityEffect *m_opacityEffect;
-};
 
 class ToolWidget : public Utils::FadingPanel
 {
@@ -97,8 +86,8 @@ private:
     QToolButton *m_removeButton;
 
     bool m_buildStepEnabled;
-    FadingWidget *m_firstWidget;
-    FadingWidget *m_secondWidget;
+    Utils::FadingWidget *m_firstWidget;
+    Utils::FadingWidget *m_secondWidget;
     qreal m_targetOpacity;
 };
 

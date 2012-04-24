@@ -33,15 +33,18 @@
 #include "s60deploystep.h"
 
 #include "qt4buildconfiguration.h"
+#include "qt4project.h"
 #include "s60deployconfiguration.h"
 #include "s60devicerunconfiguration.h"
 #include "symbianidevice.h"
+#include "symbianidevicefactory.h"
 #include "codadevice.h"
 #include "codaruncontrol.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/profileinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qt4projectmanagerconstants.h>
 
@@ -678,11 +681,7 @@ S60DeployStepFactory::~S60DeployStepFactory()
 
 bool S60DeployStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
 {
-    if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY))
-        return false;
-    if (parent->target()->id() != Core::Id(Constants::S60_DEVICE_TARGET_ID))
-        return false;
-    return (id == Core::Id(S60_DEPLOY_STEP_ID));
+    return canHandle(parent) && id == Core::Id(S60_DEPLOY_STEP_ID);
 }
 
 ProjectExplorer::BuildStep *S60DeployStepFactory::create(ProjectExplorer::BuildStepList *parent, const Core::Id id)
@@ -708,6 +707,16 @@ ProjectExplorer::BuildStep *S60DeployStepFactory::clone(ProjectExplorer::BuildSt
     return new S60DeployStep(parent, static_cast<S60DeployStep *>(source));
 }
 
+bool S60DeployStepFactory::canHandle(BuildStepList *parent) const
+{
+    if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY))
+        return false;
+    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->target()->profile());
+    if (deviceType != SymbianIDeviceFactory::deviceType())
+        return false;
+    return qobject_cast<Qt4Project *>(parent->target()->project());
+}
+
 bool S60DeployStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
 {
     return canCreate(parent, ProjectExplorer::idFromMap(map));
@@ -726,10 +735,9 @@ ProjectExplorer::BuildStep *S60DeployStepFactory::restore(ProjectExplorer::Build
 
 QList<Core::Id> S60DeployStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
-    if (parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-            && parent->target()->id() == Core::Id(Constants::S60_DEVICE_TARGET_ID))
-        return QList<Core::Id>() << Core::Id(S60_DEPLOY_STEP_ID);
-    return QList<Core::Id>();
+    if (!canHandle(parent))
+        return QList<Core::Id>();
+    return QList<Core::Id>() << Core::Id(S60_DEPLOY_STEP_ID);
 }
 
 QString S60DeployStepFactory::displayNameForId(const Core::Id id) const

@@ -29,24 +29,25 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
+
 #ifndef REMOTELINUXDEPLOYCONFIGURATION_H
 #define REMOTELINUXDEPLOYCONFIGURATION_H
 
 #include "linuxdeviceconfiguration.h"
+
 #include "remotelinux_export.h"
 
+#include <coreplugin/id.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
-
-#include <QSharedPointer>
 
 namespace RemoteLinux {
 class AbstractEmbeddedLinuxTarget;
 class DeploymentInfo;
 
 namespace Internal {
-class RemoteLinuxDeployConfigurationPrivate;
+class RemoteLinuxDeployConfigurationFactory;
 class TypeSpecificDeviceConfigurationListModel;
 } // namespace Internal
 
@@ -54,22 +55,16 @@ class REMOTELINUX_EXPORT RemoteLinuxDeployConfiguration
     : public ProjectExplorer::DeployConfiguration
 {
     Q_OBJECT
-    Q_DISABLE_COPY(RemoteLinuxDeployConfiguration)
+
 public:
     RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target, const Core::Id id,
         const QString &defaultDisplayName);
     RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target,
         RemoteLinuxDeployConfiguration *source);
 
-    ~RemoteLinuxDeployConfiguration();
-
-    bool fromMap(const QVariantMap &map);
     ProjectExplorer::DeployConfigurationWidget *configurationWidget() const;
 
-    void setDeviceConfiguration(int index);
-    AbstractEmbeddedLinuxTarget *target() const;
     DeploymentInfo *deploymentInfo() const;
-    QSharedPointer<const LinuxDeviceConfiguration> deviceConfiguration() const;
 
     template<class T> T *earlierBuildStep(const ProjectExplorer::BuildStep *laterBuildStep) const
     {
@@ -83,20 +78,14 @@ public:
         return 0;
     }
 
-protected:
-    QVariantMap toMap() const;
+    virtual QString qmakeScope() const;
+    virtual QString installPrefix() const;
 
 signals:
-    void deviceConfigurationListChanged();
-    void currentDeviceConfigurationChanged();
+    void packagingChanged();
 
 private:
-
-    void initialize();
-    void setDeviceConfig(Core::Id id);
-    Q_SLOT void handleDeviceConfigurationListUpdated();
-
-    Internal::RemoteLinuxDeployConfigurationPrivate * const d;
+    friend class Internal::RemoteLinuxDeployConfigurationFactory;
 };
 
 } // namespace RemoteLinux

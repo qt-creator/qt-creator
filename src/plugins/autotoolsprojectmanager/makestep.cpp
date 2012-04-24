@@ -36,11 +36,12 @@
 #include "autotoolsproject.h"
 #include "autotoolsprojectconstants.h"
 #include "autotoolsbuildconfiguration.h"
-#include "autotoolstarget.h"
 
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/profileinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcprocess.h>
@@ -65,8 +66,7 @@ const char MAKE_STEP_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.MakeS
 //////////////////////////
 MakeStepFactory::MakeStepFactory(QObject *parent) :
     IBuildStepFactory(parent)
-{
-}
+{ setObjectName(QLatin1String("Autotools::MakeStepFactory")); }
 
 QList<Core::Id> MakeStepFactory::availableCreationIds(BuildStepList *parent) const
 {
@@ -85,9 +85,6 @@ QString MakeStepFactory::displayNameForId(const Core::Id id) const
 bool MakeStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
     if (parent->target()->project()->id() != Core::Id(AUTOTOOLS_PROJECT_ID))
-        return false;
-
-    if (parent->id() != Core::Id(BUILDSTEPS_BUILD))
         return false;
 
     return Core::Id(MAKE_STEP_ID) == id;
@@ -178,16 +175,18 @@ bool MakeStep::init()
 
     setIgnoreReturnValue(m_clean);
 
+    ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(bc->target()->profile());
+
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
     pp->setWorkingDirectory(bc->buildDirectory());
-    pp->setCommand(bc->toolChain()->makeCommand());
+    pp->setCommand(tc ? tc->makeCommand() : QLatin1String("make"));
     pp->setArguments(arguments);
 
     setOutputParser(new GnuMakeParser());
-    if (bc->autotoolsTarget()->autotoolsProject()->toolChain())
-        appendOutputParser(bc->autotoolsTarget()->autotoolsProject()->toolChain()->outputParser());
+    if (tc)
+        appendOutputParser(tc->outputParser());
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
     return AbstractProcessStep::init();
@@ -291,7 +290,7 @@ QString MakeStepConfigWidget::summaryText() const
 void MakeStepConfigWidget::updateDetails()
 {
     AutotoolsBuildConfiguration *bc = m_makeStep->autotoolsBuildConfiguration();
-    ToolChain *tc = bc->toolChain();
+    ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(m_makeStep->target()->profile());
 
     if (tc) {
         QString arguments = Utils::QtcProcess::joinArgs(m_makeStep->m_buildTargets);
@@ -305,7 +304,7 @@ void MakeStepConfigWidget::updateDetails()
         param.setArguments(arguments);
         m_summaryText = param.summary(displayName());
     } else {
-        m_summaryText = tr("<b>Unknown tool chain</b>");
+        m_summaryText = tr("<b>No tool chain set up for this profile</b>");
     }
 
     emit updateSummary();

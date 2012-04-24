@@ -34,7 +34,9 @@
 #include "deployablefile.h"
 #include "linuxdeviceconfiguration.h"
 
+#include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qtsupport/qtprofileinformation.h>
 #include <utils/qtcassert.h>
 #include <ssh/sshconnection.h>
 #include <ssh/sshconnectionmanager.h>
@@ -127,23 +129,32 @@ void AbstractRemoteLinuxDeployService::saveDeploymentTimeStamp(const DeployableF
 {
     if (!d->buildConfiguration)
         return;
-    const QtSupport::BaseQtVersion * const qtVersion = d->buildConfiguration->qtVersion();
+    const QtSupport::BaseQtVersion *const qtVersion
+            = QtSupport::QtProfileInformation::qtVersion(d->buildConfiguration->target()->profile());
+    QString systemRoot;
+    if (ProjectExplorer::SysRootProfileInformation::hasSysRoot(d->buildConfiguration->target()->profile()))
+        systemRoot = ProjectExplorer::SysRootProfileInformation::sysRoot(d->buildConfiguration->target()->profile()).toString();
     if (!qtVersion || !qtVersion->isValid())
         return;
     d->lastDeployed.insert(DeployParameters(deployableFile,
-        deviceConfiguration()->sshParameters().host,
-        qtVersion->systemRoot()), QDateTime::currentDateTime());
+                                            deviceConfiguration()->sshParameters().host,
+                                            systemRoot),
+                           QDateTime::currentDateTime());
 }
 
 bool AbstractRemoteLinuxDeployService::hasChangedSinceLastDeployment(const DeployableFile &deployableFile) const
 {
     if (!d->buildConfiguration)
         return true;
-    const QtSupport::BaseQtVersion * const qtVersion = d->buildConfiguration->qtVersion();
+    const QtSupport::BaseQtVersion *const qtVersion
+            = QtSupport::QtProfileInformation::qtVersion(d->buildConfiguration->target()->profile());
     if (!qtVersion || !qtVersion->isValid())
         return true;
+    QString systemRoot;
+    if (ProjectExplorer::SysRootProfileInformation::hasSysRoot(d->buildConfiguration->target()->profile()))
+        systemRoot = ProjectExplorer::SysRootProfileInformation::sysRoot(d->buildConfiguration->target()->profile()).toString();
     const QDateTime &lastDeployed = d->lastDeployed.value(DeployParameters(deployableFile,
-        deviceConfiguration()->sshParameters().host, qtVersion->systemRoot()));
+        deviceConfiguration()->sshParameters().host, systemRoot));
     return !lastDeployed.isValid()
         || QFileInfo(deployableFile.localFilePath).lastModified() > lastDeployed;
 }

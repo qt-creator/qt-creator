@@ -41,7 +41,10 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/profile.h>
+#include <projectexplorer/profilemanager.h>
 #include <projectexplorer/buildmanager.h>
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QLabel>
@@ -84,13 +87,8 @@ TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
     connect(m_project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(activeTargetChanged(ProjectExplorer::Target*)));
 
-    QList<ITargetFactory *> factories =
-            ExtensionSystem::PluginManager::getObjects<ITargetFactory>();
-
-    foreach (ITargetFactory *fac, factories) {
-        connect(fac, SIGNAL(canCreateTargetIdsChanged()),
-                this, SLOT(updateTargetAddAndRemoveButtons()));
-    }
+    connect(ProfileManager::instance(), SIGNAL(profilesChanged()),
+            this, SLOT(updateTargetAddAndRemoveButtons()));
 }
 
 TargetSettingsPanelWidget::~TargetSettingsPanelWidget()
@@ -213,19 +211,10 @@ void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subInd
 
 void TargetSettingsPanelWidget::addTarget(QAction *action)
 {
-    Core::Id id = action->data().value<Core::Id>();
-    Q_ASSERT(!m_project->target(id));
-    QList<ITargetFactory *> factories =
-            ExtensionSystem::PluginManager::getObjects<ITargetFactory>();
+    Profile *p = ProfileManager::instance()->find(action->data().value<Core::Id>());
+    QTC_ASSERT(!m_project->target(p), return);
 
-    Target *target = 0;
-    foreach (ITargetFactory *fac, factories) {
-        if (fac->canCreate(m_project, id)) {
-            target = fac->create(m_project, id);
-            break;
-        }
-    }
-
+    Target *target = m_project->createTarget(p);
     if (!target)
         return;
     m_project->addTarget(target);
@@ -278,6 +267,7 @@ void TargetSettingsPanelWidget::targetAdded(ProjectExplorer::Target *target)
         }
     }
 
+    connect(target, SIGNAL(displayNameChanged()), this, SLOT(renameTarget()));
     updateTargetAddAndRemoveButtons();
 }
 
@@ -312,33 +302,40 @@ void TargetSettingsPanelWidget::updateTargetAddAndRemoveButtons()
 
     m_addMenu->clear();
 
-    QList<ITargetFactory *> factories =
-            ExtensionSystem::PluginManager::getObjects<ITargetFactory>();
+    foreach (Profile *p, ProfileManager::instance()->profiles()) {
+        if (m_project->target(p))
+            continue;
+        if (!m_project->supportsProfile(p))
+            continue;
 
-    foreach (ITargetFactory *fac, factories) {
-        foreach (Core::Id id, fac->supportedTargetIds()) {
-            if (m_project->target(id))
-                continue;
-            if (!fac->canCreate(m_project, id))
-                continue;
-            QString displayName = fac->displayNameForId(id);
-            QAction *action = new QAction(displayName, m_addMenu);
-            action->setData(QVariant::fromValue(id));
-            bool added = false;
-            foreach (QAction *existing, m_addMenu->actions()) {
-                if (existing->text() > action->text()) {
-                    m_addMenu->insertAction(existing, action);
-                    added = true;
-                }
+        QAction *action = new QAction(p->displayName(), m_addMenu);
+        action->setData(QVariant::fromValue(p->id()));
+
+        bool inserted = false;
+        foreach (QAction *existing, m_addMenu->actions()) {
+            if (existing->text() > action->text()) {
+                m_addMenu->insertAction(existing, action);
+                inserted = true;
+                break;
             }
-
-            if (!added)
-                m_addMenu->addAction(action);
         }
+        if (!inserted)
+            m_addMenu->addAction(action);
     }
 
     m_selector->setAddButtonEnabled(!m_addMenu->actions().isEmpty());
     m_selector->setRemoveButtonEnabled(m_project->targets().count() > 1);
+}
+
+void TargetSettingsPanelWidget::renameTarget()
+{
+    Target *t = qobject_cast<Target *>(sender());
+    if (!t)
+        return;
+    const int pos = m_targets.indexOf(t);
+    if (pos < 0)
+        return;
+    m_selector->renameTarget(pos, t->displayName());
 }
 
 int TargetSettingsPanelWidget::currentSubIndex() const

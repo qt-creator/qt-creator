@@ -50,7 +50,6 @@
 #include <QXmlStreamReader>
 
 #define KEY_ROOT "ProjectExplorer.WinCEToolChain."
-static const char debuggerCommandKeyC[] = KEY_ROOT"Debugger";
 static const char msvcVerKeyC[] = KEY_ROOT"MSVCVer";
 static const char ceVerKeyC[] = KEY_ROOT"CEVer";
 static const char binPathKeyC[] = KEY_ROOT"BinPath";
@@ -278,23 +277,6 @@ WinCEToolChain *WinCEToolChain::readFromMap(const QVariantMap &data)
     return 0;
 }
 
-QString WinCEToolChain::legacyId() const
-{
-    const QChar colon = QLatin1Char(':');
-    QString id = QLatin1String(Constants::WINCE_TOOLCHAIN_ID);
-    id += colon;
-    id += m_msvcVer;
-    id += colon;
-    id += m_binPath;
-    id += colon;
-    id += m_includePath;
-    id += colon;
-    id += m_libPath;
-    id += colon;
-    id += m_debuggerCommand.toString();
-    return id;
-}
-
 QString WinCEToolChain::type() const
 {
     return QLatin1String("wince");
@@ -330,8 +312,6 @@ QString WinCEToolChain::ceVer() const
 QVariantMap WinCEToolChain::toMap() const
 {
     QVariantMap data = ToolChain::toMap();
-    if (!m_debuggerCommand.isEmpty())
-        data.insert(QLatin1String(debuggerCommandKeyC), m_debuggerCommand.toString());
 
     data.insert(QLatin1String(msvcVerKeyC), m_msvcVer);
     data.insert(QLatin1String(ceVerKeyC), m_ceVer);
@@ -356,7 +336,6 @@ bool WinCEToolChain::fromMap(const QVariantMap &data)
     m_libPath = data.value(QLatin1String(libPathKeyC)).toString();
     m_vcvarsBat = data.value(QLatin1String(vcVarsKeyC)).toString();
 
-    m_debuggerCommand = Utils::FileName::fromString(data.value(QLatin1String(debuggerCommandKeyC)).toString());
     const QString abiString = data.value(QLatin1String(supportedAbiKeyC)).toString();
     m_abi = Abi(abiString);
 

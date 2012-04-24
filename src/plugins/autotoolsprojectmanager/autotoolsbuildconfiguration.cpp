@@ -35,15 +35,16 @@
 #include "autotoolsbuildconfiguration.h"
 #include "makestep.h"
 #include "autotoolsproject.h"
-#include "autotoolstarget.h"
 #include "autotoolsprojectconstants.h"
 #include "autogenstep.h"
 #include "autoreconfstep.h"
 #include "configurestep.h"
 
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/profileinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
 #include <utils/qtcassert.h>
 
@@ -58,18 +59,26 @@ using namespace ProjectExplorer::Constants;
 //////////////////////////////////////
 // AutotoolsBuildConfiguration class
 //////////////////////////////////////
-AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(AutotoolsTarget *parent)
+AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(ProjectExplorer::Target *parent)
     : BuildConfiguration(parent, Core::Id(AUTOTOOLS_BC_ID))
 {
-    m_buildDirectory = autotoolsTarget()->defaultBuildDirectory();
+    AutotoolsProject *project = qobject_cast<AutotoolsProject *>(parent->project());
+    if (project)
+        m_buildDirectory = project->defaultBuildDirectory();
 }
 
-AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(AutotoolsTarget *parent, const Core::Id id)
+BuildConfigWidget *AutotoolsBuildConfiguration::createConfigWidget()
+{
+    return new AutotoolsBuildSettingsWidget;
+}
+
+AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, const Core::Id id)
     : BuildConfiguration(parent, id)
 {
 }
 
-AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(AutotoolsTarget *parent, AutotoolsBuildConfiguration *source)
+AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(ProjectExplorer::Target *parent,
+                                                         AutotoolsBuildConfiguration *source)
     : BuildConfiguration(parent, source),
       m_buildDirectory(source->m_buildDirectory)
 {
@@ -88,7 +97,7 @@ bool AutotoolsBuildConfiguration::fromMap(const QVariantMap &map)
     if (!BuildConfiguration::fromMap(map))
         return false;
 
-    m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY), autotoolsTarget()->defaultBuildDirectory()).toString();
+    m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY)).toString();
     return true;
 }
 
@@ -105,14 +114,9 @@ void AutotoolsBuildConfiguration::setBuildDirectory(const QString &buildDirector
     emit buildDirectoryChanged();
 }
 
-AutotoolsTarget *AutotoolsBuildConfiguration::autotoolsTarget() const
-{
-    return static_cast<AutotoolsTarget *>(target());
-}
-
 IOutputParser *AutotoolsBuildConfiguration::createOutputParser() const
 {
-    ToolChain *tc = autotoolsTarget()->autotoolsProject()->toolChain();
+    ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(target()->profile());
     if (tc)
         return tc->outputParser();
     return 0;
@@ -126,9 +130,9 @@ AutotoolsBuildConfigurationFactory::AutotoolsBuildConfigurationFactory(QObject *
 {
 }
 
-QList<Core::Id> AutotoolsBuildConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> AutotoolsBuildConfigurationFactory::availableCreationIds(const Target *parent) const
 {
-    if (!qobject_cast<AutotoolsTarget *>(parent))
+    if (!canHandle(parent))
         return QList<Core::Id>();
     return QList<Core::Id>() << Core::Id(AUTOTOOLS_BC_ID);
 }
@@ -140,52 +144,45 @@ QString AutotoolsBuildConfigurationFactory::displayNameForId(const Core::Id id) 
     return QString();
 }
 
-bool AutotoolsBuildConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+bool AutotoolsBuildConfigurationFactory::canCreate(const Target *parent, const Core::Id id) const
 {
-    if (!qobject_cast<AutotoolsTarget *>(parent))
+    if (!canHandle(parent))
         return false;
     if (id == Core::Id(AUTOTOOLS_BC_ID))
         return true;
     return false;
 }
 
-AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::create(Target *parent, const Core::Id id)
+AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::create(Target *parent, const Core::Id id, const QString &name)
 {
     if (!canCreate(parent, id))
         return 0;
 
-    AutotoolsTarget *t = static_cast<AutotoolsTarget *>(parent);
-    AutotoolsBuildConfiguration *bc = createDefaultConfiguration(t);
-
-    bool ok;
-    QString buildConfigurationName = QInputDialog::getText(0,
-                          tr("New Configuration"),
-                          tr("New configuration name:"),
-                          QLineEdit::Normal,
-                          QString(),
-                          &ok);
-
+    bool ok = true;
+    QString buildConfigurationName = name;
+    if (buildConfigurationName.isEmpty())
+        buildConfigurationName = QInputDialog::getText(0,
+                                                       tr("New Configuration"),
+                                                       tr("New configuration name:"),
+                                                       QLineEdit::Normal,
+                                                       QString(), &ok);
+    buildConfigurationName = buildConfigurationName.trimmed();
     if (!ok || buildConfigurationName.isEmpty())
         return 0;
+
+    AutotoolsBuildConfiguration *bc = createDefaultConfiguration(parent);
     bc->setDisplayName(buildConfigurationName);
-
-    t->addBuildConfiguration(bc);
-    t->addDeployConfiguration(t->createDeployConfiguration(Core::Id(DEFAULT_DEPLOYCONFIGURATION_ID)));
-    // User needs to choose where the executable file is.
-    // TODO: Parse the file in *Anjuta style* to be able to add custom RunConfigurations.
-    t->addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(t));
-
     return bc;
 }
 
-AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::createDefaultConfiguration(AutotoolsTarget *target) const
+AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::createDefaultConfiguration(ProjectExplorer::Target *target)
 {
     AutotoolsBuildConfiguration *bc = new AutotoolsBuildConfiguration(target);
     BuildStepList *buildSteps = bc->stepList(Core::Id(BUILDSTEPS_BUILD));
 
     // ### Build Steps Build ###
     // autogen.sh or autoreconf
-    QFile autogenFile(target->autotoolsProject()->projectDirectory() + QLatin1String("/autogen.sh"));
+    QFile autogenFile(target->project()->projectDirectory() + QLatin1String("/autogen.sh"));
     if (autogenFile.exists()) {
         AutogenStep *autogenStep = new AutogenStep(buildSteps);
         buildSteps->insertStep(0, autogenStep);
@@ -214,7 +211,14 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::createDefaultCo
     return bc;
 }
 
-bool AutotoolsBuildConfigurationFactory::canClone(Target *parent, BuildConfiguration *source) const
+bool AutotoolsBuildConfigurationFactory::canHandle(const Target *t) const
+{
+    if (!t->project()->supportsProfile(t->profile()))
+        return false;
+    return t->project()->id() == Core::Id(Constants::AUTOTOOLS_PROJECT_ID);
+}
+
+bool AutotoolsBuildConfigurationFactory::canClone(const Target *parent, BuildConfiguration *source) const
 {
     return canCreate(parent, source->id());
 }
@@ -225,11 +229,10 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::clone(Target *p
         return 0;
 
     AutotoolsBuildConfiguration *origin = static_cast<AutotoolsBuildConfiguration *>(source);
-    AutotoolsTarget *target(static_cast<AutotoolsTarget *>(parent));
-    return new AutotoolsBuildConfiguration(target, origin);
+    return new AutotoolsBuildConfiguration(parent, origin);
 }
 
-bool AutotoolsBuildConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
+bool AutotoolsBuildConfigurationFactory::canRestore(const Target *parent, const QVariantMap &map) const
 {
     return canCreate(parent, idFromMap(map));
 }
@@ -238,8 +241,7 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::restore(Target 
 {
     if (!canRestore(parent, map))
         return 0;
-    AutotoolsTarget *target(static_cast<AutotoolsTarget *>(parent));
-    AutotoolsBuildConfiguration *bc = new AutotoolsBuildConfiguration(target);
+    AutotoolsBuildConfiguration *bc = new AutotoolsBuildConfiguration(parent);
     if (bc->fromMap(map))
         return bc;
     delete bc;
@@ -250,4 +252,9 @@ BuildConfiguration::BuildType AutotoolsBuildConfiguration::buildType() const
 {
     // TODO: Should I return something different from Unknown?
     return Unknown;
+}
+
+void AutotoolsBuildConfiguration::emitBuildDirectoryInitialized()
+{
+    emit buildDirectoryInitialized();
 }

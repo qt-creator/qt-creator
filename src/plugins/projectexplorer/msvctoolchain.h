@@ -56,7 +56,6 @@ public:
 
     MsvcToolChain(const QString &name, const Abi &abi,
                   const QString &varsBat, const QString &varsBatArg, bool autodetect = false);
-    QString legacyId() const;
     QList<Utils::FileName> suggestedMkspecList() const;
 
     static MsvcToolChain *readFromMap(const QVariantMap &data);
@@ -72,8 +71,6 @@ public:
     ToolChain *clone() const;
 
     QString varsBatArg() const { return m_varsBatArg; }
-
-    static QPair<Utils::FileName, Utils::FileName> autoDetectCdbDebugger();
 
     bool operator == (const ToolChain &) const;
 
@@ -110,23 +107,6 @@ public:
 };
 
 // --------------------------------------------------------------------------
-// MsvcDebuggerConfigLabel: Label displaying debugging tools download info.
-// --------------------------------------------------------------------------
-
-class MsvcDebuggerConfigLabel : public QLabel
-{
-    Q_OBJECT
-public:
-    explicit MsvcDebuggerConfigLabel(QWidget *parent = 0);
-
-private slots:
-    void slotLinkActivated(const QString &l);
-
-private:
-    static QString labelText();
-};
-
-// --------------------------------------------------------------------------
 // MsvcToolChainConfigWidget
 // --------------------------------------------------------------------------
 
@@ -140,9 +120,6 @@ public:
     void apply();
     void discard() { setFromToolChain(); }
     bool isDirty() const;
-
-private slots:
-    void autoDetectDebugger();
 
 private:
     void setFromToolChain();

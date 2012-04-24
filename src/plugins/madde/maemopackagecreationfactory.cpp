@@ -32,12 +32,13 @@
 #include "maemopackagecreationfactory.h"
 
 #include "maemopackagecreationstep.h"
-#include "qt4maemotarget.h"
+#include "maddedevice.h"
 #include "qt4maemodeployconfiguration.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/profileinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
@@ -62,13 +63,13 @@ QList<Core::Id> MaemoPackageCreationFactory::availableCreationIds(ProjectExplore
     QList<Core::Id> ids;
     if (!qobject_cast<Qt4MaemoDeployConfiguration *>(parent->parent()))
         return ids;
-    if (qobject_cast<AbstractDebBasedQt4MaemoTarget *>(parent->target())
-            && !parent->contains(MaemoDebianPackageCreationStep::CreatePackageId)) {
+    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->target()->profile());
+    if (MaddeDevice::isDebianBased(deviceType)
+            && !parent->contains(MaemoDebianPackageCreationStep::CreatePackageId))
         ids << MaemoDebianPackageCreationStep::CreatePackageId;
-    } else if (qobject_cast<AbstractRpmBasedQt4MaemoTarget *>(parent->target())
-               && !parent->contains(MaemoRpmPackageCreationStep::CreatePackageId)) {
+    else if (!MaddeDevice::isDebianBased(deviceType)
+               && !parent->contains(MaemoRpmPackageCreationStep::CreatePackageId))
         ids << MaemoRpmPackageCreationStep::CreatePackageId;
-    }
     return ids;
 }
 
@@ -111,14 +112,16 @@ BuildStep *MaemoPackageCreationFactory::restore(ProjectExplorer::BuildStepList *
 {
     Q_ASSERT(canRestore(parent, map));
     BuildStep * step = 0;
+    Core::Id deviceType
+            = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->target()->profile());
     const Core::Id id = ProjectExplorer::idFromMap(map);
     if (id == MaemoDebianPackageCreationStep::CreatePackageId
             || (id == Core::Id(OldCreatePackageId)
-                && qobject_cast<AbstractDebBasedQt4MaemoTarget *>(parent->target()))) {
+                && MaddeDevice::isDebianBased(deviceType))) {
         step = new MaemoDebianPackageCreationStep(parent);
     } else if (id == MaemoRpmPackageCreationStep::CreatePackageId
                || (id == Core::Id(OldCreatePackageId)
-                   && qobject_cast<AbstractRpmBasedQt4MaemoTarget *>(parent->target()))) {
+                   && !MaddeDevice::isDebianBased(deviceType))) {
         step = new MaemoRpmPackageCreationStep(parent);
     }
     Q_ASSERT(step);

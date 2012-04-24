@@ -34,11 +34,11 @@
 
 #include "autogenstep.h"
 #include "autotoolsproject.h"
-#include "autotoolstarget.h"
 #include "autotoolsbuildconfiguration.h"
 #include "autotoolsprojectconstants.h"
 
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/projectexplorer.h>
@@ -67,9 +67,9 @@ AutogenStepFactory::AutogenStepFactory(QObject *parent) :
 
 QList<Core::Id> AutogenStepFactory::availableCreationIds(BuildStepList *parent) const
 {
-    if (parent->target()->project()->id() == Core::Id(Constants::AUTOTOOLS_PROJECT_ID))
-        return QList<Core::Id>() << Core::Id(AUTOGEN_STEP_ID);
-    return QList<Core::Id>();
+    if (!canHandle(parent))
+        return QList<Core::Id>();
+    return QList<Core::Id>() << Core::Id(AUTOGEN_STEP_ID);
 }
 
 QString AutogenStepFactory::displayNameForId(const Core::Id id) const
@@ -81,13 +81,7 @@ QString AutogenStepFactory::displayNameForId(const Core::Id id) const
 
 bool AutogenStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
-    if (parent->target()->project()->id() != Core::Id(Constants::AUTOTOOLS_PROJECT_ID))
-        return false;
-
-    if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD))
-        return false;
-
-    return Core::Id(AUTOGEN_STEP_ID) == id;
+    return canHandle(parent) && Core::Id(AUTOGEN_STEP_ID) == id;
 }
 
 BuildStep *AutogenStepFactory::create(BuildStepList *parent, const Core::Id id)
@@ -123,6 +117,13 @@ BuildStep *AutogenStepFactory::restore(BuildStepList *parent, const QVariantMap 
         return bs;
     delete bs;
     return 0;
+}
+
+bool AutogenStepFactory::canHandle(BuildStepList *parent) const
+{
+    if (parent->target()->project()->id() != Core::Id(Constants::AUTOTOOLS_PROJECT_ID))
+        return false;
+    return parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
 }
 
 ////////////////////////

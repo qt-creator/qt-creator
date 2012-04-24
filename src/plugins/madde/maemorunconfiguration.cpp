@@ -30,7 +30,7 @@
 **************************************************************************/
 #include "maemorunconfiguration.h"
 
-#include "qt4maemotarget.h"
+#include "maddedevice.h"
 #include "maemoconstants.h"
 #include "maemoglobal.h"
 #include "maemoremotemountsmodel.h"
@@ -40,7 +40,9 @@
 #include <debugger/debuggerconstants.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qtsupport/qtprofileinformation.h>
 #include <utils/portlist.h>
 #include <ssh/sshconnection.h>
 
@@ -54,14 +56,14 @@ using namespace RemoteLinux;
 namespace Madde {
 namespace Internal {
 
-MaemoRunConfiguration::MaemoRunConfiguration(AbstractQt4MaemoTarget *parent,
+MaemoRunConfiguration::MaemoRunConfiguration(Target *parent, Core::Id id,
         const QString &proFilePath)
-    : RemoteLinuxRunConfiguration(parent, Id, proFilePath)
+    : RemoteLinuxRunConfiguration(parent, id, proFilePath)
 {
     init();
 }
 
-MaemoRunConfiguration::MaemoRunConfiguration(AbstractQt4MaemoTarget *parent,
+MaemoRunConfiguration::MaemoRunConfiguration(Target *parent,
         MaemoRunConfiguration *source)
     : RemoteLinuxRunConfiguration(parent, source)
 {
@@ -79,7 +81,7 @@ void MaemoRunConfiguration::init()
         SLOT(handleRemoteMountsChanged()));
     connect(m_remoteMounts, SIGNAL(modelReset()), SLOT(handleRemoteMountsChanged()));
 
-    if (!maemoTarget()->allowsQmlDebugging())
+    if (DeviceTypeProfileInformation::deviceTypeId(target()->profile()) != Core::Id(HarmattanOsType))
         debuggerAspect()->suppressQmlDebuggingOptions();
 }
 
@@ -121,11 +123,14 @@ QString MaemoRunConfiguration::environmentPreparationCommand() const
 
 QString MaemoRunConfiguration::commandPrefix() const
 {
-    if (!deviceConfig())
+    LinuxDeviceConfiguration::ConstPtr dev =
+            ProjectExplorer::DeviceProfileInformation::device(target()->profile())
+            .dynamicCast<const LinuxDeviceConfiguration>();
+    if (!dev)
         return QString();
 
     QString prefix = environmentPreparationCommand() + QLatin1Char(';');
-    if (deviceConfig()->type() == Core::Id(MeeGoOsType))
+    if (dev->type() == Core::Id(MeeGoOsType))
         prefix += QLatin1String("DISPLAY=:0.0 ");
 
     return QString::fromLatin1("%1 %2").arg(prefix, userEnvironmentChangesAsString());
@@ -133,10 +138,9 @@ QString MaemoRunConfiguration::commandPrefix() const
 
 Utils::PortList MaemoRunConfiguration::freePorts() const
 {
-    const Qt4BuildConfiguration * const bc = activeQt4BuildConfiguration();
-    return bc && deployConfig()
-            ? MaemoGlobal::freePorts(deployConfig()->deviceConfiguration(), bc->qtVersion())
-        : Utils::PortList();
+    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
+    return MaemoGlobal::freePorts(ProjectExplorer::DeviceProfileInformation::device(target()->profile())
+                                  .staticCast<const LinuxDeviceConfiguration>(), version);
 }
 
 QString MaemoRunConfiguration::localDirToMountForRemoteGdb() const
@@ -160,7 +164,7 @@ QString MaemoRunConfiguration::localDirToMountForRemoteGdb() const
 
 QString MaemoRunConfiguration::remoteProjectSourcesMountPoint() const
 {
-    return MaemoGlobal::homeDirOnDevice(deviceConfig()->sshParameters().userName)
+    return MaemoGlobal::homeDirOnDevice(ProjectExplorer::DeviceProfileInformation::device(target()->profile())->sshParameters().userName)
         + QLatin1String("/gdbSourcesDir_")
         + QFileInfo(localExecutableFilePath()).fileName();
 }
@@ -168,7 +172,8 @@ QString MaemoRunConfiguration::remoteProjectSourcesMountPoint() const
 bool MaemoRunConfiguration::hasEnoughFreePorts(RunMode mode) const
 {
     const int freePortCount = freePorts().count();
-    const bool remoteMountsAllowed = maemoTarget()->allowsRemoteMounts();
+    Core::Id typeId = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
+    const bool remoteMountsAllowed = MaddeDevice::allowsRemoteMounts(typeId);
     const int mountDirCount = remoteMountsAllowed
         ? remoteMounts()->validMountSpecificationCount() : 0;
     if (mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain)
@@ -183,16 +188,6 @@ void MaemoRunConfiguration::handleRemoteMountsChanged()
     emit remoteMountsChanged();
     updateEnabledState();
 }
-
-const AbstractQt4MaemoTarget *MaemoRunConfiguration::maemoTarget() const
-{
-    const AbstractQt4MaemoTarget * const maemoTarget
-        = qobject_cast<AbstractQt4MaemoTarget *>(target());
-    Q_ASSERT(maemoTarget);
-    return maemoTarget;
-}
-
-const Core::Id MaemoRunConfiguration::Id = Core::Id(MAEMO_RC_ID);
 
 } // namespace Internal
 } // namespace Madde

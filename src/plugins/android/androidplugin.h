@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef ANDROIDMANAGER_H
-#define ANDROIDMANAGER_H
+#ifndef ANDROIDPLUGIN_H
+#define ANDROIDPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
 
@@ -47,8 +47,8 @@ public:
 
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
-
 };
-} // namespace Qt4ProjectManager
 
-#endif // ANDROIDMANAGER_H
+} // namespace Android
+
+#endif // ANDROIDPLUGIN_H

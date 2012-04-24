@@ -36,51 +36,50 @@
 #include "androidconfigurations.h"
 #include "androiddeploystepfactory.h"
 #include "androidconfigurations.h"
+#include "androidmanager.h"
 #include "androidpackagecreationfactory.h"
 #include "androidpackageinstallationfactory.h"
 #include "androidrunfactories.h"
 #include "androidsettingspage.h"
 #include "androidtoolchain.h"
 #include "androidqtversionfactory.h"
-#include "androidtargetfactory.h"
 #include "androiddeployconfiguration.h"
 
 #include <QtPlugin>
 
-using namespace Android;
-using namespace Android::Internal;
+namespace Android {
 
 AndroidPlugin::AndroidPlugin()
-{
-}
+{ }
 
 AndroidPlugin::~AndroidPlugin()
-{
-}
+{ }
 
 bool AndroidPlugin::initialize(const QStringList &arguments,
-                                QString *error_message)
+                               QString *error_message)
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(error_message)
+    Q_UNUSED(arguments);
+    Q_UNUSED(error_message);
 
-    AndroidConfigurations::instance(this);
+    Internal::AndroidConfigurations::instance(this);
 
-    addAutoReleasedObject(new AndroidRunControlFactory);
-    addAutoReleasedObject(new AndroidRunConfigurationFactory);
-    addAutoReleasedObject(new AndroidPackageInstallationFactory);
-    addAutoReleasedObject(new AndroidPackageCreationFactory);
-    addAutoReleasedObject(new AndroidDeployStepFactory);
-    addAutoReleasedObject(new AndroidSettingsPage);
-    addAutoReleasedObject(new AndroidTargetFactory);
-    addAutoReleasedObject(new AndroidQtVersionFactory);
-    addAutoReleasedObject(new AndroidToolChainFactory);
-    addAutoReleasedObject(new AndroidDeployConfigurationFactory);
+    new Internal::AndroidManager(this);
+
+    addAutoReleasedObject(new Internal::AndroidRunControlFactory);
+    addAutoReleasedObject(new Internal::AndroidRunConfigurationFactory);
+    addAutoReleasedObject(new Internal::AndroidPackageInstallationFactory);
+    addAutoReleasedObject(new Internal::AndroidPackageCreationFactory);
+    addAutoReleasedObject(new Internal::AndroidDeployStepFactory);
+    addAutoReleasedObject(new Internal::AndroidSettingsPage);
+    addAutoReleasedObject(new Internal::AndroidQtVersionFactory);
+    addAutoReleasedObject(new Internal::AndroidToolChainFactory);
+    addAutoReleasedObject(new Internal::AndroidDeployConfigurationFactory);
     return true;
 }
 
 void AndroidPlugin::extensionsInitialized()
-{
-}
+{ }
+
+} // namespace Android
 
 Q_EXPORT_PLUGIN(Android::AndroidPlugin)

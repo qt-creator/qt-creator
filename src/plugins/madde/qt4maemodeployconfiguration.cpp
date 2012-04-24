@@ -31,16 +31,24 @@
 **************************************************************************/
 #include "qt4maemodeployconfiguration.h"
 
+#include "debianmanager.h"
 #include "maddeuploadandinstallpackagesteps.h"
 #include "maemoconstants.h"
 #include "maemodeploybymountsteps.h"
 #include "maemodeployconfigurationwidget.h"
+#include "maemoglobal.h"
 #include "maemoinstalltosysrootstep.h"
 #include "maemopackagecreationstep.h"
-#include "qt4maemotarget.h"
+#include "rpmmanager.h"
 
+#include <coreplugin/icore.h>
 #include <projectexplorer/buildsteplist.h>
-#include <qt4projectmanager/qt4target.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/projectexplorer.h>
+#include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qt4projectmanager/qt4project.h>
+#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtsupportconstants.h>
 #include <remotelinux/deployablefile.h>
 #include <remotelinux/deployablefilesperprofile.h>
 #include <remotelinux/deploymentinfo.h>
@@ -50,27 +58,30 @@
 #include <QFileInfo>
 #include <QString>
 
+#include <QMainWindow>
+#include <QMessageBox>
+
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 using namespace RemoteLinux;
 
-namespace Madde {
-namespace Internal {
 namespace {
 const QString OldDeployConfigId = QLatin1String("2.2MaemoDeployConfig");
+const char DEPLOYMENT_ASSISTANT_SETTING[] = "RemoteLinux.DeploymentAssistant";
 } // namespace
+
+namespace Madde {
+namespace Internal {
 
 Qt4MaemoDeployConfiguration::Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target,
         const Core::Id id, const QString &displayName)
     : RemoteLinuxDeployConfiguration(target, id, displayName)
-{
-}
+{ init(); }
 
 Qt4MaemoDeployConfiguration::Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target,
         Qt4MaemoDeployConfiguration *source)
     : RemoteLinuxDeployConfiguration(target, source)
-{
-}
+{ init(); }
 
 QString Qt4MaemoDeployConfiguration::localDesktopFilePath(const DeployableFilesPerProFile *proFileInfo) const
 {
@@ -112,21 +123,176 @@ Core::Id Qt4MaemoDeployConfiguration::meegoId()
     return Core::Id("DeployToMeego");
 }
 
+DeploymentSettingsAssistant *Qt4MaemoDeployConfiguration::deploymentSettingsAssistant()
+{
+    return static_cast<DeploymentSettingsAssistant *>(target()->project()->namedSettings(QLatin1String(DEPLOYMENT_ASSISTANT_SETTING)).value<QObject *>());
+}
+
+QString Qt4MaemoDeployConfiguration::qmakeScope() const
+{
+    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
+
+    if (deviceType == Core::Id(Maemo5OsType))
+        return QLatin1String("maemo5");
+    else if (deviceType == Core::Id(HarmattanOsType))
+        return QLatin1String("contains(MEEGO_EDITION,harmattan)");
+    else if (deviceType == Core::Id(MeeGoOsType))
+        return QLatin1String("!isEmpty(MEEGO_VERSION_MAJOR):!contains(MEEGO_EDITION,harmattan)");
+    return QString("unix");
+}
+
+QString Qt4MaemoDeployConfiguration::installPrefix() const
+{
+    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
+
+    if (deviceType == Core::Id(Maemo5OsType))
+        return QLatin1String("/opt");
+    else if (deviceType == Core::Id(HarmattanOsType))
+        return QLatin1String("/opt");
+    else if (deviceType == Core::Id(MeeGoOsType))
+        return QLatin1String("/opt");
+    return QString("unix");
+}
+
+void Qt4MaemoDeployConfiguration::debianDirChanged(const Utils::FileName &dir)
+{
+    if (dir == DebianManager::debianDirectory(target()))
+        emit packagingChanged();
+}
+
+void Qt4MaemoDeployConfiguration::setupPackaging()
+{
+    if (target()->project()->activeTarget() != target())
+        return;
+
+    disconnect(target()->project(), SIGNAL(fileListChanged()), this, SLOT(setupPackaging()));
+
+    if (id() == Qt4MaemoDeployConfiguration::meegoId())
+        ;
+    else
+        setupDebianPackaging();
+}
+
+void Qt4MaemoDeployConfiguration::setupDebianPackaging()
+{
+    Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+    if (!bc || !target()->profile())
+        return;
+
+    Utils::FileName debianDir = DebianManager::debianDirectory(target());
+    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
+    DebianManager *dm = DebianManager::instance();
+    QString projectName = target()->project()->displayName();
+
+    DebianManager::ActionStatus status = DebianManager::createTemplate(bc, debianDir);
+
+    if (status == DebianManager::NoActionRequired ||
+            status == DebianManager::ActionFailed)
+        return;
+
+    if (!DebianManager::hasPackageManagerIcon(debianDir)) {
+        // Such a file is created by the mobile wizards.
+        Utils::FileName iconPath = Utils::FileName::fromString(target()->project()->projectDirectory());
+        iconPath.appendPath(projectName + QLatin1String("64.png"));
+        if (iconPath.toFileInfo().exists())
+            dm->setPackageManagerIcon(debianDir, deviceType, iconPath);
+    }
+
+
+
+    dm->monitor(debianDir);
+    connect(dm, SIGNAL(debianDirectoryChanged(Utils::FileName)), this, SLOT(debianDirChanged(Utils::FileName)));
+
+    // Set up aegis manifest on harmattan:
+    if (deviceType == Core::Id(HarmattanOsType)) {
+        Utils::FileName manifest = debianDir;
+        const QString manifestName = QLatin1String("manifest.aegis");
+        manifest.appendPath(manifestName);
+        const QFile aegisFile(manifest.toString());
+        if (!aegisFile.exists()) {
+            Utils::FileReader reader;
+            if (!reader.fetch(Core::ICore::resourcePath()
+                              + QLatin1String("/templates/shared/") + manifestName)) {
+                qDebug("Reading manifest template failed.");
+                return;
+            }
+            QString content = QString::fromUtf8(reader.data());
+            content.replace(QLatin1String("%%PROJECTNAME%%"), projectName);
+            Utils::FileSaver writer(aegisFile.fileName(), QIODevice::WriteOnly);
+            writer.write(content.toUtf8());
+            if (!writer.finalize()) {
+                qDebug("Failure writing manifest file.");
+                return;
+            }
+        }
+    }
+
+    emit packagingChanged();
+
+    // fix path:
+    QStringList files = DebianManager::debianFiles(debianDir);
+    Utils::FileName path = Utils::FileName::fromString(QDir(target()->project()->projectDirectory())
+                                                       .relativeFilePath(debianDir.toString()));
+    QStringList relativeFiles;
+    foreach (const QString &f, files) {
+        Utils::FileName fn = path;
+        fn.appendPath(f);
+        relativeFiles << fn.toString();
+    }
+
+    addFilesToProject(relativeFiles);
+}
+
+void Qt4MaemoDeployConfiguration::addFilesToProject(const QStringList &files)
+{
+    if (files.isEmpty())
+        return;
+
+    const QString list = QLatin1String("<ul><li>") + files.join(QLatin1String("</li><li>"))
+            + QLatin1String("</li></ul>");
+    QMessageBox::StandardButton button =
+            QMessageBox::question(Core::ICore::mainWindow(),
+                                  tr("Add Packaging Files to Project"),
+                                  tr("<html>Qt Creator has set up the following files to enable "
+                                     "packaging:\n   %1\nDo you want to add them to the project?</html>")
+                                  .arg(list), QMessageBox::Yes | QMessageBox::No);
+    if (button == QMessageBox::Yes)
+        ProjectExplorer::ProjectExplorerPlugin::instance()
+                ->addExistingFiles(target()->project()->rootProjectNode(), files);
+}
+
+void Qt4MaemoDeployConfiguration::init()
+{
+    // Make sure we have deploymentInfo, but create it only once:
+    DeploymentSettingsAssistant *assistant
+            = qobject_cast<DeploymentSettingsAssistant *>(target()->project()->namedSettings(QLatin1String(DEPLOYMENT_ASSISTANT_SETTING)).value<QObject *>());
+    if (!assistant) {
+        assistant = new DeploymentSettingsAssistant(deploymentInfo(), static_cast<Qt4ProjectManager::Qt4Project *>(target()->project()));
+        QVariant data = QVariant::fromValue(static_cast<QObject *>(assistant));
+        target()->project()->setNamedSettings(QLatin1String(DEPLOYMENT_ASSISTANT_SETTING), data);
+    }
+
+    connect(target()->project(), SIGNAL(fileListChanged()), this, SLOT(setupPackaging()));
+}
+
 Qt4MaemoDeployConfigurationFactory::Qt4MaemoDeployConfigurationFactory(QObject *parent)
     : DeployConfigurationFactory(parent)
-{ }
+{ setObjectName(QLatin1String("Qt4MaemoDeployConfigurationFactory")); }
 
 QList<Core::Id> Qt4MaemoDeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
     QList<Core::Id> ids;
-    if (qobject_cast<Qt4Maemo5Target *>(parent)) {
+    if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project()))
+        return ids;
+
+    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->profile());
+    if (deviceType == Core::Id(Maemo5OsType))
         ids << Qt4MaemoDeployConfiguration::fremantleWithPackagingId()
             << Qt4MaemoDeployConfiguration::fremantleWithoutPackagingId();
-    } else if (qobject_cast<Qt4HarmattanTarget *>(parent)) {
+    else if (deviceType == Core::Id(HarmattanOsType))
         ids << Qt4MaemoDeployConfiguration::harmattanId();
-    } else if (qobject_cast<Qt4MeegoTarget *>(parent)) {
+    else if (deviceType == Core::Id(MeeGoOsType))
         ids << Qt4MaemoDeployConfiguration::meegoId();
-    }
 
     return ids;
 }
@@ -180,26 +346,25 @@ DeployConfiguration *Qt4MaemoDeployConfigurationFactory::create(Target *parent,
     return dc;
 }
 
-bool Qt4MaemoDeployConfigurationFactory::canRestore(Target *parent,
-    const QVariantMap &map) const
+bool Qt4MaemoDeployConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
     return canCreate(parent, idFromMap(map))
         || (idFromMap(map) == Core::Id(OldDeployConfigId)
-            && qobject_cast<AbstractQt4MaemoTarget *>(parent));
+            && MaemoGlobal::supportsMaemoDevice(parent->profile()));
 }
 
-DeployConfiguration *Qt4MaemoDeployConfigurationFactory::restore(Target *parent,
-    const QVariantMap &map)
+DeployConfiguration *Qt4MaemoDeployConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
     Core::Id id = idFromMap(map);
+    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->profile());
     if (id == Core::Id(OldDeployConfigId)) {
-        if (qobject_cast<Qt4Maemo5Target *>(parent))
+        if (deviceType == Core::Id(Maemo5OsType))
             id = Qt4MaemoDeployConfiguration::fremantleWithPackagingId();
-        else if (qobject_cast<Qt4HarmattanTarget *>(parent))
+        else if (deviceType == Core::Id(HarmattanOsType))
             id = Qt4MaemoDeployConfiguration::harmattanId();
-        else if (qobject_cast<Qt4MeegoTarget *>(parent))
+        else if (deviceType == Core::Id(MeeGoOsType))
             id = Qt4MaemoDeployConfiguration::meegoId();
     }
     Qt4MaemoDeployConfiguration * const dc

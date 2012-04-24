@@ -33,15 +33,15 @@
 #include "qmlprojectrunconfiguration.h"
 #include "qmlproject.h"
 #include "qmlprojectmanagerconstants.h"
-#include "qmlprojecttarget.h"
 #include "qmlprojectrunconfigurationwidget.h"
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
+#include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <qtsupport/qtversionmanager.h>
+#include <qtsupport/qtprofileinformation.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtsupportconstants.h>
 
@@ -52,7 +52,6 @@
 using Core::EditorManager;
 using Core::ICore;
 using Core::IEditor;
-using QtSupport::QtVersionManager;
 
 using namespace QmlProjectManager::Internal;
 
@@ -60,29 +59,23 @@ namespace QmlProjectManager {
 
 const char * const M_CURRENT_FILE = "CurrentFile";
 
-QmlProjectRunConfiguration::QmlProjectRunConfiguration(QmlProjectTarget *parent) :
+QmlProjectRunConfiguration::QmlProjectRunConfiguration(ProjectExplorer::Target *parent) :
     ProjectExplorer::RunConfiguration(parent, Core::Id(Constants::QML_RC_ID)),
-    m_qtVersionId(-1),
     m_scriptFile(M_CURRENT_FILE),
-    m_projectTarget(parent),
     m_isEnabled(false)
 {
     ctor();
-    updateQtVersions();
 }
 
-QmlProjectRunConfiguration::QmlProjectRunConfiguration(QmlProjectTarget *parent,
+QmlProjectRunConfiguration::QmlProjectRunConfiguration(ProjectExplorer::Target *parent,
                                                        QmlProjectRunConfiguration *source) :
     ProjectExplorer::RunConfiguration(parent, source),
-    m_qtVersionId(source->m_qtVersionId),
     m_scriptFile(source->m_scriptFile),
     m_qmlViewerArgs(source->m_qmlViewerArgs),
-    m_projectTarget(parent),
     m_isEnabled(source->m_isEnabled),
     m_userEnvironmentChanges(source->m_userEnvironmentChanges)
 {
     ctor();
-    updateQtVersions();
 }
 
 bool QmlProjectRunConfiguration::isEnabled() const
@@ -107,8 +100,8 @@ void QmlProjectRunConfiguration::ctor()
     connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(changeCurrentFile(Core::IEditor*)));
 
-    QtVersionManager *qtVersions = QtVersionManager::instance();
-    connect(qtVersions, SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)), this, SLOT(updateQtVersions()));
+    connect(target(), SIGNAL(profileChanged()),
+            this, SLOT(updateEnabled()));
 
     setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
 }
@@ -117,19 +110,13 @@ QmlProjectRunConfiguration::~QmlProjectRunConfiguration()
 {
 }
 
-QmlProjectTarget *QmlProjectRunConfiguration::qmlTarget() const
-{
-    return static_cast<QmlProjectTarget *>(target());
-}
-
 QString QmlProjectRunConfiguration::viewerPath() const
 {
     QtSupport::BaseQtVersion *version = qtVersion();
-    if (!version) {
+    if (!version)
         return QString();
-    } else {
+    else
         return version->qmlviewerCommand();
-    }
 }
 
 QString QmlProjectRunConfiguration::observerPath() const
@@ -150,7 +137,10 @@ QString QmlProjectRunConfiguration::viewerArguments() const
     QString args = m_qmlViewerArgs;
 
     // arguments from .qmlproject file
-    foreach (const QString &importPath, qmlTarget()->qmlProject()->importPaths()) {
+    QmlProject *project = qobject_cast<QmlProject *>(target()->project());
+    if (!project)
+        return args;
+    foreach (const QString &importPath, project->importPaths()) {
         Utils::QtcProcess::addArg(&args, "-I");
         Utils::QtcProcess::addArg(&args, importPath);
     }
@@ -165,24 +155,8 @@ QString QmlProjectRunConfiguration::viewerArguments() const
 
 QString QmlProjectRunConfiguration::workingDirectory() const
 {
-    QFileInfo projectFile(qmlTarget()->qmlProject()->document()->fileName());
+    QFileInfo projectFile(target()->project()->document()->fileName());
     return canonicalCapsPath(projectFile.absolutePath());
-}
-
-int QmlProjectRunConfiguration::qtVersionId() const
-{
-    return m_qtVersionId;
-}
-
-void QmlProjectRunConfiguration::setQtVersionId(int id)
-{
-    if (m_qtVersionId == id)
-        return;
-
-    m_qtVersionId = id;
-    qmlTarget()->qmlProject()->refresh(QmlProject::Configuration);
-    if (m_configurationWidget)
-        m_configurationWidget.data()->updateQtVersionComboBox();
 }
 
 /* QtDeclarative checks explicitly that the capitalization for any URL / path
@@ -201,14 +175,7 @@ QString QmlProjectRunConfiguration::canonicalCapsPath(const QString &fileName)
 
 QtSupport::BaseQtVersion *QmlProjectRunConfiguration::qtVersion() const
 {
-    if (m_qtVersionId == -1)
-        return 0;
-
-    QtSupport::QtVersionManager *versionManager = QtSupport::QtVersionManager::instance();
-    QtSupport::BaseQtVersion *version = versionManager->version(m_qtVersionId);
-    QTC_ASSERT(version, return 0);
-
-    return version;
+    return QtSupport::QtProfileInformation::qtVersion(target()->profile());
 }
 
 QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
@@ -220,16 +187,18 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
 
 Utils::OutputFormatter *QmlProjectRunConfiguration::createOutputFormatter() const
 {
-    return new QtSupport::QtOutputFormatter(qmlTarget()->qmlProject());
+    return new QtSupport::QtOutputFormatter(target()->project());
 }
 
 QmlProjectRunConfiguration::MainScriptSource QmlProjectRunConfiguration::mainScriptSource() const
 {
-    if (!qmlTarget()->qmlProject()->mainFile().isEmpty())
+    QmlProject *project = qobject_cast<QmlProject *>(target()->project());
+    if (!project)
+        return FileInEditor;
+    if (!project->mainFile().isEmpty())
         return FileInProjectFile;
-    if (!m_mainScriptFilename.isEmpty()) {
+    if (!m_mainScriptFilename.isEmpty())
         return FileInSettings;
-    }
     return FileInEditor;
 }
 
@@ -238,12 +207,15 @@ QmlProjectRunConfiguration::MainScriptSource QmlProjectRunConfiguration::mainScr
   */
 QString QmlProjectRunConfiguration::mainScript() const
 {
-    if (!qmlTarget()->qmlProject()->mainFile().isEmpty()) {
-        const QString pathInProject = qmlTarget()->qmlProject()->mainFile();
+    QmlProject *project = qobject_cast<QmlProject *>(target()->project());
+    if (!project)
+        return m_currentFileFilename;
+    if (!project->mainFile().isEmpty()) {
+        const QString pathInProject = project->mainFile();
         if (QFileInfo(pathInProject).isAbsolute())
             return pathInProject;
         else
-            return qmlTarget()->qmlProject()->projectDir().absoluteFilePath(pathInProject);
+            return project->projectDir().absoluteFilePath(pathInProject);
     }
 
     if (!m_mainScriptFilename.isEmpty())
@@ -264,7 +236,7 @@ void QmlProjectRunConfiguration::setScriptSource(MainScriptSource source,
     } else { // FileInSettings
         m_scriptFile = settingsPath;
         m_mainScriptFilename
-                = qmlTarget()->qmlProject()->projectDir().absoluteFilePath(m_scriptFile);
+                = target()->project()->projectDirectory() + QLatin1Char('/') + m_scriptFile;
     }
     updateEnabled();
     if (m_configurationWidget)
@@ -289,7 +261,6 @@ QVariantMap QmlProjectRunConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::RunConfiguration::toMap());
 
-    map.insert(QLatin1String(Constants::QML_VIEWER_QT_KEY), m_qtVersionId);
     map.insert(QLatin1String(Constants::QML_VIEWER_ARGUMENTS_KEY), m_qmlViewerArgs);
     map.insert(QLatin1String(Constants::QML_MAINSCRIPT_KEY),  m_scriptFile);
     map.insert(QLatin1String(Constants::USER_ENVIRONMENT_CHANGES_KEY),
@@ -299,30 +270,25 @@ QVariantMap QmlProjectRunConfiguration::toMap() const
 
 bool QmlProjectRunConfiguration::fromMap(const QVariantMap &map)
 {
-    setQtVersionId(map.value(QLatin1String(Constants::QML_VIEWER_QT_KEY), -1).toInt());
     m_qmlViewerArgs = map.value(QLatin1String(Constants::QML_VIEWER_ARGUMENTS_KEY)).toString();
     m_scriptFile = map.value(QLatin1String(Constants::QML_MAINSCRIPT_KEY), M_CURRENT_FILE).toString();
     m_userEnvironmentChanges = Utils::EnvironmentItem::fromStringList(
                 map.value(QLatin1String(Constants::USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
 
-
-    updateQtVersions();
-    if (m_scriptFile == M_CURRENT_FILE) {
+    if (m_scriptFile == M_CURRENT_FILE)
         setScriptSource(FileInEditor);
-    } else if (m_scriptFile.isEmpty()) {
+    else if (m_scriptFile.isEmpty())
         setScriptSource(FileInProjectFile);
-    } else {
+    else
         setScriptSource(FileInSettings, m_scriptFile);
-    }
 
     return RunConfiguration::fromMap(map);
 }
 
 void QmlProjectRunConfiguration::changeCurrentFile(Core::IEditor *editor)
 {
-    if (editor) {
+    if (editor)
         m_currentFileFilename = editor->document()->fileName();
-    }
     updateEnabled();
 }
 
@@ -341,7 +307,7 @@ void QmlProjectRunConfiguration::updateEnabled()
                 || db->findByFile(mainScript()).type() == QLatin1String("application/x-qmlproject")) {
             // find a qml file with lowercase filename. This is slow, but only done
             // in initialization/other border cases.
-            foreach(const QString &filename, m_projectTarget->qmlProject()->files()) {
+            foreach (const QString &filename, target()->project()->files(ProjectExplorer::Project::AllFiles)) {
                 const QFileInfo fi(filename);
 
                 if (!filename.isEmpty() && fi.baseName()[0].isLower()
@@ -365,29 +331,6 @@ void QmlProjectRunConfiguration::updateEnabled()
     // Always emit change signal to force reevaluation of run/debug buttons
     m_isEnabled = newValue;
     emit enabledChanged();
-}
-
-void QmlProjectRunConfiguration::updateQtVersions()
-{
-    QtVersionManager *qtVersions = QtVersionManager::instance();
-
-    //
-    // update m_qtVersionId
-    //
-    if (!qtVersions->isValidId(m_qtVersionId)
-            || !isValidVersion(qtVersions->version(m_qtVersionId))) {
-        int newVersionId = -1;
-        // take first one you find
-        foreach (QtSupport::BaseQtVersion *version, qtVersions->validVersions()) {
-            if (isValidVersion(version)) {
-                newVersionId = version->uniqueId();
-                break;
-            }
-        }
-        setQtVersionId(newVersionId);
-    }
-
-    updateEnabled();
 }
 
 bool QmlProjectRunConfiguration::isValidVersion(QtSupport::BaseQtVersion *version)

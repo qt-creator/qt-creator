@@ -35,6 +35,7 @@
 #include "buildconfiguration.h"
 #include "environmentwidget.h"
 
+#include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 
 #include <QVBoxLayout>
@@ -69,17 +70,13 @@ void BuildEnvironmentWidget::init(BuildConfiguration *bc)
     Q_ASSERT(bc);
 
     if (m_buildConfiguration) {
-        disconnect(m_buildConfiguration, SIGNAL(environmentChanged()),
-                   this, SLOT(environmentChanged()));
-        disconnect(m_buildConfiguration, SIGNAL(toolChainChanged()),
+        disconnect(m_buildConfiguration->target(), SIGNAL(environmentChanged()),
                    this, SLOT(environmentChanged()));
     }
 
     m_buildConfiguration = bc;
 
-    connect(m_buildConfiguration, SIGNAL(environmentChanged()),
-            this, SLOT(environmentChanged()));
-    connect(m_buildConfiguration, SIGNAL(toolChainChanged()),
+    connect(m_buildConfiguration->target(), SIGNAL(environmentChanged()),
             this, SLOT(environmentChanged()));
 
     m_clearSystemEnvironmentCheckBox->setChecked(!m_buildConfiguration->useSystemEnvironment());

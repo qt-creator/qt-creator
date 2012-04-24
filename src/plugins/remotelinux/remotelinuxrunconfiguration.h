@@ -35,19 +35,19 @@
 
 #include "remotelinux_export.h"
 
+#include "linuxdeviceconfiguration.h"
+
 #include <projectexplorer/runconfiguration.h>
 #include <utils/environment.h>
 
 namespace Qt4ProjectManager {
 class Qt4BuildConfiguration;
-class Qt4BaseTarget;
 class Qt4ProFileNode;
 } // namespace Qt4ProjectManager
 
 namespace Utils { class PortList; }
 
 namespace RemoteLinux {
-class LinuxDeviceConfiguration;
 class RemoteLinuxRunConfigurationWidget;
 class RemoteLinuxDeployConfiguration;
 
@@ -71,21 +71,20 @@ public:
 
     enum DebuggingType { DebugCppOnly, DebugQmlOnly, DebugCppAndQml };
 
-    RemoteLinuxRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent, const Core::Id id,
+    RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent, const Core::Id id,
         const QString &proFilePath);
 
     bool isEnabled() const;
     QString disabledReason() const;
     QWidget *createConfigurationWidget();
     Utils::OutputFormatter *createOutputFormatter() const;
-    Qt4ProjectManager::Qt4BaseTarget *qt4Target() const;
     Qt4ProjectManager::Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
     RemoteLinuxDeployConfiguration *deployConfig() const;
+    LinuxDeviceConfiguration::ConstPtr device() const;
 
     virtual QString environmentPreparationCommand() const;
     virtual QString commandPrefix() const;
-    virtual Utils::PortList freePorts() const;
 
     QString localExecutableFilePath() const;
     QString defaultRemoteExecutableFilePath() const;
@@ -98,8 +97,6 @@ public:
     QString alternateRemoteExecutable() const;
     void setUseAlternateExecutable(bool useAlternate);
     bool useAlternateExecutable() const;
-    QSharedPointer<const LinuxDeviceConfiguration> deviceConfig() const;
-    QString gdbCmd() const;
 
     virtual QVariantMap toMap() const;
 
@@ -117,7 +114,6 @@ public:
     static const QString Id;
 
 signals:
-    void deviceConfigurationChanged(ProjectExplorer::Target *target);
     void deploySpecsChanged();
     void targetInformationChanged() const;
     void baseEnvironmentChanged();
@@ -125,7 +121,7 @@ signals:
     void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &diff);
 
 protected:
-    RemoteLinuxRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent,
+    RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent,
         RemoteLinuxRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
     QString defaultDisplayName();
@@ -137,7 +133,6 @@ protected slots:
 
 private slots:
     void proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress);
-    void updateDeviceConfigurations();
     void handleDeployConfigChanged();
     void handleDeployablesUpdated();
 

@@ -39,6 +39,8 @@
 #include "abstractmobileapp.h"
 #include "qt4projectmanagerconstants.h"
 
+#include <qtsupport/qtsupportconstants.h>
+
 #include <utils/projectintropage.h>
 
 #include <QDebug>
@@ -235,7 +237,7 @@ int LibraryWizardDialog::nextId() const
 
             int next = m_modulesPageId;
 
-            const bool symbianTargetEnabled = isTargetSelected(Core::Id(Constants::S60_DEVICE_TARGET_ID));
+            const bool symbianTargetEnabled = isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM);
 
             // If there was no Symbian target defined we omit "Symbian specific" step
             // We also omit this step if the library type is not dll

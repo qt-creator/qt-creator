@@ -34,24 +34,26 @@
 #define ANDROIDRUNFACTORIES_H
 
 #include <projectexplorer/runconfiguration.h>
+#include <qt4projectmanager/qmakerunconfigurationfactory.h>
 
 namespace ProjectExplorer {
-    class RunConfiguration;
     class RunControl;
     class RunConfigWidget;
     class Target;
 }
-using ProjectExplorer::IRunConfigurationFactory;
+
 using ProjectExplorer::IRunControlFactory;
 using ProjectExplorer::RunConfiguration;
 using ProjectExplorer::RunControl;
 using ProjectExplorer::RunConfigWidget;
 using ProjectExplorer::Target;
 
+namespace ProjectExplorer { class Node; }
+
 namespace Android {
 namespace Internal {
 
-class AndroidRunConfigurationFactory : public IRunConfigurationFactory
+class AndroidRunConfigurationFactory : public Qt4ProjectManager::QmakeRunConfigurationFactory
 {
     Q_OBJECT
 
@@ -70,6 +72,10 @@ public:
 
     bool canClone(Target *parent, RunConfiguration *source) const;
     RunConfiguration *clone(Target *parent, RunConfiguration *source);
+
+    bool canHandle(ProjectExplorer::Target *t) const;
+    QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
+                                                                        ProjectExplorer::Node *n);
 };
 
 class AndroidRunControlFactory : public IRunControlFactory

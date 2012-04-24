@@ -57,6 +57,13 @@ public:
     ProjectExplorer::IDevice::Ptr clone() const;
     static QString maddeDisplayType(Core::Id type);
 
+    static bool allowsRemoteMounts(Core::Id type);
+    static bool allowsPackagingDisabling(Core::Id type);
+    static bool allowsQmlDebugging(Core::Id type);
+
+    static bool isDebianBased(Core::Id type);
+    static QSize packageManagerIconSize(Core::Id type);
+
 private:
     MaddeDevice();
     MaddeDevice(const QString &name, Core::Id type, MachineType machineType,

@@ -34,18 +34,20 @@
 #include "ui_makestep.h"
 
 #include "qt4project.h"
-#include "qt4target.h"
 #include "qt4nodes.h"
 #include "qt4buildconfiguration.h"
 #include "qt4projectmanagerconstants.h"
 
+#include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/profileinformation.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcprocess.h>
 #include <qtsupport/qtparser.h>
+#include <qtsupport/qtprofileinformation.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -152,11 +154,13 @@ bool MakeStep::init()
         return false;
     }
 
-    if (!bc->toolChain()) {
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(target()->profile());
+    if (!tc) {
         m_tasks.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                             tr("Qt Creator needs a tool chain set up to build. Configure a tool chain in Project mode."),
+                                             tr("Qt Creator needs a tool chain set up to build. Configure a tool chain the profile options."),
                                              Utils::FileName(), -1,
                                              Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+        return false;
     }
 
     ProjectExplorer::ProcessParameters *pp = processParameters();
@@ -169,7 +173,7 @@ bool MakeStep::init()
         workingDirectory = bc->buildDirectory();
     pp->setWorkingDirectory(workingDirectory);
 
-    QString makeCmd = bc->makeCommand();
+    QString makeCmd = tc->makeCommand();
     if (!m_makeCmd.isEmpty())
         makeCmd = m_makeCmd;
     pp->setCommand(makeCmd);
@@ -180,8 +184,6 @@ bool MakeStep::init()
     setIgnoreReturnValue(m_clean);
 
     QString args;
-
-    ProjectExplorer::ToolChain *toolchain = bc->toolChain();
 
     Qt4ProjectManager::Qt4ProFileNode *subNode = bc->subNodeBuild();
     if (subNode) {
@@ -245,12 +247,11 @@ bool MakeStep::init()
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
     // We also prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
-    ProjectExplorer::ToolChain *toolChain = bc->toolChain();
-    if (toolChain && m_makeCmd.isEmpty()) {
-        if (toolChain->targetAbi().binaryFormat() != ProjectExplorer::Abi::PEFormat )
+    if (tc && m_makeCmd.isEmpty()) {
+        if (tc->targetAbi().binaryFormat() != ProjectExplorer::Abi::PEFormat )
             Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
-        if (toolChain->targetAbi().os() == ProjectExplorer::Abi::WindowsOS
-                && toolChain->targetAbi().osFlavor() != ProjectExplorer::Abi::WindowsMSysFlavor) {
+        if (tc->targetAbi().os() == ProjectExplorer::Abi::WindowsOS
+                && tc->targetAbi().osFlavor() != ProjectExplorer::Abi::WindowsMSysFlavor) {
             const QString makeFlags = QLatin1String("MAKEFLAGS");
             env.set(makeFlags, QLatin1Char('L') + env.value(makeFlags));
         }
@@ -260,20 +261,21 @@ bool MakeStep::init()
     pp->setArguments(args);
 
     ProjectExplorer::IOutputParser *parser = 0;
-    if (bc->qtVersion())
-        parser = bc->qtVersion()->createOutputParser();
+    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
+    if (version)
+        parser = version->createOutputParser();
     if (parser)
         parser->appendOutputParser(new QtSupport::QtParser);
     else
         parser = new QtSupport::QtParser;
-    if (toolchain)
-        parser->appendOutputParser(toolchain->outputParser());
+    if (tc)
+        parser->appendOutputParser(tc->outputParser());
 
     parser->setWorkingDirectory(workingDirectory);
 
     setOutputParser(parser);
 
-    m_scriptTarget = (bc->qt4Target()->qt4Project()->rootQt4ProjectNode()->projectType() == ScriptTemplate);
+    m_scriptTarget = (static_cast<Qt4Project *>(bc->target()->project())->rootQt4ProjectNode()->projectType() == ScriptTemplate);
 
     return AbstractProcessStep::init();
 }
@@ -351,7 +353,6 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     m_ui->makePathChooser->setPath(makeCmd);
     m_ui->makeArgumentsLineEdit->setText(m_makeStep->userArguments());
 
-    updateMakeOverrideLabel();
     updateDetails();
 
     connect(m_ui->makePathChooser, SIGNAL(changed(QString)),
@@ -365,7 +366,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     ProjectExplorer::BuildConfiguration *bc = makeStep->buildConfiguration();
     if (!bc) {
         // That means the step is in the deploylist, so we listen to the active build config
-        // changed signal and update various things in return
+        // changed signal and react to the buildDirectoryChanged() signal of the buildconfiguration
         bc = makeStep->target()->activeBuildConfiguration();
         m_bc = bc;
         connect (makeStep->target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
@@ -375,17 +376,11 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     if (bc) {
         connect(bc, SIGNAL(buildDirectoryChanged()),
                 this, SLOT(updateDetails()));
-        connect(bc, SIGNAL(toolChainChanged()),
-                this, SLOT(updateDetails()));
-
-        connect(bc, SIGNAL(qtVersionChanged()),
-                this, SLOT(qtVersionChanged()));
     }
 
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
-            this, SLOT(updateMakeOverrideLabel()));
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateDetails()));
+    connect(m_makeStep->target(), SIGNAL(profileChanged()), this, SLOT(updateDetails()));
 }
 
 void MakeStepConfigWidget::activeBuildConfigurationChanged()
@@ -393,26 +388,23 @@ void MakeStepConfigWidget::activeBuildConfigurationChanged()
     if (m_bc) {
         disconnect(m_bc, SIGNAL(buildDirectoryChanged()),
                 this, SLOT(updateDetails()));
-        disconnect(m_bc, SIGNAL(toolChainChanged()),
-                this, SLOT(updateDetails()));
-
-        disconnect(m_bc, SIGNAL(qtVersionChanged()),
-                this, SLOT(qtVersionChanged()));
     }
 
     m_bc = m_makeStep->target()->activeBuildConfiguration();
-    updateMakeOverrideLabel();
     updateDetails();
 
     if (m_bc) {
         connect(m_bc, SIGNAL(buildDirectoryChanged()),
                 this, SLOT(updateDetails()));
-        connect(m_bc, SIGNAL(toolChainChanged()),
-                this, SLOT(updateDetails()));
-
-        connect(m_bc, SIGNAL(qtVersionChanged()),
-                this, SLOT(qtVersionChanged()));
     }
+}
+
+void MakeStepConfigWidget::setSummaryText(const QString &text)
+{
+    if (text == m_summaryText)
+        return;
+    m_summaryText = text;
+    emit updateSummary();
 }
 
 MakeStepConfigWidget::~MakeStepConfigWidget()
@@ -420,35 +412,31 @@ MakeStepConfigWidget::~MakeStepConfigWidget()
     delete m_ui;
 }
 
-void MakeStepConfigWidget::qtVersionChanged()
-{
-    updateMakeOverrideLabel();
-    updateDetails();
-}
-
-void MakeStepConfigWidget::updateMakeOverrideLabel()
-{
-    Qt4BuildConfiguration *bc = m_makeStep->qt4BuildConfiguration();
-    if (!bc)
-        bc = qobject_cast<Qt4BuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
-    if (bc)
-        m_ui->makeLabel->setText(tr("Override %1:").arg(bc->makeCommand()));
-    else
-        m_ui->makeLabel->setText(tr("Make:"));
-}
-
 void MakeStepConfigWidget::updateDetails()
 {
+    ProjectExplorer::ToolChain *tc
+            = ProjectExplorer::ToolChainProfileInformation::toolChain(m_makeStep->target()->profile());
+    if (tc)
+        m_ui->makeLabel->setText(tr("Override %1:").arg(tc->makeCommand()));
+    else
+        m_ui->makeLabel->setText(tr("Make:"));
+
+    if (!tc) {
+        setSummaryText(tr("<b>Make:</b> No tool chain set in profile."));
+        return;
+    }
     Qt4BuildConfiguration *bc = m_makeStep->qt4BuildConfiguration();
     if (!bc)
         bc = qobject_cast<Qt4BuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
-    if (!bc)
-        m_summaryText = tr("No Qt4 build configuration."); // Can't happen
+    if (!bc) {
+        setSummaryText(tr("<b>Make:</b> No Qt4 build configuration."));
+        return;
+    }
 
     ProjectExplorer::ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
     param.setWorkingDirectory(bc->buildDirectory());
-    QString makeCmd = bc->makeCommand();
+    QString makeCmd = tc->makeCommand();
     if (!m_makeStep->makeCommand().isEmpty())
         makeCmd = m_makeStep->makeCommand();
     param.setCommand(makeCmd);
@@ -469,23 +457,22 @@ void MakeStepConfigWidget::updateDetails()
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
     // We also prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
-    ProjectExplorer::ToolChain *toolChain = bc->toolChain();
-    if (toolChain && m_makeStep->makeCommand().isEmpty()) {
-        if (toolChain->targetAbi().binaryFormat() != ProjectExplorer::Abi::PEFormat )
+    if (tc && m_makeStep->makeCommand().isEmpty()) {
+        if (tc->targetAbi().binaryFormat() != ProjectExplorer::Abi::PEFormat )
             Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
-        if (toolChain->targetAbi().os() == ProjectExplorer::Abi::WindowsOS
-                && toolChain->targetAbi().osFlavor() != ProjectExplorer::Abi::WindowsMSysFlavor) {
+        if (tc->targetAbi().os() == ProjectExplorer::Abi::WindowsOS
+                && tc->targetAbi().osFlavor() != ProjectExplorer::Abi::WindowsMSysFlavor) {
             const QString makeFlags = QLatin1String("MAKEFLAGS");
             env.set(makeFlags, QLatin1Char('L') + env.value(makeFlags));
         }
     }
     param.setArguments(args);
     param.setEnvironment(env);
-    m_summaryText = param.summaryInWorkdir(displayName());
 
     if (param.commandMissing())
-        m_summaryText = tr("<b>Make:</b> %1 not found in the environment.").arg(makeCmd); // Override display text
-    emit updateSummary();
+        setSummaryText(tr("<b>Make:</b> %1 not found in the environment.").arg(makeCmd)); // Override display text
+    else
+        setSummaryText(param.summaryInWorkdir(displayName()));
 }
 
 QString MakeStepConfigWidget::summaryText() const

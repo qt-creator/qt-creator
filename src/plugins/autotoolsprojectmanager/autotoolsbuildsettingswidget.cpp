@@ -37,7 +37,7 @@
 #include "autotoolsbuildconfiguration.h"
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/target.h>
 
 #include <QGridLayout>
 #include <QLabel>
@@ -50,10 +50,7 @@ using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
-AutotoolsBuildSettingsWidget::AutotoolsBuildSettingsWidget(AutotoolsTarget *target) :
-    m_target(target),
-    m_pathChooser(0),
-    m_toolChainChooser(0),
+AutotoolsBuildSettingsWidget::AutotoolsBuildSettingsWidget() :
     m_buildConfiguration(0)
 {
     QFormLayout *fl = new QFormLayout(this);
@@ -63,23 +60,8 @@ AutotoolsBuildSettingsWidget::AutotoolsBuildSettingsWidget(AutotoolsTarget *targ
     m_pathChooser = new Utils::PathChooser(this);
     m_pathChooser->setEnabled(true);
     m_pathChooser->setExpectedKind(Utils::PathChooser::Directory);
-    m_pathChooser->setBaseDirectory(m_target->autotoolsProject()->projectDirectory());
     fl->addRow(tr("Build directory:"), m_pathChooser);
     connect(m_pathChooser, SIGNAL(changed(QString)), this, SLOT(buildDirectoryChanged()));
-
-    // tool chain
-    m_toolChainChooser = new QComboBox;
-    m_toolChainChooser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    updateToolChainList();
-
-    fl->addRow(tr("Tool chain:"), m_toolChainChooser);
-    connect(m_toolChainChooser, SIGNAL(activated(int)), this, SLOT(toolChainSelected(int)));
-    connect(m_target->autotoolsProject(), SIGNAL(toolChainChanged(ProjectExplorer::ToolChain*)),
-            this, SLOT(toolChainChanged(ProjectExplorer::ToolChain*)));
-    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
-            this, SLOT(updateToolChainList()));
-    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
-            this, SLOT(updateToolChainList()));
 }
 
 QString AutotoolsBuildSettingsWidget::displayName() const
@@ -90,46 +72,11 @@ QString AutotoolsBuildSettingsWidget::displayName() const
 void AutotoolsBuildSettingsWidget::init(BuildConfiguration *bc)
 {
     m_buildConfiguration = static_cast<AutotoolsBuildConfiguration *>(bc);
+    m_pathChooser->setBaseDirectory(bc->target()->project()->projectDirectory());
     m_pathChooser->setPath(m_buildConfiguration->buildDirectory());
 }
 
 void AutotoolsBuildSettingsWidget::buildDirectoryChanged()
 {
     m_buildConfiguration->setBuildDirectory(m_pathChooser->rawPath());
-}
-
-void AutotoolsBuildSettingsWidget::toolChainSelected(int index)
-{
-    using namespace ProjectExplorer;
-
-    ToolChain *tc = static_cast<ToolChain *>(m_toolChainChooser->itemData(index).value<void *>());
-    m_target->autotoolsProject()->setToolChain(tc);
-}
-
-void AutotoolsBuildSettingsWidget::toolChainChanged(ProjectExplorer::ToolChain *tc)
-{
-    for (int i = 0; i < m_toolChainChooser->count(); ++i) {
-        ToolChain *currentTc = static_cast<ToolChain *>(m_toolChainChooser->itemData(i).value<void *>());
-        if (currentTc != tc)
-            continue;
-        m_toolChainChooser->setCurrentIndex(i);
-        return;
-    }
-}
-
-void AutotoolsBuildSettingsWidget::updateToolChainList()
-{
-    m_toolChainChooser->clear();
-
-    QList<ToolChain *> tcs = ToolChainManager::instance()->toolChains();
-    if (!m_target->autotoolsProject()->toolChain()) {
-        m_toolChainChooser->addItem(tr("<Invalid tool chain>"), qVariantFromValue(static_cast<void *>(0)));
-        m_toolChainChooser->setCurrentIndex(0);
-    }
-    foreach (ToolChain *tc, tcs) {
-        m_toolChainChooser->addItem(tc->displayName(), qVariantFromValue(static_cast<void *>(tc)));
-        if (m_target->autotoolsProject()->toolChain()
-                && m_target->autotoolsProject()->toolChain()->id() == tc->id())
-            m_toolChainChooser->setCurrentIndex(m_toolChainChooser->count() - 1);
-    }
 }

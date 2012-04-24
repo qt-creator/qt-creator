@@ -340,9 +340,9 @@ PersistentSettingsWriter::PersistentSettingsWriter()
 static void writeVariantValue(QXmlStreamWriter &w, const Context &ctx,
                               const QVariant &variant, const QString &key = QString())
 {
-    switch (variant.type()) {
-    case QVariant::StringList:
-    case QVariant::List:
+    switch (static_cast<int>(variant.type())) {
+    case static_cast<int>(QVariant::StringList):
+    case static_cast<int>(QVariant::List):
         w.writeStartElement(ctx.valueListElement);
         w.writeAttribute(ctx.typeAttribute, QLatin1String(QVariant::typeToName(QVariant::List)));
         if (!key.isEmpty())
@@ -351,7 +351,7 @@ static void writeVariantValue(QXmlStreamWriter &w, const Context &ctx,
             writeVariantValue(w, ctx, var);
         w.writeEndElement();
         break;
-    case QVariant::Map: {
+    case static_cast<int>(QVariant::Map): {
         w.writeStartElement(ctx.valueMapElement);
         w.writeAttribute(ctx.typeAttribute, QLatin1String(QVariant::typeToName(QVariant::Map)));
         if (!key.isEmpty())
@@ -363,6 +363,9 @@ static void writeVariantValue(QXmlStreamWriter &w, const Context &ctx,
         w.writeEndElement();
     }
     break;
+    case static_cast<int>(QMetaType::QObjectStar): // ignore QObjects!
+    case static_cast<int>(QMetaType::VoidStar): // ignore void pointers!
+        break;
     default:
         w.writeStartElement(ctx.valueElement);
         w.writeAttribute(ctx.typeAttribute, QLatin1String(variant.typeName()));

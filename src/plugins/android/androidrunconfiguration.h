@@ -56,7 +56,6 @@ class AndroidDeviceConfigListModel;
 class AndroidDeployStep;
 class AndroidRunConfigurationFactory;
 class AndroidToolChain;
-class AndroidTarget;
 
 class AndroidRunConfiguration : public ProjectExplorer::RunConfiguration
 {
@@ -71,12 +70,11 @@ public:
 
     enum DebuggingType { DebugCppOnly, DebugQmlOnly, DebugCppAndQml };
 
-    AndroidRunConfiguration(AndroidTarget *parent, const QString &proFilePath);
+    AndroidRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &path);
     virtual ~AndroidRunConfiguration();
 
     QWidget *createConfigurationWidget();
     Utils::OutputFormatter *createOutputFormatter() const;
-    AndroidTarget *androidTarget() const;
     Qt4ProjectManager::Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
     AndroidDeployStep *deployStep() const;
@@ -87,12 +85,12 @@ public:
 
     DebuggingType debuggingType() const;
 
-    const QString gdbCmd() const;
+    const Utils::FileName gdbCmd() const;
     const QString remoteChannel() const;
     const QString dumperLib() const;
 
 protected:
-    AndroidRunConfiguration(AndroidTarget *parent, AndroidRunConfiguration *source);
+    AndroidRunConfiguration(ProjectExplorer::Target *parent, AndroidRunConfiguration *source);
     QString defaultDisplayName();
 
 private:

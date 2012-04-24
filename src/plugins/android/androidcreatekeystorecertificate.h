@@ -33,6 +33,8 @@
 #ifndef ANDROIDCREATEKEYSTORECERTIFICATE_H
 #define ANDROIDCREATEKEYSTORECERTIFICATE_H
 
+#include <utils/fileutils.h>
+
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
@@ -54,7 +56,7 @@ class AndroidCreateKeystoreCertificate : public QDialog
 public:
     explicit AndroidCreateKeystoreCertificate(QWidget *parent = 0);
     ~AndroidCreateKeystoreCertificate();
-    QString keystoreFilePath();
+    Utils::FileName keystoreFilePath();
     QString keystorePassword();
     QString certificateAlias();
     QString certificatePassword();
@@ -68,7 +70,7 @@ private slots:
 
 private:
     Ui::AndroidCreateKeystoreCertificate *ui;
-    QString m_keystoreFilePath;
+    Utils::FileName m_keystoreFilePath;
 };
 
 } // namespace Internal

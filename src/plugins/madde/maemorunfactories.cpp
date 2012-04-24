@@ -35,15 +35,17 @@
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfiguration.h"
 #include "maemoruncontrol.h"
-#include "maemotoolchain.h"
-#include "qt4maemotarget.h"
 
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/target.h>
+#include <qt4projectmanager/qt4nodes.h>
 #include <qt4projectmanager/qt4project.h>
+#include <qtsupport/customexecutablerunconfiguration.h>
 
 using namespace Debugger;
 using namespace ProjectExplorer;
@@ -57,7 +59,7 @@ namespace {
 
 QString pathFromId(Core::Id id)
 {
-    QString idStr = QString::fromUtf8(id.name());
+    QString idStr = id.toString();
     const QString prefix = QLatin1String(MAEMO_RC_ID_PREFIX);
     if (!idStr.startsWith(prefix))
         return QString();
@@ -67,9 +69,8 @@ QString pathFromId(Core::Id id)
 } // namespace
 
 MaemoRunConfigurationFactory::MaemoRunConfigurationFactory(QObject *parent)
-    : IRunConfigurationFactory(parent)
-{
-}
+    : QmakeRunConfigurationFactory(parent)
+{ setObjectName(QLatin1String("MaemoRunConfigurationFactory")); }
 
 MaemoRunConfigurationFactory::~MaemoRunConfigurationFactory()
 {
@@ -77,35 +78,37 @@ MaemoRunConfigurationFactory::~MaemoRunConfigurationFactory()
 
 bool MaemoRunConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
 {
-    return qobject_cast<Qt4BaseTarget *>(parent)->qt4Project()
-        ->hasApplicationProFile(pathFromId(id));
+    if (!canHandle(parent))
+        return false;
+    return static_cast<Qt4Project *>(parent->project())->hasApplicationProFile(pathFromId(id));
 }
 
 bool MaemoRunConfigurationFactory::canRestore(Target *parent,
     const QVariantMap &map) const
 {
-    Q_UNUSED(parent);
-    return qobject_cast<AbstractQt4MaemoTarget *>(parent)
-        && QString::fromUtf8(ProjectExplorer::idFromMap(map).name()).startsWith(QLatin1String(MAEMO_RC_ID));
+    return canHandle(parent)
+        && ProjectExplorer::idFromMap(map).toString().startsWith(QLatin1String(MAEMO_RC_ID_PREFIX));
 }
 
 bool MaemoRunConfigurationFactory::canClone(Target *parent,
     RunConfiguration *source) const
 {
+    if (!canHandle(parent))
+        return false;
     const RemoteLinuxRunConfiguration * const rlrc
             = qobject_cast<RemoteLinuxRunConfiguration *>(source);
     QString idStr = QString::fromLatin1(source->id().name()) + QLatin1Char('.') + rlrc->proFilePath();
-    return rlrc && canCreate(parent, Core::Id(idStr.toUtf8().constData()));
+    return rlrc && canCreate(parent, Core::Id(idStr));
 }
 
 QList<Core::Id> MaemoRunConfigurationFactory::availableCreationIds(Target *parent) const
 {
     QList<Core::Id> result;
-    if (AbstractQt4MaemoTarget *t = qobject_cast<AbstractQt4MaemoTarget *>(parent)) {
-        QStringList proFiles = t->qt4Project()->applicationProFilePathes(QLatin1String(MAEMO_RC_ID_PREFIX));
-        foreach (const QString &pf, proFiles)
-            result << Core::Id(pf.toUtf8().constData());
-    }
+    if (!canHandle(parent))
+        return result;
+    QStringList proFiles = static_cast<Qt4Project *>(parent->project())->applicationProFilePathes(QLatin1String(MAEMO_RC_ID_PREFIX));
+    foreach (const QString &pf, proFiles)
+        result << Core::Id(pf);
     return result;
 }
 
@@ -119,8 +122,7 @@ RunConfiguration *MaemoRunConfigurationFactory::create(Target *parent, const Cor
 {
     if (!canCreate(parent, id))
         return 0;
-    return new MaemoRunConfiguration(qobject_cast<AbstractQt4MaemoTarget *>(parent),
-        pathFromId(id));
+    return new MaemoRunConfiguration(parent, id, pathFromId(id));
 }
 
 RunConfiguration *MaemoRunConfigurationFactory::restore(Target *parent,
@@ -128,8 +130,10 @@ RunConfiguration *MaemoRunConfigurationFactory::restore(Target *parent,
 {
     if (!canRestore(parent, map))
         return 0;
+
+    Core::Id id = ProjectExplorer::idFromMap(map);
     MaemoRunConfiguration *rc
-        = new MaemoRunConfiguration(qobject_cast<AbstractQt4MaemoTarget *>(parent), QString());
+        = new MaemoRunConfiguration(parent, id, pathFromId(id));
     if (rc->fromMap(map))
         return rc;
 
@@ -143,7 +147,28 @@ RunConfiguration *MaemoRunConfigurationFactory::clone(Target *parent, RunConfigu
         return 0;
 
     MaemoRunConfiguration *old = static_cast<MaemoRunConfiguration *>(source);
-    return new MaemoRunConfiguration(static_cast<AbstractQt4MaemoTarget *>(parent), old);
+    return new MaemoRunConfiguration(parent, old);
+}
+
+bool MaemoRunConfigurationFactory::canHandle(Target *t) const
+{
+    if (!t->project()->supportsProfile(t->profile()))
+        return false;
+    if (!qobject_cast<Qt4Project *>(t->project()))
+        return false;
+    Core::Id devType = DeviceTypeProfileInformation::deviceTypeId(t->profile());
+    return devType == Core::Id(Maemo5OsType) || devType == Core::Id(HarmattanOsType)
+            || devType == Core::Id(MeeGoOsType);
+}
+
+QList<RunConfiguration *> MaemoRunConfigurationFactory::runConfigurationsForNode(Target *t, Node *n)
+{
+    QList<ProjectExplorer::RunConfiguration *> result;
+    foreach (ProjectExplorer::RunConfiguration *rc, t->runConfigurations())
+        if (MaemoRunConfiguration *mrc = qobject_cast<MaemoRunConfiguration *>(rc))
+            if (mrc->proFilePath() == n->path())
+                result << rc;
+    return result;
 }
 
 // #pragma mark -- MaemoRunControlFactory

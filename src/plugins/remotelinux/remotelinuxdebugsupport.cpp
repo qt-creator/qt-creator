@@ -37,11 +37,14 @@
 
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerstartparameters.h>
+#include <debugger/debuggerprofileinformation.h>
 #include <projectexplorer/abi.h>
+#include <projectexplorer/profile.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qtsupport/qtprofileinformation.h>
 #include <utils/qtcassert.h>
 
 #include <QPointer>
@@ -94,29 +97,35 @@ using namespace Internal;
 DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const RemoteLinuxRunConfiguration *runConfig)
 {
     DebuggerStartParameters params;
-    const IDevice::ConstPtr &devConf = runConfig->deviceConfig();
+    const LinuxDeviceConfiguration::ConstPtr devConf
+            = ProjectExplorer::DeviceProfileInformation::device(runConfig->target()->profile())
+              .dynamicCast<const RemoteLinux::LinuxDeviceConfiguration>();
     if (runConfig->debuggerAspect()->useQmlDebugger()) {
         params.languages |= QmlLanguage;
-        params.qmlServerAddress = runConfig->deviceConfig()->sshParameters().host;
+        params.qmlServerAddress = devConf->sshParameters().host;
         params.qmlServerPort = 0; // port is selected later on
     }
     if (runConfig->debuggerAspect()->useCppDebugger()) {
         params.languages |= CppLanguage;
         params.processArgs = runConfig->arguments();
-        if (runConfig->activeQt4BuildConfiguration()->qtVersion())
-            params.sysroot = runConfig->activeQt4BuildConfiguration()->qtVersion()->systemRoot();
+        QString systemRoot;
+        if (ProjectExplorer::SysRootProfileInformation::hasSysRoot(runConfig->target()->profile()))
+            systemRoot = ProjectExplorer::SysRootProfileInformation::sysRoot(runConfig->target()->profile()).toString();
+        params.sysroot = systemRoot;
         params.toolChainAbi = runConfig->abi();
         params.startMode = AttachToRemoteServer;
         params.executable = runConfig->localExecutableFilePath();
-        params.debuggerCommand = runConfig->gdbCmd();
+        params.debuggerCommand = Debugger::DebuggerProfileInformation::debuggerCommand(runConfig->target()->profile()).toString();
         params.remoteChannel = devConf->sshParameters().host + QLatin1String(":-1");
 
         // TODO: This functionality should be inside the debugger.
-        const ProjectExplorer::Abi &abi = runConfig->target()
-            ->activeBuildConfiguration()->toolChain()->targetAbi();
-        params.remoteArchitecture = abi.toString();
-        params.gnuTarget = QLatin1String(abi.architecture() == ProjectExplorer::Abi::ArmArchitecture
-            ? "arm-none-linux-gnueabi": "i386-unknown-linux-gnu");
+        ToolChain *tc = ToolChainProfileInformation::toolChain(runConfig->target()->profile());
+        if (tc) {
+            const ProjectExplorer::Abi &abi = tc->targetAbi();
+            params.remoteArchitecture = abi.toString();
+            params.gnuTarget = QLatin1String(abi.architecture() == ProjectExplorer::Abi::ArmArchitecture
+                                             ? "arm-none-linux-gnueabi": "i386-unknown-linux-gnu");
+        }
     } else {
         params.startMode = AttachToRemoteServer;
     }

@@ -33,15 +33,16 @@
 #ifndef TOOLCHAINOPTIONSPAGE_H
 #define TOOLCHAINOPTIONSPAGE_H
 
-#include "ui_toolchainoptionspage.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QAbstractItemModel>
 
 QT_BEGIN_NAMESPACE
+class QBoxLayout;
+class QItemSelectionModel;
+class QPushButton;
+class QTreeView;
 class QTreeWidgetItem;
-class QWidget;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -63,7 +64,7 @@ class ToolChainModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit ToolChainModel(QWidget *configWidgetParent, QObject *parent = 0);
+    explicit ToolChainModel(QBoxLayout *parentLayout, QObject *parent = 0);
     ~ToolChainModel();
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -109,7 +110,7 @@ private:
     QList<ToolChainNode *> m_toAddList;
     QList<ToolChainNode *> m_toRemoveList;
 
-    QWidget *m_configWidgetParent;
+    QBoxLayout *m_parentLayout;
 };
 
 // --------------------------------------------------------------------------
@@ -137,7 +138,6 @@ private slots:
 private:
     QModelIndex currentIndex() const;
 
-    Ui::ToolChainOptionsPage *m_ui;
     QWidget *m_configWidget;
     QString m_searchKeywords;
 
@@ -145,6 +145,10 @@ private:
     QList<ToolChainFactory *> m_factories;
     QItemSelectionModel * m_selectionModel;
     ToolChainConfigWidget *m_currentTcWidget;
+    QTreeView *m_toolChainView;
+    QPushButton *m_addButton;
+    QPushButton *m_cloneButton;
+    QPushButton *m_delButton;
 };
 
 } // namespace Internal

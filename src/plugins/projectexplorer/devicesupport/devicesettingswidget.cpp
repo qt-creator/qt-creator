@@ -31,12 +31,14 @@
 #include "devicesettingswidget.h"
 #include "ui_devicesettingswidget.h"
 
+#include "projectexplorerconstants.h"
 #include "devicefactoryselectiondialog.h"
 #include "devicemanager.h"
 #include "devicemanagermodel.h"
 #include "idevice.h"
 #include "idevicefactory.h"
 #include "idevicewidget.h"
+#include "projectexplorerconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
@@ -94,7 +96,6 @@ private:
     const DeviceManager * const m_deviceManager;
 };
 
-
 DeviceSettingsWidget::DeviceSettingsWidget(QWidget *parent)
     : QWidget(parent),
       m_ui(new Ui::DeviceSettingsWidget),
@@ -105,6 +106,7 @@ DeviceSettingsWidget::DeviceSettingsWidget(QWidget *parent)
       m_additionalActionsMapper(new QSignalMapper(this)),
       m_configWidget(0)
 {
+    m_deviceManagerModel->setFilter(QList<Core::Id>() << Core::Id(Constants::DESKTOP_DEVICE_ID));
     initGui();
     connect(m_additionalActionsMapper, SIGNAL(mapped(int)),
             SLOT(handleAdditionalActionRequest(int)));

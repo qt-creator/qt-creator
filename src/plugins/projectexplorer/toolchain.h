@@ -73,16 +73,15 @@ public:
 
     bool isAutoDetected() const;
     QString id() const;
-    // No need to implement this for new tool chains:
-    virtual QString legacyId() const { return QString(); }
+
+    virtual QList<Utils::FileName> suggestedMkspecList() const { return QList<Utils::FileName>(); }
+    Utils::FileName suggestedDebugger();
 
     virtual QString type() const = 0;
     virtual QString typeDisplayName() const = 0;
     virtual Abi targetAbi() const = 0;
 
     virtual bool isValid() const = 0;
-
-    virtual QList<Core::Id> restrictedToTargets() const;
 
     virtual QByteArray predefinedMacros(const QStringList &cxxflags) const = 0;
 
@@ -95,12 +94,7 @@ public:
     virtual void addToEnvironment(Utils::Environment &env) const = 0;
     virtual QString makeCommand() const = 0;
 
-    QList<Utils::FileName> mkspecList() const;
-    void setMkspecList(const QList<Utils::FileName> &specList);
-    virtual QList<Utils::FileName> suggestedMkspecList() const { return QList<Utils::FileName>(); }
-
     virtual Utils::FileName compilerCommand() const = 0;
-    virtual Utils::FileName debuggerCommand() const = 0;
     virtual QString defaultMakeTarget() const;
     virtual IOutputParser *outputParser() const = 0;
 

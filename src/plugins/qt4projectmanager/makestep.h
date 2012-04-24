@@ -136,12 +136,12 @@ private slots:
     void makeEdited();
     void makeArgumentsLineEdited();
 
-    void updateMakeOverrideLabel();
     void updateDetails();
     void userArgumentsChanged();
-    void qtVersionChanged();
     void activeBuildConfigurationChanged();
 private:
+    void setSummaryText(const QString &text);
+
     Internal::Ui::MakeStep *m_ui;
     MakeStep *m_makeStep;
     QString m_summaryText;

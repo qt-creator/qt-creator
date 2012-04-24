@@ -32,11 +32,14 @@
 
 #include "project.h"
 
+#include "buildconfiguration.h"
+#include "deployconfiguration.h"
 #include "editorconfiguration.h"
 #include "environment.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectnodes.h"
+#include "runconfiguration.h"
 #include "target.h"
 #include "settingsaccessor.h"
 
@@ -44,6 +47,8 @@
 #include <coreplugin/icontext.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/profile.h>
+#include <projectexplorer/profilemanager.h>
 #include <limits>
 #include <utils/qtcassert.h>
 
@@ -112,7 +117,7 @@ Project::~Project()
 
 bool Project::hasActiveBuildSettings() const
 {
-    return activeTarget() && activeTarget()->buildConfigurationFactory();
+    return activeTarget() && IBuildConfigurationFactory::find(activeTarget());
 }
 
 QString Project::makeUnique(const QString &preferredName, const QStringList &usedNames)
@@ -143,7 +148,7 @@ void Project::changeBuildConfigurationEnabled()
 void Project::addTarget(Target *t)
 {
     QTC_ASSERT(t && !d->m_targets.contains(t), return);
-    QTC_ASSERT(!target(t->id()), return);
+    QTC_ASSERT(!target(t->profile()), return);
     Q_ASSERT(t->project() == this);
 
     // Check that we don't have a configuration with the same displayName
@@ -160,6 +165,10 @@ void Project::addTarget(Target *t)
             SLOT(changeEnvironment()));
     connect(t, SIGNAL(buildConfigurationEnabledChanged()),
             this, SLOT(changeBuildConfigurationEnabled()));
+    connect(t, SIGNAL(requestBuildSystemEvaluation()),
+            this, SLOT(triggerBuildSystemEvaluation()));
+    connect(t, SIGNAL(buildDirectoryChanged()),
+            this, SLOT(onBuildDirectoryChanged()));
     emit addedTarget(t);
 
     // check activeTarget:
@@ -216,13 +225,62 @@ void Project::setActiveTarget(Target *target)
     }
 }
 
-Target *Project::target(Core::Id id) const
+Target *Project::target(const Core::Id id) const
 {
     foreach (Target * target, d->m_targets) {
         if (target->id() == id)
             return target;
     }
     return 0;
+}
+
+Target *Project::target(Profile *p) const
+{
+    foreach (Target *target, d->m_targets) {
+        if (target->profile() == p)
+            return target;
+    }
+    return 0;
+}
+
+bool Project::supportsProfile(Profile *p) const
+{
+    Q_UNUSED(p);
+    return true;
+}
+
+Target *Project::createTarget(Profile *p)
+{
+    if (target(p))
+        return 0;
+
+    Target *t = new Target(this, p);
+    t->createDefaultSetup();
+
+    return t;
+}
+
+Target *Project::restoreTarget(const QVariantMap &data)
+{
+    Core::Id id = idFromMap(data);
+    if (target(id)) {
+        qWarning("Warning: Duplicated target id found, not restoring second target with id '%s'. Continuing.",
+                 qPrintable(id.toString()));
+        return 0;
+    }
+
+    Profile *p = ProfileManager::instance()->find(id);
+    if (!p) {
+        qWarning("Warning: No profile '%s' found. Continuing.", qPrintable(id.toString()));
+        return 0;
+    }
+
+    Target *t = new Target(this, p);
+    if (!t->fromMap(data)) {
+        delete t;
+        return 0;
+    }
+    return t;
 }
 
 void Project::saveSettings()
@@ -314,32 +372,15 @@ bool Project::fromMap(const QVariantMap &map)
         }
         QVariantMap targetMap = map.value(key).toMap();
 
-        QList<ITargetFactory *> factories =
-                ExtensionSystem::PluginManager::getObjects<ITargetFactory>();
+        Target *t = restoreTarget(targetMap);
+        if (!t)
+            continue;
 
-        Target *t = 0;
-
-        Core::Id id = idFromMap(targetMap);
-        if (target(id)) {
-            qWarning("Warning: Duplicated target id found, not restoring second target with id '%s'. Continuing.",
-                     qPrintable(id.toString()));
-        } else {
-            foreach (ITargetFactory *factory, factories) {
-                if (factory->canRestore(this, targetMap)) {
-                    t = factory->restore(this, targetMap);
-                    break;
-                }
-            }
-
-            if (!t) {
-                qWarning("Warning: Unable to restore target '%s'. Continuing.", qPrintable(id.toString()));
-                continue;
-            }
-            addTarget(t);
-            if (i == active)
-                setActiveTarget(t);
-        }
+        addTarget(t);
+        if (i == active)
+            setActiveTarget(t);
     }
+
     return true;
 }
 
@@ -363,6 +404,9 @@ void Project::setProjectLanguage(Core::Context language)
     d->m_projectLanguage = language;
 }
 
+void Project::evaluateBuildSystem()
+{ buildSystemEvaluationFinished(true); }
+
 Core::Context Project::projectContext() const
 {
     return d->m_projectContext;
@@ -380,7 +424,10 @@ QVariant Project::namedSettings(const QString &name) const
 
 void Project::setNamedSettings(const QString &name, QVariant &value)
 {
-    d->m_pluginSettings.insert(name, value);
+    if (value.isNull())
+        d->m_pluginSettings.remove(name);
+    else
+        d->m_pluginSettings.insert(name, value);
 }
 
 bool Project::needsConfiguration() const
@@ -391,6 +438,41 @@ bool Project::needsConfiguration() const
 void Project::configureAsExampleProject(const QStringList &platforms)
 {
     Q_UNUSED(platforms);
+}
+
+void Project::triggerBuildSystemEvaluation()
+{
+    Target *target = qobject_cast<Target *>(sender());
+    if (target && target != activeTarget())
+        return;
+
+    evaluateBuildSystem();
+}
+
+void Project::buildSystemEvaluationFinished(bool success)
+{
+    if (!success)
+        return;
+
+    // Create new run configurations:
+    foreach (Target *t, targets())
+        t->updateDefaultRunConfigurations();
+
+    emit buildSystemEvaluated();
+}
+
+void Project::onBuildDirectoryInitialized()
+{
+    Target *target = qobject_cast<Target *>(sender());
+    if (target && target == activeTarget())
+        emit buildDirectoryInitialized();
+}
+
+void Project::onBuildDirectoryChanged()
+{
+    Target *target = qobject_cast<Target *>(sender());
+    if (target && target == activeTarget())
+        emit buildDirectoryChanged();
 }
 
 } // namespace ProjectExplorer

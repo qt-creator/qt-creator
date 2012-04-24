@@ -4,7 +4,6 @@ include(../../qtcreatorplugin.pri)
 include(genericprojectmanager_dependencies.pri)
 HEADERS = genericproject.h \
     genericprojectplugin.h \
-    generictarget.h \
     genericprojectmanager.h \
     genericprojectconstants.h \
     genericprojectnodes.h \
@@ -17,7 +16,6 @@ HEADERS = genericproject.h \
     filesselectionwizardpage.h
 SOURCES = genericproject.cpp \
     genericprojectplugin.cpp \
-    generictarget.cpp \
     genericprojectmanager.cpp \
     genericprojectnodes.cpp \
     genericprojectwizard.cpp \

@@ -53,7 +53,6 @@
 #include <QDesktopServices>
 
 #define KEY_ROOT "ProjectExplorer.MsvcToolChain."
-static const char debuggerCommandKeyC[] = KEY_ROOT"Debugger";
 static const char varsBatKeyC[] = KEY_ROOT"VarsBat";
 static const char varsBatArgKeyC[] = KEY_ROOT"VarsBatArg";
 static const char supportedAbiKeyC[] = KEY_ROOT"SupportedAbi";
@@ -332,19 +331,6 @@ MsvcToolChain *MsvcToolChain::readFromMap(const QVariantMap &data)
     return 0;
 }
 
-QString MsvcToolChain::legacyId() const
-{
-    const QChar colon = QLatin1Char(':');
-    QString id = QLatin1String(Constants::MSVC_TOOLCHAIN_ID);
-    id += colon;
-    id += m_vcvarsBat;
-    id += colon;
-    id += m_varsBatArg;
-    id += colon;
-    id += m_debuggerCommand.toString();
-    return id;
-}
-
 QString MsvcToolChain::type() const
 {
     return QLatin1String("msvc");
@@ -369,8 +355,6 @@ QList<Utils::FileName> MsvcToolChain::suggestedMkspecList() const
 QVariantMap MsvcToolChain::toMap() const
 {
     QVariantMap data = ToolChain::toMap();
-    if (!m_debuggerCommand.isEmpty())
-        data.insert(QLatin1String(debuggerCommandKeyC), m_debuggerCommand.toString());
     data.insert(QLatin1String(varsBatKeyC), m_vcvarsBat);
     if (!m_varsBatArg.isEmpty())
         data.insert(QLatin1String(varsBatArgKeyC), m_varsBatArg);
@@ -384,7 +368,6 @@ bool MsvcToolChain::fromMap(const QVariantMap &data)
         return false;
     m_vcvarsBat = data.value(QLatin1String(varsBatKeyC)).toString();
     m_varsBatArg = data.value(QLatin1String(varsBatArgKeyC)).toString();
-    m_debuggerCommand = Utils::FileName::fromString(data.value(QLatin1String(debuggerCommandKeyC)).toString());
     const QString abiString = data.value(QLatin1String(supportedAbiKeyC)).toString();
     m_abi = Abi(abiString);
 
@@ -403,42 +386,6 @@ ToolChain *MsvcToolChain::clone() const
 }
 
 // --------------------------------------------------------------------------
-// MsvcDebuggerConfigLabel
-// --------------------------------------------------------------------------
-
-static const char dgbToolsDownloadLink32C[] = "http://www.microsoft.com/whdc/devtools/debugging/installx86.Mspx";
-static const char dgbToolsDownloadLink64C[] = "http://www.microsoft.com/whdc/devtools/debugging/install64bit.Mspx";
-
-QString MsvcDebuggerConfigLabel::labelText()
-{
-#ifdef Q_OS_WIN
-    const bool is64bit = Utils::winIs64BitSystem();
-#else
-    const bool is64bit = false;
-#endif
-    const QString link = is64bit ? QLatin1String(dgbToolsDownloadLink64C) : QLatin1String(dgbToolsDownloadLink32C);
-    //: Label text for path configuration. %2 is "x-bit version".
-    return tr(
-    "<html><body><p>Specify the path to the "
-    "<a href=\"%1\">Windows Console Debugger executable</a>"
-    " (%2) here.</p>"
-    "</body></html>").arg(link, (is64bit ? tr("64-bit version")
-                                         : tr("32-bit version")));
-}
-
-MsvcDebuggerConfigLabel::MsvcDebuggerConfigLabel(QWidget *parent) :
-        QLabel(labelText(), parent)
-{
-    connect(this, SIGNAL(linkActivated(QString)), this, SLOT(slotLinkActivated(QString)));
-    setTextInteractionFlags(Qt::TextBrowserInteraction);
-}
-
-void MsvcDebuggerConfigLabel::slotLinkActivated(const QString &link)
-{
-    QDesktopServices::openUrl(QUrl(link));
-}
-
-// --------------------------------------------------------------------------
 // MsvcToolChainConfigWidget
 // --------------------------------------------------------------------------
 
@@ -450,21 +397,12 @@ MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc) :
     formLayout->addRow(new QLabel(tc->displayName()));
     m_varsBatDisplayLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
     formLayout->addRow(tr("Initialization:"), m_varsBatDisplayLabel);
-    formLayout->addRow(new MsvcDebuggerConfigLabel);
-    addDebuggerCommandControls(formLayout, QStringList(QLatin1String("-version")));
-    addDebuggerAutoDetection(this, SLOT(autoDetectDebugger()));
-    addMkspecControls(formLayout);
     addErrorLabel(formLayout);
     setFromToolChain();
 }
 
 void MsvcToolChainConfigWidget::apply()
-{
-    MsvcToolChain *tc = static_cast<MsvcToolChain *>(toolChain());
-    QTC_ASSERT(tc, return; );
-    tc->setDebuggerCommand(debuggerCommand());
-    tc->setMkspecList(mkspecList());
-}
+{ }
 
 void MsvcToolChainConfigWidget::setFromToolChain()
 {
@@ -476,45 +414,11 @@ void MsvcToolChainConfigWidget::setFromToolChain()
         varsBatDisplay += tc->varsBatArg();
     }
     m_varsBatDisplayLabel->setText(varsBatDisplay);
-    setDebuggerCommand(tc->debuggerCommand());
-    setMkspecList(tc->mkspecList());
 }
 
 bool MsvcToolChainConfigWidget::isDirty() const
 {
-    MsvcToolChain *tc = static_cast<MsvcToolChain *>(toolChain());
-    QTC_ASSERT(tc, return false);
-    return debuggerCommand() != tc->debuggerCommand()
-            || mkspecList() != tc->mkspecList();
-}
-
-void MsvcToolChainConfigWidget::autoDetectDebugger()
-{
-    clearErrorMessage();
-
-    MsvcToolChain *tc = static_cast<MsvcToolChain *>(toolChain());
-    QTC_ASSERT(tc, return);
-    ProjectExplorer::Abi abi = tc->targetAbi();
-
-    const QPair<Utils::FileName, Utils::FileName> cdbExecutables = MsvcToolChain::autoDetectCdbDebugger();
-    Utils::FileName debugger;
-    if (abi.wordWidth() == 32) {
-        if (cdbExecutables.first.isEmpty()) {
-            setErrorMessage(tr("No CDB debugger detected (neither 32bit nor 64bit)."));
-            return;
-        }
-        debugger = cdbExecutables.first;
-    } else if (abi.wordWidth() == 64) {
-        if (cdbExecutables.second.isEmpty()) {
-            setErrorMessage(tr("No 64bit CDB debugger detected."));
-            return;
-        }
-        debugger = cdbExecutables.second;
-    }
-    if (debugger != debuggerCommand()) {
-        setDebuggerCommand(debugger);
-        emitDirty();
-    }
+    return false;
 }
 
 // --------------------------------------------------------------------------
@@ -638,77 +542,8 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
                                                  vcvarsIA64bat, QString(), true));
         }
     }
-    if (!results.isEmpty()) { // Detect debugger
-        const QPair<Utils::FileName, Utils::FileName> cdbDebugger = MsvcToolChain::autoDetectCdbDebugger();
-        foreach (ToolChain *tc, results)
-            static_cast<MsvcToolChain *>(tc)->setDebuggerCommand(tc->targetAbi().wordWidth() == 32 ? cdbDebugger.first : cdbDebugger.second);
-    }
 
     return results;
-}
-
-// Detect CDB, return a pair of <32bit, 64bit> executables.
-QPair<Utils::FileName, Utils::FileName> MsvcToolChain::autoDetectCdbDebugger()
-{
-    QPair<Utils::FileName, Utils::FileName> result;
-    QList<Utils::FileName> cdbs;
-
-    QStringList programDirs;
-    programDirs.append(QString::fromLocal8Bit(qgetenv("ProgramFiles")));
-    programDirs.append(QString::fromLocal8Bit(qgetenv("ProgramFiles(x86)")));
-    programDirs.append(QString::fromLocal8Bit(qgetenv("ProgramW6432")));
-
-    foreach (const QString &dirName, programDirs) {
-        if (dirName.isEmpty())
-            continue;
-        QDir dir(dirName);
-        // Windows SDK's starting from version 8 live in
-        // "ProgramDir\Windows Kits\<version>"
-        const QString windowsKitsFolderName = QLatin1String("Windows Kits");
-        if (dir.exists(windowsKitsFolderName)) {
-            QDir windowKitsFolder = dir;
-            if (windowKitsFolder.cd(windowsKitsFolderName)) {
-                // Check in reverse order (latest first)
-                const QFileInfoList kitFolders =
-                    windowKitsFolder.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot,
-                                                   QDir::Time|QDir::Reversed);
-                foreach (const QFileInfo &kitFolderFi, kitFolders) {
-                    const QString path = kitFolderFi.absoluteFilePath();
-                    const QFileInfo cdb32(path + QLatin1String("/Debuggers/x86/cdb.exe"));
-                    if (cdb32.isExecutable())
-                        cdbs.push_back(Utils::FileName::fromString(cdb32.absoluteFilePath()));
-                    const QFileInfo cdb64(path + QLatin1String("/Debuggers/x64/cdb.exe"));
-                    if (cdb64.isExecutable())
-                        cdbs.push_back(Utils::FileName::fromString(cdb64.absoluteFilePath()));
-                } // for Kits
-            } // can cd to "Windows Kits"
-        } // "Windows Kits" exists
-
-        // Pre Windows SDK 8: Check 'Debugging Tools for Windows'
-        foreach (const QFileInfo &fi, dir.entryInfoList(QStringList(QLatin1String("Debugging Tools for Windows*")),
-                                                        QDir::Dirs | QDir::NoDotAndDotDot)) {
-            Utils::FileName filePath(fi);
-            filePath.appendPath(QLatin1String("cdb.exe"));
-            if (!cdbs.contains(filePath))
-                cdbs.append(filePath);
-        }
-    }
-
-    foreach (const Utils::FileName &cdb, cdbs) {
-        QList<ProjectExplorer::Abi> abis = ProjectExplorer::Abi::abisOfBinary(cdb);
-        if (abis.isEmpty())
-            continue;
-        if (abis.first().wordWidth() == 32)
-            result.first = cdb;
-        else if (abis.first().wordWidth() == 64)
-            result.second = cdb;
-    }
-
-    // prefer 64bit debugger, even for 32bit binaries:
-    if (!result.second.isEmpty())
-        result.first = result.second;
-
-    return result;
 }
 
 bool MsvcToolChain::operator ==(const ToolChain &other) const

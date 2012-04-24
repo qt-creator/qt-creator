@@ -65,6 +65,7 @@ public:
 
 public:
     void insertTarget(int index, const QString &name);
+    void renameTarget(int index, const QString &name);
     void removeTarget(int index);
     void setCurrentIndex(int index);
     void setCurrentSubIndex(int index);

@@ -74,7 +74,6 @@ public:
 protected:
     virtual GccToolChain *createToolChain(bool autoDetect);
     QList<ToolChain *> autoDetectToolchains(const QString &compiler,
-                                            const QStringList &debuggers,
                                             const Abi &);
 };
 
@@ -95,7 +94,6 @@ public:
 
 private slots:
     void handleCompilerCommandChange();
-    void handleAbiChange();
 
 private:
     void setFromToolchain();

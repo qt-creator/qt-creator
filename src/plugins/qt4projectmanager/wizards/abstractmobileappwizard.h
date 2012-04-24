@@ -76,10 +76,7 @@ protected:
 private:
     int idOfNextGenericPage() const;
     Utils::WizardProgressItem *itemOfNextGenericPage() const;
-    bool isSymbianTargetSelected() const;
-    bool isFremantleTargetSelected() const;
-    bool isHarmattanTargetSelected() const;
-    bool isMeegoTargetSelected() const;
+    bool isQtPlatformSelected(const QString &platform) const;
 
     Internal::MobileAppWizardGenericOptionsPage *m_genericOptionsPage;
     Internal::MobileAppWizardSymbianOptionsPage *m_symbianOptionsPage;

@@ -85,16 +85,6 @@ QList<ProjectExplorer::Abi> SimulatorQtVersion::detectQtAbis() const
     return qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
 }
 
-bool SimulatorQtVersion::supportsTargetId(const Core::Id id) const
-{
-    return id == Core::Id(Constants::QT_SIMULATOR_TARGET_ID);
-}
-
-QSet<Core::Id> SimulatorQtVersion::supportedTargetIds() const
-{
-    return QSet<Core::Id>() << Core::Id(Constants::QT_SIMULATOR_TARGET_ID);
-}
-
 QString SimulatorQtVersion::description() const
 {
     return QCoreApplication::translate("QtVersion", "Qt Simulator", "Qt Version is meant for Qt Simulator");

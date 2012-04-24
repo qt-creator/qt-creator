@@ -29,6 +29,7 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
+
 #include "linuxdeviceconfiguration.h"
 
 #include "genericlinuxdeviceconfigurationwidget.h"
@@ -39,6 +40,9 @@
 #include "remotelinux_constants.h"
 
 #include <coreplugin/id.h>
+
+#include <utils/portlist.h>
+#include <ssh/sshconnection.h>
 #include <utils/qtcassert.h>
 
 namespace RemoteLinux {

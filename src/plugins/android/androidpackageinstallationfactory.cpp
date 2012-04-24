@@ -33,11 +33,13 @@
 #include "androidpackageinstallationfactory.h"
 
 #include "androidpackageinstallationstep.h"
+#include "androidmanager.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include <QCoreApplication>
 
@@ -53,11 +55,13 @@ AndroidPackageInstallationFactory::AndroidPackageInstallationFactory(QObject *pa
 
 QList<Core::Id> AndroidPackageInstallationFactory::availableCreationIds(BuildStepList *parent) const
 {
-    if (parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-            && parent->target()->id() == Core::Id(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID)
-            && !parent->contains(Core::Id(AndroidPackageInstallationStep::Id)))
-        return QList<Core::Id>() << Core::Id(AndroidPackageInstallationStep::Id);
-    return QList<Core::Id>();
+    if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY))
+        return QList<Core::Id>();
+    if (!AndroidManager::supportsAndroid(parent->target()))
+        return QList<Core::Id>();
+    if (parent->contains(AndroidPackageInstallationStep::Id))
+        return QList<Core::Id>();
+    return QList<Core::Id>() << AndroidPackageInstallationStep::Id;
 }
 
 QString AndroidPackageInstallationFactory::displayNameForId(const Core::Id id) const
@@ -70,10 +74,7 @@ QString AndroidPackageInstallationFactory::displayNameForId(const Core::Id id) c
 
 bool AndroidPackageInstallationFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
-    return parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-            && id == Core::Id(AndroidPackageInstallationStep::Id)
-            && parent->target()->id() == Core::Id(Qt4ProjectManager::Constants::ANDROID_DEVICE_TARGET_ID)
-            && !parent->contains(AndroidPackageInstallationStep::Id);
+    return availableCreationIds(parent).contains(id);
 }
 
 BuildStep *AndroidPackageInstallationFactory::create(BuildStepList *parent, const Core::Id id)

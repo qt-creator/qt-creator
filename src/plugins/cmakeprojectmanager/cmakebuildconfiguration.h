@@ -43,7 +43,6 @@ class ToolChain;
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeTarget;
 class CMakeBuildConfigurationFactory;
 
 class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
@@ -52,12 +51,11 @@ class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
     friend class CMakeBuildConfigurationFactory;
 
 public:
-    CMakeBuildConfiguration(CMakeTarget *parent);
+    CMakeBuildConfiguration(ProjectExplorer::Target *parent);
     ~CMakeBuildConfiguration();
 
-    CMakeTarget *cmakeTarget() const;
-
-    virtual QString buildDirectory() const;
+    ProjectExplorer::BuildConfigWidget *createConfigWidget();
+    QString buildDirectory() const;
 
     void setBuildDirectory(const QString &buildDirectory);
 
@@ -70,7 +68,7 @@ public:
     BuildType buildType() const;
 
 protected:
-    CMakeBuildConfiguration(CMakeTarget *parent, CMakeBuildConfiguration *source);
+    CMakeBuildConfiguration(ProjectExplorer::Target *parent, CMakeBuildConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
 
 private:
@@ -86,15 +84,18 @@ public:
     CMakeBuildConfigurationFactory(QObject *parent = 0);
     ~CMakeBuildConfigurationFactory();
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QList<Core::Id> availableCreationIds(const ProjectExplorer::Target *parent) const;
     QString displayNameForId(const Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
-    CMakeBuildConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
+    bool canCreate(const ProjectExplorer::Target *parent, const Core::Id id) const;
+    CMakeBuildConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id, const QString &name = QString());
+    bool canClone(const ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
     CMakeBuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source);
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
+    bool canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const;
     CMakeBuildConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
+
+private:
+    bool canHandle(const ProjectExplorer::Target *t) const;
 };
 
 } // namespace Internal

@@ -41,6 +41,39 @@
 
 using namespace Utils;
 
+FadingWidget::FadingWidget(QWidget *parent) :
+    FadingPanel(parent),
+    m_opacityEffect(new QGraphicsOpacityEffect)
+{
+    m_opacityEffect->setOpacity(0);
+    setGraphicsEffect(m_opacityEffect);
+
+    // Workaround for issue with QGraphicsEffect. GraphicsEffect
+    // currently clears with Window color. Remove if flickering
+    // no longer occurs on fade-in
+    QPalette pal;
+    pal.setBrush(QPalette::All, QPalette::Window, Qt::transparent);
+    setPalette(pal);
+}
+
+void FadingWidget::setOpacity(qreal value)
+{
+    m_opacityEffect->setOpacity(value);
+}
+
+void FadingWidget::fadeTo(qreal value)
+{
+    QPropertyAnimation *animation = new QPropertyAnimation(m_opacityEffect, "opacity");
+    animation->setDuration(200);
+    animation->setEndValue(value);
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+qreal FadingWidget::opacity()
+{
+    return m_opacityEffect->opacity();
+}
+
 DetailsButton::DetailsButton(QWidget *parent) : QAbstractButton(parent), m_fader(0)
 {
     setCheckable(true);

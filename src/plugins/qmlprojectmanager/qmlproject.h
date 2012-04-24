@@ -39,13 +39,8 @@
 
 #include <QDeclarativeEngine>
 
-namespace QmlJS {
-class ModelManagerInterface;
-}
-
-namespace Utils {
-class FileSystemWatcher;
-}
+namespace QmlJS { class ModelManagerInterface; }
+namespace Utils { class FileSystemWatcher; }
 
 namespace QmlProjectManager {
 
@@ -54,7 +49,6 @@ class QmlProjectItem;
 namespace Internal {
 class Manager;
 class QmlProjectFile;
-class QmlProjectTarget;
 class QmlProjectNode;
 } // namespace Internal
 
@@ -72,7 +66,8 @@ public:
     Core::Id id() const;
     Core::IDocument *document() const;
     ProjectExplorer::IProjectManager *projectManager() const;
-    Internal::QmlProjectTarget *activeTarget() const;
+
+    bool supportsProfile(ProjectExplorer::Profile *p) const;
 
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 

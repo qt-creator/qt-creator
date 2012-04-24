@@ -42,9 +42,10 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/coreconstants.h>
 
+#include <projectexplorer/profile.h>
+#include <projectexplorer/profilemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/toolchain.h>
 
 #include <QLabel>
 #include <QVBoxLayout>
@@ -131,39 +132,38 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(ProjectExplorer::Project *project
             this, SLOT(noteTextLinkActivated()));
     connect(m_targetSetupPage, SIGNAL(completeChanged()),
             this, SLOT(completeChanged()));
-    connect(m_project->qt4ProjectManager(), SIGNAL(unconfiguredSettingsChanged()),
+    connect(ProjectExplorer::ProfileManager::instance(), SIGNAL(defaultProfileChanged()),
             this, SLOT(updateNoteText()));
+    connect(ProjectExplorer::ProfileManager::instance(), SIGNAL(profileUpdated(ProjectExplorer::Profile*)),
+            this, SLOT(profileUpdated(ProjectExplorer::Profile*)));
+}
+
+void TargetSetupPageWrapper::profileUpdated(ProjectExplorer::Profile *profile)
+{
+    if (profile == ProjectExplorer::ProfileManager::instance()->defaultProfile())
+        updateNoteText();
 }
 
 void TargetSetupPageWrapper::updateNoteText()
 {
-    UnConfiguredSettings us = m_project->qt4ProjectManager()->unconfiguredSettings();
+    ProjectExplorer::Profile *p = ProjectExplorer::ProfileManager::instance()->defaultProfile();
 
     QString text;
-    if (us.version && us.toolchain)
-        text = tr("<p>The project <b>%1</b> is not yet configured.</p><p>Qt Creator uses the Qt version: <b>%2</b> "
-                  "and the tool chain: <b>%3</b> to parse the project. You can edit "
-                  "these in the <b><a href=\"edit\">options.</a></b></p>")
+    if (p->isValid())
+        text = tr("<p>The project <b>%1</b> is not yet configured.</p>"
+                  "<p>Qt Creator uses the profile: <b>%2</b> "
+                  "to parse the project. You can edit "
+                  "these in the <b><a href=\"edit\">settings.</a></b></p>")
                 .arg(m_project->displayName())
-                .arg(us.version->displayName())
-                .arg(us.toolchain->displayName());
-    else if (us.version)
-        text = tr("<p>The project <b>%1</b> is not yet configured.</p><p>Qt Creator uses the Qt version: <b>%2</b> "
-                  "and <b>no tool chain</b> to parse the project. You can edit "
-                  "these in the <b><a href=\"edit\">settings</a></b></p>")
-                .arg(m_project->displayName())
-                .arg(us.version->displayName());
-    else if (us.toolchain)
-        text = tr("<p>The project <b>%1</b> is not yet configured.</p><p>Qt Creator uses <b>no Qt version</b> "
-                  "and the tool chain: <b>%2</b> to parse the project. You can edit "
-                  "these in the <b><a href=\"edit\">settings</a></b></p>")
-                .arg(m_project->displayName())
-                .arg(us.toolchain->displayName());
+                .arg(p->displayName());
     else
-        text = tr("<p>The project <b>%1</b> is not yet configured.</p><p>Qt Creator uses <b>no Qt version</b> "
-                  "and <b>no tool chain</b> to parse the project. You can edit "
+        text = tr("<p>The project <b>%1</b> is not yet configured.</p>"
+                  "<p>Qt Creator uses the <b>invalid</b> profile: <b>%2</b> "
+                  "to parse the project. You can edit "
                   "these in the <b><a href=\"edit\">settings</a></b></p>")
-                .arg(m_project->displayName());
+                .arg(m_project->displayName())
+                .arg(p->displayName());
+
 
     m_targetSetupPage->setNoteText(text);
 }
@@ -193,7 +193,7 @@ void TargetSetupPageWrapper::done()
 void TargetSetupPageWrapper::noteTextLinkActivated()
 {
     Core::ICore::instance()->showOptionsDialog(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
-                                               QLatin1String(Constants::UNCONFIGURED_SETTINGS_PAGE_ID));
+                                               QLatin1String(ProjectExplorer::Constants::PROFILE_SETTINGS_PAGE_ID));
 }
 
 void TargetSetupPageWrapper::completeChanged()

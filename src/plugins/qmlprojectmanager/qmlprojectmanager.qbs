@@ -37,7 +37,6 @@ QtcPlugin {
         "qmlprojectapplicationwizard.h",
         "qmlprojectmanager_global.h",
         "qmlprojectmanagerconstants.h",
-        "qmlprojecttarget.h",
         "qmlprojectrunconfigurationwidget.h",
         "fileformat/qmlprojectitem.cpp",
         "fileformat/filefilteritems.cpp",
@@ -51,7 +50,6 @@ QtcPlugin {
         "qmlprojectrunconfiguration.cpp",
         "qmlprojectrunconfigurationfactory.cpp",
         "qmlprojectapplicationwizard.cpp",
-        "qmlprojecttarget.cpp",
         "qmlprojectrunconfigurationwidget.cpp",
         "qmlproject.qrc",
         "QmlProject.mimetypes.xml"

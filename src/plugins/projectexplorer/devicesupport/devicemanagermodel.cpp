@@ -46,6 +46,7 @@ class DeviceManagerModelPrivate
 public:
     const DeviceManager *deviceManager;
     QList<IDevice::ConstPtr> devices;
+    QList<Core::Id> filter;
 };
 } // namespace Internal
 
@@ -63,6 +64,12 @@ DeviceManagerModel::DeviceManagerModel(const DeviceManager *deviceManager, QObje
 DeviceManagerModel::~DeviceManagerModel()
 {
     delete d;
+}
+
+void DeviceManagerModel::setFilter(const QList<Core::Id> filter)
+{
+    d->filter = filter;
+    handleDeviceListChanged();
 }
 
 void DeviceManagerModel::updateDevice(Core::Id id)
@@ -87,6 +94,9 @@ Core::Id DeviceManagerModel::deviceId(int pos) const
 
 int DeviceManagerModel::indexOf(IDevice::ConstPtr dev) const
 {
+    if (dev.isNull())
+        return -1;
+
     for (int i = 0; i < d->devices.count(); ++i) {
         IDevice::ConstPtr current = d->devices.at(i);
         if (current->id() == dev->id())
@@ -127,7 +137,7 @@ void DeviceManagerModel::handleDeviceListChanged()
 
     for (int i = 0; i < d->deviceManager->deviceCount(); ++i) {
         IDevice::ConstPtr dev = d->deviceManager->deviceAt(i);
-        if (dev->id() == Core::Id(Constants::DESKTOP_DEVICE_ID))
+        if (d->filter.contains(dev->id()))
             continue;
         d->devices << dev;
     }

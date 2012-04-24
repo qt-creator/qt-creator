@@ -38,6 +38,8 @@ HEADERS += \
     debuggerstartparameters.h \
     debuggerstreamops.h \
     debuggerstringutils.h \
+    debuggerprofileconfigwidget.h \
+    debuggerprofileinformation.h \
     disassembleragent.h \
     disassemblerlines.h \
     loadremotecoredialog.h \
@@ -92,6 +94,8 @@ SOURCES += \
     debuggerplugin.cpp \
     debuggerrunner.cpp \
     debuggerstreamops.cpp \
+    debuggerprofileconfigwidget.cpp \
+    debuggerprofileinformation.cpp \
     disassembleragent.cpp \
     disassemblerlines.cpp \
     loadremotecoredialog.cpp \

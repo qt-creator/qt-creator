@@ -52,9 +52,6 @@ public:
 
     QList<ProjectExplorer::Abi> detectQtAbis() const;
 
-    bool supportsTargetId(const Core::Id id) const;
-    QSet<Core::Id> supportedTargetIds() const;
-
     QString description() const;
 
     QString platformName() const;

@@ -36,7 +36,6 @@
 #include "qt4projectmanagerplugin.h"
 #include "qt4nodes.h"
 #include "qt4project.h"
-#include "qt4target.h"
 #include "profileeditor.h"
 #include "qmakestep.h"
 #include "qt4buildconfiguration.h"
@@ -55,11 +54,11 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/toolchainmanager.h>
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 #include <qtsupport/profilereader.h>
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtprofileinformation.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <QCoreApplication>
@@ -147,12 +146,6 @@ void Qt4Manager::init()
         tr("Full path to the bin directory of the current project's Qt version."));
     connect(vm, SIGNAL(variableUpdateRequested(QByteArray)),
             this, SLOT(updateVariable(QByteArray)));
-
-    QSettings *settings = Core::ICore::instance()->settings();
-    settings->beginGroup(QLatin1String("Qt4ProjectManager"));
-    m_unConfiguredVersionId = settings->value(QLatin1String("QtVersionId"), -1).toInt();
-    m_unconfiguredToolChainId = settings->value(QLatin1String("ToolChainId"), QString()).toString();
-    settings->endGroup();
 }
 
 void Qt4Manager::editorChanged(Core::IEditor *editor)
@@ -204,12 +197,10 @@ void Qt4Manager::updateVariable(const QByteArray &variable)
         }
         QString value;
         const QtSupport::BaseQtVersion *qtv = 0;
-        if (Qt4BaseTarget *t = qt4pro->activeTarget()) {
-            if (Qt4BuildConfiguration *bc = t->activeQt4BuildConfiguration())
-                qtv = bc->qtVersion();
-        } else {
-            qtv = unconfiguredSettings().version;
-        }
+        if (ProjectExplorer::Target *t = qt4pro->activeTarget())
+            qtv = QtSupport::QtProfileInformation::qtVersion(t->profile());
+        else
+            qtv = QtSupport::QtProfileInformation::qtVersion(ProjectExplorer::ProfileManager::instance()->defaultProfile());
 
         if (qtv)
             value = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
@@ -382,11 +373,14 @@ void Qt4Manager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *no
         !qt4pro->activeTarget()->activeBuildConfiguration())
         return;
 
-    Qt4BuildConfiguration *bc = qt4pro->activeTarget()->activeQt4BuildConfiguration();
-    QMakeStep *qs = bc->qmakeStep();
+    Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(qt4pro->activeTarget()->activeBuildConfiguration());
+    if (!bc)
+        return;
 
+    QMakeStep *qs = bc->qmakeStep();
     if (!qs)
         return;
+
     //found qmakeStep, now use it
     qs->setForced(true);
 
@@ -429,7 +423,10 @@ void Qt4Manager::handleSubDirContextMenu(Qt4Manager::Action action, bool isFileB
 
     if (!m_contextNode || !m_contextFile)
         isFileBuild = false;
-    Qt4BuildConfiguration *bc = qt4pro->activeTarget()->activeQt4BuildConfiguration();
+    Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(qt4pro->activeTarget()->activeBuildConfiguration());
+    if (!bc)
+        return;
+
     if (m_contextNode != 0 && (m_contextNode != qt4pro->rootProjectNode() || isFileBuild))
         if (Qt4ProFileNode *profile = qobject_cast<Qt4ProFileNode *>(m_contextNode))
             bc->setSubNodeBuild(profile);
@@ -478,58 +475,3 @@ QString Qt4Manager::fileTypeId(ProjectExplorer::FileType type)
     return QString();
 }
 
-UnConfiguredSettings Qt4Manager::unconfiguredSettings() const
-{
-    if (m_unConfiguredVersionId == -1 && m_unconfiguredToolChainId.isEmpty()) {
-        // Choose a good default qtversion and try to find a toolchain that fit
-        QtSupport::BaseQtVersion *version = 0;
-        ProjectExplorer::ToolChain *toolChain = 0;
-        QList<QtSupport::BaseQtVersion *> versions = QtSupport::QtVersionManager::instance()->validVersions();
-        if (!versions.isEmpty()) {
-            version = versions.first();
-
-            foreach (ProjectExplorer::ToolChain *tc, ProjectExplorer::ToolChainManager::instance()->toolChains()) {
-                if (tc->mkspecList().contains(version->mkspec())) {
-                    toolChain = tc;
-                    break;
-                }
-            }
-            if (!toolChain) {
-                foreach (ProjectExplorer::ToolChain *tc, ProjectExplorer::ToolChainManager::instance()->toolChains()) {
-                    if (version->qtAbis().contains(tc->targetAbi())) {
-                        toolChain = tc;
-                        break;
-                    }
-                }
-            }
-            m_unConfiguredVersionId = version->uniqueId();
-            if (toolChain)
-                m_unconfiguredToolChainId = toolChain->id();
-        }
-        UnConfiguredSettings us;
-        us.version = version;
-        us.toolchain = toolChain;
-        return us;
-    }
-    UnConfiguredSettings us;
-    us.version = QtSupport::QtVersionManager::instance()->version(m_unConfiguredVersionId);
-    us.toolchain = ProjectExplorer::ToolChainManager::instance()->findToolChain(m_unconfiguredToolChainId);
-    return us;
-}
-
-void Qt4Manager::setUnconfiguredSettings(const UnConfiguredSettings &setting)
-{
-    m_unConfiguredVersionId = setting.version ? setting.version->uniqueId() : -1;
-    m_unconfiguredToolChainId = setting.toolchain ? setting.toolchain->id() : QString();
-
-    QSettings *settings = Core::ICore::instance()->settings();
-    settings->beginGroup(QLatin1String("Qt4ProjectManager"));
-    settings->setValue(QLatin1String("QtVersionId"), m_unConfiguredVersionId);
-    settings->setValue(QLatin1String("ToolChainId"), m_unconfiguredToolChainId);
-    settings->endGroup();
-
-    foreach (Qt4Project *pro, m_projects)
-        if (pro->targets().isEmpty())
-            pro->scheduleAsyncUpdate();
-    emit unconfiguredSettingsChanged();
-}
