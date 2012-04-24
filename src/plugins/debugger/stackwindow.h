@@ -61,7 +61,7 @@ class StackWindow : public BaseWindow
 public:
     StackWindow() : BaseWindow(new StackTreeView)
     {
-    setWindowTitle(tr("Stack"));
+        setWindowTitle(tr("Stack"));
     }
 };
 
