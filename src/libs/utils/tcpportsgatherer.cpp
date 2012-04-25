@@ -48,7 +48,9 @@
 #if defined(Q_OS_WIN) && defined(Q_CC_MINGW)
 
 // Missing declarations for MinGW. This requires MinGW with gcc 4.6.
+#if __GNUC__ == 4 && __GNUC_MINOR__ < 7
 typedef enum { } MIB_TCP_STATE;
+#endif
 
 typedef struct _MIB_TCP6ROW {
     MIB_TCP_STATE State;
