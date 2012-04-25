@@ -101,10 +101,16 @@
 #endif // USE_UNINITIALIZED_AUTOBREAK
 #endif
 
-#if QT_SCRIPT_LIB
+#ifdef QT_SCRIPT_LIB
 #define USE_SCRIPTLIB 1
 #else
 #define USE_SCRIPTLIB 0
+#endif
+
+#ifdef QT_WEBKIT_LIB
+#define USE_WEBKITLIB 1
+#else
+#define USE_WEBKITLIB 0
 #endif
 
 #if QT_VERSION >= 0x040500
@@ -156,6 +162,10 @@ void dummyStatement(...) {}
 #if USE_SCRIPTLIB
 #include <QScriptEngine>
 #include <QScriptValue>
+#endif
+
+#if USE_WEBKITLIB
+#include <QWebPage>
 #endif
 
 #include <QXmlAttributes>
@@ -5137,6 +5147,30 @@ namespace qscript {
 } // namespace script
 
 
+namespace webkit {
+
+    void testWTFString()
+    {
+    #if USE_WEBKITLIB
+        BREAK_UNINITIALIZED_HERE;
+        QWebPage p;
+        BREAK_HERE;
+        // CheckType p QWebPage.
+        // Continue.
+        dummyStatement(&p);
+    #else
+        dummyStatement();
+    #endif
+    }
+
+    void testWebKit()
+    {
+        testWTFString();
+    }
+
+} // namespace webkit
+
+
 namespace boost {
 
     #if USE_BOOST
@@ -6175,6 +6209,7 @@ int main(int argc, char *argv[])
     valgrind::testValgrind();
     namespc::testNamespace();
     painting::testPainting();
+    webkit::testWebKit();
 
     stdarray::testStdArray();
     stdcomplex::testStdComplex();

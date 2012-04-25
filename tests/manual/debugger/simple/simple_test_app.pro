@@ -9,6 +9,11 @@ SOURCES +=  simple_test_app.cpp
 QT += network
 QT += script
 QT += xml
+
+contains(QT_CONFIG, webkit) {
+    QT += webkit
+}
+
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += core-private
     QT *= widgets
