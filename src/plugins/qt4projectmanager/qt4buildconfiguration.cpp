@@ -165,10 +165,10 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
         if (version && version->isValid()) {
             qWarning("Warning: No tool chain available for '%s' from %s used in '%s'.",
                     qPrintable(version->displayName()), qPrintable(version->qmakeCommand().toUserOutput()),
-                    qPrintable(target()->id().name()));
+                    qPrintable(target()->id().toString()));
         } else {
             qWarning("Warning: No tool chain available for invalid Qt version used in '%s'.",
-                     qPrintable(target()->id().name()));
+                     qPrintable(target()->id().toString()));
         }
     }
 
