@@ -36,7 +36,6 @@
 #include <projectexplorer/projectexplorer_export.h>
 
 #include <QAbstractListModel>
-#include <QSharedPointer>
 
 namespace ProjectExplorer {
 namespace Internal { class DeviceManagerModelPrivate; }
