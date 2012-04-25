@@ -840,6 +840,37 @@ void tst_Preprocessor::defined_data()
         "#if (define(Y))\n"
         "#define X\n"
         "#endif\n";
+
+    QTest::newRow("6a") << true << true <<
+        "#define X 0x040500\n"
+        "#if X > 0x040000\n"
+        "#define Y 1\n"
+        "#endif\n";
+    QTest::newRow("6b") << true << true <<
+        "#define X 0x040500\n"
+        "#if X >= 0x040000\n"
+        "#define Y 1\n"
+        "#endif\n";
+    QTest::newRow("6c") << true << false <<
+        "#define X 0x040500\n"
+        "#if X == 0x040000\n"
+        "#define Y 1\n"
+        "#endif\n";
+    QTest::newRow("6d") << true << true <<
+        "#define X 0x040500\n"
+        "#if X == 0x040500\n"
+        "#define Y 1\n"
+        "#endif\n";
+    QTest::newRow("6e") << true << false <<
+        "#define X 0x040500\n"
+        "#if X < 0x040000\n"
+        "#define Y 1\n"
+        "#endif\n";
+    QTest::newRow("6f") << true << false <<
+        "#define X 0x040500\n"
+        "#if X <= 0x040000\n"
+        "#define Y 1\n"
+        "#endif\n";
 }
 
 QTEST_APPLESS_MAIN(tst_Preprocessor)
