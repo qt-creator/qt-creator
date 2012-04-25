@@ -54,7 +54,7 @@ MaddeDevice::Ptr MaddeDevice::create()
 }
 
 MaddeDevice::Ptr MaddeDevice::create(const QString &name, const QString &type,
-        MachineType machineType, Origin origin, const Core::Id &id)
+        MachineType machineType, Origin origin, Core::Id id)
 {
     return Ptr(new MaddeDevice(name, type, machineType, origin, id));
 }
@@ -64,7 +64,7 @@ MaddeDevice::MaddeDevice()
 }
 
 MaddeDevice::MaddeDevice(const QString &name, const QString &type, MachineType machineType,
-        Origin origin, const Core::Id &id)
+        Origin origin, Core::Id id)
     : LinuxDeviceConfiguration(name, type, machineType, origin, id)
 {
 }

@@ -364,14 +364,14 @@ bool DeviceManager::hasDevice(const QString &name) const
     return false;
 }
 
-IDevice::ConstPtr DeviceManager::find(const Core::Id &id) const
+IDevice::ConstPtr DeviceManager::find(Core::Id id) const
 {
     const int index = indexForId(id);
     return index == -1 ? IDevice::ConstPtr() : deviceAt(index);
 }
 
 IDevice::ConstPtr DeviceManager::findInactiveAutoDetectedDevice(const QString &type,
-                                                                const Core::Id id)
+                                                                Core::Id id)
 {
     return findAutoDetectedDevice(d->inactiveAutoDetectedDevices, type, id);
 }
@@ -384,7 +384,7 @@ IDevice::ConstPtr DeviceManager::defaultDevice(const QString &deviceType) const
     return find(id);
 }
 
-int DeviceManager::indexForId(const Core::Id &id) const
+int DeviceManager::indexForId(Core::Id id) const
 {
     for (int i = 0; i < d->devices.count(); ++i) {
         if (deviceAt(i)->id() == id)

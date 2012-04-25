@@ -101,7 +101,7 @@ public:
 
 protected:
     IDevice();
-    IDevice(const QString &type, Origin origin, const Core::Id &id = Core::Id());
+    IDevice(const QString &type, Origin origin, Core::Id id = Core::Id());
     IDevice(const IDevice &other);
 
     Ptr sharedFromThis();

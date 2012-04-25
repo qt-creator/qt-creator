@@ -167,8 +167,7 @@ IDevice::IDevice() : d(new Internal::IDevicePrivate)
 {
 }
 
-IDevice::IDevice(const QString &type, Origin origin, const Core::Id &id)
-    : d(new Internal::IDevicePrivate)
+IDevice::IDevice(const QString &type, Origin origin, Core::Id id) : d(new Internal::IDevicePrivate)
 {
     d->type = type;
     d->origin = origin;

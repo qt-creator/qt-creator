@@ -84,7 +84,7 @@ LinuxDeviceConfiguration::~LinuxDeviceConfiguration()
 }
 
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const QString &name,
-   const QString &type, MachineType machineType, Origin origin, const Core::Id &id)
+   const QString &type, MachineType machineType, Origin origin, Core::Id id)
 {
     return Ptr(new LinuxDeviceConfiguration(name, type, machineType, origin, id));
 }
@@ -140,7 +140,7 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration() : d(new LinuxDeviceConfigur
 }
 
 LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name, const QString &type,
-        MachineType machineType, Origin origin, const Core::Id &id)
+        MachineType machineType, Origin origin, Core::Id id)
     : IDevice(type, origin, id), d(new LinuxDeviceConfigurationPrivate)
 {
     setDisplayName(name);

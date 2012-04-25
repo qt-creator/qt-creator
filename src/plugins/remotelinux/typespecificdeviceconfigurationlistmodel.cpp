@@ -109,7 +109,7 @@ LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::def
     return LinuxDeviceConfiguration::ConstPtr();
 }
 
-LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::find(const Core::Id &id) const
+LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::find(Core::Id id) const
 {
     const IDevice::ConstPtr &devConf = DeviceManager::instance()->find(id);
     if (devConf && target()->supportsDevice(devConf))
@@ -117,7 +117,7 @@ LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::fin
     return defaultDeviceConfig();
 }
 
-int TypeSpecificDeviceConfigurationListModel::indexForInternalId(const Core::Id &id) const
+int TypeSpecificDeviceConfigurationListModel::indexForId(Core::Id id) const
 {
     const int count = rowCount();
     for (int i = 0; i < count; ++i) {

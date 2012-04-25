@@ -92,9 +92,9 @@ void RemoteLinuxDeployConfiguration::handleDeviceConfigurationListUpdated()
     setDeviceConfig(DeviceManager::instance()->deviceId(d->deviceConfiguration));
 }
 
-void RemoteLinuxDeployConfiguration::setDeviceConfig(const Core::Id &internalId)
+void RemoteLinuxDeployConfiguration::setDeviceConfig(Core::Id id)
 {
-    d->deviceConfiguration = target()->deviceConfigModel()->find(internalId);
+    d->deviceConfiguration = target()->deviceConfigModel()->find(id);
     emit deviceConfigurationListChanged();
     emit currentDeviceConfigurationChanged();
 }
