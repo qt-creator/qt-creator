@@ -82,9 +82,9 @@ DeviceManager *DeviceManagerPrivate::clonedInstance = 0;
 using namespace Internal;
 
 
-DeviceManager *DeviceManager::instance()
+DeviceManager *DeviceManager::instance(const QString &magicTestToken)
 {
-    static DeviceManager deviceManager(true);
+    static DeviceManager deviceManager(magicTestToken != QLatin1String("magicTestToken"));
     return &deviceManager;
 }
 
