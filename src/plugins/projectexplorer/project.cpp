@@ -322,7 +322,7 @@ bool Project::fromMap(const QVariantMap &map)
         Core::Id id = idFromMap(targetMap);
         if (target(id)) {
             qWarning("Warning: Duplicated target id found, not restoring second target with id '%s'. Continuing.",
-                     qPrintable(id.name()));
+                     qPrintable(id.toString()));
         } else {
             foreach (ITargetFactory *factory, factories) {
                 if (factory->canRestore(this, targetMap)) {
@@ -332,7 +332,7 @@ bool Project::fromMap(const QVariantMap &map)
             }
 
             if (!t) {
-                qWarning("Warning: Unable to restore target '%s'. Continuing.", qPrintable(id.name()));
+                qWarning("Warning: Unable to restore target '%s'. Continuing.", qPrintable(id.toString()));
                 continue;
             }
             addTarget(t);
