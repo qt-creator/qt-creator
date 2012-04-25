@@ -11,6 +11,9 @@ Module {
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.' + ide_version_release
     property string destdir: product.destination
 
+    property var pluginspecreplacements: product.pluginspecreplacements
+
+
     FileTagger {
         pattern: "*.in"
         fileTags: ["pluginSpecIn"]
@@ -37,9 +40,12 @@ Module {
             cmd.ide_version_major = product.module.ide_version_major;
             cmd.ide_version_minor = product.module.ide_version_minor;
             cmd.ide_version_release = product.module.ide_version_release;
+
+            cmd.pluginspecreplacements = product.module.pluginspecreplacements;
+
             cmd.sourceCode = function() {
                 var i;
-                var vars = {};
+                var vars = pluginspecreplacements || {};
                 var inf = new TextFile(input.fileName);
                 var all = inf.readAll();
                 // replace quoted quotes

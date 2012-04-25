@@ -81,5 +81,16 @@ QtcPlugin {
         "qtversionfactory.cpp",
         "qtversionmanager.cpp"
     ]
+
+    ProductModule {
+        Depends { name: "cpp" }
+        cpp.defines: [
+            "PROPARSER_AS_LIBRARY",
+            "PROPARSER_LIBRARY",
+            "PROPARSER_THREAD_SAFE",
+            "PROEVALUATOR_THREAD_SAFE",
+            "PROEVALUATOR_CUMULATIVE"
+        ]
+    }
 }
 
