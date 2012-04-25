@@ -85,7 +85,11 @@
             You can also select \gui {Request upload rights} to use the Maemo
             Extras Assistant to validate your Garage account.
 
-        \o  Select \gui Commit to publish the application.
+        \o  Select \gui Commit to select the files to include in the source
+            package.
+
+        \o  Select \gui OK to build the source package, and optionally, publish
+            the application.
 
     \endlist
 
