@@ -98,6 +98,7 @@ DeviceSettingsWidget::DeviceSettingsWidget(QWidget *parent)
     : QWidget(parent),
       m_ui(new Ui::DeviceSettingsWidget),
       m_deviceManager(DeviceManager::cloneInstance()),
+      m_deviceManagerModel(new DeviceManagerModel(m_deviceManager, this)),
       m_nameValidator(new NameValidator(m_deviceManager, this)),
       m_saveSettingsRequested(false),
       m_additionalActionsMapper(new QSignalMapper(this)),
@@ -133,8 +134,7 @@ QString DeviceSettingsWidget::searchKeywords() const
 void DeviceSettingsWidget::initGui()
 {
     m_ui->setupUi(this);
-    DeviceManagerModel * const model = new DeviceManagerModel(m_deviceManager, this);
-    m_ui->configurationComboBox->setModel(model);
+    m_ui->configurationComboBox->setModel(m_deviceManagerModel);
     m_ui->nameLineEdit->setValidator(m_nameValidator);
 
     bool hasDeviceFactories = false;
@@ -178,7 +178,7 @@ void DeviceSettingsWidget::addDevice()
 
 void DeviceSettingsWidget::removeDevice()
 {
-    m_deviceManager->removeDevice(currentIndex());
+    m_deviceManager->removeDevice(currentDevice()->id());
     if (m_deviceManager->deviceCount() == 0)
         currentDeviceChanged(-1);
 }
@@ -225,8 +225,9 @@ void DeviceSettingsWidget::deviceNameEditingFinished()
         return;
 
     const QString &newName = m_ui->nameLineEdit->text();
-    m_deviceManager->setDeviceDisplayName(currentIndex(), newName);
+    m_deviceManager->mutableDeviceAt(currentIndex())->setDisplayName(newName);
     m_nameValidator->setDisplayName(newName);
+    m_deviceManagerModel->updateDevice(currentDevice()->id());
 }
 
 void DeviceSettingsWidget::setDefaultDevice()

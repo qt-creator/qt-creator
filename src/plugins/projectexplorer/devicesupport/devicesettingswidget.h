@@ -44,6 +44,7 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 class IDevice;
 class DeviceManager;
+class DeviceManagerModel;
 class IDeviceWidget;
 
 namespace Internal {
@@ -79,6 +80,7 @@ private:
 
     Ui::DeviceSettingsWidget *m_ui;
     DeviceManager * const m_deviceManager;
+    DeviceManagerModel * const m_deviceManagerModel;
     NameValidator * const m_nameValidator;
     bool m_saveSettingsRequested;
     QList<QPushButton *> m_additionalActionButtons;

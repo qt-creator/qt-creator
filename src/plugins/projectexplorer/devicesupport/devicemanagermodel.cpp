@@ -50,11 +50,9 @@ DeviceManagerModel::DeviceManagerModel(const DeviceManager *deviceManager, QObje
 {
     d->deviceManager = deviceManager;
     handleDeviceListChanged();
-    connect(deviceManager, SIGNAL(deviceAdded(QSharedPointer<const IDevice>)),
-        SLOT(handleDeviceAdded(QSharedPointer<const IDevice>)));
-    connect(deviceManager, SIGNAL(deviceRemoved(int)), SLOT(handleDeviceRemoved(int)));
-    connect(deviceManager, SIGNAL(displayNameChanged(int)), SLOT(handleDataChanged(int)));
-    connect(deviceManager, SIGNAL(defaultStatusChanged(int)), SLOT(handleDataChanged(int)));
+    connect(deviceManager, SIGNAL(deviceAdded(Core::Id)), SLOT(handleDeviceAdded(Core::Id)));
+    connect(deviceManager, SIGNAL(deviceRemoved(Core::Id)), SLOT(handleDeviceRemoved(Core::Id)));
+    connect(deviceManager, SIGNAL(deviceUpdated(Core::Id)), SLOT(handleDeviceUpdated(Core::Id)));
     connect(deviceManager, SIGNAL(deviceListChanged()), SLOT(handleDeviceListChanged()));
 }
 
@@ -63,23 +61,29 @@ DeviceManagerModel::~DeviceManagerModel()
     delete d;
 }
 
-void DeviceManagerModel::handleDeviceAdded(const IDevice::ConstPtr &device)
+void DeviceManagerModel::updateDevice(Core::Id id)
+{
+    handleDeviceUpdated(id);
+}
+
+void DeviceManagerModel::handleDeviceAdded(Core::Id id)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    d->devices << device;
+    d->devices << d->deviceManager->find(id);
     endInsertRows();
 }
 
-void DeviceManagerModel::handleDeviceRemoved(int idx)
+void DeviceManagerModel::handleDeviceRemoved(Core::Id id)
 {
+    const int idx = indexForId(id);
     beginRemoveRows(QModelIndex(), idx, idx);
     d->devices.removeAt(idx);
     endRemoveRows();
 }
 
-void DeviceManagerModel::handleDataChanged(int idx)
+void DeviceManagerModel::handleDeviceUpdated(Core::Id id)
 {
-    const QModelIndex changedIndex = index(idx, 0);
+    const QModelIndex changedIndex = index(indexForId(id), 0);
     emit dataChanged(changedIndex, changedIndex);
 }
 
@@ -107,6 +111,17 @@ QVariant DeviceManagerModel::data(const QModelIndex &index, int role) const
     if (d->deviceManager->defaultDevice(device->type()) == device)
         name = tr("%1 (default for %2)").arg(name, device->displayType());
     return name;
+}
+
+int DeviceManagerModel::indexForId(Core::Id id) const
+{
+    for (int i = 0; i < d->devices.count(); ++i) {
+        if (d->devices.at(i)->id() == id)
+            return i;
+    }
+
+    qWarning("%s: Invalid id %s.", Q_FUNC_INFO, qPrintable(id.toString()));
+    return -1;
 }
 
 } // namespace ProjectExplorer

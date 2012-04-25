@@ -60,6 +60,7 @@ public:
 
     int deviceCount() const;
     IDevice::ConstPtr deviceAt(int index) const;
+
     IDevice::ConstPtr find(Core::Id id) const;
     IDevice::ConstPtr findInactiveAutoDetectedDevice(const QString &type, Core::Id id);
     IDevice::ConstPtr defaultDevice(const QString &deviceType) const;
@@ -69,15 +70,12 @@ public:
     int indexOf(const IDevice::ConstPtr &device) const;
 
     void addDevice(const IDevice::Ptr &device);
-    void removeDevice(int index);
+    void removeDevice(Core::Id id);
 
 signals:
+    void deviceAdded(Core::Id id);
+    void deviceRemoved(Core::Id id);
     void deviceUpdated(Core::Id id);
-
-    void deviceAdded(const QSharedPointer<const IDevice> &device);
-    void deviceRemoved(int index);
-    void displayNameChanged(int index);
-    void defaultStatusChanged(int index);
     void deviceListChanged();
     void updated(); // Emitted for all of the above.
 
@@ -95,7 +93,6 @@ private:
 
     // For SettingsWidget.
     IDevice::Ptr mutableDeviceAt(int index) const;
-    void setDeviceDisplayName(int i, const QString &name);
     void setDefaultDevice(int index);
     static DeviceManager *cloneInstance();
     static void replaceInstance();

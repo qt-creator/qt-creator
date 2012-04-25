@@ -224,7 +224,7 @@ void DeviceManager::addDevice(const IDevice::Ptr &device)
 
     const int pos = indexForId(device->id());
     if (pos >= 0)
-        removeDevice(pos);
+        removeDevice(device->id());
 
     // Ensure uniqueness of name.
     QString name = device->displayName();
@@ -252,15 +252,16 @@ void DeviceManager::addDevice(const IDevice::Ptr &device)
         }
     }
 
-    emit deviceAdded(device);
+    emit deviceAdded(device->id());
     if (pos >= 0)
         emit deviceUpdated(device->id());
 
     emit updated();
 }
 
-void DeviceManager::removeDevice(int idx)
+void DeviceManager::removeDevice(Core::Id id)
 {
+    const int idx = indexForId(id);
     const IDevice::Ptr device = mutableDeviceAt(idx);
     QTC_ASSERT(device, return);
     QTC_ASSERT(this != instance() || device->isAutoDetected(), return);
@@ -268,34 +269,23 @@ void DeviceManager::removeDevice(int idx)
     const bool wasDefault = d->defaultDevices.value(device->type()) == device->id();
     const QString deviceType = device->type();
     d->devices.removeAt(idx);
-    emit deviceRemoved(idx);
+    emit deviceRemoved(device->id());
 
     if (wasDefault) {
         for (int i = 0; i < d->devices.count(); ++i) {
             if (deviceAt(i)->type() == deviceType) {
                 d->defaultDevices.insert(deviceAt(i)->type(), deviceAt(i)->id());
-                emit defaultStatusChanged(i);
+                emit deviceUpdated(deviceAt(i)->id());
                 break;
             }
         }
     }
-    if (this == instance() && d->clonedInstance) {
-        d->clonedInstance->removeDevice(d->clonedInstance->
-            indexForId(device->id()));
-    }
+    if (this == instance() && d->clonedInstance)
+        d->clonedInstance->removeDevice(id);
     if (this == instance() && device->isAutoDetected())
         d->inactiveAutoDetectedDevices << device;
 
     emit updated();
-}
-
-void DeviceManager::setDeviceDisplayName(int i, const QString &name)
-{
-    QTC_ASSERT(this != instance(), return);
-    QTC_ASSERT(i >= 0 && i < deviceCount(), return);
-
-    d->devices.at(i)->setDisplayName(name);
-    emit displayNameChanged(i);
 }
 
 void DeviceManager::setDefaultDevice(int idx)
@@ -308,13 +298,8 @@ void DeviceManager::setDefaultDevice(int idx)
     if (device == oldDefaultDevice)
         return;
     d->defaultDevices.insert(device->type(), device->id());
-    emit defaultStatusChanged(idx);
-    for (int i = 0; i < d->devices.count(); ++i) {
-        if (d->devices.at(i) == oldDefaultDevice) {
-            emit defaultStatusChanged(i);
-            break;
-        }
-    }
+    emit deviceUpdated(device->id());
+    emit deviceUpdated(oldDefaultDevice->id());
 
     emit updated();
 }
