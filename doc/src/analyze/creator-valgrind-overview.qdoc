@@ -33,7 +33,8 @@
 
     \title Using Valgrind Code Analysis Tools
 
-    \QC integrates Valgrind code analysis tools for detecting memory leaks and
+    \QC integrates \l{http://valgrind.org/info/tools.html}{Valgrind code
+    analysis tools} for detecting memory leaks and
     profiling function execution. You must download and install them separately
     to use them from \QC.
 

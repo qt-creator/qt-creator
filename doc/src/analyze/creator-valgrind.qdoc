@@ -34,7 +34,7 @@
     \title Detecting Memory Leaks
 
     You can use the Memcheck tool included in the
-    \l{http://valgrind.org/info/tools.html}{Valgrind tool suite} to detect
+    Valgrind tool suite to detect
     problems that are related to memory management in applications.
 
     \note Memcheck is supported locally on Linux and Mac OS. You can run it on
@@ -60,7 +60,7 @@
         \o  Use the application to analyze it.
 
         \o  Select the
-            \inlineimage qtcreator-analyzer-stop-button.png "Stop button"
+            \inlineimage qtcreator-debug-button-stop.png "Stop button"
             button to view the results of the analysis in the
             \gui {Analysis} view.
 
@@ -151,7 +151,7 @@
         \o  Use the application to analyze it.
 
         \o  Select the
-            \inlineimage qtcreator-analyzer-stop-button.png "Stop button"
+            \inlineimage qtcreator-debug-button-stop.png "Stop button"
             button to view the results of the analysis in the \gui Profile
             view.
 
