@@ -83,7 +83,9 @@ void DeviceManagerModel::handleDeviceRemoved(Core::Id id)
 
 void DeviceManagerModel::handleDeviceUpdated(Core::Id id)
 {
-    const QModelIndex changedIndex = index(indexForId(id), 0);
+    const int idx = indexForId(id);
+    d->devices[idx] = d->deviceManager->deviceAt(idx);
+    const QModelIndex changedIndex = index(idx, 0);
     emit dataChanged(changedIndex, changedIndex);
 }
 

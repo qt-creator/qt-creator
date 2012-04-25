@@ -67,6 +67,7 @@ public:
     bool hasDevice(const QString &name) const;
     Core::Id deviceId(const IDevice::ConstPtr &device) const;
 
+    int indexForId(Core::Id id) const;
     int indexOf(const IDevice::ConstPtr &device) const;
 
     void addDevice(const IDevice::Ptr &device);
@@ -89,7 +90,6 @@ private:
     void fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
     void ensureOneDefaultDevicePerType();
-    int indexForId(Core::Id id) const;
 
     // For SettingsWidget.
     IDevice::Ptr mutableDeviceAt(int index) const;

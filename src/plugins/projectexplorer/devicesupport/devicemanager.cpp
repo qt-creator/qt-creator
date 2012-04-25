@@ -222,12 +222,14 @@ void DeviceManager::addDevice(const IDevice::Ptr &device)
 {
     QTC_ASSERT(this != instance() || (device->isAutoDetected()), return);
 
+    QString name = device->displayName();
     const int pos = indexForId(device->id());
-    if (pos >= 0)
-        removeDevice(device->id());
+    if (pos >= 0) {
+        device->setDisplayName(QString()); // For name uniquification to work.
+        d->devices[pos] = device;
+    }
 
     // Ensure uniqueness of name.
-    QString name = device->displayName();
     if (hasDevice(name)) {
         const QString nameTemplate = name + QLatin1String(" (%1)");
         int suffix = 2;
@@ -236,25 +238,28 @@ void DeviceManager::addDevice(const IDevice::Ptr &device)
         while (hasDevice(name));
     }
     device->setDisplayName(name);
+
     if (!defaultDevice(device->type()))
         d->defaultDevices.insert(device->type(), device->id());
-    d->devices << device;
     if (this == instance() && d->clonedInstance)
         d->clonedInstance->addDevice(device->clone());
-    if (this == instance()) {
-        QList<IDevice::Ptr>::Iterator it = d->inactiveAutoDetectedDevices.begin();
-        while (it != d->inactiveAutoDetectedDevices.end()) {
-            if (it->data()->id() == device->id()) {
-                d->inactiveAutoDetectedDevices.erase(it);
-                break;
-            }
-            ++it;
-        }
-    }
 
-    emit deviceAdded(device->id());
-    if (pos >= 0)
+    if (pos >= 0) {
         emit deviceUpdated(device->id());
+    } else {
+        d->devices << device;
+        if (this == instance()) {
+            QList<IDevice::Ptr>::Iterator it = d->inactiveAutoDetectedDevices.begin();
+            while (it != d->inactiveAutoDetectedDevices.end()) {
+                if (it->data()->id() == device->id()) {
+                    d->inactiveAutoDetectedDevices.erase(it);
+                    break;
+                }
+                ++it;
+            }
+        }
+        emit deviceAdded(device->id());
+    }
 
     emit updated();
 }

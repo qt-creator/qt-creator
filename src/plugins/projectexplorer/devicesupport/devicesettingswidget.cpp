@@ -107,6 +107,7 @@ DeviceSettingsWidget::DeviceSettingsWidget(QWidget *parent)
     initGui();
     connect(m_additionalActionsMapper, SIGNAL(mapped(QString)),
         SLOT(handleAdditionalActionRequest(QString)));
+    connect(m_deviceManager, SIGNAL(deviceUpdated(Core::Id)), SLOT(handleDeviceUpdated(Core::Id)));
 }
 
 DeviceSettingsWidget::~DeviceSettingsWidget()
@@ -234,6 +235,13 @@ void DeviceSettingsWidget::setDefaultDevice()
 {
     m_deviceManager->setDefaultDevice(currentIndex());
     m_ui->defaultDeviceButton->setEnabled(false);
+}
+
+void DeviceSettingsWidget::handleDeviceUpdated(Id id)
+{
+    const int index = m_deviceManager->indexForId(id);
+    if (index == currentIndex())
+        currentDeviceChanged(index);
 }
 
 void DeviceSettingsWidget::currentDeviceChanged(int index)

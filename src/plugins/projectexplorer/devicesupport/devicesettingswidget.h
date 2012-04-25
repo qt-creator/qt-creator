@@ -32,6 +32,8 @@
 #ifndef DEVICESETTINGSWIDGET_H
 #define DEVICESETTINGSWIDGET_H
 
+#include <coreplugin/id.h>
+
 #include <QList>
 #include <QString>
 #include <QPushButton>
@@ -62,6 +64,7 @@ public:
     QString searchKeywords() const;
 
 private slots:
+    void handleDeviceUpdated(Core::Id id);
     void currentDeviceChanged(int index);
     void addDevice();
     void removeDevice();
