@@ -57,11 +57,11 @@ public:
     explicit MaemoRunConfigurationFactory(QObject *parent = 0);
     ~MaemoRunConfigurationFactory();
 
-    QString displayNameForId(Core::Id id) const;
+    QString displayNameForId(const Core::Id id) const;
     QList<Core::Id> availableCreationIds(Target *parent) const;
 
-    bool canCreate(Target *parent, Core::Id id) const;
-    RunConfiguration *create(Target *parent, Core::Id id);
+    bool canCreate(Target *parent, const Core::Id id) const;
+    RunConfiguration *create(Target *parent, const Core::Id id);
 
     bool canRestore(Target *parent, const QVariantMap &map) const;
     RunConfiguration *restore(Target *parent, const QVariantMap &map);

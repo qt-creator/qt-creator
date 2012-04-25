@@ -141,7 +141,7 @@ QList<ProjectExplorer::Abi> MaemoQtVersion::detectQtAbis() const
     return result;
 }
 
-bool MaemoQtVersion::supportsTargetId(Core::Id id) const
+bool MaemoQtVersion::supportsTargetId(const Core::Id id) const
 {
     return supportedTargetIds().contains(id);
 }

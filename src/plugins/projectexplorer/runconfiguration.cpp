@@ -90,7 +90,7 @@ private:
 class CreateMatcher : public RunConfigurationFactoryMatcher
 {
 public:
-    CreateMatcher(Target *target, Core::Id id) :
+    CreateMatcher(Target *target, const Core::Id id) :
         RunConfigurationFactoryMatcher(target),
         m_id(id)
     { }
@@ -101,7 +101,7 @@ public:
     }
 
 private:
-    Core::Id m_id;
+    const Core::Id m_id;
 };
 
 class CloneMatcher : public RunConfigurationFactoryMatcher

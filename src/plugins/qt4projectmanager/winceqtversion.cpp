@@ -79,7 +79,7 @@ QList<ProjectExplorer::Abi> WinCeQtVersion::detectQtAbis() const
                                     false);
 }
 
-bool WinCeQtVersion::supportsTargetId(Core::Id id) const
+bool WinCeQtVersion::supportsTargetId(const Core::Id id) const
 {
     return id == Core::Id(Constants::DESKTOP_TARGET_ID);
 }

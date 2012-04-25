@@ -370,7 +370,7 @@ Utils::FileName BaseQtVersion::qmakeCommand() const
     return m_qmakeCommand;
 }
 
-bool BaseQtVersion::toolChainAvailable(Core::Id id) const
+bool BaseQtVersion::toolChainAvailable(const Core::Id id) const
 {
     Q_UNUSED(id)
     if (!isValid())

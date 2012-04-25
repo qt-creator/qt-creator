@@ -125,7 +125,7 @@ class Qt4DefaultTargetSetupWidget : public Qt4TargetSetupWidget
 public:
     enum ShadowBuildOption { DISABLE, ENABLE, USER };
     Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *factory,
-                                Core::Id id,
+                                const Core::Id id,
                                 const QString &proFilePath,
                                 const QList<BuildConfigurationInfo> &info,
                                 const QtSupport::QtVersionNumber &minimumQtVersion,

@@ -85,7 +85,7 @@ QList<ProjectExplorer::Abi> SimulatorQtVersion::detectQtAbis() const
     return qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
 }
 
-bool SimulatorQtVersion::supportsTargetId(Core::Id id) const
+bool SimulatorQtVersion::supportsTargetId(const Core::Id id) const
 {
     return id == Core::Id(Constants::QT_SIMULATOR_TARGET_ID);
 }

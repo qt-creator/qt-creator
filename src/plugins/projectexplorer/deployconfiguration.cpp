@@ -164,7 +164,7 @@ QList<Core::Id> DeployConfigurationFactory::availableCreationIds(Target *parent)
     return QList<Core::Id>() << Core::Id(Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
 }
 
-QString DeployConfigurationFactory::displayNameForId(Core::Id id) const
+QString DeployConfigurationFactory::displayNameForId(const Core::Id id) const
 {
     if (id == Core::Id(Constants::DEFAULT_DEPLOYCONFIGURATION_ID))
         //: Display name of the default deploy configuration
@@ -172,13 +172,13 @@ QString DeployConfigurationFactory::displayNameForId(Core::Id id) const
     return QString();
 }
 
-bool DeployConfigurationFactory::canCreate(Target *parent, Core::Id id) const
+bool DeployConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
 {
     Q_UNUSED(parent);
     return id == Core::Id(Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
 }
 
-DeployConfiguration *DeployConfigurationFactory::create(Target *parent, Core::Id id)
+DeployConfiguration *DeployConfigurationFactory::create(Target *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;

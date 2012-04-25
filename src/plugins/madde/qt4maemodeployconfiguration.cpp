@@ -130,7 +130,7 @@ QList<Core::Id> Qt4MaemoDeployConfigurationFactory::availableCreationIds(Target 
     return ids;
 }
 
-QString Qt4MaemoDeployConfigurationFactory::displayNameForId(Core::Id id) const
+QString Qt4MaemoDeployConfigurationFactory::displayNameForId(const Core::Id id) const
 {
     if (id == Qt4MaemoDeployConfiguration::fremantleWithoutPackagingId())
         return tr("Copy Files to Maemo5 Device");
@@ -144,13 +144,13 @@ QString Qt4MaemoDeployConfigurationFactory::displayNameForId(Core::Id id) const
 }
 
 bool Qt4MaemoDeployConfigurationFactory::canCreate(Target *parent,
-    Core::Id id) const
+    const Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
 
 DeployConfiguration *Qt4MaemoDeployConfigurationFactory::create(Target *parent,
-    Core::Id id)
+    const Core::Id id)
 {
     Q_ASSERT(canCreate(parent, id));
 

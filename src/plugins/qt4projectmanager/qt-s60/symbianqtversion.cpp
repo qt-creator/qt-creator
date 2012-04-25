@@ -155,7 +155,7 @@ QList<ProjectExplorer::Abi> SymbianQtVersion::detectQtAbis() const
                                     32);
 }
 
-bool SymbianQtVersion::supportsTargetId(Core::Id id) const
+bool SymbianQtVersion::supportsTargetId(const Core::Id id) const
 {
     return supportedTargetIds().contains(id);
 }

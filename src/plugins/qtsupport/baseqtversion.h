@@ -121,12 +121,12 @@ public:
     virtual QString invalidReason() const;
     virtual QString warningReason() const;
 
-    virtual bool toolChainAvailable(Core::Id id) const;
+    virtual bool toolChainAvailable(const Core::Id id) const;
 
     virtual QString description() const = 0;
     virtual QString toHtml(bool verbose) const;
 
-    virtual bool supportsTargetId(Core::Id id) const = 0;
+    virtual bool supportsTargetId(const Core::Id id) const = 0;
     virtual QSet<Core::Id> supportedTargetIds() const = 0;
     QList<ProjectExplorer::Abi> qtAbis() const;
     virtual QList<ProjectExplorer::Abi> detectQtAbis() const = 0;

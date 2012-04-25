@@ -70,7 +70,7 @@ public:
     /// suffix should be unique
     virtual QString shadowBuildDirectory(const QString &profilePath, const Core::Id id, const QString &suffix);
     /// used by the default implementation of shadowBuildDirectory
-    virtual QString buildNameForId(Core::Id id) const;
+    virtual QString buildNameForId(const Core::Id id) const;
 
     /// used by the default implementation of createTargetSetupWidget
     /// not needed otherwise

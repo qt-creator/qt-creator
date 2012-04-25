@@ -84,7 +84,7 @@ QList<ProjectExplorer::Abi> DesktopQtVersion::detectQtAbis() const
     return qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
 }
 
-bool DesktopQtVersion::supportsTargetId(Core::Id id) const
+bool DesktopQtVersion::supportsTargetId(const Core::Id id) const
 {
     using namespace ProjectExplorer;
     if (id == Core::Id(Constants::DESKTOP_TARGET_ID))

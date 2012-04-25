@@ -75,7 +75,7 @@ MaemoRunConfigurationFactory::~MaemoRunConfigurationFactory()
 {
 }
 
-bool MaemoRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
+bool MaemoRunConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
 {
     return qobject_cast<Qt4BaseTarget *>(parent)->qt4Project()
         ->hasApplicationProFile(pathFromId(id));
@@ -109,13 +109,13 @@ QList<Core::Id> MaemoRunConfigurationFactory::availableCreationIds(Target *paren
     return result;
 }
 
-QString MaemoRunConfigurationFactory::displayNameForId(Core::Id id) const
+QString MaemoRunConfigurationFactory::displayNameForId(const Core::Id id) const
 {
     return QFileInfo(pathFromId(id)).completeBaseName()
         + QLatin1String(" (on remote Maemo device)");
 }
 
-RunConfiguration *MaemoRunConfigurationFactory::create(Target *parent, Core::Id id)
+RunConfiguration *MaemoRunConfigurationFactory::create(Target *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;

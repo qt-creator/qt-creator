@@ -74,7 +74,7 @@ QList<ProjectExplorer::Abi> EmbeddedLinuxQtVersion::detectQtAbis() const
     return qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
 }
 
-bool EmbeddedLinuxQtVersion::supportsTargetId(Core::Id id) const
+bool EmbeddedLinuxQtVersion::supportsTargetId(const Core::Id id) const
 {
     return id == Core::Id(Constants::EMBEDDED_LINUX_TARGET_ID);
 }

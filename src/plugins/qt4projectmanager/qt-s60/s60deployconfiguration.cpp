@@ -392,14 +392,14 @@ QList<Core::Id> S60DeployConfigurationFactory::availableCreationIds(Target *pare
     return result;
 }
 
-QString S60DeployConfigurationFactory::displayNameForId(Core::Id id) const
+QString S60DeployConfigurationFactory::displayNameForId(const Core::Id id) const
 {
     if (!pathFromId(id).isEmpty())
         return tr("%1 on Symbian Device").arg(QFileInfo(pathFromId(id)).completeBaseName());
     return QString();
 }
 
-DeployConfiguration *S60DeployConfigurationFactory::create(Target *parent, Core::Id id)
+DeployConfiguration *S60DeployConfigurationFactory::create(Target *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -413,7 +413,7 @@ DeployConfiguration *S60DeployConfigurationFactory::create(Target *parent, Core:
     return dc;
 }
 
-bool S60DeployConfigurationFactory::canCreate(Target *parent, Core::Id id) const
+bool S60DeployConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
 {
     Qt4SymbianTarget * t = qobject_cast<Qt4SymbianTarget *>(parent);
     if (!t || t->id() != Core::Id(Constants::S60_DEVICE_TARGET_ID)
