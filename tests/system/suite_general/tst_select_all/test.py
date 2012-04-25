@@ -43,6 +43,9 @@ def main():
                 pos = size
                 if key == "<Left>":
                     pos -= 1
+                    if platform.system() != 'Darwin' and JIRA.isBugStillOpen(7215, JIRA.Bug.CREATOR):
+                        test.warning("Using workaround for %s-%d" % (JIRA.Bug.CREATOR, 7215))
+                        pos = 0
                 test.compare(editor.textCursor().selectionStart(), pos)
                 test.compare(editor.textCursor().selectionEnd(), pos)
                 test.compare(editor.textCursor().position(), pos)
