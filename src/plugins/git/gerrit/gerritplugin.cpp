@@ -39,7 +39,9 @@
 #include <gitplugin.h>
 #include <gitclient.h>
 #include <gitversioncontrol.h>
+#include <gitconstants.h>
 #include <vcsbase/vcsbaseconstants.h>
+#include <vcsbase/vcsbaseeditor.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -212,15 +214,23 @@ void FetchContext::processFinished(int exitCode, QProcess::ExitStatus es)
         break;
     case WritePatchFileState:
         switch (m_fetchMode) {
-        case FetchDisplay:
+        case FetchDisplay: {
             m_patchFileName = m_patchFile->fileName();
             m_patchFile->close();
             m_patchFile.reset();
             m_state = DoneState;
             m_progress.reportFinished();
-            Core::EditorManager::instance()->openEditor(m_patchFileName);
+            QString title = QString(QLatin1String("Gerrit patch %1/%2"))
+                    .arg(m_change->number).arg(m_change->currentPatchSet.patchSetNumber);
+            Core::IEditor *editor = Core::EditorManager::instance()->openEditor(
+                            m_patchFileName, Git::Constants::GIT_DIFF_EDITOR_ID);
+            VcsBase::VcsBaseEditorWidget *vcsEditor = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(editor);
+            vcsEditor->setDiffBaseDirectory(m_repository);
+            vcsEditor->setForceReadOnly(true);
+            vcsEditor->setDisplayName(title);
             deleteLater();
             break;
+        }
         default:
             break;
         }
