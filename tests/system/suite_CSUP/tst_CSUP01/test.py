@@ -43,15 +43,8 @@ def main():
                 "Step 4: Verifying if: Word 'void' is completed because only one option is available.")
 # Step 5: From "Tools -> Options -> Text Editor -> Completion" select Activate completion Manually,
 # uncheck Autocomplete common prefix and press Apply and then Ok . Return to Edit mode.
-    invokeMenuItem("Tools", "Options...")
-    waitForObjectItem(":Options_QListView", "Text Editor")
-    clickItem(":Options_QListView", "Text Editor", 5, 5, 0, Qt.LeftButton)
-    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Completion")
-    clickButton(waitForObject(":Behavior.Autocomplete common prefix_QCheckBox"))
-    selectFromCombo(":Behavior.completionTrigger_QComboBox", "Manually")
-    test.verify(object.exists(":Options.OK_QPushButton"),
-                "Step 5: Verifying if: Code completion preferences can be changed.")
-    clickButton(waitForObject(":Options.OK_QPushButton"))
+    test.log("Step 5: Change Code Completion settings")
+    changeAutocompleteToManual()
 # Step 6: Insert text "ret" and press Ctrl+Space.
     editorWidget = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
     mouseClick(editorWidget, 5, 5, 0, Qt.LeftButton)

@@ -50,21 +50,24 @@
         \o  Select \gui {Analyze > QML Profiler} to profile the current
             application.
 
-        \o  Select the \gui Start button (1) to start the application from the
+        \o  Select the
+            \inlineimage qtcreator-analyze-start-button.png
+            (\gui Start) button to start the application from the
             QML Profiler.
 
-            \image qtcreator-qml-performance-monitor-toolbar.png "QML Profiler toolbar"
-
             \note If data collection does not start automatically, select the
-            \gui {Enable Profiling} button (3).
+            \inlineimage qtcreator-analyzer-button.png
+            (\gui {Enable Profiling}) button.
 
     \endlist
 
     When you start analyzing an application, the application is launched, and
     the QML Profiler immediately begins to collect data. This is indicated by
-    the time running in the \gui Elapsed field (4).
+    the time running in the \gui Elapsed field.
 
-    Data is collected until you select the \gui Stop button (2). Data collection
+    Data is collected until you select the
+    \inlineimage qtcreator-debug-button-stop.png
+    (\gui Stop) button. Data collection
     takes time, and therefore, there might be a delay
     before the data is displayed.
 
@@ -73,7 +76,7 @@
     The application continues to run for some seconds, after which it is stopped
     automatically. If you exit the application, the data is not sent.
 
-    Select the \gui {Disable Profiling} button (3) to disable the automatic
+    Select the \gui {Disable Profiling} button to disable the automatic
     start of the data collection when an
     application is launched. Data collection starts when you select the button
     again.

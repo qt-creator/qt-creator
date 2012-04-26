@@ -68,7 +68,6 @@ public:
     ~QtOptionsPageWidget();
     QList<BaseQtVersion *> versions() const;
     void finish();
-    void apply();
     QString searchKeywords() const;
 
     virtual bool eventFilter(QObject *o, QEvent *e);

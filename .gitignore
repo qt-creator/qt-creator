@@ -76,6 +76,7 @@ doc/html/*
 doc/html-dev/*
 doc/api/html/*
 doc/pluginhowto/html/*
+dist/gdb/python
 .rcc
 .pch
 dist/gdb/qtcreator-*
