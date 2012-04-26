@@ -1991,7 +1991,7 @@ namespace plugin {
         BREAK_HERE;
         // CheckType dir QString.
         // Check lib "" QLibrary.
-        // Check name <not accessible> QString.
+        // CheckType name QString.
         // CheckType res int.
         // Continue.
         // Step
