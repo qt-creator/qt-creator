@@ -35,6 +35,7 @@
 #include "keyword.h"
 #include "ui_keyworddialog.h"
 #include "constants.h"
+#include "lineparser.h"
 
 #include <QColorDialog>
 
@@ -124,7 +125,7 @@ void KeywordDialog::setupColorWidgets(const QColor &color)
 bool KeywordDialog::canAccept()
 {
     if (!isKeywordNameCorrect()) {
-        showError(tr("Keyword cannot be empty, contain spaces or colons."));
+        showError(tr("Keyword cannot be empty, contain spaces, colons, slashes or asterisks."));
         return false;
     }
 
@@ -146,7 +147,7 @@ bool KeywordDialog::isKeywordNameCorrect()
         return false;
 
     for (int i = 0; i < name.size(); ++i)
-        if (name.at(i).isSpace() || name.at(i) == QLatin1Char(':'))
+        if (LineParser::isKeywordSeparator(name.at(i)))
             return false;
 
     return true;
