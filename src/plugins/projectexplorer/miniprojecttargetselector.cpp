@@ -248,7 +248,6 @@ void ProjectListWidget::addProject(Project *project)
 {
     m_ignoreIndexChange = true;
 
-    QString sortName = fullName(project);
     int pos = count();
     for (int i=0; i < count(); ++i) {
         Project *p = item(i)->data(Qt::UserRole).value<Project*>();
@@ -326,7 +325,6 @@ void ProjectListWidget::projectDisplayNameChanged(Project *project)
     bool isCurrentItem = (oldPos == currentRow());
     QListWidgetItem *projectItem = takeItem(oldPos);
 
-    QString sortName = fullName(project);
     int pos = count();
     for (int i = 0; i < count(); ++i) {
         Project *p = item(i)->data(Qt::UserRole).value<Project*>();
