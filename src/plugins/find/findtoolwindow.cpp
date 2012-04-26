@@ -56,6 +56,7 @@ FindToolWindow::FindToolWindow(FindPlugin *plugin, QWidget *parent)
 {
     m_instance = this;
     m_ui.setupUi(this);
+    m_ui.searchTerm->setPlaceholderText(QString());
     setFocusProxy(m_ui.searchTerm);
 
     connect(m_ui.searchButton, SIGNAL(clicked()), this, SLOT(search()));
