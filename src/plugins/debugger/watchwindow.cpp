@@ -893,7 +893,9 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *act = menu.exec(ev->globalPos());
 
-    if (act == actInsertNewWatchItem) {
+    if (!act) {
+        ;
+    } else if (act == actInsertNewWatchItem) {
         bool ok;
         QString newExp = QInputDialog::getText(this, tr("Enter watch expression"),
                                    tr("Expression:"), QLineEdit::Normal,
