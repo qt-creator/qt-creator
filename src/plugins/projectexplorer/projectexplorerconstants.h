@@ -113,9 +113,10 @@ const char M_DEBUG_STARTDEBUGGING[] = "ProjectExplorer.Menu.Debug.StartDebugging
 const char M_SESSION[]            = "ProjectExplorer.Menu.Session";
 
 // Menu groups
-const char G_BUILD_SESSION[]      = "ProjectExplorer.Group.BuildSession";
-const char G_BUILD_PROJECT[]      = "ProjectExplorer.Group.Build";
-const char G_BUILD_OTHER[]        = "ProjectExplorer.Group.Other";
+const char G_BUILD_BUILD[]        = "ProjectExplorer.Group.Build";
+const char G_BUILD_DEPLOY[]       = "ProjectExplorer.Group.Deploy";
+const char G_BUILD_REBUILD[]      = "ProjectExplorer.Group.Rebuild";
+const char G_BUILD_CLEAN[]        = "ProjectExplorer.Group.Clean";
 const char G_BUILD_RUN[]          = "ProjectExplorer.Group.Run";
 const char G_BUILD_CANCEL[]       = "ProjectExplorer.Group.BuildCancel";
 
@@ -129,12 +130,13 @@ const char M_OPENFILEWITHCONTEXT[] = "Project.Menu.File.OpenWith";
 
 // Context menu groups
 const char G_SESSION_BUILD[]      = "Session.Group.Build";
+const char G_SESSION_REBUILD[]     = "Session.Group.Rebuild";
 const char G_SESSION_FILES[]      = "Session.Group.Files";
 const char G_SESSION_OTHER[]      = "Session.Group.Other";
-const char G_SESSION_CONFIG[]     = "Session.Group.Config";
 
 const char G_PROJECT_FIRST[]      = "Project.Group.Open";
 const char G_PROJECT_BUILD[]      = "Project.Group.Build";
+const char G_PROJECT_REBUILD[]    = "Project.Group.Rebuild";
 const char G_PROJECT_RUN[]        = "Project.Group.Run";
 const char G_PROJECT_FILES[]      = "Project.Group.Files";
 const char G_PROJECT_TREE[]       = "Project.Group.Tree";

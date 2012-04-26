@@ -99,7 +99,8 @@ private:
 
     QAction *m_runQMakeAction;
     QAction *m_runQMakeActionContextMenu;
-    QAction *m_buildSubProjectContextMenu;
+    Utils::ParameterAction *m_buildSubProjectContextMenu;
+    QAction *m_subProjectRebuildSeparator;
     QAction *m_rebuildSubProjectContextMenu;
     QAction *m_cleanSubProjectContextMenu;
     Utils::ParameterAction *m_buildSubProjectAction;
