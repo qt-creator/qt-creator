@@ -391,14 +391,17 @@ void Qt4ProjectManagerPlugin::currentNodeChanged(ProjectExplorer::Node *node, Pr
 {
     m_addLibraryActionContextMenu->setEnabled(qobject_cast<Qt4ProFileNode *>(node));
 
-    m_qt4ProjectManager->setContextNode(node ? node->projectNode() : 0);
-    m_qt4ProjectManager->setContextProject(project);
+    Qt4Project *pro = qobject_cast<Qt4Project *>(project);
+    Qt4ProFileNode *subProjectNode = node ? qobject_cast<Qt4ProFileNode *>(node->projectNode()) : 0;
 
-    bool subProjectActionsVisible = node && project && node->projectNode() && (node->projectNode() != project->rootProjectNode());
+    m_qt4ProjectManager->setContextNode(subProjectNode);
+    m_qt4ProjectManager->setContextProject(pro);
+
+    bool subProjectActionsVisible = pro && subProjectNode && (subProjectNode != pro->rootProjectNode());
 
     QString subProjectName;
     if (subProjectActionsVisible)
-        subProjectName = node->projectNode()->displayName();
+        subProjectName = subProjectNode->displayName();
 
     m_buildSubProjectAction->setParameter(subProjectName);
     m_rebuildSubProjectAction->setParameter(subProjectName);
