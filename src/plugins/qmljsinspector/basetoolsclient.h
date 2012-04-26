@@ -72,7 +72,7 @@ public:
     virtual void clearComponentCache() = 0;
 
 signals:
-    void connectedStatusChanged(QmlDebug::QmlDebugClient::Status status);
+    void connectedStatusChanged(QmlDebugClient::Status status);
 
     void currentObjectsChanged(const QList<int> &debugIds);
     void selectToolActivated();
