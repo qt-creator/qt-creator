@@ -849,9 +849,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             return data.value;
 
         case LocalsPointerValueRole:
-            if (isPointerType(data.type))
-                return pointerValue(data.value);
-            return QVariant(quint64(0));
+            return data.referencingAddress;
 
         case LocalsIsWatchpointAtAddressRole: {
             BreakpointParameters bp(WatchpointAtAddress);
