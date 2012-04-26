@@ -92,7 +92,7 @@ public:
             QProcess killall;
             bool killAllFailed = false;
 #ifdef Q_OS_WIN
-            QString cmd = QLating1String("taskill /im ") + dPath.fileName()
+            QString cmd = QLatin1String("taskill /im ") + dPath.fileName()
                     + QLatin1String(" /f /t");
 #else
             QString cmd = QLatin1String("killall ") + dPath.fileName()
