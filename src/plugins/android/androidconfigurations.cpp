@@ -52,6 +52,8 @@
 #include <iostream>
 #include <windows.h>
 #define sleep(_n) Sleep(1000 * (_n))
+#else
+#include <unistd.h>
 #endif
 
 using namespace Utils;
