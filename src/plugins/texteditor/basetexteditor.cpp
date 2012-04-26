@@ -5570,16 +5570,16 @@ void BaseTextEditorWidget::setFontSettingsIfVisible(const TextEditor::FontSettin
 
 void BaseTextEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
 {
-    const QTextCharFormat textFormat = fs.toTextCharFormat(QLatin1String(Constants::C_TEXT));
-    const QTextCharFormat selectionFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SELECTION));
-    const QTextCharFormat lineNumberFormat = fs.toTextCharFormat(QLatin1String(Constants::C_LINE_NUMBER));
-    const QTextCharFormat searchResultFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SEARCH_RESULT));
-    d->m_searchScopeFormat = fs.toTextCharFormat(QLatin1String(Constants::C_SEARCH_SCOPE));
-    const QTextCharFormat parenthesesFormat = fs.toTextCharFormat(QLatin1String(Constants::C_PARENTHESES));
-    d->m_currentLineFormat = fs.toTextCharFormat(QLatin1String(Constants::C_CURRENT_LINE));
-    d->m_currentLineNumberFormat = fs.toTextCharFormat(QLatin1String(Constants::C_CURRENT_LINE_NUMBER));
-    d->m_linkFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_LINK));
-    d->m_ifdefedOutFormat = fs.toTextCharFormat(QLatin1String(Constants::C_DISABLED_CODE));
+    const QTextCharFormat textFormat = fs.toTextCharFormat(C_TEXT);
+    const QTextCharFormat selectionFormat = fs.toTextCharFormat(C_SELECTION);
+    const QTextCharFormat lineNumberFormat = fs.toTextCharFormat(C_LINE_NUMBER);
+    const QTextCharFormat searchResultFormat = fs.toTextCharFormat(C_SEARCH_RESULT);
+    d->m_searchScopeFormat = fs.toTextCharFormat(C_SEARCH_SCOPE);
+    const QTextCharFormat parenthesesFormat = fs.toTextCharFormat(C_PARENTHESES);
+    d->m_currentLineFormat = fs.toTextCharFormat(C_CURRENT_LINE);
+    d->m_currentLineNumberFormat = fs.toTextCharFormat(C_CURRENT_LINE_NUMBER);
+    d->m_linkFormat = fs.toTextCharFormat(C_LINK);
+    d->m_ifdefedOutFormat = fs.toTextCharFormat(C_DISABLED_CODE);
     QFont font(textFormat.font());
 
     const QColor foreground = textFormat.foreground().color();
@@ -5616,9 +5616,9 @@ void BaseTextEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
 
 
     // snippests
-    d->m_occurrencesFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES));
+    d->m_occurrencesFormat = fs.toTextCharFormat(C_OCCURRENCES);
     d->m_occurrencesFormat.clearForeground();
-    d->m_occurrenceRenameFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_RENAME));
+    d->m_occurrenceRenameFormat = fs.toTextCharFormat(C_OCCURRENCES_RENAME);
     d->m_occurrenceRenameFormat.clearForeground();
 
     slotUpdateExtraAreaWidth();   // Adjust to new font width

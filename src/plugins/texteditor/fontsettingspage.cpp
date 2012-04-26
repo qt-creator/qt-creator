@@ -195,22 +195,21 @@ FontSettingsPagePrivate::FontSettingsPagePrivate(const TextEditor::FormatDescrip
 
     if (!settingsFound) { // Apply defaults
         foreach (const FormatDescription &f, m_descriptions) {
-            const QString fid = f.id();
-
-            m_value.formatFor(fid).setForeground(f.foreground());
-            m_value.formatFor(fid).setBackground(f.background());
-            m_value.formatFor(fid).setBold(f.format().bold());
-            m_value.formatFor(fid).setItalic(f.format().italic());
+            Format &format = m_value.formatFor(f.id());
+            format.setForeground(f.foreground());
+            format.setBackground(f.background());
+            format.setBold(f.format().bold());
+            format.setItalic(f.format().italic());
         }
     } else if (m_value.colorSchemeFileName().isEmpty()) {
         // No color scheme was loaded, but one might be imported from the ini file
         ColorScheme defaultScheme;
         foreach (const FormatDescription &f, m_descriptions) {
-            const QString fid = f.id();
-            defaultScheme.formatFor(fid).setForeground(f.foreground());
-            defaultScheme.formatFor(fid).setBackground(f.background());
-            defaultScheme.formatFor(fid).setBold(f.format().bold());
-            defaultScheme.formatFor(fid).setItalic(f.format().italic());
+            Format &format = defaultScheme.formatFor(f.id());
+            format.setForeground(f.foreground());
+            format.setBackground(f.background());
+            format.setBold(f.format().bold());
+            format.setItalic(f.format().italic());
         }
         if (m_value.colorScheme() != defaultScheme) {
             // Save it as a color scheme file
@@ -232,14 +231,14 @@ FontSettingsPagePrivate::~FontSettingsPagePrivate()
 
 
 // ------- FormatDescription
-FormatDescription::FormatDescription(const QString &id, const QString &displayName, const QColor &color) :
+FormatDescription::FormatDescription(TextStyle id, const QString &displayName, const QColor &color) :
     m_id(id),
     m_displayName(displayName)
 {
     m_format.setForeground(color);
 }
 
-FormatDescription::FormatDescription(const QString &id, const QString &displayName, const Format &format) :
+FormatDescription::FormatDescription(TextStyle id, const QString &displayName, const Format &format) :
     m_id(id),
     m_displayName(displayName),
     m_format(format)
@@ -248,23 +247,23 @@ FormatDescription::FormatDescription(const QString &id, const QString &displayNa
 
 QColor FormatDescription::foreground() const
 {
-    if (m_id == QLatin1String(Constants::C_LINE_NUMBER)) {
+    if (m_id == C_LINE_NUMBER) {
         const QColor bg = QApplication::palette().background().color();
         if (bg.value() < 128) {
             return QApplication::palette().foreground().color();
         } else {
             return QApplication::palette().dark().color();
         }
-    } else if (m_id == QLatin1String(Constants::C_CURRENT_LINE_NUMBER)) {
+    } else if (m_id == C_CURRENT_LINE_NUMBER) {
         const QColor bg = QApplication::palette().background().color();
         if (bg.value() < 128) {
             return QApplication::palette().foreground().color();
         } else {
             return m_format.foreground();
         }
-    } else if (m_id == QLatin1String(Constants::C_OCCURRENCES_UNUSED)) {
+    } else if (m_id == C_OCCURRENCES_UNUSED) {
         return Qt::darkYellow;
-    } else if (m_id == QLatin1String(Constants::C_PARENTHESES)) {
+    } else if (m_id == C_PARENTHESES) {
         return QColor(Qt::red);
     }
     return m_format.foreground();
@@ -272,23 +271,22 @@ QColor FormatDescription::foreground() const
 
 QColor FormatDescription::background() const
 {
-    if (m_id == QLatin1String(Constants::C_TEXT))
+    if (m_id == C_TEXT)
         return Qt::white;
-    else if (m_id == QLatin1String(Constants::C_LINE_NUMBER))
+    else if (m_id == C_LINE_NUMBER)
         return QApplication::palette().background().color();
-    else if (m_id == QLatin1String(Constants::C_SEARCH_RESULT))
+    else if (m_id == C_SEARCH_RESULT)
         return QColor(0xffef0b);
-    else if (m_id == QLatin1String(Constants::C_PARENTHESES))
+    else if (m_id == C_PARENTHESES)
         return QColor(0xb4, 0xee, 0xb4);
-    else if (m_id == QLatin1String(Constants::C_CURRENT_LINE)
-             || m_id == QLatin1String(Constants::C_SEARCH_SCOPE)) {
+    else if (m_id == C_CURRENT_LINE || m_id == C_SEARCH_SCOPE) {
         const QPalette palette = QApplication::palette();
         const QColor &fg = palette.color(QPalette::Highlight);
         const QColor &bg = palette.color(QPalette::Base);
 
         qreal smallRatio;
         qreal largeRatio;
-        if (m_id == QLatin1String(Constants::C_CURRENT_LINE)) {
+        if (m_id == C_CURRENT_LINE) {
             smallRatio = .3;
             largeRatio = .6;
         } else {
@@ -302,14 +300,14 @@ QColor FormatDescription::background() const
                                              fg.greenF() * ratio + bg.greenF() * (1 - ratio),
                                              fg.blueF() * ratio + bg.blueF() * (1 - ratio));
         return col;
-    } else if (m_id == QLatin1String(Constants::C_SELECTION)) {
+    } else if (m_id == C_SELECTION) {
         const QPalette palette = QApplication::palette();
         return palette.color(QPalette::Highlight);
-    } else if (m_id == QLatin1String(Constants::C_OCCURRENCES)) {
+    } else if (m_id == C_OCCURRENCES) {
         return QColor(180, 180, 180);
-    } else if (m_id == QLatin1String(Constants::C_OCCURRENCES_RENAME)) {
+    } else if (m_id == C_OCCURRENCES_RENAME) {
         return QColor(255, 100, 100);
-    } else if (m_id == QLatin1String(Constants::C_DISABLED_CODE)) {
+    } else if (m_id == C_DISABLED_CODE) {
         return QColor(239, 239, 239);
     }
     return QColor(); // invalid color

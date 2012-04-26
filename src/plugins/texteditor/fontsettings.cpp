@@ -32,6 +32,7 @@
 
 #include "fontsettings.h"
 #include "fontsettingspage.h"
+#include "texteditorconstants.h"
 
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
@@ -136,8 +137,8 @@ bool FontSettings::fromSettings(const QString &category,
     } else {
         // Load color scheme from ini file
         foreach (const FormatDescription &desc, descriptions) {
-            const QString id = desc.id();
-            const QString fmt = s->value(group + id, QString()).toString();
+            const TextStyle id = desc.id();
+            const QString fmt = s->value(group + Constants::nameForStyle(id), QString()).toString();
             Format format;
             if (fmt.isEmpty()) {
                 format.setForeground(desc.foreground());
@@ -169,14 +170,13 @@ bool FontSettings::equals(const FontSettings &f) const
 /**
  * Returns the QTextCharFormat of the given format category.
  */
-QTextCharFormat FontSettings::toTextCharFormat(const QString &category) const
+QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
 {
     const Format &f = m_scheme.formatFor(category);
-    const QLatin1String textCategory("Text");
 
     QTextCharFormat tf;
 
-    if (category == textCategory) {
+    if (category == C_TEXT) {
         tf.setFontFamily(m_family);
         tf.setFontPointSize(m_fontSize * m_fontZoom / 100.);
         tf.setFontStyleStrategy(m_antialias ? QFont::PreferAntialias : QFont::NoAntialias);
@@ -184,7 +184,7 @@ QTextCharFormat FontSettings::toTextCharFormat(const QString &category) const
 
     if (f.foreground().isValid())
         tf.setForeground(f.foreground());
-    if (f.background().isValid() && (category == textCategory || f.background() != m_scheme.formatFor(textCategory).background()))
+    if (f.background().isValid() && (category == C_TEXT || f.background() != m_scheme.formatFor(C_TEXT).background()))
         tf.setBackground(f.background());
     tf.setFontWeight(f.bold() ? QFont::Bold : QFont::Normal);
     tf.setFontItalic(f.italic());
@@ -195,7 +195,7 @@ QTextCharFormat FontSettings::toTextCharFormat(const QString &category) const
  * Returns the list of QTextCharFormats that corresponds to the list of
  * requested format categories.
  */
-QVector<QTextCharFormat> FontSettings::toTextCharFormats(const QVector<QString> &categories) const
+QVector<QTextCharFormat> FontSettings::toTextCharFormats(const QVector<TextStyle> &categories) const
 {
     QVector<QTextCharFormat> rc;
     const int size = categories.size();
@@ -265,7 +265,7 @@ void FontSettings::setAntialias(bool antialias)
 /**
  * Returns the format for the given font category.
  */
-Format &FontSettings::formatFor(const QString &category)
+Format &FontSettings::formatFor(TextStyle category)
 {
     return m_scheme.formatFor(category);
 }
@@ -301,7 +301,7 @@ bool FontSettings::loadColorScheme(const QString &fileName,
 
     // Apply default formats to undefined categories
     foreach (const FormatDescription &desc, descriptions) {
-        const QString id = desc.id();
+        const TextStyle id = desc.id();
         if (!m_scheme.contains(id)) {
             Format format;
             format.setForeground(desc.foreground());

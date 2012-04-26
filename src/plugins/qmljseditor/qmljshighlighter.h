@@ -43,6 +43,7 @@
 
 #include <texteditor/basetextdocumentlayout.h>
 #include <texteditor/syntaxhighlighter.h>
+#include <texteditor/texteditorconstants.h>
 
 namespace QmlJSEditor {
 

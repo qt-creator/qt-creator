@@ -117,80 +117,80 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
 
     // Add font preference page
     FormatDescriptions formatDescriptions;
-    formatDescriptions.append(FormatDescription(QLatin1String(C_TEXT), tr("Text")));
+    formatDescriptions.append(FormatDescription(C_TEXT, tr("Text")));
 
     // Special categories
     const QPalette p = QApplication::palette();
-    formatDescriptions.append(FormatDescription(QLatin1String(C_LINK), tr("Link"), Qt::blue));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_SELECTION), tr("Selection"), p.color(QPalette::HighlightedText)));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_LINE_NUMBER), tr("Line Number")));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_SEARCH_RESULT), tr("Search Result")));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_SEARCH_SCOPE), tr("Search Scope")));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_PARENTHESES), tr("Parentheses")));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_CURRENT_LINE), tr("Current Line")));
+    formatDescriptions.append(FormatDescription(C_LINK, tr("Link"), Qt::blue));
+    formatDescriptions.append(FormatDescription(C_SELECTION, tr("Selection"), p.color(QPalette::HighlightedText)));
+    formatDescriptions.append(FormatDescription(C_LINE_NUMBER, tr("Line Number")));
+    formatDescriptions.append(FormatDescription(C_SEARCH_RESULT, tr("Search Result")));
+    formatDescriptions.append(FormatDescription(C_SEARCH_SCOPE, tr("Search Scope")));
+    formatDescriptions.append(FormatDescription(C_PARENTHESES, tr("Parentheses")));
+    formatDescriptions.append(FormatDescription(C_CURRENT_LINE, tr("Current Line")));
 
-    FormatDescription currentLineNumber = FormatDescription(QLatin1String(C_CURRENT_LINE_NUMBER), tr("Current Line Number"), Qt::darkGray);
+    FormatDescription currentLineNumber = FormatDescription(C_CURRENT_LINE_NUMBER, tr("Current Line Number"), Qt::darkGray);
     currentLineNumber.format().setBold(true);
     formatDescriptions.append(currentLineNumber);
 
-    formatDescriptions.append(FormatDescription(QLatin1String(C_OCCURRENCES), tr("Occurrences")));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_OCCURRENCES_UNUSED), tr("Unused Occurrence")));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_OCCURRENCES_RENAME), tr("Renaming Occurrence")));
+    formatDescriptions.append(FormatDescription(C_OCCURRENCES, tr("Occurrences")));
+    formatDescriptions.append(FormatDescription(C_OCCURRENCES_UNUSED, tr("Unused Occurrence")));
+    formatDescriptions.append(FormatDescription(C_OCCURRENCES_RENAME, tr("Renaming Occurrence")));
 
     // Standard categories
-    formatDescriptions.append(FormatDescription(QLatin1String(C_NUMBER), tr("Number"), Qt::darkBlue));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_STRING), tr("String"), Qt::darkGreen));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_TYPE), tr("Type"), Qt::darkMagenta));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_LOCAL), tr("Local")));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_FIELD), tr("Field"), Qt::darkRed));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_STATIC), tr("Static"), Qt::darkMagenta));
+    formatDescriptions.append(FormatDescription(C_NUMBER, tr("Number"), Qt::darkBlue));
+    formatDescriptions.append(FormatDescription(C_STRING, tr("String"), Qt::darkGreen));
+    formatDescriptions.append(FormatDescription(C_TYPE, tr("Type"), Qt::darkMagenta));
+    formatDescriptions.append(FormatDescription(C_LOCAL, tr("Local")));
+    formatDescriptions.append(FormatDescription(C_FIELD, tr("Field"), Qt::darkRed));
+    formatDescriptions.append(FormatDescription(C_STATIC, tr("Static"), Qt::darkMagenta));
 
-    FormatDescription virtualMethodFormatDescriptor(QLatin1String(C_VIRTUAL_METHOD), tr("Virtual Method"));
+    FormatDescription virtualMethodFormatDescriptor(C_VIRTUAL_METHOD, tr("Virtual Method"));
     virtualMethodFormatDescriptor.format().setItalic(true);
     formatDescriptions.append(virtualMethodFormatDescriptor);
 
-    formatDescriptions.append(FormatDescription(QLatin1String(C_BINDING), tr("QML Binding"), Qt::darkRed));
+    formatDescriptions.append(FormatDescription(C_BINDING, tr("QML Binding"), Qt::darkRed));
 
     Format qmlLocalNameFormat;
     qmlLocalNameFormat.setItalic(true);
-    formatDescriptions.append(FormatDescription(QLatin1String(C_QML_LOCAL_ID), tr("QML Local Id"), qmlLocalNameFormat));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_QML_ROOT_OBJECT_PROPERTY), tr("QML Root Object Property"), qmlLocalNameFormat));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_QML_SCOPE_OBJECT_PROPERTY), tr("QML Scope Object Property"), qmlLocalNameFormat));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_QML_STATE_NAME), tr("QML State Name"), qmlLocalNameFormat));
+    formatDescriptions.append(FormatDescription(C_QML_LOCAL_ID, tr("QML Local Id"), qmlLocalNameFormat));
+    formatDescriptions.append(FormatDescription(C_QML_ROOT_OBJECT_PROPERTY, tr("QML Root Object Property"), qmlLocalNameFormat));
+    formatDescriptions.append(FormatDescription(C_QML_SCOPE_OBJECT_PROPERTY, tr("QML Scope Object Property"), qmlLocalNameFormat));
+    formatDescriptions.append(FormatDescription(C_QML_STATE_NAME, tr("QML State Name"), qmlLocalNameFormat));
 
-    formatDescriptions.append(FormatDescription(QLatin1String(C_QML_TYPE_ID), tr("QML Type Name"), Qt::darkMagenta));
+    formatDescriptions.append(FormatDescription(C_QML_TYPE_ID, tr("QML Type Name"), Qt::darkMagenta));
 
     Format qmlExternalNameFormat = qmlLocalNameFormat;
     qmlExternalNameFormat.setForeground(Qt::darkBlue);
-    formatDescriptions.append(FormatDescription(QLatin1String(C_QML_EXTERNAL_ID), tr("QML External Id"), qmlExternalNameFormat));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_QML_EXTERNAL_OBJECT_PROPERTY), tr("QML External Object Property"), qmlExternalNameFormat));
+    formatDescriptions.append(FormatDescription(C_QML_EXTERNAL_ID, tr("QML External Id"), qmlExternalNameFormat));
+    formatDescriptions.append(FormatDescription(C_QML_EXTERNAL_OBJECT_PROPERTY, tr("QML External Object Property"), qmlExternalNameFormat));
 
     Format jsLocalFormat;
     jsLocalFormat.setForeground(QColor(41, 133, 199)); // very light blue
     jsLocalFormat.setItalic(true);
-    formatDescriptions.append(FormatDescription(QLatin1String(C_JS_SCOPE_VAR), tr("JavaScript Scope Var"), jsLocalFormat));
+    formatDescriptions.append(FormatDescription(C_JS_SCOPE_VAR, tr("JavaScript Scope Var"), jsLocalFormat));
 
     Format jsGlobalFormat;
     jsGlobalFormat.setForeground(QColor(0, 85, 175)); // light blue
     jsGlobalFormat.setItalic(true);
-    formatDescriptions.append(FormatDescription(QLatin1String(C_JS_IMPORT_VAR), tr("JavaScript Import"), jsGlobalFormat));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_JS_GLOBAL_VAR), tr("JavaScript Global Variable"), jsGlobalFormat));
+    formatDescriptions.append(FormatDescription(C_JS_IMPORT_VAR, tr("JavaScript Import"), jsGlobalFormat));
+    formatDescriptions.append(FormatDescription(C_JS_GLOBAL_VAR, tr("JavaScript Global Variable"), jsGlobalFormat));
 
-    formatDescriptions.append(FormatDescription(QLatin1String(C_KEYWORD), tr("Keyword"), Qt::darkYellow));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_OPERATOR), tr("Operator")));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_PREPROCESSOR), tr("Preprocessor"), Qt::darkBlue));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_LABEL), tr("Label"), Qt::darkRed));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_COMMENT), tr("Comment"), Qt::darkGreen));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_DOXYGEN_COMMENT), tr("Doxygen Comment"), Qt::darkBlue));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_DOXYGEN_TAG), tr("Doxygen Tag"), Qt::blue));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_VISUAL_WHITESPACE), tr("Visual Whitespace"), Qt::lightGray));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_DISABLED_CODE), tr("Disabled Code")));
+    formatDescriptions.append(FormatDescription(C_KEYWORD, tr("Keyword"), Qt::darkYellow));
+    formatDescriptions.append(FormatDescription(C_OPERATOR, tr("Operator")));
+    formatDescriptions.append(FormatDescription(C_PREPROCESSOR, tr("Preprocessor"), Qt::darkBlue));
+    formatDescriptions.append(FormatDescription(C_LABEL, tr("Label"), Qt::darkRed));
+    formatDescriptions.append(FormatDescription(C_COMMENT, tr("Comment"), Qt::darkGreen));
+    formatDescriptions.append(FormatDescription(C_DOXYGEN_COMMENT, tr("Doxygen Comment"), Qt::darkBlue));
+    formatDescriptions.append(FormatDescription(C_DOXYGEN_TAG, tr("Doxygen Tag"), Qt::blue));
+    formatDescriptions.append(FormatDescription(C_VISUAL_WHITESPACE, tr("Visual Whitespace"), Qt::lightGray));
+    formatDescriptions.append(FormatDescription(C_DISABLED_CODE, tr("Disabled Code")));
 
     // Diff categories
-    formatDescriptions.append(FormatDescription(QLatin1String(C_ADDED_LINE), tr("Added Line"), QColor(0, 170, 0)));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_REMOVED_LINE), tr("Removed Line"), Qt::red));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_DIFF_FILE), tr("Diff File"), Qt::darkBlue));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_DIFF_LOCATION), tr("Diff Location"), Qt::blue));
+    formatDescriptions.append(FormatDescription(C_ADDED_LINE, tr("Added Line"), QColor(0, 170, 0)));
+    formatDescriptions.append(FormatDescription(C_REMOVED_LINE, tr("Removed Line"), Qt::red));
+    formatDescriptions.append(FormatDescription(C_DIFF_FILE, tr("Diff File"), Qt::darkBlue));
+    formatDescriptions.append(FormatDescription(C_DIFF_LOCATION, tr("Diff Location"), Qt::blue));
 
     m_d->m_fontSettingsPage = new FontSettingsPage(formatDescriptions,
                                                    QLatin1String(Constants::TEXT_EDITOR_FONT_SETTINGS),

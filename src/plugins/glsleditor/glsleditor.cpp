@@ -229,20 +229,20 @@ void GLSLTextEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
         CommentFormat,
         VisualWhitespace,
      */
-    static QVector<QString> categories;
+    static QVector<TextEditor::TextStyle> categories;
     if (categories.isEmpty()) {
-        categories << QLatin1String(TextEditor::Constants::C_NUMBER)
-                   << QLatin1String(TextEditor::Constants::C_STRING)
-                   << QLatin1String(TextEditor::Constants::C_TYPE)
-                   << QLatin1String(TextEditor::Constants::C_KEYWORD)
-                   << QLatin1String(TextEditor::Constants::C_OPERATOR)
-                   << QLatin1String(TextEditor::Constants::C_PREPROCESSOR)
-                   << QLatin1String(TextEditor::Constants::C_LABEL)
-                   << QLatin1String(TextEditor::Constants::C_COMMENT)
-                   << QLatin1String(TextEditor::Constants::C_DOXYGEN_COMMENT)
-                   << QLatin1String(TextEditor::Constants::C_DOXYGEN_TAG)
-                   << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE)
-                   << QLatin1String(TextEditor::Constants::C_REMOVED_LINE);
+        categories << TextEditor::C_NUMBER
+                   << TextEditor::C_STRING
+                   << TextEditor::C_TYPE
+                   << TextEditor::C_KEYWORD
+                   << TextEditor::C_OPERATOR
+                   << TextEditor::C_PREPROCESSOR
+                   << TextEditor::C_LABEL
+                   << TextEditor::C_COMMENT
+                   << TextEditor::C_DOXYGEN_COMMENT
+                   << TextEditor::C_DOXYGEN_TAG
+                   << TextEditor::C_VISUAL_WHITESPACE
+                   << TextEditor::C_REMOVED_LINE;
     }
 
     highlighter->setFormats(fs.toTextCharFormats(categories));

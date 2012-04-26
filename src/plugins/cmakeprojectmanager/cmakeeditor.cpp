@@ -166,13 +166,13 @@ void CMakeEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
     if (!highlighter)
         return;
 
-    static QVector<QString> categories;
+    static QVector<TextEditor::TextStyle> categories;
     if (categories.isEmpty()) {
-        categories << QLatin1String(TextEditor::Constants::C_LABEL)  // variables
-                << QLatin1String(TextEditor::Constants::C_KEYWORD)   // functions
-                << QLatin1String(TextEditor::Constants::C_COMMENT)
-                << QLatin1String(TextEditor::Constants::C_STRING)
-                << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE);
+        categories << TextEditor::C_LABEL  // variables
+                << TextEditor::C_KEYWORD   // functions
+                << TextEditor::C_COMMENT
+                << TextEditor::C_STRING
+                << TextEditor::C_VISUAL_WHITESPACE;
     }
 
     const QVector<QTextCharFormat> formats = fs.toTextCharFormats(categories);

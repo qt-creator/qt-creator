@@ -109,22 +109,22 @@ ColorScheme::ColorScheme()
 {
 }
 
-bool ColorScheme::contains(const QString &category) const
+bool ColorScheme::contains(TextStyle category) const
 {
     return m_formats.contains(category);
 }
 
-Format &ColorScheme::formatFor(const QString &category)
+Format &ColorScheme::formatFor(TextStyle category)
 {
     return m_formats[category];
 }
 
-Format ColorScheme::formatFor(const QString &category) const
+Format ColorScheme::formatFor(TextStyle category) const
 {
     return m_formats.value(category);
 }
 
-void ColorScheme::setFormatFor(const QString &category, const Format &format)
+void ColorScheme::setFormatFor(TextStyle category, const Format &format)
 {
     m_formats[category] = format;
 }
@@ -148,11 +148,11 @@ bool ColorScheme::save(const QString &fileName, QWidget *parent) const
         if (!m_displayName.isEmpty())
             w.writeAttribute(QLatin1String("name"), m_displayName);
 
-        QMapIterator<QString, Format> i(m_formats);
+        QMapIterator<TextStyle, Format> i(m_formats);
         while (i.hasNext()) {
             const Format &format = i.next().value();
             w.writeStartElement(QLatin1String("style"));
-            w.writeAttribute(QLatin1String("name"), i.key());
+            w.writeAttribute(QLatin1String("name"), QString::fromLatin1(Constants::nameForStyle(i.key())));
             if (format.foreground().isValid())
                 w.writeAttribute(QLatin1String("foreground"), format.foreground().name().toLower());
             if (format.background().isValid())
@@ -263,7 +263,7 @@ void ColorSchemeReader::readStyle()
     Q_ASSERT(isStartElement() && name() == QLatin1String("style"));
 
     const QXmlStreamAttributes attr = attributes();
-    QString name = attr.value(QLatin1String("name")).toString();
+    QByteArray name = attr.value(QLatin1String("name")).toString().toLatin1();
     QString foreground = attr.value(QLatin1String("foreground")).toString();
     QString background = attr.value(QLatin1String("background")).toString();
     bool bold = attr.value(QLatin1String("bold")) == QLatin1String(trueString);
@@ -284,7 +284,7 @@ void ColorSchemeReader::readStyle()
     format.setBold(bold);
     format.setItalic(italic);
 
-    m_scheme->setFormatFor(name, format);
+    m_scheme->setFormatFor(Constants::styleFromName(name), format);
 
     skipCurrentElement();
 }

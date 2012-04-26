@@ -19,6 +19,7 @@ SOURCES += texteditorplugin.cpp \
     behaviorsettingspage.cpp \
     texteditoractionhandler.cpp \
     fontsettingspage.cpp \
+    texteditorconstants.cpp \
     tabsettings.cpp \
     storagesettings.cpp \
     displaysettings.cpp \

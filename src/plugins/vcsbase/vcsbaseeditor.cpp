@@ -1153,18 +1153,18 @@ void VcsBaseEditorWidget::setPlainTextData(const QByteArray &data)
 void VcsBaseEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
 {
     TextEditor::BaseTextEditorWidget::setFontSettings(fs);
-    d->m_backgroundColor = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_TEXT))
+    d->m_backgroundColor = fs.toTextCharFormat(TextEditor::C_TEXT)
             .brushProperty(QTextFormat::BackgroundBrush).color();
 
     if (d->m_parameters->type == DiffOutput) {
         if (DiffHighlighter *highlighter = qobject_cast<DiffHighlighter*>(baseTextDocument()->syntaxHighlighter())) {
-            static QVector<QString> categories;
+            static QVector<TextEditor::TextStyle> categories;
             if (categories.isEmpty()) {
-                categories << QLatin1String(TextEditor::Constants::C_TEXT)
-                           << QLatin1String(TextEditor::Constants::C_ADDED_LINE)
-                           << QLatin1String(TextEditor::Constants::C_REMOVED_LINE)
-                           << QLatin1String(TextEditor::Constants::C_DIFF_FILE)
-                           << QLatin1String(TextEditor::Constants::C_DIFF_LOCATION);
+                categories << TextEditor::C_TEXT
+                           << TextEditor::C_ADDED_LINE
+                           << TextEditor::C_REMOVED_LINE
+                           << TextEditor::C_DIFF_FILE
+                           << TextEditor::C_DIFF_LOCATION;
             }
             highlighter->setFormats(fs.toTextCharFormats(categories));
             highlighter->rehighlight();

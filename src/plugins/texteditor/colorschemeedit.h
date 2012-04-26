@@ -81,7 +81,7 @@ private:
     void updateControls();
     void setItemListBackground(const QColor &color);
 
-    TextEditor::FormatDescriptions m_descriptions;
+    FormatDescriptions m_descriptions;
     ColorScheme m_scheme;
     int m_curItem;
     Ui::ColorSchemeEdit *m_ui;

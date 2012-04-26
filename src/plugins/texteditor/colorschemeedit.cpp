@@ -33,8 +33,6 @@
 #include "colorschemeedit.h"
 #include "ui_colorschemeedit.h"
 
-#include "texteditorconstants.h"
-
 #include <QAbstractListModel>
 #include <QColorDialog>
 
@@ -104,7 +102,7 @@ public:
             if (foreground.isValid())
                 return foreground;
             else
-                return m_scheme->formatFor(QLatin1String(TextEditor::Constants::C_TEXT)).foreground();
+                return m_scheme->formatFor(C_TEXT).foreground();
         }
         case Qt::BackgroundRole: {
             QColor background = m_scheme->formatFor(description.id()).background();
@@ -205,7 +203,7 @@ void ColorSchemeEdit::setColorScheme(const ColorScheme &colorScheme)
 {
     m_scheme = colorScheme;
     m_formatsModel->setColorScheme(&m_scheme);
-    setItemListBackground(m_scheme.formatFor(QLatin1String(TextEditor::Constants::C_TEXT)).background());
+    setItemListBackground(m_scheme.formatFor(C_TEXT).background());
     updateControls();
 }
 
@@ -258,7 +256,7 @@ void ColorSchemeEdit::changeForeColor()
     m_ui->eraseForegroundToolButton->setEnabled(true);
 
     foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
-        const QString category = m_descriptions[index.row()].id();
+        const TextStyle category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setForeground(newColor);
         m_formatsModel->emitDataChanged(index);
     }
@@ -276,7 +274,7 @@ void ColorSchemeEdit::changeBackColor()
     m_ui->eraseBackgroundToolButton->setEnabled(true);
 
     foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
-        const QString category = m_descriptions[index.row()].id();
+        const TextStyle category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setBackground(newColor);
         m_formatsModel->emitDataChanged(index);
         // Synchronize item list background with text background
@@ -294,7 +292,7 @@ void ColorSchemeEdit::eraseBackColor()
     m_ui->eraseBackgroundToolButton->setEnabled(false);
 
     foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
-        const QString category = m_descriptions[index.row()].id();
+        const TextStyle category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setBackground(newColor);
         m_formatsModel->emitDataChanged(index);
     }
@@ -309,7 +307,7 @@ void ColorSchemeEdit::eraseForeColor()
     m_ui->eraseForegroundToolButton->setEnabled(false);
 
     foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
-        const QString category = m_descriptions[index.row()].id();
+        const TextStyle category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setForeground(newColor);
         m_formatsModel->emitDataChanged(index);
     }
@@ -321,7 +319,7 @@ void ColorSchemeEdit::checkCheckBoxes()
         return;
 
     foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
-        const QString category = m_descriptions[index.row()].id();
+        const TextStyle category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setBold(m_ui->boldCheckBox->isChecked());
         m_scheme.formatFor(category).setItalic(m_ui->italicCheckBox->isChecked());
         m_formatsModel->emitDataChanged(index);

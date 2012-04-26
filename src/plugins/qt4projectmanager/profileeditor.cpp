@@ -220,12 +220,12 @@ void ProFileEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
     if (!highlighter)
         return;
 
-    static QVector<QString> categories;
+    static QVector<TextEditor::TextStyle> categories;
     if (categories.isEmpty()) {
-        categories << QLatin1String(TextEditor::Constants::C_TYPE)
-                   << QLatin1String(TextEditor::Constants::C_KEYWORD)
-                   << QLatin1String(TextEditor::Constants::C_COMMENT)
-                   << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE);
+        categories << TextEditor::C_TYPE
+                   << TextEditor::C_KEYWORD
+                   << TextEditor::C_COMMENT
+                   << TextEditor::C_VISUAL_WHITESPACE;
     }
 
     const QVector<QTextCharFormat> formats = fs.toTextCharFormats(categories);

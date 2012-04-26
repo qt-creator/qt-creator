@@ -58,13 +58,12 @@ class FontSettingsPagePrivate;
 class TEXTEDITOR_EXPORT FormatDescription
 {
 public:
-    FormatDescription(const QString &id, const QString &displayName,
+    FormatDescription(TextStyle id, const QString &displayName,
                       const QColor &foreground = Qt::black);
-    FormatDescription(const QString &id, const QString &displayName,
+    FormatDescription(TextStyle id, const QString &displayName,
                       const Format &format);
 
-    QString id() const
-    { return m_id; }
+    TextStyle id() const { return m_id; }
 
     QString displayName() const
     { return m_displayName; }
@@ -76,7 +75,7 @@ public:
     Format &format() { return m_format; }
 
 private:
-    QString m_id;               // Name of the category
+    TextStyle m_id;            // Name of the category
     QString m_displayName;      // Displayed name of the category
     Format m_format;            // Default format
 };

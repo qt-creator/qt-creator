@@ -130,6 +130,7 @@ QtcPlugin {
         "texteditor_global.h",
         "texteditoractionhandler.cpp",
         "texteditoractionhandler.h",
+        "texteditorconstants.cpp",
         "texteditorconstants.h",
         "texteditoroptionspage.cpp",
         "texteditoroptionspage.h",

@@ -36,6 +36,61 @@
 #include <QtGlobal>
 
 namespace TextEditor {
+
+// Text color and style categories
+enum TextStyle {
+    C_TEXT,
+
+    C_LINK,
+    C_SELECTION,
+    C_LINE_NUMBER,
+    C_SEARCH_RESULT,
+    C_SEARCH_SCOPE,
+    C_PARENTHESES,
+    C_CURRENT_LINE,
+    C_CURRENT_LINE_NUMBER,
+    C_OCCURRENCES,
+    C_OCCURRENCES_UNUSED,
+    C_OCCURRENCES_RENAME,
+
+    C_NUMBER,
+    C_STRING,
+    C_TYPE,
+    C_LOCAL,
+    C_FIELD,
+    C_STATIC,
+    C_VIRTUAL_METHOD,
+    C_KEYWORD,
+    C_OPERATOR,
+    C_PREPROCESSOR,
+    C_LABEL,
+    C_COMMENT,
+    C_DOXYGEN_COMMENT,
+    C_DOXYGEN_TAG,
+    C_VISUAL_WHITESPACE,
+    C_QML_LOCAL_ID,
+    C_QML_EXTERNAL_ID,
+    C_QML_TYPE_ID,
+    C_QML_ROOT_OBJECT_PROPERTY,
+    C_QML_SCOPE_OBJECT_PROPERTY,
+    C_QML_EXTERNAL_OBJECT_PROPERTY,
+    C_JS_SCOPE_VAR,
+    C_JS_IMPORT_VAR,
+    C_JS_GLOBAL_VAR,
+    C_QML_STATE_NAME,
+    C_BINDING,
+
+
+    C_DISABLED_CODE,
+
+    C_ADDED_LINE,
+    C_REMOVED_LINE,
+    C_DIFF_FILE,
+    C_DIFF_LOCATION,
+
+    C_LAST_STYLE_SENTINEL
+};
+
 namespace Constants {
 
 const char C_TEXTEDITOR[]          = "Text Editor";
@@ -108,55 +163,8 @@ const char UNINDENT[]        = "TextEditor.Unindent";
 const char FOLLOW_SYMBOL_UNDER_CURSOR[] = "TextEditor.FollowSymbolUnderCursor";
 const char JUMP_TO_FILE_UNDER_CURSOR[] = "TextEditor.JumpToFileUnderCursor";
 
-// Text color and style categories
-const char C_TEXT[]                = "Text";
-
-const char C_LINK[]                = "Link";
-const char C_SELECTION[]           = "Selection";
-const char C_LINE_NUMBER[]         = "LineNumber";
-const char C_SEARCH_RESULT[]       = "SearchResult";
-const char C_SEARCH_SCOPE[]        = "SearchScope";
-const char C_PARENTHESES[]         = "Parentheses";
-const char C_CURRENT_LINE[]        = "CurrentLine";
-const char C_CURRENT_LINE_NUMBER[] = "CurrentLineNumber";
-const char C_OCCURRENCES[]         = "Occurrences";
-const char C_OCCURRENCES_UNUSED[]  = "Occurrences.Unused";
-const char C_OCCURRENCES_RENAME[]  = "Occurrences.Rename";
-
-const char C_NUMBER[]              = "Number";
-const char C_STRING[]              = "String";
-const char C_TYPE[]                = "Type";
-const char C_LOCAL[]               = "Local";
-const char C_FIELD[]               = "Field";
-const char C_STATIC[]              = "Static";
-const char C_VIRTUAL_METHOD[]      = "VirtualMethod";
-const char C_KEYWORD[]             = "Keyword";
-const char C_OPERATOR[]            = "Operator";
-const char C_PREPROCESSOR[]        = "Preprocessor";
-const char C_LABEL[]               = "Label";
-const char C_COMMENT[]             = "Comment";
-const char C_DOXYGEN_COMMENT[]     = "Doxygen.Comment";
-const char C_DOXYGEN_TAG[]         = "Doxygen.Tag";
-const char C_VISUAL_WHITESPACE[]   = "VisualWhitespace";
-const char C_QML_LOCAL_ID[]        = "QmlLocalId";
-const char C_QML_EXTERNAL_ID[]     = "QmlExternalId";
-const char C_QML_TYPE_ID[]         = "QmlTypeId";
-const char C_QML_ROOT_OBJECT_PROPERTY[]     = "QmlRootObjectProperty";
-const char C_QML_SCOPE_OBJECT_PROPERTY[]    = "QmlScopeObjectProperty";
-const char C_QML_EXTERNAL_OBJECT_PROPERTY[] = "QmlExternalObjectProperty";
-const char C_JS_SCOPE_VAR[]        = "JsScopeVar";
-const char C_JS_IMPORT_VAR[]       = "JsImportVar";
-const char C_JS_GLOBAL_VAR[]       = "JsGlobalVar";
-const char C_QML_STATE_NAME[]      = "QmlStateName";
-const char C_BINDING[]             = "Binding";
-
-
-const char C_DISABLED_CODE[]       = "DisabledCode";
-
-const char C_ADDED_LINE[]          = "AddedLine";
-const char C_REMOVED_LINE[]        = "RemovedLine";
-const char C_DIFF_FILE[]           = "DiffFile";
-const char C_DIFF_LOCATION[]       = "DiffLocation";
+const char *nameForStyle(TextStyle style);
+TextStyle styleFromName(const char *name);
 
 const char TEXT_EDITOR_SETTINGS_CATEGORY[] = "C.TextEditor";
 const char TEXT_EDITOR_SETTINGS_CATEGORY_ICON[] = ":/core/images/category_texteditor.png";

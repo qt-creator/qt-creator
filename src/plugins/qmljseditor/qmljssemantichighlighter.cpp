@@ -468,18 +468,18 @@ void SemanticHighlighter::finished()
 
 void SemanticHighlighter::updateFontSettings(const TextEditor::FontSettings &fontSettings)
 {
-    m_formats[LocalIdType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_QML_LOCAL_ID));
-    m_formats[ExternalIdType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_QML_EXTERNAL_ID));
-    m_formats[QmlTypeType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_QML_TYPE_ID));
-    m_formats[RootObjectPropertyType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_QML_ROOT_OBJECT_PROPERTY));
-    m_formats[ScopeObjectPropertyType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_QML_SCOPE_OBJECT_PROPERTY));
-    m_formats[ExternalObjectPropertyType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_QML_EXTERNAL_OBJECT_PROPERTY));
-    m_formats[JsScopeType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_JS_SCOPE_VAR));
-    m_formats[JsImportType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_JS_IMPORT_VAR));
-    m_formats[JsGlobalType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_JS_GLOBAL_VAR));
-    m_formats[LocalStateNameType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_QML_STATE_NAME));
-    m_formats[BindingNameType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_BINDING));
-    m_formats[FieldType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_FIELD));
+    m_formats[LocalIdType] = fontSettings.toTextCharFormat(TextEditor::C_QML_LOCAL_ID);
+    m_formats[ExternalIdType] = fontSettings.toTextCharFormat(TextEditor::C_QML_EXTERNAL_ID);
+    m_formats[QmlTypeType] = fontSettings.toTextCharFormat(TextEditor::C_QML_TYPE_ID);
+    m_formats[RootObjectPropertyType] = fontSettings.toTextCharFormat(TextEditor::C_QML_ROOT_OBJECT_PROPERTY);
+    m_formats[ScopeObjectPropertyType] = fontSettings.toTextCharFormat(TextEditor::C_QML_SCOPE_OBJECT_PROPERTY);
+    m_formats[ExternalObjectPropertyType] = fontSettings.toTextCharFormat(TextEditor::C_QML_EXTERNAL_OBJECT_PROPERTY);
+    m_formats[JsScopeType] = fontSettings.toTextCharFormat(TextEditor::C_JS_SCOPE_VAR);
+    m_formats[JsImportType] = fontSettings.toTextCharFormat(TextEditor::C_JS_IMPORT_VAR);
+    m_formats[JsGlobalType] = fontSettings.toTextCharFormat(TextEditor::C_JS_GLOBAL_VAR);
+    m_formats[LocalStateNameType] = fontSettings.toTextCharFormat(TextEditor::C_QML_STATE_NAME);
+    m_formats[BindingNameType] = fontSettings.toTextCharFormat(TextEditor::C_BINDING);
+    m_formats[FieldType] = fontSettings.toTextCharFormat(TextEditor::C_FIELD);
 }
 
 int SemanticHighlighter::startRevision() const

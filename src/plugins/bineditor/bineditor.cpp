@@ -256,7 +256,7 @@ QByteArray BinEditor::blockData(int block, bool old) const
 
 void BinEditor::setFontSettings(const TextEditor::FontSettings &fs)
 {
-    setFont(fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_TEXT)).font());
+    setFont(fs.toTextCharFormat(TextEditor::C_TEXT).font());
 }
 
 void BinEditor::setBlinkingCursorEnabled(bool enable)

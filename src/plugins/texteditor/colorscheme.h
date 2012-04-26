@@ -34,6 +34,7 @@
 #define COLORSCHEME_H
 
 #include "texteditor_global.h"
+#include "texteditorconstants.h"
 
 #include <QMap>
 #include <QString>
@@ -96,12 +97,12 @@ public:
     inline bool isEmpty() const
     { return m_formats.isEmpty(); }
 
-    bool contains(const QString &category) const;
+    bool contains(TextStyle category) const;
 
-    Format &formatFor(const QString &category);
-    Format formatFor(const QString &category) const;
+    Format &formatFor(TextStyle category);
+    Format formatFor(TextStyle category) const;
 
-    void setFormatFor(const QString &category, const Format &format);
+    void setFormatFor(TextStyle category, const Format &format);
 
     void clear();
 
@@ -117,7 +118,7 @@ public:
     static QString readNameOfScheme(const QString &fileName);
 
 private:
-    QMap<QString, Format> m_formats;
+    QMap<TextStyle, Format> m_formats;
     QString m_displayName;
 };
 

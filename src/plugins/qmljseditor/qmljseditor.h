@@ -39,6 +39,7 @@
 #include <qmljstools/qmljssemanticinfo.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/quickfix.h>
+#include <texteditor/texteditorconstants.h>
 
 #include <QSharedPointer>
 #include <QModelIndex>
@@ -108,7 +109,7 @@ public:
     Internal::QmlOutlineModel *outlineModel() const;
     QModelIndex outlineModelIndex();
 
-    static QVector<QString> highlighterFormatCategories();
+    static QVector<TextEditor::TextStyle> highlighterFormatCategories();
 
     TextEditor::IAssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
                                                         TextEditor::AssistReason reason) const;

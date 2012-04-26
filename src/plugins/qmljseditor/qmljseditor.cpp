@@ -1015,13 +1015,13 @@ void QmlJSTextEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
     highlighter->setFormats(fs.toTextCharFormats(highlighterFormatCategories()));
     highlighter->rehighlight();
 
-    m_occurrencesFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES));
-    m_occurrencesUnusedFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_UNUSED));
+    m_occurrencesFormat = fs.toTextCharFormat(TextEditor::C_OCCURRENCES);
+    m_occurrencesUnusedFormat = fs.toTextCharFormat(TextEditor::C_OCCURRENCES_UNUSED);
     m_occurrencesUnusedFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
     m_occurrencesUnusedFormat.setUnderlineColor(m_occurrencesUnusedFormat.foreground().color());
     m_occurrencesUnusedFormat.clearForeground();
     m_occurrencesUnusedFormat.setToolTip(tr("Unused variable"));
-    m_occurrenceRenameFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_RENAME));
+    m_occurrenceRenameFormat = fs.toTextCharFormat(TextEditor::C_OCCURRENCES_RENAME);
 
     // only set the background, we do not want to modify foreground properties set by the syntax highlighter or the link
     m_occurrencesFormat.clearForeground();
@@ -1429,7 +1429,7 @@ bool QmlJSTextEditorWidget::hideContextPane()
     return b;
 }
 
-QVector<QString> QmlJSTextEditorWidget::highlighterFormatCategories()
+QVector<TextEditor::TextStyle> QmlJSTextEditorWidget::highlighterFormatCategories()
 {
     /*
         NumberFormat,
@@ -1440,15 +1440,15 @@ QVector<QString> QmlJSTextEditorWidget::highlighterFormatCategories()
         CommentFormat,
         VisualWhitespace,
      */
-    static QVector<QString> categories;
+    static QVector<TextEditor::TextStyle> categories;
     if (categories.isEmpty()) {
-        categories << QLatin1String(TextEditor::Constants::C_NUMBER)
-                << QLatin1String(TextEditor::Constants::C_STRING)
-                << QLatin1String(TextEditor::Constants::C_TYPE)
-                << QLatin1String(TextEditor::Constants::C_KEYWORD)
-                << QLatin1String(TextEditor::Constants::C_FIELD)
-                << QLatin1String(TextEditor::Constants::C_COMMENT)
-                << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE);
+        categories << TextEditor::C_NUMBER
+                << TextEditor::C_STRING
+                << TextEditor::C_TYPE
+                << TextEditor::C_KEYWORD
+                << TextEditor::C_FIELD
+                << TextEditor::C_COMMENT
+                << TextEditor::C_VISUAL_WHITESPACE;
     }
     return categories;
 }

@@ -70,8 +70,8 @@ public:
                       const FormatDescriptions &descriptions,
                       const QSettings *s);
 
-    QVector<QTextCharFormat> toTextCharFormats(const QVector<QString> &categories) const;
-    QTextCharFormat toTextCharFormat(const QString &category) const;
+    QVector<QTextCharFormat> toTextCharFormats(const QVector<TextStyle> &categories) const;
+    QTextCharFormat toTextCharFormat(TextStyle category) const;
 
     QString family() const;
     void setFamily(const QString &family);
@@ -87,7 +87,7 @@ public:
     bool antialias() const;
     void setAntialias(bool antialias);
 
-    Format &formatFor(const QString &category);
+    Format &formatFor(TextStyle category);
 
     QString colorSchemeFileName() const;
     void setColorSchemeFileName(const QString &fileName);

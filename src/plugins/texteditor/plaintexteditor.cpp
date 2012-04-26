@@ -110,26 +110,17 @@ void PlainTextEditorWidget::setFontSettings(const FontSettings &fs)
         Highlighter *highlighter =
             static_cast<Highlighter *>(baseTextDocument()->syntaxHighlighter());
 
-        highlighter->configureFormat(Highlighter::VisualWhitespace, fs.toTextCharFormat(
-            QLatin1String(Constants::C_VISUAL_WHITESPACE)));
-        highlighter->configureFormat(Highlighter::Keyword, fs.toTextCharFormat(
-            QLatin1String(Constants::C_KEYWORD)));
-        highlighter->configureFormat(Highlighter::DataType, fs.toTextCharFormat(
-            QLatin1String(Constants::C_TYPE)));
-        highlighter->configureFormat(Highlighter::Comment, fs.toTextCharFormat(
-            QLatin1String(Constants::C_COMMENT)));
+        highlighter->configureFormat(Highlighter::VisualWhitespace, fs.toTextCharFormat(C_VISUAL_WHITESPACE));
+        highlighter->configureFormat(Highlighter::Keyword, fs.toTextCharFormat(C_KEYWORD));
+        highlighter->configureFormat(Highlighter::DataType, fs.toTextCharFormat(C_TYPE));
+        highlighter->configureFormat(Highlighter::Comment, fs.toTextCharFormat(C_COMMENT));
         // Using C_NUMBER for all kinds of numbers.
-        highlighter->configureFormat(Highlighter::Decimal, fs.toTextCharFormat(
-            QLatin1String(Constants::C_NUMBER)));
-        highlighter->configureFormat(Highlighter::BaseN, fs.toTextCharFormat(
-            QLatin1String(Constants::C_NUMBER)));
-        highlighter->configureFormat(Highlighter::Float, fs.toTextCharFormat(
-            QLatin1String(Constants::C_NUMBER)));
+        highlighter->configureFormat(Highlighter::Decimal, fs.toTextCharFormat(C_NUMBER));
+        highlighter->configureFormat(Highlighter::BaseN, fs.toTextCharFormat(C_NUMBER));
+        highlighter->configureFormat(Highlighter::Float, fs.toTextCharFormat(C_NUMBER));
         // Using C_STRING for strings and chars.
-        highlighter->configureFormat(Highlighter::Char, fs.toTextCharFormat(
-            QLatin1String(Constants::C_STRING)));
-        highlighter->configureFormat(Highlighter::String, fs.toTextCharFormat(
-            QLatin1String(Constants::C_STRING)));
+        highlighter->configureFormat(Highlighter::Char, fs.toTextCharFormat(C_STRING));
+        highlighter->configureFormat(Highlighter::String, fs.toTextCharFormat(C_STRING));
 
         highlighter->rehighlight();
     }

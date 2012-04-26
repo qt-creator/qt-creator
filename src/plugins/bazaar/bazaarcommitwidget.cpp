@@ -55,7 +55,7 @@ namespace Internal {
 static QTextCharFormat commentFormat()
 {
     const TextEditor::FontSettings settings = TextEditor::TextEditorSettings::instance()->fontSettings();
-    return settings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_COMMENT));
+    return settings.toTextCharFormat(TextEditor::C_COMMENT);
 }
 
 // Highlighter for Bazaar submit messages. Make the first line bold, indicates
