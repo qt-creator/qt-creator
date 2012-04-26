@@ -228,6 +228,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     m_buildSubProjectAction = new Utils::ParameterAction(tr("Build Subproject"), tr("Build Subproject \"%1\""),
                                                          Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_buildSubProjectAction, Constants::BUILDSUBDIR, projectContext);
+    command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(m_buildSubProjectAction->text());
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_PROJECT);
@@ -236,6 +237,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     m_rebuildSubProjectAction = new Utils::ParameterAction(tr("Rebuild Subproject"), tr("Rebuild Subproject \"%1\""),
                                                            Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_rebuildSubProjectAction, Constants::REBUILDSUBDIR, projectContext);
+    command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(m_rebuildSubProjectAction->text());
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_PROJECT);
@@ -244,6 +246,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     m_cleanSubProjectAction = new Utils::ParameterAction(tr("Clean Subproject"), tr("Clean Subproject \"%1\""),
                                                          Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_cleanSubProjectAction, Constants::CLEANSUBDIR, projectContext);
+    command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(m_cleanSubProjectAction->text());
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_PROJECT);
