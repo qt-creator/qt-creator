@@ -25,6 +25,8 @@ extraimages.HTML        = qt-logo.png \
                           bg_l_blank.png \
                           bg_ll_blank.png \
                           bg_ul_blank.png \
+                          btn_next_green.png \
+                          btn_prev_green.png \
                           header_bg.png \
                           bg_r.png \
                           box_bg.png \

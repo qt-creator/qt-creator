@@ -27,7 +27,7 @@ extraimages.HTML        = qt-logo.png \
                           ico_note.png \
                           ico_note_attention.png \
                           ico_out.png \
-                          arrow.png \
+                          arrow_bc.png \
                           home.png
 
 # Include the style sheets and scripts used.

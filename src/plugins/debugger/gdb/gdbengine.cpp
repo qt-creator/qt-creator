@@ -3126,20 +3126,22 @@ void GdbEngine::insertBreakpoint(BreakpointModelId id)
     QVariant vid = QVariant::fromValue(id);
     if (type == WatchpointAtAddress) {
         postCommand("watch " + addressSpec(handler->address(id)),
-            NeedsStop | RebuildBreakpointModel,
+            NeedsStop | RebuildBreakpointModel | ConsoleCommand,
             CB(handleWatchInsert), vid);
         return;
     }
     if (type == WatchpointAtExpression) {
         postCommand("watch " + handler->expression(id).toLocal8Bit(),
-            NeedsStop | RebuildBreakpointModel,
+            NeedsStop | RebuildBreakpointModel | ConsoleCommand,
             CB(handleWatchInsert), vid);
         return;
     }
     if (type == BreakpointAtFork) {
-        postCommand("catch fork", NeedsStop | RebuildBreakpointModel,
+        postCommand("catch fork",
+            NeedsStop | RebuildBreakpointModel | ConsoleCommand,
             CB(handleCatchInsert), vid);
-        postCommand("catch vfork", NeedsStop | RebuildBreakpointModel,
+        postCommand("catch vfork",
+            NeedsStop | RebuildBreakpointModel | ConsoleCommand,
             CB(handleCatchInsert), vid);
         return;
     }
@@ -3149,12 +3151,14 @@ void GdbEngine::insertBreakpoint(BreakpointModelId id)
     //    return;
     //}
     if (type == BreakpointAtExec) {
-        postCommand("catch exec", NeedsStop | RebuildBreakpointModel,
+        postCommand("catch exec",
+            NeedsStop | RebuildBreakpointModel | ConsoleCommand,
             CB(handleCatchInsert), vid);
         return;
     }
     if (type == BreakpointAtSysCall) {
-        postCommand("catch syscall", NeedsStop | RebuildBreakpointModel,
+        postCommand("catch syscall",
+            NeedsStop | RebuildBreakpointModel | ConsoleCommand,
             CB(handleCatchInsert), vid);
         return;
     }

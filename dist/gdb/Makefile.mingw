@@ -27,48 +27,55 @@ distclean:
 	rm -rf ${staging} ${source} ${broot}/qtcreator-gdb-*
 
 makesourcedir:
-	test -e ${source} || mkdir ${source}
+	@test -e ${source} || mkdir ${source}
 
 maketargetdir:
-	test -e ${targetdir} || mkdir ${targetdir}
+	@test -e ${targetdir} || mkdir ${targetdir}
 
 makestagingdir:
-	test -e ${staging} || mkdir ${staging}
+	@test -e ${staging} || mkdir ${staging}
 
 checkunzip:
 	unzip -v &> /dev/null || mingw-get install msys-unzip
 
 ${source}/python.zip: | makesourcedir checkwget
 	cd ${source} && \
-	wget http://download.qt.nokia.com/misc/gdb/7.4/build-prerequisits/python.zip && \
+	echo "Downloading python..." && \
+	wget -q http://download.qt.nokia.com/misc/gdb/7.4/build-prerequisits/python.zip && \
 	touch python.zip
 
 ${broot}/python/python.exe: ${source}/python.zip | checkunzip
 	cd ${broot} && \
-	unzip ${source}/python.zip
+	echo "Extracting python..." && \
+	unzip -oq ${source}/python.zip && \
+	touch python/python.exe
 
 checkwget:
 	wget -V &> /dev/null || mingw-get install msys-wget-bin
 
 ${source}/gdb-${version}.tar.bz2: | makesourcedir checkwget
 	cd ${source} && \
-	wget http://ftp.gnu.org/gnu/gdb/gdb-${version}.tar.bz2 || \
-	wget -O gdb-${version}.tar.bz2 http://ftp.gnu.org/gnu/gdb/gdb-${version}a.tar.bz2 && \
+	echo "Downloading gdb..." && \
+	wget -q http://ftp.gnu.org/gnu/gdb/gdb-${version}.tar.bz2 || \
+	wget -Oq gdb-${version}.tar.bz2 http://ftp.gnu.org/gnu/gdb/gdb-${version}a.tar.bz2 && \
 	touch gdb-${version}.tar.bz2
 
 ${source}/libiconv-${iconvversion}.tar.gz: | makesourcedir checkwget
 	cd ${source} && \
-	wget http://ftp.gnu.org/pub/gnu/libiconv/libiconv-${iconvversion}.tar.gz  && \
+	echo "Downloading iconv..." && \
+	wget -q http://ftp.gnu.org/pub/gnu/libiconv/libiconv-${iconvversion}.tar.gz  && \
 	touch ${source}/libiconv-${iconvversion}.tar.gz
 
 ${source}/expat-${expatversion}.tar.gz: | makesourcedir checkwget
-	cd ${source} &&\
-	wget http://sourceforge.net/projects/expat/files/expat/${expatversion}/expat-${expatversion}.tar.gz/download && \
+	cd ${source} && \
+	echo "Downloading expat..." && \
+	wget -q http://sourceforge.net/projects/expat/files/expat/${expatversion}/expat-${expatversion}.tar.gz/download && \
 	touch ${source}/expat-${expatversion}.tar.gz
 
 ${staging}/gdb-${version}/configure: ${source}/gdb-${version}.tar.bz2 | makestagingdir
 	cd ${staging} && \
-	tar xvf ${source}/gdb-${version}.tar.bz2 && \
+	echo "Extracting gdb..." && \
+	tar xf ${source}/gdb-${version}.tar.bz2 && \
 	cd gdb-${version} && \
 	touch configure && \
 	patch -p1 < ${broot}/patches/gdb-ipv6.patch && \
@@ -76,14 +83,16 @@ ${staging}/gdb-${version}/configure: ${source}/gdb-${version}.tar.bz2 | makestag
 
 ${staging}/lib/libiconv.a: ${source}/libiconv-${iconvversion}.tar.gz | makestagingdir
 	cd ${staging} && \
-	tar xvf ${source}/libiconv-${iconvversion}.tar.gz && \
+	echo "Extracting iconv..." && \
+	tar xf ${source}/libiconv-${iconvversion}.tar.gz && \
 	cd libiconv-${iconvversion} && \
 	./configure -prefix=${staging} --enable-static && \
 	${MAKE} && ${MAKE} install
 
 ${staging}/lib/libexpat.a: ${source}/expat-${expatversion}.tar.gz | makestagingdir
 	cd ${staging} && \
-	tar xvf ${source}/expat-${expatversion}.tar.gz && \
+	echo "Extracting expat..." && \
+	tar xf ${source}/expat-${expatversion}.tar.gz && \
 	cd expat-${expatversion} && \
 	./configure -prefix=${staging} --enable-static && \
 	${MAKE} && ${MAKE} install
@@ -97,10 +106,9 @@ ${gdbtargets}: ${targetdir}/gdb-%: ${staging}/lib/libexpat.a ${staging}/lib/libi
 	${staging}/gdb-${version}/configure --target=$* --disable-nls --disable-werror \
 	--with-libiconv-prefix=${staging} \
 	--with-expat --with-libexpat-prefix=${staging} \
-	--with-python=${pydir} &&\
-	${MAKE} MAKEFLAGS+= -j1 &&\
-	strip gdb/gdb.exe && \
-	cp -T gdb/gdb.exe ${targetdir}/gdb-$*.exe
+	--with-python=${pydir} && \
+	${MAKE} MAKEFLAGS+= -j1 && \
+	strip -o ${targetdir}/gdb-$*.exe gdb/gdb.exe
 
 package: ${gdbtargets} ${broot}/python/python.exe
 	cp ${staging}/bin/libiconv* ${targetdir} && \
@@ -108,5 +116,6 @@ package: ${gdbtargets} ${broot}/python/python.exe
 	cp ${pydir}/python*.dll ${targetdir} && \
 	cp -r ${pydir}/lib ${targetdir} && \
 	mv ${targetdir} ${targetdir}-${arch} && \
-	tar cvzf ${packagename} qtcreator-gdb-${version}-${arch} && \
+	echo "Packing..." && \
+	tar czf ${packagename} qtcreator-gdb-${version}-${arch} && \
 	mv ${targetdir}-${arch} ${targetdir}

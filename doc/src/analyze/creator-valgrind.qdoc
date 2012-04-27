@@ -74,7 +74,7 @@
 
     \image analyzer-issues.png "Analysis view"
 
-    Move the mouse on on a row to view more information about the function.
+    Move the mouse on a row to view more information about the function.
 
     For more information about using Memcheck, see
     \l{http://valgrind.org/docs/manual/quick-start.html#quick-start.mcrun}

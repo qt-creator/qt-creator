@@ -80,13 +80,6 @@ padding-left:20px;
 text-align:left;
 }
 
-/*a[href*="http://qt.nokia.com/doc/"], a[href*="http://doc.qt.nokia.com/"]
-{
-background: none;
-padding-left: 0px;
-text-align:left;
-}*/
-
 .flags{
 text-decoration:none;
 text-height:24px;
@@ -168,7 +161,7 @@ margin:0px;
 }
 
 
-.naviNextPrevious > a:first-child{
+.naviNextPrevious > a.prevPage {
 background-image:url(../images/btn_prev.png);
 background-repeat:no-repeat;
 background-position:left;
@@ -177,7 +170,7 @@ height:20px;
 padding-left:20px;
 }
 
-.naviNextPrevious > a:last-child{
+.naviNextPrevious > a.nextPage {
 background-image:url(../images/btn_next.png);
 background-repeat:no-repeat;
 background-position:right;
@@ -232,7 +225,7 @@ padding-left:20px;
 color:#2C418D;
 display:block;
 text-decoration:none;
-background:url(../images/arrow.png);
+background:url(../images/arrow_bc.png);
 background-repeat:no-repeat;
 background-position:right;
 padding-right:25px;
@@ -292,11 +285,13 @@ font: 500 16px/1.2 Arial;
 font-weight:100;
 background-color:#F2F3F4;
 padding:4px;
+padding-left: 14px;
 margin-bottom:30px;
 margin-top:30px;
+margin-left: -10px;
+margin-right: -5px;
 border-top:#E0E0DE 1px solid;
 border-bottom: #E0E0DE 1px solid;
-max-width: 99%;
 }
 
 h3{
@@ -450,9 +445,6 @@ ul{
 padding-bottom:2px;
 }
 
-li ul {
-padding-top: 10px;
-}
 li {
 margin-bottom: 10px;
 padding-left: 8px;
@@ -596,7 +588,6 @@ padding-left:5px;
 width:160px;
 padding-left:10px;
 padding-right:5px;
-padding-bottom:10px;
 padding-top:10px;
 }
 

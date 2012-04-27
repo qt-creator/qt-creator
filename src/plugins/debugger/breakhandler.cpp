@@ -1426,8 +1426,10 @@ bool BreakHandler::BreakpointItem::isLocatedAt
 
 void BreakHandler::BreakpointItem::updateMarkerIcon()
 {
-    marker->setIcon(icon());
-    marker->updateMarker();
+    if (marker) {
+        marker->setIcon(icon());
+        marker->updateMarker();
+    }
 }
 
 void BreakHandler::BreakpointItem::updateMarker(BreakpointModelId id)

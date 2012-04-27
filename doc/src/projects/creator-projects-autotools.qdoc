@@ -43,37 +43,34 @@
     To enable the plugin, select \gui{Help > About Plugins > Build Systems > AutotoolsProjectManager}.
     To use the plugin, restart \QC.
 
-    \image qtcreator-autotools-buildrun.png
-
-    \image qtcreator-autotools-buildsettings.png
-
-    \section1 Opening and Using Autotools Projects
-
     To work with your Autotools project in \QC:
 
         \list 1
 
             \o Select \gui{File > Open File or Project}.
-            \o Select the Makefile.am from your project. This is the only way a
-               user can use the autotools plugin. Thus, a Makefile.am must
-               always exist before hand.
-            \o Select the build directory. Only in-source building is working
-               right now.
+            \o Select the Makefile.am file from your project. This is the only
+               way you can use the autotools plugin.
+            \o Select the build directory. Only in-source building is currently
+               supported.
             \o Select \gui Finish.
                \QC displays the project tree structure. The root node displays
                the project name. All project files are listed below it and you
                can open them from the list.
-            \o Select \gui Run to build and run the application. This will
-               execute autogen.sh or autoreconf, configure and make. The first
-               time, when running the application, a dialog will ask you to
-               choose the executable's location, then, \QC will remember it for
-               the following times. Ideally, this will be changed in the future,
-               to be done in a more automated way.
+
+               \image qtcreator-autotools-buildrun.png
+
+            \o Select \gui Run to build and run the application. The predefined
+               build steps (autogen.sh or autoreconf, configure, and make) are
+               executed.
+
+               The first time you run the application you must choose the
+               executable.
+
             \o To check and edit autotools build steps, select
-               \gui{Projects > Build Settings}. You can see the typical
-               autotools build steps: autogen.sh/autoreconf, configure and make.
-               You may configure some parameters such as adding new configure
-               parameters or changing the build directory (though, as mentiond
-               before, only in-source building is working at the moment).
+               \gui{Projects > Build Settings}.
+
+               You can add parameters to the predefined autotools build steps.
+
+              \image qtcreator-autotools-buildsettings.png
         \endlist
 */
