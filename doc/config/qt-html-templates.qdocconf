@@ -63,5 +63,5 @@ qhp.QtCreator.extraFiles = index.html \
                            images/ico_note_attention.png \
                            images/ico_out.png \
                            images/home.png \
-                           images/arrow.png \
+                           images/arrow_bc.png \
                            style/offline.css
