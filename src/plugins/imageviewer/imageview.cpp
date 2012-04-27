@@ -67,6 +67,7 @@ struct ImageViewPrivate
     QGraphicsItem *imageItem;
     QGraphicsRectItem *backgroundItem;
     QGraphicsRectItem *outlineItem;
+    QSize naturalSize;
 };
 
 ImageView::ImageView(QWidget *parent)
@@ -133,6 +134,7 @@ bool ImageView::openFile(QString fileName)
 #ifndef QT_NO_SVG
     if (isSvg) {
         d->imageItem = new QGraphicsSvgItem(fileName);
+        d->naturalSize = QSize();
     } else
 #endif
     {
@@ -140,6 +142,7 @@ bool ImageView::openFile(QString fileName)
         QGraphicsPixmapItem *pixmapItem = new QGraphicsPixmapItem(pixmap);
         pixmapItem->setTransformationMode(Qt::SmoothTransformation);
         d->imageItem = pixmapItem;
+        d->naturalSize = pixmap.size();
     }
     d->imageItem->setCacheMode(QGraphicsItem::NoCache);
     d->imageItem->setZValue(0);
@@ -170,6 +173,11 @@ bool ImageView::openFile(QString fileName)
     emitScaleFactor();
 
     return true;
+}
+
+QSize ImageView::imageSize() const
+{
+    return d->naturalSize;
 }
 
 void ImageView::setViewBackground(bool enable)

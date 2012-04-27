@@ -121,6 +121,12 @@
     </spacer>
    </item>
    <item>
+    <widget class="Utils::StyledSeparator" name="widgetSizeSeparator" native="true"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="labelImageSize"/>
+   </item>
+   <item>
     <widget class="Utils::StyledSeparator" name="widgetInfoSeparator" native="true"/>
    </item>
    <item>

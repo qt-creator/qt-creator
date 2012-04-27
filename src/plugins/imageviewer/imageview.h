@@ -58,6 +58,7 @@ public:
     ~ImageView();
 
     bool openFile(QString fileName);
+    QSize imageSize() const;
 
 signals:
     void scaleFactorChanged(qreal factor);

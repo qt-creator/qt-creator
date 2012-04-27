@@ -126,6 +126,11 @@ bool ImageViewer::open(QString *errorString, const QString &fileName, const QStr
     }
     setDisplayName(QFileInfo(fileName).fileName());
     d->file->setFileName(fileName);
+    const QSize imageSize = d->imageView->imageSize();
+    QString imageSizeText;
+    if (imageSize.isValid())
+        imageSizeText = QString::fromLatin1("%1x%2").arg(imageSize.width()).arg(imageSize.height());
+    d->ui_toolbar.labelImageSize->setText(imageSizeText);
     // d_ptr->file->setMimeType
     emit changed();
     return true;
