@@ -1367,7 +1367,11 @@ QList<const CppComponentValue *> CppQmlTypes::createObjectsForImport(const QStri
     foreach (const FakeMetaObject::ConstPtr &fmo, _fakeMetaObjectsByPackage.value(package)) {
         // find the highest-version export
         FakeMetaObject::Export bestExport;
+        QList<QString> aliases;
         foreach (const FakeMetaObject::Export &exp, fmo->exports()) {
+            // Store all aliases
+            if (!exp.type.isEmpty() && !aliases.contains(exp.type))
+                aliases.append(exp.type);
             if (exp.package != package || (version.isValid() && exp.version > version))
                 continue;
             if (!bestExport.isValid() || exp.version > bestExport.version)
@@ -1388,15 +1392,27 @@ QList<const CppComponentValue *> CppQmlTypes::createObjectsForImport(const QStri
             name = fmo->className();
         }
 
-        CppComponentValue *newObject = new CppComponentValue(
+        CppComponentValue *newComponent = new CppComponentValue(
                     fmo, name, package, bestExport.version, version,
                     bestExport.metaObjectRevision, _valueOwner);
 
         // use package.cppname importversion as key
-        _objectsByQualifiedName.insert(key, newObject);
+        _objectsByQualifiedName.insert(key, newComponent);
+
+        // Create CppComponentValues for all the aliases
+        // TODO: Show warning for deprecated ones
+        aliases.removeOne(name);
+        QList<const CppComponentValue *> newComponents;
+        newComponents.append(newComponent);
+        foreach (const QString &alias, aliases) {
+            newComponents.append(new CppComponentValue(
+                               fmo, alias, package, bestExport.version, version,
+                               bestExport.metaObjectRevision, _valueOwner));
+        }
+
         if (exported)
-            exportedObjects += newObject;
-        newObjects += newObject;
+            exportedObjects += newComponents;
+        newObjects += newComponents;
     }
 
     // set their prototypes, creating them if necessary
