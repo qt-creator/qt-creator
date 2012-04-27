@@ -683,6 +683,8 @@ void tst_Preprocessor::comparisons_data()
         << "empty-macro.cpp" << "empty-macro.out.cpp" << "";
     QTest::newRow("empty-macro 2")
         << "empty-macro.2.cpp" << "empty-macro.2.out.cpp" << "";
+    QTest::newRow("poundpound 1")
+        << "poundpound.1.cpp" << "poundpound.1.out.cpp" << "";
 }
 
 void tst_Preprocessor::comparisons()
