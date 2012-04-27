@@ -152,9 +152,10 @@ protected:
 
     virtual bool fromMap(const QVariantMap &map);
 
-private slots:
+protected slots:
     void updateDeviceState();
-    void updateDeviceState(Core::Id devId);
+
+private slots:
     void changeEnvironment();
     void changeBuildConfigurationEnabled();
     void changeDeployConfigurationEnabled();
