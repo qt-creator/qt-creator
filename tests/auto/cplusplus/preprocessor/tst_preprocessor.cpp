@@ -669,13 +669,20 @@ void tst_Preprocessor::comparisons_data()
         << "identifier-expansion.4.cpp" << "identifier-expansion.4.out.cpp" << "";
     QTest::newRow("identifier-expansion 5")
         << "identifier-expansion.5.cpp" << "identifier-expansion.5.out.cpp" << "";
-    QTest::newRow("reserved 1") << "reserved.1.cpp" << "reserved.1.out.cpp" << "";
-    QTest::newRow("recursive 1") << "recursive.1.cpp" << "recursive.1.out.cpp" << "";
-    QTest::newRow("macro_pounder_fn") << "macro_pounder_fn.c" << "" << "";
-    QTest::newRow("macro_expand") << "macro_expand.c" << "macro_expand.out.c" << "";
-    QTest::newRow("macro-test") << "macro-test.cpp" << "macro-test.out.cpp" << "";
-    QTest::newRow("empty-macro") << "empty-macro.cpp" << "empty-macro.out.cpp" << "";
-    QTest::newRow("empty-macro 2") << "empty-macro.2.cpp" << "empty-macro.2.out.cpp" << "";
+    QTest::newRow("reserved 1")
+        << "reserved.1.cpp" << "reserved.1.out.cpp" << "";
+    QTest::newRow("recursive 1")
+        << "recursive.1.cpp" << "recursive.1.out.cpp" << "";
+    QTest::newRow("macro_pounder_fn")
+        << "macro_pounder_fn.c" << "" << "";
+    QTest::newRow("macro_expand")
+        << "macro_expand.c" << "macro_expand.out.c" << "";
+    QTest::newRow("macro-test")
+        << "macro-test.cpp" << "macro-test.out.cpp" << "";
+    QTest::newRow("empty-macro")
+        << "empty-macro.cpp" << "empty-macro.out.cpp" << "";
+    QTest::newRow("empty-macro 2")
+        << "empty-macro.2.cpp" << "empty-macro.2.out.cpp" << "";
 }
 
 void tst_Preprocessor::comparisons()
@@ -687,17 +694,21 @@ void tst_Preprocessor::comparisons()
     QByteArray errors;
     QByteArray preprocessed = preprocess(infile, &errors, infile == outfile);
 
-//    DUMP_OUTPUT(preprocessed);
+    // DUMP_OUTPUT(preprocessed);
 
     if (!outfile.isEmpty()) {
-        QByteArray output____ = loadSource("data/"+outfile); // these weird underscores are here to make the name as long as "preprocessed", so the QCOMPARE error messages are nicely aligned.
+        // These weird underscores are here to make the name as long as
+        // "preprocessed", so the QCOMPARE error messages are nicely aligned.
+        QByteArray output____ = loadSource("data/" + outfile);
         //    QCOMPARE(preprocessed, output____);
-        QCOMPARE(QString::fromUtf8(preprocessed.constData()), QString::fromUtf8(output____.constData()));
+        QCOMPARE(QString::fromUtf8(preprocessed.constData()),
+                 QString::fromUtf8(output____.constData()));
     }
 
     if (!errorfile.isEmpty()) {
-        QByteArray errorFileContents = loadSource("data/"+errorfile);
-        QCOMPARE(QString::fromUtf8(errors.constData()), QString::fromUtf8(errorFileContents.constData()));
+        QByteArray errorFileContents = loadSource("data/" + errorfile);
+        QCOMPARE(QString::fromUtf8(errors.constData()),
+                 QString::fromUtf8(errorFileContents.constData()));
     }
 }
 
