@@ -53,11 +53,13 @@ public:
 
     static QString platform(const ProjectExplorer::ToolChain *tc);
 
-    void addDevice();
+    void delayedInitialize();
 
 private slots:
     void symbianDeviceRemoved(const SymbianUtils::SymbianDevice &d);
     void symbianDeviceAdded(const SymbianUtils::SymbianDevice &d);
+
+    void handleQtVersionChanges();
 
 private:
     void handleSymbianDeviceStateChange(const SymbianUtils::SymbianDevice &d,

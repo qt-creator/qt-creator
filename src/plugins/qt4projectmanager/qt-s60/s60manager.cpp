@@ -56,6 +56,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <qtsupport/qtversionmanager.h>
+#include <qtsupport/qtsupportconstants.h>
 #include <debugger/debuggerconstants.h>
 #include <utils/qtcassert.h>
 
@@ -157,10 +159,11 @@ QString S60Manager::platform(const ProjectExplorer::ToolChain *tc)
     return target.right(target.lastIndexOf(QLatin1Char('-')));
 }
 
-void S60Manager::addDevice()
+void S60Manager::delayedInitialize()
 {
-    ProjectExplorer::IDevice::Ptr dev(new SymbianIDevice);
-    ProjectExplorer::DeviceManager::instance()->addDevice(dev);
+    handleQtVersionChanges();
+    connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
+            this, SLOT(handleQtVersionChanges()));
 }
 
 void S60Manager::symbianDeviceRemoved(const SymbianUtils::SymbianDevice &d)
@@ -171,6 +174,35 @@ void S60Manager::symbianDeviceRemoved(const SymbianUtils::SymbianDevice &d)
 void S60Manager::symbianDeviceAdded(const SymbianUtils::SymbianDevice &d)
 {
     handleSymbianDeviceStateChange(d, ProjectExplorer::IDevice::DeviceAvailable);
+}
+
+void S60Manager::handleQtVersionChanges()
+{
+    bool symbianQtFound = false;
+    Core::Id symbianDeviceId;
+    QList<QtSupport::BaseQtVersion  *> versionList = QtSupport::QtVersionManager::instance()->versions();
+    foreach (QtSupport::BaseQtVersion *v, versionList) {
+        if (v->platformName() != QLatin1String(QtSupport::Constants::SYMBIAN_PLATFORM))
+            continue;
+
+        symbianQtFound = true;
+        break;
+    }
+
+    ProjectExplorer::DeviceManager *dm = ProjectExplorer::DeviceManager::instance();
+    for (int i = 0; i < dm->deviceCount(); ++i) {
+        ProjectExplorer::IDevice::ConstPtr dev = dm->deviceAt(i);
+        if (dev->type() != SymbianIDeviceFactory::deviceType())
+            continue;
+
+        symbianDeviceId = dev->id();
+        break;
+    }
+
+    if (symbianQtFound && !symbianDeviceId.isValid())
+        dm->addDevice(ProjectExplorer::IDevice::Ptr(new SymbianIDevice));
+    if (!symbianQtFound && symbianDeviceId.isValid())
+        dm->removeDevice(symbianDeviceId);
 }
 
 void S60Manager::handleSymbianDeviceStateChange(const SymbianUtils::SymbianDevice &d, ProjectExplorer::IDevice::AvailabilityState s)

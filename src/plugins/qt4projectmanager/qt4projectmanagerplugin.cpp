@@ -298,7 +298,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
 bool Qt4ProjectManagerPlugin::delayedInitialize()
 {
-    S60Manager::instance()->addDevice();
+    S60Manager::instance()->delayedInitialize();
     return true;
 }
 
