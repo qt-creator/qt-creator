@@ -83,7 +83,8 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
     const QString debugFileName = QString::fromLatin1("%1:\\sys\\bin\\%2.exe")
             .arg(activeDeployConf->installationDrive()).arg(rc->targetName());
 
-    sp.remoteChannel = activeDeployConf->device()->serialPortName();
+    SymbianIDevice::ConstPtr dev = activeDeployConf->device();
+    sp.remoteChannel = dev->serialPortName();
     sp.processArgs = rc->commandLineArguments();
     if (rc->debuggerAspect()->useQmlDebugger() && !rc->debuggerAspect()->useCppDebugger()) {
         sp.requestRemoteSetup = true;
@@ -95,10 +96,10 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
     sp.toolChainAbi = rc->abi();
     sp.executable = debugFileName;
     sp.executableUid = rc->executableUid();
-    sp.serverAddress = activeDeployConf->device()->address();
-    sp.serverPort = activeDeployConf->device()->port().toInt();
+    sp.serverAddress = dev->address();
+    sp.serverPort = dev->port().toInt();
     sp.displayName = rc->displayName();
-    sp.qmlServerAddress = activeDeployConf->device()->address();
+    sp.qmlServerAddress = dev->address();
     sp.qmlServerPort = rc->debuggerAspect()->qmlDebugServerPort();
     if (rc->debuggerAspect()->useQmlDebugger()) {
         sp.languages |= Debugger::QmlLanguage;
@@ -110,7 +111,7 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
     if (rc->debuggerAspect()->useCppDebugger())
         sp.languages |= Debugger::CppLanguage;
 
-    sp.communicationChannel = activeDeployConf->device()->communicationChannel() == SymbianIDevice::CommunicationCodaTcpConnection?
+    sp.communicationChannel = dev->communicationChannel() == SymbianIDevice::CommunicationCodaTcpConnection?
                 Debugger::DebuggerStartParameters::CommunicationChannelTcpIp:
                 Debugger::DebuggerStartParameters::CommunicationChannelUsb;
 

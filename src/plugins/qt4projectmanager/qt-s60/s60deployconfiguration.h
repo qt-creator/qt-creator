@@ -33,7 +33,7 @@
 #ifndef S60DEPLOYCONFIGURATION_H
 #define S60DEPLOYCONFIGURATION_H
 
-#include <projectexplorer/devicesupport/idevice.h>
+#include "symbianidevice.h"
 
 #include <projectexplorer/deployconfiguration.h>
 #include <qt4projectmanager/qt4projectmanager_global.h>
@@ -51,7 +51,6 @@ class BaseQtVersion;
 namespace Qt4ProjectManager {
 class Qt4ProFileNode;
 class S60DeployConfigurationFactory;
-class SymbianIDevice;
 
 namespace Internal {
 class Qt4SymbianTarget;
@@ -90,7 +89,7 @@ public:
     QStringList appPackageTemplateFileNames() const;
 
     bool runSmartInstaller() const;
-    SymbianIDevice *device() const;
+    SymbianIDevice::ConstPtr device() const;
 
     QVariantMap toMap() const;
 

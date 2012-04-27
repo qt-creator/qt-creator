@@ -173,9 +173,9 @@ QString S60DeployConfiguration::createPackageName(const QString &baseName) const
     return name;
 }
 
-SymbianIDevice *S60DeployConfiguration::device() const
+SymbianIDevice::ConstPtr S60DeployConfiguration::device() const
 {
-    return dynamic_cast<SymbianIDevice *>(const_cast<ProjectExplorer::IDevice *>(ProjectExplorer::DeviceManager::instance()->find(m_deviceId).data()));
+    return ProjectExplorer::DeviceManager::instance()->find(m_deviceId).dynamicCast<const SymbianIDevice>();
 }
 
 QStringList S60DeployConfiguration::packageFileNamesWithTargetInfo() const

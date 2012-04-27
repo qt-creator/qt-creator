@@ -41,6 +41,7 @@
 #include "qt-s60/s60devicerunconfiguration.h"
 
 #include <projectexplorer/customexecutablerunconfiguration.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
@@ -123,5 +124,7 @@ QList<ProjectExplorer::RunConfiguration *> Qt4SymbianTarget::runConfigurationsFo
 ProjectExplorer::IDevice::ConstPtr Qt4SymbianTarget::currentDevice() const
 {
     S60DeployConfiguration *dc = dynamic_cast<S60DeployConfiguration *>(activeDeployConfiguration());
-    return ProjectExplorer::IDevice::ConstPtr(dc ? dc->device() : 0);
+    if (dc)
+        return dc->device();
+    return ProjectExplorer::IDevice::ConstPtr();
 }

@@ -154,13 +154,15 @@ bool S60DeployStep::init()
     S60DeployConfiguration *deployConfiguration = static_cast<S60DeployConfiguration *>(bc->target()->activeDeployConfiguration());
     if (!deployConfiguration)
         return false;
-    m_serialPortName = deployConfiguration->device()->serialPortName();
+
+    SymbianIDevice::ConstPtr dev = deployConfiguration->device();
+    m_serialPortName = dev->serialPortName();
     m_serialPortFriendlyName = SymbianUtils::SymbianDeviceManager::instance()->friendlyNameForPort(m_serialPortName);
     m_packageFileNamesWithTarget = deployConfiguration->packageFileNamesWithTargetInfo();
     m_signedPackages = deployConfiguration->signedPackages();
     m_installationDrive = deployConfiguration->installationDrive();
     m_silentInstall = deployConfiguration->silentInstall();
-    m_channel = deployConfiguration->device()->communicationChannel();
+    m_channel = dev->communicationChannel();
 
     if (m_signedPackages.isEmpty()) {
         appendMessage(tr("No package has been found. Specify at least one installation package."), true);
@@ -168,8 +170,8 @@ bool S60DeployStep::init()
     }
 
     if (m_channel == SymbianIDevice::CommunicationCodaTcpConnection) {
-        m_address = deployConfiguration->device()->address();
-        m_port = deployConfiguration->device()->port().toInt();
+        m_address = dev->address();
+        m_port = dev->port().toInt();
     }
     return true;
 }

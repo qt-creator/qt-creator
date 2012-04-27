@@ -294,7 +294,8 @@ QString S60DeviceRunConfiguration::qmlCommandLineArguments() const
             qobject_cast<S60DeployConfiguration *>(qt4Target()->activeDeployConfiguration());
         QTC_ASSERT(activeDeployConf, return args);
 
-        if (activeDeployConf->device()->communicationChannel() == SymbianIDevice::CommunicationCodaTcpConnection)
+        QSharedPointer<const SymbianIDevice> dev = activeDeployConf->device().dynamicCast<const SymbianIDevice>();
+        if (dev->communicationChannel() == SymbianIDevice::CommunicationCodaTcpConnection)
             args = QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(debuggerAspect()->qmlDebugServerPort());
         else
             args = QLatin1String("-qmljsdebugger=ost");

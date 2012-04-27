@@ -46,6 +46,8 @@ namespace Internal { class S60Manager; }
 class QT4PROJECTMANAGER_EXPORT SymbianIDevice : public ProjectExplorer::IDevice
 {
 public:
+    typedef QSharedPointer<const SymbianIDevice> ConstPtr;
+
     enum CommunicationChannel {
         CommunicationCodaSerialConnection,
         CommunicationCodaTcpConnection
