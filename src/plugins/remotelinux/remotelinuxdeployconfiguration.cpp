@@ -103,8 +103,8 @@ bool RemoteLinuxDeployConfiguration::fromMap(const QVariantMap &map)
 {
     if (!DeployConfiguration::fromMap(map))
         return false;
-    setDeviceConfig(Core::Id(map.value(QLatin1String(DeviceIdKey),
-            IDevice::invalidId().toString()).toString()));
+    const QString idString = map.value(QLatin1String(DeviceIdKey)).toString();
+    setDeviceConfig(!idString.isEmpty() ? Core::Id(idString) : IDevice::invalidId());
     return true;
 }
 
