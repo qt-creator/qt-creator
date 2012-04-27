@@ -161,7 +161,7 @@
 
     You can filter the documents displayed in the \gui Help mode to find
     relevant information faster. Select from a list of filters in the
-    \gui {Filtered by} field. The contents of the \gui Index and \gui Contents
+    \gui {Filtered by} field (1). The contents of the \gui Index and \gui Contents
     pane in the sidebar change accordingly.
 
     \image qtcreator-help-filters.png "Help filters"
