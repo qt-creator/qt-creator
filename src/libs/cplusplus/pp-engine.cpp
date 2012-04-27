@@ -1549,7 +1549,9 @@ PPToken Preprocessor::generateConcatenated(const PPToken &leftTk, const PPToken 
     newText.reserve(leftTk.length() + rightTk.length());
     newText.append(leftTk.tokenStart(), leftTk.length());
     newText.append(rightTk.tokenStart(), rightTk.length());
-    return generateToken(T_IDENTIFIER, newText.constData(), newText.size(), leftTk.lineno, true);
+    PPToken result = generateToken(T_IDENTIFIER, newText.constData(), newText.size(), leftTk.lineno, true);
+    result.f.whitespace = leftTk.f.whitespace;
+    return result;
 }
 
 void Preprocessor::startSkippingBlocks(const Preprocessor::PPToken &tk) const
