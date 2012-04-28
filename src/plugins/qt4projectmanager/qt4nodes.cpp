@@ -1424,6 +1424,25 @@ QStringList Qt4ProFileNode::symbianCapabilities() const
     return result;
 }
 
+QString Qt4ProFileNode::objectExtension() const
+{
+    if (m_varValues[ObjectExt].isEmpty()) {
+#ifdef Q_OS_WIN
+        return QLatin1String(".obj");
+#else
+        return QLatin1String(".o");
+#endif
+    }
+    return m_varValues[ObjectExt].first();
+}
+
+QString Qt4ProFileNode::objectsDirectory() const
+{
+    if (m_varValues[ObjectsDir].isEmpty())
+        return buildDir();
+    return m_varValues[ObjectsDir].first();
+}
+
 QByteArray Qt4ProFileNode::cxxDefines() const
 {
     QByteArray result;
@@ -1883,6 +1902,8 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         newVarValues[Makefile] = m_readerExact->values(QLatin1String("MAKEFILE"));
         newVarValues[SymbianCapabilities] = m_readerExact->values(QLatin1String("TARGET.CAPABILITY"));
         newVarValues[QtVar] = m_readerExact->values(QLatin1String("QT"));
+        newVarValues[ObjectExt] = m_readerExact->values(QLatin1String("QMAKE_EXT_OBJ"));
+        newVarValues[ObjectsDir] = m_readerExact->values(QLatin1String("OBJECTS_DIR"));
 
         m_isDeployable = false;
         if (m_projectType == ApplicationTemplate) {

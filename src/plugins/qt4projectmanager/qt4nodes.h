@@ -95,7 +95,9 @@ enum Qt4Variable {
     QtVar,
     QmlImportPathVar,
     Makefile,
-    SymbianCapabilities
+    SymbianCapabilities,
+    ObjectExt,
+    ObjectsDir
 };
 
 // Import base classes into namespace
@@ -358,6 +360,8 @@ public:
 
     QString makefile() const;
     QStringList symbianCapabilities() const;
+    QString objectExtension() const;
+    QString objectsDirectory() const;
     QByteArray cxxDefines() const;
     bool isDeployable() const;
     QString resolvedMkspecPath() const;
