@@ -465,8 +465,9 @@ void AndroidPackageCreationStep::stripAndroidLibs(const QStringList & files, Abi
 {
     QProcess stripProcess;
     foreach (const QString &file, files) {
-        stripProcess.start(AndroidConfigurations::instance().stripPath(architecture) + QLatin1String(" --strip-unneeded ") + file);
-        if (!stripProcess.waitForFinished(-1))
+        stripProcess.start(AndroidConfigurations::instance().stripPath(architecture), QStringList()<<QLatin1String("--strip-unneeded") << file);
+        stripProcess.waitForStarted();
+        if (!stripProcess.waitForFinished())
             stripProcess.terminate();
     }
 }
