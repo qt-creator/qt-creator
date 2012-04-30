@@ -35,6 +35,30 @@
 #include <QDir>
 #include <QProcess>
 #include <QString>
+#include <QCoreApplication>
+
+class SystemEnvironment : public Utils::Environment
+{
+public:
+    SystemEnvironment()
+        : Environment(QProcess::systemEnvironment())
+    {
+#ifdef Q_OS_LINUX
+        QString ldLibraryPath = value(QLatin1String("LD_LIBRARY_PATH"));
+        QDir lib(QCoreApplication::applicationDirPath());
+        lib.cd("../lib");
+        QString toReplace = lib.path();
+        lib.cd("qtcreator");
+        toReplace.append(QLatin1String(":"));
+        toReplace.append(lib.path());
+
+        if (ldLibraryPath.startsWith(toReplace))
+            set(QLatin1String("LD_LIBRARY_PATH"), ldLibraryPath.remove(0, toReplace.length()));
+#endif
+    }
+};
+
+Q_GLOBAL_STATIC(SystemEnvironment, staticSystemEnvironment)
 
 namespace Utils {
 
@@ -198,7 +222,7 @@ void Environment::prependOrSetLibrarySearchPath(const QString &value)
 
 Environment Environment::systemEnvironment()
 {
-    return Environment(QProcess::systemEnvironment());
+    return *staticSystemEnvironment();
 }
 
 void Environment::clear()

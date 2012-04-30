@@ -256,7 +256,7 @@ Utils::Environment BuildConfiguration::baseEnvironment() const
 {
     Utils::Environment result;
     if (useSystemEnvironment())
-        result = Utils::Environment(QProcess::systemEnvironment());
+        result = Utils::Environment::systemEnvironment();
     return result;
 }
 
