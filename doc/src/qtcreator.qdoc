@@ -1,3 +1,4 @@
+
 /****************************************************************************
 **
 ** This file is part of Qt Creator
@@ -44,31 +45,38 @@
             \o  \inlineimage creator_managingprojects.png
             \o  \inlineimage creator_designinguserinterface.png
         \row
-            \o  \bold {\l{Getting Started}}
+            \o  \list
+                \o  \bold {\l{Getting Started}}
                 \list
                     \o  \l{IDE Overview}
                     \o  \l{User Interface}
                     \o  \l{Building and Running an Example}
                     \o  \l{Tutorials}
                 \endlist
-            \o  \bold {\l{Managing Projects}}
+            \endlist
+            \o  \list
+                \o  \bold {\l{Managing Projects}}
                 \list
                     \o  \l{Creating Projects}
                     \o  \l{Using Version Control Systems}
                     \o  \l{Configuring Projects}
                     \o  \l{Managing Sessions}
                 \endlist
+            \endlist
+            \o  \list
             \o  \bold {\l{Designing User Interfaces}}
                 \list
                     \o  \l{Developing Qt Quick Applications}
                     \o  \l{Developing Widget Based Applications}
                     \o  \l{Optimizing Applications for Mobile Devices}
                 \endlist
+            \endlist
         \row
             \o  \inlineimage creator_coding.png
             \o  \inlineimage creator_buildingrunning.png
             \o  \inlineimage creator_testing.png
         \row
+            \o  \list
             \o  \bold {\l{Coding}}
                 \list
                     \o  \l{Writing Code}
@@ -76,6 +84,8 @@
                     \o  \l{Refactoring}
                     \o  \l{Configuring the Editor}
                 \endlist
+            \endlist
+            \o  \list
             \o  \bold {\l{Building and Running}}
                 \list
                     \o  \l{Building for Multiple Targets}
@@ -83,16 +93,20 @@
                     \o  \l{Deploying to Mobile Devices}
                     \o  \l{Connecting Mobile Targets}
                 \endlist
+            \endlist
+            \o  \list
             \o  \bold {\l{Debugging and Analyzing}}
                 \list
                     \o  \l{Debugging}
                     \o  \l{Analyzing Code}
                 \endlist
+            \endlist
         \row
             \o  \inlineimage creator_publishing.png
             \o  \inlineimage creator_advanceduse.png
             \o  \inlineimage creator_gettinghelp.png
         \row
+            \o  \list
             \o  \bold {\l{Publishing}}
                 \list
                     \o  \l{Publishing Qt Content for Symbian Devices}
@@ -100,6 +114,8 @@
                     \o  \l{Publishing Qt Content for Maemo Devices}
                     \o  \l{Publishing Maemo Applications to Extras-devel}
                 \endlist
+            \endlist
+            \o  \list
             \o  \bold {\l{Advanced Use}}
                 \list
                     \o  \l{Supported Platforms}
@@ -108,6 +124,8 @@
                     \o  \l{Keyboard Shortcuts}
                     \o  \l{Using External Tools}
                 \endlist
+            \endlist
+            \o  \list
             \o  \bold {\l{Getting Help}}
                 \list
                     \o  \l{Using the Help Mode}
@@ -116,6 +134,7 @@
                     \o  \l{Known Issues}
                     \o  \l{Glossary}
                 \endlist
+            \endlist
         \row
             \o  {3,1} \note To report bugs and suggestions to the Qt Bug
                 Tracker, select \gui {Help > Report Bug}.
@@ -125,6 +144,7 @@
                 {lists.qt-project.org Mailing Lists}.
     \endtable
 
+    \omit
     \section1 Table Of Contents
 
     \list
@@ -289,4 +309,5 @@
             \o  \l{Acknowledgements}
         \endlist
     \endlist
+    \endomit
 */
