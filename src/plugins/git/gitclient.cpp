@@ -825,6 +825,30 @@ void GitClient::addFile(const QString &workingDirectory, const QString &fileName
     executeGit(workingDirectory, arguments, 0, true);
 }
 
+bool GitClient::synchronousLog(const QString &workingDirectory, const QStringList &arguments,
+                               QString *output, QString *errorMessageIn)
+{
+    QByteArray outputText;
+    QByteArray errorText;
+    QStringList allArguments;
+    allArguments << QLatin1String("log") << QLatin1String(GitClient::noColorOption);
+    allArguments.append(arguments);
+    const bool rc = fullySynchronousGit(workingDirectory, allArguments, &outputText, &errorText);
+    if (rc) {
+        *output = commandOutputFromLocal8Bit(outputText);
+    } else {
+        const QString errorMessage = tr("Cannot obtain log of \"%1\": %2").
+                                     arg(QDir::toNativeSeparators(workingDirectory),
+                                         commandOutputFromLocal8Bit(errorText));
+        if (errorMessageIn) {
+            *errorMessageIn = errorMessage;
+        } else {
+            outputWindow()->appendError(errorMessage);
+        }
+    }
+    return rc;
+}
+
 // Warning: 'intendToAdd' works only from 1.6.1 onwards
 bool GitClient::synchronousAdd(const QString &workingDirectory,
                                bool intendToAdd,

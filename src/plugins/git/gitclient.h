@@ -107,6 +107,9 @@ public:
     void checkoutBranch(const QString &workingDirectory, const QString &branch);
     void hardReset(const QString &workingDirectory, const QString &commit = QString());
     void addFile(const QString &workingDirectory, const QString &fileName);
+    bool synchronousLog(const QString &workingDirectory,
+                        const QStringList &arguments,
+                        QString *output, QString *errorMessage = 0);
     bool synchronousAdd(const QString &workingDirectory,
                         // Warning: Works only from 1.6.1 onwards
                         bool intendToAdd,

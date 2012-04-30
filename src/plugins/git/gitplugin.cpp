@@ -45,6 +45,7 @@
 #include "gitoriousclonewizard.h"
 #include "stashdialog.h"
 #include "settingspage.h"
+#include "resetdialog.h"
 
 #include <gerritplugin.h>
 
@@ -643,15 +644,10 @@ void GitPlugin::undoRepositoryChanges()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    const QString msg = tr("Undo all pending changes to the repository\n%1?").arg(QDir::toNativeSeparators(state.topLevel()));
-    const QMessageBox::StandardButton answer
-            = QMessageBox::question(Core::ICore::mainWindow(),
-                                    tr("Undo Changes"), msg,
-                                    QMessageBox::Yes|QMessageBox::No,
-                                    QMessageBox::No);
-    if (answer == QMessageBox::No)
-        return;
-    m_gitClient->hardReset(state.topLevel(), QString());
+
+    ResetDialog dialog;
+    if (dialog.runDialog(state.topLevel()))
+        m_gitClient->hardReset(state.topLevel(), dialog.commit());
 }
 
 void GitPlugin::stageFile()

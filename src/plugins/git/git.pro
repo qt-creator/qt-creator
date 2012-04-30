@@ -27,7 +27,8 @@ HEADERS += gitplugin.h \
     gitutils.h \
     remotemodel.h \
     remotedialog.h \
-    branchadddialog.h
+    branchadddialog.h \
+    resetdialog.h
 
 SOURCES += gitplugin.cpp \
     gitclient.cpp \
@@ -48,7 +49,8 @@ SOURCES += gitplugin.cpp \
     gitutils.cpp \
     remotemodel.cpp \
     remotedialog.cpp \
-    branchadddialog.cpp
+    branchadddialog.cpp \
+    resetdialog.cpp
 
 FORMS += changeselectiondialog.ui \
     settingspage.ui \
