@@ -32,7 +32,9 @@
 
 #include "qtquickapp.h"
 #include "html5app.h"
-#include <QtCore>
+
+#include <QApplication>
+#include <QDebug>
 
 using namespace Qt4ProjectManager::Internal;
 
