@@ -54,6 +54,8 @@ public:
 
     GerritPatchSet() : patchSetNumber(1) {}
     QString approvalsToolTip() const;
+    bool hasApproval(const QString &userName) const;
+    int approvalLevel() const;
 
     QString ref;
     int patchSetNumber;
@@ -129,6 +131,7 @@ private:
 
     const QSharedPointer<GerritParameters> m_parameters;
     QueryContext *m_query;
+    QString m_userName;
 };
 
 } // namespace Internal

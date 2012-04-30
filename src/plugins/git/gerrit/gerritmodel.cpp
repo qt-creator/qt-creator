@@ -91,6 +91,31 @@ QString GerritPatchSet::approvalsToolTip() const
     return result;
 }
 
+bool GerritPatchSet::hasApproval(const QString &userName) const
+{
+    foreach (const Approval &a, approvals)
+        if (a.first == userName)
+            return true;
+    return false;
+}
+
+/* Return the approval level: Negative values take preference. */
+int GerritPatchSet::approvalLevel() const
+{
+    if (approvals.isEmpty())
+        return 0;
+
+    int maxLevel = -3;
+    int minLevel = 3;
+    foreach (const Approval &a, approvals) {
+        if (a.second > maxLevel)
+            maxLevel = a.second;
+        if (a.second < minLevel)
+            minLevel = a.second;
+    }
+    return minLevel < 0 ? minLevel : maxLevel;
+}
+
 QString GerritChange::toolTip() const
 {
     static const QString format = GerritModel::tr(
@@ -142,6 +167,8 @@ public:
                  QObject *parent = 0);
 
     ~QueryContext();
+
+    int currentQuery() const { return m_currentQuery; }
 
 public slots:
     void start();
@@ -589,6 +616,10 @@ void GerritModel::queryFinished(const QByteArray &output)
         // Avoid duplicate entries for example in the (unlikely)
         // case people do self-reviews.
         if (indexOf(c->number) == -1) {
+            // Determine the verbose user name from the owner of the first query.
+            // It used for marking the changes pending for review in bold.
+            if (m_userName.isEmpty() && !m_query->currentQuery())
+                m_userName = c->owner;
             const QVariant filterV = QVariant(c->filterString());
             const QString toolTip = c->toolTip();
             const QVariant changeV = qVariantFromValue(c);
@@ -617,6 +648,24 @@ void GerritModel::queryFinished(const QByteArray &output)
                 approvals.append(QString::number(a.second));
             }
             row[ApprovalsColumn]->setText(approvals);
+            // Mark changes awaiting action using a bold font.
+            bool bold = false;
+            switch (m_query->currentQuery()) {
+            case 0: { // Owned changes: Review != 0,1. Submit or amend.
+                const int level = c->currentPatchSet.approvalLevel();
+                bold = level != 0 && level != 1;
+                }
+                break;
+            case 1: // Changes pending for review: No review yet.
+                bold = !m_userName.isEmpty() && !c->currentPatchSet.hasApproval(m_userName);
+                break;
+            }
+            if (bold) {
+                QFont font = row.first()->font();
+                font.setBold(true);
+                for (int i = 0; i < GerritModel::ColumnCount; ++i)
+                    row[i]->setFont(font);
+            }
             appendRow(row);
         }
     }
