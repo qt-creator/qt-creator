@@ -76,7 +76,6 @@ private:
     AndroidToolChain(const AndroidToolChain &);
 
     int m_qtVersionId;
-    mutable QString m_sysroot;
     friend class AndroidToolChainFactory;
 };
 
