@@ -1377,8 +1377,6 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
                     }
                 }
 
-                evaluateFeatureFile(QLatin1String("default_pre.prf"));
-
                 m_option->base_valuemap = m_valuemapStack.top();
                 m_option->base_functions = m_functionDefs;
 
@@ -1401,6 +1399,8 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
             m_functionDefs = m_option->base_functions;
 
           fresh:
+            evaluateFeatureFile(QLatin1String("default_pre.prf"));
+
             ProStringList &tgt = m_valuemapStack.top()[ProString("TARGET")];
             if (tgt.isEmpty())
                 tgt.append(ProString(QFileInfo(pro->fileName()).baseName(), NoHash));
