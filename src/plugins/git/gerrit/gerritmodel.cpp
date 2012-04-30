@@ -95,9 +95,9 @@ QString GerritChange::toolTip() const
 {
     static const QString format = GerritModel::tr(
        "Subject: %1\nNumber: %2 Id: %3\nOwner: %4 <%5>\n"
-       "Project: %6 Branch: %7\nStatus: %8, %9\n"
-       "URL: %10\nApprovals: %11");
-    return format.arg(title).arg(number).arg(id, owner, email, branch)
+       "Project: %6 Branch: %7 Patch set: %8\nStatus: %9, %10\n"
+       "URL: %11\nApprovals: %12");
+    return format.arg(title).arg(number).arg(id, owner, email, project, branch)
            .arg(currentPatchSet.patchSetNumber)
            .arg(status, lastUpdated.toString(Qt::DefaultLocaleShortDate),
                 url, currentPatchSet.approvalsToolTip());
