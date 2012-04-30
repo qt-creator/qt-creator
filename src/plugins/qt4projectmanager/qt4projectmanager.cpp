@@ -389,20 +389,20 @@ void Qt4Manager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *no
 
 void Qt4Manager::buildSubDirContextMenu()
 {
-    handleSubDirContexMenu(BUILD);
+    handleSubDirContextMenu(BUILD);
 }
 
 void Qt4Manager::cleanSubDirContextMenu()
 {
-    handleSubDirContexMenu(CLEAN);
+    handleSubDirContextMenu(CLEAN);
 }
 
 void Qt4Manager::rebuildSubDirContextMenu()
 {
-    handleSubDirContexMenu(REBUILD);
+    handleSubDirContextMenu(REBUILD);
 }
 
-void Qt4Manager::handleSubDirContexMenu(Qt4Manager::Action action)
+void Qt4Manager::handleSubDirContextMenu(Qt4Manager::Action action)
 {
     Qt4Project *qt4pro = qobject_cast<Qt4Project *>(m_contextProject);
     QTC_ASSERT(qt4pro, return);

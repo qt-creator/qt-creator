@@ -129,7 +129,7 @@ private slots:
 
 private:
     QList<Qt4Project *> m_projects;
-    void handleSubDirContexMenu(Action action);
+    void handleSubDirContextMenu(Action action);
     void addLibrary(const QString &fileName, Internal::ProFileEditorWidget *editor = 0);
     void runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *node);
 
