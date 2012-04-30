@@ -227,6 +227,13 @@ MainWindow::MainWindow() :
 
     statusBar()->setProperty("p_styled", true);
     setAcceptDrops(true);
+
+    m_autoSaveSessionTimer = new QTimer(this);
+    m_autoSaveSessionTimer->setSingleShot(true);
+    m_autoSaveSessionTimer->setInterval(10000);
+    m_autoSaveSessionTimer->start();
+    connect(m_autoSaveSessionTimer, SIGNAL(timeout()),
+            m_coreImpl, SIGNAL(saveSettingsRequested()));
 }
 
 void MainWindow::setSidebarVisible(bool visible)
@@ -372,6 +379,7 @@ void MainWindow::extensionsInitialized()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    m_autoSaveSessionTimer->stop();
     emit m_coreImpl->saveSettingsRequested();
 
     // Save opened files

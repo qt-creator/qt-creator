@@ -242,6 +242,7 @@ struct ProjectExplorerPluginPrivate {
     Core::IMode *m_projectsMode;
 
     TaskHub *m_taskHub;
+    bool m_shuttingDown;
 };
 
 ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
@@ -249,7 +250,8 @@ ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
     m_currentNode(0),
     m_delayedRunConfiguration(0),
     m_runMode(NoRunMode),
-    m_projectsMode(0)
+    m_projectsMode(0),
+    m_shuttingDown(false)
 {
 }
 
@@ -1155,6 +1157,7 @@ ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     d->m_proWindow->aboutToShutdown(); // disconnect from session
     d->m_session->closeAllProjects();
     d->m_projectsMode = 0;
+    d->m_shuttingDown = true;
     // Attempt to synchronously shutdown all run controls.
     // If that fails, fall back to asynchronous shutdown (Debugger run controls
     // might shutdown asynchronously).
@@ -1225,6 +1228,9 @@ void ProjectExplorerPlugin::savePersistentSettings()
 {
     if (debug)
         qDebug()<<"ProjectExplorerPlugin::savePersistentSettings()";
+
+    if (d->m_shuttingDown)
+        return;
 
     foreach (Project *pro, d->m_session->projects())
         pro->saveSettings();
