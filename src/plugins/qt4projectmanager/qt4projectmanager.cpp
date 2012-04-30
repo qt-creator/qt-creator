@@ -106,6 +106,7 @@ static inline QString formWindowEditorContents(const QObject *editor)
 
 Qt4Manager::Qt4Manager(Qt4ProjectManagerPlugin *plugin)
   : m_plugin(plugin),
+    m_contextNode(0),
     m_contextProject(0),
     m_lastEditor(0),
     m_dirty(false)
@@ -294,14 +295,14 @@ void Qt4Manager::setContextNode(ProjectExplorer::Node *node)
     m_contextNode = node;
 }
 
-void Qt4Manager::setContextProject(ProjectExplorer::Project *project)
-{
-    m_contextProject = project;
-}
-
 ProjectExplorer::Project *Qt4Manager::contextProject() const
 {
     return m_contextProject;
+}
+
+void Qt4Manager::setContextProject(ProjectExplorer::Project *project)
+{
+    m_contextProject = project;
 }
 
 void Qt4Manager::addLibrary()

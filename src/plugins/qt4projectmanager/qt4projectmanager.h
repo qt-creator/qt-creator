@@ -97,8 +97,8 @@ public:
     // Context information used in the slot implementations
     ProjectExplorer::Node *contextNode() const;
     void setContextNode(ProjectExplorer::Node *node);
-    void setContextProject(ProjectExplorer::Project *project);
     ProjectExplorer::Project *contextProject() const;
+    void setContextProject(ProjectExplorer::Project *project);
 
     // Return the id string of a file
     static QString fileTypeId(ProjectExplorer::FileType type);
