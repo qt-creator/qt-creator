@@ -240,10 +240,9 @@ void QtVersionManager::updateFromInstaller()
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     QList<QtVersionFactory *> factories = pm->getObjects<QtVersionFactory>();
     Utils::PersistentSettingsReader reader;
-    if (!reader.load(globalSettingsFileName()))
-        return;
-
-    QVariantMap data = reader.restoreValues();
+    QVariantMap data;
+    if (reader.load(globalSettingsFileName()))
+        data = reader.restoreValues();
 
     if (debug) {
         qDebug()<< "======= Existing Qt versions =======";
