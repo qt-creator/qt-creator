@@ -162,7 +162,7 @@ ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitia
 
     if (parentObjectValue)
         objectValue->setMember(QLatin1String("parent"), parentObjectValue);
-    else {
+    else if (!_rootObjectValue) {
         _rootObjectValue = objectValue;
         _rootObjectValue->setClassName(_doc->componentName());
     }
