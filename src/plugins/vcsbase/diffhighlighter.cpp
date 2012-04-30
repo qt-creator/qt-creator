@@ -95,7 +95,7 @@ public:
 
     DiffFormats analyzeLine(const QString &block) const;
 
-    const QRegExp m_filePattern;
+    mutable QRegExp m_filePattern;
     const QString m_locationIndicator;
     const QChar m_diffInIndicator;
     const QChar m_diffOutIndicator;

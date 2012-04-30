@@ -466,7 +466,7 @@ bool UrlTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
     if (cursorForUrl.hasSelection()) {
         const QString line = cursorForUrl.selectedText();
         const int cursorCol = cursor.columnNumber();
-        const QRegExp urlRx(m_urlPattern);
+        QRegExp urlRx(m_urlPattern);
         int urlMatchIndex = -1;
         do {
             urlMatchIndex = urlRx.indexIn(line, urlMatchIndex + 1);

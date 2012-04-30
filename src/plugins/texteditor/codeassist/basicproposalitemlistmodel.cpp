@@ -204,7 +204,7 @@ void BasicProposalItemListModel::filter(const QString &prefix)
 
         first = false;
     }
-    const QRegExp regExp(keyRegExp);
+    QRegExp regExp(keyRegExp);
 
     m_currentItems.clear();
     for (QList<BasicProposalItem *>::const_iterator it = m_originalItems.begin();

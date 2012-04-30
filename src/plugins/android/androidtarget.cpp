@@ -65,7 +65,7 @@ namespace {
 
     QString cleanPackageName(QString packageName)
     {
-        const QRegExp legalChars(QLatin1String("[a-zA-Z0-9_\\.]"));
+        QRegExp legalChars(QLatin1String("[a-zA-Z0-9_\\.]"));
 
         for (int i = 0; i < packageName.length(); ++i)
             if (!legalChars.exactMatch(packageName.mid(i, 1)))

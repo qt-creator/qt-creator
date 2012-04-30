@@ -2535,7 +2535,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                 }
 
                 r.detach(); // Keep m_tmp out of QRegExp's cache
-                const QRegExp regex(r, Qt::CaseSensitive, QRegExp::Wildcard);
+                QRegExp regex(r, Qt::CaseSensitive, QRegExp::Wildcard);
                 for (int d = 0; d < dirs.count(); d++) {
                     QString dir = dirs[d];
                     QDir qdir(pfx + dir);

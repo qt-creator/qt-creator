@@ -550,7 +550,7 @@ CPLUSPLUS_EXPORT QString simplifySTLType(const QString &typeIn)
             simplifyStdString(QLatin1String("unsigned short"), QLatin1String("wstring"), &type);
         }
         // std::vector, std::deque, std::list
-        const QRegExp re1(QString::fromLatin1("(vector|list|deque)<%1, ?%2\\s*>").arg(inner, alloc));
+        QRegExp re1(QString::fromLatin1("(vector|list|deque)<%1, ?%2\\s*>").arg(inner, alloc));
         Q_ASSERT(re1.isValid());
         if (re1.indexIn(type) != -1)
             type.replace(re1.cap(0), QString::fromLatin1("%1<%2>").arg(re1.cap(1), inner));

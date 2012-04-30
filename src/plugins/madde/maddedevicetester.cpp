@@ -267,7 +267,7 @@ QString MaddeDeviceTester::processedQtLibsList()
         patternString = QLatin1String("(libqt\\S+) ((\\d+)\\.(\\d+)\\.(\\d+))");
     else
         patternString = QLatin1String("(\\S+) (\\S*(\\d+)\\.(\\d+)\\.(\\d+)\\S*) \\S+ \\S+ \\S+");
-    const QRegExp packagePattern(patternString);
+    QRegExp packagePattern(patternString);
     int index = packagePattern.indexIn(unfilteredLibs);
     if (index == -1)
         return tr("No Qt packages installed.");

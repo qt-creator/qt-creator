@@ -85,7 +85,7 @@ bool PerforceSubmitEditor::setFileContents(const QString &contents)
 
 bool PerforceSubmitEditor::parseText(QString text)
 {
-    const QRegExp formField(QLatin1String("^\\S+:"));
+    QRegExp formField(QLatin1String("^\\S+:"));
     const QString newLine = QString(QLatin1Char('\n'));
 
     int match;

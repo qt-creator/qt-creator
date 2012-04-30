@@ -75,11 +75,11 @@ private:
     void appendLine(QTextCursor & cursor, LinkResult lr,
         const QString &line, Utils::OutputFormat);
 
-    QRegExp m_qmlError;
-    QRegExp m_qtError;
-    QRegExp m_qtAssert;
-    QRegExp m_qtAssertX;
-    QRegExp m_qtTestFail;
+    mutable QRegExp m_qmlError;
+    mutable QRegExp m_qtError;
+    mutable QRegExp m_qtAssert;
+    mutable QRegExp m_qtAssertX;
+    mutable QRegExp m_qtTestFail;
     QWeakPointer<ProjectExplorer::Project> m_project;
     QString m_lastLine;
     Utils::FileInProjectFinder m_projectFinder;

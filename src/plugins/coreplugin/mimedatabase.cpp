@@ -548,7 +548,7 @@ public:
     void assignSuffixes(const QStringList &patterns);
     void debug(QTextStream &str, int indent = 0) const;
 
-    const QRegExp suffixPattern;
+    QRegExp suffixPattern;
 
     QString type;
     QString comment;
@@ -814,7 +814,8 @@ unsigned MimeType::matchesFileBySuffix(Internal::FileMatchContext &c) const
 {
     // check globs
     foreach (const MimeGlobPattern &gp, m_d->globPatterns) {
-        if (gp.regExp().exactMatch(c.fileName()))
+        QRegExp regExp = gp.regExp();
+        if (regExp.exactMatch(c.fileName()))
             return gp.weight();
     }
     return 0;

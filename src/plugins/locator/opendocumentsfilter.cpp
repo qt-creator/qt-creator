@@ -60,7 +60,7 @@ QList<FilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locator::Fil
     QString pattern = QString(asterisk);
     pattern += entry;
     pattern += asterisk;
-    const QRegExp regexp(pattern, Qt::CaseInsensitive, QRegExp::Wildcard);
+    QRegExp regexp(pattern, Qt::CaseInsensitive, QRegExp::Wildcard);
     if (!regexp.isValid())
         return value;
     foreach (const OpenEditorsModel::Entry &editorEntry, m_editors) {

@@ -130,8 +130,7 @@ RvctToolChain::RvctVersion RvctToolChain::version(const Utils::FileName &rvctPat
     }
     QString versionLine = QString::fromLocal8Bit(armcc.readAllStandardOutput());
     versionLine += QString::fromLocal8Bit(armcc.readAllStandardError());
-    const QRegExp versionRegExp(QLatin1String("^(\\d)(\\d)0*([1-9]\\d*)"),
-                                Qt::CaseInsensitive);
+    QRegExp versionRegExp(QLatin1String("^(\\d)(\\d)0*([1-9]\\d*)"), Qt::CaseInsensitive);
     Q_ASSERT(versionRegExp.isValid());
 
     if (versionRegExp.indexIn(versionLine) != -1) {

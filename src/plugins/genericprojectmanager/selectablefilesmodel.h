@@ -64,7 +64,7 @@ struct Glob
     enum Mode { EXACT, ENDSWITH, REGEXP };
     Mode mode;
     QString matchString;
-    QRegExp matchRegexp;
+    mutable QRegExp matchRegexp;
 };
 
 class SelectableFilesModel : public QAbstractItemModel

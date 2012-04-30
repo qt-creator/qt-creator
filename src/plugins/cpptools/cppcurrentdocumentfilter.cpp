@@ -68,7 +68,7 @@ QList<Locator::FilterEntry> CppCurrentDocumentFilter::matchesFor(QFutureInterfac
     QList<Locator::FilterEntry> betterEntries;
     QStringMatcher matcher(entry, Qt::CaseInsensitive);
     const QChar asterisk = QLatin1Char('*');
-    const QRegExp regexp(asterisk + entry + asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
+    QRegExp regexp(asterisk + entry + asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
     if (!regexp.isValid())
         return goodEntries;
     bool hasWildcard = (entry.contains(asterisk) || entry.contains('?'));

@@ -223,7 +223,7 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResultList> &future,
     if (flags & QTextDocument::FindWholeWords)
         searchTerm = QString::fromLatin1("\\b%1\\b").arg(searchTerm);
     const Qt::CaseSensitivity caseSensitivity = (flags & QTextDocument::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive;
-    const QRegExp expression(searchTerm, caseSensitivity);
+    QRegExp expression(searchTerm, caseSensitivity);
 
     QFile file;
     QString str;

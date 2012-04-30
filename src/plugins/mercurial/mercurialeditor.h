@@ -54,9 +54,9 @@ private:
     virtual QString fileNameFromDiffSpecification(const QTextBlock &diffFileSpec) const;
     virtual QStringList annotationPreviousVersions(const QString &revision) const;
 
-    const QRegExp exactIdentifier12;
-    const QRegExp exactIdentifier40;
-    const QRegExp changesetIdentifier12;
+    mutable QRegExp exactIdentifier12;
+    mutable QRegExp exactIdentifier40;
+    mutable QRegExp changesetIdentifier12;
     const QRegExp changesetIdentifier40;
     const QRegExp diffIdentifier;
 };

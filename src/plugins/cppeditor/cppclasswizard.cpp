@@ -234,7 +234,7 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
     headerStr << headerLicense << "#ifndef " << guard
               << "\n#define " <<  guard << '\n';
 
-    const QRegExp qtClassExpr(QLatin1String("^Q[A-Z3].+"));
+    QRegExp qtClassExpr(QLatin1String("^Q[A-Z3].+"));
     QTC_CHECK(qtClassExpr.isValid());
     // Determine parent QObject type for Qt types. Provide base
     // class in case the user did not specify one.

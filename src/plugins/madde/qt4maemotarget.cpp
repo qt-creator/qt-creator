@@ -898,8 +898,7 @@ QString AbstractDebBasedQt4MaemoTarget::defaultPackageFileName() const
     QString packageName = project()->displayName().toLower();
 
     // We also replace dots, because OVI store chokes on them.
-    const QRegExp legalLetter(QLatin1String("[a-z0-9+-]"), Qt::CaseSensitive,
-        QRegExp::WildcardUnix);
+    QRegExp legalLetter(QLatin1String("[a-z0-9+-]"), Qt::CaseSensitive, QRegExp::WildcardUnix);
 
     for (int i = 0; i < packageName.length(); ++i) {
         if (!legalLetter.exactMatch(packageName.mid(i, 1)))

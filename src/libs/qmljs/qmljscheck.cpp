@@ -1186,7 +1186,7 @@ void Check::addMessage(Type type, const SourceLocation &location, const QString 
 void Check::scanCommentsForAnnotations()
 {
     m_disabledMessageTypesByLine.clear();
-    const QRegExp disableCommentPattern(Message::suppressionPattern());
+    QRegExp disableCommentPattern(Message::suppressionPattern());
 
     foreach (const SourceLocation &commentLoc, _doc->engine()->comments()) {
         const QString &comment = _doc->source().mid(commentLoc.begin(), commentLoc.length);

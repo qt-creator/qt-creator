@@ -514,7 +514,7 @@ void HelpPlugin::resetFilter()
 {
     const QString &filterInternal = QString::fromLatin1("Qt Creator %1.%2.%3")
         .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
-    const QRegExp filterRegExp(QLatin1String("Qt Creator \\d*\\.\\d*\\.\\d*"));
+    QRegExp filterRegExp(QLatin1String("Qt Creator \\d*\\.\\d*\\.\\d*"));
 
     QHelpEngineCore *engine = &LocalHelpManager::helpEngine();
     const QStringList &filters = engine->customFilters();
@@ -900,7 +900,7 @@ void HelpPlugin::activateContext()
                 "available.</center></body></html>").arg(m_idFromContext));
         } else {
             int version = 0;
-            const QRegExp exp("(\\d+)");
+            QRegExp exp("(\\d+)");
             QUrl source = *links.begin();
             const QLatin1String qtRefDoc = QLatin1String("com.trolltech.qt");
 

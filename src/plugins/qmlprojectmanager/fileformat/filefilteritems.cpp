@@ -272,7 +272,7 @@ bool FileFilterBaseItem::fileMatches(const QString &fileName) const
         }
     }
 
-    foreach (const QRegExp &filter, m_regExpList) {
+    foreach (QRegExp filter, m_regExpList) {
         if (filter.exactMatch(fileName)) {
             return true;
         }

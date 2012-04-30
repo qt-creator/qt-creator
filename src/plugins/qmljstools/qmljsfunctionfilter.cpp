@@ -70,7 +70,7 @@ QList<Locator::FilterEntry> FunctionFilter::matchesFor(QFutureInterface<Locator:
     QList<Locator::FilterEntry> betterEntries;
     const QChar asterisk = QLatin1Char('*');
     QStringMatcher matcher(entry, Qt::CaseInsensitive);
-    const QRegExp regexp(asterisk + entry+ asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
+    QRegExp regexp(asterisk + entry+ asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
     if (!regexp.isValid())
         return goodEntries;
     bool hasWildcard = (entry.contains(asterisk) || entry.contains('?'));

@@ -70,7 +70,7 @@ public:
 private:
     enum State { Header, Comment, Other };
     const QTextCharFormat m_commentFormat;
-    const QRegExp m_keywordPattern;
+    QRegExp m_keywordPattern;
     const QChar m_hashChar;
 };
 

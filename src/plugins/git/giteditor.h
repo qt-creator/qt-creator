@@ -65,8 +65,8 @@ private:
     virtual QString fileNameFromDiffSpecification(const QTextBlock &diffFileName) const;
     virtual QStringList annotationPreviousVersions(const QString &revision) const;
 
-    const QRegExp m_changeNumberPattern8;
-    const QRegExp m_changeNumberPattern40;
+    mutable QRegExp m_changeNumberPattern8;
+    mutable QRegExp m_changeNumberPattern40;
 };
 
 } // namespace Git

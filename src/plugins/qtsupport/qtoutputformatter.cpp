@@ -193,9 +193,9 @@ void QtOutputFormatter::appendLine(QTextCursor &cursor, LinkResult lr,
 void QtOutputFormatter::handleLink(const QString &href)
 {
     if (!href.isEmpty()) {
-        const QRegExp qmlLineColumnLink(QLatin1String("^(file:///.+)" // file url
-                                                 ":(\\d+)"            // line
-                                                 ":(\\d+)$"));        // column
+        QRegExp qmlLineColumnLink(QLatin1String("^(file:///.+)" // file url
+                                                ":(\\d+)"            // line
+                                                ":(\\d+)$"));        // column
 
         if (qmlLineColumnLink.indexIn(href) != -1) {
             const QUrl fileUrl = QUrl(qmlLineColumnLink.cap(1));
@@ -207,8 +207,8 @@ void QtOutputFormatter::handleLink(const QString &href)
             return;
         }
 
-        const QRegExp qmlLineLink(QLatin1String("^(file:///.+)" // file url
-                                                 ":(\\d+)$"));  // line
+        QRegExp qmlLineLink(QLatin1String("^(file:///.+)" // file url
+                                          ":(\\d+)$"));  // line
 
         if (qmlLineLink.indexIn(href) != -1) {
             const QUrl fileUrl = QUrl(qmlLineLink.cap(1));

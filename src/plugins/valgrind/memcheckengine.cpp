@@ -135,8 +135,8 @@ void MemcheckEngine::receiveLogMessage(const QByteArray &b)
     QString file;
     int line = -1;
 
-    const QRegExp suppressionError(QLatin1String("in suppressions file \"([^\"]+)\" near line (\\d+)"),
-                                   Qt::CaseSensitive, QRegExp::RegExp2);
+    QRegExp suppressionError(QLatin1String("in suppressions file \"([^\"]+)\" near line (\\d+)"),
+                             Qt::CaseSensitive, QRegExp::RegExp2);
     if (suppressionError.indexIn(error) != -1) {
         file = suppressionError.cap(1);
         line = suppressionError.cap(2).toInt();

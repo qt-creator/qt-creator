@@ -360,7 +360,7 @@ bool MaemoDebianPackageCreationStep::isMetaDataNewerThan(const QDateTime &packag
 
 void MaemoDebianPackageCreationStep::checkProjectName()
 {
-    const QRegExp legalName(QLatin1String("[0-9-+a-z\\.]+"));
+    QRegExp legalName(QLatin1String("[0-9-+a-z\\.]+"));
     if (!legalName.exactMatch(project()->displayName())) {
         emit addTask(Task(Task::Warning,
             tr("Your project name contains characters not allowed in "

@@ -79,8 +79,8 @@ BranchInfo BazaarClient::synchronousBranchQuery(const QString &repositoryRoot) c
     QTextStream ts(&branchConfFile);
     QString branchLocation;
     QString isBranchBound;
-    const QRegExp branchLocationRx(QLatin1String("bound_location\\s*=\\s*(.+)$"));
-    const QRegExp isBranchBoundRx(QLatin1String("bound\\s*=\\s*(.+)$"));
+    QRegExp branchLocationRx(QLatin1String("bound_location\\s*=\\s*(.+)$"));
+    QRegExp isBranchBoundRx(QLatin1String("bound\\s*=\\s*(.+)$"));
     while (!ts.atEnd() && (branchLocation.isEmpty() || isBranchBound.isEmpty())) {
         const QString line = ts.readLine();
         if (branchLocationRx.indexIn(line) != -1)

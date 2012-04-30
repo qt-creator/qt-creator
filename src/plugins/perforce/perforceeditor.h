@@ -58,7 +58,7 @@ private:
     virtual QString fileNameFromDiffSpecification(const QTextBlock &diffFileName) const;
     virtual QStringList annotationPreviousVersions(const QString &v) const;
 
-    const QRegExp m_changeNumberPattern;
+    mutable QRegExp m_changeNumberPattern;
     PerforcePlugin *m_plugin;
 };
 

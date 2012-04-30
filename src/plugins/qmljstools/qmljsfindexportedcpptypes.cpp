@@ -212,7 +212,7 @@ protected:
         }
         if (packageName.isEmpty() && _compound) {
             // check the comments in _compound for annotations
-            const QRegExp uriAnnotation(QLatin1String("@uri\\s*([\\w\\.]*)"));
+            QRegExp uriAnnotation(QLatin1String("@uri\\s*([\\w\\.]*)"));
 
             // scan every comment between the pipes in
             // {|

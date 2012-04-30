@@ -56,8 +56,8 @@ private:
     QString fileNameFromDiffSpecification(const QTextBlock &diffFileName) const;
     QStringList annotationPreviousVersions(const QString &revision) const;
 
-    const QRegExp m_revisionAnnotationPattern;
-    const QRegExp m_revisionLogPattern;
+    mutable QRegExp m_revisionAnnotationPattern;
+    mutable QRegExp m_revisionLogPattern;
     QString m_diffBaseDir;
 };
 

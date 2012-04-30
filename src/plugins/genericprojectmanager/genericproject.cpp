@@ -307,7 +307,7 @@ void GenericProject::refresh(RefreshOptions options)
  */
 static void expandEnvironmentVariables(const QProcessEnvironment &env, QString &string)
 {
-    const static QRegExp candidate(QLatin1String("\\$\\$\\((.+)\\)"));
+    static QRegExp candidate(QLatin1String("\\$\\$\\((.+)\\)"));
 
     int index = candidate.indexIn(string);
     while (index != -1) {

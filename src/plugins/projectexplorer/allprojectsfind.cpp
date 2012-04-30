@@ -97,7 +97,7 @@ Utils::FileIterator *AllProjectsFind::filesForProjects(const QStringList &nameFi
         QStringList filteredFiles;
         if (!filterRegs.isEmpty()) {
             foreach (const QString &file, projectFiles) {
-                foreach (const QRegExp &reg, filterRegs) {
+                foreach (QRegExp reg, filterRegs) {
                     if (reg.exactMatch(file) || reg.exactMatch(QFileInfo(file).fileName())) {
                         filteredFiles.append(file);
                         break;

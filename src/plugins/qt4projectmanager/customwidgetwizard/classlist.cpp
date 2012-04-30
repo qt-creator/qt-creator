@@ -62,7 +62,7 @@ public:
 private:
     void appendClass(const QString &);
 
-    const QRegExp m_validator;
+    QRegExp m_validator;
     const QString m_newClassPlaceHolder;
 };
 

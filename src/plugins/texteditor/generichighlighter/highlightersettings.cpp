@@ -199,7 +199,7 @@ void HighlighterSettings::assignDefaultDefinitionsPath()
 
 bool HighlighterSettings::isIgnoredFilePattern(const QString &fileName) const
 {
-    foreach (const QRegExp &regExp, m_ignoredFiles)
+    foreach (QRegExp regExp, m_ignoredFiles)
         if (regExp.indexIn(fileName) != -1)
             return true;
 

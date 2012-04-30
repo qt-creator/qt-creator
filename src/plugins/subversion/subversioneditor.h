@@ -56,8 +56,8 @@ private:
     virtual QString fileNameFromDiffSpecification(const QTextBlock &diffFileName) const;
     virtual QStringList annotationPreviousVersions(const QString &) const;
 
-    const QRegExp m_changeNumberPattern;
-    const QRegExp m_revisionNumberPattern;
+    mutable QRegExp m_changeNumberPattern;
+    mutable QRegExp m_revisionNumberPattern;
 };
 
 } // namespace Internal

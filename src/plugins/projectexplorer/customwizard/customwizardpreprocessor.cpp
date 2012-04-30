@@ -88,8 +88,8 @@ private:
 
     mutable QRegExp m_ifPattern;
     mutable QRegExp m_elsifPattern;
-    const QRegExp m_elsePattern;
-    const QRegExp m_endifPattern;
+    mutable QRegExp m_elsePattern;
+    mutable QRegExp m_endifPattern;
 
     QStack<PreprocessStackEntry> m_sectionStack;
     QScriptEngine m_scriptEngine;

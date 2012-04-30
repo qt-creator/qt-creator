@@ -1572,7 +1572,7 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
         const Iterator end = exCommandMap().constEnd();
         for (Iterator it = exCommandMap().constBegin(); it != end; ++it) {
             const QString &id = it.key();
-            const QRegExp &re = it.value();
+            QRegExp re = it.value();
             if (!re.pattern().isEmpty() && re.indexIn(cmd.cmd) != -1) {
                 triggerAction(Core::Id(id));
                 return;

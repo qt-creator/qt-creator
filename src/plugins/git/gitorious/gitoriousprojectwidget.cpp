@@ -231,7 +231,7 @@ void GitoriousProjectWidget::setDescription(const QString &description,
     if (url) {
         // Should the text contain an URL, extract
         // Do not fall for "(http://XX)", strip special characters
-        static const QRegExp urlRegExp(QLatin1String("(http://[\\w\\.-]+/[a-zA-Z0-9/\\-&]*)"));
+        static QRegExp urlRegExp(QLatin1String("(http://[\\w\\.-]+/[a-zA-Z0-9/\\-&]*)"));
         QTC_CHECK(urlRegExp.isValid());
         if (urlRegExp.indexIn(description) != -1) {
             *url= urlRegExp.cap(1);

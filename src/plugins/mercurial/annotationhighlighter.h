@@ -47,7 +47,7 @@ public:
 
 private:
     virtual QString changeNumber(const QString &block) const;
-    QRegExp changeset;
+    mutable QRegExp changeset;
 };
 
 } //namespace Internal
