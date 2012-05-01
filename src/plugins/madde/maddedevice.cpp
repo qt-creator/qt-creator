@@ -83,37 +83,37 @@ QString MaddeDevice::displayType() const
     return maddeDisplayType(type());
 }
 
-QStringList MaddeDevice::actionIds() const
+QList<Core::Id> MaddeDevice::actionIds() const
 {
-    return QStringList() << QLatin1String(MaddeDeviceTestActionId)
-        << QLatin1String(Constants::GenericDeployKeyToDeviceActionId)
-        << QLatin1String(MaddeRemoteProcessesActionId);
+    return QList<Core::Id>() << Core::Id(MaddeDeviceTestActionId)
+        << Core::Id(Constants::GenericDeployKeyToDeviceActionId)
+        << Core::Id(MaddeRemoteProcessesActionId);
 }
 
-QString MaddeDevice::displayNameForActionId(const QString &actionId) const
+QString MaddeDevice::displayNameForActionId(Core::Id actionId) const
 {
     QTC_ASSERT(actionIds().contains(actionId), return QString());
 
-    if (actionId == QLatin1String(MaddeDeviceTestActionId))
+    if (actionId == Core::Id(MaddeDeviceTestActionId))
         return tr("Test");
-    if (actionId == QLatin1String(MaddeRemoteProcessesActionId))
+    if (actionId == Core::Id(MaddeRemoteProcessesActionId))
         return tr("Remote Processes...");
-    if (actionId == QLatin1String(Constants::GenericDeployKeyToDeviceActionId))
+    if (actionId == Core::Id(Constants::GenericDeployKeyToDeviceActionId))
         return tr("Deploy Public Key...");
     return QString(); // Can't happen.
 }
 
-QDialog *MaddeDevice::createAction(const QString &actionId, QWidget *parent) const
+QDialog *MaddeDevice::createAction(Core::Id actionId, QWidget *parent) const
 {
     QTC_ASSERT(actionIds().contains(actionId), return 0);
 
     const LinuxDeviceConfiguration::ConstPtr device
         = sharedFromThis().staticCast<const LinuxDeviceConfiguration>();
-    if (actionId == QLatin1String(MaddeDeviceTestActionId))
+    if (actionId == Core::Id(MaddeDeviceTestActionId))
         return new LinuxDeviceTestDialog(device, new MaddeDeviceTester, parent);
-    if (actionId == QLatin1String(MaddeRemoteProcessesActionId))
+    if (actionId == Core::Id(MaddeRemoteProcessesActionId))
         return new RemoteLinuxProcessesDialog(new GenericRemoteLinuxProcessList(device), parent);
-    if (actionId == QLatin1String(Constants::GenericDeployKeyToDeviceActionId))
+    if (actionId == Core::Id(Constants::GenericDeployKeyToDeviceActionId))
         return PublicKeyDeploymentDialog::createDialog(device, parent);
     return 0; // Can't happen.
 }

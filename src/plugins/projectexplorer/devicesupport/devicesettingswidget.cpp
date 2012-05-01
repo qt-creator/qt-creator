@@ -105,8 +105,8 @@ DeviceSettingsWidget::DeviceSettingsWidget(QWidget *parent)
       m_configWidget(0)
 {
     initGui();
-    connect(m_additionalActionsMapper, SIGNAL(mapped(QString)),
-        SLOT(handleAdditionalActionRequest(QString)));
+    connect(m_additionalActionsMapper, SIGNAL(mapped(int)),
+            SLOT(handleAdditionalActionRequest(int)));
     connect(m_deviceManager, SIGNAL(deviceUpdated(Core::Id)), SLOT(handleDeviceUpdated(Core::Id)));
 }
 
@@ -258,11 +258,11 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
     } else {
         m_ui->removeConfigButton->setEnabled(true);
         const IDevice::ConstPtr device = m_deviceManager->deviceAt(index);
-        foreach (const QString &actionId, device->actionIds()) {
+        foreach (const Core::Id actionId, device->actionIds()) {
             QPushButton * const button = new QPushButton(device->displayNameForActionId(actionId));
             m_additionalActionButtons << button;
             connect(button, SIGNAL(clicked()), m_additionalActionsMapper, SLOT(map()));
-            m_additionalActionsMapper->setMapping(button, actionId);
+            m_additionalActionsMapper->setMapping(button, actionId.uniqueIdentifier());
             m_ui->buttonsLayout->insertWidget(m_ui->buttonsLayout->count() - 1, button);
         }
         if (!m_ui->osSpecificGroupBox->layout())
@@ -281,11 +281,11 @@ void DeviceSettingsWidget::clearDetails()
     m_ui->autoDetectionValueLabel->clear();
 }
 
-void DeviceSettingsWidget::handleAdditionalActionRequest(const QString &actionId)
+void DeviceSettingsWidget::handleAdditionalActionRequest(int actionId)
 {
     const IDevice::ConstPtr &device = currentDevice();
     QTC_ASSERT(device, return);
-    QDialog * const action = device->createAction(actionId, this);
+    QDialog * const action = device->createAction(Core::Id::fromUniqueIdentifier(actionId), this);
     if (action)
         action->exec();
     delete action;

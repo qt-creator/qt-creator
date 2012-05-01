@@ -75,9 +75,9 @@ public:
 
     QString displayType() const;
     ProjectExplorer::IDeviceWidget *createWidget();
-    QStringList actionIds() const;
-    QString displayNameForActionId(const QString &actionId) const;
-    QDialog *createAction(const QString &actionId, QWidget *parent) const;
+    QList<Core::Id> actionIds() const;
+    QString displayNameForActionId(Core::Id actionId) const;
+    QDialog *createAction(Core::Id actionId, QWidget *parent) const;
     void fromMap(const QVariantMap &map);
     ProjectExplorer::IDevice::Ptr clone() const;
 

@@ -36,10 +36,8 @@
 
 #include <coreplugin/id.h>
 
-#include <coreplugin/id.h>
-
+#include <QList>
 #include <QSharedPointer>
-#include <QStringList>
 #include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
@@ -83,9 +81,9 @@ public:
 
     virtual QString displayType() const = 0;
     virtual IDeviceWidget *createWidget() = 0;
-    virtual QStringList actionIds() const = 0;
-    virtual QString displayNameForActionId(const QString &actionId) const = 0;
-    virtual QDialog *createAction(const QString &actionId, QWidget *parent = 0) const = 0;
+    virtual QList<Core::Id> actionIds() const = 0;
+    virtual QString displayNameForActionId(Core::Id actionId) const = 0;
+    virtual QDialog *createAction(Core::Id actionId, QWidget *parent = 0) const = 0;
 
     enum AvailabilityState { DeviceAvailable, DeviceUnavailable, DeviceAvailabilityUnknown };
     AvailabilityState availability() const;

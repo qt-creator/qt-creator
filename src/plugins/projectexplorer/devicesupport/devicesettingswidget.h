@@ -70,7 +70,7 @@ private slots:
     void removeDevice();
     void deviceNameEditingFinished();
     void setDefaultDevice();
-    void handleAdditionalActionRequest(const QString &actionId);
+    void handleAdditionalActionRequest(int actionId);
 
 private:
     void initGui();

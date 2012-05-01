@@ -76,9 +76,9 @@ public:
 
     QString displayType() const;
     ProjectExplorer::IDeviceWidget* createWidget();
-    QStringList actionIds() const;
-    QString displayNameForActionId(const QString&actionId) const;
-    QDialog* createAction(const QString&, QWidget*parent) const;
+    QList<Core::Id> actionIds() const;
+    QString displayNameForActionId(Core::Id actionId) const;
+    QDialog* createAction(Core::Id actionId, QWidget*parent) const;
 
 protected:
     SymbianIDevice(const SymbianIDevice &other);

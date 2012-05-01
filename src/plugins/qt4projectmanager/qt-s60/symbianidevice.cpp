@@ -196,18 +196,18 @@ ProjectExplorer::IDeviceWidget *SymbianIDevice::createWidget()
     return new Internal::SymbianIDeviceConfigurationWidget(sharedFromThis());
 }
 
-QStringList SymbianIDevice::actionIds() const
+QList<Core::Id> SymbianIDevice::actionIds() const
 {
-    return QStringList();
+    return QList<Core::Id>();
 }
 
-QString SymbianIDevice::displayNameForActionId(const QString &actionId) const
+QString SymbianIDevice::displayNameForActionId(Core::Id actionId) const
 {
     Q_UNUSED(actionId);
     return QString();
 }
 
-QDialog *SymbianIDevice::createAction(const QString &actionId, QWidget *parent) const
+QDialog *SymbianIDevice::createAction(Core::Id actionId, QWidget *parent) const
 {
     Q_UNUSED(actionId);
     Q_UNUSED(parent);
