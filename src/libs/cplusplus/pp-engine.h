@@ -182,9 +182,6 @@ private:
     Environment *m_env;
     QByteArray m_scratchBuffer;
 
-    QString m_originalSource;
-    QList<State> m_savedStates;
-
     bool m_expandMacros;
     bool m_keepComments;
 
