@@ -82,8 +82,8 @@ public:
             // first column
             if (column() == 0) {
                 return data(FilenameRole).toString() == other.data(FilenameRole).toString() ?
-                        data(LineRole).toInt() < other.data(LineRole).toInt() :
-                        data(FilenameRole).toString() < other.data(FilenameRole).toString();
+                            data(LineRole).toInt() < other.data(LineRole).toInt() :
+                            data(FilenameRole).toString() < other.data(FilenameRole).toString();
             } else {
                 return data().toString().toLower() < other.data().toString().toLower();
             }
@@ -115,9 +115,9 @@ public:
 };
 
 QmlProfilerEventsWidget::QmlProfilerEventsWidget(QWidget *parent,
-                                 Analyzer::IAnalyzerTool *profilerTool,
-                                 QmlProfilerViewManager *container,
-                                 QmlProfilerDataModel *profilerDataModel )
+                                                 Analyzer::IAnalyzerTool *profilerTool,
+                                                 QmlProfilerViewManager *container,
+                                                 QmlProfilerDataModel *profilerDataModel )
     : QWidget(parent), d(new QmlProfilerEventsWidgetPrivate(this))
 {
     setObjectName("QmlProfilerEventsView");
@@ -603,8 +603,16 @@ void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildModelFrom
         }
 
         if (m_fieldShown[Type]) {
-            newRow << new EventsViewItem(QmlProfilerEventsMainView::nameForType(binding->eventType));
-            newRow.last()->setData(QVariant(QmlProfilerEventsMainView::nameForType(binding->eventType)));
+            QString typeString = QmlProfilerEventsMainView::nameForType(binding->eventType);
+            QString toolTipText;
+            if (binding->eventType == Binding && binding->bindingType == (int)V4Binding) {
+                typeString = typeString + tr(" (v4)");
+                toolTipText = qsTr("Binding is evaluated by the optimized v4 engine.");
+            }
+            newRow << new EventsViewItem(typeString);
+            newRow.last()->setData(QVariant(typeString));
+            if (!toolTipText.isEmpty())
+                newRow.last()->setToolTip(toolTipText);
         }
 
         if (m_fieldShown[Percent]) {

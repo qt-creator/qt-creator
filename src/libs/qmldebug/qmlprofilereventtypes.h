@@ -45,6 +45,14 @@ enum QmlEventType {
     MaximumQmlEventType
 };
 
+enum BindingType {
+    QmlBinding,
+    V8Binding,
+    V4Binding,
+
+    MaximumBindingType
+};
+
 namespace Constants {
 const char TYPE_PAINTING_STR[] = "Painting";
 const char TYPE_COMPILING_STR[] = "Compiling";

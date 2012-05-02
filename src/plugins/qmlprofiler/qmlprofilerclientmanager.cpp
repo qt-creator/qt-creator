@@ -164,9 +164,9 @@ void QmlProfilerClientManager::connectClientSignals()
         connect(d->qmlclientplugin.data(), SIGNAL(complete()),
                 this, SLOT(qmlComplete()));
         connect(d->qmlclientplugin.data(),
-                SIGNAL(range(int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)),
+                SIGNAL(range(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)),
                 this,
-                SIGNAL(addRangedEvent(int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)));
+                SIGNAL(addRangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)));
         connect(d->qmlclientplugin.data(), SIGNAL(traceFinished(qint64)),
                 this, SIGNAL(traceFinished(qint64)));
         connect(d->qmlclientplugin.data(), SIGNAL(traceStarted(qint64)),
@@ -196,9 +196,9 @@ void QmlProfilerClientManager::disconnectClientSignals()
         disconnect(d->qmlclientplugin.data(), SIGNAL(complete()),
                    this, SLOT(qmlComplete()));
         disconnect(d->qmlclientplugin.data(),
-                   SIGNAL(range(int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)),
+                   SIGNAL(range(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)),
                    this,
-                   SIGNAL(addRangedEvent(int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)));
+                   SIGNAL(addRangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(traceFinished(qint64)),
                    this, SIGNAL(traceFinished(qint64)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(traceStarted(qint64)),

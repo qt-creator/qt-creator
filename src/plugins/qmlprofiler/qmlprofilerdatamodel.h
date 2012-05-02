@@ -52,6 +52,7 @@ struct QmlRangeEventData
     ~QmlRangeEventData();
 
     int eventId;
+    int bindingType;
     QString displayName;
     QString eventHashStr;
     QString details;
@@ -167,7 +168,7 @@ signals:
 public slots:
     void clear();
 
-    void addRangedEvent(int type, qint64 startTime, qint64 length,
+    void addRangedEvent(int type, int bindingType, qint64 startTime, qint64 length,
                         const QStringList &data, const QmlDebug::QmlEventLocation &location);
     void addV8Event(int depth,const QString &function,const QString &filename, int lineNumber, double totalTime, double selfTime);
     void addFrameEvent(qint64 time, int framerate, int animationcount);

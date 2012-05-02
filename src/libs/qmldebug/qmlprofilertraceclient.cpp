@@ -52,6 +52,7 @@ public:
     QStack<qint64> rangeStartTimes[MaximumQmlEventType];
     QStack<QStringList> rangeDatas[MaximumQmlEventType];
     QStack<QmlEventLocation> rangeLocations[MaximumQmlEventType];
+    QStack<BindingType> bindingTypes;
     int rangeCount[MaximumQmlEventType];
     qint64 maximumTime;
     bool recording;
@@ -94,6 +95,7 @@ void QmlProfilerTraceClient::clearData()
         d->rangeLocations[eventType].clear();
         d->rangeStartTimes[eventType].clear();
     }
+    d->bindingTypes.clear();
     emit cleared();
 }
 
@@ -194,6 +196,15 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
             d->rangeStartTimes[range].push(time);
             d->inProgressRanges |= (static_cast<qint64>(1) << range);
             ++d->rangeCount[range];
+
+            // read binding type
+            if ((QmlEventType)range == Binding) {
+                int bindingType = (int)QmlBinding;
+                if (!stream.atEnd())
+                    stream >> bindingType;
+                d->bindingTypes.push((BindingType)bindingType);
+            }
+
             // stop with the first data
             if (d->recording)
                 setRecordingFromServer(false);
@@ -231,7 +242,10 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
                 QmlEventLocation location = d->rangeLocations[range].count() ? d->rangeLocations[range].pop() : QmlEventLocation();
 
                 qint64 startTime = d->rangeStartTimes[range].pop();
-                emit this->range((QmlEventType)range, startTime, time - startTime, data, location);
+                BindingType bindingType = QmlBinding;
+                if ((QmlEventType)range == Binding)
+                    bindingType = d->bindingTypes.pop();
+                emit this->range((QmlEventType)range, bindingType, startTime, time - startTime, data, location);
                 if (d->rangeCount[range] == 0) {
                     int count = d->rangeDatas[range].count() +
                                 d->rangeStartTimes[range].count() +

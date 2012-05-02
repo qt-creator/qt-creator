@@ -152,8 +152,14 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_profilerDataModel = new QmlProfilerDataModel(this);
     connect(d->m_profilerDataModel, SIGNAL(stateChanged()), this, SLOT(profilerDataModelStateChanged()));
     connect(d->m_profilerDataModel, SIGNAL(error(QString)), this, SLOT(showErrorDialog(QString)));
-    connect(d->m_profilerConnections, SIGNAL(addRangedEvent(int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)), d->m_profilerDataModel, SLOT(addRangedEvent(int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)));
-    connect(d->m_profilerConnections, SIGNAL(addV8Event(int,QString,QString,int,double,double)), d->m_profilerDataModel, SLOT(addV8Event(int,QString,QString,int,double,double)));
+    connect(d->m_profilerConnections,
+            SIGNAL(addRangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)),
+            d->m_profilerDataModel,
+            SLOT(addRangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation)));
+    connect(d->m_profilerConnections,
+            SIGNAL(addV8Event(int,QString,QString,int,double,double)),
+            d->m_profilerDataModel,
+            SLOT(addV8Event(int,QString,QString,int,double,double)));
     connect(d->m_profilerConnections, SIGNAL(addFrameEvent(qint64,int,int)), d->m_profilerDataModel, SLOT(addFrameEvent(qint64,int,int)));
     connect(d->m_profilerConnections, SIGNAL(traceStarted(qint64)), d->m_profilerDataModel, SLOT(setTraceStartTime(qint64)));
     connect(d->m_profilerConnections, SIGNAL(traceFinished(qint64)), d->m_profilerDataModel, SLOT(setTraceEndTime(qint64)));

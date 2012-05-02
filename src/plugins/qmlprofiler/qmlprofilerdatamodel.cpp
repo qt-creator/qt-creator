@@ -293,8 +293,8 @@ void QmlProfilerDataModel::clear()
     setState(Empty);
 }
 
-void QmlProfilerDataModel::addRangedEvent(int type, qint64 startTime, qint64 length,
-                                          const QStringList &data,
+void QmlProfilerDataModel::addRangedEvent(int type, int bindingType, qint64 startTime,
+                                          qint64 length, const QStringList &data,
                                           const QmlDebug::QmlEventLocation &location)
 {
     const QChar colon = QLatin1Char(':');
@@ -346,6 +346,7 @@ void QmlProfilerDataModel::addRangedEvent(int type, qint64 startTime, qint64 len
         newEvent->eventHashStr = eventHashStr;
         newEvent->eventType = (QmlDebug::QmlEventType)type;
         newEvent->details = details;
+        newEvent->bindingType = bindingType;
         d->rangeEventDictionary.insert(eventHashStr, newEvent);
     }
 
@@ -1367,6 +1368,8 @@ bool QmlProfilerDataModel::save(const QString &filename)
             stream.writeTextElement("column", QString::number(eventData->location.column));
         }
         stream.writeTextElement("details", eventData->details);
+        if (eventData->eventType == Binding)
+            stream.writeTextElement("bindingType", QString::number((int)eventData->bindingType));
         stream.writeEndElement();
     }
     stream.writeEndElement(); // eventData
@@ -1513,6 +1516,8 @@ void QmlProfilerDataModel::load()
                         if (!descriptionBuffer.value(ndx))
                             descriptionBuffer[ndx] = new QmlRangeEventData;
                         currentEvent = descriptionBuffer[ndx];
+                        // backwards compatibility: default bindingType
+                        currentEvent->bindingType = QmlBinding;
                     } else {
                         currentEvent = 0;
                     }
@@ -1549,6 +1554,10 @@ void QmlProfilerDataModel::load()
                 }
                 if (elementName == "details") {
                     currentEvent->details = readData;
+                    break;
+                }
+                if (elementName == "bindingType") {
+                    currentEvent->bindingType = readData.toInt();
                     break;
                 }
             }
