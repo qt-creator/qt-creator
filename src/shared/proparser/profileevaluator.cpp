@@ -81,17 +81,17 @@ using namespace ProStringConstants;
 
 ///////////////////////////////////////////////////////////////////////
 //
-// ProFileEvaluator::Private
+// QMakeEvaluator
 //
 ///////////////////////////////////////////////////////////////////////
 
-class ProFileEvaluator::Private
+class QMakeEvaluator
 {
 public:
     static void initStatics();
-    Private(QMakeGlobals *option, QMakeParser *parser,
-            ProFileEvaluatorHandler *handler);
-    ~Private();
+    QMakeEvaluator(QMakeGlobals *option, QMakeParser *parser,
+                   QMakeEvaluatorHandler *handler);
+    ~QMakeEvaluator();
 
     enum VisitReturn {
         ReturnFalse,
@@ -110,7 +110,7 @@ public:
     void skipExpression(const ushort *&tokPtr);
 
     void visitCmdLine(const QString &cmds);
-    VisitReturn visitProFile(ProFile *pro, ProFileEvaluatorHandler::EvalFileType type,
+    VisitReturn visitProFile(ProFile *pro, QMakeEvaluatorHandler::EvalFileType type,
                              ProFileEvaluator::LoadFlags flags);
     VisitReturn visitProBlock(ProFile *pro, const ushort *tokPtr);
     VisitReturn visitProBlock(const ushort *tokPtr);
@@ -145,13 +145,13 @@ public:
     VisitReturn evaluateConditionalFunction(const ProString &function, const ProString &arguments);
     VisitReturn evaluateConditionalFunction(const ProString &function, const ushort *&tokPtr);
     VisitReturn evaluateConditionalFunction(const ProString &function, const ProStringList &args);
-    bool evaluateFileDirect(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type,
+    bool evaluateFileDirect(const QString &fileName, QMakeEvaluatorHandler::EvalFileType type,
                             ProFileEvaluator::LoadFlags flags);
-    bool evaluateFile(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type,
+    bool evaluateFile(const QString &fileName, QMakeEvaluatorHandler::EvalFileType type,
                       ProFileEvaluator::LoadFlags flags);
     bool evaluateFeatureFile(const QString &fileName);
     enum EvalIntoMode { EvalProOnly, EvalWithDefaults, EvalWithSetup };
-    bool evaluateFileInto(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type,
+    bool evaluateFileInto(const QString &fileName, QMakeEvaluatorHandler::EvalFileType type,
                           QHash<ProString, ProStringList> *values, ProFunctionDefs *defs,
                           EvalIntoMode mode); // values are output-only, defs are input-only
 
@@ -214,7 +214,7 @@ public:
 
     QMakeGlobals *m_option;
     QMakeParser *m_parser;
-    ProFileEvaluatorHandler *m_handler;
+    QMakeEvaluatorHandler *m_handler;
 
     enum ExpandFunc {
         E_INVALID = 0, E_MEMBER, E_FIRST, E_LAST, E_SIZE, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
@@ -267,7 +267,7 @@ static struct {
     ProStringList fakeValue;
 } statics;
 
-void ProFileEvaluator::Private::initStatics()
+void QMakeEvaluator::initStatics()
 {
     if (!statics.field_sep.isNull())
         return;
@@ -405,15 +405,15 @@ void ProFileEvaluator::Private::initStatics()
                               ProString(mapInits[i].newname));
 }
 
-const ProString &ProFileEvaluator::Private::map(const ProString &var)
+const ProString &QMakeEvaluator::map(const ProString &var)
 {
     QHash<ProString, ProString>::ConstIterator it = statics.varMap.constFind(var);
     return (it != statics.varMap.constEnd()) ? it.value() : var;
 }
 
 
-ProFileEvaluator::Private::Private(QMakeGlobals *option,
-                                   QMakeParser *parser, ProFileEvaluatorHandler *handler)
+QMakeEvaluator::QMakeEvaluator(QMakeGlobals *option,
+                               QMakeParser *parser, QMakeEvaluatorHandler *handler)
   : m_option(option), m_parser(parser), m_handler(handler)
 {
     // So that single-threaded apps don't have to call initialize() for now.
@@ -431,20 +431,20 @@ ProFileEvaluator::Private::Private(QMakeGlobals *option,
     m_valuemapStack.push(QHash<ProString, ProStringList>());
 }
 
-ProFileEvaluator::Private::~Private()
+QMakeEvaluator::~QMakeEvaluator()
 {
 }
 
 //////// Evaluator tools /////////
 
-uint ProFileEvaluator::Private::getBlockLen(const ushort *&tokPtr)
+uint QMakeEvaluator::getBlockLen(const ushort *&tokPtr)
 {
     uint len = *tokPtr++;
     len |= (uint)*tokPtr++ << 16;
     return len;
 }
 
-ProString ProFileEvaluator::Private::getStr(const ushort *&tokPtr)
+ProString QMakeEvaluator::getStr(const ushort *&tokPtr)
 {
     uint len = *tokPtr++;
     ProString ret(m_current.pro->items(), tokPtr - m_current.pro->tokPtr(), len, NoHash);
@@ -453,7 +453,7 @@ ProString ProFileEvaluator::Private::getStr(const ushort *&tokPtr)
     return ret;
 }
 
-ProString ProFileEvaluator::Private::getHashStr(const ushort *&tokPtr)
+ProString QMakeEvaluator::getHashStr(const ushort *&tokPtr)
 {
     uint hash = getBlockLen(tokPtr);
     uint len = *tokPtr++;
@@ -462,13 +462,13 @@ ProString ProFileEvaluator::Private::getHashStr(const ushort *&tokPtr)
     return ret;
 }
 
-void ProFileEvaluator::Private::skipStr(const ushort *&tokPtr)
+void QMakeEvaluator::skipStr(const ushort *&tokPtr)
 {
     uint len = *tokPtr++;
     tokPtr += len;
 }
 
-void ProFileEvaluator::Private::skipHashStr(const ushort *&tokPtr)
+void QMakeEvaluator::skipHashStr(const ushort *&tokPtr)
 {
     tokPtr += 2;
     uint len = *tokPtr++;
@@ -477,7 +477,7 @@ void ProFileEvaluator::Private::skipHashStr(const ushort *&tokPtr)
 
 // FIXME: this should not build new strings for direct sections.
 // Note that the E_SPRINTF and E_LIST implementations rely on the deep copy.
-ProStringList ProFileEvaluator::Private::split_value_list(const QString &vals, const ProFile *source)
+ProStringList QMakeEvaluator::split_value_list(const QString &vals, const ProFile *source)
 {
     QString build;
     ProStringList ret;
@@ -573,7 +573,7 @@ static void replaceInList(ProStringList *varlist,
     }
 }
 
-QString ProFileEvaluator::Private::expandEnvVars(const QString &str) const
+QString QMakeEvaluator::expandEnvVars(const QString &str) const
 {
     QString string = str;
     int rep;
@@ -585,7 +585,7 @@ QString ProFileEvaluator::Private::expandEnvVars(const QString &str) const
 }
 
 // This is braindead, but we want qmake compat
-QString ProFileEvaluator::Private::fixPathToLocalOS(const QString &str) const
+QString QMakeEvaluator::fixPathToLocalOS(const QString &str) const
 {
     QString string = expandEnvVars(str);
 
@@ -659,7 +659,7 @@ static ALWAYS_INLINE void addStrList(
     }
 }
 
-void ProFileEvaluator::Private::evaluateExpression(
+void QMakeEvaluator::evaluateExpression(
         const ushort *&tokPtr, ProStringList *ret, bool joined)
 {
     if (joined)
@@ -703,7 +703,7 @@ void ProFileEvaluator::Private::evaluateExpression(
     }
 }
 
-void ProFileEvaluator::Private::skipExpression(const ushort *&pTokPtr)
+void QMakeEvaluator::skipExpression(const ushort *&pTokPtr)
 {
     const ushort *tokPtr = pTokPtr;
     forever {
@@ -743,7 +743,7 @@ void ProFileEvaluator::Private::skipExpression(const ushort *&pTokPtr)
     }
 }
 
-ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(
+QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
         ProFile *pro, const ushort *tokPtr)
 {
     m_current.pro = pro;
@@ -751,7 +751,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(
     return visitProBlock(tokPtr);
 }
 
-ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(
+QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
         const ushort *tokPtr)
 {
     ProStringList curr;
@@ -903,7 +903,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(
 }
 
 
-void ProFileEvaluator::Private::visitProFunctionDef(
+void QMakeEvaluator::visitProFunctionDef(
         ushort tok, const ProString &name, const ushort *tokPtr)
 {
     QHash<ProString, ProFunctionDef> *hash =
@@ -913,7 +913,7 @@ void ProFileEvaluator::Private::visitProFunctionDef(
     hash->insert(name, ProFunctionDef(m_current.pro, tokPtr - m_current.pro->tokPtr()));
 }
 
-ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProLoop(
+QMakeEvaluator::VisitReturn QMakeEvaluator::visitProLoop(
         const ProString &_variable, const ushort *exprPtr, const ushort *tokPtr)
 {
     VisitReturn ret = ReturnTrue;
@@ -1000,7 +1000,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProLoop(
     return ret;
 }
 
-void ProFileEvaluator::Private::visitProVariable(
+void QMakeEvaluator::visitProVariable(
         ushort tok, const ProStringList &curr, const ushort *&tokPtr)
 {
     int sizeHint = *tokPtr++;
@@ -1101,7 +1101,7 @@ void ProFileEvaluator::Private::visitProVariable(
     }
 }
 
-void ProFileEvaluator::Private::visitCmdLine(const QString &cmds)
+void QMakeEvaluator::visitCmdLine(const QString &cmds)
 {
     if (!cmds.isEmpty()) {
         if (ProFile *pro = m_parser->parsedProBlock(fL1S("(command line)"), cmds)) {
@@ -1113,8 +1113,8 @@ void ProFileEvaluator::Private::visitCmdLine(const QString &cmds)
     }
 }
 
-ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
-        ProFile *pro, ProFileEvaluatorHandler::EvalFileType type,
+QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
+        ProFile *pro, QMakeEvaluatorHandler::EvalFileType type,
         ProFileEvaluator::LoadFlags flags)
 {
     if (!m_cumulative && !pro->isOk())
@@ -1163,7 +1163,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
                 if (!qmake_cache.isEmpty()) {
                     qmake_cache = resolvePath(qmake_cache);
                     QHash<ProString, ProStringList> cache_valuemap;
-                    if (evaluateFileInto(qmake_cache, ProFileEvaluatorHandler::EvalConfigFile,
+                    if (evaluateFileInto(qmake_cache, QMakeEvaluatorHandler::EvalConfigFile,
                                          &cache_valuemap, 0, EvalProOnly)) {
                         if (m_option->qmakespec.isEmpty()) {
                             const ProStringList &vals = cache_valuemap.value(ProString("QMAKESPEC"));
@@ -1220,13 +1220,13 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
                     m_option->qmakespec = QDir::cleanPath(qmakespec);
 
                     QString spec = m_option->qmakespec + QLatin1String("/qmake.conf");
-                    if (!evaluateFileDirect(spec, ProFileEvaluatorHandler::EvalConfigFile,
+                    if (!evaluateFileDirect(spec, QMakeEvaluatorHandler::EvalConfigFile,
                                             ProFileEvaluator::LoadProOnly)) {
                         m_handler->configError(
                                 fL1S("Could not read qmake configuration file %1").arg(spec));
                     } else if (!m_option->cachefile.isEmpty()) {
                         evaluateFileDirect(m_option->cachefile,
-                                           ProFileEvaluatorHandler::EvalConfigFile,
+                                           QMakeEvaluatorHandler::EvalConfigFile,
                                            ProFileEvaluator::LoadProOnly);
                     }
                     m_option->qmakespec_name = IoUtils::fileName(m_option->qmakespec).toString();
@@ -1314,7 +1314,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
 }
 
 
-QStringList ProFileEvaluator::Private::qmakeMkspecPaths() const
+QStringList QMakeEvaluator::qmakeMkspecPaths() const
 {
     QStringList ret;
     const QString concat = QLatin1String("/mkspecs");
@@ -1331,7 +1331,7 @@ QStringList ProFileEvaluator::Private::qmakeMkspecPaths() const
     return ret;
 }
 
-QStringList ProFileEvaluator::Private::qmakeFeaturePaths() const
+QStringList QMakeEvaluator::qmakeFeaturePaths() const
 {
     QString mkspecs_concat = QLatin1String("/mkspecs");
     QString features_concat = QLatin1String("/features");
@@ -1415,7 +1415,7 @@ QStringList ProFileEvaluator::Private::qmakeFeaturePaths() const
     return feature_roots;
 }
 
-QString ProFileEvaluator::Private::propertyValue(const QString &name, bool complain) const
+QString QMakeEvaluator::propertyValue(const QString &name, bool complain) const
 {
     if (m_option->properties.contains(name))
         return m_option->properties.value(name);
@@ -1428,14 +1428,14 @@ QString ProFileEvaluator::Private::propertyValue(const QString &name, bool compl
     return QString();
 }
 
-ProFile *ProFileEvaluator::Private::currentProFile() const
+ProFile *QMakeEvaluator::currentProFile() const
 {
     if (m_profileStack.count() > 0)
         return m_profileStack.top();
     return 0;
 }
 
-QString ProFileEvaluator::Private::currentFileName() const
+QString QMakeEvaluator::currentFileName() const
 {
     ProFile *pro = currentProFile();
     if (pro)
@@ -1443,14 +1443,14 @@ QString ProFileEvaluator::Private::currentFileName() const
     return QString();
 }
 
-QString ProFileEvaluator::Private::currentDirectory() const
+QString QMakeEvaluator::currentDirectory() const
 {
     ProFile *cur = m_profileStack.top();
     return cur->directoryName();
 }
 
 #ifndef QT_BOOTSTRAPPED
-void ProFileEvaluator::Private::runProcess(QProcess *proc, const QString &command,
+void QMakeEvaluator::runProcess(QProcess *proc, const QString &command,
                                            QProcess::ProcessChannel chan) const
 {
     proc->setWorkingDirectory(currentDirectory());
@@ -1543,7 +1543,7 @@ static inline void flushFinal(ProStringList *ret,
     }
 }
 
-ProStringList ProFileEvaluator::Private::expandVariableReferences(
+ProStringList QMakeEvaluator::expandVariableReferences(
     const ProString &str, int *pos, bool joined)
 {
     ProStringList ret;
@@ -1743,7 +1743,7 @@ ProStringList ProFileEvaluator::Private::expandVariableReferences(
     return ret;
 }
 
-bool ProFileEvaluator::Private::modesForGenerator(const QString &gen,
+bool QMakeEvaluator::modesForGenerator(const QString &gen,
         QMakeGlobals::HOST_MODE *host_mode, QMakeGlobals::TARG_MODE *target_mode) const
 {
     if (gen == fL1S("UNIX")) {
@@ -1786,7 +1786,7 @@ bool ProFileEvaluator::Private::modesForGenerator(const QString &gen,
     return true;
 }
 
-void ProFileEvaluator::Private::validateModes() const
+void QMakeEvaluator::validateModes() const
 {
     if (m_option->host_mode == QMakeGlobals::HOST_UNKNOWN_MODE
         || m_option->target_mode == QMakeGlobals::TARG_UNKNOWN_MODE) {
@@ -1825,7 +1825,7 @@ void ProFileEvaluator::Private::validateModes() const
     }
 }
 
-bool ProFileEvaluator::Private::isActiveConfig(const QString &config, bool regex)
+bool QMakeEvaluator::isActiveConfig(const QString &config, bool regex)
 {
     // magic types for easy flipping
     if (config == statics.strtrue)
@@ -1878,7 +1878,7 @@ bool ProFileEvaluator::Private::isActiveConfig(const QString &config, bool regex
     return false;
 }
 
-ProStringList ProFileEvaluator::Private::expandVariableReferences(
+ProStringList QMakeEvaluator::expandVariableReferences(
         const ushort *&tokPtr, int sizeHint, bool joined)
 {
     ProStringList ret;
@@ -1903,7 +1903,7 @@ ProStringList ProFileEvaluator::Private::expandVariableReferences(
     }
 }
 
-void ProFileEvaluator::Private::populateDeps(
+void QMakeEvaluator::populateDeps(
         const ProStringList &deps, const ProString &prefix,
         QHash<ProString, QSet<ProString> > &dependencies, QHash<ProString, ProStringList> &dependees,
         ProStringList &rootSet) const
@@ -1924,7 +1924,7 @@ void ProFileEvaluator::Private::populateDeps(
         }
 }
 
-QList<ProStringList> ProFileEvaluator::Private::prepareFunctionArgs(const ushort *&tokPtr)
+QList<ProStringList> QMakeEvaluator::prepareFunctionArgs(const ushort *&tokPtr)
 {
     QList<ProStringList> args_list;
     if (*tokPtr != TokFuncTerminator) {
@@ -1941,7 +1941,7 @@ QList<ProStringList> ProFileEvaluator::Private::prepareFunctionArgs(const ushort
     return args_list;
 }
 
-QList<ProStringList> ProFileEvaluator::Private::prepareFunctionArgs(const ProString &arguments)
+QList<ProStringList> QMakeEvaluator::prepareFunctionArgs(const ProString &arguments)
 {
     QList<ProStringList> args_list;
     for (int pos = 0; pos < arguments.size(); )
@@ -1949,7 +1949,7 @@ QList<ProStringList> ProFileEvaluator::Private::prepareFunctionArgs(const ProStr
     return args_list;
 }
 
-ProStringList ProFileEvaluator::Private::evaluateFunction(
+ProStringList QMakeEvaluator::evaluateFunction(
         const ProFunctionDef &func, const QList<ProStringList> &argumentsList, bool *ok)
 {
     bool oki;
@@ -1985,7 +1985,7 @@ ProStringList ProFileEvaluator::Private::evaluateFunction(
     return ProStringList();
 }
 
-ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateBoolFunction(
+QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBoolFunction(
         const ProFunctionDef &func, const QList<ProStringList> &argumentsList,
         const ProString &function)
 {
@@ -2011,7 +2011,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateBoolFu
     return ReturnFalse;
 }
 
-ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
+ProStringList QMakeEvaluator::evaluateExpandFunction(
         const ProString &func, const ushort *&tokPtr)
 {
     QHash<ProString, ProFunctionDef>::ConstIterator it =
@@ -2023,7 +2023,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
     return evaluateExpandFunction(func, expandVariableReferences(tokPtr, 5, true));
 }
 
-ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
+ProStringList QMakeEvaluator::evaluateExpandFunction(
         const ProString &func, const ProString &arguments)
 {
     QHash<ProString, ProFunctionDef>::ConstIterator it =
@@ -2036,7 +2036,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
     return evaluateExpandFunction(func, expandVariableReferences(arguments, &pos, true));
 }
 
-ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
+ProStringList QMakeEvaluator::evaluateExpandFunction(
         const ProString &func, const ProStringList &args)
 {
     ExpandFunc func_t = ExpandFunc(statics.expands.value(func));
@@ -2241,7 +2241,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                 QHash<ProString, ProStringList> vars;
                 QString fn = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
                 fn.detach();
-                if (evaluateFileInto(fn, ProFileEvaluatorHandler::EvalAuxFile,
+                if (evaluateFileInto(fn, QMakeEvaluatorHandler::EvalAuxFile,
                                      &vars, &m_functionDefs, EvalWithDefaults))
                     ret = vars.value(map(args.at(1)));
             }
@@ -2463,7 +2463,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
     return ret;
 }
 
-ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateConditionalFunction(
+QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         const ProString &function, const ProString &arguments)
 {
     QHash<ProString, ProFunctionDef>::ConstIterator it =
@@ -2476,7 +2476,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
     return evaluateConditionalFunction(function, expandVariableReferences(arguments, &pos, true));
 }
 
-ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateConditionalFunction(
+QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         const ProString &function, const ushort *&tokPtr)
 {
     QHash<ProString, ProFunctionDef>::ConstIterator it =
@@ -2488,7 +2488,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
     return evaluateConditionalFunction(function, expandVariableReferences(tokPtr, 5, true));
 }
 
-ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateConditionalFunction(
+QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         const ProString &function, const ProStringList &args)
 {
     TestFunc func_t = (TestFunc)statics.functions.value(function);
@@ -2554,7 +2554,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
                 QHash<ProString, ProStringList> vars;
                 QString fn = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
                 fn.detach();
-                if (!evaluateFileInto(fn, ProFileEvaluatorHandler::EvalAuxFile,
+                if (!evaluateFileInto(fn, QMakeEvaluatorHandler::EvalAuxFile,
                                       &vars, &m_functionDefs, EvalWithDefaults))
                     return ReturnFalse;
                 if (args.count() == 2)
@@ -2841,11 +2841,11 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
             fn.detach();
             bool ok;
             if (parseInto.isEmpty()) {
-                ok = evaluateFile(fn, ProFileEvaluatorHandler::EvalIncludeFile,
+                ok = evaluateFile(fn, QMakeEvaluatorHandler::EvalIncludeFile,
                                   ProFileEvaluator::LoadProOnly);
             } else {
                 QHash<ProString, ProStringList> symbols;
-                if ((ok = evaluateFileInto(fn, ProFileEvaluatorHandler::EvalAuxFile,
+                if ((ok = evaluateFileInto(fn, QMakeEvaluatorHandler::EvalAuxFile,
                                            &symbols, 0, EvalWithSetup))) {
                     QHash<ProString, ProStringList> newMap;
                     for (QHash<ProString, ProStringList>::ConstIterator
@@ -2961,7 +2961,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
     }
 }
 
-QHash<ProString, ProStringList> *ProFileEvaluator::Private::findValues(
+QHash<ProString, ProStringList> *QMakeEvaluator::findValues(
         const ProString &variableName, QHash<ProString, ProStringList>::Iterator *rit)
 {
     for (int i = m_valuemapStack.size(); --i >= 0; ) {
@@ -2976,7 +2976,7 @@ QHash<ProString, ProStringList> *ProFileEvaluator::Private::findValues(
     return 0;
 }
 
-ProStringList &ProFileEvaluator::Private::valuesRef(const ProString &variableName)
+ProStringList &QMakeEvaluator::valuesRef(const ProString &variableName)
 {
     QHash<ProString, ProStringList>::Iterator it = m_valuemapStack.top().find(variableName);
     if (it != m_valuemapStack.top().end()) {
@@ -2996,7 +2996,7 @@ ProStringList &ProFileEvaluator::Private::valuesRef(const ProString &variableNam
     return m_valuemapStack.top()[variableName];
 }
 
-ProStringList ProFileEvaluator::Private::valuesDirect(const ProString &variableName) const
+ProStringList QMakeEvaluator::valuesDirect(const ProString &variableName) const
 {
     for (int i = m_valuemapStack.size(); --i >= 0; ) {
         QHash<ProString, ProStringList>::ConstIterator it = m_valuemapStack.at(i).constFind(variableName);
@@ -3009,7 +3009,7 @@ ProStringList ProFileEvaluator::Private::valuesDirect(const ProString &variableN
     return ProStringList();
 }
 
-ProStringList ProFileEvaluator::Private::values(const ProString &variableName) const
+ProStringList QMakeEvaluator::values(const ProString &variableName) const
 {
     QHash<ProString, int>::ConstIterator vli = statics.varList.find(variableName);
     if (vli != statics.varList.constEnd()) {
@@ -3135,8 +3135,8 @@ ProStringList ProFileEvaluator::Private::values(const ProString &variableName) c
     return result;
 }
 
-bool ProFileEvaluator::Private::evaluateFileDirect(
-        const QString &fileName, ProFileEvaluatorHandler::EvalFileType type,
+bool QMakeEvaluator::evaluateFileDirect(
+        const QString &fileName, QMakeEvaluatorHandler::EvalFileType type,
         ProFileEvaluator::LoadFlags flags)
 {
     if (ProFile *pro = m_parser->parsedProFile(fileName, true)) {
@@ -3150,8 +3150,8 @@ bool ProFileEvaluator::Private::evaluateFileDirect(
     }
 }
 
-bool ProFileEvaluator::Private::evaluateFile(
-        const QString &fileName, ProFileEvaluatorHandler::EvalFileType type,
+bool QMakeEvaluator::evaluateFile(
+        const QString &fileName, QMakeEvaluatorHandler::EvalFileType type,
         ProFileEvaluator::LoadFlags flags)
 {
     if (fileName.isEmpty())
@@ -3164,7 +3164,7 @@ bool ProFileEvaluator::Private::evaluateFile(
     return evaluateFileDirect(fileName, type, flags);
 }
 
-bool ProFileEvaluator::Private::evaluateFeatureFile(const QString &fileName)
+bool QMakeEvaluator::evaluateFeatureFile(const QString &fileName)
 {
     QString fn = fileName;
     if (!fn.endsWith(QLatin1String(".prf")))
@@ -3209,7 +3209,7 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(const QString &fileName)
 #endif
 
     // The path is fully normalized already.
-    bool ok = evaluateFileDirect(fn, ProFileEvaluatorHandler::EvalFeatureFile,
+    bool ok = evaluateFileDirect(fn, QMakeEvaluatorHandler::EvalFeatureFile,
                                  ProFileEvaluator::LoadProOnly);
 
 #ifdef PROEVALUATOR_CUMULATIVE
@@ -3218,8 +3218,8 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(const QString &fileName)
     return ok;
 }
 
-bool ProFileEvaluator::Private::evaluateFileInto(
-        const QString &fileName, ProFileEvaluatorHandler::EvalFileType type,
+bool QMakeEvaluator::evaluateFileInto(
+        const QString &fileName, QMakeEvaluatorHandler::EvalFileType type,
         QHash<ProString, ProStringList> *values, ProFunctionDefs *funcs, EvalIntoMode mode)
 {
     ProFileEvaluator visitor(m_option, m_parser, m_handler);
@@ -3241,7 +3241,7 @@ bool ProFileEvaluator::Private::evaluateFileInto(
     return true;
 }
 
-void ProFileEvaluator::Private::evalError(const QString &message) const
+void QMakeEvaluator::evalError(const QString &message) const
 {
     if (!m_skipLevel)
         m_handler->evalError(m_current.line ? m_current.pro->fileName() : QString(),
@@ -3257,12 +3257,12 @@ void ProFileEvaluator::Private::evalError(const QString &message) const
 
 void ProFileEvaluator::initialize()
 {
-    Private::initStatics();
+    QMakeEvaluator::initStatics();
 }
 
 ProFileEvaluator::ProFileEvaluator(QMakeGlobals *option, QMakeParser *parser,
-                                   ProFileEvaluatorHandler *handler)
-  : d(new Private(option, parser, handler))
+                                   QMakeEvaluatorHandler *handler)
+  : d(new QMakeEvaluator(option, parser, handler))
 {
 }
 
@@ -3402,7 +3402,7 @@ ProFileEvaluator::TemplateType ProFileEvaluator::templateType() const
 
 bool ProFileEvaluator::accept(ProFile *pro, LoadFlags flags)
 {
-    return d->visitProFile(pro, ProFileEvaluatorHandler::EvalProjectFile, flags) == Private::ReturnTrue;
+    return d->visitProFile(pro, QMakeEvaluatorHandler::EvalProjectFile, flags) == QMakeEvaluator::ReturnTrue;
 }
 
 QString ProFileEvaluator::propertyValue(const QString &name) const

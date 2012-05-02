@@ -43,8 +43,9 @@ QT_BEGIN_NAMESPACE
 
 class QMakeGlobals;
 class QMakeParser;
+class QMakeEvaluator;
 
-class QMAKE_EXPORT ProFileEvaluatorHandler
+class QMAKE_EXPORT QMakeEvaluatorHandler
 {
 public:
     // qmake/project configuration error
@@ -62,8 +63,6 @@ public:
 
 class QMAKE_EXPORT ProFileEvaluator
 {
-    class Private;
-
 public:
     enum TemplateType {
         TT_Unknown = 0,
@@ -77,7 +76,7 @@ public:
     // Call this from a concurrency-free context
     static void initialize();
 
-    ProFileEvaluator(QMakeGlobals *option, QMakeParser *parser, ProFileEvaluatorHandler *handler);
+    ProFileEvaluator(QMakeGlobals *option, QMakeParser *parser, QMakeEvaluatorHandler *handler);
     ~ProFileEvaluator();
 
     ProFileEvaluator::TemplateType templateType() const;
@@ -108,9 +107,9 @@ public:
 private:
     QString sysrootify(const QString &path, const QString &baseDir) const;
 
-    Private *d;
+    QMakeEvaluator *d;
 
-    friend class QMakeGlobals;
+    friend class QMakeEvaluator;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(ProFileEvaluator::LoadFlags)

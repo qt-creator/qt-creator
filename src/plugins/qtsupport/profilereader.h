@@ -48,7 +48,7 @@ class QtSupportPlugin;
 }
 
 class QTSUPPORT_EXPORT ProMessageHandler : public QObject,
-                          public QMakeParserHandler, public ProFileEvaluatorHandler
+                          public QMakeParserHandler, public QMakeEvaluatorHandler
 {
     Q_OBJECT
 

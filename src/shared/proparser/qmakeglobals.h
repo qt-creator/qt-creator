@@ -50,6 +50,8 @@
 
 QT_BEGIN_NAMESPACE
 
+class QMakeEvaluator;
+
 class QMAKE_EXPORT QMakeGlobals
 {
 public:
@@ -94,7 +96,7 @@ private:
 #endif
 
     friend class ProFileEvaluator;
-    friend class ProFileEvaluator::Private;
+    friend class QMakeEvaluator;
 };
 
 QT_END_NAMESPACE

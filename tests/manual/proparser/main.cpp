@@ -58,7 +58,7 @@ public:
         { print(fileName, lineNo, msg); }
 };
 
-class EvalHandler : public ProFileEvaluatorHandler {
+class EvalHandler : public QMakeEvaluatorHandler {
 public:
     virtual void configError(const QString &msg)
         { qWarning("%s", qPrintable(msg)); }
