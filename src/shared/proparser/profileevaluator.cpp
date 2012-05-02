@@ -215,11 +215,9 @@ class ProFileEvaluator::Private
 {
 public:
     static void initStatics();
-    Private(ProFileEvaluator *q_, ProFileOption *option, ProFileParser *parser,
+    Private(ProFileOption *option, ProFileParser *parser,
             ProFileEvaluatorHandler *handler);
     ~Private();
-
-    ProFileEvaluator *q;
 
     enum VisitReturn {
         ReturnFalse,
@@ -539,9 +537,9 @@ const ProString &ProFileEvaluator::Private::map(const ProString &var)
 }
 
 
-ProFileEvaluator::Private::Private(ProFileEvaluator *q_, ProFileOption *option,
+ProFileEvaluator::Private::Private(ProFileOption *option,
                                    ProFileParser *parser, ProFileEvaluatorHandler *handler)
-  : q(q_), m_option(option), m_parser(parser), m_handler(handler)
+  : m_option(option), m_parser(parser), m_handler(handler)
 {
     // So that single-threaded apps don't have to call initialize() for now.
     initStatics();
@@ -3402,7 +3400,7 @@ void ProFileEvaluator::initialize()
 
 ProFileEvaluator::ProFileEvaluator(ProFileOption *option, ProFileParser *parser,
                                    ProFileEvaluatorHandler *handler)
-  : d(new Private(this, option, parser, handler))
+  : d(new Private(option, parser, handler))
 {
 }
 
