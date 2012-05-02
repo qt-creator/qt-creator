@@ -9,6 +9,7 @@ HEADERS += \
         qmake_global.h \
         qmakeglobals.h \
         qmakeparser.h \
+        qmakeevaluator.h \
         profileevaluator.h \
         proitems.h \
         prowriter.h \

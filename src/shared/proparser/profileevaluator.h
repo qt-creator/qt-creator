@@ -44,22 +44,7 @@ QT_BEGIN_NAMESPACE
 class QMakeGlobals;
 class QMakeParser;
 class QMakeEvaluator;
-
-class QMAKE_EXPORT QMakeEvaluatorHandler
-{
-public:
-    // qmake/project configuration error
-    virtual void configError(const QString &msg) = 0;
-    // Some error during evaluation
-    virtual void evalError(const QString &filename, int lineNo, const QString &msg) = 0;
-    // error() and message() from .pro file
-    virtual void fileMessage(const QString &msg) = 0;
-
-    enum EvalFileType { EvalProjectFile, EvalIncludeFile, EvalConfigFile, EvalFeatureFile, EvalAuxFile };
-    virtual void aboutToEval(ProFile *parent, ProFile *proFile, EvalFileType type) = 0;
-    virtual void doneWithEval(ProFile *parent) = 0;
-};
-
+class QMakeEvaluatorHandler;
 
 class QMAKE_EXPORT ProFileEvaluator
 {

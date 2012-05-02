@@ -32,6 +32,7 @@
 
 #include "qmakeglobals.h"
 #include "qmakeparser.h"
+#include "qmakeevaluator.h"
 #include "profileevaluator.h"
 
 #include <QCoreApplication>
