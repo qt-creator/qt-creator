@@ -169,7 +169,6 @@ private:
     mutable QStringList m_sessions;
 
     mutable QHash<Project *, QStringList> m_projectFileCache;
-    QTimer *m_autoSaveSessionTimer;
 
     Project *m_startupProject;
     QList<Project *> m_projects;

@@ -236,6 +236,7 @@ private:
     QColor m_overrideColor;
 
     QStringList m_filesToOpenDelayed;
+    QTimer *m_autoSaveSessionTimer;
 };
 
 } // namespace Internal

@@ -108,12 +108,6 @@ SessionManager::SessionManager(QObject *parent)
             this, SLOT(markSessionFileDirty()));
     connect(em, SIGNAL(editorsClosed(QList<Core::IEditor*>)),
             this, SLOT(markSessionFileDirty()));
-
-    m_autoSaveSessionTimer = new QTimer(this);
-    m_autoSaveSessionTimer->setSingleShot(true);
-    m_autoSaveSessionTimer->setInterval(10000);
-    connect(m_autoSaveSessionTimer, SIGNAL(timeout()),
-            ICore::instance(), SIGNAL(saveSettingsRequested()));
 }
 
 SessionManager::~SessionManager()
@@ -902,7 +896,6 @@ void SessionManager::reportProjectLoadingProgress()
 
 void SessionManager::markSessionFileDirty(bool makeDefaultVirginDirty)
 {
-    m_autoSaveSessionTimer->start();
     if (makeDefaultVirginDirty)
         m_virginSession = false;
 }
