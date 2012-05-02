@@ -1428,8 +1428,6 @@ void ProjectExplorerPlugin::currentModeChanged(Core::IMode *mode, Core::IMode *o
 {
     if (mode && mode->id() == Core::Id(Core::Constants::MODE_WELCOME).toString())
         updateWelcomePage();
-    if (oldMode == d->m_projectsMode)
-        savePersistentSettings();
 }
 
 void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
