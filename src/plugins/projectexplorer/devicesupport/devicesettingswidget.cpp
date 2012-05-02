@@ -174,7 +174,7 @@ void DeviceSettingsWidget::addDevice()
 
     m_deviceManager->addDevice(device);
     m_ui->removeConfigButton->setEnabled(true);
-    m_ui->configurationComboBox->setCurrentIndex(m_ui->configurationComboBox->count()-1);
+    m_ui->configurationComboBox->setCurrentIndex(m_deviceManagerModel->indexOf(device));
 }
 
 void DeviceSettingsWidget::removeDevice()
@@ -217,7 +217,7 @@ int DeviceSettingsWidget::currentIndex() const
 QSharedPointer<const IDevice> DeviceSettingsWidget::currentDevice() const
 {
     Q_ASSERT(currentIndex() != -1);
-    return m_deviceManager->deviceAt(currentIndex());
+    return m_deviceManagerModel->device(currentIndex());
 }
 
 void DeviceSettingsWidget::deviceNameEditingFinished()
@@ -250,14 +250,13 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
     delete m_configWidget;
     m_configWidget = 0;
     m_additionalActionButtons.clear();
-    QTC_ASSERT(index >= -1 && index < m_deviceManager->deviceCount(), return);
-    if (index == -1) {
+    const IDevice::ConstPtr device = m_deviceManagerModel->device(index);
+    if (device.isNull()) {
         m_ui->removeConfigButton->setEnabled(false);
         clearDetails();
         m_ui->defaultDeviceButton->setEnabled(false);
     } else {
         m_ui->removeConfigButton->setEnabled(true);
-        const IDevice::ConstPtr device = m_deviceManager->deviceAt(index);
         foreach (const Core::Id actionId, device->actionIds()) {
             QPushButton * const button = new QPushButton(device->displayNameForActionId(actionId));
             m_additionalActionButtons << button;
@@ -267,7 +266,8 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
         }
         if (!m_ui->osSpecificGroupBox->layout())
             new QVBoxLayout(m_ui->osSpecificGroupBox);
-        m_configWidget = m_deviceManager->mutableDeviceAt(index)->createWidget();
+        int managerIndex = m_deviceManager->indexOf(device);
+        m_configWidget = m_deviceManager->mutableDeviceAt(managerIndex)->createWidget();
         if (m_configWidget)
             m_ui->osSpecificGroupBox->layout()->addWidget(m_configWidget);
         displayCurrent();

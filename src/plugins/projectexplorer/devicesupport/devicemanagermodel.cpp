@@ -33,6 +33,8 @@
 
 #include "devicemanager.h"
 
+#include <coreplugin/id.h>
+
 #include <QString>
 
 namespace ProjectExplorer {
@@ -66,6 +68,31 @@ void DeviceManagerModel::updateDevice(Core::Id id)
     handleDeviceUpdated(id);
 }
 
+IDevice::ConstPtr DeviceManagerModel::device(int pos) const
+{
+    if (pos < 0 || pos >= d->devices.count())
+        return IDevice::ConstPtr();
+    return d->devices.at(pos);
+}
+
+Core::Id DeviceManagerModel::deviceId(int pos) const
+{
+    IDevice::ConstPtr dev = device(pos);
+    if (dev.isNull())
+        return IDevice::invalidId();
+    return dev->id();
+}
+
+int DeviceManagerModel::indexOf(IDevice::ConstPtr dev) const
+{
+    for (int i = 0; i < d->devices.count(); ++i) {
+        IDevice::ConstPtr current = d->devices.at(i);
+        if (current->id() == dev->id())
+            return i;
+    }
+    return -1;
+}
+
 void DeviceManagerModel::handleDeviceAdded(Core::Id id)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
@@ -93,6 +120,7 @@ void DeviceManagerModel::handleDeviceListChanged()
 {
     beginResetModel();
     d->devices.clear();
+
     for (int i = 0; i < d->deviceManager->deviceCount(); ++i)
         d->devices << d->deviceManager->deviceAt(i);
     endResetModel();
@@ -106,12 +134,18 @@ int DeviceManagerModel::rowCount(const QModelIndex &parent) const
 
 QVariant DeviceManagerModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= rowCount() || role != Qt::DisplayRole)
+    if (!index.isValid() || index.row() >= rowCount())
         return QVariant();
-    const IDevice::ConstPtr device = d->devices.at(index.row());
-    QString name = device->displayName();
-    if (d->deviceManager->defaultDevice(device->type()) == device)
-        name = tr("%1 (default for %2)").arg(name, device->displayType());
+    if (role != Qt::DisplayRole && role != Qt::UserRole)
+        return QVariant();
+    const IDevice::ConstPtr dev = device(index.row());
+    if (role == Qt::UserRole)
+        return dev->id().uniqueIdentifier();
+    QString name;
+    if (d->deviceManager->defaultDevice(dev->type()) == dev)
+        name = tr("%1 (default for %2)").arg(dev->displayName(), dev->displayType());
+    else
+        name = dev->displayName();
     return name;
 }
 

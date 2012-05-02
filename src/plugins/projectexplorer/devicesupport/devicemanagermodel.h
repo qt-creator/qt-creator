@@ -32,8 +32,10 @@
 #ifndef DEVICEMANAGERMODEL_H
 #define DEVICEMANAGERMODEL_H
 
+#include "../projectexplorer_export.h"
+#include "idevice.h"
+
 #include <coreplugin/id.h>
-#include <projectexplorer/projectexplorer_export.h>
 
 #include <QAbstractListModel>
 
@@ -50,6 +52,10 @@ public:
     ~DeviceManagerModel();
 
     void updateDevice(Core::Id id);
+
+    IDevice::ConstPtr device(int pos) const;
+    Core::Id deviceId(int pos) const;
+    int indexOf(IDevice::ConstPtr dev) const;
 
 private slots:
     void handleDeviceAdded(Core::Id id);
