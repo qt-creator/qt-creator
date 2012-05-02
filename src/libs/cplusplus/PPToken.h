@@ -60,7 +60,7 @@ public:
     { return !this->operator==(other); }
 
     bool operator==(const char *other) const
-    { return qstrncmp(m_start, other, strlen(other)) == 0; }
+    { return qstrncmp(m_start, other, qstrlen(other)) == 0; }
     bool operator!=(const char *other) const
     { return !this->operator==(other); }
 
