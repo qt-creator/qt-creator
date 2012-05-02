@@ -108,6 +108,8 @@ HEADERS += projectexplorer.h \
     settingsaccessor.h \
     environmentitemswidget.h \
     devicesupport/idevice.h \
+    devicesupport/desktopdevice.h \
+    devicesupport/desktopdevicefactory.h \
     devicesupport/idevicewidget.h \
     devicesupport/idevicefactory.h \
     devicesupport/devicemanager.h \
@@ -202,6 +204,8 @@ SOURCES += projectexplorer.cpp \
     settingsaccessor.cpp \
     environmentitemswidget.cpp \
     devicesupport/idevice.cpp \
+    devicesupport/desktopdevice.cpp \
+    devicesupport/desktopdevicefactory.cpp \
     devicesupport/devicemanager.cpp \
     devicesupport/devicemanagermodel.cpp \
     devicesupport/devicefactoryselectiondialog.cpp \

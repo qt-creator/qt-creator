@@ -31,6 +31,7 @@
 **************************************************************************/
 #include "devicemanagermodel.h"
 
+#include "desktopdevice.h"
 #include "devicemanager.h"
 
 #include <coreplugin/id.h>
@@ -121,8 +122,12 @@ void DeviceManagerModel::handleDeviceListChanged()
     beginResetModel();
     d->devices.clear();
 
-    for (int i = 0; i < d->deviceManager->deviceCount(); ++i)
-        d->devices << d->deviceManager->deviceAt(i);
+    for (int i = 0; i < d->deviceManager->deviceCount(); ++i) {
+        IDevice::ConstPtr dev = d->deviceManager->deviceAt(i);
+        if (dev->id() == DesktopDevice::Id)
+            continue;
+        d->devices << dev;
+    }
     endResetModel();
 }
 

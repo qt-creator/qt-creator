@@ -95,6 +95,7 @@ public:
     static Core::Id invalidId();
 
     static QString typeFromMap(const QVariantMap &map);
+    static Core::Id idFromMap(const QVariantMap &map);
 
 protected:
     IDevice();

@@ -253,6 +253,11 @@ QString IDevice::typeFromMap(const QVariantMap &map)
     return map.value(QLatin1String(TypeKey)).toString();
 }
 
+Core::Id IDevice::idFromMap(const QVariantMap &map)
+{
+    return Core::Id(map.value(QLatin1String(IdKey)).toByteArray().constData());
+}
+
 void IDevice::fromMap(const QVariantMap &map)
 {
     d->type = typeFromMap(map);

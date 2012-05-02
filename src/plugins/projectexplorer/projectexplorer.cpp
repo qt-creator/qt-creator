@@ -79,6 +79,9 @@
 #include "buildconfiguration.h"
 #include "miniprojecttargetselector.h"
 #include "taskhub.h"
+#include "devicesupport/desktopdevice.h"
+#include "devicesupport/desktopdevicefactory.h"
+#include "devicesupport/devicemanager.h"
 #include "devicesupport/devicesettingspage.h"
 #include "publishing/ipublishingwizardfactory.h"
 #include "publishing/publishingwizardselectiondialog.h"
@@ -328,6 +331,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new Internal::MingwToolChainFactory); // Mingw offers cross-compiling to windows
 #endif
     addAutoReleasedObject(new Internal::ClangToolChainFactory);
+
+    addAutoReleasedObject(new Internal::DesktopDeviceFactory);
 
     new ToolChainManager(this);
     addAutoReleasedObject(new Internal::ToolChainOptionsPage);
@@ -1130,6 +1135,15 @@ void ProjectExplorerPlugin::extensionsInitialized()
     d->m_buildManager->extensionsInitialized();
 }
 
+bool ProjectExplorerPlugin::delayedInitialize()
+{
+    DeviceManager *dm = DeviceManager::instance();
+    if (dm->find(DesktopDevice::Id).isNull())
+        DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
+
+    return true;
+}
+
 void ProjectExplorerPlugin::loadCustomWizards()
 {
     // Add custom wizards, for which other plugins might have registered
@@ -1432,6 +1446,7 @@ void ProjectExplorerPlugin::updateWelcomePage()
 
 void ProjectExplorerPlugin::currentModeChanged(Core::IMode *mode, Core::IMode *oldMode)
 {
+    Q_UNUSED(oldMode);
     if (mode && mode->id() == Core::Id(Core::Constants::MODE_WELCOME).toString())
         updateWelcomePage();
 }
