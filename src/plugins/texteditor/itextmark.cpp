@@ -85,12 +85,24 @@ ITextMark::Priority ITextMark::priority() const
 
 bool ITextMark::visible() const
 {
-    return true;
+    return m_visible;
+}
+
+void ITextMark::setVisible(bool visible)
+{
+    m_visible = visible;
+    if (m_markableInterface)
+        m_markableInterface->updateMark(this);
 }
 
 double ITextMark::widthFactor() const
 {
-    return 1.0;
+    return m_widthFactor;
+}
+
+void ITextMark::setWidthFactor(double factor)
+{
+    m_widthFactor = factor;
 }
 
 bool ITextMark::clickable() const

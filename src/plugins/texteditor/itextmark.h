@@ -58,7 +58,9 @@ public:
     ITextMark(int line)
         : m_markableInterface(0),
           m_lineNumber(line),
-          m_priority(NormalPriority)
+          m_priority(NormalPriority),
+          m_widthFactor(1.0),
+          m_visible(true)
     {}
     virtual ~ITextMark();
 
@@ -75,15 +77,18 @@ public:
     virtual void updateLineNumber(int lineNumber);
     virtual void updateBlock(const QTextBlock &block);
     virtual void removedFromEditor();
+    virtual bool clickable() const;
+    virtual void clicked();
+
     void setIcon(const QIcon &icon);
     // call this if the icon has changed.
     void updateMarker();
     Priority priority() const;
     void setPriority(Priority prioriy);
-    virtual bool visible() const;
-    virtual double widthFactor() const;
-    virtual bool clickable() const;
-    virtual void clicked();
+    bool visible() const;
+    void setVisible(bool visible);
+    double widthFactor() const;
+    void setWidthFactor(double factor);
 
     ITextMarkable *markableInterface() const;
     void setMarkableInterface(ITextMarkable *markableInterface);
@@ -93,6 +98,8 @@ private:
     int m_lineNumber;
     QIcon m_icon;
     Priority m_priority;
+    double m_widthFactor;
+    bool m_visible;
 };
 
 typedef QList<ITextMark *> TextMarks;

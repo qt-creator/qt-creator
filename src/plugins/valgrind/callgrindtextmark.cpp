@@ -50,6 +50,7 @@ CallgrindTextMark::CallgrindTextMark(const QPersistentModelIndex &index,
     : TextEditor::BaseTextMark(fileName, lineNumber), m_modelIndex(index)
 {
     setPriority(TextEditor::ITextMark::HighPriority);
+    setWidthFactor(4.0);
 }
 
 void CallgrindTextMark::paint(QPainter *painter, const QRect &paintRect) const
@@ -100,7 +101,3 @@ const Function *CallgrindTextMark::function() const
     return m_modelIndex.data(DataModel::FunctionRole).value<const Function *>();
 }
 
-double CallgrindTextMark::widthFactor() const
-{
-    return 4.0;
-}

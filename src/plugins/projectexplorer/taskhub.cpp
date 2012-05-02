@@ -42,8 +42,10 @@ class TaskMark : public TextEditor::BaseTextMark
 {
 public:
     TaskMark(unsigned int id, const QString &fileName, int lineNumber, bool visible)
-        : BaseTextMark(fileName, lineNumber), m_id(id), m_visible(visible)
-    {}
+        : BaseTextMark(fileName, lineNumber), m_id(id)
+    {
+        setVisible(visible);
+    }
 
     bool clickable() const;
     void clicked();
@@ -51,7 +53,6 @@ public:
     void updateFileName(const QString &fileName);
     void updateLineNumber(int lineNumber);
     void removedFromEditor();
-    bool visible() const;
 private:
     unsigned int m_id;
     bool m_visible;
@@ -72,11 +73,6 @@ void TaskMark::updateFileName(const QString &fileName)
 void TaskMark::removedFromEditor()
 {
     ProjectExplorerPlugin::instance()->taskHub()->updateTaskLineNumber(m_id, -1);
-}
-
-bool TaskMark::visible() const
-{
-    return m_visible;
 }
 
 bool TaskMark::clickable() const

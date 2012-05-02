@@ -59,7 +59,6 @@ public:
 
     const Valgrind::Callgrind::Function *function() const;
 
-    virtual double widthFactor() const;
     virtual void paint(QPainter *painter, const QRect &paintRect) const;
 
 private:
