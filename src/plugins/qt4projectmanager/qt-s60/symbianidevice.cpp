@@ -207,11 +207,10 @@ QString SymbianIDevice::displayNameForActionId(Core::Id actionId) const
     return QString();
 }
 
-QDialog *SymbianIDevice::createAction(Core::Id actionId, QWidget *parent) const
+void SymbianIDevice::executeAction(Core::Id actionId, QWidget *parent)
 {
     Q_UNUSED(actionId);
     Q_UNUSED(parent);
-    return 0;
 }
 
 QVariantMap SymbianIDevice::toMap() const

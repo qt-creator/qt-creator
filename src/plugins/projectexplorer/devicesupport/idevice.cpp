@@ -114,10 +114,9 @@
  */
 
 /*!
- * \fn QDialog *ProjectExplorer::IDevice::createAction(const QString &actionId) const
- * \brief Produces a dialog implementing the respective action. The dialog is supposed to be
- *        modal, so implementers must make sure to make whatever it does interruptible as
- *        to not needlessly block the UI.
+ * \fn void ProjectExplorer::IDevice::executeAction(Core::Id actionId, QWidget *parent)
+ * \brief Executes the respective action. This is typically done via some sort of dialog or
+ *        wizard, so a parent widget argument is provided.
  */
 
 /*!

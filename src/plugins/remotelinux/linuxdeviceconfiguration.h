@@ -77,7 +77,7 @@ public:
     ProjectExplorer::IDeviceWidget *createWidget();
     QList<Core::Id> actionIds() const;
     QString displayNameForActionId(Core::Id actionId) const;
-    QDialog *createAction(Core::Id actionId, QWidget *parent) const;
+    void executeAction(Core::Id actionId, QWidget *parent);
     void fromMap(const QVariantMap &map);
     ProjectExplorer::IDevice::Ptr clone() const;
 

@@ -283,12 +283,9 @@ void DeviceSettingsWidget::clearDetails()
 
 void DeviceSettingsWidget::handleAdditionalActionRequest(int actionId)
 {
-    const IDevice::ConstPtr &device = currentDevice();
+    const IDevice::Ptr &device = m_deviceManager->mutableDeviceAt(currentIndex());
     QTC_ASSERT(device, return);
-    QDialog * const action = device->createAction(Core::Id::fromUniqueIdentifier(actionId), this);
-    if (action)
-        action->exec();
-    delete action;
+    device->executeAction(Core::Id::fromUniqueIdentifier(actionId), this);
 }
 
 } // namespace Internal

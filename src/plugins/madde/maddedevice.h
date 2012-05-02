@@ -53,7 +53,7 @@ public:
     QString displayType() const;
     QList<Core::Id> actionIds() const;
     QString displayNameForActionId(Core::Id actionId) const;
-    QDialog *createAction(Core::Id actionId, QWidget *parent) const;
+    void executeAction(Core::Id actionId, QWidget *parent);
     ProjectExplorer::IDevice::Ptr clone() const;
     static QString maddeDisplayType(const QString &type);
 
