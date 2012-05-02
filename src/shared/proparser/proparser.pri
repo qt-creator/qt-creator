@@ -10,6 +10,7 @@ HEADERS += \
         qmakeglobals.h \
         qmakeparser.h \
         qmakeevaluator.h \
+        qmakeevaluator_p.h \
         profileevaluator.h \
         proitems.h \
         prowriter.h \
@@ -19,6 +20,7 @@ SOURCES += \
         qmakeglobals.cpp \
         qmakeparser.cpp \
         profileevaluator.cpp \
+        qmakebuiltins.cpp \
         proitems.cpp \
         prowriter.cpp \
         ioutils.cpp

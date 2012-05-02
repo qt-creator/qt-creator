@@ -66,6 +66,7 @@ class QMAKE_EXPORT QMakeEvaluator
 {
 public:
     static void initStatics();
+    static void initFunctionStatics();
     QMakeEvaluator(QMakeGlobals *option, QMakeParser *parser,
                    QMakeEvaluatorHandler *handler);
     ~QMakeEvaluator();
@@ -195,21 +196,6 @@ public:
     QMakeGlobals *m_option;
     QMakeParser *m_parser;
     QMakeEvaluatorHandler *m_handler;
-
-    enum ExpandFunc {
-        E_INVALID = 0, E_MEMBER, E_FIRST, E_LAST, E_SIZE, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
-        E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
-        E_FIND, E_SYSTEM, E_UNIQUE, E_QUOTE, E_ESCAPE_EXPAND,
-        E_UPPER, E_LOWER, E_FILES, E_PROMPT, E_RE_ESCAPE,
-        E_REPLACE, E_SORT_DEPENDS, E_RESOLVE_DEPENDS
-    };
-
-    enum TestFunc {
-        T_INVALID = 0, T_REQUIRES, T_GREATERTHAN, T_LESSTHAN, T_EQUALS,
-        T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
-        T_RETURN, T_BREAK, T_NEXT, T_DEFINED, T_CONTAINS, T_INFILE,
-        T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_MESSAGE, T_IF
-    };
 
     enum VarName {
         V_LITERAL_DOLLAR, V_LITERAL_HASH, V_LITERAL_WHITESPACE,
