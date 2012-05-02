@@ -78,7 +78,7 @@ private:
     QString getEnv(const QString &) const;
 
     QHash<ProString, ProStringList> base_valuemap; // Cached results of qmake.conf, .qmake.cache & default_pre.prf
-    ProFileEvaluator::FunctionDefs base_functions;
+    ProFunctionDefs base_functions;
     QStringList feature_roots;
     QString qmakespec_name;
     QString precmds, postcmds;

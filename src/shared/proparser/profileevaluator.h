@@ -65,33 +65,6 @@ class QMAKE_EXPORT ProFileEvaluator
     class Private;
 
 public:
-    class FunctionDef {
-    public:
-        FunctionDef(ProFile *pro, int offset) : m_pro(pro), m_offset(offset) { m_pro->ref(); }
-        FunctionDef(const FunctionDef &o) : m_pro(o.m_pro), m_offset(o.m_offset) { m_pro->ref(); }
-        ~FunctionDef() { m_pro->deref(); }
-        FunctionDef &operator=(const FunctionDef &o)
-        {
-            if (this != &o) {
-                m_pro->deref();
-                m_pro = o.m_pro;
-                m_pro->ref();
-                m_offset = o.m_offset;
-            }
-            return *this;
-        }
-        ProFile *pro() const { return m_pro; }
-        const ushort *tokPtr() const { return m_pro->tokPtr() + m_offset; }
-    private:
-        ProFile *m_pro;
-        int m_offset;
-    };
-
-    struct FunctionDefs {
-        QHash<ProString, FunctionDef> testFunctions;
-        QHash<ProString, FunctionDef> replaceFunctions;
-    };
-
     enum TemplateType {
         TT_Unknown = 0,
         TT_Application,
@@ -139,8 +112,6 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(ProFileEvaluator::LoadFlags)
-
-Q_DECLARE_TYPEINFO(ProFileEvaluator::FunctionDef, Q_MOVABLE_TYPE);
 
 QT_END_NAMESPACE
 

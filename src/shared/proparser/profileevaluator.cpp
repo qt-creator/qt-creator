@@ -152,7 +152,7 @@ public:
     bool evaluateFeatureFile(const QString &fileName);
     enum EvalIntoMode { EvalProOnly, EvalWithDefaults, EvalWithSetup };
     bool evaluateFileInto(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type,
-                          QHash<ProString, ProStringList> *values, FunctionDefs *defs,
+                          QHash<ProString, ProStringList> *values, ProFunctionDefs *defs,
                           EvalIntoMode mode); // values are output-only, defs are input-only
 
     static ALWAYS_INLINE VisitReturn returnBool(bool b)
@@ -160,8 +160,10 @@ public:
 
     QList<ProStringList> prepareFunctionArgs(const ushort *&tokPtr);
     QList<ProStringList> prepareFunctionArgs(const ProString &arguments);
-    ProStringList evaluateFunction(const FunctionDef &func, const QList<ProStringList> &argumentsList, bool *ok);
-    VisitReturn evaluateBoolFunction(const FunctionDef &func, const QList<ProStringList> &argumentsList,
+    ProStringList evaluateFunction(const ProFunctionDef &func,
+                                   const QList<ProStringList> &argumentsList, bool *ok);
+    VisitReturn evaluateBoolFunction(const ProFunctionDef &func,
+                                     const QList<ProStringList> &argumentsList,
                                      const ProString &function);
 
     bool modesForGenerator(const QString &gen,
@@ -206,7 +208,7 @@ public:
     QString m_outputDir;
 
     int m_listCount;
-    FunctionDefs m_functionDefs;
+    ProFunctionDefs m_functionDefs;
     ProStringList m_returnValue;
     QStack<QHash<ProString, ProStringList> > m_valuemapStack;         // VariableName must be us-ascii, the content however can be non-us-ascii.
     QString m_tmp1, m_tmp2, m_tmp3, m_tmp[2]; // Temporaries for efficient toQString
@@ -905,11 +907,11 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(
 void ProFileEvaluator::Private::visitProFunctionDef(
         ushort tok, const ProString &name, const ushort *tokPtr)
 {
-    QHash<ProString, FunctionDef> *hash =
+    QHash<ProString, ProFunctionDef> *hash =
             (tok == TokTestDef
              ? &m_functionDefs.testFunctions
              : &m_functionDefs.replaceFunctions);
-    hash->insert(name, FunctionDef(m_current.pro, tokPtr - m_current.pro->tokPtr()));
+    hash->insert(name, ProFunctionDef(m_current.pro, tokPtr - m_current.pro->tokPtr()));
 }
 
 ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProLoop(
@@ -1121,7 +1123,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
 
     m_handler->aboutToEval(currentProFile(), pro, type);
     m_profileStack.push(pro);
-    if (flags & LoadPreFiles) {
+    if (flags & ProFileEvaluator::LoadPreFiles) {
 #ifdef PROEVALUATOR_THREAD_SAFE
         {
             QMutexLocker locker(&m_option->mutex);
@@ -1282,7 +1284,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
 
     visitProBlock(pro, pro->tokPtr());
 
-    if (flags & LoadPostFiles) {
+    if (flags & ProFileEvaluator::LoadPostFiles) {
         visitCmdLine(m_option->postcmds);
 
             evaluateFeatureFile(QLatin1String("default_post.prf"));
@@ -1962,7 +1964,7 @@ QList<ProStringList> ProFileEvaluator::Private::prepareFunctionArgs(const ProStr
 }
 
 ProStringList ProFileEvaluator::Private::evaluateFunction(
-        const FunctionDef &func, const QList<ProStringList> &argumentsList, bool *ok)
+        const ProFunctionDef &func, const QList<ProStringList> &argumentsList, bool *ok)
 {
     bool oki;
     ProStringList ret;
@@ -1998,7 +2000,7 @@ ProStringList ProFileEvaluator::Private::evaluateFunction(
 }
 
 ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateBoolFunction(
-        const FunctionDef &func, const QList<ProStringList> &argumentsList,
+        const ProFunctionDef &func, const QList<ProStringList> &argumentsList,
         const ProString &function)
 {
     bool ok;
@@ -2026,7 +2028,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateBoolFu
 ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
         const ProString &func, const ushort *&tokPtr)
 {
-    QHash<ProString, FunctionDef>::ConstIterator it =
+    QHash<ProString, ProFunctionDef>::ConstIterator it =
             m_functionDefs.replaceFunctions.constFind(func);
     if (it != m_functionDefs.replaceFunctions.constEnd())
         return evaluateFunction(*it, prepareFunctionArgs(tokPtr), 0);
@@ -2038,7 +2040,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
 ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
         const ProString &func, const ProString &arguments)
 {
-    QHash<ProString, FunctionDef>::ConstIterator it =
+    QHash<ProString, ProFunctionDef>::ConstIterator it =
             m_functionDefs.replaceFunctions.constFind(func);
     if (it != m_functionDefs.replaceFunctions.constEnd())
         return evaluateFunction(*it, prepareFunctionArgs(arguments), 0);
@@ -2478,7 +2480,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
 ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateConditionalFunction(
         const ProString &function, const ProString &arguments)
 {
-    QHash<ProString, FunctionDef>::ConstIterator it =
+    QHash<ProString, ProFunctionDef>::ConstIterator it =
             m_functionDefs.testFunctions.constFind(function);
     if (it != m_functionDefs.testFunctions.constEnd())
         return evaluateBoolFunction(*it, prepareFunctionArgs(arguments), function);
@@ -2491,7 +2493,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
 ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateConditionalFunction(
         const ProString &function, const ushort *&tokPtr)
 {
-    QHash<ProString, FunctionDef>::ConstIterator it =
+    QHash<ProString, ProFunctionDef>::ConstIterator it =
             m_functionDefs.testFunctions.constFind(function);
     if (it != m_functionDefs.testFunctions.constEnd())
         return evaluateBoolFunction(*it, prepareFunctionArgs(tokPtr), function);
@@ -3232,7 +3234,7 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(const QString &fileName)
 
 bool ProFileEvaluator::Private::evaluateFileInto(
         const QString &fileName, ProFileEvaluatorHandler::EvalFileType type,
-        QHash<ProString, ProStringList> *values, FunctionDefs *funcs, EvalIntoMode mode)
+        QHash<ProString, ProStringList> *values, ProFunctionDefs *funcs, EvalIntoMode mode)
 {
     ProFileEvaluator visitor(m_option, m_parser, m_handler);
 #ifdef PROEVALUATOR_CUMULATIVE
