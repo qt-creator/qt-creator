@@ -69,6 +69,8 @@ QtcPlugin {
         "remotedialog.ui",
         "remotemodel.cpp",
         "remotemodel.h",
+        "resetdialog.cpp",
+        "resetdialog.h",
         "settingspage.cpp",
         "settingspage.h",
         "settingspage.ui",
