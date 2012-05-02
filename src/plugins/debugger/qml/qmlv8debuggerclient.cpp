@@ -126,9 +126,6 @@ public:
     void logSendMessage(const QString &msg) const;
     void logReceiveMessage(const QString &msg) const;
 
-    //TODO:: remove this method
-    void reformatRequest(QByteArray &request);
-
     QtMessageLogItem *constructLogItemTree(QtMessageLogItem *parent,
                                            const QmlV8ObjectData &objectData, const QVariant &refsVal);
 private:
@@ -934,47 +931,6 @@ void QmlV8DebuggerClientPrivate::logReceiveMessage(const QString &msg) const
 {
     if (engine)
         engine->logMessage(QLatin1String("V8DebuggerClient"), QmlEngine::LogReceive, msg);
-}
-
-//TODO::remove this method
-void QmlV8DebuggerClientPrivate::reformatRequest(QByteArray &request)
-{
-    QDataStream ds(request);
-    QByteArray header;
-    ds >> header;
-
-    if (header == "V8DEBUG") {
-        QByteArray command;
-        QByteArray data;
-        ds >> command >> data;
-
-        if (command == INTERRUPT) {
-            interrupt();
-
-        } else if (command == V8REQUEST) {
-            const QString requestString = QLatin1String(data);
-            const QVariantMap reqMap = parser.call(QScriptValue(),
-                                                    QScriptValueList() <<
-                                                    QScriptValue(requestString)).toVariant().toMap();
-            const QString debugCommand(reqMap.value(_(COMMAND)).toString());
-            if (debugCommand == _(SETBREAKPOINT)) {
-                QVariantMap arguments = reqMap.value(_(ARGUMENTS)).toMap();
-                QString type(arguments.value(_(TYPE)).toString());
-                if (type == _(SCRIPTREGEXP)) {
-                    data.replace(SCRIPTREGEXP, SCRIPT);
-                }
-            }
-            q->sendMessage(packMessage(QByteArray(), data));
-
-        } else if (command == BREAKONSIGNAL) {
-            QDataStream rs(data);
-            QByteArray signalHandler;
-            bool enabled;
-            rs >> signalHandler >> enabled;
-
-            setBreakpoint(_(EVENT), QString::fromUtf8(signalHandler), enabled);
-        }
-    }
 }
 
 QtMessageLogItem *QmlV8DebuggerClientPrivate::constructLogItemTree(
