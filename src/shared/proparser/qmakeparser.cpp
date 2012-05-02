@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include "profileparser.h"
+#include "qmakeparser.h"
 
 #include "ioutils.h"
 using namespace ProFileEvaluatorInternal;
@@ -102,7 +102,7 @@ static struct {
 
 }
 
-void ProFileParser::initialize()
+void QMakeParser::initialize()
 {
     if (!statics.strelse.isNull())
         return;
@@ -113,7 +113,7 @@ void ProFileParser::initialize()
     statics.strdefineReplace = QLatin1String("defineReplace");
 }
 
-ProFileParser::ProFileParser(ProFileCache *cache, ProFileParserHandler *handler)
+QMakeParser::QMakeParser(ProFileCache *cache, QMakeParserHandler *handler)
     : m_cache(cache)
     , m_handler(handler)
 {
@@ -121,7 +121,7 @@ ProFileParser::ProFileParser(ProFileCache *cache, ProFileParserHandler *handler)
     initialize();
 }
 
-ProFile *ProFileParser::parsedProFile(const QString &fileName, bool cache, const QString *contents)
+ProFile *QMakeParser::parsedProFile(const QString &fileName, bool cache, const QString *contents)
 {
     ProFile *pro;
     if (cache && m_cache) {
@@ -181,7 +181,7 @@ ProFile *ProFileParser::parsedProFile(const QString &fileName, bool cache, const
     return pro;
 }
 
-bool ProFileParser::read(ProFile *pro)
+bool QMakeParser::read(ProFile *pro)
 {
     QFile file(pro->fileName());
     if (!file.open(QIODevice::ReadOnly)) {
@@ -195,24 +195,24 @@ bool ProFileParser::read(ProFile *pro)
     return read(pro, content);
 }
 
-void ProFileParser::putTok(ushort *&tokPtr, ushort tok)
+void QMakeParser::putTok(ushort *&tokPtr, ushort tok)
 {
     *tokPtr++ = tok;
 }
 
-void ProFileParser::putBlockLen(ushort *&tokPtr, uint len)
+void QMakeParser::putBlockLen(ushort *&tokPtr, uint len)
 {
     *tokPtr++ = (ushort)len;
     *tokPtr++ = (ushort)(len >> 16);
 }
 
-void ProFileParser::putBlock(ushort *&tokPtr, const ushort *buf, uint len)
+void QMakeParser::putBlock(ushort *&tokPtr, const ushort *buf, uint len)
 {
     memcpy(tokPtr, buf, len * 2);
     tokPtr += len;
 }
 
-void ProFileParser::putHashStr(ushort *&pTokPtr, const ushort *buf, uint len)
+void QMakeParser::putHashStr(ushort *&pTokPtr, const ushort *buf, uint len)
 {
     uint hash = ProString::hash((const QChar *)buf, len);
     ushort *tokPtr = pTokPtr;
@@ -223,7 +223,7 @@ void ProFileParser::putHashStr(ushort *&pTokPtr, const ushort *buf, uint len)
     pTokPtr = tokPtr + len;
 }
 
-void ProFileParser::finalizeHashStr(ushort *buf, uint len)
+void QMakeParser::finalizeHashStr(ushort *buf, uint len)
 {
     buf[-4] = TokHashLiteral;
     buf[-1] = len;
@@ -232,7 +232,7 @@ void ProFileParser::finalizeHashStr(ushort *buf, uint len)
     buf[-2] = (ushort)(hash >> 16);
 }
 
-bool ProFileParser::read(ProFile *pro, const QString &in)
+bool QMakeParser::read(ProFile *pro, const QString &in)
 {
     m_proFile = pro;
     m_lineNo = 1;
@@ -785,7 +785,7 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
 #undef FLUSH_RHS_LITERAL
 }
 
-void ProFileParser::putLineMarker(ushort *&tokPtr)
+void QMakeParser::putLineMarker(ushort *&tokPtr)
 {
     if (m_markLine) {
         *tokPtr++ = TokLine;
@@ -794,7 +794,7 @@ void ProFileParser::putLineMarker(ushort *&tokPtr)
     }
 }
 
-void ProFileParser::enterScope(ushort *&tokPtr, bool special, ScopeState state)
+void QMakeParser::enterScope(ushort *&tokPtr, bool special, ScopeState state)
 {
     m_blockstack.resize(m_blockstack.size() + 1);
     m_blockstack.top().special = special;
@@ -806,7 +806,7 @@ void ProFileParser::enterScope(ushort *&tokPtr, bool special, ScopeState state)
         m_markLine = m_lineNo;
 }
 
-void ProFileParser::leaveScope(ushort *&tokPtr)
+void QMakeParser::leaveScope(ushort *&tokPtr)
 {
     if (m_blockstack.top().inBranch) {
         // Put empty else block
@@ -822,7 +822,7 @@ void ProFileParser::leaveScope(ushort *&tokPtr)
 }
 
 // If we are on a fresh line, close all open one-line scopes.
-void ProFileParser::flushScopes(ushort *&tokPtr)
+void QMakeParser::flushScopes(ushort *&tokPtr)
 {
     if (m_state == StNew) {
         while (!m_blockstack.top().braceLevel && m_blockstack.size() > 1)
@@ -837,7 +837,7 @@ void ProFileParser::flushScopes(ushort *&tokPtr)
 }
 
 // If there is a pending conditional, enter a new scope, otherwise flush scopes.
-void ProFileParser::flushCond(ushort *&tokPtr)
+void QMakeParser::flushCond(ushort *&tokPtr)
 {
     if (m_state == StCond) {
         putTok(tokPtr, TokBranch);
@@ -848,7 +848,7 @@ void ProFileParser::flushCond(ushort *&tokPtr)
     }
 }
 
-void ProFileParser::finalizeTest(ushort *&tokPtr)
+void QMakeParser::finalizeTest(ushort *&tokPtr)
 {
     flushScopes(tokPtr);
     putLineMarker(tokPtr);
@@ -864,7 +864,7 @@ void ProFileParser::finalizeTest(ushort *&tokPtr)
     m_canElse = true;
 }
 
-void ProFileParser::bogusTest(ushort *&tokPtr)
+void QMakeParser::bogusTest(ushort *&tokPtr)
 {
     flushScopes(tokPtr);
     m_operator = NoOperator;
@@ -874,7 +874,7 @@ void ProFileParser::bogusTest(ushort *&tokPtr)
     m_proFile->setOk(false);
 }
 
-void ProFileParser::finalizeCond(ushort *&tokPtr, ushort *uc, ushort *ptr, int wordCount)
+void QMakeParser::finalizeCond(ushort *&tokPtr, ushort *uc, ushort *ptr, int wordCount)
 {
     if (wordCount != 1) {
         if (wordCount) {
@@ -927,7 +927,7 @@ void ProFileParser::finalizeCond(ushort *&tokPtr, ushort *uc, ushort *ptr, int w
     putTok(tokPtr, TokCondition);
 }
 
-void ProFileParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int argc)
+void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int argc)
 {
     // Check for magic tokens
     if (*uc == TokHashLiteral) {
@@ -1017,7 +1017,7 @@ void ProFileParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int a
     putBlock(tokPtr, uc, ptr - uc);
 }
 
-void ProFileParser::parseError(const QString &msg) const
+void QMakeParser::parseError(const QString &msg) const
 {
     if (!m_inError && m_handler)
         m_handler->parseError(m_proFile->fileName(), m_lineNo, msg);

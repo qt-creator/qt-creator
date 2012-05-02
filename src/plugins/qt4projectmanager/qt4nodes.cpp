@@ -1190,7 +1190,7 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
         }
 
         QtSupport::ProMessageHandler handler;
-        ProFileParser parser(0, &handler);
+        QMakeParser parser(0, &handler);
         includeFile = parser.parsedProBlock(m_projectFilePath, contents);
     }
 

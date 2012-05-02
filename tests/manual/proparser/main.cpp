@@ -31,7 +31,7 @@
 **************************************************************************/
 
 #include "qmakeglobals.h"
-#include "profileparser.h"
+#include "qmakeparser.h"
 #include "profileevaluator.h"
 
 #include <QCoreApplication>
@@ -52,7 +52,7 @@ static void print(const QString &fileName, int lineNo, const QString &msg)
         qWarning("%s", qPrintable(msg));
 }
 
-class ParseHandler : public ProFileParserHandler {
+class ParseHandler : public QMakeParserHandler {
 public:
     virtual void parseError(const QString &fileName, int lineNo, const QString &msg)
         { print(fileName, lineNo, msg); }
@@ -84,7 +84,7 @@ static QString value(ProFileEvaluator &reader, const QString &variable)
 }
 
 static int evaluate(const QString &fileName, const QString &in_pwd, const QString &out_pwd,
-                    bool cumulative, QMakeGlobals *option, ProFileParser *parser, int level)
+                    bool cumulative, QMakeGlobals *option, QMakeParser *parser, int level)
 {
     static QSet<QString> visited;
     if (visited.contains(fileName))
@@ -164,7 +164,7 @@ int main(int argc, char **argv)
     option.initProperties(QLibraryInfo::location(QLibraryInfo::BinariesPath) + QLatin1String("/qmake"));
     if (args.count() >= 4)
         option.setCommandLineArguments(args.mid(3));
-    ProFileParser parser(0, &parseHandler);
+    QMakeParser parser(0, &parseHandler);
 
     bool cumulative = args[0] == QLatin1String("true");
     QFileInfo infi(args[1]);

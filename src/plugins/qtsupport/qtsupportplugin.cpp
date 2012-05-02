@@ -54,7 +54,7 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 {
     Q_UNUSED(arguments);
     Q_UNUSED(errorMessage);
-    ProFileParser::initialize();
+    QMakeParser::initialize();
     ProFileEvaluator::initialize();
     new ProFileCacheManager(this);
 

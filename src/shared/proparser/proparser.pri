@@ -8,7 +8,7 @@ DEPENDPATH *= $$PWD $$PWD/..
 HEADERS += \
         qmake_global.h \
         qmakeglobals.h \
-        profileparser.h \
+        qmakeparser.h \
         profileevaluator.h \
         proitems.h \
         prowriter.h \
@@ -16,7 +16,7 @@ HEADERS += \
 
 SOURCES += \
         qmakeglobals.cpp \
-        profileparser.cpp \
+        qmakeparser.cpp \
         profileevaluator.cpp \
         proitems.cpp \
         prowriter.cpp \

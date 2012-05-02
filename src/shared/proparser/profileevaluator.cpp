@@ -33,7 +33,7 @@
 #include "profileevaluator.h"
 
 #include "qmakeglobals.h"
-#include "profileparser.h"
+#include "qmakeparser.h"
 #include "ioutils.h"
 
 #include <QByteArray>
@@ -89,7 +89,7 @@ class ProFileEvaluator::Private
 {
 public:
     static void initStatics();
-    Private(QMakeGlobals *option, ProFileParser *parser,
+    Private(QMakeGlobals *option, QMakeParser *parser,
             ProFileEvaluatorHandler *handler);
     ~Private();
 
@@ -212,7 +212,7 @@ public:
     QString m_tmp1, m_tmp2, m_tmp3, m_tmp[2]; // Temporaries for efficient toQString
 
     QMakeGlobals *m_option;
-    ProFileParser *m_parser;
+    QMakeParser *m_parser;
     ProFileEvaluatorHandler *m_handler;
 
     enum ExpandFunc {
@@ -412,7 +412,7 @@ const ProString &ProFileEvaluator::Private::map(const ProString &var)
 
 
 ProFileEvaluator::Private::Private(QMakeGlobals *option,
-                                   ProFileParser *parser, ProFileEvaluatorHandler *handler)
+                                   QMakeParser *parser, ProFileEvaluatorHandler *handler)
   : m_option(option), m_parser(parser), m_handler(handler)
 {
     // So that single-threaded apps don't have to call initialize() for now.
@@ -3272,7 +3272,7 @@ void ProFileEvaluator::initialize()
     Private::initStatics();
 }
 
-ProFileEvaluator::ProFileEvaluator(QMakeGlobals *option, ProFileParser *parser,
+ProFileEvaluator::ProFileEvaluator(QMakeGlobals *option, QMakeParser *parser,
                                    ProFileEvaluatorHandler *handler)
   : d(new Private(option, parser, handler))
 {

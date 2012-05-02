@@ -35,7 +35,7 @@
 
 #include "qtsupport_global.h"
 #include "proparser/qmakeglobals.h"
-#include "proparser/profileparser.h"
+#include "proparser/qmakeparser.h"
 #include "proparser/profileevaluator.h"
 
 #include <QObject>
@@ -48,7 +48,7 @@ class QtSupportPlugin;
 }
 
 class QTSUPPORT_EXPORT ProMessageHandler : public QObject,
-                          public ProFileParserHandler, public ProFileEvaluatorHandler
+                          public QMakeParserHandler, public ProFileEvaluatorHandler
 {
     Q_OBJECT
 
@@ -70,7 +70,7 @@ private:
     bool m_verbose;
 };
 
-class QTSUPPORT_EXPORT ProFileReader : public ProMessageHandler, public ProFileParser, public ProFileEvaluator
+class QTSUPPORT_EXPORT ProFileReader : public ProMessageHandler, public QMakeParser, public ProFileEvaluator
 {
     Q_OBJECT
 

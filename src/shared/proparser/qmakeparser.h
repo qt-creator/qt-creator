@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef PROFILEPARSER_H
-#define PROFILEPARSER_H
+#ifndef QMAKEPARSER_H
+#define QMAKEPARSER_H
 
 #include "qmake_global.h"
 #include "proitems.h"
@@ -43,7 +43,7 @@
 #endif
 
 QT_BEGIN_NAMESPACE
-class QMAKE_EXPORT ProFileParserHandler
+class QMAKE_EXPORT QMakeParserHandler
 {
 public:
     // Some error during parsing
@@ -52,13 +52,13 @@ public:
 
 class ProFileCache;
 
-class QMAKE_EXPORT ProFileParser
+class QMAKE_EXPORT QMakeParser
 {
 public:
     // Call this from a concurrency-free context
     static void initialize();
 
-    ProFileParser(ProFileCache *cache, ProFileParserHandler *handler);
+    QMakeParser(ProFileCache *cache, QMakeParserHandler *handler);
 
     // fileName is expected to be absolute and cleanPath()ed.
     // If contents is non-null, it will be used instead of the file's actual content
@@ -128,7 +128,7 @@ private:
     QString m_tmp; // Temporary for efficient toQString
 
     ProFileCache *m_cache;
-    ProFileParserHandler *m_handler;
+    QMakeParserHandler *m_handler;
 
     // This doesn't help gcc 3.3 ...
     template<typename T> friend class QTypeInfo;
@@ -164,12 +164,12 @@ private:
     QMutex mutex;
 #endif
 
-    friend class ProFileParser;
+    friend class QMakeParser;
 };
 
 #if !defined(__GNUC__) || __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 3)
-Q_DECLARE_TYPEINFO(ProFileParser::BlockScope, Q_MOVABLE_TYPE);
-Q_DECLARE_TYPEINFO(ProFileParser::Context, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(QMakeParser::BlockScope, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(QMakeParser::Context, Q_PRIMITIVE_TYPE);
 #endif
 
 QT_END_NAMESPACE
