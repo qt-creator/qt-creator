@@ -52,7 +52,7 @@ ${staging}/lib/libexpat.a: ${source}/expat-${expatversion}.tar.gz | makestagingd
 	cd ${staging} && \
 	echo "Extracting expat..." && \
 	tar xf ${source}/expat-${expatversion}.tar.gz && cd expat-${expatversion} && \
-	./configure --disable-shared -prefix=/ && ${MAKE} && ${MAKE} install
+	./configure --disable-shared -prefix=${staging} && ${MAKE} && ${MAKE} install
 
 ${staging}/lib/libpython${pyversion}.a: ${source}/Python-${pyversion}.tgz | makestagingdir
 	unset PYTHONHOME && \
