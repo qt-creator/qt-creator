@@ -38,6 +38,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/qtcassert.h>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;
@@ -70,7 +71,7 @@ void BaseTextMarkRegistry::add(BaseTextMark *mark)
     }
 }
 
-void BaseTextMarkRegistry::remove(BaseTextMark *mark)
+bool BaseTextMarkRegistry::remove(BaseTextMark *mark)
 {
     m_marks[Utils::FileName::fromString(mark->fileName())].remove(mark);
 }
@@ -132,13 +133,22 @@ void BaseTextMarkRegistry::allDocumentsRenamed(const QString &oldName, const QSt
 BaseTextMark::BaseTextMark(const QString &fileName, int lineNumber)
     : ITextMark(lineNumber), m_fileName(fileName)
 {
+}
+
+// we need two phase initilization, since we are calling virtual methods
+// of BaseTextMark in add() and also accessing widthFactor
+// which might be set in the derived constructor
+void BaseTextMark::init()
+{
     Internal::TextEditorPlugin::instance()->baseTextMarkRegistry()->add(this);
 }
 
 BaseTextMark::~BaseTextMark()
 {
     // oha we are deleted
-    Internal::TextEditorPlugin::instance()->baseTextMarkRegistry()->remove(this);
+    bool b = Internal::TextEditorPlugin::instance()->baseTextMarkRegistry()->remove(this);
+    // If you get a assertion in this line, init() was never called
+    QTC_CHECK(b)
 }
 
 void BaseTextMark::updateFileName(const QString &fileName)

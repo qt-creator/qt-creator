@@ -60,6 +60,7 @@ class TEXTEDITOR_EXPORT BaseTextMark : public TextEditor::ITextMark
 
 public:
     BaseTextMark(const QString &fileName, int lineNumber);
+    void init();
     virtual ~BaseTextMark();
 
     /// called if the filename of the document changed
@@ -80,7 +81,7 @@ public:
     BaseTextMarkRegistry(QObject *parent);
 
     void add(BaseTextMark *mark);
-    void remove(BaseTextMark *mark);
+    bool remove(BaseTextMark *mark);
 private slots:
     void editorOpened(Core::IEditor *editor);
     void documentRenamed(Core::IDocument *document, const QString &oldName, const QString &newName);
