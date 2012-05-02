@@ -11,7 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 include(../../qtcreatorplugin.pri)
 include(qtsupport_dependencies.pri)
 DEFINES += \
-    PROPARSER_AS_LIBRARY PROPARSER_LIBRARY \
+    QMAKE_AS_LIBRARY QMAKE_LIBRARY \
     PROPARSER_THREAD_SAFE PROEVALUATOR_THREAD_SAFE PROEVALUATOR_CUMULATIVE
 include(../../shared/proparser/proparser.pri)
 

@@ -30,19 +30,19 @@
 **
 **************************************************************************/
 
-#ifndef PROPARSER_GLOBAL_H
-#define PROPARSER_GLOBAL_H
+#ifndef QMAKE_GLOBAL_H
+#define QMAKE_GLOBAL_H
 
 #include <qglobal.h>
 
-#if defined(PROPARSER_AS_LIBRARY)
-#  if defined(PROPARSER_LIBRARY)
-#    define PROPARSER_EXPORT Q_DECL_EXPORT
+#if defined(QMAKE_AS_LIBRARY)
+#  if defined(QMAKE_LIBRARY)
+#    define QMAKE_EXPORT Q_DECL_EXPORT
 #  else
-#    define PROPARSER_EXPORT Q_DECL_IMPORT
+#    define QMAKE_EXPORT Q_DECL_IMPORT
 #  endif
 #else
-#  define PROPARSER_EXPORT
+#  define QMAKE_EXPORT
 #endif
 
 #endif

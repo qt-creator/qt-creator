@@ -6,7 +6,7 @@ DEPENDPATH *= $$PWD $$PWD/..
 
 # Input
 HEADERS += \
-        proparser_global.h \
+        qmake_global.h \
         profileparser.h \
         profileevaluator.h \
         proitems.h \

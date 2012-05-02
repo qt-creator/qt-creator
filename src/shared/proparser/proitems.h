@@ -33,7 +33,7 @@
 #ifndef PROITEMS_H
 #define PROITEMS_H
 
-#include "proparser_global.h"
+#include "qmake_global.h"
 #include <QString>
 #include <QVector>
 
@@ -191,7 +191,7 @@ enum ProToken {
     TokNewStr = 0x200   // Next stringlist element
 };
 
-class PROPARSER_EXPORT ProFile
+class QMAKE_EXPORT ProFile
 {
 public:
     explicit ProFile(const QString &fileName);
