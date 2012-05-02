@@ -79,39 +79,41 @@ QtcPlugin {
     ]
 
     Group {
+        prefix: "gitorious/"
         files: [
-        "gitorious/gitorioushostwidget.ui",
-        "gitorious/gitoriousprojectwidget.ui",
-        "gitorious/gitoriousrepositorywizardpage.ui",
-        "gitorious/gitorious.cpp",
-        "gitorious/gitorious.h",
-        "gitorious/gitoriousclonewizard.cpp",
-        "gitorious/gitoriousclonewizard.h",
-        "gitorious/gitorioushostwidget.cpp",
-        "gitorious/gitorioushostwidget.h",
-        "gitorious/gitorioushostwizardpage.cpp",
-        "gitorious/gitorioushostwizardpage.h",
-        "gitorious/gitoriousprojectwidget.cpp",
-        "gitorious/gitoriousprojectwidget.h",
-        "gitorious/gitoriousprojectwizardpage.cpp",
-        "gitorious/gitoriousprojectwizardpage.h",
-        "gitorious/gitoriousrepositorywizardpage.cpp",
-        "gitorious/gitoriousrepositorywizardpage.h"
+            "gitorioushostwidget.ui",
+            "gitoriousprojectwidget.ui",
+            "gitoriousrepositorywizardpage.ui",
+            "gitorious.cpp",
+            "gitorious.h",
+            "gitoriousclonewizard.cpp",
+            "gitoriousclonewizard.h",
+            "gitorioushostwidget.cpp",
+            "gitorioushostwidget.h",
+            "gitorioushostwizardpage.cpp",
+            "gitorioushostwizardpage.h",
+            "gitoriousprojectwidget.cpp",
+            "gitoriousprojectwidget.h",
+            "gitoriousprojectwizardpage.cpp",
+            "gitoriousprojectwizardpage.h",
+            "gitoriousrepositorywizardpage.cpp",
+            "gitoriousrepositorywizardpage.h"
         ]
     }
 
     Group {
+        prefix: "gerrit/"
         files: [
-        "gerrit/gerritdialog.cpp",
-        "gerrit/gerritdialog.h",
-        "gerrit/gerritmodel.cpp",
-        "gerrit/gerritmodel.h",
-        "gerrit/gerritoptionspage.cpp",
-        "gerrit/gerritoptionspage.h",
-        "gerrit/gerritparameters.cpp",
-        "gerrit/gerritparameters.h",
-        "gerrit/gerritplugin.cpp",
-        "gerrit/gerritplugin.h"
+            "gerritdialog.cpp",
+            "gerritdialog.h",
+            "gerritmodel.cpp",
+            "gerritmodel.h",
+            "gerritoptionspage.cpp",
+            "gerritoptionspage.h",
+            "gerritparameters.cpp",
+            "gerritparameters.h",
+            "gerritplugin.cpp",
+            "gerritplugin.h"
         ]
     }
 }
