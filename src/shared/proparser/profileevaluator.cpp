@@ -32,6 +32,7 @@
 
 #include "profileevaluator.h"
 
+#include "qmakeglobals.h"
 #include "profileparser.h"
 #include "ioutils.h"
 
@@ -77,133 +78,6 @@ using namespace ProStringConstants;
 
 
 #define fL1S(s) QString::fromLatin1(s)
-
-///////////////////////////////////////////////////////////////////////
-//
-// QMakeGlobal
-//
-///////////////////////////////////////////////////////////////////////
-
-QMakeGlobals::QMakeGlobals()
-{
-#ifdef Q_OS_WIN
-    dirlist_sep = QLatin1Char(';');
-    dir_sep = QLatin1Char('\\');
-#else
-    dirlist_sep = QLatin1Char(':');
-    dir_sep = QLatin1Char('/');
-#endif
-    qmakespec = getEnv(QLatin1String("QMAKESPEC"));
-
-    host_mode = HOST_UNKNOWN_MODE;
-    target_mode = TARG_UNKNOWN_MODE;
-
-#ifdef PROEVALUATOR_THREAD_SAFE
-    base_inProgress = false;
-#endif
-}
-
-QMakeGlobals::~QMakeGlobals()
-{
-}
-
-void QMakeGlobals::setCommandLineArguments(const QStringList &args)
-{
-    QStringList _precmds, _preconfigs, _postcmds, _postconfigs;
-    bool after = false;
-
-    bool isConf = false;
-    foreach (const QString &arg, args) {
-        if (isConf) {
-            isConf = false;
-            if (after)
-                _postconfigs << arg;
-            else
-                _preconfigs << arg;
-        } else if (arg.startsWith(QLatin1Char('-'))) {
-            if (arg == QLatin1String("-after")) {
-                after = true;
-            } else if (arg == QLatin1String("-config")) {
-                isConf = true;
-            } else if (arg == QLatin1String("-win32")) {
-                host_mode = HOST_WIN_MODE;
-                target_mode = TARG_WIN_MODE;
-            } else if (arg == QLatin1String("-unix")) {
-                host_mode = HOST_UNIX_MODE;
-                target_mode = TARG_UNIX_MODE;
-            } else if (arg == QLatin1String("-macx")) {
-                host_mode = HOST_MACX_MODE;
-                target_mode = TARG_MACX_MODE;
-            }
-        } else if (arg.contains(QLatin1Char('='))) {
-            if (after)
-                _postcmds << arg;
-            else
-                _precmds << arg;
-        }
-    }
-
-    if (!_preconfigs.isEmpty())
-        _precmds << (fL1S("CONFIG += ") + _preconfigs.join(fL1S(" ")));
-    precmds = _precmds.join(fL1S("\n"));
-    if (!_postconfigs.isEmpty())
-        _postcmds << (fL1S("CONFIG += ") + _postconfigs.join(fL1S(" ")));
-    postcmds = _postcmds.join(fL1S("\n"));
-
-    if (host_mode != HOST_UNKNOWN_MODE)
-        applyHostMode();
-}
-
-void QMakeGlobals::applyHostMode()
-{
-   if (host_mode == HOST_WIN_MODE) {
-       dir_sep = fL1S("\\");
-   } else {
-       dir_sep = fL1S("/");
-   }
-}
-
-QString QMakeGlobals::getEnv(const QString &var) const
-{
-#ifndef QT_BOOTSTRAPPED
-    if (!environment.isEmpty())
-        return environment.value(var);
-#endif
-    return QString::fromLocal8Bit(qgetenv(var.toLocal8Bit().constData()));
-}
-
-#ifdef PROEVALUATOR_INIT_PROPS
-bool QMakeGlobals::initProperties(const QString &qmake)
-{
-    QByteArray data;
-#ifndef QT_BOOTSTRAPPED
-    QProcess proc;
-    proc.start(qmake, QStringList() << QLatin1String("-query"));
-    if (!proc.waitForFinished())
-        return false;
-    data = proc.readAll();
-#else
-    if (FILE *proc = QT_POPEN(QString(IoUtils::shellQuote(qmake) + QLatin1String(" -query"))
-                              .toLocal8Bit(), "r")) {
-        char buff[1024];
-        while (!feof(proc))
-            data.append(buff, int(fread(buff, 1, 1023, proc)));
-        QT_PCLOSE(proc);
-    }
-#endif
-    foreach (QByteArray line, data.split('\n'))
-        if (!line.startsWith("QMAKE_")) {
-            int off = line.indexOf(':');
-            if (off < 0) // huh?
-                continue;
-            if (line.endsWith('\r'))
-                line.chop(1);
-            properties.insert(QString::fromLatin1(line.left(off)),
-                              QString::fromLocal8Bit(line.mid(off + 1)));
-        }
-    return true;
-}
-#endif
 
 ///////////////////////////////////////////////////////////////////////
 //

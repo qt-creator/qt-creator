@@ -34,6 +34,7 @@
 #define PROFILEREADER_H
 
 #include "qtsupport_global.h"
+#include "proparser/qmakeglobals.h"
 #include "proparser/profileparser.h"
 #include "proparser/profileevaluator.h"
 

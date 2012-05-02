@@ -38,17 +38,10 @@
 
 #include <QHash>
 #include <QStringList>
-#ifndef QT_BOOTSTRAPPED
-# include <QProcess>
-#endif
-#ifdef PROEVALUATOR_THREAD_SAFE
-# include <QMutex>
-# include <QWaitCondition>
-#endif
 
 QT_BEGIN_NAMESPACE
 
-struct QMakeGlobals;
+class QMakeGlobals;
 class ProFileParser;
 
 class QMAKE_EXPORT ProFileEvaluatorHandler
@@ -142,76 +135,10 @@ public:
 private:
     Private *d;
 
-    friend struct QMakeGlobals;
+    friend class QMakeGlobals;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(ProFileEvaluator::LoadFlags)
-
-// This struct is from qmake, but we are not using everything.
-struct QMAKE_EXPORT QMakeGlobals {
-    QMakeGlobals();
-    ~QMakeGlobals();
-
-    //simply global convenience
-    //QString libtool_ext;
-    //QString pkgcfg_ext;
-    //QString prf_ext;
-    //QString prl_ext;
-    //QString ui_ext;
-    //QStringList h_ext;
-    //QStringList cpp_ext;
-    //QString h_moc_ext;
-    //QString cpp_moc_ext;
-    //QString obj_ext;
-    //QString lex_ext;
-    //QString yacc_ext;
-    //QString h_moc_mod;
-    //QString cpp_moc_mod;
-    //QString lex_mod;
-    //QString yacc_mod;
-    QString dir_sep;
-    QString dirlist_sep;
-    QString qmakespec;
-    QString cachefile;
-    QHash<QString, QString> properties;
-#ifndef QT_BOOTSTRAPPED
-    QProcessEnvironment environment;
-#endif
-    QString sysroot;
-
-    //QString pro_ext;
-    //QString res_ext;
-
-    // -nocache, -cache, -spec, QMAKESPEC
-    // -set persistent value
-    void setCommandLineArguments(const QStringList &args);
-#ifdef PROEVALUATOR_INIT_PROPS
-    bool initProperties(const QString &qmake);
-#endif
-
-  private:
-    friend class ProFileEvaluator;
-    friend class ProFileEvaluator::Private;
-
-    void applyHostMode();
-    QString getEnv(const QString &) const;
-
-    QHash<ProString, ProStringList> base_valuemap; // Cached results of qmake.conf, .qmake.cache & default_pre.prf
-    ProFileEvaluator::FunctionDefs base_functions;
-    QStringList feature_roots;
-    QString qmakespec_name;
-    QString precmds, postcmds;
-    enum HOST_MODE { HOST_UNKNOWN_MODE, HOST_UNIX_MODE, HOST_WIN_MODE, HOST_MACX_MODE };
-    HOST_MODE host_mode;
-    enum TARG_MODE { TARG_UNKNOWN_MODE, TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE,
-                     TARG_SYMBIAN_MODE };
-    TARG_MODE target_mode;
-#ifdef PROEVALUATOR_THREAD_SAFE
-    QMutex mutex;
-    QWaitCondition cond;
-    bool base_inProgress;
-#endif
-};
 
 Q_DECLARE_TYPEINFO(ProFileEvaluator::FunctionDef, Q_MOVABLE_TYPE);
 

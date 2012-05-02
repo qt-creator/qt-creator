@@ -30,6 +30,7 @@
 **
 **************************************************************************/
 
+#include "qmakeglobals.h"
 #include "profileparser.h"
 #include "profileevaluator.h"
 

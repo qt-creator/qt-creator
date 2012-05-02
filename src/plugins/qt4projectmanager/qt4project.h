@@ -45,7 +45,7 @@
 #include <QFuture>
 
 QT_BEGIN_NAMESPACE
-struct QMakeGlobals;
+class QMakeGlobals;
 QT_END_NAMESPACE
 
 namespace QtSupport { class ProFileReader; }
