@@ -48,7 +48,7 @@
 
 QT_BEGIN_NAMESPACE
 
-struct ProFileOption;
+struct QMakeGlobals;
 class ProFileParser;
 
 class QMAKE_EXPORT ProFileEvaluatorHandler
@@ -111,7 +111,7 @@ public:
     // Call this from a concurrency-free context
     static void initialize();
 
-    ProFileEvaluator(ProFileOption *option, ProFileParser *parser, ProFileEvaluatorHandler *handler);
+    ProFileEvaluator(QMakeGlobals *option, ProFileParser *parser, ProFileEvaluatorHandler *handler);
     ~ProFileEvaluator();
 
     ProFileEvaluator::TemplateType templateType() const;
@@ -142,16 +142,15 @@ public:
 private:
     Private *d;
 
-    friend struct ProFileOption;
+    friend struct QMakeGlobals;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(ProFileEvaluator::LoadFlags)
 
 // This struct is from qmake, but we are not using everything.
-struct QMAKE_EXPORT ProFileOption
-{
-    ProFileOption();
-    ~ProFileOption();
+struct QMAKE_EXPORT QMakeGlobals {
+    QMakeGlobals();
+    ~QMakeGlobals();
 
     //simply global convenience
     //QString libtool_ext;

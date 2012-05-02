@@ -45,7 +45,7 @@
 #include <QFuture>
 
 QT_BEGIN_NAMESPACE
-struct ProFileOption;
+struct QMakeGlobals;
 QT_END_NAMESPACE
 
 namespace QtSupport { class ProFileReader; }
@@ -107,7 +107,7 @@ public:
     /// \internal
     QtSupport::ProFileReader *createProFileReader(Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc = 0);
     /// \internal
-    ProFileOption *proFileOption();
+    QMakeGlobals *qmakeGlobals();
     /// \internal
     void destroyProFileReader(QtSupport::ProFileReader *reader);
 
@@ -188,8 +188,8 @@ private:
     Internal::Qt4ProjectFiles *m_projectFiles;
 
     // cached data during project rescan
-    ProFileOption *m_proFileOption;
-    int m_proFileOptionRefCnt;
+    QMakeGlobals *m_qmakeGlobals;
+    int m_qmakeGlobalsRefCnt;
 
     QTimer m_asyncUpdateTimer;
     QFutureInterface<void> *m_asyncUpdateFutureInterface;

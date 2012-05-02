@@ -354,7 +354,7 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_nodesWatcher(new Internal::Qt4NodesWatcher(this)),
     m_fileInfo(new Qt4ProjectFile(fileName, this)),
     m_projectFiles(new Qt4ProjectFiles),
-    m_proFileOption(0),
+    m_qmakeGlobals(0),
     m_asyncUpdateFutureInterface(0),
     m_pendingEvaluateFuturesCount(0),
     m_asyncUpdateState(NoState),
@@ -916,9 +916,9 @@ void Qt4Project::proFileParseError(const QString &errorMessage)
 
 QtSupport::ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc)
 {
-    if (!m_proFileOption) {
-        m_proFileOption = new ProFileOption;
-        m_proFileOptionRefCnt = 0;
+    if (!m_qmakeGlobals) {
+        m_qmakeGlobals = new QMakeGlobals;
+        m_qmakeGlobalsRefCnt = 0;
 
         Profile *p;
         Utils::Environment env = Utils::Environment::systemEnvironment();
@@ -931,7 +931,7 @@ QtSupport::ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4Pro
             env = bc->environment();
             if (bc->qmakeStep()) {
                 qmakeArgs = bc->qmakeStep()->parserArguments();
-                m_proFileOption->qmakespec = bc->qmakeStep()->mkspec().toString();
+                m_qmakeGlobals->qmakespec = bc->qmakeStep()->mkspec().toString();
             } else {
                 qmakeArgs = bc->configCommandLineArguments();
             }
@@ -944,43 +944,43 @@ QtSupport::ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4Pro
                 ? SysRootProfileInformation::sysRoot(p).toString() : QString();
 
         if (qtVersion && qtVersion->isValid())
-            m_proFileOption->properties = qtVersion->versionInfo();
-        m_proFileOption->sysroot = systemRoot;
+            m_qmakeGlobals->properties = qtVersion->versionInfo();
+        m_qmakeGlobals->sysroot = systemRoot;
 
         Utils::Environment::const_iterator eit = env.constBegin(), eend = env.constEnd();
         for (; eit != eend; ++eit)
-            m_proFileOption->environment.insert(env.key(eit), env.value(eit));
+            m_qmakeGlobals->environment.insert(env.key(eit), env.value(eit));
 
-        m_proFileOption->setCommandLineArguments(qmakeArgs);
+        m_qmakeGlobals->setCommandLineArguments(qmakeArgs);
 
         QtSupport::ProFileCacheManager::instance()->incRefCount();
     }
-    ++m_proFileOptionRefCnt;
+    ++m_qmakeGlobalsRefCnt;
 
-    QtSupport::ProFileReader *reader = new QtSupport::ProFileReader(m_proFileOption);
+    QtSupport::ProFileReader *reader = new QtSupport::ProFileReader(m_qmakeGlobals);
 
     reader->setOutputDir(qt4ProFileNode->buildDir());
 
     return reader;
 }
 
-ProFileOption *Qt4Project::proFileOption()
+QMakeGlobals *Qt4Project::qmakeGlobals()
 {
-    return m_proFileOption;
+    return m_qmakeGlobals;
 }
 
 void Qt4Project::destroyProFileReader(QtSupport::ProFileReader *reader)
 {
     delete reader;
-    if (!--m_proFileOptionRefCnt) {
+    if (!--m_qmakeGlobalsRefCnt) {
         QString dir = QFileInfo(m_fileInfo->fileName()).absolutePath();
         if (!dir.endsWith(QLatin1Char('/')))
             dir += QLatin1Char('/');
         QtSupport::ProFileCacheManager::instance()->discardFiles(dir);
         QtSupport::ProFileCacheManager::instance()->decRefCount();
 
-        delete m_proFileOption;
-        m_proFileOption = 0;
+        delete m_qmakeGlobals;
+        m_qmakeGlobals = 0;
     }
 }
 

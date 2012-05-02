@@ -78,7 +78,7 @@ void ProMessageHandler::fileMessage(const QString &)
 }
 
 
-ProFileReader::ProFileReader(ProFileOption *option)
+ProFileReader::ProFileReader(QMakeGlobals *option)
     : ProFileParser(ProFileCacheManager::instance()->cache(), this)
     , ProFileEvaluator(option, this, this)
     , m_ignoreLevel(0)

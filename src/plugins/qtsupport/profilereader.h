@@ -74,7 +74,7 @@ class QTSUPPORT_EXPORT ProFileReader : public ProMessageHandler, public ProFileP
     Q_OBJECT
 
 public:
-    ProFileReader(ProFileOption *option);
+    ProFileReader(QMakeGlobals *option);
     ~ProFileReader();
 
     QList<ProFile*> includeFiles() const;

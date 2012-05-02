@@ -719,7 +719,7 @@ void BaseQtVersion::ensureMkSpecParsed() const
     if (mkspecPath().isEmpty())
         return;
 
-    ProFileOption option;
+    QMakeGlobals option;
     option.properties = versionInfo();
     ProMessageHandler msgHandler(true);
     ProFileCacheManager::instance()->incRefCount();

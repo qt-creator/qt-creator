@@ -83,7 +83,7 @@ static QString value(ProFileEvaluator &reader, const QString &variable)
 }
 
 static int evaluate(const QString &fileName, const QString &in_pwd, const QString &out_pwd,
-                    bool cumulative, ProFileOption *option, ProFileParser *parser, int level)
+                    bool cumulative, QMakeGlobals *option, ProFileParser *parser, int level)
 {
     static QSet<QString> visited;
     if (visited.contains(fileName))
@@ -159,7 +159,7 @@ int main(int argc, char **argv)
     if (args.count() < 2)
         qFatal("need at least two arguments: [-v] <cumulative?> <filenme> [<out_pwd> [<qmake options>]]");
 
-    ProFileOption option;
+    QMakeGlobals option;
     option.initProperties(QLibraryInfo::location(QLibraryInfo::BinariesPath) + QLatin1String("/qmake"));
     if (args.count() >= 4)
         option.setCommandLineArguments(args.mid(3));
