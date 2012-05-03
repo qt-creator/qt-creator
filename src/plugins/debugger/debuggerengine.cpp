@@ -645,6 +645,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
         d->m_locationMark.reset(new TextEditor::BaseTextMark(file, line));
         d->m_locationMark->setIcon(debuggerCore()->locationMarkIcon());
         d->m_locationMark->setPriority(TextEditor::ITextMark::HighPriority);
+        d->m_locationMark->init();
     }
 
     // FIXME: Breaks with split views.
