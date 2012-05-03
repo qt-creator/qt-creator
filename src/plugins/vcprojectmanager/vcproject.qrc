@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/vcproject">
+        <file>VcProject.mimetypes.xml</file>
+    </qresource>
+</RCC>

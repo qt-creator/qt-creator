@@ -26,6 +26,7 @@ SUBDIRS   = \
     cpaster \
     cmakeprojectmanager \
     autotoolsprojectmanager \
+    vcprojectmanager \
     fakevim \
     designer \
     resourceeditor \

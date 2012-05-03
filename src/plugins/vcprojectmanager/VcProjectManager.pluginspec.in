@@ -1,0 +1,10 @@
+<plugin name=\"VcProjectManager\" version=\"0.0.1\" compatVersion=\"0.0.1\">
+    <vendor>BojanPetrovic</vendor>
+    <copyright>(C) Bojan Petrovic</copyright>
+    <license>Public domain</license>
+    <description>Opens .vcproj</description>
+    <url>http://www.mycompany.com</url>
+    <category>Build Systems</category>
+    $$dependencyList
+</plugin>
+
