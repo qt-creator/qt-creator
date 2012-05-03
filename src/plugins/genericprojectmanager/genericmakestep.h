@@ -51,7 +51,7 @@ class GenericMakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
 
-    friend class GenericMakeStepConfigWidget; // TODO remove again?
+    friend class GenericMakeStepConfigWidget;
     friend class GenericMakeStepFactory;
 
 public:

@@ -225,7 +225,6 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
     m_ui = new Ui::GenericMakeStep;
     m_ui->setupUi(this);
 
-    // TODO update this list also on rescans of the GenericLists.txt
     GenericProject *pro = static_cast<GenericProject *>(m_makeStep->target()->project());
     foreach (const QString &target, pro->buildTargets()) {
         QListWidgetItem *item = new QListWidgetItem(target, m_ui->targetsList);
@@ -249,6 +248,9 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
             this, SLOT(updateMakeOverrrideLabel()));
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateDetails()));
+
+    connect(pro, SIGNAL(toolChainChanged(ProjectExplorer::ToolChain*)),
+            this, SLOT(updateMakeOverrrideLabel()));
 }
 
 QString GenericMakeStepConfigWidget::displayName() const
@@ -256,7 +258,6 @@ QString GenericMakeStepConfigWidget::displayName() const
     return tr("Make", "GenericMakestep display name.");
 }
 
-// TODO: Label should update when tool chain is changed
 void GenericMakeStepConfigWidget::updateMakeOverrrideLabel()
 {
     m_ui->makeLabel->setText(tr("Override %1:").arg(m_makeStep->makeCommand()));
