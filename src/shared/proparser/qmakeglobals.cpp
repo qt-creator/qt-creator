@@ -83,7 +83,6 @@ QMakeGlobals::QMakeGlobals()
 #endif
     qmakespec = getEnv(QLatin1String("QMAKESPEC"));
 
-    host_mode = HOST_UNKNOWN_MODE;
     target_mode = TARG_UNKNOWN_MODE;
 
 #ifdef PROEVALUATOR_THREAD_SAFE
@@ -114,13 +113,13 @@ void QMakeGlobals::setCommandLineArguments(const QStringList &args)
             } else if (arg == QLatin1String("-config")) {
                 isConf = true;
             } else if (arg == QLatin1String("-win32")) {
-                host_mode = HOST_WIN_MODE;
+                dir_sep = QLatin1Char('\\');
                 target_mode = TARG_WIN_MODE;
             } else if (arg == QLatin1String("-unix")) {
-                host_mode = HOST_UNIX_MODE;
+                dir_sep = QLatin1Char('/');
                 target_mode = TARG_UNIX_MODE;
             } else if (arg == QLatin1String("-macx")) {
-                host_mode = HOST_MACX_MODE;
+                dir_sep = QLatin1Char('/');
                 target_mode = TARG_MACX_MODE;
             }
         } else if (arg.contains(QLatin1Char('='))) {
@@ -137,18 +136,6 @@ void QMakeGlobals::setCommandLineArguments(const QStringList &args)
     if (!_postconfigs.isEmpty())
         _postcmds << (fL1S("CONFIG += ") + _postconfigs.join(fL1S(" ")));
     postcmds = _postcmds.join(fL1S("\n"));
-
-    if (host_mode != HOST_UNKNOWN_MODE)
-        applyHostMode();
-}
-
-void QMakeGlobals::applyHostMode()
-{
-   if (host_mode == HOST_WIN_MODE) {
-       dir_sep = fL1S("\\");
-   } else {
-       dir_sep = fL1S("/");
-   }
 }
 
 QString QMakeGlobals::getEnv(const QString &var) const

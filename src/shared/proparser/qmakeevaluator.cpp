@@ -1454,40 +1454,22 @@ ProStringList QMakeEvaluator::expandVariableReferences(
 }
 
 bool QMakeEvaluator::modesForGenerator(const QString &gen,
-        QMakeGlobals::HOST_MODE *host_mode, QMakeGlobals::TARG_MODE *target_mode) const
+                                       QMakeGlobals::TARG_MODE *target_mode) const
 {
     if (gen == fL1S("UNIX")) {
 #ifdef Q_OS_MAC
-        *host_mode = QMakeGlobals::HOST_MACX_MODE;
         *target_mode = QMakeGlobals::TARG_MACX_MODE;
 #else
-        *host_mode = QMakeGlobals::HOST_UNIX_MODE;
         *target_mode = QMakeGlobals::TARG_UNIX_MODE;
 #endif
     } else if (gen == fL1S("MSVC.NET") || gen == fL1S("BMAKE") || gen == fL1S("MSBUILD")) {
-        *host_mode = QMakeGlobals::HOST_WIN_MODE;
         *target_mode = QMakeGlobals::TARG_WIN_MODE;
     } else if (gen == fL1S("MINGW")) {
-#if defined(Q_OS_MAC)
-        *host_mode = QMakeGlobals::HOST_MACX_MODE;
-#elif defined(Q_OS_UNIX)
-        *host_mode = QMakeGlobals::HOST_UNIX_MODE;
-#else
-        *host_mode = QMakeGlobals::HOST_WIN_MODE;
-#endif
         *target_mode = QMakeGlobals::TARG_WIN_MODE;
     } else if (gen == fL1S("PROJECTBUILDER") || gen == fL1S("XCODE")) {
-        *host_mode = QMakeGlobals::HOST_MACX_MODE;
         *target_mode = QMakeGlobals::TARG_MACX_MODE;
     } else if (gen == fL1S("SYMBIAN_ABLD") || gen == fL1S("SYMBIAN_SBSV2")
                || gen == fL1S("SYMBIAN_UNIX") || gen == fL1S("SYMBIAN_MINGW")) {
-#if defined(Q_OS_MAC)
-        *host_mode = QMakeGlobals::HOST_MACX_MODE;
-#elif defined(Q_OS_UNIX)
-        *host_mode = QMakeGlobals::HOST_UNIX_MODE;
-#else
-        *host_mode = QMakeGlobals::HOST_WIN_MODE;
-#endif
         *target_mode = QMakeGlobals::TARG_SYMBIAN_MODE;
     } else {
         evalError(fL1S("Unknown generator specified: %1").arg(gen));
@@ -1498,22 +1480,14 @@ bool QMakeEvaluator::modesForGenerator(const QString &gen,
 
 void QMakeEvaluator::validateModes() const
 {
-    if (m_option->host_mode == QMakeGlobals::HOST_UNKNOWN_MODE
-        || m_option->target_mode == QMakeGlobals::TARG_UNKNOWN_MODE) {
+    if (m_option->target_mode == QMakeGlobals::TARG_UNKNOWN_MODE) {
         const QHash<ProString, ProStringList> &vals =
                 m_option->base_valuemap.isEmpty() ? m_valuemapStack[0] : m_option->base_valuemap;
-        QMakeGlobals::HOST_MODE host_mode;
         QMakeGlobals::TARG_MODE target_mode;
         const ProStringList &gen = vals.value(ProString("MAKEFILE_GENERATOR"));
         if (gen.isEmpty()) {
             evalError(fL1S("Using OS scope before setting MAKEFILE_GENERATOR"));
-        } else if (modesForGenerator(gen.at(0).toQString(), &host_mode, &target_mode)) {
-            if (m_option->host_mode == QMakeGlobals::HOST_UNKNOWN_MODE) {
-                m_option->host_mode = host_mode;
-                m_option->applyHostMode();
-            }
-
-            if (m_option->target_mode == QMakeGlobals::TARG_UNKNOWN_MODE) {
+        } else if (modesForGenerator(gen.at(0).toQString(), &target_mode)) {
                 const ProStringList &tgt = vals.value(ProString("TARGET_PLATFORM"));
                 if (!tgt.isEmpty()) {
                     const QString &os = tgt.at(0).toQString();
@@ -1530,7 +1504,6 @@ void QMakeEvaluator::validateModes() const
                 } else {
                     m_option->target_mode = target_mode;
                 }
-            }
         }
     }
 }

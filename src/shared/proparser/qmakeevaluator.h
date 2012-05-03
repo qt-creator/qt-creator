@@ -153,8 +153,7 @@ public:
     VisitReturn evaluateConditionalFunction(const ProString &function, const ushort *&tokPtr);
     VisitReturn evaluateConditionalFunction(const ProString &function, const ProStringList &args);
 
-    bool modesForGenerator(const QString &gen,
-            QMakeGlobals::HOST_MODE *host_mode, QMakeGlobals::TARG_MODE *target_mode) const;
+    bool modesForGenerator(const QString &gen, QMakeGlobals::TARG_MODE *target_mode) const;
     void validateModes() const;
     QStringList qmakeMkspecPaths() const;
     QStringList qmakeFeaturePaths() const;

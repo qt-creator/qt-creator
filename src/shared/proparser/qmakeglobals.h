@@ -74,7 +74,6 @@ public:
 #endif
 
 private:
-    void applyHostMode();
     QString getEnv(const QString &) const;
 
     QHash<ProString, ProStringList> base_valuemap; // Cached results of qmake.conf, .qmake.cache & default_pre.prf
@@ -82,8 +81,6 @@ private:
     QStringList feature_roots;
     QString qmakespec_name;
     QString precmds, postcmds;
-    enum HOST_MODE { HOST_UNKNOWN_MODE, HOST_UNIX_MODE, HOST_WIN_MODE, HOST_MACX_MODE };
-    HOST_MODE host_mode;
     enum TARG_MODE { TARG_UNKNOWN_MODE, TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE,
                      TARG_SYMBIAN_MODE };
     TARG_MODE target_mode;
