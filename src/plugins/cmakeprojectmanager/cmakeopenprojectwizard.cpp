@@ -30,15 +30,6 @@
 **
 **************************************************************************/
 
-
-/// TODO
-/// To check
-/// a) with an old cmake
-/// => should not show combobox always use mingw generator
-/// b) with an new cmake
-/// always show combo box, defaulting if there's already a existing build
-
-
 #include "cmakeopenprojectwizard.h"
 #include "cmakeprojectmanager.h"
 
@@ -419,7 +410,7 @@ void CMakeRunPage::initializePage()
     }
 
     // Build the list of generators/toolchains we want to offer
-    // todo restrict toolchains based on CMAKE_CXX_COMPILER ?
+    // restrict toolchains based on CMAKE_CXX_COMPILER ?
     Q_UNUSED(cmakeCxxCompiler);
     m_generatorComboBox->clear();
     bool hasCodeBlocksGenerator = m_cmakeWizard->cmakeManager()->hasCodeBlocksMsvcGenerator();
@@ -554,7 +545,6 @@ void CMakeRunPage::cmakeFinished()
     m_cmakeProcess->deleteLater();
     m_cmakeProcess = 0;
     m_cmakeWizard->setArguments(m_argumentsLineEdit->text());
-    //TODO Actually test that running cmake was finished, for setting this bool
     emit completeChanged();
 }
 

@@ -164,7 +164,7 @@ bool CMakeManager::hasCodeBlocksMsvcGenerator() const
     return m_settingsPage->hasCodeBlocksMsvcGenerator();
 }
 
-// TODO need to refactor this out
+// need to refactor this out
 // we probably want the process instead of this function
 // cmakeproject then could even run the cmake process in the background, adding the files afterwards
 // sounds like a plan
@@ -178,8 +178,6 @@ void CMakeManager::createXmlFile(Utils::QtcProcess *proc, const QString &argumen
     // All of that is not really nice.
     // The mid term plan is to move away from the CodeBlocks Generator and use our own
     // QtCreator generator, which actually can be very similar to the CodeBlock Generator
-
-    // TODO we need to pass on the same paremeters as the cmakestep
     QString buildDirectoryPath = buildDirectory.absolutePath();
     buildDirectory.mkpath(buildDirectoryPath);
     proc->setWorkingDirectory(buildDirectoryPath);
@@ -198,7 +196,7 @@ void CMakeManager::createXmlFile(Utils::QtcProcess *proc, const QString &argumen
 QString CMakeManager::findCbpFile(const QDir &directory)
 {
     // Find the cbp file
-    //   TODO the cbp file is named like the project() command in the CMakeList.txt file
+    //   the cbp file is named like the project() command in the CMakeList.txt file
     //   so this method below could find the wrong cbp file, if the user changes the project()
     //   2name
     QDateTime t;

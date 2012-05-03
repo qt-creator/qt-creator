@@ -51,8 +51,6 @@ class MakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
     friend class MakeStepFactory;
-    friend class MakeStepConfigWidget; // TODO remove
-    // This is for modifying internal data
 
 public:
     MakeStep(ProjectExplorer::BuildStepList *bsl);

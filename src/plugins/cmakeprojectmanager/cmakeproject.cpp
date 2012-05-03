@@ -816,7 +816,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeTarget *target)
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     setLayout(fl);
 
-    // TODO add action to Build menu?
     QPushButton *runCmakeButton = new QPushButton(tr("Run cmake"));
     connect(runCmakeButton, SIGNAL(clicked()),
             this, SLOT(runCMake()));
