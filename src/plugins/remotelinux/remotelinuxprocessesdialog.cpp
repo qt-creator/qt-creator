@@ -65,7 +65,7 @@ RemoteLinuxProcessesDialog::RemoteLinuxProcessesDialog(AbstractRemoteLinuxProces
     d->ui.setupUi(this);
     d->proxyModel.setSourceModel(d->processList);
     d->proxyModel.setDynamicSortFilter(true);
-    d->proxyModel.setFilterKeyColumn(1);
+    d->proxyModel.setFilterKeyColumn(-1);
     d->ui.treeView->setModel(&d->proxyModel);
     d->ui.treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     d->ui.treeView->setUniformRowHeights(true);

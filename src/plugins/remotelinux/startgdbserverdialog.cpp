@@ -152,8 +152,7 @@ StartGdbServerDialogPrivate::StartGdbServerDialogPrivate(StartGdbServerDialog *q
     QFormLayout *formLayout = new QFormLayout();
     formLayout->addRow(StartGdbServerDialog::tr("Device:"), deviceComboBox);
     formLayout->addRow(StartGdbServerDialog::tr("Sysroot:"), sysrootPathChooser);
-    formLayout->addRow(StartGdbServerDialog::tr("&Filter by process name:"),
-                           processFilterLineEdit);
+    formLayout->addRow(StartGdbServerDialog::tr("&Filter entries:"), processFilterLineEdit);
 
     QHBoxLayout *horizontalLayout2 = new QHBoxLayout();
     horizontalLayout2->addStretch(1);
@@ -189,7 +188,7 @@ StartGdbServerDialog::StartGdbServerDialog(QWidget *parent) :
     } else {
         d->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
         d->proxyModel.setDynamicSortFilter(true);
-        d->proxyModel.setFilterKeyColumn(1);
+        d->proxyModel.setFilterKeyColumn(-1);
         d->tableView->setModel(&d->proxyModel);
         connect(d->processFilterLineEdit, SIGNAL(textChanged(QString)),
             &d->proxyModel, SLOT(setFilterRegExp(QString)));

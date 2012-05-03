@@ -19,7 +19,7 @@
      <item>
       <widget class="QLabel" name="filterLabel">
        <property name="text">
-        <string>&amp;Filter by process name:</string>
+        <string>&amp;Filter entries:</string>
        </property>
        <property name="buddy">
         <cstring>processFilterLineEdit</cstring>
