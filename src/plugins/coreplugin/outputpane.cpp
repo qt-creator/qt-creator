@@ -77,7 +77,6 @@ OutputPanePlaceHolder::OutputPanePlaceHolder(Core::IMode *mode, QSplitter* paren
 OutputPanePlaceHolder::~OutputPanePlaceHolder()
 {
     if (d->m_current == this) {
-        // FIXME: Prevent exit crash in debug mode.
         if (Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance()) {
             om->setParent(0);
             om->hide();
