@@ -73,7 +73,7 @@ void BaseTextMarkRegistry::add(BaseTextMark *mark)
 
 bool BaseTextMarkRegistry::remove(BaseTextMark *mark)
 {
-    m_marks[Utils::FileName::fromString(mark->fileName())].remove(mark);
+    return m_marks[Utils::FileName::fromString(mark->fileName())].remove(mark);
 }
 
 void BaseTextMarkRegistry::editorOpened(Core::IEditor *editor)
