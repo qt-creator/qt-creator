@@ -72,6 +72,7 @@ QtcPlugin {
         "generatedfile.h",
         "helpmanager.cpp",
         "helpmanager.h",
+        "icontext.cpp",
         "icontext.h",
         "icore.cpp",
         "icore.h",

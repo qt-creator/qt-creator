@@ -24,6 +24,7 @@ SOURCES += mainwindow.cpp \
     fancytabwidget.cpp \
     generalsettings.cpp \
     id.cpp \
+    icontext.cpp \
     messagemanager.cpp \
     messageoutputwindow.cpp \
     outputpane.cpp \

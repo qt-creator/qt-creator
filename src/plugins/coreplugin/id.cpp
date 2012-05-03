@@ -32,11 +32,12 @@
 
 #include "id.h"
 #include "coreconstants.h"
-#include "icontext.h"
 
 #include <utils/qtcassert.h>
 
+#include <QByteArray>
 #include <QHash>
+#include <QVector>
 
 namespace Core {
 
@@ -129,21 +130,6 @@ QByteArray Id::name() const
 QString Id::toString() const
 {
     return QString::fromLatin1(stringFromId[m_id]);
-}
-
-Context::Context(const char *id, int offset)
-{
-    d.append(Id(QLatin1String(id) + QString::number(offset)).uniqueIdentifier());
-}
-
-void Context::add(const char *id)
-{
-    d.append(Id(id).uniqueIdentifier());
-}
-
-bool Context::contains(const char *id) const
-{
-    return d.contains(Id(id).uniqueIdentifier());
 }
 
 } // namespace Core
