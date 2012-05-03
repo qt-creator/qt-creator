@@ -241,9 +241,6 @@ ProjectWindow::ProjectWindow(QWidget *parent)
     connect(m_tabWidget, SIGNAL(currentIndexChanged(int,int)),
             this, SLOT(showProperties(int,int)));
 
-    connect(session, SIGNAL(sessionLoaded(QString)), this, SLOT(restoreStatus()));
-    connect(session, SIGNAL(aboutToSaveSession()), this, SLOT(saveStatus()));
-
     connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
             this, SLOT(registerProject(ProjectExplorer::Project*)));
     connect(session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
