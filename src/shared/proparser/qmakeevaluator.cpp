@@ -1924,6 +1924,14 @@ ProStringList QMakeEvaluator::values(const ProString &variableName) const
     return result;
 }
 
+ProString QMakeEvaluator::first(const ProString &variableName) const
+{
+    const ProStringList &vals = values(variableName);
+    if (!vals.isEmpty())
+        return vals.first();
+    return ProString();
+}
+
 bool QMakeEvaluator::evaluateFileDirect(
         const QString &fileName, QMakeEvaluatorHandler::EvalFileType type, LoadFlags flags)
 {

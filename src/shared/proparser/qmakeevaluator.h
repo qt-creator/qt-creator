@@ -80,6 +80,7 @@ public:
 
     ProStringList values(const ProString &variableName) const;
     ProStringList &valuesRef(const ProString &variableName);
+    ProString first(const ProString &variableName) const;
     QString propertyValue(const QString &val, bool complain) const;
 
     enum VisitReturn {
