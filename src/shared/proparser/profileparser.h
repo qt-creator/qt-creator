@@ -42,16 +42,6 @@
 # include <QWaitCondition>
 #endif
 
-// Be fast even for debug builds
-// MinGW GCC 4.5+ has a problem with always_inline putTok and putBlockLen
-#if defined(__GNUC__) && !(defined(__MINGW32__) && __GNUC__ == 4 && __GNUC_MINOR__ >= 5)
-# define ALWAYS_INLINE inline __attribute__((always_inline))
-#elif defined(_MSC_VER)
-# define ALWAYS_INLINE __forceinline
-#else
-# define ALWAYS_INLINE inline
-#endif
-
 QT_BEGIN_NAMESPACE
 class QMAKE_EXPORT ProFileParserHandler
 {
