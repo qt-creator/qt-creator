@@ -368,6 +368,7 @@ public:
     void updateCodeModelSupportFromBuild(const QStringList &files);
     void updateCodeModelSupportFromEditor(const QString &uiFileName, const QString &contents);
 
+    QString sourceDir() const;
     QString buildDir(Qt4BuildConfiguration *bc = 0) const;
 
     QString uiDirectory() const;

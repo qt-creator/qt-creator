@@ -2455,9 +2455,14 @@ InstallsList Qt4ProFileNode::installsList() const
     return m_installsList;
 }
 
+QString Qt4ProFileNode::sourceDir() const
+{
+    return m_projectDir;
+}
+
 QString Qt4ProFileNode::buildDir(Qt4BuildConfiguration *bc) const
 {
-    const QDir srcDirRoot = QFileInfo(m_project->rootProjectNode()->path()).absoluteDir();
+    const QDir srcDirRoot = m_project->rootQt4ProjectNode()->sourceDir();
     const QString relativeDir = srcDirRoot.relativeFilePath(m_projectDir);
     if (!bc && m_project->activeTarget())
         bc = qobject_cast<Qt4BuildConfiguration *>(m_project->activeTarget()->activeBuildConfiguration());
