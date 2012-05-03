@@ -347,7 +347,8 @@ public:
     QString displayName() const { return tr("Ex Command Mapping"); }
     QString category() const { return _(Constants::SETTINGS_CATEGORY); }
     QString displayCategory() const { return tr("FakeVim"); }
-    QIcon categoryIcon() const { return QIcon(); } // TODO: Icon for FakeVim
+    QIcon categoryIcon() const
+        { return QIcon(_(Constants::SETTINGS_CATEGORY_FAKEVIM_ICON)); }
 
     QWidget *createPage(QWidget *parent);
     void initialize();
@@ -572,7 +573,8 @@ public:
     QString displayName() const { return tr("User Command Mapping"); }
     QString category() const { return _(Constants::SETTINGS_CATEGORY); }
     QString displayCategory() const { return tr("FakeVim"); }
-    QIcon categoryIcon() const { return QIcon(); }
+    QIcon categoryIcon() const
+        { return QIcon(_(Constants::SETTINGS_CATEGORY_FAKEVIM_ICON)); }
     void apply();
     void finish() {}
 
