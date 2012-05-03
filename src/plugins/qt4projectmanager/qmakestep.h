@@ -96,11 +96,15 @@ public:
     void setForced(bool b);
     bool forced();
 
-    // TODO clean up those functions
+    // the complete argument line
     QString allArguments(bool shorted = false);
-    QStringList moreArguments();
-    QStringList moreArgumentsAfter();
+    // deduced arguments e.g. qmljs debugging
+    QStringList deducedArguments();
+    // deduced arguments with -after, e.g. OBJECTS_DIR for symbian
+    QStringList deducedArgumentsAfter();
+    // arguments passed to the pro file parser
     QStringList parserArguments();
+    // arguments set by the user
     QString userArguments();
     Utils::FileName mkspec();
     void setUserArguments(const QString &arguments);

@@ -152,13 +152,13 @@ QString QMakeStep::allArguments(bool shorted)
     // Find out what flags we pass on to qmake
     arguments << bc->configCommandLineArguments();
 
-    arguments << moreArguments();
+    arguments << deducedArguments();
 
     QString args = Utils::QtcProcess::joinArgs(arguments);
     // User arguments
     Utils::QtcProcess::addArgs(&args, m_userArgs);
     // moreArgumentsAfter
-    foreach (const QString &arg, moreArgumentsAfter())
+    foreach (const QString &arg, deducedArgumentsAfter())
         Utils::QtcProcess::addArg(&args, arg);
     return args;
 }
@@ -167,7 +167,7 @@ QString QMakeStep::allArguments(bool shorted)
 /// moreArguments,
 /// -unix for Maemo
 /// QMAKE_VAR_QMLJSDEBUGGER_PATH
-QStringList QMakeStep::moreArguments()
+QStringList QMakeStep::deducedArguments()
 {
     Qt4BuildConfiguration *bc = qt4BuildConfiguration();
     QStringList arguments;
@@ -223,7 +223,7 @@ QStringList QMakeStep::moreArguments()
 }
 
 /// -after OBJECTS_DIR, MOC_DIR, UI_DIR, RCC_DIR
-QStringList QMakeStep::moreArgumentsAfter()
+QStringList QMakeStep::deducedArgumentsAfter()
 {
     Qt4BuildConfiguration *bc = qt4BuildConfiguration();
     if (bc->qtVersion() && !bc->qtVersion()->supportsShadowBuilds()) {

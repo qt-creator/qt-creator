@@ -109,6 +109,11 @@ bool MakeStep::isClean() const
     return m_clean;
 }
 
+QString MakeStep::makeCommand() const
+{
+    return m_makeCmd;
+}
+
 QVariantMap MakeStep::toMap() const
 {
     QVariantMap map(ProjectExplorer::AbstractProcessStep::toMap());
@@ -205,7 +210,7 @@ bool MakeStep::init()
     env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
     // -w option enables "Enter"/"Leaving directory" messages, which we need for detecting the
     // absolute file path
-    // FIXME doing this without the user having a way to override this is rather bad
+    // doing this without the user having a way to override this is rather bad
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
     // We also prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
@@ -311,7 +316,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     m_ui->makePathChooser->setBaseDirectory(Utils::PathChooser::homePath());
 
 
-    const QString &makeCmd = m_makeStep->m_makeCmd;
+    const QString &makeCmd = m_makeStep->makeCommand();
     m_ui->makePathChooser->setPath(makeCmd);
     m_ui->makeArgumentsLineEdit->setText(m_makeStep->userArguments());
 
@@ -413,8 +418,8 @@ void MakeStepConfigWidget::updateDetails()
     param.setMacroExpander(bc->macroExpander());
     param.setWorkingDirectory(bc->buildDirectory());
     QString makeCmd = bc->makeCommand();
-    if (!m_makeStep->m_makeCmd.isEmpty())
-        makeCmd = m_makeStep->m_makeCmd;
+    if (!m_makeStep->makeCommand().isEmpty())
+        makeCmd = m_makeStep->makeCommand();
     param.setCommand(makeCmd);
 
     QString args = m_makeStep->userArguments();
@@ -434,7 +439,7 @@ void MakeStepConfigWidget::updateDetails()
     // but for now this is the least invasive change
     // We also prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
     ProjectExplorer::ToolChain *toolChain = bc->toolChain();
-    if (toolChain && m_makeStep->m_makeCmd.isEmpty()) {
+    if (toolChain && m_makeStep->makeCommand().isEmpty()) {
         if (toolChain->targetAbi().binaryFormat() != ProjectExplorer::Abi::PEFormat )
             Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
         if (toolChain->targetAbi().os() == ProjectExplorer::Abi::WindowsOS
@@ -472,7 +477,7 @@ void MakeStepConfigWidget::userArgumentsChanged()
 
 void MakeStepConfigWidget::makeEdited()
 {
-    m_makeStep->m_makeCmd = m_ui->makePathChooser->rawPath();
+    m_makeStep->makeCommand() = m_ui->makePathChooser->rawPath();
     updateDetails();
 }
 

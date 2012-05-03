@@ -80,8 +80,6 @@ class QT4PROJECTMANAGER_EXPORT MakeStep : public ProjectExplorer::AbstractProces
 {
     Q_OBJECT
     friend class Internal::MakeStepFactory;
-    friend class MakeStepConfigWidget; // TODO remove this
-    // used to access internal stuff
 
 public:
     explicit MakeStep(ProjectExplorer::BuildStepList *bsl);
@@ -99,6 +97,7 @@ public:
     void setUserArguments(const QString &arguments);
     void setClean(bool clean);
     bool isClean() const;
+    QString makeCommand() const;
 
     QVariantMap toMap() const;
 

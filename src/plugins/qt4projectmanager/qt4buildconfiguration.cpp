@@ -489,7 +489,7 @@ bool Qt4BuildConfiguration::compareToImportFrom(const QString &makefile)
                 // This copies the settings from userArgs to actualArgs (minus some we
                 // are not interested in), splitting them up into individual strings:
                 extractSpecFromArguments(&userArgs, workingDirectory, version, &actualArgs),
-                actualArgs = qs->moreArguments() + actualArgs + qs->moreArgumentsAfter();
+                actualArgs = qs->deducedArguments() + actualArgs + qs->deducedArgumentsAfter();
                 Utils::FileName actualSpec = qs->mkspec();
 
                 QString qmakeArgs = result.second;

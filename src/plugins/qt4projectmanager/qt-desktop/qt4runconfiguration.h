@@ -98,7 +98,6 @@ public:
 
     QString proFilePath() const;
 
-    // TODO detectQtShadowBuild() ? how did this work ?
     QVariantMap toMap() const;
 
     Utils::OutputFormatter *createOutputFormatter() const;

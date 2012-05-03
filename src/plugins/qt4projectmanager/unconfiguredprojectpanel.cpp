@@ -84,7 +84,6 @@ ProjectExplorer::PropertiesPanel *Qt4ProjectManager::Internal::UnconfiguredProje
 {
     ProjectExplorer::PropertiesPanel *panel = new ProjectExplorer::PropertiesPanel;
     panel->setDisplayName(displayName());
-    // TODO the icon needs a update
     panel->setIcon(QIcon(":/projectexplorer/images/unconfigured.png"));
 
     TargetSetupPageWrapper *w = new TargetSetupPageWrapper(project);

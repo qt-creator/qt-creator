@@ -101,7 +101,7 @@ static const FileTypeDataStorage fileTypeDataStorage[] = {
       ":/qt4projectmanager/images/qt_qrc.png" },
     { ProjectExplorer::QMLType,
       QT_TRANSLATE_NOOP("Qt4ProjectManager::Qt4PriFileNode", "QML"),
-      ":/qt4projectmanager/images/qml.ico" }, // TODO icon
+      ":/qt4projectmanager/images/qml.ico" },
     { ProjectExplorer::UnknownFileType,
       QT_TRANSLATE_NOOP("Qt4ProjectManager::Qt4PriFileNode", "Other files"),
       ":/qt4projectmanager/images/unknown.png" }
@@ -571,7 +571,6 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader 
 
     m_recursiveEnumerateFiles.clear();
     // Remove non existing items and non folders
-    // todo fix files in INSTALL rules
     QStringList::iterator it = folders.begin();
     while (it != folders.end()) {
         QFileInfo fi(*it);
@@ -1002,16 +1001,6 @@ bool Qt4PriFileNode::renameFile(const FileType fileType, const QString &filePath
     if (!dummy.isEmpty() && !changeProFileOptional)
         return false;
     return true;
-}
-
-bool Qt4PriFileNode::changeIncludes(ProFile *includeFile, const QStringList &proFilePaths,
-                                    ChangeType change)
-{
-    Q_UNUSED(includeFile)
-    Q_UNUSED(proFilePaths)
-    Q_UNUSED(change)
-    // TODO
-    return false;
 }
 
 bool Qt4PriFileNode::priFileWritable(const QString &path)
@@ -1814,7 +1803,6 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
                 // the .pro file is included in this .pro file
                 // So to compare that later parse with the sync one
                 Qt4ProFileNode *proFileNode = static_cast<Qt4ProFileNode *>(*existingIt);
-                // TODO that could be made faster...
                 proFileNode->setIncludedInExactParse(exactSubdirs.contains(proFileNode->path()) && includedInExactParse());
                 if (async)
                     proFileNode->asyncUpdate();
@@ -1958,8 +1946,6 @@ QStringList Qt4ProFileNode::fileListForVar(QtSupport::ProFileReader *readerExact
 
 // This function is triggered after a build, and updates the state ui files
 // It does so by storing a modification time for each ui file we know about.
-
-// TODO this function should also be called if the build directory is changed
 QStringList Qt4ProFileNode::updateUiFiles()
 {
 //    qDebug()<<"Qt4ProFileNode::updateUiFiles()";

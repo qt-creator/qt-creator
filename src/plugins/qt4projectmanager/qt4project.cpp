@@ -1233,7 +1233,7 @@ void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, Qt4
         }
 
         // Figure out which recursive directories we can remove
-        // TODO this might not scale. I'm pretty sure it doesn't
+        // this might not scale. I'm pretty sure it doesn't
         // A scaling implementation would need to save more information
         // where a given directory watcher actual comes from...
 
@@ -1361,33 +1361,6 @@ void Qt4Project::configureAsExampleProject(const QStringList &platforms)
     }
     ProjectExplorer::ProjectExplorerPlugin::instance()->requestProjectModeUpdate(this);
 }
-
-/*!
-  Handle special case were a subproject of the qt directory is opened, and
-  qt was configured to be built as a shadow build -> also build in the sub-
-  project in the correct shadow build directory.
-  */
-
-// TODO this function should be called on project first load
-// and it should check against all configured qt versions ?
-//void Qt4Project::detectQtShadowBuild(const QString &buildConfiguration) const
-//{
-//    if (project()->activeBuildConfiguration() == buildConfiguration)
-//        return;
-//
-//    const QString currentQtDir = static_cast<Qt4Project *>(project())->qtDir(buildConfiguration);
-//    const QString qtSourceDir = static_cast<Qt4Project *>(project())->qtVersion(buildConfiguration)->sourcePath();
-//
-//    // if the project is a sub-project of Qt and Qt was shadow-built then automatically
-//    // adjust the build directory of the sub-project.
-//    if (project()->file()->fileName().startsWith(qtSourceDir) && qtSourceDir != currentQtDir) {
-//        project()->setValue(buildConfiguration, "useShadowBuild", true);
-//        QString buildDir = project()->projectDirectory();
-//        buildDir.replace(qtSourceDir, currentQtDir);
-//        project()->setValue(buildConfiguration, "buildDirectory", buildDir);
-//        project()->setValue(buildConfiguration, "autoShadowBuild", true);
-//    }
-//}
 
 } // namespace Qt4ProjectManager
 

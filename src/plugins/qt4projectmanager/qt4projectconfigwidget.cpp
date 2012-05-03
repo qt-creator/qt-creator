@@ -86,7 +86,6 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4BaseTarget *target)
     m_ui->setupUi(details);
 
     m_browseButton = m_ui->shadowBuildDirEdit->buttonAtIndex(0);
-    // TODO refix the layout
 
     m_ui->shadowBuildDirEdit->setPromptDialogTitle(tr("Shadow Build Directory"));
     m_ui->shadowBuildDirEdit->setExpectedKind(Utils::PathChooser::ExistingDirectory);

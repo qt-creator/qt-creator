@@ -178,10 +178,6 @@ protected:
         RemoveFromProFile
     };
 
-    bool changeIncludes(ProFile *includeFile,
-                       const QStringList &proFilePaths,
-                       ChangeType change);
-
     void changeFiles(const FileType fileType,
                      const QStringList &filePaths,
                      QStringList *notChanged,
@@ -208,7 +204,6 @@ private:
     Internal::Qt4PriFile *m_qt4PriFile;
 
     // Memory is cheap...
-    // TODO (really that cheap?)
     QMap<ProjectExplorer::FileType, QSet<Utils::FileName> > m_files;
     QSet<Utils::FileName> m_recursiveEnumerateFiles;
     QSet<QString> m_watchedFolders;
