@@ -58,7 +58,9 @@ TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
     QMap<QString, QUrl>::const_iterator it = links.constBegin();
     for (; it != links.constEnd(); ++it) {
         m_links.append(it.value());
-        model->appendRow(new QStandardItem(it.key()));
+        QStandardItem *item = new QStandardItem(it.key());
+        item->setToolTip(it.value().toString());
+        model->appendRow(item);
     }
 
     ui.listWidget->setModel(m_filterModel);
