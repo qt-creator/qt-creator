@@ -32,7 +32,7 @@
 
 #include "texteditorconstants.h"
 
-#include <QByteArray>>
+#include <QByteArray>
 
 namespace TextEditor {
 namespace Constants {
