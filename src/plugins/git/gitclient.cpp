@@ -2327,7 +2327,7 @@ void GitClient::connectRepositoryChanged(const QString & repository, VcsBase::Co
                 GitPlugin::instance()->gitVersionControl(), SIGNAL(repositoryChanged(QString)));
     }
     m_repositoryChangedSignalMapper->setMapping(cmd, repository);
-    connect(cmd, SIGNAL(success()), m_repositoryChangedSignalMapper, SLOT(map()),
+    connect(cmd, SIGNAL(success(QVariant)), m_repositoryChangedSignalMapper, SLOT(map()),
             Qt::QueuedConnection);
 }
 
