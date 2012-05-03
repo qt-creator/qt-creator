@@ -1418,6 +1418,7 @@ void ProjectExplorerPlugin::updateWelcomePage()
 
 void ProjectExplorerPlugin::currentModeChanged(Core::IMode *mode, Core::IMode *oldMode)
 {
+    Q_UNUSED(oldMode);
     if (mode && mode->id() == Core::Id(Core::Constants::MODE_WELCOME).toString())
         updateWelcomePage();
 }
