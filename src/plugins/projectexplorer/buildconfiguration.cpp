@@ -199,7 +199,7 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
     setToolChain(ToolChainManager::instance()->findToolChain(id)); // Do not validate the tool chain as
                                                                    // the BC is not completely set up yet!
 
-    // TODO: We currently assume there to be at least a clean and build list!
+    // We currently assume there to be at least a clean and build list!
     QTC_CHECK(knownStepLists().contains(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
     QTC_CHECK(knownStepLists().contains(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)));
 

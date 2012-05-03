@@ -158,7 +158,7 @@ bool SessionManager::recursiveDependencyCheck(const QString &newDep, const QStri
 }
 
 /*
- * TODO: The dependency management exposes an interface based on projects, but
+ * The dependency management exposes an interface based on projects, but
  * is internally purely string based. This is suboptimal. Probably it would be
  * nicer to map the filenames to projects on load and only map it back to
  * filenames when saving.
