@@ -375,7 +375,8 @@ def checkDebuggingLibrary(targVersion, targets):
 # param keepOptionsOpen set to True if the Options dialog should stay open when
 #       leaving this function
 # param additionalFunction pass a function or name of a defined function to execute
-#       for each item on the list of Qt versions
+#       for each correctly configured item on the list of Qt versions
+#       (Qt versions having no assigned toolchain, failing qmake,... will be skipped)
 #       this function must take at least 2 parameters - the first is the target name
 #       and the second the version of the current selected Qt version item
 # param argsForAdditionalFunc you can specify as much parameters as you want to pass
@@ -411,17 +412,19 @@ def iterateQtVersions(keepOptionsOpen=False, additionalFunction=None, *argsForAd
                 target = matches.group("target").strip()
                 version = matches.group("version").strip()
                 result.append({target:version})
-            if additionalFunction:
-                try:
-                    if isinstance(additionalFunction, (str, unicode)):
-                        currResult = globals()[additionalFunction](target, version, *argsForAdditionalFunc)
-                    else:
-                        currResult = additionalFunction(target, version, *argsForAdditionalFunc)
-                except:
-                    currResult = None
-                    test.fatal("Function to additionally execute on Options Dialog could not be found or "
-                               "an exception occured while executing it.")
-                additionalResult.append(currResult)
+                if additionalFunction:
+                    try:
+                        if isinstance(additionalFunction, (str, unicode)):
+                            currResult = globals()[additionalFunction](target, version, *argsForAdditionalFunc)
+                        else:
+                            currResult = additionalFunction(target, version, *argsForAdditionalFunc)
+                    except:
+                        import sys
+                        t,v,tb = sys.exc_info()
+                        currResult = None
+                        test.fatal("Function to additionally execute on Options Dialog could not be found or "
+                                   "an exception occured while executing it.", "%s(%s)" % (str(t), str(v)))
+                    additionalResult.append(currResult)
     if not keepOptionsOpen:
         clickButton(waitForObject(":Options.Cancel_QPushButton"))
     if additionalFunction:

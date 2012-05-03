@@ -35,7 +35,7 @@ def takeDebuggerLog():
     return debuggerLog
 
 # function to set breakpoints for the current project
-# on the given file,line pairs inside the given dict
+# on the given file,line pairs inside the given list of dicts
 # the lines are treated as regular expression
 def setBreakpointsForCurrentProject(filesAndLines):
     # internal helper for setBreakpointsForCurrentProject
@@ -52,18 +52,19 @@ def setBreakpointsForCurrentProject(filesAndLines):
 
     switchViewTo(ViewConstants.DEBUG)
     removeOldBreakpoints()
-    if not filesAndLines or not isinstance(filesAndLines, dict):
-        test.fatal("This function only takes a non-empty dict.")
+    if not filesAndLines or not isinstance(filesAndLines, (list,tuple)):
+        test.fatal("This function only takes a non-empty list/tuple holding dicts.")
         return False
     navTree = waitForObject("{type='Utils::NavigationTreeView' unnamed='1' visible='1' "
                             "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
-    for curFile,curLine in filesAndLines.iteritems():
-        fName = __doubleClickFile__(navTree, curFile)
-        editor = getEditorForFileSuffix(curFile)
-        if not placeCursorToLine(editor, curLine, True):
-            return False
-        invokeMenuItem("Debug", "Toggle Breakpoint")
-        test.log('Set breakpoint in %s' % fName, curLine)
+    for current in filesAndLines:
+        for curFile,curLine in current.iteritems():
+            fName = __doubleClickFile__(navTree, curFile)
+            editor = getEditorForFileSuffix(curFile)
+            if not placeCursorToLine(editor, curLine, True):
+                return False
+            invokeMenuItem("Debug", "Toggle Breakpoint")
+            test.log('Set breakpoint in %s' % fName, curLine)
     try:
         breakPointTreeView = waitForObject("{type='Debugger::Internal::BreakWindow' visible='1' "
                                            "windowTitle='Breakpoints' name='Debugger.Docks.Break'}")
