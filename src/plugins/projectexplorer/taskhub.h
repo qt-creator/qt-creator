@@ -60,7 +60,6 @@ public:
 
     void popup(bool withFocus);
 
-    // TODO now there are two places for icons
     QIcon taskTypeIcon(ProjectExplorer::Task::TaskType t) const;
 signals:
     void categoryAdded(const Core::Id &categoryId, const QString &displayName, bool visible);

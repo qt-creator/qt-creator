@@ -69,9 +69,6 @@ static inline QString msgProgress(int progress, int total)
 }
 
 namespace ProjectExplorer {
-//NBS TODO this class has too many different variables which hold state:
-// m_buildQueue, m_running, m_canceled, m_progress, m_maxProgress, m_activeBuildSteps and ...
-// I might need to reduce that.
 struct BuildManagerPrivate {
     BuildManagerPrivate();
 

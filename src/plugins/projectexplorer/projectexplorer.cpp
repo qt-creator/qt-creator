@@ -237,7 +237,7 @@ struct ProjectExplorerPluginPrivate {
     static const int m_maxRecentProjects = 7;
 
     QString m_lastOpenDirectory;
-    RunConfiguration *m_delayedRunConfiguration; // TODO this is not right
+    RunConfiguration *m_delayedRunConfiguration;
     RunMode m_runMode;
     QString m_projectFilterString;
     Internal::MiniProjectTargetSelector * m_targetSelector;

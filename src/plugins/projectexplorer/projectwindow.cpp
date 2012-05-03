@@ -275,8 +275,8 @@ void ProjectWindow::extensionsInitialized()
 
 void ProjectWindow::aboutToShutdown()
 {
-    showProperties(-1, -1); // TODO that's a bit stupid, but otherwise stuff is still
-                             // connected to the session
+    showProperties(-1, -1); // that's a bit stupid, but otherwise stuff is still
+                            // connected to the session
     disconnect(ProjectExplorerPlugin::instance()->session(), 0, this, 0);
 }
 
@@ -380,16 +380,6 @@ void ProjectWindow::deregisterProject(ProjectExplorer::Project *project)
 
     m_tabIndexToProject.removeAt(index);
     m_tabWidget->removeTab(index);
-}
-
-void ProjectWindow::restoreStatus()
-{
-    // TODO
-}
-
-void ProjectWindow::saveStatus()
-{
-    // TODO
 }
 
 void ProjectWindow::startupProjectChanged(ProjectExplorer::Project *p)

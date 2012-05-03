@@ -62,7 +62,7 @@ public:
 
     virtual QString buildDirectory() const = 0;
 
-    // TODO: Maybe the BuildConfiguration is not the best place for the environment
+    // Maybe the BuildConfiguration is not the best place for the environment
     virtual Utils::Environment baseEnvironment() const;
     QString baseEnvironmentText() const;
     Utils::Environment environment() const;
@@ -78,7 +78,7 @@ public:
 
     // Creates a suitable outputparser for custom build steps
     // (based on the tool chain)
-    // TODO this is not great API
+    // this is not great API
     // it's mainly so that custom build systems are better integrated
     // with the generic project manager
     virtual IOutputParser *createOutputParser() const = 0;
