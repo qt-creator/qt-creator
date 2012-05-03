@@ -101,7 +101,10 @@ S60DeployConfiguration::S60DeployConfiguration(Target *target, S60DeployConfigur
 void S60DeployConfiguration::ctor()
 {
     ProjectExplorer::DeviceManager *dm = ProjectExplorer::DeviceManager::instance();
-    m_deviceId = dm->defaultDevice(Internal::SymbianIDeviceFactory::deviceType())->id();
+    IDevice::ConstPtr defaultDevice
+            = dm->defaultDevice(Internal::SymbianIDeviceFactory::deviceType());
+    if (defaultDevice)
+        m_deviceId = defaultDevice->id();
 
     setDefaultDisplayName(defaultDisplayName());
     // TODO disable S60 Deploy Configuration while parsing
