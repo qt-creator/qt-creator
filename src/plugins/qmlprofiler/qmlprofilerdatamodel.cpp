@@ -203,7 +203,7 @@ public:
     qint64 traceStartTime;
     qint64 qmlMeasuredTime;
 
-    QmlRangeEventStartInstance *lastFrameEvent;
+    int lastFrameEventIndex;
     qint64 maxAnimationCount;
     qint64 minAnimationCount;
 
@@ -226,7 +226,7 @@ QmlProfilerDataModel::QmlProfilerDataModel(QObject *parent) :
     d->traceStartTime = -1;
     d->qmlMeasuredTime = 0;
     d->clearQmlRootEvent();
-    d->lastFrameEvent = 0;
+    d->lastFrameEventIndex = -1;
     d->maxAnimationCount = 0;
     d->minAnimationCount = 0;
     d->v8DataModel = new QV8ProfilerDataModel(this, this);
@@ -283,7 +283,7 @@ void QmlProfilerDataModel::clear()
     d->traceStartTime = -1;
     d->qmlMeasuredTime = 0;
 
-    d->lastFrameEvent = 0;
+    d->lastFrameEventIndex = -1;
     d->maxAnimationCount = 0;
     d->minAnimationCount = 0;
 
@@ -401,11 +401,14 @@ void QmlProfilerDataModel::addFrameEvent(qint64 time, int framerate, int animati
 
     qint64 length = 1e9/framerate;
     // avoid overlap
-    if (d->lastFrameEvent &&
-            d->lastFrameEvent->startTime + d->lastFrameEvent->duration >= time) {
-        d->lastFrameEvent->duration = time - 1 - d->lastFrameEvent->startTime;
-        d->endInstanceList[d->lastFrameEvent->endTimeIndex].endTime =
-                d->lastFrameEvent->startTime + d->lastFrameEvent->duration;
+    QmlRangeEventStartInstance *lastFrameEvent = 0;
+    if (d->lastFrameEventIndex > -1) {
+        lastFrameEvent = &d->startInstanceList[d->lastFrameEventIndex];
+        if (lastFrameEvent->startTime + lastFrameEvent->duration >= time) {
+            lastFrameEvent->duration = time - 1 - lastFrameEvent->startTime;
+            d->endInstanceList[lastFrameEvent->endTimeIndex].endTime =
+                    lastFrameEvent->startTime + lastFrameEvent->duration;
+        }
     }
 
     QmlRangeEventEndInstance endTimeData;
@@ -425,7 +428,7 @@ void QmlProfilerDataModel::addFrameEvent(qint64 time, int framerate, int animati
     d->endInstanceList << endTimeData;
     d->startInstanceList << startTimeData;
 
-    d->lastFrameEvent = &d->startInstanceList.last();
+    d->lastFrameEventIndex = d->startInstanceList.count() - 1;
 
     emit countChanged();
 }
@@ -941,13 +944,13 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::findAnimationLimits()
 {
     maxAnimationCount = 0;
     minAnimationCount = 0;
-    lastFrameEvent = 0;
+    lastFrameEventIndex = -1;
 
     for (int i = 0; i < startInstanceList.count(); i++) {
         if (startInstanceList[i].statsInfo->eventType == QmlDebug::Painting &&
                 startInstanceList[i].animationCount >= 0) {
             int animationcount = startInstanceList[i].animationCount;
-            if (lastFrameEvent) {
+            if (lastFrameEventIndex > -1) {
                 if (animationcount > maxAnimationCount)
                     maxAnimationCount = animationcount;
                 if (animationcount < minAnimationCount)
@@ -956,7 +959,7 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::findAnimationLimits()
                 maxAnimationCount = animationcount;
                 minAnimationCount = animationcount;
             }
-            lastFrameEvent = &startInstanceList[i];
+            lastFrameEventIndex = i;
         }
     }
 }
