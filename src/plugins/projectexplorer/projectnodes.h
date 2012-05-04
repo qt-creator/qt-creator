@@ -54,6 +54,7 @@ class RunConfiguration;
 enum NodeType {
     FileNodeType = 1,
     FolderNodeType,
+    VirtualFolderNodeType,
     ProjectNodeType,
     SessionNodeType
 };
@@ -87,6 +88,8 @@ public:
     ProjectNode *projectNode() const;     // managing project
     FolderNode *parentFolderNode() const; // parent folder or project
     QString path() const;                 // file system path
+    virtual QString displayName() const;
+    virtual QString tooltip() const;
 
 protected:
     Node(NodeType nodeType, const QString &path);
@@ -122,7 +125,7 @@ private:
 class PROJECTEXPLORER_EXPORT FolderNode : public Node {
     Q_OBJECT
 public:
-    explicit FolderNode(const QString &folderPath);
+    explicit FolderNode(const QString &folderPath, NodeType nodeType = FolderNodeType);
     virtual ~FolderNode();
 
     QString displayName() const;
@@ -145,6 +148,18 @@ private:
     friend class ProjectNode;
     QString m_displayName;
     mutable QIcon m_icon;
+};
+
+class PROJECTEXPLORER_EXPORT VirtualFolderNode : public FolderNode
+{
+    Q_OBJECT
+public:
+    explicit VirtualFolderNode(const QString &folderPath, int priority);
+    virtual ~VirtualFolderNode();
+
+    int priority() const;
+private:
+    int m_priority;
 };
 
 // Documentation inside.
@@ -212,8 +227,6 @@ public:
     void unregisterWatcher(NodesWatcher *watcher);
 
     void accept(NodesVisitor *visitor);
-
-    static bool sortNodesByPath(Node *n1, Node *n2);
 
 protected:
     // this is just the in-memory representation, a subclass

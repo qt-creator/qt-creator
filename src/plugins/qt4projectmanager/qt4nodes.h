@@ -264,6 +264,29 @@ private:
     friend class Qt4PriFileNode;
 };
 
+class ProVirtualFolderNode : public ProjectExplorer::VirtualFolderNode
+{
+public:
+    explicit ProVirtualFolderNode(const QString &folderPath, int priority, const QString &typeName)
+        : VirtualFolderNode(folderPath, priority), m_typeName(typeName)
+    {
+
+    }
+
+    QString displayName() const
+    {
+        return m_typeName;
+    }
+
+    QString tooltip() const
+    {
+        return QString();
+    }
+
+private:
+    QString m_typeName;
+};
+
 } // namespace Internal
 
 struct QT4PROJECTMANAGER_EXPORT TargetInformation

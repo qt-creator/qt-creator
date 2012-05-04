@@ -2567,12 +2567,11 @@ QString pathOrDirectoryFor(Node *node, bool dir)
     QString path = node->path();
     QString location;
     FolderNode *folder = qobject_cast<FolderNode *>(node);
-    const int hashPos = path.indexOf(QLatin1Char('#'));
-    if (hashPos >= 0 && folder) {
+    if (node->nodeType() == ProjectExplorer::VirtualFolderNodeType && folder) {
         // Virtual Folder case
         // If there are files directly below or no subfolders, take the folder path
         if (!folder->fileNodes().isEmpty() || folder->subFolderNodes().isEmpty()) {
-            location = path.left(hashPos);
+            location = path;
         } else {
             // Otherwise we figure out a commonPath from the subfolders
             QStringList list;

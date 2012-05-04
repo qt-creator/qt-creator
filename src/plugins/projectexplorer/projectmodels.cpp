@@ -101,6 +101,29 @@ bool sortNodes(Node *n1, Node *n2)
     if (n2Type == ProjectNodeType)
         return false;
 
+    if (n1Type == VirtualFolderNodeType) {
+        if (n2Type == VirtualFolderNodeType) {
+            VirtualFolderNode *folder1 = static_cast<VirtualFolderNode *>(n1);
+            VirtualFolderNode *folder2 = static_cast<VirtualFolderNode *>(n2);
+
+            if (folder1->priority() > folder2->priority())
+                return true;
+            if (folder1->priority() < folder2->priority())
+                return false;
+            int result = caseFriendlyCompare(folder1->path(), folder2->path());
+            if (result != 0)
+                return result < 0;
+            else
+                return folder1 < folder2;
+        } else {
+            return true; // virtual folder is before folder
+        }
+    }
+
+    if (n2Type == VirtualFolderNodeType)
+        return false;
+
+
     if (n1Type == FolderNodeType) {
         if (n2Type == FolderNodeType) {
             FolderNode *folder1 = static_cast<FolderNode*>(n1);
@@ -240,14 +263,11 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         switch (role) {
         case Qt::DisplayRole:
         case Qt::EditRole: {
-            if (folderNode)
-                result = folderNode->displayName();
-            else
-                result = QFileInfo(node->path()).fileName(); //TODO cache that?
+            result = node->displayName();
             break;
         }
         case Qt::ToolTipRole: {
-            result = QDir::toNativeSeparators(node->path());
+            result = node->tooltip();
             break;
         }
         case Qt::DecorationRole: {
