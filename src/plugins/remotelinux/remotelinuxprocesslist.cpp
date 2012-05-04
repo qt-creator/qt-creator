@@ -59,7 +59,7 @@ public:
 
     const LinuxDeviceConfiguration::ConstPtr deviceConfiguration;
     SshRemoteProcessRunner process;
-    QList<AbstractRemoteLinuxProcessList::RemoteProcess> remoteProcesses;
+    QList<RemoteProcess> remoteProcesses;
     QByteArray remoteStdout;
     QByteArray remoteStderr;
     QString errorMsg;
@@ -108,14 +108,9 @@ void AbstractRemoteLinuxProcessList::killProcess(int row)
     startProcess(killProcessCommandLine(d->remoteProcesses.at(row)));
 }
 
-int AbstractRemoteLinuxProcessList::pidAt(int row) const
+RemoteProcess AbstractRemoteLinuxProcessList::at(int row) const
 {
-    return d->remoteProcesses.at(row).pid;
-}
-
-QString AbstractRemoteLinuxProcessList::commandLineAt(int row) const
-{
-    return d->remoteProcesses.at(row).cmdLine;
+    return d->remoteProcesses.at(row);
 }
 
 int AbstractRemoteLinuxProcessList::rowCount(const QModelIndex &parent) const
@@ -260,7 +255,7 @@ QString GenericRemoteLinuxProcessList::killProcessCommandLine(const RemoteProces
     return QLatin1String("kill -9 ") + QString::number(process.pid);
 }
 
-QList<AbstractRemoteLinuxProcessList::RemoteProcess> GenericRemoteLinuxProcessList::buildProcessList(const QString &listProcessesReply) const
+QList<RemoteProcess> GenericRemoteLinuxProcessList::buildProcessList(const QString &listProcessesReply) const
 {
     QList<RemoteProcess> processes;
     const QStringList &lines = listProcessesReply.split(QLatin1Char('\n'), QString::SkipEmptyParts);

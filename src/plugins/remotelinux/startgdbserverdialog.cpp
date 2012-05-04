@@ -271,8 +271,8 @@ void StartGdbServerDialog::attachToProcess()
     const int port = d->gatherer.getNextFreePort(&ports);
     const int row = d->proxyModel.mapToSource(indexes.first()).row();
     QTC_ASSERT(row >= 0, return);
-    const int pid = d->processList->pidAt(row);
-    d->remoteCommandLine = d->processList->commandLineAt(row);
+    RemoteProcess process = d->processList->at(row);
+    d->remoteCommandLine = process.cmdLine;
     if (port == -1) {
         reportFailure();
         return;
@@ -282,7 +282,7 @@ void StartGdbServerDialog::attachToProcess()
     d->settings->setValue(LastDevice, d->deviceComboBox->currentIndex());
     d->settings->setValue(LastProcessName, d->processFilterLineEdit->text());
 
-    startGdbServerOnPort(port, pid);
+    startGdbServerOnPort(port, process.pid);
 }
 
 void StartGdbServerDialog::reportFailure()
