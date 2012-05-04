@@ -84,10 +84,6 @@ const char RENAMEFILE[]           = "ProjectExplorer.RenameFile";
 const char SETSTARTUP[]           = "ProjectExplorer.SetStartup";
 const char PROJECTTREE_COLLAPSE_ALL[] = "ProjectExplorer.CollapseAll";
 
-const char SHOW_TASK_IN_EDITOR[]  = "ProjectExplorer.ShowTaskInEditor";
-const char VCS_ANNOTATE_TASK[]    = "ProjectExplorer.VcsAnnotateTask";
-const char SHOW_TASK_OUTPUT[]     = "ProjectExplorer.ShowTaskOutput";
-
 const char SELECTTARGET[]         = "ProjectExplorer.SelectTarget";
 const char SELECTTARGETQUICK[]    = "ProjectExplorer.SelectTargetQuick";
 

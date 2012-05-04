@@ -43,10 +43,6 @@
 
 using namespace ProjectExplorer::Internal;
 
-CopyTaskHandler::CopyTaskHandler() :
-    ITaskHandler(QLatin1String(Core::Constants::COPY))
-{ }
-
 void CopyTaskHandler::handle(const ProjectExplorer::Task &task)
 {
     QString type;
@@ -68,7 +64,7 @@ void CopyTaskHandler::handle(const ProjectExplorer::Task &task)
                                        + type + task.description);
 }
 
-QAction *CopyTaskHandler::createAction(QObject *parent)
+QAction *CopyTaskHandler::createAction(QObject *parent) const
 {
     QAction *copyAction = new QAction(tr("&Copy", "Name of the action triggering the copytaskhandler"), parent);
     copyAction->setToolTip(tr("Copy task to clipboard"));

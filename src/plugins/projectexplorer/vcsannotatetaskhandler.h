@@ -35,10 +35,6 @@
 
 #include "itaskhandler.h"
 
-namespace Core {
-class IVersionControl;
-}
-
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -47,11 +43,11 @@ class VcsAnnotateTaskHandler : public ITaskHandler
     Q_OBJECT
 
 public:
-    VcsAnnotateTaskHandler();
+    VcsAnnotateTaskHandler() {}
 
-    bool canHandle(const Task &);
+    bool canHandle(const Task &) const;
     void handle(const Task &task);
-    QAction *createAction(QObject *parent = 0);
+    QAction *createAction(QObject *parent) const;
 };
 
 } // namespace Internal

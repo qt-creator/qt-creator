@@ -42,11 +42,7 @@
 
 using namespace ProjectExplorer::Internal;
 
-ShowInEditorTaskHandler::ShowInEditorTaskHandler() :
-    ITaskHandler(QLatin1String(Constants::SHOW_TASK_IN_EDITOR))
-{ }
-
-bool ShowInEditorTaskHandler::canHandle(const ProjectExplorer::Task &task)
+bool ShowInEditorTaskHandler::canHandle(const ProjectExplorer::Task &task) const
 {
     if (task.file.isEmpty())
         return false;
@@ -60,7 +56,7 @@ void ShowInEditorTaskHandler::handle(const ProjectExplorer::Task &task)
     TextEditor::BaseTextEditorWidget::openEditorAt(fi.canonicalFilePath(), task.movedLine);
 }
 
-QAction *ShowInEditorTaskHandler::createAction(QObject *parent)
+QAction *ShowInEditorTaskHandler::createAction(QObject *parent) const
 {
     QAction *showAction = new QAction(tr("&Show in Editor"), parent);
     showAction->setToolTip(tr("Show task location in an editor."));

@@ -41,12 +41,11 @@ namespace Internal {
 class StopMonitoringHandler : public ProjectExplorer::ITaskHandler
 {
 public:
-    StopMonitoringHandler();
-    ~StopMonitoringHandler();
+    StopMonitoringHandler() {}
 
-    bool canHandle(const ProjectExplorer::Task &);
+    bool canHandle(const ProjectExplorer::Task &) const;
     void handle(const ProjectExplorer::Task &);
-    QAction *createAction(QObject *parent = 0);
+    QAction *createAction(QObject *parent) const;
 };
 
 } // namespace Internal

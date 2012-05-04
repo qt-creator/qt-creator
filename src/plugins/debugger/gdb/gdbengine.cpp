@@ -197,11 +197,11 @@ public:
 class DebugInfoTaskHandler : public  ProjectExplorer::ITaskHandler
 {
 public:
-    DebugInfoTaskHandler(GdbEngine *engine)
-        : ITaskHandler(_("Debuginfo")), m_engine(engine)
+    explicit DebugInfoTaskHandler(GdbEngine *engine)
+        : m_engine(engine)
     {}
 
-    bool canHandle(const Task &task)
+    bool canHandle(const Task &task) const
     {
         return m_debugInfoTasks.contains(task.taskId);
     }
@@ -216,7 +216,7 @@ public:
         m_debugInfoTasks[id] = task;
     }
 
-    QAction *createAction(QObject *parent = 0)
+    QAction *createAction(QObject *parent) const
     {
         QAction *action = new QAction(DebuggerPlugin::tr("Install &Debug Information"), parent);
         action->setToolTip(DebuggerPlugin::tr("This tries to install missing debug information."));

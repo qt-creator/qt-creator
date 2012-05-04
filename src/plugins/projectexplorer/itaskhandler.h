@@ -50,21 +50,12 @@ class PROJECTEXPLORER_EXPORT ITaskHandler : public QObject
     Q_OBJECT
 
 public:
-    explicit ITaskHandler(const QString &id) :
-        m_id(id)
-    { }
+    explicit ITaskHandler() {}
 
-    QString id() const
-    {
-        return m_id;
-    }
-
-    virtual bool canHandle(const Task &) { return true; }
+    virtual bool isDefaultHandler() const { return false; }
+    virtual bool canHandle(const Task &) const = 0;
     virtual void handle(const Task &) = 0;
-    virtual QAction *createAction(QObject *parent = 0) = 0;
-
-private:
-    const QString m_id;
+    virtual QAction *createAction(QObject *parent) const = 0;
 };
 
 } // namespace ProjectExplorer

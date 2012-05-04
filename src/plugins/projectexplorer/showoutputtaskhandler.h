@@ -45,11 +45,11 @@ class ShowOutputTaskHandler : public ITaskHandler
     Q_OBJECT
 
 public:
-    ShowOutputTaskHandler(CompileOutputWindow *);
+    explicit ShowOutputTaskHandler(CompileOutputWindow *window);
 
-    bool canHandle(const Task &);
+    bool canHandle(const Task &) const;
     void handle(const Task &task);
-    QAction *createAction(QObject *parent = 0);
+    QAction *createAction(QObject *parent) const;
 
 private:
     CompileOutputWindow * m_window;

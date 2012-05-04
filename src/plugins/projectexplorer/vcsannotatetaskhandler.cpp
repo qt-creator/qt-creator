@@ -45,11 +45,7 @@
 
 using namespace ProjectExplorer::Internal;
 
-VcsAnnotateTaskHandler::VcsAnnotateTaskHandler() :
-    ITaskHandler(QLatin1String(Constants::VCS_ANNOTATE_TASK))
-{ }
-
-bool VcsAnnotateTaskHandler::canHandle(const ProjectExplorer::Task &task)
+bool VcsAnnotateTaskHandler::canHandle(const ProjectExplorer::Task &task) const
 {
     QFileInfo fi(task.file.toFileInfo());
     if (!fi.exists() || !fi.isFile() || !fi.isReadable())
@@ -69,7 +65,7 @@ void VcsAnnotateTaskHandler::handle(const ProjectExplorer::Task &task)
     vc->vcsAnnotate(fi.absoluteFilePath(), task.movedLine);
 }
 
-QAction *VcsAnnotateTaskHandler::createAction(QObject *parent)
+QAction *VcsAnnotateTaskHandler::createAction(QObject *parent) const
 {
     QAction *vcsannotateAction = new QAction(tr("&Annotate"), parent);
     vcsannotateAction->setToolTip(tr("Annotate using version control system"));

@@ -42,13 +42,12 @@
 using namespace ProjectExplorer::Internal;
 
 ShowOutputTaskHandler::ShowOutputTaskHandler(CompileOutputWindow *window) :
-    ITaskHandler(QLatin1String(Constants::SHOW_TASK_OUTPUT)),
     m_window(window)
 {
     Q_ASSERT(m_window);
 }
 
-bool ShowOutputTaskHandler::canHandle(const ProjectExplorer::Task &task)
+bool ShowOutputTaskHandler::canHandle(const ProjectExplorer::Task &task) const
 {
     return m_window->knowsPositionOf(task);
 }
@@ -60,7 +59,7 @@ void ShowOutputTaskHandler::handle(const ProjectExplorer::Task &task)
     m_window->showPositionOf(task);
 }
 
-QAction *ShowOutputTaskHandler::createAction(QObject *parent)
+QAction *ShowOutputTaskHandler::createAction(QObject *parent) const
 {
     QAction *outputAction = new QAction(tr("Show &Output"), parent);
     outputAction->setToolTip(tr("Show output generating this issue."));

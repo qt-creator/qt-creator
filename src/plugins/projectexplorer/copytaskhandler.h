@@ -43,10 +43,11 @@ class CopyTaskHandler : public ITaskHandler
     Q_OBJECT
 
 public:
-    CopyTaskHandler();
+    CopyTaskHandler() {}
 
+    bool canHandle(const Task &) const { return true; }
     void handle(const Task &task);
-    QAction *createAction(QObject *parent = 0);
+    QAction *createAction(QObject *parent) const;
 };
 
 } // namespace Internal

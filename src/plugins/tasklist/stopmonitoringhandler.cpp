@@ -48,14 +48,7 @@ using namespace TaskList::Internal;
 // StopMonitoringHandler
 // --------------------------------------------------------------------------
 
-StopMonitoringHandler::StopMonitoringHandler() :
-    ProjectExplorer::ITaskHandler(QLatin1String("TaskList.StopMonitoringHandler"))
-{ }
-
-StopMonitoringHandler::~StopMonitoringHandler()
-{ }
-
-bool StopMonitoringHandler::canHandle(const ProjectExplorer::Task &task)
+bool StopMonitoringHandler::canHandle(const ProjectExplorer::Task &task) const
 {
     return task.category == Core::Id(Constants::TASKLISTTASK_ID);
 }
@@ -67,7 +60,7 @@ void StopMonitoringHandler::handle(const ProjectExplorer::Task &task)
     TaskList::TaskListPlugin::instance()->stopMonitoring();
 }
 
-QAction *StopMonitoringHandler::createAction(QObject *parent)
+QAction *StopMonitoringHandler::createAction(QObject *parent) const
 {
     const QString text =
             QCoreApplication::translate("TaskList::Internal::StopMonitoringHandler",

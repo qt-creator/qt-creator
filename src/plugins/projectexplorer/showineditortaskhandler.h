@@ -43,11 +43,12 @@ class ShowInEditorTaskHandler : public ITaskHandler
     Q_OBJECT
 
 public:
-    ShowInEditorTaskHandler();
+    ShowInEditorTaskHandler() {}
 
-    bool canHandle(const Task &);
+    bool isDefaultHandler() const { return true; }
+    bool canHandle(const Task &) const;
     void handle(const Task &task);
-    QAction *createAction(QObject *parent = 0);
+    QAction *createAction(QObject *parent ) const;
 };
 
 } // namespace Internal

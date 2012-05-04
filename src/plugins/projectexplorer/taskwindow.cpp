@@ -427,7 +427,7 @@ void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
     if (!d->m_defaultHandler) {
         QList<ITaskHandler *> handlers = ExtensionSystem::PluginManager::instance()->getObjects<ITaskHandler>();
         foreach(ITaskHandler *handler, handlers) {
-            if (handler->id() == QLatin1String(Constants::SHOW_TASK_IN_EDITOR)) {
+            if (handler->isDefaultHandler()) {
                 d->m_defaultHandler = handler;
                 break;
             }
