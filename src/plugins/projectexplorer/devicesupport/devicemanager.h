@@ -92,7 +92,7 @@ private:
     void ensureOneDefaultDevicePerType();
 
     // For SettingsWidget.
-    IDevice::Ptr mutableDeviceAt(int index) const;
+    IDevice::Ptr mutableDevice(Core::Id id) const;
     void setDefaultDevice(int index);
     static DeviceManager *cloneInstance();
     static void replaceInstance();

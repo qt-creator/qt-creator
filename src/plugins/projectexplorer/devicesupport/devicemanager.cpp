@@ -266,14 +266,13 @@ void DeviceManager::addDevice(const IDevice::Ptr &device)
 
 void DeviceManager::removeDevice(Core::Id id)
 {
-    const int idx = indexForId(id);
-    const IDevice::Ptr device = mutableDeviceAt(idx);
+    const IDevice::Ptr device = mutableDevice(id);
     QTC_ASSERT(device, return);
     QTC_ASSERT(this != instance() || device->isAutoDetected(), return);
 
     const bool wasDefault = d->defaultDevices.value(device->type()) == device->id();
     const QString deviceType = device->type();
-    d->devices.removeAt(idx);
+    d->devices.removeAt(indexForId(id));
     emit deviceRemoved(device->id());
 
     if (wasDefault) {
@@ -339,10 +338,10 @@ IDevice::ConstPtr DeviceManager::deviceAt(int idx) const
     return d->devices.at(idx);
 }
 
-IDevice::Ptr DeviceManager::mutableDeviceAt(int idx) const
+IDevice::Ptr DeviceManager::mutableDevice(Core::Id id) const
 {
-    QTC_ASSERT(idx >= 0 && idx < deviceCount(), return IDevice::Ptr());
-    return d->devices.at(idx);
+    const int index = indexForId(id);
+    return index == -1 ? IDevice::Ptr() : d->devices.at(index);
 }
 
 bool DeviceManager::hasDevice(const QString &name) const

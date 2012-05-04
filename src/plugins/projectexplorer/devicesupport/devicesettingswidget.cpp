@@ -226,7 +226,7 @@ void DeviceSettingsWidget::deviceNameEditingFinished()
         return;
 
     const QString &newName = m_ui->nameLineEdit->text();
-    m_deviceManager->mutableDeviceAt(currentIndex())->setDisplayName(newName);
+    m_deviceManager->mutableDevice(currentDevice()->id())->setDisplayName(newName);
     m_nameValidator->setDisplayName(newName);
     m_deviceManagerModel->updateDevice(currentDevice()->id());
 }
@@ -266,8 +266,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
         }
         if (!m_ui->osSpecificGroupBox->layout())
             new QVBoxLayout(m_ui->osSpecificGroupBox);
-        int managerIndex = m_deviceManager->indexOf(device);
-        m_configWidget = m_deviceManager->mutableDeviceAt(managerIndex)->createWidget();
+        m_configWidget = m_deviceManager->mutableDevice(device->id())->createWidget();
         if (m_configWidget)
             m_ui->osSpecificGroupBox->layout()->addWidget(m_configWidget);
         displayCurrent();
@@ -283,7 +282,7 @@ void DeviceSettingsWidget::clearDetails()
 
 void DeviceSettingsWidget::handleAdditionalActionRequest(int actionId)
 {
-    const IDevice::Ptr &device = m_deviceManager->mutableDeviceAt(currentIndex());
+    IDevice::Ptr device = m_deviceManager->mutableDevice(currentDevice()->id());
     QTC_ASSERT(device, return);
     device->executeAction(Core::Id::fromUniqueIdentifier(actionId), this);
 }
