@@ -5,7 +5,7 @@ def verifyChangeProject(projectName):
     # select project
     projItem = waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", projectName)
     openItemContextMenu(waitForObject(":Qt Creator_Utils::NavigationTreeView"), projectName, 5, 5, 0)
-    activateItem(waitForObjectItem(":Qt Creator.Project.Menu.Project_QMenu", "Set as Active Project"))
+    activateItem(waitForObjectItem(":Qt Creator.Project.Menu.Project_QMenu", 'Set "%s" as Active Project' % projectName))
     waitFor("projItem.font.bold==True",3000)
     # check if bold is right project
     test.verify(projItem.font.bold == True,
