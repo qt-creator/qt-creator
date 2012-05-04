@@ -64,9 +64,13 @@ def setBreakpointsForCurrentProject(filesAndLines):
             return False
         invokeMenuItem("Debug", "Toggle Breakpoint")
         test.log('Set breakpoint in %s' % fName, curLine)
-    breakPointTreeView = waitForObject("{type='Debugger::Internal::BreakWindow' visible='1' "
-                                       "windowTitle='Breakpoints' name='Debugger.Docks.Break'}")
-    waitFor("breakPointTreeView.model().rowCount() == len(filesAndLines)", 2000)
+    try:
+        breakPointTreeView = waitForObject("{type='Debugger::Internal::BreakWindow' visible='1' "
+                                           "windowTitle='Breakpoints' name='Debugger.Docks.Break'}")
+        waitFor("breakPointTreeView.model().rowCount() == len(filesAndLines)", 2000)
+    except:
+        test.fatal("UI seems to have changed - check manually and fix this script.")
+        return False
     test.compare(breakPointTreeView.model().rowCount(), len(filesAndLines),
                  'Expected %d set break points, found %d listed' %
                  (len(filesAndLines), breakPointTreeView.model().rowCount()))
@@ -89,8 +93,9 @@ def removeOldBreakpoints():
                 rect = breakPointTreeView.visualRect(currentIndex)
                 mouseClick(breakPointTreeView, rect.x+5, rect.y+5, 0, Qt.LeftButton)
                 type(breakPointTreeView, "<Delete>")
-    except LookupError:
-        pass
+    except:
+        test.fatal("UI seems to have changed - check manually and fix this script.")
+        return False
     return test.compare(model.rowCount(), 0, "Check if all breakpoints have been removed.")
 
 # function to do simple debugging of the current (configured) project
