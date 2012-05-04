@@ -175,6 +175,7 @@ void TodoOutputPane::createTreeView()
     m_todoTreeView->setFrameStyle(QFrame::NoFrame);
     m_todoTreeView->setSortingEnabled(true);
     m_todoTreeView->setModel(m_todoItemsModel);
+    m_todoTreeView->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     QHeaderView *header = m_todoTreeView->header();
     header->setResizeMode(Constants::OUTPUT_COLUMN_TEXT, QHeaderView::Stretch);
