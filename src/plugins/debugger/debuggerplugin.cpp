@@ -1114,8 +1114,10 @@ public slots:
     // FIXME: Remove.
     void maybeEnrichParameters(DebuggerStartParameters *sp);
 
-    void gdbServerStarted(const QString &channel, const QString &sysroot, const QString &localExecutable);
-    void attachedToProcess(const QString &channel, const QString &sysroot, const QString &localExecutable);
+    void gdbServerStarted(const QString &channel, const QString &sysroot,
+        const QString &remoteCommandLine, const QString &remoteExecutable);
+    void attachedToProcess(const QString &channel, const QString &sysroot,
+        const QString &remoteCommandLine, const QString &remoteExecutable);
 
 public:
     DebuggerMainWindow *m_mainWindow;
@@ -1690,9 +1692,12 @@ void DebuggerPluginPrivate::startRemoteServer()
 }
 
 void DebuggerPluginPrivate::gdbServerStarted(const QString &channel,
-    const QString &sysroot, const QString &remoteCommandLine)
+    const QString &sysroot,
+    const QString &remoteCommandLine,
+    const QString &remoteExecutable)
 {
     Q_UNUSED(remoteCommandLine);
+    Q_UNUSED(remoteExecutable);
     Q_UNUSED(sysroot);
     showStatusMessage(tr("gdbserver is now listening at %1").arg(channel));
 }
@@ -1708,13 +1713,21 @@ void DebuggerPluginPrivate::attachToRemoteProcess()
 }
 
 void DebuggerPluginPrivate::attachedToProcess(const QString &channel,
-    const QString &sysroot, const QString &remoteCommandLine)
+    const QString &sysroot,
+    const QString &remoteCommandLine,
+    const QString &remoteExecutable)
 {
-    QString binary = remoteCommandLine.section(QLatin1Char(' '), 0, 0);
+    QString binary;
     QString localExecutable;
-    QString candidate = sysroot + QLatin1Char('/') + binary;
+    QString candidate = sysroot + remoteExecutable;
     if (QFileInfo(candidate).exists())
         localExecutable = candidate;
+    if (localExecutable.isEmpty()) {
+        binary = remoteCommandLine.section(QLatin1Char(' '), 0, 0);
+        candidate = sysroot + QLatin1Char('/') + binary;
+        if (QFileInfo(candidate).exists())
+            localExecutable = candidate;
+    }
     if (localExecutable.isEmpty()) {
         candidate = sysroot + QLatin1String("/usr/bin/") + binary;
         if (QFileInfo(candidate).exists())

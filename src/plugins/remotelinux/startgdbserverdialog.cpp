@@ -109,6 +109,7 @@ public:
     SshRemoteProcessRunner runner;
     QSettings *settings;
     QString remoteCommandLine;
+    QString remoteExecutable;
 };
 
 StartGdbServerDialogPrivate::StartGdbServerDialogPrivate(StartGdbServerDialog *q)
@@ -273,6 +274,7 @@ void StartGdbServerDialog::attachToProcess()
     QTC_ASSERT(row >= 0, return);
     RemoteProcess process = d->processList->at(row);
     d->remoteCommandLine = process.cmdLine;
+    d->remoteExecutable = process.exe;
     if (port == -1) {
         reportFailure();
         return;
@@ -378,7 +380,8 @@ void StartGdbServerDialog::reportOpenPort(int port)
         QMetaObject::invokeMethod(ob, member, Qt::QueuedConnection,
             Q_ARG(QString, channel),
             Q_ARG(QString, d->sysrootPathChooser->path()),
-            Q_ARG(QString, d->remoteCommandLine));
+            Q_ARG(QString, d->remoteCommandLine),
+            Q_ARG(QString, d->remoteExecutable));
     }
     close();
 }
