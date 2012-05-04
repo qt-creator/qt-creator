@@ -1095,13 +1095,14 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
         QString qmakespec = resolvePath(m_option->qmakespec);
         feature_roots << (qmakespec + features_concat);
 
+        // Also check directly under the root directory of the mkspecs collection
         QDir specdir(qmakespec);
-        while (!specdir.isRoot()) {
-            if (!specdir.cdUp() || specdir.isRoot())
-                break;
-            if (IoUtils::exists(specdir.path() + features_concat)) {
-                foreach (const QString &concat_it, concat)
-                    feature_roots << (specdir.path() + concat_it);
+        while (!specdir.isRoot() && specdir.cdUp()) {
+            const QString specpath = specdir.path();
+            if (specpath.endsWith(mkspecs_concat)) {
+                if (IoUtils::exists(specpath + features_concat))
+                    foreach (const QString &concat_it, concat)
+                        feature_roots << (specdir.path() + concat_it);
                 break;
             }
         }
