@@ -192,7 +192,7 @@ void QMakeEvaluator::runProcess(QProcess *proc, const QString &command,
 
 void QMakeEvaluator::populateDeps(
         const ProStringList &deps, const ProString &prefix,
-        QHash<ProString, QSet<ProString> > &dependencies, QHash<ProString, ProStringList> &dependees,
+        QHash<ProString, QSet<ProString> > &dependencies, ProValueMap &dependees,
         ProStringList &rootSet) const
 {
     foreach (const ProString &item, deps)
@@ -413,7 +413,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         if (args.count() != 2) {
             evalError(fL1S("fromfile(file, variable) requires two arguments."));
         } else {
-            QHash<ProString, ProStringList> vars;
+            ProValueMap vars;
             QString fn = resolvePath(m_option->expandEnvVars(args.at(0).toQString(m_tmp1)));
             fn.detach();
             if (evaluateFileInto(fn, QMakeHandler::EvalAuxFile, &vars, EvalProOnly))
@@ -607,7 +607,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
             evalError(fL1S("%1(var, prefix) requires one or two arguments").arg(func.toQString(m_tmp1)));
         } else {
             QHash<ProString, QSet<ProString> > dependencies;
-            QHash<ProString, ProStringList> dependees;
+            ProValueMap dependees;
             ProStringList rootSet;
             ProStringList orgList = valuesDirect(args.at(0));
             populateDeps(orgList, (args.count() < 2 ? ProString() : args.at(1)),
@@ -680,7 +680,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         }
         const ProString &var = map(args.at(0));
         for (int i = m_valuemapStack.size(); --i > 0; ) {
-            QHash<ProString, ProStringList>::Iterator it = m_valuemapStack[i].find(var);
+            ProValueMap::Iterator it = m_valuemapStack[i].find(var);
             if (it != m_valuemapStack.at(i).end()) {
                 if (it->constBegin() == statics.fakeValue.constBegin()) {
                     // This is stupid, but qmake doesn't propagate deletions
@@ -700,7 +700,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         if (args.count() < 2 || args.count() > 3) {
             evalError(fL1S("infile(file, var, [values]) requires two or three arguments."));
         } else {
-            QHash<ProString, ProStringList> vars;
+            ProValueMap vars;
             QString fn = resolvePath(m_option->expandEnvVars(args.at(0).toQString(m_tmp1)));
             fn.detach();
             if (!evaluateFileInto(fn, QMakeHandler::EvalAuxFile, &vars, EvalProOnly))
@@ -941,8 +941,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
                       .arg(function.toQString(m_tmp1)));
             return ReturnFalse;
         }
-        QHash<ProString, ProStringList> *hsh;
-        QHash<ProString, ProStringList>::Iterator it;
+        ProValueMap *hsh;
+        ProValueMap::Iterator it;
         const ProString &var = map(args.at(0));
         if (!(hsh = findValues(var, &it)))
             return ReturnFalse;
@@ -960,8 +960,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
                       .arg(function.toQString(m_tmp1)));
             return ReturnFalse;
         }
-        QHash<ProString, ProStringList> *hsh;
-        QHash<ProString, ProStringList>::Iterator it;
+        ProValueMap *hsh;
+        ProValueMap::Iterator it;
         const ProString &var = map(args.at(0));
         if (!(hsh = findValues(var, &it)))
             return ReturnFalse;
@@ -991,11 +991,11 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         if (parseInto.isEmpty()) {
             ok = evaluateFile(fn, QMakeHandler::EvalIncludeFile, LoadProOnly);
         } else {
-            QHash<ProString, ProStringList> symbols;
+            ProValueMap symbols;
             if ((ok = evaluateFileInto(fn, QMakeHandler::EvalAuxFile,
                                        &symbols, EvalWithSetup))) {
-                QHash<ProString, ProStringList> newMap;
-                for (QHash<ProString, ProStringList>::ConstIterator
+                ProValueMap newMap;
+                for (ProValueMap::ConstIterator
                         it = m_valuemapStack.top().constBegin(),
                         end = m_valuemapStack.top().constEnd();
                         it != end; ++it) {
@@ -1005,7 +1005,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
                            || ky.at(parseInto.length()) == QLatin1Char('.'))))
                         newMap[it.key()] = it.value();
                 }
-                for (QHash<ProString, ProStringList>::ConstIterator it = symbols.constBegin();
+                for (ProValueMap::ConstIterator it = symbols.constBegin();
                      it != symbols.constEnd(); ++it) {
                     const QString &ky = it.key().toQString(m_tmp1);
                     if (!ky.startsWith(QLatin1Char('.')))

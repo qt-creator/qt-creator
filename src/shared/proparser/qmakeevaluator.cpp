@@ -164,7 +164,7 @@ QMakeEvaluator::QMakeEvaluator(QMakeGlobals *option,
     m_skipLevel = 0;
     m_loopLevel = 0;
     m_listCount = 0;
-    m_valuemapStack.push(QHash<ProString, ProStringList>());
+    m_valuemapStack.push(ProValueMap());
 }
 
 QMakeEvaluator::~QMakeEvaluator()
@@ -880,7 +880,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                 }
                 if (!qmake_cache.isEmpty()) {
                     qmake_cache = resolvePath(qmake_cache);
-                    QHash<ProString, ProStringList> cache_valuemap;
+                    ProValueMap cache_valuemap;
                     if (evaluateFileInto(qmake_cache, QMakeHandler::EvalConfigFile,
                                          &cache_valuemap, EvalProOnly)) {
                         if (m_option->qmakespec.isEmpty()) {
@@ -1457,7 +1457,7 @@ bool QMakeEvaluator::modesForGenerator(const QString &gen,
 void QMakeEvaluator::validateModes() const
 {
     if (m_option->target_mode == QMakeGlobals::TARG_UNKNOWN_MODE) {
-        const QHash<ProString, ProStringList> &vals =
+        const ProValueMap &vals =
                 m_option->base_valuemap.isEmpty() ? m_valuemapStack[0] : m_option->base_valuemap;
         QMakeGlobals::TARG_MODE target_mode;
         const ProStringList &gen = vals.value(ProString("MAKEFILE_GENERATOR"));
@@ -1597,7 +1597,7 @@ ProStringList QMakeEvaluator::evaluateFunction(
         evalError(fL1S("ran into infinite recursion (depth > 100)."));
         oki = false;
     } else {
-        m_valuemapStack.push(QHash<ProString, ProStringList>());
+        m_valuemapStack.push(ProValueMap());
         m_locationStack.push(m_current);
         int loopLevel = m_loopLevel;
         m_loopLevel = 0;
@@ -1699,11 +1699,10 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
     return evaluateConditionalFunction(function, expandVariableReferences(tokPtr, 5, true));
 }
 
-QHash<ProString, ProStringList> *QMakeEvaluator::findValues(
-        const ProString &variableName, QHash<ProString, ProStringList>::Iterator *rit)
+ProValueMap *QMakeEvaluator::findValues(const ProString &variableName, ProValueMap::Iterator *rit)
 {
     for (int i = m_valuemapStack.size(); --i >= 0; ) {
-        QHash<ProString, ProStringList>::Iterator it = m_valuemapStack[i].find(variableName);
+        ProValueMap::Iterator it = m_valuemapStack[i].find(variableName);
         if (it != m_valuemapStack[i].end()) {
             if (it->constBegin() == statics.fakeValue.constBegin())
                 return 0;
@@ -1716,14 +1715,14 @@ QHash<ProString, ProStringList> *QMakeEvaluator::findValues(
 
 ProStringList &QMakeEvaluator::valuesRef(const ProString &variableName)
 {
-    QHash<ProString, ProStringList>::Iterator it = m_valuemapStack.top().find(variableName);
+    ProValueMap::Iterator it = m_valuemapStack.top().find(variableName);
     if (it != m_valuemapStack.top().end()) {
         if (it->constBegin() == statics.fakeValue.constBegin())
             it->clear();
         return *it;
     }
     for (int i = m_valuemapStack.size() - 1; --i >= 0; ) {
-        QHash<ProString, ProStringList>::ConstIterator it = m_valuemapStack.at(i).constFind(variableName);
+        ProValueMap::ConstIterator it = m_valuemapStack.at(i).constFind(variableName);
         if (it != m_valuemapStack.at(i).constEnd()) {
             ProStringList &ret = m_valuemapStack.top()[variableName];
             if (it->constBegin() != statics.fakeValue.constBegin())
@@ -1737,7 +1736,7 @@ ProStringList &QMakeEvaluator::valuesRef(const ProString &variableName)
 ProStringList QMakeEvaluator::valuesDirect(const ProString &variableName) const
 {
     for (int i = m_valuemapStack.size(); --i >= 0; ) {
-        QHash<ProString, ProStringList>::ConstIterator it = m_valuemapStack.at(i).constFind(variableName);
+        ProValueMap::ConstIterator it = m_valuemapStack.at(i).constFind(variableName);
         if (it != m_valuemapStack.at(i).constEnd()) {
             if (it->constBegin() == statics.fakeValue.constBegin())
                 break;
@@ -1953,7 +1952,7 @@ bool QMakeEvaluator::evaluateFeatureFile(const QString &fileName)
 
 bool QMakeEvaluator::evaluateFileInto(
         const QString &fileName, QMakeHandler::EvalFileType type,
-        QHash<ProString, ProStringList> *values, EvalIntoMode mode)
+        ProValueMap *values, EvalIntoMode mode)
 {
     QMakeEvaluator visitor(m_option, m_parser, m_handler);
 #ifdef PROEVALUATOR_CUMULATIVE

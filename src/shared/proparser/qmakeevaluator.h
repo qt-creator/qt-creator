@@ -112,8 +112,7 @@ public:
     void visitProVariable(ushort tok, const ProStringList &curr, const ushort *&tokPtr);
 
     static const ProString &map(const ProString &var);
-    QHash<ProString, ProStringList> *findValues(const ProString &variableName,
-                                                QHash<ProString, ProStringList>::Iterator *it);
+    ProValueMap *findValues(const ProString &variableName, ProValueMap::Iterator *it);
     ProStringList valuesDirect(const ProString &variableName) const;
 
     ProStringList split_value_list(const QString &vals, const ProFile *source = 0);
@@ -133,7 +132,7 @@ public:
     bool evaluateFeatureFile(const QString &fileName);
     enum EvalIntoMode { EvalProOnly, EvalWithSetup };
     bool evaluateFileInto(const QString &fileName, QMakeHandler::EvalFileType type,
-                          QHash<ProString, ProStringList> *values, // output-only
+                          ProValueMap *values, // output-only
                           EvalIntoMode mode);
     void evalError(const QString &msg) const;
 
@@ -162,8 +161,7 @@ public:
     void populateDeps(
             const ProStringList &deps, const ProString &prefix,
             QHash<ProString, QSet<ProString> > &dependencies,
-            QHash<ProString, ProStringList> &dependees,
-            ProStringList &rootSet) const;
+            ProValueMap &dependees, ProStringList &rootSet) const;
 
     QString fixPathToLocalOS(const QString &str) const;
 
@@ -195,7 +193,7 @@ public:
     int m_listCount;
     ProFunctionDefs m_functionDefs;
     ProStringList m_returnValue;
-    QStack<QHash<ProString, ProStringList> > m_valuemapStack;         // VariableName must be us-ascii, the content however can be non-us-ascii.
+    QStack<ProValueMap> m_valuemapStack; // VariableName must be us-ascii, the content however can be non-us-ascii.
     QString m_tmp1, m_tmp2, m_tmp3, m_tmp[2]; // Temporaries for efficient toQString
 
     QMakeGlobals *m_option;

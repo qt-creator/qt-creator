@@ -127,6 +127,8 @@ public:
     void removeDuplicates();
 };
 
+typedef QHash<ProString, ProStringList> ProValueMap;
+
 // These token definitions affect both ProFileEvaluator and ProWriter
 enum ProToken {
     TokTerminator = 0,  // end of stream (possibly not included in length; must be zero)
