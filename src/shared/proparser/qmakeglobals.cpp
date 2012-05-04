@@ -216,14 +216,21 @@ bool QMakeGlobals::initProperties(const QString &qmake)
                 continue;
             if (line.endsWith('\r'))
                 line.chop(1);
-            const QString name = QString::fromLatin1(line.left(off));
-            const QString value = QDir::fromNativeSeparators(
+            QString name = QString::fromLatin1(line.left(off));
+            QString value = QDir::fromNativeSeparators(
                         QString::fromLocal8Bit(line.mid(off + 1)));
             properties.insert(name, value);
             if (name.startsWith(QLatin1String("QT_")) && !name.contains(QLatin1Char('/'))) {
                 if (name.startsWith(QLatin1String("QT_INSTALL_"))) {
                     properties.insert(name + QLatin1String("/raw"), value);
                     properties.insert(name + QLatin1String("/get"), value);
+                    if (name == QLatin1String("QT_INSTALL_PREFIX")
+                        || name == QLatin1String("QT_INSTALL_DATA")
+                        || name == QLatin1String("QT_INSTALL_BINS")) {
+                        name.replace(3, 7, QLatin1String("HOST"));
+                        properties.insert(name, value);
+                        properties.insert(name + QLatin1String("/get"), value);
+                    }
                 } else if (name.startsWith(QLatin1String("QT_HOST_"))) {
                     properties.insert(name + QLatin1String("/get"), value);
                 }
