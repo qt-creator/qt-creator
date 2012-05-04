@@ -87,8 +87,6 @@ private:
     QString sysrootify(const QString &path, const QString &baseDir) const;
 
     QMakeEvaluator *d;
-
-    friend class QMakeEvaluator;
 };
 
 QT_END_NAMESPACE

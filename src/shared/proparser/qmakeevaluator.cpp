@@ -32,7 +32,6 @@
 
 #include "qmakeevaluator.h"
 
-#include "profileevaluator.h"
 #include "qmakeglobals.h"
 #include "qmakeparser.h"
 #include "qmakeevaluator_p.h"
@@ -1966,20 +1965,20 @@ bool QMakeEvaluator::evaluateFileInto(
         const QString &fileName, QMakeHandler::EvalFileType type,
         QHash<ProString, ProStringList> *values, ProFunctionDefs *funcs, EvalIntoMode mode)
 {
-    ProFileEvaluator visitor(m_option, m_parser, m_handler);
+    QMakeEvaluator visitor(m_option, m_parser, m_handler);
 #ifdef PROEVALUATOR_CUMULATIVE
-    visitor.d->m_cumulative = false;
+    visitor.m_cumulative = false;
 #endif
-    visitor.d->m_outputDir = m_outputDir;
-//    visitor.d->m_valuemapStack.top() = *values;
+    visitor.m_outputDir = m_outputDir;
+//    visitor.m_valuemapStack.top() = *values;
     if (funcs)
-        visitor.d->m_functionDefs = *funcs;
-    if (!visitor.d->evaluateFile(fileName, type,
+        visitor.m_functionDefs = *funcs;
+    if (!visitor.evaluateFile(fileName, type,
             (mode == EvalWithSetup) ? LoadAll : LoadProOnly))
         return false;
-    *values = visitor.d->m_valuemapStack.top();
+    *values = visitor.m_valuemapStack.top();
 //    if (funcs)
-//        *funcs = visitor.d->m_functionDefs;
+//        *funcs = visitor.m_functionDefs;
     return true;
 }
 
