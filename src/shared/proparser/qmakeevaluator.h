@@ -133,8 +133,8 @@ public:
     bool evaluateFeatureFile(const QString &fileName);
     enum EvalIntoMode { EvalProOnly, EvalWithSetup };
     bool evaluateFileInto(const QString &fileName, QMakeHandler::EvalFileType type,
-                          QHash<ProString, ProStringList> *values, ProFunctionDefs *defs,
-                          EvalIntoMode mode); // values are output-only, defs are input-only
+                          QHash<ProString, ProStringList> *values, // output-only
+                          EvalIntoMode mode);
     void evalError(const QString &msg) const;
 
     QList<ProStringList> prepareFunctionArgs(const ushort *&tokPtr);

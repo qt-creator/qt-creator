@@ -882,7 +882,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                     qmake_cache = resolvePath(qmake_cache);
                     QHash<ProString, ProStringList> cache_valuemap;
                     if (evaluateFileInto(qmake_cache, QMakeHandler::EvalConfigFile,
-                                         &cache_valuemap, 0, EvalProOnly)) {
+                                         &cache_valuemap, EvalProOnly)) {
                         if (m_option->qmakespec.isEmpty()) {
                             const ProStringList &vals = cache_valuemap.value(ProString("QMAKESPEC"));
                             if (!vals.isEmpty())
@@ -1963,22 +1963,17 @@ bool QMakeEvaluator::evaluateFeatureFile(const QString &fileName)
 
 bool QMakeEvaluator::evaluateFileInto(
         const QString &fileName, QMakeHandler::EvalFileType type,
-        QHash<ProString, ProStringList> *values, ProFunctionDefs *funcs, EvalIntoMode mode)
+        QHash<ProString, ProStringList> *values, EvalIntoMode mode)
 {
     QMakeEvaluator visitor(m_option, m_parser, m_handler);
 #ifdef PROEVALUATOR_CUMULATIVE
     visitor.m_cumulative = false;
 #endif
     visitor.m_outputDir = m_outputDir;
-//    visitor.m_valuemapStack.top() = *values;
-    if (funcs)
-        visitor.m_functionDefs = *funcs;
     if (!visitor.evaluateFile(fileName, type,
             (mode == EvalWithSetup) ? LoadAll : LoadProOnly))
         return false;
     *values = visitor.m_valuemapStack.top();
-//    if (funcs)
-//        *funcs = visitor.m_functionDefs;
     return true;
 }
 
