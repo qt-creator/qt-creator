@@ -117,11 +117,6 @@ void Node::setParentFolderNode(FolderNode *parentFolder)
     m_folderNode = parentFolder;
 }
 
-void Node::setPath(const QString &path)
-{
-    m_path = path;
-}
-
 /*!
   \class ProjectExplorer::FileNode
 

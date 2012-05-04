@@ -94,7 +94,6 @@ protected:
     void setNodeType(NodeType type);
     void setProjectNode(ProjectNode *project);
     void setParentFolderNode(FolderNode *parentFolder);
-    void setPath(const QString &path);
 
 private:
     NodeType m_nodeType;
