@@ -70,13 +70,6 @@ InspectorPlugin::~InspectorPlugin()
 {
 }
 
-QmlJS::ModelManagerInterface *InspectorPlugin::modelManager() const
-{
-    ExtensionSystem::PluginManager *pluginManager
-            = ExtensionSystem::PluginManager::instance();
-    return pluginManager->getObject<QmlJS::ModelManagerInterface>();
-}
-
 InspectorUi *InspectorPlugin::inspector() const
 {
     return m_inspectorUi;

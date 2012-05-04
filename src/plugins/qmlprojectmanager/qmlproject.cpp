@@ -61,7 +61,7 @@ namespace QmlProjectManager {
 QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
     : m_manager(manager),
       m_fileName(fileName),
-      m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>())
+      m_modelManager(QmlJS::ModelManagerInterface::instance())
 {
     setProjectContext(Core::Context(QmlProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguage(Core::Context(QmlProjectManager::Constants::LANG_QML));

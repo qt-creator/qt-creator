@@ -203,17 +203,9 @@ void PlainTextEditModifier::reactivateChangeSignals()
     }
 }
 
-namespace {
-static inline QmlJS::ModelManagerInterface *getModelManager()
-{
-    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
-    return pluginManager->getObject<QmlJS::ModelManagerInterface>();
-}
-}
-
 QmlJS::Snapshot NotIndentingTextEditModifier::getSnapshot() const
 {
-    QmlJS::ModelManagerInterface *modelManager = getModelManager();
+    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
     if (modelManager)
         return modelManager->snapshot();
     else
@@ -223,7 +215,7 @@ QmlJS::Snapshot NotIndentingTextEditModifier::getSnapshot() const
 
 QStringList NotIndentingTextEditModifier::importPaths() const
 {
-    QmlJS::ModelManagerInterface *modelManager = getModelManager();
+    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
     if (modelManager)
         return modelManager->importPaths();
     else

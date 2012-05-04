@@ -93,8 +93,7 @@ namespace {
 
 HoverHandler::HoverHandler(QObject *parent) : BaseHoverHandler(parent), m_modelManager(0)
 {
-    m_modelManager =
-        ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>();
+    m_modelManager = QmlJS::ModelManagerInterface::instance();
 }
 
 bool HoverHandler::acceptEditor(IEditor *editor)

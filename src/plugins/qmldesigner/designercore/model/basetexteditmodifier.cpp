@@ -87,17 +87,9 @@ bool BaseTextEditModifier::renameId(const QString &oldId, const QString &newId)
     }
 }
 
-namespace {
-static inline QmlJS::ModelManagerInterface *getModelManager()
-{
-    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
-    return pluginManager->getObject<QmlJS::ModelManagerInterface>();
-}
-}
-
 QmlJS::Snapshot BaseTextEditModifier::getSnapshot() const
 {
-    QmlJS::ModelManagerInterface *modelManager = getModelManager();
+    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
     if (modelManager)
         return modelManager->snapshot();
     else
@@ -106,7 +98,7 @@ QmlJS::Snapshot BaseTextEditModifier::getSnapshot() const
 
 QStringList BaseTextEditModifier::importPaths() const
 {
-    QmlJS::ModelManagerInterface *modelManager = getModelManager();
+    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
     if (modelManager)
         return modelManager->importPaths();
     else

@@ -507,7 +507,7 @@ QmlJSTextEditorWidget::QmlJSTextEditorWidget(QWidget *parent) :
     baseTextDocument()->setSyntaxHighlighter(new Highlighter(document()));
     baseTextDocument()->setCodec(QTextCodec::codecForName("UTF-8")); // qml files are defined to be utf-8
 
-    m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<ModelManagerInterface>();
+    m_modelManager = QmlJS::ModelManagerInterface::instance();
     m_contextPane = ExtensionSystem::PluginManager::instance()->getObject<QmlJS::IContextPane>();
 
 

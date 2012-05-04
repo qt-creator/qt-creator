@@ -89,7 +89,6 @@ bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
 //            m_modelManager, SLOT(updateModifiedSourceFiles()));
 //    connect(fileManager, SIGNAL(filesChangedInternally(QStringList)),
 //            m_modelManager, SLOT(updateSourceFiles(QStringList)));
-    addAutoReleasedObject(m_modelManager);
 
     LocatorData *locatorData = new LocatorData;
     addAutoReleasedObject(locatorData);

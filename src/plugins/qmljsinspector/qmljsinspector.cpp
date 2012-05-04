@@ -121,13 +121,6 @@ enum {
 
 InspectorUi *InspectorUi::m_instance = 0;
 
-QmlJS::ModelManagerInterface *modelManager()
-{
-    ExtensionSystem::PluginManager *pm
-            = ExtensionSystem::PluginManager::instance();
-    return pm->getObject<QmlJS::ModelManagerInterface>();
-}
-
 InspectorUi::InspectorUi(QObject *parent)
     : QObject(parent)
     , m_listeningToEditorManager(false)
@@ -365,7 +358,7 @@ void InspectorUi::connected(ClientProxy *clientProxy)
     } else {
         m_toolBar->setZoomToolEnabled(true);
     }
-    QmlJS::Snapshot snapshot = modelManager()->snapshot();
+    QmlJS::Snapshot snapshot = QmlJS::ModelManagerInterface::instance()->snapshot();
     for (QHash<QString, QmlJSLiveTextPreview *>::const_iterator it
          = m_textPreviews.constBegin();
          it != m_textPreviews.constEnd(); ++it) {
@@ -481,11 +474,11 @@ void InspectorUi::changeSelectedItems(
 
 void InspectorUi::initializeDocuments()
 {
-    if (!modelManager() || !m_clientProxy)
+    if (!QmlJS::ModelManagerInterface::instance() || !m_clientProxy)
         return;
 
     Core::EditorManager *em = Core::EditorManager::instance();
-    m_loadedSnapshot = modelManager()->snapshot();
+    m_loadedSnapshot = QmlJS::ModelManagerInterface::instance()->snapshot();
 
     if (!m_listeningToEditorManager) {
         m_listeningToEditorManager = true;
@@ -493,7 +486,7 @@ void InspectorUi::initializeDocuments()
                 this, SLOT(removePreviewForEditor(Core::IEditor*)));
         connect(em, SIGNAL(editorOpened(Core::IEditor*)),
                 this, SLOT(createPreviewForEditor(Core::IEditor*)));
-        connect(modelManager(),
+        connect(QmlJS::ModelManagerInterface::instance(),
                 SIGNAL(documentChangedOnDisk(QmlJS::Document::Ptr)),
                 this, SLOT(updatePendingPreviewDocuments(QmlJS::Document::Ptr)));
     }
@@ -508,7 +501,7 @@ void InspectorUi::initializeDocuments()
 
 void InspectorUi::serverReloaded()
 {
-    QmlJS::Snapshot snapshot = modelManager()->snapshot();
+    QmlJS::Snapshot snapshot = QmlJS::ModelManagerInterface::instance()->snapshot();
     m_loadedSnapshot = snapshot;
     for (QHash<QString, QmlJSLiveTextPreview *>::const_iterator it
          = m_textPreviews.constBegin();
@@ -540,7 +533,7 @@ QmlJSLiveTextPreview *InspectorUi::createPreviewForEditor(
             )
     {
         QString filename = newEditor->document()->fileName();
-        QmlJS::Document::Ptr doc = modelManager()->snapshot().document(filename);
+        QmlJS::Document::Ptr doc = QmlJS::ModelManagerInterface::instance()->snapshot().document(filename);
         if (!doc) {
             if (filename.endsWith(".qml")) {
                 // add to list of docs that we have to update when

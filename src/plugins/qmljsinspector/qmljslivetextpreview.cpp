@@ -137,13 +137,6 @@ void MapObjectWithDebugReference::process(UiObjectBinding *ast)
     }
 }
 
-QmlJS::ModelManagerInterface *QmlJSLiveTextPreview::modelManager()
-{
-    ExtensionSystem::PluginManager *pm
-            = ExtensionSystem::PluginManager::instance();
-    return pm->getObject<QmlJS::ModelManagerInterface>();
-}
-
 void QmlJSLiveTextPreview::associateEditor(Core::IEditor *editor)
 {
     using namespace TextEditor;
@@ -197,7 +190,7 @@ QmlJSLiveTextPreview::QmlJSLiveTextPreview(const QmlJS::Document::Ptr &doc,
     Q_ASSERT(doc->fileName() == initDoc->fileName());
     m_filename = doc->fileName();
 
-    connect(modelManager(), SIGNAL(documentChangedOnDisk(QmlJS::Document::Ptr)),
+    connect(QmlJS::ModelManagerInterface::instance(), SIGNAL(documentChangedOnDisk(QmlJS::Document::Ptr)),
             SLOT(documentChanged(QmlJS::Document::Ptr)));
 
     if (m_clientProxy.data()) {

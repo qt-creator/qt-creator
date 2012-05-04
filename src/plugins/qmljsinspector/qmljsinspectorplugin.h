@@ -61,7 +61,6 @@ public:
 
     //static InspectorPlugin *instance();
 
-    QmlJS::ModelManagerInterface *modelManager() const;
     InspectorUi *inspector() const;
 
     // ExtensionSystem::IPlugin interface

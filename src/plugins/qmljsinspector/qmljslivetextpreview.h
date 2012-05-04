@@ -100,7 +100,6 @@ private slots:
     void reloadQmlViewer();
 
 private:
-    static QmlJS::ModelManagerInterface *modelManager();
     QList<int> objectReferencesForOffset(quint32 offset);
     QVariant castToLiteral(const QString &expression,
                            QmlJS::AST::UiScriptBinding *scriptBinding);
