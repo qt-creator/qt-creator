@@ -99,6 +99,8 @@ public:
     void setContextNode(ProjectExplorer::Node *node);
     ProjectExplorer::Project *contextProject() const;
     void setContextProject(ProjectExplorer::Project *project);
+    ProjectExplorer::FileNode *contextFile() const;
+    void setContextFile(ProjectExplorer::FileNode *file);
 
     // Return the id string of a file
     static QString fileTypeId(ProjectExplorer::FileType type);
@@ -138,6 +140,7 @@ private:
     mutable QString m_unconfiguredToolChainId;
     ProjectExplorer::Node *m_contextNode;
     ProjectExplorer::Project *m_contextProject;
+    ProjectExplorer::FileNode *m_contextFile;
 
     Core::IEditor *m_lastEditor;
     bool m_dirty;

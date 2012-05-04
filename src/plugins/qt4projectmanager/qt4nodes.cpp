@@ -1527,6 +1527,13 @@ bool Qt4ProFileNode::hasBuildTargets(Qt4ProjectType projectType) const
     return (projectType == ApplicationTemplate || projectType == LibraryTemplate);
 }
 
+bool Qt4ProFileNode::isDebugAndRelease() const
+{
+    const QStringList configValues = m_varValues.value(ConfigVar);
+    return (configValues.contains(QLatin1String("debug_and_release"))
+        && configValues.contains(QLatin1String("debug_and_release_target")));
+}
+
 Qt4ProjectType Qt4ProFileNode::projectType() const
 {
     return m_projectType;

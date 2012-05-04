@@ -108,6 +108,7 @@ Qt4Manager::Qt4Manager(Qt4ProjectManagerPlugin *plugin)
   : m_plugin(plugin),
     m_contextNode(0),
     m_contextProject(0),
+    m_contextFile(0),
     m_lastEditor(0),
     m_dirty(false)
 {
@@ -305,6 +306,16 @@ void Qt4Manager::setContextProject(ProjectExplorer::Project *project)
     m_contextProject = project;
 }
 
+ProjectExplorer::FileNode *Qt4Manager::contextFile() const
+{
+    return m_contextFile;
+}
+
+void Qt4Manager::setContextFile(ProjectExplorer::FileNode *file)
+{
+    m_contextFile = file;
+}
+
 void Qt4Manager::addLibrary()
 {
     Core::EditorManager *em = Core::EditorManager::instance();
@@ -417,6 +428,8 @@ void Qt4Manager::handleSubDirContextMenu(Qt4Manager::Action action)
         if (Qt4ProFileNode *profile = qobject_cast<Qt4ProFileNode *>(m_contextNode))
             bc->setSubNodeBuild(profile);
 
+    if (m_contextFile)
+        bc->setFileNodeBuild(m_contextFile);
     if (projectExplorer()->saveModifiedFiles()) {
         const Core::Id buildStep = Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
         const Core::Id cleanStep = Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
@@ -438,6 +451,7 @@ void Qt4Manager::handleSubDirContextMenu(Qt4Manager::Action action)
     }
 
     bc->setSubNodeBuild(0);
+    bc->setFileNodeBuild(0);
 }
 
 QString Qt4Manager::fileTypeId(ProjectExplorer::FileType type)

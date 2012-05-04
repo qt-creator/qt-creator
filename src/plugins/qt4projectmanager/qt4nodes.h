@@ -368,6 +368,7 @@ public:
     bool parseInProgress() const;
 
     bool hasBuildTargets(Qt4ProjectType projectType) const;
+    bool isDebugAndRelease() const;
 
     void setParseInProgress(bool b);
     void setParseInProgressRecursive(bool b);

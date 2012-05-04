@@ -40,6 +40,7 @@
 
 namespace ProjectExplorer {
 class ToolChain;
+class FileNode;
 }
 
 namespace Qt4ProjectManager {
@@ -70,6 +71,9 @@ public:
 
     void setSubNodeBuild(Qt4ProjectManager::Qt4ProFileNode *node);
     Qt4ProjectManager::Qt4ProFileNode *subNodeBuild() const;
+
+    ProjectExplorer::FileNode *fileNodeBuild() const;
+    void setFileNodeBuild(ProjectExplorer::FileNode *node);
 
     // returns the qtVersion
     QtSupport::BaseQtVersion *qtVersion() const;
@@ -166,6 +170,7 @@ private:
     int m_qtVersionId;
     QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
     Qt4ProjectManager::Qt4ProFileNode *m_subNodeBuild;
+    ProjectExplorer::FileNode *m_fileNodeBuild;
 };
 
 class QT4PROJECTMANAGER_EXPORT Qt4BuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory

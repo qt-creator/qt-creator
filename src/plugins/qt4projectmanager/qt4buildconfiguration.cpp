@@ -76,7 +76,8 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BaseTarget *target) :
     m_isEnabled(false),
     m_qtVersionId(-1),
     m_qmakeBuildConfiguration(0),
-    m_subNodeBuild(0)
+    m_subNodeBuild(0),
+    m_fileNodeBuild(0)
 {
     ctor();
 }
@@ -87,7 +88,8 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BaseTarget *target, const Core::
     m_isEnabled(false),
     m_qtVersionId(-1),
     m_qmakeBuildConfiguration(0),
-    m_subNodeBuild(0)
+    m_subNodeBuild(0),
+    m_fileNodeBuild(0)
 {
     ctor();
 }
@@ -99,7 +101,8 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BaseTarget *target, Qt4BuildConf
     m_buildDirectory(source->m_buildDirectory),
     m_qtVersionId(source->m_qtVersionId),
     m_qmakeBuildConfiguration(source->m_qmakeBuildConfiguration),
-    m_subNodeBuild(0) // temporary value, so not copied
+    m_subNodeBuild(0), // temporary value, so not copied
+    m_fileNodeBuild(0)
 {
     cloneSteps(source);
     ctor();
@@ -269,6 +272,16 @@ Qt4ProjectManager::Qt4ProFileNode *Qt4BuildConfiguration::subNodeBuild() const
 void Qt4BuildConfiguration::setSubNodeBuild(Qt4ProjectManager::Qt4ProFileNode *node)
 {
     m_subNodeBuild = node;
+}
+
+FileNode *Qt4BuildConfiguration::fileNodeBuild() const
+{
+    return m_fileNodeBuild;
+}
+
+void Qt4BuildConfiguration::setFileNodeBuild(FileNode *node)
+{
+    m_fileNodeBuild = node;
 }
 
 /// returns whether this is a shadow build configuration or not

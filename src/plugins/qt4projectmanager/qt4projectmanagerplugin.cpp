@@ -254,6 +254,16 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_CLEAN);
     connect(m_cleanSubProjectAction, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(cleanSubDirContextMenu()));
 
+    m_buildFileAction = new Utils::ParameterAction(tr("Build File"), tr("Build File \"%1\""),
+                                                   Utils::ParameterAction::EnabledWithParameter, this);
+    command = am->registerAction(m_buildFileAction, Constants::BUILDFILE, projectContext);
+    command->setAttribute(Core::Command::CA_Hide);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setDescription(m_buildFileAction->text());
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+B")));
+    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
+    connect(m_buildFileAction, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(buildSubDirContextMenu()));
+
     connect(m_projectExplorer,
             SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)),
             this, SLOT(updateContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)));
@@ -397,9 +407,14 @@ void Qt4ProjectManagerPlugin::currentNodeChanged(ProjectExplorer::Node *node, Pr
 
     Qt4Project *pro = qobject_cast<Qt4Project *>(project);
     Qt4ProFileNode *subProjectNode = node ? qobject_cast<Qt4ProFileNode *>(node->projectNode()) : 0;
+    ProjectExplorer::FileNode *fileNode = qobject_cast<ProjectExplorer::FileNode *>(node);
+    bool buildFilePossible = subProjectNode && fileNode
+            && (fileNode->fileType() == ProjectExplorer::SourceType)
+            && !subProjectNode->isDebugAndRelease();
 
     m_qt4ProjectManager->setContextNode(subProjectNode);
     m_qt4ProjectManager->setContextProject(pro);
+    m_qt4ProjectManager->setContextFile(buildFilePossible ? fileNode : 0);
 
     bool subProjectActionsVisible = pro && subProjectNode && (subProjectNode != pro->rootProjectNode());
 
@@ -411,11 +426,12 @@ void Qt4ProjectManagerPlugin::currentNodeChanged(ProjectExplorer::Node *node, Pr
     m_rebuildSubProjectAction->setParameter(subProjectName);
     m_cleanSubProjectAction->setParameter(subProjectName);
     m_buildSubProjectContextMenu->setParameter(subProjectName);
+    m_buildFileAction->setParameter(node ? QFileInfo(node->path()).fileName() : QString());
 
     m_buildSubProjectAction->setVisible(subProjectActionsVisible);
     m_rebuildSubProjectAction->setVisible(subProjectActionsVisible);
     m_cleanSubProjectAction->setVisible(subProjectActionsVisible);
-
+    m_buildFileAction->setVisible(buildFilePossible);
 }
 
 void Qt4ProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *pro)

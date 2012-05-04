@@ -204,6 +204,24 @@ bool MakeStep::init()
             Utils::QtcProcess::addArg(&args, bc->defaultMakeTarget());
     }
 
+    if (bc->fileNodeBuild()) {
+        Qt4ProjectManager::Qt4ProFileNode *proNode = bc->subNodeBuild();
+        if (!proNode) {
+            Qt4Project *qt4project = qobject_cast<Qt4Project *>(project());
+            if (qt4project)
+                proNode = qt4project->rootQt4ProjectNode();
+        }
+        if (proNode) {
+            QString objectsDir = QDir(pp->workingDirectory()).relativeFilePath(
+                        proNode->objectsDirectory());
+            if (!objectsDir.isEmpty())
+                objectsDir += QLatin1Char('/');
+            QString objectFile = objectsDir +
+                    QFileInfo(bc->fileNodeBuild()->path()).baseName() +
+                    proNode->objectExtension();
+            Utils::QtcProcess::addArg(&args, objectFile);
+        }
+    }
     Utils::Environment env = bc->environment();
     // Force output to english for the parsers. Do this here and not in the toolchain's
     // addToEnvironment() to not screw up the users run environment.

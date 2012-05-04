@@ -106,6 +106,7 @@ private:
     Utils::ParameterAction *m_buildSubProjectAction;
     Utils::ParameterAction *m_rebuildSubProjectAction;
     Utils::ParameterAction *m_cleanSubProjectAction;
+    Utils::ParameterAction *m_buildFileAction;
     QAction *m_addLibraryAction;
     QAction *m_addLibraryActionContextMenu;
     Core::Context m_projectContext;
