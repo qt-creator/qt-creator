@@ -417,7 +417,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
             QString fn = resolvePath(m_option->expandEnvVars(args.at(0).toQString(m_tmp1)));
             fn.detach();
             if (evaluateFileInto(fn, QMakeHandler::EvalAuxFile,
-                                 &vars, &m_functionDefs, EvalWithDefaults))
+                                 &vars, &m_functionDefs, EvalProOnly))
                 ret = vars.value(map(args.at(1)));
         }
         break;
@@ -705,7 +705,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             QString fn = resolvePath(m_option->expandEnvVars(args.at(0).toQString(m_tmp1)));
             fn.detach();
             if (!evaluateFileInto(fn, QMakeHandler::EvalAuxFile,
-                                  &vars, &m_functionDefs, EvalWithDefaults))
+                                  &vars, &m_functionDefs, EvalProOnly))
                 return ReturnFalse;
             if (args.count() == 2)
                 return returnBool(vars.contains(args.at(1)));

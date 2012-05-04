@@ -1974,8 +1974,6 @@ bool QMakeEvaluator::evaluateFileInto(
 //    visitor.d->m_valuemapStack.top() = *values;
     if (funcs)
         visitor.d->m_functionDefs = *funcs;
-    if (mode == EvalWithDefaults)
-        visitor.d->evaluateFeatureFile(QLatin1String("default_pre.prf"));
     if (!visitor.d->evaluateFile(fileName, type,
             (mode == EvalWithSetup) ? LoadAll : LoadProOnly))
         return false;

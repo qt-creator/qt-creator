@@ -131,7 +131,7 @@ public:
     bool evaluateFile(const QString &fileName, QMakeHandler::EvalFileType type,
                       LoadFlags flags);
     bool evaluateFeatureFile(const QString &fileName);
-    enum EvalIntoMode { EvalProOnly, EvalWithDefaults, EvalWithSetup };
+    enum EvalIntoMode { EvalProOnly, EvalWithSetup };
     bool evaluateFileInto(const QString &fileName, QMakeHandler::EvalFileType type,
                           QHash<ProString, ProStringList> *values, ProFunctionDefs *defs,
                           EvalIntoMode mode); // values are output-only, defs are input-only
