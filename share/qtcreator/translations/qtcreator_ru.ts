@@ -8930,7 +8930,7 @@ Do you want to retry?</source>
         <translation></translation>
     </message>
     <message>
-        <source>The 2D Painting example shows how QPainter and QGLWidget. The 2D Painting example shows how QPainter and QGLWidget work together.</source>
+        <source>The 2D Painting example shows how QPainter and QGLWidget work together.</source>
         <translation>Пример 2D Painting показывает, как совместно работают QPainter и QGLWidget.</translation>
     </message>
     <message>
