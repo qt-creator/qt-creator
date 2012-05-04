@@ -44,8 +44,15 @@ namespace RemoteLinux {
 namespace Internal {
 namespace {
 enum State { Inactive, Listing, Killing };
-const char Delimiter[] = "x-----";
+const char Delimiter0[] = "x--";
+const char Delimiter1[] = "---";
 } // anonymous namespace
+
+static QString visualizeNull(QString s)
+{
+    return s.replace(QLatin1Char('\0'), QLatin1String("<null>"));
+}
+
 
 class AbstractRemoteLinuxProcessListPrivate
 {
@@ -245,9 +252,15 @@ GenericRemoteLinuxProcessList::GenericRemoteLinuxProcessList(const LinuxDeviceCo
 
 QString GenericRemoteLinuxProcessList::listProcessesCommandLine() const
 {
-    return QString::fromLatin1("for dir in `ls -d /proc/[0123456789]*`; "
-        "do printf \"${dir}%1\";cat $dir/cmdline; printf '%1';cat $dir/stat;printf '\\n'; done")
-        .arg(Delimiter);
+    return QString::fromLatin1(
+        "for dir in `ls -d /proc/[0123456789]*`; do "
+            "test -d $dir || continue;" // Decrease the likelihood of a race condition.
+            "echo $dir;"
+            "cat $dir/cmdline;echo;" // cmdline does not end in newline
+            "cat $dir/stat;"
+            "readlink $dir/exe;"
+            "printf '%1''%2';"
+        "done").arg(Delimiter0).arg(Delimiter1);
 }
 
 QString GenericRemoteLinuxProcessList::killProcessCommandLine(const RemoteProcess &process) const
@@ -258,17 +271,20 @@ QString GenericRemoteLinuxProcessList::killProcessCommandLine(const RemoteProces
 QList<RemoteProcess> GenericRemoteLinuxProcessList::buildProcessList(const QString &listProcessesReply) const
 {
     QList<RemoteProcess> processes;
-    const QStringList &lines = listProcessesReply.split(QLatin1Char('\n'), QString::SkipEmptyParts);
+    const QStringList lines = listProcessesReply.split(QString::fromLatin1(Delimiter0)
+            + QString::fromLatin1(Delimiter1), QString::SkipEmptyParts);
     foreach (const QString &line, lines) {
-        const QStringList elements = line.split(QString::fromLocal8Bit(Delimiter));
-        if (elements.count() < 3) {
-            qDebug("%s: Expected three list elements, got %d.", Q_FUNC_INFO, elements.count());
+        const QStringList elements = line.split(QLatin1Char('\n'));
+        if (elements.count() < 4) {
+            qDebug("%s: Expected four list elements, got %d. Line was '%s'.", Q_FUNC_INFO,
+                    elements.count(), qPrintable(visualizeNull(line)));
             continue;
         }
         bool ok;
         const int pid = elements.first().mid(6).toInt(&ok);
         if (!ok) {
-            qDebug("%s: Expected number in %s.", Q_FUNC_INFO, qPrintable(elements.first()));
+            qDebug("%s: Expected number in %s. Line was '%s'.", Q_FUNC_INFO,
+                   qPrintable(elements.first()), qPrintable(visualizeNull(line)));
             continue;
         }
         QString command = elements.at(1);
@@ -284,15 +300,24 @@ QList<RemoteProcess> GenericRemoteLinuxProcessList::buildProcessList(const QStri
                 + QLatin1Char(']');
         }
 
-        int insertPos;
-        for (insertPos = 0; insertPos < processes.count(); ++insertPos) {
-            if (pid < processes.at(insertPos).pid)
-                break;
-        }
-        processes.insert(insertPos, RemoteProcess(pid, command));
+        RemoteProcess process;
+        process.pid = pid;
+        process.cmdLine = command;
+        process.exe = elements.at(3);
+        processes.append(process);
     }
 
+    qSort(processes);
     return processes;
+}
+
+bool RemoteProcess::operator <(const RemoteProcess &other) const
+{
+    if (pid != other.pid)
+        return pid < other.pid;
+    if (exe != other.exe)
+        return exe < other.exe;
+    return cmdLine < other.cmdLine;
 }
 
 } // namespace RemoteLinux

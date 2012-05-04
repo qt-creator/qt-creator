@@ -47,10 +47,12 @@ class AbstractRemoteLinuxProcessListPrivate;
 class REMOTELINUX_EXPORT RemoteProcess
 {
 public:
-    RemoteProcess(int pid, const QString &cmdLine) : pid(pid), cmdLine(cmdLine) {}
+    RemoteProcess() : pid(0) {}
+    bool operator<(const RemoteProcess &other) const;
 
     int pid;
     QString cmdLine;
+    QString exe;
 };
 
 class REMOTELINUX_EXPORT AbstractRemoteLinuxProcessList : public QAbstractTableModel
