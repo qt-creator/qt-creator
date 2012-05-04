@@ -87,8 +87,7 @@ public:
 
     LinuxDeviceConfiguration::ConstPtr currentDevice() const
     {
-        DeviceManager *devices = DeviceManager::instance();
-        return devices->deviceAt(deviceComboBox->currentIndex())
+        return deviceManagerModel->device(deviceComboBox->currentIndex())
             .dynamicCast<const LinuxDeviceConfiguration>();
     }
 
@@ -96,6 +95,7 @@ public:
     bool startServerOnly;
     AbstractRemoteLinuxProcessList *processList;
     QSortFilterProxyModel proxyModel;
+    DeviceManagerModel *deviceManagerModel;
 
     QComboBox *deviceComboBox;
     QLineEdit *processFilterLineEdit;
@@ -175,16 +175,15 @@ StartGdbServerDialog::StartGdbServerDialog(QWidget *parent) :
 {
     setWindowTitle(tr("List of Remote Processes"));
 
-    DeviceManager *devices = DeviceManager::instance();
-    DeviceManagerModel * const model = new DeviceManagerModel(devices, this);
+    d->deviceManagerModel = new DeviceManagerModel(DeviceManager::instance(), this);
 
     QObject::connect(d->closeButton, SIGNAL(clicked()), this, SLOT(reject()));
 
-    d->deviceComboBox->setModel(model);
+    d->deviceComboBox->setModel(d->deviceManagerModel);
     d->deviceComboBox->setCurrentIndex(d->settings->value(LastDevice).toInt());
     connect(&d->gatherer, SIGNAL(error(QString)), SLOT(portGathererError(QString)));
     connect(&d->gatherer, SIGNAL(portListReady()), SLOT(portListReady()));
-    if (devices->deviceCount() == 0) {
+    if (d->deviceManagerModel->rowCount() == 0) {
         d->tableView->setEnabled(false);
     } else {
         d->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -217,11 +216,12 @@ StartGdbServerDialog::~StartGdbServerDialog()
     delete d;
 }
 
-void StartGdbServerDialog::attachToDevice(int index)
+void StartGdbServerDialog::attachToDevice(int modelIndex)
 {
-    DeviceManager *devices = DeviceManager::instance();
     LinuxDeviceConfiguration::ConstPtr device
-        = devices->deviceAt(index).dynamicCast<const LinuxDeviceConfiguration>();
+        = d->deviceManagerModel->device(modelIndex)
+            .dynamicCast<const LinuxDeviceConfiguration>();
+    // TODO: display error on non-matching device.
     if (!device)
         return;
     delete d->processList;

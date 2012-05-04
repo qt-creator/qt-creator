@@ -56,7 +56,7 @@ signals:
     void processAborted();
 
 private slots:
-    void attachToDevice(int index);
+    void attachToDevice(int modelIndex);
     void handleRemoteError(const QString &errorMessage);
     void handleProcessListUpdated();
     void updateProcessList();
