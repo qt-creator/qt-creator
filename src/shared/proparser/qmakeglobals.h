@@ -75,6 +75,7 @@ public:
 
 private:
     QString getEnv(const QString &) const;
+    QStringList getPathListEnv(const QString &var) const;
 
     QHash<ProString, ProStringList> base_valuemap; // Cached results of qmake.conf, .qmake.cache & default_pre.prf
     ProFunctionDefs base_functions;

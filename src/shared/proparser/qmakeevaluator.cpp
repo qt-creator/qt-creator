@@ -1051,10 +1051,8 @@ QStringList QMakeEvaluator::qmakeMkspecPaths() const
     QStringList ret;
     const QString concat = QLatin1String("/mkspecs");
 
-    QString qmakepath = m_option->getEnv(QLatin1String("QMAKEPATH"));
-    if (!qmakepath.isEmpty())
-        foreach (const QString &it, qmakepath.split(m_option->dirlist_sep))
-            ret << QDir::cleanPath(it) + concat;
+    foreach (const QString &it, m_option->getPathListEnv(QLatin1String("QMAKEPATH")))
+        ret << it + concat;
 
     QString builtIn = propertyValue(QLatin1String("QT_INSTALL_DATA"), false) + concat;
     if (!ret.contains(builtIn))
@@ -1091,10 +1089,8 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
 
     QStringList feature_roots;
 
-    QString mkspec_path = m_option->getEnv(QLatin1String("QMAKEFEATURES"));
-    if (!mkspec_path.isEmpty())
-        foreach (const QString &f, mkspec_path.split(m_option->dirlist_sep))
-            feature_roots += resolvePath(f);
+    foreach (const QString &f, m_option->getPathListEnv(QLatin1String("QMAKEFEATURES")))
+        feature_roots += resolvePath(f);
 
     feature_roots += propertyValue(QLatin1String("QMAKEFEATURES"), false).split(
             m_option->dirlist_sep, QString::SkipEmptyParts);
@@ -1105,14 +1101,10 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
             feature_roots << (path + concat_it);
     }
 
-    QString qmakepath = m_option->getEnv(QLatin1String("QMAKEPATH"));
-    if (!qmakepath.isNull()) {
-        const QStringList lst = qmakepath.split(m_option->dirlist_sep);
-        foreach (const QString &item, lst) {
-            QString citem = resolvePath(item);
-            foreach (const QString &concat_it, concat)
-                feature_roots << (citem + mkspecs_concat + concat_it);
-        }
+    foreach (const QString &item, m_option->getPathListEnv(QLatin1String("QMAKEPATH"))) {
+        QString citem = resolvePath(item);
+        foreach (const QString &concat_it, concat)
+            feature_roots << (citem + mkspecs_concat + concat_it);
     }
 
     if (!m_option->qmakespec.isEmpty()) {

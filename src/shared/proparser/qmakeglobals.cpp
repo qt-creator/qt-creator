@@ -147,6 +147,19 @@ QString QMakeGlobals::getEnv(const QString &var) const
     return QString::fromLocal8Bit(qgetenv(var.toLocal8Bit().constData()));
 }
 
+QStringList QMakeGlobals::getPathListEnv(const QString &var) const
+{
+    QStringList ret;
+    QString val = getEnv(var);
+    if (!val.isEmpty()) {
+        QStringList vals = val.split(dirlist_sep);
+        ret.reserve(vals.length());
+        foreach (const QString &it, vals)
+            ret << QDir::cleanPath(it);
+    }
+    return ret;
+}
+
 #ifdef PROEVALUATOR_INIT_PROPS
 bool QMakeGlobals::initProperties(const QString &qmake)
 {
