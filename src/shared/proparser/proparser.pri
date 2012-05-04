@@ -27,3 +27,4 @@ SOURCES += \
         ioutils.cpp
 
 RESOURCES += proparser.qrc
+DEFINES += QMAKE_BUILTIN_PRFS

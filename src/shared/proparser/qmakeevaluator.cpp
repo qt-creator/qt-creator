@@ -885,6 +885,8 @@ bool QMakeEvaluator::loadSpec()
   cool:
     m_option->qmakespec = QDir::cleanPath(qmakespec);
 
+    if (!evaluateFeatureFile(QLatin1String("spec_pre.prf")))
+        return false;
     QString spec = m_option->qmakespec + QLatin1String("/qmake.conf");
     if (!evaluateFileDirect(spec, QMakeHandler::EvalConfigFile, LoadProOnly)) {
         m_handler->configError(
@@ -901,6 +903,8 @@ bool QMakeEvaluator::loadSpec()
     QString real_spec = orig_spec.isEmpty() ? m_option->qmakespec : orig_spec.toQString();
 #endif
     m_option->qmakespec_name = IoUtils::fileName(real_spec).toString();
+    if (!evaluateFeatureFile(QLatin1String("spec_post.prf")))
+        return false;
     if (!m_option->cachefile.isEmpty()
         && !evaluateFileDirect(m_option->cachefile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
         return false;
@@ -1900,6 +1904,11 @@ bool QMakeEvaluator::evaluateFeatureFile(const QString &fileName)
                 goto cool;
             }
         }
+#ifdef QMAKE_BUILTIN_PRFS
+        fn.prepend(QLatin1String(":/qmake/features/"));
+        if (QFileInfo(fn).exists())
+            goto cool;
+#endif
         return false;
 
       cool:
