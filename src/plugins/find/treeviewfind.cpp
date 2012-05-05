@@ -131,25 +131,6 @@ IFindSupport::Result TreeViewFind::findStep(const QString &txt,
     return result;
 }
 
-void TreeViewFind::replace(const QString &/*before*/, const QString &/*after*/,
-                           Find::FindFlags /*findFlags*/)
-{
-}
-
-bool TreeViewFind::replaceStep(const QString &/*before*/,
-                               const QString &/*after*/,
-                               Find::FindFlags /*findFlags*/)
-{
-    return false;
-}
-
-int TreeViewFind::replaceAll(const QString &/*before*/,
-                             const QString &/*after*/,
-                             Find::FindFlags /*findFlags*/)
-{
-    return 0;
-}
-
 IFindSupport::Result TreeViewFind::find(const QString &searchTxt,
                                         Find::FindFlags findFlags,
                                         bool startFromCurrentIndex,

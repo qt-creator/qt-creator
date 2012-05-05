@@ -61,12 +61,6 @@ public:
     virtual void highlightAll(const QString &txt, FindFlags findFlags);
     Result findIncremental(const QString &txt, Find::FindFlags findFlags);
     Result findStep(const QString &txt, Find::FindFlags findFlags);
-    void replace(const QString &before, const QString &after,
-        Find::FindFlags findFlags);
-    bool replaceStep(const QString &before, const QString &after,
-        Find::FindFlags findFlags);
-    int replaceAll(const QString &before, const QString &after,
-        Find::FindFlags findFlags);
 
 private:
     Result find(const QString &txt, Find::FindFlags findFlags,

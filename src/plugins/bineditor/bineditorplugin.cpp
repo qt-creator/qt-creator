@@ -170,13 +170,6 @@ public:
         return result;
     }
 
-    void replace(const QString &, const QString &,
-                 Find::FindFlags) { }
-    bool replaceStep(const QString &, const QString &,
-                     Find::FindFlags) { return false;}
-    int replaceAll(const QString &, const QString &,
-                   Find::FindFlags) { return 0; }
-
 private:
     BinEditor *m_editor;
     int m_incrementalStartPos;

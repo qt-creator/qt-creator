@@ -93,6 +93,20 @@ private:
 
 using namespace Find;
 
+void IFindSupport::replace(const QString &before, const QString &after, FindFlags findFlags)
+{
+}
+
+bool IFindSupport::replaceStep(const QString &before, const QString &after, FindFlags findFlags)
+{
+    return false;
+}
+
+int IFindSupport::replaceAll(const QString &before, const QString &after, FindFlags findFlags)
+{
+    return 0;
+}
+
 void IFindSupport::showWrapIndicator(QWidget *parent)
 {
     (new Internal::WrapIndicator(parent))->run();

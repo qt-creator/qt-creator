@@ -50,7 +50,6 @@ public:
     HelpFindSupport(CentralWidget *centralWidget);
     ~HelpFindSupport();
 
-    bool isEnabled() const;
     bool supportsReplace() const { return false; }
     Find::FindFlags supportedFindFlags() const;
 
@@ -61,12 +60,6 @@ public:
 
     Result findIncremental(const QString &txt, Find::FindFlags findFlags);
     Result findStep(const QString &txt, Find::FindFlags findFlags);
-    void replace(const QString &, const QString &,
-        Find::FindFlags ) { }
-    bool replaceStep(const QString &, const QString &,
-        Find::FindFlags ) { return false; }
-    int replaceAll(const QString &, const QString &,
-        Find::FindFlags ) { return 0; }
 
 private:
     bool find(const QString &ttf, Find::FindFlags findFlags, bool incremental);
@@ -80,7 +73,6 @@ class HelpViewerFindSupport : public Find::IFindSupport
 public:
     HelpViewerFindSupport(HelpViewer *viewer);
 
-    bool isEnabled() const { return true; }
     bool supportsReplace() const { return false; }
     Find::FindFlags supportedFindFlags() const;
     void resetIncrementalSearch() {}
@@ -90,12 +82,6 @@ public:
 
     Result findIncremental(const QString &txt, Find::FindFlags findFlags);
     Result findStep(const QString &txt, Find::FindFlags findFlags);
-    void replace(const QString &, const QString &,
-        Find::FindFlags ) { }
-    bool replaceStep(const QString &, const QString &,
-        Find::FindFlags ) { return false; }
-    int replaceAll(const QString &, const QString &,
-        Find::FindFlags ) { return 0; }
 
 private:
     bool find(const QString &ttf, Find::FindFlags findFlags, bool incremental);

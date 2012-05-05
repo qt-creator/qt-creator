@@ -46,11 +46,6 @@ HelpFindSupport::~HelpFindSupport()
 {
 }
 
-bool HelpFindSupport::isEnabled() const
-{
-    return true;
-}
-
 Find::FindFlags HelpFindSupport::supportedFindFlags() const
 {
     return Find::FindBackward | Find::FindCaseSensitively;
