@@ -402,6 +402,7 @@ void MenuActionContainer::removeMenu(QMenu *menu)
     m_menu->removeAction(menu->menuAction());
 }
 
+#ifdef Q_OS_MAC
 static bool menuInMenuBar(const QMenu *menu)
 {
     foreach (const QWidget *widget, menu->menuAction()->associatedWidgets()) {
@@ -410,6 +411,7 @@ static bool menuInMenuBar(const QMenu *menu)
     }
     return false;
 }
+#endif
 
 bool MenuActionContainer::updateInternal()
 {
