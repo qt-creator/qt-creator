@@ -36,9 +36,11 @@
 
 #include <qrceditor.h>
 
+#include <aggregation/aggregate.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
+#include <find/treeviewfind.h>
 #include <utils/reloadpromptutils.h>
 #include <utils/fileutils.h>
 
@@ -84,6 +86,10 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
 {
     setContext(context);
     setWidget(m_resourceEditor);
+
+    Aggregation::Aggregate * agg = new Aggregation::Aggregate;
+    agg->add(m_resourceEditor->treeView());
+    agg->add(new Find::TreeViewFind(m_resourceEditor->treeView()));
 
     m_resourceEditor->setResourceDragEnabled(true);
     m_openWithMenu = m_contextMenu->addMenu(tr("Open With"));

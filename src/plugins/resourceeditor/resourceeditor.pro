@@ -6,6 +6,7 @@ DEFINES += QT_NO_CAST_FROM_ASCII
 include(../../qtcreatorplugin.pri)
 include(../../libs/utils/utils.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
+include(../../plugins/find/find.pri)
 include(../../shared/qrceditor/qrceditor.pri)
 
 INCLUDEPATH += $$PWD/../../tools/utils
