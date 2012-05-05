@@ -32,6 +32,8 @@
 
 #include "resourcefile_p.h"
 
+#include <coreplugin/fileiconprovider.h>
+
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
@@ -506,6 +508,10 @@ ResourceModel::ResourceModel(const ResourceFile &resource_file, QObject *parent)
 {
     // Only action that works for QListWidget and the like.
     setSupportedDragActions(Qt::CopyAction);
+
+    Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
+    m_prefixIcon = iconProvider->overlayIcon(QStyle::SP_DirIcon,
+        QIcon(QLatin1String(":/resourceeditor/images/qt_qrc.png")), QSize(16, 16));
 }
 
 void ResourceModel::setDirty(bool b)
@@ -669,9 +675,14 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
                 const QString path = m_resource_file.absolutePath(file->name);
                 if (iconFileExtension(path))
                     file->icon = QIcon(path);
+                else
+                    file->icon = Core::FileIconProvider::instance()->icon(QFileInfo(path));
             }
             if (!file->icon.isNull())
                 result = file->icon;
+
+        } else {
+            result = m_prefixIcon;
         }
         break;
     default:

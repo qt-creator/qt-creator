@@ -257,6 +257,7 @@ private:
     ResourceFile m_resource_file;
     bool m_dirty;
     QString m_lastResourceDir;
+    QIcon m_prefixIcon;
 };
 
 } // namespace qdesigner_internal
