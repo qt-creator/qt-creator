@@ -103,7 +103,7 @@ QString MaddeDevice::displayNameForActionId(Core::Id actionId) const
     return QString(); // Can't happen.
 }
 
-void MaddeDevice::executeAction(Core::Id actionId, QWidget *parent)
+void MaddeDevice::executeAction(Core::Id actionId, QWidget *parent) const
 {
     QTC_ASSERT(actionIds().contains(actionId), return);
 

@@ -82,7 +82,7 @@ public:
     virtual IDeviceWidget *createWidget() = 0;
     virtual QList<Core::Id> actionIds() const = 0;
     virtual QString displayNameForActionId(Core::Id actionId) const = 0;
-    virtual void executeAction(Core::Id actionId, QWidget *parent = 0) = 0;
+    virtual void executeAction(Core::Id actionId, QWidget *parent = 0) const = 0;
 
     enum AvailabilityState { DeviceAvailable, DeviceUnavailable, DeviceAvailabilityUnknown };
     AvailabilityState availability() const;

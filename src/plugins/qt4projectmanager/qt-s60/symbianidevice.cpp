@@ -207,7 +207,7 @@ QString SymbianIDevice::displayNameForActionId(Core::Id actionId) const
     return QString();
 }
 
-void SymbianIDevice::executeAction(Core::Id actionId, QWidget *parent)
+void SymbianIDevice::executeAction(Core::Id actionId, QWidget *parent) const
 {
     Q_UNUSED(actionId);
     Q_UNUSED(parent);

@@ -282,7 +282,7 @@ void DeviceSettingsWidget::clearDetails()
 
 void DeviceSettingsWidget::handleAdditionalActionRequest(int actionId)
 {
-    IDevice::Ptr device = m_deviceManager->mutableDevice(currentDevice()->id());
+    const IDevice::ConstPtr device = m_deviceManager->find(currentDevice()->id());
     QTC_ASSERT(device, return);
     device->executeAction(Core::Id::fromUniqueIdentifier(actionId), this);
 }

@@ -63,7 +63,7 @@ QString DesktopDevice::displayNameForActionId(Core::Id actionId) const
     return QString();
 }
 
-void DesktopDevice::executeAction(Core::Id actionId, QWidget *parent)
+void DesktopDevice::executeAction(Core::Id actionId, QWidget *parent) const
 {
     Q_UNUSED(actionId);
     Q_UNUSED(parent);

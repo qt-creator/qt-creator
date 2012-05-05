@@ -77,7 +77,7 @@ public:
     ProjectExplorer::IDeviceWidget *createWidget();
     QList<Core::Id> actionIds() const;
     QString displayNameForActionId(Core::Id actionId) const;
-    void executeAction(Core::Id actionId, QWidget *parent);
+    void executeAction(Core::Id actionId, QWidget *parent) const;
     void fromMap(const QVariantMap &map);
     ProjectExplorer::IDevice::Ptr clone() const;
 
