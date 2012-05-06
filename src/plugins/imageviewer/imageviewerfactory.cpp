@@ -36,6 +36,7 @@
 #include "imageviewerconstants.h"
 #include "imageviewer.h"
 
+#include <QCoreApplication>
 #include <QMap>
 #include <QImageReader>
 #include <QtDebug>
@@ -102,7 +103,7 @@ Core::Id ImageViewerFactory::id() const
 
 QString ImageViewerFactory::displayName() const
 {
-    return tr(Constants::IMAGEVIEWER_DISPLAY_NAME);
+    return qApp->translate("OpenWith::Editors", Constants::IMAGEVIEWER_DISPLAY_NAME);
 }
 
 Core::IDocument *ImageViewerFactory::open(const QString & /*fileName*/)
