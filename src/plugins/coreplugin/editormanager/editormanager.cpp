@@ -1222,12 +1222,14 @@ Core::Id EditorManager::getOpenWithEditorId(const QString &fileName,
     if (!mt)
         return Id();
     QStringList allEditorIds;
+    QStringList allEditorDisplayNames;
     QList<Id> externalEditorIds;
     // Built-in
     const EditorFactoryList editors = editorFactories(mt, false);
     const int size = editors.size();
     for (int i = 0; i < size; i++) {
         allEditorIds.push_back(editors.at(i)->id().toString());
+        allEditorDisplayNames.push_back(editors.at(i)->displayName());
     }
     // External editors
     const ExternalEditorList exEditors = externalEditors(mt, false);
@@ -1235,16 +1237,18 @@ Core::Id EditorManager::getOpenWithEditorId(const QString &fileName,
     for (int i = 0; i < esize; i++) {
         externalEditorIds.push_back(exEditors.at(i)->id());
         allEditorIds.push_back(exEditors.at(i)->id().toString());
+        allEditorDisplayNames.push_back(exEditors.at(i)->displayName());
     }
     if (allEditorIds.empty())
         return Id();
+    QTC_ASSERT(allEditorIds.size() == allEditorDisplayNames.size(), return Id());
     // Run dialog.
     OpenWithDialog dialog(fileName, ICore::mainWindow());
-    dialog.setEditors(allEditorIds);
+    dialog.setEditors(allEditorDisplayNames);
     dialog.setCurrentEditor(0);
     if (dialog.exec() != QDialog::Accepted)
         return Id();
-    const Id selectedId = Id(dialog.editor());
+    const Id selectedId = Id(allEditorIds.at(dialog.editor()));
     if (isExternalEditor)
         *isExternalEditor = externalEditorIds.contains(selectedId);
     return selectedId;

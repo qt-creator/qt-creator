@@ -52,7 +52,7 @@ public:
     OpenWithDialog(const QString &fileName, QWidget *parent);
 
     void setEditors(const QStringList &);
-    QString editor() const;
+    int editor() const;
 
     void setCurrentEditor(int index);
 

@@ -70,11 +70,9 @@ void OpenWithDialog::setEditors(const QStringList &editors)
         editorListWidget->addItem(e);
 }
 
-QString OpenWithDialog::editor() const
+int OpenWithDialog::editor() const
 {
-    if (const QListWidgetItem *item = editorListWidget->currentItem())
-        return item->text();
-    return QString();
+    return editorListWidget->currentRow();
 }
 
 void OpenWithDialog::setCurrentEditor(int index)
