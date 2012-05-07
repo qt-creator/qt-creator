@@ -39,6 +39,8 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <QCoreApplication>
+
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
 
@@ -76,7 +78,7 @@ Core::Id ProjectFilesFactory::id() const
 
 QString ProjectFilesFactory::displayName() const
 {
-    return tr(Constants::FILES_EDITOR_DISPLAY_NAME);
+    return qApp->translate("OpenWith::Editors", Constants::FILES_EDITOR_DISPLAY_NAME);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

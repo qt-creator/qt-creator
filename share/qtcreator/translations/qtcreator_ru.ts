@@ -8930,7 +8930,7 @@ Do you want to retry?</source>
         <translation></translation>
     </message>
     <message>
-        <source>The 2D Painting example shows how QPainter and QGLWidget. The 2D Painting example shows how QPainter and QGLWidget work together.</source>
+        <source>The 2D Painting example shows how QPainter and QGLWidget work together.</source>
         <translation>Пример 2D Painting показывает, как совместно работают QPainter и QGLWidget.</translation>
     </message>
     <message>
@@ -9772,6 +9772,14 @@ Reason: %3</source>
     <message>
         <source>Already at newest change</source>
         <translation>Уже на последнем изменении</translation>
+    </message>
+    <message>
+        <source>Unknown option: %1</source>
+        <translation>Неизвестный параметр: %1</translation>
+    </message>
+    <message>
+        <source>Argument must be positive: %1=%2</source>
+        <translation>Параметр должен быть положительным: %1=%2</translation>
     </message>
 </context>
 <context>
@@ -15912,7 +15920,7 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
     <message>
         <source>Unknown option %1</source>
-        <translation>Неизвестная опция %1</translation>
+        <translation>Неизвестный параметр: %1</translation>
     </message>
     <message>
         <source>The option %1 requires an argument.</source>

@@ -46,6 +46,7 @@
 #include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <QCoreApplication>
 #include <QFileInfo>
 #include <QDebug>
 #include <QSettings>
@@ -74,7 +75,7 @@ Core::Id QmlJSEditorFactory::id() const
 
 QString QmlJSEditorFactory::displayName() const
 {
-    return tr(C_QMLJSEDITOR_DISPLAY_NAME);
+    return qApp->translate("OpenWith::Editors", C_QMLJSEDITOR_DISPLAY_NAME);
 }
 
 Core::IEditor *QmlJSEditorFactory::createEditor(QWidget *parent)

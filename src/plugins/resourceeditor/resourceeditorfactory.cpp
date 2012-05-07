@@ -38,6 +38,7 @@
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <QCoreApplication>
 #include <QFileInfo>
 #include <qdebug.h>
 
@@ -61,7 +62,7 @@ Core::Id ResourceEditorFactory::id() const
 
 QString ResourceEditorFactory::displayName() const
 {
-    return tr(C_RESOURCEEDITOR_DISPLAY_NAME);
+    return qApp->translate("OpenWith::Editors", C_RESOURCEEDITOR_DISPLAY_NAME);
 }
 
 Core::IEditor *ResourceEditorFactory::createEditor(QWidget *parent)

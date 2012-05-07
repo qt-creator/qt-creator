@@ -85,6 +85,7 @@ public:
 
     Utils::SavedAction *item(int code);
     Utils::SavedAction *item(const QString &name);
+    QString trySetValue(const QString &name, const QString &value);
 
     void readSettings(QSettings *settings);
     void writeSettings(QSettings *settings);

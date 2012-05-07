@@ -36,6 +36,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -416,7 +417,7 @@ Core::Id BinEditorFactory::id() const
 
 QString BinEditorFactory::displayName() const
 {
-    return tr(Constants::C_BINEDITOR_DISPLAY_NAME);
+    return qApp->translate("OpenWith::Editors", Constants::C_BINEDITOR_DISPLAY_NAME);
 }
 
 Core::IEditor *BinEditorFactory::createEditor(QWidget *parent)

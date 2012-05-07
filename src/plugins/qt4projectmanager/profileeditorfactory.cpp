@@ -41,6 +41,7 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <QCoreApplication>
 #include <QFileInfo>
 #include <QAction>
 #include <QMenu>
@@ -75,7 +76,7 @@ Core::Id ProFileEditorFactory::id() const
 
 QString ProFileEditorFactory::displayName() const
 {
-    return tr(Qt4ProjectManager::Constants::PROFILE_EDITOR_DISPLAY_NAME);
+    return qApp->translate("OpenWith::Editors", Qt4ProjectManager::Constants::PROFILE_EDITOR_DISPLAY_NAME);
 }
 
 Core::IEditor *ProFileEditorFactory::createEditor(QWidget *parent)

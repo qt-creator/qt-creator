@@ -146,7 +146,7 @@ Rectangle {
         id: descriptionItem
         height: 43
         color: "#7e7e7e"
-        text: qsTr("The 2D Painting example shows how QPainter and QGLWidget. The 2D Painting example shows how QPainter and QGLWidget work together.")
+        text: qsTr("The 2D Painting example shows how QPainter and QGLWidget work together.")
         anchors.top: captionItem.bottom
         anchors.topMargin: 10
         opacity: 0

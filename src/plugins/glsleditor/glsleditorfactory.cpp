@@ -43,6 +43,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <QCoreApplication>
 #include <QFileInfo>
 #include <QDebug>
 #include <QSettings>
@@ -72,7 +73,7 @@ Core::Id GLSLEditorFactory::id() const
 
 QString GLSLEditorFactory::displayName() const
 {
-    return tr(C_GLSLEDITOR_DISPLAY_NAME);
+    return qApp->translate("OpenWith::Editors", C_GLSLEDITOR_DISPLAY_NAME);
 }
 
 Core::IEditor *GLSLEditorFactory::createEditor(QWidget *parent)

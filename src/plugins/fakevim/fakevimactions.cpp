@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "fakevimactions.h"
+#include "fakevimhandler.h"
 
 // Please do not add any direct dependencies to other Qt Creator code  here.
 // Instead emit signals and let the FakeVimPlugin channel the information to
@@ -41,15 +42,8 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QFile>
 #include <QObject>
-#include <QPointer>
-#include <QProcess>
-#include <QRegExp>
-#include <QTextStream>
-#include <QtAlgorithms>
 #include <QCoreApplication>
-#include <QStack>
 
 using namespace Utils;
 
@@ -105,6 +99,23 @@ SavedAction *FakeVimSettings::item(int code)
 SavedAction *FakeVimSettings::item(const QString &name)
 {
     return m_items.value(m_nameToCode.value(name, -1), 0);
+}
+
+QString FakeVimSettings::trySetValue(const QString &name, const QString &value)
+{
+    int code = m_nameToCode.value(name, -1);
+    if (code == -1)
+        return FakeVimHandler::tr("Unknown option: %1").arg(name);
+    if (code == ConfigTabStop || code == ConfigShiftWidth) {
+        if (value.toInt() <= 0)
+            return FakeVimHandler::tr("Argument must be positive: %1=%2")
+                    .arg(name).arg(value);
+    }
+    SavedAction *act = item(code);
+    if (!act)
+        return FakeVimHandler::tr("Unknown option: %1").arg(name);
+    act->setValue(value);
+    return QString();
 }
 
 FakeVimSettings *theFakeVimSettings()

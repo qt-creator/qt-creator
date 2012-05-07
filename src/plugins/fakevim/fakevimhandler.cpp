@@ -3585,9 +3585,10 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
     } else if (cmd.args.contains('=')) {
         // Non-boolean config to set.
         int p = cmd.args.indexOf('=');
-        act = theFakeVimSettings()->item(cmd.args.left(p));
-        if (act)
-            act->setValue(cmd.args.mid(p + 1));
+        QString error = theFakeVimSettings()
+                ->trySetValue(cmd.args.left(p), cmd.args.mid(p + 1));
+        if (!error.isEmpty())
+            showRedMessage(error);
     } else {
         showRedMessage(FakeVimHandler::tr("Unknown option: ") + cmd.args);
     }

@@ -70,6 +70,7 @@ private slots:
     void replace();
     void setCurrentFilter(int index);
     void updateButtonStates();
+    void updateFindFlags();
 
 private:
     void acceptAndGetParameters(QString *term, IFindFilter **filter);

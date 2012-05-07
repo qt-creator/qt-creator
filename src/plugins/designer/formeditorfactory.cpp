@@ -44,6 +44,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/modemanager.h>
 
+#include <QCoreApplication>
 #include <QFileInfo>
 #include <QDebug>
 
@@ -68,7 +69,7 @@ Core::Id FormEditorFactory::id() const
 
 QString FormEditorFactory::displayName() const
 {
-    return tr(C_DESIGNER_XML_DISPLAY_NAME);
+    return qApp->translate("Designer", C_DESIGNER_XML_DISPLAY_NAME);
 }
 
 Core::IDocument *FormEditorFactory::open(const QString &fileName)

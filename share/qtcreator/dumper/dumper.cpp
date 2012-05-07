@@ -129,6 +129,12 @@
 #endif // QT_BOOTSTRAPPED
 
 
+#if QT_VERSION >= 0x050000
+#       define MAP_WORKS 0
+#else
+#       define MAP_WORKS 1
+#endif
+
 int qtGhVersion = QT_VERSION;
 
 /*!
@@ -1880,6 +1886,7 @@ static void qDumpQLocale(QDumper &d)
     d.disarm();
 }
 
+#if MAP_WORKS
 static void qDumpQMapNode(QDumper &d)
 {
     const QMapData *h = reinterpret_cast<const QMapData *>(d.data);
@@ -1997,6 +2004,7 @@ static void qDumpQMultiMap(QDumper &d)
 {
     qDumpQMap(d);
 }
+#endif // MAP_WORKS
 
 #ifndef QT_BOOTSTRAPPED
 static void qDumpQModelIndex(QDumper &d)
@@ -2428,6 +2436,15 @@ static void qDumpQObjectPropertyList(QDumper &d)
     d.disarm();
 }
 
+static QByteArray methodSignature(const QMetaMethod &method)
+{
+#if QT_VERSION >= 0x050000
+    return method.methodSignature();
+#else
+    return QByteArray(method.signature());
+#endif
+}
+
 static void qDumpQObjectMethodList(QDumper &d)
 {
     const QObject *ob = (const QObject *)d.data;
@@ -2442,10 +2459,11 @@ static void qDumpQObjectMethodList(QDumper &d)
         for (int i = 0; i != mo->methodCount(); ++i) {
             const QMetaMethod & method = mo->method(i);
             int mt = method.methodType();
+            const QByteArray sig = methodSignature(method);
             d.beginHash();
             d.beginItem("name");
-                d.put(i).put(" ").put(mo->indexOfMethod(method.signature()));
-                d.put(" ").put(method.signature());
+                d.put(i).put(" ").put(mo->indexOfMethod(sig));
+                d.put(" ").put(sig);
             d.endItem();
             d.beginItem("value");
                 d.put((mt == QMetaMethod::Signal ? "<Signal>" : "<Slot>"));
@@ -2467,7 +2485,9 @@ static const char *qConnectionType(uint type)
         case Qt::DirectConnection: output = "direct"; break;
         case Qt::QueuedConnection: output = "queued"; break;
         case Qt::BlockingQueuedConnection: output = "blockingqueued"; break;
+#if QT_VERSION < 0x050000
         case 3: output = "autocompat"; break;
+#endif
 #if QT_VERSION >= 0x040600
         case Qt::UniqueConnection: break; // Can't happen.
 #endif
@@ -2538,8 +2558,8 @@ static void qDumpQObjectSignal(QDumper &d)
                 d.endItem();
                 d.putItem("type", "");
                 if (conn.receiver)
-                    d.putItem("value", conn.receiver->metaObject()
-                        ->method(conn.method_()).signature());
+                    d.putItem("value", methodSignature(conn.receiver->metaObject()
+                        ->method(conn.method_())));
                 else
                     d.putItem("value", "<invalid receiver>");
                 d.putItem("numchild", "0");
@@ -2580,11 +2600,11 @@ static void qDumpQObjectSignalList(QDumper &d)
         for (int i = 0; i != methodCount; ++i) {
             const QMetaMethod & method = mo->method(i);
             if (method.methodType() == QMetaMethod::Signal) {
-                int k = mo->indexOfSignal(method.signature());
+                int k = mo->indexOfSignal(methodSignature(method));
                 const ConnectionList &connList = qConnectionList(ob, k);
                 d.beginHash();
                 d.putItem("name", k);
-                d.putItem("value", method.signature());
+                d.putItem("value", methodSignature(method));
                 d.putItem("numchild", connList.size());
                 d.putItem("addr", d.data);
                 d.putItem("type", NS"QObjectSignal");
@@ -2627,14 +2647,14 @@ static void qDumpQObjectSlot(QDumper &d)
                 const Connection &conn = connectionAt(connList, i);
                 if (conn.receiver == ob && conn.method_() == slotNumber) {
                     ++numchild;
-                    const QMetaMethod &method = sender->metaObject()->method(signal);
+                    QMetaMethod method = sender->metaObject()->method(signal);
                     qDumpQObjectConnectionPart(d, ob, sender, s, " sender");
                     d.beginHash();
                         d.beginItem("name");
                             d.put(s).put(" signal");
                         d.endItem();
                         d.putItem("type", "");
-                        d.putItem("value", method.signature());
+                        d.putItem("value", methodSignature(method));
                         d.putItem("numchild", "0");
                     d.endHash();
                     d.beginHash();
@@ -2678,12 +2698,13 @@ static void qDumpQObjectSlotList(QDumper &d)
         d.beginChildren();
 #if QT_VERSION >= 0x040400
         for (int i = 0; i != methodCount; ++i) {
-            const QMetaMethod & method = mo->method(i);
+            QMetaMethod method = mo->method(i);
             if (method.methodType() == QMetaMethod::Slot) {
                 d.beginHash();
-                int k = mo->indexOfSlot(method.signature());
+                QByteArray sig = methodSignature(method);
+                int k = mo->indexOfSlot(sig);
                 d.putItem("name", k);
-                d.putItem("value", method.signature());
+                d.putItem("value", sig);
 
                 // count senders. expensive...
                 int numchild = 0;
@@ -3043,10 +3064,14 @@ static void qDumpQTextCodec(QDumper &d)
 static void qDumpQVector(QDumper &d)
 {
     qCheckAccess(deref(d.data)); // is the d-ptr de-referenceable and valid
+    QVectorData *v = *reinterpret_cast<QVectorData *const*>(d.data);
+
+#if QT_VERSION >= 0x050000
+    const unsigned typeddatasize = (char *)(&v->offset) - (char *)v;
+#else
     QVectorTypedData<int> *dummy = 0;
     const unsigned typeddatasize = (char*)(&dummy->array) - (char*)dummy;
-
-    QVectorData *v = *reinterpret_cast<QVectorData *const*>(d.data);
+#endif
 
     // Try to provoke segfaults early to prevent the frontend
     // from asking for unavailable child details
@@ -3522,14 +3547,16 @@ static void handleProtocolVersion2and3(QDumper &d)
             break;
         case 'M':
 #            ifndef QT_BOOTSTRAPPED
-            if (isEqual(type, "QMap"))
+            if (isEqual(type, "QModelIndex"))
+                qDumpQModelIndex(d);
+#           if MAP_WORKS
+            else if (isEqual(type, "QMap"))
                 qDumpQMap(d);
             else if (isEqual(type, "QMapNode"))
                 qDumpQMapNode(d);
-            else if (isEqual(type, "QModelIndex"))
-                qDumpQModelIndex(d);
             else if (isEqual(type, "QMultiMap"))
                 qDumpQMultiMap(d);
+#           endif
 #            endif
             break;
         case 'O':
@@ -3542,10 +3569,10 @@ static void handleProtocolVersion2and3(QDumper &d)
                 qDumpQObjectProperty(d);
             else if (isEqual(type, "QObjectMethodList"))
                 qDumpQObjectMethodList(d);
-            else if (isEqual(type, "QObjectSignal"))
-                qDumpQObjectSignal(d);
             else if (isEqual(type, "QObjectSignalList"))
                 qDumpQObjectSignalList(d);
+            else if (isEqual(type, "QObjectSignal"))
+                qDumpQObjectSignal(d);
             else if (isEqual(type, "QObjectSlot"))
                 qDumpQObjectSlot(d);
             else if (isEqual(type, "QObjectSlotList"))
@@ -3680,8 +3707,10 @@ void *qDumpObjectData440(
             "\"" NS "QLinkedList\","
             "\"" NS "QList\","
             "\"" NS "QLocale\","
+#if MAP_WORKS
             "\"" NS "QMap\","
             "\"" NS "QMapNode\","
+#endif
             "\"" NS "QModelIndex\","
             "\"" NS "QObject\","
             "\"" NS "QObjectMethodList\","   // hack to get nested properties display
@@ -3709,7 +3738,9 @@ void *qDumpObjectData440(
             "\"" NS "QVariantList\","
             "\"" NS "QVector\","
 #if QT_VERSION >= 0x040500
+#if MAP_WORKS
             "\"" NS "QMultiMap\","
+#endif
             "\"" NS "QSharedPointer\","
             "\"" NS "QWeakPointer\","
 #endif

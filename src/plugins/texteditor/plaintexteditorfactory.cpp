@@ -44,6 +44,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/infobar.h>
 
+#include <QCoreApplication>
 #include <QDebug>
 
 using namespace TextEditor;
@@ -72,7 +73,7 @@ Core::Id PlainTextEditorFactory::id() const
 
 QString PlainTextEditorFactory::displayName() const
 {
-    return tr(Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME);
+    return qApp->translate("OpenWith::Editors", Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME);
 }
 
 Core::IEditor *PlainTextEditorFactory::createEditor(QWidget *parent)

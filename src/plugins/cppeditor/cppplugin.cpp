@@ -105,7 +105,7 @@ Core::Id CppEditorFactory::id() const
 
 QString CppEditorFactory::displayName() const
 {
-    return tr(CppEditor::Constants::CPPEDITOR_DISPLAY_NAME);
+    return qApp->translate("OpenWith::Editors", CppEditor::Constants::CPPEDITOR_DISPLAY_NAME);
 }
 
 Core::IEditor *CppEditorFactory::createEditor(QWidget *parent)

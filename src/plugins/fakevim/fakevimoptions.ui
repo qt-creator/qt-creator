@@ -115,8 +115,11 @@
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QSpinBox" name="spinBoxShiftWidth">
+          <property name="minimum">
+           <number>1</number>
+          </property>
           <property name="maximum">
-           <number>999</number>
+           <number>80</number>
           </property>
          </widget>
         </item>
@@ -149,8 +152,11 @@
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
          <widget class="QSpinBox" name="spinBoxTabStop">
+          <property name="minimum">
+           <number>1</number>
+          </property>
           <property name="maximum">
-           <number>999</number>
+           <number>80</number>
           </property>
          </widget>
         </item>
