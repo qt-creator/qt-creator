@@ -1409,6 +1409,15 @@ class Dumper:
 
         if type.code == ReferenceCode:
             try:
+                # Try to recognize null references explicitly.
+                if long(value.address) == 0:
+                    self.putValue("<null reference>")
+                    self.putType(typeName)
+                    self.putNumChild(0)
+                    return
+            except:
+                pass
+            try:
                 # FIXME: This throws "RuntimeError: Attempt to dereference a
                 # generic pointer." with MinGW's gcc 4.5 when it "identifies"
                 # a "QWidget &" as "void &" and with optimized out code.

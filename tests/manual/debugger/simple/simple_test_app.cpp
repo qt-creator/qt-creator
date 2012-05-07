@@ -2100,6 +2100,31 @@ namespace final {
         dummyStatement(&app);
     }
 
+    void testNullReferenceHelper(int &i, int &j)
+    {
+        i += 1;
+        j += 1;
+    }
+
+    void testNullReference()
+    {
+        int i = 21;
+        int *p = &i;
+        int *q = 0;
+        int &pp = *p;
+        int &qq = *q;
+        BREAK_HERE;
+        // Check i 21 int.
+        // CheckType p int.
+        // Check p 21 int.
+        // Check q 0x0 int *.
+        // Check qq <null reference> int.
+        // Continue.
+        return; // Uncomment.
+        testNullReferenceHelper(pp, qq);
+        dummyStatement(p, q, &i);
+    }
+
     void testFinal(QCoreApplication *app)
     {
         // This contains all "final" tests that do not allow proceeding
@@ -2108,6 +2133,7 @@ namespace final {
         // Continue.
         testQSettings();
         testNullPointerDeref();
+        testNullReference();
         testEndlessLoop();
         testEndlessRecursion();
         testUncaughtException();
