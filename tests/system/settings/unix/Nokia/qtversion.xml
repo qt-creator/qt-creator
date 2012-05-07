@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorQtVersions>
-<!-- Written by Qt Creator 2.2.81, 2011-06-06T16:08:30. -->
+<!-- Written by Qt Creator 2.5.81, 2012-05-07T16:05:36. -->
 <qtcreator>
  <data>
   <variable>QtVersion.0</variable>
@@ -49,8 +49,7 @@
    <value type="QString" key="Name">Harmattan Target (Qt SDK)</value>
    <value type="QString" key="QMakePath">~/QtSDK/Madde/targets/harmattan_10.2011.34-1/bin/qmake</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Maemo</value>
-   <value type="QString" key="autodetectionSource">SDK.MeeGo_1.2_Harmattan_API</value>
-   <value type="bool" key="isAutodetected">true</value>
+   <value type="bool" key="isAutodetected">false</value>
   </valuemap>
  </data>
  <data>
