@@ -104,7 +104,7 @@ void QMakeEvaluator::initStatics()
     static const char * const names[] = {
         "LITERAL_DOLLAR", "LITERAL_HASH", "LITERAL_WHITESPACE",
         "DIRLIST_SEPARATOR", "DIR_SEPARATOR",
-        "OUT_PWD", "PWD", "IN_PWD",
+        "OUT_PWD", "PWD",
         "_FILE_", "_LINE_", "_PRO_FILE_", "_PRO_FILE_PWD_",
         "QMAKE_HOST.arch", "QMAKE_HOST.name", "QMAKE_HOST.os",
         "QMAKE_HOST.version", "QMAKE_HOST.version_string",
@@ -134,7 +134,8 @@ void QMakeEvaluator::initStatics()
         { "QMAKE_EXTRA_UNIX_VARIABLES", "QMAKE_EXTRA_VARIABLES" },
         { "QMAKE_RPATH", "QMAKE_LFLAGS_RPATH" },
         { "QMAKE_FRAMEWORKDIR", "QMAKE_FRAMEWORKPATH" },
-        { "QMAKE_FRAMEWORKDIR_FLAGS", "QMAKE_FRAMEWORKPATH_FLAGS" }
+        { "QMAKE_FRAMEWORKDIR_FLAGS", "QMAKE_FRAMEWORKPATH_FLAGS" },
+        { "IN_PWD", "PWD" }
     };
     for (unsigned i = 0; i < sizeof(mapInits)/sizeof(mapInits[0]); ++i)
         statics.varMap.insert(ProString(mapInits[i].oldname),
@@ -1761,7 +1762,6 @@ ProStringList QMakeEvaluator::values(const ProString &variableName) const
             ret = m_outputDir;
             break;
         case V_PWD: // containing directory of most nested project/include file
-        case V_IN_PWD:
             ret = currentDirectory();
             break;
         case V_DIR_SEPARATOR:
