@@ -90,7 +90,6 @@ void QMakeEvaluator::initStatics()
     statics.strever = QLatin1String("ever");
     statics.strforever = QLatin1String("forever");
     statics.strTEMPLATE = ProString("TEMPLATE");
-    statics.strQMAKE_DIR_SEP = ProString("QMAKE_DIR_SEP");
 
     statics.fakeValue = ProStringList(ProString("_FAKE_")); // It has to have a unique begin() value
 
@@ -824,10 +823,6 @@ void QMakeEvaluator::visitProVariable(
 
 bool QMakeEvaluator::prepareProject()
 {
-    // ### init QMAKE_QMAKE, QMAKE_SH
-    // ### init QMAKE_EXT_{C,H,CPP,OBJ}
-    // ### init TEMPLATE_PREFIX
-
     if (m_option->do_cache) {
         QString qmake_cache = m_option->cachefile;
         if (qmake_cache.isEmpty() && !m_outputDir.isEmpty())  { //find it as it has not been specified
@@ -1745,8 +1740,6 @@ ProStringList QMakeEvaluator::values(const ProString &variableName) const
     if (result.isEmpty()) {
         if (variableName == statics.strTEMPLATE) {
             result.append(ProString("app", NoHash));
-        } else if (variableName == statics.strQMAKE_DIR_SEP) {
-            result.append(ProString(m_option->dirlist_sep, NoHash));
         }
     }
     return result;

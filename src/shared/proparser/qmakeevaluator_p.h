@@ -52,7 +52,6 @@ struct QMakeStatics {
     QString strever;
     QString strforever;
     ProString strTEMPLATE;
-    ProString strQMAKE_DIR_SEP;
     QHash<ProString, int> expands;
     QHash<ProString, int> functions;
     QHash<ProString, int> varList;
