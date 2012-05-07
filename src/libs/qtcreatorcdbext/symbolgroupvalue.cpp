@@ -1495,7 +1495,10 @@ static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str)
     wchar_t *memory;
     unsigned fullSize;
     unsigned size;
-    if (!readQt5StringData(dV, qtInfo.version, true, 10240, &fullSize, &size, &memory))
+    const SymbolGroupValue typeArrayV = dV[unsigned(0)];
+    if (!typeArrayV)
+        return false;
+    if (!readQt5StringData(typeArrayV, qtInfo.version, true, 10240, &fullSize, &size, &memory))
         return false;
     if (size) {
         str << L'"' << memory;
