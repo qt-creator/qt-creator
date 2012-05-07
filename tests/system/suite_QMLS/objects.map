@@ -2,8 +2,8 @@
 :Behavior.completionTrigger_QComboBox	{container=':CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox' name='completionTrigger' type='QComboBox' visible='1'}
 :CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox	{container=':qt_tabwidget_stackedwidget.CppTools__Internal__CompletionSettingsPage_QWidget' name='groupBox' title='Behavior' type='QGroupBox' visible='1'}
 :Dialog.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Dialog_QmlJSEditor::Internal::ComponentNameDialog'}
-:Dialog.componentNameEdit_QLineEdit	{name='componentNameEdit' type='QLineEdit' visible='1' window=':Dialog_QmlJSEditor::Internal::ComponentNameDialog'}
-:Dialog_QmlJSEditor::Internal::ComponentNameDialog	{name='QmlJSEditor__Internal__ComponentNameDialog' type='QmlJSEditor::Internal::ComponentNameDialog' visible='1' windowTitle='Dialog'}
+:Dialog.componentNameEdit_QLineEdit	{name='componentNameEdit' type='Utils::ClassNameValidatingLineEdit' visible='1' window=':Dialog_QmlJSEditor::Internal::ComponentNameDialog'}
+:Dialog_QmlJSEditor::Internal::ComponentNameDialog	{name='QmlJSEditor__Internal__ComponentNameDialog' type='QmlJSEditor::Internal::ComponentNameDialog' visible='1' windowTitle='Move Component into Separate File'}
 :New Qt Quick Application.Add to version control:_QLabel	{name='addToVersionControlLabel' text='Add to version control:' type='QLabel' visible='1'}
 :Next_QPushButton	{name='__qt__passive_wizardbutton1' text~='(Next.*|Continue)' type='QPushButton' visible='1'}
 :Options.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Options_Core::Internal::SettingsDialog'}
