@@ -50,11 +50,11 @@ namespace Internal {
 QtMessageLogItem::QtMessageLogItem(QtMessageLogItem *parent,
                              QtMessageLogHandler::ItemType itemType, const QString &text)
     : m_parentItem(parent),
-      text(text),
       itemType(itemType),
       line(-1)
 
 {
+    setText(text);
 }
 
 QtMessageLogItem::~QtMessageLogItem()
@@ -105,7 +105,7 @@ void QtMessageLogItem::insertChild(QtMessageLogItem *item)
 
     int i = 0;
     for (; i < m_childItems.count(); i++) {
-        if (item->text < m_childItems[i]->text) {
+        if (item->m_text < m_childItems[i]->m_text) {
             break;
         }
     }
@@ -148,6 +148,20 @@ bool QtMessageLogItem::detachChild(int position)
     return true;
 }
 
+void QtMessageLogItem::setText(const QString &text)
+{
+    m_text = text;
+    for (int i = 0; i < m_text.length(); ++i) {
+        if (m_text.at(i).isPunct())
+            m_text.insert(++i, QChar(0x200b)); // ZERO WIDTH SPACE
+    }
+}
+
+const QString &QtMessageLogItem::text() const
+{
+    return m_text;
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // QtMessageLogHandler
@@ -171,8 +185,8 @@ void QtMessageLogHandler::clear()
 {
     beginResetModel();
     reset();
-    qDeleteAll(m_rootItem->m_childItems);
-    m_rootItem->m_childItems.clear();
+    delete m_rootItem;
+    m_rootItem = new QtMessageLogItem(0);
     endResetModel();
 
     if (m_hasEditableRow)
@@ -262,7 +276,7 @@ QVariant QtMessageLogHandler::data(const QModelIndex &index, int role) const
     QtMessageLogItem *item = getItem(index);
 
     if (role == Qt::DisplayRole )
-        return item->text;
+        return item->text();
     else if (role == QtMessageLogHandler::TypeRole)
         return int(item->itemType);
     else if (role == QtMessageLogHandler::FileRole)
@@ -338,7 +352,7 @@ bool QtMessageLogHandler::setData(const QModelIndex &index, const QVariant &valu
     QtMessageLogItem *item = getItem(index);
     bool result = false;
     if (role == Qt::DisplayRole) {
-        item->text = value.toString();
+        item->setText(value.toString());
         result = true;
     } else if (role == QtMessageLogHandler::TypeRole) {
         item->itemType = (QtMessageLogHandler::ItemType)value.toInt();

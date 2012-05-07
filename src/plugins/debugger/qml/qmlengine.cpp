@@ -1314,9 +1314,9 @@ QtMessageLogItem *QmlEngine::constructLogItemTree(
     QtMessageLogItem *item = new QtMessageLogItem(parent);
     if (result.type() == QVariant::Map) {
         if (key.isEmpty())
-            item->text = _("Object");
+            item->setText(_("Object"));
         else
-            item->text = QString(_("%1: Object")).arg(key);
+            item->setText(key + _(" : Object"));
 
         QMapIterator<QString, QVariant> i(result.toMap());
         while (i.hasNext()) {
@@ -1328,9 +1328,9 @@ QtMessageLogItem *QmlEngine::constructLogItemTree(
         }
     } else if (result.type() == QVariant::List) {
         if (key.isEmpty())
-            item->text = _("List");
+            item->setText(_("List"));
         else
-            item->text = QString(_("[%1] : List")).arg(key);
+            item->setText(QString(_("[%1] : List")).arg(key));
         QVariantList resultList = result.toList();
         for (int i = 0; i < resultList.count(); i++) {
             QtMessageLogItem *child = constructLogItemTree(item, resultList.at(i),
@@ -1339,9 +1339,9 @@ QtMessageLogItem *QmlEngine::constructLogItemTree(
                 item->insertChild(child);
         }
     } else if (result.canConvert(QVariant::String)) {
-        item->text = result.toString();
+        item->setText(result.toString());
     } else {
-        item->text = _("Unknown Value");
+        item->setText(_("Unknown Value"));
     }
 
     return item;

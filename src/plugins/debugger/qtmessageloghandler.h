@@ -132,19 +132,18 @@ public:
     bool removeChildren(int position, int count);
     bool detachChild(int position);
     int childNumber() const;
+    void setText(const QString &text);
+    const QString &text() const;
 
 private:
     QtMessageLogItem *m_parentItem;
     QList<QtMessageLogItem *> m_childItems;
+    QString m_text;
 
 public:
-    QString text;
     QtMessageLogHandler::ItemType itemType;
     QString file;
     int line;
-
-private:
-    friend class QtMessageLogHandler;
 };
 
 } //Internal

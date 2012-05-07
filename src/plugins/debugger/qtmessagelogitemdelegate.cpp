@@ -73,7 +73,8 @@ QtMessageLogItemDelegate::QtMessageLogItemDelegate(QObject *parent) :
     m_expandIcon(QLatin1String(":/debugger/images/expand.png")),
     m_collapseIcon(QLatin1String(":/debugger/images/collapse.png")),
     m_prompt(QLatin1String(":/debugger/images/prompt.png")),
-    m_itemModel(0)
+    m_itemModel(0),
+    m_cachedHeight(0)
 {
 }
 
@@ -189,12 +190,18 @@ void QtMessageLogItemDelegate::paint(QPainter *painter, const QStyleOptionViewIt
     // Paint TextArea:
     // Layout the description
     QString str = index.data(Qt::DisplayRole).toString();
-    formatTextForWidth(str);
-    QTextLayout tl(str, opt.font);
     bool showFileLineInfo = true;
-    layoutText(tl, positions.textAreaWidth(), &showFileLineInfo);
-    tl.draw(painter, QPoint(positions.textAreaLeft(), positions.adjustedTop()));
-
+    // show complete text if selected
+    if (view->selectionModel()->currentIndex() == index) {
+        QTextLayout tl(str, opt.font);
+        layoutText(tl, positions.textAreaWidth(), &showFileLineInfo);
+        tl.draw(painter, QPoint(positions.textAreaLeft(), positions.adjustedTop()));
+    } else {
+        QFontMetrics fm(opt.font);
+        painter->drawText(positions.textArea(),
+                          fm.elidedText(str, Qt::ElideRight,
+                                        positions.textAreaWidth()));
+    }
     //skip if area is editable
     if (showExpandableIcon) {
         // Paint ExpandableIconArea:
@@ -267,6 +274,10 @@ QSize QtMessageLogItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     if (index.flags() & Qt::ItemIsEditable)
         return QSize(width, view->height() * 1/2);
 
+    const bool selected = (view->selectionModel()->currentIndex() == index);
+    if (!selected && option.font == m_cachedFont && m_cachedHeight > 0)
+        return QSize(width, m_cachedHeight);
+
     QtMessageLogHandler::ItemType type = (QtMessageLogHandler::ItemType)index.data(
                 QtMessageLogHandler::TypeRole).toInt();
     bool showTypeIcon = index.parent() == QModelIndex();
@@ -277,13 +288,24 @@ QSize QtMessageLogItemDelegate::sizeHint(const QStyleOptionViewItem &option,
                         showTypeIcon, showExpandableIcon, m_itemModel);
 
     QFontMetrics fm(option.font);
-    QString str = index.data(Qt::DisplayRole).toString();
-    formatTextForWidth(str);
-    QTextLayout tl(str, option.font);
-    qreal height = layoutText(tl, positions.textAreaWidth());
+    qreal height = fm.height();
+
+    if (selected) {
+        QString str = index.data(Qt::DisplayRole).toString();
+
+        QTextLayout tl(str, option.font);
+        height = layoutText(tl, positions.textAreaWidth());
+    }
+
     height += 2 * ConsoleItemPositions::ITEM_PADDING;
+
     if (height < positions.minimumHeight())
         height = positions.minimumHeight();
+
+    if (!selected) {
+        m_cachedHeight = height;
+        m_cachedFont = option.font;
+    }
 
     return QSize(width, height);
 }
@@ -359,13 +381,6 @@ qreal QtMessageLogItemDelegate::layoutText(QTextLayout &tl, int width,
     return height;
 }
 
-void QtMessageLogItemDelegate::formatTextForWidth(QString &text) const
-{
-    for (int i = 0; i < text.length(); ++i) {
-        if (text.at(i).isPunct())
-            text.insert(++i, QChar(0x200b)); // ZERO WIDTH SPACE
-    }
-}
 void QtMessageLogItemDelegate::setItemModel(QtMessageLogHandler *model)
 {
     m_itemModel = model;

@@ -76,7 +76,6 @@ private slots:
 
 private:
     qreal layoutText(QTextLayout &tl, int width, bool *success = 0) const;
-    void formatTextForWidth(QString &text) const;
 
 private:
     const QIcon m_logIcon;
@@ -86,6 +85,8 @@ private:
     const QIcon m_collapseIcon;
     const QIcon m_prompt;
     QtMessageLogHandler *m_itemModel;
+    mutable int m_cachedHeight;
+    mutable QFont m_cachedFont;
 };
 
 /*
