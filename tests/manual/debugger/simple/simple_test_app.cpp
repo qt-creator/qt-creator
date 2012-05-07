@@ -2118,7 +2118,8 @@ namespace final {
         // CheckType p int.
         // Check p 21 int.
         // Check q 0x0 int *.
-        // Check qq <null reference> int.
+        // Check pp 21 int &.
+        // Check qq <null reference> int &.
         // Continue.
         return; // Uncomment.
         testNullReferenceHelper(pp, qq);
@@ -4751,7 +4752,7 @@ namespace basic {
         const Ref d = a;
         BREAK_HERE;
         // Check a 43 int.
-        // Check b 43 int.
+        // Check b 43 int &.
         // Check c 44 int.
         // Check d 43 basic::Ref.
         // Continue.
@@ -4767,7 +4768,7 @@ namespace basic {
         const Ref d = a;
         BREAK_HERE;
         // Check a "hello" QString.
-        // Check b "bababa" QString.
+        // Check b "bababa" QString &.
         // Check c "world" QString.
         // Check d "hello" basic::Ref.
         // Continue.
@@ -4780,8 +4781,8 @@ namespace basic {
         typedef QString &Ref;
         const Ref d = const_cast<Ref>(a);
         BREAK_HERE;
-        // Check a "hello" QString.
-        // Check b "hello" QString.
+        // Check a "hello" QString &.
+        // Check b "hello" QString &.
         // Check d "hello" basic::Ref.
         // Continue.
         dummyStatement(&a, &b, &d);
@@ -4859,13 +4860,13 @@ namespace basic {
     {
         BREAK_HERE;
         // Expand f.
-        // CheckType f Foo.
+        // CheckType f Foo &.
         // Check f.a 12 int.
         // Continue.
         ++f.a;
         BREAK_HERE;
         // Expand f.
-        // CheckType f Foo.
+        // CheckType f Foo &.
         // Check f.a 13 int.
         // Continue.
     }
@@ -5720,7 +5721,7 @@ namespace bug5184 {
         BREAK_HERE;
         // Check raw <0 items> QList<QByteArray>.
         // CheckType request QNetworkRequest.
-        // Check url "http://127.0.0.1/" QUrl.
+        // Check url "http://127.0.0.1/" QUrl &.
         // Continue.
         dummyStatement(&request, &raw);
     }

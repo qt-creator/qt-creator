@@ -1422,6 +1422,7 @@ class Dumper:
                 # generic pointer." with MinGW's gcc 4.5 when it "identifies"
                 # a "QWidget &" as "void &" and with optimized out code.
                 self.putItem(value.cast(type.target().unqualified()))
+                self.putBetterType(typeName)
                 return
             except RuntimeError:
                 self.putValue("<optimized out reference>")

@@ -260,8 +260,6 @@ void WatchData::setType(const QByteArray &str, bool guessChildrenFromType)
             type.chop(5);
         else if (type.endsWith(' '))
             type.chop(1);
-        else if (type.endsWith('&'))
-            type.chop(1);
         else if (type.startsWith("const "))
             type = type.mid(6);
         else if (type.startsWith("volatile "))
