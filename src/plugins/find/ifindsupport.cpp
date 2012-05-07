@@ -95,15 +95,24 @@ using namespace Find;
 
 void IFindSupport::replace(const QString &before, const QString &after, FindFlags findFlags)
 {
+    Q_UNUSED(before)
+    Q_UNUSED(after)
+    Q_UNUSED(findFlags)
 }
 
 bool IFindSupport::replaceStep(const QString &before, const QString &after, FindFlags findFlags)
 {
+    Q_UNUSED(before)
+    Q_UNUSED(after)
+    Q_UNUSED(findFlags)
     return false;
 }
 
 int IFindSupport::replaceAll(const QString &before, const QString &after, FindFlags findFlags)
 {
+    Q_UNUSED(before)
+    Q_UNUSED(after)
+    Q_UNUSED(findFlags)
     return 0;
 }
 
