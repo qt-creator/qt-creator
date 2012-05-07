@@ -102,6 +102,10 @@ private:
     void putHashStr(ushort *&pTokPtr, const ushort *buf, uint len);
     void finalizeHashStr(ushort *buf, uint len);
     void putLineMarker(ushort *&tokPtr);
+    ALWAYS_INLINE bool resolveVariable(ushort *xprPtr, int tlen, int needSep, ushort **ptr,
+                                       ushort **buf, QString *xprBuff,
+                                       ushort **tokPtr, QString *tokBuff,
+                                       const ushort *cur, const QString &in);
     void finalizeCond(ushort *&tokPtr, ushort *uc, ushort *ptr, int wordCount);
     void finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int argc);
     void finalizeTest(ushort *&tokPtr);

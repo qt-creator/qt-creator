@@ -203,10 +203,9 @@ public:
     QMakeHandler *m_handler;
 
     enum VarName {
-        V_LITERAL_DOLLAR, V_LITERAL_HASH, V_LITERAL_WHITESPACE,
         V_DIRLIST_SEPARATOR, V_DIR_SEPARATOR,
         V_OUT_PWD, V_PWD,
-        V__FILE_, V__LINE_, V__PRO_FILE_, V__PRO_FILE_PWD_,
+        V__PRO_FILE_, V__PRO_FILE_PWD_,
         V_QMAKE_HOST_arch, V_QMAKE_HOST_name, V_QMAKE_HOST_os,
         V_QMAKE_HOST_version, V_QMAKE_HOST_version_string,
         V__DATE_, V__QMAKE_CACHE_

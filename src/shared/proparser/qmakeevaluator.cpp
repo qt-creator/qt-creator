@@ -102,10 +102,9 @@ void QMakeEvaluator::initStatics()
     initFunctionStatics();
 
     static const char * const names[] = {
-        "LITERAL_DOLLAR", "LITERAL_HASH", "LITERAL_WHITESPACE",
         "DIRLIST_SEPARATOR", "DIR_SEPARATOR",
         "OUT_PWD", "PWD",
-        "_FILE_", "_LINE_", "_PRO_FILE_", "_PRO_FILE_PWD_",
+        "_PRO_FILE_", "_PRO_FILE_PWD_",
         "QMAKE_HOST.arch", "QMAKE_HOST.name", "QMAKE_HOST.os",
         "QMAKE_HOST.version", "QMAKE_HOST.version_string",
         "_DATE_", "_QMAKE_CACHE_"
@@ -1755,9 +1754,6 @@ ProStringList QMakeEvaluator::values(const ProString &variableName) const
         int vlidx = *vli;
         QString ret;
         switch ((VarName)vlidx) {
-        case V_LITERAL_WHITESPACE: ret = QLatin1String("\t"); break;
-        case V_LITERAL_DOLLAR: ret = QLatin1String("$"); break;
-        case V_LITERAL_HASH: ret = QLatin1String("#"); break;
         case V_OUT_PWD: // the outgoing dir (shadow of _PRO_FILE_PWD_)
             ret = m_outputDir;
             break;
@@ -1770,12 +1766,6 @@ ProStringList QMakeEvaluator::values(const ProString &variableName) const
             break;
         case V_DIRLIST_SEPARATOR:
             ret = m_option->dirlist_sep;
-            break;
-        case V__LINE_: // currently executed line number
-            ret = QString::number(m_current.line);
-            break;
-        case V__FILE_: // currently executed file
-            ret = m_current.pro->fileName();
             break;
         case V__DATE_: //current date/time
             ret = QDateTime::currentDateTime().toString();

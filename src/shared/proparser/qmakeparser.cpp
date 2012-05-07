@@ -98,6 +98,11 @@ static struct {
     QString strfor;
     QString strdefineTest;
     QString strdefineReplace;
+    QString strLINE;
+    QString strFILE;
+    QString strLITERAL_HASH;
+    QString strLITERAL_DOLLAR;
+    QString strLITERAL_WHITESPACE;
 } statics;
 
 }
@@ -111,6 +116,11 @@ void QMakeParser::initialize()
     statics.strfor = QLatin1String("for");
     statics.strdefineTest = QLatin1String("defineTest");
     statics.strdefineReplace = QLatin1String("defineReplace");
+    statics.strLINE = QLatin1String("_LINE_");
+    statics.strFILE = QLatin1String("_FILE_");
+    statics.strLITERAL_HASH = QLatin1String("LITERAL_HASH");
+    statics.strLITERAL_DOLLAR = QLatin1String("LITERAL_DOLLAR");
+    statics.strLITERAL_WHITESPACE = QLatin1String("LITERAL_WHITESPACE");
 }
 
 QMakeParser::QMakeParser(ProFileCache *cache, QMakeParserHandler *handler)
@@ -268,7 +278,7 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
     // Expression precompiler buffer.
     QString xprBuff;
     xprBuff.reserve(tokBuff.capacity()); // Excessive, but simple
-    ushort * const buf = (ushort *)xprBuff.constData();
+    ushort *buf = (ushort *)xprBuff.constData();
 
     // Parser state
     m_blockstack.clear();
@@ -480,14 +490,18 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
                         }
                         tlen = ptr - xprPtr;
                         if (rtok == TokVariable) {
-                            xprPtr[-4] = tok;
-                            uint hash = ProString::hash((const QChar *)xprPtr, tlen);
-                            xprPtr[-3] = (ushort)hash;
-                            xprPtr[-2] = (ushort)(hash >> 16);
+                            if (!resolveVariable(xprPtr, tlen, needSep, &ptr,
+                                                 &buf, &xprBuff, &tokPtr, &tokBuff, cur, in)) {
+                                xprPtr[-4] = tok;
+                                uint hash = ProString::hash((const QChar *)xprPtr, tlen);
+                                xprPtr[-3] = (ushort)hash;
+                                xprPtr[-2] = (ushort)(hash >> 16);
+                                xprPtr[-1] = tlen;
+                            }
                         } else {
                             xprPtr[-2] = tok;
+                            xprPtr[-1] = tlen;
                         }
-                        xprPtr[-1] = tlen;
                         if ((tok & TokMask) == TokFuncName) {
                             cur++;
                           funcCall:
@@ -1015,6 +1029,57 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
 
     finalizeTest(tokPtr);
     putBlock(tokPtr, uc, ptr - uc);
+}
+
+bool QMakeParser::resolveVariable(ushort *xprPtr, int tlen, int needSep, ushort **ptr,
+                                  ushort **buf, QString *xprBuff,
+                                  ushort **tokPtr, QString *tokBuff,
+                                  const ushort *cur, const QString &in)
+{
+    QString out;
+    m_tmp.setRawData((const QChar *)xprPtr, tlen);
+    if (m_tmp == statics.strLINE) {
+        out.setNum(m_lineNo);
+    } else if (m_tmp == statics.strFILE) {
+        out = m_proFile->fileName();
+        // The string is typically longer than the variable reference, so we need
+        // to ensure that there is enough space in the output buffer - as unlikely
+        // as an overflow is to actually happen in practice.
+        int need = (in.length() - (cur - (const ushort *)in.constData()) + 2) * 5 + out.length();
+        int tused = *tokPtr - (ushort *)tokBuff->constData();
+        int xused;
+        int total;
+        bool ptrFinal = xprPtr >= (ushort *)tokBuff->constData()
+                && xprPtr < (ushort *)tokBuff->constData() + tokBuff->capacity();
+        if (ptrFinal) {
+            xused = xprPtr - (ushort *)tokBuff->constData();
+            total = xused + need;
+        } else {
+            xused = xprPtr - *buf;
+            total = tused + xused + need;
+        }
+        if (tokBuff->capacity() < total) {
+            tokBuff->reserve(total);
+            *tokPtr = (ushort *)tokBuff->constData() + tused;
+            xprBuff->reserve(total);
+            *buf = (ushort *)xprBuff->constData();
+            xprPtr = (ptrFinal ? (ushort *)tokBuff->constData() : *buf) + xused;
+        }
+    } else if (m_tmp == statics.strLITERAL_HASH) {
+        out = QLatin1String("#");
+    } else if (m_tmp == statics.strLITERAL_DOLLAR) {
+        out = QLatin1String("$");
+    } else if (m_tmp == statics.strLITERAL_WHITESPACE) {
+        out = QLatin1String("\t");
+    } else {
+        return false;
+    }
+    xprPtr -= 2; // Was set up for variable reference
+    xprPtr[-2] = TokLiteral | needSep;
+    xprPtr[-1] = out.length();
+    memcpy(xprPtr, out.constData(), out.length() * 2);
+    *ptr = xprPtr + out.length();
+    return true;
 }
 
 void QMakeParser::parseError(const QString &msg) const
