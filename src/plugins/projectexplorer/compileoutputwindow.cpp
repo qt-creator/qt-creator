@@ -43,6 +43,8 @@
 #include <find/basetextfind.h>
 #include <aggregation/aggregate.h>
 #include <extensionsystem/pluginmanager.h>
+#include <texteditor/texteditorsettings.h>
+#include <texteditor/fontsettings.h>
 
 #include <QKeyEvent>
 #include <QIcon>
@@ -66,9 +68,13 @@ namespace Internal {
 
 class CompileOutputTextEdit : public Core::OutputWindow
 {
+    Q_OBJECT
 public:
     CompileOutputTextEdit(const Core::Context &context) : Core::OutputWindow(context)
     {
+        fontSettingsChanged();
+        connect(TextEditor::TextEditorSettings::instance(), SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+                this, SLOT(fontSettingsChanged()));
     }
 
     void addTask(const Task &task, int blocknumber)
@@ -79,6 +85,11 @@ public:
     void clearTasks()
     {
         m_taskids.clear();
+    }
+private slots:
+    void fontSettingsChanged()
+    {
+        setFont(TextEditor::TextEditorSettings::instance()->fontSettings().font());
     }
 
 protected:
@@ -260,3 +271,5 @@ void CompileOutputWindow::showPositionOf(const Task &task)
     newCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
     m_outputWindow->setTextCursor(newCursor);
 }
+
+#include "compileoutputwindow.moc"
