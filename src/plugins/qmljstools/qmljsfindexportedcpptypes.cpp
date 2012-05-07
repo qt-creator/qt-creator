@@ -151,10 +151,21 @@ protected:
         else
             return false;
 
-        // must have a single typeid template argument
-        if (!templateId->template_argument_list || !templateId->template_argument_list->value
-                || templateId->template_argument_list->next)
+        // check that there is a typeId
+        if (!templateId->template_argument_list || !templateId->template_argument_list->value)
             return false;
+        // sometimes there can be a second argument, the metaRevisionNumber
+        if (templateId->template_argument_list->next) {
+            if (!templateId->template_argument_list->next->value ||
+                    templateId->template_argument_list->next->next)
+                return false;
+            // should just check for a generic ExpressionAST?
+            NumericLiteralAST *metaRevision =
+                    templateId->template_argument_list->next->value->asNumericLiteral();
+            if (!metaRevision)
+                return false;
+        }
+
         TypeIdAST *typeId = templateId->template_argument_list->value->asTypeId();
         if (!typeId)
             return false;
