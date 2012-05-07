@@ -148,7 +148,7 @@ BaseTextMark::~BaseTextMark()
     // oha we are deleted
     bool b = Internal::TextEditorPlugin::instance()->baseTextMarkRegistry()->remove(this);
     // If you get a assertion in this line, init() was never called
-    QTC_CHECK(b)
+    QTC_CHECK(b);
 }
 
 void BaseTextMark::updateFileName(const QString &fileName)
