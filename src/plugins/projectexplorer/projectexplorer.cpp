@@ -270,8 +270,8 @@ public:
         setDisplayName(QCoreApplication::translate("ProjectExplorer::ProjectsMode", "Projects"));
         setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Project.png")));
         setPriority(Constants::P_MODE_SESSION);
-        setId(QLatin1String(Constants::MODE_SESSION));
-        setType(QString());
+        setId(Constants::MODE_SESSION);
+        setType(Core::Id());
         setContextHelpId(QLatin1String("Managing Projects"));
     }
 };
@@ -1216,7 +1216,7 @@ void ProjectExplorerPlugin::showSessionManager()
 
     updateActions();
 
-    Core::IMode *welcomeMode = Core::ModeManager::mode(QLatin1String(Core::Constants::MODE_WELCOME));
+    Core::IMode *welcomeMode = Core::ModeManager::mode(Core::Constants::MODE_WELCOME);
     if (Core::ModeManager::currentMode() == welcomeMode)
         updateWelcomePage();
 }
@@ -1372,9 +1372,9 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
 
     if (!openedPro.isEmpty()) {
         if (switchToProjectsMode)
-            Core::ModeManager::activateMode(QLatin1String(ProjectExplorer::Constants::MODE_SESSION));
+            Core::ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
         else
-            Core::ModeManager::activateMode(QLatin1String(Core::Constants::MODE_EDIT));
+            Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
         Core::ModeManager::setFocusToCurrentMode();
     }
 
@@ -1440,7 +1440,7 @@ void ProjectExplorerPlugin::updateWelcomePage()
 void ProjectExplorerPlugin::currentModeChanged(Core::IMode *mode, Core::IMode *oldMode)
 {
     Q_UNUSED(oldMode);
-    if (mode && mode->id() == Core::Id(Core::Constants::MODE_WELCOME).toString())
+    if (mode && mode->id() == Core::Constants::MODE_WELCOME)
         updateWelcomePage();
 }
 
@@ -1468,7 +1468,7 @@ void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
         d->m_sessionToRestoreAtStartup = d->m_session->lastSession();
 
     if (!d->m_sessionToRestoreAtStartup.isNull())
-        Core::ModeManager::activateMode(QLatin1String(Core::Constants::MODE_EDIT));
+        Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
 }
 
 /*!

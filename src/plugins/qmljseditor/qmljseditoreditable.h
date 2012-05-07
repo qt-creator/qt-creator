@@ -51,7 +51,7 @@ public:
     Core::Id id() const;
     bool isTemporary() const { return false; }
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    QString preferredModeType() const;
+    Core::Id preferredModeType() const;
     void setTextCodec(QTextCodec *codec, TextCodecReason = TextCodecOtherReason);
 };
 

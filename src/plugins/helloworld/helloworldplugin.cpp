@@ -62,8 +62,8 @@ public:
         setDisplayName(tr("Hello world!"));
         setIcon(QIcon());
         setPriority(0);
-        setId(QLatin1String("HelloWorld.HelloWorldMode"));
-        setType(QLatin1String("HelloWorld.HelloWorldMode"));
+        setId("HelloWorld.HelloWorldMode");
+        setType("HelloWorld.HelloWorldMode");
         setContextHelpId(QString());
     }
 };

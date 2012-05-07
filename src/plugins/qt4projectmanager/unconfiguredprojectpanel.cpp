@@ -187,7 +187,7 @@ void TargetSetupPageWrapper::done()
 {
     m_targetSetupPage->setupProject(m_project);
     ProjectExplorer::ProjectExplorerPlugin::instance()->requestProjectModeUpdate(m_project);
-    Core::ICore::instance()->modeManager()->activateMode(QLatin1String(Core::Constants::MODE_EDIT));
+    Core::ICore::instance()->modeManager()->activateMode(Core::Constants::MODE_EDIT);
 }
 
 void TargetSetupPageWrapper::noteTextLinkActivated()

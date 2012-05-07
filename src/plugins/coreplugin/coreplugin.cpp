@@ -92,7 +92,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     if (success) {
         m_editMode = new EditMode;
         addObject(m_editMode);
-        m_mainWindow->modeManager()->activateMode(m_editMode->id());
+        ModeManager::activateMode(m_editMode->id());
         m_designMode = new DesignMode;
     }
     return success;

@@ -130,7 +130,7 @@ bool SessionManager::isDefaultSession(const QString &session) const
 
 void SessionManager::saveActiveMode(Core::IMode *mode)
 {
-    setValue(QLatin1String("ActiveMode"), mode->id());
+    setValue(QLatin1String("ActiveMode"), mode->id().toString());
 }
 
 void SessionManager::clearProjectFileCache()
@@ -862,13 +862,16 @@ bool SessionManager::loadSession(const QString &session)
 
         // restore the active mode
         QString modeIdentifier = value(QLatin1String("ActiveMode")).toString();
+        Id modeId;
         if (modeIdentifier.isEmpty())
-            modeIdentifier = QLatin1String(Core::Constants::MODE_EDIT);
+            modeId = Id(Core::Constants::MODE_EDIT);
+        else
+            modeId = Id(modeIdentifier);
 
-        ModeManager::activateMode(modeIdentifier);
+        ModeManager::activateMode(modeId);
         ModeManager::setFocusToCurrentMode();
     } else {
-        ModeManager::activateMode(QLatin1String(Core::Constants::MODE_EDIT));
+        ModeManager::activateMode(Id(Core::Constants::MODE_EDIT));
         ModeManager::setFocusToCurrentMode();
     }
     emit sessionLoaded(session);

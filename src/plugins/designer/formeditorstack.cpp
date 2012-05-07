@@ -188,10 +188,10 @@ SharedTools::WidgetHost *FormEditorStack::formWindowEditorForXmlEditor(const Cor
 void FormEditorStack::modeAboutToChange(Core::IMode *m)
 {
     if (Designer::Constants::Internal::debug && m)
-        qDebug() << "FormEditorStack::modeAboutToChange"  << m->id();
+        qDebug() << "FormEditorStack::modeAboutToChange"  << m->id().toString();
 
     // Sync the editor when entering edit mode
-    if (m && m->id() == QLatin1String(Core::Constants::MODE_EDIT))
+    if (m && m->id() == Core::Constants::MODE_EDIT)
         foreach(const EditorData &data, m_formEditors)
             data.formWindowEditor->syncXmlEditor();
 }

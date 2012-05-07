@@ -597,7 +597,7 @@ void QmlProfilerTool::showSaveDialog()
 
 void QmlProfilerTool::showLoadDialog()
 {
-    if (ModeManager::currentMode()->id() != QLatin1String(MODE_ANALYZE))
+    if (ModeManager::currentMode()->id() != MODE_ANALYZE)
         AnalyzerManager::showMode();
 
     if (AnalyzerManager::currentSelectedTool() != this)

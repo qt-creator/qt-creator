@@ -1374,13 +1374,13 @@ QStringList EditorManager::getOpenFileNames() const
 /// forcePrefered = false, only switch if it is not visible
 void EditorManager::switchToPreferedMode()
 {
-    QString preferedMode;
+    Id preferedMode;
     // Figure out preferred mode for editor
     if (d->m_currentEditor)
         preferedMode = d->m_currentEditor->preferredModeType();
 
-    if (preferedMode.isEmpty())
-        preferedMode = QLatin1String(Constants::MODE_EDIT_TYPE);
+    if (!preferedMode.isValid())
+        preferedMode = Id(Constants::MODE_EDIT_TYPE);
 
     ModeManager::activateModeType(preferedMode);
 }

@@ -63,7 +63,7 @@ static bool openInDesignMode()
     // Check if Bauhaus is loaded, that is, a Design mode widget is
     // registered for the QML mime type.
     if (!bauhausDetected) {
-        if (const Core::IMode *dm = Core::ModeManager::mode(QLatin1String(Core::Constants::MODE_DESIGN)))
+        if (const Core::IMode *dm = Core::ModeManager::mode(Core::Constants::MODE_DESIGN))
             if (const Core::DesignMode *designMode = qobject_cast<const Core::DesignMode *>(dm))
                 bauhausPresent = designMode->registeredMimeTypes().contains(QLatin1String(QmlJSTools::Constants::QML_MIMETYPE));
         bauhausDetected =  true;
@@ -74,7 +74,7 @@ static bool openInDesignMode()
     return bool(QmlDesigner::Constants::QML_OPENDESIGNMODE_DEFAULT);
 }
 
-QString QmlJSEditorEditable::preferredModeType() const
+Core::Id QmlJSEditorEditable::preferredModeType() const
 {
     Core::IMode *mode = Core::ModeManager::currentMode();
     if (mode && (mode->type() == Core::Constants::MODE_DESIGN_TYPE
@@ -88,8 +88,8 @@ QString QmlJSEditorEditable::preferredModeType() const
     // have the user also access to this failsafe setting.
     if (editorWidget()->mimeType() == QLatin1String(QmlJSTools::Constants::QML_MIMETYPE)
         && openInDesignMode())
-        return QLatin1String(Core::Constants::MODE_DESIGN_TYPE);
-    return QString();
+        return Core::Constants::MODE_DESIGN_TYPE;
+    return Core::Id();
 }
 
 void QmlJSEditorEditable::setTextCodec(QTextCodec *codec, TextCodecReason reason)

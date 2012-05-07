@@ -912,7 +912,7 @@ void MainWindow::openFiles(const QStringList &fileNames, ICore::OpenFilesFlags f
             if (!document && (flags & ICore::StopOnLoadFail))
                 return;
             if (document && (flags & ICore::SwitchMode))
-                ModeManager::activateMode(QLatin1String(Core::Constants::MODE_EDIT));
+                ModeManager::activateMode(Id(Core::Constants::MODE_EDIT));
         } else {
             QFlags<EditorManager::OpenEditorFlag> emFlags;
             if (flags & ICore::SwitchMode)
@@ -969,7 +969,7 @@ void MainWindow::setFocusToEditor()
     }
 
     // switch to edit mode if necessary
-    ModeManager::activateMode(QLatin1String(Constants::MODE_EDIT));
+    ModeManager::activateMode(Id(Constants::MODE_EDIT));
 }
 
 void MainWindow::showNewItemDialog(const QString &title,

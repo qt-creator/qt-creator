@@ -85,13 +85,13 @@ struct ModeManagerPrivate
 static ModeManagerPrivate *d;
 static ModeManager *m_instance = 0;
 
-static int indexOf(const QString &id)
+static int indexOf(Id id)
 {
     for (int i = 0; i < d->m_modes.count(); ++i) {
         if (d->m_modes.at(i)->id() == id)
             return i;
     }
-    qDebug() << "Warning, no such mode:" << id;
+    qDebug() << "Warning, no such mode:" << id.toString();
     return -1;
 }
 
@@ -109,7 +109,7 @@ ModeManager::ModeManager(Internal::MainWindow *mainWindow,
 
     connect(d->m_modeStack, SIGNAL(currentAboutToShow(int)), SLOT(currentTabAboutToChange(int)));
     connect(d->m_modeStack, SIGNAL(currentChanged(int)), SLOT(currentTabChanged(int)));
-    connect(d->m_signalMapper, SIGNAL(mapped(QString)), this, SLOT(slotActivateMode(QString)));
+    connect(d->m_signalMapper, SIGNAL(mapped(int)), this, SLOT(slotActivateMode(int)));
 }
 
 void ModeManager::init()
@@ -143,7 +143,7 @@ IMode *ModeManager::currentMode()
     return d->m_modes.at(currentIndex);
 }
 
-IMode *ModeManager::mode(const QString &id)
+IMode *ModeManager::mode(Id id)
 {
     const int index = indexOf(id);
     if (index >= 0)
@@ -151,7 +151,7 @@ IMode *ModeManager::mode(const QString &id)
     return 0;
 }
 
-void ModeManager::activateModeType(const QString &type)
+void ModeManager::activateModeType(Id type)
 {
     if (currentMode() && currentMode()->type() == type)
         return;
@@ -166,12 +166,12 @@ void ModeManager::activateModeType(const QString &type)
         d->m_modeStack->setCurrentIndex(index);
 }
 
-void ModeManager::slotActivateMode(const QString &id)
+void ModeManager::slotActivateMode(int id)
 {
-    m_instance->activateMode(id);
+    m_instance->activateMode(Id::fromUniqueIdentifier(id));
 }
 
-void ModeManager::activateMode(const QString &id)
+void ModeManager::activateMode(Id id)
 {
     const int index = indexOf(id);
     if (index >= 0)
@@ -198,7 +198,7 @@ void ModeManager::objectAdded(QObject *obj)
 
     // Register mode shortcut
     ActionManager *am = d->m_mainWindow->actionManager();
-    const Id shortcutId(QLatin1String("QtCreator.Mode.") + mode->id());
+    const Id shortcutId(QLatin1String("QtCreator.Mode.") + mode->id().toString());
     QShortcut *shortcut = new QShortcut(d->m_mainWindow);
     shortcut->setWhatsThis(tr("Switch to <b>%1</b> mode").arg(mode->displayName()));
     Command *cmd = am->registerShortcut(shortcut, shortcutId, Context(Constants::C_GLOBAL));
@@ -221,7 +221,7 @@ void ModeManager::objectAdded(QObject *obj)
             currentCmd->setKeySequence(currentCmd->defaultKeySequence());
     }
 
-    d->m_signalMapper->setMapping(shortcut, mode->id());
+    d->m_signalMapper->setMapping(shortcut, mode->id().uniqueIdentifier());
     connect(shortcut, SIGNAL(activated()), d->m_signalMapper, SLOT(map()));
     connect(mode, SIGNAL(enabledStateChanged(bool)),
             this, SLOT(enabledStateChanged()));

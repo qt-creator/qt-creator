@@ -51,10 +51,10 @@ public:
     QByteArray name() const;
     QString toString() const;
     bool isValid() const { return m_id; }
-    bool operator==(const Id &id) const { return m_id == id.m_id; }
-    bool operator!=(const Id &id) const { return m_id != id.m_id; }
-    bool operator<(const Id &id) const { return m_id < id.m_id; }
-    bool operator>(const Id &id) const { return m_id > id.m_id; }
+    bool operator==(Id id) const { return m_id == id.m_id; }
+    bool operator!=(Id id) const { return m_id != id.m_id; }
+    bool operator<(Id id) const { return m_id < id.m_id; }
+    bool operator>(Id id) const { return m_id > id.m_id; }
     int uniqueIdentifier() const { return m_id; }
     static Id fromUniqueIdentifier(int uid) { return Id(uid, uid); }
 

@@ -33,8 +33,9 @@
 #ifndef MODEMANAGER_H
 #define MODEMANAGER_H
 
-#include <QObject>
 #include <coreplugin/core_global.h>
+#include <coreplugin/id.h>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -61,15 +62,15 @@ public:
     static ModeManager *instance();
 
     static IMode *currentMode();
-    static IMode *mode(const QString &id);
+    static IMode *mode(Id id);
 
     static void addAction(QAction *action, int priority);
     static void addProjectSelector(QAction *action);
     static void addWidget(QWidget *widget);
 
-    static void activateModeType(const QString &type);
+    static void activateModeType(Id type);
     static void setModeBarHidden(bool hidden);
-    static void activateMode(const QString &id);
+    static void activateMode(Id id);
     static void setFocusToCurrentMode();
 
 signals:
@@ -79,7 +80,7 @@ signals:
     void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode = 0);
 
 private slots:
-    void slotActivateMode(const QString &id);
+    void slotActivateMode(int id);
     void objectAdded(QObject *obj);
     void aboutToRemoveObject(QObject *obj);
     void currentTabAboutToChange(int index);

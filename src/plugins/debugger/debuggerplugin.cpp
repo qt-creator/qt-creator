@@ -552,8 +552,8 @@ public:
         setDisplayName(DebuggerPlugin::tr("Debug"));
         setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Debug.png")));
         setPriority(85);
-        setId(QLatin1String(MODE_DEBUG));
-        setType(QLatin1String(CC::MODE_EDIT_TYPE));
+        setId(MODE_DEBUG);
+        setType(CC::MODE_EDIT_TYPE);
     }
 
     ~DebugMode()
@@ -1123,7 +1123,7 @@ public:
     DebuggerMainWindow *m_mainWindow;
     DebuggerRunControlFactory *m_debuggerRunControlFactory;
 
-    QString m_previousMode;
+    Id m_previousMode;
     QList<DebuggerStartParameters> m_scheduledStarts;
 
     Utils::ProxyAction *m_visibleStartAction;
@@ -2453,7 +2453,7 @@ void DebuggerPluginPrivate::onModeChanged(IMode *mode)
 
     m_mainWindow->onModeChanged(mode);
 
-    if (mode->id() != QLatin1String(Constants::MODE_DEBUG)) {
+    if (mode->id() != Constants::MODE_DEBUG) {
         m_toolTipManager->leavingDebugMode();
         return;
     }
@@ -2497,10 +2497,10 @@ void DebuggerPluginPrivate::dumpLog()
 /*! Activates the previous mode when the current mode is the debug mode. */
 void DebuggerPluginPrivate::activatePreviousMode()
 {
-    if (ModeManager::currentMode() == ModeManager::mode(QLatin1String(MODE_DEBUG))
-            && !m_previousMode.isEmpty()) {
+    if (ModeManager::currentMode() == ModeManager::mode(MODE_DEBUG)
+            && m_previousMode.isValid()) {
         ModeManager::activateMode(m_previousMode);
-        m_previousMode.clear();
+        m_previousMode = Id();
     }
 }
 
@@ -2509,7 +2509,7 @@ void DebuggerPluginPrivate::activateDebugMode()
     m_reverseDirectionAction->setChecked(false);
     m_reverseDirectionAction->setEnabled(false);
     m_previousMode = ModeManager::currentMode()->id();
-    ModeManager::activateMode(_(MODE_DEBUG));
+    ModeManager::activateMode(MODE_DEBUG);
 }
 
 void DebuggerPluginPrivate::sessionLoaded()

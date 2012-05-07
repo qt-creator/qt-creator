@@ -450,7 +450,7 @@ void OutputPaneManager::showPage(int idx, bool focus)
         if (!OutputPanePlaceHolder::getCurrent()) {
             // In this mode we don't have a placeholder
             // switch to the output mode and switch the page
-            ModeManager::activateMode(QLatin1String(Constants::MODE_EDIT));
+            ModeManager::activateMode(Id(Constants::MODE_EDIT));
         }
         if (OutputPanePlaceHolder::getCurrent()) {
             // make the page visible

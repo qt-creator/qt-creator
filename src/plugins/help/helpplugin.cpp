@@ -665,7 +665,7 @@ void HelpPlugin::resetRightPaneScale()
 void HelpPlugin::activateHelpMode()
 {
     if (contextHelpOption() != Help::Constants::ExternalHelpAlways)
-        Core::ModeManager::activateMode(QLatin1String(Constants::ID_MODE_HELP));
+        Core::ModeManager::activateMode(Id(Constants::ID_MODE_HELP));
     else
         showExternalWindow();
 }

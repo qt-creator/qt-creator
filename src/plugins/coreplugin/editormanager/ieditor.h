@@ -72,7 +72,7 @@ public:
 
     virtual QWidget *toolBar() = 0;
 
-    virtual QString preferredModeType() const { return QString(); }
+    virtual Id preferredModeType() const { return Id(); }
 
 signals:
     void changed();

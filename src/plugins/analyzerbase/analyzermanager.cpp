@@ -125,8 +125,8 @@ public:
         setDisplayName(tr("Analyze"));
         setIcon(QIcon(QLatin1String(":/images/analyzer_mode.png")));
         setPriority(P_MODE_ANALYZE);
-        setId(QLatin1String(MODE_ANALYZE));
-        setType(QLatin1String(MODE_EDIT_TYPE));
+        setId(MODE_ANALYZE);
+        setType(MODE_EDIT_TYPE);
     }
 
     ~AnalyzerMode()

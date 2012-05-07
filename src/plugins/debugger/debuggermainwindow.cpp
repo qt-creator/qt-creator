@@ -306,7 +306,7 @@ void DebuggerMainWindow::setEngineDebugLanguages(DebuggerLanguages languages)
 
 void DebuggerMainWindow::onModeChanged(IMode *mode)
 {
-    d->m_inDebugMode = (mode && mode->id() == QLatin1String(Constants::MODE_DEBUG));
+    d->m_inDebugMode = (mode && mode->id() == Constants::MODE_DEBUG);
     setDockActionsVisible(d->m_inDebugMode);
 
     // Hide all the debugger windows if mode is different.

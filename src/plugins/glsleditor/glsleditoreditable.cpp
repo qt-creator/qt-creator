@@ -53,9 +53,9 @@ GLSLEditorEditable::GLSLEditorEditable(GLSLTextEditorWidget *editor)
                              TextEditor::Constants::C_TEXTEDITOR));
 }
 
-QString GLSLEditorEditable::preferredModeType() const
+Core::Id GLSLEditorEditable::preferredModeType() const
 {
-    return QString();
+    return Core::Id();
 }
 
 } // namespace Internal
