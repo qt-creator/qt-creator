@@ -65,8 +65,7 @@ def setBreakpointsForCurrentProject(filesAndLines):
         invokeMenuItem("Debug", "Toggle Breakpoint")
         test.log('Set breakpoint in %s' % fName, curLine)
     try:
-        breakPointTreeView = waitForObject("{type='Debugger::Internal::BreakWindow' visible='1' "
-                                           "windowTitle='Breakpoints' name='Debugger.Docks.Break'}")
+        breakPointTreeView = waitForObject(":Breakpoints_Debugger::Internal::BreakTreeView")
         waitFor("breakPointTreeView.model().rowCount() == len(filesAndLines)", 2000)
     except:
         test.fatal("UI seems to have changed - check manually and fix this script.")
@@ -81,8 +80,7 @@ def setBreakpointsForCurrentProject(filesAndLines):
 def removeOldBreakpoints():
     test.log("Removing old breakpoints if there are any")
     try:
-        breakPointTreeView = waitForObject("{type='Debugger::Internal::BreakWindow' visible='1' "
-                                           "windowTitle='Breakpoints' name='Debugger.Docks.Break'}")
+        breakPointTreeView = waitForObject(":Breakpoints_Debugger::Internal::BreakTreeView")
         model = breakPointTreeView.model()
         if model.rowCount()==0:
             test.log("No breakpoints found...")
