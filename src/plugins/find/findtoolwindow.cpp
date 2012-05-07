@@ -74,6 +74,8 @@ FindToolWindow::FindToolWindow(FindPlugin *plugin, QWidget *parent)
     layout->setSpacing(0);
     m_ui.configWidget->setLayout(layout);
     updateButtonStates();
+
+    connect(m_plugin, SIGNAL(findFlagsChanged()), this, SLOT(updateFindFlags()));
 }
 
 FindToolWindow::~FindToolWindow()
@@ -130,6 +132,14 @@ void FindToolWindow::updateButtonStates()
     m_ui.searchTerm->setEnabled(filterEnabled);
 }
 
+void FindToolWindow::updateFindFlags()
+{
+    m_ui.matchCase->setChecked(m_plugin->hasFindFlag(Find::FindCaseSensitively));
+    m_ui.wholeWords->setChecked(m_plugin->hasFindFlag(Find::FindWholeWords));
+    m_ui.regExp->setChecked(m_plugin->hasFindFlag(Find::FindRegularExpression));
+}
+
+
 void FindToolWindow::setFindFilters(const QList<IFindFilter *> &filters)
 {
     qDeleteAll(m_configWidgets);
@@ -159,10 +169,7 @@ void FindToolWindow::setCurrentFilter(IFindFilter *filter)
     if (index >= 0) {
         setCurrentFilter(index);
     }
-    m_ui.matchCase->setChecked(m_plugin->hasFindFlag(Find::FindCaseSensitively));
-    m_ui.wholeWords->setChecked(m_plugin->hasFindFlag(Find::FindWholeWords));
-    m_ui.regExp->setChecked(m_plugin->hasFindFlag(Find::FindRegularExpression));
-
+    updateFindFlags();
     m_ui.searchTerm->setFocus();
     m_ui.searchTerm->selectAll();
 }
