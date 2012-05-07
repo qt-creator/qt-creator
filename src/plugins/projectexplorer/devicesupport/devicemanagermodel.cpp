@@ -35,6 +35,7 @@
 #include "devicemanager.h"
 
 #include <coreplugin/id.h>
+#include <utils/qtcassert.h>
 
 #include <QString>
 
@@ -104,6 +105,7 @@ void DeviceManagerModel::handleDeviceAdded(Core::Id id)
 void DeviceManagerModel::handleDeviceRemoved(Core::Id id)
 {
     const int idx = indexForId(id);
+    QTC_ASSERT(idx != -1, return);
     beginRemoveRows(QModelIndex(), idx, idx);
     d->devices.removeAt(idx);
     endRemoveRows();
@@ -112,7 +114,8 @@ void DeviceManagerModel::handleDeviceRemoved(Core::Id id)
 void DeviceManagerModel::handleDeviceUpdated(Core::Id id)
 {
     const int idx = indexForId(id);
-    d->devices[idx] = d->deviceManager->deviceAt(idx);
+    QTC_ASSERT(idx != -1, return);
+    d->devices[idx] = d->deviceManager->find(id);
     const QModelIndex changedIndex = index(idx, 0);
     emit dataChanged(changedIndex, changedIndex);
 }
