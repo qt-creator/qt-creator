@@ -386,6 +386,26 @@ static bool isNameChar(char c)
     return (c >= 'a' && c <= 'z') || c == '-';
 }
 
+static bool isGdbConnectionError(const QByteArray &message)
+{
+    //
+    // Handle messages gdb client produces when the target exits (gdbserver)
+    //
+    // we get this as response either to a specific command, e.g.
+    //    31^error,msg="Remote connection closed"
+    // or as informative output:
+    //    &Remote connection closed
+    //
+    const QByteArray trimmed = message.trimmed();
+    if (trimmed == "Remote connection closed"
+            || trimmed == "Remote communication error.  "
+                          "Target disconnected.: No error."
+            || trimmed == "Quit") {
+        return true;
+    }
+    return false;
+}
+
 void GdbEngine::handleResponse(const QByteArray &buff)
 {
     showMessage(QString::fromLocal8Bit(buff, buff.length()), LogOutput);
@@ -668,12 +688,9 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             if (data.startsWith("warning:"))
                 showMessage(_(data.mid(9)), AppStuff); // Cut "warning: "
 
-            // Messages when the target exits (gdbserver)
-            if (data.trimmed() == "Remote connection closed"
-                    || data.trimmed() == "Remote communication error.  "
-                                         "Target disconnected.: No error."
-                    || data.trimmed() == "Quit") {
+            if (isGdbConnectionError(data)) {
                 notifyInferiorExited();
+                break;
             }
 
             // From SuSE's gdb: >&"Missing separate debuginfo for ...\n"
@@ -1113,6 +1130,8 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 QTC_CHECK(state() == InferiorRunOk);
                 notifyInferiorSpontaneousStop();
                 notifyEngineIll();
+            } else if (isGdbConnectionError(msg)) {
+                notifyInferiorExited();
             } else {
                 // Windows: Some DLL or some function not found. Report
                 // the exception now in a box.
