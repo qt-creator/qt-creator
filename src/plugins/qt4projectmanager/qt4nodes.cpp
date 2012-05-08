@@ -430,7 +430,7 @@ struct InternalNode
                 QString path = (*it)->fullPath;
                 QMultiMap<QString, FolderNode *>::const_iterator oldit
                         = existingFolderNodes.constFind(path);
-                while (oldit != existingFolderNodes.end() && oldit.key() == path) {
+                while (oldit != existingFolderNodes.constEnd() && oldit.key() == path) {
                     if (oldit.value()->nodeType() == ProjectExplorer::VirtualFolderNodeType) {
                         ProjectExplorer::VirtualFolderNode *vfn
                                 = qobject_cast<ProjectExplorer::VirtualFolderNode *>(oldit.value());
@@ -460,7 +460,7 @@ struct InternalNode
                 QString path = it.value()->fullPath;
                 QMultiMap<QString, FolderNode *>::const_iterator oldit
                         = existingFolderNodes.constFind(path);
-                while (oldit != existingFolderNodes.end() && oldit.key() == path) {
+                while (oldit != existingFolderNodes.constEnd() && oldit.key() == path) {
                     if (oldit.value()->nodeType() == ProjectExplorer::FolderNodeType) {
                         found = true;
                         break;
