@@ -402,7 +402,7 @@ VcsBase::VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *regis
         return 0;
 
     // Exists already
-    Core::EditorManager::instance()->activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
+    Core::EditorManager::activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
     outputEditor->createNew(m_msgWait);
     rc = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
 
@@ -427,7 +427,7 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(const Core::Id &id,
     QTC_CHECK(!findExistingVCSEditor(registerDynamicProperty, dynamicPropertyValue));
 
     // Create new, set wait message, set up with source and codec
-    Core::IEditor *outputEditor = Core::ICore::editorManager()->openEditorWithContents(id, &title, m_msgWait);
+    Core::IEditor *outputEditor = Core::EditorManager::openEditorWithContents(id, &title, m_msgWait);
     outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
     rc = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
     connect(rc, SIGNAL(annotateRevisionRequested(QString,QString,int)),
@@ -444,7 +444,7 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(const Core::Id &id,
     }
 
     rc->setForceReadOnly(true);
-    Core::ICore::editorManager()->activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
+    Core::EditorManager::activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
 
     if (configWidget)
         rc->setConfigurationWidget(configWidget);

@@ -491,12 +491,11 @@ void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber,
     if (!fileInfo.exists() || !fileInfo.isReadable())
         return;
 
-    EditorManager *editorManager = EditorManager::instance();
-    IEditor *editor = editorManager->openEditor(projectFileName);
+    IEditor *editor = EditorManager::openEditor(projectFileName);
     TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
 
     if (textEditor) {
-        editorManager->addCurrentPositionToNavigationHistory();
+        EditorManager::instance()->addCurrentPositionToNavigationHistory();
         // textEditor counts columns starting with 0, but the ASTs store the
         // location starting with 1, therefore the -1 in the call to gotoLine
         textEditor->gotoLine(lineNumber, columnNumber - 1);

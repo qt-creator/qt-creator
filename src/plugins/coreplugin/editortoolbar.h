@@ -107,7 +107,6 @@ private slots:
 
 private:
     void updateToolBar(QWidget *toolBar);
-    IEditor *currentEditor() const;
 
     EditorToolBarPrivate *d;
 };

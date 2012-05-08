@@ -639,11 +639,10 @@ void DebuggerEngine::gotoLocation(const Location &loc)
 
     const QString file = loc.fileName();
     const int line = loc.lineNumber();
-    EditorManager *editorManager = EditorManager::instance();
-    QList<IEditor *> editors = editorManager->editorsForFileName(file);
+    QList<IEditor *> editors = EditorManager::instance()->editorsForFileName(file);
     IEditor *editor = 0;
     if (editors.isEmpty()) {
-        editor = editorManager->openEditor(file, Core::Id(),
+        editor = EditorManager::openEditor(file, Core::Id(),
             EditorManager::IgnoreNavigationHistory);
         if (editor) {
             editors.append(editor);
@@ -665,7 +664,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
 
     // FIXME: Breaks with split views.
     if (!d->m_memoryAgent.hasVisibleEditor() || loc.needsRaise())
-        editorManager->activateEditor(editor);
+        EditorManager::activateEditor(editor);
     //qDebug() << "MEMORY: " << d->m_memoryAgent.hasVisibleEditor();
 }
 

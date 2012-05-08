@@ -919,7 +919,7 @@ void MainWindow::openFiles(const QStringList &fileNames, ICore::OpenFilesFlags f
                 emFlags = EditorManager::ModeSwitch;
             if (flags & ICore::CanContainLineNumbers)
                 emFlags |=  EditorManager::CanContainLineNumber;
-            Core::IEditor *editor = editorManager()->openEditor(absoluteFilePath, Id(), emFlags);
+            Core::IEditor *editor = EditorManager::openEditor(absoluteFilePath, Id(), emFlags);
             if (!editor && (flags & ICore::StopOnLoadFail))
                 return;
         }
@@ -931,7 +931,7 @@ void MainWindow::setFocusToEditor()
     bool focusWasMovedToEditor = false;
 
     // give focus to the editor if we have one
-    if (IEditor *editor = m_editorManager->currentEditor()) {
+    if (IEditor *editor = EditorManager::currentEditor()) {
         if (qApp->focusWidget() != editor->widget()->focusWidget()) {
             QWidget *w = editor->widget()->focusWidget();
             if (!w)
@@ -1055,9 +1055,9 @@ void MainWindow::openFileWith()
         if (!editorId.isValid())
             continue;
         if (isExternal) {
-            editorManager()->openExternalEditor(fileName, editorId);
+            EditorManager::openExternalEditor(fileName, editorId);
         } else {
-            editorManager()->openEditor(fileName, editorId, Core::EditorManager::ModeSwitch);
+            EditorManager::openEditor(fileName, editorId, Core::EditorManager::ModeSwitch);
         }
     }
 }
@@ -1352,7 +1352,7 @@ void MainWindow::openRecentFile()
 {
     if (const QAction *action = qobject_cast<const QAction*>(sender())) {
         const DocumentManager::RecentFile file = action->data().value<DocumentManager::RecentFile>();
-        editorManager()->openEditor(file.first, file.second, Core::EditorManager::ModeSwitch);
+        EditorManager::openEditor(file.first, file.second, EditorManager::ModeSwitch);
     }
 }
 

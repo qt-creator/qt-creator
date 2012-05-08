@@ -569,9 +569,9 @@ void BazaarPlugin::showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusIt
         return;
     }
 
-    Core::IEditor *editor = Core::ICore::editorManager()->openEditor(m_changeLog->fileName(),
-                                                                Constants::COMMIT_ID,
-                                                                Core::EditorManager::ModeSwitch);
+    Core::IEditor *editor = Core::EditorManager::openEditor(m_changeLog->fileName(),
+                                                            Constants::COMMIT_ID,
+                                                            Core::EditorManager::ModeSwitch);
     if (!editor) {
         outputWindow->appendError(tr("Unable to create an editor for the commit."));
         return;

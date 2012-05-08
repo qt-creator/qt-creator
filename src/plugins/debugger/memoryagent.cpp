@@ -192,10 +192,9 @@ bool MemoryAgent::doCreateBinEditor(quint64 addr, unsigned flags,
     }
     // Editor: Register tracking not supported.
     QTC_ASSERT(!(flags & DebuggerEngine::MemoryTrackRegister), return false);
-    EditorManager *editorManager = EditorManager::instance();
     if (!title.endsWith(QLatin1Char('$')))
         title.append(QLatin1String(" $"));
-    IEditor *editor = editorManager->openEditorWithContents(
+    IEditor *editor = EditorManager::openEditorWithContents(
                 Core::Constants::K_DEFAULT_BINARY_EDITOR_ID, &title);
     if (!editor)
         return false;
@@ -208,7 +207,7 @@ bool MemoryAgent::doCreateBinEditor(quint64 addr, unsigned flags,
     MemoryView::setBinEditorRange(editorBinEditor, addr, MemoryAgent::DataRange, MemoryAgent::BinBlockSize);
     MemoryView::setBinEditorMarkup(editorBinEditor, ml);
     m_editors << editor;
-    editorManager->activateEditor(editor);
+    EditorManager::activateEditor(editor);
     return true;
 }
 

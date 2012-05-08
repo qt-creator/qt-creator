@@ -594,10 +594,7 @@ void BookmarkManager::prev()
 
 TextEditor::ITextEditor *BookmarkManager::currentTextEditor() const
 {
-    Core::EditorManager *em = Core::EditorManager::instance();
-    Core::IEditor *currEditor = em->currentEditor();
-    if (!currEditor)
-        return 0;
+    Core::IEditor *currEditor = EditorManager::currentEditor();
     return qobject_cast<TextEditor::ITextEditor *>(currEditor);
 }
 

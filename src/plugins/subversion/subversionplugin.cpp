@@ -611,7 +611,7 @@ void SubversionPlugin::svnDiff(const Subversion::Internal::SubversionDiffParamet
     // Show in the same editor if diff has been executed before
     if (Core::IEditor *existingEditor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         existingEditor->createNew(response.stdOut);
-        Core::EditorManager::instance()->activateEditor(existingEditor, Core::EditorManager::ModeSwitch);
+        Core::EditorManager::activateEditor(existingEditor, Core::EditorManager::ModeSwitch);
         setDiffBaseDirectory(existingEditor, p.workingDir);
         return;
     }
@@ -635,9 +635,9 @@ void SubversionPlugin::svnDiff(const Subversion::Internal::SubversionDiffParamet
 
 SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QString &fileName)
 {
-    Core::IEditor *editor = Core::EditorManager::instance()->openEditor(fileName,
-                                                                        Constants::SUBVERSIONCOMMITEDITOR_ID,
-                                                                        Core::EditorManager::ModeSwitch);
+    Core::IEditor *editor = Core::EditorManager::openEditor(fileName,
+                                                            Constants::SUBVERSIONCOMMITEDITOR_ID,
+                                                            Core::EditorManager::ModeSwitch);
     SubversionSubmitEditor *submitEditor = qobject_cast<SubversionSubmitEditor*>(editor);
     QTC_CHECK(submitEditor);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_submitCurrentLogAction, m_submitDiffAction);
@@ -923,7 +923,7 @@ void SubversionPlugin::filelog(const QString &workingDir,
     const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::LogOutput, workingDir, files);
     if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         editor->createNew(response.stdOut);
-        Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
+        Core::EditorManager::activateEditor(editor, Core::EditorManager::ModeSwitch);
     } else {
         const QString title = QString::fromLatin1("svn log %1").arg(id);
         const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, files);
@@ -1001,7 +1001,7 @@ void SubversionPlugin::vcsAnnotate(const QString &workingDir, const QString &fil
     if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         editor->createNew(response.stdOut);
         VcsBase::VcsBaseEditorWidget::gotoLineOfEditor(editor, lineNumber);
-        Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
+        Core::EditorManager::activateEditor(editor, Core::EditorManager::ModeSwitch);
     } else {
         const QString title = QString::fromLatin1("svn annotate %1").arg(id);
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VcsBase::AnnotateOutput, source, codec);
@@ -1066,7 +1066,7 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
     const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::DiffOutput, source, QStringList(), changeNr);
     if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         editor->createNew(description);
-        Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
+        Core::EditorManager::activateEditor(editor, Core::EditorManager::ModeSwitch);
     } else {
         const QString title = QString::fromLatin1("svn describe %1#%2").arg(fi.fileName(), changeNr);
         Core::IEditor *newEditor = showOutputInEditor(title, description, VcsBase::DiffOutput, source, codec);
@@ -1096,7 +1096,7 @@ void SubversionPlugin::submitCurrentLog()
 {
     m_submitActionTriggered = true;
     Core::EditorManager::instance()->closeEditors(QList<Core::IEditor*>()
-        << Core::EditorManager::instance()->currentEditor());
+        << Core::EditorManager::currentEditor());
 }
 
 SubversionResponse
@@ -1172,7 +1172,7 @@ Core::IEditor *SubversionPlugin::showOutputInEditor(const QString &title, const 
         qDebug() << "SubversionPlugin::showOutputInEditor" << title << id.name()
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    Core::IEditor *editor = Core::EditorManager::instance()->openEditorWithContents(id, &s, output);
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(id, &s, output);
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
             this, SLOT(annotateVersion(QString,QString,int)));
     SubversionEditor *e = qobject_cast<SubversionEditor*>(editor->widget());
@@ -1186,7 +1186,7 @@ Core::IEditor *SubversionPlugin::showOutputInEditor(const QString &title, const 
     if (codec)
         e->setCodec(codec);
     Core::IEditor *ie = e->editor();
-    Core::EditorManager::instance()->activateEditor(ie, Core::EditorManager::ModeSwitch);
+    Core::EditorManager::activateEditor(ie, Core::EditorManager::ModeSwitch);
     return ie;
 }
 

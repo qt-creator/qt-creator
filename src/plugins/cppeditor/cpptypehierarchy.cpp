@@ -248,8 +248,7 @@ void CppTypeHierarchyWidget::onItemClicked(const QModelIndex &index)
 // CppTypeHierarchyStackedWidget
 CppTypeHierarchyStackedWidget::CppTypeHierarchyStackedWidget(QWidget *parent) :
     QStackedWidget(parent),
-    m_typeHiearchyWidgetInstance(
-        new CppTypeHierarchyWidget(Core::EditorManager::instance()->currentEditor()))
+    m_typeHiearchyWidgetInstance(new CppTypeHierarchyWidget(Core::EditorManager::currentEditor()))
 {
     addWidget(m_typeHiearchyWidgetInstance);
 

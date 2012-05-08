@@ -688,7 +688,7 @@ void CPPEditorWidget::onDocumentUpdated(Document::Ptr doc)
         return;
 
     if (! m_initialized ||
-            (Core::EditorManager::instance()->currentEditor() == editor()
+            (Core::EditorManager::currentEditor() == editor()
              && (!m_lastSemanticInfo.doc
                  || !m_lastSemanticInfo.doc->translationUnit()->ast()
                  || m_lastSemanticInfo.doc->fileName() != editorDocument()->fileName()))) {
@@ -1869,7 +1869,7 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
         m_highlighter.cancel();
 
         if (! semanticHighlighterDisabled && semanticInfo.doc) {
-            if (Core::EditorManager::instance()->currentEditor() == editor()) {
+            if (Core::EditorManager::currentEditor() == editor()) {
                 if (m_highlightingSupport) {
                     m_highlighter = m_highlightingSupport->highlightingFuture(semanticInfo.doc, semanticInfo.snapshot);
                     m_highlightRevision = semanticInfo.revision;
@@ -2224,7 +2224,7 @@ void CPPEditorWidget::updateFunctionDeclDefLink()
 
 void CPPEditorWidget::updateFunctionDeclDefLinkNow()
 {
-    if (Core::EditorManager::instance()->currentEditor() != editor())
+    if (Core::EditorManager::currentEditor() != editor())
         return;
     if (m_declDefLink) {
         // update the change marker

@@ -975,8 +975,8 @@ void FindReferences::openEditor(const Find::SearchResultItem &item)
                                                        item.lineNumber, item.textMarkPos, Core::Id(),
                                                        Core::EditorManager::ModeSwitch);
     } else {
-        Core::EditorManager::instance()->openEditor(QDir::fromNativeSeparators(item.text),
-                                                    Core::Id(), Core::EditorManager::ModeSwitch);
+        Core::EditorManager::openEditor(QDir::fromNativeSeparators(item.text),
+                                        Core::Id(), Core::EditorManager::ModeSwitch);
     }
 }
 

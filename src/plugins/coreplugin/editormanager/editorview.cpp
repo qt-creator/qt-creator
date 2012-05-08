@@ -798,7 +798,6 @@ QByteArray SplitterOrView::saveState() const
                 << static_cast<SplitterOrView*>(m_splitter->widget(1))->saveState();
     } else {
         IEditor* e = editor();
-        EditorManager *em = ICore::editorManager();
 
         // don't save state of temporary or ad-hoc editors
         if (e && (e->isTemporary() || e->document()->fileName().isEmpty())) {
@@ -814,7 +813,7 @@ QByteArray SplitterOrView::saveState() const
 
         if (!e) {
             stream << QByteArray("empty");
-        } else if (e == em->currentEditor()) {
+        } else if (e == EditorManager::currentEditor()) {
             stream << QByteArray("currenteditor")
                     << e->document()->fileName() << e->id().toString() << e->saveState();
         } else {

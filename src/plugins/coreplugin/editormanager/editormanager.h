@@ -117,12 +117,12 @@ public:
     };
     Q_DECLARE_FLAGS(OpenEditorFlags, OpenEditorFlag)
 
-    IEditor *openEditor(const QString &fileName, const Id &editorId = Id(),
+    static IEditor *openEditor(const QString &fileName, const Id &editorId = Id(),
         OpenEditorFlags flags = 0, bool *newEditor = 0);
-    IEditor *openEditorWithContents(const Id &editorId,
+    static IEditor *openEditorWithContents(const Id &editorId,
         QString *titlePattern = 0, const QString &contents = QString());
 
-    bool openExternalEditor(const QString &fileName, const Id &editorId);
+    static bool openExternalEditor(const QString &fileName, const Id &editorId);
 
     QStringList getOpenFileNames() const;
     Id getOpenWithEditorId(const QString &fileName, bool *isExternalEditor = 0) const;
@@ -131,11 +131,11 @@ public:
     QList<IEditor *> editorsForFileName(const QString &filename) const;
     QList<IEditor *> editorsForDocument(IDocument *document) const;
 
-    IEditor *currentEditor() const;
+    static IEditor *currentEditor();
     QList<IEditor *> visibleEditors() const;
     QList<IEditor*> openedEditors() const;
 
-    void activateEditor(IEditor *editor, OpenEditorFlags flags = 0);
+    static void activateEditor(IEditor *editor, OpenEditorFlags flags = 0);
     void activateEditorForIndex(const QModelIndex &index, OpenEditorFlags = 0);
     IEditor *activateEditorForDocument(Internal::EditorView *view, IDocument *document, OpenEditorFlags flags = 0);
 
@@ -170,8 +170,8 @@ public:
 
     void hideEditorStatusBar(const QString &id);
 
-    EditorFactoryList editorFactories(const MimeType &mimeType, bool bestMatchOnly = true) const;
-    ExternalEditorList externalEditors(const MimeType &mimeType, bool bestMatchOnly = true) const;
+    static EditorFactoryList editorFactories(const MimeType &mimeType, bool bestMatchOnly = true);
+    static ExternalEditorList externalEditors(const MimeType &mimeType, bool bestMatchOnly = true);
 
     void setReloadSetting(IDocument::ReloadSetting behavior);
     IDocument::ReloadSetting reloadSetting() const;
@@ -238,7 +238,7 @@ public slots:
 
 private:
     QList<IDocument *> documentsForEditors(QList<IEditor *> editors) const;
-    IEditor *createEditor(const Id &id = Id(), const QString &fileName = QString());
+    static IEditor *createEditor(const Id &id = Id(), const QString &fileName = QString());
     void addEditor(IEditor *editor, bool isDuplicate = false);
     void removeEditor(IEditor *editor);
 

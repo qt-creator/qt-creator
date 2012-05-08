@@ -1095,9 +1095,9 @@ void DocumentManager::syncWithEditor(Core::IContext *context)
     if (!context)
         return;
 
-    Core::IEditor *editor = Core::EditorManager::instance()->currentEditor();
-    if (editor && (editor->widget() == context->widget()) &&
-        !editor->isTemporary())
+    Core::IEditor *editor = Core::EditorManager::currentEditor();
+    if (editor && editor->widget() == context->widget()
+            && !editor->isTemporary())
         setCurrentFile(editor->document()->fileName());
 }
 
@@ -1333,8 +1333,8 @@ void DocumentManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
     bool anyMatches = false;
 
     if (const MimeType mt = ICore::mimeDatabase()->findByFile(QFileInfo(fileName))) {
-        const EditorFactoryList factories = ICore::editorManager()->editorFactories(mt, false);
-        const ExternalEditorList externalEditors = ICore::editorManager()->externalEditors(mt, false);
+        const EditorFactoryList factories = EditorManager::editorFactories(mt, false);
+        const ExternalEditorList externalEditors = EditorManager::externalEditors(mt, false);
         anyMatches = !factories.empty() || !externalEditors.empty();
         if (anyMatches) {
             // Add all suitable editors
@@ -1363,11 +1363,11 @@ void DocumentManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
 void DocumentManager::executeOpenWithMenuAction(QAction *action)
 {
     QTC_ASSERT(action, return);
-    EditorManager *em = EditorManager::instance();
     const QVariant data = action->data();
     OpenWithEntry entry = qVariantValue<OpenWithEntry>(data);
     if (entry.editorFactory) {
         // close any open editors that have this file open, but have a different type.
+        EditorManager *em = EditorManager::instance();
         QList<IEditor *> editorsOpenForFile = em->editorsForFileName(entry.fileName);
         if (!editorsOpenForFile.isEmpty()) {
             foreach (IEditor *openEditor, editorsOpenForFile) {
@@ -1378,11 +1378,11 @@ void DocumentManager::executeOpenWithMenuAction(QAction *action)
                 return;
         }
 
-        em->openEditor(entry.fileName, entry.editorFactory->id(), EditorManager::ModeSwitch);
+        EditorManager::openEditor(entry.fileName, entry.editorFactory->id(), EditorManager::ModeSwitch);
         return;
     }
     if (entry.externalEditor)
-        em->openExternalEditor(entry.fileName, entry.externalEditor->id());
+        EditorManager::openExternalEditor(entry.fileName, entry.externalEditor->id());
 }
 
 void DocumentManager::slotExecuteOpenWithMenuAction(QAction *action)

@@ -309,8 +309,7 @@ void Manager::gotoLocations(const QList<QVariant> &list)
     bool currentPositionAvailable = false;
 
     // what is open now?
-    Core::IEditor *editor = Core::EditorManager::instance()->currentEditor();
-    if (editor) {
+    if (Core::IEditor *editor = Core::EditorManager::currentEditor()) {
         // get current file name
         Core::IDocument *document = editor->document();
         if (document)

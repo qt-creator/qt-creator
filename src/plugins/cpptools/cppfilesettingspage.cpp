@@ -315,8 +315,8 @@ void CppFileSettingsWidget::slotEdit()
         setLicenseTemplatePath(path);
     }
     // Edit (now) existing file with C++
-    Core::EditorManager::instance()->openEditor(path, CppEditor::Constants::CPPEDITOR_ID,
-                                                Core::EditorManager::ModeSwitch);
+    Core::EditorManager::openEditor(path, CppEditor::Constants::CPPEDITOR_ID,
+                                    Core::EditorManager::ModeSwitch);
 }
 
 // --------------- CppFileSettingsPage

@@ -1044,7 +1044,7 @@ void ProjectExplorerPlugin::loadAction()
 
     // for your special convenience, we preselect a pro file if it is
     // the current file
-    if (Core::IEditor *editor = Core::EditorManager::instance()->currentEditor()) {
+    if (Core::IEditor *editor = Core::EditorManager::currentEditor()) {
         if (const Core::IDocument *document= editor->document()) {
             const QString fn = document->fileName();
             const bool isProject = d->m_profileMimeTypes.contains(document->mimeType());
@@ -2708,8 +2708,7 @@ void ProjectExplorerPlugin::removeProject()
 void ProjectExplorerPlugin::openFile()
 {
     QTC_ASSERT(d->m_currentNode, return);
-    Core::EditorManager *em = Core::EditorManager::instance();
-    em->openEditor(d->m_currentNode->path(), Core::Id(), Core::EditorManager::ModeSwitch);
+    Core::EditorManager::openEditor(d->m_currentNode->path(), Core::Id(), Core::EditorManager::ModeSwitch);
 }
 
 void ProjectExplorerPlugin::searchOnFileSystem()

@@ -131,12 +131,11 @@ void SourceAgent::setContent(const QString &filePath, const QString &content)
 
     d->path = filePath;
 
-    EditorManager *editorManager = EditorManager::instance();
     if (!d->editor) {
         QString titlePattern = d->producer + QLatin1String(": ")
             + QFileInfo(filePath).fileName();
         d->editor = qobject_cast<ITextEditor *>(
-            editorManager->openEditorWithContents(
+            EditorManager::openEditorWithContents(
                 CppEditor::Constants::CPPEDITOR_ID,
                 &titlePattern, content));
         QTC_ASSERT(d->editor, return);
@@ -148,7 +147,7 @@ void SourceAgent::setContent(const QString &filePath, const QString &content)
             baseTextEdit->setRequestMarkEnabled(true);
     }
 
-    editorManager->activateEditor(d->editor);
+    EditorManager::activateEditor(d->editor);
 
     QPlainTextEdit *plainTextEdit =
         qobject_cast<QPlainTextEdit *>(d->editor->widget());
@@ -178,8 +177,7 @@ void SourceAgent::updateLocationMarker()
         QTextBlock block = tc.document()->findBlockByNumber(lineNumber - 1);
         tc.setPosition(block.position());
         plainTextEdit->setTextCursor(tc);
-        EditorManager *editorManager = EditorManager::instance();
-        editorManager->activateEditor(d->editor);
+        EditorManager::activateEditor(d->editor);
     }
 }
 

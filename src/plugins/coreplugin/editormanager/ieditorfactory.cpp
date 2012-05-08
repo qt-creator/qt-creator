@@ -37,6 +37,6 @@
 
 Core::IDocument *Core::IEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
+    Core::IEditor *iface = Core::EditorManager::openEditor(fileName, id());
     return iface ? iface->document() : 0;
 }

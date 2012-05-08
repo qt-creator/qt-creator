@@ -832,7 +832,7 @@ HelpViewer *HelpPlugin::viewerForContextMode()
     switch (contextHelpOption()) {
         case Help::Constants::SideBySideIfPossible: {
             // side by side if possible
-            if (IEditor *editor = EditorManager::instance()->currentEditor()) {
+            if (IEditor *editor = EditorManager::currentEditor()) {
                 if (!placeHolder || !placeHolder->isVisible()) {
                     if (!editor->widget())
                         break;

@@ -199,7 +199,7 @@ void OpenEditorsWidget::closeEditor(const QModelIndex &index)
 {
     EditorManager::instance()->closeEditor(index);
     // work around selection changes
-    updateCurrentItem(EditorManager::instance()->currentEditor());
+    updateCurrentItem(EditorManager::currentEditor());
 }
 
 void OpenEditorsWidget::contextMenuRequested(QPoint pos)

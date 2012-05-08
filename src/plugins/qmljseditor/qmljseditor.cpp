@@ -1321,8 +1321,7 @@ void QmlJSTextEditorWidget::updateSemanticInfo()
         return;
 
     // Save time by not doing it for non-active editors.
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    if (editorManager->currentEditor() != editor())
+    if (Core::EditorManager::currentEditor() != editor())
         return;
 
     m_updateSemanticInfoTimer->start();
@@ -1378,8 +1377,7 @@ void QmlJSTextEditorWidget::acceptNewSemanticInfo(const SemanticInfo &semanticIn
     appendExtraSelectionsForMessages(&selections, m_semanticInfo.staticAnalysisMessages, document());
     setExtraSelections(CodeWarningsSelection, selections);
 
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    if (editorManager->currentEditor() == editor())
+    if (Core::EditorManager::currentEditor() == editor())
         m_semanticHighlighter->rerun(m_semanticInfo.scopeChain());
 
     emit semanticInfoUpdated();

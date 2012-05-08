@@ -74,7 +74,7 @@ QString FormEditorFactory::displayName() const
 
 Core::IDocument *FormEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
+    Core::IEditor *iface = Core::EditorManager::openEditor(fileName, id());
     if (!iface)
         return 0;
     if (qobject_cast<FormWindowEditor *>(iface)) {

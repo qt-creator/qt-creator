@@ -47,7 +47,7 @@ FindInCurrentFile::FindInCurrentFile()
 {
     connect(Core::ICore::editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(handleFileChange(Core::IEditor*)));
-    handleFileChange(Core::ICore::editorManager()->currentEditor());
+    handleFileChange(Core::EditorManager::currentEditor());
 }
 
 QString FindInCurrentFile::id() const

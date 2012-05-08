@@ -906,8 +906,8 @@ void FormEditorW::print()
 // Find out current existing editor file
 static QString currentFile()
 {
-    if (Core::IEditor *editor = Core::EditorManager::instance()->currentEditor())
-        if (const Core::IDocument *document= editor->document()) {
+    if (Core::IEditor *editor = Core::EditorManager::currentEditor())
+        if (const Core::IDocument *document = editor->document()) {
             const QString fileName = document->fileName();
             if (!fileName.isEmpty() && QFileInfo(fileName).isFile())
                 return fileName;
@@ -954,7 +954,7 @@ void FormEditorW::switchSourceForm()
 {
     const QString fileToOpen = otherFile();
     if (!fileToOpen.isEmpty())
-        Core::ICore::editorManager()->openEditor(fileToOpen, Core::Id(), Core::EditorManager::ModeSwitch);
+        Core::EditorManager::openEditor(fileToOpen, Core::Id(), Core::EditorManager::ModeSwitch);
 }
 
 } // namespace Internal

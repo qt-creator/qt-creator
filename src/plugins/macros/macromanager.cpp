@@ -226,9 +226,8 @@ bool MacroManager::MacroManagerPrivate::executeMacro(Macro *macro)
 
     // Set the focus back to the editor
     // TODO: is it really needed??
-    const Core::EditorManager *editorManager = Core::EditorManager::instance();
-    if (editorManager->currentEditor())
-        editorManager->currentEditor()->widget()->setFocus(Qt::OtherFocusReason);
+    if (Core::IEditor *current = Core::EditorManager::currentEditor())
+        current->widget()->setFocus(Qt::OtherFocusReason);
 
     return !error;
 }

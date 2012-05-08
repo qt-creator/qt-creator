@@ -807,15 +807,16 @@ void VcsBaseSubmitEditor::filterUntrackedFilesOfProject(const QString &repositor
 // Helper to raise an already open submit editor to prevent opening twice.
 bool VcsBaseSubmitEditor::raiseSubmitEditor()
 {
-    Core::EditorManager *em = Core::EditorManager::instance();
     // Nothing to do?
-    if (Core::IEditor *ce = em->currentEditor())
+    if (Core::IEditor *ce = Core::EditorManager::currentEditor())
         if (qobject_cast<VcsBaseSubmitEditor*>(ce))
             return true;
     // Try to activate a hidden one
+    Core::EditorManager *em = Core::EditorManager::instance();
     foreach (Core::IEditor *e, em->openedEditors()) {
         if (qobject_cast<VcsBaseSubmitEditor*>(e)) {
-            em->activateEditor(e, Core::EditorManager::IgnoreNavigationHistory | Core::EditorManager::ModeSwitch);
+            Core::EditorManager::activateEditor(e,
+                Core::EditorManager::IgnoreNavigationHistory | Core::EditorManager::ModeSwitch);
             return true;
         }
     }

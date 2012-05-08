@@ -211,7 +211,7 @@ bool BaseTextDocument::save(QString *errorString, const QString &fileName, bool 
     int undos = d->m_document->availableUndoSteps();
 
     // When saving the current editor, make sure to maintain the cursor position for undo
-    Core::IEditor *currentEditor = Core::EditorManager::instance()->currentEditor();
+    Core::IEditor *currentEditor = Core::EditorManager::currentEditor();
     if (BaseTextEditor *editable = qobject_cast<BaseTextEditor*>(currentEditor)) {
         if (editable->document() == this) {
             editorWidget = editable->editorWidget();

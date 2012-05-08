@@ -332,7 +332,7 @@ void DesignDocumentController::setCrumbleBarInfo(const CrumbleBarInfo &crumbleBa
     DesignDocumentControllerPrivate::pushCrumblePath = false;
     while (!compareCrumbleBarInfo(d->formEditorView->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>(), crumbleBarInfo))
         d->formEditorView->crumblePath()->popElement();
-    Core::EditorManager::instance()->openEditor(crumbleBarInfo.fileName);
+    Core::EditorManager::openEditor(crumbleBarInfo.fileName);
     DesignDocumentControllerPrivate::pushCrumblePath = true;
     Internal::DesignModeWidget::instance()->currentDesignDocumentController()->changeToSubComponent(crumbleBarInfo.modelNode);
     DesignDocumentControllerPrivate::clearCrumblePath = true;
@@ -525,7 +525,7 @@ void DesignDocumentController::changeToSubComponent(const ModelNode &componentNo
 void DesignDocumentController::changeToExternalSubComponent(const QString &fileName)
 {
     DesignDocumentControllerPrivate::clearCrumblePath = false;
-    Core::EditorManager::instance()->openEditor(fileName);
+    Core::EditorManager::openEditor(fileName);
     DesignDocumentControllerPrivate::clearCrumblePath = true;
 }
 

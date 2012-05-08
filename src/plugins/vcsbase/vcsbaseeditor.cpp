@@ -1095,8 +1095,7 @@ void VcsBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
     if (!exists)
         return;
 
-    Core::EditorManager *em = Core::EditorManager::instance();
-    Core::IEditor *ed = em->openEditor(fileName, Core::Id(), Core::EditorManager::ModeSwitch);
+    Core::IEditor *ed = Core::EditorManager::openEditor(fileName, Core::Id(), Core::EditorManager::ModeSwitch);
     if (TextEditor::ITextEditor *editor = qobject_cast<TextEditor::ITextEditor *>(ed))
         editor->gotoLine(chunkStart + lineCount);
 }
@@ -1256,7 +1255,7 @@ VcsBaseEditorWidget *VcsBaseEditorWidget::getVcsBaseEditor(const Core::IEditor *
 // Return line number of current editor if it matches.
 int VcsBaseEditorWidget::lineNumberOfCurrentEditor(const QString &currentFile)
 {
-    Core::IEditor *ed = Core::EditorManager::instance()->currentEditor();
+    Core::IEditor *ed = Core::EditorManager::currentEditor();
     if (!ed)
         return -1;
     if (!currentFile.isEmpty()) {

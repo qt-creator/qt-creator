@@ -842,9 +842,7 @@ void DesignModeWidget::onGoBackClicked()
     if (m_navigatorHistoryCounter > 0) {
         --m_navigatorHistoryCounter;
         m_keepNavigatorHistory = true;
-
-        Core::EditorManager::instance()->openEditor(m_navigatorHistory.at(m_navigatorHistoryCounter));
-
+        Core::EditorManager::openEditor(m_navigatorHistory.at(m_navigatorHistoryCounter));
         m_keepNavigatorHistory = false;
     }
 }
@@ -854,9 +852,7 @@ void DesignModeWidget::onGoForwardClicked()
     if (m_navigatorHistoryCounter < (m_navigatorHistory.size() - 1)) {
         ++m_navigatorHistoryCounter;
         m_keepNavigatorHistory = true;
-
-        Core::EditorManager::instance()->openEditor(m_navigatorHistory.at(m_navigatorHistoryCounter));
-
+        Core::EditorManager::openEditor(m_navigatorHistory.at(m_navigatorHistoryCounter));
         m_keepNavigatorHistory = false;
     }
 }

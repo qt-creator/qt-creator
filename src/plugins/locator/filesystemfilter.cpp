@@ -59,7 +59,7 @@ QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::Filter
         if (filePath.startsWith(QLatin1String("~/"))) {
             directory.replace(0, 1, QDir::homePath());
         } else {
-            IEditor *editor = m_editorManager->currentEditor();
+            IEditor *editor = EditorManager::currentEditor();
             if (editor && !editor->document()->fileName().isEmpty()) {
                 QFileInfo info(editor->document()->fileName());
                 directory.prepend(info.absolutePath() + QLatin1Char('/'));
@@ -109,8 +109,8 @@ void FileSystemFilter::accept(FilterEntry selection) const
         m_locatorWidget->show(value, value.length());
         return;
     }
-    m_editorManager->openEditor(selection.internalData.toString(), Id(),
-                                Core::EditorManager::ModeSwitch);
+    EditorManager::openEditor(selection.internalData.toString(), Id(),
+                                EditorManager::ModeSwitch);
 }
 
 bool FileSystemFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)

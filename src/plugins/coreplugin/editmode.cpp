@@ -111,6 +111,6 @@ void EditMode::grabEditorManager(Core::IMode *mode)
     if (mode != this)
         return;
 
-    if (m_editorManager->currentEditor())
-        m_editorManager->currentEditor()->widget()->setFocus();
+    if (EditorManager::currentEditor())
+        EditorManager::currentEditor()->widget()->setFocus();
 }

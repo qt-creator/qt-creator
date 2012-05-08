@@ -611,7 +611,7 @@ void CvsPlugin::cvsDiff(const CvsDiffParameters &p)
     const QString tag = VcsBaseEditorWidget::editorTag(DiffOutput, p.workingDir, p.files);
     if (IEditor *existingEditor = VcsBaseEditorWidget::locateEditorByTag(tag)) {
         existingEditor->createNew(output);
-        EditorManager::instance()->activateEditor(existingEditor, EditorManager::ModeSwitch);
+        EditorManager::activateEditor(existingEditor, EditorManager::ModeSwitch);
         setDiffBaseDirectory(existingEditor, p.workingDir);
         return;
     }
@@ -635,8 +635,8 @@ void CvsPlugin::cvsDiff(const CvsDiffParameters &p)
 
 CvsSubmitEditor *CvsPlugin::openCVSSubmitEditor(const QString &fileName)
 {
-    IEditor *editor = EditorManager::instance()->openEditor(fileName, Constants::CVSCOMMITEDITOR_ID,
-                                                                      EditorManager::ModeSwitch);
+    IEditor *editor = EditorManager::openEditor(fileName, Constants::CVSCOMMITEDITOR_ID,
+                                                EditorManager::ModeSwitch);
     CvsSubmitEditor *submitEditor = qobject_cast<CvsSubmitEditor*>(editor);
     QTC_CHECK(submitEditor);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_submitCurrentLogAction, m_submitDiffAction);
@@ -883,7 +883,7 @@ void CvsPlugin::filelog(const QString &workingDir,
     const QString tag = VcsBaseEditorWidget::editorTag(LogOutput, workingDir, files);
     if (Core::IEditor *editor = VcsBaseEditorWidget::locateEditorByTag(tag)) {
         editor->createNew(response.stdOut);
-        Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
+        Core::EditorManager::activateEditor(editor, Core::EditorManager::ModeSwitch);
     } else {
         const QString title = QString::fromLatin1("cvs log %1").arg(id);
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, LogOutput, source, codec);
@@ -1026,7 +1026,7 @@ void CvsPlugin::annotate(const QString &workingDir, const QString &file,
     if (IEditor *editor = VcsBaseEditorWidget::locateEditorByTag(tag)) {
         editor->createNew(response.stdOut);
         VcsBaseEditorWidget::gotoLineOfEditor(editor, lineNumber);
-        EditorManager::instance()->activateEditor(editor, EditorManager::ModeSwitch);
+        EditorManager::activateEditor(editor, EditorManager::ModeSwitch);
     } else {
         const QString title = QString::fromLatin1("cvs annotate %1").arg(id);
         IEditor *newEditor = showOutputInEditor(title, response.stdOut, AnnotateOutput, source, codec);
@@ -1221,7 +1221,7 @@ bool CvsPlugin::describe(const QString &repositoryPath,
     const QString commitId = entries.front().revisions.front().commitId;
     if (IEditor *editor = VcsBaseEditorWidget::locateEditorByTag(commitId)) {
         editor->createNew(output);
-        EditorManager::instance()->activateEditor(editor, EditorManager::ModeSwitch);
+        EditorManager::activateEditor(editor, EditorManager::ModeSwitch);
         setDiffBaseDirectory(editor, repositoryPath);
     } else {
         const QString title = QString::fromLatin1("cvs describe %1").arg(commitId);
@@ -1236,7 +1236,7 @@ void CvsPlugin::submitCurrentLog()
 {
     m_submitActionTriggered = true;
     EditorManager::instance()->closeEditors(QList<IEditor*>()
-        << EditorManager::instance()->currentEditor());
+        << EditorManager::currentEditor());
 }
 
 // Run CVS. At this point, file arguments must be relative to
@@ -1293,7 +1293,7 @@ IEditor *CvsPlugin::showOutputInEditor(const QString& title, const QString &outp
         qDebug() << "CVSPlugin::showOutputInEditor" << title << id.name()
                  <<  "source=" << source << "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    IEditor *editor = EditorManager::instance()->openEditorWithContents(id, &s, output);
+    IEditor *editor = EditorManager::openEditorWithContents(id, &s, output);
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
             this, SLOT(vcsAnnotate(QString,QString,int)));
     CvsEditor *e = qobject_cast<CvsEditor*>(editor->widget());
@@ -1307,7 +1307,7 @@ IEditor *CvsPlugin::showOutputInEditor(const QString& title, const QString &outp
     if (codec)
         e->setCodec(codec);
     IEditor *ie = e->editor();
-    EditorManager::instance()->activateEditor(ie, EditorManager::ModeSwitch);
+    EditorManager::activateEditor(ie, EditorManager::ModeSwitch);
     return ie;
 }
 

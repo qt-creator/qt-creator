@@ -559,7 +559,7 @@ void QmlEngine::gotoLocation(const Location &location)
             }
         }
         if (!editor) {
-            editor = editorManager->openEditorWithContents(QmlJSEditor::Constants::C_QMLJSEDITOR_ID,
+            editor = Core::EditorManager::openEditorWithContents(QmlJSEditor::Constants::C_QMLJSEDITOR_ID,
                                                            &titlePattern);
             if (editor) {
                 editor->setProperty(Constants::OPENED_BY_DEBUGGER, true);
@@ -567,7 +567,7 @@ void QmlEngine::gotoLocation(const Location &location)
 
             updateEditor(editor, m_sourceDocuments.value(fileName));
         }
-        editorManager->activateEditor(editor);
+        Core::EditorManager::activateEditor(editor);
 
     } else {
         DebuggerEngine::gotoLocation(location);

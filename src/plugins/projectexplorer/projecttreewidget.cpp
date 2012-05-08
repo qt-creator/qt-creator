@@ -360,10 +360,8 @@ void ProjectTreeWidget::initView()
 void ProjectTreeWidget::openItem(const QModelIndex &mainIndex)
 {
     Node *node = m_model->nodeForIndex(mainIndex);
-    if (node->nodeType() == FileNodeType) {
-        Core::EditorManager *editorManager = Core::EditorManager::instance();
-        editorManager->openEditor(node->path(), Core::Id(), Core::EditorManager::ModeSwitch);
-    }
+    if (node->nodeType() == FileNodeType)
+        Core::EditorManager::openEditor(node->path(), Core::Id(), Core::EditorManager::ModeSwitch);
 }
 
 void ProjectTreeWidget::setProjectFilter(bool filter)

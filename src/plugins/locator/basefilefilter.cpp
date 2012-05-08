@@ -99,8 +99,7 @@ QList<FilterEntry> BaseFileFilter::matchesFor(QFutureInterface<Locator::FilterEn
 
 void BaseFileFilter::accept(Locator::FilterEntry selection) const
 {
-    Core::EditorManager *em = Core::EditorManager::instance();
-    em->openEditor(selection.internalData.toString(), Id(), Core::EditorManager::ModeSwitch);
+    EditorManager::openEditor(selection.internalData.toString(), Id(), EditorManager::ModeSwitch);
 }
 
 void BaseFileFilter::generateFileNames()

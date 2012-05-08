@@ -573,10 +573,7 @@ public:
 
 static TextEditor::ITextEditor *currentTextEditor()
 {
-    if (const Core::EditorManager *editorManager = Core::EditorManager::instance())
-            if (Core::IEditor *editor = editorManager->currentEditor())
-                return qobject_cast<TextEditor::ITextEditor*>(editor);
-    return 0;
+    return qobject_cast<TextEditor::ITextEditor *>(Core::EditorManager::currentEditor());
 }
 
 static bool currentTextEditorPosition(ContextData *data)
@@ -1033,10 +1030,7 @@ public slots:
     void handleAddToWatchWindow()
     {
         // Requires a selection, but that's the only case we want anyway.
-        EditorManager *editorManager = EditorManager::instance();
-        if (!editorManager)
-            return;
-        IEditor *editor = editorManager->currentEditor();
+        IEditor *editor = EditorManager::currentEditor();
         if (!editor)
             return;
         ITextEditor *textEditor = qobject_cast<ITextEditor*>(editor);
@@ -2192,7 +2186,7 @@ void DebuggerPluginPrivate::cleanupViews()
             // if they are not modified and not current editor.
             if (editor->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()
                     || (!editor->document()->isModified()
-                        && editor != editorManager->currentEditor())) {
+                        && editor != EditorManager::currentEditor())) {
                 toClose.append(editor);
             } else {
                 editor->setProperty(Constants::OPENED_BY_DEBUGGER, false);
@@ -2470,9 +2464,9 @@ void DebuggerPluginPrivate::onModeChanged(IMode *mode)
         return;
     }
 
-    EditorManager *editorManager = EditorManager::instance();
-    if (editorManager->currentEditor())
-        editorManager->currentEditor()->widget()->setFocus();
+    if (IEditor *editor = EditorManager::currentEditor())
+        editor->widget()->setFocus();
+
     m_toolTipManager->debugModeEntered();
 }
 
@@ -2611,12 +2605,10 @@ void DebuggerPluginPrivate::openTextEditor(const QString &titlePattern0,
     if (m_shuttingDown)
         return;
     QString titlePattern = titlePattern0;
-    EditorManager *editorManager = EditorManager::instance();
-    QTC_ASSERT(editorManager, return);
-    IEditor *editor = editorManager->openEditorWithContents(
+    IEditor *editor = EditorManager::openEditorWithContents(
         CC::K_DEFAULT_TEXT_EDITOR_ID, &titlePattern, contents);
     QTC_ASSERT(editor, return);
-    editorManager->activateEditor(editor, EditorManager::IgnoreNavigationHistory);
+    EditorManager::activateEditor(editor, EditorManager::IgnoreNavigationHistory);
 }
 
 

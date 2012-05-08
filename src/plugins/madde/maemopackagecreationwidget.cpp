@@ -276,7 +276,7 @@ void MaemoPackageCreationWidget::editSpecFile()
 
 void MaemoPackageCreationWidget::editFile(const QString &filePath)
 {
-    Core::EditorManager::instance()->openEditor(filePath, Core::Id(),
+    Core::EditorManager::openEditor(filePath, Core::Id(),
         Core::EditorManager::ModeSwitch);
 }
 

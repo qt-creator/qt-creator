@@ -222,7 +222,7 @@ void FetchContext::processFinished(int exitCode, QProcess::ExitStatus es)
             m_progress.reportFinished();
             QString title = QString(QLatin1String("Gerrit patch %1/%2"))
                     .arg(m_change->number).arg(m_change->currentPatchSet.patchSetNumber);
-            Core::IEditor *editor = Core::EditorManager::instance()->openEditor(
+            Core::IEditor *editor = Core::EditorManager::openEditor(
                             m_patchFileName, Git::Constants::GIT_DIFF_EDITOR_ID);
             VcsBase::VcsBaseEditorWidget *vcsEditor = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(editor);
             vcsEditor->setDiffBaseDirectory(m_repository);

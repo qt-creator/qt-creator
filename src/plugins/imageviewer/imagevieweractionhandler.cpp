@@ -58,8 +58,7 @@ ImageViewerActionHandler::ImageViewerActionHandler(QObject *parent) :
 
 void ImageViewerActionHandler::actionTriggered(int supportedAction)
 {
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    Core::IEditor *editor = editorManager->currentEditor();
+    Core::IEditor *editor = Core::EditorManager::currentEditor();
     ImageViewer *viewer = qobject_cast<ImageViewer *>(editor);
     if (!viewer)
         return;

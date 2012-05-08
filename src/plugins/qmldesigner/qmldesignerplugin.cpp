@@ -301,7 +301,7 @@ void BauhausPlugin::contextChanged(Core::IContext *context, const Core::Context 
     foreach (int additionalContext, additionalContexts) {
         if (m_context->context().contains(additionalContext)) {
             m_isActive = true;
-            m_mainWidget->showEditor(m_editorManager->currentEditor());
+            m_mainWidget->showEditor(Core::EditorManager::currentEditor());
             return;
         }
     }
@@ -371,10 +371,8 @@ BauhausPlugin *BauhausPlugin::pluginInstance()
 
 void BauhausPlugin::switchTextDesign()
 {
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    Core::IEditor *editor = editorManager->currentEditor();
-
     if (Core::ModeManager::currentMode()->id() == Core::Constants::MODE_EDIT) {
+        Core::IEditor *editor = Core::EditorManager::currentEditor();
         if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
             Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
             m_mainWidget->setFocus();

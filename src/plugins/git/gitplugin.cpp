@@ -713,8 +713,8 @@ void GitPlugin::startCommit(bool amend)
 
 Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &cd, bool amend)
 {
-    Core::IEditor *editor = Core::ICore::editorManager()->openEditor(fileName, Constants::GITSUBMITEDITOR_ID,
-                                                                Core::EditorManager::ModeSwitch);
+    Core::IEditor *editor = Core::EditorManager::openEditor(fileName, Constants::GITSUBMITEDITOR_ID,
+                                                Core::EditorManager::ModeSwitch);
     GitSubmitEditor *submitEditor = qobject_cast<GitSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return 0);
     // The actions are for some reason enabled by the context switching
@@ -735,7 +735,7 @@ void GitPlugin::submitCurrentLog()
     // Close the submit editor
     m_submitActionTriggered = true;
     QList<Core::IEditor*> editors;
-    editors.push_back(Core::ICore::editorManager()->currentEditor());
+    editors.push_back(Core::EditorManager::currentEditor());
     Core::ICore::editorManager()->closeEditors(editors);
 }
 

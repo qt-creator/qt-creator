@@ -170,7 +170,7 @@ Core::IEditor *BaseTextEditorWidget::openEditorAt(const QString &fileName, int l
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     editorManager->cutForwardNavigationHistory();
     editorManager->addCurrentPositionToNavigationHistory();
-    Core::IEditor *editor = editorManager->openEditor(fileName, editorKind,
+    Core::IEditor *editor = Core::EditorManager::openEditor(fileName, editorKind,
             flags, newEditor);
     TextEditor::ITextEditor *texteditor = qobject_cast<TextEditor::ITextEditor *>(editor);
     if (texteditor && line != -1) {

@@ -75,7 +75,7 @@ bool FindMacroHandler::canExecuteEvent(const MacroEvent &macroEvent)
 
 bool FindMacroHandler::executeEvent(const MacroEvent &macroEvent)
 {
-    Core::IEditor *editor = Core::EditorManager::instance()->currentEditor();
+    Core::IEditor *editor = Core::EditorManager::currentEditor();
     if (!editor)
         return false;
 
@@ -228,7 +228,7 @@ void FindMacroHandler::changeEditor(Core::IEditor *editor)
 void FindMacroHandler::startRecording(Macros::Macro* macro)
 {
     IMacroHandler::startRecording(macro);
-    const Core::EditorManager *editorManager = Core::EditorManager::instance();
-    if (editorManager->currentEditor())
-        changeEditor(editorManager->currentEditor());
+    Core::IEditor *current = Core::EditorManager::currentEditor();
+    if (current)
+        changeEditor(current);
 }

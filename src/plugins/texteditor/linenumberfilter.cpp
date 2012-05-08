@@ -75,8 +75,5 @@ void LineNumberFilter::accept(FilterEntry selection) const
 
 ITextEditor *LineNumberFilter::currentTextEditor() const
 {
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    if (!editorManager->currentEditor())
-        return 0;
-    return qobject_cast<TextEditor::ITextEditor*>(editorManager->currentEditor());
+    return qobject_cast<TextEditor::ITextEditor *>(EditorManager::currentEditor());
 }

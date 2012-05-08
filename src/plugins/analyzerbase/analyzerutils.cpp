@@ -73,10 +73,7 @@ static void moveCursorToEndOfName(QTextCursor *tc)
 // We cannot depend on this since CppEditor plugin code is internal and requires building the implementation files ourselves
 CPlusPlus::Symbol *AnalyzerUtils::findSymbolUnderCursor()
 {
-    EditorManager *editorManager = EditorManager::instance();
-    if (!editorManager)
-        return 0;
-    IEditor *editor = editorManager->currentEditor();
+    IEditor *editor = EditorManager::currentEditor();
     if (!editor)
         return 0;
     TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor);

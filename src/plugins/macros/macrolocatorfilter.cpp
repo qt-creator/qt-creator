@@ -78,7 +78,7 @@ QList<Locator::FilterEntry> MacroLocatorFilter::matchesFor(QFutureInterface<Loca
 void MacroLocatorFilter::accept(Locator::FilterEntry selection) const
 {
     // Give the focus back to the editor
-    Core::IEditor *editor = Core::EditorManager::instance()->currentEditor();
+    Core::IEditor *editor = Core::EditorManager::currentEditor();
     if (editor)
         editor->widget()->setFocus(Qt::OtherFocusReason);
 

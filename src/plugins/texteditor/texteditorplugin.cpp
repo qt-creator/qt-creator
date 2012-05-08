@@ -145,8 +145,7 @@ void ScratchFileWizard::runWizard(const QString &, QWidget *, const QString &, c
     file.setAutoRemove(false);
     QTC_ASSERT(file.open(), return; );
     file.close();
-    Core::EditorManager *em = Core::EditorManager::instance();
-    em->openEditor(file.fileName(), Core::Id(), Core::EditorManager::ModeSwitch);
+    Core::EditorManager::openEditor(file.fileName(), Core::Id(), Core::EditorManager::ModeSwitch);
 }
 
 // ExtensionSystem::PluginInterface
@@ -272,14 +271,14 @@ void TextEditorPlugin::initializeEditor(PlainTextEditorWidget *editor)
 
 void TextEditorPlugin::invokeCompletion()
 {
-    Core::IEditor *iface = Core::EditorManager::instance()->currentEditor();
+    Core::IEditor *iface = Core::EditorManager::currentEditor();
     if (BaseTextEditorWidget *w = qobject_cast<BaseTextEditorWidget *>(iface->widget()))
         w->invokeAssist(Completion);
 }
 
 void TextEditorPlugin::invokeQuickFix()
 {
-    Core::IEditor *iface = Core::EditorManager::instance()->currentEditor();
+    Core::IEditor *iface = Core::EditorManager::currentEditor();
     if (BaseTextEditorWidget *w = qobject_cast<BaseTextEditorWidget *>(iface->widget()))
         w->invokeAssist(QuickFix);
 }
@@ -302,7 +301,7 @@ void TextEditorPlugin::updateVariable(const QByteArray &variable)
             << kCurrentDocumentFontSize;
     if (variables.contains(variable)) {
         QString value;
-        Core::IEditor *iface = Core::EditorManager::instance()->currentEditor();
+        Core::IEditor *iface = Core::EditorManager::currentEditor();
         ITextEditor *editor = qobject_cast<ITextEditor *>(iface);
         if (editor) {
             if (variable == kCurrentDocumentSelection) {
@@ -326,7 +325,7 @@ void TextEditorPlugin::updateVariable(const QByteArray &variable)
 
 void TextEditorPlugin::updateCurrentSelection(const QString &text)
 {
-    Core::IEditor *iface = Core::EditorManager::instance()->currentEditor();
+    Core::IEditor *iface = Core::EditorManager::currentEditor();
     ITextEditor *editor = qobject_cast<ITextEditor *>(iface);
     if (editor) {
         int pos = editor->position();

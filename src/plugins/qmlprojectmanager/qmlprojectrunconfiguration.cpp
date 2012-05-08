@@ -330,7 +330,7 @@ void QmlProjectRunConfiguration::updateEnabled()
 {
     bool qmlFileFound = false;
     if (mainScriptSource() == FileInEditor) {
-        Core::IEditor *editor = Core::EditorManager::instance()->currentEditor();
+        Core::IEditor *editor = Core::EditorManager::currentEditor();
         Core::MimeDatabase *db = ICore::mimeDatabase();
         if (editor) {
             m_currentFileFilename = editor->document()->fileName();

@@ -519,8 +519,8 @@ void CppFindReferences::openEditor(const Find::SearchResultItem &item)
                                                        Core::Id(),
                                                        Core::EditorManager::ModeSwitch);
     } else {
-        Core::EditorManager::instance()->openEditor(QDir::fromNativeSeparators(item.text),
-                                                    Core::Id(), Core::EditorManager::ModeSwitch);
+        Core::EditorManager::openEditor(QDir::fromNativeSeparators(item.text),
+                                        Core::Id(), Core::EditorManager::ModeSwitch);
     }
 }
 

@@ -159,11 +159,10 @@ ExtensionSystem::IPlugin::ShutdownFlag CppToolsPlugin::aboutToShutdown()
 
 void CppToolsPlugin::switchHeaderSource()
 {
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    Core::IEditor *editor = editorManager->currentEditor();
+    Core::IEditor *editor = Core::EditorManager::currentEditor();
     QString otherFile = correspondingHeaderOrSource(editor->document()->fileName());
     if (!otherFile.isEmpty())
-        editorManager->openEditor(otherFile);
+        Core::EditorManager::openEditor(otherFile);
 }
 
 static QStringList findFilesInProject(const QString &name,

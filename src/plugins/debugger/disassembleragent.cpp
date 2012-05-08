@@ -305,11 +305,10 @@ void DisassemblerAgent::setContentsToEditor(const DisassemblerLines &contents)
     using namespace Core;
     using namespace TextEditor;
 
-    EditorManager *editorManager = EditorManager::instance();
     if (!d->editor) {
         QString titlePattern = QLatin1String("Disassembler");
         d->editor = qobject_cast<ITextEditor *>(
-            editorManager->openEditorWithContents(
+            EditorManager::openEditorWithContents(
                 Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
                 &titlePattern));
         QTC_ASSERT(d->editor, return);
@@ -323,7 +322,7 @@ void DisassemblerAgent::setContentsToEditor(const DisassemblerLines &contents)
             baseTextEdit->setRequestMarkEnabled(true);
     }
 
-    editorManager->activateEditor(d->editor);
+    EditorManager::activateEditor(d->editor);
 
     QPlainTextEdit *plainTextEdit =
         qobject_cast<QPlainTextEdit *>(d->editor->widget());

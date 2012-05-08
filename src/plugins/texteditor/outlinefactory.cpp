@@ -79,7 +79,7 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(updateCurrentEditor(Core::IEditor*)));
-    updateCurrentEditor(editorManager->currentEditor());
+    updateCurrentEditor(Core::EditorManager::currentEditor());
 }
 
 OutlineWidgetStack::~OutlineWidgetStack()

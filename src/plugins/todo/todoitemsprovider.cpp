@@ -167,7 +167,7 @@ void TodoItemsProvider::setupCurrentEditorBinding()
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
 
-    m_currentEditor = editorManager->currentEditor();
+    m_currentEditor = Core::EditorManager::currentEditor();
     connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
         SLOT(currentEditorChanged(Core::IEditor*)));
 }

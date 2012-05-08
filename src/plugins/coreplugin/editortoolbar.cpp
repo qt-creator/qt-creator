@@ -245,15 +245,12 @@ void EditorToolBar::setCloseSplitIcon(const QIcon &icon)
 
 void EditorToolBar::closeEditor()
 {
-    if (!currentEditor())
+    IEditor *current = EditorManager::currentEditor();
+    if (!current)
         return;
 
-    if (d->m_isStandalone) {
-        EditorManager *em = ICore::editorManager();
-        if (IEditor *editor = currentEditor()) {
-            em->closeEditor(editor);
-        }
-    }
+    if (d->m_isStandalone)
+        EditorManager::instance()->closeEditor(current);
     emit closeClicked();
 }
 
@@ -349,8 +346,8 @@ void EditorToolBar::listContextMenu(QPoint pos)
 
 void EditorToolBar::makeEditorWritable()
 {
-    if (currentEditor())
-        ICore::editorManager()->makeFileWritable(currentEditor()->document());
+    if (IEditor *current = EditorManager::currentEditor())
+        EditorManager::instance()->makeFileWritable(current->document());
 }
 
 void EditorToolBar::setCanGoBack(bool canGoBack)
@@ -372,15 +369,10 @@ void EditorToolBar::updateActionShortcuts()
     d->m_closeSplitButton->setToolTip(am->command(Constants::REMOVE_CURRENT_SPLIT)->stringWithAppendedShortcut(tr("Remove Split")));
 }
 
-IEditor *EditorToolBar::currentEditor() const
-{
-    return ICore::editorManager()->currentEditor();
-}
-
 void EditorToolBar::checkEditorStatus()
 {
     IEditor *editor = qobject_cast<IEditor *>(sender());
-    IEditor *current = currentEditor();
+    IEditor *current = EditorManager::currentEditor();
 
     if (current == editor)
         updateEditorStatus(editor);
@@ -413,13 +405,13 @@ void EditorToolBar::updateEditorStatus(IEditor *editor)
         d->m_lockButton->setEnabled(false);
         d->m_lockButton->setToolTip(tr("File is writable"));
     }
-    if (editor == currentEditor())
+    IEditor *current = EditorManager::currentEditor();
+    if (editor == current)
         d->m_editorList->setToolTip(
-                currentEditor()->document()->fileName().isEmpty()
-                ? currentEditor()->displayName()
+                current->document()->fileName().isEmpty()
+                ? current->displayName()
                     : QDir::toNativeSeparators(editor->document()->fileName())
                     );
-
 }
 
 void EditorToolBar::setNavigationVisible(bool isVisible)

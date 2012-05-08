@@ -634,9 +634,9 @@ QList<IEditor *> EditorManager::editorsForDocument(IDocument *document) const
     return found;
 }
 
-IEditor *EditorManager::currentEditor() const
+IEditor *EditorManager::currentEditor()
 {
-    return d->m_currentEditor;
+    return m_instance->d->m_currentEditor;
 }
 
 void EditorManager::emptyView(Core::Internal::EditorView *view)
@@ -1047,12 +1047,12 @@ Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core
 
 void EditorManager::activateEditor(Core::IEditor *editor, OpenEditorFlags flags)
 {
-    SplitterOrView *splitterOrView = d->m_splitter->findView(editor);
+    SplitterOrView *splitterOrView = m_instance->d->m_splitter->findView(editor);
     EditorView *view = (splitterOrView ? splitterOrView->view() : 0);
     // TODO an IEditor doesn't have to belong to a view, which makes this method a bit funny
     if (!view)
-        view = currentEditorView();
-    activateEditor(view, editor, flags);
+        view = m_instance->currentEditorView();
+    m_instance->activateEditor(view, editor, flags);
 }
 
 Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, OpenEditorFlags flags)
@@ -1124,7 +1124,7 @@ static void mimeTypeFactoryRecursion(const MimeDatabase *db,
 }
 
 EditorManager::EditorFactoryList
-    EditorManager::editorFactories(const MimeType &mimeType, bool bestMatchOnly) const
+    EditorManager::editorFactories(const MimeType &mimeType, bool bestMatchOnly)
 {
     EditorFactoryList rc;
     const EditorFactoryList allFactories = pluginManager()->getObjects<IEditorFactory>();
@@ -1135,7 +1135,7 @@ EditorManager::EditorFactoryList
 }
 
 EditorManager::ExternalEditorList
-        EditorManager::externalEditors(const MimeType &mimeType, bool bestMatchOnly) const
+        EditorManager::externalEditors(const MimeType &mimeType, bool bestMatchOnly)
 {
     ExternalEditorList rc;
     const ExternalEditorList allEditors = pluginManager()->getObjects<IExternalEditor>();
@@ -1187,11 +1187,11 @@ IEditor *EditorManager::createEditor(const Id &editorId, const QString &fileName
         return 0;
     }
 
-    IEditor *editor = factories.front()->createEditor(this);
+    IEditor *editor = factories.front()->createEditor(m_instance);
     if (editor)
-        connect(editor, SIGNAL(changed()), this, SLOT(handleEditorStateChange()));
+        connect(editor, SIGNAL(changed()), m_instance, SLOT(handleEditorStateChange()));
     if (editor)
-        emit editorCreated(editor, fileName);
+        emit m_instance->editorCreated(editor, fileName);
     return editor;
 }
 
@@ -1257,7 +1257,7 @@ Core::Id EditorManager::getOpenWithEditorId(const QString &fileName,
 IEditor *EditorManager::openEditor(const QString &fileName, const Id &editorId,
                                    OpenEditorFlags flags, bool *newEditor)
 {
-    return openEditor(currentEditorView(), fileName, editorId, flags, newEditor);
+    return m_instance->openEditor(m_instance->currentEditorView(), fileName, editorId, flags, newEditor);
 }
 
 int extractLineNumber(QString *fileName)
@@ -1408,7 +1408,7 @@ IEditor *EditorManager::openEditorWithContents(const Id &editorId,
         if (base.contains(dollar)) {
             int i = 1;
             QSet<QString> docnames;
-            foreach (IEditor *editor, openedEditors()) {
+            foreach (IEditor *editor, m_instance->openedEditors()) {
                 QString name = editor->document()->fileName();
                 if (name.isEmpty()) {
                     name = editor->displayName();
@@ -1445,7 +1445,7 @@ IEditor *EditorManager::openEditorWithContents(const Id &editorId,
         title = edt->displayName();
 
     edt->setDisplayName(title);
-    addEditor(edt);
+    m_instance->addEditor(edt);
     QApplication::restoreOverrideCursor();
     return edt;
 }

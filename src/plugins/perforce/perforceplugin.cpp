@@ -678,8 +678,7 @@ void PerforcePlugin::startSubmitProject()
 
 Core::IEditor *PerforcePlugin::openPerforceSubmitEditor(const QString &fileName, const QStringList &depotFileNames)
 {
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    Core::IEditor *editor = editorManager->openEditor(fileName, Constants::PERFORCE_SUBMIT_EDITOR_ID,
+    Core::IEditor *editor = Core::EditorManager::openEditor(fileName, Constants::PERFORCE_SUBMIT_EDITOR_ID,
                                                       Core::EditorManager::ModeSwitch);
     PerforceSubmitEditor *submitEditor = static_cast<PerforceSubmitEditor*>(editor);
     submitEditor->restrictToProjectFiles(depotFileNames);
@@ -1198,7 +1197,7 @@ Core::IEditor *PerforcePlugin::showOutputInEditor(const QString &title, const QS
         qDebug() << "PerforcePlugin::showOutputInEditor" << title << id.name()
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    Core::IEditor *editor = Core::EditorManager::instance()->openEditorWithContents(id, &s, output);
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(id, &s, output);
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
             this, SLOT(vcsAnnotate(QString,QString,int)));
     PerforceEditor *e = qobject_cast<PerforceEditor*>(editor->widget());
@@ -1211,7 +1210,7 @@ Core::IEditor *PerforcePlugin::showOutputInEditor(const QString &title, const QS
     if (codec)
         e->setCodec(codec);
     Core::IEditor *ie = e->editor();
-    Core::EditorManager::instance()->activateEditor(ie, Core::EditorManager::ModeSwitch);
+    Core::EditorManager::activateEditor(ie, Core::EditorManager::ModeSwitch);
     return ie;
 }
 
@@ -1294,7 +1293,7 @@ void PerforcePlugin::p4Diff(const PerforceDiffParameters &p)
 
     if (existingEditor) {
         existingEditor->createNew(result.stdOut);
-        Core::EditorManager::instance()->activateEditor(existingEditor, Core::EditorManager::ModeSwitch);
+        Core::EditorManager::activateEditor(existingEditor, Core::EditorManager::ModeSwitch);
         return;
     }
     // Create new editor
@@ -1329,7 +1328,7 @@ void PerforcePlugin::submitCurrentLog()
 {
     m_submitActionTriggered = true;
     Core::EditorManager *em = Core::EditorManager::instance();
-    em->closeEditors(QList<Core::IEditor*>() << em->currentEditor());
+    em->closeEditors(QList<Core::IEditor*>() << Core::EditorManager::currentEditor());
 }
 
 void PerforcePlugin::cleanCommitMessageFile()

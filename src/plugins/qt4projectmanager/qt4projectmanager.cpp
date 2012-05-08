@@ -318,8 +318,8 @@ void Qt4Manager::setContextFile(ProjectExplorer::FileNode *file)
 
 void Qt4Manager::addLibrary()
 {
-    Core::EditorManager *em = Core::EditorManager::instance();
-    ProFileEditorWidget *editor = qobject_cast<ProFileEditorWidget*>(em->currentEditor()->widget());
+    ProFileEditorWidget *editor =
+        qobject_cast<ProFileEditorWidget*>(Core::EditorManager::currentEditor()->widget());
     if (editor)
         addLibrary(editor->editorDocument()->fileName(), editor);
 }
@@ -341,9 +341,8 @@ void Qt4Manager::addLibrary(const QString &fileName, ProFileEditorWidget *editor
     if (editor) {
         editable = editor->editor();
     } else {
-        Core::EditorManager *em = Core::EditorManager::instance();
         editable = qobject_cast<TextEditor::BaseTextEditor *>
-                (em->openEditor(fileName, Qt4ProjectManager::Constants::PROFILE_EDITOR_ID));
+                (Core::EditorManager::openEditor(fileName, Qt4ProjectManager::Constants::PROFILE_EDITOR_ID));
     }
     if (!editable)
         return;

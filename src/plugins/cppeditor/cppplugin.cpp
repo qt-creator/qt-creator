@@ -339,24 +339,21 @@ ExtensionSystem::IPlugin::ShutdownFlag CppPlugin::aboutToShutdown()
 
 void CppPlugin::switchDeclarationDefinition()
 {
-    Core::EditorManager *em = Core::EditorManager::instance();
-    CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(em->currentEditor()->widget());
+    CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(Core::EditorManager::currentEditor()->widget());
     if (editor)
         editor->switchDeclarationDefinition();
 }
 
 void CppPlugin::renameSymbolUnderCursor()
 {
-    Core::EditorManager *em = Core::EditorManager::instance();
-    CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(em->currentEditor()->widget());
+    CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(Core::EditorManager::currentEditor()->widget());
     if (editor)
         editor->renameSymbolUnderCursor();
 }
 
 void CppPlugin::findUsages()
 {
-    Core::EditorManager *em = Core::EditorManager::instance();
-    CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(em->currentEditor()->widget());
+    CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(Core::EditorManager::currentEditor()->widget());
     if (editor)
         editor->findUsages();
 }
@@ -393,8 +390,7 @@ void CppPlugin::currentEditorChanged(Core::IEditor *editor)
 
 void CppPlugin::openTypeHierarchy()
 {
-    Core::EditorManager *em = Core::EditorManager::instance();
-    CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(em->currentEditor()->widget());
+    CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(Core::EditorManager::currentEditor()->widget());
     if (editor) {
         Core::NavigationWidget *navigation = Core::NavigationWidget::instance();
         navigation->activateSubWidget(Core::Id(Constants::TYPE_HIERARCHY_ID));

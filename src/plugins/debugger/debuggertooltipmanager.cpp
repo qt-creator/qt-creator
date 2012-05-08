@@ -236,7 +236,7 @@ DebuggerToolTipEditor::DebuggerToolTipEditor(IEditor *ie) :
 
 DebuggerToolTipEditor DebuggerToolTipEditor::currentToolTipEditor()
 {
-    if (IEditor *ie = EditorManager::instance()->currentEditor())
+    if (IEditor *ie = EditorManager::currentEditor())
         return DebuggerToolTipEditor(ie);
     return DebuggerToolTipEditor();
 }
