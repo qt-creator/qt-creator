@@ -313,7 +313,10 @@ bool SessionManager::save()
         projectFiles << pro->document()->fileName();
 
     // Restore infromation on projects that failed to load:
-    projectFiles.append(m_failedProjects);
+    // don't readd projects to the list, which the user loaded
+    foreach (const QString &failed, m_failedProjects)
+        if (!projectFiles.contains(failed))
+            projectFiles << failed;
 
     writer.saveValue(QLatin1String("ProjectList"), projectFiles);
 
