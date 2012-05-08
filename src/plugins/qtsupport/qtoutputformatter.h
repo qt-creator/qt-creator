@@ -67,6 +67,9 @@ public:
         Utils::OutputFormat format);
     virtual void handleLink(const QString &href);
 
+protected:
+    void clearLastLine();
+
 private slots:
     void updateProjectFileList();
 

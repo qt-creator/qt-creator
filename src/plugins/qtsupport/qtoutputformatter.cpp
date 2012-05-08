@@ -145,18 +145,19 @@ void QtOutputFormatter::appendMessage(const QString &txt, Utils::OutputFormat fo
         if (!m_lastLine.isEmpty()) {
             // Line continuation
             const QString newPart = txt.mid(start);
-            m_lastLine.append(newPart);
-            LinkResult lr = matchLine(m_lastLine);
+            const QString line = m_lastLine + newPart;
+            LinkResult lr = matchLine(line);
             if (!lr.href.isEmpty()) {
                 // Found something && line continuation
                 cursor.insertText(deferedText, charFormat(format));
                 deferedText.clear();
                 clearLastLine();
-                appendLine(cursor, lr, m_lastLine, format);
+                appendLine(cursor, lr, line, format);
             } else {
                 // Found nothing, just emit the new part
                 deferedText += newPart;
             }
+            m_lastLine = line;
         } else {
             m_lastLine = txt.mid(start);
             LinkResult lr = matchLine(m_lastLine);
@@ -244,6 +245,12 @@ void QtOutputFormatter::handleLink(const QString &href)
             return;
         }
     }
+}
+
+void QtOutputFormatter::clearLastLine()
+{
+    OutputFormatter::clearLastLine();
+    m_lastLine.clear();
 }
 
 void QtOutputFormatter::updateProjectFileList()
