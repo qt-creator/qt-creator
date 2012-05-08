@@ -197,6 +197,14 @@ void DeviceSettingsWidget::displayCurrent()
     fillInValues();
 }
 
+void DeviceSettingsWidget::setDeviceInfoWidgetsEnabled(bool enable)
+{
+    m_ui->configurationLabel->setEnabled(enable);
+    m_ui->configurationComboBox->setEnabled(enable);
+    m_ui->generalGroupBox->setEnabled(enable);
+    m_ui->osSpecificGroupBox->setEnabled(enable);
+}
+
 void DeviceSettingsWidget::fillInValues()
 {
     const IDevice::ConstPtr &current = currentDevice();
@@ -252,10 +260,12 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
     m_additionalActionButtons.clear();
     const IDevice::ConstPtr device = m_deviceManagerModel->device(index);
     if (device.isNull()) {
+        setDeviceInfoWidgetsEnabled(false);
         m_ui->removeConfigButton->setEnabled(false);
         clearDetails();
         m_ui->defaultDeviceButton->setEnabled(false);
     } else {
+        setDeviceInfoWidgetsEnabled(true);
         m_ui->removeConfigButton->setEnabled(true);
         foreach (const Core::Id actionId, device->actionIds()) {
             QPushButton * const button = new QPushButton(device->displayNameForActionId(actionId));

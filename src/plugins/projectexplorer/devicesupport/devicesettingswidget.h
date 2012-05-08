@@ -75,6 +75,7 @@ private slots:
 private:
     void initGui();
     void displayCurrent();
+    void setDeviceInfoWidgetsEnabled(bool enable);
     QSharedPointer<const IDevice> currentDevice() const;
     int currentIndex() const;
     void clearDetails();
