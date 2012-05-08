@@ -5140,8 +5140,8 @@ void GdbEngine::handleNamespaceExtraction(const GdbResponse &response)
     if (startParameters().startMode == AttachCore) {
         notifyInferiorSetupOk(); // No breakpoints in core files.
     } else {
-        if (debuggerCore()->boolSetting(BreakOnRaise))
-            postCommand("-break-insert -f raise");
+        if (debuggerCore()->boolSetting(BreakOnAbort))
+            postCommand("-break-insert -f abort");
         if (debuggerCore()->boolSetting(BreakOnWarning))
             postCommand("-break-insert -f '" + qtNamespace() + "qWarning'");
         if (debuggerCore()->boolSetting(BreakOnFatal))
