@@ -86,6 +86,10 @@ enum { debug = 0 };
 #define SDEBUG(s) if (!debug) {} else qDebug() << s;
 #define XSDEBUG(s) qDebug() << s
 
+//#define WITH_BENCHMARK
+#ifdef WITH_BENCHMARK
+#include <valgrind/callgrind.h>
+#endif
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -879,6 +883,9 @@ void DebuggerEngine::notifyInferiorSetupFailed()
 
 void DebuggerEngine::notifyInferiorSetupOk()
 {
+#ifdef WITH_BENCHMARK
+    CALLGRIND_START_INSTRUMENTATION;
+#endif
     showMessage(_("NOTE: INFERIOR SETUP OK"));
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << this << state());
     setState(InferiorSetupOk);
@@ -1174,6 +1181,10 @@ void DebuggerEnginePrivate::setRemoteSetupState(RemoteSetupState state)
 
 void DebuggerEngine::notifyEngineIll()
 {
+#ifdef WITH_BENCHMARK
+    CALLGRIND_STOP_INSTRUMENTATION;
+    CALLGRIND_DUMP_STATS;
+#endif
     showMessage(_("NOTE: ENGINE ILL ******"));
     d->m_targetState = DebuggerFinished;
     d->m_lastGoodState = d->m_state;
@@ -1203,6 +1214,10 @@ void DebuggerEngine::notifyEngineIll()
 
 void DebuggerEngine::notifyEngineSpontaneousShutdown()
 {
+#ifdef WITH_BENCHMARK
+    CALLGRIND_STOP_INSTRUMENTATION;
+    CALLGRIND_DUMP_STATS;
+#endif
     showMessage(_("NOTE: ENGINE SPONTANEOUS SHUTDOWN"));
     setState(EngineShutdownOk, true);
     if (isMasterEngine())
@@ -1211,6 +1226,10 @@ void DebuggerEngine::notifyEngineSpontaneousShutdown()
 
 void DebuggerEngine::notifyInferiorExited()
 {
+#ifdef WITH_BENCHMARK
+    CALLGRIND_STOP_INSTRUMENTATION;
+    CALLGRIND_DUMP_STATS;
+#endif
     showMessage(_("NOTE: INFERIOR EXITED"));
     d->resetLocation();
     setState(InferiorExitOk);
