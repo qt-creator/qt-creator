@@ -1234,17 +1234,6 @@ void Qt4PriFileNode::save(const QStringList &lines)
     m_project->qt4ProjectManager()->notifyChanged(m_projectFilePath);
 }
 
-/*
-  Deletes all subprojects/files/virtual folders
-  */
-void Qt4PriFileNode::clear()
-{
-    // delete files && folders && projects
-    removeFileNodes(fileNodes(), this);
-    removeProjectNodes(subProjectNodes());
-    removeFolderNodes(subFolderNodes(), this);
-}
-
 QStringList Qt4PriFileNode::varNames(ProjectExplorer::FileType type)
 {
     QStringList vars;
@@ -1520,7 +1509,7 @@ Qt4ProFileNode::Qt4ProFileNode(Qt4Project *project,
         : Qt4PriFileNode(project, this, filePath),
           m_projectType(InvalidProject),
           m_validParse(false),
-          m_parseInProgress(false),
+          m_parseInProgress(true),
           m_readerExact(0),
           m_readerCumulative(0)
 {
@@ -1629,6 +1618,25 @@ void Qt4ProFileNode::setParseInProgress(bool b)
             emit qt4Watcher->proFileUpdated(this, m_validParse, m_parseInProgress);
 }
 
+void Qt4ProFileNode::setValidParseRecursive(bool b)
+{
+    setValidParse(b);
+    foreach (ProjectNode *subNode, subProjectNodes()) {
+        if (Qt4ProFileNode *node = qobject_cast<Qt4ProFileNode *>(subNode)) {
+            node->setValidParseRecursive(b);
+        }
+    }
+}
+
+// Do note the absence of signal emission, always set validParse
+// before setParseInProgress, as that will emit the signals
+void Qt4ProFileNode::setValidParse(bool b)
+{
+    if (m_validParse == b)
+        return;
+    m_validParse = b;
+}
+
 bool Qt4ProFileNode::validParse() const
 {
     return m_validParse;
@@ -1714,11 +1722,27 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         m_project->destroyProFileReader(m_readerExact);
         m_project->destroyProFileReader(m_readerCumulative);
         m_readerExact = m_readerCumulative = 0;
+        setValidParseRecursive(false);
+        setParseInProgressRecursive(false);
+
         if (evalResult == EvalFail) {
             m_project->proFileParseError(tr("Error while parsing file %1. Giving up.").arg(m_projectFilePath));
-            invalidate();
+            if (m_projectType == InvalidProject)
+                return;
+
+            // delete files && folders && projects
+            removeFileNodes(fileNodes(), this);
+            removeProjectNodes(subProjectNodes());
+            removeFolderNodes(subFolderNodes(), this);
+
+            // change project type
+            Qt4ProjectType oldType = m_projectType;
+            m_projectType = InvalidProject;
+
+            foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
+                if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
+                    emit qt4Watcher->projectTypeChanged(this, oldType, InvalidProject);
         }
-        setParseInProgressRecursive(false);
         return;
     }
 
@@ -1729,8 +1753,19 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
                 (evalResult == EvalOk ? m_readerExact : m_readerCumulative)->templateType());
     if (projectType != m_projectType) {
         Qt4ProjectType oldType = m_projectType;
-        // probably all subfiles/projects have changed anyway ...
-        clear();
+        // probably all subfiles/projects have changed anyway
+        // delete files && folders && projects
+        foreach (ProjectNode *projectNode, subProjectNodes()) {
+            if (Qt4ProFileNode *qt4ProFileNode = qobject_cast<Qt4ProFileNode *>(projectNode)) {
+                qt4ProFileNode->setValidParseRecursive(false);
+                qt4ProFileNode->setParseInProgressRecursive(false);
+            }
+        }
+
+        removeFileNodes(fileNodes(), this);
+        removeProjectNodes(subProjectNodes());
+        removeFolderNodes(subFolderNodes(), this);
+
         bool changesHasBuildTargets = hasBuildTargets() ^ hasBuildTargets(projectType);
 
         if (changesHasBuildTargets)
@@ -1912,6 +1947,13 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
             }
         }
     } // for
+
+    foreach (ProjectNode *node, toRemove) {
+        if (Qt4ProFileNode *qt4ProFileNode = qobject_cast<Qt4ProFileNode *>(node)) {
+            qt4ProFileNode->setValidParseRecursive(false);
+            qt4ProFileNode->setParseInProgressRecursive(false);
+        }
+    }
 
     if (!toRemove.isEmpty())
         removeProjectNodes(toRemove);
@@ -2397,26 +2439,6 @@ QString Qt4ProFileNode::buildDir(Qt4BuildConfiguration *bc) const
     if (!bc)
         return QString();
     return QDir(bc->buildDirectory()).absoluteFilePath(relativeDir);
-}
-
-/*
-  Sets project type to InvalidProject & deletes all subprojects/files/virtual folders
-  */
-void Qt4ProFileNode::invalidate()
-{
-    if (m_projectType == InvalidProject)
-        return;
-
-    clear();
-
-    // change project type
-    Qt4ProjectType oldType = m_projectType;
-    m_projectType = InvalidProject;
-
-
-    foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
-        if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
-            emit qt4Watcher->projectTypeChanged(this, oldType, InvalidProject);
 }
 
 void Qt4ProFileNode::updateCodeModelSupportFromBuild(const QStringList &files)

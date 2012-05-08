@@ -167,7 +167,6 @@ public:
 
 protected:
     void setIncludedInExactParse(bool b);
-    void clear();
     static QStringList varNames(FileType type);
     static QStringList dynamicVarNames(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative);
     static QSet<Utils::FileName> filterFilesProVariables(ProjectExplorer::FileType fileType, const QSet<Utils::FileName> &files);
@@ -395,6 +394,8 @@ public:
 
     void setParseInProgress(bool b);
     void setParseInProgressRecursive(bool b);
+    void setValidParse(bool b);
+    void setValidParseRecursive(bool b);
     void emitProFileUpdatedRecursive();
 public slots:
     void asyncUpdate();
@@ -426,8 +427,6 @@ private:
     TargetInformation targetInformation(QtSupport::ProFileReader *reader) const;
     void setupInstallsList(const QtSupport::ProFileReader *reader);
     void setupProjectVersion(const QtSupport::ProFileReader *reader);
-
-    void invalidate();
 
     Qt4ProjectType m_projectType;
     Qt4VariablesHash m_varValues;
