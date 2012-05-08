@@ -748,15 +748,17 @@ void SessionManager::restoreStartupProject(const Utils::PersistentSettingsReader
 {
     const QString startupProject = reader.restoreValue(QLatin1String("StartupProject")).toString();
     if (!startupProject.isEmpty()) {
-        const QString startupProjectPath = startupProject;
         foreach (Project *pro, m_projects) {
-            if (QDir::cleanPath(pro->document()->fileName()) == startupProjectPath) {
+            if (QDir::cleanPath(pro->document()->fileName()) == startupProject) {
                 setStartupProject(pro);
                 break;
             }
         }
-        if (!m_startupProject)
-            qWarning() << "Could not find startup project" << startupProjectPath;
+    }
+    if (!m_startupProject) {
+        qWarning() << "Could not find startup project" << startupProject;
+        if (!projects().isEmpty())
+            setStartupProject(projects().first());
     }
 }
 
