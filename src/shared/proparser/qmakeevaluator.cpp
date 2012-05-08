@@ -1074,7 +1074,7 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
     QStringList feature_roots;
 
     foreach (const QString &f, m_option->getPathListEnv(QLatin1String("QMAKEFEATURES")))
-        feature_roots += resolvePath(f);
+        feature_roots += f;
 
     feature_roots += propertyValue(QLatin1String("QMAKEFEATURES"), false).split(
             m_option->dirlist_sep, QString::SkipEmptyParts);
@@ -1085,18 +1085,15 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
             feature_roots << (path + concat_it);
     }
 
-    foreach (const QString &item, m_option->getPathListEnv(QLatin1String("QMAKEPATH"))) {
-        QString citem = resolvePath(item);
+    foreach (const QString &item, m_option->getPathListEnv(QLatin1String("QMAKEPATH")))
         foreach (const QString &concat_it, concat)
-            feature_roots << (citem + mkspecs_concat + concat_it);
-    }
+            feature_roots << (item + mkspecs_concat + concat_it);
 
     if (!m_option->qmakespec.isEmpty()) {
-        QString qmakespec = resolvePath(m_option->qmakespec);
-        feature_roots << (qmakespec + features_concat);
+        feature_roots << (m_option->qmakespec + features_concat);
 
         // Also check directly under the root directory of the mkspecs collection
-        QDir specdir(qmakespec);
+        QDir specdir(m_option->qmakespec);
         while (!specdir.isRoot() && specdir.cdUp()) {
             const QString specpath = specdir.path();
             if (specpath.endsWith(mkspecs_concat)) {
