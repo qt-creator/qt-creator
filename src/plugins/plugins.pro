@@ -212,6 +212,7 @@ plugin_help.depends += plugin_coreplugin
 
 plugin_resourceeditor.subdir = resourceeditor
 plugin_resourceeditor.depends = plugin_coreplugin
+plugin_resourceeditor.depends = plugin_find
 
 plugin_regexp.subdir = regexp
 plugin_regexp.depends = plugin_coreplugin
