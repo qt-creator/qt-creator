@@ -102,7 +102,7 @@ private:
             , _objectInitializer(objectInitializer)
         {
             setDescription(QApplication::translate("QmlJSEditor::QuickFix",
-                                                   "Split initializer"));
+                                                   "Split Initializer"));
         }
 
         virtual void performChanges(QmlJSRefactoringFilePtr currentFile,
@@ -165,7 +165,7 @@ private:
             : QmlJSQuickFixOperation(interface, 0)
             , _message(message)
         {
-            setDescription(AddAnalysisMessageSuppressionComment::tr("Add a comment to suppress this message"));
+            setDescription(AddAnalysisMessageSuppressionComment::tr("Add a Comment to Suppress This Message"));
         }
 
         virtual void performChanges(QmlJSRefactoringFilePtr currentFile,

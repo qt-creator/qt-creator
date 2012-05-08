@@ -1027,7 +1027,7 @@ QList<CppQuickFixOperation::Ptr> ApplyDeclDefLinkChanges::match(const QSharedPoi
         return results;
 
     QSharedPointer<ApplyDeclDefLinkOperation> op(new ApplyDeclDefLinkOperation(interface, link));
-    op->setDescription(FunctionDeclDefLink::tr("Apply function signature changes"));
+    op->setDescription(FunctionDeclDefLink::tr("Apply Function Signature Changes"));
     results += op;
 
     return results;

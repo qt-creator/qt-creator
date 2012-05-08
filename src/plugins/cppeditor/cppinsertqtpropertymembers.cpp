@@ -142,7 +142,7 @@ InsertQtPropertyMembers::Operation::Operation(
     , m_signalName(signalName)
     , m_storageName(storageName)
 {
-    QString desc = InsertQtPropertyMembers::tr("Generate missing Q_PROPERTY members...");
+    QString desc = InsertQtPropertyMembers::tr("Generate Missing Q_PROPERTY Members...");
     setDescription(desc);
 }
 

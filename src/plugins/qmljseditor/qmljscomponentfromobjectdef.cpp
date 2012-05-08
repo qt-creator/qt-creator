@@ -75,7 +75,7 @@ public:
         }
 
         setDescription(QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
-                                                   "Move Component into separate file"));
+                                                   "Move Component into Separate File"));
     }
 
     virtual void performChanges(QmlJSRefactoringFilePtr currentFile,
