@@ -142,7 +142,7 @@ def doSimpleDebugging(currentConfigName, pressContinueCount=1, expectedBPOrder=[
 def __startDebugger__(config):
     clickButton(waitForObject(":*Qt Creator.Start Debugging_Core::Internal::FancyToolButton"))
     handleDebuggerWarnings(config)
-    hasNotTimedOut = waitFor("object.exists(':Debugger Toolbar.Continue_QToolButton')", 20000)
+    hasNotTimedOut = waitFor("object.exists(':Debugger Toolbar.Continue_QToolButton')", 60000)
     try:
         mBox = findObject(":Failed to start application_QMessageBox")
         mBoxText = mBox.text
