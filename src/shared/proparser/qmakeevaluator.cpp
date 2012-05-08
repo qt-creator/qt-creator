@@ -1108,9 +1108,6 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
     }
 
     foreach (const QString &concat_it, concat)
-        feature_roots << (propertyValue(QLatin1String("QT_INSTALL_PREFIX"), false) +
-                          mkspecs_concat + concat_it);
-    foreach (const QString &concat_it, concat)
         feature_roots << (propertyValue(QLatin1String("QT_INSTALL_DATA"), false) +
                           mkspecs_concat + concat_it);
 
