@@ -3727,15 +3727,19 @@ bool FakeVimHandler::Private::handleExBangCommand(const ExCommand &cmd) // :!
     proc.closeWriteChannel();
     proc.waitForFinished();
     QString result = QString::fromUtf8(proc.readAllStandardOutput());
-    beginEditBlock();
-    removeText(currentRange());
-    insertText(result);
-    setPosition(targetPosition);
-    endEditBlock();
-    leaveVisualMode();
-    //qDebug() << "FILTER: " << command;
-    showBlackMessage(FakeVimHandler::tr("%n lines filtered", 0,
-        text.count('\n')));
+    if (text.isEmpty()) {
+        emit q->extraInformationChanged(result);
+    } else {
+        beginEditBlock();
+        removeText(currentRange());
+        insertText(result);
+        setPosition(targetPosition);
+        endEditBlock();
+        leaveVisualMode();
+        //qDebug() << "FILTER: " << command;
+        showBlackMessage(FakeVimHandler::tr("%n lines filtered", 0,
+            text.count('\n')));
+    }
     return true;
 }
 
@@ -3866,13 +3870,14 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
     }
     if (beginLine != -1 && endLine == -1)
         endLine = beginLine;
-    const int beginPos = firstPositionInLine(beginLine);
-    const int endPos = lastPositionInLine(endLine);
     ExCommand cmd;
     cmd.setContentsFromLine(line);
-    cmd.range = Range(beginPos, endPos, RangeLineMode);
-    if (beginLine != -1)
+    if (beginLine != -1) {
+        const int beginPos = firstPositionInLine(beginLine);
+        const int endPos = lastPositionInLine(endLine);
+        cmd.range = Range(beginPos, endPos, RangeLineMode);
         cmd.count = beginLine;
+    }
     //qDebug() << "CMD: " << cmd;
 
     enterCommandMode();
