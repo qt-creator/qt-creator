@@ -157,11 +157,13 @@ Qt4BuildConfiguration *RemoteLinuxRunConfiguration::activeQt4BuildConfiguration(
 bool RemoteLinuxRunConfiguration::isEnabled() const
 {
     if (d->parseInProgress) {
-        d->disabledReason = tr("The .pro file is being parsed.");
+        d->disabledReason = tr("The .pro file '%1' is being parsed.")
+                .arg(QFileInfo(d->proFilePath).fileName());
         return false;
     }
     if (!d->validParse) {
-        d->disabledReason = tr("The .pro file could not be parsed.");
+        d->disabledReason = tr("The .pro file '%1' could not be parsed.")
+                .arg(QFileInfo(d->proFilePath).fileName());
         return false;
     }
     if (!activeQt4BuildConfiguration()) {
@@ -195,9 +197,10 @@ void RemoteLinuxRunConfiguration::proFileUpdate(Qt4ProjectManager::Qt4ProFileNod
 {
     if (d->proFilePath == pro->path()) {
         bool enabled = isEnabled();
+        QString reason = disabledReason();
         d->validParse = success;
         d->parseInProgress = parseInProgress;
-        if (enabled != isEnabled())
+        if (enabled != isEnabled() || reason != disabledReason())
             updateEnabledState();
         if (!parseInProgress)
             emit targetInformationChanged();

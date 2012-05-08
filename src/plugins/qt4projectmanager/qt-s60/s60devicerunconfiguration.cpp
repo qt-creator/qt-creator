@@ -113,9 +113,10 @@ void S60DeviceRunConfiguration::proFileUpdate(Qt4ProjectManager::Qt4ProFileNode 
     if (m_proFilePath != pro->path())
         return;
     bool enabled = isEnabled();
+    QString reason = disabledReason();
     m_validParse = success;
     m_parseInProgress = parseInProgress;
-    if (enabled != isEnabled())
+    if (enabled != isEnabled() || reason != disabledReason())
         emit enabledChanged();
     if (!parseInProgress)
         emit targetInformationChanged();
@@ -138,9 +139,11 @@ bool S60DeviceRunConfiguration::isEnabled() const
 QString S60DeviceRunConfiguration::disabledReason() const
 {
     if (m_parseInProgress)
-        return tr("The .pro file is currently being parsed.");
+        return tr("The .pro file '%1' is currently being parsed.")
+                .arg(QFileInfo(m_proFilePath).fileName());
     if (!m_validParse)
-        return tr("The .pro file could not be parsed.");
+        return tr("The .pro file '%1' could not be parsed.")
+                .arg(QFileInfo(m_proFilePath).fileName());
     return QString();
 }
 
