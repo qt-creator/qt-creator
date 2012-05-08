@@ -218,9 +218,10 @@ QString DeviceManager::settingsFilePath()
     return QFileInfo(pm->settings()->fileName()).absolutePath() + QLatin1String("/devices.xml");
 }
 
-void DeviceManager::addDevice(const IDevice::Ptr &device)
+void DeviceManager::addDevice(const IDevice::Ptr &_device)
 {
-    QTC_ASSERT(this != instance() || (device->isAutoDetected()), return);
+    const IDevice::Ptr device = _device->clone();
+    QTC_ASSERT(this != instance() || device->isAutoDetected(), return);
 
     QString name = device->displayName();
     const int pos = indexForId(device->id());
