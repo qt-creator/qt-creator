@@ -102,7 +102,7 @@ void QtOutputFormatter::appendMessage(const QString &txt, Utils::OutputFormat fo
     cursor.movePosition(QTextCursor::End);
     cursor.beginEditBlock();
 
-    QString deferedText;
+    QString deferredText;
 
     int start = 0;
     int pos = txt.indexOf(QLatin1Char('\n'));
@@ -115,13 +115,13 @@ void QtOutputFormatter::appendMessage(const QString &txt, Utils::OutputFormat fo
             LinkResult lr = matchLine(line);
             if (!lr.href.isEmpty()) {
                 // Found something && line continuation
-                cursor.insertText(deferedText, charFormat(format));
-                deferedText.clear();
+                cursor.insertText(deferredText, charFormat(format));
+                deferredText.clear();
                 clearLastLine();
                 appendLine(cursor, lr, line, format);
             } else {
                 // Found nothing, just emit the new part
-                deferedText += newPart;
+                deferredText += newPart;
             }
             // Handled line continuation
             m_lastLine.clear();
@@ -129,11 +129,11 @@ void QtOutputFormatter::appendMessage(const QString &txt, Utils::OutputFormat fo
             const QString line = txt.mid(start, pos - start + 1);
             LinkResult lr = matchLine(line);
             if (!lr.href.isEmpty()) {
-                cursor.insertText(deferedText, charFormat(format));
-                deferedText.clear();
+                cursor.insertText(deferredText, charFormat(format));
+                deferredText.clear();
                 appendLine(cursor, lr, line, format);
             } else {
-                deferedText += line;
+                deferredText += line;
             }
         }
         start = pos + 1;
@@ -149,29 +149,28 @@ void QtOutputFormatter::appendMessage(const QString &txt, Utils::OutputFormat fo
             LinkResult lr = matchLine(line);
             if (!lr.href.isEmpty()) {
                 // Found something && line continuation
-                cursor.insertText(deferedText, charFormat(format));
-                deferedText.clear();
+                cursor.insertText(deferredText, charFormat(format));
+                deferredText.clear();
                 clearLastLine();
                 appendLine(cursor, lr, line, format);
             } else {
                 // Found nothing, just emit the new part
-                deferedText += newPart;
+                deferredText += newPart;
             }
             m_lastLine = line;
         } else {
             m_lastLine = txt.mid(start);
             LinkResult lr = matchLine(m_lastLine);
             if (!lr.href.isEmpty()) {
-                cursor.insertText(deferedText, charFormat(format));
-                deferedText.clear();
+                cursor.insertText(deferredText, charFormat(format));
+                deferredText.clear();
                 appendLine(cursor, lr, m_lastLine, format);
             } else {
-                deferedText += m_lastLine;
+                deferredText += m_lastLine;
             }
         }
     }
-    cursor.insertText(deferedText, charFormat(format));
-    // deferedText.clear();
+    cursor.insertText(deferredText, charFormat(format));
     cursor.endEditBlock();
 }
 

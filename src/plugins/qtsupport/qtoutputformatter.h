@@ -61,11 +61,11 @@ class QTSUPPORT_EXPORT QtOutputFormatter
 {
     Q_OBJECT
 public:
-    QtOutputFormatter(ProjectExplorer::Project *project);
+    explicit QtOutputFormatter(ProjectExplorer::Project *project);
 
-    virtual void appendMessage(const QString &text,
+    void appendMessage(const QString &text,
         Utils::OutputFormat format);
-    virtual void handleLink(const QString &href);
+    void handleLink(const QString &href);
 
 protected:
     void clearLastLine();
@@ -75,8 +75,8 @@ private slots:
 
 private:
     LinkResult matchLine(const QString &line) const;
-    void appendLine(QTextCursor & cursor, LinkResult lr,
-        const QString &line, Utils::OutputFormat);
+    void appendLine(QTextCursor &cursor, LinkResult lr, const QString &line,
+                    Utils::OutputFormat);
 
     mutable QRegExp m_qmlError;
     mutable QRegExp m_qtError;
