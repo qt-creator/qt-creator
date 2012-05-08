@@ -148,6 +148,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
 
     d->m_profilerConnections = new QmlProfilerClientManager(this);
     d->m_profilerConnections->registerProfilerStateManager(d->m_profilerState);
+    connect(d->m_profilerConnections, SIGNAL(connectionClosed()), this, SLOT(clientsDisconnected()));
 
     d->m_profilerDataModel = new QmlProfilerDataModel(this);
     connect(d->m_profilerDataModel, SIGNAL(stateChanged()), this, SLOT(profilerDataModelStateChanged()));
@@ -302,7 +303,6 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     d->m_projectFinder.setSysroot(sp.sysroot);
 
     connect(engine, SIGNAL(processRunning(quint16)), d->m_profilerConnections, SLOT(connectClient(quint16)));
-    connect(engine, SIGNAL(finished()), d->m_profilerConnections, SLOT(disconnectClient()));
     connect(d->m_profilerConnections, SIGNAL(connectionFailed()), engine, SLOT(cancelProcess()));
 
     return engine;
@@ -612,6 +612,22 @@ void QmlProfilerTool::showLoadDialog()
     }
 }
 
+void QmlProfilerTool::clientsDisconnected()
+{
+    // If the application stopped by itself, check if we have all the data
+    if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppDying) {
+        if (d->m_profilerDataModel->currentState() == QmlProfilerDataModel::AcquiringData)
+            d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppKilled);
+        else
+            d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStopped);
+
+        // ... and return to the "base" state
+        d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
+    }
+
+    // If the connection is closed while the app is still running, no special action is needed
+}
+
 void QmlProfilerTool::profilerDataModelStateChanged()
 {
     switch (d->m_profilerDataModel->currentState()) {
@@ -667,9 +683,7 @@ void QmlProfilerTool::profilerStateChanged()
 {
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppKilled : {
-        if (d->m_profilerDataModel->currentState() == QmlProfilerDataModel::AcquiringData) {
-            showNonmodalWarning(tr("Application finished before loading profiled data.\n Please use the stop button instead."));
-        }
+        showNonmodalWarning(tr("Application finished before loading profiled data.\n Please use the stop button instead."));
         break;
     }
     case QmlProfilerStateManager::Idle :

@@ -59,6 +59,7 @@ public:
 
 signals:
     void connectionFailed();
+    void connectionClosed();
 
     // data
     void addRangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation);

@@ -49,6 +49,7 @@ inline QString stringForState(int state) {
     case QmlProfilerStateManager::AppStopRequested: return QString("AppStopRequested");
     case QmlProfilerStateManager::AppReadyToStop: return QString("AppReadyToStop");
     case QmlProfilerStateManager::AppStopped: return QString("AppStopped");
+    case QmlProfilerStateManager::AppDying: return QString("AppDying");
     case QmlProfilerStateManager::AppKilled: return QString("AppKilled");
     default: break;
     }
@@ -108,7 +109,9 @@ void QmlProfilerStateManager::setCurrentState(QmlProfilerState newState)
     QTC_ASSERT(d->m_currentState != newState, /**/);
     switch (newState) {
     case Idle:
-        QTC_ASSERT(d->m_currentState == AppStarting || d->m_currentState == AppStopped || d->m_currentState == AppKilled, /**/);
+        QTC_ASSERT(d->m_currentState == AppStarting ||
+                   d->m_currentState == AppStopped ||
+                   d->m_currentState == AppKilled, /**/);
         break;
     case AppStarting:
         QTC_ASSERT(d->m_currentState == Idle, /**/);
@@ -123,11 +126,14 @@ void QmlProfilerStateManager::setCurrentState(QmlProfilerState newState)
         QTC_ASSERT(d->m_currentState == AppStopRequested, /**/);
         break;
     case AppStopped:
-        QTC_ASSERT(d->m_currentState == AppReadyToStop, /**/);
+        QTC_ASSERT(d->m_currentState == AppReadyToStop ||
+                   d->m_currentState == AppDying, /**/);
         break;
-    case AppKilled:
+    case AppDying:
         QTC_ASSERT(d->m_currentState == AppRunning, /**/);
         break;
+    case AppKilled:
+        QTC_ASSERT(d->m_currentState == AppDying, /**/);
     default:
         qDebug() << tr("Switching to unknown state in %1:%2").arg(QString(__FILE__), QString::number(__LINE__));
         break;

@@ -216,10 +216,9 @@ void QmlProfilerEngine::stop()
         cancelProcess();
         break;
     }
-    case QmlProfilerStateManager::AppKilled : {
-        d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
+    case QmlProfilerStateManager::AppDying :
+        // valid, but no further action is needed
         break;
-    }
     default:
         qDebug() << tr("Unexpected engine stop from state %1 in %2:%3").arg(d->m_profilerState->currentStateAsString(), QString(__FILE__), QString::number(__LINE__));
         break;
@@ -232,18 +231,16 @@ void QmlProfilerEngine::processEnded()
 
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppRunning : {
-        d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppKilled);
+        d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
         AnalyzerManager::stopTool();
 
         emit finished();
         break;
     }
     case QmlProfilerStateManager::AppStopped :
-        // fallthrough
-    case QmlProfilerStateManager::AppKilled : {
+    case QmlProfilerStateManager::AppKilled :
         d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
         break;
-    }
     default:
         qDebug() << tr("Process died unexpectedly from state %1 in %2:%3").arg(d->m_profilerState->currentStateAsString(), QString(__FILE__), QString::number(__LINE__));
         break;
@@ -260,7 +257,7 @@ void QmlProfilerEngine::cancelProcess()
         break;
     }
     case QmlProfilerStateManager::AppRunning : {
-        d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppKilled);
+        d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
         break;
     }
     default: {
@@ -298,7 +295,7 @@ void QmlProfilerEngine::wrongSetupMessageBox(const QString &errorMessage)
     infoBox->show();
 
     // KILL
-    d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppKilled);
+    d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
     AnalyzerManager::stopTool();
     emit finished();
 }

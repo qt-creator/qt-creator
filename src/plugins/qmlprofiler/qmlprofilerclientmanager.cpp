@@ -286,6 +286,8 @@ void QmlProfilerClientManager::connectionStateChanged()
     {
         if (QmlProfilerPlugin::debugOutput)
             qWarning("QML Profiler: disconnected");
+        disconnectClient();
+        emit connectionClosed();
         break;
     }
     case QAbstractSocket::HostLookupState:

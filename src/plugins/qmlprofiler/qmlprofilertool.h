@@ -85,6 +85,7 @@ public slots:
     void profilerStateChanged();
     void clientRecordingChanged();
     void serverRecordingChanged();
+    void clientsDisconnected();
 
     void recordingButtonChanged(bool recording);
     void setRecording(bool recording);

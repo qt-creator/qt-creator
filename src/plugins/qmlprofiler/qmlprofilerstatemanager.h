@@ -49,6 +49,7 @@ public:
         AppStopRequested,
         AppReadyToStop,
         AppStopped,
+        AppDying,
         AppKilled
     };
 
