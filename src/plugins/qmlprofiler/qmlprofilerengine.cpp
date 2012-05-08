@@ -360,17 +360,17 @@ void QmlProfilerEngine::profilerStateChanged()
 {
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppReadyToStop : {
-        cancelProcess();
+        if (d->m_runner)
+            cancelProcess();
         break;
     }
     case QmlProfilerStateManager::Idle : {
-        // for some reason the engine is not deleted when it goes to idle
-        // a new one will be created on the next run, and this one will
-        // be only deleted if the new one is running the same app
-
-        // we need to explictly disconnect it here without expecting a deletion
-        // as it will not be run any more, otherwise we will get funny side effects
-        registerProfilerStateManager(0);
+        // When all the profiling is done, delete the profiler runner
+        // (a new one will be created at start)
+        if (d->m_runner) {
+            delete d->m_runner;
+            d->m_runner = 0;
+        }
         break;
     }
     default:
