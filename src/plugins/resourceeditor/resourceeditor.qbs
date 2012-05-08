@@ -6,6 +6,7 @@ QtcPlugin {
     name: "ResourceEditor"
 
     Depends { name: "Core" }
+    Depends { name: "Find" }
     Depends { name: "cpp" }
     Depends { name: "qt"; submodules: ['widgets', 'xml'] }
 
