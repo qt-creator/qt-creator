@@ -39,7 +39,7 @@
 #if QT_VERSION >= 0x050000
 #    include <QGuiApplication>
 #    include <QWindow>
-#    include <QPlatformNativeInterface>
+#    include <qpa/qplatformnativeinterface.h>
 #endif
 #include <QLabel>
 
@@ -61,6 +61,8 @@ namespace {
 }
 
 #if QT_VERSION >= 0x050000
+
+Q_GUI_EXPORT HICON qt_pixmapToWinHICON(const QPixmap &p);
 
 static inline QWindow *windowOfWidget(const QWidget *widget)
 {
@@ -121,7 +123,7 @@ void Core::Internal::ProgressManagerPrivate::setApplicationLabel(const QString &
     if (text.isEmpty()) {
         pITask->SetOverlayIcon(winId, NULL, NULL);
     } else {
-        QPixmap pix = QPixmap(":/projectexplorer/images/compile_error.png");
+        QPixmap pix = QPixmap(QLatin1String(":/projectexplorer/images/compile_error.png"));
         QPainter p(&pix);
         p.setPen(Qt::white);
         QFont font = p.font();
@@ -129,11 +131,11 @@ void Core::Internal::ProgressManagerPrivate::setApplicationLabel(const QString &
         p.setFont(font);
         p.drawText(QRect(QPoint(0,0), pix.size()), Qt::AlignHCenter|Qt::AlignCenter, text);
 #if QT_VERSION >= 0x050000
-        // See pixmaputils.cpp in the Windows plugin.
-        Q_UNIMPLEMENTED();
+        const HICON icon = qt_pixmapToWinHICON(pix);
 #else
-        pITask->SetOverlayIcon(winId, pix.toWinHICON(), (wchar_t*)text.utf16());
+        const HICON icon = pix.toWinHICON();
 #endif
+        pITask->SetOverlayIcon(winId, icon, (wchar_t*)text.utf16());
     }
 }
 
