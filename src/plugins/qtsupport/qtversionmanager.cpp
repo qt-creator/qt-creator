@@ -244,6 +244,10 @@ void QtVersionManager::updateFromInstaller()
         m_configFileWatcher->addFile(path, Utils::FileSystemWatcher::WatchModifiedDate);
     }
 
+    QList<int> added;
+    QList<int> removed;
+    QList<int> changed;
+
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     QList<QtVersionFactory *> factories = pm->getObjects<QtVersionFactory>();
     Utils::PersistentSettingsReader reader;
@@ -326,14 +330,18 @@ void QtVersionManager::updateFromInstaller()
                 id = v->uniqueId();
                 if (debug)
                     qDebug() << " Qt version found with same autodetection source" << autoDetectionSource << " => Migrating id:" << id;
-                removeVersion(v);
+                m_versions.remove(id);
                 qtversionMap[QLatin1String("Id")] = id;
 
                 if (BaseQtVersion *qtv = factory->restore(type, qtversionMap)) {
                     Q_ASSERT(qtv->isAutodetected());
-                    addVersion(qtv);
+                    m_versions.insert(id, qtv);
                     restored = true;
                 }
+                if (restored)
+                    changed << id;
+                else
+                    removed << id;
             }
         }
         // Create a new qtversion
@@ -342,7 +350,8 @@ void QtVersionManager::updateFromInstaller()
                 qDebug() << " No Qt version found matching" << autoDetectionSource << " => Creating new version";
             if (BaseQtVersion *qtv = factory->restore(type, qtversionMap)) {
                 Q_ASSERT(qtv->isAutodetected());
-                addVersion(qtv);
+                m_versions.insert(qtv->uniqueId(), qtv);
+                added << qtv->uniqueId();
                 restored = true;
             }
         }
@@ -365,7 +374,8 @@ void QtVersionManager::updateFromInstaller()
             if (!sdkVersions.contains(qtVersion->autodetectionSource())) {
                 if (debug)
                     qDebug() << "  removing version"<<qtVersion->autodetectionSource();
-                removeVersion(qtVersion);
+                m_versions.remove(qtVersion->uniqueId());
+                removed << qtVersion->uniqueId();
             }
         }
     }
@@ -378,6 +388,8 @@ void QtVersionManager::updateFromInstaller()
             qDebug() << "";
         }
     }
+    emit qtVersionsChanged(added, removed, changed);
+    saveQtVersions();
 }
 
 void QtVersionManager::saveQtVersions()
