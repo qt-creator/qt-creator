@@ -229,6 +229,7 @@ Q_DECLARE_METATYPE(QmlDebug::QmlDebugEngineReference)
 Q_DECLARE_METATYPE(QmlDebug::QmlDebugEngineReferenceList)
 Q_DECLARE_METATYPE(QmlDebug::QmlDebugContextReference)
 
+QT_BEGIN_NAMESPACE
 inline QDebug operator<<(QDebug dbg, const QmlDebug::QmlDebugEngineReference &ref) {
     dbg.nospace() << "(Engine " << ref.debugId() << "/" << ref.name() <<  ")";
     return dbg.space();
@@ -244,5 +245,6 @@ inline QDebug operator<<(QDebug dbg, const QmlDebug::QmlDebugObjectReference &re
                   << (ref.idString().isEmpty() ? ref.idString() : ref.className()) <<  ")";
     return dbg.space();
 }
+QT_END_NAMESPACE
 
 #endif // BASEENGINEDEBUGCLIENT_H
