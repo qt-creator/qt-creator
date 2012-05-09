@@ -1362,6 +1362,23 @@ void Qt4Project::configureAsExampleProject(const QStringList &platforms)
     ProjectExplorer::ProjectExplorerPlugin::instance()->requestProjectModeUpdate(this);
 }
 
+// All the Qt4 run configurations should share code.
+// This is a rather suboptimal way to do that for disabledReason()
+// but more pratical then duplicated the code everywhere
+QString Qt4Project::disabledReasonForRunConfiguration(const QString &proFilePath)
+{
+    if (!QFileInfo(proFilePath).exists())
+        return tr("The .pro file '%1' does not exist.")
+                .arg(QFileInfo(proFilePath).fileName());
+
+    if (!m_rootProjectNode->findProFileFor(proFilePath))
+        return tr("The .pro file '%1' is not part of the project.")
+                .arg(QFileInfo(proFilePath).fileName());
+
+    return tr("The .pro file '%1' could not be parsed.")
+            .arg(QFileInfo(proFilePath).fileName());
+}
+
 } // namespace Qt4ProjectManager
 
 #include "qt4project.moc"

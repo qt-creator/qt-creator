@@ -142,8 +142,7 @@ QString S60DeviceRunConfiguration::disabledReason() const
         return tr("The .pro file '%1' is currently being parsed.")
                 .arg(QFileInfo(m_proFilePath).fileName());
     if (!m_validParse)
-        return tr("The .pro file '%1' could not be parsed.")
-                .arg(QFileInfo(m_proFilePath).fileName());
+        return qt4Target()->qt4Project()->disabledReasonForRunConfiguration(m_proFilePath);
     return QString();
 }
 

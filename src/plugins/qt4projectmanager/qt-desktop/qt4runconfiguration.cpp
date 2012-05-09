@@ -146,9 +146,11 @@ bool Qt4RunConfiguration::isEnabled() const
 QString Qt4RunConfiguration::disabledReason() const
 {
     if (m_parseInProgress)
-        return tr("The .pro file '%1' is currently being parsed.").arg(QFileInfo(m_proFilePath).fileName());
+        return tr("The .pro file '%1' is currently being parsed.")
+                .arg(QFileInfo(m_proFilePath).fileName());
+
     if (!m_parseSuccess)
-        return tr("The .pro file '%1' could not be parsed.").arg(QFileInfo(m_proFilePath).fileName());
+        return qt4Target()->qt4Project()->disabledReasonForRunConfiguration(m_proFilePath);
     return QString();
 }
 

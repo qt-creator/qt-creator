@@ -139,6 +139,9 @@ public:
 
     void configureAsExampleProject(const QStringList &platforms);
 
+    /// \internal
+    QString disabledReasonForRunConfiguration(const QString &proFilePath);
+
 signals:
     void proParsingDone();
     void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool, bool);

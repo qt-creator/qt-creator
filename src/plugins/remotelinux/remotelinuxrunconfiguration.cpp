@@ -162,8 +162,8 @@ bool RemoteLinuxRunConfiguration::isEnabled() const
         return false;
     }
     if (!d->validParse) {
-        d->disabledReason = tr("The .pro file '%1' could not be parsed.")
-                .arg(QFileInfo(d->proFilePath).fileName());
+        Qt4Project *project = qt4Target()->qt4Project();
+        d->disabledReason = project->disabledReasonForRunConfiguration(d->proFilePath);
         return false;
     }
     if (!activeQt4BuildConfiguration()) {
