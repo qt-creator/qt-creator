@@ -104,6 +104,7 @@ QtcLibrary {
 
     ProductModule {
         Depends { name: "cpp" }
+        Depends { name: "LanguageUtils" }
         cpp.includePaths: [
             ".",
             "parser"

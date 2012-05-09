@@ -43,6 +43,8 @@ QtcLibrary {
         "qmlenginedebugclient.h",
         "qv8profilerclient.cpp",
         "qv8profilerclient.h",
+        "qmltoolsclient.cpp",
+        "qmltoolsclient.h"
     ]
 
     ProductModule {
