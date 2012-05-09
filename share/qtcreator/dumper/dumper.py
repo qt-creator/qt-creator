@@ -306,18 +306,14 @@ def showException(msg, exType, exValue, exTraceback):
 
 
 class OutputSafer:
-    def __init__(self, d, pre = "", post = ""):
+    def __init__(self, d):
         self.d = d
-        self.pre = pre
-        self.post = post
 
     def __enter__(self):
-        self.d.put(self.pre)
         self.savedOutput = self.d.output
         self.d.output = []
 
     def __exit__(self, exType, exValue, exTraceBack):
-        self.d.put(self.post)
         if self.d.passExceptions and not exType is None:
             showException("OUTPUTSAFER", exType, exValue, exTraceBack)
             self.d.output = self.savedOutput
@@ -1107,7 +1103,7 @@ class Dumper:
 
         for item in locals:
             value = upcast(item.value)
-            with OutputSafer(self, "", ""):
+            with OutputSafer(self):
                 self.anonNumber = -1
 
                 type = value.type.unqualified()
@@ -1151,8 +1147,9 @@ class Dumper:
         #
         # Watchers
         #
-        with OutputSafer(self, ",", ""):
+        with OutputSafer(self):
             if len(watchers) > 0:
+                self.put(",")
                 for watcher in watchers.split("##"):
                     (exp, iname) = watcher.split("#")
                     self.handleWatch(exp, iname)
