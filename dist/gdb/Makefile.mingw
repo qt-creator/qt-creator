@@ -6,7 +6,7 @@ pyversion=2.7
 pydir=${broot}/python
 expatversion=2.0.1
 iconvversion=1.14
-version=7.4
+version=7.4.1
 targetdir=${broot}/qtcreator-gdb-${version}
 gdbtargets=$(addprefix ${targetdir}/gdb-, ${targets})
 packageparts=${targetdir}/lib ${targetdir}/lib ${targetdir}/libiconv-2.dll ${targetdir}/python27.dll ${targetdir}/libexpat-1.dll
@@ -78,8 +78,7 @@ ${staging}/gdb-${version}/configure: ${source}/gdb-${version}.tar.bz2 | makestag
 	tar xf ${source}/gdb-${version}.tar.bz2 && \
 	cd gdb-${version} && \
 	touch configure && \
-	patch -p1 < ${broot}/patches/gdb-ipv6.patch && \
-	patch -p1 < ${broot}/patches/gdb-target-debugging.patch
+	patch -p1 < ${broot}/patches/gdb-ipv6.patch
 
 ${staging}/lib/libiconv.a: ${source}/libiconv-${iconvversion}.tar.gz | makestagingdir
 	cd ${staging} && \

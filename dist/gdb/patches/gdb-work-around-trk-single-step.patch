@@ -9,7 +9,7 @@ this problem.
 
 --- a/gdb/infrun.c
 +++ b/gdb/infrun.c
-@@ -5061,9 +5061,9 @@ process_event_stop_test:
+@@ -5186,9 +5186,9 @@
        return;
      }
 

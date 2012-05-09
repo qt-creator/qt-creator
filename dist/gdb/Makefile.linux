@@ -5,7 +5,7 @@ staging=${broot}/staging
 pyversion=2.7
 expatversion=2.0.1
 arch=`uname -sm | sed 's/ /-/g' | tr A-Z a-z`
-version=7.4
+version=7.4.1
 targetdir=${broot}/qtcreator-gdb-${version}
 gdbtargets=$(addprefix ${targetdir}/gdb-, ${targets})
 packagename=qtcreator-gdb-${version}-${arch}.tar.gz
@@ -75,7 +75,7 @@ ${staging}/gdb-${version}/configure: ${source}/gdb-${version}.tar.bz2 | makestag
         patch -p2 < ${broot}/patches/pythonhome-7.4.patch && \
         patch -p1 < ${broot}/patches/gdb-buildid-locate.patch && \
         patch -p1 < ${broot}/patches/gdb-ipv6.patch && \
-	patch -p1 < ${broot}/patches/gdb-work-around-trk-single-step.patch
+        patch -p1 < ${broot}/patches/gdb-work-around-trk-single-step.patch
 
 ${gdbtargets}: ${targetdir}/gdb-%: ${staging}/gdb-${version}/configure ${staging}/lib/libpython${pyversion}.a ${staging}/lib/libexpat.a | maketargetdir
 	test -e ${staging}/gdb-${version}-$* || mkdir ${staging}/gdb-${version}-$*

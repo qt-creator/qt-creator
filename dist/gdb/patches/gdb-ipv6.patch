@@ -188,7 +188,7 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
  
    port_str = strchr (name, ':');
    if (port_str == NULL)
-@@ -227,7 +265,23 @@ remote_prepare (char *name)
+@@ -227,8 +265,24 @@ remote_prepare (char *name)
        return;
      }
  
@@ -214,6 +214,7 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
 +  if (port_str[1] == '\0')
      fatal ("Bad port argument: %s", name);
  
+ #ifdef USE_WIN32API
 @@ -241,24 +295,181 @@ remote_prepare (char *name)
      }
  #endif
