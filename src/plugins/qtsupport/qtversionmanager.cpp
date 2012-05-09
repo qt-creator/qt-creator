@@ -127,12 +127,17 @@ bool qtVersionNumberCompare(BaseQtVersion *a, BaseQtVersion *b)
 QtVersionManager *QtVersionManager::m_self = 0;
 
 QtVersionManager::QtVersionManager() :
-    m_configFileWatcher(0)
+    m_configFileWatcher(0),
+    m_fileWatcherTimer(new QTimer)
 {
     m_self = this;
     m_idcount = 1;
 
     qRegisterMetaType<Utils::FileName>();
+
+    // Give the file a bit of time to settle before reading it...
+    m_fileWatcherTimer->setInterval(2000);
+    connect(m_fileWatcherTimer, SIGNAL(timeout()), SLOT(updateFromInstaller()));
 }
 
 void QtVersionManager::extensionsInitialized()
@@ -154,7 +159,7 @@ void QtVersionManager::extensionsInitialized()
     if (QFileInfo(configFileName).exists()) {
         m_configFileWatcher = new Utils::FileSystemWatcher(this);
         connect(m_configFileWatcher, SIGNAL(fileChanged(QString)),
-                this, SLOT(updateFromInstaller()));
+                m_fileWatcherTimer, SLOT(start()));
         m_configFileWatcher->addFile(configFileName,
                                      Utils::FileSystemWatcher::WatchModifiedDate);
     } // exists
@@ -230,6 +235,8 @@ bool QtVersionManager::restoreQtVersions()
 
 void QtVersionManager::updateFromInstaller()
 {
+    m_fileWatcherTimer->stop();
+
     // Handle overwritting of data:
     if (m_configFileWatcher) {
         const QString path = globalSettingsFileName();

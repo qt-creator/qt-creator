@@ -153,6 +153,7 @@ private:
     QStringList m_pendingGcceUpdates;
 
     Utils::FileSystemWatcher *m_configFileWatcher;
+    QTimer *m_fileWatcherTimer;
 };
 
 namespace Internal {
