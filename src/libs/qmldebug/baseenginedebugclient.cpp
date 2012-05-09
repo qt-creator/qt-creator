@@ -231,7 +231,7 @@ BaseEngineDebugClient::BaseEngineDebugClient(const QString &clientName,
 
 quint32 BaseEngineDebugClient::addWatch(const QmlDebugPropertyReference &property)
 {
-    quint32 id;
+    quint32 id = 0;
     if (status() == QmlDebugClient::Enabled) {
         id = getId();
         QByteArray message;
