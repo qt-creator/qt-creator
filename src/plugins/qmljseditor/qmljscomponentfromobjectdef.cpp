@@ -47,6 +47,8 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
+#include <QMainWindow>
+#include <QMessageBox>
 
 using namespace QmlJS::AST;
 using namespace QmlJSEditor;
@@ -109,9 +111,25 @@ public:
             return;
 
         Core::IVersionControl *versionControl = Core::ICore::vcsManager()->findVersionControlForDirectory(path);
-        if (versionControl)
-            versionControl->vcsAdd(newFileName);
+        if (versionControl
+                && versionControl->supportsOperation(Core::IVersionControl::AddOperation)) {
+            QString title = QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
+                                                        "Add to Version Control");
+            QString question = QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
+                                                           "Add file\n%1\nto version control (%2)?")
+                    .arg(newFileName, versionControl->displayName());
+            QString error = QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
+                                                        "Could not add file\n%1\nto version control (%2).")
+                    .arg(newFileName, versionControl->displayName());
 
+            QMessageBox::StandardButton button =
+                    QMessageBox::question(Core::ICore::mainWindow(), title,
+                                           question, QMessageBox::Yes | QMessageBox::No);
+            if (button == QMessageBox::Yes) {
+                if (!versionControl->vcsAdd(newFileName))
+                    QMessageBox::warning(Core::ICore::mainWindow(), title, error);
+            }
+        }
         QString replacement = componentName + QLatin1String(" {\n");
         if (!m_idName.isEmpty())
                 replacement += QLatin1String("id: ") + m_idName
