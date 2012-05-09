@@ -1017,7 +1017,7 @@ QAbstractItemModel *DebuggerToolTipWidget::swapModel(QAbstractItemModel *newMode
     QAbstractItemModel *oldModel = m_treeView->swapModel(newModel);
     // When looking at some 'this.m_foo.x', expand all items
     if (newModel) {
-        if (const int level = m_expression.count(QLatin1Char('.'))) {
+        if (const int level = m_expression.count(QLatin1Char('.')) + 1) {
             QModelIndex index = newModel->index(0, 0);
             for (int i = 0; i < level && index.isValid(); i++, index = index.child(0, 0))
                 m_treeView->setExpanded(index, true);
