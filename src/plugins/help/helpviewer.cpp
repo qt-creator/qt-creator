@@ -145,6 +145,10 @@ bool HelpViewer::launchWithExternalApp(const QUrl &url)
                 return QDesktopServices::openUrl(QUrl(saver.fileName()));
         }
     }
+
+    if (url.scheme() == QLatin1String("mailto"))
+        return QDesktopServices::openUrl(url);
+
     return false;
 }
 
