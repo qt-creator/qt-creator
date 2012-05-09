@@ -77,8 +77,8 @@ public:
 
     bool disableJsDebugging(bool block);
 
-    Internal::BaseQmlDebuggerClient *activeDebuggerClient();
-    QHash<QString, Internal::BaseQmlDebuggerClient*> debuggerClients();
+    BaseQmlDebuggerClient *activeDebuggerClient() const;
+    QHash<QString, BaseQmlDebuggerClient*> debuggerClients() const;
 
     BaseEngineDebugClient *engineDebugClient() const;
     QDebugMessageClient *messageClient() const;

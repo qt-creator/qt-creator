@@ -31,9 +31,6 @@
 **************************************************************************/
 
 #include "qmlengine.h"
-#include "qmladapter.h"
-#include "qmlinspectoradapter.h"
-#include "interactiveinterpreter.h"
 #include "baseqmldebuggerclient.h"
 #include "qmlinspectoragent.h"
 
@@ -58,8 +55,6 @@
 #include "qtmessageloghandler.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/applicationlauncher.h>
-#include <qmldebug/qmloutputparser.h>
 #include <qmldebug/baseenginedebugclient.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljs/parser/qmljsast_p.h>
@@ -87,7 +82,6 @@
 #include <QMessageBox>
 #include <QPlainTextEdit>
 #include <QToolTip>
-#include <QTextDocument>
 
 #include <QTcpSocket>
 #include <QHostAddress>
@@ -100,43 +94,13 @@
 #endif
 # define XSDEBUG(s) qDebug() << s
 
-using namespace ProjectExplorer;
 using namespace QmlJS;
 using namespace AST;
 
 namespace Debugger {
 namespace Internal {
 
-class QmlEnginePrivate
-{
-public:
-    explicit QmlEnginePrivate(QmlEngine *q);
-
-private:
-    friend class QmlEngine;
-    QmlAdapter m_adapter;
-    QmlInspectorAdapter m_inspectorAdapter;
-    ApplicationLauncher m_applicationLauncher;
-    QTimer m_noDebugOutputTimer;
-    QmlOutputParser m_outputParser;
-    QHash<QString, QTextDocument*> m_sourceDocuments;
-    QHash<QString, QWeakPointer<TextEditor::ITextEditor> > m_sourceEditors;
-    InteractiveInterpreter m_interpreter;
-    QHash<QString,BreakpointModelId> pendingBreakpoints;
-    QList<quint32> queryIds;
-    bool m_retryOnConnectFail;
-    bool m_automaticConnect;
-};
-
-QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q)
-    : m_adapter(q),
-      m_inspectorAdapter(&m_adapter, q),
-      m_retryOnConnectFail(false),
-      m_automaticConnect(false)
-{
-}
-
-class ASTWalker: public Visitor
+class ASTWalker : public Visitor
 {
 public:
     void operator()(Node *ast, quint32 *l, quint32 *c)
@@ -307,8 +271,11 @@ public:
 
 QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
         DebuggerEngine *masterEngine)
-  : DebuggerEngine(startParameters, QmlLanguage, masterEngine),
-    d(new QmlEnginePrivate(this))
+  : DebuggerEngine(startParameters, QmlLanguage, masterEngine)
+  , m_adapter(this)
+  , m_inspectorAdapter(&m_adapter, this)
+  , m_retryOnConnectFail(false)
+  , m_automaticConnect(false)
 {
     setObjectName(QLatin1String("QmlEngine"));
 
@@ -316,57 +283,58 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
         ExtensionSystem::PluginManager::instance();
     pluginManager->addObject(this);
 
-    connect(&d->m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),
+    connect(&m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),
         SLOT(connectionError(QAbstractSocket::SocketError)));
-    connect(&d->m_adapter, SIGNAL(serviceConnectionError(QString)),
+    connect(&m_adapter, SIGNAL(serviceConnectionError(QString)),
         SLOT(serviceConnectionError(QString)));
-    connect(&d->m_adapter, SIGNAL(connected()),
+    connect(&m_adapter, SIGNAL(connected()),
         SLOT(connectionEstablished()));
-    connect(&d->m_adapter, SIGNAL(connectionStartupFailed()),
+    connect(&m_adapter, SIGNAL(connectionStartupFailed()),
         SLOT(connectionStartupFailed()));
 
     connect(this, SIGNAL(stateChanged(Debugger::DebuggerState)),
             SLOT(updateCurrentContext()));
     connect(this->stackHandler(), SIGNAL(currentIndexChanged()),
             SLOT(updateCurrentContext()));
-    connect(&d->m_inspectorAdapter, SIGNAL(selectionChanged()),
+    connect(&m_inspectorAdapter, SIGNAL(selectionChanged()),
             SLOT(updateCurrentContext()));
-    connect(d->m_inspectorAdapter.agent(), SIGNAL(
+    connect(m_inspectorAdapter.agent(), SIGNAL(
                 expressionResult(quint32,QVariant)),
             SLOT(expressionEvaluated(quint32,QVariant)));
-    connect(d->m_adapter.messageClient(),
+    connect(m_adapter.messageClient(),
             SIGNAL(message(QtMsgType,QString,
                            QmlDebug::QDebugContextInfo)),
             SLOT(appendDebugOutput(QtMsgType,QString,
                                    QmlDebug::QDebugContextInfo)));
 
 
-    connect(&d->m_applicationLauncher,
+    connect(&m_applicationLauncher,
         SIGNAL(processExited(int)),
         SLOT(disconnected()));
-    connect(&d->m_applicationLauncher,
+    connect(&m_applicationLauncher,
         SIGNAL(appendMessage(QString,Utils::OutputFormat)),
         SLOT(appendMessage(QString,Utils::OutputFormat)));
-    connect(&d->m_applicationLauncher,
+    connect(&m_applicationLauncher,
             SIGNAL(processStarted()),
-            &d->m_noDebugOutputTimer,
+            &m_noDebugOutputTimer,
             SLOT(start()));
 
-    d->m_outputParser.setNoOutputText(ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput());
-    connect(&d->m_outputParser, SIGNAL(waitingForConnectionOnPort(quint16)),
+    m_outputParser.setNoOutputText(ProjectExplorer::ApplicationLauncher
+                                   ::msgWinCannotRetrieveDebuggingOutput());
+    connect(&m_outputParser, SIGNAL(waitingForConnectionOnPort(quint16)),
             this, SLOT(beginConnection(quint16)));
-    connect(&d->m_outputParser, SIGNAL(waitingForConnectionViaOst()),
+    connect(&m_outputParser, SIGNAL(waitingForConnectionViaOst()),
             this, SLOT(beginConnection()));
-    connect(&d->m_outputParser, SIGNAL(noOutputMessage()),
+    connect(&m_outputParser, SIGNAL(noOutputMessage()),
             this, SLOT(tryToConnect()));
-    connect(&d->m_outputParser, SIGNAL(errorMessage(QString)),
+    connect(&m_outputParser, SIGNAL(errorMessage(QString)),
             this, SLOT(appStartupFailed(QString)));
 
-    // Only wait 8 seconds for the 'Waiting for connection' on application ouput, then just try to connect
-    // (application output might be redirected / blocked)
-    d->m_noDebugOutputTimer.setSingleShot(true);
-    d->m_noDebugOutputTimer.setInterval(8000);
-    connect(&d->m_noDebugOutputTimer, SIGNAL(timeout()), this, SLOT(tryToConnect()));
+    // Only wait 8 seconds for the 'Waiting for connection' on application output,
+    // then just try to connect (application output might be redirected / blocked)
+    m_noDebugOutputTimer.setSingleShot(true);
+    m_noDebugOutputTimer.setInterval(8000);
+    connect(&m_noDebugOutputTimer, SIGNAL(timeout()), this, SLOT(tryToConnect()));
 
     qtMessageLogHandler()->setHasEditableRow(true);
 
@@ -377,9 +345,9 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
 
     // we won't get any debug output
     if (startParameters.useTerminal) {
-        d->m_noDebugOutputTimer.setInterval(0);
-        d->m_retryOnConnectFail = true;
-        d->m_automaticConnect = true;
+        m_noDebugOutputTimer.setInterval(0);
+        m_retryOnConnectFail = true;
+        m_automaticConnect = true;
     }
 }
 
@@ -395,14 +363,12 @@ QmlEngine::~QmlEngine()
     QList<Core::IEditor *> editorsToClose;
 
     QHash<QString, QWeakPointer<TextEditor::ITextEditor> >::iterator iter;
-    for (iter = d->m_sourceEditors.begin(); iter != d->m_sourceEditors.end(); ++iter) {
+    for (iter = m_sourceEditors.begin(); iter != m_sourceEditors.end(); ++iter) {
         QWeakPointer<TextEditor::ITextEditor> textEditPtr = iter.value();
         if (textEditPtr)
             editorsToClose << textEditPtr.data();
     }
     Core::EditorManager::instance()->closeEditors(editorsToClose);
-
-    delete d;
 }
 
 void QmlEngine::setupInferior()
@@ -411,7 +377,7 @@ void QmlEngine::setupInferior()
 
     notifyInferiorSetupOk();
 
-    if (d->m_automaticConnect)
+    if (m_automaticConnect)
         beginConnection();
 }
 
@@ -436,19 +402,19 @@ void QmlEngine::connectionEstablished()
 void QmlEngine::tryToConnect(quint16 port)
 {
     showMessage(QLatin1String("QML Debugger: No application output received in time, trying to connect ..."), LogStatus);
-    d->m_retryOnConnectFail = true;
+    m_retryOnConnectFail = true;
     if (state() == EngineRunRequested
-            && !d->m_automaticConnect)
+            && !m_automaticConnect)
         beginConnection(port);
     else
-        d->m_automaticConnect = true;
+        m_automaticConnect = true;
 }
 
 void QmlEngine::beginConnection(quint16 port)
 {
-    d->m_noDebugOutputTimer.stop();
+    m_noDebugOutputTimer.stop();
 
-    if (state() != EngineRunRequested && d->m_retryOnConnectFail)
+    if (state() != EngineRunRequested && m_retryOnConnectFail)
         return;
 
     QTC_ASSERT(state() == EngineRunRequested, return);
@@ -460,24 +426,24 @@ void QmlEngine::beginConnection(quint16 port)
                    || startParameters().connParams.port == port,
                    qWarning() << "Port " << port << "from application output does not match"
                    << startParameters().connParams.port << "from start parameters.");
-        d->m_adapter.beginConnectionTcp(startParameters().qmlServerAddress, port);
+        m_adapter.beginConnectionTcp(startParameters().qmlServerAddress, port);
         return;
     }
     if (startParameters().communicationChannel
            == DebuggerStartParameters::CommunicationChannelTcpIp) {
         // no port from application output, use the one from start parameters ...
-        d->m_adapter.beginConnectionTcp(startParameters().qmlServerAddress,
+        m_adapter.beginConnectionTcp(startParameters().qmlServerAddress,
                                         startParameters().qmlServerPort);
     } else {
         QTC_CHECK(startParameters().communicationChannel
                   == DebuggerStartParameters::CommunicationChannelUsb);
-        d->m_adapter.beginConnectionOst(startParameters().remoteChannel);
+        m_adapter.beginConnectionOst(startParameters().remoteChannel);
     }
 }
 
 void QmlEngine::connectionStartupFailed()
 {
-    if (d->m_retryOnConnectFail) {
+    if (m_retryOnConnectFail) {
         // retry after 3 seconds ...
         QTimer::singleShot(3000, this, SLOT(beginConnection()));
         return;
@@ -562,7 +528,7 @@ bool QmlEngine::canDisplayTooltip() const
 
 void QmlEngine::filterApplicationMessage(const QString &output, int /*channel*/)
 {
-    d->m_outputParser.processOutput(output);
+    m_outputParser.processOutput(output);
 }
 
 void QmlEngine::showMessage(const QString &msg, int channel, int timeout) const
@@ -579,7 +545,7 @@ void QmlEngine::gotoLocation(const Location &location)
     // TODO: QUrl::isLocalFile() once we depend on Qt 4.8
     if (QUrl(fileName).scheme().compare(QLatin1String("file"), Qt::CaseInsensitive) == 0) {
         // internal file from source files -> show generated .js
-        QTC_ASSERT(d->m_sourceDocuments.contains(fileName), return);
+        QTC_ASSERT(m_sourceDocuments.contains(fileName), return);
         Core::IEditor *editor = 0;
 
         Core::EditorManager *editorManager = Core::EditorManager::instance();
@@ -599,7 +565,7 @@ void QmlEngine::gotoLocation(const Location &location)
                 editor->setProperty(Constants::OPENED_BY_DEBUGGER, true);
             }
 
-            updateEditor(editor, d->m_sourceDocuments.value(fileName));
+            updateEditor(editor, m_sourceDocuments.value(fileName));
         }
         editorManager->activateEditor(editor);
 
@@ -611,7 +577,7 @@ void QmlEngine::gotoLocation(const Location &location)
 void QmlEngine::closeConnection()
 {
     disconnect(watchersModel(),SIGNAL(layoutChanged()),this,SLOT(synchronizeWatchers()));
-    d->m_adapter.closeConnection();
+    m_adapter.closeConnection();
 }
 
 void QmlEngine::runEngine()
@@ -624,19 +590,19 @@ void QmlEngine::runEngine()
         else
             startApplicationLauncher();
     } else {
-        d->m_noDebugOutputTimer.start();
+        m_noDebugOutputTimer.start();
     }
 }
 
 void QmlEngine::startApplicationLauncher()
 {
-    if (!d->m_applicationLauncher.isRunning()) {
+    if (!m_applicationLauncher.isRunning()) {
         appendMessage(tr("Starting %1 %2").arg(
                           QDir::toNativeSeparators(startParameters().executable),
                           startParameters().processArgs)
                       + QLatin1Char('\n')
                      , Utils::NormalMessageFormat);
-        d->m_applicationLauncher.start(ApplicationLauncher::Gui,
+        m_applicationLauncher.start(ProjectExplorer::ApplicationLauncher::Gui,
                                     startParameters().executable,
                                     startParameters().processArgs);
     }
@@ -644,9 +610,10 @@ void QmlEngine::startApplicationLauncher()
 
 void QmlEngine::stopApplicationLauncher()
 {
-    if (d->m_applicationLauncher.isRunning()) {
-        disconnect(&d->m_applicationLauncher, SIGNAL(processExited(int)), this, SLOT(disconnected()));
-        d->m_applicationLauncher.stop();
+    if (m_applicationLauncher.isRunning()) {
+        disconnect(&m_applicationLauncher, SIGNAL(processExited(int)),
+                   this, SLOT(disconnected()));
+        m_applicationLauncher.stop();
     }
 }
 
@@ -673,10 +640,10 @@ void QmlEngine::handleRemoteSetupFailed(const QString &message)
 
 void QmlEngine::shutdownInferior()
 {
-    d->m_noDebugOutputTimer.stop();
+    m_noDebugOutputTimer.stop();
 
-    if (d->m_adapter.activeDebuggerClient())
-        d->m_adapter.activeDebuggerClient()->endSession();
+    if (m_adapter.activeDebuggerClient())
+        m_adapter.activeDebuggerClient()->endSession();
 
     if (isSlaveEngine()) {
         resetLocation();
@@ -703,11 +670,11 @@ void QmlEngine::setupEngine()
         // we need to get the port first
         notifyEngineRequestRemoteSetup();
     } else {
-        d->m_applicationLauncher.setEnvironment(startParameters().environment);
-        d->m_applicationLauncher.setWorkingDirectory(startParameters().workingDirectory);
+        m_applicationLauncher.setEnvironment(startParameters().environment);
+        m_applicationLauncher.setWorkingDirectory(startParameters().workingDirectory);
 
         // We can't do this in the constructore because runControl() isn't yet defined
-        connect(&d->m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
+        connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
                 runControl(), SLOT(bringApplicationToForeground(qint64)),
                 Qt::UniqueConnection);
 
@@ -718,8 +685,8 @@ void QmlEngine::setupEngine()
 void QmlEngine::continueInferior()
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
-    if (d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->continueInferior();
+    if (m_adapter.activeDebuggerClient()) {
+        m_adapter.activeDebuggerClient()->continueInferior();
     }
     resetLocation();
     notifyInferiorRunRequested();
@@ -728,16 +695,16 @@ void QmlEngine::continueInferior()
 
 void QmlEngine::interruptInferior()
 {
-    if (d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->interruptInferior();
+    if (m_adapter.activeDebuggerClient()) {
+        m_adapter.activeDebuggerClient()->interruptInferior();
     }
     notifyInferiorStopOk();
 }
 
 void QmlEngine::executeStep()
 {
-    if (d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->executeStep();
+    if (m_adapter.activeDebuggerClient()) {
+        m_adapter.activeDebuggerClient()->executeStep();
     }
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -745,8 +712,8 @@ void QmlEngine::executeStep()
 
 void QmlEngine::executeStepI()
 {
-    if (d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->executeStepI();
+    if (m_adapter.activeDebuggerClient()) {
+        m_adapter.activeDebuggerClient()->executeStepI();
     }
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -754,8 +721,8 @@ void QmlEngine::executeStepI()
 
 void QmlEngine::executeStepOut()
 {
-    if (d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->executeStepOut();
+    if (m_adapter.activeDebuggerClient()) {
+        m_adapter.activeDebuggerClient()->executeStepOut();
     }
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -763,8 +730,8 @@ void QmlEngine::executeStepOut()
 
 void QmlEngine::executeNext()
 {
-    if (d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->executeNext();
+    if (m_adapter.activeDebuggerClient()) {
+        m_adapter.activeDebuggerClient()->executeNext();
     }
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -786,8 +753,8 @@ void QmlEngine::executeRunToLine(const ContextData &data)
     bool valid;
     if (adjustBreakpointLineAndColumn(data.fileName, &line, &column, &valid))
         modifiedData.lineNumber = line;
-    if (d->m_adapter.activeDebuggerClient())
-        d->m_adapter.activeDebuggerClient()->executeRunToLine(modifiedData);
+    if (m_adapter.activeDebuggerClient())
+        m_adapter.activeDebuggerClient()->executeRunToLine(modifiedData);
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
 }
@@ -809,8 +776,8 @@ void QmlEngine::activateFrame(int index)
     if (state() != InferiorStopOk && state() != InferiorUnrunnable)
         return;
 
-    if (d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->activateFrame(index);
+    if (m_adapter.activeDebuggerClient()) {
+        m_adapter.activeDebuggerClient()->activateFrame(index);
     }
     gotoLocation(stackHandler()->frames().value(index));
 }
@@ -834,17 +801,17 @@ void QmlEngine::insertBreakpoint(BreakpointModelId id)
         bool valid = false;
         if (!adjustBreakpointLineAndColumn(params.fileName, &line, &column,
                                            &valid)) {
-            d->pendingBreakpoints.insertMulti(params.fileName, id);
+            pendingBreakpoints.insertMulti(params.fileName, id);
             return;
         }
         if (!valid)
             return;
     }
 
-    if (d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->insertBreakpoint(id, line, column);
+    if (m_adapter.activeDebuggerClient()) {
+        m_adapter.activeDebuggerClient()->insertBreakpoint(id, line, column);
     } else {
-        foreach (BaseQmlDebuggerClient *client, d->m_adapter.debuggerClients()) {
+        foreach (BaseQmlDebuggerClient *client, m_adapter.debuggerClients()) {
             client->insertBreakpoint(id, line, column);
         }
     }
@@ -856,12 +823,12 @@ void QmlEngine::removeBreakpoint(BreakpointModelId id)
 
     const BreakpointParameters &params = handler->breakpointData(id);
     if (params.type == BreakpointByFileAndLine &&
-            d->pendingBreakpoints.contains(params.fileName)) {
+            pendingBreakpoints.contains(params.fileName)) {
         QHash<QString, BreakpointModelId>::iterator i =
-                d->pendingBreakpoints.find(params.fileName);
-        while (i != d->pendingBreakpoints.end() && i.key() == params.fileName) {
+                pendingBreakpoints.find(params.fileName);
+        while (i != pendingBreakpoints.end() && i.key() == params.fileName) {
             if (i.value() == id) {
-                d->pendingBreakpoints.erase(i);
+                pendingBreakpoints.erase(i);
                 return;
             }
             ++i;
@@ -872,10 +839,10 @@ void QmlEngine::removeBreakpoint(BreakpointModelId id)
     QTC_ASSERT(state == BreakpointRemoveRequested, qDebug() << id << this << state);
     handler->notifyBreakpointRemoveProceeding(id);
 
-    if (d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->removeBreakpoint(id);
+    if (m_adapter.activeDebuggerClient()) {
+        m_adapter.activeDebuggerClient()->removeBreakpoint(id);
     } else {
-        foreach (BaseQmlDebuggerClient *client, d->m_adapter.debuggerClients()) {
+        foreach (BaseQmlDebuggerClient *client, m_adapter.debuggerClients()) {
             client->removeBreakpoint(id);
         }
     }
@@ -892,10 +859,10 @@ void QmlEngine::changeBreakpoint(BreakpointModelId id)
     QTC_ASSERT(state == BreakpointChangeRequested, qDebug() << id << this << state);
     handler->notifyBreakpointChangeProceeding(id);
 
-    if (d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->changeBreakpoint(id);
+    if (m_adapter.activeDebuggerClient()) {
+        m_adapter.activeDebuggerClient()->changeBreakpoint(id);
     } else {
-        foreach (BaseQmlDebuggerClient *client, d->m_adapter.debuggerClients()) {
+        foreach (BaseQmlDebuggerClient *client, m_adapter.debuggerClients()) {
             client->changeBreakpoint(id);
         }
     }
@@ -948,10 +915,10 @@ void QmlEngine::attemptBreakpointSynchronization()
 
     DebuggerEngine::attemptBreakpointSynchronization();
 
-    if (d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->synchronizeBreakpoints();
+    if (m_adapter.activeDebuggerClient()) {
+        m_adapter.activeDebuggerClient()->synchronizeBreakpoints();
     } else {
-        foreach (BaseQmlDebuggerClient *client, d->m_adapter.debuggerClients()) {
+        foreach (BaseQmlDebuggerClient *client, m_adapter.debuggerClients()) {
             client->synchronizeBreakpoints();
         }
     }
@@ -967,8 +934,8 @@ bool QmlEngine::acceptsBreakpoint(BreakpointModelId id) const
     //For now, the event breakpoint can be set after the activeDebuggerClient is known
     //This is because the older client does not support BreakpointOnQmlSignalHandler
     bool acceptBreakpoint = false;
-    if (d->m_adapter.activeDebuggerClient()) {
-        acceptBreakpoint = d->m_adapter.activeDebuggerClient()->acceptsBreakpoint(id);
+    if (m_adapter.activeDebuggerClient()) {
+        acceptBreakpoint = m_adapter.activeDebuggerClient()->acceptsBreakpoint(id);
     }
     return acceptBreakpoint;
 }
@@ -988,8 +955,8 @@ void QmlEngine::reloadModules()
 
 void QmlEngine::reloadSourceFiles()
 {
-    if (d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->getSourceFiles();
+    if (m_adapter.activeDebuggerClient()) {
+        m_adapter.activeDebuggerClient()->getSourceFiles();
     }
 }
 
@@ -1022,8 +989,8 @@ bool QmlEngine::setToolTipExpression(const QPoint &mousePos,
 void QmlEngine::assignValueInDebugger(const WatchData *data,
     const QString &expression, const QVariant &valueV)
 {
-    if (!expression.isEmpty() && d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->assignValueInDebugger(data,
+    if (!expression.isEmpty() && m_adapter.activeDebuggerClient()) {
+        m_adapter.activeDebuggerClient()->assignValueInDebugger(data,
                                                                    expression,
                                                                    valueV);
     }
@@ -1037,15 +1004,15 @@ void QmlEngine::updateWatchData(const WatchData &data,
     //showStatusMessage(tr("Stopped."), 5000);
 
     if (data.iname.startsWith("inspect.")) {
-        d->m_inspectorAdapter.agent()->updateWatchData(data);
+        m_inspectorAdapter.agent()->updateWatchData(data);
     } else {
-        if (!data.name.isEmpty() && d->m_adapter.activeDebuggerClient()) {
+        if (!data.name.isEmpty() && m_adapter.activeDebuggerClient()) {
             if (data.isValueNeeded()) {
-                d->m_adapter.activeDebuggerClient()->updateWatchData(data);
+                m_adapter.activeDebuggerClient()->updateWatchData(data);
             }
             if (data.isChildrenNeeded()
                     && watchHandler()->isExpandedIName(data.iname)) {
-                d->m_adapter.activeDebuggerClient()->expandObject(data.iname, data.id);
+                m_adapter.activeDebuggerClient()->expandObject(data.iname, data.id);
             }
         }
         synchronizeWatchers();
@@ -1060,18 +1027,18 @@ void QmlEngine::synchronizeWatchers()
 {
     QStringList watchedExpressions = watchHandler()->watchedExpressions();
     // send watchers list
-    if (d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->synchronizeWatchers(watchedExpressions);
+    if (m_adapter.activeDebuggerClient()) {
+        m_adapter.activeDebuggerClient()->synchronizeWatchers(watchedExpressions);
     } else {
-        foreach (BaseQmlDebuggerClient *client, d->m_adapter.debuggerClients())
+        foreach (BaseQmlDebuggerClient *client, m_adapter.debuggerClients())
             client->synchronizeWatchers(watchedExpressions);
     }
 }
 
 void QmlEngine::expressionEvaluated(quint32 queryId, const QVariant &result)
 {
-    if (d->queryIds.contains(queryId)) {
-        d->queryIds.removeOne(queryId);
+    if (queryIds.contains(queryId)) {
+        queryIds.removeOne(queryId);
         QtMessageLogItem *item = constructLogItemTree(qtMessageLogHandler()->root(),
                                                       result);
         if (item)
@@ -1110,9 +1077,9 @@ void QmlEngine::disconnected()
 void QmlEngine::documentUpdated(QmlJS::Document::Ptr doc)
 {
     QString fileName = doc->fileName();
-    if (d->pendingBreakpoints.contains(fileName)) {
-        QList<BreakpointModelId> ids = d->pendingBreakpoints.values(fileName);
-        d->pendingBreakpoints.remove(fileName);
+    if (pendingBreakpoints.contains(fileName)) {
+        QList<BreakpointModelId> ids = pendingBreakpoints.values(fileName);
+        pendingBreakpoints.remove(fileName);
         foreach (const BreakpointModelId &id, ids)
             insertBreakpoint(id);
     }
@@ -1122,7 +1089,7 @@ void QmlEngine::updateCurrentContext()
 {
     const QString context = state() == InferiorStopOk ?
                 stackHandler()->currentFrame().function :
-                d->m_inspectorAdapter.currentSelectedDisplayName();
+                m_inspectorAdapter.currentSelectedDisplayName();
     showMessage(tr("Context: ").append(context), QtMessageLogStatus);
 }
 
@@ -1154,8 +1121,8 @@ void QmlEngine::appendDebugOutput(QtMsgType type, const QString &message,
 
 void QmlEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
 {
-    if ((languages & QmlLanguage) && d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->executeDebuggerCommand(command);
+    if ((languages & QmlLanguage) && m_adapter.activeDebuggerClient()) {
+        m_adapter.activeDebuggerClient()->executeDebuggerCommand(command);
     }
 }
 
@@ -1171,13 +1138,13 @@ bool QmlEngine::evaluateScriptExpression(const QString &expression)
             //is sent to V8DebugService. In all other cases, the
             //expression is evaluated by QDeclarativeEngine.
             if (state() != InferiorStopOk) {
-                QmlInspectorAgent *agent = d->m_inspectorAdapter.agent();
+                QmlInspectorAgent *agent = m_inspectorAdapter.agent();
                 quint32 queryId
                         = agent->queryExpressionResult(
-                            d->m_inspectorAdapter.currentSelectedDebugId(),
+                            m_inspectorAdapter.currentSelectedDebugId(),
                             expression);
                 if (queryId) {
-                    d->queryIds << queryId;
+                    queryIds << queryId;
                 } else {
                     didEvaluate = false;
                     qtMessageLogHandler()->
@@ -1228,11 +1195,11 @@ void QmlEngine::updateScriptSource(const QString &fileName, int lineOffset, int 
                                    const QString &source)
 {
     QTextDocument *document = 0;
-    if (d->m_sourceDocuments.contains(fileName)) {
-        document = d->m_sourceDocuments.value(fileName);
+    if (m_sourceDocuments.contains(fileName)) {
+        document = m_sourceDocuments.value(fileName);
     } else {
         document = new QTextDocument(this);
-        d->m_sourceDocuments.insert(fileName, document);
+        m_sourceDocuments.insert(fileName, document);
     }
 
     // We're getting an unordered set of snippets that can even interleave
@@ -1294,9 +1261,9 @@ void QmlEngine::updateEditor(Core::IEditor *editor, const QTextDocument *documen
 
 bool QmlEngine::canEvaluateScript(const QString &script)
 {
-    d->m_interpreter.clearText();
-    d->m_interpreter.appendText(script);
-    return d->m_interpreter.canEvaluate();
+    m_interpreter.clearText();
+    m_interpreter.appendText(script);
+    return m_interpreter.canEvaluate();
 }
 
 QtMessageLogItem *QmlEngine::constructLogItemTree(
@@ -1360,11 +1327,6 @@ bool QmlEngine::adjustBreakpointLineAndColumn(
         *valid = walker.done;
     }
     return success;
-}
-
-QmlAdapter *QmlEngine::adapter() const
-{
-    return &d->m_adapter;
 }
 
 QmlEngine *createQmlEngine(const DebuggerStartParameters &sp,

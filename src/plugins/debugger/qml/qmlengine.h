@@ -30,19 +30,22 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_QMLENGINE_H
-#define DEBUGGER_QMLENGINE_H
+#ifndef QMLENGINE_H
+#define QMLENGINE_H
 
 #include "debuggerengine.h"
+#include "interactiveinterpreter.h"
+#include "qmladapter.h"
+#include "qmlinspectoradapter.h"
+
+#include <projectexplorer/applicationlauncher.h>
 #include <qmldebug/qdebugmessageclient.h>
-#include <utils/outputformat.h>
+#include <qmldebug/qmloutputparser.h>
 #include <qmljs/qmljsdocument.h>
+#include <utils/outputformat.h>
 
 #include <QAbstractSocket>
-
-QT_BEGIN_NAMESPACE
-class QTextDocument;
-QT_END_NAMESPACE
+#include <QTextDocument>
 
 namespace Core {
 class IEditor;
@@ -51,20 +54,14 @@ class IEditor;
 namespace Debugger {
 namespace Internal {
 
-class QtMessageLogItem;
 class QmlAdapter;
-class QmlEnginePrivate;
+class QtMessageLogItem;
 
 class QmlEngine : public DebuggerEngine
 {
     Q_OBJECT
 
 public:
-    enum LogDirection {
-        LogSend,
-        LogReceive
-    };
-
     QmlEngine(const DebuggerStartParameters &startParameters,
         DebuggerEngine *masterEngine);
     ~QmlEngine();
@@ -81,25 +78,44 @@ public:
     void filterApplicationMessage(const QString &msg, int channel);
     void inferiorSpontaneousStop();
 
-    void logMessage(const QString &service, LogDirection direction, const QString &str);
+    enum LogDirection {
+        LogSend,
+        LogReceive
+    };
+
+    void logMessage(const QString &service, LogDirection direction,
+                    const QString &str);
 
     void setSourceFiles(const QStringList &fileNames);
-    void updateScriptSource(const QString &fileName, int lineOffset, int columnOffset, const QString &source);
-
-    QmlAdapter *adapter() const;
+    void updateScriptSource(const QString &fileName, int lineOffset,
+                            int columnOffset, const QString &source);
 
     void insertBreakpoint(BreakpointModelId id);
 
-public slots:
+signals:
+    void tooltipRequested(const QPoint &mousePos,
+        TextEditor::ITextEditor *editor, int cursorPos);
+
+private slots:
     void disconnected();
     void documentUpdated(QmlJS::Document::Ptr doc);
     void expressionEvaluated(quint32 queryId, const QVariant &result);
 
-private slots:
     void errorMessageBoxFinished(int result);
     void updateCurrentContext();
     void appendDebugOutput(QtMsgType type, const QString &message,
                            const QmlDebug::QDebugContextInfo &info);
+
+    void tryToConnect(quint16 port = 0);
+    void beginConnection(quint16 port = 0);
+    void connectionEstablished();
+    void connectionStartupFailed();
+    void appStartupFailed(const QString &errorMessage);
+    void connectionError(QAbstractSocket::SocketError error);
+    void serviceConnectionError(const QString &service);
+    void appendMessage(const QString &msg, Utils::OutputFormat);
+
+    void synchronizeWatchers();
 
 private:
     // DebuggerEngine implementation.
@@ -154,22 +170,6 @@ private:
 
     bool hasCapability(unsigned) const;
 
-signals:
-    void tooltipRequested(const QPoint &mousePos,
-        TextEditor::ITextEditor *editor, int cursorPos);
-
-private slots:
-    void tryToConnect(quint16 port = 0);
-    void beginConnection(quint16 port = 0);
-    void connectionEstablished();
-    void connectionStartupFailed();
-    void appStartupFailed(const QString &errorMessage);
-    void connectionError(QAbstractSocket::SocketError error);
-    void serviceConnectionError(const QString &service);
-    void appendMessage(const QString &msg, Utils::OutputFormat);
-
-    void synchronizeWatchers();
-
 private:
     void closeConnection();
     void startApplicationLauncher();
@@ -189,12 +189,23 @@ private:
     bool adjustBreakpointLineAndColumn(const QString &filePath, quint32 *line,
                                        quint32 *column, bool *valid);
 
-private:
+    QmlAdapter m_adapter;
+    QmlInspectorAdapter m_inspectorAdapter;
+    ProjectExplorer::ApplicationLauncher m_applicationLauncher;
+    QTimer m_noDebugOutputTimer;
+    QmlOutputParser m_outputParser;
+    QHash<QString, QTextDocument*> m_sourceDocuments;
+    QHash<QString, QWeakPointer<TextEditor::ITextEditor> > m_sourceEditors;
+    InteractiveInterpreter m_interpreter;
+    QHash<QString,BreakpointModelId> pendingBreakpoints;
+    QList<quint32> queryIds;
+    bool m_retryOnConnectFail;
+    bool m_automaticConnect;
+
     friend class QmlCppEngine;
-    QmlEnginePrivate *d;
 };
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_QMLENGINE_H
+#endif // QMLENGINE_H

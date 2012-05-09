@@ -143,7 +143,7 @@ void QmlAdapter::debugClientStatusChanged(QmlDebugClient::Status status)
     QmlDebugClient *client = qobject_cast<QmlDebugClient*>(sender());
     QTC_ASSERT(client, return);
 
-    m_qmlClient = qobject_cast<Internal::BaseQmlDebuggerClient *>(client);
+    m_qmlClient = qobject_cast<BaseQmlDebuggerClient *>(client);
     m_qmlClient->startSession();
 }
 
@@ -192,13 +192,13 @@ void QmlAdapter::checkConnectionState()
 
 void QmlAdapter::createDebuggerClients()
 {
-    Internal::QScriptDebuggerClient *debugClient1 = new Internal::QScriptDebuggerClient(m_conn);
+    QScriptDebuggerClient *debugClient1 = new QScriptDebuggerClient(m_conn);
     connect(debugClient1, SIGNAL(newStatus(QmlDebugClient::Status)),
             this, SLOT(clientStatusChanged(QmlDebugClient::Status)));
     connect(debugClient1, SIGNAL(newStatus(QmlDebugClient::Status)),
             this, SLOT(debugClientStatusChanged(QmlDebugClient::Status)));
 
-    Internal::QmlV8DebuggerClient *debugClient2 = new Internal::QmlV8DebuggerClient(m_conn);
+    QmlV8DebuggerClient *debugClient2 = new QmlV8DebuggerClient(m_conn);
     connect(debugClient2, SIGNAL(newStatus(QmlDebugClient::Status)),
             this, SLOT(clientStatusChanged(QmlDebugClient::Status)));
     connect(debugClient2, SIGNAL(newStatus(QmlDebugClient::Status)),
@@ -207,8 +207,8 @@ void QmlAdapter::createDebuggerClients()
     m_debugClients.insert(debugClient1->name(),debugClient1);
     m_debugClients.insert(debugClient2->name(),debugClient2);
 
-    debugClient1->setEngine((Internal::QmlEngine*)(m_engine.data()));
-    debugClient2->setEngine((Internal::QmlEngine*)(m_engine.data()));
+    debugClient1->setEngine((QmlEngine*)(m_engine.data()));
+    debugClient2->setEngine((QmlEngine*)(m_engine.data()));
 }
 
 bool QmlAdapter::isConnected() const
@@ -256,12 +256,12 @@ bool QmlAdapter::disableJsDebugging(bool block)
     return isBlocked;
 }
 
-Internal::BaseQmlDebuggerClient *QmlAdapter::activeDebuggerClient()
+BaseQmlDebuggerClient *QmlAdapter::activeDebuggerClient() const
 {
     return m_qmlClient;
 }
 
-QHash<QString, Internal::BaseQmlDebuggerClient*> QmlAdapter::debuggerClients()
+QHash<QString, BaseQmlDebuggerClient*> QmlAdapter::debuggerClients() const
 {
     return m_debugClients;
 }
