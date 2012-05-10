@@ -54,6 +54,41 @@
 #define FUNC_END(result)
 #endif // DO_TRACE
 
+// The first-sets for all non-terminals.
+static QSet<char> firstSetArrayType;
+static QSet<char> firstSetBareFunctionType;
+static QSet<char> firstSetBuiltinType;
+static QSet<char> firstSetCallOffset;
+static QSet<char> firstSetClassEnumType;
+static QSet<char> firstSetDiscriminator;
+static QSet<char> firstSetCtorDtorName;
+static QSet<char> firstSetCvQualifiers;
+static QSet<char> firstSetEncoding;
+static QSet<char> firstSetExpression;
+static QSet<char> firstSetExprPrimary;
+static QSet<char> firstSetFunctionType;
+static QSet<char> firstSetLocalName;
+static QSet<char> firstSetMangledName;
+static QSet<char> firstSetName;
+static QSet<char> firstSetNestedName;
+static QSet<char> firstSetNonNegativeNumber;
+static QSet<char> firstSetNumber;
+static QSet<char> firstSetOperatorName;
+static QSet<char> firstSetPointerToMemberType;
+static QSet<char> firstSetPositiveNumber;
+static QSet<char> firstSetPrefix;
+static QSet<char> firstSetPrefix2;
+static QSet<char> firstSetSeqId;
+static QSet<char> firstSetSourceName;
+static QSet<char> firstSetSpecialName;
+static QSet<char> firstSetSubstitution;
+static QSet<char> firstSetTemplateArg;
+static QSet<char> firstSetTemplateArgs;
+static QSet<char> firstSetTemplateParam;
+static QSet<char> firstSetType;
+static QSet<char> firstSetUnqualifiedName;
+static QSet<char> firstSetUnscopedName;
+
 namespace Debugger {
 namespace Internal {
 class ParseException
@@ -187,8 +222,8 @@ private:
         OpType type() const { return TernaryOp; }
     };
 
-    void setupFirstSets();
-    void setupOps();
+    static void setupFirstSets();
+    static void setupOps();
 
     char peek(int ahead = 0);
     char advance(int steps = 1);
@@ -247,58 +282,31 @@ private:
     void insertQualifier(QByteArray &type, const QByteArray &qualifier);
 
     static const char eoi;
+    static bool staticInitializationsDone;
+    static QMap<QByteArray, Operator *> ops;
+
     int m_pos;
     QByteArray m_mangledName;
     QString m_errorString;
     QString m_demangledName;
     QList<QByteArray> m_substitutions;
     QList<QByteArray> m_templateParams;
-
-    QMap<QByteArray, Operator *> ops;
-
-    // The first-sets for all non-terminals.
-    QSet<char> firstSetArrayType;
-    QSet<char> firstSetBareFunctionType;
-    QSet<char> firstSetBuiltinType;
-    QSet<char> firstSetCallOffset;
-    QSet<char> firstSetClassEnumType;
-    QSet<char> firstSetDiscriminator;
-    QSet<char> firstSetCtorDtorName;
-    QSet<char> firstSetCvQualifiers;
-    QSet<char> firstSetEncoding;
-    QSet<char> firstSetExpression;
-    QSet<char> firstSetExprPrimary;
-    QSet<char> firstSetFunctionType;
-    QSet<char> firstSetLocalName;
-    QSet<char> firstSetMangledName;
-    QSet<char> firstSetName;
-    QSet<char> firstSetNestedName;
-    QSet<char> firstSetNonNegativeNumber;
-    QSet<char> firstSetNumber;
-    QSet<char> firstSetOperatorName;
-    QSet<char> firstSetPointerToMemberType;
-    QSet<char> firstSetPositiveNumber;
-    QSet<char> firstSetPrefix;
-    QSet<char> firstSetPrefix2;
-    QSet<char> firstSetSeqId;
-    QSet<char> firstSetSourceName;
-    QSet<char> firstSetSpecialName;
-    QSet<char> firstSetSubstitution;
-    QSet<char> firstSetTemplateArg;
-    QSet<char> firstSetTemplateArgs;
-    QSet<char> firstSetTemplateParam;
-    QSet<char> firstSetType;
-    QSet<char> firstSetUnqualifiedName;
-    QSet<char> firstSetUnscopedName;
 };
 
 
 const char NameDemanglerPrivate::eoi('$');
+bool NameDemanglerPrivate::staticInitializationsDone = false;
+QMap<QByteArray, NameDemanglerPrivate::Operator *> NameDemanglerPrivate::ops;
 
 NameDemanglerPrivate::NameDemanglerPrivate()
 {
+    // Not thread safe. We can easily add a mutex if that ever becomes a requirement.
+    if (staticInitializationsDone)
+        return;
+
     setupFirstSets();
     setupOps();
+    staticInitializationsDone = true;
 }
 
 NameDemanglerPrivate::~NameDemanglerPrivate()
