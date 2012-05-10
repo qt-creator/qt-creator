@@ -53,12 +53,13 @@
 #include <windows.h>
 #include <psapi.h>
 
+#include "app_version.h"
+
 using namespace RegistryAccess;
 
 enum { debug = 0 };
 
 static const char titleC[] = "Qt Creator Debugger";
-static const char organizationC[] = "Nokia";
 
 // Optional
 static const WCHAR debuggerWow32RegistryKeyC[] = L"Software\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\AeDebug";
@@ -468,7 +469,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     QApplication::setApplicationName(QLatin1String(titleC));
-    QApplication::setOrganizationName(QLatin1String(organizationC));
+    QApplication::setOrganizationName(QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR));
     QString errorMessage;
 
     if (!parseArguments(QApplication::arguments(), &errorMessage)) {

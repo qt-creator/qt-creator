@@ -82,13 +82,12 @@ namespace {
     const QLatin1String Unknown("unknown");
     const QLatin1String keytoolName("keytool");
     const QLatin1String jarsignerName("jarsigner");
-    const QLatin1String androidFilename("/android.xml");
     const QLatin1String changeTimeStamp("ChangeTimeStamp");
 
     static QString settingsFileName()
     {
-        return Core::ICore::instance()->resourcePath()
-                + QLatin1String("/Nokia") + androidFilename;
+        return QString::fromLatin1("%1/qtcreator/android.xml").arg(
+            QFileInfo(Core::ICore::settings(QSettings::SystemScope)->fileName()).absolutePath());
     }
 
     bool androidDevicesLessThan(const AndroidDevice &dev1, const AndroidDevice &dev2)

@@ -8,3 +8,8 @@ DESTDIR=../../../bin
 
 target.path=/bin
 INSTALLS+=target
+
+include(../../../qtcreator.pri)
+app_info.input = $$PWD/../../app/app_version.h.in
+app_info.output = $$OUT_PWD/app_version.h
+QMAKE_SUBSTITUTES += app_info
