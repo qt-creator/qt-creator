@@ -40,7 +40,7 @@ namespace Find {
 class ItemModelFindPrivate
 {
 public:
-    explicit ItemModelFindPrivate(QTreeView *view, int role, int column)
+    explicit ItemModelFindPrivate(QTreeView *view, int role)
         : m_view(view)
         , m_incrementalWrappedState(false),
           m_role(role)
