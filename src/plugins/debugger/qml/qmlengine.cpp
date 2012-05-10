@@ -640,8 +640,6 @@ void QmlEngine::handleRemoteSetupFailed(const QString &message)
 
 void QmlEngine::shutdownInferior()
 {
-    m_noDebugOutputTimer.stop();
-
     if (m_adapter.activeDebuggerClient())
         m_adapter.activeDebuggerClient()->endSession();
 
@@ -656,7 +654,9 @@ void QmlEngine::shutdownInferior()
 
 void QmlEngine::shutdownEngine()
 {
-    // double check (ill engine?):
+    m_noDebugOutputTimer.stop();
+
+   // double check (ill engine?):
     stopApplicationLauncher();
 
     notifyEngineShutdownOk();
