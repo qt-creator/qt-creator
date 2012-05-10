@@ -403,8 +403,7 @@ void QmlEngine::tryToConnect(quint16 port)
 {
     showMessage(QLatin1String("QML Debugger: No application output received in time, trying to connect ..."), LogStatus);
     m_retryOnConnectFail = true;
-    if (state() == EngineRunRequested
-            && !m_automaticConnect)
+    if (state() == EngineRunRequested)
         beginConnection(port);
     else
         m_automaticConnect = true;
