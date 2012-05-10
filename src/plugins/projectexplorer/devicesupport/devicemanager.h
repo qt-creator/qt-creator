@@ -80,11 +80,13 @@ signals:
     void deviceListChanged();
     void updated(); // Emitted for all of the above.
 
+private slots:
+    void save();
+
 private:
-    DeviceManager(bool doLoad = false);
+    DeviceManager(bool isInstance = false);
 
     void load();
-    void save();
     void loadPre2_6();
     static const IDeviceFactory *restoreFactory(const QVariantMap &map);
     void fromMap(const QVariantMap &map);

@@ -96,7 +96,6 @@ int DeviceManager::deviceCount() const
 void DeviceManager::replaceInstance()
 {
     copy(DeviceManagerPrivate::clonedInstance, instance(), false);
-    instance()->save();
     emit instance()->deviceListChanged();
     emit instance()->updated();
 }
@@ -322,10 +321,12 @@ const IDeviceFactory *DeviceManager::restoreFactory(const QVariantMap &map)
     return 0;
 }
 
-DeviceManager::DeviceManager(bool doLoad) : d(new DeviceManagerPrivate)
+DeviceManager::DeviceManager(bool isInstance) : d(new DeviceManagerPrivate)
 {
-    if (doLoad)
+    if (isInstance) {
         load();
+        connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), SLOT(save()));
+    }
 }
 
 DeviceManager::~DeviceManager()
