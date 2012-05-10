@@ -3932,6 +3932,7 @@ bool GdbEngine::showToolTip()
         return true;
     }
     DebuggerToolTipWidget *tw = new DebuggerToolTipWidget;
+    tw->setDebuggerModel(TooltipsWatch);
     tw->setExpression(expression);
     tw->setContext(*m_toolTipContext);
     tw->acquireEngine(this);

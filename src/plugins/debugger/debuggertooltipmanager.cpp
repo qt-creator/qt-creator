@@ -38,7 +38,6 @@
 #include "watchutils.h"
 #include "stackhandler.h"
 #include "debuggercore.h"
-#include "debuggerinternalconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
@@ -579,7 +578,7 @@ QDebug operator<<(QDebug d, const DebuggerToolTipContext &c)
     It consists of a title toolbar and a vertical main layout.
     The widget has the ability to save/restore tree model contents to XML.
     With the engine acquired, it sets a filter model (by expression) on
-    the engine's Locals model.
+    one of the engine's models (debuggerModel).
     On release, it serializes and restores the data to a QStandardItemModel
     (defaultModel) and displays that.
 
@@ -618,6 +617,7 @@ DebuggerToolTipWidget::DebuggerToolTipWidget(QWidget *parent) :
     m_titleLabel(new DraggableLabel),
     m_engineAcquired(false),
     m_creationDate(QDate::currentDate()),
+    m_debuggerModel(TooltipsWatch),
     m_treeView(new DebuggerToolTipTreeView),
     m_defaultModel(new QStandardItemModel(this))
 {
@@ -651,8 +651,8 @@ DebuggerToolTipWidget::DebuggerToolTipWidget(QWidget *parent) :
 }
 
 bool DebuggerToolTipWidget::matches(const QString &fileName,
-                                    const QString &engineType,
-                                    const QString &function) const
+                                            const QString &engineType,
+                                            const QString &function) const
 {
     if (fileName.isEmpty() || m_context.fileName != fileName)
         return false;
@@ -994,7 +994,18 @@ void DebuggerToolTipTreeView::computeSize()
 void DebuggerToolTipWidget::doAcquireEngine(Debugger::DebuggerEngine *engine)
 {
     // Create a filter model on the debugger's model and switch to it.
-    QAbstractItemModel *model = engine->localsModel();
+    QAbstractItemModel *model = 0;
+    switch (m_debuggerModel) {
+    case LocalsWatch:
+        model = engine->localsModel();
+        break;
+    case WatchersWatch:
+        model = engine->watchersModel();
+        break;
+    case TooltipsWatch:
+        model = engine->toolTipsModel();
+        break;
+    }
     QTC_ASSERT(model, return);
     DebuggerToolTipExpressionFilterModel *filterModel =
             new DebuggerToolTipExpressionFilterModel(model, m_expression);
@@ -1068,6 +1079,7 @@ void DebuggerToolTipWidget::doSaveSessionData(QXmlStreamWriter &w) const
 {
     w.writeStartElement(QLatin1String(treeElementC));
     QXmlStreamAttributes attributes;
+    attributes.append(QLatin1String(treeModelAttributeC), QString::number(m_debuggerModel));
     attributes.append(QLatin1String(treeExpressionAttributeC), m_expression);
     w.writeAttributes(attributes);
     if (QAbstractItemModel *model = m_treeView->model()) {
@@ -1083,9 +1095,10 @@ void DebuggerToolTipWidget::doLoadSessionData(QXmlStreamReader &r)
         return;
     // Restore data to default model and show that.
     const QXmlStreamAttributes attributes = r.attributes();
+    m_debuggerModel = attributes.value(QLatin1String(treeModelAttributeC)).toString().toInt();
     m_expression = attributes.value(QLatin1String(treeExpressionAttributeC)).toString();
     if (debugToolTips)
-        qDebug() << "DebuggerTreeViewToolTipWidget::doLoadSessionData() "  << m_expression;
+        qDebug() << "DebuggerTreeViewToolTipWidget::doLoadSessionData() " << m_debuggerModel << m_expression;
     setObjectName(QLatin1String("DebuggerTreeViewToolTipWidget: ") + m_expression);
     restoreTreeModel(r, m_defaultModel);
     r.readNext(); // Skip </tree>

@@ -16,7 +16,7 @@ def main():
     workingDir = tempDir()
     templateDir = prepareTemplate(sourceExample)
     prepareForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
-    installLazySignalHandler("{type='Core::FutureProgress' unnamed='1''}", "finished()", "__handleFutureProgress__")
+    installLazySignalHandler("{type='Core::FutureProgress' unnamed='1'}", "finished()", "__handleFutureProgress__")
     createNewQtQuickApplication(workingDir, "untitled", templateDir + "/qml/focus.qml")
     # wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")

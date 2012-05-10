@@ -53,7 +53,8 @@ def handleTextChanged(object):
 
 def testReIndent():
     global originalText,textHasChanged
-    installLazySignalHandler("QmlJSEditor::QmlJSTextEditorWidget", "textChanged()", "handleTextChanged")
+    installLazySignalHandler("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1'}",
+                             "textChanged()", "handleTextChanged")
     textHasChanged = False
     editor = waitForObject("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' "
                            "window=':Qt Creator_Core::Internal::MainWindow'}")

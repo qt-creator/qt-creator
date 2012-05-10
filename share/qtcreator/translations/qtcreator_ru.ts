@@ -17518,11 +17518,11 @@ to project &apos;%2&apos;.</source>
     <name>ProjectExplorer::Internal::TargetSelector</name>
     <message>
         <source>Run</source>
-        <translation>Запустить</translation>
+        <translation>Запуск</translation>
     </message>
     <message>
         <source>Build</source>
-        <translation>Собрать</translation>
+        <translation>Сборка</translation>
     </message>
 </context>
 <context>
