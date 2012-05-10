@@ -65,10 +65,7 @@
 
     You can create and edit \c qmltypes files manually, but you are recommended
     to use the \c qmlplugindump tool shipped with Qt 4.8 and later to generate
-    them automatically. For earlier versions of Qt, you can compile a version
-    of the tool called \c qmldump from the sources in
-    \c{<QtCreator>/share/qtcreator/qml/qmldump} if the Qt version contains
-    private headers.
+    them automatically.
 
     Once you have obtained qmlplugindump for the Qt version the QML module's
     plugins were compiled with, run the following command to load My.Module
@@ -81,6 +78,10 @@
     \endcode
 
     You can safely ignore the debug output.
+
+    For Qt 4.7.x, you can compile a version of the tool called \c qmldump from
+    the sources in \c{<QtCreator>/share/qtcreator/qml/qmldump} if the Qt version
+    contains private headers.
 
     \section1 Dumping Plugins Automatically
 
