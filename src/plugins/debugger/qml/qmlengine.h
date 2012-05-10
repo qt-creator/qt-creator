@@ -193,7 +193,7 @@ private:
     QmlInspectorAdapter m_inspectorAdapter;
     ProjectExplorer::ApplicationLauncher m_applicationLauncher;
     QTimer m_noDebugOutputTimer;
-    QmlOutputParser m_outputParser;
+    QmlDebug::QmlOutputParser m_outputParser;
     QHash<QString, QTextDocument*> m_sourceDocuments;
     QHash<QString, QWeakPointer<TextEditor::ITextEditor> > m_sourceEditors;
     InteractiveInterpreter m_interpreter;

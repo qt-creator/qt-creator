@@ -43,6 +43,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <utils/qtcassert.h>
 
+using namespace QmlDebug;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
@@ -422,14 +423,14 @@ void QmlLiveTextPreview::setApplyChangesToQmlInspector(bool applyChanges)
     m_applyChangesToQmlInspector = applyChanges;
 }
 
-static QList<int> findRootObjectRecursive(const QmlDebugObjectReference &object,
+static QList<int> findRootObjectRecursive(const ObjectReference &object,
                                           const Document::Ptr &doc)
 {
     QList<int> result;
     if (object.className() == doc->componentName())
         result += object.debugId();
 
-    foreach (const QmlDebugObjectReference &it, object.children()) {
+    foreach (const ObjectReference &it, object.children()) {
         result += findRootObjectRecursive(it, doc);
     }
     return result;
@@ -468,7 +469,7 @@ void QmlLiveTextPreview::updateDebugIds()
     if (doc->qmlProgram()->members &&  doc->qmlProgram()->members->member) {
         UiObjectMember *root = doc->qmlProgram()->members->member;
         QList<int> r;
-        foreach (const QmlDebugObjectReference& it,
+        foreach (const ObjectReference& it,
                  m_inspectorAdapter->agent()->rootObjects()) {
             r += findRootObjectRecursive(it, doc);
         }
@@ -516,7 +517,7 @@ void QmlLiveTextPreview::changeSelectedElements(QList<int> offsets,
 
     m_updateNodeForOffset = false;
     m_lastOffsets = offsets;
-    QmlDebugObjectReference objectRefUnderCursor;
+    ObjectReference objectRefUnderCursor;
     objectRefUnderCursor
             = m_inspectorAdapter->agent()->objectForId(wordAtCursor);
 

@@ -93,10 +93,10 @@ public:
     void flushSendBuffer();
 
 signals:
-    void newStatus(QmlDebugClient::Status status);
+    void newStatus(QmlDebug::ClientStatus status);
 
 protected:
-    virtual void statusChanged(Status status);
+    virtual void statusChanged(QmlDebug::ClientStatus status);
     void sendMessage(const QByteArray &msg);
 
 private:

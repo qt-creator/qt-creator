@@ -128,7 +128,7 @@ void QV8ProfilerClient::setRecordingFromServer(bool v)
     emit recordingChanged(v);
 }
 
-void QV8ProfilerClient::statusChanged(Status /*status*/)
+void QV8ProfilerClient::statusChanged(ClientStatus /*status*/)
 {
     emit enabledChanged();
 }

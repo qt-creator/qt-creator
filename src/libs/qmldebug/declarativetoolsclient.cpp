@@ -263,7 +263,7 @@ void DeclarativeToolsClient::setCurrentObjects(const QList<int> &debugIds)
 }
 
 void DeclarativeToolsClient::setObjectIdList(
-        const QList<QmlDebugObjectReference> &objectRoots)
+        const QList<ObjectReference> &objectRoots)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
@@ -271,7 +271,7 @@ void DeclarativeToolsClient::setObjectIdList(
     QList<int> debugIds;
     QList<QString> objectIds;
 
-    foreach (const QmlDebugObjectReference &ref, objectRoots)
+    foreach (const ObjectReference &ref, objectRoots)
         recurseObjectIdList(ref, debugIds, objectIds);
 
     InspectorProtocol::Message cmd = InspectorProtocol::ObjectIdList;

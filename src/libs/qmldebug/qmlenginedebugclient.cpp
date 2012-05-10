@@ -48,7 +48,7 @@ quint32 QmlEngineDebugClient::setBindingForObject(
         QString source, int line)
 {
     quint32 id = 0;
-    if (status() == QmlDebugClient::Enabled && objectDebugId != -1) {
+    if (status() == Enabled && objectDebugId != -1) {
         id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
@@ -64,7 +64,7 @@ quint32 QmlEngineDebugClient::resetBindingForObject(
         const QString &propertyName)
 {
     quint32 id = 0;
-    if (status() == QmlDebugClient::Enabled && objectDebugId != -1) {
+    if (status() == Enabled && objectDebugId != -1) {
         id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
@@ -79,7 +79,7 @@ quint32 QmlEngineDebugClient::setMethodBody(
         const QString &methodBody)
 {
     quint32 id = 0;
-    if (status() == QmlDebugClient::Enabled && objectDebugId != -1) {
+    if (status() == Enabled && objectDebugId != -1) {
         id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);

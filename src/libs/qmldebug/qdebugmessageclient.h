@@ -55,11 +55,11 @@ public:
     ~QDebugMessageClient();
 
 protected:
-    virtual void statusChanged(Status status);
+    virtual void statusChanged(ClientStatus status);
     virtual void messageReceived(const QByteArray &);
 
 signals:
-    void newStatus(QmlDebugClient::Status);
+    void newStatus(QmlDebug::ClientStatus);
     void message(QtMsgType, const QString &,
                  const QmlDebug::QDebugContextInfo &);
 

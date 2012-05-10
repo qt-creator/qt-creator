@@ -40,11 +40,11 @@
 namespace QmlDebug {
 
 class QmlDebugConnection;
-class QmlDebugPropertyReference;
-class QmlDebugContextReference;
-class QmlDebugObjectReference;
-class QmlDebugFileReference;
-class QmlDebugEngineReference;
+class PropertyReference;
+class ContextReference;
+class ObjectReference;
+class FileReference;
+class EngineReference;
 
 class QMLDEBUG_EXPORT BaseEngineDebugClient : public QmlDebugClient
 {
@@ -53,18 +53,18 @@ public:
     BaseEngineDebugClient(const QString &clientName,
                          QmlDebugConnection *conn);
 
-    quint32 addWatch(const QmlDebugPropertyReference &property);
-    quint32 addWatch(const QmlDebugContextReference &context, const QString &id);
-    quint32 addWatch(const QmlDebugObjectReference &object, const QString &expr);
-    quint32 addWatch(const QmlDebugObjectReference &object);
-    quint32 addWatch(const QmlDebugFileReference &file);
+    quint32 addWatch(const PropertyReference &property);
+    quint32 addWatch(const ContextReference &context, const QString &id);
+    quint32 addWatch(const ObjectReference &object, const QString &expr);
+    quint32 addWatch(const ObjectReference &object);
+    quint32 addWatch(const FileReference &file);
 
     void removeWatch(quint32 watch);
 
     quint32 queryAvailableEngines();
-    quint32 queryRootContexts(const QmlDebugEngineReference &context);
-    quint32 queryObject(const QmlDebugObjectReference &object);
-    quint32 queryObjectRecursive(const QmlDebugObjectReference &object);
+    quint32 queryRootContexts(const EngineReference &context);
+    quint32 queryObject(const ObjectReference &object);
+    quint32 queryObjectRecursive(const ObjectReference &object);
     quint32 queryExpressionResult(int objectDebugId,
                                   const QString &expr, int engineId = -1);
     virtual quint32 setBindingForObject(int objectDebugId, const QString &propertyName,
@@ -77,29 +77,29 @@ public:
                           const QString &methodBody);
 
 signals:
-    void newStatus(QmlDebugClient::Status status);
+    void newStatus(QmlDebug::ClientStatus status);
     void newObjects();
     void valueChanged(int debugId, const QByteArray &name,
                       const QVariant &value);
     void result(quint32 queryId, const QVariant &result, const QByteArray &type);
 
 protected:
-    virtual void statusChanged(Status status);
+    virtual void statusChanged(ClientStatus status);
     virtual void messageReceived(const QByteArray &);
 
     quint32 getId() { return m_nextId++; }
 
-    void decode(QDataStream &d, QmlDebugContextReference &context);
-    void decode(QDataStream &d, QmlDebugObjectReference &object, bool simple);
+    void decode(QDataStream &d, ContextReference &context);
+    void decode(QDataStream &d, ObjectReference &object, bool simple);
 
 private:
     quint32 m_nextId;
 };
 
-class QmlDebugFileReference
+class FileReference
 {
 public:
-    QmlDebugFileReference() : m_lineNumber(-1), m_columnNumber(-1) {}
+    FileReference() : m_lineNumber(-1), m_columnNumber(-1) {}
 
     QUrl url() const { return m_url; }
     int lineNumber() const { return m_lineNumber; }
@@ -112,11 +112,11 @@ private:
     int m_columnNumber;
 };
 
-class QmlDebugEngineReference
+class EngineReference
 {
 public:
-    QmlDebugEngineReference() : m_debugId(-1) {}
-    explicit QmlDebugEngineReference(int id) : m_debugId(id) {}
+    EngineReference() : m_debugId(-1) {}
+    explicit EngineReference(int id) : m_debugId(id) {}
 
     int debugId() const { return m_debugId; }
     QString name() const { return m_name; }
@@ -127,13 +127,11 @@ private:
     QString m_name;
 };
 
-typedef QList<QmlDebugEngineReference> QmlDebugEngineReferenceList;
-
-class QmlDebugObjectReference
+class ObjectReference
 {
 public:
-    QmlDebugObjectReference() : m_debugId(-1), m_parentId(-1), m_contextDebugId(-1), m_needsMoreData(false) {}
-    explicit QmlDebugObjectReference(int id) : m_debugId(id), m_parentId(-1), m_contextDebugId(-1), m_needsMoreData(false) {}
+    ObjectReference() : m_debugId(-1), m_parentId(-1), m_contextDebugId(-1), m_needsMoreData(false) {}
+    explicit ObjectReference(int id) : m_debugId(id), m_parentId(-1), m_contextDebugId(-1), m_needsMoreData(false) {}
 
     int debugId() const { return m_debugId; }
     int parentId() const { return m_parentId; }
@@ -141,14 +139,14 @@ public:
     QString idString() const { return m_idString; }
     QString name() const { return m_name; }
 
-    QmlDebugFileReference source() const { return m_source; }
+    FileReference source() const { return m_source; }
     int contextDebugId() const { return m_contextDebugId; }
     bool needsMoreData() const { return m_needsMoreData; }
 
-    QList<QmlDebugPropertyReference> properties() const { return m_properties; }
-    QList<QmlDebugObjectReference> children() const { return m_children; }
+    QList<PropertyReference> properties() const { return m_properties; }
+    QList<ObjectReference> children() const { return m_children; }
 
-    int insertObjectInTree(const QmlDebugObjectReference &obj)
+    int insertObjectInTree(const ObjectReference &obj)
     {
         for (int i = 0; i < m_children.count(); i++) {
             if (m_children[i].debugId() == obj.debugId()) {
@@ -162,7 +160,7 @@ public:
         return -1;
     }
 
-    bool operator ==(const QmlDebugObjectReference &obj)
+    bool operator ==(const ObjectReference &obj)
     {
         return m_debugId == obj.debugId();
     }
@@ -174,36 +172,36 @@ private:
     QString m_className;
     QString m_idString;
     QString m_name;
-    QmlDebugFileReference m_source;
+    FileReference m_source;
     int m_contextDebugId;
     bool m_needsMoreData;
-    QList<QmlDebugPropertyReference> m_properties;
-    QList<QmlDebugObjectReference> m_children;
+    QList<PropertyReference> m_properties;
+    QList<ObjectReference> m_children;
 };
 
-class QmlDebugContextReference
+class ContextReference
 {
 public:
-    QmlDebugContextReference() : m_debugId(-1) {}
+    ContextReference() : m_debugId(-1) {}
 
     int debugId() const { return m_debugId; }
     QString name() const { return m_name; }
 
-    QList<QmlDebugObjectReference> objects() const { return m_objects; }
-    QList<QmlDebugContextReference> contexts() const { return m_contexts; }
+    QList<ObjectReference> objects() const { return m_objects; }
+    QList<ContextReference> contexts() const { return m_contexts; }
 
 private:
     friend class BaseEngineDebugClient;
     int m_debugId;
     QString m_name;
-    QList<QmlDebugObjectReference> m_objects;
-    QList<QmlDebugContextReference> m_contexts;
+    QList<ObjectReference> m_objects;
+    QList<ContextReference> m_contexts;
 };
 
-class QmlDebugPropertyReference
+class PropertyReference
 {
 public:
-    QmlDebugPropertyReference() : m_objectDebugId(-1), m_hasNotifySignal(false) {}
+    PropertyReference() : m_objectDebugId(-1), m_hasNotifySignal(false) {}
 
     int debugId() const { return m_objectDebugId; }
     QString name() const { return m_name; }
@@ -224,23 +222,23 @@ private:
 
 } // namespace QmlDebug
 
-Q_DECLARE_METATYPE(QmlDebug::QmlDebugObjectReference)
-Q_DECLARE_METATYPE(QmlDebug::QmlDebugEngineReference)
-Q_DECLARE_METATYPE(QmlDebug::QmlDebugEngineReferenceList)
-Q_DECLARE_METATYPE(QmlDebug::QmlDebugContextReference)
+Q_DECLARE_METATYPE(QmlDebug::ObjectReference)
+Q_DECLARE_METATYPE(QmlDebug::EngineReference)
+Q_DECLARE_METATYPE(QList<QmlDebug::EngineReference>)
+Q_DECLARE_METATYPE(QmlDebug::ContextReference)
 
 QT_BEGIN_NAMESPACE
-inline QDebug operator<<(QDebug dbg, const QmlDebug::QmlDebugEngineReference &ref) {
+inline QDebug operator<<(QDebug dbg, const QmlDebug::EngineReference &ref) {
     dbg.nospace() << "(Engine " << ref.debugId() << "/" << ref.name() <<  ")";
     return dbg.space();
 }
 
-inline QDebug operator<<(QDebug dbg, const QmlDebug::QmlDebugContextReference &ref) {
+inline QDebug operator<<(QDebug dbg, const QmlDebug::ContextReference &ref) {
     dbg.nospace() << "(Context " << ref.debugId() << "/" << ref.name() <<  ")";
     return dbg.space();
 }
 
-inline QDebug operator<<(QDebug dbg, const QmlDebug::QmlDebugObjectReference &ref) {
+inline QDebug operator<<(QDebug dbg, const QmlDebug::ObjectReference &ref) {
     dbg.nospace() << "(Object " << ref.debugId() << "/"
                   << (ref.idString().isEmpty() ? ref.idString() : ref.className()) <<  ")";
     return dbg.space();

@@ -38,8 +38,6 @@
 #include <qmldebug/baseenginedebugclient.h>
 #include <watchdata.h>
 
-using namespace QmlDebug;
-
 namespace Debugger {
 
 class DebuggerEngine;
@@ -77,11 +75,11 @@ public:
     quint32 resetBindingForObject(int objectDebugId,
                                   const QString &propertyName);
 
-    QList<QmlDebugObjectReference> objects() const;
-    QmlDebugObjectReference objectForId(int debugId) const;
-    QmlDebugObjectReference objectForId(const QString &objectId) const;
-    QmlDebugObjectReference objectForLocation(int line, int column) const;
-    QList<QmlDebugObjectReference> rootObjects() const { return m_rootObjects; }
+    QList<QmlDebug::ObjectReference> objects() const;
+    QmlDebug::ObjectReference objectForId(int debugId) const;
+    QmlDebug::ObjectReference objectForId(const QString &objectId) const;
+    QmlDebug::ObjectReference objectForLocation(int line, int column) const;
+    QList<QmlDebug::ObjectReference> rootObjects() const { return m_rootObjects; }
     DebugIdHash debugIdHash() const { return m_debugIdHash; }
 
     bool addObjectWatch(int objectDebugId);
@@ -89,11 +87,11 @@ public:
     bool removeObjectWatch(int objectDebugId);
     void removeAllObjectWatches();
 
-    void setEngineClient(BaseEngineDebugClient *client);
+    void setEngineClient(QmlDebug::BaseEngineDebugClient *client);
 
 signals:
     void objectTreeUpdated();
-    void objectFetched(const QmlDebugObjectReference &ref);
+    void objectFetched(const QmlDebug::ObjectReference &ref);
     void expressionResult(quint32 queryId, const QVariant &value);
     void propertyChanged(int debugId, const QByteArray &propertyName,
                          const QVariant &propertyValue);
@@ -106,26 +104,26 @@ private slots:
 private:
     void reloadEngines();
     void queryEngineContext(int id);
-    quint32 fetchContextObject(const QmlDebugObjectReference &obj);
-    void fetchRootObjects(const QmlDebugContextReference &context, bool clear);
+    quint32 fetchContextObject(const QmlDebug::ObjectReference &obj);
+    void fetchRootObjects(const QmlDebug::ContextReference &context, bool clear);
 
-    void updateEngineList(const QmlDebugEngineReferenceList &engines);
-    void rootContextChanged(const QmlDebugContextReference &context);
-    void objectTreeFetched(const QmlDebugObjectReference &result);
-    void onCurrentObjectsFetched(const QmlDebugObjectReference &result);
-    bool getObjectHierarchy(const QmlDebugObjectReference &object);
+    void updateEngineList(const QList<QmlDebug::EngineReference> &engines);
+    void rootContextChanged(const QmlDebug::ContextReference &context);
+    void objectTreeFetched(const QmlDebug::ObjectReference &result);
+    void onCurrentObjectsFetched(const QmlDebug::ObjectReference &result);
+    bool getObjectHierarchy(const QmlDebug::ObjectReference &object);
 
 
-    void buildDebugIdHashRecursive(const QmlDebugObjectReference &ref);
-    QList<WatchData> buildWatchData(const QmlDebugObjectReference &obj,
+    void buildDebugIdHashRecursive(const QmlDebug::ObjectReference &ref);
+    QList<WatchData> buildWatchData(const QmlDebug::ObjectReference &obj,
                                            const WatchData &parent);
-    void addObjectToTree(const QmlDebugObjectReference &obj, bool notify);
+    void addObjectToTree(const QmlDebug::ObjectReference &obj, bool notify);
 
-    QmlDebugObjectReference objectForId(
+    QmlDebug::ObjectReference objectForId(
             int debugId,
-            const QmlDebugObjectReference &ref) const;
-    QList<QmlDebugObjectReference> objects(
-            const QmlDebugObjectReference &objectRef) const;
+            const QmlDebug::ObjectReference &ref) const;
+    QList<QmlDebug::ObjectReference> objects(
+            const QmlDebug::ObjectReference &objectRef) const;
 
 
     enum LogDirection {
@@ -144,10 +142,10 @@ private:
     quint32 m_rootContextQueryId;
     int m_objectToSelect;
     QList<quint32> m_objectTreeQueryIds;
-    QList<QmlDebugObjectReference> m_rootObjects;
+    QList<QmlDebug::ObjectReference> m_rootObjects;
     QList<quint32> m_fetchCurrentObjectsQueryIds;
-    QList<QmlDebugObjectReference> m_fetchCurrentObjects;
-    QmlDebugEngineReferenceList m_engines;
+    QList<QmlDebug::ObjectReference> m_fetchCurrentObjects;
+    QList<QmlDebug::EngineReference> m_engines;
     QHash<int, QByteArray> m_debugIdToIname;
     DebugIdHash m_debugIdHash;
 

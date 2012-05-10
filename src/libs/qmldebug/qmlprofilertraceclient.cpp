@@ -136,7 +136,7 @@ void QmlProfilerTraceClient::setRecordingFromServer(bool v)
     emit recordingChanged(v);
 }
 
-void QmlProfilerTraceClient::statusChanged(Status /*status*/)
+void QmlProfilerTraceClient::statusChanged(ClientStatus /*status*/)
 {
     emit enabledChanged();
 }

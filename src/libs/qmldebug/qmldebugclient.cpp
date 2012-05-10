@@ -149,9 +149,9 @@ void QmlDebugConnectionPrivate::readyRead()
 
         QHash<QString, QmlDebugClient *>::Iterator iter = plugins.begin();
         for (; iter != plugins.end(); ++iter) {
-            QmlDebugClient::Status newStatus = QmlDebugClient::Unavailable;
+            ClientStatus newStatus = Unavailable;
             if (serverPlugins.contains(iter.key()))
-                newStatus = QmlDebugClient::Enabled;
+                newStatus = Enabled;
             iter.value()->statusChanged(newStatus);
         }
     }
@@ -188,9 +188,9 @@ void QmlDebugConnectionPrivate::readyRead()
                 QHash<QString, QmlDebugClient *>::Iterator iter = plugins.begin();
                 for (; iter != plugins.end(); ++iter) {
                     const QString pluginName = iter.key();
-                    QmlDebugClient::Status newStatus = QmlDebugClient::Unavailable;
+                    ClientStatus newStatus = Unavailable;
                     if (serverPlugins.contains(pluginName))
-                        newStatus = QmlDebugClient::Enabled;
+                        newStatus = Enabled;
 
                     if (oldServerPlugins.contains(pluginName)
                             != serverPlugins.contains(pluginName)) {
@@ -232,7 +232,7 @@ QmlDebugConnection::~QmlDebugConnection()
     QHash<QString, QmlDebugClient*>::iterator iter = d->plugins.begin();
     for (; iter != d->plugins.end(); ++iter) {
         iter.value()->d_func()->connection = 0;
-        iter.value()->statusChanged(QmlDebugClient::NotConnected);
+        iter.value()->statusChanged(NotConnected);
     }
 }
 
@@ -276,7 +276,7 @@ void QmlDebugConnection::close()
 
         QHash<QString, QmlDebugClient*>::iterator iter = d->plugins.begin();
         for (; iter != d->plugins.end(); ++iter) {
-            iter.value()->statusChanged(QmlDebugClient::NotConnected);
+            iter.value()->statusChanged(NotConnected);
         }
     }
 }
@@ -414,7 +414,7 @@ float QmlDebugClient::serviceVersion() const
     return -1;
 }
 
-QmlDebugClient::Status QmlDebugClient::status() const
+ClientStatus QmlDebugClient::status() const
 {
     Q_D(const QmlDebugClient);
     if (!d->connection
@@ -440,7 +440,7 @@ void QmlDebugClient::sendMessage(const QByteArray &message)
     d->connection->flush();
 }
 
-void QmlDebugClient::statusChanged(Status)
+void QmlDebugClient::statusChanged(ClientStatus)
 {
 }
 

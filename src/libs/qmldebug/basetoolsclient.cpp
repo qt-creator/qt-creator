@@ -39,17 +39,17 @@ BaseToolsClient::BaseToolsClient(QmlDebugConnection* client, QLatin1String clien
     setObjectName(clientName);
 }
 
-void BaseToolsClient::statusChanged(Status status)
+void BaseToolsClient::statusChanged(ClientStatus status)
 {
     emit connectedStatusChanged(status);
 }
 
-void BaseToolsClient::recurseObjectIdList(const QmlDebugObjectReference &ref,
+void BaseToolsClient::recurseObjectIdList(const ObjectReference &ref,
                          QList<int> &debugIds, QList<QString> &objectIds)
 {
     debugIds << ref.debugId();
     objectIds << ref.idString();
-    foreach (const QmlDebugObjectReference &child, ref.children())
+    foreach (const ObjectReference &child, ref.children())
         recurseObjectIdList(child, debugIds, objectIds);
 }
 

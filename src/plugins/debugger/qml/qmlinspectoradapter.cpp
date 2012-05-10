@@ -99,44 +99,44 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
     , m_selectAction(new QAction(this))
     , m_zoomAction(new QAction(this))
 {
-    connect(m_agent, SIGNAL(objectFetched(QmlDebugObjectReference)),
-            SLOT(onObjectFetched(QmlDebugObjectReference)));
+    connect(m_agent, SIGNAL(objectFetched(QmlDebug::ObjectReference)),
+            SLOT(onObjectFetched(QmlDebug::ObjectReference)));
     connect(m_agent, SIGNAL(objectTreeUpdated()),
             SLOT(onObjectTreeUpdated()));
 
     QmlDebugConnection *connection = m_debugAdapter->connection();
     DeclarativeEngineDebugClient *engineClient1
             = new DeclarativeEngineDebugClient(connection);
-    connect(engineClient1, SIGNAL(newStatus(QmlDebugClient::Status)),
-            this, SLOT(clientStatusChanged(QmlDebugClient::Status)));
-    connect(engineClient1, SIGNAL(newStatus(QmlDebugClient::Status)),
-            this, SLOT(engineClientStatusChanged(QmlDebugClient::Status)));
+    connect(engineClient1, SIGNAL(newStatus(QmlDebug::ClientStatus)),
+            this, SLOT(clientStatusChanged(QmlDebug::ClientStatus)));
+    connect(engineClient1, SIGNAL(newStatus(QmlDebug::ClientStatus)),
+            this, SLOT(engineClientStatusChanged(QmlDebug::ClientStatus)));
 
     QmlEngineDebugClient *engineClient2 = new QmlEngineDebugClient(connection);
-    connect(engineClient2, SIGNAL(newStatus(QmlDebugClient::Status)),
-            this, SLOT(clientStatusChanged(QmlDebugClient::Status)));
-    connect(engineClient2, SIGNAL(newStatus(QmlDebugClient::Status)),
-            this, SLOT(engineClientStatusChanged(QmlDebugClient::Status)));
+    connect(engineClient2, SIGNAL(newStatus(QmlDebug::ClientStatus)),
+            this, SLOT(clientStatusChanged(QmlDebug::ClientStatus)));
+    connect(engineClient2, SIGNAL(newStatus(QmlDebug::ClientStatus)),
+            this, SLOT(engineClientStatusChanged(QmlDebug::ClientStatus)));
 
     m_engineClients.insert(engineClient1->name(), engineClient1);
     m_engineClients.insert(engineClient2->name(), engineClient2);
 
-    if (engineClient1->status() == QmlDebugClient::Enabled)
+    if (engineClient1->status() == QmlDebug::Enabled)
         setActiveEngineClient(engineClient1);
-    if (engineClient2->status() == QmlDebugClient::Enabled)
+    if (engineClient2->status() == QmlDebug::Enabled)
         setActiveEngineClient(engineClient2);
 
     DeclarativeToolsClient *toolsClient1 = new DeclarativeToolsClient(connection);
-    connect(toolsClient1, SIGNAL(connectedStatusChanged(QmlDebugClient::Status)),
-            this, SLOT(clientStatusChanged(QmlDebugClient::Status)));
-    connect(toolsClient1, SIGNAL(connectedStatusChanged(QmlDebugClient::Status)),
-            this, SLOT(toolsClientStatusChanged(QmlDebugClient::Status)));
+    connect(toolsClient1, SIGNAL(connectedStatusChanged(QmlDebug::ClientStatus)),
+            this, SLOT(clientStatusChanged(QmlDebug::ClientStatus)));
+    connect(toolsClient1, SIGNAL(connectedStatusChanged(QmlDebug::ClientStatus)),
+            this, SLOT(toolsClientStatusChanged(QmlDebug::ClientStatus)));
 
     QmlToolsClient *toolsClient2 = new QmlToolsClient(connection);
-    connect(toolsClient2, SIGNAL(connectedStatusChanged(QmlDebugClient::Status)),
-            this, SLOT(clientStatusChanged(QmlDebugClient::Status)));
-    connect(toolsClient2, SIGNAL(connectedStatusChanged(QmlDebugClient::Status)),
-            this, SLOT(toolsClientStatusChanged(QmlDebugClient::Status)));
+    connect(toolsClient2, SIGNAL(connectedStatusChanged(QmlDebug::ClientStatus)),
+            this, SLOT(clientStatusChanged(QmlDebug::ClientStatus)));
+    connect(toolsClient2, SIGNAL(connectedStatusChanged(QmlDebug::ClientStatus)),
+            this, SLOT(toolsClientStatusChanged(QmlDebug::ClientStatus)));
 
     // toolbar
     m_selectAction->setObjectName("QML Select Action");
@@ -179,7 +179,7 @@ QString QmlInspectorAdapter::currentSelectedDisplayName() const
     return m_currentSelectedDebugName;
 }
 
-void QmlInspectorAdapter::clientStatusChanged(QmlDebugClient::Status status)
+void QmlInspectorAdapter::clientStatusChanged(QmlDebug::ClientStatus status)
 {
     QString serviceName;
     float version = 0;
@@ -191,12 +191,12 @@ void QmlInspectorAdapter::clientStatusChanged(QmlDebugClient::Status status)
     m_debugAdapter->logServiceStatusChange(serviceName, version, status);
 }
 
-void QmlInspectorAdapter::toolsClientStatusChanged(QmlDebugClient::Status status)
+void QmlInspectorAdapter::toolsClientStatusChanged(QmlDebug::ClientStatus status)
 {
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = Core::ICore::actionManager();
     BaseToolsClient *client = qobject_cast<BaseToolsClient*>(sender());
-    if (status == QmlDebugClient::Enabled) {
+    if (status == QmlDebug::Enabled) {
         m_toolsClient = client;
 
         connect(client, SIGNAL(currentObjectsChanged(QList<int>)),
@@ -258,9 +258,9 @@ void QmlInspectorAdapter::toolsClientStatusChanged(QmlDebugClient::Status status
     }
 }
 
-void QmlInspectorAdapter::engineClientStatusChanged(QmlDebugClient::Status status)
+void QmlInspectorAdapter::engineClientStatusChanged(QmlDebug::ClientStatus status)
 {
-    if (status != QmlDebugClient::Enabled)
+    if (status != QmlDebug::Enabled)
         return;
 
     BaseEngineDebugClient *client
@@ -279,7 +279,7 @@ void QmlInspectorAdapter::selectObjectsFromEditor(const QList<int> &debugIds)
     }
     m_cursorPositionChangedExternally = true;
 
-    QmlDebugObjectReference clientRef
+    ObjectReference clientRef
             = agent()->objectForId(debugId);
 
     // if children haven't been loaded yet do so first, the editor
@@ -301,7 +301,7 @@ void QmlInspectorAdapter::selectObjectsFromToolsClient(const QList<int> &debugId
 
     int debugId = debugIds.first();
 
-    QmlDebugObjectReference clientRef
+    ObjectReference clientRef
             = agent()->objectForId(debugId);
 
     if (clientRef.debugId() != debugId) {
@@ -313,7 +313,7 @@ void QmlInspectorAdapter::selectObjectsFromToolsClient(const QList<int> &debugId
     }
 }
 
-void QmlInspectorAdapter::onObjectFetched(const QmlDebugObjectReference &ref)
+void QmlInspectorAdapter::onObjectFetched(const ObjectReference &ref)
 {
     if (ref.debugId() == m_debugIdToSelect) {
         m_debugIdToSelect = -1;
@@ -431,7 +431,7 @@ void QmlInspectorAdapter::onZoomActionTriggered(bool checked)
 void QmlInspectorAdapter::onShowAppOnTopChanged(const QVariant &value)
 {
     bool showAppOnTop = value.toBool();
-    if (m_toolsClient->status() == QmlDebugClient::Enabled)
+    if (m_toolsClient->status() == QmlDebug::Enabled)
         m_toolsClient->showAppOnTop(showAppOnTop);
 }
 
@@ -455,7 +455,7 @@ void QmlInspectorAdapter::setActiveEngineClient(BaseEngineDebugClient *client)
 
 
     if (m_engineClient &&
-            m_engineClient->status() == QmlDebugClient::Enabled) {
+            m_engineClient->status() == QmlDebug::Enabled) {
         QmlJS::ModelManagerInterface *modelManager
                 = QmlJS::ModelManagerInterface::instance();
         QmlJS::Snapshot snapshot = modelManager->snapshot();
@@ -499,14 +499,14 @@ void QmlInspectorAdapter::showConnectionStatusMessage(const QString &message)
 }
 
 void QmlInspectorAdapter::gotoObjectReferenceDefinition(
-        const QmlDebugObjectReference &obj)
+        const ObjectReference &obj)
 {
     if (m_cursorPositionChangedExternally) {
         m_cursorPositionChangedExternally = false;
         return;
     }
 
-    QmlDebugFileReference source = obj.source();
+    FileReference source = obj.source();
 
     const QString fileName = m_engine->toFileInProject(source.url());
 
@@ -520,7 +520,7 @@ void QmlInspectorAdapter::gotoObjectReferenceDefinition(
         m_selectionCallbackExpected = true;
 
     if (textEditor) {
-        QmlDebugObjectReference ref = objectReferenceForLocation(fileName);
+        ObjectReference ref = objectReferenceForLocation(fileName);
         if (ref.debugId() != obj.debugId()) {
             m_selectionCallbackExpected = true;
             editorManager->addCurrentPositionToNavigationHistory();
@@ -530,7 +530,7 @@ void QmlInspectorAdapter::gotoObjectReferenceDefinition(
     }
 }
 
-QmlDebugObjectReference QmlInspectorAdapter::objectReferenceForLocation(
+ObjectReference QmlInspectorAdapter::objectReferenceForLocation(
         const QString &fileName, int cursorPosition) const
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
@@ -559,14 +559,14 @@ QmlDebugObjectReference QmlInspectorAdapter::objectReferenceForLocation(
             }
         }
     }
-    return QmlDebugObjectReference();
+    return ObjectReference();
 }
 
-inline QString displayName(const QmlDebugObjectReference &obj)
+inline QString displayName(const ObjectReference &obj)
 {
     // special! state names
     if (obj.className() == "State") {
-        foreach (const QmlDebugPropertyReference &prop, obj.properties()) {
+        foreach (const PropertyReference &prop, obj.properties()) {
             if (prop.name() == "name")
                 return prop.value().toString();
         }
@@ -590,12 +590,12 @@ inline QString displayName(const QmlDebugObjectReference &obj)
     return QString("<%1>").arg(objTypeName);
 }
 
-void QmlInspectorAdapter::selectObject(const QmlDebugObjectReference &obj,
+void QmlInspectorAdapter::selectObject(const ObjectReference &obj,
                                        SelectionTarget target)
 {
     if (target == ToolTarget)
         m_toolsClient->setObjectIdList(
-                    QList<QmlDebugObjectReference>() << obj);
+                    QList<ObjectReference>() << obj);
 
     if (target == EditorTarget)
         gotoObjectReferenceDefinition(obj);

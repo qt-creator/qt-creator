@@ -42,6 +42,8 @@
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
+using namespace QmlDebug;
+
 namespace Debugger {
 namespace Internal {
 
@@ -81,7 +83,7 @@ void QmlInspectorAgent::fetchObject(int debugId)
         qDebug() << __FUNCTION__ << "(" << debugId << ")";
 
     m_fetchCurrentObjectsQueryIds
-            << fetchContextObject(QmlDebugObjectReference(debugId));
+            << fetchContextObject(ObjectReference(debugId));
 }
 
 quint32 QmlInspectorAgent::queryExpressionResult(int debugId,
@@ -102,7 +104,7 @@ void QmlInspectorAgent::updateWatchData(const WatchData &data)
 
     if (data.id) {
         // objects
-        QmlDebugObjectReference ref(data.id);
+        ObjectReference ref(data.id);
         m_fetchCurrentObjectsQueryIds << fetchContextObject(ref);
         WatchData d = data;
         d.setAllUnneeded();
@@ -134,7 +136,7 @@ void QmlInspectorAgent::selectObjectInTree(int debugId)
         // we've to fetch it
         m_objectToSelect = debugId;
         m_fetchCurrentObjectsQueryIds
-                << fetchContextObject(QmlDebugObjectReference(debugId));
+                << fetchContextObject(ObjectReference(debugId));
     }
 }
 
@@ -227,48 +229,48 @@ quint32 QmlInspectorAgent::resetBindingForObject(int objectDebugId,
 }
 
 
-QList<QmlDebugObjectReference> QmlInspectorAgent::objects() const
+QList<ObjectReference> QmlInspectorAgent::objects() const
 {
-    QList<QmlDebugObjectReference> result;
-    foreach (const QmlDebugObjectReference &it, m_rootObjects)
+    QList<ObjectReference> result;
+    foreach (const ObjectReference &it, m_rootObjects)
         result.append(objects(it));
     return result;
 }
 
-QmlDebugObjectReference QmlInspectorAgent::objectForId(int debugId) const
+ObjectReference QmlInspectorAgent::objectForId(int debugId) const
 {
-    foreach (const QmlDebugObjectReference &it, m_rootObjects) {
-        QmlDebugObjectReference result = objectForId(debugId, it);
+    foreach (const ObjectReference &it, m_rootObjects) {
+        ObjectReference result = objectForId(debugId, it);
         if (result.debugId() == debugId)
             return result;
     }
-    return QmlDebugObjectReference();
+    return ObjectReference();
 }
 
-QmlDebugObjectReference QmlInspectorAgent::objectForId(
+ObjectReference QmlInspectorAgent::objectForId(
         const QString &objectId) const
 {
     if (!objectId.isEmpty() && objectId[0].isLower()) {
-        const QList<QmlDebugObjectReference> refs = objects();
-        foreach (const QmlDebugObjectReference &ref, refs) {
+        const QList<ObjectReference> refs = objects();
+        foreach (const ObjectReference &ref, refs) {
             if (ref.idString() == objectId)
                 return ref;
         }
     }
-    return QmlDebugObjectReference();
+    return ObjectReference();
 }
 
-QmlDebugObjectReference QmlInspectorAgent::objectForLocation(
+ObjectReference QmlInspectorAgent::objectForLocation(
         int line, int column) const
 {
-    const QList<QmlDebugObjectReference> refs = objects();
-    foreach (const QmlDebugObjectReference &ref, refs) {
+    const QList<ObjectReference> refs = objects();
+    foreach (const ObjectReference &ref, refs) {
         if (ref.source().lineNumber() == line
                 && ref.source().columnNumber() == column)
             return ref;
     }
 
-    return QmlDebugObjectReference();
+    return ObjectReference();
 }
 
 bool QmlInspectorAgent::addObjectWatch(int objectDebugId)
@@ -287,7 +289,7 @@ bool QmlInspectorAgent::addObjectWatch(int objectDebugId)
     if (m_objectWatches.contains(objectDebugId))
         return true;
 
-    QmlDebugObjectReference ref = objectForId(objectDebugId);
+    ObjectReference ref = objectForId(objectDebugId);
     if (ref.debugId() != objectDebugId)
         return false;
 
@@ -338,7 +340,7 @@ void QmlInspectorAgent::setEngineClient(BaseEngineDebugClient *client)
         return;
 
     if (m_engineClient) {
-        disconnect(m_engineClient, SIGNAL(newStatus(QmlDebugClient::Status)),
+        disconnect(m_engineClient, SIGNAL(newStatus(QmlDebug::ClientStatus)),
                    this, SLOT(updateStatus()));
         disconnect(m_engineClient, SIGNAL(result(quint32,QVariant,QByteArray)),
                    this, SLOT(onResult(quint32,QVariant,QByteArray)));
@@ -349,7 +351,7 @@ void QmlInspectorAgent::setEngineClient(BaseEngineDebugClient *client)
     m_engineClient = client;
 
     if (m_engineClient) {
-        connect(m_engineClient, SIGNAL(newStatus(QmlDebugClient::Status)),
+        connect(m_engineClient, SIGNAL(newStatus(QmlDebug::ClientStatus)),
                 this, SLOT(updateStatus()));
         connect(m_engineClient, SIGNAL(result(quint32,QVariant,QByteArray)),
                 this, SLOT(onResult(quint32,QVariant,QByteArray)));
@@ -363,7 +365,7 @@ void QmlInspectorAgent::setEngineClient(BaseEngineDebugClient *client)
 void QmlInspectorAgent::updateStatus()
 {
     if (m_engineClient
-            && (m_engineClient->status() == QmlDebugClient::Enabled)
+            && (m_engineClient->status() == QmlDebug::Enabled)
             && debuggerCore()->boolSetting(ShowQmlObjectTree)) {
         reloadEngines();
     } else {
@@ -381,24 +383,24 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
 
     if (type == _("FETCH_OBJECT_R")) {
         log(LogReceive, _("FETCH_OBJECT_R %1").arg(
-                qvariant_cast<QmlDebugObjectReference>(value).idString()));
+                qvariant_cast<ObjectReference>(value).idString()));
     } else {
         log(LogReceive, QLatin1String(type));
     }
 
     if (m_objectTreeQueryIds.contains(queryId)) {
         m_objectTreeQueryIds.removeOne(queryId);
-        objectTreeFetched(qvariant_cast<QmlDebugObjectReference>(value));
+        objectTreeFetched(qvariant_cast<ObjectReference>(value));
     } else if (queryId == m_engineQueryId) {
         m_engineQueryId = 0;
-        updateEngineList(qvariant_cast<QmlDebugEngineReferenceList>(value));
+        updateEngineList(qvariant_cast<QList<EngineReference> >(value));
     } else if (queryId == m_rootContextQueryId) {
         m_rootContextQueryId = 0;
-        rootContextChanged(qvariant_cast<QmlDebugContextReference>(value));
+        rootContextChanged(qvariant_cast<ContextReference>(value));
     } else if (m_fetchCurrentObjectsQueryIds.contains(queryId)) {
         m_fetchCurrentObjectsQueryIds.removeOne(queryId);
-        QmlDebugObjectReference obj
-                = qvariant_cast<QmlDebugObjectReference>(value);
+        ObjectReference obj
+                = qvariant_cast<ObjectReference>(value);
         m_fetchCurrentObjects.push_front(obj);
         onCurrentObjectsFetched(obj);
     } else {
@@ -447,10 +449,10 @@ void QmlInspectorAgent::queryEngineContext(int id)
     log(LogSend, QString("LIST_OBJECTS %1").arg(QString::number(id)));
 
     m_rootContextQueryId
-            = m_engineClient->queryRootContexts(QmlDebugEngineReference(id));
+            = m_engineClient->queryRootContexts(EngineReference(id));
 }
 
-quint32 QmlInspectorAgent::fetchContextObject(const QmlDebugObjectReference &obj)
+quint32 QmlInspectorAgent::fetchContextObject(const ObjectReference &obj)
 {
     if (debug)
         qDebug() << __FUNCTION__ << "(" << obj << ")";
@@ -468,7 +470,7 @@ quint32 QmlInspectorAgent::fetchContextObject(const QmlDebugObjectReference &obj
 }
 
 // fetch the root objects from the context + any child contexts
-void QmlInspectorAgent::fetchRootObjects(const QmlDebugContextReference &context,
+void QmlInspectorAgent::fetchRootObjects(const ContextReference &context,
                                          bool clear)
 {
     if (debug)
@@ -482,7 +484,7 @@ void QmlInspectorAgent::fetchRootObjects(const QmlDebugContextReference &context
         m_rootObjects.clear();
         m_objectTreeQueryIds.clear();
     }
-    foreach (const QmlDebugObjectReference & obj, context.objects()) {
+    foreach (const ObjectReference & obj, context.objects()) {
         quint32 queryId = 0;
         using namespace QmlDebug::Constants;
         if (m_engineClient->objectName() == QML_DEBUGGER &&
@@ -497,11 +499,11 @@ void QmlInspectorAgent::fetchRootObjects(const QmlDebugContextReference &context
         if (queryId)
             m_objectTreeQueryIds << queryId;
     }
-    foreach (const QmlDebugContextReference &child, context.contexts())
+    foreach (const ContextReference &child, context.contexts())
         fetchRootObjects(child, false);
 }
 
-void QmlInspectorAgent::updateEngineList(const QmlDebugEngineReferenceList &engines)
+void QmlInspectorAgent::updateEngineList(const QList<EngineReference> &engines)
 {
     if (debug)
         qDebug() << __FUNCTION__ << "(" << engines << ")";
@@ -512,7 +514,7 @@ void QmlInspectorAgent::updateEngineList(const QmlDebugEngineReferenceList &engi
     queryEngineContext(engines.first().debugId());
 }
 
-void QmlInspectorAgent::rootContextChanged(const QmlDebugContextReference &context)
+void QmlInspectorAgent::rootContextChanged(const ContextReference &context)
 {
     if (debug)
         qDebug() << __FUNCTION__ << "(" << context << ")";
@@ -520,7 +522,7 @@ void QmlInspectorAgent::rootContextChanged(const QmlDebugContextReference &conte
     fetchRootObjects(context, true);
 }
 
-void QmlInspectorAgent::objectTreeFetched(const QmlDebugObjectReference &object)
+void QmlInspectorAgent::objectTreeFetched(const ObjectReference &object)
 {
     if (debug)
         qDebug() << __FUNCTION__ << "(" << object << ")";
@@ -532,14 +534,14 @@ void QmlInspectorAgent::objectTreeFetched(const QmlDebugObjectReference &object)
         m_debugIdHash.clear();
         m_debugIdHash.reserve(old_count + 1);
         m_debugIdToIname.clear();
-        foreach (const QmlDebugObjectReference &it, m_rootObjects)
+        foreach (const ObjectReference &it, m_rootObjects)
             buildDebugIdHashRecursive(it);
 
         emit objectTreeUpdated();
 
         // sync tree with watchhandler
         QList<WatchData> watchData;
-        foreach (const QmlDebugObjectReference &obj, m_rootObjects)
+        foreach (const ObjectReference &obj, m_rootObjects)
             watchData.append(buildWatchData(obj, WatchData()));
 
         WatchHandler *watchHandler = m_engine->watchHandler();
@@ -549,7 +551,7 @@ void QmlInspectorAgent::objectTreeFetched(const QmlDebugObjectReference &object)
     }
 }
 
-void QmlInspectorAgent::onCurrentObjectsFetched(const QmlDebugObjectReference &obj)
+void QmlInspectorAgent::onCurrentObjectsFetched(const ObjectReference &obj)
 {
     if (debug)
         qDebug() << __FUNCTION__ << "( " << obj << ")";
@@ -561,10 +563,10 @@ void QmlInspectorAgent::onCurrentObjectsFetched(const QmlDebugObjectReference &o
     if (debug)
         qDebug() << "  adding" << m_fetchCurrentObjects << "to tree";
 
-    foreach (const QmlDebugObjectReference &o, m_fetchCurrentObjects)
+    foreach (const ObjectReference &o, m_fetchCurrentObjects)
         addObjectToTree(o, false);
 
-    QmlDebugObjectReference last = m_fetchCurrentObjects.last();
+    ObjectReference last = m_fetchCurrentObjects.last();
     m_fetchCurrentObjects.clear();
 
     if (m_objectToSelect == last.debugId()) {
@@ -583,12 +585,12 @@ void QmlInspectorAgent::onCurrentObjectsFetched(const QmlDebugObjectReference &o
 }
 
 // Fetches all anchestors of object. Returns if all has been fetched already.
-bool QmlInspectorAgent::getObjectHierarchy(const QmlDebugObjectReference &obj)
+bool QmlInspectorAgent::getObjectHierarchy(const ObjectReference &obj)
 {
     if (debug)
         qDebug() << __FUNCTION__ << "(" << obj << ")";
 
-    QmlDebugObjectReference parent = objectForId(obj.parentId());
+    ObjectReference parent = objectForId(obj.parentId());
     //for root object
     if (obj.parentId() == -1)
         return true;
@@ -596,14 +598,14 @@ bool QmlInspectorAgent::getObjectHierarchy(const QmlDebugObjectReference &obj)
     //for other objects
     if (parent.debugId() == -1 || parent.needsMoreData()) {
         m_fetchCurrentObjectsQueryIds
-                << fetchContextObject(QmlDebugObjectReference(obj.parentId()));
+                << fetchContextObject(ObjectReference(obj.parentId()));
     } else {
         return getObjectHierarchy(parent);
     }
     return false;
 }
 
-void QmlInspectorAgent::buildDebugIdHashRecursive(const QmlDebugObjectReference &ref)
+void QmlInspectorAgent::buildDebugIdHashRecursive(const ObjectReference &ref)
 {
     if (debug)
         qDebug() << __FUNCTION__ << "(" << ref << ")";
@@ -631,7 +633,7 @@ void QmlInspectorAgent::buildDebugIdHashRecursive(const QmlDebugObjectReference 
     if (!m_debugIdHash[file][location].contains(ref.debugId()))
         m_debugIdHash[file][location].append(ref.debugId());
 
-    foreach (const QmlDebugObjectReference &it, ref.children())
+    foreach (const ObjectReference &it, ref.children())
         buildDebugIdHashRecursive(it);
 }
 
@@ -647,7 +649,7 @@ static QByteArray buildIName(const WatchData &parent, const QString &name)
     return parent.iname + "." + name.toLatin1();
 }
 
-QList<WatchData> QmlInspectorAgent::buildWatchData(const QmlDebugObjectReference &obj,
+QList<WatchData> QmlInspectorAgent::buildWatchData(const ObjectReference &obj,
                                        const WatchData &parent)
 {
     if (debug)
@@ -686,7 +688,7 @@ QList<WatchData> QmlInspectorAgent::buildWatchData(const QmlDebugObjectReference
 
     list.append(propertiesWatch);
 
-    foreach (const QmlDebugPropertyReference &property, obj.properties()) {
+    foreach (const PropertyReference &property, obj.properties()) {
         WatchData propertyWatch;
         propertyWatch.exp = property.name().toLatin1();
         propertyWatch.name = property.name();
@@ -699,12 +701,12 @@ QList<WatchData> QmlInspectorAgent::buildWatchData(const QmlDebugObjectReference
     }
 
     // recurse
-    foreach (const QmlDebugObjectReference &child, obj.children())
+    foreach (const ObjectReference &child, obj.children())
         list.append(buildWatchData(child, objWatch));
     return list;
 }
 
-void QmlInspectorAgent::addObjectToTree(const QmlDebugObjectReference &obj,
+void QmlInspectorAgent::addObjectToTree(const ObjectReference &obj,
                                         bool notify)
 {
     int count = m_rootObjects.count();
@@ -735,28 +737,28 @@ void QmlInspectorAgent::addObjectToTree(const QmlDebugObjectReference &obj,
     }
 }
 
-QmlDebugObjectReference QmlInspectorAgent::objectForId(int debugId,
-        const QmlDebugObjectReference &objectRef) const
+ObjectReference QmlInspectorAgent::objectForId(int debugId,
+        const ObjectReference &objectRef) const
 {
     if (objectRef.debugId() == debugId)
         return objectRef;
 
-    foreach (const QmlDebugObjectReference &child, objectRef.children()) {
-        QmlDebugObjectReference result = objectForId(debugId, child);
+    foreach (const ObjectReference &child, objectRef.children()) {
+        ObjectReference result = objectForId(debugId, child);
         if (result.debugId() == debugId)
             return result;
     }
 
-    return QmlDebugObjectReference();
+    return ObjectReference();
 }
 
-QList<QmlDebugObjectReference> QmlInspectorAgent::objects(
-        const QmlDebugObjectReference &objectRef) const
+QList<ObjectReference> QmlInspectorAgent::objects(
+        const ObjectReference &objectRef) const
 {
-    QList<QmlDebugObjectReference> result;
+    QList<ObjectReference> result;
     result.append(objectRef);
 
-    foreach (const QmlDebugObjectReference &child, objectRef.children())
+    foreach (const ObjectReference &child, objectRef.children())
         result.append(objects(child));
 
     return result;
@@ -779,7 +781,7 @@ void QmlInspectorAgent::log(QmlInspectorAgent::LogDirection direction,
 bool QmlInspectorAgent::isConnected()
 {
     return m_engineClient
-            && (m_engineClient->status() == QmlDebugClient::Enabled);
+            && (m_engineClient->status() == QmlDebug::Enabled);
 }
 
 } // Internal

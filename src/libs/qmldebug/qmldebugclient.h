@@ -75,6 +75,12 @@ private:
     friend class QmlDebugClientPrivate;
 };
 
+enum ClientStatus {
+    NotConnected,
+    Unavailable,
+    Enabled
+};
+
 class QmlDebugClientPrivate;
 class QMLDEBUG_EXPORT QmlDebugClient : public QObject
 {
@@ -83,19 +89,17 @@ class QMLDEBUG_EXPORT QmlDebugClient : public QObject
     Q_DISABLE_COPY(QmlDebugClient)
 
 public:
-    enum Status { NotConnected, Unavailable, Enabled };
-
     QmlDebugClient(const QString &, QmlDebugConnection *parent);
     ~QmlDebugClient();
 
     QString name() const;
     float serviceVersion() const;
-    Status status() const;
+    ClientStatus status() const;
 
     virtual void sendMessage(const QByteArray &);
 
 protected:
-    virtual void statusChanged(Status);
+    virtual void statusChanged(ClientStatus);
     virtual void messageReceived(const QByteArray &);
 
 private:

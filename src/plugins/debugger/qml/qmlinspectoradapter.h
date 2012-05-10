@@ -47,10 +47,8 @@ class IEditor;
 namespace QmlDebug {
 class BaseEngineDebugClient;
 class BaseToolsClient;
-class QmlDebugObjectReference;
+class ObjectReference;
 }
-
-using namespace QmlDebug;
 
 namespace Debugger {
 namespace Internal {
@@ -70,8 +68,8 @@ public:
                         QObject *parent = 0);
     ~QmlInspectorAdapter();
 
-    BaseEngineDebugClient *engineClient() const;
-    BaseToolsClient *toolsClient() const;
+    QmlDebug::BaseEngineDebugClient *engineClient() const;
+    QmlDebug::BaseToolsClient *toolsClient() const;
     QmlInspectorAgent *agent() const;
 
     int currentSelectedDebugId() const;
@@ -82,13 +80,13 @@ signals:
     void selectionChanged();
 
 private slots:
-    void clientStatusChanged(QmlDebugClient::Status status);
-    void toolsClientStatusChanged(QmlDebugClient::Status status);
-    void engineClientStatusChanged(QmlDebugClient::Status status);
+    void clientStatusChanged(QmlDebug::ClientStatus status);
+    void toolsClientStatusChanged(QmlDebug::ClientStatus status);
+    void engineClientStatusChanged(QmlDebug::ClientStatus status);
 
     void selectObjectsFromEditor(const QList<int> &debugIds);
     void selectObjectsFromToolsClient(const QList<int> &debugIds);
-    void onObjectFetched(const QmlDebugObjectReference &ref);
+    void onObjectFetched(const QmlDebug::ObjectReference &ref);
     void onObjectTreeUpdated();
 
     void createPreviewForEditor(Core::IEditor *newEditor);
@@ -101,26 +99,26 @@ private slots:
     void onUpdateOnSaveChanged(const QVariant &value);
 
 private:
-    void setActiveEngineClient(BaseEngineDebugClient *client);
+    void setActiveEngineClient(QmlDebug::BaseEngineDebugClient *client);
 
     void initializePreviews();
     void showConnectionStatusMessage(const QString &message);
 
-    void gotoObjectReferenceDefinition(const QmlDebugObjectReference &obj);
-    QmlDebugObjectReference objectReferenceForLocation(
+    void gotoObjectReferenceDefinition(const QmlDebug::ObjectReference &obj);
+    QmlDebug::ObjectReference objectReferenceForLocation(
             const QString &fileName, int cursorPosition = -1) const;
 
     enum SelectionTarget { NoTarget, ToolTarget, EditorTarget };
     void selectObject(
-            const QmlDebugObjectReference &objectReference,
+            const QmlDebug::ObjectReference &objectReference,
             SelectionTarget target);
 
 
     QmlAdapter *m_debugAdapter;
     QmlEngine *m_engine;
-    BaseEngineDebugClient *m_engineClient;
-    QHash<QString, BaseEngineDebugClient*> m_engineClients;
-    BaseToolsClient *m_toolsClient;
+    QmlDebug::BaseEngineDebugClient *m_engineClient;
+    QHash<QString, QmlDebug::BaseEngineDebugClient*> m_engineClients;
+    QmlDebug::BaseToolsClient *m_toolsClient;
     QmlInspectorAgent *m_agent;
 
     SelectionTarget m_targetToSync;

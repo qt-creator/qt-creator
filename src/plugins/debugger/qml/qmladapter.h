@@ -42,8 +42,6 @@
 #include <QPointer>
 #include <QTimer>
 
-using namespace QmlDebug;
-
 namespace QmlDebug {
 class BaseEngineDebugClient;
 class QmlDebugConnection;
@@ -72,7 +70,7 @@ public:
 
     bool isConnected() const;
 
-    QmlDebugConnection *connection() const;
+    QmlDebug::QmlDebugConnection *connection() const;
     DebuggerEngine *debuggerEngine() const;
 
     bool disableJsDebugging(bool block);
@@ -80,12 +78,11 @@ public:
     BaseQmlDebuggerClient *activeDebuggerClient() const;
     QHash<QString, BaseQmlDebuggerClient*> debuggerClients() const;
 
-    BaseEngineDebugClient *engineDebugClient() const;
-    QDebugMessageClient *messageClient() const;
+    QmlDebug::QDebugMessageClient *messageClient() const;
 
 public slots:
     void logServiceStatusChange(const QString &service, float version,
-                                QmlDebugClient::Status newStatus);
+                                QmlDebug::ClientStatus newStatus);
     void logServiceActivity(const QString &service, const QString &logMessage);
 
 signals:
@@ -97,8 +94,8 @@ signals:
 
 private slots:
     void connectionErrorOccurred(QAbstractSocket::SocketError socketError);
-    void clientStatusChanged(QmlDebugClient::Status status);
-    void debugClientStatusChanged(QmlDebugClient::Status status);
+    void clientStatusChanged(QmlDebug::ClientStatus status);
+    void debugClientStatusChanged(QmlDebug::ClientStatus status);
     void connectionStateChanged();
     void checkConnectionState();
 
@@ -111,9 +108,9 @@ private:
     QPointer<DebuggerEngine> m_engine;
     BaseQmlDebuggerClient *m_qmlClient;
     QTimer m_connectionTimer;
-    QmlDebugConnection *m_conn;
+    QmlDebug::QmlDebugConnection *m_conn;
     QHash<QString, BaseQmlDebuggerClient*> m_debugClients;
-    QDebugMessageClient *m_msgClient;
+    QmlDebug::QDebugMessageClient *m_msgClient;
 };
 
 } // namespace Internal

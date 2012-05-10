@@ -130,7 +130,7 @@ void QmlToolsClient::setCurrentObjects(const QList<int> &debugIds)
 }
 
 void QmlToolsClient::setObjectIdList(
-        const QList<QmlDebugObjectReference> &/*objectRoots*/)
+        const QList<ObjectReference> &/*objectRoots*/)
 {
     //NOT IMPLEMENTED
 }

@@ -43,7 +43,7 @@ QDebugMessageClient::~QDebugMessageClient()
 {
 }
 
-void QDebugMessageClient::statusChanged(Status status)
+void QDebugMessageClient::statusChanged(ClientStatus status)
 {
     emit newStatus(status);
 }

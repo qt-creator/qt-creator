@@ -343,7 +343,7 @@ void QmlProfilerClientManager::retryMessageBoxFinished(int result)
 void QmlProfilerClientManager::qmlComplete()
 {
     d->qmlDataReady = true;
-    if (!d->v8clientplugin || d->v8clientplugin.data()->status() != QmlDebugClient::Enabled || d->v8DataReady) {
+    if (!d->v8clientplugin || d->v8clientplugin.data()->status() != QmlDebug::Enabled || d->v8DataReady) {
         emit dataReadyForProcessing();
         // once complete is sent, reset the flags
         d->qmlDataReady = false;
@@ -354,7 +354,7 @@ void QmlProfilerClientManager::qmlComplete()
 void QmlProfilerClientManager::v8Complete()
 {
     d->v8DataReady = true;
-    if (!d->qmlclientplugin || d->qmlclientplugin.data()->status() != QmlDebugClient::Enabled || d->qmlDataReady) {
+    if (!d->qmlclientplugin || d->qmlclientplugin.data()->status() != QmlDebug::Enabled || d->qmlDataReady) {
         emit dataReadyForProcessing();
         // once complete is sent, reset the flags
         d->v8DataReady = false;

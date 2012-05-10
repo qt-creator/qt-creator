@@ -66,12 +66,12 @@ public:
 
     // ### Qt 4.8: remove if we can have access to qdeclarativecontextdata or id's
     virtual void setObjectIdList(
-            const QList<QmlDebugObjectReference> &objectRoots) = 0;
+            const QList<ObjectReference> &objectRoots) = 0;
 
     virtual void clearComponentCache() = 0;
 
 signals:
-    void connectedStatusChanged(QmlDebugClient::Status status);
+    void connectedStatusChanged(QmlDebug::ClientStatus status);
 
     void currentObjectsChanged(const QList<int> &debugIds);
     void selectToolActivated();
@@ -86,9 +86,9 @@ signals:
     void logActivity(QString client, QString message);
 
 protected:
-    void statusChanged(Status);
+    void statusChanged(ClientStatus status);
 
-    void recurseObjectIdList(const QmlDebugObjectReference &ref,
+    void recurseObjectIdList(const ObjectReference &ref,
                              QList<int> &debugIds, QList<QString> &objectIds);
 protected:
     enum LogDirection {
