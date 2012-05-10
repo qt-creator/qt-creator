@@ -497,7 +497,9 @@ void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber,
 
     if (textEditor) {
         editorManager->addCurrentPositionToNavigationHistory();
-        textEditor->gotoLine(lineNumber, columnNumber);
+        // textEditor counts columns starting with 0, but the ASTs store the
+        // location starting with 1, therefore the -1 in the call to gotoLine
+        textEditor->gotoLine(lineNumber, columnNumber - 1);
         textEditor->widget()->setFocus();
     }
 }
