@@ -380,8 +380,8 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     item->setSettingsKey(debugModeGroup, QLatin1String("AutoEnrichParameters"));
     item->setDefaultValue(QString());
     item->setCheckable(true);
-    item->setDefaultValue(false);
-    item->setValue(false);
+    item->setDefaultValue(true);
+    item->setValue(true);
     insertItem(AutoEnrichParameters, item);
 
     item = new SavedAction(this);

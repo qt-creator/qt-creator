@@ -4831,6 +4831,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
     showMessage(_("GDB STARTED, INITIALIZING IT"));
     postCommand("show version", CB(handleShowVersion));
     //postCommand("-list-features", CB(handleListFeatures));
+    postCommand("show debug-file-directory", CB(handleDebugInfoLocation));
 
     //postCommand("-enable-timings");
     //postCommand("set print static-members off"); // Seemingly doesn't work.
@@ -5121,6 +5122,25 @@ void GdbEngine::finishInferiorSetup()
     }
     postCommand("maint print msymbols " + fileName.toLocal8Bit(),
         CB(handleNamespaceExtraction), fileName);
+}
+
+void GdbEngine::handleDebugInfoLocation(const GdbResponse &response)
+{
+#ifdef Q_OS_WIN
+    #define PATHSEP ';'
+#else
+    #define PATHSEP ':'
+#endif
+    if (response.resultClass == GdbResultDone) {
+        QByteArray debugInfoLocation = startParameters().debugInfoLocation.toLocal8Bit();
+        if (QFile::exists(QString::fromLocal8Bit(debugInfoLocation))) {
+            const QByteArray curDebugInfoLocations = response.consoleStreamOutput.split('"').value(1);
+            startParameters().debugInfoLocation = curDebugInfoLocations.isEmpty() ?
+                        QString::fromLocal8Bit(debugInfoLocation) :
+                        QString::fromLocal8Bit(debugInfoLocation + PATHSEP + curDebugInfoLocations);
+        }
+    }
+#undef PATHSEP
 }
 
 void GdbEngine::handleNamespaceExtraction(const GdbResponse &response)

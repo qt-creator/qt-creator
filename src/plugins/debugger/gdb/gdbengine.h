@@ -281,6 +281,8 @@ private: ////////// Gdb Process Management //////////
     // This notifies the base of a successful inferior setup.
     void finishInferiorSetup();
 
+    void handleDebugInfoLocation(const GdbResponse &response);
+
     // The adapter is still running just fine, but it failed to acquire a debuggee.
     void notifyInferiorSetupFailed(const QString &msg);
 
