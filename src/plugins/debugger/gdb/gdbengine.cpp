@@ -1034,7 +1034,12 @@ void GdbEngine::commandTimeout()
         showMessage(_(msg));
     }
     if (killIt) {
-        showMessage(_("TIMED OUT WAITING FOR GDB REPLY. COMMANDS STILL IN PROGRESS:"));
+        QStringList commands;
+        foreach (const GdbCommand &cookie, m_cookieForToken)
+            commands << QString(_("\"%1\"")).arg(
+                            QString::fromLatin1(cookie.command));
+        showMessage(_("TIMED OUT WAITING FOR GDB REPLY. "
+                      "COMMANDS STILL IN PROGRESS: ") + commands.join(_(", ")));
         int timeOut = m_commandTimer.interval();
         //m_commandTimer.stop();
         const QString msg = tr("The gdb process has not responded "
