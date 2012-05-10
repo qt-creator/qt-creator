@@ -152,7 +152,8 @@ void QmlCppEngine::updateWatchData(const WatchData &data,
 {
     if (data.iname.startsWith("inspect."))
         d->m_qmlEngine->updateWatchData(data, flags);
-    d->m_activeEngine->updateWatchData(data, flags);
+    else
+        d->m_activeEngine->updateWatchData(data, flags);
 }
 
 void QmlCppEngine::watchPoint(const QPoint &point)
