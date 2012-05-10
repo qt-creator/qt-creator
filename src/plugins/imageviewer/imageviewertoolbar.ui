@@ -105,6 +105,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QToolButton" name="toolButtonPlayPause">
+     <property name="toolTip">
+      <string>Pause Animation</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="Utils::StyledSeparator" name="widgetToolbarSeparator" native="true"/>
    </item>
    <item>
@@ -144,6 +151,7 @@
  </customwidgets>
  <resources>
   <include location="imageviewer.qrc"/>
+  <include location="../coreplugin/core.qrc"/>
  </resources>
  <connections/>
 </ui>

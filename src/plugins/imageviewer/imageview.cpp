@@ -45,6 +45,7 @@
 #include <QFile>
 #include <QWheelEvent>
 #include <QMouseEvent>
+#include <QMovie>
 #include <QGraphicsRectItem>
 #include <QPixmap>
 #ifndef QT_NO_SVG
@@ -53,7 +54,6 @@
 #include <QImageReader>
 #include <qmath.h>
 
-
 namespace ImageViewer {
 namespace Constants {
     const qreal DEFAULT_SCALE_FACTOR = 1.2;
@@ -61,13 +61,40 @@ namespace Constants {
 
 namespace Internal {
 
+class MovieItem : public QGraphicsPixmapItem
+{
+public:
+    MovieItem(QMovie *movie)
+        : m_movie(movie)
+    {
+        setPixmap(m_movie->currentPixmap());
+    }
+
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+    {
+        painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
+        painter->drawPixmap(offset(), m_movie->currentPixmap());
+    }
+
+private:
+    QMovie *m_movie;
+};
+
 struct ImageViewPrivate
 {
-    ImageViewPrivate() : imageItem(0), backgroundItem(0), outlineItem(0) {}
+    ImageViewPrivate()
+        : imageItem(0)
+        , backgroundItem(0)
+        , outlineItem(0)
+        , movie(0)
+        , moviePaused(true)
+    {}
+
     QGraphicsItem *imageItem;
     QGraphicsRectItem *backgroundItem;
     QGraphicsRectItem *outlineItem;
-    QSize naturalSize;
+    QMovie *movie;
+    bool moviePaused;
 };
 
 ImageView::ImageView(QWidget *parent)
@@ -121,7 +148,6 @@ bool ImageView::openFile(QString fileName)
     if (format.startsWith("svg"))
         isSvg = true;
 #endif
-
     QGraphicsScene *s = scene();
 
     bool drawBackground = (d->backgroundItem ? d->backgroundItem->isVisible() : false);
@@ -129,20 +155,31 @@ bool ImageView::openFile(QString fileName)
 
     s->clear();
     resetTransform();
+    delete d->movie;
+    d->movie = 0;
 
     // image
 #ifndef QT_NO_SVG
     if (isSvg) {
         d->imageItem = new QGraphicsSvgItem(fileName);
-        d->naturalSize = QSize();
+        emit imageSizeChanged(QSize());
     } else
 #endif
-    {
+    if (QMovie::supportedFormats().contains(format)) {
+        d->movie = new QMovie(fileName, QByteArray(), this);
+        d->movie->setCacheMode(QMovie::CacheAll);
+        connect(d->movie, SIGNAL(finished()), d->movie, SLOT(start()));
+        connect(d->movie, SIGNAL(updated(QRect)), this, SLOT(updatePixmap(QRect)));
+        connect(d->movie, SIGNAL(resized(QSize)), this, SLOT(pixmapResized(QSize)));
+        d->movie->start();
+        d->moviePaused = false;
+        d->imageItem = new MovieItem(d->movie);
+    } else {
         QPixmap pixmap(fileName);
         QGraphicsPixmapItem *pixmapItem = new QGraphicsPixmapItem(pixmap);
         pixmapItem->setTransformationMode(Qt::SmoothTransformation);
         d->imageItem = pixmapItem;
-        d->naturalSize = pixmap.size();
+        emit imageSizeChanged(pixmap.size());
     }
     d->imageItem->setCacheMode(QGraphicsItem::NoCache);
     d->imageItem->setZValue(0);
@@ -175,9 +212,23 @@ bool ImageView::openFile(QString fileName)
     return true;
 }
 
-QSize ImageView::imageSize() const
+bool ImageView::isAnimated() const
 {
-    return d->naturalSize;
+    return d->movie;
+}
+
+bool ImageView::isPaused() const
+{
+    return d->moviePaused;
+}
+
+void ImageView::setPaused(bool paused)
+{
+    if (!d->movie)
+        return;
+
+    d->movie->setPaused(paused);
+    d->moviePaused = paused;
 }
 
 void ImageView::setViewBackground(bool enable)
@@ -209,6 +260,17 @@ void ImageView::doScale(qreal factor)
 
     scale(actualFactor, actualFactor);
     emitScaleFactor();
+}
+
+void ImageView::updatePixmap(const QRect &rect)
+{
+    if (d->imageItem)
+        d->imageItem->update(rect);
+}
+
+void ImageView::pixmapResized(const QSize &size)
+{
+    emit imageSizeChanged(size);
 }
 
 void ImageView::wheelEvent(QWheelEvent *event)
@@ -245,6 +307,22 @@ void ImageView::emitScaleFactor()
     // get scale factor directly from the transform matrix
     qreal factor = transform().m11();
     emit scaleFactorChanged(factor);
+}
+
+void ImageView::showEvent(QShowEvent *)
+{
+    if (!d->movie)
+        return;
+
+    d->movie->setPaused(d->moviePaused);
+}
+
+void ImageView::hideEvent(QHideEvent *)
+{
+    if (!d->movie)
+        return;
+
+    d->movie->setPaused(true);
 }
 
 } // namespace Internal

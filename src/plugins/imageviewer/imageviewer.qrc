@@ -7,5 +7,7 @@
         <file>images/fitinscreen.png</file>
         <file>images/originalsize.png</file>
         <file>images/background.png</file>
+        <file>images/pause-small.png</file>
+        <file>images/play-small.png</file>
     </qresource>
 </RCC>

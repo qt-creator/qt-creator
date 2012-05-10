@@ -44,7 +44,6 @@
 #define IMAGEVIEW_H
 
 #include <QGraphicsView>
-#include <QScopedPointer>
 
 namespace ImageViewer {
 namespace Internal {
@@ -58,10 +57,13 @@ public:
     ~ImageView();
 
     bool openFile(QString fileName);
-    QSize imageSize() const;
+    bool isAnimated() const;
+    bool isPaused() const;
+    void setPaused(bool paused);
 
 signals:
     void scaleFactorChanged(qreal factor);
+    void imageSizeChanged(const QSize &size);
 
 public slots:
     void setViewBackground(bool enable);
@@ -74,9 +76,13 @@ public slots:
 private slots:
     void emitScaleFactor();
     void doScale(qreal factor);
+    void updatePixmap(const QRect &rect);
+    void pixmapResized(const QSize &size);
 
 protected:
     void drawBackground(QPainter *p, const QRectF &rect);
+    void hideEvent(QHideEvent *event);
+    void showEvent(QShowEvent *event);
     void wheelEvent(QWheelEvent *event);
 
 private:

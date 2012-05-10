@@ -101,6 +101,10 @@ ImageViewer::ImageViewer(QWidget *parent)
             d->imageView, SLOT(setViewBackground(bool)));
     connect(d->ui_toolbar.toolButtonOutline, SIGNAL(toggled(bool)),
             d->imageView, SLOT(setViewOutline(bool)));
+    connect(d->ui_toolbar.toolButtonPlayPause, SIGNAL(clicked()),
+            this, SLOT(playToggled()));
+    connect(d->imageView, SIGNAL(imageSizeChanged(QSize)),
+            this, SLOT(imageSizeUpdated(QSize)));
     connect(d->imageView, SIGNAL(scaleFactorChanged(qreal)),
             this, SLOT(scaleFactorUpdate(qreal)));
 }
@@ -126,11 +130,8 @@ bool ImageViewer::open(QString *errorString, const QString &fileName, const QStr
     }
     setDisplayName(QFileInfo(fileName).fileName());
     d->file->setFileName(fileName);
-    const QSize imageSize = d->imageView->imageSize();
-    QString imageSizeText;
-    if (imageSize.isValid())
-        imageSizeText = QString::fromLatin1("%1x%2").arg(imageSize.width()).arg(imageSize.height());
-    d->ui_toolbar.labelImageSize->setText(imageSizeText);
+    d->ui_toolbar.toolButtonPlayPause->setVisible(d->imageView->isAnimated());
+    setPaused(!d->imageView->isAnimated());
     // d_ptr->file->setMimeType
     emit changed();
     return true;
@@ -199,6 +200,14 @@ QWidget *ImageViewer::toolBar()
     return d->toolbar;
 }
 
+void ImageViewer::imageSizeUpdated(const QSize &size)
+{
+    QString imageSizeText;
+    if (size.isValid())
+        imageSizeText = QString::fromLatin1("%1x%2").arg(size.width()).arg(size.height());
+    d->ui_toolbar.labelImageSize->setText(imageSizeText);
+}
+
 void ImageViewer::scaleFactorUpdate(qreal factor)
 {
     const QString info = QString::number(factor * 100, 'f', 2) + QLatin1Char('%');
@@ -246,6 +255,29 @@ void ImageViewer::resetToOriginalSize()
 void ImageViewer::fitToScreen()
 {
     d->ui_toolbar.toolButtonFitToScreen->click();
+}
+
+void ImageViewer::togglePlay()
+{
+    d->ui_toolbar.toolButtonPlayPause->click();
+}
+
+void ImageViewer::playToggled()
+{
+    bool paused = d->imageView->isPaused();
+    setPaused(!paused);
+}
+
+void ImageViewer::setPaused(bool paused)
+{
+    d->imageView->setPaused(paused);
+    if (paused) {
+        d->ui_toolbar.toolButtonPlayPause->setToolTip(tr("Play Animation"));
+        d->ui_toolbar.toolButtonPlayPause->setIcon(QPixmap(QLatin1String(":/imageviewer/images/play-small.png")));
+    } else {
+        d->ui_toolbar.toolButtonPlayPause->setToolTip(tr("Pause Animation"));
+        d->ui_toolbar.toolButtonPlayPause->setIcon(QPixmap(QLatin1String(":/imageviewer/images/pause-small.png")));
+    }
 }
 
 } // namespace Internal

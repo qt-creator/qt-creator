@@ -78,6 +78,7 @@ public:
     QWidget *toolBar();
 
 public slots:
+    void imageSizeUpdated(const QSize &size);
     void scaleFactorUpdate(qreal factor);
 
     void switchViewBackground();
@@ -86,6 +87,10 @@ public slots:
     void zoomOut();
     void resetToOriginalSize();
     void fitToScreen();
+    void togglePlay();
+
+private slots:
+    void playToggled();
 
 private:
     /*!
@@ -95,6 +100,7 @@ private:
       \return true if icon is updated, false otherwise
      */
     bool updateButtonIconByTheme(QAbstractButton *button, const QString &name);
+    void setPaused(bool paused);
 
 private:
     struct ImageViewerPrivate *d;
