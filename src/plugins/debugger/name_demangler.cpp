@@ -70,7 +70,7 @@ public:
     NameDemanglerPrivate();
     ~NameDemanglerPrivate();
 
-    bool demangle(const QString &mangledName);
+    bool demangle(const QString &m_mangledName);
     const QString &errorString() const { return m_errorString; }
     const QString &demangledName() const { return m_demangledName; }
 
@@ -247,12 +247,12 @@ private:
     void insertQualifier(QByteArray &type, const QByteArray &qualifier);
 
     static const char eoi;
-    int pos;
-    QByteArray mangledName;
+    int m_pos;
+    QByteArray m_mangledName;
     QString m_errorString;
     QString m_demangledName;
-    QList<QByteArray> substitutions;
-    QList<QByteArray> templateParams;
+    QList<QByteArray> m_substitutions;
+    QList<QByteArray> m_templateParams;
 
     QMap<QByteArray, Operator *> ops;
 
@@ -309,17 +309,17 @@ NameDemanglerPrivate::~NameDemanglerPrivate()
 bool NameDemanglerPrivate::demangle(const QString &mangledName)
 {
     try {
-        this->mangledName = mangledName.toAscii();
-        pos = 0;
+        m_mangledName = mangledName.toAscii();
+        m_pos = 0;
         m_demangledName.clear();
-        substitutions.clear();
-        templateParams.clear();
+        m_substitutions.clear();
+        m_templateParams.clear();
         m_demangledName = parseMangledName();
         m_demangledName.replace(
                     QRegExp(QLatin1String("([^a-zA-Z\\d>)])::")), QLatin1String("\\1"));
         if (m_demangledName.startsWith(QLatin1String("::")))
             m_demangledName.remove(0, 2);
-        if (pos != mangledName.size())
+        if (m_pos != mangledName.size())
             throw ParseException(QLatin1String("Unconsumed input"));
 #ifdef DO_TRACE
         qDebug("%d", substitutions.size());
@@ -329,7 +329,7 @@ bool NameDemanglerPrivate::demangle(const QString &mangledName)
         return true;
     } catch (const ParseException &p) {
         m_errorString = QString::fromLocal8Bit("Parse error at index %1 of mangled name '%2': %3.")
-                .arg(pos).arg(mangledName, p.error);
+                .arg(m_pos).arg(mangledName, p.error);
         return false;
     }
 }
@@ -345,8 +345,8 @@ const QByteArray NameDemanglerPrivate::parseMangledName()
     FUNC_START();
     QByteArray name;
     if (readAhead(2) != "_Z") {
-        name = mangledName;
-        advance(mangledName.size());
+        name = m_mangledName;
+        advance(m_mangledName.size());
     } else {
         advance(2);
         name = parseEncoding();
@@ -410,7 +410,7 @@ const QByteArray NameDemanglerPrivate::parseEncoding()
         } else {
             addSubstitution(encoding);
         }
-        templateParams.clear();
+        m_templateParams.clear();
     } else if (firstSetSpecialName.contains(next)) {
         encoding = parseSpecialName();
     } else {
@@ -649,7 +649,7 @@ const QByteArray NameDemanglerPrivate::parseTemplateParam()
         index = parseNonNegativeNumber() + 1;
     if (advance() != '_')
         throw ParseException(QString::fromLatin1("Invalid template-param"));
-    param = templateParams.at(index);
+    param = m_templateParams.at(index);
 
     FUNC_END(param);
     return param;
@@ -706,12 +706,12 @@ int NameDemanglerPrivate::parseNonNegativeNumber(int base)
 {
     FUNC_START();
 
-    int startPos = pos;
+    int startPos = m_pos;
     while (std::isdigit(peek()))
         advance();
-    if (pos == startPos)
+    if (m_pos == startPos)
         throw ParseException(QString::fromLatin1("Invalid non-negative number"));
-    const int number = mangledName.mid(startPos, pos - startPos).toInt(0, base);
+    const int number = m_mangledName.mid(startPos, m_pos - startPos).toInt(0, base);
 
     FUNC_END(QString::number(number));
     return number;
@@ -779,7 +779,7 @@ const QByteArray NameDemanglerPrivate::parseTemplateArg()
         throw ParseException(QString::fromLatin1("Invalid template-arg"));
     }
 
-    templateParams.append(arg);
+    m_templateParams.append(arg);
     FUNC_END(arg);
     return arg;
 }
@@ -1495,45 +1495,45 @@ const QByteArray NameDemanglerPrivate::parseSubstitution()
 
     if (firstSetSeqId.contains(peek())) {
         int substIndex = parseSeqId() + 1;
-        if (substIndex >= substitutions.size()) {
+        if (substIndex >= m_substitutions.size()) {
             throw ParseException(QString::fromLatin1("Invalid substitution: element %1 was requested, "
                      "but there are only %2").
-                  arg(substIndex + 1).arg(substitutions.size()));
+                  arg(substIndex + 1).arg(m_substitutions.size()));
         }
-        substitution = substitutions.at(substIndex);
+        substitution = m_substitutions.at(substIndex);
         if (advance() != '_')
             throw ParseException(QString::fromLatin1("Invalid substitution"));
     } else {
         switch (advance()) {
-            case '_':
-                if (substitutions.isEmpty())
-                    throw ParseException(QString::fromLatin1("Invalid substitution: There are no elements"));
-                substitution = substitutions.first();
-                break;
-            case 't':
-                substitution = "::std::";
-                break;
-            case 'a':
-                substitution = "::std::allocator";
-                break;
-            case 'b':
-                substitution = "::std::basic_string";
-                break;
-            case 's':
-                substitution = "::std::basic_string<char, ::std::char_traits<char>, "
-                        "::std::allocator<char> >";
-                break;
-            case 'i':
-                substitution = "::std::basic_istream<char, std::char_traits<char> >";
-                break;
-            case 'o':
-                substitution = "::std::basic_ostream<char, std::char_traits<char> >";
-                break;
-            case 'd':
-                substitution = "::std::basic_iostream<char, std::char_traits<char> >";
-                break;
-            default:
-                throw ParseException(QString::fromLatin1("Invalid substitution"));
+        case '_':
+            if (m_substitutions.isEmpty())
+                throw ParseException(QString::fromLatin1("Invalid substitution: There are no elements"));
+            substitution = m_substitutions.first();
+            break;
+        case 't':
+            substitution = "::std::";
+            break;
+        case 'a':
+            substitution = "::std::allocator";
+            break;
+        case 'b':
+            substitution = "::std::basic_string";
+            break;
+        case 's':
+            substitution = "::std::basic_string<char, ::std::char_traits<char>, "
+                    "::std::allocator<char> >";
+            break;
+        case 'i':
+            substitution = "::std::basic_istream<char, std::char_traits<char> >";
+            break;
+        case 'o':
+            substitution = "::std::basic_ostream<char, std::char_traits<char> >";
+            break;
+        case 'd':
+            substitution = "::std::basic_iostream<char, std::char_traits<char> >";
+            break;
+        default:
+            throw ParseException(QString::fromLatin1("Invalid substitution"));
         }
     }
 
@@ -1695,23 +1695,23 @@ const QByteArray NameDemanglerPrivate::parseCtorDtorName()
     QByteArray name;
     bool destructor = false;
     switch (advance()) {
-        case 'C':
-            switch (advance()) {
-                case '1': case '2': case '3': break;
-                default: throw ParseException(QString::fromLatin1("Invalid ctor-dtor-name"));
-            }
-            break;
-        case 'D':
-            switch (advance()) {
-                case '0': case '1': case '2': destructor = true; break;
-                default: throw ParseException(QString::fromLatin1("Invalid ctor-dtor-name"));
-            }
-            break;
-        default:
-            throw ParseException(QString::fromLatin1("Invalid ctor-dtor-name"));
+    case 'C':
+        switch (advance()) {
+        case '1': case '2': case '3': break;
+        default: throw ParseException(QString::fromLatin1("Invalid ctor-dtor-name"));
+        }
+        break;
+    case 'D':
+        switch (advance()) {
+        case '0': case '1': case '2': destructor = true; break;
+        default: throw ParseException(QString::fromLatin1("Invalid ctor-dtor-name"));
+        }
+        break;
+    default:
+        throw ParseException(QString::fromLatin1("Invalid ctor-dtor-name"));
     }
 
-    name = substitutions.last();
+    name = m_substitutions.last();
     int templateArgsStart = name.indexOf('<');
     if (templateArgsStart != -1)
         name.remove(templateArgsStart,
@@ -1731,7 +1731,7 @@ const QByteArray NameDemanglerPrivate::parseIdentifier(int len)
 {
     FUNC_START();
 
-    const QByteArray id = mangledName.mid(pos, len);
+    const QByteArray id = m_mangledName.mid(m_pos, len);
     advance(len);
 
     FUNC_END(id);
@@ -1747,14 +1747,9 @@ void NameDemanglerPrivate::parseCallOffset()
     FUNC_START();
 
     switch (advance()) {
-        case 'h':
-            parseNvOffset();
-            break;
-        case 'v':
-            parseVOffset();
-            break;
-        default:
-            throw ParseException(QString::fromLatin1("Invalid call-offset"));
+    case 'h': parseNvOffset(); break;
+    case 'v': parseVOffset(); break;
+    default: throw ParseException(QString::fromLatin1("Invalid call-offset"));
     }
     if (advance() != '_')
         throw ParseException(QString::fromLatin1("Invalid call-offset"));
@@ -1800,29 +1795,29 @@ int NameDemanglerPrivate::parseDigit()
 
 char NameDemanglerPrivate::peek(int ahead)
 {
-    Q_ASSERT(pos >= 0);
+    Q_ASSERT(m_pos >= 0);
 
-    if (pos + ahead < mangledName.size())
-        return mangledName[pos + ahead];
+    if (m_pos + ahead < m_mangledName.size())
+        return m_mangledName[m_pos + ahead];
     return eoi;
 }
 
 char NameDemanglerPrivate::advance(int steps)
 {
     Q_ASSERT(steps > 0);
-    if (pos + steps > mangledName.size())
+    if (m_pos + steps > m_mangledName.size())
         throw ParseException(QLatin1String("Unexpected end of input"));
 
-    const char c = mangledName[pos];
-    pos += steps;
+    const char c = m_mangledName[m_pos];
+    m_pos += steps;
     return c;
 }
 
 const QByteArray NameDemanglerPrivate::readAhead(int charCount)
 {
     QByteArray str;
-    if (pos + charCount < mangledName.size())
-        str = mangledName.mid(pos, charCount);
+    if (m_pos + charCount < m_mangledName.size())
+        str = m_mangledName.mid(m_pos, charCount);
     else
         str.fill(eoi, charCount);
     return str;
@@ -1954,8 +1949,8 @@ void NameDemanglerPrivate::setupOps()
 
 void NameDemanglerPrivate::addSubstitution(const QByteArray &symbol)
 {
-    if (!symbol.isEmpty() && !substitutions.contains(symbol))
-        substitutions.append(symbol);
+    if (!symbol.isEmpty() && !m_substitutions.contains(symbol))
+        m_substitutions.append(symbol);
 }
 
 void NameDemanglerPrivate::insertQualifier(QByteArray &type, const QByteArray &qualifier)
@@ -2014,28 +2009,27 @@ void NameDemanglerPrivate::insertQualifier(QByteArray &type, const QByteArray &q
     type.insert(insertionPos, insertionString);
 }
 
-NameDemangler::NameDemangler() : pImpl(new NameDemanglerPrivate) { }
+NameDemangler::NameDemangler() : d(new NameDemanglerPrivate) { }
 
 NameDemangler::~NameDemangler()
 {
-    delete pImpl;
+    delete d;
 }
 
 bool NameDemangler::demangle(const QString &mangledName)
 {
-    return pImpl->demangle(mangledName);
+    return d->demangle(mangledName);
 }
 
-const QString &NameDemangler::errorString() const
+QString NameDemangler::errorString() const
 {
-    return pImpl->errorString();
+    return d->errorString();
 }
 
-const QString &NameDemangler::demangledName() const
+QString NameDemangler::demangledName() const
 {
-    return pImpl->demangledName();
+    return d->demangledName();
 }
 
 } // namespace Internal
 } // namespace Debugger
-

@@ -62,17 +62,17 @@ public:
      * A textual description of the error encountered, if there was one.
      * Only valid if demangle() returned false.
      */
-    const QString &errorString() const;
+    QString errorString() const;
 
     /*
      * The demangled name. If the original name was not mangled, this
      * is identical to the input.
      * Only valid if demangle() returned true.
      */
-    const QString &demangledName() const;
+    QString demangledName() const;
 
 private:
-    NameDemanglerPrivate *pImpl;
+    NameDemanglerPrivate *d;
 };
 
 } // namespace Internal
