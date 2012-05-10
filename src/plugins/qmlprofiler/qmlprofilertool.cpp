@@ -167,7 +167,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     connect(d->m_profilerConnections, SIGNAL(dataReadyForProcessing()), d->m_profilerDataModel, SLOT(complete()));
 
 
-    d->m_detailsRewriter = new QmlProfilerDetailsRewriter(this);
+    d->m_detailsRewriter = new QmlProfilerDetailsRewriter(this, &d->m_projectFinder);
     connect(d->m_profilerDataModel, SIGNAL(requestDetailsForLocation(int,QmlDebug::QmlEventLocation)),
             d->m_detailsRewriter, SLOT(requestDetailsForLocation(int,QmlDebug::QmlEventLocation)));
     connect(d->m_detailsRewriter, SIGNAL(rewriteDetailsString(int,QmlDebug::QmlEventLocation,QString)),
@@ -286,21 +286,7 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
         projectDirectory = project->projectDirectory();
     }
 
-    // get files from all the projects in the session
-    QStringList sourceFiles;
-    SessionManager *sessionManager = ProjectExplorerPlugin::instance()->session();
-    QList<Project *> projects = sessionManager->projects();
-    if (Project *startupProject = ProjectExplorerPlugin::instance()->startupProject()) {
-        // startup project first
-        projects.removeOne(ProjectExplorerPlugin::instance()->startupProject());
-        projects.insert(0, startupProject);
-    }
-    foreach (Project *project, projects)
-        sourceFiles << project->files(Project::ExcludeGeneratedFiles);
-
-    d->m_projectFinder.setProjectDirectory(projectDirectory);
-    d->m_projectFinder.setProjectFiles(sourceFiles);
-    d->m_projectFinder.setSysroot(sp.sysroot);
+    populateFileFinder(projectDirectory, sp.sysroot);
 
     connect(engine, SIGNAL(processRunning(quint16)), d->m_profilerConnections, SLOT(connectClient(quint16)));
     connect(d->m_profilerConnections, SIGNAL(connectionFailed()), engine, SLOT(cancelProcess()));
@@ -431,7 +417,42 @@ QWidget *QmlProfilerTool::createWidgets()
 
     toolbarWidget->setLayout(layout);
 
+    // When the widgets are requested we assume that the session data
+    // is available, then we can populate the file finder
+    populateFileFinder();
+
     return toolbarWidget;
+}
+
+void QmlProfilerTool::populateFileFinder(QString projectDirectory, QString activeSysroot)
+{
+    // Initialize filefinder with some sensible default
+    QStringList sourceFiles;
+    SessionManager *sessionManager = ProjectExplorerPlugin::instance()->session();
+    QList<Project *> projects = sessionManager->projects();
+    if (Project *startupProject = ProjectExplorerPlugin::instance()->startupProject()) {
+        // startup project first
+        projects.removeOne(ProjectExplorerPlugin::instance()->startupProject());
+        projects.insert(0, startupProject);
+    }
+    foreach (Project *project, projects)
+        sourceFiles << project->files(Project::ExcludeGeneratedFiles);
+
+    if (!projects.isEmpty()) {
+        if (projectDirectory.isEmpty()) {
+            projectDirectory = projects.first()->projectDirectory();
+        }
+
+        if (activeSysroot.isEmpty()) {
+            if (Target *target = projects.first()->activeTarget())
+                if (RunConfiguration *rc = target->activeRunConfiguration())
+                    activeSysroot = sysroot(rc);
+        }
+    }
+
+    d->m_projectFinder.setProjectDirectory(projectDirectory);
+    d->m_projectFinder.setProjectFiles(sourceFiles);
+    d->m_projectFinder.setSysroot(activeSysroot);
 }
 
 void QmlProfilerTool::recordingButtonChanged(bool recording)

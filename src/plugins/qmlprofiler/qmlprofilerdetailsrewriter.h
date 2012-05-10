@@ -37,6 +37,7 @@
 
 #include <qmldebug/qmlprofilereventlocation.h>
 #include <qmljs/qmljsdocument.h>
+#include <utils/fileinprojectfinder.h>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -45,7 +46,7 @@ class QmlProfilerDetailsRewriter : public QObject
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerDetailsRewriter(QObject *parent);
+    explicit QmlProfilerDetailsRewriter(QObject *parent, Utils::FileInProjectFinder *fileFinder);
     ~QmlProfilerDetailsRewriter();
 
 private:

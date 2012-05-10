@@ -104,6 +104,7 @@ private slots:
 
 private:
     void clearDisplay();
+    void populateFileFinder(QString projectDirectory = QString(), QString activeSysroot = QString());
 
     class QmlProfilerToolPrivate;
     QmlProfilerToolPrivate *d;

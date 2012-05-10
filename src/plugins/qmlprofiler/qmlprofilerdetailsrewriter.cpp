@@ -104,17 +104,21 @@ protected:
 class QmlProfilerDetailsRewriter::QmlProfilerDetailsRewriterPrivate
 {
 public:
-    QmlProfilerDetailsRewriterPrivate(QmlProfilerDetailsRewriter *qq) : q(qq) {}
+    QmlProfilerDetailsRewriterPrivate(QmlProfilerDetailsRewriter *qq,
+                                      Utils::FileInProjectFinder *fileFinder)
+                                      : m_projectFinder(fileFinder), q(qq) {}
     ~QmlProfilerDetailsRewriterPrivate() {}
 
     QList <PendingEvent> m_pendingEvents;
     QStringList m_pendingDocs;
+    Utils::FileInProjectFinder *m_projectFinder;
 
     QmlProfilerDetailsRewriter *q;
 };
 
-QmlProfilerDetailsRewriter::QmlProfilerDetailsRewriter(QObject *parent) : QObject(parent),
-    d(new QmlProfilerDetailsRewriterPrivate(this))
+QmlProfilerDetailsRewriter::QmlProfilerDetailsRewriter(
+        QObject *parent, Utils::FileInProjectFinder *fileFinder)
+    : QObject(parent), d(new QmlProfilerDetailsRewriterPrivate(this, fileFinder))
 { }
 
 QmlProfilerDetailsRewriter::~QmlProfilerDetailsRewriter()
@@ -125,8 +129,10 @@ QmlProfilerDetailsRewriter::~QmlProfilerDetailsRewriter()
 void QmlProfilerDetailsRewriter::requestDetailsForLocation(int type,
         const QmlDebug::QmlEventLocation &location)
 {
-    QString localFile = QUrl(location.filename).toLocalFile();
-
+    const QString localFile = d->m_projectFinder->findFile(location.filename);
+    QFileInfo fileInfo(localFile);
+    if (!fileInfo.exists() || !fileInfo.isReadable())
+        return;
     if (QmlJSTools::languageOfFile(localFile) != QmlJS::Document::QmlLanguage)
         return;
 
@@ -157,7 +163,8 @@ void QmlProfilerDetailsRewriter::rewriteDetailsForLocation(QTextStream &textDoc,
     PropertyVisitor propertyVisitor;
     QmlJS::AST::Node *node = propertyVisitor(doc->ast(), location.line, location.column);
 
-    QTC_ASSERT(node, return);
+    if (!node)
+        return;
 
     qint64 startPos = node->firstSourceLocation().begin();
     qint64 len = node->lastSourceLocation().end() - startPos;
