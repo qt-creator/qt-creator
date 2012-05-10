@@ -89,6 +89,9 @@ public:
 
     void setEngineClient(QmlDebug::BaseEngineDebugClient *client);
 
+public slots:
+    void fetchContextObjectsForLocation(const QString &file,
+                                         int lineNumber, int columnNumber);
 signals:
     void objectTreeUpdated();
     void objectFetched(const QmlDebug::ObjectReference &ref);

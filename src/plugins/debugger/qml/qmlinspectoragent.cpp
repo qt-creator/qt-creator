@@ -399,10 +399,22 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
         rootContextChanged(qvariant_cast<ContextReference>(value));
     } else if (m_fetchCurrentObjectsQueryIds.contains(queryId)) {
         m_fetchCurrentObjectsQueryIds.removeOne(queryId);
-        ObjectReference obj
-                = qvariant_cast<ObjectReference>(value);
-        m_fetchCurrentObjects.push_front(obj);
-        onCurrentObjectsFetched(obj);
+        if (value.type() == QVariant::List) {
+            QVariantList objList = value.toList();
+            foreach (QVariant var, objList) {
+                // TODO: check which among the list is the actual
+                // object that needs to be selected.
+                ObjectReference obj
+                        = qvariant_cast<ObjectReference>(var);
+                m_fetchCurrentObjects.push_front(obj);
+                onCurrentObjectsFetched(obj);
+            }
+        } else {
+            ObjectReference obj
+                    = qvariant_cast<ObjectReference>(value);
+            m_fetchCurrentObjects.push_front(obj);
+            onCurrentObjectsFetched(obj);
+        }
     } else {
         emit expressionResult(queryId, value);
     }
@@ -467,6 +479,30 @@ quint32 QmlInspectorAgent::fetchContextObject(const ObjectReference &obj)
         qDebug() << __FUNCTION__ << "(" << obj.debugId() << ")"
                  << " - query id" << queryId;
     return queryId;
+}
+
+void QmlInspectorAgent::fetchContextObjectsForLocation(const QString &file,
+                                     int lineNumber, int columnNumber)
+{
+    // This can be an expensive operation as it may return multiple
+    // objects. Use fetchContextObject() where possible.
+    if (debug)
+        qDebug() << __FUNCTION__ << "(" << file << ":" << lineNumber
+                 << ":" << columnNumber << ")";
+
+    if (!isConnected()
+            || !debuggerCore()->boolSetting(ShowQmlObjectTree))
+        return;
+
+    log(LogSend, QString("FETCH_OBJECTS_FOR_LOCATION %1:%2:%3").arg(file)
+        .arg(QString::number(lineNumber)).arg(QString::number(columnNumber)));
+    quint32 queryId = m_engineClient->queryObjectsForLocation(QFileInfo(file).fileName(),
+                                                             lineNumber, columnNumber);
+    if (debug)
+        qDebug() << __FUNCTION__ << "(" << file << ":" << lineNumber
+                 << ":" << columnNumber << ")" << " - query id" << queryId;
+
+    m_fetchCurrentObjectsQueryIds << queryId;
 }
 
 // fetch the root objects from the context + any child contexts

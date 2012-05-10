@@ -965,12 +965,12 @@ protected:
 
 void QmlJSTextEditorWidget::setSelectedElements()
 {
-    if (!receivers(SIGNAL(selectedElementsChanged(QList<int>,QString))))
+    if (!receivers(SIGNAL(selectedElementsChanged(QList<QmlJS::AST::UiObjectMember*>,QString))))
         return;
 
     QTextCursor tc = textCursor();
     QString wordAtCursor;
-    QList<int> offsets;
+    QList<UiObjectMember *> offsets;
 
     unsigned startPos;
     unsigned endPos;
@@ -992,7 +992,7 @@ void QmlJSTextEditorWidget::setSelectedElements()
                                                           startPos, endPos);
         if (!members.isEmpty()) {
             foreach(UiObjectMember *m, members) {
-                offsets << m->firstSourceLocation().begin();
+                offsets << m;
             }
         }
     }

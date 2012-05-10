@@ -139,6 +139,19 @@ void BaseEngineDebugClient::decode(QDataStream &ds,
 }
 
 void BaseEngineDebugClient::decode(QDataStream &ds,
+                                   QVariantList &o,
+                                   bool simple)
+{
+    int count;
+    ds >> count;
+    for (int i = 0; i < count; i++) {
+        ObjectReference obj;
+        decode(ds, obj, simple);
+        o << QVariant::fromValue(obj);
+    }
+}
+
+void BaseEngineDebugClient::decode(QDataStream &ds,
                                    ContextReference &c)
 {
     ds >> c.m_name >> c.m_debugId;
@@ -202,6 +215,11 @@ void BaseEngineDebugClient::messageReceived(const QByteArray &data)
         if (!ds.atEnd())
             decode(ds, object, false);
         emit result(queryId, QVariant::fromValue(object), type);
+    } else if (type == "FETCH_OBJECTS_FOR_LOCATION_R") {
+        QVariantList objects;
+        if (!ds.atEnd())
+            decode(ds, objects, false);
+        emit result(queryId, objects, type);
     } else if (type == "EVAL_EXPRESSION_R") {;
         QVariant exprResult;
         ds >> exprResult;
@@ -408,6 +426,22 @@ quint32 BaseEngineDebugClient::setMethodBody(
         QDataStream ds(&message, QIODevice::WriteOnly);
         ds << QByteArray("SET_METHOD_BODY") << objectDebugId
            << methodName << methodBody;
+        sendMessage(message);
+    }
+    return id;
+}
+
+quint32 BaseEngineDebugClient::queryObjectsForLocation(
+        const QString &fileName, int lineNumber, int columnNumber)
+{
+    quint32 id = 0;
+    if (status() == Enabled) {
+        id = getId();
+        QByteArray message;
+        QDataStream ds(&message, QIODevice::WriteOnly);
+        ds << QByteArray("FETCH_OBJECTS_FOR_LOCATION") << id <<
+              fileName << lineNumber << columnNumber << false <<
+              true;
         sendMessage(message);
     }
     return id;

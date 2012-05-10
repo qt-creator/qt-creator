@@ -364,6 +364,7 @@ void QmlInspectorAdapter::createPreviewForEditor(Core::IEditor *newEditor)
         connect(preview,
                 SIGNAL(selectedItemsChanged(QList<int>)),
                 SLOT(selectObjectsFromEditor(QList<int>)));
+
         preview->setApplyChangesToQmlInspector(
                     debuggerCore()->action(QmlUpdateOnSave)->isChecked());
 

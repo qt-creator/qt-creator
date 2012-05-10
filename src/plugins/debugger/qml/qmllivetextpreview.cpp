@@ -362,6 +362,10 @@ QmlLiveTextPreview::QmlLiveTextPreview(const QmlJS::Document::Ptr &doc,
 
     connect(m_inspectorAdapter->agent(), SIGNAL(objectTreeUpdated()),
             SLOT(updateDebugIds()));
+    connect(this,
+            SIGNAL(fetchObjectsForLocation(QString,int,int)),
+            m_inspectorAdapter->agent(),
+            SLOT(fetchContextObjectsForLocation(QString,int,int)));
 }
 
 void QmlLiveTextPreview::associateEditor(Core::IEditor *editor)
@@ -380,8 +384,8 @@ void QmlLiveTextPreview::associateEditor(Core::IEditor *editor)
             m_editors << editWidget;
             if (m_inspectorAdapter)
                 connect(editWidget,
-                        SIGNAL(selectedElementsChanged(QList<int>,QString)),
-                        SLOT(changeSelectedElements(QList<int>,QString)));
+                        SIGNAL(selectedElementsChanged(QList<QmlJS::AST::UiObjectMember*>,QString)),
+                        SLOT(changeSelectedElements(QList<QmlJS::AST::UiObjectMember*>,QString)));
         }
     }
 }
@@ -509,12 +513,27 @@ void QmlLiveTextPreview::updateDebugIds()
         changeSelectedElements(m_lastOffsets, QString());
 }
 
-void QmlLiveTextPreview::changeSelectedElements(QList<int> offsets,
+void QmlLiveTextPreview::changeSelectedElements(const QList<QmlJS::AST::UiObjectMember*> offsetObjects,
                                                 const QString &wordAtCursor)
 {
     if (m_editors.isEmpty() || !m_previousDoc)
         return;
 
+    QList<int> offsets;
+    foreach (QmlJS::AST::UiObjectMember *member, offsetObjects)
+        offsets << member->firstSourceLocation().offset;
+
+    if (!changeSelectedElements(offsets, wordAtCursor) && m_initialDoc && offsetObjects.count()) {
+        m_updateNodeForOffset = true;
+        emit fetchObjectsForLocation(m_initialDoc->fileName(),
+                                     offsetObjects.first()->firstSourceLocation().startLine,
+                                     offsetObjects.first()->firstSourceLocation().startColumn);
+    }
+}
+
+bool QmlLiveTextPreview::changeSelectedElements(const QList<int> offsets,
+                                                const QString &wordAtCursor)
+{
     m_updateNodeForOffset = false;
     m_lastOffsets = offsets;
     ObjectReference objectRefUnderCursor;
@@ -549,8 +568,10 @@ void QmlLiveTextPreview::changeSelectedElements(QList<int> offsets,
         selectedReferences << objectRefUnderCursor.debugId();
     }
 
-    if (!selectedReferences.isEmpty())
-        emit selectedItemsChanged(selectedReferences);
+    if (selectedReferences.isEmpty())
+        return false;
+    emit selectedItemsChanged(selectedReferences);
+    return true;
 }
 
 void QmlLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)

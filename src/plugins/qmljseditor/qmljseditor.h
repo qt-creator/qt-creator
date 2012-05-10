@@ -57,6 +57,9 @@ namespace QmlJS {
     class ModelManagerInterface;
     class IContextPane;
     class LookupContext;
+namespace AST {
+    class UiObjectMember;
+}
 }
 
 /*!
@@ -127,7 +130,8 @@ public slots:
 
 signals:
     void outlineModelIndexChanged(const QModelIndex &index);
-    void selectedElementsChanged(QList<int> offsets, const QString &wordAtCursor);
+    void selectedElementsChanged(QList<QmlJS::AST::UiObjectMember*> offsets,
+                                 const QString &wordAtCursor);
     void semanticInfoUpdated();
 
 private slots:

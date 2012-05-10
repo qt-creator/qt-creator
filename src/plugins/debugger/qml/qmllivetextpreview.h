@@ -68,13 +68,16 @@ public:
 
 signals:
     void selectedItemsChanged(const QList<int> &debugIds);
+    void fetchObjectsForLocation(const QString &file,
+                                         int lineNumber, int columnNumber);
 
 public slots:
     void setApplyChangesToQmlInspector(bool applyChanges);
     void updateDebugIds();
 
 private slots:
-    void changeSelectedElements(QList<int> offsets, const QString &wordAtCursor);
+    void changeSelectedElements(const QList<QmlJS::AST::UiObjectMember *> offsets,
+                                const QString &wordAtCursor);
     void documentChanged(QmlJS::Document::Ptr doc);
 
 private:
@@ -84,6 +87,7 @@ private:
         ElementChangeWarning
     };
 
+    bool changeSelectedElements(const QList<int> offsets, const QString &wordAtCursor);
     QList<int> objectReferencesForOffset(quint32 offset);
     void showSyncWarning(UnsyncronizableChangeType unsyncronizableChangeType,
                          const QString &elementName,

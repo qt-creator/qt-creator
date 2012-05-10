@@ -76,6 +76,9 @@ public:
     virtual quint32 setMethodBody(int objectDebugId, const QString &methodName,
                           const QString &methodBody);
 
+    virtual quint32 queryObjectsForLocation(const QString &fileName, int lineNumber,
+                                            int columnNumber);
+
 signals:
     void newStatus(QmlDebug::ClientStatus status);
     void newObjects();
@@ -91,6 +94,7 @@ protected:
 
     void decode(QDataStream &d, ContextReference &context);
     void decode(QDataStream &d, ObjectReference &object, bool simple);
+    void decode(QDataStream &d, QVariantList &object, bool simple);
 
 private:
     quint32 m_nextId;
