@@ -195,16 +195,16 @@ void QmlAdapter::checkConnectionState()
 void QmlAdapter::createDebuggerClients()
 {
     QScriptDebuggerClient *debugClient1 = new QScriptDebuggerClient(m_conn);
-    connect(debugClient1, SIGNAL(newStatus(QmlDebug::Status)),
-            this, SLOT(clientStatusChanged(QmlDebug::Status)));
-    connect(debugClient1, SIGNAL(newStatus(QmlDebug::Status)),
-            this, SLOT(debugClientStatusChanged(QmlDebug::Status)));
+    connect(debugClient1, SIGNAL(newStatus(QmlDebug::ClientStatus)),
+            this, SLOT(clientStatusChanged(QmlDebug::ClientStatus)));
+    connect(debugClient1, SIGNAL(newStatus(QmlDebug::ClientStatus)),
+            this, SLOT(debugClientStatusChanged(QmlDebug::ClientStatus)));
 
     QmlV8DebuggerClient *debugClient2 = new QmlV8DebuggerClient(m_conn);
-    connect(debugClient2, SIGNAL(newStatus(QmlDebug::Status)),
-            this, SLOT(clientStatusChanged(QmlDebug::Status)));
-    connect(debugClient2, SIGNAL(newStatus(QmlDebug::Status)),
-            this, SLOT(debugClientStatusChanged(QmlDebug::Status)));
+    connect(debugClient2, SIGNAL(newStatus(QmlDebug::ClientStatus)),
+            this, SLOT(clientStatusChanged(QmlDebug::ClientStatus)));
+    connect(debugClient2, SIGNAL(newStatus(QmlDebug::ClientStatus)),
+            this, SLOT(debugClientStatusChanged(QmlDebug::ClientStatus)));
 
     m_debugClients.insert(debugClient1->name(),debugClient1);
     m_debugClients.insert(debugClient2->name(),debugClient2);
