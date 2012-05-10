@@ -192,6 +192,11 @@ void QmlAdapter::checkConnectionState()
     }
 }
 
+bool QmlAdapter::isConnected() const
+{
+    return m_conn && m_qmlClient && m_conn->state() == QAbstractSocket::ConnectedState;
+}
+
 void QmlAdapter::createDebuggerClients()
 {
     QScriptDebuggerClient *debugClient1 = new QScriptDebuggerClient(m_conn);
@@ -211,11 +216,6 @@ void QmlAdapter::createDebuggerClients()
 
     debugClient1->setEngine((QmlEngine*)(m_engine.data()));
     debugClient2->setEngine((QmlEngine*)(m_engine.data()));
-}
-
-bool QmlAdapter::isConnected() const
-{
-    return m_conn && m_qmlClient && m_conn->state() == QAbstractSocket::ConnectedState;
 }
 
 QmlDebugConnection *QmlAdapter::connection() const

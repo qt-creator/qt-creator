@@ -68,8 +68,6 @@ public:
     void beginConnectionOst(const QString &port);
     void closeConnection();
 
-    bool isConnected() const;
-
     QmlDebug::QmlDebugConnection *connection() const;
     DebuggerEngine *debuggerEngine() const;
 
@@ -98,6 +96,7 @@ private slots:
     void checkConnectionState();
 
 private:
+    bool isConnected() const;
     void createDebuggerClients();
     void showConnectionStatusMessage(const QString &message);
     void showConnectionErrorMessage(const QString &message);
